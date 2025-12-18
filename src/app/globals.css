@@ -1,0 +1,163 @@
+@import "tailwindcss";
+@config "../../tailwind.config.ts";
+
+@layer base {
+    :root {
+        /* ========================================
+       UPDATED DESIGN SYSTEM - TRUE GRAY (Sat 0)
+       ======================================== */
+
+        /* --- BACKGROUNDS (Clean & Stark) --- */
+        --bg-background: #FAFAFA;
+        /* Neutral 50 */
+        --bg-surface: #FFFFFF;
+        /* White */
+        --bg-muted: #F5F5F5;
+        /* Neutral 100 */
+        --bg-hover: #F5F5F5;
+        /* Neutral 100 */
+        --bg-accent: #EFF6FF;
+        /* Blue 50 - Keep subtle blue tint for accents */
+
+        /* --- TEXT (High Contrast & Neutral) --- */
+        --text-primary: #0A0A0A;
+        /* Neutral 950 */
+        --text-secondary: #737373;
+        /* Neutral 500 */
+        --text-muted: #A3A3A3;
+        /* Neutral 400 */
+        --text-placeholder: #A3A3A3;
+        /* Neutral 400 */
+        --text-disabled: #D4D4D4;
+        /* Neutral 300 */
+        --text-inverse: #FFFFFF;
+        /* White */
+
+        /* --- BORDERS (Crisp & Neutral) --- */
+        --border-default: #E5E5E5;
+        /* Neutral 200 */
+        --border-subtle: #F5F5F5;
+        /* Neutral 100 */
+        --border-input: #D4D4D4;
+        /* Neutral 300 */
+        --border-strong: #737373;
+        /* Neutral 500 */
+
+        /* --- PRIMARY (Electric Blue - Dipertahankan) --- */
+        --color-primary: #3B82F6;
+        /* Blue 500 */
+        --color-primary-hover: #2563EB;
+        /* Blue 600 */
+        --color-primary-fg: #FFFFFF;
+        /* White */
+
+        /* --- STATUS COLORS --- */
+        --color-success: #22C55E;
+        /* Green 500 */
+        --color-warning: #F97316;
+        /* Orange 500 */
+        --color-danger: #EF4444;
+        /* Red 500 */
+
+        /* --- CHART COLORS (Hex Codes) --- */
+        --chart-1: #3B82F6;
+        /* Blue */
+        --chart-2: #F97316;
+        /* Orange */
+        --chart-3: #22C55E;
+        /* Green */
+        --chart-4: #A855F7;
+        /* Purple */
+        --chart-5: #EC4899;
+        /* Pink */
+        --chart-6: #06B6D4;
+        /* Cyan */
+        --chart-7: #14B8A6;
+        /* Teal */
+        --chart-8: #F59E0B;
+        /* Amber */
+
+        /* --- SIDEBAR NAV --- */
+        /* Menggunakan RGBA untuk transparansi background karena Hex solid gabisa transparan */
+        --nav-active-bg: rgba(0, 0, 0, 0.05);
+        --nav-active-text: #0A0A0A;
+
+        --radius: 0.4rem;
+    }
+
+    .dark {
+        /* ========================================
+       DARK MODE - TRUE GRAY (Sat 0)
+       ======================================== */
+
+        /* --- BACKGROUNDS (Deep Neutral) --- */
+        --bg-background: #0A0A0A;
+        /* Neutral 950 */
+        --bg-surface: #171717;
+        /* Neutral 900 */
+        --bg-muted: #262626;
+        /* Neutral 800 */
+        --bg-hover: #262626;
+        /* Neutral 800 */
+        --bg-accent: rgba(59, 130, 246, 0.15);
+        /* Blue tint transparent */
+
+        /* --- TEXT --- */
+        --text-primary: #FFFFFF;
+        /* White */
+        --text-secondary: #A3A3A3;
+        /* Neutral 400 */
+        --text-muted: #737373;
+        /* Neutral 500 */
+        --text-placeholder: #737373;
+        /* Neutral 500 */
+        --text-disabled: #525252;
+        /* Neutral 600 */
+        --text-inverse: #0A0A0A;
+        /* Neutral 950 */
+
+        /* --- BORDERS --- */
+        --border-default: #262626;
+        /* Neutral 800 */
+        --border-subtle: #171717;
+        /* Neutral 900 */
+        --border-input: #404040;
+        /* Neutral 700 */
+        --border-strong: #525252;
+        /* Neutral 600 */
+
+        /* --- PRIMARY (Adjusted for Dark) --- */
+        --color-primary: #60A5FA;
+        /* Blue 400 */
+        --color-primary-hover: #93C5FD;
+        /* Blue 300 */
+        --color-primary-fg: #0A0A0A;
+        /* Black */
+
+        /* --- STATUS COLORS (Brighter for Dark Mode) --- */
+        --color-success: #4ADE80;
+        /* Green 400 */
+        --color-warning: #FB923C;
+        /* Orange 400 */
+        --color-danger: #F87171;
+        /* Red 400 */
+
+        /* --- SIDEBAR NAV --- */
+        --nav-active-bg: rgba(255, 255, 255, 0.08);
+        --nav-active-text: #FFFFFF;
+    }
+
+    /* Global Reset */
+    *,
+    ::before,
+    ::after {
+        border-color: var(--border-default);
+    }
+
+    body {
+        background-color: var(--bg-background);
+        color: var(--text-primary);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+}

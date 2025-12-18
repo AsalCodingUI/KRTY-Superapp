@@ -1,0 +1,21 @@
+export const siteConfig = {
+  name: "Kretya Studio",
+  url: "https://dashboard.tremor.so",
+  description: "Internal tools for Kretya Team.",
+  baseLinks: {
+    home: "/",
+    dashboard: "/dashboard",
+    attendance: "/attendance",
+    leave: "/leave",
+    performance: "/performance",
+    calculator: "/calculator",
+    payroll: "/payroll",
+    teams: "/teams",
+    settings: {
+      general: "/settings/general",
+      permission: "/settings/permission",
+    },
+  },
+}
+
+export type siteConfig = typeof siteConfig
