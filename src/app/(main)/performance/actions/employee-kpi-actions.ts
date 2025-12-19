@@ -344,3 +344,128 @@ export async function getEmployeeOverview(userId: string, quarter?: string) {
 
     return { success: true, data: overview }
 }
+
+// Type for overview stats (stakeholder view)
+type OverviewStats = {
+    totalEmployees: number
+    avgPerformance: number
+    pendingReviews: number
+    activeProjects: number
+    distribution: {
+        outstanding: number
+        aboveExpectation: number
+        meetsExpectation: number
+        belowExpectation: number
+        needsImprovement: number
+    }
+}
+
+export async function getOverviewStats(quarter?: string): Promise<{
+    success: boolean
+    data?: OverviewStats
+    error?: string
+}> {
+    const supabase = await createClient()
+
+    try {
+        // Get total employees
+        const { count: totalEmployees } = await supabase
+            .from("profiles")
+            .select("*", { count: "exact", head: true })
+            .eq("role", "employee")
+
+        // Get active projects
+        const { count: activeProjectsCount } = await supabase
+            .from("projects")
+            .select("*", { count: "exact", head: true })
+            .eq("status", "Active")
+
+        // Get pending reviews for the quarter
+        let pendingReviewsCount = 0
+        if (quarter && quarter !== "All") {
+            const { data: cycles } = await supabase
+                .from("review_cycles")
+                .select("id")
+                .eq("name", quarter)
+                .limit(1)
+
+            if (cycles && cycles.length > 0) {
+                const cycleId = cycles[0].id
+                // Count employees without a complete review summary
+                const { data: allEmployees } = await supabase
+                    .from("profiles")
+                    .select("id")
+                    .eq("role", "employee")
+
+                const { data: summaries } = await supabase
+                    .from("performance_summaries")
+                    .select("reviewee_id")
+                    .eq("cycle_id", cycleId)
+
+                const reviewedIds = new Set(summaries?.map(s => s.reviewee_id) || [])
+                pendingReviewsCount = (allEmployees?.length || 0) - reviewedIds.size
+            }
+        }
+
+        // Get performance distribution from summaries
+        const distribution = {
+            outstanding: 0,
+            aboveExpectation: 0,
+            meetsExpectation: 0,
+            belowExpectation: 0,
+            needsImprovement: 0
+        }
+
+        let avgPerformance = 0
+        let totalScores = 0
+        let scoreSum = 0
+
+        if (quarter && quarter !== "All") {
+            const { data: cycles } = await supabase
+                .from("review_cycles")
+                .select("id")
+                .eq("name", quarter)
+                .limit(1)
+
+            if (cycles && cycles.length > 0) {
+                const cycleId = cycles[0].id
+                const { data: summaries } = await supabase
+                    .from("performance_summaries")
+                    .select("overall_percentage")
+                    .eq("cycle_id", cycleId)
+
+                if (summaries) {
+                    for (const summary of summaries) {
+                        const score = summary.overall_percentage || 0
+                        scoreSum += score
+                        totalScores++
+
+                        if (score >= 95) distribution.outstanding++
+                        else if (score >= 85) distribution.aboveExpectation++
+                        else if (score >= 75) distribution.meetsExpectation++
+                        else if (score >= 60) distribution.belowExpectation++
+                        else distribution.needsImprovement++
+                    }
+
+                    if (totalScores > 0) {
+                        avgPerformance = Math.round(scoreSum / totalScores)
+                    }
+                }
+            }
+        }
+
+        return {
+            success: true,
+            data: {
+                totalEmployees: totalEmployees || 0,
+                avgPerformance,
+                pendingReviews: Math.max(0, pendingReviewsCount),
+                activeProjects: activeProjectsCount || 0,
+                distribution
+            }
+        }
+    } catch (error) {
+        console.error("Error fetching overview stats:", error)
+        return { success: false, error: "Failed to fetch overview stats" }
+    }
+}

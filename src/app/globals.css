@@ -54,10 +54,16 @@
         /* --- STATUS COLORS --- */
         --color-success: #22C55E;
         /* Green 500 */
+        --color-success-hover: #16A34A;
+        /* Green 600 */
         --color-warning: #F97316;
         /* Orange 500 */
+        --color-warning-hover: #EA580C;
+        /* Orange 600 */
         --color-danger: #EF4444;
         /* Red 500 */
+        --color-danger-hover: #DC2626;
+        /* Red 600 */
 
         /* --- CHART COLORS (Hex Codes) --- */
         --chart-1: #3B82F6;
@@ -137,10 +143,16 @@
         /* --- STATUS COLORS (Brighter for Dark Mode) --- */
         --color-success: #4ADE80;
         /* Green 400 */
+        --color-success-hover: #22C55E;
+        /* Green 500 */
         --color-warning: #FB923C;
         /* Orange 400 */
+        --color-warning-hover: #F97316;
+        /* Orange 500 */
         --color-danger: #F87171;
         /* Red 400 */
+        --color-danger-hover: #EF4444;
+        /* Red 500 */
 
         /* --- SIDEBAR NAV --- */
         --nav-active-bg: rgba(255, 255, 255, 0.08);

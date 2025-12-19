@@ -13,7 +13,7 @@ const progressCircleVariants = tv({
   variants: {
     variant: {
       default: {
-        background: "stroke-primary/20",
+        background: "stroke-border",
         circle: "stroke-primary",
       },
       neutral: {
@@ -21,15 +21,15 @@ const progressCircleVariants = tv({
         circle: "stroke-content-subtle",
       },
       warning: {
-        background: "stroke-warning/20",
+        background: "stroke-border",
         circle: "stroke-warning",
       },
       error: {
-        background: "stroke-danger/20",
+        background: "stroke-border",
         circle: "stroke-danger",
       },
       success: {
-        background: "stroke-success/20",
+        background: "stroke-border",
         circle: "stroke-success",
       },
     },

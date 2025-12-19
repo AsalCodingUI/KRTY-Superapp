@@ -41,7 +41,7 @@ const buttonVariants = tv({
       destructive: [
         "text-white",
         "border-transparent",
-        "bg-danger hover:opacity-90", // Pake Semantic Variable
+        "bg-danger hover:bg-danger-hover",
         "disabled:opacity-50",
       ],
     },

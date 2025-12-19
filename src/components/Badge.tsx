@@ -7,58 +7,57 @@ import { cx } from "@/lib/utils"
 
 const badgeVariants = tv({
   base: cx(
-    "inline-flex items-center gap-x-1 whitespace-nowrap rounded-full transition-colors duration-150",
+    "inline-flex items-center gap-x-1 whitespace-nowrap rounded-full border transition-colors duration-150",
   ),
   variants: {
     variant: {
-      // Status variants (semantic tokens - auto dark mode)
+      // Status variants (using borders for visibility)
       default: [
-        "bg-primary/10 text-primary",
+        "border-primary/20 bg-muted text-primary",
       ],
       zinc: [
-        "bg-muted text-content-subtle",
+        "border-border bg-muted text-content-subtle",
       ],
       success: [
-        "bg-success/10 text-success",
+        "border-success/20 bg-muted text-success",
       ],
       error: [
-        "bg-danger/10 text-danger",
+        "border-danger/20 bg-muted text-danger",
       ],
       warning: [
-        "bg-warning/10 text-warning",
+        "border-warning/20 bg-muted text-warning",
       ],
       info: [
-        "bg-primary/10 text-primary",
+        "border-primary/20 bg-muted text-primary",
       ],
 
-      // Feedback variants (using chart colors for visual distinction)
+      // Feedback variants (stronger borders for emphasis)
       continue: [
-        "bg-success/15 text-success"
+        "border-success bg-muted text-success"
       ],
       start: [
-        "bg-primary/15 text-primary"
+        "border-primary bg-muted text-primary"
       ],
       stop: [
-        "bg-danger/15 text-danger"
+        "border-danger bg-muted text-danger"
       ],
 
       // Project status variants
       active: [
-        "bg-success/10 text-success"
+        "border-success/20 bg-muted text-success"
       ],
       inactive: [
-        "bg-muted text-content-subtle",
-        "dark:bg-muted/50 dark:text-content-subtle"
+        "border-border bg-muted text-content-subtle",
       ],
     },
     size: {
-      sm: "px-1.5 py-0.5 text-xs font-semibold",
-      md: "px-2 py-1 text-xs font-semibold",
+      sm: "px-1.5 py-0.5 text-xs font-medium",
+      md: "px-2 py-1 text-xs font-medium",
       lg: "px-2.5 py-1.5 text-sm font-medium",
     },
   },
   compoundVariants: [
-    // Feedback variants should be bold
+    // Feedback variants should be semibold
     { variant: "continue", className: "font-semibold" },
     { variant: "start", className: "font-semibold" },
     { variant: "stop", className: "font-semibold" },

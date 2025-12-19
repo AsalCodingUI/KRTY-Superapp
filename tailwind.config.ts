@@ -115,9 +115,18 @@ const config: Config = {
         input: "var(--border-input)",
 
         // Status
-        success: "var(--color-success)",
-        warning: "var(--color-warning)",
-        danger: "var(--color-danger)",
+        success: {
+          DEFAULT: "var(--color-success)",
+          hover: "var(--color-success-hover)",
+        },
+        warning: {
+          DEFAULT: "var(--color-warning)",
+          hover: "var(--color-warning-hover)",
+        },
+        danger: {
+          DEFAULT: "var(--color-danger)",
+          hover: "var(--color-danger-hover)",
+        },
 
         // Chart Colors (PENTING! Ini yang kurang tadi)
         chart: {
