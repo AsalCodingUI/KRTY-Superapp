@@ -1,4 +1,4 @@
-import { Meta } from "@storybook/blocks";
+import { Meta } from "@storybook/blocks"
 
 <Meta title="Design System/Introduction" />
 
@@ -9,38 +9,43 @@ Welcome to the Olympus Design System for the Kretya Superapp. This system provid
 ## Core Principles
 
 ### 1. 🔱 Foundation First
+
 Everything is built on a solid foundation of design tokens (colors, spacing, typography). Changing a token updates the entire system.
 
 ### 2. 🏛️ Semantic Usage
-Use components and tokens according to their semantic meaning, not just their visual appearance. 
-*   Use `primary` for main actions.
-*   Use `danger` for destructive actions.
-*   Use `surface` for backgrounds.
+
+Use components and tokens according to their semantic meaning, not just their visual appearance.
+
+- Use `primary` for main actions.
+- Use `danger` for destructive actions.
+- Use `surface` for backgrounds.
 
 ### 3. ⚖️ Accessibility (A11y)
+
 All components are designed to be accessible by default. We follow WCAG 2.1 AA standards. Always check:
-*   Keyboard navigation
-*   Screen reader compatibility
-*   Color contrast
+
+- Keyboard navigation
+- Screen reader compatibility
+- Color contrast
 
 ## System Architecture
 
 The system is organized into the following categories:
 
-*   **Action**: Buttons, Dropdowns, Toggles
-*   **Information**: Badges, Callouts, Stats
-*   **Input**: Forms, Pickers, Sliders
-*   **Interaction**: Accordions, Tabs
-*   **Overlay**: Dialogs, Drawers, Tooltips
-*   **Structure**: Cards, Tables, Layouts
-*   **Data**: Data Tables, Visualization
+- **Action**: Buttons, Dropdowns, Toggles
+- **Information**: Badges, Callouts, Stats
+- **Input**: Forms, Pickers, Sliders
+- **Interaction**: Accordions, Tabs
+- **Overlay**: Dialogs, Drawers, Tooltips
+- **Structure**: Cards, Tables, Layouts
+- **Data**: Data Tables, Visualization
 
 ## Getting Started
 
 To use a component, import it from the shared UI barrel file:
 
 ```tsx
-import { Button, Card } from "@/shared/ui";
+import { Button, Card } from "@/shared/ui"
 
 export default function MyPage() {
   return (
@@ -48,6 +53,6 @@ export default function MyPage() {
       <h1>Hello Olympus</h1>
       <Button>Click Me</Button>
     </Card>
-  );
+  )
 }
 ```

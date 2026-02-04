@@ -175,10 +175,10 @@ export function KPITab() {
     <div className="space-y-6">
       {/* HEADER */}
       <div>
-        <h2 className="text-content dark:text-content text-lg font-semibold">
+        <h2 className="text-content dark:text-content text-heading-md">
           Employee KPI Management
         </h2>
-        <p className="text-content-subtle dark:text-content-placeholder mt-1 text-sm">
+        <p className="text-content-subtle dark:text-content-placeholder text-body-sm mt-1">
           View and manage employee KPI scores across all projects
         </p>
       </div>
@@ -233,16 +233,16 @@ export function KPITab() {
                     <h3 className="text-content dark:text-content group-hover:text-primary dark:group-hover:text-primary truncate font-semibold">
                       {employee.full_name || "Unknown"}
                     </h3>
-                    <p className="text-content-subtle dark:text-content-placeholder truncate text-sm">
+                    <p className="text-content-subtle dark:text-content-placeholder text-body-sm truncate">
                       {employee.job_title || "No job title"}
                     </p>
-                    <p className="text-content-placeholder dark:text-content-subtle truncate text-xs">
+                    <p className="text-content-placeholder dark:text-content-subtle text-body-xs truncate">
                       {employee.email}
                     </p>
                   </div>
                 </div>
 
-                <div className="mt-4 flex items-center gap-4 text-sm">
+                <div className="text-body-sm mt-4 flex items-center gap-4">
                   <div>
                     <span className="text-content-subtle dark:text-content-placeholder">
                       Projects:

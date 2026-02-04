@@ -3,10 +3,12 @@
 import { RiArrowDownSLine, RiArrowUpSLine } from "@remixicon/react"
 import { Column } from "@tanstack/react-table"
 
-import { cx } from '@/shared/lib/utils'
+import { cx } from "@/shared/lib/utils"
 
-interface DataTableColumnHeaderProps<TData, TValue>
-  extends React.HTMLAttributes<HTMLDivElement> {
+interface DataTableColumnHeaderProps<
+  TData,
+  TValue,
+> extends React.HTMLAttributes<HTMLDivElement> {
   column: Column<TData, TValue>
   title: string
 }
@@ -23,7 +25,16 @@ export function DataTableColumnHeader<TData, TValue>({
 
   // Kalau gak bisa sort, balikin teks biasa (polos) dengan height yang sama
   if (!canSort) {
-    return <div className={cx("py-1.5 text-sm font-medium text-content-subtle dark:text-content-subtle", className)}>{title}</div>
+    return (
+      <div
+        className={cx(
+          "text-label-md text-content-subtle dark:text-content-subtle py-1.5",
+          className,
+        )}
+      >
+        {title}
+      </div>
+    )
   }
 
   return (
@@ -38,7 +49,7 @@ export function DataTableColumnHeader<TData, TValue>({
         className,
       )}
     >
-      <span className="text-sm font-medium text-content-subtle dark:text-content-subtle whitespace-nowrap">
+      <span className="text-label-md text-content-subtle dark:text-content-subtle whitespace-nowrap">
         {title}
       </span>
 
@@ -46,7 +57,7 @@ export function DataTableColumnHeader<TData, TValue>({
       <div className="-space-y-2">
         <RiArrowUpSLine
           className={cx(
-            "size-3.5 text-content-subtle dark:text-content-subtle",
+            "text-content-subtle dark:text-content-subtle size-3.5",
             // Kalau lagi sort DESC (Z-A), panah ATAS jadi transparan (opacity-30)
             isSorted === "desc" ? "opacity-30" : "",
           )}
@@ -54,7 +65,7 @@ export function DataTableColumnHeader<TData, TValue>({
         />
         <RiArrowDownSLine
           className={cx(
-            "size-3.5 text-content-subtle dark:text-content-subtle",
+            "text-content-subtle dark:text-content-subtle size-3.5",
             // Kalau lagi sort ASC (A-Z), panah BAWAH jadi transparan (opacity-30)
             isSorted === "asc" ? "opacity-30" : "",
           )}

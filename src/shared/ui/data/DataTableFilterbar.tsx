@@ -1,6 +1,6 @@
 "use client"
 
-import { Button, TextInput } from '@/components/ui'
+import { Button, TextInput } from "@/components/ui"
 import { RiAddLine, RiDownloadLine } from "@remixicon/react"
 import { Table } from "@tanstack/react-table"
 import { useState } from "react"
@@ -22,7 +22,7 @@ export function Filterbar<TData>({
   showExport = true,
   showViewOptions = true,
   actionLabel = "Add Member",
-  searchKey // 2. Ambil Props
+  searchKey, // 2. Ambil Props
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0
   const [searchTerm, setSearchTerm] = useState<string>("")
@@ -31,7 +31,9 @@ export function Filterbar<TData>({
   // Jika searchKey diberikan, pakai itu. Jika tidak, baru fallback ke tebak-tebakan lama (biar aman).
   const searchColumn = searchKey
     ? table.getColumn(searchKey)
-    : (table.getColumn("full_name") || table.getColumn("owner") || table.getColumn("leave_type"))
+    : table.getColumn("full_name") ||
+      table.getColumn("owner") ||
+      table.getColumn("leave_type")
 
   const debouncedSetFilterValue = useDebouncedCallback((value: string) => {
     searchColumn?.setFilterValue(value)
@@ -64,7 +66,7 @@ export function Filterbar<TData>({
               table.resetColumnFilters()
               setSearchTerm("")
             }}
-            className="border border-border px-2 font-semibold text-primary sm:border-none sm:py-1"
+            className="border-border text-primary border px-2 font-semibold sm:border-none sm:py-1"
           >
             Clear filters
           </Button>
@@ -83,16 +85,10 @@ export function Filterbar<TData>({
           </Button>
         )}
 
-        {showViewOptions && (
-          <ViewOptions table={table} />
-        )}
+        {showViewOptions && <ViewOptions table={table} />}
 
         {onCreate && (
-          <Button
-            onClick={onCreate}
-            size="default"
-            className="gap-x-2"
-          >
+          <Button onClick={onCreate} size="default" className="gap-x-2">
             <RiAddLine className="size-4 shrink-0" aria-hidden="true" />
             {actionLabel}
           </Button>

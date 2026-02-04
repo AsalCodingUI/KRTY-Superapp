@@ -1,8 +1,11 @@
 "use client"
 
 import { siteConfig } from "@/app/siteConfig"
-import { Button } from "@/shared/ui"
+import { navigationConfig } from "@/shared/config/navigation"
+import { useUserProfile } from "@/shared/hooks/useUserProfile"
+import { cx, focusRing } from "@/shared/lib/utils"
 import {
+  Button,
   Drawer,
   DrawerBody,
   DrawerClose,
@@ -11,91 +14,10 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/shared/ui"
-import { useUserProfile } from "@/shared/hooks/useUserProfile"
-import { cx, focusRing } from "@/shared/lib/utils"
-import {
-  RiBarChartBoxLine, // Import Icon
-  RiCalculatorLine,
-  RiCalendarCheckLine,
-  RiFundsBoxLine,
-  RiGroupLine,
-  RiHome2Line,
-  RiMenuLine,
-  RiSettings5Line,
-  RiUserAddLine,
-  RiUserSmileLine,
-} from "@remixicon/react"
+import { Notifications } from "@/widgets/notifications/ui/Notifications"
+import { RiMenuLine } from "@remixicon/react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Notifications } from "@/widgets/notifications/ui/Notifications"
-
-// 1. DEFINISI MENU
-const allNavigation = [
-  {
-    name: "Dashboard",
-    href: siteConfig.baseLinks.dashboard,
-    icon: RiHome2Line,
-    roles: ["stakeholder", "employee"],
-  },
-  {
-    name: "Attendance",
-    href: siteConfig.baseLinks.attendance,
-    icon: RiCalendarCheckLine,
-    roles: ["stakeholder", "employee"],
-  },
-  {
-    name: "Leave & Permission",
-    href: siteConfig.baseLinks.leave,
-    icon: RiUserSmileLine,
-    roles: ["stakeholder", "employee"],
-  },
-  {
-    name: "Performance", // MENU BARU
-    href: siteConfig.baseLinks.performance,
-    icon: RiBarChartBoxLine,
-    roles: ["stakeholder", "employee"],
-  },
-  {
-    name: "Project Calculator",
-    href: siteConfig.baseLinks.calculator,
-    icon: RiCalculatorLine,
-    roles: ["stakeholder", "employee"],
-  },
-  {
-    name: "Payroll",
-    href: siteConfig.baseLinks.payroll,
-    icon: RiFundsBoxLine,
-    roles: ["stakeholder"],
-  },
-  {
-    name: "Teams",
-    href: siteConfig.baseLinks.teams,
-    icon: RiGroupLine,
-    roles: ["stakeholder"],
-  },
-  {
-    name: "Settings",
-    href: siteConfig.baseLinks.settings.general,
-    icon: RiSettings5Line,
-    roles: ["stakeholder", "employee"],
-  },
-] as const
-
-// 2. DEFINISI SHORTCUTS
-const shortcuts = [
-  {
-    name: "Change Team Permission",
-    href: siteConfig.baseLinks.settings.permission,
-    icon: RiUserAddLine,
-    roles: ["stakeholder"],
-  },
-  {
-    name: "Manage Teams",
-    href: siteConfig.baseLinks.teams,
-    icon: RiGroupLine,
-    roles: ["stakeholder"],
-  },
-] as const
 
 export default function MobileSidebar() {
   const pathname = usePathname()
@@ -108,7 +30,7 @@ export default function MobileSidebar() {
     return pathname === itemHref || pathname.startsWith(itemHref)
   }
 
-  const navItems = allNavigation.filter((item) => {
+  const navItems = navigationConfig.main.filter((item) => {
     if (loading || !profile) return false
     const hasRoleAccess = (item.roles as readonly string[]).includes(
       profile.role,
@@ -122,7 +44,7 @@ export default function MobileSidebar() {
     return hasRoleAccess
   })
 
-  const shortcutItems = shortcuts.filter((item) => {
+  const shortcutItems = navigationConfig.shortcuts.filter((item) => {
     if (loading || !profile) return false
     return (item.roles as readonly string[]).includes(profile.role)
   })
@@ -134,7 +56,7 @@ export default function MobileSidebar() {
           <Button
             variant="ghost"
             aria-label="open sidebar"
-            className="group hover:bg-muted data-[state=open]:bg-muted dark:hover:bg-muted flex items-center rounded-md p-2 text-sm font-medium"
+            className="group hover:bg-muted data-[state=open]:bg-muted dark:hover:bg-muted text-label-md flex items-center rounded-md p-2"
           >
             <RiMenuLine
               className="size-6 shrink-0 sm:size-5"
@@ -171,7 +93,7 @@ export default function MobileSidebar() {
                             isActive(item.href)
                               ? "bg-muted text-content dark:bg-muted font-semibold"
                               : "text-content-subtle hover:text-content hover:bg-muted",
-                            "flex items-center gap-x-2.5 rounded-md px-2 py-1.5 text-base font-medium transition sm:text-sm",
+                            "text-label-lg sm:text-label-md flex items-center gap-x-2.5 rounded-md px-2 py-1.5 transition",
                             focusRing,
                           )}
                         >
@@ -194,7 +116,7 @@ export default function MobileSidebar() {
 
               {!loading && shortcutItems.length > 0 && (
                 <div>
-                  <span className="text-content-subtle text-sm leading-6 font-medium sm:text-xs">
+                  <span className="text-content-subtle text-label-md sm:text-label-xs">
                     Shortcuts
                   </span>
                   <ul
@@ -211,7 +133,7 @@ export default function MobileSidebar() {
                               isActive(item.href)
                                 ? "bg-muted text-content dark:bg-muted font-semibold"
                                 : "text-content-subtle hover:text-content hover:bg-muted",
-                              "flex items-center gap-x-2.5 rounded-md px-2 py-1.5 font-medium transition sm:text-sm",
+                              "sm:text-label-md flex items-center gap-x-2.5 rounded-md px-2 py-1.5 transition",
                               focusRing,
                             )}
                           >

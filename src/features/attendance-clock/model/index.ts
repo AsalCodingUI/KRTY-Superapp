@@ -1,2 +1,1 @@
-export { useClockActions } from './useClockActions';
-
+export { useClockActions } from "./useClockActions"

@@ -63,17 +63,15 @@ export function StatsCard({
       <Card className={cx("h-full p-4", className)}>
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <p className="text-foreground-tertiary text-sm font-medium">
-              {title}
-            </p>
+            <p className="text-foreground-tertiary text-label-md">{title}</p>
             <div className="mt-2 flex items-baseline gap-2">
-              <span className="text-foreground-primary text-2xl font-semibold">
+              <span className="text-foreground-primary text-display-xxs">
                 {value}
               </span>
               {trend && (
                 <span
                   className={cx(
-                    "text-sm font-medium",
+                    "text-label-md",
                     trend.direction === "up" && "text-foreground-success",
                     trend.direction === "down" && "text-foreground-danger",
                     trend.direction === "neutral" && "text-foreground-tertiary",
@@ -86,7 +84,7 @@ export function StatsCard({
               )}
             </div>
             {description && (
-              <p className="text-foreground-tertiary mt-1 text-xs">
+              <p className="text-foreground-tertiary text-body-xs mt-1">
                 {description}
               </p>
             )}

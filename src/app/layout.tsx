@@ -46,7 +46,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${inter.className} text-content overflow-y-scroll scroll-auto antialiased selection:bg-primary/20 selection:text-primary`}
+        className={`${inter.className} text-content selection:bg-primary/20 selection:text-primary overflow-y-scroll scroll-auto antialiased`}
         suppressHydrationWarning
       >
         <ThemeProvider defaultTheme="system" attribute="class">

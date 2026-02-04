@@ -1,5 +1,5 @@
-import { createClient } from '@/shared/api/supabase/client'
-import { Database } from '@/shared/types/database.types'
+import { createClient } from "@/shared/api/supabase/client"
+import { Database } from "@/shared/types/database.types"
 
 type ProjectRoleEnum = Database["public"]["Enums"]["project_role_enum"]
 

@@ -9,7 +9,7 @@ import { cx, focusInput, hasErrorInput } from "@/shared/lib/utils"
 const textareaStyles = tv({
   base: [
     // base
-    "flex min-h-[80px] w-full appearance-none truncate rounded-md border px-2.5 py-1.5 text-sm transition outline-none",
+    "text-body-sm flex min-h-[80px] w-full appearance-none truncate rounded-md border px-2.5 py-1.5 transition outline-none",
     // border color
     "border-border-default",
     // text color
@@ -40,8 +40,9 @@ const textareaStyles = tv({
 })
 
 interface TextareaProps
-  extends React.TextareaHTMLAttributes<HTMLTextAreaElement>,
-  VariantProps<typeof textareaStyles> {
+  extends
+    React.TextareaHTMLAttributes<HTMLTextAreaElement>,
+    VariantProps<typeof textareaStyles> {
   inputClassName?: string
 }
 

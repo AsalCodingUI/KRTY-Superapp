@@ -215,7 +215,7 @@ export function DataTable<TData>({
                       <TableHeaderCell
                         key={header.id}
                         className={cx(
-                          "py-2 text-sm font-medium whitespace-nowrap sm:text-xs",
+                          "text-label-md sm:text-label-xs py-2 whitespace-nowrap",
                           header.column.columnDef.meta?.className,
                         )}
                       >
@@ -287,8 +287,8 @@ export function DataTable<TData>({
                             d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
                           />
                         </svg>
-                        <p className="text-sm font-medium">No data available</p>
-                        <p className="text-content-placeholder text-xs">
+                        <p className="text-label-md">No data available</p>
+                        <p className="text-content-placeholder text-label-xs">
                           Data will appear here once added
                         </p>
                       </div>

@@ -1,8 +1,8 @@
 /**
  * Shared Layer
- * 
+ *
  * This layer contains reusable infrastructure code (UI components, utilities, API clients).
- * 
+ *
  * FSD Rules:
  * - This layer can import from layers below it
  * - This layer cannot import from layers above it
@@ -19,4 +19,4 @@
 // export * from './lib/date';
 // export * from './lib/validation';
 
-export {};
+export {}

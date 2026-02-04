@@ -9,7 +9,7 @@ import { cx, focusRing } from "@/shared/lib/utils"
 
 const toggleStyles = [
   // base
-  "group inline-flex h-[38px] min-w-9 items-center justify-center gap-2 rounded-md border px-2 text-sm font-medium shadow-xs-border transition-all duration-100 ease-in-out",
+  "group inline-flex h-[38px] min-w-9 items-center justify-center gap-2 rounded-md border px-2 text-label-md shadow-xs-border transition-all duration-100 ease-in-out",
   "border-border-default",
   // text color
   "text-foreground-primary",

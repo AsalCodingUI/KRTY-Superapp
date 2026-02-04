@@ -15,7 +15,7 @@ export default async function CalculatorRoute() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-content dark:text-content text-lg font-semibold sm:text-xl">
+        <h1 className="text-content dark:text-content text-heading-md sm:text-heading-lg">
           Project Calculator
         </h1>
       </div>

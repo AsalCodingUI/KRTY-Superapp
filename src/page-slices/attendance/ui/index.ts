@@ -1,4 +1,3 @@
-export { AttendancePage } from './AttendancePage';
-export { EmployeeAttendancePage } from './EmployeeAttendancePage';
-export { StakeholderAttendancePage } from './StakeholderAttendancePage';
-
+export { AttendancePage } from "./AttendancePage"
+export { EmployeeAttendancePage } from "./EmployeeAttendancePage"
+export { StakeholderAttendancePage } from "./StakeholderAttendancePage"

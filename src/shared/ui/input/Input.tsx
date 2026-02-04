@@ -5,12 +5,12 @@ import { RiEyeFill, RiEyeOffFill, RiSearchLine } from "@remixicon/react"
 import React from "react"
 import type { VariantProps } from "tailwind-variants"
 
-import { cx, focusInput, focusRing, hasErrorInput } from '@/shared/lib/utils'
+import { cx, focusInput, focusRing, hasErrorInput } from "@/shared/lib/utils"
 
 const inputStyles = tv({
   base: [
     // base
-    "relative block w-full appearance-none truncate rounded-md border outline-none transition sm:text-sm",
+    "sm:text-body-sm relative block w-full appearance-none truncate rounded-md border transition outline-none",
     // border color
     "border-border",
     // text color
@@ -20,12 +20,12 @@ const inputStyles = tv({
     // background color
     "bg-surface",
     // disabled
-    "disabled:opacity-50 disabled:cursor-not-allowed",
+    "disabled:cursor-not-allowed disabled:opacity-50",
     // file
     [
       "file:-my-2 file:-ml-2.5 file:cursor-pointer file:rounded-l-[5px] file:rounded-r-none file:border-0 file:px-3 file:py-2 file:outline-none focus:outline-none disabled:pointer-events-none file:disabled:pointer-events-none",
-      "file:border-solid file:border-border file:bg-muted file:text-content-subtle file:hover:bg-hover file:disabled:border-border-subtle",
-      "file:[border-inline-end-width:1px] file:[margin-inline-end:0.75rem]",
+      "file:border-border file:bg-muted file:text-content-subtle file:hover:bg-hover file:disabled:border-border-subtle file:border-solid",
+      "file:[margin-inline-end:0.75rem] file:[border-inline-end-width:1px]",
       "file:disabled:bg-muted file:disabled:text-content-disabled file:disabled:dark:bg-muted",
     ],
     // focus
@@ -45,9 +45,9 @@ const inputStyles = tv({
         "[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none",
     },
     inputSize: {
-      sm: "px-2.5 py-1.5 text-sm",
-      default: "px-2.5 py-2 text-sm",
-      lg: "px-3 py-2.5 text-base",
+      sm: "text-body-sm px-2.5 py-1.5",
+      default: "text-body-sm px-2.5 py-2",
+      lg: "text-body-md px-3 py-2.5",
     },
   },
   defaultVariants: {
@@ -56,17 +56,18 @@ const inputStyles = tv({
 })
 
 interface InputProps
-  extends React.InputHTMLAttributes<HTMLInputElement>,
-  VariantProps<typeof inputStyles> {
+  extends
+    React.InputHTMLAttributes<HTMLInputElement>,
+    VariantProps<typeof inputStyles> {
   inputClassName?: string
 }
 
 /**
  * Input component with support for search, password, and error states.
- * 
+ *
  * @param hasError - Shows error styling when true
  * @param type - Supports special handling for "search" and "password" types
- * 
+ *
  * @example
  * ```tsx
  * <Input placeholder="Enter text..." />
@@ -125,14 +126,14 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {isPassword && (
           <div
             className={cx(
-              "absolute bottom-0 right-0 flex h-full items-center justify-center px-3",
+              "absolute right-0 bottom-0 flex h-full items-center justify-center px-3",
             )}
           >
             <button
               aria-label="Change password visibility"
               className={cx(
                 // base
-                "h-fit w-fit rounded-sm outline-none transition-all",
+                "h-fit w-fit rounded-sm transition-all outline-none",
                 // text
                 "text-content-placeholder dark:text-content-subtle",
                 // hover

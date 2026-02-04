@@ -21,10 +21,9 @@ import {
   type Matcher,
 } from "react-day-picker"
 
-import { cx, focusRing } from '@/shared/lib/utils'
+import { cx, focusRing } from "@/shared/lib/utils"
 
-interface NavigationButtonProps
-  extends React.HTMLAttributes<HTMLButtonElement> {
+interface NavigationButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
   onClick: () => void
   icon: React.ElementType
   disabled?: boolean
@@ -45,7 +44,7 @@ const NavigationButton = React.forwardRef<
         type="button"
         disabled={disabled}
         className={cx(
-          "flex size-8 shrink-0 select-none items-center justify-center rounded p-1 outline-none transition sm:size-[30px]",
+          "flex size-8 shrink-0 items-center justify-center rounded p-1 transition outline-none select-none sm:size-[30px]",
           // text color
           "text-content-subtle hover:text-content",
           "dark:text-content-placeholder hover:dark:text-content",
@@ -82,19 +81,19 @@ type RangeProps = OmitKeys<DayPickerRangeProps, KeysToOmit>
 
 type CalendarProps =
   | ({
-    mode: "single"
-  } & SingleProps)
+      mode: "single"
+    } & SingleProps)
   | ({
-    mode?: undefined
-  } & SingleProps)
+      mode?: undefined
+    } & SingleProps)
   | ({
-    mode: "range"
-  } & RangeProps)
+      mode: "range"
+    } & RangeProps)
 
 /**
  * Calendar component for date selection.
  * Built on React Day Picker.
- * 
+ *
  * @example
  * ```tsx
  * <Calendar mode="single" selected={date} onSelect={setDate} />
@@ -125,14 +124,14 @@ const Calendar = ({
         nav: "gap-1 flex items-center rounded-full size-full justify-between p-4",
         table: "w-full border-collapse space-y-1",
         head_cell:
-          "w-9 font-medium text-sm sm:text-xs text-center text-content-placeholder dark:text-content-subtle pb-2",
+          "w-9 text-label-md sm:text-label-xs text-center text-content-placeholder dark:text-content-subtle pb-2",
         row: "w-full mt-0.5",
         cell: cx(
           "relative p-0 text-center focus-within:relative",
           "text-content dark:text-content",
         ),
         day: cx(
-          "size-9 rounded text-sm text-content focus:z-10 dark:text-content",
+          "text-body-sm text-content dark:text-content size-9 rounded focus:z-10",
           "hover:bg-border hover:dark:bg-muted",
           focusRing,
         ),
@@ -211,7 +210,7 @@ const Calendar = ({
                       !previousMonth ||
                       (fromDate &&
                         addYears(currentMonth, -1).getTime() <
-                        fromDate.getTime())
+                          fromDate.getTime())
                     }
                     aria-label="Go to previous year"
                     onClick={goToPreviousYear}
@@ -231,7 +230,7 @@ const Calendar = ({
               <div
                 role="presentation"
                 aria-live="polite"
-                className="text-sm font-medium capitalize tabular-nums text-content dark:text-content"
+                className="text-label-md text-content dark:text-content capitalize tabular-nums"
               >
                 {format(props.displayMonth, "LLLL yyy", { locale })}
               </div>
@@ -265,7 +264,11 @@ const Calendar = ({
         Day: ({ date, displayMonth }: DayProps) => {
           const buttonRef = React.useRef<HTMLButtonElement>(null)
           const { activeModifiers, buttonProps, divProps, isButton, isHidden } =
-            useDayRender(date, displayMonth, buttonRef as React.RefObject<HTMLButtonElement>)
+            useDayRender(
+              date,
+              displayMonth,
+              buttonRef as React.RefObject<HTMLButtonElement>,
+            )
 
           const { selected, today, disabled, range_middle } = activeModifiers
 

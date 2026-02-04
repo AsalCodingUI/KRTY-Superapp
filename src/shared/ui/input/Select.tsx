@@ -17,7 +17,7 @@ const SelectValue = SelectPrimitives.Value
 const selectTriggerStyles = [
   cx(
     // base
-    "group/trigger flex w-full cursor-pointer items-center justify-between gap-2 truncate rounded-md border px-2.5 py-1.5 text-sm transition outline-none select-none",
+    "group/trigger text-body-sm flex w-full cursor-pointer items-center justify-between gap-2 truncate rounded-md border px-2.5 py-1.5 transition outline-none select-none",
     // border color
     "border-border-default",
     // text color
@@ -175,7 +175,7 @@ const SelectGroupLabel = React.forwardRef<
     ref={forwardedRef}
     className={cx(
       // base
-      "px-3 py-2 text-xs font-medium tracking-wide",
+      "text-label-xs px-3 py-2",
       // text color
       "text-foreground-secondary",
       className,
@@ -195,7 +195,7 @@ const SelectItem = React.forwardRef<
       ref={forwardedRef}
       className={cx(
         // base
-        "grid cursor-pointer grid-cols-[1fr_20px] gap-x-2 rounded px-3 py-2 transition-colors outline-none data-[state=checked]:font-semibold sm:text-sm",
+        "data-[state=checked]: sm:text-label-md grid cursor-pointer grid-cols-[1fr_20px] gap-x-2 rounded px-3 py-2 transition-colors outline-none",
         // text color
         "text-foreground-primary",
         // disabled
@@ -234,7 +234,7 @@ const SelectItemPeriod = React.forwardRef<
       ref={forwardedRef}
       className={cx(
         // base
-        "relative flex cursor-pointer items-center rounded py-2 pr-3 pl-8 transition-colors outline-none data-[state=checked]:font-semibold sm:text-sm",
+        "data-[state=checked]: sm:text-label-md relative flex cursor-pointer items-center rounded py-2 pr-3 pl-8 transition-colors outline-none",
         // text color
         "text-foreground-primary",
         // disabled

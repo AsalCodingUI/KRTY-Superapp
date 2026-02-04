@@ -1,7 +1,7 @@
-import { Meta, Canvas } from '@storybook/blocks';
-import * as StatsCardStories from '../information/StatsCard.stories';
-import * as BadgeStories from '../information/Badge.stories';
-import * as EmptyStateStories from '../information/EmptyState.stories';
+import { Meta, Canvas } from "@storybook/blocks"
+import * as StatsCardStories from "../information/StatsCard.stories"
+import * as BadgeStories from "../information/Badge.stories"
+import * as EmptyStateStories from "../information/EmptyState.stories"
 
 <Meta title="Docs/Patterns/Data Display" />
 
@@ -33,12 +33,12 @@ Use `Badge` to indicate status. Use semantic colors consistently.
 
 <Canvas of={BadgeStories.Default} />
 
-| Status | Variant | Meaning |
-| :--- | :--- | :--- |
-| Active, Success, Completed | `success` | Positive state |
-| Error, Failed, Critical | `error` | Negative/Critical state |
-| Warning, Pending, On Hold | `warning` | Needs attention |
-| Neutral, Draft, Inactive | `neutral` | Information only |
+| Status                     | Variant   | Meaning                 |
+| :------------------------- | :-------- | :---------------------- |
+| Active, Success, Completed | `success` | Positive state          |
+| Error, Failed, Critical    | `error`   | Negative/Critical state |
+| Warning, Pending, On Hold  | `warning` | Needs attention         |
+| Neutral, Draft, Inactive   | `neutral` | Information only        |
 
 ## Empty States
 

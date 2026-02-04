@@ -41,8 +41,9 @@ const progressCircleVariants = tv({
 })
 
 interface ProgressCircleProps
-  extends Omit<React.SVGProps<SVGSVGElement>, "value">,
-  VariantProps<typeof progressCircleVariants> {
+  extends
+    Omit<React.SVGProps<SVGSVGElement>, "value">,
+    VariantProps<typeof progressCircleVariants> {
   value?: number
   max?: number
   showAnimation?: boolean
@@ -115,7 +116,7 @@ const ProgressCircle = React.forwardRef<SVGSVGElement, ProgressCircleProps>(
                   "transition-colors ease-linear",
                   circle(),
                   showAnimation &&
-                  "transform-gpu transition-all duration-300 ease-in-out",
+                    "transform-gpu transition-all duration-300 ease-in-out",
                 )}
               />
             ) : null}

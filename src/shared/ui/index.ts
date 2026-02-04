@@ -85,4 +85,3 @@ export * from "./providers/ToastProvider"
 
 // Icons
 export * from "./icons/ArrowAnimated"
-

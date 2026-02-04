@@ -2,4 +2,4 @@
  * Public API
  */
 
-export * from './CommandBar';
+export * from "./CommandBar"

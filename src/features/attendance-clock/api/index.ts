@@ -1,4 +1,3 @@
-export { clockIn } from './clockIn'
-export { clockOut } from './clockOut'
-export { toggleBreak } from './toggleBreak'
-
+export { clockIn } from "./clockIn"
+export { clockOut } from "./clockOut"
+export { toggleBreak } from "./toggleBreak"

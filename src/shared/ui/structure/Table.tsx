@@ -2,7 +2,7 @@
 
 import React from "react"
 
-import { cx } from '@/shared/lib/utils'
+import { cx } from "@/shared/lib/utils"
 
 /**
  * Root container for Table. Enables scrolling on small screens.
@@ -13,8 +13,8 @@ const TableRoot = React.forwardRef<
 >(({ className, children, ...props }, forwardedRef) => (
   <div
     ref={forwardedRef}
-  // Activate if table is used in a float environment
-  // className="flow-root"
+    // Activate if table is used in a float environment
+    // className="flow-root"
   >
     <div
       // make table scrollable on mobile
@@ -30,7 +30,7 @@ TableRoot.displayName = "TableRoot"
 
 /**
  * Table component.
- * 
+ *
  * @example
  * ```tsx
  * <Table>
@@ -51,10 +51,12 @@ const Table = React.forwardRef<
   HTMLTableElement,
   React.TableHTMLAttributes<HTMLTableElement> & { noBorder?: boolean }
 >(({ className, noBorder, ...props }, forwardedRef) => (
-  <div className={cx(
-    "overflow-hidden",
-    !noBorder && "rounded-md border border-border"
-  )}>
+  <div
+    className={cx(
+      "overflow-hidden",
+      !noBorder && "border-border rounded-md border",
+    )}
+  >
     <table
       ref={forwardedRef}
       className={cx(
@@ -76,7 +78,11 @@ const TableHead = React.forwardRef<
   }
 >(({ className, hideHeader, children, ...props }, forwardedRef) => {
   if (hideHeader) return null
-  return <thead ref={forwardedRef} className={cx(className)} {...props}>{children}</thead>
+  return (
+    <thead ref={forwardedRef} className={cx(className)} {...props}>
+      {children}
+    </thead>
+  )
 })
 
 TableHead.displayName = "TableHead"
@@ -89,7 +95,7 @@ const TableHeaderCell = React.forwardRef<
     ref={forwardedRef}
     className={cx(
       // base
-      "border-b px-4 py-2.5 text-left text-xs font-medium",
+      "text-label-xs border-b px-4 py-2.5 text-left",
       // text color
       "text-content-subtle dark:text-content-subtle",
       // background color
@@ -130,7 +136,7 @@ const TableRow = React.forwardRef<
   <tr
     ref={forwardedRef}
     className={cx(
-      // base  
+      // base
       "h-[40px]",
       "[&_td:last-child]:pr-4 [&_th:last-child]:pr-4",
       "[&_td:first-child]:pl-4 [&_th:first-child]:pl-4",
@@ -150,7 +156,7 @@ const TableCell = React.forwardRef<
     ref={forwardedRef}
     className={cx(
       // base
-      "px-4 py-2.5 text-sm",
+      "text-body-sm px-4 py-2.5",
       // text color
       "text-content-subtle dark:text-content-placeholder",
       className,
@@ -192,7 +198,7 @@ const TableCaption = React.forwardRef<
     ref={forwardedRef}
     className={cx(
       // base
-      "mt-3 px-3 text-center text-sm",
+      "text-body-sm mt-3 px-3 text-center",
       // text color
       "text-content-subtle dark:text-content-subtle",
       className,
@@ -212,6 +218,5 @@ export {
   TableHead,
   TableHeaderCell,
   TableRoot,
-  TableRow
+  TableRow,
 }
-

@@ -97,7 +97,7 @@ function SortableItem({
 
       <div className="grid grid-cols-12 gap-4 pl-8">
         <div className="col-span-1">
-          <Label className="mb-1 text-xs">No</Label>
+          <Label className="text-body-xs mb-1">No</Label>
           <TextInput
             value={item.no}
             onChange={(e) => updateItem(index, "no", e.target.value)}
@@ -105,7 +105,7 @@ function SortableItem({
           />
         </div>
         <div className="col-span-3">
-          <Label className="mb-1 text-xs">Category</Label>
+          <Label className="text-body-xs mb-1">Category</Label>
           <TextInput
             value={item.category}
             onChange={(e) => updateItem(index, "category", e.target.value)}
@@ -113,7 +113,7 @@ function SortableItem({
           />
         </div>
         <div className="col-span-8">
-          <Label className="mb-1 text-xs">Page/Flow</Label>
+          <Label className="text-body-xs mb-1">Page/Flow</Label>
           <TextInput
             value={item.flow}
             onChange={(e) => updateItem(index, "flow", e.target.value)}
@@ -121,7 +121,7 @@ function SortableItem({
           />
         </div>
         <div className="col-span-12">
-          <Label className="mb-1 text-xs">Description</Label>
+          <Label className="text-body-xs mb-1">Description</Label>
           <Textarea
             value={item.desc}
             onChange={(e) => updateItem(index, "desc", e.target.value)}

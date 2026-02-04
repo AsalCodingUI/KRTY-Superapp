@@ -1,7 +1,7 @@
-import { Meta, Canvas, Story } from '@storybook/blocks';
-import * as PageHeaderStories from '../structure/PageHeader.stories';
-import * as CardStories from '../structure/Card.stories';
-import * as TableSectionStories from '../structure/TableSection.stories';
+import { Meta, Canvas, Story } from "@storybook/blocks"
+import * as PageHeaderStories from "../structure/PageHeader.stories"
+import * as CardStories from "../structure/Card.stories"
+import * as TableSectionStories from "../structure/TableSection.stories"
 
 <Meta title="Docs/Patterns/Layout" />
 
@@ -43,12 +43,12 @@ A typical page layout consists of a `PageHeader` followed by one or more content
 export default function UsersPage() {
   return (
     <div className="space-y-6 p-6">
-      <PageHeader 
-        title="Users" 
+      <PageHeader
+        title="Users"
         description="Manage system users."
         actions={<Button>Add User</Button>}
       />
-      
+
       <TableSection title="All Users">
         <DataTable columns={columns} data={data} />
       </TableSection>

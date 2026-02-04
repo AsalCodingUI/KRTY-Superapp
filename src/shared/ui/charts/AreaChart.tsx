@@ -99,7 +99,7 @@ const AreaChart = React.forwardRef<HTMLDivElement, AreaChartProps>(
                 if (!active || !payload || payload.length === 0) return null
                 return (
                   <div className="bg-surface shadow-md-border border-border-default rounded-md border p-2">
-                    <p className="text-foreground-primary text-sm font-medium">
+                    <p className="text-foreground-primary text-label-md">
                       {payload[0].payload[index]}
                     </p>
                     {payload.map((entry: any, index: number) => (
@@ -114,11 +114,11 @@ const AreaChart = React.forwardRef<HTMLDivElement, AreaChartProps>(
                               { "--bg": entry.color } as React.CSSProperties
                             }
                           />
-                          <span className="text-foreground-tertiary text-xs">
+                          <span className="text-foreground-tertiary text-body-xs">
                             {entry.name}:
                           </span>
                         </div>
-                        <span className="text-foreground-primary text-xs font-medium">
+                        <span className="text-foreground-primary text-label-xs">
                           {valueFormatter(entry.value)}
                         </span>
                       </div>
@@ -143,7 +143,7 @@ const AreaChart = React.forwardRef<HTMLDivElement, AreaChartProps>(
                               { "--bg": entry.color } as React.CSSProperties
                             }
                           />
-                          <span className="text-foreground-tertiary text-xs">
+                          <span className="text-foreground-tertiary text-body-xs">
                             {entry.value}
                           </span>
                         </div>

@@ -31,7 +31,7 @@ export { useEventVisibility } from "./ui/hooks/use-event-visibility"
 export * from "./ui/types"
 
 export {
-  GoogleCalendarContext, GoogleCalendarProvider
+  GoogleCalendarContext,
+  GoogleCalendarProvider,
 } from "./model/google-calendar-context"
 export { useGoogleCalendar } from "./model/hooks/use-google-calendar"
-

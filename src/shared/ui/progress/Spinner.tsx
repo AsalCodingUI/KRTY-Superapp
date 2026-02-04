@@ -27,8 +27,9 @@ const spinnerVariants = tv({
 })
 
 interface SpinnerProps
-  extends React.HTMLAttributes<HTMLDivElement>,
-  VariantProps<typeof spinnerVariants> { }
+  extends
+    React.HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof spinnerVariants> {}
 
 /**
  * Spinner component for loading states.

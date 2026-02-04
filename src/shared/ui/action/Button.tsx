@@ -8,11 +8,11 @@ import type { VariantProps } from "tailwind-variants"
 const buttonVariants = tv({
   base: [
     // Layout - Strict Gap 4px (gap-sm)
-    "gap-sm relative inline-flex items-center justify-center whitespace-nowrap font-medium transition-all duration-200 ease-in-out",
-    // Focus - using shadow-outline-brand
-    "focus-visible:outline-none focus-visible:shadow-outline-brand",
+    "gap-sm relative inline-flex cursor-pointer items-center justify-center font-medium whitespace-nowrap transition-all duration-200 ease-in-out",
+    // Focus (variant-specific shadow tokens)
+    "focus-visible:outline-none",
     // Disabled
-    "disabled:pointer-events-none disabled:shadow-none disabled:cursor-not-allowed",
+    "disabled:pointer-events-none disabled:cursor-not-allowed disabled:shadow-none",
     // Loading
     "data-[loading=true]:cursor-wait",
   ],
@@ -20,59 +20,64 @@ const buttonVariants = tv({
     variant: {
       primary: [
         "bg-surface-brand text-foreground-on-color shadow-brand",
-        "border-transparent border", // explicit border width 1px usually implied but here effectively 0/transparent unless needed
-        "hover:bg-surface-brand-hov",
+        "hover:bg-surface-brand-hover",
+        "focus-visible:shadow-outline-brand",
         "disabled:bg-surface-neutral-secondary disabled:text-foreground-disable",
       ],
       destructive: [
         "bg-surface-danger text-foreground-on-color shadow-danger",
-        "border-transparent border",
-        "hover:bg-surface-danger-hov",
+        "hover:bg-surface-danger-hover",
+        "focus-visible:shadow-outline-danger",
         "disabled:bg-surface-neutral-secondary disabled:text-foreground-disable",
       ],
       secondary: [
         "bg-surface-neutral-primary text-foreground-primary shadow-neutral",
-        "border-transparent border",
         "hover:bg-surface-neutral-secondary",
+        "focus-visible:shadow-outline-neutral",
         "disabled:bg-surface-neutral-secondary disabled:text-foreground-disable",
       ],
       tertiary: [
-        "bg-transparent text-foreground-secondary shadow-none",
+        "text-foreground-secondary bg-transparent shadow-none",
         "hover:bg-surface-neutral-secondary",
+        "focus-visible:shadow-outline-neutral",
         "disabled:text-foreground-disable",
       ],
       tertiaryInverse: [
         "bg-transparent text-white shadow-none",
         "hover:bg-white/10",
-        "disabled:text-white/50",
+        "focus-visible:shadow-outline-neutral",
+        "disabled:text-foreground-state-neutral-dark-disable",
       ],
       // Legacy "ghost" mapped to Tertiary for backward compat if needed, otherwise removed.
       ghost: [
-        "bg-transparent text-foreground-secondary shadow-none",
+        "text-foreground-secondary bg-transparent shadow-none",
         "hover:bg-surface-neutral-secondary",
+        "focus-visible:shadow-outline-neutral",
         "disabled:text-foreground-disable",
       ],
     },
     size: {
       default: [
         // Medium: 32px height, 8px px, 6px py, 10px radius
-        "h-[32px] px-[8px] py-[6px] rounded-[10px]",
+        "h-[32px] rounded-[10px] px-[8px] py-[6px]",
         "text-label-sm", // 13px
       ],
       sm: [
         // Small: 28px height, 4px px, 4px py, 8px radius
-        "h-[28px] px-[4px] py-[4px] rounded-[8px]",
+        "h-[28px] rounded-[8px] px-[4px] py-[4px]",
         "text-label-sm", // 13px
       ],
       xs: [
         // XSmall: 20px height, 4px px, 2px py, 6px radius
-        "h-[20px] px-[4px] py-[2px] rounded-[6px]",
+        "h-[20px] rounded-[6px] px-[4px] py-[2px]",
         "text-label-xs", // 12px
       ],
       // Icon sizes
-      icon: "h-[32px] w-[32px] rounded-[10px] p-0 flex items-center justify-center", // Medium
-      "icon-sm": "h-[28px] w-[28px] rounded-[8px] p-0 flex items-center justify-center", // Small
-      "icon-xs": "h-[20px] w-[20px] rounded-[6px] p-0 flex items-center justify-center", // XSmall
+      icon: "flex h-[32px] w-[32px] items-center justify-center rounded-[10px] p-0", // Medium
+      "icon-sm":
+        "flex h-[28px] w-[28px] items-center justify-center rounded-[8px] p-0", // Small
+      "icon-xs":
+        "flex h-[20px] w-[20px] items-center justify-center rounded-[6px] p-0", // XSmall
     },
   },
   defaultVariants: {
@@ -86,8 +91,9 @@ const buttonVariants = tv({
  * Source: Figma Node 2048:24262
  */
 interface ButtonProps
-  extends React.ComponentPropsWithoutRef<"button">,
-  VariantProps<typeof buttonVariants> {
+  extends
+    React.ComponentPropsWithoutRef<"button">,
+    VariantProps<typeof buttonVariants> {
   asChild?: boolean
   isLoading?: boolean
   loadingText?: string
@@ -119,8 +125,16 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     // If asChild is used, animation props might need to be passed differently or avoided on the Slot.
     const Component = asChild ? Slot : motion.button
 
-    // Define strict icon size based on design spec (14px)
-    const iconSizeClass = "size-[14px]"
+    const isIconOnlySize =
+      size === "icon" || size === "icon-sm" || size === "icon-xs"
+    const iconSizeClass =
+      variant === "tertiaryInverse" && size === "sm"
+        ? "size-[16px]"
+        : "size-[14px]"
+    const shouldShowLoadingText =
+      !isIconOnlySize && (loadingText !== undefined || Boolean(children))
+    const resolvedLoadingText =
+      loadingText !== undefined ? loadingText : "Loading..."
 
     return (
       <Component
@@ -135,7 +149,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         {isLoading ? (
           <>
             <RiLoader2Fill
-              className={cx(iconSizeClass, "animate-spin shrink-0")}
+              className={cx(iconSizeClass, "shrink-0 animate-spin")}
               aria-hidden="true"
             />
             {/* If there is loading text, show it. Otherwise, if there were children (label), show them? 
@@ -145,33 +159,22 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
                 Let's stick to simple: Spinner + Text if loadingText provided, else just Spinner replacing content?
                 Existing code replaced content. Let's keep logic but enforce sizes.
             */}
-            {loadingText && (
-              <span className="px-[2px]">
-                {loadingText}
-              </span>
-            )}
-            {!loadingText && children && (
-              // If loading but no loading text, we often still want to show the label OR just the spinner.
-              // Existing implementation replaced content with "Loading" text or loadingText.
-              // Let's adopt a cleaner pattern: Spinner + Children (opacity reduced?) or just Spinner?
-              // Detailed plan said: "Replaces content with SpinnerGap".
-              // So if no loadingText, maybe we hide children?
-              // Let's stick to existing code behavior improved: Spinner + loadingText or Spinner only.
-              // Wait, existing code: if loadingText, show it. Else show "Loading" (sr-only) + children?
-              // Let's render children but maybe pointer-events-none.
-              <span className="px-[2px]">
-                {children}
-              </span>
+            {shouldShowLoadingText && (
+              <span className="px-xs">{resolvedLoadingText}</span>
             )}
           </>
         ) : (
           <>
             {leadingIcon && (
-              <span className="flex items-center justify-center shrink-0">
+              <span className="flex shrink-0 items-center justify-center">
                 {React.isValidElement(leadingIcon)
-                  ? React.cloneElement(leadingIcon as React.ReactElement, { className: cx(iconSizeClass, (leadingIcon as any).props?.className) })
-                  : leadingIcon
-                }
+                  ? React.cloneElement(leadingIcon as React.ReactElement, {
+                      className: cx(
+                        iconSizeClass,
+                        (leadingIcon as any).props?.className,
+                      ),
+                    })
+                  : leadingIcon}
               </span>
             )}
 
@@ -182,17 +185,19 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
                 Let's simplify: Just render children. Gap handles spacing.
             */}
             {children && (
-              <span className="">
-                {children}
-              </span>
+              <span className="inline-flex items-center px-xs">{children}</span>
             )}
 
             {trailingIcon && (
-              <span className="flex items-center justify-center shrink-0">
+              <span className="flex shrink-0 items-center justify-center">
                 {React.isValidElement(trailingIcon)
-                  ? React.cloneElement(trailingIcon as React.ReactElement, { className: cx(iconSizeClass, (trailingIcon as any).props?.className) })
-                  : trailingIcon
-                }
+                  ? React.cloneElement(trailingIcon as React.ReactElement, {
+                      className: cx(
+                        iconSizeClass,
+                        (trailingIcon as any).props?.className,
+                      ),
+                    })
+                  : trailingIcon}
               </span>
             )}
           </>

@@ -1,7 +1,7 @@
-import { Meta, Canvas } from '@storybook/blocks';
-import * as InputStories from '../input/Input.stories';
-import * as SelectStories from '../input/Select.stories';
-import * as ButtonStories from '../action/Button.stories';
+import { Meta, Canvas } from "@storybook/blocks"
+import * as InputStories from "../input/Input.stories"
+import * as SelectStories from "../input/Select.stories"
+import * as ButtonStories from "../action/Button.stories"
 
 <Meta title="Docs/Patterns/Forms" />
 
@@ -15,22 +15,22 @@ Use a vertical stack for form fields on mobile, and grid layouts on desktop wher
 
 ```tsx
 <form className="space-y-4">
-    <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
-        <Input id="email" type="email" placeholder="name@example.com" />
-    </div>
-    
-    <div className="space-y-2">
-        <Label htmlFor="role">Role</Label>
-        <Select id="role">
-            <SelectItem value="admin">Admin</SelectItem>
-            <SelectItem value="user">User</SelectItem>
-        </Select>
-    </div>
+  <div className="space-y-2">
+    <Label htmlFor="email">Email</Label>
+    <Input id="email" type="email" placeholder="name@example.com" />
+  </div>
 
-    <div className="pt-4">
-        <Button type="submit">Save Changes</Button>
-    </div>
+  <div className="space-y-2">
+    <Label htmlFor="role">Role</Label>
+    <Select id="role">
+      <SelectItem value="admin">Admin</SelectItem>
+      <SelectItem value="user">User</SelectItem>
+    </Select>
+  </div>
+
+  <div className="pt-4">
+    <Button type="submit">Save Changes</Button>
+  </div>
 </form>
 ```
 

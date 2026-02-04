@@ -479,7 +479,7 @@ const TableRow = ({
 const CoverPageContainer = ({ children }: { children: React.ReactNode }) => (
   <div
     style={{ width: `${A4_WIDTH}px`, height: `${A4_HEIGHT}px` }}
-    className="relative mx-auto flex flex-col overflow-hidden bg-[#151515] font-sans text-white shadow-xl"
+    className="relative mx-auto flex flex-col overflow-hidden bg-[#151515] text-white shadow-xl"
   >
     {children}
   </div>
@@ -493,7 +493,7 @@ const StandardPageContainer = ({ children }: { children: React.ReactNode }) => (
       minHeight: `${A4_HEIGHT}px`,
       maxHeight: `${A4_HEIGHT}px`,
     }}
-    className="shadow-sm-border relative mx-auto flex flex-col overflow-hidden rounded-sm bg-white font-sans text-black print:border-0 print:shadow-none"
+    className="shadow-sm-border relative mx-auto flex flex-col overflow-hidden rounded-sm bg-white text-black print:border-0 print:shadow-none"
   >
     {children}
   </div>
@@ -1324,7 +1324,7 @@ export const SLADocumentPreview = React.forwardRef<
   return (
     <div
       ref={containerRef}
-      className={`flex w-full flex-col items-center px-2 font-sans antialiased ${className || ""}`}
+      className={`flex w-full flex-col items-center px-2 antialiased ${className || ""}`}
     >
       {/* Print-specific styles */}
       <style jsx global>{`
@@ -1390,7 +1390,7 @@ export const SLADocumentPreview = React.forwardRef<
           <RiArrowLeftSLine size={16} />
         </Button>
 
-        <span className="text-tremor-content min-w-[60px] text-center font-mono text-sm tracking-wider">
+        <span className="text-tremor-content text-body-sm min-w-[60px] text-center tabular-nums">
           {pageNum} <span className="text-tremor-content-subtle">/</span>{" "}
           {pages.length + 1}
         </span>
@@ -1446,7 +1446,7 @@ export const SLADocumentPreview = React.forwardRef<
                   alignItems: "center",
                 }}
               >
-                <div className="font-sans text-2xl font-bold text-white">
+                <div className="text-display-xxs text-white">
                   KRETYA STUDIO
                 </div>
               </div>

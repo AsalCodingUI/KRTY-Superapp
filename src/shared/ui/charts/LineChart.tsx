@@ -80,11 +80,11 @@ const LegendItem = ({
       <p
         className={cx(
           // base
-          "truncate text-xs whitespace-nowrap",
+          "text-body-xs truncate whitespace-nowrap",
           // text color
           "text-content-subtle dark:text-content-subtle",
           hasOnValueChange &&
-          "group-hover:text-content dark:group-hover:text-content",
+            "group-hover:text-content dark:group-hover:text-content",
           activeLegend && activeLegend !== name ? "opacity-40" : "opacity-100",
         )}
       >
@@ -421,7 +421,7 @@ const OverviewChartTooltip = ({
       <div
         className={cx(
           // base
-          "rounded-md border text-sm shadow-md",
+          "text-body-sm rounded-md border shadow-md",
           // border color
           "border-border",
           // background color
@@ -460,7 +460,7 @@ const OverviewChartTooltip = ({
                   index === 0
                     ? (payloadData as Record<string, unknown>).formattedDate
                     : (payloadData as Record<string, unknown>)
-                      .previousFormattedDate,
+                        .previousFormattedDate,
                 )}
                 color={getColorClassName(
                   categoryColors.get(payload.name) as AvailableChartColorsKeys,
@@ -533,7 +533,7 @@ interface LineChartProps extends React.HTMLAttributes<HTMLDivElement> {
 /**
  * LineChart component for visualizing data trends over time.
  * Built on Recharts.
- * 
+ *
  * @example
  * ```tsx
  * <LineChart
@@ -641,10 +641,10 @@ const LineChart = React.forwardRef<HTMLDivElement, LineChartProps>(
             onClick={
               hasOnValueChange && (activeLegend || activeDot)
                 ? () => {
-                  setActiveDot(undefined)
-                  setActiveLegend(undefined)
-                  onValueChange?.(null)
-                }
+                    setActiveDot(undefined)
+                    setActiveLegend(undefined)
+                    onValueChange?.(null)
+                  }
                 : undefined
             }
             margin={{
@@ -676,7 +676,7 @@ const LineChart = React.forwardRef<HTMLDivElement, LineChartProps>(
               stroke=""
               className={cx(
                 // base
-                "text-xs",
+                "text-body-xs",
                 // text fill
                 "fill-content-subtle",
               )}
@@ -688,7 +688,7 @@ const LineChart = React.forwardRef<HTMLDivElement, LineChartProps>(
                 <Label
                   position="insideBottom"
                   offset={-20}
-                  className="fill-content text-sm font-medium"
+                  className="fill-content text-label-md"
                 >
                   {xAxisLabel}
                 </Label>
@@ -706,7 +706,7 @@ const LineChart = React.forwardRef<HTMLDivElement, LineChartProps>(
               stroke=""
               className={cx(
                 // base
-                "text-xs",
+                "text-body-xs",
                 // text fill
                 "fill-content-subtle",
               )}
@@ -719,7 +719,7 @@ const LineChart = React.forwardRef<HTMLDivElement, LineChartProps>(
                   textAnchor="middle"
                   angle={-90}
                   offset={-15}
-                  className="fill-content text-sm font-medium"
+                  className="fill-content text-label-md"
                 >
                   {yAxisLabel}
                 </Label>
@@ -760,7 +760,7 @@ const LineChart = React.forwardRef<HTMLDivElement, LineChartProps>(
                     activeLegend,
                     hasOnValueChange
                       ? (clickedLegendItem: string) =>
-                        onCategoryClick(clickedLegendItem)
+                          onCategoryClick(clickedLegendItem)
                       : undefined,
                     enableLegendSlider,
                   )
@@ -878,26 +878,26 @@ const LineChart = React.forwardRef<HTMLDivElement, LineChartProps>(
             {/* hidden lines to increase clickable target area */}
             {onValueChange
               ? categories.map((category) => (
-                <Line
-                  className={cx("cursor-pointer")}
-                  strokeOpacity={0}
-                  key={category}
-                  name={category}
-                  type="linear"
-                  dataKey={category}
-                  stroke="transparent"
-                  fill="transparent"
-                  legendType="none"
-                  tooltipType="none"
-                  strokeWidth={12}
-                  connectNulls={connectNulls}
-                  onClick={(props: any, event) => {
-                    event.stopPropagation()
-                    const { name } = props
-                    onCategoryClick(name)
-                  }}
-                />
-              ))
+                  <Line
+                    className={cx("cursor-pointer")}
+                    strokeOpacity={0}
+                    key={category}
+                    name={category}
+                    type="linear"
+                    dataKey={category}
+                    stroke="transparent"
+                    fill="transparent"
+                    legendType="none"
+                    tooltipType="none"
+                    strokeWidth={12}
+                    connectNulls={connectNulls}
+                    onClick={(props: any, event) => {
+                      event.stopPropagation()
+                      const { name } = props
+                      onCategoryClick(name)
+                    }}
+                  />
+                ))
               : null}
           </RechartsLineChart>
         </ResponsiveContainer>

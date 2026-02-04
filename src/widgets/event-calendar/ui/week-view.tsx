@@ -54,7 +54,7 @@ export const WeekView = memo(function WeekView({
               key={day.toISOString()}
               className="border-border-border flex-1 border-r py-3 text-center last:border-r-0"
             >
-              <div className="text-content text-sm">
+              <div className="text-content text-label-md">
                 <span className={cx(isToday && "text-primary font-semibold")}>
                   {format(day, "d")}
                 </span>{" "}
@@ -83,7 +83,7 @@ export const WeekView = memo(function WeekView({
               return (
                 <div
                   key={slot.toISOString()}
-                  className="text-content-muted relative h-[var(--height)] pr-2 text-right text-xs"
+                  className="text-content-muted text-body-xs relative h-[var(--height)] pr-2 text-right"
                   style={
                     { "--height": `${HOUR_HEIGHT}px` } as React.CSSProperties
                   }

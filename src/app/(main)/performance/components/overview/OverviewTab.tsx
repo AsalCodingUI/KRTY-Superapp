@@ -160,11 +160,9 @@ function EmployeeOverview() {
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
         {/* Overall Score Card */}
         <Card className="border-l-primary flex flex-col justify-between border-l-4">
-          <dt className="text-content-subtle text-sm font-medium">
-            Overall Score
-          </dt>
+          <dt className="text-content-subtle text-label-md">Overall Score</dt>
           <dd className="mt-2 flex items-baseline gap-2">
-            <span className="text-content text-3xl font-semibold">
+            <span className="text-content text-display-xs">
               {overallScore !== null ? `${overallScore}%` : "—"}
             </span>
           </dd>
@@ -181,31 +179,29 @@ function EmployeeOverview() {
 
         {/* KPI Achievement Card */}
         <Card>
-          <dt className="text-content-subtle text-sm font-medium">
-            KPI SLA Project
-          </dt>
+          <dt className="text-content-subtle text-label-md">KPI SLA Project</dt>
           <dd className="mt-2 flex items-baseline gap-2">
-            <span className="text-content text-3xl font-semibold">
+            <span className="text-content text-display-xs">
               {slaRow?.result !== null ? `${slaRow?.result}%` : "—"}
             </span>
             {slaRow?.target && (
-              <span className="text-content-subtle text-sm">
+              <span className="text-content-subtle text-body-sm">
                 / {slaRow.target}%
               </span>
             )}
           </dd>
-          <p className="text-content-subtle mt-4 text-xs">
+          <p className="text-content-subtle text-body-xs mt-4">
             Weight: {slaRow?.weighted || 0}% of total score
           </p>
         </Card>
 
         {/* 360 Feedback Rating Card */}
         <Card>
-          <dt className="text-content-subtle text-sm font-medium">
+          <dt className="text-content-subtle text-label-md">
             360 Feedback Rating
           </dt>
           <dd className="mt-2 flex items-baseline gap-2">
-            <span className="text-content text-3xl font-semibold">
+            <span className="text-content text-display-xs">
               {reviewRow?.result !== null ? `${reviewRow?.result}%` : "—"}
             </span>
             {reviewRow?.result !== null && (
@@ -223,7 +219,7 @@ function EmployeeOverview() {
               </div>
             )}
           </dd>
-          <p className="text-content-subtle mt-4 text-xs">
+          <p className="text-content-subtle text-body-xs mt-4">
             Weight: {reviewRow?.weighted || 0}% of total score
           </p>
         </Card>
@@ -238,7 +234,7 @@ function EmployeeOverview() {
           </h3>
           <div className="space-y-4">
             <div>
-              <div className="mb-2 flex justify-between text-sm">
+              <div className="text-label-md mb-2 flex justify-between">
                 <span className="text-content-subtle">Achievement</span>
                 <span className="font-medium">
                   {slaRow?.result !== null ? `${slaRow?.result}%` : "—"}
@@ -257,7 +253,7 @@ function EmployeeOverview() {
                 }
               />
             </div>
-            <p className="text-content-subtle text-xs">
+            <p className="text-content-subtle text-body-xs">
               Target: {slaRow?.target || 90}% on-time delivery
             </p>
           </div>
@@ -270,7 +266,7 @@ function EmployeeOverview() {
           </h3>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-content text-2xl font-bold">
+              <span className="text-content text-display-xxs">
                 {reviewRow?.result !== null ? `${reviewRow?.result}%` : "—"}
               </span>
               {reviewRow?.result != null && (
@@ -279,7 +275,7 @@ function EmployeeOverview() {
                 </Badge>
               )}
             </div>
-            <p className="text-content-subtle text-xs">
+            <p className="text-content-subtle text-body-xs">
               Peer review score for {selectedQuarter}
             </p>
           </div>
@@ -290,7 +286,7 @@ function EmployeeOverview() {
           <h3 className="text-content mb-4 font-semibold">Work Quality</h3>
           <div className="space-y-4">
             <div>
-              <div className="mb-2 flex justify-between text-sm">
+              <div className="text-label-md mb-2 flex justify-between">
                 <span className="text-content-subtle">Quality Score</span>
                 <span className="font-medium">
                   {qualityRow?.result !== null ? `${qualityRow?.result}%` : "—"}
@@ -309,7 +305,7 @@ function EmployeeOverview() {
                 }
               />
             </div>
-            <p className="text-content-subtle text-xs">
+            <p className="text-content-subtle text-body-xs">
               Weight: {qualityRow?.weighted || 0}% of total score
             </p>
           </div>
@@ -326,7 +322,7 @@ function EmployeeOverview() {
         {assignments.length === 0 ? (
           <div className="py-8 text-center">
             <RiFolderLine className="text-content-placeholder mx-auto size-12" />
-            <p className="text-content-subtle mt-2 text-sm">
+            <p className="text-content-subtle text-body-sm mt-2">
               No projects assigned in this quarter
             </p>
           </div>
@@ -366,7 +362,7 @@ function EmployeeOverview() {
                       <h4 className="text-content truncate font-medium">
                         {assignment.projects.name}
                       </h4>
-                      <p className="text-content-subtle mt-0.5 text-xs">
+                      <p className="text-content-subtle text-body-xs mt-0.5">
                         {assignment.role_in_project}
                       </p>
                     </div>
@@ -380,7 +376,7 @@ function EmployeeOverview() {
                       >
                         {assignment.projects.status}
                       </Badge>
-                      <div className="text-content-subtle text-xs">
+                      <div className="text-content-subtle text-body-xs">
                         SLA: {slaPercent}% • Quality: {qualityAchieved}/
                         {qualityScores.length}
                       </div>
@@ -390,7 +386,7 @@ function EmployeeOverview() {
               )
             })}
             {assignments.length > 5 && (
-              <p className="text-content-subtle mt-2 text-center text-xs">
+              <p className="text-content-subtle text-body-xs mt-2 text-center">
                 + {assignments.length - 5} more projects
               </p>
             )}
@@ -463,10 +459,10 @@ function StakeholderOverview() {
               <RiGroupLine className="text-primary size-6" />
             </div>
             <div>
-              <dt className="text-content-subtle text-sm font-medium">
+              <dt className="text-content-subtle text-label-md">
                 Total Employees
               </dt>
-              <dd className="text-content text-2xl font-semibold">
+              <dd className="text-content text-display-xxs">
                 {stats.totalEmployees}
               </dd>
             </div>
@@ -479,10 +475,10 @@ function StakeholderOverview() {
               <RiLineChartLine className="text-success size-6" />
             </div>
             <div>
-              <dt className="text-content-subtle text-sm font-medium">
+              <dt className="text-content-subtle text-label-md">
                 Avg. Performance
               </dt>
-              <dd className="text-content text-2xl font-semibold">
+              <dd className="text-content text-display-xxs">
                 {stats.avgPerformance > 0 ? `${stats.avgPerformance}%` : "—"}
               </dd>
             </div>
@@ -495,10 +491,10 @@ function StakeholderOverview() {
               <RiCheckboxCircleLine className="text-warning size-6" />
             </div>
             <div>
-              <dt className="text-content-subtle text-sm font-medium">
+              <dt className="text-content-subtle text-label-md">
                 Pending Reviews
               </dt>
-              <dd className="text-content text-2xl font-semibold">
+              <dd className="text-content text-display-xxs">
                 {stats.pendingReviews}
               </dd>
             </div>
@@ -511,10 +507,10 @@ function StakeholderOverview() {
               <RiBriefcaseLine className="text-info size-6" />
             </div>
             <div>
-              <dt className="text-content-subtle text-sm font-medium">
+              <dt className="text-content-subtle text-label-md">
                 Active Projects
               </dt>
-              <dd className="text-content text-2xl font-semibold">
+              <dd className="text-content text-display-xxs">
                 {stats.activeProjects}
               </dd>
             </div>
@@ -530,7 +526,7 @@ function StakeholderOverview() {
         {distributionTotal === 0 ? (
           <div className="py-8 text-center">
             <RiUserLine className="text-content-placeholder mx-auto size-12" />
-            <p className="text-content-subtle mt-2 text-sm">
+            <p className="text-content-subtle text-body-sm mt-2">
               No performance data available for this quarter
             </p>
           </div>
@@ -621,7 +617,7 @@ function StakeholderOverview() {
               ].map((item) => (
                 <div key={item.name} className="flex items-center gap-2">
                   <div className={`size-3 rounded-full ${item.color}`} />
-                  <div className="text-xs">
+                  <div className="text-label-xs">
                     <span className="text-content font-medium">
                       {item.count}
                     </span>{" "}
@@ -649,7 +645,7 @@ function StakeholderOverview() {
               </div>
               <div>
                 <h4 className="text-content font-medium">Manage KPI</h4>
-                <p className="text-content-subtle text-xs">
+                <p className="text-content-subtle text-label-xs">
                   View and edit employee KPI scores
                 </p>
               </div>
@@ -670,7 +666,7 @@ function StakeholderOverview() {
               </div>
               <div>
                 <h4 className="text-content font-medium">360 Reviews</h4>
-                <p className="text-content-subtle text-xs">
+                <p className="text-content-subtle text-label-xs">
                   Monitor peer review progress
                 </p>
               </div>

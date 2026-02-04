@@ -144,7 +144,7 @@ const DrawerTitle = React.forwardRef<
     ref={forwardedRef}
     className={cx(
       // base
-      "text-base font-semibold",
+      "text-heading-sm",
       // text color
       "text-content dark:text-content",
       className,

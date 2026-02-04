@@ -71,7 +71,7 @@ function SortableItem({ item, table }: { item: Item; table: Table<any> }) {
             checked={column.getIsVisible()}
             onCheckedChange={(value) => column.toggleVisibility(!!value)}
           />
-          <span className="text-sm">{item.label}</span>
+          <span className="text-body-sm">{item.label}</span>
         </div>
         <Button
           variant="ghost"

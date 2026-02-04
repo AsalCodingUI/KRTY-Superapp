@@ -13,9 +13,9 @@ import { cx } from "@/shared/lib/utils"
 
 const inputSizeStyles = {
   // Figma: padding-lg (8px) horizontal, padding-md (6px) vertical for Default
-  sm: "px-[8px] py-[4px] text-[12px] h-8",
-  default: "px-[8px] py-[6px] text-[13px] h-9", // px-2 py-1.5
-  lg: "px-[12px] py-[8px] text-[14px] h-10",
+  sm: "px-[8px] py-[4px] text-body-xs h-8",
+  default: "px-[8px] py-[6px] text-body-sm h-9", // px-2 py-1.5
+  lg: "px-[12px] py-[8px] text-label-md h-10",
 } as const
 
 type InputSize = keyof typeof inputSizeStyles
@@ -23,8 +23,10 @@ type InputSize = keyof typeof inputSizeStyles
 /**
  * TextInput component with icon support, error handling, and Amerta design system styling.
  */
-interface TextInputProps
-  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "prefix"> {
+interface TextInputProps extends Omit<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  "prefix"
+> {
   icon?: React.ElementType | React.ReactElement // Left icon (deprecated, use leadingIcon)
   leadingIcon?: React.ElementType | React.ReactElement
   trailingIcon?: React.ElementType | React.ReactElement
@@ -87,9 +89,7 @@ const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
               LeftIcon
             )}
             {prefix && (
-              <span className="text-content-subtle text-[13px] font-normal">
-                {prefix}
-              </span>
+              <span className="text-content-subtle text-body-sm">{prefix}</span>
             )}
           </div>
 
@@ -166,7 +166,7 @@ const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
                 )}
 
                 {suffix && !hasRightAction && !RightIcon && (
-                  <span className="text-content-subtle pointer-events-none text-[13px] font-normal">
+                  <span className="text-content-subtle text-body-sm pointer-events-none">
                     {suffix}
                   </span>
                 )}
@@ -177,12 +177,12 @@ const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
 
         {/* Helper Text or Error Message */}
         {error && errorMessage ? (
-          <p className="text-danger mt-1 flex items-center gap-1 text-xs">
+          <p className="text-danger text-body-xs mt-1 flex items-center gap-1">
             {/* Can add error icon here if needed */}
             {errorMessage}
           </p>
         ) : helperText ? (
-          <p className="text-content-subtle mt-1 text-xs">{helperText}</p>
+          <p className="text-content-subtle text-body-xs mt-1">{helperText}</p>
         ) : null}
       </div>
     )

@@ -65,7 +65,7 @@ export const DayView = memo(function DayView({
               return (
                 <div
                   key={slot.toISOString()}
-                  className="text-content-muted relative h-[var(--height)] pr-2 text-right text-xs"
+                  className="text-content-muted text-body-xs relative h-[var(--height)] pr-2 text-right"
                   style={
                     { "--height": `${HOUR_HEIGHT}px` } as React.CSSProperties
                   }

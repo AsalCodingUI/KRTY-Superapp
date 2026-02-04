@@ -5,10 +5,12 @@ This directory contains utilities and data structures for the design system show
 ## Files
 
 ### Token Extraction
+
 - **`token-extractor.ts`**: Utilities for parsing design tokens from `globals.css`
 - **`__tests__/token-extractor.test.ts`**: Property-based tests for token extraction
 
 ### Component Registry
+
 - **`component-registry.types.ts`**: TypeScript interfaces for the component registry system
 - **`component-registry.data.tsx`**: Complete registry of all 35+ UI components organized into 7 categories
 - **`component-registry.ts`**: Main export file for registry types and data
@@ -41,24 +43,30 @@ The component registry organizes all UI components into the following categories
 ## Usage
 
 ```typescript
-import { componentRegistry } from '@/lib/design-system/component-registry'
-import type { ComponentEntry, ComponentCategory } from '@/lib/design-system/component-registry'
+import { componentRegistry } from "@/lib/design-system/component-registry"
+import type {
+  ComponentEntry,
+  ComponentCategory,
+} from "@/lib/design-system/component-registry"
 
 // Access all categories
 const categories = componentRegistry.categories
 
 // Find a specific component
 const buttonComponent = categories
-  .find(cat => cat.id === 'buttons-actions')
-  ?.components.find(comp => comp.id === 'button')
+  .find((cat) => cat.id === "buttons-actions")
+  ?.components.find((comp) => comp.id === "button")
 
 // Get all components in a category
-const formInputs = categories.find(cat => cat.id === 'form-inputs')?.components
+const formInputs = categories.find(
+  (cat) => cat.id === "form-inputs",
+)?.components
 ```
 
 ## Data Structure
 
 Each component entry includes:
+
 - **id**: Unique identifier
 - **name**: Display name
 - **description**: Component purpose

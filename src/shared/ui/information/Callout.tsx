@@ -7,7 +7,7 @@ import type { VariantProps } from "tailwind-variants"
 import { cx } from "@/shared/lib/utils"
 
 const calloutVariants = tv({
-  base: "flex flex-col overflow-hidden rounded-md border p-4 text-sm",
+  base: "text-body-sm flex flex-col overflow-hidden rounded-md border p-4",
   variants: {
     variant: {
       default: [
@@ -48,8 +48,9 @@ const calloutVariants = tv({
  * ```
  */
 interface CalloutProps
-  extends React.ComponentPropsWithoutRef<"div">,
-  VariantProps<typeof calloutVariants> {
+  extends
+    React.ComponentPropsWithoutRef<"div">,
+    VariantProps<typeof calloutVariants> {
   title: string
   icon?: React.ElementType | React.ReactElement
 }

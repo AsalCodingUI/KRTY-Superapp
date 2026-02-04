@@ -1,6 +1,6 @@
 "use server"
 
-import { createClient } from '@/shared/api/supabase/server'
+import { createClient } from "@/shared/api/supabase/server"
 import { logError } from "@/shared/lib/utils/logger"
 
 /**

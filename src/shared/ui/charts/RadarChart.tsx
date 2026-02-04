@@ -46,7 +46,7 @@ const colorMap: Record<string, string> = {
 /**
  * RadarChart component for comparing multiple quantitative variables.
  * Built on Recharts.
- * 
+ *
  * @example
  * ```tsx
  * <RadarChart
@@ -115,7 +115,7 @@ const RadarChart = React.forwardRef<HTMLDivElement, RadarChartProps>(
                 content={({ active, payload, label }) => {
                   if (active && payload && payload.length) {
                     return (
-                      <div className="border-border bg-surface rounded-md p-2 text-xs shadow-sm">
+                      <div className="border-border bg-surface text-label-xs rounded-md p-2 shadow-sm">
                         <p className="text-content dark:text-content mb-2 font-medium">
                           {label}
                         </p>
@@ -147,7 +147,7 @@ const RadarChart = React.forwardRef<HTMLDivElement, RadarChartProps>(
               <Legend
                 wrapperStyle={{ paddingTop: "20px" }}
                 formatter={(value) => (
-                  <span className="text-content-subtle dark:text-content-placeholder ml-1 text-sm">
+                  <span className="text-content-subtle dark:text-content-placeholder text-body-sm ml-1">
                     {value}
                   </span>
                 )}

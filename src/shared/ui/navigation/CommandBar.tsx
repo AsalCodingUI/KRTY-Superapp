@@ -6,7 +6,7 @@ import * as React from "react"
 import { cx, focusRing } from "@/shared/lib/utils"
 
 const shortcutStyles = cx(
-  "bg-surface-neutral-secondary text-foreground-secondary ring-border-default hidden h-6 items-center justify-center rounded-md px-2 font-mono text-xs ring-1 transition select-none ring-inset sm:flex",
+  "bg-surface-neutral-secondary text-foreground-secondary ring-border-default text-body-xs hidden h-6 items-center justify-center rounded-md px-2 ring-1 transition select-none ring-inset sm:flex",
 )
 
 interface CommandBarProps extends React.PropsWithChildren {
@@ -78,7 +78,7 @@ const CommandBarValue = React.forwardRef<
     <div
       ref={ref}
       className={cx(
-        "text-foreground-secondary px-3 py-2.5 text-sm tabular-nums",
+        "text-foreground-secondary text-body-sm px-3 py-2.5 tabular-nums",
         className,
       )}
       {...props}
@@ -118,11 +118,10 @@ const CommandBarSeperator = React.forwardRef<
 })
 CommandBarSeperator.displayName = "CommandBar.Seperator"
 
-interface CommandProps
-  extends Omit<
-    React.ComponentPropsWithoutRef<"button">,
-    "children" | "onClick"
-  > {
+interface CommandProps extends Omit<
+  React.ComponentPropsWithoutRef<"button">,
+  "children" | "onClick"
+> {
   action: () => void | Promise<void>
   label: string
   shortcut: { shortcut: string; label?: string }
@@ -162,7 +161,7 @@ const CommandBarCommand = React.forwardRef<HTMLButtonElement, CommandProps>(
     return (
       <span
         className={cx(
-          "bg-surface text-foreground-primary flex items-center gap-x-2 rounded-lg p-1 text-base font-medium transition outline-none focus:z-10 sm:text-sm",
+          "bg-surface text-foreground-primary text-label-lg sm:text-label-md flex items-center gap-x-2 rounded-lg p-1 transition outline-none focus:z-10",
           "sm:last-of-type:-mr-1",
           className,
         )}

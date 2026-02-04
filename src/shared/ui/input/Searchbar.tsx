@@ -5,12 +5,12 @@ import { RiSearchLine } from "@remixicon/react"
 import * as React from "react"
 import type { VariantProps } from "tailwind-variants"
 
-import { cx, focusInput, hasErrorInput } from '@/shared/lib/utils'
+import { cx, focusInput, hasErrorInput } from "@/shared/lib/utils"
 
 const inputStyles = tv({
   base: [
     // base
-    "relative block w-full appearance-none truncate rounded-md border px-2.5 py-2 outline-none transition sm:text-sm",
+    "sm:text-body-sm relative block w-full appearance-none truncate rounded-md border px-2.5 py-2 transition outline-none",
     // border color
     "border-border",
     // text color
@@ -21,7 +21,7 @@ const inputStyles = tv({
     "bg-surface dark:bg-surface",
     // disabled
     "disabled:border-border disabled:text-content-placeholder",
-    "disabled:dark:border disabled:dark:text-content-subtle",
+    "disabled:dark:text-content-subtle disabled:dark:border",
     // focus
     focusInput,
     // invalid (optional)
@@ -41,14 +41,15 @@ const inputStyles = tv({
 })
 
 interface InputProps
-  extends React.InputHTMLAttributes<HTMLInputElement>,
-  VariantProps<typeof inputStyles> {
+  extends
+    React.InputHTMLAttributes<HTMLInputElement>,
+    VariantProps<typeof inputStyles> {
   inputClassName?: string
 }
 
 /**
  * Searchbar component with icon and built-in styling.
- * 
+ *
  * @example
  * ```tsx
  * <Searchbar placeholder="Search..." />

@@ -2,5 +2,5 @@
  * Public API
  */
 
-export * from './schema';
-export * from './data';
+export * from "./schema"
+export * from "./data"

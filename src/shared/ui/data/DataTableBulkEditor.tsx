@@ -6,11 +6,11 @@ import {
   CommandBarCommand,
   CommandBarSeperator,
   CommandBarValue,
-} from '@/shared/ui/navigation/CommandBar'
+} from "@/shared/ui/navigation/CommandBar"
 import { RowSelectionState, Table } from "@tanstack/react-table"
 
 // HAPUS IMPORT INI KARENA HARDCODED KE TEAMS
-// import { DeleteConfirmDialog } from '@/app/(main)/teams/components/TeamDialogs' 
+// import { DeleteConfirmDialog } from '@/app/(main)/teams/components/TeamDialogs'
 
 type DataTableBulkEditorProps<TData> = {
   table: Table<TData>
@@ -32,7 +32,9 @@ function DataTableBulkEditor<TData>({
   // const [isDeleteOpen, setIsDeleteOpen] = useState(false)
 
   const selectedRows = table.getSelectedRowModel().rows
-  const selectedIds = selectedRows.map((row) => (row.original as { id: string }).id)
+  const selectedIds = selectedRows.map(
+    (row) => (row.original as { id: string }).id,
+  )
 
   // Handler baru yang generic
   const handleBulkDelete = async () => {
@@ -46,9 +48,7 @@ function DataTableBulkEditor<TData>({
     <>
       <CommandBar open={hasSelectedRows}>
         <CommandBarBar>
-          <CommandBarValue>
-            {selectedCount} selected
-          </CommandBarValue>
+          <CommandBarValue>{selectedCount} selected</CommandBarValue>
           <CommandBarSeperator />
 
           {onEdit && selectedCount === 1 && (

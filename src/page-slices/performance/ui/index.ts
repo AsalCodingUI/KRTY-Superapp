@@ -1,1 +1,1 @@
-export { PerformancePage } from './PerformancePage';
+export { PerformancePage } from "./PerformancePage"

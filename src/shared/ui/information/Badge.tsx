@@ -1,60 +1,44 @@
 // Tremor Raw Badge [v0.2.0] - Unified Component with Size Variants
 
+import { cx } from "@/shared/lib/utils"
 import { tv } from "@/shared/lib/utils/tv"
+import { RiHeartFill, RiVerifiedBadgeFill } from "@remixicon/react"
 import React from "react"
 import type { VariantProps } from "tailwind-variants"
 
-import { cx } from "@/shared/lib/utils"
-
 const badgeVariants = tv({
   base: cx(
-    "inline-flex items-center gap-x-1 rounded-full border whitespace-nowrap transition-colors duration-150",
+    "inline-flex items-center justify-center gap-xs rounded-sm whitespace-nowrap transition-colors duration-150",
   ),
   variants: {
     variant: {
-      // Status variants (Solid light background, dark text - No Opacity)
-      default: [
-        "bg-surface-brand-light text-foreground-brand-dark border-transparent",
-      ],
-      zinc: [
-        "bg-surface-neutral-secondary text-foreground-secondary border-transparent",
-      ],
-      success: [
-        "bg-surface-success-light text-foreground-success-dark border-transparent",
-      ],
-      error: [
-        "bg-surface-danger-light text-foreground-danger-dark border-transparent",
-      ],
-      warning: [
-        "bg-surface-warning-light text-foreground-warning-dark border-transparent",
-      ],
-      info: [
-        "bg-surface-brand-light text-foreground-brand-dark border-transparent",
-      ],
+      // Subtle variants (Figma)
+      default: ["bg-surface-neutral-secondary text-foreground-secondary"],
+      info: ["bg-surface-brand-light text-foreground-brand-dark"],
+      success: ["bg-surface-success-light text-foreground-success-dark"],
+      warning: ["bg-surface-warning-light text-foreground-warning-on-color"],
+      error: ["bg-surface-danger-light text-foreground-danger-dark"],
+
+      // Compat aliases
+      zinc: ["bg-surface-neutral-secondary text-foreground-secondary"],
+      active: ["bg-surface-success-light text-foreground-success-dark"],
+      inactive: ["bg-surface-neutral-secondary text-foreground-secondary"],
 
       // Feedback variants (Solid strong background, white text)
       continue: [
-        "bg-surface-success text-foreground-on-color hover:bg-surface-success-hov border-transparent",
+        "bg-surface-success text-foreground-on-color hover:bg-surface-success-hov",
       ],
       start: [
-        "bg-surface-brand text-foreground-on-color hover:bg-surface-brand-hov border-transparent",
+        "bg-surface-brand text-foreground-on-color hover:bg-surface-brand-hov",
       ],
       stop: [
-        "bg-surface-danger text-foreground-on-color hover:bg-surface-danger-hov border-transparent",
-      ],
-
-      // Project status variants
-      active: [
-        "bg-surface-success-light text-foreground-success-dark border-transparent",
-      ],
-      inactive: [
-        "bg-surface-neutral-secondary text-foreground-secondary border-transparent",
+        "bg-surface-danger text-foreground-on-color hover:bg-surface-danger-hov",
       ],
     },
     size: {
-      sm: "px-1.5 py-0.5 text-xs font-medium",
-      md: "px-2 py-1 text-xs font-medium",
-      lg: "px-2.5 py-1.5 text-sm font-medium",
+      sm: "text-label-xs px-sm py-xs",
+      md: "text-label-sm px-md py-sm",
+      lg: "text-label-md px-lg py-md",
     },
   },
   compoundVariants: [
@@ -70,8 +54,15 @@ const badgeVariants = tv({
 })
 
 interface BadgeProps
-  extends React.ComponentPropsWithoutRef<"span">,
-  VariantProps<typeof badgeVariants> { }
+  extends
+    React.ComponentPropsWithoutRef<"span">,
+    VariantProps<typeof badgeVariants> {
+  leadingIcon?: React.ReactNode
+  trailingIcon?: React.ReactNode
+  showLeadingIcon?: boolean
+  showTrailingIcon?: boolean
+  useDefaultIcons?: boolean
+}
 
 /**
  * Unified Badge component for status indicators, labels, and feedback.
@@ -94,13 +85,63 @@ interface BadgeProps
  * ```
  */
 const Badge = React.forwardRef<HTMLSpanElement, BadgeProps>(
-  ({ className, variant, size, ...props }: BadgeProps, forwardedRef) => {
+  (
+    {
+      className,
+      variant,
+      size,
+      leadingIcon,
+      trailingIcon,
+      showLeadingIcon = true,
+      showTrailingIcon = true,
+      useDefaultIcons = false,
+      children,
+      ...props
+    }: BadgeProps,
+    forwardedRef,
+  ) => {
+    const renderIcon = (icon: React.ReactNode) => {
+      if (!icon) return null
+      if (React.isValidElement(icon)) {
+        return React.cloneElement(icon as React.ReactElement, {
+          className: cx("size-3.5 shrink-0 text-current", icon.props.className),
+          "aria-hidden": true,
+        })
+      }
+      return icon
+    }
+
+    const resolvedLeadingIcon =
+      showLeadingIcon &&
+      (leadingIcon ||
+        (useDefaultIcons ? <RiVerifiedBadgeFill /> : null))
+    const resolvedTrailingIcon =
+      showTrailingIcon &&
+      (trailingIcon ||
+        (useDefaultIcons ? <RiHeartFill /> : null))
+
     return (
       <span
         ref={forwardedRef}
         className={cx(badgeVariants({ variant, size }), className)}
         {...props}
-      />
+      >
+        {resolvedLeadingIcon && (
+          <span className="flex shrink-0 items-center justify-center">
+            {renderIcon(resolvedLeadingIcon)}
+          </span>
+        )}
+        {children !== undefined && children !== null && (
+          <span className="inline-flex items-center gap-xs px-xs">
+            {children}
+          </span>
+        )}
+        {resolvedTrailingIcon && (
+          <span className="flex shrink-0 items-center justify-center">
+            {renderIcon(resolvedTrailingIcon)}
+          </span>
+        )}
+      </span>
     )
   },
 )

@@ -37,21 +37,21 @@ export function CategoryBarCard({
       <div className="flex flex-col justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <h3 className="text-content dark:text-content font-semibold sm:text-sm">
+            <h3 className="text-content dark:text-content sm:text-label-md">
               {title}
             </h3>
             <Badge variant="zinc">{change}</Badge>
           </div>
           <p className="mt-2 flex items-baseline gap-2">
-            <span className="text-content dark:text-content text-xl">
+            <span className="text-content dark:text-content text-heading-lg">
               {value}
             </span>
-            <span className="text-content-muted text-sm">
+            <span className="text-content-muted text-body-sm">
               {valueDescription}
             </span>
           </p>
           <div className="mt-4">
-            <p className="text-content dark:text-content text-sm font-medium">
+            <p className="text-content dark:text-content text-label-md">
               {subtitle}
             </p>
             <div className="mt-2 flex items-center gap-0.5">
@@ -71,7 +71,10 @@ export function CategoryBarCard({
           </div>
           <ul role="list" className="mt-5 space-y-2">
             {data.map((item) => (
-              <li key={item.title} className="flex items-center gap-2 text-xs">
+              <li
+                key={item.title}
+                className="text-body-xs flex items-center gap-2"
+              >
                 <span
                   className={cx(item.color, "size-2.5 rounded-sm")}
                   aria-hidden="true"
@@ -86,7 +89,7 @@ export function CategoryBarCard({
             ))}
           </ul>
         </div>
-        <p className="text-content-muted mt-6 text-xs">
+        <p className="text-content-muted text-body-xs mt-6">
           {ctaDescription}{" "}
           <a href={ctaLink} className="text-primary hover:text-primary-hover">
             {ctaText}

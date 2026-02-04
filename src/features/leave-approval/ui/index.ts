@@ -1,2 +1,1 @@
-export { ApprovalButtons } from './ApprovalButtons';
-
+export { ApprovalButtons } from "./ApprovalButtons"

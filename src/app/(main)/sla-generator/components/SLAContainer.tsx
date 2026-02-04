@@ -258,10 +258,10 @@ export default function SLAContainer({
               <RiArrowLeftLine className="text-tremor-content-subtle h-5 w-5" />
             </Button>
             <div>
-              <h1 className="text-tremor-content-strong text-xl font-bold">
+              <h1 className="text-tremor-content-strong text-heading-lg">
                 {slaId ? "Edit SLA" : "New SLA"}
               </h1>
-              <p className="text-tremor-content-subtle text-sm">
+              <p className="text-tremor-content-subtle text-label-md">
                 {clientInfo.company || "Untitled Project"}
               </p>
             </div>

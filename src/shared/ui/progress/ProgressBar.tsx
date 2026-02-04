@@ -41,8 +41,9 @@ const progressBarVariants = tv({
 })
 
 interface ProgressBarProps
-  extends React.HTMLProps<HTMLDivElement>,
-  VariantProps<typeof progressBarVariants> {
+  extends
+    React.HTMLProps<HTMLDivElement>,
+    VariantProps<typeof progressBarVariants> {
   value?: number
   max?: number
   showAnimation?: boolean
@@ -84,7 +85,7 @@ const ProgressBar = React.forwardRef<HTMLDivElement, ProgressBarProps>(
               "h-full w-[var(--width)] flex-col rounded-full",
               bar(),
               showAnimation &&
-              "transform-gpu transition-all duration-300 ease-in-out",
+                "transform-gpu transition-all duration-300 ease-in-out",
             )}
             style={
               {
@@ -99,7 +100,7 @@ const ProgressBar = React.forwardRef<HTMLDivElement, ProgressBarProps>(
           <span
             className={cx(
               // base
-              "ml-2 text-sm leading-none font-medium whitespace-nowrap",
+              "text-label-md ml-2 whitespace-nowrap",
               // text color
               "text-foreground-primary",
             )}

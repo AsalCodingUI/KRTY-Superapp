@@ -11,12 +11,12 @@ import {
 } from "@remixicon/react"
 import * as React from "react"
 
-import { cx } from '@/shared/lib/utils'
+import { cx } from "@/shared/lib/utils"
 
 /**
  * Dropdown menu component with support for nested menus, checkboxes, and radio groups.
  * Built on Radix UI DropdownMenu primitives. (389 lines of features!)
- * 
+ *
  * @example
  * ```tsx
  * // Basic dropdown
@@ -31,7 +31,7 @@ import { cx } from '@/shared/lib/utils'
  *     <DropdownMenuItem>Delete</DropdownMenuItem>
  *   </DropdownMenuContent>
  * </DropdownMenu>
- * 
+ *
  * // With checkbox items
  * <DropdownMenu>
  *   <DropdownMenuTrigger>View</DropdownMenuTrigger>
@@ -41,7 +41,7 @@ import { cx } from '@/shared/lib/utils'
  *     </DropdownMenuCheckboxItem>
  *   </DropdownMenuContent>
  * </DropdownMenu>
- * 
+ *
  * // With radio group
  * <DropdownMenu>
  *   <DropdownMenuTrigger>Sort by</DropdownMenuTrigger>
@@ -77,11 +77,11 @@ const DropdownMenuSubMenuTrigger = React.forwardRef<
     ref={forwardedRef}
     className={cx(
       // base
-      "relative flex cursor-default select-none items-center rounded py-1.5 pl-2 pr-1 outline-none transition-colors data-[state=checked]:font-semibold sm:text-sm",
+      "data-[state=checked]: sm:text-label-md relative flex cursor-default items-center rounded py-1.5 pr-1 pl-2 transition-colors outline-none select-none",
       // text color
       "text-content dark:text-content",
       // disabled
-      "data-[disabled]:pointer-events-none data-[disabled]:text-content-placeholder data-[disabled]:hover:bg-none dark:data-[disabled]:text-content-subtle",
+      "data-[disabled]:text-content-placeholder dark:data-[disabled]:text-content-subtle data-[disabled]:pointer-events-none data-[disabled]:hover:bg-none",
       // focus
       "focus-visible:bg-muted data-[state=open]:bg-muted focus-visible:dark:bg-surface data-[state=open]:dark:bg-surface",
       // hover
@@ -93,7 +93,7 @@ const DropdownMenuSubMenuTrigger = React.forwardRef<
   >
     {children}
     <RiArrowRightSLine
-      className="ml-auto size-4 shrink-0 text-content-subtle"
+      className="text-content-subtle ml-auto size-4 shrink-0"
       aria-hidden="true"
     />
   </DropdownMenuPrimitives.SubTrigger>
@@ -193,11 +193,11 @@ const DropdownMenuItem = React.forwardRef<
     ref={forwardedRef}
     className={cx(
       // base
-      "group/DropdownMenuItem relative flex cursor-pointer select-none items-center rounded py-1.5 pl-2 pr-1 outline-none transition-colors data-[state=checked]:font-semibold sm:text-sm",
+      "group/DropdownMenuItem data-[state=checked]: sm:text-label-md relative flex cursor-pointer items-center rounded py-1.5 pr-1 pl-2 transition-colors outline-none select-none",
       // text color
       "text-content dark:text-content",
       // disabled
-      "data-[disabled]:pointer-events-none data-[disabled]:text-content-placeholder data-[disabled]:hover:bg-none dark:data-[disabled]:text-content-subtle",
+      "data-[disabled]:text-content-placeholder dark:data-[disabled]:text-content-subtle data-[disabled]:pointer-events-none data-[disabled]:hover:bg-none",
       // focus
       "focus-visible:bg-muted focus-visible:dark:bg-surface",
       // hover
@@ -209,14 +209,18 @@ const DropdownMenuItem = React.forwardRef<
     {children}
     {hint && (
       <span
-        className={cx("ml-auto pl-2 text-sm text-content-placeholder dark:text-content-subtle")}
+        className={cx(
+          "text-body-sm text-content-placeholder dark:text-content-subtle ml-auto pl-2",
+        )}
       >
         {hint}
       </span>
     )}
     {shortcut && (
       <span
-        className={cx("ml-auto pl-2 text-sm text-content-placeholder dark:text-content-subtle")}
+        className={cx(
+          "text-body-sm text-content-placeholder dark:text-content-subtle ml-auto pl-2",
+        )}
       >
         {shortcut}
       </span>
@@ -240,11 +244,11 @@ const DropdownMenuCheckboxItem = React.forwardRef<
       ref={forwardedRef}
       className={cx(
         // base
-        "relative flex cursor-pointer select-none items-center gap-x-2 rounded py-1.5 pl-8 pr-1 outline-none transition-colors data-[state=checked]:font-semibold sm:text-sm",
+        "data-[state=checked]: sm:text-label-md relative flex cursor-pointer items-center gap-x-2 rounded py-1.5 pr-1 pl-8 transition-colors outline-none select-none",
         // text color
         "text-content dark:text-content",
         // disabled
-        "data-[disabled]:pointer-events-none data-[disabled]:text-content-placeholder data-[disabled]:hover:bg-none dark:data-[disabled]:text-content-subtle",
+        "data-[disabled]:text-content-placeholder dark:data-[disabled]:text-content-subtle data-[disabled]:pointer-events-none data-[disabled]:hover:bg-none",
         // focus
         "focus-visible:bg-muted focus-visible:dark:bg-surface",
         // hover
@@ -258,7 +262,7 @@ const DropdownMenuCheckboxItem = React.forwardRef<
         <DropdownMenuPrimitives.ItemIndicator>
           <RiCheckLine
             aria-hidden="true"
-            className="size-full shrink-0 text-content dark:text-content"
+            className="text-content dark:text-content size-full shrink-0"
           />
         </DropdownMenuPrimitives.ItemIndicator>
       </span>
@@ -266,7 +270,7 @@ const DropdownMenuCheckboxItem = React.forwardRef<
       {hint && (
         <span
           className={cx(
-            "ml-auto text-sm font-normal text-content-placeholder dark:text-content-subtle",
+            "text-body-sm text-content-placeholder dark:text-content-subtle ml-auto",
           )}
         >
           {hint}
@@ -275,7 +279,7 @@ const DropdownMenuCheckboxItem = React.forwardRef<
       {shortcut && (
         <span
           className={cx(
-            "ml-auto text-sm font-normal tracking-widest text-content-placeholder dark:border dark:text-content-subtle",
+            "text-body-sm text-content-placeholder dark:text-content-subtle ml-auto dark:border",
           )}
         >
           {shortcut}
@@ -302,11 +306,11 @@ const DropdownMenuRadioItem = React.forwardRef<
       ref={forwardedRef}
       className={cx(
         // base
-        "group/DropdownMenuRadioItem relative flex cursor-pointer select-none items-center gap-x-2 rounded py-1.5 pl-8 pr-1 outline-none transition-colors data-[state=checked]:font-semibold sm:text-sm",
+        "group/DropdownMenuRadioItem data-[state=checked]: sm:text-label-md relative flex cursor-pointer items-center gap-x-2 rounded py-1.5 pr-1 pl-8 transition-colors outline-none select-none",
         // text color
         "text-content dark:text-content",
         // disabled
-        "data-[disabled]:pointer-events-none data-[disabled]:text-content-placeholder data-[disabled]:hover:bg-none dark:data-[disabled]:text-content-subtle",
+        "data-[disabled]:text-content-placeholder dark:data-[disabled]:text-content-subtle data-[disabled]:pointer-events-none data-[disabled]:hover:bg-none",
         // focus
         "focus-visible:bg-muted focus-visible:dark:bg-surface",
         // hover
@@ -323,14 +327,14 @@ const DropdownMenuRadioItem = React.forwardRef<
           />
           <RiCheckboxBlankCircleLine
             aria-hidden="true"
-            className="size-full shrink-0 text-content-disabled group-data-[state=unchecked]/DropdownMenuRadioItem:flex group-data-[state=checked]/DropdownMenuRadioItem:hidden dark:text-content-subtle"
+            className="text-content-disabled dark:text-content-subtle size-full shrink-0 group-data-[state=checked]/DropdownMenuRadioItem:hidden group-data-[state=unchecked]/DropdownMenuRadioItem:flex"
           />
         </span>
       ) : iconType === "check" ? (
         <span className="absolute left-2 flex size-4 items-center justify-center">
           <RiCheckLine
             aria-hidden="true"
-            className="size-full shrink-0 text-content group-data-[state=checked]/DropdownMenuRadioItem:flex group-data-[state=unchecked]/DropdownMenuRadioItem:hidden dark:text-content"
+            className="text-content dark:text-content size-full shrink-0 group-data-[state=checked]/DropdownMenuRadioItem:flex group-data-[state=unchecked]/DropdownMenuRadioItem:hidden"
           />
         </span>
       ) : null}
@@ -338,7 +342,7 @@ const DropdownMenuRadioItem = React.forwardRef<
       {hint && (
         <span
           className={cx(
-            "ml-auto text-sm font-normal text-content-placeholder dark:text-content-subtle",
+            "text-body-sm text-content-placeholder dark:text-content-subtle ml-auto",
           )}
         >
           {hint}
@@ -347,7 +351,7 @@ const DropdownMenuRadioItem = React.forwardRef<
       {shortcut && (
         <span
           className={cx(
-            "ml-auto text-sm font-normal tracking-widest text-content-placeholder dark:border dark:text-content-subtle",
+            "text-body-sm text-content-placeholder dark:text-content-subtle ml-auto dark:border",
           )}
         >
           {shortcut}
@@ -366,7 +370,7 @@ const DropdownMenuLabel = React.forwardRef<
     ref={forwardedRef}
     className={cx(
       // base
-      "px-2 py-2 text-xs font-medium tracking-wide",
+      "text-label-xs px-2 py-2",
       // text color
       "text-content-subtle dark:text-content-subtle",
       className,
@@ -382,10 +386,7 @@ const DropdownMenuSeparator = React.forwardRef<
 >(({ className, ...props }, forwardedRef) => (
   <DropdownMenuPrimitives.Separator
     ref={forwardedRef}
-    className={cx(
-      "-mx-1 my-1 h-px border-t border-border",
-      className,
-    )}
+    className={cx("border-border -mx-1 my-1 h-px border-t", className)}
     {...props}
   />
 ))
@@ -420,8 +421,12 @@ export {
   DropdownMenuLabel,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
-  DropdownMenuSeparator, DropdownMenuSubMenu as DropdownMenuSub, DropdownMenuSubMenuContent as DropdownMenuSubContent, DropdownMenuSubMenu, DropdownMenuSubMenuContent, DropdownMenuSubMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuSubMenu as DropdownMenuSub,
+  DropdownMenuSubMenuContent as DropdownMenuSubContent,
+  DropdownMenuSubMenu,
+  DropdownMenuSubMenuContent,
+  DropdownMenuSubMenuTrigger,
   DropdownMenuSubMenuTrigger as DropdownMenuSubTrigger,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
 }
-

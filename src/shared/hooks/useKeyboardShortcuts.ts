@@ -1,4 +1,4 @@
-import type { ViewMode } from '@/widgets/event-calendar'
+import type { ViewMode } from "@/widgets/event-calendar"
 import { useEffect } from "react"
 
 interface KeyboardShortcutHandlers {

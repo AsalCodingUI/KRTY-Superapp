@@ -94,7 +94,7 @@ export function CalendarToolbar({ onAddEvent }: CalendarToolbarProps) {
               <RiArrowRightSLine className="h-4 w-4" />
             </Button>
           </div>
-          <h2 className="text-content ml-2 min-w-[150px] text-sm font-semibold">
+          <h2 className="text-content text-label-md ml-2 min-w-[150px]">
             {dateRangeText}
           </h2>
         </div>

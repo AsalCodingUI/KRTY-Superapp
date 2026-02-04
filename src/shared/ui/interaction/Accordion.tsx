@@ -63,7 +63,7 @@ const AccordionTrigger = React.forwardRef<
       ref={forwardedRef}
       className={cx(
         // base
-        "group flex flex-1 cursor-pointer items-center justify-between px-4 py-3 text-left text-sm font-medium transition-all",
+        "group text-label-md flex flex-1 cursor-pointer items-center justify-between px-4 py-3 text-left transition-all",
         // text color
         "text-foreground-primary",
         // disabled
@@ -96,7 +96,7 @@ const AccordionContent = React.forwardRef<
   <AccordionPrimitives.Content
     ref={forwardedRef}
     className={cx(
-      "overflow-hidden text-sm transition-all",
+      "text-body-sm overflow-hidden transition-all",
       "data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down",
     )}
     {...props}

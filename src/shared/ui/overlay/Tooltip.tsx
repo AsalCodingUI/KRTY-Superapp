@@ -8,7 +8,8 @@ import React from "react"
 import { cx } from "@/shared/lib/utils"
 
 interface TooltipProps
-  extends Omit<TooltipPrimitives.TooltipContentProps, "content" | "onClick">,
+  extends
+    Omit<TooltipPrimitives.TooltipContentProps, "content" | "onClick">,
     Pick<
       TooltipPrimitives.TooltipProps,
       "open" | "defaultOpen" | "onOpenChange" | "delayDuration"
@@ -76,7 +77,7 @@ const Tooltip = React.forwardRef<
               align="center"
               className={cx(
                 // base
-                "max-w-60 rounded-md px-2.5 py-1.5 text-sm leading-5 shadow-md select-none",
+                "text-body-sm max-w-60 rounded-md px-2.5 py-1.5 shadow-md select-none",
                 // text color
                 "text-foreground-primary",
                 // background color

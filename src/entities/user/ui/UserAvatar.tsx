@@ -12,11 +12,11 @@ const avatarVariants = tv({
   base: "ring-surface dark:ring-surface relative inline-flex items-center justify-center overflow-hidden rounded-full font-medium ring-2",
   variants: {
     size: {
-      xs: "h-6 w-6 text-[0.625rem]",
-      sm: "h-8 w-8 text-xs",
-      md: "h-10 w-10 text-sm",
-      lg: "h-12 w-12 text-base",
-      xl: "h-16 w-16 text-lg",
+      xs: "text-label-xs h-6 w-6",
+      sm: "text-label-xs h-8 w-8",
+      md: "text-label-md h-10 w-10",
+      lg: "text-body-md h-12 w-12",
+      xl: "text-body-lg h-16 w-16",
     },
     color: {
       // Using chart colors for visual consistency with data viz
@@ -57,8 +57,9 @@ function getColorFromString(
 }
 
 interface UserAvatarProps
-  extends React.ComponentPropsWithoutRef<"img">,
-  VariantProps<typeof avatarVariants> {
+  extends
+    React.ComponentPropsWithoutRef<"img">,
+    VariantProps<typeof avatarVariants> {
   src?: string
   initials?: string
   alt?: string
@@ -110,8 +111,9 @@ const avatarGroupVariants = tv({
 })
 
 interface AvatarGroupProps
-  extends React.HTMLAttributes<HTMLDivElement>,
-  VariantProps<typeof avatarGroupVariants> {
+  extends
+    React.HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof avatarGroupVariants> {
   children: React.ReactNode
 }
 
@@ -144,11 +146,11 @@ const avatarOverflowVariants = tv({
   ],
   variants: {
     size: {
-      xs: "h-6 w-6 text-[0.625rem]",
-      sm: "h-8 w-8 text-xs",
-      md: "h-10 w-10 text-sm",
-      lg: "h-12 w-12 text-base",
-      xl: "h-16 w-16 text-lg",
+      xs: "text-body-xs h-6 w-6",
+      sm: "text-body-xs h-8 w-8",
+      md: "text-body-sm h-10 w-10",
+      lg: "text-body-md h-12 w-12",
+      xl: "text-body-lg h-16 w-16",
     },
   },
   defaultVariants: {
@@ -157,8 +159,9 @@ const avatarOverflowVariants = tv({
 })
 
 interface AvatarOverflowProps
-  extends React.HTMLAttributes<HTMLDivElement>,
-  VariantProps<typeof avatarOverflowVariants> {
+  extends
+    React.HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof avatarOverflowVariants> {
   count: number
 }
 
@@ -191,6 +194,5 @@ export {
   UserAvatar,
   type AvatarGroupProps,
   type AvatarOverflowProps,
-  type UserAvatarProps
+  type UserAvatarProps,
 }
-

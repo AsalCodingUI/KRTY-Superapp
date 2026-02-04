@@ -54,7 +54,7 @@ export default function SLAGeneratorLoading() {
           </div>
 
           {/* A4 preview skeleton */}
-          <div className="border-border-border aspect-[210/297] space-y-6 rounded-md border bg-surface p-8">
+          <div className="border-border-border bg-surface aspect-[210/297] space-y-6 rounded-md border p-8">
             <Skeleton className="mx-auto h-8 w-3/4" />
             <Skeleton className="mx-auto h-4 w-1/2" />
             <div className="space-y-3 pt-8">

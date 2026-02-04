@@ -1,8 +1,8 @@
 /**
  * Features Layer
- * 
+ *
  * This layer contains user interactions and business features.
- * 
+ *
  * FSD Rules:
  * - This layer can import from layers below it
  * - This layer cannot import from layers above it
@@ -20,4 +20,4 @@
 // export * from './event-creation';
 // export * from './event-rsvp';
 
-export {};
+export {}

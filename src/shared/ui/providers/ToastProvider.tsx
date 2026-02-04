@@ -1,18 +1,11 @@
-'use client'
+"use client"
 
-import { Toaster } from 'sonner'
+import { Toaster } from "sonner"
 
 /**
  * ToastProvider initializes the Sonner toaster.
  * Placed at the root of the application.
  */
 export function ToastProvider() {
-    return (
-        <Toaster
-            position="top-right"
-            expand={false}
-            richColors
-            closeButton
-        />
-    )
+  return <Toaster position="top-right" expand={false} richColors closeButton />
 }

@@ -45,7 +45,7 @@ export default function GlobalError({
 
           {/* Error Message */}
           <div className="max-w-md space-y-2">
-            <h1 className="text-content text-2xl font-semibold">
+            <h1 className="text-content text-display-xxs">
               Something went wrong
             </h1>
             <p className="text-content-muted">
@@ -56,7 +56,7 @@ export default function GlobalError({
 
           {/* Error ID for debugging */}
           {error.digest && (
-            <div className="bg-muted text-foreground-default-disable rounded-md px-3 py-1 font-mono text-xs select-all">
+            <div className="bg-muted text-foreground-default-disable text-body-xs rounded-md px-3 py-1 tabular-nums select-all">
               Error ID: {error.digest}
             </div>
           )}

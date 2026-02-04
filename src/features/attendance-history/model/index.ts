@@ -1,2 +1,1 @@
-export { useAttendanceHistory } from './useAttendanceHistory';
-
+export { useAttendanceHistory } from "./useAttendanceHistory"

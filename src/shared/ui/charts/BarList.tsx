@@ -79,10 +79,10 @@ const BarList = React.forwardRef<HTMLDivElement, BarListProps>(
                     />
                   )}
                   <div className="flex w-full justify-between space-x-4">
-                    <p className="text-foreground-secondary truncate text-sm whitespace-nowrap">
+                    <p className="text-foreground-secondary text-body-sm truncate whitespace-nowrap">
                       {item.name}
                     </p>
-                    <p className="text-foreground-primary text-sm font-medium whitespace-nowrap tabular-nums">
+                    <p className="text-foreground-primary text-label-md whitespace-nowrap tabular-nums">
                       {valueFormatter(item.value)}
                     </p>
                   </div>

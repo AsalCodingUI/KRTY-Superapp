@@ -24,7 +24,7 @@ export function AdminAttendanceOverview({
 
   return (
     <Card>
-      <h3 className="text-content mb-4 text-lg font-semibold">
+      <h3 className="text-content text-heading-md mb-4">
         Today&apos;s Attendance Overview
       </h3>
 
@@ -32,26 +32,26 @@ export function AdminAttendanceOverview({
       <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
         <div className="bg-success/10 rounded-lg p-4 text-center">
           <RiCheckboxCircleLine className="text-success mx-auto mb-2 size-6" />
-          <div className="text-content text-2xl font-semibold">{onTime}</div>
-          <div className="text-content-subtle mt-1 text-xs">On Time</div>
+          <div className="text-content text-display-xxs">{onTime}</div>
+          <div className="text-content-subtle text-label-xs mt-1">On Time</div>
         </div>
 
         <div className="bg-warning/10 rounded-lg p-4 text-center">
           <RiTimeLine className="text-warning mx-auto mb-2 size-6" />
-          <div className="text-content text-2xl font-semibold">{late}</div>
-          <div className="text-content-subtle mt-1 text-xs">Late</div>
+          <div className="text-content text-display-xxs">{late}</div>
+          <div className="text-content-subtle text-label-xs mt-1">Late</div>
         </div>
 
         <div className="bg-info/10 rounded-lg p-4 text-center">
           <RiUserLine className="text-info mx-auto mb-2 size-6" />
-          <div className="text-content text-2xl font-semibold">{onLeave}</div>
-          <div className="text-content-subtle mt-1 text-xs">On Leave</div>
+          <div className="text-content text-display-xxs">{onLeave}</div>
+          <div className="text-content-subtle text-label-xs mt-1">On Leave</div>
         </div>
 
         <div className="bg-danger/10 rounded-lg p-4 text-center">
           <RiUserLine className="text-danger mx-auto mb-2 size-6" />
-          <div className="text-content text-2xl font-semibold">{absent}</div>
-          <div className="text-content-subtle mt-1 text-xs">Absent</div>
+          <div className="text-content text-display-xxs">{absent}</div>
+          <div className="text-content-subtle text-label-xs mt-1">Absent</div>
         </div>
       </div>
 
@@ -59,16 +59,18 @@ export function AdminAttendanceOverview({
       <div className="border-border bg-surface-secondary rounded-lg border p-4">
         <div className="flex items-center justify-between">
           <div>
-            <div className="text-content-subtle text-sm">
+            <div className="text-content-subtle text-label-md">
               Overall Attendance Rate
             </div>
-            <div className="text-content mt-1 text-2xl font-semibold">
+            <div className="text-content text-display-xxs mt-1">
               {onTimePercentage}%
             </div>
           </div>
           <div className="text-right">
-            <div className="text-content-subtle text-sm">Present Today</div>
-            <div className="text-content mt-1 text-lg font-medium">
+            <div className="text-content-subtle text-label-md">
+              Present Today
+            </div>
+            <div className="text-content text-heading-md mt-1">
               {totalToday} / {total}
             </div>
           </div>

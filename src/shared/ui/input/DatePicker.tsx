@@ -64,7 +64,7 @@ const TimeSegment = ({ segment, state }: TimeSegmentProps) => {
       ref={ref}
       className={cx(
         // base
-        "relative block w-full appearance-none rounded-md border px-2.5 py-1.5 text-left uppercase tabular-nums shadow-sm transition outline-none sm:text-sm",
+        "text-label-xs-uppercase sm:text-label-sm sm:normal-case relative block w-full appearance-none rounded-md border px-2.5 py-1.5 text-left tabular-nums shadow-sm transition outline-none",
         // border color
         "border-border",
         // text color
@@ -88,7 +88,7 @@ const TimeSegment = ({ segment, state }: TimeSegmentProps) => {
       <span
         aria-hidden="true"
         className={cx(
-          "text-content-subtle pointer-events-none block w-full text-left sm:text-sm",
+          "text-content-subtle sm:text-body-sm pointer-events-none block w-full text-left",
           {
             hidden: !segment.isPlaceholder,
             "h-0": !segment.isPlaceholder,
@@ -157,7 +157,7 @@ TimeInput.displayName = "TimeInput"
 const triggerStyles = tv({
   base: [
     // base
-    "peer flex w-full cursor-pointer appearance-none items-center gap-x-2 truncate rounded-md border px-2.5 py-1.5 text-sm transition-all outline-none",
+    "peer text-body-sm flex w-full cursor-pointer appearance-none items-center gap-x-2 truncate rounded-md border px-2.5 py-1.5 transition-all outline-none",
     // background color
     "bg-surface dark:bg-surface",
     // border color
@@ -237,7 +237,7 @@ const CalendarPopover = React.forwardRef<
         onOpenAutoFocus={(e) => e.preventDefault()}
         className={cx(
           // base
-          "relative z-[100] w-fit rounded-md border text-sm shadow-xl shadow-black/[2.5%]",
+          "text-body-sm relative z-[100] w-fit rounded-md border shadow-xl shadow-black/[2.5%]",
           // widths
           "max-w-[95vw] min-w-[calc(var(--radix-select-trigger-width)-2px)]",
           // border color
@@ -372,7 +372,7 @@ const PresetContainer = <TPreset extends Preset, TValue>({
               title={preset.label}
               className={cx(
                 // base
-                "relative w-full overflow-hidden rounded border px-2.5 py-1.5 text-left text-base text-ellipsis whitespace-nowrap shadow-sm transition-all outline-none sm:border-none sm:py-2 sm:text-sm sm:shadow-none",
+                "text-body-md sm:text-body-sm relative w-full overflow-hidden rounded border px-2.5 py-1.5 text-left text-ellipsis whitespace-nowrap shadow-sm transition-all outline-none sm:border-none sm:py-2 sm:shadow-none",
                 // text color
                 "text-content-subtle dark:text-content-subtle",
                 // border color
@@ -475,7 +475,7 @@ interface SingleProps extends Omit<PickerProps, "translations"> {
 
 /**
  * Single date picker component.
- * 
+ *
  * @example
  * ```tsx
  * <SingleDatePicker value={date} onChange={setDate} />
@@ -884,9 +884,9 @@ const RangeDatePicker = ({
         ? new Time(value.from.getHours(), value.from.getMinutes())
         : defaultValue?.from
           ? new Time(
-            defaultValue.from.getHours(),
-            defaultValue.from.getMinutes(),
-          )
+              defaultValue.from.getHours(),
+              defaultValue.from.getMinutes(),
+            )
           : new Time(0, 0),
     )
     setEndTime(
@@ -903,8 +903,9 @@ const RangeDatePicker = ({
       return null
     }
 
-    return `${range.from ? formatDate(range.from, locale, showTimePicker) : ""} - ${range.to ? formatDate(range.to, locale, showTimePicker) : ""
-      }`
+    return `${range.from ? formatDate(range.from, locale, showTimePicker) : ""} - ${
+      range.to ? formatDate(range.to, locale, showTimePicker) : ""
+    }`
   }, [range, locale, showTimePicker])
 
   const onApply = () => {
@@ -1152,7 +1153,8 @@ const validatePresets = (
 
           if (presetDay && presetDay < fromDay.getDate()) {
             throw new Error(
-              `Preset ${preset.dateRange.from
+              `Preset ${
+                preset.dateRange.from
               }'s 'from' is before fromDay ${format(fromDay, "MMM dd, yyyy")}.`,
             )
           }
@@ -1218,6 +1220,5 @@ export {
   SingleDatePicker,
   type DatePreset,
   type DateRange,
-  type DateRangePreset
+  type DateRangePreset,
 }
-

@@ -294,12 +294,12 @@ export function EventDialog({
             {/* Event Title & Type */}
             <div>
               <div className="flex items-start justify-between gap-4">
-                <h3 className="text-content text-xl font-semibold break-words">
+                <h3 className="text-content text-heading-lg break-words">
                   {event.title}
                 </h3>
                 <div
                   className={cx(
-                    "flex-shrink-0 rounded-md px-3 py-1.5 text-xs font-medium whitespace-nowrap",
+                    "text-label-xs flex-shrink-0 rounded-md px-3 py-1.5 whitespace-nowrap",
                     getEventColorClasses(event.color, "default"),
                   )}
                 >
@@ -311,24 +311,22 @@ export function EventDialog({
             {/* Date & Time */}
             <div className="bg-muted/50 border-border-border grid grid-cols-2 gap-4 rounded-lg border p-4">
               <div>
-                <h4 className="text-content-muted mb-2 text-xs font-medium">
-                  Mulai
-                </h4>
-                <p className="text-content text-sm font-semibold">
+                <h4 className="text-content-muted text-label-xs mb-2">Mulai</h4>
+                <p className="text-content text-label-md">
                   {format(event.start, "dd MMM yyyy")}
                 </p>
-                <p className="text-content-muted mt-0.5 text-sm">
+                <p className="text-content-muted text-body-sm mt-0.5">
                   {format(event.start, "HH:mm")}
                 </p>
               </div>
               <div>
-                <h4 className="text-content-muted mb-2 text-xs font-medium">
+                <h4 className="text-content-muted text-label-xs mb-2">
                   Selesai
                 </h4>
-                <p className="text-content text-sm font-semibold">
+                <p className="text-content text-label-md">
                   {format(event.end, "dd MMM yyyy")}
                 </p>
-                <p className="text-content-muted mt-0.5 text-sm">
+                <p className="text-content-muted text-body-sm mt-0.5">
                   {format(event.end, "HH:mm")}
                 </p>
               </div>
@@ -337,8 +335,8 @@ export function EventDialog({
             {/* Location */}
             {event.location && (
               <div className="space-y-2">
-                <h4 className="text-content text-sm font-semibold">Lokasi</h4>
-                <p className="text-content-muted text-sm break-words">
+                <h4 className="text-content text-label-md">Lokasi</h4>
+                <p className="text-content-muted text-label-md break-words">
                   {event.location}
                 </p>
               </div>
@@ -347,10 +345,8 @@ export function EventDialog({
             {/* Description */}
             {event.description && (
               <div className="border-border-border space-y-2 border-t pt-4">
-                <h4 className="text-content text-sm font-semibold">
-                  Deskripsi
-                </h4>
-                <p className="text-content-muted text-sm leading-relaxed break-words whitespace-pre-wrap">
+                <h4 className="text-content text-label-md">Deskripsi</h4>
+                <p className="text-content-muted text-label-md break-words whitespace-pre-wrap">
                   {event.description}
                 </p>
               </div>
@@ -490,7 +486,7 @@ export function EventDialog({
                         }
                       }}
                       className={cx(
-                        "w-full rounded-md px-3 py-2 text-sm transition-colors",
+                        "text-body-sm w-full rounded-md px-3 py-2 transition-colors",
                         "border-border-border bg-surface text-content border",
                         "focus:border-primary focus:ring-2 focus:ring-[--focus-ring-color] focus:outline-none",
                         "disabled:cursor-not-allowed disabled:opacity-50",
@@ -500,7 +496,7 @@ export function EventDialog({
                   )}
                 </div>
                 {errors.start && (
-                  <p className="text-danger mt-1 text-xs">
+                  <p className="text-danger text-body-xs mt-1">
                     {errors.start.message}
                   </p>
                 )}
@@ -564,7 +560,7 @@ export function EventDialog({
                         }
                       }}
                       className={cx(
-                        "w-full rounded-md px-3 py-2 text-sm transition-colors",
+                        "text-body-sm w-full rounded-md px-3 py-2 transition-colors",
                         "border-border-border bg-surface text-content border",
                         "focus:border-primary focus:ring-2 focus:ring-[--focus-ring-color] focus:outline-none",
                         "disabled:cursor-not-allowed disabled:opacity-50",
@@ -574,7 +570,7 @@ export function EventDialog({
                   )}
                 </div>
                 {errors.end && (
-                  <p className="text-danger mt-1 text-xs">
+                  <p className="text-danger text-body-xs mt-1">
                     {errors.end.message}
                   </p>
                 )}
@@ -625,7 +621,7 @@ export function EventDialog({
                   <>
                     {isDeletePending ? (
                       <div className="animate-fadeIn flex items-center gap-2">
-                        <span className="text-danger text-sm font-medium">
+                        <span className="text-danger text-label-md">
                           Yakin hapus?
                         </span>
                         <Button

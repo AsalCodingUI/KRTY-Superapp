@@ -9,30 +9,38 @@ import type { VariantProps } from "tailwind-variants"
 // ============================================================================
 
 const avatarVariants = tv({
-  base: "ring-surface dark:ring-surface relative inline-flex items-center justify-center overflow-hidden rounded-full font-medium ring-2",
+  base: "relative inline-flex items-center justify-center overflow-hidden rounded-full font-medium",
   variants: {
     size: {
-      xs: "h-6 w-6 text-[0.625rem]",
-      sm: "h-8 w-8 text-xs",
-      md: "h-10 w-10 text-sm",
-      lg: "h-12 w-12 text-base",
-      xl: "h-16 w-16 text-lg",
+      xxxs: "h-[14px] w-[14px] text-[6px] leading-[16px]",
+      xxs: "h-[16px] w-[16px] text-[8px] leading-[16px]",
+      xs: "h-[20px] w-[20px] text-[10px] leading-[16px]",
+      sm: "h-[28px] w-[28px] text-label-xs",
+      md: "h-[32px] w-[32px] text-[14px] leading-[20px] font-heading tracking-[0px]",
+      lg: "h-[48px] w-[48px] text-heading-lg",
+      xl: "h-[64px] w-[64px] text-display-xxs",
     },
     color: {
-      // Using chart colors for visual consistency with data viz
-      chart1: "bg-surface-chart-1 text-foreground-chart-1",
-      chart2: "bg-surface-chart-2 text-foreground-chart-2",
-      chart3: "bg-surface-chart-3 text-foreground-chart-3",
-      chart4: "bg-surface-chart-4 text-foreground-chart-4",
-      chart5: "bg-surface-chart-5 text-foreground-chart-5",
-      // Semantic colors
+      // Figma subtle variants
+      brand: "bg-surface-brand-light text-foreground-brand-dark",
+      success: "bg-surface-success-light text-foreground-success-dark",
+      warning: "bg-surface-warning-light text-foreground-warning-on-color",
+      danger: "bg-surface-danger-light text-foreground-danger-dark",
+      neutral: "bg-surface-neutral-secondary text-foreground-secondary",
+      // Compat aliases
       primary: "bg-surface-brand-light text-foreground-brand-dark",
       muted: "bg-surface-neutral-secondary text-foreground-secondary",
+      // Chart aliases (mapped to subtle palette)
+      chart1: "bg-surface-brand-light text-foreground-brand-dark",
+      chart2: "bg-surface-success-light text-foreground-success-dark",
+      chart3: "bg-surface-warning-light text-foreground-warning-on-color",
+      chart4: "bg-surface-danger-light text-foreground-danger-dark",
+      chart5: "bg-surface-neutral-secondary text-foreground-secondary",
     },
   },
   defaultVariants: {
     size: "md",
-    color: "chart1",
+    color: "brand",
   },
 })
 
@@ -57,8 +65,9 @@ function getColorFromString(
 }
 
 interface AvatarProps
-  extends React.ComponentPropsWithoutRef<"img">,
-  VariantProps<typeof avatarVariants> {
+  extends
+    React.ComponentPropsWithoutRef<"img">,
+    VariantProps<typeof avatarVariants> {
   src?: string
   initials?: string
   alt?: string
@@ -71,7 +80,7 @@ interface AvatarProps
  * @example
  * ```tsx
  * <Avatar src="https://..." alt="John Doe" />
- * <Avatar initials="JD" color="chart1" />
+ * <Avatar initials="JD" color="brand" />
  * ```
  */
 const Avatar = React.forwardRef<HTMLImageElement, AvatarProps>(
@@ -119,8 +128,9 @@ const avatarGroupVariants = tv({
 })
 
 interface AvatarGroupProps
-  extends React.HTMLAttributes<HTMLDivElement>,
-  VariantProps<typeof avatarGroupVariants> {
+  extends
+    React.HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof avatarGroupVariants> {
   children: React.ReactNode
 }
 
@@ -147,17 +157,17 @@ AvatarGroup.displayName = "AvatarGroup"
 const avatarOverflowVariants = tv({
   base: [
     "flex items-center justify-center rounded-full font-medium",
-    "bg-surface-neutral-secondary",
-    "ring-surface ring-2",
-    "text-foreground-secondary",
+    "bg-surface-neutral-secondary text-foreground-secondary",
   ],
   variants: {
     size: {
-      xs: "h-6 w-6 text-[0.625rem]",
-      sm: "h-8 w-8 text-xs",
-      md: "h-10 w-10 text-sm",
-      lg: "h-12 w-12 text-base",
-      xl: "h-16 w-16 text-lg",
+      xxxs: "h-[14px] w-[14px] text-[6px] leading-[16px]",
+      xxs: "h-[16px] w-[16px] text-[8px] leading-[16px]",
+      xs: "h-[20px] w-[20px] text-[10px] leading-[16px]",
+      sm: "h-[28px] w-[28px] text-label-xs",
+      md: "h-[32px] w-[32px] text-[14px] leading-[20px] font-heading tracking-[0px]",
+      lg: "h-[48px] w-[48px] text-heading-lg",
+      xl: "h-[64px] w-[64px] text-display-xxs",
     },
   },
   defaultVariants: {
@@ -166,8 +176,9 @@ const avatarOverflowVariants = tv({
 })
 
 interface AvatarOverflowProps
-  extends React.HTMLAttributes<HTMLDivElement>,
-  VariantProps<typeof avatarOverflowVariants> {
+  extends
+    React.HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof avatarOverflowVariants> {
   count: number
 }
 
@@ -200,6 +211,5 @@ export {
   avatarVariants,
   type AvatarGroupProps,
   type AvatarOverflowProps,
-  type AvatarProps
+  type AvatarProps,
 }
-

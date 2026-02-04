@@ -29,7 +29,7 @@ export const EventItem = memo(function EventItem({
       <button
         onClick={onClick}
         className={cx(
-          "w-full rounded px-2 py-1 text-left text-xs",
+          "text-body-xs w-full rounded px-2 py-1 text-left",
           "hover:shadow-sm-border transition-all",
           "truncate",
           colorClass,
@@ -59,23 +59,23 @@ export const EventItem = memo(function EventItem({
     >
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
-          <h4 className="mb-1 truncate text-sm font-medium">{event.title}</h4>
+          <h4 className="text-label-md mb-1 truncate">{event.title}</h4>
           {event.description && (
-            <p className="mb-2 line-clamp-2 text-xs opacity-80">
+            <p className="text-label-xs mb-2 line-clamp-2 opacity-80">
               {event.description}
             </p>
           )}
         </div>
         {showTime && !event.allDay && (
           <div className="flex-shrink-0">
-            <span className="bg-muted rounded-full px-2 py-1 text-xs font-medium">
+            <span className="bg-muted text-label-xs rounded-full px-2 py-1">
               {format(event.start, "HH:mm")}
             </span>
           </div>
         )}
       </div>
 
-      <div className="mt-2 flex items-center gap-3 text-xs opacity-70">
+      <div className="text-body-xs mt-2 flex items-center gap-3 opacity-70">
         {showTime && !event.allDay && (
           <div className="flex items-center gap-1">
             <RiTimeLine className="h-3.5 w-3.5" />

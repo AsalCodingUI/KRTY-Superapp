@@ -1,45 +1,68 @@
-import { Meta, Typeset } from "@storybook/blocks";
+import { Meta, Typeset } from "@storybook/blocks"
 
 <Meta title="Design System/Typography" />
 
 # Typography
 
-**Font Family:** `Inter`, sans-serif (or system default)
+**Font Family:**
+- Display + Heading: `Switzer Variable`, sans-serif
+- Body + Label: `Inter Variable`, sans-serif
 
-## Scale
+## Display (Switzer Variable, 500)
 
 <Typeset
-  fontSizes={[
-    '12px',
-    '14px',
-    '16px',
-    '18px',
-    '20px', 
-    '24px',
-    '30px',
-    '36px',
-    '48px',
-  ]}
-  fontWeight={400}
+  fontSizes={["24px", "32px", "36px", "40px", "44px"]}
+  fontWeight={500}
   sampleText="The quick brown fox jumps over the lazy dog"
-  fontFamily="Inter, sans-serif"
+  fontFamily="Switzer Variable, sans-serif"
 />
 
-| Token | Size | Line Height | Usage |
-|-------|------|-------------|-------|
-| `text-xs` | 12px (0.75rem) | 1.25 | Captions, small metadata |
-| `text-sm` | 14px (0.875rem) | 1.5 | Body text, UI labels |
-| `text-base` | 16px (1rem) | 1.5 | Default body text |
-| `text-lg` | 18px (1.125rem) | 1.5 | Large body, subtitles |
-| `text-xl` | 20px (1.25rem) | 1.5 | Section headers |
-| `text-2xl` | 24px (1.5rem) | 1.75 | Page titles |
-| `text-3xl` | 30px (1.875rem) | 1.75 | Large display |
-| `text-4xl` | 36px (2.25rem) | 1.75 | Hero display |
-| `text-5xl` | 48px (3rem) | 1.75 | Massive display |
+| Token              | Size           | Line Height | Letter Spacing |
+| ------------------ | -------------- | ----------- | -------------- |
+| `text-display-lg`  | 44px (2.75rem) | 52px        | -1%            |
+| `text-display-md`  | 40px (2.5rem)  | 48px        | -1%            |
+| `text-display-sm`  | 36px (2.25rem) | 44px        | -1%            |
+| `text-display-xs`  | 32px (2rem)    | 40px        | -1%            |
+| `text-display-xxs` | 24px (1.5rem)  | 32px        | -1.5%          |
+
+## Heading (Switzer Variable, 500)
+
+| Token             | Size           | Line Height | Letter Spacing |
+| ----------------- | -------------- | ----------- | -------------- |
+| `text-heading-lg` | 20px (1.25rem) | 28px        | -2%            |
+| `text-heading-md` | 18px (1.125rem)| 24px        | 0%             |
+| `text-heading-sm` | 16px (1rem)    | 24px        | 0%             |
+
+## Label (Inter Variable, 500)
+
+| Token                     | Size            | Line Height | Letter Spacing | Transform |
+| ------------------------- | --------------- | ----------- | -------------- | --------- |
+| `text-label-lg`           | 16px (1rem)     | 24px        | -0.8%          | none      |
+| `text-label-md`           | 14px (0.875rem) | 20px        | -0.8%          | none      |
+| `text-label-sm`           | 13px (0.8125rem)| 20px        | -0.8%          | none      |
+| `text-label-xs`           | 12px (0.75rem)  | 16px        | 0%             | none      |
+| `text-label-lg-underline` | 16px (1rem)     | 24px        | -0.8%          | underline |
+| `text-label-md-underline` | 14px (0.875rem) | 20px        | -0.8%          | underline |
+| `text-label-sm-underline` | 13px (0.8125rem)| 20px        | -0.8%          | underline |
+| `text-label-xs-uppercase` | 12px (0.75rem)  | 16px        | 0%             | uppercase |
+
+## Body (Inter Variable, 400)
+
+<Typeset
+  fontSizes={["12px", "13px", "16px", "18px"]}
+  fontWeight={400}
+  sampleText="The quick brown fox jumps over the lazy dog"
+  fontFamily="Inter Variable, sans-serif"
+/>
+
+| Token           | Size            | Line Height | Letter Spacing |
+| --------------- | --------------- | ----------- | -------------- |
+| `text-body-lg`  | 18px (1.125rem) | 28px        | 0.5%           |
+| `text-body-md`  | 16px (1rem)     | 24px        | 0.5%           |
+| `text-body-sm`  | 13px (0.8125rem)| 20px        | 0.5%           |
+| `text-body-xs`  | 12px (0.75rem)  | 16px        | 0%             |
 
 ## Weights
 
-*   **Regular (400)**: Default body text
-*   **Medium (500)**: UI labels, emphasized body
-*   **Semibold (600)**: Headings, buttons, strong emphasis
-*   **Bold (700)**: Only for very specific high-contrast needs
+- **Regular (400)**: Body tokens (`text-body-*`)
+- **Medium (500)**: Display/Heading/Label tokens (`text-display-*`, `text-heading-*`, `text-label-*`)

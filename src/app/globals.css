@@ -105,7 +105,6 @@
     --size-384: 384px;
     --size-9999: 9999px;
 
-
     /* ========================================================================
        ⌘ ・ ALIAS - COLOR
        ======================================================================== */
@@ -188,7 +187,6 @@
     --opacity-black-10: rgba(0, 0, 0, 0.1);
     --opacity-black-20: rgba(0, 0, 0, 0.2);
     --opacity-black-60: rgba(0, 0, 0, 0.6);
-
 
     /* ========================================================================
        ⌘ ・ MAPPED - COLORS
@@ -292,7 +290,6 @@
     --foreground-chart-7: #0f766e;
     --foreground-chart-8: var(--warning-800);
 
-
     /* --- Border --- */
     /* Neutral */
     --border-neutral-primary: var(--neutral-200);
@@ -325,7 +322,6 @@
     /* Legacy mapping */
     --border-subtle: var(--border-neutral-tertiary);
     /* Legacy mapping */
-
 
     /* ========================================================================
        ⌘ ・ MAPPED - SIZE
@@ -360,7 +356,6 @@
     --radius-xl: var(--size-12);
     --radius-xxl: var(--size-16);
     --radius-full: var(--size-9999);
-
 
     /* ========================================================================
        LEGACY / COMPAT SHADOWS & TYPOGRAPHY
@@ -406,27 +401,43 @@
 
     /* --- Shadows (Strict System) --- */
     /* Regular Shadow */
-    --shadow-regular-md: 0px 10px 24px -6px rgba(0, 0, 0, 0.08), 0px 2px 4px -3px rgba(0, 0, 0, 0.08);
+    --shadow-regular-md:
+      0px 10px 24px -6px rgba(0, 0, 0, 0.08),
+      0px 2px 4px -3px rgba(0, 0, 0, 0.08);
     /* Medium */
-    --shadow-regular-xs: 0px 2px 4px -2px rgba(0, 0, 0, 0.06), 0px 4px 3px -4px rgba(0, 0, 0, 0.06);
+    --shadow-regular-xs:
+      0px 2px 4px -2px rgba(0, 0, 0, 0.06), 0px 4px 3px -4px rgba(0, 0, 0, 0.06);
     /* XSmall */
 
     /* Shadow */
-    --shadow-brand: 0px 0px 0px 1px inset rgba(0, 0, 0, 0.10), 0px 2px 4px -2px rgba(2, 123, 255, 0.12), 0px 3px 6px -2px rgba(2, 123, 255, 0.08);
+    --shadow-brand:
+      0px 0px 0px 1px inset rgba(0, 0, 0, 0.1),
+      0px 2px 4px -2px rgba(2, 123, 255, 0.12),
+      0px 3px 6px -2px rgba(2, 123, 255, 0.08);
     /* Primary */
-    --shadow-neutral: 0px 0px 2px 0px rgba(0, 0, 0, 0.18), 0px 1px 3px 0px rgba(0, 0, 0, 0.04);
+    --shadow-neutral:
+      0px 0px 2px 0px rgba(0, 0, 0, 0.18), 0px 1px 3px 0px rgba(0, 0, 0, 0.04);
     /* Neutral */
-    --shadow-danger: 0px 0px 0px 1px inset rgba(0, 0, 0, 0.10), 0px 2px 4px -2px rgba(255, 64, 50, 0.12), 0px 3px 6px -2px rgba(255, 64, 50, 0.08);
+    --shadow-danger:
+      0px 0px 0px 1px inset rgba(0, 0, 0, 0.1),
+      0px 2px 4px -2px rgba(255, 64, 50, 0.12),
+      0px 3px 6px -2px rgba(255, 64, 50, 0.08);
     /* Danger */
 
     /* Outline */
-    --shadow-outline-brand: 0px 0px 0px 1px #027bff, 0px 1px 3px 0px rgba(0, 0, 0, 0.12);
+    --shadow-outline-brand:
+      0px 0px 0px 1px #027bff, 0px 1px 3px 0px rgba(0, 0, 0, 0.12);
     /* Outline/Primary */
-    --shadow-outline-neutral: 0px 0px 0px 1px rgba(0, 0, 0, 0.08), 0px 1px 3px 0px rgba(0, 0, 0, 0.04);
+    --shadow-outline-neutral:
+      0px 0px 0px 1px rgba(0, 0, 0, 0.08), 0px 1px 3px 0px rgba(0, 0, 0, 0.04);
     /* Outline/Neutral */
-    --shadow-outline-dialog: 0px 0px 0px 1px rgba(0, 0, 0, 0.08), 0px 10px 24px -6px rgba(0, 0, 0, 0.08), 0px 2px 4px -3px rgba(0, 0, 0, 0.08);
+    --shadow-outline-dialog:
+      0px 0px 0px 1px rgba(0, 0, 0, 0.08),
+      0px 10px 24px -6px rgba(0, 0, 0, 0.08),
+      0px 2px 4px -3px rgba(0, 0, 0, 0.08);
     /* Outline/Dialog */
-    --shadow-outline-danger: 0px 0px 0px 1px #ff4032, 0px 1px 3px 0px rgba(0, 0, 0, 0.12);
+    --shadow-outline-danger:
+      0px 0px 0px 1px #ff4032, 0px 1px 3px 0px rgba(0, 0, 0, 0.12);
     /* Outline/Danger */
 
     /* Z-Index */
@@ -488,5 +499,51 @@
     color: var(--foreground-primary);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@layer utilities {
+  /* Ensure typography tokens apply correct font families */
+  .text-display-lg,
+  .text-display-md,
+  .text-display-sm,
+  .text-display-xs,
+  .text-display-xxs,
+  .text-heading-lg,
+  .text-heading-md,
+  .text-heading-sm {
+    font-family: var(--font-display);
+  }
+
+  .text-label-lg,
+  .text-label-md,
+  .text-label-sm,
+  .text-label-xs,
+  .text-body-lg,
+  .text-body-md,
+  .text-body-sm,
+  .text-body-xs {
+    font-family: var(--font-body);
+  }
+
+  /* Label variants */
+  .text-label-lg-underline {
+    @apply text-label-lg underline;
+    font-family: var(--font-body);
+  }
+
+  .text-label-md-underline {
+    @apply text-label-md underline;
+    font-family: var(--font-body);
+  }
+
+  .text-label-sm-underline {
+    @apply text-label-sm underline;
+    font-family: var(--font-body);
+  }
+
+  .text-label-xs-uppercase {
+    @apply text-label-xs uppercase;
+    font-family: var(--font-body);
   }
 }

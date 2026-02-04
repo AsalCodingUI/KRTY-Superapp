@@ -1,29 +1,34 @@
 "use client"
 
-import { Button } from '@/components/ui'
-import { Database } from '@/shared/types/database.types'
+import { Button } from "@/components/ui"
+import { Database } from "@/shared/types/database.types"
 import { RiMoreFill } from "@remixicon/react"
 import { Row } from "@tanstack/react-table"
 
-import { DeleteConfirmDialog, TeamFormDialog } from '@/app/(main)/teams/components/TeamDialogs'
+import {
+  DeleteConfirmDialog,
+  TeamFormDialog,
+} from "@/app/(main)/teams/components/TeamDialogs"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui'
+} from "@/components/ui"
 import { useState } from "react"
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>
 }
 
-export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TData>) {
+export function DataTableRowActions<TData>({
+  row,
+}: DataTableRowActionsProps<TData>) {
   // State untuk Modal Lokal
   const [isEditOpen, setIsEditOpen] = useState(false)
   const [isDeleteOpen, setIsDeleteOpen] = useState(false)
 
-  type Profile = Database['public']['Tables']['profiles']['Row']
+  type Profile = Database["public"]["Tables"]["profiles"]["Row"]
   const item = row.original as Profile
 
   return (
@@ -33,10 +38,10 @@ export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TDa
           <Button
             variant="ghost"
             size="sm"
-            className="group aspect-square hover:border hover:border data-[state=open]:border data-[state=open]:bg-muted hover:dark:border data-[state=open]:dark:border"
+            className="group data-[state=open]:bg-muted aspect-square hover:border data-[state=open]:border hover:dark:border data-[state=open]:dark:border"
           >
             <RiMoreFill
-              className="size-4 shrink-0 text-content-subtle group-hover:text-content-subtle group-data-[state=open]:text-content-subtle group-hover:dark:text-content-subtle group-data-[state=open]:dark:text-content-subtle"
+              className="text-content-subtle group-hover:text-content-subtle group-data-[state=open]:text-content-subtle group-hover:dark:text-content-subtle group-data-[state=open]:dark:text-content-subtle size-4 shrink-0"
               aria-hidden="true"
             />
           </Button>
@@ -72,7 +77,7 @@ export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TDa
           isOpen={isDeleteOpen}
           onClose={() => setIsDeleteOpen(false)}
           idsToDelete={[item.id]}
-          onSuccess={() => { }} // DataTable otomatis refresh via router.refresh di dalam dialog
+          onSuccess={() => {}} // DataTable otomatis refresh via router.refresh di dalam dialog
         />
       )}
     </>

@@ -24,7 +24,7 @@ interface DateRangePickerProps {
 
 /**
  * DateRangePicker component for selecting a range of dates.
- * 
+ *
  * @example
  * ```tsx
  * <DateRangePicker value={range} onValueChange={setRange} />

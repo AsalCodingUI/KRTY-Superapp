@@ -69,7 +69,7 @@ export default function PermissionSettingsPage({
             >
               User Permissions
             </h3>
-            <p className="text-content-subtle text-sm leading-6">
+            <p className="text-content-subtle text-label-md">
               Manage access levels (Roles) and job titles for your team members.
             </p>
           </div>
@@ -98,16 +98,16 @@ export default function PermissionSettingsPage({
                 {/* INFO USER */}
                 <div className="flex items-center gap-x-4 overflow-hidden">
                   <span
-                    className="border-input bg-muted text-content-subtle dark:bg-surface dark:text-content-subtle hidden size-10 shrink-0 items-center justify-center rounded-full border text-xs font-medium sm:flex dark:border"
+                    className="border-input bg-muted text-content-subtle dark:bg-surface dark:text-content-subtle text-label-xs hidden size-10 shrink-0 items-center justify-center rounded-full border sm:flex dark:border"
                     aria-hidden="true"
                   >
                     {initials}
                   </span>
                   <div className="truncate">
-                    <p className="text-content dark:text-content truncate text-sm font-medium">
+                    <p className="text-content dark:text-content text-label-md truncate">
                       {user.full_name || "Unknown User"}
                     </p>
-                    <p className="text-content-subtle truncate text-xs">
+                    <p className="text-content-subtle text-body-xs truncate">
                       {user.email}
                     </p>
                   </div>
@@ -117,7 +117,7 @@ export default function PermissionSettingsPage({
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                   {/* 1. SELECT JOB TITLE */}
                   <div className="w-full sm:w-40">
-                    <span className="text-content-subtle mb-1 block text-xs sm:hidden">
+                    <span className="text-content-subtle text-body-xs mb-1 block sm:hidden">
                       Job Title
                     </span>
                     <Select
@@ -142,7 +142,7 @@ export default function PermissionSettingsPage({
 
                   {/* 2. SELECT ROLE */}
                   <div className="w-full sm:w-36">
-                    <span className="text-content-subtle mb-1 block text-xs sm:hidden">
+                    <span className="text-content-subtle text-body-xs mb-1 block sm:hidden">
                       Role
                     </span>
                     <Select

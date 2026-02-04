@@ -2,9 +2,9 @@
 
 import React from "react"
 
-import { cx } from '@/shared/lib/utils'
+import { cx } from "@/shared/lib/utils"
 
-interface DividerProps extends React.ComponentPropsWithoutRef<"div"> { }
+interface DividerProps extends React.ComponentPropsWithoutRef<"div"> {}
 
 const Divider = React.forwardRef<HTMLDivElement, DividerProps>(
   ({ className, children, ...props }, forwardedRef) => (
@@ -12,7 +12,7 @@ const Divider = React.forwardRef<HTMLDivElement, DividerProps>(
       ref={forwardedRef}
       className={cx(
         // base
-        "mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm",
+        "text-body-sm mx-auto my-6 flex w-full items-center justify-between gap-3",
         // text color
         "text-content-subtle dark:text-content-subtle",
         className,

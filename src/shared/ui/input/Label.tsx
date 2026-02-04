@@ -3,16 +3,17 @@
 import * as LabelPrimitives from "@radix-ui/react-label"
 import * as React from "react"
 
-import { cx } from '@/shared/lib/utils'
+import { cx } from "@/shared/lib/utils"
 
-interface CheckboxProps
-  extends React.ComponentPropsWithoutRef<typeof LabelPrimitives.Root> {
+interface CheckboxProps extends React.ComponentPropsWithoutRef<
+  typeof LabelPrimitives.Root
+> {
   disabled?: boolean
 }
 
 /**
  * Label component for form inputs.
- * 
+ *
  * @example
  * ```tsx
  * <Label htmlFor="email">Email Address</Label>
@@ -27,7 +28,7 @@ const Label = React.forwardRef<
     ref={forwardedRef}
     className={cx(
       // base
-      "text-sm leading-none",
+      "text-body-sm",
       // text color
       "text-content dark:text-content",
       // disabled

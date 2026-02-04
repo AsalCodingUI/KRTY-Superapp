@@ -7,7 +7,7 @@ import { useEffect, useState } from "react"
 import { columns } from "@/page-slices/leave/ui/components/Columns"
 import { LeaveRequestModal } from "@/page-slices/leave/ui/components/LeaveRequestModal"
 import { LeaveStats } from "@/page-slices/leave/ui/components/LeaveStats"
-import { DataTable } from "@/shared/ui";
+import { DataTable } from "@/shared/ui"
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"]
 type LeaveRequest = Database["public"]["Tables"]["leave_requests"]["Row"]
@@ -81,7 +81,7 @@ export default function LeaveClientPage({
   return (
     <>
       <div className="mb-6">
-        <h1 className="text-content dark:text-content text-lg font-semibold sm:text-xl">
+        <h1 className="text-content dark:text-content text-heading-md sm:text-heading-lg">
           Leave & Permission
         </h1>
       </div>

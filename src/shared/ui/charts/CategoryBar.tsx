@@ -14,8 +14,8 @@ const categoryBarVariants = tv({
 
 interface CategoryBarProps
   extends
-  React.HTMLAttributes<HTMLDivElement>,
-  VariantProps<typeof categoryBarVariants> {
+    React.HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof categoryBarVariants> {
   values: number[]
   colors?: string[]
   showLabels?: boolean
@@ -46,7 +46,7 @@ const colorMap: Record<string, string> = {
 
 /**
  * CategoryBar component for visualizing proportional data in a single bar.
- * 
+ *
  * @example
  * ```tsx
  * <CategoryBar

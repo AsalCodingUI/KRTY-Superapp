@@ -59,11 +59,12 @@ const switchVariants = tv({
 })
 
 interface SwitchProps
-  extends Omit<
-    React.ComponentPropsWithoutRef<typeof SwitchPrimitives.Root>,
-    "asChild"
-  >,
-  VariantProps<typeof switchVariants> { }
+  extends
+    Omit<
+      React.ComponentPropsWithoutRef<typeof SwitchPrimitives.Root>,
+      "asChild"
+    >,
+    VariantProps<typeof switchVariants> {}
 
 /**
  * Switch component for toggling between two states.

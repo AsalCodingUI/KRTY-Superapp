@@ -113,7 +113,7 @@ const DialogTitle = React.forwardRef<
     ref={forwardedRef}
     className={cx(
       // base
-      "text-lg font-semibold",
+      "text-heading-md",
       // text color
       "text-content",
       className,

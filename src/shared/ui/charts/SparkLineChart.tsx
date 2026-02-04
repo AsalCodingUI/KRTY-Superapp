@@ -2,21 +2,25 @@
 
 "use client"
 
-import { cx } from '@/shared/lib/utils'
+import { cx } from "@/shared/lib/utils"
 import React from "react"
-import { Line, LineChart as RechartsLineChart, ResponsiveContainer } from "recharts"
+import {
+  Line,
+  LineChart as RechartsLineChart,
+  ResponsiveContainer,
+} from "recharts"
 
 interface SparkLineChartProps extends React.HTMLAttributes<HTMLDivElement> {
-    data: Array<Record<string, any>>
-    categories: string[]
-    index: string
-    colors?: string[]
+  data: Array<Record<string, any>>
+  categories: string[]
+  index: string
+  colors?: string[]
 }
 
 /**
  * SparkLineChart component for small, simple line charts.
  * Built on Recharts.
- * 
+ *
  * @example
  * ```tsx
  * <SparkLineChart
@@ -28,43 +32,43 @@ interface SparkLineChartProps extends React.HTMLAttributes<HTMLDivElement> {
  * ```
  */
 const SparkLineChart = React.forwardRef<HTMLDivElement, SparkLineChartProps>(
-    (
-        {
-            data = [],
-            categories = [],
-            index,
-            colors = ["primary"],
-            className,
-            ...props
-        },
-        forwardedRef,
-    ) => {
-        const color = colors[0] || "primary"
-        const strokeColor = `stroke-${color}`
-
-        return (
-            <div
-                ref={forwardedRef}
-                className={cx("h-10 w-full", className)}
-                tremor-id="tremor-raw"
-                {...props}
-            >
-                <ResponsiveContainer width="100%" height="100%">
-                    <RechartsLineChart data={data}>
-                        <Line
-                            type="monotone"
-                            dataKey={categories[0]}
-                            stroke="currentColor"
-                            className={strokeColor}
-                            strokeWidth={2}
-                            dot={false}
-                            isAnimationActive={false}
-                        />
-                    </RechartsLineChart>
-                </ResponsiveContainer>
-            </div>
-        )
+  (
+    {
+      data = [],
+      categories = [],
+      index,
+      colors = ["primary"],
+      className,
+      ...props
     },
+    forwardedRef,
+  ) => {
+    const color = colors[0] || "primary"
+    const strokeColor = `stroke-${color}`
+
+    return (
+      <div
+        ref={forwardedRef}
+        className={cx("h-10 w-full", className)}
+        tremor-id="tremor-raw"
+        {...props}
+      >
+        <ResponsiveContainer width="100%" height="100%">
+          <RechartsLineChart data={data}>
+            <Line
+              type="monotone"
+              dataKey={categories[0]}
+              stroke="currentColor"
+              className={strokeColor}
+              strokeWidth={2}
+              dot={false}
+              isAnimationActive={false}
+            />
+          </RechartsLineChart>
+        </ResponsiveContainer>
+      </div>
+    )
+  },
 )
 
 SparkLineChart.displayName = "SparkLineChart"

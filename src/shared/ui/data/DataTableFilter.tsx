@@ -1,6 +1,6 @@
 "use client"
 
-import { Button, TextInput } from '@/components/ui'
+import { Button, TextInput } from "@/components/ui"
 import { RiAddLine, RiDownloadLine } from "@remixicon/react"
 import { Table } from "@tanstack/react-table"
 import { useState } from "react"
@@ -26,7 +26,7 @@ export function DataTableToolbar<TData>({
   showExport = true, // Default muncul
   showViewOptions = true, // Default muncul
   actionLabel = "Add Member", // Default text
-  searchKey // Add searchKey prop
+  searchKey, // Add searchKey prop
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0
   const [searchTerm, setSearchTerm] = useState<string>("")
@@ -34,7 +34,9 @@ export function DataTableToolbar<TData>({
   // Use searchKey if provided, otherwise fallback to common column names
   const searchColumn = searchKey
     ? table.getColumn(searchKey)
-    : (table.getColumn("full_name") || table.getColumn("owner") || table.getColumn("leave_type"))
+    : table.getColumn("full_name") ||
+      table.getColumn("owner") ||
+      table.getColumn("leave_type")
 
   const debouncedSetFilterValue = useDebouncedCallback((value: string) => {
     searchColumn?.setFilterValue(value)
@@ -68,7 +70,7 @@ export function DataTableToolbar<TData>({
               table.resetColumnFilters()
               setSearchTerm("")
             }}
-            className="border border-border px-2 font-semibold text-primary sm:border-none sm:py-1"
+            className="border-border text-primary border px-2 font-semibold sm:border-none sm:py-1"
           >
             Clear filters
           </Button>
@@ -88,17 +90,11 @@ export function DataTableToolbar<TData>({
         )}
 
         {/* BUTTON VIEW (Kondisional) */}
-        {showViewOptions && (
-          <ViewOptions table={table} />
-        )}
+        {showViewOptions && <ViewOptions table={table} />}
 
         {/* BUTTON ACTION (Custom Label) */}
         {onCreate && (
-          <Button
-            onClick={onCreate}
-            size="default"
-            className="gap-x-2"
-          >
+          <Button onClick={onCreate} size="default" className="gap-x-2">
             <RiAddLine className="size-4 shrink-0" aria-hidden="true" />
             {actionLabel}
           </Button>

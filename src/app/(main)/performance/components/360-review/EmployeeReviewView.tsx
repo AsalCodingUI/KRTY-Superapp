@@ -1,6 +1,12 @@
 "use client"
 
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, RadarChart, } from "@/shared/ui"
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+  RadarChart,
+} from "@/shared/ui"
 
 import { Badge } from "@/shared/ui"
 import { Card } from "@/shared/ui"
@@ -222,7 +228,7 @@ export function EmployeeReviewView({
                   </div>
                 </AccordionTrigger>
                 <AccordionContent>
-                  <p className="text-content-subtle dark:text-content-subtle text-sm leading-relaxed whitespace-pre-line">
+                  <p className="text-content-subtle dark:text-content-subtle text-body-sm whitespace-pre-line">
                     {result.summary.additional}
                   </p>
                 </AccordionContent>
@@ -236,7 +242,7 @@ export function EmployeeReviewView({
                   </div>
                 </AccordionTrigger>
                 <AccordionContent>
-                  <p className="text-content-subtle dark:text-content-subtle text-sm whitespace-pre-line">
+                  <p className="text-content-subtle dark:text-content-subtle text-body-sm whitespace-pre-line">
                     {result.summary.strength}
                   </p>
                 </AccordionContent>
@@ -250,7 +256,7 @@ export function EmployeeReviewView({
                   </div>
                 </AccordionTrigger>
                 <AccordionContent>
-                  <p className="text-content-subtle dark:text-content-subtle text-sm whitespace-pre-line">
+                  <p className="text-content-subtle dark:text-content-subtle text-body-sm whitespace-pre-line">
                     {result.summary.growth}
                   </p>
                 </AccordionContent>
@@ -264,7 +270,7 @@ export function EmployeeReviewView({
                   </div>
                 </AccordionTrigger>
                 <AccordionContent>
-                  <p className="text-content-subtle dark:text-content-subtle text-sm whitespace-pre-line">
+                  <p className="text-content-subtle dark:text-content-subtle text-body-sm whitespace-pre-line">
                     {result.summary.stop}
                   </p>
                 </AccordionContent>
@@ -292,7 +298,7 @@ export function EmployeeReviewView({
             {skillRatings && (
               <div className="border-border mt-6 space-y-3 border-t pt-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-content-subtle dark:text-content-subtle text-sm font-medium">
+                  <span className="text-content-subtle dark:text-content-subtle text-label-md">
                     Leadership
                   </span>
                   <Badge
@@ -302,7 +308,7 @@ export function EmployeeReviewView({
                   </Badge>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-content-subtle dark:text-content-subtle text-sm font-medium">
+                  <span className="text-content-subtle dark:text-content-subtle text-label-md">
                     Quality
                   </span>
                   <Badge variant={getRatingBadgeVariant(skillRatings.quality)}>
@@ -310,7 +316,7 @@ export function EmployeeReviewView({
                   </Badge>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-content-subtle dark:text-content-subtle text-sm font-medium">
+                  <span className="text-content-subtle dark:text-content-subtle text-label-md">
                     Reliability
                   </span>
                   <Badge
@@ -320,7 +326,7 @@ export function EmployeeReviewView({
                   </Badge>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-content-subtle dark:text-content-subtle text-sm font-medium">
+                  <span className="text-content-subtle dark:text-content-subtle text-label-md">
                     Communication
                   </span>
                   <Badge
@@ -330,7 +336,7 @@ export function EmployeeReviewView({
                   </Badge>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-content-subtle dark:text-content-subtle text-sm font-medium">
+                  <span className="text-content-subtle dark:text-content-subtle text-label-md">
                     Initiative
                   </span>
                   <Badge

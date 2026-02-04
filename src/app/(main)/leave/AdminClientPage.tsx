@@ -88,7 +88,7 @@ export default function LeaveAdminPage({
   return (
     <>
       <div className="mb-6">
-        <h1 className="text-content dark:text-content text-lg font-semibold sm:text-xl">
+        <h1 className="text-content dark:text-content text-heading-md sm:text-heading-lg">
           Leave Approval Center
         </h1>
 

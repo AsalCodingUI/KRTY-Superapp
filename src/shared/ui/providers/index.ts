@@ -2,5 +2,5 @@
  * Public API
  */
 
-export * from './ToastProvider';
-export * from './QueryProvider';
+export * from "./ToastProvider"
+export * from "./QueryProvider"

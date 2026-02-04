@@ -1,56 +1,56 @@
 "use server"
 
-import { createClient } from '@/shared/api/supabase/server'
-import { TeamStats } from '../model/types'
+import { createClient } from "@/shared/api/supabase/server"
+import { TeamStats } from "../model/types"
 
 /**
  * Get team statistics with server-side aggregation
- * 
+ *
  * @param teamMembers - Array of profile IDs in the team
  * @returns Aggregated team stats by job title
  */
 export async function getTeamStats(teamMembers: string[]): Promise<TeamStats> {
-    const supabase = await createClient()
+  const supabase = await createClient()
 
-    if (!teamMembers || teamMembers.length === 0) {
-        return {
-            totalMembers: 0,
-            statsByJobTitle: [],
-        }
+  if (!teamMembers || teamMembers.length === 0) {
+    return {
+      totalMembers: 0,
+      statsByJobTitle: [],
     }
+  }
 
-    try {
-        // Fetch profiles with server-side filtering
-        const { data: profiles, error } = await supabase
-            .from("profiles")
-            .select("id, job_title")
-            .in("id", teamMembers)
+  try {
+    // Fetch profiles with server-side filtering
+    const { data: profiles, error } = await supabase
+      .from("profiles")
+      .select("id, job_title")
+      .in("id", teamMembers)
 
-        if (error) throw error
+    if (error) throw error
 
-        // Aggregate by job title on server
-        const statsMap = new Map<string, number>()
+    // Aggregate by job title on server
+    const statsMap = new Map<string, number>()
 
-        profiles?.forEach((profile) => {
-            const jobTitle = profile.job_title || "Unknown"
-            statsMap.set(jobTitle, (statsMap.get(jobTitle) || 0) + 1)
-        })
+    profiles?.forEach((profile) => {
+      const jobTitle = profile.job_title || "Unknown"
+      statsMap.set(jobTitle, (statsMap.get(jobTitle) || 0) + 1)
+    })
 
-        // Convert to array format
-        const statsByJobTitle = Array.from(statsMap.entries()).map(
-            ([jobTitle, count]) => ({
-                jobTitle,
-                count,
-                percentage: profiles ? Math.round((count / profiles.length) * 100) : 0,
-            }),
-        )
+    // Convert to array format
+    const statsByJobTitle = Array.from(statsMap.entries()).map(
+      ([jobTitle, count]) => ({
+        jobTitle,
+        count,
+        percentage: profiles ? Math.round((count / profiles.length) * 100) : 0,
+      }),
+    )
 
-        return {
-            totalMembers: profiles?.length || 0,
-            statsByJobTitle,
-        }
-    } catch (error) {
-        console.error("[getTeamStats] Error:", error)
-        throw error
+    return {
+      totalMembers: profiles?.length || 0,
+      statsByJobTitle,
     }
+  } catch (error) {
+    console.error("[getTeamStats] Error:", error)
+    throw error
+  }
 }

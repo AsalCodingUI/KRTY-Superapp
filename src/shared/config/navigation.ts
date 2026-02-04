@@ -1,5 +1,6 @@
 import { siteConfig } from "@/app/siteConfig"
 import {
+  RemixiconComponentType,
   RiBarChartBoxLine,
   RiCalculatorLine,
   RiCalendarCheckLine,
@@ -9,18 +10,40 @@ import {
   RiGroupLine,
   RiHome2Line,
   RiMessage3Line,
-  RiNotification3Line,
-  RiUserSmileLine
+  RiQuestionLine,
+  RiSettings5Line,
+  RiUserSmileLine,
 } from "@remixicon/react"
 
-export const navigationConfig = {
-  main: [
+interface NavigationItem {
+  name: string
+  href: string
+  icon: RemixiconComponentType
+  roles: readonly string[]
+}
+
+interface NavigationConfig {
+  main: readonly NavigationItem[]
+  footer: readonly NavigationItem[]
+  shortcuts: readonly NavigationItem[]
+}
+
+export const navigationConfig: NavigationConfig = {
+  footer: [
     {
-      name: "Notifications",
+      name: "Help & support",
       href: "#", // Placeholder
-      icon: RiNotification3Line,
+      icon: RiQuestionLine,
       roles: ["stakeholder", "employee"],
     },
+    {
+      name: "Settings",
+      href: siteConfig.baseLinks.settings.general,
+      icon: RiSettings5Line,
+      roles: ["stakeholder", "employee"],
+    },
+  ],
+  main: [
     {
       name: "Dashboard",
       href: siteConfig.baseLinks.dashboard,
@@ -83,4 +106,4 @@ export const navigationConfig = {
     },
   ],
   shortcuts: [],
-} as const
+}

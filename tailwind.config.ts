@@ -41,28 +41,28 @@ const config: Config = {
     },
     fontSize: {
       // Display - Switzer Variable, 500
-      "display-lg": ["44px", { lineHeight: "52px", letterSpacing: "-0.44px", fontWeight: "500" }],
-      "display-md": ["40px", { lineHeight: "48px", letterSpacing: "-0.4px", fontWeight: "500" }],
-      "display-sm": ["36px", { lineHeight: "44px", letterSpacing: "-0.36px", fontWeight: "500" }],
-      "display-xs": ["32px", { lineHeight: "40px", letterSpacing: "-0.32px", fontWeight: "500" }],
-      "display-xxs": ["24px", { lineHeight: "32px", letterSpacing: "-0.36px", fontWeight: "500" }],
+      "display-lg": ["44px", { lineHeight: "52px", letterSpacing: "-1%", fontWeight: "500" }],
+      "display-md": ["40px", { lineHeight: "48px", letterSpacing: "-1%", fontWeight: "500" }],
+      "display-sm": ["36px", { lineHeight: "44px", letterSpacing: "-1%", fontWeight: "500" }],
+      "display-xs": ["32px", { lineHeight: "40px", letterSpacing: "-1%", fontWeight: "500" }],
+      "display-xxs": ["24px", { lineHeight: "32px", letterSpacing: "-1.5%", fontWeight: "500" }],
 
       // Heading - Switzer Variable, 500
-      "heading-lg": ["20px", { lineHeight: "28px", letterSpacing: "-0.4px", fontWeight: "500" }],
-      "heading-md": ["18px", { lineHeight: "24px", letterSpacing: "0px", fontWeight: "500" }],
-      "heading-sm": ["16px", { lineHeight: "24px", letterSpacing: "0px", fontWeight: "500" }],
+      "heading-lg": ["20px", { lineHeight: "28px", letterSpacing: "-2%", fontWeight: "500" }],
+      "heading-md": ["18px", { lineHeight: "24px", letterSpacing: "0%", fontWeight: "500" }],
+      "heading-sm": ["16px", { lineHeight: "24px", letterSpacing: "0%", fontWeight: "500" }],
 
       // Label - Inter Variable, 500
-      "label-lg": ["16px", { lineHeight: "24px", letterSpacing: "-0.128px", fontWeight: "500" }],
-      "label-md": ["14px", { lineHeight: "20px", letterSpacing: "-0.112px", fontWeight: "500" }],
-      "label-sm": ["13px", { lineHeight: "20px", letterSpacing: "-0.8px", fontWeight: "500" }],
-      "label-xs": ["12px", { lineHeight: "16px", letterSpacing: "0px", fontWeight: "500" }],
+      "label-lg": ["16px", { lineHeight: "24px", letterSpacing: "-0.8%", fontWeight: "500" }],
+      "label-md": ["14px", { lineHeight: "20px", letterSpacing: "-0.8%", fontWeight: "500" }],
+      "label-sm": ["13px", { lineHeight: "20px", letterSpacing: "-0.8%", fontWeight: "500" }],
+      "label-xs": ["12px", { lineHeight: "16px", letterSpacing: "0%", fontWeight: "500" }],
 
       // Body - Inter Variable, 400
-      "body-lg": ["18px", { lineHeight: "28px", letterSpacing: "0.09px", fontWeight: "400" }],
-      "body-md": ["16px", { lineHeight: "24px", letterSpacing: "0.08px", fontWeight: "400" }],
-      "body-sm": ["13px", { lineHeight: "20px", letterSpacing: "0.065px", fontWeight: "400" }],
-      "body-xs": ["12px", { lineHeight: "16px", letterSpacing: "0px", fontWeight: "400" }],
+      "body-lg": ["18px", { lineHeight: "28px", letterSpacing: "0.5%", fontWeight: "400" }],
+      "body-md": ["16px", { lineHeight: "24px", letterSpacing: "0.5%", fontWeight: "400" }],
+      "body-sm": ["13px", { lineHeight: "20px", letterSpacing: "0.5%", fontWeight: "400" }],
+      "body-xs": ["12px", { lineHeight: "16px", letterSpacing: "0%", fontWeight: "400" }],
     },
     extend: {
       keyframes: {

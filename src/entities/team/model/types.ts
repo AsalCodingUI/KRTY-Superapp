@@ -1,19 +1,19 @@
-import { Database } from '@/shared/types/database.types'
+import { Database } from "@/shared/types/database.types"
 
-export type TeamMember = Database['public']['Tables']['profiles']['Row']
+export type TeamMember = Database["public"]["Tables"]["profiles"]["Row"]
 
 export interface TeamStats {
-    totalMembers: number
-    statsByJobTitle: {
-        jobTitle: string
-        count: number
-        percentage: number
-    }[]
+  totalMembers: number
+  statsByJobTitle: {
+    jobTitle: string
+    count: number
+    percentage: number
+  }[]
 }
 
 export interface TeamFormData {
-    id?: string
-    full_name: string
-    email: string
-    hourly_rate: number
+  id?: string
+  full_name: string
+  email: string
+  hourly_rate: number
 }

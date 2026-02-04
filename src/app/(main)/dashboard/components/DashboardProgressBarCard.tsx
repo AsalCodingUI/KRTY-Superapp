@@ -34,27 +34,29 @@ export function ProgressBarCard({
       <div className="flex flex-col justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <dt className="font-semibold text-content sm:text-sm dark:text-content">
+            <dt className="text-content sm:text-label-md dark:text-content">
               {title}
             </dt>
             <Badge variant="zinc">{change}</Badge>
           </div>
           <dd className="mt-2 flex items-baseline gap-2">
-            <span className="text-xl text-content dark:text-content">
+            <span className="text-heading-lg text-content dark:text-content">
               {value}
             </span>
-            <span className="text-sm text-content-muted">{valueDescription}</span>
+            <span className="text-body-sm text-content-muted">
+              {valueDescription}
+            </span>
           </dd>
           <ul role="list" className="mt-4 space-y-5">
             {data.map((item) => (
               <li key={item.title}>
-                <p className="flex justify-between text-sm">
-                  <span className="font-medium text-content dark:text-content">
+                <p className="text-label-md flex justify-between">
+                  <span className="text-content dark:text-content font-medium">
                     {item.title}
                   </span>
-                  <span className="font-medium text-content dark:text-content">
+                  <span className="text-content dark:text-content font-medium">
                     {item.current}
-                    <span className="font-normal text-content-muted">
+                    <span className="text-content-muted font-normal">
                       /{item.allowed}
                       {item.unit}
                     </span>
@@ -69,7 +71,7 @@ export function ProgressBarCard({
           </ul>
         </div>
         <div>
-          <p className="mt-6 text-xs text-content-muted">
+          <p className="text-body-xs text-content-muted mt-6">
             {ctaDescription}{" "}
             <a href={ctaLink} className="text-primary hover:text-primary-hover">
               {ctaText}

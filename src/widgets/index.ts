@@ -1,8 +1,8 @@
 /**
  * Widgets Layer
- * 
+ *
  * This layer contains large composite UI blocks.
- * 
+ *
  * FSD Rules:
  * - This layer can import from layers below it
  * - This layer cannot import from layers above it
@@ -21,4 +21,4 @@
 // export * from './sidebar';
 // export * from './mobile-menu';
 
-export {};
+export {}

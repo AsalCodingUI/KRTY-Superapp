@@ -1,8 +1,8 @@
 export default function FullscreenLayout({
-    children,
+  children,
 }: {
-    children: React.ReactNode
+  children: React.ReactNode
 }) {
-    // Layout tanpa sidebar untuk halaman fullscreen
-    return <>{children}</>
+  // Layout tanpa sidebar untuk halaman fullscreen
+  return <>{children}</>
 }

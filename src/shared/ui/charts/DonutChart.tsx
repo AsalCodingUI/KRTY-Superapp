@@ -132,10 +132,10 @@ const DonutChart = React.forwardRef<HTMLDivElement, DonutChartProps>(
                     return (
                       <div className="border-border-default bg-surface rounded-md px-2.5 py-1.5 shadow-sm">
                         <div className="flex flex-col gap-1">
-                          <span className="text-foreground-tertiary text-xs font-medium">
+                          <span className="text-foreground-tertiary text-label-xs">
                             {dataPoint[category]}
                           </span>
-                          <span className="text-foreground-primary text-sm font-semibold">
+                          <span className="text-foreground-primary text-label-md">
                             {valueFormatter(dataPoint[value])}
                           </span>
                         </div>

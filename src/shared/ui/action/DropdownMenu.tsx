@@ -25,7 +25,7 @@ const DropdownMenuSubTrigger = React.forwardRef<
   <DropdownMenuPrimitives.SubTrigger
     ref={ref}
     className={cx(
-      "relative flex cursor-pointer items-center rounded-sm px-2 py-1.5 text-sm outline-hidden transition-colors select-none",
+      "text-body-sm relative flex cursor-pointer items-center rounded-sm px-2 py-1.5 outline-hidden transition-colors select-none",
       "text-foreground-primary",
       "focus:bg-surface-neutral-secondary",
       "data-[state=open]:bg-surface-neutral-secondary",
@@ -95,7 +95,7 @@ const DropdownMenuItem = React.forwardRef<
   <DropdownMenuPrimitives.Item
     ref={ref}
     className={cx(
-      "relative flex cursor-pointer items-center rounded-sm px-2 py-1.5 text-sm outline-hidden transition-colors select-none",
+      "text-body-sm relative flex cursor-pointer items-center rounded-sm px-2 py-1.5 outline-hidden transition-colors select-none",
       "text-foreground-primary",
       "focus:bg-surface-neutral-secondary",
       "data-disabled:pointer-events-none data-disabled:opacity-50",
@@ -113,7 +113,7 @@ const DropdownMenuRadioItem = React.forwardRef<
   <DropdownMenuPrimitives.RadioItem
     ref={ref}
     className={cx(
-      "relative flex cursor-pointer items-center rounded-sm py-1.5 pr-2 pl-8 text-sm outline-hidden transition-colors select-none",
+      "text-body-sm relative flex cursor-pointer items-center rounded-sm py-1.5 pr-2 pl-8 outline-hidden transition-colors select-none",
       "text-foreground-primary",
       "focus:bg-surface-neutral-secondary",
       "data-disabled:pointer-events-none data-disabled:opacity-50",
@@ -149,7 +149,7 @@ const DropdownMenuLabel = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DropdownMenuPrimitives.Label
     ref={ref}
-    className={cx("px-2 py-1.5 text-sm font-semibold", className)}
+    className={cx("text-label-md px-2 py-1.5", className)}
     {...props}
   />
 ))
