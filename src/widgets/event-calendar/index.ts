@@ -26,6 +26,7 @@ export { CalendarToolbar } from "./ui/CalendarToolbar"
 export { EventCalendar } from "./ui/EventCalendar"
 
 // Hooks & Context
+export { CalendarProvider } from "./ui/calendar-context"
 export { useCalendarContext } from "./ui/calendar-context"
 export { useEventVisibility } from "./ui/hooks/use-event-visibility"
 export * from "./ui/types"

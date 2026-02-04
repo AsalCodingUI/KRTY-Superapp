@@ -2,6 +2,7 @@
 
 import { createClient } from "@/shared/api/supabase/client"
 import {
+  CalendarProvider,
   type CalendarEvent,
   type EventCategory,
 } from "@/widgets/event-calendar"
@@ -89,16 +90,18 @@ export default function CalendarClient({ role }: CalendarClientProps) {
   }
 
   return (
-    <CalendarContent
-      events={events}
-      loading={loading}
-      dialogOpen={dialogOpen}
-      setDialogOpen={setDialogOpen}
-      handleEventAdd={handleEventAdd}
-      handleEventUpdate={handleEventUpdate}
-      handleEventDelete={handleEventDelete}
-      isStakeholder={isStakeholder}
-      categories={categories}
-    />
+    <CalendarProvider>
+      <CalendarContent
+        events={events}
+        loading={loading}
+        dialogOpen={dialogOpen}
+        setDialogOpen={setDialogOpen}
+        handleEventAdd={handleEventAdd}
+        handleEventUpdate={handleEventUpdate}
+        handleEventDelete={handleEventDelete}
+        isStakeholder={isStakeholder}
+        categories={categories}
+      />
+    </CalendarProvider>
   )
 }

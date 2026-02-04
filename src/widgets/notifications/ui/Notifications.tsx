@@ -95,17 +95,17 @@ export function Notifications({ variant = "default" }: NotificationsProps) {
         className={cx(
           variant === "default"
             ? cx(
-                "hover:bg-surface-neutral-secondary text-label-md flex w-full items-center gap-x-2.5 rounded-md px-2 py-1.5 transition",
-                isOpen
-                  ? "bg-surface-neutral-secondary text-foreground-primary"
-                  : "text-foreground-secondary hover:text-foreground-primary",
-              )
+              "hover:bg-surface-neutral-secondary text-label-md flex w-full items-center gap-x-2.5 rounded-md px-2 py-1.5 transition",
+              isOpen
+                ? "bg-surface-neutral-secondary text-foreground-primary"
+                : "text-foreground-secondary hover:text-foreground-primary",
+            )
             : cx(
-                "flex size-7 shrink-0 items-center justify-center rounded-md transition-colors focus:outline-none",
-                isOpen
-                  ? "text-content bg-surface-neutral-secondary"
-                  : "text-content-subtle hover:text-content hover:bg-surface-neutral-secondary",
-              ),
+              "flex size-7 shrink-0 items-center justify-center rounded-md transition-colors focus:outline-none",
+              isOpen
+                ? "text-content bg-surface-neutral-secondary"
+                : "text-content-subtle hover:text-content hover:bg-surface-neutral-secondary",
+            ),
           focusRing,
         )}
         aria-label="Notification Center"
@@ -208,7 +208,7 @@ export function Notifications({ variant = "default" }: NotificationsProps) {
 
                   <div className="flex-1 overflow-y-auto">
                     {filteredNotifications.length === 0 ? (
-                      <div className="flex flex-1 items-center justify-center p-2xl text-center">
+                      <div className="flex h-full flex-1 items-center justify-center p-2xl text-center">
                         <div className="flex w-full flex-col items-center gap-xl px-3xl py-5xl">
                           <span className="relative size-8">
                             <img

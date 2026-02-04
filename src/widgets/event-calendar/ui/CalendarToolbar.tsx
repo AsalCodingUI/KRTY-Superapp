@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui"
-import { cx } from "@/shared/lib/utils"
+import { SegmentedControl } from "@/shared/ui/interaction/SegmentedControl"
 import {
   RiAddLine,
   RiArrowLeftSLine,
@@ -43,16 +43,16 @@ export function CalendarToolbar({ onAddEvent }: CalendarToolbarProps) {
     return "Agenda"
   }, [currentDate, viewMode])
 
-  const viewButtons: {
-    mode: ViewMode
-    icon: typeof RiLayoutGridLine
+  const viewButtons = [
+    { value: "month", label: "Bulan", leadingIcon: RiLayoutGridLine },
+    { value: "week", label: "Minggu", leadingIcon: RiLayout2Line },
+    { value: "day", label: "Hari", leadingIcon: RiLayoutRowLine },
+    { value: "agenda", label: "Agenda", leadingIcon: RiListCheck2 },
+  ] satisfies Array<{
+    value: ViewMode
     label: string
-  }[] = [
-    { mode: "month", icon: RiLayoutGridLine, label: "Bulan" },
-    { mode: "week", icon: RiLayout2Line, label: "Minggu" },
-    { mode: "day", icon: RiLayoutRowLine, label: "Hari" },
-    { mode: "agenda", icon: RiListCheck2, label: "Agenda" },
-  ]
+    leadingIcon: typeof RiLayoutGridLine
+  }>
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-4">
@@ -102,26 +102,13 @@ export function CalendarToolbar({ onAddEvent }: CalendarToolbarProps) {
 
       {/* Right: View mode selector */}
       <div className="flex items-center gap-3">
-        {/* View mode selector - matching QuarterFilter style */}
-        <div className="bg-muted inline-flex items-center rounded-md">
-          {viewButtons.map(({ mode, icon: Icon, label }) => (
-            <Button
-              key={mode}
-              onClick={() => setViewMode(mode)}
-              variant={viewMode === mode ? "secondary" : "ghost"}
-              size="default"
-              className={cx(
-                "font-medium",
-                viewMode !== mode &&
-                  "text-content-muted dark:text-foreground-default-disable",
-                viewMode === mode && "hover:bg-surface hover:ring-border",
-              )}
-            >
-              <Icon className="h-4 w-4" />
-              <span className="hidden sm:inline">{label}</span>
-            </Button>
-          ))}
-        </div>
+        <SegmentedControl
+          items={viewButtons}
+          value={viewMode}
+          onChange={setViewMode}
+          fitContent
+          className="w-auto"
+        />
       </div>
     </div>
   )
