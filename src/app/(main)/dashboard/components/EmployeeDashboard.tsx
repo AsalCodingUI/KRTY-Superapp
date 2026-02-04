@@ -1,7 +1,7 @@
 "use client"
 
-import { Badge } from "@/components/Badge"
-import { Card } from "@/components/Card"
+import { Badge } from "@/shared/ui"
+import { Card } from "@/shared/ui"
 import { RiCalendarEventLine, RiFilePaperLine } from "@remixicon/react"
 import { format } from "date-fns"
 import Link from "next/link"

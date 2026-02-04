@@ -1,8 +1,5 @@
 "use client"
 
-import { Badge } from "@/components/Badge"
-import { Card } from "@/components/Card"
-import { StatsCard } from "@/components/StatsCard"
 import {
     RiCalendarCheckLine,
     RiCalendarLine,
@@ -11,6 +8,8 @@ import {
 } from "@remixicon/react"
 import { format } from "date-fns"
 import Link from "next/link"
+import { Badge, Card } from "@/shared/ui"
+import { StatsCard } from "@/shared/ui";
 
 interface AttendanceLog {
     id: string

@@ -1,0 +1,58 @@
+import { Meta, Canvas, Story } from '@storybook/blocks';
+import * as PageHeaderStories from '../structure/PageHeader.stories';
+import * as CardStories from '../structure/Card.stories';
+import * as TableSectionStories from '../structure/TableSection.stories';
+
+<Meta title="Docs/Patterns/Layout" />
+
+# Layout Patterns
+
+Common layout patterns used throughout the application to ensure consistency.
+
+## Page Structure
+
+Every page should start with a `PageHeader`. This component provides a consistent title, description, and optional action area.
+
+<Canvas of={PageHeaderStories.Default} />
+
+### With Actions
+
+Use the `actions` prop to add primary page actions like "Create" or "Export".
+
+<Canvas of={PageHeaderStories.WithActions} />
+
+## Content Grouping
+
+### Cards
+
+Use `Card` to group related content. Inside cards, you can use standard HTML or other components.
+
+<Canvas of={CardStories.Default} />
+
+### Table Sections
+
+When displaying data tables, wrap them in a `TableSection`. This provides a consistent container with a title and description for the data.
+
+<Canvas of={TableSectionStories.Default} />
+
+## Full Page Example
+
+A typical page layout consists of a `PageHeader` followed by one or more content sections (Cards or TableSections).
+
+```tsx
+export default function UsersPage() {
+  return (
+    <div className="space-y-6 p-6">
+      <PageHeader 
+        title="Users" 
+        description="Manage system users."
+        actions={<Button>Add User</Button>}
+      />
+      
+      <TableSection title="All Users">
+        <DataTable columns={columns} data={data} />
+      </TableSection>
+    </div>
+  )
+}
+```

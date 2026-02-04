@@ -1,6 +1,5 @@
 "use client"
 
-import { StatsCard } from "@/components/StatsCard"
 import {
     RiCheckboxCircleLine,
     RiFileTextLine,
@@ -9,6 +8,7 @@ import {
     RiTimeLine
 } from "@remixicon/react"
 import Link from "next/link"
+import { StatsCard } from "@/shared/ui";
 
 interface AdminMetricsOverviewProps {
     totalEmployees: number

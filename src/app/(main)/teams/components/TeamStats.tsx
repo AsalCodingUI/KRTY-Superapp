@@ -1,9 +1,9 @@
 "use client"
 
-import { Card } from "@/components/Card"
-import { CategoryBar } from "@/components/CategoryBar"
-import { Database } from "@/lib/database.types"
-import { cx } from "@/lib/utils"
+import { Card } from "@/shared/ui"
+import { CategoryBar } from "@/shared/ui"
+import { Database } from '@/shared/types/database.types'
+import { cx } from '@/shared/lib/utils'
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"]
 

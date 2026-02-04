@@ -1,14 +1,14 @@
 "use client"
 
-import { DataTable } from "@/components/data-table/DataTable"
-import { Database } from "@/lib/database.types"
-import { createClient } from "@/lib/supabase/client"
+import { Database } from '@/shared/types/database.types'
+import { createClient } from '@/shared/api/supabase/client'
 import { useState } from "react"
 import { columns } from "./Columns"
 import { TeamFormDialog } from "./components/TeamDialogs"
 import { TeamStats } from "./components/TeamStats"
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { DataTable } from "@/shared/ui";
 
 type Profile = Database['public']['Tables']['profiles']['Row']
 

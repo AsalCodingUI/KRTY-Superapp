@@ -1,6 +1,6 @@
 "use client"
 
-import { Button } from "@/components/Button"
+import { Button } from "@/shared/ui"
 import {
     Dialog,
     DialogContent,
@@ -8,9 +8,9 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-} from "@/components/Dialog"
-import { Database } from "@/lib/database.types"
-import { createClient } from "@/lib/supabase/client"
+} from "@/shared/ui"
+import { Database } from '@/shared/types/database.types'
+import { createClient } from '@/shared/api/supabase/client'
 import { differenceInMinutes, format } from "date-fns"
 import { useRouter } from "next/navigation"
 import { useCallback, useEffect, useState } from "react"

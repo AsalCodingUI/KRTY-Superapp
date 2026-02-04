@@ -1,10 +1,10 @@
 "use client"
 
-import { Badge } from "@/components/Badge"
-import { Button } from "@/components/Button"
-import { Card } from "@/components/Card"
-import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/components/Table"
-import { TabNavigation, TabNavigationLink } from "@/components/TabNavigation"
+import { Badge } from "@/shared/ui"
+import { Button } from "@/shared/ui"
+import { Card } from "@/shared/ui"
+import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/shared/ui"
+import { TabNavigation, TabNavigationLink } from "@/shared/ui"
 import {
     calculateSLAPercentage,
     calculateWorkQualityPercentage,
@@ -12,7 +12,7 @@ import {
     getScoreLabel,
     mapPercentageToScore,
     type Milestone,
-} from "@/lib/kpi-calculations"
+} from "@/entities/performance/lib/kpiCalculations"
 import { RiArrowLeftLine, RiCheckLine, RiCloseLine } from "@remixicon/react"
 import Link from "next/link"
 import { useEffect, useState } from "react"

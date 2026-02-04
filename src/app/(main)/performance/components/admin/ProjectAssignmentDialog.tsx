@@ -1,11 +1,10 @@
 "use client"
 
-import { Avatar } from "@/components/Avatar"
-import { Button } from "@/components/Button"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/Dialog"
-import { Label } from "@/components/Label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Select"
-import { type Database } from "@/lib/database.types"
+import { Avatar, Button } from "@/shared/ui"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/shared/ui"
+import { Label } from "@/shared/ui"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui"
+import { type Database } from '@/shared/types/database.types'
 import { RiDeleteBin6Line, RiUserAddLine } from "@remixicon/react"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"

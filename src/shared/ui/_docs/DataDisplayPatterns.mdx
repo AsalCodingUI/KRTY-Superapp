@@ -1,0 +1,47 @@
+import { Meta, Canvas } from '@storybook/blocks';
+import * as StatsCardStories from '../information/StatsCard.stories';
+import * as BadgeStories from '../information/Badge.stories';
+import * as EmptyStateStories from '../information/EmptyState.stories';
+
+<Meta title="Docs/Patterns/Data Display" />
+
+# Data Display Patterns
+
+Guidelines for displaying data, statistics, and empty states.
+
+## Statistics
+
+Use `StatsCard` to display key performance indicators (KPIs).
+
+<Canvas of={StatsCardStories.Default} />
+
+### Grouped Stats
+
+Group stats cards in a grid for dashboard headers.
+
+```tsx
+<div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+  <StatsCard title="Total Users" metric="1,234" />
+  <StatsCard title="Active Users" metric="890" />
+  <StatsCard title="New Signups" metric="45" />
+</div>
+```
+
+## Status Indicators
+
+Use `Badge` to indicate status. Use semantic colors consistently.
+
+<Canvas of={BadgeStories.Default} />
+
+| Status | Variant | Meaning |
+| :--- | :--- | :--- |
+| Active, Success, Completed | `success` | Positive state |
+| Error, Failed, Critical | `error` | Negative/Critical state |
+| Warning, Pending, On Hold | `warning` | Needs attention |
+| Neutral, Draft, Inactive | `neutral` | Information only |
+
+## Empty States
+
+Always provide an `EmptyState` when data is missing or a list is empty.
+
+<Canvas of={EmptyStateStories.Default} />

@@ -1,12 +1,12 @@
 "use client"
 
-import { Badge } from "@/components/Badge"
-import { Button } from "@/components/Button"
-import { Card } from "@/components/Card"
-import { Input } from "@/components/Input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Select"
-import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/components/Table"
-import { TabNavigation, TabNavigationLink } from "@/components/TabNavigation"
+import { Badge } from "@/shared/ui"
+import { Button } from "@/shared/ui"
+import { Card } from "@/shared/ui"
+import { Input } from "@/shared/ui"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui"
+import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/shared/ui"
+import { TabNavigation, TabNavigationLink } from "@/shared/ui"
 import {
     calculateSLAPercentage,
     calculateWorkQualityPercentage,
@@ -16,7 +16,7 @@ import {
     SLA_PERCENTAGES,
     type Milestone,
     type SLAResult,
-} from "@/lib/kpi-calculations"
+} from "@/entities/performance/lib/kpiCalculations"
 import { RiArrowLeftLine, RiCheckLine, RiCloseLine, RiSave3Line } from "@remixicon/react"
 import Link from "next/link"
 import { useEffect, useState } from "react"

@@ -1,9 +1,9 @@
-import { createClient } from "@/lib/supabase/server"
+import { createClient } from '@/shared/api/supabase/server'
 import { redirect } from "next/navigation"
 import ReviewFormClientPage from "./ClientPage"
 
 export default async function NewReviewPage() {
-    const supabase = createClient()
+    const supabase = await createClient()
 
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) redirect("/login")

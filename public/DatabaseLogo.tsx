@@ -1,4 +1,3 @@
-import * as React from "react"
 import type { SVGProps } from "react"
 export const DatabaseLogo = (props: SVGProps<SVGSVGElement>) => (
   <svg aria-hidden="true" fill="none" viewBox="0 0 200 44" {...props}>

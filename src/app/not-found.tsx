@@ -1,8 +1,8 @@
-import { Button } from "@/components/Button"
-import { ArrowAnimated } from "@/components/icons/ArrowAnimated"
-import Link from "next/link"
-import { DatabaseLogo } from "../../public/DatabaseLogo"
-import { siteConfig } from "./siteConfig"
+
+import { ArrowAnimated, Button } from "@/shared/ui";
+import Link from "next/link";
+import { DatabaseLogo } from "../../public/DatabaseLogo";
+import { siteConfig } from "./siteConfig";
 
 export default function NotFound() {
   return (
@@ -19,7 +19,7 @@ export default function NotFound() {
       <p className="mt-2 text-sm text-content-subtle dark:text-content-placeholder">
         Sorry, we couldn’t find the page you’re looking for.
       </p>
-      <Button asChild className="group mt-8" variant="light">
+      <Button asChild className="group mt-8" variant="secondary">
         <Link href={siteConfig.baseLinks.home}>
           Go to the home page
           <ArrowAnimated

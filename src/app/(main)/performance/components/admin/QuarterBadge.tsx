@@ -1,4 +1,4 @@
-import { Badge } from "@/components/Badge"
+import { Badge } from "@/shared/ui"
 
 type Quarter = "Q1" | "Q2" | "Q3" | "Q4"
 

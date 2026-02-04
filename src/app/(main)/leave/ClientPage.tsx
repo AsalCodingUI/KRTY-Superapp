@@ -1,123 +1,123 @@
 "use client"
 
-import { DataTable } from "@/components/data-table/DataTable"
-import { Database } from "@/lib/database.types"
-import { createClient } from "@/lib/supabase/client"
+import { Database } from "@/shared/types/database.types"
+import { createClient } from "@/shared/api/supabase/client"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
-import { columns } from "./components/Columns"
-import { LeaveRequestModal } from "./components/LeaveRequestModal"
-import { LeaveStats } from "./components/LeaveStats"
+import { columns } from "@/page-slices/leave/ui/components/Columns"
+import { LeaveRequestModal } from "@/page-slices/leave/ui/components/LeaveRequestModal"
+import { LeaveStats } from "@/page-slices/leave/ui/components/LeaveStats"
+import { DataTable } from "@/shared/ui";
 
-type Profile = Database['public']['Tables']['profiles']['Row']
-type LeaveRequest = Database['public']['Tables']['leave_requests']['Row']
+type Profile = Database["public"]["Tables"]["profiles"]["Row"]
+type LeaveRequest = Database["public"]["Tables"]["leave_requests"]["Row"]
 
 export default function LeaveClientPage({
-    profile,
-    requests,
-    page,
-    pageSize,
-    totalCount
+  profile,
+  requests,
+  page,
+  pageSize,
+  totalCount,
 }: {
-    profile: Profile
-    requests: LeaveRequest[]
-    page: number
-    pageSize: number
-    totalCount: number
+  profile: Profile
+  requests: LeaveRequest[]
+  page: number
+  pageSize: number
+  totalCount: number
 }) {
-    const supabase = createClient()
-    const router = useRouter()
-    const pathname = usePathname()
-    const searchParams = useSearchParams()
+  const supabase = createClient()
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
 
-    const [isModalOpen, setIsModalOpen] = useState(false)
-    const [editingItem, setEditingItem] = useState<LeaveRequest | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [editingItem, setEditingItem] = useState<LeaveRequest | null>(null)
 
-    // --- 1. LOGIC REALTIME (Agar otomatis refresh saat status berubah/diedit) ---
-    useEffect(() => {
-        const channel = supabase
-            .channel('employee-leave-changes')
-            .on(
-                'postgres_changes',
-                {
-                    event: '*', // Dengarkan semua event (INSERT, UPDATE)
-                    schema: 'public',
-                    table: 'leave_requests',
-                    filter: `user_id=eq.${profile.id}` // Hanya dengarkan data milik user ini
-                },
-                () => {
-                    // Refresh halaman server component
-                    router.refresh()
-                }
-            )
-            .subscribe()
+  // --- 1. LOGIC REALTIME (Agar otomatis refresh saat status berubah/diedit) ---
+  useEffect(() => {
+    const channel = supabase
+      .channel("employee-leave-changes")
+      .on(
+        "postgres_changes",
+        {
+          event: "*", // Dengarkan semua event (INSERT, UPDATE)
+          schema: "public",
+          table: "leave_requests",
+          filter: `user_id=eq.${profile.id}`, // Hanya dengarkan data milik user ini
+        },
+        () => {
+          // Refresh halaman server component
+          router.refresh()
+        },
+      )
+      .subscribe()
 
-        return () => {
-            supabase.removeChannel(channel)
-        }
-    }, [supabase, router, profile.id])
-
-    // Handle pagination
-    const handlePageChange = (newPage: number) => {
-        const params = new URLSearchParams(searchParams)
-        params.set("page", (newPage + 1).toString())
-        router.push(`${pathname}?${params.toString()}`)
+    return () => {
+      supabase.removeChannel(channel)
     }
+  }, [supabase, router, profile.id])
 
-    const pageCount = Math.ceil(totalCount / pageSize)
+  // Handle pagination
+  const handlePageChange = (newPage: number) => {
+    const params = new URLSearchParams(searchParams)
+    params.set("page", (newPage + 1).toString())
+    router.push(`${pathname}?${params.toString()}`)
+  }
 
-    // Open Edit Modal
-    const handleEdit = (item: LeaveRequest) => {
-        setEditingItem(item)
-        setIsModalOpen(true)
-    }
+  const pageCount = Math.ceil(totalCount / pageSize)
 
-    // Open Add Modal
-    const handleAdd = () => {
-        setEditingItem(null)
-        setIsModalOpen(true)
-    }
+  // Open Edit Modal
+  const handleEdit = (item: LeaveRequest) => {
+    setEditingItem(item)
+    setIsModalOpen(true)
+  }
 
-    return (
-        <>
-            <div className="mb-6">
-                <h1 className="text-lg font-semibold text-content sm:text-xl dark:text-content">
-                    Leave & Permission
-                </h1>
-            </div>
+  // Open Add Modal
+  const handleAdd = () => {
+    setEditingItem(null)
+    setIsModalOpen(true)
+  }
 
-            {/* 2. STATS SECTION (Passing 'requests' agar hitungannya Realtime) */}
-            <section className="mb-6">
-                <LeaveStats requests={requests} />
-            </section>
+  return (
+    <>
+      <div className="mb-6">
+        <h1 className="text-content dark:text-content text-lg font-semibold sm:text-xl">
+          Leave & Permission
+        </h1>
+      </div>
 
-            <section>
-                <DataTable
-                    data={requests}
-                    columns={columns(handleEdit)}
-                    manualPagination={true}
-                    pageCount={pageCount}
-                    pageIndex={page - 1}
-                    onPageChange={handlePageChange}
-                    onCreate={handleAdd}
-                    showExport={false}
-                    showViewOptions={false}
-                    actionLabel="Request Leave"
-                    enableSelection={false}
-                    enableHover={false}
-                    searchKey="reason"
-                    showTableWrapper={true}
-                    tableTitle="Leave Requests"
-                    tableDescription="View and manage your leave applications"
-                />
-            </section>
+      {/* 2. STATS SECTION (Passing 'requests' agar hitungannya Realtime) */}
+      <section className="mb-6">
+        <LeaveStats requests={requests} />
+      </section>
 
-            <LeaveRequestModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                initialData={editingItem}
-                userProfile={profile}
-            />
-        </>
-    )
+      <section>
+        <DataTable
+          data={requests}
+          columns={columns(handleEdit)}
+          manualPagination={true}
+          pageCount={pageCount}
+          pageIndex={page - 1}
+          onPageChange={handlePageChange}
+          onCreate={handleAdd}
+          showExport={false}
+          showViewOptions={false}
+          actionLabel="Request Leave"
+          enableSelection={false}
+          enableHover={false}
+          searchKey="reason"
+          showTableWrapper={true}
+          tableTitle="Leave Requests"
+          tableDescription="View and manage your leave applications"
+        />
+      </section>
+
+      <LeaveRequestModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        initialData={editingItem}
+        userProfile={profile}
+      />
+    </>
+  )
 }

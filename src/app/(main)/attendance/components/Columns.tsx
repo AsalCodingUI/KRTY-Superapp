@@ -1,11 +1,11 @@
 "use client"
 
-import { Badge } from "@/components/Badge"
-import { Button } from "@/components/Button"
-import { DataTableColumnHeader } from "@/components/data-table/DataTableColumnHeader"
-import { Database } from "@/lib/database.types"
+import { Database } from '@/shared/types/database.types'
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table"
 import { format } from "date-fns"
+import { Badge } from "@/shared/ui"
+import { Button } from "@/shared/ui"
+import { DataTableColumnHeader } from "@/shared/ui";
 
 type AttendanceLog = Database["public"]["Tables"]["attendance_logs"]["Row"]
 
@@ -33,7 +33,6 @@ const formatTime = (dateString: string | null) => {
     if (!dateString) return "--:--"
     return format(new Date(dateString), "HH:mm")
 }
-
 
 export const columns = (onRequestDelete?: (id: string) => void) => [
     columnHelper.accessor("clock_in", {

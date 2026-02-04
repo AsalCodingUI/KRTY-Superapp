@@ -1,9 +1,9 @@
 "use client"
 
-import { Badge } from "@/components/Badge"
-import { Button } from "@/components/Button"
-import { Card } from "@/components/Card"
-import { getQuarterMonths, getRatingBadgeVariant } from "@/lib/performanceUtils"
+import { Badge } from "@/shared/ui"
+import { Button } from "@/shared/ui"
+import { Card } from "@/shared/ui"
+import { getQuarterMonths, getRatingBadgeVariant } from "@/entities/performance/lib/performanceUtils"
 import { RiPencilLine } from "@remixicon/react"
 import Link from "next/link"
 

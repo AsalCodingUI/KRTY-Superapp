@@ -1,18 +1,17 @@
 "use client"
 
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/Accordion"
-import { Badge } from "@/components/Badge"
-import { Card } from "@/components/Card"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/Dialog"
-import { EmptyState } from "@/components/EmptyState"
-import { RadarChart } from "@/components/RadarChart"
-import { Database } from "@/lib/database.types"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/shared/ui"
+import { Badge } from "@/shared/ui"
+import { Card } from "@/shared/ui"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/ui"
+import { EmptyState, RadarChart } from "@/shared/ui"
+import { Database } from '@/shared/types/database.types'
 import {
     calculateSkillPercentage,
     getRatingBadgeVariant,
     getRatingLevel,
     getSkillRating
-} from "@/lib/performanceUtils"
+} from "@/entities/performance/lib/performanceUtils"
 
 type PerformanceSummary = Database["public"]["Tables"]["performance_summaries"]["Row"]
 

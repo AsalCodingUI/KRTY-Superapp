@@ -1,8 +1,8 @@
 "use client"
 
-import { Card } from "@/components/Card"
-import { Database } from "@/lib/database.types"
-import { createClient } from "@/lib/supabase/client"
+import { Card } from "@/shared/ui"
+import { Database } from '@/shared/types/database.types'
+import { createClient } from '@/shared/api/supabase/client'
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
 import { AdminAttendanceHistoryList } from "./components/AdminAttendanceHistoryList"

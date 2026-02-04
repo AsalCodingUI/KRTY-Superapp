@@ -1,12 +1,11 @@
 "use client"
 
-import { Badge } from "@/components/Badge"
-import { Button } from "@/components/Button"
-import { EmptyState } from "@/components/EmptyState"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Select"
-import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/components/Table"
-import { TableSection } from "@/components/TableSection"
-import { Constants, type Database } from "@/lib/database.types"
+import { Badge } from "@/shared/ui"
+import { Button } from "@/shared/ui"
+import { EmptyState, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui"
+import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/shared/ui"
+import { TableSection } from "@/shared/ui"
+import { Constants, type Database } from '@/shared/types/database.types'
 import { RiDeleteBin6Line, RiEdit2Line, RiStarLine } from "@remixicon/react"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"

@@ -1,6 +1,6 @@
 "use client"
 
-import { Button } from "@/components/Button"
+import { Button } from "@/shared/ui"
 import {
     Dialog,
     DialogContent,
@@ -8,11 +8,11 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-} from "@/components/Dialog"
-import { Input } from "@/components/Input"
-import { Label } from "@/components/Label"
-import { Database } from "@/lib/database.types"
-import { createClient } from "@/lib/supabase/client"
+} from "@/shared/ui"
+import { Input } from "@/shared/ui"
+import { Label } from "@/shared/ui"
+import { Database } from '@/shared/types/database.types'
+import { createClient } from '@/shared/api/supabase/client'
 import { useRouter } from "next/navigation"
 import React, { useEffect, useState } from "react"
 import { v4 as uuidv4 } from 'uuid'

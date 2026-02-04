@@ -1,7 +1,7 @@
 "use client"
 
-import { Button } from "@/components/Button"
-import { Card } from "@/components/Card"
+import { Button } from "@/shared/ui"
+import { Card } from "@/shared/ui"
 import { RiHome2Line, RiRefreshLine } from "@remixicon/react"
 import { useEffect } from "react"
 

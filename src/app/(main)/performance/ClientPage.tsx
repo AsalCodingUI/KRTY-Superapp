@@ -1,7 +1,7 @@
 "use client"
 
-import { TabNavigation, TabNavigationLink } from "@/components/TabNavigation"
-import { useUserProfile } from "@/hooks/useUserProfile"
+import { TabNavigation, TabNavigationLink } from "@/shared/ui"
+import { useUserProfile } from '@/shared/hooks/useUserProfile'
 import dynamic from "next/dynamic"
 import { useState } from "react"
 

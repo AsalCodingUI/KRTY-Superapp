@@ -1,6 +1,6 @@
 "use server"
 
-import { createClient } from "@/lib/supabase/server"
+import { createClient } from '@/shared/api/supabase/server'
 import { revalidatePath } from "next/cache"
 
 interface PerformanceReviewFormData {
@@ -23,7 +23,7 @@ interface PerformanceReviewFormData {
 }
 
 export async function submitPerformanceReview(formData: PerformanceReviewFormData) {
-    const supabase = createClient()
+    const supabase = await createClient()
 
     // 1. Ambil User saat ini (Reviewer)
     const { data: { user } } = await supabase.auth.getUser()

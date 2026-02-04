@@ -1,13 +1,12 @@
 "use client"
 
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/Accordion"
-import { Badge } from "@/components/Badge"
-import { DataTable } from "@/components/data-table/DataTable"
-import { EmptyState } from "@/components/EmptyState"
-import { Database } from "@/lib/database.types"
+import { Database } from '@/shared/types/database.types'
 import { differenceInSeconds, format, isToday } from "date-fns"
 import { useMemo } from "react"
 import { columns } from "./Columns"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/shared/ui"
+import { Badge } from "@/shared/ui"
+import { DataTable, EmptyState } from "@/shared/ui";
 
 type AttendanceLog = Database['public']['Tables']['attendance_logs']['Row']
 

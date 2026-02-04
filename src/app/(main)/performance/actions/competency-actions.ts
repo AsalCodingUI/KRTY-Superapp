@@ -1,7 +1,7 @@
 "use server"
 
-import type { Database } from "@/lib/database.types"
-import { createClient } from "@/lib/supabase/server"
+import type { Database } from '@/shared/types/database.types'
+import { createClient } from '@/shared/api/supabase/server'
 
 type Competency = Database["public"]["Tables"]["competency_library"]["Row"]
 

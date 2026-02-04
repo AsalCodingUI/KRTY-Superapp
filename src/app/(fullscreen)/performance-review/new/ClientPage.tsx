@@ -1,8 +1,8 @@
 "use client"
 
 import { submitPerformanceReview } from "@/app/(main)/performance/action"
-import { Button } from "@/components/Button"
-import { Card } from "@/components/Card"
+import { Button } from "@/shared/ui"
+import { Card } from "@/shared/ui"
 import {
     Dialog,
     DialogContent,
@@ -10,16 +10,16 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-} from "@/components/Dialog"
-import { Label } from "@/components/Label"
+} from "@/shared/ui"
+import { Label } from "@/shared/ui"
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "@/components/Select"
-import { Textarea } from "@/components/Textarea"
+} from "@/shared/ui"
+import { Textarea } from "@/shared/ui"
 import { RiCheckLine, RiCloseLine, RiInformationLine, RiStarFill } from "@remixicon/react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"

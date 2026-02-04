@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server';
+import { createClient } from '@/shared/api/supabase/server';
 import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
@@ -14,7 +14,7 @@ export async function POST(request: Request) {
         const body = await request.json();
         const { reviewee_id, cycle_id } = body;
 
-        const supabase = createClient();
+        const supabase = await createClient();
 
         // --- STEP 1: Coba ambil data dengan filter strict (Cycle ID harus cocok) ---
         let query = supabase

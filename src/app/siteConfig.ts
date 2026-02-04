@@ -11,6 +11,9 @@ export const siteConfig = {
     calculator: "/calculator",
     payroll: "/payroll",
     teams: "/teams",
+    calendar: "/calendar",
+    message: "/message",
+    slaGenerator: "/sla-generator",
     settings: {
       general: "/settings/general",
       permission: "/settings/permission",

@@ -1,8 +1,7 @@
 "use client"
 
-import { Avatar } from "@/components/Avatar"
-import { Badge } from "@/components/Badge"
-import { Card } from "@/components/Card"
+import { Avatar, Badge } from "@/shared/ui"
+import { Card } from "@/shared/ui"
 import {
     RiCalendarEventLine,
     RiCheckLine,

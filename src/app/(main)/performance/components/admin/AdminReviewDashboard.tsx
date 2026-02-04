@@ -1,17 +1,16 @@
 "use client"
 
-import { Avatar, AvatarGroup, AvatarOverflow } from "@/components/Avatar"
-import { Badge } from "@/components/Badge"
-import { Button } from "@/components/Button"
-import { Card } from "@/components/Card"
-import { DateRangePicker } from "@/components/DatePicker"
-import { Label } from "@/components/Label"
-import { QuarterFilter, QuarterFilterValue } from "@/components/QuarterFilter"
-import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/components/Table"
-import { TableSection } from "@/components/TableSection"
-import { Tooltip } from "@/components/Tooltip"
-import { Database } from "@/lib/database.types"
-import { createClient } from "@/lib/supabase/client"
+import { Avatar, AvatarGroup, AvatarOverflow, Badge } from "@/shared/ui"
+import { Button } from "@/shared/ui"
+import { Card } from "@/shared/ui"
+import { DateRangePicker } from "@/shared/ui"
+import { Label } from "@/shared/ui"
+import { QuarterFilter, QuarterFilterValue } from "@/shared/ui"
+import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/shared/ui"
+import { TableSection } from "@/shared/ui"
+import { Tooltip } from "@/shared/ui"
+import { Database } from '@/shared/types/database.types'
+import { createClient } from '@/shared/api/supabase/client'
 import {
     RiCheckDoubleLine,
     RiErrorWarningLine,
@@ -47,7 +46,6 @@ type ReviewCycle = {
     end_date: string
     is_active: boolean
 }
-
 
 export function AdminReviewDashboard({ activeCycleId }: { activeCycleId: string | null }) {
     const supabase = createClient()
@@ -253,8 +251,6 @@ export function AdminReviewDashboard({ activeCycleId }: { activeCycleId: string 
             idToSend = `${currentYear}-${quarterOnly}`;
         }
 
-
-
         if (!confirm("Kirim data ke AI?")) return
 
         try {
@@ -268,7 +264,6 @@ export function AdminReviewDashboard({ activeCycleId }: { activeCycleId: string 
             toast.error("Gagal memproses.")
         }
     }
-
 
     const handleViewResult = (employeeData: ReviewStatus) => {
         setSelectedEmployee(employeeData)

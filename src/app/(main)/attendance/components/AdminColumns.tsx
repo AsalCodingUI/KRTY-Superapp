@@ -1,8 +1,8 @@
 "use client"
 
-import { Badge } from "@/components/Badge"
-import { Button } from "@/components/Button"
-import { Database } from "@/lib/database.types"
+import { Badge } from "@/shared/ui"
+import { Button } from "@/shared/ui"
+import { Database } from '@/shared/types/database.types'
 import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
 

@@ -1,15 +1,12 @@
 "use client"
 
-import { Button } from "@/components/Button"
-import { Card } from "@/components/Card"
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/Dialog"
+import { Database } from '@/shared/types/database.types'
 import {
-    DropdownMenu,
+    Button, Card, Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@/components/Dropdown"
-import { Database } from "@/lib/database.types"
+    DropdownMenuTrigger
+} from "@/shared/ui"
 import { RiAlarmWarningLine, RiArrowDownSLine, RiCloseLine, RiCupLine, RiLoginBoxLine, RiLogoutBoxLine } from "@remixicon/react"
 import { format } from "date-fns"
 import { useEffect, useState } from "react"
@@ -163,7 +160,7 @@ export function AttendanceStats({
                                     <RiLogoutBoxLine className="mr-2 size-4" /> Clock Out
                                 </Button>
                                 <Button
-                                    variant={activeSession.is_break ? "light" : "secondary"}
+                                    variant="secondary"
                                     onClick={() => onToggleBreak(activeSession.id, activeSession.is_break || false)}
                                     disabled={loading}
                                 >

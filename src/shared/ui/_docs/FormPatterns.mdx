@@ -1,0 +1,47 @@
+import { Meta, Canvas } from '@storybook/blocks';
+import * as InputStories from '../input/Input.stories';
+import * as SelectStories from '../input/Select.stories';
+import * as ButtonStories from '../action/Button.stories';
+
+<Meta title="Docs/Patterns/Forms" />
+
+# Form Patterns
+
+Guidelines for building accessible and consistent forms.
+
+## Form Layout
+
+Use a vertical stack for form fields on mobile, and grid layouts on desktop where appropriate. Labels should always be visible.
+
+```tsx
+<form className="space-y-4">
+    <div className="space-y-2">
+        <Label htmlFor="email">Email</Label>
+        <Input id="email" type="email" placeholder="name@example.com" />
+    </div>
+    
+    <div className="space-y-2">
+        <Label htmlFor="role">Role</Label>
+        <Select id="role">
+            <SelectItem value="admin">Admin</SelectItem>
+            <SelectItem value="user">User</SelectItem>
+        </Select>
+    </div>
+
+    <div className="pt-4">
+        <Button type="submit">Save Changes</Button>
+    </div>
+</form>
+```
+
+## Validation
+
+Show validation errors below the input field in red.
+
+<Canvas of={InputStories.WithError} />
+
+## Action Buttons
+
+Place primary actions (Save, Submit) on the right of the form footer, or full width on mobile. Secondary actions (Cancel) should be to the left of the primary action.
+
+<Canvas of={ButtonStories.Default} />

@@ -1,10 +1,10 @@
 "use client"
 
-import { Badge } from "@/components/Badge"
-import { Checkbox } from "@/components/Checkbox"
-import { DataTableColumnHeader } from "@/components/data-table/DataTableColumnHeader"
-import { Database } from "@/lib/database.types"
+import { Database } from '@/shared/types/database.types'
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table"
+import { Badge } from "@/shared/ui"
+import { Checkbox } from "@/shared/ui"
+import { DataTableColumnHeader } from "@/shared/ui";
 
 // DataTableRowActions SUDAH DIHAPUS IMPORT-NYA
 

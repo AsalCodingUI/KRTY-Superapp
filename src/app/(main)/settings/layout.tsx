@@ -1,8 +1,8 @@
 "use client"
 
 import { siteConfig } from "@/app/siteConfig";
-import { TabNavigation, TabNavigationLink } from "@/components/TabNavigation";
-import { useUserProfile } from "@/hooks/useUserProfile"; // Import hook buat cek role
+import { TabNavigation, TabNavigationLink } from "@/shared/ui";
+import { useUserProfile } from '@/shared/hooks/useUserProfile'; // Import hook buat cek role
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 

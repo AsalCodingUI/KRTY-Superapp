@@ -1,7 +1,7 @@
 "use server"
 
-import type { Database } from "@/lib/database.types"
-import { createClient } from "@/lib/supabase/server"
+import type { Database } from '@/shared/types/database.types'
+import { createClient } from '@/shared/api/supabase/server'
 import { revalidatePath } from "next/cache"
 
 export async function getProjects(quarterFilter?: string, statusFilter?: string) {

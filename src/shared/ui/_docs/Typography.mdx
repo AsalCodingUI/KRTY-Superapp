@@ -1,0 +1,45 @@
+import { Meta, Typeset } from "@storybook/blocks";
+
+<Meta title="Design System/Typography" />
+
+# Typography
+
+**Font Family:** `Inter`, sans-serif (or system default)
+
+## Scale
+
+<Typeset
+  fontSizes={[
+    '12px',
+    '14px',
+    '16px',
+    '18px',
+    '20px', 
+    '24px',
+    '30px',
+    '36px',
+    '48px',
+  ]}
+  fontWeight={400}
+  sampleText="The quick brown fox jumps over the lazy dog"
+  fontFamily="Inter, sans-serif"
+/>
+
+| Token | Size | Line Height | Usage |
+|-------|------|-------------|-------|
+| `text-xs` | 12px (0.75rem) | 1.25 | Captions, small metadata |
+| `text-sm` | 14px (0.875rem) | 1.5 | Body text, UI labels |
+| `text-base` | 16px (1rem) | 1.5 | Default body text |
+| `text-lg` | 18px (1.125rem) | 1.5 | Large body, subtitles |
+| `text-xl` | 20px (1.25rem) | 1.5 | Section headers |
+| `text-2xl` | 24px (1.5rem) | 1.75 | Page titles |
+| `text-3xl` | 30px (1.875rem) | 1.75 | Large display |
+| `text-4xl` | 36px (2.25rem) | 1.75 | Hero display |
+| `text-5xl` | 48px (3rem) | 1.75 | Massive display |
+
+## Weights
+
+*   **Regular (400)**: Default body text
+*   **Medium (500)**: UI labels, emphasized body
+*   **Semibold (600)**: Headings, buttons, strong emphasis
+*   **Bold (700)**: Only for very specific high-contrast needs

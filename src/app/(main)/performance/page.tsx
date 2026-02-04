@@ -1,11 +1,13 @@
-import { createClient } from "@/lib/supabase/server"
-import PerformanceClientPage from "./ClientPage"
+import { PerformancePage } from "@/page-slices/performance"
+import { createClient } from "@/shared/api/supabase/server"
 
-export default async function PerformancePage() {
-    const supabase = createClient()
+export default async function PerformanceRoute() {
+  const supabase = await createClient()
 
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return <div>Please login</div>
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return <div>Please login</div>
 
-    return <PerformanceClientPage />
+  return <PerformancePage />
 }

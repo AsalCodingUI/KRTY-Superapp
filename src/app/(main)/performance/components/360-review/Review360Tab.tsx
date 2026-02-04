@@ -1,7 +1,7 @@
 "use client"
 
-import { useUserProfile } from "@/hooks/useUserProfile"
-import { createClient } from "@/lib/supabase/client"
+import { useUserProfile } from '@/shared/hooks/useUserProfile'
+import { createClient } from '@/shared/api/supabase/client'
 import { useEffect, useState } from "react"
 import { AdminReviewDashboard } from "../admin/AdminReviewDashboard"
 import { EmployeeReviewView } from "./EmployeeReviewView"

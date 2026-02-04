@@ -1,9 +1,8 @@
 "use client"
 
-import { Avatar } from "@/components/Avatar"
-import { Badge } from "@/components/Badge"
-import { Button } from "@/components/Button"
-import { Card } from "@/components/Card"
+import { Avatar, Badge } from "@/shared/ui"
+import { Button } from "@/shared/ui"
+import { Card } from "@/shared/ui"
 import { RiArrowRightLine, RiCalendarEventLine, RiFileTextLine } from "@remixicon/react"
 import { format } from "date-fns"
 import Link from "next/link"

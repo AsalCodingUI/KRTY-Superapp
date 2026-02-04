@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server"
+import { createClient } from '@/shared/api/supabase/server'
 import { notFound } from "next/navigation"
 import { getEmployeeDetail } from "../../../../actions/employee-kpi-actions"
 import { EmployeeProjectView } from "./EmployeeProjectView"

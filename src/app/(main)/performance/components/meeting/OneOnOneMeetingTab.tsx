@@ -1,7 +1,7 @@
 "use client"
 
-import { EmptyState } from "@/components/EmptyState"
 import { RiCalendarScheduleLine } from "@remixicon/react"
+import { EmptyState } from "@/shared/ui";
 
 export function OneOnOneMeetingTab() {
     return (

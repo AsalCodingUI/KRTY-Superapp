@@ -1,11 +1,10 @@
 "use client"
 
-import { Avatar } from "@/components/Avatar"
-import { Badge } from "@/components/Badge"
-import { Button } from "@/components/Button"
-import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/components/Table"
-import { TableSection } from "@/components/TableSection"
-import { QuarterFilter, type QuarterFilterValue } from "@/components/QuarterFilter"
+import { Avatar, Badge } from "@/shared/ui"
+import { Button } from "@/shared/ui"
+import { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "@/shared/ui"
+import { TableSection } from "@/shared/ui"
+import { QuarterFilter, type QuarterFilterValue } from "@/shared/ui"
 import { RiArrowLeftLine, RiFolderLine } from "@remixicon/react"
 import { format } from "date-fns"
 import Link from "next/link"
@@ -75,7 +74,6 @@ export function EmployeeDetailClient({ employee, initialAssignments, showBackBut
                     selectedQuarter.includes("All") ? undefined : selectedQuarter
                 )
 
-
                 if (assignmentsResult.success && assignmentsResult.data) {
                     setAssignments(assignmentsResult.data.assignments as unknown as Assignment[])
                 }
@@ -85,7 +83,6 @@ export function EmployeeDetailClient({ employee, initialAssignments, showBackBut
                     employee.id,
                     selectedQuarter.includes("All") ? undefined : selectedQuarter
                 )
-
 
                 if (overviewResult.success) {
                     setOverview(overviewResult.data)
