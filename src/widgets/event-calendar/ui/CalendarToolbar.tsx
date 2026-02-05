@@ -10,7 +10,7 @@ import {
   RiLayoutGridLine,
   RiLayoutRowLine,
   RiListCheck2,
-} from "@remixicon/react"
+} from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
 import { id } from "date-fns/locale"
 import { useMemo } from "react"

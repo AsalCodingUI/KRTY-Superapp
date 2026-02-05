@@ -25,7 +25,7 @@ import {
   RiEdit2Line,
   RiFolderLine,
   RiTeamLine,
-} from "@remixicon/react"
+} from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
@@ -244,43 +244,36 @@ export function ListProjectTab() {
                 return (
                   <TableRow key={project.id}>
                     <TableCell>
-                      <div>
-                        <p className="text-content dark:text-content font-medium">
-                          {project.name}
-                        </p>
-                        {project.description && (
-                          <p className="text-body-sm text-content-subtle mt-0.5 line-clamp-1">
-                            {project.description}
-                          </p>
-                        )}
-                      </div>
+                      <span
+                        className="text-foreground-primary font-medium"
+                        title={
+                          project.description
+                            ? `${project.name} — ${project.description}`
+                            : project.name
+                        }
+                      >
+                        {project.name}
+                      </span>
                     </TableCell>
                     <TableCell>
                       {project.quarter_id ? (
                         <QuarterBadge quarter={project.quarter_id} />
                       ) : (
-                        <span className="text-body-sm text-content-placeholder">
+                        <span className="text-foreground-disable">
                           No quarter
                         </span>
                       )}
                     </TableCell>
                     <TableCell>
-                      <Badge
-                        size="md"
-                        className={getStatusColor(project.status)}
-                      >
+                      <Badge className={getStatusColor(project.status)}>
                         {project.status}
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <div className="text-body-sm">
-                        <p className="text-content dark:text-content">
-                          {format(new Date(project.start_date), "MMM d, yyyy")}
-                        </p>
-                        <p className="text-content-subtle">
-                          to {format(new Date(project.end_date), "MMM d, yyyy")}
-                        </p>
-                      </div>
+                      <span className="text-foreground-primary">
+                        {format(new Date(project.start_date), "MMM d, yyyy")} –{" "}
+                        {format(new Date(project.end_date), "MMM d, yyyy")}
+                      </span>
                     </TableCell>
                     <TableCell>
                       {teamMembers.length > 0 ? (
@@ -295,7 +288,7 @@ export function ListProjectTab() {
                           ))}
                         </AvatarGroup>
                       ) : (
-                        <span className="text-body-sm text-content-placeholder">
+                        <span className="text-foreground-disable">
                           No assignments
                         </span>
                       )}
@@ -303,41 +296,41 @@ export function ListProjectTab() {
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">
                         <Button
-                          variant="ghost"
-                          size="sm"
+                          variant="tertiary"
+                          size="icon-sm"
                           onClick={() => handleAssign(project)}
                           title="Manage Team"
                         >
-                          <RiTeamLine className="size-4" />
+                          <RiTeamLine className="size-3.5" />
                         </Button>
                         <Button
-                          variant="ghost"
-                          size="sm"
+                          variant="tertiary"
+                          size="icon-sm"
                           onClick={() => handleEdit(project)}
                           title="Edit Project"
                         >
-                          <RiEdit2Line className="size-4" />
+                          <RiEdit2Line className="size-3.5" />
                         </Button>
                         {/* Conditional delete button based on status */}
                         {project.status === "Archived" ? (
                           <Button
-                            variant="ghost"
-                            size="sm"
+                            variant="tertiary"
+                            size="icon-sm"
                             onClick={() => handlePermanentDelete(project)}
                             title="Permanently Delete (Cannot be undone)"
-                            className="text-danger hover:bg-danger/10"
+                            className="text-foreground-danger-dark hover:bg-surface-danger-light"
                           >
-                            <RiDeleteBin6Line className="size-4" />
+                            <RiDeleteBin6Line className="size-3.5" />
                           </Button>
                         ) : (
                           <Button
-                            variant="ghost"
-                            size="sm"
+                            variant="tertiary"
+                            size="icon-sm"
                             onClick={() => handleDelete(project)}
                             title="Archive Project"
-                            className="text-danger hover:bg-danger/10"
+                            className="text-foreground-danger-dark hover:bg-surface-danger-light"
                           >
-                            <RiDeleteBin6Line className="size-4" />
+                            <RiDeleteBin6Line className="size-3.5" />
                           </Button>
                         )}
                       </div>

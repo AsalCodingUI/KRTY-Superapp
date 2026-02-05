@@ -6,7 +6,8 @@ import { Card } from "@/shared/ui"
 import { EmptyState, Input } from "@/shared/ui"
 import { Spinner } from "@/shared/ui"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
-import { RiSearchLine, RiUserLine } from "@remixicon/react"
+import { canManageByRole } from "@/shared/lib/roles"
+import { RiSearchLine, RiUserLine } from "@/shared/ui/lucide-icons"
 import dynamic from "next/dynamic"
 import Link from "next/link"
 import { useEffect, useState } from "react"
@@ -77,6 +78,7 @@ export function KPITab() {
   const [employees, setEmployees] = useState<EmployeeWithProjects[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
+  const canManage = canManageByRole(profile?.role)
 
   // For employee view
   const [employeeData, setEmployeeData] = useState<Employee | null>(null)
@@ -117,16 +119,13 @@ export function KPITab() {
     }
 
     if (!profile) return
-
-    const userRole = profile.role
-
-    if (userRole === "stakeholder") {
+    if (canManage) {
       loadEmployees()
     } else if (profile.id) {
       loadOwnData()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [profile?.id, profile?.role])
+  }, [profile?.id, profile?.role, canManage])
 
   const handleSearch = (query: string) => {
     setSearchQuery(query)
@@ -143,7 +142,7 @@ export function KPITab() {
   }
 
   // Employee view - show their own detail
-  if (profile.role === "employee") {
+  if (!canManage) {
     if (loading) {
       return (
         <div className="flex items-center justify-center py-12">

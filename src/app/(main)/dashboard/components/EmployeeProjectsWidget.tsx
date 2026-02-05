@@ -2,7 +2,7 @@
 
 import { Badge } from "@/shared/ui"
 import { Card } from "@/shared/ui"
-import { RiCheckLine, RiFolderLine } from "@remixicon/react"
+import { RiCheckLine, RiFolderLine } from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
 import Link from "next/link"
 

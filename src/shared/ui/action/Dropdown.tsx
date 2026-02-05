@@ -8,7 +8,7 @@ import {
   RiCheckboxBlankCircleLine,
   RiCheckLine,
   RiRadioButtonFill,
-} from "@remixicon/react"
+} from "@/shared/ui/lucide-icons"
 import * as React from "react"
 
 import { cx } from "@/shared/lib/utils"

@@ -1,5 +1,5 @@
 import { Input } from "@/shared/ui/input/Input"
-import { RiMailLine } from "@remixicon/react"
+import { RiMailLine } from "@/shared/ui/lucide-icons"
 import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 
 const meta = {

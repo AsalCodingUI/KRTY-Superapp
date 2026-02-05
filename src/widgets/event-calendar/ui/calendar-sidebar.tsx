@@ -8,7 +8,7 @@ import {
   RiEyeOffLine,
   RiGoogleFill,
   RiLoader4Line,
-} from "@remixicon/react"
+} from "@/shared/ui/lucide-icons"
 import { useEventVisibility } from "./hooks/use-event-visibility"
 import { useGoogleCalendar } from "./hooks/use-google-calendar"
 import { MiniCalendar } from "./mini-calendar"

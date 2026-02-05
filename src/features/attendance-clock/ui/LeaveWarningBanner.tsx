@@ -1,6 +1,6 @@
 "use client"
 
-import { RiAlarmWarningLine } from "@remixicon/react"
+import { RiAlarmWarningLine } from "@/shared/ui/lucide-icons"
 
 interface LeaveWarningBannerProps {
   isOnLeave: boolean

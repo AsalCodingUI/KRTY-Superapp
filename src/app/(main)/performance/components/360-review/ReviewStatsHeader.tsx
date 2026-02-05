@@ -7,7 +7,7 @@ import {
   getQuarterMonths,
   getRatingBadgeVariant,
 } from "@/entities/performance/lib/performanceUtils"
-import { RiPencilLine } from "@remixicon/react"
+import { RiPencilLine } from "@/shared/ui/lucide-icons"
 import Link from "next/link"
 
 interface ReviewStatsHeaderProps {

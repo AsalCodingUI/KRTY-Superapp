@@ -13,7 +13,7 @@ import {
   SelectValue,
   Textarea,
 } from "@/shared/ui"
-import { RiLoader2Line } from "@remixicon/react"
+import { RiLoader2Line } from "@/shared/ui/lucide-icons"
 import React from "react"
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"]

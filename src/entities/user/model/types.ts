@@ -2,7 +2,7 @@ import type { Database } from "@/shared/types"
 
 export type User = Database["public"]["Tables"]["profiles"]["Row"]
 
-export type UserRole = "employee" | "stakeholder"
+export type UserRole = Database["public"]["Enums"]["app_role"]
 
 export interface UserProfile {
   id: string

@@ -5,7 +5,7 @@ import { Label } from "@/components/ui"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui"
 import { TextInput } from "@/components/ui"
 import { Textarea } from "@/components/ui"
-import { RiAddLine, RiDeleteBinLine } from "@remixicon/react"
+import { RiAddLine, RiDeleteBinLine } from "@/shared/ui/lucide-icons"
 
 interface MilestoneItem {
   no: string

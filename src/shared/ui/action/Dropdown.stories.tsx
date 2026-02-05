@@ -8,7 +8,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/shared/ui/action/Dropdown"
-import { RiMoreFill, RiSettings3Line, RiUserLine } from "@remixicon/react"
+import { RiMoreFill, RiSettings3Line, RiUserLine } from "@/shared/ui/lucide-icons"
 import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 import { useState } from "react"
 

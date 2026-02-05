@@ -25,7 +25,7 @@ import {
   RiCloseLine,
   RiInformationLine,
   RiStarFill,
-} from "@remixicon/react"
+} from "@/shared/ui/lucide-icons"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 

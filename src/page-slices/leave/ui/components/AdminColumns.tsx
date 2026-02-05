@@ -5,7 +5,7 @@ import { Button } from "@/shared/ui"
 import { Checkbox } from "@/shared/ui"
 import { DataTableColumnHeader } from "@/shared/ui/data/DataTableColumnHeader"
 import { Database } from "@/shared/types/database.types"
-import { RiCheckLine, RiCloseLine, RiFilePaperLine } from "@remixicon/react"
+import { RiCheckLine, RiCloseLine, RiFilePaperLine } from "@/shared/ui/lucide-icons"
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table"
 import { format } from "date-fns"
 
@@ -27,40 +27,51 @@ const getStatusBadge = (status: string) => {
   }
 }
 
+type AdminColumnsOptions = {
+  canSelect?: boolean
+  canManage?: boolean
+}
+
 export const adminColumns = (
   onApprove: (id: number) => void,
   onReject: (id: number) => void,
-) =>
-  [
-    // 1. SELECT CHECKBOX
-    columnHelper.display({
-      id: "select",
-      header: ({ table }) => (
-        <Checkbox
-          checked={
-            table.getIsAllPageRowsSelected()
-              ? true
-              : table.getIsSomeRowsSelected()
-                ? "indeterminate"
-                : false
-          }
-          onCheckedChange={() => table.toggleAllPageRowsSelected()}
-          className="translate-y-0.5"
-          aria-label="Select all"
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={() => row.toggleSelected()}
-          className="translate-y-0.5"
-          aria-label="Select row"
-        />
-      ),
-      enableSorting: false,
-      enableHiding: false,
-      meta: { displayName: "Select" },
-    }),
+  options: AdminColumnsOptions = {},
+) => {
+  const { canSelect = true, canManage = true } = options
+
+  return [
+    ...(canSelect
+      ? [
+          columnHelper.display({
+            id: "select",
+            header: ({ table }) => (
+              <Checkbox
+                checked={
+                  table.getIsAllPageRowsSelected()
+                    ? true
+                    : table.getIsSomeRowsSelected()
+                      ? "indeterminate"
+                      : false
+                }
+                onCheckedChange={() => table.toggleAllPageRowsSelected()}
+                className=""
+                aria-label="Select all"
+              />
+            ),
+            cell: ({ row }) => (
+              <Checkbox
+                checked={row.getIsSelected()}
+                onCheckedChange={() => row.toggleSelected()}
+                className=""
+                aria-label="Select row"
+              />
+            ),
+            enableSorting: false,
+            enableHiding: false,
+            meta: { displayName: "Select" },
+          }),
+        ]
+      : []),
 
     // 2. Employee Name (FIXED ID HERE)
     columnHelper.accessor("profiles.full_name", {
@@ -77,10 +88,13 @@ export const adminColumns = (
         const initials = name.slice(0, 2).toUpperCase()
         return (
           <div className="flex items-center gap-3">
-            <span className="bg-muted text-label-xs text-content-subtle dark:bg-hover dark:text-content-subtle inline-flex size-8 items-center justify-center rounded-full">
+            <span className="bg-surface-neutral-secondary text-foreground-secondary inline-flex size-5 items-center justify-center rounded-full text-[10px] leading-[16px]">
               {initials}
             </span>
-            <span className="text-content dark:text-content font-medium whitespace-nowrap">
+            <span
+              className="text-foreground-primary font-medium whitespace-nowrap"
+              title={name}
+            >
               {name}
             </span>
           </div>
@@ -102,9 +116,9 @@ export const adminColumns = (
         const start = new Date(row.original.start_date)
         const end = new Date(row.original.end_date)
         return (
-          <span className="text-content dark:text-content whitespace-nowrap">
+          <span className="text-foreground-primary whitespace-nowrap">
             {format(start, "dd MMM")}
-            <span className="text-content-placeholder mx-1">-</span>
+            <span className="text-foreground-secondary mx-1">-</span>
             {format(end, "dd MMM yyyy")}
           </span>
         )
@@ -155,16 +169,13 @@ export const adminColumns = (
       ),
       cell: ({ row }) => {
         const url = row.getValue("proof_url") as string
-        if (!url)
-          return (
-            <span className="text-content-placeholder text-body-xs">-</span>
-          )
+        if (!url) return <span className="text-foreground-disable">-</span>
         return (
           <a
             href={url}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-label-xs inline-flex items-center gap-1 text-blue-600 hover:text-blue-500"
+            className="text-label-xs text-foreground-brand-dark hover:text-foreground-brand inline-flex items-center gap-1"
           >
             <RiFilePaperLine className="size-3.5" /> View
           </a>
@@ -187,42 +198,48 @@ export const adminColumns = (
       meta: { displayName: "Status" },
     }),
 
-    // 8. Actions
-    columnHelper.display({
-      id: "actions",
-      header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title="Action"
-          className="text-right whitespace-nowrap"
-        />
-      ),
-      meta: { className: "text-right", displayName: "Action" },
-      cell: ({ row }) => {
-        const item = row.original
-        if (item.status !== "pending") return null
+    ...(canManage
+      ? [
+          columnHelper.display({
+            id: "actions",
+            header: ({ column }) => (
+              <DataTableColumnHeader
+                column={column}
+                title="Action"
+                className="text-right whitespace-nowrap"
+              />
+            ),
+            meta: { className: "text-right", displayName: "Action" },
+            cell: ({ row }) => {
+              const item = row.original
+              if (item.status !== "pending") return null
 
-        return (
-          <div className="flex justify-end gap-2">
-            <Button
-              variant="secondary"
-              className="aspect-square p-1 text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-500 dark:hover:bg-red-900/20"
-              title="Reject"
-              onClick={() => onReject(item.id)}
-            >
-              <RiCloseLine className="size-4" />
-            </Button>
-            <Button
-              variant="secondary"
-              className="aspect-square p-1 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700 dark:text-emerald-500 dark:hover:bg-emerald-900/20"
-              title="Approve"
-              onClick={() => onApprove(item.id)}
-            >
-              <RiCheckLine className="size-4" />
-            </Button>
-          </div>
-        )
-      },
-      enableSorting: false,
-    }),
+              return (
+                <div className="flex justify-end gap-2">
+                  <Button
+                    variant="tertiary"
+                    size="icon-sm"
+                    className="text-foreground-danger-dark"
+                    title="Reject"
+                    onClick={() => onReject(item.id)}
+                  >
+                    <RiCloseLine className="size-3.5" />
+                  </Button>
+                  <Button
+                    variant="tertiary"
+                    size="icon-sm"
+                    className="text-foreground-success-dark"
+                    title="Approve"
+                    onClick={() => onApprove(item.id)}
+                  >
+                    <RiCheckLine className="size-3.5" />
+                  </Button>
+                </div>
+              )
+            },
+            enableSorting: false,
+          }),
+        ]
+      : []),
   ] as ColumnDef<LeaveRequestWithProfile>[]
+}

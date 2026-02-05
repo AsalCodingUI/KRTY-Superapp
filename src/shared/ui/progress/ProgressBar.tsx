@@ -12,10 +12,24 @@ const progressBarVariants = tv({
     bar: "",
   },
   variants: {
+    size: {
+      md: {
+        background: "h-2",
+        bar: "h-full",
+      },
+      sm: {
+        background: "h-[6px]",
+        bar: "h-full",
+      },
+    },
     variant: {
       default: {
         background: "bg-surface-neutral-secondary",
         bar: "bg-surface-brand",
+      },
+      brand: {
+        background: "bg-[var(--border-brand-light)]",
+        bar: "bg-[var(--border-brand)]",
       },
       neutral: {
         background: "bg-surface-neutral-secondary",
@@ -37,6 +51,7 @@ const progressBarVariants = tv({
   },
   defaultVariants: {
     variant: "default",
+    size: "md",
   },
 })
 
@@ -48,6 +63,8 @@ interface ProgressBarProps
   max?: number
   showAnimation?: boolean
   label?: string
+  labelTone?: "primary" | "secondary"
+  labelSize?: "md" | "sm"
 }
 
 const ProgressBar = React.forwardRef<HTMLDivElement, ProgressBarProps>(
@@ -58,13 +75,16 @@ const ProgressBar = React.forwardRef<HTMLDivElement, ProgressBarProps>(
       label,
       showAnimation = false,
       variant,
+      size,
+      labelTone = "primary",
+      labelSize = "md",
       className,
       ...props
     }: ProgressBarProps,
     forwardedRef,
   ) => {
     const safeValue = Math.min(max, Math.max(value, 0))
-    const { background, bar } = progressBarVariants({ variant })
+    const { background, bar } = progressBarVariants({ variant, size })
     return (
       <div
         ref={forwardedRef}
@@ -73,7 +93,7 @@ const ProgressBar = React.forwardRef<HTMLDivElement, ProgressBarProps>(
       >
         <div
           className={cx(
-            "relative flex h-2 w-full items-center rounded-full",
+            "relative flex w-full items-center rounded-full",
             background(),
           )}
           aria-label="progress bar"
@@ -100,9 +120,12 @@ const ProgressBar = React.forwardRef<HTMLDivElement, ProgressBarProps>(
           <span
             className={cx(
               // base
-              "text-label-md ml-2 whitespace-nowrap",
+              labelSize === "sm" ? "text-label-sm" : "text-label-md",
+              "ml-2 whitespace-nowrap",
               // text color
-              "text-foreground-primary",
+              labelTone === "secondary"
+                ? "text-foreground-secondary"
+                : "text-foreground-primary",
             )}
           >
             {label}

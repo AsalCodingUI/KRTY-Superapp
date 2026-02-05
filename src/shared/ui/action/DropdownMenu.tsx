@@ -3,7 +3,7 @@
 "use client"
 
 import * as DropdownMenuPrimitives from "@radix-ui/react-dropdown-menu"
-import { RiCheckLine } from "@remixicon/react"
+import { RiCheckLine } from "@/shared/ui/lucide-icons"
 import * as React from "react"
 
 import { cx } from "@/shared/lib/utils"

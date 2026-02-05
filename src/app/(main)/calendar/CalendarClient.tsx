@@ -6,7 +6,8 @@ import {
   type CalendarEvent,
   type EventCategory,
 } from "@/widgets/event-calendar"
-import { useEffect, useState } from "react"
+import { canManageByRole } from "@/shared/lib/roles"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { toast } from "sonner"
 import { CalendarContent } from "./CalendarContent"
 
@@ -15,13 +16,12 @@ interface CalendarClientProps {
 }
 
 export default function CalendarClient({ role }: CalendarClientProps) {
-  const supabase = createClient()
+  const supabase = useMemo(() => createClient(), [])
   const [events, setEvents] = useState<CalendarEvent[]>([])
   const [loading, setLoading] = useState(true)
   const [dialogOpen, setDialogOpen] = useState(false)
 
-  const isStakeholder =
-    role === "stakeholder" || role === "admin" || role === "owner"
+  const isStakeholder = canManageByRole(role)
 
   // Mock categories for now or fetch them
   const categories: EventCategory[] = [
@@ -30,11 +30,7 @@ export default function CalendarClient({ role }: CalendarClientProps) {
     { id: "urgent", name: "Urgent", color: "rose", isActive: true },
   ]
 
-  useEffect(() => {
-    fetchEvents()
-  }, [])
-
-  const fetchEvents = async () => {
+  const fetchEvents = useCallback(async () => {
     setLoading(true)
     // TODO: Replace with real table fetch
     const { data, error } = await supabase.from("calendar_events").select("*")
@@ -47,7 +43,11 @@ export default function CalendarClient({ role }: CalendarClientProps) {
       setEvents(data || [])
     }
     setLoading(false)
-  }
+  }, [supabase])
+
+  useEffect(() => {
+    fetchEvents()
+  }, [fetchEvents])
 
   const handleEventAdd = async (eventData: Partial<CalendarEvent>) => {
     const { error } = await supabase.from("calendar_events").insert([eventData])

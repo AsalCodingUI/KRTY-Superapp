@@ -1,6 +1,6 @@
 "use client"
 
-import { RiCalendarScheduleLine } from "@remixicon/react"
+import { RiCalendarScheduleLine } from "@/shared/ui/lucide-icons"
 import { EmptyState } from "@/shared/ui"
 
 export function OneOnOneMeetingTab() {

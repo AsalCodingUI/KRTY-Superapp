@@ -1,6 +1,7 @@
 "use server"
 
 import { createClient } from "@/shared/api/supabase/server"
+import { canManageByRole } from "@/shared/lib/roles"
 import { getDailyStats } from "@/entities/attendance/api"
 import { getLeaveDashboardStats } from "@/entities/leave/api"
 import { getPerformanceDashboardStats } from "@/entities/performance/api"
@@ -107,10 +108,7 @@ export async function getAdminDashboardData(): Promise<{
       .eq("id", user.id)
       .single()
 
-    if (
-      !profile ||
-      (profile.role !== "admin" && profile.role !== "stakeholder")
-    ) {
+    if (!profile || !canManageByRole(profile.role)) {
       return { success: false, error: "Access denied" }
     }
 

@@ -5,7 +5,7 @@ import {
   RiCalendarLine,
   RiCheckboxCircleLine,
   RiTimeLine,
-} from "@remixicon/react"
+} from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
 import Link from "next/link"
 import { Badge, Card } from "@/shared/ui"

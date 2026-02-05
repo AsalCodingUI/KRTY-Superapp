@@ -3,6 +3,7 @@
 // Tremor RadioGroup [v1.0.0]
 
 import * as RadioGroupPrimitives from "@radix-ui/react-radio-group"
+import { AnimatePresence, motion } from "framer-motion"
 import React from "react"
 
 import { cx, focusRing } from "@/shared/lib/utils"
@@ -35,64 +36,71 @@ const RadioGroup = React.forwardRef<
 
 RadioGroup.displayName = "RadioGroup"
 
-const RadioGroupIndicator = React.forwardRef<
-  React.ElementRef<typeof RadioGroupPrimitives.Indicator>,
-  React.ComponentPropsWithoutRef<typeof RadioGroupPrimitives.Indicator>
->(({ className, ...props }, forwardedRef) => {
-  return (
-    <RadioGroupPrimitives.Indicator
-      ref={forwardedRef}
-      className={cx("flex items-center justify-center", className)}
-      {...props}
-    >
-      <div
-        className={cx(
-          // base
-          "size-1.5 shrink-0 rounded-full",
-          // indicator
-          "bg-foreground-on-color",
-          // disabled
-          "group-data-disabled:bg-foreground-disable",
-        )}
-      />
-    </RadioGroupPrimitives.Indicator>
-  )
-})
-
-RadioGroupIndicator.displayName = "RadioGroupIndicator"
+const RADIO_SELECTED_DEFAULT =
+  "https://www.figma.com/api/mcp/asset/a94aa0e3-041e-4492-8b9a-7eff7aa2d589"
+const RADIO_SELECTED_DISABLED =
+  "https://www.figma.com/api/mcp/asset/ffc5b61d-9e00-4571-a593-86f6e6247147"
 
 const RadioGroupItem = React.forwardRef<
   React.ElementRef<typeof RadioGroupPrimitives.Item>,
   React.ComponentPropsWithoutRef<typeof RadioGroupPrimitives.Item>
 >(({ className, ...props }, forwardedRef) => {
+  const isDisabled = Boolean(props.disabled)
+  const itemRef = React.useRef<HTMLButtonElement | null>(null)
+  const [isChecked, setIsChecked] = React.useState(false)
+
+  React.useEffect(() => {
+    const node = itemRef.current
+    if (!node) return
+    const sync = () => {
+      setIsChecked(node.getAttribute("data-state") === "checked")
+    }
+    sync()
+    const observer = new MutationObserver(sync)
+    observer.observe(node, { attributes: true, attributeFilter: ["data-state"] })
+    return () => observer.disconnect()
+  }, [])
   return (
     <RadioGroupPrimitives.Item
-      ref={forwardedRef}
+      ref={(node) => {
+        itemRef.current = node
+        if (typeof forwardedRef === "function") {
+          forwardedRef(node)
+        } else if (forwardedRef) {
+          forwardedRef.current = node
+        }
+      }}
       className={cx(
-        "group relative flex size-4 appearance-none items-center justify-center outline-hidden",
+        "group relative flex size-5 appearance-none items-center justify-center outline-hidden",
+        focusRing,
         className,
       )}
       {...props}
     >
-      <div
-        className={cx(
-          // base
-          "shadow-xs-border flex size-4 shrink-0 items-center justify-center rounded-full border",
-          // border color
-          "border-border-default",
-          // background color
-          "bg-surface",
-          // checked
-          "group-data-[state=checked]:bg-surface-brand group-data-[state=checked]:border-0 group-data-[state=checked]:border-transparent",
-          // disabled
-          "group-data-disabled:border",
-          "group-data-disabled:border-border-disable group-data-disabled:bg-surface-neutral-tertiary group-data-disabled:text-foreground-disable",
-
-          // focus
-          focusRing,
-        )}
-      >
-        <RadioGroupIndicator />
+      <div className="relative flex size-full items-center justify-center">
+        <span
+          aria-hidden="true"
+          className={cx(
+            "absolute inset-[1px] rounded-full border border-neutral-disable bg-surface-neutral-primary transition",
+            "group-data-[disabled]:border-neutral-disable group-data-[disabled]:bg-surface-state-neutral-light-disable",
+            "group-data-[state=checked]:border-transparent group-data-[state=checked]:bg-transparent",
+          )}
+        >
+          <AnimatePresence initial={false}>
+            {isChecked && (
+              <motion.img
+                key="radio-selected"
+                alt=""
+                className="size-full"
+                src={isDisabled ? RADIO_SELECTED_DISABLED : RADIO_SELECTED_DEFAULT}
+                initial={{ scale: 0.7, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.7, opacity: 0 }}
+                transition={{ type: "spring", stiffness: 520, damping: 34 }}
+              />
+            )}
+          </AnimatePresence>
+        </span>
       </div>
     </RadioGroupPrimitives.Item>
   )

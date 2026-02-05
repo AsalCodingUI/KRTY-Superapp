@@ -20,7 +20,7 @@ import {
 } from "@/shared/ui"
 import { TableSection } from "@/shared/ui"
 import { Constants, type Database } from "@/shared/types/database.types"
-import { RiDeleteBin6Line, RiEdit2Line, RiStarLine } from "@remixicon/react"
+import { RiDeleteBin6Line, RiEdit2Line, RiStarLine } from "@/shared/ui/lucide-icons"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
 import {
@@ -189,35 +189,41 @@ export function WorkQualityTab() {
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <p className="text-content dark:text-content font-medium">
+                    <span
+                      className="text-foreground-primary font-medium"
+                      title={competency.name}
+                    >
                       {competency.name}
-                    </p>
+                    </span>
                   </TableCell>
                   <TableCell>
-                    <p className="text-body-sm text-content-subtle dark:text-content-placeholder">
+                    <span
+                      className="text-foreground-secondary block truncate"
+                      title={competency.description || "-"}
+                    >
                       {competency.description || "-"}
-                    </p>
+                    </span>
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
                       <Button
-                        variant="ghost"
-                        size="sm"
+                        variant="tertiary"
+                        size="icon-sm"
                         onClick={() => handleEdit(competency)}
                         title="Edit Competency"
                       >
-                        <RiEdit2Line className="size-4" />
+                        <RiEdit2Line className="size-3.5" />
                       </Button>
                       <Button
-                        variant="ghost"
-                        size="sm"
+                        variant="tertiary"
+                        size="icon-sm"
                         onClick={() =>
                           handleDelete(competency.id, competency.name)
                         }
                         title="Delete Competency"
-                        className="text-danger hover:bg-danger/10"
+                        className="text-foreground-danger-dark hover:bg-surface-danger-light"
                       >
-                        <RiDeleteBin6Line className="size-4" />
+                        <RiDeleteBin6Line className="size-3.5" />
                       </Button>
                     </div>
                   </TableCell>

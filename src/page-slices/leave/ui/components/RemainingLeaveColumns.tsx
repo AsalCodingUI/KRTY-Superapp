@@ -40,10 +40,13 @@ export const remainingLeaveColumns = [
       const initials = name.slice(0, 2).toUpperCase()
       return (
         <div className="flex items-center gap-3">
-          <span className="bg-muted text-label-xs text-content-subtle dark:bg-hover dark:text-content-subtle inline-flex size-8 items-center justify-center rounded-full">
+          <span className="bg-surface-neutral-secondary text-foreground-secondary inline-flex size-5 items-center justify-center rounded-full text-[10px] leading-[16px]">
             {initials}
           </span>
-          <span className="text-content dark:text-content font-medium whitespace-nowrap">
+          <span
+            className="text-foreground-primary font-medium whitespace-nowrap"
+            title={name}
+          >
             {name}
           </span>
         </div>
@@ -79,9 +82,7 @@ export const remainingLeaveColumns = [
       />
     ),
     cell: () => (
-      <span className="text-content-subtle dark:text-content-placeholder tabular-nums">
-        12 Days
-      </span>
+      <span className="text-foreground-secondary tabular-nums">12 Days</span>
     ),
     meta: { displayName: "Total Quota" },
   }),
@@ -96,7 +97,7 @@ export const remainingLeaveColumns = [
       />
     ),
     cell: ({ row }) => (
-      <span className="text-content-subtle dark:text-content-placeholder tabular-nums">
+      <span className="text-foreground-secondary tabular-nums">
         {row.getValue("leave_used") ?? 0} Days
       </span>
     ),
@@ -113,7 +114,7 @@ export const remainingLeaveColumns = [
       />
     ),
     cell: ({ row }) => (
-      <span className="text-content dark:text-content font-medium tabular-nums">
+      <span className="text-foreground-primary font-medium tabular-nums">
         {row.getValue("leave_balance") ?? 12} Days
       </span>
     ),

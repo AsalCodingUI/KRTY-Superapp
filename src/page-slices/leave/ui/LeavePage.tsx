@@ -3,6 +3,7 @@
 import { Database } from "@/shared/types/database.types"
 import { EmployeeLeavePage } from "./EmployeeLeavePage"
 import { StakeholderLeavePage } from "./StakeholderLeavePage"
+import { canManageByRole } from "@/shared/lib/roles"
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"]
 type LeaveRequest = Database["public"]["Tables"]["leave_requests"]["Row"]
@@ -30,7 +31,7 @@ export function LeavePage({
   pageSize,
   totalCount,
 }: LeavePageProps) {
-  if (role === "stakeholder") {
+  if (canManageByRole(role)) {
     return (
       <StakeholderLeavePage
         requests={requests as LeaveRequestWithProfile[]}
@@ -38,6 +39,7 @@ export function LeavePage({
         page={page}
         pageSize={pageSize}
         totalCount={totalCount}
+        role={role}
       />
     )
   }

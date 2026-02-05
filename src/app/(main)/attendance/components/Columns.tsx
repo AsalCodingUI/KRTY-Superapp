@@ -64,7 +64,7 @@ export const columns = (onRequestDelete?: (id: string) => void) =>
         return val ? (
           <span className="tabular-nums">{formatTime(val)}</span>
         ) : (
-          <span className="font-medium text-emerald-600 dark:text-emerald-500">
+          <span className="font-medium text-foreground-success-dark">
             Active
           </span>
         )
@@ -110,8 +110,8 @@ export const columns = (onRequestDelete?: (id: string) => void) =>
         if (!onRequestDelete) return null
         return (
           <Button
-            variant="secondary"
-            size="xs"
+            variant="tertiary"
+            size="sm"
             onClick={() => onRequestDelete(row.original.id)}
           >
             Request Delete

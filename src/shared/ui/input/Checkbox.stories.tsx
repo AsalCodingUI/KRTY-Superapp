@@ -63,3 +63,40 @@ export const Indeterminate: Story = {
     </div>
   ),
 }
+
+export const States: Story = {
+  render: () => (
+    <div className="flex flex-col gap-3">
+      <div className="flex items-center gap-2">
+        <Checkbox id="checkbox_state_1" />
+        <Label htmlFor="checkbox_state_1">Unchecked</Label>
+      </div>
+      <div className="flex items-center gap-2">
+        <Checkbox id="checkbox_state_2" checked />
+        <Label htmlFor="checkbox_state_2">Checked</Label>
+      </div>
+      <div className="flex items-center gap-2">
+        <Checkbox id="checkbox_state_3" checked="indeterminate" />
+        <Label htmlFor="checkbox_state_3">Indeterminate</Label>
+      </div>
+      <div className="flex items-center gap-2">
+        <Checkbox id="checkbox_state_4" disabled />
+        <Label htmlFor="checkbox_state_4" disabled>
+          Unchecked Disabled
+        </Label>
+      </div>
+      <div className="flex items-center gap-2">
+        <Checkbox id="checkbox_state_5" checked disabled />
+        <Label htmlFor="checkbox_state_5" disabled>
+          Checked Disabled
+        </Label>
+      </div>
+      <div className="flex items-center gap-2">
+        <Checkbox id="checkbox_state_6" checked="indeterminate" disabled />
+        <Label htmlFor="checkbox_state_6" disabled>
+          Indeterminate Disabled
+        </Label>
+      </div>
+    </div>
+  ),
+}

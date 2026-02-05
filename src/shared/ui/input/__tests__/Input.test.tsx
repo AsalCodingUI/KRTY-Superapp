@@ -56,7 +56,9 @@ describe("Input", () => {
   describe("Password Toggle", () => {
     it("shows password toggle button for password type", () => {
       render(<Input type="password" placeholder="Password" />)
-      const toggleButton = screen.getByLabelText("Change password visibility")
+      const toggleButton = screen.getByRole("button", {
+        name: /show password/i,
+      })
       expect(toggleButton).toBeInTheDocument()
     })
 
@@ -65,7 +67,9 @@ describe("Input", () => {
       render(<Input type="password" placeholder="Password" />)
 
       const input = screen.getByPlaceholderText("Password")
-      const toggleButton = screen.getByLabelText("Change password visibility")
+      const toggleButton = screen.getByRole("button", {
+        name: /show password/i,
+      })
 
       // Initially password type
       expect(input).toHaveAttribute("type", "password")
@@ -75,13 +79,18 @@ describe("Input", () => {
       expect(input).toHaveAttribute("type", "text")
 
       // Click to hide password again
-      await user.click(toggleButton)
+      const hideButton = screen.getByRole("button", {
+        name: /hide password/i,
+      })
+      await user.click(hideButton)
       expect(input).toHaveAttribute("type", "password")
     })
 
     it("has accessible label for password toggle", () => {
       render(<Input type="password" placeholder="Password" />)
-      const toggleButton = screen.getByLabelText("Change password visibility")
+      const toggleButton = screen.getByRole("button", {
+        name: /show password/i,
+      })
       expect(toggleButton).toHaveAttribute("aria-label")
     })
   })

@@ -1,6 +1,6 @@
 "use client"
 
-import { RiStarFill } from "@remixicon/react"
+import { RiStarFill } from "@/shared/ui/lucide-icons"
 import { Badge, Card } from "@/shared/ui"
 
 interface ReviewCardProps {

@@ -12,7 +12,7 @@ import {
   RiCloseLine,
   RiDeleteBinLine,
   RiMapPinLine,
-} from "@remixicon/react"
+} from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
 import { useState } from "react"
 import { CopyEventButton } from "../components/CopyEventButton"

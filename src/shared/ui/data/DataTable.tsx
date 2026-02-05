@@ -133,7 +133,6 @@ export function DataTable<TData>({
   searchKey,
   showPagination = true,
   showFilterbar = true,
-  noBorder: _noBorder = false,
   // NEW: Wrapper props
   showTableWrapper = false,
   tableTitle,
@@ -197,12 +196,7 @@ export function DataTable<TData>({
         )}
 
         {/* CONTAINER TABLE: Overflow hidden for rounded corners, auto for scroll */}
-        <div
-          className={cx(
-            "relative overflow-hidden rounded-md",
-            !_noBorder && "border-border-default border",
-          )}
-        >
+        <div className="relative overflow-hidden">
           <div className="overflow-x-auto">
             <Table noBorder>
               <TableHead>
@@ -215,7 +209,7 @@ export function DataTable<TData>({
                       <TableHeaderCell
                         key={header.id}
                         className={cx(
-                          "text-label-md sm:text-label-xs py-2 whitespace-nowrap",
+                          "whitespace-nowrap",
                           header.column.columnDef.meta?.className,
                         )}
                       >
@@ -240,25 +234,20 @@ export function DataTable<TData>({
                       }
                       className={cx(
                         "group transition-colors select-none",
-                        enableHover ? "hover:bg-surface-neutral-secondary" : "",
-                        enableSelection ? "cursor-pointer" : "cursor-default",
-                        row.getIsSelected()
-                          ? "bg-surface-neutral-secondary"
+                        enableHover
+                          ? "hover:bg-surface-state-neutral-light-hover"
                           : "",
+                        enableSelection ? "cursor-pointer" : "cursor-default",
                       )}
                     >
                       {row.getVisibleCells().map((cell, index) => (
                         <TableCell
                           key={cell.id}
                           className={cx(
-                            "text-secondary relative py-2 whitespace-nowrap first:w-10",
+                            "relative whitespace-nowrap",
                             cell.column.columnDef.meta?.className,
                           )}
                         >
-                          {/* Indikator Seleksi (Garis Biru di Kiri) */}
-                          {index === 0 && row.getIsSelected() && (
-                            <div className="bg-primary absolute inset-y-0 left-0 w-1" />
-                          )}
                           {flexRender(
                             cell.column.columnDef.cell,
                             cell.getContext(),

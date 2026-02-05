@@ -1,7 +1,7 @@
 "use client"
 
 import { Card } from "@/shared/ui"
-import { RiCheckboxCircleLine, RiTimeLine, RiUserLine } from "@remixicon/react"
+import { RiCheckboxCircleLine, RiTimeLine, RiUserLine } from "@/shared/ui/lucide-icons"
 import React from "react"
 
 interface AdminAttendanceOverviewProps {

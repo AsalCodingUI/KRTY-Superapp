@@ -1,6 +1,6 @@
 import { Button } from "@/shared/ui/action/Button"
 import { Tooltip } from "@/shared/ui/overlay/Tooltip"
-import { RiAddLine, RiInformationLine } from "@remixicon/react"
+import { RiAddLine, RiInformationLine } from "@/shared/ui/lucide-icons"
 import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 
 const meta = {

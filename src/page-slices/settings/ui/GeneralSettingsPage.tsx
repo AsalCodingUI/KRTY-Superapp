@@ -5,7 +5,7 @@ import { Input } from "@/shared/ui"
 import { Label } from "@/shared/ui"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { createClient } from "@/shared/api/supabase/client"
-import { RiMailSendLine } from "@remixicon/react"
+import { RiMailSendLine } from "@/shared/ui/lucide-icons"
 import { useState } from "react"
 
 export default function GeneralSettingsPage() {

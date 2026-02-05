@@ -1,5 +1,5 @@
 import { TextInput } from "@/shared/ui/input/TextInput"
-import { RiMailLine } from "@remixicon/react"
+import { RiMailLine } from "@/shared/ui/lucide-icons"
 import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 import { useState } from "react"
 

@@ -22,7 +22,7 @@ import {
   RiMoonLine,
   RiSunLine,
   RiWhatsappLine,
-} from "@remixicon/react"
+} from "@/shared/ui/lucide-icons"
 import { useTheme } from "next-themes"
 import * as React from "react"
 

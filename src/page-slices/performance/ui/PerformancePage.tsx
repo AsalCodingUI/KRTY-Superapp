@@ -2,6 +2,7 @@
 
 import { TabNavigation, TabNavigationLink } from "@/shared/ui"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
+import { canManageByRole } from "@/shared/lib/roles"
 import dynamic from "next/dynamic"
 import { useState } from "react"
 
@@ -102,7 +103,7 @@ export function PerformancePage() {
   const [activeTab, setActiveTab] = useState<TabType>("overview")
   const { profile } = useUserProfile()
 
-  const isStakeholder = profile?.role === "stakeholder"
+  const isStakeholder = canManageByRole(profile?.role)
 
   return (
     <div className="space-y-6">

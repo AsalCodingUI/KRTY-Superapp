@@ -1,7 +1,7 @@
 // Tremor Raw Drawer [v0.0.0]
 
 import * as DrawerPrimitives from "@radix-ui/react-dialog"
-import { RiCloseLine } from "@remixicon/react"
+import { RiCloseLine } from "@/shared/ui/lucide-icons"
 import * as React from "react"
 
 import { cx, focusRing } from "@/shared/lib/utils"

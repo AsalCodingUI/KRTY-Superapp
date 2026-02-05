@@ -3,6 +3,7 @@
 
 import { Database } from "@/shared/types/database.types"
 import { createClient as createClientBrowser } from "@/shared/api/supabase/client"
+import { canManageByRole } from "@/shared/lib/roles"
 import { useEffect, useState } from "react"
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"]
@@ -64,6 +65,6 @@ export function useUserProfile() {
     profile,
     userEmail,
     loading,
-    isAdmin: profile?.role === "stakeholder",
+    isAdmin: canManageByRole(profile?.role),
   }
 }

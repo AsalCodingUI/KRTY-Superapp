@@ -3,7 +3,7 @@
 import { useNotifications } from "@/shared/hooks/useNotifications"
 import { cx, focusRing } from "@/shared/lib/utils"
 import { TabNavigation, TabNavigationLink } from "@/shared/ui"
-import { RiCloseLine, RiNotification3Line } from "@remixicon/react"
+import { RiCloseLine, RiNotification3Line } from "@/shared/ui/lucide-icons"
 import { AnimatePresence, motion } from "framer-motion"
 import Link from "next/link"
 import { useEffect, useRef, useState, type CSSProperties } from "react"
@@ -13,8 +13,6 @@ interface NotificationsProps {
   variant?: "default" | "icon"
 }
 
-const EMPTY_STATE_BELL =
-  "https://www.figma.com/api/mcp/asset/117b46b7-b747-4295-bba7-efeeb25f648d"
 const SIDEBAR_WIDTH = 256
 const PANEL_GUTTER = 12
 
@@ -210,13 +208,10 @@ export function Notifications({ variant = "default" }: NotificationsProps) {
                     {filteredNotifications.length === 0 ? (
                       <div className="flex h-full flex-1 items-center justify-center p-2xl text-center">
                         <div className="flex w-full flex-col items-center gap-xl px-3xl py-5xl">
-                          <span className="relative size-8">
-                            <img
-                              alt=""
-                              className="absolute inset-0 size-full"
-                              src={EMPTY_STATE_BELL}
-                            />
-                          </span>
+                          <RiNotification3Line
+                            aria-hidden="true"
+                            className="text-content-subtle size-8"
+                          />
                           <div className="flex w-full flex-col items-start gap-md text-center">
                             <p className="text-heading-sm text-foreground-primary w-full">
                               You don&apos;t have any notifications

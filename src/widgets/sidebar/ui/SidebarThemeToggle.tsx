@@ -1,7 +1,7 @@
 "use client"
 
 import { SegmentedControl } from "@/shared/ui/interaction/SegmentedControl"
-import { RiMoonLine, RiSunLine } from "@remixicon/react"
+import { RiMoonLine, RiSunLine } from "@/shared/ui/lucide-icons"
 import { useTheme } from "next-themes"
 import { useEffect, useState } from "react"
 

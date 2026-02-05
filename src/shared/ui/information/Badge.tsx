@@ -2,7 +2,7 @@
 
 import { cx } from "@/shared/lib/utils"
 import { tv } from "@/shared/lib/utils/tv"
-import { RiHeartFill, RiVerifiedBadgeFill } from "@remixicon/react"
+import { RiHeartFill, RiVerifiedBadgeFill } from "@/shared/ui/lucide-icons"
 import React from "react"
 import type { VariantProps } from "tailwind-variants"
 

@@ -12,7 +12,7 @@ import {
 } from "@/shared/ui"
 import { TableSection } from "@/shared/ui"
 import { QuarterFilter, type QuarterFilterValue } from "@/shared/ui"
-import { RiArrowLeftLine, RiFolderLine } from "@remixicon/react"
+import { RiArrowLeftLine, RiFolderLine } from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
 import Link from "next/link"
 import { useEffect, useState } from "react"
@@ -182,28 +182,24 @@ export function EmployeeDetailClient({
                   <TableCell>{row.keyResult}</TableCell>
                   <TableCell>{row.weighted}%</TableCell>
                   <TableCell>{row.target}</TableCell>
-                  <TableCell>
-                    {row.result !== null ? (
-                      <div className="flex items-center gap-2">
-                        <span className="text-content dark:text-content font-medium">
-                          {row.result}%
-                        </span>
-                        <span className="text-body-sm text-content-subtle dark:text-content-placeholder">
-                          {(() => {
-                            if (row.result >= 95) return "Outstanding"
-                            if (row.result >= 85) return "Above Expectation"
-                            if (row.result >= 75) return "Meets Expectation"
-                            if (row.result >= 60) return "Below Expectation"
-                            return "Needs Improvement"
-                          })()}
-                        </span>
-                      </div>
+                <TableCell>
+                  {row.result !== null ? (
+                      <span className="text-foreground-primary font-medium">
+                        {row.result}% —{" "}
+                        {(() => {
+                          if (row.result >= 95) return "Outstanding"
+                          if (row.result >= 85) return "Above Expectation"
+                          if (row.result >= 75) return "Meets Expectation"
+                          if (row.result >= 60) return "Below Expectation"
+                          return "Needs Improvement"
+                        })()}
+                      </span>
                     ) : (
-                      <span className="text-body-sm text-content-placeholder dark:text-content-subtle italic">
+                      <span className="text-foreground-disable italic">
                         Belum ada data
                       </span>
                     )}
-                  </TableCell>
+                </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -245,15 +241,15 @@ export function EmployeeDetailClient({
                   <TableCell>
                     <Link
                       href={`/performance/employee/${employee.id}/project/${assignment.projects.id}`}
-                      className="text-content hover:text-primary dark:text-content dark:hover:text-primary font-medium"
+                      className="text-foreground-primary hover:text-foreground-primary font-medium"
+                      title={
+                        assignment.projects.description
+                          ? `${assignment.projects.name} — ${assignment.projects.description}`
+                          : assignment.projects.name
+                      }
                     >
                       {assignment.projects.name}
                     </Link>
-                    {assignment.projects.description && (
-                      <p className="text-body-xs text-content-subtle dark:text-content-placeholder mt-0.5 line-clamp-1">
-                        {assignment.projects.description}
-                      </p>
-                    )}
                   </TableCell>
                   <TableCell>
                     <Badge variant="info">
@@ -306,7 +302,7 @@ export function EmployeeDetailClient({
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <span className="text-body-sm text-content-subtle dark:text-content-placeholder">
+                    <span className="text-foreground-primary">
                       {format(
                         new Date(assignment.projects.start_date),
                         "MMM d",

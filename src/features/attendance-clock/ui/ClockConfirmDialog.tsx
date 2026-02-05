@@ -1,6 +1,6 @@
 "use client"
 
-import { RiCloseLine } from "@remixicon/react"
+import { RiCloseLine } from "@/shared/ui/lucide-icons"
 import {
   Button,
   Dialog,

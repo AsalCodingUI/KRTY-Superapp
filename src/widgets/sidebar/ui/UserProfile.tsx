@@ -2,7 +2,7 @@
 
 import { Button } from "@/shared/ui"
 import { cx, focusRing } from "@/shared/lib/utils"
-import { RiMore2Fill } from "@remixicon/react"
+import { RiMore2Fill } from "@/shared/ui/lucide-icons"
 
 import { useUserProfile } from "@/shared/hooks/useUserProfile" // Import hook profil
 import { DropdownUserProfile } from "./DropdownUserProfile"

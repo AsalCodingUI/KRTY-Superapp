@@ -1,5 +1,6 @@
 import { Database } from "@/shared/types/database.types"
 import { Badge } from "@/shared/ui"
+import { canManageByRole } from "@/shared/lib/roles"
 ;("use client")
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"]
@@ -46,7 +47,7 @@ export function TeamMemberList({
   }
 
   const getRoleVariant = (role: string) => {
-    return role === "stakeholder" ? "success" : "zinc"
+    return canManageByRole(role) ? "success" : "zinc"
   }
 
   const getInitials = (name: string) => {

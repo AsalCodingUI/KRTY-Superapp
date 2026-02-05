@@ -1,7 +1,7 @@
 import { cx } from "@/shared/lib/utils"
 import { tv } from "@/shared/lib/utils/tv"
 import { Slot } from "@radix-ui/react-slot"
-import { RiLoader2Fill } from "@remixicon/react"
+import { RiLoader2Fill } from "@/shared/ui/lucide-icons"
 import React from "react"
 import type { VariantProps } from "tailwind-variants"
 

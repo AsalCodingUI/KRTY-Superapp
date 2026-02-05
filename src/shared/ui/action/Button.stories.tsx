@@ -1,4 +1,4 @@
-import { RiAddLine, RiArrowRightLine } from "@remixicon/react"
+import { RiAddLine, RiArrowRightLine } from "@/shared/ui/lucide-icons"
 import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 import { Button } from "./Button"
 

@@ -4,6 +4,7 @@ import { getAdminDashboardData } from "./actions/dashboard-admin-actions"
 import { getEmployeeDashboardData } from "./actions/dashboard-employee-actions"
 import { AdminDashboard } from "./components/AdminDashboard"
 import { EmployeeDashboard } from "./components/EmployeeDashboard"
+import { canManageByRole } from "@/shared/lib/roles"
 
 export default async function DashboardRoute() {
   const supabase = await createClient()
@@ -28,8 +29,7 @@ export default async function DashboardRoute() {
     )
   }
 
-  const isAdminOrStakeholder =
-    profile.role === "admin" || profile.role === "stakeholder"
+  const isAdminOrStakeholder = canManageByRole(profile.role)
 
   // Route to appropriate dashboard based on role
   if (isAdminOrStakeholder) {

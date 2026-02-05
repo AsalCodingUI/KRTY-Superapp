@@ -119,7 +119,10 @@ export default function LeaveAdminPage({
           <section>
             <DataTable
               data={requests}
-              columns={adminColumns(handleApprove, handleReject)}
+              columns={adminColumns(handleApprove, handleReject, {
+                canSelect: true,
+                canManage: true,
+              })}
               showExport={false}
               showViewOptions={false}
               showFilterbar={false}

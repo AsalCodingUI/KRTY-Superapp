@@ -19,7 +19,7 @@ export function Sidebar() {
           </div>
 
           {/* Node 3188-52447: Menu Items */}
-          <div className="mt-2 flex-1">
+          <div className="flex-1">
             <SidebarMenu />
           </div>
 

@@ -15,7 +15,7 @@ import {
   RiDeleteBinLine,
   RiFileTextLine,
   RiMapPinLine,
-} from "@remixicon/react"
+} from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
 import { type ReactNode, useState } from "react"
 import type { CalendarEvent } from "../types"

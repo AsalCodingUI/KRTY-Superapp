@@ -35,7 +35,7 @@ import {
   RiCheckLine,
   RiCloseLine,
   RiSave3Line,
-} from "@remixicon/react"
+} from "@/shared/ui/lucide-icons"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
@@ -559,22 +559,27 @@ export function ProjectScoringClient({
                 {competencies.map((comp, index) => (
                   <TableRow key={comp.id}>
                     <TableCell className="font-medium">{comp.name}</TableCell>
-                    <TableCell className="text-label-md text-content-subtle dark:text-content-placeholder">
-                      {comp.description || "-"}
+                    <TableCell
+                      className="text-foreground-secondary"
+                      title={comp.description || "-"}
+                    >
+                      <span className="block truncate">
+                        {comp.description || "-"}
+                      </span>
                     </TableCell>
                     <TableCell className="text-center">
                       <Button
-                        variant={comp.isAchieved ? "primary" : "secondary"}
+                        variant={comp.isAchieved ? "primary" : "tertiary"}
                         size="sm"
                         onClick={() => handleToggleCompetency(index)}
                       >
                         {comp.isAchieved ? (
                           <>
-                            <RiCheckLine className="mr-1 size-4" />Y
+                            <RiCheckLine className="mr-1 size-3.5" />Y
                           </>
                         ) : (
                           <>
-                            <RiCloseLine className="mr-1 size-4" />N
+                            <RiCloseLine className="mr-1 size-3.5" />N
                           </>
                         )}
                       </Button>

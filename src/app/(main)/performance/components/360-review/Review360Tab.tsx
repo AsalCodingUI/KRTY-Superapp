@@ -2,6 +2,7 @@
 
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { createClient } from "@/shared/api/supabase/client"
+import { canManageByRole } from "@/shared/lib/roles"
 import { useEffect, useState } from "react"
 import { AdminReviewDashboard } from "../admin/AdminReviewDashboard"
 import { EmployeeReviewView } from "./EmployeeReviewView"
@@ -38,7 +39,7 @@ export function Review360Tab() {
     )
 
   // --- POV 1: STAKEHOLDER (ADMIN) ---
-  if (profile?.role === "stakeholder") {
+  if (canManageByRole(profile?.role)) {
     return <AdminReviewDashboard activeCycleId={currentCycleId} />
   }
 

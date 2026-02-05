@@ -26,7 +26,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
-import { RiDraggable, RiEqualizer2Line } from "@remixicon/react"
+import { RiDraggable, RiEqualizer2Line } from "@/shared/ui/lucide-icons"
 import { Table } from "@tanstack/react-table"
 import { useEffect, useState } from "react"
 

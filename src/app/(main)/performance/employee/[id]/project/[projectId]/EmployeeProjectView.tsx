@@ -20,7 +20,7 @@ import {
   mapPercentageToScore,
   type Milestone,
 } from "@/entities/performance/lib/kpiCalculations"
-import { RiArrowLeftLine, RiCheckLine, RiCloseLine } from "@remixicon/react"
+import { RiArrowLeftLine, RiCheckLine, RiCloseLine } from "@/shared/ui/lucide-icons"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import {
@@ -374,18 +374,23 @@ export function EmployeeProjectView({
                 {competencies.map((comp) => (
                   <TableRow key={comp.id}>
                     <TableCell className="font-medium">{comp.name}</TableCell>
-                    <TableCell className="text-label-md text-content-subtle dark:text-content-placeholder">
-                      {comp.description || "-"}
+                    <TableCell
+                      className="text-foreground-secondary"
+                      title={comp.description || "-"}
+                    >
+                      <span className="block truncate">
+                        {comp.description || "-"}
+                      </span>
                     </TableCell>
                     <TableCell className="text-center">
                       {comp.isAchieved ? (
                         <Badge variant="success">
-                          <RiCheckLine className="mr-1 size-4" />
+                          <RiCheckLine className="mr-1 size-3.5" />
                           Achieved
                         </Badge>
                       ) : (
                         <Badge variant="zinc">
-                          <RiCloseLine className="mr-1 size-4" />
+                          <RiCloseLine className="mr-1 size-3.5" />
                           Not Achieved
                         </Badge>
                       )}

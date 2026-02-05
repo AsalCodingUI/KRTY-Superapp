@@ -1,7 +1,7 @@
 // src/components/Accordion.tsx
 
 import * as AccordionPrimitives from "@radix-ui/react-accordion"
-import { RiArrowDownSLine } from "@remixicon/react"
+import { RiArrowDownSLine } from "@/shared/ui/lucide-icons"
 import React from "react"
 
 import { cx, focusRing } from "@/shared/lib/utils"

@@ -7,7 +7,7 @@ import {
   RiArrowLeftSLine,
   RiArrowRightDoubleLine,
   RiArrowRightSLine,
-} from "@remixicon/react"
+} from "@/shared/ui/lucide-icons"
 import { addYears, format, isSameMonth } from "date-fns"
 import * as React from "react"
 import {

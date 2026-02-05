@@ -1,6 +1,6 @@
 "use client"
 
-import { RiCheckLine, RiCloseLine, RiTimeLine } from "@remixicon/react"
+import { RiCheckLine, RiCloseLine, RiTimeLine } from "@/shared/ui/lucide-icons"
 import { Badge } from "@/shared/ui"
 
 interface LeaveStatusProps {

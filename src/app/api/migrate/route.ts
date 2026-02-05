@@ -1,5 +1,6 @@
 import { createClient } from "@/shared/api/supabase/server"
 import { logError } from "@/shared/lib/utils/logger"
+import { canManageByRole } from "@/shared/lib/roles"
 import { NextResponse } from "next/server"
 
 /**
@@ -26,7 +27,7 @@ export async function POST() {
       .eq("id", user.id)
       .single()
 
-    if (profile?.app_role !== "stakeholder") {
+    if (!canManageByRole(profile?.app_role)) {
       return NextResponse.json(
         { error: "Forbidden - Admin only" },
         { status: 403 },

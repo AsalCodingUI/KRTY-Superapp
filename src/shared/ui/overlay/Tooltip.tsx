@@ -77,11 +77,11 @@ const Tooltip = React.forwardRef<
               align="center"
               className={cx(
                 // base
-                "text-body-sm max-w-60 rounded-md px-2.5 py-1.5 shadow-md select-none",
+                "text-body-xs min-w-[45px] rounded-md px-xl py-lg text-center shadow-[0px_1px_1px_0px_rgba(0,0,0,0.1),0px_4px_6px_0px_rgba(0,0,0,0.06),0px_2px_20px_0px_rgba(0,0,0,0.1),0px_12px_30px_0px_rgba(0,0,0,0.2)] select-none",
                 // text color
-                "text-foreground-primary",
+                "text-foreground-on-color",
                 // background color
-                "bg-surface",
+                "bg-surface-inverse-secondary",
                 // transition
                 "will-change-[transform,opacity]",
                 "data-[side=bottom]:animate-slideDownAndFade data-[side=left]:animate-slideLeftAndFade data-[side=right]:animate-slideRightAndFade data-[side=top]:animate-slideUpAndFade data-[state=closed]:animate-hide",
@@ -92,9 +92,9 @@ const Tooltip = React.forwardRef<
               {content}
               {showArrow ? (
                 <TooltipPrimitives.Arrow
-                  className="fill-surface border-none" // Fixed fill color to match bg
-                  width={12}
-                  height={7}
+                  className="fill-surface-inverse-secondary border-none"
+                  width={24}
+                  height={8}
                   aria-hidden="true"
                 />
               ) : null}

@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui"
-import { RiAddLine, RiCalendar2Line } from "@remixicon/react"
+import { RiAddLine, RiCalendar2Line } from "@/shared/ui/lucide-icons"
 
 interface EmptyStateProps {
   onCreateEvent?: () => void

@@ -1,6 +1,6 @@
 "use client"
 
-import { RiMore2Fill } from "@remixicon/react"
+import { RiMore2Fill } from "@/shared/ui/lucide-icons"
 import type { User } from "./types"
 import { cx, focusRing } from "@/shared/lib/utils"
 import { Button } from "@/shared/ui"

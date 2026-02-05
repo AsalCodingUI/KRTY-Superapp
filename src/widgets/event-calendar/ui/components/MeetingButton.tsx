@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui"
 import { logError } from "@/shared/lib/utils/logger"
-import { RiFileCopyLine, RiVideoOnLine } from "@remixicon/react"
+import { RiFileCopyLine, RiVideoOnLine } from "@/shared/ui/lucide-icons"
 import { useState } from "react"
 
 interface MeetingButtonProps {

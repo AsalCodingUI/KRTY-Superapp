@@ -6,7 +6,7 @@ import {
   RiCloseLine,
   RiTimeLine,
   RiUserAddLine,
-} from "@remixicon/react"
+} from "@/shared/ui/lucide-icons"
 import type { Guest } from "../types"
 
 interface GuestListProps {

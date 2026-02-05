@@ -1,7 +1,7 @@
 "use client"
 
 import { cx } from "@/shared/lib/utils"
-import { RiMapPinLine, RiTimeLine } from "@remixicon/react"
+import { RiMapPinLine, RiTimeLine } from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
 import { memo } from "react"
 import { getEventColorClasses } from "./event-color-registry"

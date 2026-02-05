@@ -2,6 +2,8 @@
 
 import { siteConfig } from "@/app/siteConfig"
 import { navigationConfig } from "@/shared/config/navigation"
+import { useUserProfile } from "@/shared/hooks/useUserProfile"
+import { hasRoleAccess } from "@/shared/lib/roles"
 import { cx, focusRing } from "@/shared/lib/utils"
 // removed unused icons import
 import Link from "next/link"
@@ -9,6 +11,7 @@ import { usePathname } from "next/navigation"
 
 export function SidebarFooter() {
   const pathname = usePathname()
+  const { profile } = useUserProfile()
 
   const isActive = (itemHref: string) => {
     if (itemHref === siteConfig.baseLinks.settings.general) {
@@ -17,7 +20,11 @@ export function SidebarFooter() {
     return pathname === itemHref
   }
 
-  const footerItems = navigationConfig.footer
+  const footerItems = profile
+    ? navigationConfig.footer.filter((item) =>
+        hasRoleAccess(item.roles, profile.role, { allowUnknown: true }),
+      )
+    : navigationConfig.footer
 
   return (
     <div className="flex flex-col gap-1 p-2">

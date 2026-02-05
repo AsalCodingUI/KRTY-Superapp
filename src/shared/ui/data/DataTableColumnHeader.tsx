@@ -1,6 +1,6 @@
 "use client"
 
-import { RiArrowDownSLine, RiArrowUpSLine } from "@remixicon/react"
+import { RiArrowDownSLine, RiArrowUpSLine } from "@/shared/ui/lucide-icons"
 import { Column } from "@tanstack/react-table"
 
 import { cx } from "@/shared/lib/utils"
@@ -28,7 +28,7 @@ export function DataTableColumnHeader<TData, TValue>({
     return (
       <div
         className={cx(
-          "text-label-md text-content-subtle dark:text-content-subtle py-1.5",
+          "text-label-sm text-foreground-secondary",
           className,
         )}
       >
@@ -43,13 +43,13 @@ export function DataTableColumnHeader<TData, TValue>({
       onClick={column.getToggleSortingHandler()}
       className={cx(
         // Base style
-        "flex items-center gap-2 py-1.5",
+        "flex items-center gap-2",
         // Style interaktif (kursor pointer, no hover effect)
         "cursor-pointer select-none",
         className,
       )}
     >
-      <span className="text-label-md text-content-subtle dark:text-content-subtle whitespace-nowrap">
+      <span className="text-label-sm text-foreground-secondary whitespace-nowrap">
         {title}
       </span>
 
@@ -57,7 +57,7 @@ export function DataTableColumnHeader<TData, TValue>({
       <div className="-space-y-2">
         <RiArrowUpSLine
           className={cx(
-            "text-content-subtle dark:text-content-subtle size-3.5",
+            "text-foreground-secondary size-3.5",
             // Kalau lagi sort DESC (Z-A), panah ATAS jadi transparan (opacity-30)
             isSorted === "desc" ? "opacity-30" : "",
           )}
@@ -65,7 +65,7 @@ export function DataTableColumnHeader<TData, TValue>({
         />
         <RiArrowDownSLine
           className={cx(
-            "text-content-subtle dark:text-content-subtle size-3.5",
+            "text-foreground-secondary size-3.5",
             // Kalau lagi sort ASC (A-Z), panah BAWAH jadi transparan (opacity-30)
             isSorted === "asc" ? "opacity-30" : "",
           )}

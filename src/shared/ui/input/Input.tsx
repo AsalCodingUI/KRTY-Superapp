@@ -1,7 +1,7 @@
 // Tremor Raw Input [v1.0.3]
 
 import { tv } from "@/shared/lib/utils/tv"
-import { RiEyeFill, RiEyeOffFill, RiSearchLine } from "@remixicon/react"
+import { RiEyeFill, RiEyeOffFill, RiSearchLine } from "@/shared/ui/lucide-icons"
 import React from "react"
 import type { VariantProps } from "tailwind-variants"
 
@@ -130,7 +130,9 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             )}
           >
             <button
-              aria-label="Change password visibility"
+              aria-label={
+                typeState === "password" ? "Show password" : "Hide password"
+              }
               className={cx(
                 // base
                 "h-fit w-fit rounded-sm transition-all outline-none",

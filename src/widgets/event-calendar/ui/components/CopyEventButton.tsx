@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui"
 import { logError } from "@/shared/lib/utils/logger"
-import { RiFileCopyLine } from "@remixicon/react"
+import { RiFileCopyLine } from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
 import { useState } from "react"
 import type { CalendarEvent } from "../types"

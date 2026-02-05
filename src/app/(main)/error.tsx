@@ -2,7 +2,7 @@
 
 import { Button } from "@/shared/ui"
 import { Card } from "@/shared/ui"
-import { RiHome2Line, RiRefreshLine } from "@remixicon/react"
+import { RiHome2Line, RiRefreshLine } from "@/shared/ui/lucide-icons"
 import { useEffect } from "react"
 
 export default function Error({

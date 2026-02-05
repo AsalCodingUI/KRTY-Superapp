@@ -27,10 +27,13 @@ export const adminAttendanceColumns = (
 
       return (
         <div className="flex items-center gap-3">
-          <div className="bg-muted text-label-xs text-content-subtle dark:bg-hover dark:text-content-subtle flex size-8 items-center justify-center rounded-full">
+          <div className="bg-surface-neutral-secondary text-foreground-secondary flex size-5 items-center justify-center rounded-full text-[10px] leading-[16px]">
             {initials}
           </div>
-          <span className="text-content dark:text-content font-medium whitespace-nowrap">
+          <span
+            className="text-foreground-primary font-medium whitespace-nowrap"
+            title={fullName}
+          >
             {fullName}
           </span>
         </div>
@@ -42,10 +45,7 @@ export const adminAttendanceColumns = (
     accessorKey: "clock_in",
     header: "Clock In",
     cell: ({ row }) => (
-      <span
-        className="text-content dark:text-content tabular-nums"
-        suppressHydrationWarning
-      >
+      <span className="text-foreground-primary tabular-nums">
         {format(new Date(row.original.clock_in), "HH:mm")}
       </span>
     ),
@@ -59,7 +59,7 @@ export const adminAttendanceColumns = (
         return <Badge variant="warning">On Break</Badge>
       }
       return (
-        <span className="text-content-subtle dark:text-content-subtle tabular-nums">
+        <span className="text-foreground-secondary tabular-nums">
           {row.original.break_total ? `${row.original.break_total}m` : "-"}
         </span>
       )
@@ -72,18 +72,13 @@ export const adminAttendanceColumns = (
     cell: ({ row }) => {
       if (row.original.clock_out) {
         return (
-          <span
-            className="text-content dark:text-content tabular-nums"
-            suppressHydrationWarning
-          >
+          <span className="text-foreground-primary tabular-nums">
             {format(new Date(row.original.clock_out), "HH:mm")}
           </span>
         )
       }
       return (
-        <span className="text-label-xs text-emerald-600 dark:text-emerald-500">
-          Active
-        </span>
+        <span className="font-medium text-foreground-success-dark">Active</span>
       )
     },
     meta: { className: "w-[15%]", displayName: "Clock Out" },
@@ -119,10 +114,7 @@ export const adminAttendanceColumns = (
       const mins = Math.floor((workingMs % (1000 * 60 * 60)) / (1000 * 60))
 
       return (
-        <span
-          className="text-content dark:text-content font-medium tabular-nums"
-          suppressHydrationWarning
-        >
+        <span className="text-foreground-primary font-medium tabular-nums">
           {hours}h {mins}m
         </span>
       )
@@ -150,8 +142,8 @@ export const adminAttendanceColumns = (
 
       return (
         <Button
-          variant="destructive"
-          size="xs"
+          variant="tertiary"
+          size="sm"
           onClick={() => onApproveDelete(row.original.id)}
         >
           Approve Delete

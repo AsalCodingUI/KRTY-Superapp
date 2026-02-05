@@ -7,7 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui"
-import { RiCalendarLine, RiCloseLine } from "@remixicon/react"
+import { RiCalendarLine, RiCloseLine } from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
 import type { CalendarEvent } from "../types"
 

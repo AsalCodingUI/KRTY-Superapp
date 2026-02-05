@@ -4,7 +4,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/shared/ui/interaction/Tabs"
-import { RiFlowerFill } from "@remixicon/react"
+import { RiFlowerFill } from "@/shared/ui/lucide-icons"
 import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 
 const meta = {

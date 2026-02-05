@@ -42,3 +42,30 @@ export const DisabledChecked: Story = {
     checked: true,
   },
 }
+
+export const States: Story = {
+  render: () => (
+    <div className="flex flex-col gap-3">
+      <div className="flex items-center gap-2">
+        <Switch id="switch_state_1" />
+        <Label htmlFor="switch_state_1">Off</Label>
+      </div>
+      <div className="flex items-center gap-2">
+        <Switch id="switch_state_2" checked />
+        <Label htmlFor="switch_state_2">On</Label>
+      </div>
+      <div className="flex items-center gap-2">
+        <Switch id="switch_state_3" disabled />
+        <Label htmlFor="switch_state_3" disabled>
+          Disabled Off
+        </Label>
+      </div>
+      <div className="flex items-center gap-2">
+        <Switch id="switch_state_4" checked disabled />
+        <Label htmlFor="switch_state_4" disabled>
+          Disabled On
+        </Label>
+      </div>
+    </div>
+  ),
+}

@@ -1,5 +1,6 @@
 import { LeavePage } from "@/page-slices/leave"
 import { createClient } from "@/shared/api/supabase/server"
+import { canManageByRole } from "@/shared/lib/roles"
 
 export default async function LeaveRoute({
   searchParams,
@@ -26,7 +27,7 @@ export default async function LeaveRoute({
     .single()
 
   // --- JALUR 1: STAKEHOLDER (Admin View) ---
-  if (profile?.role === "stakeholder") {
+  if (canManageByRole(profile?.role)) {
     // 🚀 PARALLEL FETCH: Count + Requests + Profiles
     const [countResult, requestsResult, profilesResult] = await Promise.all([
       supabase

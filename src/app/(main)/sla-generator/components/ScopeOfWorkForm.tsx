@@ -27,7 +27,7 @@ import {
   RiDraggable,
   RiFileCopyLine,
   RiUploadLine,
-} from "@remixicon/react"
+} from "@/shared/ui/lucide-icons"
 import { toast } from "sonner"
 
 interface ScopeItem {

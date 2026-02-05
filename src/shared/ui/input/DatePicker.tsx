@@ -15,7 +15,7 @@ import {
   type DateFieldState,
   type DateSegment,
 } from "@react-stately/datepicker"
-import { RiCalendar2Fill, RiSubtractFill } from "@remixicon/react"
+import { RiCalendar2Fill, RiSubtractFill } from "@/shared/ui/lucide-icons"
 import { format, type Locale } from "date-fns"
 import { enUS } from "date-fns/locale"
 import * as React from "react"

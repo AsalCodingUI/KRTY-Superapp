@@ -1,11 +1,12 @@
 "use client"
 
-import { columns } from "@/app/(main)/teams/Columns"
+import { createTeamColumns } from "@/app/(main)/teams/Columns"
 import { TeamFormDialog } from "@/app/(main)/teams/components/TeamDialogs"
 import { TeamStats } from "@/app/(main)/teams/components/TeamStats"
 import { createClient } from "@/shared/api/supabase/client"
 import { Database } from "@/shared/types/database.types"
 import { DataTable } from "@/shared/ui/data/DataTable"
+import { canManageByRole } from "@/shared/lib/roles"
 import { useState } from "react"
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
@@ -17,6 +18,7 @@ interface TeamsPageProps {
   page: number
   pageSize: number
   totalCount: number
+  role?: string
 }
 
 export function TeamsPage({
@@ -24,6 +26,7 @@ export function TeamsPage({
   page,
   pageSize,
   totalCount,
+  role,
 }: TeamsPageProps) {
   const router = useRouter()
   const pathname = usePathname()
@@ -31,6 +34,8 @@ export function TeamsPage({
 
   const [isAddOpen, setIsAddOpen] = useState(false)
   const [editingItem, setEditingItem] = useState<Profile | null>(null)
+
+  const canManage = canManageByRole(role)
 
   // Handle page change
   const handlePageChange = (newPage: number) => {
@@ -57,43 +62,58 @@ export function TeamsPage({
       <div className="mt-4 sm:mt-6 lg:mt-6">
         <DataTable
           data={initialData}
-          columns={columns}
+          columns={createTeamColumns({ canSelect: canManage })}
           manualPagination={true}
           pageCount={pageCount}
           pageIndex={page - 1} // Convert 1-index to 0-index
           onPageChange={handlePageChange}
-          onCreate={() => {
-            setEditingItem(null)
-            setIsAddOpen(true)
-          }}
-          onEdit={(item) => {
-            setEditingItem(item)
-            setIsAddOpen(true)
-          }}
-          onDelete={async (ids) => {
-            if (!confirm(`Delete ${ids.length} team member(s)?`)) return
-            const supabase = createClient()
-            const { error } = await supabase
-              .from("profiles")
-              .delete()
-              .in("id", ids as string[])
-            if (error) {
-              alert("Error deleting: " + error.message)
-            } else {
-              router.refresh()
-            }
-          }}
+          enableSelection={canManage}
+          onCreate={
+            canManage
+              ? () => {
+                  setEditingItem(null)
+                  setIsAddOpen(true)
+                }
+              : undefined
+          }
+          onEdit={
+            canManage
+              ? (item) => {
+                  setEditingItem(item)
+                  setIsAddOpen(true)
+                }
+              : undefined
+          }
+          onDelete={
+            canManage
+              ? async (ids) => {
+                  if (!confirm(`Delete ${ids.length} team member(s)?`)) return
+                  const supabase = createClient()
+                  const { error } = await supabase
+                    .from("profiles")
+                    .delete()
+                    .in("id", ids as string[])
+                  if (error) {
+                    alert("Error deleting: " + error.message)
+                  } else {
+                    router.refresh()
+                  }
+                }
+              : undefined
+          }
           showTableWrapper={true}
           tableTitle="Team Members"
           tableDescription="Manage your team members and their roles"
         />
       </div>
 
-      <TeamFormDialog
-        isOpen={isAddOpen}
-        onClose={() => setIsAddOpen(false)}
-        initialData={editingItem}
-      />
+      {canManage && (
+        <TeamFormDialog
+          isOpen={isAddOpen}
+          onClose={() => setIsAddOpen(false)}
+          initialData={editingItem}
+        />
+      )}
     </>
   )
 }

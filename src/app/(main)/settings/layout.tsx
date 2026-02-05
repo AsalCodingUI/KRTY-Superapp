@@ -3,6 +3,7 @@
 import { siteConfig } from "@/app/siteConfig"
 import { TabNavigation, TabNavigationLink } from "@/shared/ui"
 import { useUserProfile } from "@/shared/hooks/useUserProfile" // Import hook buat cek role
+import { hasRoleAccess } from "@/shared/lib/roles"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
@@ -31,7 +32,7 @@ export default function Layout({
   // Filter tab berdasarkan role user yang login
   const visibleTabs = settingsTabs.filter((tab) => {
     if (loading || !profile) return false
-    return tab.roles.includes(profile.role)
+    return hasRoleAccess(tab.roles, profile.role)
   })
 
   return (

@@ -1,14 +1,12 @@
-import { ArrowAnimated, Button } from "@/shared/ui"
+import { cx } from "@/shared/lib/utils"
+import { buttonVariants } from "@/shared/ui"
+import { RiArrowRightLine } from "@/shared/ui/lucide-icons"
 import Link from "next/link"
-import { DatabaseLogo } from "../../public/DatabaseLogo"
 import { siteConfig } from "./siteConfig"
 
 export default function NotFound() {
   return (
     <div className="flex h-screen flex-col items-center justify-center">
-      <Link href={siteConfig.baseLinks.home}>
-        <DatabaseLogo className="mt-6 h-10" />
-      </Link>
       <p className="text-display-sm sm:text-display-lg mt-6 text-blue-600 dark:text-blue-500">
         404
       </p>
@@ -18,15 +16,13 @@ export default function NotFound() {
       <p className="text-label-md text-content-subtle dark:text-content-placeholder mt-2">
         Sorry, we couldn’t find the page you’re looking for.
       </p>
-      <Button asChild className="group mt-8" variant="secondary">
-        <Link href={siteConfig.baseLinks.home}>
-          Go to the home page
-          <ArrowAnimated
-            className="stroke-content dark:stroke-content"
-            aria-hidden="true"
-          />
-        </Link>
-      </Button>
+      <Link
+        href={siteConfig.baseLinks.home}
+        className={cx(buttonVariants({ variant: "secondary" }), "mt-8")}
+      >
+        Go to the home page
+        <RiArrowRightLine className="ml-2 size-4" aria-hidden="true" />
+      </Link>
     </div>
   )
 }

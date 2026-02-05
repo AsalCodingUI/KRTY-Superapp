@@ -2,7 +2,7 @@
 
 import { Avatar, Badge } from "@/shared/ui"
 import { Card } from "@/shared/ui"
-import { RiArrowDownLine, RiArrowUpLine, RiStarLine } from "@remixicon/react"
+import { RiArrowDownLine, RiArrowUpLine, RiStarLine } from "@/shared/ui/lucide-icons"
 import Link from "next/link"
 
 interface Employee {

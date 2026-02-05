@@ -1,7 +1,10 @@
 // Tremor Raw Switch [v0.0.0]
 
+"use client"
+
 import { tv } from "@/shared/lib/utils/tv"
 import * as SwitchPrimitives from "@radix-ui/react-switch"
+import { motion } from "framer-motion"
 import React from "react"
 import type { VariantProps } from "tailwind-variants"
 
@@ -11,45 +14,45 @@ const switchVariants = tv({
   slots: {
     root: [
       // base
-      "group relative isolate inline-flex shrink-0 cursor-pointer items-center rounded-full p-0.5 shadow-inner ring-1 transition-all outline-none ring-inset",
-      "bg-surface-neutral-tertiary",
-      // ring color
-      "ring-border-default",
-      // checked
-      "data-[state=checked]:bg-surface-brand",
+      "group inline-flex shrink-0 cursor-pointer items-center rounded-full p-[2px] transition-colors outline-none",
+      "overflow-hidden",
+      "justify-start data-[state=checked]:justify-end",
+      // unchecked background (default + hover)
+      "bg-[linear-gradient(90deg,rgba(0,0,0,0.01)_0%,rgba(0,0,0,0.01)_100%),linear-gradient(90deg,var(--surface-neutral-secondary)_0%,var(--surface-neutral-secondary)_100%)]",
+      "hover:bg-[linear-gradient(90deg,rgba(0,0,0,0.03)_0%,rgba(0,0,0,0.03)_100%),linear-gradient(90deg,var(--surface-neutral-secondary)_0%,var(--surface-neutral-secondary)_100%)]",
+      // checked background
+      "data-[state=checked]:bg-surface-success",
+      "data-[state=checked]:[background-image:none]",
+      "data-[state=checked]:hover:bg-surface-success-hov",
       // disabled
-      "ring-border-disable",
+      "data-[disabled]:bg-surface-state-neutral-light-disable",
+      "data-[disabled]:bg-none",
+      "data-[disabled]:[background-image:none]",
+      "data-[disabled]:hover:bg-surface-state-neutral-light-disable",
+      "data-[disabled]:cursor-not-allowed",
       // focus
       focusRing,
-      // disabled - checked
-      "data-[disabled]:bg-surface-neutral-tertiary",
-      "data-[disabled]:data-[state=checked]:ring-border-disable",
-      // disabled button - unchecked
-      "data-[disabled]:data-[state=unchecked]:ring-border-disable",
-      // disabled button indicator - unchecked
-      "data-[disabled]:cursor-not-allowed",
     ],
     thumb: [
       // base
-      "pointer-events-none relative inline-block transform appearance-none rounded-full border-none shadow-lg transition-all duration-150 ease-in-out outline-none focus:border-none focus:outline-transparent focus:outline-none",
+      "pointer-events-none relative inline-block appearance-none rounded-full transition-all duration-150 ease-in-out",
       // background color
-      "bg-surface",
+      "bg-foreground-on-color",
+      "shadow-[0px_1px_3px_0px_rgba(0,0,0,0.04),0px_0px_2px_0px_rgba(0,0,0,0.18)]",
       // disabled
       "group-data-[disabled]:shadow-none",
-      "group-data-[disabled]:bg-surface-neutral-secondary",
+      "group-data-[disabled]:bg-foreground-disable",
     ],
   },
   variants: {
     size: {
       default: {
-        root: "h-5 w-9",
-        thumb:
-          "h-4 w-4 data-[state=checked]:translate-x-4 data-[state=unchecked]:translate-x-0",
+        root: "h-5 w-8",
+        thumb: "h-4 w-[18px]",
       },
       small: {
         root: "h-4 w-7",
-        thumb:
-          "h-3 w-3 data-[state=checked]:translate-x-3 data-[state=unchecked]:translate-x-0",
+        thumb: "h-3 w-3",
       },
     },
   },
@@ -87,7 +90,13 @@ const Switch = React.forwardRef<
       className={cx(root(), className)}
       {...props}
     >
-      <SwitchPrimitives.Thumb className={cx(thumb())} />
+      <SwitchPrimitives.Thumb asChild>
+        <motion.span
+          className={cx(thumb())}
+          layout="position"
+          transition={{ type: "spring", stiffness: 260, damping: 30, mass: 1 }}
+        />
+      </SwitchPrimitives.Thumb>
     </SwitchPrimitives.Root>
   )
 })

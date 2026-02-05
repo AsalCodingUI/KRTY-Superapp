@@ -50,24 +50,22 @@ TableRoot.displayName = "TableRoot"
 const Table = React.forwardRef<
   HTMLTableElement,
   React.TableHTMLAttributes<HTMLTableElement> & { noBorder?: boolean }
->(({ className, noBorder, ...props }, forwardedRef) => (
-  <div
-    className={cx(
-      "overflow-hidden",
-      !noBorder && "border-border rounded-md border",
-    )}
-  >
-    <table
-      ref={forwardedRef}
-      className={cx(
-        // base
-        "w-full caption-bottom",
-        className,
-      )}
-      {...props}
-    />
-  </div>
-))
+>(({ className, noBorder, ...props }, forwardedRef) => {
+  void noBorder
+  return (
+    <div className="overflow-hidden">
+      <table
+        ref={forwardedRef}
+        className={cx(
+          // base
+          "w-full caption-bottom",
+          className,
+        )}
+        {...props}
+      />
+    </div>
+  )
+})
 
 Table.displayName = "Table"
 
@@ -89,19 +87,20 @@ TableHead.displayName = "TableHead"
 
 const TableHeaderCell = React.forwardRef<
   HTMLTableCellElement,
-  React.ThHTMLAttributes<HTMLTableCellElement>
->(({ className, ...props }, forwardedRef) => (
+  React.ThHTMLAttributes<HTMLTableCellElement> & { disabled?: boolean }
+>(({ className, disabled, ...props }, forwardedRef) => (
   <th
     ref={forwardedRef}
     className={cx(
       // base
-      "text-label-xs border-b px-4 py-2.5 text-left",
+      "text-label-sm border-b px-xl py-lg text-left whitespace-nowrap align-middle",
+      "h-10",
       // text color
-      "text-content-subtle dark:text-content-subtle",
+      disabled ? "text-foreground-disable" : "text-foreground-secondary",
       // background color
-      "bg-muted/50 dark:bg-surface",
+      "bg-surface-neutral-primary",
       // border color
-      "border-border",
+      "border-neutral-primary",
       className,
     )}
     {...props}
@@ -120,7 +119,7 @@ const TableBody = React.forwardRef<
       // base
       "divide-y",
       // divide color
-      "divide-border",
+      "divide-border-neutral-primary",
       className,
     )}
     {...props}
@@ -137,9 +136,7 @@ const TableRow = React.forwardRef<
     ref={forwardedRef}
     className={cx(
       // base
-      "h-[40px]",
-      "[&_td:last-child]:pr-4 [&_th:last-child]:pr-4",
-      "[&_td:first-child]:pl-4 [&_th:first-child]:pl-4",
+      "h-[40px] bg-surface-neutral-primary",
       className,
     )}
     {...props}
@@ -156,9 +153,10 @@ const TableCell = React.forwardRef<
     ref={forwardedRef}
     className={cx(
       // base
-      "text-body-sm px-4 py-2.5",
+      "text-body-sm px-xl py-lg whitespace-nowrap overflow-hidden text-ellipsis align-middle",
+      "h-10 max-h-10",
       // text color
-      "text-content-subtle dark:text-content-placeholder",
+      "text-foreground-primary",
       className,
     )}
     {...props}

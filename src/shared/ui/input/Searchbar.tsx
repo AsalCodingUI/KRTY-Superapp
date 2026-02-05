@@ -1,7 +1,7 @@
 // Tremor Raw Input [v1.0.0]
 
 import { tv } from "@/shared/lib/utils/tv"
-import { RiSearchLine } from "@remixicon/react"
+import { RiSearchLine } from "@/shared/ui/lucide-icons"
 import * as React from "react"
 import type { VariantProps } from "tailwind-variants"
 

@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr"
 import { NextResponse, type NextRequest } from "next/server"
 import { Database } from "@/shared/types/database.types"
+import { canManageByRole } from "@/shared/lib/roles"
 
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -57,7 +58,7 @@ export async function middleware(request: NextRequest) {
   // Optimized: Check user_metadata first instead of querying profiles table
   // Fallback to 'employee' if no role is found in metadata
   const userRole = user?.user_metadata?.role || "employee"
-  const isStakeholder = userRole === "stakeholder"
+  const hasAdminAccess = canManageByRole(userRole)
 
   // Restricted Routes
   const isPayrollPage = url.pathname.startsWith("/payroll")
@@ -67,7 +68,7 @@ export async function middleware(request: NextRequest) {
   )
 
   if (user && (isPayrollPage || isAdminRoute)) {
-    if (!isStakeholder) {
+    if (!hasAdminAccess) {
       // Redirect unauthorized users to dashboard
       url.pathname = "/dashboard"
       return NextResponse.redirect(url)

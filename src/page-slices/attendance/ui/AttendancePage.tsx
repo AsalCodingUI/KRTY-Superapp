@@ -3,6 +3,7 @@
 import { Database } from "@/shared/types/database.types"
 import { EmployeeAttendancePage } from "./EmployeeAttendancePage"
 import { StakeholderAttendancePage } from "./StakeholderAttendancePage"
+import { canManageByRole } from "@/shared/lib/roles"
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"]
 type AttendanceLog = Database["public"]["Tables"]["attendance_logs"]["Row"]
@@ -28,7 +29,7 @@ export function AttendancePage({
   logs,
   isOnLeave = false,
 }: AttendancePageProps) {
-  if (role === "stakeholder") {
+  if (canManageByRole(role)) {
     return (
       <StakeholderAttendancePage logs={logs as AttendanceLogWithProfile[]} />
     )

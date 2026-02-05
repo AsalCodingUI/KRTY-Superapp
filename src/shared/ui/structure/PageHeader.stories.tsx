@@ -1,6 +1,6 @@
 import { Button } from "@/shared/ui"
 import { PageHeader } from "@/shared/ui/structure/PageHeader"
-import { RiAddLine, RiArrowLeftLine, RiDownloadLine } from "@remixicon/react"
+import { RiAddLine, RiArrowLeftLine, RiDownloadLine } from "@/shared/ui/lucide-icons"
 import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 
 const meta = {

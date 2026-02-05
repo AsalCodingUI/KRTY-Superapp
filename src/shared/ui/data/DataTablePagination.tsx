@@ -4,7 +4,7 @@ import {
   RiArrowLeftSLine,
   RiArrowRightDoubleLine,
   RiArrowRightSLine,
-} from "@remixicon/react"
+} from "@/shared/ui/lucide-icons"
 import { Table } from "@tanstack/react-table"
 
 interface DataTablePaginationProps<TData> {

@@ -5,7 +5,7 @@ import { Button } from "@/shared/ui"
 import { DataTableColumnHeader } from "@/shared/ui/data/DataTableColumnHeader"
 import { Database } from "@/shared/types/database.types"
 import { cx } from "@/shared/lib/utils" // Tambahan import
-import { RiEditLine, RiFilePaperLine } from "@remixicon/react"
+import { RiEditLine, RiFilePaperLine } from "@/shared/ui/lucide-icons"
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table"
 import { format } from "date-fns"
 
@@ -36,7 +36,7 @@ export const columns = (onEdit: (item: LeaveRequest) => void) =>
         />
       ),
       cell: ({ row }) => (
-        <span className="text-content-subtle tabular-nums">
+        <span className="text-foreground-secondary tabular-nums">
           {row.index + 1}
         </span>
       ),
@@ -56,9 +56,9 @@ export const columns = (onEdit: (item: LeaveRequest) => void) =>
         const start = new Date(row.original.start_date)
         const end = new Date(row.original.end_date)
         return (
-          <span className="text-content dark:text-content whitespace-nowrap">
+          <span className="text-foreground-primary whitespace-nowrap">
             {format(start, "dd MMM yyyy")}
-            <span className="text-content-subtle mx-1.5">s/d</span>
+            <span className="text-foreground-secondary mx-1.5">s/d</span>
             {format(end, "dd MMM yyyy")}
           </span>
         )
@@ -108,16 +108,13 @@ export const columns = (onEdit: (item: LeaveRequest) => void) =>
       ),
       cell: ({ row }) => {
         const url = row.getValue("proof_url") as string
-        if (!url)
-          return (
-            <span className="text-content-placeholder text-body-xs">-</span>
-          )
+        if (!url) return <span className="text-foreground-disable">-</span>
         return (
           <a
             href={url}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-label-xs inline-flex items-center gap-1 text-blue-600 hover:text-blue-500"
+            className="text-label-xs text-foreground-brand-dark hover:text-foreground-brand inline-flex items-center gap-1"
           >
             <RiFilePaperLine className="size-3.5" /> View
           </a>
@@ -158,19 +155,16 @@ export const columns = (onEdit: (item: LeaveRequest) => void) =>
 
         return (
           <Button
-            variant="ghost"
+            variant="tertiary"
+            size="icon-sm"
             className={cx(
-              "aspect-square p-1",
-              // Beri warna orange jika Rejected agar user notice untuk resubmit
-              isRejected
-                ? "text-orange-600 hover:bg-orange-50 hover:text-orange-700 dark:text-orange-500 dark:hover:bg-orange-900/20"
-                : "text-content-subtle hover:text-content-subtle dark:text-content-placeholder",
+              isRejected ? "text-foreground-warning-dark" : "",
             )}
             onClick={() => onEdit(item)}
             disabled={isLocked}
             title={isRejected ? "Fix & Resubmit" : "Edit Request"}
           >
-            <RiEditLine className="size-4" />
+            <RiEditLine className="size-3.5" />
           </Button>
         )
       },

@@ -8,6 +8,8 @@ import { activeSLAColumns, archivedSLAColumns, type SLA } from "./SLAColumns"
 import { TabNavigation, TabNavigationLink } from "@/components/ui"
 import { createClient } from "@/shared/api/supabase/client"
 import { DataTable } from "@/shared/ui"
+import { useUserProfile } from "@/shared/hooks/useUserProfile"
+import { canManageByRole } from "@/shared/lib/roles"
 
 // Removing dependency on Database definitions which are missing
 // type SLA = Database["public"]["Tables"]["slas"]["Row"] & { archived_at: string | null };
@@ -18,6 +20,9 @@ export default function SLADashboard({ slas }: { slas: SLA[] }) {
   const [activeTab, setActiveTab] = useState<"active" | "archive">("active")
   const [slaToArchive, setSlaToArchive] = useState<string | null>(null)
   const [slaToDelete, setSlaToDelete] = useState<string | null>(null)
+  const { profile } = useUserProfile()
+
+  const canManage = canManageByRole(profile?.role)
 
   // Filter data based on tab
   const activeSLAs = slas.filter((sla) => !sla.archived_at)
@@ -137,13 +142,19 @@ export default function SLADashboard({ slas }: { slas: SLA[] }) {
               handleEdit,
               (id) => setSlaToArchive(id),
               handleView,
+              { canManage },
             )}
             showExport={false}
             showViewOptions={false}
             showFilterbar={true}
-            onCreate={() => router.push("/sla-generator?mode=create")}
+            onCreate={
+              canManage
+                ? () => router.push("/sla-generator?mode=create")
+                : undefined
+            }
             actionLabel="Create New SLA"
-            onDelete={handleArchive}
+            onDelete={canManage ? handleArchive : undefined}
+            enableSelection={canManage}
             showTableWrapper={false}
             tableTitle="Active SLAs"
             tableDescription="Manage your active Service Level Agreements"
@@ -152,14 +163,17 @@ export default function SLADashboard({ slas }: { slas: SLA[] }) {
         ) : (
           <DataTable
             data={displayData}
-            columns={archivedSLAColumns(handleRestore, (id) =>
-              setSlaToDelete(id),
+            columns={archivedSLAColumns(
+              handleRestore,
+              (id) => setSlaToDelete(id),
+              { canManage },
             )}
             showExport={false}
             showViewOptions={false}
             showFilterbar={true}
             onCreate={undefined}
-            onDelete={handlePermanentDelete}
+            onDelete={canManage ? handlePermanentDelete : undefined}
+            enableSelection={canManage}
             showTableWrapper={false}
             tableTitle="Archived SLAs"
             tableDescription="Restore or permanently delete archived SLAs"

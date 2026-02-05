@@ -5,7 +5,7 @@ import {
   RiCloseLine,
   RiCupLine,
   RiTimeLine,
-} from "@remixicon/react"
+} from "@/shared/ui/lucide-icons"
 import { cx } from "@/shared/lib/utils"
 import { Badge } from "@/shared/ui"
 

@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui"
-import { RiAddLine, RiCloseLine } from "@remixicon/react"
+import { RiAddLine, RiCloseLine } from "@/shared/ui/lucide-icons"
 import { useState } from "react"
 import type { Reminder } from "../types"
 

@@ -1,7 +1,7 @@
 "use client"
 
 import { cx } from "@/shared/lib/utils"
-import { RiArrowLeftSLine, RiArrowRightSLine } from "@remixicon/react"
+import { RiArrowLeftSLine, RiArrowRightSLine } from "@/shared/ui/lucide-icons"
 import {
   eachDayOfInterval,
   endOfMonth,

@@ -2,6 +2,7 @@
 
 import { navigationConfig } from "@/shared/config/navigation"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
+import { canAccessProjectCalculator, hasRoleAccess } from "@/shared/lib/roles"
 import { cx, focusRing } from "@/shared/lib/utils"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -16,16 +17,10 @@ export function SidebarMenu() {
 
   const navItems = navigationConfig.main.filter((item) => {
     if (loading || !profile) return false
-    const hasRoleAccess = (item.roles as readonly string[]).includes(
-      profile.role,
-    )
     if (item.name === "Project Calculator") {
-      return (
-        profile.role === "stakeholder" ||
-        profile.job_title === "Project Manager"
-      )
+      return canAccessProjectCalculator(profile)
     }
-    return hasRoleAccess
+    return hasRoleAccess(item.roles, profile.role)
   })
 
   // Skeleton loading

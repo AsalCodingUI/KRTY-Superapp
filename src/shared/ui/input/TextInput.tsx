@@ -6,7 +6,7 @@ import {
   RiEyeOffFill,
   RiLoader2Fill,
   RiSearchLine,
-} from "@remixicon/react"
+} from "@/shared/ui/lucide-icons"
 import React from "react"
 
 import { cx } from "@/shared/lib/utils"

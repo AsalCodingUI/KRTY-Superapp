@@ -2,7 +2,7 @@
 
 "use client"
 
-import { RiArrowLeftSLine, RiArrowRightSLine } from "@remixicon/react"
+import { RiArrowLeftSLine, RiArrowRightSLine } from "@/shared/ui/lucide-icons"
 import React from "react"
 import {
   CartesianGrid,

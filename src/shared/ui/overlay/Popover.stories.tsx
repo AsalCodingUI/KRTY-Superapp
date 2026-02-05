@@ -6,7 +6,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/shared/ui/overlay/Popover"
-import { RiSettings3Line } from "@remixicon/react"
+import { RiSettings3Line } from "@/shared/ui/lucide-icons"
 import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 
 const meta = {

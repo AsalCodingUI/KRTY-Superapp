@@ -1,6 +1,7 @@
 "use client"
 
 import { createClient } from "@/shared/api/supabase/client"
+import { canManageByRole } from "@/shared/lib/roles"
 import { useEffect, useState } from "react"
 import type { UserProfile } from "./types"
 
@@ -48,6 +49,6 @@ export function useUserProfile() {
     profile,
     userEmail,
     loading,
-    isAdmin: profile?.role === "stakeholder",
+    isAdmin: canManageByRole(profile?.role),
   }
 }

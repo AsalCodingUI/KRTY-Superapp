@@ -5,7 +5,7 @@ import {
   RiEditLine,
   RiEyeLine,
   RiRefreshLine,
-} from "@remixicon/react"
+} from "@/shared/ui/lucide-icons"
 import { ColumnDef } from "@tanstack/react-table"
 
 // Define the shape of our data (must match SLADashboard definition)
@@ -18,10 +18,15 @@ export interface SLA {
   archived_at: string | null
 }
 
+type SLAColumnOptions = {
+  canManage?: boolean
+}
+
 export const activeSLAColumns = (
   onEdit: (id: string) => void,
   onArchive: (id: string) => void,
   onView: (id: string) => void,
+  options: SLAColumnOptions = {},
 ): ColumnDef<SLA>[] => [
   {
     accessorKey: "client_name",
@@ -44,26 +49,30 @@ export const activeSLAColumns = (
     cell: ({ row }) => (
       <div className="flex gap-2">
         <Button
-          size="sm"
-          variant="ghost"
+          size="icon-sm"
+          variant="tertiary"
           onClick={() => onView(row.original.id)}
         >
-          <RiEyeLine className="size-4" />
+          <RiEyeLine className="size-3.5" />
         </Button>
-        <Button
-          size="sm"
-          variant="ghost"
-          onClick={() => onEdit(row.original.id)}
-        >
-          <RiEditLine className="size-4" />
-        </Button>
-        <Button
-          size="sm"
-          variant="ghost"
-          onClick={() => onArchive(row.original.id)}
-        >
-          <RiArchiveLine className="size-4" />
-        </Button>
+        {options.canManage !== false && (
+          <>
+            <Button
+              size="icon-sm"
+              variant="tertiary"
+              onClick={() => onEdit(row.original.id)}
+            >
+              <RiEditLine className="size-3.5" />
+            </Button>
+            <Button
+              size="icon-sm"
+              variant="tertiary"
+              onClick={() => onArchive(row.original.id)}
+            >
+              <RiArchiveLine className="size-3.5" />
+            </Button>
+          </>
+        )}
       </div>
     ),
   },
@@ -72,43 +81,54 @@ export const activeSLAColumns = (
 export const archivedSLAColumns = (
   onRestore: (id: string) => void,
   onDelete: (id: string) => void,
-): ColumnDef<SLA>[] => [
-  {
-    accessorKey: "client_name",
-    header: "Client Name",
-  },
-  {
-    accessorKey: "title",
-    header: "Project/Title",
-  },
-  {
-    accessorKey: "archived_at",
-    header: "Archived At",
-    cell: ({ getValue }) => {
-      const val = getValue() as string | null
-      return val ? new Date(val).toLocaleDateString() : "-"
+  options: SLAColumnOptions = {},
+): ColumnDef<SLA>[] => {
+  const baseColumns: ColumnDef<SLA>[] = [
+    {
+      accessorKey: "client_name",
+      header: "Client Name",
     },
-  },
-  {
-    id: "actions",
-    header: "Actions",
-    cell: ({ row }) => (
-      <div className="flex gap-2">
-        <Button
-          size="sm"
-          variant="ghost"
-          onClick={() => onRestore(row.original.id)}
-        >
-          <RiRefreshLine className="size-4" />
-        </Button>
-        <Button
-          size="sm"
-          variant="ghost"
-          onClick={() => onDelete(row.original.id)}
-        >
-          <RiDeleteBinLine className="size-4" />
-        </Button>
-      </div>
-    ),
-  },
-]
+    {
+      accessorKey: "title",
+      header: "Project/Title",
+    },
+    {
+      accessorKey: "archived_at",
+      header: "Archived At",
+      cell: ({ getValue }) => {
+        const val = getValue() as string | null
+        return val ? new Date(val).toLocaleDateString() : "-"
+      },
+    },
+  ]
+
+  if (options.canManage === false) {
+    return baseColumns
+  }
+
+  return [
+    ...baseColumns,
+    {
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => (
+        <div className="flex gap-2">
+          <Button
+            size="icon-sm"
+            variant="tertiary"
+            onClick={() => onRestore(row.original.id)}
+          >
+            <RiRefreshLine className="size-3.5" />
+          </Button>
+          <Button
+            size="icon-sm"
+            variant="tertiary"
+            onClick={() => onDelete(row.original.id)}
+          >
+            <RiDeleteBinLine className="size-3.5" />
+          </Button>
+        </div>
+      ),
+    },
+  ]
+}

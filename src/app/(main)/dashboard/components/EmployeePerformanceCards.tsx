@@ -2,7 +2,7 @@
 
 import { Badge } from "@/shared/ui"
 import { Card } from "@/shared/ui"
-import { RiBarChartBoxLine, RiGroupLine, RiStarLine } from "@remixicon/react"
+import { RiBarChartBoxLine, RiGroupLine, RiStarLine } from "@/shared/ui/lucide-icons"
 import Link from "next/link"
 
 interface EmployeePerformanceCardsProps {

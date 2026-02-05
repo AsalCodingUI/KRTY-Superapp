@@ -1,85 +1,78 @@
 "use client"
 
 import { Button } from "@/components/ui"
-import { Database } from "@/shared/types/database.types"
-import { RiMoreFill } from "@remixicon/react"
-import { Row } from "@tanstack/react-table"
-
-import {
-  DeleteConfirmDialog,
-  TeamFormDialog,
-} from "@/app/(main)/teams/components/TeamDialogs"
+import { cx } from "@/shared/lib/utils"
+import { RiMoreFill } from "@/shared/ui/lucide-icons"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui"
-import { useState } from "react"
+import type { ReactNode } from "react"
 
-interface DataTableRowActionsProps<TData> {
-  row: Row<TData>
+export interface DataTableRowAction {
+  label: string
+  onClick: () => void
+  icon?: ReactNode
+  destructive?: boolean
+  disabled?: boolean
 }
 
-export function DataTableRowActions<TData>({
-  row,
-}: DataTableRowActionsProps<TData>) {
-  // State untuk Modal Lokal
-  const [isEditOpen, setIsEditOpen] = useState(false)
-  const [isDeleteOpen, setIsDeleteOpen] = useState(false)
+interface DataTableRowActionsProps {
+  actions: DataTableRowAction[]
+  align?: "start" | "end"
+  triggerLabel?: string
+  triggerIcon?: ReactNode
+  contentClassName?: string
+}
 
-  type Profile = Database["public"]["Tables"]["profiles"]["Row"]
-  const item = row.original as Profile
+export function DataTableRowActions({
+  actions,
+  align = "end",
+  triggerLabel = "Row actions",
+  triggerIcon,
+  contentClassName,
+}: DataTableRowActionsProps) {
+  if (!actions || actions.length === 0) return null
 
   return (
-    <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="group data-[state=open]:bg-muted aspect-square hover:border data-[state=open]:border hover:dark:border data-[state=open]:dark:border"
-          >
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="group data-[state=open]:bg-muted aspect-square hover:border data-[state=open]:border hover:dark:border data-[state=open]:dark:border"
+          aria-label={triggerLabel}
+        >
+          {triggerIcon ?? (
             <RiMoreFill
               className="text-content-subtle group-hover:text-content-subtle group-data-[state=open]:text-content-subtle group-hover:dark:text-content-subtle group-data-[state=open]:dark:text-content-subtle size-4 shrink-0"
               aria-hidden="true"
             />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="min-w-32">
-          {/* Tombol Edit */}
-          <DropdownMenuItem onClick={() => setIsEditOpen(true)}>
-            Edit
-          </DropdownMenuItem>
-
-          {/* Tombol Delete (Merah) */}
+          )}
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align={align} className={cx("min-w-32", contentClassName)}>
+        {actions.map((action) => (
           <DropdownMenuItem
-            className="text-danger focus:text-danger"
-            onClick={() => setIsDeleteOpen(true)}
+            key={action.label}
+            onClick={action.onClick}
+            disabled={action.disabled}
+            className={cx(
+              "flex items-center gap-2",
+              action.destructive && "text-danger focus:text-danger",
+            )}
           >
-            Delete
+            {action.icon ? (
+              <span className="text-content-subtle size-4 shrink-0">
+                {action.icon}
+              </span>
+            ) : null}
+            {action.label}
           </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-
-      {/* MODAL EDIT */}
-      {isEditOpen && (
-        <TeamFormDialog
-          isOpen={isEditOpen}
-          onClose={() => setIsEditOpen(false)}
-          initialData={item}
-        />
-      )}
-
-      {/* MODAL DELETE */}
-      {isDeleteOpen && (
-        <DeleteConfirmDialog
-          isOpen={isDeleteOpen}
-          onClose={() => setIsDeleteOpen(false)}
-          idsToDelete={[item.id]}
-          onSuccess={() => {}} // DataTable otomatis refresh via router.refresh di dalam dialog
-        />
-      )}
-    </>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }

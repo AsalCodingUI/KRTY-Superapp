@@ -6,6 +6,7 @@ import { EmptyState, ProgressBar } from "@/shared/ui"
 import { QuarterFilter, type QuarterFilterValue } from "@/shared/ui"
 import { Spinner } from "@/shared/ui"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
+import { canManageByRole } from "@/shared/lib/roles"
 import {
   RiBriefcaseLine,
   RiCheckboxCircleLine,
@@ -14,7 +15,7 @@ import {
   RiLineChartLine,
   RiStarFill,
   RiUserLine,
-} from "@remixicon/react"
+} from "@/shared/ui/lucide-icons"
 import Link from "next/link"
 import React, { useEffect, useState } from "react"
 import {
@@ -690,7 +691,7 @@ export function OverviewTab() {
     )
   }
 
-  const isStakeholder = profile.role === "stakeholder"
+  const isStakeholder = canManageByRole(profile.role)
 
   return isStakeholder ? <StakeholderOverview /> : <EmployeeOverview />
 }

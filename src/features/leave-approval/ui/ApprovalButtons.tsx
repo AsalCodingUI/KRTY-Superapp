@@ -1,6 +1,6 @@
 "use client"
 
-import { RiCheckLine, RiCloseLine } from "@remixicon/react"
+import { RiCheckLine, RiCloseLine } from "@/shared/ui/lucide-icons"
 import { Button } from "@/shared/ui"
 
 interface ApprovalButtonsProps {

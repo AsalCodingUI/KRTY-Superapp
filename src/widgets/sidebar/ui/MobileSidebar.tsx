@@ -3,6 +3,7 @@
 import { siteConfig } from "@/app/siteConfig"
 import { navigationConfig } from "@/shared/config/navigation"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
+import { canAccessProjectCalculator, hasRoleAccess } from "@/shared/lib/roles"
 import { cx, focusRing } from "@/shared/lib/utils"
 import {
   Button,
@@ -15,7 +16,7 @@ import {
   DrawerTrigger,
 } from "@/shared/ui"
 import { Notifications } from "@/widgets/notifications/ui/Notifications"
-import { RiMenuLine } from "@remixicon/react"
+import { RiMenuLine } from "@/shared/ui/lucide-icons"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
@@ -32,21 +33,15 @@ export default function MobileSidebar() {
 
   const navItems = navigationConfig.main.filter((item) => {
     if (loading || !profile) return false
-    const hasRoleAccess = (item.roles as readonly string[]).includes(
-      profile.role,
-    )
     if (item.name === "Project Calculator") {
-      return (
-        profile.role === "stakeholder" ||
-        profile.job_title === "Project Manager"
-      )
+      return canAccessProjectCalculator(profile)
     }
-    return hasRoleAccess
+    return hasRoleAccess(item.roles, profile.role)
   })
 
   const shortcutItems = navigationConfig.shortcuts.filter((item) => {
     if (loading || !profile) return false
-    return (item.roles as readonly string[]).includes(profile.role)
+    return hasRoleAccess(item.roles, profile.role)
   })
 
   return (

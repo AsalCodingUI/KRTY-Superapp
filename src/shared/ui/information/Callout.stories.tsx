@@ -3,7 +3,7 @@ import {
   RiCheckLine,
   RiErrorWarningLine,
   RiInformationLine,
-} from "@remixicon/react"
+} from "@/shared/ui/lucide-icons"
 import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 
 const meta = {

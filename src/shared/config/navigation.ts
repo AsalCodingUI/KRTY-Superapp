@@ -13,7 +13,7 @@ import {
   RiQuestionLine,
   RiSettings5Line,
   RiUserSmileLine,
-} from "@remixicon/react"
+} from "@/shared/ui/lucide-icons"
 
 interface NavigationItem {
   name: string

@@ -5,6 +5,7 @@ import { ColumnDef, createColumnHelper } from "@tanstack/react-table"
 import { Badge } from "@/shared/ui"
 import { Checkbox } from "@/shared/ui"
 import { DataTableColumnHeader } from "@/shared/ui"
+import { canManageByRole } from "@/shared/lib/roles"
 
 // DataTableRowActions SUDAH DIHAPUS IMPORT-NYA
 
@@ -38,143 +39,157 @@ const getJobTitleVariant = (title: string) => {
   }
 }
 
-export const columns = [
-  columnHelper.display({
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected()
-            ? true
-            : table.getIsSomeRowsSelected()
-              ? "indeterminate"
-              : false
-        }
-        onCheckedChange={() => table.toggleAllPageRowsSelected()}
-        className="translate-y-0.5"
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={() => row.toggleSelected()}
-        className="translate-y-0.5"
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-    meta: {
-      displayName: "Select",
-    },
-  }),
-  columnHelper.accessor("full_name", {
-    header: ({ column }) => (
-      <DataTableColumnHeader
-        column={column}
-        title="Name"
-        className="whitespace-nowrap"
-      />
-    ),
-    enableSorting: true,
-    meta: {
-      className: "text-left",
-      displayName: "Name",
-    },
-    cell: ({ row }) => {
-      const name = row.getValue("full_name") as string
-      const initials = name
-        ? name
-            .split(" ")
-            .map((n) => n[0])
-            .slice(0, 2)
-            .join("")
-            .toUpperCase()
-        : "U"
+type TeamColumnsOptions = {
+  canSelect?: boolean
+}
 
-      return (
-        <div className="flex items-center gap-x-3">
-          <span className="bg-muted text-label-xs text-content-subtle dark:bg-hover dark:text-content-subtle inline-flex size-8 items-center justify-center rounded-full">
-            {initials}
-          </span>
-          <span className="text-content dark:text-content font-medium whitespace-nowrap">
-            {name}
-          </span>
-        </div>
-      )
-    },
-  }),
-  columnHelper.accessor("job_title", {
-    header: ({ column }) => (
-      <DataTableColumnHeader
-        column={column}
-        title="Job Title"
-        className="whitespace-nowrap"
-      />
-    ),
-    enableSorting: false,
-    meta: {
-      className: "text-left whitespace-nowrap",
-      displayName: "Job Title",
-    },
-    cell: ({ row }) => {
-      const title = row.getValue("job_title") as string
-      return <Badge variant={getJobTitleVariant(title)}>{title}</Badge>
-    },
-  }),
-  columnHelper.accessor("role", {
-    header: ({ column }) => (
-      <DataTableColumnHeader
-        column={column}
-        title="Role"
-        className="whitespace-nowrap"
-      />
-    ),
-    enableSorting: false,
-    meta: {
-      className: "text-left",
-      displayName: "Role",
-    },
-    cell: ({ row }) => {
-      const role = row.getValue("role") as string
-      const displayRole = role.charAt(0).toUpperCase() + role.slice(1)
-      const variant = role === "stakeholder" ? "success" : "zinc"
-      return <Badge variant={variant}>{displayRole}</Badge>
-    },
-  }),
-  columnHelper.accessor("hourly_rate", {
-    header: ({ column }) => (
-      <DataTableColumnHeader
-        column={column}
-        title="Hourly Rate"
-        className="whitespace-nowrap"
-      />
-    ),
-    enableSorting: false,
-    meta: {
-      className: "text-right tabular-nums whitespace-nowrap",
-      displayName: "Hourly Rate",
-    },
-    cell: ({ row }) => {
-      const rate = row.getValue("hourly_rate") as number
-      return <span>{formatRupiah(rate)}</span>
-    },
-  }),
-  columnHelper.accessor("email", {
-    header: ({ column }) => (
-      <DataTableColumnHeader
-        column={column}
-        title="Email"
-        className="whitespace-nowrap"
-      />
-    ),
-    enableSorting: false,
-    meta: {
-      className: "text-left", // HAPUS text-content-subtle BIAR DEFAULT
-      displayName: "Email",
-    },
-  }),
+export const createTeamColumns = (
+  { canSelect = true }: TeamColumnsOptions = {},
+) =>
+  [
+    ...(canSelect
+      ? [
+          columnHelper.display({
+            id: "select",
+            header: ({ table }) => (
+              <Checkbox
+                checked={
+                  table.getIsAllPageRowsSelected()
+                    ? true
+                    : table.getIsSomeRowsSelected()
+                      ? "indeterminate"
+                      : false
+                }
+                onCheckedChange={() => table.toggleAllPageRowsSelected()}
+                className=""
+                aria-label="Select all"
+              />
+            ),
+            cell: ({ row }) => (
+              <Checkbox
+                checked={row.getIsSelected()}
+                onCheckedChange={() => row.toggleSelected()}
+                className=""
+                aria-label="Select row"
+              />
+            ),
+            enableSorting: false,
+            enableHiding: false,
+            meta: {
+              displayName: "Select",
+            },
+          }),
+        ]
+      : []),
+    columnHelper.accessor("full_name", {
+      header: ({ column }) => (
+        <DataTableColumnHeader
+          column={column}
+          title="Name"
+          className="whitespace-nowrap"
+        />
+      ),
+      enableSorting: true,
+      meta: {
+        className: "text-left",
+        displayName: "Name",
+      },
+      cell: ({ row }) => {
+        const name = row.getValue("full_name") as string
+        const initials = name
+          ? name
+              .split(" ")
+              .map((n) => n[0])
+              .slice(0, 2)
+              .join("")
+              .toUpperCase()
+          : "U"
 
-  // KOLOM ACTIONS SUDAH DIHAPUS TOTAL
-] as ColumnDef<Profile>[]
+        return (
+          <div className="flex items-center gap-x-3">
+            <span className="bg-surface-neutral-secondary text-foreground-secondary inline-flex size-5 items-center justify-center rounded-full text-[10px] leading-[16px]">
+              {initials}
+            </span>
+            <span
+              className="text-foreground-primary font-medium whitespace-nowrap"
+              title={name}
+            >
+              {name}
+            </span>
+          </div>
+        )
+      },
+    }),
+    columnHelper.accessor("job_title", {
+      header: ({ column }) => (
+        <DataTableColumnHeader
+          column={column}
+          title="Job Title"
+          className="whitespace-nowrap"
+        />
+      ),
+      enableSorting: false,
+      meta: {
+        className: "text-left whitespace-nowrap",
+        displayName: "Job Title",
+      },
+      cell: ({ row }) => {
+        const title = row.getValue("job_title") as string
+        return <Badge variant={getJobTitleVariant(title)}>{title}</Badge>
+      },
+    }),
+    columnHelper.accessor("role", {
+      header: ({ column }) => (
+        <DataTableColumnHeader
+          column={column}
+          title="Role"
+          className="whitespace-nowrap"
+        />
+      ),
+      enableSorting: false,
+      meta: {
+        className: "text-left",
+        displayName: "Role",
+      },
+      cell: ({ row }) => {
+        const role = row.getValue("role") as string
+        const displayRole = role.charAt(0).toUpperCase() + role.slice(1)
+        const variant = canManageByRole(role) ? "success" : "zinc"
+        return <Badge variant={variant}>{displayRole}</Badge>
+      },
+    }),
+    columnHelper.accessor("hourly_rate", {
+      header: ({ column }) => (
+        <DataTableColumnHeader
+          column={column}
+          title="Hourly Rate"
+          className="whitespace-nowrap"
+        />
+      ),
+      enableSorting: false,
+      meta: {
+        className: "text-right tabular-nums whitespace-nowrap",
+        displayName: "Hourly Rate",
+      },
+      cell: ({ row }) => {
+        const rate = row.getValue("hourly_rate") as number
+        return <span className="tabular-nums">{formatRupiah(rate)}</span>
+      },
+    }),
+    columnHelper.accessor("email", {
+      header: ({ column }) => (
+        <DataTableColumnHeader
+          column={column}
+          title="Email"
+          className="whitespace-nowrap"
+        />
+      ),
+      enableSorting: false,
+      meta: {
+        className: "text-left",
+        displayName: "Email",
+      },
+    }),
+
+    // KOLOM ACTIONS SUDAH DIHAPUS TOTAL
+  ] as ColumnDef<Profile>[]

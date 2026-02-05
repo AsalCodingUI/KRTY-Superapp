@@ -25,3 +25,43 @@ export const Default: Story = {
     </RadioGroup>
   ),
 }
+
+export const States: Story = {
+  render: () => (
+    <div className="flex flex-col gap-4">
+      <RadioGroup defaultValue="radio_state_1">
+        <div className="flex items-center space-x-2">
+          <RadioGroupItem value="radio_state_1" id="radio_state_1" />
+          <Label htmlFor="radio_state_1">Unchecked</Label>
+        </div>
+        <div className="flex items-center space-x-2">
+          <RadioGroupItem value="radio_state_2" id="radio_state_2" />
+          <Label htmlFor="radio_state_2">Option</Label>
+        </div>
+      </RadioGroup>
+
+      <RadioGroup defaultValue="radio_state_disabled_1">
+        <div className="flex items-center space-x-2">
+          <RadioGroupItem
+            value="radio_state_disabled_1"
+            id="radio_state_disabled_1"
+            disabled
+          />
+          <Label htmlFor="radio_state_disabled_1" disabled>
+            Disabled Unchecked
+          </Label>
+        </div>
+        <div className="flex items-center space-x-2">
+          <RadioGroupItem
+            value="radio_state_disabled_2"
+            id="radio_state_disabled_2"
+            disabled
+          />
+          <Label htmlFor="radio_state_disabled_2" disabled>
+            Disabled Checked
+          </Label>
+        </div>
+      </RadioGroup>
+    </div>
+  ),
+}

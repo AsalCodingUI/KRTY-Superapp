@@ -10,6 +10,7 @@ import { TabNavigation, TabNavigationLink } from "@/shared/ui"
 import { createClient } from "@/shared/api/supabase/client"
 import { Database } from "@/shared/types/database.types"
 import { DataTable } from "@/shared/ui/data/DataTable"
+import { canManageByRole } from "@/shared/lib/roles"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
 
@@ -21,6 +22,7 @@ interface StakeholderLeavePageProps {
   page: number
   pageSize: number
   totalCount: number
+  role?: string
 }
 
 export function StakeholderLeavePage({
@@ -29,6 +31,7 @@ export function StakeholderLeavePage({
   page,
   pageSize,
   totalCount,
+  role,
 }: StakeholderLeavePageProps) {
   const supabase = createClient()
   const router = useRouter()
@@ -38,6 +41,8 @@ export function StakeholderLeavePage({
   const [activeTab, setActiveTab] = useState<"approval" | "remaining">(
     "approval",
   )
+
+  const canManage = canManageByRole(role)
 
   // --- LOGIC REALTIME (SUPER CEPAT) ---
   useEffect(() => {
@@ -122,7 +127,10 @@ export function StakeholderLeavePage({
           <section>
             <DataTable
               data={requests}
-              columns={adminColumns(handleApprove, handleReject)}
+              columns={adminColumns(handleApprove, handleReject, {
+                canSelect: canManage,
+                canManage,
+              })}
               showExport={false}
               showViewOptions={false}
               showFilterbar={false}
@@ -131,18 +139,24 @@ export function StakeholderLeavePage({
               pageCount={pageCount}
               pageIndex={page - 1}
               onPageChange={handlePageChange}
-              onDelete={async (ids) => {
-                if (!confirm(`Delete ${ids.length} leave request(s)?`)) return
-                const { error } = await supabase
-                  .from("leave_requests")
-                  .delete()
-                  .in("id", ids as number[])
-                if (error) {
-                  alert("Error deleting: " + error.message)
-                } else {
-                  router.refresh()
-                }
-              }}
+              enableSelection={canManage}
+              onDelete={
+                canManage
+                  ? async (ids) => {
+                      if (!confirm(`Delete ${ids.length} leave request(s)?`))
+                        return
+                      const { error } = await supabase
+                        .from("leave_requests")
+                        .delete()
+                        .in("id", ids as number[])
+                      if (error) {
+                        alert("Error deleting: " + error.message)
+                      } else {
+                        router.refresh()
+                      }
+                    }
+                  : undefined
+              }
               showTableWrapper={true}
               tableTitle="Leave Approvals"
               tableDescription="Review and approve employee leave requests"
@@ -151,14 +165,20 @@ export function StakeholderLeavePage({
         </>
       ) : (
         // Kirim data profiles yang sudah realtime dari parent
-        <RemainingLeaveView data={profiles} />
+        <RemainingLeaveView data={profiles} canManage={canManage} />
       )}
     </>
   )
 }
 
 // --- SUB-COMPONENT (Sekarang lebih sederhana & cepat) ---
-function RemainingLeaveView({ data }: { data: Profile[] }) {
+function RemainingLeaveView({
+  data,
+  canManage,
+}: {
+  data: Profile[]
+  canManage: boolean
+}) {
   const supabase = createClient()
   const router = useRouter()
 
@@ -171,20 +191,25 @@ function RemainingLeaveView({ data }: { data: Profile[] }) {
         showViewOptions={false}
         showFilterbar={false}
         actionLabel=""
-        onDelete={async (ids) => {
-          if (!confirm(`Delete ${ids.length} employee profile(s)?`)) return
+        enableSelection={canManage}
+        onDelete={
+          canManage
+            ? async (ids) => {
+                if (!confirm(`Delete ${ids.length} employee profile(s)?`)) return
 
-          const { error } = await supabase
-            .from("profiles")
-            .delete()
-            .in("id", ids as string[])
-          if (error) {
-            console.error("Delete error:", error)
-            alert("Error deleting: " + error.message)
-          } else {
-            router.refresh()
-          }
-        }}
+                const { error } = await supabase
+                  .from("profiles")
+                  .delete()
+                  .in("id", ids as string[])
+                if (error) {
+                  console.error("Delete error:", error)
+                  alert("Error deleting: " + error.message)
+                } else {
+                  router.refresh()
+                }
+              }
+            : undefined
+        }
         showTableWrapper={true}
         tableTitle="Remaining Leave Quota"
         tableDescription="Monitor employee leave balances and usage"

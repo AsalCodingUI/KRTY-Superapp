@@ -1,6 +1,7 @@
 "use server"
 
 import { createClient } from "@/shared/api/supabase/server"
+import { canManageByRole } from "@/shared/lib/roles"
 
 type Employee = {
   id: string
@@ -68,7 +69,7 @@ export async function getAllEmployees(searchQuery?: string) {
     .eq("id", user.id)
     .single()
 
-  if (callerProfile?.role !== "stakeholder") {
+  if (!canManageByRole(callerProfile?.role)) {
     return {
       success: false,
       error: "Access denied: Stakeholder role required",

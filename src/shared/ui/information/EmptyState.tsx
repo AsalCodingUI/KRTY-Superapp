@@ -1,5 +1,5 @@
 import { Button } from "@/shared/ui"
-import { RiHammerLine } from "@remixicon/react"
+import { RiHammerLine } from "@/shared/ui/lucide-icons"
 import React from "react"
 
 /**

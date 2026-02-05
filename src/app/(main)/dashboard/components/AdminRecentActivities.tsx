@@ -8,7 +8,7 @@ import {
   RiCloseCircleLine,
   RiFileTextLine,
   RiFolderLine,
-} from "@remixicon/react"
+} from "@/shared/ui/lucide-icons"
 import { formatDistanceToNow } from "date-fns"
 
 interface Activity {

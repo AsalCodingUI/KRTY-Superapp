@@ -1,7 +1,7 @@
 "use client"
 
 import { Button, TextInput } from "@/components/ui"
-import { RiAddLine, RiDownloadLine } from "@remixicon/react"
+import { RiAddLine, RiDownloadLine } from "@/shared/ui/lucide-icons"
 import { Table } from "@tanstack/react-table"
 import { useState } from "react"
 import { useDebouncedCallback } from "use-debounce"

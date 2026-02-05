@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from "@/shared/ui"
 import { type Database } from "@/shared/types/database.types"
-import { RiDeleteBin6Line, RiUserAddLine } from "@remixicon/react"
+import { RiDeleteBin6Line, RiUserAddLine } from "@/shared/ui/lucide-icons"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
 import {

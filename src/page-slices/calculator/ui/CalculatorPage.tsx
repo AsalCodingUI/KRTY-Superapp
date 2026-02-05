@@ -14,7 +14,7 @@ import {
 } from "@/shared/ui"
 import { Slider } from "@/shared/ui"
 import { Database } from "@/shared/types/database.types"
-import { RiAddLine, RiDeleteBinLine } from "@remixicon/react"
+import { RiAddLine, RiDeleteBinLine } from "@/shared/ui/lucide-icons"
 import { useMemo, useState } from "react"
 import { v4 as uuidv4 } from "uuid"
 import { FinancialHUD } from "./components/FinancialHUD"

@@ -25,7 +25,7 @@ import {
   RiRocketLine,
   RiStopCircleLine,
   RiTimeLine,
-} from "@remixicon/react"
+} from "@/shared/ui/lucide-icons"
 import { useEffect, useState } from "react"
 import { DateRange } from "react-day-picker"
 import { toast } from "sonner"
@@ -401,14 +401,16 @@ export function AdminReviewDashboard({
             {statsData.map((item) => (
               <TableRow key={item.userId}>
                 <TableCell>
-                  <div>
-                    <p className="text-content dark:text-content font-medium">
-                      {item.name}
-                    </p>
-                    <p className="text-content-subtle dark:text-content-placeholder">
-                      {item.jobTitle}
-                    </p>
-                  </div>
+                  <span
+                    className="text-foreground-primary font-medium"
+                    title={
+                      item.jobTitle && item.jobTitle !== "-"
+                        ? `${item.name} — ${item.jobTitle}`
+                        : item.name
+                    }
+                  >
+                    {item.name}
+                  </span>
                 </TableCell>
 
                 <TableCell>
@@ -439,9 +441,9 @@ export function AdminReviewDashboard({
                         )}
                       </AvatarGroup>
                     ) : (
-                      <span className="text-content-placeholder">None</span>
+                      <span className="text-foreground-disable">None</span>
                     )}
-                    <span className="text-content-subtle">
+                    <span className="text-foreground-secondary">
                       ({item.percentage}%)
                     </span>
                   </div>
@@ -475,7 +477,7 @@ export function AdminReviewDashboard({
                         )}
                       </AvatarGroup>
                     ) : (
-                      <span className="text-body-xs text-content-placeholder">
+                      <span className="text-body-xs text-foreground-disable">
                         None
                       </span>
                     )}
@@ -503,21 +505,23 @@ export function AdminReviewDashboard({
                 <TableCell className="text-right">
                   {item.summaryData ? (
                     <Button
-                      size="xs"
-                      variant="secondary"
+                      size="sm"
+                      variant="tertiary"
+                      leadingIcon={<RiEyeLine className="size-3.5" />}
                       onClick={() => handleViewResult(item)}
                     >
-                      <RiEyeLine className="mr-1 size-4" /> View Result
+                      View Result
                     </Button>
                   ) : (
                     <Button
-                      size="xs"
-                      variant="secondary"
+                      size="sm"
+                      variant="tertiary"
+                      leadingIcon={<RiRocketLine className="size-3.5" />}
                       onClick={() => handleTriggerN8N(item)}
                       disabled={item.percentage === 0}
                       title="Process Individual"
                     >
-                      <RiRocketLine className="mr-1 size-4" /> Process
+                      Process
                     </Button>
                   )}
                 </TableCell>

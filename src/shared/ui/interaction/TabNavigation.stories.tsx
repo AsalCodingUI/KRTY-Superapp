@@ -2,7 +2,7 @@ import {
   TabNavigation,
   TabNavigationLink,
 } from "@/shared/ui/interaction/TabNavigation"
-import { RiFlowerFill } from "@remixicon/react"
+import { RiFlowerFill } from "@/shared/ui/lucide-icons"
 import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 
 const meta = {

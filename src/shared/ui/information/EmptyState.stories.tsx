@@ -1,5 +1,5 @@
 import { EmptyState } from "@/shared/ui/information/EmptyState"
-import { RiFolder3Line } from "@remixicon/react"
+import { RiFolder3Line } from "@/shared/ui/lucide-icons"
 import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 
 const meta = {

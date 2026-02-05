@@ -21,7 +21,7 @@ import {
 import { Textarea } from "@/shared/ui"
 import { type Database } from "@/shared/types/database.types"
 import { getQuarterFromDate } from "@/entities/performance/lib/kpiUtils"
-import { RiDeleteBin6Line, RiUserAddLine } from "@remixicon/react"
+import { RiDeleteBin6Line, RiUserAddLine } from "@/shared/ui/lucide-icons"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
 import {

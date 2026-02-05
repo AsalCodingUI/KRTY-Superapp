@@ -1,7 +1,7 @@
 // Custom Select [v0.0.0]
 
 import * as SelectPrimitives from "@radix-ui/react-select"
-import { RiArrowDownSLine, RiArrowUpSLine, RiCheckLine } from "@remixicon/react"
+import { RiArrowDownSLine, RiArrowUpSLine, RiCheckLine } from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
 import React from "react"
 

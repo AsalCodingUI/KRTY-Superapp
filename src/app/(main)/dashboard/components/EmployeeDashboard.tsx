@@ -2,7 +2,7 @@
 
 import { Badge } from "@/shared/ui"
 import { Card } from "@/shared/ui"
-import { RiCalendarEventLine, RiFilePaperLine } from "@remixicon/react"
+import { RiCalendarEventLine, RiFilePaperLine } from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
 import Link from "next/link"
 import type { EmployeeDashboardData } from "../actions/dashboard-employee-actions"

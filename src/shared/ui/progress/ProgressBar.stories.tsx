@@ -32,3 +32,14 @@ export const Animated: Story = {
     variant: "warning",
   },
 }
+
+export const TableLabel: Story = {
+  args: {
+    value: 80,
+    label: "80%",
+    variant: "brand",
+    size: "sm",
+    labelTone: "secondary",
+    labelSize: "sm",
+  },
+}

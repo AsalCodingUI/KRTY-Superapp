@@ -6,7 +6,7 @@ import {
   RiGroupLine,
   RiStarLine,
   RiTimeLine,
-} from "@remixicon/react"
+} from "@/shared/ui/lucide-icons"
 import Link from "next/link"
 import { StatsCard } from "@/shared/ui"
 

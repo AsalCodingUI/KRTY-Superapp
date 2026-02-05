@@ -5,7 +5,7 @@ import {
   DialogFooter,
   DialogTitle,
 } from "@/components/ui"
-import { RiErrorWarningLine } from "@remixicon/react"
+import { RiErrorWarningLine } from "@/shared/ui/lucide-icons"
 
 interface DeleteConfirmDialogProps {
   isOpen: boolean

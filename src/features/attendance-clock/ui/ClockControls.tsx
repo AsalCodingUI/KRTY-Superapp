@@ -12,7 +12,7 @@ import {
   RiCupLine,
   RiLoginBoxLine,
   RiLogoutBoxLine,
-} from "@remixicon/react"
+} from "@/shared/ui/lucide-icons"
 import { useState } from "react"
 
 interface ClockControlsProps {

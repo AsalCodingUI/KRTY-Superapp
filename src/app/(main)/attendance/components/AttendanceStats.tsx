@@ -23,7 +23,7 @@ import {
   RiCupLine,
   RiLoginBoxLine,
   RiLogoutBoxLine,
-} from "@remixicon/react"
+} from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
 import { useEffect, useState } from "react"
 

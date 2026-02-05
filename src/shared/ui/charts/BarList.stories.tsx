@@ -1,5 +1,5 @@
 import { BarList } from "@/shared/ui/charts/BarList"
-import { RiGithubFill, RiGoogleFill, RiTwitterFill } from "@remixicon/react"
+import { RiGithubFill, RiGoogleFill, RiTwitterFill } from "@/shared/ui/lucide-icons"
 import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 
 const meta = {

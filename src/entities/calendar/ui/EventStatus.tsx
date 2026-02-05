@@ -1,6 +1,6 @@
 "use client"
 
-import { RiCheckLine, RiCloseLine, RiQuestionLine } from "@remixicon/react"
+import { RiCheckLine, RiCloseLine, RiQuestionLine } from "@/shared/ui/lucide-icons"
 import { Badge } from "@/shared/ui"
 
 export type RSVPStatus = "yes" | "no" | "maybe" | "pending"

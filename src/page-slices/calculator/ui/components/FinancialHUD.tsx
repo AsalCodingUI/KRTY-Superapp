@@ -1,7 +1,7 @@
 "use client"
 
 import { Badge, Divider } from "@/shared/ui"
-import { RiAlertFill, RiCheckboxCircleFill } from "@remixicon/react"
+import { RiAlertFill, RiCheckboxCircleFill } from "@/shared/ui/lucide-icons"
 
 interface FinancialHUDProps {
   grossRevenue: number

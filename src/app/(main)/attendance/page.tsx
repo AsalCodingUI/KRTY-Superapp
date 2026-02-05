@@ -1,5 +1,6 @@
 import { AttendancePage } from "@/page-slices/attendance"
 import { createClient } from "@/shared/api/supabase/server"
+import { canManageByRole, isEmployeeRole } from "@/shared/lib/roles"
 
 // Helper untuk menambah jam
 function addHours(date: Date, hours: number) {
@@ -47,7 +48,7 @@ export default async function AttendanceRoute() {
   const lastLog = lastLogResult.data
 
   // --- LOGIC AUTO CLOCK-OUT (Khusus Employee) ---
-  if (profile?.role === "employee" && lastLog) {
+  if (isEmployeeRole(profile?.role) && lastLog) {
     const logDate = new Date(lastLog.date).toISOString().split("T")[0]
 
     // Jika tanggal log BUKAN hari ini (berarti sesi kemarin/lusa)
@@ -66,7 +67,7 @@ export default async function AttendanceRoute() {
   }
 
   // --- ROUTING POV ---
-  if (profile?.role === "stakeholder") {
+  if (canManageByRole(profile?.role)) {
     const { data: logs } = await supabase
       .from("attendance_logs")
       .select("*, profiles(full_name, avatar_url, job_title)")

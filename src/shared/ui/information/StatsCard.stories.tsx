@@ -1,5 +1,5 @@
 import { StatsCard } from "@/shared/ui/information/StatsCard"
-import { RiMoneyDollarCircleLine, RiUserLine } from "@remixicon/react"
+import { RiMoneyDollarCircleLine, RiUserLine } from "@/shared/ui/lucide-icons"
 import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 
 const meta = {

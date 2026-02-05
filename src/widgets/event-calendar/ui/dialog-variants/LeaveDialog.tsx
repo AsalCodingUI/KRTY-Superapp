@@ -14,7 +14,7 @@ import {
   RiCloseLine,
   RiFileTextLine,
   RiUserLine,
-} from "@remixicon/react"
+} from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
 import type { CalendarEvent } from "../types"
 

@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui"
-import { RiArrowLeftSLine, RiArrowRightSLine } from "@remixicon/react"
+import { RiArrowLeftSLine, RiArrowRightSLine } from "@/shared/ui/lucide-icons"
 import React, { useEffect, useRef, useState } from "react"
 
 // --- CONSTANTS & CONFIG ---
