@@ -29,7 +29,12 @@ export default async function LeaveRoute({
   // --- JALUR 1: STAKEHOLDER (Admin View) ---
   if (canManageByRole(profile?.role)) {
     // 🚀 PARALLEL FETCH: Count + Requests + Profiles
-    const [countResult, requestsResult, profilesResult] = await Promise.all([
+    const [
+      countResult,
+      requestsResult,
+      profilesResult,
+      attendanceLogsResult,
+    ] = await Promise.all([
       supabase
         .from("leave_requests")
         .select("*", { count: "exact", head: true }),
@@ -42,6 +47,11 @@ export default async function LeaveRoute({
         .from("profiles")
         .select("*")
         .order("full_name", { ascending: true }),
+      supabase
+        .from("attendance_logs")
+        .select("*, profiles(full_name, avatar_url, job_title)")
+        .order("date", { ascending: false })
+        .order("clock_in", { ascending: false }),
     ])
 
     return (
@@ -50,6 +60,7 @@ export default async function LeaveRoute({
         profile={profile}
         requests={requestsResult.data || []}
         profiles={profilesResult.data || []}
+        attendanceLogs={attendanceLogsResult.data || []}
         page={page}
         pageSize={pageSize}
         totalCount={countResult.count || 0}

@@ -76,7 +76,6 @@ const Checkbox = React.forwardRef<
           className={cx(
             "absolute inset-0 rounded-[inherit] opacity-0 transition",
             "group-data-[state=checked]:opacity-100 group-data-[state=indeterminate]:opacity-100",
-            "shadow-[inset_0px_0px_0px_1px_rgba(0,0,0,0.1)]",
             "group-data-[disabled]:opacity-0",
           )}
         />
@@ -89,10 +88,10 @@ const Checkbox = React.forwardRef<
           className="relative flex size-[14px] items-center justify-center"
           initial={false}
           animate={{
-            scale: isChecked || isIndeterminate ? 1 : 0.5,
+            scale: isChecked || isIndeterminate ? 1 : 0.8,
             opacity: isChecked || isIndeterminate ? 1 : 0,
           }}
-          transition={{ type: "spring", stiffness: 520, damping: 34 }}
+          transition={{ type: "spring", stiffness: 720, damping: 44, mass: 0.6 }}
         >
           <AnimatePresence initial={false} mode="wait">
             {isChecked && (
@@ -101,10 +100,15 @@ const Checkbox = React.forwardRef<
                 alt=""
                 className="size-[14px]"
                 src={isDisabled ? CHECKBOX_CHECK_DISABLED : CHECKBOX_CHECK_DEFAULT}
-                initial={{ scale: 0.6, opacity: 0 }}
+                initial={{ scale: 0.85, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.6, opacity: 0 }}
-                transition={{ type: "spring", stiffness: 520, damping: 34 }}
+                exit={{ scale: 0.85, opacity: 0 }}
+                transition={{
+                  type: "spring",
+                  stiffness: 720,
+                  damping: 44,
+                  mass: 0.6,
+                }}
               />
             )}
             {isIndeterminate && (
@@ -113,10 +117,15 @@ const Checkbox = React.forwardRef<
                 alt=""
                 className="size-[14px]"
                 src={isDisabled ? CHECKBOX_MINUS_DISABLED : CHECKBOX_MINUS_DEFAULT}
-                initial={{ scale: 0.6, opacity: 0 }}
+                initial={{ scale: 0.85, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.6, opacity: 0 }}
-                transition={{ type: "spring", stiffness: 520, damping: 34 }}
+                exit={{ scale: 0.85, opacity: 0 }}
+                transition={{
+                  type: "spring",
+                  stiffness: 720,
+                  damping: 44,
+                  mass: 0.6,
+                }}
               />
             )}
           </AnimatePresence>

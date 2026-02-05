@@ -16,10 +16,8 @@ export default function Layout({
         <div className="bg-background min-h-screen">
           <div className="bg-surface min-h-[calc(100vh-1rem)]">
             {/* Content container with max-width for readability */}
-            <div className="mx-auto max-w-screen-xl">
-              <div className="p-4 sm:px-6 sm:pt-10 sm:pb-10 lg:px-10 lg:pt-7">
-                {children}
-              </div>
+            <div className="mx-auto">
+              {children}
             </div>
           </div>
         </div>

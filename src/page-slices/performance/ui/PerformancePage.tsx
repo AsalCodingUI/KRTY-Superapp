@@ -1,26 +1,16 @@
 "use client"
 
-import { TabNavigation, TabNavigationLink } from "@/shared/ui"
+import { getOverviewStats } from "@/app/(main)/performance/actions/employee-kpi-actions"
+import { createClient } from "@/shared/api/supabase/client"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { canManageByRole } from "@/shared/lib/roles"
+import type { QuarterFilterValue } from "@/shared/ui"
+import { TabNavigation, TabNavigationLink } from "@/shared/ui"
+import { RiBarChartBoxLine } from "@/shared/ui/lucide-icons"
 import dynamic from "next/dynamic"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 // Dynamic imports for tab components - only load when needed
-const OverviewTab = dynamic(
-  () =>
-    import("@/app/(main)/performance/components/overview/OverviewTab").then(
-      (mod) => mod.OverviewTab,
-    ),
-  {
-    loading: () => (
-      <div className="flex items-center justify-center py-12">
-        <div className="border-primary h-8 w-8 animate-spin rounded-full border-b-2"></div>
-      </div>
-    ),
-  },
-)
-
 const KPITab = dynamic(
   () =>
     import("@/app/(main)/performance/components/kpi/KPITab").then(
@@ -92,7 +82,6 @@ const WorkQualityTab = dynamic(
 )
 
 type TabType =
-  | "overview"
   | "kpi"
   | "360-review"
   | "one-on-one"
@@ -100,76 +89,165 @@ type TabType =
   | "competency-library"
 
 export function PerformancePage() {
-  const [activeTab, setActiveTab] = useState<TabType>("overview")
+  const [activeTab, setActiveTab] = useState<TabType>("kpi")
+  const [selectedQuarter, setSelectedQuarter] =
+    useState<QuarterFilterValue>("2025-Q1")
+  const [statsData, setStatsData] = useState<{
+    totalEmployees: number
+    avgPerformance: number
+    pendingReviews: number
+    activeProjects: number
+  } | null>(null)
+  const [statsLoading, setStatsLoading] = useState(true)
+  const [isCycleActive, setIsCycleActive] = useState(false)
   const { profile } = useUserProfile()
+  const supabase = createClient()
 
   const isStakeholder = canManageByRole(profile?.role)
+  useEffect(() => {
+    let isMounted = true
+    setStatsLoading(true)
+    getOverviewStats(selectedQuarter)
+      .then((result) => {
+        if (!isMounted) return
+        if (result.success && result.data) {
+          setStatsData(result.data)
+        } else {
+          setStatsData(null)
+        }
+      })
+      .catch(() => {
+        if (isMounted) setStatsData(null)
+      })
+      .finally(() => {
+        if (isMounted) setStatsLoading(false)
+      })
+
+    return () => {
+      isMounted = false
+    }
+  }, [selectedQuarter])
+
+  useEffect(() => {
+    const checkCycle = async () => {
+      const now = new Date().toISOString()
+      const { data } = await supabase
+        .from("review_cycles")
+        .select("id")
+        .lte("start_date", now)
+        .gte("end_date", now)
+        .eq("is_active", true)
+        .single()
+
+      setIsCycleActive(Boolean(data))
+    }
+
+    checkCycle()
+  }, [supabase])
+
+  const stats = [
+    {
+      label: "Total Employees",
+      value: statsLoading ? "—" : statsData?.totalEmployees ?? "—",
+    },
+    {
+      label: "Avg. Performance",
+      value: statsLoading
+        ? "—"
+        : statsData?.avgPerformance
+          ? `${statsData.avgPerformance}%`
+          : "—",
+    },
+    {
+      label: "Pending Reviews",
+      value: statsLoading ? "—" : statsData?.pendingReviews ?? "—",
+    },
+    {
+      label: "Active Project",
+      value: statsLoading ? "—" : statsData?.activeProjects ?? "—",
+    },
+    {
+      label: "360 Review",
+      value: isCycleActive ? "Active" : "No Active",
+    },
+  ]
 
   return (
-    <div className="space-y-6">
-      {/* HEADER */}
-      <div>
-        <h1 className="text-heading-md text-content sm:text-heading-lg dark:text-content">
+    <div className="flex flex-col">
+      <div className="flex items-center gap-2 rounded-[14px] px-5 pt-4 pb-3">
+        <RiBarChartBoxLine className="size-4 text-foreground-secondary" />
+        <p className="text-label-md text-foreground-primary">
           Individual Performance
-        </h1>
+        </p>
       </div>
 
-      {/* TAB NAVIGATION */}
-      <TabNavigation value={activeTab}>
-        <TabNavigationLink
-          active={activeTab === "overview"}
-          onClick={() => setActiveTab("overview")}
-        >
-          Overview
-        </TabNavigationLink>
-        <TabNavigationLink
-          active={activeTab === "kpi"}
-          onClick={() => setActiveTab("kpi")}
-        >
-          KPI
-        </TabNavigationLink>
-        <TabNavigationLink
-          active={activeTab === "360-review"}
-          onClick={() => setActiveTab("360-review")}
-        >
-          360 Review
-        </TabNavigationLink>
-        <TabNavigationLink
-          active={activeTab === "one-on-one"}
-          onClick={() => setActiveTab("one-on-one")}
-        >
-          Jadwal 1:1
-        </TabNavigationLink>
-
-        {/* ADMIN TABS (Stakeholder Only) */}
-        {isStakeholder && (
-          <>
-            <TabNavigationLink
-              active={activeTab === "list-project"}
-              onClick={() => setActiveTab("list-project")}
+      <div className="bg-surface-neutral-primary flex flex-col rounded-[14px]">
+        <div className="grid grid-cols-1 gap-md px-5 py-2 sm:grid-cols-2 lg:grid-cols-5">
+          {stats.map((item) => (
+            <div
+              key={item.label}
+              className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-[10px] border px-4 py-3"
             >
-              List Project
+              <p className="text-label-sm text-foreground-secondary">
+                {item.label}
+              </p>
+              <p className="text-heading-md text-foreground-primary">
+                {item.value}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        <div className="px-5 pt-2 border-b border-neutral-primary">
+          <TabNavigation className="border-b-0" value={activeTab}>
+            <TabNavigationLink
+              active={activeTab === "kpi"}
+              onClick={() => setActiveTab("kpi")}
+            >
+              KPI
             </TabNavigationLink>
             <TabNavigationLink
-              active={activeTab === "competency-library"}
-              onClick={() => setActiveTab("competency-library")}
+              active={activeTab === "360-review"}
+              onClick={() => setActiveTab("360-review")}
             >
-              Competency Library
+              360 Review
             </TabNavigationLink>
-          </>
-        )}
-      </TabNavigation>
+            <TabNavigationLink
+              active={activeTab === "one-on-one"}
+              onClick={() => setActiveTab("one-on-one")}
+            >
+              Jadwal 1:1
+            </TabNavigationLink>
 
-      {/* TAB CONTENT */}
-      <div className="mt-6">
-        {activeTab === "overview" && <OverviewTab />}
-        {activeTab === "kpi" && <KPITab />}
-        {activeTab === "360-review" && <Review360Tab />}
-        {activeTab === "one-on-one" && <OneOnOneMeetingTab />}
-        {activeTab === "list-project" && isStakeholder && <ListProjectTab />}
-        {activeTab === "competency-library" && isStakeholder && (
-          <WorkQualityTab />
-        )}
+            {/* ADMIN TABS (Stakeholder Only) */}
+            {isStakeholder && (
+              <>
+                <TabNavigationLink
+                  active={activeTab === "list-project"}
+                  onClick={() => setActiveTab("list-project")}
+                >
+                  List Project
+                </TabNavigationLink>
+                <TabNavigationLink
+                  active={activeTab === "competency-library"}
+                  onClick={() => setActiveTab("competency-library")}
+                >
+                  Competency Library
+                </TabNavigationLink>
+              </>
+            )}
+          </TabNavigation>
+        </div>
+
+        <div className="p-5">
+          {activeTab === "kpi" && <KPITab />}
+          {activeTab === "360-review" && <Review360Tab />}
+          {activeTab === "one-on-one" && <OneOnOneMeetingTab />}
+          {activeTab === "list-project" && isStakeholder && <ListProjectTab />}
+          {activeTab === "competency-library" && isStakeholder && (
+            <WorkQualityTab />
+          )}
+        </div>
       </div>
     </div>
   )

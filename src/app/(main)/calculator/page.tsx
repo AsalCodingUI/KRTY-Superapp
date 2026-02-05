@@ -12,15 +12,5 @@ export default async function CalculatorRoute() {
     .eq("role", "employee")
     .order("full_name", { ascending: true })
 
-  return (
-    <div>
-      <div className="mb-6">
-        <h1 className="text-content dark:text-content text-heading-md sm:text-heading-lg">
-          Project Calculator
-        </h1>
-      </div>
-
-      <CalculatorPage teamMembers={profiles || []} />
-    </div>
-  )
+  return <CalculatorPage teamMembers={profiles || []} />
 }

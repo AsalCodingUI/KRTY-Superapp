@@ -28,7 +28,6 @@ const switchVariants = tv({
       "data-[disabled]:bg-surface-state-neutral-light-disable",
       "data-[disabled]:bg-none",
       "data-[disabled]:[background-image:none]",
-      "data-[disabled]:hover:bg-surface-state-neutral-light-disable",
       "data-[disabled]:cursor-not-allowed",
       // focus
       focusRing,
@@ -41,7 +40,7 @@ const switchVariants = tv({
       "shadow-[0px_1px_3px_0px_rgba(0,0,0,0.04),0px_0px_2px_0px_rgba(0,0,0,0.18)]",
       // disabled
       "group-data-[disabled]:shadow-none",
-      "group-data-[disabled]:bg-foreground-disable",
+      "group-data-[disabled]:group-data-[state=unchecked]:bg-foreground-disable",
     ],
   },
   variants: {
@@ -63,11 +62,11 @@ const switchVariants = tv({
 
 interface SwitchProps
   extends
-    Omit<
-      React.ComponentPropsWithoutRef<typeof SwitchPrimitives.Root>,
-      "asChild"
-    >,
-    VariantProps<typeof switchVariants> {}
+  Omit<
+    React.ComponentPropsWithoutRef<typeof SwitchPrimitives.Root>,
+    "asChild"
+  >,
+  VariantProps<typeof switchVariants> { }
 
 /**
  * Switch component for toggling between two states.
@@ -94,7 +93,7 @@ const Switch = React.forwardRef<
         <motion.span
           className={cx(thumb())}
           layout="position"
-          transition={{ type: "spring", stiffness: 260, damping: 30, mass: 1 }}
+          transition={{ type: "spring", stiffness: 100, damping: 100, mass: 1 }}
         />
       </SwitchPrimitives.Thumb>
     </SwitchPrimitives.Root>

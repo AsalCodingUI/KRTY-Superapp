@@ -71,6 +71,11 @@ type TeamStats = {
   }
 }
 
+type OverviewTabProps = {
+  selectedQuarter?: QuarterFilterValue
+  onQuarterChange?: (value: QuarterFilterValue) => void
+}
+
 // Helper functions
 function getRatingBadge(score: number): {
   variant: "success" | "info" | "warning" | "error"
@@ -101,10 +106,15 @@ function calculateOverallScore(overview: OverviewRow[]): number | null {
 }
 
 // Employee Overview Component
-function EmployeeOverview() {
+function EmployeeOverview({
+  selectedQuarter: controlledQuarter,
+  onQuarterChange,
+}: OverviewTabProps) {
   const { profile } = useUserProfile()
-  const [selectedQuarter, setSelectedQuarter] =
+  const [internalQuarter, setInternalQuarter] =
     useState<QuarterFilterValue>("2025-Q1")
+  const selectedQuarter = controlledQuarter ?? internalQuarter
+  const setSelectedQuarter = onQuarterChange ?? setInternalQuarter
   const [overview, setOverview] = useState<OverviewRow[]>([])
   const [assignments, setAssignments] = useState<Assignment[]>([])
   const [loading, setLoading] = useState(true)
@@ -399,9 +409,14 @@ function EmployeeOverview() {
 }
 
 // Stakeholder Overview Component
-function StakeholderOverview() {
-  const [selectedQuarter, setSelectedQuarter] =
+function StakeholderOverview({
+  selectedQuarter: controlledQuarter,
+  onQuarterChange,
+}: OverviewTabProps) {
+  const [internalQuarter, setInternalQuarter] =
     useState<QuarterFilterValue>("2025-Q1")
+  const selectedQuarter = controlledQuarter ?? internalQuarter
+  const setSelectedQuarter = onQuarterChange ?? setInternalQuarter
   const [stats, setStats] = useState<TeamStats | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -680,7 +695,10 @@ function StakeholderOverview() {
 }
 
 // Main Export
-export function OverviewTab() {
+export function OverviewTab({
+  selectedQuarter,
+  onQuarterChange,
+}: OverviewTabProps) {
   const { profile, loading: profileLoading } = useUserProfile()
 
   if (profileLoading || !profile) {
@@ -693,5 +711,15 @@ export function OverviewTab() {
 
   const isStakeholder = canManageByRole(profile.role)
 
-  return isStakeholder ? <StakeholderOverview /> : <EmployeeOverview />
+  return isStakeholder ? (
+    <StakeholderOverview
+      selectedQuarter={selectedQuarter}
+      onQuarterChange={onQuarterChange}
+    />
+  ) : (
+    <EmployeeOverview
+      selectedQuarter={selectedQuarter}
+      onQuarterChange={onQuarterChange}
+    />
+  )
 }

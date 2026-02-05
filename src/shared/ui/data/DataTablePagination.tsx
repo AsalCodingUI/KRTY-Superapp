@@ -17,6 +17,10 @@ interface DataTablePaginationProps<TData> {
 export function DataTablePagination<TData>({
   table,
 }: DataTablePaginationProps<TData>) {
+  if (table.getPageCount() <= 1) {
+    return null
+  }
+
   const paginationButtons = [
     {
       icon: RiArrowLeftDoubleLine,

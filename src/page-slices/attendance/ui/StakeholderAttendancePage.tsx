@@ -20,10 +20,12 @@ type AttendanceLogWithProfile = AttendanceLog & {
 
 interface StakeholderAttendancePageProps {
   logs: AttendanceLogWithProfile[]
+  showHeader?: boolean
 }
 
 export function StakeholderAttendancePage({
   logs,
+  showHeader = true,
 }: StakeholderAttendancePageProps) {
   const supabase = createClient()
   const router = useRouter()
@@ -64,13 +66,15 @@ export function StakeholderAttendancePage({
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-heading-md text-content sm:text-heading-lg dark:text-content">
-            Attendance Overview
-          </h1>
+      {showHeader && (
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <h1 className="text-heading-md text-content sm:text-heading-lg dark:text-content">
+              Attendance Overview
+            </h1>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Summary Cards (Fokus Hari Ini) */}
       <div className="mb-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-2">

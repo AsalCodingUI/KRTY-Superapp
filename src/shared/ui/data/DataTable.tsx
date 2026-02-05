@@ -205,11 +205,14 @@ export function DataTable<TData>({
                     key={headerGroup.id}
                     className="hover:bg-transparent"
                   >
-                    {headerGroup.headers.map((header) => (
+                    {headerGroup.headers.map((header) => {
+                      const isSelectionColumn = header.column.id === "select"
+                      return (
                       <TableHeaderCell
                         key={header.id}
                         className={cx(
                           "whitespace-nowrap",
+                          isSelectionColumn ? "w-14 px-lg text-center" : "",
                           header.column.columnDef.meta?.className,
                         )}
                       >
@@ -218,7 +221,7 @@ export function DataTable<TData>({
                           header.getContext(),
                         )}
                       </TableHeaderCell>
-                    ))}
+                    )})}
                   </TableRow>
                 ))}
               </TableHead>
@@ -240,11 +243,14 @@ export function DataTable<TData>({
                         enableSelection ? "cursor-pointer" : "cursor-default",
                       )}
                     >
-                      {row.getVisibleCells().map((cell, index) => (
+                      {row.getVisibleCells().map((cell, index) => {
+                        const isSelectionColumn = cell.column.id === "select"
+                        return (
                         <TableCell
                           key={cell.id}
                           className={cx(
                             "relative whitespace-nowrap",
+                            isSelectionColumn ? "w-14 px-lg text-center" : "",
                             cell.column.columnDef.meta?.className,
                           )}
                         >
@@ -253,7 +259,7 @@ export function DataTable<TData>({
                             cell.getContext(),
                           )}
                         </TableCell>
-                      ))}
+                      )})}
                     </TableRow>
                   ))
                 ) : (

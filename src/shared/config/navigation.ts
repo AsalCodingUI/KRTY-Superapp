@@ -63,16 +63,22 @@ export const navigationConfig: NavigationConfig = {
       roles: ["stakeholder", "employee"],
     },
     {
-      name: "Attendance",
-      href: siteConfig.baseLinks.attendance,
+      name: "Leave & Attendance",
+      href: siteConfig.baseLinks.leave,
       icon: RiCalendarCheckLine,
-      roles: ["stakeholder", "employee"],
+      roles: ["stakeholder"],
     },
     {
       name: "Leave & Permission",
       href: siteConfig.baseLinks.leave,
       icon: RiUserSmileLine,
-      roles: ["stakeholder", "employee"],
+      roles: ["employee"],
+    },
+    {
+      name: "Attendance",
+      href: siteConfig.baseLinks.attendance,
+      icon: RiCalendarCheckLine,
+      roles: ["employee"],
     },
     {
       name: "Performance",

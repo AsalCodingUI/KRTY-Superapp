@@ -1,6 +1,7 @@
 import { AttendancePage } from "@/page-slices/attendance"
 import { createClient } from "@/shared/api/supabase/server"
 import { canManageByRole, isEmployeeRole } from "@/shared/lib/roles"
+import { redirect } from "next/navigation"
 
 // Helper untuk menambah jam
 function addHours(date: Date, hours: number) {
@@ -68,15 +69,7 @@ export default async function AttendanceRoute() {
 
   // --- ROUTING POV ---
   if (canManageByRole(profile?.role)) {
-    const { data: logs } = await supabase
-      .from("attendance_logs")
-      .select("*, profiles(full_name, avatar_url, job_title)")
-      .order("date", { ascending: false })
-      .order("clock_in", { ascending: false })
-
-    return (
-      <AttendancePage role="stakeholder" profile={profile} logs={logs || []} />
-    )
+    redirect("/leave")
   }
 
   // Fetch Data untuk Employee (History Bulan Ini)
