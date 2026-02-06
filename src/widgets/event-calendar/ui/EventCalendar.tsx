@@ -7,7 +7,6 @@ import { CalendarDndProvider } from "./calendar-dnd-context"
 import { CalendarSidebar } from "./calendar-sidebar"
 import { DayView } from "./day-view"
 import { EventDialog } from "./event-dialog"
-import { GoogleCalendarProvider } from "./google-calendar-context"
 import {
   EventVisibilityProvider,
   useEventVisibility,
@@ -108,32 +107,43 @@ function CalendarContent({
 
   return (
     <>
-      <div className="min-h-0 flex-1 overflow-auto">
+      <div className="min-h-0 flex-1 overflow-hidden">
         {viewMode === "month" && (
-          <MonthView
-            events={visibleEvents}
-            onEventClick={handleEventClick}
-            onDayClick={handleDayClick}
-          />
+          <div className="h-full">
+            <MonthView
+              events={visibleEvents}
+              onEventClick={handleEventClick}
+              onDayClick={handleDayClick}
+            />
+          </div>
         )}
         {viewMode === "week" && (
-          <WeekView
-            events={visibleEvents}
-            onEventClick={handleEventClick}
-            onSlotClick={handleSlotClick}
-            canEdit={canEdit}
-          />
+          <div className="h-full overflow-auto">
+            <WeekView
+              events={visibleEvents}
+              onEventClick={handleEventClick}
+              onSlotClick={handleSlotClick}
+              canEdit={canEdit}
+            />
+          </div>
         )}
         {viewMode === "day" && (
-          <DayView
-            events={visibleEvents}
-            onEventClick={handleEventClick}
-            onSlotClick={handleSlotClick}
-            canEdit={canEdit}
-          />
+          <div className="h-full overflow-auto">
+            <DayView
+              events={visibleEvents}
+              onEventClick={handleEventClick}
+              onSlotClick={handleSlotClick}
+              canEdit={canEdit}
+            />
+          </div>
         )}
         {viewMode === "agenda" && (
-          <AgendaView events={visibleEvents} onEventClick={handleEventClick} />
+          <div className="h-full overflow-auto">
+            <AgendaView
+              events={visibleEvents}
+              onEventClick={handleEventClick}
+            />
+          </div>
         )}
       </div>
 
@@ -173,28 +183,26 @@ export function EventCalendar({
   }
 
   return (
-    <GoogleCalendarProvider>
-      <EventVisibilityProvider initialCategories={categories}>
-        <CalendarDndProvider events={events} onEventUpdate={handleEventUpdate}>
-          <div className="bg-surface flex h-full gap-4 overflow-hidden lg:gap-6">
-            {/* Sidebar with mini calendar */}
-            <CalendarSidebar />
+    <EventVisibilityProvider initialCategories={categories}>
+      <CalendarDndProvider events={events} onEventUpdate={handleEventUpdate}>
+        <div className="bg-surface flex h-full w-full flex-1 min-w-0 gap-4 overflow-hidden lg:gap-6">
+          {/* Sidebar with mini calendar */}
+          <CalendarSidebar />
 
-            {/* Main calendar area */}
-            <div className="flex h-full flex-1 flex-col overflow-hidden">
-              <CalendarContent
-                events={events}
-                onEventAdd={onEventAdd}
-                onEventUpdate={handleEventUpdate}
-                onEventDelete={onEventDelete}
-                canEdit={canEdit}
-                externalDialogOpen={externalDialogOpen}
-                onExternalDialogClose={handleExternalDialogClose}
-              />
-            </div>
+          {/* Main calendar area */}
+          <div className="flex h-full w-full flex-1 flex-col overflow-hidden">
+            <CalendarContent
+              events={events}
+              onEventAdd={onEventAdd}
+              onEventUpdate={handleEventUpdate}
+              onEventDelete={onEventDelete}
+              canEdit={canEdit}
+              externalDialogOpen={externalDialogOpen}
+              onExternalDialogClose={handleExternalDialogClose}
+            />
           </div>
-        </CalendarDndProvider>
-      </EventVisibilityProvider>
-    </GoogleCalendarProvider>
+        </div>
+      </CalendarDndProvider>
+    </EventVisibilityProvider>
   )
 }

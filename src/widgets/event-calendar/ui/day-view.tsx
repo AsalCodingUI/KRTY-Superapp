@@ -57,20 +57,32 @@ export const DayView = memo(function DayView({
       >
         <div className="relative flex">
           {/* Time labels */}
-          <div className="border-border-border w-16 flex-shrink-0 border-r">
+          <div className="border-neutral-primary bg-surface w-16 flex-shrink-0 border-r">
             {timeSlots.map((slot) => {
               const minute = slot.getMinutes()
               if (minute !== 0) return null // Only show hour labels
 
+              const baseStyle = {
+                "--height": `${HOUR_HEIGHT}px`,
+              } as React.CSSProperties
+
+              if (slot.getHours() === 0) {
+                return (
+                  <div
+                    key={slot.toISOString()}
+                    className="h-[var(--height)]"
+                    style={baseStyle}
+                  />
+                )
+              }
+
               return (
                 <div
                   key={slot.toISOString()}
-                  className="text-content-muted text-body-xs relative h-[var(--height)] pr-2 text-right"
-                  style={
-                    { "--height": `${HOUR_HEIGHT}px` } as React.CSSProperties
-                  }
+                  className="text-label-xs text-foreground-tertiary relative h-[var(--height)] pr-2 text-right"
+                  style={baseStyle}
                 >
-                  <span className="absolute -top-2 right-2">
+                  <span className="absolute -top-2 right-2 bg-surface px-1">
                     {format(slot, "h a")}
                   </span>
                 </div>
@@ -92,8 +104,10 @@ export const DayView = memo(function DayView({
                   key={slot.toISOString()}
                   id={`slot-${currentDate.toISOString()}-${hour}-${minute}`}
                   className={cx(
-                    "border-border-border/50 hover:bg-muted/30 h-[var(--height)] cursor-pointer border-b transition-colors",
-                    minute === 0 && "border-border-border",
+                    "border-neutral-primary hover:bg-surface-state-neutral-light-hover h-[var(--height)] cursor-pointer border-b transition-colors",
+                    minute === 30
+                      ? "border-transparent"
+                      : "border-neutral-primary",
                   )}
                   style={
                     {

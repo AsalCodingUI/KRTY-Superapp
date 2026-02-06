@@ -20,6 +20,12 @@ export function SidebarMenu() {
     if (item.name === "Project Calculator") {
       return canAccessProjectCalculator(profile)
     }
+    if (item.name === "Message") {
+      return (
+        hasRoleAccess(item.roles, profile.role) ||
+        profile.job_title === "Project Manager"
+      )
+    }
     return hasRoleAccess(item.roles, profile.role)
   })
 

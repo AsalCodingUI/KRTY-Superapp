@@ -67,7 +67,7 @@ export function GoogleCalendarProvider({
       }
     } catch (error) {
       console.error("Failed to connect Google Calendar:", error)
-      toast.error("Failed to connect Google Calendar")
+      toast.error("Gagal konek kalender")
     }
   }, [])
 
@@ -79,14 +79,14 @@ export function GoogleCalendarProvider({
 
       if (response.ok) {
         setIsConnected(false)
-        toast.success("Google Calendar disconnected")
+        toast.success("Kalender terputus")
         router.refresh()
       } else {
         throw new Error("Failed to disconnect")
       }
     } catch (error) {
       console.error("Failed to disconnect Google Calendar:", error)
-      toast.error("Failed to disconnect Google Calendar")
+      toast.error("Gagal putus kalender")
     }
   }, [router])
 
@@ -101,22 +101,21 @@ export function GoogleCalendarProvider({
     const error = searchParams.get("error")
 
     if (connected === "true") {
-      toast.success("Google Calendar connected successfully!")
+      toast.success("Kalender terhubung")
       checkConnection()
       // Clean up URL
       router.replace("/calendar")
     } else if (error) {
       const errorMessages: Record<string, string> = {
-        no_code: "Authorization failed: No code received",
-        invalid_state:
-          "Authorization failed: Invalid state (CSRF check failed)",
-        unauthorized: "You must be logged in to connect Google Calendar",
-        missing_credentials: "Server configuration error",
-        token_exchange_failed: "Failed to exchange authorization code",
-        store_failed: "Failed to store access token",
+        no_code: "Kode kosong",
+        invalid_state: "State invalid",
+        unauthorized: "Harus login",
+        missing_credentials: "Config server",
+        token_exchange_failed: "Token gagal",
+        store_failed: "Simpan token gagal",
       }
 
-      toast.error(errorMessages[error] || "Failed to connect Google Calendar")
+      toast.error(errorMessages[error] || "Gagal konek kalender")
       // Clean up URL
       router.replace("/calendar")
     }

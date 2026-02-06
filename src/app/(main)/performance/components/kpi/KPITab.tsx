@@ -73,7 +73,13 @@ type Assignment = {
   }>
 }
 
-export function KPITab() {
+export function KPITab({
+  selectedQuarter,
+  onQuarterChange,
+}: {
+  selectedQuarter?: string
+  onQuarterChange?: (value: string) => void
+} = {}) {
   const { profile, loading: profileLoading } = useUserProfile()
   const [employees, setEmployees] = useState<EmployeeWithProjects[]>([])
   const [loading, setLoading] = useState(true)
@@ -165,6 +171,8 @@ export function KPITab() {
       <EmployeeDetailClient
         employee={employeeData}
         initialAssignments={assignments}
+        selectedQuarter={selectedQuarter}
+        onQuarterChange={onQuarterChange}
       />
     )
   }

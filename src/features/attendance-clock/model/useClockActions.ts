@@ -57,11 +57,9 @@ export function useClockActions({
 
         // Optimistic update
         onLogsUpdate([data, ...logs])
-        toast.success("Clock in berhasil!")
+        toast.success("Clock in berhasil")
       } catch (error: unknown) {
-        const message =
-          error instanceof Error ? error.message : "Clock in failed"
-        toast.error(message)
+        toast.error("Clock in gagal")
       } finally {
         setLoading(false)
       }
@@ -90,13 +88,11 @@ export function useClockActions({
           .eq("id", logId)
 
         if (error) throw error
-        toast.success("Clock out berhasil!")
+        toast.success("Clock out berhasil")
       } catch (error: unknown) {
         // Rollback on error
         onLogsUpdate(oldLogs)
-        const message =
-          error instanceof Error ? error.message : "Clock out failed"
-        toast.error(message)
+        toast.error("Clock out gagal")
       } finally {
         setLoading(false)
       }
@@ -149,7 +145,7 @@ export function useClockActions({
             .eq("id", logId)
 
           if (error) throw error
-          toast.success("Break selesai!")
+          toast.success("Break selesai")
         } else {
           // Starting break
           const breakStartTime = now.toISOString()
@@ -172,14 +168,12 @@ export function useClockActions({
             .eq("id", logId)
 
           if (error) throw error
-          toast.success("Break dimulai!")
+          toast.success("Break dimulai")
         }
       } catch (error: unknown) {
         // Rollback on error
         onLogsUpdate(oldLogs)
-        const message =
-          error instanceof Error ? error.message : "Toggle break failed"
-        toast.error(message)
+        toast.error("Break gagal")
       } finally {
         setLoading(false)
       }

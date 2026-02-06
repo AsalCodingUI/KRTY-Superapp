@@ -58,7 +58,7 @@ export async function middleware(request: NextRequest) {
   // Optimized: Check user_metadata first instead of querying profiles table
   // Fallback to 'employee' if no role is found in metadata
   const userRole = user?.user_metadata?.role || "employee"
-  const hasAdminAccess = canManageByRole(userRole)
+  let hasAdminAccess = canManageByRole(userRole)
 
   // Restricted Routes
   const isPayrollPage = url.pathname.startsWith("/payroll")
@@ -68,6 +68,18 @@ export async function middleware(request: NextRequest) {
   )
 
   if (user && (isPayrollPage || isAdminRoute)) {
+    if (!hasAdminAccess) {
+      const { data: profile, error } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .maybeSingle()
+
+      if (!error && profile?.role) {
+        hasAdminAccess = canManageByRole(profile.role)
+      }
+    }
+
     if (!hasAdminAccess) {
       // Redirect unauthorized users to dashboard
       url.pathname = "/dashboard"

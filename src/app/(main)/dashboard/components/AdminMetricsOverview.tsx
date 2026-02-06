@@ -54,7 +54,7 @@ export function AdminMetricsOverview({
         />
       </Link>
 
-      <Link href="/attendance">
+      <Link href="/leave">
         <StatsCard
           title="Attendance Today"
           value={`${todayAttendanceRate}%`}

@@ -4,8 +4,56 @@ import { cx } from "@/shared/lib/utils"
 import { RiMapPinLine, RiTimeLine } from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
 import { memo } from "react"
-import { getEventColorClasses } from "./event-color-registry"
-import type { CalendarEvent } from "./types"
+import type { CalendarEvent, EventColor } from "./types"
+
+const EVENT_ITEM_COLORS: Record<
+  EventColor,
+  { background: string; text: string; accent: string }
+> = {
+  blue: {
+    background: "bg-surface-brand-light",
+    text: "text-foreground-brand-dark",
+    accent: "bg-[var(--border-brand)]",
+  },
+  violet: {
+    background: "bg-surface-brand-light",
+    text: "text-foreground-brand-dark",
+    accent: "bg-[var(--border-brand)]",
+  },
+  cyan: {
+    background: "bg-surface-brand-light",
+    text: "text-foreground-brand-dark",
+    accent: "bg-[var(--border-brand)]",
+  },
+  emerald: {
+    background: "bg-surface-success-light",
+    text: "text-foreground-success-dark",
+    accent: "bg-[var(--border-success)]",
+  },
+  rose: {
+    background: "bg-surface-danger-light",
+    text: "text-foreground-danger-dark",
+    accent: "bg-[var(--border-danger)]",
+  },
+  orange: {
+    background: "bg-surface-warning-light",
+    text: "text-foreground-warning-on-color",
+    accent: "bg-[var(--border-warning)]",
+  },
+  amber: {
+    background: "bg-surface-warning-light",
+    text: "text-foreground-warning-on-color",
+    accent: "bg-[var(--border-warning)]",
+  },
+  neutral: {
+    background: "bg-surface-neutral-secondary",
+    text: "text-foreground-secondary",
+    accent: "bg-[var(--border-neutral-primary)]",
+  },
+}
+
+const getEventItemColors = (color: EventColor) =>
+  EVENT_ITEM_COLORS[color] || EVENT_ITEM_COLORS.blue
 
 interface EventItemProps {
   event: CalendarEvent
@@ -22,75 +70,92 @@ export const EventItem = memo(function EventItem({
   showTime = true,
   className,
 }: EventItemProps) {
-  const colorClass = getEventColorClasses(event.color, "default")
+  const colors = getEventItemColors(event.color)
+  const timeLabel =
+    showTime && !event.allDay ? format(event.start, "HH:mm") : null
 
   if (compact) {
+    const compactLabel = showTime && !event.allDay
+      ? `${format(event.start, "HH:mm")} ${event.title}`
+      : event.title
+
     return (
       <button
         onClick={onClick}
         className={cx(
-          "text-body-xs w-full rounded px-2 py-1 text-left",
-          "hover:shadow-sm-border transition-all",
-          "truncate",
-          colorClass,
+          "flex w-full items-center gap-xs rounded-sm px-sm py-xs text-left text-label-xs",
+          colors.background,
+          colors.text,
           className,
         )}
       >
-        {showTime && !event.allDay && (
-          <span className="mr-1 font-medium">
-            {format(event.start, "HH:mm")}
-          </span>
-        )}
-        <span className="truncate">{event.title}</span>
+        <div className="flex self-stretch items-center px-xs py-[4px]">
+          <span className={cx("h-full w-px rounded-full", colors.accent)} />
+        </div>
+        <span className="min-w-0 flex-1 truncate">{compactLabel}</span>
       </button>
     )
   }
+
+  const showMeta = (showTime && !event.allDay) || Boolean(event.location)
 
   return (
     <button
       onClick={onClick}
       className={cx(
-        "w-full rounded-lg p-3 text-left",
-        "hover:shadow-md-border transition-all",
-        "group",
-        colorClass,
+        "flex w-full items-start gap-sm rounded-md p-sm text-left",
+        colors.background,
         className,
       )}
     >
-      <div className="flex items-start justify-between gap-2">
-        <div className="min-w-0 flex-1">
-          <h4 className="text-label-md mb-1 truncate">{event.title}</h4>
+      <div className="flex self-stretch items-center px-xs py-[4px]">
+        <span className={cx("h-full w-px rounded-full", colors.accent)} />
+      </div>
+
+      <div
+        className={cx(
+          "flex min-w-0 flex-1 flex-col p-xs",
+          showMeta ? "gap-md" : "gap-0",
+        )}
+      >
+        <div className="flex flex-col text-label-xs leading-4">
+          <p className={cx("truncate", colors.text)}>{event.title}</p>
           {event.description && (
-            <p className="text-label-xs mb-2 line-clamp-2 opacity-80">
+            <p className="text-body-xs text-foreground-secondary line-clamp-1">
               {event.description}
             </p>
           )}
         </div>
-        {showTime && !event.allDay && (
-          <div className="flex-shrink-0">
-            <span className="bg-muted text-label-xs rounded-full px-2 py-1">
-              {format(event.start, "HH:mm")}
-            </span>
+
+        {showMeta && (
+          <div className="flex flex-wrap items-center gap-md">
+            {showTime && !event.allDay && (
+              <div className="flex items-center gap-sm">
+                <RiTimeLine className="size-3.5 text-foreground-secondary" />
+                <span className="text-body-xs text-foreground-secondary">
+                  {format(event.start, "HH:mm")} - {format(event.end, "HH:mm")}
+                </span>
+              </div>
+            )}
+            {event.location && (
+              <div className="flex items-center gap-sm">
+                <RiMapPinLine className="size-3.5 text-foreground-secondary" />
+                <span className="text-body-xs text-foreground-secondary truncate">
+                  {event.location}
+                </span>
+              </div>
+            )}
           </div>
         )}
       </div>
 
-      <div className="text-body-xs mt-2 flex items-center gap-3 opacity-70">
-        {showTime && !event.allDay && (
-          <div className="flex items-center gap-1">
-            <RiTimeLine className="h-3.5 w-3.5" />
-            <span>
-              {format(event.start, "HH:mm")} - {format(event.end, "HH:mm")}
-            </span>
-          </div>
-        )}
-        {event.location && (
-          <div className="flex items-center gap-1 truncate">
-            <RiMapPinLine className="h-3.5 w-3.5 flex-shrink-0" />
-            <span className="truncate">{event.location}</span>
-          </div>
-        )}
-      </div>
+      {timeLabel && (
+        <div className="flex items-center justify-center rounded-sm bg-[rgba(255,255,255,0.6)] px-sm py-xs">
+          <span className="text-label-xs text-foreground-secondary">
+            {timeLabel}
+          </span>
+        </div>
+      )}
     </button>
   )
 })

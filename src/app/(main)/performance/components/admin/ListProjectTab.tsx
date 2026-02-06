@@ -132,7 +132,7 @@ export function ListProjectTab() {
     if (result.success) {
       loadProjects()
     } else {
-      toast.error(`Error: ${result.error}`)
+      toast.error("Gagal arsip")
     }
   }
 
@@ -146,10 +146,10 @@ export function ListProjectTab() {
 
     const result = await permanentDeleteProject(project.id)
     if (result.success) {
-      toast.success("Project permanently deleted")
+      toast.success("Project dihapus")
       loadProjects()
     } else {
-      toast.error(`Error: ${result.error}`)
+      toast.error("Gagal hapus")
     }
   }
 

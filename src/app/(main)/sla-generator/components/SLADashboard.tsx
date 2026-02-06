@@ -61,9 +61,9 @@ export default function SLADashboard({ slas }: { slas: SLA[] }) {
       .in("id", ids as string[])
 
     if (error) {
-      toast.error("Failed to archive SLA")
+      toast.error("Gagal arsip")
     } else {
-      toast.success("SLA archived successfully")
+      toast.success("SLA diarsipkan")
       router.refresh()
     }
   }
@@ -76,9 +76,9 @@ export default function SLADashboard({ slas }: { slas: SLA[] }) {
       .eq("id", id)
 
     if (error) {
-      toast.error("Failed to restore SLA")
+      toast.error("Gagal pulihkan")
     } else {
-      toast.success("SLA restored successfully")
+      toast.success("SLA dipulihkan")
       router.refresh()
     }
   }
@@ -91,9 +91,9 @@ export default function SLADashboard({ slas }: { slas: SLA[] }) {
       .in("id", ids as string[])
 
     if (error) {
-      toast.error("Failed to delete SLA")
+      toast.error("Gagal hapus")
     } else {
-      toast.success("SLA permanently deleted")
+      toast.success("SLA dihapus")
       router.refresh()
     }
   }

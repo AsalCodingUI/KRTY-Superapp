@@ -1,20 +1,22 @@
 import { NextResponse } from "next/server"
 import { logError } from "@/shared/lib/utils/logger"
+import { getGoogleAccessToken, getGoogleEnv } from "@/shared/lib/google-calendar"
 
 /**
  * GET - Check Google Calendar connection status
  */
 export async function GET() {
   try {
-    // Check if Google credentials are configured
-    const hasCredentials = !!(
-      process.env.GOOGLE_CLIENT_ID &&
-      process.env.GOOGLE_CLIENT_SECRET &&
-      process.env.GOOGLE_REFRESH_TOKEN
-    )
+    const hasCredentials = !!getGoogleEnv()
+    if (!hasCredentials) {
+      return NextResponse.json({ isConnected: false })
+    }
+
+    const accessToken = await getGoogleAccessToken()
+    const isConnected = Boolean(accessToken)
 
     return NextResponse.json({
-      isConnected: hasCredentials,
+      isConnected,
     })
   } catch (error) {
     logError("Error checking Google Calendar connection:", error)

@@ -210,13 +210,13 @@ export function ProjectScoringClient({
 
       const result = await saveSLAScores(assignment.id, milestonesData)
       if (result.success) {
-        toast.success("SLA scores saved successfully!")
+        toast.success("SLA tersimpan")
       } else {
-        toast.error(`Error: ${result.error}`)
+        toast.error("Gagal simpan")
       }
     } catch (error) {
       console.error("Error saving SLA:", error)
-      toast.error("An error occurred while saving")
+      toast.error("Gagal simpan")
     } finally {
       setSaving(false)
     }
@@ -241,13 +241,13 @@ export function ProjectScoringClient({
         competenciesData,
       )
       if (result.success) {
-        toast.success("Work quality scores saved successfully!")
+        toast.success("Kualitas tersimpan")
       } else {
-        toast.error(`Error: ${result.error}`)
+        toast.error("Gagal simpan")
       }
     } catch (error) {
       console.error("Error saving quality:", error)
-      toast.error("An error occurred while saving")
+      toast.error("Gagal simpan")
     } finally {
       setSaving(false)
     }

@@ -59,6 +59,7 @@ export function LeavePage({
     <EmployeeLeavePage
       profile={profile}
       requests={requests as LeaveRequest[]}
+      attendanceLogs={attendanceLogs as AttendanceLog[]}
       page={page}
       pageSize={pageSize}
       totalCount={totalCount}

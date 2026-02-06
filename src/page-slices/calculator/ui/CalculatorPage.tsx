@@ -1,20 +1,13 @@
 "use client"
 
-import { Badge } from "@/shared/ui"
-import { Button } from "@/shared/ui"
-import { Divider } from "@/shared/ui"
-import { Input } from "@/shared/ui"
-import { Label } from "@/shared/ui"
+import { Database } from "@/shared/types/database.types"
 import {
-  Select,
+  Badge, Button, Divider, Input, Label, Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
+  SelectValue, Slider, TabNavigation, TabNavigationLink
 } from "@/shared/ui"
-import { Slider } from "@/shared/ui"
-import { TabNavigation, TabNavigationLink } from "@/shared/ui"
-import { Database } from "@/shared/types/database.types"
 import { RiAddLine, RiCalculatorLine, RiDeleteBinLine } from "@/shared/ui/lucide-icons"
 import { useMemo, useState } from "react"
 import { v4 as uuidv4 } from "uuid"
@@ -201,7 +194,7 @@ export default function CalculatorClientPage({
       </div>
 
       <div className="bg-surface-neutral-primary flex flex-col rounded-[14px]">
-        <div className="px-5 border-b border-neutral-primary">
+        <div className="px-5 pt-2 border-b border-neutral-primary">
           <TabNavigation className="border-b-0">
             <TabNavigationLink
               active={activeTab === "team"}
@@ -508,7 +501,7 @@ export default function CalculatorClientPage({
                               </div>
                               <div>
                                 <Label htmlFor={`freelance-salary-${member.id}`}>
-                                  Expected Salary (IDR / Month)
+                                  Expected Salary
                                 </Label>
                                 <Input
                                   id={`freelance-salary-${member.id}`}

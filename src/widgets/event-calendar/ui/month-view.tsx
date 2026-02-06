@@ -16,14 +16,14 @@ interface MonthViewProps {
   onDayClick?: (date: Date) => void
 }
 
-const WEEKDAY_LABELS = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"]
+const WEEKDAY_LABELS = ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"]
 
 export const MonthView = memo(function MonthView({
   events,
   onEventClick,
   onDayClick,
 }: MonthViewProps) {
-  const { currentDate } = useCalendarContext()
+  const { currentDate, selectedDate } = useCalendarContext()
   const monthDays = useMemo(() => getMonthViewDays(currentDate), [currentDate])
   const today = new Date()
   const [openPopover, setOpenPopover] = useState<string | null>(null)
@@ -37,16 +37,15 @@ export const MonthView = memo(function MonthView({
   return (
     <div className="flex h-full w-full max-w-full flex-col overflow-hidden">
       {/* Weekday headers */}
-      <div className="border-border-border bg-surface flex border-b">
-        {/* Week number header */}
-        <div className="border-border-border hidden flex-shrink-0 border-r md:block md:w-16" />
+      <div className="border-neutral-primary bg-surface flex border-b">
+        {/* Week number header (removed) */}
 
         {/* Day headers */}
         <div className="grid flex-1 grid-cols-7">
           {WEEKDAY_LABELS.map((day) => (
             <div
               key={day}
-              className="border-border-border text-body-sm text-content-muted border-r py-3 text-center last:border-r-0"
+              className="border-neutral-primary text-label-sm text-foreground-secondary border-r py-2 text-center last:border-r-0"
             >
               {day}
             </div>
@@ -57,25 +56,17 @@ export const MonthView = memo(function MonthView({
       {/* Calendar grid with week numbers */}
       <div className="flex flex-1 overflow-hidden">
         {/* Week numbers column */}
-        <div className="border-border-border hidden flex-shrink-0 border-r md:block md:w-16">
-          <div className="grid h-full auto-rows-fr">
-            {weeks.map((week, index) => (
-              <div
-                key={index}
-                className="text-body-xs lg:text-body-xs text-content-muted border-border-border flex items-center justify-center border-b last:border-b-0"
-              >
-                W{getWeek(week[0], { locale: id })}
-              </div>
-            ))}
-          </div>
-        </div>
-
         {/* Days grid */}
         <div className="grid flex-1 auto-rows-fr grid-cols-7 overflow-hidden">
           {monthDays.map((day) => {
             const dayEvents = getEventsForDay(events, day)
             const isToday = isSameDay(day, today)
             const isCurrentMonth = isSameMonth(day, currentDate)
+            const isSelected =
+              selectedDate !== null
+                ? isSameDay(day, selectedDate)
+                : isToday
+            const showTodayIndicator = isToday && !isSelected
             const dayKey = day.toISOString()
             const hasMoreEvents = dayEvents.length > 3
             const displayEvents = dayEvents.slice(0, 3)
@@ -84,10 +75,8 @@ export const MonthView = memo(function MonthView({
               <div
                 key={dayKey}
                 className={cx(
-                  "border-border-border flex flex-col border-r border-b p-1 last:border-r-0 sm:p-1.5 lg:p-2",
-                  "hover:bg-muted/30 cursor-pointer transition-colors",
-                  !isCurrentMonth && "bg-muted/20",
-                  isToday && "bg-surface-brand/10",
+                  "border-neutral-primary flex flex-col border-r border-b p-2 last:border-r-0",
+                  "hover:bg-surface-state-neutral-light-hover cursor-pointer transition-colors",
                 )}
                 onClick={() => onDayClick?.(day)}
               >
@@ -95,12 +84,14 @@ export const MonthView = memo(function MonthView({
                 <div className="mb-1 flex items-center justify-between">
                   <span
                     className={cx(
-                      "text-label-xs",
-                      isToday
-                        ? "bg-surface-brand text-primary-fg text-body-xs flex h-6 w-6 items-center justify-center rounded-full"
-                        : isCurrentMonth
-                          ? "text-content"
-                          : "text-content-muted",
+                      "text-label-sm flex h-6 w-6 items-center justify-center rounded-md",
+                      isSelected
+                        ? "bg-surface-brand text-foreground-on-color"
+                        : showTodayIndicator
+                          ? "text-foreground-brand font-semibold"
+                          : isCurrentMonth
+                            ? "text-foreground-primary"
+                            : "text-foreground-disable",
                     )}
                   >
                     {format(day, "d")}

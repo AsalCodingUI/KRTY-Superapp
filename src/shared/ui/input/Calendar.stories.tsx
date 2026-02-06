@@ -19,7 +19,6 @@ export const Default: Story = {
         mode="single"
         selected={date}
         onSelect={setDate}
-        className="rounded-md border"
       />
     )
   },
@@ -33,7 +32,6 @@ export const MultiMonth: Story = {
         mode="single"
         selected={date}
         onSelect={setDate}
-        className="rounded-md border"
         numberOfMonths={2}
       />
     )

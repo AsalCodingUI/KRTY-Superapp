@@ -57,16 +57,24 @@ export function EmployeeReviewView({
   isCycleActive,
   profile,
   currentCycleId,
+  selectedQuarter: controlledQuarter,
+  onQuarterChange,
+  showQuarterFilter = true,
 }: {
   isCycleActive: boolean
   profile: ProfileSubset | null
   currentCycleId: string | null
+  selectedQuarter?: QuarterFilterValue
+  onQuarterChange?: (value: QuarterFilterValue) => void
+  showQuarterFilter?: boolean
 }) {
   const supabase = createClient()
   const [result, setResult] = useState<AnalysisResult | null>(null)
   const [summaryData, setSummaryData] = useState<SummaryRow | null>(null)
-  const [selectedQuarter, setSelectedQuarter] =
+  const [internalQuarter, setInternalQuarter] =
     useState<QuarterFilterValue>("2025-Q1")
+  const selectedQuarter = controlledQuarter ?? internalQuarter
+  const setSelectedQuarter = onQuarterChange ?? setInternalQuarter
   const [totalReviewers, setTotalReviewers] = useState(0)
 
   // Calculate skill ratings using imported utilities
@@ -110,26 +118,17 @@ export function EmployeeReviewView({
     const fetchMyResult = async () => {
       if (!profile?.id) return
 
-      // 1. Tentukan Cycle ID yang valid (Harus UUID)
-      let activeUuid = currentCycleId
+      const cycleName = selectedQuarter
+      let cycleIds: string[] = []
 
-      // Jika user memilih Tab spesifik (misal "2025-Q1"), cari UUID-nya dulu
       if (!selectedQuarter.includes("All")) {
-        // Convert "2025-Q1" to cycle name (keep same format)
-        const cycleName = selectedQuarter // Already in correct format: "2025-Q1"
-
-        // Cari cycle ID berdasarkan nama
         const { data: cycles } = await supabase
           .from("review_cycles")
           .select("id")
-          .eq("name", cycleName) // Exact match
-          .order("created_at", { ascending: false })
-          .limit(1)
+          .eq("name", cycleName)
 
-        if (cycles && cycles.length > 0) {
-          activeUuid = cycles[0].id
-        } else {
-          // KASUS: Cycle untuk Q tersebut belum dibuat di database
+        cycleIds = (cycles || []).map((cycle) => cycle.id)
+        if (cycleIds.length === 0) {
           setResult(null)
           setSummaryData(null)
           setTotalReviewers(0)
@@ -137,14 +136,20 @@ export function EmployeeReviewView({
         }
       }
 
-      // 2. Query Summary hanya jika kita punya UUID yang valid
-      if (!activeUuid) return
-
-      const { data, error } = await supabase
+      let summaryQuery = supabase
         .from("performance_summaries")
         .select("*")
         .eq("reviewee_id", profile.id)
-        .eq("cycle_id", activeUuid) // HANYA filter pakai UUID
+
+      if (!selectedQuarter.includes("All")) {
+        summaryQuery = summaryQuery.in("cycle_id", cycleIds)
+      } else if (currentCycleId) {
+        summaryQuery = summaryQuery.eq("cycle_id", currentCycleId)
+      }
+
+      const { data, error } = await summaryQuery
+        .order("created_at", { ascending: false })
+        .limit(1)
 
       if (error || !data || data.length === 0) {
         // Handle jika query sukses tapi datanya emang belum ada
@@ -199,7 +204,9 @@ export function EmployeeReviewView({
   return (
     <div className="space-y-6">
       {/* 1. Quarter Filter */}
-      <QuarterFilter value={selectedQuarter} onChange={setSelectedQuarter} />
+      {showQuarterFilter && (
+        <QuarterFilter value={selectedQuarter} onChange={setSelectedQuarter} />
+      )}
 
       {/* 3. STATS HEADER (SELALU MUNCUL) 
                 Jika belum ada data, tampilkan nilai 0 atau "-" 

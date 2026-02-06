@@ -7,15 +7,7 @@ import { AnimatePresence, motion } from "framer-motion"
 import React from "react"
 
 import { cx, focusRing } from "@/shared/lib/utils"
-
-const CHECKBOX_CHECK_DEFAULT =
-  "https://www.figma.com/api/mcp/asset/527f4624-29de-4566-b13b-cd0d4f8a9328"
-const CHECKBOX_CHECK_DISABLED =
-  "https://www.figma.com/api/mcp/asset/ce93c4d8-e2b3-4665-8c01-1a575fb0fb2e"
-const CHECKBOX_MINUS_DEFAULT =
-  "https://www.figma.com/api/mcp/asset/ae55effe-e8ab-4d8f-a06d-5a1dcc995262"
-const CHECKBOX_MINUS_DISABLED =
-  "https://www.figma.com/api/mcp/asset/43ed8cf3-dba3-45f4-9b60-13490e7dbe1f"
+import { RiCheckLine, RiSubtractFill } from "@/shared/ui/lucide-icons"
 
 const Checkbox = React.forwardRef<
   React.ElementRef<typeof CheckboxPrimitives.Root>,
@@ -95,11 +87,9 @@ const Checkbox = React.forwardRef<
         >
           <AnimatePresence initial={false} mode="wait">
             {isChecked && (
-              <motion.img
+              <motion.span
                 key="checkbox-check"
-                alt=""
-                className="size-[14px]"
-                src={isDisabled ? CHECKBOX_CHECK_DISABLED : CHECKBOX_CHECK_DEFAULT}
+                className="flex size-[14px] items-center justify-center text-current"
                 initial={{ scale: 0.85, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.85, opacity: 0 }}
@@ -109,14 +99,14 @@ const Checkbox = React.forwardRef<
                   damping: 44,
                   mass: 0.6,
                 }}
-              />
+              >
+                <RiCheckLine className="size-[14px] text-current" />
+              </motion.span>
             )}
             {isIndeterminate && (
-              <motion.img
+              <motion.span
                 key="checkbox-minus"
-                alt=""
-                className="size-[14px]"
-                src={isDisabled ? CHECKBOX_MINUS_DISABLED : CHECKBOX_MINUS_DEFAULT}
+                className="flex size-[14px] items-center justify-center text-current"
                 initial={{ scale: 0.85, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.85, opacity: 0 }}
@@ -126,7 +116,9 @@ const Checkbox = React.forwardRef<
                   damping: 44,
                   mass: 0.6,
                 }}
-              />
+              >
+                <RiSubtractFill className="size-[14px] text-current" />
+              </motion.span>
             )}
           </AnimatePresence>
         </motion.span>

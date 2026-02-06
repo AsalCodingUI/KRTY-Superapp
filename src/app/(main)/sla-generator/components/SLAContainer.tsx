@@ -184,7 +184,7 @@ export default function SLAContainer({
     } = await supabase.auth.getUser()
 
     if (!user) {
-      toast.error("You must be logged in to save.")
+      toast.error("Login dulu")
       setSaving(false)
       return
     }
@@ -209,10 +209,10 @@ export default function SLAContainer({
     }
 
     if (result.error) {
-      toast.error("Failed to save SLA")
+      toast.error("Gagal simpan")
       logError("Error", result.error)
     } else {
-      toast.success(slaId ? "SLA Updated" : "SLA Saved")
+      toast.success(slaId ? "SLA diperbarui" : "SLA disimpan")
       if (!slaId && result.data) {
         const newId = Array.isArray(result.data)
           ? result.data[0]?.id
@@ -242,7 +242,7 @@ export default function SLAContainer({
     a.download = `sla-data-${new Date().getTime()}.json`
     a.click()
     URL.revokeObjectURL(url)
-    toast.success("Project data exported to JSON")
+    toast.success("Data diekspor")
   }
 
   return (

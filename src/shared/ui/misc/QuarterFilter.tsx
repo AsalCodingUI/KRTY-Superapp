@@ -131,6 +131,7 @@ export function QuarterFilter({
         onChange={handleQuarterChange}
         items={segmentedItems}
         fitContent
+        size="sm"
         className="w-auto"
       />
     </div>

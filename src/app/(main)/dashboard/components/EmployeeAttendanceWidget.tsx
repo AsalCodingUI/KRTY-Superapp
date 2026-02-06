@@ -70,7 +70,7 @@ export function EmployeeAttendanceWidget({
       </Link>
 
       {/* Attendance Rate Card */}
-      <Link href="/attendance">
+      <Link href="/leave">
         <StatsCard
           title="Attendance (Last 7 Days)"
           value={`${attendanceRate}%`}

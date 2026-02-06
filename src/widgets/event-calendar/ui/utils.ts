@@ -37,14 +37,14 @@ export const CALENDAR_HOURS = {
  * Get the start of the week (Sunday)
  */
 export function getWeekStart(date: Date): Date {
-  return startOfWeek(date, { weekStartsOn: 0 }) // 0 = Sunday
+  return startOfWeek(date, { weekStartsOn: 1 }) // 1 = Monday
 }
 
 /**
  * Get the end of the week (Saturday)
  */
 export function getWeekEnd(date: Date): Date {
-  return endOfWeek(date, { weekStartsOn: 0 })
+  return endOfWeek(date, { weekStartsOn: 1 })
 }
 
 /**

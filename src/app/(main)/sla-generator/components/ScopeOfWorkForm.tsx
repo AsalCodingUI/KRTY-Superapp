@@ -156,7 +156,7 @@ export const ScopeOfWorkForm = ({ data, onChange }: ScopeOfWorkFormProps) => {
         no: (i + 1).toString() + ".",
       }))
       onChange(reIndexed)
-      toast.success("Item reordered")
+      toast.success("Item diurutkan")
     }
   }
 
@@ -190,7 +190,7 @@ export const ScopeOfWorkForm = ({ data, onChange }: ScopeOfWorkFormProps) => {
   const handleExport = () => {
     const jsonString = JSON.stringify(data, null, 2)
     navigator.clipboard.writeText(jsonString)
-    toast.success("JSON copied to clipboard!")
+    toast.success("JSON tersalin")
   }
 
   const handleImport = () => {
@@ -208,12 +208,12 @@ export const ScopeOfWorkForm = ({ data, onChange }: ScopeOfWorkFormProps) => {
           const parsed = JSON.parse(event.target?.result as string)
           if (Array.isArray(parsed)) {
             onChange(parsed)
-            toast.success("Scope of Work loaded successfully!")
+            toast.success("Scope dimuat")
           } else {
-            toast.error("Invalid JSON format")
+            toast.error("Format JSON salah")
           }
         } catch (error) {
-          toast.error("Error parsing JSON")
+          toast.error("Gagal parse JSON")
         }
       }
       reader.readAsText(file)

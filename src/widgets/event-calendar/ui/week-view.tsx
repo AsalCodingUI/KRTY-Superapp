@@ -42,9 +42,9 @@ export const WeekView = memo(function WeekView({
   return (
     <div className="flex flex-col">
       {/* Header with days */}
-      <div className="border-border-border bg-surface sticky top-0 z-10 flex border-b">
+      <div className="border-neutral-primary bg-surface sticky top-0 z-10 flex border-b">
         {/* Time column header */}
-        <div className="border-border-border w-16 flex-shrink-0 border-r" />
+        <div className="border-neutral-primary w-16 flex-shrink-0 border-r" />
 
         {/* Day headers */}
         {weekDays.map((day) => {
@@ -52,13 +52,17 @@ export const WeekView = memo(function WeekView({
           return (
             <div
               key={day.toISOString()}
-              className="border-border-border flex-1 border-r py-3 text-center last:border-r-0"
+              className="border-neutral-primary flex-1 border-r py-2 text-center last:border-r-0"
             >
-              <div className="text-content text-label-md">
-                <span className={cx(isToday && "text-primary font-semibold")}>
+              <div className="text-label-sm text-foreground-secondary flex items-center justify-center gap-xs">
+                <span
+                  className={cx(
+                    isToday && "text-foreground-brand font-semibold",
+                  )}
+                >
                   {format(day, "d")}
-                </span>{" "}
-                <span className="text-content-muted">
+                </span>
+                <span className="text-foreground-tertiary">
                   {format(day, "EEE", { locale: id })}
                 </span>
               </div>
@@ -76,19 +80,31 @@ export const WeekView = memo(function WeekView({
       >
         <div className="relative flex">
           {/* Time labels */}
-          <div className="border-border-border w-16 flex-shrink-0 border-r">
+          <div className="border-neutral-primary bg-surface w-16 flex-shrink-0 border-r">
             {timeSlots.map((slot) => {
               if (slot.getMinutes() !== 0) return null // Only show hour labels
+
+              const baseStyle = {
+                "--height": `${HOUR_HEIGHT}px`,
+              } as React.CSSProperties
+
+              if (slot.getHours() === 0) {
+                return (
+                  <div
+                    key={slot.toISOString()}
+                    className="h-[var(--height)]"
+                    style={baseStyle}
+                  />
+                )
+              }
 
               return (
                 <div
                   key={slot.toISOString()}
-                  className="text-content-muted text-body-xs relative h-[var(--height)] pr-2 text-right"
-                  style={
-                    { "--height": `${HOUR_HEIGHT}px` } as React.CSSProperties
-                  }
+                  className="text-label-xs text-foreground-tertiary relative h-[var(--height)] pr-2 text-right"
+                  style={baseStyle}
                 >
-                  <span className="absolute -top-2 right-2">
+                  <span className="absolute -top-2 right-2 bg-surface px-1">
                     {format(slot, "h a")}
                   </span>
                 </div>
@@ -104,7 +120,7 @@ export const WeekView = memo(function WeekView({
             return (
               <div
                 key={day.toISOString()}
-                className="border-border-border relative flex-1 border-r last:border-r-0"
+                className="border-neutral-primary relative flex-1 border-r last:border-r-0"
               >
                 {/* Time slots */}
                 {timeSlots.map((slot) => {
@@ -117,7 +133,7 @@ export const WeekView = memo(function WeekView({
                     <DroppableCell
                       key={slot.toISOString()}
                       id={`slot-${day.toISOString()}-${hour}`}
-                      className="border-border-border/50 hover:bg-muted/30 h-[var(--height)] cursor-pointer border-b transition-colors"
+                      className="border-neutral-primary hover:bg-surface-state-neutral-light-hover h-[var(--height)] cursor-pointer border-b transition-colors"
                       style={
                         {
                           "--height": `${HOUR_HEIGHT}px`,

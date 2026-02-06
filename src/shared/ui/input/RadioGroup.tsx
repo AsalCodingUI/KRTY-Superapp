@@ -7,6 +7,7 @@ import { AnimatePresence, motion } from "framer-motion"
 import React from "react"
 
 import { cx, focusRing } from "@/shared/lib/utils"
+import { RiRadioButtonFill } from "@/shared/ui/lucide-icons"
 
 /**
  * RadioGroup component for single selection.
@@ -35,11 +36,6 @@ const RadioGroup = React.forwardRef<
 })
 
 RadioGroup.displayName = "RadioGroup"
-
-const RADIO_SELECTED_DEFAULT =
-  "https://www.figma.com/api/mcp/asset/a94aa0e3-041e-4492-8b9a-7eff7aa2d589"
-const RADIO_SELECTED_DISABLED =
-  "https://www.figma.com/api/mcp/asset/ffc5b61d-9e00-4571-a593-86f6e6247147"
 
 const RadioGroupItem = React.forwardRef<
   React.ElementRef<typeof RadioGroupPrimitives.Item>,
@@ -88,16 +84,19 @@ const RadioGroupItem = React.forwardRef<
         >
           <AnimatePresence initial={false}>
             {isChecked && (
-              <motion.img
+              <motion.span
                 key="radio-selected"
-                alt=""
-                className="size-full"
-                src={isDisabled ? RADIO_SELECTED_DISABLED : RADIO_SELECTED_DEFAULT}
+                className={cx(
+                  "flex size-full items-center justify-center text-foreground-brand",
+                  "group-data-[disabled]:text-foreground-disable",
+                )}
                 initial={{ scale: 0.7, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.7, opacity: 0 }}
                 transition={{ type: "spring", stiffness: 520, damping: 34 }}
-              />
+              >
+                <RiRadioButtonFill className="size-full text-current" />
+              </motion.span>
             )}
           </AnimatePresence>
         </span>

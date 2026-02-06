@@ -101,7 +101,7 @@ export function ProjectForm({
 
     // Check if user already added
     if (teamMembers.some((tm) => tm.userId === selectedUserId)) {
-      toast.error("This user has already been added to the team")
+      toast.error("Member sudah ada")
       return
     }
 
@@ -160,11 +160,11 @@ export function ProjectForm({
         setTeamMembers([])
         setEndDate("")
       } else {
-        toast.error(`Error: ${result.error}`)
+        toast.error("Gagal simpan")
       }
     } catch (error) {
       console.error("Error submitting project:", error)
-      toast.error("An error occurred while saving the project")
+      toast.error("Gagal simpan")
     } finally {
       setLoading(false)
     }

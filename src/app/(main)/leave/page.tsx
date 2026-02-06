@@ -69,8 +69,8 @@ export default async function LeaveRoute({
   }
 
   // --- JALUR 2: EMPLOYEE (Karyawan View) ---
-  // 🚀 PARALLEL FETCH: Count + Requests
-  const [countResult, requestsResult] = await Promise.all([
+  // 🚀 PARALLEL FETCH: Count + Requests + Attendance Logs
+  const [countResult, requestsResult, attendanceLogsResult] = await Promise.all([
     supabase
       .from("leave_requests")
       .select("*", { count: "exact", head: true })
@@ -81,6 +81,12 @@ export default async function LeaveRoute({
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
       .range(from, to),
+    supabase
+      .from("attendance_logs")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("date", { ascending: false })
+      .order("clock_in", { ascending: false }),
   ])
 
   return (
@@ -88,6 +94,7 @@ export default async function LeaveRoute({
       role="employee"
       profile={profile}
       requests={requestsResult.data || []}
+      attendanceLogs={attendanceLogsResult.data || []}
       page={page}
       pageSize={pageSize}
       totalCount={countResult.count || 0}

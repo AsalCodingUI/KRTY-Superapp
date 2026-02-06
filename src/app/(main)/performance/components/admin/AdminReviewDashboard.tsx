@@ -230,12 +230,9 @@ export function AdminReviewDashboard({
 
   // --- HANDLERS ---
   const handleSaveCycle = async () => {
-    if (!cycleDate?.from || !cycleDate?.to)
-      return toast.error("Mohon pilih Tanggal.")
+    if (!cycleDate?.from || !cycleDate?.to) return toast.error("Pilih tanggal")
     if (cycleName !== `${currentYear}-${quarterOnly}`) {
-      return toast.warning(
-        `Nama Cycle harus ${currentYear}-${quarterOnly} agar sesuai data.`,
-      )
+      return toast.warning("Nama cycle tidak sesuai")
     }
 
     setLoading(true)
@@ -248,7 +245,7 @@ export function AdminReviewDashboard({
           end_date: cycleDate.to.toISOString(),
         })
         .eq("id", activeCycleData.id)
-      toast.success("Jadwal diperbarui!")
+      toast.success("Jadwal diperbarui")
     } else {
       await supabase
         .from("review_cycles")
@@ -260,7 +257,7 @@ export function AdminReviewDashboard({
         end_date: cycleDate.to.toISOString(),
         is_active: true,
       })
-      toast.success(`Siklus Review ${cycleName} Dimulai!`)
+      toast.success("Siklus dimulai")
       window.location.reload()
     }
     setLoading(false)
@@ -274,7 +271,7 @@ export function AdminReviewDashboard({
       .from("review_cycles")
       .update({ is_active: false })
       .eq("id", activeCycleData.id)
-    toast.info("Siklus dinonaktifkan.")
+    toast.info("Siklus ditutup")
     window.location.reload()
   }
 
@@ -307,10 +304,10 @@ export function AdminReviewDashboard({
           cycle_id: idToSend,
         }),
       })
-      toast.success("Permintaan dikirim! Silakan refresh dalam 10-20 detik.")
+      toast.success("Permintaan terkirim")
     } catch (e) {
       console.error(e)
-      toast.error("Gagal memproses.")
+      toast.error("Gagal memproses")
     }
   }
 

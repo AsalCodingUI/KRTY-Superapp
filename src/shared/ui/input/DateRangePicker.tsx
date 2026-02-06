@@ -71,7 +71,10 @@ const DateRangePicker = React.forwardRef<
             )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
+        <PopoverContent
+          className="w-auto border-none bg-transparent p-0 shadow-none"
+          align="start"
+        >
           <Calendar
             mode="range"
             selected={value}

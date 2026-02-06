@@ -1,7 +1,7 @@
 "use client"
 
 import { SegmentedControl } from "@/shared/ui/interaction/SegmentedControl"
-import { RiMoonLine, RiSunLine } from "@/shared/ui/lucide-icons"
+import { RiLockLine, RiMoonLine, RiSunLine } from "@/shared/ui/lucide-icons"
 import { useTheme } from "next-themes"
 import { useEffect, useState } from "react"
 
@@ -16,10 +16,11 @@ export function SidebarThemeToggle() {
   if (!mounted) return null
 
   return (
-    <div className="px-2 py-1">
+    <div className="w-full px-2 py-1">
       <SegmentedControl
         value={theme === "dark" ? "dark" : "light"}
         onChange={setTheme}
+        className="w-full"
         items={[
           {
             value: "light",
@@ -30,6 +31,8 @@ export function SidebarThemeToggle() {
             value: "dark",
             label: "Dark",
             icon: RiMoonLine,
+            trailingIcon: RiLockLine,
+            disabled: true,
           },
         ]}
       />

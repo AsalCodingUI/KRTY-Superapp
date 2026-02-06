@@ -12,7 +12,7 @@ export function Sidebar() {
     <>
       {/* --- 1. DESKTOP SIDEBAR --- */}
       <nav className="border-border bg-background hidden border-r lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-64 lg:flex-col">
-        <aside className="flex grow flex-col overflow-y-auto pb-4">
+        <aside className="flex grow flex-col overflow-y-auto">
           {/* Node 3188-52441: Header / Profile Container */}
           <div>
             <SidebarHeader />

@@ -64,11 +64,11 @@ export function CompetencyForm({
         onSuccess()
         onClose()
       } else {
-        toast.error(`Error: ${result.error}`)
+        toast.error("Gagal simpan")
       }
     } catch (error) {
       console.error("Error submitting competency:", error)
-      toast.error("An error occurred while saving the competency")
+      toast.error("Gagal simpan")
     } finally {
       setLoading(false)
     }

@@ -1,7 +1,7 @@
 // src/components/Accordion.tsx
 
-import * as AccordionPrimitives from "@radix-ui/react-accordion"
 import { RiArrowDownSLine } from "@/shared/ui/lucide-icons"
+import * as AccordionPrimitives from "@radix-ui/react-accordion"
 import React from "react"
 
 import { cx, focusRing } from "@/shared/lib/utils"
@@ -63,7 +63,7 @@ const AccordionTrigger = React.forwardRef<
       ref={forwardedRef}
       className={cx(
         // base
-        "group text-label-md flex flex-1 cursor-pointer items-center justify-between px-4 py-3 text-left transition-all",
+        "group text-label-sm flex flex-1 cursor-pointer items-center justify-between p-3 text-left transition-all",
         // text color
         "text-foreground-primary",
         // disabled
@@ -79,7 +79,7 @@ const AccordionTrigger = React.forwardRef<
           // base
           "size-5 shrink-0 transition-transform duration-150 ease-[cubic-bezier(0.87,_0,_0.13,_1)] group-data-[state=open]:-rotate-180",
           // text color
-          "text-foreground-tertiary",
+          "text-foreground-Secondary",
         )}
         aria-hidden="true"
       />

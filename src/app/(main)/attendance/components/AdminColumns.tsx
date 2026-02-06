@@ -77,6 +77,9 @@ export const adminAttendanceColumns = (
           </span>
         )
       }
+      if (row.original.is_break) {
+        return <Badge variant="warning">On Break</Badge>
+      }
       return (
         <span className="font-medium text-foreground-success-dark">Active</span>
       )
@@ -87,6 +90,9 @@ export const adminAttendanceColumns = (
     id: "working_duration",
     header: "Working Duration",
     cell: ({ row }) => {
+      if (row.original.is_break && !row.original.clock_out) {
+        return <Badge variant="warning">On Break</Badge>
+      }
       const clockIn = new Date(row.original.clock_in).getTime()
       const clockOut = row.original.clock_out
         ? new Date(row.original.clock_out).getTime()

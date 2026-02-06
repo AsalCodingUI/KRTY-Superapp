@@ -1,23 +1,13 @@
 "use client"
 
-import { cx } from "@/shared/lib/utils"
 import { isSameDay } from "date-fns"
 import { useCalendarContext } from "./calendar-context"
-import { getEventColorClasses } from "./event-color-registry"
+import { EventItem } from "./event-item"
 import type { CalendarEvent } from "./types"
 
 interface AgendaViewProps {
   events: CalendarEvent[]
   onEventClick?: (event: CalendarEvent) => void
-}
-
-// Format time to 12-hour format
-const formatTime12Hour = (date: Date): string => {
-  const hours = date.getHours()
-  const minutes = date.getMinutes()
-  const period = hours >= 12 ? "PM" : "AM"
-  const hour12 = hours % 12 || 12
-  return `${hour12}:${minutes.toString().padStart(2, "0")} ${period}`
 }
 
 export function AgendaView({ events, onEventClick }: AgendaViewProps) {
@@ -48,34 +38,15 @@ export function AgendaView({ events, onEventClick }: AgendaViewProps) {
           </div>
         ) : (
           <div className="space-y-2">
-            {dayEvents.map((event) => {
-              const colorClasses = getEventColorClasses(event.color, "default")
-
-              return (
-                <button
-                  key={event.id}
-                  onClick={() => onEventClick?.(event)}
-                  className={cx(
-                    "w-full rounded px-3 py-2 text-left transition-colors",
-                    colorClasses,
-                    "hover:shadow-sm",
-                  )}
-                >
-                  <div className="text-label-md">
-                    {event.title || (
-                      <span className="text-content-muted italic">
-                        (No title)
-                      </span>
-                    )}
-                  </div>
-                  <div className="text-body-xs mt-0.5 opacity-70">
-                    {event.allDay
-                      ? "Sepanjang hari"
-                      : `${formatTime12Hour(event.start)} - ${formatTime12Hour(event.end)}`}
-                  </div>
-                </button>
-              )
-            })}
+            {dayEvents.map((event) => (
+              <EventItem
+                key={event.id}
+                event={event}
+                onClick={() => onEventClick?.(event)}
+                compact={false}
+                showTime
+              />
+            ))}
           </div>
         )}
       </div>

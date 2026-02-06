@@ -142,7 +142,7 @@ export function Notifications({ variant = "default" }: NotificationsProps) {
                   "fixed z-50 flex max-h-[calc(100vh-24px)] flex-col overflow-hidden bg-surface-neutral-primary",
                   isMobile
                     ? "inset-0 rounded-none border-0 shadow-none"
-                    : "h-[576px] w-[386px] rounded-xl border border-neutral-primary shadow-regular-md",
+                    : "h-[600px] w-[386px] rounded-xl border border-neutral-primary shadow-regular-md",
                 )}
                 style={panelStyle}
                 initial={
@@ -163,8 +163,8 @@ export function Notifications({ variant = "default" }: NotificationsProps) {
                 transition={{ type: "spring", stiffness: 420, damping: 32 }}
               >
                 <div className="flex h-full flex-col">
-                  <div className="flex items-center justify-between px-3xl pb-2xl pt-3xl">
-                    <h3 className="text-heading-lg text-foreground-primary">
+                  <div className="flex items-center justify-between px-5 pb-2 pt-4">
+                    <h3 className="text-heading-sm text-foreground-primary">
                       Notifications
                     </h3>
                     <div className="flex items-center gap-2">
@@ -185,8 +185,8 @@ export function Notifications({ variant = "default" }: NotificationsProps) {
                     </div>
                   </div>
 
-                  <div className="px-2xl">
-                    <TabNavigation>
+                  <div className="px-5 pt-2 border-b border-neutral-primary">
+                    <TabNavigation className="border-b-0">
                       <TabNavigationLink
                         active={activeTab === "unread"}
                         onClick={() => setActiveTab("unread")}
@@ -206,20 +206,20 @@ export function Notifications({ variant = "default" }: NotificationsProps) {
 
                   <div className="flex-1 overflow-y-auto">
                     {filteredNotifications.length === 0 ? (
-                      <div className="flex h-full flex-1 items-center justify-center p-2xl text-center">
-                        <div className="flex w-full flex-col items-center gap-xl px-3xl py-5xl">
+                      <div className="flex h-full flex-1 items-center justify-center p-4">
+                        <div className="flex w-full flex-col items-center gap-xl px-5 py-8 text-center">
                           <RiNotification3Line
                             aria-hidden="true"
-                            className="text-content-subtle size-8"
+                            className="text-foreground-tertiary size-8"
                           />
-                          <div className="flex w-full flex-col items-start gap-md text-center">
+                          <div className="flex w-full flex-col items-center gap-md">
                             <p className="text-heading-sm text-foreground-primary w-full">
                               You don&apos;t have any notifications
                             </p>
-                            <p className="text-body-sm text-foreground-secondary w-full">
-                              We&apos;ll notify you about important updates and
-                              any time you&apos;re mentioned on App.
-                            </p>
+                            <div className="text-body-xs text-foreground-secondary w-full">
+                              <p>We&apos;ll notify you about important updates</p>
+                              <p>and any time you&apos;re mentioned on App.</p>
+                            </div>
                           </div>
                         </div>
                       </div>

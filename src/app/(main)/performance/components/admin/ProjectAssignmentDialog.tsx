@@ -157,11 +157,11 @@ export function ProjectAssignmentDialog({
         setSelectedUserId("")
         onSuccess()
       } else {
-        toast.error(`Error: ${result.error}`)
+        toast.error("Gagal menambah")
       }
     } catch (error) {
       console.error("Error adding assignment:", error)
-      toast.error("An error occurred while adding the assignment")
+      toast.error("Gagal menambah")
     } finally {
       setLoading(false)
     }
@@ -178,11 +178,11 @@ export function ProjectAssignmentDialog({
         loadData()
         onSuccess()
       } else {
-        toast.error(`Error: ${result.error}`)
+        toast.error("Gagal menghapus")
       }
     } catch (error) {
       console.error("Error removing assignment:", error)
-      toast.error("An error occurred while removing the assignment")
+      toast.error("Gagal menghapus")
     } finally {
       setLoading(false)
     }

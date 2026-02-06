@@ -60,7 +60,7 @@ export const navigationConfig: NavigationConfig = {
       name: "Message",
       href: siteConfig.baseLinks.message,
       icon: RiMessage3Line,
-      roles: ["stakeholder", "employee"],
+      roles: ["stakeholder"],
     },
     {
       name: "Leave & Attendance",
@@ -72,12 +72,6 @@ export const navigationConfig: NavigationConfig = {
       name: "Leave & Permission",
       href: siteConfig.baseLinks.leave,
       icon: RiUserSmileLine,
-      roles: ["employee"],
-    },
-    {
-      name: "Attendance",
-      href: siteConfig.baseLinks.attendance,
-      icon: RiCalendarCheckLine,
       roles: ["employee"],
     },
     {

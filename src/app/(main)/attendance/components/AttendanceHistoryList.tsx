@@ -72,8 +72,14 @@ export function AttendanceHistoryList({
     )
   }
 
+  const defaultOpenDate = groupedLogs[0]?.[0]
+
   return (
-    <Accordion type="multiple" className="space-y-3">
+    <Accordion
+      type="multiple"
+      className="space-y-3"
+      defaultValue={defaultOpenDate ? [defaultOpenDate] : []}
+    >
       {groupedLogs.map(([date, dailyLogs]) => {
         // Hitung total jam kerja hari itu (dalam detik)
         const totalDailySeconds = dailyLogs.reduce(

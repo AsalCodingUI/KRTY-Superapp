@@ -63,11 +63,13 @@ export function AdminAttendanceHistoryList({
     )
   }
 
+  const defaultOpenDate = groupedLogs[0]?.[0]
+
   return (
     <Accordion
       type="multiple"
       className="space-y-4"
-      defaultValue={[groupedLogs[0]?.[0]]}
+      defaultValue={defaultOpenDate ? [defaultOpenDate] : []}
     >
       {groupedLogs.map(([date, dailyLogs]) => {
         const dateObj = new Date(date)

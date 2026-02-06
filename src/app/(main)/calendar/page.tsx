@@ -18,5 +18,5 @@ export default async function CalendarPage() {
 
   const role = profile?.role || "employee"
 
-  return <CalendarClient role={role} />
+  return <CalendarClient role={role} userId={user?.id ?? null} />
 }

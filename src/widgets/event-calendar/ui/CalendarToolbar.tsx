@@ -1,114 +1,105 @@
 "use client"
 
-import { Button } from "@/components/ui"
-import { SegmentedControl } from "@/shared/ui/interaction/SegmentedControl"
+import {
+  Badge,
+  Button,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from "@/shared/ui"
 import {
   RiAddLine,
+  RiArrowDownSLine,
   RiArrowLeftSLine,
   RiArrowRightSLine,
-  RiLayout2Line,
-  RiLayoutGridLine,
-  RiLayoutRowLine,
-  RiListCheck2,
 } from "@/shared/ui/lucide-icons"
-import { format } from "date-fns"
-import { id } from "date-fns/locale"
-import { useMemo } from "react"
 import { useCalendarContext } from "./calendar-context"
+import { useGoogleCalendar } from "./hooks/use-google-calendar"
 import type { ViewMode } from "./types"
-import { formatDateRange } from "./utils"
 
 interface CalendarToolbarProps {
   onAddEvent: () => void
 }
 
 export function CalendarToolbar({ onAddEvent }: CalendarToolbarProps) {
-  const {
-    currentDate,
-    viewMode,
-    setViewMode,
-    goToToday,
-    goToNext,
-    goToPrevious,
-  } = useCalendarContext()
+  const { viewMode, setViewMode, goToToday, goToNext, goToPrevious } =
+    useCalendarContext()
+  const { isConnected, isLoading } = useGoogleCalendar()
 
-  const dateRangeText = useMemo(() => {
-    if (viewMode === "month") {
-      return format(currentDate, "MMMM yyyy", { locale: id })
-    } else if (viewMode === "week") {
-      return formatDateRange(currentDate, currentDate, viewMode)
-    } else if (viewMode === "day") {
-      return format(currentDate, "EEEE, dd MMMM yyyy", { locale: id })
-    }
-    return "Agenda"
-  }, [currentDate, viewMode])
-
-  const viewButtons = [
-    { value: "month", label: "Bulan", leadingIcon: RiLayoutGridLine },
-    { value: "week", label: "Minggu", leadingIcon: RiLayout2Line },
-    { value: "day", label: "Hari", leadingIcon: RiLayoutRowLine },
-    { value: "agenda", label: "Agenda", leadingIcon: RiListCheck2 },
+  const viewOptions = [
+    { value: "month", label: "Bulan" },
+    { value: "week", label: "Minggu" },
+    { value: "day", label: "Hari" },
+    { value: "agenda", label: "Agenda" },
   ] satisfies Array<{
     value: ViewMode
     label: string
-    leadingIcon: typeof RiLayoutGridLine
   }>
+  const currentViewLabel =
+    viewOptions.find((option) => option.value === viewMode)?.label ?? "Bulan"
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-4">
-      {/* Left: New Event button and navigation */}
-      <div className="flex items-center gap-3">
-        <Button
-          onClick={onAddEvent}
-          size="default"
-          className="hover:bg-surface-brand hover:ring-primary"
-        >
-          <RiAddLine className="mr-2 h-4 w-4" />
-          New Event
-        </Button>
-
+    <div className="flex flex-wrap items-center justify-between gap-md">
+      <div className="flex items-center gap-xl">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="secondary"
+              size="sm"
+              trailingIcon={<RiArrowDownSLine />}
+            >
+              {currentViewLabel}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start">
+            <DropdownMenuRadioGroup
+              value={viewMode}
+              onValueChange={(value) => setViewMode(value as ViewMode)}
+            >
+              {viewOptions.map((option) => (
+                <DropdownMenuRadioItem
+                  key={option.value}
+                  value={option.value}
+                  iconType="check"
+                >
+                  {option.label}
+                </DropdownMenuRadioItem>
+              ))}
+            </DropdownMenuRadioGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <div className="h-3 border-l border-neutral-primary" />
         <div className="flex items-center gap-2">
-          <Button
-            variant="secondary"
-            size="default"
-            onClick={goToToday}
-            className="hover:bg-surface hover:ring-border"
-          >
-            Hari Ini
-          </Button>
-          <div className="flex items-center gap-1">
-            <Button
-              variant="secondary"
-              size="default"
-              onClick={goToPrevious}
-              className="hover:bg-surface hover:ring-border"
-            >
-              <RiArrowLeftSLine className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="secondary"
-              size="default"
-              onClick={goToNext}
-              className="hover:bg-surface hover:ring-border"
-            >
-              <RiArrowRightSLine className="h-4 w-4" />
-            </Button>
-          </div>
-          <h2 className="text-content text-label-md ml-2 min-w-[150px]">
-            {dateRangeText}
-          </h2>
+          <span className="text-label-sm text-foreground-secondary">
+            Google Calendar
+          </span>
+          {isLoading ? (
+            <Badge variant="zinc">Checking</Badge>
+          ) : isConnected ? (
+            <Badge variant="success">Connected</Badge>
+          ) : (
+            <Badge variant="zinc">Disconnected</Badge>
+          )}
         </div>
       </div>
 
-      {/* Right: View mode selector */}
-      <div className="flex items-center gap-3">
-        <SegmentedControl
-          items={viewButtons}
-          value={viewMode}
-          onChange={setViewMode}
-          fitContent
-          className="w-auto"
-        />
+      <div className="flex items-center gap-md">
+        <div className="flex items-center gap-sm">
+          <Button variant="secondary" size="icon-sm" onClick={goToPrevious}>
+            <RiArrowLeftSLine className="size-4" />
+          </Button>
+          <Button variant="secondary" size="sm" onClick={goToToday}>
+            Today
+          </Button>
+          <Button variant="secondary" size="icon-sm" onClick={goToNext}>
+            <RiArrowRightSLine className="size-4" />
+          </Button>
+        </div>
+        <Button size="sm" leadingIcon={<RiAddLine />} onClick={onAddEvent}>
+          New Event
+        </Button>
       </div>
     </div>
   )

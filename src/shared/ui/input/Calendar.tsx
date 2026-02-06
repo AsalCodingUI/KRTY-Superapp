@@ -5,6 +5,7 @@
 import {
   RiArrowLeftDoubleLine,
   RiArrowLeftSLine,
+  RiArrowDownSLine,
   RiArrowRightDoubleLine,
   RiArrowRightSLine,
 } from "@/shared/ui/lucide-icons"
@@ -44,25 +45,20 @@ const NavigationButton = React.forwardRef<
         type="button"
         disabled={disabled}
         className={cx(
-          "flex size-8 shrink-0 items-center justify-center rounded p-1 transition outline-none select-none sm:size-[30px]",
+          "flex size-8 shrink-0 items-center justify-center rounded-[10px] p-2 transition outline-none select-none",
           // text color
-          "text-content-subtle hover:text-content",
-          "dark:text-content-placeholder hover:dark:text-content",
-          // border color
-          // "border dark:border", // Removed border
+          "text-foreground-secondary hover:text-foreground-primary",
           // background color
-          "hover:bg-muted active:bg-muted",
-          "hover:dark:bg-surface active:dark:bg-hover",
+          "hover:bg-surface-state-neutral-light-hover",
           // disabled
           "disabled:pointer-events-none",
-          "disabled:border-border",
-          "disabled:text-content-placeholder disabled:dark:text-content-subtle",
+          "disabled:text-foreground-disable",
           focusRing,
         )}
         onClick={onClick}
         {...props}
       >
-        <Icon className="size-full shrink-0" />
+        <Icon className="size-3.5 shrink-0" />
       </button>
     )
   },
@@ -116,41 +112,49 @@ const Calendar = ({
       weekStartsOn={weekStartsOn}
       numberOfMonths={numberOfMonths}
       locale={locale}
-      showOutsideDays={numberOfMonths === 1}
-      className={cx(className)}
+      showOutsideDays
+      className={cx(
+        "bg-surface-neutral-primary border border-neutral-secondary rounded-xl shadow-regular-md",
+        "overflow-hidden",
+        className,
+      )}
       classNames={{
-        months: "flex space-y-0",
-        month: "space-y-4 p-3",
-        nav: "gap-1 flex items-center rounded-full size-full justify-between p-4",
-        table: "w-full border-collapse space-y-1",
+        months:
+          numberOfMonths > 1
+            ? "flex flex-row gap-0"
+            : "flex flex-col gap-0",
+        month: "space-y-3 p-3",
+        nav: "hidden",
+        table: "w-full border-separate border-spacing-2",
+        head_row: "h-8",
         head_cell:
-          "w-9 text-label-md sm:text-label-xs text-center text-content-placeholder dark:text-content-subtle pb-2",
-        row: "w-full mt-0.5",
+          "h-8 w-8 p-0 text-label-sm text-foreground-secondary text-center",
+        row: "w-full",
         cell: cx(
           "relative p-0 text-center focus-within:relative",
-          "text-content dark:text-content",
         ),
         day: cx(
-          "text-body-sm text-content dark:text-content size-9 rounded focus:z-10",
-          "hover:bg-border hover:dark:bg-muted",
+          "text-label-sm font-medium text-foreground-secondary",
+          "size-8 rounded-md focus:z-10",
+          "hover:bg-surface-state-neutral-light-hover",
           focusRing,
         ),
-        day_today: "font-semibold",
-        day_selected: cx(
-          "rounded",
-          "aria-selected:bg-primary aria-selected:text-content",
-          "dark:aria-selected:bg-primary dark:aria-selected:text-content",
-        ),
+        day_today: "font-medium",
+        day_selected:
+          mode === "range"
+            ? "text-foreground-secondary"
+            : "bg-surface-brand text-foreground-on-color",
         day_disabled:
-          "!text-content-disabled dark:!text-content-subtle line-through disabled:hover:bg-transparent",
-        day_outside: "text-content-placeholder dark:text-content-subtle",
+          "text-foreground-disable disabled:hover:bg-transparent",
+        day_outside: "text-foreground-disable",
         day_range_middle: cx(
           "!rounded-none",
-          "aria-selected:!bg-muted aria-selected:!text-content",
-          "dark:aria-selected:!bg-surface dark:aria-selected:!text-content",
+          "aria-selected:!bg-surface-brand-light aria-selected:!text-foreground-secondary",
         ),
-        day_range_start: "rounded-r-none !rounded-l",
-        day_range_end: "rounded-l-none !rounded-r",
+        day_range_start:
+          "rounded-md border border-border-brand !bg-transparent !text-foreground-secondary",
+        day_range_end:
+          "rounded-md border border-border-brand !bg-transparent !text-foreground-secondary",
         day_hidden: "invisible",
         ...classNames,
       }}
@@ -201,7 +205,7 @@ const Calendar = ({
           }
 
           return (
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-1">
                 {enableYearNavigation && !hidePreviousButton && (
                   <NavigationButton
@@ -217,32 +221,67 @@ const Calendar = ({
                     icon={RiArrowLeftDoubleLine}
                   />
                 )}
-                {!hidePreviousButton && (
+                {!hidePreviousButton ? (
                   <NavigationButton
                     disabled={disableNavigation || !previousMonth}
                     aria-label="Go to previous month"
                     onClick={() => previousMonth && goToMonth(previousMonth)}
                     icon={RiArrowLeftSLine}
                   />
+                ) : (
+                  <span className="size-8" />
                 )}
               </div>
 
               <div
                 role="presentation"
                 aria-live="polite"
-                className="text-label-md text-content dark:text-content capitalize tabular-nums"
+                className="flex flex-1 items-center justify-center gap-3"
               >
-                {format(props.displayMonth, "LLLL yyy", { locale })}
+                <div className="flex items-center gap-1">
+                  <span className="text-label-md text-foreground-secondary text-center tracking-[-0.112px]">
+                    {format(props.displayMonth, "LLL, yyyy", { locale })}
+                  </span>
+                  <button
+                    type="button"
+                    className={cx(
+                      "flex size-6 items-center justify-center rounded-md",
+                      "hover:bg-surface-state-neutral-light-hover",
+                      focusRing,
+                    )}
+                    aria-label="Select month"
+                  >
+                    <RiArrowDownSLine className="size-3.5 text-foreground-secondary" />
+                  </button>
+                </div>
+                <div className="flex items-center gap-1">
+                  <span className="text-label-md text-foreground-secondary text-center tracking-[-0.112px]">
+                    {format(props.displayMonth, "yyyy", { locale })}
+                  </span>
+                  <button
+                    type="button"
+                    className={cx(
+                      "flex size-6 items-center justify-center rounded-md",
+                      "hover:bg-surface-state-neutral-light-hover",
+                      focusRing,
+                    )}
+                    aria-label="Select year"
+                  >
+                    <RiArrowDownSLine className="size-3.5 text-foreground-secondary" />
+                  </button>
+                </div>
               </div>
 
               <div className="flex items-center gap-1">
-                {!hideNextButton && (
+                {!hideNextButton ? (
                   <NavigationButton
                     disabled={disableNavigation || !nextMonth}
                     aria-label="Go to next month"
                     onClick={() => nextMonth && goToMonth(nextMonth)}
                     icon={RiArrowRightSLine}
                   />
+                ) : (
+                  <span className="size-8" />
                 )}
                 {enableYearNavigation && !hideNextButton && (
                   <NavigationButton
@@ -263,14 +302,11 @@ const Calendar = ({
         },
         Day: ({ date, displayMonth }: DayProps) => {
           const buttonRef = React.useRef<HTMLButtonElement>(null)
-          const { activeModifiers, buttonProps, divProps, isButton, isHidden } =
-            useDayRender(
-              date,
-              displayMonth,
-              buttonRef as React.RefObject<HTMLButtonElement>,
-            )
-
-          const { selected, today, disabled, range_middle } = activeModifiers
+          const { buttonProps, divProps, isButton, isHidden } = useDayRender(
+            date,
+            displayMonth,
+            buttonRef as React.RefObject<HTMLButtonElement>,
+          )
 
           if (isHidden) {
             return <></>
@@ -302,21 +338,6 @@ const Calendar = ({
               className={cx("relative", buttonClassName)}
             >
               {buttonChildren}
-              {today && (
-                <span
-                  className={cx(
-                    "absolute inset-x-1/2 bottom-1.5 h-0.5 w-4 -translate-x-1/2 rounded-[2px]",
-                    {
-                      "bg-primary dark:bg-primary": !selected,
-                      "!bg-surface dark:!bg-surface": selected,
-                      "!bg-border-strong dark:!bg-border-strong":
-                        selected && range_middle,
-                      "bg-border-strong text-content-placeholder dark:bg-border-strong dark:text-content-subtle":
-                        disabled,
-                    },
-                  )}
-                />
-              )}
             </button>
           )
         },

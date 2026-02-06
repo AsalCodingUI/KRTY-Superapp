@@ -237,13 +237,11 @@ const CalendarPopover = React.forwardRef<
         onOpenAutoFocus={(e) => e.preventDefault()}
         className={cx(
           // base
-          "text-body-sm relative z-[100] w-fit rounded-md border shadow-xl shadow-black/[2.5%]",
+          "text-body-sm relative z-[100] w-fit rounded-none border-none shadow-none bg-transparent",
           // widths
           "max-w-[95vw] min-w-[calc(var(--radix-select-trigger-width)-2px)]",
-          // border color
-          "border-border",
           // background color
-          "bg-surface dark:bg-surface",
+          "bg-transparent",
           // transition
           "will-change-[transform,opacity]",
           "data-[state=closed]:animate-hide",

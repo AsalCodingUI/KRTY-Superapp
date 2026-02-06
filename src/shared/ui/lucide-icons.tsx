@@ -65,6 +65,7 @@ import {
   Loader2,
   LogIn,
   LogOut,
+  Lock,
   Mail,
   MapPin,
   Menu,
@@ -198,6 +199,7 @@ export const RiLoader2Line = withDefaults(Loader2)
 export const RiLoader4Line = withDefaults(Loader)
 export const RiLoginBoxLine = withDefaults(LogIn)
 export const RiLogoutBoxLine = withDefaults(LogOut)
+export const RiLockLine = withDefaults(Lock)
 export const RiMailLine = withDefaults(Mail)
 export const RiMailSendLine = withDefaults(Send)
 export const RiMapPinLine = withDefaults(MapPin)

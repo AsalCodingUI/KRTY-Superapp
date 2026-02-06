@@ -61,9 +61,13 @@ export const columns = (onRequestDelete?: (id: string) => void) =>
       ),
       cell: ({ row }) => {
         const val = row.getValue("clock_out") as string
-        return val ? (
-          <span className="tabular-nums">{formatTime(val)}</span>
-        ) : (
+        if (val) {
+          return <span className="tabular-nums">{formatTime(val)}</span>
+        }
+        if (row.original.is_break) {
+          return <Badge variant="warning">On Break</Badge>
+        }
+        return (
           <span className="font-medium text-foreground-success-dark">
             Active
           </span>
@@ -80,9 +84,12 @@ export const columns = (onRequestDelete?: (id: string) => void) =>
           className="whitespace-nowrap"
         />
       ),
-      cell: ({ row }) => (
-        <span className="tabular-nums">{calculateDuration(row.original)}</span>
-      ),
+      cell: ({ row }) =>
+        row.original.is_break && !row.original.clock_out ? (
+          <Badge variant="warning">On Break</Badge>
+        ) : (
+          <span className="tabular-nums">{calculateDuration(row.original)}</span>
+        ),
       meta: { className: "w-1/5", displayName: "Total Work" },
     }),
     columnHelper.accessor("status", {

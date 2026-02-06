@@ -7,7 +7,15 @@ import { useEffect, useState } from "react"
 import { AdminReviewDashboard } from "../admin/AdminReviewDashboard"
 import { EmployeeReviewView } from "./EmployeeReviewView"
 
-export function Review360Tab() {
+export function Review360Tab(
+  {
+    selectedQuarter,
+    onQuarterChange,
+  }: {
+    selectedQuarter?: string
+    onQuarterChange?: (value: string) => void
+  } = {},
+) {
   const { profile, loading } = useUserProfile()
   const [isCycleActive, setIsCycleActive] = useState(false)
   const [currentCycleId, setCurrentCycleId] = useState<string | null>(null)
@@ -49,6 +57,9 @@ export function Review360Tab() {
       profile={profile}
       isCycleActive={isCycleActive}
       currentCycleId={currentCycleId}
+      selectedQuarter={selectedQuarter}
+      onQuarterChange={onQuarterChange}
+      showQuarterFilter={false}
     />
   )
 }

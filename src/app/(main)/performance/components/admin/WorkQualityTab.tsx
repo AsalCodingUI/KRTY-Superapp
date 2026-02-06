@@ -98,7 +98,7 @@ export function WorkQualityTab() {
     if (result.success) {
       loadCompetencies()
     } else {
-      toast.error(`Error: ${result.error}`)
+      toast.error("Gagal hapus")
     }
   }
 
