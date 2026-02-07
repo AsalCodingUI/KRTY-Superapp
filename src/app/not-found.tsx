@@ -7,7 +7,7 @@ import { siteConfig } from "./siteConfig"
 export default function NotFound() {
   return (
     <div className="flex h-screen flex-col items-center justify-center">
-      <p className="text-display-sm sm:text-display-lg mt-6 text-blue-600 dark:text-blue-500">
+      <p className="text-display-sm sm:text-display-lg mt-6 text-foreground-brand">
         404
       </p>
       <h1 className="text-display-xxs text-content dark:text-content mt-4">

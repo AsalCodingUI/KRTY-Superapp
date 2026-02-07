@@ -17,8 +17,8 @@ export function SidebarHeader() {
 
     return (
         <div className="flex w-full items-center justify-between gap-2 px-3 pb-2 pt-3 transition-colors duration-200">
-            <div className="flex min-w-0 flex-1 items-center gap-2 rounded-[8px]">
-                <div className="text-label-xs flex size-7 shrink-0 items-center justify-center rounded-full bg-[#ebf8ff] text-[#0046b7]">
+            <div className="flex min-w-0 flex-1 items-center gap-2 rounded-md">
+                <div className="text-label-xs flex size-7 shrink-0 items-center justify-center rounded-full bg-surface-brand-light text-foreground-brand-dark">
                     {initials}
                 </div>
                 <div className="flex min-w-0 flex-1 flex-col items-start px-1">

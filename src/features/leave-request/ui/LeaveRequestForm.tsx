@@ -4,14 +4,13 @@ import { calculateBusinessDays } from "@/shared/lib/date"
 import { Database } from "@/shared/types/database.types"
 import {
   DateRangePicker,
-  Input,
   Label,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Textarea,
+  Textarea
 } from "@/shared/ui"
 import { RiLoader2Line } from "@/shared/ui/lucide-icons"
 import React from "react"
@@ -49,7 +48,7 @@ export function LeaveRequestForm({
         <Label htmlFor="name" className="font-medium">
           Nama
         </Label>
-        <Input
+        <TextInput
           id="name"
           value={userProfile.full_name || ""}
           disabled
@@ -117,7 +116,7 @@ export function LeaveRequestForm({
         <div>
           <Label className="font-medium">Surat Dokter (Optional)</Label>
           <div className="mt-2 flex items-center gap-2">
-            <Input
+            <TextInput
               type="file"
               accept="image/*"
               className="w-full"
@@ -125,7 +124,7 @@ export function LeaveRequestForm({
               disabled={compressing}
             />
             {compressing && (
-              <span className="text-body-xs flex animate-pulse items-center gap-1 whitespace-nowrap text-blue-600">
+              <span className="text-body-xs flex animate-pulse items-center gap-1 whitespace-nowrap text-foreground-brand">
                 <RiLoader2Line className="size-3 animate-spin" />
                 Processing...
               </span>

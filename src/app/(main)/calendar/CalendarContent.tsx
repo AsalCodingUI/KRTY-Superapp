@@ -3,6 +3,15 @@
 import { useKeyboardShortcuts } from "@/shared/hooks/useKeyboardShortcuts"
 import { RiCalendarLine } from "@/shared/ui/lucide-icons"
 import {
+  CalendarSkeleton,
+  CalendarToolbar,
+  EmptyState,
+  useCalendarContext,
+  type CalendarEvent,
+  type EventCategory,
+} from "@/widgets/event-calendar"
+import { useGoogleCalendar } from "@/widgets/event-calendar/ui/hooks/use-google-calendar"
+import {
   endOfDay,
   endOfMonth,
   endOfWeek,
@@ -13,18 +22,9 @@ import {
   startOfMonth,
   startOfWeek,
 } from "date-fns"
+import dynamic from "next/dynamic"
 import { useEffect, useMemo, useState } from "react"
 import { toast } from "sonner"
-import dynamic from "next/dynamic"
-import {
-  CalendarSkeleton,
-  CalendarToolbar,
-  EmptyState,
-  useCalendarContext,
-  type CalendarEvent,
-  type EventCategory,
-} from "@/widgets/event-calendar"
-import { useGoogleCalendar } from "@/widgets/event-calendar/ui/hooks/use-google-calendar"
 
 const EventCalendar = dynamic(
   () =>
@@ -172,7 +172,7 @@ function CalendarContent({
 
   // Keyboard shortcuts
   useKeyboardShortcuts({
-    onCreateEvent: isStakeholder ? () => setDialogOpen(true) : () => {},
+    onCreateEvent: isStakeholder ? () => setDialogOpen(true) : () => { },
     onGoToday: goToToday,
     onPrevious: goToPrevious,
     onNext: goToNext,
@@ -181,12 +181,12 @@ function CalendarContent({
 
   return (
     <div className="flex min-h-[calc(100vh-1rem)] flex-col">
-      <div className="flex items-center gap-md rounded-[14px] px-5 pt-4 pb-3">
+      <div className="flex items-center gap-md rounded-xxl px-5 pt-4 pb-3">
         <RiCalendarLine className="size-4 text-foreground-secondary" />
         <p className="text-label-md text-foreground-primary">Calendar</p>
       </div>
 
-      <div className="bg-surface-neutral-primary flex min-h-0 flex-1 flex-col rounded-[14px]">
+      <div className="bg-surface-neutral-primary flex min-h-0 flex-1 flex-col rounded-xxl">
         <div className="grid grid-cols-1 gap-md px-5 py-2 sm:grid-cols-2 lg:grid-cols-5">
           <div className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-sm rounded-lg border px-2xl py-xl">
             <p className="text-label-sm text-foreground-secondary">

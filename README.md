@@ -1,154 +1,108 @@
-# 📊 HR Management Dashboard
+# KretyaAPP - HR Management Dashboard
 
-Sistem manajemen HR komprehensif dengan modul attendance, leave, performance review, dan team management.
+Sistem manajemen HR komprehensif untuk attendance, leave, performance, dan kolaborasi tim. Dibangun dengan Next.js App Router, Supabase, dan Tailwind CSS.
 
-## ✨ Fitur Utama
+## Fitur Utama
+- Attendance management: clock in/out, break tracking, dan histori per user.
+- Leave management: pengajuan cuti, approval workflow, dan tracking sisa cuti.
+- Performance management: 360 review, KPI/SLA tracking, serta ringkasan feedback (opsional via n8n).
+- Team management: CRUD tim, role assignment, dan statistik.
+- Calendar & one-on-one: sinkronisasi dan booking berbasis Google Calendar.
+- Payroll & SLA generator: perhitungan dan ringkasan SLA untuk proyek.
+- Financial calculator: perhitungan biaya proyek berbasis fase.
+- Messaging & notifications: notifikasi dan komunikasi internal.
 
-### 1. Attendance Management
-- Clock In/Out dengan timestamps
-- Break tracking
-- Admin view untuk monitoring seluruh tim
-- History per user
+## Tech Stack
 
-### 2. Leave Management
-- Pengajuan cuti dengan upload bukti
-- Approval workflow (Admin/Stakeholder)
-- Sisa cuti tracking
-- Multiple leave types
-
-### 3. Performance Management
-- **360 Review System:** Peer-to-peer feedback dengan 5 kompetensi
-- **KPI Calculator:** SLA tracking per project
-- **Work Quality Scoring:** Competency-based assessment
-- **Performance Summary:** AI-generated feedback (via N8N integration)
-
-### 4. Team Management
-- CRUD Teams & Members
-- Role assignment (Stakeholder/Employee)
-- Team statistics
-
-### 5. Calculator (Financial)
-- Phase-based project costing
-- Rate calculations
-
----
-
-## 🛠️ Tech Stack
-
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| Next.js | 14.2.23 | React Framework (App Router) |
+| Technology | Version | Notes |
+|------------|---------|-------|
+| Next.js | 15.5.12 | App Router |
 | React | 18.2.0 | UI Library |
 | TypeScript | 5.9.3 | Type Safety |
-| Tailwind CSS | 4.1.17 | Styling (v4 Compatibility Mode) |
-| Supabase | 2.86.0 | Backend as a Service |
-| Radix UI | Various | Headless UI Primitives |
-| Recharts | 2.15.4 | Chart Library |
-| TanStack Table | 8.21.3 | Data Table |
-| date-fns | 3.6.0 | Date Manipulation |
-| Sonner | 2.0.7 | Toast Notifications |
-| Vitest | 4.0.15 | Unit Testing |
+| Tailwind CSS | 4.1.17 | Styling |
+| Supabase JS | 2.86.0 | Auth + Database |
+| Radix UI | Various | UI primitives |
+| TanStack Query | 5.90.20 | Server state |
+| TanStack Table | 8.21.3 | Data tables |
+| Recharts | 2.15.4 | Charts |
+| Storybook | 10.2.1 | UI development |
+| Vitest | 4.0.18 | Unit testing |
 
-
----
-
-## 🚀 Getting Started
-
-### Prerequisites
-- Node.js 18+
+## Prasyarat
+- Node.js 18+ (ikuti requirement Next.js 15)
 - pnpm (recommended) atau npm
 
-### Installation
+## Setup Lokal
 
 ```bash
-# Clone repository
-git clone <repo-url>
-
-# Install dependencies
 pnpm install
-
-# Setup environment variables
 cp .env.example .env.local
-# Edit .env.local dengan Supabase credentials
-
-# Run development server
 pnpm dev
 ```
 
-### Environment Variables
+Akses aplikasi di `http://localhost:3000`.
 
-```env
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
+## Variabel Lingkungan
+
+Gunakan `.env.local` untuk konfigurasi lokal.
+
+| Key | Required | Keterangan |
+|-----|----------|------------|
+| `NEXT_PUBLIC_SUPABASE_URL` | Ya | URL project Supabase |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Ya | Anon key Supabase |
+| `N8N_WEBHOOK_URL` | Tidak | Webhook untuk auto-summary performance review |
+| `GOOGLE_CLIENT_ID` | Tidak | OAuth client ID (Google Calendar) |
+| `GOOGLE_CLIENT_SECRET` | Tidak | OAuth client secret |
+| `GOOGLE_REFRESH_TOKEN` | Tidak | Refresh token Google |
+| `GOOGLE_CALENDAR_ID` | Tidak | Default `primary` |
+| `UPSTASH_REDIS_REST_URL` | Tidak | Upstash Redis URL untuk rate limiting |
+| `UPSTASH_REDIS_REST_TOKEN` | Tidak | Upstash Redis token |
+
+## Database & Supabase
+- Buat project Supabase baru dan isi env vars di atas.
+- Jalankan file SQL pada folder `migrations/` melalui Supabase SQL Editor.
+- Role pengguna dibaca dari `app_metadata.role`, fallback ke tabel `profiles.role`.
+
+## Scripts
+
+```bash
+pnpm dev              # Start dev server
+pnpm build            # Build production
+pnpm start            # Start production server
+pnpm lint             # Run ESLint
+pnpm clean            # Clean cache (.next, tsbuildinfo, dll)
+pnpm test             # Run Vitest (watch)
+pnpm test:coverage    # Run coverage report
+pnpm storybook        # Run Storybook at :6006
+pnpm build-storybook  # Build Storybook static
 ```
 
----
-
-## 📁 Struktur Project
+## Struktur Project
 
 ```
 src/
-├── app/                          # Next.js App Router
-│   ├── (fullscreen)/             # Fullscreen layouts (no sidebar)
-│   ├── (main)/                   # Main app dengan sidebar
-│   │   ├── attendance/           # Modul Absensi
-│   │   ├── calculator/           # Kalkulator Finansial
-│   │   ├── dashboard/            # Dashboard Overview
-│   │   ├── leave/                # Modul Cuti
-│   │   ├── payroll/              # Modul Payroll
-│   │   ├── performance/          # Modul KPI & Performance
-│   │   ├── settings/             # Pengaturan
-│   │   └── teams/                # Manajemen Tim
-│   ├── api/                      # API Routes
-│   └── auth/                     # Auth Pages
-├── components/                   # Reusable UI Components
-├── hooks/                        # Custom React Hooks
-└── lib/                          # Utilities & Configurations
+├── app/                 # Next.js App Router
+│   ├── (fullscreen)/    # Halaman tanpa sidebar
+│   ├── (main)/          # Halaman utama dengan sidebar
+│   └── api/             # Route handlers (calendar, one-on-one, n8n)
+├── entities/            # Domain entities (attendance, leave, team, dsb)
+├── features/            # Feature-specific logic
+├── page-slices/         # Page composition per module
+├── widgets/             # UI widgets besar (sidebar, calendar, notifications)
+├── shared/              # Reusable UI, lib, config, api
+└── data/                # Static data & constants
 ```
 
----
+## Storybook
+Jalankan `pnpm storybook` lalu buka `http://localhost:6006`.
 
-## 🎨 Design System
+## Testing
+Gunakan `pnpm test` untuk menjalankan unit test. Coverage bisa dengan `pnpm test:coverage`.
 
-Project ini menggunakan **Pure Tailwind Theme** dengan:
-- **Neutral:** Zinc (grayscale)
-- **Primary:** Blue (accent color)
-- **Semantic tokens:** `bg-surface`, `text-content`, `bg-primary`, dll
+## Deployment
+- Jalankan `pnpm build`.
+- Jalankan `pnpm start` pada server production.
+- Pastikan env vars production sudah di-set.
 
-Lihat [`ARCHITECTURE.md`](./ARCHITECTURE.md) untuk detail lebih lanjut.
-
----
-
-## 📜 Scripts
-
-```bash
-pnpm dev          # Start development server
-pnpm build        # Build production bundle
-pnpm start        # Start production server
-pnpm lint         # Run ESLint
-pnpm clean        # Clean build cache
-pnpm test         # Run Unit Model Tests
-
-```
-
----
-
-## 📖 Dokumentasi Tambahan
-
-- [ARCHITECTURE.md](./ARCHITECTURE.md) - Detail arsitektur aplikasi
-- [AUDIT_REPORT.md](./.gemini/antigravity/brain/.../AUDIT_REPORT.md) - Laporan audit codebase
-
----
-
-## 👥 Roles
-
-| Role | Akses |
-|------|-------|
-| `employee` | View own data, submit leave, clock in/out |
-| `stakeholder` | Admin access, approve/reject requests, view all data |
-
----
-
-## 📄 License
-
-Private - Internal Use Only
+## License
+MIT. Lihat `LICENSE.md`.

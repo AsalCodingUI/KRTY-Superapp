@@ -3,11 +3,11 @@
 import { createTeamColumns } from "@/app/(main)/teams/Columns"
 import { TeamFormDialog } from "@/app/(main)/teams/components/TeamDialogs"
 import { createClient } from "@/shared/api/supabase/client"
-import { Database } from "@/shared/types/database.types"
-import { DataTable } from "@/shared/ui/data/DataTable"
-import { Button, TextInput } from "@/shared/ui"
-import { RiAddLine, RiGroupLine } from "@/shared/ui/lucide-icons"
 import { canManageByRole } from "@/shared/lib/roles"
+import { Database } from "@/shared/types/database.types"
+import { Button, TextInput } from "@/shared/ui"
+import { DataTable } from "@/shared/ui/data/DataTable"
+import { RiAddLine, RiGroupLine } from "@/shared/ui/lucide-icons"
 import { useMemo, useState } from "react"
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
@@ -83,14 +83,14 @@ export function TeamsPage({
   return (
     <>
       <div className="flex flex-col">
-        <div className="flex items-center gap-2 rounded-[14px] px-5 pt-4 pb-3">
+        <div className="flex items-center gap-2 rounded-xxl px-5 pt-4 pb-3">
           <RiGroupLine className="size-4 text-foreground-secondary" />
           <p className="text-label-md text-foreground-primary">
             Team Members
           </p>
         </div>
 
-        <div className="bg-surface-neutral-primary flex flex-col rounded-[14px]">
+        <div className="bg-surface-neutral-primary flex flex-col rounded-xxl">
           <section className="grid grid-cols-1 gap-3 px-5 py-2 sm:grid-cols-2 lg:grid-cols-5">
             {[
               { label: "Total Team", value: totalMembers },
@@ -101,7 +101,7 @@ export function TeamsPage({
             ].map((item) => (
               <div
                 key={item.label}
-                className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-[10px] border px-4 py-3"
+                className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-lg border px-4 py-3"
               >
                 <p className="text-label-sm text-foreground-secondary">
                   {item.label}
@@ -151,27 +151,27 @@ export function TeamsPage({
               onEdit={
                 canManage
                   ? (item) => {
-                      setEditingItem(item)
-                      setIsAddOpen(true)
-                    }
+                    setEditingItem(item)
+                    setIsAddOpen(true)
+                  }
                   : undefined
               }
               onDelete={
                 canManage
                   ? async (ids) => {
-                      if (!confirm(`Delete ${ids.length} team member(s)?`))
-                        return
-                      const supabase = createClient()
-                      const { error } = await supabase
-                        .from("profiles")
-                        .delete()
-                        .in("id", ids as string[])
-                      if (error) {
-                        alert("Error deleting: " + error.message)
-                      } else {
-                        router.refresh()
-                      }
+                    if (!confirm(`Delete ${ids.length} team member(s)?`))
+                      return
+                    const supabase = createClient()
+                    const { error } = await supabase
+                      .from("profiles")
+                      .delete()
+                      .in("id", ids as string[])
+                    if (error) {
+                      alert("Error deleting: " + error.message)
+                    } else {
+                      router.refresh()
                     }
+                  }
                   : undefined
               }
               showTableWrapper={false}

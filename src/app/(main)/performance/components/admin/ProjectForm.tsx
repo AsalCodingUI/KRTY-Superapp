@@ -1,27 +1,21 @@
 "use client"
 
-import { Avatar, Button } from "@/shared/ui"
+import { getQuarterFromDate } from "@/entities/performance/lib/kpiUtils"
+import { type Database } from "@/shared/types/database.types"
 import {
-  Dialog,
+  Avatar, Button, Dialog,
   DialogBody,
   DialogCloseButton,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/shared/ui"
-import { Input } from "@/shared/ui"
-import { Label } from "@/shared/ui"
-import {
-  Select,
+  Label, Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
+  SelectValue, Textarea
 } from "@/shared/ui"
-import { Textarea } from "@/shared/ui"
-import { type Database } from "@/shared/types/database.types"
-import { getQuarterFromDate } from "@/entities/performance/lib/kpiUtils"
 import { RiDeleteBin6Line, RiUserAddLine } from "@/shared/ui/lucide-icons"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
@@ -186,7 +180,7 @@ export function ProjectForm({
             {/* Project Name */}
             <div className="space-y-2">
               <Label htmlFor="name">Project Name *</Label>
-              <Input
+              <TextInput
                 id="name"
                 name="name"
                 placeholder="e.g., Website Redesign Q1"
@@ -199,7 +193,7 @@ export function ProjectForm({
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="start_date">Start Date *</Label>
-                <Input
+                <TextInput
                   id="start_date"
                   name="start_date"
                   type="date"
@@ -209,7 +203,7 @@ export function ProjectForm({
               </div>
               <div className="space-y-2">
                 <Label htmlFor="end_date">End Date *</Label>
-                <Input
+                <TextInput
                   id="end_date"
                   name="end_date"
                   type="date"
@@ -347,7 +341,7 @@ export function ProjectForm({
                           variant="ghost"
                           size="sm"
                           onClick={() => handleRemoveTeamMember(member.userId)}
-                          className="text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
+                          className="text-foreground-danger hover:bg-surface-danger-light"
                         >
                           <RiDeleteBin6Line className="size-4" />
                         </Button>

@@ -1,17 +1,5 @@
 "use client"
 
-import { Badge } from "@/shared/ui"
-import { Button } from "@/shared/ui"
-import { Card } from "@/shared/ui"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeaderCell,
-  TableRow,
-} from "@/shared/ui"
-import { TabNavigation, TabNavigationLink } from "@/shared/ui"
 import {
   calculateSLAPercentage,
   calculateWorkQualityPercentage,
@@ -20,6 +8,14 @@ import {
   mapPercentageToScore,
   type Milestone,
 } from "@/entities/performance/lib/kpiCalculations"
+import {
+  Badge, Button, Card, Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeaderCell,
+  TableRow, TabNavigation, TabNavigationLink
+} from "@/shared/ui"
 import { RiArrowLeftLine, RiCheckLine, RiCloseLine } from "@/shared/ui/lucide-icons"
 import Link from "next/link"
 import { useEffect, useState } from "react"
@@ -189,10 +185,10 @@ export function EmployeeProjectView({
           </div>
           <div className="flex items-center gap-2">
             <Badge variant="zinc">Read-Only View</Badge>
-            <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+            <Badge variant="info">
               {assignment.projects.quarter_id}
             </Badge>
-            <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+            <Badge variant="info">
               {assignment.role_in_project}
             </Badge>
           </div>

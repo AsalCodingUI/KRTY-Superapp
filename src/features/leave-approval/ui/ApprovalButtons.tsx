@@ -1,7 +1,7 @@
 "use client"
 
-import { RiCheckLine, RiCloseLine } from "@/shared/ui/lucide-icons"
 import { Button } from "@/shared/ui"
+import { RiCheckLine, RiCloseLine } from "@/shared/ui/lucide-icons"
 
 interface ApprovalButtonsProps {
   requestId: number
@@ -22,7 +22,7 @@ export function ApprovalButtons({
     <div className="flex justify-end gap-2">
       <Button
         variant="secondary"
-        className="aspect-square p-1 text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-500 dark:hover:bg-red-900/20"
+        className="aspect-square p-1 text-foreground-danger hover:bg-surface-danger-light"
         title="Reject"
         onClick={() => onReject(requestId)}
       >
@@ -30,7 +30,7 @@ export function ApprovalButtons({
       </Button>
       <Button
         variant="secondary"
-        className="aspect-square p-1 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700 dark:text-emerald-500 dark:hover:bg-emerald-900/20"
+        className="aspect-square p-1 text-foreground-success hover:bg-surface-success-light"
         title="Approve"
         onClick={() => onApprove(requestId)}
       >

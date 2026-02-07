@@ -1,25 +1,5 @@
 "use client"
 
-import { Badge } from "@/shared/ui"
-import { Button } from "@/shared/ui"
-import { Card } from "@/shared/ui"
-import { Input } from "@/shared/ui"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/shared/ui"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeaderCell,
-  TableRow,
-} from "@/shared/ui"
-import { TabNavigation, TabNavigationLink } from "@/shared/ui"
 import {
   calculateSLAPercentage,
   calculateWorkQualityPercentage,
@@ -30,6 +10,19 @@ import {
   type Milestone,
   type SLAResult,
 } from "@/entities/performance/lib/kpiCalculations"
+import {
+  Badge, Button, Card,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue, Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeaderCell,
+  TableRow, TabNavigation, TabNavigationLink
+} from "@/shared/ui"
 import {
   RiArrowLeftLine,
   RiCheckLine,
@@ -280,10 +273,10 @@ export function ProjectScoringClient({
             )}
           </div>
           <div className="flex items-center gap-2">
-            <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+            <Badge variant="info">
               {assignment.projects.quarter_id}
             </Badge>
-            <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+            <Badge variant="info">
               {assignment.role_in_project}
             </Badge>
           </div>
@@ -364,10 +357,10 @@ export function ProjectScoringClient({
               {milestones.map((milestone, index) => (
                 <div key={index} className="flex items-center gap-4">
                   {/* Milestone Name */}
-                  <Input className="flex-1" value={milestone.name} disabled />
+                  <TextInput className="flex-1" value={milestone.name} disabled />
 
                   {/* Weight */}
-                  <Input
+                  <TextInput
                     type="number"
                     className="w-28 text-center"
                     value={milestone.weight}
@@ -408,7 +401,7 @@ export function ProjectScoringClient({
                   </Select>
 
                   {/* Real Achieve (Read-only) */}
-                  <Input
+                  <TextInput
                     className="w-32 text-center"
                     value={milestone.realAchieve.toFixed(1)}
                     disabled
@@ -486,11 +479,10 @@ export function ProjectScoringClient({
                     {[1, 2, 3, 4, 5].map((score) => (
                       <div
                         key={score}
-                        className={`rounded p-2 ${
-                          score === finalScore
-                            ? getScoreColor(score)
-                            : "bg-muted text-content-placeholder dark:bg-hover"
-                        }`}
+                        className={`rounded p-2 ${score === finalScore
+                          ? getScoreColor(score)
+                          : "bg-muted text-content-placeholder dark:bg-hover"
+                          }`}
                       >
                         <div className="font-semibold">{score}</div>
                         <div className="text-label-xs mt-1">

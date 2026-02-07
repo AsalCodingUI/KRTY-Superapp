@@ -12,11 +12,11 @@ const avatarVariants = tv({
   base: "relative inline-flex items-center justify-center overflow-hidden rounded-full font-medium",
   variants: {
     size: {
-      xxxs: "h-[14px] w-[14px] text-[6px] leading-[16px]",
-      xxs: "h-[16px] w-[16px] text-[8px] leading-[16px]",
-      xs: "h-[20px] w-[20px] text-[10px] leading-[16px]",
+      xxxs: "h-[14px] w-[14px] text-label-xs leading-[16px]",
+      xxs: "h-[16px] w-[16px] text-label-xs leading-[16px]",
+      xs: "h-[20px] w-[20px] text-label-xs leading-[16px]",
       sm: "h-[28px] w-[28px] text-label-xs",
-      md: "h-[32px] w-[32px] text-[14px] leading-[20px] font-heading tracking-[0px]",
+      md: "h-[32px] w-[32px] text-label-md",
       lg: "h-[48px] w-[48px] text-heading-lg",
       xl: "h-[64px] w-[64px] text-display-xxs",
     },
@@ -66,8 +66,8 @@ function getColorFromString(
 
 interface AvatarProps
   extends
-    React.ComponentPropsWithoutRef<"img">,
-    VariantProps<typeof avatarVariants> {
+  React.ComponentPropsWithoutRef<"img">,
+  VariantProps<typeof avatarVariants> {
   src?: string
   initials?: string
   alt?: string
@@ -129,8 +129,8 @@ const avatarGroupVariants = tv({
 
 interface AvatarGroupProps
   extends
-    React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof avatarGroupVariants> {
+  React.HTMLAttributes<HTMLDivElement>,
+  VariantProps<typeof avatarGroupVariants> {
   children: React.ReactNode
 }
 
@@ -161,11 +161,11 @@ const avatarOverflowVariants = tv({
   ],
   variants: {
     size: {
-      xxxs: "h-[14px] w-[14px] text-[6px] leading-[16px]",
-      xxs: "h-[16px] w-[16px] text-[8px] leading-[16px]",
-      xs: "h-[20px] w-[20px] text-[10px] leading-[16px]",
+      xxxs: "h-[14px] w-[14px] text-label-xs leading-[16px]",
+      xxs: "h-[16px] w-[16px] text-label-xs leading-[16px]",
+      xs: "h-[20px] w-[20px] text-label-xs leading-[16px]",
       sm: "h-[28px] w-[28px] text-label-xs",
-      md: "h-[32px] w-[32px] text-[14px] leading-[20px] font-heading tracking-[0px]",
+      md: "h-[32px] w-[32px] text-label-md",
       lg: "h-[48px] w-[48px] text-heading-lg",
       xl: "h-[64px] w-[64px] text-display-xxs",
     },
@@ -177,8 +177,8 @@ const avatarOverflowVariants = tv({
 
 interface AvatarOverflowProps
   extends
-    React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof avatarOverflowVariants> {
+  React.HTMLAttributes<HTMLDivElement>,
+  VariantProps<typeof avatarOverflowVariants> {
   count: number
 }
 
@@ -211,5 +211,6 @@ export {
   avatarVariants,
   type AvatarGroupProps,
   type AvatarOverflowProps,
-  type AvatarProps,
+  type AvatarProps
 }
+

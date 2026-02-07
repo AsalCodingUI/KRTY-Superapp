@@ -8,6 +8,8 @@ import { createClient } from "@/shared/api/supabase/client"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { canManageByRole } from "@/shared/lib/roles"
 import {
+  Badge,
+  Button,
   QuarterFilter,
   Select,
   SelectContent,
@@ -17,8 +19,6 @@ import {
   TabNavigation,
   TabNavigationLink,
   type QuarterFilterValue,
-  Badge,
-  Button,
 } from "@/shared/ui"
 import { RiBarChartBoxLine } from "@/shared/ui/lucide-icons"
 import dynamic from "next/dynamic"
@@ -354,21 +354,21 @@ export function PerformancePage() {
 
   return (
     <div className="flex flex-col">
-      <div className="flex items-center gap-2 rounded-[14px] px-5 pt-4 pb-3">
+      <div className="flex items-center gap-2 rounded-xxl px-5 pt-4 pb-3">
         <RiBarChartBoxLine className="size-4 text-foreground-secondary" />
         <p className="text-label-md text-foreground-primary">
           Individual Performance
         </p>
       </div>
 
-      <div className="bg-surface-neutral-primary flex flex-col rounded-[14px]">
+      <div className="bg-surface-neutral-primary flex flex-col rounded-xxl">
         {isStakeholder ? (
           <>
             <div className="grid grid-cols-1 gap-md px-5 py-2 sm:grid-cols-2 lg:grid-cols-5">
               {adminStats.map((item) => (
                 <div
                   key={item.label}
-                  className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-[10px] border px-4 py-3"
+                  className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-lg border px-4 py-3"
                 >
                   <p className="text-label-sm text-foreground-secondary">
                     {item.label}
@@ -424,7 +424,7 @@ export function PerformancePage() {
                 return (
                   <div
                     key={item.key}
-                    className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-[10px] border px-4 py-3"
+                    className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-lg border px-4 py-3"
                   >
                     <p className="text-label-sm text-foreground-secondary">
                       {item.label}
@@ -440,7 +440,7 @@ export function PerformancePage() {
                   </div>
                 )
               })}
-              <div className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-[10px] border px-4 py-3 lg:col-span-2">
+              <div className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-lg border px-4 py-3 lg:col-span-2">
                 <p className="text-label-sm text-foreground-secondary">
                   360 Feedback Cycle
                 </p>

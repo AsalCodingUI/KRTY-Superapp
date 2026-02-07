@@ -24,8 +24,8 @@ import {
 } from "@/shared/ui"
 import { DataTable } from "@/shared/ui/data/DataTable"
 import {
-  RiArrowDownSLine,
   RiAddLine,
+  RiArrowDownSLine,
   RiFileTextLine,
   RiLoginBoxLine,
   RiLogoutBoxLine,
@@ -252,16 +252,16 @@ export function EmployeeLeavePage({
   return (
     <>
       <div className="flex flex-col">
-        <div className="flex items-center gap-2 rounded-[14px] px-5 pt-4 pb-3">
+        <div className="flex items-center gap-2 rounded-xxl px-5 pt-4 pb-3">
           <RiUserSmileLine className="size-4 text-foreground-secondary" />
           <p className="text-label-md text-foreground-primary">
             Leave & Attendance Center
           </p>
         </div>
 
-        <div className="bg-surface-neutral-primary flex flex-col rounded-[14px]">
+        <div className="bg-surface-neutral-primary flex flex-col rounded-xxl">
           <div className="grid grid-cols-1 gap-md px-5 py-2 sm:grid-cols-2 lg:grid-cols-5">
-            <div className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-[10px] border px-4 py-3 lg:col-span-2">
+            <div className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-lg border px-4 py-3 lg:col-span-2">
               <p className="text-label-sm text-foreground-secondary">
                 Current Time
               </p>
@@ -341,7 +341,7 @@ export function EmployeeLeavePage({
               </div>
             </div>
 
-            <div className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-[10px] border px-4 py-3">
+            <div className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-lg border px-4 py-3">
               <p className="text-label-sm text-foreground-secondary">
                 Annual Leave Balance
               </p>
@@ -350,7 +350,7 @@ export function EmployeeLeavePage({
               </p>
             </div>
 
-            <div className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-[10px] border px-4 py-3">
+            <div className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-lg border px-4 py-3">
               <p className="text-label-sm text-foreground-secondary">
                 Sick Leave
               </p>
@@ -359,7 +359,7 @@ export function EmployeeLeavePage({
               </p>
             </div>
 
-            <div className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-[10px] border px-4 py-3">
+            <div className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-lg border px-4 py-3">
               <p className="text-label-sm text-foreground-secondary">
                 Work From Home
               </p>

@@ -1,7 +1,6 @@
 "use client"
 
-import { Button } from "@/shared/ui"
-import { Card } from "@/shared/ui"
+import { Button, Card } from "@/shared/ui"
 import { RiHome2Line, RiRefreshLine } from "@/shared/ui/lucide-icons"
 import { useEffect } from "react"
 
@@ -21,7 +20,7 @@ export default function Error({
     <div className="flex min-h-[50vh] items-center justify-center">
       <Card className="max-w-md text-center">
         <div className="space-y-4">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-surface-danger-light">
             <span className="text-display-xxs">⚠️</span>
           </div>
 

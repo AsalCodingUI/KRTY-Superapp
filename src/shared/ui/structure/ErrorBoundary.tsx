@@ -34,9 +34,9 @@ export class ErrorBoundary extends Component<Props, State> {
 
       return (
         <div className="flex h-[50vh] w-full flex-col items-center justify-center gap-4 text-center">
-          <div className="rounded-full bg-red-100 p-3 dark:bg-red-900/20">
+          <div className="rounded-full bg-surface-danger-light p-3">
             <svg
-              className="h-6 w-6 text-red-600 dark:text-red-400"
+              className="h-6 w-6 text-foreground-danger"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"

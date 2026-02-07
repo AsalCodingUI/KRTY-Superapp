@@ -2,7 +2,8 @@
 
 import { Database } from "@/shared/types/database.types"
 import {
-  Badge, Button, Divider, Input, Label, Select,
+  Badge, Button, Divider,
+  Label, Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
@@ -191,14 +192,14 @@ export default function CalculatorClientPage({
 
   return (
     <div className="flex flex-col">
-      <div className="flex items-center gap-2 rounded-[14px] px-5 pt-4 pb-3">
+      <div className="flex items-center gap-2 rounded-xxl px-5 pt-4 pb-3">
         <RiCalculatorLine className="size-4 text-foreground-secondary" />
         <p className="text-label-md text-foreground-primary">
           Project Calculator
         </p>
       </div>
 
-      <div className="bg-surface-neutral-primary flex flex-col rounded-[14px]">
+      <div className="bg-surface-neutral-primary flex flex-col rounded-xxl">
         <div className="px-5 pt-2 border-b border-neutral-primary">
           <TabNavigation className="border-b-0">
             <TabNavigationLink
@@ -230,7 +231,7 @@ export default function CalculatorClientPage({
                 <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-2">
                   <div>
                     <Label htmlFor="revenue">Revenue (USD)</Label>
-                    <Input
+                    <TextInput
                       id="revenue"
                       type="text"
                       value={revenueUSD}
@@ -244,7 +245,7 @@ export default function CalculatorClientPage({
 
                   <div>
                     <Label htmlFor="exchangeRate">Exchange Rate (IDR)</Label>
-                    <Input
+                    <TextInput
                       id="exchangeRate"
                       type="text"
                       value={exchangeRate}
@@ -258,7 +259,7 @@ export default function CalculatorClientPage({
 
                   <div>
                     <Label htmlFor="hours">Daily Workload (Hours)</Label>
-                    <Input
+                    <TextInput
                       id="hours"
                       type="number"
                       value={hoursPerDay}
@@ -270,7 +271,7 @@ export default function CalculatorClientPage({
 
                   <div>
                     <Label htmlFor="platformFee">Platform Fee (%)</Label>
-                    <Input
+                    <TextInput
                       id="platformFee"
                       type="number"
                       value={platformFeePercent}
@@ -307,7 +308,7 @@ export default function CalculatorClientPage({
 
                   {phases.map((phase) => (
                     <div key={phase.id} className="flex items-center gap-4">
-                      <Input
+                      <TextInput
                         value={phase.name}
                         onChange={(e) =>
                           updatePhase(phase.id, "name", e.target.value)
@@ -315,7 +316,7 @@ export default function CalculatorClientPage({
                         placeholder="Phase Name"
                         className="flex-1"
                       />
-                      <Input
+                      <TextInput
                         type="number"
                         className="w-24 text-center"
                         value={phase.days}
@@ -323,7 +324,7 @@ export default function CalculatorClientPage({
                           updatePhase(phase.id, "days", Number(e.target.value))
                         }
                       />
-                      <Input
+                      <TextInput
                         type="number"
                         className="w-24 text-center"
                         value={phase.buffer}
@@ -472,7 +473,7 @@ export default function CalculatorClientPage({
                                 <Label htmlFor={`freelance-name-${member.id}`}>
                                   Full Name
                                 </Label>
-                                <Input
+                                <TextInput
                                   id={`freelance-name-${member.id}`}
                                   value={member.name}
                                   onChange={(e) =>
@@ -490,7 +491,7 @@ export default function CalculatorClientPage({
                                 <Label htmlFor={`freelance-role-${member.id}`}>
                                   Role
                                 </Label>
-                                <Input
+                                <TextInput
                                   id={`freelance-role-${member.id}`}
                                   value={member.role}
                                   onChange={(e) =>
@@ -508,7 +509,7 @@ export default function CalculatorClientPage({
                                 <Label htmlFor={`freelance-salary-${member.id}`}>
                                   Expected Salary
                                 </Label>
-                                <Input
+                                <TextInput
                                   id={`freelance-salary-${member.id}`}
                                   type="text"
                                   value={member.expectedSalary}

@@ -2,13 +2,13 @@
 
 "use client"
 
-import * as DropdownMenuPrimitives from "@radix-ui/react-dropdown-menu"
 import {
   RiArrowRightSLine,
   RiCheckboxBlankCircleLine,
   RiCheckLine,
   RiRadioButtonFill,
 } from "@/shared/ui/lucide-icons"
+import * as DropdownMenuPrimitives from "@radix-ui/react-dropdown-menu"
 import * as React from "react"
 
 import { cx } from "@/shared/lib/utils"
@@ -323,7 +323,7 @@ const DropdownMenuRadioItem = React.forwardRef<
         <span className="absolute left-2 flex size-4 items-center justify-center">
           <RiRadioButtonFill
             aria-hidden="true"
-            className="size-full shrink-0 text-blue-500 group-data-[state=checked]/DropdownMenuRadioItem:flex group-data-[state=unchecked]/DropdownMenuRadioItem:hidden dark:text-blue-500"
+            className="size-full shrink-0 text-foreground-brand group-data-[state=checked]/DropdownMenuRadioItem:flex group-data-[state=unchecked]/DropdownMenuRadioItem:hidden"
           />
           <RiCheckboxBlankCircleLine
             aria-hidden="true"
@@ -428,5 +428,6 @@ export {
   DropdownMenuSubMenuContent,
   DropdownMenuSubMenuTrigger,
   DropdownMenuSubMenuTrigger as DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
+  DropdownMenuTrigger
 }
+

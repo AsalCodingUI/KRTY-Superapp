@@ -1,19 +1,16 @@
 "use client"
 
-import { Button } from "@/shared/ui"
+import { createClient } from "@/shared/api/supabase/client"
+import { Database } from "@/shared/types/database.types"
 import {
-  Dialog,
+  Button, Dialog,
   DialogBody,
   DialogCloseButton,
   DialogContent,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
+  DialogTitle, Label
 } from "@/shared/ui"
-import { Input } from "@/shared/ui"
-import { Label } from "@/shared/ui"
-import { Database } from "@/shared/types/database.types"
-import { createClient } from "@/shared/api/supabase/client"
 import { useRouter } from "next/navigation"
 import React, { useEffect, useState } from "react"
 const createId = () =>
@@ -124,7 +121,7 @@ export function TeamFormDialog({
               <Label htmlFor="name" className="font-medium">
                 Full Name
               </Label>
-              <Input
+              <TextInput
                 id="name"
                 placeholder="e.g. Emma Stone"
                 value={formData.full_name}
@@ -138,7 +135,7 @@ export function TeamFormDialog({
               <Label htmlFor="email" className="font-medium">
                 Email Address
               </Label>
-              <Input
+              <TextInput
                 id="email"
                 type="email"
                 placeholder="emma@kretya.studio"
@@ -153,7 +150,7 @@ export function TeamFormDialog({
               <Label htmlFor="rate" className="font-medium">
                 Hourly Rate (IDR)
               </Label>
-              <Input
+              <TextInput
                 id="rate"
                 type="number"
                 placeholder="0"

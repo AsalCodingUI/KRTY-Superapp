@@ -1,31 +1,22 @@
 "use client"
 
-import { Button } from "@/shared/ui"
-import { Checkbox } from "@/shared/ui"
-import { DateRangePicker } from "@/shared/ui"
+import { createClient } from "@/shared/api/supabase/client"
+import { calculateBusinessDays } from "@/shared/lib/date"
+import { Database } from "@/shared/types/database.types"
 import {
-  Dialog,
+  Button, Checkbox, DateRangePicker, Dialog,
   DialogBody,
   DialogClose,
   DialogCloseButton,
   DialogContent,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
-} from "@/shared/ui"
-import { Input } from "@/shared/ui"
-import { Label } from "@/shared/ui"
-import {
-  Select,
+  DialogTitle, Label, Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
+  SelectValue, Textarea, TextInput
 } from "@/shared/ui"
-import { Textarea } from "@/shared/ui"
-import { Database } from "@/shared/types/database.types"
-import { calculateBusinessDays } from "@/shared/lib/date"
-import { createClient } from "@/shared/api/supabase/client"
 import { RiLoader2Line } from "@/shared/ui/lucide-icons"
 import imageCompression from "browser-image-compression"
 import { useRouter } from "next/navigation"
@@ -183,7 +174,7 @@ export function LeaveRequestModal({
             <Label htmlFor="name" className="font-medium">
               Nama
             </Label>
-            <Input
+            <TextInput
               id="name"
               value={userProfile.full_name || ""}
               disabled
@@ -251,7 +242,7 @@ export function LeaveRequestModal({
             <div>
               <Label className="font-medium">Surat Dokter (Optional)</Label>
               <div className="mt-2 flex items-center gap-2">
-                <Input
+                <TextInput
                   type="file"
                   accept="image/*"
                   className="w-full"

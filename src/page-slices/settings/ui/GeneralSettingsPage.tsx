@@ -1,10 +1,8 @@
 "use client"
 
-import { Button } from "@/shared/ui"
-import { Input } from "@/shared/ui"
-import { Label } from "@/shared/ui"
-import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { createClient } from "@/shared/api/supabase/client"
+import { useUserProfile } from "@/shared/hooks/useUserProfile"
+import { Button, Label } from "@/shared/ui"
 import { RiMailSendLine } from "@/shared/ui/lucide-icons"
 import { useState } from "react"
 
@@ -70,7 +68,7 @@ export default function GeneralSettingsPage() {
                   <Label htmlFor="full-name" className="font-medium">
                     My Name
                   </Label>
-                  <Input
+                  <TextInput
                     id="full-name"
                     value={profile?.full_name || ""}
                     disabled // Disabled sesuai request
@@ -83,7 +81,7 @@ export default function GeneralSettingsPage() {
                   <Label htmlFor="email" className="font-medium">
                     Email
                   </Label>
-                  <Input
+                  <TextInput
                     id="email"
                     type="email"
                     value={profile?.email || ""}
@@ -97,7 +95,7 @@ export default function GeneralSettingsPage() {
                   <Label htmlFor="job-title" className="font-medium">
                     Job Title
                   </Label>
-                  <Input
+                  <TextInput
                     id="job-title"
                     value={profile?.job_title || ""}
                     disabled // Disabled sesuai request

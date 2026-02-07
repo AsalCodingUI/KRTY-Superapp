@@ -1,26 +1,19 @@
 "use client"
 
-import { Button } from "@/shared/ui"
+import { Constants, Database } from "@/shared/types/database.types"
 import {
-  Dialog,
+  Button, Dialog,
   DialogBody,
   DialogCloseButton,
   DialogContent,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
-} from "@/shared/ui"
-import { Input } from "@/shared/ui"
-import { Label } from "@/shared/ui"
-import {
-  Select,
+  DialogTitle, Label, Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
+  SelectValue, Textarea
 } from "@/shared/ui"
-import { Textarea } from "@/shared/ui"
-import { Constants, Database } from "@/shared/types/database.types"
 import { useState } from "react"
 import { toast } from "sonner"
 import {
@@ -111,7 +104,7 @@ export function CompetencyForm({
             {/* Competency Name */}
             <div className="space-y-2">
               <Label htmlFor="name">Competency Name *</Label>
-              <Input
+              <TextInput
                 id="name"
                 name="name"
                 placeholder="e.g., Consistency, Clean Code, Design Quality"

@@ -109,7 +109,7 @@ export function AttendanceHistoryList({
                   >
                     {format(dateObj, "eeee, dd MMMM yyyy")}
                     {isCurrentDay && (
-                      <span className="text-body-xs ml-2 text-blue-600 dark:text-blue-400">
+                      <span className="text-body-xs ml-2 text-foreground-brand">
                         (Today)
                       </span>
                     )}

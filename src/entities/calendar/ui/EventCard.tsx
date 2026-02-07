@@ -54,18 +54,18 @@ export function EventCard({
   const getColorClasses = (color: EventColor): string => {
     const colorMap: Record<EventColor, string> = {
       emerald:
-        "bg-emerald-100 dark:bg-emerald-950 text-emerald-900 dark:text-emerald-100 border-emerald-200 dark:border-emerald-800",
+        "bg-surface-success-light text-foreground-success-dark border-success-subtle",
       orange:
-        "bg-orange-100 dark:bg-orange-950 text-orange-900 dark:text-orange-100 border-orange-200 dark:border-orange-800",
+        "bg-surface-warning-light text-foreground-warning-dark border-warning-subtle",
       violet:
-        "bg-violet-100 dark:bg-violet-950 text-violet-900 dark:text-violet-100 border-violet-200 dark:border-violet-800",
-      blue: "bg-blue-100 dark:bg-blue-950 text-blue-900 dark:text-blue-100 border-blue-200 dark:border-blue-800",
-      rose: "bg-rose-100 dark:bg-rose-950 text-rose-900 dark:text-rose-100 border-rose-200 dark:border-rose-800",
+        "bg-surface-chart-4 text-foreground-chart-4 border-border-neutral-secondary",
+      blue: "bg-surface-brand-light text-foreground-brand-dark border-brand-light",
+      rose: "bg-surface-chart-5 text-foreground-chart-5 border-border-neutral-secondary",
       amber:
-        "bg-amber-100 dark:bg-amber-950 text-amber-900 dark:text-amber-100 border-amber-200 dark:border-amber-800",
-      cyan: "bg-cyan-100 dark:bg-cyan-950 text-cyan-900 dark:text-cyan-100 border-cyan-200 dark:border-cyan-800",
+        "bg-surface-warning-light text-foreground-warning-dark border-warning-subtle",
+      cyan: "bg-surface-chart-6 text-foreground-chart-6 border-border-neutral-secondary",
       neutral:
-        "bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 border-neutral-200 dark:border-neutral-700",
+        "bg-surface-neutral-secondary text-foreground-secondary border-neutral-secondary",
     }
     return colorMap[color] || colorMap.neutral
   }

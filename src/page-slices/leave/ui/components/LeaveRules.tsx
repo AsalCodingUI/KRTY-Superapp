@@ -91,10 +91,10 @@ export function LeaveRules() {
 
           {/* Jawaban */}
           <div className="flex gap-3">
-            <div className="text-label-xs flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400">
+            <div className="text-label-xs flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-surface-danger-light text-foreground-danger">
               !
             </div>
-            <p className="text-red-600 dark:text-red-400">
+            <p className="text-foreground-danger">
               <span className="font-semibold">Jawaban:</span> Tidak boleh.
               Pengambilan cuti secara langsung diperbolehkan jika di bawah 5
               hari.
