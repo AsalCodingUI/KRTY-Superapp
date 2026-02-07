@@ -28,7 +28,7 @@ const Label = React.forwardRef<
     ref={forwardedRef}
     className={cx(
       // base
-      "text-label-md",
+      "text-label-sm",
       // text color
       "text-foreground-secondary",
       // disabled

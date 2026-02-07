@@ -3,8 +3,9 @@
 import { Button } from "@/shared/ui"
 import {
   Dialog,
+  DialogBody,
+  DialogCloseButton,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -15,7 +16,10 @@ import { Database } from "@/shared/types/database.types"
 import { createClient } from "@/shared/api/supabase/client"
 import { useRouter } from "next/navigation"
 import React, { useEffect, useState } from "react"
-import { v4 as uuidv4 } from "uuid"
+const createId = () =>
+  typeof crypto !== "undefined" && "randomUUID" in crypto
+    ? crypto.randomUUID()
+    : `${Date.now()}-${Math.random().toString(16).slice(2)}`
 
 // Tipe data form
 interface TeamFormData {
@@ -80,7 +84,7 @@ export function TeamFormDialog({
         if (error) throw error
       } else {
         // CREATE
-        const fakeId = uuidv4()
+        const fakeId = createId()
         const { error } = await supabase.from("profiles").insert({
           id: fakeId,
           full_name: formData.full_name,
@@ -112,14 +116,10 @@ export function TeamFormDialog({
             <DialogTitle className="font-semibold">
               {initialData ? "Edit member details" : "Add new member"}
             </DialogTitle>
-            <DialogDescription className="text-body-sm mt-1">
-              {initialData
-                ? "Update the personal information and hourly rate for this team member."
-                : "Fill in the details to add a new member to your team."}
-            </DialogDescription>
+            <DialogCloseButton />
           </DialogHeader>
 
-          <div className="grid gap-4 py-4">
+          <DialogBody className="grid gap-4">
             <div className="grid gap-2">
               <Label htmlFor="name" className="font-medium">
                 Full Name
@@ -167,9 +167,9 @@ export function TeamFormDialog({
                 required
               />
             </div>
-          </div>
+          </DialogBody>
 
-          <DialogFooter className="mt-2">
+          <DialogFooter>
             {/* FIX: Ganti DialogClose dengan Button biasa onClick={onClose} */}
             <Button
               variant="secondary"
@@ -239,12 +239,9 @@ export function DeleteConfirmDialog({
           <DialogTitle className="text-content dark:text-content font-semibold">
             Delete member?
           </DialogTitle>
-          <DialogDescription className="text-label-md mt-1">
-            This action cannot be undone. This will permanently delete{" "}
-            <b>{idsToDelete.length}</b> member(s).
-          </DialogDescription>
+          <DialogCloseButton />
         </DialogHeader>
-        <DialogFooter className="mt-6">
+        <DialogFooter>
           {/* FIX: Ganti DialogClose dengan Button biasa */}
           <Button variant="secondary" onClick={onClose} disabled={loading}>
             Cancel

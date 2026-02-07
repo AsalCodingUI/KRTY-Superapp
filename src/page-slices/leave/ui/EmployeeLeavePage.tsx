@@ -8,9 +8,10 @@ import { Database } from "@/shared/types/database.types"
 import {
   Button,
   Dialog,
+  DialogBody,
   DialogClose,
+  DialogCloseButton,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -24,7 +25,6 @@ import {
 import { DataTable } from "@/shared/ui/data/DataTable"
 import {
   RiArrowDownSLine,
-  RiCloseLine,
   RiAddLine,
   RiFileTextLine,
   RiLoginBoxLine,
@@ -442,22 +442,16 @@ export function EmployeeLeavePage({
 
       <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
         <DialogContent className="sm:max-w-md">
-          <DialogClose asChild>
-            <Button
-              className="absolute top-3 right-3 p-2"
-              variant="ghost"
-              aria-label="close"
-            >
-              <RiCloseLine className="size-5 shrink-0" />
-            </Button>
-          </DialogClose>
           <DialogHeader>
             <DialogTitle>Confirm Delete</DialogTitle>
-            <DialogDescription className="mt-2">
-              Apakah Anda yakin ingin mengajukan penghapusan data attendance ini?
-            </DialogDescription>
+            <DialogCloseButton />
           </DialogHeader>
-          <DialogFooter className="mt-6">
+          <DialogBody>
+            <p className="text-body-sm text-foreground-secondary">
+              Apakah Anda yakin ingin mengajukan penghapusan data attendance ini?
+            </p>
+          </DialogBody>
+          <DialogFooter>
             <DialogClose asChild>
               <Button variant="secondary" className="w-full sm:w-fit">
                 Cancel
@@ -472,25 +466,14 @@ export function EmployeeLeavePage({
 
       <Dialog open={termsOpen} onOpenChange={setTermsOpen}>
         <DialogContent className="sm:max-w-3xl">
-          <DialogClose asChild>
-            <Button
-              className="absolute top-3 right-3 p-2"
-              variant="ghost"
-              aria-label="close"
-            >
-              <RiCloseLine className="size-5 shrink-0" />
-            </Button>
-          </DialogClose>
           <DialogHeader>
             <DialogTitle>Terms &amp; Conditions</DialogTitle>
-            <DialogDescription className="mt-1">
-              Please review the leave policy before proceeding.
-            </DialogDescription>
+            <DialogCloseButton />
           </DialogHeader>
-          <div className="mt-4 max-h-[70vh] overflow-y-auto pr-2">
+          <DialogBody className="max-h-[70vh] overflow-y-auto">
             <LeaveRules />
-          </div>
-          <DialogFooter className="mt-6">
+          </DialogBody>
+          <DialogFooter>
             <DialogClose asChild>
               <Button variant="secondary" className="w-full sm:w-fit">
                 Close

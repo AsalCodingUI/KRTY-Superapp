@@ -55,9 +55,9 @@ export async function middleware(request: NextRequest) {
   }
 
   // ROLE-BASED ACCESS CONTROL
-  // Optimized: Check user_metadata first instead of querying profiles table
-  // Fallback to 'employee' if no role is found in metadata
-  const userRole = user?.user_metadata?.role || "employee"
+  // Prefer app_metadata (server-controlled) and fallback to profiles table
+  // Default to 'employee' if no role is found
+  const userRole = user?.app_metadata?.role || "employee"
   let hasAdminAccess = canManageByRole(userRole)
 
   // Restricted Routes

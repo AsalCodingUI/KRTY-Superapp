@@ -10,6 +10,7 @@ import {
   DataTable,
   EmptyState,
 } from "@/shared/ui"
+import { RiCalendarLine } from "@/shared/ui/lucide-icons"
 import { differenceInSeconds, format, isToday } from "date-fns"
 import { useMemo } from "react"
 import { createAttendanceColumns } from "./AttendanceColumns"
@@ -74,8 +75,7 @@ export function AttendanceHistoryList({
       <EmptyState
         title="No attendance records"
         description="Your attendance history will appear here once you start clocking in"
-        icon={null}
-        variant="compact"
+        icon={<RiCalendarLine className="size-5" />}
       />
     )
   }

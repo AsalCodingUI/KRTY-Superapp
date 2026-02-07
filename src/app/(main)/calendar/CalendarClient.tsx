@@ -17,6 +17,26 @@ import { CalendarContent } from "./CalendarContent"
 type CalendarEventRow = Database["public"]["Tables"]["calendar_events"]["Row"]
 type CalendarEventInsert =
   Database["public"]["Tables"]["calendar_events"]["Insert"]
+type CalendarEventRowLite = Pick<
+  CalendarEventRow,
+  | "id"
+  | "title"
+  | "description"
+  | "start_at"
+  | "end_at"
+  | "color"
+  | "location"
+  | "all_day"
+  | "meeting_url"
+  | "guests"
+  | "reminders"
+  | "rsvp_status"
+  | "organizer"
+  | "event_type"
+  | "user_id"
+  | "is_recurring"
+  | "recurrence_rule"
+>
 
 interface CalendarClientProps {
   role: string
@@ -37,7 +57,7 @@ const EVENT_COLORS: EventColor[] = [
 const isEventColor = (value: string): value is EventColor =>
   EVENT_COLORS.includes(value as EventColor)
 
-const mapRowToEvent = (row: CalendarEventRow): CalendarEvent => {
+const mapRowToEvent = (row: CalendarEventRowLite): CalendarEvent => {
   return {
     id: row.id,
     title: row.title,
@@ -48,8 +68,9 @@ const mapRowToEvent = (row: CalendarEventRow): CalendarEvent => {
     location: row.location ?? undefined,
     allDay: row.all_day ?? false,
     meetingUrl: row.meeting_url ?? undefined,
-    guests: (row.guests as CalendarEvent["guests"]) ?? undefined,
-    reminders: (row.reminders as CalendarEvent["reminders"]) ?? undefined,
+    guests: (row.guests as unknown as CalendarEvent["guests"]) ?? undefined,
+    reminders:
+      (row.reminders as unknown as CalendarEvent["reminders"]) ?? undefined,
     rsvpStatus: (row.rsvp_status as CalendarEvent["rsvpStatus"]) ?? undefined,
     organizer: row.organizer ?? undefined,
     type: row.event_type ?? undefined,
@@ -77,9 +98,11 @@ const mapEventToInsert = (
   if (eventData.type !== undefined) payload.event_type = eventData.type
   if (eventData.organizer !== undefined) payload.organizer = eventData.organizer
   if (eventData.guests !== undefined)
-    payload.guests = eventData.guests as CalendarEventInsert["guests"]
+    payload.guests =
+      eventData.guests as unknown as CalendarEventInsert["guests"]
   if (eventData.reminders !== undefined)
-    payload.reminders = eventData.reminders as CalendarEventInsert["reminders"]
+    payload.reminders =
+      eventData.reminders as unknown as CalendarEventInsert["reminders"]
   if (eventData.rsvpStatus !== undefined)
     payload.rsvp_status = eventData.rsvpStatus
   if (eventData.isRecurring !== undefined)
@@ -108,7 +131,11 @@ export default function CalendarClient({ role, userId }: CalendarClientProps) {
   const fetchEvents = useCallback(async () => {
     setLoading(true)
     // TODO: Replace with real table fetch
-    const { data, error } = await supabase.from("calendar_events").select("*")
+    const { data, error } = await supabase
+      .from("calendar_events")
+      .select(
+        "id,title,description,start_at,end_at,color,location,all_day,meeting_url,guests,reminders,rsvp_status,organizer,event_type,user_id,is_recurring,recurrence_rule",
+      )
 
     if (error) {
       toast.error("Gagal memuat kalender internal")

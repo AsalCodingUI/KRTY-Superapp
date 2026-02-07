@@ -1,4 +1,5 @@
 import { Button } from "@/shared/ui"
+import { cx } from "@/shared/lib/utils"
 import { RiHammerLine } from "@/shared/ui/lucide-icons"
 import React from "react"
 
@@ -24,6 +25,7 @@ interface EmptyStateProps {
     onClick: () => void
   }
   variant?: "default" | "compact"
+  className?: string
 }
 
 export function EmptyState({
@@ -33,35 +35,52 @@ export function EmptyState({
   icon,
   action,
   variant = "default",
+  className,
 }: EmptyStateProps) {
   const isCompact = variant === "compact"
 
   return (
     <div
-      className={`flex w-full flex-col items-center justify-center rounded-lg border border-dashed p-10 text-center dark:border ${isCompact ? "h-auto py-8" : "h-[400px]"}`}
+      className={cx(
+        "flex w-full flex-col items-center justify-center rounded-lg border border-neutral-primary bg-surface-neutral-primary text-center",
+        isCompact ? "px-xl py-lg" : "min-h-[240px] px-2xl py-2xl",
+        className,
+      )}
     >
       {icon !== null && (
-        <div className="flex items-center justify-center">
-          {icon || (
-            <RiHammerLine className="text-content dark:text-content size-6" />
-          )}
+        <div className="flex size-12 items-center justify-center rounded-full bg-surface-neutral-secondary text-foreground-secondary">
+          {icon || <RiHammerLine className="size-5" />}
         </div>
       )}
       <h3
-        className={`${icon !== null ? "mt-4" : ""} text-heading-md text-content dark:text-content`}
+        className={cx(
+          icon !== null ? "mt-4" : "",
+          isCompact ? "text-heading-sm" : "text-heading-md",
+          "text-foreground-primary",
+        )}
       >
         {title}
       </h3>
-      <p className="text-label-md text-content-subtle dark:text-content-placeholder mt-2 max-w-sm">
+      <p
+        className={cx(
+          "mt-2 max-w-sm text-foreground-secondary",
+          isCompact ? "text-body-sm" : "text-label-md",
+        )}
+      >
         {description}
       </p>
       {subtitle && (
-        <p className="text-body-xs text-content-placeholder dark:text-content-subtle mt-1 max-w-sm opacity-70">
+        <p className="text-body-xs mt-1 max-w-sm text-foreground-tertiary">
           {subtitle}
         </p>
       )}
       {action && (
-        <Button variant="secondary" className="mt-6" onClick={action.onClick}>
+        <Button
+          variant="secondary"
+          size="sm"
+          className="mt-6"
+          onClick={action.onClick}
+        >
           {action.label}
         </Button>
       )}

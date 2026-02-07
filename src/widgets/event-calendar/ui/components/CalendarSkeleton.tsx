@@ -1,6 +1,7 @@
 "use client"
 
 import { cx } from "@/shared/lib/utils"
+import { Skeleton } from "@/shared/ui"
 
 export function CalendarSkeleton() {
   const daysInWeek = 7
@@ -9,13 +10,13 @@ export function CalendarSkeleton() {
   return (
     <div className="flex h-full flex-col">
       {/* Header row */}
-      <div className="border-border-border grid grid-cols-7 border-b">
+      <div className="border-neutral-primary grid grid-cols-7 border-b">
         {Array.from({ length: daysInWeek }).map((_, i) => (
           <div
             key={i}
-            className="border-border-border border-r p-2 text-center last:border-r-0"
+            className="border-neutral-primary border-r p-2 text-center last:border-r-0"
           >
-            <div className="bg-muted mx-auto h-4 w-12 animate-pulse rounded" />
+            <Skeleton className="mx-auto h-4 w-12" />
           </div>
         ))}
       </div>
@@ -28,19 +29,19 @@ export function CalendarSkeleton() {
               <div
                 key={dayIndex}
                 className={cx(
-                  "border-border-border border-r border-b last:border-r-0",
+                  "border-neutral-primary border-r border-b last:border-r-0",
                   "flex flex-col gap-2 p-2",
                 )}
               >
                 {/* Date number skeleton */}
-                <div className="bg-muted h-6 w-6 animate-pulse rounded-full" />
+                <Skeleton className="h-6 w-6 rounded-full" />
 
                 {/* Event skeletons */}
                 {dayIndex % 3 === 0 && (
                   <>
-                    <div className="bg-muted h-6 animate-pulse rounded" />
+                    <Skeleton className="h-6 w-full rounded" />
                     {dayIndex % 2 === 0 && (
-                      <div className="bg-muted h-6 animate-pulse rounded" />
+                      <Skeleton className="h-6 w-full rounded" />
                     )}
                   </>
                 )}

@@ -114,7 +114,7 @@ const Calendar = ({
       locale={locale}
       showOutsideDays
       className={cx(
-        "bg-surface-neutral-primary border border-neutral-secondary rounded-xl shadow-regular-md",
+        "bg-surface-neutral-primary border border-neutral-primary rounded-xl shadow-regular-md",
         "overflow-hidden",
         className,
       )}
@@ -140,10 +140,7 @@ const Calendar = ({
           focusRing,
         ),
         day_today: "font-medium",
-        day_selected:
-          mode === "range"
-            ? "text-foreground-secondary"
-            : "bg-surface-brand text-foreground-on-color",
+        day_selected: "bg-surface-brand text-foreground-on-color",
         day_disabled:
           "text-foreground-disable disabled:hover:bg-transparent",
         day_outside: "text-foreground-disable",
@@ -152,9 +149,9 @@ const Calendar = ({
           "aria-selected:!bg-surface-brand-light aria-selected:!text-foreground-secondary",
         ),
         day_range_start:
-          "rounded-md border border-border-brand !bg-transparent !text-foreground-secondary",
+          "rounded-md !bg-surface-brand !text-foreground-on-color",
         day_range_end:
-          "rounded-md border border-border-brand !bg-transparent !text-foreground-secondary",
+          "rounded-md !bg-surface-brand !text-foreground-on-color",
         day_hidden: "invisible",
         ...classNames,
       }}

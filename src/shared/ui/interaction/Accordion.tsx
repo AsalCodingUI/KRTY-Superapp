@@ -26,7 +26,7 @@ const Accordion = React.forwardRef<
 >(({ className, ...props }, forwardedRef) => (
   <AccordionPrimitives.Root
     ref={forwardedRef}
-    className={cx("space-y-2", className)}
+    className={cx("space-y-4", className)}
     {...props}
   />
 ))
@@ -41,11 +41,11 @@ const AccordionItem = React.forwardRef<
     ref={forwardedRef}
     className={cx(
       // base
-      "overflow-hidden rounded-md border",
+      "overflow-hidden rounded-lg border",
       // border color
-      "border-border-default",
+      "border-neutral-primary",
       // background color
-      "bg-surface",
+      "bg-surface-neutral-primary",
       className,
     )}
     {...props}
@@ -63,7 +63,7 @@ const AccordionTrigger = React.forwardRef<
       ref={forwardedRef}
       className={cx(
         // base
-        "group text-label-sm flex flex-1 cursor-pointer items-center justify-between p-3 text-left transition-all",
+        "group text-label-md flex flex-1 cursor-pointer items-center justify-between px-xl py-lg text-left transition-all",
         // text color
         "text-foreground-primary",
         // disabled
@@ -79,7 +79,7 @@ const AccordionTrigger = React.forwardRef<
           // base
           "size-5 shrink-0 transition-transform duration-150 ease-[cubic-bezier(0.87,_0,_0.13,_1)] group-data-[state=open]:-rotate-180",
           // text color
-          "text-foreground-Secondary",
+          "text-foreground-secondary",
         )}
         aria-hidden="true"
       />
@@ -104,7 +104,7 @@ const AccordionContent = React.forwardRef<
     <div
       className={cx(
         // base - removed border-t for clean table rendering
-        "text-foreground-tertiary px-4 pt-2 pb-4",
+        "text-foreground-tertiary px-xl pb-xl pt-sm",
         className,
       )}
     >

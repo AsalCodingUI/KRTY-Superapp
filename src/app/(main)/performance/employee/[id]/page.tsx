@@ -26,15 +26,15 @@ type Assignment = {
 }
 
 interface EmployeeDetailPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export default async function EmployeeDetailPage({
   params,
 }: EmployeeDetailPageProps) {
-  const { id } = params
+  const { id } = await params
 
   const result = await getEmployeeDetail(id)
 

@@ -14,10 +14,9 @@ export function Review360Tab(
   }: {
     selectedQuarter?: string
     onQuarterChange?: (value: string) => void
-  } = {},
+  },
 ) {
   const { profile, loading } = useUserProfile()
-  const [isCycleActive, setIsCycleActive] = useState(false)
   const [currentCycleId, setCurrentCycleId] = useState<string | null>(null)
   const supabase = createClient()
 
@@ -30,11 +29,10 @@ export function Review360Tab(
         .select("*")
         .lte("start_date", now) // Mulai <= Sekarang
         .gte("end_date", now) // Selesai >= Sekarang
-        .eq("is_active", true)
-        .single()
+      .eq("is_active", true)
+      .single()
 
       if (data) {
-        setIsCycleActive(true)
         setCurrentCycleId(data.id)
       }
     }
@@ -55,7 +53,6 @@ export function Review360Tab(
   return (
     <EmployeeReviewView
       profile={profile}
-      isCycleActive={isCycleActive}
       currentCycleId={currentCycleId}
       selectedQuarter={selectedQuarter}
       onQuarterChange={onQuarterChange}

@@ -64,31 +64,29 @@ const TimeSegment = ({ segment, state }: TimeSegmentProps) => {
       ref={ref}
       className={cx(
         // base
-        "text-label-xs-uppercase sm:text-label-sm sm:normal-case relative block w-full appearance-none rounded-md border px-2.5 py-1.5 text-left tabular-nums shadow-sm transition outline-none",
-        // border color
-        "border-border",
+        "text-body-sm relative block w-full appearance-none rounded-md px-lg py-md text-left tabular-nums shadow-input transition outline-none selection:bg-surface-brand-light selection:text-foreground-primary",
         // text color
-        "text-content dark:text-content",
+        "text-foreground-primary",
         // background color
-        "bg-surface dark:bg-surface",
+        "bg-surface-neutral-primary hover:bg-surface-neutral-secondary",
         // focus
         focusInput,
         // invalid (optional)
         "group-aria-[invalid=true]/time-input:border-red-500 group-aria-[invalid=true]/time-input:ring-2 group-aria-[invalid=true]/time-input:ring-red-200 invalid:border-red-500 invalid:ring-2 invalid:ring-red-200 group-aria-[invalid=true]/time-input:dark:ring-red-400/20",
         {
-          "text-content-placeholder !w-fit border-none bg-transparent px-0 shadow-none":
+          "text-foreground-tertiary !w-fit border-none bg-transparent px-0 shadow-none":
             isDecorator,
           hidden: isSpace,
-          "bg-muted text-content-placeholder dark:border-border-subtle dark:bg-hover dark:text-content-subtle border":
+          "bg-surface-neutral-secondary text-foreground-disable border-none shadow-input":
             state.isDisabled,
-          "!text-content-placeholder !bg-transparent": !segment.isEditable,
+          "!text-foreground-tertiary !bg-transparent": !segment.isEditable,
         },
       )}
     >
       <span
         aria-hidden="true"
         className={cx(
-          "text-content-subtle sm:text-body-sm pointer-events-none block w-full text-left",
+          "text-foreground-secondary text-body-sm pointer-events-none block w-full text-left",
           {
             hidden: !segment.isPlaceholder,
             "h-0": !segment.isPlaceholder,
@@ -140,7 +138,7 @@ const TimeInput = React.forwardRef<HTMLDivElement, TimeInputProps>(
       <div
         {...fieldProps}
         ref={innerRef}
-        className="group/time-input inline-flex w-full gap-x-2"
+        className="group/time-input inline-flex w-full gap-x-md"
       >
         {state.segments.map((segment, i) => (
           <TimeSegment key={i} segment={segment} state={state} />
@@ -157,21 +155,18 @@ TimeInput.displayName = "TimeInput"
 const triggerStyles = tv({
   base: [
     // base
-    "peer text-body-sm flex w-full cursor-pointer appearance-none items-center gap-x-2 truncate rounded-md border px-2.5 py-1.5 transition-all outline-none",
+    "peer text-body-sm flex w-full cursor-pointer appearance-none items-center gap-x-md truncate rounded-md px-lg py-md transition-all outline-none shadow-input selection:bg-surface-brand-light selection:text-foreground-primary",
     // background color
-    "bg-surface dark:bg-surface",
-    // border color
-    "border-border",
+    "bg-surface-neutral-primary",
     // text color
-    "text-content dark:text-content",
+    "text-foreground-primary",
     // placeholder color
-    "placeholder-content-placeholder",
+    "placeholder:text-foreground-tertiary",
     // hover
-    "hover:bg-muted hover:dark:bg-surface/50",
+    "hover:bg-surface-neutral-secondary",
     // disabled
     "disabled:pointer-events-none",
-    "disabled:bg-muted disabled:text-content-placeholder",
-    "disabled:border-border disabled:bg-hover disabled:text-content-subtle",
+    "disabled:bg-surface-neutral-secondary disabled:text-foreground-disable disabled:shadow-input",
     // focus
     focusInput,
     // invalid (optional)
@@ -201,7 +196,7 @@ const Trigger = React.forwardRef<HTMLButtonElement, TriggerProps>(
           className={cx(triggerStyles({ hasError }), className)}
           {...props}
         >
-          <RiCalendar2Fill className="text-content-placeholder dark:text-content-subtle size-5 shrink-0" />
+          <RiCalendar2Fill className="text-foreground-secondary size-5 shrink-0" />
           <span className="text-content dark:text-content flex-1 overflow-hidden text-left text-ellipsis whitespace-nowrap">
             {children ? (
               children
@@ -237,11 +232,9 @@ const CalendarPopover = React.forwardRef<
         onOpenAutoFocus={(e) => e.preventDefault()}
         className={cx(
           // base
-          "text-body-sm relative z-[100] w-fit rounded-none border-none shadow-none bg-transparent",
+          "text-body-sm relative z-[100] w-fit rounded-lg border border-neutral-primary bg-surface-neutral-primary shadow-md",
           // widths
           "max-w-[95vw] min-w-[calc(var(--radix-select-trigger-width)-2px)]",
-          // background color
-          "bg-transparent",
           // transition
           "will-change-[transform,opacity]",
           "data-[state=closed]:animate-hide",

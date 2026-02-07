@@ -1,14 +1,18 @@
 import { createClient } from "@/shared/api/supabase/server"
 import { logError } from "@/shared/lib/utils/logger"
 import { canManageByRole } from "@/shared/lib/roles"
-import { NextResponse } from "next/server"
+import { guardApiRoute } from "@/shared/lib/utils/security"
+import { NextRequest, NextResponse } from "next/server"
 
 /**
  * POST /api/migrate
  * Run database migrations
  * This is a one-time endpoint to add the event_type column
  */
-export async function POST() {
+export async function POST(request: NextRequest) {
+  const guard = guardApiRoute(request)
+  if (guard) return guard
+
   try {
     const supabase = await createClient()
 
@@ -23,11 +27,11 @@ export async function POST() {
     // Get user profile to check role
     const { data: profile } = await supabase
       .from("profiles")
-      .select("app_role")
+      .select("role")
       .eq("id", user.id)
       .single()
 
-    if (!canManageByRole(profile?.app_role)) {
+    if (!canManageByRole(profile?.role)) {
       return NextResponse.json(
         { error: "Forbidden - Admin only" },
         { status: 403 },

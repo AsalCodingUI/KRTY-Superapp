@@ -3,8 +3,9 @@
 import { Avatar, Button } from "@/shared/ui"
 import {
   Dialog,
+  DialogBody,
+  DialogCloseButton,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -110,7 +111,7 @@ export function ProjectForm({
       stakeholder: "Project Manager",
       employee: user.job_title?.includes("Designer")
         ? "UIX Designer"
-        : "Web Developer",
+        : "Webflow Developer",
     }
 
     const projectRole = roleMapping[user.role || "employee"] || "UIX Designer"
@@ -178,14 +179,10 @@ export function ProjectForm({
             <DialogTitle>
               {isEdit ? "Edit Project" : "Create New Project"}
             </DialogTitle>
-            <DialogDescription>
-              {isEdit
-                ? "Update project details. Quarter assignment is automatic and based on end date."
-                : "Create a new project for KPI assessment. Projects will appear in employee dashboards based on assignments."}
-            </DialogDescription>
+            <DialogCloseButton />
           </DialogHeader>
 
-          <div className="space-y-4 py-4">
+          <DialogBody className="space-y-4">
             {/* Project Name */}
             <div className="space-y-2">
               <Label htmlFor="name">Project Name *</Label>
@@ -255,7 +252,10 @@ export function ProjectForm({
             {isEdit && (
               <div className="space-y-2">
                 <Label htmlFor="status">Status</Label>
-                <Select name="status" defaultValue={project.status}>
+                <Select
+                  name="status"
+                  defaultValue={(project.status ?? "Active") as string}
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -357,9 +357,9 @@ export function ProjectForm({
                 )}
               </div>
             )}
-          </div>
+          </DialogBody>
 
-          <DialogFooter className="mt-6">
+          <DialogFooter>
             <Button
               type="button"
               variant="secondary"

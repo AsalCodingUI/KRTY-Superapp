@@ -160,7 +160,9 @@ export default function PerformanceClientPage() {
         {activeTab === "overview" && <OverviewTab />}
         {activeTab === "kpi" && <KPITab />}
         {activeTab === "360-review" && <Review360Tab />}
-        {activeTab === "one-on-one" && <OneOnOneMeetingTab />}
+        {activeTab === "one-on-one" && (
+          <OneOnOneMeetingTab selectedQuarter="2025-Q1" />
+        )}
         {activeTab === "list-project" && isStakeholder && <ListProjectTab />}
         {activeTab === "competency-library" && isStakeholder && (
           <WorkQualityTab />

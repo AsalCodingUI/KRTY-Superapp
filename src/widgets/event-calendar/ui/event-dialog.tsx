@@ -4,6 +4,8 @@ import {
   Button,
   DatePicker,
   Dialog,
+  DialogBody,
+  DialogCloseButton,
   DialogContent,
   DialogHeader,
   DialogTitle,
@@ -15,7 +17,7 @@ import {
   SelectValue,
   Textarea,
   TextInput,
-} from "@/components/ui"
+} from "@/shared/ui"
 import { logError } from "@/shared/lib/utils/logger"
 import { patternToRRule, rruleToPattern } from "@/shared/lib/date/recurrence"
 import { cx } from "@/shared/lib/utils"
@@ -287,10 +289,11 @@ export function EventDialog({
                 : "Edit Jadwal"
               : "Tambah Jadwal Baru"}
           </DialogTitle>
+          <DialogCloseButton />
         </DialogHeader>
 
         {event && readOnly && !isEditing ? (
-          <div className="mt-4 space-y-6 overflow-y-auto pr-2">
+          <DialogBody className="space-y-6 overflow-y-auto">
             {/* Event Title & Type */}
             <div>
               <div className="flex items-start justify-between gap-4">
@@ -369,24 +372,22 @@ export function EventDialog({
                 </Button>
               )}
             </div>
-          </div>
+          </DialogBody>
         ) : (
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="mt-4 min-h-0 flex-1 space-y-4 overflow-y-auto pr-2"
-          >
-            {/* Title */}
-            <div>
-              <Label htmlFor="title">Judul *</Label>
-              <TextInput
-                id="title"
-                {...register("title")}
-                placeholder="Masukkan judul jadwal"
-                error={!!errors.title}
-                errorMessage={errors.title?.message}
-                disabled={readOnly}
-              />
-            </div>
+          <form onSubmit={handleSubmit(onSubmit)} className="min-h-0 flex-1">
+            <DialogBody className="space-y-4 overflow-y-auto">
+              {/* Title */}
+              <div>
+                <Label htmlFor="title">Judul *</Label>
+                <TextInput
+                  id="title"
+                  {...register("title")}
+                  placeholder="Masukkan judul jadwal"
+                  error={!!errors.title}
+                  errorMessage={errors.title?.message}
+                  disabled={readOnly}
+                />
+              </div>
 
             {/* Type */}
             <div>
@@ -459,7 +460,7 @@ export function EventDialog({
                     disabled={readOnly}
                   />
                   {!watch("allDay") && (
-                    <input
+                    <TextInput
                       type="time"
                       value={(() => {
                         const startValue = watch("start")
@@ -485,12 +486,6 @@ export function EventDialog({
                           )
                         }
                       }}
-                      className={cx(
-                        "text-body-sm w-full rounded-md px-3 py-2 transition-colors",
-                        "border-border-border bg-surface text-content border",
-                        "focus:border-primary focus:ring-2 focus:ring-[--focus-ring-color] focus:outline-none",
-                        "disabled:cursor-not-allowed disabled:opacity-50",
-                      )}
                       disabled={readOnly}
                     />
                   )}
@@ -533,7 +528,7 @@ export function EventDialog({
                     disabled={readOnly}
                   />
                   {!watch("allDay") && (
-                    <input
+                    <TextInput
                       type="time"
                       value={(() => {
                         const endValue = watch("end")
@@ -559,12 +554,6 @@ export function EventDialog({
                           )
                         }
                       }}
-                      className={cx(
-                        "text-body-sm w-full rounded-md px-3 py-2 transition-colors",
-                        "border-border-border bg-surface text-content border",
-                        "focus:border-primary focus:ring-2 focus:ring-[--focus-ring-color] focus:outline-none",
-                        "disabled:cursor-not-allowed disabled:opacity-50",
-                      )}
                       disabled={readOnly}
                     />
                   )}
@@ -679,6 +668,7 @@ export function EventDialog({
                 )}
               </div>
             </div>
+            </DialogBody>
           </form>
         )}
       </DialogContent>

@@ -12,6 +12,7 @@ import {
 } from "@/shared/ui"
 import { Badge } from "@/shared/ui"
 import { DataTable, EmptyState } from "@/shared/ui"
+import { RiCalendarLine } from "@/shared/ui/lucide-icons"
 
 type AttendanceLog = Database["public"]["Tables"]["attendance_logs"]["Row"]
 
@@ -66,8 +67,7 @@ export function AttendanceHistoryList({
       <EmptyState
         title="No attendance records"
         description="Your attendance history will appear here once you start clocking in"
-        icon={null}
-        variant="compact"
+        icon={<RiCalendarLine className="size-5" />}
       />
     )
   }

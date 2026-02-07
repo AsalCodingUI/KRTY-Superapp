@@ -64,6 +64,37 @@ export function useNotifications() {
       .eq("is_read", false)
   }
 
+  const deleteNotification = async (id: string) => {
+    let snapshot: Notification[] = []
+    let deleted: Notification | undefined
+
+    setNotifications((prev) => {
+      snapshot = prev
+      deleted = prev.find((n) => n.id === id)
+      return prev.filter((n) => n.id !== id)
+    })
+
+    if (deleted && !deleted.is_read) {
+      setUnreadCount((prev) => Math.max(0, prev - 1))
+    }
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (!user) return
+
+    const { error } = await supabase
+      .from("notifications")
+      .delete()
+      .eq("id", id)
+      .eq("user_id", user.id)
+
+    if (error) {
+      setNotifications(snapshot)
+      setUnreadCount(snapshot.filter((n) => !n.is_read).length)
+    }
+  }
+
   // 2. FIX: Logic Realtime yang Lebih Cerdas
   useEffect(() => {
     let channel: RealtimeChannel
@@ -105,6 +136,16 @@ export function useNotifications() {
                 setUnreadCount(count)
                 return currentNotifs
               })
+            } else if (payload.eventType === "DELETE") {
+              const deletedNotif = payload.old as Notification
+              setNotifications((prev) =>
+                prev.filter((n) => n.id !== deletedNotif.id),
+              )
+              setUnreadCount((prev) =>
+                deletedNotif && !deletedNotif.is_read
+                  ? Math.max(0, prev - 1)
+                  : prev,
+              )
             }
           },
         )
@@ -124,6 +165,7 @@ export function useNotifications() {
     loading,
     markAsRead,
     markAllAsRead,
+    deleteNotification,
     refetch: fetchNotifications,
   }
 }

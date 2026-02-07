@@ -174,7 +174,7 @@ export function ListProjectTab() {
         <QuarterFilter value={selectedQuarter} onChange={setSelectedQuarter} />
 
         <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-[180px]" size="sm">
             <SelectValue placeholder="Filter by status" />
           </SelectTrigger>
           <SelectContent>
@@ -265,9 +265,15 @@ export function ListProjectTab() {
                       )}
                     </TableCell>
                     <TableCell>
-                      <Badge className={getStatusColor(project.status)}>
-                        {project.status}
-                      </Badge>
+                      {(() => {
+                        const status = (project.status ??
+                          "Active") as ProjectStatus
+                        return (
+                          <Badge className={getStatusColor(status)}>
+                            {status}
+                          </Badge>
+                        )
+                      })()}
                     </TableCell>
                     <TableCell>
                       <span className="text-foreground-primary">

@@ -1,5 +1,10 @@
 import { TextInput } from "@/shared/ui/input/TextInput"
-import { RiMailLine } from "@/shared/ui/lucide-icons"
+import {
+  RiMailLine,
+  RiExternalLinkLine,
+  RiCalendar2Fill,
+  RiTimeLine,
+} from "@/shared/ui/lucide-icons"
 import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 import { useState } from "react"
 
@@ -41,6 +46,13 @@ export const WithIcon: Story = {
   },
 }
 
+export const WithTrailingIcon: Story = {
+  args: {
+    trailingIcon: RiExternalLinkLine,
+    placeholder: "Website",
+  },
+}
+
 export const WithPrefix: Story = {
   args: {
     prefix: "$",
@@ -60,6 +72,14 @@ export const WithPrefixAndSuffix: Story = {
     prefix: "https://",
     suffix: ".com",
     placeholder: "domain",
+  },
+}
+
+export const WithPrefixAndIcon: Story = {
+  args: {
+    prefix: "$",
+    leadingIcon: RiMailLine,
+    placeholder: "Amount",
   },
 }
 
@@ -112,6 +132,22 @@ export const Search: Story = {
   args: {
     type: "search",
     placeholder: "Search...",
+  },
+}
+
+export const Date: Story = {
+  args: {
+    type: "date",
+    placeholder: "Select date",
+    trailingIcon: RiCalendar2Fill,
+  },
+}
+
+export const Time: Story = {
+  args: {
+    type: "time",
+    placeholder: "Select time",
+    trailingIcon: RiTimeLine,
   },
 }
 

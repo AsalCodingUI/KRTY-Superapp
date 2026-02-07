@@ -1,4 +1,4 @@
-import { Skeleton } from "@/components/ui"
+import { Skeleton } from "@/shared/ui"
 
 export default function PayrollLoading() {
   return (
@@ -11,7 +11,7 @@ export default function PayrollLoading() {
         {[...Array(3)].map((_, i) => (
           <div
             key={i}
-            className="bg-surface border-border-border space-y-3 rounded-lg border p-6"
+            className="border-neutral-primary bg-surface-neutral-primary space-y-3 rounded-lg border p-6"
           >
             <Skeleton className="h-4 w-24" />
             <Skeleton className="h-8 w-32" />
@@ -21,9 +21,9 @@ export default function PayrollLoading() {
       </div>
 
       {/* Table section */}
-      <div className="bg-surface border-border-border overflow-hidden rounded-lg border">
+      <div className="border-neutral-primary bg-surface-neutral-primary overflow-hidden rounded-lg border">
         {/* Table header */}
-        <div className="border-border-border flex items-center justify-between border-b p-4">
+        <div className="border-neutral-primary flex items-center justify-between border-b p-4">
           <Skeleton className="h-5 w-40" />
           <div className="flex gap-2">
             <Skeleton className="h-9 w-24 rounded-md" />
@@ -32,7 +32,7 @@ export default function PayrollLoading() {
         </div>
 
         {/* Table rows */}
-        <div className="divide-border divide-y">
+        <div className="divide-border-neutral-primary divide-y">
           {[...Array(8)].map((_, i) => (
             <div key={i} className="flex items-center gap-4 p-4">
               <Skeleton className="h-10 w-10 rounded-full" />

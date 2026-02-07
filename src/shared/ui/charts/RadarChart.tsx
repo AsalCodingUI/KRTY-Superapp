@@ -74,21 +74,23 @@ const RadarChart = React.forwardRef<HTMLDivElement, RadarChartProps>(
     return (
       <div ref={ref} className={cx("h-80 w-full", className)} {...props}>
         <ResponsiveContainer width="100%" height="100%">
-          <RechartsRadarChart cx="50%" cy="50%" outerRadius="80%" data={data}>
+          <RechartsRadarChart cx="50%" cy="50%" outerRadius="78%" data={data}>
             <PolarGrid
-              stroke="currentColor"
-              className="text-border dark:text-border"
+              stroke="var(--border-neutral-primary)"
+              gridType="polygon"
             />
             <PolarAngleAxis
               dataKey={index}
-              tick={{ fill: "currentColor", fontSize: 12 }}
-              className="text-content-subtle dark:text-content-placeholder font-medium"
+              tick={{ fill: "currentColor", fontSize: 12, fontWeight: 500 }}
+              className="text-foreground-secondary"
+              tickLine={false}
             />
             <PolarRadiusAxis
               angle={30}
               domain={[0, "auto"]}
               tick={false}
               axisLine={false}
+              tickLine={false}
             />
 
             {categories.map((category, i) => {
@@ -103,7 +105,9 @@ const RadarChart = React.forwardRef<HTMLDivElement, RadarChartProps>(
                   name={category}
                   dataKey={category}
                   strokeWidth={2}
-                  fillOpacity={0.2}
+                  fillOpacity={0.12}
+                  strokeLinejoin="round"
+                  strokeLinecap="round"
                   className={cx(colorClass)}
                 />
               )

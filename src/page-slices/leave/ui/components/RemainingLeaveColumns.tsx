@@ -5,7 +5,10 @@ import { DataTableColumnHeader } from "@/shared/ui/data/DataTableColumnHeader"
 import { Database } from "@/shared/types/database.types"
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table"
 
-type Profile = Database["public"]["Tables"]["profiles"]["Row"]
+type Profile = Pick<
+  Database["public"]["Tables"]["profiles"]["Row"],
+  "id" | "full_name" | "job_title" | "leave_used" | "leave_balance"
+>
 
 const columnHelper = createColumnHelper<Profile>()
 

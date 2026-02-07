@@ -3,7 +3,7 @@
 "use client"
 
 import { cx } from "@/shared/lib/utils"
-import { Button } from "@/shared/ui/action/Button"
+import { RiCalendar2Fill } from "@/shared/ui/lucide-icons"
 import { Calendar } from "@/shared/ui/input/Calendar"
 import {
   Popover,
@@ -38,7 +38,7 @@ const DateRangePicker = React.forwardRef<
     {
       value,
       onValueChange,
-      placeholder = "Pick a date range",
+      placeholder = "Select date range",
       disabled = false,
       className,
     },
@@ -47,29 +47,41 @@ const DateRangePicker = React.forwardRef<
     return (
       <Popover>
         <PopoverTrigger asChild>
-          <Button
+          <button
             ref={ref}
-            variant="secondary"
+            type="button"
             className={cx(
-              "w-full justify-start text-left font-normal",
-              !value?.from && "text-content-placeholder",
+              "flex w-full items-center gap-md rounded-md px-lg py-md text-body-sm shadow-input transition-shadow hover:bg-surface-neutral-secondary selection:bg-surface-brand-light selection:text-foreground-primary",
+              "bg-surface-neutral-primary text-foreground-primary",
+              "focus:shadow-input-focus focus:outline-none",
+              !value?.from && "text-foreground-tertiary",
+              disabled &&
+                "cursor-not-allowed text-foreground-disable shadow-input",
               className,
             )}
             disabled={disabled}
           >
-            {value?.from ? (
-              value.to ? (
-                <>
-                  {format(value.from, "LLL dd, y")} -{" "}
-                  {format(value.to, "LLL dd, y")}
-                </>
+            <RiCalendar2Fill
+              className={cx(
+                "size-5 shrink-0",
+                disabled ? "text-foreground-disable" : "text-foreground-secondary",
+              )}
+            />
+            <span className="truncate text-left">
+              {value?.from ? (
+                value.to ? (
+                  <>
+                    {format(value.from, "LLL dd, y")} -{" "}
+                    {format(value.to, "LLL dd, y")}
+                  </>
+                ) : (
+                  format(value.from, "LLL dd, y")
+                )
               ) : (
-                format(value.from, "LLL dd, y")
-              )
-            ) : (
-              <span>{placeholder}</span>
-            )}
-          </Button>
+                <span>{placeholder}</span>
+              )}
+            </span>
+          </button>
         </PopoverTrigger>
         <PopoverContent
           className="w-auto border-none bg-transparent p-0 shadow-none"

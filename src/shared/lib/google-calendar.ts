@@ -97,6 +97,137 @@ export async function fetchGoogleCalendarEvents({
   return data.items ?? []
 }
 
+export async function createGoogleCalendarEvent({
+  accessToken,
+  calendarId,
+  summary,
+  description,
+  location,
+  start,
+  end,
+  attendees,
+  createMeet,
+}: {
+  accessToken: string
+  calendarId: string
+  summary: string
+  description?: string
+  location?: string
+  start: string
+  end: string
+  attendees: Array<{ email: string; displayName?: string }>
+  createMeet: boolean
+}): Promise<GoogleCalendarEvent | null> {
+  const requestId =
+    typeof crypto !== "undefined" && "randomUUID" in crypto
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(16).slice(2)}`
+
+  const body: Record<string, any> = {
+    summary,
+    description,
+    location,
+    start: { dateTime: start, timeZone: "Asia/Jakarta" },
+    end: { dateTime: end, timeZone: "Asia/Jakarta" },
+    attendees,
+  }
+
+  if (createMeet) {
+    body.conferenceData = {
+      createRequest: {
+        requestId,
+        conferenceSolutionKey: { type: "hangoutsMeet" },
+      },
+    }
+  }
+
+  const response = await fetch(
+    `${GOOGLE_EVENTS_URL}/${encodeURIComponent(
+      calendarId,
+    )}/events?conferenceDataVersion=1&sendUpdates=all`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    },
+  )
+
+  if (!response.ok) {
+    return null
+  }
+
+  return (await response.json()) as GoogleCalendarEvent
+}
+
+export async function updateGoogleCalendarEvent({
+  accessToken,
+  calendarId,
+  eventId,
+  start,
+  end,
+  location,
+}: {
+  accessToken: string
+  calendarId: string
+  eventId: string
+  start: string
+  end: string
+  location?: string
+}): Promise<GoogleCalendarEvent | null> {
+  const body: Record<string, any> = {
+    start: { dateTime: start, timeZone: "Asia/Jakarta" },
+    end: { dateTime: end, timeZone: "Asia/Jakarta" },
+    location,
+  }
+
+  const response = await fetch(
+    `${GOOGLE_EVENTS_URL}/${encodeURIComponent(
+      calendarId,
+    )}/events/${encodeURIComponent(eventId)}?sendUpdates=all`,
+    {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    },
+  )
+
+  if (!response.ok) {
+    return null
+  }
+
+  return (await response.json()) as GoogleCalendarEvent
+}
+
+export async function deleteGoogleCalendarEvent({
+  accessToken,
+  calendarId,
+  eventId,
+}: {
+  accessToken: string
+  calendarId: string
+  eventId: string
+}): Promise<boolean> {
+  const response = await fetch(
+    `${GOOGLE_EVENTS_URL}/${encodeURIComponent(
+      calendarId,
+    )}/events/${encodeURIComponent(eventId)}?sendUpdates=all`,
+    {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    },
+  )
+
+  return response.ok
+}
+
 export function parseGoogleDate(input?: {
   dateTime?: string
   date?: string

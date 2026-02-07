@@ -14,6 +14,7 @@ import {
 } from "@/shared/ui"
 import { Badge } from "@/shared/ui"
 import { DataTable, EmptyState } from "@/shared/ui"
+import { RiCalendarLine } from "@/shared/ui/lucide-icons"
 
 // Tipe data gabungan (Join)
 type AttendanceLogWithProfile =
@@ -57,8 +58,7 @@ export function AdminAttendanceHistoryList({
       <EmptyState
         title="No attendance records"
         description="Employee attendance records will appear here once they start clocking in"
-        icon={null}
-        variant="compact"
+        icon={<RiCalendarLine className="size-5" />}
       />
     )
   }

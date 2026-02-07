@@ -4,15 +4,16 @@ import { createClient } from "@/shared/api/supabase/server"
 export default async function TeamsRoute({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | string[] | undefined }
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
+  const resolvedSearchParams = await searchParams
   const supabase = await createClient()
 
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
-  const page = Number(searchParams.page) || 1
+  const page = Number(resolvedSearchParams.page) || 1
   const pageSize = 20
   const from = (page - 1) * pageSize
   const to = from + pageSize - 1

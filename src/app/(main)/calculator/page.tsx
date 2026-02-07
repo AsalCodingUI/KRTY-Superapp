@@ -8,7 +8,7 @@ export default async function CalculatorRoute() {
 
   const { data: profiles } = await supabase
     .from("profiles")
-    .select("*")
+    .select("id, full_name, job_title, hourly_rate")
     .eq("role", "employee")
     .order("full_name", { ascending: true })
 

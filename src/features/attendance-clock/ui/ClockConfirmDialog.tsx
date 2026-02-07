@@ -1,12 +1,12 @@
 "use client"
 
-import { RiCloseLine } from "@/shared/ui/lucide-icons"
 import {
   Button,
   Dialog,
+  DialogBody,
   DialogClose,
+  DialogCloseButton,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -37,26 +37,20 @@ export function ClockConfirmDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
-        <DialogClose asChild>
-          <Button
-            className="!text-content-placeholder hover:text-content-subtle dark:!text-content-subtle hover:dark:text-content-subtle absolute top-3 right-3 p-2"
-            variant="ghost"
-            aria-label="close"
-          >
-            <RiCloseLine className="size-5 shrink-0" />
-          </Button>
-        </DialogClose>
         <DialogHeader>
           <DialogTitle>
             {action === "CLOCK_IN" ? "Confirm Clock In" : "Confirm Clock Out"}
           </DialogTitle>
-          <DialogDescription className="mt-2">
+          <DialogCloseButton />
+        </DialogHeader>
+        <DialogBody>
+          <p className="text-body-sm text-foreground-secondary">
             {action === "CLOCK_IN"
               ? `Anda akan masuk dengan status: ${getStatusLabel(status || "Present")}. Lanjutkan?`
               : "Apakah Anda yakin ingin mengakhiri sesi kerja ini?"}
-          </DialogDescription>
-        </DialogHeader>
-        <DialogFooter className="mt-6">
+          </p>
+        </DialogBody>
+        <DialogFooter>
           <DialogClose asChild>
             <Button variant="secondary" className="w-full sm:w-fit">
               Cancel

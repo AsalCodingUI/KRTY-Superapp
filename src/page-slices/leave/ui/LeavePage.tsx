@@ -1,11 +1,37 @@
 "use client"
 
 import { Database } from "@/shared/types/database.types"
-import { EmployeeLeavePage } from "./EmployeeLeavePage"
-import { StakeholderLeavePage } from "./StakeholderLeavePage"
 import { canManageByRole } from "@/shared/lib/roles"
+import dynamic from "next/dynamic"
+
+const EmployeeLeavePage = dynamic(
+  () => import("./EmployeeLeavePage").then((mod) => mod.EmployeeLeavePage),
+  {
+    loading: () => (
+      <div className="flex items-center justify-center py-12">
+        <div className="border-primary h-8 w-8 animate-spin rounded-full border-b-2" />
+      </div>
+    ),
+  },
+)
+
+const StakeholderLeavePage = dynamic(
+  () =>
+    import("./StakeholderLeavePage").then((mod) => mod.StakeholderLeavePage),
+  {
+    loading: () => (
+      <div className="flex items-center justify-center py-12">
+        <div className="border-primary h-8 w-8 animate-spin rounded-full border-b-2" />
+      </div>
+    ),
+  },
+)
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"]
+type ProfileSummary = Pick<
+  Profile,
+  "id" | "full_name" | "job_title" | "leave_used" | "leave_balance"
+>
 type LeaveRequest = Database["public"]["Tables"]["leave_requests"]["Row"]
 type AttendanceLog = Database["public"]["Tables"]["attendance_logs"]["Row"]
 
@@ -24,7 +50,7 @@ interface LeavePageProps {
   role: "employee" | "stakeholder"
   profile: Profile
   requests: LeaveRequest[] | LeaveRequestWithProfile[]
-  profiles?: Profile[]
+  profiles?: ProfileSummary[]
   attendanceLogs?: AttendanceLogWithProfile[]
   page: number
   pageSize: number

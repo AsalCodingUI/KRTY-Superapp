@@ -1,12 +1,16 @@
 import { createClient } from "@/shared/api/supabase/server"
 import { logError } from "@/shared/lib/utils/logger"
 import { NextRequest, NextResponse } from "next/server"
+import { guardApiRoute } from "@/shared/lib/utils/security"
 
 /**
  * PATCH /api/calendar/rsvp
  * Update RSVP status for an event
  */
 export async function PATCH(request: NextRequest) {
+  const guard = guardApiRoute(request)
+  if (guard) return guard
+
   try {
     const body = await request.json()
     const { eventId, status } = body

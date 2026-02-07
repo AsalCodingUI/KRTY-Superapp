@@ -1,10 +1,13 @@
 import {
   Button,
   Dialog,
+  DialogBody,
+  DialogCloseButton,
   DialogContent,
   DialogFooter,
+  DialogHeader,
   DialogTitle,
-} from "@/components/ui"
+} from "@/shared/ui"
 import { RiErrorWarningLine } from "@/shared/ui/lucide-icons"
 
 interface DeleteConfirmDialogProps {
@@ -34,19 +37,19 @@ export function DeleteConfirmDialog({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md">
-        <div className="flex items-start gap-4">
-          <div className="rounded-tremor-full bg-danger-subtle flex h-10 w-10 items-center justify-center">
-            <RiErrorWarningLine className="text-danger h-5 w-5" />
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+          <DialogCloseButton />
+        </DialogHeader>
+        <DialogBody>
+          <div className="flex items-start gap-4">
+            <div className="bg-surface-danger-light text-foreground-danger flex h-10 w-10 items-center justify-center rounded-full">
+              <RiErrorWarningLine className="size-5" />
+            </div>
+            <p className="text-body-sm text-foreground-secondary">{description}</p>
           </div>
-          <div className="flex-1">
-            <DialogTitle className="mb-2">{title}</DialogTitle>
-            <p className="text-tremor-content-subtle text-body-sm">
-              {description}
-            </p>
-          </div>
-        </div>
-
-        <DialogFooter className="mt-6">
+        </DialogBody>
+        <DialogFooter>
           <Button variant="secondary" onClick={onClose}>
             {cancelText}
           </Button>

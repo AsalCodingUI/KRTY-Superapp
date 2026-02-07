@@ -25,6 +25,20 @@ export const WithTime: Story = {
   },
 }
 
+export const Disabled: Story = {
+  render: () => {
+    const [date, setDate] = useState<Date | undefined>(new Date())
+    return <SingleDatePicker value={date} onChange={setDate} disabled />
+  },
+}
+
+export const WithError: Story = {
+  render: () => {
+    const [date, setDate] = useState<Date | undefined>(new Date())
+    return <SingleDatePicker value={date} onChange={setDate} hasError />
+  },
+}
+
 export const WithPresets: Story = {
   render: () => {
     const [date, setDate] = useState<Date | undefined>(new Date())

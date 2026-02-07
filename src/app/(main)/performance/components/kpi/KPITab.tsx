@@ -3,11 +3,11 @@
 import { Avatar, Badge } from "@/shared/ui"
 import { Button } from "@/shared/ui"
 import { Card } from "@/shared/ui"
-import { EmptyState, Input } from "@/shared/ui"
+import { EmptyState, Skeleton, TextInput } from "@/shared/ui"
 import { Spinner } from "@/shared/ui"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { canManageByRole } from "@/shared/lib/roles"
-import { RiSearchLine, RiUserLine } from "@/shared/ui/lucide-icons"
+import { RiUserLine } from "@/shared/ui/lucide-icons"
 import dynamic from "next/dynamic"
 import Link from "next/link"
 import { useEffect, useState } from "react"
@@ -75,11 +75,9 @@ type Assignment = {
 
 export function KPITab({
   selectedQuarter,
-  onQuarterChange,
 }: {
   selectedQuarter?: string
-  onQuarterChange?: (value: string) => void
-} = {}) {
+}) {
   const { profile, loading: profileLoading } = useUserProfile()
   const [employees, setEmployees] = useState<EmployeeWithProjects[]>([])
   const [loading, setLoading] = useState(true)
@@ -172,7 +170,6 @@ export function KPITab({
         employee={employeeData}
         initialAssignments={assignments}
         selectedQuarter={selectedQuarter}
-        onQuarterChange={onQuarterChange}
       />
     )
   }
@@ -191,14 +188,12 @@ export function KPITab({
       </div>
 
       {/* SEARCH */}
-      <div className="relative">
-        <RiSearchLine className="text-content-placeholder absolute top-1/2 left-3 size-5 -translate-y-1/2" />
-        <Input
-          type="text"
+      <div>
+        <TextInput
+          type="search"
           placeholder="Search employees by name or email..."
           value={searchQuery}
           onChange={(e) => handleSearch(e.target.value)}
-          className="pl-10"
         />
       </div>
 
@@ -206,8 +201,13 @@ export function KPITab({
       {loading ? (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {[...Array(6)].map((_, i) => (
-            <Card key={i} className="animate-pulse">
-              <div className="bg-border dark:bg-hover h-24 rounded" />
+            <Card
+              key={i}
+              className="border-neutral-primary bg-surface-neutral-primary space-y-3"
+            >
+              <Skeleton className="h-5 w-32" />
+              <Skeleton className="h-4 w-48" />
+              <Skeleton className="h-4 w-24" />
             </Card>
           ))}
         </div>

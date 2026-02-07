@@ -32,3 +32,32 @@ export const Default: Story = {
     </TabNavigation>
   ),
 }
+
+export const NoIcons: Story = {
+  render: () => (
+    <TabNavigation>
+      <TabNavigationLink href="#" active showLeadingIcon={false}>
+        Overview
+      </TabNavigationLink>
+      <TabNavigationLink href="#" showLeadingIcon={false}>
+        KPI
+      </TabNavigationLink>
+      <TabNavigationLink href="#" showLeadingIcon={false} badge="3">
+        Reviews
+      </TabNavigationLink>
+    </TabNavigation>
+  ),
+}
+
+export const WithBadges: Story = {
+  render: () => (
+    <TabNavigation>
+      <TabNavigationLink href="#" active leadingIcon={<RiFlowerFill />} badge="9">
+        Unread
+      </TabNavigationLink>
+      <TabNavigationLink href="#" leadingIcon={<RiFlowerFill />} badge="12">
+        All
+      </TabNavigationLink>
+    </TabNavigation>
+  ),
+}

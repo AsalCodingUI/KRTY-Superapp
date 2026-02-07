@@ -53,7 +53,7 @@ export const projectService = {
    * Determines the project role for a given job title based on DB rules.
    */
   async determineRole(jobTitle: string | null): Promise<ProjectRoleEnum> {
-    if (!jobTitle) return "Web Developer" // Default
+    if (!jobTitle) return "Webflow Developer" // Default
 
     const configs = await this.getRoleConfigs()
 
@@ -72,7 +72,7 @@ export const projectService = {
       }
     }
 
-    return "Web Developer" // Fallback Default
+    return "Webflow Developer" // Fallback Default
   },
 
   /**

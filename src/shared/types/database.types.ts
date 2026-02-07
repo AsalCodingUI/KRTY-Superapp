@@ -309,6 +309,72 @@ export type Database = {
           },
         ]
       }
+      one_on_one_slots: {
+        Row: {
+          booked_at: string | null
+          booked_by: string | null
+          created_at: string | null
+          cycle_name: string
+          end_at: string
+          google_event_id: string | null
+          id: string
+          location: string | null
+          meeting_url: string | null
+          mode: string
+          organizer_id: string | null
+          start_at: string
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          booked_at?: string | null
+          booked_by?: string | null
+          created_at?: string | null
+          cycle_name: string
+          end_at: string
+          google_event_id?: string | null
+          id?: string
+          location?: string | null
+          meeting_url?: string | null
+          mode: string
+          organizer_id?: string | null
+          start_at: string
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          booked_at?: string | null
+          booked_by?: string | null
+          created_at?: string | null
+          cycle_name?: string
+          end_at?: string
+          google_event_id?: string | null
+          id?: string
+          location?: string | null
+          meeting_url?: string | null
+          mode?: string
+          organizer_id?: string | null
+          start_at?: string
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "one_on_one_slots_booked_by_fkey"
+            columns: ["booked_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "one_on_one_slots_organizer_id_fkey"
+            columns: ["organizer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       performance_reviews: {
         Row: {
           created_at: string | null

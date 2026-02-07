@@ -1,12 +1,14 @@
 "use client"
 
+import { Skeleton } from "@/shared/ui"
+
 export default function DashboardLoading() {
   return (
     <div className="space-y-6">
       {/* Header Skeleton */}
       <div className="flex items-center justify-between">
-        <div className="bg-border dark:bg-hover h-7 w-48 animate-pulse rounded"></div>
-        <div className="bg-border dark:bg-hover h-9 w-32 animate-pulse rounded"></div>
+        <Skeleton className="h-7 w-48" />
+        <Skeleton className="h-9 w-32" />
       </div>
 
       {/* Stats Cards Skeleton */}
@@ -14,18 +16,18 @@ export default function DashboardLoading() {
         {[1, 2, 3, 4].map((i) => (
           <div
             key={i}
-            className="border-border space-y-3 rounded-lg border p-6"
+            className="border-neutral-primary bg-surface-neutral-primary space-y-3 rounded-lg border p-6"
           >
-            <div className="bg-border dark:bg-hover h-4 w-24 animate-pulse rounded"></div>
-            <div className="bg-border dark:bg-hover h-8 w-16 animate-pulse rounded"></div>
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-8 w-16" />
           </div>
         ))}
       </div>
 
       {/* Chart Skeleton */}
-      <div className="border-border rounded-lg border p-6">
-        <div className="bg-border dark:bg-hover mb-4 h-5 w-32 animate-pulse rounded"></div>
-        <div className="bg-border dark:bg-hover h-64 animate-pulse rounded"></div>
+      <div className="border-neutral-primary bg-surface-neutral-primary rounded-lg border p-6">
+        <Skeleton className="mb-4 h-5 w-32" />
+        <Skeleton className="h-64 w-full" />
       </div>
     </div>
   )

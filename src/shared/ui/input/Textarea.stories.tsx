@@ -16,6 +16,13 @@ export const Default: Story = {
   },
 }
 
+export const Filled: Story = {
+  args: {
+    defaultValue:
+      "Tambun Design system is a UI library that provides a set of accessible, reusable, and beautiful components.",
+  },
+}
+
 export const Disabled: Story = {
   args: {
     placeholder: "This is disabled",

@@ -2,7 +2,7 @@
 
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui"
 import { cx } from "@/shared/lib/utils"
-import { format, getWeek, isSameDay, isSameMonth } from "date-fns"
+import { format, isSameDay, isSameMonth } from "date-fns"
 import { id } from "date-fns/locale"
 import { memo, useMemo, useState } from "react"
 import { useCalendarContext } from "./calendar-context"

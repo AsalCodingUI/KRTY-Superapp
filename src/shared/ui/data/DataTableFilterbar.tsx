@@ -20,7 +20,7 @@ export function Filterbar<TData>({
   table,
   onCreate,
   showExport = true,
-  showViewOptions = true,
+  showViewOptions = false,
   actionLabel = "Add Member",
   searchKey, // 2. Ambil Props
 }: DataTableToolbarProps<TData>) {

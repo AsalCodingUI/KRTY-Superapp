@@ -77,11 +77,9 @@ export function cx(...args: ClassValue[]) {
 
 export const focusInput = [
   // base
-  "focus:ring-2",
-  // ring color - explicit css var to ensure correct color
-  "focus:ring-[var(--border-brand-light)]",
-  // border color
-  "focus:border-border-brand",
+  "focus:outline-none",
+  // shadow color
+  "focus:shadow-input-focus",
 ]
 
 // Tremor Raw focusRing [v0.0.1]
@@ -97,11 +95,8 @@ export const focusRing = [
 
 export const hasErrorInput = [
   // base
-  "ring-2",
-  // border color
-  "border-danger",
-  // ring color
-  "ring-danger/20",
+  "shadow-input-error",
+  "focus:shadow-input-error",
 ]
 
 // Number formatter function

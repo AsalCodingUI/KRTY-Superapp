@@ -5,9 +5,10 @@ import { Checkbox } from "@/shared/ui"
 import { DateRangePicker } from "@/shared/ui"
 import {
   Dialog,
+  DialogBody,
   DialogClose,
+  DialogCloseButton,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -25,7 +26,7 @@ import { Textarea } from "@/shared/ui"
 import { Database } from "@/shared/types/database.types"
 import { calculateBusinessDays } from "@/shared/lib/date"
 import { createClient } from "@/shared/api/supabase/client"
-import { RiCloseLine, RiLoader2Line } from "@/shared/ui/lucide-icons"
+import { RiLoader2Line } from "@/shared/ui/lucide-icons"
 import imageCompression from "browser-image-compression"
 import { useRouter } from "next/navigation"
 import React, { useEffect, useState } from "react"
@@ -386,37 +387,20 @@ export function LeaveRequestModal({
     return "Final Confirmation"
   }
 
-  const getDescription = () => {
-    if (step === 1)
-      return "Fill in the details below to submit your leave request."
-    if (step === 2) return "Please review the leave policy before proceeding."
-    return "Apakah Anda yakin ingin mengirim permohonan cuti ini? Pastikan tanggal dan alasan sudah sesuai."
-  }
-
   return (
     <Dialog open={isOpen} onOpenChange={(val) => !val && onClose()}>
       <DialogContent className="sm:max-w-lg">
-        <DialogClose asChild>
-          <Button
-            className="!text-content-placeholder hover:text-content-subtle dark:!text-content-subtle hover:dark:text-content-subtle absolute top-3 right-3 p-2"
-            variant="ghost"
-            aria-label="close"
-          >
-            <RiCloseLine className="size-5 shrink-0" />
-          </Button>
-        </DialogClose>
-
         <form onSubmit={(e) => e.preventDefault()}>
           <DialogHeader>
             <DialogTitle>{getTitle()}</DialogTitle>
-            <DialogDescription className="text-body-sm/6 mt-1">
-              {getDescription()}
-            </DialogDescription>
+            <DialogCloseButton />
           </DialogHeader>
 
-          {renderContent()}
+          <DialogBody>
+            {renderContent()}
+          </DialogBody>
 
-          <DialogFooter className="mt-6">{renderFooter()}</DialogFooter>
+          <DialogFooter>{renderFooter()}</DialogFooter>
         </form>
       </DialogContent>
     </Dialog>

@@ -3,8 +3,9 @@
 import { Button } from "@/shared/ui"
 import {
   Dialog,
+  DialogBody,
+  DialogCloseButton,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -82,14 +83,10 @@ export function CompetencyForm({
             <DialogTitle>
               {isEdit ? "Edit Competency" : "Add New Competency"}
             </DialogTitle>
-            <DialogDescription>
-              {isEdit
-                ? "Update competency details for Work Quality assessment."
-                : "Add a new competency for Work Quality assessment. This will be used in employee KPI grading."}
-            </DialogDescription>
+            <DialogCloseButton />
           </DialogHeader>
 
-          <div className="space-y-4 py-4">
+          <DialogBody className="space-y-4">
             {/* Role Selection */}
             <div className="space-y-2">
               <Label htmlFor="role">Role *</Label>
@@ -134,7 +131,7 @@ export function CompetencyForm({
                 defaultValue={competency?.description || ""}
               />
             </div>
-          </div>
+          </DialogBody>
 
           <DialogFooter>
             <Button

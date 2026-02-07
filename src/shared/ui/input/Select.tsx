@@ -5,8 +5,9 @@ import { RiArrowDownSLine, RiArrowUpSLine, RiCheckLine } from "@/shared/ui/lucid
 import { format } from "date-fns"
 import React from "react"
 
-import { cx, focusInput, hasErrorInput } from "@/shared/lib/utils"
+import { cx, hasErrorInput } from "@/shared/lib/utils"
 import { DateRange } from "react-day-picker"
+import { buttonVariants } from "@/shared/ui/action/Button"
 
 const Select = SelectPrimitives.Root
 
@@ -14,57 +15,48 @@ const SelectGroup = SelectPrimitives.Group
 
 const SelectValue = SelectPrimitives.Value
 
-const selectTriggerStyles = [
-  cx(
-    // base
-    "group/trigger text-body-sm flex w-full cursor-pointer items-center justify-between gap-2 truncate rounded-md border px-2.5 py-1.5 transition outline-none select-none",
-    // border color
-    "border-border-default",
-    // text color
-    "text-foreground-primary",
-    // placeholder
-    "data-[placeholder]:text-foreground-placeholder",
-    // background color
-    "bg-surface",
-    // hover
-    "hover:bg-surface-neutral-secondary",
-    // disabled
-    "data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50",
-    focusInput,
-    // invalid (optional)
-    // "aria-[invalid=true]:dark:ring-red-400/20 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 aria-[invalid=true]:border-red-500 invalid:ring-2 invalid:ring-red-200 invalid:border-red-500"
-  ),
-]
+const selectTriggerBase = cx(
+  // base layout
+  "group/trigger flex w-full items-center justify-between gap-sm truncate select-none",
+  // text color
+  "text-foreground-primary",
+  // placeholder
+  "data-[placeholder]:text-foreground-tertiary",
+)
 
 const SelectTrigger = React.forwardRef<
   React.ElementRef<typeof SelectPrimitives.Trigger>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitives.Trigger> & {
     hasError?: boolean
+    size?: "default" | "sm"
   }
->(({ className, hasError, children, ...props }, forwardedRef) => {
+>(({ className, hasError, size = "default", children, ...props }, forwardedRef) => {
   return (
     <SelectPrimitives.Trigger
       ref={forwardedRef}
       className={cx(
-        selectTriggerStyles,
+        buttonVariants({ variant: "secondary", size }),
+        selectTriggerBase,
         hasError ? hasErrorInput : "",
         className,
       )}
       {...props}
     >
-      <span className="truncate">{children}</span>
-      <SelectPrimitives.Icon asChild>
-        <RiArrowDownSLine
-          className={cx(
-            // base
-            "-mr-1 size-5 shrink-0",
-            // text color
-            "text-foreground-placeholder",
-            // disabled
-            "group-data-[disabled]/trigger:text-foreground-disable",
-          )}
-        />
-      </SelectPrimitives.Icon>
+      <span className="inline-flex items-center px-xs truncate">
+        {children}
+      </span>
+    <SelectPrimitives.Icon asChild>
+      <RiArrowDownSLine
+        className={cx(
+          // base
+          "size-[14px] shrink-0",
+          // text color
+          "text-foreground-tertiary",
+          // disabled
+          "group-data-[disabled]/trigger:text-foreground-disable",
+        )}
+      />
+    </SelectPrimitives.Icon>
     </SelectPrimitives.Trigger>
   )
 })
@@ -126,17 +118,19 @@ const SelectContent = React.forwardRef<
         ref={forwardedRef}
         className={cx(
           // base
-          "relative z-50 overflow-hidden rounded-md border shadow-xl shadow-black/[2.5%]",
+          "relative z-50 overflow-hidden rounded-md border",
           // widths
           "max-w-[95vw] min-w-[calc(var(--radix-select-trigger-width)-2px)]",
           // heights
           "max-h-[--radix-select-content-available-height]",
           // background color
-          "bg-surface",
+          "bg-surface-neutral-primary",
           // text color
-          "text-foreground-primary",
+          "text-foreground-secondary",
           // border color
-          "border-border-default",
+          "border-neutral-primary",
+          // shadow
+          "shadow-[0px_2px_4px_-3px_rgba(0,0,0,0.08),0px_10px_24px_-6px_rgba(0,0,0,0.08)]",
           // transition
           "will-change-[transform,opacity]",
           // "data-[state=open]:animate-slideDownAndFade",
@@ -152,7 +146,7 @@ const SelectContent = React.forwardRef<
         <SelectScrollUpButton />
         <SelectPrimitives.Viewport
           className={cx(
-            "p-1",
+            "py-xs",
             position === "popper" &&
               "h-[var(--radix-select-trigger-height)] w-full min-w-[calc(var(--radix-select-trigger-width))]",
           )}
@@ -175,9 +169,9 @@ const SelectGroupLabel = React.forwardRef<
     ref={forwardedRef}
     className={cx(
       // base
-      "text-label-xs px-3 py-2",
+      "text-label-xs px-xl py-sm",
       // text color
-      "text-foreground-secondary",
+      "text-foreground-tertiary",
       className,
     )}
     {...props}
@@ -188,35 +182,46 @@ SelectGroupLabel.displayName = "SelectGroupLabel"
 
 const SelectItem = React.forwardRef<
   React.ElementRef<typeof SelectPrimitives.Item>,
-  React.ComponentPropsWithoutRef<typeof SelectPrimitives.Item>
->(({ className, children, ...props }, forwardedRef) => {
+  React.ComponentPropsWithoutRef<typeof SelectPrimitives.Item> & {
+    leadingIcon?: React.ReactNode
+  }
+>(({ className, children, leadingIcon, ...props }, forwardedRef) => {
   return (
     <SelectPrimitives.Item
       ref={forwardedRef}
       className={cx(
         // base
-        "data-[state=checked]: sm:text-label-md grid cursor-pointer grid-cols-[1fr_20px] gap-x-2 rounded px-3 py-2 transition-colors outline-none",
+        "group/item px-sm py-xs outline-none",
         // text color
-        "text-foreground-primary",
+        "text-foreground-secondary",
         // disabled
-        "data-[disabled]:text-foreground-placeholder data-[disabled]:pointer-events-none data-[disabled]:hover:bg-none",
-        // focus
-        "focus-visible:bg-surface-neutral-secondary",
-        // hover
-        "hover:bg-surface-neutral-secondary",
+        "data-[disabled]:text-foreground-disable data-[disabled]:pointer-events-none",
         className,
       )}
       {...props}
     >
-      <SelectPrimitives.ItemText className="flex-1 truncate">
-        {children}
-      </SelectPrimitives.ItemText>
-      <SelectPrimitives.ItemIndicator>
-        <RiCheckLine
-          className="text-foreground-primary size-5 shrink-0"
-          aria-hidden="true"
-        />
-      </SelectPrimitives.ItemIndicator>
+      <div
+        className={cx(
+          "flex w-full items-center gap-lg rounded-md px-xl py-lg transition-colors",
+          "group-data-[highlighted]/item:bg-surface-neutral-secondary",
+          "group-data-[state=checked]/item:bg-surface-neutral-secondary",
+        )}
+      >
+        {leadingIcon ? (
+          <span className="flex size-5 items-center justify-center">
+            {leadingIcon}
+          </span>
+        ) : null}
+        <SelectPrimitives.ItemText className="text-label-sm text-foreground-secondary flex-1 truncate">
+          {children}
+        </SelectPrimitives.ItemText>
+        <SelectPrimitives.ItemIndicator>
+          <RiCheckLine
+            className="text-foreground-secondary size-4 shrink-0"
+            aria-hidden="true"
+          />
+        </SelectPrimitives.ItemIndicator>
+      </div>
     </SelectPrimitives.Item>
   )
 })
@@ -234,40 +239,41 @@ const SelectItemPeriod = React.forwardRef<
       ref={forwardedRef}
       className={cx(
         // base
-        "data-[state=checked]: sm:text-label-md relative flex cursor-pointer items-center rounded py-2 pr-3 pl-8 transition-colors outline-none",
+        "group/item px-sm py-xs outline-none",
         // text color
-        "text-foreground-primary",
+        "text-foreground-secondary",
         // disabled
-        "data-[disabled]:text-foreground-placeholder data-[disabled]:pointer-events-none data-[disabled]:hover:bg-none",
-        // focus
-        "focus-visible:bg-surface-neutral-secondary",
-        // hover
-        "hover:bg-surface-neutral-secondary",
+        "data-[disabled]:text-foreground-disable data-[disabled]:pointer-events-none",
         className,
       )}
       {...props}
     >
-      <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+      <div
+        className={cx(
+          "flex w-full items-center gap-lg rounded-md px-xl py-lg transition-colors",
+          "group-data-[highlighted]/item:bg-surface-neutral-secondary",
+          "group-data-[state=checked]/item:bg-surface-neutral-secondary",
+        )}
+      >
+        <div className="flex w-full items-center gap-lg">
+          <SelectPrimitives.ItemText className="text-label-sm text-foreground-secondary w-40 truncate sm:w-32">
+            {children}
+          </SelectPrimitives.ItemText>
+          <span>
+            {period?.from && period?.to && (
+              <span className="text-foreground-tertiary text-body-xs whitespace-nowrap">
+                {format(period.from, "MMM d, yyyy")} –{" "}
+                {format(period.to, "MMM d, yyyy")}
+              </span>
+            )}
+          </span>
+        </div>
         <SelectPrimitives.ItemIndicator>
           <RiCheckLine
-            className="text-foreground-primary size-5 shrink-0"
+            className="text-foreground-secondary size-4 shrink-0"
             aria-hidden="true"
           />
         </SelectPrimitives.ItemIndicator>
-      </span>
-      <div className="flex w-full items-center">
-        {/* adapt width accordingly if you use longer names for periods */}
-        <span className="w-40 sm:w-32">
-          <SelectPrimitives.ItemText>{children}</SelectPrimitives.ItemText>
-        </span>
-        <span>
-          {period?.from && period?.to && (
-            <span className="text-foreground-placeholder font-normal whitespace-nowrap">
-              {format(period.from, "MMM d, yyyy")} –{" "}
-              {format(period.to, "MMM d, yyyy")}
-            </span>
-          )}
-        </span>
       </div>
     </SelectPrimitives.Item>
   )
@@ -283,9 +289,9 @@ const SelectSeparator = React.forwardRef<
     ref={forwardedRef}
     className={cx(
       // base
-      "-mx-1 my-1 h-px",
+      "mx-sm my-xs h-px",
       // background color
-      "bg-border-default",
+      "bg-border-neutral-primary",
       className,
     )}
     {...props}

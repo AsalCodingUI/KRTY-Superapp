@@ -4,10 +4,12 @@ import {
   Badge,
   Button,
   Dialog,
+  DialogBody,
+  DialogCloseButton,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui"
+} from "@/shared/ui"
 import { cx } from "@/shared/lib/utils"
 import {
   RiCalendarLine,
@@ -84,20 +86,11 @@ export function BaseReadOnlyDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <div className="flex items-center justify-between">
-            <DialogTitle>{title}</DialogTitle>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onOpenChange(false)}
-              className="h-8 w-8 p-0"
-            >
-              <RiCloseLine className="h-5 w-5" />
-            </Button>
-          </div>
+          <DialogTitle>{title}</DialogTitle>
+          <DialogCloseButton onClick={() => onOpenChange(false)} />
         </DialogHeader>
 
-        <div className="space-y-6 py-4">
+        <DialogBody className="space-y-6">
           {/* Badges */}
           {badges.length > 0 && (
             <div className="flex flex-wrap items-center gap-2">
@@ -191,7 +184,7 @@ export function BaseReadOnlyDialog({
               <p className="text-body-sm">ℹ️ {infoMessage}</p>
             </div>
           )}
-        </div>
+        </DialogBody>
 
         {/* Footer */}
         <div className="border-border flex justify-between border-t pt-4">

@@ -2,6 +2,7 @@
 
 import { cx } from "@/shared/lib/utils"
 import {
+  EmptyState,
   Table,
   TableBody,
   TableCell,
@@ -10,6 +11,7 @@ import {
   TableRow,
 } from "@/shared/ui"
 import { TableSection } from "@/shared/ui/structure/TableSection"
+import { RiFileList3Line } from "@/shared/ui/lucide-icons"
 import * as React from "react"
 
 import { DataTableBulkEditor } from "./DataTableBulkEditor"
@@ -122,7 +124,7 @@ export function DataTable<TData>({
   onEdit,
   onDelete,
   showExport,
-  showViewOptions,
+  showViewOptions = false,
   actionLabel,
   enableSelection = true,
   enableHover = true,
@@ -243,7 +245,7 @@ export function DataTable<TData>({
                         enableSelection ? "cursor-pointer" : "cursor-default",
                       )}
                     >
-                      {row.getVisibleCells().map((cell, index) => {
+                      {row.getVisibleCells().map((cell) => {
                         const isSelectionColumn = cell.column.id === "select"
                         return (
                         <TableCell
@@ -264,29 +266,12 @@ export function DataTable<TData>({
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell
-                      colSpan={columns.length}
-                      className="h-32 text-center"
-                    >
-                      <div className="text-content-subtle flex flex-col items-center justify-center gap-2">
-                        <svg
-                          className="text-content-placeholder size-8"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                          strokeWidth={1.5}
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
-                          />
-                        </svg>
-                        <p className="text-label-md">No data available</p>
-                        <p className="text-content-placeholder text-label-xs">
-                          Data will appear here once added
-                        </p>
-                      </div>
+                    <TableCell colSpan={columns.length} className="p-6">
+                      <EmptyState
+                        title="No data available"
+                        description="Data will appear here once added"
+                        icon={<RiFileList3Line className="size-5" />}
+                      />
                     </TableCell>
                   </TableRow>
                 )}

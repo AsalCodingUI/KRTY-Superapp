@@ -8,7 +8,14 @@ import {
 } from "@/shared/ui"
 import { Badge } from "@/shared/ui"
 import { Card } from "@/shared/ui"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/ui"
+import {
+  Dialog,
+  DialogBody,
+  DialogCloseButton,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/shared/ui"
 import { EmptyState, RadarChart } from "@/shared/ui"
 import { Database } from "@/shared/types/database.types"
 import {
@@ -17,6 +24,7 @@ import {
   getRatingLevel,
   getSkillRating,
 } from "@/entities/performance/lib/performanceUtils"
+import { ReviewStatsHeader } from "../360-review/ReviewStatsHeader"
 
 type PerformanceSummary =
   Database["public"]["Tables"]["performance_summaries"]["Row"]
@@ -118,6 +126,11 @@ export function AdminViewResultModal({
     ? (summaryData.overall_percentage ?? 0)
     : 0
   const ratingLevel = summaryData ? getRatingLevel(overallPercentage) : "-"
+  const totalReviewers =
+    summaryData?.total_user ?? employee?.reviewedBy.length ?? 0
+  const displayQuarter = selectedQuarter.includes("-")
+    ? selectedQuarter
+    : `${currentYear}-${selectedQuarter}`
 
   if (!employee) return null
 
@@ -126,63 +139,23 @@ export function AdminViewResultModal({
       <DialogContent className="max-h-[90vh] max-w-6xl overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Performance Review: {employee.name}</DialogTitle>
-          <p className="text-body-sm text-content-subtle">
-            {employee.jobTitle} • {selectedQuarter} {currentYear}
-          </p>
+          <DialogCloseButton />
         </DialogHeader>
 
-        {summaryData ? (
-          <div className="mt-4 space-y-6">
-            {/* Stats Header - Similar to ReviewStatsHeader */}
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-              <Card className="p-4">
-                <div className="flex items-center gap-2">
-                  <span className="text-label-md text-content-subtle dark:text-content-placeholder">
-                    Quarter
-                  </span>
-                  <Badge>
-                    {selectedQuarter} {currentYear}
-                  </Badge>
-                </div>
-              </Card>
-              <Card className="p-4">
-                <div className="flex items-center gap-2">
-                  <span className="text-label-md text-content-subtle dark:text-content-placeholder">
-                    Reviewer Count
-                  </span>
-                  <p className="text-label-md text-content-subtle dark:text-content-subtle">
-                    {employee.reviewedBy.length} Peers
-                  </p>
-                </div>
-              </Card>
-              <Card className="p-4">
-                <div className="flex items-center gap-2">
-                  <span className="text-label-md text-content-subtle dark:text-content-placeholder">
-                    Score
-                  </span>
-                  <p className="text-label-md text-content-subtle dark:text-content-subtle">
-                    {overallScore.toFixed(1)}
-                  </p>
-                  <Badge variant={getRatingBadgeVariant(ratingLevel)}>
-                    {ratingLevel}
-                  </Badge>
-                </div>
-              </Card>
-            </div>
-
-            {/* Main Content - Matching EmployeeReviewView layout */}
-            <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
-              {/* LEFT COLUMN - Accordion Feedback */}
-              <div className="space-y-4">
+        <DialogBody className="space-y-6">
+          <p className="text-body-sm text-content-subtle">
+            {employee.jobTitle} • {displayQuarter}
+          </p>
+          {summaryData ? (
+            <div className="grid grid-cols-1 gap-md lg:grid-cols-6">
+              <div className="lg:col-span-4">
                 <Accordion type="multiple" defaultValue={["executive-summary"]}>
                   <AccordionItem value="executive-summary">
-                    <AccordionTrigger>
-                      <div className="flex items-center gap-2">
-                        <span className="font-semibold">Executive Summary</span>
-                      </div>
+                    <AccordionTrigger className="text-label-md px-4 py-3">
+                      <span className="font-medium">Executive Summary</span>
                     </AccordionTrigger>
                     <AccordionContent>
-                      <p className="text-body-sm text-content-subtle dark:text-content-subtle whitespace-pre-line">
+                      <p className="text-content-subtle text-body-sm whitespace-pre-line">
                         {summaryData.additional_feedback ||
                           "No summary available."}
                       </p>
@@ -190,42 +163,33 @@ export function AdminViewResultModal({
                   </AccordionItem>
 
                   <AccordionItem value="keep-doing">
-                    <AccordionTrigger>
-                      <div className="flex items-center gap-2">
-                        <Badge variant="continue">CONTINUE</Badge>
-                        <span className="font-medium">Keep Doing</span>
-                      </div>
+                    <AccordionTrigger className="text-label-md px-4 py-3">
+                      <span className="font-medium">Keep Doing</span>
                     </AccordionTrigger>
                     <AccordionContent>
-                      <p className="text-body-sm text-content-subtle dark:text-content-subtle whitespace-pre-line">
+                      <p className="text-content-subtle text-body-sm whitespace-pre-line">
                         {summaryData.feedback_continue || "No data available."}
                       </p>
                     </AccordionContent>
                   </AccordionItem>
 
                   <AccordionItem value="start-doing">
-                    <AccordionTrigger>
-                      <div className="flex items-center gap-2">
-                        <Badge variant="start">START</Badge>
-                        <span className="font-medium">Start Doing</span>
-                      </div>
+                    <AccordionTrigger className="text-label-md px-4 py-3">
+                      <span className="font-medium">Start Doing</span>
                     </AccordionTrigger>
                     <AccordionContent>
-                      <p className="text-body-sm text-content-subtle dark:text-content-subtle whitespace-pre-line">
+                      <p className="text-content-subtle text-body-sm whitespace-pre-line">
                         {summaryData.feedback_start || "No data available."}
                       </p>
                     </AccordionContent>
                   </AccordionItem>
 
                   <AccordionItem value="stop-doing">
-                    <AccordionTrigger>
-                      <div className="flex items-center gap-2">
-                        <Badge variant="stop">STOP</Badge>
-                        <span className="font-medium">Stop Doing</span>
-                      </div>
+                    <AccordionTrigger className="text-label-md px-4 py-3">
+                      <span className="font-medium">Stop Doing</span>
                     </AccordionTrigger>
                     <AccordionContent>
-                      <p className="text-body-sm text-content-subtle dark:text-content-subtle whitespace-pre-line">
+                      <p className="text-content-subtle text-body-sm whitespace-pre-line">
                         {summaryData.feedback_stop || "No data available."}
                       </p>
                     </AccordionContent>
@@ -233,92 +197,104 @@ export function AdminViewResultModal({
                 </Accordion>
               </div>
 
-              {/* RIGHT COLUMN - Competency Matrix */}
-              <Card>
-                <h3 className="text-content dark:text-content mb-4 font-semibold">
-                  Competency Matrix
-                </h3>
-                <div className="flex justify-center">
-                  <RadarChart
-                    data={radarData}
-                    index="skill"
-                    categories={["Self", "Peers"]}
-                    colors={["indigo", "emerald"]}
-                    showLegend={false}
-                    showTooltip={false}
-                    className="h-64"
-                  />
-                </div>
-                {/* Skill Ratings List */}
-                {skillRatings && (
-                  <div className="border-border mt-6 space-y-3 border-t pt-4">
-                    <div className="flex items-center justify-between">
-                      <span className="text-label-md text-content-subtle dark:text-content-subtle">
-                        Leadership
-                      </span>
-                      <Badge
-                        variant={getRatingBadgeVariant(skillRatings.leadership)}
-                      >
-                        {skillRatings.leadership}
-                      </Badge>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-label-md text-content-subtle dark:text-content-subtle">
-                        Quality
-                      </span>
-                      <Badge
-                        variant={getRatingBadgeVariant(skillRatings.quality)}
-                      >
-                        {skillRatings.quality}
-                      </Badge>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-label-md text-content-subtle dark:text-content-subtle">
-                        Reliability
-                      </span>
-                      <Badge
-                        variant={getRatingBadgeVariant(
-                          skillRatings.reliability,
-                        )}
-                      >
-                        {skillRatings.reliability}
-                      </Badge>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-label-md text-content-subtle dark:text-content-subtle">
-                        Communication
-                      </span>
-                      <Badge
-                        variant={getRatingBadgeVariant(
-                          skillRatings.communication,
-                        )}
-                      >
-                        {skillRatings.communication}
-                      </Badge>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-label-md text-content-subtle dark:text-content-subtle">
-                        Initiative
-                      </span>
-                      <Badge
-                        variant={getRatingBadgeVariant(skillRatings.initiative)}
-                      >
-                        {skillRatings.initiative}
-                      </Badge>
-                    </div>
+              <div className="lg:col-span-2 flex flex-col gap-md">
+                <ReviewStatsHeader
+                  selectedQuarter={displayQuarter}
+                  totalReviewers={totalReviewers}
+                  overallScore={overallScore}
+                  overallPercentage={overallPercentage}
+                  ratingLevel={ratingLevel}
+                />
+
+                <Card>
+                  <h3 className="text-label-sm text-foreground-secondary mb-4 font-medium">
+                    Competency Matrix
+                  </h3>
+                  <div className="flex justify-center">
+                    <RadarChart
+                      data={radarData}
+                      index="skill"
+                      categories={["Self", "Peers"]}
+                      colors={["chart-1", "chart-2"]}
+                      showLegend={false}
+                      showTooltip={false}
+                      className="h-64"
+                    />
                   </div>
-                )}
-              </Card>
+                  {skillRatings && (
+                    <div className="border-border space-y-3 border-t pt-4">
+                      <div className="flex items-center justify-between">
+                        <span className="text-label-sm text-foreground-secondary">
+                          Leadership
+                        </span>
+                        <Badge
+                          variant={getRatingBadgeVariant(
+                            skillRatings.leadership,
+                          )}
+                        >
+                          {skillRatings.leadership}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-label-sm text-foreground-secondary">
+                          Quality
+                        </span>
+                        <Badge
+                          variant={getRatingBadgeVariant(skillRatings.quality)}
+                        >
+                          {skillRatings.quality}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-label-sm text-foreground-secondary">
+                          Reliability
+                        </span>
+                        <Badge
+                          variant={getRatingBadgeVariant(
+                            skillRatings.reliability,
+                          )}
+                        >
+                          {skillRatings.reliability}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-label-sm text-foreground-secondary">
+                          Communication
+                        </span>
+                        <Badge
+                          variant={getRatingBadgeVariant(
+                            skillRatings.communication,
+                          )}
+                        >
+                          {skillRatings.communication}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-label-sm text-foreground-secondary">
+                          Initiative
+                        </span>
+                        <Badge
+                          variant={getRatingBadgeVariant(
+                            skillRatings.initiative,
+                          )}
+                        >
+                          {skillRatings.initiative}
+                        </Badge>
+                      </div>
+                    </div>
+                  )}
+                </Card>
+              </div>
             </div>
-          </div>
-        ) : (
-          <EmptyState
-            title="No performance data available"
-            description="Performance review data for this employee will appear here once processed"
-            icon={null}
-            variant="compact"
-          />
-        )}
+          ) : (
+            <EmptyState
+              title="No performance data available"
+              description="Performance review data for this employee will appear here once processed"
+              icon={null}
+              variant="compact"
+            />
+          )}
+        </DialogBody>
       </DialogContent>
     </Dialog>
   )

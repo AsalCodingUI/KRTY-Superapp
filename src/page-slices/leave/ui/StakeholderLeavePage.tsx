@@ -15,7 +15,10 @@ import {
 } from "./components/AdminColumns"
 import { remainingLeaveColumns } from "./components/RemainingLeaveColumns"
 
-type Profile = Database["public"]["Tables"]["profiles"]["Row"]
+type Profile = Pick<
+  Database["public"]["Tables"]["profiles"]["Row"],
+  "id" | "full_name" | "job_title" | "leave_used" | "leave_balance"
+>
 type AttendanceLog = Database["public"]["Tables"]["attendance_logs"]["Row"]
 type AttendanceLogWithProfile = AttendanceLog & {
   profiles: {

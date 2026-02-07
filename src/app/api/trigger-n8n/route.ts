@@ -1,7 +1,12 @@
 import { createClient } from "@/shared/api/supabase/server"
-import { NextResponse } from "next/server"
+import { canManageByRole } from "@/shared/lib/roles"
+import { guardApiRoute } from "@/shared/lib/utils/security"
+import { NextRequest, NextResponse } from "next/server"
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+  const guard = guardApiRoute(request)
+  if (guard) return guard
+
   const webhookUrl = process.env.N8N_WEBHOOK_URL
 
   if (!webhookUrl) {
@@ -16,6 +21,23 @@ export async function POST(request: Request) {
     const { reviewee_id, cycle_id } = body
 
     const supabase = await createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .maybeSingle()
+
+    if (!canManageByRole(profile?.role)) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+    }
 
     // --- STEP 1: Coba ambil data dengan filter strict (Cycle ID harus cocok) ---
     let query = supabase

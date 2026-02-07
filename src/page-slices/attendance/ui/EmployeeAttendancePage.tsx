@@ -5,8 +5,9 @@ import { AttendanceStats } from "@/app/(main)/attendance/components/AttendanceSt
 import { Button } from "@/shared/ui"
 import {
   Dialog,
+  DialogBody,
+  DialogCloseButton,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -319,11 +320,14 @@ export function EmployeeAttendancePage({
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Konfirmasi Hapus</DialogTitle>
-            <DialogDescription>
+            <DialogCloseButton />
+          </DialogHeader>
+          <DialogBody>
+            <p className="text-body-sm text-foreground-secondary">
               Apakah Anda yakin ingin menghapus catatan kehadiran ini?
               Permintaan akan direview oleh stakeholder.
-            </DialogDescription>
-          </DialogHeader>
+            </p>
+          </DialogBody>
           <DialogFooter>
             <Button variant="secondary" onClick={cancelDelete}>
               Batal

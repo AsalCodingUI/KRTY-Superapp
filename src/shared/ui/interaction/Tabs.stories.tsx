@@ -97,3 +97,22 @@ export const FigmaLine: Story = {
     </Tabs>
   ),
 }
+
+export const DisabledTriggers: Story = {
+  render: () => (
+    <Tabs defaultValue="tab1" className="w-[420px]">
+      <TabsList>
+        <TabsTrigger value="tab1">Active</TabsTrigger>
+        <TabsTrigger value="tab2" disabled>
+          Disabled
+        </TabsTrigger>
+      </TabsList>
+      <TabsContent value="tab1" className="mt-2">
+        Active content
+      </TabsContent>
+      <TabsContent value="tab2" className="mt-2">
+        Disabled content
+      </TabsContent>
+    </Tabs>
+  ),
+}

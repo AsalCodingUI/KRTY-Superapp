@@ -15,16 +15,27 @@ import {
 } from "date-fns"
 import { useEffect, useMemo, useState } from "react"
 import { toast } from "sonner"
+import dynamic from "next/dynamic"
 import {
   CalendarSkeleton,
   CalendarToolbar,
   EmptyState,
-  EventCalendar,
   useCalendarContext,
   type CalendarEvent,
   type EventCategory,
 } from "@/widgets/event-calendar"
 import { useGoogleCalendar } from "@/widgets/event-calendar/ui/hooks/use-google-calendar"
+
+const EventCalendar = dynamic(
+  () =>
+    import("@/widgets/event-calendar/ui/EventCalendar").then(
+      (mod) => mod.EventCalendar,
+    ),
+  {
+    ssr: false,
+    loading: () => <CalendarSkeleton />,
+  },
+)
 
 // Separate component to use useCalendarContext
 function CalendarContent({
@@ -161,7 +172,7 @@ function CalendarContent({
 
   // Keyboard shortcuts
   useKeyboardShortcuts({
-    onCreateEvent: () => setDialogOpen(true),
+    onCreateEvent: isStakeholder ? () => setDialogOpen(true) : () => {},
     onGoToday: goToToday,
     onPrevious: goToPrevious,
     onNext: goToNext,
@@ -204,14 +215,21 @@ function CalendarContent({
         </div>
 
         <div className="border-b border-neutral-primary px-5 py-2">
-          <CalendarToolbar onAddEvent={() => setDialogOpen(true)} />
+          <CalendarToolbar
+            onAddEvent={() => setDialogOpen(true)}
+            showAddEvent={isStakeholder}
+          />
         </div>
 
         <div className="flex min-h-0 w-full flex-1 p-5">
           {loading || googleLoading ? (
             <CalendarSkeleton />
           ) : allEvents.length === 0 ? (
-            <EmptyState onCreateEvent={() => setDialogOpen(true)} />
+            <EmptyState
+              onCreateEvent={
+                isStakeholder ? () => setDialogOpen(true) : undefined
+              }
+            />
           ) : (
             <div className="flex min-h-0 w-full flex-1">
               <EventCalendar

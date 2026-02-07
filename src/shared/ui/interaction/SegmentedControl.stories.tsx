@@ -52,6 +52,22 @@ export const Small: Story = {
   },
 }
 
+export const FullWidth: Story = {
+  render: () => {
+    const [value, setValue] = useState<ViewMode>("week")
+    return (
+      <div className="w-full max-w-lg">
+        <SegmentedControl
+          items={viewItems}
+          value={value}
+          onChange={setValue}
+          size="md"
+        />
+      </div>
+    )
+  },
+}
+
 export const WithIcons: Story = {
   render: () => {
     const [value, setValue] = useState<"light" | "dark">("light")
@@ -80,6 +96,40 @@ export const DisabledItem: Story = {
           { value: "light", label: "Light", icon: RiSunLine },
           { value: "dark", label: "Dark", icon: RiMoonLine, disabled: true },
         ]}
+        fitContent
+      />
+    )
+  },
+}
+
+export const DisabledAll: Story = {
+  render: () => {
+    const [value, setValue] = useState<ViewMode>("week")
+    return (
+      <SegmentedControl
+        items={viewItems}
+        value={value}
+        onChange={setValue}
+        size="md"
+        disabled
+        fitContent
+      />
+    )
+  },
+}
+
+export const TrailingIcons: Story = {
+  render: () => {
+    const [value, setValue] = useState<ViewMode>("week")
+    return (
+      <SegmentedControl
+        items={[
+          { value: "month", label: "Month", trailingIcon: RiSunLine },
+          { value: "week", label: "Week", trailingIcon: RiSunLine },
+          { value: "day", label: "Day", trailingIcon: RiSunLine },
+        ]}
+        value={value}
+        onChange={setValue}
         fitContent
       />
     )

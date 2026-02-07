@@ -3,10 +3,13 @@
 import {
   Button,
   Dialog,
+  DialogBody,
+  DialogCloseButton,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui"
+} from "@/shared/ui"
 import { RiCalendarLine, RiCloseLine } from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
 import type { CalendarEvent } from "../types"
@@ -27,9 +30,10 @@ export function HolidayDialog({
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Public Holiday</DialogTitle>
+          <DialogCloseButton onClick={() => onOpenChange(false)} />
         </DialogHeader>
 
-        <div className="mt-4 space-y-6">
+        <DialogBody className="space-y-6">
           {/* Holiday Title */}
           <div>
             <div className="flex items-start justify-between gap-4">
@@ -76,10 +80,9 @@ export function HolidayDialog({
               cannot be edited or deleted.
             </p>
           </div>
-        </div>
+        </DialogBody>
 
-        {/* Actions */}
-        <div className="border-border-border mt-4 flex justify-end border-t pt-4">
+        <DialogFooter>
           <Button
             type="button"
             variant="secondary"
@@ -88,7 +91,7 @@ export function HolidayDialog({
             <RiCloseLine className="mr-2 h-4 w-4" />
             Close
           </Button>
-        </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   )

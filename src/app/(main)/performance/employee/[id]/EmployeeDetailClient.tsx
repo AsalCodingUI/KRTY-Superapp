@@ -2,12 +2,17 @@
 
 import type { QuarterFilterValue } from "@/shared/ui"
 import {
-  Avatar, Badge, Button, Table,
+  Avatar,
+  Badge,
+  Button,
+  EmptyState,
+  Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeaderCell,
-  TableRow
+  TableRow,
+  TableSection,
 } from "@/shared/ui"
 import { RiArrowLeftLine, RiFolderLine } from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
@@ -64,7 +69,6 @@ interface EmployeeDetailClientProps {
   initialAssignments: Assignment[]
   showBackButton?: boolean // Show "Back to KPI" button (for admin/stakeholder POV)
   selectedQuarter?: QuarterFilterValue
-  onQuarterChange?: (value: QuarterFilterValue) => void
 }
 
 export function EmployeeDetailClient({
@@ -72,12 +76,9 @@ export function EmployeeDetailClient({
   initialAssignments,
   showBackButton = false,
   selectedQuarter: controlledQuarter,
-  onQuarterChange,
 }: EmployeeDetailClientProps) {
-  const [internalQuarter, setInternalQuarter] =
-    useState<QuarterFilterValue>("2025-Q1")
+  const [internalQuarter] = useState<QuarterFilterValue>("2025-Q1")
   const selectedQuarter = controlledQuarter ?? internalQuarter
-  const setSelectedQuarter = onQuarterChange ?? setInternalQuarter
   const [assignments, setAssignments] =
     useState<Assignment[]>(initialAssignments)
   const [overview, setOverview] = useState<OverviewRow[]>([])
@@ -149,188 +150,204 @@ export function EmployeeDetailClient({
       )}
 
       {/* QUARTER OVERVIEW */}
-      <div className="border-neutral-primary bg-surface-neutral-primary rounded-lg border">
-        <div className="p-3">
-          <h3 className="text-foreground-primary text-label-md">
-            Quarter {selectedQuarter.includes("All") ? "Performance" : selectedQuarter}
-          </h3>
-        </div>
-        <div className="">
-          {loading ? (
-            <div className="text-body-sm text-content-subtle p-4 text-center">
-              Loading overview...
-            </div>
-          ) : overview.length === 0 ? (
-            <div className="text-body-sm text-content-subtle p-4 text-center">
-              No data available for this quarter
-            </div>
-          ) : (
-            <Table>
-              <TableHead>
-                <TableRow className="h-[40px] hover:bg-transparent">
-                  <TableHeaderCell>Objective</TableHeaderCell>
-                  <TableHeaderCell>Key Result</TableHeaderCell>
-                  <TableHeaderCell>Weighted (%)</TableHeaderCell>
-                  <TableHeaderCell>Target</TableHeaderCell>
-                  <TableHeaderCell>Result</TableHeaderCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {overview.map((row, idx) => (
-                  <TableRow
-                    key={idx}
-                    className="group transition-colors hover:bg-surface-state-neutral-light-hover"
-                  >
-                    <TableCell>{row.objective}</TableCell>
-                    <TableCell>{row.keyResult}</TableCell>
-                    <TableCell>{row.weighted}%</TableCell>
-                    <TableCell>{row.target}</TableCell>
-                    <TableCell>
-                      {row.result !== null ? (
+      <TableSection
+        title={`Quarter ${selectedQuarter.includes("All") ? "Performance" : selectedQuarter}`}
+      >
+        {loading ? (
+          <div className="text-body-sm text-content-subtle px-xl pb-xl text-center">
+            Loading overview...
+          </div>
+        ) : overview.length === 0 ? (
+          <div className="px-xl pb-xl">
+            <EmptyState
+              title="No data available for this quarter"
+              description="Performance data will appear here once available"
+            />
+          </div>
+        ) : (
+          <Table>
+            <TableHead>
+              <TableRow className="h-[40px] hover:bg-transparent">
+                <TableHeaderCell>Objective</TableHeaderCell>
+                <TableHeaderCell>Key Result</TableHeaderCell>
+                <TableHeaderCell>Weighted (%)</TableHeaderCell>
+                <TableHeaderCell>Target</TableHeaderCell>
+                <TableHeaderCell>Result</TableHeaderCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {overview.map((row, idx) => (
+                <TableRow
+                  key={idx}
+                  className="group transition-colors hover:bg-surface-state-neutral-light-hover"
+                >
+                  <TableCell>{row.objective}</TableCell>
+                  <TableCell>{row.keyResult}</TableCell>
+                  <TableCell>{row.weighted}%</TableCell>
+                  <TableCell>{row.target}</TableCell>
+                  <TableCell>
+                    {row.result !== null ? (
+                      <div className="flex items-center gap-2">
                         <span className="text-foreground-primary font-medium">
-                          {row.result}% —{" "}
-                          {(() => {
-                            if (row.result >= 95) return "Outstanding"
-                            if (row.result >= 85) return "Above Expectation"
-                            if (row.result >= 75) return "Meets Expectation"
-                            if (row.result >= 60) return "Below Expectation"
-                            return "Needs Improvement"
-                          })()}
+                          {row.result}%
                         </span>
-                      ) : (
-                        <span className="text-foreground-disable italic">
-                          Belum ada data
-                        </span>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </div>
-      </div>
+                        {(() => {
+                          if (row.result >= 95)
+                            return (
+                              <Badge size="sm" variant="success">
+                                Outstanding
+                              </Badge>
+                            )
+                          if (row.result >= 85)
+                            return (
+                              <Badge size="sm" variant="success">
+                                Above Expectation
+                              </Badge>
+                            )
+                          if (row.result >= 75)
+                            return (
+                              <Badge size="sm" variant="info">
+                                Meets Expectation
+                              </Badge>
+                            )
+                          if (row.result >= 60)
+                            return (
+                              <Badge size="sm" variant="warning">
+                                Below Expectation
+                              </Badge>
+                            )
+                          return (
+                            <Badge size="sm" variant="error">
+                              Needs Improvement
+                            </Badge>
+                          )
+                        })()}
+                      </div>
+                    ) : (
+                      <span className="text-foreground-disable">
+                        Belum ada data
+                      </span>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
+      </TableSection>
 
       {/* PROJECT LIST */}
-      <div className="border-neutral-primary bg-surface-neutral-primary rounded-lg border">
-        <div className="p-3">
-          <h3 className="text-foreground-primary text-label-md">
-            Assigned Projects
-          </h3>
-        </div>
-        <div className="">
-          {loading ? (
-            <div className="text-body-sm text-content-subtle p-4 text-center">
-              Loading projects...
-            </div>
-          ) : assignments.length === 0 ? (
-            <div className="p-4 text-center">
-              <RiFolderLine className="text-content-placeholder dark:text-content-subtle mx-auto size-12" />
-              <p className="text-body-sm text-content-subtle mt-2">
-                No projects assigned in this quarter
-              </p>
-            </div>
-          ) : (
-            <Table>
-              <TableHead>
-                <TableRow className="h-[40px] hover:bg-transparent">
-                  <TableHeaderCell>Project</TableHeaderCell>
-                  <TableHeaderCell>Quarter</TableHeaderCell>
-                  <TableHeaderCell>Status</TableHeaderCell>
-                  <TableHeaderCell>SLA</TableHeaderCell>
-                  <TableHeaderCell>Quality</TableHeaderCell>
-                  <TableHeaderCell>Period</TableHeaderCell>
+      <TableSection title="Assigned Projects">
+        {loading ? (
+          <div className="text-body-sm text-content-subtle px-xl pb-xl text-center">
+            Loading projects...
+          </div>
+        ) : assignments.length === 0 ? (
+          <div className="px-xl pb-xl">
+            <EmptyState
+              title="No projects assigned in this quarter"
+              description="Projects will appear here once assigned"
+              icon={<RiFolderLine className="size-5" />}
+            />
+          </div>
+        ) : (
+          <Table>
+            <TableHead>
+              <TableRow className="h-[40px] hover:bg-transparent">
+                <TableHeaderCell>Project</TableHeaderCell>
+                <TableHeaderCell>Quarter</TableHeaderCell>
+                <TableHeaderCell>Status</TableHeaderCell>
+                <TableHeaderCell>SLA</TableHeaderCell>
+                <TableHeaderCell>Quality</TableHeaderCell>
+                <TableHeaderCell>Period</TableHeaderCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {assignments.map((assignment) => (
+                <TableRow
+                  key={assignment.id}
+                  className="group transition-colors hover:bg-surface-state-neutral-light-hover"
+                >
+                  <TableCell>
+                    <Link
+                      href={`/performance/employee/${employee.id}/project/${assignment.projects.id}`}
+                      className="text-foreground-primary hover:text-foreground-primary font-medium"
+                      title={
+                        assignment.projects.description
+                          ? `${assignment.projects.name} — ${assignment.projects.description}`
+                          : assignment.projects.name
+                      }
+                    >
+                      {assignment.projects.name}
+                    </Link>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="info">{assignment.projects.quarter_id}</Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      variant={
+                        assignment.projects.status === "Active"
+                          ? "success"
+                          : "zinc"
+                      }
+                    >
+                      {assignment.projects.status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="info">
+                      {(() => {
+                        const slaScores = assignment.project_sla_scores || []
+                        if (slaScores.length === 0) return "0%"
+                        const realAchieve = slaScores.reduce(
+                          (sum, s) => sum + s.score_achieved,
+                          0,
+                        )
+                        const bestAchieve = slaScores.reduce(
+                          (sum, s) => sum + s.weight_percentage * 120,
+                          0,
+                        )
+                        const percentage =
+                          bestAchieve > 0
+                            ? (realAchieve / bestAchieve) * 100
+                            : 0
+                        return `${percentage.toFixed(1)}%`
+                      })()}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="success">
+                      {(() => {
+                        const qualityScores =
+                          assignment.project_work_quality_scores || []
+                        const achieved = qualityScores.filter(
+                          (q) => q.is_achieved,
+                        ).length
+                        const total = qualityScores.length
+                        return `${achieved}/${total}`
+                      })()}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <span className="text-foreground-primary">
+                      {format(
+                        new Date(assignment.projects.start_date),
+                        "MMM d",
+                      )}{" "}
+                      -{" "}
+                      {format(
+                        new Date(assignment.projects.end_date),
+                        "MMM d, yyyy",
+                      )}
+                    </span>
+                  </TableCell>
                 </TableRow>
-              </TableHead>
-              <TableBody>
-                {assignments.map((assignment) => (
-                  <TableRow
-                    key={assignment.id}
-                    className="group transition-colors hover:bg-surface-state-neutral-light-hover"
-                  >
-                    <TableCell>
-                      <Link
-                        href={`/performance/employee/${employee.id}/project/${assignment.projects.id}`}
-                        className="text-foreground-primary hover:text-foreground-primary font-medium"
-                        title={
-                          assignment.projects.description
-                            ? `${assignment.projects.name} — ${assignment.projects.description}`
-                            : assignment.projects.name
-                        }
-                      >
-                        {assignment.projects.name}
-                      </Link>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="info">
-                        {assignment.projects.quarter_id}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={
-                          assignment.projects.status === "Active"
-                            ? "success"
-                            : "zinc"
-                        }
-                      >
-                        {assignment.projects.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="info">
-                        {(() => {
-                          const slaScores = assignment.project_sla_scores || []
-                          if (slaScores.length === 0) return "0%"
-                          const realAchieve = slaScores.reduce(
-                            (sum, s) => sum + s.score_achieved,
-                            0,
-                          )
-                          const bestAchieve = slaScores.reduce(
-                            (sum, s) => sum + s.weight_percentage * 120,
-                            0,
-                          )
-                          const percentage =
-                            bestAchieve > 0
-                              ? (realAchieve / bestAchieve) * 100
-                              : 0
-                          return `${percentage.toFixed(1)}%`
-                        })()}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="success">
-                        {(() => {
-                          const qualityScores =
-                            assignment.project_work_quality_scores || []
-                          const achieved = qualityScores.filter(
-                            (q) => q.is_achieved,
-                          ).length
-                          const total = qualityScores.length
-                          return `${achieved}/${total}`
-                        })()}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <span className="text-foreground-primary">
-                        {format(
-                          new Date(assignment.projects.start_date),
-                          "MMM d",
-                        )}{" "}
-                        -{" "}
-                        {format(
-                          new Date(assignment.projects.end_date),
-                          "MMM d, yyyy",
-                        )}
-                      </span>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </div>
-      </div>
+              ))}
+            </TableBody>
+          </Table>
+        )}
+      </TableSection>
     </div>
   )
 }

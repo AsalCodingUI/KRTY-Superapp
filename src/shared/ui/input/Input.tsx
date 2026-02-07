@@ -10,23 +10,21 @@ import { cx, focusInput, focusRing, hasErrorInput } from "@/shared/lib/utils"
 const inputStyles = tv({
   base: [
     // base
-    "sm:text-body-sm relative block w-full appearance-none truncate rounded-md border transition outline-none",
-    // border color
-    "border-border",
+    "text-body-sm relative block w-full appearance-none rounded-md border-none transition outline-none shadow-input selection:bg-surface-brand-light selection:text-foreground-primary",
     // text color
-    "text-content",
+    "text-foreground-primary",
     // placeholder color
-    "placeholder-content-placeholder",
+    "placeholder:text-foreground-tertiary",
     // background color
-    "bg-surface",
+    "bg-surface-neutral-primary hover:bg-surface-neutral-secondary ",
     // disabled
-    "disabled:cursor-not-allowed disabled:opacity-50",
+    "disabled:cursor-not-allowed disabled:text-foreground-disable disabled:placeholder:text-foreground-disable disabled:shadow-input",
     // file
     [
-      "file:-my-2 file:-ml-2.5 file:cursor-pointer file:rounded-l-[5px] file:rounded-r-none file:border-0 file:px-3 file:py-2 file:outline-none focus:outline-none disabled:pointer-events-none file:disabled:pointer-events-none",
-      "file:border-border file:bg-muted file:text-content-subtle file:hover:bg-hover file:disabled:border-border-subtle file:border-solid",
+      "file:-my-2 file:-ml-2.5 file:cursor-pointer file:rounded-l-[6px] file:rounded-r-none file:border-0 file:px-3 file:py-2 file:outline-none focus:outline-none disabled:pointer-events-none file:disabled:pointer-events-none",
+      "file:bg-surface-neutral-secondary file:text-foreground-secondary file:hover:bg-surface-neutral-tertiary file:border-solid",
       "file:[margin-inline-end:0.75rem] file:[border-inline-end-width:1px]",
-      "file:disabled:bg-muted file:disabled:text-content-disabled file:disabled:dark:bg-muted",
+      "file:disabled:bg-surface-neutral-secondary file:disabled:text-foreground-disable",
     ],
     // focus
     focusInput,
@@ -45,20 +43,20 @@ const inputStyles = tv({
         "[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none",
     },
     inputSize: {
-      sm: "text-body-sm px-2.5 py-1.5",
-      default: "text-body-sm px-2.5 py-2",
-      lg: "text-body-md px-3 py-2.5",
+      sm: "h-8 px-lg py-md",
+      default: "h-8 px-lg py-md",
+      lg: "h-10 px-xl py-lg text-body-md",
     },
   },
   defaultVariants: {
-    inputSize: "sm",
+    inputSize: "default",
   },
 })
 
 interface InputProps
   extends
-    React.InputHTMLAttributes<HTMLInputElement>,
-    VariantProps<typeof inputStyles> {
+  React.InputHTMLAttributes<HTMLInputElement>,
+  VariantProps<typeof inputStyles> {
   inputClassName?: string
 }
 
@@ -101,8 +99,8 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           className={cx(
             inputStyles({ hasError, enableStepper, inputSize }),
             {
-              "pl-8": isSearch,
-              "pr-10": isPassword,
+              "pl-[calc(var(--padding-lg)+20px+var(--gap-md))]": isSearch,
+              "pr-[calc(var(--padding-lg)+20px+var(--gap-md))]": isPassword,
             },
             inputClassName,
           )}
@@ -114,19 +112,16 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
               // base
               "pointer-events-none absolute bottom-0 left-2 flex h-full items-center justify-center",
               // text color
-              "text-content-placeholder dark:text-content-subtle",
+              "text-foreground-secondary",
             )}
           >
-            <RiSearchLine
-              className="size-[1.125rem] shrink-0"
-              aria-hidden="true"
-            />
+            <RiSearchLine className="size-5 shrink-0" aria-hidden="true" />
           </div>
         )}
-        {isPassword && (
+        {isPassword && !props.disabled && (
           <div
             className={cx(
-              "absolute right-0 bottom-0 flex h-full items-center justify-center px-3",
+              "absolute right-2 bottom-0 flex h-full items-center justify-center",
             )}
           >
             <button
@@ -137,9 +132,9 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
                 // base
                 "h-fit w-fit rounded-sm transition-all outline-none",
                 // text
-                "text-content-placeholder dark:text-content-subtle",
+                "text-foreground-tertiary",
                 // hover
-                "hover:text-content-subtle hover:dark:text-content-subtle",
+                "hover:text-foreground-secondary",
                 focusRing,
               )}
               type="button"

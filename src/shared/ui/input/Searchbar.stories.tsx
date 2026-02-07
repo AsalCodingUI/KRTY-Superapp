@@ -15,3 +15,17 @@ export const Default: Story = {
     placeholder: "Search...",
   },
 }
+
+export const Disabled: Story = {
+  args: {
+    placeholder: "Search...",
+    disabled: true,
+  },
+}
+
+export const WithError: Story = {
+  args: {
+    placeholder: "Search...",
+    hasError: true,
+  },
+}

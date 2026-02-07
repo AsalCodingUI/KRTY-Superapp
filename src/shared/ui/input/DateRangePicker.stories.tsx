@@ -26,3 +26,19 @@ export const Default: Story = {
     )
   },
 }
+
+export const Empty: Story = {
+  render: () => (
+    <div className="w-full max-w-sm">
+      <DateRangePicker />
+    </div>
+  ),
+}
+
+export const Disabled: Story = {
+  render: () => (
+    <div className="w-full max-w-sm">
+      <DateRangePicker disabled />
+    </div>
+  ),
+}

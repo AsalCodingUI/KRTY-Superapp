@@ -10,18 +10,15 @@ import { cx, focusInput, hasErrorInput } from "@/shared/lib/utils"
 const inputStyles = tv({
   base: [
     // base
-    "sm:text-body-sm relative block w-full appearance-none truncate rounded-md border px-2.5 py-2 transition outline-none",
-    // border color
-    "border-border",
+    "text-body-sm relative block w-full appearance-none rounded-md border-none px-lg py-md transition outline-none shadow-input selection:bg-surface-brand-light selection:text-foreground-primary",
     // text color
-    "text-content dark:text-content",
+    "text-foreground-primary",
     // placeholder color
-    "placeholder-content-placeholder",
+    "placeholder:text-foreground-tertiary",
     // background color
-    "bg-surface dark:bg-surface",
+    "bg-surface-neutral-primary hover:bg-surface-neutral-secondary",
     // disabled
-    "disabled:border-border disabled:text-content-placeholder",
-    "disabled:dark:text-content-subtle disabled:dark:border",
+    "disabled:text-foreground-disable disabled:placeholder:text-foreground-disable disabled:shadow-input disabled:cursor-not-allowed",
     // focus
     focusInput,
     // invalid (optional)
@@ -74,7 +71,7 @@ const Searchbar = React.forwardRef<HTMLInputElement, InputProps>(
           type={type}
           className={cx(
             inputStyles({ hasError, enableStepper }),
-            "pl-8",
+            "pl-[calc(var(--padding-lg)+20px+var(--gap-md))]",
             inputClassName,
           )}
           {...props}
@@ -84,13 +81,10 @@ const Searchbar = React.forwardRef<HTMLInputElement, InputProps>(
             // base
             "pointer-events-none absolute bottom-0 left-2 flex h-full items-center justify-center",
             // text color
-            "text-content-placeholder dark:text-content-subtle",
+            "text-foreground-secondary",
           )}
         >
-          <RiSearchLine
-            className="size-[1.125rem] shrink-0"
-            aria-hidden="true"
-          />
+          <RiSearchLine className="size-5 shrink-0" aria-hidden="true" />
         </div>
       </div>
     )

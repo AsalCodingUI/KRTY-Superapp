@@ -17,6 +17,8 @@ import {
   TabNavigation,
   TabNavigationLink,
   type QuarterFilterValue,
+  Badge,
+  Button,
 } from "@/shared/ui"
 import { RiBarChartBoxLine } from "@/shared/ui/lucide-icons"
 import dynamic from "next/dynamic"
@@ -123,6 +125,7 @@ export function PerformancePage() {
   )
   const [employeeReviewLoading, setEmployeeReviewLoading] = useState(true)
   const [isCycleActive, setIsCycleActive] = useState(false)
+  const [activeCycleRange, setActiveCycleRange] = useState<string | null>(null)
   const { profile } = useUserProfile()
   const supabase = createClient()
 
@@ -139,6 +142,38 @@ export function PerformancePage() {
     const quarter = selectedQuarter.split("-")[1] || "Q1"
     const normalizedQuarter = quarter === "All" ? "All" : quarter
     setSelectedQuarter(`${year}-${normalizedQuarter}`)
+  }
+
+  const formatCycleRange = (start: string, end: string) => {
+    const startDate = new Date(start)
+    const endDate = new Date(end)
+    if (Number.isNaN(startDate.getTime()) || Number.isNaN(endDate.getTime())) {
+      return null
+    }
+
+    const startText = startDate.toLocaleDateString("id-ID", {
+      day: "numeric",
+      month: "short",
+    })
+    const endText = endDate.toLocaleDateString("id-ID", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    })
+    return `${startText} - ${endText}`
+  }
+
+  const getRatingBadge = (score: number | null) => {
+    const normalizedScore = score ?? 0
+    if (normalizedScore >= 95)
+      return { variant: "success", label: "Outstanding" } as const
+    if (normalizedScore >= 85)
+      return { variant: "success", label: "Above" } as const
+    if (normalizedScore >= 75)
+      return { variant: "info", label: "Meets" } as const
+    if (normalizedScore >= 60)
+      return { variant: "warning", label: "Below" } as const
+    return { variant: "error", label: "Needs" } as const
   }
   useEffect(() => {
     let isMounted = true
@@ -169,13 +204,20 @@ export function PerformancePage() {
       const now = new Date().toISOString()
       const { data } = await supabase
         .from("review_cycles")
-        .select("id")
+        .select("id, start_date, end_date")
         .lte("start_date", now)
         .gte("end_date", now)
         .eq("is_active", true)
-        .single()
+        .order("start_date", { ascending: false })
+        .limit(1)
+        .maybeSingle()
 
       setIsCycleActive(Boolean(data))
+      setActiveCycleRange(
+        data?.start_date && data?.end_date
+          ? formatCycleRange(data.start_date, data.end_date)
+          : null,
+      )
     }
 
     checkCycle()
@@ -216,10 +258,12 @@ export function PerformancePage() {
           .from("review_cycles")
           .select("id")
           .eq("name", selectedQuarter)
-          .limit(1)
 
-        const cycleId = cycles?.[0]?.id
-        if (!cycleId) {
+        const cycleIds = cycles
+          ?.map((cycle) => cycle.id)
+          .filter(Boolean) as string[] | undefined
+
+        if (!cycleIds || cycleIds.length === 0) {
           if (isMounted) setEmployeeReviewScore(null)
           return
         }
@@ -228,7 +272,8 @@ export function PerformancePage() {
           .from("performance_summaries")
           .select("overall_percentage")
           .eq("reviewee_id", profile.id)
-          .eq("cycle_id", cycleId)
+          .in("cycle_id", cycleIds)
+          .order("created_at", { ascending: false })
           .limit(1)
 
         if (isMounted) {
@@ -276,10 +321,36 @@ export function PerformancePage() {
 
   const getEmployeeMetric = (key: string) => {
     const row = employeeOverview.find((item) => item.objective === key)
-    if (employeeStatsLoading) return "0.0"
-    if (!row || row.result === null) return "0.0"
-    return Number(row.result).toFixed(1)
+    if (employeeStatsLoading) return null
+    if (!row || row.result === null) return 0
+    return Number(row.result)
   }
+
+  const formatPercent = (value: number | null) => {
+    if (value === null) return "0.0%"
+    return `${Number(value).toFixed(1)}%`
+  }
+
+  const employeeStats = [
+    {
+      key: "sla",
+      label: "On Time SLA Project",
+      score: getEmployeeMetric("On Time SLA Project"),
+    },
+    {
+      key: "review",
+      label: "360 Review",
+      score:
+        employeeReviewLoading || employeeReviewScore === null
+          ? 0
+          : Number(employeeReviewScore),
+    },
+    {
+      key: "quality",
+      label: "Work Quality Competency",
+      score: getEmployeeMetric("Work Quality Competency"),
+    },
+  ]
 
   return (
     <div className="flex flex-col">
@@ -348,40 +419,49 @@ export function PerformancePage() {
         ) : (
           <>
             <div className="grid grid-cols-1 gap-md px-5 py-2 sm:grid-cols-2 lg:grid-cols-5">
-              {[
-                {
-                  label: "On Time SLA Project",
-                  value: getEmployeeMetric("On Time SLA Project"),
-                },
-                {
-                  label: "360 Review",
-                  value: employeeReviewLoading
-                    ? "0.0"
-                    : employeeReviewScore !== null
-                      ? Number(employeeReviewScore).toFixed(1)
-                      : "0.0",
-                },
-                {
-                  label: "Work Quality Competency",
-                  value: getEmployeeMetric("Work Quality Competency"),
-                },
-                {
-                  label: "360 Feedback Cycle",
-                  value: isCycleActive ? "Active" : "No Active",
-                },
-              ].map((item) => (
-                <div
-                  key={item.label}
-                  className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-[10px] border px-4 py-3"
-                >
-                  <p className="text-label-sm text-foreground-secondary">
-                    {item.label}
-                  </p>
-                  <p className="text-heading-md text-foreground-primary">
-                    {item.value}
-                  </p>
+              {employeeStats.map((item) => {
+                const badge = getRatingBadge(item.score)
+                return (
+                  <div
+                    key={item.key}
+                    className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-[10px] border px-4 py-3"
+                  >
+                    <p className="text-label-sm text-foreground-secondary">
+                      {item.label}
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-heading-md text-foreground-primary">
+                        {formatPercent(item.score)}
+                      </p>
+                      <Badge size="sm" variant={badge.variant}>
+                        {badge.label}
+                      </Badge>
+                    </div>
+                  </div>
+                )
+              })}
+              <div className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-[10px] border px-4 py-3 lg:col-span-2">
+                <p className="text-label-sm text-foreground-secondary">
+                  360 Feedback Cycle
+                </p>
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <p className="text-heading-md text-foreground-primary whitespace-nowrap">
+                      {isCycleActive && activeCycleRange
+                        ? activeCycleRange
+                        : "No Active"}
+                    </p>
+                    {isCycleActive ? (
+                      <Badge size="sm" variant="success">
+                        Active
+                      </Badge>
+                    ) : null}
+                  </div>
+                  <Button variant="secondary" size="sm" disabled={!isCycleActive}>
+                    Create Review
+                  </Button>
                 </div>
-              ))}
+              </div>
             </div>
 
             <div className="flex items-center justify-between gap-4 border-b border-neutral-primary px-5 pt-2">
@@ -436,7 +516,6 @@ export function PerformancePage() {
           {activeTab === "kpi" && (
             <KPITab
               selectedQuarter={selectedQuarter}
-              onQuarterChange={setSelectedQuarter}
             />
           )}
           {activeTab === "360-review" && (
@@ -445,7 +524,9 @@ export function PerformancePage() {
               onQuarterChange={setSelectedQuarter}
             />
           )}
-          {activeTab === "one-on-one" && <OneOnOneMeetingTab />}
+          {activeTab === "one-on-one" && (
+            <OneOnOneMeetingTab selectedQuarter={selectedQuarter} />
+          )}
           {activeTab === "list-project" && isStakeholder && <ListProjectTab />}
           {activeTab === "competency-library" && isStakeholder && (
             <WorkQualityTab />

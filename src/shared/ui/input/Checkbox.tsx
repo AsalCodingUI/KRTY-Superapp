@@ -13,7 +13,6 @@ const Checkbox = React.forwardRef<
   React.ElementRef<typeof CheckboxPrimitives.Root>,
   React.ComponentPropsWithoutRef<typeof CheckboxPrimitives.Root>
 >(({ className, checked, ...props }, forwardedRef) => {
-  const isDisabled = Boolean(props.disabled)
   const isControlled = checked !== undefined
   const [internalChecked, setInternalChecked] = React.useState<
     CheckboxPrimitives.CheckedState

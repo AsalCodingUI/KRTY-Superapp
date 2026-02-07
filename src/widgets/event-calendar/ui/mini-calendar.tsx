@@ -40,9 +40,9 @@ export function MiniCalendar() {
       <div className="flex flex-col gap-sm">
         {/* Day headers */}
         <div className="grid grid-cols-7 gap-sm">
-          {["M", "T", "W", "T", "F", "S", "S"].map((day) => (
+          {["M", "T", "W", "T", "F", "S", "S"].map((day, index) => (
             <div
-              key={day}
+              key={`${day}-${index}`}
               className="text-label-sm text-foreground-secondary flex size-7 items-center justify-center text-center"
             >
               {day}

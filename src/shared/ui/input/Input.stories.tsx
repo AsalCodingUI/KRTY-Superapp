@@ -32,10 +32,13 @@ export const Default: Story = {
 export const WithIcon: Story = {
   render: (args) => (
     <div className="relative">
-      <div className="absolute top-2.5 left-2.5 text-gray-500">
-        <RiMailLine size={16} />
+      <div className="absolute left-2 top-1/2 -translate-y-1/2 text-foreground-secondary">
+        <RiMailLine size={20} />
       </div>
-      <Input {...args} className="pl-9" />
+      <Input
+        {...args}
+        className="pl-[calc(var(--padding-lg)+20px+var(--gap-md))]"
+      />
     </div>
   ),
   args: {
@@ -69,5 +72,19 @@ export const Disabled: Story = {
   args: {
     disabled: true,
     placeholder: "Disabled input",
+  },
+}
+
+export const Small: Story = {
+  args: {
+    inputSize: "sm",
+    placeholder: "Small input",
+  },
+}
+
+export const Large: Story = {
+  args: {
+    inputSize: "lg",
+    placeholder: "Large input",
   },
 }

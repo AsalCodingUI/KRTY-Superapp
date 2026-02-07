@@ -33,7 +33,7 @@ export const WithCustomIcon: Story = {
   args: {
     title: "Empty Folder",
     description: "This folder is empty.",
-    icon: <RiFolder3Line className="size-12 text-gray-300" />,
+    icon: <RiFolder3Line className="size-5" />,
   },
 }
 

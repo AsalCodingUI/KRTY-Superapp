@@ -1,11 +1,15 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { logError } from "@/shared/lib/utils/logger"
 import { getGoogleAccessToken, getGoogleEnv } from "@/shared/lib/google-calendar"
+import { guardApiRoute } from "@/shared/lib/utils/security"
 
 /**
  * GET - Check Google Calendar connection status
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const guard = guardApiRoute(request)
+  if (guard) return guard
+
   try {
     const hasCredentials = !!getGoogleEnv()
     if (!hasCredentials) {

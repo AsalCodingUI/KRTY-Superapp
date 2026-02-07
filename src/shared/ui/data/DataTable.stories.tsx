@@ -88,3 +88,29 @@ export const WithTableWrapper: Story = {
     tableDescription: "Manage your payment transactions.",
   },
 }
+
+export const NoSelection: Story = {
+  args: {
+    columns: columns as any,
+    data,
+    enableSelection: false,
+    showFilterbar: true,
+    searchKey: "email",
+  },
+}
+
+export const NoFilterbar: Story = {
+  args: {
+    columns: columns as any,
+    data,
+    showFilterbar: false,
+  },
+}
+
+export const NoPagination: Story = {
+  args: {
+    columns: columns as any,
+    data,
+    showPagination: false,
+  },
+}

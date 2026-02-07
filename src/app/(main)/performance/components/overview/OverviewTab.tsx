@@ -331,12 +331,11 @@ function EmployeeOverview({
         </div>
 
         {assignments.length === 0 ? (
-          <div className="py-8 text-center">
-            <RiFolderLine className="text-content-placeholder mx-auto size-12" />
-            <p className="text-content-subtle text-body-sm mt-2">
-              No projects assigned in this quarter
-            </p>
-          </div>
+          <EmptyState
+            title="No projects assigned in this quarter"
+            description="Projects will appear here once assigned"
+            icon={<RiFolderLine className="size-5" />}
+          />
         ) : (
           <div className="space-y-3">
             {assignments.slice(0, 5).map((assignment) => {

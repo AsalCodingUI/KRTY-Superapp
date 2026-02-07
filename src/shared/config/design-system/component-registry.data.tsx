@@ -1062,7 +1062,7 @@ export const componentRegistry: ComponentRegistry = {
             {
               title: "Basic Dialog",
               description: "Modal dialog",
-              code: `import { Dialog } from '@/components/ui'\n\n<Dialog open={isOpen} onOpenChange={setIsOpen}>\n  <DialogContent>...</DialogContent>\n</Dialog>`,
+              code: `import { Dialog, DialogBody, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui'\n\n<Dialog open={isOpen} onOpenChange={setIsOpen}>\n  <DialogContent>\n    <DialogHeader>\n      <DialogTitle>Dialog title</DialogTitle>\n      <DialogCloseButton />\n    </DialogHeader>\n    <DialogBody>Dialog content</DialogBody>\n    <DialogFooter>...</DialogFooter>\n  </DialogContent>\n</Dialog>`,
               preview: React.createElement("div", {}, "Dialog"),
             },
           ],
@@ -1235,21 +1235,30 @@ export const componentRegistry: ComponentRegistry = {
           id: "empty-state",
           name: "EmptyState",
           description: "Empty state placeholder",
-          importPath: "@/components/EmptyState",
+          importPath: "@/shared/ui/information/EmptyState",
           variants: [
             {
               name: "Default",
               description: "Standard empty state",
-              props: { message: "No data available" },
+              props: {
+                title: "No data available",
+                description: "Add data to see it here.",
+              },
               preview: React.createElement("div", {}, "Empty"),
             },
           ],
           props: [
             {
-              name: "message",
+              name: "title",
               type: "string",
               required: true,
-              description: "Empty state message",
+              description: "Empty state title",
+            },
+            {
+              name: "description",
+              type: "string",
+              required: true,
+              description: "Empty state description",
             },
             {
               name: "icon",
@@ -1257,12 +1266,25 @@ export const componentRegistry: ComponentRegistry = {
               required: false,
               description: "Empty state icon",
             },
+            {
+              name: "action",
+              type: "{ label: string; onClick: () => void }",
+              required: false,
+              description: "Optional action button",
+            },
+            {
+              name: "variant",
+              type: '"default" | "compact"',
+              required: false,
+              default: "default",
+              description: "Empty state size variant",
+            },
           ],
           examples: [
             {
               title: "Basic EmptyState",
               description: "No data placeholder",
-              code: `import { EmptyState } from '@/shared/ui/information/EmptyState'\n\n<EmptyState message="No items found" />`,
+              code: `import { EmptyState } from '@/shared/ui/information/EmptyState'\n\n<EmptyState title="No items found" description="Create a new item to get started." />`,
               preview: React.createElement("div", {}, "Empty"),
             },
           ],
@@ -1333,7 +1355,7 @@ export const componentRegistry: ComponentRegistry = {
             {
               title: "Basic Skeleton",
               description: "Loading placeholder",
-              code: `import { Skeleton } from '@/components/ui'\n\n<Skeleton className="h-4 w-full" />`,
+              code: `import { Skeleton } from '@/shared/ui'\n\n<Skeleton className="h-4 w-full" />`,
               preview: React.createElement("div", {}, "Skeleton"),
             },
           ],

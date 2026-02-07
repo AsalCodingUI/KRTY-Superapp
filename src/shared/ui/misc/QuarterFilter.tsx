@@ -112,7 +112,7 @@ export function QuarterFilter({
           value={selectedYear.toString()}
           onValueChange={handleYearChange}
         >
-          <SelectTrigger className="w-[100px]">
+          <SelectTrigger className="w-[100px]" size="sm">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>

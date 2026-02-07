@@ -7,8 +7,9 @@ import { Textarea } from "../input/Textarea"
 import {
   Dialog,
   DialogClose,
+  DialogCloseButton,
   DialogContent,
-  DialogDescription,
+  DialogBody,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -45,16 +46,13 @@ export const BasicDialog: Story = {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Dialog Title</DialogTitle>
-            <DialogDescription>
-              This is a dialog description. It provides additional context about
-              the dialog.
-            </DialogDescription>
+            <DialogCloseButton />
           </DialogHeader>
-          <div className="py-4">
+          <DialogBody>
             <p className="text-body-sm text-gray-600">
               Dialog content goes here.
             </p>
-          </div>
+          </DialogBody>
           <DialogFooter>
             <DialogClose asChild>
               <Button variant="secondary">Cancel</Button>
@@ -76,10 +74,7 @@ export const ConfirmationDialog: Story = {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Are you absolutely sure?</DialogTitle>
-          <DialogDescription>
-            This action cannot be undone. This will permanently delete the item
-            from our servers.
-          </DialogDescription>
+          <DialogCloseButton />
         </DialogHeader>
         <DialogFooter>
           <DialogClose asChild>
@@ -101,11 +96,9 @@ export const FormDialog: Story = {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Create New Item</DialogTitle>
-          <DialogDescription>
-            Fill in the form below to create a new item.
-          </DialogDescription>
+          <DialogCloseButton />
         </DialogHeader>
-        <div className="grid gap-4 py-4">
+        <DialogBody className="grid gap-4">
           <div className="grid gap-2">
             <Label htmlFor="name">Name</Label>
             <Input id="name" placeholder="Enter name" />
@@ -118,7 +111,7 @@ export const FormDialog: Story = {
               rows={3}
             />
           </div>
-        </div>
+        </DialogBody>
         <DialogFooter>
           <DialogClose asChild>
             <Button variant="secondary">Cancel</Button>

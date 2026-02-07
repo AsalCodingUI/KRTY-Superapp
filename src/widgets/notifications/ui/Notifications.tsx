@@ -2,11 +2,21 @@
 
 import { useNotifications } from "@/shared/hooks/useNotifications"
 import { cx, focusRing } from "@/shared/lib/utils"
-import { TabNavigation, TabNavigationLink } from "@/shared/ui"
-import { RiCloseLine, RiNotification3Line } from "@/shared/ui/lucide-icons"
+import { EmptyState, TabNavigation, TabNavigationLink } from "@/shared/ui"
+import {
+  RiCloseLine,
+  RiDeleteBinLine,
+  RiNotification3Line,
+} from "@/shared/ui/lucide-icons"
 import { AnimatePresence, motion } from "framer-motion"
 import Link from "next/link"
-import { useEffect, useRef, useState, type CSSProperties } from "react"
+import {
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type MouseEvent as ReactMouseEvent,
+} from "react"
 import { createPortal } from "react-dom"
 
 interface NotificationsProps {
@@ -17,8 +27,13 @@ const SIDEBAR_WIDTH = 256
 const PANEL_GUTTER = 12
 
 export function Notifications({ variant = "default" }: NotificationsProps) {
-  const { notifications, unreadCount, markAsRead, markAllAsRead } =
-    useNotifications()
+  const {
+    notifications,
+    unreadCount,
+    markAsRead,
+    markAllAsRead,
+    deleteNotification,
+  } = useNotifications()
   const [activeTab, setActiveTab] = useState<"unread" | "all">("unread")
   const [isOpen, setIsOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
@@ -83,6 +98,12 @@ export function Notifications({ variant = "default" }: NotificationsProps) {
   const handleNotificationClick = (id: string) => {
     markAsRead(id)
     setIsOpen(false)
+  }
+
+  const handleDelete = (event: ReactMouseEvent, id: string) => {
+    event.preventDefault()
+    event.stopPropagation()
+    deleteNotification(id)
   }
 
   return (
@@ -207,21 +228,11 @@ export function Notifications({ variant = "default" }: NotificationsProps) {
                   <div className="flex-1 overflow-y-auto">
                     {filteredNotifications.length === 0 ? (
                       <div className="flex h-full flex-1 items-center justify-center p-4">
-                        <div className="flex w-full flex-col items-center gap-xl px-5 py-8 text-center">
-                          <RiNotification3Line
-                            aria-hidden="true"
-                            className="text-foreground-tertiary size-8"
-                          />
-                          <div className="flex w-full flex-col items-center gap-md">
-                            <p className="text-heading-sm text-foreground-primary w-full">
-                              You don&apos;t have any notifications
-                            </p>
-                            <div className="text-body-xs text-foreground-secondary w-full">
-                              <p>We&apos;ll notify you about important updates</p>
-                              <p>and any time you&apos;re mentioned on App.</p>
-                            </div>
-                          </div>
-                        </div>
+                        <EmptyState
+                          title="You don't have any notifications"
+                          description="We'll notify you about important updates and any time you're mentioned on App."
+                          icon={<RiNotification3Line className="size-5" />}
+                        />
                       </div>
                     ) : (
                       <div className="py-2">
@@ -268,6 +279,15 @@ export function Notifications({ variant = "default" }: NotificationsProps) {
                                     })}
                                   </p>
                                 </div>
+                                <button
+                                  onClick={(event) =>
+                                    handleDelete(event, notification.id)
+                                  }
+                                  className="text-foreground-tertiary hover:text-foreground-primary hover:bg-surface-neutral-secondary mt-1 inline-flex size-8 items-center justify-center rounded-md"
+                                  aria-label="Delete notification"
+                                >
+                                  <RiDeleteBinLine className="size-4" />
+                                </button>
                               </div>
                             </Link>
                           ))}

@@ -4,6 +4,7 @@ import { navigationConfig } from "@/shared/config/navigation"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { canAccessProjectCalculator, hasRoleAccess } from "@/shared/lib/roles"
 import { cx, focusRing } from "@/shared/lib/utils"
+import { Skeleton } from "@/shared/ui"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
@@ -34,10 +35,7 @@ export function SidebarMenu() {
     return (
       <div className="flex flex-col gap-1 p-2">
         {[1, 2, 3, 4, 5].map((i) => (
-          <div
-            key={i}
-            className="bg-muted h-8 w-full animate-pulse rounded-md"
-          />
+          <Skeleton key={i} className="h-8 w-full rounded-md" />
         ))}
       </div>
     )

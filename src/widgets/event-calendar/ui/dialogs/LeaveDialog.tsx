@@ -1,17 +1,19 @@
 "use client"
 
-import { Badge } from "@/components/ui"
-import { Button } from "@/components/ui"
+import { Badge } from "@/shared/ui"
+import { Button } from "@/shared/ui"
 import {
   Dialog,
+  DialogBody,
+  DialogCloseButton,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui"
+} from "@/shared/ui"
 import { cx } from "@/shared/lib/utils"
 import {
   RiCalendarLine,
-  RiCloseLine,
   RiFileTextLine,
   RiUserLine,
 } from "@/shared/ui/lucide-icons"
@@ -54,20 +56,11 @@ export function LeaveDialog({ open, onOpenChange, event }: LeaveDialogProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <div className="flex items-center justify-between">
-            <DialogTitle>Detail Cuti</DialogTitle>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onOpenChange(false)}
-              className="h-8 w-8 p-0"
-            >
-              <RiCloseLine className="h-5 w-5" />
-            </Button>
-          </div>
+          <DialogTitle>Detail Cuti</DialogTitle>
+          <DialogCloseButton onClick={() => onOpenChange(false)} />
         </DialogHeader>
 
-        <div className="space-y-6 py-4">
+        <DialogBody className="space-y-6">
           {/* Status Badge */}
           <div className="flex items-center gap-2">
             <Badge color="emerald" className="text-body-sm">
@@ -128,14 +121,13 @@ export function LeaveDialog({ open, onOpenChange, event }: LeaveDialogProps) {
               </div>
             </div>
           )}
-        </div>
+        </DialogBody>
 
-        {/* Footer */}
-        <div className="border-border flex justify-end border-t pt-4">
+        <DialogFooter>
           <Button variant="secondary" onClick={() => onOpenChange(false)}>
             Tutup
           </Button>
-        </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   )

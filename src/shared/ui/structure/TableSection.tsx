@@ -7,6 +7,8 @@ interface TableSectionProps {
   actions?: React.ReactNode
   children: React.ReactNode
   className?: string
+  headerClassName?: string
+  contentClassName?: string
 }
 
 /**
@@ -26,20 +28,30 @@ export function TableSection({
   actions,
   children,
   className,
+  headerClassName,
+  contentClassName,
 }: TableSectionProps) {
-  const hasHeader = Boolean(title || actions)
+  const hasHeader = Boolean(title || description || actions)
 
   return (
-    <div className={cx("rounded-lg", "bg-surface dark:bg-surface", className)}>
+    <div
+      className={cx(
+        "rounded-lg border border-neutral-primary bg-surface-neutral-primary overflow-hidden",
+        className,
+      )}
+    >
       {hasHeader && (
-        <div className="flex items-center justify-between py-3">
+        <div
+          className={cx(
+            "flex items-center justify-between gap-4 px-xl py-lg",
+            headerClassName,
+          )}
+        >
           {title && (
-            <div>
-              <h3 className="text-content dark:text-content font-semibold">
-                {title}
-              </h3>
+            <div className="min-w-0">
+              <h3 className="text-label-md text-foreground-primary">{title}</h3>
               {description && (
-                <p className="text-body-sm text-content-subtle dark:text-content-placeholder mt-0.5">
+                <p className="text-body-sm text-foreground-tertiary mt-1">
                   {description}
                 </p>
               )}
@@ -49,7 +61,11 @@ export function TableSection({
         </div>
       )}
       {/* Content area - no extra padding, let children control their layout */}
-      {children}
+      {contentClassName ? (
+        <div className={contentClassName}>{children}</div>
+      ) : (
+        children
+      )}
     </div>
   )
 }

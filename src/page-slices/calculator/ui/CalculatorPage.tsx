@@ -10,10 +10,10 @@ import {
 } from "@/shared/ui"
 import { RiAddLine, RiCalculatorLine, RiDeleteBinLine } from "@/shared/ui/lucide-icons"
 import { useMemo, useState } from "react"
-import { v4 as uuidv4 } from "uuid"
 import { FinancialHUD } from "./components/FinancialHUD"
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"]
+type TeamMember = Pick<Profile, "id" | "full_name" | "job_title" | "hourly_rate">
 
 interface Phase {
   id: string
@@ -36,10 +36,15 @@ interface FreelanceMember {
   allocation: number // 0-100
 }
 
+const createId = () =>
+  typeof crypto !== "undefined" && "randomUUID" in crypto
+    ? crypto.randomUUID()
+    : `${Date.now()}-${Math.random().toString(16).slice(2)}`
+
 export default function CalculatorClientPage({
   teamMembers,
 }: {
-  teamMembers: Profile[]
+  teamMembers: TeamMember[]
 }) {
   const WORK_DAYS_PER_MONTH = 22
   const [activeTab, setActiveTab] = useState<"team" | "freelance">("team")
@@ -112,7 +117,7 @@ export default function CalculatorClientPage({
   const addPhase = () => {
     setPhases([
       ...phases,
-      { id: uuidv4(), name: "New Phase", days: 1, buffer: 0 },
+      { id: createId(), name: "New Phase", days: 1, buffer: 0 },
     ])
   }
 
@@ -134,7 +139,7 @@ export default function CalculatorClientPage({
       alert("Member already added!")
       return
     }
-    setSquad([...squad, { id: uuidv4(), profileId, allocation: 100 }])
+    setSquad([...squad, { id: createId(), profileId, allocation: 100 }])
   }
 
   const removeSquadMember = (id: string) => {
@@ -151,7 +156,7 @@ export default function CalculatorClientPage({
     setFreelanceSquad([
       ...freelanceSquad,
       {
-        id: uuidv4(),
+        id: createId(),
         name: "",
         role: "",
         expectedSalary: "",

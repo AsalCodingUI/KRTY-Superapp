@@ -41,7 +41,6 @@ const RadioGroupItem = React.forwardRef<
   React.ElementRef<typeof RadioGroupPrimitives.Item>,
   React.ComponentPropsWithoutRef<typeof RadioGroupPrimitives.Item>
 >(({ className, ...props }, forwardedRef) => {
-  const isDisabled = Boolean(props.disabled)
   const itemRef = React.useRef<HTMLButtonElement | null>(null)
   const [isChecked, setIsChecked] = React.useState(false)
 

@@ -9,23 +9,21 @@ import { cx, focusInput, hasErrorInput } from "@/shared/lib/utils"
 const textareaStyles = tv({
   base: [
     // base
-    "text-body-sm flex min-h-[80px] w-full appearance-none truncate rounded-md border px-2.5 py-1.5 transition outline-none",
-    // border color
-    "border-border-default",
+    "text-body-sm flex min-h-[76px] w-full appearance-none rounded-xl border-none p-lg transition outline-none shadow-input selection:bg-surface-brand-light selection:text-foreground-primary",
     // text color
     "text-foreground-primary",
     // placeholder color
-    "placeholder-foreground-placeholder",
+    "placeholder:text-foreground-tertiary",
     // background color
-    "bg-surface",
+    "bg-surface-neutral-primary hover:bg-surface-neutral-secondary",
     // disabled
-    "disabled:border-border-default disabled:text-foreground-placeholder",
+    "disabled:text-foreground-disable disabled:placeholder:text-foreground-disable disabled:shadow-input disabled:cursor-not-allowed",
     // file
     [
-      "file:-my-2 file:-ml-2.5 file:cursor-pointer file:rounded-l-[5px] file:rounded-r-none file:border-0 file:px-3 file:py-2 file:outline-none focus:outline-none disabled:pointer-events-none file:disabled:pointer-events-none",
-      "file:border-border-default file:bg-surface-neutral-secondary file:text-foreground-secondary file:hover:bg-surface-neutral-tertiary file:disabled:border-border-disable file:border-solid",
+      "file:-my-2 file:-ml-2.5 file:cursor-pointer file:rounded-l-[6px] file:rounded-r-none file:border-0 file:px-3 file:py-2 file:outline-none focus:outline-none disabled:pointer-events-none file:disabled:pointer-events-none",
+      "file:bg-surface-neutral-secondary file:text-foreground-secondary file:hover:bg-surface-neutral-tertiary file:border-solid",
       "file:[margin-inline-end:0.75rem] file:[border-inline-end-width:1px]",
-      "file:disabled:bg-surface-neutral-tertiary file:disabled:text-foreground-disable",
+      "file:disabled:bg-surface-neutral-secondary file:disabled:text-foreground-disable",
     ],
     // focus
     focusInput,

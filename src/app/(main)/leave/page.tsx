@@ -5,8 +5,9 @@ import { canManageByRole } from "@/shared/lib/roles"
 export default async function LeaveRoute({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | string[] | undefined }
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
+  const resolvedSearchParams = await searchParams
   const supabase = await createClient()
 
   const {
@@ -14,7 +15,7 @@ export default async function LeaveRoute({
   } = await supabase.auth.getUser()
   if (!user) return <div>Please login.</div>
 
-  const page = Number(searchParams.page) || 1
+  const page = Number(resolvedSearchParams.page) || 1
   const pageSize = 20
   const from = (page - 1) * pageSize
   const to = from + pageSize - 1
@@ -40,12 +41,14 @@ export default async function LeaveRoute({
         .select("*", { count: "exact", head: true }),
       supabase
         .from("leave_requests")
-        .select("*, profiles(full_name, avatar_url)")
+        .select(
+          "id,start_date,end_date,leave_type,reason,proof_url,status,created_at,updated_at,user_id,profiles(full_name, avatar_url)",
+        )
         .order("created_at", { ascending: false })
         .range(from, to),
       supabase
         .from("profiles")
-        .select("*")
+        .select("id, full_name, job_title, leave_used, leave_balance")
         .order("full_name", { ascending: true }),
       supabase
         .from("attendance_logs")
@@ -77,7 +80,9 @@ export default async function LeaveRoute({
       .eq("user_id", user.id),
     supabase
       .from("leave_requests")
-      .select("*")
+      .select(
+        "id,start_date,end_date,leave_type,reason,proof_url,status,created_at,updated_at,user_id",
+      )
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
       .range(from, to),

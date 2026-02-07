@@ -5,8 +5,9 @@ import { Button } from "@/shared/ui"
 import { Card } from "@/shared/ui"
 import {
   Dialog,
+  DialogBody,
+  DialogCloseButton,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -249,11 +250,13 @@ export default function ReviewFormClientPage({
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Yakin ingin keluar?</DialogTitle>
-            <DialogDescription>
-              Data yang sudah Anda isi tidak akan tersimpan jika keluar
-              sekarang. Apakah Anda yakin ingin melanjutkan?
-            </DialogDescription>
+            <DialogCloseButton />
           </DialogHeader>
+          <DialogBody>
+            <p className="text-body-sm text-foreground-secondary">
+              Perubahan yang belum tersimpan akan hilang.
+            </p>
+          </DialogBody>
           <DialogFooter>
             <Button variant="secondary" onClick={handleCancelExit}>
               Batal

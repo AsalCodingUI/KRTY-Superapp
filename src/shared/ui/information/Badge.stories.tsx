@@ -103,3 +103,33 @@ export const Sizes: Story = {
     </div>
   ),
 }
+
+export const WithCustomIcons: Story = {
+  render: () => (
+    <div className="flex items-center gap-2">
+      <Badge
+        variant="info"
+        leadingIcon={<span className="text-current">i</span>}
+        showLeadingIcon
+      >
+        Info
+      </Badge>
+      <Badge
+        variant="warning"
+        trailingIcon={<span className="text-current">!</span>}
+        showTrailingIcon
+      >
+        Warning
+      </Badge>
+      <Badge
+        variant="success"
+        leadingIcon={<span className="text-current">v</span>}
+        trailingIcon={<span className="text-current">&gt;</span>}
+        showLeadingIcon
+        showTrailingIcon
+      >
+        Success
+      </Badge>
+    </div>
+  ),
+}

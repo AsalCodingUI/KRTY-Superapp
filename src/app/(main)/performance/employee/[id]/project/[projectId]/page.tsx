@@ -5,16 +5,16 @@ import { EmployeeProjectView } from "./EmployeeProjectView"
 import { ProjectScoringClient } from "./ProjectScoringClient"
 
 interface ProjectDetailPageProps {
-  params: {
+  params: Promise<{
     id: string
     projectId: string
-  }
+  }>
 }
 
 export default async function ProjectDetailPage({
   params,
 }: ProjectDetailPageProps) {
-  const { id: employeeId, projectId } = params
+  const { id: employeeId, projectId } = await params
 
   const result = await getEmployeeDetail(employeeId)
 

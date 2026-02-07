@@ -8,10 +8,6 @@ import {
   RadarChart,
 } from "@/shared/ui"
 
-import { Badge } from "@/shared/ui"
-import { Card } from "@/shared/ui"
-import { EmptyState } from "@/shared/ui"
-import { QuarterFilter, type QuarterFilterValue } from "@/shared/ui"
 import {
   calculateSkillPercentage,
   getRatingBadgeVariant,
@@ -19,9 +15,10 @@ import {
   getSkillRating,
 } from "@/entities/performance/lib/performanceUtils"
 import { createClient } from "@/shared/api/supabase/client"
+import type { ProfileSubset } from "@/shared/hooks/useUserProfile"
+import { Badge, Card, EmptyState, QuarterFilter, type QuarterFilterValue } from "@/shared/ui"
 import { useEffect, useState } from "react"
 import { ReviewStatsHeader } from "./ReviewStatsHeader"
-import type { ProfileSubset } from "@/shared/hooks/useUserProfile"
 
 // --- TIPE DATA ---
 type AnalysisResult = {
@@ -54,14 +51,12 @@ type SummaryRow = {
 }
 
 export function EmployeeReviewView({
-  isCycleActive,
   profile,
   currentCycleId,
   selectedQuarter: controlledQuarter,
   onQuarterChange,
   showQuarterFilter = true,
 }: {
-  isCycleActive: boolean
   profile: ProfileSubset | null
   currentCycleId: string | null
   selectedQuarter?: QuarterFilterValue
@@ -202,160 +197,146 @@ export function EmployeeReviewView({
   }, [profile, currentCycleId, supabase, selectedQuarter])
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-md">
       {/* 1. Quarter Filter */}
       {showQuarterFilter && (
         <QuarterFilter value={selectedQuarter} onChange={setSelectedQuarter} />
       )}
 
-      {/* 3. STATS HEADER (SELALU MUNCUL) 
-                Jika belum ada data, tampilkan nilai 0 atau "-" 
-            */}
-      <ReviewStatsHeader
-        selectedQuarter={selectedQuarter}
-        totalReviewers={totalReviewers}
-        overallScore={summaryData ? Number(summaryData.overall_score) : 0}
-        overallPercentage={summaryData ? summaryData.overall_percentage : 0}
-        ratingLevel={
-          summaryData ? getRatingLevel(summaryData.overall_percentage) : "-"
-        }
-        isCycleActive={isCycleActive}
-      />
-
       {/* 4. CONTENT DETAIL (Accordion & Radar) */}
       {result ? (
-        <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
-          {/* LEFT COLUMN - Accordion Feedback */}
-          <div className="space-y-4">
-            <Accordion type="multiple" defaultValue={["executive-summary"]}>
-              <AccordionItem value="executive-summary">
-                <AccordionTrigger>
-                  <div className="flex items-center gap-2">
-                    <span className="font-semibold">Executive Summary</span>
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent>
-                  <p className="text-content-subtle dark:text-content-subtle text-body-sm whitespace-pre-line">
-                    {result.summary.additional}
-                  </p>
-                </AccordionContent>
-              </AccordionItem>
+        <>
+          <div className="grid grid-cols-1 gap-md lg:grid-cols-6">
+            <div className="lg:col-span-4">
+              <Accordion type="multiple" defaultValue={["executive-summary"]}>
+                <AccordionItem value="executive-summary">
+                  <AccordionTrigger className="text-label-md px-4 py-3">
+                    <span className="font-medium">Executive Summary</span>
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <p className="text-content-subtle text-body-sm whitespace-pre-line">
+                      {result.summary.additional}
+                    </p>
+                  </AccordionContent>
+                </AccordionItem>
 
-              <AccordionItem value="keep-doing">
-                <AccordionTrigger>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="continue">CONTINUE</Badge>
+                <AccordionItem value="keep-doing">
+                  <AccordionTrigger className="text-label-md px-4 py-3">
                     <span className="font-medium">Keep Doing</span>
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent>
-                  <p className="text-content-subtle dark:text-content-subtle text-body-sm whitespace-pre-line">
-                    {result.summary.strength}
-                  </p>
-                </AccordionContent>
-              </AccordionItem>
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <p className="text-content-subtle text-body-sm whitespace-pre-line">
+                      {result.summary.strength}
+                    </p>
+                  </AccordionContent>
+                </AccordionItem>
 
-              <AccordionItem value="start-doing">
-                <AccordionTrigger>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="start">START</Badge>
+                <AccordionItem value="start-doing">
+                  <AccordionTrigger className="text-label-md px-4 py-3">
                     <span className="font-medium">Start Doing</span>
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent>
-                  <p className="text-content-subtle dark:text-content-subtle text-body-sm whitespace-pre-line">
-                    {result.summary.growth}
-                  </p>
-                </AccordionContent>
-              </AccordionItem>
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <p className="text-content-subtle text-body-sm whitespace-pre-line">
+                      {result.summary.growth}
+                    </p>
+                  </AccordionContent>
+                </AccordionItem>
 
-              <AccordionItem value="stop-doing">
-                <AccordionTrigger>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="stop">STOP</Badge>
+                <AccordionItem value="stop-doing">
+                  <AccordionTrigger className="text-label-md px-4 py-3">
                     <span className="font-medium">Stop Doing</span>
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent>
-                  <p className="text-content-subtle dark:text-content-subtle text-body-sm whitespace-pre-line">
-                    {result.summary.stop}
-                  </p>
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-          </div>
-
-          {/* RIGHT COLUMN - Competency Matrix */}
-          <Card>
-            <h3 className="text-content dark:text-content mb-4 font-semibold">
-              Competency Matrix
-            </h3>
-            <div className="flex justify-center">
-              <RadarChart
-                data={result.radar}
-                index="skill"
-                categories={["Self", "Peers"]}
-                colors={["indigo", "emerald"]}
-                showLegend={false}
-                showTooltip={false}
-                className="h-64"
-              />
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <p className="text-content-subtle text-body-sm whitespace-pre-line">
+                      {result.summary.stop}
+                    </p>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
             </div>
-            {/* Skill Ratings List */}
-            {skillRatings && (
-              <div className="border-border mt-6 space-y-3 border-t pt-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-content-subtle dark:text-content-subtle text-label-md">
+
+            <div className="lg:col-span-2 flex flex-col gap-md">
+              <ReviewStatsHeader
+                selectedQuarter={selectedQuarter}
+                totalReviewers={totalReviewers}
+                overallScore={summaryData ? Number(summaryData.overall_score) : 0}
+                overallPercentage={summaryData ? summaryData.overall_percentage : 0}
+                ratingLevel={
+                  summaryData ? getRatingLevel(summaryData.overall_percentage) : "-"
+                }
+              />
+
+              <Card>
+              <h3 className="text-label-sm text-foreground-secondary mb-4 font-medium">
+                Competency Matrix
+              </h3>
+                <div className="flex justify-center">
+                  <RadarChart
+                    data={result.radar}
+                    index="skill"
+                    categories={["Self", "Peers"]}
+                    colors={["chart-1", "chart-2"]}
+                    showLegend={false}
+                    showTooltip={false}
+                    className="h-64"
+                  />
+                </div>
+                {skillRatings && (
+                  <div className="border-border space-y-3 border-t pt-4">
+                    <div className="flex items-center justify-between">
+                  <span className="text-label-sm text-foreground-secondary">
                     Leadership
                   </span>
-                  <Badge
-                    variant={getRatingBadgeVariant(skillRatings.leadership)}
-                  >
-                    {skillRatings.leadership}
-                  </Badge>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-content-subtle dark:text-content-subtle text-label-md">
+                      <Badge
+                        variant={getRatingBadgeVariant(skillRatings.leadership)}
+                      >
+                        {skillRatings.leadership}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center justify-between">
+                  <span className="text-label-sm text-foreground-secondary">
                     Quality
                   </span>
-                  <Badge variant={getRatingBadgeVariant(skillRatings.quality)}>
-                    {skillRatings.quality}
-                  </Badge>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-content-subtle dark:text-content-subtle text-label-md">
+                      <Badge variant={getRatingBadgeVariant(skillRatings.quality)}>
+                        {skillRatings.quality}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center justify-between">
+                  <span className="text-label-sm text-foreground-secondary">
                     Reliability
                   </span>
-                  <Badge
-                    variant={getRatingBadgeVariant(skillRatings.reliability)}
-                  >
-                    {skillRatings.reliability}
-                  </Badge>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-content-subtle dark:text-content-subtle text-label-md">
+                      <Badge
+                        variant={getRatingBadgeVariant(skillRatings.reliability)}
+                      >
+                        {skillRatings.reliability}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center justify-between">
+                  <span className="text-label-sm text-foreground-secondary">
                     Communication
                   </span>
-                  <Badge
-                    variant={getRatingBadgeVariant(skillRatings.communication)}
-                  >
-                    {skillRatings.communication}
-                  </Badge>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-content-subtle dark:text-content-subtle text-label-md">
+                      <Badge
+                        variant={getRatingBadgeVariant(skillRatings.communication)}
+                      >
+                        {skillRatings.communication}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center justify-between">
+                  <span className="text-label-sm text-foreground-secondary">
                     Initiative
                   </span>
-                  <Badge
-                    variant={getRatingBadgeVariant(skillRatings.initiative)}
-                  >
-                    {skillRatings.initiative}
-                  </Badge>
-                </div>
-              </div>
-            )}
-          </Card>
-        </div>
+                      <Badge
+                        variant={getRatingBadgeVariant(skillRatings.initiative)}
+                      >
+                        {skillRatings.initiative}
+                      </Badge>
+                    </div>
+                  </div>
+                )}
+              </Card>
+            </div>
+          </div>
+        </>
       ) : (
         <EmptyState
           title={`Belum ada laporan performa untuk periode ${selectedQuarter}`}

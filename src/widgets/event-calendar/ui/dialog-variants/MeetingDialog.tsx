@@ -3,10 +3,13 @@
 import {
   Button,
   Dialog,
+  DialogBody,
+  DialogCloseButton,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui"
+} from "@/shared/ui"
 import { logError } from "@/shared/lib/utils/logger"
 import { cx } from "@/shared/lib/utils"
 import {
@@ -90,9 +93,10 @@ export function MeetingDialog({
       <DialogContent className="flex max-h-[90vh] flex-col sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>Meeting Details</DialogTitle>
+          <DialogCloseButton onClick={() => onOpenChange(false)} />
         </DialogHeader>
 
-        <div className="mt-4 flex-1 space-y-6 overflow-y-auto pr-2">
+        <DialogBody className="flex-1 space-y-6 overflow-y-auto">
           {/* Event Title & Type */}
           <div>
             <div className="flex items-start justify-between gap-4">
@@ -181,10 +185,9 @@ export function MeetingDialog({
               />
             </div>
           )}
-        </div>
+        </DialogBody>
 
-        {/* Actions */}
-        <div className="border-border-border mt-auto flex items-center justify-between border-t pt-4">
+        <DialogFooter className="justify-between">
           <div className="flex flex-1 gap-2">
             {onDelete && (
               <>
@@ -243,7 +246,7 @@ export function MeetingDialog({
               Tutup
             </Button>
           )}
-        </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   )

@@ -21,9 +21,13 @@ import type { ViewMode } from "./types"
 
 interface CalendarToolbarProps {
   onAddEvent: () => void
+  showAddEvent?: boolean
 }
 
-export function CalendarToolbar({ onAddEvent }: CalendarToolbarProps) {
+export function CalendarToolbar({
+  onAddEvent,
+  showAddEvent = true,
+}: CalendarToolbarProps) {
   const { viewMode, setViewMode, goToToday, goToNext, goToPrevious } =
     useCalendarContext()
   const { isConnected, isLoading } = useGoogleCalendar()
@@ -97,9 +101,11 @@ export function CalendarToolbar({ onAddEvent }: CalendarToolbarProps) {
             <RiArrowRightSLine className="size-4" />
           </Button>
         </div>
-        <Button size="sm" leadingIcon={<RiAddLine />} onClick={onAddEvent}>
-          New Event
-        </Button>
+        {showAddEvent && (
+          <Button size="sm" leadingIcon={<RiAddLine />} onClick={onAddEvent}>
+            New Event
+          </Button>
+        )}
       </div>
     </div>
   )

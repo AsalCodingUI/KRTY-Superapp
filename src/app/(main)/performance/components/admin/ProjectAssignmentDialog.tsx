@@ -3,8 +3,9 @@
 import { Avatar, Button } from "@/shared/ui"
 import {
   Dialog,
+  DialogBody,
+  DialogCloseButton,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -199,13 +200,10 @@ export function ProjectAssignmentDialog({
       <DialogContent className="flex max-h-[80vh] max-w-3xl flex-col">
         <DialogHeader>
           <DialogTitle>Manage Team - {project.name}</DialogTitle>
-          <DialogDescription>
-            Assign team members to this project with specific roles and optional
-            weight percentages.
-          </DialogDescription>
+          <DialogCloseButton />
         </DialogHeader>
 
-        <div className="flex-1 space-y-6 overflow-y-auto py-4">
+        <DialogBody className="flex-1 space-y-6 overflow-y-auto">
           {/* Add New Assignment Section */}
           <div className="border-border bg-muted dark:bg-surface/50 space-y-4 rounded-lg border p-4">
             <h4 className="text-label-md text-content dark:text-content">
@@ -308,7 +306,7 @@ export function ProjectAssignmentDialog({
               </div>
             )}
           </div>
-        </div>
+        </DialogBody>
 
         <DialogFooter>
           <Button variant="secondary" onClick={onClose}>

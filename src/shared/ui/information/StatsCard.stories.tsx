@@ -39,3 +39,19 @@ export const NeutralTrend: Story = {
     trend: { value: "0%", direction: "neutral" },
   },
 }
+
+export const WithFooter: Story = {
+  args: {
+    title: "Meetings Today",
+    value: "3",
+    icon: <RiUserLine className="size-5" />,
+    footer: <div className="text-foreground-tertiary text-body-xs">Updated just now</div>,
+  },
+}
+
+export const NoDescription: Story = {
+  args: {
+    title: "Active Projects",
+    value: "12",
+  },
+}

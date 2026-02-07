@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { logError } from "@/shared/lib/utils/logger"
+import { guardApiRoute } from "@/shared/lib/utils/security"
 import {
   fetchGoogleCalendarEvents,
   getGoogleAccessToken,
@@ -15,6 +16,9 @@ function mapGoogleStatus(status?: string) {
 }
 
 export async function GET(request: NextRequest) {
+  const guard = guardApiRoute(request)
+  if (guard) return guard
+
   try {
     const env = getGoogleEnv()
     if (!env) {
