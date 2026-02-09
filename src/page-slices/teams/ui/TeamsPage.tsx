@@ -119,7 +119,7 @@ export function TeamsPage({
               placeholder="Search..."
               value={searchTerm}
               onChange={(event) => setSearchTerm(event.target.value)}
-              inputSize="lg"
+              inputSize="default"
               className="w-[260px]"
             />
 

@@ -54,7 +54,7 @@ export function Filterbar<TData>({
             placeholder="Search..."
             value={searchTerm}
             onChange={handleSearchChange}
-            inputSize="lg"
+            inputSize="default"
             className="w-full sm:max-w-[250px]"
           />
         )}

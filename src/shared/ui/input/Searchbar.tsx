@@ -7,10 +7,17 @@ import type { VariantProps } from "tailwind-variants"
 
 import { cx, focusInput, hasErrorInput } from "@/shared/lib/utils"
 
+const inputSizeStyles = {
+  sm: "h-7 px-lg py-sm text-body-sm",
+  default: "h-8 px-lg py-md text-body-sm",
+} as const
+
+type InputSize = keyof typeof inputSizeStyles
+
 const inputStyles = tv({
   base: [
     // base
-    "text-body-sm relative block w-full appearance-none rounded-md border-none px-lg py-md transition outline-none shadow-input selection:bg-surface-brand-light selection:text-foreground-primary",
+    "relative block w-full appearance-none rounded-md border-none transition-shadow outline-none shadow-input selection:bg-surface-brand-light selection:text-foreground-primary",
     // text color
     "text-foreground-primary",
     // placeholder color
@@ -18,7 +25,7 @@ const inputStyles = tv({
     // background color
     "bg-surface-neutral-primary hover:bg-surface-neutral-secondary",
     // disabled
-    "disabled:text-foreground-disable disabled:placeholder:text-foreground-disable disabled:shadow-input disabled:cursor-not-allowed",
+    "disabled:bg-surface-neutral-primary disabled:text-foreground-disable disabled:placeholder:text-foreground-disable disabled:shadow-input disabled:cursor-not-allowed",
     // focus
     focusInput,
     // invalid (optional)
@@ -30,10 +37,17 @@ const inputStyles = tv({
     hasError: {
       true: hasErrorInput,
     },
+    inputSize: {
+      sm: inputSizeStyles.sm,
+      default: inputSizeStyles.default,
+    },
     // number input
     enableStepper: {
       true: "[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none",
     },
+  },
+  defaultVariants: {
+    inputSize: "default",
   },
 })
 
@@ -42,6 +56,7 @@ interface InputProps
     React.InputHTMLAttributes<HTMLInputElement>,
     VariantProps<typeof inputStyles> {
   inputClassName?: string
+  inputSize?: InputSize
 }
 
 /**
@@ -59,18 +74,19 @@ const Searchbar = React.forwardRef<HTMLInputElement, InputProps>(
       inputClassName,
       hasError,
       enableStepper,
+      inputSize = "default",
       type = "search",
       ...props
     }: InputProps,
     forwardedRef,
   ) => {
     return (
-      <div className={cx("relative w-full", className)}>
+      <div className={cx("group/searchbar relative w-full", className)}>
         <input
           ref={forwardedRef}
           type={type}
           className={cx(
-            inputStyles({ hasError, enableStepper }),
+            inputStyles({ hasError, enableStepper, inputSize }),
             "pl-[calc(var(--padding-lg)+20px+var(--gap-md))]",
             inputClassName,
           )}
@@ -81,7 +97,11 @@ const Searchbar = React.forwardRef<HTMLInputElement, InputProps>(
             // base
             "pointer-events-none absolute bottom-0 left-2 flex h-full items-center justify-center",
             // text color
-            "text-foreground-secondary",
+            props.disabled
+              ? "text-foreground-disable"
+              : hasError
+                ? "text-foreground-danger"
+                : "text-foreground-secondary group-focus-within/searchbar:text-foreground-primary",
           )}
         >
           <RiSearchLine className="size-5 shrink-0" aria-hidden="true" />

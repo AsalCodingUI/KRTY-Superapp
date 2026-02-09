@@ -9,7 +9,7 @@ import {
   DialogContent,
   DialogFooter,
   DialogHeader,
-  DialogTitle, Label
+  DialogTitle, Label, TextInput
 } from "@/shared/ui"
 import { useRouter } from "next/navigation"
 import React, { useEffect, useState } from "react"

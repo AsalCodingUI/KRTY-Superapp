@@ -9,7 +9,7 @@ const meta = {
   argTypes: {
     inputSize: {
       control: "select",
-      options: ["sm", "default", "lg"],
+      options: ["sm", "default"],
     },
     hasError: { control: "boolean" },
     disabled: { control: "boolean" },
@@ -79,12 +79,5 @@ export const Small: Story = {
   args: {
     inputSize: "sm",
     placeholder: "Small input",
-  },
-}
-
-export const Large: Story = {
-  args: {
-    inputSize: "lg",
-    placeholder: "Large input",
   },
 }

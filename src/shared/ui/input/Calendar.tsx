@@ -3,9 +3,9 @@
 "use client"
 
 import {
+  RiArrowDownSLine,
   RiArrowLeftDoubleLine,
   RiArrowLeftSLine,
-  RiArrowDownSLine,
   RiArrowRightDoubleLine,
   RiArrowRightSLine,
 } from "@/shared/ui/lucide-icons"
@@ -77,14 +77,14 @@ type RangeProps = OmitKeys<DayPickerRangeProps, KeysToOmit>
 
 type CalendarProps =
   | ({
-      mode: "single"
-    } & SingleProps)
+    mode: "single"
+  } & SingleProps)
   | ({
-      mode?: undefined
-    } & SingleProps)
+    mode?: undefined
+  } & SingleProps)
   | ({
-      mode: "range"
-    } & RangeProps)
+    mode: "range"
+  } & RangeProps)
 
 /**
  * Calendar component for date selection.
@@ -114,7 +114,7 @@ const Calendar = ({
       locale={locale}
       showOutsideDays
       className={cx(
-        "bg-surface-neutral-primary border border-neutral-primary rounded-xl shadow-regular-md",
+        "bg-surface-neutral-primary border border-neutral-secondary rounded-xl shadow-regular-md",
         "overflow-hidden",
         className,
       )}
@@ -123,7 +123,10 @@ const Calendar = ({
           numberOfMonths > 1
             ? "flex flex-row gap-0"
             : "flex flex-col gap-0",
-        month: "space-y-3 p-3",
+        month: cx(
+          "space-y-3 p-3",
+          numberOfMonths > 1 && "border-l border-neutral-secondary first:border-l-0",
+        ),
         nav: "hidden",
         table: "w-full border-separate border-spacing-2",
         head_row: "h-8",
@@ -135,12 +138,12 @@ const Calendar = ({
         ),
         day: cx(
           "text-label-sm font-medium text-foreground-secondary",
-          "size-8 rounded-md focus:z-10",
+          "size-8 rounded-md p-[6px] focus:z-10",
           "hover:bg-surface-state-neutral-light-hover",
           focusRing,
         ),
-        day_today: "font-medium",
-        day_selected: "bg-surface-brand text-foreground-on-color",
+        day_today: "font-medium text-foreground-primary",
+        day_selected: "rounded-md bg-surface-brand text-foreground-on-color",
         day_disabled:
           "text-foreground-disable disabled:hover:bg-transparent",
         day_outside: "text-foreground-disable",
@@ -149,7 +152,7 @@ const Calendar = ({
           "aria-selected:!bg-surface-brand-light aria-selected:!text-foreground-secondary",
         ),
         day_range_start:
-          "rounded-md !bg-surface-brand !text-foreground-on-color",
+          "rounded-md border border-border-brand !bg-transparent !text-foreground-secondary",
         day_range_end:
           "rounded-md !bg-surface-brand !text-foreground-on-color",
         day_hidden: "invisible",
@@ -211,7 +214,7 @@ const Calendar = ({
                       !previousMonth ||
                       (fromDate &&
                         addYears(currentMonth, -1).getTime() <
-                          fromDate.getTime())
+                        fromDate.getTime())
                     }
                     aria-label="Go to previous year"
                     onClick={goToPreviousYear}

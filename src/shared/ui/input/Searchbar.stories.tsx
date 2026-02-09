@@ -5,6 +5,14 @@ const meta = {
   title: "Input/Searchbar",
   component: Searchbar,
   tags: ["autodocs"],
+  argTypes: {
+    inputSize: {
+      control: "select",
+      options: ["sm", "default"],
+    },
+    disabled: { control: "boolean" },
+    hasError: { control: "boolean" },
+  },
 } satisfies Meta<typeof Searchbar>
 
 export default meta

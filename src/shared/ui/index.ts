@@ -1,6 +1,6 @@
 // Action
 export * from "./action/Button"
-export * from "./action/Dropdown"
+export * from "./action/DropdownMenu"
 export * from "./action/Toggle"
 
 // Information
@@ -13,7 +13,6 @@ export * from "./information/StatsCard"
 export * from "./input/Calendar"
 export * from "./input/Checkbox"
 export * from "./input/DatePicker"
-export * from "./input/Input"
 export * from "./input/Label"
 export * from "./input/RadioCard"
 export * from "./input/RadioGroup"

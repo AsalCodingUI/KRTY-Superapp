@@ -21,7 +21,8 @@ import {
   TableCell,
   TableHead,
   TableHeaderCell,
-  TableRow, TabNavigation, TabNavigationLink
+  TableRow, TabNavigation, TabNavigationLink,
+  TextInput
 } from "@/shared/ui"
 import {
   RiArrowLeftLine,

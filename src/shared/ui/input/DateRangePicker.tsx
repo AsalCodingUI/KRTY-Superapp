@@ -14,11 +14,19 @@ import { format } from "date-fns"
 import React from "react"
 import { type DateRange } from "react-day-picker"
 
+const inputSizeStyles = {
+  sm: "h-7 px-lg py-sm text-body-sm",
+  default: "h-8 px-lg py-md text-body-sm",
+} as const
+
+type InputSize = keyof typeof inputSizeStyles
+
 interface DateRangePickerProps {
   value?: DateRange
   onValueChange?: (range: DateRange | undefined) => void
   placeholder?: string
   disabled?: boolean
+  inputSize?: InputSize
   className?: string
 }
 
@@ -40,10 +48,13 @@ const DateRangePicker = React.forwardRef<
       onValueChange,
       placeholder = "Select date range",
       disabled = false,
+      inputSize = "default",
       className,
     },
     ref,
   ) => {
+    const isDisabled = disabled
+
     return (
       <Popover>
         <PopoverTrigger asChild>
@@ -51,12 +62,13 @@ const DateRangePicker = React.forwardRef<
             ref={ref}
             type="button"
             className={cx(
-              "flex w-full items-center gap-md rounded-md px-lg py-md text-body-sm shadow-input transition-shadow hover:bg-surface-neutral-secondary selection:bg-surface-brand-light selection:text-foreground-primary",
+              "group/date-range-picker flex w-full items-center gap-x-md rounded-md border-none shadow-input transition-shadow",
               "bg-surface-neutral-primary text-foreground-primary",
+              "hover:bg-surface-neutral-secondary",
               "focus:shadow-input-focus focus:outline-none",
-              !value?.from && "text-foreground-tertiary",
-              disabled &&
-                "cursor-not-allowed text-foreground-disable shadow-input",
+              "disabled:bg-surface-neutral-primary disabled:text-foreground-disable disabled:shadow-input disabled:cursor-not-allowed",
+              inputSizeStyles[inputSize],
+              !value?.from && !disabled && "text-foreground-tertiary",
               className,
             )}
             disabled={disabled}
@@ -64,7 +76,9 @@ const DateRangePicker = React.forwardRef<
             <RiCalendar2Fill
               className={cx(
                 "size-5 shrink-0",
-                disabled ? "text-foreground-disable" : "text-foreground-secondary",
+                isDisabled
+                  ? "text-foreground-disable"
+                  : "text-foreground-secondary group-focus-within/date-range-picker:text-foreground-primary",
               )}
             />
             <span className="truncate text-left">
@@ -84,7 +98,7 @@ const DateRangePicker = React.forwardRef<
           </button>
         </PopoverTrigger>
         <PopoverContent
-          className="w-auto border-none bg-transparent p-0 shadow-none"
+          className="w-auto overflow-hidden rounded-xl border border-neutral-secondary bg-surface-neutral-primary p-0 shadow-regular-md"
           align="start"
         >
           <Calendar
@@ -93,6 +107,10 @@ const DateRangePicker = React.forwardRef<
             onSelect={onValueChange}
             numberOfMonths={2}
             initialFocus
+            className="border-none shadow-none rounded-none"
+            classNames={{
+              months: "flex flex-row gap-0",
+            }}
           />
         </PopoverContent>
       </Popover>

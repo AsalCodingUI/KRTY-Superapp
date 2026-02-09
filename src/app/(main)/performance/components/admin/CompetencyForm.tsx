@@ -12,7 +12,7 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue, Textarea
+  SelectValue, Textarea, TextInput
 } from "@/shared/ui"
 import { useState } from "react"
 import { toast } from "sonner"

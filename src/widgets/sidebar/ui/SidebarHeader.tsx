@@ -22,7 +22,7 @@ export function SidebarHeader() {
                     {initials}
                 </div>
                 <div className="flex min-w-0 flex-1 flex-col items-start px-1">
-                    <span className="text-label-sm text-content block w-full min-w-0 truncate">
+                    <span className="text-label-sm text-content block w-full min-w-0 truncate pr-2">
                         {profile?.full_name ?? "Asal Design"}
                     </span>
                 </div>

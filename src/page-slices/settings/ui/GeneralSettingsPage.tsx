@@ -2,7 +2,7 @@
 
 import { createClient } from "@/shared/api/supabase/client"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
-import { Button, Label } from "@/shared/ui"
+import { Button, Label, TextInput } from "@/shared/ui"
 import { RiMailSendLine } from "@/shared/ui/lucide-icons"
 import { useState } from "react"
 

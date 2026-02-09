@@ -1,12 +1,12 @@
 import { Button } from "@/shared/ui/action/Button"
-import { Input } from "@/shared/ui/input/Input"
 import { Label } from "@/shared/ui/input/Label"
+import { TextInput } from "@/shared/ui/input/TextInput"
+import { RiSettings3Line } from "@/shared/ui/lucide-icons"
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/shared/ui/overlay/Popover"
-import { RiSettings3Line } from "@/shared/ui/lucide-icons"
 import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 
 const meta = {
@@ -34,11 +34,11 @@ export const Basic: Story = {
         <div className="grid gap-2 py-4">
           <div className="grid grid-cols-3 items-center gap-4">
             <Label htmlFor="width">Width</Label>
-            <Input id="width" defaultValue="100%" className="col-span-2 h-8" />
+            <TextInput id="width" defaultValue="100%" className="col-span-2 h-8" />
           </div>
           <div className="grid grid-cols-3 items-center gap-4">
             <Label htmlFor="maxWidth">Max. width</Label>
-            <Input
+            <TextInput
               id="maxWidth"
               defaultValue="300px"
               className="col-span-2 h-8"

@@ -1,5 +1,5 @@
-import { Input } from "@/shared/ui/input/Input"
 import { Label } from "@/shared/ui/input/Label"
+import { TextInput } from "@/shared/ui/input/TextInput"
 import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 
 const meta = {
@@ -19,7 +19,7 @@ export const Default: Story = {
   render: (args) => (
     <div className="grid w-full max-w-sm gap-1.5">
       <Label {...args} />
-      <Input id="email" type="email" placeholder="Email" />
+      <TextInput id="email" type="email" placeholder="Email" />
     </div>
   ),
 }

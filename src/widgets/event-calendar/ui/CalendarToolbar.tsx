@@ -50,11 +50,13 @@ export function CalendarToolbar({
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
+              asChild
               variant="secondary"
               size="sm"
               trailingIcon={<RiArrowDownSLine />}
+              type="button"
             >
-              {currentViewLabel}
+              <button>{currentViewLabel}</button>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start">
@@ -66,7 +68,6 @@ export function CalendarToolbar({
                 <DropdownMenuRadioItem
                   key={option.value}
                   value={option.value}
-                  iconType="check"
                 >
                   {option.label}
                 </DropdownMenuRadioItem>

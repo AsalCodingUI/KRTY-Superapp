@@ -29,8 +29,8 @@ export const Basic: Story = {
   render: () => (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="secondary" size="sm">
-          Open menu
+        <Button asChild variant="secondary" size="sm" type="button">
+          <button>Open menu</button>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
@@ -49,8 +49,8 @@ export const WithGroupsAndSubmenu: Story = {
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="secondary" size="sm">
-            More actions
+          <Button asChild variant="secondary" size="sm" type="button">
+            <button>More actions</button>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>

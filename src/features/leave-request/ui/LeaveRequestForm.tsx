@@ -10,7 +10,8 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Textarea
+  Textarea,
+  TextInput
 } from "@/shared/ui"
 import { RiLoader2Line } from "@/shared/ui/lucide-icons"
 import React from "react"

@@ -14,7 +14,7 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue, Textarea
+  SelectValue, Textarea, TextInput
 } from "@/shared/ui"
 import { RiDeleteBin6Line, RiUserAddLine } from "@/shared/ui/lucide-icons"
 import { useEffect, useState } from "react"

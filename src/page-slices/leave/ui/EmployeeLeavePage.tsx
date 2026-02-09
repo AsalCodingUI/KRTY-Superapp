@@ -279,9 +279,11 @@ export function EmployeeLeavePage({
                     <>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button size="sm" variant="secondary">
-                            {getStatusLabel(selectedStatus)}
-                            <RiArrowDownSLine className="text-foreground-secondary ml-2 size-4 shrink-0" />
+                          <Button asChild size="sm" variant="secondary" type="button">
+                            <button>
+                              {getStatusLabel(selectedStatus)}
+                              <RiArrowDownSLine className="text-foreground-secondary ml-2 size-4 shrink-0" />
+                            </button>
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="start">

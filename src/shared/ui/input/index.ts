@@ -2,7 +2,6 @@
  * Public API
  */
 
-export * from "./Input"
 export * from "./Label"
 export * from "./RadioCard"
 export * from "./RadioGroup"
@@ -15,3 +14,4 @@ export * from "./TextInput"
 export * from "./Calendar"
 export * from "./Checkbox"
 export * from "./DatePicker"
+

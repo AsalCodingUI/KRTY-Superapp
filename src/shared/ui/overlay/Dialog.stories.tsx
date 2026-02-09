@@ -1,15 +1,15 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 import { useState } from "react"
 import { Button } from "../action/Button"
-import { Input } from "../input/Input"
 import { Label } from "../input/Label"
 import { Textarea } from "../input/Textarea"
+import { TextInput } from "../input/TextInput"
 import {
   Dialog,
+  DialogBody,
   DialogClose,
   DialogCloseButton,
   DialogContent,
-  DialogBody,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -101,7 +101,7 @@ export const FormDialog: Story = {
         <DialogBody className="grid gap-4">
           <div className="grid gap-2">
             <Label htmlFor="name">Name</Label>
-            <Input id="name" placeholder="Enter name" />
+            <TextInput id="name" placeholder="Enter name" />
           </div>
           <div className="grid gap-2">
             <Label htmlFor="description">Description</Label>

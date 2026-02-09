@@ -40,17 +40,21 @@ export function DataTableRowActions({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
+          asChild
           variant="ghost"
           size="sm"
           className="group data-[state=open]:bg-muted aspect-square hover:border data-[state=open]:border hover:dark:border data-[state=open]:dark:border"
           aria-label={triggerLabel}
+          type="button"
         >
-          {triggerIcon ?? (
-            <RiMoreFill
-              className="text-content-subtle group-hover:text-content-subtle group-data-[state=open]:text-content-subtle group-hover:dark:text-content-subtle group-data-[state=open]:dark:text-content-subtle size-4 shrink-0"
-              aria-hidden="true"
-            />
-          )}
+          <button>
+            {triggerIcon ?? (
+              <RiMoreFill
+                className="text-content-subtle group-hover:text-content-subtle group-data-[state=open]:text-content-subtle group-hover:dark:text-content-subtle group-data-[state=open]:dark:text-content-subtle size-4 shrink-0"
+                aria-hidden="true"
+              />
+            )}
+          </button>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align={align} className={cx("min-w-32", contentClassName)}>

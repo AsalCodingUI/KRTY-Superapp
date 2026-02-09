@@ -29,6 +29,13 @@ import {
   type Matcher,
 } from "@/shared/ui/input/Calendar"
 
+const inputSizeStyles = {
+  sm: "h-7 px-lg py-sm text-body-sm",
+  default: "h-8 px-lg py-md text-body-sm",
+} as const
+
+type InputSize = keyof typeof inputSizeStyles
+
 //#region TimeInput
 // ============================================================================
 
@@ -46,9 +53,10 @@ const isBrowserLocaleClockType24h = () => {
 type TimeSegmentProps = {
   segment: DateSegment
   state: DateFieldState
+  inputSize: InputSize
 }
 
-const TimeSegment = ({ segment, state }: TimeSegmentProps) => {
+const TimeSegment = ({ segment, state, inputSize }: TimeSegmentProps) => {
   const ref = React.useRef<HTMLDivElement>(null)
 
   const { segmentProps } = useDateSegment(segment, state, ref)
@@ -64,7 +72,9 @@ const TimeSegment = ({ segment, state }: TimeSegmentProps) => {
       ref={ref}
       className={cx(
         // base
-        "text-body-sm relative block w-full appearance-none rounded-md px-lg py-md text-left tabular-nums shadow-input transition outline-none selection:bg-surface-brand-light selection:text-foreground-primary",
+        "relative block w-full appearance-none rounded-md text-left tabular-nums shadow-input transition-shadow outline-none selection:bg-surface-brand-light selection:text-foreground-primary",
+        // size
+        inputSizeStyles[inputSize],
         // text color
         "text-foreground-primary",
         // background color
@@ -77,7 +87,7 @@ const TimeSegment = ({ segment, state }: TimeSegmentProps) => {
           "text-foreground-tertiary !w-fit border-none bg-transparent px-0 shadow-none":
             isDecorator,
           hidden: isSpace,
-          "bg-surface-neutral-secondary text-foreground-disable border-none shadow-input":
+          "bg-surface-neutral-primary text-foreground-disable border-none shadow-input cursor-not-allowed":
             state.isDisabled,
           "!text-foreground-tertiary !bg-transparent": !segment.isEditable,
         },
@@ -86,7 +96,7 @@ const TimeSegment = ({ segment, state }: TimeSegmentProps) => {
       <span
         aria-hidden="true"
         className={cx(
-          "text-foreground-secondary text-body-sm pointer-events-none block w-full text-left",
+          "text-foreground-tertiary text-body-sm pointer-events-none block w-full text-left",
           {
             hidden: !segment.isPlaceholder,
             "h-0": !segment.isPlaceholder,
@@ -103,10 +113,12 @@ const TimeSegment = ({ segment, state }: TimeSegmentProps) => {
 type TimeInputProps = Omit<
   AriaTimeFieldProps<TimeValue>,
   "label" | "shouldForceLeadingZeros" | "description" | "errorMessage"
->
+> & {
+  inputSize?: InputSize
+}
 
 const TimeInput = React.forwardRef<HTMLDivElement, TimeInputProps>(
-  ({ hourCycle, ...props }: TimeInputProps, ref) => {
+  ({ hourCycle, inputSize = "default", ...props }: TimeInputProps, ref) => {
     const innerRef = React.useRef<HTMLDivElement>(null)
 
     React.useImperativeHandle<HTMLDivElement | null, HTMLDivElement | null>(
@@ -141,7 +153,12 @@ const TimeInput = React.forwardRef<HTMLDivElement, TimeInputProps>(
         className="group/time-input inline-flex w-full gap-x-md"
       >
         {state.segments.map((segment, i) => (
-          <TimeSegment key={i} segment={segment} state={state} />
+          <TimeSegment
+            key={i}
+            segment={segment}
+            state={state}
+            inputSize={inputSize}
+          />
         ))}
       </div>
     )
@@ -155,18 +172,14 @@ TimeInput.displayName = "TimeInput"
 const triggerStyles = tv({
   base: [
     // base
-    "peer text-body-sm flex w-full cursor-pointer appearance-none items-center gap-x-md truncate rounded-md px-lg py-md transition-all outline-none shadow-input selection:bg-surface-brand-light selection:text-foreground-primary",
-    // background color
-    "bg-surface-neutral-primary",
-    // text color
-    "text-foreground-primary",
-    // placeholder color
-    "placeholder:text-foreground-tertiary",
+    "peer group/date-picker flex w-full cursor-pointer appearance-none items-center gap-x-md truncate rounded-md border-none shadow-input transition-shadow",
+    // background + text color
+    "bg-surface-neutral-primary text-foreground-primary",
     // hover
     "hover:bg-surface-neutral-secondary",
     // disabled
-    "disabled:pointer-events-none",
-    "disabled:bg-surface-neutral-secondary disabled:text-foreground-disable disabled:shadow-input",
+    "disabled:pointer-events-none disabled:cursor-not-allowed",
+    "disabled:bg-surface-neutral-primary disabled:text-foreground-disable disabled:shadow-input",
     // focus
     focusInput,
     // invalid (optional)
@@ -176,6 +189,13 @@ const triggerStyles = tv({
     hasError: {
       true: hasErrorInput,
     },
+    inputSize: {
+      sm: inputSizeStyles.sm,
+      default: inputSizeStyles.default,
+    },
+  },
+  defaultVariants: {
+    inputSize: "default",
   },
 })
 
@@ -186,22 +206,46 @@ interface TriggerProps
 
 const Trigger = React.forwardRef<HTMLButtonElement, TriggerProps>(
   (
-    { className, children, placeholder, hasError, ...props }: TriggerProps,
+    {
+      className,
+      children,
+      placeholder,
+      hasError,
+      inputSize = "default",
+      ...props
+    }: TriggerProps,
     forwardedRef,
   ) => {
+    const isDisabled = props.disabled
+
     return (
       <PopoverPrimitives.Trigger asChild>
         <button
           ref={forwardedRef}
-          className={cx(triggerStyles({ hasError }), className)}
+          className={cx(triggerStyles({ hasError, inputSize }), className)}
           {...props}
         >
-          <RiCalendar2Fill className="text-foreground-secondary size-5 shrink-0" />
-          <span className="text-content dark:text-content flex-1 overflow-hidden text-left text-ellipsis whitespace-nowrap">
+          <RiCalendar2Fill
+            className={cx(
+              "size-5 shrink-0",
+              isDisabled
+                ? "text-foreground-disable"
+                : hasError
+                  ? "text-foreground-danger"
+                  : "text-foreground-secondary group-focus-within/date-picker:text-foreground-primary",
+            )}
+          />
+          <span className="flex-1 overflow-hidden text-left text-ellipsis whitespace-nowrap">
             {children ? (
               children
             ) : placeholder ? (
-              <span className="text-content-placeholder dark:text-content-subtle">
+              <span
+                className={cx(
+                  isDisabled
+                    ? "text-foreground-disable"
+                    : "text-foreground-tertiary",
+                )}
+              >
                 {placeholder}
               </span>
             ) : null}
@@ -232,7 +276,7 @@ const CalendarPopover = React.forwardRef<
         onOpenAutoFocus={(e) => e.preventDefault()}
         className={cx(
           // base
-          "text-body-sm relative z-[100] w-fit rounded-lg border border-neutral-primary bg-surface-neutral-primary shadow-md",
+          "text-body-sm relative z-[100] w-fit overflow-hidden rounded-xl border border-neutral-secondary bg-surface-neutral-primary shadow-regular-md",
           // widths
           "max-w-[95vw] min-w-[calc(var(--radix-select-trigger-width)-2px)]",
           // transition
@@ -440,6 +484,7 @@ interface PickerProps extends CalendarProps {
   required?: boolean
   showTimePicker?: boolean
   placeholder?: string
+  inputSize?: InputSize
   enableYearNavigation?: boolean
   disableNavigation?: boolean
   hasError?: boolean
@@ -483,6 +528,7 @@ const SingleDatePicker = ({
   className,
   showTimePicker,
   placeholder = "Select date",
+  inputSize = "default",
   hasError,
   translations,
   enableYearNavigation = false,
@@ -613,6 +659,7 @@ const SingleDatePicker = ({
         disabled={disabled}
         className={className}
         hasError={hasError}
+        inputSize={inputSize}
         aria-required={props.required || props["aria-required"]}
         aria-invalid={props["aria-invalid"]}
         aria-label={props["aria-label"]}
@@ -627,7 +674,7 @@ const SingleDatePicker = ({
               <div
                 className={cx(
                   "relative flex h-14 w-full items-center sm:h-full sm:w-40",
-                  "border border-b sm:border-r sm:border-b-0 dark:border",
+                  "border border-neutral-secondary border-b sm:border-r sm:border-b-0",
                   "overflow-auto",
                 )}
               >
@@ -652,20 +699,22 @@ const SingleDatePicker = ({
                 enableYearNavigation={enableYearNavigation}
                 disableNavigation={disableNavigation}
                 initialFocus
+                className="border-none shadow-none rounded-none"
                 {...props}
               />
               {showTimePicker && (
-                <div className="border border-t p-3 dark:border">
+                <div className="border-t border-neutral-secondary p-3">
                   <TimeInput
                     aria-label="Time"
                     onChange={onTimeChange}
                     isDisabled={!date}
                     value={time}
                     isRequired={props.required}
+                    inputSize={inputSize}
                   />
                 </div>
               )}
-              <div className="flex items-center gap-x-2 border border-t p-3 dark:border">
+              <div className="flex items-center gap-x-2 border-t border-neutral-secondary bg-surface-neutral-primary p-3">
                 <Button
                   variant="secondary"
                   className="h-8 w-full"
@@ -713,6 +762,7 @@ const RangeDatePicker = ({
   locale = enUS,
   showTimePicker,
   placeholder = "Select date range",
+  inputSize = "default",
   hasError,
   translations,
   align = "center",
@@ -915,6 +965,7 @@ const RangeDatePicker = ({
         disabled={disabled}
         className={className}
         hasError={hasError}
+        inputSize={inputSize}
         aria-required={props.required || props["aria-required"]}
         aria-invalid={props["aria-invalid"]}
         aria-label={props["aria-label"]}
@@ -929,7 +980,7 @@ const RangeDatePicker = ({
               <div
                 className={cx(
                   "relative flex h-16 w-full items-center sm:h-full sm:w-40",
-                  "border border-b sm:border-r sm:border-b-0 dark:border",
+                  "border border-neutral-secondary border-b sm:border-r sm:border-b-0",
                   "overflow-auto",
                 )}
               >
@@ -955,14 +1006,14 @@ const RangeDatePicker = ({
                 enableYearNavigation={enableYearNavigation}
                 locale={locale}
                 initialFocus
+                className="border-none shadow-none rounded-none"
                 classNames={{
-                  months:
-                    "flex flex-row divide-x divide-zinc-200 dark:divide-zinc-800 overflow-x-auto",
+                  months: "flex flex-row gap-0 overflow-x-auto",
                 }}
                 {...props}
               />
               {showTimePicker && (
-                <div className="flex items-center justify-evenly gap-x-3 border border-t p-3 dark:border">
+                <div className="flex items-center justify-evenly gap-x-3 border-t border-neutral-secondary p-3">
                   <div className="flex flex-1 items-center gap-x-2">
                     <span className="text-content-subtle dark:text-content-subtle">
                       {translations?.start ?? "Start"}:
@@ -973,6 +1024,7 @@ const RangeDatePicker = ({
                       aria-label="Start date time"
                       isDisabled={!range?.from}
                       isRequired={props.required}
+                      inputSize={inputSize}
                     />
                   </div>
                   <RiSubtractFill className="text-content-placeholder size-4 shrink-0" />
@@ -986,11 +1038,12 @@ const RangeDatePicker = ({
                       aria-label="End date time"
                       isDisabled={!range?.to}
                       isRequired={props.required}
+                      inputSize={inputSize}
                     />
                   </div>
                 </div>
               )}
-              <div className="border border-t p-3 sm:flex sm:items-center sm:justify-between dark:border">
+              <div className="border-t border-neutral-secondary bg-surface-neutral-primary p-3 sm:flex sm:items-center sm:justify-between">
                 <p className="text-content dark:text-content tabular-nums">
                   <span className="text-content-subtle dark:text-content-subtle">
                     {translations?.range ?? "Range"}:

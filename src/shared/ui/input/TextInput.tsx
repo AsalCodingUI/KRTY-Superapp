@@ -15,9 +15,8 @@ import React from "react"
 import { cx } from "@/shared/lib/utils"
 
 const inputSizeStyles = {
-  sm: "h-8 px-lg py-md text-body-sm",
+  sm: "h-7 px-lg py-sm text-body-sm",
   default: "h-8 px-lg py-md text-body-sm",
-  lg: "h-10 px-xl py-lg text-body-md",
 } as const
 
 type InputSize = keyof typeof inputSizeStyles

@@ -7,7 +7,8 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue, Slider, TabNavigation, TabNavigationLink
+  SelectValue, Slider, TabNavigation, TabNavigationLink,
+  TextInput
 } from "@/shared/ui"
 import { RiAddLine, RiCalculatorLine, RiDeleteBinLine } from "@/shared/ui/lucide-icons"
 import { useMemo, useState } from "react"
