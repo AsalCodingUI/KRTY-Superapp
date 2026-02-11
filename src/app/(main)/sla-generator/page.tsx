@@ -1,4 +1,6 @@
 import { createClient } from "@/shared/api/supabase/server"
+import { canAccessSLAGenerator } from "@/shared/lib/roles"
+import { notFound } from "next/navigation"
 import SLAContainer from "./components/SLAContainer"
 import SLADashboard from "./components/SLADashboard"
 
@@ -9,6 +11,21 @@ export default async function SLAPage({
 }) {
   const resolvedSearchParams = await searchParams
   const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) {
+    notFound()
+  }
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role, job_title")
+    .eq("id", user.id)
+    .single()
+
+  if (!canAccessSLAGenerator(profile)) {
+    notFound()
+  }
   const mode = resolvedSearchParams.mode as string | undefined
   const id = resolvedSearchParams.id as string | undefined
 

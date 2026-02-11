@@ -3,7 +3,11 @@
 import { siteConfig } from "@/app/siteConfig"
 import { navigationConfig } from "@/shared/config/navigation"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
-import { canAccessProjectCalculator, hasRoleAccess } from "@/shared/lib/roles"
+import {
+  canAccessProjectCalculator,
+  canAccessSLAGenerator,
+  hasRoleAccess,
+} from "@/shared/lib/roles"
 import { cx, focusRing } from "@/shared/lib/utils"
 import {
   Button,
@@ -35,6 +39,9 @@ export default function MobileSidebar() {
     if (loading || !profile) return false
     if (item.name === "Project Calculator") {
       return canAccessProjectCalculator(profile)
+    }
+    if (item.name === "SLA Generator") {
+      return canAccessSLAGenerator(profile)
     }
     if (item.name === "Message") {
       return (
