@@ -3,27 +3,37 @@
 import { getQuarterFromDate } from "@/entities/performance/lib/kpiUtils"
 import { type Database } from "@/shared/types/database.types"
 import {
-  Avatar, Button, Dialog,
+  Avatar,
+  Button,
+  Checkbox,
+  ConfirmDialog,
+  Dialog,
   DialogBody,
   DialogCloseButton,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  Label, Select,
+  Label,
+  Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue, Textarea, TextInput
+  SelectValue,
+  Textarea,
+  TextInput,
 } from "@/shared/ui"
 import { RiDeleteBin6Line, RiUserAddLine } from "@/shared/ui/lucide-icons"
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"
 import {
   assignUserToProject,
   createProject,
   getAllUsers,
+  getProjectAssignments,
+  removeUserFromProject,
   updateProject,
+  updateProjectAssignmentLead,
 } from "../../actions/project-actions"
 import { QuarterBadge } from "./QuarterBadge"
 
@@ -46,6 +56,8 @@ type TeamMember = {
   userEmail: string
   userAvatar: string | null
   userJobTitle: string | null
+  assignmentId?: string
+  isLead?: boolean
 }
 
 interface ProjectFormProps {
@@ -67,17 +79,15 @@ export function ProjectForm({
   const [users, setUsers] = useState<User[]>([])
   const [selectedUserId, setSelectedUserId] = useState<string>("")
 
+  // Confirm Dialog State
+  const [confirmRemoveMember, setConfirmRemoveMember] = useState<{
+    userId: string
+  } | null>(null)
+
   const isEdit = !!project
   const previewQuarter = endDate ? getQuarterFromDate(endDate) : null
 
-  // Load users for assignment
-  useEffect(() => {
-    if (open && !isEdit) {
-      loadUsers()
-    }
-  }, [open, isEdit])
-
-  const loadUsers = async () => {
+  const loadUsers = useCallback(async () => {
     try {
       const result = await getAllUsers()
       if (result.success) {
@@ -86,9 +96,55 @@ export function ProjectForm({
     } catch (error) {
       console.error("Error loading users:", error)
     }
-  }
+  }, [])
 
-  const handleAddTeamMember = () => {
+  const loadAssignments = useCallback(async () => {
+    if (!project) return
+
+    try {
+      const result = await getProjectAssignments(project.id)
+      if (result.success) {
+        const assignments = (result.data || []) as Array<{
+          id: string
+          role_in_project: string
+          is_lead?: boolean | null
+          profiles: {
+            id: string
+            full_name: string | null
+            avatar_url: string | null
+            job_title: string | null
+          }
+        }>
+
+        setTeamMembers(
+          assignments.map((assignment) => ({
+            userId: assignment.profiles.id,
+            role: assignment.role_in_project as ProjectRole,
+            userName: assignment.profiles.full_name || "Unknown",
+            userEmail: "",
+            userAvatar: assignment.profiles.avatar_url,
+            userJobTitle: assignment.profiles.job_title,
+            assignmentId: assignment.id,
+            isLead: Boolean(assignment.is_lead),
+          })),
+        )
+      }
+    } catch (error) {
+      console.error("Error loading assignments:", error)
+    }
+  }, [project])
+
+  // Load users + assignments
+  useEffect(() => {
+    if (!open) return
+
+    loadUsers()
+    if (isEdit) {
+      loadAssignments()
+    }
+  }, [open, isEdit, loadAssignments, loadUsers])
+
+  const handleAddTeamMember = async () => {
     if (!selectedUserId) return
 
     const user = users.find((u) => u.id === selectedUserId)
@@ -110,8 +166,27 @@ export function ProjectForm({
 
     const projectRole = roleMapping[user.role || "employee"] || "UIX Designer"
 
-    setTeamMembers([
-      ...teamMembers,
+    if (isEdit && project) {
+      try {
+        const result = await assignUserToProject(
+          project.id,
+          user.id,
+          projectRole,
+        )
+        if (result.success) {
+          await loadAssignments()
+          setSelectedUserId("")
+          return
+        }
+      } catch (error) {
+        console.error("Error assigning user:", error)
+        toast.error("Gagal menambah")
+      }
+      return
+    }
+
+    setTeamMembers((prev) => [
+      ...prev,
       {
         userId: user.id,
         role: projectRole,
@@ -119,13 +194,69 @@ export function ProjectForm({
         userEmail: user.email,
         userAvatar: user.avatar_url,
         userJobTitle: user.job_title,
+        isLead: false,
       },
     ])
     setSelectedUserId("")
   }
 
-  const handleRemoveTeamMember = (userId: string) => {
-    setTeamMembers(teamMembers.filter((tm) => tm.userId !== userId))
+  const handleRemoveTeamMember = (member: TeamMember) => {
+    if (isEdit && member.assignmentId) {
+      setConfirmRemoveMember({ userId: member.userId })
+      return
+    }
+
+    setTeamMembers((prev) => prev.filter((tm) => tm.userId !== member.userId))
+  }
+
+  const handleToggleLead = async (member: TeamMember, nextValue: boolean) => {
+    if (isEdit && project && member.assignmentId) {
+      const result = await updateProjectAssignmentLead(
+        project.id,
+        member.assignmentId,
+        nextValue,
+      )
+      if (result.success) {
+        await loadAssignments()
+        window.dispatchEvent(new CustomEvent("lead-updated"))
+      } else {
+        toast.error("Gagal update lead")
+      }
+      return
+    }
+
+    setTeamMembers((prev) =>
+      prev.map((tm) => ({
+        ...tm,
+        isLead: tm.userId === member.userId ? nextValue : false,
+      })),
+    )
+  }
+
+  const confirmRemoveTeamMember = () => {
+    if (!confirmRemoveMember) return
+    if (isEdit && project) {
+      const member = teamMembers.find(
+        (tm) => tm.userId === confirmRemoveMember.userId,
+      )
+      if (member?.assignmentId) {
+        removeUserFromProject(member.assignmentId).then((result) => {
+          if (result.success) {
+            loadAssignments()
+            window.dispatchEvent(new CustomEvent("lead-updated"))
+          } else {
+            toast.error("Gagal menghapus")
+          }
+        })
+        setConfirmRemoveMember(null)
+        return
+      }
+    }
+
+    setTeamMembers((prev) =>
+      prev.filter((tm) => tm.userId !== confirmRemoveMember.userId),
+    )
+    setConfirmRemoveMember(null)
   }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -144,7 +275,13 @@ export function ProjectForm({
         if (!isEdit && teamMembers.length > 0 && result.data) {
           await Promise.all(
             teamMembers.map((member) =>
-              assignUserToProject(result.data.id, member.userId, member.role),
+              assignUserToProject(
+                result.data.id,
+                member.userId,
+                member.role,
+                undefined,
+                member.isLead,
+              ),
             ),
           )
         }
@@ -262,9 +399,8 @@ export function ProjectForm({
               </div>
             )}
 
-            {/* Team Assignment (Create Only) */}
-            {!isEdit && (
-              <div className="space-y-4">
+            {/* Team Assignment */}
+            <div className="space-y-4">
                 {/* Section Header */}
                 <div className="border-border border-t pt-4">
                   <h4 className="text-label-md text-content dark:text-content">
@@ -336,21 +472,31 @@ export function ProjectForm({
                             </p>
                           </div>
                         </div>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleRemoveTeamMember(member.userId)}
-                          className="text-foreground-danger hover:bg-surface-danger-light"
-                        >
-                          <RiDeleteBin6Line className="size-4" />
-                        </Button>
+                        <div className="flex items-center gap-3">
+                          <label className="flex items-center gap-2 text-body-xs text-foreground-secondary">
+                            <Checkbox
+                              checked={member.isLead}
+                              onCheckedChange={(checked) =>
+                                handleToggleLead(member, checked === true)
+                              }
+                            />
+                            Lead
+                          </label>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleRemoveTeamMember(member)}
+                            className="text-foreground-danger hover:bg-surface-danger-light"
+                          >
+                            <RiDeleteBin6Line className="size-4" />
+                          </Button>
+                        </div>
                       </div>
                     ))}
                   </div>
                 )}
               </div>
-            )}
           </DialogBody>
 
           <DialogFooter>
@@ -372,6 +518,17 @@ export function ProjectForm({
           </DialogFooter>
         </form>
       </DialogContent>
+
+      {/* Confirm Remove Member Dialog */}
+      <ConfirmDialog
+        open={!!confirmRemoveMember}
+        onOpenChange={() => setConfirmRemoveMember(null)}
+        onConfirm={confirmRemoveTeamMember}
+        title="Remove Team Member"
+        description="Are you sure you want to remove this member from the project team?"
+        confirmText="Remove"
+        variant="destructive"
+      />
     </Dialog>
   )
 }

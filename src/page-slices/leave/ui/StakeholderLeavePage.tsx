@@ -2,13 +2,14 @@
 
 import { AdminAttendanceHistoryList } from "@/app/(main)/attendance/components/AdminAttendanceHistoryList"
 import { createClient } from "@/shared/api/supabase/client"
+import { useTabRoute } from "@/shared/hooks/useTabRoute"
 import { canManageByRole } from "@/shared/lib/roles"
 import { Database } from "@/shared/types/database.types"
 import { TabNavigation, TabNavigationLink } from "@/shared/ui"
 import { DataTable } from "@/shared/ui/data/DataTable"
 import { RiCalendarCheckLine } from "@/shared/ui/lucide-icons"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import {
   adminColumns,
   LeaveRequestWithProfile,
@@ -52,11 +53,15 @@ export function StakeholderLeavePage({
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
-  const [activeTab, setActiveTab] = useState<
+  const { activeTab, setActiveTab } = useTabRoute<
     "approval" | "remaining" | "attendance"
-  >(
-    "attendance",
-  )
+  >({
+    basePath: "/leave",
+    tabs: ["attendance", "approval", "remaining"],
+    defaultTab: "attendance",
+    preserveQuery: true,
+    mode: "history",
+  })
 
   const canManage = canManageByRole(role)
 

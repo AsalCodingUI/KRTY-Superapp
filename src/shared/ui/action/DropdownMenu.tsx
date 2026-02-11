@@ -25,27 +25,36 @@ const DropdownMenuSubTrigger = React.forwardRef<
   <DropdownMenuPrimitives.SubTrigger
     ref={ref}
     className={cx(
-      "text-body-sm relative flex cursor-pointer items-center rounded-sm px-2 py-1.5 outline-hidden transition-colors select-none",
-      "text-foreground-primary",
-      "focus:bg-surface-neutral-secondary",
-      "data-[state=open]:bg-surface-neutral-secondary",
+      "group/item px-0 py-[2px] outline-none select-none",
+      "text-foreground-secondary",
+      "data-[disabled]:text-foreground-disable data-[disabled]:pointer-events-none",
       inset && "pl-8",
       className,
     )}
     {...props}
   >
-    {children}
-    <span className="ml-auto">
-      <svg
-        className="size-4"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-      >
-        <path d="M9 6l6 6-6 6" />
-      </svg>
-    </span>
+    <div
+      className={cx(
+        "flex h-[28px] w-full items-center gap-sm rounded-[8px] px-[8px] py-[4px] transition-colors",
+        "group-data-[highlighted]/item:bg-surface-neutral-secondary",
+        "group-data-[state=open]/item:bg-surface-neutral-secondary",
+      )}
+    >
+      <span className="text-label-sm text-foreground-secondary flex-1 truncate">
+        {children}
+      </span>
+      <span className="ml-auto">
+        <svg
+          className="size-[14px] text-foreground-secondary"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
+          <path d="M9 6l6 6-6 6" />
+        </svg>
+      </span>
+    </div>
   </DropdownMenuPrimitives.SubTrigger>
 ))
 DropdownMenuSubTrigger.displayName = "DropdownMenuSubTrigger"
@@ -59,8 +68,9 @@ const DropdownMenuContent = React.forwardRef<
       ref={ref}
       sideOffset={sideOffset}
       className={cx(
-        "shadow-md-border z-50 min-w-48 overflow-hidden rounded-md p-1",
-        "bg-surface",
+        "relative z-50 min-w-48 overflow-hidden rounded-md border p-[2px]",
+        "bg-surface-neutral-primary text-foreground-secondary border-neutral-primary",
+        "shadow-[0px_2px_4px_-3px_rgba(0,0,0,0.08),0px_10px_24px_-6px_rgba(0,0,0,0.08)]",
         "animate-in fade-in-80",
         className,
       )}
@@ -78,8 +88,9 @@ const DropdownMenuSubMenuContent = React.forwardRef<
     <DropdownMenuPrimitives.SubContent
       ref={ref}
       className={cx(
-        "shadow-md-border z-50 min-w-32 overflow-hidden rounded-md p-1",
-        "bg-surface",
+        "relative z-50 min-w-32 overflow-hidden rounded-md border p-[2px]",
+        "bg-surface-neutral-primary text-foreground-secondary border-neutral-primary",
+        "shadow-[0px_2px_4px_-3px_rgba(0,0,0,0.08),0px_10px_24px_-6px_rgba(0,0,0,0.08)]",
         className,
       )}
       {...props}
@@ -95,14 +106,24 @@ const DropdownMenuItem = React.forwardRef<
   <DropdownMenuPrimitives.Item
     ref={ref}
     className={cx(
-      "text-body-sm relative flex cursor-pointer items-center rounded-sm px-2 py-1.5 outline-hidden transition-colors select-none",
-      "text-foreground-primary",
-      "focus:bg-surface-neutral-secondary",
-      "data-disabled:pointer-events-none data-disabled:opacity-50",
+      "group/item px-0 py-[2px] outline-none select-none",
+      "text-foreground-secondary",
+      "data-[disabled]:text-foreground-disable data-[disabled]:pointer-events-none",
       className,
     )}
     {...props}
-  />
+  >
+    <div
+      className={cx(
+        "flex h-[28px] w-full items-center gap-sm rounded-[8px] px-[8px] py-[4px] transition-colors",
+        "group-data-[highlighted]/item:bg-surface-neutral-secondary",
+      )}
+    >
+      <span className="text-label-sm text-foreground-secondary flex-1 truncate">
+        {props.children}
+      </span>
+    </div>
+  </DropdownMenuPrimitives.Item>
 ))
 DropdownMenuItem.displayName = "DropdownMenuItem"
 
@@ -113,20 +134,27 @@ const DropdownMenuRadioItem = React.forwardRef<
   <DropdownMenuPrimitives.RadioItem
     ref={ref}
     className={cx(
-      "text-body-sm relative flex cursor-pointer items-center rounded-sm py-1.5 pr-2 pl-8 outline-hidden transition-colors select-none",
-      "text-foreground-primary",
-      "focus:bg-surface-neutral-secondary",
-      "data-disabled:pointer-events-none data-disabled:opacity-50",
+      "group/item px-0 py-[2px] outline-none select-none",
+      "text-foreground-secondary",
+      "data-[disabled]:text-foreground-disable data-[disabled]:pointer-events-none",
       className,
     )}
     {...props}
   >
-    <span className="absolute left-2 flex size-4 items-center justify-center">
+    <div
+      className={cx(
+        "flex h-[28px] w-full items-center gap-sm rounded-[8px] px-[8px] py-[4px] transition-colors",
+        "group-data-[highlighted]/item:bg-surface-neutral-secondary",
+        "group-data-[state=checked]/item:bg-surface-neutral-secondary",
+      )}
+    >
+      <span className="text-label-sm text-foreground-secondary flex-1 truncate">
+        {children}
+      </span>
       <DropdownMenuPrimitives.ItemIndicator>
-        <RiCheckLine className="size-4" />
+        <RiCheckLine className="text-foreground-secondary size-[14px] shrink-0" />
       </DropdownMenuPrimitives.ItemIndicator>
-    </span>
-    {children}
+    </div>
   </DropdownMenuPrimitives.RadioItem>
 ))
 DropdownMenuRadioItem.displayName = "DropdownMenuRadioItem"
@@ -137,7 +165,7 @@ const DropdownMenuSeparator = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DropdownMenuPrimitives.Separator
     ref={ref}
-    className={cx("bg-border-default -mx-1 my-1 h-px", className)}
+    className={cx("bg-border-neutral-primary mx-sm my-xs h-px", className)}
     {...props}
   />
 ))
@@ -149,7 +177,7 @@ const DropdownMenuLabel = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DropdownMenuPrimitives.Label
     ref={ref}
-    className={cx("text-label-md px-2 py-1.5", className)}
+    className={cx("text-label-xs px-xl py-sm text-foreground-tertiary", className)}
     {...props}
   />
 ))

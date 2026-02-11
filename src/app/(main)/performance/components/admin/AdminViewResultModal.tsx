@@ -143,7 +143,7 @@ export function AdminViewResultModal({
         </DialogHeader>
 
         <DialogBody className="space-y-6">
-          <p className="text-body-sm text-content-subtle">
+          <p className="text-body-sm text-foreground-secondary">
             {employee.jobTitle} • {displayQuarter}
           </p>
           {summaryData ? (
@@ -155,7 +155,7 @@ export function AdminViewResultModal({
                       <span className="font-medium">Executive Summary</span>
                     </AccordionTrigger>
                     <AccordionContent>
-                      <p className="text-content-subtle text-body-sm whitespace-pre-line">
+                      <p className="text-foreground-secondary text-body-sm whitespace-pre-line">
                         {summaryData.additional_feedback ||
                           "No summary available."}
                       </p>
@@ -167,7 +167,7 @@ export function AdminViewResultModal({
                       <span className="font-medium">Keep Doing</span>
                     </AccordionTrigger>
                     <AccordionContent>
-                      <p className="text-content-subtle text-body-sm whitespace-pre-line">
+                      <p className="text-foreground-secondary text-body-sm whitespace-pre-line">
                         {summaryData.feedback_continue || "No data available."}
                       </p>
                     </AccordionContent>
@@ -178,7 +178,7 @@ export function AdminViewResultModal({
                       <span className="font-medium">Start Doing</span>
                     </AccordionTrigger>
                     <AccordionContent>
-                      <p className="text-content-subtle text-body-sm whitespace-pre-line">
+                      <p className="text-foreground-secondary text-body-sm whitespace-pre-line">
                         {summaryData.feedback_start || "No data available."}
                       </p>
                     </AccordionContent>
@@ -189,7 +189,7 @@ export function AdminViewResultModal({
                       <span className="font-medium">Stop Doing</span>
                     </AccordionTrigger>
                     <AccordionContent>
-                      <p className="text-content-subtle text-body-sm whitespace-pre-line">
+                      <p className="text-foreground-secondary text-body-sm whitespace-pre-line">
                         {summaryData.feedback_stop || "No data available."}
                       </p>
                     </AccordionContent>
@@ -222,7 +222,7 @@ export function AdminViewResultModal({
                     />
                   </div>
                   {skillRatings && (
-                    <div className="border-border space-y-3 border-t pt-4">
+                    <div className="border-neutral-primary space-y-3 border-t pt-4">
                       <div className="flex items-center justify-between">
                         <span className="text-label-sm text-foreground-secondary">
                           Leadership

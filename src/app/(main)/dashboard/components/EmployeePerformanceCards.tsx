@@ -42,19 +42,23 @@ export function EmployeePerformanceCards({
         <Card className="p-4 transition-all hover:shadow-md">
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <p className="text-label-md text-content-subtle">SLA Project</p>
+              <p className="text-label-md text-foreground-secondary">
+                SLA Project
+              </p>
               <div className="mt-2 flex items-baseline gap-2">
-                <span className="text-display-xxs text-content">
+                <span className="text-display-xxs text-foreground-primary">
                   {slaScore !== null ? `${slaScore}%` : "—"}
                 </span>
               </div>
-              <p className="text-body-xs text-content-subtle mt-1">{quarter}</p>
+              <p className="text-body-xs text-foreground-secondary mt-1">
+                {quarter}
+              </p>
             </div>
-            <div className="bg-muted text-content-subtle flex h-10 w-10 items-center justify-center rounded-lg">
+            <div className="bg-surface-neutral-secondary text-foreground-secondary flex h-10 w-10 items-center justify-center rounded-lg">
               <RiBarChartBoxLine className="size-5" />
             </div>
           </div>
-          <div className="border-border mt-4 border-t pt-3">
+          <div className="border-neutral-primary mt-4 border-t pt-3">
             <Badge variant={slaData.variant}>{slaData.label}</Badge>
           </div>
         </Card>
@@ -65,19 +69,23 @@ export function EmployeePerformanceCards({
         <Card className="p-4 transition-all hover:shadow-md">
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <p className="text-label-md text-content-subtle">360 Review</p>
+              <p className="text-label-md text-foreground-secondary">
+                360 Review
+              </p>
               <div className="mt-2 flex items-baseline gap-2">
-                <span className="text-display-xxs text-content">
+                <span className="text-display-xxs text-foreground-primary">
                   {reviewScore !== null ? `${reviewScore}%` : "—"}
                 </span>
               </div>
-              <p className="text-body-xs text-content-subtle mt-1">{quarter}</p>
+              <p className="text-body-xs text-foreground-secondary mt-1">
+                {quarter}
+              </p>
             </div>
-            <div className="bg-muted text-content-subtle flex h-10 w-10 items-center justify-center rounded-lg">
+            <div className="bg-surface-neutral-secondary text-foreground-secondary flex h-10 w-10 items-center justify-center rounded-lg">
               <RiGroupLine className="size-5" />
             </div>
           </div>
-          <div className="border-border mt-4 border-t pt-3">
+          <div className="border-neutral-primary mt-4 border-t pt-3">
             <Badge variant={reviewData.variant}>{reviewData.label}</Badge>
           </div>
         </Card>
@@ -88,19 +96,23 @@ export function EmployeePerformanceCards({
         <Card className="p-4 transition-all hover:shadow-md">
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <p className="text-label-md text-content-subtle">Work Quality</p>
+              <p className="text-label-md text-foreground-secondary">
+                Work Quality
+              </p>
               <div className="mt-2 flex items-baseline gap-2">
-                <span className="text-display-xxs text-content">
+                <span className="text-display-xxs text-foreground-primary">
                   {workQualityScore !== null ? `${workQualityScore}%` : "—"}
                 </span>
               </div>
-              <p className="text-body-xs text-content-subtle mt-1">{quarter}</p>
+              <p className="text-body-xs text-foreground-secondary mt-1">
+                {quarter}
+              </p>
             </div>
-            <div className="bg-muted text-content-subtle flex h-10 w-10 items-center justify-center rounded-lg">
+            <div className="bg-surface-neutral-secondary text-foreground-secondary flex h-10 w-10 items-center justify-center rounded-lg">
               <RiStarLine className="size-5" />
             </div>
           </div>
-          <div className="border-border mt-4 border-t pt-3">
+          <div className="border-neutral-primary mt-4 border-t pt-3">
             <Badge variant={workQualityData.variant}>
               {workQualityData.label}
             </Badge>

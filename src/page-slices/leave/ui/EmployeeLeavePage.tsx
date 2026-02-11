@@ -34,6 +34,7 @@ import {
 import { format } from "date-fns"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
+import { useTabRoute } from "@/shared/hooks/useTabRoute"
 import { columns } from "./components/Columns"
 import { LeaveRequestModal } from "./components/LeaveRequestModal"
 import { LeaveRules } from "./components/LeaveRules"
@@ -66,9 +67,13 @@ export function EmployeeLeavePage({
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingItem, setEditingItem] = useState<LeaveRequest | null>(null)
-  const [activeTab, setActiveTab] = useState<"attendance" | "leave">(
-    "attendance",
-  )
+  const { activeTab, setActiveTab } = useTabRoute<"attendance" | "leave">({
+    basePath: "/leave",
+    tabs: ["attendance", "leave"],
+    defaultTab: "attendance",
+    preserveQuery: true,
+    mode: "history",
+  })
   const [currentTime, setCurrentTime] = useState<Date | null>(null)
   const [logs, setLogs] = useState<AttendanceLog[]>(attendanceLogs)
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)

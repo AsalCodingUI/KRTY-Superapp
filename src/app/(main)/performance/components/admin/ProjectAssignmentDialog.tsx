@@ -205,8 +205,8 @@ export function ProjectAssignmentDialog({
 
         <DialogBody className="flex-1 space-y-6 overflow-y-auto">
           {/* Add New Assignment Section */}
-          <div className="border-border bg-muted dark:bg-surface/50 space-y-4 rounded-lg border p-4">
-            <h4 className="text-label-md text-content dark:text-content">
+          <div className="border-neutral-primary bg-surface-neutral-secondary dark:bg-surface/50 space-y-4 rounded-lg border p-4">
+            <h4 className="text-label-md text-foreground-primary">
               Add New Assignment
             </h4>
 
@@ -251,13 +251,13 @@ export function ProjectAssignmentDialog({
 
           {/* Current Assignments */}
           <div className="space-y-3">
-            <h4 className="text-label-md text-content dark:text-content">
+            <h4 className="text-label-md text-foreground-primary">
               Current Team ({assignments.length})
             </h4>
 
             {assignments.length === 0 ? (
-              <div className="border-input dark:border-border-subtle rounded-lg border border-dashed p-8 text-center">
-                <p className="text-body-sm text-content-subtle dark:text-content-placeholder">
+              <div className="border-input dark:border-neutral-primary-subtle rounded-lg border border-dashed p-8 text-center">
+                <p className="text-body-sm text-foreground-secondary">
                   No team members assigned yet. Add your first team member
                   above.
                 </p>
@@ -267,7 +267,7 @@ export function ProjectAssignmentDialog({
                 {assignments.map((assignment) => (
                   <div
                     key={assignment.id}
-                    className="border-border bg-surface flex items-center justify-between rounded-lg border p-3"
+                    className="border-neutral-primary bg-surface flex items-center justify-between rounded-lg border p-3"
                   >
                     <div className="flex items-center gap-3">
                       <Avatar
@@ -275,10 +275,10 @@ export function ProjectAssignmentDialog({
                         alt={assignment.profiles.full_name || "User"}
                       />
                       <div>
-                        <p className="text-content dark:text-content font-medium">
+                        <p className="text-foreground-primary font-medium">
                           {assignment.profiles.full_name || "Unknown User"}
                         </p>
-                        <p className="text-body-sm text-content-subtle dark:text-content-placeholder">
+                        <p className="text-body-sm text-foreground-secondary">
                           {assignment.profiles.job_title || "No job title"}
                         </p>
                       </div>
@@ -286,7 +286,7 @@ export function ProjectAssignmentDialog({
 
                     <div className="flex items-center gap-4">
                       <div className="text-right">
-                        <p className="text-label-md text-content dark:text-content">
+                        <p className="text-label-md text-foreground-primary">
                           {assignment.role_in_project}
                         </p>
                       </div>

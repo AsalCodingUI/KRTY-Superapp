@@ -38,7 +38,7 @@ export default function GeneralSettingsPage() {
 
   if (loading) {
     return (
-      <div className="text-content-subtle text-body-sm p-4">
+      <div className="text-foreground-secondary text-body-sm p-4">
         Loading profile...
       </div>
     )
@@ -53,11 +53,11 @@ export default function GeneralSettingsPage() {
             <div>
               <h2
                 id="personal-information"
-                className="text-content dark:text-content scroll-mt-10 font-semibold"
+                className="text-foreground-primary scroll-mt-10 font-semibold"
               >
                 Personal information
               </h2>
-              <p className="text-content-subtle text-body-sm mt-1">
+              <p className="text-foreground-secondary text-body-sm mt-1">
                 Information associated with your profile.
               </p>
             </div>
@@ -105,7 +105,7 @@ export default function GeneralSettingsPage() {
 
                 {/* Change Password Button */}
                 <div className="col-span-full mt-4 flex flex-col items-end gap-2">
-                  <p className="text-content-subtle text-body-xs">
+                  <p className="text-foreground-secondary text-body-xs">
                     To change your password, click the button below to receive a
                     reset link via email.
                   </p>

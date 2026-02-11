@@ -156,11 +156,11 @@ export const MilestonesForm = ({ data, onChange }: MilestonesFormProps) => {
 
   return (
     <div>
-      <div className="border-border-border mb-4 border-b pb-4">
-        <h3 className="text-md text-content dark:text-content font-semibold">
+      <div className="border-neutral-primary-border mb-4 border-b pb-4">
+        <h3 className="text-md text-foreground-primary dark:text-foreground-primary font-semibold">
           Milestones & Timeline
         </h3>
-        <p className="text-label-md text-content-muted">
+        <p className="text-label-md text-foreground-tertiary">
           Define deliverables and timeline for each milestone.
         </p>
       </div>

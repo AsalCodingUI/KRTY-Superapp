@@ -3,6 +3,7 @@
 import { DataTable, TabNavigation, TabNavigationLink } from "@/shared/ui"
 import { Database } from "@/shared/types/database.types"
 import { createClient } from "@/shared/api/supabase/client"
+import { RiCalendarLine } from "@/shared/ui/lucide-icons"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
 import {
@@ -86,74 +87,80 @@ export default function LeaveAdminPage({
   }
 
   return (
-    <>
-      <div className="mb-6">
-        <h1 className="text-content dark:text-content text-heading-md sm:text-heading-lg">
+    <div className="flex flex-col">
+      <div className="flex items-center gap-2 rounded-xxl px-5 pt-4 pb-3">
+        <RiCalendarLine className="size-4 text-foreground-secondary" />
+        <p className="text-label-md text-foreground-primary">
           Leave Approval Center
-        </h1>
-
-        <TabNavigation className="mt-6">
-          <TabNavigationLink
-            active={activeTab === "approval"}
-            onClick={() => setActiveTab("approval")}
-            className="cursor-pointer"
-          >
-            Approvals
-          </TabNavigationLink>
-          <TabNavigationLink
-            active={activeTab === "remaining"}
-            onClick={() => setActiveTab("remaining")}
-            className="cursor-pointer"
-          >
-            Remaining Leave
-          </TabNavigationLink>
-        </TabNavigation>
+        </p>
       </div>
 
-      {activeTab === "approval" ? (
-        <>
-          <section className="mb-6">
-            <LeaveAdminStats requests={requests} />
-          </section>
+      <div className="bg-surface-neutral-primary flex flex-col rounded-xxl">
+        <div className="space-y-6 p-5">
+          <TabNavigation>
+            <TabNavigationLink
+              active={activeTab === "approval"}
+              onClick={() => setActiveTab("approval")}
+              className="cursor-pointer"
+            >
+              Approvals
+            </TabNavigationLink>
+            <TabNavigationLink
+              active={activeTab === "remaining"}
+              onClick={() => setActiveTab("remaining")}
+              className="cursor-pointer"
+            >
+              Remaining Leave
+            </TabNavigationLink>
+          </TabNavigation>
 
-          <section>
-            <DataTable
-              data={requests}
-              columns={adminColumns(handleApprove, handleReject, {
-                canSelect: true,
-                canManage: true,
-              })}
-              showExport={false}
-              showViewOptions={false}
-              showFilterbar={false}
-              onCreate={undefined}
-              manualPagination={true}
-              pageCount={pageCount}
-              pageIndex={page - 1}
-              onPageChange={handlePageChange}
-              onDelete={async (ids) => {
-                if (!confirm(`Delete ${ids.length} leave request(s)?`)) return
-                const { error } = await supabase
-                  .from("leave_requests")
-                  .delete()
-                  .in("id", ids as number[])
-                if (error) {
-                  alert("Error deleting: " + error.message)
-                } else {
-                  router.refresh()
-                }
-              }}
-              showTableWrapper={true}
-              tableTitle="Leave Approvals"
-              tableDescription="Review and approve employee leave requests"
-            />
-          </section>
-        </>
-      ) : (
-        // Kirim data profiles yang sudah realtime dari parent
-        <RemainingLeaveView data={profiles} />
-      )}
-    </>
+          {activeTab === "approval" ? (
+            <>
+              <section>
+                <LeaveAdminStats requests={requests} />
+              </section>
+
+              <section>
+                <DataTable
+                  data={requests}
+                  columns={adminColumns(handleApprove, handleReject, {
+                    canSelect: true,
+                    canManage: true,
+                  })}
+                  showExport={false}
+                  showViewOptions={false}
+                  showFilterbar={false}
+                  onCreate={undefined}
+                  manualPagination={true}
+                  pageCount={pageCount}
+                  pageIndex={page - 1}
+                  onPageChange={handlePageChange}
+                  onDelete={async (ids) => {
+                    if (!confirm(`Delete ${ids.length} leave request(s)?`))
+                      return
+                    const { error } = await supabase
+                      .from("leave_requests")
+                      .delete()
+                      .in("id", ids as number[])
+                    if (error) {
+                      alert("Error deleting: " + error.message)
+                    } else {
+                      router.refresh()
+                    }
+                  }}
+                  showTableWrapper={true}
+                  tableTitle="Leave Approvals"
+                  tableDescription="Review and approve employee leave requests"
+                />
+              </section>
+            </>
+          ) : (
+            // Kirim data profiles yang sudah realtime dari parent
+            <RemainingLeaveView data={profiles} />
+          )}
+        </div>
+      </div>
+    </div>
   )
 }
 

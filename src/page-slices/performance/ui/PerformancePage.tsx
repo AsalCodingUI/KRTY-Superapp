@@ -6,6 +6,7 @@ import {
 } from "@/app/(main)/performance/actions/employee-kpi-actions"
 import { createClient } from "@/shared/api/supabase/client"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
+import { useTabRoute } from "@/shared/hooks/useTabRoute"
 import { canManageByRole } from "@/shared/lib/roles"
 import {
   Badge,
@@ -31,11 +32,7 @@ const KPITab = dynamic(
       (mod) => mod.KPITab,
     ),
   {
-    loading: () => (
-      <div className="flex items-center justify-center py-12">
-        <div className="border-primary h-8 w-8 animate-spin rounded-full border-b-2"></div>
-      </div>
-    ),
+    loading: () => null,
   },
 )
 
@@ -45,11 +42,7 @@ const Review360Tab = dynamic(
       (mod) => mod.Review360Tab,
     ),
   {
-    loading: () => (
-      <div className="flex items-center justify-center py-12">
-        <div className="border-primary h-8 w-8 animate-spin rounded-full border-b-2"></div>
-      </div>
-    ),
+    loading: () => null,
   },
 )
 
@@ -59,11 +52,7 @@ const OneOnOneMeetingTab = dynamic(
       (mod) => mod.OneOnOneMeetingTab,
     ),
   {
-    loading: () => (
-      <div className="flex items-center justify-center py-12">
-        <div className="border-primary h-8 w-8 animate-spin rounded-full border-b-2"></div>
-      </div>
-    ),
+    loading: () => null,
   },
 )
 
@@ -73,11 +62,7 @@ const ListProjectTab = dynamic(
       (mod) => mod.ListProjectTab,
     ),
   {
-    loading: () => (
-      <div className="flex items-center justify-center py-12">
-        <div className="border-primary h-8 w-8 animate-spin rounded-full border-b-2"></div>
-      </div>
-    ),
+    loading: () => null,
   },
 )
 
@@ -87,11 +72,17 @@ const WorkQualityTab = dynamic(
       (mod) => mod.WorkQualityTab,
     ),
   {
-    loading: () => (
-      <div className="flex items-center justify-center py-12">
-        <div className="border-primary h-8 w-8 animate-spin rounded-full border-b-2"></div>
-      </div>
+    loading: () => null,
+  },
+)
+
+const LeadReviewTab = dynamic(
+  () =>
+    import("@/app/(main)/performance/components/lead/LeadReviewTab").then(
+      (mod) => mod.LeadReviewTab,
     ),
+  {
+    loading: () => null,
   },
 )
 
@@ -99,11 +90,24 @@ type TabType =
   | "kpi"
   | "360-review"
   | "one-on-one"
+  | "lead-review"
   | "list-project"
   | "competency-library"
 
 export function PerformancePage() {
-  const [activeTab, setActiveTab] = useState<TabType>("kpi")
+  const { activeTab, setActiveTab } = useTabRoute<TabType>({
+    basePath: "/performance",
+    tabs: [
+      "kpi",
+      "360-review",
+      "one-on-one",
+      "lead-review",
+      "list-project",
+      "competency-library",
+    ],
+    defaultTab: "kpi",
+    mode: "history",
+  })
   const [selectedQuarter, setSelectedQuarter] =
     useState<QuarterFilterValue>("2025-Q1")
   const [statsData, setStatsData] = useState<{
@@ -126,10 +130,20 @@ export function PerformancePage() {
   const [employeeReviewLoading, setEmployeeReviewLoading] = useState(true)
   const [isCycleActive, setIsCycleActive] = useState(false)
   const [activeCycleRange, setActiveCycleRange] = useState<string | null>(null)
+  const [isLead, setIsLead] = useState(false)
   const { profile } = useUserProfile()
   const supabase = createClient()
 
   const isStakeholder = canManageByRole(profile?.role)
+
+  useEffect(() => {
+    if (
+      !isStakeholder &&
+      (activeTab === "list-project" || activeTab === "competency-library")
+    ) {
+      setActiveTab("kpi")
+    }
+  }, [activeTab, isStakeholder, setActiveTab])
   const availableYears = [2025, 2026, 2027]
   const selectedYear = (() => {
     if (selectedQuarter === "All") return availableYears[0]
@@ -198,6 +212,34 @@ export function PerformancePage() {
       isMounted = false
     }
   }, [selectedQuarter])
+
+  useEffect(() => {
+    let isMounted = true
+    const checkLead = async () => {
+      if (!profile?.id) {
+        if (isMounted) setIsLead(false)
+        return
+      }
+      const { count, error } = await supabase
+        .from("project_assignments")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", profile.id)
+        .eq("is_lead", true)
+
+      if (!isMounted) return
+      if (error) {
+        console.error("Error checking lead assignments:", error)
+        setIsLead(false)
+        return
+      }
+      setIsLead(Boolean(count && count > 0))
+    }
+
+    checkLead()
+    return () => {
+      isMounted = false
+    }
+  }, [profile?.id, supabase])
 
   useEffect(() => {
     const checkCycle = async () => {
@@ -401,6 +443,15 @@ export function PerformancePage() {
                   Jadwal 1:1
                 </TabNavigationLink>
 
+                {isLead && (
+                  <TabNavigationLink
+                    active={activeTab === "lead-review"}
+                    onClick={() => setActiveTab("lead-review")}
+                  >
+                    Team KPI
+                  </TabNavigationLink>
+                )}
+
                 <TabNavigationLink
                   active={activeTab === "list-project"}
                   onClick={() => setActiveTab("list-project")}
@@ -484,6 +535,15 @@ export function PerformancePage() {
                 >
                   Jadwal 1:1
                 </TabNavigationLink>
+
+                {isLead && (
+                  <TabNavigationLink
+                    active={activeTab === "lead-review"}
+                    onClick={() => setActiveTab("lead-review")}
+                  >
+                    Team KPI
+                  </TabNavigationLink>
+                )}
               </TabNavigation>
 
               <div className="flex items-center gap-2 pb-2">
@@ -527,6 +587,7 @@ export function PerformancePage() {
           {activeTab === "one-on-one" && (
             <OneOnOneMeetingTab selectedQuarter={selectedQuarter} />
           )}
+          {activeTab === "lead-review" && isLead && <LeadReviewTab />}
           {activeTab === "list-project" && isStakeholder && <ListProjectTab />}
           {activeTab === "competency-library" && isStakeholder && (
             <WorkQualityTab />

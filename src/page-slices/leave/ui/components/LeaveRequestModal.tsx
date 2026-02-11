@@ -178,7 +178,7 @@ export function LeaveRequestModal({
               id="name"
               value={userProfile.full_name || ""}
               disabled
-              className="bg-muted mt-2"
+              className="bg-surface-neutral-secondary mt-2"
             />
           </div>
           <div>
@@ -217,7 +217,7 @@ export function LeaveRequestModal({
               }
             />
             {formData.start_date && formData.end_date && (
-              <p className="text-body-xs text-content-subtle mt-2">
+              <p className="text-body-xs text-foreground-secondary mt-2">
                 Durasi:{" "}
                 {calculateBusinessDays(formData.start_date, formData.end_date)}{" "}
                 hari kerja.
@@ -256,7 +256,7 @@ export function LeaveRequestModal({
                   </span>
                 )}
               </div>
-              <p className="text-body-xs text-content-placeholder mt-1">
+              <p className="text-body-xs text-foreground-tertiary mt-1">
                 Max 1MB (Auto Compressed).
               </p>
             </div>
@@ -270,7 +270,7 @@ export function LeaveRequestModal({
         // SCROLL DI PINDAH KE SINI (Parent Container)
         <div className="mt-6 max-h-[60vh] overflow-y-auto pr-2">
           <LeaveRules />
-          <div className="bg-muted dark:bg-surface mt-6 flex items-start space-x-3 rounded-md border p-3 dark:border">
+          <div className="bg-surface-neutral-secondary dark:bg-surface mt-6 flex items-start space-x-3 rounded-md border p-3 dark:border">
             <Checkbox
               id="terms"
               checked={isTermsAccepted}
@@ -281,11 +281,11 @@ export function LeaveRequestModal({
             <div className="grid gap-1.5 leading-none">
               <label
                 htmlFor="terms"
-                className="text-label-md text-content dark:text-content cursor-pointer peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                className="text-label-md text-foreground-primary dark:text-foreground-primary cursor-pointer peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
               >
                 I agree to the terms and conditions
               </label>
-              <p className="text-body-xs text-content-subtle">
+              <p className="text-body-xs text-foreground-secondary">
                 By checking this box, I confirm that I have read and understood
                 the leave policy above.
               </p>

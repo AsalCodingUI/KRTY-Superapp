@@ -96,17 +96,17 @@ export function AttendanceHistoryList({
               <div className="flex w-full items-center justify-between pr-4">
                 <div className="flex flex-col items-start sm:flex-row sm:items-center sm:gap-3">
                   <span
-                    className="text-content dark:text-content font-semibold"
+                    className="text-foreground-primary font-semibold"
                     suppressHydrationWarning
                   >
                     {format(dateObj, "eeee, dd MMMM yyyy")}
                     {isCurrentDay && (
-                      <span className="text-body-xs ml-2 text-blue-600 dark:text-blue-400">
+                      <span className="text-body-xs ml-2 text-foreground-brand-primary">
                         (Today)
                       </span>
                     )}
                   </span>
-                  <span className="text-body-xs text-content-subtle dark:text-content-subtle">
+                  <span className="text-body-xs text-foreground-secondary">
                     {dailyLogs.length} Session{dailyLogs.length > 1 ? "s" : ""}
                   </span>
                 </div>
@@ -115,7 +115,7 @@ export function AttendanceHistoryList({
                   {isDayActive ? (
                     <Badge variant="success">Active</Badge>
                   ) : (
-                    <span className="text-label-md text-content-subtle dark:text-content-placeholder tabular-nums">
+                    <span className="text-label-md text-foreground-secondary tabular-nums">
                       {formatDuration(totalDailySeconds)}
                     </span>
                   )}

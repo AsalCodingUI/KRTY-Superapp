@@ -60,13 +60,13 @@ export function AdminPerformanceDistribution({
 
   return (
     <Card>
-      <h3 className="text-content text-heading-md mb-4">
+      <h3 className="text-foreground-primary text-heading-md mb-4">
         Performance Distribution
       </h3>
 
       {total === 0 ? (
         <div className="py-8 text-center">
-          <p className="text-content-subtle text-body-sm">
+          <p className="text-foreground-secondary text-body-sm">
             No performance data available
           </p>
         </div>
@@ -120,14 +120,14 @@ export function AdminPerformanceDistribution({
                         { "--chart-color": item.color } as React.CSSProperties
                       }
                     />
-                    <span className="text-content text-label-md">
+                    <span className="text-foreground-primary text-label-md">
                       {item.count}
                     </span>
                   </div>
-                  <div className="text-content-subtle text-body-xs">
+                  <div className="text-foreground-secondary text-body-xs">
                     {item.name}
                   </div>
-                  <div className="text-content-placeholder text-body-xs">
+                  <div className="text-foreground-tertiary text-body-xs">
                     {percentage}%
                   </div>
                 </div>

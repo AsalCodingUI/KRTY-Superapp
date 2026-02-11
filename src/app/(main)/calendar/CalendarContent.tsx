@@ -9,6 +9,7 @@ import {
   useCalendarContext,
   type CalendarEvent,
   type EventCategory,
+  type ViewMode,
 } from "@/widgets/event-calendar"
 import { useGoogleCalendar } from "@/widgets/event-calendar/ui/hooks/use-google-calendar"
 import {
@@ -23,8 +24,10 @@ import {
   startOfWeek,
 } from "date-fns"
 import dynamic from "next/dynamic"
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo } from "react"
 import { toast } from "sonner"
+import { useTabRoute } from "@/shared/hooks/useTabRoute"
+import useSWR from "swr"
 
 const EventCalendar = dynamic(
   () =>
@@ -33,7 +36,7 @@ const EventCalendar = dynamic(
     ),
   {
     ssr: false,
-    loading: () => <CalendarSkeleton />,
+    loading: () => null,
   },
 )
 
@@ -48,6 +51,7 @@ function CalendarContent({
   handleEventDelete,
   isStakeholder,
   categories,
+  blockedGoogleEventIds,
 }: {
   events: CalendarEvent[]
   loading: boolean
@@ -58,6 +62,7 @@ function CalendarContent({
   handleEventDelete: (eventId: string) => Promise<void>
   isStakeholder: boolean
   categories: EventCategory[]
+  blockedGoogleEventIds?: string[]
 }) {
   const {
     currentDate,
@@ -67,9 +72,14 @@ function CalendarContent({
     goToPrevious,
     setViewMode,
   } = useCalendarContext()
+  const { activeTab: viewTab, setActiveTab: setViewTab } =
+    useTabRoute<"month" | "week" | "day" | "agenda">({
+      basePath: "/calendar",
+      tabs: ["month", "week", "day", "agenda"],
+      defaultTab: "week",
+      mode: "history",
+    })
   const { isConnected } = useGoogleCalendar()
-  const [googleEvents, setGoogleEvents] = useState<CalendarEvent[]>([])
-  const [googleLoading, setGoogleLoading] = useState(false)
 
   const viewRange = useMemo(() => {
     switch (viewMode) {
@@ -102,45 +112,61 @@ function CalendarContent({
   }, [currentDate, viewMode])
 
   useEffect(() => {
-    if (!isConnected) {
-      setGoogleEvents([])
-      return
+    if (viewTab && viewTab !== viewMode) {
+      setViewMode(viewTab)
     }
+  }, [viewTab, viewMode, setViewMode])
 
-    const controller = new AbortController()
-    const fetchGoogleEvents = async () => {
-      try {
-        setGoogleLoading(true)
-        const params = new URLSearchParams({
-          start: viewRange.start.toISOString(),
-          end: viewRange.end.toISOString(),
-        })
-        const response = await fetch(`/api/calendar/events?${params.toString()}`, {
-          signal: controller.signal,
-        })
-        if (!response.ok) {
-          throw new Error("Failed to fetch Google Calendar events")
-        }
-        const data = await response.json()
-        const mapped = (data.events || []).map((event: CalendarEvent) => ({
-          ...event,
-          start: new Date(event.start),
-          end: new Date(event.end),
-        }))
-        setGoogleEvents(mapped)
-      } catch (error) {
-        if ((error as Error).name !== "AbortError") {
-          toast.error("Gagal memuat Google Calendar")
-        }
-      } finally {
-        setGoogleLoading(false)
+  const handleViewChange = (nextView: ViewMode) => {
+    if (nextView !== viewMode) {
+      setViewMode(nextView)
+    }
+    if (nextView !== viewTab) {
+      setViewTab(nextView)
+    }
+  }
+
+  const { data: googleEventsRaw = [], isLoading: googleLoading } = useSWR<
+    CalendarEvent[]
+  >(
+    isConnected
+      ? [
+          "google-events",
+          viewRange.start.toISOString(),
+          viewRange.end.toISOString(),
+        ]
+      : null,
+    async () => {
+      const params = new URLSearchParams({
+        start: viewRange.start.toISOString(),
+        end: viewRange.end.toISOString(),
+      })
+      const response = await fetch(
+        `/api/calendar/events?${params.toString()}`,
+      )
+      if (!response.ok) {
+        throw new Error("Failed to fetch Google Calendar events")
       }
-    }
+      const data = await response.json()
+      return (data.events || []).map((event: CalendarEvent) => ({
+        ...event,
+        start: new Date(event.start),
+        end: new Date(event.end),
+      }))
+    },
+    {
+      revalidateOnFocus: false,
+      onError: () => toast.error("Gagal memuat Google Calendar"),
+    },
+  )
 
-    fetchGoogleEvents()
-
-    return () => controller.abort()
-  }, [isConnected, viewRange.start, viewRange.end])
+  const googleEvents = useMemo(() => {
+    if (!blockedGoogleEventIds?.length) return googleEventsRaw
+    const blockedSet = new Set(blockedGoogleEventIds)
+    return googleEventsRaw.filter(
+      (event) => !event.googleEventId || !blockedSet.has(event.googleEventId),
+    )
+  }, [googleEventsRaw, blockedGoogleEventIds])
 
   const allEvents = useMemo(() => {
     if (googleEvents.length === 0) return events
@@ -218,6 +244,7 @@ function CalendarContent({
           <CalendarToolbar
             onAddEvent={() => setDialogOpen(true)}
             showAddEvent={isStakeholder}
+            onViewChange={handleViewChange}
           />
         </div>
 

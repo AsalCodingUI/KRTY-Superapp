@@ -21,8 +21,9 @@ import {
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { canManageByRole } from "@/shared/lib/roles"
 import { format } from "date-fns"
-import { useEffect, useMemo, useState } from "react"
+import { useMemo, useState } from "react"
 import { toast } from "sonner"
+import useSWR from "swr"
 
 type OneOnOneSlot = {
   id: string
@@ -57,8 +58,6 @@ export function OneOnOneMeetingTab({
 }) {
   const { profile } = useUserProfile()
   const isAdmin = canManageByRole(profile?.role)
-  const [slots, setSlots] = useState<OneOnOneSlot[]>([])
-  const [loading, setLoading] = useState(true)
   const [date, setDate] = useState("")
   const [startTime, setStartTime] = useState("09:00")
   const [endTime, setEndTime] = useState("09:30")
@@ -73,25 +72,28 @@ export function OneOnOneMeetingTab({
   const [rescheduleId, setRescheduleId] = useState<string | null>(null)
   const [cancelId, setCancelId] = useState<string | null>(null)
 
-  const refreshSlots = async () => {
-    setLoading(true)
-    try {
+  const {
+    data: slotResponse,
+    isLoading,
+    mutate,
+  } = useSWR(
+    ["one-on-one-slots", selectedQuarter],
+    async () => {
       const response = await fetch(
         `/api/one-on-one/slots?cycle=${encodeURIComponent(selectedQuarter)}`,
       )
-      const data = (await response.json()) as { slots: OneOnOneSlot[] }
-      setSlots(data.slots || [])
-    } catch {
-      toast.error("Gagal memuat slot 1:1")
-    } finally {
-      setLoading(false)
-    }
-  }
+      if (!response.ok) {
+        throw new Error("fetch_failed")
+      }
+      return (await response.json()) as { slots: OneOnOneSlot[] }
+    },
+    {
+      revalidateOnFocus: false,
+      onError: () => toast.error("Gagal memuat slot 1:1"),
+    },
+  )
 
-  useEffect(() => {
-    refreshSlots()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedQuarter])
+  const slots = useMemo(() => slotResponse?.slots || [], [slotResponse])
 
   const availableSlots = useMemo(
     () => slots.filter((slot) => slot.status === "open"),
@@ -128,7 +130,7 @@ export function OneOnOneMeetingTab({
 
       toast.success("Slot berhasil ditambahkan")
       setDate("")
-      refreshSlots()
+      await mutate()
     } catch {
       toast.error("Gagal menambahkan slot")
     } finally {
@@ -150,7 +152,7 @@ export function OneOnOneMeetingTab({
       }
 
       toast.success("Slot berhasil dibooking")
-      refreshSlots()
+      await mutate()
     } catch {
       toast.error("Slot sudah diambil orang lain")
     } finally {
@@ -174,7 +176,7 @@ export function OneOnOneMeetingTab({
       toast.success(
         action === "cancel" ? "Slot dibatalkan" : "Booking dibatalkan",
       )
-      refreshSlots()
+      await mutate()
     } catch {
       toast.error("Gagal membatalkan")
     } finally {
@@ -196,7 +198,7 @@ export function OneOnOneMeetingTab({
       }
 
       toast.success("Slot dihapus")
-      refreshSlots()
+      await mutate()
     } catch {
       toast.error("Gagal menghapus slot")
     } finally {
@@ -231,7 +233,7 @@ export function OneOnOneMeetingTab({
 
       toast.success("Jadwal berhasil diubah")
       setEditingSlotId(null)
-      refreshSlots()
+      await mutate()
     } catch {
       toast.error("Gagal mengubah jadwal")
     } finally {
@@ -420,7 +422,7 @@ export function OneOnOneMeetingTab({
             {((isAdmin ? slots : availableSlots).length === 0) && (
               <TableRow>
                 <TableCell colSpan={5}>
-                  {loading ? "Memuat..." : "Belum ada slot"}
+                  {isLoading ? "Memuat..." : "Belum ada slot"}
                 </TableCell>
               </TableRow>
             )}

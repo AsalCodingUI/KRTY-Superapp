@@ -20,7 +20,6 @@ export function SidebarThemeToggle() {
       <SegmentedControl
         value={theme === "dark" ? "dark" : "light"}
         onChange={setTheme}
-        className="w-full"
         items={[
           {
             value: "light",
@@ -38,4 +37,5 @@ export function SidebarThemeToggle() {
       />
     </div>
   )
+
 }

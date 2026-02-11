@@ -21,7 +21,8 @@ import {
 import { TableSection } from "@/shared/ui"
 import { Constants, type Database } from "@/shared/types/database.types"
 import { RiDeleteBin6Line, RiEdit2Line, RiStarLine } from "@/shared/ui/lucide-icons"
-import { useEffect, useState } from "react"
+import { useState } from "react"
+import useSWR from "swr"
 import { toast } from "sonner"
 import {
   deleteCompetency,
@@ -44,51 +45,25 @@ const getRoleBadgeColor = (role: string): string => {
     "Web Developer": "bg-chart-2/15 text-chart-2",
     "Project Manager": "bg-chart-5/15 text-chart-5",
   }
-  return colors[role] || "bg-muted text-content-subtle"
+  return colors[role] || "bg-surface-neutral-secondary text-foreground-secondary"
 }
 
 export function WorkQualityTab() {
   const [selectedRole, setSelectedRole] = useState<string>("All")
-  const [competencies, setCompetencies] = useState<Competency[]>([])
-  const [loading, setLoading] = useState(true)
   const [formOpen, setFormOpen] = useState(false)
   const [selectedCompetency, setSelectedCompetency] =
     useState<Competency | null>(null)
 
-  useEffect(() => {
-    const loadCompetencies = async () => {
-      setLoading(true)
-      try {
-        const result = await getCompetencies(
-          selectedRole === "All" ? undefined : selectedRole,
-        )
-        if (result.success) {
-          setCompetencies(result.data)
-        }
-      } catch (error) {
-        console.error("Error loading competencies:", error)
-      } finally {
-        setLoading(false)
-      }
-    }
-    loadCompetencies()
-  }, [selectedRole])
+  const { data: competencyResult, isLoading, mutate } = useSWR(
+    ["competencies", selectedRole],
+    () =>
+      getCompetencies(selectedRole === "All" ? undefined : selectedRole),
+    { revalidateOnFocus: false },
+  )
 
-  const loadCompetencies = async () => {
-    setLoading(true)
-    try {
-      const result = await getCompetencies(
-        selectedRole === "All" ? undefined : selectedRole,
-      )
-      if (result.success) {
-        setCompetencies(result.data)
-      }
-    } catch (error) {
-      console.error("Error loading competencies:", error)
-    } finally {
-      setLoading(false)
-    }
-  }
+  const competencies: Competency[] = competencyResult?.success
+    ? competencyResult.data
+    : []
 
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`Are you sure you want to delete the competency "${name}"?`))
@@ -96,7 +71,7 @@ export function WorkQualityTab() {
 
     const result = await deleteCompetency(id)
     if (result.success) {
-      loadCompetencies()
+      mutate()
     } else {
       toast.error("Gagal hapus")
     }
@@ -113,7 +88,7 @@ export function WorkQualityTab() {
   }
 
   const handleFormSuccess = () => {
-    loadCompetencies()
+    mutate()
   }
 
   return (
@@ -146,8 +121,8 @@ export function WorkQualityTab() {
           </Button>
         }
       >
-        {loading ? (
-          <div className="text-body-sm text-content-subtle p-8 text-center">
+        {isLoading ? (
+          <div className="text-body-sm text-foreground-secondary p-8 text-center">
             Loading competencies...
           </div>
         ) : competencies.length === 0 ? (
@@ -236,15 +211,15 @@ export function WorkQualityTab() {
 
       {/* INFO BOX */}
       <div className="bg-primary/10 rounded-lg p-4">
-        <h4 className="text-label-md text-primary">
+        <h4 className="text-label-md text-foreground-brand-primary">
           How Work Quality Assessment Works
         </h4>
-        <p className="text-label-md text-primary/80 mt-2">
+        <p className="text-label-md text-foreground-brand-primary/80 mt-2">
           Competencies defined here will automatically appear as checklists when
           admins grade employee projects. The competencies shown are filtered by
           the employee&apos;s role in the project.
         </p>
-        <p className="text-body-sm text-primary/80 mt-2">
+        <p className="text-body-sm text-foreground-brand-primary/80 mt-2">
           <strong>Example:</strong> If an employee is assigned as &quot;UIX
           Designer&quot; on a project, only competencies for &quot;UIX
           Designer&quot; role will appear in their Work Quality checklist.

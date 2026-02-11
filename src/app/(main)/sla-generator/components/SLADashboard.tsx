@@ -10,6 +10,7 @@ import { createClient } from "@/shared/api/supabase/client"
 import { DataTable } from "@/shared/ui"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { canManageByRole } from "@/shared/lib/roles"
+import { useTabRoute } from "@/shared/hooks/useTabRoute"
 
 // Removing dependency on Database definitions which are missing
 // type SLA = Database["public"]["Tables"]["slas"]["Row"] & { archived_at: string | null };
@@ -17,7 +18,12 @@ import { canManageByRole } from "@/shared/lib/roles"
 export default function SLADashboard({ slas }: { slas: SLA[] }) {
   const router = useRouter()
   const supabase = createClient()
-  const [activeTab, setActiveTab] = useState<"active" | "archive">("active")
+  const { activeTab, setActiveTab } = useTabRoute<"active" | "archive">({
+    basePath: "/sla-generator",
+    tabs: ["active", "archive"],
+    defaultTab: "active",
+    mode: "history",
+  })
   const [slaToArchive, setSlaToArchive] = useState<string | null>(null)
   const [slaToDelete, setSlaToDelete] = useState<string | null>(null)
   const { profile } = useUserProfile()
@@ -114,7 +120,7 @@ export default function SLADashboard({ slas }: { slas: SLA[] }) {
 
   return (
     <>
-      <h1 className="text-heading-md text-content sm:text-heading-lg dark:text-content">
+      <h1 className="text-heading-md text-foreground-primary sm:text-heading-lg dark:text-foreground-primary">
         SLA Generator
       </h1>
 

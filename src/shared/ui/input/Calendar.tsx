@@ -143,18 +143,19 @@ const Calendar = ({
           focusRing,
         ),
         day_today: "font-medium text-foreground-primary",
-        day_selected: "rounded-md bg-surface-brand text-foreground-on-color",
+        day_selected:
+          "rounded-md bg-surface-brand text-foreground-on-color hover:bg-surface-brand",
         day_disabled:
-          "text-foreground-disable disabled:hover:bg-transparent",
-        day_outside: "text-foreground-disable",
+          "text-foreground-disable disabled:hover:bg-transparent hover:bg-transparent",
+        day_outside: "text-foreground-disable hover:bg-transparent",
         day_range_middle: cx(
           "!rounded-none",
           "aria-selected:!bg-surface-brand-light aria-selected:!text-foreground-secondary",
         ),
         day_range_start:
-          "rounded-md border border-border-brand !bg-transparent !text-foreground-secondary",
+          "rounded-md border border-border-brand !bg-transparent !text-foreground-secondary hover:bg-transparent",
         day_range_end:
-          "rounded-md !bg-surface-brand !text-foreground-on-color",
+          "rounded-md !bg-surface-brand !text-foreground-on-color hover:!bg-surface-brand",
         day_hidden: "invisible",
         ...classNames,
       }}

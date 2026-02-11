@@ -49,7 +49,6 @@ function CalendarContent({
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [dialogInitialDate, setDialogInitialDate] = useState<Date | undefined>()
-  const [isViewMode, setIsViewMode] = useState(false)
 
   // Handle external dialog trigger (from toolbar button)
   const isDialogOpen = dialogOpen || !!(externalDialogOpen && !selectedEvent)
@@ -57,7 +56,6 @@ function CalendarContent({
   const handleDialogClose = (open: boolean) => {
     setDialogOpen(open)
     if (!open) {
-      setIsViewMode(false) // Reset view mode when closing
       if (onExternalDialogClose) {
         onExternalDialogClose()
       }
@@ -72,14 +70,12 @@ function CalendarContent({
   const handleEventClick = (event: CalendarEvent) => {
     // if (!canEdit) return; // Allow viewing details in read-only mode
     setSelectedEvent(event)
-    setIsViewMode(true) // Open in view mode when clicking an event
     setDialogOpen(true)
   }
 
   const handleSlotClick = (date: Date) => {
     if (!canEdit) return
     setSelectedEvent(null)
-    setIsViewMode(false) // Create mode
     setDialogInitialDate(date)
     setDialogOpen(true)
   }
@@ -87,7 +83,6 @@ function CalendarContent({
   const handleDayClick = (date: Date) => {
     if (!canEdit) return
     setSelectedEvent(null)
-    setIsViewMode(false) // Create mode
     setDialogInitialDate(date)
     setDialogOpen(true)
   }
@@ -102,7 +97,6 @@ function CalendarContent({
       await onEventAdd(eventData)
     }
     setDialogOpen(false)
-    setIsViewMode(false)
   }
 
   return (
@@ -154,7 +148,7 @@ function CalendarContent({
         initialDate={dialogInitialDate}
         onDelete={onEventDelete}
         onSave={handleSave}
-        readOnly={!canEdit || !!selectedEvent?.googleEventId || isViewMode}
+        readOnly={!canEdit || !!selectedEvent?.googleEventId}
       />
     </>
   )

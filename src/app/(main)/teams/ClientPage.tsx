@@ -10,6 +10,7 @@ import { canManageByRole } from "@/shared/lib/roles"
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { DataTable } from "@/shared/ui"
+import { RiGroupLine } from "@/shared/ui/lucide-icons"
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"]
 
@@ -45,64 +46,68 @@ export function TeamsClientPage({
   const pageCount = Math.ceil(totalCount / pageSize)
 
   return (
-    <>
-      <div className="sm:flex sm:items-center sm:justify-between">
-        <h1 className="text-heading-md text-content sm:text-heading-lg dark:text-content">
-          Team Members
-        </h1>
+    <div className="flex flex-col">
+      <div className="flex items-center gap-2 rounded-xxl px-5 pt-4 pb-3">
+        <RiGroupLine className="size-4 text-foreground-secondary" />
+        <p className="text-label-md text-foreground-primary">Team Members</p>
       </div>
 
-      {/* POSISI BARU: DI BAWAH JUDUL */}
-      <section className="mt-6">
-        <TeamStats data={initialData} />
-      </section>
+      <div className="bg-surface-neutral-primary flex flex-col rounded-xxl">
+        <div className="space-y-6 p-5">
+          {/* POSISI BARU: DI BAWAH JUDUL */}
+          <section>
+            <TeamStats data={initialData} />
+          </section>
 
-      <div className="mt-4 sm:mt-6 lg:mt-6">
-        <DataTable
-          data={initialData}
-          columns={createTeamColumns({ canSelect: canManage })}
-          manualPagination={true}
-          pageCount={pageCount}
-          pageIndex={page - 1} // Convert 1-index to 0-index
-          onPageChange={handlePageChange}
-          enableSelection={canManage}
-          onCreate={
-            canManage
-              ? () => {
-                  setEditingItem(null)
-                  setIsAddOpen(true)
-                }
-              : undefined
-          }
-          onEdit={
-            canManage
-              ? (item) => {
-                  setEditingItem(item)
-                  setIsAddOpen(true)
-                }
-              : undefined
-          }
-          onDelete={
-            canManage
-              ? async (ids) => {
-                  if (!confirm(`Delete ${ids.length} team member(s)?`)) return
-                  const supabase = createClient()
-                  const { error } = await supabase
-                    .from("profiles")
-                    .delete()
-                    .in("id", ids as string[])
-                  if (error) {
-                    alert("Error deleting: " + error.message)
-                  } else {
-                    router.refresh()
-                  }
-                }
-              : undefined
-          }
-          showTableWrapper={true}
-          tableTitle="Team Members"
-          tableDescription="Manage your team members and their roles"
-        />
+          <div>
+            <DataTable
+              data={initialData}
+              columns={createTeamColumns({ canSelect: canManage })}
+              manualPagination={true}
+              pageCount={pageCount}
+              pageIndex={page - 1} // Convert 1-index to 0-index
+              onPageChange={handlePageChange}
+              enableSelection={canManage}
+              onCreate={
+                canManage
+                  ? () => {
+                      setEditingItem(null)
+                      setIsAddOpen(true)
+                    }
+                  : undefined
+              }
+              onEdit={
+                canManage
+                  ? (item) => {
+                      setEditingItem(item)
+                      setIsAddOpen(true)
+                    }
+                  : undefined
+              }
+              onDelete={
+                canManage
+                  ? async (ids) => {
+                      if (!confirm(`Delete ${ids.length} team member(s)?`))
+                        return
+                      const supabase = createClient()
+                      const { error } = await supabase
+                        .from("profiles")
+                        .delete()
+                        .in("id", ids as string[])
+                      if (error) {
+                        alert("Error deleting: " + error.message)
+                      } else {
+                        router.refresh()
+                      }
+                    }
+                  : undefined
+              }
+              showTableWrapper={true}
+              tableTitle="Team Members"
+              tableDescription="Manage your team members and their roles"
+            />
+          </div>
+        </div>
       </div>
 
       {canManage && (
@@ -112,6 +117,6 @@ export function TeamsClientPage({
           initialData={editingItem}
         />
       )}
-    </>
+    </div>
   )
 }

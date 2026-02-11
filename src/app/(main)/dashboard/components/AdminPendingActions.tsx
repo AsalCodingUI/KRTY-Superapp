@@ -50,15 +50,17 @@ export function AdminPendingActions({
       <Card>
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <RiFileTextLine className="text-primary size-5" />
-            <h3 className="text-heading-md text-content">Pending Reviews</h3>
+            <RiFileTextLine className="text-foreground-brand-primary size-5" />
+            <h3 className="text-heading-md text-foreground-primary">
+              Pending Reviews
+            </h3>
           </div>
           <Badge variant="warning">{pendingReviews.length}</Badge>
         </div>
 
         {pendingReviews.length === 0 ? (
           <div className="py-8 text-center">
-            <p className="text-body-sm text-content-subtle">
+            <p className="text-body-sm text-foreground-secondary">
               All reviews completed! 🎉
             </p>
           </div>
@@ -70,7 +72,7 @@ export function AdminPendingActions({
                   key={`${review.employee_id}-${review.cycle_id}`}
                   href={`/performance?tab=360review`}
                 >
-                  <div className="border-border bg-surface-secondary hover:border-primary flex items-center justify-between rounded-lg border p-3 transition-all hover:shadow-sm">
+                  <div className="border-neutral-primary bg-surface-neutral-secondary hover:border-foreground-brand-primary flex items-center justify-between rounded-lg border p-3 transition-all hover:shadow-sm">
                     <div className="flex items-center gap-3">
                       <Avatar
                         size="sm"
@@ -78,10 +80,10 @@ export function AdminPendingActions({
                         src={review.employee_avatar || undefined}
                       />
                       <div>
-                        <h4 className="text-content text-label-md">
+                        <h4 className="text-foreground-primary text-label-md">
                           {review.employee_name}
                         </h4>
-                        <p className="text-body-xs text-content-subtle">
+                        <p className="text-body-xs text-foreground-secondary">
                           {review.employee_job_title}
                         </p>
                       </div>
@@ -90,7 +92,7 @@ export function AdminPendingActions({
                       <Badge variant="info" className="text-body-xs">
                         {review.cycle_name}
                       </Badge>
-                      <RiArrowRightLine className="text-content-subtle size-4" />
+                      <RiArrowRightLine className="text-foreground-secondary size-4" />
                     </div>
                   </div>
                 </Link>
@@ -114,15 +116,17 @@ export function AdminPendingActions({
       <Card>
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <RiCalendarEventLine className="text-primary size-5" />
-            <h3 className="text-heading-md text-content">Leave Approvals</h3>
+            <RiCalendarEventLine className="text-foreground-brand-primary size-5" />
+            <h3 className="text-heading-md text-foreground-primary">
+              Leave Approvals
+            </h3>
           </div>
           <Badge variant="warning">{pendingLeaveApprovals.length}</Badge>
         </div>
 
         {pendingLeaveApprovals.length === 0 ? (
           <div className="py-8 text-center">
-            <p className="text-body-sm text-content-subtle">
+            <p className="text-body-sm text-foreground-secondary">
               No pending leave requests
             </p>
           </div>
@@ -138,7 +142,7 @@ export function AdminPendingActions({
 
                 return (
                   <Link key={leave.id} href="/leave">
-                    <div className="border-border bg-surface-secondary hover:border-primary rounded-lg border p-3 transition-all hover:shadow-sm">
+                    <div className="border-neutral-primary bg-surface-neutral-secondary hover:border-foreground-brand-primary rounded-lg border p-3 transition-all hover:shadow-sm">
                       <div className="mb-2 flex items-start justify-between">
                         <div className="flex items-center gap-3">
                           <Avatar
@@ -147,10 +151,10 @@ export function AdminPendingActions({
                             src={leave.user_avatar || undefined}
                           />
                           <div>
-                            <h4 className="text-content text-label-md">
+                            <h4 className="text-foreground-primary text-label-md">
                               {leave.user_name}
                             </h4>
-                            <p className="text-body-xs text-content-subtle">
+                            <p className="text-body-xs text-foreground-secondary">
                               {leave.leave_type} • {leave.days_requested} days
                             </p>
                           </div>
@@ -161,12 +165,12 @@ export function AdminPendingActions({
                           </Badge>
                         )}
                       </div>
-                      <div className="text-body-xs text-content-subtle ml-11">
+                      <div className="text-body-xs text-foreground-secondary ml-11">
                         {format(new Date(leave.start_date), "MMM d")} -{" "}
                         {format(new Date(leave.end_date), "MMM d, yyyy")}
                       </div>
                       {leave.reason && (
-                        <div className="text-body-xs text-content-subtle mt-1 ml-11 line-clamp-1">
+                        <div className="text-body-xs text-foreground-secondary mt-1 ml-11 line-clamp-1">
                           {leave.reason}
                         </div>
                       )}

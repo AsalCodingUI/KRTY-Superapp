@@ -118,15 +118,15 @@ const SelectContent = React.forwardRef<
         ref={forwardedRef}
         className={cx(
           // base
-          "relative z-50 overflow-hidden rounded-md border",
+          "relative z-50 overflow-hidden rounded-md border p-[2px]",
           // widths
           "max-w-[95vw] min-w-[calc(var(--radix-select-trigger-width)-2px)]",
           // heights
           "max-h-[--radix-select-content-available-height]",
           // background color
           "bg-surface-neutral-primary",
-          // text color
-          "text-foreground-secondary",
+          // text color + size
+          "text-label-sm text-foreground-secondary",
           // border color
           "border-neutral-primary",
           // shadow
@@ -146,9 +146,9 @@ const SelectContent = React.forwardRef<
         <SelectScrollUpButton />
         <SelectPrimitives.Viewport
           className={cx(
-            "py-xs",
+            "max-h-[--radix-select-content-available-height] overflow-y-auto py-xs",
             position === "popper" &&
-              "h-[var(--radix-select-trigger-height)] w-full min-w-[calc(var(--radix-select-trigger-width))]",
+              "w-full min-w-[calc(var(--radix-select-trigger-width))]",
           )}
         >
           {children}
@@ -191,9 +191,9 @@ const SelectItem = React.forwardRef<
       ref={forwardedRef}
       className={cx(
         // base
-        "group/item px-sm py-xs outline-none",
-        // text color
-        "text-foreground-secondary",
+        "group/item px-0 py-[2px] outline-none",
+          // text color + size
+          "text-label-sm text-foreground-secondary",
         // disabled
         "data-[disabled]:text-foreground-disable data-[disabled]:pointer-events-none",
         className,
@@ -202,7 +202,7 @@ const SelectItem = React.forwardRef<
     >
       <div
         className={cx(
-          "flex w-full items-center gap-lg rounded-md px-xl py-lg transition-colors",
+          "flex h-[28px] w-full items-center gap-sm rounded-[8px] px-[8px] py-[4px] transition-colors",
           "group-data-[highlighted]/item:bg-surface-neutral-secondary",
           "group-data-[state=checked]/item:bg-surface-neutral-secondary",
         )}
@@ -217,7 +217,7 @@ const SelectItem = React.forwardRef<
         </SelectPrimitives.ItemText>
         <SelectPrimitives.ItemIndicator>
           <RiCheckLine
-            className="text-foreground-secondary size-4 shrink-0"
+            className="text-foreground-secondary size-[14px] shrink-0"
             aria-hidden="true"
           />
         </SelectPrimitives.ItemIndicator>
@@ -239,9 +239,9 @@ const SelectItemPeriod = React.forwardRef<
       ref={forwardedRef}
       className={cx(
         // base
-        "group/item px-sm py-xs outline-none",
-        // text color
-        "text-foreground-secondary",
+        "group/item px-0 py-[2px] outline-none",
+          // text color + size
+          "text-label-sm text-foreground-secondary",
         // disabled
         "data-[disabled]:text-foreground-disable data-[disabled]:pointer-events-none",
         className,
@@ -250,7 +250,7 @@ const SelectItemPeriod = React.forwardRef<
     >
       <div
         className={cx(
-          "flex w-full items-center gap-lg rounded-md px-xl py-lg transition-colors",
+          "flex h-[28px] w-full items-center gap-sm rounded-[8px] px-[8px] py-[4px] transition-colors",
           "group-data-[highlighted]/item:bg-surface-neutral-secondary",
           "group-data-[state=checked]/item:bg-surface-neutral-secondary",
         )}
@@ -270,7 +270,7 @@ const SelectItemPeriod = React.forwardRef<
         </div>
         <SelectPrimitives.ItemIndicator>
           <RiCheckLine
-            className="text-foreground-secondary size-4 shrink-0"
+            className="text-foreground-secondary size-[14px] shrink-0"
             aria-hidden="true"
           />
         </SelectPrimitives.ItemIndicator>

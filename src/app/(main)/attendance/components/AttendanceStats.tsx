@@ -124,18 +124,18 @@ export function AttendanceStats({
         </div>
       )}
 
-      <div className="mb-8 grid gap-6 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-md sm:grid-cols-2">
         {/* CARD 1: CLOCK ACTION */}
-        <Card className="flex h-full flex-col justify-between">
+        <Card className="flex h-full flex-col justify-between px-4 py-3">
           <div>
-            <dt className="text-label-md text-content-subtle dark:text-content-subtle">
+            <dt className="text-label-md text-foreground-secondary">
               Current Time
             </dt>
             <dd className="mt-2 flex items-baseline gap-2">
-              <span className="text-display-xxs text-content dark:text-content tabular-nums">
+              <span className="text-display-xxs text-foreground-primary tabular-nums">
                 {currentTime ? format(currentTime, "HH:mm:ss") : "--:--:--"}
               </span>
-              <span className="text-body-sm text-content-subtle dark:text-content-subtle">
+              <span className="text-body-sm text-foreground-secondary">
                 {currentTime ? format(currentTime, "EEEE, dd MMM") : ""}
               </span>
             </dd>
@@ -150,7 +150,7 @@ export function AttendanceStats({
                     <Button asChild size="sm" variant="secondary" type="button">
                       <button>
                         {getStatusLabel(selectedStatus)}
-                        <RiArrowDownSLine className="text-content-subtle ml-2 size-4 shrink-0" />
+                        <RiArrowDownSLine className="text-foreground-secondary ml-2 size-4 shrink-0" />
                       </button>
                     </Button>
                   </DropdownMenuTrigger>
@@ -216,24 +216,24 @@ export function AttendanceStats({
         </Card>
 
         {/* CARD 2: SESSION INFO */}
-        <Card className="h-full">
-          <h3 className="text-label-md text-content-subtle dark:text-content-subtle">
+        <Card className="h-full px-4 py-3">
+          <h3 className="text-label-md text-foreground-secondary">
             Session Info
           </h3>
-          <dl className="text-body-sm mt-4 divide-y divide-zinc-200 dark:divide-zinc-800">
+          <dl className="text-body-sm mt-4 divide-y divide-neutral-primary">
             <div className="flex items-center justify-between py-2">
-              <dt className="text-content-subtle dark:text-content-subtle">
+              <dt className="text-foreground-secondary">
                 First Clock In
               </dt>
-              <dd className="text-content dark:text-content font-medium">
+              <dd className="text-foreground-primary font-medium">
                 {activeSession ? formatTime(activeSession.clock_in) : "--:--"}
               </dd>
             </div>
             <div className="flex items-center justify-between py-2">
-              <dt className="text-content-subtle dark:text-content-subtle">
+              <dt className="text-foreground-secondary">
                 Working Duration
               </dt>
-              <dd className="text-content dark:text-content font-medium tabular-nums">
+              <dd className="text-foreground-primary font-medium tabular-nums">
                 {activeSession && currentTime
                   ? (() => {
                       const start = new Date(activeSession.clock_in).getTime()
@@ -263,10 +263,10 @@ export function AttendanceStats({
               </dd>
             </div>
             <div className="flex items-center justify-between py-2">
-              <dt className="text-content-subtle dark:text-content-subtle">
+              <dt className="text-foreground-secondary">
                 Activity
               </dt>
-              <dd className="text-content dark:text-content font-medium">
+              <dd className="text-foreground-primary font-medium">
                 {activeSession
                   ? activeSession.is_break
                     ? "On Break"

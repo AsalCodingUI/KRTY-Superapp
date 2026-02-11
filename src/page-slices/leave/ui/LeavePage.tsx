@@ -7,11 +7,7 @@ import dynamic from "next/dynamic"
 const EmployeeLeavePage = dynamic(
   () => import("./EmployeeLeavePage").then((mod) => mod.EmployeeLeavePage),
   {
-    loading: () => (
-      <div className="flex items-center justify-center py-12">
-        <div className="border-primary h-8 w-8 animate-spin rounded-full border-b-2" />
-      </div>
-    ),
+    loading: () => null,
   },
 )
 
@@ -19,11 +15,7 @@ const StakeholderLeavePage = dynamic(
   () =>
     import("./StakeholderLeavePage").then((mod) => mod.StakeholderLeavePage),
   {
-    loading: () => (
-      <div className="flex items-center justify-center py-12">
-        <div className="border-primary h-8 w-8 animate-spin rounded-full border-b-2" />
-      </div>
-    ),
+    loading: () => null,
   },
 )
 

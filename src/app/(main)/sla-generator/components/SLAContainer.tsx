@@ -246,13 +246,13 @@ export default function SLAContainer({
   }
 
   return (
-    <div className="bg-muted flex h-full w-full flex-col overflow-hidden lg:flex-row print:bg-white">
+    <div className="bg-surface-neutral-secondary flex h-full w-full flex-col overflow-hidden lg:flex-row print:bg-white">
       {/* --- LEFT PANEL: EDITOR (Scrollable) --- */}
       <div
-        className={`border-border-border bg-surface flex h-full w-full flex-col border-r lg:w-1/2 print:hidden ${activeTab === "preview" ? "hidden lg:flex" : "flex"}`}
+        className={`border-neutral-primary-border bg-surface flex h-full w-full flex-col border-r lg:w-1/2 print:hidden ${activeTab === "preview" ? "hidden lg:flex" : "flex"}`}
       >
         {/* Header */}
-        <div className="border-border-border bg-surface sticky top-0 z-10 flex items-center justify-between border-b p-4">
+        <div className="border-neutral-primary-border bg-surface sticky top-0 z-10 flex items-center justify-between border-b p-4">
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="sm" className="p-2" onClick={onBack}>
               <RiArrowLeftLine className="text-tremor-content-subtle h-5 w-5" />
@@ -312,7 +312,7 @@ export default function SLAContainer({
         <div className="flex-1 space-y-6 overflow-y-auto p-4">
           {/* 1. Client Info */}
           <div>
-            <h3 className="text-md text-content dark:text-content mb-6 font-semibold">
+            <h3 className="text-md text-foreground-primary dark:text-foreground-primary mb-6 font-semibold">
               Client Information
             </h3>
             <div className="grid grid-cols-2 gap-4">
@@ -371,7 +371,7 @@ export default function SLAContainer({
 
           {/* 2. Agency Info */}
           <div>
-            <h3 className="text-md text-content dark:text-content mb-6 font-semibold">
+            <h3 className="text-md text-foreground-primary dark:text-foreground-primary mb-6 font-semibold">
               Agency Information
             </h3>
             <div className="grid grid-cols-2 gap-4">
@@ -442,7 +442,7 @@ export default function SLAContainer({
         className={`bg-tremor-background-subtle flex h-full w-full flex-col lg:w-1/2 print:block print:w-full ${activeTab === "editor" ? "hidden lg:flex" : "flex"}`}
       >
         {/* Mobile Header for Preview */}
-        <div className="border-border-border bg-surface flex items-center justify-between border-b p-4 lg:hidden print:hidden">
+        <div className="border-neutral-primary-border bg-surface flex items-center justify-between border-b p-4 lg:hidden print:hidden">
           <span className="text-tremor-content-strong font-semibold">
             PDF Preview
           </span>

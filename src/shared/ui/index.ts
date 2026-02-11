@@ -22,6 +22,7 @@ export * from "./input/Slider"
 export * from "./input/Switch"
 export * from "./input/Textarea"
 export * from "./input/TextInput"
+export * from "./input/TimeSelect"
 
 // Interaction
 export * from "./interaction/Accordion"
@@ -32,6 +33,7 @@ export * from "./interaction/Tabs"
 export * from "./navigation/CommandBar"
 
 // Overlay
+export * from "./overlay/ConfirmDialog"
 export * from "./overlay/Dialog"
 export * from "./overlay/Drawer"
 export * from "./overlay/Popover"

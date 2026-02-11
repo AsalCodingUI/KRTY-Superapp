@@ -37,21 +37,21 @@ export function CategoryBarCard({
       <div className="flex flex-col justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <h3 className="text-content dark:text-content sm:text-label-md">
+            <h3 className="text-foreground-primary dark:text-foreground-primary sm:text-label-md">
               {title}
             </h3>
             <Badge variant="zinc">{change}</Badge>
           </div>
           <p className="mt-2 flex items-baseline gap-2">
-            <span className="text-content dark:text-content text-heading-lg">
+            <span className="text-foreground-primary dark:text-foreground-primary text-heading-lg">
               {value}
             </span>
-            <span className="text-content-muted text-body-sm">
+            <span className="text-foreground-tertiary text-body-sm">
               {valueDescription}
             </span>
           </p>
           <div className="mt-4">
-            <p className="text-content dark:text-content text-label-md">
+            <p className="text-foreground-primary dark:text-foreground-primary text-label-md">
               {subtitle}
             </p>
             <div className="mt-2 flex items-center gap-0.5">
@@ -79,19 +79,19 @@ export function CategoryBarCard({
                   className={cx(item.color, "size-2.5 rounded-sm")}
                   aria-hidden="true"
                 />
-                <span className="text-content dark:text-content">
+                <span className="text-foreground-primary dark:text-foreground-primary">
                   {item.title}
                 </span>
-                <span className="text-content-muted dark:text-foreground-default-disable">
+                <span className="text-foreground-tertiary dark:text-foreground-default-disable">
                   ({item.value} / {item.percentage}%)
                 </span>
               </li>
             ))}
           </ul>
         </div>
-        <p className="text-content-muted text-body-xs mt-6">
+        <p className="text-foreground-tertiary text-body-xs mt-6">
           {ctaDescription}{" "}
-          <a href={ctaLink} className="text-primary hover:text-primary-hover">
+          <a href={ctaLink} className="text-foreground-brand-primary hover:text-foreground-brand-primary-hover">
             {ctaText}
           </a>
         </p>

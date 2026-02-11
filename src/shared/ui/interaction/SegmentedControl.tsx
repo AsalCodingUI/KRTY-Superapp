@@ -63,11 +63,17 @@ export function SegmentedControl<T extends string>({
           activeIndex === -1
             ? index < items.length - 1
             : index < items.length - 1 &&
-              activeIndex !== index &&
-              activeIndex !== index + 1
+            activeIndex !== index &&
+            activeIndex !== index + 1
 
         return (
-          <div key={item.value} className="flex items-stretch">
+          <div
+            key={item.value}
+            className={cx(
+              "flex items-stretch",
+              fitContent ? "flex-none" : "flex-1",
+            )}
+          >
             <button
               type="button"
               onClick={() => onChange(item.value)}

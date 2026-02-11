@@ -8,6 +8,7 @@ import { columns } from "@/page-slices/leave/ui/components/Columns"
 import { LeaveRequestModal } from "@/page-slices/leave/ui/components/LeaveRequestModal"
 import { LeaveStats } from "@/page-slices/leave/ui/components/LeaveStats"
 import { DataTable } from "@/shared/ui"
+import { RiCalendarLine } from "@/shared/ui/lucide-icons"
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"]
 type LeaveRequest = Database["public"]["Tables"]["leave_requests"]["Row"]
@@ -79,38 +80,43 @@ export default function LeaveClientPage({
   }
 
   return (
-    <>
-      <div className="mb-6">
-        <h1 className="text-content dark:text-content text-heading-md sm:text-heading-lg">
-          Leave & Permission
-        </h1>
+    <div className="flex flex-col">
+      <div className="flex items-center gap-2 rounded-xxl px-5 pt-4 pb-3">
+        <RiCalendarLine className="size-4 text-foreground-secondary" />
+        <p className="text-label-md text-foreground-primary">
+          Leave &amp; Permission
+        </p>
       </div>
 
-      {/* 2. STATS SECTION (Passing 'requests' agar hitungannya Realtime) */}
-      <section className="mb-6">
-        <LeaveStats requests={requests} />
-      </section>
+      <div className="bg-surface-neutral-primary flex flex-col rounded-xxl">
+        <div className="space-y-6 p-5">
+          {/* 2. STATS SECTION (Passing 'requests' agar hitungannya Realtime) */}
+          <section>
+            <LeaveStats requests={requests} />
+          </section>
 
-      <section>
-        <DataTable
-          data={requests}
-          columns={columns(handleEdit)}
-          manualPagination={true}
-          pageCount={pageCount}
-          pageIndex={page - 1}
-          onPageChange={handlePageChange}
-          onCreate={handleAdd}
-          showExport={false}
-          showViewOptions={false}
-          actionLabel="Request Leave"
-          enableSelection={false}
-          enableHover={false}
-          searchKey="reason"
-          showTableWrapper={true}
-          tableTitle="Leave Requests"
-          tableDescription="View and manage your leave applications"
-        />
-      </section>
+          <section>
+            <DataTable
+              data={requests}
+              columns={columns(handleEdit)}
+              manualPagination={true}
+              pageCount={pageCount}
+              pageIndex={page - 1}
+              onPageChange={handlePageChange}
+              onCreate={handleAdd}
+              showExport={false}
+              showViewOptions={false}
+              actionLabel="Request Leave"
+              enableSelection={false}
+              enableHover={false}
+              searchKey="reason"
+              showTableWrapper={true}
+              tableTitle="Leave Requests"
+              tableDescription="View and manage your leave applications"
+            />
+          </section>
+        </div>
+      </div>
 
       <LeaveRequestModal
         isOpen={isModalOpen}
@@ -118,6 +124,6 @@ export default function LeaveClientPage({
         initialData={editingItem}
         userProfile={profile}
       />
-    </>
+    </div>
   )
 }

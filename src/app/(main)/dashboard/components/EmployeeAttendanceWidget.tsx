@@ -81,17 +81,19 @@ export function EmployeeAttendanceWidget({
 
       {/* Recent Leave Status */}
       <Card className="lg:col-span-2">
-        <h3 className="text-heading-md text-content mb-4">Leave Status</h3>
+        <h3 className="text-heading-md text-foreground-primary mb-4">
+          Leave Status
+        </h3>
 
         {pendingLeave && (
           <div className="border-warning/20 bg-warning/5 mb-4 rounded-lg border p-3">
             <div className="mb-2 flex items-center gap-2">
               <RiTimeLine className="text-warning size-4" />
-              <span className="text-label-md text-content">
+              <span className="text-label-md text-foreground-primary">
                 Pending Approval
               </span>
             </div>
-            <div className="text-label-md text-content-subtle">
+            <div className="text-label-md text-foreground-secondary">
               <span className="font-medium">{pendingLeave.leave_type}</span>
               {" • "}
               {format(new Date(pendingLeave.start_date), "MMM d")} -{" "}
@@ -104,22 +106,22 @@ export function EmployeeAttendanceWidget({
 
         {approvedLeave.length > 0 && (
           <div>
-            <h4 className="text-label-md text-content-subtle mb-2">
+            <h4 className="text-label-md text-foreground-secondary mb-2">
               Recent Approved Leave
             </h4>
             <div className="space-y-2">
               {approvedLeave.slice(0, 2).map((leave) => (
                 <div
                   key={leave.id}
-                  className="bg-surface-secondary flex items-center justify-between rounded-lg p-2"
+                  className="bg-surface-neutral-secondary flex items-center justify-between rounded-lg p-2"
                 >
                   <div className="flex items-center gap-2">
                     <RiCalendarCheckLine className="text-success size-4" />
-                    <span className="text-body-sm text-content">
+                    <span className="text-body-sm text-foreground-primary">
                       {leave.leave_type}
                     </span>
                   </div>
-                  <span className="text-body-xs text-content-subtle">
+                  <span className="text-body-xs text-foreground-secondary">
                     {format(new Date(leave.start_date), "MMM d")} -{" "}
                     {format(new Date(leave.end_date), "MMM d")}
                   </span>
@@ -131,7 +133,7 @@ export function EmployeeAttendanceWidget({
 
         {!pendingLeave && approvedLeave.length === 0 && (
           <div className="py-4 text-center">
-            <p className="text-body-sm text-content-subtle">
+            <p className="text-body-sm text-foreground-secondary">
               No recent leave requests
             </p>
             <Link href="/leave">
@@ -143,21 +145,23 @@ export function EmployeeAttendanceWidget({
         )}
 
         {/* Recent Attendance Summary */}
-        <div className="border-border mt-4 border-t pt-4">
-          <h4 className="text-label-md text-content-subtle mb-3">
+        <div className="border-neutral-primary mt-4 border-t pt-4">
+          <h4 className="text-label-md text-foreground-secondary mb-3">
             Last 7 Days Attendance
           </h4>
           <div className="text-body-sm flex items-center gap-4">
             <div className="flex items-center gap-2">
               <div className="bg-success size-3 rounded-full" />
-              <span className="text-content-subtle">
+              <span className="text-foreground-secondary">
                 On Time: {onTimeCount}
               </span>
             </div>
             {lateCount > 0 && (
               <div className="flex items-center gap-2">
                 <div className="bg-warning size-3 rounded-full" />
-                <span className="text-content-subtle">Late: {lateCount}</span>
+                <span className="text-foreground-secondary">
+                  Late: {lateCount}
+                </span>
               </div>
             )}
           </div>

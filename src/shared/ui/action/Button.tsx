@@ -135,6 +135,27 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       !isIconOnlySize && (loadingText !== undefined || Boolean(children))
     const resolvedLoadingText =
       loadingText !== undefined ? loadingText : "Loading..."
+    const resolvedChildren =
+      asChild &&
+      React.isValidElement(children) &&
+      children.type === React.Fragment
+        ? React.createElement("span", null, children)
+        : children
+
+    if (asChild) {
+      return (
+        <Component
+          ref={forwardedRef as any}
+          className={cx(buttonVariants({ variant, size }), className)}
+          disabled={disabled || isLoading}
+          aria-busy={isLoading}
+          data-loading={isLoading}
+          {...props}
+        >
+          {resolvedChildren}
+        </Component>
+      )
+    }
 
     return (
       <Component
@@ -152,13 +173,6 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
               className={cx(iconSizeClass, "shrink-0 animate-spin")}
               aria-hidden="true"
             />
-            {/* If there is loading text, show it. Otherwise, if there were children (label), show them? 
-                Figma usually implies loading state prevents action but might keep label or just show spinner.
-                Common pattern: Show spinner + text, or just spinner.
-                Implementation: Replaces Leading Icon with Spinner if text present, or just content if no text?
-                Let's stick to simple: Spinner + Text if loadingText provided, else just Spinner replacing content?
-                Existing code replaced content. Let's keep logic but enforce sizes.
-            */}
             {shouldShowLoadingText && (
               <span className="px-xs">{resolvedLoadingText}</span>
             )}
@@ -167,7 +181,8 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           <>
             {leadingIcon && (
               <span className="flex shrink-0 items-center justify-center">
-                {React.isValidElement(leadingIcon)
+                {React.isValidElement(leadingIcon) &&
+                leadingIcon.type !== React.Fragment
                   ? React.cloneElement(leadingIcon as React.ReactElement, {
                       className: cx(
                         iconSizeClass,
@@ -178,19 +193,14 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
               </span>
             )}
 
-            {/* Label Wrapper - Padding 2px (padding-xs) implicitly or explicitly? 
-                Raw layout data: gap=4px. Padding is on container. 
-                Text itself handles its own box. 
-                Existing code had span px-[2px].
-                Let's simplify: Just render children. Gap handles spacing.
-            */}
             {children && (
               <span className="inline-flex items-center px-xs">{children}</span>
             )}
 
             {trailingIcon && (
               <span className="flex shrink-0 items-center justify-center">
-                {React.isValidElement(trailingIcon)
+                {React.isValidElement(trailingIcon) &&
+                trailingIcon.type !== React.Fragment
                   ? React.cloneElement(trailingIcon as React.ReactElement, {
                       className: cx(
                         iconSizeClass,

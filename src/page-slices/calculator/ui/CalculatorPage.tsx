@@ -12,6 +12,7 @@ import {
 } from "@/shared/ui"
 import { RiAddLine, RiCalculatorLine, RiDeleteBinLine } from "@/shared/ui/lucide-icons"
 import { useMemo, useState } from "react"
+import { useTabRoute } from "@/shared/hooks/useTabRoute"
 import { FinancialHUD } from "./components/FinancialHUD"
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"]
@@ -49,7 +50,12 @@ export default function CalculatorClientPage({
   teamMembers: TeamMember[]
 }) {
   const WORK_DAYS_PER_MONTH = 22
-  const [activeTab, setActiveTab] = useState<"team" | "freelance">("team")
+  const { activeTab, setActiveTab } = useTabRoute<"team" | "freelance">({
+    basePath: "/calculator",
+    tabs: ["team", "freelance"],
+    defaultTab: "team",
+    mode: "history",
+  })
   const [revenueUSD, setRevenueUSD] = useState<string>("1,000")
   const [exchangeRate, setExchangeRate] = useState<string>("15,000")
   const [hoursPerDay, setHoursPerDay] = useState<string>("8")
@@ -226,7 +232,7 @@ export default function CalculatorClientPage({
             <div className="space-y-10 lg:col-span-7">
               {/* SECTION 1: CONTEXT */}
               <div>
-                <h3 className="text-md text-content dark:text-content font-semibold">
+                <h3 className="text-md text-foreground-primary dark:text-foreground-primary font-semibold">
                   Project Context
                 </h3>
                 <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-2">
@@ -292,7 +298,7 @@ export default function CalculatorClientPage({
               <div>
                 <div className="mb-6 flex items-center justify-between">
                   <div>
-                    <h3 className="text-md text-content dark:text-content font-semibold">
+                    <h3 className="text-md text-foreground-primary dark:text-foreground-primary font-semibold">
                       Timeline Engine
                     </h3>
                   </div>
@@ -300,7 +306,7 @@ export default function CalculatorClientPage({
                 </div>
 
                 <div className="space-y-4">
-                  <div className="text-label-md text-content dark:text-content flex gap-4 px-1">
+                  <div className="text-label-md text-foreground-primary dark:text-foreground-primary flex gap-4 px-1">
                     <div className="flex-1">Phase Name</div>
                     <div className="w-24 text-center">Days</div>
                     <div className="w-24 text-center">Buffer</div>
@@ -336,7 +342,7 @@ export default function CalculatorClientPage({
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="text-content-placeholder size-8 shrink-0 p-0"
+                        className="text-foreground-tertiary size-8 shrink-0 p-0"
                         onClick={() => removePhase(phase.id)}
                       >
                         <RiDeleteBinLine className="size-4" />
@@ -358,7 +364,7 @@ export default function CalculatorClientPage({
 
               {/* SECTION 3: SQUAD ALLOCATION */}
               <div>
-                <h3 className="text-md text-content dark:text-content mb-6 font-semibold">
+                <h3 className="text-md text-foreground-primary dark:text-foreground-primary mb-6 font-semibold">
                   Squad Allocation
                 </h3>
 
@@ -398,21 +404,21 @@ export default function CalculatorClientPage({
                         return (
                           <div
                             key={member.id}
-                            className="border-border bg-surface dark:bg-surface rounded-lg border p-4"
+                            className="border-neutral-primary bg-surface dark:bg-surface rounded-lg border p-4"
                           >
                             <div className="mb-4 flex items-start justify-between">
                               <div>
-                                <p className="text-content dark:text-content font-medium">
+                                <p className="text-foreground-primary dark:text-foreground-primary font-medium">
                                   {profile?.full_name}
                                 </p>
-                                <p className="text-label-xs text-content-subtle dark:text-content-subtle">
+                                <p className="text-label-xs text-foreground-secondary dark:text-foreground-secondary">
                                   {profile?.job_title}
                                 </p>
                               </div>
                               <Button
                                 variant="ghost"
                                 size="xs"
-                                className="text-content-placeholder size-6 p-0"
+                                className="text-foreground-tertiary size-6 p-0"
                                 onClick={() => removeSquadMember(member.id)}
                               >
                                 <RiDeleteBinLine className="size-4" />
@@ -420,7 +426,7 @@ export default function CalculatorClientPage({
                             </div>
 
                             <div className="flex items-center gap-4">
-                              <span className="text-label-xs text-content-subtle dark:text-content-subtle w-16">
+                              <span className="text-label-xs text-foreground-secondary dark:text-foreground-secondary w-16">
                                 Allocation
                               </span>
                               <Slider
@@ -432,7 +438,7 @@ export default function CalculatorClientPage({
                                 }
                                 className="flex-1"
                               />
-                              <span className="text-label-md text-content dark:text-content w-10 text-right">
+                              <span className="text-label-md text-foreground-primary dark:text-foreground-primary w-10 text-right">
                                 {member.allocation}%
                               </span>
                             </div>
@@ -442,7 +448,7 @@ export default function CalculatorClientPage({
 
                       {squad.length === 0 && (
                         <div className="rounded-md border border-dashed p-6 text-center dark:border">
-                          <p className="text-body-sm text-content-subtle dark:text-content-subtle">
+                          <p className="text-body-sm text-foreground-secondary dark:text-foreground-secondary">
                             No team members allocated yet.
                           </p>
                         </div>
@@ -466,7 +472,7 @@ export default function CalculatorClientPage({
                       {freelanceSquad.map((member) => (
                         <div
                           key={member.id}
-                          className="border-border bg-surface dark:bg-surface rounded-lg border p-4"
+                          className="border-neutral-primary bg-surface dark:bg-surface rounded-lg border p-4"
                         >
                           <div className="mb-4 flex items-start justify-between gap-4">
                             <div className="grid flex-1 grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -529,7 +535,7 @@ export default function CalculatorClientPage({
                             <Button
                               variant="ghost"
                               size="xs"
-                              className="text-content-placeholder size-6 p-0"
+                              className="text-foreground-tertiary size-6 p-0"
                               onClick={() => removeFreelanceMember(member.id)}
                             >
                               <RiDeleteBinLine className="size-4" />
@@ -537,7 +543,7 @@ export default function CalculatorClientPage({
                           </div>
 
                           <div className="flex items-center gap-4">
-                            <span className="text-label-xs text-content-subtle dark:text-content-subtle w-16">
+                            <span className="text-label-xs text-foreground-secondary dark:text-foreground-secondary w-16">
                               Allocation
                             </span>
                             <Slider
@@ -549,7 +555,7 @@ export default function CalculatorClientPage({
                               }
                               className="flex-1"
                             />
-                            <span className="text-label-md text-content dark:text-content w-10 text-right">
+                            <span className="text-label-md text-foreground-primary dark:text-foreground-primary w-10 text-right">
                               {member.allocation}%
                             </span>
                           </div>
@@ -558,7 +564,7 @@ export default function CalculatorClientPage({
 
                       {freelanceSquad.length === 0 && (
                         <div className="rounded-md border border-dashed p-6 text-center dark:border">
-                          <p className="text-body-sm text-content-subtle dark:text-content-subtle">
+                          <p className="text-body-sm text-foreground-secondary dark:text-foreground-secondary">
                             No freelance members added yet.
                           </p>
                         </div>

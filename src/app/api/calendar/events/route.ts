@@ -63,20 +63,28 @@ export async function GET(request: NextRequest) {
         const allDay = Boolean(item.start?.date && !item.start?.dateTime)
         const meetingUrl =
           item.hangoutLink || item.conferenceData?.entryPoints?.[0]?.uri
+        const summary = item.summary || "Untitled"
+        const summaryLower = summary.toLowerCase()
+        const organizerEmail = item.organizer?.email?.toLowerCase() ?? ""
+        const isPublicHoliday =
+          organizerEmail.includes("holiday") ||
+          summaryLower.includes("public holiday") ||
+          summaryLower.includes("holiday") ||
+          summaryLower.includes("libur")
 
         return {
           id: `gcal_${item.id}`,
           googleEventId: item.id,
-          title: item.summary || "Untitled",
+          title: summary,
           description: item.description || undefined,
           start: startDate.toISOString(),
           end: endDate.toISOString(),
           allDay,
-          color: "blue",
+          color: isPublicHoliday ? "neutral" : "blue",
           location: item.location || undefined,
           organizer: item.organizer?.displayName || item.organizer?.email,
           meetingUrl,
-          type: "google",
+          type: isPublicHoliday ? "Public Holiday" : "google",
           guests: item.attendees?.map((attendee) => ({
             email: attendee.email || "",
             name: attendee.displayName || undefined,

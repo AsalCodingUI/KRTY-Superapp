@@ -1,4 +1,5 @@
-import { Sidebar } from "@/widgets/sidebar/ui/Sidebar"
+import { SidebarShell } from "@/widgets/sidebar/ui/SidebarShell"
+import { Suspense } from "react"
 
 export default function Layout({
   children,
@@ -8,7 +9,7 @@ export default function Layout({
   return (
     <>
       {/* Sidebar - blends with body background */}
-      <Sidebar />
+      <SidebarShell />
 
       {/* Main content with "Floating Page" effect */}
       <main className="lg:pl-64">
@@ -16,9 +17,9 @@ export default function Layout({
         <div className="bg-background min-h-screen">
           <div className="bg-surface min-h-[calc(100vh-1rem)]">
             {/* Content container with max-width for readability */}
-            <div className="mx-auto">
-              {children}
-            </div>
+            <Suspense>
+              <div className="mx-auto">{children}</div>
+            </Suspense>
           </div>
         </div>
       </main>

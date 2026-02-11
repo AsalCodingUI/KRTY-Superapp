@@ -24,17 +24,17 @@ export default function Error({
             <span className="text-display-xxs">⚠️</span>
           </div>
 
-          <h2 className="text-heading-md text-content dark:text-content">
+          <h2 className="text-heading-md text-foreground-primary dark:text-foreground-primary">
             Terjadi Kesalahan
           </h2>
 
-          <p className="text-body-sm text-content-subtle dark:text-content-placeholder">
+          <p className="text-body-sm text-foreground-secondary dark:text-foreground-tertiary">
             Maaf, terjadi kesalahan saat memuat halaman ini. Silakan coba lagi
             atau kembali ke halaman utama.
           </p>
 
           {error.digest && (
-            <p className="text-body-xs text-content-placeholder dark:text-content-subtle tabular-nums">
+            <p className="text-body-xs text-foreground-tertiary dark:text-foreground-secondary tabular-nums">
               Error ID: {error.digest}
             </p>
           )}

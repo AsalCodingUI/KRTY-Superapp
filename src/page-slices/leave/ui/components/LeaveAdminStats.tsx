@@ -45,11 +45,11 @@ export function LeaveAdminStats({
       <dl className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {data.map((item) => (
           <Card key={item.name}>
-            <dt className="text-label-md text-content-subtle dark:text-content-subtle">
+            <dt className="text-label-md text-foreground-secondary dark:text-foreground-secondary">
               {item.name}
             </dt>
             <dd className="mt-2 flex items-baseline space-x-2.5">
-              <span className="text-display-xxs text-content dark:text-content">
+              <span className="text-display-xxs text-foreground-primary dark:text-foreground-primary">
                 {item.stat}
               </span>
             </dd>

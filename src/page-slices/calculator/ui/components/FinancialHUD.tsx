@@ -31,16 +31,16 @@ export function FinancialHUD({
 
   return (
     <div className="sticky top-8">
-      <h4 className="text-label-md text-content dark:text-content">
+      <h4 className="text-label-md text-foreground-primary dark:text-foreground-primary">
         Financial Overview
       </h4>
 
       <div className="mt-6">
-        <p className="text-label-md text-content-subtle dark:text-content-subtle">
+        <p className="text-label-md text-foreground-secondary dark:text-foreground-secondary">
           Net Profit (Estimated)
         </p>
         <div className="mt-1 flex flex-wrap items-baseline gap-3">
-          <span className="text-display-xxs text-content dark:text-content">
+          <span className="text-display-xxs text-foreground-primary dark:text-foreground-primary">
             {formatIDR(netProfit)}
           </span>
           <Badge
@@ -57,15 +57,15 @@ export function FinancialHUD({
 
       <ul role="list" className="text-body-sm space-y-3">
         <li className="flex items-center justify-between">
-          <span className="text-content-subtle dark:text-content-placeholder">
+          <span className="text-foreground-secondary dark:text-foreground-tertiary">
             Gross Revenue
           </span>
-          <span className="text-content dark:text-content font-medium">
+          <span className="text-foreground-primary dark:text-foreground-primary font-medium">
             {formatIDR(grossRevenue)}
           </span>
         </li>
         <li className="flex items-center justify-between">
-          <span className="text-content-subtle dark:text-content-placeholder">
+          <span className="text-foreground-secondary dark:text-foreground-tertiary">
             Labor Cost (COGS)
           </span>
           <span className="text-danger font-medium">
@@ -73,7 +73,7 @@ export function FinancialHUD({
           </span>
         </li>
         <li className="flex items-center justify-between">
-          <span className="text-content-subtle dark:text-content-placeholder">
+          <span className="text-foreground-secondary dark:text-foreground-tertiary">
             Platform Fee ({platformFeePercent}%)
           </span>
           <span className="text-danger font-medium">
@@ -82,7 +82,7 @@ export function FinancialHUD({
         </li>
       </ul>
 
-      <div className="bg-surface border-border dark:bg-surface mt-6 flex items-center gap-3 rounded-md border p-3 shadow-sm">
+      <div className="bg-surface border-neutral-primary dark:bg-surface mt-6 flex items-center gap-3 rounded-md border p-3 shadow-sm">
         {isHealthy ? (
           <RiCheckboxCircleFill
             className="text-success size-5 shrink-0"
@@ -94,7 +94,7 @@ export function FinancialHUD({
             aria-hidden={true}
           />
         )}
-        <span className="text-body-xs text-content-subtle dark:text-content-placeholder">
+        <span className="text-body-xs text-foreground-secondary dark:text-foreground-tertiary">
           {isHealthy
             ? "Profitability is optimal (>30%). You are good to go!"
             : "Margin is below recommended target. Consider adjusting timeline or budget."}

@@ -22,15 +22,18 @@ import type { ViewMode } from "./types"
 interface CalendarToolbarProps {
   onAddEvent: () => void
   showAddEvent?: boolean
+  onViewChange?: (view: ViewMode) => void
 }
 
 export function CalendarToolbar({
   onAddEvent,
   showAddEvent = true,
+  onViewChange,
 }: CalendarToolbarProps) {
   const { viewMode, setViewMode, goToToday, goToNext, goToPrevious } =
     useCalendarContext()
   const { isConnected, isLoading } = useGoogleCalendar()
+  const handleViewChange = onViewChange ?? setViewMode
 
   const viewOptions = [
     { value: "month", label: "Bulan" },
@@ -53,16 +56,18 @@ export function CalendarToolbar({
               asChild
               variant="secondary"
               size="sm"
-              trailingIcon={<RiArrowDownSLine />}
               type="button"
             >
-              <button>{currentViewLabel}</button>
+              <button className="flex items-center gap-sm">
+                <span>{currentViewLabel}</span>
+                <RiArrowDownSLine className="text-foreground-secondary size-4 shrink-0" />
+              </button>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start">
             <DropdownMenuRadioGroup
               value={viewMode}
-              onValueChange={(value) => setViewMode(value as ViewMode)}
+              onValueChange={(value) => handleViewChange(value as ViewMode)}
             >
               {viewOptions.map((option) => (
                 <DropdownMenuRadioItem

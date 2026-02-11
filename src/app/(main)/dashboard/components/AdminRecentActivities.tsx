@@ -35,7 +35,7 @@ export function AdminRecentActivities({
   const getActivityIcon = (type: Activity["type"]) => {
     switch (type) {
       case "review":
-        return <RiFileTextLine className="text-primary size-4" />
+        return <RiFileTextLine className="text-foreground-brand-primary size-4" />
       case "leave_request":
         return <RiCalendarEventLine className="text-warning size-4" />
       case "leave_approved":
@@ -62,20 +62,22 @@ export function AdminRecentActivities({
       case "project_assigned":
         return "bg-info/10"
       default:
-        return "bg-surface-secondary"
+        return "bg-surface-neutral-secondary"
     }
   }
 
   return (
     <Card>
       <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-heading-md text-content">Recent Activities</h3>
+        <h3 className="text-heading-md text-foreground-primary">
+          Recent Activities
+        </h3>
         <Badge variant="zinc">{activities.length}</Badge>
       </div>
 
       {activities.length === 0 ? (
         <div className="py-8 text-center">
-          <p className="text-body-sm text-content-subtle">
+          <p className="text-body-sm text-foreground-secondary">
             No recent activities
           </p>
         </div>
@@ -84,7 +86,7 @@ export function AdminRecentActivities({
           {activities.map((activity) => (
             <div
               key={activity.id}
-              className="border-border bg-surface-secondary flex items-start gap-3 rounded-lg border p-3"
+              className="border-neutral-primary bg-surface-neutral-secondary flex items-start gap-3 rounded-lg border p-3"
             >
               <div
                 className={`flex size-9 shrink-0 items-center justify-center rounded-lg ${getActivityBgColor(activity.type)}`}
@@ -100,15 +102,15 @@ export function AdminRecentActivities({
                     src={activity.user_avatar || undefined}
                   />
                   <div className="flex-1">
-                    <p className="text-label-md text-content">
+                    <p className="text-label-md text-foreground-primary">
                       <span className="font-medium">
                         {activity.user_name || "Unknown"}
                       </span>{" "}
-                      <span className="text-content-subtle">
+                      <span className="text-foreground-secondary">
                         {activity.description}
                       </span>
                     </p>
-                    <p className="text-body-xs text-content-placeholder mt-0.5">
+                    <p className="text-body-xs text-foreground-tertiary mt-0.5">
                       {formatDistanceToNow(new Date(activity.timestamp), {
                         addSuffix: true,
                       })}

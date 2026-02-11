@@ -82,7 +82,7 @@ function SortableItem({
         className="hover:bg-tremor-background-subtle absolute top-2 left-2 cursor-grab rounded p-1 opacity-0 transition-opacity group-hover:opacity-100 active:cursor-grabbing"
         title="Drag to reorder"
       >
-        <RiDraggable className="text-content-muted h-5 w-5" />
+        <RiDraggable className="text-foreground-tertiary h-5 w-5" />
       </div>
 
       {/* Delete Button */}
@@ -224,7 +224,7 @@ export const ScopeOfWorkForm = ({ data, onChange }: ScopeOfWorkFormProps) => {
   return (
     <div className="space-y-4">
       <div className="mb-4 flex flex-row items-center justify-between">
-        <h3 className="text-md text-content dark:text-content font-semibold">
+        <h3 className="text-md text-foreground-primary dark:text-foreground-primary font-semibold">
           Scope of Work
         </h3>
         <div className="flex gap-2">

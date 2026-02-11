@@ -16,7 +16,12 @@ import {
   TableHeaderCell,
   TableRow, TabNavigation, TabNavigationLink
 } from "@/shared/ui"
-import { RiArrowLeftLine, RiCheckLine, RiCloseLine } from "@/shared/ui/lucide-icons"
+import {
+  RiArrowLeftLine,
+  RiCheckLine,
+  RiCloseLine,
+  RiFolderLine,
+} from "@/shared/ui/lucide-icons"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import {
@@ -162,242 +167,251 @@ export function EmployeeProjectView({
   const qualityPercentage = calculateWorkQualityPercentage(competencies)
 
   return (
-    <div className="space-y-6">
-      {/* HEADER */}
-      <div>
-        <Link href={`/performance/employee/${employee.id}`}>
-          <Button variant="ghost" size="sm">
-            <RiArrowLeftLine className="mr-2 size-4" />
-            Back to {employee.full_name || "Employee"}
-          </Button>
-        </Link>
+    <div className="flex flex-col">
+      <div className="flex items-center gap-2 rounded-xxl px-5 pt-4 pb-3">
+        <RiFolderLine className="size-4 text-foreground-secondary" />
+        <p className="text-label-md text-foreground-primary">
+          Project Performance
+        </p>
+      </div>
 
-        <div className="mt-4 flex items-start justify-between">
+      <div className="bg-surface-neutral-primary flex flex-col rounded-xxl">
+        <div className="space-y-6 p-5">
+          {/* HEADER */}
           <div>
-            <h1 className="text-display-xxs text-content dark:text-content">
-              {assignment.projects.name}
-            </h1>
-            {assignment.projects.description && (
-              <p className="text-content-subtle dark:text-content-placeholder mt-1">
-                {assignment.projects.description}
-              </p>
-            )}
-          </div>
-          <div className="flex items-center gap-2">
-            <Badge variant="zinc">Read-Only View</Badge>
-            <Badge variant="info">
-              {assignment.projects.quarter_id}
-            </Badge>
-            <Badge variant="info">
-              {assignment.role_in_project}
-            </Badge>
-          </div>
-        </div>
-      </div>
+            <Link href={`/performance/employee/${employee.id}`}>
+              <Button variant="ghost" size="sm">
+                <RiArrowLeftLine className="mr-2 size-4" />
+                Back to {employee.full_name || "Employee"}
+              </Button>
+            </Link>
 
-      {/* KPI OVERVIEW */}
-      <div className="grid grid-cols-2 gap-6">
-        <Card>
-          <dt className="text-label-md text-content-subtle dark:text-content-subtle">
-            SLA Score
-          </dt>
-          <dd className="text-display-xxs text-content dark:text-content mt-2">
-            {totalPercentage.toFixed(1)}%
-          </dd>
-          <Badge className={`mt-2 ${getScoreColor(finalScore)}`}>
-            {getScoreLabel(finalScore)}
-          </Badge>
-        </Card>
-        <Card>
-          <dt className="text-label-md text-content-subtle dark:text-content-subtle">
-            Work Quality
-          </dt>
-          <dd className="text-display-xxs text-content dark:text-content mt-2">
-            {competencies.filter((c) => c.isAchieved).length}/
-            {competencies.length}
-          </dd>
-          <Badge
-            className={`mt-2 ${getScoreColor(mapPercentageToScore(qualityPercentage))}`}
-          >
-            {getScoreLabel(mapPercentageToScore(qualityPercentage))}
-          </Badge>
-        </Card>
-      </div>
-
-      {/* TAB NAVIGATION */}
-      <TabNavigation>
-        <TabNavigationLink
-          active={activeTab === "sla"}
-          onClick={() => setActiveTab("sla")}
-        >
-          SLA Calculation
-        </TabNavigationLink>
-        <TabNavigationLink
-          active={activeTab === "quality"}
-          onClick={() => setActiveTab("quality")}
-        >
-          Work Quality
-        </TabNavigationLink>
-      </TabNavigation>
-
-      {/* TAB CONTENT */}
-      {activeTab === "sla" ? (
-        <div className="space-y-6">
-          {/* SLA CALCULATION & PARAMETER - SIDE BY SIDE */}
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-10">
-            {/* SLA CALCULATION TABLE - 70% */}
-            <Card className="border-0 p-0 lg:col-span-7">
-              <h3 className="text-heading-md text-content dark:text-content mb-6">
-                SLA Calculation
-              </h3>
-
-              {/* Read-only Table */}
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableHeaderCell>Milestone</TableHeaderCell>
-                    <TableHeaderCell className="text-center">
-                      Weight (%)
-                    </TableHeaderCell>
-                    <TableHeaderCell className="text-center">
-                      Result
-                    </TableHeaderCell>
-                    <TableHeaderCell className="text-center">
-                      Real Achieve
-                    </TableHeaderCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {milestones.map((milestone, index) => (
-                    <TableRow key={index}>
-                      <TableCell className="font-medium">
-                        {milestone.name}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        {milestone.weight}%
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <Badge
-                          variant={
-                            milestone.result === "Faster"
-                              ? "success"
-                              : milestone.result === "On Time"
-                                ? "info"
-                                : "warning"
-                          }
-                        >
-                          {milestone.result}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        {milestone.realAchieve.toFixed(1)}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  <TableRow>
-                    <TableCell className="font-semibold">Total</TableCell>
-                    <TableCell className="text-center font-semibold">
-                      {milestones.reduce((sum, m) => sum + m.weight, 0)}%
-                    </TableCell>
-                    <TableCell></TableCell>
-                    <TableCell></TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </Card>
-
-            {/* PARAMETER MATRIX - 30% */}
-            <Card className="border-0 p-0 lg:col-span-3">
-              <h3 className="text-heading-md text-content dark:text-content mb-6">
-                Parameter
-              </h3>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableHeaderCell>Status</TableHeaderCell>
-                    <TableHeaderCell>%</TableHeaderCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  <TableRow>
-                    <TableCell>Faster</TableCell>
-                    <TableCell>120%</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>On Time</TableCell>
-                    <TableCell>100%</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>Delay</TableCell>
-                    <TableCell>80%</TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </Card>
-          </div>
-        </div>
-      ) : (
-        <Card className="border-0 p-0">
-          <div className="mb-4">
-            <h3 className="text-heading-md text-content dark:text-content">
-              Work Quality Assessment
-            </h3>
-            <p className="text-body-sm text-content-subtle dark:text-content-placeholder">
-              Based on {assignment.role_in_project} competencies
-            </p>
-          </div>
-
-          {loading ? (
-            <div className="text-body-sm text-content-subtle p-8 text-center">
-              Loading competencies...
+            <div className="mt-4 flex items-start justify-between">
+              <div>
+                <h1 className="text-display-xxs text-foreground-primary">
+                  {assignment.projects.name}
+                </h1>
+                {assignment.projects.description && (
+                  <p className="text-foreground-secondary mt-1">
+                    {assignment.projects.description}
+                  </p>
+                )}
+              </div>
+              <div className="flex items-center gap-2">
+                <Badge variant="zinc">Read-Only View</Badge>
+                <Badge variant="info">{assignment.projects.quarter_id}</Badge>
+                <Badge variant="info">{assignment.role_in_project}</Badge>
+              </div>
             </div>
-          ) : competencies.length === 0 ? (
-            <div className="text-body-sm text-content-subtle p-8 text-center">
-              No competencies found for this role
+          </div>
+
+          {/* KPI OVERVIEW */}
+          <div className="grid grid-cols-2 gap-6">
+            <Card>
+              <dt className="text-label-md text-foreground-secondary">
+                SLA Score
+              </dt>
+              <dd className="text-display-xxs text-foreground-primary mt-2">
+                {totalPercentage.toFixed(1)}%
+              </dd>
+              <Badge className={`mt-2 ${getScoreColor(finalScore)}`}>
+                {getScoreLabel(finalScore)}
+              </Badge>
+            </Card>
+            <Card>
+              <dt className="text-label-md text-foreground-secondary">
+                Work Quality
+              </dt>
+              <dd className="text-display-xxs text-foreground-primary mt-2">
+                {competencies.filter((c) => c.isAchieved).length}/
+                {competencies.length}
+              </dd>
+              <Badge
+                className={`mt-2 ${getScoreColor(mapPercentageToScore(qualityPercentage))}`}
+              >
+                {getScoreLabel(mapPercentageToScore(qualityPercentage))}
+              </Badge>
+            </Card>
+          </div>
+
+          {/* TAB NAVIGATION */}
+          <TabNavigation>
+            <TabNavigationLink
+              active={activeTab === "sla"}
+              onClick={() => setActiveTab("sla")}
+            >
+              SLA Calculation
+            </TabNavigationLink>
+            <TabNavigationLink
+              active={activeTab === "quality"}
+              onClick={() => setActiveTab("quality")}
+            >
+              Work Quality
+            </TabNavigationLink>
+          </TabNavigation>
+
+          {/* TAB CONTENT */}
+          {activeTab === "sla" ? (
+            <div className="space-y-6">
+              {/* SLA CALCULATION & PARAMETER - SIDE BY SIDE */}
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-10">
+                {/* SLA CALCULATION TABLE - 70% */}
+                <Card className="border-0 p-0 lg:col-span-7">
+                  <h3 className="text-heading-md text-foreground-primary mb-6">
+                    SLA Calculation
+                  </h3>
+
+                  {/* Read-only Table */}
+                  <Table>
+                    <TableHead>
+                      <TableRow>
+                        <TableHeaderCell>Milestone</TableHeaderCell>
+                        <TableHeaderCell className="text-center">
+                          Weight (%)
+                        </TableHeaderCell>
+                        <TableHeaderCell className="text-center">
+                          Result
+                        </TableHeaderCell>
+                        <TableHeaderCell className="text-center">
+                          Real Achieve
+                        </TableHeaderCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {milestones.map((milestone, index) => (
+                        <TableRow key={index}>
+                          <TableCell className="font-medium">
+                            {milestone.name}
+                          </TableCell>
+                          <TableCell className="text-center">
+                            {milestone.weight}%
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <Badge
+                              variant={
+                                milestone.result === "Faster"
+                                  ? "success"
+                                  : milestone.result === "On Time"
+                                    ? "info"
+                                    : "warning"
+                              }
+                            >
+                              {milestone.result}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-center">
+                            {milestone.realAchieve.toFixed(1)}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                      <TableRow>
+                        <TableCell className="font-semibold">Total</TableCell>
+                        <TableCell className="text-center font-semibold">
+                          {milestones.reduce((sum, m) => sum + m.weight, 0)}%
+                        </TableCell>
+                        <TableCell></TableCell>
+                        <TableCell></TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </Card>
+
+                {/* PARAMETER MATRIX - 30% */}
+                <Card className="border-0 p-0 lg:col-span-3">
+                  <h3 className="text-heading-md text-foreground-primary mb-6">
+                    Parameter
+                  </h3>
+                  <Table>
+                    <TableHead>
+                      <TableRow>
+                        <TableHeaderCell>Status</TableHeaderCell>
+                        <TableHeaderCell>%</TableHeaderCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell>Faster</TableCell>
+                        <TableCell>120%</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>On Time</TableCell>
+                        <TableCell>100%</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>Delay</TableCell>
+                        <TableCell>80%</TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </Card>
+              </div>
             </div>
           ) : (
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableHeaderCell>Competency</TableHeaderCell>
-                  <TableHeaderCell>Description</TableHeaderCell>
-                  <TableHeaderCell className="text-center">
-                    Status
-                  </TableHeaderCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {competencies.map((comp) => (
-                  <TableRow key={comp.id}>
-                    <TableCell className="font-medium">{comp.name}</TableCell>
-                    <TableCell
-                      className="text-foreground-secondary"
-                      title={comp.description || "-"}
-                    >
-                      <span className="block truncate">
-                        {comp.description || "-"}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      {comp.isAchieved ? (
-                        <Badge variant="success">
-                          <RiCheckLine className="mr-1 size-3.5" />
-                          Achieved
-                        </Badge>
-                      ) : (
-                        <Badge variant="zinc">
-                          <RiCloseLine className="mr-1 size-3.5" />
-                          Not Achieved
-                        </Badge>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <Card className="border-0 p-0">
+              <div className="mb-4">
+                <h3 className="text-heading-md text-foreground-primary">
+                  Work Quality Assessment
+                </h3>
+                <p className="text-body-sm text-foreground-secondary">
+                  Based on {assignment.role_in_project} competencies
+                </p>
+              </div>
+
+              {loading ? (
+                <div className="text-body-sm text-foreground-secondary p-8 text-center">
+                  Loading competencies...
+                </div>
+              ) : competencies.length === 0 ? (
+                <div className="text-body-sm text-foreground-secondary p-8 text-center">
+                  No competencies found for this role
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHead>
+                      <TableRow>
+                        <TableHeaderCell className="w-[200px]">Competency</TableHeaderCell>
+                        <TableHeaderCell className="w-[400px]">Description</TableHeaderCell>
+                        <TableHeaderCell className="w-[140px] text-center">
+                          Status
+                        </TableHeaderCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {competencies.map((comp) => (
+                        <TableRow key={comp.id}>
+                          <TableCell className="font-medium">{comp.name}</TableCell>
+                          <TableCell
+                            className="text-foreground-secondary max-w-[400px]"
+                            title={comp.description || "-"}
+                          >
+                            <span className="line-clamp-2">
+                              {comp.description || "-"}
+                            </span>
+                          </TableCell>
+                          <TableCell className="text-center">
+                            {comp.isAchieved ? (
+                              <Badge variant="success">
+                                <RiCheckLine className="mr-1 size-3.5" />
+                                Achieved
+                              </Badge>
+                            ) : (
+                              <Badge variant="zinc">
+                                <RiCloseLine className="mr-1 size-3.5" />
+                                Not Achieved
+                              </Badge>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </Card>
           )}
-        </Card>
-      )}
+        </div>
+      </div>
     </div>
   )
 }

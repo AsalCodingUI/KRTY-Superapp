@@ -1,16 +1,13 @@
 "use client"
 
-import { Avatar, Badge } from "@/shared/ui"
-import { Button } from "@/shared/ui"
-import { Card } from "@/shared/ui"
-import { EmptyState, Skeleton, TextInput } from "@/shared/ui"
-import { Spinner } from "@/shared/ui"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { canManageByRole } from "@/shared/lib/roles"
+import { Avatar, Badge, Button, Card, EmptyState, Skeleton, Spinner, TextInput } from "@/shared/ui"
 import { RiUserLine } from "@/shared/ui/lucide-icons"
 import dynamic from "next/dynamic"
 import Link from "next/link"
-import { useEffect, useState } from "react"
+import { useState } from "react"
+import useSWR from "swr"
 import {
   getAllEmployees,
   getEmployeeDetail,
@@ -23,24 +20,9 @@ const EmployeeDetailClient = dynamic(
       (mod) => mod.EmployeeDetailClient,
     ),
   {
-    loading: () => (
-      <div className="flex items-center justify-center py-12">
-        <Spinner size="md" />
-      </div>
-    ),
+    loading: () => null,
   },
 )
-
-type EmployeeWithProjects = {
-  id: string
-  full_name: string | null
-  email: string
-  avatar_url: string | null
-  job_title: string | null
-  role: string | null
-  project_count: number
-  active_projects: number
-}
 
 type Employee = {
   id: string
@@ -79,61 +61,45 @@ export function KPITab({
   selectedQuarter?: string
 }) {
   const { profile, loading: profileLoading } = useUserProfile()
-  const [employees, setEmployees] = useState<EmployeeWithProjects[]>([])
-  const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
   const canManage = canManageByRole(profile?.role)
 
   // For employee view
-  const [employeeData, setEmployeeData] = useState<Employee | null>(null)
-  const [assignments, setAssignments] = useState<Assignment[]>([])
+  const {
+    data: employeesResult,
+    isLoading: employeesLoading,
+  } = useSWR(
+    canManage && profile ? ["employees", searchQuery] : null,
+    () => getAllEmployees(searchQuery),
+    { revalidateOnFocus: false },
+  )
 
-  const loadEmployees = async (search?: string) => {
-    setLoading(true)
-    try {
-      const result = await getAllEmployees(search)
-      if (result.success) {
-        setEmployees(result.data)
-      } else {
-        console.error("Error loading employees:", result.error)
-      }
-    } catch (error) {
-      console.error("Error loading employees:", error)
-    } finally {
-      setLoading(false)
-    }
-  }
+  const {
+    data: employeeDetailResult,
+    isLoading: employeeLoading,
+  } = useSWR(
+    !canManage && profile?.id
+      ? ["employee-detail", profile.id, selectedQuarter]
+      : null,
+    () => getEmployeeDetail(profile!.id, selectedQuarter),
+    { revalidateOnFocus: false },
+  )
 
-  useEffect(() => {
-    const loadOwnData = async () => {
-      if (!profile?.id) return
-
-      setLoading(true)
-      try {
-        const result = await getEmployeeDetail(profile.id)
-        if (result.success && result.data) {
-          setEmployeeData(result.data.employee)
-          setAssignments(result.data.assignments as unknown as Assignment[])
-        }
-      } catch (error) {
-        console.error("Error loading own data:", error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    if (!profile) return
-    if (canManage) {
-      loadEmployees()
-    } else if (profile.id) {
-      loadOwnData()
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [profile?.id, profile?.role, canManage])
+  const employees = employeesResult?.success
+    ? employeesResult.data
+    : []
+  const employeeData: Employee | null =
+    employeeDetailResult?.success && employeeDetailResult.data
+      ? employeeDetailResult.data.employee
+      : null
+  const assignments: Assignment[] =
+    employeeDetailResult?.success && employeeDetailResult.data
+      ? (employeeDetailResult.data.assignments as unknown as Assignment[])
+      : []
+  const loading = canManage ? employeesLoading : employeeLoading
 
   const handleSearch = (query: string) => {
     setSearchQuery(query)
-    loadEmployees(query)
   }
 
   // Show loading state while checking user profile
@@ -179,10 +145,10 @@ export function KPITab({
     <div className="space-y-6">
       {/* HEADER */}
       <div>
-        <h2 className="text-content dark:text-content text-heading-md">
+        <h2 className="text-foreground-primary text-heading-md">
           Employee KPI Management
         </h2>
-        <p className="text-content-subtle dark:text-content-placeholder text-body-sm mt-1">
+        <p className="text-foreground-secondary text-body-sm mt-1">
           View and manage employee KPI scores across all projects
         </p>
       </div>
@@ -237,13 +203,13 @@ export function KPITab({
                     size="md"
                   />
                   <div className="min-w-0 flex-1">
-                    <h3 className="text-content dark:text-content group-hover:text-primary dark:group-hover:text-primary truncate font-semibold">
+                    <h3 className="text-foreground-primary group-hover:text-foreground-brand-primary truncate font-semibold">
                       {employee.full_name || "Unknown"}
                     </h3>
-                    <p className="text-content-subtle dark:text-content-placeholder text-body-sm truncate">
+                    <p className="text-foreground-secondary text-body-sm truncate">
                       {employee.job_title || "No job title"}
                     </p>
-                    <p className="text-content-placeholder dark:text-content-subtle text-body-xs truncate">
+                    <p className="text-foreground-tertiary text-body-xs truncate">
                       {employee.email}
                     </p>
                   </div>
@@ -251,15 +217,15 @@ export function KPITab({
 
                 <div className="text-body-sm mt-4 flex items-center gap-4">
                   <div>
-                    <span className="text-content-subtle dark:text-content-placeholder">
+                    <span className="text-foreground-secondary">
                       Projects:
                     </span>
-                    <span className="text-content dark:text-content ml-1 font-medium">
+                    <span className="text-foreground-primary ml-1 font-medium">
                       {employee.project_count}
                     </span>
                   </div>
                   <div>
-                    <span className="text-content-subtle dark:text-content-placeholder">
+                    <span className="text-foreground-secondary">
                       Active:
                     </span>
                     <Badge variant="success" className="ml-1">

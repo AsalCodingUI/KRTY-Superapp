@@ -14,6 +14,7 @@ import {
 } from "@/shared/ui"
 import { createClient } from "@/shared/api/supabase/client"
 import { Database } from "@/shared/types/database.types"
+import { RiCalendarCheckLine } from "@/shared/ui/lucide-icons"
 import { differenceInMinutes, format } from "date-fns"
 import { useRouter } from "next/navigation"
 import { useCallback, useEffect, useState } from "react"
@@ -288,31 +289,34 @@ export function EmployeeAttendancePage({
   }, [])
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-heading-md text-content sm:text-heading-lg dark:text-content">
-          Attendance
-        </h1>
+    <div className="flex flex-col">
+      <div className="flex items-center gap-2 rounded-xxl px-5 pt-4 pb-3">
+        <RiCalendarCheckLine className="size-4 text-foreground-secondary" />
+        <p className="text-label-md text-foreground-primary">Attendance</p>
       </div>
 
-      <AttendanceStats
-        profile={profile}
-        logs={logs}
-        isOnLeave={isOnLeave}
-        loading={loading}
-        onClockIn={handleClockIn}
-        onClockOut={handleClockOut}
-        onToggleBreak={handleToggleBreak}
-      />
+      <div className="bg-surface-neutral-primary flex flex-col rounded-xxl">
+        <div className="space-y-6 p-5">
+          <AttendanceStats
+            profile={profile}
+            logs={logs}
+            isOnLeave={isOnLeave}
+            loading={loading}
+            onClockIn={handleClockIn}
+            onClockOut={handleClockOut}
+            onToggleBreak={handleToggleBreak}
+          />
 
-      <div>
-        <h3 className="text-md text-content dark:text-content mb-4 font-semibold">
-          Attendance History
-        </h3>
-        <AttendanceHistoryList
-          logs={logs}
-          onRequestDelete={handleRequestDelete}
-        />
+          <div>
+            <h3 className="text-heading-md text-foreground-primary mb-3">
+              Attendance History
+            </h3>
+            <AttendanceHistoryList
+              logs={logs}
+              onRequestDelete={handleRequestDelete}
+            />
+          </div>
+        </div>
       </div>
 
       {/* Confirmation Dialog - replaces confirm() */}

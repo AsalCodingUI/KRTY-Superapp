@@ -9,6 +9,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  Badge,
   Label,
   Select,
   SelectContent,
@@ -17,9 +18,9 @@ import {
   SelectValue,
   Textarea,
   TextInput,
+  TimeSelect,
 } from "@/shared/ui"
 import { logError } from "@/shared/lib/utils/logger"
-import { patternToRRule, rruleToPattern } from "@/shared/lib/date/recurrence"
 import { cx } from "@/shared/lib/utils"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { RiCloseLine, RiDeleteBinLine, RiSaveLine } from "@/shared/ui/lucide-icons"
@@ -27,13 +28,12 @@ import { format } from "date-fns"
 import { useCallback, useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-import { RecurrenceSelector } from "./components/RecurrenceSelector"
 import { HolidayDialog } from "./dialog-variants/HolidayDialog"
 import { LeaveDialog } from "./dialog-variants/LeaveDialog"
 import { MeetingDialog } from "./dialog-variants/MeetingDialog"
 import { PerformanceDialog } from "./dialog-variants/PerformanceDialog"
-import { getAllEventTypes, getEventColorClasses } from "./event-color-registry"
-import type { CalendarEvent, RecurrencePattern } from "./types"
+import { getAllEventTypes, getEventTypeDefinition } from "./event-color-registry"
+import type { CalendarEvent } from "./types"
 
 const eventSchema = z.object({
   title: z.string().min(1, "Judul harus diisi"),
@@ -69,7 +69,28 @@ interface EventDialogProps {
 
 // EVENT_TYPES must match the categories in CalendarClient.tsx getVisibleCategories()
 // Use centralized event type registry
-const EVENT_TYPES = getAllEventTypes()
+const EVENT_TYPES = getAllEventTypes().filter(
+  (type) => type.value !== "Public Holiday",
+)
+
+const getBadgeVariant = (color?: CalendarEvent["color"]) => {
+  switch (color) {
+    case "emerald":
+      return "success"
+    case "rose":
+      return "error"
+    case "orange":
+    case "amber":
+      return "warning"
+    case "cyan":
+    case "blue":
+    case "violet":
+      return "info"
+    case "neutral":
+    default:
+      return "default"
+  }
+}
 
 export function EventDialog({
   open,
@@ -85,11 +106,9 @@ export function EventDialog({
 
   const [loading, setLoading] = useState(false)
   const [isEditing, setIsEditing] = useState(false) // Internal editing state
-  const [recurrencePattern, setRecurrencePattern] =
-    useState<RecurrencePattern | null>(
-      event?.recurrenceRule ? rruleToPattern(event.recurrenceRule) : null,
-    )
   const [isDeletePending, setIsDeletePending] = useState(false)
+  const normalizedEventType =
+    getEventTypeDefinition(event?.type)?.value ?? event?.type
 
   const defaultValues: EventFormData = event
     ? {
@@ -99,7 +118,7 @@ export function EventDialog({
         end: format(event.end, "yyyy-MM-dd'T'HH:mm"),
         location: event.location || "",
         color: event.color,
-        type: event.type || "Event",
+        type: normalizedEventType || "Event",
         allDay: event.allDay || false,
       }
     : {
@@ -142,7 +161,7 @@ export function EventDialog({
         end: format(event.end, "yyyy-MM-dd'T'HH:mm"),
         location: event.location || "",
         color: event.color,
-        type: event.type || "Event",
+        type: normalizedEventType || "Event",
         allDay: event.allDay || false,
       })
     } else {
@@ -189,19 +208,19 @@ export function EventDialog({
   // NOW we can do conditional returns - after all hooks are called
 
   // 1. Route to LeaveDialog for approved leave requests (WFH, Cuti) - read-only
-  if (event?.id?.startsWith("leave-")) {
+  if (event && event.id.startsWith("leave-")) {
     return <LeaveDialog open={open} onOpenChange={onOpenChange} event={event} />
   }
 
   // 2. Route to HolidayDialog for public holidays - read-only
-  if (event?.type === "holiday") {
+  if (event && normalizedEventType === "Public Holiday") {
     return (
       <HolidayDialog open={open} onOpenChange={onOpenChange} event={event} />
     )
   }
 
   // 3. Route to MeetingDialog for Internal meetings from GCal - read-only
-  if (readOnly && event?.type === "Internal") {
+  if (event && readOnly && normalizedEventType === "Internal") {
     return (
       <MeetingDialog
         open={open}
@@ -212,8 +231,8 @@ export function EventDialog({
     )
   }
 
-  // 4. Route to PerformanceDialog for 301 Meeting - read-only
-  if (event?.type === "301Meeting" || event?.id?.startsWith("perf-")) {
+  // 4. Route to PerformanceDialog for system 301 Meeting - read-only
+  if (event && event.id.startsWith("perf-")) {
     return (
       <PerformanceDialog
         open={open}
@@ -239,11 +258,9 @@ export function EventDialog({
         location: data.location,
         color: data.color,
         type: data.type,
-        isRecurring: !!recurrencePattern,
-        recurrenceRule: recurrencePattern
-          ? patternToRRule(recurrencePattern)
-          : undefined,
-        recurrencePattern: recurrencePattern || undefined,
+        isRecurring: false,
+        recurrenceRule: undefined,
+        recurrencePattern: undefined,
       }
 
       await onSave(eventData)
@@ -297,39 +314,40 @@ export function EventDialog({
             {/* Event Title & Type */}
             <div>
               <div className="flex items-start justify-between gap-4">
-                <h3 className="text-content text-heading-lg break-words">
+                <h3 className="text-heading-lg text-foreground-primary break-words">
                   {event.title}
                 </h3>
-                <div
-                  className={cx(
-                    "text-label-xs flex-shrink-0 rounded-md px-3 py-1.5 whitespace-nowrap",
-                    getEventColorClasses(event.color, "default"),
-                  )}
+                <Badge
+                  variant={getBadgeVariant(event.color)}
+                  size="sm"
+                  className="shrink-0"
                 >
                   {event.type || "Event"}
-                </div>
+                </Badge>
               </div>
             </div>
 
             {/* Date & Time */}
-            <div className="bg-muted/50 border-border-border grid grid-cols-2 gap-4 rounded-lg border p-4">
+            <div className="bg-surface-neutral-secondary border-neutral-primary grid grid-cols-2 gap-4 rounded-lg border p-4">
               <div>
-                <h4 className="text-content-muted text-label-xs mb-2">Mulai</h4>
-                <p className="text-content text-label-md">
+                <h4 className="text-foreground-secondary text-label-xs mb-2">
+                  Mulai
+                </h4>
+                <p className="text-foreground-primary text-label-md">
                   {format(event.start, "dd MMM yyyy")}
                 </p>
-                <p className="text-content-muted text-body-sm mt-0.5">
+                <p className="text-foreground-secondary text-body-sm mt-0.5">
                   {format(event.start, "HH:mm")}
                 </p>
               </div>
               <div>
-                <h4 className="text-content-muted text-label-xs mb-2">
+                <h4 className="text-foreground-secondary text-label-xs mb-2">
                   Selesai
                 </h4>
-                <p className="text-content text-label-md">
+                <p className="text-foreground-primary text-label-md">
                   {format(event.end, "dd MMM yyyy")}
                 </p>
-                <p className="text-content-muted text-body-sm mt-0.5">
+                <p className="text-foreground-secondary text-body-sm mt-0.5">
                   {format(event.end, "HH:mm")}
                 </p>
               </div>
@@ -338,8 +356,8 @@ export function EventDialog({
             {/* Location */}
             {event.location && (
               <div className="space-y-2">
-                <h4 className="text-content text-label-md">Lokasi</h4>
-                <p className="text-content-muted text-label-md break-words">
+                <h4 className="text-label-md text-foreground-primary">Lokasi</h4>
+                <p className="text-label-md text-foreground-secondary break-words">
                   {event.location}
                 </p>
               </div>
@@ -347,16 +365,16 @@ export function EventDialog({
 
             {/* Description */}
             {event.description && (
-              <div className="border-border-border space-y-2 border-t pt-4">
-                <h4 className="text-content text-label-md">Deskripsi</h4>
-                <p className="text-content-muted text-label-md break-words whitespace-pre-wrap">
+              <div className="border-neutral-primary space-y-2 border-t pt-4">
+                <h4 className="text-label-md text-foreground-primary">Deskripsi</h4>
+                <p className="text-label-md text-foreground-secondary break-words whitespace-pre-wrap">
                   {event.description}
                 </p>
               </div>
             )}
 
             {/* Action buttons for read-only view */}
-            <div className="border-border-border flex items-center justify-end gap-2 border-t pt-4">
+            <div className="border-neutral-primary flex items-center justify-end gap-2 border-t pt-4">
               <Button
                 type="button"
                 variant="secondary"
@@ -365,12 +383,6 @@ export function EventDialog({
                 <RiCloseLine className="mr-2 h-4 w-4" />
                 Tutup
               </Button>
-              {/* Show Edit button only if the event is not from Google Calendar */}
-              {!event.googleEventId && (
-                <Button type="button" onClick={() => setIsEditing(true)}>
-                  Edit
-                </Button>
-              )}
             </div>
           </DialogBody>
         ) : (
@@ -460,8 +472,7 @@ export function EventDialog({
                     disabled={readOnly}
                   />
                   {!watch("allDay") && (
-                    <TextInput
-                      type="time"
+                    <TimeSelect
                       value={(() => {
                         const startValue = watch("start")
                         if (!startValue) return ""
@@ -470,11 +481,11 @@ export function EventDialog({
                           ? ""
                           : format(date, "HH:mm")
                       })()}
-                      onChange={(e) => {
+                      onValueChange={(value) => {
                         const currentStart = watch("start")
                           ? new Date(watch("start"))
                           : new Date()
-                        const [hours, minutes] = e.target.value.split(":")
+                        const [hours, minutes] = value.split(":")
                         if (!isNaN(currentStart.getTime())) {
                           currentStart.setHours(
                             parseInt(hours),
@@ -528,8 +539,7 @@ export function EventDialog({
                     disabled={readOnly}
                   />
                   {!watch("allDay") && (
-                    <TextInput
-                      type="time"
+                    <TimeSelect
                       value={(() => {
                         const endValue = watch("end")
                         if (!endValue) return ""
@@ -538,11 +548,11 @@ export function EventDialog({
                           ? ""
                           : format(date, "HH:mm")
                       })()}
-                      onChange={(e) => {
+                      onValueChange={(value) => {
                         const currentEnd = watch("end")
                           ? new Date(watch("end"))
                           : new Date()
-                        const [hours, minutes] = e.target.value.split(":")
+                        const [hours, minutes] = value.split(":")
                         if (!isNaN(currentEnd.getTime())) {
                           currentEnd.setHours(
                             parseInt(hours),
@@ -589,24 +599,12 @@ export function EventDialog({
               />
             </div>
 
-            {/* Recurrence */}
-            {!readOnly && (
-              <div className="space-y-2">
-                <Label htmlFor="recurrence">Repeat</Label>
-                <RecurrenceSelector
-                  value={recurrencePattern}
-                  onChange={setRecurrencePattern}
-                  eventStart={
-                    watch("start") ? new Date(watch("start")) : undefined
-                  }
-                />
-              </div>
-            )}
+            {/* Recurrence hidden for now */}
 
             {/* Actions */}
             <div className="border-border-border flex items-center justify-between border-t pt-4">
               <div className="flex-1">
-                {!readOnly && isEditing && onDelete && (
+                {!readOnly && event && onDelete && (
                   <>
                     {isDeletePending ? (
                       <div className="animate-fadeIn flex items-center gap-2">

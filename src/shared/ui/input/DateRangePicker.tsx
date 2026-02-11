@@ -107,7 +107,7 @@ const DateRangePicker = React.forwardRef<
             onSelect={onValueChange}
             numberOfMonths={2}
             initialFocus
-            className="border-none shadow-none rounded-none"
+            className="border-0 shadow-none rounded-none bg-transparent"
             classNames={{
               months: "flex flex-row gap-0",
             }}

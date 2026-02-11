@@ -1,23 +1,15 @@
 "use client"
 
-import { Avatar, AvatarGroup, AvatarOverflow, Badge } from "@/shared/ui"
-import { Button } from "@/shared/ui"
-import { Card } from "@/shared/ui"
-import { DateRangePicker } from "@/shared/ui"
-import { Label } from "@/shared/ui"
-import { QuarterFilter, QuarterFilterValue } from "@/shared/ui"
+import { createClient } from "@/shared/api/supabase/client"
+import { Database } from "@/shared/types/database.types"
 import {
-  Table,
+  Avatar, AvatarGroup, AvatarOverflow, Badge, Button, Card, ConfirmDialog, DateRangePicker, EmptyState, Label, QuarterFilter, QuarterFilterValue, Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeaderCell,
-  TableRow,
+  TableRow, TableSection, Tooltip
 } from "@/shared/ui"
-import { TableSection } from "@/shared/ui"
-import { Tooltip } from "@/shared/ui"
-import { Database } from "@/shared/types/database.types"
-import { createClient } from "@/shared/api/supabase/client"
 import {
   RiCheckDoubleLine,
   RiErrorWarningLine,
@@ -25,10 +17,12 @@ import {
   RiRocketLine,
   RiStopCircleLine,
   RiTimeLine,
+  RiUserLine,
 } from "@/shared/ui/lucide-icons"
 import { useEffect, useState } from "react"
 import { DateRange } from "react-day-picker"
 import { toast } from "sonner"
+import useSWR from "swr"
 import { AdminViewResultModal } from "./AdminViewResultModal"
 
 type PerformanceSummary =
@@ -55,11 +49,7 @@ type ReviewCycle = {
   is_active: boolean
 }
 
-export function AdminReviewDashboard({
-  activeCycleId,
-}: {
-  activeCycleId: string | null
-}) {
+export function AdminReviewDashboard() {
   const supabase = createClient()
 
   // State Data & UI
@@ -91,17 +81,21 @@ export function AdminReviewDashboard({
   )
   const [isViewModalOpen, setIsViewModalOpen] = useState(false)
 
+  // State Confirm Dialogs
+  const [isEndCycleConfirmOpen, setIsEndCycleConfirmOpen] = useState(false)
+  const [isTriggerN8NConfirmOpen, setIsTriggerN8NConfirmOpen] = useState(false)
+  const [selectedEmployeeForN8N, setSelectedEmployeeForN8N] =
+    useState<ReviewStatus | null>(null)
+
   // 0. SYNC: Konek Quarter Filter ke Cycle Name
   useEffect(() => {
     const targetName = `${currentYear}-${quarterOnly}` // Format: "2025-Q1" (no spaces)
     setCycleName(targetName)
   }, [selectedQuarter, currentYear, quarterOnly])
 
-  // 1. FETCH DATA
-  useEffect(() => {
-    const initData = async () => {
-      setLoading(true)
-
+  const { data: dashboardData, isLoading: isFetching, mutate } = useSWR(
+    ["admin-review-dashboard", selectedQuarter],
+    async () => {
       // A. Cek Siklus Aktif (Global)
       const { data: cycle } = await supabase
         .from("review_cycles")
@@ -109,13 +103,13 @@ export function AdminReviewDashboard({
         .eq("is_active", true)
         .single()
 
-      if (cycle) {
-        setActiveCycleData(cycle)
-        setCycleDate({
-          from: new Date(cycle.start_date),
-          to: new Date(cycle.end_date),
-        })
-      }
+      const activeCycle = cycle || null
+      const activeCycleDate = cycle
+        ? {
+            from: new Date(cycle.start_date),
+            to: new Date(cycle.end_date),
+          }
+        : undefined
 
       // B. Ambil Data Karyawan
       const { data: employees } = await supabase
@@ -124,8 +118,12 @@ export function AdminReviewDashboard({
         .neq("role", "stakeholder")
 
       if (!employees) {
-        setLoading(false)
-        return
+        return {
+          activeCycleData: activeCycle,
+          cycleDate: activeCycleDate,
+          quarterUUID: null,
+          statsData: [] as ReviewStatus[],
+        }
       }
 
       // C. Filter Logic (Mencari Cycle ID yang Valid untuk Quarter ini)
@@ -139,13 +137,7 @@ export function AdminReviewDashboard({
 
       // Gabungkan hasil pencarian UUID
       const validCycleIds = (cyclesByName || []).map((c) => c.id)
-
-      // SIMPAN UUID YANG DITEMUKAN KE STATE
-      if (validCycleIds.length > 0) {
-        setQuarterUUID(validCycleIds[0])
-      } else {
-        setQuarterUUID(null)
-      }
+      const quarterUUID = validCycleIds.length > 0 ? validCycleIds[0] : null
 
       const legacyCycleId = targetCycleName
 
@@ -221,12 +213,26 @@ export function AdminReviewDashboard({
           debugInfo: debugMatchInfo,
         }
       })
-      setStatsData(stats)
-      setLoading(false)
-    }
 
-    initData()
-  }, [supabase, activeCycleId, selectedQuarter, currentYear, quarterOnly])
+      return {
+        activeCycleData: activeCycle,
+        cycleDate: activeCycleDate,
+        quarterUUID,
+        statsData: stats,
+      }
+    },
+    { revalidateOnFocus: false },
+  )
+
+  const isDataLoading = isFetching && statsData.length === 0
+
+  useEffect(() => {
+    if (!dashboardData) return
+    setActiveCycleData(dashboardData.activeCycleData)
+    setCycleDate(dashboardData.cycleDate)
+    setQuarterUUID(dashboardData.quarterUUID)
+    setStatsData(dashboardData.statsData)
+  }, [dashboardData])
 
   // --- HANDLERS ---
   const handleSaveCycle = async () => {
@@ -258,25 +264,37 @@ export function AdminReviewDashboard({
         is_active: true,
       })
       toast.success("Siklus dimulai")
-      window.location.reload()
+      await mutate()
     }
     setLoading(false)
   }
 
   const handleEndCycle = async () => {
     if (!activeCycleData) return
-    if (!confirm("Akhiri siklus ini?")) return
+    setIsEndCycleConfirmOpen(true)
+  }
+
+  const confirmEndCycle = async () => {
+    if (!activeCycleData) return
     setLoading(true)
     await supabase
       .from("review_cycles")
       .update({ is_active: false })
       .eq("id", activeCycleData.id)
     toast.info("Siklus ditutup")
-    window.location.reload()
+    await mutate()
+    setLoading(false)
   }
 
   // HANDLER SINGLE PROCESS - LOGIC REVISI
   const handleTriggerN8N = async (employee: ReviewStatus) => {
+    setSelectedEmployeeForN8N(employee)
+    setIsTriggerN8NConfirmOpen(true)
+  }
+
+  const confirmTriggerN8N = async () => {
+    if (!selectedEmployeeForN8N) return
+
     // --- LOGIC PRIORITAS BARU ---
     // 1. Utamakan UUID Asli dari Database (quarterUUID)
     //    Kenapa? Karena n8n butuh UUID. Meskipun user punya review lama pake ID "2025-Q1",
@@ -286,7 +304,7 @@ export function AdminReviewDashboard({
     // 2. Jika UUID tidak ketemu (jarang terjadi kalau sudah start cycle),
     //    baru fallback ke ID Active Cycle atau ID User.
     if (!idToSend) {
-      idToSend = activeCycleData?.id || employee.cycleIdUsed
+      idToSend = activeCycleData?.id || selectedEmployeeForN8N.cycleIdUsed
     }
 
     // 3. Last resort: Legacy Text (Hanya kalau benar2 tidak ada data)
@@ -294,13 +312,11 @@ export function AdminReviewDashboard({
       idToSend = `${currentYear}-${quarterOnly}`
     }
 
-    if (!confirm("Kirim data ke AI?")) return
-
     try {
       await fetch("/api/trigger-n8n", {
         method: "POST",
         body: JSON.stringify({
-          reviewee_id: employee.userId,
+          reviewee_id: selectedEmployeeForN8N.userId,
           cycle_id: idToSend,
         }),
       })
@@ -309,6 +325,7 @@ export function AdminReviewDashboard({
       console.error(e)
       toast.error("Gagal memproses")
     }
+    await mutate()
   }
 
   const handleViewResult = (employeeData: ReviewStatus) => {
@@ -326,7 +343,7 @@ export function AdminReviewDashboard({
       {/* 2. MANAGEMENT CARD */}
       <Card>
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-content dark:text-content font-semibold">
+          <h3 className="text-foreground-primary font-semibold">
             Review Cycle Management
           </h3>
           {activeCycleData ? (
@@ -395,8 +412,16 @@ export function AdminReviewDashboard({
             </TableRow>
           </TableHead>
           <TableBody>
-            {statsData.map((item) => (
-              <TableRow key={item.userId}>
+            {isDataLoading ? (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center text-body-sm text-foreground-secondary">
+                  Loading reviews...
+                </TableCell>
+              </TableRow>
+            ) : (
+              <>
+                {statsData.map((item) => (
+                  <TableRow key={item.userId}>
                 <TableCell>
                   <span
                     className="text-foreground-primary font-medium"
@@ -522,17 +547,20 @@ export function AdminReviewDashboard({
                     </Button>
                   )}
                 </TableCell>
-              </TableRow>
-            ))}
-            {statsData.length === 0 && (
-              <TableRow>
-                <TableCell
-                  colSpan={5}
-                  className="text-content-subtle py-8 text-center"
-                >
-                  No employees found.
-                </TableCell>
-              </TableRow>
+                  </TableRow>
+                ))}
+                {statsData.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={5} className="p-0">
+                      <EmptyState
+                        icon={<RiUserLine />}
+                        title="No employees found"
+                        description="Employees will appear here once assigned to this quarter"
+                      />
+                    </TableCell>
+                  </TableRow>
+                )}
+              </>
             )}
           </TableBody>
         </Table>
@@ -545,6 +573,27 @@ export function AdminReviewDashboard({
         employee={selectedEmployee}
         selectedQuarter={selectedQuarter}
         currentYear={currentYear}
+      />
+
+      {/* CONFIRM DIALOGS */}
+      <ConfirmDialog
+        open={isEndCycleConfirmOpen}
+        onOpenChange={setIsEndCycleConfirmOpen}
+        onConfirm={confirmEndCycle}
+        title="End Review Cycle"
+        description="Are you sure you want to end this review cycle? This action will deactivate the current cycle."
+        confirmText="End Cycle"
+        variant="destructive"
+        loading={loading}
+      />
+
+      <ConfirmDialog
+        open={isTriggerN8NConfirmOpen}
+        onOpenChange={setIsTriggerN8NConfirmOpen}
+        onConfirm={confirmTriggerN8N}
+        title="Process Performance Data"
+        description={`Send ${selectedEmployeeForN8N?.name}'s performance data to AI for processing?`}
+        confirmText="Process"
       />
     </div>
   )

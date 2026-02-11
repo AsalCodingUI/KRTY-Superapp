@@ -18,6 +18,7 @@ export async function getProjects(
             project_assignments (
                 id,
                 role_in_project,
+                is_lead,
                 profiles (
                     id,
                     full_name,
@@ -164,6 +165,7 @@ export async function assignUserToProject(
   userId: string,
   role: Database["public"]["Enums"]["project_role_enum"],
   weight?: number,
+  isLead?: boolean,
 ) {
   const supabase = await createClient()
 
@@ -172,6 +174,7 @@ export async function assignUserToProject(
     user_id: userId,
     role_in_project: role,
     weight_in_quarter: weight || null,
+    is_lead: isLead ?? null,
   }
 
   const { data, error } = await supabase
@@ -187,6 +190,39 @@ export async function assignUserToProject(
 
   revalidatePath("/performance")
   return { success: true, data }
+}
+
+export async function updateProjectAssignmentLead(
+  projectId: string,
+  assignmentId: string,
+  isLead: boolean,
+) {
+  const supabase = await createClient()
+
+  if (isLead) {
+    const { error: resetError } = await supabase
+      .from("project_assignments")
+      .update({ is_lead: false })
+      .eq("project_id", projectId)
+
+    if (resetError) {
+      console.error("Error resetting leads:", resetError)
+      return { success: false, error: resetError.message }
+    }
+  }
+
+  const { error } = await supabase
+    .from("project_assignments")
+    .update({ is_lead: isLead })
+    .eq("id", assignmentId)
+
+  if (error) {
+    console.error("Error updating lead:", error)
+    return { success: false, error: error.message }
+  }
+
+  revalidatePath("/performance")
+  return { success: true }
 }
 
 export async function removeUserFromProject(assignmentId: string) {
@@ -216,6 +252,7 @@ export async function getProjectAssignments(projectId: string) {
             id,
             role_in_project,
             weight_in_quarter,
+            is_lead,
             profiles (
                 id,
                 full_name,

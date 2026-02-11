@@ -103,8 +103,8 @@ export const EVENT_TYPE_REGISTRY: Record<string, EventTypeDefinition> = {
       label: "Event",
     },
   },
-  "301Meeting": {
-    value: "301Meeting",
+  "301 Meeting": {
+    value: "301 Meeting",
     label: "301 Meeting",
     color: "amber",
     colorMapping: {
@@ -115,8 +115,8 @@ export const EVENT_TYPE_REGISTRY: Record<string, EventTypeDefinition> = {
       label: "301 Meeting",
     },
   },
-  CompanyHoliday: {
-    value: "CompanyHoliday",
+  "Company Holiday": {
+    value: "Company Holiday",
     label: "Company Holiday",
     color: "emerald",
     colorMapping: {
@@ -127,8 +127,8 @@ export const EVENT_TYPE_REGISTRY: Record<string, EventTypeDefinition> = {
       label: "Company Holiday",
     },
   },
-  holiday: {
-    value: "holiday",
+  "Public Holiday": {
+    value: "Public Holiday",
     label: "Public Holiday",
     color: "neutral",
     colorMapping: {
@@ -139,6 +139,13 @@ export const EVENT_TYPE_REGISTRY: Record<string, EventTypeDefinition> = {
       label: "Public Holiday",
     },
   },
+}
+
+const EVENT_TYPE_ALIASES: Record<string, string> = {
+  "301Meeting": "301 Meeting",
+  CompanyHoliday: "Company Holiday",
+  holiday: "Public Holiday",
+  PublicHoliday: "Public Holiday",
 }
 
 /**
@@ -217,7 +224,10 @@ export function getEventTypeDefinition(
   eventType?: string,
 ): EventTypeDefinition | undefined {
   if (!eventType) return undefined
-  return EVENT_TYPE_REGISTRY[eventType]
+  if (EVENT_TYPE_REGISTRY[eventType]) return EVENT_TYPE_REGISTRY[eventType]
+  const alias = EVENT_TYPE_ALIASES[eventType]
+  if (alias && EVENT_TYPE_REGISTRY[alias]) return EVENT_TYPE_REGISTRY[alias]
+  return undefined
 }
 
 /**

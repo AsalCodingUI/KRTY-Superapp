@@ -28,6 +28,7 @@ import {
   RiArrowLeftLine,
   RiCheckLine,
   RiCloseLine,
+  RiFolderLine,
   RiSave3Line,
 } from "@/shared/ui/lucide-icons"
 import Link from "next/link"
@@ -252,338 +253,347 @@ export function ProjectScoringClient({
   const qualityPercentage = calculateWorkQualityPercentage(competencies)
 
   return (
-    <div className="space-y-6">
-      {/* HEADER */}
-      <div>
-        <Link href={`/performance/employee/${employee.id}`}>
-          <Button variant="ghost" size="sm">
-            <RiArrowLeftLine className="mr-2 size-4" />
-            Back to {employee.full_name || "Employee"}
-          </Button>
-        </Link>
+    <div className="flex flex-col">
+      <div className="flex items-center gap-2 rounded-xxl px-5 pt-4 pb-3">
+        <RiFolderLine className="size-4 text-foreground-secondary" />
+        <p className="text-label-md text-foreground-primary">
+          Project Performance
+        </p>
+      </div>
 
-        <div className="mt-4 flex items-start justify-between">
+      <div className="bg-surface-neutral-primary flex flex-col rounded-xxl">
+        <div className="space-y-6 p-5">
+          {/* HEADER */}
           <div>
-            <h1 className="text-display-xxs text-content dark:text-content">
-              {assignment.projects.name}
-            </h1>
-            {assignment.projects.description && (
-              <p className="text-content-subtle dark:text-content-placeholder mt-1">
-                {assignment.projects.description}
-              </p>
-            )}
-          </div>
-          <div className="flex items-center gap-2">
-            <Badge variant="info">
-              {assignment.projects.quarter_id}
-            </Badge>
-            <Badge variant="info">
-              {assignment.role_in_project}
-            </Badge>
-          </div>
-        </div>
-      </div>
-
-      {/* KPI OVERVIEW */}
-      <div className="grid grid-cols-2 gap-6">
-        <Card>
-          <dt className="text-label-md text-content-subtle dark:text-content-subtle">
-            SLA Score
-          </dt>
-          <dd className="text-display-xxs text-content dark:text-content mt-2">
-            {totalPercentage.toFixed(1)}%
-          </dd>
-          <Badge className={`mt-2 ${getScoreColor(finalScore)}`}>
-            {getScoreLabel(finalScore)}
-          </Badge>
-        </Card>
-        <Card>
-          <dt className="text-label-md text-content-subtle dark:text-content-subtle">
-            Work Quality
-          </dt>
-          <dd className="text-display-xxs text-content dark:text-content mt-2">
-            {competencies.filter((c) => c.isAchieved).length}/
-            {competencies.length}
-          </dd>
-          <Badge
-            className={`mt-2 ${getScoreColor(mapPercentageToScore(qualityPercentage))}`}
-          >
-            {getScoreLabel(mapPercentageToScore(qualityPercentage))}
-          </Badge>
-        </Card>
-      </div>
-
-      {/* TAB NAVIGATION */}
-      <TabNavigation>
-        <TabNavigationLink
-          active={activeTab === "sla"}
-          onClick={() => setActiveTab("sla")}
-        >
-          SLA Calculation
-        </TabNavigationLink>
-        <TabNavigationLink
-          active={activeTab === "quality"}
-          onClick={() => setActiveTab("quality")}
-        >
-          Work Quality
-        </TabNavigationLink>
-      </TabNavigation>
-
-      {/* TAB CONTENT */}
-      {activeTab === "sla" ? (
-        <div className="space-y-6">
-          {/* SLA CALCULATOR - FULL WIDTH */}
-          <Card className="border-0 p-0">
-            <div className="mb-6 flex items-center justify-between">
-              <h3 className="text-heading-md text-content dark:text-content">
-                SLA Calculator
-              </h3>
-              <Button onClick={handleSaveSLA} disabled={saving} size="sm">
-                <RiSave3Line className="mr-2 size-4" />
-                {saving ? "Saving..." : "Save"}
+            <Link href={`/performance/employee/${employee.id}`}>
+              <Button variant="ghost" size="sm">
+                <RiArrowLeftLine className="mr-2 size-4" />
+                Back to {employee.full_name || "Employee"}
               </Button>
-            </div>
+            </Link>
 
-            {/* Table-style Form */}
-            <div className="space-y-4">
-              {/* Header Row - using flex like Timeline Engine */}
-              <div className="text-label-md text-content dark:text-content border-border flex gap-4 border-b px-1 pb-2">
-                <div className="flex-1">Milestone</div>
-                <div className="w-28 text-center">Weight (%)</div>
-                <div className="w-40 text-center">Result</div>
-                <div className="w-32 text-center">Real Achieve</div>
+            <div className="mt-4 flex items-start justify-between">
+              <div>
+                <h1 className="text-display-xxs text-foreground-primary">
+                  {assignment.projects.name}
+                </h1>
+                {assignment.projects.description && (
+                  <p className="text-foreground-secondary mt-1">
+                    {assignment.projects.description}
+                  </p>
+                )}
               </div>
-
-              {/* Data Rows - using flex like Timeline Engine */}
-              {milestones.map((milestone, index) => (
-                <div key={index} className="flex items-center gap-4">
-                  {/* Milestone Name */}
-                  <TextInput className="flex-1" value={milestone.name} disabled />
-
-                  {/* Weight */}
-                  <TextInput
-                    type="number"
-                    className="w-28 text-center"
-                    value={milestone.weight}
-                    onChange={(e) =>
-                      handleMilestoneChange(
-                        index,
-                        "weight",
-                        Number(e.target.value),
-                      )
-                    }
-                  />
-
-                  {/* Result */}
-                  <Select
-                    value={milestone.result}
-                    onValueChange={(v) =>
-                      handleMilestoneChange(index, "result", v as SLAResult)
-                    }
-                  >
-                    <SelectTrigger className="w-40">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {/* Handover only has On Time and Delay, no Faster */}
-                      {milestone.name === "Handover" ? (
-                        <>
-                          <SelectItem value="On Time">On Time</SelectItem>
-                          <SelectItem value="Delay">Delay</SelectItem>
-                        </>
-                      ) : (
-                        <>
-                          <SelectItem value="Faster">Faster</SelectItem>
-                          <SelectItem value="On Time">On Time</SelectItem>
-                          <SelectItem value="Delay">Delay</SelectItem>
-                        </>
-                      )}
-                    </SelectContent>
-                  </Select>
-
-                  {/* Real Achieve (Read-only) */}
-                  <TextInput
-                    className="w-32 text-center"
-                    value={milestone.realAchieve.toFixed(1)}
-                    disabled
-                  />
-                </div>
-              ))}
-
-              {/* Total Row */}
-              <div className="border-border border-t pt-4">
-                <div className="text-content dark:text-content flex justify-between font-semibold">
-                  <span>Total</span>
-                  <span>
-                    {milestones.reduce((sum, m) => sum + m.weight, 0)}%
-                  </span>
-                </div>
+              <div className="flex items-center gap-2">
+                <Badge variant="info">{assignment.projects.quarter_id}</Badge>
+                <Badge variant="info">{assignment.role_in_project}</Badge>
               </div>
             </div>
-          </Card>
+          </div>
 
-          {/* PARAMETER MATRIX & FINAL SCORE - BELOW */}
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            <Card className="border-0 p-0">
-              <h3 className="text-heading-md text-content dark:text-content mb-4">
-                Parameter Matrix
-              </h3>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableHeaderCell>SLA Status</TableHeaderCell>
-                    <TableHeaderCell>Percentage</TableHeaderCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  <TableRow>
-                    <TableCell>Faster</TableCell>
-                    <TableCell>120%</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>On Time</TableCell>
-                    <TableCell>100%</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>Delay</TableCell>
-                    <TableCell>80%</TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
+          {/* KPI OVERVIEW */}
+          <div className="grid grid-cols-2 gap-6">
+            <Card>
+              <dt className="text-label-md text-foreground-secondary">
+                SLA Score
+              </dt>
+              <dd className="text-display-xxs text-foreground-primary mt-2">
+                {totalPercentage.toFixed(1)}%
+              </dd>
+              <Badge className={`mt-2 ${getScoreColor(finalScore)}`}>
+                {getScoreLabel(finalScore)}
+              </Badge>
             </Card>
+            <Card>
+              <dt className="text-label-md text-foreground-secondary">
+                Work Quality
+              </dt>
+              <dd className="text-display-xxs text-foreground-primary mt-2">
+                {competencies.filter((c) => c.isAchieved).length}/
+                {competencies.length}
+              </dd>
+              <Badge
+                className={`mt-2 ${getScoreColor(mapPercentageToScore(qualityPercentage))}`}
+              >
+                {getScoreLabel(mapPercentageToScore(qualityPercentage))}
+              </Badge>
+            </Card>
+          </div>
 
-            <Card className="border-0 p-0">
-              <h3 className="text-heading-md text-content dark:text-content mb-4">
-                Final Score
-              </h3>
-              <div className="space-y-4">
-                <div>
-                  <p className="text-body-sm text-content-subtle dark:text-content-placeholder">
-                    Total Nilai
-                  </p>
-                  <div className="flex items-center gap-3">
-                    <p className="text-display-xxs text-content dark:text-content">
-                      {totalPercentage.toFixed(1)}%
-                    </p>
-                    <Badge className={getScoreColor(finalScore)}>
-                      {getScoreLabel(finalScore)}
-                    </Badge>
-                  </div>
+          {/* TAB NAVIGATION */}
+          <TabNavigation>
+            <TabNavigationLink
+              active={activeTab === "sla"}
+              onClick={() => setActiveTab("sla")}
+            >
+              SLA Calculation
+            </TabNavigationLink>
+            <TabNavigationLink
+              active={activeTab === "quality"}
+              onClick={() => setActiveTab("quality")}
+            >
+              Work Quality
+            </TabNavigationLink>
+          </TabNavigation>
+
+          {/* TAB CONTENT */}
+          {activeTab === "sla" ? (
+            <div className="space-y-6">
+              {/* SLA CALCULATOR - FULL WIDTH */}
+              <Card className="border-0 p-0">
+                <div className="mb-6 flex items-center justify-between">
+                  <h3 className="text-heading-md text-foreground-primary">
+                    SLA Calculator
+                  </h3>
+                  <Button onClick={handleSaveSLA} disabled={saving} size="sm">
+                    <RiSave3Line className="mr-2 size-4" />
+                    {saving ? "Saving..." : "Save"}
+                  </Button>
                 </div>
 
-                {/* Ruler Visual */}
-                <div>
-                  <p className="text-body-sm text-content-subtle dark:text-content-placeholder mb-2">
-                    Score Ruler
-                  </p>
-                  <div className="text-body-xs grid grid-cols-5 gap-2 text-center">
-                    {[1, 2, 3, 4, 5].map((score) => (
-                      <div
-                        key={score}
-                        className={`rounded p-2 ${score === finalScore
-                          ? getScoreColor(score)
-                          : "bg-muted text-content-placeholder dark:bg-hover"
-                          }`}
+                {/* Table-style Form */}
+                <div className="space-y-4">
+                  {/* Header Row - using flex like Timeline Engine */}
+                  <div className="text-label-md text-foreground-primary border-neutral-primary flex gap-4 border-b px-1 pb-2">
+                    <div className="flex-1">Milestone</div>
+                    <div className="w-28 text-center">Weight (%)</div>
+                    <div className="w-40 text-center">Result</div>
+                    <div className="w-32 text-center">Real Achieve</div>
+                  </div>
+
+                  {/* Data Rows - using flex like Timeline Engine */}
+                  {milestones.map((milestone, index) => (
+                    <div key={index} className="flex items-center gap-4">
+                      {/* Milestone Name */}
+                      <TextInput className="flex-1" value={milestone.name} disabled />
+
+                      {/* Weight */}
+                      <TextInput
+                        type="number"
+                        className="w-28 text-center"
+                        value={milestone.weight}
+                        onChange={(e) =>
+                          handleMilestoneChange(
+                            index,
+                            "weight",
+                            Number(e.target.value),
+                          )
+                        }
+                      />
+
+                      {/* Result */}
+                      <Select
+                        value={milestone.result}
+                        onValueChange={(v) =>
+                          handleMilestoneChange(index, "result", v as SLAResult)
+                        }
                       >
-                        <div className="font-semibold">{score}</div>
-                        <div className="text-label-xs mt-1">
-                          {score === 1 && "< 76%"}
-                          {score === 2 && "76-83.9%"}
-                          {score === 3 && "84-91.9%"}
-                          {score === 4 && "92-99.9%"}
-                          {score === 5 && "≥ 100%"}
-                        </div>
-                      </div>
-                    ))}
+                        <SelectTrigger className="w-40">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {/* Handover only has On Time and Delay, no Faster */}
+                          {milestone.name === "Handover" ? (
+                            <>
+                              <SelectItem value="On Time">On Time</SelectItem>
+                              <SelectItem value="Delay">Delay</SelectItem>
+                            </>
+                          ) : (
+                            <>
+                              <SelectItem value="Faster">Faster</SelectItem>
+                              <SelectItem value="On Time">On Time</SelectItem>
+                              <SelectItem value="Delay">Delay</SelectItem>
+                            </>
+                          )}
+                        </SelectContent>
+                      </Select>
+
+                      {/* Real Achieve (Read-only) */}
+                      <TextInput
+                        className="w-32 text-center"
+                        value={milestone.realAchieve.toFixed(1)}
+                        disabled
+                      />
+                    </div>
+                  ))}
+
+                  {/* Total Row */}
+                  <div className="border-neutral-primary border-t pt-4">
+                    <div className="text-foreground-primary flex justify-between font-semibold">
+                      <span>Total</span>
+                      <span>
+                        {milestones.reduce((sum, m) => sum + m.weight, 0)}%
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </Card>
-          </div>
-        </div>
-      ) : (
-        <Card className="border-0 p-0">
-          <div className="mb-4 flex items-center justify-between">
-            <div>
-              <h3 className="text-heading-md text-content dark:text-content">
-                Work Quality Assessment
-              </h3>
-              <p className="text-body-sm text-content-subtle dark:text-content-placeholder">
-                Based on {assignment.role_in_project} competencies
-              </p>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="text-right">
-                <p className="text-label-md text-content-subtle dark:text-content-placeholder">
-                  Quality Score
-                </p>
-                <p className="text-display-xxs text-content dark:text-content">
-                  {competencies.filter((c) => c.isAchieved).length}/
-                  {competencies.length}
-                </p>
-              </div>
-              <Button onClick={handleSaveQuality} disabled={saving}>
-                <RiSave3Line className="mr-2 size-4" />
-                {saving ? "Saving..." : "Save"}
-              </Button>
-            </div>
-          </div>
+              </Card>
 
-          {loading ? (
-            <div className="text-body-sm text-content-subtle p-8 text-center">
-              Loading competencies...
-            </div>
-          ) : competencies.length === 0 ? (
-            <div className="text-body-sm text-content-subtle p-8 text-center">
-              No competencies found for this role
+              {/* PARAMETER MATRIX & FINAL SCORE - BELOW */}
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                <Card className="border-0 p-0">
+                  <h3 className="text-heading-md text-foreground-primary mb-4">
+                    Parameter Matrix
+                  </h3>
+                  <Table>
+                    <TableHead>
+                      <TableRow>
+                        <TableHeaderCell>SLA Status</TableHeaderCell>
+                        <TableHeaderCell>Percentage</TableHeaderCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell>Faster</TableCell>
+                        <TableCell>120%</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>On Time</TableCell>
+                        <TableCell>100%</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>Delay</TableCell>
+                        <TableCell>80%</TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </Card>
+
+                <Card className="border-0 p-0">
+                  <h3 className="text-heading-md text-foreground-primary mb-4">
+                    Final Score
+                  </h3>
+                  <div className="space-y-4">
+                    <div>
+                      <p className="text-body-sm text-foreground-secondary">
+                        Total Nilai
+                      </p>
+                      <div className="flex items-center gap-3">
+                        <p className="text-display-xxs text-foreground-primary">
+                          {totalPercentage.toFixed(1)}%
+                        </p>
+                        <Badge className={getScoreColor(finalScore)}>
+                          {getScoreLabel(finalScore)}
+                        </Badge>
+                      </div>
+                    </div>
+
+                    {/* Ruler Visual */}
+                    <div>
+                      <p className="text-body-sm text-foreground-secondary mb-2">
+                        Score Ruler
+                      </p>
+                      <div className="text-body-xs grid grid-cols-5 gap-2 text-center">
+                        {[1, 2, 3, 4, 5].map((score) => (
+                          <div
+                            key={score}
+                            className={`rounded p-2 ${score === finalScore
+                              ? getScoreColor(score)
+                              : "bg-surface-neutral-secondary text-foreground-tertiary dark:bg-hover"
+                              }`}
+                          >
+                            <div className="font-semibold">{score}</div>
+                            <div className="text-label-xs mt-1">
+                              {score === 1 && "< 76%"}
+                              {score === 2 && "76-83.9%"}
+                              {score === 3 && "84-91.9%"}
+                              {score === 4 && "92-99.9%"}
+                              {score === 5 && "≥ 100%"}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              </div>
             </div>
           ) : (
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableHeaderCell>Competency</TableHeaderCell>
-                  <TableHeaderCell>Description</TableHeaderCell>
-                  <TableHeaderCell className="text-center">
-                    Achieved
-                  </TableHeaderCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {competencies.map((comp, index) => (
-                  <TableRow key={comp.id}>
-                    <TableCell className="font-medium">{comp.name}</TableCell>
-                    <TableCell
-                      className="text-foreground-secondary"
-                      title={comp.description || "-"}
-                    >
-                      <span className="block truncate">
-                        {comp.description || "-"}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <Button
-                        variant={comp.isAchieved ? "primary" : "tertiary"}
-                        size="sm"
-                        onClick={() => handleToggleCompetency(index)}
-                      >
-                        {comp.isAchieved ? (
-                          <>
-                            <RiCheckLine className="mr-1 size-3.5" />Y
-                          </>
-                        ) : (
-                          <>
-                            <RiCloseLine className="mr-1 size-3.5" />N
-                          </>
-                        )}
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <Card className="border-0 p-0">
+              <div className="mb-4 flex items-center justify-between">
+                <div>
+                  <h3 className="text-heading-md text-foreground-primary">
+                    Work Quality Assessment
+                  </h3>
+                  <p className="text-body-sm text-foreground-secondary">
+                    Based on {assignment.role_in_project} competencies
+                  </p>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="text-right">
+                    <p className="text-label-md text-foreground-secondary">
+                      Quality Score
+                    </p>
+                    <p className="text-display-xxs text-foreground-primary">
+                      {competencies.filter((c) => c.isAchieved).length}/
+                      {competencies.length}
+                    </p>
+                  </div>
+                  <Button onClick={handleSaveQuality} disabled={saving}>
+                    <RiSave3Line className="mr-2 size-4" />
+                    {saving ? "Saving..." : "Save"}
+                  </Button>
+                </div>
+              </div>
+
+              {loading ? (
+                <div className="text-body-sm text-foreground-secondary p-8 text-center">
+                  Loading competencies...
+                </div>
+              ) : competencies.length === 0 ? (
+                <div className="text-body-sm text-foreground-secondary p-8 text-center">
+                  No competencies found for this role
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHead>
+                      <TableRow>
+                        <TableHeaderCell className="w-[200px]">Competency</TableHeaderCell>
+                        <TableHeaderCell className="w-[400px]">Description</TableHeaderCell>
+                        <TableHeaderCell className="w-[120px] text-center">
+                          Achieved
+                        </TableHeaderCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {competencies.map((comp, index) => (
+                        <TableRow key={comp.id}>
+                          <TableCell className="font-medium">{comp.name}</TableCell>
+                          <TableCell
+                            className="text-foreground-secondary max-w-[400px]"
+                            title={comp.description || "-"}
+                          >
+                            <span className="line-clamp-2">
+                              {comp.description || "-"}
+                            </span>
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <Button
+                              variant={comp.isAchieved ? "primary" : "tertiary"}
+                              size="sm"
+                              onClick={() => handleToggleCompetency(index)}
+                            >
+                              {comp.isAchieved ? (
+                                <>
+                                  <RiCheckLine className="mr-1 size-3.5" />Y
+                                </>
+                              ) : (
+                                <>
+                                  <RiCloseLine className="mr-1 size-3.5" />N
+                                </>
+                              )}
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </Card>
           )}
-        </Card>
-      )}
+        </div>
+      </div>
     </div>
   )
 }

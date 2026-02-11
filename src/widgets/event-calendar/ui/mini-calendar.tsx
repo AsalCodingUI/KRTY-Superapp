@@ -66,7 +66,8 @@ export function MiniCalendar() {
                   isCurrentMonth &&
                     !isSelected &&
                     "text-foreground-secondary hover:bg-surface-state-neutral-light-hover",
-                  isSelected && "bg-surface-brand text-foreground-on-color",
+                  isSelected &&
+                    "bg-surface-brand text-foreground-on-color hover:bg-surface-brand",
                 )}
               >
                 {format(day, "d")}

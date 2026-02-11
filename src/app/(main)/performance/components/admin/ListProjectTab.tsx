@@ -24,17 +24,16 @@ import {
   RiDeleteBin6Line,
   RiEdit2Line,
   RiFolderLine,
-  RiTeamLine,
 } from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
-import { useEffect, useState } from "react"
+import { useState } from "react"
+import useSWR from "swr"
 import { toast } from "sonner"
 import {
   deleteProject,
   getProjects,
   permanentDeleteProject,
 } from "../../actions/project-actions"
-import { ProjectAssignmentDialog } from "./ProjectAssignmentDialog"
 import { ProjectForm } from "./ProjectForm"
 import { QuarterBadge } from "./QuarterBadge"
 
@@ -56,8 +55,8 @@ interface ExtendedProject extends Project {
 const getStatusColor = (status: ProjectStatus): string => {
   const colors: Record<ProjectStatus, string> = {
     Active: "bg-success/15 text-success",
-    Completed: "bg-primary/15 text-primary",
-    Archived: "bg-muted text-content-subtle",
+    Completed: "bg-primary/15 text-foreground-brand-primary",
+    Archived: "bg-surface-neutral-secondary text-foreground-secondary",
   }
   return colors[status]
 }
@@ -66,58 +65,27 @@ export function ListProjectTab() {
   const [selectedQuarter, setSelectedQuarter] =
     useState<QuarterFilterValue>("2025-All")
   const [selectedStatus, setSelectedStatus] = useState<string>("All")
-  const [projects, setProjects] = useState<ExtendedProject[]>([])
-  const [loading, setLoading] = useState(true)
   const [formOpen, setFormOpen] = useState(false)
-  const [assignmentOpen, setAssignmentOpen] = useState(false)
   const [selectedProject, setSelectedProject] =
     useState<ExtendedProject | null>(null)
 
-  useEffect(() => {
-    const loadProjects = async () => {
-      setLoading(true)
-      try {
-        const result = await getProjects(
-          selectedQuarter,
-          selectedStatus === "All" ? undefined : selectedStatus,
-        )
-        if (result.success) {
-          setProjects(result.data as ExtendedProject[])
-        }
-      } catch (error) {
-        console.error("Error loading projects:", error)
-      } finally {
-        setLoading(false)
-      }
-    }
-    loadProjects()
-  }, [selectedQuarter, selectedStatus])
-
-  const loadProjects = async () => {
-    setLoading(true)
-    try {
-      const result = await getProjects(
+  const { data: projectsResult, isLoading, mutate } = useSWR(
+    ["projects", selectedQuarter, selectedStatus],
+    () =>
+      getProjects(
         selectedQuarter,
         selectedStatus === "All" ? undefined : selectedStatus,
-      )
-      if (result.success) {
-        setProjects(result.data as ExtendedProject[])
-      }
-    } catch (error) {
-      console.error("Error loading projects:", error)
-    } finally {
-      setLoading(false)
-    }
-  }
+      ),
+    { revalidateOnFocus: false },
+  )
+
+  const projects: ExtendedProject[] = projectsResult?.success
+    ? (projectsResult.data as ExtendedProject[])
+    : []
 
   const handleEdit = (project: ExtendedProject) => {
     setSelectedProject(project)
     setFormOpen(true)
-  }
-
-  const handleAssign = (project: ExtendedProject) => {
-    setSelectedProject(project)
-    setAssignmentOpen(true)
   }
 
   const handleDelete = async (project: ExtendedProject) => {
@@ -130,7 +98,7 @@ export function ListProjectTab() {
 
     const result = await deleteProject(project.id)
     if (result.success) {
-      loadProjects()
+      mutate()
     } else {
       toast.error("Gagal arsip")
     }
@@ -147,7 +115,7 @@ export function ListProjectTab() {
     const result = await permanentDeleteProject(project.id)
     if (result.success) {
       toast.success("Project dihapus")
-      loadProjects()
+      mutate()
     } else {
       toast.error("Gagal hapus")
     }
@@ -158,13 +126,8 @@ export function ListProjectTab() {
     setSelectedProject(null)
   }
 
-  const handleAssignmentClose = () => {
-    setAssignmentOpen(false)
-    setSelectedProject(null)
-  }
-
   const handleFormSuccess = () => {
-    loadProjects()
+    mutate()
   }
 
   return (
@@ -197,8 +160,8 @@ export function ListProjectTab() {
           </Button>
         }
       >
-        {loading ? (
-          <div className="text-body-sm text-content-subtle p-8 text-center">
+        {isLoading ? (
+          <div className="text-body-sm text-foreground-secondary p-8 text-center">
             Loading projects...
           </div>
         ) : projects.length === 0 ? (
@@ -304,14 +267,6 @@ export function ListProjectTab() {
                         <Button
                           variant="tertiary"
                           size="icon-sm"
-                          onClick={() => handleAssign(project)}
-                          title="Manage Team"
-                        >
-                          <RiTeamLine className="size-3.5" />
-                        </Button>
-                        <Button
-                          variant="tertiary"
-                          size="icon-sm"
                           onClick={() => handleEdit(project)}
                           title="Edit Project"
                         >
@@ -357,13 +312,6 @@ export function ListProjectTab() {
         project={selectedProject}
       />
 
-      {/* Project Assignment Dialog */}
-      <ProjectAssignmentDialog
-        open={assignmentOpen}
-        onClose={handleAssignmentClose}
-        project={selectedProject}
-        onSuccess={handleFormSuccess}
-      />
     </div>
   )
 }

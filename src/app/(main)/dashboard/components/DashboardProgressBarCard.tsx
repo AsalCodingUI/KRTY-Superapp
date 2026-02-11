@@ -34,16 +34,16 @@ export function ProgressBarCard({
       <div className="flex flex-col justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <dt className="text-content sm:text-label-md dark:text-content">
+            <dt className="text-foreground-primary sm:text-label-md dark:text-foreground-primary">
               {title}
             </dt>
             <Badge variant="zinc">{change}</Badge>
           </div>
           <dd className="mt-2 flex items-baseline gap-2">
-            <span className="text-heading-lg text-content dark:text-content">
+            <span className="text-heading-lg text-foreground-primary dark:text-foreground-primary">
               {value}
             </span>
-            <span className="text-body-sm text-content-muted">
+            <span className="text-body-sm text-foreground-tertiary">
               {valueDescription}
             </span>
           </dd>
@@ -51,12 +51,12 @@ export function ProgressBarCard({
             {data.map((item) => (
               <li key={item.title}>
                 <p className="text-label-md flex justify-between">
-                  <span className="text-content dark:text-content font-medium">
+                  <span className="text-foreground-primary dark:text-foreground-primary font-medium">
                     {item.title}
                   </span>
-                  <span className="text-content dark:text-content font-medium">
+                  <span className="text-foreground-primary dark:text-foreground-primary font-medium">
                     {item.current}
-                    <span className="text-content-muted font-normal">
+                    <span className="text-foreground-tertiary font-normal">
                       /{item.allowed}
                       {item.unit}
                     </span>
@@ -71,9 +71,9 @@ export function ProgressBarCard({
           </ul>
         </div>
         <div>
-          <p className="text-body-xs text-content-muted mt-6">
+          <p className="text-body-xs text-foreground-tertiary mt-6">
             {ctaDescription}{" "}
-            <a href={ctaLink} className="text-primary hover:text-primary-hover">
+            <a href={ctaLink} className="text-foreground-brand-primary hover:text-foreground-brand-primary-hover">
               {ctaText}
             </a>
           </p>

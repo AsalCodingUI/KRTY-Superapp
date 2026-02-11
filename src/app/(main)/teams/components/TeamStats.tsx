@@ -66,10 +66,10 @@ export function TeamStats({ data }: TeamStatsProps) {
     <div className="max-w-full">
       <dl className="grid grid-cols-1">
         <Card>
-          <dt className="text-label-md text-content-subtle">
+          <dt className="text-label-md text-foreground-secondary">
             Total Team Members
           </dt>
-          <dd className="text-display-xxs text-content mt-1">{totalMembers}</dd>
+          <dd className="text-display-xxs text-foreground-primary mt-1">{totalMembers}</dd>
 
           <CategoryBar
             values={barValues}
@@ -89,10 +89,10 @@ export function TeamStats({ data }: TeamStatsProps) {
                   aria-hidden="true"
                 />
                 <div className="flex items-baseline gap-1.5">
-                  <span className="text-content font-semibold">
+                  <span className="text-foreground-primary font-semibold">
                     {item.percentage}%
                   </span>
-                  <span className="text-content-subtle">
+                  <span className="text-foreground-secondary">
                     {item.name} ({item.count})
                   </span>
                 </div>
