@@ -2,6 +2,7 @@
 
 import { AdminAttendanceHistoryList } from "@/app/(main)/attendance/components/AdminAttendanceHistoryList"
 import { createClient } from "@/shared/api/supabase/client"
+import { useMountedTabs } from "@/shared/hooks/useMountedTabs"
 import { useTabRoute } from "@/shared/hooks/useTabRoute"
 import { canManageByRole } from "@/shared/lib/roles"
 import { Database } from "@/shared/types/database.types"
@@ -62,6 +63,7 @@ export function StakeholderLeavePage({
     preserveQuery: true,
     mode: "history",
   })
+  const { isMounted } = useMountedTabs(activeTab)
 
   const canManage = canManageByRole(role)
 
@@ -210,6 +212,7 @@ function AttendanceOverviewPanel({
   remainingContent: React.ReactNode
   onApproveAttendanceDelete: (logId: string) => void
 }) {
+  const { isMounted } = useMountedTabs(activeTab)
   const today = new Date().toISOString().split("T")[0]
 
   const onLeaveToday = leaveRequests.filter(
@@ -288,13 +291,23 @@ function AttendanceOverviewPanel({
       </div>
 
       <div className="p-5">
-        {activeTab === "approval" && approvalContent}
-        {activeTab === "remaining" && remainingContent}
-        {activeTab === "attendance" && (
-          <AdminAttendanceHistoryList
-            logs={attendanceLogs}
-            onApproveDelete={onApproveAttendanceDelete}
-          />
+        {isMounted("approval") && (
+          <div className={activeTab === "approval" ? "block" : "hidden"}>
+            {approvalContent}
+          </div>
+        )}
+        {isMounted("remaining") && (
+          <div className={activeTab === "remaining" ? "block" : "hidden"}>
+            {remainingContent}
+          </div>
+        )}
+        {isMounted("attendance") && (
+          <div className={activeTab === "attendance" ? "block" : "hidden"}>
+            <AdminAttendanceHistoryList
+              logs={attendanceLogs}
+              onApproveDelete={onApproveAttendanceDelete}
+            />
+          </div>
         )}
       </div>
     </div>

@@ -34,6 +34,7 @@ import {
 import { format } from "date-fns"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
+import { useMountedTabs } from "@/shared/hooks/useMountedTabs"
 import { useTabRoute } from "@/shared/hooks/useTabRoute"
 import { columns } from "./components/Columns"
 import { LeaveRequestModal } from "./components/LeaveRequestModal"
@@ -74,6 +75,7 @@ export function EmployeeLeavePage({
     preserveQuery: true,
     mode: "history",
   })
+  const { isMounted } = useMountedTabs(activeTab)
   const [currentTime, setCurrentTime] = useState<Date | null>(null)
   const [logs, setLogs] = useState<AttendanceLog[]>(attendanceLogs)
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
@@ -393,9 +395,19 @@ export function EmployeeLeavePage({
             </TabNavigation>
           </div>
 
-          {activeTab === "leave" && (
-            <div className="flex flex-wrap justify-end gap-2 border-b border-neutral-primary bg-surface-neutral-primary px-5 py-3">
-              <Button size="sm" variant="secondary" onClick={() => setTermsOpen(true)}>
+          {isMounted("leave") && (
+            <div
+              className={
+                activeTab === "leave"
+                  ? "flex flex-wrap justify-end gap-2 border-b border-neutral-primary bg-surface-neutral-primary px-5 py-3"
+                  : "hidden"
+              }
+            >
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => setTermsOpen(true)}
+              >
                 <RiFileTextLine className="mr-2 size-3.5" />
                 Read Terms &amp; Conditions
               </Button>
@@ -407,33 +419,37 @@ export function EmployeeLeavePage({
           )}
 
           <div className="p-5">
-            {activeTab === "attendance" && (
-              <AttendanceHistoryList
-                logs={logs}
-                onRequestDelete={(id) => {
-                  setPendingDeleteId(id)
-                  setDeleteConfirmOpen(true)
-                }}
-              />
+            {isMounted("attendance") && (
+              <div className={activeTab === "attendance" ? "block" : "hidden"}>
+                <AttendanceHistoryList
+                  logs={logs}
+                  onRequestDelete={(id) => {
+                    setPendingDeleteId(id)
+                    setDeleteConfirmOpen(true)
+                  }}
+                />
+              </div>
             )}
 
-            {activeTab === "leave" && (
-              <DataTable
-                data={requests}
-                columns={columns(handleEdit)}
-                manualPagination={true}
-                pageCount={pageCount}
-                pageIndex={page - 1}
-                onPageChange={handlePageChange}
-                onCreate={undefined}
-                showExport={false}
-                showViewOptions={false}
-                enableSelection={false}
-                enableHover={false}
-                searchKey="reason"
-                showTableWrapper={false}
-                showFilterbar={false}
-              />
+            {isMounted("leave") && (
+              <div className={activeTab === "leave" ? "block" : "hidden"}>
+                <DataTable
+                  data={requests}
+                  columns={columns(handleEdit)}
+                  manualPagination={true}
+                  pageCount={pageCount}
+                  pageIndex={page - 1}
+                  onPageChange={handlePageChange}
+                  onCreate={undefined}
+                  showExport={false}
+                  showViewOptions={false}
+                  enableSelection={false}
+                  enableHover={false}
+                  searchKey="reason"
+                  showTableWrapper={false}
+                  showFilterbar={false}
+                />
+              </div>
             )}
 
           </div>

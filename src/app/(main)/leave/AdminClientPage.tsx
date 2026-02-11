@@ -36,6 +36,9 @@ export default function LeaveAdminPage({
   const [activeTab, setActiveTab] = useState<"approval" | "remaining">(
     "approval",
   )
+  const [mountedTabs, setMountedTabs] = useState<Set<"approval" | "remaining">>(
+    () => new Set(["approval"]),
+  )
 
   // --- LOGIC REALTIME (SUPER CEPAT) ---
   useEffect(() => {
@@ -59,6 +62,15 @@ export default function LeaveAdminPage({
       supabase.removeChannel(channel)
     }
   }, [supabase, router])
+
+  useEffect(() => {
+    setMountedTabs((prev) => {
+      if (prev.has(activeTab)) return prev
+      const next = new Set(prev)
+      next.add(activeTab)
+      return next
+    })
+  }, [activeTab])
 
   const handlePageChange = (newPage: number) => {
     const params = new URLSearchParams(searchParams)
@@ -114,8 +126,8 @@ export default function LeaveAdminPage({
             </TabNavigationLink>
           </TabNavigation>
 
-          {activeTab === "approval" ? (
-            <>
+          {mountedTabs.has("approval") && (
+            <div className={activeTab === "approval" ? "block" : "hidden"}>
               <section>
                 <LeaveAdminStats requests={requests} />
               </section>
@@ -153,10 +165,13 @@ export default function LeaveAdminPage({
                   tableDescription="Review and approve employee leave requests"
                 />
               </section>
-            </>
-          ) : (
-            // Kirim data profiles yang sudah realtime dari parent
-            <RemainingLeaveView data={profiles} />
+            </div>
+          )}
+
+          {mountedTabs.has("remaining") && (
+            <div className={activeTab === "remaining" ? "block" : "hidden"}>
+              <RemainingLeaveView data={profiles} />
+            </div>
           )}
         </div>
       </div>

@@ -24,6 +24,7 @@ import {
   TableRow, TabNavigation, TabNavigationLink,
   TextInput
 } from "@/shared/ui"
+import { useMountedTabs } from "@/shared/hooks/useMountedTabs"
 import {
   RiArrowLeftLine,
   RiCheckLine,
@@ -98,6 +99,7 @@ export function ProjectScoringClient({
   assignment,
 }: ProjectScoringClientProps) {
   const [activeTab, setActiveTab] = useState<TabType>("sla")
+  const { isMounted } = useMountedTabs(activeTab)
   const [milestones, setMilestones] = useState<Milestone[]>([
     {
       name: "Wireframe",
@@ -336,8 +338,12 @@ export function ProjectScoringClient({
           </TabNavigation>
 
           {/* TAB CONTENT */}
-          {activeTab === "sla" ? (
-            <div className="space-y-6">
+          {isMounted("sla") && (
+            <div
+              className={
+                activeTab === "sla" ? "space-y-6" : "hidden space-y-6"
+              }
+            >
               {/* SLA CALCULATOR - FULL WIDTH */}
               <Card className="border-0 p-0">
                 <div className="mb-6 flex items-center justify-between">
@@ -507,8 +513,13 @@ export function ProjectScoringClient({
                 </Card>
               </div>
             </div>
-          ) : (
-            <Card className="border-0 p-0">
+          )}
+          {isMounted("quality") && (
+            <Card
+              className={
+                activeTab === "quality" ? "border-0 p-0" : "hidden border-0 p-0"
+              }
+            >
               <div className="mb-4 flex items-center justify-between">
                 <div>
                   <h3 className="text-heading-md text-foreground-primary">

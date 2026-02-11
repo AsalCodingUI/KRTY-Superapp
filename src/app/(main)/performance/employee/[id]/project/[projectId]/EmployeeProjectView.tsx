@@ -16,6 +16,7 @@ import {
   TableHeaderCell,
   TableRow, TabNavigation, TabNavigationLink
 } from "@/shared/ui"
+import { useMountedTabs } from "@/shared/hooks/useMountedTabs"
 import {
   RiArrowLeftLine,
   RiCheckLine,
@@ -86,6 +87,7 @@ export function EmployeeProjectView({
   assignment,
 }: EmployeeProjectViewProps) {
   const [activeTab, setActiveTab] = useState<TabType>("sla")
+  const { isMounted } = useMountedTabs(activeTab)
   const [milestones, setMilestones] = useState<Milestone[]>([
     {
       name: "Wireframe",
@@ -251,8 +253,12 @@ export function EmployeeProjectView({
           </TabNavigation>
 
           {/* TAB CONTENT */}
-          {activeTab === "sla" ? (
-            <div className="space-y-6">
+          {isMounted("sla") && (
+            <div
+              className={
+                activeTab === "sla" ? "space-y-6" : "hidden space-y-6"
+              }
+            >
               {/* SLA CALCULATION & PARAMETER - SIDE BY SIDE */}
               <div className="grid grid-cols-1 gap-6 lg:grid-cols-10">
                 {/* SLA CALCULATION TABLE - 70% */}
@@ -346,8 +352,13 @@ export function EmployeeProjectView({
                 </Card>
               </div>
             </div>
-          ) : (
-            <Card className="border-0 p-0">
+          )}
+          {isMounted("quality") && (
+            <Card
+              className={
+                activeTab === "quality" ? "border-0 p-0" : "hidden border-0 p-0"
+              }
+            >
               <div className="mb-4">
                 <h3 className="text-heading-md text-foreground-primary">
                   Work Quality Assessment

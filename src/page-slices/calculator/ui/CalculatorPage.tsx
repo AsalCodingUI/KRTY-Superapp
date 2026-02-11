@@ -12,6 +12,7 @@ import {
 } from "@/shared/ui"
 import { RiAddLine, RiCalculatorLine, RiDeleteBinLine } from "@/shared/ui/lucide-icons"
 import { useMemo, useState } from "react"
+import { useMountedTabs } from "@/shared/hooks/useMountedTabs"
 import { useTabRoute } from "@/shared/hooks/useTabRoute"
 import { FinancialHUD } from "./components/FinancialHUD"
 
@@ -56,6 +57,7 @@ export default function CalculatorClientPage({
     defaultTab: "team",
     mode: "history",
   })
+  const { isMounted } = useMountedTabs(activeTab)
   const [revenueUSD, setRevenueUSD] = useState<string>("1,000")
   const [exchangeRate, setExchangeRate] = useState<string>("15,000")
   const [hoursPerDay, setHoursPerDay] = useState<string>("8")
@@ -368,8 +370,8 @@ export default function CalculatorClientPage({
                   Squad Allocation
                 </h3>
 
-                {activeTab === "team" ? (
-                  <>
+                {isMounted("team") && (
+                  <div className={activeTab === "team" ? "block" : "hidden"}>
                     <div className="mb-6 flex gap-3">
                       <Select
                         onValueChange={setSelectedMemberToAdd}
@@ -454,9 +456,12 @@ export default function CalculatorClientPage({
                         </div>
                       )}
                     </div>
-                  </>
-                ) : (
-                  <>
+                  </div>
+                )}
+                {isMounted("freelance") && (
+                  <div
+                    className={activeTab === "freelance" ? "block" : "hidden"}
+                  >
                     <div className="mb-6">
                       <Button
                         variant="secondary"
@@ -570,7 +575,7 @@ export default function CalculatorClientPage({
                         </div>
                       )}
                     </div>
-                  </>
+                  </div>
                 )}
               </div>
             </div>

@@ -23,6 +23,7 @@ import {
 } from "@/shared/ui"
 import { RiBarChartBoxLine } from "@/shared/ui/lucide-icons"
 import dynamic from "next/dynamic"
+import { useMountedTabs } from "@/shared/hooks/useMountedTabs"
 import { useEffect, useState } from "react"
 
 // Dynamic imports for tab components - only load when needed
@@ -108,6 +109,7 @@ export function PerformancePage() {
     defaultTab: "kpi",
     mode: "history",
   })
+  const { isMounted } = useMountedTabs(activeTab)
   const [selectedQuarter, setSelectedQuarter] =
     useState<QuarterFilterValue>("2025-Q1")
   const [statsData, setStatsData] = useState<{
@@ -131,6 +133,7 @@ export function PerformancePage() {
   const [isCycleActive, setIsCycleActive] = useState(false)
   const [activeCycleRange, setActiveCycleRange] = useState<string | null>(null)
   const [isLead, setIsLead] = useState(false)
+
   const { profile } = useUserProfile()
   const supabase = createClient()
 
@@ -573,24 +576,42 @@ export function PerformancePage() {
         )}
 
         <div className="p-5">
-          {activeTab === "kpi" && (
-            <KPITab
-              selectedQuarter={selectedQuarter}
-            />
+          {isMounted("kpi") && (
+            <div className={activeTab === "kpi" ? "block" : "hidden"}>
+              <KPITab selectedQuarter={selectedQuarter} />
+            </div>
           )}
-          {activeTab === "360-review" && (
-            <Review360Tab
-              selectedQuarter={selectedQuarter}
-              onQuarterChange={setSelectedQuarter}
-            />
+          {isMounted("360-review") && (
+            <div className={activeTab === "360-review" ? "block" : "hidden"}>
+              <Review360Tab
+                selectedQuarter={selectedQuarter}
+                onQuarterChange={setSelectedQuarter}
+              />
+            </div>
           )}
-          {activeTab === "one-on-one" && (
-            <OneOnOneMeetingTab selectedQuarter={selectedQuarter} />
+          {isMounted("one-on-one") && (
+            <div className={activeTab === "one-on-one" ? "block" : "hidden"}>
+              <OneOnOneMeetingTab selectedQuarter={selectedQuarter} />
+            </div>
           )}
-          {activeTab === "lead-review" && isLead && <LeadReviewTab />}
-          {activeTab === "list-project" && isStakeholder && <ListProjectTab />}
-          {activeTab === "competency-library" && isStakeholder && (
-            <WorkQualityTab />
+          {isLead && isMounted("lead-review") && (
+            <div className={activeTab === "lead-review" ? "block" : "hidden"}>
+              <LeadReviewTab />
+            </div>
+          )}
+          {isStakeholder && isMounted("list-project") && (
+            <div className={activeTab === "list-project" ? "block" : "hidden"}>
+              <ListProjectTab />
+            </div>
+          )}
+          {isStakeholder && isMounted("competency-library") && (
+            <div
+              className={
+                activeTab === "competency-library" ? "block" : "hidden"
+              }
+            >
+              <WorkQualityTab />
+            </div>
           )}
         </div>
       </div>

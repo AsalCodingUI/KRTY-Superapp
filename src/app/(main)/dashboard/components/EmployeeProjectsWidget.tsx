@@ -54,7 +54,7 @@ export function EmployeeProjectsWidget({
       </div>
 
       <div className="space-y-3">
-        {projects.slice(0, 5).map((project) => {
+        {projects.slice(0, 5).map((project, index) => {
           const endDate = new Date(project.end_date)
           const endDateValid = isValid(endDate)
           const daysUntilDeadline = endDateValid
@@ -68,7 +68,7 @@ export function EmployeeProjectsWidget({
 
           return (
             <Link
-              key={project.id}
+              key={project.id || `${project.name}-${project.quarter_id}-${index}`}
               href={`/performance/employee/${userId}/project/${project.id}`}
               className="block"
             >

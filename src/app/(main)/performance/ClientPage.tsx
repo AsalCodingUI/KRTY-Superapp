@@ -1,5 +1,6 @@
 "use client"
 
+import { useMountedTabs } from "@/shared/hooks/useMountedTabs"
 import { useTabRoute } from "@/shared/hooks/useTabRoute"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { createClient } from "@/shared/api/supabase/client"
@@ -97,6 +98,7 @@ export default function PerformanceClientPage() {
     defaultTab: "overview",
     mode: "history",
   })
+  const { isMounted } = useMountedTabs(activeTab)
   const { profile } = useUserProfile()
   const supabase = useMemo(() => createClient(), [])
   const [isLead, setIsLead] = useState(false)
@@ -200,18 +202,44 @@ export default function PerformanceClientPage() {
 
           {/* TAB CONTENT */}
           <div>
-            {activeTab === "overview" && <OverviewTab />}
-            {activeTab === "kpi" && <KPITab />}
-            {activeTab === "360-review" && <Review360Tab />}
-            {activeTab === "one-on-one" && (
-              <OneOnOneMeetingTab selectedQuarter="2025-Q1" />
+            {isMounted("overview") && (
+              <div className={activeTab === "overview" ? "block" : "hidden"}>
+                <OverviewTab />
+              </div>
             )}
-            {activeTab === "lead-review" && isLead && <LeadReviewTab />}
-            {activeTab === "list-project" && isStakeholder && (
-              <ListProjectTab />
+            {isMounted("kpi") && (
+              <div className={activeTab === "kpi" ? "block" : "hidden"}>
+                <KPITab />
+              </div>
             )}
-            {activeTab === "competency-library" && isStakeholder && (
-              <WorkQualityTab />
+            {isMounted("360-review") && (
+              <div className={activeTab === "360-review" ? "block" : "hidden"}>
+                <Review360Tab />
+              </div>
+            )}
+            {isMounted("one-on-one") && (
+              <div className={activeTab === "one-on-one" ? "block" : "hidden"}>
+                <OneOnOneMeetingTab selectedQuarter="2025-Q1" />
+              </div>
+            )}
+            {isLead && isMounted("lead-review") && (
+              <div className={activeTab === "lead-review" ? "block" : "hidden"}>
+                <LeadReviewTab />
+              </div>
+            )}
+            {isStakeholder && isMounted("list-project") && (
+              <div className={activeTab === "list-project" ? "block" : "hidden"}>
+                <ListProjectTab />
+              </div>
+            )}
+            {isStakeholder && isMounted("competency-library") && (
+              <div
+                className={
+                  activeTab === "competency-library" ? "block" : "hidden"
+                }
+              >
+                <WorkQualityTab />
+              </div>
             )}
           </div>
         </div>
