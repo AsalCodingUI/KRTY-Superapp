@@ -77,7 +77,7 @@ export function LeadReviewTab() {
       if (!primaryAssignments) return []
 
       const projectIds = primaryAssignments
-        .map((row) => row.project_id)
+        .map((row: { project_id: string }) => row.project_id)
         .filter(Boolean) as string[]
 
       const { data: assignments, error: assignmentError } = await supabase
@@ -88,7 +88,7 @@ export function LeadReviewTab() {
       if (assignmentError) return []
 
       const projectMap = new Map<string, LeadProject>()
-      primaryAssignments.forEach((row) => {
+      primaryAssignments.forEach((row: { projects: unknown }) => {
         // Supabase infers projects as array but it's actually a single object from JOIN
         const project = row.projects as unknown as {
           id: string
@@ -110,7 +110,7 @@ export function LeadReviewTab() {
         })
       })
 
-      assignments?.forEach((assignment) => {
+      assignments?.forEach((assignment: { project_id: string; is_lead: boolean; profiles: unknown }) => {
         const project = projectMap.get(assignment.project_id)
         // Supabase infers profiles as array but it's actually a single object from JOIN
         const profile = assignment.profiles as unknown as {

@@ -1,5 +1,5 @@
-import { Database } from "@/shared/types/database.types"
 import { createClient } from "@/shared/api/supabase/client"
+import { Database } from "@/shared/types/database.types"
 import { RealtimeChannel } from "@supabase/supabase-js"
 import { useCallback, useEffect, useState } from "react"
 
@@ -28,7 +28,7 @@ export function useNotifications() {
 
     if (data) {
       setNotifications(data)
-      setUnreadCount(data.filter((n) => !n.is_read).length)
+      setUnreadCount(data.filter((n: Notification) => !n.is_read).length)
     }
     setLoading(false)
 
@@ -115,7 +115,7 @@ export function useNotifications() {
             table: "notifications",
             filter: `user_id=eq.${userId}`, // Filter di level database (Cepat!)
           },
-          (payload) => {
+          (payload: any) => {
             if (payload.eventType === "INSERT") {
               // Ada notif baru: Masukkan ke paling atas
               const newNotif = payload.new as Notification

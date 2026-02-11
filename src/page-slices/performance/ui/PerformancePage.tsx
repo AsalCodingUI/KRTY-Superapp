@@ -5,8 +5,8 @@ import {
   getOverviewStats,
 } from "@/app/(main)/performance/actions/employee-kpi-actions"
 import { createClient } from "@/shared/api/supabase/client"
-import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { useTabRoute } from "@/shared/hooks/useTabRoute"
+import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { canManageByRole } from "@/shared/lib/roles"
 import {
   Badge,
@@ -302,7 +302,7 @@ export function PerformancePage() {
           .eq("name", selectedQuarter)
 
         const cycleIds = cycles
-          ?.map((cycle) => cycle.id)
+          ?.map((cycle: { id: string }) => cycle.id)
           .filter(Boolean) as string[] | undefined
 
         if (!cycleIds || cycleIds.length === 0) {

@@ -26,7 +26,7 @@ export async function getLeaveBalance(
       throw error
     }
 
-    const usedDays = (data || []).reduce((total, req) => {
+    const usedDays = (data || []).reduce((total: number, req: { start_date: string; end_date: string }) => {
       const days = calculateBusinessDays(
         new Date(req.start_date),
         new Date(req.end_date),

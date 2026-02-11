@@ -33,7 +33,7 @@ export async function getTeamStats(teamMembers: string[]) {
     // Aggregate by job title on server
     const statsMap = new Map<string, number>()
 
-    profiles?.forEach((profile) => {
+    profiles?.forEach((profile: { job_title: string | null }) => {
       const jobTitle = profile.job_title || "Unknown"
       statsMap.set(jobTitle, (statsMap.get(jobTitle) || 0) + 1)
     })

@@ -1,10 +1,12 @@
 import { createClient } from "@/shared/api/supabase/server"
+import { canManageByRole } from "@/shared/lib/roles"
 import { redirect } from "next/navigation"
 import { getAdminDashboardData } from "./actions/dashboard-admin-actions"
 import { getEmployeeDashboardData } from "./actions/dashboard-employee-actions"
 import { AdminDashboard } from "./components/AdminDashboard"
 import { EmployeeDashboard } from "./components/EmployeeDashboard"
-import { canManageByRole } from "@/shared/lib/roles"
+
+export const dynamic = 'force-dynamic'
 
 export default async function DashboardRoute() {
   const supabase = await createClient()

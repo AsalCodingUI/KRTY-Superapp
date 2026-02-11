@@ -77,6 +77,11 @@ const nextConfig = {
     poweredByHeader: false,
     compress: true,
 
+    // ESLint configuration
+    eslint: {
+        ignoreDuringBuilds: false, // Keep linting enabled
+    },
+
     // Experimental features for better performance
     experimental: {
         optimizePackageImports: [

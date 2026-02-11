@@ -25,9 +25,9 @@ export async function getDailyStats(
   const onLeaveCount = onLeaveResult.count || 0
 
   const onTime = attendanceLogs.filter(
-    (log) => !log.status || log.status === "On Time",
+    (log: { status: string | null }) => !log.status || log.status === "On Time",
   ).length
-  const late = attendanceLogs.filter((log) => log.status === "Late").length
+  const late = attendanceLogs.filter((log: { status: string | null }) => log.status === "Late").length
   const totalPresent = onTime + late
 
   const absent = Math.max(0, totalEmployees - totalPresent - onLeaveCount)

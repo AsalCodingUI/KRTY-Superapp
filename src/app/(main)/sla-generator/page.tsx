@@ -1,6 +1,6 @@
 import { createClient } from "@/shared/api/supabase/server"
-import SLADashboard from "./components/SLADashboard"
 import SLAContainer from "./components/SLAContainer"
+import SLADashboard from "./components/SLADashboard"
 
 export default async function SLAPage({
   searchParams,
@@ -41,7 +41,7 @@ export default async function SLAPage({
     .order("created_at", { ascending: false })
 
   const slas =
-    data?.map((row) => ({
+    data?.map((row: { id: string; client_name: string; project_name: string; created_at: string; archived_at: string | null }) => ({
       id: row.id,
       client_name: row.client_name,
       title: row.project_name,

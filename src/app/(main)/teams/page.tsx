@@ -1,6 +1,8 @@
 import { TeamsPage } from "@/page-slices/teams"
 import { createClient } from "@/shared/api/supabase/server"
 
+export const dynamic = 'force-dynamic'
+
 export default async function TeamsRoute({
   searchParams,
 }: {

@@ -122,7 +122,7 @@ export function EmployeeReviewView({
           .select("id")
           .eq("name", cycleName)
 
-        cycleIds = (cycles || []).map((cycle) => cycle.id)
+        cycleIds = (cycles || []).map((cycle: { id: string }) => cycle.id)
         if (cycleIds.length === 0) {
           setResult(null)
           setSummaryData(null)
@@ -267,9 +267,9 @@ export function EmployeeReviewView({
               />
 
               <Card>
-              <h3 className="text-label-sm text-foreground-secondary mb-4 font-medium">
-                Competency Matrix
-              </h3>
+                <h3 className="text-label-sm text-foreground-secondary mb-4 font-medium">
+                  Competency Matrix
+                </h3>
                 <div className="flex justify-center">
                   <RadarChart
                     data={result.radar}
@@ -284,9 +284,9 @@ export function EmployeeReviewView({
                 {skillRatings && (
                   <div className="border-neutral-primary space-y-3 border-t pt-4">
                     <div className="flex items-center justify-between">
-                  <span className="text-label-sm text-foreground-secondary">
-                    Leadership
-                  </span>
+                      <span className="text-label-sm text-foreground-secondary">
+                        Leadership
+                      </span>
                       <Badge
                         variant={getRatingBadgeVariant(skillRatings.leadership)}
                       >
@@ -294,17 +294,17 @@ export function EmployeeReviewView({
                       </Badge>
                     </div>
                     <div className="flex items-center justify-between">
-                  <span className="text-label-sm text-foreground-secondary">
-                    Quality
-                  </span>
+                      <span className="text-label-sm text-foreground-secondary">
+                        Quality
+                      </span>
                       <Badge variant={getRatingBadgeVariant(skillRatings.quality)}>
                         {skillRatings.quality}
                       </Badge>
                     </div>
                     <div className="flex items-center justify-between">
-                  <span className="text-label-sm text-foreground-secondary">
-                    Reliability
-                  </span>
+                      <span className="text-label-sm text-foreground-secondary">
+                        Reliability
+                      </span>
                       <Badge
                         variant={getRatingBadgeVariant(skillRatings.reliability)}
                       >
@@ -312,9 +312,9 @@ export function EmployeeReviewView({
                       </Badge>
                     </div>
                     <div className="flex items-center justify-between">
-                  <span className="text-label-sm text-foreground-secondary">
-                    Communication
-                  </span>
+                      <span className="text-label-sm text-foreground-secondary">
+                        Communication
+                      </span>
                       <Badge
                         variant={getRatingBadgeVariant(skillRatings.communication)}
                       >
@@ -322,9 +322,9 @@ export function EmployeeReviewView({
                       </Badge>
                     </div>
                     <div className="flex items-center justify-between">
-                  <span className="text-label-sm text-foreground-secondary">
-                    Initiative
-                  </span>
+                      <span className="text-label-sm text-foreground-secondary">
+                        Initiative
+                      </span>
                       <Badge
                         variant={getRatingBadgeVariant(skillRatings.initiative)}
                       >

@@ -222,11 +222,11 @@ export async function getEmployeeDashboardData(): Promise<{
       .not("self_score", "is", null)
       .in(
         "cycle_id",
-        reviewCycles.map((c) => c.id),
+        reviewCycles.map((c: { id: string }) => c.id),
       )
 
     const submittedCycleIds = new Set(
-      submittedReviews?.map((r) => r.cycle_id) || [],
+      submittedReviews?.map((r: { cycle_id: string }) => r.cycle_id) || [],
     )
 
     // Define the raw shape returned by Supabase (where relations are arrays)
@@ -292,7 +292,7 @@ export async function getEmployeeDashboardData(): Promise<{
         quarter: currentQuarter,
       },
       activeProjects,
-      upcomingReviews: reviewCycles.map((cycle) => ({
+      upcomingReviews: reviewCycles.map((cycle: { id: string; name: string; end_date: string }) => ({
         cycle_id: cycle.id,
         cycle_name: cycle.name,
         end_date: cycle.end_date,

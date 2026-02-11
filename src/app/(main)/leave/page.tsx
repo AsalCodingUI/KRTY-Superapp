@@ -2,6 +2,8 @@ import { LeavePage } from "@/page-slices/leave"
 import { createClient } from "@/shared/api/supabase/server"
 import { canManageByRole } from "@/shared/lib/roles"
 
+export const dynamic = 'force-dynamic'
+
 export default async function LeaveRoute({
   searchParams,
 }: {

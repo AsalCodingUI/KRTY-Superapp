@@ -108,7 +108,7 @@ export async function getAllEmployees(searchQuery?: string) {
 
   // Get project counts for each employee
   const employeesWithCounts = await Promise.all(
-    (employees || []).map(async (employee) => {
+    (employees || []).map(async (employee: Employee) => {
       const { data: assignments } = await supabase
         .from("project_assignments")
         .select(
@@ -226,9 +226,9 @@ export async function getEmployeeOverview(userId: string, quarter?: string) {
     .in("config_key", ["kpi_weights", "kpi_targets"])
 
   // Parse config or use fallback defaults
-  const weightsConfig = configs?.find((c) => c.config_key === "kpi_weights")
+  const weightsConfig = configs?.find((c: { config_key: string; config_value: unknown }) => c.config_key === "kpi_weights")
     ?.config_value as KpiWeights | undefined
-  const targetsConfig = configs?.find((c) => c.config_key === "kpi_targets")
+  const targetsConfig = configs?.find((c: { config_key: string; config_value: unknown }) => c.config_key === "kpi_targets")
     ?.config_value as KpiTargets | undefined
 
   const weights = weightsConfig || {
@@ -455,7 +455,7 @@ export async function getOverviewStats(quarter?: string): Promise<{
           .select("reviewee_id")
           .eq("cycle_id", cycleId)
 
-        const reviewedIds = new Set(summaries?.map((s) => s.reviewee_id) || [])
+        const reviewedIds = new Set(summaries?.map((s: { reviewee_id: string }) => s.reviewee_id) || [])
         pendingReviewsCount = (allEmployees?.length || 0) - reviewedIds.size
       }
     }

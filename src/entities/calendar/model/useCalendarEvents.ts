@@ -31,7 +31,22 @@ export function useCalendarEvents(startDate: Date, endDate: Date) {
       if (error) throw error
 
       // Transform database format to CalendarEvent format
-      return (data || []).map((event) => ({
+      return (data || []).map((event: {
+        id: string
+        title: string
+        description: string | null
+        start_date: string
+        end_date: string
+        color: string | null
+        location: string | null
+        all_day: boolean | null
+        type: string | null
+        employee_id: string | null
+        rsvp_status: string | null
+        organizer: string | null
+        is_recurring: boolean | null
+        recurrence_rule: unknown | null
+      }) => ({
         id: event.id,
         title: event.title,
         description: event.description,

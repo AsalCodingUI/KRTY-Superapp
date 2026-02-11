@@ -106,9 +106,9 @@ export function AdminReviewDashboard() {
       const activeCycle = cycle || null
       const activeCycleDate = cycle
         ? {
-            from: new Date(cycle.start_date),
-            to: new Date(cycle.end_date),
-          }
+          from: new Date(cycle.start_date),
+          to: new Date(cycle.end_date),
+        }
         : undefined
 
       // B. Ambil Data Karyawan
@@ -136,7 +136,7 @@ export function AdminReviewDashboard() {
         .eq("name", targetCycleName) // Exact match, bukan ilike
 
       // Gabungkan hasil pencarian UUID
-      const validCycleIds = (cyclesByName || []).map((c) => c.id)
+      const validCycleIds = (cyclesByName || []).map((c: { id: string }) => c.id)
       const quarterUUID = validCycleIds.length > 0 ? validCycleIds[0] : null
 
       const legacyCycleId = targetCycleName
@@ -146,7 +146,7 @@ export function AdminReviewDashboard() {
         .from("performance_reviews")
         .select("reviewer_id, reviewee_id, cycle_id")
 
-      const safeReviews = (reviews || []).filter((r) => {
+      const safeReviews = (reviews || []).filter((r: { cycle_id: string; reviewer_id: string; reviewee_id: string }) => {
         return (
           validCycleIds.includes(r.cycle_id) || r.cycle_id === legacyCycleId
         )
@@ -158,21 +158,21 @@ export function AdminReviewDashboard() {
         .select("*")
 
       // F. Calculate Stats
-      const stats = employees.map((targetEmp) => {
+      const stats = employees.map((targetEmp: { id: string; full_name: string | null; job_title: string | null }) => {
         const reviewsReceived = safeReviews.filter(
-          (r) => r.reviewee_id === targetEmp.id,
+          (r: { reviewee_id: string; cycle_id: string; reviewer_id: string }) => r.reviewee_id === targetEmp.id,
         )
-        const reviewerIds = reviewsReceived.map((r) => r.reviewer_id)
+        const reviewerIds = reviewsReceived.map((r: { reviewer_id: string }) => r.reviewer_id)
         const userActiveCycleId =
           reviewsReceived.length > 0 ? reviewsReceived[0].cycle_id : null
 
         const reviewedBy = employees
-          .filter((e) => reviewerIds.includes(e.id))
-          .map((e) => ({ name: e.full_name || "Unknown" }))
+          .filter((e: { id: string }) => reviewerIds.includes(e.id))
+          .map((e: { full_name: string | null }) => ({ name: e.full_name || "Unknown" }))
 
         const pendingBy = employees
-          .filter((e) => e.id !== targetEmp.id && !reviewerIds.includes(e.id))
-          .map((e) => ({ name: e.full_name || "Unknown" }))
+          .filter((e: { id: string }) => e.id !== targetEmp.id && !reviewerIds.includes(e.id))
+          .map((e: { full_name: string | null }) => ({ name: e.full_name || "Unknown" }))
 
         const totalPeers = employees.length - 1
         const percentage =
@@ -185,7 +185,7 @@ export function AdminReviewDashboard() {
 
         if (userActiveCycleId) {
           existingSummary = allSummaries?.find(
-            (s) =>
+            (s: { reviewee_id: string; cycle_id: string }) =>
               s.reviewee_id === targetEmp.id &&
               s.cycle_id === userActiveCycleId,
           )
@@ -193,7 +193,7 @@ export function AdminReviewDashboard() {
         }
         if (!existingSummary) {
           existingSummary = allSummaries?.find(
-            (s) =>
+            (s: { reviewee_id: string; cycle_id: string }) =>
               s.reviewee_id === targetEmp.id &&
               (validCycleIds.includes(s.cycle_id) ||
                 s.cycle_id === legacyCycleId),
@@ -422,131 +422,131 @@ export function AdminReviewDashboard() {
               <>
                 {statsData.map((item) => (
                   <TableRow key={item.userId}>
-                <TableCell>
-                  <span
-                    className="text-foreground-primary font-medium"
-                    title={
-                      item.jobTitle && item.jobTitle !== "-"
-                        ? `${item.name} — ${item.jobTitle}`
-                        : item.name
-                    }
-                  >
-                    {item.name}
-                  </span>
-                </TableCell>
-
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    {item.reviewedBy.length > 0 ? (
-                      <AvatarGroup>
-                        {item.reviewedBy.slice(0, 5).map((reviewer, idx) => (
-                          <Tooltip key={idx} content={reviewer.name}>
-                            <Avatar
-                              size="sm"
-                              initials={reviewer.name
-                                .split(" ")
-                                .map((n) => n[0])
-                                .join("")
-                                .substring(0, 2)}
-                            />
-                          </Tooltip>
-                        ))}
-                        {item.reviewedBy.length > 5 && (
-                          <Tooltip
-                            content={`+ ${item.reviewedBy.length - 5} more`}
-                          >
-                            <AvatarOverflow
-                              count={item.reviewedBy.length - 5}
-                              size="sm"
-                            />
-                          </Tooltip>
-                        )}
-                      </AvatarGroup>
-                    ) : (
-                      <span className="text-foreground-disable">None</span>
-                    )}
-                    <span className="text-foreground-secondary">
-                      ({item.percentage}%)
-                    </span>
-                  </div>
-                </TableCell>
-
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    {item.pendingBy.length > 0 ? (
-                      <AvatarGroup>
-                        {item.pendingBy.slice(0, 5).map((pending, idx) => (
-                          <Tooltip key={idx} content={pending.name}>
-                            <Avatar
-                              size="sm"
-                              initials={pending.name
-                                .split(" ")
-                                .map((n) => n[0])
-                                .join("")
-                                .substring(0, 2)}
-                            />
-                          </Tooltip>
-                        ))}
-                        {item.pendingBy.length > 5 && (
-                          <Tooltip
-                            content={`+ ${item.pendingBy.length - 5} more`}
-                          >
-                            <AvatarOverflow
-                              count={item.pendingBy.length - 5}
-                              size="sm"
-                            />
-                          </Tooltip>
-                        )}
-                      </AvatarGroup>
-                    ) : (
-                      <span className="text-body-xs text-foreground-disable">
-                        None
+                    <TableCell>
+                      <span
+                        className="text-foreground-primary font-medium"
+                        title={
+                          item.jobTitle && item.jobTitle !== "-"
+                            ? `${item.name} — ${item.jobTitle}`
+                            : item.name
+                        }
+                      >
+                        {item.name}
                       </span>
-                    )}
-                  </div>
-                </TableCell>
+                    </TableCell>
 
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    {item.summaryData ? (
-                      <Badge variant="success" className="gap-1 pr-2 pl-1">
-                        <RiCheckDoubleLine className="size-3.5" /> Published
-                      </Badge>
-                    ) : item.percentage > 0 ? (
-                      <Badge variant="warning" className="gap-1 pr-2 pl-1">
-                        <RiTimeLine className="size-3.5" /> Collecting
-                      </Badge>
-                    ) : (
-                      <Badge variant="zinc" className="gap-1 pr-2 pl-1">
-                        <RiErrorWarningLine className="size-3.5" /> Not Started
-                      </Badge>
-                    )}
-                  </div>
-                </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        {item.reviewedBy.length > 0 ? (
+                          <AvatarGroup>
+                            {item.reviewedBy.slice(0, 5).map((reviewer, idx) => (
+                              <Tooltip key={idx} content={reviewer.name}>
+                                <Avatar
+                                  size="sm"
+                                  initials={reviewer.name
+                                    .split(" ")
+                                    .map((n) => n[0])
+                                    .join("")
+                                    .substring(0, 2)}
+                                />
+                              </Tooltip>
+                            ))}
+                            {item.reviewedBy.length > 5 && (
+                              <Tooltip
+                                content={`+ ${item.reviewedBy.length - 5} more`}
+                              >
+                                <AvatarOverflow
+                                  count={item.reviewedBy.length - 5}
+                                  size="sm"
+                                />
+                              </Tooltip>
+                            )}
+                          </AvatarGroup>
+                        ) : (
+                          <span className="text-foreground-disable">None</span>
+                        )}
+                        <span className="text-foreground-secondary">
+                          ({item.percentage}%)
+                        </span>
+                      </div>
+                    </TableCell>
 
-                <TableCell className="text-right">
-                  {item.summaryData ? (
-                    <Button
-                      size="sm"
-                      variant="tertiary"
-                      leadingIcon={<RiEyeLine className="size-3.5" />}
-                      onClick={() => handleViewResult(item)}
-                    >
-                      View Result
-                    </Button>
-                  ) : (
-                    <Button
-                      size="sm"
-                      variant="tertiary"
-                      leadingIcon={<RiRocketLine className="size-3.5" />}
-                      onClick={() => handleTriggerN8N(item)}
-                      disabled={item.percentage === 0}
-                      title="Process Individual"
-                    >
-                      Process
-                    </Button>
-                  )}
-                </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        {item.pendingBy.length > 0 ? (
+                          <AvatarGroup>
+                            {item.pendingBy.slice(0, 5).map((pending, idx) => (
+                              <Tooltip key={idx} content={pending.name}>
+                                <Avatar
+                                  size="sm"
+                                  initials={pending.name
+                                    .split(" ")
+                                    .map((n) => n[0])
+                                    .join("")
+                                    .substring(0, 2)}
+                                />
+                              </Tooltip>
+                            ))}
+                            {item.pendingBy.length > 5 && (
+                              <Tooltip
+                                content={`+ ${item.pendingBy.length - 5} more`}
+                              >
+                                <AvatarOverflow
+                                  count={item.pendingBy.length - 5}
+                                  size="sm"
+                                />
+                              </Tooltip>
+                            )}
+                          </AvatarGroup>
+                        ) : (
+                          <span className="text-body-xs text-foreground-disable">
+                            None
+                          </span>
+                        )}
+                      </div>
+                    </TableCell>
+
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        {item.summaryData ? (
+                          <Badge variant="success" className="gap-1 pr-2 pl-1">
+                            <RiCheckDoubleLine className="size-3.5" /> Published
+                          </Badge>
+                        ) : item.percentage > 0 ? (
+                          <Badge variant="warning" className="gap-1 pr-2 pl-1">
+                            <RiTimeLine className="size-3.5" /> Collecting
+                          </Badge>
+                        ) : (
+                          <Badge variant="zinc" className="gap-1 pr-2 pl-1">
+                            <RiErrorWarningLine className="size-3.5" /> Not Started
+                          </Badge>
+                        )}
+                      </div>
+                    </TableCell>
+
+                    <TableCell className="text-right">
+                      {item.summaryData ? (
+                        <Button
+                          size="sm"
+                          variant="tertiary"
+                          leadingIcon={<RiEyeLine className="size-3.5" />}
+                          onClick={() => handleViewResult(item)}
+                        >
+                          View Result
+                        </Button>
+                      ) : (
+                        <Button
+                          size="sm"
+                          variant="tertiary"
+                          leadingIcon={<RiRocketLine className="size-3.5" />}
+                          onClick={() => handleTriggerN8N(item)}
+                          disabled={item.percentage === 0}
+                          title="Process Individual"
+                        >
+                          Process
+                        </Button>
+                      )}
+                    </TableCell>
                   </TableRow>
                 ))}
                 {statsData.length === 0 && (
