@@ -198,8 +198,9 @@ const TabsTrigger = React.forwardRef<
         <>
           <span
             className={cx(
-              "inline-flex items-center justify-center gap-xs rounded-md bg-surface-neutral-primary px-lg py-sm",
-              "group-hover:shadow-neutral group-data-[state=active]:shadow-neutral",
+              "inline-flex items-center justify-center gap-xs rounded-md bg-surface-neutral-primary px-lg py-sm border border-neutral-primary shadow-none",
+              "group-hover:bg-surface-state-neutral-light-hover",
+              "group-data-[state=active]:border-foreground-brand-primary",
             )}
           >
             {hasLeadingIcon && (

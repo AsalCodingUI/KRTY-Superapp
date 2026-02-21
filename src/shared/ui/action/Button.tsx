@@ -27,10 +27,10 @@ const buttonVariants = tv({
         "disabled:bg-surface-state-neutral-light-disable disabled:text-foreground-disable disabled:shadow-none",
       ],
       secondary: [
-        "bg-surface-neutral-primary text-foreground-primary shadow-neutral",
-        "hover:bg-surface-neutral-secondary",
-        "focus-visible:shadow-outline-neutral",
-        "disabled:bg-surface-state-neutral-light-disable disabled:text-foreground-disable disabled:shadow-none",
+        "bg-surface-neutral-primary text-foreground-primary border border-neutral-primary shadow-none",
+        "hover:bg-surface-state-neutral-light-hover",
+        "focus-visible:border-foreground-brand-primary",
+        "disabled:bg-surface-state-neutral-light-disable disabled:text-foreground-disable disabled:shadow-none disabled:border-transparent",
       ],
       tertiary: [
         "bg-transparent text-foreground-secondary shadow-none",
