@@ -1,5 +1,6 @@
 import { createClient } from "@/shared/api/supabase/server"
 import { canManageByRole } from "@/shared/lib/roles"
+import { logError } from "@/shared/lib/utils/logger"
 import { guardApiRoute } from "@/shared/lib/utils/security"
 import { NextRequest, NextResponse } from "next/server"
 
@@ -49,7 +50,7 @@ export async function POST(request: NextRequest) {
       query = query.eq("cycle_id", cycle_id)
     }
 
-    let { data: reviews, error } = await query
+    const { data: reviews, error } = await query
 
     if (error) throw new Error(error.message)
 
@@ -75,20 +76,22 @@ export async function POST(request: NextRequest) {
           timestamp: new Date().toISOString(),
           total_reviews: reviews.length,
         },
-        reviews: reviews,
+        reviews,
       }),
     })
 
     if (!response.ok) {
       const errorText = await response.text()
-      throw new Error(`n8n rejected: ${response.status} - ${errorText}`)
+      logError("n8n webhook rejected request", undefined, {
+        status: response.status,
+        responseBody: errorText.slice(0, 1000),
+      })
+      return NextResponse.json({ error: "Failed to trigger workflow" }, { status: 502 })
     }
 
     return NextResponse.json({ success: true, count: reviews.length })
   } catch (error: unknown) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Internal Server Error"
-    console.error("❌ [API] Error:", error)
-    return NextResponse.json({ error: errorMessage }, { status: 500 })
+    logError("Trigger n8n endpoint failed", error)
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }

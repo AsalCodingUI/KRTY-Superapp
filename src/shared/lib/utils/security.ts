@@ -26,11 +26,38 @@ interface RateLimitOptions {
   windowMs?: number // Time window in milliseconds
 }
 
+function getClientIp(req: NextRequest) {
+  const forwardedFor = req.headers.get("x-forwarded-for")
+  if (forwardedFor) {
+    return forwardedFor.split(",")[0]?.trim() || "unknown"
+  }
+
+  return req.headers.get("x-real-ip") ?? "unknown"
+}
+
+function parseHostFromUrl(value: string) {
+  try {
+    return new URL(value).host.toLowerCase()
+  } catch {
+    return null
+  }
+}
+
+function getRequestHost(req: NextRequest) {
+  return (
+    req.headers.get("x-forwarded-host") ??
+    req.headers.get("host") ??
+    req.nextUrl.host
+  )
+    .toLowerCase()
+    .trim()
+}
+
 export function checkRateLimit(
   req: NextRequest,
   { limit = 10, windowMs = 60 * 1000 }: RateLimitOptions = {},
 ) {
-  const ip = req.headers.get("x-forwarded-for") ?? "unknown"
+  const ip = getClientIp(req)
   const now = Date.now()
 
   const record = rateLimitMap.get(ip) ?? { count: 0, lastReset: now }
@@ -55,7 +82,7 @@ export function checkRateLimit(
 
 /**
  * CSRF Protection for API Routes
- * Verifies that the request Origin/Referer matches the Host
+ * Verifies that the request Origin/Referer matches the request host.
  */
 export function checkCSRF(req: NextRequest) {
   // Skip for GET/HEAD requests (read-only)
@@ -63,7 +90,9 @@ export function checkCSRF(req: NextRequest) {
 
   const origin = req.headers.get("origin")
   const referer = req.headers.get("referer")
-  const host = req.headers.get("host")
+  const requestHost = getRequestHost(req)
+
+  if (!requestHost) return false
 
   if (!origin && !referer) {
     // Block requests with no origin/referer (unless it's a server-to-server call you explicitly allow)
@@ -71,13 +100,13 @@ export function checkCSRF(req: NextRequest) {
   }
 
   if (origin) {
-    const originHost = new URL(origin).host
-    if (originHost !== host) return false
+    const originHost = parseHostFromUrl(origin)
+    if (!originHost || originHost !== requestHost) return false
   }
 
   if (referer) {
-    const refererHost = new URL(referer).host
-    if (refererHost !== host) return false
+    const refererHost = parseHostFromUrl(referer)
+    if (!refererHost || refererHost !== requestHost) return false
   }
 
   return true
