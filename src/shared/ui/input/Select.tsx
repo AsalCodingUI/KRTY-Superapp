@@ -7,22 +7,36 @@ import React from "react"
 
 import { cx, hasErrorInput } from "@/shared/lib/utils"
 import { DateRange } from "react-day-picker"
-import { buttonVariants } from "@/shared/ui/action/Button"
+import { tv } from "@/shared/lib/utils/tv"
+
+const selectTriggerStyles = tv({
+  base: [
+    "group/trigger flex w-full items-center justify-between gap-sm truncate select-none rounded-md border-none shadow-input transition-shadow",
+    "bg-surface-neutral-primary text-foreground-primary",
+    "hover:bg-surface-state-neutral-light-hover",
+    "focus:shadow-input-focus focus:outline-none",
+    "data-[placeholder]:text-foreground-tertiary",
+    "disabled:bg-surface-neutral-primary disabled:text-foreground-disable disabled:shadow-input disabled:cursor-not-allowed",
+  ],
+  variants: {
+    hasError: {
+      true: hasErrorInput,
+    },
+    size: {
+      sm: "h-[24px] px-[8px] py-[2px] text-body-sm",
+      default: "h-[28px] px-[8px] py-[4px] text-body-sm",
+    },
+  },
+  defaultVariants: {
+    size: "default",
+  },
+})
 
 const Select = SelectPrimitives.Root
 
 const SelectGroup = SelectPrimitives.Group
 
 const SelectValue = SelectPrimitives.Value
-
-const selectTriggerBase = cx(
-  // base layout
-  "group/trigger flex w-full items-center justify-between gap-sm truncate select-none",
-  // text color
-  "text-foreground-primary",
-  // placeholder
-  "data-[placeholder]:text-foreground-tertiary",
-)
 
 const SelectTrigger = React.forwardRef<
   React.ElementRef<typeof SelectPrimitives.Trigger>,
@@ -35,28 +49,21 @@ const SelectTrigger = React.forwardRef<
     <SelectPrimitives.Trigger
       ref={forwardedRef}
       className={cx(
-        buttonVariants({ variant: "secondary", size }),
-        selectTriggerBase,
-        hasError ? hasErrorInput : "",
+        selectTriggerStyles({ hasError, size }),
         className,
       )}
       {...props}
     >
-      <span className="inline-flex items-center px-xs truncate">
-        {children}
-      </span>
-    <SelectPrimitives.Icon asChild>
-      <RiArrowDownSLine
-        className={cx(
-          // base
-          "size-[14px] shrink-0",
-          // text color
-          "text-foreground-tertiary",
-          // disabled
-          "group-data-[disabled]/trigger:text-foreground-disable",
-        )}
-      />
-    </SelectPrimitives.Icon>
+      <span className="inline-flex items-center truncate">{children}</span>
+      <SelectPrimitives.Icon asChild>
+        <RiArrowDownSLine
+          className={cx(
+            "size-4 shrink-0",
+            "text-foreground-tertiary",
+            "group-data-[disabled]/trigger:text-foreground-disable",
+          )}
+        />
+      </SelectPrimitives.Icon>
     </SelectPrimitives.Trigger>
   )
 })
@@ -203,8 +210,8 @@ const SelectItem = React.forwardRef<
       <div
         className={cx(
           "flex h-[28px] w-full items-center gap-sm rounded-[8px] px-[8px] py-[4px] transition-colors",
-          "group-data-[highlighted]/item:bg-surface-neutral-secondary",
-          "group-data-[state=checked]/item:bg-surface-neutral-secondary",
+          "group-data-[highlighted]/item:bg-surface-state-neutral-light-hover",
+          "group-data-[state=checked]/item:bg-surface-state-neutral-light-hover",
         )}
       >
         {leadingIcon ? (
@@ -217,7 +224,7 @@ const SelectItem = React.forwardRef<
         </SelectPrimitives.ItemText>
         <SelectPrimitives.ItemIndicator>
           <RiCheckLine
-            className="text-foreground-secondary size-[14px] shrink-0"
+            className="text-foreground-secondary size-4 shrink-0"
             aria-hidden="true"
           />
         </SelectPrimitives.ItemIndicator>
@@ -251,8 +258,8 @@ const SelectItemPeriod = React.forwardRef<
       <div
         className={cx(
           "flex h-[28px] w-full items-center gap-sm rounded-[8px] px-[8px] py-[4px] transition-colors",
-          "group-data-[highlighted]/item:bg-surface-neutral-secondary",
-          "group-data-[state=checked]/item:bg-surface-neutral-secondary",
+          "group-data-[highlighted]/item:bg-surface-state-neutral-light-hover",
+          "group-data-[state=checked]/item:bg-surface-state-neutral-light-hover",
         )}
       >
         <div className="flex w-full items-center gap-lg">
@@ -270,7 +277,7 @@ const SelectItemPeriod = React.forwardRef<
         </div>
         <SelectPrimitives.ItemIndicator>
           <RiCheckLine
-            className="text-foreground-secondary size-[14px] shrink-0"
+            className="text-foreground-secondary size-4 shrink-0"
             aria-hidden="true"
           />
         </SelectPrimitives.ItemIndicator>

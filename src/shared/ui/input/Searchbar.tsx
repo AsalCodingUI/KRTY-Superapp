@@ -8,8 +8,8 @@ import type { VariantProps } from "tailwind-variants"
 import { cx, focusInput, hasErrorInput } from "@/shared/lib/utils"
 
 const inputSizeStyles = {
-  sm: "h-7 px-lg py-sm text-body-sm",
-  default: "h-8 px-lg py-md text-body-sm",
+  sm: "h-[24px] py-[2px] text-body-sm",
+  default: "h-[28px] py-[4px] text-body-sm",
 } as const
 
 type InputSize = keyof typeof inputSizeStyles
@@ -23,7 +23,7 @@ const inputStyles = tv({
     // placeholder color
     "placeholder:text-foreground-tertiary",
     // background color
-    "bg-surface-neutral-primary hover:bg-surface-neutral-secondary",
+    "bg-surface-neutral-primary hover:bg-surface-state-neutral-light-hover",
     // disabled
     "disabled:bg-surface-neutral-primary disabled:text-foreground-disable disabled:placeholder:text-foreground-disable disabled:shadow-input disabled:cursor-not-allowed",
     // focus
@@ -80,14 +80,18 @@ const Searchbar = React.forwardRef<HTMLInputElement, InputProps>(
     }: InputProps,
     forwardedRef,
   ) => {
+    const inputPadding =
+      inputSize === "sm" ? "var(--padding-md)" : "var(--padding-lg)"
+
     return (
       <div className={cx("group/searchbar relative w-full", className)}>
         <input
           ref={forwardedRef}
           type={type}
+          style={{ "--input-padding": inputPadding } as React.CSSProperties}
           className={cx(
             inputStyles({ hasError, enableStepper, inputSize }),
-            "pl-[calc(var(--padding-lg)+20px+var(--gap-md))]",
+            "pl-[calc(var(--input-padding)+16px+var(--gap-sm))] pr-[var(--input-padding)]",
             inputClassName,
           )}
           {...props}
@@ -104,7 +108,7 @@ const Searchbar = React.forwardRef<HTMLInputElement, InputProps>(
                 : "text-foreground-secondary group-focus-within/searchbar:text-foreground-primary",
           )}
         >
-          <RiSearchLine className="size-5 shrink-0" aria-hidden="true" />
+          <RiSearchLine className="size-4 shrink-0" aria-hidden="true" />
         </div>
       </div>
     )

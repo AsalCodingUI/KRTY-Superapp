@@ -15,8 +15,8 @@ import React from "react"
 import { type DateRange } from "react-day-picker"
 
 const inputSizeStyles = {
-  sm: "h-7 px-lg py-sm text-body-sm",
-  default: "h-8 px-lg py-md text-body-sm",
+  sm: "h-[24px] px-[8px] py-[2px] text-body-sm",
+  default: "h-[28px] px-[8px] py-[4px] text-body-sm",
 } as const
 
 type InputSize = keyof typeof inputSizeStyles
@@ -62,9 +62,9 @@ const DateRangePicker = React.forwardRef<
             ref={ref}
             type="button"
             className={cx(
-              "group/date-range-picker flex w-full items-center gap-x-md rounded-md border-none shadow-input transition-shadow",
+              "group/date-range-picker flex w-full items-center gap-sm rounded-md border-none shadow-input transition-shadow",
               "bg-surface-neutral-primary text-foreground-primary",
-              "hover:bg-surface-neutral-secondary",
+              "hover:bg-surface-state-neutral-light-hover",
               "focus:shadow-input-focus focus:outline-none",
               "disabled:bg-surface-neutral-primary disabled:text-foreground-disable disabled:shadow-input disabled:cursor-not-allowed",
               inputSizeStyles[inputSize],
@@ -75,7 +75,7 @@ const DateRangePicker = React.forwardRef<
           >
             <RiCalendar2Fill
               className={cx(
-                "size-5 shrink-0",
+                "size-4 shrink-0",
                 isDisabled
                   ? "text-foreground-disable"
                   : "text-foreground-secondary group-focus-within/date-range-picker:text-foreground-primary",

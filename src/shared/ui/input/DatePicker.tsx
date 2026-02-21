@@ -30,8 +30,8 @@ import {
 } from "@/shared/ui/input/Calendar"
 
 const inputSizeStyles = {
-  sm: "h-7 px-lg py-sm text-body-sm",
-  default: "h-8 px-lg py-md text-body-sm",
+  sm: "h-[24px] px-[8px] py-[2px] text-body-sm",
+  default: "h-[28px] px-[8px] py-[4px] text-body-sm",
 } as const
 
 type InputSize = keyof typeof inputSizeStyles
@@ -78,7 +78,7 @@ const TimeSegment = ({ segment, state, inputSize }: TimeSegmentProps) => {
         // text color
         "text-foreground-primary",
         // background color
-        "bg-surface-neutral-primary hover:bg-surface-neutral-secondary",
+        "bg-surface-neutral-primary hover:bg-surface-state-neutral-light-hover",
         // focus
         focusInput,
         // invalid (optional)
@@ -87,7 +87,7 @@ const TimeSegment = ({ segment, state, inputSize }: TimeSegmentProps) => {
           "text-foreground-tertiary !w-fit border-none bg-transparent px-0 shadow-none":
             isDecorator,
           hidden: isSpace,
-          "bg-surface-neutral-primary text-foreground-disable border-none shadow-input cursor-not-allowed":
+        "bg-surface-neutral-primary text-foreground-disable border-none shadow-input cursor-not-allowed":
             state.isDisabled,
           "!text-foreground-tertiary !bg-transparent": !segment.isEditable,
         },
@@ -150,7 +150,7 @@ const TimeInput = React.forwardRef<HTMLDivElement, TimeInputProps>(
       <div
         {...fieldProps}
         ref={innerRef}
-        className="group/time-input inline-flex w-full gap-x-md"
+        className="group/time-input inline-flex w-full gap-sm"
       >
         {state.segments.map((segment, i) => (
           <TimeSegment
@@ -172,11 +172,11 @@ TimeInput.displayName = "TimeInput"
 const triggerStyles = tv({
   base: [
     // base
-    "peer group/date-picker flex w-full cursor-pointer appearance-none items-center gap-x-md truncate rounded-md border-none shadow-input transition-shadow",
+    "peer group/date-picker flex w-full cursor-pointer appearance-none items-center gap-sm truncate rounded-md border-none shadow-input transition-shadow",
     // background + text color
     "bg-surface-neutral-primary text-foreground-primary",
     // hover
-    "hover:bg-surface-neutral-secondary",
+    "hover:bg-surface-state-neutral-light-hover",
     // disabled
     "disabled:pointer-events-none disabled:cursor-not-allowed",
     "disabled:bg-surface-neutral-primary disabled:text-foreground-disable disabled:shadow-input",
@@ -227,10 +227,10 @@ const Trigger = React.forwardRef<HTMLButtonElement, TriggerProps>(
         >
           <RiCalendar2Fill
             className={cx(
-              "size-5 shrink-0",
-              isDisabled
-                ? "text-foreground-disable"
-                : hasError
+            "size-4 shrink-0",
+            isDisabled
+              ? "text-foreground-disable"
+              : hasError
                   ? "text-foreground-danger"
                   : "text-foreground-secondary group-focus-within/date-picker:text-foreground-primary",
             )}
