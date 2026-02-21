@@ -16,7 +16,7 @@ import { cx } from "@/shared/lib/utils"
 import { Label } from "./Label"
 
 const inputSizeStyles = {
-  sm: "h-[24px] py-[2px] text-body-sm",
+  sm: "h-[28px] py-[4px] text-body-sm",
   default: "h-[28px] py-[4px] text-body-sm",
 } as const
 

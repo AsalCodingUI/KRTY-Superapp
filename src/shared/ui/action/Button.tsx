@@ -53,14 +53,14 @@ const buttonVariants = tv({
       ],
     },
     size: {
-      default: "h-[32px] gap-[4px] rounded-[10px] px-[8px] py-[6px] text-label-sm",
-      sm: "h-[28px] gap-[2px] rounded-[8px] px-[8px] py-[4px] text-label-sm",
-      xs: "h-[20px] gap-0 rounded-[6px] px-[6px] py-[2px] text-label-xs",
-      icon: "flex min-h-[32px] min-w-[32px] items-center justify-center gap-0 rounded-[10px] p-[8px]",
+      default: "h-[28px] gap-[4px] rounded-[8px] px-[8px] py-[4px] text-label-sm",
+      sm: "h-[28px] gap-[4px] rounded-[8px] px-[8px] py-[4px] text-label-sm",
+      xs: "h-[28px] gap-[4px] rounded-[8px] px-[8px] py-[4px] text-label-sm",
+      icon: "flex min-h-[28px] min-w-[28px] items-center justify-center gap-0 rounded-[8px] p-[6px]",
       "icon-sm":
         "flex min-h-[28px] min-w-[28px] items-center justify-center gap-0 rounded-[8px] p-[6px]",
       "icon-xs":
-        "flex min-h-[20px] min-w-[20px] items-center justify-center gap-0 rounded-[6px] px-[2px] py-[2px]",
+        "flex min-h-[28px] min-w-[28px] items-center justify-center gap-0 rounded-[8px] p-[6px]",
     },
   },
   defaultVariants: {

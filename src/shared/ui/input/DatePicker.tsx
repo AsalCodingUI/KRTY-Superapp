@@ -30,7 +30,7 @@ import {
 } from "@/shared/ui/input/Calendar"
 
 const inputSizeStyles = {
-  sm: "h-[24px] px-[8px] py-[2px] text-body-sm",
+  sm: "h-[28px] px-[8px] py-[4px] text-body-sm",
   default: "h-[28px] px-[8px] py-[4px] text-body-sm",
 } as const
 

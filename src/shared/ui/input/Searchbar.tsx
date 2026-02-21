@@ -8,7 +8,7 @@ import type { VariantProps } from "tailwind-variants"
 import { cx, focusInput, hasErrorInput } from "@/shared/lib/utils"
 
 const inputSizeStyles = {
-  sm: "h-[24px] py-[2px] text-body-sm",
+  sm: "h-[28px] py-[4px] text-body-sm",
   default: "h-[28px] py-[4px] text-body-sm",
 } as const
 
