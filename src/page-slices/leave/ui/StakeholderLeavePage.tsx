@@ -63,8 +63,6 @@ export function StakeholderLeavePage({
     preserveQuery: true,
     mode: "history",
   })
-  const { isMounted } = useMountedTabs(activeTab)
-
   const canManage = canManageByRole(role)
 
   // --- LOGIC REALTIME (SUPER CEPAT) ---

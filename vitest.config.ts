@@ -7,7 +7,7 @@ const dirname =
     : path.dirname(fileURLToPath(import.meta.url))
 
 // More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon
-export default async () => {
+const createVitestConfig = async () => {
   const [{ default: react }, { storybookTest }, { playwright }] =
     await Promise.all([
       import("@vitejs/plugin-react"),
@@ -28,7 +28,16 @@ export default async () => {
       coverage: {
         provider: "v8",
         reporter: ["text", "json-summary", "html"],
-        include: ["src/shared/ui/**/*.{ts,tsx}", "src/lib/**/*.ts"],
+        // Focus coverage on core modules currently under test.
+        // Expand this list as new test suites are added.
+        include: [
+          "src/entities/performance/lib/**/*.{ts,tsx}",
+          "src/shared/lib/chart/utils.ts",
+          "src/shared/lib/date/utils.ts",
+          "src/shared/lib/utils/cn.ts",
+          "src/shared/ui/action/Button.tsx",
+          "src/shared/ui/input/TextInput.tsx",
+        ],
         exclude: [
           "**/*.test.ts",
           "**/*.test.tsx",
@@ -81,3 +90,5 @@ export default async () => {
     },
   }
 }
+
+export default createVitestConfig

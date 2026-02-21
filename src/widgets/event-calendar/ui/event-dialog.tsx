@@ -179,7 +179,7 @@ export function EventDialog({
         allDay: false,
       })
     }
-  }, [event, initialDate, reset])
+  }, [event, initialDate, normalizedEventType, reset])
 
   useEffect(() => {
     // Reset editing state when dialog opens/closes or event changes
