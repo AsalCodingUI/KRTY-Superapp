@@ -129,15 +129,15 @@ function getVariantStyles(tabVariant: TabsListVariant) {
     case "solid":
       return cx(
         // base
-        "text-label-md inline-flex items-center justify-center rounded-sm px-3 py-1 whitespace-nowrap ring-1 transition-all ring-inset",
+        "text-label-md inline-flex items-center justify-center rounded-md px-3 py-1 whitespace-nowrap border transition-all",
         // text color
         "text-foreground-tertiary",
         // hover
-        "hover:text-foreground-primary",
-        // ring
-        "ring-transparent",
+        "hover:text-foreground-primary hover:bg-surface-state-neutral-light-hover",
+        // border
+        "border-neutral-primary",
         // selected
-        "data-[state=active]:bg-surface data-[state=active]:text-foreground-primary data-[state=active]:shadow-sm",
+        "data-[state=active]:bg-surface-neutral-primary data-[state=active]:text-foreground-primary data-[state=active]:border-foreground-brand-primary",
         // disabled
         "data-disabled:text-foreground-disable data-disabled:pointer-events-none data-disabled:opacity-50",
       )
