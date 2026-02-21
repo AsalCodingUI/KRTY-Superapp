@@ -139,10 +139,11 @@ const TabNavigationLink = React.forwardRef<
                 />
               )}
               <span
+                data-active={active ? "" : undefined}
                 className={cx(
                   "inline-flex items-center justify-center gap-xs rounded-md bg-surface-neutral-primary px-lg py-sm border border-transparent shadow-none",
                   "group-hover:bg-surface-state-neutral-light-hover group-hover:border-neutral-primary",
-                  "group-data-[active]:border-foreground-brand-primary",
+                  "data-[active]:border-neutral-primary",
                 )}
               >
                 {showLeadingIcon && leadingIcon && (
