@@ -1,83 +1,66 @@
 import { cx } from "@/shared/lib/utils"
 import { tv } from "@/shared/lib/utils/tv"
-import { Slot } from "@radix-ui/react-slot"
 import { RiLoader2Fill } from "@/shared/ui/lucide-icons"
+import { Slot } from "@radix-ui/react-slot"
 import React from "react"
 import type { VariantProps } from "tailwind-variants"
 
 const buttonVariants = tv({
   base: [
-    // Layout - Strict Gap 4px (gap-sm)
-    "gap-sm relative inline-flex cursor-pointer items-center justify-center font-medium whitespace-nowrap transition-all duration-200 ease-in-out",
-    // Focus (variant-specific shadow tokens)
+    "relative inline-flex cursor-pointer items-center justify-center font-medium whitespace-nowrap transition-all duration-200 ease-in-out",
     "focus-visible:outline-none",
-    // Disabled
-    "disabled:pointer-events-none disabled:cursor-not-allowed disabled:shadow-none",
-    // Loading
+    "disabled:pointer-events-none disabled:cursor-not-allowed",
     "data-[loading=true]:cursor-wait",
   ],
   variants: {
     variant: {
       primary: [
         "bg-surface-brand text-foreground-on-color shadow-brand",
-        "hover:bg-surface-brand-hover",
+        "hover:bg-surface-brand-hov",
         "focus-visible:shadow-outline-brand",
-        "disabled:bg-surface-neutral-secondary disabled:text-foreground-disable",
+        "disabled:bg-surface-state-neutral-light-disable disabled:text-foreground-disable disabled:shadow-none",
       ],
       destructive: [
         "bg-surface-danger text-foreground-on-color shadow-danger",
-        "hover:bg-surface-danger-hover",
+        "hover:bg-surface-danger-hov",
         "focus-visible:shadow-outline-danger",
-        "disabled:bg-surface-neutral-secondary disabled:text-foreground-disable",
+        "disabled:bg-surface-state-neutral-light-disable disabled:text-foreground-disable disabled:shadow-none",
       ],
       secondary: [
         "bg-surface-neutral-primary text-foreground-primary shadow-neutral",
         "hover:bg-surface-neutral-secondary",
         "focus-visible:shadow-outline-neutral",
-        "disabled:bg-surface-neutral-secondary disabled:text-foreground-disable",
+        "disabled:bg-surface-state-neutral-light-disable disabled:text-foreground-disable disabled:shadow-none",
       ],
       tertiary: [
-        "text-foreground-secondary bg-transparent shadow-none",
-        "hover:bg-surface-neutral-secondary",
+        "bg-transparent text-foreground-secondary shadow-none",
+        "hover:bg-surface-state-neutral-light-hover",
         "focus-visible:shadow-outline-neutral",
-        "disabled:text-foreground-disable",
+        "disabled:bg-surface-state-neutral-light-disable disabled:text-foreground-disable",
       ],
       tertiaryInverse: [
-        "bg-transparent text-white shadow-none",
-        "hover:bg-white/10",
+        "bg-transparent text-foreground-on-color shadow-none",
+        "hover:bg-surface-state-neutral-dark-hover",
         "focus-visible:shadow-outline-neutral",
-        "disabled:text-foreground-state-neutral-dark-disable",
+        "disabled:bg-surface-state-neutral-dark-disable disabled:text-foreground-state-neutral-dark-disable",
       ],
-      // Legacy "ghost" mapped to Tertiary for backward compat if needed, otherwise removed.
+      // Legacy compat alias
       ghost: [
-        "text-foreground-secondary bg-transparent shadow-none",
-        "hover:bg-surface-neutral-secondary",
+        "bg-transparent text-foreground-secondary shadow-none",
+        "hover:bg-surface-state-neutral-light-hover",
         "focus-visible:shadow-outline-neutral",
-        "disabled:text-foreground-disable",
+        "disabled:bg-surface-state-neutral-light-disable disabled:text-foreground-disable",
       ],
     },
     size: {
-      default: [
-        // Medium: 32px height, 8px px, 6px py, 10px radius
-        "h-[32px] rounded-[10px] px-[8px] py-[6px]",
-        "text-label-sm", // 13px
-      ],
-      sm: [
-        // Small: 28px height, 4px px, 4px py, 8px radius
-        "h-[28px] rounded-[8px] px-[4px] py-[4px]",
-        "text-label-sm", // 13px
-      ],
-      xs: [
-        // XSmall: 20px height, 4px px, 2px py, 6px radius
-        "h-[20px] rounded-[6px] px-[4px] py-[2px]",
-        "text-label-xs", // 12px
-      ],
-      // Icon sizes
-      icon: "flex h-[32px] w-[32px] items-center justify-center rounded-[10px] p-0", // Medium
+      default: "h-[32px] gap-[4px] rounded-[10px] px-[8px] py-[6px] text-label-sm",
+      sm: "h-[28px] gap-[2px] rounded-[8px] px-[8px] py-[4px] text-label-sm",
+      xs: "h-[20px] gap-0 rounded-[6px] px-[6px] py-[2px] text-label-xs",
+      icon: "flex min-h-[32px] min-w-[32px] items-center justify-center gap-0 rounded-[10px] p-[8px]",
       "icon-sm":
-        "flex h-[28px] w-[28px] items-center justify-center rounded-[8px] p-0", // Small
+        "flex min-h-[28px] min-w-[28px] items-center justify-center gap-0 rounded-[8px] p-[6px]",
       "icon-xs":
-        "flex h-[20px] w-[20px] items-center justify-center rounded-[6px] p-0", // XSmall
+        "flex min-h-[20px] min-w-[20px] items-center justify-center gap-0 rounded-[6px] px-[2px] py-[2px]",
     },
   },
   defaultVariants: {
@@ -101,7 +84,21 @@ interface ButtonProps
   trailingIcon?: React.ReactNode
 }
 
-import { motion } from "framer-motion"
+function getLoadingClass(variant: NonNullable<ButtonProps["variant"]>) {
+  switch (variant) {
+    case "primary":
+    case "destructive":
+      return "data-[loading=true]:bg-surface-neutral-secondary data-[loading=true]:text-foreground-primary data-[loading=true]:shadow-none data-[loading=true]:hover:bg-surface-neutral-secondary data-[loading=true]:disabled:bg-surface-neutral-secondary data-[loading=true]:disabled:text-foreground-primary"
+    case "secondary":
+      return "data-[loading=true]:text-foreground-primary data-[loading=true]:hover:bg-surface-neutral-primary data-[loading=true]:disabled:bg-surface-neutral-primary data-[loading=true]:disabled:text-foreground-primary data-[loading=true]:disabled:shadow-neutral"
+    case "tertiaryInverse":
+      return "data-[loading=true]:bg-transparent data-[loading=true]:text-foreground-on-color data-[loading=true]:hover:bg-transparent data-[loading=true]:disabled:bg-transparent data-[loading=true]:disabled:text-foreground-on-color"
+    case "tertiary":
+    case "ghost":
+    default:
+      return "data-[loading=true]:bg-transparent data-[loading=true]:text-foreground-primary data-[loading=true]:hover:bg-transparent data-[loading=true]:disabled:bg-transparent data-[loading=true]:disabled:text-foreground-primary"
+  }
+}
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   (
@@ -120,21 +117,19 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     }: ButtonProps,
     forwardedRef,
   ) => {
-    // If asChild is true, we use Slot. Otherwise default to motion.button.
-    // Note: Framer Motion props only work if using motion.button.
-    // If asChild is used, animation props might need to be passed differently or avoided on the Slot.
-    const Component = asChild ? Slot : motion.button
+    const Component = asChild ? Slot : "button"
 
+    const resolvedVariant = variant ?? "primary"
     const isIconOnlySize =
       size === "icon" || size === "icon-sm" || size === "icon-xs"
-    const iconSizeClass =
-      variant === "tertiaryInverse" && size === "sm"
-        ? "size-[16px]"
-        : "size-[14px]"
+    const iconSizeClass = "size-[14px]"
+    const loadingClass = isLoading ? getLoadingClass(resolvedVariant) : ""
+
     const shouldShowLoadingText =
       !isIconOnlySize && (loadingText !== undefined || Boolean(children))
     const resolvedLoadingText =
       loadingText !== undefined ? loadingText : "Loading..."
+
     const resolvedChildren =
       asChild &&
       React.isValidElement(children) &&
@@ -146,7 +141,11 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       return (
         <Component
           ref={forwardedRef as any}
-          className={cx(buttonVariants({ variant, size }), className)}
+          className={cx(
+            buttonVariants({ variant: resolvedVariant, size }),
+            loadingClass,
+            className,
+          )}
           disabled={disabled || isLoading}
           aria-busy={isLoading}
           data-loading={isLoading}
@@ -160,11 +159,14 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <Component
         ref={forwardedRef as any}
-        className={cx(buttonVariants({ variant, size }), className)}
+        className={cx(
+          buttonVariants({ variant: resolvedVariant, size }),
+          loadingClass,
+          className,
+        )}
         disabled={disabled || isLoading}
         aria-busy={isLoading}
         data-loading={isLoading}
-        {...(!asChild ? { whileTap: { scale: 0.98 } } : {})}
         {...props}
       >
         {isLoading ? (
@@ -174,7 +176,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
               aria-hidden="true"
             />
             {shouldShowLoadingText && (
-              <span className="px-xs">{resolvedLoadingText}</span>
+              <span className="inline-flex items-center px-xs">
+                {resolvedLoadingText}
+              </span>
             )}
           </>
         ) : (

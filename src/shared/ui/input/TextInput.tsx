@@ -13,10 +13,11 @@ import {
 import React from "react"
 
 import { cx } from "@/shared/lib/utils"
+import { Label } from "./Label"
 
 const inputSizeStyles = {
-  sm: "h-7 px-lg py-sm text-body-sm",
-  default: "h-8 px-lg py-md text-body-sm",
+  sm: "h-[24px] py-[2px] text-body-sm",
+  default: "h-[28px] py-[4px] text-body-sm",
 } as const
 
 type InputSize = keyof typeof inputSizeStyles
@@ -24,10 +25,8 @@ type InputSize = keyof typeof inputSizeStyles
 /**
  * TextInput component with icon support, error handling, and Amerta design system styling.
  */
-interface TextInputProps extends Omit<
-  React.InputHTMLAttributes<HTMLInputElement>,
-  "prefix"
-> {
+interface TextInputProps
+  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "prefix"> {
   icon?: React.ElementType | React.ReactElement // Left icon (deprecated, use leadingIcon)
   leadingIcon?: React.ElementType | React.ReactElement
   trailingIcon?: React.ElementType | React.ReactElement
@@ -36,6 +35,10 @@ interface TextInputProps extends Omit<
   error?: boolean
   errorMessage?: string
   helperText?: string
+  label?: string
+  required?: boolean
+  showOptional?: boolean
+  optionalText?: string
   inputSize?: InputSize
   isLoading?: boolean
   onClear?: () => void
@@ -54,9 +57,14 @@ const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
       error,
       errorMessage,
       helperText,
+      label,
+      required,
+      showOptional,
+      optionalText = "(Optional)",
       inputSize = "default",
       isLoading,
       onClear,
+      id,
       ...props
     },
     forwardedRef,
@@ -81,19 +89,24 @@ const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
     const hasTrailingIcon = Boolean(RightIcon)
     const hasRightContent = hasRightAction || hasTrailingIcon || suffix
 
+    const inputPadding =
+      inputSize === "sm" ? "var(--padding-md)" : "var(--padding-lg)"
+
     const leftPaddingClass = hasLeftIcon && hasPrefix
-      ? "pl-[calc(var(--padding-lg)+20px+var(--gap-md)+20px+var(--gap-md))]"
-      : hasLeftContent
-        ? "pl-[calc(var(--padding-lg)+20px+var(--gap-md))]"
-        : "pl-lg"
+      ? "pl-[calc(var(--input-padding)+16px+var(--gap-sm)+20px+var(--gap-sm))]"
+      : hasLeftIcon
+        ? "pl-[calc(var(--input-padding)+16px+var(--gap-sm))]"
+        : hasPrefix
+          ? "pl-[calc(var(--input-padding)+20px+var(--gap-sm))]"
+          : "pl-[var(--input-padding)]"
 
     const rightPaddingClass = hasRightContent
       ? suffix && (hasTrailingIcon || hasRightAction)
-        ? "pr-[calc(var(--padding-lg)+28px+var(--gap-md)+20px+var(--gap-md))]"
+        ? "pr-[calc(var(--input-padding)+28px+var(--gap-sm)+16px+var(--gap-sm))]"
         : suffix
-          ? "pr-[calc(var(--padding-lg)+28px+var(--gap-md))]"
-          : "pr-[calc(var(--padding-lg)+20px+var(--gap-md))]"
-      : "pr-lg"
+          ? "pr-[calc(var(--input-padding)+28px+var(--gap-sm))]"
+          : "pr-[calc(var(--input-padding)+16px+var(--gap-sm))]"
+      : "pr-[var(--input-padding)]"
 
     const renderIcon = (
       Icon: React.ElementType | React.ReactElement | undefined,
@@ -112,30 +125,53 @@ const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
 
     return (
       <div className="relative w-full">
+        {label && (
+          <div className="mb-1 flex items-center gap-sm">
+            <Label htmlFor={id} disabled={isDisabled}>
+              {label}
+            </Label>
+            {required && (
+              <span className="text-label-sm text-foreground-brand-dark">*</span>
+            )}
+            {!required && showOptional && (
+              <span
+                className={cx(
+                  "text-body-sm text-foreground-secondary",
+                  isDisabled && "text-foreground-disable",
+                )}
+              >
+                {optionalText}
+              </span>
+            )}
+          </div>
+        )}
+
         <div className="group/text-input relative flex w-full items-center">
           {/* Left Content */}
           <div
             className={cx(
-              "pointer-events-none absolute left-2 flex items-center justify-center gap-md",
+              "pointer-events-none absolute left-2 flex items-center justify-center gap-sm",
               isDisabled
                 ? "text-foreground-disable"
                 : "text-foreground-secondary group-focus-within/text-input:text-foreground-primary",
             )}
           >
             {isSearch && !LeftIcon && (
-              <RiSearchLine className="size-5 shrink-0" aria-hidden="true" />
+              <RiSearchLine className="size-4 shrink-0" aria-hidden="true" />
             )}
             {renderIcon(
               LeftIcon,
-              cx("size-5 shrink-0", error && "text-foreground-danger"),
+              cx("size-4 shrink-0", error && "text-foreground-danger"),
             )}
             {prefix && (
               <span
                 className={cx(
-                  "text-body-sm",
+                  "text-body-sm min-w-[16px] max-w-[20px] text-center",
                   isDisabled
                     ? "text-foreground-disable"
-                    : "text-foreground-secondary group-focus-within/text-input:text-foreground-primary",
+                    : error
+                      ? "text-foreground-danger"
+                      : "text-foreground-secondary group-focus-within/text-input:text-foreground-primary",
                 )}
               >
                 {prefix}
@@ -145,10 +181,13 @@ const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
 
           <input
             ref={forwardedRef}
+            id={id}
             type={isPassword ? typeState : type}
+            style={{ "--input-padding": inputPadding } as React.CSSProperties}
             className={cx(
               // Base styles
-              "bg-surface-neutral-primary text-foreground-primary w-full rounded-md border-none shadow-input transition-shadow hover:bg-surface-neutral-secondary selection:bg-surface-brand-light selection:text-foreground-primary",
+              "bg-surface-neutral-primary text-foreground-primary w-full rounded-md border-none shadow-input transition-shadow",
+              "hover:bg-surface-state-neutral-light-hover",
               "placeholder:text-foreground-tertiary",
               "focus:shadow-input-focus focus:outline-none",
               "disabled:bg-surface-neutral-primary disabled:text-foreground-disable disabled:placeholder:text-foreground-disable disabled:cursor-not-allowed disabled:shadow-input",
@@ -167,7 +206,7 @@ const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
           />
 
           {/* Right Content */}
-          <div className="absolute right-2 flex items-center justify-center gap-md">
+          <div className="absolute right-2 flex items-center justify-center gap-sm">
             {isLoading ? (
               <RiLoader2Fill className="text-foreground-secondary size-5 animate-spin" />
             ) : (
@@ -183,7 +222,7 @@ const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
                         : "text-foreground-secondary group-focus-within/text-input:text-foreground-primary",
                     )}
                   >
-                    <RiCloseCircleFill className="size-5" />
+                    <RiCloseCircleFill className="size-4" />
                   </button>
                 )}
 
@@ -191,16 +230,14 @@ const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
                   <button
                     type="button"
                     onClick={() =>
-                      setTypeState(
-                        typeState === "password" ? "text" : "password",
-                      )
+                      setTypeState(typeState === "password" ? "text" : "password")
                     }
                     className="text-foreground-secondary group-focus-within/text-input:text-foreground-primary hover:text-foreground-primary focus:outline-none"
                   >
                     {typeState === "password" ? (
-                      <RiEyeFill className="size-5" />
+                      <RiEyeFill className="size-4" />
                     ) : (
-                      <RiEyeOffFill className="size-5" />
+                      <RiEyeOffFill className="size-4" />
                     )}
                   </button>
                 )}
@@ -214,17 +251,19 @@ const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
                         : "text-foreground-secondary group-focus-within/text-input:text-foreground-primary",
                     )}
                   >
-                    {renderIcon(RightIcon, "size-5")}
+                    {renderIcon(RightIcon, "size-4")}
                   </div>
                 )}
 
                 {suffix && !hasRightAction && !RightIcon && (
                   <span
                     className={cx(
-                      "text-body-sm pointer-events-none",
+                      "text-body-sm pointer-events-none min-w-[16px] max-w-[28px] text-center",
                       isDisabled
                         ? "text-foreground-disable"
-                        : "text-foreground-secondary group-focus-within/text-input:text-foreground-primary",
+                        : error
+                          ? "text-foreground-danger"
+                          : "text-foreground-secondary group-focus-within/text-input:text-foreground-primary",
                     )}
                   >
                     {suffix}

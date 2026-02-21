@@ -38,3 +38,15 @@ next-env.d.ts
 
 *storybook.log
 storybook-static
+
+# Temporary utility/admin scripts (contain or use sensitive credentials via env)
+check_users.js
+check_auth_users.js
+create_test_users.js
+reset_all_passwords.js
+test_login.js
+generate_jwt.cjs
+deploy_trigger.js
+# Wildcard: catch all root-level test/setup/temp scripts
+test_*.js
+setup_*.js
