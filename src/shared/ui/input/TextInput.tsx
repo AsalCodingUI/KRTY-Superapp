@@ -186,7 +186,7 @@ const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
             style={{ "--input-padding": inputPadding } as React.CSSProperties}
             className={cx(
               // Base styles
-              "bg-surface-neutral-primary text-foreground-primary w-full rounded-md border-none shadow-input transition-shadow",
+              "bg-surface-neutral-primary text-foreground-primary w-full rounded-md border-none shadow-input hover:shadow-input transition-shadow",
               "hover:bg-surface-state-neutral-light-hover",
               "placeholder:text-foreground-tertiary",
               "focus:shadow-input-focus focus:outline-none",
@@ -194,7 +194,7 @@ const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
               // Size styles
               inputSizeStyles[inputSize],
               // Error styles
-              error && "shadow-input-error focus:shadow-input-error",
+              error && "shadow-input-error hover:shadow-input-error focus:shadow-input-error",
               // Padding calculations based on content
               leftPaddingClass,
               rightPaddingClass,

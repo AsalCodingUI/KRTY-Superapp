@@ -62,7 +62,7 @@ const DateRangePicker = React.forwardRef<
             ref={ref}
             type="button"
             className={cx(
-              "group/date-range-picker flex w-full items-center gap-sm rounded-md border-none shadow-input transition-shadow",
+              "group/date-range-picker flex w-full items-center gap-sm rounded-md border-none shadow-input hover:shadow-input transition-shadow",
               "bg-surface-neutral-primary text-foreground-primary",
               "hover:bg-surface-state-neutral-light-hover",
               "focus:shadow-input-focus focus:outline-none",

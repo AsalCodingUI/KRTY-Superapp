@@ -11,7 +11,7 @@ import { tv } from "@/shared/lib/utils/tv"
 
 const selectTriggerStyles = tv({
   base: [
-    "group/trigger flex w-full items-center justify-between gap-sm truncate select-none rounded-md border-none shadow-input transition-shadow",
+    "group/trigger flex w-full items-center justify-between gap-sm truncate select-none rounded-md border-none shadow-input hover:shadow-input transition-shadow",
     "bg-surface-neutral-primary text-foreground-primary",
     "hover:bg-surface-state-neutral-light-hover",
     "focus:shadow-input-focus focus:outline-none",

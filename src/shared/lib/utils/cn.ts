@@ -96,6 +96,7 @@ export const focusRing = [
 export const hasErrorInput = [
   // base
   "shadow-input-error",
+  "hover:shadow-input-error",
   "focus:shadow-input-error",
 ]
 

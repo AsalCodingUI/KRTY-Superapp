@@ -72,7 +72,7 @@ const TimeSegment = ({ segment, state, inputSize }: TimeSegmentProps) => {
       ref={ref}
       className={cx(
         // base
-        "relative block w-full appearance-none rounded-md text-left tabular-nums shadow-input transition-shadow outline-none selection:bg-surface-brand-light selection:text-foreground-primary",
+        "relative block w-full appearance-none rounded-md text-left tabular-nums shadow-input hover:shadow-input transition-shadow outline-none selection:bg-surface-brand-light selection:text-foreground-primary",
         // size
         inputSizeStyles[inputSize],
         // text color
@@ -172,7 +172,7 @@ TimeInput.displayName = "TimeInput"
 const triggerStyles = tv({
   base: [
     // base
-    "peer group/date-picker flex w-full cursor-pointer appearance-none items-center gap-sm truncate rounded-md border-none shadow-input transition-shadow",
+    "peer group/date-picker flex w-full cursor-pointer appearance-none items-center gap-sm truncate rounded-md border-none shadow-input hover:shadow-input transition-shadow",
     // background + text color
     "bg-surface-neutral-primary text-foreground-primary",
     // hover

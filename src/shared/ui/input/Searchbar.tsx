@@ -17,7 +17,7 @@ type InputSize = keyof typeof inputSizeStyles
 const inputStyles = tv({
   base: [
     // base
-    "relative block w-full appearance-none rounded-md border-none transition-shadow outline-none shadow-input selection:bg-surface-brand-light selection:text-foreground-primary",
+    "relative block w-full appearance-none rounded-md border-none transition-shadow outline-none shadow-input hover:shadow-input selection:bg-surface-brand-light selection:text-foreground-primary",
     // text color
     "text-foreground-primary",
     // placeholder color

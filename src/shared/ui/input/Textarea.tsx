@@ -9,7 +9,7 @@ import { cx, focusInput, hasErrorInput } from "@/shared/lib/utils"
 const textareaStyles = tv({
   base: [
     // base
-    "text-body-sm flex min-h-[76px] w-full appearance-none rounded-md border-none p-[8px] transition outline-none shadow-input selection:bg-surface-brand-light selection:text-foreground-primary",
+    "text-body-sm flex min-h-[76px] w-full appearance-none rounded-md border-none p-[8px] transition outline-none shadow-input hover:shadow-input selection:bg-surface-brand-light selection:text-foreground-primary",
     // text color
     "text-foreground-primary",
     // placeholder color
