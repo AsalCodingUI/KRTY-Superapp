@@ -13,6 +13,7 @@ import {
 } from "./hooks/use-event-visibility"
 import { MonthView } from "./month-view"
 import type { CalendarEvent, EventCategory } from "./types"
+import { filterEventsByRange, getViewRange } from "./utils"
 import { WeekView } from "./week-view"
 
 export interface EventCalendarProps {
@@ -44,7 +45,7 @@ function CalendarContent({
   externalDialogOpen?: boolean
   onExternalDialogClose?: () => void
 }) {
-  const { viewMode } = useCalendarContext()
+  const { viewMode, currentDate } = useCalendarContext()
   const { isColorVisible } = useEventVisibility()
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -62,10 +63,12 @@ function CalendarContent({
     }
   }
 
-  // Filter events by visible colors
+  // Filter events by visible range + visible colors
   const visibleEvents = useMemo(() => {
-    return events.filter((event) => isColorVisible(event.color))
-  }, [events, isColorVisible])
+    const range = getViewRange(currentDate, viewMode)
+    const rangeEvents = filterEventsByRange(events, range.start, range.end)
+    return rangeEvents.filter((event) => isColorVisible(event.color))
+  }, [events, isColorVisible, currentDate, viewMode])
 
   const handleEventClick = (event: CalendarEvent) => {
     // if (!canEdit) return; // Allow viewing details in read-only mode

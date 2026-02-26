@@ -11,8 +11,9 @@ import { useCurrentTimeIndicator } from "./hooks/use-current-time-indicator"
 import type { CalendarEvent } from "./types"
 import {
   calculateEventPosition,
+  getDayKey,
   generateTimeSlots,
-  getEventsForDay,
+  groupEventsByDay,
 } from "./utils"
 
 interface DayViewProps {
@@ -39,10 +40,10 @@ export const DayView = memo(function DayView({
 
   // Filter events for current day using centralized function
   // Includes all-day events and filters timed events by business hours
-  const dayEvents = useMemo(
-    () => getEventsForDay(events, currentDate),
-    [events, currentDate],
-  )
+  const dayEvents = useMemo(() => {
+    const map = groupEventsByDay(events, currentDate, currentDate)
+    return map.get(getDayKey(currentDate)) ?? []
+  }, [events, currentDate])
 
   return (
     <div className="bg-surface flex flex-col">

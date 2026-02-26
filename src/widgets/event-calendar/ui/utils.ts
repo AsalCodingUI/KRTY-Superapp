@@ -63,12 +63,50 @@ export function getMonthViewDays(date: Date): Date[] {
   return eachDayOfInterval({ start: viewStart, end: viewEnd })
 }
 
+export function getMonthViewRange(date: Date): { start: Date; end: Date } {
+  const monthStart = startOfMonth(date)
+  const monthEnd = endOfMonth(date)
+  return {
+    start: getWeekStart(monthStart),
+    end: getWeekEnd(monthEnd),
+  }
+}
+
 /**
  * Get all days in a week
  */
 export function getWeekDays(date: Date): Date[] {
   const weekStart = getWeekStart(date)
   return Array.from({ length: 7 }, (_, i) => addDays(weekStart, i))
+}
+
+export function getWeekRange(date: Date): { start: Date; end: Date } {
+  return {
+    start: getWeekStart(date),
+    end: getWeekEnd(date),
+  }
+}
+
+export function getDayRange(date: Date): { start: Date; end: Date } {
+  const day = startOfDay(date)
+  return { start: day, end: day }
+}
+
+export function getViewRange(
+  date: Date,
+  viewMode: ViewMode,
+): { start: Date; end: Date } {
+  switch (viewMode) {
+    case "month":
+      return getMonthViewRange(date)
+    case "week":
+      return getWeekRange(date)
+    case "day":
+    case "agenda":
+      return getDayRange(date)
+    default:
+      return getWeekRange(date)
+  }
 }
 
 /**
@@ -151,6 +189,21 @@ export function getEventsForDay(
       isSameDay(eventEnd, targetDay) ||
       isWithinInterval(targetDay, { start: eventStart, end: eventEnd })
     )
+  })
+}
+
+export function filterEventsByRange(
+  events: CalendarEvent[],
+  rangeStart: Date,
+  rangeEnd: Date,
+): CalendarEvent[] {
+  const start = startOfDay(rangeStart)
+  const end = startOfDay(rangeEnd)
+
+  return events.filter((event) => {
+    const eventStart = startOfDay(event.start)
+    const eventEnd = startOfDay(event.end)
+    return !isBefore(eventEnd, start) && !isAfter(eventStart, end)
   })
 }
 

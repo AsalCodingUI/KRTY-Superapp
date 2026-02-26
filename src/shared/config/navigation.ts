@@ -9,7 +9,6 @@ import {
   RiFundsBoxLine,
   RiGroupLine,
   RiHome2Line,
-  RiMessage3Line,
   RiQuestionLine,
   RiSettings5Line,
   RiUserSmileLine,

@@ -1,9 +1,10 @@
 "use client"
 
-import { isSameDay } from "date-fns"
+import { useMemo } from "react"
 import { useCalendarContext } from "./calendar-context"
 import { EventItem } from "./event-item"
 import type { CalendarEvent } from "./types"
+import { getDayKey, groupEventsByDay } from "./utils"
 
 interface AgendaViewProps {
   events: CalendarEvent[]
@@ -12,11 +13,11 @@ interface AgendaViewProps {
 
 export function AgendaView({ events, onEventClick }: AgendaViewProps) {
   const { currentDate } = useCalendarContext()
-
-  // Filter events for current date
-  const dayEvents = events
-    .filter((event) => isSameDay(event.start, currentDate))
-    .sort((a, b) => a.start.getTime() - b.start.getTime())
+  const dayEvents = useMemo(() => {
+    const map = groupEventsByDay(events, currentDate, currentDate)
+    const list = map.get(getDayKey(currentDate)) ?? []
+    return [...list].sort((a, b) => a.start.getTime() - b.start.getTime())
+  }, [events, currentDate])
 
   return (
     <div className="bg-surface flex h-full flex-col">
