@@ -8,8 +8,10 @@ import {
   type EventColor,
   getAllEventTypes,
   getEventTypeDefinition,
+  useCalendarContext,
 } from "@/widgets/event-calendar"
 import { GoogleCalendarProvider } from "@/widgets/event-calendar/ui/google-calendar-context"
+import { getViewRange } from "@/widgets/event-calendar/ui/utils"
 import { Database } from "@/shared/types/database.types"
 import { canManageByRole } from "@/shared/lib/roles"
 import { useMemo, useState } from "react"
@@ -238,9 +240,10 @@ const mapSlotToEvent = (slot: OneOnOneCalendarRow): CalendarEvent | null => {
   }
 }
 
-export default function CalendarClient({ role, userId }: CalendarClientProps) {
+function CalendarDataLayer({ role, userId }: CalendarClientProps) {
   const supabase = useMemo(() => createClient(), [])
   const [dialogOpen, setDialogOpen] = useState(false)
+  const { currentDate, viewMode } = useCalendarContext()
 
   const isStakeholder = canManageByRole(role)
 
@@ -253,13 +256,28 @@ export default function CalendarClient({ role, userId }: CalendarClientProps) {
     }))
   }, [])
 
+  const range = useMemo(() => {
+    const viewRange = getViewRange(currentDate, viewMode)
+    return {
+      start: startOfDay(viewRange.start),
+      end: endOfDay(viewRange.end),
+    }
+  }, [currentDate, viewMode])
+  const rangeStartIso = range.start.toISOString()
+  const rangeEndIso = range.end.toISOString()
+  const rangeStartDate = rangeStartIso.slice(0, 10)
+  const rangeEndDate = rangeEndIso.slice(0, 10)
+
   const { data: events = [], isLoading, mutate } = useSWR(
-    "calendar-events",
+    ["calendar-events", rangeStartIso, rangeEndIso],
     async () => {
       const { data, error } = await supabase
         .from("calendar_events")
         .select(
           "id,title,description,start_at,end_at,color,location,all_day,meeting_url,guests,reminders,rsvp_status,organizer,event_type,user_id,is_recurring,recurrence_rule",
+        )
+        .or(
+          `start_at.lte.${rangeEndIso},end_at.gte.${rangeStartIso}`,
         )
 
       if (error) {
@@ -279,7 +297,9 @@ export default function CalendarClient({ role, userId }: CalendarClientProps) {
     data: leaveRequests = [],
     isLoading: leaveLoading,
   } = useSWR<LeaveRequestCalendarRow[]>(
-    userId ? ["calendar-leave", userId, isStakeholder] : null,
+    userId
+      ? ["calendar-leave", userId, isStakeholder, rangeStartDate, rangeEndDate]
+      : null,
     async () => {
       let query = supabase
         .from("leave_requests")
@@ -287,6 +307,9 @@ export default function CalendarClient({ role, userId }: CalendarClientProps) {
           "id,start_date,end_date,leave_type,status,reason,user_id,profiles(full_name)",
         )
         .eq("status", "approved")
+        .or(
+          `start_date.lte.${rangeEndDate},end_date.gte.${rangeStartDate}`,
+        )
 
       if (!isStakeholder && userId) {
         query = query.eq("user_id", userId)
@@ -308,13 +331,22 @@ export default function CalendarClient({ role, userId }: CalendarClientProps) {
     data: oneOnOneSlots = [],
     isLoading: oneOnOneLoading,
   } = useSWR<OneOnOneCalendarRow[]>(
-    userId ? ["calendar-1on1", userId, isStakeholder] : null,
+    userId
+      ? [
+          "calendar-1on1",
+          userId,
+          isStakeholder,
+          rangeStartIso,
+          rangeEndIso,
+        ]
+      : null,
     async () => {
       let query = supabase
         .from("one_on_one_slots")
         .select(
           "id,start_at,end_at,status,cycle_name,meeting_url,location,mode,organizer_id,booked_by,google_event_id,updated_at,organizer:profiles!organizer_id(full_name,email),booked_by_profile:profiles!booked_by(full_name,email)",
         )
+        .or(`start_at.lte.${rangeEndIso},end_at.gte.${rangeStartIso}`)
         .order("start_at", { ascending: true })
 
       if (!isStakeholder && userId) {
@@ -417,20 +449,26 @@ export default function CalendarClient({ role, userId }: CalendarClientProps) {
   }
 
   return (
+    <CalendarContent
+      events={combinedEvents}
+      loading={isLoading || leaveLoading || oneOnOneLoading}
+      dialogOpen={dialogOpen}
+      setDialogOpen={setDialogOpen}
+      handleEventAdd={handleEventAdd}
+      handleEventUpdate={handleEventUpdate}
+      handleEventDelete={handleEventDelete}
+      isStakeholder={isStakeholder}
+      categories={categories}
+      blockedGoogleEventIds={blockedGoogleEventIds}
+    />
+  )
+}
+
+export default function CalendarClient({ role, userId }: CalendarClientProps) {
+  return (
     <CalendarProvider>
       <GoogleCalendarProvider>
-        <CalendarContent
-          events={combinedEvents}
-          loading={isLoading || leaveLoading || oneOnOneLoading}
-          dialogOpen={dialogOpen}
-          setDialogOpen={setDialogOpen}
-          handleEventAdd={handleEventAdd}
-          handleEventUpdate={handleEventUpdate}
-          handleEventDelete={handleEventDelete}
-          isStakeholder={isStakeholder}
-          categories={categories}
-          blockedGoogleEventIds={blockedGoogleEventIds}
-        />
+        <CalendarDataLayer role={role} userId={userId} />
       </GoogleCalendarProvider>
     </CalendarProvider>
   )

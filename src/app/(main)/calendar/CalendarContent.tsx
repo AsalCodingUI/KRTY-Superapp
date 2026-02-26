@@ -14,20 +14,17 @@ import {
 import { useGoogleCalendar } from "@/widgets/event-calendar/ui/hooks/use-google-calendar"
 import {
   endOfDay,
-  endOfMonth,
-  endOfWeek,
   format,
   isSameDay,
   isWithinInterval,
   startOfDay,
-  startOfMonth,
-  startOfWeek,
 } from "date-fns"
 import dynamic from "next/dynamic"
 import { useEffect, useMemo } from "react"
 import { toast } from "sonner"
 import { useTabRoute } from "@/shared/hooks/useTabRoute"
 import useSWR from "swr"
+import { getViewRange } from "@/widgets/event-calendar/ui/utils"
 
 const EventCalendar = dynamic(
   () =>
@@ -82,32 +79,10 @@ function CalendarContent({
   const { isConnected } = useGoogleCalendar()
 
   const viewRange = useMemo(() => {
-    switch (viewMode) {
-      case "day":
-        return {
-          start: startOfDay(currentDate),
-          end: endOfDay(currentDate),
-        }
-      case "week": {
-        const start = startOfWeek(currentDate, { weekStartsOn: 1 })
-        const end = endOfWeek(currentDate, { weekStartsOn: 1 })
-        return { start: startOfDay(start), end: endOfDay(end) }
-      }
-      case "month": {
-        const start = startOfMonth(currentDate)
-        const end = endOfMonth(currentDate)
-        return { start: startOfDay(start), end: endOfDay(end) }
-      }
-      case "agenda": {
-        const start = startOfWeek(currentDate, { weekStartsOn: 1 })
-        const end = endOfWeek(currentDate, { weekStartsOn: 1 })
-        return { start: startOfDay(start), end: endOfDay(end) }
-      }
-      default:
-        return {
-          start: startOfDay(currentDate),
-          end: endOfDay(currentDate),
-        }
+    const range = getViewRange(currentDate, viewMode)
+    return {
+      start: startOfDay(range.start),
+      end: endOfDay(range.end),
     }
   }, [currentDate, viewMode])
 
