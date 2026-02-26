@@ -62,24 +62,25 @@ export async function POST(request: NextRequest) {
     if (slot.google_event_id) {
       const accessToken = await getGoogleAccessToken()
       const env = getGoogleEnv()
-      if (!accessToken || !env) {
-        return NextResponse.json(
-          { error: "calendar_not_connected" },
-          { status: 400 },
-        )
-      }
 
-      const deleted = await deleteGoogleCalendarEvent({
-        accessToken,
-        calendarId: env.calendarId,
-        eventId: slot.google_event_id,
-      })
+      if (accessToken && env) {
+        const deleted = await deleteGoogleCalendarEvent({
+          accessToken,
+          calendarId: env.calendarId,
+          eventId: slot.google_event_id,
+        })
 
-      if (!deleted) {
-        return NextResponse.json(
-          { error: "calendar_delete_failed" },
-          { status: 500 },
-        )
+        if (!deleted) {
+          logError("Failed to delete Google Calendar event:", {
+            slotId,
+            googleEventId: slot.google_event_id,
+          })
+        }
+      } else {
+        logError("Skipping Google Calendar delete (not connected)", {
+          slotId,
+          googleEventId: slot.google_event_id,
+        })
       }
     }
 
@@ -96,6 +97,7 @@ export async function POST(request: NextRequest) {
         .from("one_on_one_slots")
         .update({
           status: "cancelled",
+          google_event_id: null,
           updated_at: new Date().toISOString(),
         })
         .eq("id", slotId)
