@@ -11,9 +11,13 @@ import {
   endOfMonth,
   endOfWeek,
   format,
+  isAfter,
+  isBefore,
   isSameDay,
   isSameMonth,
   isWithinInterval,
+  max,
+  min,
   startOfDay,
   startOfMonth,
   startOfWeek,
@@ -148,6 +152,50 @@ export function getEventsForDay(
       isWithinInterval(targetDay, { start: eventStart, end: eventEnd })
     )
   })
+}
+
+export function getDayKey(day: Date): string {
+  return format(startOfDay(day), "yyyy-MM-dd")
+}
+
+export function groupEventsByDay(
+  events: CalendarEvent[],
+  rangeStart: Date,
+  rangeEnd: Date,
+): Map<string, CalendarEvent[]> {
+  const start = startOfDay(rangeStart)
+  const end = startOfDay(rangeEnd)
+
+  const dayMap = new Map<string, CalendarEvent[]>()
+  eachDayOfInterval({ start, end }).forEach((day) => {
+    dayMap.set(getDayKey(day), [])
+  })
+
+  events.forEach((event) => {
+    const eventStart = startOfDay(event.start)
+    const eventEnd = startOfDay(event.end)
+
+    if (isBefore(eventEnd, start) || isAfter(eventStart, end)) {
+      return
+    }
+
+    const clampedStart = max([eventStart, start])
+    const clampedEnd = min([eventEnd, end])
+
+    eachDayOfInterval({ start: clampedStart, end: clampedEnd }).forEach(
+      (day) => {
+        const key = getDayKey(day)
+        const existing = dayMap.get(key)
+        if (existing) {
+          existing.push(event)
+        } else {
+          dayMap.set(key, [event])
+        }
+      },
+    )
+  })
+
+  return dayMap
 }
 
 /**

@@ -8,7 +8,7 @@ import { memo, useMemo, useState } from "react"
 import { useCalendarContext } from "./calendar-context"
 import { EventItem } from "./event-item"
 import type { CalendarEvent } from "./types"
-import { getEventsForDay, getMonthViewDays } from "./utils"
+import { getDayKey, getMonthViewDays, groupEventsByDay } from "./utils"
 
 interface MonthViewProps {
   events: CalendarEvent[]
@@ -27,6 +27,12 @@ export const MonthView = memo(function MonthView({
   const monthDays = useMemo(() => getMonthViewDays(currentDate), [currentDate])
   const today = new Date()
   const [openPopover, setOpenPopover] = useState<string | null>(null)
+  const monthRangeStart = monthDays[0]
+  const monthRangeEnd = monthDays[monthDays.length - 1]
+  const eventsByDay = useMemo(
+    () => groupEventsByDay(events, monthRangeStart, monthRangeEnd),
+    [events, monthRangeStart, monthRangeEnd],
+  )
 
   // Group days by week for week number display
   const weeks: Date[][] = []
@@ -59,7 +65,7 @@ export const MonthView = memo(function MonthView({
         {/* Days grid */}
         <div className="grid flex-1 auto-rows-fr grid-cols-7 overflow-hidden">
           {monthDays.map((day) => {
-            const dayEvents = getEventsForDay(events, day)
+            const dayEvents = eventsByDay.get(getDayKey(day)) ?? []
             const isToday = isSameDay(day, today)
             const isCurrentMonth = isSameMonth(day, currentDate)
             const isSelected =

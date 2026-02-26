@@ -13,7 +13,8 @@ import type { CalendarEvent } from "./types"
 import {
   calculateEventPosition,
   generateTimeSlots,
-  getEventsForDay,
+  getDayKey,
+  groupEventsByDay,
   getWeekDays,
 } from "./utils"
 
@@ -38,6 +39,12 @@ export const WeekView = memo(function WeekView({
   const timeSlots = useMemo(() => generateTimeSlots(60), []) // Hourly slots - only compute once
   const currentTimePosition = useCurrentTimeIndicator(PIXELS_PER_HOUR)
   const today = new Date()
+  const weekRangeStart = weekDays[0]
+  const weekRangeEnd = weekDays[weekDays.length - 1]
+  const eventsByDay = useMemo(
+    () => groupEventsByDay(events, weekRangeStart, weekRangeEnd),
+    [events, weekRangeStart, weekRangeEnd],
+  )
 
   return (
     <div className="flex flex-col">
@@ -114,7 +121,7 @@ export const WeekView = memo(function WeekView({
 
           {/* Day columns */}
           {weekDays.map((day) => {
-            const dayEvents = getEventsForDay(events, day)
+            const dayEvents = eventsByDay.get(getDayKey(day)) ?? []
             const isToday = isSameDay(day, today)
 
             return (

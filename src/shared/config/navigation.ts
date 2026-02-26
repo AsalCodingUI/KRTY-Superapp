@@ -57,12 +57,6 @@ export const navigationConfig: NavigationConfig = {
       roles: ["stakeholder", "employee"],
     },
     {
-      name: "Message",
-      href: siteConfig.baseLinks.message,
-      icon: RiMessage3Line,
-      roles: ["stakeholder"],
-    },
-    {
       name: "Leave & Attendance",
       href: siteConfig.baseLinks.leave,
       icon: RiCalendarCheckLine,
