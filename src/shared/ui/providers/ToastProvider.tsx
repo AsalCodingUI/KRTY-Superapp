@@ -30,20 +30,20 @@ export function ToastProvider() {
         unstyled: true,
         classNames: {
           toast:
-            "flex items-center w-[360px] overflow-hidden rounded-xl shadow-regular-md pr-2",
-          content: "flex-1 min-w-0 py-3",
-          icon: "p-3",
-          title: "text-label-lg leading-6 truncate",
+            "flex items-center w-[340px] overflow-hidden rounded-xl shadow-none py-[6px] pl-4 pr-2",
+          content: "flex-1 min-w-0",
+          icon: "p-2",
+          title: "text-label-md leading-4 truncate",
           actionButton:
-            "text-label-sm px-lg py-md rounded-lg text-current transition-opacity hover:opacity-90",
+            "text-label-md leading-4 px-2 py-[6px] rounded-lg text-current transition-opacity hover:opacity-90 bg-transparent",
           cancelButton:
-            "text-label-sm px-lg py-md rounded-lg text-current transition-opacity hover:opacity-90",
+            "text-label-md leading-4 px-2 py-[6px] rounded-lg text-current transition-opacity hover:opacity-90 bg-transparent",
           success: "bg-surface-success text-foreground-on-color",
           error: "bg-surface-danger text-foreground-on-color",
           warning: "bg-surface-warning text-foreground-warning-on-color",
-          info: "bg-surface-inverse-primary text-foreground-on-color pl-4",
+          info: "bg-surface-inverse-primary text-foreground-on-color",
           loading: "bg-surface-inverse-primary text-foreground-on-color",
-          default: "bg-surface-inverse-primary text-foreground-on-color pl-4",
+          default: "bg-surface-inverse-primary text-foreground-on-color",
         },
       }}
     />
