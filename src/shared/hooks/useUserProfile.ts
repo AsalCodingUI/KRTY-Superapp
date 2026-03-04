@@ -4,7 +4,7 @@
 import { Database } from "@/shared/types/database.types"
 import { createClient as createClientBrowser } from "@/shared/api/supabase/client"
 import { canManageByRole } from "@/shared/lib/roles"
-import { useEffect, useState } from "react"
+import useSWR from "swr"
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"]
 
@@ -21,50 +21,58 @@ export type ProfileSubset = Pick<
   | "team_id"
 >
 
-export function useUserProfile() {
-  const [profile, setProfile] = useState<ProfileSubset | null>(null)
-  const [userEmail, setUserEmail] = useState<string | null>(null)
-  const [loading, setLoading] = useState(true)
+type UserProfileResponse = {
+  profile: ProfileSubset | null
+  userEmail: string | null
+}
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      const supabase = createClientBrowser()
+const fetchUserProfile = async (): Promise<UserProfileResponse> => {
+  const supabase = createClientBrowser()
 
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
-      if (user) {
-        setUserEmail(user.email || null)
-
-        // Select profile fields - role is the correct field name in database
-        const { data: profileData, error: profileError } = await supabase
-          .from("profiles")
-          .select(
-            "id, full_name, email, role, job_title, krt_id, hourly_rate, team_id",
-          )
-          .eq("id", user.id)
-          .single()
-
-        if (profileError) {
-          console.error("Client fetch failed:", profileError)
-        }
-
-        if (profileData) {
-          setProfile(profileData)
-        }
-      }
-
-      setLoading(false)
+  if (!user) {
+    return {
+      profile: null,
+      userEmail: null,
     }
+  }
 
-    fetchProfile()
-  }, [])
+  // Select profile fields - role is the correct field name in database
+  const { data: profileData, error: profileError } = await supabase
+    .from("profiles")
+    .select(
+      "id, full_name, email, role, job_title, krt_id, hourly_rate, team_id",
+    )
+    .eq("id", user.id)
+    .single()
+
+  if (profileError) {
+    console.error("Client fetch failed:", profileError)
+  }
 
   return {
-    profile,
-    userEmail,
-    loading,
-    isAdmin: canManageByRole(profile?.role),
+    profile: profileData || null,
+    userEmail: user.email || null,
+  }
+}
+
+export function useUserProfile() {
+  const { data, isLoading } = useSWR<UserProfileResponse>(
+    "current-user-profile",
+    fetchUserProfile,
+    {
+      revalidateOnFocus: false,
+      dedupingInterval: 60_000,
+    },
+  )
+
+  return {
+    profile: data?.profile || null,
+    userEmail: data?.userEmail || null,
+    loading: isLoading,
+    isAdmin: canManageByRole(data?.profile?.role),
   }
 }
