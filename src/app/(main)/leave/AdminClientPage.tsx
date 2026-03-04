@@ -181,9 +181,6 @@ export default function LeaveAdminPage({
 
 // --- SUB-COMPONENT (Sekarang lebih sederhana & cepat) ---
 function RemainingLeaveView({ data }: { data: Profile[] }) {
-  const supabase = createClient()
-  const router = useRouter()
-
   return (
     <section>
       <DataTable
@@ -193,20 +190,8 @@ function RemainingLeaveView({ data }: { data: Profile[] }) {
         showViewOptions={false}
         showFilterbar={false}
         actionLabel=""
-        onDelete={async (ids) => {
-          if (!confirm(`Delete ${ids.length} employee profile(s)?`)) return
-
-          const { error } = await supabase
-            .from("profiles")
-            .delete()
-            .in("id", ids as string[])
-          if (error) {
-            console.error("Delete error:", error)
-            alert("Error deleting: " + error.message)
-          } else {
-            router.refresh()
-          }
-        }}
+        onDelete={undefined}
+        enableSelection={false}
         showTableWrapper={true}
         tableTitle="Remaining Leave Quota"
         tableDescription="Monitor employee leave balances and usage"

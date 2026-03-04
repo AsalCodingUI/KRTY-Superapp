@@ -167,9 +167,7 @@ export function StakeholderLeavePage({
     </section>
   )
 
-  const remainingContent = (
-    <RemainingLeaveView data={profiles} canManage={canManage} />
-  )
+  const remainingContent = <RemainingLeaveView data={profiles} />
 
   return (
     <div className="flex flex-col">
@@ -315,14 +313,9 @@ function AttendanceOverviewPanel({
 // --- SUB-COMPONENT (Sekarang lebih sederhana & cepat) ---
 function RemainingLeaveView({
   data,
-  canManage,
 }: {
   data: Profile[]
-  canManage: boolean
 }) {
-  const supabase = createClient()
-  const router = useRouter()
-
   return (
     <section>
       <DataTable
@@ -332,25 +325,8 @@ function RemainingLeaveView({
         showViewOptions={false}
         showFilterbar={false}
         actionLabel=""
-        enableSelection={canManage}
-        onDelete={
-          canManage
-            ? async (ids) => {
-              if (!confirm(`Delete ${ids.length} employee profile(s)?`)) return
-
-              const { error } = await supabase
-                .from("profiles")
-                .delete()
-                .in("id", ids as string[])
-              if (error) {
-                console.error("Delete error:", error)
-                alert("Error deleting: " + error.message)
-              } else {
-                router.refresh()
-              }
-            }
-            : undefined
-        }
+        enableSelection={false}
+        onDelete={undefined}
         showTableWrapper={false}
       />
     </section>
