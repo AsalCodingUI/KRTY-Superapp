@@ -217,13 +217,10 @@ export default function PermissionSettingsPage({
         <div>
           <h3
             id="permissions-title"
-            className="text-foreground-primary scroll-mt-10 font-semibold"
+            className="text-heading-md text-foreground-primary scroll-mt-10"
           >
             User Permissions
           </h3>
-          <p className="text-foreground-secondary text-label-md">
-            Manage roles, job titles, and per-user page access for your team members.
-          </p>
         </div>
       </div>
 
@@ -243,12 +240,12 @@ export default function PermissionSettingsPage({
           const isCurrentUser = user.id === currentUser?.id
 
           return (
-            <li key={user.id} className="py-4">
+            <li key={user.id} className="py-2">
               {/* ── User row ── */}
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-x-4 overflow-hidden text-left">
                   <span
-                    className="border-neutral-primary bg-surface-neutral-secondary text-foreground-secondary text-label-xs relative hidden size-10 shrink-0 items-center justify-center rounded-full border sm:flex"
+                    className="border-neutral-primary bg-surface-neutral-secondary text-foreground-secondary text-label-xs relative hidden size-8 shrink-0 items-center justify-center rounded-full border sm:flex"
                     aria-hidden="true"
                   >
                     {initials}
