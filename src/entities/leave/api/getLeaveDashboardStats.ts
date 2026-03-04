@@ -16,7 +16,14 @@ export async function getLeaveDashboardStats(): Promise<LeaveDashboardStats> {
       .from("leave_requests")
       .select(
         `
-                *,
+                id,
+                user_id,
+                leave_type,
+                reason,
+                start_date,
+                end_date,
+                status,
+                created_at,
                 profiles (
                     full_name,
                     avatar_url
@@ -32,7 +39,14 @@ export async function getLeaveDashboardStats(): Promise<LeaveDashboardStats> {
       .from("leave_requests")
       .select(
         `
-                *,
+                id,
+                user_id,
+                leave_type,
+                reason,
+                start_date,
+                end_date,
+                status,
+                created_at,
                 profiles (
                     full_name,
                     avatar_url

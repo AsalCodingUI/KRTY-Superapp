@@ -17,12 +17,14 @@ export function useTeamMembers() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("profiles")
-        .select("*")
+        .select("id, full_name, email, job_title, role, hourly_rate, avatar_url")
         .order("full_name", { ascending: true })
 
       if (error) throw error
       return data as TeamMember[]
     },
+    staleTime: 60 * 1000,
+    refetchOnWindowFocus: false,
   })
 }
 
@@ -42,7 +44,7 @@ export function useTeamMember(memberId: string | null) {
 
       const { data, error } = await supabase
         .from("profiles")
-        .select("*")
+        .select("id, full_name, email, job_title, role, hourly_rate, avatar_url")
         .eq("id", memberId)
         .single()
 
@@ -50,5 +52,7 @@ export function useTeamMember(memberId: string | null) {
       return data as TeamMember
     },
     enabled: !!memberId,
+    staleTime: 60 * 1000,
+    refetchOnWindowFocus: false,
   })
 }

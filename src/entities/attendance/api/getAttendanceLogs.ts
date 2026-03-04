@@ -17,7 +17,9 @@ export async function getAttendanceLogs(
 
     let query = supabase
       .from("attendance_logs")
-      .select("*")
+      .select(
+        "id,user_id,date,clock_in,clock_out,is_break,break_total,break_start,status,notes",
+      )
       .order("date", { ascending: false })
       .order("clock_in", { ascending: false })
 

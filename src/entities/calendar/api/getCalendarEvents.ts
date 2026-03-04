@@ -18,7 +18,9 @@ export async function getCalendarEvents(
 
   const { data, error } = await supabase
     .from("events")
-    .select("*")
+    .select(
+      "id,title,description,start_date,end_date,color,location,all_day,type,employee_id,rsvp_status,organizer,is_recurring,recurrence_rule",
+    )
     .gte("start_date", startDate.toISOString())
     .lte("end_date", endDate.toISOString())
     .order("start_date", { ascending: true })
@@ -75,7 +77,9 @@ export async function getCalendarEvent(
 
   const { data, error } = await supabase
     .from("events")
-    .select("*")
+    .select(
+      "id,title,description,start_date,end_date,color,location,all_day,type,employee_id,rsvp_status,organizer,is_recurring,recurrence_rule",
+    )
     .eq("id", eventId)
     .single()
 

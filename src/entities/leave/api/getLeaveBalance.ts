@@ -17,7 +17,7 @@ export async function getLeaveBalance(
   try {
     const { data, error } = await supabase
       .from("leave_requests")
-      .select("*")
+      .select("start_date, end_date")
       .eq("user_id", userId)
       .eq("status", "approved")
       .eq("leave_type", "Annual Leave")

@@ -38,6 +38,8 @@ export function usePerformanceScore(
       return data as PerformanceScore
     },
     enabled: !!employeeId,
+    staleTime: 60 * 1000,
+    refetchOnWindowFocus: false,
   })
 }
 
@@ -62,5 +64,7 @@ export function useAllPerformanceScores(quarterId: string) {
       if (error) throw error
       return data as PerformanceScore[]
     },
+    staleTime: 60 * 1000,
+    refetchOnWindowFocus: false,
   })
 }

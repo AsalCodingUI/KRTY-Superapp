@@ -23,7 +23,9 @@ export function useCalendarEvents(startDate: Date, endDate: Date) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("events")
-        .select("*")
+        .select(
+          "id,title,description,start_date,end_date,color,location,all_day,type,employee_id,rsvp_status,organizer,is_recurring,recurrence_rule",
+        )
         .gte("start_date", startDate.toISOString())
         .lte("end_date", endDate.toISOString())
         .order("start_date", { ascending: true })
@@ -63,6 +65,8 @@ export function useCalendarEvents(startDate: Date, endDate: Date) {
         recurrenceRule: event.recurrence_rule,
       })) as CalendarEvent[]
     },
+    staleTime: 60 * 1000,
+    refetchOnWindowFocus: false,
   })
 }
 
@@ -82,7 +86,9 @@ export function useCalendarEvent(eventId: string | null) {
 
       const { data, error } = await supabase
         .from("events")
-        .select("*")
+        .select(
+          "id,title,description,start_date,end_date,color,location,all_day,type,employee_id,rsvp_status,organizer,is_recurring,recurrence_rule",
+        )
         .eq("id", eventId)
         .single()
 
@@ -106,5 +112,7 @@ export function useCalendarEvent(eventId: string | null) {
       } as CalendarEvent
     },
     enabled: !!eventId,
+    staleTime: 60 * 1000,
+    refetchOnWindowFocus: false,
   })
 }

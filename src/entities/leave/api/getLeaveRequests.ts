@@ -34,7 +34,10 @@ export async function getLeaveRequests(
     if (includeProfile) {
       let query = supabase
         .from("leave_requests")
-        .select("*, profiles(full_name, avatar_url)", { count: "exact" })
+        .select(
+          "id,start_date,end_date,leave_type,reason,proof_url,status,created_at,updated_at,user_id,profiles(full_name, avatar_url)",
+          { count: "exact" },
+        )
         .order("created_at", { ascending: false })
         .range(from, to)
 
@@ -60,7 +63,10 @@ export async function getLeaveRequests(
     } else {
       let query = supabase
         .from("leave_requests")
-        .select("*", { count: "exact" })
+        .select(
+          "id,start_date,end_date,leave_type,reason,proof_url,status,created_at,updated_at,user_id",
+          { count: "exact" },
+        )
         .order("created_at", { ascending: false })
         .range(from, to)
 
