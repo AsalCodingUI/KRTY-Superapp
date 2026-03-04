@@ -16,7 +16,6 @@ import {
   endOfDay,
   format,
   isSameDay,
-  isWithinInterval,
   endOfWeek,
   startOfDay,
   startOfWeek,
@@ -153,25 +152,41 @@ function CalendarContent({
     return Array.from(map.values())
   }, [events, googleEvents])
 
-  const meetingCount = allEvents.filter((event) => {
-    const type = (event.type || "").toLowerCase()
-    const title = (event.title || "").toLowerCase()
-    const description = (event.description || "").toLowerCase()
-    const isMeeting =
-      Boolean(event.meetingUrl) ||
-      type.includes("meeting") ||
-      type === "internal" ||
-      type === "internal meeting" ||
-      title.includes("meeting") ||
-      description.includes("meeting")
-    return isMeeting && isSameDay(event.start, currentDate)
-  }).length
+  const { meetingCount, upcomingThisWeek } = useMemo(() => {
+    const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 }).getTime()
+    const weekEnd = endOfWeek(currentDate, { weekStartsOn: 1 }).getTime()
+    let meetingsToday = 0
+    let upcoming = 0
 
-  const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 })
-  const weekEnd = endOfWeek(currentDate, { weekStartsOn: 1 })
-  const upcomingThisWeek = allEvents.filter((event) =>
-    isWithinInterval(event.start, { start: weekStart, end: weekEnd }),
-  ).length
+    for (const event of allEvents) {
+      const eventStart = event.start.getTime()
+      if (eventStart >= weekStart && eventStart <= weekEnd) {
+        upcoming += 1
+      }
+
+      if (!isSameDay(event.start, currentDate)) continue
+
+      const type = (event.type || "").toLowerCase()
+      const title = (event.title || "").toLowerCase()
+      const description = (event.description || "").toLowerCase()
+      const isMeeting =
+        Boolean(event.meetingUrl) ||
+        type.includes("meeting") ||
+        type === "internal" ||
+        type === "internal meeting" ||
+        title.includes("meeting") ||
+        description.includes("meeting")
+
+      if (isMeeting) {
+        meetingsToday += 1
+      }
+    }
+
+    return {
+      meetingCount: meetingsToday,
+      upcomingThisWeek: upcoming,
+    }
+  }, [allEvents, currentDate])
 
   // Keyboard shortcuts
   useKeyboardShortcuts({

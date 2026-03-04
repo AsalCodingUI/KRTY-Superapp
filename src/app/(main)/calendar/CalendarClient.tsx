@@ -287,6 +287,8 @@ function CalendarDataLayer({ role, userId }: CalendarClientProps) {
     },
     {
       revalidateOnFocus: false,
+      keepPreviousData: true,
+      dedupingInterval: 30_000,
       onError: () => {
         toast.error("Gagal memuat kalender internal")
       },
@@ -321,6 +323,8 @@ function CalendarDataLayer({ role, userId }: CalendarClientProps) {
     },
     {
       revalidateOnFocus: false,
+      keepPreviousData: true,
+      dedupingInterval: 30_000,
       onError: () => {
         toast.error("Gagal memuat data cuti")
       },
@@ -361,6 +365,8 @@ function CalendarDataLayer({ role, userId }: CalendarClientProps) {
     },
     {
       revalidateOnFocus: false,
+      keepPreviousData: true,
+      dedupingInterval: 30_000,
       onError: () => {
         toast.error("Gagal memuat jadwal 1:1")
       },
