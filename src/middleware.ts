@@ -1,7 +1,7 @@
+import { canManageByRole } from "@/shared/lib/roles"
+import { Database } from "@/shared/types/database.types"
 import { createServerClient } from "@supabase/ssr"
 import { NextResponse, type NextRequest } from "next/server"
-import { Database } from "@/shared/types/database.types"
-import { canManageByRole } from "@/shared/lib/roles"
 
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -43,48 +43,96 @@ export async function middleware(request: NextRequest) {
   const isPublicPage = isLoginPage || isAuthPage
 
   if (!user && !isPublicPage) {
-    // Kalau belum login dan coba akses halaman private -> lempar ke login
     url.pathname = "/login"
     return NextResponse.redirect(url)
   }
 
   if (user && isLoginPage) {
-    // Kalau sudah login tapi buka halaman login -> lempar ke dashboard
     url.pathname = "/dashboard"
     return NextResponse.redirect(url)
   }
 
-  // ROLE-BASED ACCESS CONTROL
-  // Prefer app_metadata (server-controlled) and fallback to profiles table
-  // Default to 'employee' if no role is found
-  const userRole = user?.app_metadata?.role || "employee"
-  let hasAdminAccess = canManageByRole(userRole)
+  // ─── PERMISSION-BASED ACCESS CONTROL ─────────────────────────────────────
+  // Pages that require explicit permission checks (beyond just being logged in)
+  const protectedSlugs = [
+    "/payroll",
+    "/teams",
+    "/settings/permission",
+    "/calculator",
+    "/sla-generator",
+    "/performance",
+    "/leave",
+    "/calendar",
+    "/dashboard",
+    "/attendance",
+  ]
 
-  // Restricted Routes
-  const isPayrollPage = url.pathname.startsWith("/payroll")
-  const adminRoutes = ["/settings/permission", "/teams"]
-  const isAdminRoute = adminRoutes.some((route) =>
-    url.pathname.startsWith(route),
+  const matchedSlug = protectedSlugs.find((slug) =>
+    url.pathname.startsWith(slug),
   )
 
-  if (user && (isPayrollPage || isAdminRoute)) {
-    if (!hasAdminAccess) {
-      const { data: profile, error } = await supabase
+  if (user && matchedSlug) {
+    // Hard rule: settings/permission hanya untuk super admin
+    // (tidak bisa dioverride oleh custom page permission)
+    if (matchedSlug === "/settings/permission") {
+      const { data: profile } = await supabase
         .from("profiles")
-        .select("role")
+        .select("is_super_admin")
         .eq("id", user.id)
         .maybeSingle()
 
-      if (!error && profile?.role) {
-        hasAdminAccess = canManageByRole(profile.role)
+      if (!profile?.is_super_admin) {
+        url.pathname = "/dashboard"
+        return NextResponse.redirect(url)
+      }
+      return supabaseResponse
+    }
+
+    // 1. Check if user has custom page permissions set
+    const { data: customPermission } = await supabase
+      .from("user_page_permissions")
+      .select("granted")
+      .eq("user_id", user.id)
+      .eq("page_slug", matchedSlug)
+      .maybeSingle()
+
+    if (customPermission !== null && customPermission !== undefined) {
+      // Custom permission exists — use it directly
+      if (!customPermission.granted) {
+        url.pathname = "/dashboard"
+        return NextResponse.redirect(url)
+      }
+      // Custom permission grants access — allow through
+      return supabaseResponse
+    }
+
+    // 2. No custom permission — fallback to role-based access
+
+    // For payroll and teams: requires admin role (existing behaviour)
+    const roleRestrictedSlugs = ["/payroll", "/teams"]
+    if (roleRestrictedSlugs.includes(matchedSlug)) {
+      const userRole = user?.app_metadata?.role || "employee"
+      let hasAdminAccess = canManageByRole(userRole)
+
+      if (!hasAdminAccess) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", user.id)
+          .maybeSingle()
+
+        if (profile?.role) {
+          hasAdminAccess = canManageByRole(profile.role)
+        }
+      }
+
+      if (!hasAdminAccess) {
+        url.pathname = "/dashboard"
+        return NextResponse.redirect(url)
       }
     }
 
-    if (!hasAdminAccess) {
-      // Redirect unauthorized users to dashboard
-      url.pathname = "/dashboard"
-      return NextResponse.redirect(url)
-    }
+    // All other protected slugs are accessible by default for authenticated users
   }
 
   return supabaseResponse
