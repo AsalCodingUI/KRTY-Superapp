@@ -28,11 +28,14 @@ export default function Layout({
   children: React.ReactNode
 }>) {
   const pathname = usePathname()
-  const { profile, loading } = useUserProfile()
+  const { profile, loading, isSuperAdmin } = useUserProfile()
 
   // Filter tab berdasarkan role user yang login
   const visibleTabs = settingsTabs.filter((tab) => {
     if (loading || !profile) return false
+    if (tab.href === siteConfig.baseLinks.settings.permission && !isSuperAdmin) {
+      return false
+    }
     return hasRoleAccess(tab.roles, profile.role)
   })
 
