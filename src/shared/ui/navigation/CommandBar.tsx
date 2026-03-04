@@ -3,10 +3,12 @@
 import * as Popover from "@radix-ui/react-popover"
 import * as React from "react"
 
-import { cx, focusRing } from "@/shared/lib/utils"
+import { cx } from "@/shared/lib/utils"
+import { buttonVariants } from "@/shared/ui/action/Button"
 
 const shortcutStyles = cx(
-  "bg-surface-neutral-secondary text-foreground-secondary ring-border-default text-body-xs hidden h-6 items-center justify-center rounded-md px-2 ring-1 transition select-none ring-inset sm:flex",
+  "hidden h-5 items-center justify-center rounded px-1.5 text-body-xs font-medium transition select-none sm:flex",
+  "bg-surface-inverse-secondary text-foreground-on-color",
 )
 
 interface CommandBarProps extends React.PropsWithChildren {
@@ -78,7 +80,7 @@ const CommandBarValue = React.forwardRef<
     <div
       ref={ref}
       className={cx(
-        "text-foreground-secondary text-body-sm px-3 py-2.5 tabular-nums",
+        "text-foreground-on-color text-body-sm px-3 py-2 tabular-nums font-medium",
         className,
       )}
       {...props}
@@ -95,7 +97,8 @@ const CommandBarBar = React.forwardRef<
     <div
       ref={ref}
       className={cx(
-        "bg-surface border-border-default relative flex items-center rounded-lg border px-1 shadow-md",
+        "relative flex items-center gap-x-0.5 rounded-xl px-1 py-1",
+        "bg-surface-inverse-primary",
         className,
       )}
       {...props}
@@ -111,7 +114,7 @@ const CommandBarSeperator = React.forwardRef<
   return (
     <div
       ref={ref}
-      className={cx("h-4 w-px bg-white/20", className)}
+      className={cx("h-4 w-px mx-1 bg-surface-inverse-secondary", className)}
       {...props}
     />
   )
@@ -131,7 +134,6 @@ const CommandBarCommand = React.forwardRef<HTMLButtonElement, CommandProps>(
   (
     {
       className,
-      type = "button",
       label,
       action,
       shortcut,
@@ -159,37 +161,26 @@ const CommandBarCommand = React.forwardRef<HTMLButtonElement, CommandProps>(
     }, [action, shortcut, disabled])
 
     return (
-      <span
+      <button
+        ref={ref}
+        type="button"
+        onClick={action}
+        disabled={disabled}
+        aria-label={label}
         className={cx(
-          "bg-surface text-foreground-primary text-label-lg sm:text-label-md flex items-center gap-x-2 rounded-lg p-1 transition outline-none focus:z-10",
-          "sm:last-of-type:-mr-1",
+          buttonVariants({ variant: "tertiaryInverse", size: "sm" }),
+          "gap-x-1.5",
           className,
         )}
+        {...props}
       >
-        <button
-          ref={ref}
-          type={type}
-          onClick={action}
-          disabled={disabled}
-          aria-label={label}
-          className={cx(
-            // base
-            "hover:bg-surface-neutral-secondary flex items-center gap-x-2 rounded-md px-1 py-1",
-            // focus
-            "focus-visible:bg-surface-neutral-secondary focus-visible:hover:bg-surface-neutral-secondary",
-            "disabled:text-foreground-disable",
-            focusRing,
-          )}
-          {...props}
-        >
-          <span>{label}</span>
-          <span className={shortcutStyles}>
-            {shortcut.label
-              ? shortcut.label.toUpperCase()
-              : shortcut.shortcut.toUpperCase()}
-          </span>
-        </button>
-      </span>
+        <span>{label}</span>
+        <span className={shortcutStyles}>
+          {shortcut.label
+            ? shortcut.label.toUpperCase()
+            : shortcut.shortcut.toUpperCase()}
+        </span>
+      </button>
     )
   },
 )
@@ -200,5 +191,6 @@ export {
   CommandBarBar,
   CommandBarCommand,
   CommandBarSeperator,
-  CommandBarValue,
+  CommandBarValue
 }
+

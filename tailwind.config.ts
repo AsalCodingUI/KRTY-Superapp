@@ -41,28 +41,28 @@ const config: Config = {
     },
     fontSize: {
       // Display - Switzer Variable, 500
-      "display-lg": ["44px", { lineHeight: "52px", letterSpacing: "-1%", fontWeight: "500" }],
-      "display-md": ["40px", { lineHeight: "48px", letterSpacing: "-1%", fontWeight: "500" }],
-      "display-sm": ["36px", { lineHeight: "44px", letterSpacing: "-1%", fontWeight: "500" }],
-      "display-xs": ["32px", { lineHeight: "40px", letterSpacing: "-1%", fontWeight: "500" }],
-      "display-xxs": ["24px", { lineHeight: "32px", letterSpacing: "-1.5%", fontWeight: "500" }],
+      "display-lg": ["2.75rem", { lineHeight: "3.25rem", letterSpacing: "-1%", fontWeight: "500" }],
+      "display-md": ["2.5rem", { lineHeight: "3rem", letterSpacing: "-1%", fontWeight: "500" }],
+      "display-sm": ["2.25rem", { lineHeight: "2.75rem", letterSpacing: "-1%", fontWeight: "500" }],
+      "display-xs": ["2rem", { lineHeight: "2.5rem", letterSpacing: "-1%", fontWeight: "500" }],
+      "display-xxs": ["1.5rem", { lineHeight: "2rem", letterSpacing: "-1.5%", fontWeight: "500" }],
 
       // Heading - Switzer Variable, 500
-      "heading-lg": ["20px", { lineHeight: "28px", letterSpacing: "-2%", fontWeight: "500" }],
-      "heading-md": ["18px", { lineHeight: "24px", letterSpacing: "0%", fontWeight: "500" }],
-      "heading-sm": ["16px", { lineHeight: "24px", letterSpacing: "0%", fontWeight: "500" }],
+      "heading-lg": ["1.25rem", { lineHeight: "1.75rem", letterSpacing: "-2%", fontWeight: "500" }],
+      "heading-md": ["1.125rem", { lineHeight: "1.5rem", letterSpacing: "0%", fontWeight: "500" }],
+      "heading-sm": ["1rem", { lineHeight: "1.5rem", letterSpacing: "0%", fontWeight: "500" }],
 
       // Label - Inter Variable, 500
-      "label-lg": ["16px", { lineHeight: "24px", letterSpacing: "-0.8%", fontWeight: "500" }],
-      "label-md": ["14px", { lineHeight: "20px", letterSpacing: "-0.8%", fontWeight: "500" }],
-      "label-sm": ["13px", { lineHeight: "20px", letterSpacing: "-0.8%", fontWeight: "500" }],
-      "label-xs": ["12px", { lineHeight: "16px", letterSpacing: "0%", fontWeight: "500" }],
+      "label-lg": ["1rem", { lineHeight: "1.5rem", letterSpacing: "-0.8%", fontWeight: "500" }],
+      "label-md": ["0.875rem", { lineHeight: "1.25rem", letterSpacing: "-0.8%", fontWeight: "500" }],
+      "label-sm": ["0.8125rem", { lineHeight: "1.25rem", letterSpacing: "-0.8%", fontWeight: "500" }],
+      "label-xs": ["0.75rem", { lineHeight: "1rem", letterSpacing: "0%", fontWeight: "500" }],
 
       // Body - Inter Variable, 400
-      "body-lg": ["18px", { lineHeight: "28px", letterSpacing: "0.5%", fontWeight: "400" }],
-      "body-md": ["16px", { lineHeight: "24px", letterSpacing: "0.5%", fontWeight: "400" }],
-      "body-sm": ["13px", { lineHeight: "20px", letterSpacing: "0.5%", fontWeight: "400" }],
-      "body-xs": ["12px", { lineHeight: "16px", letterSpacing: "0%", fontWeight: "400" }],
+      "body-lg": ["1.125rem", { lineHeight: "1.75rem", letterSpacing: "0.5%", fontWeight: "400" }],
+      "body-md": ["1rem", { lineHeight: "1.5rem", letterSpacing: "0.5%", fontWeight: "400" }],
+      "body-sm": ["0.8125rem", { lineHeight: "1.25rem", letterSpacing: "0.5%", fontWeight: "400" }],
+      "body-xs": ["0.75rem", { lineHeight: "1rem", letterSpacing: "0%", fontWeight: "400" }],
     },
     extend: {
       keyframes: {
