@@ -13,7 +13,7 @@ export async function getTeamMembers(): Promise<TeamMember[]> {
 
   const { data, error } = await supabase
     .from("profiles")
-    .select("*")
+    .select("id, full_name, email, job_title, role, hourly_rate, avatar_url")
     .order("full_name", { ascending: true })
 
   if (error) {
@@ -37,7 +37,7 @@ export async function getTeamMember(
 
   const { data, error } = await supabase
     .from("profiles")
-    .select("*")
+    .select("id, full_name, email, job_title, role, hourly_rate, avatar_url")
     .eq("id", memberId)
     .single()
 

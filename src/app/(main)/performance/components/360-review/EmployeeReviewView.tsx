@@ -133,7 +133,9 @@ export function EmployeeReviewView({
 
       let summaryQuery = supabase
         .from("performance_summaries")
-        .select("*")
+        .select(
+          "id, reviewee_id, cycle_id, overall_score, overall_percentage, score_quality, score_reliability, score_communication, score_initiative, score_leadership, additional_feedback, feedback_continue, feedback_start, feedback_stop, total_user, created_at",
+        )
         .eq("reviewee_id", profile.id)
 
       if (!selectedQuarter.includes("All")) {

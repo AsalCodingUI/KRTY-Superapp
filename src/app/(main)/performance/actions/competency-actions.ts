@@ -10,7 +10,7 @@ export async function getCompetencies(roleFilter?: string) {
 
   let query = supabase
     .from("competency_library")
-    .select("*")
+    .select("id, role, name, description, category")
     .order("role", { ascending: true })
     .order("name", { ascending: true })
 
@@ -44,7 +44,7 @@ export async function createCompetency(formData: FormData) {
   const { data, error } = await supabase
     .from("competency_library")
     .insert(competencyData)
-    .select()
+    .select("id, role, name, description, category")
     .single()
 
   if (error) {
@@ -71,7 +71,7 @@ export async function updateCompetency(id: string, formData: FormData) {
     .from("competency_library")
     .update(competencyData)
     .eq("id", id)
-    .select()
+    .select("id, role, name, description, category")
     .single()
 
   if (error) {

@@ -110,7 +110,9 @@ export async function getLeaveRequestById(
   try {
     const { data, error } = await supabase
       .from("leave_requests")
-      .select("*")
+      .select(
+        "id,start_date,end_date,leave_type,reason,proof_url,status,created_at,updated_at,user_id",
+      )
       .eq("id", id)
       .single()
 

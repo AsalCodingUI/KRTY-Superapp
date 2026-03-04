@@ -14,7 +14,7 @@ export default async function NewReviewPage() {
   const now = new Date().toISOString()
   const { data: activeCycle } = await supabase
     .from("review_cycles")
-    .select("*")
+    .select("id, start_date, end_date, is_active")
     .lte("start_date", now)
     .gte("end_date", now)
     .eq("is_active", true)

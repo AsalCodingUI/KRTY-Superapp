@@ -25,7 +25,7 @@ export function Review360Tab(
       const now = new Date().toISOString()
       const { data } = await supabase
         .from("review_cycles")
-        .select("*")
+        .select("id")
         .lte("start_date", now) // Mulai <= Sekarang
         .gte("end_date", now) // Selesai >= Sekarang
         .eq("is_active", true)

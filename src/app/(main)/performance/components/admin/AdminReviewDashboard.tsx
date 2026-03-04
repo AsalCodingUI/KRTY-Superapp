@@ -99,7 +99,7 @@ export function AdminReviewDashboard() {
       // A. Cek Siklus Aktif (Global)
       const { data: cycle } = await supabase
         .from("review_cycles")
-        .select("*")
+        .select("id, name, start_date, end_date, is_active")
         .eq("is_active", true)
         .single()
 
@@ -155,7 +155,9 @@ export function AdminReviewDashboard() {
       // E. Fetch SUMMARIES
       const { data: allSummaries } = await supabase
         .from("performance_summaries")
-        .select("*")
+        .select(
+          "id, reviewee_id, cycle_id, overall_score, overall_percentage, score_quality, score_reliability, score_communication, score_initiative, score_leadership, additional_feedback, feedback_continue, feedback_start, feedback_stop, total_user, created_at",
+        )
 
       // F. Calculate Stats
       const stats = employees.map((targetEmp: { id: string; full_name: string | null; job_title: string | null }) => {

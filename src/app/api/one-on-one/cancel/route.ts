@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
 
     const { data: slot, error: slotError } = await supabase
       .from("one_on_one_slots")
-      .select("*")
+      .select("id, booked_by, google_event_id")
       .eq("id", slotId)
       .single()
 

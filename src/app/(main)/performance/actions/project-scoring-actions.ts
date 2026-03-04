@@ -17,7 +17,9 @@ export async function getProjectScores(assignmentId: string) {
   // Get SLA scores
   const { data: slaScores, error: slaError } = await supabase
     .from("project_sla_scores")
-    .select("*")
+    .select(
+      "id, assignment_id, milestone_name, weight_percentage, actual_result, score_achieved, target_percentage",
+    )
     .eq("assignment_id", assignmentId)
 
   if (slaError) {
@@ -30,7 +32,10 @@ export async function getProjectScores(assignmentId: string) {
     .from("project_work_quality_scores")
     .select(
       `
-            *,
+            id,
+            assignment_id,
+            competency_id,
+            is_achieved,
             competency_library (
                 id,
                 name,
@@ -125,7 +130,7 @@ export async function getCompetenciesForRole(role: string) {
 
   const { data, error } = await supabase
     .from("competency_library")
-    .select("*")
+    .select("id, role, name, description, category")
     .eq("role", role)
     .order("name", { ascending: true })
 

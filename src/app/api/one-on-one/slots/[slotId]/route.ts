@@ -50,7 +50,7 @@ export async function PATCH(
 
     const { data: slot, error: slotError } = await supabase
       .from("one_on_one_slots")
-      .select("*")
+      .select("id, google_event_id, mode, location")
       .eq("id", slotId)
       .single()
 

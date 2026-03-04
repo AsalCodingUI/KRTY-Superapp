@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
       })
       .eq("id", slotId)
       .eq("status", "open")
-      .select("*")
+      .select("id, organizer_id, cycle_name, mode, location, start_at, end_at")
       .single()
 
     if (claimError || !slot) {
