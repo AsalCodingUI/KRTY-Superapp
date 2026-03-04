@@ -22,10 +22,12 @@ import {
 import { Notifications } from "@/widgets/notifications/ui/Notifications"
 import { RiMenuLine } from "@/shared/ui/lucide-icons"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
+import { useEffect, useMemo } from "react"
 
 export default function MobileSidebar() {
   const pathname = usePathname()
+  const router = useRouter()
   const { profile, loading } = useUserProfile()
 
   const isActive = (itemHref: string) => {
@@ -35,27 +37,45 @@ export default function MobileSidebar() {
     return pathname === itemHref || pathname.startsWith(itemHref)
   }
 
-  const navItems = navigationConfig.main.filter((item) => {
-    if (loading || !profile) return false
-    if (item.name === "Project Calculator") {
-      return canAccessProjectCalculator(profile)
-    }
-    if (item.name === "SLA Generator") {
-      return canAccessSLAGenerator(profile)
-    }
-    if (item.name === "Message") {
-      return (
-        hasRoleAccess(item.roles, profile.role) ||
-        profile.job_title === "Project Manager"
-      )
-    }
-    return hasRoleAccess(item.roles, profile.role)
-  })
+  const navItems = useMemo(
+    () =>
+      navigationConfig.main.filter((item) => {
+        if (loading || !profile) return false
+        if (item.name === "Project Calculator") {
+          return canAccessProjectCalculator(profile)
+        }
+        if (item.name === "SLA Generator") {
+          return canAccessSLAGenerator(profile)
+        }
+        if (item.name === "Message") {
+          return (
+            hasRoleAccess(item.roles, profile.role) ||
+            profile.job_title === "Project Manager"
+          )
+        }
+        return hasRoleAccess(item.roles, profile.role)
+      }),
+    [loading, profile],
+  )
 
-  const shortcutItems = navigationConfig.shortcuts.filter((item) => {
-    if (loading || !profile) return false
-    return hasRoleAccess(item.roles, profile.role)
-  })
+  const shortcutItems = useMemo(
+    () =>
+      navigationConfig.shortcuts.filter((item) => {
+        if (loading || !profile) return false
+        return hasRoleAccess(item.roles, profile.role)
+      }),
+    [loading, profile],
+  )
+
+  useEffect(() => {
+    if (loading || !profile) return
+    const allItems = [...navItems, ...shortcutItems]
+    for (const item of allItems) {
+      if (item.href.startsWith("/")) {
+        router.prefetch(item.href)
+      }
+    }
+  }, [loading, profile, navItems, shortcutItems, router])
 
   return (
     <>
@@ -97,6 +117,12 @@ export default function MobileSidebar() {
                       <DrawerClose asChild>
                         <Link
                           href={item.href}
+                          prefetch
+                          onMouseEnter={() => {
+                            if (item.href.startsWith("/")) {
+                              router.prefetch(item.href)
+                            }
+                          }}
                           className={cx(
                             isActive(item.href)
                               ? "bg-muted text-content dark:bg-muted font-semibold"
@@ -137,6 +163,12 @@ export default function MobileSidebar() {
                         <DrawerClose asChild>
                           <Link
                             href={item.href}
+                            prefetch
+                            onMouseEnter={() => {
+                              if (item.href.startsWith("/")) {
+                                router.prefetch(item.href)
+                              }
+                            }}
                             className={cx(
                               isActive(item.href)
                                 ? "bg-muted text-content dark:bg-muted font-semibold"

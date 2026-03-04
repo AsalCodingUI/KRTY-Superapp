@@ -10,32 +10,47 @@ import {
 import { cx, focusRing } from "@/shared/lib/utils"
 import { Skeleton } from "@/shared/ui"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
+import { useEffect, useMemo } from "react"
 
 export function SidebarMenu() {
   const pathname = usePathname()
+  const router = useRouter()
   const { profile, loading } = useUserProfile()
 
   const isActive = (itemHref: string) => {
     return pathname === itemHref || pathname.startsWith(itemHref)
   }
 
-  const navItems = navigationConfig.main.filter((item) => {
-    if (loading || !profile) return false
-    if (item.name === "Project Calculator") {
-      return canAccessProjectCalculator(profile)
+  const navItems = useMemo(
+    () =>
+      navigationConfig.main.filter((item) => {
+        if (loading || !profile) return false
+        if (item.name === "Project Calculator") {
+          return canAccessProjectCalculator(profile)
+        }
+        if (item.name === "SLA Generator") {
+          return canAccessSLAGenerator(profile)
+        }
+        if (item.name === "Message") {
+          return (
+            hasRoleAccess(item.roles, profile.role) ||
+            profile.job_title === "Project Manager"
+          )
+        }
+        return hasRoleAccess(item.roles, profile.role)
+      }),
+    [loading, profile],
+  )
+
+  useEffect(() => {
+    if (loading || !profile) return
+    for (const item of navItems) {
+      if (item.href.startsWith("/")) {
+        router.prefetch(item.href)
+      }
     }
-    if (item.name === "SLA Generator") {
-      return canAccessSLAGenerator(profile)
-    }
-    if (item.name === "Message") {
-      return (
-        hasRoleAccess(item.roles, profile.role) ||
-        profile.job_title === "Project Manager"
-      )
-    }
-    return hasRoleAccess(item.roles, profile.role)
-  })
+  }, [loading, profile, navItems, router])
 
   // Skeleton loading
   if (loading) {
@@ -58,6 +73,12 @@ export function SidebarMenu() {
           <li key={item.name}>
             <Link
               href={item.href}
+              prefetch
+              onMouseEnter={() => {
+                if (item.href.startsWith("/")) {
+                  router.prefetch(item.href)
+                }
+              }}
               className={cx(
                 "text-label-sm flex items-center gap-2 rounded-md px-2 py-1 transition-colors duration-200",
                 isActive(item.href)
