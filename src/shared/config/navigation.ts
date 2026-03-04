@@ -11,7 +11,6 @@ import {
   RiHome2Line,
   RiQuestionLine,
   RiSettings5Line,
-  RiUserSmileLine,
 } from "@/shared/ui/lucide-icons"
 
 interface NavigationItem {
@@ -59,13 +58,7 @@ export const navigationConfig: NavigationConfig = {
       name: "Leave & Attendance",
       href: siteConfig.baseLinks.leave,
       icon: RiCalendarCheckLine,
-      roles: ["stakeholder"],
-    },
-    {
-      name: "Leave & Permission",
-      href: siteConfig.baseLinks.leave,
-      icon: RiUserSmileLine,
-      roles: ["employee"],
+      roles: ["stakeholder", "employee"],
     },
     {
       name: "Performance",
