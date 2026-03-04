@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { logError } from "@/shared/lib/utils/logger"
 import { guardApiRoute } from "@/shared/lib/utils/security"
+import { createClient } from "@/shared/api/supabase/server"
 import {
   fetchGoogleCalendarEvents,
   getGoogleAccessToken,
@@ -20,6 +21,15 @@ export async function GET(request: NextRequest) {
   if (guard) return guard
 
   try {
+    const supabase = await createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized", events: [] }, { status: 401 })
+    }
+
     const env = getGoogleEnv()
     if (!env) {
       return NextResponse.json(
