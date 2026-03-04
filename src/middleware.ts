@@ -72,15 +72,19 @@ export async function middleware(request: NextRequest) {
   )
 
   if (user && matchedSlug) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role, is_super_admin")
+      .eq("id", user.id)
+      .maybeSingle()
+
+    const role =
+      profile?.role ||
+      (canManageByRole(user?.app_metadata?.role) ? "stakeholder" : "employee")
+
     // Hard rule: settings/permission hanya untuk super admin
     // (tidak bisa dioverride oleh custom page permission)
     if (matchedSlug === "/settings/permission") {
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("is_super_admin")
-        .eq("id", user.id)
-        .maybeSingle()
-
       if (!profile?.is_super_admin) {
         url.pathname = "/dashboard"
         return NextResponse.redirect(url)
@@ -106,25 +110,27 @@ export async function middleware(request: NextRequest) {
       return supabaseResponse
     }
 
-    // 2. No custom permission — fallback to role-based access
+    // 2. No custom permission — fallback ke role defaults
+    const { data: roleDefault } = await supabase
+      .from("role_page_defaults")
+      .select("granted")
+      .eq("role", role)
+      .eq("page_slug", matchedSlug)
+      .maybeSingle()
 
-    // For payroll and teams: requires admin role (existing behaviour)
+    if (roleDefault !== null && roleDefault !== undefined) {
+      if (!roleDefault.granted) {
+        url.pathname = "/dashboard"
+        return NextResponse.redirect(url)
+      }
+      return supabaseResponse
+    }
+
+    // 3. No role defaults row — legacy fallback (backward compatibility)
+    // For payroll and teams: requires admin role
     const roleRestrictedSlugs = ["/payroll", "/teams"]
     if (roleRestrictedSlugs.includes(matchedSlug)) {
-      const userRole = user?.app_metadata?.role || "employee"
-      let hasAdminAccess = canManageByRole(userRole)
-
-      if (!hasAdminAccess) {
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("role")
-          .eq("id", user.id)
-          .maybeSingle()
-
-        if (profile?.role) {
-          hasAdminAccess = canManageByRole(profile.role)
-        }
-      }
+      const hasAdminAccess = canManageByRole(role)
 
       if (!hasAdminAccess) {
         url.pathname = "/dashboard"

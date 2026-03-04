@@ -16,7 +16,9 @@ import { usePathname } from "next/navigation"
 export function SidebarMenu() {
   const pathname = usePathname()
   const { profile, loading: profileLoading } = useUserProfile()
-  const { permissions, loading: permLoading } = usePagePermissions()
+  const { hasPermission, loading: permLoading } = usePagePermissions(
+    profile?.role,
+  )
 
   const loading = profileLoading || permLoading
 
@@ -27,27 +29,23 @@ export function SidebarMenu() {
   const navItems = navigationConfig.main.filter((item) => {
     if (loading || !profile) return false
 
-    // If the user has custom page permissions, use them to filter
-    if (permissions !== null) {
-      const slug = item.href
-      if (slug in permissions) return permissions[slug]
-      // No explicit custom permission for this slug — fall through to role check
-    }
-
     // Fallback to existing role-based logic
+    const slug = item.href
+    let roleFallback = hasRoleAccess(item.roles, profile.role)
+
     if (item.name === "Project Calculator") {
-      return canAccessProjectCalculator(profile)
+      roleFallback = canAccessProjectCalculator(profile)
     }
     if (item.name === "SLA Generator") {
-      return canAccessSLAGenerator(profile)
+      roleFallback = canAccessSLAGenerator(profile)
     }
     if (item.name === "Message") {
-      return (
+      roleFallback =
         hasRoleAccess(item.roles, profile.role) ||
         profile.job_title === "Project Manager"
-      )
     }
-    return hasRoleAccess(item.roles, profile.role)
+
+    return hasPermission(slug, roleFallback) ?? roleFallback
   })
 
   // Skeleton loading

@@ -4,55 +4,111 @@ import { createClient } from "@/shared/api/supabase/client"
 import useSWR from "swr"
 
 export type PagePermissionsMap = Record<string, boolean>
+export type RolePageDefaultsMap = Record<string, boolean>
 
-const fetchPagePermissions = async (): Promise<PagePermissionsMap | null> => {
-    const supabase = createClient()
+type PermissionsPayload = {
+  userPermissions: PagePermissionsMap | null
+  roleDefaults: RolePageDefaultsMap | null
+}
 
-    const {
-        data: { user },
-    } = await supabase.auth.getUser()
+const fetchPagePermissions = async (
+  role?: string | null,
+): Promise<PermissionsPayload> => {
+  const supabase = createClient()
 
-    if (!user) return null
+  const [
+    {
+      data: { user },
+    },
+    roleDefaultsResult,
+  ] = await Promise.all([
+    supabase.auth.getUser(),
+    role
+      ? supabase
+          .from("role_page_defaults")
+          .select("page_slug, granted")
+          .eq("role", role)
+      : Promise.resolve({ data: [], error: null }),
+  ])
 
-    const { data, error } = await supabase
-        .from("user_page_permissions")
-        .select("page_slug, granted")
-        .eq("user_id", user.id)
+  const roleDefaultsRows = (roleDefaultsResult.data || []) as Array<{
+    page_slug: string
+    granted: boolean
+  }>
+  const roleDefaults: RolePageDefaultsMap | null =
+    roleDefaultsRows.length > 0
+      ? (() => {
+          const map: RolePageDefaultsMap = {}
+          for (const row of roleDefaultsRows) {
+            map[row.page_slug] = row.granted
+          }
+          return map
+        })()
+      : null
 
-    if (error || !data || data.length === 0) return null
-
-    const map: PagePermissionsMap = {}
-    for (const row of data) {
-        map[row.page_slug] = row.granted
+  if (!user) {
+    return {
+      userPermissions: null,
+      roleDefaults,
     }
-    return map
+  }
+
+  const { data, error } = await supabase
+    .from("user_page_permissions")
+    .select("page_slug, granted")
+    .eq("user_id", user.id)
+
+  const userPermissionsRows = (data || []) as Array<{
+    page_slug: string
+    granted: boolean
+  }>
+  const userPermissions: PagePermissionsMap | null =
+    !error && userPermissionsRows.length > 0
+      ? (() => {
+          const map: PagePermissionsMap = {}
+          for (const row of userPermissionsRows) {
+            map[row.page_slug] = row.granted
+          }
+          return map
+        })()
+      : null
+
+  return {
+    userPermissions,
+    roleDefaults,
+  }
 }
 
 /**
  * Returns a map of page_slug → granted for the current user.
  * Returns null if no custom permissions exist — meaning role-based fallback applies.
  */
-export function usePagePermissions() {
-    const { data, isLoading } = useSWR<PagePermissionsMap | null>(
-        "current-user-page-permissions",
-        fetchPagePermissions,
-        {
-            revalidateOnFocus: false,
-            dedupingInterval: 60_000,
-        },
-    )
+export function usePagePermissions(role?: string | null) {
+  const { data, isLoading } = useSWR<PermissionsPayload>(
+    ["current-user-page-permissions", role || "no-role-default"],
+    () => fetchPagePermissions(role),
+    {
+      revalidateOnFocus: false,
+      dedupingInterval: 60_000,
+    },
+  )
 
-    return {
-        permissions: data ?? null,
-        loading: isLoading,
-        /**
-         * Check if the user has access to a given page slug.
-         * Returns null if no custom permissions are set (caller should fall back to role).
-         */
-        hasPermission: (slug: string): boolean | null => {
-            if (data === undefined) return null // still loading
-            if (data === null) return null // no custom permissions
-            return data[slug] ?? false
-        },
-    }
+  return {
+    permissions: data?.userPermissions ?? null,
+    roleDefaults: data?.roleDefaults ?? null,
+    loading: isLoading,
+    /**
+     * Resolver: user override > role defaults > fallback value.
+     */
+    hasPermission: (slug: string, fallback?: boolean): boolean | null => {
+      if (!data) return null
+      if (data.userPermissions && slug in data.userPermissions) {
+        return data.userPermissions[slug]
+      }
+      if (data.roleDefaults && slug in data.roleDefaults) {
+        return data.roleDefaults[slug]
+      }
+      return fallback ?? null
+    },
+  }
 }

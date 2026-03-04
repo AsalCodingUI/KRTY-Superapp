@@ -18,6 +18,8 @@ import { useState } from "react"
 type Profile = Database["public"]["Tables"]["profiles"]["Row"]
 type UserPagePermission =
   Database["public"]["Tables"]["user_page_permissions"]["Row"]
+type RolePageDefault =
+  Database["public"]["Tables"]["role_page_defaults"]["Row"]
 
 const ROLES = ["stakeholder", "employee"]
 const JOB_TITLES = ["Admin", "Project Manager", "Designer", "Web Developer"]
@@ -39,9 +41,11 @@ type PagePermissionsMap = Record<string, boolean>
 export default function PermissionSettingsPage({
   initialData,
   initialPermissions,
+  initialRoleDefaults,
 }: {
   initialData: Profile[]
   initialPermissions: UserPagePermission[]
+  initialRoleDefaults: RolePageDefault[]
 }) {
   const supabase = createClient()
   const router = useRouter()
@@ -63,6 +67,18 @@ export default function PermissionSettingsPage({
     for (const perm of initialPermissions) {
       if (!map[perm.user_id]) map[perm.user_id] = {}
       map[perm.user_id][perm.page_slug] = perm.granted
+    }
+    return map
+  })
+
+  // Build a map: role -> { pageSlug -> granted }
+  const [roleDefaultsMap, setRoleDefaultsMap] = useState<
+    Record<string, PagePermissionsMap>
+  >(() => {
+    const map: Record<string, PagePermissionsMap> = {}
+    for (const row of initialRoleDefaults) {
+      if (!map[row.role]) map[row.role] = {}
+      map[row.role][row.page_slug] = row.granted
     }
     return map
   })
@@ -158,6 +174,46 @@ export default function PermissionSettingsPage({
     }
   }
 
+  // ── Toggle role default permission ───────────────────────────────────────
+  const handleRoleDefaultToggle = async (
+    role: "stakeholder" | "employee",
+    pageSlug: string,
+    currentGranted: boolean | undefined,
+  ) => {
+    const newGranted = !currentGranted
+
+    setRoleDefaultsMap((prev) => ({
+      ...prev,
+      [role]: {
+        ...(prev[role] || {}),
+        [pageSlug]: newGranted,
+      },
+    }))
+
+    try {
+      const { error } = await supabase.from("role_page_defaults").upsert(
+        {
+          role,
+          page_slug: pageSlug,
+          granted: newGranted,
+          updated_by: currentUser?.id,
+        },
+        { onConflict: "role,page_slug" },
+      )
+
+      if (error) throw error
+    } catch (error) {
+      console.error("Gagal update role default:", error)
+      setRoleDefaultsMap((prev) => ({
+        ...prev,
+        [role]: {
+          ...(prev[role] || {}),
+          [pageSlug]: currentGranted ?? false,
+        },
+      }))
+    }
+  }
+
   // ── Access Denied guard ───────────────────────────────────────────────────
   if (profileLoading) {
     return (
@@ -200,6 +256,60 @@ export default function PermissionSettingsPage({
       </div>
 
       <ul role="list" className="mt-6 divide-y divide-neutral-primary">
+        <li className="py-4">
+          <div className="space-y-4">
+            <div>
+              <h4 className="text-foreground-primary text-label-md">
+                Role Default Access
+              </h4>
+              <p className="text-foreground-secondary text-body-xs mt-1">
+                Default permissions used when user does not have a per-user override.
+              </p>
+            </div>
+
+            <div className="grid gap-4 lg:grid-cols-2">
+              {(["stakeholder", "employee"] as const).map((role) => (
+                <div
+                  key={role}
+                  className="border-neutral-primary rounded-lg border p-4"
+                >
+                  <p className="text-foreground-primary text-label-sm mb-3 capitalize">
+                    {role}
+                  </p>
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+                    {CONTROLLABLE_PAGES.map((page) => {
+                      const granted = roleDefaultsMap[role]?.[page.slug]
+                      const isGranted = granted === true
+
+                      return (
+                        <button
+                          key={`${role}-${page.slug}`}
+                          type="button"
+                          onClick={() =>
+                            handleRoleDefaultToggle(role, page.slug, granted)
+                          }
+                          className={`flex items-center gap-2 rounded-md border px-2.5 py-2 text-left transition-colors ${
+                            isGranted
+                              ? "border-green-500/40 bg-green-500/10 text-green-600"
+                              : "border-red-400/40 bg-red-500/10 text-red-500"
+                          }`}
+                        >
+                          <span
+                            className={`size-2 shrink-0 rounded-full ${
+                              isGranted ? "bg-green-500" : "bg-red-400"
+                            }`}
+                          />
+                          <span className="text-label-xs">{page.label}</span>
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </li>
+
         {profiles.map((user) => {
           const initials = user.full_name
             ? user.full_name
@@ -337,6 +447,9 @@ export default function PermissionSettingsPage({
                       const granted = userPerms[page.slug]
                       const isGranted = granted === true
                       const isExplicit = page.slug in userPerms
+                      const roleDefault =
+                        roleDefaultsMap[user.role]?.[page.slug] ?? false
+                      const isRoleDefault = !isExplicit
 
                       return (
                         <button
@@ -353,7 +466,9 @@ export default function PermissionSettingsPage({
                             ? "border-green-500/40 bg-green-500/10 text-green-600"
                             : isExplicit
                               ? "border-red-400/40 bg-red-500/10 text-red-500"
-                              : "border-neutral-primary text-foreground-secondary hover:border-neutral-secondary"
+                              : roleDefault
+                                ? "border-brand-primary/30 bg-brand-primary/10 text-foreground-brand-primary"
+                                : "border-neutral-primary text-foreground-secondary hover:border-neutral-secondary"
                             }`}
                         >
                           <span
@@ -361,10 +476,17 @@ export default function PermissionSettingsPage({
                               ? "bg-green-500"
                               : isExplicit
                                 ? "bg-red-400"
-                                : "bg-neutral-400"
+                                : roleDefault
+                                  ? "bg-foreground-brand-primary"
+                                  : "bg-neutral-400"
                               }`}
                           />
                           <span className="text-label-xs">{page.label}</span>
+                          {isRoleDefault && (
+                            <span className="ml-auto text-[10px] uppercase opacity-80">
+                              Default
+                            </span>
+                          )}
                         </button>
                       )
                     })}
