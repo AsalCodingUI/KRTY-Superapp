@@ -4,7 +4,7 @@ import { Database } from "@/shared/types/database.types"
 import { createClient } from "@/shared/api/supabase/client"
 import { format, isToday } from "date-fns"
 import { useRouter } from "next/navigation"
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 import { adminAttendanceColumns } from "./AdminColumns"
 import {
   Accordion,
@@ -12,7 +12,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/shared/ui"
-import { Badge } from "@/shared/ui"
+import { Badge, Button } from "@/shared/ui"
 import { DataTable, EmptyState } from "@/shared/ui"
 import { RiCalendarLine } from "@/shared/ui/lucide-icons"
 
@@ -34,6 +34,7 @@ export function AdminAttendanceHistoryList({
   onApproveDelete?: (id: string) => void
 }) {
   const router = useRouter()
+  const [visibleDays, setVisibleDays] = useState(14)
 
   // 1. Group logs by Date
   const groupedLogs = useMemo(() => {
@@ -63,87 +64,105 @@ export function AdminAttendanceHistoryList({
     )
   }
 
-  const defaultOpenDate = groupedLogs[0]?.[0]
+  const visibleGroups = useMemo(
+    () => groupedLogs.slice(0, visibleDays),
+    [groupedLogs, visibleDays],
+  )
+  const defaultOpenDate = visibleGroups[0]?.[0]
 
   return (
-    <Accordion
-      type="multiple"
-      className="space-y-4"
-      defaultValue={defaultOpenDate ? [defaultOpenDate] : []}
-    >
-      {groupedLogs.map(([date, dailyLogs]) => {
-        const dateObj = new Date(date)
-        const isCurrentDay = isToday(dateObj)
+    <div className="space-y-4">
+      <Accordion
+        type="multiple"
+        className="space-y-4"
+        defaultValue={defaultOpenDate ? [defaultOpenDate] : []}
+      >
+        {visibleGroups.map(([date, dailyLogs]) => {
+          const dateObj = new Date(date)
+          const isCurrentDay = isToday(dateObj)
 
-        // Hitung statistik harian sederhana
-        const activeSessions = dailyLogs.filter((l) => !l.clock_out).length
-        const totalPresent = dailyLogs.length
+          // Hitung statistik harian sederhana
+          const activeSessions = dailyLogs.filter((l) => !l.clock_out).length
+          const totalPresent = dailyLogs.length
 
-        return (
-          <AccordionItem key={date} value={date}>
-            <AccordionTrigger>
-              <div className="flex w-full items-center justify-between pr-4">
-                <div className="flex flex-col items-start sm:flex-row sm:items-center sm:gap-3">
-                  <span
-                    className="text-foreground-primary font-semibold"
-                    suppressHydrationWarning
-                  >
-                    {format(dateObj, "eeee, dd MMMM yyyy")}
-                    {isCurrentDay && (
-                      <span className="text-body-xs ml-2 text-foreground-brand-primary">
-                        (Today)
-                      </span>
-                    )}
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <div className="text-body-sm text-foreground-secondary flex items-center gap-2">
-                    <span className="hidden sm:inline">Present:</span>
-                    <span className="text-foreground-primary font-medium">
-                      {totalPresent}
+          return (
+            <AccordionItem key={date} value={date}>
+              <AccordionTrigger>
+                <div className="flex w-full items-center justify-between pr-4">
+                  <div className="flex flex-col items-start sm:flex-row sm:items-center sm:gap-3">
+                    <span
+                      className="text-foreground-primary font-semibold"
+                      suppressHydrationWarning
+                    >
+                      {format(dateObj, "eeee, dd MMMM yyyy")}
+                      {isCurrentDay && (
+                        <span className="text-body-xs ml-2 text-foreground-brand-primary">
+                          (Today)
+                        </span>
+                      )}
                     </span>
                   </div>
-                  {activeSessions > 0 && (
-                    <Badge variant="success">{activeSessions} Active</Badge>
-                  )}
-                </div>
-              </div>
-            </AccordionTrigger>
 
-            <AccordionContent className="!border-0 !p-0">
-              <div>
-                {/* Menggunakan DataTable standar */}
-                <DataTable
-                  data={dailyLogs}
-                  columns={adminAttendanceColumns(onApproveDelete)}
-                  showExport={false}
-                  showViewOptions={false}
-                  showPagination={false}
-                  showFilterbar={false}
-                  noBorder={true}
-                  onCreate={undefined}
-                  onDelete={async (ids) => {
-                    if (!confirm(`Delete ${ids.length} attendance record(s)?`))
-                      return
-                    const supabase = createClient()
-                    const { error } = await supabase
-                      .from("attendance_logs")
-                      .delete()
-                      .in("id", ids as string[])
-                    if (error) {
-                      alert("Error deleting: " + error.message)
-                    } else {
-                      router.refresh()
-                    }
-                  }}
-                  searchKey="profiles.full_name"
-                />
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-        )
-      })}
-    </Accordion>
+                  <div className="flex items-center gap-3">
+                    <div className="text-body-sm text-foreground-secondary flex items-center gap-2">
+                      <span className="hidden sm:inline">Present:</span>
+                      <span className="text-foreground-primary font-medium">
+                        {totalPresent}
+                      </span>
+                    </div>
+                    {activeSessions > 0 && (
+                      <Badge variant="success">{activeSessions} Active</Badge>
+                    )}
+                  </div>
+                </div>
+              </AccordionTrigger>
+
+              <AccordionContent className="!border-0 !p-0">
+                <div>
+                  {/* Menggunakan DataTable standar */}
+                  <DataTable
+                    data={dailyLogs}
+                    columns={adminAttendanceColumns(onApproveDelete)}
+                    showExport={false}
+                    showViewOptions={false}
+                    showPagination={false}
+                    showFilterbar={false}
+                    noBorder={true}
+                    onCreate={undefined}
+                    onDelete={async (ids) => {
+                      if (!confirm(`Delete ${ids.length} attendance record(s)?`))
+                        return
+                      const supabase = createClient()
+                      const { error } = await supabase
+                        .from("attendance_logs")
+                        .delete()
+                        .in("id", ids as string[])
+                      if (error) {
+                        alert("Error deleting: " + error.message)
+                      } else {
+                        router.refresh()
+                      }
+                    }}
+                    searchKey="profiles.full_name"
+                  />
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          )
+        })}
+      </Accordion>
+
+      {groupedLogs.length > visibleDays && (
+        <div className="flex justify-center">
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => setVisibleDays((prev) => prev + 14)}
+          >
+            Load more
+          </Button>
+        </div>
+      )}
+    </div>
   )
 }

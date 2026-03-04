@@ -2,8 +2,8 @@
 
 "use client"
 
-import * as DropdownMenuPrimitives from "@radix-ui/react-dropdown-menu"
 import { RiCheckLine } from "@/shared/ui/lucide-icons"
+import * as DropdownMenuPrimitives from "@radix-ui/react-dropdown-menu"
 import * as React from "react"
 
 import { cx } from "@/shared/lib/utils"
@@ -68,7 +68,7 @@ const DropdownMenuContent = React.forwardRef<
       ref={ref}
       sideOffset={sideOffset}
       className={cx(
-        "relative z-50 min-w-48 overflow-hidden rounded-md border p-[2px]",
+        "relative z-50 min-w-48 overflow-hidden rounded-lg border py-[3px] px-[4px]",
         "bg-surface-neutral-primary text-foreground-secondary border-neutral-primary",
         "shadow-[0px_2px_4px_-3px_rgba(0,0,0,0.08),0px_10px_24px_-6px_rgba(0,0,0,0.08)]",
         "animate-in fade-in-80",
@@ -88,7 +88,7 @@ const DropdownMenuSubMenuContent = React.forwardRef<
     <DropdownMenuPrimitives.SubContent
       ref={ref}
       className={cx(
-        "relative z-50 min-w-32 overflow-hidden rounded-md border p-[2px]",
+        "relative z-50 min-w-32 overflow-hidden rounded-lg border py-1px px-[2px]",
         "bg-surface-neutral-primary text-foreground-secondary border-neutral-primary",
         "shadow-[0px_2px_4px_-3px_rgba(0,0,0,0.08),0px_10px_24px_-6px_rgba(0,0,0,0.08)]",
         className,
@@ -195,5 +195,6 @@ export {
   DropdownMenuSub,
   DropdownMenuSubMenuContent,
   DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
+  DropdownMenuTrigger
 }
+

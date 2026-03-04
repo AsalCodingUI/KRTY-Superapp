@@ -2,7 +2,7 @@
 
 import { Database } from "@/shared/types/database.types"
 import { differenceInSeconds, format, isToday } from "date-fns"
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 import { columns } from "./Columns"
 import {
   Accordion,
@@ -10,7 +10,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/shared/ui"
-import { Badge } from "@/shared/ui"
+import { Badge, Button } from "@/shared/ui"
 import { DataTable, EmptyState } from "@/shared/ui"
 import { RiCalendarLine } from "@/shared/ui/lucide-icons"
 
@@ -44,6 +44,8 @@ export function AttendanceHistoryList({
   logs: AttendanceLog[]
   onRequestDelete?: (id: string) => void
 }) {
+  const [visibleDays, setVisibleDays] = useState(14)
+
   // 1. Group logs by Date
   const groupedLogs = useMemo(() => {
     const groups: Record<string, AttendanceLog[]> = {}
@@ -72,76 +74,94 @@ export function AttendanceHistoryList({
     )
   }
 
-  const defaultOpenDate = groupedLogs[0]?.[0]
+  const visibleGroups = useMemo(
+    () => groupedLogs.slice(0, visibleDays),
+    [groupedLogs, visibleDays],
+  )
+  const defaultOpenDate = visibleGroups[0]?.[0]
 
   return (
-    <Accordion
-      type="multiple"
-      className="space-y-3"
-      defaultValue={defaultOpenDate ? [defaultOpenDate] : []}
-    >
-      {groupedLogs.map(([date, dailyLogs]) => {
-        // Hitung total jam kerja hari itu (dalam detik)
-        const totalDailySeconds = dailyLogs.reduce(
-          (acc, log) => acc + getDurationSeconds(log),
-          0,
-        )
-        const isDayActive = dailyLogs.some((l) => !l.clock_out)
-        const dateObj = new Date(date)
-        const isCurrentDay = isToday(dateObj)
+    <div className="space-y-3">
+      <Accordion
+        type="multiple"
+        className="space-y-3"
+        defaultValue={defaultOpenDate ? [defaultOpenDate] : []}
+      >
+        {visibleGroups.map(([date, dailyLogs]) => {
+          // Hitung total jam kerja hari itu (dalam detik)
+          const totalDailySeconds = dailyLogs.reduce(
+            (acc, log) => acc + getDurationSeconds(log),
+            0,
+          )
+          const isDayActive = dailyLogs.some((l) => !l.clock_out)
+          const dateObj = new Date(date)
+          const isCurrentDay = isToday(dateObj)
 
-        return (
-          <AccordionItem key={date} value={date}>
-            <AccordionTrigger>
-              <div className="flex w-full items-center justify-between pr-4">
-                <div className="flex flex-col items-start sm:flex-row sm:items-center sm:gap-3">
-                  <span
-                    className="text-foreground-primary font-semibold"
-                    suppressHydrationWarning
-                  >
-                    {format(dateObj, "eeee, dd MMMM yyyy")}
-                    {isCurrentDay && (
-                      <span className="text-body-xs ml-2 text-foreground-brand-primary">
-                        (Today)
+          return (
+            <AccordionItem key={date} value={date}>
+              <AccordionTrigger>
+                <div className="flex w-full items-center justify-between pr-4">
+                  <div className="flex flex-col items-start sm:flex-row sm:items-center sm:gap-3">
+                    <span
+                      className="text-foreground-primary font-semibold"
+                      suppressHydrationWarning
+                    >
+                      {format(dateObj, "eeee, dd MMMM yyyy")}
+                      {isCurrentDay && (
+                        <span className="text-body-xs ml-2 text-foreground-brand-primary">
+                          (Today)
+                        </span>
+                      )}
+                    </span>
+                    <span className="text-body-xs text-foreground-secondary">
+                      {dailyLogs.length} Session{dailyLogs.length > 1 ? "s" : ""}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    {isDayActive ? (
+                      <Badge variant="success">Active</Badge>
+                    ) : (
+                      <span className="text-label-md text-foreground-secondary tabular-nums">
+                        {formatDuration(totalDailySeconds)}
                       </span>
                     )}
-                  </span>
-                  <span className="text-body-xs text-foreground-secondary">
-                    {dailyLogs.length} Session{dailyLogs.length > 1 ? "s" : ""}
-                  </span>
+                  </div>
                 </div>
+              </AccordionTrigger>
+              <AccordionContent className="!border-0 !p-0">
+                <div>
+                  <DataTable
+                    data={dailyLogs}
+                    columns={columns(onRequestDelete)}
+                    showExport={false}
+                    showViewOptions={false}
+                    enableSelection={false}
+                    enableHover={false}
+                    showPagination={false}
+                    showFilterbar={false}
+                    noBorder={true}
+                    onCreate={undefined}
+                    searchKey="status"
+                  />
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          )
+        })}
+      </Accordion>
 
-                <div className="flex items-center gap-3">
-                  {isDayActive ? (
-                    <Badge variant="success">Active</Badge>
-                  ) : (
-                    <span className="text-label-md text-foreground-secondary tabular-nums">
-                      {formatDuration(totalDailySeconds)}
-                    </span>
-                  )}
-                </div>
-              </div>
-            </AccordionTrigger>
-            <AccordionContent className="!border-0 !p-0">
-              <div>
-                <DataTable
-                  data={dailyLogs}
-                  columns={columns(onRequestDelete)}
-                  showExport={false}
-                  showViewOptions={false}
-                  enableSelection={false}
-                  enableHover={false}
-                  showPagination={false}
-                  showFilterbar={false}
-                  noBorder={true}
-                  onCreate={undefined}
-                  searchKey="status"
-                />
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-        )
-      })}
-    </Accordion>
+      {groupedLogs.length > visibleDays && (
+        <div className="flex justify-center">
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => setVisibleDays((prev) => prev + 14)}
+          >
+            Load more
+          </Button>
+        </div>
+      )}
+    </div>
   )
 }

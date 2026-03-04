@@ -140,17 +140,17 @@ export function AdminReviewDashboard() {
       const quarterUUID = validCycleIds.length > 0 ? validCycleIds[0] : null
 
       const legacyCycleId = targetCycleName
+      const cycleIdsToFetch = validCycleIds.length > 0
+        ? [...validCycleIds, legacyCycleId]
+        : [legacyCycleId]
 
       // D. Fetch REVIEWS
       const { data: reviews } = await supabase
         .from("performance_reviews")
         .select("reviewer_id, reviewee_id, cycle_id")
+        .in("cycle_id", cycleIdsToFetch)
 
-      const safeReviews = (reviews || []).filter((r: { cycle_id: string; reviewer_id: string; reviewee_id: string }) => {
-        return (
-          validCycleIds.includes(r.cycle_id) || r.cycle_id === legacyCycleId
-        )
-      })
+      const safeReviews = reviews || []
 
       // E. Fetch SUMMARIES
       const { data: allSummaries } = await supabase
@@ -158,6 +158,7 @@ export function AdminReviewDashboard() {
         .select(
           "id, reviewee_id, cycle_id, overall_score, overall_percentage, score_quality, score_reliability, score_communication, score_initiative, score_leadership, additional_feedback, feedback_continue, feedback_start, feedback_stop, total_user, created_at",
         )
+        .in("cycle_id", cycleIdsToFetch)
 
       // F. Calculate Stats
       const stats = employees.map((targetEmp: { id: string; full_name: string | null; job_title: string | null }) => {
