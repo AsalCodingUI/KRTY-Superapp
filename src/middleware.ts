@@ -1,4 +1,4 @@
-import { canManageByRole } from "@/shared/lib/roles"
+import { siteConfig } from "@/app/siteConfig"
 import { Database } from "@/shared/types/database.types"
 import { createServerClient } from "@supabase/ssr"
 import { NextResponse, type NextRequest } from "next/server"
@@ -52,93 +52,48 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  // ─── PERMISSION-BASED ACCESS CONTROL ─────────────────────────────────────
-  // Pages that require explicit permission checks (beyond just being logged in)
-  const protectedSlugs = [
-    "/payroll",
-    "/teams",
-    "/settings/permission",
-    "/calculator",
-    "/sla-generator",
-    "/performance",
-    "/leave",
-    "/calendar",
-    "/dashboard",
-    "/attendance",
-  ]
+  // ─── PERMISSION-BASED ACCESS CONTROL (PER-USER) ──────────────────────────
+  const isApiRoute = url.pathname.startsWith("/api")
 
-  const matchedSlug = protectedSlugs.find((slug) =>
-    url.pathname.startsWith(slug),
-  )
-
-  if (user && matchedSlug) {
+  if (user && !isPublicPage && !isApiRoute) {
     const { data: profile } = await supabase
       .from("profiles")
-      .select("role, is_super_admin")
+      .select("is_super_admin")
       .eq("id", user.id)
       .maybeSingle()
 
-    const role =
-      profile?.role ||
-      (canManageByRole(user?.app_metadata?.role) ? "stakeholder" : "employee")
-
     // Hard rule: settings/permission hanya untuk super admin
     // (tidak bisa dioverride oleh custom page permission)
-    if (matchedSlug === "/settings/permission") {
+    if (url.pathname.startsWith(siteConfig.baseLinks.settings.permission)) {
       if (!profile?.is_super_admin) {
         url.pathname = "/dashboard"
         return NextResponse.redirect(url)
       }
-      return supabaseResponse
     }
 
-    // 1. Check if user has custom page permissions set
-    const { data: customPermission } = await supabase
+    // 1) Ambil seluruh permission user
+    const { data: userPermissions } = await supabase
       .from("user_page_permissions")
-      .select("granted")
+      .select("page_slug, granted")
       .eq("user_id", user.id)
-      .eq("page_slug", matchedSlug)
-      .maybeSingle()
 
-    if (customPermission !== null && customPermission !== undefined) {
-      // Custom permission exists — use it directly
-      if (!customPermission.granted) {
-        url.pathname = "/dashboard"
+    const rows = userPermissions || []
+    // 2) Cari permission paling spesifik (longest prefix match)
+    const matched = rows
+      .filter((row) => url.pathname.startsWith(row.page_slug))
+      .sort((a, b) => b.page_slug.length - a.page_slug.length)[0]
+
+    // 3) Jika tidak ada match / explicit deny => redirect ke page pertama yang di-grant
+    if (!matched || matched.granted !== true) {
+      const firstAllowed = rows.find((row) => row.granted)?.page_slug
+      const fallbackPath =
+        firstAllowed && firstAllowed !== url.pathname ? firstAllowed : "/login"
+      if (url.pathname !== fallbackPath) {
+        url.pathname = fallbackPath
         return NextResponse.redirect(url)
       }
-      // Custom permission grants access — allow through
-      return supabaseResponse
+      return NextResponse.redirect(new URL("/login", request.url))
     }
-
-    // 2. No custom permission — fallback ke role defaults
-    const { data: roleDefault } = await supabase
-      .from("role_page_defaults")
-      .select("granted")
-      .eq("role", role)
-      .eq("page_slug", matchedSlug)
-      .maybeSingle()
-
-    if (roleDefault !== null && roleDefault !== undefined) {
-      if (!roleDefault.granted) {
-        url.pathname = "/dashboard"
-        return NextResponse.redirect(url)
-      }
-      return supabaseResponse
-    }
-
-    // 3. No role defaults row — legacy fallback (backward compatibility)
-    // For payroll and teams: requires admin role
-    const roleRestrictedSlugs = ["/payroll", "/teams"]
-    if (roleRestrictedSlugs.includes(matchedSlug)) {
-      const hasAdminAccess = canManageByRole(role)
-
-      if (!hasAdminAccess) {
-        url.pathname = "/dashboard"
-        return NextResponse.redirect(url)
-      }
-    }
-
-    // All other protected slugs are accessible by default for authenticated users
   }
 
   return supabaseResponse

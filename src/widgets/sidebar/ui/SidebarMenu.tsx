@@ -3,11 +3,6 @@
 import { navigationConfig } from "@/shared/config/navigation"
 import { usePagePermissions } from "@/shared/hooks/usePagePermissions"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
-import {
-  canAccessProjectCalculator,
-  canAccessSLAGenerator,
-  hasRoleAccess,
-} from "@/shared/lib/roles"
 import { cx, focusRing } from "@/shared/lib/utils"
 import { Skeleton } from "@/shared/ui"
 import Link from "next/link"
@@ -16,9 +11,7 @@ import { usePathname } from "next/navigation"
 export function SidebarMenu() {
   const pathname = usePathname()
   const { profile, loading: profileLoading } = useUserProfile()
-  const { hasPermission, loading: permLoading } = usePagePermissions(
-    profile?.role,
-  )
+  const { hasPermission, loading: permLoading } = usePagePermissions()
 
   const loading = profileLoading || permLoading
 
@@ -28,24 +21,8 @@ export function SidebarMenu() {
 
   const navItems = navigationConfig.main.filter((item) => {
     if (loading || !profile) return false
-
-    // Fallback to existing role-based logic
     const slug = item.href
-    let roleFallback = hasRoleAccess(item.roles, profile.role)
-
-    if (item.name === "Project Calculator") {
-      roleFallback = canAccessProjectCalculator(profile)
-    }
-    if (item.name === "SLA Generator") {
-      roleFallback = canAccessSLAGenerator(profile)
-    }
-    if (item.name === "Message") {
-      roleFallback =
-        hasRoleAccess(item.roles, profile.role) ||
-        profile.job_title === "Project Manager"
-    }
-
-    return hasPermission(slug, roleFallback) ?? roleFallback
+    return hasPermission(slug, false) === true
   })
 
   // Skeleton loading

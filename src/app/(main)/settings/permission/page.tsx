@@ -23,11 +23,8 @@ export default async function PermissionRoute() {
     redirect("/dashboard")
   }
 
-  const [
-    { data: profiles, error: profilesError },
-    { data: permissions },
-    { data: roleDefaults },
-  ] = await Promise.all([
+  const [{ data: profiles, error: profilesError }, { data: permissions }] =
+    await Promise.all([
       supabase
         .from("profiles")
         .select(
@@ -37,9 +34,6 @@ export default async function PermissionRoute() {
       supabase
         .from("user_page_permissions")
         .select("id, user_id, page_slug, granted, granted_by, created_at"),
-      supabase
-        .from("role_page_defaults")
-        .select("id, role, page_slug, granted, updated_by, created_at, updated_at"),
     ])
 
   if (profilesError) {
@@ -52,7 +46,6 @@ export default async function PermissionRoute() {
     <PermissionSettingsPage
       initialData={profiles || []}
       initialPermissions={permissions || []}
-      initialRoleDefaults={roleDefaults || []}
     />
   )
 }
