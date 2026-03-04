@@ -33,6 +33,11 @@ type Employee = {
   role: string | null
 }
 
+type EmployeeWithProjects = Employee & {
+  project_count: number
+  active_projects: number
+}
+
 type Assignment = {
   id: string
   role_in_project: string
@@ -85,7 +90,7 @@ export function KPITab({
     { revalidateOnFocus: false },
   )
 
-  const employees = employeesResult?.success
+  const employees: EmployeeWithProjects[] = employeesResult?.success
     ? employeesResult.data
     : []
   const employeeData: Employee | null =

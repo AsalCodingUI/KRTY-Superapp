@@ -1,7 +1,7 @@
 "use client"
 
 import { Button, Card } from "@/shared/ui"
-import { RiAlertLine, RiHome2Line, RiRefreshLine } from "@/shared/ui/lucide-icons"
+import { RiErrorWarningLine, RiHome2Line, RiRefreshLine } from "@/shared/ui/lucide-icons"
 import { useEffect } from "react"
 
 /**
@@ -29,7 +29,7 @@ export default function GlobalError({
             <Card className="w-full p-8 text-center">
               <div className="space-y-5">
                 <div className="bg-surface-danger-light mx-auto flex size-14 items-center justify-center rounded-full border border-border-danger-light">
-                  <RiAlertLine className="size-6 text-foreground-danger" />
+                  <RiErrorWarningLine className="size-6 text-foreground-danger" />
                 </div>
 
                 <div className="space-y-2">

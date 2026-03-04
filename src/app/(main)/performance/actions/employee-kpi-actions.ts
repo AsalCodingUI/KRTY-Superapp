@@ -106,7 +106,7 @@ export async function getAllEmployees(searchQuery?: string) {
     return { success: false, error: error.message, data: [] }
   }
 
-  const employeeIds = (employees || []).map((employee) => employee.id)
+  const employeeIds = (employees || []).map((employee: Employee) => employee.id)
   let assignmentCounts: Record<string, { total: number; active: number }> = {}
 
   if (employeeIds.length > 0) {
@@ -118,7 +118,7 @@ export async function getAllEmployees(searchQuery?: string) {
     if (assignmentError) {
       console.error("Error fetching project assignments:", assignmentError)
     } else {
-      ;(assignments as ProjectAssignmentWithStatus[] | null)?.forEach(
+      ; (assignments as ProjectAssignmentWithStatus[] | null)?.forEach(
         (assignment) => {
           const userId = assignment.user_id as string | undefined
           if (!userId) return
@@ -134,7 +134,7 @@ export async function getAllEmployees(searchQuery?: string) {
     }
   }
 
-  const employeesWithCounts = (employees || []).map((employee) => {
+  const employeesWithCounts = (employees || []).map((employee: Employee) => {
     const counts = assignmentCounts[employee.id] || { total: 0, active: 0 }
     return {
       ...employee,

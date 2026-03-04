@@ -1,11 +1,11 @@
 "use client"
 
 import {
+  RiCalendar2Fill,
   RiCloseCircleFill,
+  RiErrorWarningLine,
   RiEyeFill,
   RiEyeOffFill,
-  RiErrorWarningLine,
-  RiCalendar2Fill,
   RiLoader2Fill,
   RiSearchLine,
   RiTimeLine,
@@ -83,7 +83,6 @@ const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
 
     const hasLeftIcon = Boolean(LeftIcon) || isSearch
     const hasPrefix = Boolean(prefix)
-    const hasLeftContent = hasLeftIcon || hasPrefix
     // Password toggle or Clear button or Loading spinner takes precedence as "action" icon
     const hasRightAction = isPassword || (onClear && props.value) || isLoading
     const hasTrailingIcon = Boolean(RightIcon)
@@ -199,7 +198,7 @@ const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
               leftPaddingClass,
               rightPaddingClass,
               (isDate || isTime) &&
-                "appearance-none cursor-pointer [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer",
+              "appearance-none cursor-pointer [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer",
               className,
             )}
             {...props}

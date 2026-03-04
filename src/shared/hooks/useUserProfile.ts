@@ -1,9 +1,9 @@
 // src/hooks/useUserProfile.ts
 "use client"
 
-import { Database } from "@/shared/types/database.types"
 import { createClient as createClientBrowser } from "@/shared/api/supabase/client"
 import { canManageByRole } from "@/shared/lib/roles"
+import { Database } from "@/shared/types/database.types"
 import useSWR from "swr"
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"]
@@ -19,6 +19,7 @@ export type ProfileSubset = Pick<
   | "krt_id"
   | "hourly_rate"
   | "team_id"
+  | "is_super_admin"
 >
 
 type UserProfileResponse = {
@@ -44,7 +45,7 @@ const fetchUserProfile = async (): Promise<UserProfileResponse> => {
   const { data: profileData, error: profileError } = await supabase
     .from("profiles")
     .select(
-      "id, full_name, email, role, job_title, krt_id, hourly_rate, team_id",
+      "id, full_name, email, role, job_title, krt_id, hourly_rate, team_id, is_super_admin",
     )
     .eq("id", user.id)
     .single()
@@ -74,5 +75,6 @@ export function useUserProfile() {
     userEmail: data?.userEmail || null,
     loading: isLoading,
     isAdmin: canManageByRole(data?.profile?.role),
+    isSuperAdmin: data?.profile?.is_super_admin === true,
   }
 }

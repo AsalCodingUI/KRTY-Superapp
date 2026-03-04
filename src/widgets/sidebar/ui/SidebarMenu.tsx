@@ -1,6 +1,7 @@
 "use client"
 
 import { navigationConfig } from "@/shared/config/navigation"
+import { usePagePermissions } from "@/shared/hooks/usePagePermissions"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import {
   canAccessProjectCalculator,
@@ -10,47 +11,44 @@ import {
 import { cx, focusRing } from "@/shared/lib/utils"
 import { Skeleton } from "@/shared/ui"
 import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
-import { useEffect, useMemo } from "react"
+import { usePathname } from "next/navigation"
 
 export function SidebarMenu() {
   const pathname = usePathname()
-  const router = useRouter()
-  const { profile, loading } = useUserProfile()
+  const { profile, loading: profileLoading } = useUserProfile()
+  const { permissions, loading: permLoading } = usePagePermissions()
+
+  const loading = profileLoading || permLoading
 
   const isActive = (itemHref: string) => {
     return pathname === itemHref || pathname.startsWith(itemHref)
   }
 
-  const navItems = useMemo(
-    () =>
-      navigationConfig.main.filter((item) => {
-        if (loading || !profile) return false
-        if (item.name === "Project Calculator") {
-          return canAccessProjectCalculator(profile)
-        }
-        if (item.name === "SLA Generator") {
-          return canAccessSLAGenerator(profile)
-        }
-        if (item.name === "Message") {
-          return (
-            hasRoleAccess(item.roles, profile.role) ||
-            profile.job_title === "Project Manager"
-          )
-        }
-        return hasRoleAccess(item.roles, profile.role)
-      }),
-    [loading, profile],
-  )
+  const navItems = navigationConfig.main.filter((item) => {
+    if (loading || !profile) return false
 
-  useEffect(() => {
-    if (loading || !profile) return
-    for (const item of navItems) {
-      if (item.href.startsWith("/")) {
-        router.prefetch(item.href)
-      }
+    // If the user has custom page permissions, use them to filter
+    if (permissions !== null) {
+      const slug = item.href
+      if (slug in permissions) return permissions[slug]
+      // No explicit custom permission for this slug — fall through to role check
     }
-  }, [loading, profile, navItems, router])
+
+    // Fallback to existing role-based logic
+    if (item.name === "Project Calculator") {
+      return canAccessProjectCalculator(profile)
+    }
+    if (item.name === "SLA Generator") {
+      return canAccessSLAGenerator(profile)
+    }
+    if (item.name === "Message") {
+      return (
+        hasRoleAccess(item.roles, profile.role) ||
+        profile.job_title === "Project Manager"
+      )
+    }
+    return hasRoleAccess(item.roles, profile.role)
+  })
 
   // Skeleton loading
   if (loading) {
@@ -74,11 +72,6 @@ export function SidebarMenu() {
             <Link
               href={item.href}
               prefetch
-              onMouseEnter={() => {
-                if (item.href.startsWith("/")) {
-                  router.prefetch(item.href)
-                }
-              }}
               className={cx(
                 "text-label-sm flex items-center gap-2 rounded-md px-2 py-1 transition-colors duration-200",
                 isActive(item.href)
@@ -89,7 +82,7 @@ export function SidebarMenu() {
             >
               <item.icon
                 className={cx(
-                  "size-4 shrink-0", // 16px icons typically for 13px text, or size-5 (20px)? Figma check: Icon frame 16px? Step 770 says "size-[16px]". So size-4 is correct.
+                  "size-4 shrink-0",
                   isActive(item.href) ? "text-content" : "text-content-subtle",
                 )}
                 aria-hidden="true"
