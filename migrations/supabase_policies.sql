@@ -109,3 +109,70 @@ CREATE POLICY "Users can create leave requests"
 ON leave_requests FOR INSERT 
 WITH CHECK ( auth.uid() = user_id );
 
+-- 9. ONE ON ONE SLOTS
+ALTER TABLE one_on_one_slots ENABLE ROW LEVEL SECURITY;
+
+-- Allow authenticated users to view open slots or slots they are involved in
+CREATE POLICY "View open or own one-on-one slots"
+ON one_on_one_slots FOR SELECT
+USING (
+  auth.role() = 'authenticated' AND (
+    status = 'open' OR
+    booked_by = auth.uid() OR
+    organizer_id = auth.uid() OR
+    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'stakeholder')
+  )
+);
+
+-- Only stakeholders can create slots for themselves
+CREATE POLICY "Stakeholders can create one-on-one slots"
+ON one_on_one_slots FOR INSERT
+WITH CHECK (
+  organizer_id = auth.uid() AND
+  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'stakeholder')
+);
+
+-- Stakeholders or involved users can update slots
+CREATE POLICY "Manage one-on-one slots"
+ON one_on_one_slots FOR UPDATE
+USING (
+  organizer_id = auth.uid() OR
+  booked_by = auth.uid() OR
+  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'stakeholder')
+);
+
+-- Only stakeholders can delete slots
+CREATE POLICY "Stakeholders can delete one-on-one slots"
+ON one_on_one_slots FOR DELETE
+USING (
+  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'stakeholder')
+);
+
+-- 10. REVIEW CYCLES
+ALTER TABLE review_cycles ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Authenticated users can view review cycles"
+ON review_cycles FOR SELECT
+USING ( auth.role() = 'authenticated' );
+
+CREATE POLICY "Stakeholders can manage review cycles"
+ON review_cycles FOR ALL
+USING (
+  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'stakeholder')
+);
+
+-- 11. PERFORMANCE SUMMARIES
+ALTER TABLE performance_summaries ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "View own performance summaries or stakeholder view all"
+ON performance_summaries FOR SELECT
+USING (
+  reviewee_id = auth.uid() OR
+  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'stakeholder')
+);
+
+CREATE POLICY "Stakeholders can manage performance summaries"
+ON performance_summaries FOR ALL
+USING (
+  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'stakeholder')
+);

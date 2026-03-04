@@ -12,6 +12,14 @@ export async function PATCH(request: NextRequest) {
   if (guard) return guard
 
   try {
+    const supabase = await createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
     const body = await request.json()
     const { eventId, status } = body
 
@@ -30,7 +38,6 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Update RSVP status in Supabase
-    const supabase = await createClient()
     const { data, error } = await supabase
       .from("calendar_events")
       .update({ rsvp_status: status })
