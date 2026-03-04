@@ -17,40 +17,42 @@ export default function Error({
   }, [error])
 
   return (
-    <div className="flex min-h-[50vh] items-center justify-center">
-      <Card className="max-w-md text-center">
-        <div className="space-y-4">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-surface-danger-light">
-            <span className="text-display-xxs">⚠️</span>
-          </div>
+    <div className="bg-surface min-h-[calc(100vh-1rem)] px-4 py-8">
+      <div className="mx-auto flex min-h-[calc(100vh-6rem)] max-w-xl items-center justify-center">
+        <Card className="w-full p-8 text-center">
+          <div className="space-y-5">
+            <div className="bg-surface-danger-light mx-auto flex size-14 items-center justify-center rounded-full border border-border-danger-light">
+              <span className="text-heading-md text-foreground-danger">⚠️</span>
+            </div>
 
-          <h2 className="text-heading-md text-foreground-primary dark:text-foreground-primary">
-            Terjadi Kesalahan
-          </h2>
+            <h2 className="text-heading-lg text-foreground-primary">
+              Terjadi Kesalahan
+            </h2>
 
-          <p className="text-body-sm text-foreground-secondary dark:text-foreground-tertiary">
-            Maaf, terjadi kesalahan saat memuat halaman ini. Silakan coba lagi
-            atau kembali ke halaman utama.
-          </p>
-
-          {error.digest && (
-            <p className="text-body-xs text-foreground-tertiary dark:text-foreground-secondary tabular-nums">
-              Error ID: {error.digest}
+            <p className="text-body-sm text-foreground-secondary">
+              Maaf, terjadi kesalahan saat memuat halaman ini. Silakan coba lagi
+              atau kembali ke dashboard.
             </p>
-          )}
 
-          <div className="flex justify-center gap-3 pt-2">
-            <Button variant="secondary" onClick={reset}>
-              <RiRefreshLine className="mr-2 size-4" />
-              Coba Lagi
-            </Button>
-            <Button onClick={() => (window.location.href = "/dashboard")}>
-              <RiHome2Line className="mr-2 size-4" />
-              Dashboard
-            </Button>
+            {error.digest && (
+              <p className="text-body-xs text-foreground-tertiary tabular-nums">
+                Error ID: {error.digest}
+              </p>
+            )}
+
+            <div className="flex flex-wrap justify-center gap-2 pt-1">
+              <Button variant="secondary" onClick={reset}>
+                <RiRefreshLine className="mr-2 size-4" />
+                Coba Lagi
+              </Button>
+              <Button onClick={() => (window.location.href = "/dashboard")}>
+                <RiHome2Line className="mr-2 size-4" />
+                Dashboard
+              </Button>
+            </div>
           </div>
-        </div>
-      </Card>
+        </Card>
+      </div>
     </div>
   )
 }
