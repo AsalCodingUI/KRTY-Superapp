@@ -1,8 +1,6 @@
 import { createClient } from "@/shared/api/supabase/server"
 import { CalculatorPage } from "@/page-slices/calculator"
 
-export const dynamic = "force-dynamic"
-
 export default async function CalculatorRoute() {
   const supabase = await createClient()
 

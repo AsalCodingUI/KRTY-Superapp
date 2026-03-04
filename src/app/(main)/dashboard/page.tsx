@@ -6,8 +6,6 @@ import { getEmployeeDashboardData } from "./actions/dashboard-employee-actions"
 import { AdminDashboard } from "./components/AdminDashboard"
 import { EmployeeDashboard } from "./components/EmployeeDashboard"
 
-export const dynamic = 'force-dynamic'
-
 export default async function DashboardRoute() {
   const supabase = await createClient()
 

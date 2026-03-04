@@ -1,8 +1,6 @@
 import { createClient } from "@/shared/api/supabase/server"
 import { PermissionSettingsPage } from "@/page-slices/settings"
 
-export const dynamic = "force-dynamic"
-
 export default async function PermissionRoute() {
   const supabase = await createClient()
 
