@@ -16,11 +16,7 @@ import {
   Switch,
 } from "@/shared/ui"
 import { EmptyState } from "@/shared/ui/information/EmptyState"
-import {
-  RiLockLine,
-  RiSettings3Line,
-  RiVerifiedBadgeFill,
-} from "@/shared/ui/lucide-icons"
+import { RiLockLine, RiSettings3Line } from "@/shared/ui/lucide-icons"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 
@@ -240,7 +236,7 @@ export default function PermissionSettingsPage({
           const isCurrentUser = user.id === currentUser?.id
 
           return (
-            <li key={user.id} className="py-2">
+            <li key={user.id} className="py-3">
               {/* ── User row ── */}
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-x-4 overflow-hidden text-left">
@@ -249,9 +245,6 @@ export default function PermissionSettingsPage({
                     aria-hidden="true"
                   >
                     {initials}
-                    {user.is_super_admin && (
-                      <RiVerifiedBadgeFill className="absolute -right-1 -top-1 size-4 text-blue-500" />
-                    )}
                   </span>
                   <div className="truncate">
                     <p className="text-foreground-primary text-label-md flex items-center gap-1.5 truncate">
@@ -283,7 +276,6 @@ export default function PermissionSettingsPage({
                       }
                       disabled={loadingId === user.id}
                     >
-                      <RiVerifiedBadgeFill className="mr-1 size-4" />
                       {user.is_super_admin
                         ? "Remove Super Admin"
                         : "Make Super Admin"}
@@ -355,8 +347,8 @@ export default function PermissionSettingsPage({
 
               {/* ── Expanded page permissions ── */}
               {isExpanded && (
-                <div className="border-neutral-primary mt-4 rounded-lg border p-4">
-                  <p className="text-foreground-secondary text-label-xs mb-3 uppercase tracking-wide">
+                <div className="py-4">
+                  <p className="text-foreground-secondary text-label-xs mb-3">
                     Page Access
                   </p>
                   <div className="grid gap-2 sm:grid-cols-2">
