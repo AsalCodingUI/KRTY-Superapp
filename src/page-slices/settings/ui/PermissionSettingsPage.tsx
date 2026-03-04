@@ -6,14 +6,21 @@ import { navigationConfig } from "@/shared/config/navigation"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { Database } from "@/shared/types/database.types"
 import {
+  Badge,
+  Button,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
+  Switch,
 } from "@/shared/ui"
 import { EmptyState } from "@/shared/ui/information/EmptyState"
-import { RiLockLine, RiVerifiedBadgeFill } from "@/shared/ui/lucide-icons"
+import {
+  RiLockLine,
+  RiSettings3Line,
+  RiVerifiedBadgeFill,
+} from "@/shared/ui/lucide-icons"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 
@@ -68,6 +75,9 @@ export default function PermissionSettingsPage({
   const [profiles, setProfiles] = useState(initialData)
   const [loadingId, setLoadingId] = useState<string | null>(null)
   const [expandedUserId, setExpandedUserId] = useState<string | null>(null)
+  const [loadingPermissionKey, setLoadingPermissionKey] = useState<
+    string | null
+  >(null)
 
   // Build a map: userId → { pageSlug → granted }
   const [permissionsMap, setPermissionsMap] = useState<
@@ -137,7 +147,9 @@ export default function PermissionSettingsPage({
     pageSlug: string,
     currentGranted: boolean | undefined,
   ) => {
+    const permissionKey = `${userId}:${pageSlug}`
     const newGranted = !currentGranted
+    setLoadingPermissionKey(permissionKey)
 
     // Optimistic update
     setPermissionsMap((prev) => ({
@@ -169,6 +181,8 @@ export default function PermissionSettingsPage({
           [pageSlug]: currentGranted ?? false,
         },
       }))
+    } finally {
+      setLoadingPermissionKey(null)
     }
   }
 
@@ -208,7 +222,7 @@ export default function PermissionSettingsPage({
             User Permissions
           </h3>
           <p className="text-foreground-secondary text-label-md">
-            Manage roles, job titles, and per-page access for your team members.
+            Manage roles, job titles, and per-user page access for your team members.
           </p>
         </div>
       </div>
@@ -232,14 +246,7 @@ export default function PermissionSettingsPage({
             <li key={user.id} className="py-4">
               {/* ── User row ── */}
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                {/* Info + expand toggle */}
-                <button
-                  type="button"
-                  className="flex items-center gap-x-4 overflow-hidden text-left"
-                  onClick={() =>
-                    setExpandedUserId(isExpanded ? null : user.id)
-                  }
-                >
+                <div className="flex items-center gap-x-4 overflow-hidden text-left">
                   <span
                     className="border-neutral-primary bg-surface-neutral-secondary text-foreground-secondary text-label-xs relative hidden size-10 shrink-0 items-center justify-center rounded-full border sm:flex"
                     aria-hidden="true"
@@ -262,14 +269,15 @@ export default function PermissionSettingsPage({
                       {user.email}
                     </p>
                   </div>
-                </button>
+                </div>
 
                 {/* Role & Job dropdowns */}
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                   {/* Super Admin Toggle (not for self) */}
                   {!isCurrentUser && (
-                    <button
-                      type="button"
+                    <Button
+                      variant={user.is_super_admin ? "secondary" : "tertiary"}
+                      size="sm"
                       onClick={() =>
                         handleSuperAdminToggle(
                           user.id,
@@ -277,15 +285,12 @@ export default function PermissionSettingsPage({
                         )
                       }
                       disabled={loadingId === user.id}
-                      className={`text-label-xs rounded-full border px-2.5 py-1 transition-colors ${user.is_super_admin
-                        ? "border-blue-400 bg-blue-500/10 text-blue-500 hover:bg-blue-500/20"
-                        : "border-neutral-primary text-foreground-secondary hover:border-blue-400 hover:text-blue-500"
-                        }`}
                     >
+                      <RiVerifiedBadgeFill className="mr-1 size-4" />
                       {user.is_super_admin
                         ? "Remove Super Admin"
                         : "Make Super Admin"}
-                    </button>
+                    </Button>
                   )}
 
                   {/* Job Title */}
@@ -300,7 +305,7 @@ export default function PermissionSettingsPage({
                       }
                       disabled={loadingId === user.id}
                     >
-                      <SelectTrigger className="h-8">
+                      <SelectTrigger className="h-[28px]">
                         <SelectValue placeholder="Select Job" />
                       </SelectTrigger>
                       <SelectContent>
@@ -325,7 +330,7 @@ export default function PermissionSettingsPage({
                       }
                       disabled={loadingId === user.id}
                     >
-                      <SelectTrigger className="h-8">
+                      <SelectTrigger className="h-[28px]">
                         <SelectValue placeholder="Select Role" />
                       </SelectTrigger>
                       <SelectContent align="end">
@@ -337,6 +342,17 @@ export default function PermissionSettingsPage({
                       </SelectContent>
                     </Select>
                   </div>
+
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() =>
+                      setExpandedUserId(isExpanded ? null : user.id)
+                    }
+                  >
+                    <RiSettings3Line className="mr-1 size-4" />
+                    {isExpanded ? "Hide Access" : "Configure Access"}
+                  </Button>
                 </div>
               </div>
 
@@ -346,46 +362,62 @@ export default function PermissionSettingsPage({
                   <p className="text-foreground-secondary text-label-xs mb-3 uppercase tracking-wide">
                     Page Access
                   </p>
-                  <div className="grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-3 lg:grid-cols-4">
+                  <div className="grid gap-2 sm:grid-cols-2">
                     {CONTROLLABLE_PAGES.map((page) => {
                       const granted = userPerms[page.slug]
                       const isGranted = granted === true
                       const isExplicit = page.slug in userPerms
+                      const permissionKey = `${user.id}:${page.slug}`
+                      const isSaving = loadingPermissionKey === permissionKey
 
                       return (
-                        <button
+                        <div
                           key={page.slug}
-                          type="button"
-                          onClick={() =>
-                            handlePagePermissionToggle(
-                              user.id,
-                              page.slug,
-                              isGranted,
-                            )
-                          }
-                          className={`flex items-center gap-2 rounded-md border px-3 py-2 text-left transition-colors ${isGranted
-                            ? "border-green-500/40 bg-green-500/10 text-green-600"
-                            : isExplicit
-                              ? "border-red-400/40 bg-red-500/10 text-red-500"
-                              : "border-neutral-primary text-foreground-secondary hover:border-neutral-secondary"
-                            }`}
+                          className="border-neutral-primary bg-surface-neutral-primary flex items-center justify-between rounded-md border px-3 py-2"
                         >
-                          <span
-                            className={`size-2 shrink-0 rounded-full ${isGranted
-                              ? "bg-green-500"
-                              : isExplicit
-                                ? "bg-red-400"
-                                : "bg-neutral-400"
-                              }`}
-                          />
-                          <span className="text-label-xs">{page.label}</span>
-                        </button>
+                          <div className="min-w-0 pr-3">
+                            <p className="text-label-xs text-foreground-primary truncate">
+                              {page.label}
+                            </p>
+                            <p className="text-body-xs text-foreground-tertiary truncate">
+                              {page.slug}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Badge
+                              variant={
+                                isGranted
+                                  ? "success"
+                                  : isExplicit
+                                    ? "error"
+                                    : "default"
+                              }
+                            >
+                              {isGranted
+                                ? "Allowed"
+                                : isExplicit
+                                  ? "Denied"
+                                  : "Not set"}
+                            </Badge>
+                            <Switch
+                              checked={isGranted}
+                              disabled={isSaving}
+                              onCheckedChange={() =>
+                                handlePagePermissionToggle(
+                                  user.id,
+                                  page.slug,
+                                  isGranted,
+                                )
+                              }
+                              aria-label={`Toggle ${page.label}`}
+                            />
+                          </div>
+                        </div>
                       )
                     })}
                   </div>
                   <p className="text-foreground-tertiary text-body-xs mt-3">
-                    Click a page to toggle access. Green = granted, Red =
-                    denied, Grey = role default.
+                    Toggle each page directly. Allowed = on, Denied = off.
                   </p>
                 </div>
               )}
