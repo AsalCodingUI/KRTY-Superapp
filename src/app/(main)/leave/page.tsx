@@ -21,6 +21,10 @@ export default async function LeaveRoute({
   const pageSize = 20
   const from = (page - 1) * pageSize
   const to = from + pageSize - 1
+  const attendanceWindowDays = 90
+  const attendanceStart = new Date()
+  attendanceStart.setDate(attendanceStart.getDate() - attendanceWindowDays)
+  const attendanceStartDate = attendanceStart.toISOString().split("T")[0]
 
   // 🚀 PARALLEL FETCH: Profile first (needed for role check)
   const { data: profile } = await supabase
@@ -40,7 +44,7 @@ export default async function LeaveRoute({
     ] = await Promise.all([
       supabase
         .from("leave_requests")
-        .select("*", { count: "exact", head: true }),
+        .select("id", { count: "exact", head: true }),
       supabase
         .from("leave_requests")
         .select(
@@ -54,7 +58,10 @@ export default async function LeaveRoute({
         .order("full_name", { ascending: true }),
       supabase
         .from("attendance_logs")
-        .select("*, profiles(full_name, avatar_url, job_title)")
+        .select(
+          "id,user_id,date,clock_in,clock_out,is_break,break_total,break_start,status,notes,profiles(full_name, avatar_url, job_title)",
+        )
+        .gte("date", attendanceStartDate)
         .order("date", { ascending: false })
         .order("clock_in", { ascending: false }),
     ])
@@ -78,7 +85,7 @@ export default async function LeaveRoute({
   const [countResult, requestsResult, attendanceLogsResult] = await Promise.all([
     supabase
       .from("leave_requests")
-      .select("*", { count: "exact", head: true })
+      .select("id", { count: "exact", head: true })
       .eq("user_id", user.id),
     supabase
       .from("leave_requests")
@@ -90,8 +97,11 @@ export default async function LeaveRoute({
       .range(from, to),
     supabase
       .from("attendance_logs")
-      .select("*")
+      .select(
+        "id,user_id,date,clock_in,clock_out,is_break,break_total,break_start,status,notes",
+      )
       .eq("user_id", user.id)
+      .gte("date", attendanceStartDate)
       .order("date", { ascending: false })
       .order("clock_in", { ascending: false }),
   ])

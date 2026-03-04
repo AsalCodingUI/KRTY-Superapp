@@ -22,10 +22,10 @@ export default async function TeamsRoute({
 
   // 🚀 PARALLEL FETCH: Count + Data at the same time
   const [countResult, dataResult, roleResult] = await Promise.all([
-    supabase.from("profiles").select("*", { count: "exact", head: true }),
+    supabase.from("profiles").select("id", { count: "exact", head: true }),
     supabase
       .from("profiles")
-      .select("*")
+      .select("id, full_name, email, job_title, role, hourly_rate")
       .order("full_name", { ascending: true })
       .range(from, to),
     user

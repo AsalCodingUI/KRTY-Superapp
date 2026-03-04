@@ -19,8 +19,8 @@ type EmployeeWithProjects = Employee & {
 
 // Type for project assignment with nested project status
 type ProjectAssignmentWithStatus = {
-  id: string
-  projects: { id: string; status: string } | null
+  user_id: string | null
+  projects: { status: string } | null
 }
 
 // Type for project assignment with SLA scores
@@ -106,35 +106,42 @@ export async function getAllEmployees(searchQuery?: string) {
     return { success: false, error: error.message, data: [] }
   }
 
-  // Get project counts for each employee
-  const employeesWithCounts = await Promise.all(
-    (employees || []).map(async (employee: Employee) => {
-      const { data: assignments } = await supabase
-        .from("project_assignments")
-        .select(
-          `
-                    id,
-                    projects!inner (
-                        id,
-                        status
-                    )
-                `,
-        )
-        .eq("user_id", employee.id)
+  const employeeIds = (employees || []).map((employee) => employee.id)
+  let assignmentCounts: Record<string, { total: number; active: number }> = {}
 
-      const totalProjects = assignments?.length || 0
-      const activeProjects =
-        (assignments as ProjectAssignmentWithStatus[] | null)?.filter(
-          (a) => a.projects?.status === "Active",
-        ).length || 0
+  if (employeeIds.length > 0) {
+    const { data: assignments, error: assignmentError } = await supabase
+      .from("project_assignments")
+      .select("user_id, projects(status)")
+      .in("user_id", employeeIds)
 
-      return {
-        ...employee,
-        project_count: totalProjects,
-        active_projects: activeProjects,
-      } as EmployeeWithProjects
-    }),
-  )
+    if (assignmentError) {
+      console.error("Error fetching project assignments:", assignmentError)
+    } else {
+      ;(assignments as ProjectAssignmentWithStatus[] | null)?.forEach(
+        (assignment) => {
+          const userId = assignment.user_id as string | undefined
+          if (!userId) return
+          if (!assignmentCounts[userId]) {
+            assignmentCounts[userId] = { total: 0, active: 0 }
+          }
+          assignmentCounts[userId].total += 1
+          if (assignment.projects?.status === "Active") {
+            assignmentCounts[userId].active += 1
+          }
+        },
+      )
+    }
+  }
+
+  const employeesWithCounts = (employees || []).map((employee) => {
+    const counts = assignmentCounts[employee.id] || { total: 0, active: 0 }
+    return {
+      ...employee,
+      project_count: counts.total,
+      active_projects: counts.active,
+    } as EmployeeWithProjects
+  })
 
   return { success: true, data: employeesWithCounts }
 }
@@ -424,13 +431,13 @@ export async function getOverviewStats(quarter?: string): Promise<{
     // Get total employees
     const { count: totalEmployees } = await supabase
       .from("profiles")
-      .select("*", { count: "exact", head: true })
+      .select("id", { count: "exact", head: true })
       .eq("role", "employee")
 
     // Get active projects
     const { count: activeProjectsCount } = await supabase
       .from("projects")
-      .select("*", { count: "exact", head: true })
+      .select("id", { count: "exact", head: true })
       .eq("status", "Active")
 
     // Get pending reviews for the quarter
@@ -445,18 +452,15 @@ export async function getOverviewStats(quarter?: string): Promise<{
       if (cycles && cycles.length > 0) {
         const cycleId = cycles[0].id
         // Count employees without a complete review summary
-        const { data: allEmployees } = await supabase
-          .from("profiles")
-          .select("id")
-          .eq("role", "employee")
-
-        const { data: summaries } = await supabase
+        const { count: summariesCount } = await supabase
           .from("performance_summaries")
-          .select("reviewee_id")
+          .select("reviewee_id", { count: "exact", head: true })
           .eq("cycle_id", cycleId)
 
-        const reviewedIds = new Set(summaries?.map((s: { reviewee_id: string }) => s.reviewee_id) || [])
-        pendingReviewsCount = (allEmployees?.length || 0) - reviewedIds.size
+        pendingReviewsCount = Math.max(
+          0,
+          (totalEmployees || 0) - (summariesCount || 0),
+        )
       }
     }
 

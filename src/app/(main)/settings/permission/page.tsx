@@ -8,7 +8,7 @@ export default async function PermissionRoute() {
 
   const { data: profiles, error } = await supabase
     .from("profiles")
-    .select("*")
+    .select("id, full_name, email, role, job_title")
     .order("full_name", { ascending: true })
 
   if (error) {
