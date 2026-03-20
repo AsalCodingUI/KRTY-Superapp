@@ -1,7 +1,7 @@
 // Tremor Raw Drawer [v0.0.0]
 
-import * as DrawerPrimitives from "@radix-ui/react-dialog"
 import { RiCloseLine } from "@/shared/ui/lucide-icons"
+import * as DrawerPrimitives from "@radix-ui/react-dialog"
 import * as React from "react"
 
 import { cx, focusRing } from "@/shared/lib/utils"
@@ -68,7 +68,7 @@ const DrawerOverlay = React.forwardRef<
         // base
         "fixed inset-0 z-50 overflow-y-auto",
         // background color
-        "bg-black/60",
+        "bg-transparent",
         // transition
         "data-[state=closed]:animate-hide data-[state=open]:animate-dialogOverlayShow",
         "[animation-duration:400ms] [animation-fill-mode:backwards]",
@@ -92,7 +92,7 @@ const DrawerContent = React.forwardRef<
           ref={forwardedRef}
           className={cx(
             // base (removed border wrapper for clean drawer)
-            "fixed inset-y-2 mx-auto flex w-[95vw] flex-1 flex-col overflow-y-auto rounded-md p-4 shadow-lg focus:outline-none max-sm:inset-x-2 sm:inset-y-2 sm:right-2 sm:max-w-lg sm:p-6",
+            "fixed inset-y-2 mx-auto flex w-[95vw] flex-1 flex-col overflow-y-auto rounded-md p-4 shadow-lg focus:outline-none max-sm:inset-x-2 sm:inset-y-2 sm:right-2 sm:max-w-lg sm:p-0",
             // background color
             "bg-surface dark:bg-surface",
             // transition
@@ -205,5 +205,5 @@ export {
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
-  DrawerTrigger,
+  DrawerTrigger
 }

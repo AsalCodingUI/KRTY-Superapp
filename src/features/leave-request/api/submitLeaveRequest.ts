@@ -1,4 +1,5 @@
 import { createClient } from "@/shared/api/supabase/client"
+import { format, startOfDay } from "date-fns"
 import { LeaveFormData } from "../model"
 
 export async function submitLeaveRequest(
@@ -33,8 +34,8 @@ export async function submitLeaveRequest(
 
   const payload = {
     user_id: userId,
-    start_date: formData.start_date.toISOString(),
-    end_date: formData.end_date.toISOString(),
+    start_date: format(startOfDay(formData.start_date), "yyyy-MM-dd"),
+    end_date: format(startOfDay(formData.end_date), "yyyy-MM-dd"),
     leave_type: formData.leave_type,
     reason: formData.reason,
     proof_url: finalProofUrl,

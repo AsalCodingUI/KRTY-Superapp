@@ -100,6 +100,18 @@ export function Notifications({ variant = "default" }: NotificationsProps) {
     setIsOpen(false)
   }
 
+  const requestDesktopPermission = async () => {
+    if (typeof window === "undefined") return
+    if (!("Notification" in window)) return
+    if (window.Notification.permission === "default") {
+      try {
+        await window.Notification.requestPermission()
+      } catch {
+        // ignore
+      }
+    }
+  }
+
   const handleDelete = (event: ReactMouseEvent, id: string) => {
     event.preventDefault()
     event.stopPropagation()
@@ -110,7 +122,11 @@ export function Notifications({ variant = "default" }: NotificationsProps) {
     <>
       <button
         ref={triggerRef}
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => {
+          const nextOpen = !isOpen
+          setIsOpen(nextOpen)
+          if (nextOpen) requestDesktopPermission()
+        }}
         className={cx(
           variant === "default"
             ? cx(
@@ -229,9 +245,10 @@ export function Notifications({ variant = "default" }: NotificationsProps) {
                     {filteredNotifications.length === 0 ? (
                       <div className="flex h-full flex-1 items-center justify-center p-4">
                         <EmptyState
-                          title="You don't have any notifications"
-                          description="We'll notify you about important updates and any time you're mentioned on App."
+                          title="No notifications yet"
+                          description="Nothing new in this tab."
                           icon={<RiNotification3Line className="size-5" />}
+                          placement="inner"
                         />
                       </div>
                     ) : (

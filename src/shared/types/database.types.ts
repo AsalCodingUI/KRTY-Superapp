@@ -309,6 +309,45 @@ export type Database = {
           },
         ]
       }
+      operational_costs: {
+        Row: {
+          amount_idr: number
+          amount_original: number
+          category: Database["public"]["Enums"]["operational_cost_category"]
+          created_at: string | null
+          currency_original: Database["public"]["Enums"]["currency_original_enum"]
+          exchange_rate_assumed: number
+          id: string
+          is_active: boolean
+          item_name: string
+          updated_at: string | null
+        }
+        Insert: {
+          amount_idr?: number
+          amount_original?: number
+          category?: Database["public"]["Enums"]["operational_cost_category"]
+          created_at?: string | null
+          currency_original?: Database["public"]["Enums"]["currency_original_enum"]
+          exchange_rate_assumed?: number
+          id?: string
+          is_active?: boolean
+          item_name: string
+          updated_at?: string | null
+        }
+        Update: {
+          amount_idr?: number
+          amount_original?: number
+          category?: Database["public"]["Enums"]["operational_cost_category"]
+          created_at?: string | null
+          currency_original?: Database["public"]["Enums"]["currency_original_enum"]
+          exchange_rate_assumed?: number
+          id?: string
+          is_active?: boolean
+          item_name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       one_on_one_slots: {
         Row: {
           booked_at: string | null
@@ -1005,6 +1044,8 @@ export type Database = {
     Enums: {
       app_role: "stakeholder" | "employee"
       job_title: "Admin" | "Project Manager" | "Designer" | "Web Developer"
+      operational_cost_category: "tools" | "facility" | "marketing" | "other"
+      currency_original_enum: "IDR" | "USD" | "EUR"
       project_role_enum:
       | "UIX Designer"
       | "Brand Designer"

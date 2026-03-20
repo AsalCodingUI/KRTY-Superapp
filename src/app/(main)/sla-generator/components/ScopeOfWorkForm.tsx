@@ -1,9 +1,13 @@
 "use client"
 
-import { Button } from "@/components/ui"
-import { Label } from "@/components/ui"
-import { TextInput } from "@/components/ui"
-import { Textarea } from "@/components/ui"
+import { Button, Label, Textarea, TextInput } from "@/components/ui"
+import {
+  RiAddLine,
+  RiDeleteBinLine,
+  RiDraggable,
+  RiFileCopyLine,
+  RiUploadLine,
+} from "@/shared/ui/lucide-icons"
 import {
   closestCenter,
   DndContext,
@@ -21,13 +25,6 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
-import {
-  RiAddLine,
-  RiDeleteBinLine,
-  RiDraggable,
-  RiFileCopyLine,
-  RiUploadLine,
-} from "@/shared/ui/lucide-icons"
 import { toast } from "sonner"
 
 interface ScopeItem {
@@ -224,7 +221,7 @@ export const ScopeOfWorkForm = ({ data, onChange }: ScopeOfWorkFormProps) => {
   return (
     <div className="space-y-4">
       <div className="mb-4 flex flex-row items-center justify-between">
-        <h3 className="text-md text-foreground-primary dark:text-foreground-primary font-semibold">
+        <h3 className="text-md text-foreground-primary dark:text-label-md text-foreground-primary">
           Scope of Work
         </h3>
         <div className="flex gap-2">

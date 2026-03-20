@@ -1,18 +1,18 @@
 "use client"
 
 import { Database } from "@/shared/types/database.types"
-import { differenceInSeconds, format, isToday } from "date-fns"
-import { useMemo, useState } from "react"
-import { columns } from "./Columns"
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
+  Badge, Button,
+  DataTable, EmptyState,
 } from "@/shared/ui"
-import { Badge, Button } from "@/shared/ui"
-import { DataTable, EmptyState } from "@/shared/ui"
 import { RiCalendarLine } from "@/shared/ui/lucide-icons"
+import { differenceInSeconds, format, isToday } from "date-fns"
+import { useMemo, useState } from "react"
+import { columns } from "./Columns"
 
 type AttendanceLog = Database["public"]["Tables"]["attendance_logs"]["Row"]
 
@@ -64,21 +64,22 @@ export function AttendanceHistoryList({
     )
   }, [logs])
 
-  if (logs.length === 0) {
-    return (
-      <EmptyState
-        title="No attendance records"
-        description="Your attendance history will appear here once you start clocking in"
-        icon={<RiCalendarLine className="size-5" />}
-      />
-    )
-  }
-
   const visibleGroups = useMemo(
     () => groupedLogs.slice(0, visibleDays),
     [groupedLogs, visibleDays],
   )
   const defaultOpenDate = visibleGroups[0]?.[0]
+
+  if (logs.length === 0) {
+    return (
+      <EmptyState
+        title="No attendance records"
+        description="Records will appear after your first check-in."
+        icon={<RiCalendarLine className="size-5" />}
+        placement="inner"
+      />
+    )
+  }
 
   return (
     <div className="space-y-3">
@@ -103,7 +104,7 @@ export function AttendanceHistoryList({
                 <div className="flex w-full items-center justify-between pr-4">
                   <div className="flex flex-col items-start sm:flex-row sm:items-center sm:gap-3">
                     <span
-                      className="text-foreground-primary font-semibold"
+                      className="text-foreground-primary"
                       suppressHydrationWarning
                     >
                       {format(dateObj, "eeee, dd MMMM yyyy")}

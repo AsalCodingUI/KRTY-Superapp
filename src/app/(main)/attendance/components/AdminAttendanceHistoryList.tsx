@@ -1,20 +1,18 @@
 "use client"
 
 import { Database } from "@/shared/types/database.types"
-import { createClient } from "@/shared/api/supabase/client"
-import { format, isToday } from "date-fns"
-import { useRouter } from "next/navigation"
-import { useMemo, useState } from "react"
-import { adminAttendanceColumns } from "./AdminColumns"
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
+  Badge, Button,
+  DataTable, EmptyState,
 } from "@/shared/ui"
-import { Badge, Button } from "@/shared/ui"
-import { DataTable, EmptyState } from "@/shared/ui"
 import { RiCalendarLine } from "@/shared/ui/lucide-icons"
+import { format, isToday } from "date-fns"
+import { useMemo, useState } from "react"
+import { adminAttendanceColumns } from "./AdminColumns"
 
 // Tipe data gabungan (Join)
 type AttendanceLogWithProfile =
@@ -33,7 +31,6 @@ export function AdminAttendanceHistoryList({
   logs: AttendanceLogWithProfile[]
   onApproveDelete?: (id: string) => void
 }) {
-  const router = useRouter()
   const [visibleDays, setVisibleDays] = useState(14)
 
   // 1. Group logs by Date
@@ -54,21 +51,22 @@ export function AdminAttendanceHistoryList({
     )
   }, [logs])
 
-  if (logs.length === 0) {
-    return (
-      <EmptyState
-        title="No attendance records"
-        description="Employee attendance records will appear here once they start clocking in"
-        icon={<RiCalendarLine className="size-5" />}
-      />
-    )
-  }
-
   const visibleGroups = useMemo(
     () => groupedLogs.slice(0, visibleDays),
     [groupedLogs, visibleDays],
   )
   const defaultOpenDate = visibleGroups[0]?.[0]
+
+  if (logs.length === 0) {
+    return (
+      <EmptyState
+        title="No attendance records"
+        description="Records will appear after employees check in."
+        icon={<RiCalendarLine className="size-5" />}
+        placement="inner"
+      />
+    )
+  }
 
   return (
     <div className="space-y-4">
@@ -91,7 +89,7 @@ export function AdminAttendanceHistoryList({
                 <div className="flex w-full items-center justify-between pr-4">
                   <div className="flex flex-col items-start sm:flex-row sm:items-center sm:gap-3">
                     <span
-                      className="text-foreground-primary font-semibold"
+                      className="text-label-md text-foreground-primary"
                       suppressHydrationWarning
                     >
                       {format(dateObj, "eeee, dd MMMM yyyy")}
@@ -128,21 +126,7 @@ export function AdminAttendanceHistoryList({
                     showPagination={false}
                     showFilterbar={false}
                     noBorder={true}
-                    onCreate={undefined}
-                    onDelete={async (ids) => {
-                      if (!confirm(`Delete ${ids.length} attendance record(s)?`))
-                        return
-                      const supabase = createClient()
-                      const { error } = await supabase
-                        .from("attendance_logs")
-                        .delete()
-                        .in("id", ids as string[])
-                      if (error) {
-                        alert("Error deleting: " + error.message)
-                      } else {
-                        router.refresh()
-                      }
-                    }}
+                    enableSelection={false}
                     searchKey="profiles.full_name"
                   />
                 </div>
@@ -163,6 +147,7 @@ export function AdminAttendanceHistoryList({
           </Button>
         </div>
       )}
+
     </div>
   )
 }

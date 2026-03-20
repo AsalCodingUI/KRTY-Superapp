@@ -1,8 +1,6 @@
 "use client"
 
-import { Badge } from "@/shared/ui"
-import { Button } from "@/shared/ui"
-import { Checkbox } from "@/shared/ui"
+import { Avatar, Badge, Button, Checkbox } from "@/shared/ui"
 import { DataTableColumnHeader } from "@/shared/ui/data/DataTableColumnHeader"
 import { Database } from "@/shared/types/database.types"
 import { RiCheckLine, RiCloseLine, RiFilePaperLine } from "@/shared/ui/lucide-icons"
@@ -88,9 +86,13 @@ export const adminColumns = (
         const initials = name.slice(0, 2).toUpperCase()
         return (
           <div className="flex items-center gap-3">
-            <span className="bg-surface-neutral-secondary text-foreground-secondary inline-flex size-5 items-center justify-center rounded-full text-[10px] leading-[16px]">
-              {initials}
-            </span>
+            <Avatar
+              size="xs"
+              src={row.original.profiles?.avatar_url || undefined}
+              initials={initials}
+              alt={name}
+              color="neutral"
+            />
             <span
               className="text-foreground-primary font-medium whitespace-nowrap"
               title={name}

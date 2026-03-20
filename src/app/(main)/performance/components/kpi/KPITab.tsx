@@ -2,11 +2,24 @@
 
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { canManageByRole } from "@/shared/lib/roles"
-import { Avatar, Badge, Button, Card, EmptyState, Skeleton, Spinner, TextInput } from "@/shared/ui"
+import {
+  Badge,
+  Button,
+  EmptyState,
+  Spinner,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeaderCell,
+  TableRow,
+  TableSection,
+  TextInput,
+} from "@/shared/ui"
 import { RiUserLine } from "@/shared/ui/lucide-icons"
 import dynamic from "next/dynamic"
 import Link from "next/link"
-import { useState } from "react"
+import { useEffect, useState, type ChangeEvent } from "react"
 import useSWR from "swr"
 import {
   getAllEmployees,
@@ -67,6 +80,8 @@ export function KPITab({
 }) {
   const { profile, loading: profileLoading } = useUserProfile()
   const [searchQuery, setSearchQuery] = useState("")
+  const [pageIndex, setPageIndex] = useState(0)
+  const pageSize = 25
   const canManage = canManageByRole(profile?.role)
 
   // For employee view
@@ -74,8 +89,8 @@ export function KPITab({
     data: employeesResult,
     isLoading: employeesLoading,
   } = useSWR(
-    canManage && profile ? ["employees", searchQuery] : null,
-    () => getAllEmployees(searchQuery),
+    canManage && profile ? ["employees", searchQuery, pageIndex, pageSize] : null,
+    () => getAllEmployees(searchQuery, pageIndex, pageSize),
     { revalidateOnFocus: false },
   )
 
@@ -93,6 +108,11 @@ export function KPITab({
   const employees: EmployeeWithProjects[] = employeesResult?.success
     ? employeesResult.data
     : []
+  const totalEmployees =
+    employeesResult?.success && typeof employeesResult.total === "number"
+      ? employeesResult.total
+      : employees.length
+  const totalPages = Math.max(1, Math.ceil(totalEmployees / pageSize))
   const employeeData: Employee | null =
     employeeDetailResult?.success && employeeDetailResult.data
       ? employeeDetailResult.data.employee
@@ -103,9 +123,9 @@ export function KPITab({
       : []
   const loading = canManage ? employeesLoading : employeeLoading
 
-  const handleSearch = (query: string) => {
-    setSearchQuery(query)
-  }
+  useEffect(() => {
+    setPageIndex(0)
+  }, [searchQuery])
 
   // Show loading state while checking user profile
   if (profileLoading || !profile) {
@@ -131,7 +151,7 @@ export function KPITab({
         <EmptyState
           icon={<RiUserLine />}
           title="No data available"
-          description="Unable to load your performance data"
+          description="Could not load performance data."
         />
       )
     }
@@ -147,108 +167,117 @@ export function KPITab({
 
   // Admin/Stakeholder view - show employee list (original behavior)
   return (
-    <div className="space-y-6">
-      {/* HEADER */}
-      <div>
-        <h2 className="text-foreground-primary text-heading-md">
-          Employee KPI Management
-        </h2>
-        <p className="text-foreground-secondary text-body-sm mt-1">
-          View and manage employee KPI scores across all projects
-        </p>
-      </div>
-
-      {/* SEARCH */}
-      <div>
+    <div className="space-y-4">
+      <div className="max-w-md">
         <TextInput
           type="search"
           placeholder="Search employees by name or email..."
           value={searchQuery}
-          onChange={(e) => handleSearch(e.target.value)}
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            setSearchQuery(e.target.value)
+          }
         />
       </div>
 
-      {/* EMPLOYEE LIST */}
-      {loading ? (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {[...Array(6)].map((_, i) => (
-            <Card
-              key={i}
-              className="border-neutral-primary bg-surface-neutral-primary space-y-3"
-            >
-              <Skeleton className="h-5 w-32" />
-              <Skeleton className="h-4 w-48" />
-              <Skeleton className="h-4 w-24" />
-            </Card>
-          ))}
-        </div>
-      ) : employees.length === 0 ? (
-        <EmptyState
-          icon={<RiUserLine />}
-          title={searchQuery ? "No employees found" : "No employees yet"}
-          description={
-            searchQuery
-              ? "Try adjusting your search query"
-              : "Employees will appear here once they are added to the system"
-          }
-        />
-      ) : (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {employees.map((employee) => (
-            <Link
-              key={employee.id}
-              href={`/performance/employee/${employee.id}`}
-              className="group"
-            >
-              <Card>
-                <div className="flex items-start gap-4">
-                  <Avatar
-                    src={employee.avatar_url || undefined}
-                    alt={employee.full_name || "Employee"}
-                    size="md"
+      <TableSection
+        title="Employee KPI Management"
+      >
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableHeaderCell>Employee</TableHeaderCell>
+              <TableHeaderCell>Email</TableHeaderCell>
+              <TableHeaderCell>Job Title</TableHeaderCell>
+              <TableHeaderCell>Projects</TableHeaderCell>
+              <TableHeaderCell>Active</TableHeaderCell>
+              <TableHeaderCell className="text-right">Action</TableHeaderCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center text-body-sm text-foreground-secondary">
+                  Loading employees...
+                </TableCell>
+              </TableRow>
+            ) : employees.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} className="p-0">
+                  <EmptyState
+                    icon={<RiUserLine className="size-5" />}
+                    title={searchQuery ? "No employees found" : "No employees yet"}
+                    description={
+                      searchQuery
+                        ? "Try a different keyword."
+                        : "Employees will appear after they are added."
+                    }
+                    subtitle={searchQuery ? "No matching results." : "No employee data yet."}
+                    placement="inner"
                   />
-                  <div className="min-w-0 flex-1">
-                    <h3 className="text-foreground-primary group-hover:text-foreground-brand-primary truncate font-semibold">
+                </TableCell>
+              </TableRow>
+            ) : (
+              employees.map((employee) => (
+                <TableRow key={employee.id}>
+                  <TableCell>
+                    <span className="font-medium text-foreground-primary">
                       {employee.full_name || "Unknown"}
-                    </h3>
-                    <p className="text-foreground-secondary text-body-sm truncate">
-                      {employee.job_title || "No job title"}
-                    </p>
-                    <p className="text-foreground-tertiary text-body-xs truncate">
-                      {employee.email}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="text-body-sm mt-4 flex items-center gap-4">
-                  <div>
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <span className="text-foreground-secondary">{employee.email}</span>
+                  </TableCell>
+                  <TableCell>
                     <span className="text-foreground-secondary">
-                      Projects:
+                      {employee.job_title || "-"}
                     </span>
-                    <span className="text-foreground-primary ml-1 font-medium">
-                      {employee.project_count}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-foreground-secondary">
-                      Active:
-                    </span>
-                    <Badge variant="success" className="ml-1">
-                      {employee.active_projects}
-                    </Badge>
-                  </div>
-                </div>
-
-                <div className="mt-4">
-                  <Button variant="secondary" size="sm" className="w-full">
-                    View KPI Details
-                  </Button>
-                </div>
-              </Card>
-            </Link>
-          ))}
+                  </TableCell>
+                  <TableCell>
+                    <span className="text-foreground-primary">{employee.project_count}</span>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="success">{employee.active_projects}</Badge>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Link href={`/performance/employee/${employee.id}`}>
+                      <Button variant="secondary" size="sm">
+                        View KPI Details
+                      </Button>
+                    </Link>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+        <div className="flex items-center justify-between pt-3">
+          <span className="text-body-sm text-foreground-secondary">
+            Page {pageIndex + 1} of {totalPages}
+          </span>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setPageIndex((prev) => Math.max(0, prev - 1))}
+              disabled={pageIndex === 0}
+            >
+              Previous
+            </Button>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() =>
+                setPageIndex((prev) =>
+                  Math.min(totalPages - 1, prev + 1),
+                )
+              }
+              disabled={pageIndex >= totalPages - 1}
+            >
+              Next
+            </Button>
+          </div>
         </div>
-      )}
+      </TableSection>
     </div>
   )
 }

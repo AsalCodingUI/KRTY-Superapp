@@ -1,8 +1,8 @@
 // Tremor Raw Dialog [v0.0.0]
 
 import * as DialogPrimitives from "@radix-ui/react-dialog"
-import React from "react"
 import { motion } from "framer-motion"
+import React from "react"
 
 import { cx, focusRing } from "@/shared/lib/utils"
 import { RiCloseLine } from "@/shared/ui/lucide-icons"
@@ -77,11 +77,16 @@ DialogOverlay.displayName = "DialogOverlay"
 const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitives.Content>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitives.Content>
->(({ className, ...props }, forwardedRef) => {
+>(({ className, onInteractOutside, onPointerDownOutside, onFocusOutside, ...props }, forwardedRef) => {
   return (
     <DialogPortal>
       <DialogOverlay>
-        <DialogPrimitives.Content asChild>
+        <DialogPrimitives.Content
+          onInteractOutside={onInteractOutside}
+          onPointerDownOutside={onPointerDownOutside}
+          onFocusOutside={onFocusOutside}
+          asChild
+        >
           <motion.div
             ref={forwardedRef}
             className={cx(
@@ -189,14 +194,10 @@ const DialogCloseButton = React.forwardRef<
 DialogCloseButton.displayName = "DialogCloseButton"
 
 export {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogBody,
-  DialogCloseButton,
-  DialogDescription,
+  Dialog, DialogBody, DialogClose, DialogCloseButton, DialogContent, DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
+  DialogTrigger
 }
+

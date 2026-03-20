@@ -33,7 +33,7 @@ export function HolidayDialog({
           <DialogCloseButton onClick={() => onOpenChange(false)} />
         </DialogHeader>
 
-        <DialogBody className="space-y-6">
+        <DialogBody className="space-y-4">
           {/* Holiday Title */}
           <div>
             <div className="flex items-start justify-between gap-4">

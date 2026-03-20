@@ -1,9 +1,8 @@
 "use client"
 
-import { Card } from "@/shared/ui"
-import { CategoryBar } from "@/shared/ui"
-import { Database } from "@/shared/types/database.types"
 import { cx } from "@/shared/lib/utils"
+import { Database } from "@/shared/types/database.types"
+import { Card, CategoryBar } from "@/shared/ui"
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"]
 
@@ -89,7 +88,7 @@ export function TeamStats({ data }: TeamStatsProps) {
                   aria-hidden="true"
                 />
                 <div className="flex items-baseline gap-1.5">
-                  <span className="text-foreground-primary font-semibold">
+                  <span className="text-label-md text-foreground-primary">
                     {item.percentage}%
                   </span>
                   <span className="text-foreground-secondary">

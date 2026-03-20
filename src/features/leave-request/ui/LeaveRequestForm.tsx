@@ -3,7 +3,6 @@
 import { calculateBusinessDays } from "@/shared/lib/date"
 import { Database } from "@/shared/types/database.types"
 import {
-  DateRangePicker,
   Label,
   Select,
   SelectContent,
@@ -11,12 +10,14 @@ import {
   SelectTrigger,
   SelectValue,
   Textarea,
-  TextInput
+  TextInput,
 } from "@/shared/ui"
+import { DateRangePicker } from "@/shared/ui/input/DateRangePicker"
 import { RiLoader2Line } from "@/shared/ui/lucide-icons"
 import React from "react"
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"]
+type LeaveRequestUserProfile = Pick<Profile, "full_name">
 
 export interface LeaveFormData {
   id?: number
@@ -30,7 +31,7 @@ export interface LeaveFormData {
 
 interface LeaveRequestFormProps {
   formData: LeaveFormData
-  userProfile: Profile
+  userProfile: LeaveRequestUserProfile
   compressing: boolean
   onFormDataChange: (data: LeaveFormData) => void
   onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void
@@ -44,7 +45,7 @@ export function LeaveRequestForm({
   onFileChange,
 }: LeaveRequestFormProps) {
   return (
-    <div className="grid gap-4 py-4">
+    <div className="grid gap-4">
       <div>
         <Label htmlFor="name" className="font-medium">
           Nama
@@ -78,12 +79,13 @@ export function LeaveRequestForm({
           </SelectContent>
         </Select>
       </div>
+
       <div>
         <Label className="font-medium">Tanggal</Label>
         <DateRangePicker
           className="mt-2 w-full"
           value={{ from: formData.start_date, to: formData.end_date }}
-          onChange={(range) =>
+          onValueChange={(range) =>
             onFormDataChange({
               ...formData,
               start_date: range?.from,
@@ -91,14 +93,16 @@ export function LeaveRequestForm({
             })
           }
         />
+
         {formData.start_date && formData.end_date && (
-          <p className="text-body-xs text-content-subtle mt-2">
+          <p className="text-body-xs text-foreground-secondary mt-2">
             Durasi:{" "}
             {calculateBusinessDays(formData.start_date, formData.end_date)} hari
             kerja.
           </p>
         )}
       </div>
+
       <div>
         <Label htmlFor="reason" className="font-medium">
           Alasan

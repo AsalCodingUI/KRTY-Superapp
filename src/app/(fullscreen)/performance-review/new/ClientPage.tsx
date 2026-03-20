@@ -1,26 +1,19 @@
 "use client"
 
 import { submitPerformanceReview } from "@/app/(main)/performance/action"
-import { Button } from "@/shared/ui"
-import { Card } from "@/shared/ui"
 import {
-  Dialog,
+  Button, Card, Dialog,
   DialogBody,
   DialogCloseButton,
   DialogContent,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
-} from "@/shared/ui"
-import { Label } from "@/shared/ui"
-import {
-  Select,
+  DialogTitle, Label, Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
+  SelectValue, Textarea
 } from "@/shared/ui"
-import { Textarea } from "@/shared/ui"
 import {
   RiCheckLine,
   RiCloseLine,
@@ -168,7 +161,7 @@ export default function ReviewFormClientPage({
     ]
 
     return (
-      <div className="space-y-6">
+      <div className="space-y-4">
         <div>
           <h3 className="text-label-md text-content dark:text-content mb-1">
             Review Progress
@@ -194,11 +187,10 @@ export default function ReviewFormClientPage({
                   </div>
                 )}
                 <span
-                  className={`text-label-md ${
-                    step.complete
+                  className={`text-label-md ${step.complete
                       ? "text-content dark:text-content font-medium"
                       : "text-content-subtle dark:text-content-placeholder"
-                  }`}
+                    }`}
                 >
                   {step.label}
                 </span>
@@ -304,7 +296,7 @@ export default function ReviewFormClientPage({
 
           {/* FORM CONTENT */}
           <div className="min-w-0 flex-1">
-            <div className="mx-auto max-w-4xl space-y-6 overflow-visible">
+            <div className="mx-auto max-w-4xl space-y-4 overflow-visible">
               {/* PAGE TITLE */}
               <div>
                 <h1 className="text-display-xxs text-content dark:text-content mb-2">
@@ -362,7 +354,7 @@ export default function ReviewFormClientPage({
                   <h3 className="text-content dark:text-content mb-4 font-semibold">
                     Rate their competencies
                   </h3>
-                  <div className="space-y-6">
+                  <div className="space-y-4">
                     {/* Quality of Work */}
                     <div>
                       <StarRating

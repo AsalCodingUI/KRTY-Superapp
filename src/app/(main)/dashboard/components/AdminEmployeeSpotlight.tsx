@@ -2,7 +2,6 @@
 
 import { Avatar, Badge } from "@/shared/ui"
 import { Card } from "@/shared/ui"
-import { RiArrowDownLine, RiArrowUpLine, RiStarLine } from "@/shared/ui/lucide-icons"
 import Link from "next/link"
 
 interface Employee {
@@ -35,12 +34,7 @@ export function AdminEmployeeSpotlight({
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
       {/* Top Performers */}
       <Card>
-        <div className="mb-4 flex items-center gap-2">
-          <RiStarLine className="text-chart-1 size-5" />
-          <h3 className="text-heading-md text-foreground-primary">
-            Top Performers
-          </h3>
-        </div>
+        <h3 className="text-label-md text-foreground-primary mb-4">Top Performers</h3>
 
         {topPerformers.length === 0 ? (
           <div className="py-8 text-center">
@@ -49,7 +43,7 @@ export function AdminEmployeeSpotlight({
             </p>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="border-neutral-primary divide-neutral-primary overflow-hidden rounded-lg border divide-y">
             {topPerformers.map((employee) => {
               const badge = getRatingBadge(employee.overall_percentage)
               return (
@@ -57,10 +51,7 @@ export function AdminEmployeeSpotlight({
                   key={employee.employee_id}
                   href={`/performance/employee/${employee.employee_id}`}
                 >
-                  <div className="border-neutral-primary bg-surface-neutral-secondary hover:border-success flex items-center gap-3 rounded-lg border p-3 transition-all hover:shadow-sm">
-                    <div className="bg-success/10 flex size-8 shrink-0 items-center justify-center rounded-lg">
-                      <RiArrowUpLine className="text-success size-4" />
-                    </div>
+                  <div className="hover:bg-surface-neutral-secondary flex items-center gap-3 px-3 py-2 transition-colors">
                     <Avatar
                       size="sm"
                       initials={employee.employee_name?.[0] || "?"}
@@ -95,21 +86,16 @@ export function AdminEmployeeSpotlight({
 
       {/* Employees Needing Attention */}
       <Card>
-        <div className="mb-4 flex items-center gap-2">
-          <RiArrowDownLine className="text-danger size-5" />
-          <h3 className="text-heading-md text-foreground-primary">
-            Needs Attention
-          </h3>
-        </div>
+        <h3 className="text-label-md text-foreground-primary mb-4">Needs Attention</h3>
 
         {employeesNeedingAttention.length === 0 ? (
           <div className="py-8 text-center">
             <p className="text-body-sm text-foreground-secondary">
-              All employees performing well! 🎉
+              All employees performing well.
             </p>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="border-neutral-primary divide-neutral-primary overflow-hidden rounded-lg border divide-y">
             {employeesNeedingAttention.map((employee) => {
               const badge = getRatingBadge(employee.overall_percentage)
               return (
@@ -117,10 +103,7 @@ export function AdminEmployeeSpotlight({
                   key={employee.employee_id}
                   href={`/performance/employee/${employee.employee_id}`}
                 >
-                  <div className="border-neutral-primary bg-surface-neutral-secondary hover:border-warning flex items-center gap-3 rounded-lg border p-3 transition-all hover:shadow-sm">
-                    <div className="bg-warning/10 flex size-8 shrink-0 items-center justify-center rounded-lg">
-                      <RiArrowDownLine className="text-warning size-4" />
-                    </div>
+                  <div className="hover:bg-surface-neutral-secondary flex items-center gap-3 px-3 py-2 transition-colors">
                     <Avatar
                       size="sm"
                       initials={employee.employee_name?.[0] || "?"}

@@ -17,9 +17,9 @@ export function EmptyState({
       <BaseEmptyState
         className="h-full"
         title="No events match your filters"
-        description="Try adjusting your filters or view settings to see more events."
+        description="Try changing your filters."
         icon={<RiCalendar2Line className="size-5" />}
-        variant="compact"
+        placement="inner"
       />
     )
   }
@@ -28,14 +28,15 @@ export function EmptyState({
     <BaseEmptyState
       className="h-full"
       title="No events yet"
-      description="Get started by creating your first event. You can add meetings, tasks, or important dates."
+      description="Create your first event."
       icon={<RiCalendar2Line className="size-5" />}
+      placement="inner"
       action={
         onCreateEvent
           ? {
-              label: "Create your first event",
-              onClick: onCreateEvent,
-            }
+            label: "Create your first event",
+            onClick: onCreateEvent,
+          }
           : undefined
       }
     />

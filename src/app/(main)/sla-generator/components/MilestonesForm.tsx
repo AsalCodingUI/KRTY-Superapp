@@ -1,10 +1,6 @@
 "use client"
 
-import { Button } from "@/components/ui"
-import { Label } from "@/components/ui"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui"
-import { TextInput } from "@/components/ui"
-import { Textarea } from "@/components/ui"
+import { Button, Label, Tabs, TabsContent, TabsList, TabsTrigger, Textarea, TextInput } from "@/components/ui"
 import { RiAddLine, RiDeleteBinLine } from "@/shared/ui/lucide-icons"
 
 interface MilestoneItem {
@@ -157,7 +153,7 @@ export const MilestonesForm = ({ data, onChange }: MilestonesFormProps) => {
   return (
     <div>
       <div className="border-neutral-primary-border mb-4 border-b pb-4">
-        <h3 className="text-md text-foreground-primary dark:text-foreground-primary font-semibold">
+        <h3 className="text-md text-foreground-primary dark:text-label-md text-foreground-primary">
           Milestones & Timeline
         </h3>
         <p className="text-label-md text-foreground-tertiary">

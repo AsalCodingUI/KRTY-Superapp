@@ -122,7 +122,24 @@ export function useNotifications() {
               setNotifications((prev) => [newNotif, ...prev])
               setUnreadCount((prev) => prev + 1)
 
-              // Optional: Bunyikan suara atau toast disini jika mau
+              // Desktop/browser notification (if permission granted)
+              if (
+                typeof window !== "undefined" &&
+                "Notification" in window &&
+                window.Notification.permission === "granted"
+              ) {
+                const desktopNotif = new window.Notification(newNotif.title, {
+                  body: newNotif.message,
+                  data: { link: newNotif.link || null },
+                })
+
+                desktopNotif.onclick = () => {
+                  if (newNotif.link) {
+                    window.open(newNotif.link, "_blank")
+                  }
+                  desktopNotif.close()
+                }
+              }
             } else if (payload.eventType === "UPDATE") {
               // Ada update (misal dibaca di device lain): Sync state
               const updatedNotif = payload.new as Notification

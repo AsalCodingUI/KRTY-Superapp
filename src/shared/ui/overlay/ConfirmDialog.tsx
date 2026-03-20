@@ -9,7 +9,6 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/shared/ui"
-import { RiErrorWarningLine } from "@/shared/ui/lucide-icons"
 import { useState } from "react"
 
 interface ConfirmDialogProps {
@@ -53,22 +52,7 @@ export function ConfirmDialog({
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="max-w-md">
                 <DialogHeader>
-                    <div className="flex items-center gap-3">
-                        <div
-                            className={`flex h-10 w-10 items-center justify-center rounded-lg ${variant === "destructive"
-                                    ? "bg-surface-danger-secondary"
-                                    : "bg-surface-warning-secondary"
-                                }`}
-                        >
-                            <RiErrorWarningLine
-                                className={`size-5 ${variant === "destructive"
-                                        ? "text-foreground-danger"
-                                        : "text-foreground-warning"
-                                    }`}
-                            />
-                        </div>
-                        <DialogTitle>{title}</DialogTitle>
-                    </div>
+                    <DialogTitle>{title}</DialogTitle>
                 </DialogHeader>
 
                 <DialogBody>

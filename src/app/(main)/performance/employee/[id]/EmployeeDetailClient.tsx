@@ -5,6 +5,12 @@ import {
   Avatar,
   Badge,
   Button,
+  Dialog,
+  DialogBody,
+  DialogCloseButton,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
   EmptyState,
   Table,
   TableBody,
@@ -20,12 +26,14 @@ import {
 } from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { useState } from "react"
 import useSWR from "swr"
 import {
   getEmployeeDetail,
   getEmployeeOverview,
 } from "../../actions/employee-kpi-actions"
+import { EmployeeProjectView } from "./project/[projectId]/EmployeeProjectView"
 
 type Employee = {
   id: string
@@ -71,7 +79,15 @@ export function EmployeeDetailClient({
   showBackButton = false,
   selectedQuarter: controlledQuarter,
 }: EmployeeDetailClientProps) {
+  const projectBackHref = showBackButton
+    ? `/performance/employee/${employee.id}`
+    : "/performance"
   const [internalQuarter] = useState<QuarterFilterValue>("2025-Q1")
+  const [isProjectModalOpen, setIsProjectModalOpen] = useState(false)
+  const [selectedProject, setSelectedProject] = useState<Assignment | null>(
+    null,
+  )
+  const router = useRouter()
   const selectedQuarter = controlledQuarter ?? internalQuarter
   const { data, isLoading } = useSWR(
     ["employee-detail-view", employee.id, selectedQuarter],
@@ -101,11 +117,29 @@ export function EmployeeDetailClient({
 
   const assignments = data?.assignments ?? initialAssignments
   const overview = data?.overview ?? []
+  const openProjectModal = (assignment: Assignment) => {
+    setSelectedProject(assignment)
+    setIsProjectModalOpen(true)
+  }
+  const handleProjectRowClick = (assignment: Assignment) => {
+    if (showBackButton) {
+      router.push(
+        `/performance/employee/${employee.id}/project/${assignment.projects.id}?back=${encodeURIComponent(projectBackHref)}`,
+      )
+      return
+    }
+    openProjectModal(assignment)
+  }
 
   return (
-    <div className="flex flex-col">
-
-      <div className="bg-surface-neutral-primary flex flex-col rounded-xxl space-y-4">
+    <div className={showBackButton ? "flex flex-col p-5" : "flex flex-col"}>
+      <div
+        className={
+          showBackButton
+            ? "bg-surface-neutral-primary flex flex-col rounded-xxl p-5 space-y-5"
+            : "bg-surface-neutral-primary flex flex-col rounded-xxl space-y-5"
+        }
+      >
         {/* Back Button - Only for Admin/Stakeholder POV */}
         {showBackButton && (
           <Link href="/performance">
@@ -118,7 +152,7 @@ export function EmployeeDetailClient({
 
         {/* Employee Info (Admin/Stakeholder Only) */}
         {showBackButton && (
-          <div className="mt-2 flex items-center gap-4">
+          <div className="flex items-center gap-4">
             <Avatar
               size="lg"
               initials={employee.full_name?.[0] || "?"}
@@ -148,7 +182,8 @@ export function EmployeeDetailClient({
             <div className="px-xl pb-xl">
               <EmptyState
                 title="No data available for this quarter"
-                description="Performance data will appear here once available"
+                description="Performance data is not available yet."
+                placement="inner"
               />
             </div>
           ) : (
@@ -211,9 +246,7 @@ export function EmployeeDetailClient({
                           })()}
                         </div>
                       ) : (
-                        <span className="text-foreground-disable">
-                          Belum ada data
-                        </span>
+                        <span className="text-foreground-disable">No data yet</span>
                       )}
                     </TableCell>
                   </TableRow>
@@ -233,8 +266,9 @@ export function EmployeeDetailClient({
             <div className="px-xl pb-xl">
               <EmptyState
                 title="No projects assigned in this quarter"
-                description="Projects will appear here once assigned"
+                description="Projects will appear after assignment."
                 icon={<RiFolderLine className="size-5" />}
+                placement="inner"
               />
             </div>
           ) : (
@@ -253,20 +287,40 @@ export function EmployeeDetailClient({
                 {assignments.map((assignment) => (
                   <TableRow
                     key={assignment.id}
-                    className="group transition-colors hover:bg-surface-state-neutral-light-hover"
+                    className="group cursor-pointer transition-colors hover:bg-surface-state-neutral-light-hover"
+                    onClick={() => handleProjectRowClick(assignment)}
                   >
                     <TableCell>
-                      <Link
-                        href={`/performance/employee/${employee.id}/project/${assignment.projects.id}`}
-                        className="text-foreground-primary hover:text-foreground-primary font-medium"
-                        title={
-                          assignment.projects.description
-                            ? `${assignment.projects.name} — ${assignment.projects.description}`
-                            : assignment.projects.name
-                        }
-                      >
-                        {assignment.projects.name}
-                      </Link>
+                      {showBackButton ? (
+                        <Link
+                          href={`/performance/employee/${employee.id}/project/${assignment.projects.id}?back=${encodeURIComponent(projectBackHref)}`}
+                          onClick={(e) => e.stopPropagation()}
+                          className="text-foreground-primary hover:text-foreground-primary font-medium"
+                          title={
+                            assignment.projects.description
+                              ? `${assignment.projects.name} — ${assignment.projects.description}`
+                              : assignment.projects.name
+                          }
+                        >
+                          {assignment.projects.name}
+                        </Link>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            openProjectModal(assignment)
+                          }}
+                          className="text-foreground-primary hover:text-foreground-primary font-medium text-left"
+                          title={
+                            assignment.projects.description
+                              ? `${assignment.projects.name} — ${assignment.projects.description}`
+                              : assignment.projects.name
+                          }
+                        >
+                          {assignment.projects.name}
+                        </button>
+                      )}
                     </TableCell>
                     <TableCell>
                       <Badge variant="info">
@@ -338,6 +392,26 @@ export function EmployeeDetailClient({
           )}
         </TableSection>
       </div>
+
+      <Dialog open={isProjectModalOpen} onOpenChange={setIsProjectModalOpen}>
+        <DialogContent className="max-h-[90vh] max-w-6xl overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="sr-only">
+              Project Performance Detail
+            </DialogTitle>
+            <DialogCloseButton />
+          </DialogHeader>
+          <DialogBody>
+            {selectedProject && (
+              <EmployeeProjectView
+                assignment={selectedProject}
+                hideBackButton
+                backHref="/performance"
+              />
+            )}
+          </DialogBody>
+        </DialogContent>
+      </Dialog>
     </div>
   )
-} 
+}

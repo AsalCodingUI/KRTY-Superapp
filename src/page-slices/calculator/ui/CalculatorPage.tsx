@@ -1,5 +1,4 @@
 "use client"
-
 import { Database } from "@/shared/types/database.types"
 import {
   Badge, Button, Divider,
@@ -7,17 +6,17 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue, Slider, TabNavigation, TabNavigationLink,
+  SelectValue, Slider,
   TextInput
 } from "@/shared/ui"
 import { RiAddLine, RiCalculatorLine, RiDeleteBinLine } from "@/shared/ui/lucide-icons"
+import { createClient } from "@/shared/api/supabase/client"
 import { useMemo, useState } from "react"
-import { useMountedTabs } from "@/shared/hooks/useMountedTabs"
-import { useTabRoute } from "@/shared/hooks/useTabRoute"
 import { FinancialHUD } from "./components/FinancialHUD"
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"]
 type TeamMember = Pick<Profile, "id" | "full_name" | "job_title" | "hourly_rate">
+type OperationalCost = Database["public"]["Tables"]["operational_costs"]["Row"]
 
 interface Phase {
   id: string
@@ -36,8 +35,8 @@ interface FreelanceMember {
   id: string
   name: string
   role: string
-  expectedSalary: string
-  allocation: number // 0-100
+  totalFee: string
+  notes: string
 }
 
 const createId = () =>
@@ -47,21 +46,18 @@ const createId = () =>
 
 export default function CalculatorClientPage({
   teamMembers,
+  operationalCosts,
 }: {
   teamMembers: TeamMember[]
+  operationalCosts: OperationalCost[]
 }) {
   const WORK_DAYS_PER_MONTH = 22
-  const { activeTab, setActiveTab } = useTabRoute<"team" | "freelance">({
-    basePath: "/calculator",
-    tabs: ["team", "freelance"],
-    defaultTab: "team",
-    mode: "history",
-  })
-  const { isMounted } = useMountedTabs(activeTab)
+  const BILLABLE_UTILIZATION = 0.7
+  const supabase = useMemo(() => createClient(), [])
   const [revenueUSD, setRevenueUSD] = useState<string>("1,000")
   const [exchangeRate, setExchangeRate] = useState<string>("15,000")
   const [hoursPerDay, setHoursPerDay] = useState<string>("8")
-  const [platformFeePercent, setPlatformFeePercent] = useState<string>("2")
+  const [targetMarginPercent, setTargetMarginPercent] = useState<string>("40")
 
   const [phases, setPhases] = useState<Phase[]>([
     { id: "1", name: "Discovery & Design", days: 5, buffer: 1 },
@@ -70,6 +66,9 @@ export default function CalculatorClientPage({
 
   const [squad, setSquad] = useState<SquadMember[]>([])
   const [freelanceSquad, setFreelanceSquad] = useState<FreelanceMember[]>([])
+  const [costItems, setCostItems] = useState<OperationalCost[]>(
+    operationalCosts || [],
+  )
 
   // Helper to parse number from string (allow empty)
   const parseNumber = (val: string): number => {
@@ -91,37 +90,98 @@ export default function CalculatorClientPage({
     return phases.reduce((sum, p) => sum + p.days + p.buffer, 0)
   }, [phases])
 
+  const totalProjectDays = useMemo(() => {
+    return phases.reduce((sum, p) => sum + p.days, 0)
+  }, [phases])
+
   const grossRevenue = useMemo(() => {
     return parseNumber(revenueUSD) * parseNumber(exchangeRate)
   }, [revenueUSD, exchangeRate])
 
-  const totalLaborCost = useMemo(() => {
-    const hours = parseNumber(hoursPerDay) * totalDuration
-    if (activeTab === "freelance") {
-      return freelanceSquad.reduce((total, member) => {
-        const expectedSalary = parseNumber(member.expectedSalary)
-        const hourlyRate =
-          hours > 0 ? expectedSalary / (WORK_DAYS_PER_MONTH * hours) : 0
-        const cost = hourlyRate * hours * (member.allocation / 100)
-        return total + cost
-      }, 0)
-    }
+  const SALARY_BY_NAME: Record<string, number> = {
+    "bima": 6300000,
+    "bima sakti pramudya kosasih": 6300000,
+    "evan": 5800000,
+    "gilang": 5800000,
+    "gilang mukti setio bekti": 5800000,
+    "habibi": 7000000,
+    "hafiza": 5800000,
+    "hafiza aprilia": 5800000,
+    "haqqi": 5800000,
+    "haqqi ilmiawan": 5800000,
+    "intan": 5800000,
+    "intan maisuri dinaya": 5800000,
+    "rere": 5800000,
+    "rijal": 5800000,
+  }
 
+  const totalProjectHours = useMemo(() => {
+    const hours = parseNumber(hoursPerDay)
+    if (hours <= 0) return 0
+    return squad.reduce((total, member) => {
+      const allocation = member.allocation / 100
+      return total + totalProjectDays * hours * allocation
+    }, 0)
+  }, [hoursPerDay, squad, totalProjectDays])
+
+  const totalLaborCost = useMemo(() => {
     return squad.reduce((total, member) => {
       const profile = teamMembers.find((p) => p.id === member.profileId)
       if (!profile) return total
+      const normalizedName = (profile.full_name || "").trim().toLowerCase()
+      const firstName = normalizedName.split(" ")[0]
+      const monthlySalary =
+        SALARY_BY_NAME[normalizedName] ??
+        SALARY_BY_NAME[firstName] ??
+        profile.hourly_rate ??
+        0
+      const dailyRate = monthlySalary / WORK_DAYS_PER_MONTH
       const cost =
-        (profile.hourly_rate || 0) * hours * (member.allocation / 100)
+        dailyRate * totalProjectDays * (member.allocation / 100)
       return total + cost
     }, 0)
-  }, [activeTab, freelanceSquad, squad, teamMembers, totalDuration, hoursPerDay])
+  }, [squad, teamMembers, totalProjectDays])
 
-  const platformFee = useMemo(() => {
-    return grossRevenue * (parseNumber(platformFeePercent) / 100)
-  }, [grossRevenue, platformFeePercent])
+  const overheadTotal = useMemo(() => {
+    return costItems
+      .filter((item) => item.is_active !== false)
+      .reduce((sum, item) => sum + (item.amount_idr || 0), 0)
+  }, [costItems])
 
-  const netProfit = grossRevenue - totalLaborCost - platformFee
+  const overheadPerHour = useMemo(() => {
+    const activeMembers =
+      teamMembers.filter((member) => {
+        const normalizedName = (member.full_name || "").trim().toLowerCase()
+        const firstName = normalizedName.split(" ")[0]
+        return (
+          SALARY_BY_NAME[normalizedName] !== undefined ||
+          SALARY_BY_NAME[firstName] !== undefined
+        )
+      }).length || teamMembers.length
+
+    const totalBillableHours =
+      activeMembers * WORK_DAYS_PER_MONTH * 8 * BILLABLE_UTILIZATION
+    if (totalBillableHours <= 0) return 0
+    return overheadTotal / totalBillableHours
+  }, [BILLABLE_UTILIZATION, overheadTotal, teamMembers])
+
+  const overheadCost = overheadPerHour * totalProjectHours
+
+  const freelanceCost = useMemo(() => {
+    return freelanceSquad.reduce(
+      (sum, member) => sum + parseNumber(member.totalFee),
+      0,
+    )
+  }, [freelanceSquad])
+
+  const totalCost = totalLaborCost + overheadCost + freelanceCost
+  const netProfit = grossRevenue - totalCost
   const marginPercent = grossRevenue > 0 ? (netProfit / grossRevenue) * 100 : 0
+  const targetMargin = parseNumber(targetMarginPercent)
+  const suggestedPrice =
+    targetMargin >= 100
+      ? 0
+      : totalCost / (1 - targetMargin / 100)
 
   // --- HANDLERS ---
   const addPhase = () => {
@@ -169,8 +229,8 @@ export default function CalculatorClientPage({
         id: createId(),
         name: "",
         role: "",
-        expectedSalary: "",
-        allocation: 100,
+        totalFee: "",
+        notes: "",
       },
     ])
   }
@@ -189,15 +249,117 @@ export default function CalculatorClientPage({
     )
   }
 
-  const updateFreelanceAllocation = (id: string, value: number[]) => {
-    setFreelanceSquad(
-      freelanceSquad.map((s) =>
-        s.id === id ? { ...s, allocation: value[0] } : s,
-      ),
+  const [selectedMemberToAdd, setSelectedMemberToAdd] = useState<string>("")
+
+  const exportCostsAsCSV = () => {
+    const header =
+      "item_name,amount_idr,category,currency_original,amount_original,exchange_rate_assumed,is_active"
+    const rows = costItems.map((item) =>
+      [
+        item.item_name ?? "",
+        item.amount_idr ?? 0,
+        item.category ?? "other",
+        item.currency_original ?? "IDR",
+        item.amount_original ?? 0,
+        item.exchange_rate_assumed ?? 0,
+        item.is_active !== false,
+      ]
+        .map((value) => `"${String(value).replace(/"/g, '""')}"`)
+        .join(","),
     )
+    const csv = [header, ...rows].join("\n")
+    downloadFile(csv, "operational_costs.csv", "text/csv")
   }
 
-  const [selectedMemberToAdd, setSelectedMemberToAdd] = useState<string>("")
+  const exportCostsAsJSON = () => {
+    const payload = {
+      operational_costs: costItems.map((item) => ({
+        item_name: item.item_name ?? "",
+        amount_idr: item.amount_idr ?? 0,
+        category: item.category ?? "other",
+        currency_original: item.currency_original ?? "IDR",
+        amount_original: item.amount_original ?? 0,
+        exchange_rate_assumed: item.exchange_rate_assumed ?? 0,
+        is_active: item.is_active !== false,
+      })),
+    }
+    downloadFile(JSON.stringify(payload, null, 2), "operational_costs.json", "application/json")
+  }
+
+  const downloadTemplateCSV = () => {
+    const template =
+      "item_name,amount_idr,category,currency_original,amount_original,exchange_rate_assumed,is_active\n"
+    downloadFile(template, "operational_costs_template.csv", "text/csv")
+  }
+
+  const downloadTemplateJSON = () => {
+    const template = {
+      operational_costs: [
+        {
+          item_name: "",
+          amount_idr: 0,
+          category: "tools",
+          currency_original: "IDR",
+          amount_original: 0,
+          exchange_rate_assumed: 0,
+          is_active: true,
+        },
+      ],
+    }
+    downloadFile(JSON.stringify(template, null, 2), "operational_costs_template.json", "application/json")
+  }
+
+  const downloadFile = (content: string, filename: string, type: string) => {
+    const blob = new Blob([content], { type })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement("a")
+    link.href = url
+    link.download = filename
+    link.click()
+    URL.revokeObjectURL(url)
+  }
+
+  const parseCSV = (text: string) => {
+    const lines = text.trim().split(/\r?\n/)
+    const header = lines.shift()?.split(",").map((h) => h.trim()) || []
+    return lines.map((line) => {
+      const values = line
+        .split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/)
+        .map((v) => v.replace(/^"|"$/g, "").replace(/""/g, '"'))
+      const record: Record<string, string> = {}
+      header.forEach((key, idx) => {
+        record[key] = values[idx] ?? ""
+      })
+      return record
+    })
+  }
+
+  const handleImportCosts = async (file: File) => {
+    const text = await file.text()
+    let items: Array<OperationalCost | any> = []
+    if (file.name.endsWith(".json")) {
+      const parsed = JSON.parse(text)
+      items = Array.isArray(parsed) ? parsed : parsed.operational_costs || []
+    } else {
+      const rows = parseCSV(text)
+      items = rows.map((row) => ({
+        item_name: row.item_name,
+        amount_idr: Number(row.amount_idr || 0),
+        category: row.category || "other",
+        currency_original: row.currency_original || "IDR",
+        amount_original: Number(row.amount_original || 0),
+        exchange_rate_assumed: Number(row.exchange_rate_assumed || 0),
+        is_active: row.is_active !== "false",
+      }))
+    }
+
+    setCostItems(items as OperationalCost[])
+
+    await supabase.from("operational_costs").delete().neq("id", "")
+    if (items.length > 0) {
+      await supabase.from("operational_costs").insert(items)
+    }
+  }
 
   return (
     <div className="flex flex-col">
@@ -209,35 +371,16 @@ export default function CalculatorClientPage({
       </div>
 
       <div className="bg-surface-neutral-primary flex flex-col rounded-xxl">
-        <div className="px-5 pt-2 border-b border-neutral-primary">
-          <TabNavigation className="border-b-0">
-            <TabNavigationLink
-              active={activeTab === "team"}
-              onClick={() => setActiveTab("team")}
-              showLeadingIcon={false}
-            >
-              Team Allocation
-            </TabNavigationLink>
-            <TabNavigationLink
-              active={activeTab === "freelance"}
-              onClick={() => setActiveTab("freelance")}
-              showLeadingIcon={false}
-            >
-              Freelance Allocation
-            </TabNavigationLink>
-          </TabNavigation>
-        </div>
-
         <div className="p-5">
-          <div className="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-12">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-8">
             {/* LEFT COLUMN: INPUTS (Col Span 7) */}
-            <div className="space-y-10 lg:col-span-7">
+            <div className="space-y-6 lg:col-span-7">
               {/* SECTION 1: CONTEXT */}
               <div>
-                <h3 className="text-md text-foreground-primary dark:text-foreground-primary font-semibold">
+                <h3 className="text-label-md text-foreground-primary">
                   Project Context
                 </h3>
-                <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-2">
+                <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
                   <div>
                     <Label htmlFor="revenue">Revenue (USD)</Label>
                     <TextInput
@@ -279,15 +422,13 @@ export default function CalculatorClientPage({
                   </div>
 
                   <div>
-                    <Label htmlFor="platformFee">Platform Fee (%)</Label>
+                    <Label htmlFor="targetMargin">Target Margin (%)</Label>
                     <TextInput
-                      id="platformFee"
+                      id="targetMargin"
                       type="number"
-                      value={platformFeePercent}
-                      onChange={(e) =>
-                        setPlatformFeePercent(e.target.value)
-                      }
-                      placeholder="e.g. 2"
+                      value={targetMarginPercent}
+                      onChange={(e) => setTargetMarginPercent(e.target.value)}
+                      placeholder="e.g. 40"
                       className="mt-1"
                     />
                   </div>
@@ -298,9 +439,9 @@ export default function CalculatorClientPage({
 
               {/* SECTION 2: TIMELINE */}
               <div>
-                <div className="mb-6 flex items-center justify-between">
+                <div className="mb-4 flex items-center justify-between">
                   <div>
-                    <h3 className="text-md text-foreground-primary dark:text-foreground-primary font-semibold">
+                    <h3 className="text-label-md text-foreground-primary">
                       Timeline Engine
                     </h3>
                   </div>
@@ -354,7 +495,7 @@ export default function CalculatorClientPage({
 
                   <Button
                     variant="secondary"
-                    className="mt-4 w-full"
+                    className="mt-3 w-full"
                     onClick={addPhase}
                   >
                     <RiAddLine className="mr-2 size-4" /> Add Project Phase
@@ -366,13 +507,12 @@ export default function CalculatorClientPage({
 
               {/* SECTION 3: SQUAD ALLOCATION */}
               <div>
-                <h3 className="text-md text-foreground-primary dark:text-foreground-primary mb-6 font-semibold">
+                <h3 className="text-label-md text-foreground-primary mb-4">
                   Squad Allocation
                 </h3>
 
-                {isMounted("team") && (
-                  <div className={activeTab === "team" ? "block" : "hidden"}>
-                    <div className="mb-6 flex gap-3">
+                <div className="block">
+                    <div className="mb-4 flex gap-3">
                       <Select
                         onValueChange={setSelectedMemberToAdd}
                         value={selectedMemberToAdd}
@@ -398,7 +538,7 @@ export default function CalculatorClientPage({
                       </Button>
                     </div>
 
-                    <div className="space-y-6">
+                    <div className="space-y-4">
                       {squad.map((member) => {
                         const profile = teamMembers.find(
                           (p) => p.id === member.profileId,
@@ -457,126 +597,202 @@ export default function CalculatorClientPage({
                       )}
                     </div>
                   </div>
-                )}
-                {isMounted("freelance") && (
-                  <div
-                    className={activeTab === "freelance" ? "block" : "hidden"}
+              </div>
+
+              <Divider />
+
+              {/* SECTION 4: FREELANCE / COGS */}
+              <div>
+                <h3 className="text-label-md text-foreground-primary mb-4">
+                  Freelance / COGS (Optional)
+                </h3>
+
+                <div className="mb-4">
+                  <Button
+                    variant="secondary"
+                    className="w-full"
+                    onClick={addFreelanceMember}
                   >
-                    <div className="mb-6">
-                      <Button
-                        variant="secondary"
-                        className="w-full"
-                        onClick={addFreelanceMember}
-                      >
-                        <RiAddLine className="mr-2 size-4" /> Add Freelance
-                        Member
-                      </Button>
-                    </div>
+                    <RiAddLine className="mr-2 size-4" /> Add Freelance
+                  </Button>
+                </div>
 
-                    <div className="space-y-6">
-                      {freelanceSquad.map((member) => (
-                        <div
-                          key={member.id}
-                          className="border-neutral-primary bg-surface dark:bg-surface rounded-lg border p-4"
-                        >
-                          <div className="mb-4 flex items-start justify-between gap-4">
-                            <div className="grid flex-1 grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                              <div>
-                                <Label htmlFor={`freelance-name-${member.id}`}>
-                                  Full Name
-                                </Label>
-                                <TextInput
-                                  id={`freelance-name-${member.id}`}
-                                  value={member.name}
-                                  onChange={(e) =>
-                                    updateFreelanceMember(
-                                      member.id,
-                                      "name",
-                                      e.target.value,
-                                    )
-                                  }
-                                  placeholder="e.g. Jane Doe"
-                                  className="mt-1"
-                                />
-                              </div>
-                              <div>
-                                <Label htmlFor={`freelance-role-${member.id}`}>
-                                  Role
-                                </Label>
-                                <TextInput
-                                  id={`freelance-role-${member.id}`}
-                                  value={member.role}
-                                  onChange={(e) =>
-                                    updateFreelanceMember(
-                                      member.id,
-                                      "role",
-                                      e.target.value,
-                                    )
-                                  }
-                                  placeholder="e.g. UI Designer"
-                                  className="mt-1"
-                                />
-                              </div>
-                              <div>
-                                <Label htmlFor={`freelance-salary-${member.id}`}>
-                                  Expected Salary
-                                </Label>
-                                <TextInput
-                                  id={`freelance-salary-${member.id}`}
-                                  type="text"
-                                  value={member.expectedSalary}
-                                  onChange={(e) =>
-                                    updateFreelanceMember(
-                                      member.id,
-                                      "expectedSalary",
-                                      formatNumber(e.target.value),
-                                    )
-                                  }
-                                  placeholder="e.g. 15,000,000"
-                                  className="mt-1"
-                                />
-                              </div>
-                            </div>
-                            <Button
-                              variant="ghost"
-                              size="xs"
-                              className="text-foreground-tertiary size-6 p-0"
-                              onClick={() => removeFreelanceMember(member.id)}
-                            >
-                              <RiDeleteBinLine className="size-4" />
-                            </Button>
-                          </div>
-
-                          <div className="flex items-center gap-4">
-                            <span className="text-label-xs text-foreground-secondary dark:text-foreground-secondary w-16">
-                              Allocation
-                            </span>
-                            <Slider
-                              value={[member.allocation]}
-                              max={100}
-                              step={5}
-                              onValueChange={(val) =>
-                                updateFreelanceAllocation(member.id, val)
+                <div className="space-y-4">
+                  {freelanceSquad.map((member) => (
+                    <div
+                      key={member.id}
+                      className="border-neutral-primary bg-surface dark:bg-surface rounded-lg border p-4"
+                    >
+                      <div className="mb-4 flex items-start justify-between gap-4">
+                        <div className="grid flex-1 grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                          <div>
+                            <Label htmlFor={`freelance-name-${member.id}`}>
+                              Full Name
+                            </Label>
+                            <TextInput
+                              id={`freelance-name-${member.id}`}
+                              value={member.name}
+                              onChange={(e) =>
+                                updateFreelanceMember(
+                                  member.id,
+                                  "name",
+                                  e.target.value,
+                                )
                               }
-                              className="flex-1"
+                              placeholder="e.g. Jane Doe"
+                              className="mt-1"
                             />
-                            <span className="text-label-md text-foreground-primary dark:text-foreground-primary w-10 text-right">
-                              {member.allocation}%
-                            </span>
+                          </div>
+                          <div>
+                            <Label htmlFor={`freelance-role-${member.id}`}>
+                              Role
+                            </Label>
+                            <TextInput
+                              id={`freelance-role-${member.id}`}
+                              value={member.role}
+                              onChange={(e) =>
+                                updateFreelanceMember(
+                                  member.id,
+                                  "role",
+                                  e.target.value,
+                                )
+                              }
+                              placeholder="e.g. UI Designer"
+                              className="mt-1"
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor={`freelance-fee-${member.id}`}>
+                              Total Fee (IDR)
+                            </Label>
+                            <TextInput
+                              id={`freelance-fee-${member.id}`}
+                              type="text"
+                              value={member.totalFee}
+                              onChange={(e) =>
+                                updateFreelanceMember(
+                                  member.id,
+                                  "totalFee",
+                                  formatNumber(e.target.value),
+                                )
+                              }
+                              placeholder="e.g. 15,000,000"
+                              className="mt-1"
+                            />
+                          </div>
+                          <div className="sm:col-span-2 lg:col-span-3">
+                            <Label htmlFor={`freelance-notes-${member.id}`}>
+                              Notes (optional)
+                            </Label>
+                            <TextInput
+                              id={`freelance-notes-${member.id}`}
+                              value={member.notes}
+                              onChange={(e) =>
+                                updateFreelanceMember(
+                                  member.id,
+                                  "notes",
+                                  e.target.value,
+                                )
+                              }
+                              placeholder="e.g. scoped for illustration"
+                              className="mt-1"
+                            />
                           </div>
                         </div>
-                      ))}
-
-                      {freelanceSquad.length === 0 && (
-                        <div className="rounded-md border border-dashed p-6 text-center dark:border">
-                          <p className="text-body-sm text-foreground-secondary dark:text-foreground-secondary">
-                            No freelance members added yet.
-                          </p>
-                        </div>
-                      )}
+                        <Button
+                          variant="ghost"
+                          size="xs"
+                          className="text-foreground-tertiary size-6 p-0"
+                          onClick={() => removeFreelanceMember(member.id)}
+                        >
+                          <RiDeleteBinLine className="size-4" />
+                        </Button>
+                      </div>
                     </div>
+                  ))}
+
+                  {freelanceSquad.length === 0 && (
+                    <div className="rounded-md border border-dashed p-6 text-center dark:border">
+                      <p className="text-body-sm text-foreground-secondary dark:text-foreground-secondary">
+                        No freelance costs added.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <Divider />
+
+              {/* SECTION 5: OPERATIONAL COSTS */}
+              <div>
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <h3 className="text-label-md text-foreground-primary">
+                      Operational Costs
+                    </h3>
+                    <p className="text-body-sm text-foreground-secondary">
+                      Monthly overhead allocation used for this project.
+                    </p>
                   </div>
-                )}
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Button variant="secondary" size="sm" onClick={downloadTemplateCSV}>
+                      Download CSV Template
+                    </Button>
+                    <Button variant="secondary" size="sm" onClick={downloadTemplateJSON}>
+                      Download JSON Template
+                    </Button>
+                    <Button variant="secondary" size="sm" onClick={exportCostsAsCSV}>
+                      Export CSV
+                    </Button>
+                    <Button variant="secondary" size="sm" onClick={exportCostsAsJSON}>
+                      Export JSON
+                    </Button>
+                    <Label className="cursor-pointer">
+                      <span className="sr-only">Import Costs</span>
+                      <input
+                        type="file"
+                        accept=".csv,.json"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0]
+                          if (file) handleImportCosts(file)
+                          e.currentTarget.value = ""
+                        }}
+                      />
+                      <Button variant="primary" size="sm" type="button">
+                        Import Costs
+                      </Button>
+                    </Label>
+                  </div>
+                </div>
+
+                <div className="mt-6 space-y-3">
+                  {costItems.length === 0 && (
+                    <div className="rounded-md border border-dashed p-6 text-center dark:border">
+                      <p className="text-body-sm text-foreground-secondary dark:text-foreground-secondary">
+                        No operational costs loaded yet.
+                      </p>
+                    </div>
+                  )}
+                  {costItems.map((item) => (
+                    <div
+                      key={item.id ?? item.item_name}
+                      className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-neutral-primary bg-surface px-4 py-3"
+                    >
+                      <div>
+                        <p className="text-body-sm font-medium text-foreground-primary">
+                          {item.item_name}
+                        </p>
+                        <p className="text-label-xs text-foreground-secondary">
+                          {item.category}
+                        </p>
+                      </div>
+                      <div className="text-body-sm font-semibold text-foreground-primary">
+                        Rp {formatNumber(String(item.amount_idr ?? 0))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -585,10 +801,13 @@ export default function CalculatorClientPage({
               <FinancialHUD
                 grossRevenue={grossRevenue}
                 totalLaborCost={totalLaborCost}
-                platformFee={platformFee}
-                platformFeePercent={parseNumber(platformFeePercent)}
+                overheadCost={overheadCost}
+                freelanceCost={freelanceCost}
+                totalCost={totalCost}
                 netProfit={netProfit}
                 marginPercent={marginPercent}
+                targetMargin={targetMargin}
+                suggestedPrice={suggestedPrice}
               />
             </div>
           </div>

@@ -66,6 +66,21 @@ export async function saveSLAScores(
 ) {
   const supabase = await createClient()
 
+  const normalizedMilestones = milestones
+    .map((milestone) => ({
+      name: milestone.name.trim(),
+      weight: milestone.weight,
+      result: milestone.result,
+      scoreAchieved: milestone.scoreAchieved,
+      targetPercentage: milestone.targetPercentage,
+    }))
+    .filter((milestone) => milestone.name && Number.isFinite(milestone.weight))
+
+  const uniqueMilestones = new Map<string, MilestoneData>()
+  for (const milestone of normalizedMilestones) {
+    uniqueMilestones.set(milestone.name, milestone)
+  }
+
   // Delete existing SLA scores for this assignment
   await supabase
     .from("project_sla_scores")
@@ -73,7 +88,7 @@ export async function saveSLAScores(
     .eq("assignment_id", assignmentId)
 
   // Insert new scores
-  const scoresData = milestones.map((milestone) => ({
+  const scoresData = Array.from(uniqueMilestones.values()).map((milestone) => ({
     assignment_id: assignmentId,
     milestone_name: milestone.name,
     weight_percentage: milestone.weight,
@@ -81,6 +96,11 @@ export async function saveSLAScores(
     score_achieved: milestone.scoreAchieved,
     target_percentage: milestone.targetPercentage,
   }))
+
+  if (scoresData.length === 0) {
+    revalidatePath("/performance")
+    return { success: true }
+  }
 
   const { error } = await supabase.from("project_sla_scores").insert(scoresData)
 
@@ -99,6 +119,12 @@ export async function saveWorkQualityScores(
 ) {
   const supabase = await createClient()
 
+  const uniqueCompetencies = new Map<string, boolean>()
+  for (const comp of competencies) {
+    if (!comp.competencyId) continue
+    uniqueCompetencies.set(comp.competencyId, comp.isAchieved)
+  }
+
   // Delete existing quality scores for this assignment
   await supabase
     .from("project_work_quality_scores")
@@ -106,11 +132,18 @@ export async function saveWorkQualityScores(
     .eq("assignment_id", assignmentId)
 
   // Insert new scores
-  const scoresData = competencies.map((comp) => ({
-    assignment_id: assignmentId,
-    competency_id: comp.competencyId,
-    is_achieved: comp.isAchieved,
-  }))
+  const scoresData = Array.from(uniqueCompetencies.entries()).map(
+    ([competencyId, isAchieved]) => ({
+      assignment_id: assignmentId,
+      competency_id: competencyId,
+      is_achieved: isAchieved,
+    }),
+  )
+
+  if (scoresData.length === 0) {
+    revalidatePath("/performance")
+    return { success: true }
+  }
 
   const { error } = await supabase
     .from("project_work_quality_scores")

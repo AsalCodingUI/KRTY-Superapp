@@ -2,6 +2,7 @@
 
 import { siteConfig } from "@/app/siteConfig"
 import { navigationConfig } from "@/shared/config/navigation"
+import { usePagePermissions } from "@/shared/hooks/usePagePermissions"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import {
   canAccessProjectCalculator,
@@ -29,6 +30,7 @@ export default function MobileSidebar() {
   const pathname = usePathname()
   const router = useRouter()
   const { profile, loading } = useUserProfile()
+  const { hasPermission, loading: permissionLoading } = usePagePermissions()
 
   const isActive = (itemHref: string) => {
     if (itemHref === siteConfig.baseLinks.settings.general) {
@@ -40,31 +42,44 @@ export default function MobileSidebar() {
   const navItems = useMemo(
     () =>
       navigationConfig.main.filter((item) => {
-        if (loading || !profile) return false
+        if (loading || permissionLoading || !profile) return false
         if (item.name === "Project Calculator") {
-          return canAccessProjectCalculator(profile)
+          return (
+            canAccessProjectCalculator(profile) &&
+            hasPermission(item.href, false) === true
+          )
         }
         if (item.name === "SLA Generator") {
-          return canAccessSLAGenerator(profile)
+          return (
+            canAccessSLAGenerator(profile) &&
+            hasPermission(item.href, false) === true
+          )
         }
         if (item.name === "Message") {
           return (
-            hasRoleAccess(item.roles, profile.role) ||
-            profile.job_title === "Project Manager"
+            (hasRoleAccess(item.roles, profile.role) ||
+              profile.job_title === "Project Manager") &&
+            hasPermission(item.href, false) === true
           )
         }
-        return hasRoleAccess(item.roles, profile.role)
+        return (
+          hasRoleAccess(item.roles, profile.role) &&
+          hasPermission(item.href, false) === true
+        )
       }),
-    [loading, profile],
+    [loading, permissionLoading, profile, hasPermission],
   )
 
   const shortcutItems = useMemo(
     () =>
       navigationConfig.shortcuts.filter((item) => {
-        if (loading || !profile) return false
-        return hasRoleAccess(item.roles, profile.role)
+        if (loading || permissionLoading || !profile) return false
+        return (
+          hasRoleAccess(item.roles, profile.role) &&
+          hasPermission(item.href, false) === true
+        )
       }),
-    [loading, profile],
+    [loading, permissionLoading, profile, hasPermission],
   )
 
   useEffect(() => {
@@ -102,7 +117,7 @@ export default function MobileSidebar() {
               className="flex flex-1 flex-col space-y-10"
             >
               <ul role="list" className="space-y-1.5">
-                {loading ? (
+                {loading || permissionLoading ? (
                   <div className="animate-pulse space-y-2">
                     {[1, 2, 3, 4].map((i) => (
                       <div
@@ -141,14 +156,14 @@ export default function MobileSidebar() {
                     </li>
                   ))
                 )}
-                {!loading && (
+                {!loading && !permissionLoading && (
                   <li>
                     <Notifications />
                   </li>
                 )}
               </ul>
 
-              {!loading && shortcutItems.length > 0 && (
+              {!loading && !permissionLoading && shortcutItems.length > 0 && (
                 <div>
                   <span className="text-content-subtle text-label-md sm:text-label-xs">
                     Shortcuts

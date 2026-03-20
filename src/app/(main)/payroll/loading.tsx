@@ -2,7 +2,7 @@ import { Skeleton } from "@/shared/ui"
 
 export default function PayrollLoading() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Header */}
       <Skeleton className="h-8 w-48" />
 

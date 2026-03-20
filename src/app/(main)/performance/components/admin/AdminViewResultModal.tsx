@@ -1,29 +1,28 @@
 "use client"
 
 import {
+  calculateSkillPercentage,
+  getRatingBadgeVariant,
+  getRatingLevel,
+  getSkillRating,
+} from "@/entities/performance/lib/performanceUtils"
+import { Database } from "@/shared/types/database.types"
+import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/shared/ui"
-import { Badge } from "@/shared/ui"
-import { Card } from "@/shared/ui"
-import {
+  Badge,
+  Card,
   Dialog,
   DialogBody,
   DialogCloseButton,
   DialogContent,
   DialogHeader,
   DialogTitle,
+  EmptyState, RadarChart,
 } from "@/shared/ui"
-import { EmptyState, RadarChart } from "@/shared/ui"
-import { Database } from "@/shared/types/database.types"
-import {
-  calculateSkillPercentage,
-  getRatingBadgeVariant,
-  getRatingLevel,
-  getSkillRating,
-} from "@/entities/performance/lib/performanceUtils"
+import { RiBarChartBoxLine } from "@/shared/ui/lucide-icons"
 import { ReviewStatsHeader } from "../360-review/ReviewStatsHeader"
 
 type PerformanceSummary =
@@ -142,7 +141,7 @@ export function AdminViewResultModal({
           <DialogCloseButton />
         </DialogHeader>
 
-        <DialogBody className="space-y-6">
+        <DialogBody className="space-y-4">
           <p className="text-body-sm text-foreground-secondary">
             {employee.jobTitle} • {displayQuarter}
           </p>
@@ -289,9 +288,9 @@ export function AdminViewResultModal({
           ) : (
             <EmptyState
               title="No performance data available"
-              description="Performance review data for this employee will appear here once processed"
-              icon={null}
-              variant="compact"
+              description="Review data is not ready yet."
+              icon={<RiBarChartBoxLine className="size-5" />}
+              placement="inner"
             />
           )}
         </DialogBody>

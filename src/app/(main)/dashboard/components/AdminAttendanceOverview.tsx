@@ -1,7 +1,6 @@
 "use client"
 
 import { Card } from "@/shared/ui"
-import { RiCheckboxCircleLine, RiTimeLine, RiUserLine } from "@/shared/ui/lucide-icons"
 import React from "react"
 
 interface AdminAttendanceOverviewProps {
@@ -24,15 +23,14 @@ export function AdminAttendanceOverview({
 
   return (
     <Card>
-      <h3 className="text-foreground-primary text-heading-md mb-4">
+      <h3 className="text-foreground-primary text-label-md mb-4">
         Today&apos;s Attendance Overview
       </h3>
 
       {/* Main Stats */}
-      <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <div className="bg-success/10 rounded-lg p-4 text-center">
-          <RiCheckboxCircleLine className="text-success mx-auto mb-2 size-6" />
-          <div className="text-foreground-primary text-display-xxs">
+      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="border-neutral-primary rounded-lg border p-3 text-center">
+          <div className="text-foreground-primary text-heading-md">
             {onTime}
           </div>
           <div className="text-foreground-secondary text-label-xs mt-1">
@@ -40,17 +38,15 @@ export function AdminAttendanceOverview({
           </div>
         </div>
 
-        <div className="bg-warning/10 rounded-lg p-4 text-center">
-          <RiTimeLine className="text-warning mx-auto mb-2 size-6" />
-          <div className="text-foreground-primary text-display-xxs">{late}</div>
+        <div className="border-neutral-primary rounded-lg border p-3 text-center">
+          <div className="text-foreground-primary text-heading-md">{late}</div>
           <div className="text-foreground-secondary text-label-xs mt-1">
             Late
           </div>
         </div>
 
-        <div className="bg-info/10 rounded-lg p-4 text-center">
-          <RiUserLine className="text-info mx-auto mb-2 size-6" />
-          <div className="text-foreground-primary text-display-xxs">
+        <div className="border-neutral-primary rounded-lg border p-3 text-center">
+          <div className="text-foreground-primary text-heading-md">
             {onLeave}
           </div>
           <div className="text-foreground-secondary text-label-xs mt-1">
@@ -58,9 +54,8 @@ export function AdminAttendanceOverview({
           </div>
         </div>
 
-        <div className="bg-danger/10 rounded-lg p-4 text-center">
-          <RiUserLine className="text-danger mx-auto mb-2 size-6" />
-          <div className="text-foreground-primary text-display-xxs">
+        <div className="border-neutral-primary rounded-lg border p-3 text-center">
+          <div className="text-foreground-primary text-heading-md">
             {absent}
           </div>
           <div className="text-foreground-secondary text-label-xs mt-1">
@@ -70,7 +65,7 @@ export function AdminAttendanceOverview({
       </div>
 
       {/* Summary */}
-      <div className="border-neutral-primary bg-surface-neutral-secondary rounded-lg border p-4">
+      <div className="border-neutral-primary rounded-lg border p-4">
         <div className="flex items-center justify-between">
           <div>
             <div className="text-foreground-secondary text-label-md">

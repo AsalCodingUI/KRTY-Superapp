@@ -144,9 +144,9 @@ export default function PerformanceClientPage() {
       </div>
 
       <div className="bg-surface-neutral-primary flex flex-col rounded-xxl">
-        <div className="space-y-6 p-5">
+        <div className="px-5 pt-2 border-b border-neutral-primary">
           {/* TAB NAVIGATION */}
-          <TabNavigation value={activeTab}>
+          <TabNavigation value={activeTab} className="border-b-0">
             <TabNavigationLink
               active={activeTab === "overview"}
               onClick={() => setActiveTab("overview")}
@@ -199,50 +199,52 @@ export default function PerformanceClientPage() {
               </>
             )}
           </TabNavigation>
+        </div>
 
           {/* TAB CONTENT */}
-          <div>
+          <div className="p-5">
             {isMounted("overview") && (
-              <div className={activeTab === "overview" ? "block" : "hidden"}>
+              <div className={activeTab === "overview" ? "block space-y-5" : "hidden space-y-5"}>
                 <OverviewTab />
               </div>
             )}
             {isMounted("kpi") && (
-              <div className={activeTab === "kpi" ? "block" : "hidden"}>
+              <div className={activeTab === "kpi" ? "block space-y-5" : "hidden space-y-5"}>
                 <KPITab />
               </div>
             )}
             {isMounted("360-review") && (
-              <div className={activeTab === "360-review" ? "block" : "hidden"}>
+              <div className={activeTab === "360-review" ? "block space-y-5" : "hidden space-y-5"}>
                 <Review360Tab />
               </div>
             )}
             {isMounted("one-on-one") && (
-              <div className={activeTab === "one-on-one" ? "block" : "hidden"}>
+              <div className={activeTab === "one-on-one" ? "block space-y-5" : "hidden space-y-5"}>
                 <OneOnOneMeetingTab selectedQuarter="2025-Q1" />
               </div>
             )}
             {isLead && isMounted("lead-review") && (
-              <div className={activeTab === "lead-review" ? "block" : "hidden"}>
+              <div className={activeTab === "lead-review" ? "block space-y-5" : "hidden space-y-5"}>
                 <LeadReviewTab />
               </div>
             )}
             {isStakeholder && isMounted("list-project") && (
-              <div className={activeTab === "list-project" ? "block" : "hidden"}>
-                <ListProjectTab />
+              <div className={activeTab === "list-project" ? "block space-y-5" : "hidden space-y-5"}>
+                <ListProjectTab selectedQuarter="2025-Q1" />
               </div>
             )}
             {isStakeholder && isMounted("competency-library") && (
               <div
                 className={
-                  activeTab === "competency-library" ? "block" : "hidden"
+                  activeTab === "competency-library"
+                    ? "block space-y-5"
+                    : "hidden space-y-5"
                 }
               >
                 <WorkQualityTab />
               </div>
             )}
           </div>
-        </div>
       </div>
     </div>
   )

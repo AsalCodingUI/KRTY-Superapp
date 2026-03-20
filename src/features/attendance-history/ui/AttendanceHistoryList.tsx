@@ -74,8 +74,9 @@ export function AttendanceHistoryList({
     return (
       <EmptyState
         title="No attendance records"
-        description="Your attendance history will appear here once you start clocking in"
+        description="Records will appear after your first check-in."
         icon={<RiCalendarLine className="size-5" />}
+        placement="inner"
       />
     )
   }

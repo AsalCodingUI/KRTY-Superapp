@@ -2,18 +2,17 @@
 
 import { AttendanceHistoryList } from "@/app/(main)/attendance/components/AttendanceHistoryList"
 import { AttendanceStats } from "@/app/(main)/attendance/components/AttendanceStats"
-import { Button } from "@/shared/ui"
+import { createClient } from "@/shared/api/supabase/client"
+import { Database } from "@/shared/types/database.types"
 import {
-  Dialog,
+  Button, Dialog,
   DialogBody,
   DialogCloseButton,
   DialogContent,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
+  DialogTitle
 } from "@/shared/ui"
-import { createClient } from "@/shared/api/supabase/client"
-import { Database } from "@/shared/types/database.types"
 import { RiCalendarCheckLine } from "@/shared/ui/lucide-icons"
 import { differenceInMinutes, format } from "date-fns"
 import { useRouter } from "next/navigation"
@@ -186,11 +185,11 @@ export function EmployeeAttendancePage({
             prev.map((log) =>
               log.id === logId
                 ? {
-                    ...log,
-                    is_break: false,
-                    break_start: null,
-                    break_total: newTotalBreak,
-                  }
+                  ...log,
+                  is_break: false,
+                  break_start: null,
+                  break_total: newTotalBreak,
+                }
                 : log,
             ),
           )
@@ -296,7 +295,7 @@ export function EmployeeAttendancePage({
       </div>
 
       <div className="bg-surface-neutral-primary flex flex-col rounded-xxl">
-        <div className="space-y-6 p-5">
+        <div className="space-y-4 p-5">
           <AttendanceStats
             profile={profile}
             logs={logs}

@@ -10,8 +10,8 @@ import {
   TableHeaderCell,
   TableRow,
 } from "@/shared/ui"
-import { TableSection } from "@/shared/ui/structure/TableSection"
 import { RiFileList3Line } from "@/shared/ui/lucide-icons"
+import { TableSection } from "@/shared/ui/structure/TableSection"
 import * as React from "react"
 
 import { DataTableBulkEditor } from "./DataTableBulkEditor"
@@ -97,6 +97,8 @@ export interface DataTableProps<TData> {
   onCreate?: () => void
   onEdit?: (item: TData) => void
   onDelete?: (ids: string[] | number[]) => Promise<void>
+  onBulkApprove?: (ids: string[] | number[]) => Promise<void>
+  onBulkReject?: (ids: string[] | number[]) => Promise<void>
   showExport?: boolean
   showViewOptions?: boolean
   actionLabel?: string
@@ -123,6 +125,8 @@ export function DataTable<TData>({
   onCreate,
   onEdit,
   onDelete,
+  onBulkApprove,
+  onBulkReject,
   showExport,
   showViewOptions = false,
   actionLabel,
@@ -163,13 +167,13 @@ export function DataTable<TData>({
     manualPagination: manualPagination,
     onPaginationChange: manualPagination
       ? (updater) => {
-          if (typeof updater === "function") {
-            const newState = updater(paginationState)
-            onPageChange?.(newState.pageIndex)
-          } else {
-            onPageChange?.(updater.pageIndex)
-          }
+        if (typeof updater === "function") {
+          const newState = updater(paginationState)
+          onPageChange?.(newState.pageIndex)
+        } else {
+          onPageChange?.(updater.pageIndex)
         }
+      }
       : setInternalPagination,
     initialState: { pagination: { pageIndex: 0, pageSize: defaultPageSize } },
     enableRowSelection: enableSelection,
@@ -209,21 +213,25 @@ export function DataTable<TData>({
                   >
                     {headerGroup.headers.map((header) => {
                       const isSelectionColumn = header.column.id === "select"
+                      if (isSelectionColumn && !enableSelection) {
+                        return null
+                      }
                       return (
-                      <TableHeaderCell
-                        key={header.id}
-                        className={cx(
-                          "whitespace-nowrap",
-                          isSelectionColumn ? "w-14 px-lg text-center" : "",
-                          header.column.columnDef.meta?.className,
-                        )}
-                      >
-                        {flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
-                        )}
-                      </TableHeaderCell>
-                    )})}
+                        <TableHeaderCell
+                          key={header.id}
+                          className={cx(
+                            "whitespace-nowrap",
+                            isSelectionColumn ? "w-14 px-lg text-center" : "",
+                            header.column.columnDef.meta?.className,
+                          )}
+                        >
+                          {flexRender(
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
+                        </TableHeaderCell>
+                      )
+                    })}
                   </TableRow>
                 ))}
               </TableHead>
@@ -245,23 +253,27 @@ export function DataTable<TData>({
                         enableSelection ? "cursor-pointer" : "cursor-default",
                       )}
                     >
-                      {row.getVisibleCells().map((cell) => {
-                        const isSelectionColumn = cell.column.id === "select"
-                        return (
+                    {row.getVisibleCells().map((cell) => {
+                      const isSelectionColumn = cell.column.id === "select"
+                      if (isSelectionColumn && !enableSelection) {
+                        return null
+                      }
+                      return (
                         <TableCell
-                          key={cell.id}
-                          className={cx(
-                            "relative whitespace-nowrap",
-                            isSelectionColumn ? "w-14 px-lg text-center" : "",
-                            cell.column.columnDef.meta?.className,
-                          )}
-                        >
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext(),
-                          )}
-                        </TableCell>
-                      )})}
+                            key={cell.id}
+                            className={cx(
+                              "relative whitespace-nowrap",
+                              isSelectionColumn ? "w-14 px-lg text-center" : "",
+                              cell.column.columnDef.meta?.className,
+                            )}
+                          >
+                            {flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext(),
+                            )}
+                          </TableCell>
+                        )
+                      })}
                     </TableRow>
                   ))
                 ) : (
@@ -269,8 +281,9 @@ export function DataTable<TData>({
                     <TableCell colSpan={columns.length} className="p-6">
                       <EmptyState
                         title="No data available"
-                        description="Data will appear here once added"
+                        description="No rows to display."
                         icon={<RiFileList3Line className="size-5" />}
+                        placement="inner"
                       />
                     </TableCell>
                   </TableRow>
@@ -278,12 +291,14 @@ export function DataTable<TData>({
               </TableBody>
             </Table>
 
-            {onDelete && enableSelection && (
+            {enableSelection && (onDelete || onBulkApprove || onBulkReject || onEdit) && (
               <DataTableBulkEditor
                 table={table}
                 rowSelection={rowSelection}
                 onEdit={onEdit}
                 onDelete={onDelete}
+                onApprove={onBulkApprove}
+                onReject={onBulkReject}
               />
             )}
           </div>

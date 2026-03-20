@@ -1,13 +1,8 @@
 "use client"
 
-import { Button } from "@/components/ui"
-import { logError } from "@/shared/lib/utils/logger"
-import { Divider } from "@/components/ui"
-import { Label } from "@/components/ui"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui"
-import { Textarea } from "@/components/ui"
-import { TextInput } from "@/components/ui"
+import { Button, Divider, Label, Tabs, TabsList, TabsTrigger, Textarea, TextInput } from "@/components/ui"
 import { createClient as createClientBrowser } from "@/shared/api/supabase/client"
+import { logError } from "@/shared/lib/utils/logger"
 import {
   RiArrowLeftLine,
   RiPrinterLine,
@@ -309,7 +304,7 @@ export default function SLAContainer({
         </div>
 
         {/* Form Content */}
-        <div className="flex-1 space-y-6 overflow-y-auto p-4">
+        <div className="flex-1 space-y-4 overflow-y-auto p-4">
           {/* 1. Client Info */}
           <div>
             <h3 className="text-md text-foreground-primary dark:text-foreground-primary mb-6 font-semibold">

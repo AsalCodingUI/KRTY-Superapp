@@ -1,24 +1,19 @@
 "use client"
 
-import { Avatar, Button } from "@/shared/ui"
+import { type Database } from "@/shared/types/database.types"
 import {
-  Dialog,
+  Avatar, Button, Dialog,
   DialogBody,
   DialogCloseButton,
   DialogContent,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
-} from "@/shared/ui"
-import { Label } from "@/shared/ui"
-import {
-  Select,
+  DialogTitle, Label, Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
+  SelectValue
 } from "@/shared/ui"
-import { type Database } from "@/shared/types/database.types"
 import { RiDeleteBin6Line, RiUserAddLine } from "@/shared/ui/lucide-icons"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
@@ -203,7 +198,7 @@ export function ProjectAssignmentDialog({
           <DialogCloseButton />
         </DialogHeader>
 
-        <DialogBody className="flex-1 space-y-6 overflow-y-auto">
+        <DialogBody className="flex-1 space-y-4 overflow-y-auto">
           {/* Add New Assignment Section */}
           <div className="border-neutral-primary bg-surface-neutral-secondary dark:bg-surface/50 space-y-4 rounded-lg border p-4">
             <h4 className="text-label-md text-foreground-primary">

@@ -1,29 +1,23 @@
 "use client"
 
-import { Badge } from "@/shared/ui"
-import { Button } from "@/shared/ui"
+import { Constants, type Database } from "@/shared/types/database.types"
 import {
-  EmptyState,
+  Badge, Button, EmptyState,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
-} from "@/shared/ui"
-import {
-  Table,
+  SelectValue, Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeaderCell,
-  TableRow,
+  TableRow, TableSection
 } from "@/shared/ui"
-import { TableSection } from "@/shared/ui"
-import { Constants, type Database } from "@/shared/types/database.types"
 import { RiDeleteBin6Line, RiEdit2Line, RiStarLine } from "@/shared/ui/lucide-icons"
 import { useState } from "react"
-import useSWR from "swr"
 import { toast } from "sonner"
+import useSWR from "swr"
 import {
   deleteCompetency,
   getCompetencies,
@@ -36,16 +30,17 @@ const availableRoles = Constants.public.Enums.project_role_enum.filter(
   (role) => role !== "Admin",
 )
 
-const getRoleBadgeColor = (role: string): string => {
-  // Using chart tokens for visual consistency
-  const colors: Record<string, string> = {
-    "UIX Designer": "bg-chart-1/15 text-chart-1",
-    "Brand Designer": "bg-chart-4/15 text-chart-4",
-    "Webflow Developer": "bg-chart-2/15 text-chart-2",
-    "Web Developer": "bg-chart-2/15 text-chart-2",
-    "Project Manager": "bg-chart-5/15 text-chart-5",
+const getRoleBadgeVariant = (
+  role: string,
+): "info" | "success" | "warning" | "zinc" => {
+  const variants: Record<string, "info" | "success" | "warning" | "zinc"> = {
+    "UIX Designer": "info",
+    "Brand Designer": "warning",
+    "Webflow Developer": "success",
+    "Web Developer": "success",
+    "Project Manager": "zinc",
   }
-  return colors[role] || "bg-surface-neutral-secondary text-foreground-secondary"
+  return variants[role] || "zinc"
 }
 
 export function WorkQualityTab() {
@@ -92,7 +87,7 @@ export function WorkQualityTab() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* FILTER */}
       <div className="flex items-center gap-3">
         <Select value={selectedRole} onValueChange={setSelectedRole}>
@@ -113,7 +108,6 @@ export function WorkQualityTab() {
       {/* COMPETENCY LIBRARY TABLE */}
       <TableSection
         title="Work Quality Competency Library"
-        description="Master data for competencies used in KPI Work Quality assessment. Assign competencies to specific roles."
         actions={
           <Button onClick={() => setFormOpen(true)}>
             <RiStarLine className="mr-2 size-4" />
@@ -127,7 +121,7 @@ export function WorkQualityTab() {
           </div>
         ) : competencies.length === 0 ? (
           <EmptyState
-            icon={<RiStarLine />}
+            icon={<RiStarLine className="size-5" />}
             title={
               selectedRole !== "All"
                 ? `No competencies for ${selectedRole}`
@@ -135,22 +129,24 @@ export function WorkQualityTab() {
             }
             description={
               selectedRole !== "All"
-                ? "Try selecting a different role or add competencies for this role."
-                : "Add competencies for different roles to enable Work Quality assessment in KPI grading."
+                ? "Try another role or add competencies."
+                : "Add competencies to start quality scoring."
             }
+            subtitle="Competency data will appear here."
+            placement="inner"
             action={{
               label: "Add First Competency",
               onClick: () => setFormOpen(true),
             }}
           />
         ) : (
-          <Table>
+          <Table className="w-full table-fixed">
             <TableHead>
               <TableRow>
-                <TableHeaderCell>Role</TableHeaderCell>
-                <TableHeaderCell>Competency Name</TableHeaderCell>
+                <TableHeaderCell className="w-[180px]">Role</TableHeaderCell>
+                <TableHeaderCell className="w-[260px]">Competency Name</TableHeaderCell>
                 <TableHeaderCell>Description</TableHeaderCell>
-                <TableHeaderCell className="text-right">
+                <TableHeaderCell className="w-[120px] text-right">
                   Actions
                 </TableHeaderCell>
               </TableRow>
@@ -159,13 +155,13 @@ export function WorkQualityTab() {
               {competencies.map((competency) => (
                 <TableRow key={competency.id}>
                   <TableCell>
-                    <Badge className={getRoleBadgeColor(competency.role)}>
+                    <Badge variant={getRoleBadgeVariant(competency.role)}>
                       {competency.role}
                     </Badge>
                   </TableCell>
                   <TableCell>
                     <span
-                      className="text-foreground-primary font-medium"
+                      className="text-foreground-primary block font-medium whitespace-normal break-words line-clamp-2"
                       title={competency.name}
                     >
                       {competency.name}
@@ -173,7 +169,7 @@ export function WorkQualityTab() {
                   </TableCell>
                   <TableCell>
                     <span
-                      className="text-foreground-secondary block truncate"
+                      className="text-foreground-secondary block whitespace-normal break-words"
                       title={competency.description || "-"}
                     >
                       {competency.description || "-"}

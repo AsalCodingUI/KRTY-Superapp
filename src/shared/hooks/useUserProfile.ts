@@ -2,6 +2,7 @@
 "use client"
 
 import { createClient as createClientBrowser } from "@/shared/api/supabase/client"
+import { IMPERSONATION_COOKIE_NAME } from "@/shared/lib/impersonation"
 import { canManageByRole } from "@/shared/lib/roles"
 import { Database } from "@/shared/types/database.types"
 import useSWR from "swr"
@@ -24,7 +25,20 @@ export type ProfileSubset = Pick<
 
 type UserProfileResponse = {
   profile: ProfileSubset | null
+  authProfile: ProfileSubset | null
   userEmail: string | null
+  isImpersonating: boolean
+}
+
+function getCookieValue(name: string): string | null {
+  if (typeof document === "undefined") return null
+  const match = document.cookie
+    .split(";")
+    .map((c) => c.trim())
+    .find((c) => c.startsWith(`${name}=`))
+
+  if (!match) return null
+  return decodeURIComponent(match.split("=").slice(1).join("=")) || null
 }
 
 const fetchUserProfile = async (): Promise<UserProfileResponse> => {
@@ -37,12 +51,13 @@ const fetchUserProfile = async (): Promise<UserProfileResponse> => {
   if (!user) {
     return {
       profile: null,
+      authProfile: null,
       userEmail: null,
+      isImpersonating: false,
     }
   }
 
-  // Select profile fields - role is the correct field name in database
-  const { data: profileData, error: profileError } = await supabase
+  const { data: authProfileData, error: profileError } = await supabase
     .from("profiles")
     .select(
       "id, full_name, email, role, job_title, krt_id, hourly_rate, team_id, is_super_admin",
@@ -54,14 +69,50 @@ const fetchUserProfile = async (): Promise<UserProfileResponse> => {
     console.error("Client fetch failed:", profileError)
   }
 
+  const authProfile = authProfileData || null
+
+  if (!authProfile) {
+    return {
+      profile: null,
+      authProfile: null,
+      userEmail: user.email || null,
+      isImpersonating: false,
+    }
+  }
+
+  const impersonatedUserId = getCookieValue(IMPERSONATION_COOKIE_NAME)
+  const canImpersonate = authProfile.is_super_admin === true
+  const shouldImpersonate = Boolean(
+    canImpersonate && impersonatedUserId && impersonatedUserId !== authProfile.id,
+  )
+
+  if (!shouldImpersonate) {
+    return {
+      profile: authProfile,
+      authProfile,
+      userEmail: user.email || null,
+      isImpersonating: false,
+    }
+  }
+
+  const { data: impersonatedProfile } = await supabase
+    .from("profiles")
+    .select(
+      "id, full_name, email, role, job_title, krt_id, hourly_rate, team_id, is_super_admin",
+    )
+    .eq("id", impersonatedUserId)
+    .maybeSingle()
+
   return {
-    profile: profileData || null,
+    profile: impersonatedProfile || authProfile,
+    authProfile,
     userEmail: user.email || null,
+    isImpersonating: Boolean(impersonatedProfile),
   }
 }
 
 export function useUserProfile() {
-  const { data, isLoading } = useSWR<UserProfileResponse>(
+  const { data, isLoading, mutate } = useSWR<UserProfileResponse>(
     "current-user-profile",
     fetchUserProfile,
     {
@@ -70,11 +121,17 @@ export function useUserProfile() {
     },
   )
 
+  const authProfile = data?.authProfile || data?.profile || null
+  const effectiveProfile = data?.profile || null
+
   return {
-    profile: data?.profile || null,
+    profile: effectiveProfile,
+    authProfile,
     userEmail: data?.userEmail || null,
     loading: isLoading,
-    isAdmin: canManageByRole(data?.profile?.role),
-    isSuperAdmin: data?.profile?.is_super_admin === true,
+    isAdmin: canManageByRole(effectiveProfile?.role),
+    isSuperAdmin: authProfile?.is_super_admin === true,
+    isImpersonating: data?.isImpersonating === true,
+    refreshProfile: mutate,
   }
 }

@@ -52,7 +52,11 @@ type OverviewRow = {
   assignmentId: string | null
 }
 
-export async function getAllEmployees(searchQuery?: string) {
+export async function getAllEmployees(
+  searchQuery?: string,
+  page = 0,
+  pageSize = 25,
+) {
   const supabase = await createClient()
 
   // Validate caller is admin/stakeholder before returning employee list
@@ -88,9 +92,11 @@ export async function getAllEmployees(searchQuery?: string) {
             job_title,
             role
         `,
+      { count: "exact" },
     )
     .eq("role", "employee")
     .order("full_name", { ascending: true })
+    .range(page * pageSize, page * pageSize + pageSize - 1)
 
   // Apply search filter if provided
   if (searchQuery) {
@@ -99,7 +105,7 @@ export async function getAllEmployees(searchQuery?: string) {
     )
   }
 
-  const { data: employees, error } = await query
+  const { data: employees, error, count } = await query
 
   if (error) {
     console.error("Error fetching employees:", error)
@@ -143,7 +149,13 @@ export async function getAllEmployees(searchQuery?: string) {
     } as EmployeeWithProjects
   })
 
-  return { success: true, data: employeesWithCounts }
+  return {
+    success: true,
+    data: employeesWithCounts,
+    total: count ?? employeesWithCounts.length,
+    page,
+    pageSize,
+  }
 }
 
 export async function getEmployeeDetail(userId: string, quarter?: string) {
@@ -428,6 +440,16 @@ export async function getOverviewStats(quarter?: string): Promise<{
   const supabase = await createClient()
 
   try {
+    let cycleId: string | null = null
+    if (quarter && quarter !== "All") {
+      const { data: cycle } = await supabase
+        .from("review_cycles")
+        .select("id")
+        .eq("name", quarter)
+        .maybeSingle()
+      cycleId = cycle?.id ?? null
+    }
+
     // Get total employees
     const { count: totalEmployees } = await supabase
       .from("profiles")
@@ -442,26 +464,17 @@ export async function getOverviewStats(quarter?: string): Promise<{
 
     // Get pending reviews for the quarter
     let pendingReviewsCount = 0
-    if (quarter && quarter !== "All") {
-      const { data: cycles } = await supabase
-        .from("review_cycles")
-        .select("id")
-        .eq("name", quarter)
-        .limit(1)
+    if (cycleId) {
+      // Count employees without a complete review summary
+      const { count: summariesCount } = await supabase
+        .from("performance_summaries")
+        .select("reviewee_id", { count: "exact", head: true })
+        .eq("cycle_id", cycleId)
 
-      if (cycles && cycles.length > 0) {
-        const cycleId = cycles[0].id
-        // Count employees without a complete review summary
-        const { count: summariesCount } = await supabase
-          .from("performance_summaries")
-          .select("reviewee_id", { count: "exact", head: true })
-          .eq("cycle_id", cycleId)
-
-        pendingReviewsCount = Math.max(
-          0,
-          (totalEmployees || 0) - (summariesCount || 0),
-        )
-      }
+      pendingReviewsCount = Math.max(
+        0,
+        (totalEmployees || 0) - (summariesCount || 0),
+      )
     }
 
     // Get performance distribution from summaries
@@ -477,36 +490,27 @@ export async function getOverviewStats(quarter?: string): Promise<{
     let totalScores = 0
     let scoreSum = 0
 
-    if (quarter && quarter !== "All") {
-      const { data: cycles } = await supabase
-        .from("review_cycles")
-        .select("id")
-        .eq("name", quarter)
-        .limit(1)
+    if (cycleId) {
+      const { data: summaries } = await supabase
+        .from("performance_summaries")
+        .select("overall_percentage")
+        .eq("cycle_id", cycleId)
 
-      if (cycles && cycles.length > 0) {
-        const cycleId = cycles[0].id
-        const { data: summaries } = await supabase
-          .from("performance_summaries")
-          .select("overall_percentage")
-          .eq("cycle_id", cycleId)
+      if (summaries) {
+        for (const summary of summaries) {
+          const score = summary.overall_percentage || 0
+          scoreSum += score
+          totalScores++
 
-        if (summaries) {
-          for (const summary of summaries) {
-            const score = summary.overall_percentage || 0
-            scoreSum += score
-            totalScores++
+          if (score >= 95) distribution.outstanding++
+          else if (score >= 85) distribution.aboveExpectation++
+          else if (score >= 75) distribution.meetsExpectation++
+          else if (score >= 60) distribution.belowExpectation++
+          else distribution.needsImprovement++
+        }
 
-            if (score >= 95) distribution.outstanding++
-            else if (score >= 85) distribution.aboveExpectation++
-            else if (score >= 75) distribution.meetsExpectation++
-            else if (score >= 60) distribution.belowExpectation++
-            else distribution.needsImprovement++
-          }
-
-          if (totalScores > 0) {
-            avgPerformance = Math.round(scoreSum / totalScores)
-          }
+        if (totalScores > 0) {
+          avgPerformance = Math.round(scoreSum / totalScores)
         }
       }
     }

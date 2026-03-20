@@ -1,5 +1,7 @@
 "use client"
 
+import { cx } from "@/shared/lib/utils"
+import { logError } from "@/shared/lib/utils/logger"
 import {
   Badge,
   Button,
@@ -10,8 +12,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/shared/ui"
-import { logError } from "@/shared/lib/utils/logger"
-import { cx } from "@/shared/lib/utils"
 import {
   RiCalendarLine,
   RiCloseLine,
@@ -26,14 +26,14 @@ import type { CalendarEvent } from "../types"
 interface BadgeConfig {
   label: string
   color:
-    | "emerald"
-    | "rose"
-    | "orange"
-    | "violet"
-    | "blue"
-    | "amber"
-    | "cyan"
-    | "neutral"
+  | "emerald"
+  | "rose"
+  | "orange"
+  | "violet"
+  | "blue"
+  | "amber"
+  | "cyan"
+  | "neutral"
 }
 
 interface BaseReadOnlyDialogProps {
@@ -91,7 +91,7 @@ export function BaseReadOnlyDialog({
           <DialogCloseButton onClick={() => onOpenChange(false)} />
         </DialogHeader>
 
-        <DialogBody className="space-y-6">
+        <DialogBody className="space-y-4">
           {/* Badges */}
           {badges.length > 0 && (
             <div className="flex flex-wrap items-center gap-2">

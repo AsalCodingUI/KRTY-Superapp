@@ -1,8 +1,12 @@
 "use client"
 
+import { useUserProfile } from "@/shared/hooks/useUserProfile"
+import { canManageByRole } from "@/shared/lib/roles"
 import {
   Badge,
   Button,
+  DatePicker,
+  EmptyState,
   Label,
   Select,
   SelectContent,
@@ -17,9 +21,9 @@ import {
   TableRow,
   TableSection,
   TextInput,
+  TimeSelect,
 } from "@/shared/ui"
-import { useUserProfile } from "@/shared/hooks/useUserProfile"
-import { canManageByRole } from "@/shared/lib/roles"
+import { RiCalendarLine } from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
 import { useMemo, useState } from "react"
 import { toast } from "sonner"
@@ -71,6 +75,12 @@ export function OneOnOneMeetingTab({
   const [editEndTime, setEditEndTime] = useState("")
   const [rescheduleId, setRescheduleId] = useState<string | null>(null)
   const [cancelId, setCancelId] = useState<string | null>(null)
+
+  const parseDateValue = (value: string) => {
+    if (!value) return undefined
+    const parsed = new Date(`${value}T00:00:00`)
+    return Number.isNaN(parsed.getTime()) ? undefined : parsed
+  }
 
   const {
     data: slotResponse,
@@ -257,29 +267,30 @@ export function OneOnOneMeetingTab({
           title={`Buat Slot 1:1 (${selectedQuarter})`}
           contentClassName="px-xl pb-xl pt-sm"
         >
-          <div className="grid grid-cols-1 gap-md md:grid-cols-4">
+          <div className="grid grid-cols-1 gap-md lg:grid-cols-6 lg:items-end">
             <div className="flex flex-col gap-2">
               <Label>Tanggal</Label>
-              <TextInput
-                type="date"
-                value={date}
-                onChange={(event) => setDate(event.target.value)}
+              <DatePicker
+                value={parseDateValue(date)}
+                onChange={(value) =>
+                  setDate(value ? format(value, "yyyy-MM-dd") : "")
+                }
               />
             </div>
             <div className="flex flex-col gap-2">
               <Label>Start</Label>
-              <TextInput
-                type="time"
+              <TimeSelect
                 value={startTime}
-                onChange={(event) => setStartTime(event.target.value)}
+                onValueChange={setStartTime}
+                step={30}
               />
             </div>
             <div className="flex flex-col gap-2">
               <Label>End</Label>
-              <TextInput
-                type="time"
+              <TimeSelect
                 value={endTime}
-                onChange={(event) => setEndTime(event.target.value)}
+                onValueChange={setEndTime}
+                step={30}
               />
             </div>
             <div className="flex flex-col gap-2">
@@ -302,7 +313,7 @@ export function OneOnOneMeetingTab({
 
             {mode === "offline" ? (
               <>
-                <div className="flex flex-col gap-2 md:col-span-3">
+                <div className="flex flex-col gap-2 lg:col-span-1">
                   <Label>Lokasi</Label>
                   <TextInput
                     value={location}
@@ -310,7 +321,7 @@ export function OneOnOneMeetingTab({
                     placeholder="Ruangan / lokasi meeting"
                   />
                 </div>
-                <div className="flex items-end md:col-span-1 md:justify-end">
+                <div className="flex items-end lg:col-span-1 lg:justify-end">
                   <Button
                     variant="secondary"
                     size="sm"
@@ -322,7 +333,10 @@ export function OneOnOneMeetingTab({
                 </div>
               </>
             ) : (
-              <div className="flex items-end md:col-span-4 md:justify-end">
+              <div className="hidden lg:block" />
+            )}
+            {mode !== "offline" && (
+              <div className="flex items-end lg:col-span-1 lg:justify-end">
                 <Button
                   variant="secondary"
                   size="sm"
@@ -421,8 +435,23 @@ export function OneOnOneMeetingTab({
             ))}
             {((isAdmin ? slots : availableSlots).length === 0) && (
               <TableRow>
-                <TableCell colSpan={5}>
-                  {isLoading ? "Memuat..." : "Belum ada slot"}
+                <TableCell colSpan={5} className="p-0">
+                  {isLoading ? (
+                    <div className="text-body-sm text-foreground-secondary px-xl py-xl text-center">
+                      Loading slots...
+                    </div>
+                  ) : (
+                    <EmptyState
+                      title={isAdmin ? "No 1:1 slots yet" : "No available slots"}
+                      description={
+                        isAdmin
+                          ? "Create a slot to start scheduling."
+                          : "There are no bookable slots for this period."
+                      }
+                      icon={<RiCalendarLine className="size-5" />}
+                      placement="inner"
+                    />
+                  )}
                 </TableCell>
               </TableRow>
             )}
@@ -432,28 +461,29 @@ export function OneOnOneMeetingTab({
         {isAdmin && editingSlotId && (
           <div className="border-neutral-primary bg-surface-neutral-primary mt-4 rounded-lg border p-3">
             <div className="grid grid-cols-1 gap-md md:grid-cols-4">
-              <div className="flex flex-col gap-2">
-                <Label>Tanggal</Label>
-                <TextInput
-                  type="date"
-                  value={editDate}
-                  onChange={(event) => setEditDate(event.target.value)}
+                <div className="flex flex-col gap-2">
+                  <Label>Tanggal</Label>
+                <DatePicker
+                  value={parseDateValue(editDate)}
+                  onChange={(value) =>
+                    setEditDate(value ? format(value, "yyyy-MM-dd") : "")
+                  }
                 />
               </div>
               <div className="flex flex-col gap-2">
                 <Label>Start</Label>
-                <TextInput
-                  type="time"
+                <TimeSelect
                   value={editStartTime}
-                  onChange={(event) => setEditStartTime(event.target.value)}
+                  onValueChange={setEditStartTime}
+                  step={30}
                 />
               </div>
               <div className="flex flex-col gap-2">
                 <Label>End</Label>
-                <TextInput
-                  type="time"
+                <TimeSelect
                   value={editEndTime}
-                  onChange={(event) => setEditEndTime(event.target.value)}
+                  onValueChange={setEditEndTime}
+                  step={30}
                 />
               </div>
               <div className="flex items-end gap-2">
@@ -530,7 +560,14 @@ export function OneOnOneMeetingTab({
               ))}
               {mySlots.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={3}>Belum ada jadwal</TableCell>
+                  <TableCell colSpan={3} className="p-0">
+                    <EmptyState
+                      title="No 1:1 bookings yet"
+                      description="You have not booked a slot yet."
+                      icon={<RiCalendarLine className="size-5" />}
+                      placement="inner"
+                    />
+                  </TableCell>
                 </TableRow>
               )}
             </TableBody>

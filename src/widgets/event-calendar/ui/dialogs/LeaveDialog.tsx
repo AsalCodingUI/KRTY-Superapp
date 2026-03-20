@@ -1,17 +1,15 @@
 "use client"
 
-import { Badge } from "@/shared/ui"
-import { Button } from "@/shared/ui"
+import { cx } from "@/shared/lib/utils"
 import {
-  Dialog,
+  Badge, Button, Dialog,
   DialogBody,
   DialogCloseButton,
   DialogContent,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
+  DialogTitle
 } from "@/shared/ui"
-import { cx } from "@/shared/lib/utils"
 import {
   RiCalendarLine,
   RiFileTextLine,
@@ -60,7 +58,7 @@ export function LeaveDialog({ open, onOpenChange, event }: LeaveDialogProps) {
           <DialogCloseButton onClick={() => onOpenChange(false)} />
         </DialogHeader>
 
-        <DialogBody className="space-y-6">
+        <DialogBody className="space-y-4">
           {/* Status Badge */}
           <div className="flex items-center gap-2">
             <Badge color="emerald" className="text-body-sm">

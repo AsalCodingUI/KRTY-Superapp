@@ -1,40 +1,10 @@
 "use client"
 
-import { createClient } from "@/shared/api/supabase/client"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
-import { Button, Label, TextInput } from "@/shared/ui"
-import { RiMailSendLine } from "@/shared/ui/lucide-icons"
-import { useState } from "react"
+import { Label, TextInput } from "@/shared/ui"
 
 export default function GeneralSettingsPage() {
   const { profile, loading } = useUserProfile()
-  const [resetLoading, setResetLoading] = useState(false)
-  const supabase = createClient()
-
-  const handleChangePassword = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!profile?.email) return
-
-    setResetLoading(true)
-    try {
-      // Kirim email reset password ke email user
-      const { error } = await supabase.auth.resetPasswordForEmail(
-        profile.email,
-        {
-          redirectTo: `${window.location.origin}/auth/update-password`, // Pastikan route ini nanti di-handle
-        },
-      )
-
-      if (error) throw error
-
-      alert(`Password reset link has been sent to ${profile.email}`)
-    } catch (error) {
-      console.error(error)
-      alert("Failed to send reset email. Please try again.")
-    } finally {
-      setResetLoading(false)
-    }
-  }
 
   if (loading) {
     return (
@@ -46,82 +16,60 @@ export default function GeneralSettingsPage() {
 
   return (
     <div className="space-y-10">
-      {/* SECTION 1: PERSONAL INFORMATION (READ ONLY) */}
       <section aria-labelledby="personal-information">
-        <form onSubmit={handleChangePassword}>
-          <div className="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
-            <div>
-              <h2
-                id="personal-information"
-                className="text-foreground-primary scroll-mt-10 font-semibold"
-              >
-                Personal information
-              </h2>
-              <p className="text-foreground-secondary text-body-sm mt-1">
-                Information associated with your profile.
-              </p>
-            </div>
-            <div className="md:col-span-2">
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-6">
-                {/* My Name */}
-                <div className="col-span-full">
-                  <Label htmlFor="full-name" className="font-medium">
-                    My Name
-                  </Label>
-                  <TextInput
-                    id="full-name"
-                    value={profile?.full_name || ""}
-                    disabled // Disabled sesuai request
-                    className="mt-2"
-                  />
-                </div>
+        <div className="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
+          <div>
+            <h2
+              id="personal-information"
+              className="text-foreground-primary scroll-mt-10 font-semibold"
+            >
+              Personal information
+            </h2>
+            <p className="text-foreground-secondary text-body-sm mt-1">
+              Information associated with your profile.
+            </p>
+          </div>
+          <div className="md:col-span-2">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-6">
+              <div className="col-span-full">
+                <Label htmlFor="full-name" className="font-medium">
+                  My Name
+                </Label>
+                <TextInput
+                  id="full-name"
+                  value={profile?.full_name || ""}
+                  disabled
+                  className="mt-2"
+                />
+              </div>
 
-                {/* Email */}
-                <div className="col-span-full">
-                  <Label htmlFor="email" className="font-medium">
-                    Email
-                  </Label>
-                  <TextInput
-                    id="email"
-                    type="email"
-                    value={profile?.email || ""}
-                    disabled // Disabled sesuai request
-                    className="mt-2"
-                  />
-                </div>
+              <div className="col-span-full">
+                <Label htmlFor="email" className="font-medium">
+                  Email
+                </Label>
+                <TextInput
+                  id="email"
+                  type="email"
+                  value={profile?.email || ""}
+                  disabled
+                  className="mt-2"
+                />
+              </div>
 
-                {/* Job Title */}
-                <div className="col-span-full">
-                  <Label htmlFor="job-title" className="font-medium">
-                    Job Title
-                  </Label>
-                  <TextInput
-                    id="job-title"
-                    value={profile?.job_title || ""}
-                    disabled // Disabled sesuai request
-                    className="mt-2"
-                  />
-                </div>
-
-                {/* Change Password Button */}
-                <div className="col-span-full mt-4 flex flex-col items-end gap-2">
-                  <p className="text-foreground-secondary text-body-xs">
-                    To change your password, click the button below to receive a
-                    reset link via email.
-                  </p>
-                  <Button
-                    type="submit"
-                    disabled={resetLoading}
-                    isLoading={resetLoading}
-                  >
-                    <RiMailSendLine className="mr-2 size-4" />
-                    Change password
-                  </Button>
-                </div>
+              <div className="col-span-full">
+                <Label htmlFor="job-title" className="font-medium">
+                  Job Title
+                </Label>
+                <TextInput
+                  id="job-title"
+                  value={profile?.job_title || ""}
+                  disabled
+                  className="mt-2"
+                />
               </div>
             </div>
           </div>
-        </form>
+        </div>
       </section>
     </div>
   )

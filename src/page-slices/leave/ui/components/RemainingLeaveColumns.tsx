@@ -1,13 +1,13 @@
 "use client"
 
-import { Badge } from "@/shared/ui"
+import { Avatar, Badge } from "@/shared/ui"
 import { DataTableColumnHeader } from "@/shared/ui/data/DataTableColumnHeader"
 import { Database } from "@/shared/types/database.types"
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table"
 
 type Profile = Pick<
   Database["public"]["Tables"]["profiles"]["Row"],
-  "id" | "full_name" | "job_title" | "leave_used" | "leave_balance"
+  "id" | "full_name" | "avatar_url" | "job_title" | "leave_used" | "leave_balance"
 >
 
 const columnHelper = createColumnHelper<Profile>()
@@ -41,11 +41,16 @@ export const remainingLeaveColumns = [
     cell: ({ row }) => {
       const name = (row.getValue("full_name") as string) || "Unknown"
       const initials = name.slice(0, 2).toUpperCase()
+      const avatarUrl = row.original.avatar_url || undefined
       return (
         <div className="flex items-center gap-3">
-          <span className="bg-surface-neutral-secondary text-foreground-secondary inline-flex size-5 items-center justify-center rounded-full text-[10px] leading-[16px]">
-            {initials}
-          </span>
+          <Avatar
+            size="xs"
+            src={avatarUrl}
+            initials={initials}
+            alt={name}
+            color="neutral"
+          />
           <span
             className="text-foreground-primary font-medium whitespace-nowrap"
             title={name}

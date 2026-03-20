@@ -3,6 +3,8 @@
 import { AttendanceHistoryList } from "@/app/(main)/attendance/components/AttendanceHistoryList"
 import { useClockActions } from "@/features/attendance-clock/model/useClockActions"
 import { createClient } from "@/shared/api/supabase/client"
+import { useMountedTabs } from "@/shared/hooks/useMountedTabs"
+import { useTabRoute } from "@/shared/hooks/useTabRoute"
 import { calculateBusinessDays } from "@/shared/lib/date"
 import { Database } from "@/shared/types/database.types"
 import {
@@ -21,6 +23,7 @@ import {
   DropdownMenuTrigger,
   TabNavigation,
   TabNavigationLink,
+  TableSection,
 } from "@/shared/ui"
 import { DataTable } from "@/shared/ui/data/DataTable"
 import {
@@ -34,8 +37,6 @@ import {
 import { format } from "date-fns"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
-import { useMountedTabs } from "@/shared/hooks/useMountedTabs"
-import { useTabRoute } from "@/shared/hooks/useTabRoute"
 import { columns } from "./components/Columns"
 import { LeaveRequestModal } from "./components/LeaveRequestModal"
 import { LeaveRules } from "./components/LeaveRules"
@@ -47,6 +48,7 @@ type AttendanceLog = Database["public"]["Tables"]["attendance_logs"]["Row"]
 interface EmployeeLeavePageProps {
   profile: Profile
   requests: LeaveRequest[]
+  statsRequests?: LeaveRequest[]
   attendanceLogs: AttendanceLog[]
   page: number
   pageSize: number
@@ -56,6 +58,7 @@ interface EmployeeLeavePageProps {
 export function EmployeeLeavePage({
   profile,
   requests,
+  statsRequests = [],
   attendanceLogs,
   page,
   pageSize,
@@ -153,6 +156,7 @@ export function EmployeeLeavePage({
   }
 
   const pageCount = Math.ceil(totalCount / pageSize)
+  const requestsForStats = statsRequests.length > 0 ? statsRequests : requests
 
   // Open Edit Modal
   const handleEdit = (item: LeaveRequest) => {
@@ -173,13 +177,13 @@ export function EmployeeLeavePage({
 
   const isOnLeave = useMemo(() => {
     if (!today) return false
-    return requests.some(
+    return requestsForStats.some(
       (req) =>
         req.status === "approved" &&
         req.start_date <= today &&
         req.end_date >= today,
     )
-  }, [requests, today])
+  }, [requestsForStats, today])
 
   const [selectedStatus, setSelectedStatus] = useState<string>(
     isOnLeave ? "Cuti Masuk" : "Present",
@@ -198,22 +202,42 @@ export function EmployeeLeavePage({
 
   const leaveStats = useMemo(() => {
     const MAX_LEAVE = 12
-    const approvedAnnual = requests.filter(
-      (req) => req.status === "approved" && req.leave_type === "Annual Leave",
+    const now = new Date()
+    const yearStart = new Date(now.getFullYear(), 0, 1)
+    const yearEnd = new Date(now.getFullYear(), 11, 31)
+    const overlapsYear = (req: LeaveRequest) => {
+      const start = new Date(req.start_date)
+      const end = new Date(req.end_date)
+      return start <= yearEnd && end >= yearStart
+    }
+
+    const approvedAnnual = requestsForStats.filter(
+      (req) =>
+        req.status === "approved" &&
+        req.leave_type === "Annual Leave" &&
+        overlapsYear(req),
     )
-    const approvedSick = requests.filter(
-      (req) => req.status === "approved" && req.leave_type === "Sick Leave",
+    const approvedSick = requestsForStats.filter(
+      (req) =>
+        req.status === "approved" &&
+        req.leave_type === "Sick Leave" &&
+        overlapsYear(req),
     )
-    const approvedWfh = requests.filter(
-      (req) => req.status === "approved" && req.leave_type === "WFH",
+    const approvedWfh = requestsForStats.filter(
+      (req) =>
+        req.status === "approved" &&
+        (req.leave_type === "WFH" || req.leave_type === "Work From Home") &&
+        overlapsYear(req),
     )
 
     const sumDays = (items: LeaveRequest[]) =>
       items.reduce((total, req) => {
-        const days = calculateBusinessDays(
-          new Date(req.start_date),
-          new Date(req.end_date),
-        )
+        const start = new Date(req.start_date)
+        const end = new Date(req.end_date)
+        const clampedStart = start < yearStart ? yearStart : start
+        const clampedEnd = end > yearEnd ? yearEnd : end
+        if (clampedEnd < clampedStart) return total
+        const days = calculateBusinessDays(clampedStart, clampedEnd)
         return total + days
       }, 0)
 
@@ -221,13 +245,16 @@ export function EmployeeLeavePage({
     const sickDays = sumDays(approvedSick)
     const wfhDays = sumDays(approvedWfh)
 
+    const annualRemaining = Math.max(0, MAX_LEAVE - usedAnnual)
+
     return {
       annualUsed: Math.max(0, usedAnnual),
+      annualRemaining,
       annualTotal: MAX_LEAVE,
       sickDays,
       wfhDays,
     }
-  }, [requests])
+  }, [requestsForStats])
 
   const confirmDelete = async () => {
     if (!pendingDeleteId) return
@@ -282,15 +309,16 @@ export function EmployeeLeavePage({
                   </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
-                  {!activeSession ? (
+                  {!currentTime ? (
+                    // SSR placeholder — keeps component tree stable to avoid Radix ID hydration mismatch
+                    <div className="h-[28px]" />
+                  ) : !activeSession ? (
                     <>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button asChild size="sm" variant="secondary" type="button">
-                            <button>
-                              {getStatusLabel(selectedStatus)}
-                              <RiArrowDownSLine className="text-foreground-secondary ml-2 size-4 shrink-0" />
-                            </button>
+                          <Button size="sm" variant="secondary" type="button">
+                            {getStatusLabel(selectedStatus)}
+                            <RiArrowDownSLine className="text-foreground-secondary ml-2 size-4 shrink-0" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="start">
@@ -355,7 +383,7 @@ export function EmployeeLeavePage({
                 Annual Leave Balance
               </p>
               <p className="text-heading-md text-foreground-primary">
-                {leaveStats.annualUsed}/{leaveStats.annualTotal} Days
+                {leaveStats.annualRemaining}/{leaveStats.annualTotal} Days
               </p>
             </div>
 
@@ -378,7 +406,7 @@ export function EmployeeLeavePage({
             </div>
           </div>
 
-          <div className="px-5 pt-2 border-b border-neutral-primary">
+          <div className="flex items-center justify-between px-5 pt-2 border-b border-neutral-primary">
             <TabNavigation className="border-b-0">
               <TabNavigationLink
                 active={activeTab === "attendance"}
@@ -393,34 +421,28 @@ export function EmployeeLeavePage({
                 Leave Requests
               </TabNavigationLink>
             </TabNavigation>
-          </div>
+            {isMounted("leave") && activeTab === "leave" && (
+              <div className="mb-2 flex items-center gap-2">
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => setTermsOpen(true)}
+                >
+                  <RiFileTextLine className="mr-2 size-3.5" />
+                  Read Terms &amp; Conditions
+                </Button>
+                <Button size="sm" onClick={handleAdd}>
+                  <RiAddLine className="mr-2 size-3.5" />
+                  Request Leave
+                </Button>
+              </div>
+            )}
 
-          {isMounted("leave") && (
-            <div
-              className={
-                activeTab === "leave"
-                  ? "flex flex-wrap justify-end gap-2 border-b border-neutral-primary bg-surface-neutral-primary px-5 py-3"
-                  : "hidden"
-              }
-            >
-              <Button
-                size="sm"
-                variant="secondary"
-                onClick={() => setTermsOpen(true)}
-              >
-                <RiFileTextLine className="mr-2 size-3.5" />
-                Read Terms &amp; Conditions
-              </Button>
-              <Button size="sm" onClick={handleAdd}>
-                <RiAddLine className="mr-2 size-3.5" />
-                Request Leave
-              </Button>
-            </div>
-          )}
+          </div>
 
           <div className="p-5">
             {isMounted("attendance") && (
-              <div className={activeTab === "attendance" ? "block" : "hidden"}>
+              <div className={activeTab === "attendance" ? "block space-y-5" : "hidden space-y-5"}>
                 <AttendanceHistoryList
                   logs={logs}
                   onRequestDelete={(id) => {
@@ -432,23 +454,27 @@ export function EmployeeLeavePage({
             )}
 
             {isMounted("leave") && (
-              <div className={activeTab === "leave" ? "block" : "hidden"}>
-                <DataTable
-                  data={requests}
-                  columns={columns(handleEdit)}
-                  manualPagination={true}
-                  pageCount={pageCount}
-                  pageIndex={page - 1}
-                  onPageChange={handlePageChange}
-                  onCreate={undefined}
-                  showExport={false}
-                  showViewOptions={false}
-                  enableSelection={false}
-                  enableHover={false}
-                  searchKey="reason"
-                  showTableWrapper={false}
-                  showFilterbar={false}
-                />
+              <div className={activeTab === "leave" ? "block space-y-5" : "hidden space-y-5"}>
+                <TableSection
+                  title="Leave Requests"
+                >
+                  <DataTable
+                    data={requests}
+                    columns={columns(handleEdit)}
+                    manualPagination={true}
+                    pageCount={pageCount}
+                    pageIndex={page - 1}
+                    onPageChange={handlePageChange}
+                    onCreate={undefined}
+                    showExport={false}
+                    showViewOptions={false}
+                    enableSelection={false}
+                    enableHover={false}
+                    searchKey="reason"
+                    showTableWrapper={false}
+                    showFilterbar={false}
+                  />
+                </TableSection>
               </div>
             )}
 

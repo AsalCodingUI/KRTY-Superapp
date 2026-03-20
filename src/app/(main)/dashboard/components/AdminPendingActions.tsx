@@ -5,8 +5,6 @@ import { Button } from "@/shared/ui"
 import { Card } from "@/shared/ui"
 import {
   RiArrowRightLine,
-  RiCalendarEventLine,
-  RiFileTextLine,
 } from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
 import Link from "next/link"
@@ -45,34 +43,29 @@ export function AdminPendingActions({
   pendingLeaveApprovals,
 }: AdminPendingActionsProps) {
   return (
-    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+    <div className="space-y-5">
       {/* Pending Reviews */}
       <Card>
         <div className="mb-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <RiFileTextLine className="text-foreground-brand-primary size-5" />
-            <h3 className="text-heading-md text-foreground-primary">
-              Pending Reviews
-            </h3>
-          </div>
+          <h3 className="text-label-md text-foreground-primary">Pending Reviews</h3>
           <Badge variant="warning">{pendingReviews.length}</Badge>
         </div>
 
         {pendingReviews.length === 0 ? (
           <div className="py-8 text-center">
             <p className="text-body-sm text-foreground-secondary">
-              All reviews completed! 🎉
+              All reviews completed.
             </p>
           </div>
         ) : (
           <>
-            <div className="space-y-3">
+            <div className="border-neutral-primary divide-neutral-primary overflow-hidden rounded-lg border divide-y">
               {pendingReviews.slice(0, 5).map((review) => (
                 <Link
                   key={`${review.employee_id}-${review.cycle_id}`}
                   href={`/performance?tab=360review`}
                 >
-                  <div className="border-neutral-primary bg-surface-neutral-secondary hover:border-foreground-brand-primary flex items-center justify-between rounded-lg border p-3 transition-all hover:shadow-sm">
+                  <div className="hover:bg-surface-neutral-secondary flex items-center justify-between px-3 py-2 transition-colors">
                     <div className="flex items-center gap-3">
                       <Avatar
                         size="sm"
@@ -115,12 +108,7 @@ export function AdminPendingActions({
       {/* Pending Leave Approvals */}
       <Card>
         <div className="mb-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <RiCalendarEventLine className="text-foreground-brand-primary size-5" />
-            <h3 className="text-heading-md text-foreground-primary">
-              Leave Approvals
-            </h3>
-          </div>
+          <h3 className="text-label-md text-foreground-primary">Leave Approvals</h3>
           <Badge variant="warning">{pendingLeaveApprovals.length}</Badge>
         </div>
 
@@ -132,7 +120,7 @@ export function AdminPendingActions({
           </div>
         ) : (
           <>
-            <div className="space-y-3">
+            <div className="border-neutral-primary divide-neutral-primary overflow-hidden rounded-lg border divide-y">
               {pendingLeaveApprovals.slice(0, 5).map((leave) => {
                 const daysAgo = Math.floor(
                   (new Date().getTime() -
@@ -142,7 +130,7 @@ export function AdminPendingActions({
 
                 return (
                   <Link key={leave.id} href="/leave">
-                    <div className="border-neutral-primary bg-surface-neutral-secondary hover:border-foreground-brand-primary rounded-lg border p-3 transition-all hover:shadow-sm">
+                    <div className="hover:bg-surface-neutral-secondary px-3 py-2 transition-colors">
                       <div className="mb-2 flex items-start justify-between">
                         <div className="flex items-center gap-3">
                           <Avatar

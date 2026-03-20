@@ -14,8 +14,9 @@ export function PayrollPage() {
       <div className="bg-surface-neutral-primary flex flex-col rounded-xxl">
         <div className="p-5">
           <EmptyState
-            title="Data Gaji & Pembayaran"
-            description="Halaman sensitif. Nanti di sini ada data gaji semua karyawan."
+            title="Payroll data unavailable"
+            description="Payroll records will appear here."
+            placement="inner"
           />
         </div>
       </div>

@@ -1,8 +1,10 @@
 "use server"
 
 import { createClient } from "@/shared/api/supabase/server"
+import { calculateBusinessDays } from "@/shared/lib/date"
 import { getCurrentQuarter } from "@/shared/lib/date/quarter"
 import type { PeerReviewScores } from "@/shared/types/dashboard.types"
+import { Database } from "@/shared/types/database.types"
 
 export type EmployeeDashboardData = {
   user: {
@@ -12,21 +14,8 @@ export type EmployeeDashboardData = {
     avatar_url: string | null
   }
   leaveBalance: number
-  recentLeaveRequests: Array<{
-    id: string
-    leave_type: string
-    start_date: string
-    end_date: string
-    status: string
-    days_requested: number
-  }>
-  recentAttendance: Array<{
-    id: string
-    date: string
-    clock_in: string | null
-    clock_out: string | null
-    status: string | null
-  }>
+  recentLeaveRequests: Database["public"]["Tables"]["leave_requests"]["Row"][]
+  recentAttendance: Database["public"]["Tables"]["attendance_logs"]["Row"][]
   performanceOverview: {
     slaScore: number | null
     reviewScore: number | null
@@ -49,6 +38,16 @@ export type EmployeeDashboardData = {
     end_date: string
     has_submitted: boolean
   }>
+  upcomingOneOnOne: Array<{
+    id: string
+    start_at: string
+    end_at: string
+    mode: string
+    location: string | null
+    meeting_url: string | null
+    status: string
+    organizer_name: string | null
+  }>
   competencyScores: {
     leadership: number
     quality: number
@@ -58,7 +57,10 @@ export type EmployeeDashboardData = {
   } | null
 }
 
-export async function getEmployeeDashboardData(): Promise<{
+export async function getEmployeeDashboardData(
+  effectiveUserId?: string,
+  selectedQuarter?: string,
+): Promise<{
   success: boolean
   data?: EmployeeDashboardData
   error?: string
@@ -74,54 +76,88 @@ export async function getEmployeeDashboardData(): Promise<{
       return { success: false, error: "Unauthorized" }
     }
 
+    const targetUserId = effectiveUserId || user.id
+
+    if (targetUserId !== user.id) {
+      const { data: actorProfile } = await supabase
+        .from("profiles")
+        .select("is_super_admin")
+        .eq("id", user.id)
+        .maybeSingle()
+
+      if (!actorProfile?.is_super_admin) {
+        return { success: false, error: "Access denied" }
+      }
+    }
+
     const { data: profile } = await supabase
       .from("profiles")
       .select("id, full_name, job_title, avatar_url")
-      .eq("id", user.id)
+      .eq("id", targetUserId)
       .single()
 
     if (!profile) {
       return { success: false, error: "Profile not found" }
     }
 
+    const quarterMatch = selectedQuarter?.match(/^(\d{4})-(Q[1-4]|All)$/)
+    const selectedYear = quarterMatch?.[1] ? Number(quarterMatch[1]) : null
+    const selectedQuarterPart = quarterMatch?.[2] || null
     const currentQuarter = getCurrentQuarter()
+    const activeQuarter =
+      selectedQuarterPart && selectedQuarterPart !== "All" && selectedYear
+        ? `${selectedYear}-${selectedQuarterPart}`
+        : currentQuarter
+
+    const leaveBalanceYear = selectedYear ?? new Date().getFullYear()
+    const leaveYearStart = new Date(leaveBalanceYear, 0, 1)
+    const leaveYearEnd = new Date(leaveBalanceYear, 11, 31)
+    const sevenDaysAgo = new Date()
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6)
+    const sevenDaysAgoStr = sevenDaysAgo.toISOString().split("T")[0]
 
     const [
-      leaveBalanceResult,
       recentLeaveResult,
       recentAttendanceResult,
       reviewSummaryResult,
       projectAssignmentsResult,
       reviewCyclesResult,
+      oneOnOneResult,
+      approvedAnnualLeaveResult,
     ] = await Promise.all([
       supabase
-        .from("leave_balances")
-        .select("remaining")
-        .eq("user_id", user.id)
-        .single(),
-
-      supabase
         .from("leave_requests")
-        .select("id, leave_type, start_date, end_date, status, days_requested")
-        .eq("user_id", user.id)
+        .select(
+          "id, user_id, start_date, end_date, leave_type, reason, proof_url, status, created_at, updated_at",
+        )
+        .eq("user_id", targetUserId)
         .order("created_at", { ascending: false })
         .limit(5),
 
       supabase
         .from("attendance_logs")
-        .select("id, date, clock_in, clock_out, status")
-        .eq("user_id", user.id)
+        .select(
+          "id, user_id, date, clock_in, clock_out, is_break, break_total, break_start, status, notes",
+        )
+        .eq("user_id", targetUserId)
+        .gte("date", sevenDaysAgoStr)
         .order("date", { ascending: false })
-        .limit(7),
+        .order("clock_in", { ascending: false })
+        .limit(50),
 
       supabase
         .from("review_summary")
         .select("overall_percentage")
-        .eq("employee_id", user.id)
-        .eq("cycle_id", currentQuarter)
-        .maybeSingle(),
+        .eq("employee_id", targetUserId)
+        .like(
+          "cycle_id",
+          selectedQuarterPart === "All" && selectedYear
+            ? `${selectedYear}-%`
+            : activeQuarter,
+        ),
 
-      supabase
+      (() => {
+        let query = supabase
         .from("project_assignments")
         .select(
           `
@@ -142,16 +178,64 @@ export async function getEmployeeDashboardData(): Promise<{
                     )
                 `,
         )
-        .eq("user_id", user.id)
+        .eq("user_id", targetUserId)
         .eq("projects.status", "Active")
-        .limit(10),
+        .limit(10)
 
-      supabase
+        if (selectedQuarterPart === "All" && selectedYear) {
+          query = query.like("projects.quarter_id", `${selectedYear}-%`)
+        } else {
+          query = query.eq("projects.quarter_id", activeQuarter)
+        }
+
+        return query
+      })(),
+
+      (() => {
+        let query = supabase
         .from("review_cycles")
         .select("id, name, end_date, is_active")
-        .gte("end_date", new Date().toISOString())
         .order("end_date", { ascending: true })
-        .limit(3),
+        .limit(3)
+
+        if (selectedQuarterPart === "All" && selectedYear) {
+          query = query.like("name", `${selectedYear}-%`)
+        } else {
+          query = query.eq("name", activeQuarter)
+        }
+
+        return query
+      })(),
+
+      (() => {
+        let query = supabase
+        .from("one_on_one_slots")
+        .select(
+          "id, start_at, end_at, mode, location, meeting_url, status, organizer:profiles!one_on_one_slots_organizer_id_fkey(full_name)",
+        )
+        .eq("booked_by", targetUserId)
+        .gte("end_at", new Date().toISOString())
+        .in("status", ["booking", "booked"])
+        .order("start_at", { ascending: true })
+        .limit(3)
+
+        if (selectedQuarterPart === "All" && selectedYear) {
+          query = query.like("cycle_name", `${selectedYear}-%`)
+        } else {
+          query = query.eq("cycle_name", activeQuarter)
+        }
+
+        return query
+      })(),
+
+      supabase
+        .from("leave_requests")
+        .select("start_date,end_date")
+        .eq("user_id", targetUserId)
+        .eq("status", "approved")
+        .eq("leave_type", "Annual Leave")
+        .lte("start_date", leaveYearEnd.toISOString())
+        .gte("end_date", leaveYearStart.toISOString()),
     ])
 
     const { data: latestReview } = await supabase
@@ -172,7 +256,8 @@ export async function getEmployeeDashboardData(): Promise<{
                 )
             `,
       )
-      .eq("employee_id", user.id)
+      .eq("employee_id", targetUserId)
+      .eq("cycle_id", activeQuarter)
       .not("self_score", "is", null)
       .order("created_at", { ascending: false })
       .limit(1)
@@ -218,7 +303,7 @@ export async function getEmployeeDashboardData(): Promise<{
     const { data: submittedReviews } = await supabase
       .from("performance_reviews")
       .select("cycle_id")
-      .eq("employee_id", user.id)
+      .eq("employee_id", targetUserId)
       .not("self_score", "is", null)
       .in(
         "cycle_id",
@@ -228,6 +313,23 @@ export async function getEmployeeDashboardData(): Promise<{
     const submittedCycleIds = new Set(
       submittedReviews?.map((r: { cycle_id: string }) => r.cycle_id) || [],
     )
+
+    const approvedAnnualRows = (approvedAnnualLeaveResult.data || []) as Array<{
+      start_date: string
+      end_date: string
+    }>
+    const approvedAnnualUsed = approvedAnnualRows.reduce(
+      (total, req) => {
+        const start = new Date(req.start_date)
+        const end = new Date(req.end_date)
+        const clampedStart = start < leaveYearStart ? leaveYearStart : start
+        const clampedEnd = end > leaveYearEnd ? leaveYearEnd : end
+        if (clampedEnd < clampedStart) return total
+        return total + calculateBusinessDays(clampedStart, clampedEnd)
+      },
+      0,
+    )
+    const leaveBalance = Math.max(0, 12 - approvedAnnualUsed)
 
     // Define the raw shape returned by Supabase (where relations are arrays)
     type RawProjectAssignment = {
@@ -244,6 +346,16 @@ export async function getEmployeeDashboardData(): Promise<{
         weight_percentage: number
       }[]
       project_work_quality_scores: { is_achieved: boolean }[]
+    }
+    type RawOneOnOneSlot = {
+      id: string
+      start_at: string
+      end_at: string
+      mode: string
+      location: string | null
+      meeting_url: string | null
+      status: string
+      organizer: { full_name: string | null } | { full_name: string | null }[] | null
     }
 
     const activeProjects = (
@@ -282,14 +394,17 @@ export async function getEmployeeDashboardData(): Promise<{
 
     const dashboardData: EmployeeDashboardData = {
       user: profile,
-      leaveBalance: leaveBalanceResult.data?.remaining || 0,
+      leaveBalance,
       recentLeaveRequests: recentLeaveResult.data || [],
       recentAttendance: recentAttendanceResult.data || [],
       performanceOverview: {
         slaScore: null,
-        reviewScore: reviewSummaryResult.data?.overall_percentage || null,
+        reviewScore: null,
         workQualityScore: null,
-        quarter: currentQuarter,
+        quarter:
+          selectedQuarterPart === "All" && selectedYear
+            ? `${selectedYear}-All`
+            : activeQuarter,
       },
       activeProjects,
       upcomingReviews: reviewCycles.map((cycle: { id: string; name: string; end_date: string }) => ({
@@ -298,7 +413,32 @@ export async function getEmployeeDashboardData(): Promise<{
         end_date: cycle.end_date,
         has_submitted: submittedCycleIds.has(cycle.id),
       })),
+      upcomingOneOnOne: ((oneOnOneResult.data || []) as RawOneOnOneSlot[]).map((slot) => {
+        const organizer = Array.isArray(slot.organizer)
+          ? slot.organizer[0]
+          : slot.organizer
+        return {
+          id: slot.id,
+          start_at: slot.start_at,
+          end_at: slot.end_at,
+          mode: slot.mode,
+          location: slot.location,
+          meeting_url: slot.meeting_url,
+          status: slot.status,
+          organizer_name: organizer?.full_name ?? null,
+        }
+      }),
       competencyScores,
+    }
+
+    const reviewRows = (reviewSummaryResult.data || []) as Array<{
+      overall_percentage: number | null
+    }>
+    if (reviewRows.length > 0) {
+      const avgReview =
+        reviewRows.reduce((sum: number, row) => sum + (row.overall_percentage || 0), 0) /
+        reviewRows.length
+      dashboardData.performanceOverview.reviewScore = Math.round(avgReview * 10) / 10
     }
 
     if (activeProjects.length > 0) {

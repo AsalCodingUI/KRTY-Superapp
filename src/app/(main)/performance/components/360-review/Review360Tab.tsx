@@ -3,10 +3,22 @@
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { createClient } from "@/shared/api/supabase/client"
 import { canManageByRole } from "@/shared/lib/roles"
+import type { QuarterFilterValue } from "@/shared/ui"
 import { useMemo } from "react"
 import useSWR from "swr"
 import { AdminReviewDashboard } from "../admin/AdminReviewDashboard"
 import { EmployeeReviewView } from "./EmployeeReviewView"
+
+function getCurrentQuarterValue(): QuarterFilterValue {
+  const now = new Date()
+  const year = now.getFullYear()
+  const month = now.getMonth() + 1
+  let quarter = "Q1"
+  if (month >= 4 && month <= 6) quarter = "Q2"
+  else if (month >= 7 && month <= 9) quarter = "Q3"
+  else if (month >= 10) quarter = "Q4"
+  return `${year}-${quarter}`
+}
 
 export function Review360Tab(
   {
@@ -43,7 +55,13 @@ export function Review360Tab(
 
   // --- POV 1: STAKEHOLDER (ADMIN) ---
   if (canManageByRole(profile?.role)) {
-    return <AdminReviewDashboard />
+    return (
+      <AdminReviewDashboard
+        selectedQuarter={
+          (selectedQuarter as QuarterFilterValue) ?? getCurrentQuarterValue()
+        }
+      />
+    )
   }
 
   // --- POV 2: EMPLOYEE ---

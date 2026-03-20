@@ -11,29 +11,36 @@ import {
   type SLAResult,
 } from "@/entities/performance/lib/kpiCalculations"
 import {
-  Badge, Button, Card,
+  Badge,
+  Button,
+  EmptyState,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue, Table,
+  SelectValue,
+  Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeaderCell,
-  TableRow, TabNavigation, TabNavigationLink,
+  TableRow,
+  TableSection,
   TextInput
 } from "@/shared/ui"
-import { useMountedTabs } from "@/shared/hooks/useMountedTabs"
 import {
   RiArrowLeftLine,
   RiCheckLine,
   RiCloseLine,
-  RiFolderLine,
   RiSave3Line,
 } from "@/shared/ui/lucide-icons"
 import Link from "next/link"
-import { useEffect, useState } from "react"
+import {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useState,
+} from "react"
 import { toast } from "sonner"
 import {
   getCompetenciesForRole,
@@ -87,19 +94,25 @@ type CompetencyLibraryItem = {
   description: string | null
 }
 
-type TabType = "sla" | "quality"
-
 interface ProjectScoringClientProps {
   employee: Employee
   assignment: Assignment
+  backHref?: string
+  hideBackButton?: boolean
+  onDirtyChange?: (dirty: boolean) => void
 }
 
-export function ProjectScoringClient({
-  employee,
-  assignment,
-}: ProjectScoringClientProps) {
-  const [activeTab, setActiveTab] = useState<TabType>("sla")
-  const { isMounted } = useMountedTabs(activeTab)
+export type ProjectScoringClientHandle = {
+  saveAll: () => Promise<void>
+}
+
+export const ProjectScoringClient = forwardRef<
+  ProjectScoringClientHandle,
+  ProjectScoringClientProps
+>(function ProjectScoringClient(
+  { employee, assignment, backHref, hideBackButton = false, onDirtyChange },
+  ref,
+) {
   const [milestones, setMilestones] = useState<Milestone[]>([
     {
       name: "Wireframe",
@@ -126,6 +139,24 @@ export function ProjectScoringClient({
   const [competencies, setCompetencies] = useState<Competency[]>([])
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [dirtySLA, setDirtySLA] = useState(false)
+  const [dirtyQuality, setDirtyQuality] = useState(false)
+
+  const isDirty = dirtySLA || dirtyQuality
+
+  useEffect(() => {
+    onDirtyChange?.(isDirty)
+  }, [isDirty, onDirtyChange])
+
+  useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (!isDirty) return
+      event.preventDefault()
+      event.returnValue = ""
+    }
+    window.addEventListener("beforeunload", handleBeforeUnload)
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload)
+  }, [isDirty])
 
   useEffect(() => {
     const loadData = async () => {
@@ -192,6 +223,7 @@ export function ProjectScoringClient({
     }
 
     setMilestones(updated)
+    setDirtySLA(true)
   }
 
   const handleSaveSLA = async () => {
@@ -208,6 +240,7 @@ export function ProjectScoringClient({
       const result = await saveSLAScores(assignment.id, milestonesData)
       if (result.success) {
         toast.success("SLA tersimpan")
+        setDirtySLA(false)
       } else {
         toast.error("Gagal simpan")
       }
@@ -223,6 +256,7 @@ export function ProjectScoringClient({
     const updated = [...competencies]
     updated[index].isAchieved = !updated[index].isAchieved
     setCompetencies(updated)
+    setDirtyQuality(true)
   }
 
   const handleSaveQuality = async () => {
@@ -239,6 +273,7 @@ export function ProjectScoringClient({
       )
       if (result.success) {
         toast.success("Kualitas tersimpan")
+        setDirtyQuality(false)
       } else {
         toast.error("Gagal simpan")
       }
@@ -250,37 +285,54 @@ export function ProjectScoringClient({
     }
   }
 
+  useImperativeHandle(
+    ref,
+    () => ({
+      saveAll: async () => {
+        await handleSaveSLA()
+        await handleSaveQuality()
+      },
+    }),
+    [handleSaveSLA, handleSaveQuality],
+  )
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      saveAll: async () => {
+        await handleSaveSLA()
+        await handleSaveQuality()
+      },
+    }),
+    [handleSaveSLA, handleSaveQuality],
+  )
+
   const totalPercentage = calculateSLAPercentage(milestones)
   const finalScore = mapPercentageToScore(totalPercentage)
   const qualityPercentage = calculateWorkQualityPercentage(competencies)
 
   return (
     <div className="flex flex-col">
-      <div className="flex items-center gap-2 rounded-xxl px-5 pt-4 pb-3">
-        <RiFolderLine className="size-4 text-foreground-secondary" />
-        <p className="text-label-md text-foreground-primary">
-          Project Performance
-        </p>
-      </div>
-
       <div className="bg-surface-neutral-primary flex flex-col rounded-xxl">
-        <div className="space-y-6 p-5">
+        <div className="space-y-5 p-5">
           {/* HEADER */}
           <div>
-            <Link href={`/performance/employee/${employee.id}`}>
-              <Button variant="ghost" size="sm">
-                <RiArrowLeftLine className="mr-2 size-4" />
-                Back to {employee.full_name || "Employee"}
-              </Button>
-            </Link>
+            {!hideBackButton && (
+              <Link href={backHref || `/performance/employee/${employee.id}`}>
+                <Button variant="ghost" size="sm">
+                  <RiArrowLeftLine className="mr-2 size-4" />
+                  Back to {employee.full_name || "Employee"}
+                </Button>
+              </Link>
+            )}
 
-            <div className="mt-4 flex items-start justify-between">
+            <div className={`${hideBackButton ? "" : "mt-4"} flex items-start justify-between`}>
               <div>
-                <h1 className="text-display-xxs text-foreground-primary">
+                <h1 className="text-heading-md text-foreground-primary">
                   {assignment.projects.name}
                 </h1>
                 {assignment.projects.description && (
-                  <p className="text-foreground-secondary mt-1">
+                  <p className="text-label-sm text-foreground-secondary mt-1">
                     {assignment.projects.description}
                   </p>
                 )}
@@ -293,276 +345,192 @@ export function ProjectScoringClient({
           </div>
 
           {/* KPI OVERVIEW */}
-          <div className="grid grid-cols-2 gap-6">
-            <Card>
-              <dt className="text-label-md text-foreground-secondary">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-lg border px-4 py-3">
+              <dt className="text-label-sm text-foreground-secondary">
                 SLA Score
               </dt>
-              <dd className="text-display-xxs text-foreground-primary mt-2">
-                {totalPercentage.toFixed(1)}%
-              </dd>
-              <Badge className={`mt-2 ${getScoreColor(finalScore)}`}>
-                {getScoreLabel(finalScore)}
-              </Badge>
-            </Card>
-            <Card>
-              <dt className="text-label-md text-foreground-secondary">
+              <div className="flex items-center gap-2">
+                <dd className="text-heading-md text-foreground-primary">
+                  {totalPercentage.toFixed(1)}%
+                </dd>
+                <Badge size="sm" className={`${getScoreColor(finalScore)}`}>
+                  {getScoreLabel(finalScore)}
+                </Badge>
+              </div>
+            </div>
+            <div className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-lg border px-4 py-3">
+              <dt className="text-label-sm text-foreground-secondary">
                 Work Quality
               </dt>
-              <dd className="text-display-xxs text-foreground-primary mt-2">
-                {competencies.filter((c) => c.isAchieved).length}/
-                {competencies.length}
-              </dd>
-              <Badge
-                className={`mt-2 ${getScoreColor(mapPercentageToScore(qualityPercentage))}`}
-              >
-                {getScoreLabel(mapPercentageToScore(qualityPercentage))}
-              </Badge>
-            </Card>
+              <div className="flex items-center gap-2">
+                <dd className="text-heading-md text-foreground-primary">
+                  {competencies.filter((c) => c.isAchieved).length}/
+                  {competencies.length}
+                </dd>
+                <Badge
+                  size="sm"
+                  className={`${getScoreColor(mapPercentageToScore(qualityPercentage))}`}
+                >
+                  {getScoreLabel(mapPercentageToScore(qualityPercentage))}
+                </Badge>
+              </div>
+            </div>
           </div>
 
-          {/* TAB NAVIGATION */}
-          <TabNavigation>
-            <TabNavigationLink
-              active={activeTab === "sla"}
-              onClick={() => setActiveTab("sla")}
-            >
-              SLA Calculation
-            </TabNavigationLink>
-            <TabNavigationLink
-              active={activeTab === "quality"}
-              onClick={() => setActiveTab("quality")}
-            >
-              Work Quality
-            </TabNavigationLink>
-          </TabNavigation>
-
-          {/* TAB CONTENT */}
-          {isMounted("sla") && (
-            <div
-              className={
-                activeTab === "sla" ? "space-y-6" : "hidden space-y-6"
-              }
-            >
-              {/* SLA CALCULATOR - FULL WIDTH */}
-              <Card className="border-0 p-0">
-                <div className="mb-6 flex items-center justify-between">
-                  <h3 className="text-heading-md text-foreground-primary">
-                    SLA Calculator
-                  </h3>
+          <div className="space-y-5">
+            <div className="grid grid-cols-1 gap-5 lg:grid-cols-10">
+              <TableSection
+                title="SLA Calculation"
+                className="lg:col-span-7"
+                actions={
                   <Button onClick={handleSaveSLA} disabled={saving} size="sm">
                     <RiSave3Line className="mr-2 size-4" />
                     {saving ? "Saving..." : "Save"}
                   </Button>
-                </div>
-
-                {/* Table-style Form */}
-                <div className="space-y-4">
-                  {/* Header Row - using flex like Timeline Engine */}
-                  <div className="text-label-md text-foreground-primary border-neutral-primary flex gap-4 border-b px-1 pb-2">
-                    <div className="flex-1">Milestone</div>
-                    <div className="w-28 text-center">Weight (%)</div>
-                    <div className="w-40 text-center">Result</div>
-                    <div className="w-32 text-center">Real Achieve</div>
-                  </div>
-
-                  {/* Data Rows - using flex like Timeline Engine */}
-                  {milestones.map((milestone, index) => (
-                    <div key={index} className="flex items-center gap-4">
-                      {/* Milestone Name */}
-                      <TextInput className="flex-1" value={milestone.name} disabled />
-
-                      {/* Weight */}
-                      <TextInput
-                        type="number"
-                        className="w-28 text-center"
-                        value={milestone.weight}
-                        onChange={(e) =>
-                          handleMilestoneChange(
-                            index,
-                            "weight",
-                            Number(e.target.value),
-                          )
-                        }
-                      />
-
-                      {/* Result */}
-                      <Select
-                        value={milestone.result}
-                        onValueChange={(v) =>
-                          handleMilestoneChange(index, "result", v as SLAResult)
-                        }
-                      >
-                        <SelectTrigger className="w-40">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {/* Handover only has On Time and Delay, no Faster */}
-                          {milestone.name === "Handover" ? (
-                            <>
-                              <SelectItem value="On Time">On Time</SelectItem>
-                              <SelectItem value="Delay">Delay</SelectItem>
-                            </>
-                          ) : (
-                            <>
-                              <SelectItem value="Faster">Faster</SelectItem>
-                              <SelectItem value="On Time">On Time</SelectItem>
-                              <SelectItem value="Delay">Delay</SelectItem>
-                            </>
-                          )}
-                        </SelectContent>
-                      </Select>
-
-                      {/* Real Achieve (Read-only) */}
-                      <TextInput
-                        className="w-32 text-center"
-                        value={milestone.realAchieve.toFixed(1)}
-                        disabled
-                      />
-                    </div>
-                  ))}
-
-                  {/* Total Row */}
-                  <div className="border-neutral-primary border-t pt-4">
-                    <div className="text-foreground-primary flex justify-between font-semibold">
-                      <span>Total</span>
-                      <span>
-                        {milestones.reduce((sum, m) => sum + m.weight, 0)}%
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-
-              {/* PARAMETER MATRIX & FINAL SCORE - BELOW */}
-              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                <Card className="border-0 p-0">
-                  <h3 className="text-heading-md text-foreground-primary mb-4">
-                    Parameter Matrix
-                  </h3>
-                  <Table>
-                    <TableHead>
-                      <TableRow>
-                        <TableHeaderCell>SLA Status</TableHeaderCell>
-                        <TableHeaderCell>Percentage</TableHeaderCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      <TableRow>
-                        <TableCell>Faster</TableCell>
-                        <TableCell>120%</TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell>On Time</TableCell>
-                        <TableCell>100%</TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell>Delay</TableCell>
-                        <TableCell>80%</TableCell>
-                      </TableRow>
-                    </TableBody>
-                  </Table>
-                </Card>
-
-                <Card className="border-0 p-0">
-                  <h3 className="text-heading-md text-foreground-primary mb-4">
-                    Final Score
-                  </h3>
-                  <div className="space-y-4">
-                    <div>
-                      <p className="text-body-sm text-foreground-secondary">
-                        Total Nilai
-                      </p>
-                      <div className="flex items-center gap-3">
-                        <p className="text-display-xxs text-foreground-primary">
-                          {totalPercentage.toFixed(1)}%
-                        </p>
-                        <Badge className={getScoreColor(finalScore)}>
-                          {getScoreLabel(finalScore)}
-                        </Badge>
-                      </div>
-                    </div>
-
-                    {/* Ruler Visual */}
-                    <div>
-                      <p className="text-body-sm text-foreground-secondary mb-2">
-                        Score Ruler
-                      </p>
-                      <div className="text-body-xs grid grid-cols-5 gap-2 text-center">
-                        {[1, 2, 3, 4, 5].map((score) => (
-                          <div
-                            key={score}
-                            className={`rounded p-2 ${score === finalScore
-                              ? getScoreColor(score)
-                              : "bg-surface-neutral-secondary text-foreground-tertiary dark:bg-hover"
-                              }`}
+                }
+              >
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableHeaderCell>Milestone</TableHeaderCell>
+                      <TableHeaderCell className="text-center">
+                        Weight (%)
+                      </TableHeaderCell>
+                      <TableHeaderCell className="text-center">
+                        Result
+                      </TableHeaderCell>
+                      <TableHeaderCell className="text-center">
+                        Real Achieve
+                      </TableHeaderCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {milestones.map((milestone, index) => (
+                      <TableRow key={index}>
+                        <TableCell className="font-medium">
+                          {milestone.name}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <TextInput
+                            type="number"
+                            className="mx-auto w-20 text-center"
+                            value={milestone.weight}
+                            onChange={(e) =>
+                              handleMilestoneChange(
+                                index,
+                                "weight",
+                                Number(e.target.value),
+                              )
+                            }
+                          />
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <Select
+                            value={milestone.result}
+                            onValueChange={(v) =>
+                              handleMilestoneChange(index, "result", v as SLAResult)
+                            }
                           >
-                            <div className="font-semibold">{score}</div>
-                            <div className="text-label-xs mt-1">
-                              {score === 1 && "< 76%"}
-                              {score === 2 && "76-83.9%"}
-                              {score === 3 && "84-91.9%"}
-                              {score === 4 && "92-99.9%"}
-                              {score === 5 && "≥ 100%"}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </Card>
-              </div>
+                            <SelectTrigger className="mx-auto w-28">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {milestone.name === "Handover" ? (
+                                <>
+                                  <SelectItem value="On Time">On Time</SelectItem>
+                                  <SelectItem value="Delay">Delay</SelectItem>
+                                </>
+                              ) : (
+                                <>
+                                  <SelectItem value="Faster">Faster</SelectItem>
+                                  <SelectItem value="On Time">On Time</SelectItem>
+                                  <SelectItem value="Delay">Delay</SelectItem>
+                                </>
+                              )}
+                            </SelectContent>
+                          </Select>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          {milestone.realAchieve.toFixed(1)}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                    <TableRow>
+                      <TableCell className="font-semibold">Total</TableCell>
+                      <TableCell className="text-center font-semibold">
+                        {milestones.reduce((sum, m) => sum + m.weight, 0)}%
+                      </TableCell>
+                      <TableCell></TableCell>
+                      <TableCell></TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </TableSection>
+              <TableSection title="Parameter" className="lg:col-span-3">
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableHeaderCell>Status</TableHeaderCell>
+                      <TableHeaderCell>%</TableHeaderCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell>Faster</TableCell>
+                      <TableCell>120%</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>On Time</TableCell>
+                      <TableCell>100%</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>Delay</TableCell>
+                      <TableCell>80%</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </TableSection>
             </div>
-          )}
-          {isMounted("quality") && (
-            <Card
-              className={
-                activeTab === "quality" ? "border-0 p-0" : "hidden border-0 p-0"
-              }
-            >
-              <div className="mb-4 flex items-center justify-between">
-                <div>
-                  <h3 className="text-heading-md text-foreground-primary">
-                    Work Quality Assessment
-                  </h3>
-                  <p className="text-body-sm text-foreground-secondary">
-                    Based on {assignment.role_in_project} competencies
-                  </p>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="text-right">
-                    <p className="text-label-md text-foreground-secondary">
-                      Quality Score
-                    </p>
-                    <p className="text-display-xxs text-foreground-primary">
-                      {competencies.filter((c) => c.isAchieved).length}/
-                      {competencies.length}
-                    </p>
-                  </div>
+
+            <TableSection
+              title="Work Quality Assessment"
+              actions={
+                <div className="flex items-center gap-2">
+                  <Badge variant="zinc">
+                    {competencies.filter((c) => c.isAchieved).length}/
+                    {competencies.length} Achieved
+                  </Badge>
                   <Button onClick={handleSaveQuality} disabled={saving}>
                     <RiSave3Line className="mr-2 size-4" />
                     {saving ? "Saving..." : "Save"}
                   </Button>
                 </div>
-              </div>
-
+              }
+            >
               {loading ? (
                 <div className="text-body-sm text-foreground-secondary p-8 text-center">
                   Loading competencies...
                 </div>
               ) : competencies.length === 0 ? (
-                <div className="text-body-sm text-foreground-secondary p-8 text-center">
-                  No competencies found for this role
-                </div>
+                <EmptyState
+                  placement="inner"
+                  title="No competencies yet"
+                  description="No competencies found for this role."
+                />
               ) : (
                 <div className="overflow-x-auto">
                   <Table>
                     <TableHead>
                       <TableRow>
-                        <TableHeaderCell className="w-[200px]">Competency</TableHeaderCell>
-                        <TableHeaderCell className="w-[400px]">Description</TableHeaderCell>
-                        <TableHeaderCell className="w-[120px] text-center">
-                          Achieved
+                        <TableHeaderCell className="w-[200px]">
+                          Competency
+                        </TableHeaderCell>
+                        <TableHeaderCell className="min-w-[520px]">
+                          Description
+                        </TableHeaderCell>
+                        <TableHeaderCell className="w-[160px] text-center">
+                          Status
                         </TableHeaderCell>
                       </TableRow>
                     </TableHead>
@@ -570,27 +538,27 @@ export function ProjectScoringClient({
                       {competencies.map((comp, index) => (
                         <TableRow key={comp.id}>
                           <TableCell className="font-medium">{comp.name}</TableCell>
-                          <TableCell
-                            className="text-foreground-secondary max-w-[400px]"
-                            title={comp.description || "-"}
-                          >
-                            <span className="line-clamp-2">
-                              {comp.description || "-"}
-                            </span>
-                          </TableCell>
+                            <TableCell
+                              className="text-foreground-secondary whitespace-normal break-words"
+                              title={comp.description || "-"}
+                            >
+                              {comp.description || "..."}
+                            </TableCell>
                           <TableCell className="text-center">
                             <Button
-                              variant={comp.isAchieved ? "primary" : "tertiary"}
+                              variant={comp.isAchieved ? "primary" : "secondary"}
                               size="sm"
                               onClick={() => handleToggleCompetency(index)}
                             >
                               {comp.isAchieved ? (
                                 <>
-                                  <RiCheckLine className="mr-1 size-3.5" />Y
+                                  <RiCheckLine className="mr-1 size-3.5" />
+                                  Achieved
                                 </>
                               ) : (
                                 <>
-                                  <RiCloseLine className="mr-1 size-3.5" />N
+                                  <RiCloseLine className="mr-1 size-3.5" />
+                                  Not Achieved
                                 </>
                               )}
                             </Button>
@@ -601,10 +569,10 @@ export function ProjectScoringClient({
                   </Table>
                 </div>
               )}
-            </Card>
-          )}
+            </TableSection>
+          </div>
         </div>
       </div>
     </div>
   )
-}
+})

@@ -1,14 +1,6 @@
 "use client"
 
-import {
-  RiCheckboxCircleLine,
-  RiFileTextLine,
-  RiGroupLine,
-  RiStarLine,
-  RiTimeLine,
-} from "@/shared/ui/lucide-icons"
 import Link from "next/link"
-import { StatsCard } from "@/shared/ui"
 
 interface AdminMetricsOverviewProps {
   totalEmployees: number
@@ -25,49 +17,34 @@ export function AdminMetricsOverview({
   todayAttendanceRate,
   avgTeamPerformance,
 }: AdminMetricsOverviewProps) {
+  const items = [
+    { label: "Total Employees", value: totalEmployees, href: "/teams" },
+    { label: "Pending Reviews", value: pendingReviews, href: "/performance?tab=360review" },
+    { label: "Leave Approvals", value: pendingLeaveApprovals, href: "/leave" },
+    { label: "Attendance Today", value: `${todayAttendanceRate}%`, href: "/leave" },
+    { label: "Avg Team Score", value: avgTeamPerformance !== null ? `${avgTeamPerformance}%` : "—" },
+  ]
+
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-      <Link href="/teams">
-        <StatsCard
-          title="Total Employees"
-          value={totalEmployees}
-          icon={<RiGroupLine className="size-5" />}
-          className="transition-all hover:shadow-md"
-        />
-      </Link>
+      {items.map((item) => {
+        const content = (
+          <div className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-lg border px-4 py-3">
+            <p className="text-label-sm text-foreground-secondary">{item.label}</p>
+            <p className="text-heading-md text-foreground-primary">{item.value}</p>
+          </div>
+        )
 
-      <Link href="/performance?tab=360review">
-        <StatsCard
-          title="Pending Reviews"
-          value={pendingReviews}
-          icon={<RiFileTextLine className="size-5" />}
-          className="transition-all hover:shadow-md"
-        />
-      </Link>
+        if (!item.href) {
+          return <div key={item.label}>{content}</div>
+        }
 
-      <Link href="/leave">
-        <StatsCard
-          title="Leave Approvals"
-          value={pendingLeaveApprovals}
-          icon={<RiTimeLine className="size-5" />}
-          className="transition-all hover:shadow-md"
-        />
-      </Link>
-
-      <Link href="/leave">
-        <StatsCard
-          title="Attendance Today"
-          value={`${todayAttendanceRate}%`}
-          icon={<RiCheckboxCircleLine className="size-5" />}
-          className="transition-all hover:shadow-md"
-        />
-      </Link>
-
-      <StatsCard
-        title="Avg Team Score"
-        value={avgTeamPerformance !== null ? `${avgTeamPerformance}%` : "—"}
-        icon={<RiStarLine className="size-5" />}
-      />
+        return (
+          <Link key={item.label} href={item.href}>
+            {content}
+          </Link>
+        )
+      })}
     </div>
   )
 }

@@ -1,5 +1,7 @@
 "use client"
 
+import { cx } from "@/shared/lib/utils"
+import { logError } from "@/shared/lib/utils/logger"
 import {
   Button,
   Dialog,
@@ -10,8 +12,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/shared/ui"
-import { logError } from "@/shared/lib/utils/logger"
-import { cx } from "@/shared/lib/utils"
 import {
   RiCalendarLine,
   RiCloseLine,
@@ -96,7 +96,7 @@ export function MeetingDialog({
           <DialogCloseButton onClick={() => onOpenChange(false)} />
         </DialogHeader>
 
-        <DialogBody className="flex-1 space-y-6 overflow-y-auto">
+        <DialogBody className="flex-1 space-y-4 overflow-y-auto">
           {/* Event Title & Type */}
           <div>
             <div className="flex items-start justify-between gap-4">

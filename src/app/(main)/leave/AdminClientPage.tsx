@@ -108,8 +108,8 @@ export default function LeaveAdminPage({
       </div>
 
       <div className="bg-surface-neutral-primary flex flex-col rounded-xxl">
-        <div className="space-y-6 p-5">
-          <TabNavigation>
+        <div className="px-5 pt-2 border-b border-neutral-primary">
+          <TabNavigation className="border-b-0">
             <TabNavigationLink
               active={activeTab === "approval"}
               onClick={() => setActiveTab("approval")}
@@ -125,9 +125,11 @@ export default function LeaveAdminPage({
               Remaining Leave
             </TabNavigationLink>
           </TabNavigation>
+        </div>
 
+        <div className="p-5">
           {mountedTabs.has("approval") && (
-            <div className={activeTab === "approval" ? "block" : "hidden"}>
+            <div className={activeTab === "approval" ? "block space-y-5" : "hidden space-y-5"}>
               <section>
                 <LeaveAdminStats requests={requests} />
               </section>
@@ -169,7 +171,7 @@ export default function LeaveAdminPage({
           )}
 
           {mountedTabs.has("remaining") && (
-            <div className={activeTab === "remaining" ? "block" : "hidden"}>
+            <div className={activeTab === "remaining" ? "block space-y-5" : "hidden space-y-5"}>
               <RemainingLeaveView data={profiles} />
             </div>
           )}

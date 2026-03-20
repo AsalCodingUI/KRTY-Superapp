@@ -1,5 +1,6 @@
 "use client"
 
+import { RiBarChartBoxLine } from "@/shared/ui/lucide-icons"
 import type { AdminDashboardData } from "../actions/dashboard-admin-actions"
 import { AdminAttendanceOverview } from "./AdminAttendanceOverview"
 import { AdminEmployeeSpotlight } from "./AdminEmployeeSpotlight"
@@ -7,7 +8,6 @@ import { AdminMetricsOverview } from "./AdminMetricsOverview"
 import { AdminPendingActions } from "./AdminPendingActions"
 import { AdminPerformanceDistribution } from "./AdminPerformanceDistribution"
 import { AdminRecentActivities } from "./AdminRecentActivities"
-import { RiBarChartBoxLine } from "@/shared/ui/lucide-icons"
 
 interface AdminDashboardProps {
   data: AdminDashboardData
@@ -24,40 +24,24 @@ export function AdminDashboard({ data }: AdminDashboardProps) {
       </div>
 
       <div className="bg-surface-neutral-primary flex flex-col rounded-xxl">
-        <div className="space-y-6 p-5">
-          {/* Key Metrics */}
-          <div>
-            <h2 className="text-heading-md text-foreground-primary mb-3">
-              Key Metrics
-            </h2>
-            <AdminMetricsOverview
-              totalEmployees={data.teamMetrics.totalEmployees}
-              pendingReviews={data.teamMetrics.pendingReviews}
-              pendingLeaveApprovals={data.teamMetrics.pendingLeaveApprovals}
-              todayAttendanceRate={data.teamMetrics.todayAttendanceRate}
-              avgTeamPerformance={data.teamMetrics.avgTeamPerformance}
-            />
-          </div>
+        <div className="space-y-5 p-4 sm:p-5">
+          <AdminMetricsOverview
+            totalEmployees={data.teamMetrics.totalEmployees}
+            pendingReviews={data.teamMetrics.pendingReviews}
+            pendingLeaveApprovals={data.teamMetrics.pendingLeaveApprovals}
+            todayAttendanceRate={data.teamMetrics.todayAttendanceRate}
+            avgTeamPerformance={data.teamMetrics.avgTeamPerformance}
+          />
 
-          {/* Pending Actions */}
-          <div>
-            <h2 className="text-heading-md text-foreground-primary mb-3">
-              Pending Actions
-            </h2>
+          <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
             <AdminPendingActions
               pendingReviews={data.pendingReviewsList}
               pendingLeaveApprovals={data.pendingLeaveApprovals}
             />
+            <AdminRecentActivities activities={data.recentActivities} />
           </div>
 
-          {/* Two Column Layout for Charts */}
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            {/* Performance Distribution */}
-            <AdminPerformanceDistribution
-              distribution={data.performanceDistribution}
-            />
-
-            {/* Attendance Overview */}
+          <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
             <AdminAttendanceOverview
               totalToday={data.attendanceOverview.totalToday}
               onTime={data.attendanceOverview.onTime}
@@ -65,26 +49,15 @@ export function AdminDashboard({ data }: AdminDashboardProps) {
               onLeave={data.attendanceOverview.onLeave}
               absent={data.attendanceOverview.absent}
             />
-          </div>
-
-          {/* Employee Spotlight */}
-          <div>
-            <h2 className="text-heading-md text-foreground-primary mb-3">
-              Employee Spotlight
-            </h2>
-            <AdminEmployeeSpotlight
-              topPerformers={data.topPerformers}
-              employeesNeedingAttention={data.employeesNeedingAttention}
+            <AdminPerformanceDistribution
+              distribution={data.performanceDistribution}
             />
           </div>
 
-          {/* Recent Activities */}
-          <div>
-            <h2 className="text-heading-md text-foreground-primary mb-3">
-              Recent Activities
-            </h2>
-            <AdminRecentActivities activities={data.recentActivities} />
-          </div>
+          <AdminEmployeeSpotlight
+            topPerformers={data.topPerformers}
+            employeesNeedingAttention={data.employeesNeedingAttention}
+          />
         </div>
       </div>
     </div>

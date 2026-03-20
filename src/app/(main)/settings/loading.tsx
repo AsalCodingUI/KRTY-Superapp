@@ -4,7 +4,7 @@ import { Skeleton } from "@/shared/ui"
 
 export default function SettingsLoading() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Header Skeleton */}
       <div>
         <Skeleton className="h-7 w-32" />
@@ -12,7 +12,7 @@ export default function SettingsLoading() {
       </div>
 
       {/* Settings Form Skeleton */}
-      <div className="border-neutral-primary bg-surface-neutral-primary space-y-6 rounded-lg border p-6">
+      <div className="border-neutral-primary bg-surface-neutral-primary space-y-4 rounded-lg border p-6">
         {[1, 2, 3].map((i) => (
           <div key={i} className="space-y-2">
             <Skeleton className="h-4 w-24" />

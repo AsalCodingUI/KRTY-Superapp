@@ -3,7 +3,6 @@
 "use client"
 
 import {
-  RiArrowDownSLine,
   RiArrowLeftDoubleLine,
   RiArrowLeftSLine,
   RiArrowRightDoubleLine,
@@ -128,7 +127,7 @@ const Calendar = ({
           numberOfMonths > 1 && "border-l border-neutral-secondary first:border-l-0",
         ),
         nav: "hidden",
-        table: "w-full border-separate border-spacing-2",
+        table: "w-full border-separate border-spacing-x-0 border-spacing-y-2",
         head_row: "h-8",
         head_cell:
           "h-8 w-8 p-0 text-label-sm text-foreground-secondary text-center",
@@ -149,13 +148,13 @@ const Calendar = ({
           "text-foreground-disable disabled:hover:bg-transparent hover:bg-transparent",
         day_outside: "text-foreground-disable hover:bg-transparent",
         day_range_middle: cx(
-          "!rounded-none",
+          "relative !rounded-none",
           "aria-selected:!bg-surface-brand-light aria-selected:!text-foreground-secondary",
         ),
         day_range_start:
-          "rounded-md border border-border-brand !bg-transparent !text-foreground-secondary hover:bg-transparent",
+          "relative rounded-md border border-border-brand !bg-transparent !text-foreground-secondary hover:!bg-transparent",
         day_range_end:
-          "rounded-md !bg-surface-brand !text-foreground-on-color hover:!bg-surface-brand",
+          "relative rounded-md !bg-surface-brand !text-foreground-on-color hover:!bg-surface-brand",
         day_hidden: "invisible",
         ...classNames,
       }}
@@ -239,38 +238,9 @@ const Calendar = ({
                 aria-live="polite"
                 className="flex flex-1 items-center justify-center gap-3"
               >
-                <div className="flex items-center gap-1">
-                  <span className="text-label-md text-foreground-secondary text-center tracking-[-0.112px]">
-                    {format(props.displayMonth, "LLL, yyyy", { locale })}
-                  </span>
-                  <button
-                    type="button"
-                    className={cx(
-                      "flex size-6 items-center justify-center rounded-md",
-                      "hover:bg-surface-state-neutral-light-hover",
-                      focusRing,
-                    )}
-                    aria-label="Select month"
-                  >
-                    <RiArrowDownSLine className="size-3.5 text-foreground-secondary" />
-                  </button>
-                </div>
-                <div className="flex items-center gap-1">
-                  <span className="text-label-md text-foreground-secondary text-center tracking-[-0.112px]">
-                    {format(props.displayMonth, "yyyy", { locale })}
-                  </span>
-                  <button
-                    type="button"
-                    className={cx(
-                      "flex size-6 items-center justify-center rounded-md",
-                      "hover:bg-surface-state-neutral-light-hover",
-                      focusRing,
-                    )}
-                    aria-label="Select year"
-                  >
-                    <RiArrowDownSLine className="size-3.5 text-foreground-secondary" />
-                  </button>
-                </div>
+                <span className="text-label-md text-foreground-secondary text-center tracking-[-0.112px]">
+                  {format(props.displayMonth, "LLL, yyyy", { locale })}
+                </span>
               </div>
 
               <div className="flex items-center gap-1">

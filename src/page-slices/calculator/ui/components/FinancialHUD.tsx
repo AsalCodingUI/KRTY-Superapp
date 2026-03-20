@@ -6,10 +6,13 @@ import { RiAlertFill, RiCheckboxCircleFill } from "@/shared/ui/lucide-icons"
 interface FinancialHUDProps {
   grossRevenue: number
   totalLaborCost: number
-  platformFee: number
-  platformFeePercent: number
+  overheadCost: number
+  freelanceCost: number
+  totalCost: number
   netProfit: number
   marginPercent: number
+  targetMargin: number
+  suggestedPrice: number
 }
 
 const formatIDR = (value: number) =>
@@ -22,22 +25,25 @@ const formatIDR = (value: number) =>
 export function FinancialHUD({
   grossRevenue,
   totalLaborCost,
-  platformFee,
-  platformFeePercent,
+  overheadCost,
+  freelanceCost,
+  totalCost,
   netProfit,
   marginPercent,
+  targetMargin,
+  suggestedPrice,
 }: FinancialHUDProps) {
-  const isHealthy = marginPercent > 30
+  const isHealthy = marginPercent >= targetMargin
 
   return (
     <div className="sticky top-8">
-      <h4 className="text-label-md text-foreground-primary dark:text-foreground-primary">
+      <h4 className="text-label-md text-foreground-primary">
         Financial Overview
       </h4>
 
       <div className="mt-6">
-        <p className="text-label-md text-foreground-secondary dark:text-foreground-secondary">
-          Net Profit (Estimated)
+        <p className="text-label-sm text-foreground-secondary">
+          Net Profit
         </p>
         <div className="mt-1 flex flex-wrap items-baseline gap-3">
           <span className="text-display-xxs text-foreground-primary dark:text-foreground-primary">
@@ -57,7 +63,7 @@ export function FinancialHUD({
 
       <ul role="list" className="text-body-sm space-y-3">
         <li className="flex items-center justify-between">
-          <span className="text-foreground-secondary dark:text-foreground-tertiary">
+          <span className="text-label-sm text-foreground-secondary">
             Gross Revenue
           </span>
           <span className="text-foreground-primary dark:text-foreground-primary font-medium">
@@ -65,22 +71,76 @@ export function FinancialHUD({
           </span>
         </li>
         <li className="flex items-center justify-between">
-          <span className="text-foreground-secondary dark:text-foreground-tertiary">
-            Labor Cost (COGS)
+          <span className="text-label-sm text-foreground-secondary">
+            Labor Cost (Salary)
           </span>
           <span className="text-danger font-medium">
             -{formatIDR(totalLaborCost)}
           </span>
         </li>
         <li className="flex items-center justify-between">
-          <span className="text-foreground-secondary dark:text-foreground-tertiary">
-            Platform Fee ({platformFeePercent}%)
+          <span className="text-label-sm text-foreground-secondary">
+            Overhead (Portion)
           </span>
           <span className="text-danger font-medium">
-            -{formatIDR(platformFee)}
+            -{formatIDR(overheadCost)}
+          </span>
+        </li>
+        <li className="flex items-center justify-between">
+          <span className="text-label-sm text-foreground-secondary">
+            COGS (Freelance)
+          </span>
+          <span className="text-danger font-medium">
+            -{formatIDR(freelanceCost)}
+          </span>
+        </li>
+        <li className="flex items-center justify-between border-t border-neutral-primary pt-3">
+          <span className="text-label-sm text-foreground-secondary">
+            Total Cost
+          </span>
+          <span className="text-label-md text-foreground-primary font-semibold">
+            {formatIDR(totalCost)}
           </span>
         </li>
       </ul>
+
+      <div className="mt-6 space-y-3">
+        <div className="flex items-center justify-between">
+          <span className="text-label-sm text-foreground-secondary">
+            Current Margin
+          </span>
+          <span className="text-label-md text-foreground-primary font-semibold">
+            {marginPercent.toFixed(1)}%
+          </span>
+        </div>
+        <div className="border-t border-neutral-primary pt-4">
+          <p className="text-label-xs text-foreground-secondary uppercase tracking-wide">
+            Pricing Suggestion
+          </p>
+          <div className="mt-3 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-label-sm text-foreground-secondary">
+                Break-even Price
+              </span>
+              <span className="text-label-md text-foreground-primary font-semibold">
+                {formatIDR(totalCost)}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-label-sm text-foreground-secondary">
+                Suggested Price ({targetMargin.toFixed(0)}% margin)
+              </span>
+              <span
+                className={`text-heading-md font-semibold ${
+                  isHealthy ? "text-success" : "text-danger"
+                }`}
+              >
+                {formatIDR(suggestedPrice)}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <div className="bg-surface border-neutral-primary dark:bg-surface mt-6 flex items-center gap-3 rounded-md border p-3 shadow-sm">
         {isHealthy ? (
@@ -96,8 +156,8 @@ export function FinancialHUD({
         )}
         <span className="text-body-xs text-foreground-secondary dark:text-foreground-tertiary">
           {isHealthy
-            ? "Profitability is optimal (>30%). You are good to go!"
-            : "Margin is below recommended target. Consider adjusting timeline or budget."}
+            ? "Margin meets target. Pricing looks healthy."
+            : "Margin is below target. Consider adjusting scope or price."}
         </span>
       </div>
     </div>

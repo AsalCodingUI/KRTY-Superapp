@@ -1,25 +1,18 @@
 "use client"
 
-import { Avatar, AvatarGroup, Badge } from "@/shared/ui"
-import { Button } from "@/shared/ui"
-import { EmptyState, QuarterFilter, QuarterFilterValue } from "@/shared/ui"
+import type { Database } from "@/shared/types/database.types"
 import {
-  Select,
+  Avatar, AvatarGroup, AvatarOverflow, Badge, Button, EmptyState, QuarterFilterValue, Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
-} from "@/shared/ui"
-import {
-  Table,
+  SelectValue, Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeaderCell,
-  TableRow,
+  TableRow, TableSection
 } from "@/shared/ui"
-import { TableSection } from "@/shared/ui"
-import type { Database } from "@/shared/types/database.types"
 import {
   RiDeleteBin6Line,
   RiEdit2Line,
@@ -27,8 +20,8 @@ import {
 } from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
 import { useState } from "react"
-import useSWR from "swr"
 import { toast } from "sonner"
+import useSWR from "swr"
 import {
   deleteProject,
   getProjects,
@@ -52,18 +45,22 @@ interface ExtendedProject extends Project {
   }>
 }
 
-const getStatusColor = (status: ProjectStatus): string => {
-  const colors: Record<ProjectStatus, string> = {
-    Active: "bg-success/15 text-success",
-    Completed: "bg-primary/15 text-foreground-brand-primary",
-    Archived: "bg-surface-neutral-secondary text-foreground-secondary",
+const getStatusVariant = (
+  status: ProjectStatus,
+): "success" | "info" | "zinc" => {
+  const variants: Record<ProjectStatus, "success" | "info" | "zinc"> = {
+    Active: "success",
+    Completed: "info",
+    Archived: "zinc",
   }
-  return colors[status]
+  return variants[status]
 }
 
-export function ListProjectTab() {
-  const [selectedQuarter, setSelectedQuarter] =
-    useState<QuarterFilterValue>("2025-All")
+export function ListProjectTab({
+  selectedQuarter,
+}: {
+  selectedQuarter: QuarterFilterValue
+}) {
   const [selectedStatus, setSelectedStatus] = useState<string>("All")
   const [formOpen, setFormOpen] = useState(false)
   const [selectedProject, setSelectedProject] =
@@ -131,11 +128,9 @@ export function ListProjectTab() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* FILTERS */}
       <div className="flex items-center gap-3">
-        <QuarterFilter value={selectedQuarter} onChange={setSelectedQuarter} />
-
         <Select value={selectedStatus} onValueChange={setSelectedStatus}>
           <SelectTrigger className="w-[180px]" size="sm">
             <SelectValue placeholder="Filter by status" />
@@ -152,7 +147,6 @@ export function ListProjectTab() {
       {/* PROJECT LIST */}
       <TableSection
         title="Project Configuration"
-        description="Configure projects for KPI assessment. Projects assigned here will automatically appear in employee KPI dashboards."
         actions={
           <Button onClick={() => setFormOpen(true)}>
             <RiFolderLine className="mr-2 size-4" />
@@ -166,7 +160,7 @@ export function ListProjectTab() {
           </div>
         ) : projects.length === 0 ? (
           <EmptyState
-            icon={<RiFolderLine />}
+            icon={<RiFolderLine className="size-5" />}
             title={
               !selectedQuarter.includes("All") || selectedStatus !== "All"
                 ? `No projects found for ${!selectedQuarter.includes("All") ? selectedQuarter : ""} ${selectedStatus !== "All" ? selectedStatus : ""}`
@@ -174,9 +168,11 @@ export function ListProjectTab() {
             }
             description={
               !selectedQuarter.includes("All") || selectedStatus !== "All"
-                ? "Try adjusting your filters to see more projects."
-                : "Create your first project to start tracking employee KPIs based on real project deliveries."
+                ? "Try different filters."
+                : "Create your first project to begin KPI tracking."
             }
+            subtitle="Project data will appear here."
+            placement="inner"
             action={{
               label: "Create Project",
               onClick: () => setFormOpen(true),
@@ -232,7 +228,7 @@ export function ListProjectTab() {
                         const status = (project.status ??
                           "Active") as ProjectStatus
                         return (
-                          <Badge className={getStatusColor(status)}>
+                          <Badge variant={getStatusVariant(status)}>
                             {status}
                           </Badge>
                         )
@@ -253,8 +249,16 @@ export function ListProjectTab() {
                               src={member.image || undefined}
                               alt={member.name}
                               size="sm"
+                              initials={member.name
+                                .split(" ")
+                                .map((segment) => segment[0])
+                                .join("")
+                                .slice(0, 2)}
                             />
                           ))}
+                          {teamMembers.length > 3 && (
+                            <AvatarOverflow count={teamMembers.length - 3} size="sm" />
+                          )}
                         </AvatarGroup>
                       ) : (
                         <span className="text-foreground-disable">

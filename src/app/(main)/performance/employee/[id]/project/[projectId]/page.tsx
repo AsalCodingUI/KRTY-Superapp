@@ -9,12 +9,17 @@ interface ProjectDetailPageProps {
     id: string
     projectId: string
   }>
+  searchParams: Promise<{
+    back?: string
+  }>
 }
 
 export default async function ProjectDetailPage({
   params,
+  searchParams,
 }: ProjectDetailPageProps) {
   const { id: employeeId, projectId } = await params
+  const { back } = await searchParams
 
   const result = await getEmployeeDetail(employeeId)
 
@@ -48,12 +53,17 @@ export default async function ProjectDetailPage({
   } = await supabase.auth.getUser()
 
   const isEmployee = user?.id === employeeId
+  const requestedBack =
+    typeof back === "string" && back.startsWith("/performance") ? back : null
+  const backHref =
+    requestedBack ??
+    (isEmployee ? "/performance" : `/performance/employee/${employeeId}`)
 
   // Route to appropriate component
   if (isEmployee) {
     return (
       <EmployeeProjectView
-        employee={result.data.employee}
+        backHref={backHref}
         assignment={
           assignment as unknown as Parameters<
             typeof EmployeeProjectView
@@ -65,6 +75,7 @@ export default async function ProjectDetailPage({
     return (
       <ProjectScoringClient
         employee={result.data.employee}
+        backHref={backHref}
         assignment={
           assignment as unknown as Parameters<
             typeof ProjectScoringClient

@@ -2,12 +2,14 @@ import { cx } from "@/shared/lib/utils"
 import React from "react"
 
 interface TableSectionProps {
-  title?: string
+  title?: React.ReactNode
   description?: string
   actions?: React.ReactNode
   children: React.ReactNode
   className?: string
   headerClassName?: string
+  titleClassName?: string
+  descriptionClassName?: string
   contentClassName?: string
 }
 
@@ -29,6 +31,8 @@ export function TableSection({
   children,
   className,
   headerClassName,
+  titleClassName,
+  descriptionClassName,
   contentClassName,
 }: TableSectionProps) {
   const hasHeader = Boolean(title || description || actions)
@@ -49,9 +53,21 @@ export function TableSection({
         >
           {title && (
             <div className="min-w-0">
-              <h3 className="text-label-md text-foreground-primary">{title}</h3>
+              <h3
+                className={cx(
+                  "text-label-md text-foreground-primary",
+                  titleClassName,
+                )}
+              >
+                {title}
+              </h3>
               {description && (
-                <p className="text-body-sm text-foreground-tertiary mt-1">
+                <p
+                  className={cx(
+                    "text-body-sm text-foreground-tertiary mt-1",
+                    descriptionClassName,
+                  )}
+                >
                   {description}
                 </p>
               )}

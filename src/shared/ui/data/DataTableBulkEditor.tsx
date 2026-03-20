@@ -17,6 +17,8 @@ type DataTableBulkEditorProps<TData> = {
   rowSelection: RowSelectionState
   onEdit?: (item: TData) => void
   onDelete?: (ids: string[] | number[]) => Promise<void>
+  onApprove?: (ids: string[] | number[]) => Promise<void>
+  onReject?: (ids: string[] | number[]) => Promise<void>
 }
 
 function DataTableBulkEditor<TData>({
@@ -24,6 +26,8 @@ function DataTableBulkEditor<TData>({
   rowSelection,
   onEdit,
   onDelete,
+  onApprove,
+  onReject,
 }: DataTableBulkEditorProps<TData>) {
   const selectedCount = Object.keys(rowSelection).length
   const hasSelectedRows = selectedCount > 0
@@ -40,6 +44,20 @@ function DataTableBulkEditor<TData>({
   const handleBulkDelete = async () => {
     if (onDelete) {
       await onDelete(selectedIds)
+      table.resetRowSelection()
+    }
+  }
+
+  const handleBulkApprove = async () => {
+    if (onApprove) {
+      await onApprove(selectedIds)
+      table.resetRowSelection()
+    }
+  }
+
+  const handleBulkReject = async () => {
+    if (onReject) {
+      await onReject(selectedIds)
       table.resetRowSelection()
     }
   }
@@ -65,13 +83,34 @@ function DataTableBulkEditor<TData>({
             </>
           )}
 
-          {/* Tombol Delete Sekarang Memanggil Prop onDelete Langsung */}
-          {onDelete && (
+          {onApprove && (
             <CommandBarCommand
-              label="Delete"
-              action={handleBulkDelete}
-              shortcut={{ shortcut: "d" }}
+              label="Approve"
+              action={handleBulkApprove}
+              shortcut={{ shortcut: "a" }}
             />
+          )}
+
+          {onReject && (
+            <>
+              <CommandBarSeperator />
+              <CommandBarCommand
+                label="Reject"
+                action={handleBulkReject}
+                shortcut={{ shortcut: "r" }}
+              />
+            </>
+          )}
+
+          {onDelete && (
+            <>
+              <CommandBarSeperator />
+              <CommandBarCommand
+                label="Delete"
+                action={handleBulkDelete}
+                shortcut={{ shortcut: "d" }}
+              />
+            </>
           )}
 
           <CommandBarSeperator />

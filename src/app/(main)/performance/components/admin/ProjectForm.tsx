@@ -2,11 +2,13 @@
 
 import { getQuarterFromDate } from "@/entities/performance/lib/kpiUtils"
 import { type Database } from "@/shared/types/database.types"
+import { format as formatDate } from "date-fns"
 import {
   Avatar,
   Button,
   Checkbox,
   ConfirmDialog,
+  DatePicker,
   Dialog,
   DialogBody,
   DialogCloseButton,
@@ -74,6 +76,7 @@ export function ProjectForm({
   project,
 }: ProjectFormProps) {
   const [loading, setLoading] = useState(false)
+  const [startDate, setStartDate] = useState(project?.start_date || "")
   const [endDate, setEndDate] = useState(project?.end_date || "")
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([])
   const [users, setUsers] = useState<User[]>([])
@@ -143,6 +146,18 @@ export function ProjectForm({
       loadAssignments()
     }
   }, [open, isEdit, loadAssignments, loadUsers])
+
+  useEffect(() => {
+    if (!open) return
+    setStartDate(project?.start_date || "")
+    setEndDate(project?.end_date || "")
+  }, [open, project?.start_date, project?.end_date])
+
+  const parseDateValue = (value: string) => {
+    if (!value) return undefined
+    const parsed = new Date(`${value}T00:00:00`)
+    return Number.isNaN(parsed.getTime()) ? undefined : parsed
+  }
 
   const handleAddTeamMember = async () => {
     if (!selectedUserId) return
@@ -330,24 +345,25 @@ export function ProjectForm({
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="start_date">Start Date *</Label>
-                <TextInput
-                  id="start_date"
-                  name="start_date"
-                  type="date"
-                  defaultValue={project?.start_date || ""}
+                <DatePicker
+                  value={parseDateValue(startDate)}
+                  onChange={(value) =>
+                    setStartDate(value ? formatDate(value, "yyyy-MM-dd") : "")
+                  }
                   required
                 />
+                <input type="hidden" name="start_date" value={startDate} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="end_date">End Date *</Label>
-                <TextInput
-                  id="end_date"
-                  name="end_date"
-                  type="date"
-                  defaultValue={project?.end_date || ""}
-                  onChange={(e) => setEndDate(e.target.value)}
+                <DatePicker
+                  value={parseDateValue(endDate)}
+                  onChange={(value) =>
+                    setEndDate(value ? formatDate(value, "yyyy-MM-dd") : "")
+                  }
                   required
                 />
+                <input type="hidden" name="end_date" value={endDate} />
               </div>
             </div>
 

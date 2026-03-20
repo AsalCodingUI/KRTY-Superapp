@@ -1,6 +1,7 @@
 import { Database } from "@/shared/types/database.types"
 import imageCompression from "browser-image-compression"
 import { useEffect, useState } from "react"
+import { toast } from "sonner"
 
 type LeaveRequest = Database["public"]["Tables"]["leave_requests"]["Row"]
 
@@ -77,7 +78,7 @@ export function useLeaveRequestForm({
         setFormData((prev) => ({ ...prev, proof_file: compressedFile }))
       } catch (error) {
         console.error("Compression failed:", error)
-        alert("Gagal memproses gambar.")
+        toast.error("Failed to process image.")
       } finally {
         setCompressing(false)
       }

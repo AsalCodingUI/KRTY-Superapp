@@ -1,6 +1,7 @@
 "use client"
 
 import { createClient } from "@/shared/api/supabase/client"
+import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import useSWR from "swr"
 
 export type PagePermissionsMap = Record<string, boolean>
@@ -9,23 +10,15 @@ type PermissionsPayload = {
   userPermissions: PagePermissionsMap | null
 }
 
-const fetchPagePermissions = async (): Promise<PermissionsPayload> => {
+const fetchPagePermissions = async (
+  userId: string,
+): Promise<PermissionsPayload> => {
   const supabase = createClient()
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
-    return {
-      userPermissions: null,
-    }
-  }
 
   const { data, error } = await supabase
     .from("user_page_permissions")
     .select("page_slug, granted")
-    .eq("user_id", user.id)
+    .eq("user_id", userId)
 
   const userPermissionsRows = (data || []) as Array<{
     page_slug: string
@@ -52,9 +45,14 @@ const fetchPagePermissions = async (): Promise<PermissionsPayload> => {
  * Returns null if no custom permissions exist — meaning role-based fallback applies.
  */
 export function usePagePermissions() {
+  const { profile, loading: profileLoading } = useUserProfile()
+  const effectiveUserId = profile?.id
+
   const { data, isLoading } = useSWR<PermissionsPayload>(
-    "current-user-page-permissions",
-    fetchPagePermissions,
+    effectiveUserId
+      ? ["current-user-page-permissions", effectiveUserId]
+      : null,
+    ([, userId]: [string, string]) => fetchPagePermissions(userId),
     {
       revalidateOnFocus: false,
       dedupingInterval: 60_000,
@@ -63,7 +61,7 @@ export function usePagePermissions() {
 
   return {
     permissions: data?.userPermissions ?? null,
-    loading: isLoading,
+    loading: profileLoading || isLoading,
     /**
      * Resolver: user override > fallback value.
      */

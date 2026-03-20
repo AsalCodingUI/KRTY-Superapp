@@ -233,7 +233,7 @@ export function DeleteConfirmDialog({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-foreground-primary dark:text-foreground-primary font-semibold">
+          <DialogTitle className="text-foreground-primary dark:text-label-md text-foreground-primary">
             Delete member?
           </DialogTitle>
           <DialogCloseButton />

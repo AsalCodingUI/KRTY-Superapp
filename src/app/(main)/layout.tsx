@@ -1,3 +1,4 @@
+import { ImpersonationBanner } from "@/widgets/impersonation/ui/ImpersonationBanner"
 import { SidebarShell } from "@/widgets/sidebar/ui/SidebarShell"
 import { Suspense } from "react"
 
@@ -17,6 +18,7 @@ export default function Layout({
         <div className="bg-background min-h-screen">
           <div className="bg-surface min-h-[calc(100vh-1rem)]">
             {/* Content container with max-width for readability */}
+            <ImpersonationBanner />
             <Suspense>
               <div className="mx-auto">{children}</div>
             </Suspense>

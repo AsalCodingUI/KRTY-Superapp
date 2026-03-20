@@ -6,6 +6,7 @@ import { navigationConfig } from "@/shared/config/navigation"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { Database } from "@/shared/types/database.types"
 import {
+  Avatar,
   Badge,
   Button,
   Select,
@@ -19,6 +20,7 @@ import { EmptyState } from "@/shared/ui/information/EmptyState"
 import { RiLockLine, RiSettings3Line } from "@/shared/ui/lucide-icons"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
+import { toast } from "sonner"
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"]
 type UserPagePermission =
@@ -64,12 +66,16 @@ export default function PermissionSettingsPage({
   const router = useRouter()
   const {
     isSuperAdmin,
-    profile: currentUser,
+    profile: effectiveProfile,
+    authProfile,
+    isImpersonating,
     loading: profileLoading,
+    refreshProfile,
   } = useUserProfile()
 
   const [profiles, setProfiles] = useState(initialData)
   const [loadingId, setLoadingId] = useState<string | null>(null)
+  const [loadingImpersonationId, setLoadingImpersonationId] = useState<string | null>(null)
   const [expandedUserId, setExpandedUserId] = useState<string | null>(null)
   const [loadingPermissionKey, setLoadingPermissionKey] = useState<
     string | null
@@ -162,7 +168,7 @@ export default function PermissionSettingsPage({
           user_id: userId,
           page_slug: pageSlug,
           granted: newGranted,
-          granted_by: currentUser?.id,
+          granted_by: authProfile?.id,
         },
         { onConflict: "user_id,page_slug" },
       )
@@ -182,6 +188,35 @@ export default function PermissionSettingsPage({
     }
   }
 
+  const handleImpersonation = async (targetUserId: string | null) => {
+    setLoadingImpersonationId(targetUserId || "stop")
+    try {
+      const response = await fetch("/api/admin/impersonation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: targetUserId }),
+      })
+
+      if (!response.ok) {
+        const payload = await response.json().catch(() => ({}))
+        throw new Error(payload?.error || "Failed to switch user")
+      }
+
+      toast.success(
+        targetUserId ? "Now viewing selected user" : "Returned to your account",
+      )
+
+      await refreshProfile()
+      router.refresh()
+      router.push("/leave")
+    } catch (error) {
+      console.error("Failed to switch user", error)
+      toast.error(error instanceof Error ? error.message : "Failed to switch user")
+    } finally {
+      setLoadingImpersonationId(null)
+    }
+  }
+
   // ── Access Denied guard ───────────────────────────────────────────────────
   if (profileLoading) {
     return (
@@ -197,7 +232,7 @@ export default function PermissionSettingsPage({
     return (
       <section className="flex flex-col items-center justify-center py-16 text-center">
         <RiLockLine className="text-foreground-secondary mb-3 size-8" />
-        <h3 className="text-foreground-primary font-semibold">
+        <h3 className="text-label-md text-foreground-primary">
           Access Restricted
         </h3>
         <p className="text-foreground-secondary text-body-sm mt-1">
@@ -220,6 +255,22 @@ export default function PermissionSettingsPage({
         </div>
       </div>
 
+      {isImpersonating && effectiveProfile && authProfile && (
+        <div className="mt-4 flex items-center justify-between rounded-md border border-neutral-primary bg-surface-warning-light px-3 py-2">
+          <p className="text-body-sm text-foreground-warning-on-color">
+            Viewing as <strong>{effectiveProfile.full_name || effectiveProfile.email || "User"}</strong>
+          </p>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => handleImpersonation(null)}
+            disabled={loadingImpersonationId === "stop"}
+          >
+            Stop
+          </Button>
+        </div>
+      )}
+
       <ul role="list" className="mt-6 divide-y divide-neutral-primary">
         {profiles.map((user) => {
           const initials = user.full_name
@@ -233,26 +284,32 @@ export default function PermissionSettingsPage({
 
           const isExpanded = expandedUserId === user.id
           const userPerms = permissionsMap[user.id] ?? {}
-          const isCurrentUser = user.id === currentUser?.id
+          const isCurrentUser = user.id === authProfile?.id
+          const isViewingThisUser =
+            isImpersonating && effectiveProfile?.id === user.id
+          const impersonationBusy =
+            loadingImpersonationId === user.id || loadingImpersonationId === "stop"
 
           return (
             <li key={user.id} className="py-3">
               {/* ── User row ── */}
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-x-4 overflow-hidden text-left">
-                  <span
-                    className="border-neutral-primary bg-surface-neutral-secondary text-foreground-secondary text-label-xs relative hidden size-8 shrink-0 items-center justify-center rounded-full border sm:flex"
-                    aria-hidden="true"
-                  >
-                    {initials}
-                  </span>
+                  <Avatar
+                    size="sm"
+                    src={user.avatar_url || undefined}
+                    initials={initials}
+                    alt={user.full_name || user.email || "User"}
+                    color="neutral"
+                    className="shrink-0"
+                  />
                   <div className="truncate">
                     <p className="text-foreground-primary text-label-md flex items-center gap-1.5 truncate">
                       {user.full_name || "Unknown User"}
                       {user.is_super_admin && (
-                        <span className="text-label-xs rounded-full bg-blue-500/10 px-1.5 py-0.5 text-blue-500">
+                        <Badge variant="info" size="sm">
                           Super Admin
-                        </span>
+                        </Badge>
                       )}
                     </p>
                     <p className="text-foreground-secondary text-body-xs truncate">
@@ -279,6 +336,19 @@ export default function PermissionSettingsPage({
                       {user.is_super_admin
                         ? "Remove Super Admin"
                         : "Make Super Admin"}
+                    </Button>
+                  )}
+
+                  {!isCurrentUser && (
+                    <Button
+                      variant={isViewingThisUser ? "secondary" : "tertiary"}
+                      size="sm"
+                      onClick={() =>
+                        handleImpersonation(isViewingThisUser ? null : user.id)
+                      }
+                      disabled={impersonationBusy}
+                    >
+                      {isViewingThisUser ? "Stop View" : "View as User"}
                     </Button>
                   )}
 
@@ -418,9 +488,8 @@ export default function PermissionSettingsPage({
       {profiles.length === 0 && (
         <EmptyState
           title="No users found"
-          description="User accounts will appear here once they are created"
-          icon={null}
-          variant="compact"
+          description="User accounts are not available yet."
+          icon={<RiSettings3Line className="size-5" />}
         />
       )}
     </section>

@@ -59,7 +59,9 @@ export function useClockActions({
         onLogsUpdate([data, ...logs])
         toast.success("Clock in berhasil")
       } catch (error: unknown) {
-        toast.error("Clock in gagal")
+        const message =
+          error instanceof Error ? error.message : "Clock in gagal"
+        toast.error(message)
       } finally {
         setLoading(false)
       }
@@ -92,7 +94,9 @@ export function useClockActions({
       } catch (error: unknown) {
         // Rollback on error
         onLogsUpdate(oldLogs)
-        toast.error("Clock out gagal")
+        const message =
+          error instanceof Error ? error.message : "Clock out gagal"
+        toast.error(message)
       } finally {
         setLoading(false)
       }

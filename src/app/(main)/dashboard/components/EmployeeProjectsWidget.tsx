@@ -1,7 +1,6 @@
 "use client"
 
-import { Badge } from "@/shared/ui"
-import { Card } from "@/shared/ui"
+import { Badge, Button, EmptyState } from "@/shared/ui"
 import { RiCheckLine, RiFolderLine } from "@/shared/ui/lucide-icons"
 import { format, isValid } from "date-fns"
 import Link from "next/link"
@@ -20,40 +19,48 @@ interface Project {
 interface EmployeeProjectsWidgetProps {
   projects: Project[]
   userId: string
+  showHeader?: boolean
 }
 
 export function EmployeeProjectsWidget({
   projects,
   userId,
+  showHeader = true,
 }: EmployeeProjectsWidgetProps) {
   if (projects.length === 0) {
     return (
-      <Card>
-        <h3 className="text-heading-md text-foreground-primary mb-4">
-          Active Projects
-        </h3>
-        <div className="py-8 text-center">
-          <RiFolderLine className="text-foreground-tertiary mx-auto size-12" />
-          <p className="text-body-sm text-foreground-secondary mt-2">
-            No active projects assigned
-          </p>
-        </div>
-      </Card>
+      <div className="border-neutral-primary rounded-lg border p-4">
+        {showHeader && (
+          <h3 className="text-label-md text-foreground-primary mb-4">
+            Active Projects
+          </h3>
+        )}
+        <EmptyState
+          title="No active projects assigned"
+          description="Projects will show up here once they are assigned."
+          placement="inner"
+          icon={<RiFolderLine className="size-5" />}
+        />
+      </div>
     )
   }
 
   return (
-    <Card>
-      <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-heading-md text-foreground-primary">
-          Active Projects
-        </h3>
-        <Link href="/performance?tab=kpi">
-          <Badge variant="info">View All</Badge>
-        </Link>
-      </div>
+    <div className="border-neutral-primary rounded-lg border p-4">
+      {showHeader && (
+        <div className="mb-4 flex items-center justify-between">
+          <h3 className="text-label-md text-foreground-primary">
+            Active Projects
+          </h3>
+          <Link href="/performance?tab=kpi">
+            <Button variant="secondary" size="sm">
+              View All
+            </Button>
+          </Link>
+        </div>
+      )}
 
-      <div className="space-y-3">
+      <div className="border-neutral-primary divide-neutral-primary overflow-hidden rounded-lg border divide-y">
         {projects.slice(0, 5).map((project, index) => {
           const endDate = new Date(project.end_date)
           const endDateValid = isValid(endDate)
@@ -72,7 +79,7 @@ export function EmployeeProjectsWidget({
               href={`/performance/employee/${userId}/project/${project.id}`}
               className="block"
             >
-              <div className="border-neutral-primary bg-surface-neutral-secondary hover:border-foreground-brand-primary flex items-start justify-between gap-4 rounded-lg border p-3 transition-all hover:shadow-sm">
+              <div className="flex items-start justify-between gap-4 px-3 py-2">
                 <div className="min-w-0 flex-1">
                   <div className="mb-1 flex items-center gap-2">
                     <h4 className="text-foreground-primary text-label-md truncate">
@@ -127,12 +134,12 @@ export function EmployeeProjectsWidget({
       {projects.length > 5 && (
         <div className="mt-4 text-center">
           <Link href="/performance?tab=kpi">
-            <span className="text-label-md text-foreground-brand-primary">
+            <Button variant="secondary" size="sm">
               +{projects.length - 5} more projects
-            </span>
+            </Button>
           </Link>
         </div>
       )}
-    </Card>
+    </div>
   )
 }

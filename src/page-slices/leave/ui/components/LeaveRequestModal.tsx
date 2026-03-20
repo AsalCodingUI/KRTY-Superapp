@@ -1,46 +1,35 @@
 "use client"
 
+import { LeaveFormData, LeaveRequestForm } from "@/features/leave-request/ui/LeaveRequestForm"
 import { createClient } from "@/shared/api/supabase/client"
 import { calculateBusinessDays } from "@/shared/lib/date"
 import { Database } from "@/shared/types/database.types"
 import {
-  Button, Checkbox, DateRangePicker, Dialog,
+  Button, Checkbox, Dialog,
   DialogBody,
   DialogClose,
   DialogCloseButton,
   DialogContent,
   DialogFooter,
   DialogHeader,
-  DialogTitle, Label, Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue, Textarea, TextInput
+  DialogTitle,
 } from "@/shared/ui"
-import { RiLoader2Line } from "@/shared/ui/lucide-icons"
 import imageCompression from "browser-image-compression"
 import { useRouter } from "next/navigation"
+import { format, startOfDay } from "date-fns"
 import React, { useEffect, useState } from "react"
+import { toast } from "sonner"
 import { LeaveRules } from "./LeaveRules"
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"]
 type LeaveRequest = Database["public"]["Tables"]["leave_requests"]["Row"]
-
-interface LeaveFormData {
-  id?: number
-  leave_type: string
-  reason: string
-  start_date: Date | undefined
-  end_date: Date | undefined
-  proof_file?: File | null
-  proof_url?: string
-}
+type LeaveRequestUserProfile = Pick<Profile, "id" | "full_name">
 
 interface ModalProps {
   isOpen: boolean
   onClose: () => void
   initialData?: LeaveRequest | null
-  userProfile: Profile
+  userProfile: LeaveRequestUserProfile
 }
 
 export function LeaveRequestModal({
@@ -76,8 +65,8 @@ export function LeaveRequestModal({
           id: initialData.id,
           leave_type: initialData.leave_type,
           reason: initialData.reason || "",
-          start_date: new Date(initialData.start_date),
-          end_date: new Date(initialData.end_date),
+          start_date: startOfDay(new Date(initialData.start_date)),
+          end_date: startOfDay(new Date(initialData.end_date)),
           proof_url: initialData.proof_url || "",
           proof_file: null,
         })
@@ -108,7 +97,7 @@ export function LeaveRequestModal({
         setFormData({ ...formData, proof_file: compressedFile })
       } catch (error) {
         console.error("Compression failed:", error)
-        alert("Gagal memproses gambar.")
+        toast.error("Failed to process image.")
       } finally {
         setCompressing(false)
       }
@@ -118,9 +107,82 @@ export function LeaveRequestModal({
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault()
     if (!formData.start_date || !formData.end_date) return
+    if (formData.start_date > formData.end_date) {
+      toast.error("End date must be after start date")
+      return
+    }
     setLoading(true)
 
     try {
+      const requestedDays = calculateBusinessDays(
+        formData.start_date,
+        formData.end_date,
+      )
+
+      if (requestedDays <= 0) {
+        toast.error("Invalid date range")
+        setLoading(false)
+        return
+      }
+
+      if (formData.leave_type === "Annual Leave") {
+        const now = new Date()
+        const yearStart = new Date(now.getFullYear(), 0, 1)
+        const yearEnd = new Date(now.getFullYear(), 11, 31)
+        const { data: approvedAnnual, error: annualError } = await supabase
+          .from("leave_requests")
+          .select("start_date,end_date")
+          .eq("user_id", userProfile.id)
+          .eq("status", "approved")
+          .eq("leave_type", "Annual Leave")
+          .lte("start_date", format(yearEnd, "yyyy-MM-dd"))
+          .gte("end_date", format(yearStart, "yyyy-MM-dd"))
+
+        if (annualError) throw annualError
+
+        const usedDays = (approvedAnnual || []).reduce(
+          (total: number, req: { start_date: string; end_date: string }) => {
+            const start = startOfDay(new Date(req.start_date))
+            const end = startOfDay(new Date(req.end_date))
+            const clampedStart = start < yearStart ? yearStart : start
+            const clampedEnd = end > yearEnd ? yearEnd : end
+            if (clampedEnd < clampedStart) return total
+            const days = calculateBusinessDays(clampedStart, clampedEnd)
+            return total + days
+          },
+          0,
+        )
+
+        const MAX_LEAVE = 12
+        const { data: balanceRow } = await supabase
+          .from("leave_balances")
+          .select("remaining")
+          .eq("user_id", userProfile.id)
+          .maybeSingle()
+        const remainingBalance =
+          typeof balanceRow?.remaining === "number"
+            ? balanceRow.remaining
+            : Math.max(0, MAX_LEAVE - usedDays)
+
+        if (requestedDays > remainingBalance) {
+          toast.error("Annual leave quota exceeded")
+          setLoading(false)
+          return
+        }
+
+        if (requestedDays > 5) {
+          toast.error("Maximum 5 business days per request")
+          setLoading(false)
+          return
+        }
+
+        if (usedDays + requestedDays > MAX_LEAVE) {
+          toast.error("Annual leave quota exceeded")
+          setLoading(false)
+          return
+        }
+      }
+
       let finalProofUrl = formData.proof_url
       if (formData.proof_file) {
         const fileExt = formData.proof_file.name.split(".").pop() || "jpg"
@@ -137,11 +199,11 @@ export function LeaveRequestModal({
 
       const payload = {
         user_id: userProfile.id,
-        start_date: formData.start_date.toISOString(),
-        end_date: formData.end_date.toISOString(),
-        leave_type: formData.leave_type,
-        reason: formData.reason,
-        proof_url: finalProofUrl,
+        start_date: format(startOfDay(formData.start_date), "yyyy-MM-dd"),
+        end_date: format(startOfDay(formData.end_date), "yyyy-MM-dd"),
+        leave_type: formData.leave_type || "Annual Leave",
+        reason: formData.reason || null,
+        proof_url: finalProofUrl || null,
         status: "pending",
       }
 
@@ -159,8 +221,16 @@ export function LeaveRequestModal({
       onClose()
     } catch (error: unknown) {
       const message =
-        error instanceof Error ? error.message : "Failed to submit request"
-      alert("Error: " + message)
+        error instanceof Error
+          ? error.message
+          : typeof error === "object" &&
+              error !== null &&
+              "message" in error &&
+              typeof (error as { message?: unknown }).message === "string"
+            ? (error as { message: string }).message
+          : "Failed to submit request"
+      console.error("Leave request submit error:", error)
+      toast.error(message)
     } finally {
       setLoading(false)
     }
@@ -169,99 +239,13 @@ export function LeaveRequestModal({
   const renderContent = () => {
     if (step === 1) {
       return (
-        <div className="grid gap-4 py-4">
-          <div>
-            <Label htmlFor="name" className="font-medium">
-              Nama
-            </Label>
-            <TextInput
-              id="name"
-              value={userProfile.full_name || ""}
-              disabled
-              className="bg-surface-neutral-secondary mt-2"
-            />
-          </div>
-          <div>
-            <Label htmlFor="type" className="font-medium">
-              Pengajuan Untuk
-            </Label>
-            <Select
-              value={formData.leave_type}
-              onValueChange={(val) =>
-                setFormData({ ...formData, leave_type: val })
-              }
-            >
-              <SelectTrigger id="type" className="mt-2">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Annual Leave">
-                  Annual Leave (Cuti Tahunan)
-                </SelectItem>
-                <SelectItem value="Sick Leave">Sick Leave (Sakit)</SelectItem>
-                <SelectItem value="WFH">WFH (Remote)</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <Label className="font-medium">Tanggal</Label>
-            <DateRangePicker
-              className="mt-2 w-full"
-              value={{ from: formData.start_date, to: formData.end_date }}
-              onChange={(range) =>
-                setFormData({
-                  ...formData,
-                  start_date: range?.from,
-                  end_date: range?.to,
-                })
-              }
-            />
-            {formData.start_date && formData.end_date && (
-              <p className="text-body-xs text-foreground-secondary mt-2">
-                Durasi:{" "}
-                {calculateBusinessDays(formData.start_date, formData.end_date)}{" "}
-                hari kerja.
-              </p>
-            )}
-          </div>
-          <div>
-            <Label htmlFor="reason" className="font-medium">
-              Alasan
-            </Label>
-            <Textarea
-              id="reason"
-              className="mt-2"
-              placeholder="Jelaskan alasan cuti..."
-              value={formData.reason}
-              onChange={(e) =>
-                setFormData({ ...formData, reason: e.target.value })
-              }
-            />
-          </div>
-          {formData.leave_type === "Sick Leave" && (
-            <div>
-              <Label className="font-medium">Surat Dokter (Optional)</Label>
-              <div className="mt-2 flex items-center gap-2">
-                <TextInput
-                  type="file"
-                  accept="image/*"
-                  className="w-full"
-                  onChange={handleFileChange}
-                  disabled={compressing}
-                />
-                {compressing && (
-                  <span className="text-body-xs flex animate-pulse items-center gap-1 whitespace-nowrap text-blue-600">
-                    <RiLoader2Line className="size-3 animate-spin" />
-                    Processing...
-                  </span>
-                )}
-              </div>
-              <p className="text-body-xs text-foreground-tertiary mt-1">
-                Max 1MB (Auto Compressed).
-              </p>
-            </div>
-          )}
-        </div>
+        <LeaveRequestForm
+          formData={formData}
+          userProfile={userProfile}
+          compressing={compressing}
+          onFormDataChange={setFormData}
+          onFileChange={handleFileChange}
+        />
       )
     }
 
@@ -295,7 +279,76 @@ export function LeaveRequestModal({
       )
     }
 
-    return <div className="py-2"></div>
+    return (
+      <div className="space-y-4">
+        <div className="rounded-lg border border-neutral-primary bg-surface-neutral-primary p-4">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between gap-4">
+              <span className="text-label-sm text-foreground-secondary">
+                Name
+              </span>
+              <span className="text-body-sm text-foreground-primary text-right">
+                {userProfile.full_name || "-"}
+              </span>
+            </div>
+            <div className="flex items-center justify-between gap-4">
+              <span className="text-label-sm text-foreground-secondary">
+                Leave Type
+              </span>
+              <span className="text-body-sm text-foreground-primary text-right">
+                {formData.leave_type || "-"}
+              </span>
+            </div>
+            <div className="flex items-center justify-between gap-4">
+              <span className="text-label-sm text-foreground-secondary">
+                Date Range
+              </span>
+              <span className="text-body-sm text-foreground-primary text-right">
+                {formData.start_date && formData.end_date
+                  ? `${format(formData.start_date, "dd MMM yyyy")} - ${format(
+                      formData.end_date,
+                      "dd MMM yyyy",
+                    )}`
+                  : "-"}
+              </span>
+            </div>
+            <div className="flex items-center justify-between gap-4">
+              <span className="text-label-sm text-foreground-secondary">
+                Duration
+              </span>
+              <span className="text-body-sm text-foreground-primary text-right">
+                {formData.start_date && formData.end_date
+                  ? `${calculateBusinessDays(
+                      formData.start_date,
+                      formData.end_date,
+                    )} business days`
+                  : "-"}
+              </span>
+            </div>
+            <div className="space-y-1">
+              <span className="text-label-sm text-foreground-secondary">
+                Reason
+              </span>
+              <p className="text-body-sm text-foreground-primary">
+                {formData.reason || "-"}
+              </p>
+            </div>
+            {formData.leave_type === "Sick Leave" && (
+              <div className="flex items-center justify-between gap-4">
+                <span className="text-label-sm text-foreground-secondary">
+                  Medical Proof
+                </span>
+                <span className="text-body-sm text-foreground-primary text-right">
+                  {formData.proof_file || formData.proof_url
+                    ? "Attached"
+                    : "Not attached"}
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    )
   }
 
   const renderFooter = () => {
@@ -380,7 +433,11 @@ export function LeaveRequestModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(val) => !val && onClose()}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent
+        className="sm:max-w-lg"
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onInteractOutside={(e) => e.preventDefault()}
+      >
         <form onSubmit={(e) => e.preventDefault()}>
           <DialogHeader>
             <DialogTitle>{getTitle()}</DialogTitle>

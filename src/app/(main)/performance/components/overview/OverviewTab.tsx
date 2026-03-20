@@ -139,7 +139,7 @@ function EmployeeOverview({
   )
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* QUARTER FILTER */}
       <QuarterFilter value={selectedQuarter} onChange={setSelectedQuarter} />
 
@@ -197,8 +197,8 @@ function EmployeeOverview({
                   <RiStarFill
                     key={i}
                     className={`size-4 ${i < Math.round((reviewRow?.result || 0) / 20)
-                        ? ""
-                        : "opacity-30"
+                      ? ""
+                      : "opacity-30"
                       }`}
                   />
                 ))}
@@ -301,14 +301,15 @@ function EmployeeOverview({
       {/* ASSIGNED PROJECTS */}
       <Card>
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-foreground-primary font-semibold">Assigned Projects</h3>
+          <h3 className="text-label-md text-foreground-primary">Assigned Projects</h3>
           <Badge variant="info">{activeProjects.length} Active</Badge>
         </div>
 
         {assignments.length === 0 ? (
           <EmptyState
             title="No projects assigned in this quarter"
-            description="Projects will appear here once assigned"
+            description="Projects will appear after assignment."
+            placement="inner"
             icon={<RiFolderLine className="size-5" />}
           />
         ) : (
@@ -412,7 +413,7 @@ function StakeholderOverview({
       <EmptyState
         icon={<RiGroupLine className="text-foreground-tertiary size-12" />}
         title="No data available"
-        description="Unable to load team performance data"
+        description="Could not load team performance data."
       />
     )
   }
@@ -425,7 +426,7 @@ function StakeholderOverview({
     stats.distribution.needsImprovement
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* QUARTER FILTER */}
       <QuarterFilter value={selectedQuarter} onChange={setSelectedQuarter} />
 

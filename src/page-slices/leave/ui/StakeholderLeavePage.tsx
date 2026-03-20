@@ -6,20 +6,21 @@ import { useMountedTabs } from "@/shared/hooks/useMountedTabs"
 import { useTabRoute } from "@/shared/hooks/useTabRoute"
 import { canManageByRole } from "@/shared/lib/roles"
 import { Database } from "@/shared/types/database.types"
-import { TabNavigation, TabNavigationLink } from "@/shared/ui"
+import { ConfirmDialog, TabNavigation, TabNavigationLink } from "@/shared/ui"
 import { DataTable } from "@/shared/ui/data/DataTable"
 import { RiCalendarCheckLine } from "@/shared/ui/lucide-icons"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { useEffect } from "react"
+import { useEffect, useRef, useState } from "react"
 import {
   adminColumns,
   LeaveRequestWithProfile,
 } from "./components/AdminColumns"
 import { remainingLeaveColumns } from "./components/RemainingLeaveColumns"
+import { toast } from "sonner"
 
 type Profile = Pick<
   Database["public"]["Tables"]["profiles"]["Row"],
-  "id" | "full_name" | "job_title" | "leave_used" | "leave_balance"
+  "id" | "full_name" | "avatar_url" | "job_title" | "leave_used" | "leave_balance"
 >
 type AttendanceLog = Database["public"]["Tables"]["attendance_logs"]["Row"]
 type AttendanceLogWithProfile = AttendanceLog & {
@@ -30,10 +31,33 @@ type AttendanceLogWithProfile = AttendanceLog & {
   } | null
 }
 
+function getLocalDateString(): string {
+  const now = new Date()
+  const year = now.getFullYear()
+  const month = String(now.getMonth() + 1).padStart(2, "0")
+  const day = String(now.getDate()).padStart(2, "0")
+  return `${year}-${month}-${day}`
+}
+
+type PendingConfirm = {
+  title: string
+  description: string
+  confirmText: string
+  variant?: "destructive"
+  onConfirm: () => Promise<void>
+}
+
 interface StakeholderLeavePageProps {
   requests: LeaveRequestWithProfile[]
   profiles: Profile[]
   attendanceLogs?: AttendanceLogWithProfile[]
+  overviewStats?: {
+    onLeaveToday: number
+    pendingRequests: number
+    totalApproved: number
+    presentToday: number
+    currentlyActive: number
+  }
   page: number
   pageSize: number
   totalCount: number
@@ -44,6 +68,7 @@ export function StakeholderLeavePage({
   requests,
   profiles,
   attendanceLogs = [],
+  overviewStats,
   page,
   pageSize,
   totalCount,
@@ -64,26 +89,59 @@ export function StakeholderLeavePage({
     mode: "history",
   })
   const canManage = canManageByRole(role)
+  const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [pendingConfirm, setPendingConfirm] = useState<PendingConfirm | null>(null)
+  const [confirmLoading, setConfirmLoading] = useState(false)
 
-  // --- LOGIC REALTIME (SUPER CEPAT) ---
+  // --- Realtime: debounce refresh to avoid UI thrashing on burst updates ---
   useEffect(() => {
+    const scheduleRefresh = () => {
+      if (refreshTimerRef.current) {
+        clearTimeout(refreshTimerRef.current)
+      }
+      refreshTimerRef.current = setTimeout(() => {
+        router.refresh()
+      }, 300)
+    }
+
     const channel = supabase
       .channel("admin-realtime-dashboard")
-      // 1. Dengar perubahan di tabel LEAVE REQUESTS
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "leave_requests" },
-        () => router.refresh(),
+        { event: "INSERT", schema: "public", table: "leave_requests" },
+        scheduleRefresh,
       )
-      // 2. Dengar perubahan di tabel PROFILES (Update sisa cuti)
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "profiles" },
-        () => router.refresh(),
+        { event: "UPDATE", schema: "public", table: "leave_requests" },
+        scheduleRefresh,
+      )
+      .on(
+        "postgres_changes",
+        { event: "DELETE", schema: "public", table: "leave_requests" },
+        scheduleRefresh,
+      )
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "profiles" },
+        scheduleRefresh,
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "attendance_logs",
+          filter: "notes=eq.DELETE_REQUESTED",
+        },
+        scheduleRefresh,
       )
       .subscribe()
 
     return () => {
+      if (refreshTimerRef.current) {
+        clearTimeout(refreshTimerRef.current)
+      }
       supabase.removeChannel(channel)
     }
   }, [supabase, router])
@@ -96,37 +154,82 @@ export function StakeholderLeavePage({
 
   const pageCount = Math.ceil(totalCount / pageSize)
 
+  const runWithConfirm = (payload: PendingConfirm) => {
+    setPendingConfirm(payload)
+  }
+
+  const handleConfirm = async () => {
+    if (!pendingConfirm) return
+    setConfirmLoading(true)
+    try {
+      await pendingConfirm.onConfirm()
+    } finally {
+      setConfirmLoading(false)
+      setPendingConfirm(null)
+    }
+  }
+
   const handleApprove = async (id: number) => {
-    if (!confirm("Approve this request?")) return
-    const { error } = await supabase
-      .from("leave_requests")
-      .update({ status: "approved" })
-      .eq("id", id)
-    if (error) alert("Error approving: " + error.message)
+    runWithConfirm({
+      title: "Approve request",
+      description: "This leave request will be marked as approved.",
+      confirmText: "Approve",
+      onConfirm: async () => {
+        const { error } = await supabase
+          .from("leave_requests")
+          .update({ status: "approved" })
+          .eq("id", id)
+        if (error) {
+          toast.error(error.message || "Failed to approve request")
+          return
+        }
+        toast.success("Request approved")
+        router.refresh()
+      },
+    })
   }
 
   const handleReject = async (id: number) => {
-    if (!confirm("Reject this request?")) return
-    const { error } = await supabase
-      .from("leave_requests")
-      .update({ status: "rejected" })
-      .eq("id", id)
-    if (error) alert("Error rejecting: " + error.message)
+    runWithConfirm({
+      title: "Reject request",
+      description: "This leave request will be marked as rejected.",
+      confirmText: "Reject",
+      variant: "destructive",
+      onConfirm: async () => {
+        const { error } = await supabase
+          .from("leave_requests")
+          .update({ status: "rejected" })
+          .eq("id", id)
+        if (error) {
+          toast.error(error.message || "Failed to reject request")
+          return
+        }
+        toast.success("Request rejected")
+        router.refresh()
+      },
+    })
   }
 
   const handleApproveAttendanceDelete = async (logId: string) => {
-    if (!confirm("Approve delete request for this attendance record?")) return
+    runWithConfirm({
+      title: "Approve delete attendance",
+      description: "This attendance record will be permanently deleted.",
+      confirmText: "Delete",
+      variant: "destructive",
+      onConfirm: async () => {
+        const { error } = await supabase
+          .from("attendance_logs")
+          .delete()
+          .eq("id", logId)
 
-    const { error } = await supabase
-      .from("attendance_logs")
-      .delete()
-      .eq("id", logId)
-
-    if (error) {
-      alert("Error deleting: " + error.message)
-    } else {
-      router.refresh()
-    }
+        if (error) {
+          toast.error(error.message || "Failed to delete attendance")
+          return
+        }
+        toast.success("Attendance deleted")
+        router.refresh()
+      },
+    })
   }
 
   const approvalContent = (
@@ -146,19 +249,74 @@ export function StakeholderLeavePage({
         pageIndex={page - 1}
         onPageChange={handlePageChange}
         enableSelection={canManage}
+        onBulkApprove={
+          canManage
+            ? async (ids) => {
+              runWithConfirm({
+                title: "Approve leave requests",
+                description: `Approve ${ids.length} leave request(s)?`,
+                confirmText: "Approve",
+                onConfirm: async () => {
+                  const { error } = await supabase
+                    .from("leave_requests")
+                    .update({ status: "approved" })
+                    .in("id", ids as number[])
+                  if (error) {
+                    toast.error(error.message || "Failed to approve requests")
+                    return
+                  }
+                  toast.success("Leave request(s) approved")
+                  router.refresh()
+                },
+              })
+            }
+            : undefined
+        }
+        onBulkReject={
+          canManage
+            ? async (ids) => {
+              runWithConfirm({
+                title: "Reject leave requests",
+                description: `Reject ${ids.length} leave request(s)?`,
+                confirmText: "Reject",
+                variant: "destructive",
+                onConfirm: async () => {
+                  const { error } = await supabase
+                    .from("leave_requests")
+                    .update({ status: "rejected" })
+                    .in("id", ids as number[])
+                  if (error) {
+                    toast.error(error.message || "Failed to reject requests")
+                    return
+                  }
+                  toast.success("Leave request(s) rejected")
+                  router.refresh()
+                },
+              })
+            }
+            : undefined
+        }
         onDelete={
           canManage
             ? async (ids) => {
-              if (!confirm(`Delete ${ids.length} leave request(s)?`)) return
-              const { error } = await supabase
-                .from("leave_requests")
-                .delete()
-                .in("id", ids as number[])
-              if (error) {
-                alert("Error deleting: " + error.message)
-              } else {
-                router.refresh()
-              }
+              runWithConfirm({
+                title: "Delete leave requests",
+                description: `Delete ${ids.length} leave request(s)? This cannot be undone.`,
+                confirmText: "Delete",
+                variant: "destructive",
+                onConfirm: async () => {
+                  const { error } = await supabase
+                    .from("leave_requests")
+                    .delete()
+                    .in("id", ids as number[])
+                  if (error) {
+                    toast.error(error.message || "Failed to delete requests")
+                    return
+                  }
+                  toast.success("Leave request(s) deleted")
+                  router.refresh()
+                },
+              })
             }
             : undefined
         }
@@ -170,24 +328,40 @@ export function StakeholderLeavePage({
   const remainingContent = <RemainingLeaveView data={profiles} />
 
   return (
-    <div className="flex flex-col">
-      <div className="flex items-center gap-2 rounded-xxl px-5 pt-4 pb-3">
-        <RiCalendarCheckLine className="size-4 text-foreground-secondary" />
-        <p className="text-label-md text-foreground-primary">
-          Leave & Attendance Center
-        </p>
-      </div>
+    <>
+      <div className="flex flex-col">
+        <div className="flex items-center gap-2 rounded-xxl px-5 pt-4 pb-3">
+          <RiCalendarCheckLine className="size-4 text-foreground-secondary" />
+          <p className="text-label-md text-foreground-primary">
+            Leave & Attendance Center
+          </p>
+        </div>
 
-      <AttendanceOverviewPanel
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
-        attendanceLogs={attendanceLogs}
-        leaveRequests={requests}
+        <AttendanceOverviewPanel
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          attendanceLogs={attendanceLogs}
+          leaveRequests={requests}
         approvalContent={approvalContent}
         remainingContent={remainingContent}
         onApproveAttendanceDelete={handleApproveAttendanceDelete}
+        overviewStats={overviewStats}
       />
-    </div>
+      </div>
+
+      <ConfirmDialog
+        open={Boolean(pendingConfirm)}
+        onOpenChange={(open) => {
+          if (!open) setPendingConfirm(null)
+        }}
+        onConfirm={handleConfirm}
+        title={pendingConfirm?.title || "Confirm action"}
+        description={pendingConfirm?.description || ""}
+        confirmText={pendingConfirm?.confirmText || "Confirm"}
+        variant={pendingConfirm?.variant}
+        loading={confirmLoading}
+      />
+    </>
   )
 }
 
@@ -199,6 +373,7 @@ function AttendanceOverviewPanel({
   approvalContent,
   remainingContent,
   onApproveAttendanceDelete,
+  overviewStats,
 }: {
   activeTab: "approval" | "remaining" | "attendance"
   onTabChange: (tab: "approval" | "remaining" | "attendance") => void
@@ -207,9 +382,16 @@ function AttendanceOverviewPanel({
   approvalContent: React.ReactNode
   remainingContent: React.ReactNode
   onApproveAttendanceDelete: (logId: string) => void
+  overviewStats?: {
+    onLeaveToday: number
+    pendingRequests: number
+    totalApproved: number
+    presentToday: number
+    currentlyActive: number
+  }
 }) {
   const { isMounted } = useMountedTabs(activeTab)
-  const today = new Date().toISOString().split("T")[0]
+  const today = getLocalDateString()
 
   const onLeaveToday = leaveRequests.filter(
     (req) =>
@@ -235,11 +417,11 @@ function AttendanceOverviewPanel({
   ).length
 
   const stats = [
-    { label: "On Leave Today", value: onLeaveToday },
-    { label: "Pending Requests", value: pendingRequests },
-    { label: "Total Approved", value: totalApproved },
-    { label: "Present Today", value: presentToday },
-    { label: "Currently Active", value: currentlyActive },
+    { label: "On Leave Today", value: overviewStats?.onLeaveToday ?? onLeaveToday },
+    { label: "Pending Requests", value: overviewStats?.pendingRequests ?? pendingRequests },
+    { label: "Total Approved", value: overviewStats?.totalApproved ?? totalApproved },
+    { label: "Present Today", value: overviewStats?.presentToday ?? presentToday },
+    { label: "Currently Active", value: overviewStats?.currentlyActive ?? currentlyActive },
   ]
 
   return (
@@ -287,18 +469,16 @@ function AttendanceOverviewPanel({
       </div>
 
       <div className="p-5">
-        {isMounted("approval") && (
-          <div className={activeTab === "approval" ? "block" : "hidden"}>
-            {approvalContent}
-          </div>
+        {activeTab === "approval" && (
+          <div className="block space-y-5">{approvalContent}</div>
         )}
         {isMounted("remaining") && (
-          <div className={activeTab === "remaining" ? "block" : "hidden"}>
+          <div className={activeTab === "remaining" ? "block space-y-5" : "hidden space-y-5"}>
             {remainingContent}
           </div>
         )}
         {isMounted("attendance") && (
-          <div className={activeTab === "attendance" ? "block" : "hidden"}>
+          <div className={activeTab === "attendance" ? "block space-y-5" : "hidden space-y-5"}>
             <AdminAttendanceHistoryList
               logs={attendanceLogs}
               onApproveDelete={onApproveAttendanceDelete}

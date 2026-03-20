@@ -22,7 +22,7 @@ const StakeholderLeavePage = dynamic(
 type Profile = Database["public"]["Tables"]["profiles"]["Row"]
 type ProfileSummary = Pick<
   Profile,
-  "id" | "full_name" | "job_title" | "leave_used" | "leave_balance"
+  "id" | "full_name" | "avatar_url" | "job_title" | "leave_used" | "leave_balance"
 >
 type LeaveRequest = Database["public"]["Tables"]["leave_requests"]["Row"]
 type AttendanceLog = Database["public"]["Tables"]["attendance_logs"]["Row"]
@@ -42,8 +42,16 @@ interface LeavePageProps {
   role: "employee" | "stakeholder"
   profile: Profile
   requests: LeaveRequest[] | LeaveRequestWithProfile[]
+  statsRequests?: LeaveRequest[]
   profiles?: ProfileSummary[]
   attendanceLogs?: AttendanceLogWithProfile[]
+  overviewStats?: {
+    onLeaveToday: number
+    pendingRequests: number
+    totalApproved: number
+    presentToday: number
+    currentlyActive: number
+  }
   page: number
   pageSize: number
   totalCount: number
@@ -53,8 +61,10 @@ export function LeavePage({
   role,
   profile,
   requests,
+  statsRequests = [],
   profiles = [],
   attendanceLogs = [],
+  overviewStats,
   page,
   pageSize,
   totalCount,
@@ -65,6 +75,7 @@ export function LeavePage({
         requests={requests as LeaveRequestWithProfile[]}
         profiles={profiles}
         attendanceLogs={attendanceLogs}
+        overviewStats={overviewStats}
         page={page}
         pageSize={pageSize}
         totalCount={totalCount}
@@ -77,6 +88,7 @@ export function LeavePage({
     <EmployeeLeavePage
       profile={profile}
       requests={requests as LeaveRequest[]}
+      statsRequests={statsRequests}
       attendanceLogs={attendanceLogs as AttendanceLog[]}
       page={page}
       pageSize={pageSize}

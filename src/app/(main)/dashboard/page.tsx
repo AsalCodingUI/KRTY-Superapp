@@ -1,4 +1,5 @@
 import { createClient } from "@/shared/api/supabase/server"
+import { resolveEffectiveUserId } from "@/shared/lib/impersonation-server"
 import { canManageByRole } from "@/shared/lib/roles"
 import { redirect } from "next/navigation"
 import { getAdminDashboardData } from "./actions/dashboard-admin-actions"
@@ -6,7 +7,12 @@ import { getEmployeeDashboardData } from "./actions/dashboard-employee-actions"
 import { AdminDashboard } from "./components/AdminDashboard"
 import { EmployeeDashboard } from "./components/EmployeeDashboard"
 
-export default async function DashboardRoute() {
+export default async function DashboardRoute({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
+  const resolvedSearchParams = await searchParams
   const supabase = await createClient()
 
   const {
@@ -14,11 +20,13 @@ export default async function DashboardRoute() {
   } = await supabase.auth.getUser()
   if (!user) redirect("/login")
 
+  const effectiveUserId = await resolveEffectiveUserId(supabase, user.id)
+
   // Get user profile to determine role
   const { data: profile } = await supabase
     .from("profiles")
     .select("full_name, role")
-    .eq("id", user.id)
+    .eq("id", effectiveUserId)
     .single()
 
   if (!profile) {
@@ -49,7 +57,11 @@ export default async function DashboardRoute() {
     return <AdminDashboard data={result.data} />
   } else {
     // Employee Dashboard
-    const result = await getEmployeeDashboardData()
+    const quarterParam =
+      typeof resolvedSearchParams.quarter === "string"
+        ? resolvedSearchParams.quarter
+        : undefined
+    const result = await getEmployeeDashboardData(effectiveUserId, quarterParam)
 
     if (!result.success || !result.data) {
       return (
@@ -61,6 +73,6 @@ export default async function DashboardRoute() {
       )
     }
 
-    return <EmployeeDashboard data={result.data} />
+    return <EmployeeDashboard data={result.data} initialQuarter={quarterParam} />
   }
 }

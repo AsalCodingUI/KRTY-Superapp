@@ -3,8 +3,8 @@
 "use client"
 
 import { cx } from "@/shared/lib/utils"
-import { RiCalendar2Fill } from "@/shared/ui/lucide-icons"
 import { Calendar } from "@/shared/ui/input/Calendar"
+import { RiCalendar2Fill } from "@/shared/ui/lucide-icons"
 import {
   Popover,
   PopoverContent,
@@ -24,6 +24,7 @@ type InputSize = keyof typeof inputSizeStyles
 interface DateRangePickerProps {
   value?: DateRange
   onValueChange?: (range: DateRange | undefined) => void
+  onChange?: (range: DateRange | undefined) => void
   placeholder?: string
   disabled?: boolean
   inputSize?: InputSize
@@ -46,6 +47,7 @@ const DateRangePicker = React.forwardRef<
     {
       value,
       onValueChange,
+      onChange,
       placeholder = "Select date range",
       disabled = false,
       inputSize = "default",
@@ -99,12 +101,16 @@ const DateRangePicker = React.forwardRef<
         </PopoverTrigger>
         <PopoverContent
           className="w-auto overflow-hidden rounded-xl border border-neutral-secondary bg-surface-neutral-primary p-0 shadow-regular-md"
-          align="start"
+          align="center"
+          sideOffset={8}
         >
           <Calendar
             mode="range"
             selected={value}
-            onSelect={onValueChange}
+            onSelect={(range) => {
+              onValueChange?.(range)
+              onChange?.(range)
+            }}
             numberOfMonths={2}
             initialFocus
             className="border-0 shadow-none rounded-none bg-transparent"

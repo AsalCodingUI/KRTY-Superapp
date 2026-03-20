@@ -2,7 +2,7 @@
 
 import { calculateBusinessDays } from "@/shared/lib/date"
 import { Database } from "@/shared/types/database.types"
-import { Badge, Card } from "@/shared/ui"
+import { Badge, Button, Card } from "@/shared/ui"
 import { format } from "date-fns"
 
 type LeaveRequest = Database["public"]["Tables"]["leave_requests"]["Row"]
@@ -61,12 +61,14 @@ export function LeaveCard({
         <Badge variant={getStatusColor(leave.status)}>{leave.status}</Badge>
       </div>
       {onEdit && leave.status === "pending" && (
-        <button
+        <Button
+          variant="tertiary"
+          size="sm"
           onClick={() => onEdit(leave)}
-          className="text-label-md- text-primary hover: mt-3"
+          className="mt-3"
         >
           Edit Request
-        </button>
+        </Button>
       )}
     </Card>
   )

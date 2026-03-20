@@ -1,172 +1,300 @@
 "use client"
 
+import { useClockActions } from "@/features/attendance-clock/model/useClockActions"
+import { LeaveRequestModal } from "@/page-slices/leave/ui/components/LeaveRequestModal"
+import { createClient } from "@/shared/api/supabase/client"
+import { Database } from "@/shared/types/database.types"
+import { format } from "date-fns"
+import { useEffect, useMemo, useState } from "react"
+import { Badge, Button, Card, EmptyState } from "@/shared/ui"
 import {
-  RiCalendarCheckLine,
   RiCalendarLine,
   RiCheckboxCircleLine,
-  RiTimeLine,
+  RiLoginBoxLine,
+  RiLogoutBoxLine,
 } from "@/shared/ui/lucide-icons"
-import { format } from "date-fns"
-import Link from "next/link"
-import { Badge, Card } from "@/shared/ui"
-import { StatsCard } from "@/shared/ui"
+import { useRouter } from "next/navigation"
 
-interface AttendanceLog {
-  id: string
-  date: string
-  clock_in: string | null
-  clock_out: string | null
-  status: string | null
-}
-
-interface LeaveRequest {
-  id: string
-  leave_type: string
-  start_date: string
-  end_date: string
-  status: string
-  days_requested: number
-}
+type AttendanceLog = Database["public"]["Tables"]["attendance_logs"]["Row"]
+type LeaveRequest = Database["public"]["Tables"]["leave_requests"]["Row"]
 
 interface EmployeeAttendanceWidgetProps {
+  userId: string
+  userFullName?: string | null
   leaveBalance: number
   recentAttendance: AttendanceLog[]
   recentLeaveRequests: LeaveRequest[]
 }
 
+function getLocalDateString(): string {
+  return format(new Date(), "yyyy-MM-dd")
+}
+
 export function EmployeeAttendanceWidget({
+  userId,
+  userFullName,
   leaveBalance,
   recentAttendance,
   recentLeaveRequests,
 }: EmployeeAttendanceWidgetProps) {
-  const onTimeCount = recentAttendance.filter(
-    (log) => !log.status || log.status === "On Time",
-  ).length
-  const lateCount = recentAttendance.filter(
-    (log) => log.status === "Late",
-  ).length
-  const attendanceRate =
-    recentAttendance.length > 0
-      ? Math.round((onTimeCount / recentAttendance.length) * 100)
-      : 100
+  const supabase = createClient()
+  const router = useRouter()
+  const [logs, setLogs] = useState<AttendanceLog[]>(recentAttendance)
+  const [leaveRequests, setLeaveRequests] =
+    useState<LeaveRequest[]>(recentLeaveRequests)
+  const [currentTime, setCurrentTime] = useState<Date | null>(null)
+  const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false)
 
-  const pendingLeave = recentLeaveRequests.find(
-    (req) => req.status === "pending",
+  useEffect(() => {
+    setLogs(recentAttendance)
+  }, [recentAttendance])
+
+  useEffect(() => {
+    setLeaveRequests(recentLeaveRequests)
+  }, [recentLeaveRequests])
+
+  useEffect(() => {
+    setCurrentTime(new Date())
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000)
+    return () => clearInterval(timer)
+  }, [])
+
+  useEffect(() => {
+    const attendanceChannel = supabase
+      .channel("dashboard-attendance-sync")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "attendance_logs",
+          filter: `user_id=eq.${userId}`,
+        },
+        () => router.refresh(),
+      )
+      .subscribe()
+
+    const leaveChannel = supabase
+      .channel("dashboard-leave-sync")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "leave_requests",
+          filter: `user_id=eq.${userId}`,
+        },
+        () => router.refresh(),
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(attendanceChannel)
+      supabase.removeChannel(leaveChannel)
+    }
+  }, [router, supabase, userId])
+
+  const { loading, handleClockIn, handleClockOut } = useClockActions({
+    userId,
+    logs: logs as never[],
+    onLogsUpdate: (next) => setLogs(next as AttendanceLog[]),
+  })
+
+  const attendedDays = new Set(
+    logs.filter((log) => Boolean(log.clock_in)).map((log) => log.date),
+  ).size
+  const attendanceRate = Math.round((Math.min(attendedDays, 7) / 7) * 100)
+
+  const today = getLocalDateString()
+  const activeSession = logs.find(
+    (log) => log.date === today && log.clock_out === null,
   )
-  const approvedLeave = recentLeaveRequests.filter(
-    (req) => req.status === "approved",
-  )
+  const todayRecord = logs.find((log) => log.date === today)
+
+  const todayStatus = useMemo(() => {
+    if (activeSession) return "Clocked In"
+    if (todayRecord?.clock_out) return "Completed"
+    return "Not Checked In"
+  }, [activeSession, todayRecord])
+
+  const recentLeaves = leaveRequests.slice(0, 5)
 
   return (
-    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-      {/* Leave Balance Card */}
-      <Link href="/leave">
-        <StatsCard
-          title="Leave Balance"
-          value={`${leaveBalance} days`}
-          icon={<RiCalendarLine className="size-5" />}
-          className="transition-all hover:shadow-md"
-        />
-      </Link>
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-lg border px-4 py-3">
+          <p className="text-label-sm text-foreground-secondary">Leave Balance</p>
+          <div className="flex items-center gap-3">
+            <p className="text-heading-md text-foreground-primary">
+              {leaveBalance} days
+            </p>
+          </div>
+        </div>
 
-      {/* Attendance Rate Card */}
-      <Link href="/leave">
-        <StatsCard
-          title="Attendance (Last 7 Days)"
-          value={`${attendanceRate}%`}
-          icon={<RiCheckboxCircleLine className="size-5" />}
-          className="transition-all hover:shadow-md"
-        />
-      </Link>
+        <div className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-lg border px-4 py-3">
+          <p className="text-label-sm text-foreground-secondary">
+            Attendance (Last 7 Days)
+          </p>
+          <div className="flex items-center gap-3">
+            <p className="text-heading-md text-foreground-primary">
+              {attendanceRate}%
+            </p>
+          </div>
+        </div>
+      </div>
 
-      {/* Recent Leave Status */}
-      <Card className="lg:col-span-2">
-        <h3 className="text-heading-md text-foreground-primary mb-4">
-          Leave Status
-        </h3>
+      <div className="rounded-lg border border-neutral-primary bg-surface px-3 py-2">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-label-sm text-foreground-secondary">Today</span>
+            <Badge
+              variant={
+                todayStatus === "Clocked In"
+                  ? "success"
+                  : todayStatus === "Completed"
+                    ? "info"
+                    : "warning"
+              }
+            >
+              {todayStatus}
+            </Badge>
+            <span className="text-body-xs text-foreground-tertiary">
+              {currentTime ? format(currentTime, "HH:mm:ss, EEE dd MMM") : ""}
+            </span>
+          </div>
 
-        {pendingLeave && (
-          <div className="border-warning/20 bg-warning/5 mb-4 rounded-lg border p-3">
-            <div className="mb-2 flex items-center gap-2">
-              <RiTimeLine className="text-warning size-4" />
-              <span className="text-label-md text-foreground-primary">
-                Pending Approval
-              </span>
-            </div>
-            <div className="text-label-md text-foreground-secondary">
-              <span className="font-medium">{pendingLeave.leave_type}</span>
-              {" • "}
-              {format(new Date(pendingLeave.start_date), "MMM d")} -{" "}
-              {format(new Date(pendingLeave.end_date), "MMM d, yyyy")}
-              {" • "}
-              {pendingLeave.days_requested} days
-            </div>
+          <div className="flex items-center gap-2">
+            {activeSession ? (
+              <Button
+                size="sm"
+                variant="secondary"
+                disabled={loading}
+                onClick={() => handleClockOut(activeSession.id)}
+              >
+                <RiLogoutBoxLine className="mr-1 size-4" />
+                Clock Out
+              </Button>
+            ) : (
+              <Button
+                size="sm"
+                variant="secondary"
+                disabled={loading}
+                onClick={() => handleClockIn("Present")}
+              >
+                <RiLoginBoxLine className="mr-1 size-4" />
+                Clock In
+              </Button>
+            )}
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => {
+                setIsLeaveModalOpen(true)
+              }}
+            >
+              Leave Request
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <Card>
+        <h4 className="text-label-md text-foreground-primary mb-3">
+          Attendance History (Last 7 Days)
+        </h4>
+        {logs.length === 0 ? (
+          <EmptyState
+            title="No attendance records"
+            description="Clock in to start tracking your attendance."
+            placement="inner"
+            icon={<RiCheckboxCircleLine className="size-5" />}
+          />
+        ) : (
+          <div className="border-neutral-primary divide-neutral-primary overflow-hidden rounded-lg border divide-y">
+            {logs.slice(0, 7).map((log) => (
+              <div key={log.id} className="px-3 py-2">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex min-w-0 items-center gap-2">
+                    <span className="text-body-sm text-foreground-primary">
+                      {format(new Date(log.date), "EEE, dd MMM yyyy")}
+                    </span>
+                    <Badge
+                      size="sm"
+                      variant={log.status === "Late" ? "warning" : "zinc"}
+                    >
+                      {log.status || "Present"}
+                    </Badge>
+                  </div>
+                  <span className="text-body-xs text-foreground-secondary whitespace-nowrap">
+                    {log.clock_in ? format(new Date(log.clock_in), "HH:mm") : "--:--"}
+                    {" - "}
+                    {log.clock_out ? format(new Date(log.clock_out), "HH:mm") : "Active"}
+                  </span>
+                </div>
+              </div>
+            ))}
           </div>
         )}
+      </Card>
 
-        {approvedLeave.length > 0 && (
-          <div>
-            <h4 className="text-label-md text-foreground-secondary mb-2">
-              Recent Approved Leave
-            </h4>
-            <div className="space-y-2">
-              {approvedLeave.slice(0, 2).map((leave) => (
-                <div
-                  key={leave.id}
-                  className="bg-surface-neutral-secondary flex items-center justify-between rounded-lg p-2"
-                >
+      <Card>
+        <h4 className="text-label-md text-foreground-primary mb-3">
+          Leave Requests
+        </h4>
+        {recentLeaves.length > 0 ? (
+          <div className="border-neutral-primary divide-neutral-primary overflow-hidden rounded-lg border divide-y">
+            {recentLeaves.map((leave) => (
+              <div
+                key={leave.id}
+                className="flex items-center justify-between gap-3 px-3 py-2"
+              >
+                <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <RiCalendarCheckLine className="text-success size-4" />
                     <span className="text-body-sm text-foreground-primary">
                       {leave.leave_type}
                     </span>
+                    <Badge
+                      size="sm"
+                      variant={
+                        leave.status === "approved"
+                          ? "success"
+                          : leave.status === "rejected"
+                            ? "error"
+                            : "warning"
+                      }
+                    >
+                      {leave.status === "approved"
+                        ? "Approved"
+                        : leave.status === "rejected"
+                          ? "Rejected"
+                          : "Pending"}
+                    </Badge>
                   </div>
-                  <span className="text-body-xs text-foreground-secondary">
-                    {format(new Date(leave.start_date), "MMM d")} -{" "}
-                    {format(new Date(leave.end_date), "MMM d")}
-                  </span>
+                  <p className="text-body-xs text-foreground-secondary mt-1">
+                    {format(new Date(leave.start_date), "dd MMM yyyy")} -{" "}
+                    {format(new Date(leave.end_date), "dd MMM yyyy")}
+                  </p>
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {!pendingLeave && approvedLeave.length === 0 && (
-          <div className="py-4 text-center">
-            <p className="text-body-sm text-foreground-secondary">
-              No recent leave requests
-            </p>
-            <Link href="/leave">
-              <Badge variant="info" className="mt-2">
-                Request Leave
-              </Badge>
-            </Link>
-          </div>
-        )}
-
-        {/* Recent Attendance Summary */}
-        <div className="border-neutral-primary mt-4 border-t pt-4">
-          <h4 className="text-label-md text-foreground-secondary mb-3">
-            Last 7 Days Attendance
-          </h4>
-          <div className="text-body-sm flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <div className="bg-success size-3 rounded-full" />
-              <span className="text-foreground-secondary">
-                On Time: {onTimeCount}
-              </span>
-            </div>
-            {lateCount > 0 && (
-              <div className="flex items-center gap-2">
-                <div className="bg-warning size-3 rounded-full" />
-                <span className="text-foreground-secondary">
-                  Late: {lateCount}
-                </span>
               </div>
-            )}
+            ))}
           </div>
-        </div>
+        ) : (
+          <EmptyState
+            title="No recent leave requests"
+            description="Submit a leave request when you need time off."
+            placement="inner"
+            icon={<RiCalendarLine className="size-5" />}
+          />
+        )}
       </Card>
+
+      <LeaveRequestModal
+        isOpen={isLeaveModalOpen}
+        onClose={() => {
+          setIsLeaveModalOpen(false)
+        }}
+        userProfile={{ id: userId, full_name: userFullName || null }}
+      />
     </div>
   )
 }

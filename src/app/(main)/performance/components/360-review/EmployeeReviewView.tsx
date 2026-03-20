@@ -17,6 +17,7 @@ import {
 import { createClient } from "@/shared/api/supabase/client"
 import type { ProfileSubset } from "@/shared/hooks/useUserProfile"
 import { Badge, Card, EmptyState, QuarterFilter, type QuarterFilterValue } from "@/shared/ui"
+import { RiBarChartBoxLine } from "@/shared/ui/lucide-icons"
 import { useEffect, useState } from "react"
 import { ReviewStatsHeader } from "./ReviewStatsHeader"
 
@@ -341,10 +342,10 @@ export function EmployeeReviewView({
         </>
       ) : (
         <EmptyState
-          title={`Belum ada laporan performa untuk periode ${selectedQuarter}`}
-          description="Hasil akan muncul setelah periode review selesai dan diproses Admin"
-          icon={null}
-          variant="compact"
+          title={`No performance report for ${selectedQuarter}`}
+          description="Results appear after the review cycle ends."
+          icon={<RiBarChartBoxLine className="size-5" />}
+          placement="inner"
         />
       )}
     </div>

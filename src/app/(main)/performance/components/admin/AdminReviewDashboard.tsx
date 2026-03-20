@@ -3,7 +3,7 @@
 import { createClient } from "@/shared/api/supabase/client"
 import { Database } from "@/shared/types/database.types"
 import {
-  Avatar, AvatarGroup, AvatarOverflow, Badge, Button, Card, ConfirmDialog, DateRangePicker, EmptyState, Label, QuarterFilter, QuarterFilterValue, Table,
+  Avatar, AvatarGroup, AvatarOverflow, Badge, Button, ConfirmDialog, DateRangePicker, EmptyState, Label, QuarterFilterValue, Table,
   TableBody,
   TableCell,
   TableHead,
@@ -19,7 +19,7 @@ import {
   RiTimeLine,
   RiUserLine,
 } from "@/shared/ui/lucide-icons"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { DateRange } from "react-day-picker"
 import { toast } from "sonner"
 import useSWR from "swr"
@@ -49,12 +49,12 @@ type ReviewCycle = {
   is_active: boolean
 }
 
-export function AdminReviewDashboard() {
-  const supabase = createClient()
-
-  // State Data & UI
-  const [selectedQuarter, setSelectedQuarter] =
-    useState<QuarterFilterValue>("2025-Q1")
+export function AdminReviewDashboard({
+  selectedQuarter,
+}: {
+  selectedQuarter: QuarterFilterValue
+}) {
+  const supabase = useMemo(() => createClient(), [])
 
   // Derive year and quarter from selection
   const currentYear =
@@ -337,27 +337,21 @@ export function AdminReviewDashboard() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* 1. MAIN FILTER */}
-      <div className="flex flex-col items-end justify-between gap-4 sm:flex-row sm:items-center">
-        <QuarterFilter value={selectedQuarter} onChange={setSelectedQuarter} />
-      </div>
-
-      {/* 2. MANAGEMENT CARD */}
-      <Card>
-        <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-foreground-primary font-semibold">
-            Review Cycle Management
-          </h3>
-          {activeCycleData ? (
+    <div className="space-y-4">
+      {/* 1. MANAGEMENT CARD */}
+      <TableSection
+        title="Review Cycle Management"
+        contentClassName="px-xl pb-xl pt-sm"
+        actions={
+          activeCycleData ? (
             <Badge variant="success" className="animate-pulse">
               Active: {activeCycleData.name}
             </Badge>
           ) : (
             <Badge variant="zinc">No Active Cycle</Badge>
-          )}
-        </div>
-
+          )
+        }
+      >
         <div className="grid grid-cols-1 items-end gap-4 md:grid-cols-2">
           {/* Hidden but functional - Target Cycle Name */}
           <input type="hidden" value={cycleName} />
@@ -400,7 +394,7 @@ export function AdminReviewDashboard() {
             )}
           </div>
         </div>
-      </Card>
+      </TableSection>
 
       {/* 3. MONITORING TABLE */}
       <TableSection title={`Monitoring Progress — ${selectedQuarter}`}>
@@ -556,9 +550,11 @@ export function AdminReviewDashboard() {
                   <TableRow>
                     <TableCell colSpan={5} className="p-0">
                       <EmptyState
-                        icon={<RiUserLine />}
+                        icon={<RiUserLine className="size-5" />}
                         title="No employees found"
-                        description="Employees will appear here once assigned to this quarter"
+                        description="No employees are assigned to this quarter."
+                        subtitle="Try another quarter."
+                        placement="inner"
                       />
                     </TableCell>
                   </TableRow>

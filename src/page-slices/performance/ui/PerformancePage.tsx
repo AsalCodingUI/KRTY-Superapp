@@ -24,7 +24,7 @@ import {
 import { RiBarChartBoxLine } from "@/shared/ui/lucide-icons"
 import dynamic from "next/dynamic"
 import { useMountedTabs } from "@/shared/hooks/useMountedTabs"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 
 // Dynamic imports for tab components - only load when needed
 const KPITab = dynamic(
@@ -95,6 +95,23 @@ type TabType =
   | "list-project"
   | "competency-library"
 
+function getCurrentQuarterValue(): QuarterFilterValue {
+  const now = new Date()
+  const year = now.getFullYear()
+  const month = now.getMonth() + 1
+
+  let quarter = "Q1"
+  if (month >= 4 && month <= 6) quarter = "Q2"
+  else if (month >= 7 && month <= 9) quarter = "Q3"
+  else if (month >= 10) quarter = "Q4"
+
+  return `${year}-${quarter}`
+}
+
+function getAvailableYears(centerYear: number): number[] {
+  return [centerYear - 1, centerYear, centerYear + 1]
+}
+
 export function PerformancePage() {
   const { activeTab, setActiveTab } = useTabRoute<TabType>({
     basePath: "/performance",
@@ -111,7 +128,7 @@ export function PerformancePage() {
   })
   const { isMounted } = useMountedTabs(activeTab)
   const [selectedQuarter, setSelectedQuarter] =
-    useState<QuarterFilterValue>("2025-Q1")
+    useState<QuarterFilterValue>(() => getCurrentQuarterValue())
   const [statsData, setStatsData] = useState<{
     totalEmployees: number
     avgPerformance: number
@@ -135,7 +152,7 @@ export function PerformancePage() {
   const [isLead, setIsLead] = useState(false)
 
   const { profile } = useUserProfile()
-  const supabase = createClient()
+  const supabase = useMemo(() => createClient(), [])
 
   const isStakeholder = canManageByRole(profile?.role)
 
@@ -147,7 +164,7 @@ export function PerformancePage() {
       setActiveTab("kpi")
     }
   }, [activeTab, isStakeholder, setActiveTab])
-  const availableYears = [2025, 2026, 2027]
+  const availableYears = useMemo(() => getAvailableYears(new Date().getFullYear()), [])
   const selectedYear = (() => {
     if (selectedQuarter === "All") return availableYears[0]
     const parsed = Number(selectedQuarter.split("-")[0])
@@ -425,7 +442,7 @@ export function PerformancePage() {
               ))}
             </div>
 
-            <div className="px-5 pt-2 border-b border-neutral-primary">
+            <div className="flex items-center justify-between gap-4 border-b border-neutral-primary px-5 pt-2">
               <TabNavigation className="border-b-0" value={activeTab}>
                 <TabNavigationLink
                   active={activeTab === "kpi"}
@@ -468,6 +485,29 @@ export function PerformancePage() {
                   Competency Library
                 </TabNavigationLink>
               </TabNavigation>
+
+              <div className="flex items-center gap-2 pb-2">
+                <Select
+                  value={selectedYear.toString()}
+                  onValueChange={handleYearChange}
+                >
+                  <SelectTrigger className="w-[96px]" size="sm">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableYears.map((year) => (
+                      <SelectItem key={year} value={year.toString()}>
+                        {year}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <QuarterFilter
+                  value={selectedQuarter}
+                  onChange={setSelectedQuarter}
+                  showYear={false}
+                />
+              </div>
             </div>
           </>
         ) : (
@@ -577,12 +617,12 @@ export function PerformancePage() {
 
         <div className="p-5">
           {isMounted("kpi") && (
-            <div className={activeTab === "kpi" ? "block" : "hidden"}>
+            <div className={activeTab === "kpi" ? "block space-y-5" : "hidden space-y-5"}>
               <KPITab selectedQuarter={selectedQuarter} />
             </div>
           )}
           {isMounted("360-review") && (
-            <div className={activeTab === "360-review" ? "block" : "hidden"}>
+            <div className={activeTab === "360-review" ? "block space-y-5" : "hidden space-y-5"}>
               <Review360Tab
                 selectedQuarter={selectedQuarter}
                 onQuarterChange={setSelectedQuarter}
@@ -590,24 +630,26 @@ export function PerformancePage() {
             </div>
           )}
           {isMounted("one-on-one") && (
-            <div className={activeTab === "one-on-one" ? "block" : "hidden"}>
+            <div className={activeTab === "one-on-one" ? "block space-y-5" : "hidden space-y-5"}>
               <OneOnOneMeetingTab selectedQuarter={selectedQuarter} />
             </div>
           )}
           {isLead && isMounted("lead-review") && (
-            <div className={activeTab === "lead-review" ? "block" : "hidden"}>
+            <div className={activeTab === "lead-review" ? "block space-y-5" : "hidden space-y-5"}>
               <LeadReviewTab />
             </div>
           )}
           {isStakeholder && isMounted("list-project") && (
-            <div className={activeTab === "list-project" ? "block" : "hidden"}>
-              <ListProjectTab />
+            <div className={activeTab === "list-project" ? "block space-y-5" : "hidden space-y-5"}>
+              <ListProjectTab selectedQuarter={selectedQuarter} />
             </div>
           )}
           {isStakeholder && isMounted("competency-library") && (
             <div
               className={
-                activeTab === "competency-library" ? "block" : "hidden"
+                activeTab === "competency-library"
+                  ? "block space-y-5"
+                  : "hidden space-y-5"
               }
             >
               <WorkQualityTab />

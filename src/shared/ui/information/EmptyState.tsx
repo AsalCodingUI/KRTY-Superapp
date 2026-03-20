@@ -3,18 +3,6 @@ import { cx } from "@/shared/lib/utils"
 import { RiHammerLine } from "@/shared/ui/lucide-icons"
 import React from "react"
 
-/**
- * EmptyState component for placeholder states.
- *
- * @example
- * ```tsx
- * <EmptyState
- *   title="No projects found"
- *   description="Get started by creating a new project."
- *   action={{ label: "Create Project", onClick: () => {} }}
- * />
- * ```
- */
 interface EmptyStateProps {
   title: string
   description: string
@@ -24,7 +12,11 @@ interface EmptyStateProps {
     label: string
     onClick: () => void
   }
-  variant?: "default" | "compact"
+  /**
+   * outer: use rounded + border (standalone empty state)
+   * inner: no rounded + no border (inside card/table/modal)
+   */
+  placement?: "outer" | "inner"
   className?: string
 }
 
@@ -34,16 +26,18 @@ export function EmptyState({
   subtitle,
   icon,
   action,
-  variant = "default",
+  placement = "outer",
   className,
 }: EmptyStateProps) {
-  const isCompact = variant === "compact"
+  const isInner = placement === "inner"
 
   return (
     <div
       className={cx(
-        "flex w-full flex-col items-center justify-center rounded-lg border border-neutral-primary bg-surface-neutral-primary text-center",
-        isCompact ? "px-xl py-lg" : "min-h-[240px] px-2xl py-2xl",
+        "flex min-h-[220px] w-full flex-col items-center justify-center px-xl py-xl text-center",
+        isInner
+          ? "bg-transparent"
+          : "rounded-lg border border-neutral-primary bg-surface-neutral-primary",
         className,
       )}
     >
@@ -52,28 +46,26 @@ export function EmptyState({
           {icon || <RiHammerLine className="size-5" />}
         </div>
       )}
+
       <h3
         className={cx(
           icon !== null ? "mt-4" : "",
-          isCompact ? "text-heading-sm" : "text-heading-md",
-          "text-foreground-primary",
+          "text-label-md text-foreground-secondary",
         )}
       >
         {title}
       </h3>
-      <p
-        className={cx(
-          "mt-2 max-w-sm text-foreground-secondary",
-          isCompact ? "text-body-sm" : "text-label-md",
-        )}
-      >
+
+      <p className="mt-1 max-w-sm text-label-sm text-foreground-secondary">
         {description}
       </p>
+
       {subtitle && (
-        <p className="text-body-xs mt-1 max-w-sm text-foreground-tertiary">
+        <p className="mt-1 max-w-sm text-label-sm text-foreground-secondary">
           {subtitle}
         </p>
       )}
+
       {action && (
         <Button
           variant="secondary"

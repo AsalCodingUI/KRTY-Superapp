@@ -4,7 +4,7 @@ import { Skeleton } from "@/shared/ui"
 
 export default function LeaveLoading() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Header Skeleton */}
       <div className="flex items-center justify-between">
         <Skeleton className="h-7 w-40" />

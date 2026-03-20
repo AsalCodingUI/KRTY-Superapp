@@ -141,7 +141,7 @@ const TabNavigationLink = React.forwardRef<
               <span
                 data-active={active ? "" : undefined}
                 className={cx(
-                  "inline-flex items-center justify-center gap-xs rounded-md bg-surface-neutral-primary px-lg py-sm border border-transparent shadow-none",
+                  "inline-flex h-[28px] min-h-[28px] items-center justify-center gap-xs rounded-md border border-transparent bg-surface-neutral-primary px-lg shadow-none",
                   "group-hover:bg-surface-state-neutral-light-hover group-hover:border-neutral-primary",
                   "data-[active]:border-neutral-primary",
                 )}
@@ -159,7 +159,7 @@ const TabNavigationLink = React.forwardRef<
                       : leadingIcon}
                   </span>
                 )}
-                <span className="text-label-md px-xs text-current">
+                <span className="text-label-sm px-xs text-current">
                   {children}
                 </span>
                 {showBadge && badge !== undefined && badge !== null && (

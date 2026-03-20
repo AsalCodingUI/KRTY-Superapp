@@ -1,7 +1,7 @@
 "use client"
 
-import { RiStarFill } from "@/shared/ui/lucide-icons"
 import { Badge, Card } from "@/shared/ui"
+import { RiStarFill } from "@/shared/ui/lucide-icons"
 
 interface ReviewCardProps {
   title: string
@@ -44,7 +44,7 @@ export function ReviewCard({
   return (
     <Card>
       <h3 className="text-content mb-4 font-semibold">{title}</h3>
-      <div className="space-y-4">
+      <div className="space-y-3">
         <div className="flex items-center justify-between">
           <span className="text-display-xxs text-content">
             {score !== null ? `${score}%` : "—"}
@@ -54,9 +54,8 @@ export function ReviewCard({
               {[...Array(5)].map((_, i) => (
                 <RiStarFill
                   key={i}
-                  className={`size-4 ${
-                    i < getStarCount(score) ? "" : "opacity-30"
-                  }`}
+                  className={`size-4 ${i < getStarCount(score) ? "" : "opacity-30"
+                    }`}
                 />
               ))}
             </div>

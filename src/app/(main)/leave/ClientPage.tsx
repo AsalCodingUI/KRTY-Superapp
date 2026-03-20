@@ -1,14 +1,14 @@
 "use client"
 
-import { Database } from "@/shared/types/database.types"
-import { createClient } from "@/shared/api/supabase/client"
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { useEffect, useState } from "react"
 import { columns } from "@/page-slices/leave/ui/components/Columns"
 import { LeaveRequestModal } from "@/page-slices/leave/ui/components/LeaveRequestModal"
 import { LeaveStats } from "@/page-slices/leave/ui/components/LeaveStats"
+import { createClient } from "@/shared/api/supabase/client"
+import { Database } from "@/shared/types/database.types"
 import { DataTable } from "@/shared/ui"
 import { RiCalendarLine } from "@/shared/ui/lucide-icons"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { useEffect, useState } from "react"
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"]
 type LeaveRequest = Database["public"]["Tables"]["leave_requests"]["Row"]
@@ -89,7 +89,7 @@ export default function LeaveClientPage({
       </div>
 
       <div className="bg-surface-neutral-primary flex flex-col rounded-xxl">
-        <div className="space-y-6 p-5">
+        <div className="space-y-4 p-5">
           {/* 2. STATS SECTION (Passing 'requests' agar hitungannya Realtime) */}
           <section>
             <LeaveStats requests={requests} />
