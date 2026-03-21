@@ -248,33 +248,35 @@ export function KPITab({
             )}
           </TableBody>
         </Table>
-        <div className="flex items-center justify-between pt-3">
-          <span className="text-body-sm text-foreground-secondary">
-            Page {pageIndex + 1} of {totalPages}
-          </span>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => setPageIndex((prev) => Math.max(0, prev - 1))}
-              disabled={pageIndex === 0}
-            >
-              Previous
-            </Button>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() =>
-                setPageIndex((prev) =>
-                  Math.min(totalPages - 1, prev + 1),
-                )
-              }
-              disabled={pageIndex >= totalPages - 1}
-            >
-              Next
-            </Button>
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between pt-3">
+            <span className="text-body-sm text-foreground-secondary">
+              Page {pageIndex + 1} of {totalPages}
+            </span>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => setPageIndex((prev) => Math.max(0, prev - 1))}
+                disabled={pageIndex === 0}
+              >
+                Previous
+              </Button>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() =>
+                  setPageIndex((prev) =>
+                    Math.min(totalPages - 1, prev + 1),
+                  )
+                }
+                disabled={pageIndex >= totalPages - 1}
+              >
+                Next
+              </Button>
+            </div>
           </div>
-        </div>
+        )}
       </TableSection>
     </div>
   )

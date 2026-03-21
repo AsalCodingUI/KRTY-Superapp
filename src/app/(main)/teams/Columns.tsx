@@ -33,9 +33,9 @@ const getJobTitleVariant = (title: string) => {
     case "Designer":
       return "success"
     case "Web Developer":
-      return "default"
+      return "info"
     default:
-      return "zinc"
+      return "default"
   }
 }
 
