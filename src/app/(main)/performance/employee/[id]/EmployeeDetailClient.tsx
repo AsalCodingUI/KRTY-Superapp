@@ -24,11 +24,11 @@ import {
   RiArrowLeftLine,
   RiFolderLine
 } from "@/shared/ui/lucide-icons"
+import { useQuery } from "@tanstack/react-query"
 import { format } from "date-fns"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
-import { useQuery } from "@tanstack/react-query"
 import {
   getEmployeeDetail,
   getEmployeeOverview,
@@ -129,7 +129,7 @@ export function EmployeeDetailClient({
   }
 
   return (
-    <div className={showBackButton ? "flex flex-col p-5" : "flex flex-col"}>
+    <div className={showBackButton ? "flex flex-col" : "flex flex-col"}>
       <div
         className={
           showBackButton
