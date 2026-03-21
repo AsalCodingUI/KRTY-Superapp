@@ -467,12 +467,12 @@
     --surface-neutral-overlay: var(--opacity-white-8);
 
     --surface-brand: var(--primary-600);
-    --surface-brand-light: rgba(2, 123, 255, 0.15);
+    --surface-brand-light: var(--primary-900);
 
-    /* Status light backgrounds — subtle tints for dark bg */
-    --surface-success-light: rgba(34, 199, 98, 0.15);
-    --surface-danger-light: rgba(255, 64, 50, 0.15);
-    --surface-warning-light: rgba(255, 184, 4, 0.12);
+    /* Status light backgrounds — proper dark palette, no opacity */
+    --surface-success-light: var(--success-900);
+    --surface-danger-light: var(--danger-900);
+    --surface-warning-light: var(--warning-900);
 
     /* Button/interactive state overrides for dark bg */
     --surface-state-neutral-light-hover: rgba(255, 255, 255, 0.06);
@@ -484,11 +484,14 @@
     --foreground-tertiary: var(--neutral-500);
     --foreground-on-color: var(--neutral-0);
 
-    /* Badge text — lighter variants for dark tint backgrounds */
+    /* Badge text — lighter variants readable on dark palette bg */
     --foreground-brand-dark: var(--primary-300);
-    --foreground-success-dark: var(--success-400);
-    --foreground-danger-dark: var(--danger-400);
-    --foreground-warning-on-color: var(--warning-400);
+    --foreground-success-dark: var(--success-300);
+    --foreground-danger-dark: var(--danger-300);
+    --foreground-warning-on-color: var(--warning-300);
+
+    /* Focus ring — softer in dark mode */
+    --border-brand-light: var(--primary-700);
 
     --border-default: var(--neutral-900);
     --border-neutral-primary: var(--neutral-900);
