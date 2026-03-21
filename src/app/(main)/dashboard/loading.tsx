@@ -17,11 +17,11 @@ export default function DashboardLoading() {
             <Skeleton className="h-3 w-72 max-w-full" />
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {[1, 2, 3, 4].map((i) => (
+          <div className="grid gap-md sm:grid-cols-2 lg:grid-cols-5">
+            {[1, 2, 3, 4, 5].map((i) => (
               <div
                 key={i}
-                className="border-neutral-primary bg-surface space-y-3 rounded-lg border p-4"
+                className="border-neutral-primary bg-surface-neutral-primary space-y-3 rounded-lg border p-4"
               >
                 <Skeleton className="h-4 w-20" />
                 <Skeleton className="h-7 w-16" />
@@ -30,11 +30,11 @@ export default function DashboardLoading() {
           </div>
 
           <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-            <div className="border-neutral-primary bg-surface rounded-lg border p-4">
+            <div className="border-neutral-primary bg-surface-neutral-primary rounded-lg border p-4">
               <Skeleton className="mb-4 h-4 w-40" />
               <Skeleton className="h-44 w-full" />
             </div>
-            <div className="border-neutral-primary bg-surface rounded-lg border p-4">
+            <div className="border-neutral-primary bg-surface-neutral-primary rounded-lg border p-4">
               <Skeleton className="mb-4 h-4 w-40" />
               <Skeleton className="h-44 w-full" />
             </div>

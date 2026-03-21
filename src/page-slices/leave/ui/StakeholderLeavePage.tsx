@@ -7,7 +7,18 @@ import { useTabRoute } from "@/shared/hooks/useTabRoute"
 import { canManageByRole } from "@/shared/lib/roles"
 import { Database } from "@/shared/types/database.types"
 import {
+  Button,
   ConfirmDialog,
+  DatePicker,
+  Dialog,
+  DialogBody,
+  DialogClose,
+  DialogCloseButton,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  Label,
   Select,
   SelectContent,
   SelectItem,
@@ -15,9 +26,12 @@ import {
   SelectValue,
   TabNavigation,
   TabNavigationLink,
+  TextInput,
+  Textarea,
 } from "@/shared/ui"
 import { DataTable } from "@/shared/ui/data/DataTable"
 import { RiCalendarCheckLine } from "@/shared/ui/lucide-icons"
+import { format } from "date-fns"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
@@ -40,12 +54,30 @@ type AttendanceLogWithProfile = AttendanceLog & {
   } | null
 }
 
+type ManualLeaveForm = {
+  user_id: string
+  leave_type: "Annual Leave" | "Sick Leave" | "WFH"
+  start_date: string
+  end_date: string
+  status: "pending" | "approved" | "rejected"
+  reason: string
+  proof_url: string
+  created_at: string
+}
+
 function getLocalDateString(): string {
   const now = new Date()
   const year = now.getFullYear()
   const month = String(now.getMonth() + 1).padStart(2, "0")
   const day = String(now.getDate()).padStart(2, "0")
   return `${year}-${month}-${day}`
+}
+
+function parseDateOnly(value: string): Date | undefined {
+  if (!value) return undefined
+  const [y, m, d] = value.split("-").map(Number)
+  if (!y || !m || !d) return undefined
+  return new Date(y, m - 1, d)
 }
 
 type PendingConfirm = {
@@ -102,6 +134,18 @@ export function StakeholderLeavePage({
   const [pendingConfirm, setPendingConfirm] = useState<PendingConfirm | null>(null)
   const [confirmLoading, setConfirmLoading] = useState(false)
   const [isClient, setIsClient] = useState(false)
+  const [manualModalOpen, setManualModalOpen] = useState(false)
+  const [manualSaving, setManualSaving] = useState(false)
+  const [manualForm, setManualForm] = useState<ManualLeaveForm>({
+    user_id: "",
+    leave_type: "Annual Leave",
+    start_date: "",
+    end_date: "",
+    status: "pending",
+    reason: "",
+    proof_url: "",
+    created_at: new Date().toISOString(),
+  })
 
   useEffect(() => {
     setIsClient(true)
@@ -246,6 +290,65 @@ export function StakeholderLeavePage({
     })
   }
 
+  const openManualModal = () => {
+    setManualForm({
+      user_id: profiles[0]?.id || "",
+      leave_type: "Annual Leave",
+      start_date: "",
+      end_date: "",
+      status: "pending",
+      reason: "",
+      proof_url: "",
+      created_at: new Date().toISOString(),
+    })
+    setManualModalOpen(true)
+  }
+
+  const handleManualSubmit = async () => {
+    if (!manualForm.user_id) {
+      toast.error("Please select employee")
+      return
+    }
+    if (!manualForm.start_date || !manualForm.end_date) {
+      toast.error("Please fill date range")
+      return
+    }
+    if (manualForm.start_date > manualForm.end_date) {
+      toast.error("End date must be after start date")
+      return
+    }
+    if (!manualForm.created_at) {
+      toast.error("Please fill submission date")
+      return
+    }
+
+    setManualSaving(true)
+    try {
+      const createdAtIso = new Date(manualForm.created_at).toISOString()
+      const { error } = await supabase.from("leave_requests").insert({
+        user_id: manualForm.user_id,
+        leave_type: manualForm.leave_type,
+        start_date: manualForm.start_date,
+        end_date: manualForm.end_date,
+        status: manualForm.status,
+        reason: manualForm.reason.trim() || null,
+        proof_url: manualForm.proof_url.trim() || null,
+        created_at: createdAtIso,
+      })
+
+      if (error) {
+        toast.error(error.message || "Failed to add leave request manually")
+        return
+      }
+
+      toast.success("Leave request added manually")
+      setManualModalOpen(false)
+      router.refresh()
+    } finally {
+      setManualSaving(false)
+    }
+  }
+
   const approvalContent = (
     <section>
       <DataTable
@@ -359,6 +462,7 @@ export function StakeholderLeavePage({
           approvalContent={approvalContent}
           remainingContent={remainingContent}
           onApproveAttendanceDelete={handleApproveAttendanceDelete}
+          onAddManualLeave={openManualModal}
           overviewStats={overviewStats}
           isClient={isClient}
         />
@@ -376,6 +480,173 @@ export function StakeholderLeavePage({
         variant={pendingConfirm?.variant}
         loading={confirmLoading}
       />
+
+      <Dialog open={manualModalOpen} onOpenChange={setManualModalOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Add Leave Manually</DialogTitle>
+            <DialogCloseButton />
+          </DialogHeader>
+          <DialogBody className="space-y-4">
+            <div>
+              <Label htmlFor="manual-user">Employee</Label>
+              <Select
+                value={manualForm.user_id}
+                onValueChange={(value) =>
+                  setManualForm((prev) => ({ ...prev, user_id: value }))
+                }
+              >
+                <SelectTrigger id="manual-user" className="mt-2">
+                  <SelectValue placeholder="Select employee" />
+                </SelectTrigger>
+                <SelectContent>
+                  {profiles.map((profileItem) => (
+                    <SelectItem key={profileItem.id} value={profileItem.id}>
+                      {profileItem.full_name || profileItem.id}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div>
+                <Label>Start Date</Label>
+                <DatePicker
+                  className="mt-2 w-full"
+                  value={parseDateOnly(manualForm.start_date)}
+                  onChange={(date) =>
+                    setManualForm((prev) => ({
+                      ...prev,
+                      start_date: date ? format(date, "yyyy-MM-dd") : "",
+                    }))
+                  }
+                  placeholder="Select start date"
+                />
+              </div>
+              <div>
+                <Label>End Date</Label>
+                <DatePicker
+                  className="mt-2 w-full"
+                  value={parseDateOnly(manualForm.end_date)}
+                  onChange={(date) =>
+                    setManualForm((prev) => ({
+                      ...prev,
+                      end_date: date ? format(date, "yyyy-MM-dd") : "",
+                    }))
+                  }
+                  placeholder="Select end date"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div>
+                <Label htmlFor="manual-leave-type">Leave Type</Label>
+                <Select
+                  value={manualForm.leave_type}
+                  onValueChange={(value) =>
+                    setManualForm((prev) => ({
+                      ...prev,
+                      leave_type: value as ManualLeaveForm["leave_type"],
+                    }))
+                  }
+                >
+                  <SelectTrigger id="manual-leave-type" className="mt-2">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Annual Leave">Annual Leave</SelectItem>
+                    <SelectItem value="Sick Leave">Sick Leave</SelectItem>
+                    <SelectItem value="WFH">WFH</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="manual-status">Status</Label>
+                <Select
+                  value={manualForm.status}
+                  onValueChange={(value) =>
+                    setManualForm((prev) => ({
+                      ...prev,
+                      status: value as ManualLeaveForm["status"],
+                    }))
+                  }
+                >
+                  <SelectTrigger id="manual-status" className="mt-2">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="approved">Approved</SelectItem>
+                    <SelectItem value="rejected">Rejected</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div>
+              <Label>Submission Date</Label>
+              <DatePicker
+                className="mt-2 w-full"
+                showTimePicker
+                value={
+                  manualForm.created_at
+                    ? new Date(manualForm.created_at)
+                    : undefined
+                }
+                onChange={(date) =>
+                  setManualForm((prev) => ({
+                    ...prev,
+                    created_at: date ? date.toISOString() : "",
+                  }))
+                }
+                placeholder="Select submission date"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="manual-reason">Reason</Label>
+              <Textarea
+                id="manual-reason"
+                className="mt-2"
+                placeholder="Optional reason"
+                value={manualForm.reason}
+                onChange={(e) =>
+                  setManualForm((prev) => ({
+                    ...prev,
+                    reason: e.target.value,
+                  }))
+                }
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="manual-proof-url">Proof URL</Label>
+              <TextInput
+                id="manual-proof-url"
+                className="mt-2"
+                placeholder="https://..."
+                value={manualForm.proof_url}
+                onChange={(e) =>
+                  setManualForm((prev) => ({
+                    ...prev,
+                    proof_url: e.target.value,
+                  }))
+                }
+              />
+            </div>
+          </DialogBody>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="ghost">Cancel</Button>
+            </DialogClose>
+            <Button onClick={handleManualSubmit} isLoading={manualSaving}>
+              Save Manual Request
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   )
 }
@@ -388,6 +659,7 @@ function AttendanceOverviewPanel({
   approvalContent,
   remainingContent,
   onApproveAttendanceDelete,
+  onAddManualLeave,
   overviewStats,
   isClient,
 }: {
@@ -398,6 +670,7 @@ function AttendanceOverviewPanel({
   approvalContent: React.ReactNode
   remainingContent: React.ReactNode
   onApproveAttendanceDelete: (logId: string) => void
+  onAddManualLeave: () => void
   isClient: boolean
   overviewStats?: {
     onLeaveToday: number
@@ -481,7 +754,7 @@ function AttendanceOverviewPanel({
             <div className="border-neutral-primary h-9 w-full rounded-md border bg-surface-neutral-primary" />
           )}
         </div>
-        <div className="hidden xl:block">
+        <div className="hidden xl:flex items-start justify-between gap-4">
           <TabNavigation className="border-b-0">
             <TabNavigationLink
               active={activeTab === "attendance"}
@@ -505,6 +778,11 @@ function AttendanceOverviewPanel({
               Remaining Leave
             </TabNavigationLink>
           </TabNavigation>
+          {activeTab === "approval" && (
+            <Button size="sm" onClick={onAddManualLeave}>
+              Added Manually
+            </Button>
+          )}
         </div>
       </div>
 

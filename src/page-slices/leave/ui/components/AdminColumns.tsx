@@ -126,9 +126,34 @@ export const adminColumns = (
         )
       },
       meta: { displayName: "Date Range" },
+  }),
+
+    // 4. Submission Date (Admin only preview)
+    columnHelper.accessor("created_at", {
+      header: ({ column }) => (
+        <DataTableColumnHeader
+          column={column}
+          title="Submission Date"
+          className="whitespace-nowrap"
+        />
+      ),
+      cell: ({ row }) => {
+        const createdAt = row.getValue("created_at") as string | null
+        if (!createdAt) return <span className="text-foreground-disable">-</span>
+        const parsed = new Date(createdAt)
+        if (Number.isNaN(parsed.getTime())) {
+          return <span className="text-foreground-disable">-</span>
+        }
+        return (
+          <span className="text-foreground-primary whitespace-nowrap">
+            {format(parsed, "dd MMM yyyy, HH:mm")}
+          </span>
+        )
+      },
+      meta: { displayName: "Submission Date" },
     }),
 
-    // 4. Type
+    // 5. Type
     columnHelper.accessor("leave_type", {
       header: ({ column }) => (
         <DataTableColumnHeader
@@ -140,7 +165,7 @@ export const adminColumns = (
       meta: { displayName: "Type", className: "whitespace-nowrap" },
     }),
 
-    // 5. Reason
+    // 6. Reason
     columnHelper.accessor("reason", {
       header: ({ column }) => (
         <DataTableColumnHeader
@@ -160,7 +185,7 @@ export const adminColumns = (
       meta: { displayName: "Reason" },
     }),
 
-    // 6. Proof
+    // 7. Proof
     columnHelper.accessor("proof_url", {
       header: ({ column }) => (
         <DataTableColumnHeader
@@ -187,7 +212,7 @@ export const adminColumns = (
       meta: { displayName: "Proof" },
     }),
 
-    // 7. Status
+    // 8. Status
     columnHelper.accessor("status", {
       header: ({ column }) => (
         <DataTableColumnHeader

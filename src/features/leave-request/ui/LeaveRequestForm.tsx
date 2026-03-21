@@ -33,6 +33,8 @@ interface LeaveRequestFormProps {
   formData: LeaveFormData
   userProfile: LeaveRequestUserProfile
   compressing: boolean
+  noticeMessage?: string
+  noticeInvalid?: boolean
   onFormDataChange: (data: LeaveFormData) => void
   onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void
 }
@@ -41,6 +43,8 @@ export function LeaveRequestForm({
   formData,
   userProfile,
   compressing,
+  noticeMessage,
+  noticeInvalid = false,
   onFormDataChange,
   onFileChange,
 }: LeaveRequestFormProps) {
@@ -99,6 +103,17 @@ export function LeaveRequestForm({
             Durasi:{" "}
             {calculateBusinessDays(formData.start_date, formData.end_date)} hari
             kerja.
+          </p>
+        )}
+        {noticeMessage && (
+          <p
+            className={
+              noticeInvalid
+                ? "text-body-xs text-foreground-danger-dark mt-1"
+                : "text-body-xs text-foreground-secondary mt-1"
+            }
+          >
+            {noticeMessage}
           </p>
         )}
       </div>

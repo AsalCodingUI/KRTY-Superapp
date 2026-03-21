@@ -116,7 +116,7 @@ export function EmployeePerformanceCards({
       </div>
 
       {competencyItems.length > 0 && (
-        <div className="border-neutral-primary bg-surface rounded-lg border px-4 py-3">
+        <div className="border-neutral-primary bg-surface-neutral-primary rounded-lg border px-4 py-3">
           <div className="mb-3 flex items-center justify-between">
             <p className="text-label-sm text-foreground-secondary">
               Competency Snapshot

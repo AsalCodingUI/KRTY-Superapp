@@ -16,7 +16,7 @@ import {
 } from "@/shared/ui"
 import imageCompression from "browser-image-compression"
 import { useRouter } from "next/navigation"
-import { format, startOfDay } from "date-fns"
+import { differenceInCalendarDays, format, startOfDay } from "date-fns"
 import React, { useEffect, useState } from "react"
 import { toast } from "sonner"
 import { LeaveRules } from "./LeaveRules"
@@ -24,6 +24,7 @@ import { LeaveRules } from "./LeaveRules"
 type Profile = Database["public"]["Tables"]["profiles"]["Row"]
 type LeaveRequest = Database["public"]["Tables"]["leave_requests"]["Row"]
 type LeaveRequestUserProfile = Pick<Profile, "id" | "full_name">
+const MIN_LEAVE_NOTICE_DAYS = 7
 
 interface ModalProps {
   isOpen: boolean
@@ -55,6 +56,19 @@ export function LeaveRequestModal({
     proof_file: null,
     proof_url: "",
   })
+
+  const today = startOfDay(new Date())
+  const startDate = formData.start_date ? startOfDay(formData.start_date) : null
+  const daysUntilStart =
+    startDate !== null ? differenceInCalendarDays(startDate, today) : null
+  const isInsufficientNotice =
+    daysUntilStart !== null && daysUntilStart <= MIN_LEAVE_NOTICE_DAYS
+  const noticeMessage =
+    daysUntilStart === null
+      ? undefined
+      : isInsufficientNotice
+        ? `Pengajuan cuti minimal H-${MIN_LEAVE_NOTICE_DAYS + 1}. Saat ini masih H-${Math.max(daysUntilStart, 0)}, jadi belum bisa diajukan.`
+        : `Pengajuan memenuhi ketentuan jeda (${daysUntilStart} hari sebelum tanggal mulai).`
 
   useEffect(() => {
     if (isOpen) {
@@ -109,6 +123,12 @@ export function LeaveRequestModal({
     if (!formData.start_date || !formData.end_date) return
     if (formData.start_date > formData.end_date) {
       toast.error("End date must be after start date")
+      return
+    }
+    if (isInsufficientNotice) {
+      toast.error(
+        `Pengajuan cuti harus dilakukan minimal H-${MIN_LEAVE_NOTICE_DAYS + 1} sebelum tanggal mulai`,
+      )
       return
     }
     setLoading(true)
@@ -243,6 +263,8 @@ export function LeaveRequestModal({
           formData={formData}
           userProfile={userProfile}
           compressing={compressing}
+          noticeMessage={noticeMessage}
+          noticeInvalid={isInsufficientNotice}
           onFormDataChange={setFormData}
           onFileChange={handleFileChange}
         />
@@ -369,7 +391,12 @@ export function LeaveRequestModal({
               }
               setStep(2)
             }}
-            disabled={!formData.start_date || !formData.reason || compressing}
+            disabled={
+              !formData.start_date ||
+              !formData.reason ||
+              compressing ||
+              isInsufficientNotice
+            }
           >
             {compressing ? "Processing Image..." : "Next"}
           </Button>
@@ -392,7 +419,7 @@ export function LeaveRequestModal({
             className="w-full sm:w-fit"
             type="button"
             onClick={() => setStep(3)}
-            disabled={!isTermsAccepted}
+            disabled={!isTermsAccepted || isInsufficientNotice}
           >
             I Agree
           </Button>
@@ -415,6 +442,7 @@ export function LeaveRequestModal({
           type="button"
           onClick={() => handleSubmit()}
           isLoading={loading}
+          disabled={isInsufficientNotice}
         >
           Confirm & Submit
         </Button>

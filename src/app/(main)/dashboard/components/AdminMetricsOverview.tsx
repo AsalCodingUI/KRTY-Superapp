@@ -29,7 +29,7 @@ export function AdminMetricsOverview({
     <div className="grid gap-md sm:grid-cols-2 lg:grid-cols-5">
       {items.map((item) => {
         const content = (
-          <div className="border-neutral-primary flex flex-col gap-1 rounded-lg border px-4 py-3">
+          <div className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-lg border px-4 py-3">
             <p className="text-label-sm text-foreground-secondary">{item.label}</p>
             <p className="text-heading-sm text-foreground-primary">{item.value}</p>
           </div>

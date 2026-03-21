@@ -27,7 +27,7 @@ export function AdminAttendanceOverview({
       </p>
 
       <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <div className="border-neutral-primary rounded-lg border p-3 text-center">
+        <div className="border-neutral-primary bg-surface-neutral-primary rounded-lg border p-3 text-center">
           <div className="text-foreground-primary text-heading-sm">
             {onTime}
           </div>
@@ -36,14 +36,14 @@ export function AdminAttendanceOverview({
           </div>
         </div>
 
-        <div className="border-neutral-primary rounded-lg border p-3 text-center">
+        <div className="border-neutral-primary bg-surface-neutral-primary rounded-lg border p-3 text-center">
           <div className="text-foreground-primary text-heading-sm">{late}</div>
           <div className="text-foreground-secondary text-body-xs mt-1">
             Late
           </div>
         </div>
 
-        <div className="border-neutral-primary rounded-lg border p-3 text-center">
+        <div className="border-neutral-primary bg-surface-neutral-primary rounded-lg border p-3 text-center">
           <div className="text-foreground-primary text-heading-sm">
             {onLeave}
           </div>
@@ -52,7 +52,7 @@ export function AdminAttendanceOverview({
           </div>
         </div>
 
-        <div className="border-neutral-primary rounded-lg border p-3 text-center">
+        <div className="border-neutral-primary bg-surface-neutral-primary rounded-lg border p-3 text-center">
           <div className="text-foreground-primary text-heading-sm">
             {absent}
           </div>

@@ -411,8 +411,8 @@ export function EmployeeLeavePage({
             </div>
           </div>
 
-          <div className="px-5 pt-2 border-b border-neutral-primary space-y-3">
-            <div className="xl:hidden">
+          <div className="px-5 pt-2 border-b border-neutral-primary">
+            <div className="xl:hidden space-y-3 pb-2">
               <Select
                 value={activeTab}
                 onValueChange={(value) =>
@@ -427,8 +427,25 @@ export function EmployeeLeavePage({
                   <SelectItem value="leave">Leave Requests</SelectItem>
                 </SelectContent>
               </Select>
+              {isMounted("leave") && activeTab === "leave" && (
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => setTermsOpen(true)}
+                  >
+                    <RiFileTextLine className="mr-2 size-3.5" />
+                    Read Terms &amp; Conditions
+                  </Button>
+                  <Button size="sm" onClick={handleAdd}>
+                    <RiAddLine className="mr-2 size-3.5" />
+                    Request Leave
+                  </Button>
+                </div>
+              )}
             </div>
-            <div className="hidden xl:block">
+
+            <div className="hidden xl:flex items-start justify-between gap-4">
               <TabNavigation className="border-b-0">
                 <TabNavigationLink
                   active={activeTab === "attendance"}
@@ -443,23 +460,24 @@ export function EmployeeLeavePage({
                   Leave Requests
                 </TabNavigationLink>
               </TabNavigation>
+
+              {isMounted("leave") && activeTab === "leave" && (
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => setTermsOpen(true)}
+                  >
+                    <RiFileTextLine className="mr-2 size-3.5" />
+                    Read Terms &amp; Conditions
+                  </Button>
+                  <Button size="sm" onClick={handleAdd}>
+                    <RiAddLine className="mr-2 size-3.5" />
+                    Request Leave
+                  </Button>
+                </div>
+              )}
             </div>
-            {isMounted("leave") && activeTab === "leave" && (
-              <div className="flex items-center gap-2">
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  onClick={() => setTermsOpen(true)}
-                >
-                  <RiFileTextLine className="mr-2 size-3.5" />
-                  Read Terms &amp; Conditions
-                </Button>
-                <Button size="sm" onClick={handleAdd}>
-                  <RiAddLine className="mr-2 size-3.5" />
-                  Request Leave
-                </Button>
-              </div>
-            )}
           </div>
 
           <div className="p-5">

@@ -1,4 +1,4 @@
-import { Badge, ProgressBar } from "@/components/ui"
+import { Badge, ProgressBar } from "@/shared/ui"
 
 export type KpiEntry = {
   title: string
@@ -34,13 +34,13 @@ export function ProgressBarCard({
       <div className="flex flex-col justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <dt className="text-foreground-primary sm:text-label-md dark:text-foreground-primary">
+            <dt className="text-foreground-primary sm:text-label-md">
               {title}
             </dt>
             <Badge variant="zinc">{change}</Badge>
           </div>
           <dd className="mt-2 flex items-baseline gap-2">
-            <span className="text-heading-lg text-foreground-primary dark:text-foreground-primary">
+            <span className="text-heading-lg text-foreground-primary">
               {value}
             </span>
             <span className="text-body-sm text-foreground-tertiary">
@@ -51,10 +51,10 @@ export function ProgressBarCard({
             {data.map((item) => (
               <li key={item.title}>
                 <p className="text-label-md flex justify-between">
-                  <span className="text-foreground-primary dark:text-foreground-primary font-medium">
+                  <span className="text-foreground-primary font-medium">
                     {item.title}
                   </span>
-                  <span className="text-foreground-primary dark:text-foreground-primary font-medium">
+                  <span className="text-foreground-primary font-medium">
                     {item.current}
                     <span className="text-foreground-tertiary font-normal">
                       /{item.allowed}

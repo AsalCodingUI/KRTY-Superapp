@@ -1,4 +1,4 @@
-import { Badge } from "@/components/ui"
+import { Badge } from "@/shared/ui"
 import { cx } from "@/shared/lib/utils"
 import React from "react"
 
@@ -37,13 +37,13 @@ export function CategoryBarCard({
       <div className="flex flex-col justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <h3 className="text-foreground-primary dark:text-foreground-primary sm:text-label-md">
+            <h3 className="text-foreground-primary sm:text-label-md">
               {title}
             </h3>
             <Badge variant="zinc">{change}</Badge>
           </div>
           <p className="mt-2 flex items-baseline gap-2">
-            <span className="text-foreground-primary dark:text-foreground-primary text-heading-lg">
+            <span className="text-foreground-primary text-heading-lg">
               {value}
             </span>
             <span className="text-foreground-tertiary text-body-sm">
@@ -51,7 +51,7 @@ export function CategoryBarCard({
             </span>
           </p>
           <div className="mt-4">
-            <p className="text-foreground-primary dark:text-foreground-primary text-label-md">
+            <p className="text-foreground-primary text-label-md">
               {subtitle}
             </p>
             <div className="mt-2 flex items-center gap-0.5">
@@ -79,10 +79,10 @@ export function CategoryBarCard({
                   className={cx(item.color, "size-2.5 rounded-sm")}
                   aria-hidden="true"
                 />
-                <span className="text-foreground-primary dark:text-foreground-primary">
+                <span className="text-foreground-primary">
                   {item.title}
                 </span>
-                <span className="text-foreground-tertiary dark:text-foreground-default-disable">
+                <span className="text-foreground-tertiary">
                   ({item.value} / {item.percentage}%)
                 </span>
               </li>
