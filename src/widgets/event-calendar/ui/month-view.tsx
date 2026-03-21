@@ -1,6 +1,6 @@
 "use client"
 
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui"
+import { Popover, PopoverContent, PopoverTrigger } from "@/shared/ui"
 import { cx } from "@/shared/lib/utils"
 import { format, isSameDay, isSameMonth } from "date-fns"
 import { id } from "date-fns/locale"

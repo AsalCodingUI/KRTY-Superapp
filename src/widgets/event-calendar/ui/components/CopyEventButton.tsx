@@ -1,6 +1,6 @@
 "use client"
 
-import { Button } from "@/components/ui"
+import { Button } from "@/shared/ui"
 import { logError } from "@/shared/lib/utils/logger"
 import { RiFileCopyLine } from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"

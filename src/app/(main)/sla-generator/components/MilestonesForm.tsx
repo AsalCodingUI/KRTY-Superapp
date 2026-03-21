@@ -1,6 +1,6 @@
 "use client"
 
-import { Button, Label, Tabs, TabsContent, TabsList, TabsTrigger, Textarea, TextInput } from "@/components/ui"
+import { Button, Label, Tabs, TabsContent, TabsList, TabsTrigger, Textarea, TextInput } from "@/shared/ui"
 import { RiAddLine, RiDeleteBinLine } from "@/shared/ui/lucide-icons"
 
 interface MilestoneItem {

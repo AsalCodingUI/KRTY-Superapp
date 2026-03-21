@@ -1,13 +1,13 @@
 "use client"
 
-import { Button } from "@/components/ui"
+import { Button } from "@/shared/ui"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui"
+} from "@/shared/ui"
 import { RiAddLine, RiCloseLine } from "@/shared/ui/lucide-icons"
 import { useState } from "react"
 import type { Reminder } from "../types"

@@ -1,6 +1,6 @@
 "use client"
 
-import { Button } from "@/components/ui"
+import { Button } from "@/shared/ui"
 import { createClient } from "@/shared/api/supabase/client"
 import { useState } from "react"
 

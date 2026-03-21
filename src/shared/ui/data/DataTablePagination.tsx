@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui"
+import { Button } from "@/shared/ui"
 import {
   RiArrowLeftDoubleLine,
   RiArrowLeftSLine,

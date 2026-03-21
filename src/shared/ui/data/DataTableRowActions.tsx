@@ -1,6 +1,6 @@
 "use client"
 
-import { Button } from "@/components/ui"
+import { Button } from "@/shared/ui"
 import { cx } from "@/shared/lib/utils"
 import { RiMoreFill } from "@/shared/ui/lucide-icons"
 import {
@@ -8,7 +8,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui"
+} from "@/shared/ui"
 import type { ReactNode } from "react"
 
 export interface DataTableRowAction {

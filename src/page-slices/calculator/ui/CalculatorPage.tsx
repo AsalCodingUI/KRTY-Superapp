@@ -99,22 +99,8 @@ export default function CalculatorClientPage({
     return parseNumber(revenueUSD) * parseNumber(exchangeRate)
   }, [revenueUSD, exchangeRate])
 
-  const SALARY_BY_NAME: Record<string, number> = {
-    "bima": 6300000,
-    "bima sakti pramudya kosasih": 6300000,
-    "evan": 5800000,
-    "gilang": 5800000,
-    "gilang mukti setio bekti": 5800000,
-    "habibi": 7000000,
-    "hafiza": 5800000,
-    "hafiza aprilia": 5800000,
-    "haqqi": 5800000,
-    "haqqi ilmiawan": 5800000,
-    "intan": 5800000,
-    "intan maisuri dinaya": 5800000,
-    "rere": 5800000,
-    "rijal": 5800000,
-  }
+  // Monthly salary is derived from profiles.hourly_rate (stored as monthly salary in DB)
+  // Falls back to 0 if not set — update each employee's hourly_rate in the profiles table
 
   const totalProjectHours = useMemo(() => {
     const hours = parseNumber(hoursPerDay)
@@ -129,13 +115,7 @@ export default function CalculatorClientPage({
     return squad.reduce((total, member) => {
       const profile = teamMembers.find((p) => p.id === member.profileId)
       if (!profile) return total
-      const normalizedName = (profile.full_name || "").trim().toLowerCase()
-      const firstName = normalizedName.split(" ")[0]
-      const monthlySalary =
-        SALARY_BY_NAME[normalizedName] ??
-        SALARY_BY_NAME[firstName] ??
-        profile.hourly_rate ??
-        0
+      const monthlySalary = profile.hourly_rate ?? 0
       const dailyRate = monthlySalary / WORK_DAYS_PER_MONTH
       const cost =
         dailyRate * totalProjectDays * (member.allocation / 100)
@@ -151,14 +131,8 @@ export default function CalculatorClientPage({
 
   const overheadPerHour = useMemo(() => {
     const activeMembers =
-      teamMembers.filter((member) => {
-        const normalizedName = (member.full_name || "").trim().toLowerCase()
-        const firstName = normalizedName.split(" ")[0]
-        return (
-          SALARY_BY_NAME[normalizedName] !== undefined ||
-          SALARY_BY_NAME[firstName] !== undefined
-        )
-      }).length || teamMembers.length
+      teamMembers.filter((member) => (member.hourly_rate ?? 0) > 0).length ||
+      teamMembers.length
 
     const totalBillableHours =
       activeMembers * WORK_DAYS_PER_MONTH * 8 * BILLABLE_UTILIZATION
@@ -336,6 +310,11 @@ export default function CalculatorClientPage({
   }
 
   const handleImportCosts = async (file: File) => {
+    const confirmed = window.confirm(
+      "Importing will replace ALL existing operational costs. Continue?",
+    )
+    if (!confirmed) return
+
     const text = await file.text()
     let items: Array<OperationalCost | any> = []
     if (file.name.endsWith(".json")) {
@@ -356,10 +335,19 @@ export default function CalculatorClientPage({
 
     setCostItems(items as OperationalCost[])
 
-    await supabase.from("operational_costs").delete().neq("id", "")
-    if (items.length > 0) {
-      await supabase.from("operational_costs").insert(items)
+    const { error } = await supabase.from("operational_costs").delete().neq("id", "")
+    if (error) {
+      toast.error("Failed to clear existing costs")
+      return
     }
+    if (items.length > 0) {
+      const { error: insertError } = await supabase.from("operational_costs").insert(items)
+      if (insertError) {
+        toast.error("Failed to import costs")
+        return
+      }
+    }
+    toast.success(`Imported ${items.length} cost items`)
   }
 
   return (

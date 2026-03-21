@@ -1,6 +1,6 @@
 "use client"
 
-import { Button, Label, Textarea, TextInput } from "@/components/ui"
+import { Button, Label, Textarea, TextInput } from "@/shared/ui"
 import {
   RiAddLine,
   RiDeleteBinLine,

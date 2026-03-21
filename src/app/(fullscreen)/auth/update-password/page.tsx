@@ -1,6 +1,6 @@
 "use client"
 
-import { Button, Label, TextInput } from "@/components/ui"
+import { Button, Label, TextInput } from "@/shared/ui"
 import { createClient } from "@/shared/api/supabase/client"
 import { useRouter } from "next/navigation"
 import { useState } from "react"

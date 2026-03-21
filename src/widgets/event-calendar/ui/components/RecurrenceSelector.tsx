@@ -6,7 +6,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui"
+} from "@/shared/ui"
 import type { RecurrencePattern } from "../types"
 
 interface RecurrenceSelectorProps {

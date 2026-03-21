@@ -1,6 +1,6 @@
 "use client"
 
-import { Button } from "@/components/ui"
+import { Button } from "@/shared/ui"
 import { RiArrowLeftSLine, RiArrowRightSLine } from "@/shared/ui/lucide-icons"
 import React, { useEffect, useRef, useState } from "react"
 

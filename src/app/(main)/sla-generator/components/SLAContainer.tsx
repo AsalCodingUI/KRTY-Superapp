@@ -1,6 +1,6 @@
 "use client"
 
-import { Button, Divider, Label, Tabs, TabsList, TabsTrigger, Textarea, TextInput } from "@/components/ui"
+import { Button, Divider, Label, Tabs, TabsList, TabsTrigger, Textarea, TextInput } from "@/shared/ui"
 import { createClient as createClientBrowser } from "@/shared/api/supabase/client"
 import { logError } from "@/shared/lib/utils/logger"
 import {
@@ -129,10 +129,10 @@ export default function SLAContainer({
   // --- STATE ---
   const [clientInfo, setClientInfo] = useState(
     initialData?.client_info || {
-      name: "Shafiq shah",
-      company: "SiteNav AI",
-      email: "Shafiq.Shah298@gmail.com",
-      address: "United Kingdom",
+      name: "",
+      company: "",
+      email: "",
+      address: "",
       date: new Date().toLocaleDateString("en-GB", {
         day: "2-digit",
         month: "2-digit",
@@ -143,11 +143,11 @@ export default function SLAContainer({
 
   const [agencyInfo, setAgencyInfo] = useState(
     initialData?.agency_info || {
-      name: "Kretya Studio",
-      email: "kretyastudio@gmail.com",
-      address: "Cluster Seven Residence No.B8\n17157, Bekasi City\nIndonesia",
-      repName: "Ahmad Fauzi",
-      repTitle: "Creative Director, Kretya Studio",
+      name: "",
+      email: "",
+      address: "",
+      repName: "",
+      repTitle: "",
     },
   )
 

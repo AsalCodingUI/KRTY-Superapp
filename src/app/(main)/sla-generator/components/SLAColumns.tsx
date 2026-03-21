@@ -1,4 +1,4 @@
-import { Badge, Button } from "@/components/ui"
+import { Badge, Button } from "@/shared/ui"
 import {
   RiArchiveLine,
   RiDeleteBinLine,
