@@ -494,6 +494,18 @@
     --border-neutral-primary: var(--neutral-900);
     --border-neutral-secondary: var(--neutral-800);
 
+    /* Shadows — replace black-opacity with white-opacity for dark bg */
+    --shadow-outline-neutral:
+      0px 0px 0px 1px rgba(255, 255, 255, 0.10), 0px 1px 3px 0px rgba(0, 0, 0, 0.3);
+    --shadow-outline-dialog:
+      0px 0px 0px 1px rgba(255, 255, 255, 0.08),
+      0px 10px 24px -6px rgba(0, 0, 0, 0.4),
+      0px 2px 4px -3px rgba(0, 0, 0, 0.3);
+    --shadow-regular-md:
+      0px 4px 12px -2px rgba(0, 0, 0, 0.4), 0px 1px 4px 0px rgba(0, 0, 0, 0.3);
+    --shadow-regular-xs:
+      0px 1px 4px 0px rgba(0, 0, 0, 0.4), 0px 0px 2px 0px rgba(0, 0, 0, 0.3);
+
     /* Legacy Updates */
     --text-primary: var(--foreground-primary);
     --text-secondary: var(--foreground-secondary);
