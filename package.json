@@ -115,8 +115,7 @@
     },
     "onlyBuiltDependencies": [
       "electron",
-      "esbuild",
-      "supabase"
+      "esbuild"
     ]
   }
 }
