@@ -474,9 +474,9 @@
     --foreground-tertiary: var(--neutral-500);
     --foreground-on-color: var(--neutral-0);
 
-    --border-default: var(--neutral-800);
-    --border-neutral-primary: var(--neutral-800);
-    --border-neutral-secondary: var(--neutral-700);
+    --border-default: var(--neutral-900);
+    --border-neutral-primary: var(--neutral-900);
+    --border-neutral-secondary: var(--neutral-800);
 
     /* Legacy Updates */
     --text-primary: var(--foreground-primary);
@@ -485,9 +485,9 @@
     --text-placeholder: var(--neutral-600);
     --text-disabled: var(--neutral-700);
     --text-inverse: var(--neutral-1000);
-    --border-input: var(--neutral-700);
-    --border-subtle: var(--neutral-900);
-    --border-strong: var(--neutral-600);
+    --border-input: var(--neutral-800);
+    --border-subtle: var(--neutral-950);
+    --border-strong: var(--neutral-700);
   }
 
   /* Global Reset */
