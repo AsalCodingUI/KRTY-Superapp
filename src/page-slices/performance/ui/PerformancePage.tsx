@@ -439,7 +439,7 @@ export function PerformancePage() {
         </p>
       </div>
 
-      <div className="flex flex-col rounded-xxl">
+      <div className="bg-surface-neutral-primary flex flex-col rounded-xxl">
         {isStakeholder ? (
           <>
             <div className="grid grid-cols-1 gap-md px-5 py-2 sm:grid-cols-2 lg:grid-cols-5">
@@ -459,7 +459,7 @@ export function PerformancePage() {
             </div>
 
             <div className="border-b border-neutral-primary px-5 pt-2">
-              <div className="xl:hidden space-y-2">
+              <div className="xl:hidden space-y-3 pb-3">
                 <Select
                   value={activeTab}
                   onValueChange={(value) => setActiveTab(value as TabType)}
@@ -502,7 +502,7 @@ export function PerformancePage() {
                 </div>
               </div>
 
-              <div className="hidden xl:flex items-center justify-between gap-4">
+              <div className="hidden xl:flex items-start justify-between gap-4">
                 <TabNavigation className="border-b-0" value={activeTab}>
                   <TabNavigationLink
                     active={activeTab === "kpi"}
@@ -620,7 +620,7 @@ export function PerformancePage() {
             </div>
 
             <div className="border-b border-neutral-primary px-5 pt-2">
-              <div className="xl:hidden space-y-2">
+              <div className="xl:hidden space-y-3 pb-3">
                 <Select
                   value={activeTab}
                   onValueChange={(value) => setActiveTab(value as TabType)}
@@ -663,7 +663,7 @@ export function PerformancePage() {
                 </div>
               </div>
 
-              <div className="hidden xl:flex items-center justify-between gap-4">
+              <div className="hidden xl:flex items-start justify-between gap-4">
                 <TabNavigation className="border-b-0" value={activeTab}>
                   <TabNavigationLink
                     active={activeTab === "kpi"}

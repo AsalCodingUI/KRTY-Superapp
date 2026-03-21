@@ -9,6 +9,7 @@ import {
   DialogBody,
   DialogCloseButton,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/shared/ui"
@@ -85,13 +86,13 @@ export function BaseReadOnlyDialog({
   }
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogCloseButton onClick={() => onOpenChange(false)} />
         </DialogHeader>
 
-        <DialogBody className="space-y-4">
+        <DialogBody className="space-y-5">
           {/* Badges */}
           {badges.length > 0 && (
             <div className="flex flex-wrap items-center gap-2">
@@ -105,38 +106,38 @@ export function BaseReadOnlyDialog({
 
           {/* Event Title */}
           <div className="space-y-2">
-            <h3 className="text-heading-md text-content">{event.title}</h3>
+            <h3 className="text-heading-sm text-foreground-primary">{event.title}</h3>
           </div>
 
           {/* Date & Time */}
           <div className="space-y-2">
-            <div className="text-label-md text-content flex items-center gap-2">
-              <RiCalendarLine className="text-content-muted h-4 w-4" />
+            <div className="text-label-sm text-foreground-secondary flex items-center gap-2">
+              <RiCalendarLine className="text-foreground-secondary h-4 w-4" />
               <span>Waktu</span>
             </div>
             <div className="space-y-1 pl-6">
               {event.allDay ? (
-                <div className="text-body-md text-content">
-                  {format(event.start, "EEEE, d MMMM yyyy")}
+                  <div className="text-body-sm text-foreground-primary">
+                    {format(event.start, "EEEE, d MMMM yyyy")}
                   {event.start.getTime() !== event.end.getTime() && (
                     <> - {format(event.end, "EEEE, d MMMM yyyy")}</>
                   )}
                 </div>
               ) : (
                 <>
-                  <div className="text-content flex items-center gap-2">
-                    <span className="text-body-sm text-content-muted">
+                  <div className="text-foreground-primary flex items-center gap-2">
+                    <span className="text-body-sm text-foreground-secondary">
                       Mulai:
                     </span>
-                    <span className="text-body-md">
+                    <span className="text-body-sm">
                       {format(event.start, "EEEE, d MMMM yyyy • HH:mm")}
                     </span>
                   </div>
-                  <div className="text-content flex items-center gap-2">
-                    <span className="text-body-sm text-content-muted">
+                  <div className="text-foreground-primary flex items-center gap-2">
+                    <span className="text-body-sm text-foreground-secondary">
                       Selesai:
                     </span>
-                    <span className="text-body-md">
+                    <span className="text-body-sm">
                       {format(event.end, "EEEE, d MMMM yyyy • HH:mm")}
                     </span>
                   </div>
@@ -148,11 +149,11 @@ export function BaseReadOnlyDialog({
           {/* Location */}
           {showLocation && event.location && (
             <div className="space-y-2">
-              <div className="text-label-md text-content flex items-center gap-2">
-                <RiMapPinLine className="text-content-muted h-4 w-4" />
+              <div className="text-label-sm text-foreground-secondary flex items-center gap-2">
+                <RiMapPinLine className="text-foreground-secondary h-4 w-4" />
                 <span>Lokasi</span>
               </div>
-              <div className="text-body-md text-content pl-6">
+              <div className="text-body-sm text-foreground-primary pl-6">
                 {event.location}
               </div>
             </div>
@@ -161,14 +162,14 @@ export function BaseReadOnlyDialog({
           {/* Description */}
           {event.description && (
             <div className="space-y-2">
-              <div className="text-label-md text-content flex items-center gap-2">
-                <RiFileTextLine className="text-content-muted h-4 w-4" />
+              <div className="text-label-sm text-foreground-secondary flex items-center gap-2">
+                <RiFileTextLine className="text-foreground-secondary h-4 w-4" />
                 <span>Deskripsi</span>
               </div>
               <div
                 className={cx(
-                  "text-body-md text-content pl-6",
-                  "bg-muted/30 border-border-border rounded-md border p-3",
+                  "text-body-sm text-foreground-primary pl-6",
+                  "bg-surface-neutral-secondary border-neutral-primary rounded-md border p-3",
                 )}
               >
                 {event.description}
@@ -181,20 +182,19 @@ export function BaseReadOnlyDialog({
 
           {/* Info Message */}
           {infoMessage && (
-            <div className="bg-info-subtle border-info rounded-lg border p-3">
-              <p className="text-body-xs text-info-text">ℹ️ {infoMessage}</p>
+            <div className="bg-primary/10 rounded-lg border border-primary/20 p-3">
+              <p className="text-body-xs text-foreground-brand-primary">ℹ️ {infoMessage}</p>
             </div>
           )}
         </DialogBody>
 
-        {/* Footer */}
-        <div className="border-border-border flex justify-between border-t pt-4">
+        <DialogFooter className="justify-between">
           <div className="flex flex-1 gap-2">
             {onDelete && (
               <>
                 {isDeletePending ? (
                   <div className="animate-fadeIn flex w-full items-center gap-2">
-                    <span className="text-label-md text-danger whitespace-nowrap">
+                    <span className="text-label-md text-foreground-danger-dark whitespace-nowrap">
                       Yakin hapus?
                     </span>
                     <Button
@@ -202,7 +202,7 @@ export function BaseReadOnlyDialog({
                       variant="destructive"
                       onClick={handleConfirmDelete}
                       disabled={loading}
-                      className="bg-danger hover:bg-danger-hover text-danger-fg border-transparent ring-0"
+                      className=""
                     >
                       Ya, Hapus
                     </Button>
@@ -221,7 +221,7 @@ export function BaseReadOnlyDialog({
                     variant="secondary"
                     onClick={handleDeleteClick}
                     disabled={loading}
-                    className="hover:text-danger hover:border-danger hover:bg-danger-subtle transition-colors"
+                    className="text-foreground-danger-dark hover:bg-surface-danger-light"
                   >
                     <RiDeleteBinLine className="mr-2 h-4 w-4" />
                     Hapus
@@ -240,7 +240,7 @@ export function BaseReadOnlyDialog({
               Tutup
             </Button>
           )}
-        </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   )

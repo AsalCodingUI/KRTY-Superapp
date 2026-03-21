@@ -36,7 +36,7 @@ export function FinancialHUD({
   const isHealthy = marginPercent >= targetMargin
 
   return (
-    <div className="sticky top-8">
+    <div className="sticky top-4 sm:top-8">
       <h4 className="text-label-md text-foreground-primary">
         Financial Overview
       </h4>

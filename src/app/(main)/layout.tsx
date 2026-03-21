@@ -29,7 +29,7 @@ export default function Layout({
             {/* Content container with max-width for readability */}
             <ImpersonationBanner />
             <Suspense fallback={<PageFallback />}>
-              <div className="mx-auto">{children}</div>
+              <div className="mx-auto max-w-7xl">{children}</div>
             </Suspense>
           </div>
         </div>

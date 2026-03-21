@@ -1,6 +1,6 @@
 "use client"
 
-import { Badge } from "@/shared/ui"
+import { Avatar, Badge } from "@/shared/ui"
 import { Button } from "@/shared/ui"
 import { Database } from "@/shared/types/database.types"
 import { ColumnDef } from "@tanstack/react-table"
@@ -27,9 +27,13 @@ export const adminAttendanceColumns = (
 
       return (
         <div className="flex items-center gap-3">
-          <div className="bg-surface-neutral-secondary text-foreground-secondary flex size-5 items-center justify-center rounded-full text-[10px] leading-[16px]">
-            {initials}
-          </div>
+          <Avatar
+            size="xs"
+            src={row.original.profiles?.avatar_url || undefined}
+            initials={initials}
+            alt={fullName}
+            color="neutral"
+          />
           <span
             className="text-foreground-primary font-medium whitespace-nowrap"
             title={fullName}

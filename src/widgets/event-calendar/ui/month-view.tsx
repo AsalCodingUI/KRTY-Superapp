@@ -81,7 +81,7 @@ export const MonthView = memo(function MonthView({
               <div
                 key={dayKey}
                 className={cx(
-                  "border-neutral-primary flex flex-col border-r border-b p-2 last:border-r-0",
+                  "border-neutral-primary flex flex-col border-r border-b p-1 last:border-r-0 sm:p-2",
                   "hover:bg-surface-state-neutral-light-hover cursor-pointer transition-colors",
                 )}
                 onClick={() => onDayClick?.(day)}
@@ -104,67 +104,91 @@ export const MonthView = memo(function MonthView({
                   </span>
                 </div>
 
-                {/* Events */}
+                {/* Events - full display on sm+, compact dot indicator on mobile */}
                 <div className="flex-1 space-y-1 overflow-hidden">
-                  {displayEvents.map((event) => (
-                    <div
-                      key={event.id}
-                      className="h-auto"
-                      onClick={(e) => {
-                        e.stopPropagation() // Prevent day click from firing
-                        onEventClick?.(event)
-                      }}
-                    >
-                      <EventItem
-                        event={event}
-                        compact={true}
-                        showTime={true}
-                        className="w-full"
-                      />
+                  {/* Mobile: show colored dots for events */}
+                  {dayEvents.length > 0 && (
+                    <div className="flex flex-wrap gap-0.5 sm:hidden">
+                      {dayEvents.slice(0, 4).map((event) => (
+                        <span
+                          key={event.id}
+                          className="size-1.5 rounded-full bg-surface-brand"
+                        />
+                      ))}
+                      {dayEvents.length > 4 && (
+                        <span className="text-foreground-tertiary text-[9px] leading-none">
+                          +{dayEvents.length - 4}
+                        </span>
+                      )}
                     </div>
-                  ))}
-
-                  {/* More events indicator */}
-                  {hasMoreEvents && (
-                    <Popover
-                      open={openPopover === dayKey}
-                      onOpenChange={(open) =>
-                        setOpenPopover(open ? dayKey : null)
-                      }
-                    >
-                      <PopoverTrigger asChild>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            setOpenPopover(dayKey)
-                          }}
-                          className="text-label-xs text-content-muted hover:text-content w-full px-2 py-1 text-left"
-                        >
-                          +{dayEvents.length - 3} lainnya
-                        </button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-80 p-3" align="start">
-                        <div className="space-y-2">
-                          <h4 className="text-label-md text-content mb-3">
-                            {format(day, "EEEE, dd MMMM yyyy", { locale: id })}
-                          </h4>
-                          <div className="max-h-80 space-y-2 overflow-y-auto">
-                            {dayEvents.map((event) => (
-                              <EventItem
-                                key={event.id}
-                                event={event}
-                                onClick={() => {
-                                  setOpenPopover(null)
-                                  onEventClick?.(event)
-                                }}
-                                compact={false}
-                              />
-                            ))}
-                          </div>
-                        </div>
-                      </PopoverContent>
-                    </Popover>
                   )}
+
+                  {/* Desktop: show event items */}
+                  <div className="hidden sm:block space-y-1">
+                    {displayEvents.map((event) => (
+                      <div
+                        key={event.id}
+                        className="h-auto"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          onEventClick?.(event)
+                        }}
+                      >
+                        <EventItem
+                          event={event}
+                          compact={true}
+                          showTime={true}
+                          className="w-full"
+                        />
+                      </div>
+                    ))}
+
+                    {/* More events indicator */}
+                    {hasMoreEvents && (
+                      <Popover
+                        open={openPopover === dayKey}
+                        onOpenChange={(open) =>
+                          setOpenPopover(open ? dayKey : null)
+                        }
+                      >
+                        <PopoverTrigger asChild>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setOpenPopover(dayKey)
+                            }}
+                            className="text-label-xs text-content-muted hover:text-content w-full px-2 py-1 text-left"
+                          >
+                            +{dayEvents.length - 3} lainnya
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent
+                          className="w-[min(320px,calc(100vw-2rem))] p-3"
+                          align="start"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <div className="space-y-2">
+                            <h4 className="text-label-md text-content mb-3">
+                              {format(day, "EEEE, dd MMMM yyyy", { locale: id })}
+                            </h4>
+                            <div className="max-h-80 space-y-2 overflow-y-auto">
+                              {dayEvents.map((event) => (
+                                <EventItem
+                                  key={event.id}
+                                  event={event}
+                                  onClick={() => {
+                                    setOpenPopover(null)
+                                    onEventClick?.(event)
+                                  }}
+                                  compact={false}
+                                />
+                              ))}
+                            </div>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    )}
+                  </div>
                 </div>
               </div>
             )

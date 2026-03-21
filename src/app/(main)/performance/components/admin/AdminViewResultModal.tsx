@@ -135,7 +135,7 @@ export function AdminViewResultModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] max-w-6xl overflow-y-auto">
+      <DialogContent className="max-h-[90vh] w-[calc(100%-2rem)] max-w-6xl overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Performance Review: {employee.name}</DialogTitle>
           <DialogCloseButton />

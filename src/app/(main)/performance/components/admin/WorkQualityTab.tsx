@@ -2,7 +2,7 @@
 
 import { Constants, type Database } from "@/shared/types/database.types"
 import {
-  Badge, Button, EmptyState,
+  Badge, Button, EmptyState, Spinner,
   Select,
   SelectContent,
   SelectItem,
@@ -92,7 +92,7 @@ export function WorkQualityTab() {
       {/* FILTER */}
       <div className="flex items-center gap-3">
         <Select value={selectedRole} onValueChange={setSelectedRole}>
-          <SelectTrigger className="w-[220px]">
+          <SelectTrigger className="w-full sm:w-[220px]" size="sm">
             <SelectValue placeholder="Filter by role" />
           </SelectTrigger>
           <SelectContent>
@@ -110,15 +110,14 @@ export function WorkQualityTab() {
       <TableSection
         title="Work Quality Competency Library"
         actions={
-          <Button onClick={() => setFormOpen(true)}>
-            <RiStarLine className="mr-2 size-4" />
+          <Button size="sm" onClick={() => setFormOpen(true)} leadingIcon={<RiStarLine />}>
             Add Competency
           </Button>
         }
       >
         {isLoading ? (
-          <div className="text-body-sm text-foreground-secondary p-8 text-center">
-            Loading competencies...
+          <div className="flex items-center justify-center py-12">
+            <Spinner size="md" />
           </div>
         ) : competencies.length === 0 ? (
           <EmptyState
@@ -143,7 +142,7 @@ export function WorkQualityTab() {
         ) : (
           <Table className="w-full table-fixed">
             <TableHead>
-              <TableRow>
+              <TableRow className="h-[40px] hover:bg-transparent">
                 <TableHeaderCell className="w-[180px]">Role</TableHeaderCell>
                 <TableHeaderCell className="w-[260px]">Competency Name</TableHeaderCell>
                 <TableHeaderCell>Description</TableHeaderCell>

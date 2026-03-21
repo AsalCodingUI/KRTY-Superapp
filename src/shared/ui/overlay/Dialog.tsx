@@ -91,7 +91,7 @@ const DialogContent = React.forwardRef<
             ref={forwardedRef}
             className={cx(
               // base
-              "fixed left-1/2 top-1/2 z-50 flex w-full max-w-[440px] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-xl border border-neutral-primary bg-surface-neutral-primary shadow-regular-md",
+              "fixed left-1/2 top-1/2 z-50 flex w-[calc(100%-2rem)] max-w-[440px] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-xl border border-neutral-primary bg-surface-neutral-primary shadow-regular-md",
               className,
             )}
             initial={{ opacity: 0, y: 8, scale: 0.98 }}

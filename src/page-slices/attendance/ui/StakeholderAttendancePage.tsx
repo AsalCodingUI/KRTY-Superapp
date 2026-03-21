@@ -135,7 +135,7 @@ export function StakeholderAttendancePage({
           </div>
         )}
 
-        <div className="flex flex-col rounded-xxl">
+        <div className="flex flex-col rounded-xxl bg-surface-neutral-primary">
           <div className="space-y-4 p-5">
             {/* Summary Cards (Fokus Hari Ini) */}
             <div className="grid gap-md sm:grid-cols-2">

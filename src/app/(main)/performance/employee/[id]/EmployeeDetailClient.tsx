@@ -12,6 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
   EmptyState,
+  Spinner,
   Table,
   TableBody,
   TableCell,
@@ -82,7 +83,13 @@ export function EmployeeDetailClient({
   const projectBackHref = showBackButton
     ? `/performance/employee/${employee.id}`
     : "/performance"
-  const [internalQuarter] = useState<QuarterFilterValue>("2025-Q1")
+  const [internalQuarter] = useState<QuarterFilterValue>(() => {
+    const now = new Date()
+    const y = now.getFullYear()
+    const m = now.getMonth() + 1
+    const q = m <= 3 ? "Q1" : m <= 6 ? "Q2" : m <= 9 ? "Q3" : "Q4"
+    return `${y}-${q}`
+  })
   const [isProjectModalOpen, setIsProjectModalOpen] = useState(false)
   const [selectedProject, setSelectedProject] = useState<Assignment | null>(
     null,
@@ -172,8 +179,8 @@ export function EmployeeDetailClient({
             }`}
         >
           {isLoading ? (
-            <div className="text-body-sm text-foreground-secondary px-xl pb-xl text-center">
-              Loading overview...
+            <div className="flex items-center justify-center py-8">
+              <Spinner size="md" />
             </div>
           ) : overview.length === 0 ? (
             <div className="px-xl pb-xl">
@@ -256,8 +263,8 @@ export function EmployeeDetailClient({
         {/* PROJECT LIST */}
         <TableSection title="Assigned Projects">
           {isLoading ? (
-            <div className="text-body-sm text-foreground-secondary px-xl pb-xl text-center">
-              Loading projects...
+            <div className="flex items-center justify-center py-8">
+              <Spinner size="md" />
             </div>
           ) : assignments.length === 0 ? (
             <div className="px-xl pb-xl">
@@ -391,7 +398,7 @@ export function EmployeeDetailClient({
       </div>
 
       <Dialog open={isProjectModalOpen} onOpenChange={setIsProjectModalOpen}>
-        <DialogContent className="max-h-[90vh] max-w-6xl overflow-y-auto">
+        <DialogContent className="max-h-[90vh] w-[calc(100%-2rem)] max-w-6xl overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="sr-only">
               Project Performance Detail

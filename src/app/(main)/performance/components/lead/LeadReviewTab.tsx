@@ -28,6 +28,7 @@ import {
   TableHeaderCell,
   TableRow,
   TableSection,
+  Spinner,
   Tooltip,
 } from "@/shared/ui"
 import { RiCloseLine, RiTeamLine } from "@/shared/ui/lucide-icons"
@@ -236,13 +237,9 @@ export function LeadReviewTab() {
 
   return (
     <TableSection title="Team KPI">
-      {loading ? (
-        <div className="text-body-sm text-foreground-secondary p-8 text-center">
-          Loading lead projects...
-        </div>
-      ) : profileLoading ? (
-        <div className="text-body-sm text-foreground-secondary p-8 text-center">
-          Loading lead projects...
+      {loading || profileLoading ? (
+        <div className="flex items-center justify-center py-12">
+          <Spinner size="md" />
         </div>
       ) : projects.length === 0 ? (
         <EmptyState
@@ -367,7 +364,7 @@ export function LeadReviewTab() {
               if (!open) setSelectedProjectId(null)
             }}
           >
-            <DrawerContent className="fixed right-6 inset-y-6 z-50 flex w-[560px] max-w-[560px] flex-col overflow-y-auto rounded-xl border border-neutral-primary bg-surface-neutral-primary p-0 shadow-regular-md">
+            <DrawerContent className="fixed inset-0 z-50 flex flex-col overflow-y-auto bg-surface-neutral-primary p-0 sm:inset-y-6 sm:left-auto sm:right-6 sm:w-[560px] sm:max-w-[560px] sm:rounded-xl sm:border sm:border-neutral-primary sm:shadow-regular-md">
               <div className="relative pl-5 pr-xl pb-lg pt-5">
                 <DrawerTitle className="pr-12">
                   {selectedProject?.name || "Project Detail"}
@@ -521,7 +518,7 @@ export function LeadReviewTab() {
           }
         }}
       >
-        <DialogContent className="max-h-[90vh] max-w-6xl overflow-y-auto">
+        <DialogContent className="max-h-[90vh] w-[calc(100%-2rem)] max-w-6xl overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="sr-only">
               Review KPI {reviewTarget?.memberName || ""}
@@ -530,8 +527,8 @@ export function LeadReviewTab() {
           </DialogHeader>
           <DialogBody>
             {reviewLoading ? (
-              <div className="text-body-sm text-foreground-secondary p-8 text-center">
-                Loading KPI review...
+              <div className="flex items-center justify-center py-12">
+                <Spinner size="md" />
               </div>
             ) : reviewAssignment ? (
               <ProjectScoringClient

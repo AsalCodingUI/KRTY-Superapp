@@ -96,6 +96,10 @@ const TabsList = React.forwardRef<
   React.ElementRef<typeof TabsPrimitives.List>,
   TabsListProps
 >(({ className, variant = "line", children, ...props }, forwardedRef) => (
+  <div className={cx(
+    "overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+    variant === "line" && "pb-px -mb-px",
+  )}>
   <TabsPrimitives.List
     ref={forwardedRef}
     className={cx(variantStyles[variant], className)}
@@ -105,6 +109,7 @@ const TabsList = React.forwardRef<
       {children}
     </TabsListVariantContext.Provider>
   </TabsPrimitives.List>
+  </div>
 ))
 
 TabsList.displayName = "TabsList"

@@ -16,7 +16,16 @@ import {
 } from "@/shared/ui"
 import { RiBarChartBoxLine } from "@/shared/ui/lucide-icons"
 import dynamic from "next/dynamic"
+import type { QuarterFilterValue } from "@/shared/ui"
 import { useEffect, useMemo, useState } from "react"
+
+function getCurrentQuarterValue(): QuarterFilterValue {
+  const now = new Date()
+  const y = now.getFullYear()
+  const m = now.getMonth() + 1
+  const q = m <= 3 ? "Q1" : m <= 6 ? "Q2" : m <= 9 ? "Q3" : "Q4"
+  return `${y}-${q}`
+}
 
 // Dynamic imports for tab components - only load when needed
 const OverviewTab = dynamic(
@@ -110,6 +119,7 @@ export default function PerformanceClientPage() {
   const { profile } = useUserProfile()
   const supabase = useMemo(() => createClient(), [])
   const [isLead, setIsLead] = useState(false)
+  const [selectedQuarter] = useState<QuarterFilterValue>(getCurrentQuarterValue)
 
   const isStakeholder = canManageByRole(profile?.role)
 
@@ -251,7 +261,7 @@ export default function PerformanceClientPage() {
             )}
             {isMounted("one-on-one") && (
               <div className={activeTab === "one-on-one" ? "block space-y-5" : "hidden space-y-5"}>
-                <OneOnOneMeetingTab selectedQuarter="2025-Q1" />
+                <OneOnOneMeetingTab selectedQuarter={selectedQuarter} />
               </div>
             )}
             {isLead && isMounted("lead-review") && (
@@ -261,7 +271,7 @@ export default function PerformanceClientPage() {
             )}
             {isStakeholder && isMounted("list-project") && (
               <div className={activeTab === "list-project" ? "block space-y-5" : "hidden space-y-5"}>
-                <ListProjectTab selectedQuarter="2025-Q1" />
+                <ListProjectTab selectedQuarter={selectedQuarter} />
               </div>
             )}
             {isStakeholder && isMounted("competency-library") && (

@@ -114,14 +114,14 @@ export function TeamsPage({
             ))}
           </section>
 
-          <div className="flex items-center justify-between gap-3 border-b border-neutral-primary bg-surface-neutral-primary px-5 py-3">
+          <div className="flex flex-col gap-3 border-b border-neutral-primary bg-surface-neutral-primary px-5 py-3 sm:flex-row sm:items-center sm:justify-between">
             <TextInput
               type="search"
               placeholder="Search..."
               value={searchTerm}
               onChange={(event) => setSearchTerm(event.target.value)}
               inputSize="default"
-              className="w-[260px]"
+              className="w-full sm:w-[260px]"
             />
 
             {canManage && (

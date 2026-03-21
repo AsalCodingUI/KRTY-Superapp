@@ -52,13 +52,13 @@ export function LeaveDialog({ open, onOpenChange, event }: LeaveDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Detail Cuti</DialogTitle>
           <DialogCloseButton onClick={() => onOpenChange(false)} />
         </DialogHeader>
 
-        <DialogBody className="space-y-4">
+        <DialogBody className="space-y-5">
           {/* Status Badge */}
           <div className="flex items-center gap-2">
             <Badge color="emerald" className="text-body-sm">
@@ -71,31 +71,31 @@ export function LeaveDialog({ open, onOpenChange, event }: LeaveDialogProps) {
 
           {/* Employee Name */}
           <div className="space-y-2">
-            <div className="text-label-md text-content flex items-center gap-2">
-              <RiUserLine className="text-content-muted h-4 w-4" />
+            <div className="text-label-sm text-foreground-secondary flex items-center gap-2">
+              <RiUserLine className="text-foreground-secondary h-4 w-4" />
               <span>Karyawan</span>
             </div>
-            <div className="text-body-md text-content pl-6">{employeeName}</div>
+            <div className="text-body-sm text-foreground-primary pl-6">{employeeName}</div>
           </div>
 
           {/* Date Range */}
           <div className="space-y-2">
-            <div className="text-label-md text-content flex items-center gap-2">
-              <RiCalendarLine className="text-content-muted h-4 w-4" />
+            <div className="text-label-sm text-foreground-secondary flex items-center gap-2">
+              <RiCalendarLine className="text-foreground-secondary h-4 w-4" />
               <span>Periode Cuti</span>
             </div>
             <div className="space-y-1 pl-6">
-              <div className="text-content flex items-center gap-2">
-                <span className="text-body-sm text-content-muted">Mulai:</span>
-                <span className="text-body-md">
+              <div className="text-foreground-primary flex items-center gap-2">
+                <span className="text-body-sm text-foreground-secondary">Mulai:</span>
+                <span className="text-body-sm">
                   {format(event.start, "EEEE, d MMMM yyyy")}
                 </span>
               </div>
-              <div className="text-content flex items-center gap-2">
-                <span className="text-body-sm text-content-muted">
+              <div className="text-foreground-primary flex items-center gap-2">
+                <span className="text-body-sm text-foreground-secondary">
                   Selesai:
                 </span>
-                <span className="text-body-md">
+                <span className="text-body-sm">
                   {format(event.end, "EEEE, d MMMM yyyy")}
                 </span>
               </div>
@@ -105,14 +105,14 @@ export function LeaveDialog({ open, onOpenChange, event }: LeaveDialogProps) {
           {/* Reason/Description */}
           {event.description && (
             <div className="space-y-2">
-              <div className="text-label-md text-content flex items-center gap-2">
-                <RiFileTextLine className="text-content-muted h-4 w-4" />
+              <div className="text-label-sm text-foreground-secondary flex items-center gap-2">
+                <RiFileTextLine className="text-foreground-secondary h-4 w-4" />
                 <span>Alasan</span>
               </div>
               <div
                 className={cx(
-                  "text-body-md text-content pl-6",
-                  "bg-muted/30 border-border-border rounded-md border p-3",
+                  "text-body-sm text-foreground-primary pl-6",
+                  "bg-surface-neutral-secondary border-neutral-primary rounded-md border p-3",
                 )}
               >
                 {event.description}

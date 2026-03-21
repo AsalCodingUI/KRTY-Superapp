@@ -192,7 +192,7 @@ export function ProjectAssignmentDialog({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="flex max-h-[80vh] max-w-3xl flex-col">
+      <DialogContent className="flex max-h-[80vh] w-[calc(100%-2rem)] max-w-3xl flex-col">
         <DialogHeader>
           <DialogTitle>Manage Team - {project.name}</DialogTitle>
           <DialogCloseButton />

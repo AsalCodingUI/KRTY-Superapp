@@ -4,7 +4,7 @@ import { useMemo, useState } from "react"
 import { AgendaView } from "./agenda-view"
 import { useCalendarContext } from "./calendar-context"
 import { CalendarDndProvider } from "./calendar-dnd-context"
-import { CalendarSidebar } from "./calendar-sidebar"
+import { CalendarSidebar, CalendarSidebarMobileTrigger } from "./calendar-sidebar"
 import { DayView } from "./day-view"
 import { EventDialog } from "./event-dialog"
 import {
@@ -104,7 +104,11 @@ function CalendarContent({
 
   return (
     <>
-      <div className="min-h-0 flex-1 overflow-hidden">
+      <div className="relative min-h-0 flex-1 overflow-hidden">
+        {/* Mobile filter FAB */}
+        <div className="absolute right-3 bottom-3 z-10 lg:hidden">
+          <CalendarSidebarMobileTrigger />
+        </div>
         {viewMode === "month" && (
           <div className="h-full">
             <MonthView
@@ -182,7 +186,7 @@ export function EventCalendar({
   return (
     <EventVisibilityProvider initialCategories={categories}>
       <CalendarDndProvider events={events} onEventUpdate={handleEventUpdate}>
-        <div className="bg-surface flex h-full w-full flex-1 min-w-0 gap-4 overflow-hidden lg:gap-6">
+        <div className="bg-surface flex h-full w-full flex-1 min-w-0 flex-col overflow-hidden lg:flex-row lg:gap-6">
           {/* Sidebar with mini calendar */}
           <CalendarSidebar />
 

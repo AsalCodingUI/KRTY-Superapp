@@ -1,8 +1,8 @@
 "use client"
 
-import { cx } from "@/shared/lib/utils"
 import { logError } from "@/shared/lib/utils/logger"
 import {
+  Badge,
   Button,
   Dialog,
   DialogBody,
@@ -24,7 +24,6 @@ import { CopyEventButton } from "../components/CopyEventButton"
 import { GuestList } from "../components/GuestList"
 import { MeetingButton } from "../components/MeetingButton"
 import { RSVPButtons } from "../components/RSVPButtons"
-import { getEventColorClasses } from "../event-color-registry"
 import type { CalendarEvent } from "../types"
 
 interface MeetingDialogProps {
@@ -90,50 +89,43 @@ export function MeetingDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="flex max-h-[90vh] flex-col sm:max-w-[600px]">
+      <DialogContent className="flex max-h-[90vh] flex-col sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Meeting Details</DialogTitle>
           <DialogCloseButton onClick={() => onOpenChange(false)} />
         </DialogHeader>
 
-        <DialogBody className="flex-1 space-y-4 overflow-y-auto">
+        <DialogBody className="flex-1 space-y-5 overflow-y-auto">
           {/* Event Title & Type */}
-          <div>
-            <div className="flex items-start justify-between gap-4">
-              <h3 className="text-heading-lg text-content break-words">
+          <div className="flex items-start justify-between gap-4">
+              <h3 className="text-heading-sm text-foreground-primary break-words">
                 {event.title}
               </h3>
-              <div
-                className={cx(
-                  "text-label-xs flex-shrink-0 rounded-md px-3 py-1.5 whitespace-nowrap",
-                  getEventColorClasses(event.color, "default"),
-                )}
-              >
-                {event.type || "Meeting"}
-              </div>
-            </div>
+            <Badge variant="info" size="sm" className="shrink-0">
+              {event.type || "Meeting"}
+            </Badge>
           </div>
 
           {/* Google Meet Button */}
           {event.meetingUrl && <MeetingButton meetingUrl={event.meetingUrl} />}
 
           {/* Date & Time */}
-          <div className="bg-muted/50 border-border-border grid grid-cols-2 gap-4 rounded-lg border p-4">
+          <div className="bg-surface-neutral-secondary border-neutral-primary grid grid-cols-2 gap-4 rounded-lg border p-4">
             <div>
-              <h4 className="text-label-xs text-content-muted mb-2">Mulai</h4>
-              <p className="text-label-md text-content">
+              <p className="text-label-sm text-foreground-secondary mb-1">Mulai</p>
+              <p className="text-body-sm text-foreground-primary">
                 {format(event.start, "dd MMM yyyy")}
               </p>
-              <p className="text-body-sm text-content-muted mt-0.5">
+              <p className="text-body-sm text-foreground-secondary mt-0.5">
                 {format(event.start, "HH:mm")}
               </p>
             </div>
             <div>
-              <h4 className="text-label-xs text-content-muted mb-2">Selesai</h4>
-              <p className="text-label-md text-content">
+              <p className="text-label-sm text-foreground-secondary mb-1">Selesai</p>
+              <p className="text-body-sm text-foreground-primary">
                 {format(event.end, "dd MMM yyyy")}
               </p>
-              <p className="text-body-sm text-content-muted mt-0.5">
+              <p className="text-body-sm text-foreground-secondary mt-0.5">
                 {format(event.end, "HH:mm")}
               </p>
             </div>
@@ -141,43 +133,43 @@ export function MeetingDialog({
 
           {/* Guest List */}
           {event.guests && event.guests.length > 0 && (
-            <div className="border-border-border border-t pt-4">
+            <div className="border-neutral-primary border-t pt-4">
               <GuestList guests={event.guests} />
             </div>
           )}
 
           {/* Location */}
           {event.location && (
-            <div className="bg-muted/30 flex items-start gap-3 rounded-lg p-3">
-              <RiMapPinLine className="text-content-muted mt-0.5 h-5 w-5 flex-shrink-0" />
-              <div>
-                <h4 className="text-label-md text-content mb-1">Lokasi</h4>
-                <p className="text-label-md text-content-muted break-words">
-                  {event.location}
-                </p>
-              </div>
+            <div className="space-y-2">
+              <p className="text-label-sm text-foreground-secondary flex items-center gap-2">
+                <RiMapPinLine className="h-4 w-4" />
+                Lokasi
+              </p>
+              <p className="text-body-sm text-foreground-primary break-words pl-6">
+                {event.location}
+              </p>
             </div>
           )}
 
           {/* Description */}
           {event.description && (
-            <div className="border-border-border space-y-2 border-t pt-4">
-              <h4 className="text-label-md text-content">Deskripsi</h4>
-              <p className="text-label-md text-content-muted break-words whitespace-pre-wrap">
+            <div className="border-neutral-primary space-y-2 border-t pt-4">
+              <p className="text-label-sm text-foreground-secondary">Deskripsi</p>
+              <p className="text-body-sm text-foreground-primary break-words whitespace-pre-wrap">
                 {event.description}
               </p>
             </div>
           )}
 
           {/* Calendar Info */}
-          <div className="text-body-xs text-content-muted border-border-border flex items-center gap-2 border-t pt-4">
+          <div className="text-body-xs text-foreground-secondary border-neutral-primary flex items-center gap-2 border-t pt-4">
             <RiCalendarLine className="h-4 w-4" />
             <span>{event.organizer || "Kretya Studio"}</span>
           </div>
 
           {/* RSVP */}
           {onRSVPChange && (
-            <div className="border-border-border border-t pt-4">
+            <div className="border-neutral-primary border-t pt-4">
               <RSVPButtons
                 value={rsvpStatus}
                 onChange={handleRSVPChange}
@@ -193,7 +185,7 @@ export function MeetingDialog({
               <>
                 {isDeletePending ? (
                   <div className="animate-fadeIn flex w-full items-center gap-2">
-                    <span className="text-label-md text-danger whitespace-nowrap">
+                    <span className="text-label-md text-foreground-danger-dark whitespace-nowrap">
                       Yakin hapus?
                     </span>
                     <Button
@@ -201,7 +193,6 @@ export function MeetingDialog({
                       variant="destructive"
                       onClick={handleConfirmDelete}
                       disabled={loading}
-                      className="bg-danger hover:bg-danger-hover text-danger-fg border-transparent ring-0"
                     >
                       Ya, Hapus
                     </Button>
@@ -221,7 +212,7 @@ export function MeetingDialog({
                       variant="secondary"
                       onClick={handleDeleteClick}
                       disabled={loading}
-                      className="hover:text-danger hover:border-danger hover:bg-danger-subtle transition-colors"
+                      className="text-foreground-danger-dark hover:bg-surface-danger-light"
                     >
                       <RiDeleteBinLine className="mr-2 h-4 w-4" />
                       Hapus
@@ -231,7 +222,6 @@ export function MeetingDialog({
                 )}
               </>
             )}
-            {/* Show Copy button if onDelete is missing */}
             {!onDelete && <CopyEventButton event={event} />}
           </div>
 

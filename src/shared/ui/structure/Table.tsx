@@ -56,7 +56,12 @@ const Table = React.forwardRef<
 >(({ className, noBorder, ...props }, forwardedRef) => {
   void noBorder
   return (
-    <div className="w-full overflow-x-auto overflow-y-hidden touch-pan-x [-webkit-overflow-scrolling:touch]">
+    <div
+      className="w-full overflow-x-auto overflow-y-hidden touch-pan-x [-webkit-overflow-scrolling:touch]"
+      role="region"
+      aria-label="Scrollable table"
+      tabIndex={0}
+    >
       <table
         ref={forwardedRef}
         className={cx(
@@ -91,9 +96,10 @@ TableHead.displayName = "TableHead"
 const TableHeaderCell = React.forwardRef<
   HTMLTableCellElement,
   React.ThHTMLAttributes<HTMLTableCellElement> & { disabled?: boolean }
->(({ className, disabled, ...props }, forwardedRef) => (
+>(({ className, disabled, scope, ...props }, forwardedRef) => (
   <th
     ref={forwardedRef}
+    scope={scope || "col"}
     className={cx(
       // base
       "text-label-sm border-b px-xl py-lg text-left whitespace-nowrap align-middle",

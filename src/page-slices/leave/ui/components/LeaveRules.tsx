@@ -3,23 +3,23 @@ import { Badge } from "@/shared/ui"
 export function LeaveRules() {
   return (
     // HAPUS class scroll dari sini
-    <div className="text-body-sm text-foreground-secondary dark:text-foreground-tertiary space-y-4">
+    <div className="text-body-sm text-foreground-secondary space-y-4">
       {/* SECTION 1: ATURAN CUTI */}
       <section>
-        <h4 className="text-foreground-primary dark:text-foreground-primary text-heading-sm mb-3">
+        <h4 className="text-foreground-primary text-heading-sm mb-3">
           Aturan Cuti
         </h4>
         <ol className="ml-4 list-outside list-decimal space-y-2">
           <li>
             Setiap karyawan mendapatkan jatah cuti sebanyak{" "}
-            <span className="text-foreground-primary dark:text-label-md text-foreground-primary">
+            <span className="text-foreground-primary font-medium">
               12 kali
             </span>{" "}
             dalam setahun.
           </li>
           <li>
             Pengajuan cuti harus dilakukan{" "}
-            <span className="rounded bg-orange-100 px-1 font-semibold text-orange-800 dark:bg-orange-500/20 dark:text-orange-200">
+            <span className="rounded bg-orange-100 px-1 font-semibold text-orange-800">
               paling lambat 7 hari
             </span>{" "}
             sebelum tanggal rencana cuti. Jika pengajuan dilakukan mendadak,
@@ -38,7 +38,7 @@ export function LeaveRules() {
           <li>
             Namun, sesuai peraturan perusahaan, dalam satu minggu tidak
             diperbolehkan mengambil cuti lebih dari{" "}
-            <span className="rounded bg-orange-100 px-1 font-semibold text-orange-800 dark:bg-orange-500/20 dark:text-orange-200">
+            <span className="rounded bg-orange-100 px-1 font-semibold text-orange-800">
               5 hari kerja secara langsung
             </span>
             .
@@ -48,7 +48,7 @@ export function LeaveRules() {
 
       {/* SECTION 2: SYARAT & KETENTUAN */}
       <section>
-        <h4 className="text-foreground-primary dark:text-foreground-primary text-heading-sm mb-3">
+        <h4 className="text-foreground-primary text-heading-sm mb-3">
           Syarat & Ketentuan Pengambilan Cuti:
         </h4>
         <ol className="ml-4 list-outside list-decimal space-y-2">
@@ -70,17 +70,17 @@ export function LeaveRules() {
 
       {/* SECTION 3: CONTOH KASUS (CALLOUT) */}
       <section>
-        <h4 className="text-foreground-primary dark:text-foreground-primary text-heading-sm mb-3">
+        <h4 className="text-foreground-primary text-heading-sm mb-3">
           Contoh Aturan Cuti yang Diperbolehkan
         </h4>
-        <div className="bg-surface-neutral dark:bg-surface space-y-3 rounded-lg border p-4 dark:border">
+        <div className="bg-surface-neutral space-y-3 rounded-lg border p-4">
           {/* Pertanyaan */}
           <div className="flex gap-3">
-            <div className="bg-border text-label-xs text-foreground-secondary dark:bg-hover dark:text-foreground-tertiary flex h-5 w-5 shrink-0 items-center justify-center rounded-full">
+            <div className="bg-border text-label-xs text-foreground-secondary flex h-5 w-5 shrink-0 items-center justify-center rounded-full">
               ?
             </div>
             <p>
-              <span className="text-foreground-primary dark:text-label-md text-foreground-primary">
+              <span className="text-foreground-primary font-medium">
                 Pertanyaan:
               </span>{" "}
               Karena jatah cuti saya dalam satu tahun ada 12 kali, lalu di bulan
@@ -89,7 +89,7 @@ export function LeaveRules() {
             </p>
           </div>
 
-          <div className="bg-border dark:bg-hover my-2 h-px w-full"></div>
+          <div className="bg-border my-2 h-px w-full"></div>
 
           {/* Jawaban */}
           <div className="flex gap-3">
@@ -105,7 +105,7 @@ export function LeaveRules() {
 
           {/* Alasan */}
           <div className="flex gap-3">
-            <div className="bg-border text-label-xs text-foreground-secondary dark:bg-hover dark:text-foreground-tertiary flex h-5 w-5 shrink-0 items-center justify-center rounded-full">
+            <div className="bg-border text-label-xs text-foreground-secondary flex h-5 w-5 shrink-0 items-center justify-center rounded-full">
               i
             </div>
             <p className="text-foreground-secondary italic">
@@ -119,7 +119,7 @@ export function LeaveRules() {
 
       {/* SECTION 4: ATURAN WFH */}
       <section>
-        <h4 className="text-foreground-primary dark:text-foreground-primary text-heading-sm mb-3">
+        <h4 className="text-foreground-primary text-heading-sm mb-3">
           Aturan WFH
         </h4>
         <ol className="ml-4 list-outside list-decimal space-y-2">

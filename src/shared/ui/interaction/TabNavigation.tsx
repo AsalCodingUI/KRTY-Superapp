@@ -47,11 +47,12 @@ const TabNavigation = React.forwardRef<
 >(({ className, children, ...props }, forwardedRef) => {
   const layoutId = React.useId()
   return (
+    <div className="overflow-x-auto pb-px -mb-px [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
     <NavigationMenuPrimitives.Root ref={forwardedRef} {...props} asChild={false}>
       <NavigationMenuPrimitives.List
         className={cx(
           // base
-          "flex items-start justify-start gap-sm border-b whitespace-nowrap [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+          "flex items-start justify-start gap-sm border-b whitespace-nowrap",
           // border color
           "border-neutral-primary",
           className,
@@ -62,6 +63,7 @@ const TabNavigation = React.forwardRef<
         </TabNavigationUnderlineContext.Provider>
       </NavigationMenuPrimitives.List>
     </NavigationMenuPrimitives.Root>
+    </div>
   )
 })
 

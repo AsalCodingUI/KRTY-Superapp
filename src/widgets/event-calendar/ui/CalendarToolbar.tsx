@@ -48,8 +48,8 @@ export function CalendarToolbar({
     viewOptions.find((option) => option.value === viewMode)?.label ?? "Bulan"
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-md">
-      <div className="flex items-center gap-xl">
+    <div className="flex flex-col gap-md sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+      <div className="flex items-center justify-between gap-md sm:justify-start sm:gap-xl">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -80,22 +80,7 @@ export function CalendarToolbar({
             </DropdownMenuRadioGroup>
           </DropdownMenuContent>
         </DropdownMenu>
-        <div className="h-3 border-l border-neutral-primary" />
-        <div className="flex items-center gap-2">
-          <span className="text-label-sm text-foreground-secondary">
-            Google Calendar
-          </span>
-          {isLoading ? (
-            <Badge variant="zinc">Checking</Badge>
-          ) : isConnected ? (
-            <Badge variant="success">Connected</Badge>
-          ) : (
-            <Badge variant="zinc">Disconnected</Badge>
-          )}
-        </div>
-      </div>
 
-      <div className="flex items-center gap-md">
         <div className="flex items-center gap-sm">
           <Button variant="secondary" size="icon-sm" onClick={goToPrevious}>
             <RiArrowLeftSLine className="size-4" />
@@ -106,6 +91,21 @@ export function CalendarToolbar({
           <Button variant="secondary" size="icon-sm" onClick={goToNext}>
             <RiArrowRightSLine className="size-4" />
           </Button>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-md">
+        <div className="hidden items-center gap-2 sm:flex">
+          <span className="text-label-sm text-foreground-secondary">
+            Google Calendar
+          </span>
+          {isLoading ? (
+            <Badge variant="zinc">Checking</Badge>
+          ) : isConnected ? (
+            <Badge variant="success">Connected</Badge>
+          ) : (
+            <Badge variant="zinc">Disconnected</Badge>
+          )}
         </div>
         {showAddEvent && (
           <Button size="sm" leadingIcon={<RiAddLine />} onClick={onAddEvent}>

@@ -298,7 +298,7 @@ export function EmployeeLeavePage({
           </p>
         </div>
 
-        <div className="flex flex-col rounded-xxl">
+        <div className="flex flex-col rounded-xxl bg-surface-neutral-primary">
           <div className="grid grid-cols-1 gap-md px-5 py-2 sm:grid-cols-2 lg:grid-cols-5">
             <div className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-lg border px-4 py-3 lg:col-span-2">
               <p className="text-label-sm text-foreground-secondary">
@@ -411,7 +411,7 @@ export function EmployeeLeavePage({
             </div>
           </div>
 
-          <div className="px-5 pt-2 border-b border-neutral-primary space-y-2">
+          <div className="px-5 pt-2 border-b border-neutral-primary space-y-3">
             <div className="xl:hidden">
               <Select
                 value={activeTab}
@@ -445,7 +445,7 @@ export function EmployeeLeavePage({
               </TabNavigation>
             </div>
             {isMounted("leave") && activeTab === "leave" && (
-              <div className="flex items-center gap-2 pb-2">
+              <div className="flex items-center gap-2">
                 <Button
                   size="sm"
                   variant="secondary"

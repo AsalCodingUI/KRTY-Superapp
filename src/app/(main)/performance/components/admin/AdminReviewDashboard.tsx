@@ -3,7 +3,7 @@
 import { createClient } from "@/shared/api/supabase/client"
 import { Database } from "@/shared/types/database.types"
 import {
-  Avatar, AvatarGroup, AvatarOverflow, Badge, Button, ConfirmDialog, DateRangePicker, EmptyState, Label, QuarterFilterValue, Table,
+  Avatar, AvatarGroup, AvatarOverflow, Badge, Button, ConfirmDialog, DateRangePicker, EmptyState, Label, QuarterFilterValue, Spinner, Table,
   TableBody,
   TableCell,
   TableHead,
@@ -401,7 +401,7 @@ export function AdminReviewDashboard({
       <TableSection title={`Monitoring Progress — ${selectedQuarter}`}>
         <Table>
           <TableHead>
-            <TableRow>
+            <TableRow className="h-[40px] hover:bg-transparent">
               <TableHeaderCell>Employee</TableHeaderCell>
               <TableHeaderCell>Reviewed By</TableHeaderCell>
               <TableHeaderCell>Pending Reviewers</TableHeaderCell>
@@ -412,8 +412,10 @@ export function AdminReviewDashboard({
           <TableBody>
             {isDataLoading ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center text-body-sm text-foreground-secondary">
-                  Loading reviews...
+                <TableCell colSpan={5}>
+                  <div className="flex items-center justify-center py-8">
+                    <Spinner size="md" />
+                  </div>
                 </TableCell>
               </TableRow>
             ) : (

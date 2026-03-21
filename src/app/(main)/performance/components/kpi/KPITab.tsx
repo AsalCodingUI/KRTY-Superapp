@@ -182,7 +182,7 @@ export function KPITab({
       >
         <Table>
           <TableHead>
-            <TableRow>
+            <TableRow className="h-[40px] hover:bg-transparent">
               <TableHeaderCell>Employee</TableHeaderCell>
               <TableHeaderCell>Email</TableHeaderCell>
               <TableHeaderCell>Job Title</TableHeaderCell>
@@ -194,8 +194,10 @@ export function KPITab({
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center text-body-sm text-foreground-secondary">
-                  Loading employees...
+                <TableCell colSpan={6}>
+                  <div className="flex items-center justify-center py-8">
+                    <Spinner size="md" />
+                  </div>
                 </TableCell>
               </TableRow>
             ) : employees.length === 0 ? (

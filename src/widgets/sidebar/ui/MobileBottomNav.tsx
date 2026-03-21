@@ -24,7 +24,7 @@ import { type ComponentType, useMemo } from "react"
 type MobileAppTab = {
   label: string
   href: string
-  icon: ComponentType<{ className?: string; "aria-hidden"?: boolean }>
+  icon: ComponentType<{ className?: string; "aria-hidden"?: boolean | "true" | "false" }>
 }
 
 const APP_TABS: MobileAppTab[] = [
@@ -103,7 +103,10 @@ export function MobileBottomNav() {
       aria-label="Mobile quick navigation"
       className="border-neutral-primary bg-surface-neutral-primary fixed right-0 bottom-0 left-0 z-40 border-t xl:hidden"
     >
-      <div className="mx-auto grid max-w-lg grid-cols-5 px-2 pt-1.5 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
+      <div
+        className="mx-auto grid max-w-lg px-2 pt-1.5 pb-[calc(0.75rem+env(safe-area-inset-bottom))]"
+        style={{ gridTemplateColumns: `repeat(${appTabs.length}, minmax(0, 1fr))` }}
+      >
         {appTabs.map((tab) => {
           const active = isActive(tab.href)
 

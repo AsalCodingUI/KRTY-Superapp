@@ -92,8 +92,8 @@ function SortableItem({
         <RiDeleteBinLine className="h-4 w-4" />
       </Button>
 
-      <div className="grid grid-cols-12 gap-4 pl-8">
-        <div className="col-span-1">
+      <div className="grid grid-cols-1 gap-4 pl-0 sm:grid-cols-12 sm:pl-8">
+        <div className="sm:col-span-1">
           <Label className="text-body-xs mb-1">No</Label>
           <TextInput
             value={item.no}
@@ -101,7 +101,7 @@ function SortableItem({
             className=""
           />
         </div>
-        <div className="col-span-3">
+        <div className="sm:col-span-3">
           <Label className="text-body-xs mb-1">Category</Label>
           <TextInput
             value={item.category}
@@ -109,7 +109,7 @@ function SortableItem({
             placeholder="Category"
           />
         </div>
-        <div className="col-span-8">
+        <div className="sm:col-span-8">
           <Label className="text-body-xs mb-1">Page/Flow</Label>
           <TextInput
             value={item.flow}
@@ -117,7 +117,7 @@ function SortableItem({
             placeholder="e.g. Login Screen"
           />
         </div>
-        <div className="col-span-12">
+        <div className="sm:col-span-12">
           <Label className="text-body-xs mb-1">Description</Label>
           <Textarea
             value={item.desc}

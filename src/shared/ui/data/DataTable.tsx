@@ -203,7 +203,7 @@ export function DataTable<TData>({
 
         {/* CONTAINER TABLE: Overflow hidden for rounded corners, auto for scroll */}
         <div className="relative overflow-hidden">
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto" role="region" aria-label="Data table" tabIndex={0}>
             <Table noBorder>
               <TableHead>
                 {table.getHeaderGroups().map((headerGroup) => (

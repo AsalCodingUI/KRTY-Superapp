@@ -69,10 +69,10 @@ export function AdminAttendanceHistoryList({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <Accordion
         type="multiple"
-        className="space-y-4"
+        className="space-y-3"
         defaultValue={defaultOpenDate ? [defaultOpenDate] : []}
       >
         {visibleGroups.map(([date, dailyLogs]) => {

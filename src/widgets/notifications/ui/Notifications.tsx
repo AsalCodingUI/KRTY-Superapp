@@ -188,7 +188,7 @@ export function Notifications({ variant = "default" }: NotificationsProps) {
                   "fixed z-50 flex max-h-[calc(100vh-24px)] flex-col overflow-hidden bg-surface-neutral-primary",
                   isMobile
                     ? "inset-0 rounded-none border-0 shadow-none"
-                    : "h-[600px] w-[386px] rounded-xl border border-neutral-primary shadow-regular-md",
+                    : "h-[600px] w-full max-w-[386px] rounded-xl border border-neutral-primary shadow-regular-md",
                 )}
                 style={panelStyle}
                 initial={

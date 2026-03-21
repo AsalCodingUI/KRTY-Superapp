@@ -20,12 +20,12 @@ import { DataTable } from "@/shared/ui/data/DataTable"
 import { RiCalendarCheckLine } from "@/shared/ui/lucide-icons"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
+import { toast } from "sonner"
 import {
   adminColumns,
   LeaveRequestWithProfile,
 } from "./components/AdminColumns"
 import { remainingLeaveColumns } from "./components/RemainingLeaveColumns"
-import { toast } from "sonner"
 
 type Profile = Pick<
   Database["public"]["Tables"]["profiles"]["Row"],
@@ -442,7 +442,7 @@ function AttendanceOverviewPanel({
   ]
 
   return (
-    <div className="flex flex-col rounded-xxl">
+    <div className="flex flex-col rounded-xxl bg-surface-neutral-primary">
       <div className="grid grid-cols-1 gap-3 px-5 py-2 sm:grid-cols-2 lg:grid-cols-5">
         {stats.map((item) => (
           <div
@@ -459,8 +459,8 @@ function AttendanceOverviewPanel({
         ))}
       </div>
 
-      <div className="px-5 pt-2 border-b border-neutral-primary">
-        <div className="xl:hidden pb-2">
+      <div className="px-5 pt-2 border-b border-neutral-primary space-y-3">
+        <div className="xl:hidden">
           {isClient ? (
             <Select
               value={activeTab}

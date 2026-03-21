@@ -204,29 +204,29 @@ function CalendarContent({
         <p className="text-label-md text-foreground-primary">Calendar</p>
       </div>
 
-      <div className="flex min-h-0 flex-1 flex-col rounded-xxl">
+      <div className="flex min-h-0 flex-1 flex-col rounded-xxl bg-surface-neutral-primary">
         <div className="grid grid-cols-1 gap-md px-5 py-2 sm:grid-cols-2 lg:grid-cols-5">
-          <div className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-sm rounded-lg border px-2xl py-xl">
+          <div className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-lg border px-4 py-3">
             <p className="text-label-sm text-foreground-secondary">
               Current Date
             </p>
-            <p className="text-heading-lg text-foreground-primary">
+            <p className="text-heading-md text-foreground-primary">
               {format(currentDate, "EEEE, dd MMM")}
             </p>
           </div>
-          <div className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-sm rounded-lg border px-2xl py-xl">
+          <div className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-lg border px-4 py-3">
             <p className="text-label-sm text-foreground-secondary">
               Meetings Today
             </p>
-            <p className="text-heading-lg text-foreground-primary">
+            <p className="text-heading-md text-foreground-primary">
               {meetingCount}
             </p>
           </div>
-          <div className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-sm rounded-lg border px-2xl py-xl">
+          <div className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-lg border px-4 py-3">
             <p className="text-label-sm text-foreground-secondary">
               Upcoming This Week
             </p>
-            <p className="text-heading-lg text-foreground-primary">
+            <p className="text-heading-md text-foreground-primary">
               {upcomingThisWeek}
             </p>
           </div>

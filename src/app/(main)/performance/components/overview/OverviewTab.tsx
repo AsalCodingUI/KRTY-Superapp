@@ -95,7 +95,13 @@ function EmployeeOverview({
 }: OverviewTabProps) {
   const { profile } = useUserProfile()
   const [internalQuarter, setInternalQuarter] =
-    useState<QuarterFilterValue>("2025-Q1")
+    useState<QuarterFilterValue>(() => {
+      const now = new Date()
+      const y = now.getFullYear()
+      const m = now.getMonth() + 1
+      const q = m <= 3 ? "Q1" : m <= 6 ? "Q2" : m <= 9 ? "Q3" : "Q4"
+      return `${y}-${q}`
+    })
   const selectedQuarter = controlledQuarter ?? internalQuarter
   const setSelectedQuarter = onQuarterChange ?? setInternalQuarter
   const { data, isLoading } = useQuery({
@@ -387,7 +393,13 @@ function StakeholderOverview({
   onQuarterChange,
 }: OverviewTabProps) {
   const [internalQuarter, setInternalQuarter] =
-    useState<QuarterFilterValue>("2025-Q1")
+    useState<QuarterFilterValue>(() => {
+      const now = new Date()
+      const y = now.getFullYear()
+      const m = now.getMonth() + 1
+      const q = m <= 3 ? "Q1" : m <= 6 ? "Q2" : m <= 9 ? "Q3" : "Q4"
+      return `${y}-${q}`
+    })
   const selectedQuarter = controlledQuarter ?? internalQuarter
   const setSelectedQuarter = onQuarterChange ?? setInternalQuarter
   const { data: statsResult, isLoading } = useQuery({

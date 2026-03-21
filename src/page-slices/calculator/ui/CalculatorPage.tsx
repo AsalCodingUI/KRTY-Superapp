@@ -373,9 +373,9 @@ export default function CalculatorClientPage({
 
       <div className="flex flex-col rounded-xxl">
         <div className="p-5">
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-8">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-12 md:gap-8">
             {/* LEFT COLUMN: INPUTS (Col Span 7) */}
-            <div className="space-y-6 lg:col-span-7">
+            <div className="space-y-6 md:col-span-7">
               {/* SECTION 1: CONTEXT */}
               <div>
                 <h3 className="text-label-md text-foreground-primary">
@@ -450,15 +450,15 @@ export default function CalculatorClientPage({
                 </div>
 
                 <div className="space-y-4">
-                  <div className="text-label-md text-foreground-primary dark:text-foreground-primary flex gap-4 px-1">
+                  <div className="text-label-md text-foreground-primary dark:text-foreground-primary hidden gap-4 px-1 sm:flex">
                     <div className="flex-1">Phase Name</div>
-                    <div className="w-24 text-center">Days</div>
-                    <div className="w-24 text-center">Buffer</div>
+                    <div className="w-16 text-center sm:w-24">Days</div>
+                    <div className="w-16 text-center sm:w-24">Buffer</div>
                     <div className="w-8"></div>
                   </div>
 
                   {phases.map((phase) => (
-                    <div key={phase.id} className="flex items-center gap-4">
+                    <div key={phase.id} className="flex items-center gap-2 sm:gap-4">
                       <TextInput
                         value={phase.name}
                         onChange={(e) =>
@@ -469,19 +469,21 @@ export default function CalculatorClientPage({
                       />
                       <TextInput
                         type="number"
-                        className="w-24 text-center"
+                        className="w-16 text-center sm:w-24"
                         value={phase.days}
                         onChange={(e) =>
                           updatePhase(phase.id, "days", Number(e.target.value))
                         }
+                        placeholder="Days"
                       />
                       <TextInput
                         type="number"
-                        className="w-24 text-center"
+                        className="w-16 text-center sm:w-24"
                         value={phase.buffer}
                         onChange={(e) =>
                           updatePhase(phase.id, "buffer", Number(e.target.value))
                         }
+                        placeholder="Buffer"
                       />
                       <Button
                         variant="ghost"
@@ -798,7 +800,7 @@ export default function CalculatorClientPage({
             </div>
 
             {/* RIGHT COLUMN: FINANCIAL HUD (Col Span 5) */}
-            <div className="lg:col-span-5">
+            <div className="md:col-span-5">
               <FinancialHUD
                 grossRevenue={grossRevenue}
                 totalLaborCost={totalLaborCost}

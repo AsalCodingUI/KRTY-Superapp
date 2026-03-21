@@ -3,7 +3,7 @@
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { createClient } from "@/shared/api/supabase/client"
 import { canManageByRole } from "@/shared/lib/roles"
-import type { QuarterFilterValue } from "@/shared/ui"
+import { Spinner, type QuarterFilterValue } from "@/shared/ui"
 import { useMemo } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { AdminReviewDashboard } from "../admin/AdminReviewDashboard"
@@ -49,7 +49,9 @@ export function Review360Tab(
 
   if (loading)
     return (
-      <div className="text-foreground-secondary p-4">Loading access rights...</div>
+      <div className="flex items-center justify-center py-12">
+        <Spinner size="md" />
+      </div>
     )
 
   // --- POV 1: STAKEHOLDER (ADMIN) ---

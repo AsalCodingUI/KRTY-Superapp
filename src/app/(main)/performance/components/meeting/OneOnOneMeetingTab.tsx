@@ -9,6 +9,7 @@ import {
   EmptyState,
   Label,
   Select,
+  Spinner,
   SelectContent,
   SelectItem,
   SelectTrigger,
@@ -356,7 +357,7 @@ export function OneOnOneMeetingTab({
       <TableSection title={isAdmin ? "Daftar Slot 1:1" : "Slot Tersedia"}>
         <Table>
           <TableHead>
-            <TableRow>
+            <TableRow className="h-[40px] hover:bg-transparent">
               <TableHeaderCell>Waktu</TableHeaderCell>
               <TableHeaderCell>Mode</TableHeaderCell>
               <TableHeaderCell>Status</TableHeaderCell>
@@ -439,8 +440,8 @@ export function OneOnOneMeetingTab({
               <TableRow>
                 <TableCell colSpan={5} className="p-0">
                   {isLoading ? (
-                    <div className="text-body-sm text-foreground-secondary px-xl py-xl text-center">
-                      Loading slots...
+                    <div className="flex items-center justify-center py-8">
+                      <Spinner size="md" />
                     </div>
                   ) : (
                     <EmptyState
@@ -514,7 +515,7 @@ export function OneOnOneMeetingTab({
         <TableSection title="Jadwal 1:1 Saya">
           <Table>
             <TableHead>
-              <TableRow>
+              <TableRow className="h-[40px] hover:bg-transparent">
                 <TableHeaderCell>Waktu</TableHeaderCell>
                 <TableHeaderCell>Mode</TableHeaderCell>
                 <TableHeaderCell>Meeting</TableHeaderCell>

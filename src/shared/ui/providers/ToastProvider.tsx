@@ -30,7 +30,7 @@ export function ToastProvider() {
         unstyled: true,
         classNames: {
           toast:
-            "flex items-center w-[340px] overflow-hidden rounded-xl shadow-none py-[6px] pl-4 pr-2",
+            "flex items-center w-full max-w-[340px] overflow-hidden rounded-xl shadow-none py-[6px] pl-4 pr-2",
           content: "flex-1 min-w-0",
           icon: "p-2",
           title: "text-label-md leading-4 truncate",

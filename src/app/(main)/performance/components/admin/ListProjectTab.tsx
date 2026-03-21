@@ -2,7 +2,7 @@
 
 import type { Database } from "@/shared/types/database.types"
 import {
-  Avatar, AvatarGroup, AvatarOverflow, Badge, Button, EmptyState, QuarterFilterValue, Select,
+  Avatar, AvatarGroup, AvatarOverflow, Badge, Button, EmptyState, QuarterFilterValue, Select, Spinner,
   SelectContent,
   SelectItem,
   SelectTrigger,
@@ -133,7 +133,7 @@ export function ListProjectTab({
       {/* FILTERS */}
       <div className="flex items-center gap-3">
         <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-          <SelectTrigger className="w-[180px]" size="sm">
+          <SelectTrigger className="w-full sm:w-[180px]" size="sm">
             <SelectValue placeholder="Filter by status" />
           </SelectTrigger>
           <SelectContent>
@@ -149,15 +149,14 @@ export function ListProjectTab({
       <TableSection
         title="Project Configuration"
         actions={
-          <Button onClick={() => setFormOpen(true)}>
-            <RiFolderLine className="mr-2 size-4" />
+          <Button size="sm" onClick={() => setFormOpen(true)} leadingIcon={<RiFolderLine />}>
             New Project
           </Button>
         }
       >
         {isLoading ? (
-          <div className="text-body-sm text-foreground-secondary p-8 text-center">
-            Loading projects...
+          <div className="flex items-center justify-center py-12">
+            <Spinner size="md" />
           </div>
         ) : projects.length === 0 ? (
           <EmptyState
@@ -182,7 +181,7 @@ export function ListProjectTab({
         ) : (
           <Table>
             <TableHead>
-              <TableRow>
+              <TableRow className="h-[40px] hover:bg-transparent">
                 <TableHeaderCell>Project Name</TableHeaderCell>
                 <TableHeaderCell>Quarter</TableHeaderCell>
                 <TableHeaderCell>Status</TableHeaderCell>

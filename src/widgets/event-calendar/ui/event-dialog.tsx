@@ -5,6 +5,7 @@ import { logError } from "@/shared/lib/utils/logger"
 import {
   Badge,
   Button,
+  Checkbox,
   DatePicker,
   Dialog,
   DialogBody,
@@ -297,7 +298,7 @@ export function EventDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="flex max-h-[90vh] flex-col sm:max-w-[500px]">
+      <DialogContent className="flex max-h-[90vh] flex-col sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>
             {event
@@ -310,54 +311,56 @@ export function EventDialog({
         </DialogHeader>
 
         {event && readOnly && !isEditing ? (
-          <DialogBody className="space-y-4 overflow-y-auto">
+          <DialogBody className="space-y-5 overflow-y-auto">
             {/* Event Title & Type */}
-            <div>
-              <div className="flex items-start justify-between gap-4">
-                <h3 className="text-heading-lg text-foreground-primary break-words">
-                  {event.title}
-                </h3>
-                <Badge
-                  variant={getBadgeVariant(event.color)}
-                  size="sm"
-                  className="shrink-0"
-                >
-                  {event.type || "Event"}
-                </Badge>
-              </div>
+            <div className="flex items-start justify-between gap-4">
+              <h3 className="text-heading-sm text-foreground-primary break-words">
+                {event.title}
+              </h3>
+              <Badge
+                variant={getBadgeVariant(event.color)}
+                size="sm"
+                className="shrink-0"
+              >
+                {event.type || "Event"}
+              </Badge>
             </div>
 
             {/* Date & Time */}
             <div className="bg-surface-neutral-secondary border-neutral-primary grid grid-cols-2 gap-4 rounded-lg border p-4">
               <div>
-                <h4 className="text-foreground-secondary text-label-xs mb-2">
+                <p className="text-label-sm text-foreground-secondary mb-1">
                   Mulai
-                </h4>
-                <p className="text-foreground-primary text-label-md">
+                </p>
+                <p className="text-body-sm text-foreground-primary">
                   {format(event.start, "dd MMM yyyy")}
                 </p>
-                <p className="text-foreground-secondary text-body-sm mt-0.5">
-                  {format(event.start, "HH:mm")}
-                </p>
+                {!event.allDay && (
+                  <p className="text-body-sm text-foreground-secondary mt-0.5">
+                    {format(event.start, "HH:mm")}
+                  </p>
+                )}
               </div>
               <div>
-                <h4 className="text-foreground-secondary text-label-xs mb-2">
+                <p className="text-label-sm text-foreground-secondary mb-1">
                   Selesai
-                </h4>
-                <p className="text-foreground-primary text-label-md">
+                </p>
+                <p className="text-body-sm text-foreground-primary">
                   {format(event.end, "dd MMM yyyy")}
                 </p>
-                <p className="text-foreground-secondary text-body-sm mt-0.5">
-                  {format(event.end, "HH:mm")}
-                </p>
+                {!event.allDay && (
+                  <p className="text-body-sm text-foreground-secondary mt-0.5">
+                    {format(event.end, "HH:mm")}
+                  </p>
+                )}
               </div>
             </div>
 
             {/* Location */}
             {event.location && (
               <div className="space-y-2">
-                <h4 className="text-label-md text-foreground-primary">Lokasi</h4>
-                <p className="text-label-md text-foreground-secondary break-words">
+                <p className="text-label-sm text-foreground-secondary">Lokasi</p>
+                <p className="text-body-sm text-foreground-primary break-words">
                   {event.location}
                 </p>
               </div>
@@ -366,8 +369,8 @@ export function EventDialog({
             {/* Description */}
             {event.description && (
               <div className="border-neutral-primary space-y-2 border-t pt-4">
-                <h4 className="text-label-md text-foreground-primary">Deskripsi</h4>
-                <p className="text-label-md text-foreground-secondary break-words whitespace-pre-wrap">
+                <p className="text-label-sm text-foreground-secondary">Deskripsi</p>
+                <p className="text-body-sm text-foreground-primary break-words whitespace-pre-wrap">
                   {event.description}
                 </p>
               </div>
@@ -387,7 +390,7 @@ export function EventDialog({
           </DialogBody>
         ) : (
           <form onSubmit={handleSubmit(onSubmit)} className="min-h-0 flex-1">
-            <DialogBody className="space-y-4 overflow-y-auto">
+            <DialogBody className="space-y-5 overflow-y-auto">
               {/* Title */}
               <div>
                 <Label htmlFor="title">Judul *</Label>
@@ -424,12 +427,10 @@ export function EventDialog({
 
               {/* All Day Toggle */}
               <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
+                <Checkbox
                   id="allDay"
                   checked={watch("allDay") || false}
-                  onChange={(e) => setValue("allDay", e.target.checked)}
-                  className="border-border-border text-primary h-4 w-4 rounded focus:ring-[--focus-ring-color]"
+                  onCheckedChange={(checked) => setValue("allDay", checked === true)}
                   disabled={readOnly}
                 />
                 <Label htmlFor="allDay" className="cursor-pointer">
@@ -502,7 +503,7 @@ export function EventDialog({
                     )}
                   </div>
                   {errors.start && (
-                    <p className="text-danger text-body-xs mt-1">
+                    <p className="text-foreground-danger-dark text-body-xs mt-1">
                       {errors.start.message}
                     </p>
                   )}
@@ -569,7 +570,7 @@ export function EventDialog({
                     )}
                   </div>
                   {errors.end && (
-                    <p className="text-danger text-body-xs mt-1">
+                    <p className="text-foreground-danger-dark text-body-xs mt-1">
                       {errors.end.message}
                     </p>
                   )}
@@ -602,13 +603,13 @@ export function EventDialog({
               {/* Recurrence hidden for now */}
 
               {/* Actions */}
-              <div className="border-border-border flex items-center justify-between border-t pt-4">
+              <div className="border-neutral-primary flex items-center justify-between border-t pt-4">
                 <div className="flex-1">
                   {!readOnly && event && onDelete && (
                     <>
                       {isDeletePending ? (
                         <div className="animate-fadeIn flex items-center gap-2">
-                          <span className="text-danger text-label-md">
+                          <span className="text-foreground-danger-dark text-label-md">
                             Yakin hapus?
                           </span>
                           <Button
@@ -616,7 +617,7 @@ export function EventDialog({
                             variant="destructive"
                             onClick={handleConfirmDelete}
                             disabled={loading}
-                            className="bg-danger hover:bg-danger-hover text-danger-fg border-transparent ring-0"
+                            className=""
                           >
                             Ya, Hapus
                           </Button>
@@ -635,7 +636,7 @@ export function EventDialog({
                           variant="secondary"
                           onClick={handleDeleteClick}
                           disabled={loading}
-                          className="hover:text-danger hover:border-danger hover:bg-danger-subtle transition-colors"
+                          className="text-foreground-danger-dark hover:bg-surface-danger-light"
                         >
                           <RiDeleteBinLine className="mr-2 h-4 w-4" />
                           Hapus

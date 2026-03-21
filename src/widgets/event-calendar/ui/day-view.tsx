@@ -58,7 +58,7 @@ export const DayView = memo(function DayView({
       >
         <div className="relative flex">
           {/* Time labels */}
-          <div className="border-neutral-primary bg-surface w-16 flex-shrink-0 border-r">
+          <div className="border-neutral-primary bg-surface w-12 flex-shrink-0 border-r sm:w-16">
             {timeSlots.map((slot) => {
               const minute = slot.getMinutes()
               if (minute !== 0) return null // Only show hour labels

@@ -252,9 +252,9 @@ export function LeaveRequestModal({
     if (step === 2) {
       return (
         // SCROLL DI PINDAH KE SINI (Parent Container)
-        <div className="mt-6 max-h-[60vh] overflow-y-auto pr-2">
+        <div className="mt-6 max-h-[70vh] overflow-y-auto pr-2 sm:max-h-[60vh]">
           <LeaveRules />
-          <div className="bg-surface-neutral-secondary dark:bg-surface mt-6 flex items-start space-x-3 rounded-md border p-3 dark:border">
+          <div className="bg-surface-neutral-secondary mt-6 flex items-start space-x-3 rounded-md border p-3">
             <Checkbox
               id="terms"
               checked={isTermsAccepted}
@@ -265,7 +265,7 @@ export function LeaveRequestModal({
             <div className="grid gap-1.5 leading-none">
               <label
                 htmlFor="terms"
-                className="text-label-md text-foreground-primary dark:text-foreground-primary cursor-pointer peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                className="text-label-md text-foreground-primary cursor-pointer peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
               >
                 I agree to the terms and conditions
               </label>

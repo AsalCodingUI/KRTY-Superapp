@@ -98,10 +98,15 @@ export const EventItem = memo(function EventItem({
   }
 
   const showMeta = (showTime && !event.allDay) || Boolean(event.location)
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    // Prevent parent day-cell click from opening "new event" dialog.
+    e.stopPropagation()
+    onClick?.(e)
+  }
 
   return (
     <button
-      onClick={onClick}
+      onClick={handleClick}
       className={cx(
         "flex w-full items-start gap-sm rounded-md p-sm text-left",
         colors.background,
