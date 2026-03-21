@@ -71,6 +71,7 @@ const DropdownMenuContent = React.forwardRef<
         "relative z-50 min-w-48 overflow-hidden rounded-lg border py-[3px] px-[4px]",
         "bg-surface-neutral-primary text-foreground-secondary border-neutral-primary",
         "shadow-[0px_2px_4px_-3px_rgba(0,0,0,0.08),0px_10px_24px_-6px_rgba(0,0,0,0.08)]",
+        "dark:shadow-[0px_0px_0px_1px_rgba(255,255,255,0.06),0px_8px_24px_-4px_rgba(0,0,0,0.4)]",
         "animate-in fade-in-80",
         className,
       )}
@@ -91,6 +92,7 @@ const DropdownMenuSubMenuContent = React.forwardRef<
         "relative z-50 min-w-32 overflow-hidden rounded-lg border py-1px px-[2px]",
         "bg-surface-neutral-primary text-foreground-secondary border-neutral-primary",
         "shadow-[0px_2px_4px_-3px_rgba(0,0,0,0.08),0px_10px_24px_-6px_rgba(0,0,0,0.08)]",
+        "dark:shadow-[0px_0px_0px_1px_rgba(255,255,255,0.06),0px_8px_24px_-4px_rgba(0,0,0,0.4)]",
         className,
       )}
       {...props}

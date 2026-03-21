@@ -116,7 +116,7 @@ const TabNavigationLink = React.forwardRef<
             <span
               className={cx(
                 // base
-                "relative inline-flex items-center justify-center px-sm pb-lg whitespace-nowrap transition-all",
+                "relative inline-flex items-center justify-center px-sm pb-md whitespace-nowrap transition-all",
                 // border (active only)
                 "group-data-[active]:rounded-md",
                 // text color

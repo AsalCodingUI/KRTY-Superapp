@@ -26,6 +26,8 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  TabNavigation,
+  TabNavigationLink,
   TableSection,
 } from "@/shared/ui"
 import { DataTable } from "@/shared/ui/data/DataTable"
@@ -409,23 +411,41 @@ export function EmployeeLeavePage({
             </div>
           </div>
 
-          <div className="px-5 pt-2 pb-2 border-b border-neutral-primary space-y-2">
-            <Select
-              value={activeTab}
-              onValueChange={(value) =>
-                setActiveTab(value as "attendance" | "leave")
-              }
-            >
-              <SelectTrigger size="sm" className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="attendance">Attendance History</SelectItem>
-                <SelectItem value="leave">Leave Requests</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="px-5 pt-2 border-b border-neutral-primary space-y-2">
+            <div className="xl:hidden">
+              <Select
+                value={activeTab}
+                onValueChange={(value) =>
+                  setActiveTab(value as "attendance" | "leave")
+                }
+              >
+                <SelectTrigger size="sm" className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="attendance">Attendance History</SelectItem>
+                  <SelectItem value="leave">Leave Requests</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="hidden xl:block">
+              <TabNavigation className="border-b-0">
+                <TabNavigationLink
+                  active={activeTab === "attendance"}
+                  onClick={() => setActiveTab("attendance")}
+                >
+                  Attendance History
+                </TabNavigationLink>
+                <TabNavigationLink
+                  active={activeTab === "leave"}
+                  onClick={() => setActiveTab("leave")}
+                >
+                  Leave Requests
+                </TabNavigationLink>
+              </TabNavigation>
+            </div>
             {isMounted("leave") && activeTab === "leave" && (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 pb-2">
                 <Button
                   size="sm"
                   variant="secondary"

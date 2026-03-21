@@ -60,7 +60,7 @@ export default function Layout({
 
       <div className="bg-surface-neutral-primary flex flex-col rounded-xxl">
         <div className="border-b border-neutral-primary px-5 pt-2">
-          <div className="pb-2">
+          <div className="xl:hidden pb-2">
             <Select
               value={pathname}
               onValueChange={(value) => {
@@ -81,7 +81,7 @@ export default function Layout({
             </Select>
           </div>
 
-          <div className="hidden">
+          <div className="hidden xl:block">
             <TabNavigation className="border-b-0">
               {!loading &&
                 visibleTabs.map((item) => (

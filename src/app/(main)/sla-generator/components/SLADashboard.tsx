@@ -5,9 +5,17 @@ import { useEffect, useState } from "react"
 import { toast } from "sonner"
 import { DeleteConfirmDialog } from "./DeleteConfirmDialog"
 import { activeSLAColumns, archivedSLAColumns, type SLA } from "./SLAColumns"
-import { TabNavigation, TabNavigationLink } from "@/components/ui"
 import { createClient } from "@/shared/api/supabase/client"
-import { DataTable } from "@/shared/ui"
+import {
+  DataTable,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  TabNavigation,
+  TabNavigationLink,
+} from "@/shared/ui"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { canManageByRole } from "@/shared/lib/roles"
 import { useMountedTabs } from "@/shared/hooks/useMountedTabs"
@@ -125,21 +133,40 @@ export default function SLADashboard({ slas }: { slas: SLA[] }) {
         SLA Generator
       </h1>
 
-      {/* Tabs */}
-      <TabNavigation className="mt-4">
-        <TabNavigationLink
-          active={activeTab === "active"}
-          onClick={() => setActiveTab("active")}
-        >
-          Active
-        </TabNavigationLink>
-        <TabNavigationLink
-          active={activeTab === "archive"}
-          onClick={() => setActiveTab("archive")}
-        >
-          Archive
-        </TabNavigationLink>
-      </TabNavigation>
+      <div className="mt-4">
+        <div className="xl:hidden">
+          <Select
+            value={activeTab}
+            onValueChange={(value) =>
+              setActiveTab(value as "active" | "archive")
+            }
+          >
+            <SelectTrigger size="sm" className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="archive">Archive</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="hidden xl:block">
+          <TabNavigation>
+            <TabNavigationLink
+              active={activeTab === "active"}
+              onClick={() => setActiveTab("active")}
+            >
+              Active
+            </TabNavigationLink>
+            <TabNavigationLink
+              active={activeTab === "archive"}
+              onClick={() => setActiveTab("archive")}
+            >
+              Archive
+            </TabNavigationLink>
+          </TabNavigation>
+        </div>
+      </div>
 
       <div className="mt-6">
         {isMounted("active") && (

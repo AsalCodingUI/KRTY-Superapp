@@ -7,6 +7,8 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  TabNavigation,
+  TabNavigationLink,
 } from "@/shared/ui"
 import { toast } from "sonner"
 import { Database } from "@/shared/types/database.types"
@@ -116,21 +118,41 @@ export default function LeaveAdminPage({
       </div>
 
       <div className="bg-surface-neutral-primary flex flex-col rounded-xxl">
-        <div className="px-5 pt-2 pb-2 border-b border-neutral-primary">
-          <Select
-            value={activeTab}
-            onValueChange={(value) =>
-              setActiveTab(value as "approval" | "remaining")
-            }
-          >
-            <SelectTrigger size="sm" className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="approval">Approvals</SelectItem>
-              <SelectItem value="remaining">Remaining Leave</SelectItem>
-            </SelectContent>
-          </Select>
+        <div className="px-5 pt-2 border-b border-neutral-primary">
+          <div className="xl:hidden pb-2">
+            <Select
+              value={activeTab}
+              onValueChange={(value) =>
+                setActiveTab(value as "approval" | "remaining")
+              }
+            >
+              <SelectTrigger size="sm" className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="approval">Approvals</SelectItem>
+                <SelectItem value="remaining">Remaining Leave</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="hidden xl:block">
+            <TabNavigation className="border-b-0">
+              <TabNavigationLink
+                active={activeTab === "approval"}
+                onClick={() => setActiveTab("approval")}
+                className="cursor-pointer"
+              >
+                Approvals
+              </TabNavigationLink>
+              <TabNavigationLink
+                active={activeTab === "remaining"}
+                onClick={() => setActiveTab("remaining")}
+                className="cursor-pointer"
+              >
+                Remaining Leave
+              </TabNavigationLink>
+            </TabNavigation>
+          </div>
         </div>
 
         <div className="p-5">

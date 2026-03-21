@@ -13,6 +13,8 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  TabNavigation,
+  TabNavigationLink,
 } from "@/shared/ui"
 import { DataTable } from "@/shared/ui/data/DataTable"
 import { RiCalendarCheckLine } from "@/shared/ui/lucide-icons"
@@ -99,6 +101,11 @@ export function StakeholderLeavePage({
   const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [pendingConfirm, setPendingConfirm] = useState<PendingConfirm | null>(null)
   const [confirmLoading, setConfirmLoading] = useState(false)
+  const [isClient, setIsClient] = useState(false)
+
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
 
   // --- Realtime: debounce refresh to avoid UI thrashing on burst updates ---
   useEffect(() => {
@@ -349,11 +356,12 @@ export function StakeholderLeavePage({
           onTabChange={setActiveTab}
           attendanceLogs={attendanceLogs}
           leaveRequests={requests}
-        approvalContent={approvalContent}
-        remainingContent={remainingContent}
-        onApproveAttendanceDelete={handleApproveAttendanceDelete}
-        overviewStats={overviewStats}
-      />
+          approvalContent={approvalContent}
+          remainingContent={remainingContent}
+          onApproveAttendanceDelete={handleApproveAttendanceDelete}
+          overviewStats={overviewStats}
+          isClient={isClient}
+        />
       </div>
 
       <ConfirmDialog
@@ -381,6 +389,7 @@ function AttendanceOverviewPanel({
   remainingContent,
   onApproveAttendanceDelete,
   overviewStats,
+  isClient,
 }: {
   activeTab: "approval" | "remaining" | "attendance"
   onTabChange: (tab: "approval" | "remaining" | "attendance") => void
@@ -389,6 +398,7 @@ function AttendanceOverviewPanel({
   approvalContent: React.ReactNode
   remainingContent: React.ReactNode
   onApproveAttendanceDelete: (logId: string) => void
+  isClient: boolean
   overviewStats?: {
     onLeaveToday: number
     pendingRequests: number
@@ -449,22 +459,53 @@ function AttendanceOverviewPanel({
         ))}
       </div>
 
-      <div className="px-5 pt-2 pb-2 border-b border-neutral-primary">
-        <Select
-          value={activeTab}
-          onValueChange={(value) =>
-            onTabChange(value as "attendance" | "approval" | "remaining")
-          }
-        >
-          <SelectTrigger size="sm" className="w-full">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="attendance">Attendance History</SelectItem>
-            <SelectItem value="approval">Approvals Leave</SelectItem>
-            <SelectItem value="remaining">Remaining Leave</SelectItem>
-          </SelectContent>
-        </Select>
+      <div className="px-5 pt-2 border-b border-neutral-primary">
+        <div className="xl:hidden pb-2">
+          {isClient ? (
+            <Select
+              value={activeTab}
+              onValueChange={(value) =>
+                onTabChange(value as "attendance" | "approval" | "remaining")
+              }
+            >
+              <SelectTrigger size="sm" className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="attendance">Attendance History</SelectItem>
+                <SelectItem value="approval">Approvals Leave</SelectItem>
+                <SelectItem value="remaining">Remaining Leave</SelectItem>
+              </SelectContent>
+            </Select>
+          ) : (
+            <div className="border-neutral-primary h-9 w-full rounded-md border bg-surface-neutral-primary" />
+          )}
+        </div>
+        <div className="hidden xl:block">
+          <TabNavigation className="border-b-0">
+            <TabNavigationLink
+              active={activeTab === "attendance"}
+              onClick={() => onTabChange("attendance")}
+              showLeadingIcon={false}
+            >
+              Attendance History
+            </TabNavigationLink>
+            <TabNavigationLink
+              active={activeTab === "approval"}
+              onClick={() => onTabChange("approval")}
+              showLeadingIcon={false}
+            >
+              Approvals Leave
+            </TabNavigationLink>
+            <TabNavigationLink
+              active={activeTab === "remaining"}
+              onClick={() => onTabChange("remaining")}
+              showLeadingIcon={false}
+            >
+              Remaining Leave
+            </TabNavigationLink>
+          </TabNavigation>
+        </div>
       </div>
 
       <div className="p-5">

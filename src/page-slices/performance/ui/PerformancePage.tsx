@@ -458,8 +458,8 @@ export function PerformancePage() {
               ))}
             </div>
 
-            <div className="border-b border-neutral-primary px-5 pt-2 pb-2">
-              <div className="space-y-2">
+            <div className="border-b border-neutral-primary px-5 pt-2">
+              <div className="xl:hidden space-y-2">
                 <Select
                   value={activeTab}
                   onValueChange={(value) => setActiveTab(value as TabType)}
@@ -502,7 +502,7 @@ export function PerformancePage() {
                 </div>
               </div>
 
-              <div className="hidden items-center justify-between gap-4">
+              <div className="hidden xl:flex items-center justify-between gap-4">
                 <TabNavigation className="border-b-0" value={activeTab}>
                   <TabNavigationLink
                     active={activeTab === "kpi"}
@@ -546,7 +546,7 @@ export function PerformancePage() {
                   </TabNavigationLink>
                 </TabNavigation>
 
-                <div className="flex items-center gap-2 pb-2">
+                <div className="flex items-center gap-2">
                   <Select
                     value={selectedYear.toString()}
                     onValueChange={handleYearChange}
@@ -619,8 +619,8 @@ export function PerformancePage() {
               </div>
             </div>
 
-            <div className="border-b border-neutral-primary px-5 pt-2 pb-2">
-              <div className="space-y-2">
+            <div className="border-b border-neutral-primary px-5 pt-2">
+              <div className="xl:hidden space-y-2">
                 <Select
                   value={activeTab}
                   onValueChange={(value) => setActiveTab(value as TabType)}
@@ -663,7 +663,7 @@ export function PerformancePage() {
                 </div>
               </div>
 
-              <div className="hidden items-center justify-between gap-4">
+              <div className="hidden xl:flex items-center justify-between gap-4">
                 <TabNavigation className="border-b-0" value={activeTab}>
                   <TabNavigationLink
                     active={activeTab === "kpi"}
@@ -694,7 +694,7 @@ export function PerformancePage() {
                   )}
                 </TabNavigation>
 
-                <div className="flex items-center gap-2 pb-2">
+                <div className="flex items-center gap-2">
                   <Select
                     value={selectedYear.toString()}
                     onValueChange={handleYearChange}
