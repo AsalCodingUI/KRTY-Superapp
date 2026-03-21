@@ -5,7 +5,6 @@ import MobileSidebar from "./MobileSidebar"
 import { SidebarFooter } from "./SidebarFooter"
 import { SidebarHeader } from "./SidebarHeader"
 import { SidebarMenu } from "./SidebarMenu"
-import { SidebarThemeToggle } from "./SidebarThemeToggle"
 import { Notifications } from "@/widgets/notifications/ui/Notifications"
 import { RiMenuLine } from "@/shared/ui/lucide-icons"
 import { UserProfileMobile } from "./UserProfile"
@@ -28,9 +27,6 @@ export function Sidebar() {
 
           {/* Spacer to push Footer to bottom */}
           <div className="mt-auto" />
-
-          {/* Node 3188-52458: Theme Switcher */}
-          <SidebarThemeToggle />
 
           {/* Node 3188-52460: Footer Items (Help, Settings) */}
           <SidebarFooter />

@@ -50,7 +50,7 @@ export default function RootLayout({
         className={`${inter.className} text-content selection:bg-primary/20 selection:text-primary min-h-dvh overflow-x-hidden overflow-y-scroll scroll-auto antialiased`}
         suppressHydrationWarning
       >
-        <ThemeProvider defaultTheme="system" attribute="class">
+        <ThemeProvider forcedTheme="light" attribute="class">
           <QueryProvider>
             {/* Sidebar dan main wrapper dipindah ke layout (main) */}
             {children}
