@@ -85,7 +85,7 @@ export function EmployeeDashboard({ data, initialQuarter }: EmployeeDashboardPro
         </p>
       </div>
 
-      <div className="bg-surface-neutral-primary flex flex-col rounded-xxl">
+      <div className="flex flex-col rounded-xxl">
         <div className="space-y-5 p-5">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <h1 className="text-heading-md text-foreground-primary">

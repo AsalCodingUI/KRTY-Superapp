@@ -58,7 +58,7 @@ export default function Layout({
         <p className="text-label-md text-foreground-primary">Settings</p>
       </div>
 
-      <div className="bg-surface-neutral-primary flex flex-col rounded-xxl">
+      <div className="flex flex-col rounded-xxl">
         <div className="border-b border-neutral-primary px-5 pt-2">
           <div className="xl:hidden pb-2">
             <Select

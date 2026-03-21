@@ -371,7 +371,7 @@ export default function CalculatorClientPage({
         </p>
       </div>
 
-      <div className="bg-surface-neutral-primary flex flex-col rounded-xxl">
+      <div className="flex flex-col rounded-xxl">
         <div className="p-5">
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-8">
             {/* LEFT COLUMN: INPUTS (Col Span 7) */}

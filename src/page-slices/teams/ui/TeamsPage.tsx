@@ -91,7 +91,7 @@ export function TeamsPage({
           </p>
         </div>
 
-        <div className="bg-surface-neutral-primary flex flex-col rounded-xxl">
+        <div className="flex flex-col rounded-xxl">
           <section className="grid grid-cols-1 gap-3 px-5 py-2 sm:grid-cols-2 lg:grid-cols-5">
             {[
               { label: "Total Team", value: totalMembers },

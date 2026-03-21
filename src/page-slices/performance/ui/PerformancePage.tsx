@@ -439,7 +439,7 @@ export function PerformancePage() {
         </p>
       </div>
 
-      <div className="bg-surface-neutral-primary flex flex-col rounded-xxl">
+      <div className="flex flex-col rounded-xxl">
         {isStakeholder ? (
           <>
             <div className="grid grid-cols-1 gap-md px-5 py-2 sm:grid-cols-2 lg:grid-cols-5">

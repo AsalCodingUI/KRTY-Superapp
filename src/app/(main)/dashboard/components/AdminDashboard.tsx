@@ -23,7 +23,7 @@ export function AdminDashboard({ data }: AdminDashboardProps) {
         </p>
       </div>
 
-      <div className="bg-surface-neutral-primary flex flex-col rounded-xxl">
+      <div className="flex flex-col rounded-xxl">
         <div className="space-y-5 p-5">
           <AdminMetricsOverview
             totalEmployees={data.teamMetrics.totalEmployees}

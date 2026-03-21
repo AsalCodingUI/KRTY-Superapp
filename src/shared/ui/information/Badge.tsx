@@ -13,16 +13,16 @@ const badgeVariants = tv({
   variants: {
     variant: {
       // Subtle variants (Figma)
-      default: ["bg-surface-neutral-secondary text-foreground-secondary dark:ring-1 dark:ring-inset dark:ring-border"],
+      default: ["bg-surface-neutral-secondary text-foreground-secondary dark:ring-1 dark:ring-inset dark:ring-surface-neutral-tertiary"],
       info: ["bg-surface-brand-light text-foreground-brand-dark"],
       success: ["bg-surface-success-light text-foreground-success-dark"],
       warning: ["bg-surface-warning-light text-foreground-warning-on-color"],
       error: ["bg-surface-danger-light text-foreground-danger-dark"],
 
       // Compat aliases
-      zinc: ["bg-surface-neutral-secondary text-foreground-secondary dark:ring-1 dark:ring-inset dark:ring-border"],
+      zinc: ["bg-surface-neutral-secondary text-foreground-secondary dark:ring-1 dark:ring-inset dark:ring-surface-neutral-tertiary"],
       active: ["bg-surface-success-light text-foreground-success-dark"],
-      inactive: ["bg-surface-neutral-secondary text-foreground-secondary dark:ring-1 dark:ring-inset dark:ring-border"],
+      inactive: ["bg-surface-neutral-secondary text-foreground-secondary dark:ring-1 dark:ring-inset dark:ring-surface-neutral-tertiary"],
 
       // Feedback variants (Solid strong background, white text)
       continue: [

@@ -298,7 +298,7 @@ export function EmployeeLeavePage({
           </p>
         </div>
 
-        <div className="bg-surface-neutral-primary flex flex-col rounded-xxl">
+        <div className="flex flex-col rounded-xxl">
           <div className="grid grid-cols-1 gap-md px-5 py-2 sm:grid-cols-2 lg:grid-cols-5">
             <div className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-lg border px-4 py-3 lg:col-span-2">
               <p className="text-label-sm text-foreground-secondary">

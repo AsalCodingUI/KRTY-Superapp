@@ -11,7 +11,7 @@ export function PayrollPage() {
         <p className="text-label-md text-foreground-primary">Payroll System</p>
       </div>
 
-      <div className="bg-surface-neutral-primary flex flex-col rounded-xxl">
+      <div className="flex flex-col rounded-xxl">
         <div className="p-5">
           <EmptyState
             title="Payroll data unavailable"
