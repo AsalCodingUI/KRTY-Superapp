@@ -1,6 +1,6 @@
 import { ToastProvider } from "@/shared/ui"
 import QueryProvider from "@/shared/ui/providers/QueryProvider"
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import { ThemeProvider } from "next-themes"
 import { Inter } from "next/font/google"
 import "./globals.css"
@@ -31,6 +31,14 @@ export const metadata: Metadata = {
   },
 }
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  maximumScale: 1,
+  userScalable: false,
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -39,7 +47,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${inter.className} text-content selection:bg-primary/20 selection:text-primary overflow-y-scroll scroll-auto antialiased`}
+        className={`${inter.className} text-content selection:bg-primary/20 selection:text-primary min-h-dvh overflow-x-hidden overflow-y-scroll scroll-auto antialiased`}
         suppressHydrationWarning
       >
         <ThemeProvider defaultTheme="system" attribute="class">

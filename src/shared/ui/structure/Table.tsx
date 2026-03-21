@@ -18,7 +18,10 @@ const TableRoot = React.forwardRef<
   >
     <div
       // make table scrollable on mobile
-      className={cx("w-full overflow-auto whitespace-nowrap", className)}
+      className={cx(
+        "w-full overflow-x-auto overflow-y-hidden whitespace-nowrap touch-pan-x [-webkit-overflow-scrolling:touch]",
+        className,
+      )}
       {...props}
     >
       {children}
@@ -53,12 +56,12 @@ const Table = React.forwardRef<
 >(({ className, noBorder, ...props }, forwardedRef) => {
   void noBorder
   return (
-    <div className="overflow-hidden">
+    <div className="w-full overflow-x-auto overflow-y-hidden touch-pan-x [-webkit-overflow-scrolling:touch]">
       <table
         ref={forwardedRef}
         className={cx(
           // base
-          "w-full caption-bottom",
+          "min-w-full w-max caption-bottom",
           className,
         )}
         {...props}

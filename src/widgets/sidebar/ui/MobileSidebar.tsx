@@ -24,9 +24,13 @@ import { Notifications } from "@/widgets/notifications/ui/Notifications"
 import { RiMenuLine } from "@/shared/ui/lucide-icons"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { useEffect, useMemo } from "react"
+import { type ReactNode, useEffect, useMemo } from "react"
 
-export default function MobileSidebar() {
+interface MobileSidebarProps {
+  children?: ReactNode
+}
+
+export default function MobileSidebar({ children }: MobileSidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
   const { profile, loading } = useUserProfile()
@@ -96,16 +100,18 @@ export default function MobileSidebar() {
     <>
       <Drawer>
         <DrawerTrigger asChild>
-          <Button
-            variant="ghost"
-            aria-label="open sidebar"
-            className="group hover:bg-muted data-[state=open]:bg-muted dark:hover:bg-muted text-label-md flex items-center rounded-md p-2"
-          >
-            <RiMenuLine
-              className="size-6 shrink-0 sm:size-5"
-              aria-hidden="true"
-            />
-          </Button>
+          {children ?? (
+            <Button
+              variant="ghost"
+              aria-label="open sidebar"
+              className="group hover:bg-muted data-[state=open]:bg-muted dark:hover:bg-muted text-label-md flex items-center rounded-md p-2"
+            >
+              <RiMenuLine
+                className="size-6 shrink-0 sm:size-5"
+                aria-hidden="true"
+              />
+            </Button>
+          )}
         </DrawerTrigger>
         <DrawerContent className="sm:max-w-lg">
           <DrawerHeader>
