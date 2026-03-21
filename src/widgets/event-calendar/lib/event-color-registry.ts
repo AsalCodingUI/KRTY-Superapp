@@ -277,7 +277,7 @@ export function getEventColorClasses(
     case "solid":
       // For solid variant, use stronger background colors
       const solidBg = mapping.background.replace("-subtle", "")
-      return `${solidBg} text-white border ${mapping.border}`
+      return `${solidBg} text-foreground-on-color border ${mapping.border}`
     case "default":
     default:
       return `${mapping.background} ${mapping.text} border ${mapping.border}`
@@ -302,7 +302,7 @@ export function getEventTypeColorClasses(
       return `${mapping.background} ${mapping.text} border ${mapping.border}`
     case "solid":
       const solidBg = mapping.background.replace("-subtle", "")
-      return `${solidBg} text-white border ${mapping.border}`
+      return `${solidBg} text-foreground-on-color border ${mapping.border}`
     case "default":
     default:
       return `${mapping.background} ${mapping.text} border ${mapping.border}`

@@ -1,7 +1,7 @@
 "use client"
 
 import { SegmentedControl } from "@/shared/ui/interaction/SegmentedControl"
-import { RiLockLine, RiMoonLine, RiSunLine } from "@/shared/ui/lucide-icons"
+import { RiMoonLine, RiSunLine } from "@/shared/ui/lucide-icons"
 import { useTheme } from "next-themes"
 import { useEffect, useState } from "react"
 
@@ -30,8 +30,6 @@ export function SidebarThemeToggle() {
             value: "dark",
             label: "Dark",
             icon: RiMoonLine,
-            trailingIcon: RiLockLine,
-            disabled: true,
           },
         ]}
       />

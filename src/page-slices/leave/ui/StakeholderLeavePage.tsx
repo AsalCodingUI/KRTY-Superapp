@@ -6,7 +6,14 @@ import { useMountedTabs } from "@/shared/hooks/useMountedTabs"
 import { useTabRoute } from "@/shared/hooks/useTabRoute"
 import { canManageByRole } from "@/shared/lib/roles"
 import { Database } from "@/shared/types/database.types"
-import { ConfirmDialog, TabNavigation, TabNavigationLink } from "@/shared/ui"
+import {
+  ConfirmDialog,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/shared/ui"
 import { DataTable } from "@/shared/ui/data/DataTable"
 import { RiCalendarCheckLine } from "@/shared/ui/lucide-icons"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
@@ -442,30 +449,22 @@ function AttendanceOverviewPanel({
         ))}
       </div>
 
-      <div className="px-5 pt-2 border-b border-neutral-primary">
-        <TabNavigation className="border-b-0">
-          <TabNavigationLink
-            active={activeTab === "attendance"}
-            onClick={() => onTabChange("attendance")}
-            showLeadingIcon={false}
-          >
-            Attendance History
-          </TabNavigationLink>
-          <TabNavigationLink
-            active={activeTab === "approval"}
-            onClick={() => onTabChange("approval")}
-            showLeadingIcon={false}
-          >
-            Approvals Leave
-          </TabNavigationLink>
-          <TabNavigationLink
-            active={activeTab === "remaining"}
-            onClick={() => onTabChange("remaining")}
-            showLeadingIcon={false}
-          >
-            Remaining Leave
-          </TabNavigationLink>
-        </TabNavigation>
+      <div className="px-5 pt-2 pb-2 border-b border-neutral-primary">
+        <Select
+          value={activeTab}
+          onValueChange={(value) =>
+            onTabChange(value as "attendance" | "approval" | "remaining")
+          }
+        >
+          <SelectTrigger size="sm" className="w-full">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="attendance">Attendance History</SelectItem>
+            <SelectItem value="approval">Approvals Leave</SelectItem>
+            <SelectItem value="remaining">Remaining Leave</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="p-5">

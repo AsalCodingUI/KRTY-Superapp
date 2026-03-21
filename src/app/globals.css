@@ -194,6 +194,7 @@
 
     /* --- Background --- */
     --bg-background: var(--neutral-0);
+    --bg-surface: var(--neutral-0);
     --bg-inverted: var(--neutral-1000);
     --bg-muted: var(--neutral-50);
     /* subtle */
@@ -460,8 +461,10 @@
     --bg-surface: var(--neutral-950);
     --bg-muted: var(--neutral-900);
 
+    --surface-neutral-primary: var(--neutral-950);
     --surface-neutral-secondary: var(--neutral-900);
     --surface-neutral-tertiary: var(--neutral-800);
+    --surface-neutral-overlay: var(--opacity-white-8);
 
     --surface-brand: var(--primary-600);
     --surface-brand-light: rgba(2, 123, 255, 0.15);

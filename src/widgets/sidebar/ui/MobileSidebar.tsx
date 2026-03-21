@@ -20,7 +20,6 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/shared/ui"
-import { Notifications } from "@/widgets/notifications/ui/Notifications"
 import { RiMenuLine } from "@/shared/ui/lucide-icons"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
@@ -29,6 +28,14 @@ import { type ReactNode, useEffect, useMemo } from "react"
 interface MobileSidebarProps {
   children?: ReactNode
 }
+
+const MOBILE_BOTTOM_NAV_HREFS = new Set([
+  siteConfig.baseLinks.dashboard,
+  siteConfig.baseLinks.leave,
+  siteConfig.baseLinks.performance,
+  siteConfig.baseLinks.calendar,
+  siteConfig.baseLinks.settings.general,
+])
 
 export default function MobileSidebar({ children }: MobileSidebarProps) {
   const pathname = usePathname()
@@ -74,6 +81,11 @@ export default function MobileSidebar({ children }: MobileSidebarProps) {
     [loading, permissionLoading, profile, hasPermission],
   )
 
+  const drawerNavItems = useMemo(
+    () => navItems.filter((item) => !MOBILE_BOTTOM_NAV_HREFS.has(item.href)),
+    [navItems],
+  )
+
   const shortcutItems = useMemo(
     () =>
       navigationConfig.shortcuts.filter((item) => {
@@ -88,13 +100,13 @@ export default function MobileSidebar({ children }: MobileSidebarProps) {
 
   useEffect(() => {
     if (loading || !profile) return
-    const allItems = [...navItems, ...shortcutItems]
+    const allItems = [...drawerNavItems, ...shortcutItems]
     for (const item of allItems) {
       if (item.href.startsWith("/")) {
         router.prefetch(item.href)
       }
     }
-  }, [loading, profile, navItems, shortcutItems, router])
+  }, [loading, profile, drawerNavItems, shortcutItems, router])
 
   return (
     <>
@@ -133,7 +145,7 @@ export default function MobileSidebar({ children }: MobileSidebarProps) {
                     ))}
                   </div>
                 ) : (
-                  navItems.map((item) => (
+                  drawerNavItems.map((item) => (
                     <li key={item.name}>
                       <DrawerClose asChild>
                         <Link
@@ -162,11 +174,14 @@ export default function MobileSidebar({ children }: MobileSidebarProps) {
                     </li>
                   ))
                 )}
-                {!loading && !permissionLoading && (
-                  <li>
-                    <Notifications />
-                  </li>
-                )}
+                {!loading &&
+                  !permissionLoading &&
+                  drawerNavItems.length === 0 &&
+                  shortcutItems.length === 0 && (
+                    <li className="text-body-sm text-foreground-tertiary px-2 py-2">
+                      All main navigation is available from the bottom bar.
+                    </li>
+                  )}
               </ul>
 
               {!loading && !permissionLoading && shortcutItems.length > 0 && (

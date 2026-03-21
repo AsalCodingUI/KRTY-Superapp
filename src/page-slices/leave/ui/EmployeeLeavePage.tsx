@@ -21,8 +21,11 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-  TabNavigation,
-  TabNavigationLink,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   TableSection,
 } from "@/shared/ui"
 import { DataTable } from "@/shared/ui/data/DataTable"
@@ -406,23 +409,23 @@ export function EmployeeLeavePage({
             </div>
           </div>
 
-          <div className="flex items-center justify-between px-5 pt-2 border-b border-neutral-primary">
-            <TabNavigation className="border-b-0">
-              <TabNavigationLink
-                active={activeTab === "attendance"}
-                onClick={() => setActiveTab("attendance")}
-              >
-                Attendance History
-              </TabNavigationLink>
-              <TabNavigationLink
-                active={activeTab === "leave"}
-                onClick={() => setActiveTab("leave")}
-              >
-                Leave Requests
-              </TabNavigationLink>
-            </TabNavigation>
+          <div className="px-5 pt-2 pb-2 border-b border-neutral-primary space-y-2">
+            <Select
+              value={activeTab}
+              onValueChange={(value) =>
+                setActiveTab(value as "attendance" | "leave")
+              }
+            >
+              <SelectTrigger size="sm" className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="attendance">Attendance History</SelectItem>
+                <SelectItem value="leave">Leave Requests</SelectItem>
+              </SelectContent>
+            </Select>
             {isMounted("leave") && activeTab === "leave" && (
-              <div className="mb-2 flex items-center gap-2">
+              <div className="flex items-center gap-2">
                 <Button
                   size="sm"
                   variant="secondary"
@@ -437,7 +440,6 @@ export function EmployeeLeavePage({
                 </Button>
               </div>
             )}
-
           </div>
 
           <div className="p-5">

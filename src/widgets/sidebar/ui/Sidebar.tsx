@@ -6,6 +6,8 @@ import { SidebarFooter } from "./SidebarFooter"
 import { SidebarHeader } from "./SidebarHeader"
 import { SidebarMenu } from "./SidebarMenu"
 import { SidebarThemeToggle } from "./SidebarThemeToggle"
+import { Notifications } from "@/widgets/notifications/ui/Notifications"
+import { RiMenuLine } from "@/shared/ui/lucide-icons"
 import { UserProfileMobile } from "./UserProfile"
 
 export function Sidebar() {
@@ -37,9 +39,18 @@ export function Sidebar() {
 
       {/* --- 2. MOBILE FLOATING CONTROLS --- */}
       <div className="fixed top-[calc(env(safe-area-inset-top)+0.5rem)] right-3 z-40 xl:hidden">
-        <div className="bg-surface-neutral-primary border-neutral-primary flex items-center rounded-full border pr-2 pl-1 py-2 shadow-sm">
+        <div className="bg-surface-neutral-primary border-neutral-primary flex items-center gap-1 rounded-full border p-1.5 shadow-sm">
+          <Notifications variant="icon" />
           <UserProfileMobile />
-          <MobileSidebar />
+          <MobileSidebar>
+            <button
+              type="button"
+              aria-label="Open more menu"
+              className="hover:bg-surface-neutral-secondary text-foreground-secondary flex size-8 items-center justify-center rounded-full transition-colors"
+            >
+              <RiMenuLine className="size-5" aria-hidden="true" />
+            </button>
+          </MobileSidebar>
         </div>
       </div>
 

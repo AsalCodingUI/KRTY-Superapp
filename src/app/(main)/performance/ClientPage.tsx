@@ -5,7 +5,7 @@ import { useTabRoute } from "@/shared/hooks/useTabRoute"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { createClient } from "@/shared/api/supabase/client"
 import { canManageByRole } from "@/shared/lib/roles"
-import { TabNavigation, TabNavigationLink } from "@/shared/ui"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui"
 import { RiBarChartBoxLine } from "@/shared/ui/lucide-icons"
 import dynamic from "next/dynamic"
 import { useEffect, useMemo, useState } from "react"
@@ -144,61 +144,28 @@ export default function PerformanceClientPage() {
       </div>
 
       <div className="bg-surface-neutral-primary flex flex-col rounded-xxl">
-        <div className="px-5 pt-2 border-b border-neutral-primary">
-          {/* TAB NAVIGATION */}
-          <TabNavigation value={activeTab} className="border-b-0">
-            <TabNavigationLink
-              active={activeTab === "overview"}
-              onClick={() => setActiveTab("overview")}
-            >
-              Overview
-            </TabNavigationLink>
-            <TabNavigationLink
-              active={activeTab === "kpi"}
-              onClick={() => setActiveTab("kpi")}
-            >
-              KPI
-            </TabNavigationLink>
-            <TabNavigationLink
-              active={activeTab === "360-review"}
-              onClick={() => setActiveTab("360-review")}
-            >
-              360 Review
-            </TabNavigationLink>
-            <TabNavigationLink
-              active={activeTab === "one-on-one"}
-              onClick={() => setActiveTab("one-on-one")}
-            >
-              Jadwal 1:1
-            </TabNavigationLink>
-
-            {isLead && (
-              <TabNavigationLink
-                active={activeTab === "lead-review"}
-                onClick={() => setActiveTab("lead-review")}
-              >
-                Team KPI
-              </TabNavigationLink>
-            )}
-
-            {/* ADMIN TABS (Stakeholder Only) */}
-            {isStakeholder && (
-              <>
-                <TabNavigationLink
-                  active={activeTab === "list-project"}
-                  onClick={() => setActiveTab("list-project")}
-                >
-                  List Project
-                </TabNavigationLink>
-                <TabNavigationLink
-                  active={activeTab === "competency-library"}
-                  onClick={() => setActiveTab("competency-library")}
-                >
-                  Competency Library
-                </TabNavigationLink>
-              </>
-            )}
-          </TabNavigation>
+        <div className="px-5 pt-2 pb-2 border-b border-neutral-primary">
+          <Select
+            value={activeTab}
+            onValueChange={(value) => setActiveTab(value as TabType)}
+          >
+            <SelectTrigger size="sm" className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="overview">Overview</SelectItem>
+              <SelectItem value="kpi">KPI</SelectItem>
+              <SelectItem value="360-review">360 Review</SelectItem>
+              <SelectItem value="one-on-one">Jadwal 1:1</SelectItem>
+              {isLead && <SelectItem value="lead-review">Team KPI</SelectItem>}
+              {isStakeholder && (
+                <>
+                  <SelectItem value="list-project">List Project</SelectItem>
+                  <SelectItem value="competency-library">Competency Library</SelectItem>
+                </>
+              )}
+            </SelectContent>
+          </Select>
         </div>
 
           {/* TAB CONTENT */}

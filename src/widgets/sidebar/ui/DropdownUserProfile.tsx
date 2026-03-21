@@ -17,11 +17,6 @@ import {
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { createClient } from "@/shared/api/supabase/client"
 import {
-  RiComputerLine,
-  RiExternalLinkLine,
-  RiMoonLine,
-  RiSunLine,
-  RiWhatsappLine,
 } from "@/shared/ui/lucide-icons"
 import { useTheme } from "next-themes"
 import * as React from "react"
@@ -37,6 +32,7 @@ export function DropdownUserProfile({
 }: DropdownUserProfileProps) {
   const { profile, userEmail } = useUserProfile()
   const [mounted, setMounted] = React.useState(false)
+  const [isMobile, setIsMobile] = React.useState(false)
   const { theme, setTheme } = useTheme()
   const supabase = createClient()
 
@@ -48,6 +44,10 @@ export function DropdownUserProfile({
 
   React.useEffect(() => {
     setMounted(true)
+    const updateMobile = () => setIsMobile(window.innerWidth < 1280)
+    updateMobile()
+    window.addEventListener("resize", updateMobile)
+    return () => window.removeEventListener("resize", updateMobile)
   }, [])
 
   if (!mounted) {
@@ -64,51 +64,35 @@ export function DropdownUserProfile({
 
       <DropdownMenuContent align={align}>
         <DropdownMenuLabel>{displayEmail}</DropdownMenuLabel>
-        <DropdownMenuGroup>
-          <DropdownMenuSub>
-            <DropdownMenuSubTrigger>Theme</DropdownMenuSubTrigger>
-            <DropdownMenuSubMenuContent>
-              <DropdownMenuRadioGroup value={theme} onValueChange={setTheme}>
-                <DropdownMenuRadioItem value="light">
-                  <RiSunLine className="size-4 shrink-0" aria-hidden="true" />
-                  Light
-                </DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="dark">
-                  <RiMoonLine className="size-4 shrink-0" aria-hidden="true" />
-                  Dark
-                </DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="system">
-                  <RiComputerLine
-                    className="size-4 shrink-0"
-                    aria-hidden="true"
-                  />
-                  System
-                </DropdownMenuRadioItem>
-              </DropdownMenuRadioGroup>
-            </DropdownMenuSubMenuContent>
-          </DropdownMenuSub>
-        </DropdownMenuGroup>
+        {isMobile ? (
+          <DropdownMenuGroup>
+            <DropdownMenuLabel className="pt-0">Theme</DropdownMenuLabel>
+            <DropdownMenuRadioGroup value={theme} onValueChange={setTheme}>
+              <DropdownMenuRadioItem value="light">Light</DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="dark">Dark</DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="system">System</DropdownMenuRadioItem>
+            </DropdownMenuRadioGroup>
+          </DropdownMenuGroup>
+        ) : (
+          <DropdownMenuGroup>
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger>Theme</DropdownMenuSubTrigger>
+              <DropdownMenuSubMenuContent>
+                <DropdownMenuRadioGroup value={theme} onValueChange={setTheme}>
+                  <DropdownMenuRadioItem value="light">Light</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="dark">Dark</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="system">System</DropdownMenuRadioItem>
+                </DropdownMenuRadioGroup>
+              </DropdownMenuSubMenuContent>
+            </DropdownMenuSub>
+          </DropdownMenuGroup>
+        )}
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          {/* FIX: Hapus prop 'asChild' di sini biar gak error */}
-          <DropdownMenuItem>
-            <a
-              href={adminContactLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              // Tambahin w-full biar area klik-nya luas
-              className="flex w-full items-center"
-            >
-              <RiWhatsappLine
-                className="mr-2 size-4 shrink-0"
-                aria-hidden="true"
-              />
-              Contact Admin
-              <RiExternalLinkLine
-                className="text-content-subtle mb-1 ml-1 size-2.5 shrink-0"
-                aria-hidden="true"
-              />
-            </a>
+          <DropdownMenuItem
+            onClick={() => window.open(adminContactLink, "_blank", "noopener,noreferrer")}
+          >
+            Contact Admin
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />

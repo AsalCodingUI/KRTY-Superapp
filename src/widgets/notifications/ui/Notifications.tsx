@@ -2,7 +2,14 @@
 
 import { useNotifications } from "@/shared/hooks/useNotifications"
 import { cx, focusRing } from "@/shared/lib/utils"
-import { EmptyState, TabNavigation, TabNavigationLink } from "@/shared/ui"
+import {
+  EmptyState,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/shared/ui"
 import {
   RiCloseLine,
   RiDeleteBinLine,
@@ -222,23 +229,21 @@ export function Notifications({ variant = "default" }: NotificationsProps) {
                     </div>
                   </div>
 
-                  <div className="px-5 pt-2 border-b border-neutral-primary">
-                    <TabNavigation className="border-b-0">
-                      <TabNavigationLink
-                        active={activeTab === "unread"}
-                        onClick={() => setActiveTab("unread")}
-                        className="cursor-pointer"
-                      >
-                        Unread
-                      </TabNavigationLink>
-                      <TabNavigationLink
-                        active={activeTab === "all"}
-                        onClick={() => setActiveTab("all")}
-                        className="cursor-pointer"
-                      >
-                        All
-                      </TabNavigationLink>
-                    </TabNavigation>
+                  <div className="px-5 pt-2 border-b border-neutral-primary pb-2">
+                    <Select
+                      value={activeTab}
+                      onValueChange={(value) =>
+                        setActiveTab(value as "unread" | "all")
+                      }
+                    >
+                      <SelectTrigger size="sm" className="w-full">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="unread">Unread</SelectItem>
+                        <SelectItem value="all">All</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
 
                   <div className="flex-1 overflow-y-auto">

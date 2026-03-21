@@ -177,8 +177,8 @@ export default function ReviewFormClientPage({
             .map((step) => (
               <div key={step.number} className="flex items-center gap-3">
                 {step.complete ? (
-                  <div className="bg-surface dark:bg-muted flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full">
-                    <RiCheckLine className="dark:text-content h-4 w-4 text-white" />
+                  <div className="bg-success-subtle flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full">
+                    <RiCheckLine className="text-success-text h-4 w-4" />
                   </div>
                 ) : (
                   <div className="border-input dark:border-border-subtle flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full border-2">

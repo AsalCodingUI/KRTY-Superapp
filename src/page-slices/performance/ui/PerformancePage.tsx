@@ -414,6 +414,22 @@ export function PerformancePage() {
     },
   ]
 
+  const stakeholderTabItems: Array<{ value: TabType; label: string }> = [
+    { value: "kpi", label: "KPI" },
+    { value: "360-review", label: "360 Review" },
+    { value: "one-on-one", label: "Jadwal 1:1" },
+    ...(isLead ? [{ value: "lead-review" as TabType, label: "Team KPI" }] : []),
+    { value: "list-project", label: "List Project" },
+    { value: "competency-library", label: "Competency Library" },
+  ]
+
+  const employeeTabItems: Array<{ value: TabType; label: string }> = [
+    { value: "kpi", label: "KPI" },
+    { value: "360-review", label: "360 Review" },
+    { value: "one-on-one", label: "Jadwal 1:1" },
+    ...(isLead ? [{ value: "lead-review" as TabType, label: "Team KPI" }] : []),
+  ]
+
   return (
     <div className="flex flex-col">
       <div className="flex items-center gap-2 rounded-xxl px-5 pt-4 pb-3">
@@ -442,71 +458,116 @@ export function PerformancePage() {
               ))}
             </div>
 
-            <div className="flex items-center justify-between gap-4 border-b border-neutral-primary px-5 pt-2">
-              <TabNavigation className="border-b-0" value={activeTab}>
-                <TabNavigationLink
-                  active={activeTab === "kpi"}
-                  onClick={() => setActiveTab("kpi")}
-                >
-                  KPI
-                </TabNavigationLink>
-                <TabNavigationLink
-                  active={activeTab === "360-review"}
-                  onClick={() => setActiveTab("360-review")}
-                >
-                  360 Review
-                </TabNavigationLink>
-                <TabNavigationLink
-                  active={activeTab === "one-on-one"}
-                  onClick={() => setActiveTab("one-on-one")}
-                >
-                  Jadwal 1:1
-                </TabNavigationLink>
-
-                {isLead && (
-                  <TabNavigationLink
-                    active={activeTab === "lead-review"}
-                    onClick={() => setActiveTab("lead-review")}
-                  >
-                    Team KPI
-                  </TabNavigationLink>
-                )}
-
-                <TabNavigationLink
-                  active={activeTab === "list-project"}
-                  onClick={() => setActiveTab("list-project")}
-                >
-                  List Project
-                </TabNavigationLink>
-                <TabNavigationLink
-                  active={activeTab === "competency-library"}
-                  onClick={() => setActiveTab("competency-library")}
-                >
-                  Competency Library
-                </TabNavigationLink>
-              </TabNavigation>
-
-              <div className="flex items-center gap-2 pb-2">
+            <div className="border-b border-neutral-primary px-5 pt-2 pb-2">
+              <div className="space-y-2">
                 <Select
-                  value={selectedYear.toString()}
-                  onValueChange={handleYearChange}
+                  value={activeTab}
+                  onValueChange={(value) => setActiveTab(value as TabType)}
                 >
-                  <SelectTrigger className="w-[96px]" size="sm">
+                  <SelectTrigger size="sm" className="w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {availableYears.map((year) => (
-                      <SelectItem key={year} value={year.toString()}>
-                        {year}
+                    {stakeholderTabItems.map((item) => (
+                      <SelectItem key={item.value} value={item.value}>
+                        {item.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                <QuarterFilter
-                  value={selectedQuarter}
-                  onChange={setSelectedQuarter}
-                  showYear={false}
-                />
+
+                <div className="flex items-center gap-2">
+                  <Select
+                    value={selectedYear.toString()}
+                    onValueChange={handleYearChange}
+                  >
+                    <SelectTrigger className="w-[92px]" size="sm">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableYears.map((year) => (
+                        <SelectItem key={year} value={year.toString()}>
+                          {year}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <div className="min-w-0 flex-1">
+                    <QuarterFilter
+                      value={selectedQuarter}
+                      onChange={setSelectedQuarter}
+                      showYear={false}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="hidden items-center justify-between gap-4">
+                <TabNavigation className="border-b-0" value={activeTab}>
+                  <TabNavigationLink
+                    active={activeTab === "kpi"}
+                    onClick={() => setActiveTab("kpi")}
+                  >
+                    KPI
+                  </TabNavigationLink>
+                  <TabNavigationLink
+                    active={activeTab === "360-review"}
+                    onClick={() => setActiveTab("360-review")}
+                  >
+                    360 Review
+                  </TabNavigationLink>
+                  <TabNavigationLink
+                    active={activeTab === "one-on-one"}
+                    onClick={() => setActiveTab("one-on-one")}
+                  >
+                    Jadwal 1:1
+                  </TabNavigationLink>
+
+                  {isLead && (
+                    <TabNavigationLink
+                      active={activeTab === "lead-review"}
+                      onClick={() => setActiveTab("lead-review")}
+                    >
+                      Team KPI
+                    </TabNavigationLink>
+                  )}
+
+                  <TabNavigationLink
+                    active={activeTab === "list-project"}
+                    onClick={() => setActiveTab("list-project")}
+                  >
+                    List Project
+                  </TabNavigationLink>
+                  <TabNavigationLink
+                    active={activeTab === "competency-library"}
+                    onClick={() => setActiveTab("competency-library")}
+                  >
+                    Competency Library
+                  </TabNavigationLink>
+                </TabNavigation>
+
+                <div className="flex items-center gap-2 pb-2">
+                  <Select
+                    value={selectedYear.toString()}
+                    onValueChange={handleYearChange}
+                  >
+                    <SelectTrigger className="w-[96px]" size="sm">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableYears.map((year) => (
+                        <SelectItem key={year} value={year.toString()}>
+                          {year}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <QuarterFilter
+                    value={selectedQuarter}
+                    onChange={setSelectedQuarter}
+                    showYear={false}
+                  />
+                </div>
               </div>
             </div>
           </>
@@ -558,58 +619,103 @@ export function PerformancePage() {
               </div>
             </div>
 
-            <div className="flex items-center justify-between gap-4 border-b border-neutral-primary px-5 pt-2">
-              <TabNavigation className="border-b-0" value={activeTab}>
-                <TabNavigationLink
-                  active={activeTab === "kpi"}
-                  onClick={() => setActiveTab("kpi")}
-                >
-                  KPI
-                </TabNavigationLink>
-                <TabNavigationLink
-                  active={activeTab === "360-review"}
-                  onClick={() => setActiveTab("360-review")}
-                >
-                  360 Review
-                </TabNavigationLink>
-                <TabNavigationLink
-                  active={activeTab === "one-on-one"}
-                  onClick={() => setActiveTab("one-on-one")}
-                >
-                  Jadwal 1:1
-                </TabNavigationLink>
-
-                {isLead && (
-                  <TabNavigationLink
-                    active={activeTab === "lead-review"}
-                    onClick={() => setActiveTab("lead-review")}
-                  >
-                    Team KPI
-                  </TabNavigationLink>
-                )}
-              </TabNavigation>
-
-              <div className="flex items-center gap-2 pb-2">
+            <div className="border-b border-neutral-primary px-5 pt-2 pb-2">
+              <div className="space-y-2">
                 <Select
-                  value={selectedYear.toString()}
-                  onValueChange={handleYearChange}
+                  value={activeTab}
+                  onValueChange={(value) => setActiveTab(value as TabType)}
                 >
-                  <SelectTrigger className="w-[96px]" size="sm">
+                  <SelectTrigger size="sm" className="w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {availableYears.map((year) => (
-                      <SelectItem key={year} value={year.toString()}>
-                        {year}
+                    {employeeTabItems.map((item) => (
+                      <SelectItem key={item.value} value={item.value}>
+                        {item.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                <QuarterFilter
-                  value={selectedQuarter}
-                  onChange={setSelectedQuarter}
-                  showYear={false}
-                />
+
+                <div className="flex items-center gap-2">
+                  <Select
+                    value={selectedYear.toString()}
+                    onValueChange={handleYearChange}
+                  >
+                    <SelectTrigger className="w-[92px]" size="sm">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableYears.map((year) => (
+                        <SelectItem key={year} value={year.toString()}>
+                          {year}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <div className="min-w-0 flex-1">
+                    <QuarterFilter
+                      value={selectedQuarter}
+                      onChange={setSelectedQuarter}
+                      showYear={false}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="hidden items-center justify-between gap-4">
+                <TabNavigation className="border-b-0" value={activeTab}>
+                  <TabNavigationLink
+                    active={activeTab === "kpi"}
+                    onClick={() => setActiveTab("kpi")}
+                  >
+                    KPI
+                  </TabNavigationLink>
+                  <TabNavigationLink
+                    active={activeTab === "360-review"}
+                    onClick={() => setActiveTab("360-review")}
+                  >
+                    360 Review
+                  </TabNavigationLink>
+                  <TabNavigationLink
+                    active={activeTab === "one-on-one"}
+                    onClick={() => setActiveTab("one-on-one")}
+                  >
+                    Jadwal 1:1
+                  </TabNavigationLink>
+
+                  {isLead && (
+                    <TabNavigationLink
+                      active={activeTab === "lead-review"}
+                      onClick={() => setActiveTab("lead-review")}
+                    >
+                      Team KPI
+                    </TabNavigationLink>
+                  )}
+                </TabNavigation>
+
+                <div className="flex items-center gap-2 pb-2">
+                  <Select
+                    value={selectedYear.toString()}
+                    onValueChange={handleYearChange}
+                  >
+                    <SelectTrigger className="w-[96px]" size="sm">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableYears.map((year) => (
+                        <SelectItem key={year} value={year.toString()}>
+                          {year}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <QuarterFilter
+                    value={selectedQuarter}
+                    onChange={setSelectedQuarter}
+                    showYear={false}
+                  />
+                </div>
               </div>
             </div>
           </>

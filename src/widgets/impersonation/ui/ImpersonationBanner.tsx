@@ -41,9 +41,15 @@ export function ImpersonationBanner() {
   return (
     <div className="bg-surface-warning-light sticky top-0 z-40 px-5 py-2">
       <div className="flex flex-wrap items-center justify-between gap-md">
-        <p className="text-body-sm text-foreground-warning-on-color">
-          Viewing as <strong>{profile.full_name || profile.email || "User"}</strong>
-          {authProfile?.full_name ? ` (from ${authProfile.full_name})` : ""}
+        <p className="text-body-sm text-foreground-warning-on-color min-w-0 truncate">
+          Viewing as{" "}
+          <strong>{profile.full_name || profile.email || "User"}</strong>
+          {authProfile?.full_name ? (
+            <span className="text-foreground-warning-on-color/85">
+              {" "}
+              • Original: {authProfile.full_name}
+            </span>
+          ) : null}
         </p>
         <Button
           variant="secondary"

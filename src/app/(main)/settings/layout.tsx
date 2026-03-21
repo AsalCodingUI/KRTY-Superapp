@@ -1,11 +1,19 @@
 "use client"
 
 import { siteConfig } from "@/app/siteConfig"
-import { TabNavigation, TabNavigationLink } from "@/shared/ui"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  TabNavigation,
+  TabNavigationLink,
+} from "@/shared/ui"
 import { useUserProfile } from "@/shared/hooks/useUserProfile" // Import hook buat cek role
 import { hasRoleAccess } from "@/shared/lib/roles"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { RiSettings5Line } from "@/shared/ui/lucide-icons"
 
 // Definisi Tab dengan Role Access
@@ -28,6 +36,7 @@ export default function Layout({
   children: React.ReactNode
 }>) {
   const pathname = usePathname()
+  const router = useRouter()
   const { profile, loading } = useUserProfile()
 
   // Filter tab berdasarkan role user yang login
@@ -51,18 +60,41 @@ export default function Layout({
 
       <div className="bg-surface-neutral-primary flex flex-col rounded-xxl">
         <div className="border-b border-neutral-primary px-5 pt-2">
-          <TabNavigation className="border-b-0">
-            {!loading &&
-              visibleTabs.map((item) => (
-                <TabNavigationLink
-                  key={item.name}
-                  asChild
-                  active={pathname === item.href}
-                >
-                  <Link href={item.href}>{item.name}</Link>
-                </TabNavigationLink>
-              ))}
-          </TabNavigation>
+          <div className="pb-2">
+            <Select
+              value={pathname}
+              onValueChange={(value) => {
+                if (value !== pathname) router.push(value)
+              }}
+            >
+              <SelectTrigger size="sm" className="w-full">
+                <SelectValue placeholder="Select section" />
+              </SelectTrigger>
+              <SelectContent>
+                {!loading &&
+                  visibleTabs.map((item) => (
+                    <SelectItem key={item.href} value={item.href}>
+                      {item.name}
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="hidden">
+            <TabNavigation className="border-b-0">
+              {!loading &&
+                visibleTabs.map((item) => (
+                  <TabNavigationLink
+                    key={item.name}
+                    asChild
+                    active={pathname === item.href}
+                  >
+                    <Link href={item.href}>{item.name}</Link>
+                  </TabNavigationLink>
+                ))}
+            </TabNavigation>
+          </div>
         </div>
 
         <div className="p-5">{children}</div>

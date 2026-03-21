@@ -87,16 +87,16 @@ export function EmployeeDashboard({ data, initialQuarter }: EmployeeDashboardPro
 
       <div className="bg-surface-neutral-primary flex flex-col rounded-xxl">
         <div className="space-y-5 p-5">
-          <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <h1 className="text-heading-md text-foreground-primary">
               Welcome back, {firstName}
             </h1>
-            <div className="flex items-center gap-2">
+            <div className="flex w-full items-center gap-2 sm:w-auto">
               <Select
                 value={selectedYear.toString()}
                 onValueChange={handleYearChange}
               >
-                <SelectTrigger className="w-[96px]" size="sm">
+                <SelectTrigger className="w-[92px] sm:w-[96px]" size="sm">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -107,11 +107,13 @@ export function EmployeeDashboard({ data, initialQuarter }: EmployeeDashboardPro
                   ))}
                 </SelectContent>
               </Select>
-              <QuarterFilter
-                value={selectedQuarter}
-                onChange={handleQuarterChange}
-                showYear={false}
-              />
+              <div className="min-w-0 flex-1 sm:flex-none">
+                <QuarterFilter
+                  value={selectedQuarter}
+                  onChange={handleQuarterChange}
+                  showYear={false}
+                />
+              </div>
             </div>
           </div>
 
