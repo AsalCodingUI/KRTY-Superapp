@@ -5,7 +5,7 @@ import Link from "next/link"
 export default function NotFound() {
   return (
     <div className="bg-surface min-h-screen px-4 py-8">
-      <div className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-xl items-center justify-center">
+      <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center">
         <Card className="w-full p-8 text-center">
           <div className="space-y-5">
             <div className="bg-surface-danger-light mx-auto flex size-14 items-center justify-center rounded-full border border-border-danger-light">

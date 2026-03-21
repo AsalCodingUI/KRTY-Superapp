@@ -66,8 +66,8 @@ export const MilestonesForm = ({ data, onChange }: MilestonesFormProps) => {
   }) => (
     <div className="mt-4 space-y-4">
       <div className="flex items-center justify-between">
-        <h4 className="text-label-md text-tremor-content-subtle">{title}</h4>
-        <div className="text-label-xs text-tremor-content-subtle">
+        <h4 className="text-label-md text-foreground-primary">{title}</h4>
+        <div className="text-label-xs text-foreground-secondary">
           Total:{" "}
           {data[mKey].reduce(
             (acc, item) => acc + (parseInt(item.time) || 0),
@@ -80,27 +80,27 @@ export const MilestonesForm = ({ data, onChange }: MilestonesFormProps) => {
       {data[mKey].map((item, index) => (
         <div
           key={index}
-          className="bg-tremor-background-muted group border-tremor-ring relative rounded-md border p-4"
+          className="bg-surface-neutral-primary border-neutral-primary group relative rounded-md border p-4"
         >
           <Button
-            variant="destructive"
-            size="sm"
-            className="absolute top-2 right-2 h-8 w-8 !p-2 opacity-0 transition-opacity group-hover:opacity-100"
+            variant="ghost"
+            size="xs"
+            className="text-foreground-tertiary absolute top-2 right-2 h-8 w-8 p-0"
             onClick={() => deleteItem(mKey, index)}
           >
             <RiDeleteBinLine className="h-4 w-4" />
           </Button>
 
-          <div className="grid grid-cols-12 gap-4">
-            <div className="col-span-1">
-              <Label className="text-body-xs mb-1">No</Label>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
+            <div className="md:col-span-2 lg:col-span-1">
+              <Label className="mb-1">No</Label>
               <TextInput
                 value={item.no}
                 onChange={(e) => updateItem(mKey, index, "no", e.target.value)}
               />
             </div>
-            <div className="col-span-4">
-              <Label className="text-body-xs mb-1">Category</Label>
+            <div className="md:col-span-6 lg:col-span-5">
+              <Label className="mb-1">Category</Label>
               <TextInput
                 value={item.category}
                 onChange={(e) =>
@@ -109,8 +109,8 @@ export const MilestonesForm = ({ data, onChange }: MilestonesFormProps) => {
                 placeholder="Type"
               />
             </div>
-            <div className="col-span-2">
-              <Label className="text-body-xs mb-1">Days</Label>
+            <div className="md:col-span-4 lg:col-span-2">
+              <Label className="mb-1">Days</Label>
               <div className="relative">
                 <TextInput
                   type="number"
@@ -120,13 +120,13 @@ export const MilestonesForm = ({ data, onChange }: MilestonesFormProps) => {
                   }
                   className="pr-8"
                 />
-                <span className="text-body-xs text-tremor-content-subtle absolute top-2 right-2">
+                <span className="text-body-xs text-foreground-secondary absolute top-2 right-2">
                   d
                 </span>
               </div>
             </div>
-            <div className="col-span-12">
-              <Label className="text-body-xs mb-1">Deliverables</Label>
+            <div className="md:col-span-12">
+              <Label className="mb-1">Deliverables</Label>
               <Textarea
                 value={item.desc}
                 onChange={(e) =>
@@ -143,7 +143,7 @@ export const MilestonesForm = ({ data, onChange }: MilestonesFormProps) => {
       <Button
         variant="secondary"
         onClick={() => addItem(mKey)}
-        className="border-tremor-border hover:border-tremor-content-subtle w-full border-dashed"
+        className="border-neutral-primary hover:border-foreground-tertiary w-full border-dashed"
       >
         <RiAddLine className="mr-2 h-4 w-4" /> Add Deliverable
       </Button>
@@ -152,13 +152,10 @@ export const MilestonesForm = ({ data, onChange }: MilestonesFormProps) => {
 
   return (
     <div>
-      <div className="border-neutral-primary-border mb-4 border-b pb-4">
-        <h3 className="text-md text-foreground-primary dark:text-label-md text-foreground-primary">
+      <div className="mb-4">
+        <h3 className="text-label-md text-foreground-primary">
           Milestones & Timeline
         </h3>
-        <p className="text-label-md text-foreground-tertiary">
-          Define deliverables and timeline for each milestone.
-        </p>
       </div>
 
       <Tabs defaultValue="m1" className="w-full">

@@ -7,7 +7,9 @@ import { DeleteConfirmDialog } from "./DeleteConfirmDialog"
 import { activeSLAColumns, archivedSLAColumns, type SLA } from "./SLAColumns"
 import { createClient } from "@/shared/api/supabase/client"
 import {
+  Button,
   DataTable,
+  SegmentedControl,
   Select,
   SelectContent,
   SelectItem,
@@ -15,7 +17,9 @@ import {
   SelectValue,
   TabNavigation,
   TabNavigationLink,
+  TextInput,
 } from "@/shared/ui"
+import { RiAddLine } from "@/shared/ui/lucide-icons"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { canManageByRole } from "@/shared/lib/roles"
 import { useMountedTabs } from "@/shared/hooks/useMountedTabs"
@@ -24,15 +28,29 @@ import { useTabRoute } from "@/shared/hooks/useTabRoute"
 // Removing dependency on Database definitions which are missing
 // type SLA = Database["public"]["Tables"]["slas"]["Row"] & { archived_at: string | null };
 
-export default function SLADashboard({ slas }: { slas: SLA[] }) {
+export default function SLADashboard({
+  slas,
+  hideTitle = false,
+  embedded = false,
+}: {
+  slas: SLA[]
+  hideTitle?: boolean
+  embedded?: boolean
+}) {
   const router = useRouter()
   const supabase = createClient()
-  const { activeTab, setActiveTab } = useTabRoute<"active" | "archive">({
+  const { activeTab: routeTab, setActiveTab: setRouteTab } = useTabRoute<
+    "active" | "archive"
+  >({
     basePath: "/sla-generator",
     tabs: ["active", "archive"],
     defaultTab: "active",
     mode: "history",
   })
+  const [embeddedTab, setEmbeddedTab] = useState<"active" | "archive">("active")
+  const [embeddedSearchTerm, setEmbeddedSearchTerm] = useState("")
+  const activeTab = embedded ? embeddedTab : routeTab
+  const setActiveTab = embedded ? setEmbeddedTab : setRouteTab
   const { isMounted } = useMountedTabs(activeTab)
   const [slaToArchive, setSlaToArchive] = useState<string | null>(null)
   const [slaToDelete, setSlaToDelete] = useState<string | null>(null)
@@ -43,6 +61,17 @@ export default function SLADashboard({ slas }: { slas: SLA[] }) {
   // Filter data based on tab
   const activeSLAs = slas.filter((sla) => !sla.archived_at)
   const archivedSLAs = slas.filter((sla) => sla.archived_at)
+  const embeddedSearchValue = embeddedSearchTerm.trim().toLowerCase()
+  const filterBySearch = (rows: SLA[]) => {
+    if (!embedded || embeddedSearchValue === "") return rows
+    return rows.filter((row) => {
+      const client = row.client_name?.toLowerCase?.() || ""
+      const project = row.project_name?.toLowerCase?.() || ""
+      return client.includes(embeddedSearchValue) || project.includes(embeddedSearchValue)
+    })
+  }
+  const filteredActiveSLAs = filterBySearch(activeSLAs)
+  const filteredArchivedSLAs = filterBySearch(archivedSLAs)
 
   // Realtime subscription
   useEffect(() => {
@@ -129,50 +158,84 @@ export default function SLADashboard({ slas }: { slas: SLA[] }) {
 
   return (
     <>
-      <h1 className="text-heading-md text-foreground-primary sm:text-heading-lg dark:text-foreground-primary">
-        SLA Generator
-      </h1>
+      {!hideTitle && (
+        <h1 className="text-heading-md text-foreground-primary sm:text-heading-lg dark:text-foreground-primary">
+          SLA Generator
+        </h1>
+      )}
 
-      <div className="mt-4">
-        <div className="xl:hidden">
-          <Select
-            value={activeTab}
-            onValueChange={(value) =>
-              setActiveTab(value as "active" | "archive")
-            }
-          >
-            <SelectTrigger size="sm" className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="archive">Archive</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="hidden xl:block">
-          <TabNavigation>
-            <TabNavigationLink
-              active={activeTab === "active"}
-              onClick={() => setActiveTab("active")}
+      <div className={hideTitle ? "mb-4" : "mt-4"}>
+        {embedded ? (
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex min-w-0 items-center gap-3">
+              <SegmentedControl
+                size="sm"
+                fitContent
+                value={activeTab}
+                onChange={(value) => setActiveTab(value as "active" | "archive")}
+                items={[
+                  { value: "active", label: "Active" },
+                  { value: "archive", label: "Archive" },
+                ]}
+              />
+              <TextInput
+                type="search"
+                placeholder="Search..."
+                value={embeddedSearchTerm}
+                onChange={(e) => setEmbeddedSearchTerm(e.target.value)}
+                className="w-[250px]"
+              />
+            </div>
+            {canManage && activeTab === "active" && (
+              <Button onClick={() => router.push("/sla-generator?mode=create")} className="gap-x-2">
+                <RiAddLine className="size-4 shrink-0" aria-hidden="true" />
+                Create New SLA
+              </Button>
+            )}
+          </div>
+        ) : (
+          <>
+            <div className="xl:hidden">
+            <Select
+              value={activeTab}
+              onValueChange={(value) =>
+                setActiveTab(value as "active" | "archive")
+              }
             >
-              Active
-            </TabNavigationLink>
-            <TabNavigationLink
-              active={activeTab === "archive"}
-              onClick={() => setActiveTab("archive")}
-            >
-              Archive
-            </TabNavigationLink>
-          </TabNavigation>
-        </div>
+              <SelectTrigger size="sm" className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="archive">Archive</SelectItem>
+              </SelectContent>
+            </Select>
+            </div>
+            <div className="hidden xl:block">
+              <TabNavigation>
+                <TabNavigationLink
+                  active={activeTab === "active"}
+                  onClick={() => setActiveTab("active")}
+                >
+                  Active
+                </TabNavigationLink>
+                <TabNavigationLink
+                  active={activeTab === "archive"}
+                  onClick={() => setActiveTab("archive")}
+                >
+                  Archive
+                </TabNavigationLink>
+              </TabNavigation>
+            </div>
+          </>
+        )}
       </div>
 
       <div className="mt-6">
         {isMounted("active") && (
           <div className={activeTab === "active" ? "block" : "hidden"}>
             <DataTable
-              data={activeSLAs}
+              data={filteredActiveSLAs}
               columns={activeSLAColumns(
                 handleEdit,
                 (id) => setSlaToArchive(id),
@@ -181,9 +244,9 @@ export default function SLADashboard({ slas }: { slas: SLA[] }) {
               )}
               showExport={false}
               showViewOptions={false}
-              showFilterbar={true}
+              showFilterbar={!embedded}
               onCreate={
-                canManage
+                !embedded && canManage
                   ? () => router.push("/sla-generator?mode=create")
                   : undefined
               }
@@ -200,7 +263,7 @@ export default function SLADashboard({ slas }: { slas: SLA[] }) {
         {isMounted("archive") && (
           <div className={activeTab === "archive" ? "block" : "hidden"}>
             <DataTable
-              data={archivedSLAs}
+              data={filteredArchivedSLAs}
               columns={archivedSLAColumns(
                 handleRestore,
                 (id) => setSlaToDelete(id),
@@ -208,7 +271,7 @@ export default function SLADashboard({ slas }: { slas: SLA[] }) {
               )}
               showExport={false}
               showViewOptions={false}
-              showFilterbar={true}
+              showFilterbar={!embedded}
               onCreate={undefined}
               onDelete={canManage ? handlePermanentDelete : undefined}
               enableSelection={canManage}

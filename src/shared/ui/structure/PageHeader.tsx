@@ -40,7 +40,7 @@ export function PageHeader({
         className,
       )}
     >
-      <div className="flex max-w-2xl items-center gap-2">
+      <div className="flex items-center gap-2">
         {backButton}
         <div>
           <h1 className="text-heading-lg text-content">{title}</h1>

@@ -26,6 +26,7 @@ export * from "./input/TimeSelect"
 
 // Interaction
 export * from "./interaction/Accordion"
+export * from "./interaction/SegmentedControl"
 export * from "./interaction/TabNavigation"
 export * from "./interaction/Tabs"
 

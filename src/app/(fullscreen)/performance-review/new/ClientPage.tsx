@@ -263,7 +263,7 @@ export default function ReviewFormClientPage({
 
       {/* STANDALONE HEADER */}
       <div className="bg-surface dark:bg-surface sticky top-0 z-10 border border-b dark:border">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
             {/* Logo / Title */}
             <div className="flex items-center gap-2">
@@ -284,7 +284,7 @@ export default function ReviewFormClientPage({
       </div>
 
       {/* MAIN CONTENT */}
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <div className="px-4 py-8 sm:px-6 lg:px-8">
         <div className="flex gap-8">
           {/* PROGRESS TRACKER SIDEBAR - Hidden on mobile */}
           <div className="hidden w-64 flex-shrink-0 lg:block">
@@ -297,7 +297,7 @@ export default function ReviewFormClientPage({
 
           {/* FORM CONTENT */}
           <div className="min-w-0 flex-1">
-            <div className="mx-auto max-w-4xl space-y-4 overflow-visible">
+            <div className="space-y-4 overflow-visible">
               {/* PAGE TITLE */}
               <div>
                 <h1 className="text-display-xxs text-content dark:text-content mb-2">

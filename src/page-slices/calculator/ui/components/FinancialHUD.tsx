@@ -42,11 +42,9 @@ export function FinancialHUD({
       </h4>
 
       <div className="mt-6">
-        <p className="text-label-sm text-foreground-secondary">
-          Net Profit
-        </p>
+        <p className="text-label-sm text-foreground-secondary">Net Profit</p>
         <div className="mt-1 flex flex-wrap items-baseline gap-3">
-          <span className="text-display-xxs text-foreground-primary dark:text-foreground-primary">
+          <span className="text-heading-lg text-foreground-primary">
             {formatIDR(netProfit)}
           </span>
           <Badge
@@ -61,44 +59,44 @@ export function FinancialHUD({
 
       <Divider className="my-6" />
 
-      <ul role="list" className="text-body-sm space-y-3">
+      <ul role="list" className="space-y-3">
         <li className="flex items-center justify-between">
-          <span className="text-label-sm text-foreground-secondary">
+          <span className="text-label-md text-foreground-secondary">
             Gross Revenue
           </span>
-          <span className="text-foreground-primary dark:text-foreground-primary font-medium">
+          <span className="text-label-md text-foreground-primary">
             {formatIDR(grossRevenue)}
           </span>
         </li>
         <li className="flex items-center justify-between">
-          <span className="text-label-sm text-foreground-secondary">
+          <span className="text-label-md text-foreground-secondary">
             Labor Cost (Salary)
           </span>
-          <span className="text-danger font-medium">
+          <span className="text-label-md text-danger">
             -{formatIDR(totalLaborCost)}
           </span>
         </li>
         <li className="flex items-center justify-between">
-          <span className="text-label-sm text-foreground-secondary">
+          <span className="text-label-md text-foreground-secondary">
             Overhead (Portion)
           </span>
-          <span className="text-danger font-medium">
+          <span className="text-label-md text-danger">
             -{formatIDR(overheadCost)}
           </span>
         </li>
         <li className="flex items-center justify-between">
-          <span className="text-label-sm text-foreground-secondary">
+          <span className="text-label-md text-foreground-secondary">
             COGS (Freelance)
           </span>
-          <span className="text-danger font-medium">
+          <span className="text-label-md text-danger">
             -{formatIDR(freelanceCost)}
           </span>
         </li>
         <li className="flex items-center justify-between border-t border-neutral-primary pt-3">
-          <span className="text-label-sm text-foreground-secondary">
+          <span className="text-label-md text-foreground-secondary">
             Total Cost
           </span>
-          <span className="text-label-md text-foreground-primary font-semibold">
+          <span className="text-label-md text-foreground-primary">
             {formatIDR(totalCost)}
           </span>
         </li>
@@ -106,35 +104,31 @@ export function FinancialHUD({
 
       <div className="mt-6 space-y-3">
         <div className="flex items-center justify-between">
-          <span className="text-label-sm text-foreground-secondary">
+          <span className="text-label-md text-foreground-secondary">
             Current Margin
           </span>
-          <span className="text-label-md text-foreground-primary font-semibold">
+          <span className="text-label-md text-foreground-primary">
             {marginPercent.toFixed(1)}%
           </span>
         </div>
         <div className="border-t border-neutral-primary pt-4">
-          <p className="text-label-xs text-foreground-secondary uppercase tracking-wide">
+          <p className="text-label-md text-foreground-secondary">
             Pricing Suggestion
           </p>
           <div className="mt-3 space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-label-sm text-foreground-secondary">
+              <span className="text-label-md text-foreground-secondary">
                 Break-even Price
               </span>
-              <span className="text-label-md text-foreground-primary font-semibold">
+              <span className="text-label-md text-foreground-primary">
                 {formatIDR(totalCost)}
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-label-sm text-foreground-secondary">
+              <span className="text-label-md text-foreground-secondary">
                 Suggested Price ({targetMargin.toFixed(0)}% margin)
               </span>
-              <span
-                className={`text-heading-md font-semibold ${
-                  isHealthy ? "text-success" : "text-danger"
-                }`}
-              >
+              <span className={`text-label-md ${isHealthy ? "text-success" : "text-danger"}`}>
                 {formatIDR(suggestedPrice)}
               </span>
             </div>
@@ -142,7 +136,7 @@ export function FinancialHUD({
         </div>
       </div>
 
-      <div className="bg-surface border-neutral-primary dark:bg-surface mt-6 flex items-center gap-3 rounded-md border p-3 shadow-sm">
+      <div className="bg-surface border-neutral-primary mt-6 flex items-center gap-3 rounded-md border p-3 shadow-sm">
         {isHealthy ? (
           <RiCheckboxCircleFill
             className="text-success size-5 shrink-0"
@@ -154,7 +148,7 @@ export function FinancialHUD({
             aria-hidden={true}
           />
         )}
-        <span className="text-body-xs text-foreground-secondary dark:text-foreground-tertiary">
+        <span className="text-body-xs text-foreground-secondary">
           {isHealthy
             ? "Margin meets target. Pricing looks healthy."
             : "Margin is below target. Consider adjusting scope or price."}

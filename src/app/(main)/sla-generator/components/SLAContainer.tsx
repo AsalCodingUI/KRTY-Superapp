@@ -241,22 +241,22 @@ export default function SLAContainer({
   }
 
   return (
-    <div className="bg-surface-neutral-secondary flex h-full w-full flex-col overflow-hidden lg:flex-row print:bg-white">
+    <div className="bg-surface-neutral-primary rounded-xxl flex h-full w-full flex-col overflow-hidden lg:flex-row print:bg-white">
       {/* --- LEFT PANEL: EDITOR (Scrollable) --- */}
       <div
-        className={`border-neutral-primary-border bg-surface flex h-full w-full flex-col border-r lg:w-1/2 print:hidden ${activeTab === "preview" ? "hidden lg:flex" : "flex"}`}
+        className={`border-neutral-primary bg-surface flex h-full w-full flex-col border-r lg:w-1/2 print:hidden ${activeTab === "preview" ? "hidden lg:flex" : "flex"}`}
       >
         {/* Header */}
-        <div className="border-neutral-primary-border bg-surface sticky top-0 z-10 flex items-center justify-between border-b p-4">
-          <div className="flex items-center gap-3">
+        <div className="border-neutral-primary bg-surface sticky top-0 z-10 flex items-center justify-between border-b p-4">
+          <div className="flex min-w-0 items-center gap-3">
             <Button variant="ghost" size="sm" className="p-2" onClick={onBack}>
-              <RiArrowLeftLine className="text-tremor-content-subtle h-5 w-5" />
+              <RiArrowLeftLine className="text-foreground-tertiary h-5 w-5" />
             </Button>
-            <div>
-              <h1 className="text-tremor-content-strong text-heading-lg">
+            <div className="min-w-0">
+              <h1 className="text-heading-md text-foreground-primary truncate">
                 {slaId ? "Edit SLA" : "New SLA"}
               </h1>
-              <p className="text-tremor-content-subtle text-label-md">
+              <p className="text-label-sm text-foreground-secondary truncate">
                 {clientInfo.company || "Untitled Project"}
               </p>
             </div>
@@ -304,13 +304,13 @@ export default function SLAContainer({
         </div>
 
         {/* Form Content */}
-        <div className="flex-1 space-y-4 overflow-y-auto p-4">
+        <div className="flex-1 space-y-5 overflow-y-auto p-4 lg:p-5">
           {/* 1. Client Info */}
-          <div>
-            <h3 className="text-md text-foreground-primary dark:text-foreground-primary mb-6 font-semibold">
+          <div className="space-y-4">
+            <h3 className="text-label-md text-foreground-primary">
               Client Information
             </h3>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <Label>Client Name</Label>
                 <TextInput
@@ -350,7 +350,7 @@ export default function SLAContainer({
                   }
                 />
               </div>
-              <div className="col-span-2 space-y-2">
+              <div className="space-y-2 md:col-span-2">
                 <Label>Address</Label>
                 <TextInput
                   value={clientInfo.address}
@@ -365,11 +365,11 @@ export default function SLAContainer({
           <Divider />
 
           {/* 2. Agency Info */}
-          <div>
-            <h3 className="text-md text-foreground-primary dark:text-foreground-primary mb-6 font-semibold">
+          <div className="space-y-4">
+            <h3 className="text-label-md text-foreground-primary">
               Agency Information
             </h3>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <Label>Agency Name</Label>
                 <TextInput
@@ -406,7 +406,7 @@ export default function SLAContainer({
                   }
                 />
               </div>
-              <div className="col-span-2 space-y-2">
+              <div className="space-y-2 md:col-span-2">
                 <Label>Address</Label>
                 <Textarea
                   value={agencyInfo.address}
@@ -424,6 +424,8 @@ export default function SLAContainer({
           {/* 3. Scope of Work */}
           <ScopeOfWorkForm data={scopeOfWork} onChange={setScopeOfWork} />
 
+          <Divider />
+
           {/* 4. Milestones */}
           <MilestonesForm data={milestones} onChange={setMilestones} />
 
@@ -434,11 +436,11 @@ export default function SLAContainer({
 
       {/* --- RIGHT PANEL: PREVIEW --- */}
       <div
-        className={`bg-tremor-background-subtle flex h-full w-full flex-col lg:w-1/2 print:block print:w-full ${activeTab === "editor" ? "hidden lg:flex" : "flex"}`}
+        className={`bg-surface-neutral-primary flex h-full w-full flex-col lg:w-1/2 print:block print:w-full ${activeTab === "editor" ? "hidden lg:flex" : "flex"}`}
       >
         {/* Mobile Header for Preview */}
-        <div className="border-neutral-primary-border bg-surface flex items-center justify-between border-b p-4 lg:hidden print:hidden">
-          <span className="text-tremor-content-strong font-semibold">
+        <div className="border-neutral-primary bg-surface flex items-center justify-between border-b p-4 lg:hidden print:hidden">
+          <span className="text-label-md text-foreground-primary">
             PDF Preview
           </span>
           <div className="flex gap-2">

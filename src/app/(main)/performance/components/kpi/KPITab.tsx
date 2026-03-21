@@ -166,7 +166,7 @@ export function KPITab({
   // Admin/Stakeholder view - show employee list (original behavior)
   return (
     <div className="space-y-4">
-      <div className="max-w-md">
+      <div>
         <TextInput
           type="search"
           placeholder="Search employees by name or email..."

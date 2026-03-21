@@ -2,10 +2,9 @@ import { siteConfig } from "@/app/siteConfig"
 import {
   RemixiconComponentType,
   RiBarChartBoxLine,
-  RiCalculatorLine,
   RiCalendarCheckLine,
   RiCalendarLine,
-  RiFileList3Line,
+  RiFolderLine,
   RiFundsBoxLine,
   RiGroupLine,
   RiHome2Line,
@@ -67,16 +66,10 @@ export const navigationConfig: NavigationConfig = {
       roles: ["stakeholder", "employee"],
     },
     {
-      name: "Project Calculator",
-      href: siteConfig.baseLinks.calculator,
-      icon: RiCalculatorLine,
-      roles: ["stakeholder", "employee"],
-    },
-    {
-      name: "SLA Generator",
-      href: siteConfig.baseLinks.slaGenerator,
-      icon: RiFileList3Line,
-      roles: ["stakeholder", "employee"],
+      name: "Projects",
+      href: siteConfig.baseLinks.projects,
+      icon: RiFolderLine,
+      roles: ["stakeholder"],
     },
     {
       name: "Payroll",

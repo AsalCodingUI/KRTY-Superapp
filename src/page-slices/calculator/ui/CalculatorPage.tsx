@@ -1,92 +1,171 @@
 "use client"
-import { toast } from "sonner"
-import { Database } from "@/shared/types/database.types"
 import {
-  Badge, Button, Divider,
-  Label, Select,
+  deleteCalculation,
+  getCalculationsByProject,
+  saveCalculation,
+  updateCalculation,
+} from "@/app/(main)/calculator/actions/calculation-actions"
+import { createClient } from "@/shared/api/supabase/client"
+import type { Database } from "@/shared/types/database.types"
+import {
+  Button,
+  ConfirmDialog,
+  Divider,
+  Label,
+  Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue, Slider,
-  TextInput
+  SelectValue,
+  TextInput,
 } from "@/shared/ui"
-import { RiAddLine, RiCalculatorLine, RiDeleteBinLine } from "@/shared/ui/lucide-icons"
-import { createClient } from "@/shared/api/supabase/client"
-import { useMemo, useState } from "react"
+import {
+  RiAddLine,
+  RiCalculatorLine,
+  RiDeleteBinLine,
+} from "@/shared/ui/lucide-icons"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { format } from "date-fns"
+import { useEffect, useMemo, useState } from "react"
+import { toast } from "sonner"
 import { FinancialHUD } from "./components/FinancialHUD"
+import { FreelanceSection } from "./components/FreelanceSection"
+import { OperationalCostsSection } from "./components/OperationalCostsSection"
+import { ProjectContextSection } from "./components/ProjectContextSection"
+import { SquadSection } from "./components/SquadSection"
+import { TimelineSection } from "./components/TimelineSection"
+import type {
+  FreelanceMember,
+  OperationalCost,
+  Phase,
+  SquadMember,
+  TeamMember,
+} from "./types"
+import { formatNumber } from "./utils"
 
-type Profile = Database["public"]["Tables"]["profiles"]["Row"]
-type TeamMember = Pick<Profile, "id" | "full_name" | "job_title" | "hourly_rate">
-type OperationalCost = Database["public"]["Tables"]["operational_costs"]["Row"]
-
-interface Phase {
-  id: string
-  name: string
-  days: number
-  buffer: number
-}
-
-interface SquadMember {
-  id: string
-  profileId: string
-  allocation: number // 0-100
-}
-
-interface FreelanceMember {
-  id: string
-  name: string
-  role: string
-  totalFee: string
-  notes: string
-}
+type ProjectCalculation =
+  Database["public"]["Tables"]["project_calculations"]["Row"]
 
 const createId = () =>
   typeof crypto !== "undefined" && "randomUUID" in crypto
     ? crypto.randomUUID()
     : `${Date.now()}-${Math.random().toString(16).slice(2)}`
 
+const parseNumber = (val: string): number => {
+  const num = parseFloat(val.replace(/,/g, ""))
+  return isNaN(num) ? 0 : num
+}
+
+const DEFAULT_PHASES: Phase[] = [
+  { id: "1", name: "Discovery & Design", days: 5, buffer: 1 },
+  { id: "2", name: "Development", days: 10, buffer: 2 },
+]
+
 export default function CalculatorClientPage({
   teamMembers,
   operationalCosts,
+  projects,
+  prefilledProjectId,
+  hideProjectSelector = false,
+  initialCalculation,
+  showHeader = true,
 }: {
   teamMembers: TeamMember[]
   operationalCosts: OperationalCost[]
+  projects: { id: string; name: string }[]
+  prefilledProjectId?: string
+  hideProjectSelector?: boolean
+  initialCalculation?: ProjectCalculation | null
+  showHeader?: boolean
 }) {
   const WORK_DAYS_PER_MONTH = 22
   const BILLABLE_UTILIZATION = 0.7
   const supabase = useMemo(() => createClient(), [])
-  const [revenueUSD, setRevenueUSD] = useState<string>("1,000")
-  const [exchangeRate, setExchangeRate] = useState<string>("15,000")
-  const [hoursPerDay, setHoursPerDay] = useState<string>("8")
-  const [targetMarginPercent, setTargetMarginPercent] = useState<string>("40")
+  const queryClient = useQueryClient()
 
-  const [phases, setPhases] = useState<Phase[]>([
-    { id: "1", name: "Discovery & Design", days: 5, buffer: 1 },
-    { id: "2", name: "Development", days: 10, buffer: 2 },
-  ])
+  const [revenueUSD, setRevenueUSD] = useState<string>(
+    initialCalculation
+      ? formatNumber(String(initialCalculation.revenue_usd))
+      : "1,000",
+  )
+  const [exchangeRate, setExchangeRate] = useState<string>(
+    initialCalculation
+      ? formatNumber(String(initialCalculation.exchange_rate))
+      : "15,000",
+  )
+  const [hoursPerDay, setHoursPerDay] = useState<string>(
+    initialCalculation ? String(initialCalculation.hours_per_day) : "8",
+  )
+  const [targetMarginPercent, setTargetMarginPercent] = useState<string>(
+    initialCalculation ? String(initialCalculation.target_margin) : "40",
+  )
 
-  const [squad, setSquad] = useState<SquadMember[]>([])
-  const [freelanceSquad, setFreelanceSquad] = useState<FreelanceMember[]>([])
+  const [phases, setPhases] = useState<Phase[]>(
+    initialCalculation
+      ? ((initialCalculation.phases as unknown as Phase[]) || DEFAULT_PHASES)
+      : DEFAULT_PHASES,
+  )
+
+  const [squad, setSquad] = useState<SquadMember[]>(
+    initialCalculation
+      ? ((initialCalculation.squad as unknown as SquadMember[]) || [])
+      : [],
+  )
+  const [freelanceSquad, setFreelanceSquad] = useState<FreelanceMember[]>(
+    initialCalculation
+      ? ((initialCalculation.freelance_squad as unknown as FreelanceMember[]) ||
+        [])
+      : [],
+  )
   const [costItems, setCostItems] = useState<OperationalCost[]>(
     operationalCosts || [],
   )
+  const [selectedMemberToAdd, setSelectedMemberToAdd] = useState<string>("")
+  const [pendingImportFile, setPendingImportFile] = useState<File | null>(null)
 
-  // Helper to parse number from string (allow empty)
-  const parseNumber = (val: string): number => {
-    const num = parseFloat(val.replace(/,/g, ""))
-    return isNaN(num) ? 0 : num
-  }
+  const [selectedProjectId, setSelectedProjectId] = useState<string>(
+    prefilledProjectId || "",
+  )
+  const [currentCalculationId, setCurrentCalculationId] = useState<
+    string | null
+  >(initialCalculation?.id || null)
+  const [calculationTitle, setCalculationTitle] = useState<string>(
+    initialCalculation?.title || "Untitled Calculation",
+  )
+  const [isSaving, setIsSaving] = useState(false)
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
 
-  // Helper to format number with thousand separator
-  const formatNumber = (val: string): string => {
-    const num = val.replace(/,/g, "")
-    if (num === "") return ""
-    const parts = num.split(".")
-    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-    return parts.join(".")
-  }
+  useEffect(() => {
+    if (prefilledProjectId) {
+      setSelectedProjectId(prefilledProjectId)
+    }
+  }, [prefilledProjectId])
 
-  // --- CALCULATIONS ---
+  useEffect(() => {
+    if (!initialCalculation) return
+    setRevenueUSD(formatNumber(String(initialCalculation.revenue_usd)))
+    setExchangeRate(formatNumber(String(initialCalculation.exchange_rate)))
+    setHoursPerDay(String(initialCalculation.hours_per_day))
+    setTargetMarginPercent(String(initialCalculation.target_margin))
+    setPhases(initialCalculation.phases as unknown as Phase[])
+    setSquad(initialCalculation.squad as unknown as SquadMember[])
+    setFreelanceSquad(
+      initialCalculation.freelance_squad as unknown as FreelanceMember[],
+    )
+    setCurrentCalculationId(initialCalculation.id)
+    setCalculationTitle(initialCalculation.title)
+  }, [initialCalculation])
+
+  const { data: calculationsResult } = useQuery({
+    queryKey: ["calculations", selectedProjectId],
+    queryFn: () => getCalculationsByProject(selectedProjectId),
+    enabled: !!selectedProjectId,
+  })
+
+  const savedCalculations: ProjectCalculation[] = calculationsResult?.success
+    ? calculationsResult.data
+    : []
+
   const totalDuration = useMemo(() => {
     return phases.reduce((sum, p) => sum + p.days + p.buffer, 0)
   }, [phases])
@@ -98,9 +177,6 @@ export default function CalculatorClientPage({
   const grossRevenue = useMemo(() => {
     return parseNumber(revenueUSD) * parseNumber(exchangeRate)
   }, [revenueUSD, exchangeRate])
-
-  // Monthly salary is derived from profiles.hourly_rate (stored as monthly salary in DB)
-  // Falls back to 0 if not set — update each employee's hourly_rate in the profiles table
 
   const totalProjectHours = useMemo(() => {
     const hours = parseNumber(hoursPerDay)
@@ -115,10 +191,14 @@ export default function CalculatorClientPage({
     return squad.reduce((total, member) => {
       const profile = teamMembers.find((p) => p.id === member.profileId)
       if (!profile) return total
-      const monthlySalary = profile.hourly_rate ?? 0
+      const monthlySalary =
+        profile.monthly_salary != null
+          ? profile.monthly_salary
+          : profile.hourly_rate != null
+            ? profile.hourly_rate * 8 * 22
+            : 0
       const dailyRate = monthlySalary / WORK_DAYS_PER_MONTH
-      const cost =
-        dailyRate * totalProjectDays * (member.allocation / 100)
+      const cost = dailyRate * totalProjectDays * (member.allocation / 100)
       return total + cost
     }, 0)
   }, [squad, teamMembers, totalProjectDays])
@@ -130,15 +210,12 @@ export default function CalculatorClientPage({
   }, [costItems])
 
   const overheadPerHour = useMemo(() => {
-    const activeMembers =
-      teamMembers.filter((member) => (member.hourly_rate ?? 0) > 0).length ||
-      teamMembers.length
-
+    const activeMembers = squad.length || teamMembers.length || 1
     const totalBillableHours =
       activeMembers * WORK_DAYS_PER_MONTH * 8 * BILLABLE_UTILIZATION
     if (totalBillableHours <= 0) return 0
     return overheadTotal / totalBillableHours
-  }, [BILLABLE_UTILIZATION, overheadTotal, teamMembers])
+  }, [BILLABLE_UTILIZATION, overheadTotal, squad, teamMembers])
 
   const overheadCost = overheadPerHour * totalProjectHours
 
@@ -154,11 +231,8 @@ export default function CalculatorClientPage({
   const marginPercent = grossRevenue > 0 ? (netProfit / grossRevenue) * 100 : 0
   const targetMargin = parseNumber(targetMarginPercent)
   const suggestedPrice =
-    targetMargin >= 100
-      ? 0
-      : totalCost / (1 - targetMargin / 100)
+    targetMargin >= 100 ? 0 : totalCost / (1 - targetMargin / 100)
 
-  // --- HANDLERS ---
   const addPhase = () => {
     setPhases([
       ...phases,
@@ -200,13 +274,7 @@ export default function CalculatorClientPage({
   const addFreelanceMember = () => {
     setFreelanceSquad([
       ...freelanceSquad,
-      {
-        id: createId(),
-        name: "",
-        role: "",
-        totalFee: "",
-        notes: "",
-      },
+      { id: createId(), name: "", role: "", totalFee: "", notes: "" },
     ])
   }
 
@@ -223,8 +291,6 @@ export default function CalculatorClientPage({
       freelanceSquad.map((s) => (s.id === id ? { ...s, [field]: value } : s)),
     )
   }
-
-  const [selectedMemberToAdd, setSelectedMemberToAdd] = useState<string>("")
 
   const exportCostsAsCSV = () => {
     const header =
@@ -258,7 +324,11 @@ export default function CalculatorClientPage({
         is_active: item.is_active !== false,
       })),
     }
-    downloadFile(JSON.stringify(payload, null, 2), "operational_costs.json", "application/json")
+    downloadFile(
+      JSON.stringify(payload, null, 2),
+      "operational_costs.json",
+      "application/json",
+    )
   }
 
   const downloadTemplateCSV = () => {
@@ -281,7 +351,11 @@ export default function CalculatorClientPage({
         },
       ],
     }
-    downloadFile(JSON.stringify(template, null, 2), "operational_costs_template.json", "application/json")
+    downloadFile(
+      JSON.stringify(template, null, 2),
+      "operational_costs_template.json",
+      "application/json",
+    )
   }
 
   const downloadFile = (content: string, filename: string, type: string) => {
@@ -296,7 +370,11 @@ export default function CalculatorClientPage({
 
   const parseCSV = (text: string) => {
     const lines = text.trim().split(/\r?\n/)
-    const header = lines.shift()?.split(",").map((h) => h.trim()) || []
+    const header =
+      lines
+        .shift()
+        ?.split(",")
+        .map((h) => h.trim()) || []
     return lines.map((line) => {
       const values = line
         .split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/)
@@ -309,12 +387,7 @@ export default function CalculatorClientPage({
     })
   }
 
-  const handleImportCosts = async (file: File) => {
-    const confirmed = window.confirm(
-      "Importing will replace ALL existing operational costs. Continue?",
-    )
-    if (!confirmed) return
-
+  const processImport = async (file: File) => {
     const text = await file.text()
     let items: Array<OperationalCost | any> = []
     if (file.name.endsWith(".json")) {
@@ -333,461 +406,332 @@ export default function CalculatorClientPage({
       }))
     }
 
+    const previousItems = costItems
     setCostItems(items as OperationalCost[])
 
-    const { error } = await supabase.from("operational_costs").delete().neq("id", "")
-    if (error) {
-      toast.error("Failed to clear existing costs")
+    const { error: deleteError } = await supabase
+      .from("operational_costs")
+      .delete()
+      .neq("id", "")
+    if (deleteError) {
+      setCostItems(previousItems)
+      toast.error("Failed to clear existing costs. No data was changed.")
       return
     }
+
     if (items.length > 0) {
-      const { error: insertError } = await supabase.from("operational_costs").insert(items)
+      const { error: insertError } = await supabase
+        .from("operational_costs")
+        .insert(items)
       if (insertError) {
-        toast.error("Failed to import costs")
+        setCostItems(previousItems)
+        toast.error(
+          `Import failed: ${insertError.message}. Previous costs have been restored locally — please refresh to sync with the server.`,
+        )
         return
       }
     }
+
     toast.success(`Imported ${items.length} cost items`)
+    setPendingImportFile(null)
+  }
+
+  const handleSave = async () => {
+    if (!selectedProjectId) return
+    setIsSaving(true)
+    try {
+      const payload = {
+        projectId: selectedProjectId,
+        title: calculationTitle,
+        revenueUsd: parseNumber(revenueUSD),
+        exchangeRate: parseNumber(exchangeRate),
+        hoursPerDay: parseNumber(hoursPerDay),
+        targetMargin: parseNumber(targetMarginPercent),
+        phases,
+        squad,
+        freelanceSquad,
+      }
+
+      const result = currentCalculationId
+        ? await updateCalculation(currentCalculationId, payload)
+        : await saveCalculation(payload)
+
+      if (result.success) {
+        if ("data" in result && result.data) {
+          setCurrentCalculationId(result.data.id)
+        }
+        queryClient.invalidateQueries({
+          queryKey: ["calculations", selectedProjectId],
+        })
+        toast.success("Calculation saved")
+      } else {
+        toast.error("Failed to save")
+      }
+    } catch {
+      toast.error("Failed to save")
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const handleNew = () => {
+    setRevenueUSD("1,000")
+    setExchangeRate("15,000")
+    setHoursPerDay("8")
+    setTargetMarginPercent("40")
+    setPhases(DEFAULT_PHASES)
+    setSquad([])
+    setFreelanceSquad([])
+    setCurrentCalculationId(null)
+    setCalculationTitle("Untitled Calculation")
+  }
+
+  const handleLoad = (calc: (typeof savedCalculations)[number]) => {
+    setRevenueUSD(formatNumber(String(calc.revenue_usd)))
+    setExchangeRate(formatNumber(String(calc.exchange_rate)))
+    setHoursPerDay(String(calc.hours_per_day))
+    setTargetMarginPercent(String(calc.target_margin))
+    setPhases(calc.phases as unknown as Phase[])
+    setSquad(calc.squad as unknown as SquadMember[])
+    setFreelanceSquad(calc.freelance_squad as unknown as FreelanceMember[])
+    setCurrentCalculationId(calc.id)
+    setCalculationTitle(calc.title)
+    toast.success("Calculation loaded")
+  }
+
+  const handleDeleteCalculation = async () => {
+    if (!pendingDeleteId) return
+    const result = await deleteCalculation(pendingDeleteId)
+    if (result.success) {
+      if (pendingDeleteId === currentCalculationId) {
+        setCurrentCalculationId(null)
+      }
+      queryClient.invalidateQueries({
+        queryKey: ["calculations", selectedProjectId],
+      })
+      toast.success("Calculation deleted")
+    } else {
+      toast.error("Failed to delete calculation")
+    }
+    setPendingDeleteId(null)
   }
 
   return (
     <div className="flex flex-col">
-      <div className="flex items-center gap-2 rounded-xxl px-5 pt-4 pb-3">
-        <RiCalculatorLine className="size-4 text-foreground-secondary" />
-        <p className="text-label-md text-foreground-primary">
-          Project Calculator
-        </p>
-      </div>
+      {showHeader && (
+        <div className="rounded-xxl flex items-center gap-2 px-5 pt-4 pb-3">
+          <RiCalculatorLine className="text-foreground-secondary size-4" />
+          <p className="text-label-md text-foreground-primary">
+            Project Calculator
+          </p>
+        </div>
+      )}
 
-      <div className="flex flex-col rounded-xxl">
-        <div className="p-5">
+      <div className="rounded-xxl flex flex-col">
+        <div className="">
           <div className="grid grid-cols-1 gap-6 md:grid-cols-12 md:gap-8">
-            {/* LEFT COLUMN: INPUTS (Col Span 7) */}
             <div className="space-y-6 md:col-span-7">
-              {/* SECTION 1: CONTEXT */}
-              <div>
-                <h3 className="text-label-md text-foreground-primary">
-                  Project Context
-                </h3>
-                <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
-                  <div>
-                    <Label htmlFor="revenue">Revenue (USD)</Label>
-                    <TextInput
-                      id="revenue"
-                      type="text"
-                      value={revenueUSD}
-                      onChange={(e) =>
-                        setRevenueUSD(formatNumber(e.target.value))
-                      }
-                      placeholder="e.g. 1,000"
-                      className="mt-1"
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="exchangeRate">Exchange Rate (IDR)</Label>
-                    <TextInput
-                      id="exchangeRate"
-                      type="text"
-                      value={exchangeRate}
-                      onChange={(e) =>
-                        setExchangeRate(formatNumber(e.target.value))
-                      }
-                      placeholder="e.g. 15,000"
-                      className="mt-1"
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="hours">Daily Workload (Hours)</Label>
-                    <TextInput
-                      id="hours"
-                      type="number"
-                      value={hoursPerDay}
-                      onChange={(e) => setHoursPerDay(e.target.value)}
-                      placeholder="e.g. 8"
-                      className="mt-1"
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="targetMargin">Target Margin (%)</Label>
-                    <TextInput
-                      id="targetMargin"
-                      type="number"
-                      value={targetMarginPercent}
-                      onChange={(e) => setTargetMarginPercent(e.target.value)}
-                      placeholder="e.g. 40"
-                      className="mt-1"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <Divider />
-
-              {/* SECTION 2: TIMELINE */}
-              <div>
-                <div className="mb-4 flex items-center justify-between">
-                  <div>
-                    <h3 className="text-label-md text-foreground-primary">
-                      Timeline Engine
-                    </h3>
-                  </div>
-                  <Badge variant="zinc">Total: {totalDuration} Days</Badge>
-                </div>
-
-                <div className="space-y-4">
-                  <div className="text-label-md text-foreground-primary dark:text-foreground-primary hidden gap-4 px-1 sm:flex">
-                    <div className="flex-1">Phase Name</div>
-                    <div className="w-16 text-center sm:w-24">Days</div>
-                    <div className="w-16 text-center sm:w-24">Buffer</div>
-                    <div className="w-8"></div>
-                  </div>
-
-                  {phases.map((phase) => (
-                    <div key={phase.id} className="flex items-center gap-2 sm:gap-4">
-                      <TextInput
-                        value={phase.name}
-                        onChange={(e) =>
-                          updatePhase(phase.id, "name", e.target.value)
-                        }
-                        placeholder="Phase Name"
-                        className="flex-1"
-                      />
-                      <TextInput
-                        type="number"
-                        className="w-16 text-center sm:w-24"
-                        value={phase.days}
-                        onChange={(e) =>
-                          updatePhase(phase.id, "days", Number(e.target.value))
-                        }
-                        placeholder="Days"
-                      />
-                      <TextInput
-                        type="number"
-                        className="w-16 text-center sm:w-24"
-                        value={phase.buffer}
-                        onChange={(e) =>
-                          updatePhase(phase.id, "buffer", Number(e.target.value))
-                        }
-                        placeholder="Buffer"
-                      />
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-foreground-tertiary size-8 shrink-0 p-0"
-                        onClick={() => removePhase(phase.id)}
-                      >
-                        <RiDeleteBinLine className="size-4" />
-                      </Button>
-                    </div>
-                  ))}
-
-                  <Button
-                    variant="secondary"
-                    className="mt-3 w-full"
-                    onClick={addPhase}
-                  >
-                    <RiAddLine className="mr-2 size-4" /> Add Project Phase
-                  </Button>
-                </div>
-              </div>
-
-              <Divider />
-
-              {/* SECTION 3: SQUAD ALLOCATION */}
               <div>
                 <h3 className="text-label-md text-foreground-primary mb-4">
-                  Squad Allocation
+                  Calculation
                 </h3>
-
-                <div className="block">
-                    <div className="mb-4 flex gap-3">
-                      <Select
-                        onValueChange={setSelectedMemberToAdd}
-                        value={selectedMemberToAdd}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select Team Member..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {teamMembers.map((m) => (
-                            <SelectItem key={m.id} value={m.id}>
-                              {m.full_name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <Button
-                        onClick={() => {
-                          addSquadMember(selectedMemberToAdd)
-                          setSelectedMemberToAdd("")
-                        }}
-                      >
-                        <RiAddLine className="mr-2 size-4" /> Add
-                      </Button>
-                    </div>
-
-                    <div className="space-y-4">
-                      {squad.map((member) => {
-                        const profile = teamMembers.find(
-                          (p) => p.id === member.profileId,
-                        )
-                        return (
-                          <div
-                            key={member.id}
-                            className="border-neutral-primary bg-surface dark:bg-surface rounded-lg border p-4"
-                          >
-                            <div className="mb-4 flex items-start justify-between">
-                              <div>
-                                <p className="text-foreground-primary dark:text-foreground-primary font-medium">
-                                  {profile?.full_name}
-                                </p>
-                                <p className="text-label-xs text-foreground-secondary dark:text-foreground-secondary">
-                                  {profile?.job_title}
-                                </p>
-                              </div>
-                              <Button
-                                variant="ghost"
-                                size="xs"
-                                className="text-foreground-tertiary size-6 p-0"
-                                onClick={() => removeSquadMember(member.id)}
-                              >
-                                <RiDeleteBinLine className="size-4" />
-                              </Button>
-                            </div>
-
-                            <div className="flex items-center gap-4">
-                              <span className="text-label-xs text-foreground-secondary dark:text-foreground-secondary w-16">
-                                Allocation
-                              </span>
-                              <Slider
-                                value={[member.allocation]}
-                                max={100}
-                                step={5}
-                                onValueChange={(val) =>
-                                  updateAllocation(member.id, val)
-                                }
-                                className="flex-1"
-                              />
-                              <span className="text-label-md text-foreground-primary dark:text-foreground-primary w-10 text-right">
-                                {member.allocation}%
-                              </span>
-                            </div>
-                          </div>
-                        )
-                      })}
-
-                      {squad.length === 0 && (
-                        <div className="rounded-md border border-dashed p-6 text-center dark:border">
-                          <p className="text-body-sm text-foreground-secondary dark:text-foreground-secondary">
-                            No team members allocated yet.
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-              </div>
-
-              <Divider />
-
-              {/* SECTION 4: FREELANCE / COGS */}
-              <div>
-                <h3 className="text-label-md text-foreground-primary mb-4">
-                  Freelance / COGS (Optional)
-                </h3>
-
-                <div className="mb-4">
-                  <Button
-                    variant="secondary"
-                    className="w-full"
-                    onClick={addFreelanceMember}
-                  >
-                    <RiAddLine className="mr-2 size-4" /> Add Freelance
-                  </Button>
-                </div>
-
-                <div className="space-y-4">
-                  {freelanceSquad.map((member) => (
-                    <div
-                      key={member.id}
-                      className="border-neutral-primary bg-surface dark:bg-surface rounded-lg border p-4"
-                    >
-                      <div className="mb-4 flex items-start justify-between gap-4">
-                        <div className="grid flex-1 grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                          <div>
-                            <Label htmlFor={`freelance-name-${member.id}`}>
-                              Full Name
-                            </Label>
-                            <TextInput
-                              id={`freelance-name-${member.id}`}
-                              value={member.name}
-                              onChange={(e) =>
-                                updateFreelanceMember(
-                                  member.id,
-                                  "name",
-                                  e.target.value,
-                                )
-                              }
-                              placeholder="e.g. Jane Doe"
-                              className="mt-1"
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor={`freelance-role-${member.id}`}>
-                              Role
-                            </Label>
-                            <TextInput
-                              id={`freelance-role-${member.id}`}
-                              value={member.role}
-                              onChange={(e) =>
-                                updateFreelanceMember(
-                                  member.id,
-                                  "role",
-                                  e.target.value,
-                                )
-                              }
-                              placeholder="e.g. UI Designer"
-                              className="mt-1"
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor={`freelance-fee-${member.id}`}>
-                              Total Fee (IDR)
-                            </Label>
-                            <TextInput
-                              id={`freelance-fee-${member.id}`}
-                              type="text"
-                              value={member.totalFee}
-                              onChange={(e) =>
-                                updateFreelanceMember(
-                                  member.id,
-                                  "totalFee",
-                                  formatNumber(e.target.value),
-                                )
-                              }
-                              placeholder="e.g. 15,000,000"
-                              className="mt-1"
-                            />
-                          </div>
-                          <div className="sm:col-span-2 lg:col-span-3">
-                            <Label htmlFor={`freelance-notes-${member.id}`}>
-                              Notes (optional)
-                            </Label>
-                            <TextInput
-                              id={`freelance-notes-${member.id}`}
-                              value={member.notes}
-                              onChange={(e) =>
-                                updateFreelanceMember(
-                                  member.id,
-                                  "notes",
-                                  e.target.value,
-                                )
-                              }
-                              placeholder="e.g. scoped for illustration"
-                              className="mt-1"
-                            />
-                          </div>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="xs"
-                          className="text-foreground-tertiary size-6 p-0"
-                          onClick={() => removeFreelanceMember(member.id)}
-                        >
-                          <RiDeleteBinLine className="size-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-
-                  {freelanceSquad.length === 0 && (
-                    <div className="rounded-md border border-dashed p-6 text-center dark:border">
-                      <p className="text-body-sm text-foreground-secondary dark:text-foreground-secondary">
-                        No freelance costs added.
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <Divider />
-
-              {/* SECTION 5: OPERATIONAL COSTS */}
-              <div>
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div>
-                    <h3 className="text-label-md text-foreground-primary">
-                      Operational Costs
-                    </h3>
-                    <p className="text-body-sm text-foreground-secondary">
-                      Monthly overhead allocation used for this project.
-                    </p>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Button variant="secondary" size="sm" onClick={downloadTemplateCSV}>
-                      Download CSV Template
-                    </Button>
-                    <Button variant="secondary" size="sm" onClick={downloadTemplateJSON}>
-                      Download JSON Template
-                    </Button>
-                    <Button variant="secondary" size="sm" onClick={exportCostsAsCSV}>
-                      Export CSV
-                    </Button>
-                    <Button variant="secondary" size="sm" onClick={exportCostsAsJSON}>
-                      Export JSON
-                    </Button>
-                    <Label className="cursor-pointer">
-                      <span className="sr-only">Import Costs</span>
-                      <input
-                        type="file"
-                        accept=".csv,.json"
-                        className="hidden"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0]
-                          if (file) handleImportCosts(file)
-                          e.currentTarget.value = ""
-                        }}
+                {hideProjectSelector ? (
+                  <div className="grid grid-cols-1 gap-4 md:flex md:items-end">
+                    <div className="md:flex-1">
+                      <Label htmlFor="calcTitle">Title</Label>
+                      <TextInput
+                        id="calcTitle"
+                        value={calculationTitle}
+                        onChange={(e) => setCalculationTitle(e.target.value)}
+                        placeholder="Untitled Calculation"
+                        className="mt-1"
                       />
-                      <Button variant="primary" size="sm" type="button">
-                        Import Costs
-                      </Button>
-                    </Label>
-                  </div>
-                </div>
-
-                <div className="mt-6 space-y-3">
-                  {costItems.length === 0 && (
-                    <div className="rounded-md border border-dashed p-6 text-center dark:border">
-                      <p className="text-body-sm text-foreground-secondary dark:text-foreground-secondary">
-                        No operational costs loaded yet.
-                      </p>
                     </div>
-                  )}
-                  {costItems.map((item) => (
-                    <div
-                      key={item.id ?? item.item_name}
-                      className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-neutral-primary bg-surface px-4 py-3"
-                    >
+                    <div className="flex gap-3 md:shrink-0">
+                      <Button
+                        onClick={handleSave}
+                        disabled={!selectedProjectId || isSaving}
+                        isLoading={isSaving}
+                        className="whitespace-nowrap"
+                      >
+                        Save
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        onClick={handleNew}
+                        className="whitespace-nowrap"
+                      >
+                        <RiAddLine className="mr-2 size-4" /> New
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 gap-4 md:flex md:items-end">
+                    <div className="grid grid-cols-1 gap-4 md:flex-1 md:grid-cols-2">
                       <div>
-                        <p className="text-body-sm font-medium text-foreground-primary">
-                          {item.item_name}
-                        </p>
-                        <p className="text-label-xs text-foreground-secondary">
-                          {item.category}
-                        </p>
+                        <Label htmlFor="calcTitle">Title</Label>
+                        <TextInput
+                          id="calcTitle"
+                          value={calculationTitle}
+                          onChange={(e) => setCalculationTitle(e.target.value)}
+                          placeholder="Untitled Calculation"
+                          className="mt-1"
+                        />
                       </div>
-                      <div className="text-body-sm font-semibold text-foreground-primary">
-                        Rp {formatNumber(String(item.amount_idr ?? 0))}
+                      <div>
+                        <Label htmlFor="project">Project</Label>
+                        <Select
+                          onValueChange={setSelectedProjectId}
+                          value={selectedProjectId}
+                          disabled={Boolean(prefilledProjectId)}
+                        >
+                          <SelectTrigger className="mt-1 w-full">
+                            <SelectValue placeholder="Select Project..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {projects.map((p) => (
+                              <SelectItem key={p.id} value={p.id}>
+                                {p.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
                     </div>
-                  ))}
-                </div>
+                    <div className="flex gap-3 md:shrink-0">
+                      <Button
+                        onClick={handleSave}
+                        disabled={!selectedProjectId || isSaving}
+                        isLoading={isSaving}
+                        className="whitespace-nowrap"
+                      >
+                        Save
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        onClick={handleNew}
+                        className="whitespace-nowrap"
+                      >
+                        <RiAddLine className="mr-2 size-4" /> New
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </div>
+
+              <Divider />
+
+              <ProjectContextSection
+                revenueUSD={revenueUSD}
+                exchangeRate={exchangeRate}
+                hoursPerDay={hoursPerDay}
+                targetMarginPercent={targetMarginPercent}
+                onRevenueChange={(val) => setRevenueUSD(formatNumber(val))}
+                onExchangeRateChange={(val) =>
+                  setExchangeRate(formatNumber(val))
+                }
+                onHoursPerDayChange={setHoursPerDay}
+                onTargetMarginChange={setTargetMarginPercent}
+              />
+
+              <Divider />
+
+              <TimelineSection
+                phases={phases}
+                totalDuration={totalDuration}
+                onAddPhase={addPhase}
+                onRemovePhase={removePhase}
+                onUpdatePhase={updatePhase}
+              />
+
+              <Divider />
+
+              <SquadSection
+                teamMembers={teamMembers}
+                squad={squad}
+                selectedMemberToAdd={selectedMemberToAdd}
+                onSelectedMemberChange={setSelectedMemberToAdd}
+                onAddSquadMember={addSquadMember}
+                onRemoveSquadMember={removeSquadMember}
+                onUpdateAllocation={updateAllocation}
+              />
+
+              <Divider />
+
+              <FreelanceSection
+                freelanceSquad={freelanceSquad}
+                onAddFreelanceMember={addFreelanceMember}
+                onRemoveFreelanceMember={removeFreelanceMember}
+                onUpdateFreelanceMember={updateFreelanceMember}
+              />
+
+              <Divider />
+
+              <OperationalCostsSection
+                costItems={costItems}
+                onDownloadTemplateCSV={downloadTemplateCSV}
+                onDownloadTemplateJSON={downloadTemplateJSON}
+                onExportCSV={exportCostsAsCSV}
+                onExportJSON={exportCostsAsJSON}
+                onImportFile={setPendingImportFile}
+              />
+
+              {selectedProjectId && (
+                <>
+                  <Divider />
+                  <div>
+                    <h3 className="text-label-md text-foreground-primary mb-4">
+                      Saved Calculations
+                    </h3>
+                    {savedCalculations.length === 0 && (
+                      <div className="rounded-md border border-dashed p-6 text-center">
+                        <p className="text-body-sm text-foreground-secondary">
+                          No saved calculations for this project.
+                        </p>
+                      </div>
+                    )}
+                    <div className="space-y-3">
+                      {savedCalculations.map((calc) => (
+                        <div
+                          key={calc.id}
+                          className={`border-neutral-primary bg-surface flex items-center justify-between gap-3 rounded-lg border px-4 py-3 ${calc.id === currentCalculationId
+                              ? "ring-primary ring-2"
+                              : ""
+                            }`}
+                        >
+                          <div className="min-w-0 flex-1">
+                            <p className="text-label-md text-foreground-primary truncate">
+                              {calc.title}
+                            </p>
+                            <p className="text-label-xs text-foreground-secondary">
+                              {format(new Date(calc.created_at), "MMM d, yyyy")}
+                            </p>
+                          </div>
+                          <div className="flex shrink-0 items-center gap-2">
+                            <Button
+                              variant="secondary"
+                              size="xs"
+                              onClick={() => handleLoad(calc)}
+                            >
+                              Load
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="xs"
+                              className="text-foreground-tertiary size-6 p-0"
+                              onClick={() => setPendingDeleteId(calc.id)}
+                            >
+                              <RiDeleteBinLine className="size-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
 
-            {/* RIGHT COLUMN: FINANCIAL HUD (Col Span 5) */}
             <div className="md:col-span-5">
               <FinancialHUD
                 grossRevenue={grossRevenue}
@@ -804,6 +748,34 @@ export default function CalculatorClientPage({
           </div>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={pendingImportFile !== null}
+        onOpenChange={(open) => {
+          if (!open) setPendingImportFile(null)
+        }}
+        onConfirm={() => {
+          if (pendingImportFile) processImport(pendingImportFile)
+        }}
+        title="Replace Operational Costs?"
+        description="Importing will replace all existing operational costs. This action cannot be undone. Continue?"
+        confirmText="Import"
+        cancelText="Cancel"
+        variant="destructive"
+      />
+
+      <ConfirmDialog
+        open={pendingDeleteId !== null}
+        onOpenChange={(open) => {
+          if (!open) setPendingDeleteId(null)
+        }}
+        onConfirm={handleDeleteCalculation}
+        title="Delete Calculation?"
+        description="This calculation will be permanently deleted. This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="destructive"
+      />
     </div>
   )
 }

@@ -8,6 +8,7 @@ export const siteConfig = {
     attendance: "/attendance",
     leave: "/leave",
     performance: "/performance",
+    projects: "/projects",
     calculator: "/calculator",
     payroll: "/payroll",
     teams: "/teams",
