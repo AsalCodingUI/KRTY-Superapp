@@ -1,5 +1,7 @@
 import { notFound } from "next/navigation"
 import { getEmployeeDetail } from "../../actions/employee-kpi-actions"
+
+export const dynamic = "force-dynamic"
 import { EmployeeDetailClient } from "./EmployeeDetailClient"
 
 // Type matching EmployeeDetailClient's Assignment type

@@ -2,6 +2,8 @@ import CalendarClient from "@/app/(main)/calendar/CalendarClient"
 
 import { createClient } from "@/shared/api/supabase/server"
 
+export const dynamic = "force-dynamic"
+
 export default async function CalendarPage() {
   const supabase = await createClient()
   const {

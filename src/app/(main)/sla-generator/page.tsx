@@ -1,5 +1,7 @@
 import { createClient } from "@/shared/api/supabase/server"
 import { canAccessSLAGenerator } from "@/shared/lib/roles"
+
+export const dynamic = "force-dynamic"
 import { notFound } from "next/navigation"
 import SLAContainer from "./components/SLAContainer"
 import SLADashboard from "./components/SLADashboard"

@@ -2,6 +2,8 @@ import { PermissionSettingsPage } from "@/page-slices/settings"
 import { createClient } from "@/shared/api/supabase/server"
 import { redirect } from "next/navigation"
 
+export const dynamic = "force-dynamic"
+
 export default async function PermissionRoute() {
   const supabase = await createClient()
 

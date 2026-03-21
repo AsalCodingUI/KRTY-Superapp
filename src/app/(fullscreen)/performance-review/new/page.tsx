@@ -1,5 +1,7 @@
 import { createClient } from "@/shared/api/supabase/server"
 import { redirect } from "next/navigation"
+
+export const dynamic = "force-dynamic"
 import ReviewFormClientPage from "./ClientPage"
 
 export default async function NewReviewPage() {

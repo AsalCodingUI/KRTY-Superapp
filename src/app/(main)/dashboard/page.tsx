@@ -1,5 +1,7 @@
 import { createClient } from "@/shared/api/supabase/server"
 import { resolveEffectiveUserId } from "@/shared/lib/impersonation-server"
+
+export const dynamic = "force-dynamic"
 import { canManageByRole } from "@/shared/lib/roles"
 import { redirect } from "next/navigation"
 import { getAdminDashboardData } from "./actions/dashboard-admin-actions"

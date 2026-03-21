@@ -1,5 +1,7 @@
 import { LeavePage } from "@/page-slices/leave"
 import { createClient } from "@/shared/api/supabase/server"
+
+export const dynamic = "force-dynamic"
 import { calculateBusinessDays } from "@/shared/lib/date"
 import { resolveEffectiveUserId } from "@/shared/lib/impersonation-server"
 import { canManageByRole } from "@/shared/lib/roles"

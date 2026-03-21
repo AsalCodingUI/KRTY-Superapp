@@ -1,5 +1,7 @@
 import { createClient } from "@/shared/api/supabase/server"
 import { notFound } from "next/navigation"
+
+export const dynamic = "force-dynamic"
 import { getEmployeeDetail } from "../../../../actions/employee-kpi-actions"
 import { EmployeeProjectView } from "./EmployeeProjectView"
 import { ProjectScoringClient } from "./ProjectScoringClient"
