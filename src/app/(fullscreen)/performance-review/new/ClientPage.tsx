@@ -1,6 +1,7 @@
 "use client"
 
 import { submitPerformanceReview } from "@/app/(main)/performance/action"
+import { toast } from "sonner"
 import {
   Button, Card, Dialog,
   DialogBody,
@@ -126,14 +127,14 @@ export default function ReviewFormClientPage({
 
       const result = await submitPerformanceReview(payload)
       if (result.success) {
-        alert("Review submitted! AI is processing anonymity...")
+        toast.success("Review submitted! AI is processing anonymity...")
         router.push("/performance")
       } else {
-        alert(result.message)
+        toast.error(result.message)
       }
     } catch (error) {
       console.error(error)
-      alert("Error submitting review.")
+      toast.error("Error submitting review.")
     } finally {
       setLoading(false)
     }

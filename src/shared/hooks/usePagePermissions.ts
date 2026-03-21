@@ -2,7 +2,7 @@
 
 import { createClient } from "@/shared/api/supabase/client"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
-import useSWR from "swr"
+import { useQuery } from "@tanstack/react-query"
 
 export type PagePermissionsMap = Record<string, boolean>
 
@@ -48,16 +48,13 @@ export function usePagePermissions() {
   const { profile, loading: profileLoading } = useUserProfile()
   const effectiveUserId = profile?.id
 
-  const { data, isLoading } = useSWR<PermissionsPayload>(
-    effectiveUserId
-      ? ["current-user-page-permissions", effectiveUserId]
-      : null,
-    ([, userId]: [string, string]) => fetchPagePermissions(userId),
-    {
-      revalidateOnFocus: false,
-      dedupingInterval: 60_000,
-    },
-  )
+  const { data, isLoading } = useQuery<PermissionsPayload>({
+    queryKey: ["current-user-page-permissions", effectiveUserId],
+    queryFn: () => fetchPagePermissions(effectiveUserId!),
+    enabled: !!effectiveUserId,
+    staleTime: 5 * 60_000,
+    gcTime: 10 * 60_000,
+  })
 
   return {
     permissions: data?.userPermissions ?? null,

@@ -17,7 +17,7 @@ import {
 import { RiDeleteBin6Line, RiEdit2Line, RiStarLine } from "@/shared/ui/lucide-icons"
 import { useState } from "react"
 import { toast } from "sonner"
-import useSWR from "swr"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import {
   deleteCompetency,
   getCompetencies,
@@ -49,12 +49,13 @@ export function WorkQualityTab() {
   const [selectedCompetency, setSelectedCompetency] =
     useState<Competency | null>(null)
 
-  const { data: competencyResult, isLoading, mutate } = useSWR(
-    ["competencies", selectedRole],
-    () =>
+  const queryClient = useQueryClient()
+
+  const { data: competencyResult, isLoading } = useQuery({
+    queryKey: ["competencies", selectedRole],
+    queryFn: () =>
       getCompetencies(selectedRole === "All" ? undefined : selectedRole),
-    { revalidateOnFocus: false },
-  )
+  })
 
   const competencies: Competency[] = competencyResult?.success
     ? competencyResult.data
@@ -66,7 +67,7 @@ export function WorkQualityTab() {
 
     const result = await deleteCompetency(id)
     if (result.success) {
-      mutate()
+      queryClient.invalidateQueries({ queryKey: ["competencies", selectedRole] })
     } else {
       toast.error("Gagal hapus")
     }
@@ -83,7 +84,7 @@ export function WorkQualityTab() {
   }
 
   const handleFormSuccess = () => {
-    mutate()
+    queryClient.invalidateQueries({ queryKey: ["competencies", selectedRole] })
   }
 
   return (

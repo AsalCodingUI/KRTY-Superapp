@@ -1,4 +1,5 @@
 "use client"
+import { toast } from "sonner"
 import { Database } from "@/shared/types/database.types"
 import {
   Badge, Button, Divider,
@@ -206,7 +207,7 @@ export default function CalculatorClientPage({
   const addSquadMember = (profileId: string) => {
     if (!profileId) return
     if (squad.some((s) => s.profileId === profileId)) {
-      alert("Member already added!")
+      toast.warning("Member already added!")
       return
     }
     setSquad([...squad, { id: createId(), profileId, allocation: 100 }])

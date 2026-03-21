@@ -35,7 +35,7 @@ import { ConfirmDialog } from "@/shared/ui/overlay/ConfirmDialog"
 import { format, isValid } from "date-fns"
 import Link from "next/link"
 import { useMemo, useRef, useState } from "react"
-import useSWR from "swr"
+import { useQuery } from "@tanstack/react-query"
 import {
   ProjectScoringClient,
   type ProjectScoringClientHandle,
@@ -67,9 +67,9 @@ const getProjectStatusVariant = (status: string | null) => {
 export function LeadReviewTab() {
   const supabase = useMemo(() => createClient(), [])
   const { profile, loading: profileLoading } = useUserProfile()
-  const { data: projects = [], isLoading: loading } = useSWR(
-    profile?.id ? ["lead-projects", profile.id] : null,
-    async () => {
+  const { data: projects = [], isLoading: loading } = useQuery({
+    queryKey: ["lead-projects", profile?.id],
+    queryFn: async () => {
       if (!profile?.id) return []
 
       const { data: leadAssignments, error: leadError } = await supabase
@@ -154,8 +154,8 @@ export function LeadReviewTab() {
 
       return Array.from(projectMap.values())
     },
-    { revalidateOnFocus: false },
-  )
+    enabled: !!profile?.id,
+  })
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(
     null,
   )

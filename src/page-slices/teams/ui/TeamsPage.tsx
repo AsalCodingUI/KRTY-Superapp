@@ -1,5 +1,6 @@
 "use client"
 
+import { toast } from "sonner"
 import { createTeamColumns } from "@/app/(main)/teams/Columns"
 import { TeamFormDialog } from "@/app/(main)/teams/components/TeamDialogs"
 import { createClient } from "@/shared/api/supabase/client"
@@ -167,7 +168,7 @@ export function TeamsPage({
                       .delete()
                       .in("id", ids as string[])
                     if (error) {
-                      alert("Error deleting: " + error.message)
+                      toast.error("Error deleting: " + error.message)
                     } else {
                       router.refresh()
                     }

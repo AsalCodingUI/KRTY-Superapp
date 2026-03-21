@@ -1,5 +1,6 @@
 "use client"
 
+import { toast } from "sonner"
 import { createClient } from "@/shared/api/supabase/client"
 import { Database } from "@/shared/types/database.types"
 import {
@@ -98,7 +99,7 @@ export function TeamFormDialog({
       router.refresh()
       onClose()
     } catch (error) {
-      alert("Gagal menyimpan data. Cek console untuk detail.")
+      toast.error("Gagal menyimpan data.")
       console.error(error)
     } finally {
       setLoading(false)
@@ -222,7 +223,7 @@ export function DeleteConfirmDialog({
       onSuccess()
       onClose()
     } catch (error) {
-      alert("Gagal menghapus data.")
+      toast.error("Gagal menghapus data.")
       console.error(error)
     } finally {
       setLoading(false)

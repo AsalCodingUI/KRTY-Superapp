@@ -89,9 +89,20 @@ const nextConfig = {
             '@radix-ui/react-dropdown-menu',
             '@radix-ui/react-popover',
             '@radix-ui/react-select',
+            '@radix-ui/react-tabs',
+            '@radix-ui/react-tooltip',
+            '@radix-ui/react-accordion',
+            '@tanstack/react-query',
+            '@tanstack/react-table',
             'lucide-react',
             'recharts',
+            'date-fns',
+            'framer-motion',
         ],
+        staleTimes: {
+            dynamic: 30,
+            static: 180,
+        },
     },
 };
 

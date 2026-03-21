@@ -27,7 +27,7 @@ import { RiCalendarLine } from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
 import { useMemo, useState } from "react"
 import { toast } from "sonner"
-import useSWR from "swr"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 
 type OneOnOneSlot = {
   id: string
@@ -82,26 +82,28 @@ export function OneOnOneMeetingTab({
     return Number.isNaN(parsed.getTime()) ? undefined : parsed
   }
 
+  const queryClient = useQueryClient()
+
   const {
     data: slotResponse,
     isLoading,
-    mutate,
-  } = useSWR(
-    ["one-on-one-slots", selectedQuarter],
-    async () => {
-      const response = await fetch(
-        `/api/one-on-one/slots?cycle=${encodeURIComponent(selectedQuarter)}`,
-      )
-      if (!response.ok) {
-        throw new Error("fetch_failed")
+  } = useQuery({
+    queryKey: ["one-on-one-slots", selectedQuarter],
+    queryFn: async () => {
+      try {
+        const response = await fetch(
+          `/api/one-on-one/slots?cycle=${encodeURIComponent(selectedQuarter)}`,
+        )
+        if (!response.ok) {
+          throw new Error("fetch_failed")
+        }
+        return (await response.json()) as { slots: OneOnOneSlot[] }
+      } catch (error) {
+        toast.error("Gagal memuat slot 1:1")
+        throw error
       }
-      return (await response.json()) as { slots: OneOnOneSlot[] }
     },
-    {
-      revalidateOnFocus: false,
-      onError: () => toast.error("Gagal memuat slot 1:1"),
-    },
-  )
+  })
 
   const slots = useMemo(() => slotResponse?.slots || [], [slotResponse])
 
@@ -140,7 +142,7 @@ export function OneOnOneMeetingTab({
 
       toast.success("Slot berhasil ditambahkan")
       setDate("")
-      await mutate()
+      await queryClient.invalidateQueries({ queryKey: ["one-on-one-slots", selectedQuarter] })
     } catch {
       toast.error("Gagal menambahkan slot")
     } finally {
@@ -162,7 +164,7 @@ export function OneOnOneMeetingTab({
       }
 
       toast.success("Slot berhasil dibooking")
-      await mutate()
+      await queryClient.invalidateQueries({ queryKey: ["one-on-one-slots", selectedQuarter] })
     } catch {
       toast.error("Slot sudah diambil orang lain")
     } finally {
@@ -186,7 +188,7 @@ export function OneOnOneMeetingTab({
       toast.success(
         action === "cancel" ? "Slot dibatalkan" : "Booking dibatalkan",
       )
-      await mutate()
+      await queryClient.invalidateQueries({ queryKey: ["one-on-one-slots", selectedQuarter] })
     } catch {
       toast.error("Gagal membatalkan")
     } finally {
@@ -208,7 +210,7 @@ export function OneOnOneMeetingTab({
       }
 
       toast.success("Slot dihapus")
-      await mutate()
+      await queryClient.invalidateQueries({ queryKey: ["one-on-one-slots", selectedQuarter] })
     } catch {
       toast.error("Gagal menghapus slot")
     } finally {
@@ -243,7 +245,7 @@ export function OneOnOneMeetingTab({
 
       toast.success("Jadwal berhasil diubah")
       setEditingSlotId(null)
-      await mutate()
+      await queryClient.invalidateQueries({ queryKey: ["one-on-one-slots", selectedQuarter] })
     } catch {
       toast.error("Gagal mengubah jadwal")
     } finally {

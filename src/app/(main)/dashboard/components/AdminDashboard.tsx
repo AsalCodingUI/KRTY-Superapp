@@ -24,7 +24,7 @@ export function AdminDashboard({ data }: AdminDashboardProps) {
       </div>
 
       <div className="bg-surface-neutral-primary flex flex-col rounded-xxl">
-        <div className="space-y-5 p-4 sm:p-5">
+        <div className="space-y-5 p-5">
           <AdminMetricsOverview
             totalEmployees={data.teamMetrics.totalEmployees}
             pendingReviews={data.teamMetrics.pendingReviews}
@@ -33,31 +33,58 @@ export function AdminDashboard({ data }: AdminDashboardProps) {
             avgTeamPerformance={data.teamMetrics.avgTeamPerformance}
           />
 
-          <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-            <AdminPendingActions
-              pendingReviews={data.pendingReviewsList}
-              pendingLeaveApprovals={data.pendingLeaveApprovals}
-            />
-            <AdminRecentActivities activities={data.recentActivities} />
+          <div className="grid grid-cols-1 gap-md lg:grid-cols-2">
+            <div className="space-y-2">
+              <p className="text-label-sm text-foreground-secondary">
+                Approvals & Reviews
+              </p>
+              <AdminPendingActions
+                pendingReviews={data.pendingReviewsList}
+                pendingLeaveApprovals={data.pendingLeaveApprovals}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <p className="text-label-sm text-foreground-secondary">
+                Recent Activities
+              </p>
+              <AdminRecentActivities activities={data.recentActivities} />
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-            <AdminAttendanceOverview
-              totalToday={data.attendanceOverview.totalToday}
-              onTime={data.attendanceOverview.onTime}
-              late={data.attendanceOverview.late}
-              onLeave={data.attendanceOverview.onLeave}
-              absent={data.attendanceOverview.absent}
-            />
-            <AdminPerformanceDistribution
-              distribution={data.performanceDistribution}
-            />
+          <div className="grid grid-cols-1 gap-md lg:grid-cols-2">
+            <div className="space-y-2">
+              <p className="text-label-sm text-foreground-secondary">
+                Attendance
+              </p>
+              <AdminAttendanceOverview
+                totalToday={data.attendanceOverview.totalToday}
+                onTime={data.attendanceOverview.onTime}
+                late={data.attendanceOverview.late}
+                onLeave={data.attendanceOverview.onLeave}
+                absent={data.attendanceOverview.absent}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <p className="text-label-sm text-foreground-secondary">
+                Performance
+              </p>
+              <AdminPerformanceDistribution
+                distribution={data.performanceDistribution}
+              />
+            </div>
           </div>
 
-          <AdminEmployeeSpotlight
-            topPerformers={data.topPerformers}
-            employeesNeedingAttention={data.employeesNeedingAttention}
-          />
+          <div className="space-y-2">
+            <p className="text-label-sm text-foreground-secondary">
+              Employee Spotlight
+            </p>
+            <AdminEmployeeSpotlight
+              topPerformers={data.topPerformers}
+              employeesNeedingAttention={data.employeesNeedingAttention}
+            />
+          </div>
         </div>
       </div>
     </div>

@@ -1,5 +1,6 @@
 "use client"
 
+import { toast } from "sonner"
 import { createClient } from "@/shared/api/supabase/client"
 import { canManageByRole } from "@/shared/lib/roles"
 import { Database } from "@/shared/types/database.types"
@@ -95,7 +96,7 @@ export function TeamsClientPage({
                       .delete()
                       .in("id", ids as string[])
                     if (error) {
-                      alert("Error deleting: " + error.message)
+                      toast.error("Error deleting: " + error.message)
                     } else {
                       router.refresh()
                     }

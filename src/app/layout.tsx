@@ -1,4 +1,5 @@
 import { ToastProvider } from "@/shared/ui"
+import QueryProvider from "@/shared/ui/providers/QueryProvider"
 import type { Metadata } from "next"
 import { ThemeProvider } from "next-themes"
 import { Inter } from "next/font/google"
@@ -14,27 +15,19 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://yoururl.com"),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_APP_URL || "https://app.kretya.studio",
+  ),
   title: siteConfig.name,
   description: siteConfig.description,
-  keywords: [],
-  authors: [
-    {
-      name: "yourname",
-      url: "",
-    },
-  ],
-  creator: "yourname",
-  openGraph: {
-    type: "website",
-    locale: "en_US",
-    url: siteConfig.url,
-    title: siteConfig.name,
-    description: siteConfig.description,
-    siteName: siteConfig.name,
-  },
+  authors: [{ name: "Kretya Studio" }],
+  creator: "Kretya Studio",
   icons: {
     icon: "/favicon.ico",
+  },
+  robots: {
+    index: false,
+    follow: false,
   },
 }
 
@@ -50,9 +43,11 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <ThemeProvider defaultTheme="system" attribute="class">
-          {/* Sidebar dan main wrapper dipindah ke layout (main) */}
-          {children}
-          <ToastProvider />
+          <QueryProvider>
+            {/* Sidebar dan main wrapper dipindah ke layout (main) */}
+            {children}
+            <ToastProvider />
+          </QueryProvider>
         </ThemeProvider>
       </body>
     </html>

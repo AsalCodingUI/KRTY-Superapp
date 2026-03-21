@@ -5,7 +5,7 @@ import { createClient as createClientBrowser } from "@/shared/api/supabase/clien
 import { IMPERSONATION_COOKIE_NAME } from "@/shared/lib/impersonation"
 import { canManageByRole } from "@/shared/lib/roles"
 import { Database } from "@/shared/types/database.types"
-import useSWR from "swr"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"]
 
@@ -112,14 +112,13 @@ const fetchUserProfile = async (): Promise<UserProfileResponse> => {
 }
 
 export function useUserProfile() {
-  const { data, isLoading, mutate } = useSWR<UserProfileResponse>(
-    "current-user-profile",
-    fetchUserProfile,
-    {
-      revalidateOnFocus: false,
-      dedupingInterval: 60_000,
-    },
-  )
+  const queryClient = useQueryClient()
+  const { data, isLoading } = useQuery<UserProfileResponse>({
+    queryKey: ["current-user-profile"],
+    queryFn: fetchUserProfile,
+    staleTime: 5 * 60_000,
+    gcTime: 10 * 60_000,
+  })
 
   const authProfile = data?.authProfile || data?.profile || null
   const effectiveProfile = data?.profile || null
@@ -132,6 +131,7 @@ export function useUserProfile() {
     isAdmin: canManageByRole(effectiveProfile?.role),
     isSuperAdmin: authProfile?.is_super_admin === true,
     isImpersonating: data?.isImpersonating === true,
-    refreshProfile: mutate,
+    refreshProfile: () =>
+      queryClient.invalidateQueries({ queryKey: ["current-user-profile"] }),
   }
 }

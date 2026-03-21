@@ -5,7 +5,7 @@ import { createClient } from "@/shared/api/supabase/client"
 import { canManageByRole } from "@/shared/lib/roles"
 import type { QuarterFilterValue } from "@/shared/ui"
 import { useMemo } from "react"
-import useSWR from "swr"
+import { useQuery } from "@tanstack/react-query"
 import { AdminReviewDashboard } from "../admin/AdminReviewDashboard"
 import { EmployeeReviewView } from "./EmployeeReviewView"
 
@@ -31,9 +31,9 @@ export function Review360Tab(
 ) {
   const { profile, loading } = useUserProfile()
   const supabase = useMemo(() => createClient(), [])
-  const { data: currentCycleId } = useSWR(
-    "review-active-cycle",
-    async () => {
+  const { data: currentCycleId } = useQuery({
+    queryKey: ["review-active-cycle"],
+    queryFn: async () => {
       const now = new Date().toISOString()
       const { data } = await supabase
         .from("review_cycles")
@@ -45,8 +45,7 @@ export function Review360Tab(
 
       return data?.id ?? null
     },
-    { revalidateOnFocus: false },
-  )
+  })
 
   if (loading)
     return (

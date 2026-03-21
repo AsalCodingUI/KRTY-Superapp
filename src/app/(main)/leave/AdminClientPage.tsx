@@ -1,6 +1,7 @@
 "use client"
 
 import { DataTable, TabNavigation, TabNavigationLink } from "@/shared/ui"
+import { toast } from "sonner"
 import { Database } from "@/shared/types/database.types"
 import { createClient } from "@/shared/api/supabase/client"
 import { RiCalendarLine } from "@/shared/ui/lucide-icons"
@@ -86,7 +87,7 @@ export default function LeaveAdminPage({
       .from("leave_requests")
       .update({ status: "approved" })
       .eq("id", id)
-    if (error) alert("Error approving: " + error.message)
+    if (error) toast.error("Error approving: " + error.message)
   }
 
   const handleReject = async (id: number) => {
@@ -95,7 +96,7 @@ export default function LeaveAdminPage({
       .from("leave_requests")
       .update({ status: "rejected" })
       .eq("id", id)
-    if (error) alert("Error rejecting: " + error.message)
+    if (error) toast.error("Error rejecting: " + error.message)
   }
 
   return (
@@ -157,7 +158,7 @@ export default function LeaveAdminPage({
                       .delete()
                       .in("id", ids as number[])
                     if (error) {
-                      alert("Error deleting: " + error.message)
+                      toast.error("Error deleting: " + error.message)
                     } else {
                       router.refresh()
                     }

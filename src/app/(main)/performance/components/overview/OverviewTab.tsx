@@ -14,7 +14,7 @@ import {
 } from "@/shared/ui/lucide-icons"
 import Link from "next/link"
 import React, { useState } from "react"
-import useSWR from "swr"
+import { useQuery } from "@tanstack/react-query"
 import {
   getEmployeeDetail,
   getEmployeeOverview,
@@ -98,11 +98,9 @@ function EmployeeOverview({
     useState<QuarterFilterValue>("2025-Q1")
   const selectedQuarter = controlledQuarter ?? internalQuarter
   const setSelectedQuarter = onQuarterChange ?? setInternalQuarter
-  const { data, isLoading } = useSWR(
-    profile?.id
-      ? ["employee-overview", profile.id, selectedQuarter]
-      : null,
-    async () => {
+  const { data, isLoading } = useQuery({
+    queryKey: ["employee-overview", profile?.id, selectedQuarter],
+    queryFn: async () => {
       const [overviewResult, assignmentsResult] = await Promise.all([
         getEmployeeOverview(profile!.id, selectedQuarter),
         getEmployeeDetail(profile!.id, selectedQuarter),
@@ -116,8 +114,8 @@ function EmployeeOverview({
             : [],
       }
     },
-    { revalidateOnFocus: false },
-  )
+    enabled: !!profile?.id,
+  })
 
   const overview = data?.overview ?? []
   const assignments = data?.assignments ?? []
@@ -392,11 +390,10 @@ function StakeholderOverview({
     useState<QuarterFilterValue>("2025-Q1")
   const selectedQuarter = controlledQuarter ?? internalQuarter
   const setSelectedQuarter = onQuarterChange ?? setInternalQuarter
-  const { data: statsResult, isLoading } = useSWR(
-    ["overview-stats", selectedQuarter],
-    () => getOverviewStats(selectedQuarter),
-    { revalidateOnFocus: false },
-  )
+  const { data: statsResult, isLoading } = useQuery({
+    queryKey: ["overview-stats", selectedQuarter],
+    queryFn: () => getOverviewStats(selectedQuarter),
+  })
 
   const stats = statsResult?.success ? statsResult.data : null
 

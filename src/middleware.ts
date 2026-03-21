@@ -32,11 +32,6 @@ export async function middleware(request: NextRequest) {
     },
   )
 
-  // Cek session user
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
   // PROTEKSI ROUTE
   const url = request.nextUrl.clone()
   const isLoginPage = url.pathname.startsWith("/login")
@@ -46,80 +41,87 @@ export async function middleware(request: NextRequest) {
 
   // Biarkan API routes mengembalikan status JSON (401/403) dari route handler,
   // jangan dipaksa redirect ke /login.
-  if (!user && !isPublicPage && !isApiRoute) {
-    url.pathname = "/login"
-    return NextResponse.redirect(url)
-  }
-
-  if (user && isLoginPage) {
-    url.pathname = "/dashboard"
-    return NextResponse.redirect(url)
-  }
-
-  // ─── PERMISSION-BASED ACCESS CONTROL (PER-USER) ──────────────────────────
-  if (user && !isPublicPage && !isApiRoute) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("is_super_admin")
-      .eq("id", user.id)
-      .maybeSingle()
-
-    let effectiveUserId = user.id
-    if (profile?.is_super_admin) {
-      const impersonatedUserId =
-        request.cookies.get(IMPERSONATION_COOKIE_NAME)?.value || null
-      if (impersonatedUserId && impersonatedUserId !== user.id) {
-        const { data: targetProfile } = await supabase
-          .from("profiles")
-          .select("id")
-          .eq("id", impersonatedUserId)
-          .maybeSingle()
-        if (targetProfile?.id) {
-          effectiveUserId = targetProfile.id
-        }
-      }
-    }
-
-    // Hard rule: settings/permission hanya untuk super admin
-    // (tidak bisa dioverride oleh custom page permission)
-    if (url.pathname.startsWith(siteConfig.baseLinks.settings.permission)) {
-      const isEffectiveSuperAdmin =
-        effectiveUserId === user.id && profile?.is_super_admin === true
-      if (!isEffectiveSuperAdmin) {
+  // Biarkan public pages dan API routes lewat tanpa auth check.
+  if (isPublicPage || isApiRoute) {
+    // Untuk login page, cek apakah sudah punya session → redirect ke dashboard
+    if (isLoginPage) {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+      if (user) {
         url.pathname = "/dashboard"
         return NextResponse.redirect(url)
       }
     }
+    return supabaseResponse
+  }
 
-    // 1) Ambil seluruh permission user
-    const { data: userPermissions } = await supabase
+  // Cek session user — hanya untuk protected routes
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    url.pathname = "/login"
+    return NextResponse.redirect(url)
+  }
+
+  // ─── PERMISSION-BASED ACCESS CONTROL (PER-USER) ──────────────────────────
+  // Gabung semua query dalam 1 roundtrip: profile + permissions
+  const impersonatedUserId =
+    request.cookies.get(IMPERSONATION_COOKIE_NAME)?.value || null
+
+  const [{ data: profile }, { data: userPermissions }] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("is_super_admin")
+      .eq("id", user.id)
+      .maybeSingle(),
+    supabase
       .from("user_page_permissions")
       .select("page_slug, granted")
-      .eq("user_id", effectiveUserId)
+      .eq(
+        "user_id",
+        // Jika super admin sedang impersonate, cek permission target user
+        impersonatedUserId && impersonatedUserId !== user.id
+          ? impersonatedUserId
+          : user.id,
+      ),
+  ])
 
-    const rows = userPermissions || []
-    // 2) Cari permission paling spesifik (longest prefix match)
-    const matched = rows
-      .filter((row) => url.pathname.startsWith(row.page_slug))
-      .sort((a, b) => b.page_slug.length - a.page_slug.length)[0]
+  const effectiveUserId =
+    profile?.is_super_admin && impersonatedUserId && impersonatedUserId !== user.id
+      ? impersonatedUserId
+      : user.id
 
-    // 3) Jika tidak ada match / explicit deny => redirect ke page pertama yang di-grant
-    if (!matched || matched.granted !== true) {
-      const firstAllowed = rows.find((row) => row.granted)?.page_slug
+  // Hard rule: settings/permission hanya untuk super admin
+  if (url.pathname.startsWith(siteConfig.baseLinks.settings.permission)) {
+    const isEffectiveSuperAdmin =
+      effectiveUserId === user.id && profile?.is_super_admin === true
+    if (!isEffectiveSuperAdmin) {
+      url.pathname = "/dashboard"
+      return NextResponse.redirect(url)
+    }
+  }
 
-      if (firstAllowed && firstAllowed !== url.pathname) {
-        url.pathname = firstAllowed
-        return NextResponse.redirect(url)
-      }
+  // Cek permission — longest prefix match
+  const rows = userPermissions || []
+  const matched = rows
+    .filter((row) => url.pathname.startsWith(row.page_slug))
+    .sort((a, b) => b.page_slug.length - a.page_slug.length)[0]
 
-      // Hindari redirect loop untuk user login tanpa permission row yang match.
-      // Biarkan request lanjut saat sudah berada di fallback default.
-      const fallbackPath = "/dashboard"
-      if (url.pathname !== fallbackPath) {
-        url.pathname = fallbackPath
-        return NextResponse.redirect(url)
-      }
-      return supabaseResponse
+  if (!matched || matched.granted !== true) {
+    const firstAllowed = rows.find((row) => row.granted)?.page_slug
+
+    if (firstAllowed && firstAllowed !== url.pathname) {
+      url.pathname = firstAllowed
+      return NextResponse.redirect(url)
+    }
+
+    const fallbackPath = "/dashboard"
+    if (url.pathname !== fallbackPath) {
+      url.pathname = fallbackPath
+      return NextResponse.redirect(url)
     }
   }
 

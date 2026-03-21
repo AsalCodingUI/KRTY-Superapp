@@ -1,7 +1,6 @@
 "use client"
 
-import { Avatar, Badge } from "@/shared/ui"
-import { Card } from "@/shared/ui"
+import { Avatar } from "@/shared/ui"
 import { formatDistanceToNow } from "date-fns"
 
 interface Activity {
@@ -26,17 +25,17 @@ export function AdminRecentActivities({
   activities,
 }: AdminRecentActivitiesProps) {
   return (
-    <Card>
-      <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-label-md text-foreground-primary">
-          Recent Activities
-        </h3>
-        <Badge variant="zinc">{activities.length}</Badge>
+    <div className="border-neutral-primary rounded-lg border px-4 py-3">
+      <div className="mb-3 flex items-center justify-between">
+        <p className="text-label-sm text-foreground-secondary">Activity Feed</p>
+        <span className="text-body-xs text-foreground-tertiary tabular-nums">
+          {activities.length} items
+        </span>
       </div>
 
       {activities.length === 0 ? (
-        <div className="py-8 text-center">
-          <p className="text-body-sm text-foreground-secondary">
+        <div className="py-5 text-center">
+          <p className="text-body-xs text-foreground-tertiary">
             No recent activities
           </p>
         </div>
@@ -75,6 +74,6 @@ export function AdminRecentActivities({
           ))}
         </div>
       )}
-    </Card>
+    </div>
   )
 }

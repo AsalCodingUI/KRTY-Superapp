@@ -114,7 +114,7 @@ export default function PermissionSettingsPage({
       router.refresh()
     } catch (error) {
       console.error("Gagal update:", error)
-      alert("Gagal mengupdate data. Cek console.")
+      toast.error("Gagal mengupdate data.")
     } finally {
       setLoadingId(null)
     }

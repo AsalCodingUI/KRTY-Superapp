@@ -28,7 +28,7 @@ import { format } from "date-fns"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
-import useSWR from "swr"
+import { useQuery } from "@tanstack/react-query"
 import {
   getEmployeeDetail,
   getEmployeeOverview,
@@ -89,9 +89,9 @@ export function EmployeeDetailClient({
   )
   const router = useRouter()
   const selectedQuarter = controlledQuarter ?? internalQuarter
-  const { data, isLoading } = useSWR(
-    ["employee-detail-view", employee.id, selectedQuarter],
-    async () => {
+  const { data, isLoading } = useQuery({
+    queryKey: ["employee-detail-view", employee.id, selectedQuarter],
+    queryFn: async () => {
       const quarter = selectedQuarter.includes("All") ? undefined : selectedQuarter
       const [assignmentsResult, overviewResult] = await Promise.all([
         getEmployeeDetail(employee.id, quarter),
@@ -106,14 +106,11 @@ export function EmployeeDetailClient({
         overview: overviewResult.success ? overviewResult.data : [],
       }
     },
-    {
-      revalidateOnFocus: false,
-      fallbackData: {
-        assignments: initialAssignments,
-        overview: [],
-      },
+    initialData: {
+      assignments: initialAssignments,
+      overview: [],
     },
-  )
+  })
 
   const assignments = data?.assignments ?? initialAssignments
   const overview = data?.overview ?? []

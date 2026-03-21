@@ -1,6 +1,15 @@
+import { Spinner } from "@/shared/ui"
 import { ImpersonationBanner } from "@/widgets/impersonation/ui/ImpersonationBanner"
 import { SidebarShell } from "@/widgets/sidebar/ui/SidebarShell"
 import { Suspense } from "react"
+
+function PageFallback() {
+  return (
+    <div className="flex min-h-[60vh] items-center justify-center">
+      <Spinner size="md" />
+    </div>
+  )
+}
 
 export default function Layout({
   children,
@@ -19,7 +28,7 @@ export default function Layout({
           <div className="bg-surface min-h-[calc(100vh-1rem)]">
             {/* Content container with max-width for readability */}
             <ImpersonationBanner />
-            <Suspense>
+            <Suspense fallback={<PageFallback />}>
               <div className="mx-auto">{children}</div>
             </Suspense>
           </div>

@@ -2,7 +2,6 @@
 
 import { Avatar, Badge } from "@/shared/ui"
 import { Button } from "@/shared/ui"
-import { Card } from "@/shared/ui"
 import {
   RiArrowRightLine,
 } from "@/shared/ui/lucide-icons"
@@ -43,17 +42,20 @@ export function AdminPendingActions({
   pendingLeaveApprovals,
 }: AdminPendingActionsProps) {
   return (
-    <div className="space-y-5">
-      {/* Pending Reviews */}
-      <Card>
-        <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-label-md text-foreground-primary">Pending Reviews</h3>
-          <Badge variant="warning">{pendingReviews.length}</Badge>
+    <div className="space-y-4">
+      <div className="border-neutral-primary rounded-lg border px-4 py-3">
+        <div className="mb-3 flex items-center justify-between">
+          <p className="text-label-sm text-foreground-secondary">
+            Pending Reviews
+          </p>
+          <span className="text-body-xs text-foreground-tertiary tabular-nums">
+            {pendingReviews.length} items
+          </span>
         </div>
 
         {pendingReviews.length === 0 ? (
-          <div className="py-8 text-center">
-            <p className="text-body-sm text-foreground-secondary">
+          <div className="py-5 text-center">
+            <p className="text-body-xs text-foreground-tertiary">
               All reviews completed.
             </p>
           </div>
@@ -82,7 +84,7 @@ export function AdminPendingActions({
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Badge variant="info" className="text-body-xs">
+                      <Badge size="sm" variant="info">
                         {review.cycle_name}
                       </Badge>
                       <RiArrowRightLine className="text-foreground-secondary size-4" />
@@ -93,7 +95,7 @@ export function AdminPendingActions({
             </div>
 
             {pendingReviews.length > 5 && (
-              <div className="mt-4">
+              <div className="mt-3">
                 <Link href="/performance?tab=360review">
                   <Button variant="secondary" size="sm" className="w-full">
                     View All {pendingReviews.length} Pending Reviews
@@ -103,18 +105,21 @@ export function AdminPendingActions({
             )}
           </>
         )}
-      </Card>
+      </div>
 
-      {/* Pending Leave Approvals */}
-      <Card>
-        <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-label-md text-foreground-primary">Leave Approvals</h3>
-          <Badge variant="warning">{pendingLeaveApprovals.length}</Badge>
+      <div className="border-neutral-primary rounded-lg border px-4 py-3">
+        <div className="mb-3 flex items-center justify-between">
+          <p className="text-label-sm text-foreground-secondary">
+            Leave Approvals
+          </p>
+          <span className="text-body-xs text-foreground-tertiary tabular-nums">
+            {pendingLeaveApprovals.length} items
+          </span>
         </div>
 
         {pendingLeaveApprovals.length === 0 ? (
-          <div className="py-8 text-center">
-            <p className="text-body-sm text-foreground-secondary">
+          <div className="py-5 text-center">
+            <p className="text-body-xs text-foreground-tertiary">
               No pending leave requests
             </p>
           </div>
@@ -148,7 +153,7 @@ export function AdminPendingActions({
                           </div>
                         </div>
                         {daysAgo <= 2 && (
-                          <Badge variant="error" className="text-body-xs">
+                          <Badge size="sm" variant="error">
                             New
                           </Badge>
                         )}
@@ -169,7 +174,7 @@ export function AdminPendingActions({
             </div>
 
             {pendingLeaveApprovals.length > 5 && (
-              <div className="mt-4">
+              <div className="mt-3">
                 <Link href="/leave">
                   <Button variant="secondary" size="sm" className="w-full">
                     View All {pendingLeaveApprovals.length} Requests
@@ -179,7 +184,7 @@ export function AdminPendingActions({
             )}
           </>
         )}
-      </Card>
+      </div>
     </div>
   )
 }

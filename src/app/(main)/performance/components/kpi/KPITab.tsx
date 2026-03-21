@@ -20,7 +20,7 @@ import { RiUserLine } from "@/shared/ui/lucide-icons"
 import dynamic from "next/dynamic"
 import Link from "next/link"
 import { useEffect, useState, type ChangeEvent } from "react"
-import useSWR from "swr"
+import { useQuery } from "@tanstack/react-query"
 import {
   getAllEmployees,
   getEmployeeDetail,
@@ -88,22 +88,20 @@ export function KPITab({
   const {
     data: employeesResult,
     isLoading: employeesLoading,
-  } = useSWR(
-    canManage && profile ? ["employees", searchQuery, pageIndex, pageSize] : null,
-    () => getAllEmployees(searchQuery, pageIndex, pageSize),
-    { revalidateOnFocus: false },
-  )
+  } = useQuery({
+    queryKey: ["employees", searchQuery, pageIndex, pageSize],
+    queryFn: () => getAllEmployees(searchQuery, pageIndex, pageSize),
+    enabled: !!(canManage && profile),
+  })
 
   const {
     data: employeeDetailResult,
     isLoading: employeeLoading,
-  } = useSWR(
-    !canManage && profile?.id
-      ? ["employee-detail", profile.id, selectedQuarter]
-      : null,
-    () => getEmployeeDetail(profile!.id, selectedQuarter),
-    { revalidateOnFocus: false },
-  )
+  } = useQuery({
+    queryKey: ["employee-detail", profile?.id, selectedQuarter],
+    queryFn: () => getEmployeeDetail(profile!.id, selectedQuarter),
+    enabled: !!(!canManage && profile?.id),
+  })
 
   const employees: EmployeeWithProjects[] = employeesResult?.success
     ? employeesResult.data

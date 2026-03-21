@@ -17,7 +17,7 @@ import { canManageByRole } from "@/shared/lib/roles"
 import { useMemo, useState } from "react"
 import { endOfDay, startOfDay } from "date-fns"
 import { toast } from "sonner"
-import useSWR from "swr"
+import { useQuery, useQueryClient, keepPreviousData } from "@tanstack/react-query"
 import { CalendarContent } from "./CalendarContent"
 
 type CalendarEventRow = Database["public"]["Tables"]["calendar_events"]["Row"]
@@ -268,110 +268,106 @@ function CalendarDataLayer({ role, userId }: CalendarClientProps) {
   const rangeStartDate = rangeStartIso.slice(0, 10)
   const rangeEndDate = rangeEndIso.slice(0, 10)
 
-  const { data: events = [], isLoading, mutate } = useSWR(
-    ["calendar-events", rangeStartIso, rangeEndIso],
-    async () => {
-      const { data, error } = await supabase
-        .from("calendar_events")
-        .select(
-          "id,title,description,start_at,end_at,color,location,all_day,meeting_url,guests,reminders,rsvp_status,organizer,event_type,user_id,is_recurring,recurrence_rule",
-        )
-        .or(
-          `start_at.lte.${rangeEndIso},end_at.gte.${rangeStartIso}`,
-        )
+  const queryClient = useQueryClient()
+  const { data: events = [], isLoading } = useQuery({
+    queryKey: ["calendar-events", rangeStartIso, rangeEndIso],
+    queryFn: async () => {
+      try {
+        const { data, error } = await supabase
+          .from("calendar_events")
+          .select(
+            "id,title,description,start_at,end_at,color,location,all_day,meeting_url,guests,reminders,rsvp_status,organizer,event_type,user_id,is_recurring,recurrence_rule",
+          )
+          .or(
+            `start_at.lte.${rangeEndIso},end_at.gte.${rangeStartIso}`,
+          )
 
-      if (error) {
+        if (error) {
+          throw error
+        }
+        return (data || []).map(mapRowToEvent)
+      } catch (error) {
+        toast.error("Gagal memuat kalender internal")
         throw error
       }
-      return (data || []).map(mapRowToEvent)
     },
-    {
-      revalidateOnFocus: false,
-      keepPreviousData: true,
-      dedupingInterval: 30_000,
-      onError: () => {
-        toast.error("Gagal memuat kalender internal")
-      },
-    },
-  )
+    placeholderData: keepPreviousData,
+    staleTime: 30_000,
+  })
 
   const {
     data: leaveRequests = [],
     isLoading: leaveLoading,
-  } = useSWR<LeaveRequestCalendarRow[]>(
-    userId
-      ? ["calendar-leave", userId, isStakeholder, rangeStartDate, rangeEndDate]
-      : null,
-    async () => {
-      let query = supabase
-        .from("leave_requests")
-        .select(
-          "id,start_date,end_date,leave_type,status,reason,user_id,profiles(full_name)",
-        )
-        .eq("status", "approved")
-        .or(
-          `start_date.lte.${rangeEndDate},end_date.gte.${rangeStartDate}`,
-        )
+  } = useQuery<LeaveRequestCalendarRow[]>({
+    queryKey: ["calendar-leave", userId, isStakeholder, rangeStartDate, rangeEndDate],
+    queryFn: async () => {
+      try {
+        let query = supabase
+          .from("leave_requests")
+          .select(
+            "id,start_date,end_date,leave_type,status,reason,user_id,profiles(full_name)",
+          )
+          .eq("status", "approved")
+          .or(
+            `start_date.lte.${rangeEndDate},end_date.gte.${rangeStartDate}`,
+          )
 
-      if (!isStakeholder && userId) {
-        query = query.eq("user_id", userId)
-      }
+        if (!isStakeholder && userId) {
+          query = query.eq("user_id", userId)
+        }
 
-      const { data, error } = await query
-      if (error) throw error
-      return (data || []) as unknown as LeaveRequestCalendarRow[]
-    },
-    {
-      revalidateOnFocus: false,
-      keepPreviousData: true,
-      dedupingInterval: 30_000,
-      onError: () => {
+        const { data, error } = await query
+        if (error) throw error
+        return (data || []) as unknown as LeaveRequestCalendarRow[]
+      } catch (error) {
         toast.error("Gagal memuat data cuti")
-      },
+        throw error
+      }
     },
-  )
+    enabled: !!userId,
+    placeholderData: keepPreviousData,
+    staleTime: 30_000,
+  })
 
   const {
     data: oneOnOneSlots = [],
     isLoading: oneOnOneLoading,
-  } = useSWR<OneOnOneCalendarRow[]>(
-    userId
-      ? [
-          "calendar-1on1",
-          userId,
-          isStakeholder,
-          rangeStartIso,
-          rangeEndIso,
-        ]
-      : null,
-    async () => {
-      let query = supabase
-        .from("one_on_one_slots")
-        .select(
-          "id,start_at,end_at,status,cycle_name,meeting_url,location,mode,organizer_id,booked_by,google_event_id,updated_at,organizer:profiles!organizer_id(full_name,email),booked_by_profile:profiles!booked_by(full_name,email)",
-        )
-        .or(`start_at.lte.${rangeEndIso},end_at.gte.${rangeStartIso}`)
-        .order("start_at", { ascending: true })
+  } = useQuery<OneOnOneCalendarRow[]>({
+    queryKey: [
+      "calendar-1on1",
+      userId,
+      isStakeholder,
+      rangeStartIso,
+      rangeEndIso,
+    ],
+    queryFn: async () => {
+      try {
+        let query = supabase
+          .from("one_on_one_slots")
+          .select(
+            "id,start_at,end_at,status,cycle_name,meeting_url,location,mode,organizer_id,booked_by,google_event_id,updated_at,organizer:profiles!organizer_id(full_name,email),booked_by_profile:profiles!booked_by(full_name,email)",
+          )
+          .or(`start_at.lte.${rangeEndIso},end_at.gte.${rangeStartIso}`)
+          .order("start_at", { ascending: true })
 
-      if (!isStakeholder && userId) {
-        query = query.or(
-          `organizer_id.eq.${userId},booked_by.eq.${userId}`,
-        )
-      }
+        if (!isStakeholder && userId) {
+          query = query.or(
+            `organizer_id.eq.${userId},booked_by.eq.${userId}`,
+          )
+        }
 
-      const { data, error } = await query
-      if (error) throw error
-      return (data || []) as unknown as OneOnOneCalendarRow[]
-    },
-    {
-      revalidateOnFocus: false,
-      keepPreviousData: true,
-      dedupingInterval: 30_000,
-      onError: () => {
+        const { data, error } = await query
+        if (error) throw error
+        return (data || []) as unknown as OneOnOneCalendarRow[]
+      } catch (error) {
         toast.error("Gagal memuat jadwal 1:1")
-      },
+        throw error
+      }
     },
-  )
+    enabled: !!userId,
+    placeholderData: keepPreviousData,
+    staleTime: 30_000,
+  })
 
   const leaveEvents = useMemo(
     () => leaveRequests.map(mapLeaveRowToEvent),
@@ -420,7 +416,7 @@ function CalendarDataLayer({ role, userId }: CalendarClientProps) {
       return
     }
     toast.success("Event ditambah")
-    mutate()
+    queryClient.invalidateQueries({ queryKey: ["calendar-events", rangeStartIso, rangeEndIso] })
     setDialogOpen(false)
   }
 
@@ -437,7 +433,7 @@ function CalendarDataLayer({ role, userId }: CalendarClientProps) {
       return
     }
     toast.success("Event diubah")
-    mutate()
+    queryClient.invalidateQueries({ queryKey: ["calendar-events", rangeStartIso, rangeEndIso] })
     setDialogOpen(false)
   }
 
@@ -451,7 +447,7 @@ function CalendarDataLayer({ role, userId }: CalendarClientProps) {
       return
     }
     toast.success("Event dihapus")
-    mutate()
+    queryClient.invalidateQueries({ queryKey: ["calendar-events", rangeStartIso, rangeEndIso] })
   }
 
   return (

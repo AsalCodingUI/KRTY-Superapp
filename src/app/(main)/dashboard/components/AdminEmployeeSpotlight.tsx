@@ -1,7 +1,6 @@
 "use client"
 
 import { Avatar, Badge } from "@/shared/ui"
-import { Card } from "@/shared/ui"
 import Link from "next/link"
 
 interface Employee {
@@ -31,14 +30,15 @@ export function AdminEmployeeSpotlight({
   }
 
   return (
-    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-      {/* Top Performers */}
-      <Card>
-        <h3 className="text-label-md text-foreground-primary mb-4">Top Performers</h3>
+    <div className="grid grid-cols-1 gap-md lg:grid-cols-2">
+      <div className="border-neutral-primary rounded-lg border px-4 py-3">
+        <p className="text-label-sm text-foreground-secondary mb-3">
+          Top Performers
+        </p>
 
         {topPerformers.length === 0 ? (
-          <div className="py-8 text-center">
-            <p className="text-body-sm text-foreground-secondary">
+          <div className="py-5 text-center">
+            <p className="text-body-xs text-foreground-tertiary">
               No performance data available
             </p>
           </div>
@@ -82,15 +82,16 @@ export function AdminEmployeeSpotlight({
             })}
           </div>
         )}
-      </Card>
+      </div>
 
-      {/* Employees Needing Attention */}
-      <Card>
-        <h3 className="text-label-md text-foreground-primary mb-4">Needs Attention</h3>
+      <div className="border-neutral-primary rounded-lg border px-4 py-3">
+        <p className="text-label-sm text-foreground-secondary mb-3">
+          Needs Attention
+        </p>
 
         {employeesNeedingAttention.length === 0 ? (
-          <div className="py-8 text-center">
-            <p className="text-body-sm text-foreground-secondary">
+          <div className="py-5 text-center">
+            <p className="text-body-xs text-foreground-tertiary">
               All employees performing well.
             </p>
           </div>
@@ -134,7 +135,7 @@ export function AdminEmployeeSpotlight({
             })}
           </div>
         )}
-      </Card>
+      </div>
     </div>
   )
 }

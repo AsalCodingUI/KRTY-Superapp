@@ -22,7 +22,7 @@ import {
 import { useEffect, useMemo, useState } from "react"
 import { DateRange } from "react-day-picker"
 import { toast } from "sonner"
-import useSWR from "swr"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { AdminViewResultModal } from "./AdminViewResultModal"
 
 type PerformanceSummary =
@@ -93,9 +93,11 @@ export function AdminReviewDashboard({
     setCycleName(targetName)
   }, [selectedQuarter, currentYear, quarterOnly])
 
-  const { data: dashboardData, isLoading: isFetching, mutate } = useSWR(
-    ["admin-review-dashboard", selectedQuarter],
-    async () => {
+  const queryClient = useQueryClient()
+
+  const { data: dashboardData, isLoading: isFetching } = useQuery({
+    queryKey: ["admin-review-dashboard", selectedQuarter],
+    queryFn: async () => {
       // A. Cek Siklus Aktif (Global)
       const { data: cycle } = await supabase
         .from("review_cycles")
@@ -224,8 +226,7 @@ export function AdminReviewDashboard({
         statsData: stats,
       }
     },
-    { revalidateOnFocus: false },
-  )
+  })
 
   const isDataLoading = isFetching && statsData.length === 0
 
@@ -267,7 +268,7 @@ export function AdminReviewDashboard({
         is_active: true,
       })
       toast.success("Siklus dimulai")
-      await mutate()
+      await queryClient.invalidateQueries({ queryKey: ["admin-review-dashboard", selectedQuarter] })
     }
     setLoading(false)
   }
@@ -285,7 +286,7 @@ export function AdminReviewDashboard({
       .update({ is_active: false })
       .eq("id", activeCycleData.id)
     toast.info("Siklus ditutup")
-    await mutate()
+    await queryClient.invalidateQueries({ queryKey: ["admin-review-dashboard", selectedQuarter] })
     setLoading(false)
   }
 
@@ -328,7 +329,7 @@ export function AdminReviewDashboard({
       console.error(e)
       toast.error("Gagal memproses")
     }
-    await mutate()
+    await queryClient.invalidateQueries({ queryKey: ["admin-review-dashboard", selectedQuarter] })
   }
 
   const handleViewResult = (employeeData: ReviewStatus) => {

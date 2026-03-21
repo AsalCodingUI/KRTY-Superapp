@@ -1,17 +1,5 @@
 "use client"
 
-import { Card } from "@/shared/ui"
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Cell,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts"
-
 interface AdminPerformanceDistributionProps {
   distribution: {
     outstanding: number
@@ -25,117 +13,57 @@ interface AdminPerformanceDistributionProps {
 export function AdminPerformanceDistribution({
   distribution,
 }: AdminPerformanceDistributionProps) {
-  const data = [
-    {
-      name: "Outstanding",
-      count: distribution.outstanding,
-      color: "hsl(var(--chart-1))",
-    },
-    {
-      name: "Above Exp.",
-      count: distribution.aboveExpectation,
-      color: "hsl(var(--chart-2))",
-    },
-    {
-      name: "Meets Exp.",
-      count: distribution.meetsExpectation,
-      color: "hsl(var(--chart-3))",
-    },
-    {
-      name: "Below Exp.",
-      count: distribution.belowExpectation,
-      color: "hsl(var(--chart-4))",
-    },
-    {
-      name: "Needs Imp.",
-      count: distribution.needsImprovement,
-      color: "hsl(var(--chart-5))",
-    },
+  const items = [
+    { label: "Outstanding", count: distribution.outstanding },
+    { label: "Above Expectation", count: distribution.aboveExpectation },
+    { label: "Meets Expectation", count: distribution.meetsExpectation },
+    { label: "Below Expectation", count: distribution.belowExpectation },
+    { label: "Needs Improvement", count: distribution.needsImprovement },
   ]
 
-  const total = Object.values(distribution).reduce(
-    (sum, count) => sum + count,
-    0,
-  )
+  const total = items.reduce((sum, item) => sum + item.count, 0)
 
   return (
-    <Card>
-      <h3 className="text-foreground-primary text-heading-md mb-4">
-        Performance Distribution
-      </h3>
+    <div className="border-neutral-primary rounded-lg border px-4 py-3">
+      <div className="mb-3 flex items-center justify-between">
+        <p className="text-label-sm text-foreground-secondary">
+          Performance Distribution
+        </p>
+        <span className="text-body-xs text-foreground-tertiary tabular-nums">
+          {total} employees
+        </span>
+      </div>
 
       {total === 0 ? (
-        <div className="py-8 text-center">
-          <p className="text-foreground-secondary text-body-sm">
-            No performance data available
-          </p>
-        </div>
+        <p className="text-body-xs text-foreground-tertiary py-5 text-center">
+          No performance data available.
+        </p>
       ) : (
-        <>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={data}>
-              <CartesianGrid
-                strokeDasharray="3 3"
-                stroke="hsl(var(--border))"
-              />
-              <XAxis
-                dataKey="name"
-                stroke="hsl(var(--content-subtle))"
-                fontSize={12}
-                tickLine={false}
-                axisLine={false}
-              />
-              <YAxis
-                stroke="hsl(var(--content-subtle))"
-                fontSize={12}
-                tickLine={false}
-                axisLine={false}
-              />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "hsl(var(--surface))",
-                  border: "1px solid hsl(var(--border))",
-                  borderRadius: "8px",
-                }}
-                labelStyle={{ color: "hsl(var(--content))" }}
-              />
-              <Bar dataKey="count" radius={[8, 8, 0, 0]}>
-                {data.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
+        <div className="border-neutral-primary divide-neutral-primary overflow-hidden rounded-lg border divide-y">
+          {items.map((item) => {
+            const percentage = total > 0 ? Math.round((item.count / total) * 100) : 0
 
-          <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-5">
-            {data.map((item) => {
-              const percentage =
-                total > 0 ? Math.round((item.count / total) * 100) : 0
-              return (
-                <div key={item.name} className="text-center">
-                  <div className="mb-1 flex items-center justify-center gap-2">
-                    <div
-                      className="size-3 rounded-full bg-[var(--chart-color)]"
-                      style={
-                        { "--chart-color": item.color } as React.CSSProperties
-                      }
-                    />
-                    <span className="text-foreground-primary text-label-md">
-                      {item.count}
-                    </span>
-                  </div>
-                  <div className="text-foreground-secondary text-body-xs">
-                    {item.name}
-                  </div>
-                  <div className="text-foreground-tertiary text-body-xs">
-                    {percentage}%
-                  </div>
+            return (
+              <div key={item.label} className="px-3 py-2">
+                <div className="mb-1 flex items-center justify-between gap-3">
+                  <p className="text-body-sm text-foreground-primary">
+                    {item.label}
+                  </p>
+                  <p className="text-body-xs text-foreground-secondary tabular-nums">
+                    {item.count} ({percentage}%)
+                  </p>
                 </div>
-              )
-            })}
-          </div>
-        </>
+                <div className="bg-surface-neutral-secondary h-1.5 overflow-hidden rounded-full">
+                  <div
+                    className="bg-foreground-brand-primary h-full rounded-full"
+                    style={{ width: `${percentage}%` }}
+                  />
+                </div>
+              </div>
+            )
+          })}
+        </div>
       )}
-    </Card>
+    </div>
   )
 }

@@ -24,7 +24,7 @@ import dynamic from "next/dynamic"
 import { useEffect, useMemo } from "react"
 import { toast } from "sonner"
 import { useTabRoute } from "@/shared/hooks/useTabRoute"
-import useSWR from "swr"
+import { useQuery } from "@tanstack/react-query"
 import { getViewRange } from "@/widgets/event-calendar/ui/utils"
 
 const EventCalendar = dynamic(
@@ -102,39 +102,39 @@ function CalendarContent({
     }
   }
 
-  const { data: googleEventsRaw = [], isLoading: googleLoading } = useSWR<
+  const { data: googleEventsRaw = [], isLoading: googleLoading } = useQuery<
     CalendarEvent[]
-  >(
-    isConnected
-      ? [
-          "google-events",
-          viewRange.start.toISOString(),
-          viewRange.end.toISOString(),
-        ]
-      : null,
-    async () => {
-      const params = new URLSearchParams({
-        start: viewRange.start.toISOString(),
-        end: viewRange.end.toISOString(),
-      })
-      const response = await fetch(
-        `/api/calendar/events?${params.toString()}`,
-      )
-      if (!response.ok) {
-        throw new Error("Failed to fetch Google Calendar events")
+  >({
+    queryKey: [
+      "google-events",
+      viewRange.start.toISOString(),
+      viewRange.end.toISOString(),
+    ],
+    queryFn: async () => {
+      try {
+        const params = new URLSearchParams({
+          start: viewRange.start.toISOString(),
+          end: viewRange.end.toISOString(),
+        })
+        const response = await fetch(
+          `/api/calendar/events?${params.toString()}`,
+        )
+        if (!response.ok) {
+          throw new Error("Failed to fetch Google Calendar events")
+        }
+        const data = await response.json()
+        return (data.events || []).map((event: CalendarEvent) => ({
+          ...event,
+          start: new Date(event.start),
+          end: new Date(event.end),
+        }))
+      } catch (error) {
+        toast.error("Gagal memuat Google Calendar")
+        throw error
       }
-      const data = await response.json()
-      return (data.events || []).map((event: CalendarEvent) => ({
-        ...event,
-        start: new Date(event.start),
-        end: new Date(event.end),
-      }))
     },
-    {
-      revalidateOnFocus: false,
-      onError: () => toast.error("Gagal memuat Google Calendar"),
-    },
-  )
+    enabled: isConnected,
+  })
 
   const googleEvents = useMemo(() => {
     if (!blockedGoogleEventIds?.length) return googleEventsRaw

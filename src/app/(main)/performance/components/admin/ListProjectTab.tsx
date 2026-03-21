@@ -21,7 +21,7 @@ import {
 import { format } from "date-fns"
 import { useState } from "react"
 import { toast } from "sonner"
-import useSWR from "swr"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import {
   deleteProject,
   getProjects,
@@ -66,15 +66,16 @@ export function ListProjectTab({
   const [selectedProject, setSelectedProject] =
     useState<ExtendedProject | null>(null)
 
-  const { data: projectsResult, isLoading, mutate } = useSWR(
-    ["projects", selectedQuarter, selectedStatus],
-    () =>
+  const queryClient = useQueryClient()
+
+  const { data: projectsResult, isLoading } = useQuery({
+    queryKey: ["projects", selectedQuarter, selectedStatus],
+    queryFn: () =>
       getProjects(
         selectedQuarter,
         selectedStatus === "All" ? undefined : selectedStatus,
       ),
-    { revalidateOnFocus: false },
-  )
+  })
 
   const projects: ExtendedProject[] = projectsResult?.success
     ? (projectsResult.data as ExtendedProject[])
@@ -95,7 +96,7 @@ export function ListProjectTab({
 
     const result = await deleteProject(project.id)
     if (result.success) {
-      mutate()
+      queryClient.invalidateQueries({ queryKey: ["projects", selectedQuarter, selectedStatus] })
     } else {
       toast.error("Gagal arsip")
     }
@@ -112,7 +113,7 @@ export function ListProjectTab({
     const result = await permanentDeleteProject(project.id)
     if (result.success) {
       toast.success("Project dihapus")
-      mutate()
+      queryClient.invalidateQueries({ queryKey: ["projects", selectedQuarter, selectedStatus] })
     } else {
       toast.error("Gagal hapus")
     }
@@ -124,7 +125,7 @@ export function ListProjectTab({
   }
 
   const handleFormSuccess = () => {
-    mutate()
+    queryClient.invalidateQueries({ queryKey: ["projects", selectedQuarter, selectedStatus] })
   }
 
   return (

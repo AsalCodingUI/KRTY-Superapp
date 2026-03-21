@@ -1,6 +1,6 @@
 export const siteConfig = {
   name: "Kretya Studio",
-  url: "https://dashboard.tremor.so",
+  url: process.env.NEXT_PUBLIC_APP_URL || "https://app.kretya.studio",
   description: "Internal tools for Kretya Team.",
   baseLinks: {
     home: "/",

@@ -1,6 +1,5 @@
 "use client"
 
-import { Card } from "@/shared/ui"
 import React from "react"
 
 interface AdminAttendanceOverviewProps {
@@ -22,49 +21,47 @@ export function AdminAttendanceOverview({
   const onTimePercentage = total > 0 ? Math.round((onTime / total) * 100) : 0
 
   return (
-    <Card>
-      <h3 className="text-foreground-primary text-label-md mb-4">
+    <div className="border-neutral-primary rounded-lg border px-4 py-3">
+      <p className="text-label-sm text-foreground-secondary mb-3">
         Today&apos;s Attendance Overview
-      </h3>
+      </p>
 
-      {/* Main Stats */}
-      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
         <div className="border-neutral-primary rounded-lg border p-3 text-center">
-          <div className="text-foreground-primary text-heading-md">
+          <div className="text-foreground-primary text-heading-sm">
             {onTime}
           </div>
-          <div className="text-foreground-secondary text-label-xs mt-1">
+          <div className="text-foreground-secondary text-body-xs mt-1">
             On Time
           </div>
         </div>
 
         <div className="border-neutral-primary rounded-lg border p-3 text-center">
-          <div className="text-foreground-primary text-heading-md">{late}</div>
-          <div className="text-foreground-secondary text-label-xs mt-1">
+          <div className="text-foreground-primary text-heading-sm">{late}</div>
+          <div className="text-foreground-secondary text-body-xs mt-1">
             Late
           </div>
         </div>
 
         <div className="border-neutral-primary rounded-lg border p-3 text-center">
-          <div className="text-foreground-primary text-heading-md">
+          <div className="text-foreground-primary text-heading-sm">
             {onLeave}
           </div>
-          <div className="text-foreground-secondary text-label-xs mt-1">
+          <div className="text-foreground-secondary text-body-xs mt-1">
             On Leave
           </div>
         </div>
 
         <div className="border-neutral-primary rounded-lg border p-3 text-center">
-          <div className="text-foreground-primary text-heading-md">
+          <div className="text-foreground-primary text-heading-sm">
             {absent}
           </div>
-          <div className="text-foreground-secondary text-label-xs mt-1">
+          <div className="text-foreground-secondary text-body-xs mt-1">
             Absent
           </div>
-      </div>
+        </div>
       </div>
 
-      {/* Summary */}
       <div className="border-neutral-primary rounded-lg border p-4">
         <div className="flex items-center justify-between">
           <div>
@@ -79,13 +76,12 @@ export function AdminAttendanceOverview({
             <div className="text-foreground-secondary text-label-md">
               Present Today
             </div>
-            <div className="text-foreground-primary text-heading-md mt-1">
+            <div className="text-foreground-primary text-heading-sm mt-1">
               {totalToday} / {total}
             </div>
           </div>
         </div>
 
-        {/* Visual breakdown */}
         <div className="mt-4 flex h-2 gap-1 overflow-hidden rounded-full">
           {total > 0 && (
             <>
@@ -125,6 +121,6 @@ export function AdminAttendanceOverview({
           )}
         </div>
       </div>
-    </Card>
+    </div>
   )
 }
