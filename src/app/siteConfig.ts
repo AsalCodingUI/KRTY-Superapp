@@ -10,7 +10,7 @@ export const siteConfig = {
     performance: "/performance",
     projects: "/projects",
     calculator: "/calculator",
-    payroll: "/payroll",
+    finance: "/finance",
     teams: "/teams",
     calendar: "/calendar",
     message: "/message",

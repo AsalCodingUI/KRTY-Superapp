@@ -331,7 +331,7 @@
     /* --- Gap --- */
     --gap-xs: var(--size-2);
     --gap-sm: var(--size-4);
-    --gap-md: var(--size-8);
+    --gap-lg: var(--size-8);
     --gap-lg: var(--size-12);
     --gap-xl: var(--size-16);
 

@@ -2,7 +2,7 @@
 
 import { type Database } from "@/shared/types/database.types"
 import {
-  Avatar, Button, Dialog,
+  Avatar, Button, ConfirmDialog, Dialog,
   DialogBody,
   DialogCloseButton,
   DialogContent,
@@ -66,6 +66,7 @@ export function ProjectAssignmentDialog({
   const [users, setUsers] = useState<User[]>([])
   const [selectedUserId, setSelectedUserId] = useState<string>("")
   const [loading, setLoading] = useState(false)
+  const [confirmRemoveId, setConfirmRemoveId] = useState<string | null>(null)
 
   useEffect(() => {
     const loadData = async () => {
@@ -164,11 +165,15 @@ export function ProjectAssignmentDialog({
   }
 
   const handleRemoveAssignment = async (assignmentId: string) => {
-    if (!confirm("Are you sure you want to remove this team member?")) return
+    setConfirmRemoveId(assignmentId)
+  }
+
+  const confirmRemoveAssignment = async () => {
+    if (!confirmRemoveId) return
 
     setLoading(true)
     try {
-      const result = await removeUserFromProject(assignmentId)
+      const result = await removeUserFromProject(confirmRemoveId)
 
       if (result.success) {
         loadData()
@@ -181,6 +186,7 @@ export function ProjectAssignmentDialog({
       toast.error("Gagal menghapus")
     } finally {
       setLoading(false)
+      setConfirmRemoveId(null)
     }
   }
 
@@ -200,7 +206,7 @@ export function ProjectAssignmentDialog({
 
         <DialogBody className="flex-1 space-y-4 overflow-y-auto">
           {/* Add New Assignment Section */}
-          <div className="border-neutral-primary bg-surface-neutral-secondary dark:bg-surface/50 space-y-4 rounded-lg border p-4">
+          <div className="border-neutral-primary bg-surface-neutral-secondary space-y-4 rounded-lg border p-4">
             <h4 className="text-label-md text-foreground-primary">
               Add New Assignment
             </h4>
@@ -251,7 +257,7 @@ export function ProjectAssignmentDialog({
             </h4>
 
             {assignments.length === 0 ? (
-              <div className="border-input dark:border-neutral-primary-subtle rounded-lg border border-dashed p-8 text-center">
+              <div className="border-neutral-primary rounded-lg border border-dashed p-8 text-center">
                 <p className="text-body-sm text-foreground-secondary">
                   No team members assigned yet. Add your first team member
                   above.
@@ -262,7 +268,7 @@ export function ProjectAssignmentDialog({
                 {assignments.map((assignment) => (
                   <div
                     key={assignment.id}
-                    className="border-neutral-primary bg-surface flex items-center justify-between rounded-lg border p-3"
+                    className="border-neutral-primary bg-surface-neutral-primary flex items-center justify-between rounded-lg border p-3"
                   >
                     <div className="flex items-center gap-3">
                       <Avatar
@@ -291,7 +297,7 @@ export function ProjectAssignmentDialog({
                         size="sm"
                         onClick={() => handleRemoveAssignment(assignment.id)}
                         disabled={loading}
-                        className="text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-900/20"
+                        className="text-foreground-danger hover:bg-surface-danger-light"
                       >
                         <RiDeleteBin6Line className="size-4" />
                       </Button>
@@ -309,6 +315,16 @@ export function ProjectAssignmentDialog({
           </Button>
         </DialogFooter>
       </DialogContent>
+
+      <ConfirmDialog
+        open={!!confirmRemoveId}
+        onOpenChange={() => setConfirmRemoveId(null)}
+        onConfirm={confirmRemoveAssignment}
+        title="Remove Team Member"
+        description="Are you sure you want to remove this team member from the project?"
+        confirmText="Remove"
+        variant="destructive"
+      />
     </Dialog>
   )
 }

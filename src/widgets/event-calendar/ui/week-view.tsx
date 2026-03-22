@@ -47,7 +47,7 @@ export const WeekView = memo(function WeekView({
   )
 
   return (
-    <div className="flex flex-col">
+    <div className="flex min-w-[720px] flex-col">
       {/* Header with days */}
       <div className="border-neutral-primary bg-surface sticky top-0 z-10 flex border-b">
         {/* Time column header */}
@@ -59,7 +59,7 @@ export const WeekView = memo(function WeekView({
           return (
             <div
               key={day.toISOString()}
-              className="border-neutral-primary min-w-[80px] flex-1 border-r py-2 text-center last:border-r-0"
+              className="border-neutral-primary min-w-[96px] flex-1 border-r py-2 text-center last:border-r-0"
             >
               <div className="text-label-sm text-foreground-secondary flex items-center justify-center gap-xs">
                 <span
@@ -127,7 +127,7 @@ export const WeekView = memo(function WeekView({
             return (
               <div
                 key={day.toISOString()}
-                className="border-neutral-primary relative min-w-[80px] flex-1 border-r last:border-r-0"
+                className="border-neutral-primary relative min-w-[96px] flex-1 border-r last:border-r-0"
               >
                 {/* Time slots */}
                 {timeSlots.map((slot) => {

@@ -66,8 +66,11 @@ export default function SLADashboard({
     if (!embedded || embeddedSearchValue === "") return rows
     return rows.filter((row) => {
       const client = row.client_name?.toLowerCase?.() || ""
-      const project = row.project_name?.toLowerCase?.() || ""
-      return client.includes(embeddedSearchValue) || project.includes(embeddedSearchValue)
+      const project = row.title?.toLowerCase?.() || ""
+      return (
+        client.includes(embeddedSearchValue) ||
+        project.includes(embeddedSearchValue)
+      )
     })
   }
   const filteredActiveSLAs = filterBySearch(activeSLAs)
@@ -172,7 +175,9 @@ export default function SLADashboard({
                 size="sm"
                 fitContent
                 value={activeTab}
-                onChange={(value) => setActiveTab(value as "active" | "archive")}
+                onChange={(value) =>
+                  setActiveTab(value as "active" | "archive")
+                }
                 items={[
                   { value: "active", label: "Active" },
                   { value: "archive", label: "Archive" },
@@ -187,7 +192,10 @@ export default function SLADashboard({
               />
             </div>
             {canManage && activeTab === "active" && (
-              <Button onClick={() => router.push("/sla-generator?mode=create")} className="gap-x-2">
+              <Button
+                onClick={() => router.push("/sla-generator?mode=create")}
+                className="gap-x-2"
+              >
                 <RiAddLine className="size-4 shrink-0" aria-hidden="true" />
                 Create New SLA
               </Button>
@@ -196,20 +204,20 @@ export default function SLADashboard({
         ) : (
           <>
             <div className="xl:hidden">
-            <Select
-              value={activeTab}
-              onValueChange={(value) =>
-                setActiveTab(value as "active" | "archive")
-              }
-            >
-              <SelectTrigger size="sm" className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="archive">Archive</SelectItem>
-              </SelectContent>
-            </Select>
+              <Select
+                value={activeTab}
+                onValueChange={(value) =>
+                  setActiveTab(value as "active" | "archive")
+                }
+              >
+                <SelectTrigger size="sm" className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="archive">Archive</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div className="hidden xl:block">
               <TabNavigation>

@@ -37,6 +37,7 @@ export async function middleware(request: NextRequest) {
   const isLoginPage = url.pathname.startsWith("/login")
   const isAuthPage = url.pathname.startsWith("/auth")
   const isApiRoute = url.pathname.startsWith("/api")
+  const isNotificationsPage = url.pathname.startsWith("/notifications")
   const isPublicPage = isLoginPage || isAuthPage
 
   // Biarkan API routes mengembalikan status JSON (401/403) dari route handler,
@@ -109,6 +110,10 @@ export async function middleware(request: NextRequest) {
   const matched = rows
     .filter((row) => url.pathname.startsWith(row.page_slug))
     .sort((a, b) => b.page_slug.length - a.page_slug.length)[0]
+
+  if (isNotificationsPage) {
+    return supabaseResponse
+  }
 
   if (!matched || matched.granted !== true) {
     const firstAllowed = rows.find((row) => row.granted)?.page_slug

@@ -253,13 +253,13 @@ export function DataTable<TData>({
                         enableSelection ? "cursor-pointer" : "cursor-default",
                       )}
                     >
-                    {row.getVisibleCells().map((cell) => {
-                      const isSelectionColumn = cell.column.id === "select"
-                      if (isSelectionColumn && !enableSelection) {
-                        return null
-                      }
-                      return (
-                        <TableCell
+                      {row.getVisibleCells().map((cell) => {
+                        const isSelectionColumn = cell.column.id === "select"
+                        if (isSelectionColumn && !enableSelection) {
+                          return null
+                        }
+                        return (
+                          <TableCell
                             key={cell.id}
                             className={cx(
                               "relative whitespace-nowrap",
@@ -304,7 +304,7 @@ export function DataTable<TData>({
           </div>
         </div>
         {showPagination && (
-          <div className={showTableWrapper ? "px-4 pb-3" : ""}>
+          <div className={showTableWrapper ? "px-4" : ""}>
             <DataTablePagination table={table} />
           </div>
         )}

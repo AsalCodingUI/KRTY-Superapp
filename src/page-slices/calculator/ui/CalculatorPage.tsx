@@ -11,6 +11,7 @@ import {
   Button,
   ConfirmDialog,
   Divider,
+  EmptyState,
   Label,
   Select,
   SelectContent,
@@ -516,6 +517,224 @@ export default function CalculatorClientPage({
     setPendingDeleteId(null)
   }
 
+  const calculatorContent = (
+    <div className="grid grid-cols-1 gap-6 md:grid-cols-12 md:gap-8">
+      <div className="space-y-6 md:col-span-7">
+        <div>
+          <h3 className="text-label-md text-foreground-primary mb-4">
+            Calculation
+          </h3>
+          {hideProjectSelector ? (
+            <div className="grid grid-cols-1 gap-4 md:flex md:items-end">
+              <div className="md:flex-1">
+                <Label htmlFor="calcTitle">Title</Label>
+                <TextInput
+                  id="calcTitle"
+                  value={calculationTitle}
+                  onChange={(e) => setCalculationTitle(e.target.value)}
+                  placeholder="Untitled Calculation"
+                  className="mt-1"
+                />
+              </div>
+              <div className="flex gap-3 md:shrink-0">
+                <Button
+                  onClick={handleSave}
+                  disabled={!selectedProjectId || isSaving}
+                  isLoading={isSaving}
+                  className="whitespace-nowrap"
+                >
+                  Save
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={handleNew}
+                  className="whitespace-nowrap"
+                >
+                  <RiAddLine className="mr-2 size-4" /> New
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-4 md:flex md:items-end">
+              <div className="grid grid-cols-1 gap-4 md:flex-1 md:grid-cols-2">
+                <div>
+                  <Label htmlFor="calcTitle">Title</Label>
+                  <TextInput
+                    id="calcTitle"
+                    value={calculationTitle}
+                    onChange={(e) => setCalculationTitle(e.target.value)}
+                    placeholder="Untitled Calculation"
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="project">Project</Label>
+                  <Select
+                    onValueChange={setSelectedProjectId}
+                    value={selectedProjectId}
+                    disabled={Boolean(prefilledProjectId)}
+                  >
+                    <SelectTrigger className="mt-1 w-full">
+                      <SelectValue placeholder="Select Project..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {projects.map((p) => (
+                        <SelectItem key={p.id} value={p.id}>
+                          {p.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="flex gap-3 md:shrink-0">
+                <Button
+                  onClick={handleSave}
+                  disabled={!selectedProjectId || isSaving}
+                  isLoading={isSaving}
+                  className="whitespace-nowrap"
+                >
+                  Save
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={handleNew}
+                  className="whitespace-nowrap"
+                >
+                  <RiAddLine className="mr-2 size-4" /> New
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <Divider />
+
+        <ProjectContextSection
+          revenueUSD={revenueUSD}
+          exchangeRate={exchangeRate}
+          hoursPerDay={hoursPerDay}
+          targetMarginPercent={targetMarginPercent}
+          onRevenueChange={(val) => setRevenueUSD(formatNumber(val))}
+          onExchangeRateChange={(val) =>
+            setExchangeRate(formatNumber(val))
+          }
+          onHoursPerDayChange={setHoursPerDay}
+          onTargetMarginChange={setTargetMarginPercent}
+        />
+
+        <Divider />
+
+        <TimelineSection
+          phases={phases}
+          totalDuration={totalDuration}
+          onAddPhase={addPhase}
+          onRemovePhase={removePhase}
+          onUpdatePhase={updatePhase}
+        />
+
+        <Divider />
+
+        <SquadSection
+          teamMembers={teamMembers}
+          squad={squad}
+          selectedMemberToAdd={selectedMemberToAdd}
+          onSelectedMemberChange={setSelectedMemberToAdd}
+          onAddSquadMember={addSquadMember}
+          onRemoveSquadMember={removeSquadMember}
+          onUpdateAllocation={updateAllocation}
+        />
+
+        <Divider />
+
+        <FreelanceSection
+          freelanceSquad={freelanceSquad}
+          onAddFreelanceMember={addFreelanceMember}
+          onRemoveFreelanceMember={removeFreelanceMember}
+          onUpdateFreelanceMember={updateFreelanceMember}
+        />
+
+        <Divider />
+
+        <OperationalCostsSection
+          costItems={costItems}
+          onDownloadTemplateCSV={downloadTemplateCSV}
+          onDownloadTemplateJSON={downloadTemplateJSON}
+          onExportCSV={exportCostsAsCSV}
+          onExportJSON={exportCostsAsJSON}
+          onImportFile={setPendingImportFile}
+        />
+
+        {selectedProjectId && (
+          <>
+            <Divider />
+            <div>
+              <h3 className="text-label-md text-foreground-primary mb-4">
+                Saved Calculations
+              </h3>
+              {savedCalculations.length === 0 ? (
+                <EmptyState
+                  icon={<RiCalculatorLine className="size-5" />}
+                  title="No saved calculations yet"
+                  description="Saved calculations for this project will appear here."
+                />
+              ) : (
+                <div className="space-y-3">
+                  {savedCalculations.map((calc) => (
+                    <div
+                      key={calc.id}
+                      className={`border-neutral-primary bg-surface flex items-center justify-between gap-3 rounded-lg border px-4 py-3`}
+                    >
+                      <div className="min-w-0 flex-1">
+                        <p className="text-label-md text-foreground-primary truncate">
+                          {calc.title}
+                        </p>
+                        <p className="text-label-xs text-foreground-secondary">
+                          {format(new Date(calc.created_at), "MMM d, yyyy")}
+                        </p>
+                      </div>
+                      <div className="flex shrink-0 items-center gap-2">
+                        <Button
+                          variant="secondary"
+                          size="xs"
+                          onClick={() => handleLoad(calc)}
+                        >
+                          Load
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="xs"
+                          className="text-foreground-tertiary size-6 p-0"
+                          onClick={() => setPendingDeleteId(calc.id)}
+                        >
+                          <RiDeleteBinLine className="size-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </>
+        )}
+      </div>
+
+      <div className="md:col-span-5">
+        <FinancialHUD
+          grossRevenue={grossRevenue}
+          totalLaborCost={totalLaborCost}
+          overheadCost={overheadCost}
+          freelanceCost={freelanceCost}
+          totalCost={totalCost}
+          netProfit={netProfit}
+          marginPercent={marginPercent}
+          targetMargin={targetMargin}
+          suggestedPrice={suggestedPrice}
+        />
+      </div>
+    </div>
+  )
+
   return (
     <div className="flex flex-col">
       {showHeader && (
@@ -527,226 +746,14 @@ export default function CalculatorClientPage({
         </div>
       )}
 
-      <div className="rounded-xxl flex flex-col">
-        <div className="">
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-12 md:gap-8">
-            <div className="space-y-6 md:col-span-7">
-              <div>
-                <h3 className="text-label-md text-foreground-primary mb-4">
-                  Calculation
-                </h3>
-                {hideProjectSelector ? (
-                  <div className="grid grid-cols-1 gap-4 md:flex md:items-end">
-                    <div className="md:flex-1">
-                      <Label htmlFor="calcTitle">Title</Label>
-                      <TextInput
-                        id="calcTitle"
-                        value={calculationTitle}
-                        onChange={(e) => setCalculationTitle(e.target.value)}
-                        placeholder="Untitled Calculation"
-                        className="mt-1"
-                      />
-                    </div>
-                    <div className="flex gap-3 md:shrink-0">
-                      <Button
-                        onClick={handleSave}
-                        disabled={!selectedProjectId || isSaving}
-                        isLoading={isSaving}
-                        className="whitespace-nowrap"
-                      >
-                        Save
-                      </Button>
-                      <Button
-                        variant="secondary"
-                        onClick={handleNew}
-                        className="whitespace-nowrap"
-                      >
-                        <RiAddLine className="mr-2 size-4" /> New
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 gap-4 md:flex md:items-end">
-                    <div className="grid grid-cols-1 gap-4 md:flex-1 md:grid-cols-2">
-                      <div>
-                        <Label htmlFor="calcTitle">Title</Label>
-                        <TextInput
-                          id="calcTitle"
-                          value={calculationTitle}
-                          onChange={(e) => setCalculationTitle(e.target.value)}
-                          placeholder="Untitled Calculation"
-                          className="mt-1"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="project">Project</Label>
-                        <Select
-                          onValueChange={setSelectedProjectId}
-                          value={selectedProjectId}
-                          disabled={Boolean(prefilledProjectId)}
-                        >
-                          <SelectTrigger className="mt-1 w-full">
-                            <SelectValue placeholder="Select Project..." />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {projects.map((p) => (
-                              <SelectItem key={p.id} value={p.id}>
-                                {p.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                    <div className="flex gap-3 md:shrink-0">
-                      <Button
-                        onClick={handleSave}
-                        disabled={!selectedProjectId || isSaving}
-                        isLoading={isSaving}
-                        className="whitespace-nowrap"
-                      >
-                        Save
-                      </Button>
-                      <Button
-                        variant="secondary"
-                        onClick={handleNew}
-                        className="whitespace-nowrap"
-                      >
-                        <RiAddLine className="mr-2 size-4" /> New
-                      </Button>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <Divider />
-
-              <ProjectContextSection
-                revenueUSD={revenueUSD}
-                exchangeRate={exchangeRate}
-                hoursPerDay={hoursPerDay}
-                targetMarginPercent={targetMarginPercent}
-                onRevenueChange={(val) => setRevenueUSD(formatNumber(val))}
-                onExchangeRateChange={(val) =>
-                  setExchangeRate(formatNumber(val))
-                }
-                onHoursPerDayChange={setHoursPerDay}
-                onTargetMarginChange={setTargetMarginPercent}
-              />
-
-              <Divider />
-
-              <TimelineSection
-                phases={phases}
-                totalDuration={totalDuration}
-                onAddPhase={addPhase}
-                onRemovePhase={removePhase}
-                onUpdatePhase={updatePhase}
-              />
-
-              <Divider />
-
-              <SquadSection
-                teamMembers={teamMembers}
-                squad={squad}
-                selectedMemberToAdd={selectedMemberToAdd}
-                onSelectedMemberChange={setSelectedMemberToAdd}
-                onAddSquadMember={addSquadMember}
-                onRemoveSquadMember={removeSquadMember}
-                onUpdateAllocation={updateAllocation}
-              />
-
-              <Divider />
-
-              <FreelanceSection
-                freelanceSquad={freelanceSquad}
-                onAddFreelanceMember={addFreelanceMember}
-                onRemoveFreelanceMember={removeFreelanceMember}
-                onUpdateFreelanceMember={updateFreelanceMember}
-              />
-
-              <Divider />
-
-              <OperationalCostsSection
-                costItems={costItems}
-                onDownloadTemplateCSV={downloadTemplateCSV}
-                onDownloadTemplateJSON={downloadTemplateJSON}
-                onExportCSV={exportCostsAsCSV}
-                onExportJSON={exportCostsAsJSON}
-                onImportFile={setPendingImportFile}
-              />
-
-              {selectedProjectId && (
-                <>
-                  <Divider />
-                  <div>
-                    <h3 className="text-label-md text-foreground-primary mb-4">
-                      Saved Calculations
-                    </h3>
-                    {savedCalculations.length === 0 && (
-                      <div className="rounded-md border border-dashed p-6 text-center">
-                        <p className="text-body-sm text-foreground-secondary">
-                          No saved calculations for this project.
-                        </p>
-                      </div>
-                    )}
-                    <div className="space-y-3">
-                      {savedCalculations.map((calc) => (
-                        <div
-                          key={calc.id}
-                          className={`border-neutral-primary bg-surface flex items-center justify-between gap-3 rounded-lg border px-4 py-3 ${calc.id === currentCalculationId
-                              ? "ring-primary ring-2"
-                              : ""
-                            }`}
-                        >
-                          <div className="min-w-0 flex-1">
-                            <p className="text-label-md text-foreground-primary truncate">
-                              {calc.title}
-                            </p>
-                            <p className="text-label-xs text-foreground-secondary">
-                              {format(new Date(calc.created_at), "MMM d, yyyy")}
-                            </p>
-                          </div>
-                          <div className="flex shrink-0 items-center gap-2">
-                            <Button
-                              variant="secondary"
-                              size="xs"
-                              onClick={() => handleLoad(calc)}
-                            >
-                              Load
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="xs"
-                              className="text-foreground-tertiary size-6 p-0"
-                              onClick={() => setPendingDeleteId(calc.id)}
-                            >
-                              <RiDeleteBinLine className="size-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
-
-            <div className="md:col-span-5">
-              <FinancialHUD
-                grossRevenue={grossRevenue}
-                totalLaborCost={totalLaborCost}
-                overheadCost={overheadCost}
-                freelanceCost={freelanceCost}
-                totalCost={totalCost}
-                netProfit={netProfit}
-                marginPercent={marginPercent}
-                targetMargin={targetMargin}
-                suggestedPrice={suggestedPrice}
-              />
-            </div>
-          </div>
-        </div>
+      <div
+        className={
+          showHeader
+            ? "bg-surface-neutral-primary rounded-xxl flex flex-col p-5"
+            : "flex flex-col"
+        }
+      >
+        {calculatorContent}
       </div>
 
       <ConfirmDialog

@@ -17,7 +17,7 @@ export default function DashboardLoading() {
             <Skeleton className="h-3 w-72 max-w-full" />
           </div>
 
-          <div className="grid gap-md sm:grid-cols-2 lg:grid-cols-5">
+          <div className="grid gap-lg sm:grid-cols-2 lg:grid-cols-5">
             {[1, 2, 3, 4, 5].map((i) => (
               <div
                 key={i}

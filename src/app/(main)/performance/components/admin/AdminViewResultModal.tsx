@@ -146,7 +146,7 @@ export function AdminViewResultModal({
             {employee.jobTitle} • {displayQuarter}
           </p>
           {summaryData ? (
-            <div className="grid grid-cols-1 gap-md lg:grid-cols-6">
+            <div className="grid grid-cols-1 gap-lg lg:grid-cols-6">
               <div className="lg:col-span-4">
                 <Accordion type="multiple" defaultValue={["executive-summary"]}>
                   <AccordionItem value="executive-summary">
@@ -196,7 +196,7 @@ export function AdminViewResultModal({
                 </Accordion>
               </div>
 
-              <div className="lg:col-span-2 flex flex-col gap-md">
+              <div className="lg:col-span-2 flex flex-col gap-lg">
                 <ReviewStatsHeader
                   selectedQuarter={displayQuarter}
                   totalReviewers={totalReviewers}

@@ -9,11 +9,11 @@ import {
   EmptyState,
   Label,
   Select,
-  Spinner,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
+  Spinner,
   Table,
   TableBody,
   TableCell,
@@ -25,10 +25,10 @@ import {
   TimeSelect,
 } from "@/shared/ui"
 import { RiCalendarLine } from "@/shared/ui/lucide-icons"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { format } from "date-fns"
 import { useMemo, useState } from "react"
 import { toast } from "sonner"
-import { useQuery, useQueryClient } from "@tanstack/react-query"
 
 type OneOnOneSlot = {
   id: string
@@ -264,13 +264,13 @@ export function OneOnOneMeetingTab({
   }
 
   return (
-    <div className="flex flex-col gap-md">
+    <div className="flex flex-col gap-lg">
       {isAdmin && (
         <TableSection
           title={`Buat Slot 1:1 (${selectedQuarter})`}
           contentClassName="px-xl pb-xl pt-sm"
         >
-          <div className="grid grid-cols-1 gap-md lg:grid-cols-6 lg:items-end">
+          <div className="grid grid-cols-1 gap-lg lg:grid-cols-6 lg:items-end">
             <div className="flex flex-col gap-2">
               <Label>Tanggal</Label>
               <DatePicker
@@ -463,9 +463,9 @@ export function OneOnOneMeetingTab({
 
         {isAdmin && editingSlotId && (
           <div className="border-neutral-primary bg-surface-neutral-primary mt-4 rounded-lg border p-3">
-            <div className="grid grid-cols-1 gap-md md:grid-cols-4">
-                <div className="flex flex-col gap-2">
-                  <Label>Tanggal</Label>
+            <div className="grid grid-cols-1 gap-lg md:grid-cols-4">
+              <div className="flex flex-col gap-2">
+                <Label>Tanggal</Label>
                 <DatePicker
                   value={parseDateValue(editDate)}
                   onChange={(value) =>

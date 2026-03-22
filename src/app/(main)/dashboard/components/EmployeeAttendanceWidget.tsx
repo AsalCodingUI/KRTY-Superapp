@@ -4,16 +4,16 @@ import { useClockActions } from "@/features/attendance-clock/model/useClockActio
 import { LeaveRequestModal } from "@/page-slices/leave/ui/components/LeaveRequestModal"
 import { createClient } from "@/shared/api/supabase/client"
 import { Database } from "@/shared/types/database.types"
-import { format } from "date-fns"
-import { useEffect, useMemo, useState } from "react"
-import { Badge, Button, Card, EmptyState } from "@/shared/ui"
+import { Badge, Button, EmptyState } from "@/shared/ui"
 import {
   RiCalendarLine,
   RiCheckboxCircleLine,
   RiLoginBoxLine,
   RiLogoutBoxLine,
 } from "@/shared/ui/lucide-icons"
+import { format } from "date-fns"
 import { useRouter } from "next/navigation"
+import { useEffect, useMemo, useState } from "react"
 
 type AttendanceLog = Database["public"]["Tables"]["attendance_logs"]["Row"]
 type LeaveRequest = Database["public"]["Tables"]["leave_requests"]["Row"]
@@ -21,7 +21,6 @@ type LeaveRequest = Database["public"]["Tables"]["leave_requests"]["Row"]
 interface EmployeeAttendanceWidgetProps {
   userId: string
   userFullName?: string | null
-  leaveBalance: number
   recentAttendance: AttendanceLog[]
   recentLeaveRequests: LeaveRequest[]
 }
@@ -33,7 +32,6 @@ function getLocalDateString(): string {
 export function EmployeeAttendanceWidget({
   userId,
   userFullName,
-  leaveBalance,
   recentAttendance,
   recentLeaveRequests,
 }: EmployeeAttendanceWidgetProps) {
@@ -100,11 +98,6 @@ export function EmployeeAttendanceWidget({
     onLogsUpdate: (next) => setLogs(next as AttendanceLog[]),
   })
 
-  const attendedDays = new Set(
-    logs.filter((log) => Boolean(log.clock_in)).map((log) => log.date),
-  ).size
-  const attendanceRate = Math.round((Math.min(attendedDays, 7) / 7) * 100)
-
   const today = getLocalDateString()
   const activeSession = logs.find(
     (log) => log.date === today && log.clock_out === null,
@@ -121,27 +114,6 @@ export function EmployeeAttendanceWidget({
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-lg border px-4 py-3">
-          <p className="text-label-sm text-foreground-secondary">Leave Balance</p>
-          <div className="flex items-center gap-3">
-            <p className="text-heading-md text-foreground-primary">
-              {leaveBalance} days
-            </p>
-          </div>
-        </div>
-
-        <div className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-lg border px-4 py-3">
-          <p className="text-label-sm text-foreground-secondary">
-            Attendance (Last 7 Days)
-          </p>
-          <div className="flex items-center gap-3">
-            <p className="text-heading-md text-foreground-primary">
-              {attendanceRate}%
-            </p>
-          </div>
-        </div>
-      </div>
 
       <div className="rounded-lg border border-neutral-primary bg-surface-neutral-primary px-3 py-2">
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -198,7 +170,7 @@ export function EmployeeAttendanceWidget({
         </div>
       </div>
 
-      <Card>
+      <div>
         <h4 className="text-label-md text-foreground-primary mb-3">
           Attendance History (Last 7 Days)
         </h4>
@@ -235,9 +207,9 @@ export function EmployeeAttendanceWidget({
             ))}
           </div>
         )}
-      </Card>
+      </div>
 
-      <Card>
+      <div>
         <h4 className="text-label-md text-foreground-primary mb-3">
           Leave Requests
         </h4>
@@ -286,7 +258,7 @@ export function EmployeeAttendanceWidget({
             icon={<RiCalendarLine className="size-5" />}
           />
         )}
-      </Card>
+      </div>
 
       <LeaveRequestModal
         isOpen={isLeaveModalOpen}

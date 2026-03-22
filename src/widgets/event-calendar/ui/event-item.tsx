@@ -120,7 +120,7 @@ export const EventItem = memo(function EventItem({
       <div
         className={cx(
           "flex min-w-0 flex-1 flex-col p-xs",
-          showMeta ? "gap-md" : "gap-0",
+          showMeta ? "gap-lg" : "gap-0",
         )}
       >
         <div className="flex flex-col text-label-xs leading-4">
@@ -133,7 +133,7 @@ export const EventItem = memo(function EventItem({
         </div>
 
         {showMeta && (
-          <div className="flex flex-wrap items-center gap-md">
+          <div className="flex flex-wrap items-center gap-lg">
             {showTime && !event.allDay && (
               <div className="flex items-center gap-sm">
                 <RiTimeLine className="size-3.5 text-foreground-secondary" />

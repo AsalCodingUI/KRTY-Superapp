@@ -369,14 +369,14 @@ export function ProjectForm({
 
             {/* Auto Quarter Preview */}
             {previewQuarter && (
-              <div className="bg-primary/10 dark:bg-primary/10 rounded-lg p-3">
+              <div className="bg-primary/10 rounded-lg p-3">
                 <div className="flex items-center gap-2">
-                  <span className="text-label-md text-primary dark:text-primary">
+                  <span className="text-label-md text-foreground-brand-primary">
                     Auto Quarter Assignment:
                   </span>
                   <QuarterBadge quarter={previewQuarter} />
                 </div>
-                <p className="text-body-xs text-primary/80 dark:text-primary/80 mt-1">
+                <p className="text-body-xs text-foreground-brand-primary/80 mt-1">
                   This project will be assigned to {previewQuarter} based on the
                   end date.
                 </p>
@@ -418,11 +418,11 @@ export function ProjectForm({
             {/* Team Assignment */}
             <div className="space-y-4">
                 {/* Section Header */}
-                <div className="border-border border-t pt-4">
-                  <h4 className="text-label-md text-content dark:text-content">
+                <div className="border-neutral-primary border-t pt-4">
+                  <h4 className="text-label-md text-foreground-primary">
                     Assign Team Members (Optional)
                   </h4>
-                  <p className="text-body-sm text-content-subtle dark:text-content-placeholder mt-1">
+                  <p className="text-body-sm text-foreground-secondary mt-1">
                     Add team members who will work on this project
                   </p>
                 </div>
@@ -471,7 +471,7 @@ export function ProjectForm({
                     {teamMembers.map((member) => (
                       <div
                         key={member.userId}
-                        className="border-border bg-surface flex items-center justify-between rounded-lg border p-2"
+                        className="border-neutral-primary bg-surface-neutral-primary flex items-center justify-between rounded-lg border p-2"
                       >
                         <div className="flex items-center gap-2">
                           <Avatar
@@ -480,10 +480,10 @@ export function ProjectForm({
                             size="sm"
                           />
                           <div>
-                            <p className="text-label-md text-content dark:text-content">
+                            <p className="text-label-md text-foreground-primary">
                               {member.userName}
                             </p>
-                            <p className="text-body-xs text-content-subtle dark:text-content-placeholder">
+                            <p className="text-body-xs text-foreground-secondary">
                               {member.role}
                             </p>
                           </div>

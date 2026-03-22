@@ -106,11 +106,11 @@ function CalendarContent({
     <>
       <div className="relative min-h-0 flex-1 overflow-hidden">
         {/* Mobile filter FAB */}
-        <div className="absolute right-3 bottom-3 z-10 lg:hidden">
+        <div className="fixed bottom-[calc(env(safe-area-inset-bottom)+5.25rem)] left-1/2 z-[60] -translate-x-1/2 lg:hidden">
           <CalendarSidebarMobileTrigger />
         </div>
         {viewMode === "month" && (
-          <div className="h-full">
+          <div className="h-full overflow-auto">
             <MonthView
               events={visibleEvents}
               onEventClick={handleEventClick}

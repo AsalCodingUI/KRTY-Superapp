@@ -1,10 +1,20 @@
 "use client"
 
-import { Button, Divider, Label, Tabs, TabsList, TabsTrigger, Textarea, TextInput } from "@/shared/ui"
+import {
+  Button,
+  Divider,
+  Label,
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  Textarea,
+  TextInput,
+} from "@/shared/ui"
 import { createClient as createClientBrowser } from "@/shared/api/supabase/client"
 import { logError } from "@/shared/lib/utils/logger"
 import {
   RiArrowLeftLine,
+  RiFileList3Line,
   RiPrinterLine,
   RiSave3Line,
   RiSaveLine,
@@ -115,12 +125,14 @@ interface SLAContainerProps {
   slaId?: string
   initialData?: SLAData
   onBack?: () => void
+  projectId?: string
 }
 
 export default function SLAContainer({
   slaId,
   initialData,
   onBack,
+  projectId,
 }: SLAContainerProps) {
   const router = useRouter()
   const supabase = createClientBrowser()
@@ -187,7 +199,8 @@ export default function SLAContainer({
     const payload = {
       user_id: user.id,
       client_name: clientInfo.name,
-      project_name: clientInfo.company, // Using company as project name for now
+      project_name: clientInfo.company,
+      project_id: projectId || null,
       client_info: clientInfo,
       agency_info: agencyInfo,
       scope_of_work: scopeOfWork,
@@ -241,230 +254,276 @@ export default function SLAContainer({
   }
 
   return (
-    <div className="bg-surface-neutral-primary rounded-xxl flex h-full w-full flex-col overflow-hidden lg:flex-row print:bg-white">
-      {/* --- LEFT PANEL: EDITOR (Scrollable) --- */}
-      <div
-        className={`border-neutral-primary bg-surface flex h-full w-full flex-col border-r lg:w-1/2 print:hidden ${activeTab === "preview" ? "hidden lg:flex" : "flex"}`}
-      >
-        {/* Header */}
-        <div className="border-neutral-primary bg-surface sticky top-0 z-10 flex items-center justify-between border-b p-4">
-          <div className="flex min-w-0 items-center gap-3">
-            <Button variant="ghost" size="sm" className="p-2" onClick={onBack}>
-              <RiArrowLeftLine className="text-foreground-tertiary h-5 w-5" />
-            </Button>
-            <div className="min-w-0">
-              <h1 className="text-heading-md text-foreground-primary truncate">
-                {slaId ? "Edit SLA" : "New SLA"}
-              </h1>
-              <p className="text-label-sm text-foreground-secondary truncate">
-                {clientInfo.company || "Untitled Project"}
-              </p>
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <div className="lg:hidden">
-              <Tabs value={activeTab} onValueChange={setActiveTab}>
-                <TabsList>
-                  <TabsTrigger value="editor">Editor</TabsTrigger>
-                  <TabsTrigger value="preview">Preview</TabsTrigger>
-                </TabsList>
-              </Tabs>
-            </div>
-
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={handleSaveToDatabase}
-              disabled={saving || !clientInfo.name}
-              className="hidden lg:flex"
-            >
-              <RiSave3Line className="mr-2 h-4 w-4" />
-              {saving ? "Saving..." : "Save"}
-            </Button>
-
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={handleExportJson}
-              className="hidden lg:flex"
-              title="Export JSON"
-            >
-              <RiSaveLine className="h-4 w-4" />
-            </Button>
-            <Button
-              onClick={handlePrint}
-              size="sm"
-              variant="secondary"
-              className="hidden lg:flex"
-              title="Print PDF"
-            >
-              <RiPrinterLine className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-
-        {/* Form Content */}
-        <div className="flex-1 space-y-5 overflow-y-auto p-4 lg:p-5">
-          {/* 1. Client Info */}
-          <div className="space-y-4">
-            <h3 className="text-label-md text-foreground-primary">
-              Client Information
-            </h3>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label>Client Name</Label>
-                <TextInput
-                  value={clientInfo.name}
-                  onChange={(e) =>
-                    setClientInfo({ ...clientInfo, name: e.target.value })
-                  }
-                  placeholder="e.g. John Doe"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Company / Project Name</Label>
-                <TextInput
-                  value={clientInfo.company}
-                  onChange={(e) =>
-                    setClientInfo({ ...clientInfo, company: e.target.value })
-                  }
-                  placeholder="e.g. Acme Corp"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Email</Label>
-                <TextInput
-                  value={clientInfo.email}
-                  onChange={(e) =>
-                    setClientInfo({ ...clientInfo, email: e.target.value })
-                  }
-                  placeholder="john@example.com"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Date</Label>
-                <TextInput
-                  value={clientInfo.date}
-                  onChange={(e) =>
-                    setClientInfo({ ...clientInfo, date: e.target.value })
-                  }
-                />
-              </div>
-              <div className="space-y-2 md:col-span-2">
-                <Label>Address</Label>
-                <TextInput
-                  value={clientInfo.address}
-                  onChange={(e) =>
-                    setClientInfo({ ...clientInfo, address: e.target.value })
-                  }
-                />
-              </div>
-            </div>
-          </div>
-
-          <Divider />
-
-          {/* 2. Agency Info */}
-          <div className="space-y-4">
-            <h3 className="text-label-md text-foreground-primary">
-              Agency Information
-            </h3>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label>Agency Name</Label>
-                <TextInput
-                  value={agencyInfo.name}
-                  onChange={(e) =>
-                    setAgencyInfo({ ...agencyInfo, name: e.target.value })
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Representative Name</Label>
-                <TextInput
-                  value={agencyInfo.repName}
-                  onChange={(e) =>
-                    setAgencyInfo({ ...agencyInfo, repName: e.target.value })
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Representative Title</Label>
-                <TextInput
-                  value={agencyInfo.repTitle}
-                  onChange={(e) =>
-                    setAgencyInfo({ ...agencyInfo, repTitle: e.target.value })
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Email</Label>
-                <TextInput
-                  value={agencyInfo.email}
-                  onChange={(e) =>
-                    setAgencyInfo({ ...agencyInfo, email: e.target.value })
-                  }
-                />
-              </div>
-              <div className="space-y-2 md:col-span-2">
-                <Label>Address</Label>
-                <Textarea
-                  value={agencyInfo.address}
-                  onChange={(e) =>
-                    setAgencyInfo({ ...agencyInfo, address: e.target.value })
-                  }
-                  className="min-h-[80px]"
-                />
-              </div>
-            </div>
-          </div>
-
-          <Divider />
-
-          {/* 3. Scope of Work */}
-          <ScopeOfWorkForm data={scopeOfWork} onChange={setScopeOfWork} />
-
-          <Divider />
-
-          {/* 4. Milestones */}
-          <MilestonesForm data={milestones} onChange={setMilestones} />
-
-          {/* Padding Bottom for scroll */}
-          <div className="h-10"></div>
-        </div>
+    <div className="flex flex-col">
+      <div className="flex items-center gap-2 rounded-xxl px-5 pt-4 pb-3 print:hidden">
+        <RiFileList3Line className="size-4 text-foreground-secondary" />
+        <p className="text-label-md text-foreground-primary">
+          {slaId ? "Edit SLA" : "Create SLA"}
+        </p>
       </div>
 
-      {/* --- RIGHT PANEL: PREVIEW --- */}
-      <div
-        className={`bg-surface-neutral-primary flex h-full w-full flex-col lg:w-1/2 print:block print:w-full ${activeTab === "editor" ? "hidden lg:flex" : "flex"}`}
-      >
-        {/* Mobile Header for Preview */}
-        <div className="border-neutral-primary bg-surface flex items-center justify-between border-b p-4 lg:hidden print:hidden">
-          <span className="text-label-md text-foreground-primary">
-            PDF Preview
-          </span>
-          <div className="flex gap-2">
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={handleSaveToDatabase}
-              disabled={saving}
-            >
-              <RiSave3Line className="h-4 w-4" />
-            </Button>
-            <Button onClick={handlePrint} size="sm">
-              <RiPrinterLine className="h-4 w-4" />
-            </Button>
+      <div className="bg-surface-neutral-primary flex h-full w-full flex-col overflow-hidden rounded-xxl lg:flex-row print:bg-white">
+        {/* --- LEFT PANEL: EDITOR (Scrollable) --- */}
+        <div
+          className={`border-neutral-primary bg-surface flex h-full w-full flex-col border-r lg:w-1/2 print:hidden ${activeTab === "preview" ? "hidden lg:flex" : "flex"}`}
+        >
+          {/* Header */}
+          <div className="border-neutral-primary bg-surface sticky top-0 z-10 flex items-center justify-between border-b px-5 py-4">
+            <div className="flex min-w-0 items-center gap-3">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="p-2"
+                onClick={onBack ?? (() => router.back())}
+              >
+                <RiArrowLeftLine className="text-foreground-tertiary h-5 w-5" />
+              </Button>
+              <div className="min-w-0">
+                <p className="text-label-md text-foreground-primary truncate">
+                  {slaId ? "Edit SLA" : "New SLA"}
+                </p>
+                <p className="text-body-sm text-foreground-secondary truncate">
+                  {clientInfo.company || "Untitled Project"}
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <div className="lg:hidden">
+                <Tabs value={activeTab} onValueChange={setActiveTab}>
+                  <TabsList>
+                    <TabsTrigger value="editor">Editor</TabsTrigger>
+                    <TabsTrigger value="preview">Preview</TabsTrigger>
+                  </TabsList>
+                </Tabs>
+              </div>
+
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={handleSaveToDatabase}
+                disabled={saving || !clientInfo.name}
+                className="hidden lg:flex"
+              >
+                <RiSave3Line className="mr-2 h-4 w-4" />
+                {saving ? "Saving..." : "Save"}
+              </Button>
+
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={handleExportJson}
+                className="hidden lg:flex"
+                title="Export JSON"
+              >
+                <RiSaveLine className="h-4 w-4" />
+              </Button>
+              <Button
+                onClick={handlePrint}
+                size="sm"
+                variant="secondary"
+                className="hidden lg:flex"
+                title="Print PDF"
+              >
+                <RiPrinterLine className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+
+          {/* Form Content */}
+          <div className="flex-1 space-y-5 overflow-y-auto p-5">
+            <section className="space-y-4">
+              <h3 className="text-label-md text-foreground-primary">
+                Client Information
+              </h3>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div className="space-y-4">
+                  <div>
+                    <Label>Client Name</Label>
+                    <div className="mt-2">
+                      <TextInput
+                        value={clientInfo.name}
+                        onChange={(e) =>
+                          setClientInfo({ ...clientInfo, name: e.target.value })
+                        }
+                        placeholder="e.g. John Doe"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <Label>Email</Label>
+                    <div className="mt-2">
+                      <TextInput
+                        value={clientInfo.email}
+                        onChange={(e) =>
+                          setClientInfo({ ...clientInfo, email: e.target.value })
+                        }
+                        placeholder="john@example.com"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <div>
+                    <Label>Company / Project Name</Label>
+                    <div className="mt-2">
+                      <TextInput
+                        value={clientInfo.company}
+                        onChange={(e) =>
+                          setClientInfo({
+                            ...clientInfo,
+                            company: e.target.value,
+                          })
+                        }
+                        placeholder="e.g. Acme Corp"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <Label>Date</Label>
+                    <div className="mt-2">
+                      <TextInput
+                        value={clientInfo.date}
+                        onChange={(e) =>
+                          setClientInfo({ ...clientInfo, date: e.target.value })
+                        }
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div className="sm:col-span-2">
+                  <Label>Address</Label>
+                  <div className="mt-2">
+                    <TextInput
+                      value={clientInfo.address}
+                      onChange={(e) =>
+                        setClientInfo({ ...clientInfo, address: e.target.value })
+                      }
+                    />
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <Divider />
+
+            <section className="space-y-4">
+              <h3 className="text-label-md text-foreground-primary">
+                Agency Information
+              </h3>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div>
+                  <Label>Agency Name</Label>
+                  <div className="mt-2">
+                    <TextInput
+                      value={agencyInfo.name}
+                      onChange={(e) =>
+                        setAgencyInfo({ ...agencyInfo, name: e.target.value })
+                      }
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label>Representative Name</Label>
+                  <div className="mt-2">
+                    <TextInput
+                      value={agencyInfo.repName}
+                      onChange={(e) =>
+                        setAgencyInfo({ ...agencyInfo, repName: e.target.value })
+                      }
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label>Representative Title</Label>
+                  <div className="mt-2">
+                    <TextInput
+                      value={agencyInfo.repTitle}
+                      onChange={(e) =>
+                        setAgencyInfo({
+                          ...agencyInfo,
+                          repTitle: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label>Email</Label>
+                  <div className="mt-2">
+                    <TextInput
+                      value={agencyInfo.email}
+                      onChange={(e) =>
+                        setAgencyInfo({ ...agencyInfo, email: e.target.value })
+                      }
+                    />
+                  </div>
+                </div>
+                <div className="sm:col-span-2">
+                  <Label>Address</Label>
+                  <div className="mt-2">
+                    <Textarea
+                      value={agencyInfo.address}
+                      onChange={(e) =>
+                        setAgencyInfo({
+                          ...agencyInfo,
+                          address: e.target.value,
+                        })
+                      }
+                      className="min-h-[80px]"
+                    />
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <Divider />
+
+            <section>
+              <ScopeOfWorkForm data={scopeOfWork} onChange={setScopeOfWork} />
+            </section>
+
+            <Divider />
+
+            <section>
+              <MilestonesForm data={milestones} onChange={setMilestones} />
+            </section>
+
+            <div className="h-10"></div>
           </div>
         </div>
 
-        <div className="flex flex-1 flex-col items-center overflow-x-hidden overflow-y-auto p-4 lg:p-8">
-          <SLADocumentPreview
-            clientInfo={clientInfo}
-            agencyInfo={agencyInfo}
-            scopeOfWork={scopeOfWork}
-            milestones={milestones}
-          />
+        {/* --- RIGHT PANEL: PREVIEW --- */}
+        <div
+          className={`bg-surface-neutral-primary flex h-full w-full flex-col lg:w-1/2 print:block print:w-full ${activeTab === "editor" ? "hidden lg:flex" : "flex"}`}
+        >
+          {/* Mobile Header for Preview */}
+          <div className="border-neutral-primary bg-surface flex items-center justify-between border-b px-5 py-4 lg:hidden print:hidden">
+            <span className="text-label-md text-foreground-primary">
+              PDF Preview
+            </span>
+            <div className="flex gap-2">
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={handleSaveToDatabase}
+                disabled={saving}
+              >
+                <RiSave3Line className="h-4 w-4" />
+              </Button>
+              <Button onClick={handlePrint} size="sm">
+                <RiPrinterLine className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+
+          <div className="flex flex-1 flex-col items-center overflow-x-hidden overflow-y-auto p-5 lg:p-8">
+            <SLADocumentPreview
+              clientInfo={clientInfo}
+              agencyInfo={agencyInfo}
+              scopeOfWork={scopeOfWork}
+              milestones={milestones}
+            />
+          </div>
         </div>
       </div>
     </div>

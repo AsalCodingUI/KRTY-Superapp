@@ -1,9 +1,9 @@
 "use client"
 
-import { Avatar, Badge } from "@/shared/ui"
-import { Button } from "@/shared/ui"
+import { Avatar, Badge, Button, Card, EmptyState } from "@/shared/ui"
 import {
   RiArrowRightLine,
+  RiFileList3Line,
 } from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
 import Link from "next/link"
@@ -43,9 +43,9 @@ export function AdminPendingActions({
 }: AdminPendingActionsProps) {
   return (
     <div className="space-y-4">
-      <div className="border-neutral-primary rounded-lg border px-4 py-3">
+      <Card>
         <div className="mb-3 flex items-center justify-between">
-          <p className="text-label-sm text-foreground-secondary">
+          <p className="text-label-md text-foreground-secondary">
             Pending Reviews
           </p>
           <span className="text-body-xs text-foreground-tertiary tabular-nums">
@@ -54,11 +54,13 @@ export function AdminPendingActions({
         </div>
 
         {pendingReviews.length === 0 ? (
-          <div className="py-5 text-center">
-            <p className="text-body-xs text-foreground-tertiary">
-              All reviews completed.
-            </p>
-          </div>
+          <EmptyState
+            icon={<RiFileList3Line className="size-5" />}
+            title="No pending reviews"
+            description="All performance reviews are completed."
+            placement="inner"
+            className="min-h-[160px] px-0 py-6"
+          />
         ) : (
           <>
             <div className="border-neutral-primary divide-neutral-primary overflow-hidden rounded-lg border divide-y">
@@ -105,11 +107,11 @@ export function AdminPendingActions({
             )}
           </>
         )}
-      </div>
+      </Card>
 
-      <div className="border-neutral-primary rounded-lg border px-4 py-3">
+      <Card>
         <div className="mb-3 flex items-center justify-between">
-          <p className="text-label-sm text-foreground-secondary">
+          <p className="text-label-md text-foreground-secondary">
             Leave Approvals
           </p>
           <span className="text-body-xs text-foreground-tertiary tabular-nums">
@@ -118,11 +120,13 @@ export function AdminPendingActions({
         </div>
 
         {pendingLeaveApprovals.length === 0 ? (
-          <div className="py-5 text-center">
-            <p className="text-body-xs text-foreground-tertiary">
-              No pending leave requests
-            </p>
-          </div>
+          <EmptyState
+            icon={<RiFileList3Line className="size-5" />}
+            title="No leave approvals pending"
+            description="There are no leave requests waiting for review."
+            placement="inner"
+            className="min-h-[160px] px-0 py-6"
+          />
         ) : (
           <>
             <div className="border-neutral-primary divide-neutral-primary overflow-hidden rounded-lg border divide-y">
@@ -184,7 +188,7 @@ export function AdminPendingActions({
             )}
           </>
         )}
-      </div>
+      </Card>
     </div>
   )
 }

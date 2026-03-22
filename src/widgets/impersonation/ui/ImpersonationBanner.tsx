@@ -40,7 +40,7 @@ export function ImpersonationBanner() {
 
   return (
     <div className="bg-surface-warning-light sticky top-0 z-40 px-5 py-2">
-      <div className="flex flex-wrap items-center justify-between gap-md">
+      <div className="flex flex-wrap items-center justify-between gap-lg">
         <p className="text-body-sm text-foreground-warning-on-color min-w-0 truncate">
           Viewing as{" "}
           <strong>{profile.full_name || profile.email || "User"}</strong>

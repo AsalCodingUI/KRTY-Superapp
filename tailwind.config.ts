@@ -139,7 +139,7 @@ const config: Config = {
         // Semantic Gap Tokens (Mapped)
         xs: "var(--gap-xs)",
         sm: "var(--gap-sm)",
-        md: "var(--gap-md)",
+        md: "var(--gap-lg)",
         lg: "var(--gap-lg)",
         xl: "var(--gap-xl)",
       },

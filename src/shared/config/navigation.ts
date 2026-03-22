@@ -5,11 +5,10 @@ import {
   RiCalendarCheckLine,
   RiCalendarLine,
   RiFolderLine,
-  RiFundsBoxLine,
   RiGroupLine,
   RiHome2Line,
-  RiQuestionLine,
-  RiSettings5Line,
+  RiMoneyDollarCircleLine,
+  RiSettings5Line
 } from "@/shared/ui/lucide-icons"
 
 interface NavigationItem {
@@ -27,12 +26,6 @@ interface NavigationConfig {
 
 export const navigationConfig: NavigationConfig = {
   footer: [
-    {
-      name: "Help & support",
-      href: "#", // Placeholder
-      icon: RiQuestionLine,
-      roles: ["stakeholder", "employee"],
-    },
     {
       name: "Settings",
       href: siteConfig.baseLinks.settings.general,
@@ -72,9 +65,9 @@ export const navigationConfig: NavigationConfig = {
       roles: ["stakeholder"],
     },
     {
-      name: "Payroll",
-      href: siteConfig.baseLinks.payroll,
-      icon: RiFundsBoxLine,
+      name: "Finance",
+      href: siteConfig.baseLinks.finance,
+      icon: RiMoneyDollarCircleLine,
       roles: ["stakeholder"],
     },
     {

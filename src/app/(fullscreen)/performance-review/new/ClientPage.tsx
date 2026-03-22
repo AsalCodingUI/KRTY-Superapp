@@ -1,28 +1,33 @@
 "use client"
 
 import { submitPerformanceReview } from "@/app/(main)/performance/action"
-import { toast } from "sonner"
 import {
-  Button, Card, Dialog,
+  Button,
+  Card,
+  Dialog,
   DialogBody,
   DialogCloseButton,
   DialogContent,
   DialogFooter,
   DialogHeader,
-  DialogTitle, Label, Select,
+  DialogTitle,
+  Label,
+  Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue, Textarea
+  SelectValue,
+  Textarea,
 } from "@/shared/ui"
 import {
+  RiArrowLeftLine,
   RiCheckLine,
-  RiCloseLine,
   RiInformationLine,
   RiStarFill,
 } from "@/shared/ui/lucide-icons"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
+import { toast } from "sonner"
 
 type Colleague = {
   id: string
@@ -31,17 +36,18 @@ type Colleague = {
 }
 
 interface ReviewFormClientPageProps {
+  cycleId: string
   colleagues: Colleague[]
 }
 
 export default function ReviewFormClientPage({
+  cycleId,
   colleagues,
 }: ReviewFormClientPageProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [showExitConfirm, setShowExitConfirm] = useState(false)
 
-  // Form State
   const [formData, setFormData] = useState({
     reviewee_id: "",
     score_quality: 0,
@@ -52,7 +58,6 @@ export default function ReviewFormClientPage({
     feedback_start: "",
     feedback_continue: "",
     feedback_stop: "",
-    // Individual justifications for each competency
     justification_quality: "",
     justification_reliability: "",
     justification_communication: "",
@@ -60,11 +65,9 @@ export default function ReviewFormClientPage({
     justification_leadership: "",
   })
 
-  // Helper function: check if a score is extreme (1, 2, or 5)
   const isExtremeScore = (score: number) =>
     score > 0 && (score <= 2 || score === 5)
 
-  // Check individual extreme scores
   const needsQualityJustification = isExtremeScore(formData.score_quality)
   const needsReliabilityJustification = isExtremeScore(
     formData.score_reliability,
@@ -75,7 +78,6 @@ export default function ReviewFormClientPage({
   const needsInitiativeJustification = isExtremeScore(formData.score_initiative)
   const needsLeadershipJustification = isExtremeScore(formData.score_leadership)
 
-  // Step completion logic
   const step1Complete = formData.reviewee_id !== ""
   const step2Complete = [
     formData.score_quality,
@@ -85,7 +87,6 @@ export default function ReviewFormClientPage({
     formData.score_leadership,
   ].every((score) => score > 0)
 
-  // Step 3: Check that all extreme ratings have justifications (min 10 chars)
   const step3Complete =
     (!needsQualityJustification ||
       formData.justification_quality.length >= 10) &&
@@ -103,106 +104,45 @@ export default function ReviewFormClientPage({
     formData.feedback_continue !== "" &&
     formData.feedback_stop !== ""
 
-  // Handler untuk exit confirmation
-  const handleExitClick = () => {
-    setShowExitConfirm(true)
-  }
-
-  const handleConfirmExit = () => {
-    setShowExitConfirm(false)
-    router.push("/performance")
-  }
-
-  const handleCancelExit = () => {
-    setShowExitConfirm(false)
-  }
+  const hasAnyExtremeScore =
+    needsQualityJustification ||
+    needsReliabilityJustification ||
+    needsCommunicationJustification ||
+    needsInitiativeJustification ||
+    needsLeadershipJustification
 
   const handleSubmit = async () => {
     setLoading(true)
     try {
-      const payload = {
+      const result = await submitPerformanceReview({
         ...formData,
-        cycle_id: "2025-Q1",
-      }
-
-      const result = await submitPerformanceReview(payload)
+        cycle_id: cycleId,
+      })
       if (result.success) {
-        toast.success("Review submitted! AI is processing anonymity...")
+        toast.success("Review submitted successfully")
         router.push("/performance")
       } else {
         toast.error(result.message)
       }
-    } catch (error) {
-      console.error(error)
-      toast.error("Error submitting review.")
+    } catch {
+      toast.error("Failed to submit review")
     } finally {
       setLoading(false)
     }
   }
 
-  // Progress Tracker Component
-  const ProgressTracker = () => {
-    const hasAnyExtremeScore =
-      needsQualityJustification ||
-      needsReliabilityJustification ||
-      needsCommunicationJustification ||
-      needsInitiativeJustification ||
-      needsLeadershipJustification
+  const steps = [
+    { number: 1, label: "Select Colleague", complete: step1Complete },
+    { number: 2, label: "Rate Competencies", complete: step2Complete },
+    {
+      number: 3,
+      label: "Justify Scores",
+      complete: step3Complete,
+      hidden: !hasAnyExtremeScore,
+    },
+    { number: 4, label: "Written Feedback", complete: step4Complete },
+  ]
 
-    const steps = [
-      { number: 1, label: "Select Colleague", complete: step1Complete },
-      { number: 2, label: "Rate Competencies", complete: step2Complete },
-      {
-        number: 3,
-        label: "Justify Scores",
-        complete: step3Complete,
-        hidden: !hasAnyExtremeScore,
-      },
-      { number: 4, label: "Written Feedback", complete: step4Complete },
-    ]
-
-    return (
-      <div className="space-y-4">
-        <div>
-          <h3 className="text-label-md text-content dark:text-content mb-1">
-            Review Progress
-          </h3>
-          <p className="text-label-xs text-content-subtle">
-            Complete all steps to submit
-          </p>
-        </div>
-        <div className="space-y-3">
-          {steps
-            .filter((s) => !s.hidden)
-            .map((step) => (
-              <div key={step.number} className="flex items-center gap-3">
-                {step.complete ? (
-                  <div className="bg-success-subtle flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full">
-                    <RiCheckLine className="text-success-text h-4 w-4" />
-                  </div>
-                ) : (
-                  <div className="border-input dark:border-border-subtle flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full border-2">
-                    <span className="text-label-xs text-content-subtle dark:text-content-placeholder">
-                      {step.number}
-                    </span>
-                  </div>
-                )}
-                <span
-                  className={`text-label-md ${step.complete
-                      ? "text-content dark:text-content font-medium"
-                      : "text-content-subtle dark:text-content-placeholder"
-                    }`}
-                >
-                  {step.label}
-                </span>
-              </div>
-            ))}
-        </div>
-      </div>
-    )
-  }
-
-  // Komponen Rating Bintang
   const StarRating = ({
     label,
     value,
@@ -214,11 +154,9 @@ export default function ReviewFormClientPage({
   }) => (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <Label className="text-content-subtle dark:text-content-subtle font-medium">
-          {label}
-        </Label>
-        <span className="text-label-xs text-content-subtle">
-          {value > 0 ? value + "/5" : "-"}
+        <Label>{label}</Label>
+        <span className="text-label-xs text-foreground-secondary">
+          {value > 0 ? value + "/5" : "—"}
         </span>
       </div>
       <div className="flex gap-1">
@@ -227,7 +165,9 @@ export default function ReviewFormClientPage({
             key={star}
             type="button"
             onClick={() => onChange(star)}
-            className={`p-1 transition-all hover:scale-110 focus:outline-none ${star <= value ? "text-yellow-400" : "text-border-strong dark:text-content"}`}
+            className={`p-1 transition-all hover:scale-110 focus:outline-none ${
+              star <= value ? "text-yellow-400" : "text-foreground-tertiary"
+            }`}
           >
             <RiStarFill className="size-6" />
           </button>
@@ -236,127 +176,180 @@ export default function ReviewFormClientPage({
     </div>
   )
 
+  const JustificationField = ({
+    label,
+    value,
+    onChange,
+  }: {
+    label: string
+    value: string
+    onChange: (val: string) => void
+  }) => (
+    <div className="bg-surface-neutral-secondary mt-3 rounded-lg p-3">
+      <div className="mb-2 flex items-center gap-2">
+        <RiInformationLine className="text-foreground-secondary size-4 shrink-0" />
+        <p className="text-label-xs text-foreground-secondary">
+          Why this rating for {label}?
+        </p>
+      </div>
+      <Textarea
+        placeholder="Explain why you gave this rating..."
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="min-h-[60px]"
+      />
+    </div>
+  )
+
   return (
-    <div className="bg-background dark:bg-surface min-h-screen">
-      {/* EXIT CONFIRMATION DIALOG */}
+    <div className="bg-surface min-h-screen">
       <Dialog open={showExitConfirm} onOpenChange={setShowExitConfirm}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Yakin ingin keluar?</DialogTitle>
+            <DialogTitle>Leave review?</DialogTitle>
             <DialogCloseButton />
           </DialogHeader>
           <DialogBody>
             <p className="text-body-sm text-foreground-secondary">
-              Perubahan yang belum tersimpan akan hilang.
+              Your progress will not be saved.
             </p>
           </DialogBody>
           <DialogFooter>
-            <Button variant="secondary" onClick={handleCancelExit}>
-              Batal
+            <Button variant="ghost" onClick={() => setShowExitConfirm(false)}>
+              Cancel
             </Button>
-            <Button variant="destructive" onClick={handleConfirmExit}>
-              Ya, Keluar
+            <Button
+              variant="destructive"
+              onClick={() => router.push("/performance")}
+            >
+              Leave
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* STANDALONE HEADER */}
-      <div className="bg-surface dark:bg-surface sticky top-0 z-10 border border-b dark:border">
-        <div className="px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 items-center justify-between">
-            {/* Logo / Title */}
-            <div className="flex items-center gap-2">
-              <span className="text-heading-md text-content dark:text-content">
-                Kretya Studio 360 Review
+      <div className="border-neutral-primary bg-surface sticky top-0 z-10 border-b">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+          <div className="flex h-14 items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                onClick={() => setShowExitConfirm(true)}
+              >
+                <RiArrowLeftLine className="size-4" />
+              </Button>
+              <span className="text-label-md text-foreground-primary">
+                360 Review
               </span>
             </div>
-
-            {/* Close Button */}
-            <button
-              onClick={handleExitClick}
-              className="hover:bg-muted dark:hover:bg-hover rounded-lg p-2 transition-colors"
-            >
-              <RiCloseLine className="text-content-subtle dark:text-content-placeholder size-5" />
-            </button>
           </div>
         </div>
       </div>
 
-      {/* MAIN CONTENT */}
-      <div className="px-4 py-8 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:px-8">
         <div className="flex gap-8">
-          {/* PROGRESS TRACKER SIDEBAR - Hidden on mobile */}
-          <div className="hidden w-64 flex-shrink-0 lg:block">
-            <div className="sticky top-24">
-              <Card className="p-5">
-                <ProgressTracker />
+          <div className="hidden w-56 shrink-0 lg:block">
+            <div className="sticky top-20">
+              <Card className="space-y-4">
+                <div>
+                  <p className="text-label-md text-foreground-primary">
+                    Review Progress
+                  </p>
+                  <p className="text-body-xs text-foreground-secondary mt-1">
+                    Complete all steps to submit
+                  </p>
+                </div>
+                <div className="space-y-3">
+                  {steps
+                    .filter((s) => !s.hidden)
+                    .map((step) => (
+                      <div
+                        key={step.number}
+                        className="flex items-center gap-3"
+                      >
+                        {step.complete ? (
+                          <div className="bg-surface-success flex size-6 shrink-0 items-center justify-center rounded-full">
+                            <RiCheckLine className="text-foreground-success size-4" />
+                          </div>
+                        ) : (
+                          <div className="border-neutral-primary flex size-6 shrink-0 items-center justify-center rounded-full border-2">
+                            <span className="text-label-xs text-foreground-tertiary">
+                              {step.number}
+                            </span>
+                          </div>
+                        )}
+                        <span
+                          className={`text-label-sm ${
+                            step.complete
+                              ? "text-foreground-primary font-medium"
+                              : "text-foreground-tertiary"
+                          }`}
+                        >
+                          {step.label}
+                        </span>
+                      </div>
+                    ))}
+                </div>
               </Card>
             </div>
           </div>
 
-          {/* FORM CONTENT */}
-          <div className="min-w-0 flex-1">
-            <div className="space-y-4 overflow-visible">
-              {/* PAGE TITLE */}
-              <div>
-                <h1 className="text-display-xxs text-content dark:text-content mb-2">
-                  New feedback cycle
-                </h1>
-                <p className="text-body-sm text-content-subtle dark:text-content-placeholder">
-                  Provide anonymous feedback for your colleague
-                </p>
-              </div>
+          <div className="min-w-0 flex-1 space-y-5">
+            <div>
+              <h1 className="text-heading-md text-foreground-primary">
+                New Feedback Review
+              </h1>
+              <p className="text-body-sm text-foreground-secondary mt-1">
+                Provide anonymous feedback for your colleague
+              </p>
+            </div>
 
-              {/* INFO BOX */}
-              <Card>
-                <div className="flex gap-3">
-                  <RiInformationLine className="text-content-subtle dark:text-content-placeholder mt-0.5 size-5 shrink-0" />
-                  <div>
-                    <p className="text-label-md text-content dark:text-content">
-                      Anonymous Feedback System
-                    </p>
-                    <p className="text-body-xs text-content-subtle dark:text-content-placeholder mt-1">
-                      Your feedback is <b>ANONYMOUS</b> and will be processed by
-                      AI to maintain objectivity.
-                    </p>
-                  </div>
+            <Card>
+              <div className="flex gap-3">
+                <RiInformationLine className="text-foreground-secondary mt-0.5 size-5 shrink-0" />
+                <div>
+                  <p className="text-label-md text-foreground-primary">
+                    Anonymous Feedback System
+                  </p>
+                  <p className="text-body-xs text-foreground-secondary mt-1">
+                    Your feedback is anonymous and will be processed by AI to
+                    maintain objectivity.
+                  </p>
                 </div>
-              </Card>
+              </div>
+            </Card>
 
-              {/* COLLEAGUE SELECTION */}
-              <Card className="overflow-visible">
-                <Label>Who do you want to review?</Label>
-                <Select
-                  value={formData.reviewee_id}
-                  onValueChange={(val) =>
-                    setFormData({ ...formData, reviewee_id: val })
-                  }
-                >
-                  <SelectTrigger className="mt-2 w-full">
-                    <SelectValue placeholder="Select a colleague..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {colleagues.map((colleague) => (
-                      <SelectItem key={colleague.id} value={colleague.id}>
-                        {colleague.full_name} —{" "}
-                        <span className="text-content-placeholder">
-                          {colleague.job_title}
-                        </span>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </Card>
+            <Card className="space-y-4 overflow-visible">
+              <Label htmlFor="colleague-select">
+                Who do you want to review?
+              </Label>
+              <Select
+                value={formData.reviewee_id}
+                onValueChange={(val) =>
+                  setFormData({ ...formData, reviewee_id: val })
+                }
+              >
+                <SelectTrigger id="colleague-select" className="mt-2 w-full">
+                  <SelectValue placeholder="Select a colleague..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {colleagues.map((colleague) => (
+                    <SelectItem key={colleague.id} value={colleague.id}>
+                      {colleague.full_name} — {colleague.job_title}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Card>
 
-              {/* RATING SCORES */}
-              {formData.reviewee_id && (
-                <Card className="animate-in fade-in slide-in-from-bottom-4">
-                  <h3 className="text-content dark:text-content mb-4 font-semibold">
+            {formData.reviewee_id && (
+              <>
+                <Card className="space-y-4">
+                  <p className="text-label-md text-foreground-primary">
                     Rate their competencies
-                  </h3>
+                  </p>
                   <div className="space-y-4">
-                    {/* Quality of Work */}
                     <div>
                       <StarRating
                         label="Quality of Work"
@@ -366,29 +359,19 @@ export default function ReviewFormClientPage({
                         }
                       />
                       {needsQualityJustification && (
-                        <div className="bg-muted dark:bg-surface border-border animate-in zoom-in-95 mt-3 rounded-md border p-3">
-                          <div className="text-content-subtle dark:text-content-subtle mb-2 flex gap-2">
-                            <RiInformationLine className="size-4 shrink-0" />
-                            <p className="text-label-xs">
-                              Why this rating for Quality of Work?
-                            </p>
-                          </div>
-                          <Textarea
-                            placeholder="Explain why you gave this extreme rating..."
-                            value={formData.justification_quality}
-                            onChange={(e) =>
-                              setFormData({
-                                ...formData,
-                                justification_quality: e.target.value,
-                              })
-                            }
-                            className="bg-surface dark:bg-surface text-body-sm min-h-[60px]"
-                          />
-                        </div>
+                        <JustificationField
+                          label="Quality of Work"
+                          value={formData.justification_quality}
+                          onChange={(v) =>
+                            setFormData({
+                              ...formData,
+                              justification_quality: v,
+                            })
+                          }
+                        />
                       )}
                     </div>
 
-                    {/* Reliability & Deadline */}
                     <div>
                       <StarRating
                         label="Reliability & Deadline"
@@ -398,29 +381,19 @@ export default function ReviewFormClientPage({
                         }
                       />
                       {needsReliabilityJustification && (
-                        <div className="bg-muted dark:bg-surface border-border animate-in zoom-in-95 mt-3 rounded-md border p-3">
-                          <div className="text-content-subtle dark:text-content-subtle mb-2 flex gap-2">
-                            <RiInformationLine className="size-4 shrink-0" />
-                            <p className="text-label-xs">
-                              Why this rating for Reliability & Deadline?
-                            </p>
-                          </div>
-                          <Textarea
-                            placeholder="Explain why you gave this extreme rating..."
-                            value={formData.justification_reliability}
-                            onChange={(e) =>
-                              setFormData({
-                                ...formData,
-                                justification_reliability: e.target.value,
-                              })
-                            }
-                            className="bg-surface dark:bg-surface text-body-sm min-h-[60px]"
-                          />
-                        </div>
+                        <JustificationField
+                          label="Reliability & Deadline"
+                          value={formData.justification_reliability}
+                          onChange={(v) =>
+                            setFormData({
+                              ...formData,
+                              justification_reliability: v,
+                            })
+                          }
+                        />
                       )}
                     </div>
 
-                    {/* Communication */}
                     <div>
                       <StarRating
                         label="Communication"
@@ -430,29 +403,19 @@ export default function ReviewFormClientPage({
                         }
                       />
                       {needsCommunicationJustification && (
-                        <div className="bg-muted dark:bg-surface border-border animate-in zoom-in-95 mt-3 rounded-md border p-3">
-                          <div className="text-content-subtle dark:text-content-subtle mb-2 flex gap-2">
-                            <RiInformationLine className="size-4 shrink-0" />
-                            <p className="text-label-xs">
-                              Why this rating for Communication?
-                            </p>
-                          </div>
-                          <Textarea
-                            placeholder="Explain why you gave this extreme rating..."
-                            value={formData.justification_communication}
-                            onChange={(e) =>
-                              setFormData({
-                                ...formData,
-                                justification_communication: e.target.value,
-                              })
-                            }
-                            className="bg-surface dark:bg-surface text-body-sm min-h-[60px]"
-                          />
-                        </div>
+                        <JustificationField
+                          label="Communication"
+                          value={formData.justification_communication}
+                          onChange={(v) =>
+                            setFormData({
+                              ...formData,
+                              justification_communication: v,
+                            })
+                          }
+                        />
                       )}
                     </div>
 
-                    {/* Initiative & Growth */}
                     <div>
                       <StarRating
                         label="Initiative & Growth"
@@ -462,29 +425,19 @@ export default function ReviewFormClientPage({
                         }
                       />
                       {needsInitiativeJustification && (
-                        <div className="bg-muted dark:bg-surface border-border animate-in zoom-in-95 mt-3 rounded-md border p-3">
-                          <div className="text-content-subtle dark:text-content-subtle mb-2 flex gap-2">
-                            <RiInformationLine className="size-4 shrink-0" />
-                            <p className="text-label-xs">
-                              Why this rating for Initiative & Growth?
-                            </p>
-                          </div>
-                          <Textarea
-                            placeholder="Explain why you gave this extreme rating..."
-                            value={formData.justification_initiative}
-                            onChange={(e) =>
-                              setFormData({
-                                ...formData,
-                                justification_initiative: e.target.value,
-                              })
-                            }
-                            className="bg-surface dark:bg-surface text-body-sm min-h-[60px]"
-                          />
-                        </div>
+                        <JustificationField
+                          label="Initiative & Growth"
+                          value={formData.justification_initiative}
+                          onChange={(v) =>
+                            setFormData({
+                              ...formData,
+                              justification_initiative: v,
+                            })
+                          }
+                        />
                       )}
                     </div>
 
-                    {/* Leadership & Teamwork */}
                     <div>
                       <StarRating
                         label="Leadership & Teamwork"
@@ -494,42 +447,31 @@ export default function ReviewFormClientPage({
                         }
                       />
                       {needsLeadershipJustification && (
-                        <div className="bg-muted dark:bg-surface border-border animate-in zoom-in-95 mt-3 rounded-md border p-3">
-                          <div className="text-content-subtle dark:text-content-subtle mb-2 flex gap-2">
-                            <RiInformationLine className="size-4 shrink-0" />
-                            <p className="text-label-xs">
-                              Why this rating for Leadership & Teamwork?
-                            </p>
-                          </div>
-                          <Textarea
-                            placeholder="Explain why you gave this extreme rating..."
-                            value={formData.justification_leadership}
-                            onChange={(e) =>
-                              setFormData({
-                                ...formData,
-                                justification_leadership: e.target.value,
-                              })
-                            }
-                            className="bg-surface dark:bg-surface text-body-sm min-h-[60px]"
-                          />
-                        </div>
+                        <JustificationField
+                          label="Leadership & Teamwork"
+                          value={formData.justification_leadership}
+                          onChange={(v) =>
+                            setFormData({
+                              ...formData,
+                              justification_leadership: v,
+                            })
+                          }
+                        />
                       )}
                     </div>
                   </div>
                 </Card>
-              )}
 
-              {/* WRITTEN FEEDBACK */}
-              {formData.reviewee_id && (
-                <>
-                  <Card>
-                    <Label className="mb-1 block font-semibold">
+                <Card className="space-y-4">
+                  <div>
+                    <Label htmlFor="feedback-continue">
                       CONTINUE (Strength)
                     </Label>
-                    <p className="text-label-xs text-content-subtle dark:text-content-placeholder mb-2">
+                    <p className="text-body-xs text-foreground-secondary mt-1">
                       What positive things should they keep doing?
                     </p>
                     <Textarea
+                      id="feedback-continue"
                       placeholder="Example: Very detail-oriented in design work..."
                       value={formData.feedback_continue}
                       onChange={(e) =>
@@ -538,18 +480,17 @@ export default function ReviewFormClientPage({
                           feedback_continue: e.target.value,
                         })
                       }
-                      className="min-h-[80px]"
+                      className="mt-2 min-h-[80px]"
                     />
-                  </Card>
+                  </div>
 
-                  <Card>
-                    <Label className="mb-1 block font-semibold">
-                      START (Opportunity)
-                    </Label>
-                    <p className="text-label-xs text-content-subtle dark:text-content-placeholder mb-2">
+                  <div>
+                    <Label htmlFor="feedback-start">START (Opportunity)</Label>
+                    <p className="text-body-xs text-foreground-secondary mt-1">
                       What new things should they start doing?
                     </p>
                     <Textarea
+                      id="feedback-start"
                       placeholder="Example: Start learning Framer for prototyping..."
                       value={formData.feedback_start}
                       onChange={(e) =>
@@ -558,18 +499,17 @@ export default function ReviewFormClientPage({
                           feedback_start: e.target.value,
                         })
                       }
-                      className="min-h-[80px]"
+                      className="mt-2 min-h-[80px]"
                     />
-                  </Card>
+                  </div>
 
-                  <Card>
-                    <Label className="mb-1 block font-semibold">
-                      STOP (Blocker)
-                    </Label>
-                    <p className="text-label-xs text-content-subtle dark:text-content-placeholder mb-2">
+                  <div>
+                    <Label htmlFor="feedback-stop">STOP (Blocker)</Label>
+                    <p className="text-body-xs text-foreground-secondary mt-1">
                       What habits should they stop?
                     </p>
                     <Textarea
+                      id="feedback-stop"
                       placeholder="Example: Stop delaying status updates on Trello..."
                       value={formData.feedback_stop}
                       onChange={(e) =>
@@ -578,29 +518,28 @@ export default function ReviewFormClientPage({
                           feedback_stop: e.target.value,
                         })
                       }
-                      className="min-h-[80px]"
+                      className="mt-2 min-h-[80px]"
                     />
-                  </Card>
-
-                  {/* SUBMIT BUTTON */}
-                  <div className="flex justify-end pt-4">
-                    <Button
-                      onClick={handleSubmit}
-                      isLoading={loading}
-                      disabled={
-                        !step1Complete ||
-                        !step2Complete ||
-                        !step3Complete ||
-                        !step4Complete
-                      }
-                      className="min-w-[200px]"
-                    >
-                      Submit Review
-                    </Button>
                   </div>
-                </>
-              )}
-            </div>
+                </Card>
+
+                <div className="flex justify-end pt-2 pb-8">
+                  <Button
+                    onClick={handleSubmit}
+                    isLoading={loading}
+                    disabled={
+                      !step1Complete ||
+                      !step2Complete ||
+                      !step3Complete ||
+                      !step4Complete
+                    }
+                    className="min-w-[200px]"
+                  >
+                    Submit Review
+                  </Button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>

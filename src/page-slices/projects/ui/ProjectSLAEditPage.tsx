@@ -20,6 +20,7 @@ export function ProjectSLAEditPage({
   return (
     <SLAContainer
       slaId={slaId}
+      projectId={projectId}
       initialData={{
         client_info: sla.client_info as any,
         agency_info: sla.agency_info as any,

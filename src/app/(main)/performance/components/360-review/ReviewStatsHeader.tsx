@@ -22,7 +22,7 @@ export function ReviewStatsHeader({
   ratingLevel,
 }: ReviewStatsHeaderProps) {
   return (
-    <div className="grid grid-cols-1 gap-md">
+    <div className="grid grid-cols-1 gap-lg">
       {/* Quarter Review Card */}
       <Card className="border-neutral-primary bg-surface-neutral-primary rounded-lg border p-3">
         <div className="flex flex-col gap-1">

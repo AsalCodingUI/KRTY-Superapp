@@ -37,7 +37,7 @@ export const WithIcon: Story = {
       </div>
       <Input
         {...args}
-        className="pl-[calc(var(--padding-lg)+20px+var(--gap-md))]"
+        className="pl-[calc(var(--padding-lg)+20px+var(--gap-lg))]"
       />
     </div>
   ),

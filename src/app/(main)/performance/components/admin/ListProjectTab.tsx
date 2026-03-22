@@ -2,7 +2,7 @@
 
 import type { Database } from "@/shared/types/database.types"
 import {
-  Avatar, AvatarGroup, AvatarOverflow, Badge, Button, EmptyState, QuarterFilterValue, Select, Spinner,
+  Avatar, AvatarGroup, AvatarOverflow, Badge, Button, ConfirmDialog, EmptyState, QuarterFilterValue, Select, Spinner,
   SelectContent,
   SelectItem,
   SelectTrigger,
@@ -65,6 +65,10 @@ export function ListProjectTab({
   const [formOpen, setFormOpen] = useState(false)
   const [selectedProject, setSelectedProject] =
     useState<ExtendedProject | null>(null)
+  const [confirmAction, setConfirmAction] = useState<{
+    project: ExtendedProject
+    type: "archive" | "delete"
+  } | null>(null)
 
   const queryClient = useQueryClient()
 
@@ -86,37 +90,35 @@ export function ListProjectTab({
     setFormOpen(true)
   }
 
-  const handleDelete = async (project: ExtendedProject) => {
-    if (
-      !confirm(
-        `Are you sure you want to archive the project "${project.name}"?`,
-      )
-    )
-      return
-
-    const result = await deleteProject(project.id)
-    if (result.success) {
-      queryClient.invalidateQueries({ queryKey: ["projects", selectedQuarter, selectedStatus] })
-    } else {
-      toast.error("Gagal arsip")
-    }
+  const handleDelete = (project: ExtendedProject) => {
+    setConfirmAction({ project, type: "archive" })
   }
 
-  const handlePermanentDelete = async (project: ExtendedProject) => {
-    if (
-      !confirm(
-        `⚠️ PERMANENTLY DELETE "${project.name}"? This action cannot be undone!`,
-      )
-    )
-      return
+  const handlePermanentDelete = (project: ExtendedProject) => {
+    setConfirmAction({ project, type: "delete" })
+  }
 
-    const result = await permanentDeleteProject(project.id)
-    if (result.success) {
-      toast.success("Project dihapus")
-      queryClient.invalidateQueries({ queryKey: ["projects", selectedQuarter, selectedStatus] })
+  const executeConfirmAction = async () => {
+    if (!confirmAction) return
+
+    if (confirmAction.type === "archive") {
+      const result = await deleteProject(confirmAction.project.id)
+      if (result.success) {
+        toast.success("Project archived")
+        queryClient.invalidateQueries({ queryKey: ["projects", selectedQuarter, selectedStatus] })
+      } else {
+        toast.error("Gagal arsip")
+      }
     } else {
-      toast.error("Gagal hapus")
+      const result = await permanentDeleteProject(confirmAction.project.id)
+      if (result.success) {
+        toast.success("Project dihapus")
+        queryClient.invalidateQueries({ queryKey: ["projects", selectedQuarter, selectedStatus] })
+      } else {
+        toast.error("Gagal hapus")
+      }
     }
+    setConfirmAction(null)
   }
 
   const handleFormClose = () => {
@@ -316,6 +318,23 @@ export function ListProjectTab({
         project={selectedProject}
       />
 
+      <ConfirmDialog
+        open={!!confirmAction}
+        onOpenChange={() => setConfirmAction(null)}
+        onConfirm={executeConfirmAction}
+        title={
+          confirmAction?.type === "delete"
+            ? `Permanently Delete "${confirmAction.project.name}"?`
+            : `Archive "${confirmAction?.project.name}"?`
+        }
+        description={
+          confirmAction?.type === "delete"
+            ? "This project will be permanently deleted. This action cannot be undone."
+            : "This project will be archived. You can restore it later."
+        }
+        confirmText={confirmAction?.type === "delete" ? "Delete" : "Archive"}
+        variant="destructive"
+      />
     </div>
   )
 }

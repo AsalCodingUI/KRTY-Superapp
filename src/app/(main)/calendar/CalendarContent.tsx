@@ -1,6 +1,7 @@
 "use client"
 
 import { useKeyboardShortcuts } from "@/shared/hooks/useKeyboardShortcuts"
+import { useTabRoute } from "@/shared/hooks/useTabRoute"
 import { RiCalendarLine } from "@/shared/ui/lucide-icons"
 import {
   CalendarSkeleton,
@@ -12,20 +13,19 @@ import {
   type ViewMode,
 } from "@/widgets/event-calendar"
 import { useGoogleCalendar } from "@/widgets/event-calendar/ui/hooks/use-google-calendar"
+import { getViewRange } from "@/widgets/event-calendar/ui/utils"
+import { useQuery } from "@tanstack/react-query"
 import {
   endOfDay,
+  endOfWeek,
   format,
   isSameDay,
-  endOfWeek,
   startOfDay,
   startOfWeek,
 } from "date-fns"
 import dynamic from "next/dynamic"
 import { useEffect, useMemo } from "react"
 import { toast } from "sonner"
-import { useTabRoute } from "@/shared/hooks/useTabRoute"
-import { useQuery } from "@tanstack/react-query"
-import { getViewRange } from "@/widgets/event-calendar/ui/utils"
 
 const EventCalendar = dynamic(
   () =>
@@ -199,13 +199,13 @@ function CalendarContent({
 
   return (
     <div className="flex min-h-[calc(100vh-1rem)] flex-col">
-      <div className="flex items-center gap-md rounded-xxl px-5 pt-4 pb-3">
+      <div className="flex items-center gap-lg rounded-xxl px-4 pt-4 pb-3 sm:px-5">
         <RiCalendarLine className="size-4 text-foreground-secondary" />
         <p className="text-label-md text-foreground-primary">Calendar</p>
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col rounded-xxl bg-surface-neutral-primary">
-        <div className="grid grid-cols-1 gap-md px-5 py-2 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="grid grid-cols-2 gap-3 px-4 py-3 sm:gap-lg sm:px-5 sm:py-2 xl:grid-cols-3">
           <div className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-lg border px-4 py-3">
             <p className="text-label-sm text-foreground-secondary">
               Current Date
@@ -232,7 +232,7 @@ function CalendarContent({
           </div>
         </div>
 
-        <div className="border-b border-neutral-primary px-5 py-2">
+        <div className="border-b border-neutral-primary px-4 py-3 sm:px-5 sm:py-2">
           <CalendarToolbar
             onAddEvent={() => setDialogOpen(true)}
             showAddEvent={isStakeholder}
@@ -240,7 +240,7 @@ function CalendarContent({
           />
         </div>
 
-        <div className="flex min-h-0 w-full flex-1 p-5">
+        <div className="flex min-h-0 w-full flex-1 overflow-hidden p-3 sm:p-5">
           {loading || googleLoading ? (
             <CalendarSkeleton />
           ) : allEvents.length === 0 ? (

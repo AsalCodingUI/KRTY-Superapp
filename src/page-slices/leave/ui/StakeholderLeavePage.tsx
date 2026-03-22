@@ -26,8 +26,8 @@ import {
   SelectValue,
   TabNavigation,
   TabNavigationLink,
-  TextInput,
   Textarea,
+  TextInput,
 } from "@/shared/ui"
 import { DataTable } from "@/shared/ui/data/DataTable"
 import { RiCalendarCheckLine } from "@/shared/ui/lucide-icons"
@@ -716,7 +716,7 @@ function AttendanceOverviewPanel({
 
   return (
     <div className="flex flex-col rounded-xxl bg-surface-neutral-primary">
-      <div className="grid grid-cols-1 gap-3 px-5 py-2 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="grid grid-cols-2 gap-3 px-5 py-2 lg:grid-cols-5">
         {stats.map((item) => (
           <div
             key={item.label}

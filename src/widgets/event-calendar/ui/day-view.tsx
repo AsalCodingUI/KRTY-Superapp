@@ -46,7 +46,7 @@ export const DayView = memo(function DayView({
   }, [events, currentDate])
 
   return (
-    <div className="bg-surface flex flex-col">
+    <div className="bg-surface flex min-w-[320px] flex-col">
       {/* Header */}
 
       {/* Time grid */}

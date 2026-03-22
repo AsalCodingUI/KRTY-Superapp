@@ -5,6 +5,7 @@ import {
   getOverviewStats,
 } from "@/app/(main)/performance/actions/employee-kpi-actions"
 import { createClient } from "@/shared/api/supabase/client"
+import { useMountedTabs } from "@/shared/hooks/useMountedTabs"
 import { useTabRoute } from "@/shared/hooks/useTabRoute"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { canManageByRole } from "@/shared/lib/roles"
@@ -23,7 +24,7 @@ import {
 } from "@/shared/ui"
 import { RiBarChartBoxLine } from "@/shared/ui/lucide-icons"
 import dynamic from "next/dynamic"
-import { useMountedTabs } from "@/shared/hooks/useMountedTabs"
+import { useRouter } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
 
 // Dynamic imports for tab components - only load when needed
@@ -113,6 +114,7 @@ function getAvailableYears(centerYear: number): number[] {
 }
 
 export function PerformancePage() {
+  const router = useRouter()
   const { activeTab, setActiveTab } = useTabRoute<TabType>({
     basePath: "/performance",
     tabs: [
@@ -127,8 +129,9 @@ export function PerformancePage() {
     mode: "history",
   })
   const { isMounted } = useMountedTabs(activeTab)
-  const [selectedQuarter, setSelectedQuarter] =
-    useState<QuarterFilterValue>(() => getCurrentQuarterValue())
+  const [selectedQuarter, setSelectedQuarter] = useState<QuarterFilterValue>(
+    () => getCurrentQuarterValue(),
+  )
   const [statsData, setStatsData] = useState<{
     totalEmployees: number
     avgPerformance: number
@@ -164,7 +167,10 @@ export function PerformancePage() {
       setActiveTab("kpi")
     }
   }, [activeTab, isStakeholder, setActiveTab])
-  const availableYears = useMemo(() => getAvailableYears(new Date().getFullYear()), [])
+  const availableYears = useMemo(
+    () => getAvailableYears(new Date().getFullYear()),
+    [],
+  )
   const selectedYear = (() => {
     if (selectedQuarter === "All") return availableYears[0]
     const parsed = Number(selectedQuarter.split("-")[0])
@@ -339,9 +345,7 @@ export function PerformancePage() {
           .limit(1)
 
         if (isMounted) {
-          setEmployeeReviewScore(
-            summaries?.[0]?.overall_percentage ?? null,
-          )
+          setEmployeeReviewScore(summaries?.[0]?.overall_percentage ?? null)
         }
       } finally {
         if (isMounted) setEmployeeReviewLoading(false)
@@ -357,7 +361,7 @@ export function PerformancePage() {
   const adminStats = [
     {
       label: "Total Employees",
-      value: statsLoading ? "—" : statsData?.totalEmployees ?? "—",
+      value: statsLoading ? "—" : (statsData?.totalEmployees ?? "—"),
     },
     {
       label: "Avg. Performance",
@@ -369,11 +373,11 @@ export function PerformancePage() {
     },
     {
       label: "Pending Reviews",
-      value: statsLoading ? "—" : statsData?.pendingReviews ?? "—",
+      value: statsLoading ? "—" : (statsData?.pendingReviews ?? "—"),
     },
     {
       label: "Active Project",
-      value: statsLoading ? "—" : statsData?.activeProjects ?? "—",
+      value: statsLoading ? "—" : (statsData?.activeProjects ?? "—"),
     },
     {
       label: "360 Review",
@@ -432,17 +436,17 @@ export function PerformancePage() {
 
   return (
     <div className="flex flex-col">
-      <div className="flex items-center gap-2 rounded-xxl px-5 pt-4 pb-3">
-        <RiBarChartBoxLine className="size-4 text-foreground-secondary" />
+      <div className="rounded-xxl flex items-center gap-2 px-5 pt-4 pb-3">
+        <RiBarChartBoxLine className="text-foreground-secondary size-4" />
         <p className="text-label-md text-foreground-primary">
           Individual Performance
         </p>
       </div>
 
-      <div className="bg-surface-neutral-primary flex flex-col rounded-xxl">
+      <div className="bg-surface-neutral-primary rounded-xxl flex flex-col">
         {isStakeholder ? (
           <>
-            <div className="grid grid-cols-1 gap-md px-5 py-2 sm:grid-cols-2 lg:grid-cols-5">
+            <div className="gap-lg grid grid-cols-1 px-5 py-2 sm:grid-cols-2 lg:grid-cols-5">
               {adminStats.map((item) => (
                 <div
                   key={item.label}
@@ -458,8 +462,8 @@ export function PerformancePage() {
               ))}
             </div>
 
-            <div className="border-b border-neutral-primary px-5 pt-2">
-              <div className="xl:hidden space-y-3 pb-3">
+            <div className="border-neutral-primary border-b px-5 pt-2">
+              <div className="space-y-3 pb-3 xl:hidden">
                 <Select
                   value={activeTab}
                   onValueChange={(value) => setActiveTab(value as TabType)}
@@ -502,7 +506,7 @@ export function PerformancePage() {
                 </div>
               </div>
 
-              <div className="hidden xl:flex items-start justify-between gap-4">
+              <div className="hidden items-start justify-between gap-4 xl:flex">
                 <TabNavigation className="border-b-0" value={activeTab}>
                   <TabNavigationLink
                     active={activeTab === "kpi"}
@@ -573,7 +577,7 @@ export function PerformancePage() {
           </>
         ) : (
           <>
-            <div className="grid grid-cols-1 gap-md px-5 py-2 sm:grid-cols-2 lg:grid-cols-5">
+            <div className="gap-lg grid grid-cols-1 px-5 py-2 sm:grid-cols-2 lg:grid-cols-5">
               {employeeStats.map((item) => {
                 const badge = getRatingBadge(item.score)
                 return (
@@ -612,15 +616,20 @@ export function PerformancePage() {
                       </Badge>
                     ) : null}
                   </div>
-                  <Button variant="secondary" size="sm" disabled={!isCycleActive}>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    disabled={!isCycleActive}
+                    onClick={() => router.push("/performance-review/new")}
+                  >
                     Create Review
                   </Button>
                 </div>
               </div>
             </div>
 
-            <div className="border-b border-neutral-primary px-5 pt-2">
-              <div className="xl:hidden space-y-3 pb-3">
+            <div className="border-neutral-primary border-b px-5 pt-2">
+              <div className="space-y-3 pb-3 xl:hidden">
                 <Select
                   value={activeTab}
                   onValueChange={(value) => setActiveTab(value as TabType)}
@@ -663,7 +672,7 @@ export function PerformancePage() {
                 </div>
               </div>
 
-              <div className="hidden xl:flex items-start justify-between gap-4">
+              <div className="hidden items-start justify-between gap-4 xl:flex">
                 <TabNavigation className="border-b-0" value={activeTab}>
                   <TabNavigationLink
                     active={activeTab === "kpi"}
@@ -723,12 +732,22 @@ export function PerformancePage() {
 
         <div className="p-5">
           {isMounted("kpi") && (
-            <div className={activeTab === "kpi" ? "block space-y-5" : "hidden space-y-5"}>
+            <div
+              className={
+                activeTab === "kpi" ? "block space-y-5" : "hidden space-y-5"
+              }
+            >
               <KPITab selectedQuarter={selectedQuarter} />
             </div>
           )}
           {isMounted("360-review") && (
-            <div className={activeTab === "360-review" ? "block space-y-5" : "hidden space-y-5"}>
+            <div
+              className={
+                activeTab === "360-review"
+                  ? "block space-y-5"
+                  : "hidden space-y-5"
+              }
+            >
               <Review360Tab
                 selectedQuarter={selectedQuarter}
                 onQuarterChange={setSelectedQuarter}
@@ -736,17 +755,35 @@ export function PerformancePage() {
             </div>
           )}
           {isMounted("one-on-one") && (
-            <div className={activeTab === "one-on-one" ? "block space-y-5" : "hidden space-y-5"}>
+            <div
+              className={
+                activeTab === "one-on-one"
+                  ? "block space-y-5"
+                  : "hidden space-y-5"
+              }
+            >
               <OneOnOneMeetingTab selectedQuarter={selectedQuarter} />
             </div>
           )}
           {isLead && isMounted("lead-review") && (
-            <div className={activeTab === "lead-review" ? "block space-y-5" : "hidden space-y-5"}>
+            <div
+              className={
+                activeTab === "lead-review"
+                  ? "block space-y-5"
+                  : "hidden space-y-5"
+              }
+            >
               <LeadReviewTab />
             </div>
           )}
           {isStakeholder && isMounted("list-project") && (
-            <div className={activeTab === "list-project" ? "block space-y-5" : "hidden space-y-5"}>
+            <div
+              className={
+                activeTab === "list-project"
+                  ? "block space-y-5"
+                  : "hidden space-y-5"
+              }
+            >
               <ListProjectTab selectedQuarter={selectedQuarter} />
             </div>
           )}

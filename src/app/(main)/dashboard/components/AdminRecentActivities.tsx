@@ -1,6 +1,7 @@
 "use client"
 
-import { Avatar } from "@/shared/ui"
+import { Avatar, Card, EmptyState } from "@/shared/ui"
+import { RiFileList3Line } from "@/shared/ui/lucide-icons"
 import { formatDistanceToNow } from "date-fns"
 
 interface Activity {
@@ -25,20 +26,22 @@ export function AdminRecentActivities({
   activities,
 }: AdminRecentActivitiesProps) {
   return (
-    <div className="border-neutral-primary rounded-lg border px-4 py-3">
+    <Card>
       <div className="mb-3 flex items-center justify-between">
-        <p className="text-label-sm text-foreground-secondary">Activity Feed</p>
+        <p className="text-label-md text-foreground-secondary">Activity Feed</p>
         <span className="text-body-xs text-foreground-tertiary tabular-nums">
           {activities.length} items
         </span>
       </div>
 
       {activities.length === 0 ? (
-        <div className="py-5 text-center">
-          <p className="text-body-xs text-foreground-tertiary">
-            No recent activities
-          </p>
-        </div>
+        <EmptyState
+          icon={<RiFileList3Line className="size-5" />}
+          title="No recent activities"
+          description="Recent team activity will appear here."
+          placement="inner"
+          className="min-h-[160px] px-0 py-6"
+        />
       ) : (
         <div className="border-neutral-primary divide-neutral-primary overflow-hidden rounded-lg border divide-y">
           {activities.map((activity) => (
@@ -74,6 +77,6 @@ export function AdminRecentActivities({
           ))}
         </div>
       )}
-    </div>
+    </Card>
   )
 }

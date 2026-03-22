@@ -1,23 +1,23 @@
 "use client"
 
 import { createClient } from "@/shared/api/supabase/client"
+import { canManageByRole } from "@/shared/lib/roles"
+import { Database } from "@/shared/types/database.types"
 import {
   CalendarProvider,
-  type CalendarEvent,
-  type EventCategory,
-  type EventColor,
   getAllEventTypes,
   getEventTypeDefinition,
   useCalendarContext,
+  type CalendarEvent,
+  type EventCategory,
+  type EventColor,
 } from "@/widgets/event-calendar"
 import { GoogleCalendarProvider } from "@/widgets/event-calendar/ui/google-calendar-context"
 import { getViewRange } from "@/widgets/event-calendar/ui/utils"
-import { Database } from "@/shared/types/database.types"
-import { canManageByRole } from "@/shared/lib/roles"
-import { useMemo, useState } from "react"
+import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query"
 import { endOfDay, startOfDay } from "date-fns"
+import { useMemo, useState } from "react"
 import { toast } from "sonner"
-import { useQuery, useQueryClient, keepPreviousData } from "@tanstack/react-query"
 import { CalendarContent } from "./CalendarContent"
 
 type CalendarEventRow = Database["public"]["Tables"]["calendar_events"]["Row"]
@@ -48,9 +48,9 @@ type LeaveRequestCalendarRow = Pick<
   "id" | "start_date" | "end_date" | "leave_type" | "status" | "reason" | "user_id"
 > & {
   profiles?:
-    | { full_name?: string | null }
-    | { full_name?: string | null }[]
-    | null
+  | { full_name?: string | null }
+  | { full_name?: string | null }[]
+  | null
 }
 type OneOnOneCalendarRow = Pick<
   Database["public"]["Tables"]["one_on_one_slots"]["Row"],
@@ -68,13 +68,13 @@ type OneOnOneCalendarRow = Pick<
   | "updated_at"
 > & {
   organizer?:
-    | { full_name?: string | null; email?: string | null }
-    | { full_name?: string | null; email?: string | null }[]
-    | null
+  | { full_name?: string | null; email?: string | null }
+  | { full_name?: string | null; email?: string | null }[]
+  | null
   booked_by_profile?:
-    | { full_name?: string | null; email?: string | null }
-    | { full_name?: string | null; email?: string | null }[]
-    | null
+  | { full_name?: string | null; email?: string | null }
+  | { full_name?: string | null; email?: string | null }[]
+  | null
 }
 
 interface CalendarClientProps {
@@ -248,13 +248,16 @@ function CalendarDataLayer({ role, userId }: CalendarClientProps) {
   const isStakeholder = canManageByRole(role)
 
   const categories: EventCategory[] = useMemo(() => {
-    return getAllEventTypes().map((eventType) => ({
-      id: eventType.value.toLowerCase().replace(/\s+/g, "-"),
-      name: eventType.label,
-      color: eventType.color,
-      isActive: true,
-    }))
-  }, [])
+    const EMPLOYEE_HIDDEN_TYPES = ["WFH", "Cuti"]
+    return getAllEventTypes()
+      .filter((eventType) => isStakeholder || !EMPLOYEE_HIDDEN_TYPES.includes(eventType.value))
+      .map((eventType) => ({
+        id: eventType.value.toLowerCase().replace(/\s+/g, "-"),
+        name: eventType.label,
+        color: eventType.color,
+        isActive: true,
+      }))
+  }, [isStakeholder])
 
   const range = useMemo(() => {
     const viewRange = getViewRange(currentDate, viewMode)
@@ -324,7 +327,7 @@ function CalendarDataLayer({ role, userId }: CalendarClientProps) {
         throw error
       }
     },
-    enabled: !!userId,
+    enabled: !!userId && isStakeholder,
     placeholderData: keepPreviousData,
     staleTime: 30_000,
   })

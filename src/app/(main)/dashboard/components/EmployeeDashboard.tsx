@@ -9,9 +9,7 @@ import {
   SelectValue,
   type QuarterFilterValue,
 } from "@/shared/ui"
-import {
-  RiBarChartBoxLine,
-} from "@/shared/ui/lucide-icons"
+import { RiBarChartBoxLine } from "@/shared/ui/lucide-icons"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useMemo, useState } from "react"
 import type { EmployeeDashboardData } from "../actions/dashboard-employee-actions"
@@ -35,7 +33,10 @@ function getCurrentQuarterValue(): QuarterFilterValue {
   return `${year}-${quarter}`
 }
 
-export function EmployeeDashboard({ data, initialQuarter }: EmployeeDashboardProps) {
+export function EmployeeDashboard({
+  data,
+  initialQuarter,
+}: EmployeeDashboardProps) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -46,7 +47,7 @@ export function EmployeeDashboard({ data, initialQuarter }: EmployeeDashboardPro
   }, [])
   const validInitialQuarter =
     typeof initialQuarter === "string" &&
-    /^\d{4}-(Q[1-4]|All)$/.test(initialQuarter)
+      /^\d{4}-(Q[1-4]|All)$/.test(initialQuarter)
       ? (initialQuarter as QuarterFilterValue)
       : getCurrentQuarterValue()
   const [selectedQuarter, setSelectedQuarter] =
@@ -78,25 +79,25 @@ export function EmployeeDashboard({ data, initialQuarter }: EmployeeDashboardPro
 
   return (
     <div className="flex flex-col">
-      <div className="flex items-center gap-2 rounded-xxl px-5 pt-4 pb-3">
-        <RiBarChartBoxLine className="size-4 text-foreground-secondary" />
+      <div className="rounded-xxl flex items-center gap-2 px-5 pt-4 pb-3">
+        <RiBarChartBoxLine className="text-foreground-secondary size-4" />
         <p className="text-label-md text-foreground-primary">
           Dashboard Overview
         </p>
       </div>
 
-      <div className="flex flex-col rounded-xxl">
-        <div className="space-y-5 p-5">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="bg-surface-neutral-primary rounded-xxl flex flex-col">
+        <div className="space-y-5 pt-2 pb-5 px-5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <h1 className="text-heading-md text-foreground-primary">
               Welcome back, {firstName}
             </h1>
-            <div className="flex w-full items-center gap-2 sm:w-auto">
+            <div className="flex items-center gap-2">
               <Select
                 value={selectedYear.toString()}
                 onValueChange={handleYearChange}
               >
-                <SelectTrigger className="w-[92px] sm:w-[96px]" size="sm">
+                <SelectTrigger className="w-[96px]" size="sm">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -107,17 +108,44 @@ export function EmployeeDashboard({ data, initialQuarter }: EmployeeDashboardPro
                   ))}
                 </SelectContent>
               </Select>
-              <div className="min-w-0 flex-1 sm:flex-none">
-                <QuarterFilter
-                  value={selectedQuarter}
-                  onChange={handleQuarterChange}
-                  showYear={false}
-                />
-              </div>
+              <QuarterFilter
+                value={selectedQuarter}
+                onChange={handleQuarterChange}
+                showYear={false}
+              />
             </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-md lg:grid-cols-2">
+          <section className="grid grid-cols-2 gap-lg lg:grid-cols-5">
+            <div className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-lg border px-4 py-3">
+              <p className="text-label-sm text-foreground-secondary">Leave Balance</p>
+              <p className="text-heading-md text-foreground-primary">{data.leaveBalance} days</p>
+            </div>
+            <div className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-lg border px-4 py-3">
+              <p className="text-label-sm text-foreground-secondary">On Time SLA</p>
+              <p className="text-heading-md text-foreground-primary">
+                {data.performanceOverview.slaScore !== null ? `${Number(data.performanceOverview.slaScore).toFixed(1)}%` : "0.0%"}
+              </p>
+            </div>
+            <div className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-lg border px-4 py-3">
+              <p className="text-label-sm text-foreground-secondary">360 Review</p>
+              <p className="text-heading-md text-foreground-primary">
+                {data.performanceOverview.reviewScore !== null ? `${Number(data.performanceOverview.reviewScore).toFixed(1)}%` : "0.0%"}
+              </p>
+            </div>
+            <div className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-lg border px-4 py-3">
+              <p className="text-label-sm text-foreground-secondary">Work Quality</p>
+              <p className="text-heading-md text-foreground-primary">
+                {data.performanceOverview.workQualityScore !== null ? `${Number(data.performanceOverview.workQualityScore).toFixed(1)}%` : "0.0%"}
+              </p>
+            </div>
+            <div className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-lg border px-4 py-3">
+              <p className="text-label-sm text-foreground-secondary">Quarter</p>
+              <p className="text-heading-md text-foreground-primary">{data.performanceOverview.quarter}</p>
+            </div>
+          </section>
+
+          <section className="grid grid-cols-1 gap-5 lg:grid-cols-2">
             <div className="space-y-2">
               <p className="text-label-sm text-foreground-secondary">
                 Leave & Attendance
@@ -125,7 +153,6 @@ export function EmployeeDashboard({ data, initialQuarter }: EmployeeDashboardPro
               <EmployeeAttendanceWidget
                 userId={data.user.id}
                 userFullName={data.user.full_name}
-                leaveBalance={data.leaveBalance}
                 recentAttendance={data.recentAttendance}
                 recentLeaveRequests={data.recentLeaveRequests}
               />
@@ -145,9 +172,9 @@ export function EmployeeDashboard({ data, initialQuarter }: EmployeeDashboardPro
                 upcomingOneOnOne={data.upcomingOneOnOne}
               />
             </div>
-          </div>
+          </section>
 
-          <div className="space-y-2">
+          <section className="space-y-2">
             <p className="text-label-sm text-foreground-secondary">
               Active Projects
             </p>
@@ -156,8 +183,7 @@ export function EmployeeDashboard({ data, initialQuarter }: EmployeeDashboardPro
               userId={data.user.id}
               showHeader={false}
             />
-          </div>
-
+          </section>
         </div>
       </div>
     </div>

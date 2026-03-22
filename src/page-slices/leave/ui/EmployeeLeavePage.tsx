@@ -299,8 +299,8 @@ export function EmployeeLeavePage({
         </div>
 
         <div className="flex flex-col rounded-xxl bg-surface-neutral-primary">
-          <div className="grid grid-cols-1 gap-md px-5 py-2 sm:grid-cols-2 lg:grid-cols-5">
-            <div className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-lg border px-4 py-3 lg:col-span-2">
+          <div className="grid grid-cols-2 gap-lg px-5 py-2 lg:grid-cols-5">
+            <div className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-lg border px-4 py-3 col-span-2">
               <p className="text-label-sm text-foreground-secondary">
                 Current Time
               </p>
@@ -428,16 +428,17 @@ export function EmployeeLeavePage({
                 </SelectContent>
               </Select>
               {isMounted("leave") && activeTab === "leave" && (
-                <div className="flex items-center gap-2">
+                <div className="grid grid-cols-2 gap-2">
                   <Button
                     size="sm"
                     variant="secondary"
                     onClick={() => setTermsOpen(true)}
+                    className="w-full"
                   >
                     <RiFileTextLine className="mr-2 size-3.5" />
-                    Read Terms &amp; Conditions
+                    Terms & Conditions
                   </Button>
-                  <Button size="sm" onClick={handleAdd}>
+                  <Button size="sm" onClick={handleAdd} className="w-full">
                     <RiAddLine className="mr-2 size-3.5" />
                     Request Leave
                   </Button>

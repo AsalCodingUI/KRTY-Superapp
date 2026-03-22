@@ -2,7 +2,7 @@
 
 import { Constants, type Database } from "@/shared/types/database.types"
 import {
-  Badge, Button, EmptyState, Spinner,
+  Badge, Button, ConfirmDialog, EmptyState, Spinner,
   Select,
   SelectContent,
   SelectItem,
@@ -48,6 +48,10 @@ export function WorkQualityTab() {
   const [formOpen, setFormOpen] = useState(false)
   const [selectedCompetency, setSelectedCompetency] =
     useState<Competency | null>(null)
+  const [confirmDelete, setConfirmDelete] = useState<{
+    id: string
+    name: string
+  } | null>(null)
 
   const queryClient = useQueryClient()
 
@@ -61,16 +65,21 @@ export function WorkQualityTab() {
     ? competencyResult.data
     : []
 
-  const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`Are you sure you want to delete the competency "${name}"?`))
-      return
+  const handleDelete = (id: string, name: string) => {
+    setConfirmDelete({ id, name })
+  }
 
-    const result = await deleteCompetency(id)
+  const executeDelete = async () => {
+    if (!confirmDelete) return
+
+    const result = await deleteCompetency(confirmDelete.id)
     if (result.success) {
+      toast.success("Competency deleted")
       queryClient.invalidateQueries({ queryKey: ["competencies", selectedRole] })
     } else {
       toast.error("Gagal hapus")
     }
+    setConfirmDelete(null)
   }
 
   const handleEdit = (competency: Competency) => {
@@ -228,6 +237,16 @@ export function WorkQualityTab() {
         onClose={handleFormClose}
         onSuccess={handleFormSuccess}
         competency={selectedCompetency}
+      />
+
+      <ConfirmDialog
+        open={!!confirmDelete}
+        onOpenChange={() => setConfirmDelete(null)}
+        onConfirm={executeDelete}
+        title={`Delete "${confirmDelete?.name}"?`}
+        description="This competency will be permanently deleted. This action cannot be undone."
+        confirmText="Delete"
+        variant="destructive"
       />
     </div>
   )

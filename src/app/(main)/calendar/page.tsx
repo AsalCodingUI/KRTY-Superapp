@@ -1,6 +1,7 @@
 import CalendarClient from "@/app/(main)/calendar/CalendarClient"
 
 import { createClient } from "@/shared/api/supabase/server"
+import { resolveEffectiveUserId } from "@/shared/lib/impersonation-server"
 
 export const dynamic = "force-dynamic"
 
@@ -10,15 +11,17 @@ export default async function CalendarPage() {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Determine roles
-  // Logic from sidebar or similar:
+  if (!user) return null
+
+  const effectiveUserId = await resolveEffectiveUserId(supabase, user.id)
+
   const { data: profile } = await supabase
     .from("profiles")
     .select("role")
-    .eq("id", user?.id)
+    .eq("id", effectiveUserId)
     .single()
 
   const role = profile?.role || "employee"
 
-  return <CalendarClient role={role} userId={user?.id ?? null} />
+  return <CalendarClient role={role} userId={effectiveUserId} />
 }

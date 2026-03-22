@@ -1,5 +1,6 @@
 "use client"
 
+import { Card } from "@/shared/ui"
 import React from "react"
 
 interface AdminAttendanceOverviewProps {
@@ -19,70 +20,56 @@ export function AdminAttendanceOverview({
 }: AdminAttendanceOverviewProps) {
   const total = totalToday + onLeave + absent
   const onTimePercentage = total > 0 ? Math.round((onTime / total) * 100) : 0
+  const items = [
+    { label: "On Time", value: onTime },
+    { label: "Late", value: late },
+    { label: "On Leave", value: onLeave },
+    { label: "Absent", value: absent },
+  ]
 
   return (
-    <div className="border-neutral-primary rounded-lg border px-4 py-3">
-      <p className="text-label-sm text-foreground-secondary mb-3">
+    <Card>
+      <p className="text-label-md text-foreground-secondary mb-3">
         Today&apos;s Attendance Overview
       </p>
 
-      <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <div className="border-neutral-primary bg-surface-neutral-primary rounded-lg border p-3 text-center">
-          <div className="text-foreground-primary text-heading-sm">
-            {onTime}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {items.map((item) => (
+          <div
+            key={item.label}
+            className="border-neutral-primary bg-surface-neutral-primary rounded-lg border px-3 py-3"
+          >
+            <p className="text-label-sm text-foreground-secondary">
+              {item.label}
+            </p>
+            <p className="mt-1 text-heading-md text-foreground-primary">
+              {item.value}
+            </p>
           </div>
-          <div className="text-foreground-secondary text-body-xs mt-1">
-            On Time
-          </div>
-        </div>
-
-        <div className="border-neutral-primary bg-surface-neutral-primary rounded-lg border p-3 text-center">
-          <div className="text-foreground-primary text-heading-sm">{late}</div>
-          <div className="text-foreground-secondary text-body-xs mt-1">
-            Late
-          </div>
-        </div>
-
-        <div className="border-neutral-primary bg-surface-neutral-primary rounded-lg border p-3 text-center">
-          <div className="text-foreground-primary text-heading-sm">
-            {onLeave}
-          </div>
-          <div className="text-foreground-secondary text-body-xs mt-1">
-            On Leave
-          </div>
-        </div>
-
-        <div className="border-neutral-primary bg-surface-neutral-primary rounded-lg border p-3 text-center">
-          <div className="text-foreground-primary text-heading-sm">
-            {absent}
-          </div>
-          <div className="text-foreground-secondary text-body-xs mt-1">
-            Absent
-          </div>
-        </div>
+        ))}
       </div>
 
-      <div className="border-neutral-primary rounded-lg border p-4">
-        <div className="flex items-center justify-between">
+      <div className="border-neutral-primary mt-4 space-y-4 rounded-lg border px-4 py-3">
+        <div className="flex items-end justify-between gap-4">
           <div>
-            <div className="text-foreground-secondary text-label-md">
+            <p className="text-label-md text-foreground-secondary">
               Overall Attendance Rate
-            </div>
-            <div className="text-foreground-primary text-display-xxs mt-1">
+            </p>
+            <p className="mt-1 text-heading-md text-foreground-primary">
               {onTimePercentage}%
-            </div>
+            </p>
           </div>
           <div className="text-right">
-            <div className="text-foreground-secondary text-label-md">
+            <p className="text-label-md text-foreground-secondary">
               Present Today
-            </div>
-            <div className="text-foreground-primary text-heading-sm mt-1">
+            </p>
+            <p className="mt-1 text-heading-md text-foreground-primary">
               {totalToday} / {total}
-            </div>
+            </p>
           </div>
         </div>
 
-        <div className="mt-4 flex h-2 gap-1 overflow-hidden rounded-full">
+        <div className="flex h-2 gap-1 overflow-hidden rounded-full">
           {total > 0 && (
             <>
               <div
@@ -121,6 +108,6 @@ export function AdminAttendanceOverview({
           )}
         </div>
       </div>
-    </div>
+    </Card>
   )
 }

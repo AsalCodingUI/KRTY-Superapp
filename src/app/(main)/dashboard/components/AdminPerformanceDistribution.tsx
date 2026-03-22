@@ -1,5 +1,8 @@
 "use client"
 
+import { Card, EmptyState } from "@/shared/ui"
+import { RiBarChartBoxLine } from "@/shared/ui/lucide-icons"
+
 interface AdminPerformanceDistributionProps {
   distribution: {
     outstanding: number
@@ -24,9 +27,9 @@ export function AdminPerformanceDistribution({
   const total = items.reduce((sum, item) => sum + item.count, 0)
 
   return (
-    <div className="border-neutral-primary rounded-lg border px-4 py-3">
+    <Card>
       <div className="mb-3 flex items-center justify-between">
-        <p className="text-label-sm text-foreground-secondary">
+        <p className="text-label-md text-foreground-secondary">
           Performance Distribution
         </p>
         <span className="text-body-xs text-foreground-tertiary tabular-nums">
@@ -35,9 +38,13 @@ export function AdminPerformanceDistribution({
       </div>
 
       {total === 0 ? (
-        <p className="text-body-xs text-foreground-tertiary py-5 text-center">
-          No performance data available.
-        </p>
+        <EmptyState
+          icon={<RiBarChartBoxLine className="size-5" />}
+          title="No performance data"
+          description="Performance distribution will appear after review data is available."
+          placement="inner"
+          className="min-h-[160px] px-0 py-6"
+        />
       ) : (
         <div className="border-neutral-primary divide-neutral-primary overflow-hidden rounded-lg border divide-y">
           {items.map((item) => {
@@ -64,6 +71,6 @@ export function AdminPerformanceDistribution({
           })}
         </div>
       )}
-    </div>
+    </Card>
   )
 }

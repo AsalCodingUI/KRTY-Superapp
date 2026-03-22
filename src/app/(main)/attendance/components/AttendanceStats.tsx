@@ -124,7 +124,7 @@ export function AttendanceStats({
         </div>
       )}
 
-      <div className="grid grid-cols-1 gap-md sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-lg sm:grid-cols-2">
         {/* CARD 1: CLOCK ACTION */}
         <Card className="flex h-full flex-col justify-between px-4 py-3">
           <div>
@@ -236,29 +236,29 @@ export function AttendanceStats({
               <dd className="text-foreground-primary font-medium tabular-nums">
                 {activeSession && currentTime
                   ? (() => {
-                      const start = new Date(activeSession.clock_in).getTime()
-                      const now = currentTime.getTime()
-                      let workingMs = now - start
+                    const start = new Date(activeSession.clock_in).getTime()
+                    const now = currentTime.getTime()
+                    let workingMs = now - start
 
-                      // Subtract accumulated break time
-                      workingMs -= (activeSession.break_total || 0) * 60 * 1000
+                    // Subtract accumulated break time
+                    workingMs -= (activeSession.break_total || 0) * 60 * 1000
 
-                      // If currently on break, subtract current break duration too
-                      if (activeSession.is_break && activeSession.break_start) {
-                        const breakStart = new Date(
-                          activeSession.break_start,
-                        ).getTime()
-                        const currentBreakMs = now - breakStart
-                        workingMs -= currentBreakMs
-                      }
+                    // If currently on break, subtract current break duration too
+                    if (activeSession.is_break && activeSession.break_start) {
+                      const breakStart = new Date(
+                        activeSession.break_start,
+                      ).getTime()
+                      const currentBreakMs = now - breakStart
+                      workingMs -= currentBreakMs
+                    }
 
-                      const hours = Math.floor(workingMs / (1000 * 60 * 60))
-                      const mins = Math.floor(
-                        (workingMs % (1000 * 60 * 60)) / (1000 * 60),
-                      )
-                      const secs = Math.floor((workingMs % (1000 * 60)) / 1000)
-                      return `${hours}h ${mins}m ${secs}s`
-                    })()
+                    const hours = Math.floor(workingMs / (1000 * 60 * 60))
+                    const mins = Math.floor(
+                      (workingMs % (1000 * 60 * 60)) / (1000 * 60),
+                    )
+                    const secs = Math.floor((workingMs % (1000 * 60)) / 1000)
+                    return `${hours}h ${mins}m ${secs}s`
+                  })()
                   : "--:--:--"}
               </dd>
             </div>

@@ -12,7 +12,8 @@ import {
   AvatarOverflow,
   Badge,
   Button,
-  Card,
+  DataTable,
+  DataTableColumnHeader,
   Select,
   SelectContent,
   SelectItem,
@@ -21,16 +22,10 @@ import {
   Spinner,
   TabNavigation,
   TabNavigationLink,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeaderCell,
-  TableRow,
-  TableSection,
 } from "@/shared/ui"
 import { RiArrowRightLine, RiFolderLine } from "@/shared/ui/lucide-icons"
 import { useQuery } from "@tanstack/react-query"
+import { createColumnHelper, type ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
 import dynamic from "next/dynamic"
 import { useRouter } from "next/navigation"
@@ -62,6 +57,16 @@ type ProjectListItem = {
   project_assignments: ProjectAssignment[] | null
 }
 
+type ProjectStats = {
+  total: number
+  active: number
+  archived: number
+  calculations: number
+  activeSlas: number
+}
+
+const projectColumnHelper = createColumnHelper<ProjectListItem>()
+
 const getStatusVariant = (
   status: ProjectStatus,
 ): "success" | "info" | "zinc" => {
@@ -73,102 +78,154 @@ const getStatusVariant = (
   return variants[status]
 }
 
-function ProjectsTableContent({ projects }: { projects: ProjectListItem[] }) {
-  const router = useRouter()
+const getProjectTeamMembers = (project: ProjectListItem) =>
+  project.project_assignments?.map((assignment) => ({
+    id: assignment.id,
+    name: assignment.profiles?.full_name || "Unknown",
+    image: assignment.profiles?.avatar_url || undefined,
+  })) || []
+
+function ProjectsStats({ projectStats }: { projectStats: ProjectStats }) {
+  const stats = [
+    { label: "Total Projects", value: projectStats.total },
+    { label: "Active Projects", value: projectStats.active },
+    { label: "Archived Projects", value: projectStats.archived },
+    { label: "Saved Calculations", value: projectStats.calculations },
+    { label: "Active SLAs", value: projectStats.activeSlas },
+  ]
 
   return (
-    <TableSection title="Project List">
-      {projects.length === 0 ? (
-        <div className="text-body-sm text-foreground-secondary rounded-lg border border-dashed p-6 text-center">
-          No projects found.
+    <dl className="grid grid-cols-1 gap-lg sm:grid-cols-2 lg:grid-cols-5">
+      {stats.map((stat) => (
+        <div
+          key={stat.label}
+          className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-lg border px-4 py-3"
+        >
+          <dt className="text-label-sm text-foreground-secondary">
+            {stat.label}
+          </dt>
+          <dd className="text-heading-md text-foreground-primary">
+            {stat.value}
+          </dd>
         </div>
-      ) : (
-        <Table>
-          <TableHead>
-            <TableRow className="h-[40px] hover:bg-transparent">
-              <TableHeaderCell>Project Name</TableHeaderCell>
-              <TableHeaderCell>Quarter</TableHeaderCell>
-              <TableHeaderCell>Status</TableHeaderCell>
-              <TableHeaderCell>Timeline</TableHeaderCell>
-              <TableHeaderCell>Team</TableHeaderCell>
-              <TableHeaderCell className="text-right">Actions</TableHeaderCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {projects.map((project) => {
-              const teamMembers =
-                project.project_assignments?.map((assignment) => ({
-                  id: assignment.id,
-                  name: assignment.profiles?.full_name || "Unknown",
-                  image: assignment.profiles?.avatar_url || undefined,
-                })) || []
+      ))}
+    </dl>
+  )
+}
 
-              return (
-                <TableRow key={project.id}>
-                  <TableCell>
-                    <span className="text-label-md text-foreground-primary">
-                      {project.name}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    {project.quarter_id ? (
-                      <QuarterBadge quarter={project.quarter_id} />
-                    ) : (
-                      <span className="text-foreground-disable">No quarter</span>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={getStatusVariant(project.status)}>
-                      {project.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <span className="text-foreground-primary">
-                      {format(new Date(project.start_date), "MMM d, yyyy")} -{" "}
-                      {format(new Date(project.end_date), "MMM d, yyyy")}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    {teamMembers.length > 0 ? (
-                      <AvatarGroup>
-                        {teamMembers.slice(0, 3).map((member) => (
-                          <Avatar
-                            key={member.id}
-                            src={member.image}
-                            alt={member.name}
-                            size="sm"
-                            initials={member.name
-                              .split(" ")
-                              .map((part) => part[0])
-                              .join("")
-                              .slice(0, 2)}
-                          />
-                        ))}
-                        {teamMembers.length > 3 && (
-                          <AvatarOverflow count={teamMembers.length - 3} size="sm" />
-                        )}
-                      </AvatarGroup>
-                    ) : (
-                      <span className="text-foreground-disable">No assignments</span>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button
-                      size="icon-sm"
-                      variant="tertiary"
-                      onClick={() => router.push(`/projects/${project.id}`)}
-                      title="Open Project"
-                    >
-                      <RiArrowRightLine className="size-3.5" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              )
-            })}
-          </TableBody>
-        </Table>
-      )}
-    </TableSection>
+function ProjectsTableContent({ projects }: { projects: ProjectListItem[] }) {
+  const router = useRouter()
+  const columns = useMemo(
+    () => [
+      projectColumnHelper.accessor("name", {
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Project Name" />
+        ),
+        cell: ({ row }) => (
+          <span className="text-label-md text-foreground-primary">
+            {row.getValue("name")}
+          </span>
+        ),
+      }),
+      projectColumnHelper.accessor("quarter_id", {
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Quarter" />
+        ),
+        cell: ({ row }) => {
+          const quarterId = row.getValue("quarter_id") as string | null
+          return quarterId ? (
+            <QuarterBadge quarter={quarterId} />
+          ) : (
+            <span className="text-foreground-disable">No quarter</span>
+          )
+        },
+      }),
+      projectColumnHelper.accessor("status", {
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Status" />
+        ),
+        cell: ({ row }) => (
+          <Badge variant={getStatusVariant(row.getValue("status"))}>
+            {row.getValue("status")}
+          </Badge>
+        ),
+      }),
+      projectColumnHelper.display({
+        id: "timeline",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Timeline" />
+        ),
+        cell: ({ row }) => (
+          <span className="text-foreground-primary">
+            {format(new Date(row.original.start_date), "MMM d, yyyy")} -{" "}
+            {format(new Date(row.original.end_date), "MMM d, yyyy")}
+          </span>
+        ),
+      }),
+      projectColumnHelper.display({
+        id: "team",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Team" />
+        ),
+        cell: ({ row }) => {
+          const teamMembers = getProjectTeamMembers(row.original)
+
+          return teamMembers.length > 0 ? (
+            <AvatarGroup>
+              {teamMembers.slice(0, 3).map((member) => (
+                <Avatar
+                  key={member.id}
+                  src={member.image}
+                  alt={member.name}
+                  size="sm"
+                  initials={member.name
+                    .split(" ")
+                    .map((part) => part[0])
+                    .join("")
+                    .slice(0, 2)}
+                />
+              ))}
+              {teamMembers.length > 3 && (
+                <AvatarOverflow count={teamMembers.length - 3} size="sm" />
+              )}
+            </AvatarGroup>
+          ) : (
+            <span className="text-foreground-disable">No assignments</span>
+          )
+        },
+      }),
+      projectColumnHelper.display({
+        id: "actions",
+        header: () => <div className="text-right">Actions</div>,
+        cell: ({ row }) => (
+          <div className="flex justify-end">
+            <Button
+              size="icon-sm"
+              variant="tertiary"
+              onClick={() => router.push(`/projects/${row.original.id}`)}
+              title="Open Project"
+            >
+              <RiArrowRightLine className="size-3.5" />
+            </Button>
+          </div>
+        ),
+      }),
+    ] as ColumnDef<ProjectListItem, unknown>[],
+    [router],
+  )
+
+  return (
+    <section>
+      <DataTable
+        data={projects}
+        columns={columns}
+        enableSelection={false}
+        showExport={false}
+        showViewOptions={false}
+        showFilterbar={false}
+        showTableWrapper={true}
+        tableTitle="Project List" />
+    </section>
   )
 }
 
@@ -327,56 +384,15 @@ export function ProjectsListPage() {
       </div>
 
       <div className="bg-surface-neutral-primary flex flex-col rounded-xxl">
-        <div className="px-5 py-2 ">
+        <section className="px-5 py-2">
           {isProjectsLoading || isSLAsLoading || isCalculationsLoading ? (
             <div className="flex items-center justify-center py-8">
               <Spinner size="md" />
             </div>
           ) : (
-            <div className="grid gap-md sm:grid-cols-2 xl:grid-cols-5">
-              <Card className="px-4 py-3">
-                <dt className="text-label-sm text-foreground-secondary">
-                  Total Projects
-                </dt>
-                <dd className="text-heading-md text-foreground-primary mt-2">
-                  {projectStats.total}
-                </dd>
-              </Card>
-              <Card className="px-4 py-3">
-                <dt className="text-label-sm text-foreground-secondary">
-                  Active Projects
-                </dt>
-                <dd className="text-heading-md text-foreground-primary mt-2">
-                  {projectStats.active}
-                </dd>
-              </Card>
-              <Card className="px-4 py-3">
-                <dt className="text-label-sm text-foreground-secondary">
-                  Archived Projects
-                </dt>
-                <dd className="text-heading-md text-foreground-primary mt-2">
-                  {projectStats.archived}
-                </dd>
-              </Card>
-              <Card className="px-4 py-3">
-                <dt className="text-label-sm text-foreground-secondary">
-                  Saved Calculations
-                </dt>
-                <dd className="text-heading-md text-foreground-primary mt-2">
-                  {projectStats.calculations}
-                </dd>
-              </Card>
-              <Card className="px-4 py-3">
-                <dt className="text-label-sm text-foreground-secondary">
-                  Active SLAs
-                </dt>
-                <dd className="text-heading-md text-foreground-primary mt-2">
-                  {projectStats.activeSlas}
-                </dd>
-              </Card>
-            </div>
+            <ProjectsStats projectStats={projectStats} />
           )}
-        </div>
+        </section>
 
         <div className="px-5 pt-2 border-b border-neutral-primary">
           <div className="xl:hidden pb-2">

@@ -1,33 +1,56 @@
 "use client"
 
 import { siteConfig } from "@/app/siteConfig"
-import { navigationConfig } from "@/shared/config/navigation"
-import { usePagePermissions } from "@/shared/hooks/usePagePermissions"
+import { useNotifications } from "@/shared/hooks/useNotifications"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
-import {
-  canAccessProjectCalculator,
-  canAccessSLAGenerator,
-  hasRoleAccess,
-} from "@/shared/lib/roles"
 import { cx } from "@/shared/lib/utils"
 import {
   RiBarChartBoxLine,
   RiCalendarCheckLine,
   RiCalendarLine,
   RiHome2Line,
+  RiNotification3Line,
   RiSettings5Line,
 } from "@/shared/ui/lucide-icons"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { type ComponentType, useMemo } from "react"
+import { usePathname, useRouter } from "next/navigation"
+import { startTransition, type ComponentType, useMemo } from "react"
 
 type MobileAppTab = {
   label: string
   href: string
-  icon: ComponentType<{ className?: string; "aria-hidden"?: boolean | "true" | "false" }>
+  icon: ComponentType<{
+    className?: string
+    "aria-hidden"?: boolean | "true" | "false"
+  }>
+  isNotifications?: boolean
 }
 
-const APP_TABS: MobileAppTab[] = [
+const EMPLOYEE_TABS: MobileAppTab[] = [
+  {
+    label: "Home",
+    href: siteConfig.baseLinks.dashboard,
+    icon: RiHome2Line,
+  },
+  {
+    label: "Cuti",
+    href: siteConfig.baseLinks.leave,
+    icon: RiCalendarCheckLine,
+  },
+  {
+    label: "Notif",
+    href: "/notifications",
+    icon: RiNotification3Line,
+    isNotifications: true,
+  },
+  {
+    label: "Kalender",
+    href: siteConfig.baseLinks.calendar,
+    icon: RiCalendarLine,
+  },
+]
+
+const STAKEHOLDER_TABS: MobileAppTab[] = [
   {
     label: "Home",
     href: siteConfig.baseLinks.dashboard,
@@ -44,9 +67,10 @@ const APP_TABS: MobileAppTab[] = [
     icon: RiBarChartBoxLine,
   },
   {
-    label: "Calendar",
-    href: siteConfig.baseLinks.calendar,
-    icon: RiCalendarLine,
+    label: "Notif",
+    href: "/notifications",
+    icon: RiNotification3Line,
+    isNotifications: true,
   },
   {
     label: "Settings",
@@ -57,55 +81,34 @@ const APP_TABS: MobileAppTab[] = [
 
 export function MobileBottomNav() {
   const pathname = usePathname()
+  const router = useRouter()
   const { profile, loading } = useUserProfile()
-  const { hasPermission, loading: permissionLoading } = usePagePermissions()
+  const { unreadCount } = useNotifications()
 
-  const navItems = useMemo(
-    () =>
-      navigationConfig.main.filter((item) => {
-        if (loading || permissionLoading || !profile) return false
-        if (item.name === "Project Calculator") {
-          return (
-            canAccessProjectCalculator(profile) &&
-            hasPermission(item.href, false) === true
-          )
-        }
-        if (item.name === "SLA Generator") {
-          return (
-            canAccessSLAGenerator(profile) &&
-            hasPermission(item.href, false) === true
-          )
-        }
-        return (
-          hasRoleAccess(item.roles, profile.role) &&
-          hasPermission(item.href, false) === true
-        )
-      }),
-    [loading, permissionLoading, profile, hasPermission],
-  )
+  const appTabs = useMemo(() => {
+    if (loading || !profile) return []
+    return profile.role === "stakeholder" ? STAKEHOLDER_TABS : EMPLOYEE_TABS
+  }, [loading, profile])
 
-  const allowedHrefSet = new Set([
-    ...navItems.map((item) => item.href),
-    siteConfig.baseLinks.settings.general,
-  ])
-  const appTabs = APP_TABS.filter((tab) => allowedHrefSet.has(tab.href))
-
-  const isActive = (itemHref: string) => {
-    return pathname === itemHref || pathname.startsWith(itemHref)
+  const isActive = (href: string) => {
+    if (href === siteConfig.baseLinks.settings.general) {
+      return pathname.startsWith("/settings")
+    }
+    return pathname === href || pathname.startsWith(href)
   }
 
-  if (loading || permissionLoading || !profile || appTabs.length === 0) {
-    return null
-  }
+  if (loading || !profile || appTabs.length === 0) return null
 
   return (
     <nav
       aria-label="Mobile quick navigation"
-      className="border-neutral-primary bg-surface-neutral-primary fixed right-0 bottom-0 left-0 z-40 border-t xl:hidden"
+      className="border-neutral-primary bg-surface fixed right-0 bottom-0 left-0 z-[55] border-t xl:hidden"
     >
       <div
-        className="mx-auto grid max-w-lg px-2 pt-1.5 pb-[calc(0.75rem+env(safe-area-inset-bottom))]"
-        style={{ gridTemplateColumns: `repeat(${appTabs.length}, minmax(0, 1fr))` }}
+        className="mx-auto grid max-w-lg px-2 pt-1 pb-[calc(0.5rem+env(safe-area-inset-bottom))]"
+        style={{
+          gridTemplateColumns: `repeat(${appTabs.length}, minmax(0, 1fr))`,
+        }}
       >
         {appTabs.map((tab) => {
           const active = isActive(tab.href)
@@ -115,15 +118,29 @@ export function MobileBottomNav() {
               key={tab.label}
               href={tab.href}
               prefetch
+              onClick={(event) => {
+                if (active) return
+                event.preventDefault()
+                startTransition(() => {
+                  router.push(tab.href)
+                })
+              }}
               className={cx(
-                "flex min-h-14 items-center justify-center rounded-md px-1 py-1.5 transition-colors",
+                "relative flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-md px-1 py-1 text-center transition-colors",
                 active
                   ? "text-foreground-primary"
                   : "text-foreground-tertiary hover:text-foreground-secondary",
               )}
             >
-              <tab.icon className="size-6 shrink-0" aria-hidden="true" />
-              <span className="sr-only">{tab.label}</span>
+              <span className="relative">
+                <tab.icon className="size-6 shrink-0" aria-hidden="true" />
+                {tab.isNotifications && unreadCount > 0 && (
+                  <span className="bg-foreground-danger-dark absolute -top-0.5 -right-1 size-2 rounded-full" />
+                )}
+              </span>
+              <span className="mt-0.5 text-[10px] leading-tight">
+                {tab.label}
+              </span>
             </Link>
           )
         })}

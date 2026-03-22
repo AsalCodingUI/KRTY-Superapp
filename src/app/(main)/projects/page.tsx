@@ -9,7 +9,7 @@ export default async function ProjectsRoute() {
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  if (user == null) return <div>Please login</div>
+  if (!user) return <div>Please login</div>
 
   return <ProjectsListPage />
 }

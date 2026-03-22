@@ -3,7 +3,7 @@ import React from "react"
 
 export function AdminMetricsSkeleton() {
   return (
-    <div className="grid gap-md sm:grid-cols-2 lg:grid-cols-5">
+    <div className="grid gap-lg sm:grid-cols-2 lg:grid-cols-5">
       {[...Array(5)].map((_, i) => (
         <div
           key={i}

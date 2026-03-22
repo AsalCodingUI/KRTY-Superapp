@@ -501,6 +501,27 @@ export type Database = {
           },
         ]
       }
+      payment_methods: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+        }
+        Relationships: []
+      }
       performance_summaries: {
         Row: {
           additional_feedback: string | null
@@ -781,6 +802,69 @@ export type Database = {
           },
         ]
       }
+      project_invoices: {
+        Row: {
+          amount_idr: number
+          amount_paid_idr: number
+          created_at: string
+          due_date: string
+          id: string
+          invoice_number: string
+          issue_date: string
+          line_items: Json
+          notes: string | null
+          payment_method_id: string | null
+          project_id: string
+          status: "Draft" | "Sent" | "Partial" | "Paid" | "Overdue"
+          updated_at: string
+        }
+        Insert: {
+          amount_idr?: number
+          amount_paid_idr?: number
+          created_at?: string
+          due_date: string
+          id?: string
+          invoice_number: string
+          issue_date: string
+          line_items?: Json
+          notes?: string | null
+          payment_method_id?: string | null
+          project_id: string
+          status?: "Draft" | "Sent" | "Partial" | "Paid" | "Overdue"
+          updated_at?: string
+        }
+        Update: {
+          amount_idr?: number
+          amount_paid_idr?: number
+          created_at?: string
+          due_date?: string
+          id?: string
+          invoice_number?: string
+          issue_date?: string
+          line_items?: Json
+          notes?: string | null
+          payment_method_id?: string | null
+          project_id?: string
+          status?: "Draft" | "Sent" | "Partial" | "Paid" | "Overdue"
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_invoices_payment_method_id_fkey"
+            columns: ["payment_method_id"]
+            isOneToOne: false
+            referencedRelation: "payment_methods"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_invoices_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       project_assignments: {
         Row: {
           created_at: string | null
@@ -991,6 +1075,7 @@ export type Database = {
           created_at: string
           id: string
           milestones: Json
+          project_id: string | null
           project_name: string
           scope_of_work: Json
           updated_at: string
@@ -1004,6 +1089,7 @@ export type Database = {
           created_at?: string
           id?: string
           milestones?: Json
+          project_id?: string | null
           project_name: string
           scope_of_work?: Json
           updated_at?: string
@@ -1017,12 +1103,20 @@ export type Database = {
           created_at?: string
           id?: string
           milestones?: Json
+          project_id?: string | null
           project_name?: string
           scope_of_work?: Json
           updated_at?: string
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "slas_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "slas_user_id_fkey"
             columns: ["user_id"]

@@ -1,6 +1,7 @@
 "use client"
 
-import { Avatar, Badge } from "@/shared/ui"
+import { Avatar, Badge, Card, EmptyState } from "@/shared/ui"
+import { RiStarLine } from "@/shared/ui/lucide-icons"
 import Link from "next/link"
 
 interface Employee {
@@ -30,18 +31,20 @@ export function AdminEmployeeSpotlight({
   }
 
   return (
-    <div className="grid grid-cols-1 gap-md lg:grid-cols-2">
-      <div className="border-neutral-primary rounded-lg border px-4 py-3">
-        <p className="text-label-sm text-foreground-secondary mb-3">
+    <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+      <Card>
+        <p className="text-label-md text-foreground-secondary mb-3">
           Top Performers
         </p>
 
         {topPerformers.length === 0 ? (
-          <div className="py-5 text-center">
-            <p className="text-body-xs text-foreground-tertiary">
-              No performance data available
-            </p>
-          </div>
+          <EmptyState
+            icon={<RiStarLine className="size-5" />}
+            title="No top performers yet"
+            description="Top performer insights will appear once review data is available."
+            placement="inner"
+            className="min-h-[160px] px-0 py-6"
+          />
         ) : (
           <div className="border-neutral-primary divide-neutral-primary overflow-hidden rounded-lg border divide-y">
             {topPerformers.map((employee) => {
@@ -82,19 +85,21 @@ export function AdminEmployeeSpotlight({
             })}
           </div>
         )}
-      </div>
+      </Card>
 
-      <div className="border-neutral-primary rounded-lg border px-4 py-3">
-        <p className="text-label-sm text-foreground-secondary mb-3">
+      <Card>
+        <p className="text-label-md text-foreground-secondary mb-3">
           Needs Attention
         </p>
 
         {employeesNeedingAttention.length === 0 ? (
-          <div className="py-5 text-center">
-            <p className="text-body-xs text-foreground-tertiary">
-              All employees performing well.
-            </p>
-          </div>
+          <EmptyState
+            icon={<RiStarLine className="size-5" />}
+            title="No employees need attention"
+            description="Everyone is currently performing within the expected range."
+            placement="inner"
+            className="min-h-[160px] px-0 py-6"
+          />
         ) : (
           <div className="border-neutral-primary divide-neutral-primary overflow-hidden rounded-lg border divide-y">
             {employeesNeedingAttention.map((employee) => {
@@ -135,7 +140,7 @@ export function AdminEmployeeSpotlight({
             })}
           </div>
         )}
-      </div>
+      </Card>
     </div>
   )
 }
