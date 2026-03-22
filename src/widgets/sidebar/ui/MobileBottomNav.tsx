@@ -135,7 +135,10 @@ export function MobileBottomNav() {
               <span className="relative">
                 <tab.icon className="size-6 shrink-0" aria-hidden="true" />
                 {tab.isNotifications && unreadCount > 0 && (
-                  <span className="bg-foreground-danger-dark absolute -top-0.5 -right-1 size-2 rounded-full" />
+                  <span className="absolute top-0 right-0 -mt-1 -mr-1 flex size-2">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-surface-danger opacity-75" />
+                    <span className="relative inline-flex size-2 rounded-full bg-surface-danger" />
+                  </span>
                 )}
               </span>
               <span className="mt-0.5 text-[10px] leading-tight">

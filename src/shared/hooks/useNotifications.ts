@@ -4,6 +4,21 @@ import { RealtimeChannel } from "@supabase/supabase-js"
 import { useCallback, useEffect, useState } from "react"
 
 type Notification = Database["public"]["Tables"]["notifications"]["Row"]
+type NotificationsSyncDetail =
+  | { type: "markAsRead"; id: string }
+  | { type: "markAllAsRead" }
+  | { type: "delete"; id: string }
+
+const NOTIFICATIONS_SYNC_EVENT = "kretya:notifications-sync"
+
+function broadcastNotificationsSync(detail: NotificationsSyncDetail) {
+  if (typeof window === "undefined") return
+  window.dispatchEvent(
+    new CustomEvent<NotificationsSyncDetail>(NOTIFICATIONS_SYNC_EVENT, {
+      detail,
+    }),
+  )
+}
 
 export function useNotifications() {
   const [notifications, setNotifications] = useState<Notification[]>([])
@@ -42,6 +57,7 @@ export function useNotifications() {
       prev.map((n) => (n.id === id ? { ...n, is_read: true } : n)),
     )
     setUnreadCount((prev) => Math.max(0, prev - 1))
+    broadcastNotificationsSync({ type: "markAsRead", id })
 
     // Kirim ke server
     await supabase.from("notifications").update({ is_read: true }).eq("id", id)
@@ -51,6 +67,7 @@ export function useNotifications() {
     // Optimistic Update
     setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })))
     setUnreadCount(0)
+    broadcastNotificationsSync({ type: "markAllAsRead" })
 
     const {
       data: { user },
@@ -77,6 +94,7 @@ export function useNotifications() {
     if (deleted && !deleted.is_read) {
       setUnreadCount((prev) => Math.max(0, prev - 1))
     }
+    broadcastNotificationsSync({ type: "delete", id })
 
     const {
       data: { user },
@@ -175,6 +193,44 @@ export function useNotifications() {
       if (channel) supabase.removeChannel(channel)
     }
   }, [fetchNotifications, supabase])
+
+  useEffect(() => {
+    if (typeof window === "undefined") return
+
+    const handleSync = (event: Event) => {
+      const detail = (event as CustomEvent<NotificationsSyncDetail>).detail
+      if (!detail) return
+
+      if (detail.type === "markAsRead") {
+        setNotifications((prev) =>
+          prev.map((n) => (n.id === detail.id ? { ...n, is_read: true } : n)),
+        )
+        setUnreadCount((prev) => Math.max(0, prev - 1))
+        return
+      }
+
+      if (detail.type === "markAllAsRead") {
+        setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })))
+        setUnreadCount(0)
+        return
+      }
+
+      if (detail.type === "delete") {
+        setNotifications((prev) => {
+          const next = prev.filter((n) => n.id !== detail.id)
+          setUnreadCount(next.filter((n) => !n.is_read).length)
+          return next
+        })
+      }
+    }
+
+    window.addEventListener(NOTIFICATIONS_SYNC_EVENT, handleSync as EventListener)
+    return () =>
+      window.removeEventListener(
+        NOTIFICATIONS_SYNC_EVENT,
+        handleSync as EventListener,
+      )
+  }, [])
 
   return {
     notifications,

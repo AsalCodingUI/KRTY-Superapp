@@ -3,6 +3,7 @@
 import { createClient } from "@/shared/api/supabase/client"
 import { canManageByRole } from "@/shared/lib/roles"
 import { Database } from "@/shared/types/database.types"
+import QueryProvider from "@/shared/ui/providers/QueryProvider"
 import {
   CalendarProvider,
   getAllEventTypes,
@@ -471,10 +472,12 @@ function CalendarDataLayer({ role, userId }: CalendarClientProps) {
 
 export default function CalendarClient({ role, userId }: CalendarClientProps) {
   return (
-    <CalendarProvider>
-      <GoogleCalendarProvider>
-        <CalendarDataLayer role={role} userId={userId} />
-      </GoogleCalendarProvider>
-    </CalendarProvider>
+    <QueryProvider>
+      <CalendarProvider>
+        <GoogleCalendarProvider>
+          <CalendarDataLayer role={role} userId={userId} />
+        </GoogleCalendarProvider>
+      </CalendarProvider>
+    </QueryProvider>
   )
 }
