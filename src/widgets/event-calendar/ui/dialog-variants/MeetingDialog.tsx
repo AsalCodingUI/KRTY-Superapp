@@ -19,6 +19,7 @@ import {
   RiMapPinLine,
 } from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
+import { id } from "date-fns/locale"
 import { useState } from "react"
 import { CopyEventButton } from "../components/CopyEventButton"
 import { GuestList } from "../components/GuestList"
@@ -91,7 +92,7 @@ export function MeetingDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="flex max-h-[90vh] flex-col sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Meeting Details</DialogTitle>
+          <DialogTitle>Detail Rapat</DialogTitle>
           <DialogCloseButton onClick={() => onOpenChange(false)} />
         </DialogHeader>
 
@@ -102,7 +103,7 @@ export function MeetingDialog({
                 {event.title}
               </h3>
             <Badge variant="info" size="sm" className="shrink-0">
-              {event.type || "Meeting"}
+              {event.type || "Rapat"}
             </Badge>
           </div>
 
@@ -114,7 +115,7 @@ export function MeetingDialog({
             <div>
               <p className="text-label-sm text-foreground-secondary mb-1">Mulai</p>
               <p className="text-body-sm text-foreground-primary">
-                {format(event.start, "dd MMM yyyy")}
+                {format(event.start, "dd MMM yyyy", { locale: id })}
               </p>
               <p className="text-body-sm text-foreground-secondary mt-0.5">
                 {format(event.start, "HH:mm")}
@@ -123,7 +124,7 @@ export function MeetingDialog({
             <div>
               <p className="text-label-sm text-foreground-secondary mb-1">Selesai</p>
               <p className="text-body-sm text-foreground-primary">
-                {format(event.end, "dd MMM yyyy")}
+                {format(event.end, "dd MMM yyyy", { locale: id })}
               </p>
               <p className="text-body-sm text-foreground-secondary mt-0.5">
                 {format(event.end, "HH:mm")}

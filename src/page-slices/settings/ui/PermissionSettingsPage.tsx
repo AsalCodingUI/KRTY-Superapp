@@ -245,14 +245,6 @@ export default function PermissionSettingsPage({
   return (
     <section aria-labelledby="permissions-title">
       <div className="sm:flex sm:items-center sm:justify-between">
-        <div>
-          <h3
-            id="permissions-title"
-            className="text-heading-md text-foreground-primary scroll-mt-10"
-          >
-            User Permissions
-          </h3>
-        </div>
       </div>
 
       {isImpersonating && effectiveProfile && authProfile && (

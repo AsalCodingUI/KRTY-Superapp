@@ -11,7 +11,7 @@ import {
 } from "@/shared/ui"
 import { RiCalendarLine } from "@/shared/ui/lucide-icons"
 import { format, isToday } from "date-fns"
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { adminAttendanceColumns } from "./AdminColumns"
 
 // Tipe data gabungan (Join)
@@ -32,6 +32,11 @@ export function AdminAttendanceHistoryList({
   onApproveDelete?: (id: string) => void
 }) {
   const [visibleDays, setVisibleDays] = useState(14)
+  const [hydrated, setHydrated] = useState(false)
+
+  useEffect(() => {
+    setHydrated(true)
+  }, [])
 
   // 1. Group logs by Date
   const groupedLogs = useMemo(() => {
@@ -77,7 +82,9 @@ export function AdminAttendanceHistoryList({
       >
         {visibleGroups.map(([date, dailyLogs]) => {
           const dateObj = new Date(date)
-          const isCurrentDay = isToday(dateObj)
+          const isCurrentDay = hydrated && isToday(dateObj)
+          const triggerId = `attendance-trigger-${date}`
+          const contentId = `attendance-content-${date}`
 
           // Hitung statistik harian sederhana
           const activeSessions = dailyLogs.filter((l) => !l.clock_out).length
@@ -85,7 +92,7 @@ export function AdminAttendanceHistoryList({
 
           return (
             <AccordionItem key={date} value={date}>
-              <AccordionTrigger>
+              <AccordionTrigger id={triggerId} aria-controls={contentId}>
                 <div className="flex w-full items-center justify-between pr-4">
                   <div className="flex flex-col items-start sm:flex-row sm:items-center sm:gap-3">
                     <span
@@ -115,7 +122,11 @@ export function AdminAttendanceHistoryList({
                 </div>
               </AccordionTrigger>
 
-              <AccordionContent className="!border-0 !p-0">
+              <AccordionContent
+                id={contentId}
+                aria-labelledby={triggerId}
+                className="!border-0 !p-0"
+              >
                 <div>
                   {/* Menggunakan DataTable standar */}
                   <DataTable

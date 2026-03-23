@@ -79,7 +79,7 @@ export function EmployeeDashboard({
 
   return (
     <div className="flex flex-col">
-      <div className="rounded-xxl flex items-center gap-2 px-5 pt-4 pb-3">
+      <div className="rounded-xxl flex items-center gap-2 px-4 pt-4 pb-3 xl:px-5">
         <RiBarChartBoxLine className="text-foreground-secondary size-4" />
         <p className="text-label-md text-foreground-primary">
           Dashboard Overview
@@ -87,7 +87,7 @@ export function EmployeeDashboard({
       </div>
 
       <div className="bg-surface-neutral-primary rounded-xxl flex flex-col">
-        <div className="space-y-5 pt-2 pb-5 px-5">
+        <div className="space-y-5 pt-2 pb-5 px-4 xl:px-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h1 className="text-heading-md text-foreground-primary">
               Welcome back, {firstName}

@@ -36,12 +36,12 @@ export function MeetingButton({ meetingUrl, className }: MeetingButtonProps) {
           className="bg-surface-brand hover:bg-surface-brand-hover text-primary-fg flex-1"
         >
           <RiVideoOnLine className="mr-2 h-4 w-4" />
-          Join with Google Meet
+          Gabung via Google Meet
         </Button>
         <button
           onClick={handleCopy}
           className="border-border-border hover:bg-muted rounded-lg border p-2 transition-colors"
-          title="Copy meeting link"
+          title="Salin tautan meeting"
         >
           <RiFileCopyLine className="text-content h-4 w-4" />
         </button>
@@ -49,13 +49,13 @@ export function MeetingButton({ meetingUrl, className }: MeetingButtonProps) {
 
       {copied && (
         <p className="text-body-xs text-success mt-2">
-          Link copied to clipboard!
+          Tautan berhasil disalin!
         </p>
       )}
 
       <div className="mt-2">
         <p className="text-body-xs text-content-muted">
-          Your group call will be limited to 1 hour
+          Durasi panggilan grup dibatasi 1 jam
         </p>
         <a
           href={meetingUrl}

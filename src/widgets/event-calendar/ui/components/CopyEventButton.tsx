@@ -4,6 +4,7 @@ import { Button } from "@/shared/ui"
 import { logError } from "@/shared/lib/utils/logger"
 import { RiFileCopyLine } from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
+import { id } from "date-fns/locale"
 import { useState } from "react"
 import type { CalendarEvent } from "../types"
 
@@ -18,8 +19,8 @@ export function CopyEventButton({ event, className }: CopyEventButtonProps) {
   const handleCopy = async () => {
     const eventDetails = `
 📅 ${event.title}
-📍 ${event.location || "No location"}
-🕐 ${format(event.start, "PPP p")} - ${format(event.end, "p")}
+📍 ${event.location || "Tidak ada lokasi"}
+🕐 ${format(event.start, "PPP p", { locale: id })} - ${format(event.end, "p", { locale: id })}
 ${event.description ? `\n📝 ${event.description}` : ""}
 ${event.meetingUrl ? `\n🔗 ${event.meetingUrl}` : ""}
         `.trim()
@@ -41,7 +42,7 @@ ${event.meetingUrl ? `\n🔗 ${event.meetingUrl}` : ""}
       className={className}
     >
       <RiFileCopyLine className="mr-2 h-4 w-4" />
-      {copied ? "Copied!" : "Copy Details"}
+      {copied ? "Tersalin!" : "Salin Detail"}
     </Button>
   )
 }

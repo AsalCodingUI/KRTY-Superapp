@@ -85,10 +85,13 @@ export const MonthView = memo(function MonthView({
 
           {/* Day headers */}
           <div className="grid flex-1 grid-cols-7">
-            {WEEKDAY_LABELS.map((day) => (
+            {WEEKDAY_LABELS.map((day, index) => (
               <div
                 key={day}
-                className="border-neutral-primary text-label-sm text-foreground-secondary border-r py-2 text-center last:border-r-0"
+                className={cx(
+                  "border-neutral-primary text-label-sm text-foreground-secondary border-r py-2 text-center last:border-r-0",
+                  index >= 5 && "bg-surface-neutral-secondary/50",
+                )}
               >
                 {day}
               </div>
@@ -110,6 +113,7 @@ export const MonthView = memo(function MonthView({
                   ? isSameDay(day, selectedDate)
                   : isToday
               const showTodayIndicator = isToday && !isSelected
+              const isWeekend = day.getDay() === 0 || day.getDay() === 6
               const dayKey = day.toISOString()
               const hasMoreEvents = dayEvents.length > 3
               const displayEvents = dayEvents.slice(0, 3)
@@ -119,6 +123,7 @@ export const MonthView = memo(function MonthView({
                   key={dayKey}
                   className={cx(
                     "border-neutral-primary flex min-h-[96px] flex-col border-r border-b p-1 last:border-r-0 sm:min-h-[120px] sm:p-2",
+                    isWeekend && "bg-surface-neutral-secondary/50",
                     "hover:bg-surface-state-neutral-light-hover cursor-pointer transition-colors",
                   )}
                   onClick={() => handleDaySelect(day, dayEvents)}
@@ -240,7 +245,7 @@ export const MonthView = memo(function MonthView({
               ? format(mobileSelectedDay, "EEEE, dd MMMM yyyy", {
                   locale: id,
                 })
-              : "Events"}
+              : "Jadwal"}
           </DrawerTitle>
           <div className="border-neutral-primary flex items-center justify-between border-b px-4 py-4">
             <h3 className="text-heading-sm text-foreground-primary">
@@ -248,13 +253,13 @@ export const MonthView = memo(function MonthView({
                 ? format(mobileSelectedDay, "EEEE, dd MMMM yyyy", {
                     locale: id,
                   })
-                : "Events"}
+                : "Jadwal"}
             </h3>
             <DrawerClose asChild>
               <button
                 type="button"
                 className="text-foreground-tertiary hover:text-foreground-primary inline-flex size-8 items-center justify-center rounded-full transition-colors"
-                aria-label="Close event drawer"
+                aria-label="Tutup panel jadwal"
               >
                 <RiCloseLine className="size-6" />
               </button>

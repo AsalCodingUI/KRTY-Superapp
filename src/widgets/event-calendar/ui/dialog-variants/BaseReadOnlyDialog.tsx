@@ -21,6 +21,7 @@ import {
   RiMapPinLine,
 } from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
+import { id } from "date-fns/locale"
 import { type ReactNode, useState } from "react"
 import type { CalendarEvent } from "../types"
 
@@ -118,9 +119,9 @@ export function BaseReadOnlyDialog({
             <div className="space-y-1 pl-6">
               {event.allDay ? (
                   <div className="text-body-sm text-foreground-primary">
-                    {format(event.start, "EEEE, d MMMM yyyy")}
+                    {format(event.start, "EEEE, d MMMM yyyy", { locale: id })}
                   {event.start.getTime() !== event.end.getTime() && (
-                    <> - {format(event.end, "EEEE, d MMMM yyyy")}</>
+                    <> - {format(event.end, "EEEE, d MMMM yyyy", { locale: id })}</>
                   )}
                 </div>
               ) : (
@@ -130,7 +131,7 @@ export function BaseReadOnlyDialog({
                       Mulai:
                     </span>
                     <span className="text-body-sm">
-                      {format(event.start, "EEEE, d MMMM yyyy • HH:mm")}
+                      {format(event.start, "EEEE, d MMMM yyyy • HH:mm", { locale: id })}
                     </span>
                   </div>
                   <div className="text-foreground-primary flex items-center gap-2">
@@ -138,7 +139,7 @@ export function BaseReadOnlyDialog({
                       Selesai:
                     </span>
                     <span className="text-body-sm">
-                      {format(event.end, "EEEE, d MMMM yyyy • HH:mm")}
+                      {format(event.end, "EEEE, d MMMM yyyy • HH:mm", { locale: id })}
                     </span>
                   </div>
                 </>

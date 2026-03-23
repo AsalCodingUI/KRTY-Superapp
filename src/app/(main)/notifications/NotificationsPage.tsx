@@ -36,7 +36,7 @@ export function NotificationsPage() {
 
   return (
     <div className="flex flex-col">
-      <div className="rounded-xxl flex items-center gap-2 px-4 pt-4 pb-3 sm:px-5">
+      <div className="rounded-xxl flex items-center gap-2 px-4 pt-4 pb-3 xl:px-5">
         <RiNotification3Line className="text-foreground-secondary size-4" />
         <p className="text-label-md text-foreground-primary">Notifications</p>
         {unreadCount > 0 && (
@@ -47,7 +47,7 @@ export function NotificationsPage() {
       </div>
 
       <div className="bg-surface-neutral-primary rounded-xxl flex flex-col">
-        <div className="border-neutral-primary border-b px-4 pt-3 sm:px-5">
+        <div className="border-neutral-primary border-b px-4 pt-3 xl:px-5">
           <TabNavigation className="border-b-0">
             <TabNavigationLink
               active={activeTab === "unread"}

@@ -23,6 +23,7 @@ import {
   startOfDay,
   startOfWeek,
 } from "date-fns"
+import { id } from "date-fns/locale"
 import dynamic from "next/dynamic"
 import { useEffect, useMemo } from "react"
 import { toast } from "sonner"
@@ -120,7 +121,7 @@ function CalendarContent({
           `/api/calendar/events?${params.toString()}`,
         )
         if (!response.ok) {
-          throw new Error("Failed to fetch Google Calendar events")
+          throw new Error("Gagal memuat event Google Calendar")
         }
         const data = await response.json()
         return (data.events || []).map((event: CalendarEvent) => ({
@@ -199,24 +200,24 @@ function CalendarContent({
 
   return (
     <div className="flex min-h-[calc(100vh-1rem)] flex-col">
-      <div className="flex items-center gap-lg rounded-xxl px-4 pt-4 pb-3 sm:px-5">
+      <div className="flex items-center gap-lg rounded-xxl px-4 pt-4 pb-3 xl:px-5">
         <RiCalendarLine className="size-4 text-foreground-secondary" />
-        <p className="text-label-md text-foreground-primary">Calendar</p>
+        <p className="text-label-md text-foreground-primary">Kalender</p>
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col rounded-xxl bg-surface-neutral-primary">
-        <div className="grid grid-cols-2 gap-3 px-4 py-3 sm:gap-lg sm:px-5 sm:py-2 xl:grid-cols-3">
+        <div className="grid grid-cols-2 gap-3 px-4 py-3 sm:gap-lg sm:py-2 xl:grid-cols-3 xl:px-5">
           <div className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-lg border px-4 py-3">
             <p className="text-label-sm text-foreground-secondary">
-              Current Date
+              Tanggal Saat Ini
             </p>
             <p className="text-heading-md text-foreground-primary">
-              {format(currentDate, "EEEE, dd MMM")}
+              {format(currentDate, "EEEE, dd MMM", { locale: id })}
             </p>
           </div>
           <div className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-lg border px-4 py-3">
             <p className="text-label-sm text-foreground-secondary">
-              Meetings Today
+              Rapat Hari Ini
             </p>
             <p className="text-heading-md text-foreground-primary">
               {meetingCount}
@@ -224,7 +225,7 @@ function CalendarContent({
           </div>
           <div className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-lg border px-4 py-3">
             <p className="text-label-sm text-foreground-secondary">
-              Upcoming This Week
+              Jadwal Minggu Ini
             </p>
             <p className="text-heading-md text-foreground-primary">
               {upcomingThisWeek}
@@ -232,7 +233,7 @@ function CalendarContent({
           </div>
         </div>
 
-        <div className="border-b border-neutral-primary px-4 py-3 sm:px-5 sm:py-2">
+        <div className="border-b border-neutral-primary px-4 py-3 sm:py-2 xl:px-5">
           <CalendarToolbar
             onAddEvent={() => setDialogOpen(true)}
             showAddEvent={isStakeholder}

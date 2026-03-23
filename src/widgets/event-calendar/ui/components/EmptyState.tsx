@@ -16,8 +16,8 @@ export function EmptyState({
     return (
       <BaseEmptyState
         className="h-full"
-        title="No events match your filters"
-        description="Try changing your filters."
+        title="Tidak ada jadwal yang cocok dengan filter"
+        description="Coba ubah filter Anda."
         icon={<RiCalendar2Line className="size-5" />}
         placement="inner"
       />
@@ -27,14 +27,14 @@ export function EmptyState({
   return (
     <BaseEmptyState
       className="h-full"
-      title="No events yet"
-      description="Create your first event."
+      title="Belum ada jadwal"
+      description="Buat jadwal pertama Anda."
       icon={<RiCalendar2Line className="size-5" />}
       placement="inner"
       action={
         onCreateEvent
           ? {
-            label: "Create your first event",
+            label: "Buat jadwal pertama",
             onClick: onCreateEvent,
           }
           : undefined

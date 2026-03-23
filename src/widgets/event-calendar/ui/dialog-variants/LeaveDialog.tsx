@@ -16,6 +16,7 @@ import {
   RiUserLine,
 } from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
+import { id } from "date-fns/locale"
 import type { CalendarEvent } from "../types"
 
 interface LeaveDialogProps {
@@ -26,11 +27,11 @@ interface LeaveDialogProps {
 
 // Extract employee name and leave type from title
 const parseLeaveTitle = (title: string) => {
-  // Format: "Employee Name - Leave Type"
-  const parts = title.split(" - ")
+  // Format: "Nama Karyawan - Tipe Cuti" atau "Nama Karyawan • Tipe Cuti"
+  const parts = title.includes(" • ") ? title.split(" • ") : title.split(" - ")
   return {
-    employeeName: parts[0] || "Unknown",
-    leaveType: parts[1] || "Leave",
+    employeeName: parts[0] || "Tidak diketahui",
+    leaveType: parts[1] || "Cuti",
   }
 }
 
@@ -62,7 +63,7 @@ export function LeaveDialog({ open, onOpenChange, event }: LeaveDialogProps) {
           {/* Status Badge */}
           <div className="flex items-center gap-2">
             <Badge color="emerald" className="text-body-sm">
-              Approved
+              Disetujui
             </Badge>
             <Badge color={badgeColor} className="text-body-sm">
               {leaveType}
@@ -88,7 +89,7 @@ export function LeaveDialog({ open, onOpenChange, event }: LeaveDialogProps) {
               <div className="text-foreground-primary flex items-center gap-2">
                 <span className="text-body-sm text-foreground-secondary">Mulai:</span>
                 <span className="text-body-sm">
-                  {format(event.start, "EEEE, d MMMM yyyy")}
+                  {format(event.start, "EEEE, d MMMM yyyy", { locale: id })}
                 </span>
               </div>
               <div className="text-foreground-primary flex items-center gap-2">
@@ -96,7 +97,7 @@ export function LeaveDialog({ open, onOpenChange, event }: LeaveDialogProps) {
                   Selesai:
                 </span>
                 <span className="text-body-sm">
-                  {format(event.end, "EEEE, d MMMM yyyy")}
+                  {format(event.end, "EEEE, d MMMM yyyy", { locale: id })}
                 </span>
               </div>
             </div>

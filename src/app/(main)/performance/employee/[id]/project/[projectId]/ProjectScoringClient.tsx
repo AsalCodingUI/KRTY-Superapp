@@ -314,7 +314,7 @@ export const ProjectScoringClient = forwardRef<
   return (
     <div className="flex flex-col">
       <div className="bg-surface-neutral-primary flex flex-col rounded-xxl">
-        <div className="space-y-5 p-5">
+        <div className="space-y-5 px-4 py-5 xl:px-5">
           {/* HEADER */}
           <div>
             {!hideBackButton && (

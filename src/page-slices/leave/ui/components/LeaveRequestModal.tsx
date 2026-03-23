@@ -61,10 +61,13 @@ export function LeaveRequestModal({
   const startDate = formData.start_date ? startOfDay(formData.start_date) : null
   const daysUntilStart =
     startDate !== null ? differenceInCalendarDays(startDate, today) : null
+  const isAnnualLeave = formData.leave_type === "Annual Leave"
   const isInsufficientNotice =
-    daysUntilStart !== null && daysUntilStart <= MIN_LEAVE_NOTICE_DAYS
+    isAnnualLeave &&
+    daysUntilStart !== null &&
+    daysUntilStart <= MIN_LEAVE_NOTICE_DAYS
   const noticeMessage =
-    daysUntilStart === null
+    !isAnnualLeave || daysUntilStart === null
       ? undefined
       : isInsufficientNotice
         ? `Pengajuan cuti minimal H-${MIN_LEAVE_NOTICE_DAYS + 1}. Saat ini masih H-${Math.max(daysUntilStart, 0)}, jadi belum bisa diajukan.`

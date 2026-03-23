@@ -5,7 +5,7 @@ import { Skeleton } from "@/shared/ui"
 export default function DashboardLoading() {
   return (
     <div className="flex flex-col">
-      <div className="flex items-center gap-2 rounded-xxl px-5 pt-4 pb-3">
+      <div className="flex items-center gap-2 rounded-xxl px-4 pt-4 pb-3 xl:px-5">
         <Skeleton className="size-4 rounded-sm" />
         <Skeleton className="h-4 w-40" />
       </div>

@@ -86,7 +86,7 @@ export function CalendarToolbar({
             <RiArrowLeftSLine className="size-4" />
           </Button>
           <Button variant="secondary" size="sm" onClick={goToToday}>
-            Today
+            Hari Ini
           </Button>
           <Button variant="secondary" size="icon-sm" onClick={goToNext}>
             <RiArrowRightSLine className="size-4" />
@@ -97,19 +97,19 @@ export function CalendarToolbar({
       <div className="flex items-center gap-lg">
         <div className="hidden items-center gap-2 sm:flex">
           <span className="text-label-sm text-foreground-secondary">
-            Google Calendar
+            Google Kalender
           </span>
           {isLoading ? (
-            <Badge variant="zinc">Checking</Badge>
+            <Badge variant="zinc">Mengecek</Badge>
           ) : isConnected ? (
-            <Badge variant="success">Connected</Badge>
+            <Badge variant="success">Terhubung</Badge>
           ) : (
-            <Badge variant="zinc">Disconnected</Badge>
+            <Badge variant="zinc">Terputus</Badge>
           )}
         </div>
         {showAddEvent && (
           <Button size="sm" leadingIcon={<RiAddLine />} onClick={onAddEvent}>
-            New Event
+            Jadwal Baru
           </Button>
         )}
       </div>

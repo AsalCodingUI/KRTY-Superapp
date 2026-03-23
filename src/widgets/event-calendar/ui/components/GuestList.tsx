@@ -27,10 +27,10 @@ export function GuestList({
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <h4 className="text-label-md text-content flex items-center gap-2">
-          <span>{guests.length} guests</span>
+          <span>{guests.length} tamu</span>
           {guests.length > 0 && (
             <span className="text-body-xs text-content-muted">
-              {acceptedCount} yes, {pendingCount} awaiting
+              {acceptedCount} ya, {pendingCount} menunggu
             </span>
           )}
         </h4>
@@ -40,7 +40,7 @@ export function GuestList({
             className="text-body-xs text-primary hover:text-primary-hover flex items-center gap-1"
           >
             <RiUserAddLine className="h-3.5 w-3.5" />
-            Add guest
+            Tambah tamu
           </button>
         )}
       </div>
@@ -71,7 +71,7 @@ export function GuestList({
                 </p>
                 {guest.isOrganizer && (
                   <span className="text-body-xs text-content-muted">
-                    Organizer
+                    Penyelenggara
                   </span>
                 )}
               </div>

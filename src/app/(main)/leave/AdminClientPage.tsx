@@ -110,7 +110,7 @@ export default function LeaveAdminPage({
 
   return (
     <div className="flex flex-col">
-      <div className="flex items-center gap-2 rounded-xxl px-5 pt-4 pb-3">
+      <div className="flex items-center gap-2 rounded-xxl px-4 pt-4 pb-3 xl:px-5">
         <RiCalendarLine className="size-4 text-foreground-secondary" />
         <p className="text-label-md text-foreground-primary">
           Leave Approval Center
@@ -118,7 +118,7 @@ export default function LeaveAdminPage({
       </div>
 
       <div className="bg-surface-neutral-primary flex flex-col rounded-xxl">
-        <div className="px-5 pt-2 border-b border-neutral-primary">
+        <div className="border-b border-neutral-primary px-4 pt-2 xl:px-5">
           <div className="xl:hidden pb-2">
             <Select
               value={activeTab}
@@ -155,7 +155,7 @@ export default function LeaveAdminPage({
           </div>
         </div>
 
-        <div className="p-5">
+        <div className="px-4 py-5 xl:px-5">
           {mountedTabs.has("approval") && (
             <div className={activeTab === "approval" ? "block space-y-5" : "hidden space-y-5"}>
               <section>

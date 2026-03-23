@@ -44,7 +44,7 @@ function SidebarContent() {
       <div className="flex w-full flex-col gap-lg">
         <div className="flex items-center py-md">
           <h4 className="text-label-sm text-foreground-secondary">
-            Kretya Calendar
+            Kalender Kretya
           </h4>
         </div>
         <div className="flex w-full flex-col gap-sm">
@@ -95,21 +95,21 @@ export function CalendarSidebarMobileTrigger() {
           variant="secondary"
           size="sm"
           className="rounded-full shadow-regular-lg lg:hidden"
-          aria-label="Open calendar filters"
+          aria-label="Buka filter kalender"
         >
           <RiEqualizer2Line className="size-4" />
-          <span>Adjust</span>
+          <span>Atur</span>
         </Button>
       </DrawerTrigger>
       <DrawerContent className={MOBILE_BOTTOM_SHEET_CLASSNAME}>
-        <DrawerTitle className="sr-only">Calendar</DrawerTitle>
+        <DrawerTitle className="sr-only">Kalender</DrawerTitle>
         <div className="border-neutral-primary flex items-center justify-between border-b px-4 py-4">
-          <h3 className="text-heading-sm text-foreground-primary">Calendar</h3>
+          <h3 className="text-heading-sm text-foreground-primary">Kalender</h3>
           <DrawerClose asChild>
             <button
               type="button"
               className="text-foreground-tertiary hover:text-foreground-primary inline-flex size-8 items-center justify-center rounded-full transition-colors"
-              aria-label="Close calendar drawer"
+              aria-label="Tutup panel kalender"
             >
               <RiCloseLine className="size-6" />
             </button>

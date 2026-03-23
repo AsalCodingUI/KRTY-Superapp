@@ -40,10 +40,13 @@ export function MiniCalendar() {
       <div className="flex w-full max-w-[320px] flex-col gap-sm">
         {/* Day headers */}
         <div className="grid grid-cols-7 gap-sm">
-          {["M", "T", "W", "T", "F", "S", "S"].map((day, index) => (
+          {["Sn", "Sl", "Rb", "Km", "Jm", "Sb", "Mg"].map((day, index) => (
             <div
               key={`${day}-${index}`}
-              className="text-label-sm text-foreground-secondary flex size-7 items-center justify-center text-center"
+              className={cx(
+                "text-label-sm text-foreground-secondary flex size-7 items-center justify-center rounded-md text-center",
+                index >= 5 && "bg-surface-neutral-secondary/50",
+              )}
             >
               {day}
             </div>
@@ -55,6 +58,7 @@ export function MiniCalendar() {
           {days.map((day) => {
             const isCurrentMonth = isSameMonth(day, currentDate)
             const isSelected = isSameDay(day, currentDate)
+            const isWeekend = day.getDay() === 0 || day.getDay() === 6
 
             return (
               <button
@@ -66,6 +70,10 @@ export function MiniCalendar() {
                   isCurrentMonth &&
                   !isSelected &&
                   "text-foreground-secondary hover:bg-surface-state-neutral-light-hover",
+                  isCurrentMonth &&
+                  !isSelected &&
+                  isWeekend &&
+                  "bg-surface-neutral-secondary/50",
                   isSelected &&
                   "bg-surface-brand text-foreground-on-color hover:bg-surface-brand",
                 )}

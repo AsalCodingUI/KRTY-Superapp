@@ -37,6 +37,7 @@ export const DayView = memo(function DayView({
   const currentTimePosition = useCurrentTimeIndicator(PIXELS_PER_HOUR)
   const today = new Date()
   const isToday = isSameDay(currentDate, today)
+  const isWeekend = currentDate.getDay() === 0 || currentDate.getDay() === 6
 
   // Filter events for current day using centralized function
   // Includes all-day events and filters timed events by business hours
@@ -84,7 +85,7 @@ export const DayView = memo(function DayView({
                   style={baseStyle}
                 >
                   <span className="absolute -top-2 right-2 bg-surface px-1">
-                    {format(slot, "h a")}
+                    {format(slot, "HH:mm")}
                   </span>
                 </div>
               )
@@ -92,7 +93,12 @@ export const DayView = memo(function DayView({
           </div>
 
           {/* Day column */}
-          <div className="relative flex-1">
+          <div
+            className={cx(
+              "relative flex-1",
+              isWeekend && "bg-surface-neutral-secondary/50",
+            )}
+          >
             {/* Time slots */}
             {timeSlots.map((slot) => {
               const hour = slot.getHours()

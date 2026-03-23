@@ -81,7 +81,7 @@ export default function LeaveClientPage({
 
   return (
     <div className="flex flex-col">
-      <div className="flex items-center gap-2 rounded-xxl px-5 pt-4 pb-3">
+      <div className="flex items-center gap-2 rounded-xxl px-4 pt-4 pb-3 xl:px-5">
         <RiCalendarLine className="size-4 text-foreground-secondary" />
         <p className="text-label-md text-foreground-primary">
           Leave &amp; Permission
@@ -89,7 +89,7 @@ export default function LeaveClientPage({
       </div>
 
       <div className="bg-surface-neutral-primary flex flex-col rounded-xxl">
-        <div className="space-y-4 p-5">
+        <div className="space-y-4 px-4 py-5 xl:px-5">
           {/* 2. STATS SECTION (Passing 'requests' agar hitungannya Realtime) */}
           <section>
             <LeaveStats requests={requests} />

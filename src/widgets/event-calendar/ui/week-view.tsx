@@ -56,10 +56,14 @@ export const WeekView = memo(function WeekView({
         {/* Day headers */}
         {weekDays.map((day) => {
           const isToday = isSameDay(day, today)
+          const isWeekend = day.getDay() === 0 || day.getDay() === 6
           return (
             <div
               key={day.toISOString()}
-              className="border-neutral-primary min-w-[96px] flex-1 border-r py-2 text-center last:border-r-0"
+              className={cx(
+                "border-neutral-primary min-w-[96px] flex-1 border-r py-2 text-center last:border-r-0",
+                isWeekend && "bg-surface-neutral-secondary/50",
+              )}
             >
               <div className="text-label-sm text-foreground-secondary flex items-center justify-center gap-xs">
                 <span
@@ -112,7 +116,7 @@ export const WeekView = memo(function WeekView({
                   style={baseStyle}
                 >
                   <span className="absolute -top-2 right-2 bg-surface px-1">
-                    {format(slot, "h a")}
+                    {format(slot, "HH:mm")}
                   </span>
                 </div>
               )
@@ -123,11 +127,15 @@ export const WeekView = memo(function WeekView({
           {weekDays.map((day) => {
             const dayEvents = eventsByDay.get(getDayKey(day)) ?? []
             const isToday = isSameDay(day, today)
+            const isWeekend = day.getDay() === 0 || day.getDay() === 6
 
             return (
               <div
                 key={day.toISOString()}
-                className="border-neutral-primary relative min-w-[96px] flex-1 border-r last:border-r-0"
+                className={cx(
+                  "border-neutral-primary relative min-w-[96px] flex-1 border-r last:border-r-0",
+                  isWeekend && "bg-surface-neutral-secondary/50",
+                )}
               >
                 {/* Time slots */}
                 {timeSlots.map((slot) => {

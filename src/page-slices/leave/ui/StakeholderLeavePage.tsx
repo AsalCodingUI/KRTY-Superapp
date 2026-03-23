@@ -144,7 +144,7 @@ export function StakeholderLeavePage({
     status: "pending",
     reason: "",
     proof_url: "",
-    created_at: new Date().toISOString(),
+    created_at: "",
   })
 
   useEffect(() => {

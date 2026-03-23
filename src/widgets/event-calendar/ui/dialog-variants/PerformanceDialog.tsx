@@ -24,10 +24,10 @@ export function PerformanceDialog({
       title="301 Meeting"
       badges={[
         { label: "301 Meeting", color: "amber" },
-        { label: "Performance Review", color: "blue" },
+        { label: "Ulasan Performa", color: "blue" },
       ]}
       showLocation={true}
-      infoMessage="This is a 301 meeting scheduled from the performance review system. It cannot be edited from the calendar."
+      infoMessage="Ini adalah meeting 301 yang dijadwalkan dari sistem ulasan performa. Data ini tidak dapat diubah dari kalender."
       onDelete={onDelete}
     />
   )

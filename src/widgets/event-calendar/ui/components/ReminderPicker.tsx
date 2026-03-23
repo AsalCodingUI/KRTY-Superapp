@@ -19,14 +19,14 @@ interface ReminderPickerProps {
 }
 
 const PRESET_REMINDERS = [
-  { label: "5 minutes before", minutes: 5 },
-  { label: "10 minutes before", minutes: 10 },
-  { label: "15 minutes before", minutes: 15 },
-  { label: "30 minutes before", minutes: 30 },
-  { label: "1 hour before", minutes: 60 },
-  { label: "2 hours before", minutes: 120 },
-  { label: "1 day before", minutes: 1440 },
-  { label: "2 days before", minutes: 2880 },
+  { label: "5 menit sebelum", minutes: 5 },
+  { label: "10 menit sebelum", minutes: 10 },
+  { label: "15 menit sebelum", minutes: 15 },
+  { label: "30 menit sebelum", minutes: 30 },
+  { label: "1 jam sebelum", minutes: 60 },
+  { label: "2 jam sebelum", minutes: 120 },
+  { label: "1 hari sebelum", minutes: 1440 },
+  { label: "2 hari sebelum", minutes: 2880 },
 ]
 
 export function ReminderPicker({
@@ -49,7 +49,7 @@ export function ReminderPicker({
 
   const getReminderLabel = (minutes: number) => {
     const preset = PRESET_REMINDERS.find((p) => p.minutes === minutes)
-    return preset?.label || `${minutes} minutes before`
+    return preset?.label || `${minutes} menit sebelum`
   }
 
   return (
@@ -109,12 +109,12 @@ export function ReminderPicker({
           disabled={disabled}
         >
           <RiAddLine className="mr-1 h-4 w-4" />
-          Add
+          Tambah
         </Button>
       </div>
 
       {value.length === 0 && (
-        <p className="text-body-xs text-content-muted">No reminders set</p>
+        <p className="text-body-xs text-content-muted">Belum ada pengingat</p>
       )}
     </div>
   )

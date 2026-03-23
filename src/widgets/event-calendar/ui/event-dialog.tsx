@@ -26,6 +26,7 @@ import {
 import { RiCloseLine, RiDeleteBinLine, RiSaveLine } from "@/shared/ui/lucide-icons"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format } from "date-fns"
+import { id } from "date-fns/locale"
 import { useCallback, useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
@@ -317,12 +318,12 @@ export function EventDialog({
               <h3 className="text-heading-sm text-foreground-primary break-words">
                 {event.title}
               </h3>
-              <Badge
+                <Badge
                 variant={getBadgeVariant(event.color)}
                 size="sm"
                 className="shrink-0"
               >
-                {event.type || "Event"}
+                {event.type || "Jadwal"}
               </Badge>
             </div>
 
@@ -333,7 +334,7 @@ export function EventDialog({
                   Mulai
                 </p>
                 <p className="text-body-sm text-foreground-primary">
-                  {format(event.start, "dd MMM yyyy")}
+                  {format(event.start, "dd MMM yyyy", { locale: id })}
                 </p>
                 {!event.allDay && (
                   <p className="text-body-sm text-foreground-secondary mt-0.5">
@@ -346,7 +347,7 @@ export function EventDialog({
                   Selesai
                 </p>
                 <p className="text-body-sm text-foreground-primary">
-                  {format(event.end, "dd MMM yyyy")}
+                  {format(event.end, "dd MMM yyyy", { locale: id })}
                 </p>
                 {!event.allDay && (
                   <p className="text-body-sm text-foreground-secondary mt-0.5">
@@ -434,7 +435,7 @@ export function EventDialog({
                   disabled={readOnly}
                 />
                 <Label htmlFor="allDay" className="cursor-pointer">
-                  Sepanjang Hari (All Day)
+                  Sepanjang Hari
                 </Label>
               </div>
 
@@ -469,7 +470,7 @@ export function EventDialog({
                           setValue("start", format(newDate, "yyyy-MM-dd'T'HH:mm"))
                         }
                       }}
-                      placeholder="Select date"
+                      placeholder="Pilih tanggal"
                       disabled={readOnly}
                     />
                     {!watch("allDay") && (
@@ -536,7 +537,7 @@ export function EventDialog({
                           setValue("end", format(newDate, "yyyy-MM-dd'T'HH:mm"))
                         }
                       }}
-                      placeholder="Select date"
+                      placeholder="Pilih tanggal"
                       disabled={readOnly}
                     />
                     {!watch("allDay") && (

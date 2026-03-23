@@ -15,7 +15,7 @@ export function RSVPButtons({
 }: RSVPButtonsProps) {
   return (
     <div className="space-y-2">
-      <h4 className="text-label-md text-content">Going?</h4>
+      <h4 className="text-label-md text-content">Akan hadir?</h4>
       <div className="flex gap-2">
         <button
           onClick={() => onChange("yes")}
@@ -28,7 +28,7 @@ export function RSVPButtons({
               : "bg-surface text-content border-border-border hover:bg-muted",
           )}
         >
-          Yes
+          Ya
         </button>
         <button
           onClick={() => onChange("no")}
@@ -41,7 +41,7 @@ export function RSVPButtons({
               : "bg-surface text-content border-border-border hover:bg-muted",
           )}
         >
-          No
+          Tidak
         </button>
         <button
           onClick={() => onChange("maybe")}
@@ -54,7 +54,7 @@ export function RSVPButtons({
               : "bg-surface text-content border-border-border hover:bg-muted",
           )}
         >
-          Maybe
+          Mungkin
         </button>
       </div>
     </div>

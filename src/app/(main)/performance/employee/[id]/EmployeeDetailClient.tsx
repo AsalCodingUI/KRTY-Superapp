@@ -140,7 +140,7 @@ export function EmployeeDetailClient({
       <div
         className={
           showBackButton
-            ? "bg-surface-neutral-primary flex flex-col rounded-xxl p-5 space-y-5"
+            ? "bg-surface-neutral-primary flex flex-col rounded-xxl px-4 py-5 space-y-5 xl:px-5"
             : "bg-surface-neutral-primary flex flex-col rounded-xxl space-y-5"
         }
       >

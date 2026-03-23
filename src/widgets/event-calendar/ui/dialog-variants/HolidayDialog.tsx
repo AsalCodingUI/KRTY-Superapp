@@ -13,6 +13,7 @@ import {
 } from "@/shared/ui"
 import { RiCalendarLine, RiCloseLine } from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
+import { id } from "date-fns/locale"
 import type { CalendarEvent } from "../types"
 
 interface HolidayDialogProps {
@@ -30,7 +31,7 @@ export function HolidayDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Public Holiday</DialogTitle>
+          <DialogTitle>Hari Libur Nasional</DialogTitle>
           <DialogCloseButton onClick={() => onOpenChange(false)} />
         </DialogHeader>
 
@@ -42,7 +43,7 @@ export function HolidayDialog({
                 {event.title}
               </h3>
               <Badge variant="zinc" size="sm" className="shrink-0">
-                Holiday
+                Libur
               </Badge>
             </div>
           </div>
@@ -53,11 +54,11 @@ export function HolidayDialog({
               <RiCalendarLine className="text-foreground-secondary h-5 w-5" />
               <div>
                 <p className="text-body-sm text-foreground-primary">
-                  {format(event.start, "EEEE, dd MMMM yyyy")}
+                  {format(event.start, "EEEE, dd MMMM yyyy", { locale: id })}
                 </p>
                 {event.allDay && (
                   <p className="text-body-xs text-foreground-secondary mt-0.5">
-                    All day
+                    Sepanjang hari
                   </p>
                 )}
               </div>
@@ -67,7 +68,7 @@ export function HolidayDialog({
           {/* Description */}
           {event.description && (
             <div className="border-neutral-primary space-y-2 border-t pt-4">
-              <h4 className="text-label-sm text-foreground-secondary">About this holiday</h4>
+              <h4 className="text-label-sm text-foreground-secondary">Tentang hari libur ini</h4>
               <p className="text-body-sm text-foreground-primary break-words whitespace-pre-wrap">
                 {event.description}
               </p>
@@ -76,9 +77,9 @@ export function HolidayDialog({
 
           {/* Info notice */}
           <div className="bg-primary/10 rounded-lg border border-primary/20 p-3">
-            <p className="text-body-xs text-foreground-brand-primary">
-              ℹ️ This is a public holiday from the Indonesian calendar. It
-              cannot be edited or deleted.
+              <p className="text-body-xs text-foreground-brand-primary">
+              ℹ️ Ini adalah hari libur nasional dari kalender Indonesia. Data
+              ini tidak dapat diubah atau dihapus.
             </p>
           </div>
         </DialogBody>
@@ -90,7 +91,7 @@ export function HolidayDialog({
             onClick={() => onOpenChange(false)}
           >
             <RiCloseLine className="mr-2 h-4 w-4" />
-            Close
+            Tutup
           </Button>
         </DialogFooter>
       </DialogContent>

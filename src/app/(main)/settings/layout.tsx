@@ -53,13 +53,13 @@ export default function Layout({
 
   return (
     <div className="flex flex-col">
-      <div className="flex items-center gap-2 rounded-xxl px-5 pt-4 pb-3">
+      <div className="flex items-center gap-2 rounded-xxl px-4 pt-4 pb-3 xl:px-5">
         <RiSettings5Line className="size-4 text-foreground-secondary" />
         <p className="text-label-md text-foreground-primary">Settings</p>
       </div>
 
       <div className="flex flex-col rounded-xxl">
-        <div className="border-b border-neutral-primary px-5 pt-2">
+        <div className="border-b border-neutral-primary px-4 pt-2 xl:px-5">
           <div className="xl:hidden pb-2">
             <Select
               value={pathname}
@@ -97,7 +97,7 @@ export default function Layout({
           </div>
         </div>
 
-        <div className="p-5">{children}</div>
+        <div className="px-4 py-5 xl:px-5">{children}</div>
       </div>
     </div>
   )

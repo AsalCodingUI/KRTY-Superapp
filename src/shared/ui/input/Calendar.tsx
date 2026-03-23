@@ -141,7 +141,7 @@ const Calendar = ({
           "hover:bg-surface-state-neutral-light-hover",
           focusRing,
         ),
-        day_today: "font-medium text-foreground-primary",
+        day_today: "font-medium text-foreground-on-color",
         day_selected:
           "rounded-md bg-surface-brand text-foreground-on-color hover:bg-surface-brand",
         day_disabled:

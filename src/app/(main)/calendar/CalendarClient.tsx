@@ -175,7 +175,7 @@ const mapLeaveRowToEvent = (row: LeaveRequestCalendarRow): CalendarEvent => {
   const typeDefinition = getEventTypeDefinition(normalizedType)
   const profile =
     Array.isArray(row.profiles) ? row.profiles[0] : row.profiles
-  const employeeName = profile?.full_name || "Employee"
+  const employeeName = profile?.full_name || "Karyawan"
   const startDate = startOfDay(new Date(row.start_date))
   const endDate = endOfDay(new Date(row.end_date))
   const reason = row.reason?.trim()
@@ -183,7 +183,7 @@ const mapLeaveRowToEvent = (row: LeaveRequestCalendarRow): CalendarEvent => {
   return {
     id: `leave-${row.id}`,
     title: `${employeeName} • ${leaveType}`,
-    description: reason ? `Reason: ${reason}` : undefined,
+    description: reason ? `Alasan: ${reason}` : undefined,
     start: startDate,
     end: endDate,
     allDay: true,
@@ -203,18 +203,18 @@ const mapSlotToEvent = (slot: OneOnOneCalendarRow): CalendarEvent | null => {
     ? slot.booked_by_profile[0]
     : slot.booked_by_profile
   const organizerName =
-    organizerProfile?.full_name || organizerProfile?.email || "Organizer"
+    organizerProfile?.full_name || organizerProfile?.email || "Penyelenggara"
   const employeeName =
-    bookedProfile?.full_name || bookedProfile?.email || "Employee"
+    bookedProfile?.full_name || bookedProfile?.email || "Karyawan"
   const statusLabel =
-    slot.status === "cancelled" ? "Cancelled" : "Booked"
-  const titleBase = `1:1 Review (${slot.cycle_name})`
+    slot.status === "cancelled" ? "Dibatalkan" : "Terjadwal"
+  const titleBase = `Ulasan 1:1 (${slot.cycle_name})`
   const title =
-    slot.status === "cancelled" ? `${titleBase} (Cancelled)` : titleBase
+    slot.status === "cancelled" ? `${titleBase} (Dibatalkan)` : titleBase
   const detailLines = [
     `Status: ${statusLabel}`,
-    `Organizer: ${organizerName}`,
-    `Employee: ${employeeName}`,
+    `Penyelenggara: ${organizerName}`,
+    `Karyawan: ${employeeName}`,
     `Mode: ${slot.mode}`,
   ]
 
@@ -222,7 +222,7 @@ const mapSlotToEvent = (slot: OneOnOneCalendarRow): CalendarEvent | null => {
     detailLines.push(`Meeting: ${slot.meeting_url}`)
   }
   if (slot.location) {
-    detailLines.push(`Location: ${slot.location}`)
+    detailLines.push(`Lokasi: ${slot.location}`)
   }
 
   return {
