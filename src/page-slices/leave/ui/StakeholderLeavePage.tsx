@@ -482,12 +482,12 @@ export function StakeholderLeavePage({
       />
 
       <Dialog open={manualModalOpen} onOpenChange={setManualModalOpen}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="max-h-[90vh] sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>Add Leave Manually</DialogTitle>
             <DialogCloseButton />
           </DialogHeader>
-          <DialogBody className="space-y-4">
+          <DialogBody className="space-y-4 overflow-y-auto">
             <div>
               <Label htmlFor="manual-user">Employee</Label>
               <Select

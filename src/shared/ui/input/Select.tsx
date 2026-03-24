@@ -125,7 +125,7 @@ const SelectContent = React.forwardRef<
         ref={forwardedRef}
         className={cx(
           // base
-          "relative z-50 overflow-hidden rounded-md border p-[2px]",
+          "relative z-[120] overflow-hidden rounded-md border p-[2px]",
           // widths
           "max-w-[95vw] min-w-[calc(var(--radix-select-trigger-width)-2px)]",
           // heights

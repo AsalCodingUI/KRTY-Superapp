@@ -465,17 +465,20 @@ export function LeaveRequestModal({
   return (
     <Dialog open={isOpen} onOpenChange={(val) => !val && onClose()}>
       <DialogContent
-        className="sm:max-w-lg"
+        className="max-h-[90vh] sm:max-w-lg"
         onPointerDownOutside={(e) => e.preventDefault()}
         onInteractOutside={(e) => e.preventDefault()}
       >
-        <form onSubmit={(e) => e.preventDefault()}>
+        <form
+          onSubmit={(e) => e.preventDefault()}
+          className="flex min-h-0 flex-1 flex-col"
+        >
           <DialogHeader>
             <DialogTitle>{getTitle()}</DialogTitle>
             <DialogCloseButton />
           </DialogHeader>
 
-          <DialogBody>
+          <DialogBody className="min-h-0 overflow-y-auto">
             {renderContent()}
           </DialogBody>
 
