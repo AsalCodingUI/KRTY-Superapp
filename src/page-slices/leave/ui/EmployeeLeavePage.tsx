@@ -90,7 +90,13 @@ export function EmployeeLeavePage({
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
   const [termsOpen, setTermsOpen] = useState(false)
 
-  const { loading, handleClockIn, handleClockOut, handleToggleBreak } =
+  const {
+    loading,
+    handleClockIn,
+    handleClockOut,
+    handleToggleBreak,
+    handleResolvePreviousSession,
+  } =
     useClockActions({
       userId: profile.id,
       logs,
@@ -176,6 +182,9 @@ export function EmployeeLeavePage({
   }
 
   const today = currentTime ? format(currentTime, "yyyy-MM-dd") : ""
+  const staleSession = logs.find(
+    (log) => log.date < today && log.clock_out === null,
+  )
   const activeSession = logs.find(
     (log) => log.date === today && log.clock_out === null,
   )
@@ -313,10 +322,27 @@ export function EmployeeLeavePage({
                     {currentTime ? format(currentTime, "EEEE, dd MMM") : ""}
                   </p>
                 </div>
-                <div className="flex flex-wrap items-center gap-2">
+                <div className="flex flex-wrap items-center justify-end gap-2">
                   {!currentTime ? (
                     // SSR placeholder — keeps component tree stable to avoid Radix ID hydration mismatch
                     <div className="h-[28px]" />
+                  ) : staleSession && !activeSession ? (
+                    <div className="flex flex-col items-end gap-2">
+                      <p className="text-body-xs text-foreground-danger-dark text-right">
+                        Sesi {format(new Date(staleSession.date), "dd MMM yyyy")} belum ditutup.
+                      </p>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() =>
+                          handleResolvePreviousSession(staleSession.id)
+                        }
+                        disabled={loading}
+                      >
+                        <RiLogoutBoxLine className="mr-2 size-4" />
+                        Tutup Sesi Sebelumnya
+                      </Button>
+                    </div>
                   ) : !activeSession ? (
                     <>
                       <DropdownMenu>
@@ -347,7 +373,7 @@ export function EmployeeLeavePage({
                       <Button
                         size="sm"
                         onClick={() => handleClockIn(selectedStatus)}
-                        disabled={loading}
+                        disabled={loading || Boolean(staleSession)}
                       >
                         <RiLoginBoxLine className="mr-2 size-4" />
                         Clock In

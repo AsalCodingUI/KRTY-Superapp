@@ -185,10 +185,54 @@ export function useClockActions({
     [supabase, logs, onLogsUpdate],
   )
 
+  const handleResolvePreviousSession = useCallback(
+    async (logId: string) => {
+      setLoading(true)
+      const now = new Date().toISOString()
+      const oldLogs = logs
+
+      onLogsUpdate(
+        logs.map((log) =>
+          log.id === logId
+            ? {
+                ...log,
+                clock_out: now,
+                is_break: false,
+                break_start: null,
+              }
+            : log,
+        ),
+      )
+
+      try {
+        const { error } = await supabase
+          .from("attendance_logs")
+          .update({
+            clock_out: now,
+            is_break: false,
+            break_start: null,
+          })
+          .eq("id", logId)
+
+        if (error) throw error
+        toast.success("Sesi sebelumnya berhasil ditutup")
+      } catch (error: unknown) {
+        onLogsUpdate(oldLogs)
+        const message =
+          error instanceof Error ? error.message : "Gagal menutup sesi sebelumnya"
+        toast.error(message)
+      } finally {
+        setLoading(false)
+      }
+    },
+    [supabase, logs, onLogsUpdate],
+  )
+
   return {
     loading,
     handleClockIn,
     handleClockOut,
     handleToggleBreak,
+    handleResolvePreviousSession,
   }
 }

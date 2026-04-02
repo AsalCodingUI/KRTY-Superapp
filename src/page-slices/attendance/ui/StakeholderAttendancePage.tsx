@@ -112,6 +112,33 @@ export function StakeholderAttendancePage({
     })
   }
 
+  const handleCloseSession = async (logId: string) => {
+    setPendingConfirm({
+      title: "Tutup sesi attendance",
+      description:
+        "Sesi attendance yang masih aktif akan ditutup dengan waktu saat ini.",
+      confirmText: "Tutup sesi",
+      onConfirm: async () => {
+        const now = new Date().toISOString()
+        const { error } = await supabase
+          .from("attendance_logs")
+          .update({
+            clock_out: now,
+            is_break: false,
+            break_start: null,
+          })
+          .eq("id", logId)
+
+        if (error) {
+          toast.error(error.message || "Failed to close attendance session")
+          return
+        }
+        toast.success("Attendance session closed")
+        router.refresh()
+      },
+    })
+  }
+
   const handleConfirm = async () => {
     if (!pendingConfirm) return
     setConfirmLoading(true)
@@ -165,6 +192,7 @@ export function StakeholderAttendancePage({
               <AdminAttendanceHistoryList
                 logs={logs}
                 onApproveDelete={handleApproveDelete}
+                onCloseSession={handleCloseSession}
               />
             </div>
           </div>

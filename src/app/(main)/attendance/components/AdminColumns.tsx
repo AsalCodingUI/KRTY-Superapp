@@ -17,6 +17,7 @@ type AttendanceLogWithProfile =
 
 export const adminAttendanceColumns = (
   onApproveDelete?: (id: string) => void,
+  onCloseSession?: (id: string) => void,
 ): ColumnDef<AttendanceLogWithProfile>[] => [
   {
     accessorKey: "profiles.full_name",
@@ -148,6 +149,20 @@ export const adminAttendanceColumns = (
     header: "Actions",
     cell: ({ row }) => {
       const hasDeleteRequest = row.original.notes === "DELETE_REQUESTED"
+      const isActiveSession = !row.original.clock_out
+
+      if (isActiveSession && onCloseSession) {
+        return (
+          <Button
+            variant="tertiary"
+            size="sm"
+            onClick={() => onCloseSession(row.original.id)}
+          >
+            Tutup Sesi
+          </Button>
+        )
+      }
+
       if (!onApproveDelete || !hasDeleteRequest) return null
 
       return (

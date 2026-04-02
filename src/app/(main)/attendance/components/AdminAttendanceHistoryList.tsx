@@ -27,9 +27,11 @@ type AttendanceLogWithProfile =
 export function AdminAttendanceHistoryList({
   logs,
   onApproveDelete,
+  onCloseSession,
 }: {
   logs: AttendanceLogWithProfile[]
   onApproveDelete?: (id: string) => void
+  onCloseSession?: (id: string) => void
 }) {
   const [visibleDays, setVisibleDays] = useState(14)
   const [hydrated, setHydrated] = useState(false)
@@ -131,7 +133,10 @@ export function AdminAttendanceHistoryList({
                   {/* Menggunakan DataTable standar */}
                   <DataTable
                     data={dailyLogs}
-                    columns={adminAttendanceColumns(onApproveDelete)}
+                    columns={adminAttendanceColumns(
+                      onApproveDelete,
+                      onCloseSession,
+                    )}
                     showExport={false}
                     showViewOptions={false}
                     showPagination={false}

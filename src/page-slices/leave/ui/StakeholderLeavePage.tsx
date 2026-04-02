@@ -290,6 +290,33 @@ export function StakeholderLeavePage({
     })
   }
 
+  const handleCloseAttendanceSession = async (logId: string) => {
+    runWithConfirm({
+      title: "Tutup sesi attendance",
+      description:
+        "Sesi attendance yang masih aktif akan ditutup dengan waktu saat ini.",
+      confirmText: "Tutup sesi",
+      onConfirm: async () => {
+        const now = new Date().toISOString()
+        const { error } = await supabase
+          .from("attendance_logs")
+          .update({
+            clock_out: now,
+            is_break: false,
+            break_start: null,
+          })
+          .eq("id", logId)
+
+        if (error) {
+          toast.error(error.message || "Failed to close attendance session")
+          return
+        }
+        toast.success("Attendance session closed")
+        router.refresh()
+      },
+    })
+  }
+
   const openManualModal = () => {
     setManualForm({
       user_id: profiles[0]?.id || "",
@@ -462,6 +489,7 @@ export function StakeholderLeavePage({
           approvalContent={approvalContent}
           remainingContent={remainingContent}
           onApproveAttendanceDelete={handleApproveAttendanceDelete}
+          onCloseAttendanceSession={handleCloseAttendanceSession}
           onAddManualLeave={openManualModal}
           overviewStats={overviewStats}
           isClient={isClient}
@@ -659,6 +687,7 @@ function AttendanceOverviewPanel({
   approvalContent,
   remainingContent,
   onApproveAttendanceDelete,
+  onCloseAttendanceSession,
   onAddManualLeave,
   overviewStats,
   isClient,
@@ -670,6 +699,7 @@ function AttendanceOverviewPanel({
   approvalContent: React.ReactNode
   remainingContent: React.ReactNode
   onApproveAttendanceDelete: (logId: string) => void
+  onCloseAttendanceSession: (logId: string) => void
   onAddManualLeave: () => void
   isClient: boolean
   overviewStats?: {
@@ -800,6 +830,7 @@ function AttendanceOverviewPanel({
             <AdminAttendanceHistoryList
               logs={attendanceLogs}
               onApproveDelete={onApproveAttendanceDelete}
+              onCloseSession={onCloseAttendanceSession}
             />
           </div>
         )}

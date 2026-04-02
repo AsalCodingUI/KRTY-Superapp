@@ -40,6 +40,10 @@ interface AttendanceStatsProps {
   onToggleBreak: (logId: string, isBreak: boolean) => void
 }
 
+function getLocalDateString(): string {
+  return format(new Date(), "yyyy-MM-dd")
+}
+
 export function AttendanceStats({
   logs,
   isOnLeave,
@@ -60,7 +64,10 @@ export function AttendanceStats({
   )
 
   // Cari sesi aktif hari ini dari props logs
-  const todayStr = new Date().toISOString().split("T")[0]
+  const todayStr = getLocalDateString()
+  const staleSession = logs.find(
+    (l) => l.date < todayStr && l.clock_out === null,
+  )
   const activeSession = logs.find(
     (l) => l.date === todayStr && l.clock_out === null,
   )
@@ -124,6 +131,31 @@ export function AttendanceStats({
         </div>
       )}
 
+      {staleSession && (
+        <div className="bg-danger/10 border-danger/20 mb-6 rounded-md border p-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h3 className="text-label-md text-foreground-danger-dark">
+                Sesi attendance sebelumnya belum ditutup
+              </h3>
+              <p className="text-body-sm text-foreground-secondary mt-1">
+                Sesi tanggal {format(new Date(staleSession.date), "dd MMM yyyy")} masih aktif.
+                Tutup sesi ini dulu sebelum clock in hari ini.
+              </p>
+            </div>
+            <Button
+              size="sm"
+              variant="destructive"
+              onClick={() => onClockOut(staleSession.id)}
+              disabled={loading}
+            >
+              <RiLogoutBoxLine className="mr-2 size-4" />
+              Tutup Sesi Sebelumnya
+            </Button>
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 gap-lg sm:grid-cols-2">
         {/* CARD 1: CLOCK ACTION */}
         <Card className="flex h-full flex-col justify-between px-4 py-3">
@@ -179,7 +211,7 @@ export function AttendanceStats({
                     setConfirmAction("CLOCK_IN")
                     setIsConfirmOpen(true)
                   }}
-                  disabled={loading}
+                  disabled={loading || Boolean(staleSession)}
                 >
                   <RiLoginBoxLine className="mr-2 size-4" /> Clock In
                 </Button>

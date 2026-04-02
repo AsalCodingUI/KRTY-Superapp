@@ -92,13 +92,16 @@ export function EmployeeAttendanceWidget({
     }
   }, [router, supabase, userId])
 
-  const { loading, handleClockIn, handleClockOut } = useClockActions({
+  const { loading, handleClockIn, handleClockOut, handleResolvePreviousSession } = useClockActions({
     userId,
     logs: logs as never[],
     onLogsUpdate: (next) => setLogs(next as AttendanceLog[]),
   })
 
   const today = getLocalDateString()
+  const staleSession = logs.find(
+    (log) => log.date < today && log.clock_out === null,
+  )
   const activeSession = logs.find(
     (log) => log.date === today && log.clock_out === null,
   )
@@ -106,9 +109,10 @@ export function EmployeeAttendanceWidget({
 
   const todayStatus = useMemo(() => {
     if (activeSession) return "Clocked In"
+    if (staleSession) return "Previous Session Open"
     if (todayRecord?.clock_out) return "Completed"
     return "Not Checked In"
-  }, [activeSession, todayRecord])
+  }, [activeSession, staleSession, todayRecord])
 
   const recentLeaves = leaveRequests.slice(0, 5)
 
@@ -123,6 +127,8 @@ export function EmployeeAttendanceWidget({
               variant={
                 todayStatus === "Clocked In"
                   ? "success"
+                  : todayStatus === "Previous Session Open"
+                    ? "warning"
                   : todayStatus === "Completed"
                     ? "info"
                     : "warning"
@@ -146,11 +152,21 @@ export function EmployeeAttendanceWidget({
                 <RiLogoutBoxLine className="mr-1 size-4" />
                 Clock Out
               </Button>
-            ) : (
+            ) : staleSession ? (
               <Button
                 size="sm"
                 variant="secondary"
                 disabled={loading}
+                onClick={() => handleResolvePreviousSession(staleSession.id)}
+              >
+                <RiLogoutBoxLine className="mr-1 size-4" />
+                Tutup Sesi Lama
+              </Button>
+            ) : (
+              <Button
+                size="sm"
+                variant="secondary"
+                disabled={loading || Boolean(staleSession)}
                 onClick={() => handleClockIn("Present")}
               >
                 <RiLoginBoxLine className="mr-1 size-4" />
