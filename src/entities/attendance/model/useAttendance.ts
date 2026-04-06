@@ -1,6 +1,7 @@
 "use client"
 
 import { createClient } from "@/shared/api/supabase/client"
+import { getAttendanceSessionState } from "@/shared/lib/date"
 import { useEffect, useState } from "react"
 import type { AttendanceLog } from "./types"
 
@@ -60,7 +61,7 @@ export function useAttendance(
     fetchAttendance()
   }, [userId, options?.limit, options?.startDate, options?.endDate])
 
-  const activeSession = logs.find((log) => !log.clock_out)
+  const { activeSession } = getAttendanceSessionState(logs)
 
   return {
     logs,

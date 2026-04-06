@@ -1,6 +1,7 @@
 "use server"
 
 import { createClient } from "@/shared/api/supabase/server"
+import { getLocalDateString } from "@/shared/lib/date"
 import { canManageByRole } from "@/shared/lib/roles"
 import { getDailyStats } from "@/entities/attendance/api"
 import { getLeaveDashboardStats } from "@/entities/leave/api"
@@ -112,7 +113,7 @@ export async function getAdminDashboardData(): Promise<{
       return { success: false, error: "Access denied" }
     }
 
-    const todayStr = new Date().toISOString().split("T")[0]
+    const todayStr = getLocalDateString()
     const currentQuarter = getCurrentQuarter()
 
     // Parallel fetch all data using dedicated entity functions

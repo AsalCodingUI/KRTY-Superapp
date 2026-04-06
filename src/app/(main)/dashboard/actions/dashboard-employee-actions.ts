@@ -1,7 +1,7 @@
 "use server"
 
 import { createClient } from "@/shared/api/supabase/server"
-import { calculateBusinessDays } from "@/shared/lib/date"
+import { calculateBusinessDays, getLocalDateString } from "@/shared/lib/date"
 import { getCurrentQuarter } from "@/shared/lib/date/quarter"
 import type { PeerReviewScores } from "@/shared/types/dashboard.types"
 import { Database } from "@/shared/types/database.types"
@@ -114,7 +114,7 @@ export async function getEmployeeDashboardData(
     const leaveYearEnd = new Date(leaveBalanceYear, 11, 31)
     const sevenDaysAgo = new Date()
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6)
-    const sevenDaysAgoStr = sevenDaysAgo.toISOString().split("T")[0]
+    const sevenDaysAgoStr = getLocalDateString(sevenDaysAgo)
 
     const [
       recentLeaveResult,

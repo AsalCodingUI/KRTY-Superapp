@@ -1,7 +1,12 @@
 "use client"
 
+import { AdminAttendanceEditDialog } from "@/app/(main)/attendance/components/AdminAttendanceEditDialog"
 import { AdminAttendanceHistoryList } from "@/app/(main)/attendance/components/AdminAttendanceHistoryList"
 import { createClient } from "@/shared/api/supabase/client"
+import {
+  ATTENDANCE_NOTE_TAGS,
+  mergeAttendanceNote,
+} from "@/shared/lib/attendance"
 import { Database } from "@/shared/types/database.types"
 import { Card, ConfirmDialog } from "@/shared/ui"
 import { RiCalendarLine } from "@/shared/ui/lucide-icons"
@@ -49,6 +54,8 @@ export function StakeholderAttendancePage({
   const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [pendingConfirm, setPendingConfirm] = useState<PendingConfirm | null>(null)
   const [confirmLoading, setConfirmLoading] = useState(false)
+  const [editingLogId, setEditingLogId] = useState<string | null>(null)
+  const [editLoading, setEditLoading] = useState(false)
 
   useEffect(() => {
     const scheduleRefresh = () => {
@@ -120,12 +127,17 @@ export function StakeholderAttendancePage({
       confirmText: "Tutup sesi",
       onConfirm: async () => {
         const now = new Date().toISOString()
+        const currentLog = logs.find((log) => log.id === logId)
         const { error } = await supabase
           .from("attendance_logs")
           .update({
             clock_out: now,
             is_break: false,
             break_start: null,
+            notes: mergeAttendanceNote(
+              currentLog?.notes,
+              ATTENDANCE_NOTE_TAGS.adminClosedSession,
+            ),
           })
           .eq("id", logId)
 
@@ -137,6 +149,51 @@ export function StakeholderAttendancePage({
         router.refresh()
       },
     })
+  }
+
+  const handleEditSession = (logId: string) => {
+    setEditingLogId(logId)
+  }
+
+  const editingLog = logs.find((log) => log.id === editingLogId) ?? null
+
+  const handleUpdateSession = async (payload: {
+    date: string
+    clockIn: string
+    clockOut: string
+    status: string
+  }) => {
+    if (!editingLog) return
+
+    setEditLoading(true)
+    try {
+      const { error } = await supabase
+        .from("attendance_logs")
+        .update({
+          date: payload.date,
+          clock_in: payload.clockIn,
+          clock_out: payload.clockOut,
+          status: payload.status,
+          is_break: false,
+          break_start: null,
+          notes: mergeAttendanceNote(
+            editingLog.notes,
+            ATTENDANCE_NOTE_TAGS.adminEditedSession,
+          ),
+        })
+        .eq("id", editingLog.id)
+
+      if (error) {
+        toast.error(error.message || "Failed to update attendance")
+        return
+      }
+
+      toast.success("Attendance updated")
+      setEditingLogId(null)
+      router.refresh()
+    } finally {
+      setEditLoading(false)
+    }
   }
 
   const handleConfirm = async () => {
@@ -193,6 +250,7 @@ export function StakeholderAttendancePage({
                 logs={logs}
                 onApproveDelete={handleApproveDelete}
                 onCloseSession={handleCloseSession}
+                onEditSession={handleEditSession}
               />
             </div>
           </div>
@@ -210,6 +268,15 @@ export function StakeholderAttendancePage({
         confirmText={pendingConfirm?.confirmText || "Confirm"}
         variant="destructive"
         loading={confirmLoading}
+      />
+      <AdminAttendanceEditDialog
+        log={editingLog}
+        open={Boolean(editingLog)}
+        loading={editLoading}
+        onOpenChange={(open) => {
+          if (!open) setEditingLogId(null)
+        }}
+        onSubmit={handleUpdateSession}
       />
     </>
   )

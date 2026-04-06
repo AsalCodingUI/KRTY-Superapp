@@ -6,6 +6,11 @@ import { createClient } from "@/shared/api/supabase/client"
 import { useMountedTabs } from "@/shared/hooks/useMountedTabs"
 import { useTabRoute } from "@/shared/hooks/useTabRoute"
 import { calculateBusinessDays } from "@/shared/lib/date"
+import {
+  getAttendanceLogLocalDate,
+  getAttendanceSessionState,
+  getLocalDateString,
+} from "@/shared/lib/date"
 import { Database } from "@/shared/types/database.types"
 import {
   Button,
@@ -39,7 +44,7 @@ import {
   RiLogoutBoxLine,
   RiUserSmileLine,
 } from "@/shared/ui/lucide-icons"
-import { format } from "date-fns"
+import { format, parseISO } from "date-fns"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
 import { columns } from "./components/Columns"
@@ -89,6 +94,7 @@ export function EmployeeLeavePage({
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
   const [termsOpen, setTermsOpen] = useState(false)
+  const [isStaleDialogOpen, setIsStaleDialogOpen] = useState(false)
 
   const {
     loading,
@@ -181,12 +187,10 @@ export function EmployeeLeavePage({
     setIsModalOpen(true)
   }
 
-  const today = currentTime ? format(currentTime, "yyyy-MM-dd") : ""
-  const staleSession = logs.find(
-    (log) => log.date < today && log.clock_out === null,
-  )
-  const activeSession = logs.find(
-    (log) => log.date === today && log.clock_out === null,
+  const today = currentTime ? getLocalDateString(currentTime) : ""
+  const { staleSession, activeSession } = getAttendanceSessionState(
+    logs,
+    currentTime ?? new Date(),
   )
 
   const isOnLeave = useMemo(() => {
@@ -208,6 +212,15 @@ export function EmployeeLeavePage({
       setSelectedStatus(isOnLeave ? "Cuti Masuk" : "Present")
     }
   }, [isOnLeave, activeSession])
+
+  useEffect(() => {
+    if (staleSession && !activeSession) {
+      setIsStaleDialogOpen(true)
+      return
+    }
+
+    setIsStaleDialogOpen(false)
+  }, [staleSession, activeSession])
 
   const getStatusLabel = (val: string) => {
     if (val === "Present") return "Available"
@@ -300,6 +313,46 @@ export function EmployeeLeavePage({
   return (
     <>
       <div className="flex flex-col">
+        <Dialog open={isStaleDialogOpen} onOpenChange={setIsStaleDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Sesi Sebelumnya Masih Aktif</DialogTitle>
+              <DialogCloseButton />
+            </DialogHeader>
+            <DialogBody>
+              <p className="text-body-sm text-foreground-secondary">
+                Kami mendeteksi sesi attendance sebelumnya belum tertutup. Ini
+                biasanya terjadi kalau laptop mati, browser tertutup, atau clock
+                out gagal terkirim.
+              </p>
+              {staleSession && (
+                <p className="text-body-sm text-foreground-secondary mt-3">
+                  Tutup sesi dari{" "}
+                  {format(
+                    parseISO(getAttendanceLogLocalDate(staleSession)),
+                    "dd MMM yyyy",
+                  )}{" "}
+                  dulu sebelum memulai sesi baru.
+                </p>
+              )}
+            </DialogBody>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant="secondary">Nanti</Button>
+              </DialogClose>
+              {staleSession && (
+                <Button
+                  variant="destructive"
+                  disabled={loading}
+                  onClick={() => handleResolvePreviousSession(staleSession.id)}
+                >
+                  Tutup Sesi Sebelumnya
+                </Button>
+              )}
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
         <div className="flex items-center gap-2 rounded-xxl px-5 pt-4 pb-3">
           <RiUserSmileLine className="size-4 text-foreground-secondary" />
           <p className="text-label-md text-foreground-primary">
@@ -329,7 +382,7 @@ export function EmployeeLeavePage({
                   ) : staleSession && !activeSession ? (
                     <div className="flex flex-col items-end gap-2">
                       <p className="text-body-xs text-foreground-danger-dark text-right">
-                        Sesi {format(new Date(staleSession.date), "dd MMM yyyy")} belum ditutup.
+                        Sesi {format(parseISO(getAttendanceLogLocalDate(staleSession)), "dd MMM yyyy")} belum ditutup.
                       </p>
                       <Button
                         size="sm"

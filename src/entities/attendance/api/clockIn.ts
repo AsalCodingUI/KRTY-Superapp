@@ -1,4 +1,5 @@
 import { createClient } from "@/shared/api/supabase/client"
+import { getLocalDateString } from "@/shared/lib/date"
 import type { AttendanceLog } from "../model/types"
 
 export interface ClockInParams {
@@ -14,7 +15,7 @@ export async function clockIn(
     const { userId, status = "Present" } = params
 
     const now = new Date()
-    const dateStr = now.toISOString().split("T")[0]
+    const dateStr = getLocalDateString(now)
 
     const { data, error } = await supabase
       .from("attendance_logs")

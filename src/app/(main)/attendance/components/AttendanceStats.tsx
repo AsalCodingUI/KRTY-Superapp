@@ -1,5 +1,9 @@
 "use client"
 
+import {
+  getAttendanceLogLocalDate,
+  getAttendanceSessionState,
+} from "@/shared/lib/date"
 import { Database } from "@/shared/types/database.types"
 import {
   Button,
@@ -24,7 +28,7 @@ import {
   RiLoginBoxLine,
   RiLogoutBoxLine,
 } from "@/shared/ui/lucide-icons"
-import { format } from "date-fns"
+import { format, parseISO } from "date-fns"
 import { useEffect, useState } from "react"
 
 type AttendanceLog = Database["public"]["Tables"]["attendance_logs"]["Row"]
@@ -36,12 +40,11 @@ interface AttendanceStatsProps {
   isOnLeave: boolean
   loading: boolean
   onClockIn: (status: string) => void
-  onClockOut: (logId: string) => void
+  onClockOut: (
+    logId: string,
+    options?: { reason?: "default" | "stale_resolved" },
+  ) => void
   onToggleBreak: (logId: string, isBreak: boolean) => void
-}
-
-function getLocalDateString(): string {
-  return format(new Date(), "yyyy-MM-dd")
 }
 
 export function AttendanceStats({
@@ -54,6 +57,7 @@ export function AttendanceStats({
 }: AttendanceStatsProps) {
   const [currentTime, setCurrentTime] = useState<Date | null>(null)
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
+  const [isStaleDialogOpen, setIsStaleDialogOpen] = useState(false)
   const [confirmAction, setConfirmAction] = useState<
     "CLOCK_IN" | "CLOCK_OUT" | null
   >(null)
@@ -63,20 +67,22 @@ export function AttendanceStats({
     isOnLeave ? "Cuti Masuk" : "Present",
   )
 
-  // Cari sesi aktif hari ini dari props logs
-  const todayStr = getLocalDateString()
-  const staleSession = logs.find(
-    (l) => l.date < todayStr && l.clock_out === null,
-  )
-  const activeSession = logs.find(
-    (l) => l.date === todayStr && l.clock_out === null,
-  )
+  const { activeSession, staleSession } = getAttendanceSessionState(logs)
 
   useEffect(() => {
     setCurrentTime(new Date())
     const timer = setInterval(() => setCurrentTime(new Date()), 1000)
     return () => clearInterval(timer)
   }, [])
+
+  useEffect(() => {
+    if (staleSession && !activeSession) {
+      setIsStaleDialogOpen(true)
+      return
+    }
+
+    setIsStaleDialogOpen(false)
+  }, [staleSession, activeSession])
 
   // Reset status default jika tidak ada sesi aktif
   useEffect(() => {
@@ -139,14 +145,16 @@ export function AttendanceStats({
                 Sesi attendance sebelumnya belum ditutup
               </h3>
               <p className="text-body-sm text-foreground-secondary mt-1">
-                Sesi tanggal {format(new Date(staleSession.date), "dd MMM yyyy")} masih aktif.
+                Sesi tanggal {format(parseISO(getAttendanceLogLocalDate(staleSession)), "dd MMM yyyy")} masih aktif.
                 Tutup sesi ini dulu sebelum clock in hari ini.
               </p>
             </div>
             <Button
               size="sm"
               variant="destructive"
-              onClick={() => onClockOut(staleSession.id)}
+              onClick={() =>
+                onClockOut(staleSession.id, { reason: "stale_resolved" })
+              }
               disabled={loading}
             >
               <RiLogoutBoxLine className="mr-2 size-4" />
@@ -309,6 +317,51 @@ export function AttendanceStats({
           </dl>
         </Card>
       </div>
+
+      <Dialog open={isStaleDialogOpen} onOpenChange={setIsStaleDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Sesi Sebelumnya Masih Aktif</DialogTitle>
+            <DialogCloseButton />
+          </DialogHeader>
+          <DialogBody>
+            <p className="text-body-sm text-foreground-secondary">
+              Kami mendeteksi sesi attendance lama yang belum ditutup. Ini
+              biasanya terjadi saat laptop sleep, browser tertutup, atau koneksi
+              terputus sebelum clock out tersimpan.
+            </p>
+            {staleSession && (
+              <p className="text-body-sm text-foreground-secondary mt-3">
+                Sesi dari{" "}
+                {format(
+                  parseISO(getAttendanceLogLocalDate(staleSession)),
+                  "dd MMM yyyy",
+                )}{" "}
+                perlu ditutup dulu sebelum mulai sesi baru hari ini.
+              </p>
+            )}
+          </DialogBody>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="secondary" className="w-full sm:w-fit">
+                Nanti
+              </Button>
+            </DialogClose>
+            {staleSession && (
+              <Button
+                variant="destructive"
+                disabled={loading}
+                className="w-full sm:w-fit"
+                onClick={() =>
+                  onClockOut(staleSession.id, { reason: "stale_resolved" })
+                }
+              >
+                Tutup Sesi Sebelumnya
+              </Button>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* DIALOG */}
       <Dialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>

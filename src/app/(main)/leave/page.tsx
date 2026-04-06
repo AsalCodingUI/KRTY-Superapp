@@ -2,7 +2,11 @@ import { LeavePage } from "@/page-slices/leave"
 import { createClient } from "@/shared/api/supabase/server"
 
 export const dynamic = "force-dynamic"
-import { calculateBusinessDays } from "@/shared/lib/date"
+import {
+  calculateBusinessDays,
+  getAttendanceLogLocalDate,
+  getLocalDateString,
+} from "@/shared/lib/date"
 import { resolveEffectiveUserId } from "@/shared/lib/impersonation-server"
 import { canManageByRole } from "@/shared/lib/roles"
 
@@ -31,15 +35,11 @@ export default async function LeaveRoute({
   const attendanceWindowDays = 90
   const attendanceStart = new Date()
   attendanceStart.setDate(attendanceStart.getDate() - attendanceWindowDays)
-  const attendanceStartDate = attendanceStart.toISOString().split("T")[0]
+  const attendanceStartDate = getLocalDateString(attendanceStart)
   const now = new Date()
-  const today = now.toISOString().split("T")[0]
-  const yearStart = new Date(now.getFullYear(), 0, 1)
-    .toISOString()
-    .split("T")[0]
-  const yearEnd = new Date(now.getFullYear(), 11, 31)
-    .toISOString()
-    .split("T")[0]
+  const today = getLocalDateString(now)
+  const yearStart = getLocalDateString(new Date(now.getFullYear(), 0, 1))
+  const yearEnd = getLocalDateString(new Date(now.getFullYear(), 11, 31))
 
   // 🚀 PARALLEL FETCH: Profile first (needed for role check)
   const { data: profile } = await supabase
@@ -60,8 +60,6 @@ export default async function LeaveRoute({
       pendingCountResult,
       approvedCountResult,
       onLeaveTodayCountResult,
-      presentTodayCountResult,
-      currentlyActiveCountResult,
     ] = await Promise.all([
       supabase
         .from("leave_requests")
@@ -107,15 +105,6 @@ export default async function LeaveRoute({
         .eq("status", "approved")
         .lte("start_date", today)
         .gte("end_date", today),
-      supabase
-        .from("attendance_logs")
-        .select("id", { count: "exact", head: true })
-        .eq("date", today),
-      supabase
-        .from("attendance_logs")
-        .select("id", { count: "exact", head: true })
-        .eq("date", today)
-        .is("clock_out", null),
     ])
 
     const annualUsedByUser = new Map<string, number>()
@@ -151,6 +140,14 @@ export default async function LeaveRoute({
       }
     })
 
+    const todayAttendanceLogs = (attendanceLogsResult.data || []).filter(
+      (log) => getAttendanceLogLocalDate(log) === today,
+    )
+    const presentToday = todayAttendanceLogs.length
+    const currentlyActive = todayAttendanceLogs.filter(
+      (log) => !log.clock_out,
+    ).length
+
     return (
       <LeavePage
         role="stakeholder"
@@ -165,8 +162,8 @@ export default async function LeaveRoute({
           onLeaveToday: onLeaveTodayCountResult.count || 0,
           pendingRequests: pendingCountResult.count || 0,
           totalApproved: approvedCountResult.count || 0,
-          presentToday: presentTodayCountResult.count || 0,
-          currentlyActive: currentlyActiveCountResult.count || 0,
+          presentToday,
+          currentlyActive,
         }}
       />
     )

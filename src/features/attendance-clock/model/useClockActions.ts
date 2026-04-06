@@ -1,4 +1,8 @@
 import { createClient } from "@/shared/api/supabase/client"
+import {
+  ATTENDANCE_NOTE_TAGS,
+  mergeAttendanceNote,
+} from "@/shared/lib/attendance"
 import { Database } from "@/shared/types/database.types"
 import { differenceInMinutes, format } from "date-fns"
 import { useCallback, useState } from "react"
@@ -199,18 +203,27 @@ export function useClockActions({
                 clock_out: now,
                 is_break: false,
                 break_start: null,
+                notes: mergeAttendanceNote(
+                  log.notes,
+                  ATTENDANCE_NOTE_TAGS.staleSessionResolved,
+                ),
               }
             : log,
         ),
       )
 
       try {
+        const currentLog = oldLogs.find((log) => log.id === logId)
         const { error } = await supabase
           .from("attendance_logs")
           .update({
             clock_out: now,
             is_break: false,
             break_start: null,
+            notes: mergeAttendanceNote(
+              currentLog?.notes,
+              ATTENDANCE_NOTE_TAGS.staleSessionResolved,
+            ),
           })
           .eq("id", logId)
 

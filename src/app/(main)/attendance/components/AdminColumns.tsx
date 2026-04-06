@@ -1,5 +1,9 @@
 "use client"
 
+import {
+  ATTENDANCE_NOTE_TAGS,
+  hasAttendanceNote,
+} from "@/shared/lib/attendance"
 import { Avatar, Badge } from "@/shared/ui"
 import { Button } from "@/shared/ui"
 import { Database } from "@/shared/types/database.types"
@@ -18,6 +22,7 @@ type AttendanceLogWithProfile =
 export const adminAttendanceColumns = (
   onApproveDelete?: (id: string) => void,
   onCloseSession?: (id: string) => void,
+  onEditSession?: (id: string) => void,
 ): ColumnDef<AttendanceLogWithProfile>[] => [
   {
     accessorKey: "profiles.full_name",
@@ -135,20 +140,37 @@ export const adminAttendanceColumns = (
   {
     accessorKey: "status",
     header: "Status",
-    cell: ({ row }) => (
-      <Badge
-        variant={row.original.status === "Cuti Masuk" ? "warning" : "zinc"}
-      >
-        {row.original.status}
-      </Badge>
-    ),
+    cell: ({ row }) => {
+      const wasEdited = hasAttendanceNote(
+        row.original.notes,
+        ATTENDANCE_NOTE_TAGS.adminEditedSession,
+      )
+
+      return (
+        <div className="flex items-center gap-2">
+          <Badge
+            variant={row.original.status === "Cuti Masuk" ? "warning" : "zinc"}
+          >
+            {row.original.status}
+          </Badge>
+          {wasEdited && (
+            <Badge variant="info" size="sm">
+              Edited
+            </Badge>
+          )}
+        </div>
+      )
+    },
     meta: { className: "w-[15%]", displayName: "Status" },
   },
   {
     id: "actions",
     header: "Actions",
     cell: ({ row }) => {
-      const hasDeleteRequest = row.original.notes === "DELETE_REQUESTED"
+      const hasDeleteRequest = hasAttendanceNote(
+        row.original.notes,
+        ATTENDANCE_NOTE_TAGS.deleteRequested,
+      )
       const isActiveSession = !row.original.clock_out
 
       if (isActiveSession && onCloseSession) {
@@ -163,16 +185,29 @@ export const adminAttendanceColumns = (
         )
       }
 
-      if (!onApproveDelete || !hasDeleteRequest) return null
+      if (!onEditSession && (!onApproveDelete || !hasDeleteRequest)) return null
 
       return (
-        <Button
-          variant="tertiary"
-          size="sm"
-          onClick={() => onApproveDelete(row.original.id)}
-        >
-          Approve Delete
-        </Button>
+        <div className="flex items-center gap-2">
+          {onEditSession && (
+            <Button
+              variant="tertiary"
+              size="sm"
+              onClick={() => onEditSession(row.original.id)}
+            >
+              Edit
+            </Button>
+          )}
+          {onApproveDelete && hasDeleteRequest && (
+            <Button
+              variant="tertiary"
+              size="sm"
+              onClick={() => onApproveDelete(row.original.id)}
+            >
+              Approve Delete
+            </Button>
+          )}
+        </div>
       )
     },
     meta: { className: "w-[15%]", displayName: "Actions" },

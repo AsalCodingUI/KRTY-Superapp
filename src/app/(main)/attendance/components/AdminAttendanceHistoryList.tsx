@@ -28,10 +28,12 @@ export function AdminAttendanceHistoryList({
   logs,
   onApproveDelete,
   onCloseSession,
+  onEditSession,
 }: {
   logs: AttendanceLogWithProfile[]
   onApproveDelete?: (id: string) => void
   onCloseSession?: (id: string) => void
+  onEditSession?: (id: string) => void
 }) {
   const [visibleDays, setVisibleDays] = useState(14)
   const [hydrated, setHydrated] = useState(false)
@@ -136,6 +138,7 @@ export function AdminAttendanceHistoryList({
                     columns={adminAttendanceColumns(
                       onApproveDelete,
                       onCloseSession,
+                      onEditSession,
                     )}
                     showExport={false}
                     showViewOptions={false}

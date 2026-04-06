@@ -1,4 +1,4 @@
-import { addDays, differenceInBusinessDays, startOfDay } from "date-fns"
+import { addDays, differenceInBusinessDays, format, startOfDay } from "date-fns"
 
 // Hitung selisih hari kerja (Business Days)
 export function calculateBusinessDays(start: Date, end: Date): number {
@@ -13,4 +13,53 @@ export function calculateBusinessDays(start: Date, end: Date): number {
     normalizedStart,
   )
   return days
+}
+
+type AttendanceLogLike = {
+  date?: string | null
+  clock_in?: string | null
+  clock_out?: string | null
+}
+
+export function getLocalDateString(date: Date = new Date()): string {
+  return format(date, "yyyy-MM-dd")
+}
+
+export function getAttendanceLogLocalDate(log: AttendanceLogLike): string {
+  if (log.clock_in) {
+    const clockInDate = new Date(log.clock_in)
+
+    if (!Number.isNaN(clockInDate.getTime())) {
+      return getLocalDateString(clockInDate)
+    }
+  }
+
+  return log.date ?? ""
+}
+
+export function getAttendanceSessionState<T extends AttendanceLogLike>(
+  logs: T[],
+  now: Date = new Date(),
+) {
+  const today = getLocalDateString(now)
+  const openLogs = logs
+    .filter((log) => !log.clock_out)
+    .sort((a, b) => {
+      const aTime = new Date(a.clock_in ?? a.date ?? 0).getTime()
+      const bTime = new Date(b.clock_in ?? b.date ?? 0).getTime()
+
+      return bTime - aTime
+    })
+
+  const activeSession =
+    openLogs.find((log) => getAttendanceLogLocalDate(log) === today) ?? null
+  const staleSession =
+    openLogs.find((log) => getAttendanceLogLocalDate(log) !== today) ?? null
+
+  return {
+    today,
+    activeSession,
+    staleSession,
+    hasOpenSession: openLogs.length > 0,
+  }
 }

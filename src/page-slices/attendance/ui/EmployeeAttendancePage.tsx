@@ -3,6 +3,10 @@
 import { AttendanceHistoryList } from "@/app/(main)/attendance/components/AttendanceHistoryList"
 import { AttendanceStats } from "@/app/(main)/attendance/components/AttendanceStats"
 import { createClient } from "@/shared/api/supabase/client"
+import {
+  ATTENDANCE_NOTE_TAGS,
+  mergeAttendanceNote,
+} from "@/shared/lib/attendance"
 import { Database } from "@/shared/types/database.types"
 import {
   Button, Dialog,
@@ -125,9 +129,13 @@ export function EmployeeAttendancePage({
   )
 
   const handleClockOut = useCallback(
-    async (logId: string) => {
+    async (logId: string, options?: { reason?: "default" | "stale_resolved" }) => {
       setLoading(true)
       const now = new Date().toISOString()
+      const noteTag =
+        options?.reason === "stale_resolved"
+          ? ATTENDANCE_NOTE_TAGS.staleSessionResolved
+          : null
 
       // Store old value for rollback
       const oldLogs = logs
@@ -135,14 +143,29 @@ export function EmployeeAttendancePage({
       // Optimistic update
       setLogs((prev) =>
         prev.map((log) =>
-          log.id === logId ? { ...log, clock_out: now, is_break: false } : log,
+          log.id === logId
+            ? {
+                ...log,
+                clock_out: now,
+                is_break: false,
+                notes: noteTag ? mergeAttendanceNote(log.notes, noteTag) : log.notes,
+              }
+            : log,
         ),
       )
 
       try {
+        const currentLog = oldLogs.find((log) => log.id === logId)
         const { error } = await supabase
           .from("attendance_logs")
-          .update({ clock_out: now, is_break: false })
+          .update({
+            clock_out: now,
+            is_break: false,
+            notes:
+              noteTag && currentLog
+                ? mergeAttendanceNote(currentLog.notes, noteTag)
+                : currentLog?.notes ?? null,
+          })
           .eq("id", logId)
 
         if (error) throw error

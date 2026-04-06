@@ -3,8 +3,25 @@
 import { useClockActions } from "@/features/attendance-clock/model/useClockActions"
 import { LeaveRequestModal } from "@/page-slices/leave/ui/components/LeaveRequestModal"
 import { createClient } from "@/shared/api/supabase/client"
+import {
+  getAttendanceLogLocalDate,
+  getAttendanceSessionState,
+  getLocalDateString,
+} from "@/shared/lib/date"
 import { Database } from "@/shared/types/database.types"
-import { Badge, Button, EmptyState } from "@/shared/ui"
+import {
+  Badge,
+  Button,
+  Dialog,
+  DialogBody,
+  DialogClose,
+  DialogCloseButton,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  EmptyState,
+} from "@/shared/ui"
 import {
   RiCalendarLine,
   RiCheckboxCircleLine,
@@ -25,10 +42,6 @@ interface EmployeeAttendanceWidgetProps {
   recentLeaveRequests: LeaveRequest[]
 }
 
-function getLocalDateString(): string {
-  return format(new Date(), "yyyy-MM-dd")
-}
-
 export function EmployeeAttendanceWidget({
   userId,
   userFullName,
@@ -42,6 +55,7 @@ export function EmployeeAttendanceWidget({
     useState<LeaveRequest[]>(recentLeaveRequests)
   const [currentTime, setCurrentTime] = useState<Date | null>(null)
   const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false)
+  const [isStaleDialogOpen, setIsStaleDialogOpen] = useState(false)
 
   useEffect(() => {
     setLogs(recentAttendance)
@@ -99,13 +113,11 @@ export function EmployeeAttendanceWidget({
   })
 
   const today = getLocalDateString()
-  const staleSession = logs.find(
-    (log) => log.date < today && log.clock_out === null,
+  const { staleSession, activeSession } = getAttendanceSessionState(
+    logs,
+    currentTime ?? new Date(),
   )
-  const activeSession = logs.find(
-    (log) => log.date === today && log.clock_out === null,
-  )
-  const todayRecord = logs.find((log) => log.date === today)
+  const todayRecord = logs.find((log) => getAttendanceLogLocalDate(log) === today)
 
   const todayStatus = useMemo(() => {
     if (activeSession) return "Clocked In"
@@ -113,6 +125,15 @@ export function EmployeeAttendanceWidget({
     if (todayRecord?.clock_out) return "Completed"
     return "Not Checked In"
   }, [activeSession, staleSession, todayRecord])
+
+  useEffect(() => {
+    if (staleSession && !activeSession) {
+      setIsStaleDialogOpen(true)
+      return
+    }
+
+    setIsStaleDialogOpen(false)
+  }, [staleSession, activeSession])
 
   const recentLeaves = leaveRequests.slice(0, 5)
 
@@ -186,6 +207,39 @@ export function EmployeeAttendanceWidget({
         </div>
       </div>
 
+      <Dialog open={isStaleDialogOpen} onOpenChange={setIsStaleDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Session Lama Belum Ditutup</DialogTitle>
+            <DialogCloseButton />
+          </DialogHeader>
+          <DialogBody>
+            <p className="text-body-sm text-foreground-secondary">
+              Kami mendeteksi sesi attendance sebelumnya masih terbuka. Ini bisa
+              terjadi kalau laptop mati, browser tertutup, atau clock out gagal
+              tersimpan.
+            </p>
+          </DialogBody>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="secondary" className="w-full sm:w-fit">
+                Nanti
+              </Button>
+            </DialogClose>
+            {staleSession && (
+              <Button
+                variant="destructive"
+                disabled={loading}
+                className="w-full sm:w-fit"
+                onClick={() => handleResolvePreviousSession(staleSession.id)}
+              >
+                Tutup Sesi Lama
+              </Button>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <div>
         <h4 className="text-label-md text-foreground-primary mb-3">
           Attendance History (Last 7 Days)
@@ -204,7 +258,7 @@ export function EmployeeAttendanceWidget({
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex min-w-0 items-center gap-2">
                     <span className="text-body-sm text-foreground-primary">
-                      {format(new Date(log.date), "EEE, dd MMM yyyy")}
+                      {format(new Date(getAttendanceLogLocalDate(log)), "EEE, dd MMM yyyy")}
                     </span>
                     <Badge
                       size="sm"

@@ -1,9 +1,15 @@
 "use client"
 
+import { AdminAttendanceEditDialog } from "@/app/(main)/attendance/components/AdminAttendanceEditDialog"
 import { AdminAttendanceHistoryList } from "@/app/(main)/attendance/components/AdminAttendanceHistoryList"
 import { createClient } from "@/shared/api/supabase/client"
 import { useMountedTabs } from "@/shared/hooks/useMountedTabs"
 import { useTabRoute } from "@/shared/hooks/useTabRoute"
+import {
+  ATTENDANCE_NOTE_TAGS,
+  mergeAttendanceNote,
+} from "@/shared/lib/attendance"
+import { getAttendanceLogLocalDate, getLocalDateString } from "@/shared/lib/date"
 import { canManageByRole } from "@/shared/lib/roles"
 import { Database } from "@/shared/types/database.types"
 import {
@@ -63,14 +69,6 @@ type ManualLeaveForm = {
   reason: string
   proof_url: string
   created_at: string
-}
-
-function getLocalDateString(): string {
-  const now = new Date()
-  const year = now.getFullYear()
-  const month = String(now.getMonth() + 1).padStart(2, "0")
-  const day = String(now.getDate()).padStart(2, "0")
-  return `${year}-${month}-${day}`
 }
 
 function parseDateOnly(value: string): Date | undefined {
@@ -136,6 +134,8 @@ export function StakeholderLeavePage({
   const [isClient, setIsClient] = useState(false)
   const [manualModalOpen, setManualModalOpen] = useState(false)
   const [manualSaving, setManualSaving] = useState(false)
+  const [editingLogId, setEditingLogId] = useState<string | null>(null)
+  const [editLoading, setEditLoading] = useState(false)
   const [manualForm, setManualForm] = useState<ManualLeaveForm>({
     user_id: "",
     leave_type: "Annual Leave",
@@ -298,12 +298,17 @@ export function StakeholderLeavePage({
       confirmText: "Tutup sesi",
       onConfirm: async () => {
         const now = new Date().toISOString()
+        const currentLog = attendanceLogs.find((log) => log.id === logId)
         const { error } = await supabase
           .from("attendance_logs")
           .update({
             clock_out: now,
             is_break: false,
             break_start: null,
+            notes: mergeAttendanceNote(
+              currentLog?.notes,
+              ATTENDANCE_NOTE_TAGS.adminClosedSession,
+            ),
           })
           .eq("id", logId)
 
@@ -315,6 +320,51 @@ export function StakeholderLeavePage({
         router.refresh()
       },
     })
+  }
+
+  const handleEditAttendanceSession = (logId: string) => {
+    setEditingLogId(logId)
+  }
+
+  const editingLog = attendanceLogs.find((log) => log.id === editingLogId) ?? null
+
+  const handleUpdateAttendanceSession = async (payload: {
+    date: string
+    clockIn: string
+    clockOut: string
+    status: string
+  }) => {
+    if (!editingLog) return
+
+    setEditLoading(true)
+    try {
+      const { error } = await supabase
+        .from("attendance_logs")
+        .update({
+          date: payload.date,
+          clock_in: payload.clockIn,
+          clock_out: payload.clockOut,
+          status: payload.status,
+          is_break: false,
+          break_start: null,
+          notes: mergeAttendanceNote(
+            editingLog.notes,
+            ATTENDANCE_NOTE_TAGS.adminEditedSession,
+          ),
+        })
+        .eq("id", editingLog.id)
+
+      if (error) {
+        toast.error(error.message || "Failed to update attendance")
+        return
+      }
+
+      toast.success("Attendance updated")
+      setEditingLogId(null)
+      router.refresh()
+    } finally {
+      setEditLoading(false)
+    }
   }
 
   const openManualModal = () => {
@@ -490,6 +540,7 @@ export function StakeholderLeavePage({
           remainingContent={remainingContent}
           onApproveAttendanceDelete={handleApproveAttendanceDelete}
           onCloseAttendanceSession={handleCloseAttendanceSession}
+          onEditAttendanceSession={handleEditAttendanceSession}
           onAddManualLeave={openManualModal}
           overviewStats={overviewStats}
           isClient={isClient}
@@ -507,6 +558,16 @@ export function StakeholderLeavePage({
         confirmText={pendingConfirm?.confirmText || "Confirm"}
         variant={pendingConfirm?.variant}
         loading={confirmLoading}
+      />
+
+      <AdminAttendanceEditDialog
+        log={editingLog}
+        open={Boolean(editingLog)}
+        loading={editLoading}
+        onOpenChange={(open) => {
+          if (!open) setEditingLogId(null)
+        }}
+        onSubmit={handleUpdateAttendanceSession}
       />
 
       <Dialog open={manualModalOpen} onOpenChange={setManualModalOpen}>
@@ -688,6 +749,7 @@ function AttendanceOverviewPanel({
   remainingContent,
   onApproveAttendanceDelete,
   onCloseAttendanceSession,
+  onEditAttendanceSession,
   onAddManualLeave,
   overviewStats,
   isClient,
@@ -700,6 +762,7 @@ function AttendanceOverviewPanel({
   remainingContent: React.ReactNode
   onApproveAttendanceDelete: (logId: string) => void
   onCloseAttendanceSession: (logId: string) => void
+  onEditAttendanceSession: (logId: string) => void
   onAddManualLeave: () => void
   isClient: boolean
   overviewStats?: {
@@ -729,11 +792,11 @@ function AttendanceOverviewPanel({
   ).length
 
   const presentToday = attendanceLogs.filter(
-    (log) => log.date === today,
+    (log) => getAttendanceLogLocalDate(log) === today,
   ).length
 
   const currentlyActive = attendanceLogs.filter(
-    (log) => log.date === today && !log.clock_out,
+    (log) => getAttendanceLogLocalDate(log) === today && !log.clock_out,
   ).length
 
   const stats = [
@@ -831,6 +894,7 @@ function AttendanceOverviewPanel({
               logs={attendanceLogs}
               onApproveDelete={onApproveAttendanceDelete}
               onCloseSession={onCloseAttendanceSession}
+              onEditSession={onEditAttendanceSession}
             />
           </div>
         )}

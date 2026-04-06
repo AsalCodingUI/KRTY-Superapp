@@ -1,5 +1,6 @@
 "use client"
 
+import { getAttendanceLogLocalDate } from "@/shared/lib/date"
 import { Database } from "@/shared/types/database.types"
 import {
   Accordion,
@@ -10,7 +11,7 @@ import {
   DataTable, EmptyState,
 } from "@/shared/ui"
 import { RiCalendarLine } from "@/shared/ui/lucide-icons"
-import { differenceInSeconds, format, isToday } from "date-fns"
+import { differenceInSeconds, format, isToday, parseISO } from "date-fns"
 import { useMemo, useState } from "react"
 import { columns } from "./Columns"
 
@@ -51,7 +52,7 @@ export function AttendanceHistoryList({
     const groups: Record<string, AttendanceLog[]> = {}
 
     logs.forEach((log) => {
-      const dateKey = log.date // Format YYYY-MM-DD
+      const dateKey = getAttendanceLogLocalDate(log)
       if (!groups[dateKey]) {
         groups[dateKey] = []
       }
@@ -95,7 +96,7 @@ export function AttendanceHistoryList({
             0,
           )
           const isDayActive = dailyLogs.some((l) => !l.clock_out)
-          const dateObj = new Date(date)
+          const dateObj = parseISO(date)
           const isCurrentDay = isToday(dateObj)
 
           return (
