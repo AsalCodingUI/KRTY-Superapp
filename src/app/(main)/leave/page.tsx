@@ -1,5 +1,6 @@
 import { LeavePage } from "@/page-slices/leave"
 import { createClient } from "@/shared/api/supabase/server"
+import { Database } from "@/shared/types/database.types"
 
 export const dynamic = "force-dynamic"
 import {
@@ -9,6 +10,15 @@ import {
 } from "@/shared/lib/date"
 import { resolveEffectiveUserId } from "@/shared/lib/impersonation-server"
 import { canManageByRole } from "@/shared/lib/roles"
+
+type AttendanceLogWithProfile =
+  Database["public"]["Tables"]["attendance_logs"]["Row"] & {
+    profiles: {
+      full_name: string | null
+      avatar_url: string | null
+      job_title: string | null
+    } | null
+  }
 
 export default async function LeaveRoute({
   searchParams,
@@ -140,7 +150,9 @@ export default async function LeaveRoute({
       }
     })
 
-    const todayAttendanceLogs = (attendanceLogsResult.data || []).filter(
+    const todayAttendanceLogs = (
+      (attendanceLogsResult.data || []) as AttendanceLogWithProfile[]
+    ).filter(
       (log) => getAttendanceLogLocalDate(log) === today,
     )
     const presentToday = todayAttendanceLogs.length

@@ -37,6 +37,7 @@ import {
 import Link from "next/link"
 import {
   forwardRef,
+  useCallback,
   useEffect,
   useImperativeHandle,
   useState,
@@ -226,7 +227,7 @@ export const ProjectScoringClient = forwardRef<
     setDirtySLA(true)
   }
 
-  const handleSaveSLA = async () => {
+  const handleSaveSLA = useCallback(async () => {
     setSaving(true)
     try {
       const milestonesData = milestones.map((m) => ({
@@ -250,7 +251,7 @@ export const ProjectScoringClient = forwardRef<
     } finally {
       setSaving(false)
     }
-  }
+  }, [assignment.id, milestones])
 
   const handleToggleCompetency = (index: number) => {
     const updated = [...competencies]
@@ -259,7 +260,7 @@ export const ProjectScoringClient = forwardRef<
     setDirtyQuality(true)
   }
 
-  const handleSaveQuality = async () => {
+  const handleSaveQuality = useCallback(async () => {
     setSaving(true)
     try {
       const competenciesData = competencies.map((c) => ({
@@ -283,7 +284,7 @@ export const ProjectScoringClient = forwardRef<
     } finally {
       setSaving(false)
     }
-  }
+  }, [assignment.id, competencies])
 
   useImperativeHandle(
     ref,
