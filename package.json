@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "next dev -H 0.0.0.0 --turbopack",
     "build": "next build",
-    "start": "next start",
+    "start": "node .next/standalone/server.js",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "clean": "rm -rf .next node_modules/.cache tsconfig.tsbuildinfo",
     "test": "vitest",
