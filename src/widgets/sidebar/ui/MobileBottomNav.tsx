@@ -1,6 +1,7 @@
 "use client"
 
 import { siteConfig } from "@/app/siteConfig"
+import { usePagePermissions } from "@/shared/hooks/usePagePermissions"
 import { useNotifications } from "@/shared/hooks/useNotifications"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { cx } from "@/shared/lib/utils"
@@ -83,12 +84,16 @@ export function MobileBottomNav() {
   const pathname = usePathname()
   const router = useRouter()
   const { profile, loading } = useUserProfile()
+  const { hasPermission, loading: permissionLoading } = usePagePermissions()
   const { unreadCount } = useNotifications()
 
   const appTabs = useMemo(() => {
-    if (loading || !profile) return []
-    return profile.role === "stakeholder" ? STAKEHOLDER_TABS : EMPLOYEE_TABS
-  }, [loading, profile])
+    if (loading || permissionLoading || !profile) return []
+    const baseTabs =
+      profile.role === "stakeholder" ? STAKEHOLDER_TABS : EMPLOYEE_TABS
+
+    return baseTabs.filter((tab) => hasPermission(tab.href, false) === true)
+  }, [hasPermission, loading, permissionLoading, profile])
 
   const isActive = (href: string) => {
     if (href === siteConfig.baseLinks.settings.general) {
@@ -97,7 +102,9 @@ export function MobileBottomNav() {
     return pathname === href || pathname.startsWith(href)
   }
 
-  if (loading || !profile || appTabs.length === 0) return null
+  if (loading || permissionLoading || !profile || appTabs.length === 0) {
+    return null
+  }
 
   return (
     <nav

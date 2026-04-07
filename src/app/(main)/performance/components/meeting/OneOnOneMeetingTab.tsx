@@ -284,7 +284,13 @@ export function OneOnOneMeetingTab({
           title={`Buat Slot 1:1 (${selectedQuarter})`}
           contentClassName="px-xl pb-xl pt-sm"
         >
-          <div className="grid grid-cols-1 gap-lg lg:grid-cols-6 lg:items-end">
+          <div
+            className={
+              mode === "offline"
+                ? "grid grid-cols-1 gap-lg xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.95fr)_minmax(0,0.95fr)_minmax(0,1.1fr)_minmax(0,1.1fr)_auto] xl:items-end"
+                : "grid grid-cols-1 gap-lg xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.95fr)_minmax(0,0.95fr)_minmax(0,1.2fr)_auto] xl:items-end"
+            }
+          >
             <div className="flex flex-col gap-2">
               <Label>Tanggal</Label>
               <DatePicker
@@ -318,7 +324,7 @@ export function OneOnOneMeetingTab({
                   setMode(value as "online" | "offline")
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger size="sm">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -328,42 +334,27 @@ export function OneOnOneMeetingTab({
               </Select>
             </div>
 
-            {mode === "offline" ? (
-              <>
-                <div className="flex flex-col gap-2 lg:col-span-1">
-                  <Label>Lokasi</Label>
-                  <TextInput
-                    value={location}
-                    onChange={(event) => setLocation(event.target.value)}
-                    placeholder="Ruangan / lokasi meeting"
-                  />
-                </div>
-                <div className="flex items-end lg:col-span-1 lg:justify-end">
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={handleCreateSlot}
-                    disabled={submitting}
-                  >
-                    Tambah Slot
-                  </Button>
-                </div>
-              </>
-            ) : (
-              <div className="hidden lg:block" />
-            )}
-            {mode !== "offline" && (
-              <div className="flex items-end lg:col-span-1 lg:justify-end">
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={handleCreateSlot}
-                  disabled={submitting}
-                >
-                  Tambah Slot
-                </Button>
+            {mode === "offline" && (
+              <div className="flex flex-col gap-2">
+                <Label>Lokasi</Label>
+                <TextInput
+                  value={location}
+                  onChange={(event) => setLocation(event.target.value)}
+                  placeholder="Ruangan / lokasi meeting"
+                />
               </div>
             )}
+
+            <div className="flex items-end xl:justify-end">
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={handleCreateSlot}
+                disabled={submitting}
+              >
+                Tambah Slot
+              </Button>
+            </div>
           </div>
         </TableSection>
       )}
@@ -477,7 +468,7 @@ export function OneOnOneMeetingTab({
 
         {isAdmin && editingSlotId && (
           <div className="border-neutral-primary bg-surface-neutral-primary mt-4 rounded-lg border p-3">
-            <div className="grid grid-cols-1 gap-lg md:grid-cols-4">
+            <div className="grid grid-cols-1 gap-lg md:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)_minmax(0,1fr)_auto] md:items-end">
               <div className="flex flex-col gap-2">
                 <Label>Tanggal</Label>
                 <DatePicker

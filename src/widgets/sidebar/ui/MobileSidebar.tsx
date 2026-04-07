@@ -22,8 +22,8 @@ import {
 } from "@/shared/ui"
 import { RiMenuLine } from "@/shared/ui/lucide-icons"
 import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
-import { type ReactNode, useEffect, useMemo } from "react"
+import { usePathname } from "next/navigation"
+import { type ReactNode, useMemo } from "react"
 
 interface MobileSidebarProps {
   children?: ReactNode
@@ -39,7 +39,6 @@ const MOBILE_BOTTOM_NAV_HREFS = new Set([
 
 export default function MobileSidebar({ children }: MobileSidebarProps) {
   const pathname = usePathname()
-  const router = useRouter()
   const { profile, loading } = useUserProfile()
   const { hasPermission, loading: permissionLoading } = usePagePermissions()
 
@@ -98,16 +97,6 @@ export default function MobileSidebar({ children }: MobileSidebarProps) {
     [loading, permissionLoading, profile, hasPermission],
   )
 
-  useEffect(() => {
-    if (loading || !profile) return
-    const allItems = [...drawerNavItems, ...shortcutItems]
-    for (const item of allItems) {
-      if (item.href.startsWith("/")) {
-        router.prefetch(item.href)
-      }
-    }
-  }, [loading, profile, drawerNavItems, shortcutItems, router])
-
   return (
     <>
       <Drawer>
@@ -150,12 +139,7 @@ export default function MobileSidebar({ children }: MobileSidebarProps) {
                       <DrawerClose asChild>
                         <Link
                           href={item.href}
-                          prefetch
-                          onMouseEnter={() => {
-                            if (item.href.startsWith("/")) {
-                              router.prefetch(item.href)
-                            }
-                          }}
+                          prefetch={false}
                           className={cx(
                             isActive(item.href)
                               ? "bg-muted text-content dark:bg-muted font-semibold"
@@ -199,12 +183,7 @@ export default function MobileSidebar({ children }: MobileSidebarProps) {
                         <DrawerClose asChild>
                           <Link
                             href={item.href}
-                            prefetch
-                            onMouseEnter={() => {
-                              if (item.href.startsWith("/")) {
-                                router.prefetch(item.href)
-                              }
-                            }}
+                            prefetch={false}
                             className={cx(
                               isActive(item.href)
                                 ? "bg-muted text-content dark:bg-muted font-semibold"

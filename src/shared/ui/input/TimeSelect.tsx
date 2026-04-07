@@ -1,7 +1,7 @@
 import React from "react"
 
 import { cx } from "@/shared/lib/utils"
-import { Button } from "@/shared/ui/action/Button"
+import { SegmentedControl } from "@/shared/ui/interaction/SegmentedControl"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/input/Select"
 
 type TimeOption = { value: string; label: string }
@@ -106,7 +106,7 @@ const TimeSelect = ({
   const selectedPeriod = parsedValue?.period
 
   return (
-    <div className={cx("flex items-center gap-2", className)}>
+    <div className={cx("grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2", className)}>
       <Select
         value={selectedClockValue}
         onValueChange={(nextClockValue) => {
@@ -130,24 +130,20 @@ const TimeSelect = ({
         </SelectContent>
       </Select>
 
-      <div className="border-neutral-primary bg-surface-neutral-primary inline-flex shrink-0 items-center gap-1 rounded-[8px] border p-1">
-        {(["AM", "PM"] as const).map((period) => (
-          <Button
-            key={period}
-            type="button"
-            size={size}
-            variant={selectedPeriod === period ? "primary" : "secondary"}
-            disabled={disabled || !selectedClockValue}
-            onClick={() => {
-              if (!selectedClockValue) return
-              onValueChange?.(to24HourValue(selectedClockValue, period))
-            }}
-            className="min-w-[44px]"
-          >
-            {period}
-          </Button>
-        ))}
-      </div>
+      <SegmentedControl
+        fitContent
+        size="sm"
+        value={selectedPeriod || "AM"}
+        disabled={disabled || !selectedClockValue}
+        onChange={(period) => {
+          if (!selectedClockValue) return
+          onValueChange?.(to24HourValue(selectedClockValue, period))
+        }}
+        items={[
+          { value: "AM", label: "AM" },
+          { value: "PM", label: "PM" },
+        ]}
+      />
     </div>
   )
 }

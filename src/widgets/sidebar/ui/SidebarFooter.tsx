@@ -3,6 +3,7 @@
 import { siteConfig } from "@/app/siteConfig"
 import { createClient } from "@/shared/api/supabase/client"
 import { navigationConfig } from "@/shared/config/navigation"
+import { usePagePermissions } from "@/shared/hooks/usePagePermissions"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { hasRoleAccess } from "@/shared/lib/roles"
 import { cx, focusRing } from "@/shared/lib/utils"
@@ -12,7 +13,8 @@ import { usePathname } from "next/navigation"
 
 export function SidebarFooter() {
   const pathname = usePathname()
-  const { profile } = useUserProfile()
+  const { profile, loading: profileLoading } = useUserProfile()
+  const { hasPermission, loading: permissionLoading } = usePagePermissions()
   const supabase = createClient()
 
   const isActive = (itemHref: string) => {
@@ -22,11 +24,16 @@ export function SidebarFooter() {
     return pathname === itemHref
   }
 
-  const footerItems = profile
-    ? navigationConfig.footer.filter((item) =>
-        hasRoleAccess(item.roles, profile.role, { allowUnknown: true }),
-      )
-    : navigationConfig.footer
+  const loading = profileLoading || permissionLoading
+
+  const footerItems =
+    !loading && profile
+      ? navigationConfig.footer.filter(
+          (item) =>
+            hasRoleAccess(item.roles, profile.role, { allowUnknown: true }) &&
+            hasPermission(item.href, false) === true,
+        )
+      : []
 
   const handleSignOut = async () => {
     await supabase.auth.signOut()
