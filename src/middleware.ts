@@ -5,6 +5,61 @@ import { Database } from "@/shared/types/database.types"
 import { createServerClient } from "@supabase/ssr"
 import { NextResponse, type NextRequest } from "next/server"
 
+const PERMISSION_CACHE_COOKIE = "krt_permission_cache"
+const PERMISSION_CACHE_TTL_MS = 5 * 60 * 1000
+
+type CachedPermissionRow = {
+  page_slug: string
+  granted: boolean
+}
+
+type MiddlewarePermissionCache = {
+  authUserId: string
+  email: string | null
+  canonicalUserId: string
+  effectiveUserId: string
+  isSuperAdmin: boolean
+  impersonatedUserId: string | null
+  rows: CachedPermissionRow[]
+  expiresAt: number
+}
+
+function readPermissionCache(
+  request: NextRequest,
+  userId: string,
+  email: string | null,
+  impersonatedUserId: string | null,
+): MiddlewarePermissionCache | null {
+  const raw = request.cookies.get(PERMISSION_CACHE_COOKIE)?.value
+  if (!raw) return null
+
+  try {
+    const parsed = JSON.parse(raw) as MiddlewarePermissionCache
+    if (parsed.authUserId !== userId) return null
+    if ((parsed.email || null) !== (email || null)) return null
+    if ((parsed.impersonatedUserId || null) !== (impersonatedUserId || null)) {
+      return null
+    }
+    if (parsed.expiresAt <= Date.now()) return null
+    return parsed
+  } catch {
+    return null
+  }
+}
+
+function writePermissionCache(
+  response: NextResponse,
+  cache: MiddlewarePermissionCache,
+) {
+  response.cookies.set(PERMISSION_CACHE_COOKIE, JSON.stringify(cache), {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    expires: new Date(cache.expiresAt),
+  })
+}
+
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
@@ -71,49 +126,82 @@ export async function middleware(request: NextRequest) {
   const impersonatedUserId =
     request.cookies.get(IMPERSONATION_COOKIE_NAME)?.value || null
 
-  const [{ data: directProfile }, { data: emailProfiles }] = await Promise.all([
-    supabase
-      .from("profiles")
-      .select("id, email, is_super_admin, created_at")
-      .eq("id", user.id)
-      .maybeSingle(),
-    user.email
-      ? supabase
-          .from("profiles")
-          .select("id, email, is_super_admin, created_at")
-          .eq("email", user.email)
-      : Promise.resolve({ data: [] as Array<{ id: string; email: string | null; is_super_admin: boolean | null; created_at: string | null }> }),
-  ])
+  const cachedPermissions = readPermissionCache(
+    request,
+    user.id,
+    user.email || null,
+    impersonatedUserId,
+  )
 
-  const canonicalProfile = directProfile
-    ? directProfile
-    : dedupeProfilesByEmail(
-        (emailProfiles || []) as Array<{
-          id: string
-          email: string | null
-          is_super_admin: boolean | null
-          created_at: string | null
-        }>,
-      )[0] || null
+  let canonicalUserId = user.id
+  let effectiveUserId = user.id
+  let isSuperAdmin = false
+  let userPermissions: CachedPermissionRow[] = []
 
-  const canonicalUserId = canonicalProfile?.id || user.id
-  const effectiveUserId =
-    canonicalProfile?.is_super_admin &&
-    impersonatedUserId &&
-    impersonatedUserId !== canonicalUserId
-      ? impersonatedUserId
-      : canonicalUserId
+  if (cachedPermissions) {
+    canonicalUserId = cachedPermissions.canonicalUserId
+    effectiveUserId = cachedPermissions.effectiveUserId
+    isSuperAdmin = cachedPermissions.isSuperAdmin
+    userPermissions = cachedPermissions.rows
+  } else {
+    const [{ data: directProfile }, { data: emailProfiles }] = await Promise.all([
+      supabase
+        .from("profiles")
+        .select("id, email, is_super_admin, created_at")
+        .eq("id", user.id)
+        .maybeSingle(),
+      user.email
+        ? supabase
+            .from("profiles")
+            .select("id, email, is_super_admin, created_at")
+            .eq("email", user.email)
+        : Promise.resolve({ data: [] as Array<{ id: string; email: string | null; is_super_admin: boolean | null; created_at: string | null }> }),
+    ])
 
-  const { data: userPermissions } = await supabase
-    .from("user_page_permissions")
-    .select("page_slug, granted")
-    .eq("user_id", effectiveUserId)
+    const canonicalProfile = directProfile
+      ? directProfile
+      : dedupeProfilesByEmail(
+          (emailProfiles || []) as Array<{
+            id: string
+            email: string | null
+            is_super_admin: boolean | null
+            created_at: string | null
+          }>,
+        )[0] || null
+
+    canonicalUserId = canonicalProfile?.id || user.id
+    isSuperAdmin = canonicalProfile?.is_super_admin === true
+    effectiveUserId =
+      isSuperAdmin &&
+      impersonatedUserId &&
+      impersonatedUserId !== canonicalUserId
+        ? impersonatedUserId
+        : canonicalUserId
+
+    const { data: permissionRows } = await supabase
+      .from("user_page_permissions")
+      .select("page_slug, granted")
+      .eq("user_id", effectiveUserId)
+
+    userPermissions = (permissionRows || []) as CachedPermissionRow[]
+
+    writePermissionCache(supabaseResponse, {
+      authUserId: user.id,
+      email: user.email || null,
+      canonicalUserId,
+      effectiveUserId,
+      isSuperAdmin,
+      impersonatedUserId,
+      rows: userPermissions,
+      expiresAt: Date.now() + PERMISSION_CACHE_TTL_MS,
+    })
+  }
 
   // Hard rule: settings/permission hanya untuk super admin
   if (url.pathname.startsWith(siteConfig.baseLinks.settings.permission)) {
     const isEffectiveSuperAdmin =
       effectiveUserId === canonicalUserId &&
-      canonicalProfile?.is_super_admin === true
+      isSuperAdmin === true
     if (!isEffectiveSuperAdmin) {
       url.pathname = "/dashboard"
       return NextResponse.redirect(url)
