@@ -1,7 +1,7 @@
 "use client"
 
-import { Button } from "@/shared/ui"
 import { createClient } from "@/shared/api/supabase/client"
+import { Button } from "@/shared/ui"
 import { useState } from "react"
 
 export default function LoginPage() {
@@ -59,7 +59,7 @@ export default function LoginPage() {
             <Button
               onClick={handleGoogleLogin}
               variant="secondary"
-              className="w-full flex items-center justify-center gap-3"
+              className="w-hug flex items-center mx-auto gap-3"
               disabled={loading}
             >
               <span>{loading ? "Menghubungkan..." : "Lanjutkan dengan Google"}</span>

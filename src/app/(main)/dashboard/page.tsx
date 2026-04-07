@@ -1,5 +1,6 @@
 import { createClient } from "@/shared/api/supabase/server"
 import { resolveEffectiveUserId } from "@/shared/lib/impersonation-server"
+import { resolveProfileByUserIdOrEmail } from "@/shared/lib/profile-resolution"
 
 export const dynamic = "force-dynamic"
 import { canManageByRole } from "@/shared/lib/roles"
@@ -22,14 +23,19 @@ export default async function DashboardRoute({
   } = await supabase.auth.getUser()
   if (!user) redirect("/login")
 
-  const effectiveUserId = await resolveEffectiveUserId(supabase, user.id)
+  const effectiveUserId = await resolveEffectiveUserId(
+    supabase,
+    user.id,
+    user.email,
+  )
 
   // Get user profile to determine role
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("full_name, role")
-    .eq("id", effectiveUserId)
-    .single()
+  const profile = await resolveProfileByUserIdOrEmail<{
+    id: string
+    email: string | null
+    full_name: string | null
+    role: string | null
+  }>(supabase, "id, email, full_name, role, created_at", effectiveUserId, user.email)
 
   if (!profile) {
     return (

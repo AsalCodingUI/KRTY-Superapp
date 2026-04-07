@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
+import { createAdminClient } from "@/shared/api/supabase/admin"
 import { createClient } from "@/shared/api/supabase/server"
+import { resolveProfileByUserIdOrEmail } from "@/shared/lib/profile-resolution"
 import { canManageByRole } from "@/shared/lib/roles"
 import { logError } from "@/shared/lib/utils/logger"
 import { guardApiRoute } from "@/shared/lib/utils/security"
@@ -18,17 +20,22 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("id, role")
-      .eq("id", user.id)
-      .single()
+    const profile = await resolveProfileByUserIdOrEmail<{
+      id: string
+      email: string | null
+      role: string | null
+    }>(supabase, "id, email, role, created_at", user.id, user.email)
+
+    if (!profile) {
+      return NextResponse.json({ error: "Profile not found" }, { status: 404 })
+    }
 
     const isAdmin = canManageByRole(profile?.role)
     const { searchParams } = new URL(request.url)
     const cycle = searchParams.get("cycle")
+    const adminSupabase = createAdminClient()
 
-    let query = supabase
+    let query = adminSupabase
       .from("one_on_one_slots")
       .select(
         `
@@ -45,7 +52,7 @@ export async function GET(request: NextRequest) {
 
     if (!isAdmin) {
       query = query.or(
-        `status.eq.open,booked_by.eq.${user.id}`,
+        `status.eq.open,booked_by.eq.${profile.id}`,
       )
     }
 
@@ -75,11 +82,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("id, role")
-      .eq("id", user.id)
-      .single()
+    const profile = await resolveProfileByUserIdOrEmail<{
+      id: string
+      email: string | null
+      role: string | null
+    }>(supabase, "id, email, role, created_at", user.id, user.email)
+
+    if (!profile) {
+      return NextResponse.json({ error: "Profile not found" }, { status: 404 })
+    }
 
     if (!canManageByRole(profile?.role)) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
@@ -90,7 +101,13 @@ export async function POST(request: NextRequest) {
       cycle: string
       mode: "online" | "offline"
       location?: string
-      slots: Array<{ date: string; startTime: string; endTime: string }>
+      slots: Array<{
+        date: string
+        startTime: string
+        endTime: string
+        startAt?: string
+        endAt?: string
+      }>
     }
 
     if (!cycle || !mode || !slots?.length) {
@@ -98,12 +115,12 @@ export async function POST(request: NextRequest) {
     }
 
     const payload = slots.map((slot) => {
-      const startAt = new Date(`${slot.date}T${slot.startTime}`)
-      const endAt = new Date(`${slot.date}T${slot.endTime}`)
+      const startAt = slot.startAt ? new Date(slot.startAt) : new Date(`${slot.date}T${slot.startTime}`)
+      const endAt = slot.endAt ? new Date(slot.endAt) : new Date(`${slot.date}T${slot.endTime}`)
 
       return {
         cycle_name: cycle,
-        organizer_id: user.id,
+        organizer_id: profile.id,
         start_at: startAt.toISOString(),
         end_at: endAt.toISOString(),
         mode,
@@ -112,7 +129,8 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    const { error } = await supabase
+    const adminSupabase = createAdminClient()
+    const { error } = await adminSupabase
       .from("one_on_one_slots")
       .insert(payload)
 

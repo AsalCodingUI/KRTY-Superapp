@@ -1,5 +1,6 @@
 import { cookies } from "next/headers"
 import { IMPERSONATION_COOKIE_NAME } from "@/shared/lib/impersonation"
+import { dedupeProfilesByEmail } from "@/shared/lib/profile-dedupe"
 
 export async function getImpersonationCookieUserId(): Promise<string | null> {
   const cookieStore = await cookies()
@@ -10,21 +11,41 @@ export async function getImpersonationCookieUserId(): Promise<string | null> {
 export async function resolveEffectiveUserId(
   supabase: any,
   authUserId: string,
+  authEmail?: string | null,
 ): Promise<string> {
-  const { data: authProfile } = await supabase
+  const { data: directProfile } = await supabase
     .from("profiles")
-    .select("id, is_super_admin")
+    .select("id, email, is_super_admin, created_at")
     .eq("id", authUserId)
     .maybeSingle()
 
+  let authProfile = directProfile
+
+  if (!authProfile && authEmail) {
+    const { data: emailProfiles } = await supabase
+      .from("profiles")
+      .select("id, email, is_super_admin, created_at")
+      .eq("email", authEmail)
+
+    authProfile =
+      dedupeProfilesByEmail(
+        (emailProfiles || []) as Array<{
+          id: string
+          email: string | null
+          is_super_admin: boolean | null
+          created_at: string | null
+        }>,
+      )[0] || null
+  }
+
   if (!authProfile?.is_super_admin) {
-    return authUserId
+    return authProfile?.id || authUserId
   }
 
   const impersonatedUserId = await getImpersonationCookieUserId()
 
-  if (!impersonatedUserId || impersonatedUserId === authUserId) {
-    return authUserId
+  if (!impersonatedUserId || impersonatedUserId === authProfile.id) {
+    return authProfile.id
   }
 
   const { data: targetProfile } = await supabase
@@ -34,7 +55,7 @@ export async function resolveEffectiveUserId(
     .maybeSingle()
 
   if (!targetProfile?.id) {
-    return authUserId
+    return authProfile.id
   }
 
   return impersonatedUserId

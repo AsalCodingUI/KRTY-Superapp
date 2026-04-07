@@ -1,6 +1,7 @@
 "use client"
 
 import { createClient } from "@/shared/api/supabase/client"
+import { dedupeProfilesByEmail } from "@/shared/lib/profile-dedupe"
 import { useQuery } from "@tanstack/react-query"
 import { TeamMember } from "./types"
 
@@ -21,7 +22,7 @@ export function useTeamMembers() {
         .order("full_name", { ascending: true })
 
       if (error) throw error
-      return data as TeamMember[]
+      return dedupeProfilesByEmail(data as TeamMember[])
     },
     staleTime: 60 * 1000,
     refetchOnWindowFocus: false,

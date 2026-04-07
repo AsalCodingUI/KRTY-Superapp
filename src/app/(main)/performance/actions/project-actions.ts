@@ -1,7 +1,8 @@
 "use server"
 
-import type { Database } from "@/shared/types/database.types"
 import { createClient } from "@/shared/api/supabase/server"
+import { dedupeProfilesByEmail } from "@/shared/lib/profile-dedupe"
+import type { Database } from "@/shared/types/database.types"
 import { revalidatePath } from "next/cache"
 
 export async function getProjects(
@@ -53,7 +54,7 @@ export async function getProjects(
     return { success: false, error: error.message, data: [] }
   }
 
-  return { success: true, data: data || [] }
+  return { success: true, data: dedupeProfilesByEmail(data || []) }
 }
 
 export async function createProject(formData: FormData) {

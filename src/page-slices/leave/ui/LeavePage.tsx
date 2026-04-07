@@ -44,7 +44,7 @@ interface LeavePageProps {
   requests: LeaveRequest[] | LeaveRequestWithProfile[]
   statsRequests?: LeaveRequest[]
   profiles?: ProfileSummary[]
-  attendanceLogs?: AttendanceLogWithProfile[]
+  attendanceLogs?: AttendanceLog[] | AttendanceLogWithProfile[]
   overviewStats?: {
     onLeaveToday: number
     pendingRequests: number
@@ -74,7 +74,7 @@ export function LeavePage({
       <StakeholderLeavePage
         requests={requests as LeaveRequestWithProfile[]}
         profiles={profiles}
-        attendanceLogs={attendanceLogs}
+        attendanceLogs={attendanceLogs as AttendanceLogWithProfile[]}
         overviewStats={overviewStats}
         page={page}
         pageSize={pageSize}

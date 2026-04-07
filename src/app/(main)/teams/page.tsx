@@ -1,5 +1,7 @@
 import { TeamsPage } from "@/page-slices/teams"
 import { createClient } from "@/shared/api/supabase/server"
+import { dedupeProfilesByEmail } from "@/shared/lib/profile-dedupe"
+import { resolveProfileByUserIdOrEmail } from "@/shared/lib/profile-resolution"
 
 export const dynamic = "force-dynamic"
 
@@ -20,16 +22,18 @@ export default async function TeamsRoute({
   const from = (page - 1) * pageSize
   const to = from + pageSize - 1
 
-  // 🚀 PARALLEL FETCH: Count + Data at the same time
-  const [countResult, dataResult, roleResult] = await Promise.all([
-    supabase.from("profiles").select("id", { count: "exact", head: true }),
+  const [dataResult, roleResult] = await Promise.all([
     supabase
       .from("profiles")
       .select("id, full_name, email, job_title, role, hourly_rate")
       .order("full_name", { ascending: true })
       .range(from, to),
     user
-      ? supabase.from("profiles").select("role").eq("id", user.id).single()
+      ? resolveProfileByUserIdOrEmail<{
+          id: string
+          email: string | null
+          role: string | null
+        }>(supabase, "id, email, role, created_at", user.id, user.email)
       : Promise.resolve(null),
   ])
 
@@ -38,14 +42,17 @@ export default async function TeamsRoute({
     return <div>Error loading team members</div>
   }
 
-  const role = roleResult?.data?.role ?? "employee"
+  const role = roleResult?.role ?? "employee"
+  const dedupedProfiles = dedupeProfilesByEmail(
+    dataResult.data || [],
+  ) as typeof dataResult.data
 
   return (
     <TeamsPage
-      initialData={dataResult.data || []}
+      initialData={dedupedProfiles}
       page={page}
       pageSize={pageSize}
-      totalCount={countResult.count || 0}
+      totalCount={dedupedProfiles.length}
       role={role}
     />
   )

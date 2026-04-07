@@ -1,5 +1,6 @@
 import { PermissionSettingsPage } from "@/page-slices/settings"
 import { createClient } from "@/shared/api/supabase/server"
+import { resolveProfileByUserIdOrEmail } from "@/shared/lib/profile-resolution"
 import { redirect } from "next/navigation"
 
 export const dynamic = "force-dynamic"
@@ -15,11 +16,11 @@ export default async function PermissionRoute() {
     redirect("/login")
   }
 
-  const { data: currentProfile } = await supabase
-    .from("profiles")
-    .select("is_super_admin")
-    .eq("id", user.id)
-    .maybeSingle()
+  const currentProfile = await resolveProfileByUserIdOrEmail<{
+    id: string
+    email: string | null
+    is_super_admin: boolean | null
+  }>(supabase, "id, email, is_super_admin, created_at", user.id, user.email)
 
   if (!currentProfile?.is_super_admin) {
     redirect("/dashboard")

@@ -1,5 +1,6 @@
 import { siteConfig } from "@/app/siteConfig"
 import { IMPERSONATION_COOKIE_NAME } from "@/shared/lib/impersonation"
+import { dedupeProfilesByEmail } from "@/shared/lib/profile-dedupe"
 import { Database } from "@/shared/types/database.types"
 import { createServerClient } from "@supabase/ssr"
 import { NextResponse, type NextRequest } from "next/server"
@@ -67,38 +68,52 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  // ─── PERMISSION-BASED ACCESS CONTROL (PER-USER) ──────────────────────────
-  // Gabung semua query dalam 1 roundtrip: profile + permissions
   const impersonatedUserId =
     request.cookies.get(IMPERSONATION_COOKIE_NAME)?.value || null
 
-  const [{ data: profile }, { data: userPermissions }] = await Promise.all([
+  const [{ data: directProfile }, { data: emailProfiles }] = await Promise.all([
     supabase
       .from("profiles")
-      .select("is_super_admin")
+      .select("id, email, is_super_admin, created_at")
       .eq("id", user.id)
       .maybeSingle(),
-    supabase
-      .from("user_page_permissions")
-      .select("page_slug, granted")
-      .eq(
-        "user_id",
-        // Jika super admin sedang impersonate, cek permission target user
-        impersonatedUserId && impersonatedUserId !== user.id
-          ? impersonatedUserId
-          : user.id,
-      ),
+    user.email
+      ? supabase
+          .from("profiles")
+          .select("id, email, is_super_admin, created_at")
+          .eq("email", user.email)
+      : Promise.resolve({ data: [] as Array<{ id: string; email: string | null; is_super_admin: boolean | null; created_at: string | null }> }),
   ])
 
+  const canonicalProfile = directProfile
+    ? directProfile
+    : dedupeProfilesByEmail(
+        (emailProfiles || []) as Array<{
+          id: string
+          email: string | null
+          is_super_admin: boolean | null
+          created_at: string | null
+        }>,
+      )[0] || null
+
+  const canonicalUserId = canonicalProfile?.id || user.id
   const effectiveUserId =
-    profile?.is_super_admin && impersonatedUserId && impersonatedUserId !== user.id
+    canonicalProfile?.is_super_admin &&
+    impersonatedUserId &&
+    impersonatedUserId !== canonicalUserId
       ? impersonatedUserId
-      : user.id
+      : canonicalUserId
+
+  const { data: userPermissions } = await supabase
+    .from("user_page_permissions")
+    .select("page_slug, granted")
+    .eq("user_id", effectiveUserId)
 
   // Hard rule: settings/permission hanya untuk super admin
   if (url.pathname.startsWith(siteConfig.baseLinks.settings.permission)) {
     const isEffectiveSuperAdmin =
-      effectiveUserId === user.id && profile?.is_super_admin === true
+      effectiveUserId === canonicalUserId &&
+      canonicalProfile?.is_super_admin === true
     if (!isEffectiveSuperAdmin) {
       url.pathname = "/dashboard"
       return NextResponse.redirect(url)

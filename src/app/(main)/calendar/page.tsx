@@ -13,7 +13,7 @@ export default async function CalendarPage() {
 
   if (!user) return null
 
-  const effectiveUserId = await resolveEffectiveUserId(supabase, user.id)
+  const effectiveUserId = await resolveEffectiveUserId(supabase, user.id, user.email)
 
   const { data: profile } = await supabase
     .from("profiles")

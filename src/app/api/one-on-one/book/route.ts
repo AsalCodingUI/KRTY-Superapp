@@ -1,6 +1,8 @@
 import { guardApiRoute } from "@/shared/lib/utils/security"
 import { NextRequest, NextResponse } from "next/server"
+import { createAdminClient } from "@/shared/api/supabase/admin"
 import { createClient } from "@/shared/api/supabase/server"
+import { resolveProfileByUserIdOrEmail } from "@/shared/lib/profile-resolution"
 import { logError } from "@/shared/lib/utils/logger"
 import {
   createGoogleCalendarEvent,
@@ -27,11 +29,23 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "invalid_payload" }, { status: 400 })
     }
 
-    const { data: slot, error: claimError } = await supabase
+    const profile = await resolveProfileByUserIdOrEmail<{
+      id: string
+      email: string | null
+      full_name: string | null
+    }>(supabase, "id, email, full_name, created_at", user.id, user.email)
+
+    if (!profile) {
+      return NextResponse.json({ error: "Profile not found" }, { status: 404 })
+    }
+
+    const adminSupabase = createAdminClient()
+
+    const { data: slot, error: claimError } = await adminSupabase
       .from("one_on_one_slots")
       .update({
         status: "booking",
-        booked_by: user.id,
+        booked_by: profile.id,
         booked_at: new Date().toISOString(),
       })
       .eq("id", slotId)
@@ -43,13 +57,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "slot_unavailable" }, { status: 409 })
     }
 
-    const { data: employeeProfile } = await supabase
+    const { data: employeeProfile } = await adminSupabase
       .from("profiles")
       .select("id, full_name, email")
-      .eq("id", user.id)
+      .eq("id", profile.id)
       .single()
 
-    const { data: organizerProfile } = await supabase
+    const { data: organizerProfile } = await adminSupabase
       .from("profiles")
       .select("id, full_name, email")
       .eq("id", slot.organizer_id)
@@ -59,7 +73,7 @@ export async function POST(request: NextRequest) {
     const env = getGoogleEnv()
 
     if (!accessToken || !env) {
-      await supabase
+      await adminSupabase
         .from("one_on_one_slots")
         .update({ status: "open", booked_by: null, booked_at: null })
         .eq("id", slotId)
@@ -96,7 +110,7 @@ export async function POST(request: NextRequest) {
     })
 
     if (!googleEvent) {
-      await supabase
+      await adminSupabase
         .from("one_on_one_slots")
         .update({ status: "open", booked_by: null, booked_at: null })
         .eq("id", slotId)
@@ -111,7 +125,7 @@ export async function POST(request: NextRequest) {
       googleEvent.conferenceData?.entryPoints?.[0]?.uri ||
       null
 
-    await supabase
+    await adminSupabase
       .from("one_on_one_slots")
       .update({
         status: "booked",

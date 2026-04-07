@@ -1,5 +1,6 @@
 import { createClient } from "@/shared/api/supabase/server"
 import { IMPERSONATION_COOKIE_NAME } from "@/shared/lib/impersonation"
+import { resolveProfileByUserIdOrEmail } from "@/shared/lib/profile-resolution"
 import { NextRequest, NextResponse } from "next/server"
 
 export async function POST(request: NextRequest) {
@@ -13,11 +14,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { data: actorProfile } = await supabase
-      .from("profiles")
-      .select("id, is_super_admin")
-      .eq("id", user.id)
-      .maybeSingle()
+    const actorProfile = await resolveProfileByUserIdOrEmail<{
+      id: string
+      email: string | null
+      is_super_admin: boolean | null
+    }>(supabase, "id, email, is_super_admin, created_at", user.id, user.email)
 
     if (!actorProfile?.is_super_admin) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
@@ -29,7 +30,7 @@ export async function POST(request: NextRequest) {
     const response = NextResponse.json({ success: true })
 
     // Clear impersonation mode
-    if (!targetUserId || targetUserId === user.id) {
+    if (!targetUserId || targetUserId === actorProfile.id) {
       response.cookies.set(IMPERSONATION_COOKIE_NAME, "", {
         path: "/",
         maxAge: 0,

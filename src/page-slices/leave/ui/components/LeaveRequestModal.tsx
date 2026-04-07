@@ -221,7 +221,6 @@ export function LeaveRequestModal({
       }
 
       const payload = {
-        user_id: userProfile.id,
         start_date: format(startOfDay(formData.start_date), "yyyy-MM-dd"),
         end_date: format(startOfDay(formData.end_date), "yyyy-MM-dd"),
         leave_type: formData.leave_type || "Annual Leave",
@@ -231,14 +230,21 @@ export function LeaveRequestModal({
       }
 
       if (formData.id) {
-        const { error } = await supabase
-          .from("leave_requests")
-          .update(payload)
-          .eq("id", formData.id)
-        if (error) throw error
+        const response = await fetch("/api/leave/requests", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...payload, id: formData.id }),
+        })
+        const result = await response.json().catch(() => ({}))
+        if (!response.ok) throw new Error(result?.error || "Failed to update leave request")
       } else {
-        const { error } = await supabase.from("leave_requests").insert(payload)
-        if (error) throw error
+        const response = await fetch("/api/leave/requests", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        })
+        const result = await response.json().catch(() => ({}))
+        if (!response.ok) throw new Error(result?.error || "Failed to submit leave request")
       }
       router.refresh()
       onClose()

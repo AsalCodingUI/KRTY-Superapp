@@ -28,6 +28,11 @@ const settingsTabs = [
     href: siteConfig.baseLinks.settings.permission,
     roles: ["stakeholder"], // Cuma Admin/Stakeholder
   },
+  {
+    name: "Team Access",
+    href: siteConfig.baseLinks.settings.teamAccess,
+    roles: ["stakeholder"],
+  },
 ]
 
 export default function Layout({
@@ -43,7 +48,10 @@ export default function Layout({
   const visibleTabs = settingsTabs.filter((tab) => {
     if (loading || !profile) return false
     if (
-      tab.href === siteConfig.baseLinks.settings.permission &&
+      [
+        siteConfig.baseLinks.settings.permission,
+        siteConfig.baseLinks.settings.teamAccess,
+      ].includes(tab.href) &&
       profile.is_super_admin !== true
     ) {
       return false

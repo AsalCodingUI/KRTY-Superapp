@@ -1,6 +1,5 @@
-import { createClient } from "@/shared/api/supabase/client"
+import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { Database } from "@/shared/types/database.types"
-import { RealtimeChannel } from "@supabase/supabase-js"
 import { useCallback, useEffect, useState } from "react"
 
 type Notification = Database["public"]["Tables"]["notifications"]["Row"]
@@ -24,22 +23,30 @@ export function useNotifications() {
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
   const [loading, setLoading] = useState(true)
-
-  // 1. FIX: Gunakan useState agar instance client stabil (Singleton per component)
-  // Ini mencegah koneksi realtime putus-nyambung saat re-render
-  const [supabase] = useState(() => createClient())
+  const { authProfile, loading: profileLoading } = useUserProfile()
 
   const fetchNotifications = useCallback(async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-    if (!user) return null
+    if (!authProfile?.id) {
+      setNotifications([])
+      setUnreadCount(0)
+      setLoading(profileLoading)
+      return null
+    }
 
-    const { data } = await supabase
-      .from("notifications")
-      .select("*")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false })
+    const response = await fetch("/api/notifications", {
+      credentials: "include",
+      cache: "no-store",
+    })
+
+    if (!response.ok) {
+      setLoading(false)
+      throw new Error("Failed to fetch notifications")
+    }
+
+    const payload = (await response.json().catch(() => null)) as
+      | { notifications?: Notification[] }
+      | null
+    const data = payload?.notifications || []
 
     if (data) {
       setNotifications(data)
@@ -48,8 +55,8 @@ export function useNotifications() {
     setLoading(false)
 
     // Return userID untuk dipakai di subscription filter
-    return user.id
-  }, [supabase])
+    return authProfile.id
+  }, [authProfile?.id, profileLoading])
 
   const markAsRead = async (id: string) => {
     // Optimistic Update (Update UI duluan biar berasa instan)
@@ -60,7 +67,11 @@ export function useNotifications() {
     broadcastNotificationsSync({ type: "markAsRead", id })
 
     // Kirim ke server
-    await supabase.from("notifications").update({ is_read: true }).eq("id", id)
+    await fetch("/api/notifications", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id }),
+    })
   }
 
   const markAllAsRead = async () => {
@@ -69,16 +80,13 @@ export function useNotifications() {
     setUnreadCount(0)
     broadcastNotificationsSync({ type: "markAllAsRead" })
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-    if (!user) return
+    if (!authProfile?.id) return
 
-    await supabase
-      .from("notifications")
-      .update({ is_read: true })
-      .eq("user_id", user.id)
-      .eq("is_read", false)
+    await fetch("/api/notifications", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ markAll: true }),
+    })
   }
 
   const deleteNotification = async (id: string) => {
@@ -96,103 +104,27 @@ export function useNotifications() {
     }
     broadcastNotificationsSync({ type: "delete", id })
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-    if (!user) return
+    if (!authProfile?.id) return
 
-    const { error } = await supabase
-      .from("notifications")
-      .delete()
-      .eq("id", id)
-      .eq("user_id", user.id)
+    const response = await fetch(`/api/notifications?id=${encodeURIComponent(id)}`, {
+      method: "DELETE",
+    })
 
-    if (error) {
+    if (!response.ok) {
       setNotifications(snapshot)
       setUnreadCount(snapshot.filter((n) => !n.is_read).length)
     }
   }
 
-  // 2. FIX: Logic Realtime yang Lebih Cerdas
   useEffect(() => {
-    let channel: RealtimeChannel
+    void fetchNotifications()
 
-    const setupRealtime = async () => {
-      // Ambil data awal & user ID
-      const userId = await fetchNotifications()
-      if (!userId) return
+    const intervalId = window.setInterval(() => {
+      void fetchNotifications()
+    }, 60_000)
 
-      // Subscribe khusus untuk user ini saja
-      channel = supabase
-        .channel("realtime-notifications")
-        .on(
-          "postgres_changes",
-          {
-            event: "*", // Dengarkan INSERT (baru) dan UPDATE (dibaca)
-            schema: "public",
-            table: "notifications",
-            filter: `user_id=eq.${userId}`, // Filter di level database (Cepat!)
-          },
-          (payload: any) => {
-            if (payload.eventType === "INSERT") {
-              // Ada notif baru: Masukkan ke paling atas
-              const newNotif = payload.new as Notification
-              setNotifications((prev) => [newNotif, ...prev])
-              setUnreadCount((prev) => prev + 1)
-
-              // Desktop/browser notification (if permission granted)
-              if (
-                typeof window !== "undefined" &&
-                "Notification" in window &&
-                window.Notification.permission === "granted"
-              ) {
-                const desktopNotif = new window.Notification(newNotif.title, {
-                  body: newNotif.message,
-                  data: { link: newNotif.link || null },
-                })
-
-                desktopNotif.onclick = () => {
-                  if (newNotif.link) {
-                    window.open(newNotif.link, "_blank")
-                  }
-                  desktopNotif.close()
-                }
-              }
-            } else if (payload.eventType === "UPDATE") {
-              // Ada update (misal dibaca di device lain): Sync state
-              const updatedNotif = payload.new as Notification
-              setNotifications((prev) =>
-                prev.map((n) => (n.id === updatedNotif.id ? updatedNotif : n)),
-              )
-              // Hitung ulang unread count biar akurat
-              // (Kita pakai callback state untuk hitung manual dr array yg baru diupdate)
-              setNotifications((currentNotifs) => {
-                const count = currentNotifs.filter((n) => !n.is_read).length
-                setUnreadCount(count)
-                return currentNotifs
-              })
-            } else if (payload.eventType === "DELETE") {
-              const deletedNotif = payload.old as Notification
-              setNotifications((prev) =>
-                prev.filter((n) => n.id !== deletedNotif.id),
-              )
-              setUnreadCount((prev) =>
-                deletedNotif && !deletedNotif.is_read
-                  ? Math.max(0, prev - 1)
-                  : prev,
-              )
-            }
-          },
-        )
-        .subscribe()
-    }
-
-    setupRealtime()
-
-    return () => {
-      if (channel) supabase.removeChannel(channel)
-    }
-  }, [fetchNotifications, supabase])
+    return () => window.clearInterval(intervalId)
+  }, [fetchNotifications])
 
   useEffect(() => {
     if (typeof window === "undefined") return

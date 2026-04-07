@@ -1,6 +1,8 @@
 "use server"
 
 import { createClient } from "@/shared/api/supabase/server"
+import { dedupeProfilesByEmail } from "@/shared/lib/profile-dedupe"
+import { resolveProfileByUserIdOrEmail } from "@/shared/lib/profile-resolution"
 import { canManageByRole } from "@/shared/lib/roles"
 
 type Employee = {
@@ -67,11 +69,11 @@ export async function getAllEmployees(
     return { success: false, error: "Unauthorized", data: [] }
   }
 
-  const { data: callerProfile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single()
+  const callerProfile = await resolveProfileByUserIdOrEmail<{
+    id: string
+    email: string | null
+    role: string | null
+  }>(supabase, "id, email, role, created_at", user.id, user.email)
 
   if (!canManageByRole(callerProfile?.role)) {
     return {
@@ -105,14 +107,18 @@ export async function getAllEmployees(
     )
   }
 
-  const { data: employees, error, count } = await query
+  const { data: employees, error } = await query
 
   if (error) {
     console.error("Error fetching employees:", error)
     return { success: false, error: error.message, data: [] }
   }
 
-  const employeeIds = (employees || []).map((employee: Employee) => employee.id)
+  const dedupedEmployees = dedupeProfilesByEmail(
+    (employees || []) as Employee[],
+  ) as Employee[]
+
+  const employeeIds = dedupedEmployees.map((employee: Employee) => employee.id)
   let assignmentCounts: Record<string, { total: number; active: number }> = {}
 
   if (employeeIds.length > 0) {
@@ -140,7 +146,7 @@ export async function getAllEmployees(
     }
   }
 
-  const employeesWithCounts = (employees || []).map((employee: Employee) => {
+  const employeesWithCounts = dedupedEmployees.map((employee: Employee) => {
     const counts = assignmentCounts[employee.id] || { total: 0, active: 0 }
     return {
       ...employee,
@@ -152,7 +158,7 @@ export async function getAllEmployees(
   return {
     success: true,
     data: employeesWithCounts,
-    total: count ?? employeesWithCounts.length,
+    total: employeesWithCounts.length,
     page,
     pageSize,
   }

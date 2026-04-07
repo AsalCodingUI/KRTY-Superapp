@@ -47,6 +47,12 @@ type OneOnOneSlot = {
   }
 }
 
+function toLocalIso(date: string, time: string) {
+  const [year, month, day] = date.split("-").map(Number)
+  const [hours, minutes] = time.split(":").map(Number)
+  return new Date(year, month - 1, day, hours, minutes, 0, 0).toISOString()
+}
+
 const formatSlotTime = (start: string, end: string) => {
   const startDate = new Date(start)
   const endDate = new Date(end)
@@ -124,6 +130,9 @@ export function OneOnOneMeetingTab({
       return
     }
 
+    const startAt = toLocalIso(date, startTime)
+    const endAt = toLocalIso(date, endTime)
+
     setSubmitting(true)
     try {
       const response = await fetch("/api/one-on-one/slots", {
@@ -133,7 +142,7 @@ export function OneOnOneMeetingTab({
           cycle: selectedQuarter,
           mode,
           location: mode === "offline" ? location : undefined,
-          slots: [{ date, startTime, endTime }],
+          slots: [{ date, startTime, endTime, startAt, endAt }],
         }),
       })
 
@@ -225,6 +234,9 @@ export function OneOnOneMeetingTab({
       return
     }
 
+    const startAt = toLocalIso(editDate, editStartTime)
+    const endAt = toLocalIso(editDate, editEndTime)
+
     setRescheduleId(editingSlotId)
     try {
       const response = await fetch(
@@ -236,6 +248,8 @@ export function OneOnOneMeetingTab({
             date: editDate,
             startTime: editStartTime,
             endTime: editEndTime,
+            startAt,
+            endAt,
           }),
         },
       )

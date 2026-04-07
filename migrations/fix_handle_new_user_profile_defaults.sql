@@ -4,14 +4,38 @@
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS trigger AS $$
 DECLARE
+  existing_profile public.profiles%ROWTYPE;
   next_krt_number integer;
+  derived_role public.app_role;
   derived_job_title public.job_title;
 BEGIN
+  SELECT *
+  INTO existing_profile
+  FROM public.profiles
+  WHERE lower(email) = lower(new.email)
+  ORDER BY created_at ASC NULLS LAST
+  LIMIT 1;
+
+  derived_role :=
+    COALESCE(
+      existing_profile.role,
+      CASE
+        WHEN COALESCE(new.raw_user_meta_data->>'role', '') = 'stakeholder'
+          THEN 'stakeholder'::public.app_role
+        ELSE 'employee'::public.app_role
+      END
+    );
+
   derived_job_title :=
     COALESCE(
-      (new.raw_user_meta_data->>'job_title')::public.job_title,
+      existing_profile.job_title,
       CASE
-        WHEN COALESCE(new.raw_user_meta_data->>'role', 'employee') = 'stakeholder'
+        WHEN COALESCE(new.raw_user_meta_data->>'job_title', '') IN ('Admin', 'Project Manager', 'Designer', 'Web Developer')
+          THEN (new.raw_user_meta_data->>'job_title')::public.job_title
+        ELSE NULL
+      END,
+      CASE
+        WHEN derived_role = 'stakeholder'::public.app_role
           THEN 'Admin'::public.job_title
         ELSE 'Designer'::public.job_title
       END
@@ -36,19 +60,35 @@ BEGIN
     avatar_url,
     role,
     job_title,
-    krt_id
+    krt_id,
+    hourly_rate,
+    team_id,
+    manager_id,
+    is_super_admin,
+    monthly_salary,
+    leave_balance,
+    leave_used
   )
   VALUES (
     new.id,
     new.email,
-    COALESCE(new.raw_user_meta_data->>'full_name', split_part(new.email, '@', 1)),
-    new.raw_user_meta_data->>'avatar_url',
     COALESCE(
-      (new.raw_user_meta_data->>'role')::public.app_role,
-      'employee'::public.app_role
+      existing_profile.full_name,
+      new.raw_user_meta_data->>'full_name',
+      new.raw_user_meta_data->>'name',
+      split_part(new.email, '@', 1)
     ),
+    COALESCE(existing_profile.avatar_url, new.raw_user_meta_data->>'avatar_url'),
+    derived_role,
     derived_job_title,
-    'KRT_' || next_krt_number::text
+    COALESCE(existing_profile.krt_id, 'KRT_' || next_krt_number::text),
+    COALESCE(existing_profile.hourly_rate, 0),
+    existing_profile.team_id,
+    existing_profile.manager_id,
+    COALESCE(existing_profile.is_super_admin, false),
+    existing_profile.monthly_salary,
+    COALESCE(existing_profile.leave_balance, 12),
+    COALESCE(existing_profile.leave_used, 0)
   )
   ON CONFLICT (id) DO UPDATE
   SET
@@ -57,7 +97,14 @@ BEGIN
     avatar_url = COALESCE(EXCLUDED.avatar_url, public.profiles.avatar_url),
     role = EXCLUDED.role,
     job_title = COALESCE(public.profiles.job_title, EXCLUDED.job_title),
-    krt_id = COALESCE(public.profiles.krt_id, EXCLUDED.krt_id);
+    krt_id = COALESCE(public.profiles.krt_id, EXCLUDED.krt_id),
+    hourly_rate = COALESCE(public.profiles.hourly_rate, EXCLUDED.hourly_rate),
+    team_id = COALESCE(public.profiles.team_id, EXCLUDED.team_id),
+    manager_id = COALESCE(public.profiles.manager_id, EXCLUDED.manager_id),
+    is_super_admin = COALESCE(public.profiles.is_super_admin, EXCLUDED.is_super_admin),
+    monthly_salary = COALESCE(public.profiles.monthly_salary, EXCLUDED.monthly_salary),
+    leave_balance = COALESCE(public.profiles.leave_balance, EXCLUDED.leave_balance),
+    leave_used = COALESCE(public.profiles.leave_used, EXCLUDED.leave_used);
 
   RETURN new;
 END;

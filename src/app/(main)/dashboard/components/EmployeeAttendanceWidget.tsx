@@ -107,7 +107,6 @@ export function EmployeeAttendanceWidget({
   }, [router, supabase, userId])
 
   const { loading, handleClockIn, handleClockOut, handleResolvePreviousSession } = useClockActions({
-    userId,
     logs: logs as never[],
     onLogsUpdate: (next) => setLogs(next as AttendanceLog[]),
   })

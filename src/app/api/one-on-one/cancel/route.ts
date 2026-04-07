@@ -1,6 +1,8 @@
 import { guardApiRoute } from "@/shared/lib/utils/security"
 import { NextRequest, NextResponse } from "next/server"
+import { createAdminClient } from "@/shared/api/supabase/admin"
 import { createClient } from "@/shared/api/supabase/server"
+import { resolveProfileByUserIdOrEmail } from "@/shared/lib/profile-resolution"
 import { canManageByRole } from "@/shared/lib/roles"
 import { logError } from "@/shared/lib/utils/logger"
 import {
@@ -33,15 +35,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "invalid_payload" }, { status: 400 })
     }
 
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("id, role")
-      .eq("id", user.id)
-      .single()
+    const profile = await resolveProfileByUserIdOrEmail<{
+      id: string
+      email: string | null
+      role: string | null
+    }>(supabase, "id, email, role, created_at", user.id, user.email)
+
+    if (!profile) {
+      return NextResponse.json({ error: "Profile not found" }, { status: 404 })
+    }
 
     const isAdmin = canManageByRole(profile?.role)
+    const adminSupabase = createAdminClient()
 
-    const { data: slot, error: slotError } = await supabase
+    const { data: slot, error: slotError } = await adminSupabase
       .from("one_on_one_slots")
       .select("id, booked_by, google_event_id")
       .eq("id", slotId)
@@ -55,7 +62,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
 
-    if (action === "release" && slot.booked_by !== user.id) {
+    if (action === "release" && slot.booked_by !== profile.id) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
 
@@ -88,12 +95,12 @@ export async function POST(request: NextRequest) {
       if (!isAdmin) {
         return NextResponse.json({ error: "Forbidden" }, { status: 403 })
       }
-      await supabase.from("one_on_one_slots").delete().eq("id", slotId)
+      await adminSupabase.from("one_on_one_slots").delete().eq("id", slotId)
       return NextResponse.json({ success: true })
     }
 
     if (action === "cancel") {
-      await supabase
+      await adminSupabase
         .from("one_on_one_slots")
         .update({
           status: "cancelled",
@@ -102,7 +109,7 @@ export async function POST(request: NextRequest) {
         })
         .eq("id", slotId)
     } else {
-      await supabase
+      await adminSupabase
         .from("one_on_one_slots")
         .update({
           status: "open",

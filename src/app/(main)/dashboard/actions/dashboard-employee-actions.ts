@@ -3,6 +3,7 @@
 import { createClient } from "@/shared/api/supabase/server"
 import { calculateBusinessDays, getLocalDateString } from "@/shared/lib/date"
 import { getCurrentQuarter } from "@/shared/lib/date/quarter"
+import { resolveProfileByUserIdOrEmail } from "@/shared/lib/profile-resolution"
 import type { PeerReviewScores } from "@/shared/types/dashboard.types"
 import { Database } from "@/shared/types/database.types"
 
@@ -77,24 +78,35 @@ export async function getEmployeeDashboardData(
     }
 
     const targetUserId = effectiveUserId || user.id
+    const actorProfile = await resolveProfileByUserIdOrEmail<{
+      id: string
+      email: string | null
+      is_super_admin: boolean | null
+    }>(
+      supabase,
+      "id, email, is_super_admin, created_at",
+      user.id,
+      user.email,
+    )
 
-    if (targetUserId !== user.id) {
-      const { data: actorProfile } = await supabase
-        .from("profiles")
-        .select("is_super_admin")
-        .eq("id", user.id)
-        .maybeSingle()
-
+    if (targetUserId !== (actorProfile?.id || user.id)) {
       if (!actorProfile?.is_super_admin) {
         return { success: false, error: "Access denied" }
       }
     }
 
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("id, full_name, job_title, avatar_url")
-      .eq("id", targetUserId)
-      .single()
+    const profile = await resolveProfileByUserIdOrEmail<{
+      id: string
+      email: string | null
+      full_name: string | null
+      job_title: string | null
+      avatar_url: string | null
+    }>(
+      supabase,
+      "id, email, full_name, job_title, avatar_url, created_at",
+      targetUserId,
+      targetUserId === (actorProfile?.id || user.id) ? user.email : null,
+    )
 
     if (!profile) {
       return { success: false, error: "Profile not found" }

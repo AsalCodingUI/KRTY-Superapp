@@ -1,6 +1,7 @@
 "use server"
 
 import { createClient } from "@/shared/api/supabase/server"
+import { dedupeProfilesByEmail } from "@/shared/lib/profile-dedupe"
 import { TeamMember } from "../model/types"
 
 /**
@@ -21,7 +22,7 @@ export async function getTeamMembers(): Promise<TeamMember[]> {
     throw error
   }
 
-  return data as TeamMember[]
+  return dedupeProfilesByEmail(data as TeamMember[])
 }
 
 /**

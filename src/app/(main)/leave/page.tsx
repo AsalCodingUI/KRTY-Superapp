@@ -1,4 +1,5 @@
 import { LeavePage } from "@/page-slices/leave"
+import { createAdminClient } from "@/shared/api/supabase/admin"
 import { createClient } from "@/shared/api/supabase/server"
 import { Database } from "@/shared/types/database.types"
 
@@ -9,6 +10,7 @@ import {
   getLocalDateString,
 } from "@/shared/lib/date"
 import { resolveEffectiveUserId } from "@/shared/lib/impersonation-server"
+import { resolveProfileByUserIdOrEmail } from "@/shared/lib/profile-resolution"
 import { canManageByRole } from "@/shared/lib/roles"
 
 type AttendanceLogWithProfile =
@@ -19,6 +21,8 @@ type AttendanceLogWithProfile =
       job_title: string | null
     } | null
   }
+
+type Profile = Database["public"]["Tables"]["profiles"]["Row"]
 
 export default async function LeaveRoute({
   searchParams,
@@ -33,7 +37,11 @@ export default async function LeaveRoute({
   } = await supabase.auth.getUser()
   if (!user) return <div>Please login.</div>
 
-  const effectiveUserId = await resolveEffectiveUserId(supabase, user.id)
+  const effectiveUserId = await resolveEffectiveUserId(
+    supabase,
+    user.id,
+    user.email,
+  )
 
   const page = Number(resolvedSearchParams.page) || 1
   const pageSize = 20
@@ -52,11 +60,32 @@ export default async function LeaveRoute({
   const yearEnd = getLocalDateString(new Date(now.getFullYear(), 11, 31))
 
   // 🚀 PARALLEL FETCH: Profile first (needed for role check)
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", effectiveUserId)
-    .single()
+  const profile = await resolveProfileByUserIdOrEmail<Profile>(
+    supabase,
+    "id, krt_id, email, full_name, avatar_url, role, job_title, hourly_rate, team_id, created_at, updated_at, leave_balance, leave_used, manager_id, is_super_admin, monthly_salary",
+    effectiveUserId,
+    effectiveUserId === user.id ? user.email : null,
+  )
+
+  if (!profile) {
+    return <div>Profile not found</div>
+  }
+
+  const scopedProfileIds = Array.from(
+    new Set([
+      profile.id,
+      ...(profile.email
+        ? (
+            (
+              await supabase
+                .from("profiles")
+                .select("id")
+                .eq("email", profile.email)
+            ).data || []
+          ).map((row: { id: string }) => row.id)
+        : []),
+    ]),
+  )
 
   // --- JALUR 1: STAKEHOLDER (Admin View) ---
   if (canManageByRole(profile?.role)) {
@@ -182,36 +211,38 @@ export default async function LeaveRoute({
   }
 
   // --- JALUR 2: EMPLOYEE (Karyawan View) ---
+  const adminSupabase = createAdminClient()
+
   // 🚀 PARALLEL FETCH: Count + Requests + Attendance Logs
   const [countResult, requestsResult, attendanceLogsResult, statsRequestsResult] = await Promise.all([
-    supabase
+    adminSupabase
       .from("leave_requests")
       .select("id", { count: "exact", head: true })
-      .eq("user_id", effectiveUserId),
-    supabase
+      .in("user_id", scopedProfileIds),
+    adminSupabase
       .from("leave_requests")
       .select(
         "id,start_date,end_date,leave_type,reason,proof_url,status,created_at,updated_at,user_id",
       )
-      .eq("user_id", effectiveUserId)
+      .in("user_id", scopedProfileIds)
       .order("created_at", { ascending: false })
       .range(from, to),
-    supabase
+    adminSupabase
       .from("attendance_logs")
       .select(
-        "id,user_id,date,clock_in,clock_out,is_break,break_total,break_start,status,notes",
+        "id,user_id,date,clock_in,clock_out,is_break,break_total,break_start,status,notes,created_at",
       )
-      .eq("user_id", effectiveUserId)
+      .in("user_id", scopedProfileIds)
       .gte("date", attendanceStartDate)
       .order("date", { ascending: false })
       .order("clock_in", { ascending: false })
       .range(attendanceFrom, attendanceTo),
-    supabase
+    adminSupabase
       .from("leave_requests")
       .select(
         "id,start_date,end_date,leave_type,reason,proof_url,status,created_at,updated_at,user_id",
       )
-      .eq("user_id", effectiveUserId),
+      .in("user_id", scopedProfileIds),
   ])
 
   return (

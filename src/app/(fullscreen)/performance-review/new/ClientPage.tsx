@@ -1,6 +1,5 @@
 "use client"
 
-import { submitPerformanceReview } from "@/app/(main)/performance/action"
 import {
   Button,
   Card,
@@ -40,6 +39,86 @@ interface ReviewFormClientPageProps {
   colleagues: Colleague[]
 }
 
+function StarRating({
+  label,
+  value,
+  onChange,
+}: {
+  label: string
+  value: number
+  onChange: (val: number) => void
+}) {
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <Label>{label}</Label>
+        <span className="text-label-xs text-foreground-secondary">
+          {value > 0 ? value + "/5" : "—"}
+        </span>
+      </div>
+      <div className="flex gap-1">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <button
+            key={star}
+            type="button"
+            onClick={() => onChange(star)}
+            className={`p-1 transition-all hover:scale-110 focus:outline-none ${
+              star <= value ? "text-yellow-400" : "text-foreground-tertiary"
+            }`}
+          >
+            <RiStarFill className="size-6" />
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function JustificationField({
+  label,
+  value,
+  onChange,
+  isComplete,
+}: {
+  label: string
+  value: string
+  onChange: (val: string) => void
+  isComplete: boolean
+}) {
+  const trimmedLength = value.trim().length
+
+  return (
+    <div className="bg-surface-neutral-secondary mt-3 rounded-lg p-3">
+      <div className="mb-2 flex items-center gap-2">
+        <RiInformationLine className="text-foreground-secondary size-4 shrink-0" />
+        <div className="flex flex-1 items-center justify-between gap-3">
+          <p className="text-label-xs text-foreground-secondary">
+            Why this rating for {label}?
+          </p>
+          <span
+            className={`text-label-xs ${
+              isComplete
+                ? "text-foreground-success"
+                : "text-foreground-secondary"
+            }`}
+          >
+            {trimmedLength}/10
+          </span>
+        </div>
+      </div>
+      <Textarea
+        placeholder="Explain why you gave this rating..."
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="min-h-[60px]"
+      />
+      <p className="text-body-xs text-foreground-secondary mt-2">
+        Minimum 10 non-space characters.
+      </p>
+    </div>
+  )
+}
+
 export default function ReviewFormClientPage({
   cycleId,
   colleagues,
@@ -65,6 +144,8 @@ export default function ReviewFormClientPage({
     justification_leadership: "",
   })
 
+  const hasMinJustificationLength = (value: string) => value.trim().length >= 10
+
   const isExtremeScore = (score: number) =>
     score > 0 && (score <= 2 || score === 5)
 
@@ -89,15 +170,15 @@ export default function ReviewFormClientPage({
 
   const step3Complete =
     (!needsQualityJustification ||
-      formData.justification_quality.length >= 10) &&
+      hasMinJustificationLength(formData.justification_quality)) &&
     (!needsReliabilityJustification ||
-      formData.justification_reliability.length >= 10) &&
+      hasMinJustificationLength(formData.justification_reliability)) &&
     (!needsCommunicationJustification ||
-      formData.justification_communication.length >= 10) &&
+      hasMinJustificationLength(formData.justification_communication)) &&
     (!needsInitiativeJustification ||
-      formData.justification_initiative.length >= 10) &&
+      hasMinJustificationLength(formData.justification_initiative)) &&
     (!needsLeadershipJustification ||
-      formData.justification_leadership.length >= 10)
+      hasMinJustificationLength(formData.justification_leadership))
 
   const step4Complete =
     formData.feedback_start !== "" &&
@@ -114,15 +195,30 @@ export default function ReviewFormClientPage({
   const handleSubmit = async () => {
     setLoading(true)
     try {
-      const result = await submitPerformanceReview({
-        ...formData,
-        cycle_id: cycleId,
+      const response = await fetch("/api/performance/reviews", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...formData,
+          cycle_id: cycleId,
+        }),
       })
-      if (result.success) {
+      const result = (await response.json().catch(() => null)) as
+        | { success?: boolean; error?: string }
+        | null
+
+      if (!response.ok) {
+        toast.error(result?.error || "Failed to submit review")
+        return
+      }
+
+      if (result?.success) {
         toast.success("Review submitted successfully")
         router.push("/performance")
       } else {
-        toast.error(result.message)
+        toast.error("Failed to submit review")
       }
     } catch {
       toast.error("Failed to submit review")
@@ -142,64 +238,6 @@ export default function ReviewFormClientPage({
     },
     { number: 4, label: "Written Feedback", complete: step4Complete },
   ]
-
-  const StarRating = ({
-    label,
-    value,
-    onChange,
-  }: {
-    label: string
-    value: number
-    onChange: (val: number) => void
-  }) => (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between">
-        <Label>{label}</Label>
-        <span className="text-label-xs text-foreground-secondary">
-          {value > 0 ? value + "/5" : "—"}
-        </span>
-      </div>
-      <div className="flex gap-1">
-        {[1, 2, 3, 4, 5].map((star) => (
-          <button
-            key={star}
-            type="button"
-            onClick={() => onChange(star)}
-            className={`p-1 transition-all hover:scale-110 focus:outline-none ${
-              star <= value ? "text-yellow-400" : "text-foreground-tertiary"
-            }`}
-          >
-            <RiStarFill className="size-6" />
-          </button>
-        ))}
-      </div>
-    </div>
-  )
-
-  const JustificationField = ({
-    label,
-    value,
-    onChange,
-  }: {
-    label: string
-    value: string
-    onChange: (val: string) => void
-  }) => (
-    <div className="bg-surface-neutral-secondary mt-3 rounded-lg p-3">
-      <div className="mb-2 flex items-center gap-2">
-        <RiInformationLine className="text-foreground-secondary size-4 shrink-0" />
-        <p className="text-label-xs text-foreground-secondary">
-          Why this rating for {label}?
-        </p>
-      </div>
-      <Textarea
-        placeholder="Explain why you gave this rating..."
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="min-h-[60px]"
-      />
-    </div>
-  )
 
   return (
     <div className="bg-surface min-h-screen">
@@ -327,7 +365,7 @@ export default function ReviewFormClientPage({
               <Select
                 value={formData.reviewee_id}
                 onValueChange={(val) =>
-                  setFormData({ ...formData, reviewee_id: val })
+                  setFormData((prev) => ({ ...prev, reviewee_id: val }))
                 }
               >
                 <SelectTrigger id="colleague-select" className="mt-2 w-full">
@@ -355,18 +393,21 @@ export default function ReviewFormClientPage({
                         label="Quality of Work"
                         value={formData.score_quality}
                         onChange={(v) =>
-                          setFormData({ ...formData, score_quality: v })
+                          setFormData((prev) => ({ ...prev, score_quality: v }))
                         }
                       />
                       {needsQualityJustification && (
                         <JustificationField
                           label="Quality of Work"
                           value={formData.justification_quality}
+                          isComplete={hasMinJustificationLength(
+                            formData.justification_quality,
+                          )}
                           onChange={(v) =>
-                            setFormData({
-                              ...formData,
+                            setFormData((prev) => ({
+                              ...prev,
                               justification_quality: v,
-                            })
+                            }))
                           }
                         />
                       )}
@@ -377,18 +418,24 @@ export default function ReviewFormClientPage({
                         label="Reliability & Deadline"
                         value={formData.score_reliability}
                         onChange={(v) =>
-                          setFormData({ ...formData, score_reliability: v })
+                          setFormData((prev) => ({
+                            ...prev,
+                            score_reliability: v,
+                          }))
                         }
                       />
                       {needsReliabilityJustification && (
                         <JustificationField
                           label="Reliability & Deadline"
                           value={formData.justification_reliability}
+                          isComplete={hasMinJustificationLength(
+                            formData.justification_reliability,
+                          )}
                           onChange={(v) =>
-                            setFormData({
-                              ...formData,
+                            setFormData((prev) => ({
+                              ...prev,
                               justification_reliability: v,
-                            })
+                            }))
                           }
                         />
                       )}
@@ -399,18 +446,24 @@ export default function ReviewFormClientPage({
                         label="Communication"
                         value={formData.score_communication}
                         onChange={(v) =>
-                          setFormData({ ...formData, score_communication: v })
+                          setFormData((prev) => ({
+                            ...prev,
+                            score_communication: v,
+                          }))
                         }
                       />
                       {needsCommunicationJustification && (
                         <JustificationField
                           label="Communication"
                           value={formData.justification_communication}
+                          isComplete={hasMinJustificationLength(
+                            formData.justification_communication,
+                          )}
                           onChange={(v) =>
-                            setFormData({
-                              ...formData,
+                            setFormData((prev) => ({
+                              ...prev,
                               justification_communication: v,
-                            })
+                            }))
                           }
                         />
                       )}
@@ -421,18 +474,24 @@ export default function ReviewFormClientPage({
                         label="Initiative & Growth"
                         value={formData.score_initiative}
                         onChange={(v) =>
-                          setFormData({ ...formData, score_initiative: v })
+                          setFormData((prev) => ({
+                            ...prev,
+                            score_initiative: v,
+                          }))
                         }
                       />
                       {needsInitiativeJustification && (
                         <JustificationField
                           label="Initiative & Growth"
                           value={formData.justification_initiative}
+                          isComplete={hasMinJustificationLength(
+                            formData.justification_initiative,
+                          )}
                           onChange={(v) =>
-                            setFormData({
-                              ...formData,
+                            setFormData((prev) => ({
+                              ...prev,
                               justification_initiative: v,
-                            })
+                            }))
                           }
                         />
                       )}
@@ -443,18 +502,24 @@ export default function ReviewFormClientPage({
                         label="Leadership & Teamwork"
                         value={formData.score_leadership}
                         onChange={(v) =>
-                          setFormData({ ...formData, score_leadership: v })
+                          setFormData((prev) => ({
+                            ...prev,
+                            score_leadership: v,
+                          }))
                         }
                       />
                       {needsLeadershipJustification && (
                         <JustificationField
                           label="Leadership & Teamwork"
                           value={formData.justification_leadership}
+                          isComplete={hasMinJustificationLength(
+                            formData.justification_leadership,
+                          )}
                           onChange={(v) =>
-                            setFormData({
-                              ...formData,
+                            setFormData((prev) => ({
+                              ...prev,
                               justification_leadership: v,
-                            })
+                            }))
                           }
                         />
                       )}
@@ -475,10 +540,10 @@ export default function ReviewFormClientPage({
                       placeholder="Example: Very detail-oriented in design work..."
                       value={formData.feedback_continue}
                       onChange={(e) =>
-                        setFormData({
-                          ...formData,
+                        setFormData((prev) => ({
+                          ...prev,
                           feedback_continue: e.target.value,
-                        })
+                        }))
                       }
                       className="mt-2 min-h-[80px]"
                     />
@@ -494,10 +559,10 @@ export default function ReviewFormClientPage({
                       placeholder="Example: Start learning Framer for prototyping..."
                       value={formData.feedback_start}
                       onChange={(e) =>
-                        setFormData({
-                          ...formData,
+                        setFormData((prev) => ({
+                          ...prev,
                           feedback_start: e.target.value,
-                        })
+                        }))
                       }
                       className="mt-2 min-h-[80px]"
                     />
@@ -513,10 +578,10 @@ export default function ReviewFormClientPage({
                       placeholder="Example: Stop delaying status updates on Trello..."
                       value={formData.feedback_stop}
                       onChange={(e) =>
-                        setFormData({
-                          ...formData,
+                        setFormData((prev) => ({
+                          ...prev,
                           feedback_stop: e.target.value,
-                        })
+                        }))
                       }
                       className="mt-2 min-h-[80px]"
                     />

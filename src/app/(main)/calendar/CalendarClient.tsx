@@ -346,23 +346,21 @@ function CalendarDataLayer({ role, userId }: CalendarClientProps) {
     ],
     queryFn: async () => {
       try {
-        let query = supabase
-          .from("one_on_one_slots")
-          .select(
-            "id,start_at,end_at,status,cycle_name,meeting_url,location,mode,organizer_id,booked_by,google_event_id,updated_at,organizer:profiles!organizer_id(full_name,email),booked_by_profile:profiles!booked_by(full_name,email)",
-          )
-          .or(`start_at.lte.${rangeEndIso},end_at.gte.${rangeStartIso}`)
-          .order("start_at", { ascending: true })
-
-        if (!isStakeholder && userId) {
-          query = query.or(
-            `organizer_id.eq.${userId},booked_by.eq.${userId}`,
-          )
+        const response = await fetch("/api/one-on-one/slots")
+        if (!response.ok) {
+          throw new Error("fetch_failed")
         }
 
-        const { data, error } = await query
-        if (error) throw error
-        return (data || []) as unknown as OneOnOneCalendarRow[]
+        const payload = (await response.json().catch(() => null)) as
+          | { slots?: OneOnOneCalendarRow[] }
+          | null
+
+        const slots = payload?.slots || []
+        return slots.filter(
+          (slot) =>
+            slot.start_at <= rangeEndIso &&
+            slot.end_at >= rangeStartIso,
+        )
       } catch (error) {
         toast.error("Gagal memuat jadwal 1:1")
         throw error

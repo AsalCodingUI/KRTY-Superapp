@@ -95,6 +95,7 @@ export function EmployeeLeavePage({
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
   const [termsOpen, setTermsOpen] = useState(false)
   const [isStaleDialogOpen, setIsStaleDialogOpen] = useState(false)
+  const [hasClientMounted, setHasClientMounted] = useState(false)
 
   const {
     loading,
@@ -104,7 +105,6 @@ export function EmployeeLeavePage({
     handleResolvePreviousSession,
   } =
     useClockActions({
-      userId: profile.id,
       logs,
       onLogsUpdate: setLogs,
     })
@@ -163,6 +163,10 @@ export function EmployeeLeavePage({
     setCurrentTime(new Date())
     const timer = setInterval(() => setCurrentTime(new Date()), 1000)
     return () => clearInterval(timer)
+  }, [])
+
+  useEffect(() => {
+    setHasClientMounted(true)
   }, [])
 
   // Handle pagination
@@ -297,12 +301,19 @@ export function EmployeeLeavePage({
     )
 
     try {
-      const { error } = await supabase
-        .from("attendance_logs")
-        .update({ notes: "DELETE_REQUESTED" })
-        .eq("id", pendingDeleteId)
+      const response = await fetch("/api/attendance/logs", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "request_delete",
+          logId: pendingDeleteId,
+        }),
+      })
+      const payload = await response.json().catch(() => ({}))
 
-      if (error) throw error
+      if (!response.ok) {
+        throw new Error(payload?.error || "Failed to request delete")
+      }
     } catch (error) {
       setLogs(oldLogs)
     } finally {
@@ -492,20 +503,24 @@ export function EmployeeLeavePage({
 
           <div className="px-5 pt-2 border-b border-neutral-primary">
             <div className="xl:hidden space-y-3 pb-2">
-              <Select
-                value={activeTab}
-                onValueChange={(value) =>
-                  setActiveTab(value as "attendance" | "leave")
-                }
-              >
-                <SelectTrigger size="sm" className="w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="attendance">Attendance History</SelectItem>
-                  <SelectItem value="leave">Leave Requests</SelectItem>
-                </SelectContent>
-              </Select>
+              {hasClientMounted ? (
+                <Select
+                  value={activeTab}
+                  onValueChange={(value) =>
+                    setActiveTab(value as "attendance" | "leave")
+                  }
+                >
+                  <SelectTrigger size="sm" className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="attendance">Attendance History</SelectItem>
+                    <SelectItem value="leave">Leave Requests</SelectItem>
+                  </SelectContent>
+                </Select>
+              ) : (
+                <div className="border-neutral-primary bg-surface h-9 w-full rounded-lg border" />
+              )}
               {isMounted("leave") && activeTab === "leave" && (
                 <div className="grid grid-cols-2 gap-2">
                   <Button

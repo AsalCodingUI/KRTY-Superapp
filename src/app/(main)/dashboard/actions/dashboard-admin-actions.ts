@@ -2,6 +2,7 @@
 
 import { createClient } from "@/shared/api/supabase/server"
 import { getLocalDateString } from "@/shared/lib/date"
+import { resolveProfileByUserIdOrEmail } from "@/shared/lib/profile-resolution"
 import { canManageByRole } from "@/shared/lib/roles"
 import { getDailyStats } from "@/entities/attendance/api"
 import { getLeaveDashboardStats } from "@/entities/leave/api"
@@ -103,11 +104,11 @@ export async function getAdminDashboardData(): Promise<{
       return { success: false, error: "Unauthorized" }
     }
 
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", user.id)
-      .single()
+    const profile = await resolveProfileByUserIdOrEmail<{
+      id: string
+      email: string | null
+      role: string | null
+    }>(supabase, "id, email, role, created_at", user.id, user.email)
 
     if (!profile || !canManageByRole(profile.role)) {
       return { success: false, error: "Access denied" }

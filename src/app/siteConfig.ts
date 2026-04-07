@@ -18,6 +18,7 @@ export const siteConfig = {
     settings: {
       general: "/settings/general",
       permission: "/settings/permission",
+      teamAccess: "/settings/team-access",
     },
   },
 }

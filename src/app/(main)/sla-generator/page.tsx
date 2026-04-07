@@ -1,4 +1,5 @@
 import { createClient } from "@/shared/api/supabase/server"
+import { resolveProfileByUserIdOrEmail } from "@/shared/lib/profile-resolution"
 import { canAccessSLAGenerator } from "@/shared/lib/roles"
 
 export const dynamic = "force-dynamic"
@@ -19,11 +20,12 @@ export default async function SLAPage({
   if (!user) {
     notFound()
   }
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role, job_title")
-    .eq("id", user.id)
-    .single()
+  const profile = await resolveProfileByUserIdOrEmail<{
+    id: string
+    email: string | null
+    role: string | null
+    job_title: string | null
+  }>(supabase, "id, email, role, job_title, created_at", user.id, user.email)
 
   if (!canAccessSLAGenerator(profile)) {
     notFound()

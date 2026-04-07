@@ -3,6 +3,7 @@
 
 import { createClient as createClientBrowser } from "@/shared/api/supabase/client"
 import { IMPERSONATION_COOKIE_NAME } from "@/shared/lib/impersonation"
+import { mergeDuplicateProfiles } from "@/shared/lib/profile-dedupe"
 import { canManageByRole } from "@/shared/lib/roles"
 import { Database } from "@/shared/types/database.types"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
@@ -29,6 +30,9 @@ type UserProfileResponse = {
   userEmail: string | null
   isImpersonating: boolean
 }
+
+const PROFILE_SELECT =
+  "id, full_name, email, role, job_title, krt_id, hourly_rate, team_id, is_super_admin, created_at"
 
 function getCookieValue(name: string): string | null {
   if (typeof document === "undefined") return null
@@ -59,17 +63,35 @@ const fetchUserProfile = async (): Promise<UserProfileResponse> => {
 
   const { data: authProfileData, error: profileError } = await supabase
     .from("profiles")
-    .select(
-      "id, full_name, email, role, job_title, krt_id, hourly_rate, team_id, is_super_admin",
-    )
+    .select(PROFILE_SELECT)
     .eq("id", user.id)
-    .single()
+    .maybeSingle()
 
-  if (profileError) {
+  if (profileError && profileError.code !== "PGRST116") {
     console.error("Client fetch failed:", profileError)
   }
 
-  const authProfile = authProfileData || null
+  let authProfile = authProfileData || null
+
+  if (!authProfile && user.email) {
+    const { data: profilesByEmail, error: emailLookupError } = await supabase
+      .from("profiles")
+      .select(PROFILE_SELECT)
+      .eq("email", user.email)
+      .order("created_at", { ascending: true })
+
+    if (emailLookupError && emailLookupError.code !== "PGRST116") {
+      console.error("Client email profile lookup failed:", emailLookupError)
+    }
+
+    if ((profilesByEmail || []).length === 1) {
+      authProfile = profilesByEmail?.[0] as ProfileSubset
+    } else if ((profilesByEmail || []).length > 1) {
+      authProfile = mergeDuplicateProfiles(
+        profilesByEmail as ProfileSubset[],
+      ) as ProfileSubset
+    }
+  }
 
   if (!authProfile) {
     return {
@@ -77,6 +99,19 @@ const fetchUserProfile = async (): Promise<UserProfileResponse> => {
       authProfile: null,
       userEmail: user.email || null,
       isImpersonating: false,
+    }
+  }
+
+  if (authProfile.email) {
+    const { data: duplicateProfiles } = await supabase
+      .from("profiles")
+      .select(PROFILE_SELECT)
+      .eq("email", authProfile.email)
+
+    if ((duplicateProfiles || []).length > 1) {
+      authProfile = mergeDuplicateProfiles(
+        duplicateProfiles as ProfileSubset[],
+      ) as ProfileSubset
     }
   }
 
@@ -97,9 +132,7 @@ const fetchUserProfile = async (): Promise<UserProfileResponse> => {
 
   const { data: impersonatedProfile } = await supabase
     .from("profiles")
-    .select(
-      "id, full_name, email, role, job_title, krt_id, hourly_rate, team_id, is_super_admin",
-    )
+    .select(PROFILE_SELECT)
     .eq("id", impersonatedUserId)
     .maybeSingle()
 

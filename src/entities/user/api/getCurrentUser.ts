@@ -1,4 +1,5 @@
 import { createClient } from "@/shared/api/supabase/server"
+import { resolveProfileByUserIdOrEmail } from "@/shared/lib/profile-resolution"
 import type { UserProfile } from "../model/types"
 
 export async function getCurrentUser(): Promise<{
@@ -22,16 +23,15 @@ export async function getCurrentUser(): Promise<{
       }
     }
 
-    const { data, error } = await supabase
-      .from("profiles")
-      .select(
-        "id, full_name, email, role, job_title, krt_id, hourly_rate, team_id, avatar_url",
-      )
-      .eq("id", user.id)
-      .single()
+    const data = await resolveProfileByUserIdOrEmail<UserProfile>(
+      supabase,
+      "id, full_name, email, role, job_title, krt_id, hourly_rate, team_id, avatar_url, created_at",
+      user.id,
+      user.email,
+    )
 
-    if (error) {
-      return { data: null, error: new Error(error.message) }
+    if (!data) {
+      return { data: null, error: new Error("Profile not found") }
     }
 
     return { data: data as UserProfile, error: null }

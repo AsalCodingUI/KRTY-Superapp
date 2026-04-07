@@ -1,4 +1,5 @@
 import { createClient } from "@/shared/api/supabase/server"
+import { resolveProfileByUserIdOrEmail } from "@/shared/lib/profile-resolution"
 import { canManageByRole } from "@/shared/lib/roles"
 import { logError } from "@/shared/lib/utils/logger"
 import { guardApiRoute } from "@/shared/lib/utils/security"
@@ -30,11 +31,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", user.id)
-      .maybeSingle()
+    const profile = await resolveProfileByUserIdOrEmail<{
+      id: string
+      email: string | null
+      role: string | null
+    }>(supabase, "id, email, role, created_at", user.id, user.email)
 
     if (!canManageByRole(profile?.role)) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })

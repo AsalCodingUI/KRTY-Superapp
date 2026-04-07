@@ -287,12 +287,19 @@ export function EmployeeAttendancePage({
     )
 
     try {
-      const { error } = await supabase
-        .from("attendance_logs")
-        .update({ notes: "DELETE_REQUESTED" })
-        .eq("id", pendingDeleteId)
+      const response = await fetch("/api/attendance/logs", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "request_delete",
+          logId: pendingDeleteId,
+        }),
+      })
+      const payload = await response.json().catch(() => ({}))
 
-      if (error) throw error
+      if (!response.ok) {
+        throw new Error(payload?.error || "Permintaan gagal")
+      }
 
       toast.success("Permintaan terkirim")
     } catch (error: unknown) {
@@ -303,7 +310,7 @@ export function EmployeeAttendancePage({
       setLoading(false)
       setPendingDeleteId(null)
     }
-  }, [pendingDeleteId, supabase, logs])
+  }, [pendingDeleteId, logs])
 
   const cancelDelete = useCallback(() => {
     setDeleteConfirmOpen(false)

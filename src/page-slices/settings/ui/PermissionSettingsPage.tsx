@@ -2,6 +2,7 @@
 
 import { siteConfig } from "@/app/siteConfig"
 import { createClient } from "@/shared/api/supabase/client"
+import { dedupeProfilesByEmail } from "@/shared/lib/profile-dedupe"
 import { navigationConfig } from "@/shared/config/navigation"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { Database } from "@/shared/types/database.types"
@@ -39,6 +40,10 @@ const CONTROLLABLE_PAGES = (() => {
       name: "Settings Permission",
       href: siteConfig.baseLinks.settings.permission,
     },
+    {
+      name: "Settings Team Access",
+      href: siteConfig.baseLinks.settings.teamAccess,
+    },
   ]
 
   const unique = new Map<string, { label: string; slug: string }>()
@@ -73,7 +78,9 @@ export default function PermissionSettingsPage({
     refreshProfile,
   } = useUserProfile()
 
-  const [profiles, setProfiles] = useState(initialData)
+  const [profiles, setProfiles] = useState(() =>
+    dedupeProfilesByEmail(initialData),
+  )
   const [loadingId, setLoadingId] = useState<string | null>(null)
   const [loadingImpersonationId, setLoadingImpersonationId] = useState<string | null>(null)
   const [expandedUserId, setExpandedUserId] = useState<string | null>(null)

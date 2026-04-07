@@ -1,63 +1,38 @@
-import { createClient } from "@/shared/api/supabase/client"
 import {
   ATTENDANCE_NOTE_TAGS,
   mergeAttendanceNote,
 } from "@/shared/lib/attendance"
 import { Database } from "@/shared/types/database.types"
-import { differenceInMinutes, format } from "date-fns"
+import { differenceInMinutes } from "date-fns"
 import { useCallback, useState } from "react"
 import { toast } from "sonner"
 
 type AttendanceLog = Database["public"]["Tables"]["attendance_logs"]["Row"]
 
-/**
- * Get local date string in YYYY-MM-DD format
- * This correctly handles timezone - uses user's local date, not UTC
- */
-function getLocalDateString(): string {
-  const now = new Date()
-  return format(now, "yyyy-MM-dd")
-}
-
 interface UseClockActionsProps {
-  userId: string
   logs: AttendanceLog[]
   onLogsUpdate: (logs: AttendanceLog[]) => void
 }
 
 export function useClockActions({
-  userId,
   logs,
   onLogsUpdate,
 }: UseClockActionsProps) {
-  const supabase = createClient()
   const [loading, setLoading] = useState(false)
 
   const handleClockIn = useCallback(
     async (status: string) => {
       setLoading(true)
 
-      const localDate = getLocalDateString()
-      const clockInTime = new Date().toISOString()
-
-      const newLogData = {
-        user_id: userId,
-        date: localDate,
-        clock_in: clockInTime,
-        status: status,
-        clock_out: null,
-        is_break: false,
-        break_total: 0,
-      }
-
       try {
-        const { data, error } = await supabase
-          .from("attendance_logs")
-          .insert(newLogData)
-          .select()
-          .single()
-
-        if (error) throw error
+        const response = await fetch("/api/attendance/logs", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "clock_in", status }),
+        })
+        const payload = await response.json().catch(() => ({}))
+        if (!response.ok) throw new Error(payload?.error || "Clock in gagal")
+        const data = payload.data as AttendanceLog
 
         // Optimistic update
         onLogsUpdate([data, ...logs])
@@ -70,7 +45,7 @@ export function useClockActions({
         setLoading(false)
       }
     },
-    [supabase, userId, logs, onLogsUpdate],
+    [logs, onLogsUpdate],
   )
 
   const handleClockOut = useCallback(
@@ -88,12 +63,13 @@ export function useClockActions({
       )
 
       try {
-        const { error } = await supabase
-          .from("attendance_logs")
-          .update({ clock_out: now, is_break: false })
-          .eq("id", logId)
-
-        if (error) throw error
+        const response = await fetch("/api/attendance/logs", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "clock_out", logId }),
+        })
+        const payload = await response.json().catch(() => ({}))
+        if (!response.ok) throw new Error(payload?.error || "Clock out gagal")
         toast.success("Clock out berhasil")
       } catch (error: unknown) {
         // Rollback on error
@@ -105,7 +81,7 @@ export function useClockActions({
         setLoading(false)
       }
     },
-    [supabase, logs, onLogsUpdate],
+    [logs, onLogsUpdate],
   )
 
   const handleToggleBreak = useCallback(
@@ -143,16 +119,17 @@ export function useClockActions({
             ),
           )
 
-          const { error } = await supabase
-            .from("attendance_logs")
-            .update({
-              is_break: false,
-              break_start: null,
-              break_total: newTotalBreak,
-            })
-            .eq("id", logId)
-
-          if (error) throw error
+          const response = await fetch("/api/attendance/logs", {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              action: "toggle_break",
+              logId,
+              isBreak: true,
+            }),
+          })
+          const payload = await response.json().catch(() => ({}))
+          if (!response.ok) throw new Error(payload?.error || "Break gagal")
           toast.success("Break selesai")
         } else {
           // Starting break
@@ -167,15 +144,17 @@ export function useClockActions({
             ),
           )
 
-          const { error } = await supabase
-            .from("attendance_logs")
-            .update({
-              is_break: true,
-              break_start: breakStartTime,
-            })
-            .eq("id", logId)
-
-          if (error) throw error
+          const response = await fetch("/api/attendance/logs", {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              action: "toggle_break",
+              logId,
+              isBreak: false,
+            }),
+          })
+          const payload = await response.json().catch(() => ({}))
+          if (!response.ok) throw new Error(payload?.error || "Break gagal")
           toast.success("Break dimulai")
         }
       } catch (error: unknown) {
@@ -186,7 +165,7 @@ export function useClockActions({
         setLoading(false)
       }
     },
-    [supabase, logs, onLogsUpdate],
+    [logs, onLogsUpdate],
   )
 
   const handleResolvePreviousSession = useCallback(
@@ -213,21 +192,18 @@ export function useClockActions({
       )
 
       try {
-        const currentLog = oldLogs.find((log) => log.id === logId)
-        const { error } = await supabase
-          .from("attendance_logs")
-          .update({
-            clock_out: now,
-            is_break: false,
-            break_start: null,
-            notes: mergeAttendanceNote(
-              currentLog?.notes,
-              ATTENDANCE_NOTE_TAGS.staleSessionResolved,
-            ),
-          })
-          .eq("id", logId)
-
-        if (error) throw error
+        const response = await fetch("/api/attendance/logs", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "resolve_previous_session",
+            logId,
+          }),
+        })
+        const payload = await response.json().catch(() => ({}))
+        if (!response.ok) {
+          throw new Error(payload?.error || "Gagal menutup sesi sebelumnya")
+        }
         toast.success("Sesi sebelumnya berhasil ditutup")
       } catch (error: unknown) {
         onLogsUpdate(oldLogs)
@@ -238,7 +214,7 @@ export function useClockActions({
         setLoading(false)
       }
     },
-    [supabase, logs, onLogsUpdate],
+    [logs, onLogsUpdate],
   )
 
   return {
