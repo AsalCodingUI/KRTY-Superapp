@@ -46,7 +46,7 @@ export function SidebarMenu() {
           <li key={item.name}>
             <Link
               href={item.href}
-              prefetch
+              prefetch={false}
               className={cx(
                 "text-label-sm flex items-center gap-2 rounded-md px-2 py-1 transition-colors duration-200",
                 isActive(item.href)

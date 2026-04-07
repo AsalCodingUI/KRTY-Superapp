@@ -1,13 +1,54 @@
 "use client"
 
+import dynamic from "next/dynamic"
 import { RiBarChartBoxLine } from "@/shared/ui/lucide-icons"
 import type { AdminDashboardData } from "../actions/dashboard-admin-actions"
-import { AdminAttendanceOverview } from "./AdminAttendanceOverview"
-import { AdminEmployeeSpotlight } from "./AdminEmployeeSpotlight"
-import { AdminMetricsOverview } from "./AdminMetricsOverview"
-import { AdminPendingActions } from "./AdminPendingActions"
-import { AdminPerformanceDistribution } from "./AdminPerformanceDistribution"
-import { AdminRecentActivities } from "./AdminRecentActivities"
+
+const AdminAttendanceOverview = dynamic(
+  () =>
+    import("./AdminAttendanceOverview").then(
+      (mod) => mod.AdminAttendanceOverview,
+    ),
+  { loading: () => null },
+)
+
+const AdminEmployeeSpotlight = dynamic(
+  () =>
+    import("./AdminEmployeeSpotlight").then(
+      (mod) => mod.AdminEmployeeSpotlight,
+    ),
+  { loading: () => null },
+)
+
+const AdminMetricsOverview = dynamic(
+  () =>
+    import("./AdminMetricsOverview").then(
+      (mod) => mod.AdminMetricsOverview,
+    ),
+  { loading: () => null },
+)
+
+const AdminPendingActions = dynamic(
+  () =>
+    import("./AdminPendingActions").then((mod) => mod.AdminPendingActions),
+  { loading: () => null },
+)
+
+const AdminPerformanceDistribution = dynamic(
+  () =>
+    import("./AdminPerformanceDistribution").then(
+      (mod) => mod.AdminPerformanceDistribution,
+    ),
+  { loading: () => null },
+)
+
+const AdminRecentActivities = dynamic(
+  () =>
+    import("./AdminRecentActivities").then(
+      (mod) => mod.AdminRecentActivities,
+    ),
+  { loading: () => null },
+)
 
 interface AdminDashboardProps {
   data: AdminDashboardData

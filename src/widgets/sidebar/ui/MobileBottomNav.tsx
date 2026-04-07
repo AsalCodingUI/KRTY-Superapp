@@ -117,7 +117,7 @@ export function MobileBottomNav() {
             <Link
               key={tab.label}
               href={tab.href}
-              prefetch
+              prefetch={false}
               onClick={(event) => {
                 if (active) return
                 event.preventDefault()

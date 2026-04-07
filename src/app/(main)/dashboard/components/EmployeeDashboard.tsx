@@ -1,5 +1,6 @@
 "use client"
 
+import dynamic from "next/dynamic"
 import {
   QuarterFilter,
   Select,
@@ -13,9 +14,30 @@ import { RiBarChartBoxLine } from "@/shared/ui/lucide-icons"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useMemo, useState } from "react"
 import type { EmployeeDashboardData } from "../actions/dashboard-employee-actions"
-import { EmployeeAttendanceWidget } from "./EmployeeAttendanceWidget"
-import { EmployeePerformanceCards } from "./EmployeePerformanceCards"
-import { EmployeeProjectsWidget } from "./EmployeeProjectsWidget"
+
+const EmployeeAttendanceWidget = dynamic(
+  () =>
+    import("./EmployeeAttendanceWidget").then(
+      (mod) => mod.EmployeeAttendanceWidget,
+    ),
+  { loading: () => null },
+)
+
+const EmployeePerformanceCards = dynamic(
+  () =>
+    import("./EmployeePerformanceCards").then(
+      (mod) => mod.EmployeePerformanceCards,
+    ),
+  { loading: () => null },
+)
+
+const EmployeeProjectsWidget = dynamic(
+  () =>
+    import("./EmployeeProjectsWidget").then(
+      (mod) => mod.EmployeeProjectsWidget,
+    ),
+  { loading: () => null },
+)
 
 interface EmployeeDashboardProps {
   data: EmployeeDashboardData

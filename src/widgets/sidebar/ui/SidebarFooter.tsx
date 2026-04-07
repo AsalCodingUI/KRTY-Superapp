@@ -8,12 +8,10 @@ import { hasRoleAccess } from "@/shared/lib/roles"
 import { cx, focusRing } from "@/shared/lib/utils"
 import { RiLogoutBoxLine } from "@/shared/ui/lucide-icons"
 import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
-import { useEffect } from "react"
+import { usePathname } from "next/navigation"
 
 export function SidebarFooter() {
   const pathname = usePathname()
-  const router = useRouter()
   const { profile } = useUserProfile()
   const supabase = createClient()
 
@@ -30,14 +28,6 @@ export function SidebarFooter() {
       )
     : navigationConfig.footer
 
-  useEffect(() => {
-    for (const item of footerItems) {
-      if (item.href.startsWith("/")) {
-        router.prefetch(item.href)
-      }
-    }
-  }, [footerItems, router])
-
   const handleSignOut = async () => {
     await supabase.auth.signOut()
     window.location.href = "/login"
@@ -50,12 +40,7 @@ export function SidebarFooter() {
           <li key={item.name}>
             <Link
               href={item.href}
-              prefetch
-              onMouseEnter={() => {
-                if (item.href.startsWith("/")) {
-                  router.prefetch(item.href)
-                }
-              }}
+              prefetch={false}
               className={cx(
                 "text-label-sm flex items-center gap-2 rounded-md px-2 py-1 transition-colors duration-200",
                 isActive(item.href)
