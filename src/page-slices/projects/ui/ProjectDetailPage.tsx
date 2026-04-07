@@ -4,13 +4,13 @@ import { QuarterBadge } from "@/app/(main)/performance/components/admin/QuarterB
 import {
   deleteCalculation,
   getCalculationsByProject,
-} from "@/app/(main)/calculator/actions/calculation-actions"
+} from "@/entities/calculator/api/client"
 import {
   deleteInvoice,
   getInvoicesByProject,
   getPaymentMethods,
-} from "@/app/(main)/finance/actions/invoice-actions"
-import type { InvoiceStatus } from "@/app/(main)/finance/actions/invoice-actions"
+  type InvoiceStatus,
+} from "@/entities/finance/api/client"
 import { createClient } from "@/shared/api/supabase/client"
 import { useMountedTabs } from "@/shared/hooks/useMountedTabs"
 import { useTabRoute } from "@/shared/hooks/useTabRoute"

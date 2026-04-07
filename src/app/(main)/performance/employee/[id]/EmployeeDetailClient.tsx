@@ -1,5 +1,9 @@
 "use client"
 
+import {
+  getEmployeeDetail,
+  getEmployeeOverview,
+} from "@/entities/performance/api/client"
 import type { QuarterFilterValue } from "@/shared/ui"
 import {
   Avatar,
@@ -30,10 +34,6 @@ import { format } from "date-fns"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
-import {
-  getEmployeeDetail,
-  getEmployeeOverview,
-} from "../../actions/employee-kpi-actions"
 import { EmployeeProjectView } from "./project/[projectId]/EmployeeProjectView"
 
 type Employee = {
@@ -65,6 +65,14 @@ type Assignment = {
   project_work_quality_scores: Array<{
     is_achieved: boolean
   }>
+}
+
+type OverviewRow = {
+  objective: string
+  keyResult: string
+  weighted: number
+  target: number
+  result: number | null
 }
 
 interface EmployeeDetailClientProps {
@@ -119,8 +127,8 @@ export function EmployeeDetailClient({
     },
   })
 
-  const assignments = data?.assignments ?? initialAssignments
-  const overview = data?.overview ?? []
+  const assignments = (data?.assignments ?? initialAssignments) as Assignment[]
+  const overview = (data?.overview ?? []) as OverviewRow[]
   const openProjectModal = (assignment: Assignment) => {
     setSelectedProject(assignment)
     setIsProjectModalOpen(true)

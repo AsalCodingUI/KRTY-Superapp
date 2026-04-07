@@ -1,6 +1,10 @@
 "use client"
 
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
+import {
+  getAllEmployees,
+  getEmployeeDetail,
+} from "@/entities/performance/api/client"
 import { canManageByRole } from "@/shared/lib/roles"
 import {
   Badge,
@@ -21,10 +25,6 @@ import dynamic from "next/dynamic"
 import Link from "next/link"
 import { useEffect, useState, type ChangeEvent } from "react"
 import { useQuery } from "@tanstack/react-query"
-import {
-  getAllEmployees,
-  getEmployeeDetail,
-} from "../../actions/employee-kpi-actions"
 
 // Dynamic import for heavy component
 const EmployeeDetailClient = dynamic(

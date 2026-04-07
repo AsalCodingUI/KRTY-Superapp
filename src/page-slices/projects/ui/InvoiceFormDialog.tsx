@@ -6,8 +6,8 @@ import {
   savePaymentMethod,
   updateInvoice,
   updatePaymentMethod,
-} from "@/app/(main)/finance/actions/invoice-actions"
-import type { InvoiceStatus } from "@/app/(main)/finance/actions/invoice-actions"
+  type InvoiceStatus,
+} from "@/entities/finance/api/client"
 import { createClient } from "@/shared/api/supabase/client"
 import type { Database } from "@/shared/types/database.types"
 import {

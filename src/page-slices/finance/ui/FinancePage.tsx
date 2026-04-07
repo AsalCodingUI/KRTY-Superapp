@@ -1,10 +1,10 @@
 "use client"
 
-import type { InvoiceStatus } from "@/app/(main)/finance/actions/invoice-actions"
 import {
   getAllInvoices,
   getPaymentMethods,
-} from "@/app/(main)/finance/actions/invoice-actions"
+  type InvoiceStatus,
+} from "@/entities/finance/api/client"
 import {
   INVOICE_STATUS_VARIANTS,
   InvoiceFormDialog,

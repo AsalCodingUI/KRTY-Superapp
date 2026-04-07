@@ -3,7 +3,7 @@
 import {
   getEmployeeOverview,
   getOverviewStats,
-} from "@/app/(main)/performance/actions/employee-kpi-actions"
+} from "@/entities/performance/api/client"
 import { createClient } from "@/shared/api/supabase/client"
 import { useMountedTabs } from "@/shared/hooks/useMountedTabs"
 import { useTabRoute } from "@/shared/hooks/useTabRoute"

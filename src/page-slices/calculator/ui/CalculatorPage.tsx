@@ -4,7 +4,7 @@ import {
   getCalculationsByProject,
   saveCalculation,
   updateCalculation,
-} from "@/app/(main)/calculator/actions/calculation-actions"
+} from "@/entities/calculator/api/client"
 import { createClient } from "@/shared/api/supabase/client"
 import type { Database } from "@/shared/types/database.types"
 import {
