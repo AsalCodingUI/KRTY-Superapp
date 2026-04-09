@@ -103,7 +103,7 @@ export function AdminReviewDashboard({
         .from("review_cycles")
         .select("id, name, start_date, end_date, is_active")
         .eq("is_active", true)
-        .single()
+        .maybeSingle()
 
       const activeCycle = cycle || null
       const activeCycleDate = cycle
@@ -145,6 +145,7 @@ export function AdminReviewDashboard({
       const cycleIdsToFetch = validCycleIds.length > 0
         ? [...validCycleIds, legacyCycleId]
         : [legacyCycleId]
+      const summaryCycleIdsToFetch = validCycleIds
 
       // D. Fetch REVIEWS
       const { data: reviews } = await supabase
@@ -155,12 +156,17 @@ export function AdminReviewDashboard({
       const safeReviews = reviews || []
 
       // E. Fetch SUMMARIES
-      const { data: allSummaries } = await supabase
-        .from("performance_summaries")
-        .select(
-          "id, reviewee_id, cycle_id, overall_score, overall_percentage, score_quality, score_reliability, score_communication, score_initiative, score_leadership, additional_feedback, feedback_continue, feedback_start, feedback_stop, total_user, created_at",
-        )
-        .in("cycle_id", cycleIdsToFetch)
+      const allSummaries =
+        summaryCycleIdsToFetch.length > 0
+          ? (
+              await supabase
+                .from("performance_summaries")
+                .select(
+                  "id, reviewee_id, cycle_id, overall_score, overall_percentage, score_quality, score_reliability, score_communication, score_initiative, score_leadership, additional_feedback, feedback_continue, feedback_start, feedback_stop, total_user, created_at",
+                )
+                .in("cycle_id", summaryCycleIdsToFetch)
+            ).data || []
+          : []
 
       // F. Calculate Stats
       const stats = employees.map((targetEmp: { id: string; full_name: string | null; job_title: string | null }) => {
@@ -189,7 +195,7 @@ export function AdminReviewDashboard({
         let debugMatchInfo = "No Match"
 
         if (userActiveCycleId) {
-          existingSummary = allSummaries?.find(
+          existingSummary = allSummaries.find(
             (s: { reviewee_id: string; cycle_id: string }) =>
               s.reviewee_id === targetEmp.id &&
               s.cycle_id === userActiveCycleId,
@@ -197,11 +203,10 @@ export function AdminReviewDashboard({
           if (existingSummary) debugMatchInfo = `Exact`
         }
         if (!existingSummary) {
-          existingSummary = allSummaries?.find(
+          existingSummary = allSummaries.find(
             (s: { reviewee_id: string; cycle_id: string }) =>
               s.reviewee_id === targetEmp.id &&
-              (validCycleIds.includes(s.cycle_id) ||
-                s.cycle_id === legacyCycleId),
+              validCycleIds.includes(s.cycle_id),
           )
           if (existingSummary) debugMatchInfo = `Cross / Orphan`
         }

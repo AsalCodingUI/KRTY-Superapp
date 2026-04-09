@@ -32,7 +32,9 @@ export default async function NewReviewPage() {
     .lte("start_date", now)
     .gte("end_date", now)
     .eq("is_active", true)
-    .single()
+    .order("start_date", { ascending: false })
+    .limit(1)
+    .maybeSingle()
 
   if (!activeCycle) {
     redirect("/performance?error=cycle_closed")

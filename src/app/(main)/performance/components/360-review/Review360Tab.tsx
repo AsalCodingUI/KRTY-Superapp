@@ -41,7 +41,9 @@ export function Review360Tab(
         .lte("start_date", now) // Mulai <= Sekarang
         .gte("end_date", now) // Selesai >= Sekarang
         .eq("is_active", true)
-        .single()
+        .order("start_date", { ascending: false })
+        .limit(1)
+        .maybeSingle()
 
       return data?.id ?? null
     },
