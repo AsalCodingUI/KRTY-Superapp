@@ -1,5 +1,6 @@
 "use client"
 
+import { projectService } from "@/entities/project/api/projectService"
 import { getQuarterFromDate } from "@/entities/performance/lib/kpiUtils"
 import { type Database } from "@/shared/types/database.types"
 import { format as formatDate } from "date-fns"
@@ -171,15 +172,9 @@ export function ProjectForm({
       return
     }
 
-    // Map user profile role to project role
-    const roleMapping: Record<string, ProjectRole> = {
-      stakeholder: "Project Manager",
-      employee: user.job_title?.includes("Designer")
-        ? "UIX Designer"
-        : "Webflow Developer",
-    }
-
-    const projectRole = roleMapping[user.role || "employee"] || "UIX Designer"
+    const projectRole = await projectService.determineRole(
+      user.job_title || null,
+    )
 
     if (isEdit && project) {
       try {

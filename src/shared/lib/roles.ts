@@ -47,6 +47,14 @@ export function canAccessProjectCalculator(
   return canManageByRole(profile.role) || profile.job_title === "Project Manager"
 }
 
+export function canManageProjects(
+  profile?: ProfileLike | null,
+  options: RoleCheckOptions = {},
+) {
+  if (!profile) return options.allowUnknown ?? false
+  return canManageByRole(profile.role) || profile.job_title === "Project Manager"
+}
+
 export function canAccessSLAGenerator(
   profile?: ProfileLike | null,
   options: RoleCheckOptions = {},

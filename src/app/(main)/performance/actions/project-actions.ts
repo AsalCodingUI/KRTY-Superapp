@@ -2,14 +2,46 @@
 
 import { createClient } from "@/shared/api/supabase/server"
 import { dedupeProfilesByEmail } from "@/shared/lib/profile-dedupe"
+import { resolveProfileByUserIdOrEmail } from "@/shared/lib/profile-resolution"
+import { canManageProjects } from "@/shared/lib/roles"
 import type { Database } from "@/shared/types/database.types"
 import { revalidatePath } from "next/cache"
+
+async function assertProjectManagementAccess() {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    throw new Error("Unauthorized")
+  }
+
+  const profile = await resolveProfileByUserIdOrEmail<{
+    id: string
+    email: string | null
+    role: string | null
+    job_title: string | null
+    created_at: string | null
+  }>(
+    supabase,
+    "id, email, role, job_title, created_at",
+    user.id,
+    user.email,
+  )
+
+  if (!canManageProjects(profile)) {
+    throw new Error("Forbidden")
+  }
+
+  return supabase
+}
 
 export async function getProjects(
   quarterFilter?: string,
   statusFilter?: string,
 ) {
-  const supabase = await createClient()
+  const supabase = await assertProjectManagementAccess()
 
   let query = supabase
     .from("projects")
@@ -58,7 +90,7 @@ export async function getProjects(
 }
 
 export async function createProject(formData: FormData) {
-  const supabase = await createClient()
+  const supabase = await assertProjectManagementAccess()
 
   const projectData = {
     name: formData.get("name") as string,
@@ -84,7 +116,7 @@ export async function createProject(formData: FormData) {
 }
 
 export async function updateProject(id: string, formData: FormData) {
-  const supabase = await createClient()
+  const supabase = await assertProjectManagementAccess()
 
   const projectData = {
     name: formData.get("name") as string,
@@ -113,7 +145,7 @@ export async function updateProject(id: string, formData: FormData) {
 }
 
 export async function deleteProject(id: string) {
-  const supabase = await createClient()
+  const supabase = await assertProjectManagementAccess()
 
   // Soft delete by setting status to Archived
   const { error } = await supabase
@@ -131,7 +163,7 @@ export async function deleteProject(id: string) {
 }
 
 export async function permanentDeleteProject(id: string) {
-  const supabase = await createClient()
+  const supabase = await assertProjectManagementAccess()
 
   // Permanently delete from database
   const { error } = await supabase.from("projects").delete().eq("id", id)
@@ -146,7 +178,7 @@ export async function permanentDeleteProject(id: string) {
 }
 
 export async function getAllUsers() {
-  const supabase = await createClient()
+  const supabase = await assertProjectManagementAccess()
 
   const { data, error } = await supabase
     .from("profiles")
@@ -168,7 +200,7 @@ export async function assignUserToProject(
   weight?: number,
   isLead?: boolean,
 ) {
-  const supabase = await createClient()
+  const supabase = await assertProjectManagementAccess()
 
   const assignmentData = {
     project_id: projectId,
@@ -198,7 +230,7 @@ export async function updateProjectAssignmentLead(
   assignmentId: string,
   isLead: boolean,
 ) {
-  const supabase = await createClient()
+  const supabase = await assertProjectManagementAccess()
 
   if (isLead) {
     const { error: resetError } = await supabase
@@ -227,7 +259,7 @@ export async function updateProjectAssignmentLead(
 }
 
 export async function removeUserFromProject(assignmentId: string) {
-  const supabase = await createClient()
+  const supabase = await assertProjectManagementAccess()
 
   const { error } = await supabase
     .from("project_assignments")

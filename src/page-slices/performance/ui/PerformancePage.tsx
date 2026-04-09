@@ -8,7 +8,7 @@ import { createClient } from "@/shared/api/supabase/client"
 import { useMountedTabs } from "@/shared/hooks/useMountedTabs"
 import { useTabRoute } from "@/shared/hooks/useTabRoute"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
-import { canManageByRole } from "@/shared/lib/roles"
+import { canManageByRole, canManageProjects } from "@/shared/lib/roles"
 import {
   Badge,
   Button,
@@ -158,15 +158,16 @@ export function PerformancePage() {
   const supabase = useMemo(() => createClient(), [])
 
   const isStakeholder = canManageByRole(profile?.role)
+  const canManageProjectTab = canManageProjects(profile)
 
   useEffect(() => {
     if (
-      !isStakeholder &&
+      !canManageProjectTab &&
       (activeTab === "list-project" || activeTab === "competency-library")
     ) {
       setActiveTab("kpi")
     }
-  }, [activeTab, isStakeholder, setActiveTab])
+  }, [activeTab, canManageProjectTab, setActiveTab])
   const availableYears = useMemo(
     () => getAvailableYears(new Date().getFullYear()),
     [],
@@ -432,6 +433,9 @@ export function PerformancePage() {
     { value: "360-review", label: "360 Review" },
     { value: "one-on-one", label: "Jadwal 1:1" },
     ...(isLead ? [{ value: "lead-review" as TabType, label: "Team KPI" }] : []),
+    ...(canManageProjectTab
+      ? [{ value: "list-project" as TabType, label: "List Project" }]
+      : []),
   ]
 
   return (
@@ -776,7 +780,7 @@ export function PerformancePage() {
               <LeadReviewTab />
             </div>
           )}
-          {isStakeholder && isMounted("list-project") && (
+          {canManageProjectTab && isMounted("list-project") && (
             <div
               className={
                 activeTab === "list-project"

@@ -4,7 +4,7 @@ import { useMountedTabs } from "@/shared/hooks/useMountedTabs"
 import { useTabRoute } from "@/shared/hooks/useTabRoute"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { createClient } from "@/shared/api/supabase/client"
-import { canManageByRole } from "@/shared/lib/roles"
+import { canManageByRole, canManageProjects } from "@/shared/lib/roles"
 import {
   Select,
   SelectContent,
@@ -122,6 +122,7 @@ export default function PerformanceClientPage() {
   const [selectedQuarter] = useState<QuarterFilterValue>(getCurrentQuarterValue)
 
   const isStakeholder = canManageByRole(profile?.role)
+  const canManageProjectTab = canManageProjects(profile)
 
   useEffect(() => {
     let isMounted = true
@@ -177,9 +178,11 @@ export default function PerformanceClientPage() {
                 <SelectItem value="360-review">360 Review</SelectItem>
                 <SelectItem value="one-on-one">Jadwal 1:1</SelectItem>
                 {isLead && <SelectItem value="lead-review">Team KPI</SelectItem>}
+                {canManageProjectTab && (
+                  <SelectItem value="list-project">List Project</SelectItem>
+                )}
                 {isStakeholder && (
                   <>
-                    <SelectItem value="list-project">List Project</SelectItem>
                     <SelectItem value="competency-library">Competency Library</SelectItem>
                   </>
                 )}
@@ -222,21 +225,21 @@ export default function PerformanceClientPage() {
                 </TabNavigationLink>
               )}
 
+              {canManageProjectTab && (
+                <TabNavigationLink
+                  active={activeTab === "list-project"}
+                  onClick={() => setActiveTab("list-project")}
+                >
+                  List Project
+                </TabNavigationLink>
+              )}
               {isStakeholder && (
-                <>
-                  <TabNavigationLink
-                    active={activeTab === "list-project"}
-                    onClick={() => setActiveTab("list-project")}
-                  >
-                    List Project
-                  </TabNavigationLink>
-                  <TabNavigationLink
-                    active={activeTab === "competency-library"}
-                    onClick={() => setActiveTab("competency-library")}
-                  >
-                    Competency Library
-                  </TabNavigationLink>
-                </>
+                <TabNavigationLink
+                  active={activeTab === "competency-library"}
+                  onClick={() => setActiveTab("competency-library")}
+                >
+                  Competency Library
+                </TabNavigationLink>
               )}
             </TabNavigation>
           </div>
@@ -269,7 +272,7 @@ export default function PerformanceClientPage() {
                 <LeadReviewTab />
               </div>
             )}
-            {isStakeholder && isMounted("list-project") && (
+            {canManageProjectTab && isMounted("list-project") && (
               <div className={activeTab === "list-project" ? "block space-y-5" : "hidden space-y-5"}>
                 <ListProjectTab selectedQuarter={selectedQuarter} />
               </div>
