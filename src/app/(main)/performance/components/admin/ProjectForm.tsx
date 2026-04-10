@@ -314,8 +314,8 @@ export function ProjectForm({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl">
-        <form onSubmit={handleSubmit}>
+      <DialogContent className="flex max-h-[90vh] max-w-2xl flex-col">
+        <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
           <DialogHeader>
             <DialogTitle>
               {isEdit ? "Edit Project" : "Create New Project"}
@@ -323,7 +323,7 @@ export function ProjectForm({
             <DialogCloseButton />
           </DialogHeader>
 
-          <DialogBody className="space-y-4">
+          <DialogBody className="min-h-0 flex-1 space-y-4 overflow-y-auto">
             {/* Project Name */}
             <div className="space-y-2">
               <Label htmlFor="name">Project Name *</Label>
@@ -479,7 +479,7 @@ export function ProjectForm({
                               {member.userName}
                             </p>
                             <p className="text-body-xs text-foreground-secondary">
-                              {member.role}
+                              {member.userJobTitle || "No job title"}
                             </p>
                           </div>
                         </div>
@@ -510,7 +510,7 @@ export function ProjectForm({
               </div>
           </DialogBody>
 
-          <DialogFooter>
+          <DialogFooter className="sticky bottom-0 border-t border-neutral-primary bg-surface-neutral-primary">
             <Button
               type="button"
               variant="secondary"

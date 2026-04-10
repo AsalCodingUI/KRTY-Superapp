@@ -17,6 +17,39 @@ export interface RoleConfig {
   priority: number
 }
 
+const DEFAULT_ROLE_CONFIGS: RoleConfig[] = [
+  {
+    id: "default-project-manager",
+    job_title_pattern: "Project Manager",
+    target_role: "Project Manager",
+    priority: 100,
+  },
+  {
+    id: "default-admin",
+    job_title_pattern: "Admin",
+    target_role: "Admin",
+    priority: 90,
+  },
+  {
+    id: "default-designer",
+    job_title_pattern: "%Designer%",
+    target_role: "UIX Designer",
+    priority: 80,
+  },
+  {
+    id: "default-web-developer",
+    job_title_pattern: "%Web Developer%",
+    target_role: "Webflow Developer",
+    priority: 70,
+  },
+  {
+    id: "default-webflow-developer",
+    job_title_pattern: "%Webflow Developer%",
+    target_role: "Webflow Developer",
+    priority: 60,
+  },
+]
+
 let roleConfigCache: RoleConfig[] | null = null
 let roleConfigTimestamp = 0
 const CACHE_TTL = 1000 * 60 * 5 // 5 minutes
@@ -39,14 +72,17 @@ export const projectService = {
       .order("priority", { ascending: false })
 
     if (error) {
-      console.error("Failed to fetch role configs:", error)
-      // Fallback to empty array to prevent crash, caller handles defaults
-      return []
+      console.warn(
+        "Falling back to default project role configs because project_role_config could not be fetched.",
+      )
+      roleConfigCache = DEFAULT_ROLE_CONFIGS
+      roleConfigTimestamp = now
+      return DEFAULT_ROLE_CONFIGS
     }
 
-    roleConfigCache = data
+    roleConfigCache = data?.length ? data : DEFAULT_ROLE_CONFIGS
     roleConfigTimestamp = now
-    return data
+    return roleConfigCache
   },
 
   /**
