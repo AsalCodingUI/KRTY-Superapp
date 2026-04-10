@@ -80,9 +80,10 @@ export const projectService = {
       return DEFAULT_ROLE_CONFIGS
     }
 
-    roleConfigCache = data?.length ? data : DEFAULT_ROLE_CONFIGS
+    const resolvedConfigs = data?.length ? data : DEFAULT_ROLE_CONFIGS
+    roleConfigCache = resolvedConfigs
     roleConfigTimestamp = now
-    return roleConfigCache
+    return resolvedConfigs
   },
 
   /**
