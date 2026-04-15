@@ -80,6 +80,7 @@ type OneOnOneCalendarRow = Pick<
 
 interface CalendarClientProps {
   role: string
+  jobTitle?: string | null
   userId: string | null
 }
 
@@ -241,24 +242,28 @@ const mapSlotToEvent = (slot: OneOnOneCalendarRow): CalendarEvent | null => {
   }
 }
 
-function CalendarDataLayer({ role, userId }: CalendarClientProps) {
+function CalendarDataLayer({ role, jobTitle, userId }: CalendarClientProps) {
   const supabase = useMemo(() => createClient(), [])
   const [dialogOpen, setDialogOpen] = useState(false)
   const { currentDate, viewMode } = useCalendarContext()
 
   const isStakeholder = canManageByRole(role)
+  const canViewTeamLeave = isStakeholder || jobTitle === "Project Manager"
 
   const categories: EventCategory[] = useMemo(() => {
     const EMPLOYEE_HIDDEN_TYPES = ["WFH", "Cuti"]
     return getAllEventTypes()
-      .filter((eventType) => isStakeholder || !EMPLOYEE_HIDDEN_TYPES.includes(eventType.value))
+      .filter(
+        (eventType) =>
+          canViewTeamLeave || !EMPLOYEE_HIDDEN_TYPES.includes(eventType.value),
+      )
       .map((eventType) => ({
         id: eventType.value.toLowerCase().replace(/\s+/g, "-"),
         name: eventType.label,
         color: eventType.color,
         isActive: true,
       }))
-  }, [isStakeholder])
+  }, [canViewTeamLeave])
 
   const range = useMemo(() => {
     const viewRange = getViewRange(currentDate, viewMode)
@@ -303,7 +308,13 @@ function CalendarDataLayer({ role, userId }: CalendarClientProps) {
     data: leaveRequests = [],
     isLoading: leaveLoading,
   } = useQuery<LeaveRequestCalendarRow[]>({
-    queryKey: ["calendar-leave", userId, isStakeholder, rangeStartDate, rangeEndDate],
+    queryKey: [
+      "calendar-leave",
+      userId,
+      canViewTeamLeave,
+      rangeStartDate,
+      rangeEndDate,
+    ],
     queryFn: async () => {
       try {
         let query = supabase
@@ -316,7 +327,7 @@ function CalendarDataLayer({ role, userId }: CalendarClientProps) {
             `start_date.lte.${rangeEndDate},end_date.gte.${rangeStartDate}`,
           )
 
-        if (!isStakeholder && userId) {
+        if (!canViewTeamLeave && userId) {
           query = query.eq("user_id", userId)
         }
 
@@ -328,7 +339,7 @@ function CalendarDataLayer({ role, userId }: CalendarClientProps) {
         throw error
       }
     },
-    enabled: !!userId && isStakeholder,
+    enabled: !!userId,
     placeholderData: keepPreviousData,
     staleTime: 30_000,
   })
@@ -468,12 +479,16 @@ function CalendarDataLayer({ role, userId }: CalendarClientProps) {
   )
 }
 
-export default function CalendarClient({ role, userId }: CalendarClientProps) {
+export default function CalendarClient({
+  role,
+  jobTitle,
+  userId,
+}: CalendarClientProps) {
   return (
     <QueryProvider>
       <CalendarProvider>
         <GoogleCalendarProvider>
-          <CalendarDataLayer role={role} userId={userId} />
+          <CalendarDataLayer role={role} jobTitle={jobTitle} userId={userId} />
         </GoogleCalendarProvider>
       </CalendarProvider>
     </QueryProvider>

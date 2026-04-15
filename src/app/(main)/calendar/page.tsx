@@ -17,11 +17,18 @@ export default async function CalendarPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("role")
+    .select("role, job_title")
     .eq("id", effectiveUserId)
     .single()
 
   const role = profile?.role || "employee"
+  const jobTitle = profile?.job_title || null
 
-  return <CalendarClient role={role} userId={effectiveUserId} />
+  return (
+    <CalendarClient
+      role={role}
+      jobTitle={jobTitle}
+      userId={effectiveUserId}
+    />
+  )
 }
