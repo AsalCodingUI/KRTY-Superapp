@@ -131,7 +131,6 @@ export function StakeholderLeavePage({
   const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [pendingConfirm, setPendingConfirm] = useState<PendingConfirm | null>(null)
   const [confirmLoading, setConfirmLoading] = useState(false)
-  const [isClient, setIsClient] = useState(false)
   const [manualModalOpen, setManualModalOpen] = useState(false)
   const [manualSaving, setManualSaving] = useState(false)
   const [editingLogId, setEditingLogId] = useState<string | null>(null)
@@ -146,10 +145,6 @@ export function StakeholderLeavePage({
     proof_url: "",
     created_at: "",
   })
-
-  useEffect(() => {
-    setIsClient(true)
-  }, [])
 
   // --- Realtime: debounce refresh to avoid UI thrashing on burst updates ---
   useEffect(() => {
@@ -543,7 +538,6 @@ export function StakeholderLeavePage({
           onEditAttendanceSession={handleEditAttendanceSession}
           onAddManualLeave={openManualModal}
           overviewStats={overviewStats}
-          isClient={isClient}
         />
       </div>
 
@@ -752,7 +746,6 @@ function AttendanceOverviewPanel({
   onEditAttendanceSession,
   onAddManualLeave,
   overviewStats,
-  isClient,
 }: {
   activeTab: "approval" | "remaining" | "attendance"
   onTabChange: (tab: "approval" | "remaining" | "attendance") => void
@@ -764,7 +757,6 @@ function AttendanceOverviewPanel({
   onCloseAttendanceSession: (logId: string) => void
   onEditAttendanceSession: (logId: string) => void
   onAddManualLeave: () => void
-  isClient: boolean
   overviewStats?: {
     onLeaveToday: number
     pendingRequests: number
@@ -827,25 +819,21 @@ function AttendanceOverviewPanel({
 
       <div className="px-5 pt-2 border-b border-neutral-primary space-y-3">
         <div className="xl:hidden">
-          {isClient ? (
-            <Select
-              value={activeTab}
-              onValueChange={(value) =>
-                onTabChange(value as "attendance" | "approval" | "remaining")
-              }
-            >
-              <SelectTrigger size="sm" className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="attendance">Attendance History</SelectItem>
-                <SelectItem value="approval">Approvals Leave</SelectItem>
-                <SelectItem value="remaining">Remaining Leave</SelectItem>
-              </SelectContent>
-            </Select>
-          ) : (
-            <div className="border-neutral-primary h-9 w-full rounded-md border bg-surface-neutral-primary" />
-          )}
+          <Select
+            value={activeTab}
+            onValueChange={(value) =>
+              onTabChange(value as "attendance" | "approval" | "remaining")
+            }
+          >
+            <SelectTrigger size="sm" className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="attendance">Attendance History</SelectItem>
+              <SelectItem value="approval">Approvals Leave</SelectItem>
+              <SelectItem value="remaining">Remaining Leave</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
         <div className="hidden xl:flex items-start justify-between gap-4">
           <TabNavigation className="border-b-0">
