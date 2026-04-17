@@ -95,7 +95,6 @@ export function EmployeeLeavePage({
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
   const [termsOpen, setTermsOpen] = useState(false)
   const [isStaleDialogOpen, setIsStaleDialogOpen] = useState(false)
-  const [hasClientMounted, setHasClientMounted] = useState(false)
 
   const {
     loading,
@@ -163,10 +162,6 @@ export function EmployeeLeavePage({
     setCurrentTime(new Date())
     const timer = setInterval(() => setCurrentTime(new Date()), 1000)
     return () => clearInterval(timer)
-  }, [])
-
-  useEffect(() => {
-    setHasClientMounted(true)
   }, [])
 
   // Handle pagination
@@ -503,24 +498,20 @@ export function EmployeeLeavePage({
 
           <div className="px-5 pt-2 border-b border-neutral-primary">
             <div className="xl:hidden space-y-3 pb-2">
-              {hasClientMounted ? (
-                <Select
-                  value={activeTab}
-                  onValueChange={(value) =>
-                    setActiveTab(value as "attendance" | "leave")
-                  }
-                >
-                  <SelectTrigger size="sm" className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="attendance">Attendance History</SelectItem>
-                    <SelectItem value="leave">Leave Requests</SelectItem>
-                  </SelectContent>
-                </Select>
-              ) : (
-                <div className="border-neutral-primary bg-surface h-9 w-full rounded-lg border" />
-              )}
+              <Select
+                value={activeTab}
+                onValueChange={(value) =>
+                  setActiveTab(value as "attendance" | "leave")
+                }
+              >
+                <SelectTrigger size="sm" className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="attendance">Attendance History</SelectItem>
+                  <SelectItem value="leave">Leave Requests</SelectItem>
+                </SelectContent>
+              </Select>
               {isMounted("leave") && activeTab === "leave" && (
                 <div className="grid grid-cols-2 gap-2">
                   <Button
