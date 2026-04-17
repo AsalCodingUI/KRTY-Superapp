@@ -1,5 +1,7 @@
-/** @type {import('next').NextConfig} */
+// @ts-check
+import { withSentryConfig } from "@sentry/nextjs"
 
+/** @type {import('next').NextConfig} */
 const nextConfig = {
     images: {
         remotePatterns: [
@@ -63,7 +65,7 @@ const nextConfig = {
                             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
                             "font-src 'self' https://fonts.gstatic.com data:",
                             "img-src 'self' data: blob: https:",
-                            "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.zeabur.app wss://*.zeabur.app https://n8n-private.kretyastudio.com",
+                            "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.zeabur.app wss://*.zeabur.app https://n8n-private.kretyastudio.com https://*.sentry.io",
                             "frame-ancestors 'self'",
                             "base-uri 'self'",
                             "form-action 'self'",
@@ -115,4 +117,15 @@ const nextConfig = {
     },
 };
 
-export default nextConfig;
+export default withSentryConfig(nextConfig, {
+  // Suppress Sentry CLI logs during builds
+  silent: !process.env.CI,
+
+  // Upload source maps only in CI/production
+  widenClientFileUpload: true,
+  hideSourceMaps: true,
+  disableLogger: true,
+
+  // Automatically instrument Next.js pages
+  automaticVercelMonitors: true,
+})

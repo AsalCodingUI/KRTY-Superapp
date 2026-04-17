@@ -1,8 +1,10 @@
 /**
  * Centralized logger for the application.
- * Use this instead of console.log/error directly to allow for easier integration
- * with monitoring services (Sentry, LogRocket, etc.) in the future.
+ * In production, errors are forwarded to Sentry.
+ * In development, errors are logged to the console.
  */
+
+import * as Sentry from "@sentry/nextjs"
 
 type LogContext = Record<string, unknown>
 
@@ -11,9 +13,6 @@ export function logError(
   error?: unknown,
   context?: LogContext,
 ) {
-  // In a real app, we might filter out errors in test environment
-  // if (process.env.NODE_ENV === 'test') return
-
   const timestamp = new Date().toISOString()
 
   // Format the error object safely
@@ -22,20 +21,33 @@ export function logError(
       ? { message: error.message, stack: error.stack, name: error.name }
       : error
 
-  // In production, this is where we would send to Sentry
-  console.error(
-    JSON.stringify(
-      {
-        level: "ERROR",
-        timestamp,
+  if (process.env.NODE_ENV === "production") {
+    // Forward to Sentry in production
+    const sentryError =
+      error instanceof Error ? error : new Error(message)
+
+    Sentry.captureException(sentryError, {
+      extra: {
         message,
-        error: errorDetails,
         context,
+        originalError: error instanceof Error ? undefined : errorDetails,
       },
-      null,
-      2,
-    ),
-  )
+    })
+  } else {
+    console.error(
+      JSON.stringify(
+        {
+          level: "ERROR",
+          timestamp,
+          message,
+          error: errorDetails,
+          context,
+        },
+        null,
+        2,
+      ),
+    )
+  }
 }
 
 export function logInfo(message: string, context?: LogContext) {
