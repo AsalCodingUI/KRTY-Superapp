@@ -56,9 +56,7 @@ const DialogOverlay = React.forwardRef<
       <motion.div
         ref={forwardedRef}
         className={cx(
-          // base
-          "fixed inset-0 z-[90] overflow-y-auto",
-          // background color
+          "fixed inset-0 z-[90]",
           "bg-surface-neutral-secondary/60",
           className,
         )}
@@ -80,28 +78,28 @@ const DialogContent = React.forwardRef<
 >(({ className, onInteractOutside, onPointerDownOutside, onFocusOutside, ...props }, forwardedRef) => {
   return (
     <DialogPortal>
-      <DialogOverlay>
-        <DialogPrimitives.Content
-          onInteractOutside={onInteractOutside}
-          onPointerDownOutside={onPointerDownOutside}
-          onFocusOutside={onFocusOutside}
-          asChild
-        >
-          <motion.div
-            ref={forwardedRef}
-            className={cx(
-              // base
-              "fixed left-1/2 top-1/2 z-[100] flex w-[calc(100%-2rem)] max-w-[440px] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-xl border border-neutral-primary bg-surface-neutral-primary shadow-regular-md",
-              className,
-            )}
-            initial={{ opacity: 0, y: 8, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 8, scale: 0.98 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
-            {...props}
-          />
-        </DialogPrimitives.Content>
-      </DialogOverlay>
+      {/* Overlay and Content are siblings — overlay must NOT wrap content
+          to avoid creating a stacking context that traps Popover/Tooltip portals */}
+      <DialogOverlay />
+      <DialogPrimitives.Content
+        onInteractOutside={onInteractOutside}
+        onPointerDownOutside={onPointerDownOutside}
+        onFocusOutside={onFocusOutside}
+        asChild
+      >
+        <motion.div
+          ref={forwardedRef}
+          className={cx(
+            "fixed left-1/2 top-1/2 z-[100] flex w-[calc(100%-2rem)] max-w-[440px] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-xl border border-neutral-primary bg-surface-neutral-primary shadow-regular-md",
+            className,
+          )}
+          initial={{ opacity: 0, y: 8, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: 8, scale: 0.98 }}
+          transition={{ duration: 0.2, ease: "easeOut" }}
+          {...props}
+        />
+      </DialogPrimitives.Content>
     </DialogPortal>
   )
 })
