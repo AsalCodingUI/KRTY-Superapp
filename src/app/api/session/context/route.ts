@@ -1,6 +1,7 @@
 import { createClient } from "@/shared/api/supabase/server"
 import { IMPERSONATION_COOKIE_NAME } from "@/shared/lib/impersonation"
 import { mergeDuplicateProfiles } from "@/shared/lib/profile-dedupe"
+import { logError } from "@/shared/lib/utils/logger"
 import { cookies } from "next/headers"
 
 type ProfileRow = {
@@ -49,7 +50,7 @@ export async function GET() {
     .maybeSingle()
 
   if (authProfileError && authProfileError.code !== "PGRST116") {
-    console.error("Session context auth profile lookup failed:", authProfileError)
+    logError("Session context auth profile lookup failed:", authProfileError)
   }
 
   let authProfile = (authProfileData as ProfileRow | null) || null
@@ -62,7 +63,7 @@ export async function GET() {
       .order("created_at", { ascending: true })
 
     if (emailLookupError && emailLookupError.code !== "PGRST116") {
-      console.error("Session context email profile lookup failed:", emailLookupError)
+      logError("Session context email profile lookup failed:", emailLookupError)
     }
 
     if ((profilesByEmail || []).length === 1) {
@@ -125,12 +126,12 @@ export async function GET() {
     .eq("user_id", effectiveProfile.id)
 
   if (permissionError) {
-    console.error("Session context permission lookup failed:", permissionError)
+    logError("Session context permission lookup failed:", permissionError)
   }
 
   const normalizedPermissionRows = (permissionRows || []) as PermissionRow[]
 
-  const permissions =
+ const permissions =
     normalizedPermissionRows.length > 0
       ? Object.fromEntries(
           normalizedPermissionRows.map((row) => [row.page_slug, row.granted]),

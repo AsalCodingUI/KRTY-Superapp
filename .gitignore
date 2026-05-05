@@ -50,3 +50,4 @@ deploy_trigger.js
 # Wildcard: catch all root-level test/setup/temp scripts
 test_*.js
 setup_*.js
+.claude/

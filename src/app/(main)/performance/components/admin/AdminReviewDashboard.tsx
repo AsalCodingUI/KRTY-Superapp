@@ -1,6 +1,7 @@
 "use client"
 
 import { createClient } from "@/shared/api/supabase/client"
+import { logError } from "@/shared/lib/utils/logger"
 import { Database } from "@/shared/types/database.types"
 import {
   Avatar, AvatarGroup, AvatarOverflow, Badge, Button, ConfirmDialog, DateRangePicker, EmptyState, Label, QuarterFilterValue, Spinner, Table,
@@ -331,7 +332,7 @@ export function AdminReviewDashboard({
       })
       toast.success("Permintaan terkirim")
     } catch (e) {
-      console.error(e)
+      logError("Unexpected error", e)
       toast.error("Gagal memproses")
     }
     await queryClient.invalidateQueries({ queryKey: ["admin-review-dashboard", selectedQuarter] })

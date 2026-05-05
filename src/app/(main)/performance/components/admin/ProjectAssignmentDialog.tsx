@@ -1,5 +1,6 @@
 "use client"
 
+import { logError } from "@/shared/lib/utils/logger"
 import { type Database } from "@/shared/types/database.types"
 import {
   Avatar, Button, ConfirmDialog, Dialog,
@@ -87,7 +88,7 @@ export function ProjectAssignmentDialog({
           setUsers(usersResult.data as User[])
         }
       } catch (error) {
-        console.error("Error loading data:", error)
+        logError("Error loading data:", error)
       } finally {
         setLoading(false)
       }
@@ -116,7 +117,7 @@ export function ProjectAssignmentDialog({
         setUsers(usersResult.data as User[])
       }
     } catch (error) {
-      console.error("Error loading data:", error)
+      logError("Error loading data:", error)
     } finally {
       setLoading(false)
     }
@@ -157,7 +158,7 @@ export function ProjectAssignmentDialog({
         toast.error("Gagal menambah")
       }
     } catch (error) {
-      console.error("Error adding assignment:", error)
+      logError("Error adding assignment:", error)
       toast.error("Gagal menambah")
     } finally {
       setLoading(false)
@@ -182,7 +183,7 @@ export function ProjectAssignmentDialog({
         toast.error("Gagal menghapus")
       }
     } catch (error) {
-      console.error("Error removing assignment:", error)
+      logError("Error removing assignment:", error)
       toast.error("Gagal menghapus")
     } finally {
       setLoading(false)

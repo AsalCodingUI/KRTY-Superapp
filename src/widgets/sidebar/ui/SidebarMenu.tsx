@@ -3,6 +3,7 @@
 import { navigationConfig } from "@/shared/config/navigation"
 import { usePagePermissions } from "@/shared/hooks/usePagePermissions"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
+import { hasRoleAccess } from "@/shared/lib/roles"
 import { cx, focusRing } from "@/shared/lib/utils"
 import { Skeleton } from "@/shared/ui"
 import Link from "next/link"
@@ -21,8 +22,12 @@ export function SidebarMenu() {
 
   const navItems = navigationConfig.main.filter((item) => {
     if (loading || !profile) return false
-    const slug = item.href
-    return hasPermission(slug, false) === true
+    return (
+      hasPermission(
+        item.href,
+        hasRoleAccess(item.roles, profile.role, { allowUnknown: false }),
+      ) === true
+    )
   })
 
   // Skeleton loading

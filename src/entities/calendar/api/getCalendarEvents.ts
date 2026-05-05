@@ -1,6 +1,7 @@
 "use server"
 
 import { createClient } from "@/shared/api/supabase/server"
+import { logError } from "@/shared/lib/utils/logger"
 import { CalendarEvent } from "../model/types"
 
 /**
@@ -26,7 +27,7 @@ export async function getCalendarEvents(
     .order("start_date", { ascending: true })
 
   if (error) {
-    console.error("Error fetching calendar events:", error)
+    logError("Error fetching calendar events:", error)
     throw error
   }
 
@@ -84,7 +85,7 @@ export async function getCalendarEvent(
     .single()
 
   if (error) {
-    console.error("Error fetching calendar event:", error)
+    logError("Error fetching calendar event:", error)
     return null
   }
 

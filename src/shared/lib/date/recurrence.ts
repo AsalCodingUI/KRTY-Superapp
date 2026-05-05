@@ -2,6 +2,7 @@ import type {
   RecurrenceFrequency,
   RecurrencePattern,
 } from "@/widgets/event-calendar"
+import { logError } from "@/shared/lib/utils/logger"
 import { Frequency, RRule, type Options } from "rrule"
 
 /**
@@ -71,7 +72,7 @@ export function rruleToPattern(rruleString: string): RecurrencePattern | null {
       until: options.until || undefined,
     }
   } catch (error) {
-    console.error("Failed to parse RRULE:", error)
+    logError("Failed to parse RRULE:", error)
     return null
   }
 }
@@ -106,7 +107,7 @@ export function generateOccurrences<
       }
     })
   } catch (error) {
-    console.error("Failed to generate occurrences:", error)
+    logError("Failed to generate occurrences:", error)
     return []
   }
 }

@@ -1,5 +1,6 @@
 "use client"
 
+import { logError } from "@/shared/lib/utils/logger"
 import { Constants, Database } from "@/shared/types/database.types"
 import {
   Button, Dialog,
@@ -61,7 +62,7 @@ export function CompetencyForm({
         toast.error("Gagal simpan")
       }
     } catch (error) {
-      console.error("Error submitting competency:", error)
+      logError("Error submitting competency:", error)
       toast.error("Gagal simpan")
     } finally {
       setLoading(false)

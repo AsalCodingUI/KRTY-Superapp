@@ -1,6 +1,7 @@
 "use server"
 
 import { createClient } from "@/shared/api/supabase/server"
+import { logError } from "@/shared/lib/utils/logger"
 import { revalidatePath } from "next/cache"
 
 type MilestoneData = {
@@ -23,7 +24,7 @@ export async function getProjectScores(assignmentId: string) {
     .eq("assignment_id", assignmentId)
 
   if (slaError) {
-    console.error("Error fetching SLA scores:", slaError)
+    logError("Error fetching SLA scores:", slaError)
     return { success: false, error: slaError.message }
   }
 
@@ -47,7 +48,7 @@ export async function getProjectScores(assignmentId: string) {
     .eq("assignment_id", assignmentId)
 
   if (qualityError) {
-    console.error("Error fetching quality scores:", qualityError)
+    logError("Error fetching quality scores:", qualityError)
     return { success: false, error: qualityError.message }
   }
 
@@ -105,7 +106,7 @@ export async function saveSLAScores(
   const { error } = await supabase.from("project_sla_scores").insert(scoresData)
 
   if (error) {
-    console.error("Error saving SLA scores:", error)
+    logError("Error saving SLA scores:", error)
     return { success: false, error: error.message }
   }
 
@@ -150,7 +151,7 @@ export async function saveWorkQualityScores(
     .insert(scoresData)
 
   if (error) {
-    console.error("Error saving quality scores:", error)
+    logError("Error saving quality scores:", error)
     return { success: false, error: error.message }
   }
 
@@ -168,7 +169,7 @@ export async function getCompetenciesForRole(role: string) {
     .order("name", { ascending: true })
 
   if (error) {
-    console.error("Error fetching competencies:", error)
+    logError("Error fetching competencies:", error)
     return { success: false, error: error.message, data: [] }
   }
 

@@ -1,17 +1,23 @@
 import { createClient } from "@/shared/api/supabase/server"
 import { IMPERSONATION_COOKIE_NAME } from "@/shared/lib/impersonation"
 import { resolveProfileByUserIdOrEmail } from "@/shared/lib/profile-resolution"
+import { getCurrentUserSafely } from "@/shared/lib/supabase-auth"
+import { logError } from "@/shared/lib/utils/logger"
 import { NextRequest, NextResponse } from "next/server"
 
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
+    const { user, error: authError } = await getCurrentUserSafely(
+      supabase,
+      "admin-impersonation-route",
+    )
 
     if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      return NextResponse.json(
+        { error: authError || "Unauthorized" },
+        { status: 401 },
+      )
     }
 
     const actorProfile = await resolveProfileByUserIdOrEmail<{
@@ -57,7 +63,7 @@ export async function POST(request: NextRequest) {
 
     return response
   } catch (error) {
-    console.error("Impersonation API error", error)
+    logError("Impersonation API error", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }

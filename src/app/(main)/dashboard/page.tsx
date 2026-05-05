@@ -1,6 +1,7 @@
 import { createClient } from "@/shared/api/supabase/server"
 import { resolveEffectiveUserId } from "@/shared/lib/impersonation-server"
 import { resolveProfileByUserIdOrEmail } from "@/shared/lib/profile-resolution"
+import { getCurrentUserSafely } from "@/shared/lib/supabase-auth"
 
 export const dynamic = "force-dynamic"
 import { canManageByRole } from "@/shared/lib/roles"
@@ -15,56 +16,69 @@ export default async function DashboardRoute({
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
-  const resolvedSearchParams = await searchParams
-  const supabase = await createClient()
+  try {
+    const resolvedSearchParams = await searchParams
+    const supabase = await createClient()
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) redirect("/login")
-
-  const effectiveUserId = await resolveEffectiveUserId(
-    supabase,
-    user.id,
-    user.email,
-  )
-
-  // Get user profile to determine role
-  const profile = await resolveProfileByUserIdOrEmail<{
-    id: string
-    email: string | null
-    full_name: string | null
-    role: string | null
-  }>(supabase, "id, email, full_name, role, created_at", effectiveUserId, user.email)
-
-  if (!profile) {
-    return (
-      <div className="py-12 text-center">
-        <p className="text-foreground-secondary">Profile not found</p>
-      </div>
+    const { user, error: authError } = await getCurrentUserSafely(
+      supabase,
+      "dashboard-page",
     )
-  }
 
-  const isAdminOrStakeholder = canManageByRole(profile.role)
-
-  // Route to appropriate dashboard based on role
-  if (isAdminOrStakeholder) {
-    // Admin/Stakeholder Dashboard
-    const result = await getAdminDashboardData()
-
-    if (!result.success || !result.data) {
+    if (authError && !user) {
       return (
         <div className="py-12 text-center">
-          <p className="text-foreground-secondary">
-            {result.error || "Failed to load dashboard data"}
-          </p>
+          <p className="text-foreground-secondary">{authError}</p>
         </div>
       )
     }
 
-    return <AdminDashboard data={result.data} />
-  } else {
-    // Employee Dashboard
+    if (!user) redirect("/login")
+
+    const effectiveUserId = await resolveEffectiveUserId(
+      supabase,
+      user.id,
+      user.email,
+    )
+
+    const profile = await resolveProfileByUserIdOrEmail<{
+      id: string
+      email: string | null
+      full_name: string | null
+      role: string | null
+    }>(
+      supabase,
+      "id, email, full_name, role, created_at",
+      effectiveUserId,
+      user.email,
+    )
+
+    if (!profile) {
+      return (
+        <div className="py-12 text-center">
+          <p className="text-foreground-secondary">Profile not found</p>
+        </div>
+      )
+    }
+
+    const isAdminOrStakeholder = canManageByRole(profile.role)
+
+    if (isAdminOrStakeholder) {
+      const result = await getAdminDashboardData()
+
+      if (!result.success || !result.data) {
+        return (
+          <div className="py-12 text-center">
+            <p className="text-foreground-secondary">
+              {result.error || "Failed to load dashboard data"}
+            </p>
+          </div>
+        )
+      }
+
+      return <AdminDashboard data={result.data} />
+    }
+
     const quarterParam =
       typeof resolvedSearchParams.quarter === "string"
         ? resolvedSearchParams.quarter
@@ -82,5 +96,13 @@ export default async function DashboardRoute({
     }
 
     return <EmployeeDashboard data={result.data} initialQuarter={quarterParam} />
+  } catch {
+    return (
+      <div className="py-12 text-center">
+        <p className="text-foreground-secondary">
+          Failed to load dashboard data
+        </p>
+      </div>
+    )
   }
 }

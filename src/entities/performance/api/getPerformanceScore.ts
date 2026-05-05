@@ -1,6 +1,7 @@
 "use server"
 
 import { createClient } from "@/shared/api/supabase/server"
+import { logError } from "@/shared/lib/utils/logger"
 import { PerformanceScore } from "../model/types"
 
 /**
@@ -26,7 +27,7 @@ export async function getPerformanceScore(
   if (error) {
     // Return null if no data found
     if (error.code === "PGRST116") return null
-    console.error("Error fetching performance score:", error)
+    logError("Error fetching performance score:", error)
     throw error
   }
 
@@ -51,7 +52,7 @@ export async function getAllPerformanceScores(
     .order("overall_score", { ascending: false })
 
   if (error) {
-    console.error("Error fetching performance scores:", error)
+    logError("Error fetching performance scores:", error)
     throw error
   }
 

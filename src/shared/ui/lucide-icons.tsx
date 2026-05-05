@@ -104,6 +104,9 @@ import {
   Wallet,
   X,
   XCircle,
+  Link,
+  List,
+  ListOrdered,
 } from "lucide-react"
 
 const defaultIconProps: Partial<LucideProps> = {
@@ -193,7 +196,10 @@ export const RiLayout2Line = withDefaults(Columns2)
 export const RiLayoutGridLine = withDefaults(LayoutGrid)
 export const RiLayoutRowLine = withDefaults(Rows2)
 export const RiLineChartLine = withDefaults(LineChart)
+export const RiLinkLine = withDefaults(Link)
 export const RiListCheck2 = withDefaults(ListChecks)
+export const RiListUnordered = withDefaults(List)
+export const RiListOrdered = withDefaults(ListOrdered)
 export const RiLoader2Fill = withDefaults(Loader2)
 export const RiLoader2Line = withDefaults(Loader2)
 export const RiLoader4Line = withDefaults(Loader)

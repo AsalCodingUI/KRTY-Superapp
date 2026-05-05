@@ -1,3 +1,4 @@
+import { logError } from "@/shared/lib/utils/logger"
 import { Database } from "@/shared/types/database.types"
 import imageCompression from "browser-image-compression"
 import { useEffect, useState } from "react"
@@ -77,7 +78,7 @@ export function useLeaveRequestForm({
         const compressedFile = await imageCompression(file, options)
         setFormData((prev) => ({ ...prev, proof_file: compressedFile }))
       } catch (error) {
-        console.error("Compression failed:", error)
+        logError("Compression failed:", error)
         toast.error("Failed to process image.")
       } finally {
         setCompressing(false)

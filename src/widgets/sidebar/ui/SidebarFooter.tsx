@@ -31,7 +31,10 @@ export function SidebarFooter() {
       ? navigationConfig.footer.filter(
           (item) =>
             hasRoleAccess(item.roles, profile.role, { allowUnknown: true }) &&
-            hasPermission(item.href, false) === true,
+            hasPermission(
+              item.href,
+              hasRoleAccess(item.roles, profile.role, { allowUnknown: true }),
+            ) === true,
         )
       : []
 

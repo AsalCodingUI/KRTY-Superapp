@@ -1,6 +1,7 @@
 "use server"
 
 import { createClient } from "@/shared/api/supabase/server"
+import { logError } from "@/shared/lib/utils/logger"
 import { revalidatePath } from "next/cache"
 
 interface PerformanceReviewFormData {
@@ -66,7 +67,7 @@ export async function submitPerformanceReview(
     .single()
 
   if (error) {
-    console.error("Database Insert Error:", error)
+    logError("Database Insert Error:", error)
     return { success: false, message: "Gagal menyimpan review. Coba lagi." }
   }
 
@@ -88,7 +89,7 @@ export async function submitPerformanceReview(
           justification: formData.justification_score,
         },
       }),
-    }).catch((err) => console.error("n8n Trigger Failed:", err))
+    }).catch((err) => logError("n8n Trigger Failed:", err))
   }
 
   revalidatePath("/performance")

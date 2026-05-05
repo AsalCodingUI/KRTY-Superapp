@@ -118,10 +118,7 @@ export async function createGoogleCalendarEvent({
   attendees: Array<{ email: string; displayName?: string }>
   createMeet: boolean
 }): Promise<GoogleCalendarEvent | null> {
-  const requestId =
-    typeof crypto !== "undefined" && "randomUUID" in crypto
-      ? crypto.randomUUID()
-      : `${Date.now()}-${Math.random().toString(16).slice(2)}`
+  const requestId = crypto.randomUUID()
 
   const body: Record<string, any> = {
     summary,

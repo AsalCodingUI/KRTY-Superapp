@@ -92,7 +92,7 @@ export function MobileBottomNav() {
     const baseTabs =
       profile.role === "stakeholder" ? STAKEHOLDER_TABS : EMPLOYEE_TABS
 
-    return baseTabs.filter((tab) => hasPermission(tab.href, false) === true)
+    return baseTabs.filter((tab) => hasPermission(tab.href, true) === true)
   }, [hasPermission, loading, permissionLoading, profile])
 
   const isActive = (href: string) => {

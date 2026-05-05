@@ -2,6 +2,7 @@
 
 import { toast } from "sonner"
 import { createClient } from "@/shared/api/supabase/client"
+import { logError } from "@/shared/lib/utils/logger"
 import { Database } from "@/shared/types/database.types"
 import {
   Button, Dialog,
@@ -14,10 +15,7 @@ import {
 } from "@/shared/ui"
 import { useRouter } from "next/navigation"
 import React, { useEffect, useState } from "react"
-const createId = () =>
-  typeof crypto !== "undefined" && "randomUUID" in crypto
-    ? crypto.randomUUID()
-    : `${Date.now()}-${Math.random().toString(16).slice(2)}`
+const createId = () => crypto.randomUUID()
 
 // Tipe data form
 interface TeamFormData {
@@ -90,7 +88,7 @@ export function TeamFormDialog({
           hourly_rate: formData.hourly_rate,
           role: "employee",
           job_title: "Designer",
-          krt_id: "KRT_" + Math.floor(Math.random() * 1000),
+          krt_id: "KRT_" + crypto.randomUUID().slice(0, 8).toUpperCase(),
         })
 
         if (error) throw error
@@ -100,7 +98,7 @@ export function TeamFormDialog({
       onClose()
     } catch (error) {
       toast.error("Gagal menyimpan data.")
-      console.error(error)
+      logError("Unexpected error", error)
     } finally {
       setLoading(false)
     }
@@ -224,7 +222,7 @@ export function DeleteConfirmDialog({
       onClose()
     } catch (error) {
       toast.error("Gagal menghapus data.")
-      console.error(error)
+      logError("Unexpected error", error)
     } finally {
       setLoading(false)
     }

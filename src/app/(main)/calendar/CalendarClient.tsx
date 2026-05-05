@@ -98,6 +98,29 @@ const EVENT_COLORS: EventColor[] = [
 const isEventColor = (value: string): value is EventColor =>
   EVENT_COLORS.includes(value as EventColor)
 
+function parseGuests(value: unknown): CalendarEvent["guests"] {
+  if (!Array.isArray(value)) return undefined
+  return value.filter(
+    (item): item is NonNullable<CalendarEvent["guests"]>[number] =>
+      typeof item === "object" &&
+      item !== null &&
+      typeof (item as Record<string, unknown>).email === "string" &&
+      ["accepted", "pending", "declined"].includes(
+        (item as Record<string, unknown>).status as string,
+      ),
+  )
+}
+
+function parseReminders(value: unknown): CalendarEvent["reminders"] {
+  if (!Array.isArray(value)) return undefined
+  return value.filter(
+    (item): item is NonNullable<CalendarEvent["reminders"]>[number] =>
+      typeof item === "object" &&
+      item !== null &&
+      typeof (item as Record<string, unknown>).minutes === "number",
+  )
+}
+
 const mapRowToEvent = (row: CalendarEventRowLite): CalendarEvent => {
   const typeDefinition = getEventTypeDefinition(row.event_type ?? undefined)
   const resolvedColor = typeDefinition?.color
@@ -116,9 +139,8 @@ const mapRowToEvent = (row: CalendarEventRowLite): CalendarEvent => {
     location: row.location ?? undefined,
     allDay: row.all_day ?? false,
     meetingUrl: row.meeting_url ?? undefined,
-    guests: (row.guests as unknown as CalendarEvent["guests"]) ?? undefined,
-    reminders:
-      (row.reminders as unknown as CalendarEvent["reminders"]) ?? undefined,
+    guests: parseGuests(row.guests),
+    reminders: parseReminders(row.reminders),
     rsvpStatus: (row.rsvp_status as CalendarEvent["rsvpStatus"]) ?? undefined,
     organizer: row.organizer ?? undefined,
     type: typeDefinition?.value ?? row.event_type ?? undefined,
@@ -153,11 +175,13 @@ const mapEventToInsert = (
   if (eventData.type !== undefined) payload.event_type = eventData.type
   if (eventData.organizer !== undefined) payload.organizer = eventData.organizer
   if (eventData.guests !== undefined)
-    payload.guests =
-      eventData.guests as unknown as CalendarEventInsert["guests"]
+    payload.guests = JSON.parse(
+      JSON.stringify(eventData.guests),
+    ) as CalendarEventInsert["guests"]
   if (eventData.reminders !== undefined)
-    payload.reminders =
-      eventData.reminders as unknown as CalendarEventInsert["reminders"]
+    payload.reminders = JSON.parse(
+      JSON.stringify(eventData.reminders),
+    ) as CalendarEventInsert["reminders"]
   if (eventData.rsvpStatus !== undefined)
     payload.rsvp_status = eventData.rsvpStatus
   if (eventData.isRecurring !== undefined)

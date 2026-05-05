@@ -18,10 +18,39 @@ type MiddlewarePermissionCache = {
   email: string | null
   canonicalUserId: string
   effectiveUserId: string
+  role: string | null
   isSuperAdmin: boolean
   impersonatedUserId: string | null
   rows: CachedPermissionRow[]
   expiresAt: number
+}
+
+function hasRoleFallbackAccess(pathname: string, role: string | null) {
+  const sharedRoutes = [
+    siteConfig.baseLinks.dashboard,
+    siteConfig.baseLinks.calendar,
+    siteConfig.baseLinks.leave,
+    siteConfig.baseLinks.performance,
+    siteConfig.baseLinks.policies,
+    siteConfig.baseLinks.settings.general,
+    siteConfig.baseLinks.settings.teamAccess,
+  ]
+
+  if (sharedRoutes.some((route) => pathname.startsWith(route))) {
+    return role === "stakeholder" || role === "employee"
+  }
+
+  const stakeholderRoutes = [
+    siteConfig.baseLinks.projects,
+    siteConfig.baseLinks.finance,
+    siteConfig.baseLinks.teams,
+  ]
+
+  if (stakeholderRoutes.some((route) => pathname.startsWith(route))) {
+    return role === "stakeholder"
+  }
+
+  return false
 }
 
 function readPermissionCache(
@@ -135,25 +164,27 @@ export async function middleware(request: NextRequest) {
 
   let canonicalUserId = user.id
   let effectiveUserId = user.id
+  let effectiveRole: string | null = null
   let isSuperAdmin = false
   let userPermissions: CachedPermissionRow[] = []
 
   if (cachedPermissions) {
     canonicalUserId = cachedPermissions.canonicalUserId
     effectiveUserId = cachedPermissions.effectiveUserId
+    effectiveRole = cachedPermissions.role
     isSuperAdmin = cachedPermissions.isSuperAdmin
     userPermissions = cachedPermissions.rows
   } else {
     const [{ data: directProfile }, { data: emailProfiles }] = await Promise.all([
       supabase
         .from("profiles")
-        .select("id, email, is_super_admin, created_at")
+        .select("id, email, role, is_super_admin, created_at")
         .eq("id", user.id)
         .maybeSingle(),
       user.email
         ? supabase
             .from("profiles")
-            .select("id, email, is_super_admin, created_at")
+            .select("id, email, role, is_super_admin, created_at")
             .eq("email", user.email)
         : Promise.resolve({ data: [] as Array<{ id: string; email: string | null; is_super_admin: boolean | null; created_at: string | null }> }),
     ])
@@ -164,12 +195,14 @@ export async function middleware(request: NextRequest) {
           (emailProfiles || []) as Array<{
             id: string
             email: string | null
+            role: string | null
             is_super_admin: boolean | null
             created_at: string | null
           }>,
         )[0] || null
 
     canonicalUserId = canonicalProfile?.id || user.id
+    effectiveRole = canonicalProfile?.role || null
     isSuperAdmin = canonicalProfile?.is_super_admin === true
     effectiveUserId =
       isSuperAdmin &&
@@ -190,6 +223,7 @@ export async function middleware(request: NextRequest) {
       email: user.email || null,
       canonicalUserId,
       effectiveUserId,
+      role: effectiveRole,
       isSuperAdmin,
       impersonatedUserId,
       rows: userPermissions,
@@ -219,6 +253,10 @@ export async function middleware(request: NextRequest) {
   }
 
   if (!matched || matched.granted !== true) {
+    if (hasRoleFallbackAccess(url.pathname, effectiveRole)) {
+      return supabaseResponse
+    }
+
     const firstAllowed = rows.find((row) => row.granted)?.page_slug
 
     if (firstAllowed && firstAllowed !== url.pathname) {

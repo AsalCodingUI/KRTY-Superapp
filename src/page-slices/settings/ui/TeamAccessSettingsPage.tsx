@@ -2,6 +2,7 @@
 
 import { dedupeProfilesByEmail } from "@/shared/lib/profile-dedupe"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
+import { logError, logWarn } from "@/shared/lib/utils/logger"
 import { Database } from "@/shared/types/database.types"
 import {
   Avatar,
@@ -37,6 +38,11 @@ type Profile = Pick<
 type Team = Database["public"]["Tables"]["teams"]["Row"]
 
 const ROLES = ["employee", "stakeholder"] as const
+
+function isExpectedImpersonationError(error: unknown) {
+  if (!(error instanceof Error)) return false
+  return error.message === "Unauthorized" || error.message === "Forbidden"
+}
 const JOB_TITLES = [
   "Admin",
   "Project Manager",
@@ -185,7 +191,7 @@ export default function TeamAccessSettingsPage({
       toast.success("Team member added.")
       router.refresh()
     } catch (error) {
-      console.error("Failed to create team member", error)
+      logError("Failed to create team member", error)
       toast.error(
         error instanceof Error ? error.message : "Failed to add team member",
       )
@@ -215,7 +221,15 @@ export default function TeamAccessSettingsPage({
       router.refresh()
       router.push("/dashboard")
     } catch (error) {
-      console.error("Failed to switch user", error)
+      if (isExpectedImpersonationError(error)) {
+        const message = error instanceof Error ? error.message : "Unauthorized"
+        logWarn("Impersonation switch rejected", {
+          error: message,
+          targetUserId,
+        })
+      } else {
+        logError("Failed to switch user", error)
+      }
       toast.error(error instanceof Error ? error.message : "Failed to switch user")
     } finally {
       setLoadingImpersonationId(null)
@@ -257,7 +271,7 @@ export default function TeamAccessSettingsPage({
       setDeleteTarget(null)
       router.refresh()
     } catch (error) {
-      console.error("Failed to delete team member", error)
+      logError("Failed to delete team member", error)
       toast.error(
         error instanceof Error ? error.message : "Failed to delete team member",
       )

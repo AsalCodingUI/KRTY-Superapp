@@ -47,10 +47,7 @@ import { formatNumber } from "./utils"
 type ProjectCalculation =
   Database["public"]["Tables"]["project_calculations"]["Row"]
 
-const createId = () =>
-  typeof crypto !== "undefined" && "randomUUID" in crypto
-    ? crypto.randomUUID()
-    : `${Date.now()}-${Math.random().toString(16).slice(2)}`
+const createId = () => crypto.randomUUID()
 
 const parseNumber = (val: string): number => {
   const num = parseFloat(val.replace(/,/g, ""))

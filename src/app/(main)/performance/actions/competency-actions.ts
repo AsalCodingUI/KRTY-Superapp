@@ -2,6 +2,7 @@
 
 import type { Database } from "@/shared/types/database.types"
 import { createClient } from "@/shared/api/supabase/server"
+import { logError } from "@/shared/lib/utils/logger"
 
 type Competency = Database["public"]["Tables"]["competency_library"]["Row"]
 
@@ -22,7 +23,7 @@ export async function getCompetencies(roleFilter?: string) {
   const { data, error } = await query
 
   if (error) {
-    console.error("Error fetching competencies:", error)
+    logError("Error fetching competencies:", error)
     return { success: false, error: error.message, data: [] }
   }
 
@@ -48,7 +49,7 @@ export async function createCompetency(formData: FormData) {
     .single()
 
   if (error) {
-    console.error("Error creating competency:", error)
+    logError("Error creating competency:", error)
     return { success: false, error: error.message }
   }
 
@@ -75,7 +76,7 @@ export async function updateCompetency(id: string, formData: FormData) {
     .single()
 
   if (error) {
-    console.error("Error updating competency:", error)
+    logError("Error updating competency:", error)
     return { success: false, error: error.message }
   }
 
@@ -91,7 +92,7 @@ export async function deleteCompetency(id: string) {
     .eq("id", id)
 
   if (error) {
-    console.error("Error deleting competency:", error)
+    logError("Error deleting competency:", error)
     return { success: false, error: error.message }
   }
 

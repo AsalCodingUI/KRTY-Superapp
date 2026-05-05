@@ -2,6 +2,7 @@ import { createAdminClient } from "@/shared/api/supabase/admin"
 import { createClient } from "@/shared/api/supabase/server"
 import { ATTENDANCE_NOTE_TAGS, mergeAttendanceNote } from "@/shared/lib/attendance"
 import { resolveProfileByUserIdOrEmail } from "@/shared/lib/profile-resolution"
+import { logError } from "@/shared/lib/utils/logger"
 import { differenceInMinutes, format } from "date-fns"
 import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
@@ -109,7 +110,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, data })
   } catch (error) {
-    console.error("Attendance POST error", error)
+    logError("Attendance POST error", error)
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Failed to save attendance log" },
       { status: 500 },
@@ -234,7 +235,7 @@ export async function PATCH(request: NextRequest) {
     if (error) throw error
     return NextResponse.json({ success: true, data })
   } catch (error) {
-    console.error("Attendance PATCH error", error)
+    logError("Attendance PATCH error", error)
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Failed to update attendance log" },
       { status: 500 },

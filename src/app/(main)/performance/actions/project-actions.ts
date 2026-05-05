@@ -4,6 +4,7 @@ import { createClient } from "@/shared/api/supabase/server"
 import { dedupeProfilesByEmail } from "@/shared/lib/profile-dedupe"
 import { resolveProfileByUserIdOrEmail } from "@/shared/lib/profile-resolution"
 import { canManageProjects } from "@/shared/lib/roles"
+import { logError } from "@/shared/lib/utils/logger"
 import type { Database } from "@/shared/types/database.types"
 import { revalidatePath } from "next/cache"
 
@@ -82,7 +83,7 @@ export async function getProjects(
   const { data, error } = await query
 
   if (error) {
-    console.error("Error fetching projects:", error)
+    logError("Error fetching projects:", error)
     return { success: false, error: error.message, data: [] }
   }
 
@@ -107,7 +108,7 @@ export async function createProject(formData: FormData) {
     .single()
 
   if (error) {
-    console.error("Error creating project:", error)
+    logError("Error creating project:", error)
     return { success: false, error: error.message }
   }
 
@@ -136,7 +137,7 @@ export async function updateProject(id: string, formData: FormData) {
     .single()
 
   if (error) {
-    console.error("Error updating project:", error)
+    logError("Error updating project:", error)
     return { success: false, error: error.message }
   }
 
@@ -154,7 +155,7 @@ export async function deleteProject(id: string) {
     .eq("id", id)
 
   if (error) {
-    console.error("Error deleting project:", error)
+    logError("Error deleting project:", error)
     return { success: false, error: error.message }
   }
 
@@ -169,7 +170,7 @@ export async function permanentDeleteProject(id: string) {
   const { error } = await supabase.from("projects").delete().eq("id", id)
 
   if (error) {
-    console.error("Error permanently deleting project:", error)
+    logError("Error permanently deleting project:", error)
     return { success: false, error: error.message }
   }
 
@@ -186,7 +187,7 @@ export async function getAllUsers() {
     .order("full_name", { ascending: true })
 
   if (error) {
-    console.error("Error fetching users:", error)
+    logError("Error fetching users:", error)
     return { success: false, error: error.message, data: [] }
   }
 
@@ -217,7 +218,7 @@ export async function assignUserToProject(
     .single()
 
   if (error) {
-    console.error("Error assigning user:", error)
+    logError("Error assigning user:", error)
     return { success: false, error: error.message }
   }
 
@@ -239,7 +240,7 @@ export async function updateProjectAssignmentLead(
       .eq("project_id", projectId)
 
     if (resetError) {
-      console.error("Error resetting leads:", resetError)
+      logError("Error resetting leads:", resetError)
       return { success: false, error: resetError.message }
     }
   }
@@ -250,7 +251,7 @@ export async function updateProjectAssignmentLead(
     .eq("id", assignmentId)
 
   if (error) {
-    console.error("Error updating lead:", error)
+    logError("Error updating lead:", error)
     return { success: false, error: error.message }
   }
 
@@ -267,7 +268,7 @@ export async function removeUserFromProject(assignmentId: string) {
     .eq("id", assignmentId)
 
   if (error) {
-    console.error("Error removing assignment:", error)
+    logError("Error removing assignment:", error)
     return { success: false, error: error.message }
   }
 
@@ -297,7 +298,7 @@ export async function getProjectAssignments(projectId: string) {
     .eq("project_id", projectId)
 
   if (error) {
-    console.error("Error fetching assignments:", error)
+    logError("Error fetching assignments:", error)
     return { success: false, error: error.message, data: [] }
   }
 

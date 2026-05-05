@@ -4,6 +4,8 @@ import { createClient } from "@/shared/api/supabase/server"
 import { calculateBusinessDays, getLocalDateString } from "@/shared/lib/date"
 import { getCurrentQuarter } from "@/shared/lib/date/quarter"
 import { resolveProfileByUserIdOrEmail } from "@/shared/lib/profile-resolution"
+import { getCurrentUserSafely } from "@/shared/lib/supabase-auth"
+import { logError } from "@/shared/lib/utils/logger"
 import type { PeerReviewScores } from "@/shared/types/dashboard.types"
 import { Database } from "@/shared/types/database.types"
 
@@ -69,11 +71,16 @@ export async function getEmployeeDashboardData(
   try {
     const supabase = await createClient()
 
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-    if (authError || !user) {
+    const { user, error: authError } = await getCurrentUserSafely(
+      supabase,
+      "dashboard-employee-action",
+    )
+
+    if (authError && !user) {
+      return { success: false, error: authError }
+    }
+
+    if (!user) {
       return { success: false, error: "Unauthorized" }
     }
 
@@ -475,7 +482,7 @@ export async function getEmployeeDashboardData(
 
     return { success: true, data: dashboardData }
   } catch (error) {
-    console.error("Error fetching employee dashboard data:", error)
+    logError("Error fetching employee dashboard data:", error)
     return { success: false, error: "Failed to fetch dashboard data" }
   }
 }

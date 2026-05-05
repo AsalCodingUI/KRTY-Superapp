@@ -1,4 +1,5 @@
 import { createBrowserClient } from "@supabase/ssr"
+import { logError } from "@/shared/lib/utils/logger"
 
 export function createClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -17,9 +18,7 @@ export function createClient() {
     }
 
     // At runtime (browser), this is a real error
-    console.error(
-      "Supabase URL or Anon Key is missing. Please check your .env file.",
-    )
+    logError("Supabase URL or Anon Key is missing. Please check your .env file.")
     throw new Error("Supabase URL or Anon Key is missing.")
   }
 

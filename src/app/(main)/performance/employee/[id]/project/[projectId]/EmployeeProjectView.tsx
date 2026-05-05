@@ -20,6 +20,7 @@ import {
   TableRow,
   TableSection,
 } from "@/shared/ui"
+import { logError } from "@/shared/lib/utils/logger"
 import {
   RiArrowLeftLine,
   RiCheckLine,
@@ -151,7 +152,7 @@ export function EmployeeProjectView({
           }
         }
       } catch (error) {
-        console.error("Error loading data:", error)
+        logError("Error loading data:", error)
       } finally {
         setLoading(false)
       }

@@ -2,6 +2,7 @@
 
 import { projectService } from "@/entities/project/api/projectService"
 import { getQuarterFromDate } from "@/entities/performance/lib/kpiUtils"
+import { logError } from "@/shared/lib/utils/logger"
 import { type Database } from "@/shared/types/database.types"
 import { format as formatDate } from "date-fns"
 import {
@@ -98,7 +99,7 @@ export function ProjectForm({
         setUsers(result.data as User[])
       }
     } catch (error) {
-      console.error("Error loading users:", error)
+      logError("Error loading users:", error)
     }
   }, [])
 
@@ -134,7 +135,7 @@ export function ProjectForm({
         )
       }
     } catch (error) {
-      console.error("Error loading assignments:", error)
+      logError("Error loading assignments:", error)
     }
   }, [project])
 
@@ -189,7 +190,7 @@ export function ProjectForm({
           return
         }
       } catch (error) {
-        console.error("Error assigning user:", error)
+        logError("Error assigning user:", error)
         toast.error("Gagal menambah")
       }
       return
@@ -305,7 +306,7 @@ export function ProjectForm({
         toast.error("Gagal simpan")
       }
     } catch (error) {
-      console.error("Error submitting project:", error)
+      logError("Error submitting project:", error)
       toast.error("Gagal simpan")
     } finally {
       setLoading(false)

@@ -9,6 +9,7 @@ import { useMountedTabs } from "@/shared/hooks/useMountedTabs"
 import { useTabRoute } from "@/shared/hooks/useTabRoute"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { canManageByRole, canManageProjects } from "@/shared/lib/roles"
+import { logError } from "@/shared/lib/utils/logger"
 import {
   Badge,
   Button,
@@ -255,7 +256,7 @@ export function PerformancePage() {
 
       if (!isMounted) return
       if (error) {
-        console.error("Error checking lead assignments:", error)
+        logError("Error checking lead assignments:", error)
         setIsLead(false)
         return
       }

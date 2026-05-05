@@ -1,6 +1,8 @@
 import { createAdminClient } from "@/shared/api/supabase/admin"
 import { createClient } from "@/shared/api/supabase/server"
 import { resolveProfileByUserIdOrEmail } from "@/shared/lib/profile-resolution"
+import { getCurrentUserSafely } from "@/shared/lib/supabase-auth"
+import { logError } from "@/shared/lib/utils/logger"
 import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
 
@@ -11,12 +13,17 @@ const markReadSchema = z.object({
 
 async function getCanonicalProfile() {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const { user, error: authError } = await getCurrentUserSafely(
+    supabase,
+    "notifications-route",
+  )
+
+  if (authError && !user) {
+    return { user: null, profile: null, error: authError }
+  }
 
   if (!user) {
-    return { user: null, profile: null }
+    return { user: null, profile: null, error: null }
   }
 
   const profile = await resolveProfileByUserIdOrEmail<{
@@ -24,14 +31,17 @@ async function getCanonicalProfile() {
     email: string | null
   }>(supabase, "id, email, created_at", user.id, user.email)
 
-  return { user, profile }
+  return { user, profile, error: null }
 }
 
 export async function GET() {
   try {
-    const { user, profile } = await getCanonicalProfile()
+    const { user, profile, error: authError } = await getCanonicalProfile()
     if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      return NextResponse.json(
+        { error: authError || "Unauthorized" },
+        { status: 401 },
+      )
     }
     if (!profile) {
       return NextResponse.json({ error: "Profile not found" }, { status: 404 })
@@ -50,7 +60,7 @@ export async function GET() {
 
     return NextResponse.json({ notifications: data || [] })
   } catch (error) {
-    console.error("Notifications GET error", error)
+    logError("Notifications GET error", error)
     return NextResponse.json(
       { error: "Failed to fetch notifications" },
       { status: 500 },
@@ -60,9 +70,12 @@ export async function GET() {
 
 export async function PATCH(request: NextRequest) {
   try {
-    const { user, profile } = await getCanonicalProfile()
+    const { user, profile, error: authError } = await getCanonicalProfile()
     if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      return NextResponse.json(
+        { error: authError || "Unauthorized" },
+        { status: 401 },
+      )
     }
     if (!profile) {
       return NextResponse.json({ error: "Profile not found" }, { status: 404 })
@@ -96,7 +109,7 @@ export async function PATCH(request: NextRequest) {
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error("Notifications PATCH error", error)
+    logError("Notifications PATCH error", error)
     return NextResponse.json(
       { error: "Failed to update notifications" },
       { status: 500 },
@@ -106,9 +119,12 @@ export async function PATCH(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    const { user, profile } = await getCanonicalProfile()
+    const { user, profile, error: authError } = await getCanonicalProfile()
     if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      return NextResponse.json(
+        { error: authError || "Unauthorized" },
+        { status: 401 },
+      )
     }
     if (!profile) {
       return NextResponse.json({ error: "Profile not found" }, { status: 404 })
@@ -132,7 +148,7 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error("Notifications DELETE error", error)
+    logError("Notifications DELETE error", error)
     return NextResponse.json(
       { error: "Failed to delete notification" },
       { status: 500 },

@@ -1,4 +1,5 @@
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
+import { logError } from "@/shared/lib/utils/logger"
 import { Database } from "@/shared/types/database.types"
 import { useCallback, useEffect, useState } from "react"
 
@@ -33,29 +34,46 @@ export function useNotifications() {
       return null
     }
 
-    const response = await fetch("/api/notifications", {
-      credentials: "include",
-      cache: "no-store",
-    })
+    try {
+      const response = await fetch("/api/notifications", {
+        credentials: "include",
+        cache: "no-store",
+      })
 
-    if (!response.ok) {
-      setLoading(false)
-      throw new Error("Failed to fetch notifications")
-    }
+      if (!response.ok) {
+        if (response.status === 401 || response.status === 404) {
+          setNotifications([])
+          setUnreadCount(0)
+          setLoading(false)
+          return authProfile.id
+        }
 
-    const payload = (await response.json().catch(() => null)) as
-      | { notifications?: Notification[] }
-      | null
-    const data = payload?.notifications || []
+        const payload = (await response.json().catch(() => null)) as
+          | { error?: string }
+          | null
 
-    if (data) {
+        throw new Error(payload?.error || "Failed to fetch notifications")
+      }
+
+      const payload = (await response.json().catch(() => null)) as
+        | { notifications?: Notification[] }
+        | null
+      const data = payload?.notifications || []
+
       setNotifications(data)
       setUnreadCount(data.filter((n: Notification) => !n.is_read).length)
-    }
-    setLoading(false)
+      setLoading(false)
 
-    // Return userID untuk dipakai di subscription filter
-    return authProfile.id
+      return authProfile.id
+    } catch (error) {
+      logError("Failed to fetch notifications", error, {
+        authProfileId: authProfile.id,
+      })
+      setNotifications([])
+      setUnreadCount(0)
+      setLoading(false)
+      return authProfile.id
+    }
   }, [authProfile?.id, profileLoading])
 
   const markAsRead = async (id: string) => {

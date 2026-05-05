@@ -1,5 +1,6 @@
 "use client"
 
+import { logError } from "@/shared/lib/utils/logger"
 import {
     Button,
     Dialog,
@@ -42,7 +43,7 @@ export function ConfirmDialog({
             await onConfirm()
             onOpenChange(false)
         } catch (error) {
-            console.error("Confirm action failed:", error)
+            logError("Confirm action failed:", error)
         } finally {
             setIsSubmitting(false)
         }

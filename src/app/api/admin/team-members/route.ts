@@ -1,6 +1,7 @@
 import { createClient } from "@/shared/api/supabase/server"
 import { createAdminClient } from "@/shared/api/supabase/admin"
 import { resolveProfileByUserIdOrEmail } from "@/shared/lib/profile-resolution"
+import { logError } from "@/shared/lib/utils/logger"
 import { Database } from "@/shared/types/database.types"
 import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
@@ -122,7 +123,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, data: createdProfile })
   } catch (error) {
-    console.error("Create team member API error", error)
+    logError("Create team member API error", error)
     return NextResponse.json(
       { error: "Failed to create team member." },
       { status: 500 },

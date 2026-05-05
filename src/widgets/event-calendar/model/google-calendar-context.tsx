@@ -1,5 +1,6 @@
 "use client"
 
+import { logError } from "@/shared/lib/utils/logger"
 import { useRouter, useSearchParams } from "next/navigation"
 import { createContext, useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"
@@ -35,7 +36,7 @@ export function GoogleCalendarProvider({
       const data = await response.json()
       setIsConnected(data.isConnected || false)
     } catch (error) {
-      console.error("Failed to check Google Calendar connection:", error)
+      logError("Failed to check Google Calendar connection:", error)
       setIsConnected(false)
     } finally {
       setIsLoading(false)
@@ -66,7 +67,7 @@ export function GoogleCalendarProvider({
         throw new Error("No auth URL received")
       }
     } catch (error) {
-      console.error("Failed to connect Google Calendar:", error)
+      logError("Failed to connect Google Calendar:", error)
       toast.error("Gagal konek kalender")
     }
   }, [])
@@ -85,7 +86,7 @@ export function GoogleCalendarProvider({
         throw new Error("Failed to disconnect")
       }
     } catch (error) {
-      console.error("Failed to disconnect Google Calendar:", error)
+      logError("Failed to disconnect Google Calendar:", error)
       toast.error("Gagal putus kalender")
     }
   }, [router])

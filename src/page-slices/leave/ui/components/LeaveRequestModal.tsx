@@ -3,6 +3,7 @@
 import { LeaveFormData, LeaveRequestForm } from "@/features/leave-request/ui/LeaveRequestForm"
 import { createClient } from "@/shared/api/supabase/client"
 import { calculateBusinessDays } from "@/shared/lib/date"
+import { logError } from "@/shared/lib/utils/logger"
 import { Database } from "@/shared/types/database.types"
 import {
   Button, Checkbox, Dialog,
@@ -113,7 +114,7 @@ export function LeaveRequestModal({
         const compressedFile = await imageCompression(file, options)
         setFormData({ ...formData, proof_file: compressedFile })
       } catch (error) {
-        console.error("Compression failed:", error)
+        logError("Compression failed:", error)
         toast.error("Failed to process image.")
       } finally {
         setCompressing(false)
@@ -258,7 +259,7 @@ export function LeaveRequestModal({
               typeof (error as { message?: unknown }).message === "string"
             ? (error as { message: string }).message
           : "Failed to submit request"
-      console.error("Leave request submit error:", error)
+      logError("Leave request submit error:", error)
       toast.error(message)
     } finally {
       setLoading(false)

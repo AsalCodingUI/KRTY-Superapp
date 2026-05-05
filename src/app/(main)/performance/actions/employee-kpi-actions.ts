@@ -4,6 +4,7 @@ import { createClient } from "@/shared/api/supabase/server"
 import { dedupeProfilesByEmail } from "@/shared/lib/profile-dedupe"
 import { resolveProfileByUserIdOrEmail } from "@/shared/lib/profile-resolution"
 import { canManageByRole } from "@/shared/lib/roles"
+import { logError } from "@/shared/lib/utils/logger"
 
 type Employee = {
   id: string
@@ -110,7 +111,7 @@ export async function getAllEmployees(
   const { data: employees, error } = await query
 
   if (error) {
-    console.error("Error fetching employees:", error)
+    logError("Error fetching employees:", error)
     return { success: false, error: error.message, data: [] }
   }
 
@@ -128,7 +129,7 @@ export async function getAllEmployees(
       .in("user_id", employeeIds)
 
     if (assignmentError) {
-      console.error("Error fetching project assignments:", assignmentError)
+      logError("Error fetching project assignments:", assignmentError)
     } else {
       ; (assignments as ProjectAssignmentWithStatus[] | null)?.forEach(
         (assignment) => {
@@ -175,7 +176,7 @@ export async function getEmployeeDetail(userId: string, quarter?: string) {
     .single()
 
   if (employeeError) {
-    console.error("Error fetching employee:", employeeError)
+    logError("Error fetching employee:", employeeError)
     return { success: false, error: employeeError.message }
   }
 
@@ -215,7 +216,7 @@ export async function getEmployeeDetail(userId: string, quarter?: string) {
   const { data: assignments, error: assignmentsError } = await assignmentsQuery
 
   if (assignmentsError) {
-    console.error("Error fetching assignments:", assignmentsError)
+    logError("Error fetching assignments:", assignmentsError)
     return { success: false, error: assignmentsError.message }
   }
 
@@ -532,7 +533,7 @@ export async function getOverviewStats(quarter?: string): Promise<{
       },
     }
   } catch (error) {
-    console.error("Error fetching overview stats:", error)
+    logError("Error fetching overview stats:", error)
     return { success: false, error: "Failed to fetch overview stats" }
   }
 }

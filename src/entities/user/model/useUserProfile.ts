@@ -3,6 +3,7 @@
 import { createClient } from "@/shared/api/supabase/client"
 import { mergeDuplicateProfiles } from "@/shared/lib/profile-dedupe"
 import { canManageByRole } from "@/shared/lib/roles"
+import { logError } from "@/shared/lib/utils/logger"
 import { useEffect, useState } from "react"
 import type { UserProfile } from "./types"
 
@@ -32,7 +33,7 @@ export function useUserProfile() {
           .maybeSingle()
 
         if (profileError && profileError.code !== "PGRST116") {
-          console.error("Client fetch failed:", profileError)
+          logError("Client fetch failed:", profileError)
         }
 
         let resolvedProfile = profileData as UserProfile | null
@@ -47,7 +48,7 @@ export function useUserProfile() {
             .order("created_at", { ascending: true })
 
           if (emailLookupError && emailLookupError.code !== "PGRST116") {
-            console.error("Client email profile lookup failed:", emailLookupError)
+            logError("Client email profile lookup failed:", emailLookupError)
           }
 
           if ((emailProfiles || []).length === 1) {

@@ -56,25 +56,28 @@ export default function MobileSidebar({ children }: MobileSidebarProps) {
         if (item.name === "Project Calculator") {
           return (
             canAccessProjectCalculator(profile) &&
-            hasPermission(item.href, false) === true
+            hasPermission(item.href, true) === true
           )
         }
         if (item.name === "SLA Generator") {
           return (
             canAccessSLAGenerator(profile) &&
-            hasPermission(item.href, false) === true
+            hasPermission(item.href, true) === true
           )
         }
         if (item.name === "Message") {
           return (
             (hasRoleAccess(item.roles, profile.role) ||
               profile.job_title === "Project Manager") &&
-            hasPermission(item.href, false) === true
+            hasPermission(item.href, true) === true
           )
         }
         return (
           hasRoleAccess(item.roles, profile.role) &&
-          hasPermission(item.href, false) === true
+          hasPermission(
+            item.href,
+            hasRoleAccess(item.roles, profile.role, { allowUnknown: false }),
+          ) === true
         )
       }),
     [loading, permissionLoading, profile, hasPermission],
@@ -91,7 +94,10 @@ export default function MobileSidebar({ children }: MobileSidebarProps) {
         if (loading || permissionLoading || !profile) return false
         return (
           hasRoleAccess(item.roles, profile.role) &&
-          hasPermission(item.href, false) === true
+          hasPermission(
+            item.href,
+            hasRoleAccess(item.roles, profile.role, { allowUnknown: false }),
+          ) === true
         )
       }),
     [loading, permissionLoading, profile, hasPermission],

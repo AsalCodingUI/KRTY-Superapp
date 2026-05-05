@@ -2,6 +2,7 @@ import { createAdminClient } from "@/shared/api/supabase/admin"
 import { createClient } from "@/shared/api/supabase/server"
 import { dedupeProfilesByEmail } from "@/shared/lib/profile-dedupe"
 import { resolveProfileByUserIdOrEmail } from "@/shared/lib/profile-resolution"
+import { logError } from "@/shared/lib/utils/logger"
 import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
 
@@ -160,7 +161,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, data })
   } catch (error) {
-    console.error("Performance review submit error", error)
+    logError("Performance review submit error", error)
     return NextResponse.json(
       {
         error:

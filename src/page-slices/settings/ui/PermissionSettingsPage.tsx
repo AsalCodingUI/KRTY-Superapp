@@ -5,6 +5,7 @@ import { createClient } from "@/shared/api/supabase/client"
 import { dedupeProfilesByEmail } from "@/shared/lib/profile-dedupe"
 import { navigationConfig } from "@/shared/config/navigation"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
+import { logError, logWarn } from "@/shared/lib/utils/logger"
 import { Database } from "@/shared/types/database.types"
 import {
   Avatar,
@@ -29,6 +30,11 @@ type UserPagePermission =
 
 const ROLES = ["stakeholder", "employee"]
 const JOB_TITLES = ["Admin", "Project Manager", "Designer", "Web Developer"]
+
+function isExpectedImpersonationError(error: unknown) {
+  if (!(error instanceof Error)) return false
+  return error.message === "Unauthorized" || error.message === "Forbidden"
+}
 
 /** Pages controllable from app navigation (no hardcoded page list) */
 const CONTROLLABLE_PAGES = (() => {
@@ -120,7 +126,7 @@ export default function PermissionSettingsPage({
       )
       router.refresh()
     } catch (error) {
-      console.error("Gagal update:", error)
+      logError("Gagal update:", error)
       toast.error("Gagal mengupdate data.")
     } finally {
       setLoadingId(null)
@@ -144,7 +150,7 @@ export default function PermissionSettingsPage({
         ),
       )
     } catch (error) {
-      console.error("Gagal toggle super admin:", error)
+      logError("Gagal toggle super admin:", error)
     } finally {
       setLoadingId(null)
     }
@@ -181,7 +187,7 @@ export default function PermissionSettingsPage({
       )
       if (error) throw error
     } catch (error) {
-      console.error("Gagal update permission:", error)
+      logError("Gagal update permission:", error)
       // Revert optimistic update on error
       setPermissionsMap((prev) => ({
         ...prev,
@@ -217,7 +223,15 @@ export default function PermissionSettingsPage({
       router.refresh()
       router.push("/leave")
     } catch (error) {
-      console.error("Failed to switch user", error)
+      if (isExpectedImpersonationError(error)) {
+        const message = error instanceof Error ? error.message : "Unauthorized"
+        logWarn("Impersonation switch rejected", {
+          error: message,
+          targetUserId,
+        })
+      } else {
+        logError("Failed to switch user", error)
+      }
       toast.error(error instanceof Error ? error.message : "Failed to switch user")
     } finally {
       setLoadingImpersonationId(null)

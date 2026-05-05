@@ -1,5 +1,6 @@
 import { createClient } from "@/shared/api/supabase/client"
 import { Database } from "@/shared/types/database.types"
+import { logError } from "@/shared/lib/utils/logger"
 
 type ProjectRoleEnum = Database["public"]["Enums"]["project_role_enum"]
 
@@ -133,7 +134,7 @@ export const projectService = {
     })
 
     if (error) {
-      console.error("RPC bulk_assign_project_members failed:", error)
+      logError("RPC bulk_assign_project_members failed:", error)
       throw new Error(error.message)
     }
 

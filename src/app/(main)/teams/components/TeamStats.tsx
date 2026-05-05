@@ -13,7 +13,6 @@ interface TeamStatsProps {
 export function TeamStats({ data }: TeamStatsProps) {
   const totalMembers = data.length
 
-  // TODO: Move filtering logic to server/parent for better scalability
   const totalDesigners = data.filter((p) => p.job_title === "Designer").length
   const totalDevelopers = data.filter(
     (p) => p.job_title === "Web Developer",

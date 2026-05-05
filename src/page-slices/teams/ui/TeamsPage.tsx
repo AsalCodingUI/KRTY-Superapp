@@ -15,12 +15,21 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation"
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"]
 
+interface TeamStats {
+  total: number
+  designers: number
+  developers: number
+  pms: number
+  admins: number
+}
+
 interface TeamsPageProps {
   initialData: Profile[]
   page: number
   pageSize: number
   totalCount: number
   role?: string
+  teamStats?: TeamStats
 }
 
 export function TeamsPage({
@@ -29,6 +38,7 @@ export function TeamsPage({
   pageSize,
   totalCount,
   role,
+  teamStats,
 }: TeamsPageProps) {
   const router = useRouter()
   const pathname = usePathname()
@@ -66,17 +76,17 @@ export function TeamsPage({
     })
   }, [initialData, normalizedSearch])
 
-  const totalMembers = initialData.length
-  const totalDesigners = initialData.filter(
+  const totalMembers = teamStats?.total ?? initialData.length
+  const totalDesigners = teamStats?.designers ?? initialData.filter(
     (profile) => profile.job_title === "Designer",
   ).length
-  const totalDevelopers = initialData.filter(
+  const totalDevelopers = teamStats?.developers ?? initialData.filter(
     (profile) => profile.job_title === "Web Developer",
   ).length
-  const totalPMs = initialData.filter(
+  const totalPMs = teamStats?.pms ?? initialData.filter(
     (profile) => profile.job_title === "Project Manager",
   ).length
-  const totalAdmins = initialData.filter(
+  const totalAdmins = teamStats?.admins ?? initialData.filter(
     (profile) =>
       profile.role === "stakeholder" || profile.job_title === "Admin",
   ).length

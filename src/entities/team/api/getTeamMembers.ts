@@ -2,6 +2,7 @@
 
 import { createClient } from "@/shared/api/supabase/server"
 import { dedupeProfilesByEmail } from "@/shared/lib/profile-dedupe"
+import { logError } from "@/shared/lib/utils/logger"
 import { TeamMember } from "../model/types"
 
 /**
@@ -18,7 +19,7 @@ export async function getTeamMembers(): Promise<TeamMember[]> {
     .order("full_name", { ascending: true })
 
   if (error) {
-    console.error("Error fetching team members:", error)
+    logError("Error fetching team members:", error)
     throw error
   }
 
@@ -43,7 +44,7 @@ export async function getTeamMember(
     .single()
 
   if (error) {
-    console.error("Error fetching team member:", error)
+    logError("Error fetching team member:", error)
     return null
   }
 

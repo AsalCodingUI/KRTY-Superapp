@@ -1,6 +1,7 @@
 import { createAdminClient } from "@/shared/api/supabase/admin"
 import { createClient } from "@/shared/api/supabase/server"
 import { resolveProfileByUserIdOrEmail } from "@/shared/lib/profile-resolution"
+import { logError } from "@/shared/lib/utils/logger"
 import { NextRequest, NextResponse } from "next/server"
 
 type RouteContext = {
@@ -135,7 +136,7 @@ export async function DELETE(_request: NextRequest, context: RouteContext) {
       },
     })
   } catch (error) {
-    console.error("Delete team member API error", error)
+    logError("Delete team member API error", error)
     return NextResponse.json(
       { error: "Failed to delete team member." },
       { status: 500 },

@@ -1,6 +1,7 @@
 "use server"
 
 import { createClient } from "@/shared/api/supabase/server"
+import { logError } from "@/shared/lib/utils/logger"
 import { TeamStats } from "../model/types"
 
 /**
@@ -50,7 +51,7 @@ export async function getTeamStats(teamMembers: string[]): Promise<TeamStats> {
       statsByJobTitle,
     }
   } catch (error) {
-    console.error("[getTeamStats] Error:", error)
+    logError("[getTeamStats] Error:", error)
     throw error
   }
 }

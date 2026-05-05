@@ -28,6 +28,7 @@ import {
   TableSection,
   TextInput
 } from "@/shared/ui"
+import { logError } from "@/shared/lib/utils/logger"
 import {
   RiArrowLeftLine,
   RiCheckLine,
@@ -201,7 +202,7 @@ export const ProjectScoringClient = forwardRef<
           }
         }
       } catch (error) {
-        console.error("Error loading data:", error)
+        logError("Error loading data:", error)
       } finally {
         setLoading(false)
       }
@@ -246,7 +247,7 @@ export const ProjectScoringClient = forwardRef<
         toast.error("Gagal simpan")
       }
     } catch (error) {
-      console.error("Error saving SLA:", error)
+      logError("Error saving SLA:", error)
       toast.error("Gagal simpan")
     } finally {
       setSaving(false)
@@ -279,7 +280,7 @@ export const ProjectScoringClient = forwardRef<
         toast.error("Gagal simpan")
       }
     } catch (error) {
-      console.error("Error saving quality:", error)
+      logError("Error saving quality:", error)
       toast.error("Gagal simpan")
     } finally {
       setSaving(false)

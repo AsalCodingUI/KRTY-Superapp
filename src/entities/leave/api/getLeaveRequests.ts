@@ -1,4 +1,5 @@
 import { createClient } from "@/shared/api/supabase/server"
+import { logError } from "@/shared/lib/utils/logger"
 import { LeaveRequest, LeaveRequestWithProfile } from "../model/types"
 
 interface GetLeaveRequestsOptions {
@@ -122,7 +123,7 @@ export async function getLeaveRequestById(
 
     return data
   } catch (error) {
-    console.error("Failed to fetch leave request:", error)
+    logError("Failed to fetch leave request:", error)
     return null
   }
 }

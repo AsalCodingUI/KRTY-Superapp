@@ -1,6 +1,7 @@
 import { createAdminClient } from "@/shared/api/supabase/admin"
 import { createClient } from "@/shared/api/supabase/server"
 import { resolveProfileByUserIdOrEmail } from "@/shared/lib/profile-resolution"
+import { logError } from "@/shared/lib/utils/logger"
 import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
 
@@ -74,7 +75,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, data })
   } catch (error) {
-    console.error("Leave request create error", error)
+    logError("Leave request create error", error)
     return NextResponse.json(
       {
         error:
@@ -136,7 +137,7 @@ export async function PATCH(request: NextRequest) {
 
     return NextResponse.json({ success: true, data })
   } catch (error) {
-    console.error("Leave request update error", error)
+    logError("Leave request update error", error)
     return NextResponse.json(
       {
         error:

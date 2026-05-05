@@ -4,11 +4,13 @@ import { createClient } from "@/shared/api/supabase/server"
 import { getLocalDateString } from "@/shared/lib/date"
 import { resolveProfileByUserIdOrEmail } from "@/shared/lib/profile-resolution"
 import { canManageByRole } from "@/shared/lib/roles"
+import { logError } from "@/shared/lib/utils/logger"
 import { getDailyStats } from "@/entities/attendance/api"
 import { getLeaveDashboardStats } from "@/entities/leave/api"
 import { getPerformanceDashboardStats } from "@/entities/performance/api"
 import type { LeaveRequestWithProfile } from "@/entities/leave/model/types"
 import { getCurrentQuarter } from "@/shared/lib/date/quarter"
+import { getCurrentUserSafely } from "@/shared/lib/supabase-auth"
 
 import { differenceInBusinessDays, parseISO } from "date-fns"
 
@@ -95,12 +97,16 @@ export async function getAdminDashboardData(): Promise<{
   try {
     const supabase = await createClient()
 
-    // Get current user and verify admin/stakeholder role
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-    if (authError || !user) {
+    const { user, error: authError } = await getCurrentUserSafely(
+      supabase,
+      "dashboard-admin-action",
+    )
+
+    if (authError && !user) {
+      return { success: false, error: authError }
+    }
+
+    if (!user) {
       return { success: false, error: "Unauthorized" }
     }
 
@@ -225,7 +231,7 @@ export async function getAdminDashboardData(): Promise<{
 
     return { success: true, data: dashboardData }
   } catch (error) {
-    console.error("Error fetching admin dashboard data:", error)
+    logError("Error fetching admin dashboard data:", error)
     return { success: false, error: "Failed to fetch dashboard data" }
   }
 }
