@@ -115,7 +115,10 @@
     },
     "onlyBuiltDependencies": [
       "electron",
-      "esbuild"
+      "esbuild",
+      "sharp",
+      "supabase",
+      "unrs-resolver"
     ]
   }
 }
