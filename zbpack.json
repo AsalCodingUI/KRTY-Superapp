@@ -1,0 +1,3 @@
+{
+  "install_command": "printf 'onlyBuiltDependencies:\\n  - esbuild\\n  - sharp\\n  - supabase\\n  - unrs-resolver\\n  - electron\\n' > pnpm-workspace.yaml && pnpm install"
+}
