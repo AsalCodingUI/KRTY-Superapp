@@ -135,7 +135,7 @@ const TabNavigationLink = React.forwardRef<
                   {children}
                 </span>
                 {showBadge && badge !== undefined && badge !== null && (
-                  <span className="bg-primary text-primary-foreground flex min-w-5 items-center justify-center rounded-full px-1.5 py-0.5 text-xs font-medium">
+                  <span className="bg-primary text-primary-foreground flex min-w-5 items-center justify-center rounded-sm px-1.5 py-0.5 text-xs font-medium">
                     {badge}
                   </span>
                 )}

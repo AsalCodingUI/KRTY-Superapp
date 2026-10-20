@@ -30,7 +30,7 @@ export function EmployeeProjectsWidget({
 }: EmployeeProjectsWidgetProps) {
   if (projects.length === 0) {
     return (
-      <div className="bg-foreground/[0.03] rounded-lg p-4">
+      <div className="py-2">
         {showHeader && (
           <h3 className="text-foreground mb-4 text-sm font-medium">
             Active Projects

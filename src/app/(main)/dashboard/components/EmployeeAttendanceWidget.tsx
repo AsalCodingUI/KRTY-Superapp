@@ -143,7 +143,7 @@ export function EmployeeAttendanceWidget({
 
   return (
     <div className="space-y-4">
-      <div className="bg-foreground/[0.03] rounded-lg px-3 py-2">
+      <div className="py-2">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-muted-foreground text-sm font-medium">

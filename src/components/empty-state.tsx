@@ -55,7 +55,7 @@ export function EmptyState({
         {icon !== null && (
           <EmptyMedia
             variant="icon"
-            className="bg-muted text-muted-foreground mb-0 size-12 rounded-full"
+            className="bg-muted text-muted-foreground mb-0 size-10 rounded-lg"
           >
             {icon || <HammerIcon className="size-5" />}
           </EmptyMedia>

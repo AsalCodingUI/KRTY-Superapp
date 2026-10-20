@@ -68,7 +68,7 @@ export function AdminPendingActions({
                   key={`${review.employee_id}-${review.cycle_id}`}
                   href={`/performance?tab=360review`}
                 >
-                  <div className="hover:bg-muted flex items-center justify-between px-3 py-2 transition-colors">
+                  <div className="hover:bg-accent -mx-3 flex items-center justify-between rounded-md px-3 py-2 transition-colors">
                     <div className="flex items-center gap-3">
                       <Avatar className="size-7">
                         <AvatarImage
@@ -137,7 +137,7 @@ export function AdminPendingActions({
 
                 return (
                   <Link key={leave.id} href="/leave">
-                    <div className="hover:bg-muted px-3 py-2 transition-colors">
+                    <div className="hover:bg-accent -mx-3 rounded-md px-3 py-2 transition-colors">
                       <div className="mb-2 flex items-start justify-between">
                         <div className="flex items-center gap-3">
                           <Avatar className="size-7">

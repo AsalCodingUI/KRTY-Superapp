@@ -93,7 +93,7 @@ export function CalendarSidebarMobileTrigger() {
         render={
           <Button
             variant="outline"
-            className="shadow-regular-lg rounded-full lg:hidden"
+            className="shadow-lg lg:hidden"
             aria-label="Buka filter kalender"
           />
         }

@@ -288,7 +288,7 @@ export function OneOnOneMeetingTab({
       {isAdmin && (
         <TableSection
           title={`Buat Slot 1:1 (${selectedQuarter})`}
-          contentClassName="px-3 pb-3 pt-1"
+          contentClassName="pt-1"
         >
           <div
             className={
@@ -471,7 +471,7 @@ export function OneOnOneMeetingTab({
         </Table>
 
         {isAdmin && editingSlotId && (
-          <div className="bg-foreground/[0.03] mt-4 rounded-lg p-3">
+          <div className="mt-4 border-t pt-4">
             <div className="grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)_minmax(0,1fr)_auto] md:items-end">
               <div className="flex flex-col gap-2">
                 <Label>Tanggal</Label>

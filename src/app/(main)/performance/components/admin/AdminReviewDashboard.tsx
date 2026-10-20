@@ -391,7 +391,7 @@ export function AdminReviewDashboard({
       {/* 1. MANAGEMENT CARD */}
       <TableSection
         title="Review Cycle Management"
-        contentClassName="px-3 pb-3 pt-1"
+        contentClassName="pt-1"
         actions={
           activeCycleData ? (
             <Badge variant="success" className="animate-pulse">

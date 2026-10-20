@@ -58,18 +58,17 @@ export function NavUser({
             // the profile loads, which shifted Base UI's generated ids.
             id="nav-user-menu-trigger"
             render={
-              <SidebarMenuButton size="lg" className="aria-expanded:bg-muted" />
+              <SidebarMenuButton className="aria-expanded:bg-sidebar-accent h-8" />
             }
           >
-            <Avatar>
+            <Avatar className="size-5">
               <AvatarImage src={user.avatar} alt={user.name} />
-              <AvatarFallback>{initials}</AvatarFallback>
+              <AvatarFallback className="text-[10px]">
+                {initials}
+              </AvatarFallback>
             </Avatar>
-            <div className="grid flex-1 text-left text-sm leading-tight">
-              <span className="truncate font-medium">{user.name}</span>
-              <span className="truncate text-xs">{user.email}</span>
-            </div>
-            <ChevronsUpDownIcon className="ml-auto size-4" />
+            <span className="flex-1 truncate font-medium">{user.name}</span>
+            <ChevronsUpDownIcon className="text-muted-foreground ml-auto size-3.5" />
           </DropdownMenuTrigger>
           <DropdownMenuContent
             className="w-(--anchor-width) min-w-56 rounded-lg"

@@ -20,7 +20,7 @@ import { ChevronRight as ChevronRightIcon } from "@/components/icons"
 import Link from "next/link"
 
 export function NavMain({
-  label = "Platform",
+  label,
   items,
 }: {
   label?: string
@@ -37,7 +37,7 @@ export function NavMain({
 }) {
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>{label}</SidebarGroupLabel>
+      {label && <SidebarGroupLabel>{label}</SidebarGroupLabel>}
       <SidebarMenu>
         {items.map((item) => (
           <Collapsible
@@ -60,15 +60,16 @@ export function NavMain({
                     <SidebarMenuAction className="aria-expanded:rotate-90" />
                   }
                 >
-                  <ChevronRightIcon
-                  />
+                  <ChevronRightIcon />
                   <span className="sr-only">Toggle</span>
                 </CollapsibleTrigger>
                 <CollapsibleContent>
                   <SidebarMenuSub>
                     {item.items?.map((subItem) => (
                       <SidebarMenuSubItem key={subItem.title}>
-                        <SidebarMenuSubButton render={<Link href={subItem.url} prefetch={false} />}>
+                        <SidebarMenuSubButton
+                          render={<Link href={subItem.url} prefetch={false} />}
+                        >
                           <span>{subItem.title}</span>
                         </SidebarMenuSubButton>
                       </SidebarMenuSubItem>

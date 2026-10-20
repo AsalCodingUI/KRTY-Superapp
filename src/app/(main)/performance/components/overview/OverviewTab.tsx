@@ -165,7 +165,7 @@ function EmployeeOverview({
       {/* SCORECARD SUMMARY */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
         {/* Overall Score Card */}
-        <Card className="bg-foreground/[0.03] flex flex-col justify-between gap-0 rounded-lg p-4">
+        <Card className="flex flex-col justify-between gap-1">
           <dt className="text-muted-foreground text-sm font-medium">
             Overall Score
           </dt>
@@ -373,7 +373,7 @@ function EmployeeOverview({
                   href={`/performance/employee/${profile?.id}/project/${assignment.projects.id}`}
                   className="block"
                 >
-                  <div className="hover:bg-accent bg-foreground/[0.03] flex items-center justify-between rounded-lg p-3 transition-colors">
+                  <div className="hover:bg-accent -mx-2 flex items-center justify-between rounded-md px-2 py-2.5 transition-colors">
                     <div className="min-w-0 flex-1">
                       <h4 className="text-foreground truncate font-medium">
                         {assignment.projects.name}
@@ -653,7 +653,7 @@ function StakeholderOverview({
             /* Switch to KPI tab */
           }}
         >
-          <Card className="bg-foreground/[0.03] hover:bg-foreground/[0.06] cursor-pointer gap-0 rounded-lg p-4 transition-colors">
+          <Card className="hover:bg-accent -mx-3 cursor-pointer gap-0 rounded-lg px-3 py-3 transition-colors">
             <div className="flex items-center gap-4">
               <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-lg">
                 <RiLineChartLine className="text-primary size-5" />
@@ -674,7 +674,7 @@ function StakeholderOverview({
             /* Switch to 360 Review tab */
           }}
         >
-          <Card className="bg-foreground/[0.03] hover:bg-foreground/[0.06] cursor-pointer gap-0 rounded-lg p-4 transition-colors">
+          <Card className="hover:bg-accent -mx-3 cursor-pointer gap-0 rounded-lg px-3 py-3 transition-colors">
             <div className="flex items-center gap-4">
               <div className="bg-success/10 flex h-10 w-10 items-center justify-center rounded-lg">
                 <RiUserLine className="text-success size-5" />

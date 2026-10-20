@@ -110,7 +110,7 @@ export function EventCard({
         </div>
         {showTime && !allDay && (
           <div className="flex-shrink-0">
-            <span className="bg-muted rounded-full px-2 py-1 text-xs font-medium">
+            <span className="bg-muted rounded-sm px-1.5 py-0.5 text-xs font-medium">
               {format(start, "HH:mm")}
             </span>
           </div>

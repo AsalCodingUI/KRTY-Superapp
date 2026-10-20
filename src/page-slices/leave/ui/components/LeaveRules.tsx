@@ -74,7 +74,7 @@ export function LeaveRules() {
         <div className="bg-foreground/[0.03] space-y-3 rounded-lg p-4">
           {/* Pertanyaan */}
           <div className="flex gap-3">
-            <div className="bg-border text-muted-foreground flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-medium">
+            <div className="bg-border text-muted-foreground flex h-5 w-5 shrink-0 items-center justify-center rounded-sm text-xs font-medium">
               ?
             </div>
             <p>
@@ -89,10 +89,7 @@ export function LeaveRules() {
 
           {/* Jawaban */}
           <div className="flex gap-3">
-            <Badge
-              variant="destructive"
-              className="h-5 w-5 justify-center rounded-full p-0"
-            >
+            <Badge variant="destructive" className="h-5 w-5 justify-center p-0">
               !
             </Badge>
             <p className="text-destructive">
@@ -104,7 +101,7 @@ export function LeaveRules() {
 
           {/* Alasan */}
           <div className="flex gap-3">
-            <div className="bg-border text-muted-foreground flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-medium">
+            <div className="bg-border text-muted-foreground flex h-5 w-5 shrink-0 items-center justify-center rounded-sm text-xs font-medium">
               i
             </div>
             <p className="text-muted-foreground italic">

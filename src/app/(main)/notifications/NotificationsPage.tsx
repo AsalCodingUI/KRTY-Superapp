@@ -68,7 +68,7 @@ export function NotificationsPage() {
                   href={notification.link || "#"}
                   onClick={() => markAsRead(notification.id)}
                   className={cx(
-                    "hover:bg-muted block rounded-md px-3 py-3 transition-colors",
+                    "hover:bg-accent -mx-3 block rounded-md px-3 py-3 transition-colors",
                     !notification.is_read ? "bg-primary/10" : "",
                   )}
                 >
@@ -118,7 +118,7 @@ export function NotificationsPage() {
           <Button
             variant="outline"
             onClick={() => markAllAsRead()}
-            className="shadow-regular-lg rounded-full"
+            className="shadow-lg"
           >
             Mark all as read
           </Button>

@@ -82,7 +82,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         {loading ? (
-          <SidebarMenu className="p-2">
+          <SidebarMenu className="p-1.5">
             {Array.from({ length: 6 }).map((_, i) => (
               <SidebarMenuItem key={i}>
                 <SidebarMenuSkeleton showIcon />
@@ -90,7 +90,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             ))}
           </SidebarMenu>
         ) : (
-          <NavMain label="Workspace" items={navMain} />
+          <NavMain items={navMain} />
         )}
         <NavSecondary items={navSecondary} className="mt-auto" />
       </SidebarContent>

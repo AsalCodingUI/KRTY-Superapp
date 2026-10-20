@@ -17,7 +17,7 @@ export default function TeamsLoading() {
           <div key={i} className="space-y-4 rounded-lg">
             <div className="flex items-center justify-between">
               <Skeleton className="h-5 w-32" />
-              <Skeleton className="h-6 w-16 rounded-full" />
+              <Skeleton className="h-5 w-16 rounded-sm" />
             </div>
             <Skeleton className="h-4 w-full" />
             <div className="flex gap-2">

@@ -49,7 +49,7 @@ export function AdminRecentActivities({
           {activities.map((activity) => (
             <div
               key={activity.id}
-              className="hover:bg-muted flex items-start gap-3 px-3 py-2 transition-colors"
+              className="hover:bg-accent -mx-3 flex items-start gap-3 rounded-md px-3 py-2 transition-colors"
             >
               <div className="min-w-0 flex-1">
                 <div className="flex items-start gap-2">

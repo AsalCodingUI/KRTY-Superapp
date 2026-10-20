@@ -467,7 +467,7 @@ export function ProjectForm({
                   {teamMembers.map((member) => (
                     <div
                       key={member.userId}
-                      className="bg-foreground/[0.03] flex items-center justify-between rounded-lg p-2"
+                      className="flex items-center justify-between border-b py-2 last:border-b-0"
                     >
                       <div className="flex items-center gap-2">
                         <Avatar className="size-7">

@@ -169,7 +169,7 @@ export function Notifications({ variant = "default" }: NotificationsProps) {
           <>
             <span>Notification Center</span>
             {unreadCount > 0 && (
-              <span className="bg-primary/10 text-primary ml-auto flex items-center justify-center rounded-full px-2 py-0.5 text-xs font-medium">
+              <span className="bg-primary/10 text-primary ml-auto flex items-center justify-center rounded-sm px-1.5 py-0.5 text-xs font-medium">
                 {unreadCount}
               </span>
             )}

@@ -1380,13 +1380,12 @@ export const SLADocumentPreview = React.forwardRef<
       `}</style>
 
       {/* --- TOP NAVIGATION --- */}
-      <div className="shadow-sm-border z-50 mb-4 flex items-center gap-4 rounded-full px-2 py-2 backdrop-blur-md print:hidden">
+      <div className="shadow-sm-border z-50 mb-4 flex items-center gap-4 rounded-xl px-2 py-2 backdrop-blur-md print:hidden">
         <Button
           variant="ghost"
           size="icon"
           onClick={prevPage}
           disabled={pageNum === 1}
-          className="rounded-full"
         >
           <RiArrowLeftSLine size={16} />
         </Button>
@@ -1401,7 +1400,6 @@ export const SLADocumentPreview = React.forwardRef<
           size="icon"
           onClick={nextPage}
           disabled={pageNum === pages.length + 1}
-          className="rounded-full"
         >
           <RiArrowRightSLine size={16} />
         </Button>

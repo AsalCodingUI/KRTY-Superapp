@@ -85,7 +85,7 @@ export function GuestList({
             {/* Status */}
             <div
               className={cx(
-                "flex items-center gap-1 rounded-full px-2 py-1 text-xs",
+                "flex items-center gap-1 rounded-sm px-1.5 py-0.5 text-xs",
                 guest.status === "accepted" && "bg-success/10 text-success",
                 guest.status === "pending" && "bg-warning/10 text-warning",
                 guest.status === "declined" &&
