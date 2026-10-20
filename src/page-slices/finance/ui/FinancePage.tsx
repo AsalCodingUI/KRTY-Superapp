@@ -14,32 +14,37 @@ import { createClient } from "@/shared/api/supabase/client"
 import { useMountedTabs } from "@/shared/hooks/useMountedTabs"
 import { useTabRoute } from "@/shared/hooks/useTabRoute"
 import type { Database } from "@/shared/types/database.types"
+import { EmptyState } from "@/components/empty-state"
 import {
-  Badge,
-  Button,
+  TabNavigation,
+  TabNavigationLink,
+} from "@/components/tab-navigation"
+import { TableSection } from "@/components/table-section"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import {
   Dialog,
-  DialogBody,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  EmptyState,
+} from "@/components/ui/dialog"
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Spinner,
-  TabNavigation,
-  TabNavigationLink,
+} from "@/components/ui/select"
+import { Spinner } from "@/components/ui/spinner"
+import {
   Table,
   TableBody,
   TableCell,
   TableHead,
-  TableHeaderCell,
+  TableHeader,
   TableRow,
-  TableSection,
-} from "@/shared/ui"
+} from "@/components/ui/table"
 import { RiAddLine, RiFileList3Line, RiMoneyDollarCircleLine } from "@/shared/ui/lucide-icons"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { format } from "date-fns"
@@ -72,13 +77,13 @@ function SelectProjectDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[400px]">
+      <DialogContent className="sm:max-w-[400px]">
         <DialogHeader>
           <DialogTitle>Select Project</DialogTitle>
         </DialogHeader>
-        <DialogBody className="space-y-3">
+        <div className="space-y-3">
           <Select value={selected} onValueChange={setSelected}>
-            <SelectTrigger className="w-full">
+            <SelectTrigger size="sm" className="w-full">
               <SelectValue placeholder="Choose a project..." />
             </SelectTrigger>
             <SelectContent>
@@ -89,12 +94,13 @@ function SelectProjectDialog({
               ))}
             </SelectContent>
           </Select>
-        </DialogBody>
+        </div>
         <DialogFooter>
-          <Button variant="secondary" onClick={() => onOpenChange(false)}>
+          <Button size="sm" variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
           <Button
+            size="sm"
             disabled={!selected}
             onClick={() => {
               onSelect(selected)
@@ -150,17 +156,17 @@ function InvoicesTabContent({
           />
         ) : (
           <Table>
-            <TableHead>
+            <TableHeader>
               <TableRow className="h-[40px] hover:bg-transparent">
-                <TableHeaderCell>Invoice No</TableHeaderCell>
-                <TableHeaderCell>Project</TableHeaderCell>
-                <TableHeaderCell>Issue Date</TableHeaderCell>
-                <TableHeaderCell>Due Date</TableHeaderCell>
-                <TableHeaderCell>Amount</TableHeaderCell>
-                <TableHeaderCell>Paid</TableHeaderCell>
-                <TableHeaderCell>Status</TableHeaderCell>
+                <TableHead>Invoice No</TableHead>
+                <TableHead>Project</TableHead>
+                <TableHead>Issue Date</TableHead>
+                <TableHead>Due Date</TableHead>
+                <TableHead>Amount</TableHead>
+                <TableHead>Paid</TableHead>
+                <TableHead>Status</TableHead>
               </TableRow>
-            </TableHead>
+            </TableHeader>
             <TableBody>
               {invoices.map((inv) => {
                 const project = (inv as any).projects as {
@@ -200,7 +206,7 @@ function InvoicesTabContent({
                         variant={
                           INVOICE_STATUS_VARIANTS[
                           inv.status as InvoiceStatus
-                          ] || "zinc"
+                          ] || "secondary"
                         }
                       >
                         {inv.status}
@@ -324,7 +330,7 @@ export function FinancePage() {
         <div className="px-5 py-2">
           {isInvoicesLoading ? (
             <div className="flex items-center justify-center py-8">
-              <Spinner size="md" />
+              <Spinner className="size-8" />
             </div>
           ) : (
             <div className="grid gap-lg sm:grid-cols-2 xl:grid-cols-5">
@@ -395,7 +401,7 @@ export function FinancePage() {
             >
               {isInvoicesLoading ? (
                 <div className="flex items-center justify-center py-12">
-                  <Spinner size="md" />
+                  <Spinner className="size-8" />
                 </div>
               ) : (
                 <InvoicesTab

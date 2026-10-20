@@ -5,7 +5,7 @@ import { LeaveRequestModal } from "@/page-slices/leave/ui/components/LeaveReques
 import { LeaveStats } from "@/page-slices/leave/ui/components/LeaveStats"
 import { createClient } from "@/shared/api/supabase/client"
 import { Database } from "@/shared/types/database.types"
-import { DataTable } from "@/shared/ui"
+import { DataTable } from "@/components/data-table"
 import { RiCalendarLine } from "@/shared/ui/lucide-icons"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"

@@ -1,15 +1,15 @@
 "use client"
 
 import { cx } from "@/shared/lib/utils"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import {
-  Badge, Button, Dialog,
-  DialogBody,
-  DialogCloseButton,
+  Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
-  DialogTitle
-} from "@/shared/ui"
+  DialogTitle,
+} from "@/components/ui/dialog"
 import {
   RiCalendarLine,
   RiFileTextLine,
@@ -56,16 +56,15 @@ export function LeaveDialog({ open, onOpenChange, event }: LeaveDialogProps) {
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Detail Cuti</DialogTitle>
-          <DialogCloseButton onClick={() => onOpenChange(false)} />
         </DialogHeader>
 
-        <DialogBody className="space-y-5">
+        <div className="space-y-5">
           {/* Status Badge */}
           <div className="flex items-center gap-2">
-            <Badge color="emerald" className="text-body-sm">
+            <Badge variant="secondary" color="emerald" className="text-body-sm">
               Disetujui
             </Badge>
-            <Badge color={badgeColor} className="text-body-sm">
+            <Badge variant="secondary" color={badgeColor} className="text-body-sm">
               {leaveType}
             </Badge>
           </div>
@@ -120,10 +119,10 @@ export function LeaveDialog({ open, onOpenChange, event }: LeaveDialogProps) {
               </div>
             </div>
           )}
-        </DialogBody>
+        </div>
 
         <DialogFooter>
-          <Button variant="secondary" onClick={() => onOpenChange(false)}>
+          <Button size="sm" variant="outline" onClick={() => onOpenChange(false)}>
             Tutup
           </Button>
         </DialogFooter>

@@ -1,6 +1,6 @@
 "use client"
 
-import { Button } from "@/shared/ui"
+import { Button } from "@/components/ui/button"
 import { logError } from "@/shared/lib/utils/logger"
 import { RiFileCopyLine } from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
@@ -36,7 +36,7 @@ ${event.meetingUrl ? `\n🔗 ${event.meetingUrl}` : ""}
 
   return (
     <Button
-      variant="secondary"
+      variant="outline"
       size="sm"
       onClick={handleCopy}
       className={className}

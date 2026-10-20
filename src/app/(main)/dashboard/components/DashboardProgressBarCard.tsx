@@ -1,4 +1,5 @@
-import { Badge, ProgressBar } from "@/shared/ui"
+import { Badge } from "@/components/ui/badge"
+import { Progress } from "@/components/ui/progress"
 
 export type KpiEntry = {
   title: string
@@ -37,7 +38,7 @@ export function ProgressBarCard({
             <dt className="text-foreground sm:text-label-md">
               {title}
             </dt>
-            <Badge variant="zinc">{change}</Badge>
+            <Badge variant="secondary">{change}</Badge>
           </div>
           <dd className="mt-2 flex items-baseline gap-2">
             <span className="text-heading-lg text-foreground">
@@ -62,9 +63,9 @@ export function ProgressBarCard({
                     </span>
                   </span>
                 </p>
-                <ProgressBar
+                <Progress
                   value={item.percentage}
-                  className="mt-2 [&>*]:h-1.5"
+                  className="mt-2 h-1.5"
                 />
               </li>
             ))}

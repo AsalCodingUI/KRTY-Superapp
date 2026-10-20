@@ -1,6 +1,6 @@
 "use client"
 
-import { Button } from "@/shared/ui"
+import { Button } from "@/components/ui/button"
 import { RiArrowLeftSLine, RiArrowRightSLine } from "@/shared/ui/lucide-icons"
 import React, { useEffect, useRef, useState } from "react"
 
@@ -1383,9 +1383,10 @@ export const SLADocumentPreview = React.forwardRef<
       <div className="bg-card/80 shadow-sm-border z-50 mb-4 flex items-center gap-4 rounded-full px-2 py-2 backdrop-blur-md print:hidden">
         <Button
           variant="ghost"
+          size="icon"
           onClick={prevPage}
           disabled={pageNum === 1}
-          className="h-8 w-8 rounded-full p-0"
+          className="rounded-full"
         >
           <RiArrowLeftSLine size={16} />
         </Button>
@@ -1397,9 +1398,10 @@ export const SLADocumentPreview = React.forwardRef<
 
         <Button
           variant="ghost"
+          size="icon"
           onClick={nextPage}
           disabled={pageNum === pages.length + 1}
-          className="h-8 w-8 rounded-full p-0"
+          className="rounded-full"
         >
           <RiArrowRightSLine size={16} />
         </Button>

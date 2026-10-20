@@ -6,9 +6,14 @@ import { TeamFormDialog } from "@/app/(main)/teams/components/TeamDialogs"
 import { createClient } from "@/shared/api/supabase/client"
 import { canManageByRole } from "@/shared/lib/roles"
 import { Database } from "@/shared/types/database.types"
-import { Button, TextInput } from "@/shared/ui"
-import { DataTable } from "@/shared/ui/data/DataTable"
-import { RiAddLine, RiGroupLine } from "@/shared/ui/lucide-icons"
+import { DataTable } from "@/components/data-table"
+import { Button } from "@/components/ui/button"
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group"
+import { RiAddLine, RiGroupLine, RiSearchLine } from "@/shared/ui/lucide-icons"
 import { useMemo, useState } from "react"
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
@@ -115,14 +120,17 @@ export function TeamsPage({
           </section>
 
           <div className="flex flex-col gap-3 border-b border-border bg-card px-5 py-3 sm:flex-row sm:items-center sm:justify-between">
-            <TextInput
-              type="search"
-              placeholder="Search..."
-              value={searchTerm}
-              onChange={(event) => setSearchTerm(event.target.value)}
-              inputSize="default"
-              className="w-full sm:w-[260px]"
-            />
+            <InputGroup className="h-7 w-full sm:w-[260px]">
+              <InputGroupAddon>
+                <RiSearchLine />
+              </InputGroupAddon>
+              <InputGroupInput
+                type="search"
+                placeholder="Search..."
+                value={searchTerm}
+                onChange={(event) => setSearchTerm(event.target.value)}
+              />
+            </InputGroup>
 
             {canManage && (
               <Button

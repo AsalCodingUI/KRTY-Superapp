@@ -1,25 +1,26 @@
 "use client"
 
 import { Database } from "@/shared/types/database.types"
+import { DatePicker } from "@/components/date-picker"
+import { TimeSelect } from "@/components/time-select"
+import { Button } from "@/components/ui/button"
 import {
-  Button,
-  DatePicker,
   Dialog,
-  DialogBody,
   DialogClose,
-  DialogCloseButton,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  Label,
+} from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-  TimeSelect,
-} from "@/shared/ui"
+} from "@/components/ui/select"
+import { Spinner } from "@/components/ui/spinner"
 import { format } from "date-fns"
 import { useEffect, useMemo, useState } from "react"
 
@@ -113,9 +114,8 @@ export function AdminAttendanceEditDialog({
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Edit Attendance</DialogTitle>
-          <DialogCloseButton />
         </DialogHeader>
-        <DialogBody>
+        <div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div className="flex flex-col gap-2 sm:col-span-3">
               <Label>Tanggal</Label>
@@ -137,7 +137,7 @@ export function AdminAttendanceEditDialog({
             <div className="flex flex-col gap-2 sm:col-span-3">
               <Label>Status</Label>
               <Select value={status} onValueChange={setStatus}>
-                <SelectTrigger>
+                <SelectTrigger size="sm" className="w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -153,12 +153,15 @@ export function AdminAttendanceEditDialog({
               {error}
             </p>
           )}
-        </DialogBody>
+        </div>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="secondary">Batal</Button>
+            <Button variant="outline" size="sm">
+              Batal
+            </Button>
           </DialogClose>
-          <Button isLoading={loading} onClick={handleSubmit}>
+          <Button size="sm" disabled={loading} onClick={handleSubmit}>
+            {loading && <Spinner data-icon="inline-start" />}
             Simpan Perubahan
           </Button>
         </DialogFooter>

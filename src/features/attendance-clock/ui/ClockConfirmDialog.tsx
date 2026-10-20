@@ -1,16 +1,15 @@
 "use client"
 
+import { Button } from "@/components/ui/button"
 import {
-  Button,
   Dialog,
-  DialogBody,
   DialogClose,
-  DialogCloseButton,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/shared/ui"
+} from "@/components/ui/dialog"
+import { Spinner } from "@/components/ui/spinner"
 
 interface ClockConfirmDialogProps {
   open: boolean
@@ -41,26 +40,27 @@ export function ClockConfirmDialog({
           <DialogTitle>
             {action === "CLOCK_IN" ? "Confirm Clock In" : "Confirm Clock Out"}
           </DialogTitle>
-          <DialogCloseButton />
         </DialogHeader>
-        <DialogBody>
+        <div>
           <p className="text-body-sm text-muted-foreground">
             {action === "CLOCK_IN"
               ? `Anda akan masuk dengan status: ${getStatusLabel(status || "Present")}. Lanjutkan?`
               : "Apakah Anda yakin ingin mengakhiri sesi kerja ini?"}
           </p>
-        </DialogBody>
+        </div>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="secondary" className="w-full sm:w-fit">
+            <Button size="sm" variant="outline" className="w-full sm:w-fit">
               Cancel
             </Button>
           </DialogClose>
           <Button
-            isLoading={loading}
+            size="sm"
+            disabled={loading}
             onClick={onConfirm}
             className="w-full sm:w-fit"
           >
+            {loading && <Spinner data-icon="inline-start" />}
             Confirm
           </Button>
         </DialogFooter>

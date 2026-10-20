@@ -1,5 +1,7 @@
-import { Card, ProgressBar } from "@/shared/ui"
-;("use client")
+"use client"
+
+import { Card } from "@/components/ui/card"
+import { Progress } from "@/components/ui/progress"
 
 interface KPICardProps {
   title: string
@@ -16,6 +18,12 @@ interface KPICardProps {
  * Shows KPI score, target, weight, and progress bar with appropriate styling
  * based on achievement level.
  */
+const progressIndicatorClass = {
+  success: "[&_[data-slot=progress-indicator]]:bg-success",
+  default: "",
+  warning: "[&_[data-slot=progress-indicator]]:bg-warning",
+} as const
+
 export function KPICard({
   title,
   score,
@@ -34,7 +42,7 @@ export function KPICard({
   }
 
   return (
-    <Card>
+    <Card className="gap-0 p-4">
       <h3 className="text-foreground mb-4 font-semibold">{title}</h3>
       <div className="space-y-4">
         <div>
@@ -44,7 +52,10 @@ export function KPICard({
               {score !== null ? `${score}%` : "—"}
             </span>
           </div>
-          <ProgressBar value={score || 0} variant={getProgressVariant(score)} />
+          <Progress
+            value={score || 0}
+            className={progressIndicatorClass[getProgressVariant(score)]}
+          />
         </div>
         {target && (
           <p className="text-body-xs text-muted-foreground">

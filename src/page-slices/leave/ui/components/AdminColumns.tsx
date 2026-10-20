@@ -1,7 +1,10 @@
 "use client"
 
-import { Avatar, Badge, Button, Checkbox } from "@/shared/ui"
-import { DataTableColumnHeader } from "@/shared/ui/data/DataTableColumnHeader"
+import { DataTableColumnHeader } from "@/components/data-table"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Database } from "@/shared/types/database.types"
 import { RiCheckLine, RiCloseLine, RiFilePaperLine } from "@/shared/ui/lucide-icons"
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table"
@@ -19,7 +22,7 @@ const getStatusBadge = (status: string) => {
     case "approved":
       return <Badge variant="success">Approved</Badge>
     case "rejected":
-      return <Badge variant="error">Rejected</Badge>
+      return <Badge variant="destructive">Rejected</Badge>
     default:
       return <Badge variant="warning">Pending</Badge>
   }
@@ -86,13 +89,15 @@ export const adminColumns = (
         const initials = name.slice(0, 2).toUpperCase()
         return (
           <div className="flex items-center gap-3">
-            <Avatar
-              size="xs"
-              src={row.original.profiles?.avatar_url || undefined}
-              initials={initials}
-              alt={name}
-              color="neutral"
-            />
+            <Avatar className="size-5">
+              <AvatarImage
+                src={row.original.profiles?.avatar_url || undefined}
+                alt={name}
+              />
+              <AvatarFallback className="text-label-xs">
+                {initials}
+              </AvatarFallback>
+            </Avatar>
             <span
               className="text-foreground font-medium whitespace-nowrap"
               title={name}
@@ -244,7 +249,7 @@ export const adminColumns = (
               return (
                 <div className="flex justify-end gap-2">
                   <Button
-                    variant="tertiary"
+                    variant="ghost"
                     size="icon-sm"
                     className="text-destructive"
                     title="Reject"
@@ -253,7 +258,7 @@ export const adminColumns = (
                     <RiCloseLine className="size-3.5" />
                   </Button>
                   <Button
-                    variant="tertiary"
+                    variant="ghost"
                     size="icon-sm"
                     className="text-success"
                     title="Approve"

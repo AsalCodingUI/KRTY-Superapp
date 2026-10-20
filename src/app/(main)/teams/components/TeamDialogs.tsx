@@ -3,15 +3,17 @@
 import { toast } from "sonner"
 import { createClient } from "@/shared/api/supabase/client"
 import { Database } from "@/shared/types/database.types"
+import { Button } from "@/components/ui/button"
 import {
-  Button, Dialog,
-  DialogBody,
-  DialogCloseButton,
+  Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
-  DialogTitle, Label, TextInput
-} from "@/shared/ui"
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Spinner } from "@/components/ui/spinner"
 import { useRouter } from "next/navigation"
 import React, { useEffect, useState } from "react"
 const createId = () =>
@@ -109,20 +111,20 @@ export function TeamFormDialog({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-lg">
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="grid gap-6">
           <DialogHeader>
             <DialogTitle className="font-semibold">
               {initialData ? "Edit member details" : "Add new member"}
             </DialogTitle>
-            <DialogCloseButton />
           </DialogHeader>
 
-          <DialogBody className="grid gap-4">
+          <div className="grid gap-4">
             <div className="grid gap-2">
               <Label htmlFor="name" className="font-medium">
                 Full Name
               </Label>
-              <TextInput
+              <Input
+                className="h-7"
                 id="name"
                 placeholder="e.g. Emma Stone"
                 value={formData.full_name}
@@ -136,7 +138,8 @@ export function TeamFormDialog({
               <Label htmlFor="email" className="font-medium">
                 Email Address
               </Label>
-              <TextInput
+              <Input
+                className="h-7"
                 id="email"
                 type="email"
                 placeholder="emma@kretya.studio"
@@ -151,7 +154,8 @@ export function TeamFormDialog({
               <Label htmlFor="rate" className="font-medium">
                 Hourly Rate (IDR)
               </Label>
-              <TextInput
+              <Input
+                className="h-7"
                 id="rate"
                 type="number"
                 placeholder="0"
@@ -165,19 +169,20 @@ export function TeamFormDialog({
                 required
               />
             </div>
-          </DialogBody>
+          </div>
 
           <DialogFooter>
             {/* FIX: Ganti DialogClose dengan Button biasa onClick={onClose} */}
             <Button
-              variant="secondary"
+              variant="outline"
+              size="sm"
               type="button"
               onClick={onClose}
               disabled={loading}
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={loading}>
+            <Button type="submit" size="sm" disabled={loading}>
               {loading
                 ? "Saving..."
                 : initialData
@@ -237,19 +242,24 @@ export function DeleteConfirmDialog({
           <DialogTitle className="text-foreground dark:text-label-md text-foreground">
             Delete member?
           </DialogTitle>
-          <DialogCloseButton />
         </DialogHeader>
         <DialogFooter>
           {/* FIX: Ganti DialogClose dengan Button biasa */}
-          <Button variant="secondary" onClick={onClose} disabled={loading}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onClose}
+            disabled={loading}
+          >
             Cancel
           </Button>
           <Button
             variant="destructive"
+            size="sm"
             onClick={handleDelete}
             disabled={loading}
-            isLoading={loading}
           >
+            {loading && <Spinner data-icon="inline-start" />}
             Yes, delete
           </Button>
         </DialogFooter>

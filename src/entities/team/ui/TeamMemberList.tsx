@@ -1,5 +1,5 @@
 import { Database } from "@/shared/types/database.types"
-import { Badge } from "@/shared/ui"
+import { Badge } from "@/components/ui/badge"
 import { canManageByRole } from "@/shared/lib/roles"
 ;("use client")
 
@@ -34,20 +34,20 @@ export function TeamMemberList({
   const getJobTitleVariant = (title: string) => {
     switch (title) {
       case "Admin":
-        return "error"
+        return "destructive" as const
       case "Project Manager":
-        return "warning"
+        return "warning" as const
       case "Designer":
-        return "success"
+        return "success" as const
       case "Web Developer":
-        return "info"
+        return "info" as const
       default:
-        return "default"
+        return "secondary" as const
     }
   }
 
   const getRoleVariant = (role: string) => {
-    return canManageByRole(role) ? "success" : "zinc"
+    return canManageByRole(role) ? ("success" as const) : ("secondary" as const)
   }
 
   const getInitials = (name: string) => {

@@ -2,27 +2,28 @@
 
 import { cx } from "@/shared/lib/utils"
 import { logError } from "@/shared/lib/utils/logger"
+import { DatePicker } from "@/components/date-picker"
+import { TimeSelect } from "@/components/time-select"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import {
-  Badge,
-  Button,
-  Checkbox,
-  DatePicker,
   Dialog,
-  DialogBody,
-  DialogCloseButton,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  Label,
+} from "@/components/ui/dialog"
+import { FieldError } from "@/components/ui/field"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Textarea,
-  TextInput,
-  TimeSelect,
-} from "@/shared/ui"
+} from "@/components/ui/select"
+import { Textarea } from "@/components/ui/textarea"
 import { RiCloseLine, RiDeleteBinLine, RiSaveLine } from "@/shared/ui/lucide-icons"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format } from "date-fns"
@@ -80,7 +81,7 @@ const getBadgeVariant = (color?: CalendarEvent["color"]) => {
     case "emerald":
       return "success"
     case "rose":
-      return "error"
+      return "destructive"
     case "orange":
     case "amber":
       return "warning"
@@ -90,7 +91,7 @@ const getBadgeVariant = (color?: CalendarEvent["color"]) => {
       return "info"
     case "neutral":
     default:
-      return "default"
+      return "secondary"
   }
 }
 
@@ -308,11 +309,10 @@ export function EventDialog({
                 : "Edit Jadwal"
               : "Tambah Jadwal Baru"}
           </DialogTitle>
-          <DialogCloseButton />
         </DialogHeader>
 
         {event && readOnly && !isEditing ? (
-          <DialogBody className="space-y-5 overflow-y-auto">
+          <div className="space-y-5 overflow-y-auto">
             {/* Event Title & Type */}
             <div className="flex items-start justify-between gap-4">
               <h3 className="text-heading-sm text-foreground break-words">
@@ -320,7 +320,6 @@ export function EventDialog({
               </h3>
                 <Badge
                 variant={getBadgeVariant(event.color)}
-                size="sm"
                 className="shrink-0"
               >
                 {event.type || "Jadwal"}
@@ -380,29 +379,35 @@ export function EventDialog({
             {/* Action buttons for read-only view */}
             <div className="border-border flex items-center justify-end gap-2 border-t pt-4">
               <Button
+                size="sm"
                 type="button"
-                variant="secondary"
+                variant="outline"
                 onClick={() => onOpenChange(false)}
               >
                 <RiCloseLine className="mr-2 h-4 w-4" />
                 Tutup
               </Button>
             </div>
-          </DialogBody>
+          </div>
         ) : (
           <form onSubmit={handleSubmit(onSubmit)} className="min-h-0 flex-1">
-            <DialogBody className="space-y-5 overflow-y-auto">
+            <div className="space-y-5 overflow-y-auto">
               {/* Title */}
               <div>
                 <Label htmlFor="title">Judul *</Label>
-                <TextInput
+                <Input
                   id="title"
+                  className="h-7"
                   {...register("title")}
                   placeholder="Masukkan judul jadwal"
-                  error={!!errors.title}
-                  errorMessage={errors.title?.message}
+                  aria-invalid={!!errors.title}
                   disabled={readOnly}
                 />
+                {errors.title?.message && (
+                  <FieldError className="text-body-xs mt-1">
+                    {errors.title.message}
+                  </FieldError>
+                )}
               </div>
 
               {/* Type */}
@@ -413,7 +418,7 @@ export function EventDialog({
                   onValueChange={handleTypeChange}
                   disabled={readOnly}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger size="sm" className="w-full">
                     <SelectValue placeholder="Pilih tipe" />
                   </SelectTrigger>
                   <SelectContent>
@@ -581,8 +586,9 @@ export function EventDialog({
               {/* Location */}
               <div>
                 <Label htmlFor="location">Lokasi</Label>
-                <TextInput
+                <Input
                   id="location"
+                  className="h-7"
                   {...register("location")}
                   placeholder="Masukkan lokasi (opsional)"
                   disabled={readOnly}
@@ -614,6 +620,7 @@ export function EventDialog({
                             Yakin hapus?
                           </span>
                           <Button
+                            size="sm"
                             type="button"
                             variant="destructive"
                             onClick={handleConfirmDelete}
@@ -623,8 +630,9 @@ export function EventDialog({
                             Ya, Hapus
                           </Button>
                           <Button
+                            size="sm"
                             type="button"
-                            variant="secondary"
+                            variant="outline"
                             onClick={handleCancelDelete}
                             disabled={loading}
                           >
@@ -633,8 +641,9 @@ export function EventDialog({
                         </div>
                       ) : (
                         <Button
+                          size="sm"
                           type="button"
-                          variant="secondary"
+                          variant="outline"
                           onClick={handleDeleteClick}
                           disabled={loading}
                           className="text-destructive hover:bg-destructive/10"
@@ -650,8 +659,9 @@ export function EventDialog({
                   {!isDeletePending && (
                     <>
                       <Button
+                        size="sm"
                         type="button"
-                        variant="secondary"
+                        variant="outline"
                         onClick={() => onOpenChange(false)}
                         disabled={loading}
                       >
@@ -659,7 +669,7 @@ export function EventDialog({
                         {readOnly ? "Tutup" : "Batal"}
                       </Button>
                       {!readOnly && (
-                        <Button type="submit" disabled={loading}>
+                        <Button size="sm" type="submit" disabled={loading}>
                           <RiSaveLine className="mr-2 h-4 w-4" />
                           {loading ? "Menyimpan..." : "Simpan"}
                         </Button>
@@ -668,7 +678,7 @@ export function EventDialog({
                   )}
                 </div>
               </div>
-            </DialogBody>
+            </div>
           </form>
         )}
       </DialogContent>

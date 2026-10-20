@@ -2,7 +2,8 @@
 
 import type { User } from "../model/types"
 import { UserAvatar } from "./UserAvatar"
-import { Card } from "@/shared/ui"
+import { Card } from "@/components/ui/card"
+import { cn } from "@/lib/utils"
 
 export interface UserCardProps {
   user: User
@@ -31,7 +32,7 @@ export function UserCard({
   const avatarSize = size === "sm" ? "sm" : size === "lg" ? "lg" : "md"
 
   return (
-    <Card className={className}>
+    <Card className={cn("gap-0 p-4", className)}>
       <div className="flex items-center gap-3 p-4">
         <UserAvatar
           src={user.avatar_url || undefined}

@@ -1,6 +1,7 @@
 "use client"
 
-import { Button, Card } from "@/shared/ui"
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
 import { RiHome2Line, RiRefreshLine } from "@/shared/ui/lucide-icons"
 import { useEffect } from "react"
 
@@ -19,7 +20,7 @@ export default function Error({
   return (
     <div className="bg-card min-h-[calc(100vh-1rem)] px-4 py-8">
       <div className="flex min-h-[calc(100vh-6rem)] items-center justify-center">
-        <Card className="w-full p-8 text-center">
+        <Card className="w-full gap-0 p-8 text-center">
           <div className="space-y-5">
             <div className="bg-destructive/10 mx-auto flex size-14 items-center justify-center rounded-full border border-destructive/30">
               <span className="text-heading-md text-destructive">⚠️</span>
@@ -41,11 +42,11 @@ export default function Error({
             )}
 
             <div className="flex flex-wrap justify-center gap-2 pt-1">
-              <Button variant="secondary" onClick={reset}>
+              <Button variant="outline" size="sm" onClick={reset}>
                 <RiRefreshLine className="mr-2 size-4" />
                 Coba Lagi
               </Button>
-              <Button onClick={() => (window.location.href = "/dashboard")}>
+              <Button size="sm" onClick={() => (window.location.href = "/dashboard")}>
                 <RiHome2Line className="mr-2 size-4" />
                 Dashboard
               </Button>

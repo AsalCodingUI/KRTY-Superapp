@@ -1,12 +1,16 @@
 "use client"
 
+import { RadarChart } from "@/components/charts/radar-chart"
+import { EmptyState } from "@/components/empty-state"
+import { QuarterFilter, type QuarterFilterValue } from "@/components/quarter-filter"
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-  RadarChart,
-} from "@/shared/ui"
+} from "@/components/ui/accordion"
+import { Badge } from "@/components/ui/badge"
+import { Card } from "@/components/ui/card"
 
 import {
   calculateSkillPercentage,
@@ -16,10 +20,12 @@ import {
 } from "@/entities/performance/lib/performanceUtils"
 import { createClient } from "@/shared/api/supabase/client"
 import type { ProfileSubset } from "@/shared/hooks/useUserProfile"
-import { Badge, Card, EmptyState, QuarterFilter, type QuarterFilterValue } from "@/shared/ui"
 import { RiBarChartBoxLine } from "@/shared/ui/lucide-icons"
 import { useEffect, useState } from "react"
 import { ReviewStatsHeader } from "./ReviewStatsHeader"
+
+const toBadgeVariant = (variant: ReturnType<typeof getRatingBadgeVariant>) =>
+  variant === "error" ? "destructive" : variant === "default" ? "secondary" : variant
 
 // --- TIPE DATA ---
 type AnalysisResult = {
@@ -269,7 +275,7 @@ export function EmployeeReviewView({
                 }
               />
 
-              <Card>
+              <Card className="gap-0 p-4">
                 <h3 className="text-label-sm text-muted-foreground mb-4 font-medium">
                   Competency Matrix
                 </h3>
@@ -291,7 +297,7 @@ export function EmployeeReviewView({
                         Leadership
                       </span>
                       <Badge
-                        variant={getRatingBadgeVariant(skillRatings.leadership)}
+                        variant={toBadgeVariant(getRatingBadgeVariant(skillRatings.leadership))}
                       >
                         {skillRatings.leadership}
                       </Badge>
@@ -300,7 +306,7 @@ export function EmployeeReviewView({
                       <span className="text-label-sm text-muted-foreground">
                         Quality
                       </span>
-                      <Badge variant={getRatingBadgeVariant(skillRatings.quality)}>
+                      <Badge variant={toBadgeVariant(getRatingBadgeVariant(skillRatings.quality))}>
                         {skillRatings.quality}
                       </Badge>
                     </div>
@@ -309,7 +315,7 @@ export function EmployeeReviewView({
                         Reliability
                       </span>
                       <Badge
-                        variant={getRatingBadgeVariant(skillRatings.reliability)}
+                        variant={toBadgeVariant(getRatingBadgeVariant(skillRatings.reliability))}
                       >
                         {skillRatings.reliability}
                       </Badge>
@@ -319,7 +325,7 @@ export function EmployeeReviewView({
                         Communication
                       </span>
                       <Badge
-                        variant={getRatingBadgeVariant(skillRatings.communication)}
+                        variant={toBadgeVariant(getRatingBadgeVariant(skillRatings.communication))}
                       >
                         {skillRatings.communication}
                       </Badge>
@@ -329,7 +335,7 @@ export function EmployeeReviewView({
                         Initiative
                       </span>
                       <Badge
-                        variant={getRatingBadgeVariant(skillRatings.initiative)}
+                        variant={toBadgeVariant(getRatingBadgeVariant(skillRatings.initiative))}
                       >
                         {skillRatings.initiative}
                       </Badge>

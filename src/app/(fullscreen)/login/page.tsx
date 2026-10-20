@@ -1,7 +1,7 @@
 "use client"
 
 import { createClient } from "@/shared/api/supabase/client"
-import { Button } from "@/shared/ui"
+import { Button } from "@/components/ui/button"
 import { useState } from "react"
 
 export default function LoginPage() {
@@ -58,7 +58,8 @@ export default function LoginPage() {
 
             <Button
               onClick={handleGoogleLogin}
-              variant="secondary"
+              variant="outline"
+              size="sm"
               className="w-hug flex items-center mx-auto gap-3"
               disabled={loading}
             >

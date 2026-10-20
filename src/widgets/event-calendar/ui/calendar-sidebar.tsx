@@ -1,7 +1,7 @@
 "use client"
 
 import { cx } from "@/shared/lib/utils"
-import { Button } from "@/shared/ui"
+import { Button } from "@/components/ui/button"
 import {
   RiCloseLine,
   RiEqualizer2Line,
@@ -9,13 +9,12 @@ import {
   RiEyeOffLine,
 } from "@/shared/ui/lucide-icons"
 import {
-  Drawer,
-  DrawerBody,
-  DrawerClose,
-  DrawerContent,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/shared/ui/overlay/Drawer"
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
 import { useState } from "react"
 import { useEventVisibility } from "./hooks/use-event-visibility"
 import { MiniCalendar } from "./mini-calendar"
@@ -33,7 +32,7 @@ const CATEGORY_DOT_CLASSES: Record<EventColor, string> = {
 }
 
 const MOBILE_BOTTOM_SHEET_CLASSNAME =
-  "top-auto right-0 bottom-0 left-0 z-[80] mx-0 h-[80vh] w-full max-w-none overflow-hidden rounded-t-[24px] rounded-b-none border-x-0 border-b-0 p-0 max-sm:inset-x-0 sm:inset-y-auto sm:top-auto sm:right-0 sm:bottom-0 sm:left-0 sm:h-[80vh] sm:max-w-none sm:w-full sm:p-0 data-[state=closed]:animate-out data-[state=open]:animate-in data-[state=closed]:slide-out-to-bottom-full data-[state=open]:slide-in-from-bottom-full"
+  "z-[80] h-[80vh] overflow-hidden rounded-t-[24px] border-t p-0"
 
 function SidebarContent() {
   const { categories, toggleColor } = useEventVisibility()
@@ -89,10 +88,10 @@ export function CalendarSidebar() {
 export function CalendarSidebarMobileTrigger() {
   const [open, setOpen] = useState(false)
   return (
-    <Drawer open={open} onOpenChange={setOpen}>
-      <DrawerTrigger asChild>
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild>
         <Button
-          variant="secondary"
+          variant="outline"
           size="sm"
           className="rounded-full shadow-regular-lg lg:hidden"
           aria-label="Buka filter kalender"
@@ -100,12 +99,16 @@ export function CalendarSidebarMobileTrigger() {
           <RiEqualizer2Line className="size-4" />
           <span>Atur</span>
         </Button>
-      </DrawerTrigger>
-      <DrawerContent className={MOBILE_BOTTOM_SHEET_CLASSNAME}>
-        <DrawerTitle className="sr-only">Kalender</DrawerTitle>
+      </SheetTrigger>
+      <SheetContent
+        side="bottom"
+        showCloseButton={false}
+        className={MOBILE_BOTTOM_SHEET_CLASSNAME}
+      >
+        <SheetTitle className="sr-only">Kalender</SheetTitle>
         <div className="border-border flex items-center justify-between border-b px-4 py-4">
           <h3 className="text-heading-sm text-foreground">Kalender</h3>
-          <DrawerClose asChild>
+          <SheetClose asChild>
             <button
               type="button"
               className="text-muted-foreground/70 hover:text-foreground inline-flex size-8 items-center justify-center rounded-full transition-colors"
@@ -113,12 +116,12 @@ export function CalendarSidebarMobileTrigger() {
             >
               <RiCloseLine className="size-6" />
             </button>
-          </DrawerClose>
+          </SheetClose>
         </div>
-        <DrawerBody className="overflow-y-auto px-4 py-4 pb-6">
+        <div className="flex-1 overflow-y-auto px-4 py-4 pb-6">
           <SidebarContent />
-        </DrawerBody>
-      </DrawerContent>
-    </Drawer>
+        </div>
+      </SheetContent>
+    </Sheet>
   )
 }

@@ -4,7 +4,7 @@ import { navigationConfig } from "@/shared/config/navigation"
 import { usePagePermissions } from "@/shared/hooks/usePagePermissions"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { cx, focusRing } from "@/shared/lib/utils"
-import { Skeleton } from "@/shared/ui"
+import { Skeleton } from "@/components/ui/skeleton"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 

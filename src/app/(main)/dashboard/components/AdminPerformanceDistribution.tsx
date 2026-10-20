@@ -1,6 +1,7 @@
 "use client"
 
-import { Card, EmptyState } from "@/shared/ui"
+import { EmptyState } from "@/components/empty-state"
+import { Card } from "@/components/ui/card"
 import { RiBarChartBoxLine } from "@/shared/ui/lucide-icons"
 
 interface AdminPerformanceDistributionProps {
@@ -27,7 +28,7 @@ export function AdminPerformanceDistribution({
   const total = items.reduce((sum, item) => sum + item.count, 0)
 
   return (
-    <Card>
+    <Card className="gap-0 p-4">
       <div className="mb-3 flex items-center justify-between">
         <p className="text-label-md text-muted-foreground">
           Performance Distribution

@@ -1,4 +1,6 @@
-import { Button, Label, TextInput } from "@/shared/ui"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { RiAddLine, RiDeleteBinLine } from "@/shared/ui/lucide-icons"
 import { FreelanceMember } from "../types"
 import { formatNumber } from "../utils"
@@ -28,7 +30,8 @@ export function FreelanceSection({
 
       <div className="mb-4">
         <Button
-          variant="secondary"
+          size="sm"
+          variant="outline"
           className="w-full"
           onClick={onAddFreelanceMember}
         >
@@ -48,33 +51,33 @@ export function FreelanceSection({
                   <Label htmlFor={`freelance-name-${member.id}`}>
                     Full Name
                   </Label>
-                  <TextInput
+                  <Input
                     id={`freelance-name-${member.id}`}
                     value={member.name}
                     onChange={(e) =>
                       onUpdateFreelanceMember(member.id, "name", e.target.value)
                     }
                     placeholder="e.g. Jane Doe"
-                    className="mt-1"
+                    className="mt-1 h-7"
                   />
                 </div>
                 <div>
                   <Label htmlFor={`freelance-role-${member.id}`}>Role</Label>
-                  <TextInput
+                  <Input
                     id={`freelance-role-${member.id}`}
                     value={member.role}
                     onChange={(e) =>
                       onUpdateFreelanceMember(member.id, "role", e.target.value)
                     }
                     placeholder="e.g. UI Designer"
-                    className="mt-1"
+                    className="mt-1 h-7"
                   />
                 </div>
                 <div>
                   <Label htmlFor={`freelance-fee-${member.id}`}>
                     Total Fee (IDR)
                   </Label>
-                  <TextInput
+                  <Input
                     id={`freelance-fee-${member.id}`}
                     type="text"
                     value={member.totalFee}
@@ -86,14 +89,14 @@ export function FreelanceSection({
                       )
                     }
                     placeholder="e.g. 15,000,000"
-                    className="mt-1"
+                    className="mt-1 h-7"
                   />
                 </div>
                 <div className="sm:col-span-2 lg:col-span-3">
                   <Label htmlFor={`freelance-notes-${member.id}`}>
                     Notes (optional)
                   </Label>
-                  <TextInput
+                  <Input
                     id={`freelance-notes-${member.id}`}
                     value={member.notes}
                     onChange={(e) =>
@@ -104,13 +107,13 @@ export function FreelanceSection({
                       )
                     }
                     placeholder="e.g. scoped for illustration"
-                    className="mt-1"
+                    className="mt-1 h-7"
                   />
                 </div>
               </div>
               <Button
                 variant="ghost"
-                size="xs"
+                size="icon-sm"
                 className="text-muted-foreground/70 size-6 p-0"
                 onClick={() => onRemoveFreelanceMember(member.id)}
               >

@@ -5,22 +5,23 @@ import {
   getAttendanceSessionState,
 } from "@/shared/lib/date"
 import { Database } from "@/shared/types/database.types"
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
 import {
-  Button,
-  Card,
   Dialog,
-  DialogBody,
   DialogClose,
-  DialogCloseButton,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
+} from "@/components/ui/dialog"
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/shared/ui"
+} from "@/components/ui/dropdown-menu"
+import { Spinner } from "@/components/ui/spinner"
 import {
   RiAlarmWarningLine,
   RiArrowDownSLine,
@@ -166,7 +167,7 @@ export function AttendanceStats({
 
       <div className="grid grid-cols-1 gap-lg sm:grid-cols-2">
         {/* CARD 1: CLOCK ACTION */}
-        <Card className="flex h-full flex-col justify-between px-4 py-3">
+        <Card className="flex h-full flex-col justify-between gap-0 px-4 py-3">
           <div>
             <dt className="text-label-md text-muted-foreground">
               Current Time
@@ -187,7 +188,7 @@ export function AttendanceStats({
                 {/* DROPDOWN STATUS */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button asChild size="sm" variant="secondary" type="button">
+                    <Button asChild size="sm" variant="outline" type="button">
                       <button>
                         {getStatusLabel(selectedStatus)}
                         <RiArrowDownSLine className="text-muted-foreground ml-2 size-4 shrink-0" />
@@ -238,7 +239,8 @@ export function AttendanceStats({
                   <RiLogoutBoxLine className="mr-2 size-4" /> Clock Out
                 </Button>
                 <Button
-                  variant="secondary"
+                  variant="outline"
+                  size="sm"
                   onClick={() =>
                     onToggleBreak(
                       activeSession.id,
@@ -256,7 +258,7 @@ export function AttendanceStats({
         </Card>
 
         {/* CARD 2: SESSION INFO */}
-        <Card className="h-full px-4 py-3">
+        <Card className="h-full gap-0 px-4 py-3">
           <h3 className="text-label-md text-muted-foreground">
             Session Info
           </h3>
@@ -322,9 +324,8 @@ export function AttendanceStats({
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Sesi Sebelumnya Masih Aktif</DialogTitle>
-            <DialogCloseButton />
           </DialogHeader>
-          <DialogBody>
+          <div>
             <p className="text-body-sm text-muted-foreground">
               Kami mendeteksi sesi attendance lama yang belum ditutup. Ini
               biasanya terjadi saat laptop sleep, browser tertutup, atau koneksi
@@ -340,16 +341,17 @@ export function AttendanceStats({
                 perlu ditutup dulu sebelum mulai sesi baru hari ini.
               </p>
             )}
-          </DialogBody>
+          </div>
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="secondary" className="w-full sm:w-fit">
+              <Button variant="outline" size="sm" className="w-full sm:w-fit">
                 Nanti
               </Button>
             </DialogClose>
             {staleSession && (
               <Button
                 variant="destructive"
+                size="sm"
                 disabled={loading}
                 className="w-full sm:w-fit"
                 onClick={() =>
@@ -372,26 +374,27 @@ export function AttendanceStats({
                 ? "Confirm Clock In"
                 : "Confirm Clock Out"}
             </DialogTitle>
-            <DialogCloseButton />
           </DialogHeader>
-          <DialogBody>
+          <div>
             <p className="text-body-sm text-muted-foreground">
               {confirmAction === "CLOCK_IN"
                 ? `Anda akan masuk dengan status: ${getStatusLabel(selectedStatus)}. Lanjutkan?`
                 : "Apakah Anda yakin ingin mengakhiri sesi kerja ini?"}
             </p>
-          </DialogBody>
+          </div>
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="secondary" className="w-full sm:w-fit">
+              <Button variant="outline" size="sm" className="w-full sm:w-fit">
                 Cancel
               </Button>
             </DialogClose>
             <Button
-              isLoading={loading}
+              size="sm"
+              disabled={loading}
               onClick={handleConfirm}
               className="w-full sm:w-fit"
             >
+              {loading && <Spinner data-icon="inline-start" />}
               Confirm
             </Button>
           </DialogFooter>

@@ -1,6 +1,6 @@
 "use client"
 
-import { EmptyState } from "@/shared/ui/information/EmptyState"
+import { EmptyState } from "@/components/empty-state"
 import { RiFundsBoxLine } from "@/shared/ui/lucide-icons"
 
 export function PayrollPage() {

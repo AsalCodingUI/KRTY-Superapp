@@ -1,7 +1,8 @@
 "use client"
 
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
-import { Button } from "@/shared/ui"
+import { Button } from "@/components/ui/button"
+import { Spinner } from "@/components/ui/spinner"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
@@ -52,12 +53,12 @@ export function ImpersonationBanner() {
           ) : null}
         </p>
         <Button
-          variant="secondary"
+          variant="outline"
           size="sm"
           onClick={stopImpersonation}
           disabled={loading}
-          isLoading={loading}
         >
+          {loading && <Spinner data-icon="inline-start" />}
           Back to my account
         </Button>
       </div>

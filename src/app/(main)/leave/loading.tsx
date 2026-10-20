@@ -1,6 +1,6 @@
 "use client"
 
-import { Skeleton } from "@/shared/ui"
+import { Skeleton } from "@/components/ui/skeleton"
 
 export default function LeaveLoading() {
   return (
@@ -33,7 +33,7 @@ export default function LeaveLoading() {
           ))}
         </div>
         {/* Table Rows */}
-        <div className="divide-border-neutral-primary divide-y">
+        <div className="divide-border divide-y">
           {[1, 2, 3, 4, 5].map((i) => (
             <div key={i} className="flex gap-4 p-4">
               {[1, 2, 3, 4, 5].map((j) => (

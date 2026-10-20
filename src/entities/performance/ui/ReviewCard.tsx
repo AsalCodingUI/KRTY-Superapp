@@ -1,6 +1,7 @@
 "use client"
 
-import { Badge, Card } from "@/shared/ui"
+import { Badge } from "@/components/ui/badge"
+import { Card } from "@/components/ui/card"
 import { RiStarFill } from "@/shared/ui/lucide-icons"
 
 interface ReviewCardProps {
@@ -28,13 +29,13 @@ export function ReviewCard({
 }: ReviewCardProps) {
   const getRatingBadgeVariant = (
     level: string,
-  ): "success" | "default" | "warning" | "error" => {
+  ): "success" | "secondary" | "warning" | "destructive" => {
     const lowerLevel = level.toLowerCase()
     if (lowerLevel.includes("outstanding") || lowerLevel.includes("above"))
       return "success"
-    if (lowerLevel.includes("meets")) return "default"
+    if (lowerLevel.includes("meets")) return "secondary"
     if (lowerLevel.includes("below")) return "warning"
-    return "error"
+    return "destructive"
   }
 
   const getStarCount = (score: number): number => {
@@ -42,7 +43,7 @@ export function ReviewCard({
   }
 
   return (
-    <Card>
+    <Card className="gap-0 p-4">
       <h3 className="text-foreground mb-4 font-semibold">{title}</h3>
       <div className="space-y-3">
         <div className="flex items-center justify-between">

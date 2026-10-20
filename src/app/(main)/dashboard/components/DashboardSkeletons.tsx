@@ -1,4 +1,4 @@
-import { Skeleton } from "@/shared/ui"
+import { Skeleton } from "@/components/ui/skeleton"
 import React from "react"
 
 export function AdminMetricsSkeleton() {

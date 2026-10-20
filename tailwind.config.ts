@@ -1,7 +1,5 @@
 import type { Config } from "tailwindcss"
 
-
-
 const config: Config = {
   darkMode: "selector",
   content: [
@@ -13,58 +11,106 @@ const config: Config = {
     "./src/shared/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
-    boxShadow: {
-      // Strict Shadow System
-      "regular-md": "var(--shadow-regular-md)",
-      "regular-xs": "var(--shadow-regular-xs)",
-
-      brand: "var(--shadow-brand)",
-      neutral: "var(--shadow-neutral)",
-      danger: "var(--shadow-danger)",
-
-      "outline-brand": "var(--shadow-outline-brand)",
-      "outline-neutral": "var(--shadow-outline-neutral)",
-      "outline-dialog": "var(--shadow-outline-dialog)",
-      "outline-danger": "var(--shadow-outline-danger)",
-
-      // Form shadows
-      input: "var(--shadow-outline-neutral)",
-      "input-error": "var(--shadow-outline-danger)",
-      "input-focus": "var(--shadow-outline-brand)",
-    },
-    fontFamily: {
-      sans: ["var(--font-sans)", "sans-serif"],
-      display: ["var(--font-heading)", "sans-serif"],
-      heading: ["var(--font-heading)", "sans-serif"],
-      body: ["var(--font-sans)", "sans-serif"],
-      label: ["var(--font-sans)", "sans-serif"],
-    },
-    fontSize: {
-      // Display - Switzer Variable, 500
-      "display-lg": ["2.75rem", { lineHeight: "3.25rem", letterSpacing: "-1%", fontWeight: "500" }],
-      "display-md": ["2.5rem", { lineHeight: "3rem", letterSpacing: "-1%", fontWeight: "500" }],
-      "display-sm": ["2.25rem", { lineHeight: "2.75rem", letterSpacing: "-1%", fontWeight: "500" }],
-      "display-xs": ["2rem", { lineHeight: "2.5rem", letterSpacing: "-1%", fontWeight: "500" }],
-      "display-xxs": ["1.5rem", { lineHeight: "2rem", letterSpacing: "-1.5%", fontWeight: "500" }],
-
-      // Heading - Switzer Variable, 500
-      "heading-lg": ["1.25rem", { lineHeight: "1.75rem", letterSpacing: "-2%", fontWeight: "500" }],
-      "heading-md": ["1.125rem", { lineHeight: "1.5rem", letterSpacing: "0%", fontWeight: "500" }],
-      "heading-sm": ["1rem", { lineHeight: "1.5rem", letterSpacing: "0%", fontWeight: "500" }],
-
-      // Label - Inter Variable, 500
-      "label-lg": ["1rem", { lineHeight: "1.5rem", letterSpacing: "-0.8%", fontWeight: "500" }],
-      "label-md": ["0.875rem", { lineHeight: "1.25rem", letterSpacing: "-0.8%", fontWeight: "500" }],
-      "label-sm": ["0.8125rem", { lineHeight: "1.25rem", letterSpacing: "-0.8%", fontWeight: "500" }],
-      "label-xs": ["0.75rem", { lineHeight: "1rem", letterSpacing: "0%", fontWeight: "500" }],
-
-      // Body - Inter Variable, 400
-      "body-lg": ["1.125rem", { lineHeight: "1.75rem", letterSpacing: "0.5%", fontWeight: "400" }],
-      "body-md": ["1rem", { lineHeight: "1.5rem", letterSpacing: "0.5%", fontWeight: "400" }],
-      "body-sm": ["0.8125rem", { lineHeight: "1.25rem", letterSpacing: "0.5%", fontWeight: "400" }],
-      "body-xs": ["0.75rem", { lineHeight: "1rem", letterSpacing: "0%", fontWeight: "400" }],
-    },
     extend: {
+      boxShadow: {
+        // Strict Shadow System
+        "regular-md": "var(--shadow-regular-md)",
+        "regular-xs": "var(--shadow-regular-xs)",
+
+        brand: "var(--shadow-brand)",
+        neutral: "var(--shadow-neutral)",
+        danger: "var(--shadow-danger)",
+
+        "outline-brand": "var(--shadow-outline-brand)",
+        "outline-neutral": "var(--shadow-outline-neutral)",
+        "outline-dialog": "var(--shadow-outline-dialog)",
+        "outline-danger": "var(--shadow-outline-danger)",
+
+        // Form shadows
+        input: "var(--shadow-outline-neutral)",
+        "input-error": "var(--shadow-outline-danger)",
+        "input-focus": "var(--shadow-outline-brand)",
+      },
+      fontFamily: {
+        sans: ["var(--font-sans)", "sans-serif"],
+        display: ["var(--font-heading)", "sans-serif"],
+        heading: ["var(--font-heading)", "sans-serif"],
+        body: ["var(--font-sans)", "sans-serif"],
+        label: ["var(--font-sans)", "sans-serif"],
+      },
+      fontSize: {
+        // Display - Switzer Variable, 500
+        "display-lg": [
+          "2.75rem",
+          { lineHeight: "3.25rem", letterSpacing: "-1%", fontWeight: "500" },
+        ],
+        "display-md": [
+          "2.5rem",
+          { lineHeight: "3rem", letterSpacing: "-1%", fontWeight: "500" },
+        ],
+        "display-sm": [
+          "2.25rem",
+          { lineHeight: "2.75rem", letterSpacing: "-1%", fontWeight: "500" },
+        ],
+        "display-xs": [
+          "2rem",
+          { lineHeight: "2.5rem", letterSpacing: "-1%", fontWeight: "500" },
+        ],
+        "display-xxs": [
+          "1.5rem",
+          { lineHeight: "2rem", letterSpacing: "-1.5%", fontWeight: "500" },
+        ],
+
+        // Heading - Switzer Variable, 500
+        "heading-lg": [
+          "1.25rem",
+          { lineHeight: "1.75rem", letterSpacing: "-2%", fontWeight: "500" },
+        ],
+        "heading-md": [
+          "1.125rem",
+          { lineHeight: "1.5rem", letterSpacing: "0%", fontWeight: "500" },
+        ],
+        "heading-sm": [
+          "1rem",
+          { lineHeight: "1.5rem", letterSpacing: "0%", fontWeight: "500" },
+        ],
+
+        // Label - Inter Variable, 500
+        "label-lg": [
+          "1rem",
+          { lineHeight: "1.5rem", letterSpacing: "-0.8%", fontWeight: "500" },
+        ],
+        "label-md": [
+          "0.875rem",
+          { lineHeight: "1.25rem", letterSpacing: "-0.8%", fontWeight: "500" },
+        ],
+        "label-sm": [
+          "0.8125rem",
+          { lineHeight: "1.25rem", letterSpacing: "-0.8%", fontWeight: "500" },
+        ],
+        "label-xs": [
+          "0.75rem",
+          { lineHeight: "1rem", letterSpacing: "0%", fontWeight: "500" },
+        ],
+
+        // Body - Inter Variable, 400
+        "body-lg": [
+          "1.125rem",
+          { lineHeight: "1.75rem", letterSpacing: "0.5%", fontWeight: "400" },
+        ],
+        "body-md": [
+          "1rem",
+          { lineHeight: "1.5rem", letterSpacing: "0.5%", fontWeight: "400" },
+        ],
+        "body-sm": [
+          "0.8125rem",
+          { lineHeight: "1.25rem", letterSpacing: "0.5%", fontWeight: "400" },
+        ],
+        "body-xs": [
+          "0.75rem",
+          { lineHeight: "1rem", letterSpacing: "0%", fontWeight: "400" },
+        ],
+      },
       keyframes: {
         hide: {
           from: { opacity: "1" },
@@ -325,7 +371,6 @@ const config: Config = {
           },
         },
 
-
         // Content/Text aliases
         content: {
           DEFAULT: "var(--text-primary)",
@@ -349,7 +394,6 @@ const config: Config = {
           DEFAULT: "var(--surface-danger)",
           hover: "var(--surface-danger-hov)",
         },
-
       },
     },
   },

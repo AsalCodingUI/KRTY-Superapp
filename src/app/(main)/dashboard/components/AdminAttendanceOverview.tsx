@@ -1,6 +1,6 @@
 "use client"
 
-import { Card } from "@/shared/ui"
+import { Card } from "@/components/ui/card"
 import React from "react"
 
 interface AdminAttendanceOverviewProps {
@@ -28,7 +28,7 @@ export function AdminAttendanceOverview({
   ]
 
   return (
-    <Card>
+    <Card className="gap-0 p-4">
       <p className="text-label-md text-muted-foreground mb-3">
         Today&apos;s Attendance Overview
       </p>

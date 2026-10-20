@@ -1,6 +1,6 @@
 "use client"
 
-import { EmptyState as BaseEmptyState } from "@/shared/ui"
+import { EmptyState as BaseEmptyState } from "@/components/empty-state"
 import { RiCalendar2Line } from "@/shared/ui/lucide-icons"
 
 interface EmptyStateProps {

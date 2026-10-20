@@ -1,15 +1,14 @@
 "use client"
 
+import { DataTable } from "@/components/data-table"
+import { TabNavigation, TabNavigationLink } from "@/components/tab-navigation"
 import {
-  DataTable,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-  TabNavigation,
-  TabNavigationLink,
-} from "@/shared/ui"
+} from "@/components/ui/select"
 import { toast } from "sonner"
 import { Database } from "@/shared/types/database.types"
 import { createClient } from "@/shared/api/supabase/client"

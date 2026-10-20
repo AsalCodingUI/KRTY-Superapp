@@ -7,7 +7,7 @@ import {
   RiTimeLine,
 } from "@/shared/ui/lucide-icons"
 import { cx } from "@/shared/lib/utils"
-import { Badge } from "@/shared/ui"
+import { Badge } from "@/components/ui/badge"
 
 export type AttendanceStatusType =
   | "present"
@@ -28,7 +28,7 @@ const statusConfig: Record<
   AttendanceStatusType,
   {
     label: string
-    variant: "success" | "error" | "warning" | "default" | "zinc"
+    variant: "success" | "destructive" | "warning" | "secondary"
     icon: React.ComponentType<{ className?: string }>
   }
 > = {
@@ -39,7 +39,7 @@ const statusConfig: Record<
   },
   absent: {
     label: "Absent",
-    variant: "error",
+    variant: "destructive",
     icon: RiCloseLine,
   },
   late: {
@@ -49,12 +49,12 @@ const statusConfig: Record<
   },
   on_break: {
     label: "On Break",
-    variant: "zinc",
+    variant: "secondary",
     icon: RiCupLine,
   },
   clocked_out: {
     label: "Clocked Out",
-    variant: "default",
+    variant: "secondary",
     icon: RiCheckLine,
   },
   active: {

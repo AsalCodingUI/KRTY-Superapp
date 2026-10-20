@@ -6,21 +6,25 @@ import {
   getEmployeeDetail,
 } from "@/entities/performance/api/client"
 import { canManageByRole } from "@/shared/lib/roles"
+import { EmptyState } from "@/components/empty-state"
+import { TableSection } from "@/components/table-section"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import {
-  Badge,
-  Button,
-  EmptyState,
-  Spinner,
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group"
+import { Spinner } from "@/components/ui/spinner"
+import {
   Table,
   TableBody,
   TableCell,
   TableHead,
-  TableHeaderCell,
+  TableHeader,
   TableRow,
-  TableSection,
-  TextInput,
-} from "@/shared/ui"
-import { RiUserLine } from "@/shared/ui/lucide-icons"
+} from "@/components/ui/table"
+import { RiSearchLine, RiUserLine } from "@/shared/ui/lucide-icons"
 import dynamic from "next/dynamic"
 import Link from "next/link"
 import { useEffect, useState, type ChangeEvent } from "react"
@@ -129,7 +133,7 @@ export function KPITab({
   if (profileLoading || !profile) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Spinner size="md" />
+        <Spinner className="size-8" />
       </div>
     )
   }
@@ -139,7 +143,7 @@ export function KPITab({
     if (loading) {
       return (
         <div className="flex items-center justify-center py-12">
-          <Spinner size="md" />
+          <Spinner className="size-8" />
         </div>
       )
     }
@@ -167,36 +171,41 @@ export function KPITab({
   return (
     <div className="space-y-4">
       <div>
-        <TextInput
-          type="search"
-          placeholder="Search employees by name or email..."
-          value={searchQuery}
-          onChange={(e: ChangeEvent<HTMLInputElement>) =>
-            setSearchQuery(e.target.value)
-          }
-        />
+        <InputGroup className="h-7">
+          <InputGroupAddon>
+            <RiSearchLine aria-hidden="true" />
+          </InputGroupAddon>
+          <InputGroupInput
+            type="search"
+            placeholder="Search employees by name or email..."
+            value={searchQuery}
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
+              setSearchQuery(e.target.value)
+            }
+          />
+        </InputGroup>
       </div>
 
       <TableSection
         title="Employee KPI Management"
       >
         <Table>
-          <TableHead>
+          <TableHeader>
             <TableRow className="h-[40px] hover:bg-transparent">
-              <TableHeaderCell>Employee</TableHeaderCell>
-              <TableHeaderCell>Email</TableHeaderCell>
-              <TableHeaderCell>Job Title</TableHeaderCell>
-              <TableHeaderCell>Projects</TableHeaderCell>
-              <TableHeaderCell>Active</TableHeaderCell>
-              <TableHeaderCell className="text-right">Action</TableHeaderCell>
+              <TableHead>Employee</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Job Title</TableHead>
+              <TableHead>Projects</TableHead>
+              <TableHead>Active</TableHead>
+              <TableHead className="text-right">Action</TableHead>
             </TableRow>
-          </TableHead>
+          </TableHeader>
           <TableBody>
             {loading ? (
               <TableRow>
                 <TableCell colSpan={6}>
                   <div className="flex items-center justify-center py-8">
-                    <Spinner size="md" />
+                    <Spinner className="size-8" />
                   </div>
                 </TableCell>
               </TableRow>
@@ -240,7 +249,7 @@ export function KPITab({
                   </TableCell>
                   <TableCell className="text-right">
                     <Link href={`/performance/employee/${employee.id}`}>
-                      <Button variant="secondary" size="sm">
+                      <Button variant="outline" size="sm">
                         View KPI Details
                       </Button>
                     </Link>
@@ -257,7 +266,7 @@ export function KPITab({
             </span>
             <div className="flex items-center gap-2">
               <Button
-                variant="secondary"
+                variant="outline"
                 size="sm"
                 onClick={() => setPageIndex((prev) => Math.max(0, prev - 1))}
                 disabled={pageIndex === 0}
@@ -265,7 +274,7 @@ export function KPITab({
                 Previous
               </Button>
               <Button
-                variant="secondary"
+                variant="outline"
                 size="sm"
                 onClick={() =>
                   setPageIndex((prev) =>

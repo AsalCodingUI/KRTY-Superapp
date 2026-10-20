@@ -5,18 +5,20 @@ import { useTabRoute } from "@/shared/hooks/useTabRoute"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { createClient } from "@/shared/api/supabase/client"
 import { canManageByRole, canManageProjects } from "@/shared/lib/roles"
+import type { QuarterFilterValue } from "@/components/quarter-filter"
+import {
+  TabNavigation,
+  TabNavigationLink,
+} from "@/components/tab-navigation"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-  TabNavigation,
-  TabNavigationLink,
-} from "@/shared/ui"
+} from "@/components/ui/select"
 import { RiBarChartBoxLine } from "@/shared/ui/lucide-icons"
 import dynamic from "next/dynamic"
-import type { QuarterFilterValue } from "@/shared/ui"
 import { useEffect, useMemo, useState } from "react"
 
 function getCurrentQuarterValue(): QuarterFilterValue {

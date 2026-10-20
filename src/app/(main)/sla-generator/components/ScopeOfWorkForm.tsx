@@ -5,11 +5,11 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-  Button,
-  Label,
-  Textarea,
-  TextInput,
-} from "@/shared/ui"
+} from "@/components/ui/accordion"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import {
   RiAddLine,
   RiDeleteBinLine,
@@ -85,9 +85,12 @@ function SortableItem({
         type="single"
         collapsible
         defaultValue="description"
-        className="space-y-0"
+        className="space-y-0 overflow-visible rounded-none border-0"
       >
-        <AccordionItem value="description" className="border-none bg-transparent">
+        <AccordionItem
+          value="description"
+          className="border-none bg-transparent data-open:bg-transparent"
+        >
           <div className="mb-3 flex items-center justify-between">
             <div
               {...attributes}
@@ -99,13 +102,13 @@ function SortableItem({
             </div>
 
             <div className="flex items-center gap-1">
-              <AccordionTrigger className="text-label-sm text-muted-foreground hover:text-foreground !w-auto !flex-none rounded-md !px-2 !py-1">
+              <AccordionTrigger className="text-label-sm text-muted-foreground hover:text-foreground w-auto flex-none items-center gap-1 rounded-md px-2 py-1 hover:no-underline">
                 Description
               </AccordionTrigger>
               <Button
                 variant="ghost"
-                size="xs"
-                className="text-muted-foreground/70 h-8 w-8 p-0"
+                size="icon"
+                className="text-muted-foreground/70"
                 onClick={() => deleteItem(index)}
               >
                 <RiDeleteBinLine className="h-4 w-4" />
@@ -116,14 +119,16 @@ function SortableItem({
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-12">
             <div className="sm:col-span-2 md:col-span-1">
               <Label className="mb-1">No</Label>
-              <TextInput
+              <Input
+                className="h-7"
                 value={item.no}
                 onChange={(e) => updateItem(index, "no", e.target.value)}
               />
             </div>
             <div className="sm:col-span-4 md:col-span-3">
               <Label className="mb-1">Category</Label>
-              <TextInput
+              <Input
+                className="h-7"
                 value={item.category}
                 onChange={(e) => updateItem(index, "category", e.target.value)}
                 placeholder="Category"
@@ -131,7 +136,8 @@ function SortableItem({
             </div>
             <div className="sm:col-span-12 md:col-span-8">
               <Label className="mb-1">Page/Flow</Label>
-              <TextInput
+              <Input
+                className="h-7"
                 value={item.flow}
                 onChange={(e) => updateItem(index, "flow", e.target.value)}
                 placeholder="e.g. Login Screen"
@@ -139,7 +145,7 @@ function SortableItem({
             </div>
           </div>
 
-          <AccordionContent className="!px-0 !pb-0 !pt-3">
+          <AccordionContent className="-mx-4 pt-3 pb-0">
             <Label className="mb-1">Description</Label>
             <Textarea
               value={item.desc}
@@ -246,11 +252,11 @@ export const ScopeOfWorkForm = ({ data, onChange }: ScopeOfWorkFormProps) => {
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <h3 className="text-label-md text-foreground">Scope of Work</h3>
         <div className="flex flex-wrap gap-2">
-          <Button variant="secondary" size="sm" onClick={handleImport}>
-            <RiUploadLine className="mr-2 h-4 w-4" /> Import
+          <Button variant="outline" size="sm" onClick={handleImport}>
+            <RiUploadLine data-icon="inline-start" /> Import
           </Button>
-          <Button variant="secondary" size="sm" onClick={handleExport}>
-            <RiFileCopyLine className="mr-2 h-4 w-4" /> Copy JSON
+          <Button variant="outline" size="sm" onClick={handleExport}>
+            <RiFileCopyLine data-icon="inline-start" /> Copy JSON
           </Button>
         </div>
       </div>
@@ -280,11 +286,12 @@ export const ScopeOfWorkForm = ({ data, onChange }: ScopeOfWorkFormProps) => {
         </DndContext>
 
       <Button
-        variant="secondary"
+        variant="outline"
+        size="sm"
         onClick={addItem}
         className="border-border hover:border-muted-foreground/70 w-full border-dashed"
       >
-        <RiAddLine className="mr-2 h-4 w-4" /> Add Item
+        <RiAddLine data-icon="inline-start" /> Add Item
       </Button>
       </div>
     </div>

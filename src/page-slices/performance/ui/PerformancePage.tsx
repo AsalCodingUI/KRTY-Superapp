@@ -9,19 +9,20 @@ import { useMountedTabs } from "@/shared/hooks/useMountedTabs"
 import { useTabRoute } from "@/shared/hooks/useTabRoute"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { canManageByRole, canManageProjects } from "@/shared/lib/roles"
+import { QuarterFilter, type QuarterFilterValue } from "@/components/quarter-filter"
 import {
-  Badge,
-  Button,
-  QuarterFilter,
+  TabNavigation,
+  TabNavigationLink,
+} from "@/components/tab-navigation"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-  TabNavigation,
-  TabNavigationLink,
-  type QuarterFilterValue,
-} from "@/shared/ui"
+} from "@/components/ui/select"
 import { RiBarChartBoxLine } from "@/shared/ui/lucide-icons"
 import dynamic from "next/dynamic"
 import { useRouter } from "next/navigation"
@@ -214,7 +215,7 @@ export function PerformancePage() {
       return { variant: "info", label: "Meets" } as const
     if (normalizedScore >= 60)
       return { variant: "warning", label: "Below" } as const
-    return { variant: "error", label: "Needs" } as const
+    return { variant: "destructive", label: "Needs" } as const
   }
   useEffect(() => {
     let isMounted = true
@@ -596,7 +597,7 @@ export function PerformancePage() {
                       <p className="text-heading-md text-foreground">
                         {formatPercent(item.score)}
                       </p>
-                      <Badge size="sm" variant={badge.variant}>
+                      <Badge variant={badge.variant}>
                         {badge.label}
                       </Badge>
                     </div>
@@ -615,13 +616,13 @@ export function PerformancePage() {
                         : "No Active"}
                     </p>
                     {isCycleActive ? (
-                      <Badge size="sm" variant="success">
+                      <Badge variant="success">
                         Active
                       </Badge>
                     ) : null}
                   </div>
                   <Button
-                    variant="secondary"
+                    variant="outline"
                     size="sm"
                     disabled={!isCycleActive}
                     onClick={() => router.push("/performance-review/new")}

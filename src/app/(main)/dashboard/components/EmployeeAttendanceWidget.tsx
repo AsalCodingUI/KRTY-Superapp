@@ -9,19 +9,17 @@ import {
   getLocalDateString,
 } from "@/shared/lib/date"
 import { Database } from "@/shared/types/database.types"
+import { EmptyState } from "@/components/empty-state"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import {
-  Badge,
-  Button,
   Dialog,
-  DialogBody,
   DialogClose,
-  DialogCloseButton,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  EmptyState,
-} from "@/shared/ui"
+} from "@/components/ui/dialog"
 import {
   RiCalendarLine,
   RiCheckboxCircleLine,
@@ -165,37 +163,37 @@ export function EmployeeAttendanceWidget({
             {activeSession ? (
               <Button
                 size="sm"
-                variant="secondary"
+                variant="outline"
                 disabled={loading}
                 onClick={() => handleClockOut(activeSession.id)}
               >
-                <RiLogoutBoxLine className="mr-1 size-4" />
+                <RiLogoutBoxLine data-icon="inline-start" />
                 Clock Out
               </Button>
             ) : staleSession ? (
               <Button
                 size="sm"
-                variant="secondary"
+                variant="outline"
                 disabled={loading}
                 onClick={() => handleResolvePreviousSession(staleSession.id)}
               >
-                <RiLogoutBoxLine className="mr-1 size-4" />
+                <RiLogoutBoxLine data-icon="inline-start" />
                 Tutup Sesi Lama
               </Button>
             ) : (
               <Button
                 size="sm"
-                variant="secondary"
+                variant="outline"
                 disabled={loading || Boolean(staleSession)}
                 onClick={() => handleClockIn("Present")}
               >
-                <RiLoginBoxLine className="mr-1 size-4" />
+                <RiLoginBoxLine data-icon="inline-start" />
                 Clock In
               </Button>
             )}
             <Button
               size="sm"
-              variant="secondary"
+              variant="outline"
               onClick={() => {
                 setIsLeaveModalOpen(true)
               }}
@@ -210,23 +208,23 @@ export function EmployeeAttendanceWidget({
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Session Lama Belum Ditutup</DialogTitle>
-            <DialogCloseButton />
           </DialogHeader>
-          <DialogBody>
+          <div>
             <p className="text-body-sm text-muted-foreground">
               Kami mendeteksi sesi attendance sebelumnya masih terbuka. Ini bisa
               terjadi kalau laptop mati, browser tertutup, atau clock out gagal
               tersimpan.
             </p>
-          </DialogBody>
+          </div>
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="secondary" className="w-full sm:w-fit">
+              <Button variant="outline" size="sm" className="w-full sm:w-fit">
                 Nanti
               </Button>
             </DialogClose>
             {staleSession && (
               <Button
+                size="sm"
                 variant="destructive"
                 disabled={loading}
                 className="w-full sm:w-fit"
@@ -260,8 +258,7 @@ export function EmployeeAttendanceWidget({
                       {format(new Date(getAttendanceLogLocalDate(log)), "EEE, dd MMM yyyy")}
                     </span>
                     <Badge
-                      size="sm"
-                      variant={log.status === "Late" ? "warning" : "zinc"}
+                      variant={log.status === "Late" ? "warning" : "secondary"}
                     >
                       {log.status || "Present"}
                     </Badge>
@@ -295,12 +292,11 @@ export function EmployeeAttendanceWidget({
                       {leave.leave_type}
                     </span>
                     <Badge
-                      size="sm"
                       variant={
                         leave.status === "approved"
                           ? "success"
                           : leave.status === "rejected"
-                            ? "error"
+                            ? "destructive"
                             : "warning"
                       }
                     >

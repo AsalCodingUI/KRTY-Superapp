@@ -1,12 +1,12 @@
+import { Button } from "@/components/ui/button"
 import {
-  Button,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Slider,
-} from "@/shared/ui"
+} from "@/components/ui/select"
+import { Slider } from "@/components/ui/slider"
 import { RiAddLine, RiDeleteBinLine } from "@/shared/ui/lucide-icons"
 import { SquadMember, TeamMember } from "../types"
 
@@ -41,7 +41,7 @@ export function SquadSection({
             onValueChange={onSelectedMemberChange}
             value={selectedMemberToAdd}
           >
-            <SelectTrigger className="w-full">
+            <SelectTrigger size="sm" className="w-full">
               <SelectValue placeholder="Select Team Member..." />
             </SelectTrigger>
             <SelectContent>
@@ -53,6 +53,7 @@ export function SquadSection({
             </SelectContent>
           </Select>
           <Button
+            size="sm"
             onClick={() => {
               onAddSquadMember(selectedMemberToAdd)
               onSelectedMemberChange("")
@@ -81,7 +82,7 @@ export function SquadSection({
                   </div>
                   <Button
                     variant="ghost"
-                    size="xs"
+                    size="icon-sm"
                     className="text-muted-foreground/70 size-6 p-0"
                     onClick={() => onRemoveSquadMember(member.id)}
                   >

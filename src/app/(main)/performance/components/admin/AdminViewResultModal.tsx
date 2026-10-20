@@ -7,23 +7,27 @@ import {
   getSkillRating,
 } from "@/entities/performance/lib/performanceUtils"
 import { Database } from "@/shared/types/database.types"
+import { RadarChart } from "@/components/charts/radar-chart"
+import { EmptyState } from "@/components/empty-state"
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-  Badge,
-  Card,
+} from "@/components/ui/accordion"
+import { Badge } from "@/components/ui/badge"
+import { Card } from "@/components/ui/card"
+import {
   Dialog,
-  DialogBody,
-  DialogCloseButton,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  EmptyState, RadarChart,
-} from "@/shared/ui"
+} from "@/components/ui/dialog"
 import { RiBarChartBoxLine } from "@/shared/ui/lucide-icons"
 import { ReviewStatsHeader } from "../360-review/ReviewStatsHeader"
+
+const toBadgeVariant = (variant: ReturnType<typeof getRatingBadgeVariant>) =>
+  variant === "error" ? "destructive" : variant === "default" ? "secondary" : variant
 
 type PerformanceSummary =
   Database["public"]["Tables"]["performance_summaries"]["Row"]
@@ -135,13 +139,12 @@ export function AdminViewResultModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] w-[calc(100%-2rem)] max-w-6xl overflow-y-auto">
+      <DialogContent className="max-h-[90vh] w-[calc(100%-2rem)] overflow-y-auto sm:max-w-6xl">
         <DialogHeader>
           <DialogTitle>Performance Review: {employee.name}</DialogTitle>
-          <DialogCloseButton />
         </DialogHeader>
 
-        <DialogBody className="space-y-4">
+        <div className="space-y-4">
           <p className="text-body-sm text-muted-foreground">
             {employee.jobTitle} • {displayQuarter}
           </p>
@@ -205,7 +208,7 @@ export function AdminViewResultModal({
                   ratingLevel={ratingLevel}
                 />
 
-                <Card>
+                <Card className="gap-0 p-4">
                   <h3 className="text-label-sm text-muted-foreground mb-4 font-medium">
                     Competency Matrix
                   </h3>
@@ -227,9 +230,9 @@ export function AdminViewResultModal({
                           Leadership
                         </span>
                         <Badge
-                          variant={getRatingBadgeVariant(
+                          variant={toBadgeVariant(getRatingBadgeVariant(
                             skillRatings.leadership,
-                          )}
+                          ))}
                         >
                           {skillRatings.leadership}
                         </Badge>
@@ -239,7 +242,7 @@ export function AdminViewResultModal({
                           Quality
                         </span>
                         <Badge
-                          variant={getRatingBadgeVariant(skillRatings.quality)}
+                          variant={toBadgeVariant(getRatingBadgeVariant(skillRatings.quality))}
                         >
                           {skillRatings.quality}
                         </Badge>
@@ -249,9 +252,9 @@ export function AdminViewResultModal({
                           Reliability
                         </span>
                         <Badge
-                          variant={getRatingBadgeVariant(
+                          variant={toBadgeVariant(getRatingBadgeVariant(
                             skillRatings.reliability,
-                          )}
+                          ))}
                         >
                           {skillRatings.reliability}
                         </Badge>
@@ -261,9 +264,9 @@ export function AdminViewResultModal({
                           Communication
                         </span>
                         <Badge
-                          variant={getRatingBadgeVariant(
+                          variant={toBadgeVariant(getRatingBadgeVariant(
                             skillRatings.communication,
-                          )}
+                          ))}
                         >
                           {skillRatings.communication}
                         </Badge>
@@ -273,9 +276,9 @@ export function AdminViewResultModal({
                           Initiative
                         </span>
                         <Badge
-                          variant={getRatingBadgeVariant(
+                          variant={toBadgeVariant(getRatingBadgeVariant(
                             skillRatings.initiative,
-                          )}
+                          ))}
                         >
                           {skillRatings.initiative}
                         </Badge>
@@ -293,7 +296,7 @@ export function AdminViewResultModal({
               placement="inner"
             />
           )}
-        </DialogBody>
+        </div>
       </DialogContent>
     </Dialog>
   )

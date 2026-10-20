@@ -1,6 +1,10 @@
 "use client"
 
-import { Button, Label, Tabs, TabsContent, TabsList, TabsTrigger, Textarea, TextInput } from "@/shared/ui"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Textarea } from "@/components/ui/textarea"
 import { RiAddLine, RiDeleteBinLine } from "@/shared/ui/lucide-icons"
 
 interface MilestoneItem {
@@ -84,8 +88,8 @@ export const MilestonesForm = ({ data, onChange }: MilestonesFormProps) => {
         >
           <Button
             variant="ghost"
-            size="xs"
-            className="text-muted-foreground/70 absolute top-2 right-2 h-8 w-8 p-0"
+            size="icon"
+            className="text-muted-foreground/70 absolute top-2 right-2"
             onClick={() => deleteItem(mKey, index)}
           >
             <RiDeleteBinLine className="h-4 w-4" />
@@ -94,14 +98,16 @@ export const MilestonesForm = ({ data, onChange }: MilestonesFormProps) => {
           <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
             <div className="md:col-span-2 lg:col-span-1">
               <Label className="mb-1">No</Label>
-              <TextInput
+              <Input
+                className="h-7"
                 value={item.no}
                 onChange={(e) => updateItem(mKey, index, "no", e.target.value)}
               />
             </div>
             <div className="md:col-span-6 lg:col-span-5">
               <Label className="mb-1">Category</Label>
-              <TextInput
+              <Input
+                className="h-7"
                 value={item.category}
                 onChange={(e) =>
                   updateItem(mKey, index, "category", e.target.value)
@@ -112,13 +118,13 @@ export const MilestonesForm = ({ data, onChange }: MilestonesFormProps) => {
             <div className="md:col-span-4 lg:col-span-2">
               <Label className="mb-1">Days</Label>
               <div className="relative">
-                <TextInput
+                <Input
                   type="number"
                   value={item.time}
                   onChange={(e) =>
                     updateItem(mKey, index, "time", e.target.value)
                   }
-                  className="pr-8"
+                  className="h-7 pr-8"
                 />
                 <span className="text-body-xs text-muted-foreground absolute top-2 right-2">
                   d
@@ -141,11 +147,12 @@ export const MilestonesForm = ({ data, onChange }: MilestonesFormProps) => {
       ))}
 
       <Button
-        variant="secondary"
+        variant="outline"
+        size="sm"
         onClick={() => addItem(mKey)}
         className="border-border hover:border-muted-foreground/70 w-full border-dashed"
       >
-        <RiAddLine className="mr-2 h-4 w-4" /> Add Deliverable
+        <RiAddLine data-icon="inline-start" /> Add Deliverable
       </Button>
     </div>
   )

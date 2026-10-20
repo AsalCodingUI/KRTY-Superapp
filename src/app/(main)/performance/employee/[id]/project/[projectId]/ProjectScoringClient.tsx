@@ -10,24 +10,26 @@ import {
   type Milestone,
   type SLAResult,
 } from "@/entities/performance/lib/kpiCalculations"
+import { EmptyState } from "@/components/empty-state"
+import { TableSection } from "@/components/table-section"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import {
-  Badge,
-  Button,
-  EmptyState,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
+} from "@/components/ui/select"
+import {
   Table,
   TableBody,
   TableCell,
   TableHead,
-  TableHeaderCell,
+  TableHeader,
   TableRow,
-  TableSection,
-  TextInput
-} from "@/shared/ui"
+} from "@/components/ui/table"
 import {
   RiArrowLeftLine,
   RiCheckLine,
@@ -355,7 +357,7 @@ export const ProjectScoringClient = forwardRef<
                 <dd className="text-heading-md text-foreground">
                   {totalPercentage.toFixed(1)}%
                 </dd>
-                <Badge size="sm" className={`${getScoreColor(finalScore)}`}>
+                <Badge variant="secondary" className={`${getScoreColor(finalScore)}`}>
                   {getScoreLabel(finalScore)}
                 </Badge>
               </div>
@@ -370,7 +372,7 @@ export const ProjectScoringClient = forwardRef<
                   {competencies.length}
                 </dd>
                 <Badge
-                  size="sm"
+                  variant="secondary"
                   className={`${getScoreColor(mapPercentageToScore(qualityPercentage))}`}
                 >
                   {getScoreLabel(mapPercentageToScore(qualityPercentage))}
@@ -392,20 +394,20 @@ export const ProjectScoringClient = forwardRef<
                 }
               >
                 <Table>
-                  <TableHead>
+                  <TableHeader>
                     <TableRow>
-                      <TableHeaderCell>Milestone</TableHeaderCell>
-                      <TableHeaderCell className="text-center">
+                      <TableHead>Milestone</TableHead>
+                      <TableHead className="text-center">
                         Weight (%)
-                      </TableHeaderCell>
-                      <TableHeaderCell className="text-center">
+                      </TableHead>
+                      <TableHead className="text-center">
                         Result
-                      </TableHeaderCell>
-                      <TableHeaderCell className="text-center">
+                      </TableHead>
+                      <TableHead className="text-center">
                         Real Achieve
-                      </TableHeaderCell>
+                      </TableHead>
                     </TableRow>
-                  </TableHead>
+                  </TableHeader>
                   <TableBody>
                     {milestones.map((milestone, index) => (
                       <TableRow key={index}>
@@ -413,9 +415,9 @@ export const ProjectScoringClient = forwardRef<
                           {milestone.name}
                         </TableCell>
                         <TableCell className="text-center">
-                          <TextInput
+                          <Input
                             type="number"
-                            className="mx-auto w-20 text-center"
+                            className="mx-auto w-20 text-center h-7"
                             value={milestone.weight}
                             onChange={(e) =>
                               handleMilestoneChange(
@@ -433,7 +435,7 @@ export const ProjectScoringClient = forwardRef<
                               handleMilestoneChange(index, "result", v as SLAResult)
                             }
                           >
-                            <SelectTrigger className="mx-auto w-28">
+                            <SelectTrigger size="sm" className="mx-auto w-28">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -470,12 +472,12 @@ export const ProjectScoringClient = forwardRef<
               </TableSection>
               <TableSection title="Parameter" className="lg:col-span-3">
                 <Table>
-                  <TableHead>
+                  <TableHeader>
                     <TableRow>
-                      <TableHeaderCell>Status</TableHeaderCell>
-                      <TableHeaderCell>%</TableHeaderCell>
+                      <TableHead>Status</TableHead>
+                      <TableHead>%</TableHead>
                     </TableRow>
-                  </TableHead>
+                  </TableHeader>
                   <TableBody>
                     <TableRow>
                       <TableCell>Faster</TableCell>
@@ -498,11 +500,11 @@ export const ProjectScoringClient = forwardRef<
               title="Work Quality Assessment"
               actions={
                 <div className="flex items-center gap-2">
-                  <Badge variant="zinc">
+                  <Badge variant="secondary">
                     {competencies.filter((c) => c.isAchieved).length}/
                     {competencies.length} Achieved
                   </Badge>
-                  <Button onClick={handleSaveQuality} disabled={saving}>
+                  <Button size="sm" onClick={handleSaveQuality} disabled={saving}>
                     <RiSave3Line className="mr-2 size-4" />
                     {saving ? "Saving..." : "Save"}
                   </Button>
@@ -522,19 +524,19 @@ export const ProjectScoringClient = forwardRef<
               ) : (
                 <div className="overflow-x-auto">
                   <Table>
-                    <TableHead>
+                    <TableHeader>
                       <TableRow>
-                        <TableHeaderCell className="w-[200px]">
+                        <TableHead className="w-[200px]">
                           Competency
-                        </TableHeaderCell>
-                        <TableHeaderCell className="min-w-[520px]">
+                        </TableHead>
+                        <TableHead className="min-w-[520px]">
                           Description
-                        </TableHeaderCell>
-                        <TableHeaderCell className="w-[160px] text-center">
+                        </TableHead>
+                        <TableHead className="w-[160px] text-center">
                           Status
-                        </TableHeaderCell>
+                        </TableHead>
                       </TableRow>
-                    </TableHead>
+                    </TableHeader>
                     <TableBody>
                       {competencies.map((comp, index) => (
                         <TableRow key={comp.id}>
@@ -547,7 +549,7 @@ export const ProjectScoringClient = forwardRef<
                             </TableCell>
                           <TableCell className="text-center">
                             <Button
-                              variant={comp.isAchieved ? "primary" : "secondary"}
+                              variant={comp.isAchieved ? "default" : "outline"}
                               size="sm"
                               onClick={() => handleToggleCompetency(index)}
                             >

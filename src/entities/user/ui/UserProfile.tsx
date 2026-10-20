@@ -3,7 +3,7 @@
 import { RiMore2Fill } from "@/shared/ui/lucide-icons"
 import type { User } from "./types"
 import { cx, focusRing } from "@/shared/lib/utils"
-import { Button } from "@/shared/ui"
+import { Button } from "@/components/ui/button"
 
 export interface UserProfileProps {
   user: User | null
@@ -30,6 +30,7 @@ export function UserProfile({
       <Button
         aria-label="User settings"
         variant="ghost"
+      size="sm"
         className={cx(
           "group text-label-md text-foreground hover:bg-muted data-[state=open]:bg-muted dark:hover:bg-muted flex items-center rounded-md p-1",
         )}
@@ -48,6 +49,7 @@ export function UserProfile({
     <Button
       aria-label="User settings"
       variant="ghost"
+      size="sm"
       className={cx(
         focusRing,
         "group text-label-md text-foreground hover:bg-muted data-[state=open]:bg-muted dark:hover:bg-muted flex w-full items-center justify-between rounded-md p-2",

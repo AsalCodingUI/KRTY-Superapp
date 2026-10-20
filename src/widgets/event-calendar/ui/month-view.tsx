@@ -1,6 +1,6 @@
 "use client"
 
-import { Popover, PopoverContent, PopoverTrigger } from "@/shared/ui"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { cx } from "@/shared/lib/utils"
 import { RiCloseLine } from "@/shared/ui/lucide-icons"
 import { format, isSameDay, isSameMonth } from "date-fns"
@@ -11,12 +11,11 @@ import { EventItem } from "./event-item"
 import type { CalendarEvent } from "./types"
 import { getDayKey, getMonthViewDays, groupEventsByDay } from "./utils"
 import {
-  Drawer,
-  DrawerBody,
-  DrawerClose,
-  DrawerContent,
-  DrawerTitle,
-} from "@/shared/ui/overlay/Drawer"
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetTitle,
+} from "@/components/ui/sheet"
 
 interface MonthViewProps {
   events: CalendarEvent[]
@@ -26,7 +25,7 @@ interface MonthViewProps {
 
 const WEEKDAY_LABELS = ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"]
 const MOBILE_DAY_EVENTS_DRAWER_CLASSNAME =
-  "top-auto right-0 bottom-0 left-0 z-[82] mx-0 h-[80vh] w-full max-w-none overflow-hidden rounded-t-[24px] rounded-b-none border-x-0 border-b-0 p-0 max-sm:inset-x-0 sm:inset-y-auto sm:top-auto sm:right-0 sm:bottom-0 sm:left-0 sm:h-[80vh] sm:max-w-none sm:w-full sm:p-0 data-[state=closed]:animate-out data-[state=open]:animate-in data-[state=closed]:slide-out-to-bottom-full data-[state=open]:slide-in-from-bottom-full"
+  "z-[82] h-[80vh] overflow-hidden rounded-t-[24px] border-t p-0"
 
 export const MonthView = memo(function MonthView({
   events,
@@ -238,15 +237,19 @@ export const MonthView = memo(function MonthView({
           </div>
         </div>
       </div>
-      <Drawer open={mobileDayDrawerOpen} onOpenChange={setMobileDayDrawerOpen}>
-        <DrawerContent className={MOBILE_DAY_EVENTS_DRAWER_CLASSNAME}>
-          <DrawerTitle className="sr-only">
+      <Sheet open={mobileDayDrawerOpen} onOpenChange={setMobileDayDrawerOpen}>
+        <SheetContent
+          side="bottom"
+          showCloseButton={false}
+          className={MOBILE_DAY_EVENTS_DRAWER_CLASSNAME}
+        >
+          <SheetTitle className="sr-only">
             {mobileSelectedDay
               ? format(mobileSelectedDay, "EEEE, dd MMMM yyyy", {
                   locale: id,
                 })
               : "Jadwal"}
-          </DrawerTitle>
+          </SheetTitle>
           <div className="border-border flex items-center justify-between border-b px-4 py-4">
             <h3 className="text-heading-sm text-foreground">
               {mobileSelectedDay
@@ -255,7 +258,7 @@ export const MonthView = memo(function MonthView({
                   })
                 : "Jadwal"}
             </h3>
-            <DrawerClose asChild>
+            <SheetClose asChild>
               <button
                 type="button"
                 className="text-muted-foreground/70 hover:text-foreground inline-flex size-8 items-center justify-center rounded-full transition-colors"
@@ -263,9 +266,9 @@ export const MonthView = memo(function MonthView({
               >
                 <RiCloseLine className="size-6" />
               </button>
-            </DrawerClose>
+            </SheetClose>
           </div>
-          <DrawerBody className="overflow-y-auto px-4 py-4 pb-6">
+          <div className="flex-1 overflow-y-auto px-4 py-4 pb-6">
             <div className="space-y-3">
               {mobileSelectedEvents.length === 0 ? (
                 <p className="text-body-sm text-muted-foreground">
@@ -285,9 +288,9 @@ export const MonthView = memo(function MonthView({
                 ))
               )}
             </div>
-          </DrawerBody>
-        </DrawerContent>
-      </Drawer>
+          </div>
+        </SheetContent>
+      </Sheet>
     </>
   )
 })

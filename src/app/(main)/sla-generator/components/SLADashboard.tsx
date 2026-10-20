@@ -6,20 +6,23 @@ import { toast } from "sonner"
 import { DeleteConfirmDialog } from "./DeleteConfirmDialog"
 import { activeSLAColumns, archivedSLAColumns, type SLA } from "./SLAColumns"
 import { createClient } from "@/shared/api/supabase/client"
+import { DataTable } from "@/components/data-table"
+import { SegmentedControl } from "@/components/segmented-control"
+import { TabNavigation, TabNavigationLink } from "@/components/tab-navigation"
+import { Button } from "@/components/ui/button"
 import {
-  Button,
-  DataTable,
-  SegmentedControl,
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group"
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-  TabNavigation,
-  TabNavigationLink,
-  TextInput,
-} from "@/shared/ui"
-import { RiAddLine } from "@/shared/ui/lucide-icons"
+} from "@/components/ui/select"
+import { RiAddLine, RiSearchLine } from "@/shared/ui/lucide-icons"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { canManageByRole } from "@/shared/lib/roles"
 import { useMountedTabs } from "@/shared/hooks/useMountedTabs"
@@ -183,20 +186,24 @@ export default function SLADashboard({
                   { value: "archive", label: "Archive" },
                 ]}
               />
-              <TextInput
-                type="search"
-                placeholder="Search..."
-                value={embeddedSearchTerm}
-                onChange={(e) => setEmbeddedSearchTerm(e.target.value)}
-                className="w-[250px]"
-              />
+              <InputGroup className="h-7 w-[250px]">
+                <InputGroupAddon>
+                  <RiSearchLine aria-hidden="true" />
+                </InputGroupAddon>
+                <InputGroupInput
+                  type="search"
+                  placeholder="Search..."
+                  value={embeddedSearchTerm}
+                  onChange={(e) => setEmbeddedSearchTerm(e.target.value)}
+                />
+              </InputGroup>
             </div>
             {canManage && activeTab === "active" && (
               <Button
+                size="sm"
                 onClick={() => router.push("/sla-generator?mode=create")}
-                className="gap-x-2"
               >
-                <RiAddLine className="size-4 shrink-0" aria-hidden="true" />
+                <RiAddLine data-icon="inline-start" aria-hidden="true" />
                 Create New SLA
               </Button>
             )}

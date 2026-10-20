@@ -1,14 +1,14 @@
 "use client"
 
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import {
-  Badge,
-  Button,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
-} from "@/shared/ui"
+} from "@/components/ui/dropdown-menu"
 import {
   RiAddLine,
   RiArrowDownSLine,
@@ -54,7 +54,7 @@ export function CalendarToolbar({
           <DropdownMenuTrigger asChild>
             <Button
               asChild
-              variant="secondary"
+              variant="outline"
               size="sm"
               type="button"
             >
@@ -82,13 +82,13 @@ export function CalendarToolbar({
         </DropdownMenu>
 
         <div className="flex items-center gap-sm">
-          <Button variant="secondary" size="icon-sm" onClick={goToPrevious}>
+          <Button variant="outline" size="icon-sm" onClick={goToPrevious}>
             <RiArrowLeftSLine className="size-4" />
           </Button>
-          <Button variant="secondary" size="sm" onClick={goToToday}>
+          <Button variant="outline" size="sm" onClick={goToToday}>
             Hari Ini
           </Button>
-          <Button variant="secondary" size="icon-sm" onClick={goToNext}>
+          <Button variant="outline" size="icon-sm" onClick={goToNext}>
             <RiArrowRightSLine className="size-4" />
           </Button>
         </div>
@@ -100,15 +100,16 @@ export function CalendarToolbar({
             Google Kalender
           </span>
           {isLoading ? (
-            <Badge variant="zinc">Mengecek</Badge>
+            <Badge variant="secondary">Mengecek</Badge>
           ) : isConnected ? (
             <Badge variant="success">Terhubung</Badge>
           ) : (
-            <Badge variant="zinc">Terputus</Badge>
+            <Badge variant="secondary">Terputus</Badge>
           )}
         </div>
         {showAddEvent && (
-          <Button size="sm" leadingIcon={<RiAddLine />} onClick={onAddEvent}>
+          <Button size="sm" onClick={onAddEvent}>
+            <RiAddLine data-icon="inline-start" />
             Jadwal Baru
           </Button>
         )}

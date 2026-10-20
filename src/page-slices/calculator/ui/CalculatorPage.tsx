@@ -7,19 +7,20 @@ import {
 } from "@/entities/calculator/api/client"
 import { createClient } from "@/shared/api/supabase/client"
 import type { Database } from "@/shared/types/database.types"
+import { ConfirmDialog } from "@/components/confirm-dialog"
+import { EmptyState } from "@/components/empty-state"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import {
-  Button,
-  ConfirmDialog,
-  Divider,
-  EmptyState,
-  Label,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-  TextInput,
-} from "@/shared/ui"
+} from "@/components/ui/select"
+import { Separator } from "@/components/ui/separator"
+import { Spinner } from "@/components/ui/spinner"
 import {
   RiAddLine,
   RiCalculatorLine,
@@ -528,25 +529,27 @@ export default function CalculatorClientPage({
             <div className="grid grid-cols-1 gap-4 md:flex md:items-end">
               <div className="md:flex-1">
                 <Label htmlFor="calcTitle">Title</Label>
-                <TextInput
+                <Input
                   id="calcTitle"
                   value={calculationTitle}
                   onChange={(e) => setCalculationTitle(e.target.value)}
                   placeholder="Untitled Calculation"
-                  className="mt-1"
+                  className="mt-1 h-7"
                 />
               </div>
               <div className="flex gap-3 md:shrink-0">
                 <Button
+                  size="sm"
                   onClick={handleSave}
                   disabled={!selectedProjectId || isSaving}
-                  isLoading={isSaving}
                   className="whitespace-nowrap"
                 >
+                  {isSaving && <Spinner data-icon="inline-start" />}
                   Save
                 </Button>
                 <Button
-                  variant="secondary"
+                  size="sm"
+                  variant="outline"
                   onClick={handleNew}
                   className="whitespace-nowrap"
                 >
@@ -559,12 +562,12 @@ export default function CalculatorClientPage({
               <div className="grid grid-cols-1 gap-4 md:flex-1 md:grid-cols-2">
                 <div>
                   <Label htmlFor="calcTitle">Title</Label>
-                  <TextInput
+                  <Input
                     id="calcTitle"
                     value={calculationTitle}
                     onChange={(e) => setCalculationTitle(e.target.value)}
                     placeholder="Untitled Calculation"
-                    className="mt-1"
+                    className="mt-1 h-7"
                   />
                 </div>
                 <div>
@@ -574,7 +577,7 @@ export default function CalculatorClientPage({
                     value={selectedProjectId}
                     disabled={Boolean(prefilledProjectId)}
                   >
-                    <SelectTrigger className="mt-1 w-full">
+                    <SelectTrigger size="sm" className="mt-1 w-full">
                       <SelectValue placeholder="Select Project..." />
                     </SelectTrigger>
                     <SelectContent>
@@ -589,15 +592,17 @@ export default function CalculatorClientPage({
               </div>
               <div className="flex gap-3 md:shrink-0">
                 <Button
+                  size="sm"
                   onClick={handleSave}
                   disabled={!selectedProjectId || isSaving}
-                  isLoading={isSaving}
                   className="whitespace-nowrap"
                 >
+                  {isSaving && <Spinner data-icon="inline-start" />}
                   Save
                 </Button>
                 <Button
-                  variant="secondary"
+                  size="sm"
+                  variant="outline"
                   onClick={handleNew}
                   className="whitespace-nowrap"
                 >
@@ -608,7 +613,7 @@ export default function CalculatorClientPage({
           )}
         </div>
 
-        <Divider />
+        <Separator className="my-2" />
 
         <ProjectContextSection
           revenueUSD={revenueUSD}
@@ -623,7 +628,7 @@ export default function CalculatorClientPage({
           onTargetMarginChange={setTargetMarginPercent}
         />
 
-        <Divider />
+        <Separator className="my-2" />
 
         <TimelineSection
           phases={phases}
@@ -633,7 +638,7 @@ export default function CalculatorClientPage({
           onUpdatePhase={updatePhase}
         />
 
-        <Divider />
+        <Separator className="my-2" />
 
         <SquadSection
           teamMembers={teamMembers}
@@ -645,7 +650,7 @@ export default function CalculatorClientPage({
           onUpdateAllocation={updateAllocation}
         />
 
-        <Divider />
+        <Separator className="my-2" />
 
         <FreelanceSection
           freelanceSquad={freelanceSquad}
@@ -654,7 +659,7 @@ export default function CalculatorClientPage({
           onUpdateFreelanceMember={updateFreelanceMember}
         />
 
-        <Divider />
+        <Separator className="my-2" />
 
         <OperationalCostsSection
           costItems={costItems}
@@ -667,7 +672,7 @@ export default function CalculatorClientPage({
 
         {selectedProjectId && (
           <>
-            <Divider />
+            <Separator className="my-2" />
             <div>
               <h3 className="text-label-md text-foreground mb-4">
                 Saved Calculations
@@ -695,15 +700,15 @@ export default function CalculatorClientPage({
                       </div>
                       <div className="flex shrink-0 items-center gap-2">
                         <Button
-                          variant="secondary"
-                          size="xs"
+                          variant="outline"
+                          size="sm"
                           onClick={() => handleLoad(calc)}
                         >
                           Load
                         </Button>
                         <Button
                           variant="ghost"
-                          size="xs"
+                          size="icon-sm"
                           className="text-muted-foreground/70 size-6 p-0"
                           onClick={() => setPendingDeleteId(calc.id)}
                         >

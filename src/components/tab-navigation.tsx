@@ -1,0 +1,155 @@
+"use client"
+
+import * as React from "react"
+import { NavigationMenu as NavigationMenuPrimitive } from "radix-ui"
+
+import { cn } from "@/lib/utils"
+
+type ElementWithChildren = React.ReactElement<{ children?: React.ReactNode }>
+
+function getSubtree(
+  options: { asChild: boolean | undefined; children: React.ReactNode },
+  content: (children: React.ReactNode) => React.ReactNode,
+) {
+  const { asChild, children } = options
+  if (!asChild) return content(children)
+
+  const firstChild = React.Children.only(children) as ElementWithChildren
+  return React.cloneElement(firstChild, {
+    children: content(firstChild.props.children),
+  })
+}
+
+/**
+ * TabNavigation — link-based navigation styled like shadcn line tabs.
+ * Built on the Radix NavigationMenu primitive.
+ *
+ * @example
+ * ```tsx
+ * <TabNavigation>
+ *   <TabNavigationLink href="#" active>Overview</TabNavigationLink>
+ *   <TabNavigationLink href="#">Settings</TabNavigationLink>
+ * </TabNavigation>
+ * ```
+ */
+const TabNavigation = React.forwardRef<
+  React.ComponentRef<typeof NavigationMenuPrimitive.Root>,
+  Omit<
+    React.ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.Root>,
+    "orientation" | "defaultValue" | "dir"
+  >
+>(({ className, children, ...props }, forwardedRef) => {
+  return (
+    <div className="-mb-px overflow-x-auto pb-px [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <NavigationMenuPrimitive.Root
+        ref={forwardedRef}
+        data-slot="tab-navigation"
+        {...props}
+        asChild={false}
+      >
+        <NavigationMenuPrimitive.List
+          className={cn(
+            "flex items-start justify-start gap-1 border-b border-border whitespace-nowrap",
+            className,
+          )}
+        >
+          {children}
+        </NavigationMenuPrimitive.List>
+      </NavigationMenuPrimitive.Root>
+    </div>
+  )
+})
+
+TabNavigation.displayName = "TabNavigation"
+
+type TabNavigationLinkProps = Omit<
+  React.ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.Link>,
+  "onSelect"
+> & {
+  disabled?: boolean
+  active?: boolean
+  leadingIcon?: React.ReactNode
+  showLeadingIcon?: boolean
+  badge?: React.ReactNode
+  showBadge?: boolean
+}
+
+const TabNavigationLink = React.forwardRef<
+  React.ComponentRef<typeof NavigationMenuPrimitive.Link>,
+  TabNavigationLinkProps
+>(
+  (
+    {
+      asChild,
+      disabled,
+      active,
+      className,
+      children,
+      leadingIcon,
+      showLeadingIcon = true,
+      badge,
+      showBadge = true,
+      ...props
+    },
+    forwardedRef,
+  ) => {
+    return (
+      <NavigationMenuPrimitive.Item className="flex" aria-disabled={disabled}>
+        <NavigationMenuPrimitive.Link
+          aria-disabled={disabled}
+          data-active={active ? "" : undefined}
+          aria-current={active ? "page" : undefined}
+          className={cn(
+            "group relative flex shrink-0 items-center justify-center rounded-md outline-none select-none focus-visible:ring-3 focus-visible:ring-ring/30",
+            disabled
+              ? "pointer-events-none cursor-not-allowed"
+              : "cursor-pointer",
+          )}
+          ref={forwardedRef}
+          onSelect={() => {}}
+          asChild={asChild}
+          {...props}
+        >
+          {getSubtree({ asChild, children }, (children) => (
+            <span
+              className={cn(
+                "relative inline-flex items-center justify-center px-1 pb-1.5 whitespace-nowrap text-muted-foreground transition-colors",
+                "group-hover:text-foreground group-data-[active]:text-foreground",
+                // active underline (shadcn tabs "line" style)
+                "after:absolute after:inset-x-0 after:-bottom-px after:h-0.5 after:bg-primary after:opacity-0 after:transition-opacity group-data-[active]:after:opacity-100",
+                disabled && "pointer-events-none text-muted-foreground/50",
+                className,
+              )}
+            >
+              <span
+                className={cn(
+                  "inline-flex h-7 items-center justify-center gap-0.5 rounded-md px-2",
+                  "group-hover:bg-accent group-hover:text-accent-foreground",
+                )}
+              >
+                {showLeadingIcon && leadingIcon && (
+                  <span className="flex shrink-0 items-center justify-center text-current [&_svg]:size-3.5 [&_svg]:shrink-0">
+                    {leadingIcon}
+                  </span>
+                )}
+                <span className="px-0.5 text-label-sm text-current">
+                  {children}
+                </span>
+                {showBadge && badge !== undefined && badge !== null && (
+                  <span className="flex min-w-5 items-center justify-center rounded-full bg-primary px-1.5 py-0.5 text-label-xs text-primary-foreground">
+                    {badge}
+                  </span>
+                )}
+              </span>
+            </span>
+          ))}
+        </NavigationMenuPrimitive.Link>
+      </NavigationMenuPrimitive.Item>
+    )
+  },
+)
+
+TabNavigationLink.displayName = "TabNavigationLink"
+
+export { TabNavigation, TabNavigationLink }
+export type { TabNavigationLinkProps }

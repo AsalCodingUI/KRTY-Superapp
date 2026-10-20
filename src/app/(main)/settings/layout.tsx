@@ -1,15 +1,14 @@
 "use client"
 
 import { siteConfig } from "@/app/siteConfig"
+import { TabNavigation, TabNavigationLink } from "@/components/tab-navigation"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-  TabNavigation,
-  TabNavigationLink,
-} from "@/shared/ui"
+} from "@/components/ui/select"
 import { useUserProfile } from "@/shared/hooks/useUserProfile" // Import hook buat cek role
 import { hasRoleAccess } from "@/shared/lib/roles"
 import Link from "next/link"

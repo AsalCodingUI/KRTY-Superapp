@@ -8,7 +8,8 @@ import {
   mergeAttendanceNote,
 } from "@/shared/lib/attendance"
 import { Database } from "@/shared/types/database.types"
-import { Card, ConfirmDialog } from "@/shared/ui"
+import { ConfirmDialog } from "@/components/confirm-dialog"
+import { Card } from "@/components/ui/card"
 import { RiCalendarLine } from "@/shared/ui/lucide-icons"
 import { useRouter } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
@@ -223,7 +224,7 @@ export function StakeholderAttendancePage({
           <div className="space-y-4 p-5">
             {/* Summary Cards (Fokus Hari Ini) */}
             <div className="grid gap-lg sm:grid-cols-2">
-              <Card className="px-4 py-3">
+              <Card className="gap-0 px-4 py-3">
                 <dt className="text-label-sm text-muted-foreground">
                   Present Today
                 </dt>
@@ -231,7 +232,7 @@ export function StakeholderAttendancePage({
                   {todaysLogs.length}
                 </dd>
               </Card>
-              <Card className="px-4 py-3">
+              <Card className="gap-0 px-4 py-3">
                 <dt className="text-label-sm text-muted-foreground">
                   Currently Active
                 </dt>

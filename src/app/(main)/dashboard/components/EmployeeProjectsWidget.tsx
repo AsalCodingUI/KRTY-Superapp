@@ -1,6 +1,7 @@
 "use client"
 
-import { Badge, EmptyState } from "@/shared/ui"
+import { EmptyState } from "@/components/empty-state"
+import { Badge } from "@/components/ui/badge"
 import { RiCheckLine, RiFolderLine } from "@/shared/ui/lucide-icons"
 import { format, isValid } from "date-fns"
 import Link from "next/link"
@@ -95,7 +96,7 @@ export function EmployeeProjectsWidget({
 
                 <div className="mt-2 flex items-center gap-2">
                   {isOverdue ? (
-                    <Badge variant="error" className="text-body-xs">
+                    <Badge variant="destructive" className="text-body-xs">
                       Overdue
                     </Badge>
                   ) : isUrgent ? (

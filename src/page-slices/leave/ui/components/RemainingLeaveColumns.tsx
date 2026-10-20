@@ -1,7 +1,8 @@
 "use client"
 
-import { Avatar, Badge } from "@/shared/ui"
-import { DataTableColumnHeader } from "@/shared/ui/data/DataTableColumnHeader"
+import { DataTableColumnHeader } from "@/components/data-table"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
 import { Database } from "@/shared/types/database.types"
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table"
 
@@ -15,7 +16,7 @@ const columnHelper = createColumnHelper<Profile>()
 const getJobTitleVariant = (title: string | null) => {
   switch (title) {
     case "Admin":
-      return "error"
+      return "destructive"
     case "Project Manager":
       return "warning"
     case "Designer":
@@ -23,7 +24,7 @@ const getJobTitleVariant = (title: string | null) => {
     case "Web Developer":
       return "info"
     default:
-      return "default"
+      return "secondary"
   }
 }
 
@@ -44,13 +45,15 @@ export const remainingLeaveColumns = [
       const avatarUrl = row.original.avatar_url || undefined
       return (
         <div className="flex items-center gap-3">
-          <Avatar
-            size="xs"
-            src={avatarUrl}
-            initials={initials}
-            alt={name}
-            color="neutral"
-          />
+          <Avatar className="size-5">
+            <AvatarImage
+              src={avatarUrl}
+              alt={name}
+            />
+            <AvatarFallback className="text-label-xs">
+              {initials}
+            </AvatarFallback>
+          </Avatar>
           <span
             className="text-foreground font-medium whitespace-nowrap"
             title={name}

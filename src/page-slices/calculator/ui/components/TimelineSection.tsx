@@ -1,4 +1,6 @@
-import { Badge, Button, TextInput } from "@/shared/ui"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { RiAddLine, RiDeleteBinLine } from "@/shared/ui/lucide-icons"
 import { Phase } from "../types"
 
@@ -29,7 +31,7 @@ export function TimelineSection({
             Timeline Engine
           </h3>
         </div>
-        <Badge variant="zinc">Total: {totalDuration} Days</Badge>
+        <Badge variant="secondary">Total: {totalDuration} Days</Badge>
       </div>
 
       <div className="space-y-4">
@@ -45,24 +47,24 @@ export function TimelineSection({
             key={phase.id}
             className="grid grid-cols-1 gap-2 sm:grid-cols-[minmax(0,1.8fr)_minmax(0,1fr)_minmax(0,1fr)_40px] sm:gap-4"
           >
-            <TextInput
+            <Input
               value={phase.name}
               onChange={(e) => onUpdatePhase(phase.id, "name", e.target.value)}
               placeholder="Phase Name"
-              className="w-full"
+              className="w-full h-7"
             />
-            <TextInput
+            <Input
               type="number"
-              className="w-full text-center"
+              className="w-full text-center h-7"
               value={phase.days}
               onChange={(e) =>
                 onUpdatePhase(phase.id, "days", Number(e.target.value))
               }
               placeholder="Days"
             />
-            <TextInput
+            <Input
               type="number"
-              className="w-full text-center"
+              className="w-full text-center h-7"
               value={phase.buffer}
               onChange={(e) =>
                 onUpdatePhase(phase.id, "buffer", Number(e.target.value))
@@ -71,7 +73,7 @@ export function TimelineSection({
             />
             <Button
               variant="ghost"
-              size="sm"
+              size="icon-sm"
               className="text-muted-foreground/70 size-8 shrink-0 justify-self-end p-0"
               onClick={() => onRemovePhase(phase.id)}
             >
@@ -81,7 +83,8 @@ export function TimelineSection({
         ))}
 
         <Button
-          variant="secondary"
+          size="sm"
+          variant="outline"
           className="mt-3 w-full"
           onClick={onAddPhase}
         >

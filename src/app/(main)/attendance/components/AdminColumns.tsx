@@ -4,8 +4,9 @@ import {
   ATTENDANCE_NOTE_TAGS,
   hasAttendanceNote,
 } from "@/shared/lib/attendance"
-import { Avatar, Badge } from "@/shared/ui"
-import { Button } from "@/shared/ui"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Database } from "@/shared/types/database.types"
 import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
@@ -33,13 +34,13 @@ export const adminAttendanceColumns = (
 
       return (
         <div className="flex items-center gap-3">
-          <Avatar
-            size="xs"
-            src={row.original.profiles?.avatar_url || undefined}
-            initials={initials}
-            alt={fullName}
-            color="neutral"
-          />
+          <Avatar className="size-5">
+            <AvatarImage
+              src={row.original.profiles?.avatar_url || undefined}
+              alt={fullName}
+            />
+            <AvatarFallback className="text-label-xs">{initials}</AvatarFallback>
+          </Avatar>
           <span
             className="text-foreground font-medium whitespace-nowrap"
             title={fullName}
@@ -149,12 +150,12 @@ export const adminAttendanceColumns = (
       return (
         <div className="flex items-center gap-2">
           <Badge
-            variant={row.original.status === "Cuti Masuk" ? "warning" : "zinc"}
+            variant={row.original.status === "Cuti Masuk" ? "warning" : "secondary"}
           >
             {row.original.status}
           </Badge>
           {wasEdited && (
-            <Badge variant="info" size="sm">
+            <Badge variant="info">
               Edited
             </Badge>
           )}
@@ -176,7 +177,7 @@ export const adminAttendanceColumns = (
       if (isActiveSession && onCloseSession) {
         return (
           <Button
-            variant="tertiary"
+            variant="ghost"
             size="sm"
             onClick={() => onCloseSession(row.original.id)}
           >
@@ -191,7 +192,7 @@ export const adminAttendanceColumns = (
         <div className="flex items-center gap-2">
           {onEditSession && (
             <Button
-              variant="tertiary"
+              variant="ghost"
               size="sm"
               onClick={() => onEditSession(row.original.id)}
             >
@@ -200,7 +201,7 @@ export const adminAttendanceColumns = (
           )}
           {onApproveDelete && hasDeleteRequest && (
             <Button
-              variant="tertiary"
+              variant="ghost"
               size="sm"
               onClick={() => onApproveDelete(row.original.id)}
             >

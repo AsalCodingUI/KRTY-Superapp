@@ -2,13 +2,10 @@
 
 import { useNotifications } from "@/shared/hooks/useNotifications"
 import { cx } from "@/shared/lib/utils"
-import {
-  Badge,
-  Button,
-  EmptyState,
-  TabNavigation,
-  TabNavigationLink,
-} from "@/shared/ui"
+import { EmptyState } from "@/components/empty-state"
+import { TabNavigation, TabNavigationLink } from "@/components/tab-navigation"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { RiDeleteBinLine, RiNotification3Line } from "@/shared/ui/lucide-icons"
 import Link from "next/link"
 import { useState, type MouseEvent as ReactMouseEvent } from "react"
@@ -40,7 +37,7 @@ export function NotificationsPage() {
         <RiNotification3Line className="text-muted-foreground size-4" />
         <p className="text-label-md text-foreground">Notifications</p>
         {unreadCount > 0 && (
-          <Badge size="sm" variant="info">
+          <Badge variant="info">
             {unreadCount}
           </Badge>
         )}
@@ -135,7 +132,7 @@ export function NotificationsPage() {
       {unreadCount > 0 && (
         <div className="fixed bottom-[calc(env(safe-area-inset-bottom)+5.25rem)] left-1/2 z-[60] -translate-x-1/2 sm:hidden">
           <Button
-            variant="secondary"
+            variant="outline"
             size="sm"
             onClick={() => markAllAsRead()}
             className="rounded-full shadow-regular-lg"

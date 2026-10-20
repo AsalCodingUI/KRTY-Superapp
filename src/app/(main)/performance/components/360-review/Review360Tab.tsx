@@ -3,7 +3,8 @@
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { createClient } from "@/shared/api/supabase/client"
 import { canManageByRole } from "@/shared/lib/roles"
-import { Spinner, type QuarterFilterValue } from "@/shared/ui"
+import type { QuarterFilterValue } from "@/components/quarter-filter"
+import { Spinner } from "@/components/ui/spinner"
 import { useMemo } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { AdminReviewDashboard } from "../admin/AdminReviewDashboard"
@@ -52,7 +53,7 @@ export function Review360Tab(
   if (loading)
     return (
       <div className="flex items-center justify-center py-12">
-        <Spinner size="md" />
+        <Spinner className="size-8" />
       </div>
     )
 

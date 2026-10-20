@@ -1,7 +1,7 @@
 "use client"
 
 import { cx } from "@/shared/lib/utils"
-import { Skeleton } from "@/shared/ui"
+import { Skeleton } from "@/components/ui/skeleton"
 
 export function CalendarSkeleton() {
   const daysInWeek = 7

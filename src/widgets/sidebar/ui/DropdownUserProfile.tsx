@@ -10,10 +10,10 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuSub,
-  DropdownMenuSubMenuContent,
+  DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-} from "@/shared/ui"
+} from "@/components/ui/dropdown-menu"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { createClient } from "@/shared/api/supabase/client"
 import {
@@ -77,13 +77,13 @@ export function DropdownUserProfile({
           <DropdownMenuGroup>
             <DropdownMenuSub>
               <DropdownMenuSubTrigger>Theme</DropdownMenuSubTrigger>
-              <DropdownMenuSubMenuContent>
+              <DropdownMenuSubContent>
                 <DropdownMenuRadioGroup value={theme} onValueChange={setTheme}>
                   <DropdownMenuRadioItem value="light">Light</DropdownMenuRadioItem>
                   <DropdownMenuRadioItem value="dark">Dark</DropdownMenuRadioItem>
                   <DropdownMenuRadioItem value="system">System</DropdownMenuRadioItem>
                 </DropdownMenuRadioGroup>
-              </DropdownMenuSubMenuContent>
+              </DropdownMenuSubContent>
             </DropdownMenuSub>
           </DropdownMenuGroup>
         )}

@@ -1,13 +1,13 @@
 "use client"
 
-import { Button } from "@/shared/ui"
+import { Button } from "@/components/ui/button"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/shared/ui"
+} from "@/components/ui/select"
 import { RiAddLine, RiCloseLine } from "@/shared/ui/lucide-icons"
 import { useState } from "react"
 import type { Reminder } from "../types"
@@ -87,7 +87,7 @@ export function ReminderPicker({
           onValueChange={setSelectedMinutes}
           disabled={disabled}
         >
-          <SelectTrigger className="flex-1">
+          <SelectTrigger size="sm" className="flex-1">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -103,7 +103,7 @@ export function ReminderPicker({
         </Select>
         <Button
           type="button"
-          variant="secondary"
+          variant="outline"
           size="sm"
           onClick={handleAdd}
           disabled={disabled}

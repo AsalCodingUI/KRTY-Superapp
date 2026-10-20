@@ -1,4 +1,4 @@
-import { Badge } from "@/shared/ui"
+import { Badge } from "@/components/ui/badge"
 
 export function LeaveRules() {
   return (
@@ -93,7 +93,7 @@ export function LeaveRules() {
 
           {/* Jawaban */}
           <div className="flex gap-3">
-            <Badge variant="error" size="sm" className="h-5 w-5 justify-center rounded-full p-0">
+            <Badge variant="destructive" className="h-5 w-5 justify-center rounded-full p-0">
               !
             </Badge>
             <p className="text-destructive">

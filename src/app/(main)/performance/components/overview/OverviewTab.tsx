@@ -2,7 +2,12 @@
 
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { canManageByRole } from "@/shared/lib/roles"
-import { Badge, Card, EmptyState, ProgressBar, QuarterFilter, Spinner, type QuarterFilterValue } from "@/shared/ui"
+import { EmptyState } from "@/components/empty-state"
+import { QuarterFilter, type QuarterFilterValue } from "@/components/quarter-filter"
+import { Badge } from "@/components/ui/badge"
+import { Card } from "@/components/ui/card"
+import { Progress } from "@/components/ui/progress"
+import { Spinner } from "@/components/ui/spinner"
 import {
   RiBriefcaseLine,
   RiCheckboxCircleLine,
@@ -59,16 +64,22 @@ type OverviewTabProps = {
   onQuarterChange?: (value: QuarterFilterValue) => void
 }
 
+const progressIndicatorClass = {
+  success: "[&_[data-slot=progress-indicator]]:bg-success",
+  default: "",
+  warning: "[&_[data-slot=progress-indicator]]:bg-warning",
+} as const
+
 // Helper functions
 function getRatingBadge(score: number): {
-  variant: "success" | "info" | "warning" | "error"
+  variant: "success" | "info" | "warning" | "destructive"
   label: string
 } {
   if (score >= 95) return { variant: "success", label: "Outstanding" }
   if (score >= 85) return { variant: "success", label: "Above Expectation" }
   if (score >= 75) return { variant: "info", label: "Meets Expectation" }
   if (score >= 60) return { variant: "warning", label: "Below Expectation" }
-  return { variant: "error", label: "Needs Improvement" }
+  return { variant: "destructive", label: "Needs Improvement" }
 }
 
 function calculateOverallScore(overview: OverviewRow[]): number | null {
@@ -129,7 +140,7 @@ function EmployeeOverview({
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Spinner size="md" />
+        <Spinner className="size-8" />
       </div>
     )
   }
@@ -150,7 +161,7 @@ function EmployeeOverview({
       {/* SCORECARD SUMMARY */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
         {/* Overall Score Card */}
-        <Card className="flex flex-col justify-between border-l-4 border-l-accent-brand">
+        <Card className="gap-0 p-4 flex flex-col justify-between border-l-4 border-l-primary">
           <dt className="text-muted-foreground text-label-md">Overall Score</dt>
           <dd className="mt-2 flex items-baseline gap-2">
             <span className="text-foreground text-display-xs">
@@ -163,13 +174,13 @@ function EmployeeOverview({
                 {getRatingBadge(overallScore).label}
               </Badge>
             ) : (
-              <Badge variant="zinc">Belum ada data</Badge>
+              <Badge variant="secondary">Belum ada data</Badge>
             )}
           </div>
         </Card>
 
         {/* KPI Achievement Card */}
-        <Card>
+        <Card className="gap-0 p-4">
           <dt className="text-muted-foreground text-label-md">KPI SLA Project</dt>
           <dd className="mt-2 flex items-baseline gap-2">
             <span className="text-foreground text-display-xs">
@@ -187,7 +198,7 @@ function EmployeeOverview({
         </Card>
 
         {/* 360 Feedback Rating Card */}
-        <Card>
+        <Card className="gap-0 p-4">
           <dt className="text-muted-foreground text-label-md">
             360 Feedback Rating
           </dt>
@@ -218,7 +229,7 @@ function EmployeeOverview({
       {/* PERFORMANCE DETAILS */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* SLA Progress */}
-        <Card>
+        <Card className="gap-0 p-4">
           <h3 className="text-foreground mb-4 font-semibold">
             SLA Project Progress
           </h3>
@@ -230,9 +241,9 @@ function EmployeeOverview({
                   {slaRow?.result !== null ? `${slaRow?.result}%` : "—"}
                 </span>
               </div>
-              <ProgressBar
+              <Progress
                 value={slaRow?.result || 0}
-                variant={
+                className={progressIndicatorClass[
                   slaRow?.result != null && slaRow.result >= 90
                     ? "success"
                     : slaRow?.result != null && slaRow.result >= 75
@@ -240,7 +251,7 @@ function EmployeeOverview({
                       : slaRow?.result != null
                         ? "warning"
                         : "default"
-                }
+                ]}
               />
             </div>
             <p className="text-muted-foreground text-body-xs">
@@ -250,7 +261,7 @@ function EmployeeOverview({
         </Card>
 
         {/* 360 Review Summary */}
-        <Card>
+        <Card className="gap-0 p-4">
           <h3 className="text-foreground mb-4 font-semibold">
             360 Review Summary
           </h3>
@@ -272,7 +283,7 @@ function EmployeeOverview({
         </Card>
 
         {/* Work Quality */}
-        <Card>
+        <Card className="gap-0 p-4">
           <h3 className="text-foreground mb-4 font-semibold">Work Quality</h3>
           <div className="space-y-4">
             <div>
@@ -282,9 +293,9 @@ function EmployeeOverview({
                   {qualityRow?.result !== null ? `${qualityRow?.result}%` : "—"}
                 </span>
               </div>
-              <ProgressBar
+              <Progress
                 value={qualityRow?.result || 0}
-                variant={
+                className={progressIndicatorClass[
                   qualityRow?.result != null && qualityRow.result >= 90
                     ? "success"
                     : qualityRow?.result != null && qualityRow.result >= 75
@@ -292,7 +303,7 @@ function EmployeeOverview({
                       : qualityRow?.result != null
                         ? "warning"
                         : "default"
-                }
+                ]}
               />
             </div>
             <p className="text-muted-foreground text-body-xs">
@@ -303,7 +314,7 @@ function EmployeeOverview({
       </div>
 
       {/* ASSIGNED PROJECTS */}
-      <Card>
+      <Card className="gap-0 p-4">
         <div className="mb-4 flex items-center justify-between">
           <h3 className="text-label-md text-foreground">Assigned Projects</h3>
           <Badge variant="info">{activeProjects.length} Active</Badge>
@@ -361,7 +372,7 @@ function EmployeeOverview({
                         variant={
                           assignment.projects.status === "Active"
                             ? "success"
-                            : "zinc"
+                            : "secondary"
                         }
                       >
                         {assignment.projects.status}
@@ -412,7 +423,7 @@ function StakeholderOverview({
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Spinner size="md" />
+        <Spinner className="size-8" />
       </div>
     )
   }
@@ -441,7 +452,7 @@ function StakeholderOverview({
 
       {/* TEAM METRICS */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        <Card>
+        <Card className="gap-0 p-4">
           <div className="flex items-center gap-4">
             <div className="bg-primary/10 flex h-12 w-12 items-center justify-center rounded-lg">
               <RiGroupLine className="text-primary size-6" />
@@ -457,7 +468,7 @@ function StakeholderOverview({
           </div>
         </Card>
 
-        <Card>
+        <Card className="gap-0 p-4">
           <div className="flex items-center gap-4">
             <div className="bg-success/10 flex h-12 w-12 items-center justify-center rounded-lg">
               <RiLineChartLine className="text-success size-6" />
@@ -473,7 +484,7 @@ function StakeholderOverview({
           </div>
         </Card>
 
-        <Card>
+        <Card className="gap-0 p-4">
           <div className="flex items-center gap-4">
             <div className="bg-warning/10 flex h-12 w-12 items-center justify-center rounded-lg">
               <RiCheckboxCircleLine className="text-warning size-6" />
@@ -489,7 +500,7 @@ function StakeholderOverview({
           </div>
         </Card>
 
-        <Card>
+        <Card className="gap-0 p-4">
           <div className="flex items-center gap-4">
             <div className="bg-info/10 flex h-12 w-12 items-center justify-center rounded-lg">
               <RiBriefcaseLine className="text-info size-6" />
@@ -507,7 +518,7 @@ function StakeholderOverview({
       </div>
 
       {/* PERFORMANCE DISTRIBUTION */}
-      <Card>
+      <Card className="gap-0 p-4">
         <h3 className="text-foreground mb-4 font-semibold">
           Performance Distribution
         </h3>
@@ -626,7 +637,7 @@ function StakeholderOverview({
             /* Switch to KPI tab */
           }}
         >
-          <Card className="hover:border-primary cursor-pointer transition-colors">
+          <Card className="gap-0 p-4 hover:ring-primary cursor-pointer transition-colors">
             <div className="flex items-center gap-4">
               <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-lg">
                 <RiLineChartLine className="text-primary size-5" />
@@ -647,7 +658,7 @@ function StakeholderOverview({
             /* Switch to 360 Review tab */
           }}
         >
-          <Card className="hover:border-primary cursor-pointer transition-colors">
+          <Card className="gap-0 p-4 hover:ring-primary cursor-pointer transition-colors">
             <div className="flex items-center gap-4">
               <div className="bg-success/10 flex h-10 w-10 items-center justify-center rounded-lg">
                 <RiUserLine className="text-success size-5" />
@@ -676,7 +687,7 @@ export function OverviewTab({
   if (profileLoading || !profile) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Spinner size="md" />
+        <Spinner className="size-8" />
       </div>
     )
   }

@@ -2,7 +2,8 @@
 
 import { calculateBusinessDays } from "@/shared/lib/date"
 import { Database } from "@/shared/types/database.types"
-import { Card, ProgressBar } from "@/shared/ui"
+import { Card } from "@/components/ui/card"
+import { Progress } from "@/components/ui/progress"
 import { useMemo } from "react"
 
 type LeaveRequest = Database["public"]["Tables"]["leave_requests"]["Row"]
@@ -41,7 +42,7 @@ export function LeaveBalance({
   }, [requests, maxLeave])
 
   return (
-    <Card>
+    <Card className="gap-0 p-4">
       <dt className="text-label-md text-muted-foreground dark:text-muted-foreground">
         Annual Leave Balance
       </dt>
@@ -51,7 +52,7 @@ export function LeaveBalance({
 
       {showDetails && (
         <>
-          <ProgressBar value={stats.percentage} className="mt-6" />
+          <Progress value={stats.percentage} className="mt-6" />
 
           <dd className="text-label-md mt-2 flex items-center justify-between">
             <span className="text-primary font-medium">

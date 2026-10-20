@@ -1,15 +1,11 @@
 "use client"
 
-import {
-  Button,
-  Divider,
-  Label,
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  Textarea,
-  TextInput,
-} from "@/shared/ui"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Separator } from "@/components/ui/separator"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Textarea } from "@/components/ui/textarea"
 import { createClient as createClientBrowser } from "@/shared/api/supabase/client"
 import { logError } from "@/shared/lib/utils/logger"
 import {
@@ -272,11 +268,10 @@ export default function SLAContainer({
             <div className="flex min-w-0 items-center gap-3">
               <Button
                 variant="ghost"
-                size="sm"
-                className="p-2"
+                size="icon-sm"
                 onClick={onBack ?? (() => router.back())}
               >
-                <RiArrowLeftLine className="text-muted-foreground/70 h-5 w-5" />
+                <RiArrowLeftLine className="text-muted-foreground/70 size-5" />
               </Button>
               <div className="min-w-0">
                 <p className="text-label-md text-foreground truncate">
@@ -298,33 +293,32 @@ export default function SLAContainer({
               </div>
 
               <Button
-                variant="primary"
                 size="sm"
                 onClick={handleSaveToDatabase}
                 disabled={saving || !clientInfo.name}
                 className="hidden lg:flex"
               >
-                <RiSave3Line className="mr-2 h-4 w-4" />
+                <RiSave3Line data-icon="inline-start" />
                 {saving ? "Saving..." : "Save"}
               </Button>
 
               <Button
-                variant="secondary"
-                size="sm"
+                variant="outline"
+                size="icon-sm"
                 onClick={handleExportJson}
                 className="hidden lg:flex"
                 title="Export JSON"
               >
-                <RiSaveLine className="h-4 w-4" />
+                <RiSaveLine />
               </Button>
               <Button
                 onClick={handlePrint}
-                size="sm"
-                variant="secondary"
+                size="icon-sm"
+                variant="outline"
                 className="hidden lg:flex"
                 title="Print PDF"
               >
-                <RiPrinterLine className="h-4 w-4" />
+                <RiPrinterLine />
               </Button>
             </div>
           </div>
@@ -340,7 +334,8 @@ export default function SLAContainer({
                   <div>
                     <Label>Client Name</Label>
                     <div className="mt-2">
-                      <TextInput
+                      <Input
+                        className="h-7"
                         value={clientInfo.name}
                         onChange={(e) =>
                           setClientInfo({ ...clientInfo, name: e.target.value })
@@ -352,7 +347,8 @@ export default function SLAContainer({
                   <div>
                     <Label>Email</Label>
                     <div className="mt-2">
-                      <TextInput
+                      <Input
+                        className="h-7"
                         value={clientInfo.email}
                         onChange={(e) =>
                           setClientInfo({ ...clientInfo, email: e.target.value })
@@ -366,7 +362,8 @@ export default function SLAContainer({
                   <div>
                     <Label>Company / Project Name</Label>
                     <div className="mt-2">
-                      <TextInput
+                      <Input
+                        className="h-7"
                         value={clientInfo.company}
                         onChange={(e) =>
                           setClientInfo({
@@ -381,7 +378,8 @@ export default function SLAContainer({
                   <div>
                     <Label>Date</Label>
                     <div className="mt-2">
-                      <TextInput
+                      <Input
+                        className="h-7"
                         value={clientInfo.date}
                         onChange={(e) =>
                           setClientInfo({ ...clientInfo, date: e.target.value })
@@ -393,7 +391,8 @@ export default function SLAContainer({
                 <div className="sm:col-span-2">
                   <Label>Address</Label>
                   <div className="mt-2">
-                    <TextInput
+                    <Input
+                      className="h-7"
                       value={clientInfo.address}
                       onChange={(e) =>
                         setClientInfo({ ...clientInfo, address: e.target.value })
@@ -404,7 +403,7 @@ export default function SLAContainer({
               </div>
             </section>
 
-            <Divider />
+            <Separator />
 
             <section className="space-y-4">
               <h3 className="text-label-md text-foreground">
@@ -414,7 +413,8 @@ export default function SLAContainer({
                 <div>
                   <Label>Agency Name</Label>
                   <div className="mt-2">
-                    <TextInput
+                    <Input
+                      className="h-7"
                       value={agencyInfo.name}
                       onChange={(e) =>
                         setAgencyInfo({ ...agencyInfo, name: e.target.value })
@@ -425,7 +425,8 @@ export default function SLAContainer({
                 <div>
                   <Label>Representative Name</Label>
                   <div className="mt-2">
-                    <TextInput
+                    <Input
+                      className="h-7"
                       value={agencyInfo.repName}
                       onChange={(e) =>
                         setAgencyInfo({ ...agencyInfo, repName: e.target.value })
@@ -436,7 +437,8 @@ export default function SLAContainer({
                 <div>
                   <Label>Representative Title</Label>
                   <div className="mt-2">
-                    <TextInput
+                    <Input
+                      className="h-7"
                       value={agencyInfo.repTitle}
                       onChange={(e) =>
                         setAgencyInfo({
@@ -450,7 +452,8 @@ export default function SLAContainer({
                 <div>
                   <Label>Email</Label>
                   <div className="mt-2">
-                    <TextInput
+                    <Input
+                      className="h-7"
                       value={agencyInfo.email}
                       onChange={(e) =>
                         setAgencyInfo({ ...agencyInfo, email: e.target.value })
@@ -476,13 +479,13 @@ export default function SLAContainer({
               </div>
             </section>
 
-            <Divider />
+            <Separator />
 
             <section>
               <ScopeOfWorkForm data={scopeOfWork} onChange={setScopeOfWork} />
             </section>
 
-            <Divider />
+            <Separator />
 
             <section>
               <MilestonesForm data={milestones} onChange={setMilestones} />
@@ -503,15 +506,14 @@ export default function SLAContainer({
             </span>
             <div className="flex gap-2">
               <Button
-                variant="primary"
-                size="sm"
+                size="icon-sm"
                 onClick={handleSaveToDatabase}
                 disabled={saving}
               >
-                <RiSave3Line className="h-4 w-4" />
+                <RiSave3Line />
               </Button>
-              <Button onClick={handlePrint} size="sm">
-                <RiPrinterLine className="h-4 w-4" />
+              <Button onClick={handlePrint} size="icon-sm">
+                <RiPrinterLine />
               </Button>
             </div>
           </div>

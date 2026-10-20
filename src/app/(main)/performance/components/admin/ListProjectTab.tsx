@@ -1,18 +1,30 @@
 "use client"
 
 import type { Database } from "@/shared/types/database.types"
+import { AvatarGroup, AvatarOverflow } from "@/components/avatar-group"
+import { ConfirmDialog } from "@/components/confirm-dialog"
+import { EmptyState } from "@/components/empty-state"
+import type { QuarterFilterValue } from "@/components/quarter-filter"
+import { TableSection } from "@/components/table-section"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import {
-  Avatar, AvatarGroup, AvatarOverflow, Badge, Button, ConfirmDialog, EmptyState, QuarterFilterValue, Select, Spinner,
+  Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue, Table,
+  SelectValue,
+} from "@/components/ui/select"
+import { Spinner } from "@/components/ui/spinner"
+import {
+  Table,
   TableBody,
   TableCell,
   TableHead,
-  TableHeaderCell,
-  TableRow, TableSection
-} from "@/shared/ui"
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 import {
   RiDeleteBin6Line,
   RiEdit2Line,
@@ -47,11 +59,11 @@ interface ExtendedProject extends Project {
 
 const getStatusVariant = (
   status: ProjectStatus,
-): "success" | "info" | "zinc" => {
-  const variants: Record<ProjectStatus, "success" | "info" | "zinc"> = {
+): "success" | "info" | "secondary" => {
+  const variants: Record<ProjectStatus, "success" | "info" | "secondary"> = {
     Active: "success",
     Completed: "info",
-    Archived: "zinc",
+    Archived: "secondary",
   }
   return variants[status]
 }
@@ -151,14 +163,15 @@ export function ListProjectTab({
       <TableSection
         title="Project Configuration"
         actions={
-          <Button size="sm" onClick={() => setFormOpen(true)} leadingIcon={<RiFolderLine />}>
+          <Button size="sm" onClick={() => setFormOpen(true)}>
+            <RiFolderLine data-icon="inline-start" />
             New Project
           </Button>
         }
       >
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
-            <Spinner size="md" />
+            <Spinner className="size-8" />
           </div>
         ) : projects.length === 0 ? (
           <EmptyState
@@ -182,18 +195,18 @@ export function ListProjectTab({
           />
         ) : (
           <Table>
-            <TableHead>
+            <TableHeader>
               <TableRow className="h-[40px] hover:bg-transparent">
-                <TableHeaderCell>Project Name</TableHeaderCell>
-                <TableHeaderCell>Quarter</TableHeaderCell>
-                <TableHeaderCell>Status</TableHeaderCell>
-                <TableHeaderCell>Timeline</TableHeaderCell>
-                <TableHeaderCell>Team</TableHeaderCell>
-                <TableHeaderCell className="text-right">
+                <TableHead>Project Name</TableHead>
+                <TableHead>Quarter</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Timeline</TableHead>
+                <TableHead>Team</TableHead>
+                <TableHead className="text-right">
                   Actions
-                </TableHeaderCell>
+                </TableHead>
               </TableRow>
-            </TableHead>
+            </TableHeader>
             <TableBody>
               {projects.map((project) => {
                 const teamMembers =
@@ -246,17 +259,19 @@ export function ListProjectTab({
                       {teamMembers.length > 0 ? (
                         <AvatarGroup>
                           {teamMembers.slice(0, 3).map((member, idx) => (
-                            <Avatar
-                              key={idx}
-                              src={member.image || undefined}
-                              alt={member.name}
-                              size="sm"
-                              initials={member.name
-                                .split(" ")
-                                .map((segment) => segment[0])
-                                .join("")
-                                .slice(0, 2)}
-                            />
+                            <Avatar key={idx} className="size-7">
+                              <AvatarImage
+                                src={member.image || undefined}
+                                alt={member.name}
+                              />
+                              <AvatarFallback className="text-xs">
+                                {member.name
+                                  .split(" ")
+                                  .map((segment) => segment[0])
+                                  .join("")
+                                  .slice(0, 2)}
+                              </AvatarFallback>
+                            </Avatar>
                           ))}
                           {teamMembers.length > 3 && (
                             <AvatarOverflow count={teamMembers.length - 3} size="sm" />
@@ -271,7 +286,7 @@ export function ListProjectTab({
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">
                         <Button
-                          variant="tertiary"
+                          variant="ghost"
                           size="icon-sm"
                           onClick={() => handleEdit(project)}
                           title="Edit Project"
@@ -281,7 +296,7 @@ export function ListProjectTab({
                         {/* Conditional delete button based on status */}
                         {project.status === "Archived" ? (
                           <Button
-                            variant="tertiary"
+                            variant="ghost"
                             size="icon-sm"
                             onClick={() => handlePermanentDelete(project)}
                             title="Permanently Delete (Cannot be undone)"
@@ -291,7 +306,7 @@ export function ListProjectTab({
                           </Button>
                         ) : (
                           <Button
-                            variant="tertiary"
+                            variant="ghost"
                             size="icon-sm"
                             onClick={() => handleDelete(project)}
                             title="Archive Project"

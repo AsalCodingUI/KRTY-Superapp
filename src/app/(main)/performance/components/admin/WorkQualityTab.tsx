@@ -1,19 +1,27 @@
 "use client"
 
 import { Constants, type Database } from "@/shared/types/database.types"
+import { ConfirmDialog } from "@/components/confirm-dialog"
+import { EmptyState } from "@/components/empty-state"
+import { TableSection } from "@/components/table-section"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import {
-  Badge, Button, ConfirmDialog, EmptyState, Spinner,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue, Table,
+  SelectValue,
+} from "@/components/ui/select"
+import { Spinner } from "@/components/ui/spinner"
+import {
+  Table,
   TableBody,
   TableCell,
   TableHead,
-  TableHeaderCell,
-  TableRow, TableSection
-} from "@/shared/ui"
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 import { RiDeleteBin6Line, RiEdit2Line, RiStarLine } from "@/shared/ui/lucide-icons"
 import { useState } from "react"
 import { toast } from "sonner"
@@ -32,15 +40,15 @@ const availableRoles = Constants.public.Enums.project_role_enum.filter(
 
 const getRoleBadgeVariant = (
   role: string,
-): "info" | "success" | "warning" | "zinc" => {
-  const variants: Record<string, "info" | "success" | "warning" | "zinc"> = {
+): "info" | "success" | "warning" | "secondary" => {
+  const variants: Record<string, "info" | "success" | "warning" | "secondary"> = {
     "UIX Designer": "info",
     "Brand Designer": "warning",
     "Webflow Developer": "success",
     "Web Developer": "success",
-    "Project Manager": "zinc",
+    "Project Manager": "secondary",
   }
-  return variants[role] || "zinc"
+  return variants[role] || "secondary"
 }
 
 export function WorkQualityTab() {
@@ -119,14 +127,15 @@ export function WorkQualityTab() {
       <TableSection
         title="Work Quality Competency Library"
         actions={
-          <Button size="sm" onClick={() => setFormOpen(true)} leadingIcon={<RiStarLine />}>
+          <Button size="sm" onClick={() => setFormOpen(true)}>
+            <RiStarLine data-icon="inline-start" />
             Add Competency
           </Button>
         }
       >
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
-            <Spinner size="md" />
+            <Spinner className="size-8" />
           </div>
         ) : competencies.length === 0 ? (
           <EmptyState
@@ -150,16 +159,16 @@ export function WorkQualityTab() {
           />
         ) : (
           <Table className="w-full table-fixed">
-            <TableHead>
+            <TableHeader>
               <TableRow className="h-[40px] hover:bg-transparent">
-                <TableHeaderCell className="w-[180px]">Role</TableHeaderCell>
-                <TableHeaderCell className="w-[260px]">Competency Name</TableHeaderCell>
-                <TableHeaderCell>Description</TableHeaderCell>
-                <TableHeaderCell className="w-[120px] text-right">
+                <TableHead className="w-[180px]">Role</TableHead>
+                <TableHead className="w-[260px]">Competency Name</TableHead>
+                <TableHead>Description</TableHead>
+                <TableHead className="w-[120px] text-right">
                   Actions
-                </TableHeaderCell>
+                </TableHead>
               </TableRow>
-            </TableHead>
+            </TableHeader>
             <TableBody>
               {competencies.map((competency) => (
                 <TableRow key={competency.id}>
@@ -187,7 +196,7 @@ export function WorkQualityTab() {
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
                       <Button
-                        variant="tertiary"
+                        variant="ghost"
                         size="icon-sm"
                         onClick={() => handleEdit(competency)}
                         title="Edit Competency"
@@ -195,7 +204,7 @@ export function WorkQualityTab() {
                         <RiEdit2Line className="size-3.5" />
                       </Button>
                       <Button
-                        variant="tertiary"
+                        variant="ghost"
                         size="icon-sm"
                         onClick={() =>
                           handleDelete(competency.id, competency.name)

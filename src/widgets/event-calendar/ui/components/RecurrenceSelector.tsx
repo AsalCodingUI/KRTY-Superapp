@@ -6,7 +6,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/shared/ui"
+} from "@/components/ui/select"
 import type { RecurrencePattern } from "../types"
 
 interface RecurrenceSelectorProps {
@@ -67,7 +67,7 @@ export function RecurrenceSelector({
 
   return (
     <Select value={getCurrentValue()} onValueChange={handleChange}>
-      <SelectTrigger>
+      <SelectTrigger size="sm" className="w-full">
         <SelectValue placeholder="Tidak berulang" />
       </SelectTrigger>
       <SelectContent>

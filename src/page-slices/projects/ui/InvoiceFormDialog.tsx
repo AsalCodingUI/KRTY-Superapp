@@ -10,26 +10,26 @@ import {
 } from "@/entities/finance/api/client"
 import { createClient } from "@/shared/api/supabase/client"
 import type { Database } from "@/shared/types/database.types"
+import { ConfirmDialog } from "@/components/confirm-dialog"
+import { Button } from "@/components/ui/button"
 import {
-  Button,
-  ConfirmDialog,
   Dialog,
-  DialogBody,
-  DialogCloseButton,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  Label,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Spinner,
-  TextInput,
-  Textarea,
-} from "@/shared/ui"
+} from "@/components/ui/select"
+import { Spinner } from "@/components/ui/spinner"
+import { Textarea } from "@/components/ui/textarea"
 import {
   RiAddLine,
   RiCheckLine,
@@ -54,13 +54,13 @@ export type LineItemForm = {
 
 export const INVOICE_STATUS_VARIANTS: Record<
   InvoiceStatus,
-  "zinc" | "info" | "warning" | "success" | "error"
+  "secondary" | "info" | "warning" | "success" | "destructive"
 > = {
-  Draft: "zinc",
+  Draft: "secondary",
   Sent: "info",
   Partial: "warning",
   Paid: "success",
-  Overdue: "error",
+  Overdue: "destructive",
 }
 
 export function PaymentMethodManagerDialog({
@@ -131,25 +131,24 @@ export function PaymentMethodManagerDialog({
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-[360px]">
+        <DialogContent className="sm:max-w-[360px]">
           <DialogHeader>
             <DialogTitle>Manage Payment Methods</DialogTitle>
-            <DialogCloseButton />
           </DialogHeader>
-          <DialogBody className="space-y-3">
+          <div className="space-y-3">
             {isLoading ? (
               <div className="flex justify-center py-4">
-                <Spinner size="sm" />
+                <Spinner className="size-4" />
               </div>
             ) : (
               (methods || []).map((m) => (
                 <div key={m.id} className="flex items-center gap-2">
                   {editingId === m.id ? (
                     <>
-                      <TextInput
+                      <Input
                         value={editingName}
                         onChange={(e) => setEditingName(e.target.value)}
-                        className="flex-1"
+                        className="h-7 flex-1"
                       />
                       <Button
                         variant="ghost"
@@ -191,11 +190,11 @@ export function PaymentMethodManagerDialog({
               ))
             )}
             <div className="flex items-center gap-2 pt-2">
-              <TextInput
+              <Input
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
                 placeholder="New method name"
-                className="flex-1"
+                className="h-7 flex-1"
                 onKeyDown={(e) => {
                   if (e.key === "Enter") handleAdd()
                 }}
@@ -204,7 +203,7 @@ export function PaymentMethodManagerDialog({
                 Add
               </Button>
             </div>
-          </DialogBody>
+          </div>
         </DialogContent>
       </Dialog>
 
@@ -363,18 +362,18 @@ export function InvoiceFormDialog({
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-h-[85vh] max-w-[600px] overflow-y-auto">
+        <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-[600px]">
           <DialogHeader>
             <DialogTitle>
               {invoice ? "Edit Invoice" : "New Invoice"}
             </DialogTitle>
-            <DialogCloseButton />
           </DialogHeader>
-          <DialogBody className="space-y-4">
+          <div className="space-y-4">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-1">
                 <Label>Invoice Number</Label>
-                <TextInput
+                <Input
+                  className="h-7"
                   value={invoiceNumber}
                   onChange={(e) => setInvoiceNumber(e.target.value)}
                   placeholder="INV-KR-2601-001"
@@ -386,7 +385,7 @@ export function InvoiceFormDialog({
                   value={status}
                   onValueChange={(v) => setStatus(v as InvoiceStatus)}
                 >
-                  <SelectTrigger className="w-full">
+                  <SelectTrigger size="sm" className="w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -400,7 +399,8 @@ export function InvoiceFormDialog({
               </div>
               <div className="space-y-1">
                 <Label>Issue Date</Label>
-                <TextInput
+                <Input
+                  className="h-7"
                   type="date"
                   value={issueDate}
                   onChange={(e) => setIssueDate(e.target.value)}
@@ -408,7 +408,8 @@ export function InvoiceFormDialog({
               </div>
               <div className="space-y-1">
                 <Label>Due Date</Label>
-                <TextInput
+                <Input
+                  className="h-7"
                   type="date"
                   value={dueDate}
                   onChange={(e) => setDueDate(e.target.value)}
@@ -429,7 +430,7 @@ export function InvoiceFormDialog({
                   value={paymentMethodId}
                   onValueChange={setPaymentMethodId}
                 >
-                  <SelectTrigger className="w-full">
+                  <SelectTrigger size="sm" className="w-full">
                     <SelectValue placeholder="Select..." />
                   </SelectTrigger>
                   <SelectContent>
@@ -443,7 +444,8 @@ export function InvoiceFormDialog({
               </div>
               <div className="space-y-1">
                 <Label>Amount (IDR)</Label>
-                <TextInput
+                <Input
+                  className="h-7"
                   type="number"
                   value={amountIdr}
                   onChange={(e) => setAmountIdr(e.target.value)}
@@ -452,7 +454,8 @@ export function InvoiceFormDialog({
               </div>
               <div className="space-y-1">
                 <Label>Amount Paid (IDR)</Label>
-                <TextInput
+                <Input
+                  className="h-7"
                   type="number"
                   value={amountPaidIdr}
                   onChange={(e) => setAmountPaidIdr(e.target.value)}
@@ -473,7 +476,7 @@ export function InvoiceFormDialog({
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <Label>Line Items</Label>
-                <Button variant="secondary" size="xs" onClick={addLineItem}>
+                <Button variant="outline" size="sm" onClick={addLineItem}>
                   <RiAddLine className="mr-1 size-3" /> Add Item
                 </Button>
               </div>
@@ -484,7 +487,8 @@ export function InvoiceFormDialog({
                 >
                   <div className="col-span-12 space-y-1 sm:col-span-5">
                     <Label>Description</Label>
-                    <TextInput
+                    <Input
+                      className="h-7"
                       value={item.description}
                       onChange={(e) =>
                         updateLineItem(item.id, "description", e.target.value)
@@ -494,7 +498,8 @@ export function InvoiceFormDialog({
                   </div>
                   <div className="col-span-3 space-y-1 sm:col-span-2">
                     <Label>Qty</Label>
-                    <TextInput
+                    <Input
+                      className="h-7"
                       type="number"
                       value={item.quantity}
                       onChange={(e) =>
@@ -508,7 +513,8 @@ export function InvoiceFormDialog({
                   </div>
                   <div className="col-span-4 space-y-1 sm:col-span-2">
                     <Label>Unit Price</Label>
-                    <TextInput
+                    <Input
+                      className="h-7"
                       type="number"
                       value={item.unit_price_idr}
                       onChange={(e) =>
@@ -522,10 +528,10 @@ export function InvoiceFormDialog({
                   </div>
                   <div className="col-span-4 space-y-1 sm:col-span-2">
                     <Label>Total</Label>
-                    <TextInput
+                    <Input
                       value={item.total_idr}
                       readOnly
-                      className="bg-muted"
+                      className="bg-muted h-7"
                     />
                   </div>
                   <div className="col-span-1 flex justify-end">
@@ -546,16 +552,18 @@ export function InvoiceFormDialog({
                 </div>
               )}
             </div>
-          </DialogBody>
+          </div>
           <DialogFooter>
             <Button
-              variant="secondary"
+              size="sm"
+              variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={saving}
             >
               Cancel
             </Button>
-            <Button onClick={handleSubmit} disabled={saving} isLoading={saving}>
+            <Button size="sm" onClick={handleSubmit} disabled={saving}>
+              {saving && <Spinner data-icon="inline-start" />}
               {invoice ? "Update" : "Create"}
             </Button>
           </DialogFooter>

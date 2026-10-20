@@ -35,8 +35,6 @@ const createVitestConfig = async () => {
           "src/shared/lib/chart/utils.ts",
           "src/shared/lib/date/utils.ts",
           "src/shared/lib/utils/cn.ts",
-          "src/shared/ui/action/Button.tsx",
-          "src/shared/ui/input/TextInput.tsx",
         ],
         exclude: [
           "**/*.test.ts",

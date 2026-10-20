@@ -2,17 +2,17 @@
 
 import { calculateBusinessDays } from "@/shared/lib/date"
 import { Database } from "@/shared/types/database.types"
+import { DateRangePicker } from "@/components/date-picker"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import {
-  Label,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Textarea,
-  TextInput,
-} from "@/shared/ui"
-import { DateRangePicker } from "@/shared/ui/input/DateRangePicker"
+} from "@/components/ui/select"
+import { Textarea } from "@/components/ui/textarea"
 import { RiLoader2Line } from "@/shared/ui/lucide-icons"
 import React from "react"
 
@@ -54,11 +54,11 @@ export function LeaveRequestForm({
         <Label htmlFor="name" className="font-medium">
           Nama
         </Label>
-        <TextInput
+        <Input
           id="name"
           value={userProfile.full_name || ""}
           disabled
-          className="bg-muted mt-2"
+          className="bg-muted mt-2 h-7"
         />
       </div>
       <div>
@@ -71,7 +71,7 @@ export function LeaveRequestForm({
             onFormDataChange({ ...formData, leave_type: val })
           }
         >
-          <SelectTrigger id="type" className="mt-2">
+          <SelectTrigger id="type" size="sm" className="mt-2 w-full">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -136,10 +136,10 @@ export function LeaveRequestForm({
         <div>
           <Label className="font-medium">Surat Dokter (Optional)</Label>
           <div className="mt-2 flex items-center gap-2">
-            <TextInput
+            <Input
               type="file"
               accept="image/*"
-              className="w-full"
+              className="h-7 w-full"
               onChange={onFileChange}
               disabled={compressing}
             />

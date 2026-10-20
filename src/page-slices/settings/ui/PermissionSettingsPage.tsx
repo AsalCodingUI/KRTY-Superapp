@@ -6,18 +6,18 @@ import { dedupeProfilesByEmail } from "@/shared/lib/profile-dedupe"
 import { navigationConfig } from "@/shared/config/navigation"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { Database } from "@/shared/types/database.types"
+import { EmptyState } from "@/components/empty-state"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import {
-  Avatar,
-  Badge,
-  Button,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Switch,
-} from "@/shared/ui"
-import { EmptyState } from "@/shared/ui/information/EmptyState"
+} from "@/components/ui/select"
+import { Switch } from "@/components/ui/switch"
 import { RiLockLine, RiSettings3Line } from "@/shared/ui/lucide-icons"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
@@ -260,7 +260,7 @@ export default function PermissionSettingsPage({
             Viewing as <strong>{effectiveProfile.full_name || effectiveProfile.email || "User"}</strong>
           </p>
           <Button
-            variant="secondary"
+            variant="outline"
             size="sm"
             onClick={() => handleImpersonation(null)}
             disabled={loadingImpersonationId === "stop"}
@@ -294,19 +294,20 @@ export default function PermissionSettingsPage({
               {/* ── User row ── */}
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-x-4 overflow-hidden text-left">
-                  <Avatar
-                    size="sm"
-                    src={user.avatar_url || undefined}
-                    initials={initials}
-                    alt={user.full_name || user.email || "User"}
-                    color="neutral"
-                    className="shrink-0"
-                  />
+                  <Avatar className="size-7 shrink-0">
+                    <AvatarImage
+                      src={user.avatar_url || undefined}
+                      alt={user.full_name || user.email || "User"}
+                    />
+                    <AvatarFallback className="text-label-xs">
+                      {initials}
+                    </AvatarFallback>
+                  </Avatar>
                   <div className="truncate">
                     <p className="text-foreground text-label-md flex items-center gap-1.5 truncate">
                       {user.full_name || "Unknown User"}
                       {user.is_super_admin && (
-                        <Badge variant="info" size="sm">
+                        <Badge variant="info">
                           Super Admin
                         </Badge>
                       )}
@@ -322,7 +323,7 @@ export default function PermissionSettingsPage({
                   {/* Super Admin Toggle (not for self) */}
                   {!isCurrentUser && (
                     <Button
-                      variant={user.is_super_admin ? "secondary" : "tertiary"}
+                      variant={user.is_super_admin ? "outline" : "ghost"}
                       size="sm"
                       onClick={() =>
                         handleSuperAdminToggle(
@@ -340,7 +341,7 @@ export default function PermissionSettingsPage({
 
                   {!isCurrentUser && (
                     <Button
-                      variant={isViewingThisUser ? "secondary" : "tertiary"}
+                      variant={isViewingThisUser ? "outline" : "ghost"}
                       size="sm"
                       onClick={() =>
                         handleImpersonation(isViewingThisUser ? null : user.id)
@@ -363,7 +364,7 @@ export default function PermissionSettingsPage({
                       }
                       disabled={loadingId === user.id}
                     >
-                      <SelectTrigger className="h-[28px]">
+                      <SelectTrigger size="sm" className="w-full">
                         <SelectValue placeholder="Select Job" />
                       </SelectTrigger>
                       <SelectContent>
@@ -388,7 +389,7 @@ export default function PermissionSettingsPage({
                       }
                       disabled={loadingId === user.id}
                     >
-                      <SelectTrigger className="h-[28px]">
+                      <SelectTrigger size="sm" className="w-full">
                         <SelectValue placeholder="Select Role" />
                       </SelectTrigger>
                       <SelectContent align="end">
@@ -402,7 +403,7 @@ export default function PermissionSettingsPage({
                   </div>
 
                   <Button
-                    variant="secondary"
+                    variant="outline"
                     size="sm"
                     onClick={() =>
                       setExpandedUserId(isExpanded ? null : user.id)
@@ -447,8 +448,8 @@ export default function PermissionSettingsPage({
                                 isGranted
                                   ? "success"
                                   : isExplicit
-                                    ? "error"
-                                    : "default"
+                                    ? "destructive"
+                                    : "secondary"
                               }
                             >
                               {isGranted

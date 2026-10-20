@@ -2,14 +2,26 @@
 
 import { createClient } from "@/shared/api/supabase/client"
 import { Database } from "@/shared/types/database.types"
+import { AvatarGroup, AvatarOverflow } from "@/components/avatar-group"
+import { ConfirmDialog } from "@/components/confirm-dialog"
+import { DateRangePicker } from "@/components/date-picker"
+import { EmptyState } from "@/components/empty-state"
+import type { QuarterFilterValue } from "@/components/quarter-filter"
+import { TableSection } from "@/components/table-section"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Label } from "@/components/ui/label"
+import { Spinner } from "@/components/ui/spinner"
 import {
-  Avatar, AvatarGroup, AvatarOverflow, Badge, Button, ConfirmDialog, DateRangePicker, EmptyState, Label, QuarterFilterValue, Spinner, Table,
+  Table,
   TableBody,
   TableCell,
   TableHead,
-  TableHeaderCell,
-  TableRow, TableSection, Tooltip
-} from "@/shared/ui"
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import {
   RiCheckDoubleLine,
   RiErrorWarningLine,
@@ -354,7 +366,7 @@ export function AdminReviewDashboard({
               Active: {activeCycleData.name}
             </Badge>
           ) : (
-            <Badge variant="zinc">No Active Cycle</Badge>
+            <Badge variant="secondary">No Active Cycle</Badge>
           )
         }
       >
@@ -374,27 +386,37 @@ export function AdminReviewDashboard({
             {activeCycleData ? (
               <>
                 <Button
+                  size="sm"
+                  disabled={loading}
                   onClick={handleSaveCycle}
-                  isLoading={loading}
-                  variant="secondary"
+                  variant="outline"
                 >
+                  {loading && <Spinner data-icon="inline-start" />}
                   Update
                 </Button>
                 <Button
+                  size="sm"
+                  disabled={loading}
                   onClick={handleEndCycle}
-                  isLoading={loading}
                   variant="destructive"
                   title="Stop Cycle"
                 >
-                  <RiStopCircleLine className="mr-1 size-5" /> End
+                  {loading ? (
+                    <Spinner data-icon="inline-start" />
+                  ) : (
+                    <RiStopCircleLine className="mr-1 size-5" />
+                  )}{" "}
+                  End
                 </Button>
               </>
             ) : (
               <Button
+                size="sm"
+                disabled={loading}
                 onClick={handleSaveCycle}
-                isLoading={loading}
                 className="w-full"
               >
+                {loading && <Spinner data-icon="inline-start" />}
                 Start Cycle ({cycleName})
               </Button>
             )}
@@ -405,21 +427,21 @@ export function AdminReviewDashboard({
       {/* 3. MONITORING TABLE */}
       <TableSection title={`Monitoring Progress — ${selectedQuarter}`}>
         <Table>
-          <TableHead>
+          <TableHeader>
             <TableRow className="h-[40px] hover:bg-transparent">
-              <TableHeaderCell>Employee</TableHeaderCell>
-              <TableHeaderCell>Reviewed By</TableHeaderCell>
-              <TableHeaderCell>Pending Reviewers</TableHeaderCell>
-              <TableHeaderCell>Status</TableHeaderCell>
-              <TableHeaderCell className="text-right">Action</TableHeaderCell>
+              <TableHead>Employee</TableHead>
+              <TableHead>Reviewed By</TableHead>
+              <TableHead>Pending Reviewers</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead className="text-right">Action</TableHead>
             </TableRow>
-          </TableHead>
+          </TableHeader>
           <TableBody>
             {isDataLoading ? (
               <TableRow>
                 <TableCell colSpan={5}>
                   <div className="flex items-center justify-center py-8">
-                    <Spinner size="md" />
+                    <Spinner className="size-8" />
                   </div>
                 </TableCell>
               </TableRow>
@@ -445,25 +467,23 @@ export function AdminReviewDashboard({
                         {item.reviewedBy.length > 0 ? (
                           <AvatarGroup>
                             {item.reviewedBy.slice(0, 5).map((reviewer, idx) => (
-                              <Tooltip key={idx} content={reviewer.name}>
-                                <Avatar
-                                  size="sm"
-                                  initials={reviewer.name
-                                    .split(" ")
-                                    .map((n) => n[0])
-                                    .join("")
-                                    .substring(0, 2)}
-                                />
+                              <Tooltip key={idx}>
+                                <TooltipTrigger asChild>
+                                  <Avatar className="size-7">
+                                    <AvatarFallback className="text-xs">
+                                      {reviewer.name.split(" ").map((n) => n[0]).join("").substring(0, 2)}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                </TooltipTrigger>
+                                <TooltipContent>{reviewer.name}</TooltipContent>
                               </Tooltip>
                             ))}
                             {item.reviewedBy.length > 5 && (
-                              <Tooltip
-                                content={`+ ${item.reviewedBy.length - 5} more`}
-                              >
-                                <AvatarOverflow
-                                  count={item.reviewedBy.length - 5}
-                                  size="sm"
-                                />
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <AvatarOverflow count={item.reviewedBy.length - 5} size="sm" />
+                                </TooltipTrigger>
+                                <TooltipContent>{`+ ${item.reviewedBy.length - 5} more`}</TooltipContent>
                               </Tooltip>
                             )}
                           </AvatarGroup>
@@ -481,25 +501,23 @@ export function AdminReviewDashboard({
                         {item.pendingBy.length > 0 ? (
                           <AvatarGroup>
                             {item.pendingBy.slice(0, 5).map((pending, idx) => (
-                              <Tooltip key={idx} content={pending.name}>
-                                <Avatar
-                                  size="sm"
-                                  initials={pending.name
-                                    .split(" ")
-                                    .map((n) => n[0])
-                                    .join("")
-                                    .substring(0, 2)}
-                                />
+                              <Tooltip key={idx}>
+                                <TooltipTrigger asChild>
+                                  <Avatar className="size-7">
+                                    <AvatarFallback className="text-xs">
+                                      {pending.name.split(" ").map((n) => n[0]).join("").substring(0, 2)}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                </TooltipTrigger>
+                                <TooltipContent>{pending.name}</TooltipContent>
                               </Tooltip>
                             ))}
                             {item.pendingBy.length > 5 && (
-                              <Tooltip
-                                content={`+ ${item.pendingBy.length - 5} more`}
-                              >
-                                <AvatarOverflow
-                                  count={item.pendingBy.length - 5}
-                                  size="sm"
-                                />
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <AvatarOverflow count={item.pendingBy.length - 5} size="sm" />
+                                </TooltipTrigger>
+                                <TooltipContent>{`+ ${item.pendingBy.length - 5} more`}</TooltipContent>
                               </Tooltip>
                             )}
                           </AvatarGroup>
@@ -522,7 +540,7 @@ export function AdminReviewDashboard({
                             <RiTimeLine className="size-3.5" /> Collecting
                           </Badge>
                         ) : (
-                          <Badge variant="zinc" className="gap-1 pr-2 pl-1">
+                          <Badge variant="secondary" className="gap-1 pr-2 pl-1">
                             <RiErrorWarningLine className="size-3.5" /> Not Started
                           </Badge>
                         )}
@@ -533,21 +551,21 @@ export function AdminReviewDashboard({
                       {item.summaryData ? (
                         <Button
                           size="sm"
-                          variant="tertiary"
-                          leadingIcon={<RiEyeLine className="size-3.5" />}
+                          variant="ghost"
                           onClick={() => handleViewResult(item)}
                         >
+                          <RiEyeLine data-icon="inline-start" className="size-3.5" />
                           View Result
                         </Button>
                       ) : (
                         <Button
                           size="sm"
-                          variant="tertiary"
-                          leadingIcon={<RiRocketLine className="size-3.5" />}
+                          variant="ghost"
                           onClick={() => handleTriggerN8N(item)}
                           disabled={item.percentage === 0}
                           title="Process Individual"
                         >
+                          <RiRocketLine data-icon="inline-start" className="size-3.5" />
                           Process
                         </Button>
                       )}

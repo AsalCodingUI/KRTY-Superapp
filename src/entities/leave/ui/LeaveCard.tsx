@@ -2,7 +2,9 @@
 
 import { calculateBusinessDays } from "@/shared/lib/date"
 import { Database } from "@/shared/types/database.types"
-import { Badge, Button, Card } from "@/shared/ui"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
 import { format } from "date-fns"
 
 type LeaveRequest = Database["public"]["Tables"]["leave_requests"]["Row"]
@@ -27,18 +29,18 @@ export function LeaveCard({
   const getStatusColor = (status: string) => {
     switch (status) {
       case "approved":
-        return "success"
+        return "success" as const
       case "rejected":
-        return "error"
+        return "destructive" as const
       case "pending":
-        return "warning"
+        return "warning" as const
       default:
-        return "zinc"
+        return "secondary" as const
     }
   }
 
   return (
-    <Card className="p-4 transition-shadow hover:shadow-md">
+    <Card className="gap-0 p-4 transition-shadow hover:shadow-md">
       <div className="flex items-start justify-between">
         <div className="flex-1">
           {showUserInfo && userFullName && (
@@ -62,7 +64,7 @@ export function LeaveCard({
       </div>
       {onEdit && leave.status === "pending" && (
         <Button
-          variant="tertiary"
+          variant="ghost"
           size="sm"
           onClick={() => onEdit(leave)}
           className="mt-3"

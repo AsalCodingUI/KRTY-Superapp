@@ -1,6 +1,8 @@
 "use client"
 
-import { Button, Label, TextInput } from "@/shared/ui"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { createClient } from "@/shared/api/supabase/client"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
@@ -80,13 +82,13 @@ export default function UpdatePasswordPage() {
               >
                 New Password
               </Label>
-              <TextInput
+              <Input
                 type="password"
                 id="password"
                 name="password"
                 autoComplete="new-password"
                 placeholder="••••••••"
-                className="mt-2"
+                className="mt-2 h-7"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -101,13 +103,13 @@ export default function UpdatePasswordPage() {
               >
                 Confirm Password
               </Label>
-              <TextInput
+              <Input
                 type="password"
                 id="confirm-password"
                 name="confirm-password"
                 autoComplete="new-password"
                 placeholder="••••••••"
-                className="mt-2"
+                className="mt-2 h-7"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
@@ -115,7 +117,7 @@ export default function UpdatePasswordPage() {
               />
             </div>
 
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button type="submit" size="sm" className="w-full" disabled={loading}>
               {loading ? "Updating..." : "Update password"}
             </Button>
           </form>

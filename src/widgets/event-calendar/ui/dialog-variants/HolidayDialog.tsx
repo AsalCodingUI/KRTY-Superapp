@@ -1,16 +1,14 @@
 "use client"
 
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import {
-  Badge,
-  Button,
   Dialog,
-  DialogBody,
-  DialogCloseButton,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/shared/ui"
+} from "@/components/ui/dialog"
 import { RiCalendarLine, RiCloseLine } from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
 import { id } from "date-fns/locale"
@@ -32,17 +30,16 @@ export function HolidayDialog({
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Hari Libur Nasional</DialogTitle>
-          <DialogCloseButton onClick={() => onOpenChange(false)} />
         </DialogHeader>
 
-        <DialogBody className="space-y-5">
+        <div className="space-y-5">
           {/* Holiday Title */}
           <div>
             <div className="flex items-start justify-between gap-4">
               <h3 className="text-heading-sm text-foreground break-words">
                 {event.title}
               </h3>
-              <Badge variant="zinc" size="sm" className="shrink-0">
+              <Badge variant="secondary" className="shrink-0">
                 Libur
               </Badge>
             </div>
@@ -82,12 +79,13 @@ export function HolidayDialog({
               ini tidak dapat diubah atau dihapus.
             </p>
           </div>
-        </DialogBody>
+        </div>
 
         <DialogFooter>
           <Button
+            size="sm"
             type="button"
-            variant="secondary"
+            variant="outline"
             onClick={() => onOpenChange(false)}
           >
             <RiCloseLine className="mr-2 h-4 w-4" />

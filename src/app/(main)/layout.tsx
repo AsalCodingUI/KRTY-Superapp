@@ -1,4 +1,4 @@
-import { Spinner } from "@/shared/ui"
+import { Spinner } from "@/components/ui/spinner"
 import { ImpersonationBanner } from "@/widgets/impersonation/ui/ImpersonationBanner"
 import { SidebarShell } from "@/widgets/sidebar/ui/SidebarShell"
 import { Suspense } from "react"
@@ -6,7 +6,7 @@ import { Suspense } from "react"
 function PageFallback() {
   return (
     <div className="flex min-h-[60vh] items-center justify-center">
-      <Spinner size="md" />
+      <Spinner className="size-8" />
     </div>
   )
 }

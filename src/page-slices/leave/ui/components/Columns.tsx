@@ -1,10 +1,10 @@
 "use client"
 
-import { Badge } from "@/shared/ui"
-import { Button } from "@/shared/ui"
-import { DataTableColumnHeader } from "@/shared/ui/data/DataTableColumnHeader"
+import { DataTableColumnHeader } from "@/components/data-table"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 import { Database } from "@/shared/types/database.types"
-import { cx } from "@/shared/lib/utils" // Tambahan import
 import { RiEditLine, RiFilePaperLine } from "@/shared/ui/lucide-icons"
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table"
 import { format } from "date-fns"
@@ -18,7 +18,7 @@ const getStatusBadge = (status: string) => {
     case "approved":
       return <Badge variant="success">Approved</Badge>
     case "rejected":
-      return <Badge variant="error">Rejected</Badge>
+      return <Badge variant="destructive">Rejected</Badge>
     default:
       return <Badge variant="warning">Pending</Badge>
   }
@@ -155,9 +155,9 @@ export const columns = (onEdit: (item: LeaveRequest) => void) =>
 
         return (
           <Button
-            variant="tertiary"
+            variant="ghost"
             size="icon-sm"
-            className={cx(
+            className={cn(
               isRejected ? "text-warning" : "",
             )}
             onClick={() => onEdit(item)}

@@ -2,28 +2,30 @@
 
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { canManageByRole } from "@/shared/lib/roles"
+import { DatePicker } from "@/components/date-picker"
+import { EmptyState } from "@/components/empty-state"
+import { TableSection } from "@/components/table-section"
+import { TimeSelect } from "@/components/time-select"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import {
-  Badge,
-  Button,
-  DatePicker,
-  EmptyState,
-  Label,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Spinner,
+} from "@/components/ui/select"
+import { Spinner } from "@/components/ui/spinner"
+import {
   Table,
   TableBody,
   TableCell,
   TableHead,
-  TableHeaderCell,
+  TableHeader,
   TableRow,
-  TableSection,
-  TextInput,
-  TimeSelect,
-} from "@/shared/ui"
+} from "@/components/ui/table"
 import { RiCalendarLine } from "@/shared/ui/lucide-icons"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { format } from "date-fns"
@@ -324,7 +326,7 @@ export function OneOnOneMeetingTab({
                   setMode(value as "online" | "offline")
                 }
               >
-                <SelectTrigger size="sm">
+                <SelectTrigger className="w-full" size="sm">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -337,7 +339,8 @@ export function OneOnOneMeetingTab({
             {mode === "offline" && (
               <div className="flex flex-col gap-2">
                 <Label>Lokasi</Label>
-                <TextInput
+                <Input
+                  className="h-7"
                   value={location}
                   onChange={(event) => setLocation(event.target.value)}
                   placeholder="Ruangan / lokasi meeting"
@@ -347,7 +350,7 @@ export function OneOnOneMeetingTab({
 
             <div className="flex items-end xl:justify-end">
               <Button
-                variant="secondary"
+                variant="outline"
                 size="sm"
                 onClick={handleCreateSlot}
                 disabled={submitting}
@@ -361,21 +364,21 @@ export function OneOnOneMeetingTab({
 
       <TableSection title={isAdmin ? "Daftar Slot 1:1" : "Slot Tersedia"}>
         <Table>
-          <TableHead>
+          <TableHeader>
             <TableRow className="h-[40px] hover:bg-transparent">
-              <TableHeaderCell>Waktu</TableHeaderCell>
-              <TableHeaderCell>Mode</TableHeaderCell>
-              <TableHeaderCell>Status</TableHeaderCell>
-              <TableHeaderCell>Peserta</TableHeaderCell>
-              <TableHeaderCell />
+              <TableHead>Waktu</TableHead>
+              <TableHead>Mode</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Peserta</TableHead>
+              <TableHead />
             </TableRow>
-          </TableHead>
+          </TableHeader>
           <TableBody>
             {(isAdmin ? slots : availableSlots).map((slot) => (
               <TableRow key={slot.id}>
                 <TableCell>{formatSlotTime(slot.start_at, slot.end_at)}</TableCell>
                 <TableCell>
-                  <Badge variant="zinc" size="sm">
+                  <Badge variant="secondary">
                     {slot.mode === "online" ? "Online" : "Offline"}
                   </Badge>
                 </TableCell>
@@ -385,10 +388,9 @@ export function OneOnOneMeetingTab({
                       slot.status === "booked"
                         ? "success"
                         : slot.status === "cancelled"
-                          ? "error"
-                          : "zinc"
+                          ? "destructive"
+                          : "secondary"
                     }
-                    size="sm"
                   >
                     {slot.status === "booked"
                       ? "Booked"
@@ -405,7 +407,7 @@ export function OneOnOneMeetingTab({
                     <div className="flex items-center gap-2">
                       <Button
                         size="sm"
-                        variant="secondary"
+                        variant="outline"
                         onClick={() => startEdit(slot)}
                         disabled={slot.status === "cancelled"}
                       >
@@ -413,7 +415,7 @@ export function OneOnOneMeetingTab({
                       </Button>
                       <Button
                         size="sm"
-                        variant="secondary"
+                        variant="outline"
                         onClick={() => handleDelete(slot.id)}
                         disabled={cancelId === slot.id}
                       >
@@ -431,7 +433,7 @@ export function OneOnOneMeetingTab({
                   ) : (
                     <Button
                       size="sm"
-                      variant="secondary"
+                      variant="outline"
                       onClick={() => handleBookSlot(slot.id)}
                       disabled={bookingId === slot.id}
                     >
@@ -446,7 +448,7 @@ export function OneOnOneMeetingTab({
                 <TableCell colSpan={5} className="p-0">
                   {isLoading ? (
                     <div className="flex items-center justify-center py-8">
-                      <Spinner size="md" />
+                      <Spinner className="size-8" />
                     </div>
                   ) : (
                     <EmptyState
@@ -497,7 +499,7 @@ export function OneOnOneMeetingTab({
               <div className="flex items-end gap-2">
                 <Button
                   size="sm"
-                  variant="secondary"
+                  variant="outline"
                   onClick={handleReschedule}
                   disabled={rescheduleId === editingSlotId}
                 >
@@ -505,7 +507,7 @@ export function OneOnOneMeetingTab({
                 </Button>
                 <Button
                   size="sm"
-                  variant="tertiary"
+                  variant="ghost"
                   onClick={() => setEditingSlotId(null)}
                 >
                   Batal
@@ -519,19 +521,19 @@ export function OneOnOneMeetingTab({
       {!isAdmin && (
         <TableSection title="Jadwal 1:1 Saya">
           <Table>
-            <TableHead>
+            <TableHeader>
               <TableRow className="h-[40px] hover:bg-transparent">
-                <TableHeaderCell>Waktu</TableHeaderCell>
-                <TableHeaderCell>Mode</TableHeaderCell>
-                <TableHeaderCell>Meeting</TableHeaderCell>
+                <TableHead>Waktu</TableHead>
+                <TableHead>Mode</TableHead>
+                <TableHead>Meeting</TableHead>
               </TableRow>
-            </TableHead>
+            </TableHeader>
             <TableBody>
               {mySlots.map((slot) => (
                 <TableRow key={slot.id}>
                   <TableCell>{formatSlotTime(slot.start_at, slot.end_at)}</TableCell>
                   <TableCell>
-                    <Badge variant="zinc" size="sm">
+                    <Badge variant="secondary">
                       {slot.mode === "online" ? "Online" : "Offline"}
                     </Badge>
                   </TableCell>
@@ -540,7 +542,7 @@ export function OneOnOneMeetingTab({
                       {slot.meeting_url ? (
                         <Button
                           size="sm"
-                          variant="secondary"
+                          variant="outline"
                           onClick={() =>
                             window.open(slot.meeting_url || "", "_blank")
                           }
@@ -548,7 +550,7 @@ export function OneOnOneMeetingTab({
                           Join
                         </Button>
                       ) : slot.mode === "online" ? (
-                        <Button size="sm" variant="secondary" disabled>
+                        <Button size="sm" variant="outline" disabled>
                           Join
                         </Button>
                       ) : (

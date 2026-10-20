@@ -1,7 +1,7 @@
 "use client"
 
 import { RiCheckLine, RiCloseLine, RiTimeLine } from "@/shared/ui/lucide-icons"
-import { Badge } from "@/shared/ui"
+import { Badge } from "@/components/ui/badge"
 
 interface LeaveStatusProps {
   status: "pending" | "approved" | "rejected"
@@ -24,7 +24,7 @@ export function LeaveStatus({
         }
       case "rejected":
         return {
-          variant: "error" as const,
+          variant: "destructive" as const,
           icon: RiCloseLine,
           label: "Rejected",
         }
@@ -36,7 +36,7 @@ export function LeaveStatus({
         }
       default:
         return {
-          variant: "zinc" as const,
+          variant: "secondary" as const,
           icon: RiTimeLine,
           label: status,
         }

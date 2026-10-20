@@ -12,30 +12,31 @@ import {
   getLocalDateString,
 } from "@/shared/lib/date"
 import { Database } from "@/shared/types/database.types"
+import { DataTable } from "@/components/data-table"
+import { TabNavigation, TabNavigationLink } from "@/components/tab-navigation"
+import { TableSection } from "@/components/table-section"
+import { Button } from "@/components/ui/button"
 import {
-  Button,
   Dialog,
-  DialogBody,
   DialogClose,
-  DialogCloseButton,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
+} from "@/components/ui/dialog"
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-  TabNavigation,
-  TabNavigationLink,
-  TableSection,
-} from "@/shared/ui"
-import { DataTable } from "@/shared/ui/data/DataTable"
+} from "@/components/ui/select"
 import {
   RiAddLine,
   RiArrowDownSLine,
@@ -328,9 +329,8 @@ export function EmployeeLeavePage({
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Sesi Sebelumnya Masih Aktif</DialogTitle>
-              <DialogCloseButton />
             </DialogHeader>
-            <DialogBody>
+            <div>
               <p className="text-body-sm text-muted-foreground">
                 Kami mendeteksi sesi attendance sebelumnya belum tertutup. Ini
                 biasanya terjadi kalau laptop mati, browser tertutup, atau clock
@@ -346,13 +346,14 @@ export function EmployeeLeavePage({
                   dulu sebelum memulai sesi baru.
                 </p>
               )}
-            </DialogBody>
+            </div>
             <DialogFooter>
               <DialogClose asChild>
-                <Button variant="secondary">Nanti</Button>
+                <Button size="sm" variant="outline">Nanti</Button>
               </DialogClose>
               {staleSession && (
                 <Button
+                  size="sm"
                   variant="destructive"
                   disabled={loading}
                   onClick={() => handleResolvePreviousSession(staleSession.id)}
@@ -411,7 +412,7 @@ export function EmployeeLeavePage({
                     <>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button size="sm" variant="secondary" type="button">
+                          <Button size="sm" variant="outline" type="button">
                             {getStatusLabel(selectedStatus)}
                             <RiArrowDownSLine className="text-muted-foreground ml-2 size-4 shrink-0" />
                           </Button>
@@ -447,7 +448,7 @@ export function EmployeeLeavePage({
                     <>
                       <Button
                         size="sm"
-                        variant="secondary"
+                        variant="outline"
                         onClick={() =>
                           handleToggleBreak(
                             activeSession.id,
@@ -525,7 +526,7 @@ export function EmployeeLeavePage({
                 <div className="grid grid-cols-2 gap-2">
                   <Button
                     size="sm"
-                    variant="secondary"
+                    variant="outline"
                     onClick={() => setTermsOpen(true)}
                     className="w-full"
                   >
@@ -560,7 +561,7 @@ export function EmployeeLeavePage({
                 <div className="flex items-center gap-2">
                   <Button
                     size="sm"
-                    variant="secondary"
+                    variant="outline"
                     onClick={() => setTermsOpen(true)}
                   >
                     <RiFileTextLine className="mr-2 size-3.5" />
@@ -628,20 +629,19 @@ export function EmployeeLeavePage({
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Confirm Delete</DialogTitle>
-            <DialogCloseButton />
           </DialogHeader>
-          <DialogBody>
+          <div>
             <p className="text-body-sm text-muted-foreground">
               Apakah Anda yakin ingin mengajukan penghapusan data attendance ini?
             </p>
-          </DialogBody>
+          </div>
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="secondary" className="w-full sm:w-fit">
+              <Button size="sm" variant="outline" className="w-full sm:w-fit">
                 Cancel
               </Button>
             </DialogClose>
-            <Button className="w-full sm:w-fit" onClick={confirmDelete}>
+            <Button size="sm" className="w-full sm:w-fit" onClick={confirmDelete}>
               Confirm
             </Button>
           </DialogFooter>
@@ -652,14 +652,13 @@ export function EmployeeLeavePage({
         <DialogContent className="sm:max-w-3xl">
           <DialogHeader>
             <DialogTitle>Terms &amp; Conditions</DialogTitle>
-            <DialogCloseButton />
           </DialogHeader>
-          <DialogBody className="max-h-[70vh] overflow-y-auto">
+          <div className="max-h-[70vh] overflow-y-auto">
             <LeaveRules />
-          </DialogBody>
+          </div>
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="secondary" className="w-full sm:w-fit">
+              <Button size="sm" variant="outline" className="w-full sm:w-fit">
                 Close
               </Button>
             </DialogClose>

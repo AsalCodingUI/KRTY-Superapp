@@ -1,23 +1,24 @@
 "use client"
 
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
 import {
-  Button,
-  Card,
   Dialog,
-  DialogBody,
-  DialogCloseButton,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  Label,
+} from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Textarea,
-} from "@/shared/ui"
+} from "@/components/ui/select"
+import { Spinner } from "@/components/ui/spinner"
+import { Textarea } from "@/components/ui/textarea"
 import {
   RiArrowLeftLine,
   RiCheckLine,
@@ -245,19 +246,23 @@ export default function ReviewFormClientPage({
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Leave review?</DialogTitle>
-            <DialogCloseButton />
           </DialogHeader>
-          <DialogBody>
+          <div>
             <p className="text-body-sm text-muted-foreground">
               Your progress will not be saved.
             </p>
-          </DialogBody>
+          </div>
           <DialogFooter>
-            <Button variant="ghost" onClick={() => setShowExitConfirm(false)}>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowExitConfirm(false)}
+            >
               Cancel
             </Button>
             <Button
               variant="destructive"
+              size="sm"
               onClick={() => router.push("/performance")}
             >
               Leave
@@ -289,7 +294,7 @@ export default function ReviewFormClientPage({
         <div className="flex gap-8">
           <div className="hidden w-56 shrink-0 lg:block">
             <div className="sticky top-20">
-              <Card className="space-y-4">
+              <Card className="gap-0 p-4 space-y-4">
                 <div>
                   <p className="text-label-md text-foreground">
                     Review Progress
@@ -343,7 +348,7 @@ export default function ReviewFormClientPage({
               </p>
             </div>
 
-            <Card>
+            <Card className="gap-0 p-4">
               <div className="flex gap-3">
                 <RiInformationLine className="text-muted-foreground mt-0.5 size-5 shrink-0" />
                 <div>
@@ -358,7 +363,7 @@ export default function ReviewFormClientPage({
               </div>
             </Card>
 
-            <Card className="space-y-4 overflow-visible">
+            <Card className="gap-0 p-4 space-y-4 overflow-visible">
               <Label htmlFor="colleague-select">
                 Who do you want to review?
               </Label>
@@ -368,7 +373,11 @@ export default function ReviewFormClientPage({
                   setFormData((prev) => ({ ...prev, reviewee_id: val }))
                 }
               >
-                <SelectTrigger id="colleague-select" className="mt-2 w-full">
+                <SelectTrigger
+                  id="colleague-select"
+                  size="sm"
+                  className="mt-2 w-full"
+                >
                   <SelectValue placeholder="Select a colleague..." />
                 </SelectTrigger>
                 <SelectContent>
@@ -383,7 +392,7 @@ export default function ReviewFormClientPage({
 
             {formData.reviewee_id && (
               <>
-                <Card className="space-y-4">
+                <Card className="gap-0 p-4 space-y-4">
                   <p className="text-label-md text-foreground">
                     Rate their competencies
                   </p>
@@ -527,7 +536,7 @@ export default function ReviewFormClientPage({
                   </div>
                 </Card>
 
-                <Card className="space-y-4">
+                <Card className="gap-0 p-4 space-y-4">
                   <div>
                     <Label htmlFor="feedback-continue">
                       CONTINUE (Strength)
@@ -590,9 +599,10 @@ export default function ReviewFormClientPage({
 
                 <div className="flex justify-end pt-2 pb-8">
                   <Button
+                    size="sm"
                     onClick={handleSubmit}
-                    isLoading={loading}
                     disabled={
+                      loading ||
                       !step1Complete ||
                       !step2Complete ||
                       !step3Complete ||
@@ -600,6 +610,7 @@ export default function ReviewFormClientPage({
                     }
                     className="min-w-[200px]"
                   >
+                    {loading && <Spinner data-icon="inline-start" />}
                     Submit Review
                   </Button>
                 </div>

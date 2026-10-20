@@ -4,27 +4,27 @@ import {
   getEmployeeDetail,
   getEmployeeOverview,
 } from "@/entities/performance/api/client"
-import type { QuarterFilterValue } from "@/shared/ui"
+import { EmptyState } from "@/components/empty-state"
+import type { QuarterFilterValue } from "@/components/quarter-filter"
+import { TableSection } from "@/components/table-section"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import {
-  Avatar,
-  Badge,
-  Button,
   Dialog,
-  DialogBody,
-  DialogCloseButton,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  EmptyState,
-  Spinner,
+} from "@/components/ui/dialog"
+import { Spinner } from "@/components/ui/spinner"
+import {
   Table,
   TableBody,
   TableCell,
   TableHead,
-  TableHeaderCell,
+  TableHeader,
   TableRow,
-  TableSection,
-} from "@/shared/ui"
+} from "@/components/ui/table"
 import {
   RiArrowLeftLine,
   RiFolderLine
@@ -165,11 +165,12 @@ export function EmployeeDetailClient({
         {/* Employee Info (Admin/Stakeholder Only) */}
         {showBackButton && (
           <div className="flex items-center gap-4">
-            <Avatar
-              size="lg"
-              initials={employee.full_name?.[0] || "?"}
-              src={employee.avatar_url || undefined}
-            />
+            <Avatar className="size-12">
+              <AvatarImage src={employee.avatar_url || undefined} />
+              <AvatarFallback className="text-lg">
+                {employee.full_name?.[0] || "?"}
+              </AvatarFallback>
+            </Avatar>
             <div>
               <h1 className="text-heading-md text-foreground">
                 {employee.full_name}
@@ -188,7 +189,7 @@ export function EmployeeDetailClient({
         >
           {isLoading ? (
             <div className="flex items-center justify-center py-8">
-              <Spinner size="md" />
+              <Spinner className="size-8" />
             </div>
           ) : overview.length === 0 ? (
             <div className="px-xl pb-xl">
@@ -200,15 +201,15 @@ export function EmployeeDetailClient({
             </div>
           ) : (
             <Table>
-              <TableHead>
+              <TableHeader>
                 <TableRow className="h-[40px] hover:bg-transparent">
-                  <TableHeaderCell>Objective</TableHeaderCell>
-                  <TableHeaderCell>Key Result</TableHeaderCell>
-                  <TableHeaderCell>Weighted (%)</TableHeaderCell>
-                  <TableHeaderCell>Target</TableHeaderCell>
-                  <TableHeaderCell>Result</TableHeaderCell>
+                  <TableHead>Objective</TableHead>
+                  <TableHead>Key Result</TableHead>
+                  <TableHead>Weighted (%)</TableHead>
+                  <TableHead>Target</TableHead>
+                  <TableHead>Result</TableHead>
                 </TableRow>
-              </TableHead>
+              </TableHeader>
               <TableBody>
                 {overview.map((row, idx) => (
                   <TableRow
@@ -228,30 +229,30 @@ export function EmployeeDetailClient({
                           {(() => {
                             if (row.result >= 95)
                               return (
-                                <Badge size="sm" variant="success">
+                                <Badge variant="success">
                                   Outstanding
                                 </Badge>
                               )
                             if (row.result >= 85)
                               return (
-                                <Badge size="sm" variant="success">
+                                <Badge variant="success">
                                   Above Expectation
                                 </Badge>
                               )
                             if (row.result >= 75)
                               return (
-                                <Badge size="sm" variant="info">
+                                <Badge variant="info">
                                   Meets Expectation
                                 </Badge>
                               )
                             if (row.result >= 60)
                               return (
-                                <Badge size="sm" variant="warning">
+                                <Badge variant="warning">
                                   Below Expectation
                                 </Badge>
                               )
                             return (
-                              <Badge size="sm" variant="error">
+                              <Badge variant="destructive">
                                 Needs Improvement
                               </Badge>
                             )
@@ -272,7 +273,7 @@ export function EmployeeDetailClient({
         <TableSection title="Assigned Projects">
           {isLoading ? (
             <div className="flex items-center justify-center py-8">
-              <Spinner size="md" />
+              <Spinner className="size-8" />
             </div>
           ) : assignments.length === 0 ? (
             <div className="px-xl pb-xl">
@@ -285,16 +286,16 @@ export function EmployeeDetailClient({
             </div>
           ) : (
             <Table>
-              <TableHead>
+              <TableHeader>
                 <TableRow className="h-[40px] hover:bg-transparent">
-                  <TableHeaderCell>Project</TableHeaderCell>
-                  <TableHeaderCell>Quarter</TableHeaderCell>
-                  <TableHeaderCell>Status</TableHeaderCell>
-                  <TableHeaderCell>SLA</TableHeaderCell>
-                  <TableHeaderCell>Quality</TableHeaderCell>
-                  <TableHeaderCell>Period</TableHeaderCell>
+                  <TableHead>Project</TableHead>
+                  <TableHead>Quarter</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>SLA</TableHead>
+                  <TableHead>Quality</TableHead>
+                  <TableHead>Period</TableHead>
                 </TableRow>
-              </TableHead>
+              </TableHeader>
               <TableBody>
                 {assignments.map((assignment) => (
                   <TableRow
@@ -344,7 +345,7 @@ export function EmployeeDetailClient({
                         variant={
                           assignment.projects.status === "Active"
                             ? "success"
-                            : "zinc"
+                            : "secondary"
                         }
                       >
                         {assignment.projects.status}
@@ -406,14 +407,13 @@ export function EmployeeDetailClient({
       </div>
 
       <Dialog open={isProjectModalOpen} onOpenChange={setIsProjectModalOpen}>
-        <DialogContent className="max-h-[90vh] w-[calc(100%-2rem)] max-w-6xl overflow-y-auto">
+        <DialogContent className="max-h-[90vh] w-[calc(100%-2rem)] overflow-y-auto sm:max-w-6xl">
           <DialogHeader>
             <DialogTitle className="sr-only">
               Project Performance Detail
             </DialogTitle>
-            <DialogCloseButton />
           </DialogHeader>
-          <DialogBody>
+          <div>
             {selectedProject && (
               <EmployeeProjectView
                 assignment={selectedProject}
@@ -421,7 +421,7 @@ export function EmployeeDetailClient({
                 backHref="/performance"
               />
             )}
-          </DialogBody>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

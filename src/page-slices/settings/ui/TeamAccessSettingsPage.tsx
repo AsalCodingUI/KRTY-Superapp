@@ -3,20 +3,20 @@
 import { dedupeProfilesByEmail } from "@/shared/lib/profile-dedupe"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { Database } from "@/shared/types/database.types"
+import { ConfirmDialog } from "@/components/confirm-dialog"
+import { EmptyState } from "@/components/empty-state"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import {
-  Avatar,
-  Badge,
-  Button,
-  ConfirmDialog,
-  EmptyState,
-  Label,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-  TextInput,
-} from "@/shared/ui"
+} from "@/components/ui/select"
 import { useRouter } from "next/navigation"
 import { useMemo, useState } from "react"
 import { toast } from "sonner"
@@ -63,7 +63,7 @@ const INITIAL_FORM: FormState = {
 }
 
 function getRoleVariant(role: string | null) {
-  return role === "stakeholder" ? "info" : "default"
+  return role === "stakeholder" ? "info" : "secondary"
 }
 
 function getJobTitleVariant(jobTitle: string | null) {
@@ -73,11 +73,11 @@ function getJobTitleVariant(jobTitle: string | null) {
     case "Project Manager":
       return "info"
     case "Designer":
-      return "default"
+      return "secondary"
     case "Web Developer":
       return "success"
     default:
-      return "default"
+      return "secondary"
   }
 }
 
@@ -291,7 +291,7 @@ export default function TeamAccessSettingsPage({
             </strong>
           </p>
           <Button
-            variant="secondary"
+            variant="outline"
             size="sm"
             onClick={() => handleImpersonation(null)}
             disabled={loadingImpersonationId === "stop"}
@@ -315,7 +315,8 @@ export default function TeamAccessSettingsPage({
         <form className="grid gap-4 md:grid-cols-2" onSubmit={handleCreate}>
           <div className="grid gap-2">
             <Label htmlFor="full_name">Full Name</Label>
-            <TextInput
+            <Input
+              className="h-7"
               id="full_name"
               placeholder="e.g. Taufiq"
               value={form.full_name}
@@ -328,7 +329,8 @@ export default function TeamAccessSettingsPage({
 
           <div className="grid gap-2">
             <Label htmlFor="email">Email</Label>
-            <TextInput
+            <Input
+              className="h-7"
               id="email"
               type="email"
               placeholder="name@company.com"
@@ -353,7 +355,7 @@ export default function TeamAccessSettingsPage({
                 }))
               }
             >
-              <SelectTrigger>
+              <SelectTrigger size="sm" className="w-full">
                 <SelectValue placeholder="Select role" />
               </SelectTrigger>
               <SelectContent>
@@ -377,7 +379,7 @@ export default function TeamAccessSettingsPage({
                 }))
               }
             >
-              <SelectTrigger>
+              <SelectTrigger size="sm" className="w-full">
                 <SelectValue placeholder="Select job title" />
               </SelectTrigger>
               <SelectContent>
@@ -392,7 +394,8 @@ export default function TeamAccessSettingsPage({
 
           <div className="grid gap-2">
             <Label htmlFor="hourly_rate">Hourly Rate</Label>
-            <TextInput
+            <Input
+              className="h-7"
               id="hourly_rate"
               type="number"
               placeholder="Optional"
@@ -418,7 +421,7 @@ export default function TeamAccessSettingsPage({
                 }))
               }
             >
-              <SelectTrigger>
+              <SelectTrigger size="sm" className="w-full">
                 <SelectValue placeholder="Select team" />
               </SelectTrigger>
               <SelectContent>
@@ -433,7 +436,7 @@ export default function TeamAccessSettingsPage({
           </div>
 
           <div className="md:col-span-2 flex justify-end">
-            <Button type="submit" disabled={submitting}>
+            <Button size="sm" type="submit" disabled={submitting}>
               {submitting ? "Adding member..." : "Add Team Member"}
             </Button>
           </div>
@@ -469,10 +472,15 @@ export default function TeamAccessSettingsPage({
                   className="flex flex-col gap-3 rounded-xl border border-border px-4 py-3 md:flex-row md:items-center md:justify-between"
                 >
                   <div className="flex items-start gap-3">
-                    <Avatar
-                      initials={profile.full_name?.[0] || profile.email?.[0] || "?"}
-                      src={profile.avatar_url || undefined}
-                    />
+                    <Avatar>
+                      <AvatarImage
+                        src={profile.avatar_url || undefined}
+                        alt={profile.full_name || profile.email || "Avatar"}
+                      />
+                      <AvatarFallback className="text-label-md">
+                        {profile.full_name?.[0] || profile.email?.[0] || "?"}
+                      </AvatarFallback>
+                    </Avatar>
                     <div className="space-y-2">
                       <div>
                         <p className="text-label-md text-foreground">
@@ -490,8 +498,8 @@ export default function TeamAccessSettingsPage({
                         <Badge variant={getJobTitleVariant(profile.job_title)}>
                           {profile.job_title || "No title"}
                         </Badge>
-                        {profile.krt_id && <Badge>{profile.krt_id}</Badge>}
-                        {assignedTeam?.name && <Badge>{assignedTeam.name}</Badge>}
+                        {profile.krt_id && <Badge variant="secondary">{profile.krt_id}</Badge>}
+                        {assignedTeam?.name && <Badge variant="secondary">{assignedTeam.name}</Badge>}
                         {profile.is_super_admin && (
                           <Badge variant="warning">Super Admin</Badge>
                         )}
@@ -504,7 +512,7 @@ export default function TeamAccessSettingsPage({
                       <Badge variant="success">Current View</Badge>
                     ) : null}
                     <Button
-                      variant="secondary"
+                      variant="outline"
                       size="sm"
                       onClick={() => handleImpersonation(profile.id)}
                       disabled={

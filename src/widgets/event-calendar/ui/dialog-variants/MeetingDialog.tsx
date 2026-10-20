@@ -1,17 +1,15 @@
 "use client"
 
 import { logError } from "@/shared/lib/utils/logger"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import {
-  Badge,
-  Button,
   Dialog,
-  DialogBody,
-  DialogCloseButton,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/shared/ui"
+} from "@/components/ui/dialog"
 import {
   RiCalendarLine,
   RiCloseLine,
@@ -93,16 +91,15 @@ export function MeetingDialog({
       <DialogContent className="flex max-h-[90vh] flex-col sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Detail Rapat</DialogTitle>
-          <DialogCloseButton onClick={() => onOpenChange(false)} />
         </DialogHeader>
 
-        <DialogBody className="flex-1 space-y-5 overflow-y-auto">
+        <div className="flex-1 space-y-5 overflow-y-auto">
           {/* Event Title & Type */}
           <div className="flex items-start justify-between gap-4">
               <h3 className="text-heading-sm text-foreground break-words">
                 {event.title}
               </h3>
-            <Badge variant="info" size="sm" className="shrink-0">
+            <Badge variant="info" className="shrink-0">
               {event.type || "Rapat"}
             </Badge>
           </div>
@@ -178,9 +175,9 @@ export function MeetingDialog({
               />
             </div>
           )}
-        </DialogBody>
+        </div>
 
-        <DialogFooter className="justify-between">
+        <DialogFooter className="sm:justify-between">
           <div className="flex flex-1 gap-2">
             {onDelete && (
               <>
@@ -190,6 +187,7 @@ export function MeetingDialog({
                       Yakin hapus?
                     </span>
                     <Button
+                      size="sm"
                       type="button"
                       variant="destructive"
                       onClick={handleConfirmDelete}
@@ -198,8 +196,9 @@ export function MeetingDialog({
                       Ya, Hapus
                     </Button>
                     <Button
+                      size="sm"
                       type="button"
-                      variant="secondary"
+                      variant="outline"
                       onClick={handleCancelDelete}
                       disabled={loading}
                     >
@@ -209,8 +208,9 @@ export function MeetingDialog({
                 ) : (
                   <>
                     <Button
+                      size="sm"
                       type="button"
-                      variant="secondary"
+                      variant="outline"
                       onClick={handleDeleteClick}
                       disabled={loading}
                       className="text-destructive hover:bg-destructive/10"
@@ -228,8 +228,9 @@ export function MeetingDialog({
 
           {!isDeletePending && (
             <Button
+              size="sm"
               type="button"
-              variant="secondary"
+              variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={loading}
             >

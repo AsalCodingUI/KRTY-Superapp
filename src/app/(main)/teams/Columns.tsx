@@ -2,9 +2,9 @@
 
 import { Database } from "@/shared/types/database.types"
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table"
-import { Badge } from "@/shared/ui"
-import { Checkbox } from "@/shared/ui"
-import { DataTableColumnHeader } from "@/shared/ui"
+import { DataTableColumnHeader } from "@/components/data-table"
+import { Badge } from "@/components/ui/badge"
+import { Checkbox } from "@/components/ui/checkbox"
 import { canManageByRole } from "@/shared/lib/roles"
 
 // DataTableRowActions SUDAH DIHAPUS IMPORT-NYA
@@ -27,15 +27,15 @@ const formatRupiah = (value: number) => {
 const getJobTitleVariant = (title: string) => {
   switch (title) {
     case "Admin":
-      return "error"
+      return "destructive" as const
     case "Project Manager":
-      return "warning"
+      return "warning" as const
     case "Designer":
-      return "success"
+      return "success" as const
     case "Web Developer":
-      return "info"
+      return "info" as const
     default:
-      return "default"
+      return "secondary" as const
   }
 }
 
@@ -154,7 +154,7 @@ export const createTeamColumns = (
       cell: ({ row }) => {
         const role = row.getValue("role") as string
         const displayRole = role.charAt(0).toUpperCase() + role.slice(1)
-        const variant = canManageByRole(role) ? "success" : "zinc"
+        const variant = canManageByRole(role) ? ("success" as const) : ("secondary" as const)
         return <Badge variant={variant}>{displayRole}</Badge>
       },
     }),

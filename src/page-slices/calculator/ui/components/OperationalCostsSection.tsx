@@ -1,4 +1,5 @@
-import { Button, Label } from "@/shared/ui"
+import { Button } from "@/components/ui/button"
+import { Label } from "@/components/ui/label"
 import { OperationalCost } from "../types"
 import { formatNumber } from "../utils"
 
@@ -31,20 +32,20 @@ export function OperationalCostsSection({
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <Button variant="secondary" size="sm" onClick={onDownloadTemplateCSV}>
+          <Button variant="outline" size="sm" onClick={onDownloadTemplateCSV}>
             Download CSV Template
           </Button>
           <Button
-            variant="secondary"
+            variant="outline"
             size="sm"
             onClick={onDownloadTemplateJSON}
           >
             Download JSON Template
           </Button>
-          <Button variant="secondary" size="sm" onClick={onExportCSV}>
+          <Button variant="outline" size="sm" onClick={onExportCSV}>
             Export CSV
           </Button>
-          <Button variant="secondary" size="sm" onClick={onExportJSON}>
+          <Button variant="outline" size="sm" onClick={onExportJSON}>
             Export JSON
           </Button>
           <Label className="cursor-pointer">
@@ -59,7 +60,7 @@ export function OperationalCostsSection({
                 e.currentTarget.value = ""
               }}
             />
-            <Button variant="primary" size="sm" type="button">
+            <Button size="sm" type="button">
               Import Costs
             </Button>
           </Label>

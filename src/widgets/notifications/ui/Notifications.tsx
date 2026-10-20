@@ -2,16 +2,18 @@
 
 import { useNotifications } from "@/shared/hooks/useNotifications"
 import { cx, focusRing } from "@/shared/lib/utils"
+import { EmptyState } from "@/components/empty-state"
 import {
-  EmptyState,
+  TabNavigation,
+  TabNavigationLink,
+} from "@/components/tab-navigation"
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-  TabNavigation,
-  TabNavigationLink,
-} from "@/shared/ui"
+} from "@/components/ui/select"
 import {
   RiCloseLine,
   RiDeleteBinLine,

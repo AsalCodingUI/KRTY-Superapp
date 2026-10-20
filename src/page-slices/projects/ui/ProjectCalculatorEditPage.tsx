@@ -3,7 +3,7 @@
 import { CalculatorPage } from "@/page-slices/calculator"
 import type { Database } from "@/shared/types/database.types"
 import type { OperationalCost, TeamMember } from "@/page-slices/calculator/ui/types"
-import { Button } from "@/shared/ui"
+import { Button } from "@/components/ui/button"
 import { RiArrowLeftLine } from "@/shared/ui/lucide-icons"
 import { useRouter } from "next/navigation"
 
@@ -30,7 +30,7 @@ export function ProjectCalculatorEditPage({
     <div className="flex flex-col">
       <div className="rounded-xxl flex items-center gap-2 px-5 pt-4 pb-3">
         <Button
-          variant="secondary"
+          variant="outline"
           size="sm"
           onClick={() => router.push(`/projects/${projectId}/calculations`)}
         >

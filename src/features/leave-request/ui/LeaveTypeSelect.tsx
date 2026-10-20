@@ -1,11 +1,11 @@
+import { Label } from "@/components/ui/label"
 import {
-  Label,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/shared/ui"
+} from "@/components/ui/select"
 ;("use client")
 
 interface LeaveTypeSelectProps {
@@ -25,7 +25,7 @@ export function LeaveTypeSelect({
         Pengajuan Untuk
       </Label>
       <Select value={value} onValueChange={onChange} disabled={disabled}>
-        <SelectTrigger id="type" className="mt-2">
+        <SelectTrigger id="type" size="sm" className="mt-2 w-full">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>

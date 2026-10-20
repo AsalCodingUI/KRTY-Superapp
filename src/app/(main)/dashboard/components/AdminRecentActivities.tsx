@@ -1,6 +1,8 @@
 "use client"
 
-import { Avatar, Card, EmptyState } from "@/shared/ui"
+import { EmptyState } from "@/components/empty-state"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Card } from "@/components/ui/card"
 import { RiFileList3Line } from "@/shared/ui/lucide-icons"
 import { formatDistanceToNow } from "date-fns"
 
@@ -26,7 +28,7 @@ export function AdminRecentActivities({
   activities,
 }: AdminRecentActivitiesProps) {
   return (
-    <Card>
+    <Card className="gap-0 p-4">
       <div className="mb-3 flex items-center justify-between">
         <p className="text-label-md text-muted-foreground">Activity Feed</p>
         <span className="text-body-xs text-muted-foreground/70 tabular-nums">
@@ -51,11 +53,12 @@ export function AdminRecentActivities({
             >
               <div className="min-w-0 flex-1">
                 <div className="flex items-start gap-2">
-                  <Avatar
-                    size="xs"
-                    initials={activity.user_name?.[0] || "?"}
-                    src={activity.user_avatar || undefined}
-                  />
+                  <Avatar className="size-5">
+                    <AvatarImage src={activity.user_avatar || undefined} />
+                    <AvatarFallback className="text-label-xs">
+                      {activity.user_name?.[0] || "?"}
+                    </AvatarFallback>
+                  </Avatar>
                   <div className="flex-1">
                     <p className="text-label-md text-foreground">
                       <span className="font-medium">

@@ -1,6 +1,9 @@
 "use client"
 
-import { Avatar, Badge, Card, EmptyState } from "@/shared/ui"
+import { EmptyState } from "@/components/empty-state"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import { Card } from "@/components/ui/card"
 import { RiStarLine } from "@/shared/ui/lucide-icons"
 import Link from "next/link"
 
@@ -27,12 +30,12 @@ export function AdminEmployeeSpotlight({
     if (score >= 85) return { variant: "success" as const, label: "Above Exp." }
     if (score >= 75) return { variant: "info" as const, label: "Meets Exp." }
     if (score >= 60) return { variant: "warning" as const, label: "Below Exp." }
-    return { variant: "error" as const, label: "Needs Imp." }
+    return { variant: "destructive" as const, label: "Needs Imp." }
   }
 
   return (
     <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-      <Card>
+      <Card className="gap-0 p-4">
         <p className="text-label-md text-muted-foreground mb-3">
           Top Performers
         </p>
@@ -55,11 +58,12 @@ export function AdminEmployeeSpotlight({
                   href={`/performance/employee/${employee.employee_id}`}
                 >
                   <div className="hover:bg-muted flex items-center gap-3 px-3 py-2 transition-colors">
-                    <Avatar
-                      size="sm"
-                      initials={employee.employee_name?.[0] || "?"}
-                      src={employee.employee_avatar || undefined}
-                    />
+                    <Avatar className="size-7">
+                      <AvatarImage src={employee.employee_avatar || undefined} />
+                      <AvatarFallback className="text-label-xs">
+                        {employee.employee_name?.[0] || "?"}
+                      </AvatarFallback>
+                    </Avatar>
                     <div className="min-w-0 flex-1">
                       <h4 className="text-foreground text-label-md truncate">
                         {employee.employee_name}
@@ -87,7 +91,7 @@ export function AdminEmployeeSpotlight({
         )}
       </Card>
 
-      <Card>
+      <Card className="gap-0 p-4">
         <p className="text-label-md text-muted-foreground mb-3">
           Needs Attention
         </p>
@@ -110,11 +114,12 @@ export function AdminEmployeeSpotlight({
                   href={`/performance/employee/${employee.employee_id}`}
                 >
                   <div className="hover:bg-muted flex items-center gap-3 px-3 py-2 transition-colors">
-                    <Avatar
-                      size="sm"
-                      initials={employee.employee_name?.[0] || "?"}
-                      src={employee.employee_avatar || undefined}
-                    />
+                    <Avatar className="size-7">
+                      <AvatarImage src={employee.employee_avatar || undefined} />
+                      <AvatarFallback className="text-label-xs">
+                        {employee.employee_name?.[0] || "?"}
+                      </AvatarFallback>
+                    </Avatar>
                     <div className="min-w-0 flex-1">
                       <h4 className="text-foreground text-label-md truncate">
                         {employee.employee_name}

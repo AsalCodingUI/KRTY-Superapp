@@ -1,4 +1,4 @@
-import { Badge } from "@/shared/ui"
+import { Badge } from "@/components/ui/badge"
 
 interface QuarterBadgeProps {
   quarter: string
@@ -6,7 +6,7 @@ interface QuarterBadgeProps {
 
 export function QuarterBadge({ quarter }: QuarterBadgeProps) {
   return (
-    <Badge size="sm" variant="info">
+    <Badge variant="info">
       {quarter}
     </Badge>
   )

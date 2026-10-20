@@ -1,4 +1,4 @@
-import { Badge } from "@/shared/ui"
+import { Badge } from "@/components/ui/badge"
 import { cx } from "@/shared/lib/utils"
 import React from "react"
 
@@ -40,7 +40,7 @@ export function CategoryBarCard({
             <h3 className="text-foreground sm:text-label-md">
               {title}
             </h3>
-            <Badge variant="zinc">{change}</Badge>
+            <Badge variant="secondary">{change}</Badge>
           </div>
           <p className="mt-2 flex items-baseline gap-2">
             <span className="text-foreground text-heading-lg">

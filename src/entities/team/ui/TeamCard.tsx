@@ -2,7 +2,8 @@
 
 import { cx } from "@/shared/lib/utils"
 import { Database } from "@/shared/types/database.types"
-import { Card, CategoryBar } from "@/shared/ui"
+import { CategoryBar } from "@/components/charts/category-bar"
+import { Card } from "@/components/ui/card"
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"]
 
@@ -68,7 +69,7 @@ export function TeamCard({ data }: TeamCardProps) {
   return (
     <div className="max-w-full">
       <dl className="grid grid-cols-1">
-        <Card>
+        <Card className="gap-0 p-4">
           <dt className="text-label-md text-muted-foreground">
             Total Team Members
           </dt>

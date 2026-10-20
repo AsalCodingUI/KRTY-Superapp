@@ -1,4 +1,5 @@
-import { Badge, Button } from "@/shared/ui"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import {
   RiArchiveLine,
   RiDeleteBinLine,
@@ -40,7 +41,7 @@ export const activeSLAColumns = (
     accessorKey: "status",
     header: "Status",
     cell: ({ getValue }) => (
-      <Badge variant="zinc">{getValue() as string}</Badge>
+      <Badge variant="secondary">{getValue() as string}</Badge>
     ),
   },
   {
@@ -50,7 +51,7 @@ export const activeSLAColumns = (
       <div className="flex gap-2">
         <Button
           size="icon-sm"
-          variant="tertiary"
+          variant="ghost"
           onClick={() => onView(row.original.id)}
         >
           <RiEyeLine className="size-3.5" />
@@ -59,14 +60,14 @@ export const activeSLAColumns = (
           <>
             <Button
               size="icon-sm"
-              variant="tertiary"
+              variant="ghost"
               onClick={() => onEdit(row.original.id)}
             >
               <RiEditLine className="size-3.5" />
             </Button>
             <Button
               size="icon-sm"
-              variant="tertiary"
+              variant="ghost"
               onClick={() => onArchive(row.original.id)}
             >
               <RiArchiveLine className="size-3.5" />
@@ -115,14 +116,14 @@ export const archivedSLAColumns = (
         <div className="flex gap-2">
           <Button
             size="icon-sm"
-            variant="tertiary"
+            variant="ghost"
             onClick={() => onRestore(row.original.id)}
           >
             <RiRefreshLine className="size-3.5" />
           </Button>
           <Button
             size="icon-sm"
-            variant="tertiary"
+            variant="ghost"
             onClick={() => onDelete(row.original.id)}
           >
             <RiDeleteBinLine className="size-3.5" />

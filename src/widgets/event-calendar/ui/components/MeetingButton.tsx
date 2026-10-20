@@ -1,6 +1,6 @@
 "use client"
 
-import { Button } from "@/shared/ui"
+import { Button } from "@/components/ui/button"
 import { logError } from "@/shared/lib/utils/logger"
 import { RiFileCopyLine, RiVideoOnLine } from "@/shared/ui/lucide-icons"
 import { useState } from "react"
@@ -32,8 +32,9 @@ export function MeetingButton({ meetingUrl, className }: MeetingButtonProps) {
     <div className={className}>
       <div className="flex items-center gap-2">
         <Button
+          size="sm"
           onClick={handleJoin}
-          className="bg-primary hover:bg-primary/90 text-primary-fg flex-1"
+          className="bg-primary hover:bg-primary/90 text-primary-foreground flex-1"
         >
           <RiVideoOnLine className="mr-2 h-4 w-4" />
           Gabung via Google Meet

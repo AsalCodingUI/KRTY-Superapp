@@ -2,17 +2,15 @@
 
 import { cx } from "@/shared/lib/utils"
 import { logError } from "@/shared/lib/utils/logger"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import {
-  Badge,
-  Button,
   Dialog,
-  DialogBody,
-  DialogCloseButton,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/shared/ui"
+} from "@/components/ui/dialog"
 import {
   RiCalendarLine,
   RiCloseLine,
@@ -90,15 +88,14 @@ export function BaseReadOnlyDialog({
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
-          <DialogCloseButton onClick={() => onOpenChange(false)} />
         </DialogHeader>
 
-        <DialogBody className="space-y-5">
+        <div className="space-y-5">
           {/* Badges */}
           {badges.length > 0 && (
             <div className="flex flex-wrap items-center gap-2">
               {badges.map((badge, index) => (
-                <Badge key={index} color={badge.color} className="text-body-sm">
+                <Badge variant="secondary" key={index} color={badge.color} className="text-body-sm">
                   {badge.label}
                 </Badge>
               ))}
@@ -187,9 +184,9 @@ export function BaseReadOnlyDialog({
               <p className="text-body-xs text-primary">ℹ️ {infoMessage}</p>
             </div>
           )}
-        </DialogBody>
+        </div>
 
-        <DialogFooter className="justify-between">
+        <DialogFooter className="sm:justify-between">
           <div className="flex flex-1 gap-2">
             {onDelete && (
               <>
@@ -199,6 +196,7 @@ export function BaseReadOnlyDialog({
                       Yakin hapus?
                     </span>
                     <Button
+                      size="sm"
                       type="button"
                       variant="destructive"
                       onClick={handleConfirmDelete}
@@ -208,8 +206,9 @@ export function BaseReadOnlyDialog({
                       Ya, Hapus
                     </Button>
                     <Button
+                      size="sm"
                       type="button"
-                      variant="secondary"
+                      variant="outline"
                       onClick={handleCancelDelete}
                       disabled={loading}
                     >
@@ -218,8 +217,9 @@ export function BaseReadOnlyDialog({
                   </div>
                 ) : (
                   <Button
+                    size="sm"
                     type="button"
-                    variant="secondary"
+                    variant="outline"
                     onClick={handleDeleteClick}
                     disabled={loading}
                     className="text-destructive hover:bg-destructive/10"
@@ -233,7 +233,8 @@ export function BaseReadOnlyDialog({
           </div>
           {!isDeletePending && (
             <Button
-              variant="secondary"
+              size="sm"
+              variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={loading}
             >

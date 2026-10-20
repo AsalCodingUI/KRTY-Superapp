@@ -9,7 +9,7 @@ import { createTeamColumns } from "./Columns"
 import { TeamFormDialog } from "./components/TeamDialogs"
 import { TeamStats } from "./components/TeamStats"
 
-import { DataTable } from "@/shared/ui"
+import { DataTable } from "@/components/data-table"
 import { RiGroupLine } from "@/shared/ui/lucide-icons"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 

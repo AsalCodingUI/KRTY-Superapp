@@ -1,7 +1,7 @@
 "use client"
 
-import { Card } from "@/shared/ui"
-import { ProgressBar } from "@/shared/ui"
+import { Card } from "@/components/ui/card"
+import { Progress } from "@/components/ui/progress"
 import { Database } from "@/shared/types/database.types"
 import { calculateBusinessDays } from "@/shared/lib/date"
 import { useMemo } from "react"
@@ -43,7 +43,7 @@ export function LeaveStats({ requests }: LeaveStatsProps) {
 
   return (
     <div className="relative w-full">
-      <Card>
+      <Card className="gap-0 p-4">
         <dt className="text-label-md text-muted-foreground">
           Annual Leave Balance
         </dt>
@@ -51,7 +51,7 @@ export function LeaveStats({ requests }: LeaveStatsProps) {
           {stats.balance} Days
         </dd>
 
-        <ProgressBar value={percentage} className="mt-6" />
+        <Progress value={percentage} className="mt-6" />
 
         <dd className="text-label-md mt-2 flex items-center justify-between">
           <span className="text-primary font-medium">{percentage}% used</span>

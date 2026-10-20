@@ -4,28 +4,28 @@ import { projectService } from "@/entities/project/api/projectService"
 import { getQuarterFromDate } from "@/entities/performance/lib/kpiUtils"
 import { type Database } from "@/shared/types/database.types"
 import { format as formatDate } from "date-fns"
+import { ConfirmDialog } from "@/components/confirm-dialog"
+import { DatePicker } from "@/components/date-picker"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import {
-  Avatar,
-  Button,
-  Checkbox,
-  ConfirmDialog,
-  DatePicker,
   Dialog,
-  DialogBody,
-  DialogCloseButton,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  Label,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Textarea,
-  TextInput,
-} from "@/shared/ui"
+} from "@/components/ui/select"
+import { Textarea } from "@/components/ui/textarea"
 import { RiDeleteBin6Line, RiUserAddLine } from "@/shared/ui/lucide-icons"
 import { useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"
@@ -314,20 +314,20 @@ export function ProjectForm({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="flex max-h-[90vh] max-w-2xl flex-col">
-        <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
+      <DialogContent className="flex max-h-[90vh] flex-col sm:max-w-2xl">
+        <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col gap-6">
           <DialogHeader>
             <DialogTitle>
               {isEdit ? "Edit Project" : "Create New Project"}
             </DialogTitle>
-            <DialogCloseButton />
           </DialogHeader>
 
-          <DialogBody className="min-h-0 flex-1 space-y-4 overflow-y-auto">
+          <div className="min-h-0 flex-1 space-y-4 overflow-y-auto">
             {/* Project Name */}
             <div className="space-y-2">
               <Label htmlFor="name">Project Name *</Label>
-              <TextInput
+              <Input
+                className="h-7"
                 id="name"
                 name="name"
                 placeholder="e.g., Website Redesign Q1"
@@ -398,7 +398,7 @@ export function ProjectForm({
                   name="status"
                   defaultValue={(project.status ?? "Active") as string}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full" size="sm">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -429,7 +429,7 @@ export function ProjectForm({
                       value={selectedUserId}
                       onValueChange={setSelectedUserId}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="w-full" size="sm">
                         <SelectValue placeholder="Choose a team member" />
                       </SelectTrigger>
                       <SelectContent>
@@ -449,10 +449,11 @@ export function ProjectForm({
                   </div>
 
                   <Button
+                    size="sm"
                     type="button"
                     onClick={handleAddTeamMember}
                     disabled={!selectedUserId}
-                    variant="secondary"
+                    variant="outline"
                   >
                     <RiUserAddLine className="mr-2 size-4" />
                     Add to Team
@@ -469,11 +470,13 @@ export function ProjectForm({
                         className="border-border bg-card flex items-center justify-between rounded-lg border p-2"
                       >
                         <div className="flex items-center gap-2">
-                          <Avatar
-                            src={member.userAvatar || undefined}
-                            alt={member.userName}
-                            size="sm"
-                          />
+                          <Avatar className="size-7">
+                            <AvatarImage
+                              src={member.userAvatar || undefined}
+                              alt={member.userName}
+                            />
+                            <AvatarFallback />
+                          </Avatar>
                           <div>
                             <p className="text-label-md text-foreground">
                               {member.userName}
@@ -508,18 +511,19 @@ export function ProjectForm({
                   </div>
                 )}
               </div>
-          </DialogBody>
+          </div>
 
-          <DialogFooter className="sticky bottom-0 border-t border-border bg-card">
+          <DialogFooter className="sticky bottom-0 border-t border-border bg-card pt-4">
             <Button
+              size="sm"
               type="button"
-              variant="secondary"
+              variant="outline"
               onClick={onClose}
               disabled={loading}
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={loading}>
+            <Button size="sm" type="submit" disabled={loading}>
               {loading
                 ? "Saving..."
                 : isEdit

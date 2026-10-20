@@ -1,6 +1,10 @@
 "use client"
 
-import { Avatar, Badge, Button, Card, EmptyState } from "@/shared/ui"
+import { EmptyState } from "@/components/empty-state"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
 import {
   RiArrowRightLine,
   RiFileList3Line,
@@ -43,7 +47,7 @@ export function AdminPendingActions({
 }: AdminPendingActionsProps) {
   return (
     <div className="space-y-4">
-      <Card>
+      <Card className="gap-0 p-4">
         <div className="mb-3 flex items-center justify-between">
           <p className="text-label-md text-muted-foreground">
             Pending Reviews
@@ -71,11 +75,12 @@ export function AdminPendingActions({
                 >
                   <div className="hover:bg-muted flex items-center justify-between px-3 py-2 transition-colors">
                     <div className="flex items-center gap-3">
-                      <Avatar
-                        size="sm"
-                        initials={review.employee_name?.[0] || "?"}
-                        src={review.employee_avatar || undefined}
-                      />
+                      <Avatar className="size-7">
+                        <AvatarImage src={review.employee_avatar || undefined} />
+                        <AvatarFallback className="text-label-xs">
+                          {review.employee_name?.[0] || "?"}
+                        </AvatarFallback>
+                      </Avatar>
                       <div>
                         <h4 className="text-foreground text-label-md">
                           {review.employee_name}
@@ -86,7 +91,7 @@ export function AdminPendingActions({
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Badge size="sm" variant="info">
+                      <Badge variant="info">
                         {review.cycle_name}
                       </Badge>
                       <RiArrowRightLine className="text-muted-foreground size-4" />
@@ -99,7 +104,7 @@ export function AdminPendingActions({
             {pendingReviews.length > 5 && (
               <div className="mt-3">
                 <Link href="/performance?tab=360review">
-                  <Button variant="secondary" size="sm" className="w-full">
+                  <Button variant="outline" size="sm" className="w-full">
                     View All {pendingReviews.length} Pending Reviews
                   </Button>
                 </Link>
@@ -109,7 +114,7 @@ export function AdminPendingActions({
         )}
       </Card>
 
-      <Card>
+      <Card className="gap-0 p-4">
         <div className="mb-3 flex items-center justify-between">
           <p className="text-label-md text-muted-foreground">
             Leave Approvals
@@ -142,11 +147,12 @@ export function AdminPendingActions({
                     <div className="hover:bg-muted px-3 py-2 transition-colors">
                       <div className="mb-2 flex items-start justify-between">
                         <div className="flex items-center gap-3">
-                          <Avatar
-                            size="sm"
-                            initials={leave.user_name?.[0] || "?"}
-                            src={leave.user_avatar || undefined}
-                          />
+                          <Avatar className="size-7">
+                            <AvatarImage src={leave.user_avatar || undefined} />
+                            <AvatarFallback className="text-label-xs">
+                              {leave.user_name?.[0] || "?"}
+                            </AvatarFallback>
+                          </Avatar>
                           <div>
                             <h4 className="text-foreground text-label-md">
                               {leave.user_name}
@@ -157,7 +163,7 @@ export function AdminPendingActions({
                           </div>
                         </div>
                         {daysAgo <= 2 && (
-                          <Badge size="sm" variant="error">
+                          <Badge variant="destructive">
                             New
                           </Badge>
                         )}
@@ -180,7 +186,7 @@ export function AdminPendingActions({
             {pendingLeaveApprovals.length > 5 && (
               <div className="mt-3">
                 <Link href="/leave">
-                  <Button variant="secondary" size="sm" className="w-full">
+                  <Button variant="outline" size="sm" className="w-full">
                     View All {pendingLeaveApprovals.length} Requests
                   </Button>
                 </Link>

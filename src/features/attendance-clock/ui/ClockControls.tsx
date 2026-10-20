@@ -1,12 +1,12 @@
 "use client"
 
+import { Button } from "@/components/ui/button"
 import {
-  Button,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/shared/ui"
+} from "@/components/ui/dropdown-menu"
 import {
   RiArrowDownSLine,
   RiCupLine,
@@ -51,7 +51,7 @@ export function ClockControls({
           {/* DROPDOWN STATUS */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button asChild size="sm" variant="secondary" type="button">
+              <Button asChild size="sm" variant="outline" type="button">
                 <button>
                   {getStatusLabel(selectedStatus)}
                   <RiArrowDownSLine className="text-muted-foreground ml-2 size-4 shrink-0" />
@@ -90,7 +90,8 @@ export function ClockControls({
             <RiLogoutBoxLine className="mr-2 size-4" /> Clock Out
           </Button>
           <Button
-            variant="secondary"
+            size="sm"
+            variant="outline"
             onClick={() =>
               onToggleBreak(activeSession.id, activeSession.is_break || false)
             }

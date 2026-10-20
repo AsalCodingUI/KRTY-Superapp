@@ -1,6 +1,6 @@
 "use client"
 
-import { Badge } from "@/shared/ui"
+import { Badge } from "@/components/ui/badge"
 import { format } from "date-fns"
 
 interface EmployeePerformanceCardsProps {
@@ -145,7 +145,7 @@ export function EmployeePerformanceCards({
                     Join
                   </a>
                 ) : (
-                  <Badge variant="zinc">Scheduled</Badge>
+                  <Badge variant="secondary">Scheduled</Badge>
                 )}
               </div>
             ))}

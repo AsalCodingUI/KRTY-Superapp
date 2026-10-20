@@ -8,15 +8,14 @@ import {
   mergeAttendanceNote,
 } from "@/shared/lib/attendance"
 import { Database } from "@/shared/types/database.types"
+import { Button } from "@/components/ui/button"
 import {
-  Button, Dialog,
-  DialogBody,
-  DialogCloseButton,
+  Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
-  DialogTitle
-} from "@/shared/ui"
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { RiCalendarCheckLine } from "@/shared/ui/lucide-icons"
 import { differenceInMinutes, format } from "date-fns"
 import { useRouter } from "next/navigation"
@@ -353,19 +352,18 @@ export function EmployeeAttendancePage({
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Konfirmasi Hapus</DialogTitle>
-            <DialogCloseButton />
           </DialogHeader>
-          <DialogBody>
+          <div>
             <p className="text-body-sm text-muted-foreground">
               Apakah Anda yakin ingin menghapus catatan kehadiran ini?
               Permintaan akan direview oleh stakeholder.
             </p>
-          </DialogBody>
+          </div>
           <DialogFooter>
-            <Button variant="secondary" onClick={cancelDelete}>
+            <Button size="sm" variant="outline" onClick={cancelDelete}>
               Batal
             </Button>
-            <Button variant="destructive" onClick={confirmDelete}>
+            <Button size="sm" variant="destructive" onClick={confirmDelete}>
               Ya, Hapus
             </Button>
           </DialogFooter>

@@ -1,7 +1,8 @@
 "use client"
 
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
-import { Label, TextInput } from "@/shared/ui"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 
 export default function GeneralSettingsPage() {
   const { profile, loading } = useUserProfile()
@@ -35,11 +36,11 @@ export default function GeneralSettingsPage() {
                 <Label htmlFor="full-name" className="font-medium">
                   My Name
                 </Label>
-                <TextInput
+                <Input
                   id="full-name"
                   value={profile?.full_name || ""}
                   disabled
-                  className="mt-2"
+                  className="mt-2 h-7"
                 />
               </div>
 
@@ -47,12 +48,12 @@ export default function GeneralSettingsPage() {
                 <Label htmlFor="email" className="font-medium">
                   Email
                 </Label>
-                <TextInput
+                <Input
                   id="email"
                   type="email"
                   value={profile?.email || ""}
                   disabled
-                  className="mt-2"
+                  className="mt-2 h-7"
                 />
               </div>
 
@@ -60,11 +61,11 @@ export default function GeneralSettingsPage() {
                 <Label htmlFor="job-title" className="font-medium">
                   Job Title
                 </Label>
-                <TextInput
+                <Input
                   id="job-title"
                   value={profile?.job_title || ""}
                   disabled
-                  className="mt-2"
+                  className="mt-2 h-7"
                 />
               </div>
             </div>

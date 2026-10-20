@@ -1,4 +1,5 @@
-import { Button, Card } from "@/shared/ui"
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
 import { RiArrowRightLine, RiErrorWarningLine } from "@/shared/ui/lucide-icons"
 import Link from "next/link"
 
@@ -6,7 +7,7 @@ export default function NotFound() {
   return (
     <div className="bg-card min-h-screen px-4 py-8">
       <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center">
-        <Card className="w-full p-8 text-center">
+        <Card className="w-full gap-0 p-8 text-center">
           <div className="space-y-5">
             <div className="bg-destructive/10 mx-auto flex size-14 items-center justify-center rounded-full border border-destructive/30">
               <RiErrorWarningLine className="size-6 text-destructive" />
@@ -23,7 +24,7 @@ export default function NotFound() {
             </div>
 
             <div className="pt-1">
-              <Button asChild>
+              <Button size="sm" asChild>
                 <Link href="/dashboard">
                   Back to Dashboard
                   <RiArrowRightLine className="ml-2 size-4" aria-hidden="true" />

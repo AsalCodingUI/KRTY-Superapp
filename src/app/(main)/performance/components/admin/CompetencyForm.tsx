@@ -1,19 +1,24 @@
 "use client"
 
 import { Constants, Database } from "@/shared/types/database.types"
+import { Button } from "@/components/ui/button"
 import {
-  Button, Dialog,
-  DialogBody,
-  DialogCloseButton,
+  Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
-  DialogTitle, Label, Select,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import {
+  Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue, Textarea, TextInput
-} from "@/shared/ui"
+  SelectValue,
+} from "@/components/ui/select"
+import { Textarea } from "@/components/ui/textarea"
 import { useState } from "react"
 import { toast } from "sonner"
 import {
@@ -71,15 +76,14 @@ export function CompetencyForm({
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="grid gap-6">
           <DialogHeader>
             <DialogTitle>
               {isEdit ? "Edit Competency" : "Add New Competency"}
             </DialogTitle>
-            <DialogCloseButton />
           </DialogHeader>
 
-          <DialogBody className="space-y-4">
+          <div className="space-y-4">
             {/* Role Selection */}
             <div className="space-y-2">
               <Label htmlFor="role">Role *</Label>
@@ -88,7 +92,7 @@ export function CompetencyForm({
                 defaultValue={competency?.role || availableRoles[0]}
                 required
               >
-                <SelectTrigger>
+                <SelectTrigger className="w-full" size="sm">
                   <SelectValue placeholder="Select role" />
                 </SelectTrigger>
                 <SelectContent>
@@ -104,7 +108,8 @@ export function CompetencyForm({
             {/* Competency Name */}
             <div className="space-y-2">
               <Label htmlFor="name">Competency Name *</Label>
-              <TextInput
+              <Input
+                className="h-7"
                 id="name"
                 name="name"
                 placeholder="e.g., Consistency, Clean Code, Design Quality"
@@ -124,18 +129,19 @@ export function CompetencyForm({
                 defaultValue={competency?.description || ""}
               />
             </div>
-          </DialogBody>
+          </div>
 
           <DialogFooter>
             <Button
+              size="sm"
               type="button"
-              variant="secondary"
+              variant="outline"
               onClick={onClose}
               disabled={loading}
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={loading}>
+            <Button size="sm" type="submit" disabled={loading}>
               {loading ? "Saving..." : isEdit ? "Update" : "Create"}
             </Button>
           </DialogFooter>

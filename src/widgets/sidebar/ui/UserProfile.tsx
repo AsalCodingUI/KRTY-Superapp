@@ -1,6 +1,6 @@
 "use client"
 
-import { Button } from "@/shared/ui"
+import { Button } from "@/components/ui/button"
 import { cx, focusRing } from "@/shared/lib/utils"
 import { RiMore2Fill } from "@/shared/ui/lucide-icons"
 
@@ -25,6 +25,7 @@ export const UserProfileDesktop = () => {
       <Button
         aria-label="User settings"
         variant="ghost"
+        size="sm"
         className={cx(
           focusRing,
           "group text-label-md text-foreground hover:bg-muted data-[state=open]:bg-muted dark:hover:bg-muted flex w-full items-center justify-between rounded-md p-2",
@@ -66,6 +67,7 @@ export const UserProfileMobile = () => {
       <Button
         aria-label="User settings"
         variant="ghost"
+        size="sm"
         className={cx(
           "group text-label-md text-foreground hover:bg-muted data-[state=open]:bg-muted dark:hover:bg-muted flex items-center rounded-md p-1",
         )}

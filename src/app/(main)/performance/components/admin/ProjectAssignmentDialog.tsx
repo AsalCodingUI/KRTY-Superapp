@@ -1,19 +1,24 @@
 "use client"
 
 import { type Database } from "@/shared/types/database.types"
+import { ConfirmDialog } from "@/components/confirm-dialog"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
 import {
-  Avatar, Button, ConfirmDialog, Dialog,
-  DialogBody,
-  DialogCloseButton,
+  Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
-  DialogTitle, Label, Select,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
+import {
+  Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue
-} from "@/shared/ui"
+  SelectValue,
+} from "@/components/ui/select"
 import { RiDeleteBin6Line, RiUserAddLine } from "@/shared/ui/lucide-icons"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
@@ -198,13 +203,12 @@ export function ProjectAssignmentDialog({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="flex max-h-[80vh] w-[calc(100%-2rem)] max-w-3xl flex-col">
+      <DialogContent className="flex max-h-[80vh] w-[calc(100%-2rem)] flex-col sm:max-w-3xl">
         <DialogHeader>
           <DialogTitle>Manage Team - {project.name}</DialogTitle>
-          <DialogCloseButton />
         </DialogHeader>
 
-        <DialogBody className="flex-1 space-y-4 overflow-y-auto">
+        <div className="flex-1 space-y-4 overflow-y-auto">
           {/* Add New Assignment Section */}
           <div className="border-border bg-muted space-y-4 rounded-lg border p-4">
             <h4 className="text-label-md text-foreground">
@@ -219,7 +223,7 @@ export function ProjectAssignmentDialog({
                   onValueChange={setSelectedUserId}
                   disabled={availableUsers.length === 0}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full" size="sm">
                     <SelectValue
                       placeholder={
                         availableUsers.length === 0
@@ -240,9 +244,10 @@ export function ProjectAssignmentDialog({
               </div>
 
               <Button
+                size="sm"
                 onClick={handleAddAssignment}
                 disabled={!selectedUserId || loading}
-                variant="secondary"
+                variant="outline"
               >
                 <RiUserAddLine className="mr-2 size-4" />
                 Add to Team
@@ -271,10 +276,13 @@ export function ProjectAssignmentDialog({
                     className="border-border bg-card flex items-center justify-between rounded-lg border p-3"
                   >
                     <div className="flex items-center gap-3">
-                      <Avatar
-                        src={assignment.profiles.avatar_url || undefined}
-                        alt={assignment.profiles.full_name || "User"}
-                      />
+                      <Avatar>
+                        <AvatarImage
+                          src={assignment.profiles.avatar_url || undefined}
+                          alt={assignment.profiles.full_name || "User"}
+                        />
+                        <AvatarFallback />
+                      </Avatar>
                       <div>
                         <p className="text-foreground font-medium">
                           {assignment.profiles.full_name || "Unknown User"}
@@ -307,10 +315,10 @@ export function ProjectAssignmentDialog({
               </div>
             )}
           </div>
-        </DialogBody>
+        </div>
 
         <DialogFooter>
-          <Button variant="secondary" onClick={onClose}>
+          <Button size="sm" variant="outline" onClick={onClose}>
             Close
           </Button>
         </DialogFooter>

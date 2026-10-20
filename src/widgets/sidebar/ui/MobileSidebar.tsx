@@ -10,16 +10,15 @@ import {
   hasRoleAccess,
 } from "@/shared/lib/roles"
 import { cx, focusRing } from "@/shared/lib/utils"
+import { Button } from "@/components/ui/button"
 import {
-  Button,
-  Drawer,
-  DrawerBody,
-  DrawerClose,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/shared/ui"
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
 import { RiMenuLine } from "@/shared/ui/lucide-icons"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -99,11 +98,12 @@ export default function MobileSidebar({ children }: MobileSidebarProps) {
 
   return (
     <>
-      <Drawer>
-        <DrawerTrigger asChild>
+      <Sheet>
+        <SheetTrigger asChild>
           {children ?? (
             <Button
               variant="ghost"
+              size="sm"
               aria-label="open sidebar"
               className="group hover:bg-muted data-[state=open]:bg-muted dark:hover:bg-muted text-label-md flex items-center rounded-md p-2"
             >
@@ -113,12 +113,15 @@ export default function MobileSidebar({ children }: MobileSidebarProps) {
               />
             </Button>
           )}
-        </DrawerTrigger>
-        <DrawerContent className="sm:max-w-lg">
-          <DrawerHeader>
-            <DrawerTitle>Kretya Studio</DrawerTitle>
-          </DrawerHeader>
-          <DrawerBody>
+        </SheetTrigger>
+        <SheetContent
+          side="right"
+          className="data-[side=right]:w-[95vw] data-[side=right]:sm:max-w-lg"
+        >
+          <SheetHeader className="border-b p-4">
+            <SheetTitle>Kretya Studio</SheetTitle>
+          </SheetHeader>
+          <div className="flex-1 overflow-y-auto p-4">
             <nav
               aria-label="core mobile navigation links"
               className="flex flex-1 flex-col space-y-10"
@@ -136,7 +139,7 @@ export default function MobileSidebar({ children }: MobileSidebarProps) {
                 ) : (
                   drawerNavItems.map((item) => (
                     <li key={item.name}>
-                      <DrawerClose asChild>
+                      <SheetClose asChild>
                         <Link
                           href={item.href}
                           prefetch={false}
@@ -154,7 +157,7 @@ export default function MobileSidebar({ children }: MobileSidebarProps) {
                           />
                           {item.name}
                         </Link>
-                      </DrawerClose>
+                      </SheetClose>
                     </li>
                   ))
                 )}
@@ -180,7 +183,7 @@ export default function MobileSidebar({ children }: MobileSidebarProps) {
                   >
                     {shortcutItems.map((item) => (
                       <li key={item.name}>
-                        <DrawerClose asChild>
+                        <SheetClose asChild>
                           <Link
                             href={item.href}
                             prefetch={false}
@@ -198,16 +201,16 @@ export default function MobileSidebar({ children }: MobileSidebarProps) {
                             />
                             {item.name}
                           </Link>
-                        </DrawerClose>
+                        </SheetClose>
                       </li>
                     ))}
                   </ul>
                 </div>
               )}
             </nav>
-          </DrawerBody>
-        </DrawerContent>
-      </Drawer>
+          </div>
+        </SheetContent>
+      </Sheet>
     </>
   )
 }

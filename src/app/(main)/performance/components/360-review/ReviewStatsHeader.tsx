@@ -1,7 +1,11 @@
 "use client"
 
 import { getQuarterMonths, getRatingBadgeVariant } from "@/entities/performance/lib/performanceUtils"
-import { Badge, Card } from "@/shared/ui"
+import { Badge } from "@/components/ui/badge"
+import { Card } from "@/components/ui/card"
+
+const toBadgeVariant = (variant: ReturnType<typeof getRatingBadgeVariant>) =>
+  variant === "error" ? "destructive" : variant === "default" ? "secondary" : variant
 
 interface ReviewStatsHeaderProps {
   // Quarter Review Card
@@ -24,13 +28,13 @@ export function ReviewStatsHeader({
   return (
     <div className="grid grid-cols-1 gap-lg">
       {/* Quarter Review Card */}
-      <Card className="border-border bg-card rounded-lg border p-3">
+      <Card className="border-border bg-card gap-0 rounded-lg border p-3">
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2">
             <h3 className="text-label-sm text-muted-foreground">
               Quarter Review
             </h3>
-            <Badge variant="zinc" size="sm">
+            <Badge variant="secondary">
               {selectedQuarter}
             </Badge>
           </div>
@@ -46,7 +50,7 @@ export function ReviewStatsHeader({
       </Card>
 
       {/* Overall Score Card */}
-      <Card className="border-border bg-card rounded-lg border p-3">
+      <Card className="border-border bg-card gap-0 rounded-lg border p-3">
         <div className="flex flex-col gap-1">
           <h3 className="text-label-sm text-muted-foreground">
             Overall Score
@@ -62,7 +66,7 @@ export function ReviewStatsHeader({
               <p className="text-label-sm text-muted-foreground">
                 {overallScore.toFixed(1)}
               </p>
-              <Badge variant={getRatingBadgeVariant(ratingLevel)} size="sm">
+              <Badge variant={toBadgeVariant(getRatingBadgeVariant(ratingLevel))}>
                 {ratingLevel}
               </Badge>
             </div>

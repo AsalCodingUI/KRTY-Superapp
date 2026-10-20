@@ -1,4 +1,5 @@
-import { Label, TextInput } from "@/shared/ui"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 
 interface ProjectContextSectionProps {
   revenueUSD: string
@@ -27,49 +28,49 @@ export function ProjectContextSection({
       <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
         <div>
           <Label htmlFor="revenue">Revenue (USD)</Label>
-          <TextInput
+          <Input
             id="revenue"
             type="text"
             value={revenueUSD}
             onChange={(e) => onRevenueChange(e.target.value)}
             placeholder="e.g. 1,000"
-            className="mt-1"
+            className="mt-1 h-7"
           />
         </div>
 
         <div>
           <Label htmlFor="exchangeRate">Exchange Rate (IDR)</Label>
-          <TextInput
+          <Input
             id="exchangeRate"
             type="text"
             value={exchangeRate}
             onChange={(e) => onExchangeRateChange(e.target.value)}
             placeholder="e.g. 15,000"
-            className="mt-1"
+            className="mt-1 h-7"
           />
         </div>
 
         <div>
           <Label htmlFor="hours">Daily Workload (Hours)</Label>
-          <TextInput
+          <Input
             id="hours"
             type="number"
             value={hoursPerDay}
             onChange={(e) => onHoursPerDayChange(e.target.value)}
             placeholder="e.g. 8"
-            className="mt-1"
+            className="mt-1 h-7"
           />
         </div>
 
         <div>
           <Label htmlFor="targetMargin">Target Margin (%)</Label>
-          <TextInput
+          <Input
             id="targetMargin"
             type="number"
             value={targetMarginPercent}
             onChange={(e) => onTargetMarginChange(e.target.value)}
             placeholder="e.g. 40"
-            className="mt-1"
+            className="mt-1 h-7"
           />
         </div>
       </div>

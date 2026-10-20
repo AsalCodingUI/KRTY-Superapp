@@ -1,7 +1,7 @@
 "use client"
 
 import { RiCheckLine, RiCloseLine, RiQuestionLine } from "@/shared/ui/lucide-icons"
-import { Badge } from "@/shared/ui"
+import { Badge } from "@/components/ui/badge"
 
 export type RSVPStatus = "yes" | "no" | "maybe" | "pending"
 
@@ -33,7 +33,7 @@ export function EventStatus({
       case "no":
         return {
           label: "Declined",
-          variant: "error" as const,
+          variant: "destructive" as const,
           icon: <RiCloseLine className="size-3" />,
         }
       case "maybe":
@@ -46,7 +46,7 @@ export function EventStatus({
       default:
         return {
           label: "Pending",
-          variant: "zinc" as const,
+          variant: "secondary" as const,
           icon: <RiQuestionLine className="size-3" />,
         }
     }

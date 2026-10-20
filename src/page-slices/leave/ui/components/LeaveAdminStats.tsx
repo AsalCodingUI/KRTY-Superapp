@@ -1,6 +1,6 @@
 "use client"
 
-import { Card } from "@/shared/ui"
+import { Card } from "@/components/ui/card"
 import { isWithinInterval, parseISO, startOfDay } from "date-fns"
 import { LeaveRequestWithProfile } from "./AdminColumns"
 
@@ -44,7 +44,7 @@ export function LeaveAdminStats({
     <>
       <dl className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {data.map((item) => (
-          <Card key={item.name}>
+          <Card key={item.name} className="gap-0 p-4">
             <dt className="text-label-md text-muted-foreground">
               {item.name}
             </dt>

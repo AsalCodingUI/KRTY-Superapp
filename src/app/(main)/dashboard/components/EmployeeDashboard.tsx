@@ -1,15 +1,14 @@
 "use client"
 
 import dynamic from "next/dynamic"
+import { QuarterFilter, type QuarterFilterValue } from "@/components/quarter-filter"
 import {
-  QuarterFilter,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-  type QuarterFilterValue,
-} from "@/shared/ui"
+} from "@/components/ui/select"
 import { RiBarChartBoxLine } from "@/shared/ui/lucide-icons"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useMemo, useState } from "react"

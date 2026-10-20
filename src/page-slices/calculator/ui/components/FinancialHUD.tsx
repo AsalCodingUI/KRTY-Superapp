@@ -1,6 +1,7 @@
 "use client"
 
-import { Badge, Divider } from "@/shared/ui"
+import { Badge } from "@/components/ui/badge"
+import { Separator } from "@/components/ui/separator"
 import { RiAlertFill, RiCheckboxCircleFill } from "@/shared/ui/lucide-icons"
 
 interface FinancialHUDProps {
@@ -49,7 +50,7 @@ export function FinancialHUD({
           </span>
           <Badge
             variant={
-              isHealthy ? "success" : marginPercent > 0 ? "warning" : "error"
+              isHealthy ? "success" : marginPercent > 0 ? "warning" : "destructive"
             }
           >
             {marginPercent.toFixed(1)}% Margin
@@ -57,7 +58,7 @@ export function FinancialHUD({
         </div>
       </div>
 
-      <Divider className="my-6" />
+      <Separator className="my-6" />
 
       <ul role="list" className="space-y-3">
         <li className="flex items-center justify-between">

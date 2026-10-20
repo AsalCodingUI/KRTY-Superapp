@@ -2,37 +2,37 @@
 
 import { createClient } from "@/shared/api/supabase/client"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
-import { cx } from "@/shared/lib/utils"
+import { AvatarGroup, AvatarOverflow } from "@/components/avatar-group"
+import { ConfirmDialog } from "@/components/confirm-dialog"
+import { EmptyState } from "@/components/empty-state"
+import { TableSection } from "@/components/table-section"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import {
-  Avatar,
-  AvatarGroup,
-  AvatarOverflow,
-  Badge,
-  Button,
   Dialog,
-  DialogBody,
-  DialogCloseButton,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  Drawer,
-  DrawerBody,
-  DrawerClose,
-  DrawerContent,
-  DrawerTitle,
-  EmptyState,
+} from "@/components/ui/dialog"
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetTitle,
+} from "@/components/ui/sheet"
+import { Spinner } from "@/components/ui/spinner"
+import {
   Table,
   TableBody,
   TableCell,
   TableHead,
-  TableHeaderCell,
+  TableHeader,
   TableRow,
-  TableSection,
-  Spinner,
-  Tooltip,
-} from "@/shared/ui"
+} from "@/components/ui/table"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { cn } from "@/lib/utils"
 import { RiCloseLine, RiTeamLine } from "@/shared/ui/lucide-icons"
-import { ConfirmDialog } from "@/shared/ui/overlay/ConfirmDialog"
 import { format, isValid } from "date-fns"
 import Link from "next/link"
 import { useMemo, useRef, useState } from "react"
@@ -62,7 +62,7 @@ const getProjectStatusVariant = (status: string | null) => {
   const normalized = (status || "").toLowerCase()
   if (normalized === "active") return "success" as const
   if (normalized === "completed") return "info" as const
-  return "zinc" as const
+  return "secondary" as const
 }
 
 export function LeadReviewTab() {
@@ -239,7 +239,7 @@ export function LeadReviewTab() {
     <TableSection title="Team KPI">
       {loading || profileLoading ? (
         <div className="flex items-center justify-center py-12">
-          <Spinner size="md" />
+          <Spinner className="size-8" />
         </div>
       ) : projects.length === 0 ? (
         <EmptyState
@@ -251,14 +251,14 @@ export function LeadReviewTab() {
       ) : (
         <div className="space-y-4">
           <Table>
-            <TableHead>
+            <TableHeader>
               <TableRow className="h-[40px] hover:bg-transparent">
-                <TableHeaderCell>Project</TableHeaderCell>
-                <TableHeaderCell>Quarter</TableHeaderCell>
-                <TableHeaderCell>Timeline</TableHeaderCell>
-                <TableHeaderCell>Team</TableHeaderCell>
+                <TableHead>Project</TableHead>
+                <TableHead>Quarter</TableHead>
+                <TableHead>Timeline</TableHead>
+                <TableHead>Team</TableHead>
               </TableRow>
-            </TableHead>
+            </TableHeader>
             <TableBody>
               {projects.map((project) => {
                 const startDate = project.start_date
@@ -284,7 +284,7 @@ export function LeadReviewTab() {
                   <TableRow
                     key={project.id}
                     onClick={() => setSelectedProjectId(project.id)}
-                    className={cx(
+                    className={cn(
                       "group cursor-pointer transition-colors",
                       isSelected
                         ? "bg-accent"
@@ -301,7 +301,6 @@ export function LeadReviewTab() {
                         </span>
                         {project.status && (
                           <Badge
-                            size="sm"
                             variant={getProjectStatusVariant(project.status)}
                           >
                             {project.status}
@@ -327,23 +326,24 @@ export function LeadReviewTab() {
                       ) : (
                         <AvatarGroup>
                           {visibleMembers.map((member) => (
-                            <Tooltip
-                              key={member.id}
-                              content={member.name || "-"}
-                              side="top"
-                              triggerAsChild
-                            >
-                              <Link
-                                href={`/performance/employee/${member.id}`}
-                                className="block"
-                                onClick={(event) => event.stopPropagation()}
-                              >
-                                <Avatar
-                                  size="xs"
-                                  src={member.avatar || undefined}
-                                  initials={member.name?.[0] || "?"}
-                                />
-                              </Link>
+                            <Tooltip key={member.id}>
+                              <TooltipTrigger asChild>
+                                <Link
+                                  href={`/performance/employee/${member.id}`}
+                                  className="block"
+                                  onClick={(event) => event.stopPropagation()}
+                                >
+                                  <Avatar className="size-5">
+                                    <AvatarImage src={member.avatar || undefined} />
+                                    <AvatarFallback className="text-xs">
+                                      {member.name?.[0] || "?"}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                </Link>
+                              </TooltipTrigger>
+                              <TooltipContent side="top">
+                                {member.name || "-"}
+                              </TooltipContent>
                             </Tooltip>
                           ))}
                           {remainingCount > 0 && (
@@ -358,25 +358,29 @@ export function LeadReviewTab() {
             </TableBody>
           </Table>
 
-          <Drawer
+          <Sheet
             open={Boolean(selectedProject)}
             onOpenChange={(open) => {
               if (!open) setSelectedProjectId(null)
             }}
           >
-            <DrawerContent className="fixed inset-0 z-50 flex flex-col overflow-y-auto bg-card p-0 sm:inset-y-6 sm:left-auto sm:right-6 sm:w-[560px] sm:max-w-[560px] sm:rounded-xl sm:border sm:border-border sm:shadow-regular-md">
+            <SheetContent
+              side="right"
+              showCloseButton={false}
+              className="flex flex-col gap-0 overflow-y-auto bg-card p-0 data-[side=right]:w-full sm:data-[side=right]:inset-y-6 sm:data-[side=right]:right-6 sm:data-[side=right]:h-auto sm:data-[side=right]:w-[560px] sm:data-[side=right]:max-w-[560px] sm:rounded-xl sm:border sm:border-border sm:shadow-regular-md"
+            >
               <div className="relative pl-5 pr-xl pb-lg pt-5">
-                <DrawerTitle className="pr-12">
+                <SheetTitle className="pr-12">
                   {selectedProject?.name || "Project Detail"}
-                </DrawerTitle>
-                <DrawerClose
+                </SheetTitle>
+                <SheetClose
                   className="absolute right-[var(--padding-xl)] top-[var(--padding-xl)] inline-flex items-center justify-center rounded-md p-md text-muted-foreground/70 transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                   aria-label="Close"
                 >
                   <RiCloseLine className="size-[14px]" />
-                </DrawerClose>
+                </SheetClose>
               </div>
-              <DrawerBody className="space-y-4 bg-card p-5">
+              <div className="flex-1 space-y-4 bg-card p-5">
                 {selectedProject && (
                   <>
                     <div className="space-y-4">
@@ -395,7 +399,7 @@ export function LeadReviewTab() {
                           Status
                         </p>
                         {selectedProject.status ? (
-                          <Badge size="sm" variant="zinc">
+                          <Badge variant="secondary">
                             {selectedProject.status}
                           </Badge>
                         ) : (
@@ -440,34 +444,35 @@ export function LeadReviewTab() {
                         />
                       ) : (
                         <Table>
-                          <TableHead>
+                          <TableHeader>
                             <TableRow className="h-[40px] hover:bg-transparent">
-                              <TableHeaderCell className="min-w-0">
+                              <TableHead className="min-w-0">
                                 Member
-                              </TableHeaderCell>
-                              <TableHeaderCell className="w-[1%] whitespace-nowrap">
+                              </TableHead>
+                              <TableHead className="w-[1%] whitespace-nowrap">
                                 Role
-                              </TableHeaderCell>
-                              <TableHeaderCell className="w-[1%] whitespace-nowrap">
+                              </TableHead>
+                              <TableHead className="w-[1%] whitespace-nowrap">
                                 Action
-                              </TableHeaderCell>
+                              </TableHead>
                             </TableRow>
-                          </TableHead>
+                          </TableHeader>
                           <TableBody>
                             {selectedProject.members.map((member) => (
                               <TableRow key={member.id}>
                                 <TableCell className="min-w-0 align-top">
                                   <div className="flex items-center gap-2">
-                                    <Avatar
-                                      size="xs"
-                                      src={member.avatar || undefined}
-                                      initials={member.name?.[0] || "?"}
-                                    />
+                                    <Avatar className="size-5">
+                                      <AvatarImage src={member.avatar || undefined} />
+                                      <AvatarFallback className="text-xs">
+                                        {member.name?.[0] || "?"}
+                                      </AvatarFallback>
+                                    </Avatar>
                                     <span className="text-foreground truncate max-w-[140px]">
                                       {member.name || "-"}
                                     </span>
                                     {member.isLead && (
-                                      <Badge size="sm" variant="info">
+                                      <Badge variant="info">
                                         Lead
                                       </Badge>
                                     )}
@@ -484,7 +489,7 @@ export function LeadReviewTab() {
                                   ) : (
                                     <Button
                                       type="button"
-                                      variant="secondary"
+                                      variant="outline"
                                       size="sm"
                                       onClick={() => handleOpenReview(member)}
                                     >
@@ -500,9 +505,9 @@ export function LeadReviewTab() {
                     </TableSection>
                   </>
                 )}
-              </DrawerBody>
-            </DrawerContent>
-          </Drawer>
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
       )}
 
@@ -518,17 +523,16 @@ export function LeadReviewTab() {
           }
         }}
       >
-        <DialogContent className="max-h-[90vh] w-[calc(100%-2rem)] max-w-6xl overflow-y-auto">
+        <DialogContent className="max-h-[90vh] w-[calc(100%-2rem)] overflow-y-auto sm:max-w-6xl">
           <DialogHeader>
             <DialogTitle className="sr-only">
               Review KPI {reviewTarget?.memberName || ""}
             </DialogTitle>
-            <DialogCloseButton />
           </DialogHeader>
-          <DialogBody>
+          <div>
             {reviewLoading ? (
               <div className="flex items-center justify-center py-12">
-                <Spinner size="md" />
+                <Spinner className="size-8" />
               </div>
             ) : reviewAssignment ? (
               <ProjectScoringClient
@@ -548,7 +552,7 @@ export function LeadReviewTab() {
                 description="Assignment data is unavailable for this member."
               />
             )}
-          </DialogBody>
+          </div>
         </DialogContent>
       </Dialog>
 

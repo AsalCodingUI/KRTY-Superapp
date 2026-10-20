@@ -12,30 +12,30 @@ import {
 import { getAttendanceLogLocalDate, getLocalDateString } from "@/shared/lib/date"
 import { canManageByRole } from "@/shared/lib/roles"
 import { Database } from "@/shared/types/database.types"
+import { ConfirmDialog } from "@/components/confirm-dialog"
+import { DataTable } from "@/components/data-table"
+import { DatePicker } from "@/components/date-picker"
+import { TabNavigation, TabNavigationLink } from "@/components/tab-navigation"
+import { Button } from "@/components/ui/button"
 import {
-  Button,
-  ConfirmDialog,
-  DatePicker,
   Dialog,
-  DialogBody,
   DialogClose,
-  DialogCloseButton,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  Label,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-  TabNavigation,
-  TabNavigationLink,
-  Textarea,
-  TextInput,
-} from "@/shared/ui"
-import { DataTable } from "@/shared/ui/data/DataTable"
+} from "@/components/ui/select"
+import { Spinner } from "@/components/ui/spinner"
+import { Textarea } from "@/components/ui/textarea"
 import { RiCalendarCheckLine } from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
@@ -571,12 +571,11 @@ export function StakeholderLeavePage({
       />
 
       <Dialog open={manualModalOpen} onOpenChange={setManualModalOpen}>
-        <DialogContent className="max-h-[90vh] sm:max-w-lg">
+        <DialogContent className="flex max-h-[90vh] flex-col sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>Add Leave Manually</DialogTitle>
-            <DialogCloseButton />
           </DialogHeader>
-          <DialogBody className="space-y-4 overflow-y-auto">
+          <div className="min-h-0 space-y-4 overflow-y-auto">
             <div>
               <Label htmlFor="manual-user">Employee</Label>
               <Select
@@ -585,7 +584,7 @@ export function StakeholderLeavePage({
                   setManualForm((prev) => ({ ...prev, user_id: value }))
                 }
               >
-                <SelectTrigger id="manual-user" className="mt-2">
+                <SelectTrigger size="sm" id="manual-user" className="mt-2 w-full">
                   <SelectValue placeholder="Select employee" />
                 </SelectTrigger>
                 <SelectContent>
@@ -641,7 +640,7 @@ export function StakeholderLeavePage({
                     }))
                   }
                 >
-                  <SelectTrigger id="manual-leave-type" className="mt-2">
+                  <SelectTrigger size="sm" id="manual-leave-type" className="mt-2 w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -662,7 +661,7 @@ export function StakeholderLeavePage({
                     }))
                   }
                 >
-                  <SelectTrigger id="manual-status" className="mt-2">
+                  <SelectTrigger size="sm" id="manual-status" className="mt-2 w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -712,9 +711,9 @@ export function StakeholderLeavePage({
 
             <div>
               <Label htmlFor="manual-proof-url">Proof URL</Label>
-              <TextInput
+              <Input
                 id="manual-proof-url"
-                className="mt-2"
+                className="mt-2 h-7"
                 placeholder="https://..."
                 value={manualForm.proof_url}
                 onChange={(e) =>
@@ -725,12 +724,13 @@ export function StakeholderLeavePage({
                 }
               />
             </div>
-          </DialogBody>
+          </div>
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="ghost">Cancel</Button>
+              <Button size="sm" variant="ghost">Cancel</Button>
             </DialogClose>
-            <Button onClick={handleManualSubmit} isLoading={manualSaving}>
+            <Button size="sm" disabled={manualSaving} onClick={handleManualSubmit}>
+              {manualSaving && <Spinner data-icon="inline-start" />}
               Save Manual Request
             </Button>
           </DialogFooter>

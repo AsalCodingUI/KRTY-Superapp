@@ -1,4 +1,4 @@
-import { Skeleton } from "@/shared/ui"
+import { Skeleton } from "@/components/ui/skeleton"
 
 export default function CalendarLoading() {
   return (

@@ -8,18 +8,18 @@ import {
   mapPercentageToScore,
   type Milestone,
 } from "@/entities/performance/lib/kpiCalculations"
+import { EmptyState } from "@/components/empty-state"
+import { TableSection } from "@/components/table-section"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import {
-  Badge,
-  Button,
-  EmptyState,
   Table,
   TableBody,
   TableCell,
   TableHead,
-  TableHeaderCell,
+  TableHeader,
   TableRow,
-  TableSection,
-} from "@/shared/ui"
+} from "@/components/ui/table"
 import {
   RiArrowLeftLine,
   RiCheckLine,
@@ -190,7 +190,7 @@ export function EmployeeProjectView({
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <Badge variant="zinc">Read-Only View</Badge>
+                <Badge variant="secondary">Read-Only View</Badge>
                 <Badge variant="info">{assignment.projects.quarter_id}</Badge>
                 <Badge variant="info">{assignment.role_in_project}</Badge>
               </div>
@@ -207,7 +207,7 @@ export function EmployeeProjectView({
                 <dd className="text-heading-md text-foreground">
                   {totalPercentage.toFixed(1)}%
                 </dd>
-                <Badge size="sm" className={`${getScoreColor(finalScore)}`}>
+                <Badge variant="secondary" className={`${getScoreColor(finalScore)}`}>
                   {getScoreLabel(finalScore)}
                 </Badge>
               </div>
@@ -221,7 +221,7 @@ export function EmployeeProjectView({
                   {competencies.filter((c) => c.isAchieved).length}/
                   {competencies.length}
                 </dd>
-                <Badge size="sm" className={`${getScoreColor(mapPercentageToScore(qualityPercentage))}`}>
+                <Badge variant="secondary" className={`${getScoreColor(mapPercentageToScore(qualityPercentage))}`}>
                   {getScoreLabel(mapPercentageToScore(qualityPercentage))}
                 </Badge>
               </div>
@@ -232,20 +232,20 @@ export function EmployeeProjectView({
           <div className="grid grid-cols-1 gap-5 lg:grid-cols-10">
             <TableSection title="SLA Calculation" className="lg:col-span-7">
               <Table>
-                <TableHead>
+                <TableHeader>
                   <TableRow>
-                    <TableHeaderCell>Milestone</TableHeaderCell>
-                    <TableHeaderCell className="text-center">
+                    <TableHead>Milestone</TableHead>
+                    <TableHead className="text-center">
                       Weight (%)
-                    </TableHeaderCell>
-                    <TableHeaderCell className="text-center">
+                    </TableHead>
+                    <TableHead className="text-center">
                       Result
-                    </TableHeaderCell>
-                    <TableHeaderCell className="text-center">
+                    </TableHead>
+                    <TableHead className="text-center">
                       Real Achieve
-                    </TableHeaderCell>
+                    </TableHead>
                   </TableRow>
-                </TableHead>
+                </TableHeader>
                 <TableBody>
                   {milestones.map((milestone, index) => (
                     <TableRow key={index}>
@@ -287,12 +287,12 @@ export function EmployeeProjectView({
 
             <TableSection title="Parameter" className="lg:col-span-3">
               <Table>
-                <TableHead>
+                <TableHeader>
                   <TableRow>
-                    <TableHeaderCell>Status</TableHeaderCell>
-                    <TableHeaderCell>%</TableHeaderCell>
+                    <TableHead>Status</TableHead>
+                    <TableHead>%</TableHead>
                   </TableRow>
-                </TableHead>
+                </TableHeader>
                 <TableBody>
                   <TableRow>
                     <TableCell>Faster</TableCell>
@@ -327,15 +327,15 @@ export function EmployeeProjectView({
             ) : (
               <div className="overflow-x-auto">
                 <Table>
-                  <TableHead>
+                  <TableHeader>
                     <TableRow>
-                      <TableHeaderCell className="w-[200px]">Competency</TableHeaderCell>
-                      <TableHeaderCell className="min-w-[520px]">Description</TableHeaderCell>
-                      <TableHeaderCell className="w-[140px] text-center">
+                      <TableHead className="w-[200px]">Competency</TableHead>
+                      <TableHead className="min-w-[520px]">Description</TableHead>
+                      <TableHead className="w-[140px] text-center">
                         Status
-                      </TableHeaderCell>
+                      </TableHead>
                     </TableRow>
-                  </TableHead>
+                  </TableHeader>
                   <TableBody>
                     {competencies.map((comp) => (
                       <TableRow key={comp.id}>
@@ -350,7 +350,7 @@ export function EmployeeProjectView({
                               Achieved
                             </Badge>
                           ) : (
-                            <Badge variant="zinc">
+                            <Badge variant="secondary">
                               <RiCloseLine className="mr-1 size-3.5" />
                               Not Achieved
                             </Badge>

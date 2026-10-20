@@ -4,16 +4,17 @@ import { LeaveFormData, LeaveRequestForm } from "@/features/leave-request/ui/Lea
 import { createClient } from "@/shared/api/supabase/client"
 import { calculateBusinessDays } from "@/shared/lib/date"
 import { Database } from "@/shared/types/database.types"
+import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import {
-  Button, Checkbox, Dialog,
-  DialogBody,
+  Dialog,
   DialogClose,
-  DialogCloseButton,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/shared/ui"
+} from "@/components/ui/dialog"
+import { Spinner } from "@/components/ui/spinner"
 import imageCompression from "browser-image-compression"
 import { useRouter } from "next/navigation"
 import { differenceInCalendarDays, format, startOfDay } from "date-fns"
@@ -387,11 +388,16 @@ export function LeaveRequestModal({
       return (
         <>
           <DialogClose asChild>
-            <Button variant="ghost" className="mt-2 w-full sm:mt-0 sm:w-fit">
+            <Button
+              size="sm"
+              variant="ghost"
+              className="mt-2 w-full sm:mt-0 sm:w-fit"
+            >
               Cancel
             </Button>
           </DialogClose>
           <Button
+            size="sm"
             className="w-full sm:w-fit"
             type="button"
             onClick={() => {
@@ -417,6 +423,7 @@ export function LeaveRequestModal({
       return (
         <>
           <Button
+            size="sm"
             variant="ghost"
             type="button"
             className="mt-2 w-full sm:mt-0 sm:w-fit"
@@ -425,6 +432,7 @@ export function LeaveRequestModal({
             Back
           </Button>
           <Button
+            size="sm"
             className="w-full sm:w-fit"
             type="button"
             onClick={() => setStep(3)}
@@ -439,6 +447,7 @@ export function LeaveRequestModal({
     return (
       <>
         <Button
+          size="sm"
           variant="ghost"
           type="button"
           className="mt-2 w-full sm:mt-0 sm:w-fit"
@@ -447,12 +456,13 @@ export function LeaveRequestModal({
           Check Again
         </Button>
         <Button
+          size="sm"
           className="w-full sm:w-fit"
           type="button"
           onClick={() => handleSubmit()}
-          isLoading={loading}
-          disabled={isInsufficientNotice}
+          disabled={isInsufficientNotice || loading}
         >
+          {loading && <Spinner data-icon="inline-start" />}
           Confirm & Submit
         </Button>
       </>
@@ -471,22 +481,21 @@ export function LeaveRequestModal({
   return (
     <Dialog open={isOpen} onOpenChange={(val) => !val && onClose()}>
       <DialogContent
-        className="max-h-[90vh] sm:max-w-lg"
+        className="flex max-h-[90vh] flex-col sm:max-w-lg"
         onPointerDownOutside={(e) => e.preventDefault()}
         onInteractOutside={(e) => e.preventDefault()}
       >
         <form
           onSubmit={(e) => e.preventDefault()}
-          className="flex min-h-0 flex-1 flex-col"
+          className="flex min-h-0 flex-1 flex-col gap-6"
         >
           <DialogHeader>
             <DialogTitle>{getTitle()}</DialogTitle>
-            <DialogCloseButton />
           </DialogHeader>
 
-          <DialogBody className="min-h-0 overflow-y-auto">
+          <div className="min-h-0 overflow-y-auto">
             {renderContent()}
-          </DialogBody>
+          </div>
 
           <DialogFooter>{renderFooter()}</DialogFooter>
         </form>

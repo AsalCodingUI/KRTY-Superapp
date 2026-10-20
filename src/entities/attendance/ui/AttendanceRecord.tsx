@@ -2,7 +2,9 @@
 
 import { differenceInSeconds, format } from "date-fns"
 import type { AttendanceLog } from "./types"
-import { Badge, Card } from "@/shared/ui"
+import { Badge } from "@/components/ui/badge"
+import { Card } from "@/components/ui/card"
+import { cn } from "@/lib/utils"
 
 export interface AttendanceRecordProps {
   log: AttendanceLog
@@ -36,7 +38,7 @@ export function AttendanceRecord({
   const isActive = !log.clock_out
 
   return (
-    <Card className={className}>
+    <Card className={cn("gap-0 p-4", className)}>
       <div className="space-y-3 p-4">
         {showDate && (
           <div className="flex items-center justify-between">
@@ -77,7 +79,7 @@ export function AttendanceRecord({
           <div className="border-border border-t pt-2">
             <div className="text-body-sm flex items-center justify-between">
               <span className="text-muted-foreground">Status</span>
-              <Badge variant={log.status === "Present" ? "default" : "warning"}>
+              <Badge variant={log.status === "Present" ? "secondary" : "warning"}>
                 {log.status}
               </Badge>
             </div>

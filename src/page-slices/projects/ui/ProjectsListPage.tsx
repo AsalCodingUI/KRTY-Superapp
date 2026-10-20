@@ -6,23 +6,20 @@ import { createClient } from "@/shared/api/supabase/client"
 import { useMountedTabs } from "@/shared/hooks/useMountedTabs"
 import { useTabRoute } from "@/shared/hooks/useTabRoute"
 import type { Database } from "@/shared/types/database.types"
+import { AvatarGroup, AvatarOverflow } from "@/components/avatar-group"
+import { DataTable, DataTableColumnHeader } from "@/components/data-table"
+import { TabNavigation, TabNavigationLink } from "@/components/tab-navigation"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import {
-  Avatar,
-  AvatarGroup,
-  AvatarOverflow,
-  Badge,
-  Button,
-  DataTable,
-  DataTableColumnHeader,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Spinner,
-  TabNavigation,
-  TabNavigationLink,
-} from "@/shared/ui"
+} from "@/components/ui/select"
+import { Spinner } from "@/components/ui/spinner"
 import { RiArrowRightLine, RiFolderLine } from "@/shared/ui/lucide-icons"
 import { useQuery } from "@tanstack/react-query"
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table"
@@ -69,11 +66,11 @@ const projectColumnHelper = createColumnHelper<ProjectListItem>()
 
 const getStatusVariant = (
   status: ProjectStatus,
-): "success" | "info" | "zinc" => {
-  const variants: Record<ProjectStatus, "success" | "info" | "zinc"> = {
+): "success" | "info" | "secondary" => {
+  const variants: Record<ProjectStatus, "success" | "info" | "secondary"> = {
     Active: "success",
     Completed: "info",
-    Archived: "zinc",
+    Archived: "secondary",
   }
   return variants[status]
 }
@@ -173,17 +170,16 @@ function ProjectsTableContent({ projects }: { projects: ProjectListItem[] }) {
           return teamMembers.length > 0 ? (
             <AvatarGroup>
               {teamMembers.slice(0, 3).map((member) => (
-                <Avatar
-                  key={member.id}
-                  src={member.image}
-                  alt={member.name}
-                  size="sm"
-                  initials={member.name
-                    .split(" ")
-                    .map((part) => part[0])
-                    .join("")
-                    .slice(0, 2)}
-                />
+                <Avatar key={member.id} className="size-7">
+                  <AvatarImage src={member.image} alt={member.name} />
+                  <AvatarFallback className="text-label-xs">
+                    {member.name
+                      .split(" ")
+                      .map((part) => part[0])
+                      .join("")
+                      .slice(0, 2)}
+                  </AvatarFallback>
+                </Avatar>
               ))}
               {teamMembers.length > 3 && (
                 <AvatarOverflow count={teamMembers.length - 3} size="sm" />
@@ -201,7 +197,7 @@ function ProjectsTableContent({ projects }: { projects: ProjectListItem[] }) {
           <div className="flex justify-end">
             <Button
               size="icon-sm"
-              variant="tertiary"
+              variant="ghost"
               onClick={() => router.push(`/projects/${row.original.id}`)}
               title="Open Project"
             >
@@ -387,7 +383,7 @@ export function ProjectsListPage() {
         <section className="px-5 py-2">
           {isProjectsLoading || isSLAsLoading || isCalculationsLoading ? (
             <div className="flex items-center justify-center py-8">
-              <Spinner size="md" />
+              <Spinner className="size-8" />
             </div>
           ) : (
             <ProjectsStats projectStats={projectStats} />
@@ -441,7 +437,7 @@ export function ProjectsListPage() {
             >
               {isProjectsLoading ? (
                 <div className="flex items-center justify-center py-12">
-                  <Spinner size="md" />
+                  <Spinner className="size-8" />
                 </div>
               ) : (
                 <ProjectsTab projects={projectsData || []} />
@@ -456,7 +452,7 @@ export function ProjectsListPage() {
                 isOperationalCostsLoading ||
                 isCalculatorProjectsLoading ? (
                 <div className="flex items-center justify-center py-12">
-                  <Spinner size="md" />
+                  <Spinner className="size-8" />
                 </div>
               ) : (
                 <CalculatorTab
@@ -472,7 +468,7 @@ export function ProjectsListPage() {
             <div className={activeTab === "sla" ? "block space-y-5" : "hidden space-y-5"}>
               {isSLAsLoading ? (
                 <div className="flex items-center justify-center py-12">
-                  <Spinner size="md" />
+                  <Spinner className="size-8" />
                 </div>
               ) : (
                 <div>

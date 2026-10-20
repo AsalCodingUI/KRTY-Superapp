@@ -3,9 +3,9 @@
 import { Database } from "@/shared/types/database.types"
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table"
 import { format } from "date-fns"
-import { Badge } from "@/shared/ui"
-import { Button } from "@/shared/ui"
-import { DataTableColumnHeader } from "@/shared/ui"
+import { DataTableColumnHeader } from "@/components/data-table"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 
 type AttendanceLog = Database["public"]["Tables"]["attendance_logs"]["Row"]
 
@@ -103,7 +103,7 @@ export const columns = (onRequestDelete?: (id: string) => void) =>
       cell: ({ row }) => {
         const status = row.getValue("status") as string
         return (
-          <Badge variant={status === "Cuti Masuk" ? "warning" : "zinc"}>
+          <Badge variant={status === "Cuti Masuk" ? "warning" : "secondary"}>
             {status}
           </Badge>
         )
@@ -117,7 +117,7 @@ export const columns = (onRequestDelete?: (id: string) => void) =>
         if (!onRequestDelete) return null
         return (
           <Button
-            variant="tertiary"
+            variant="ghost"
             size="sm"
             onClick={() => onRequestDelete(row.original.id)}
           >

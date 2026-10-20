@@ -1,14 +1,16 @@
 "use client"
 
 import { Database } from "@/shared/types/database.types"
+import { DataTable } from "@/components/data-table"
+import { EmptyState } from "@/components/empty-state"
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-  Badge, Button,
-  DataTable, EmptyState,
-} from "@/shared/ui"
+} from "@/components/ui/accordion"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { RiCalendarLine } from "@/shared/ui/lucide-icons"
 import { format, isToday } from "date-fns"
 import { useEffect, useMemo, useState } from "react"
@@ -158,7 +160,7 @@ export function AdminAttendanceHistoryList({
       {groupedLogs.length > visibleDays && (
         <div className="flex justify-center">
           <Button
-            variant="secondary"
+            variant="outline"
             size="sm"
             onClick={() => setVisibleDays((prev) => prev + 14)}
           >

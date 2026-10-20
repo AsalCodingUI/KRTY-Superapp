@@ -15,23 +15,22 @@ import { createClient } from "@/shared/api/supabase/client"
 import { useMountedTabs } from "@/shared/hooks/useMountedTabs"
 import { useTabRoute } from "@/shared/hooks/useTabRoute"
 import type { Database } from "@/shared/types/database.types"
+import { ConfirmDialog } from "@/components/confirm-dialog"
+import { EmptyState } from "@/components/empty-state"
+import { SegmentedControl } from "@/components/segmented-control"
+import { TabNavigation, TabNavigationLink } from "@/components/tab-navigation"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
 import {
-  Avatar,
-  Badge,
-  Button,
-  Card,
-  ConfirmDialog,
-  EmptyState,
-  SegmentedControl,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Spinner,
-  TabNavigation,
-  TabNavigationLink,
-} from "@/shared/ui"
+} from "@/components/ui/select"
+import { Spinner } from "@/components/ui/spinner"
 import {
   RiAddLine,
   RiArrowLeftLine,
@@ -88,11 +87,11 @@ type ProjectDetail = {
 
 const getStatusVariant = (
   status: ProjectStatus,
-): "success" | "info" | "zinc" => {
-  const variants: Record<ProjectStatus, "success" | "info" | "zinc"> = {
+): "success" | "info" | "secondary" => {
+  const variants: Record<ProjectStatus, "success" | "info" | "secondary"> = {
     Active: "success",
     Completed: "info",
-    Archived: "zinc",
+    Archived: "secondary",
   }
   return variants[status]
 }
@@ -107,7 +106,7 @@ function ProjectOverviewContent({ project }: { project: ProjectDetail }) {
     })) || []
 
   return (
-    <Card className="space-y-5">
+    <Card className="gap-0 space-y-5 p-4">
       <div className="space-y-2">
         <p className="text-label-sm text-muted-foreground">Project name</p>
         <p className="text-body-md text-foreground font-medium">
@@ -151,16 +150,16 @@ function ProjectOverviewContent({ project }: { project: ProjectDetail }) {
           <div className="space-y-3">
             {teamMembers.map((member) => (
               <div key={member.id} className="flex items-center gap-3">
-                <Avatar
-                  src={member.image}
-                  alt={member.name}
-                  size="sm"
-                  initials={member.name
-                    .split(" ")
-                    .map((part) => part[0])
-                    .join("")
-                    .slice(0, 2)}
-                />
+                <Avatar className="size-7">
+                  <AvatarImage src={member.image} alt={member.name} />
+                  <AvatarFallback className="text-label-xs">
+                    {member.name
+                      .split(" ")
+                      .map((part) => part[0])
+                      .join("")
+                      .slice(0, 2)}
+                  </AvatarFallback>
+                </Avatar>
                 <div className="min-w-0">
                   <p className="text-body-sm text-foreground truncate font-medium">
                     {member.name}
@@ -211,7 +210,7 @@ function CalculationsTabContent({ projectId }: { projectId: string }) {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Spinner size="md" />
+        <Spinner className="size-8" />
       </div>
     )
   }
@@ -229,7 +228,7 @@ function CalculationsTabContent({ projectId }: { projectId: string }) {
           {calculations.map((calculation) => (
             <Card
               key={calculation.id}
-              className="flex items-center justify-between gap-3"
+              className="flex-row items-center justify-between gap-3 p-4"
             >
               <div className="min-w-0 flex-1">
                 <p className="text-body-sm text-foreground truncate font-medium">
@@ -241,7 +240,7 @@ function CalculationsTabContent({ projectId }: { projectId: string }) {
               </div>
               <div className="flex items-center gap-2">
                 <Button
-                  variant="tertiary"
+                  variant="ghost"
                   size="icon-sm"
                   title="Edit Calculation"
                   onClick={() =>
@@ -253,7 +252,7 @@ function CalculationsTabContent({ projectId }: { projectId: string }) {
                   <RiEdit2Line className="size-3.5" />
                 </Button>
                 <Button
-                  variant="tertiary"
+                  variant="ghost"
                   size="icon-sm"
                   title="Delete Calculation"
                   onClick={() => setPendingDeleteId(calculation.id)}
@@ -320,7 +319,7 @@ function SLAsTabContent({ projectId }: { projectId: string }) {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Spinner size="md" />
+        <Spinner className="size-8" />
       </div>
     )
   }
@@ -338,7 +337,7 @@ function SLAsTabContent({ projectId }: { projectId: string }) {
           {slas.map((sla) => (
             <Card
               key={sla.id}
-              className="flex items-center justify-between gap-3"
+              className="flex-row items-center justify-between gap-3 p-4"
             >
               <div className="min-w-0 flex-1">
                 <p className="text-body-sm text-foreground truncate font-medium">
@@ -353,7 +352,7 @@ function SLAsTabContent({ projectId }: { projectId: string }) {
               </div>
               <div className="flex items-center gap-2">
                 <Button
-                  variant="tertiary"
+                  variant="ghost"
                   size="icon-sm"
                   title="Edit SLA"
                   onClick={() =>
@@ -363,7 +362,7 @@ function SLAsTabContent({ projectId }: { projectId: string }) {
                   <RiEdit2Line className="size-3.5" />
                 </Button>
                 <Button
-                  variant="tertiary"
+                  variant="ghost"
                   size="icon-sm"
                   title="Delete SLA"
                   onClick={() => setPendingDeleteId(sla.id)}
@@ -463,7 +462,7 @@ function FinanceTabContent({ projectId }: { projectId: string }) {
           <div className="space-y-4">
             {isLoading ? (
               <div className="flex items-center justify-center py-12">
-                <Spinner size="md" />
+                <Spinner className="size-8" />
               </div>
             ) : invoices.length === 0 ? (
               <EmptyState
@@ -483,7 +482,7 @@ function FinanceTabContent({ projectId }: { projectId: string }) {
                 {invoices.map((inv) => (
                   <Card
                     key={inv.id}
-                    className="flex items-center justify-between gap-3"
+                    className="flex-row items-center justify-between gap-3 p-4"
                   >
                     <div className="min-w-0 flex-1">
                       <p className="text-body-sm text-foreground truncate font-medium">
@@ -503,13 +502,13 @@ function FinanceTabContent({ projectId }: { projectId: string }) {
                         variant={
                           INVOICE_STATUS_VARIANTS[
                             inv.status as InvoiceStatus
-                          ] || "zinc"
+                          ] || "secondary"
                         }
                       >
                         {inv.status}
                       </Badge>
                       <Button
-                        variant="tertiary"
+                        variant="ghost"
                         size="icon-sm"
                         title="Edit Invoice"
                         onClick={() => {
@@ -520,7 +519,7 @@ function FinanceTabContent({ projectId }: { projectId: string }) {
                         <RiEdit2Line className="size-3.5" />
                       </Button>
                       <Button
-                        variant="tertiary"
+                        variant="ghost"
                         size="icon-sm"
                         title="Delete Invoice"
                         onClick={() => setPendingDeleteId(inv.id)}
@@ -537,7 +536,7 @@ function FinanceTabContent({ projectId }: { projectId: string }) {
         )}
 
         {subTab === "quotation" && (
-          <Card>
+          <Card className="gap-0 p-4">
             <EmptyState
               icon={<RiFileList3Line className="size-5" />}
               title="Quotation is coming soon"
@@ -545,7 +544,7 @@ function FinanceTabContent({ projectId }: { projectId: string }) {
               placement="inner"
             />
             <div className="flex justify-center pb-6">
-              <Badge variant="zinc">Planned</Badge>
+              <Badge variant="secondary">Planned</Badge>
             </div>
           </Card>
         )}
@@ -609,7 +608,7 @@ export function ProjectDetailPage({ project }: { project: ProjectDetail }) {
   return (
     <div className="flex flex-col">
       <div className="rounded-xxl flex items-center gap-2 px-5 pt-4 pb-3">
-        <Button variant="secondary" size="sm" onClick={() => router.push("/projects")}>
+        <Button variant="outline" size="sm" onClick={() => router.push("/projects")}>
           <RiArrowLeftLine className="mr-2 size-4" />
           Back to Projects
         </Button>
