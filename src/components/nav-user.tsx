@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/sidebar"
 import {
   Bell as BellIcon,
-  ChevronsUpDown as ChevronsUpDownIcon,
+  Settings as SettingsIcon,
   Logout as LogOutIcon,
   MessageCircle as MessageCircleIcon,
 } from "@/components/icons"
@@ -58,22 +58,19 @@ export function NavUser({
             // the profile loads, which shifted Base UI's generated ids.
             id="nav-user-menu-trigger"
             render={
-              <SidebarMenuButton className="aria-expanded:bg-sidebar-accent h-8" />
+              <SidebarMenuButton className="aria-expanded:bg-sidebar-accent size-8! justify-center p-0!" />
             }
           >
-            <Avatar className="size-5">
+            <Avatar className="size-6">
               <AvatarImage src={user.avatar} alt={user.name} />
-              <AvatarFallback className="text-[10px]">
-                {initials}
-              </AvatarFallback>
+              <AvatarFallback className="text-xs">{initials}</AvatarFallback>
             </Avatar>
-            <span className="flex-1 truncate font-medium">{user.name}</span>
-            <ChevronsUpDownIcon className="text-muted-foreground ml-auto size-3.5" />
+            <span className="sr-only">{user.name}</span>
           </DropdownMenuTrigger>
           <DropdownMenuContent
-            className="w-(--anchor-width) min-w-56 rounded-lg"
-            side="bottom"
-            align="start"
+            className="min-w-56 rounded-lg"
+            side="right"
+            align="end"
             sideOffset={4}
           >
             <DropdownMenuGroup>
@@ -95,6 +92,10 @@ export function NavUser({
               <DropdownMenuItem render={<Link href="/notifications" />}>
                 <BellIcon />
                 Notifications
+              </DropdownMenuItem>
+              <DropdownMenuItem render={<Link href="/settings/general" />}>
+                <SettingsIcon />
+                Settings
               </DropdownMenuItem>
               {contactHref && (
                 <DropdownMenuItem

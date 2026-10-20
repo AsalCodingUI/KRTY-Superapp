@@ -8,14 +8,17 @@ import {
 } from "@/components/ui/breadcrumb"
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
-import { navigationConfig } from "@/shared/config/navigation"
+import { workspaces } from "@/shared/config/workspaces"
 import { Notifications } from "@/widgets/notifications/ui/Notifications"
 import { usePathname } from "next/navigation"
 
 /** Current section name, taken from the navigation config (fallback: path). */
 function useSectionTitle() {
   const pathname = usePathname()
-  const items = [...navigationConfig.main, ...navigationConfig.footer]
+  const items = workspaces.flatMap((ws) => [
+    ...ws.items({ role: "stakeholder", is_super_admin: true }),
+    ...ws.items({ role: "employee" }),
+  ])
   const match = items
     .filter(
       (item) => pathname === item.href || pathname.startsWith(`${item.href}/`),
