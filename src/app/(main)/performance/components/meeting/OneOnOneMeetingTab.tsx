@@ -467,7 +467,7 @@ export function OneOnOneMeetingTab({
         </Table>
 
         {isAdmin && editingSlotId && (
-          <div className="border-neutral-primary bg-surface-neutral-primary mt-4 rounded-lg border p-3">
+          <div className="border-border bg-card mt-4 rounded-lg border p-3">
             <div className="grid grid-cols-1 gap-lg md:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)_minmax(0,1fr)_auto] md:items-end">
               <div className="flex flex-col gap-2">
                 <Label>Tanggal</Label>

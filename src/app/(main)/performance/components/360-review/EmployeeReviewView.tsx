@@ -217,7 +217,7 @@ export function EmployeeReviewView({
                     <span className="font-medium">Executive Summary</span>
                   </AccordionTrigger>
                   <AccordionContent>
-                    <p className="text-foreground-secondary text-body-sm whitespace-pre-line">
+                    <p className="text-muted-foreground text-body-sm whitespace-pre-line">
                       {result.summary.additional}
                     </p>
                   </AccordionContent>
@@ -228,7 +228,7 @@ export function EmployeeReviewView({
                     <span className="font-medium">Keep Doing</span>
                   </AccordionTrigger>
                   <AccordionContent>
-                    <p className="text-foreground-secondary text-body-sm whitespace-pre-line">
+                    <p className="text-muted-foreground text-body-sm whitespace-pre-line">
                       {result.summary.strength}
                     </p>
                   </AccordionContent>
@@ -239,7 +239,7 @@ export function EmployeeReviewView({
                     <span className="font-medium">Start Doing</span>
                   </AccordionTrigger>
                   <AccordionContent>
-                    <p className="text-foreground-secondary text-body-sm whitespace-pre-line">
+                    <p className="text-muted-foreground text-body-sm whitespace-pre-line">
                       {result.summary.growth}
                     </p>
                   </AccordionContent>
@@ -250,7 +250,7 @@ export function EmployeeReviewView({
                     <span className="font-medium">Stop Doing</span>
                   </AccordionTrigger>
                   <AccordionContent>
-                    <p className="text-foreground-secondary text-body-sm whitespace-pre-line">
+                    <p className="text-muted-foreground text-body-sm whitespace-pre-line">
                       {result.summary.stop}
                     </p>
                   </AccordionContent>
@@ -270,7 +270,7 @@ export function EmployeeReviewView({
               />
 
               <Card>
-                <h3 className="text-label-sm text-foreground-secondary mb-4 font-medium">
+                <h3 className="text-label-sm text-muted-foreground mb-4 font-medium">
                   Competency Matrix
                 </h3>
                 <div className="flex justify-center">
@@ -285,9 +285,9 @@ export function EmployeeReviewView({
                   />
                 </div>
                 {skillRatings && (
-                  <div className="border-neutral-primary space-y-3 border-t pt-4">
+                  <div className="border-border space-y-3 border-t pt-4">
                     <div className="flex items-center justify-between">
-                      <span className="text-label-sm text-foreground-secondary">
+                      <span className="text-label-sm text-muted-foreground">
                         Leadership
                       </span>
                       <Badge
@@ -297,7 +297,7 @@ export function EmployeeReviewView({
                       </Badge>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-label-sm text-foreground-secondary">
+                      <span className="text-label-sm text-muted-foreground">
                         Quality
                       </span>
                       <Badge variant={getRatingBadgeVariant(skillRatings.quality)}>
@@ -305,7 +305,7 @@ export function EmployeeReviewView({
                       </Badge>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-label-sm text-foreground-secondary">
+                      <span className="text-label-sm text-muted-foreground">
                         Reliability
                       </span>
                       <Badge
@@ -315,7 +315,7 @@ export function EmployeeReviewView({
                       </Badge>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-label-sm text-foreground-secondary">
+                      <span className="text-label-sm text-muted-foreground">
                         Communication
                       </span>
                       <Badge
@@ -325,7 +325,7 @@ export function EmployeeReviewView({
                       </Badge>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-label-sm text-foreground-secondary">
+                      <span className="text-label-sm text-muted-foreground">
                         Initiative
                       </span>
                       <Badge

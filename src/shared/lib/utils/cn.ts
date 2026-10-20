@@ -88,7 +88,7 @@ export const focusRing = [
   // base
   "outline-none ring-0 focus-visible:ring-2 focus-visible:ring-offset-2",
   // ring color - explicit css var to ensure correct color
-  "focus-visible:ring-[var(--border-brand-light)]",
+  "focus-visible:ring-[var(--ring)]",
 ]
 
 // Tremor Raw hasErrorInput [v0.0.1]

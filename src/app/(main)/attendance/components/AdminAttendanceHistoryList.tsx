@@ -100,12 +100,12 @@ export function AdminAttendanceHistoryList({
                 <div className="flex w-full items-center justify-between pr-4">
                   <div className="flex flex-col items-start sm:flex-row sm:items-center sm:gap-3">
                     <span
-                      className="text-label-md text-foreground-primary"
+                      className="text-label-md text-foreground"
                       suppressHydrationWarning
                     >
                       {format(dateObj, "eeee, dd MMMM yyyy")}
                       {isCurrentDay && (
-                        <span className="text-body-xs ml-2 text-foreground-brand-primary">
+                        <span className="text-body-xs ml-2 text-primary">
                           (Today)
                         </span>
                       )}
@@ -113,9 +113,9 @@ export function AdminAttendanceHistoryList({
                   </div>
 
                   <div className="flex items-center gap-3">
-                    <div className="text-body-sm text-foreground-secondary flex items-center gap-2">
+                    <div className="text-body-sm text-muted-foreground flex items-center gap-2">
                       <span className="hidden sm:inline">Present:</span>
-                      <span className="text-foreground-primary font-medium">
+                      <span className="text-foreground font-medium">
                         {totalPresent}
                       </span>
                     </div>

@@ -66,8 +66,8 @@ export const MilestonesForm = ({ data, onChange }: MilestonesFormProps) => {
   }) => (
     <div className="mt-4 space-y-4">
       <div className="flex items-center justify-between">
-        <h4 className="text-label-md text-foreground-primary">{title}</h4>
-        <div className="text-label-xs text-foreground-secondary">
+        <h4 className="text-label-md text-foreground">{title}</h4>
+        <div className="text-label-xs text-muted-foreground">
           Total:{" "}
           {data[mKey].reduce(
             (acc, item) => acc + (parseInt(item.time) || 0),
@@ -80,12 +80,12 @@ export const MilestonesForm = ({ data, onChange }: MilestonesFormProps) => {
       {data[mKey].map((item, index) => (
         <div
           key={index}
-          className="bg-surface-neutral-primary border-neutral-primary group relative rounded-md border p-4"
+          className="bg-card border-border group relative rounded-md border p-4"
         >
           <Button
             variant="ghost"
             size="xs"
-            className="text-foreground-tertiary absolute top-2 right-2 h-8 w-8 p-0"
+            className="text-muted-foreground/70 absolute top-2 right-2 h-8 w-8 p-0"
             onClick={() => deleteItem(mKey, index)}
           >
             <RiDeleteBinLine className="h-4 w-4" />
@@ -120,7 +120,7 @@ export const MilestonesForm = ({ data, onChange }: MilestonesFormProps) => {
                   }
                   className="pr-8"
                 />
-                <span className="text-body-xs text-foreground-secondary absolute top-2 right-2">
+                <span className="text-body-xs text-muted-foreground absolute top-2 right-2">
                   d
                 </span>
               </div>
@@ -143,7 +143,7 @@ export const MilestonesForm = ({ data, onChange }: MilestonesFormProps) => {
       <Button
         variant="secondary"
         onClick={() => addItem(mKey)}
-        className="border-neutral-primary hover:border-foreground-tertiary w-full border-dashed"
+        className="border-border hover:border-muted-foreground/70 w-full border-dashed"
       >
         <RiAddLine className="mr-2 h-4 w-4" /> Add Deliverable
       </Button>
@@ -153,7 +153,7 @@ export const MilestonesForm = ({ data, onChange }: MilestonesFormProps) => {
   return (
     <div>
       <div className="mb-4">
-        <h3 className="text-label-md text-foreground-primary">
+        <h3 className="text-label-md text-foreground">
           Milestones & Timeline
         </h3>
       </div>

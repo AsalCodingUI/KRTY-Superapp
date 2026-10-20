@@ -39,7 +39,7 @@ export const A4Card = ({
 
   return (
     <div
-      className={`a4-card ${className} rounded-none ${shadow ? "shadow-sm-border" : ""} bg-surface`}
+      className={`a4-card ${className} rounded-none ${shadow ? "shadow-sm-border" : ""} bg-card`}
       style={{
         width: dimensions.width,
         height: dimensions.height,

@@ -51,15 +51,15 @@ export function SidebarFooter() {
               className={cx(
                 "text-label-sm flex items-center gap-2 rounded-md px-2 py-1 transition-colors duration-200",
                 isActive(item.href)
-                  ? "bg-surface-neutral-secondary text-content"
-                  : "text-content-subtle hover:bg-surface-neutral-secondary/50 hover:text-content",
+                  ? "bg-muted text-foreground"
+                  : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
                 focusRing,
               )}
             >
               <item.icon
                 className={cx(
                   "size-4 shrink-0",
-                  isActive(item.href) ? "text-content" : "text-content-subtle",
+                  isActive(item.href) ? "text-foreground" : "text-muted-foreground",
                 )}
                 aria-hidden="true"
               />
@@ -73,12 +73,12 @@ export function SidebarFooter() {
         type="button"
         onClick={handleSignOut}
         className={cx(
-          "text-label-sm flex items-center gap-2 rounded-md px-2 py-1 transition-colors duration-200 text-content-subtle hover:bg-surface-neutral-secondary/50 hover:text-content",
+          "text-label-sm flex items-center gap-2 rounded-md px-2 py-1 transition-colors duration-200 text-muted-foreground hover:bg-muted/50 hover:text-foreground",
           focusRing,
         )}
       >
         <RiLogoutBoxLine
-          className="size-4 shrink-0 text-content-subtle"
+          className="size-4 shrink-0 text-muted-foreground"
           aria-hidden="true"
         />
         Logout

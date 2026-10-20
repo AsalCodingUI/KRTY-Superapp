@@ -212,30 +212,30 @@ export function StakeholderAttendancePage({
       <div className="flex flex-col">
         {showHeader && (
           <div className="flex items-center gap-2 rounded-xxl px-5 pt-4 pb-3">
-            <RiCalendarLine className="size-4 text-foreground-secondary" />
-            <p className="text-label-md text-foreground-primary">
+            <RiCalendarLine className="size-4 text-muted-foreground" />
+            <p className="text-label-md text-foreground">
               Attendance Overview
             </p>
           </div>
         )}
 
-        <div className="flex flex-col rounded-xxl bg-surface-neutral-primary">
+        <div className="flex flex-col rounded-xxl bg-card">
           <div className="space-y-4 p-5">
             {/* Summary Cards (Fokus Hari Ini) */}
             <div className="grid gap-lg sm:grid-cols-2">
               <Card className="px-4 py-3">
-                <dt className="text-label-sm text-foreground-secondary">
+                <dt className="text-label-sm text-muted-foreground">
                   Present Today
                 </dt>
-                <dd className="text-heading-md text-foreground-primary mt-2">
+                <dd className="text-heading-md text-foreground mt-2">
                   {todaysLogs.length}
                 </dd>
               </Card>
               <Card className="px-4 py-3">
-                <dt className="text-label-sm text-foreground-secondary">
+                <dt className="text-label-sm text-muted-foreground">
                   Currently Active
                 </dt>
-                <dd className="text-heading-md text-foreground-primary mt-2">
+                <dd className="text-heading-md text-foreground mt-2">
                   {todaysLogs.filter((l) => !l.clock_out).length}
                 </dd>
               </Card>
@@ -243,7 +243,7 @@ export function StakeholderAttendancePage({
 
             {/* Accordion List */}
             <div className="space-y-4">
-              <h3 className="text-heading-md text-foreground-primary">
+              <h3 className="text-heading-md text-foreground">
                 Attendance History
               </h3>
               <AdminAttendanceHistoryList

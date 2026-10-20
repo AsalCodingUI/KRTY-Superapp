@@ -315,7 +315,7 @@ export function EventDialog({
           <DialogBody className="space-y-5 overflow-y-auto">
             {/* Event Title & Type */}
             <div className="flex items-start justify-between gap-4">
-              <h3 className="text-heading-sm text-foreground-primary break-words">
+              <h3 className="text-heading-sm text-foreground break-words">
                 {event.title}
               </h3>
                 <Badge
@@ -328,29 +328,29 @@ export function EventDialog({
             </div>
 
             {/* Date & Time */}
-            <div className="bg-surface-neutral-secondary border-neutral-primary grid grid-cols-2 gap-4 rounded-lg border p-4">
+            <div className="bg-muted border-border grid grid-cols-2 gap-4 rounded-lg border p-4">
               <div>
-                <p className="text-label-sm text-foreground-secondary mb-1">
+                <p className="text-label-sm text-muted-foreground mb-1">
                   Mulai
                 </p>
-                <p className="text-body-sm text-foreground-primary">
+                <p className="text-body-sm text-foreground">
                   {format(event.start, "dd MMM yyyy", { locale: id })}
                 </p>
                 {!event.allDay && (
-                  <p className="text-body-sm text-foreground-secondary mt-0.5">
+                  <p className="text-body-sm text-muted-foreground mt-0.5">
                     {format(event.start, "HH:mm")}
                   </p>
                 )}
               </div>
               <div>
-                <p className="text-label-sm text-foreground-secondary mb-1">
+                <p className="text-label-sm text-muted-foreground mb-1">
                   Selesai
                 </p>
-                <p className="text-body-sm text-foreground-primary">
+                <p className="text-body-sm text-foreground">
                   {format(event.end, "dd MMM yyyy", { locale: id })}
                 </p>
                 {!event.allDay && (
-                  <p className="text-body-sm text-foreground-secondary mt-0.5">
+                  <p className="text-body-sm text-muted-foreground mt-0.5">
                     {format(event.end, "HH:mm")}
                   </p>
                 )}
@@ -360,8 +360,8 @@ export function EventDialog({
             {/* Location */}
             {event.location && (
               <div className="space-y-2">
-                <p className="text-label-sm text-foreground-secondary">Lokasi</p>
-                <p className="text-body-sm text-foreground-primary break-words">
+                <p className="text-label-sm text-muted-foreground">Lokasi</p>
+                <p className="text-body-sm text-foreground break-words">
                   {event.location}
                 </p>
               </div>
@@ -369,16 +369,16 @@ export function EventDialog({
 
             {/* Description */}
             {event.description && (
-              <div className="border-neutral-primary space-y-2 border-t pt-4">
-                <p className="text-label-sm text-foreground-secondary">Deskripsi</p>
-                <p className="text-body-sm text-foreground-primary break-words whitespace-pre-wrap">
+              <div className="border-border space-y-2 border-t pt-4">
+                <p className="text-label-sm text-muted-foreground">Deskripsi</p>
+                <p className="text-body-sm text-foreground break-words whitespace-pre-wrap">
                   {event.description}
                 </p>
               </div>
             )}
 
             {/* Action buttons for read-only view */}
-            <div className="border-neutral-primary flex items-center justify-end gap-2 border-t pt-4">
+            <div className="border-border flex items-center justify-end gap-2 border-t pt-4">
               <Button
                 type="button"
                 variant="secondary"
@@ -504,7 +504,7 @@ export function EventDialog({
                     )}
                   </div>
                   {errors.start && (
-                    <p className="text-foreground-danger-dark text-body-xs mt-1">
+                    <p className="text-destructive text-body-xs mt-1">
                       {errors.start.message}
                     </p>
                   )}
@@ -571,7 +571,7 @@ export function EventDialog({
                     )}
                   </div>
                   {errors.end && (
-                    <p className="text-foreground-danger-dark text-body-xs mt-1">
+                    <p className="text-destructive text-body-xs mt-1">
                       {errors.end.message}
                     </p>
                   )}
@@ -604,13 +604,13 @@ export function EventDialog({
               {/* Recurrence hidden for now */}
 
               {/* Actions */}
-              <div className="border-neutral-primary flex items-center justify-between border-t pt-4">
+              <div className="border-border flex items-center justify-between border-t pt-4">
                 <div className="flex-1">
                   {!readOnly && event && onDelete && (
                     <>
                       {isDeletePending ? (
                         <div className="animate-fadeIn flex items-center gap-2">
-                          <span className="text-foreground-danger-dark text-label-md">
+                          <span className="text-destructive text-label-md">
                             Yakin hapus?
                           </span>
                           <Button
@@ -637,7 +637,7 @@ export function EventDialog({
                           variant="secondary"
                           onClick={handleDeleteClick}
                           disabled={loading}
-                          className="text-foreground-danger-dark hover:bg-surface-danger-light"
+                          className="text-destructive hover:bg-destructive/10"
                         >
                           <RiDeleteBinLine className="mr-2 h-4 w-4" />
                           Hapus

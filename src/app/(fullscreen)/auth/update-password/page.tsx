@@ -48,12 +48,12 @@ export default function UpdatePasswordPage() {
   }
 
   return (
-    <div className="bg-surface flex min-h-screen flex-1 flex-col justify-center px-4 lg:px-6">
+    <div className="bg-card flex min-h-screen flex-1 flex-col justify-center px-4 lg:px-6">
       <div className="w-full">
-        <h3 className="text-heading-md text-content dark:text-content mt-6 text-center">
+        <h3 className="text-heading-md text-foreground dark:text-foreground mt-6 text-center">
           Update your password
         </h3>
-        <p className="text-body-sm text-content-muted mt-2 text-center">
+        <p className="text-body-sm text-muted-foreground/70 mt-2 text-center">
           Please enter your new password below.
         </p>
 
@@ -68,7 +68,7 @@ export default function UpdatePasswordPage() {
 
             {/* Error Message */}
             {error && (
-              <div className="bg-danger/10 text-body-sm text-danger ring-danger/20 rounded-md p-3 ring-1 ring-inset">
+              <div className="bg-destructive/10 text-body-sm text-destructive ring-destructive/20 rounded-md p-3 ring-1 ring-inset">
                 {error}
               </div>
             )}
@@ -76,7 +76,7 @@ export default function UpdatePasswordPage() {
             <div>
               <Label
                 htmlFor="password"
-                className="text-label-md text-content dark:text-content"
+                className="text-label-md text-foreground dark:text-foreground"
               >
                 New Password
               </Label>
@@ -97,7 +97,7 @@ export default function UpdatePasswordPage() {
             <div>
               <Label
                 htmlFor="confirm-password"
-                className="text-label-md text-content dark:text-content"
+                className="text-label-md text-foreground dark:text-foreground"
               >
                 Confirm Password
               </Label>
@@ -120,7 +120,7 @@ export default function UpdatePasswordPage() {
             </Button>
           </form>
 
-          <p className="text-body-sm text-content-muted mt-6 text-center">
+          <p className="text-body-sm text-muted-foreground/70 mt-6 text-center">
             Remember your password?{" "}
             <a
               href="/login"

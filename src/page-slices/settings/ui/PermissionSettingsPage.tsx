@@ -228,7 +228,7 @@ export default function PermissionSettingsPage({
   if (profileLoading) {
     return (
       <section className="flex flex-col items-center justify-center py-16 text-center">
-        <p className="text-foreground-secondary text-body-sm">
+        <p className="text-muted-foreground text-body-sm">
           Loading permissions...
         </p>
       </section>
@@ -238,11 +238,11 @@ export default function PermissionSettingsPage({
   if (!isSuperAdmin) {
     return (
       <section className="flex flex-col items-center justify-center py-16 text-center">
-        <RiLockLine className="text-foreground-secondary mb-3 size-8" />
-        <h3 className="text-label-md text-foreground-primary">
+        <RiLockLine className="text-muted-foreground mb-3 size-8" />
+        <h3 className="text-label-md text-foreground">
           Access Restricted
         </h3>
-        <p className="text-foreground-secondary text-body-sm mt-1">
+        <p className="text-muted-foreground text-body-sm mt-1">
           Only Super Admins can manage user permissions.
         </p>
       </section>
@@ -255,8 +255,8 @@ export default function PermissionSettingsPage({
       </div>
 
       {isImpersonating && effectiveProfile && authProfile && (
-        <div className="mt-4 flex items-center justify-between rounded-md border border-neutral-primary bg-surface-warning-light px-3 py-2">
-          <p className="text-body-sm text-foreground-warning-on-color">
+        <div className="mt-4 flex items-center justify-between rounded-md border border-border bg-warning/10 px-3 py-2">
+          <p className="text-body-sm text-warning">
             Viewing as <strong>{effectiveProfile.full_name || effectiveProfile.email || "User"}</strong>
           </p>
           <Button
@@ -270,7 +270,7 @@ export default function PermissionSettingsPage({
         </div>
       )}
 
-      <ul role="list" className="mt-6 divide-y divide-neutral-primary">
+      <ul role="list" className="mt-6 divide-y divide-border">
         {profiles.map((user) => {
           const initials = user.full_name
             ? user.full_name
@@ -303,7 +303,7 @@ export default function PermissionSettingsPage({
                     className="shrink-0"
                   />
                   <div className="truncate">
-                    <p className="text-foreground-primary text-label-md flex items-center gap-1.5 truncate">
+                    <p className="text-foreground text-label-md flex items-center gap-1.5 truncate">
                       {user.full_name || "Unknown User"}
                       {user.is_super_admin && (
                         <Badge variant="info" size="sm">
@@ -311,7 +311,7 @@ export default function PermissionSettingsPage({
                         </Badge>
                       )}
                     </p>
-                    <p className="text-foreground-secondary text-body-xs truncate">
+                    <p className="text-muted-foreground text-body-xs truncate">
                       {user.email}
                     </p>
                   </div>
@@ -353,7 +353,7 @@ export default function PermissionSettingsPage({
 
                   {/* Job Title */}
                   <div className="w-full sm:w-40">
-                    <span className="text-foreground-secondary text-body-xs mb-1 block sm:hidden">
+                    <span className="text-muted-foreground text-body-xs mb-1 block sm:hidden">
                       Job Title
                     </span>
                     <Select
@@ -378,7 +378,7 @@ export default function PermissionSettingsPage({
 
                   {/* Role */}
                   <div className="w-full sm:w-36">
-                    <span className="text-foreground-secondary text-body-xs mb-1 block sm:hidden">
+                    <span className="text-muted-foreground text-body-xs mb-1 block sm:hidden">
                       Role
                     </span>
                     <Select
@@ -417,7 +417,7 @@ export default function PermissionSettingsPage({
               {/* ── Expanded page permissions ── */}
               {isExpanded && (
                 <div className="py-4">
-                  <p className="text-foreground-secondary text-label-xs mb-3">
+                  <p className="text-muted-foreground text-label-xs mb-3">
                     Page Access
                   </p>
                   <div className="grid gap-2 sm:grid-cols-2">
@@ -431,13 +431,13 @@ export default function PermissionSettingsPage({
                       return (
                         <div
                           key={page.slug}
-                          className="border-neutral-primary bg-surface-neutral-primary flex items-center justify-between rounded-md border px-3 py-2"
+                          className="border-border bg-card flex items-center justify-between rounded-md border px-3 py-2"
                         >
                           <div className="min-w-0 pr-3">
-                            <p className="text-label-xs text-foreground-primary truncate">
+                            <p className="text-label-xs text-foreground truncate">
                               {page.label}
                             </p>
-                            <p className="text-body-xs text-foreground-tertiary truncate">
+                            <p className="text-body-xs text-muted-foreground/70 truncate">
                               {page.slug}
                             </p>
                           </div>
@@ -474,7 +474,7 @@ export default function PermissionSettingsPage({
                       )
                     })}
                   </div>
-                  <p className="text-foreground-tertiary text-body-xs mt-3">
+                  <p className="text-muted-foreground/70 text-body-xs mt-3">
                     Toggle each page directly. Allowed = on, Denied = off.
                   </p>
                 </div>

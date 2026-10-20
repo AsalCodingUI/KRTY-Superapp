@@ -256,19 +256,19 @@ export default function SLAContainer({
   return (
     <div className="flex flex-col">
       <div className="flex items-center gap-2 rounded-xxl px-5 pt-4 pb-3 print:hidden">
-        <RiFileList3Line className="size-4 text-foreground-secondary" />
-        <p className="text-label-md text-foreground-primary">
+        <RiFileList3Line className="size-4 text-muted-foreground" />
+        <p className="text-label-md text-foreground">
           {slaId ? "Edit SLA" : "Create SLA"}
         </p>
       </div>
 
-      <div className="bg-surface-neutral-primary flex h-full w-full flex-col overflow-hidden rounded-xxl lg:flex-row print:bg-white">
+      <div className="bg-card flex h-full w-full flex-col overflow-hidden rounded-xxl lg:flex-row print:bg-white">
         {/* --- LEFT PANEL: EDITOR (Scrollable) --- */}
         <div
-          className={`border-neutral-primary bg-surface flex h-full w-full flex-col border-r lg:w-1/2 print:hidden ${activeTab === "preview" ? "hidden lg:flex" : "flex"}`}
+          className={`border-border bg-card flex h-full w-full flex-col border-r lg:w-1/2 print:hidden ${activeTab === "preview" ? "hidden lg:flex" : "flex"}`}
         >
           {/* Header */}
-          <div className="border-neutral-primary bg-surface sticky top-0 z-10 flex items-center justify-between border-b px-5 py-4">
+          <div className="border-border bg-card sticky top-0 z-10 flex items-center justify-between border-b px-5 py-4">
             <div className="flex min-w-0 items-center gap-3">
               <Button
                 variant="ghost"
@@ -276,13 +276,13 @@ export default function SLAContainer({
                 className="p-2"
                 onClick={onBack ?? (() => router.back())}
               >
-                <RiArrowLeftLine className="text-foreground-tertiary h-5 w-5" />
+                <RiArrowLeftLine className="text-muted-foreground/70 h-5 w-5" />
               </Button>
               <div className="min-w-0">
-                <p className="text-label-md text-foreground-primary truncate">
+                <p className="text-label-md text-foreground truncate">
                   {slaId ? "Edit SLA" : "New SLA"}
                 </p>
-                <p className="text-body-sm text-foreground-secondary truncate">
+                <p className="text-body-sm text-muted-foreground truncate">
                   {clientInfo.company || "Untitled Project"}
                 </p>
               </div>
@@ -332,7 +332,7 @@ export default function SLAContainer({
           {/* Form Content */}
           <div className="flex-1 space-y-5 overflow-y-auto p-5">
             <section className="space-y-4">
-              <h3 className="text-label-md text-foreground-primary">
+              <h3 className="text-label-md text-foreground">
                 Client Information
               </h3>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -407,7 +407,7 @@ export default function SLAContainer({
             <Divider />
 
             <section className="space-y-4">
-              <h3 className="text-label-md text-foreground-primary">
+              <h3 className="text-label-md text-foreground">
                 Agency Information
               </h3>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -494,11 +494,11 @@ export default function SLAContainer({
 
         {/* --- RIGHT PANEL: PREVIEW --- */}
         <div
-          className={`bg-surface-neutral-primary flex h-full w-full flex-col lg:w-1/2 print:block print:w-full ${activeTab === "editor" ? "hidden lg:flex" : "flex"}`}
+          className={`bg-card flex h-full w-full flex-col lg:w-1/2 print:block print:w-full ${activeTab === "editor" ? "hidden lg:flex" : "flex"}`}
         >
           {/* Mobile Header for Preview */}
-          <div className="border-neutral-primary bg-surface flex items-center justify-between border-b px-5 py-4 lg:hidden print:hidden">
-            <span className="text-label-md text-foreground-primary">
+          <div className="border-border bg-card flex items-center justify-between border-b px-5 py-4 lg:hidden print:hidden">
+            <span className="text-label-md text-foreground">
               PDF Preview
             </span>
             <div className="flex gap-2">

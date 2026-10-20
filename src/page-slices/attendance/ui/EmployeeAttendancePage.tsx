@@ -320,11 +320,11 @@ export function EmployeeAttendancePage({
   return (
     <div className="flex flex-col">
       <div className="flex items-center gap-2 rounded-xxl px-5 pt-4 pb-3">
-        <RiCalendarCheckLine className="size-4 text-foreground-secondary" />
-        <p className="text-label-md text-foreground-primary">Attendance</p>
+        <RiCalendarCheckLine className="size-4 text-muted-foreground" />
+        <p className="text-label-md text-foreground">Attendance</p>
       </div>
 
-      <div className="flex flex-col rounded-xxl bg-surface-neutral-primary">
+      <div className="flex flex-col rounded-xxl bg-card">
         <div className="space-y-4 p-5">
           <AttendanceStats
             profile={profile}
@@ -337,7 +337,7 @@ export function EmployeeAttendancePage({
           />
 
           <div>
-            <h3 className="text-heading-md text-foreground-primary mb-3">
+            <h3 className="text-heading-md text-foreground mb-3">
               Attendance History
             </h3>
             <AttendanceHistoryList
@@ -356,7 +356,7 @@ export function EmployeeAttendancePage({
             <DialogCloseButton />
           </DialogHeader>
           <DialogBody>
-            <p className="text-body-sm text-foreground-secondary">
+            <p className="text-body-sm text-muted-foreground">
               Apakah Anda yakin ingin menghapus catatan kehadiran ini?
               Permintaan akan direview oleh stakeholder.
             </p>

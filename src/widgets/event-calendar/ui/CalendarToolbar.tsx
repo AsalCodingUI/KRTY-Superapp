@@ -60,7 +60,7 @@ export function CalendarToolbar({
             >
               <button className="flex items-center gap-sm">
                 <span>{currentViewLabel}</span>
-                <RiArrowDownSLine className="text-foreground-secondary size-4 shrink-0" />
+                <RiArrowDownSLine className="text-muted-foreground size-4 shrink-0" />
               </button>
             </Button>
           </DropdownMenuTrigger>
@@ -96,7 +96,7 @@ export function CalendarToolbar({
 
       <div className="flex items-center gap-lg">
         <div className="hidden items-center gap-2 sm:flex">
-          <span className="text-label-sm text-foreground-secondary">
+          <span className="text-label-sm text-muted-foreground">
             Google Kalender
           </span>
           {isLoading ? (

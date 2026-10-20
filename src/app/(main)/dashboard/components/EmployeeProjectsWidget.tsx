@@ -29,9 +29,9 @@ export function EmployeeProjectsWidget({
 }: EmployeeProjectsWidgetProps) {
   if (projects.length === 0) {
     return (
-      <div className="border-neutral-primary rounded-lg border p-4">
+      <div className="border-border rounded-lg border p-4">
         {showHeader && (
-          <h3 className="text-label-md text-foreground-primary mb-4">
+          <h3 className="text-label-md text-foreground mb-4">
             Active Projects
           </h3>
         )}
@@ -48,7 +48,7 @@ export function EmployeeProjectsWidget({
   return (
 
 
-    <div className="border-neutral-primary divide-neutral-primary overflow-hidden rounded-lg border divide-y">
+    <div className="border-border divide-border overflow-hidden rounded-lg border divide-y">
       {projects.slice(0, 5).map((project, index) => {
         const endDate = new Date(project.end_date)
         const endDateValid = isValid(endDate)
@@ -70,7 +70,7 @@ export function EmployeeProjectsWidget({
             <div className="flex items-start justify-between gap-4 px-3 py-2">
               <div className="min-w-0 flex-1">
                 <div className="mb-1 flex items-center gap-2">
-                  <h4 className="text-foreground-primary text-label-md truncate">
+                  <h4 className="text-foreground text-label-md truncate">
                     {project.name}
                   </h4>
                   <Badge variant="info" className="text-body-xs shrink-0">
@@ -78,16 +78,16 @@ export function EmployeeProjectsWidget({
                   </Badge>
                 </div>
 
-                <div className="text-body-xs text-foreground-secondary flex items-center gap-3">
+                <div className="text-body-xs text-muted-foreground flex items-center gap-3">
                   <div className="flex items-center gap-1">
                     <span>SLA:</span>
-                    <span className="text-foreground-primary font-medium">
+                    <span className="text-foreground font-medium">
                       {project.sla_percentage}%
                     </span>
                   </div>
                   <div className="flex items-center gap-1">
                     <RiCheckLine className="size-3" />
-                    <span className="text-foreground-primary font-medium">
+                    <span className="text-foreground font-medium">
                       {project.quality_achieved}/{project.quality_total}
                     </span>
                   </div>
@@ -103,11 +103,11 @@ export function EmployeeProjectsWidget({
                       Due in {daysUntilDeadline} days
                     </Badge>
                   ) : endDateValid ? (
-                    <span className="text-body-xs text-foreground-tertiary">
+                    <span className="text-body-xs text-muted-foreground/70">
                       Due {format(endDate, "MMM d, yyyy")}
                     </span>
                   ) : (
-                    <span className="text-body-xs text-foreground-tertiary">
+                    <span className="text-body-xs text-muted-foreground/70">
                       Due —
                     </span>
                   )}

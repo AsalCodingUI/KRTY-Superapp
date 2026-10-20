@@ -366,12 +366,12 @@ export function ProjectForm({
             {previewQuarter && (
               <div className="bg-primary/10 rounded-lg p-3">
                 <div className="flex items-center gap-2">
-                  <span className="text-label-md text-foreground-brand-primary">
+                  <span className="text-label-md text-primary">
                     Auto Quarter Assignment:
                   </span>
                   <QuarterBadge quarter={previewQuarter} />
                 </div>
-                <p className="text-body-xs text-foreground-brand-primary/80 mt-1">
+                <p className="text-body-xs text-primary/80 mt-1">
                   This project will be assigned to {previewQuarter} based on the
                   end date.
                 </p>
@@ -413,11 +413,11 @@ export function ProjectForm({
             {/* Team Assignment */}
             <div className="space-y-4">
                 {/* Section Header */}
-                <div className="border-neutral-primary border-t pt-4">
-                  <h4 className="text-label-md text-foreground-primary">
+                <div className="border-border border-t pt-4">
+                  <h4 className="text-label-md text-foreground">
                     Assign Team Members (Optional)
                   </h4>
-                  <p className="text-body-sm text-foreground-secondary mt-1">
+                  <p className="text-body-sm text-muted-foreground mt-1">
                     Add team members who will work on this project
                   </p>
                 </div>
@@ -466,7 +466,7 @@ export function ProjectForm({
                     {teamMembers.map((member) => (
                       <div
                         key={member.userId}
-                        className="border-neutral-primary bg-surface-neutral-primary flex items-center justify-between rounded-lg border p-2"
+                        className="border-border bg-card flex items-center justify-between rounded-lg border p-2"
                       >
                         <div className="flex items-center gap-2">
                           <Avatar
@@ -475,16 +475,16 @@ export function ProjectForm({
                             size="sm"
                           />
                           <div>
-                            <p className="text-label-md text-foreground-primary">
+                            <p className="text-label-md text-foreground">
                               {member.userName}
                             </p>
-                            <p className="text-body-xs text-foreground-secondary">
+                            <p className="text-body-xs text-muted-foreground">
                               {member.userJobTitle || "No job title"}
                             </p>
                           </div>
                         </div>
                         <div className="flex items-center gap-3">
-                          <label className="flex items-center gap-2 text-body-xs text-foreground-secondary">
+                          <label className="flex items-center gap-2 text-body-xs text-muted-foreground">
                             <Checkbox
                               checked={member.isLead}
                               onCheckedChange={(checked) =>
@@ -498,7 +498,7 @@ export function ProjectForm({
                             variant="ghost"
                             size="sm"
                             onClick={() => handleRemoveTeamMember(member)}
-                            className="text-foreground-danger hover:bg-surface-danger-light"
+                            className="text-destructive hover:bg-destructive/10"
                           >
                             <RiDeleteBin6Line className="size-4" />
                           </Button>
@@ -510,7 +510,7 @@ export function ProjectForm({
               </div>
           </DialogBody>
 
-          <DialogFooter className="sticky bottom-0 border-t border-neutral-primary bg-surface-neutral-primary">
+          <DialogFooter className="sticky bottom-0 border-t border-border bg-card">
             <Button
               type="button"
               variant="secondary"

@@ -52,7 +52,7 @@ function StarRating({
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <Label>{label}</Label>
-        <span className="text-label-xs text-foreground-secondary">
+        <span className="text-label-xs text-muted-foreground">
           {value > 0 ? value + "/5" : "—"}
         </span>
       </div>
@@ -63,7 +63,7 @@ function StarRating({
             type="button"
             onClick={() => onChange(star)}
             className={`p-1 transition-all hover:scale-110 focus:outline-none ${
-              star <= value ? "text-yellow-400" : "text-foreground-tertiary"
+              star <= value ? "text-yellow-400" : "text-muted-foreground/70"
             }`}
           >
             <RiStarFill className="size-6" />
@@ -88,18 +88,18 @@ function JustificationField({
   const trimmedLength = value.trim().length
 
   return (
-    <div className="bg-surface-neutral-secondary mt-3 rounded-lg p-3">
+    <div className="bg-muted mt-3 rounded-lg p-3">
       <div className="mb-2 flex items-center gap-2">
-        <RiInformationLine className="text-foreground-secondary size-4 shrink-0" />
+        <RiInformationLine className="text-muted-foreground size-4 shrink-0" />
         <div className="flex flex-1 items-center justify-between gap-3">
-          <p className="text-label-xs text-foreground-secondary">
+          <p className="text-label-xs text-muted-foreground">
             Why this rating for {label}?
           </p>
           <span
             className={`text-label-xs ${
               isComplete
-                ? "text-foreground-success"
-                : "text-foreground-secondary"
+                ? "text-success"
+                : "text-muted-foreground"
             }`}
           >
             {trimmedLength}/10
@@ -112,7 +112,7 @@ function JustificationField({
         onChange={(e) => onChange(e.target.value)}
         className="min-h-[60px]"
       />
-      <p className="text-body-xs text-foreground-secondary mt-2">
+      <p className="text-body-xs text-muted-foreground mt-2">
         Minimum 10 non-space characters.
       </p>
     </div>
@@ -240,7 +240,7 @@ export default function ReviewFormClientPage({
   ]
 
   return (
-    <div className="bg-surface min-h-screen">
+    <div className="bg-card min-h-screen">
       <Dialog open={showExitConfirm} onOpenChange={setShowExitConfirm}>
         <DialogContent>
           <DialogHeader>
@@ -248,7 +248,7 @@ export default function ReviewFormClientPage({
             <DialogCloseButton />
           </DialogHeader>
           <DialogBody>
-            <p className="text-body-sm text-foreground-secondary">
+            <p className="text-body-sm text-muted-foreground">
               Your progress will not be saved.
             </p>
           </DialogBody>
@@ -266,7 +266,7 @@ export default function ReviewFormClientPage({
         </DialogContent>
       </Dialog>
 
-      <div className="border-neutral-primary bg-surface sticky top-0 z-10 border-b">
+      <div className="border-border bg-card sticky top-0 z-10 border-b">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-14 items-center justify-between">
             <div className="flex items-center gap-3">
@@ -277,7 +277,7 @@ export default function ReviewFormClientPage({
               >
                 <RiArrowLeftLine className="size-4" />
               </Button>
-              <span className="text-label-md text-foreground-primary">
+              <span className="text-label-md text-foreground">
                 360 Review
               </span>
             </div>
@@ -291,10 +291,10 @@ export default function ReviewFormClientPage({
             <div className="sticky top-20">
               <Card className="space-y-4">
                 <div>
-                  <p className="text-label-md text-foreground-primary">
+                  <p className="text-label-md text-foreground">
                     Review Progress
                   </p>
-                  <p className="text-body-xs text-foreground-secondary mt-1">
+                  <p className="text-body-xs text-muted-foreground mt-1">
                     Complete all steps to submit
                   </p>
                 </div>
@@ -307,12 +307,12 @@ export default function ReviewFormClientPage({
                         className="flex items-center gap-3"
                       >
                         {step.complete ? (
-                          <div className="bg-surface-success flex size-6 shrink-0 items-center justify-center rounded-full">
-                            <RiCheckLine className="text-foreground-success size-4" />
+                          <div className="bg-success flex size-6 shrink-0 items-center justify-center rounded-full">
+                            <RiCheckLine className="text-success size-4" />
                           </div>
                         ) : (
-                          <div className="border-neutral-primary flex size-6 shrink-0 items-center justify-center rounded-full border-2">
-                            <span className="text-label-xs text-foreground-tertiary">
+                          <div className="border-border flex size-6 shrink-0 items-center justify-center rounded-full border-2">
+                            <span className="text-label-xs text-muted-foreground/70">
                               {step.number}
                             </span>
                           </div>
@@ -320,8 +320,8 @@ export default function ReviewFormClientPage({
                         <span
                           className={`text-label-sm ${
                             step.complete
-                              ? "text-foreground-primary font-medium"
-                              : "text-foreground-tertiary"
+                              ? "text-foreground font-medium"
+                              : "text-muted-foreground/70"
                           }`}
                         >
                           {step.label}
@@ -335,22 +335,22 @@ export default function ReviewFormClientPage({
 
           <div className="min-w-0 flex-1 space-y-5">
             <div>
-              <h1 className="text-heading-md text-foreground-primary">
+              <h1 className="text-heading-md text-foreground">
                 New Feedback Review
               </h1>
-              <p className="text-body-sm text-foreground-secondary mt-1">
+              <p className="text-body-sm text-muted-foreground mt-1">
                 Provide anonymous feedback for your colleague
               </p>
             </div>
 
             <Card>
               <div className="flex gap-3">
-                <RiInformationLine className="text-foreground-secondary mt-0.5 size-5 shrink-0" />
+                <RiInformationLine className="text-muted-foreground mt-0.5 size-5 shrink-0" />
                 <div>
-                  <p className="text-label-md text-foreground-primary">
+                  <p className="text-label-md text-foreground">
                     Anonymous Feedback System
                   </p>
-                  <p className="text-body-xs text-foreground-secondary mt-1">
+                  <p className="text-body-xs text-muted-foreground mt-1">
                     Your feedback is anonymous and will be processed by AI to
                     maintain objectivity.
                   </p>
@@ -384,7 +384,7 @@ export default function ReviewFormClientPage({
             {formData.reviewee_id && (
               <>
                 <Card className="space-y-4">
-                  <p className="text-label-md text-foreground-primary">
+                  <p className="text-label-md text-foreground">
                     Rate their competencies
                   </p>
                   <div className="space-y-4">
@@ -532,7 +532,7 @@ export default function ReviewFormClientPage({
                     <Label htmlFor="feedback-continue">
                       CONTINUE (Strength)
                     </Label>
-                    <p className="text-body-xs text-foreground-secondary mt-1">
+                    <p className="text-body-xs text-muted-foreground mt-1">
                       What positive things should they keep doing?
                     </p>
                     <Textarea
@@ -551,7 +551,7 @@ export default function ReviewFormClientPage({
 
                   <div>
                     <Label htmlFor="feedback-start">START (Opportunity)</Label>
-                    <p className="text-body-xs text-foreground-secondary mt-1">
+                    <p className="text-body-xs text-muted-foreground mt-1">
                       What new things should they start doing?
                     </p>
                     <Textarea
@@ -570,7 +570,7 @@ export default function ReviewFormClientPage({
 
                   <div>
                     <Label htmlFor="feedback-stop">STOP (Blocker)</Label>
-                    <p className="text-body-xs text-foreground-secondary mt-1">
+                    <p className="text-body-xs text-muted-foreground mt-1">
                       What habits should they stop?
                     </p>
                     <Textarea

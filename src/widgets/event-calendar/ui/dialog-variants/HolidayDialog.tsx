@@ -39,7 +39,7 @@ export function HolidayDialog({
           {/* Holiday Title */}
           <div>
             <div className="flex items-start justify-between gap-4">
-              <h3 className="text-heading-sm text-foreground-primary break-words">
+              <h3 className="text-heading-sm text-foreground break-words">
                 {event.title}
               </h3>
               <Badge variant="zinc" size="sm" className="shrink-0">
@@ -49,15 +49,15 @@ export function HolidayDialog({
           </div>
 
           {/* Date */}
-          <div className="bg-surface-neutral-secondary border-neutral-primary rounded-lg border p-4">
+          <div className="bg-muted border-border rounded-lg border p-4">
             <div className="flex items-center gap-3">
-              <RiCalendarLine className="text-foreground-secondary h-5 w-5" />
+              <RiCalendarLine className="text-muted-foreground h-5 w-5" />
               <div>
-                <p className="text-body-sm text-foreground-primary">
+                <p className="text-body-sm text-foreground">
                   {format(event.start, "EEEE, dd MMMM yyyy", { locale: id })}
                 </p>
                 {event.allDay && (
-                  <p className="text-body-xs text-foreground-secondary mt-0.5">
+                  <p className="text-body-xs text-muted-foreground mt-0.5">
                     Sepanjang hari
                   </p>
                 )}
@@ -67,9 +67,9 @@ export function HolidayDialog({
 
           {/* Description */}
           {event.description && (
-            <div className="border-neutral-primary space-y-2 border-t pt-4">
-              <h4 className="text-label-sm text-foreground-secondary">Tentang hari libur ini</h4>
-              <p className="text-body-sm text-foreground-primary break-words whitespace-pre-wrap">
+            <div className="border-border space-y-2 border-t pt-4">
+              <h4 className="text-label-sm text-muted-foreground">Tentang hari libur ini</h4>
+              <p className="text-body-sm text-foreground break-words whitespace-pre-wrap">
                 {event.description}
               </p>
             </div>
@@ -77,7 +77,7 @@ export function HolidayDialog({
 
           {/* Info notice */}
           <div className="bg-primary/10 rounded-lg border border-primary/20 p-3">
-              <p className="text-body-xs text-foreground-brand-primary">
+              <p className="text-body-xs text-primary">
               ℹ️ Ini adalah hari libur nasional dari kalender Indonesia. Data
               ini tidak dapat diubah atau dihapus.
             </p>

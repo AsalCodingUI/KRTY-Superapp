@@ -28,8 +28,8 @@ export function AdminRecentActivities({
   return (
     <Card>
       <div className="mb-3 flex items-center justify-between">
-        <p className="text-label-md text-foreground-secondary">Activity Feed</p>
-        <span className="text-body-xs text-foreground-tertiary tabular-nums">
+        <p className="text-label-md text-muted-foreground">Activity Feed</p>
+        <span className="text-body-xs text-muted-foreground/70 tabular-nums">
           {activities.length} items
         </span>
       </div>
@@ -43,11 +43,11 @@ export function AdminRecentActivities({
           className="min-h-[160px] px-0 py-6"
         />
       ) : (
-        <div className="border-neutral-primary divide-neutral-primary overflow-hidden rounded-lg border divide-y">
+        <div className="border-border divide-border overflow-hidden rounded-lg border divide-y">
           {activities.map((activity) => (
             <div
               key={activity.id}
-              className="hover:bg-surface-neutral-secondary flex items-start gap-3 px-3 py-2 transition-colors"
+              className="hover:bg-muted flex items-start gap-3 px-3 py-2 transition-colors"
             >
               <div className="min-w-0 flex-1">
                 <div className="flex items-start gap-2">
@@ -57,15 +57,15 @@ export function AdminRecentActivities({
                     src={activity.user_avatar || undefined}
                   />
                   <div className="flex-1">
-                    <p className="text-label-md text-foreground-primary">
+                    <p className="text-label-md text-foreground">
                       <span className="font-medium">
                         {activity.user_name || "Unknown"}
                       </span>{" "}
-                      <span className="text-foreground-secondary">
+                      <span className="text-muted-foreground">
                         {activity.description}
                       </span>
                     </p>
-                    <p className="text-body-xs text-foreground-tertiary mt-0.5">
+                    <p className="text-body-xs text-muted-foreground/70 mt-0.5">
                       {formatDistanceToNow(new Date(activity.timestamp), {
                         addSuffix: true,
                       })}

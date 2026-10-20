@@ -16,7 +16,7 @@ export default function TeamsLoading() {
         {[1, 2, 3, 4, 5, 6].map((i) => (
           <div
             key={i}
-            className="border-neutral-primary bg-surface-neutral-primary space-y-4 rounded-lg border p-6"
+            className="border-border bg-card space-y-4 rounded-lg border p-6"
           >
             <div className="flex items-center justify-between">
               <Skeleton className="h-5 w-32" />

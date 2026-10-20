@@ -12,7 +12,7 @@ export default function SettingsLoading() {
       </div>
 
       {/* Settings Form Skeleton */}
-      <div className="border-neutral-primary bg-surface-neutral-primary space-y-4 rounded-lg border p-6">
+      <div className="border-border bg-card space-y-4 rounded-lg border p-6">
         {[1, 2, 3].map((i) => (
           <div key={i} className="space-y-2">
             <Skeleton className="h-4 w-24" />

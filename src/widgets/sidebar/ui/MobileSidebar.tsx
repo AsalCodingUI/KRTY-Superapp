@@ -129,7 +129,7 @@ export default function MobileSidebar({ children }: MobileSidebarProps) {
                     {[1, 2, 3, 4].map((i) => (
                       <div
                         key={i}
-                        className="bg-muted dark:bg-surface h-10 rounded-md"
+                        className="bg-muted dark:bg-card h-10 rounded-md"
                       />
                     ))}
                   </div>
@@ -142,8 +142,8 @@ export default function MobileSidebar({ children }: MobileSidebarProps) {
                           prefetch={false}
                           className={cx(
                             isActive(item.href)
-                              ? "bg-muted text-content dark:bg-muted font-semibold"
-                              : "text-content-subtle hover:text-content hover:bg-muted",
+                              ? "bg-muted text-foreground dark:bg-muted font-semibold"
+                              : "text-muted-foreground hover:text-foreground hover:bg-muted",
                             "text-label-lg sm:text-label-md flex items-center gap-x-2.5 rounded-md px-2 py-1.5 transition",
                             focusRing,
                           )}
@@ -162,7 +162,7 @@ export default function MobileSidebar({ children }: MobileSidebarProps) {
                   !permissionLoading &&
                   drawerNavItems.length === 0 &&
                   shortcutItems.length === 0 && (
-                    <li className="text-body-sm text-foreground-tertiary px-2 py-2">
+                    <li className="text-body-sm text-muted-foreground/70 px-2 py-2">
                       All main navigation is available from the bottom bar.
                     </li>
                   )}
@@ -170,7 +170,7 @@ export default function MobileSidebar({ children }: MobileSidebarProps) {
 
               {!loading && !permissionLoading && shortcutItems.length > 0 && (
                 <div>
-                  <span className="text-content-subtle text-label-md sm:text-label-xs">
+                  <span className="text-muted-foreground text-label-md sm:text-label-xs">
                     Shortcuts
                   </span>
                   <ul
@@ -186,8 +186,8 @@ export default function MobileSidebar({ children }: MobileSidebarProps) {
                             prefetch={false}
                             className={cx(
                               isActive(item.href)
-                                ? "bg-muted text-content dark:bg-muted font-semibold"
-                                : "text-content-subtle hover:text-content hover:bg-muted",
+                                ? "bg-muted text-foreground dark:bg-muted font-semibold"
+                                : "text-muted-foreground hover:text-foreground hover:bg-muted",
                               "sm:text-label-md flex items-center gap-x-2.5 rounded-md px-2 py-1.5 transition",
                               focusRing,
                             )}

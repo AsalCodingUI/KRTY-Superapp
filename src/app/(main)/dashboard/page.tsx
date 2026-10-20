@@ -40,7 +40,7 @@ export default async function DashboardRoute({
   if (!profile) {
     return (
       <div className="py-12 text-center">
-        <p className="text-foreground-secondary">Profile not found</p>
+        <p className="text-muted-foreground">Profile not found</p>
       </div>
     )
   }
@@ -55,7 +55,7 @@ export default async function DashboardRoute({
     if (!result.success || !result.data) {
       return (
         <div className="py-12 text-center">
-          <p className="text-foreground-secondary">
+          <p className="text-muted-foreground">
             {result.error || "Failed to load dashboard data"}
           </p>
         </div>
@@ -74,7 +74,7 @@ export default async function DashboardRoute({
     if (!result.success || !result.data) {
       return (
         <div className="py-12 text-center">
-          <p className="text-foreground-secondary">
+          <p className="text-muted-foreground">
             {result.error || "Failed to load dashboard data"}
           </p>
         </div>

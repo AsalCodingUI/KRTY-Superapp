@@ -102,16 +102,16 @@ export function EmployeeDashboard({
   return (
     <div className="flex flex-col">
       <div className="rounded-xxl flex items-center gap-2 px-4 pt-4 pb-3 xl:px-5">
-        <RiBarChartBoxLine className="text-foreground-secondary size-4" />
-        <p className="text-label-md text-foreground-primary">
+        <RiBarChartBoxLine className="text-muted-foreground size-4" />
+        <p className="text-label-md text-foreground">
           Dashboard Overview
         </p>
       </div>
 
-      <div className="bg-surface-neutral-primary rounded-xxl flex flex-col">
+      <div className="bg-card rounded-xxl flex flex-col">
         <div className="space-y-5 pt-2 pb-5 px-4 xl:px-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <h1 className="text-heading-md text-foreground-primary">
+            <h1 className="text-heading-md text-foreground">
               Welcome back, {firstName}
             </h1>
             <div className="flex items-center gap-2">
@@ -139,37 +139,37 @@ export function EmployeeDashboard({
           </div>
 
           <section className="grid grid-cols-2 gap-lg lg:grid-cols-5">
-            <div className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-lg border px-4 py-3">
-              <p className="text-label-sm text-foreground-secondary">Leave Balance</p>
-              <p className="text-heading-md text-foreground-primary">{data.leaveBalance} days</p>
+            <div className="border-border bg-card flex flex-col gap-1 rounded-lg border px-4 py-3">
+              <p className="text-label-sm text-muted-foreground">Leave Balance</p>
+              <p className="text-heading-md text-foreground">{data.leaveBalance} days</p>
             </div>
-            <div className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-lg border px-4 py-3">
-              <p className="text-label-sm text-foreground-secondary">On Time SLA</p>
-              <p className="text-heading-md text-foreground-primary">
+            <div className="border-border bg-card flex flex-col gap-1 rounded-lg border px-4 py-3">
+              <p className="text-label-sm text-muted-foreground">On Time SLA</p>
+              <p className="text-heading-md text-foreground">
                 {data.performanceOverview.slaScore !== null ? `${Number(data.performanceOverview.slaScore).toFixed(1)}%` : "0.0%"}
               </p>
             </div>
-            <div className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-lg border px-4 py-3">
-              <p className="text-label-sm text-foreground-secondary">360 Review</p>
-              <p className="text-heading-md text-foreground-primary">
+            <div className="border-border bg-card flex flex-col gap-1 rounded-lg border px-4 py-3">
+              <p className="text-label-sm text-muted-foreground">360 Review</p>
+              <p className="text-heading-md text-foreground">
                 {data.performanceOverview.reviewScore !== null ? `${Number(data.performanceOverview.reviewScore).toFixed(1)}%` : "0.0%"}
               </p>
             </div>
-            <div className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-lg border px-4 py-3">
-              <p className="text-label-sm text-foreground-secondary">Work Quality</p>
-              <p className="text-heading-md text-foreground-primary">
+            <div className="border-border bg-card flex flex-col gap-1 rounded-lg border px-4 py-3">
+              <p className="text-label-sm text-muted-foreground">Work Quality</p>
+              <p className="text-heading-md text-foreground">
                 {data.performanceOverview.workQualityScore !== null ? `${Number(data.performanceOverview.workQualityScore).toFixed(1)}%` : "0.0%"}
               </p>
             </div>
-            <div className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-lg border px-4 py-3">
-              <p className="text-label-sm text-foreground-secondary">Quarter</p>
-              <p className="text-heading-md text-foreground-primary">{data.performanceOverview.quarter}</p>
+            <div className="border-border bg-card flex flex-col gap-1 rounded-lg border px-4 py-3">
+              <p className="text-label-sm text-muted-foreground">Quarter</p>
+              <p className="text-heading-md text-foreground">{data.performanceOverview.quarter}</p>
             </div>
           </section>
 
           <section className="grid grid-cols-1 gap-5 lg:grid-cols-2">
             <div className="space-y-2">
-              <p className="text-label-sm text-foreground-secondary">
+              <p className="text-label-sm text-muted-foreground">
                 Leave & Attendance
               </p>
               <EmployeeAttendanceWidget
@@ -181,7 +181,7 @@ export function EmployeeDashboard({
             </div>
 
             <div className="space-y-2">
-              <p className="text-label-sm text-foreground-secondary">
+              <p className="text-label-sm text-muted-foreground">
                 Performance
               </p>
               <EmployeePerformanceCards
@@ -197,7 +197,7 @@ export function EmployeeDashboard({
           </section>
 
           <section className="space-y-2">
-            <p className="text-label-sm text-foreground-secondary">
+            <p className="text-label-sm text-muted-foreground">
               Active Projects
             </p>
             <EmployeeProjectsWidget

@@ -25,7 +25,7 @@ export function TimelineSection({
     <div>
       <div className="mb-4 flex items-center justify-between">
         <div>
-          <h3 className="text-label-md text-foreground-primary">
+          <h3 className="text-label-md text-foreground">
             Timeline Engine
           </h3>
         </div>
@@ -33,7 +33,7 @@ export function TimelineSection({
       </div>
 
       <div className="space-y-4">
-        <div className="text-label-sm text-foreground-secondary hidden grid-cols-[minmax(0,1.8fr)_minmax(0,1fr)_minmax(0,1fr)_40px] gap-4 px-1 sm:grid">
+        <div className="text-label-sm text-muted-foreground hidden grid-cols-[minmax(0,1.8fr)_minmax(0,1fr)_minmax(0,1fr)_40px] gap-4 px-1 sm:grid">
           <div>Phase Name</div>
           <div className="text-center">Days</div>
           <div className="text-center">Buffer</div>
@@ -72,7 +72,7 @@ export function TimelineSection({
             <Button
               variant="ghost"
               size="sm"
-              className="text-foreground-tertiary size-8 shrink-0 justify-self-end p-0"
+              className="text-muted-foreground/70 size-8 shrink-0 justify-self-end p-0"
               onClick={() => onRemovePhase(phase.id)}
             >
               <RiDeleteBinLine className="size-4" />

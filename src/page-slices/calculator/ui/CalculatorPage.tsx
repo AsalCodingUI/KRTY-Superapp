@@ -521,7 +521,7 @@ export default function CalculatorClientPage({
     <div className="grid grid-cols-1 gap-6 md:grid-cols-12 md:gap-8">
       <div className="space-y-6 md:col-span-7">
         <div>
-          <h3 className="text-label-md text-foreground-primary mb-4">
+          <h3 className="text-label-md text-foreground mb-4">
             Calculation
           </h3>
           {hideProjectSelector ? (
@@ -669,7 +669,7 @@ export default function CalculatorClientPage({
           <>
             <Divider />
             <div>
-              <h3 className="text-label-md text-foreground-primary mb-4">
+              <h3 className="text-label-md text-foreground mb-4">
                 Saved Calculations
               </h3>
               {savedCalculations.length === 0 ? (
@@ -683,13 +683,13 @@ export default function CalculatorClientPage({
                   {savedCalculations.map((calc) => (
                     <div
                       key={calc.id}
-                      className={`border-neutral-primary bg-surface flex items-center justify-between gap-3 rounded-lg border px-4 py-3`}
+                      className={`border-border bg-card flex items-center justify-between gap-3 rounded-lg border px-4 py-3`}
                     >
                       <div className="min-w-0 flex-1">
-                        <p className="text-label-md text-foreground-primary truncate">
+                        <p className="text-label-md text-foreground truncate">
                           {calc.title}
                         </p>
-                        <p className="text-label-xs text-foreground-secondary">
+                        <p className="text-label-xs text-muted-foreground">
                           {format(new Date(calc.created_at), "MMM d, yyyy")}
                         </p>
                       </div>
@@ -704,7 +704,7 @@ export default function CalculatorClientPage({
                         <Button
                           variant="ghost"
                           size="xs"
-                          className="text-foreground-tertiary size-6 p-0"
+                          className="text-muted-foreground/70 size-6 p-0"
                           onClick={() => setPendingDeleteId(calc.id)}
                         >
                           <RiDeleteBinLine className="size-4" />
@@ -739,8 +739,8 @@ export default function CalculatorClientPage({
     <div className="flex flex-col">
       {showHeader && (
         <div className="rounded-xxl flex items-center gap-2 px-5 pt-4 pb-3">
-          <RiCalculatorLine className="text-foreground-secondary size-4" />
-          <p className="text-label-md text-foreground-primary">
+          <RiCalculatorLine className="text-muted-foreground size-4" />
+          <p className="text-label-md text-foreground">
             Project Calculator
           </p>
         </div>
@@ -749,7 +749,7 @@ export default function CalculatorClientPage({
       <div
         className={
           showHeader
-            ? "bg-surface-neutral-primary rounded-xxl flex flex-col p-5"
+            ? "bg-card rounded-xxl flex flex-col p-5"
             : "flex flex-col"
         }
       >

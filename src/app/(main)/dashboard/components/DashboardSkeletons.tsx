@@ -7,7 +7,7 @@ export function AdminMetricsSkeleton() {
       {[...Array(5)].map((_, i) => (
         <div
           key={i}
-          className="border-neutral-primary bg-surface-neutral-primary rounded-lg border p-4"
+          className="border-border bg-card rounded-lg border p-4"
         >
           <Skeleton className="mb-2 h-4 w-24" />
           <Skeleton className="h-8 w-16" />
@@ -22,7 +22,7 @@ export function AdminChartSkeleton() {
   const barHeights = [45, 70, 55, 80, 60, 75]
 
   return (
-    <div className="border-neutral-primary bg-surface-neutral-primary h-[400px] rounded-lg border p-6">
+    <div className="border-border bg-card h-[400px] rounded-lg border p-6">
       <Skeleton className="mb-6 h-6 w-48" />
       <div className="flex h-[300px] items-end gap-4">
         {barHeights.map((height, i) => (
@@ -41,7 +41,7 @@ export function AdminChartSkeleton() {
 
 export function AdminListSkeleton() {
   return (
-    <div className="border-neutral-primary bg-surface-neutral-primary rounded-lg border p-6">
+    <div className="border-border bg-card rounded-lg border p-6">
       <Skeleton className="mb-4 h-6 w-40" />
       <div className="space-y-4">
         {[...Array(5)].map((_, i) => (

@@ -272,19 +272,19 @@ export default function TeamAccessSettingsPage({
       <div className="space-y-1">
         <h1
           id="team-access-title"
-          className="text-heading-md text-foreground-primary"
+          className="text-heading-md text-foreground"
         >
           Team Access
         </h1>
-        <p className="text-body-sm text-foreground-secondary">
+        <p className="text-body-sm text-muted-foreground">
           Add team members from settings and jump into their workspace with super
           admin impersonation.
         </p>
       </div>
 
       {isImpersonating && effectiveProfile && authProfile && (
-        <div className="flex items-center justify-between rounded-md border border-neutral-primary bg-surface-warning-light px-4 py-3">
-          <p className="text-body-sm text-foreground-warning-on-color">
+        <div className="flex items-center justify-between rounded-md border border-border bg-warning/10 px-4 py-3">
+          <p className="text-body-sm text-warning">
             Viewing as{" "}
             <strong>
               {effectiveProfile.full_name || effectiveProfile.email || "User"}
@@ -301,12 +301,12 @@ export default function TeamAccessSettingsPage({
         </div>
       )}
 
-      <div className="rounded-xxl border border-neutral-primary bg-surface-neutral-primary p-4">
+      <div className="rounded-xxl border border-border bg-card p-4">
         <div className="mb-4">
-          <h2 className="text-label-md text-foreground-primary">
+          <h2 className="text-label-md text-foreground">
             Add Team Member
           </h2>
-          <p className="text-body-sm text-foreground-secondary mt-1">
+          <p className="text-body-sm text-muted-foreground mt-1">
             This creates a managed profile directly from the app so you do not
             need to edit data manually.
           </p>
@@ -440,12 +440,12 @@ export default function TeamAccessSettingsPage({
         </form>
       </div>
 
-      <div className="rounded-xxl border border-neutral-primary bg-surface-neutral-primary p-4">
+      <div className="rounded-xxl border border-border bg-card p-4">
         <div className="mb-4">
-          <h2 className="text-label-md text-foreground-primary">
+          <h2 className="text-label-md text-foreground">
             Team Directory
           </h2>
-          <p className="text-body-sm text-foreground-secondary mt-1">
+          <p className="text-body-sm text-muted-foreground mt-1">
             Super admins can switch into any listed profile from here.
           </p>
         </div>
@@ -466,7 +466,7 @@ export default function TeamAccessSettingsPage({
               return (
                 <div
                   key={profile.id}
-                  className="flex flex-col gap-3 rounded-xl border border-neutral-primary px-4 py-3 md:flex-row md:items-center md:justify-between"
+                  className="flex flex-col gap-3 rounded-xl border border-border px-4 py-3 md:flex-row md:items-center md:justify-between"
                 >
                   <div className="flex items-start gap-3">
                     <Avatar
@@ -475,10 +475,10 @@ export default function TeamAccessSettingsPage({
                     />
                     <div className="space-y-2">
                       <div>
-                        <p className="text-label-md text-foreground-primary">
+                        <p className="text-label-md text-foreground">
                           {profile.full_name || "Unnamed user"}
                         </p>
-                        <p className="text-body-sm text-foreground-secondary">
+                        <p className="text-body-sm text-muted-foreground">
                           {profile.email || "-"}
                         </p>
                       </div>

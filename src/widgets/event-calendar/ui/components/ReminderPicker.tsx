@@ -60,9 +60,9 @@ export function ReminderPicker({
           {value.map((reminder, index) => (
             <div
               key={index}
-              className="bg-muted/50 border-border-border flex items-center justify-between rounded-md border p-2"
+              className="bg-muted/50 border-border flex items-center justify-between rounded-md border p-2"
             >
-              <span className="text-body-sm text-content">
+              <span className="text-body-sm text-foreground">
                 🔔 {getReminderLabel(reminder.minutes)}
               </span>
               <Button
@@ -114,7 +114,7 @@ export function ReminderPicker({
       </div>
 
       {value.length === 0 && (
-        <p className="text-body-xs text-content-muted">Belum ada pengingat</p>
+        <p className="text-body-xs text-muted-foreground/70">Belum ada pengingat</p>
       )}
     </div>
   )

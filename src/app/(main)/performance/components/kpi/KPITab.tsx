@@ -220,20 +220,20 @@ export function KPITab({
               employees.map((employee) => (
                 <TableRow key={employee.id}>
                   <TableCell>
-                    <span className="font-medium text-foreground-primary">
+                    <span className="font-medium text-foreground">
                       {employee.full_name || "Unknown"}
                     </span>
                   </TableCell>
                   <TableCell>
-                    <span className="text-foreground-secondary">{employee.email}</span>
+                    <span className="text-muted-foreground">{employee.email}</span>
                   </TableCell>
                   <TableCell>
-                    <span className="text-foreground-secondary">
+                    <span className="text-muted-foreground">
                       {employee.job_title || "-"}
                     </span>
                   </TableCell>
                   <TableCell>
-                    <span className="text-foreground-primary">{employee.project_count}</span>
+                    <span className="text-foreground">{employee.project_count}</span>
                   </TableCell>
                   <TableCell>
                     <Badge variant="success">{employee.active_projects}</Badge>
@@ -252,7 +252,7 @@ export function KPITab({
         </Table>
         {totalPages > 1 && (
           <div className="flex items-center justify-between pt-3">
-            <span className="text-body-sm text-foreground-secondary">
+            <span className="text-body-sm text-muted-foreground">
               Page {pageIndex + 1} of {totalPages}
             </span>
             <div className="flex items-center gap-2">

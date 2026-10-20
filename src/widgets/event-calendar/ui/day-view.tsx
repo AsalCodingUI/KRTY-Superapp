@@ -47,7 +47,7 @@ export const DayView = memo(function DayView({
   }, [events, currentDate])
 
   return (
-    <div className="bg-surface flex min-w-[320px] flex-col">
+    <div className="bg-card flex min-w-[320px] flex-col">
       {/* Header */}
 
       {/* Time grid */}
@@ -59,7 +59,7 @@ export const DayView = memo(function DayView({
       >
         <div className="relative flex">
           {/* Time labels */}
-          <div className="border-neutral-primary bg-surface w-12 flex-shrink-0 border-r sm:w-16">
+          <div className="border-border bg-card w-12 flex-shrink-0 border-r sm:w-16">
             {timeSlots.map((slot) => {
               const minute = slot.getMinutes()
               if (minute !== 0) return null // Only show hour labels
@@ -81,10 +81,10 @@ export const DayView = memo(function DayView({
               return (
                 <div
                   key={slot.toISOString()}
-                  className="text-label-xs text-foreground-tertiary relative h-[var(--height)] pr-2 text-right"
+                  className="text-label-xs text-muted-foreground/70 relative h-[var(--height)] pr-2 text-right"
                   style={baseStyle}
                 >
-                  <span className="absolute -top-2 right-2 bg-surface px-1">
+                  <span className="absolute -top-2 right-2 bg-card px-1">
                     {format(slot, "HH:mm")}
                   </span>
                 </div>
@@ -96,7 +96,7 @@ export const DayView = memo(function DayView({
           <div
             className={cx(
               "relative flex-1",
-              isWeekend && "bg-surface-neutral-secondary/50",
+              isWeekend && "bg-muted/50",
             )}
           >
             {/* Time slots */}
@@ -111,10 +111,10 @@ export const DayView = memo(function DayView({
                   key={slot.toISOString()}
                   id={`slot-${currentDate.toISOString()}-${hour}-${minute}`}
                   className={cx(
-                    "border-neutral-primary hover:bg-surface-state-neutral-light-hover h-[var(--height)] cursor-pointer border-b transition-colors",
+                    "border-border hover:bg-accent h-[var(--height)] cursor-pointer border-b transition-colors",
                     minute === 30
                       ? "border-transparent"
-                      : "border-neutral-primary",
+                      : "border-border",
                   )}
                   style={
                     {
@@ -174,8 +174,8 @@ export const DayView = memo(function DayView({
                 }
               >
                 <div className="flex items-center">
-                  <div className="bg-danger -ml-1.5 h-3 w-3 rounded-full" />
-                  <div className="bg-danger h-0.5 flex-1" />
+                  <div className="bg-destructive -ml-1.5 h-3 w-3 rounded-full" />
+                  <div className="bg-destructive h-0.5 flex-1" />
                 </div>
               </div>
             )}

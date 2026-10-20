@@ -10,7 +10,7 @@ export default function DashboardLoading() {
         <Skeleton className="h-4 w-40" />
       </div>
 
-      <div className="bg-surface-neutral-primary flex flex-col rounded-xxl">
+      <div className="bg-card flex flex-col rounded-xxl">
         <div className="space-y-5 p-4 sm:p-5">
           <div>
             <Skeleton className="mb-2 h-5 w-44" />
@@ -21,7 +21,7 @@ export default function DashboardLoading() {
             {[1, 2, 3, 4, 5].map((i) => (
               <div
                 key={i}
-                className="border-neutral-primary bg-surface-neutral-primary space-y-3 rounded-lg border p-4"
+                className="border-border bg-card space-y-3 rounded-lg border p-4"
               >
                 <Skeleton className="h-4 w-20" />
                 <Skeleton className="h-7 w-16" />
@@ -30,11 +30,11 @@ export default function DashboardLoading() {
           </div>
 
           <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-            <div className="border-neutral-primary bg-surface-neutral-primary rounded-lg border p-4">
+            <div className="border-border bg-card rounded-lg border p-4">
               <Skeleton className="mb-4 h-4 w-40" />
               <Skeleton className="h-44 w-full" />
             </div>
-            <div className="border-neutral-primary bg-surface-neutral-primary rounded-lg border p-4">
+            <div className="border-border bg-card rounded-lg border p-4">
               <Skeleton className="mb-4 h-4 w-40" />
               <Skeleton className="h-44 w-full" />
             </div>

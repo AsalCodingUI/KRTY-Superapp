@@ -139,16 +139,16 @@ export function Notifications({ variant = "default" }: NotificationsProps) {
         className={cx(
           variant === "default"
             ? cx(
-              "hover:bg-surface-neutral-secondary text-label-md flex w-full items-center gap-x-2.5 rounded-md px-2 py-1.5 transition",
+              "hover:bg-muted text-label-md flex w-full items-center gap-x-2.5 rounded-md px-2 py-1.5 transition",
               isOpen
-                ? "bg-surface-neutral-secondary text-foreground-primary"
-                : "text-foreground-secondary hover:text-foreground-primary",
+                ? "bg-muted text-foreground"
+                : "text-muted-foreground hover:text-foreground",
             )
             : cx(
               "flex size-7 shrink-0 items-center justify-center rounded-md transition-colors focus:outline-none",
               isOpen
-                ? "text-content bg-surface-neutral-secondary"
-                : "text-content-subtle hover:text-content hover:bg-surface-neutral-secondary",
+                ? "text-foreground bg-muted"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted",
             ),
           focusRing,
         )}
@@ -160,8 +160,8 @@ export function Notifications({ variant = "default" }: NotificationsProps) {
           />
           {unreadCount > 0 && variant === "icon" && (
             <span className="absolute top-0 right-0 -mt-1 -mr-1 flex size-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-surface-danger opacity-75"></span>
-              <span className="relative inline-flex size-2 rounded-full bg-surface-danger"></span>
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-destructive opacity-75"></span>
+              <span className="relative inline-flex size-2 rounded-full bg-destructive"></span>
             </span>
           )}
         </div>
@@ -170,7 +170,7 @@ export function Notifications({ variant = "default" }: NotificationsProps) {
           <>
             <span>Notification Center</span>
             {unreadCount > 0 && (
-              <span className="bg-surface-brand-light text-foreground-brand-dark text-label-xs ml-auto flex items-center justify-center rounded-full px-2 py-0.5">
+              <span className="bg-primary/10 text-primary text-label-xs ml-auto flex items-center justify-center rounded-full px-2 py-0.5">
                 {unreadCount}
               </span>
             )}
@@ -185,10 +185,10 @@ export function Notifications({ variant = "default" }: NotificationsProps) {
               <motion.div
                 ref={panelRef}
                 className={cx(
-                  "fixed z-50 flex max-h-[calc(100vh-24px)] flex-col overflow-hidden bg-surface-neutral-primary",
+                  "fixed z-50 flex max-h-[calc(100vh-24px)] flex-col overflow-hidden bg-card",
                   isMobile
                     ? "inset-0 rounded-none border-0 shadow-none"
-                    : "h-[600px] w-full max-w-[386px] rounded-xl border border-neutral-primary shadow-regular-md",
+                    : "h-[600px] w-full max-w-[386px] rounded-xl border border-border shadow-regular-md",
                 )}
                 style={panelStyle}
                 initial={
@@ -210,28 +210,28 @@ export function Notifications({ variant = "default" }: NotificationsProps) {
               >
                 <div className="flex h-full flex-col">
                   <div className="flex items-center justify-between px-5 pb-2 pt-4">
-                    <h3 className="text-heading-sm text-foreground-primary">
+                    <h3 className="text-heading-sm text-foreground">
                       Notifications
                     </h3>
                     <div className="flex items-center gap-2">
                       {unreadCount > 0 && (
                         <button
                           onClick={() => markAllAsRead()}
-                          className="text-foreground-secondary text-label-xs hover:text-foreground-primary"
+                          className="text-muted-foreground text-label-xs hover:text-foreground"
                         >
                           Mark all as read
                         </button>
                       )}
                       <button
                         onClick={() => setIsOpen(false)}
-                        className="text-foreground-secondary hover:bg-surface-neutral-secondary rounded-md p-1 lg:hidden"
+                        className="text-muted-foreground hover:bg-muted rounded-md p-1 lg:hidden"
                       >
                         <RiCloseLine className="size-5" />
                       </button>
                     </div>
                   </div>
 
-                  <div className="px-5 pt-2 border-b border-neutral-primary">
+                  <div className="px-5 pt-2 border-b border-border">
                     <div className="xl:hidden pb-2">
                       <Select
                         value={activeTab}
@@ -289,9 +289,9 @@ export function Notifications({ variant = "default" }: NotificationsProps) {
                                 handleNotificationClick(notification.id)
                               }
                               className={cx(
-                                "hover:bg-surface-neutral-secondary block px-4 py-4 transition-colors",
+                                "hover:bg-muted block px-4 py-4 transition-colors",
                                 !notification.is_read
-                                  ? "bg-surface-brand-light"
+                                  ? "bg-primary/10"
                                   : "",
                               )}
                             >
@@ -300,18 +300,18 @@ export function Notifications({ variant = "default" }: NotificationsProps) {
                                   className={cx(
                                     "mt-1.5 size-2 shrink-0 rounded-full",
                                     !notification.is_read
-                                      ? "bg-surface-brand"
+                                      ? "bg-primary"
                                       : "bg-transparent",
                                   )}
                                 />
                                 <div className="flex-1">
-                                  <p className="text-foreground-primary text-label-md">
+                                  <p className="text-foreground text-label-md">
                                     {notification.title}
                                   </p>
-                                  <p className="text-foreground-secondary text-body-sm mt-1 line-clamp-2">
+                                  <p className="text-muted-foreground text-body-sm mt-1 line-clamp-2">
                                     {notification.message}
                                   </p>
-                                  <p className="text-foreground-tertiary text-body-xs mt-2">
+                                  <p className="text-muted-foreground/70 text-body-xs mt-2">
                                     {new Date(
                                       notification.created_at || "",
                                     ).toLocaleDateString(undefined, {
@@ -327,7 +327,7 @@ export function Notifications({ variant = "default" }: NotificationsProps) {
                                   onClick={(event) =>
                                     handleDelete(event, notification.id)
                                   }
-                                  className="text-foreground-tertiary hover:text-foreground-primary hover:bg-surface-neutral-secondary mt-1 inline-flex size-8 items-center justify-center rounded-md"
+                                  className="text-muted-foreground/70 hover:text-foreground hover:bg-muted mt-1 inline-flex size-8 items-center justify-center rounded-md"
                                   aria-label="Delete notification"
                                 >
                                   <RiDeleteBinLine className="size-4" />

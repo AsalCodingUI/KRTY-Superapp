@@ -49,9 +49,9 @@ export const WeekView = memo(function WeekView({
   return (
     <div className="flex min-w-[720px] flex-col">
       {/* Header with days */}
-      <div className="border-neutral-primary bg-surface sticky top-0 z-10 flex border-b">
+      <div className="border-border bg-card sticky top-0 z-10 flex border-b">
         {/* Time column header */}
-        <div className="border-neutral-primary w-12 flex-shrink-0 border-r sm:w-16" />
+        <div className="border-border w-12 flex-shrink-0 border-r sm:w-16" />
 
         {/* Day headers */}
         {weekDays.map((day) => {
@@ -61,19 +61,19 @@ export const WeekView = memo(function WeekView({
             <div
               key={day.toISOString()}
               className={cx(
-                "border-neutral-primary min-w-[96px] flex-1 border-r py-2 text-center last:border-r-0",
-                isWeekend && "bg-surface-neutral-secondary/50",
+                "border-border min-w-[96px] flex-1 border-r py-2 text-center last:border-r-0",
+                isWeekend && "bg-muted/50",
               )}
             >
-              <div className="text-label-sm text-foreground-secondary flex items-center justify-center gap-xs">
+              <div className="text-label-sm text-muted-foreground flex items-center justify-center gap-xs">
                 <span
                   className={cx(
-                    isToday && "text-foreground-brand font-semibold",
+                    isToday && "text-primary font-semibold",
                   )}
                 >
                   {format(day, "d")}
                 </span>
-                <span className="text-foreground-tertiary">
+                <span className="text-muted-foreground/70">
                   {format(day, "EEE", { locale: id })}
                 </span>
               </div>
@@ -91,7 +91,7 @@ export const WeekView = memo(function WeekView({
       >
         <div className="relative flex">
           {/* Time labels */}
-          <div className="border-neutral-primary bg-surface w-12 flex-shrink-0 border-r sm:w-16">
+          <div className="border-border bg-card w-12 flex-shrink-0 border-r sm:w-16">
             {timeSlots.map((slot) => {
               if (slot.getMinutes() !== 0) return null // Only show hour labels
 
@@ -112,10 +112,10 @@ export const WeekView = memo(function WeekView({
               return (
                 <div
                   key={slot.toISOString()}
-                  className="text-label-xs text-foreground-tertiary relative h-[var(--height)] pr-2 text-right"
+                  className="text-label-xs text-muted-foreground/70 relative h-[var(--height)] pr-2 text-right"
                   style={baseStyle}
                 >
-                  <span className="absolute -top-2 right-2 bg-surface px-1">
+                  <span className="absolute -top-2 right-2 bg-card px-1">
                     {format(slot, "HH:mm")}
                   </span>
                 </div>
@@ -133,8 +133,8 @@ export const WeekView = memo(function WeekView({
               <div
                 key={day.toISOString()}
                 className={cx(
-                  "border-neutral-primary relative min-w-[96px] flex-1 border-r last:border-r-0",
-                  isWeekend && "bg-surface-neutral-secondary/50",
+                  "border-border relative min-w-[96px] flex-1 border-r last:border-r-0",
+                  isWeekend && "bg-muted/50",
                 )}
               >
                 {/* Time slots */}
@@ -148,7 +148,7 @@ export const WeekView = memo(function WeekView({
                     <DroppableCell
                       key={slot.toISOString()}
                       id={`slot-${day.toISOString()}-${hour}`}
-                      className="border-neutral-primary hover:bg-surface-state-neutral-light-hover h-[var(--height)] cursor-pointer border-b transition-colors"
+                      className="border-border hover:bg-accent h-[var(--height)] cursor-pointer border-b transition-colors"
                       style={
                         {
                           "--height": `${HOUR_HEIGHT}px`,
@@ -209,8 +209,8 @@ export const WeekView = memo(function WeekView({
                     }
                   >
                     <div className="flex items-center">
-                      <div className="bg-danger -ml-1 h-2 w-2 rounded-full" />
-                      <div className="border-danger flex-1 border-t-2" />
+                      <div className="bg-destructive -ml-1 h-2 w-2 rounded-full" />
+                      <div className="border-destructive flex-1 border-t-2" />
                     </div>
                   </div>
                 )}

@@ -29,7 +29,7 @@ export function AdminAttendanceOverview({
 
   return (
     <Card>
-      <p className="text-label-md text-foreground-secondary mb-3">
+      <p className="text-label-md text-muted-foreground mb-3">
         Today&apos;s Attendance Overview
       </p>
 
@@ -37,33 +37,33 @@ export function AdminAttendanceOverview({
         {items.map((item) => (
           <div
             key={item.label}
-            className="border-neutral-primary bg-surface-neutral-primary rounded-lg border px-3 py-3"
+            className="border-border bg-card rounded-lg border px-3 py-3"
           >
-            <p className="text-label-sm text-foreground-secondary">
+            <p className="text-label-sm text-muted-foreground">
               {item.label}
             </p>
-            <p className="mt-1 text-heading-md text-foreground-primary">
+            <p className="mt-1 text-heading-md text-foreground">
               {item.value}
             </p>
           </div>
         ))}
       </div>
 
-      <div className="border-neutral-primary mt-4 space-y-4 rounded-lg border px-4 py-3">
+      <div className="border-border mt-4 space-y-4 rounded-lg border px-4 py-3">
         <div className="flex items-end justify-between gap-4">
           <div>
-            <p className="text-label-md text-foreground-secondary">
+            <p className="text-label-md text-muted-foreground">
               Overall Attendance Rate
             </p>
-            <p className="mt-1 text-heading-md text-foreground-primary">
+            <p className="mt-1 text-heading-md text-foreground">
               {onTimePercentage}%
             </p>
           </div>
           <div className="text-right">
-            <p className="text-label-md text-foreground-secondary">
+            <p className="text-label-md text-muted-foreground">
               Present Today
             </p>
-            <p className="mt-1 text-heading-md text-foreground-primary">
+            <p className="mt-1 text-heading-md text-foreground">
               {totalToday} / {total}
             </p>
           </div>
@@ -97,7 +97,7 @@ export function AdminAttendanceOverview({
                 }
               />
               <div
-                className="bg-danger w-[var(--width)]"
+                className="bg-destructive w-[var(--width)]"
                 style={
                   {
                     "--width": `${(absent / total) * 100}%`,

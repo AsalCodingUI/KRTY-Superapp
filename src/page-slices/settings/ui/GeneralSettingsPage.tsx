@@ -8,7 +8,7 @@ export default function GeneralSettingsPage() {
 
   if (loading) {
     return (
-      <div className="text-foreground-secondary text-body-sm p-4">
+      <div className="text-muted-foreground text-body-sm p-4">
         Loading profile...
       </div>
     )
@@ -21,11 +21,11 @@ export default function GeneralSettingsPage() {
           <div>
             <h2
               id="personal-information"
-              className="text-foreground-primary scroll-mt-10 font-semibold"
+              className="text-foreground scroll-mt-10 font-semibold"
             >
               Personal information
             </h2>
-            <p className="text-foreground-secondary text-body-sm mt-1">
+            <p className="text-muted-foreground text-body-sm mt-1">
               Information associated with your profile.
             </p>
           </div>

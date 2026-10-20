@@ -142,7 +142,7 @@ export function AdminViewResultModal({
         </DialogHeader>
 
         <DialogBody className="space-y-4">
-          <p className="text-body-sm text-foreground-secondary">
+          <p className="text-body-sm text-muted-foreground">
             {employee.jobTitle} • {displayQuarter}
           </p>
           {summaryData ? (
@@ -154,7 +154,7 @@ export function AdminViewResultModal({
                       <span className="font-medium">Executive Summary</span>
                     </AccordionTrigger>
                     <AccordionContent>
-                      <p className="text-foreground-secondary text-body-sm whitespace-pre-line">
+                      <p className="text-muted-foreground text-body-sm whitespace-pre-line">
                         {summaryData.additional_feedback ||
                           "No summary available."}
                       </p>
@@ -166,7 +166,7 @@ export function AdminViewResultModal({
                       <span className="font-medium">Keep Doing</span>
                     </AccordionTrigger>
                     <AccordionContent>
-                      <p className="text-foreground-secondary text-body-sm whitespace-pre-line">
+                      <p className="text-muted-foreground text-body-sm whitespace-pre-line">
                         {summaryData.feedback_continue || "No data available."}
                       </p>
                     </AccordionContent>
@@ -177,7 +177,7 @@ export function AdminViewResultModal({
                       <span className="font-medium">Start Doing</span>
                     </AccordionTrigger>
                     <AccordionContent>
-                      <p className="text-foreground-secondary text-body-sm whitespace-pre-line">
+                      <p className="text-muted-foreground text-body-sm whitespace-pre-line">
                         {summaryData.feedback_start || "No data available."}
                       </p>
                     </AccordionContent>
@@ -188,7 +188,7 @@ export function AdminViewResultModal({
                       <span className="font-medium">Stop Doing</span>
                     </AccordionTrigger>
                     <AccordionContent>
-                      <p className="text-foreground-secondary text-body-sm whitespace-pre-line">
+                      <p className="text-muted-foreground text-body-sm whitespace-pre-line">
                         {summaryData.feedback_stop || "No data available."}
                       </p>
                     </AccordionContent>
@@ -206,7 +206,7 @@ export function AdminViewResultModal({
                 />
 
                 <Card>
-                  <h3 className="text-label-sm text-foreground-secondary mb-4 font-medium">
+                  <h3 className="text-label-sm text-muted-foreground mb-4 font-medium">
                     Competency Matrix
                   </h3>
                   <div className="flex justify-center">
@@ -221,9 +221,9 @@ export function AdminViewResultModal({
                     />
                   </div>
                   {skillRatings && (
-                    <div className="border-neutral-primary space-y-3 border-t pt-4">
+                    <div className="border-border space-y-3 border-t pt-4">
                       <div className="flex items-center justify-between">
-                        <span className="text-label-sm text-foreground-secondary">
+                        <span className="text-label-sm text-muted-foreground">
                           Leadership
                         </span>
                         <Badge
@@ -235,7 +235,7 @@ export function AdminViewResultModal({
                         </Badge>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-label-sm text-foreground-secondary">
+                        <span className="text-label-sm text-muted-foreground">
                           Quality
                         </span>
                         <Badge
@@ -245,7 +245,7 @@ export function AdminViewResultModal({
                         </Badge>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-label-sm text-foreground-secondary">
+                        <span className="text-label-sm text-muted-foreground">
                           Reliability
                         </span>
                         <Badge
@@ -257,7 +257,7 @@ export function AdminViewResultModal({
                         </Badge>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-label-sm text-foreground-secondary">
+                        <span className="text-label-sm text-muted-foreground">
                           Communication
                         </span>
                         <Badge
@@ -269,7 +269,7 @@ export function AdminViewResultModal({
                         </Badge>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-label-sm text-foreground-secondary">
+                        <span className="text-label-sm text-muted-foreground">
                           Initiative
                         </span>
                         <Badge

@@ -11,44 +11,44 @@ const EVENT_ITEM_COLORS: Record<
   { background: string; text: string; accent: string }
 > = {
   blue: {
-    background: "bg-surface-brand-light",
-    text: "text-foreground-brand-dark",
-    accent: "bg-[var(--border-brand)]",
+    background: "bg-primary/10",
+    text: "text-primary",
+    accent: "bg-[var(--primary)]",
   },
   violet: {
-    background: "bg-surface-brand-light",
-    text: "text-foreground-brand-dark",
-    accent: "bg-[var(--border-brand)]",
+    background: "bg-primary/10",
+    text: "text-primary",
+    accent: "bg-[var(--primary)]",
   },
   cyan: {
-    background: "bg-surface-brand-light",
-    text: "text-foreground-brand-dark",
-    accent: "bg-[var(--border-brand)]",
+    background: "bg-primary/10",
+    text: "text-primary",
+    accent: "bg-[var(--primary)]",
   },
   emerald: {
-    background: "bg-surface-success-light",
-    text: "text-foreground-success-dark",
+    background: "bg-success/10",
+    text: "text-success",
     accent: "bg-[var(--border-success)]",
   },
   rose: {
-    background: "bg-surface-danger-light",
-    text: "text-foreground-danger-dark",
-    accent: "bg-[var(--border-danger)]",
+    background: "bg-destructive/10",
+    text: "text-destructive",
+    accent: "bg-[var(--destructive)]",
   },
   orange: {
-    background: "bg-surface-warning-light",
-    text: "text-foreground-warning-on-color",
-    accent: "bg-[var(--border-warning)]",
+    background: "bg-warning/10",
+    text: "text-warning",
+    accent: "bg-[var(--warning)]",
   },
   amber: {
-    background: "bg-surface-warning-light",
-    text: "text-foreground-warning-on-color",
-    accent: "bg-[var(--border-warning)]",
+    background: "bg-warning/10",
+    text: "text-warning",
+    accent: "bg-[var(--warning)]",
   },
   neutral: {
-    background: "bg-surface-neutral-secondary",
-    text: "text-foreground-secondary",
-    accent: "bg-[var(--border-neutral-primary)]",
+    background: "bg-muted",
+    text: "text-muted-foreground",
+    accent: "bg-[var(--border)]",
   },
 }
 
@@ -126,7 +126,7 @@ export const EventItem = memo(function EventItem({
         <div className="flex flex-col text-label-xs leading-4">
           <p className={cx("truncate", colors.text)}>{event.title}</p>
           {event.description && (
-            <p className="text-body-xs text-foreground-secondary line-clamp-1">
+            <p className="text-body-xs text-muted-foreground line-clamp-1">
               {event.description}
             </p>
           )}
@@ -136,16 +136,16 @@ export const EventItem = memo(function EventItem({
           <div className="flex flex-wrap items-center gap-lg">
             {showTime && !event.allDay && (
               <div className="flex items-center gap-sm">
-                <RiTimeLine className="size-3.5 text-foreground-secondary" />
-                <span className="text-body-xs text-foreground-secondary">
+                <RiTimeLine className="size-3.5 text-muted-foreground" />
+                <span className="text-body-xs text-muted-foreground">
                   {format(event.start, "HH:mm")} - {format(event.end, "HH:mm")}
                 </span>
               </div>
             )}
             {event.location && (
               <div className="flex items-center gap-sm">
-                <RiMapPinLine className="size-3.5 text-foreground-secondary" />
-                <span className="text-body-xs text-foreground-secondary truncate">
+                <RiMapPinLine className="size-3.5 text-muted-foreground" />
+                <span className="text-body-xs text-muted-foreground truncate">
                   {event.location}
                 </span>
               </div>
@@ -156,7 +156,7 @@ export const EventItem = memo(function EventItem({
 
       {timeLabel && (
         <div className="flex items-center justify-center rounded-sm bg-[rgba(255,255,255,0.6)] px-sm py-xs">
-          <span className="text-label-xs text-foreground-secondary">
+          <span className="text-label-xs text-muted-foreground">
             {timeLabel}
           </span>
         </div>

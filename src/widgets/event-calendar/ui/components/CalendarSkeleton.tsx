@@ -10,11 +10,11 @@ export function CalendarSkeleton() {
   return (
     <div className="flex h-full flex-col">
       {/* Header row */}
-      <div className="border-neutral-primary grid grid-cols-7 border-b">
+      <div className="border-border grid grid-cols-7 border-b">
         {Array.from({ length: daysInWeek }).map((_, i) => (
           <div
             key={i}
-            className="border-neutral-primary border-r p-2 text-center last:border-r-0"
+            className="border-border border-r p-2 text-center last:border-r-0"
           >
             <Skeleton className="mx-auto h-4 w-12" />
           </div>
@@ -29,7 +29,7 @@ export function CalendarSkeleton() {
               <div
                 key={dayIndex}
                 className={cx(
-                  "border-neutral-primary border-r border-b last:border-r-0",
+                  "border-border border-r border-b last:border-r-0",
                   "flex flex-col gap-2 p-2",
                 )}
               >

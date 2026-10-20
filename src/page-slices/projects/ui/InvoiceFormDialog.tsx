@@ -169,7 +169,7 @@ export function PaymentMethodManagerDialog({
                   ) : (
                     <>
                       <span
-                        className="text-body-sm text-foreground-primary flex-1 cursor-pointer truncate"
+                        className="text-body-sm text-foreground flex-1 cursor-pointer truncate"
                         onClick={() => {
                           setEditingId(m.id)
                           setEditingName(m.name)
@@ -181,7 +181,7 @@ export function PaymentMethodManagerDialog({
                         variant="ghost"
                         size="icon-sm"
                         onClick={() => setPendingDeleteId(m.id)}
-                        className="text-foreground-danger-dark"
+                        className="text-destructive"
                       >
                         <RiDeleteBin6Line className="size-3.5" />
                       </Button>
@@ -480,7 +480,7 @@ export function InvoiceFormDialog({
               {lineItems.map((item) => (
                 <div
                   key={item.id}
-                  className="border-neutral-primary grid grid-cols-12 items-end gap-2 rounded-lg border p-3"
+                  className="border-border grid grid-cols-12 items-end gap-2 rounded-lg border p-3"
                 >
                   <div className="col-span-12 space-y-1 sm:col-span-5">
                     <Label>Description</Label>
@@ -525,7 +525,7 @@ export function InvoiceFormDialog({
                     <TextInput
                       value={item.total_idr}
                       readOnly
-                      className="bg-surface-neutral-secondary"
+                      className="bg-muted"
                     />
                   </div>
                   <div className="col-span-1 flex justify-end">
@@ -533,7 +533,7 @@ export function InvoiceFormDialog({
                       variant="ghost"
                       size="icon-sm"
                       onClick={() => removeLineItem(item.id)}
-                      className="text-foreground-danger-dark"
+                      className="text-destructive"
                     >
                       <RiDeleteBin6Line className="size-3.5" />
                     </Button>
@@ -541,7 +541,7 @@ export function InvoiceFormDialog({
                 </div>
               ))}
               {lineItems.length > 0 && (
-                <div className="text-body-sm text-foreground-primary text-right font-semibold">
+                <div className="text-body-sm text-foreground text-right font-semibold">
                   Total: {formatCurrency(lineItemsTotal)}
                 </div>
               )}

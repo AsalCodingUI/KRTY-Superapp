@@ -41,7 +41,7 @@ export const adminAttendanceColumns = (
             color="neutral"
           />
           <span
-            className="text-foreground-primary font-medium whitespace-nowrap"
+            className="text-foreground font-medium whitespace-nowrap"
             title={fullName}
           >
             {fullName}
@@ -55,7 +55,7 @@ export const adminAttendanceColumns = (
     accessorKey: "clock_in",
     header: "Clock In",
     cell: ({ row }) => (
-      <span className="text-foreground-primary tabular-nums">
+      <span className="text-foreground tabular-nums">
         {format(new Date(row.original.clock_in), "HH:mm")}
       </span>
     ),
@@ -69,7 +69,7 @@ export const adminAttendanceColumns = (
         return <Badge variant="warning">On Break</Badge>
       }
       return (
-        <span className="text-foreground-secondary tabular-nums">
+        <span className="text-muted-foreground tabular-nums">
           {row.original.break_total ? `${row.original.break_total}m` : "-"}
         </span>
       )
@@ -82,7 +82,7 @@ export const adminAttendanceColumns = (
     cell: ({ row }) => {
       if (row.original.clock_out) {
         return (
-          <span className="text-foreground-primary tabular-nums">
+          <span className="text-foreground tabular-nums">
             {format(new Date(row.original.clock_out), "HH:mm")}
           </span>
         )
@@ -91,7 +91,7 @@ export const adminAttendanceColumns = (
         return <Badge variant="warning">On Break</Badge>
       }
       return (
-        <span className="font-medium text-foreground-success-dark">Active</span>
+        <span className="font-medium text-success">Active</span>
       )
     },
     meta: { className: "w-[15%]", displayName: "Clock Out" },
@@ -130,7 +130,7 @@ export const adminAttendanceColumns = (
       const mins = Math.floor((workingMs % (1000 * 60 * 60)) / (1000 * 60))
 
       return (
-        <span className="text-foreground-primary font-medium tabular-nums">
+        <span className="text-foreground font-medium tabular-nums">
           {hours}h {mins}m
         </span>
       )

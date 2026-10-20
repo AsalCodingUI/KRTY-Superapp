@@ -24,10 +24,10 @@ export function ReviewStatsHeader({
   return (
     <div className="grid grid-cols-1 gap-lg">
       {/* Quarter Review Card */}
-      <Card className="border-neutral-primary bg-surface-neutral-primary rounded-lg border p-3">
+      <Card className="border-border bg-card rounded-lg border p-3">
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2">
-            <h3 className="text-label-sm text-foreground-secondary">
+            <h3 className="text-label-sm text-muted-foreground">
               Quarter Review
             </h3>
             <Badge variant="zinc" size="sm">
@@ -35,10 +35,10 @@ export function ReviewStatsHeader({
             </Badge>
           </div>
           <div className="flex items-baseline justify-between gap-3">
-            <p className="text-heading-md text-foreground-primary">
+            <p className="text-heading-md text-foreground">
               {getQuarterMonths(selectedQuarter)}
             </p>
-            <span className="text-label-sm text-foreground-secondary whitespace-nowrap">
+            <span className="text-label-sm text-muted-foreground whitespace-nowrap">
               {totalReviewers} Users
             </span>
           </div>
@@ -46,20 +46,20 @@ export function ReviewStatsHeader({
       </Card>
 
       {/* Overall Score Card */}
-      <Card className="border-neutral-primary bg-surface-neutral-primary rounded-lg border p-3">
+      <Card className="border-border bg-card rounded-lg border p-3">
         <div className="flex flex-col gap-1">
-          <h3 className="text-label-sm text-foreground-secondary">
+          <h3 className="text-label-sm text-muted-foreground">
             Overall Score
           </h3>
           <div className="flex items-baseline justify-between gap-3">
-            <p className="text-heading-md text-foreground-primary">
+            <p className="text-heading-md text-foreground">
               {overallPercentage}%
             </p>
             <div className="flex items-center gap-2">
-              <span className="text-label-sm text-foreground-secondary">
+              <span className="text-label-sm text-muted-foreground">
                 Score
               </span>
-              <p className="text-label-sm text-foreground-secondary">
+              <p className="text-label-sm text-muted-foreground">
                 {overallScore.toFixed(1)}
               </p>
               <Badge variant={getRatingBadgeVariant(ratingLevel)} size="sm">

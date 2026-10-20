@@ -201,39 +201,39 @@ function CalendarContent({
   return (
     <div className="flex min-h-[calc(100vh-1rem)] flex-col">
       <div className="flex items-center gap-lg rounded-xxl px-4 pt-4 pb-3 xl:px-5">
-        <RiCalendarLine className="size-4 text-foreground-secondary" />
-        <p className="text-label-md text-foreground-primary">Kalender</p>
+        <RiCalendarLine className="size-4 text-muted-foreground" />
+        <p className="text-label-md text-foreground">Kalender</p>
       </div>
 
-      <div className="flex min-h-0 flex-1 flex-col rounded-xxl bg-surface-neutral-primary">
+      <div className="flex min-h-0 flex-1 flex-col rounded-xxl bg-card">
         <div className="grid grid-cols-2 gap-3 px-4 py-3 sm:gap-lg sm:py-2 xl:grid-cols-3 xl:px-5">
-          <div className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-lg border px-4 py-3">
-            <p className="text-label-sm text-foreground-secondary">
+          <div className="border-border bg-card flex flex-col gap-1 rounded-lg border px-4 py-3">
+            <p className="text-label-sm text-muted-foreground">
               Tanggal Saat Ini
             </p>
-            <p className="text-heading-md text-foreground-primary">
+            <p className="text-heading-md text-foreground">
               {format(currentDate, "EEEE, dd MMM", { locale: id })}
             </p>
           </div>
-          <div className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-lg border px-4 py-3">
-            <p className="text-label-sm text-foreground-secondary">
+          <div className="border-border bg-card flex flex-col gap-1 rounded-lg border px-4 py-3">
+            <p className="text-label-sm text-muted-foreground">
               Rapat Hari Ini
             </p>
-            <p className="text-heading-md text-foreground-primary">
+            <p className="text-heading-md text-foreground">
               {meetingCount}
             </p>
           </div>
-          <div className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-lg border px-4 py-3">
-            <p className="text-label-sm text-foreground-secondary">
+          <div className="border-border bg-card flex flex-col gap-1 rounded-lg border px-4 py-3">
+            <p className="text-label-sm text-muted-foreground">
               Jadwal Minggu Ini
             </p>
-            <p className="text-heading-md text-foreground-primary">
+            <p className="text-heading-md text-foreground">
               {upcomingThisWeek}
             </p>
           </div>
         </div>
 
-        <div className="border-b border-neutral-primary px-4 py-3 sm:py-2 xl:px-5">
+        <div className="border-b border-border px-4 py-3 sm:py-2 xl:px-5">
           <CalendarToolbar
             onAddEvent={() => setDialogOpen(true)}
             showAddEvent={isStakeholder}

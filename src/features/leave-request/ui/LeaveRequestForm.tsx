@@ -99,7 +99,7 @@ export function LeaveRequestForm({
         />
 
         {formData.start_date && formData.end_date && (
-          <p className="text-body-xs text-foreground-secondary mt-2">
+          <p className="text-body-xs text-muted-foreground mt-2">
             Durasi:{" "}
             {calculateBusinessDays(formData.start_date, formData.end_date)} hari
             kerja.
@@ -109,8 +109,8 @@ export function LeaveRequestForm({
           <p
             className={
               noticeInvalid
-                ? "text-body-xs text-foreground-danger-dark mt-1"
-                : "text-body-xs text-foreground-secondary mt-1"
+                ? "text-body-xs text-destructive mt-1"
+                : "text-body-xs text-muted-foreground mt-1"
             }
           >
             {noticeMessage}
@@ -144,13 +144,13 @@ export function LeaveRequestForm({
               disabled={compressing}
             />
             {compressing && (
-              <span className="text-body-xs flex animate-pulse items-center gap-1 whitespace-nowrap text-foreground-brand">
+              <span className="text-body-xs flex animate-pulse items-center gap-1 whitespace-nowrap text-primary">
                 <RiLoader2Line className="size-3 animate-spin" />
                 Processing...
               </span>
             )}
           </div>
-          <p className="text-body-xs text-content-placeholder mt-1">
+          <p className="text-body-xs text-muted-foreground/60 mt-1">
             Max 1MB (Auto Compressed).
           </p>
         </div>

@@ -331,13 +331,13 @@ export function EmployeeLeavePage({
               <DialogCloseButton />
             </DialogHeader>
             <DialogBody>
-              <p className="text-body-sm text-foreground-secondary">
+              <p className="text-body-sm text-muted-foreground">
                 Kami mendeteksi sesi attendance sebelumnya belum tertutup. Ini
                 biasanya terjadi kalau laptop mati, browser tertutup, atau clock
                 out gagal terkirim.
               </p>
               {staleSession && (
-                <p className="text-body-sm text-foreground-secondary mt-3">
+                <p className="text-body-sm text-muted-foreground mt-3">
                   Tutup sesi dari{" "}
                   {format(
                     parseISO(getAttendanceLogLocalDate(staleSession)),
@@ -365,24 +365,24 @@ export function EmployeeLeavePage({
         </Dialog>
 
         <div className="flex items-center gap-2 rounded-xxl px-5 pt-4 pb-3">
-          <RiUserSmileLine className="size-4 text-foreground-secondary" />
-          <p className="text-label-md text-foreground-primary">
+          <RiUserSmileLine className="size-4 text-muted-foreground" />
+          <p className="text-label-md text-foreground">
             Leave & Attendance Center
           </p>
         </div>
 
-        <div className="flex flex-col rounded-xxl bg-surface-neutral-primary">
+        <div className="flex flex-col rounded-xxl bg-card">
           <div className="grid grid-cols-2 gap-lg px-5 py-2 lg:grid-cols-5">
-            <div className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-lg border px-4 py-3 col-span-2">
-              <p className="text-label-sm text-foreground-secondary">
+            <div className="border-border bg-card flex flex-col gap-1 rounded-lg border px-4 py-3 col-span-2">
+              <p className="text-label-sm text-muted-foreground">
                 Current Time
               </p>
               <div className="flex flex-wrap items-center justify-between gap-4">
                 <div className="flex flex-wrap items-baseline gap-2">
-                  <p className="text-heading-md text-foreground-primary">
+                  <p className="text-heading-md text-foreground">
                     {currentTime ? format(currentTime, "HH:mm:ss") : "--:--:--"}
                   </p>
-                  <p className="text-body-sm text-foreground-secondary">
+                  <p className="text-body-sm text-muted-foreground">
                     {currentTime ? format(currentTime, "EEEE, dd MMM") : ""}
                   </p>
                 </div>
@@ -392,7 +392,7 @@ export function EmployeeLeavePage({
                     <div className="h-[28px]" />
                   ) : staleSession && !activeSession ? (
                     <div className="flex flex-col items-end gap-2">
-                      <p className="text-body-xs text-foreground-danger-dark text-right">
+                      <p className="text-body-xs text-destructive text-right">
                         Sesi {format(parseISO(getAttendanceLogLocalDate(staleSession)), "dd MMM yyyy")} belum ditutup.
                       </p>
                       <Button
@@ -413,7 +413,7 @@ export function EmployeeLeavePage({
                         <DropdownMenuTrigger asChild>
                           <Button size="sm" variant="secondary" type="button">
                             {getStatusLabel(selectedStatus)}
-                            <RiArrowDownSLine className="text-foreground-secondary ml-2 size-4 shrink-0" />
+                            <RiArrowDownSLine className="text-muted-foreground ml-2 size-4 shrink-0" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="start">
@@ -473,35 +473,35 @@ export function EmployeeLeavePage({
               </div>
             </div>
 
-            <div className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-lg border px-4 py-3">
-              <p className="text-label-sm text-foreground-secondary">
+            <div className="border-border bg-card flex flex-col gap-1 rounded-lg border px-4 py-3">
+              <p className="text-label-sm text-muted-foreground">
                 Annual Leave Balance
               </p>
-              <p className="text-heading-md text-foreground-primary">
+              <p className="text-heading-md text-foreground">
                 {leaveStats.annualRemaining}/{leaveStats.annualTotal} Days
               </p>
             </div>
 
-            <div className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-lg border px-4 py-3">
-              <p className="text-label-sm text-foreground-secondary">
+            <div className="border-border bg-card flex flex-col gap-1 rounded-lg border px-4 py-3">
+              <p className="text-label-sm text-muted-foreground">
                 Sick Leave
               </p>
-              <p className="text-heading-md text-foreground-primary">
+              <p className="text-heading-md text-foreground">
                 {leaveStats.sickDays}
               </p>
             </div>
 
-            <div className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-lg border px-4 py-3">
-              <p className="text-label-sm text-foreground-secondary">
+            <div className="border-border bg-card flex flex-col gap-1 rounded-lg border px-4 py-3">
+              <p className="text-label-sm text-muted-foreground">
                 Work From Home
               </p>
-              <p className="text-heading-md text-foreground-primary">
+              <p className="text-heading-md text-foreground">
                 {leaveStats.wfhDays}
               </p>
             </div>
           </div>
 
-          <div className="px-5 pt-2 border-b border-neutral-primary">
+          <div className="px-5 pt-2 border-b border-border">
             <div className="xl:hidden space-y-3 pb-2">
               {hasClientMounted ? (
                 <Select
@@ -519,7 +519,7 @@ export function EmployeeLeavePage({
                   </SelectContent>
                 </Select>
               ) : (
-                <div className="border-neutral-primary bg-surface h-9 w-full rounded-lg border" />
+                <div className="border-border bg-card h-9 w-full rounded-lg border" />
               )}
               {isMounted("leave") && activeTab === "leave" && (
                 <div className="grid grid-cols-2 gap-2">
@@ -631,7 +631,7 @@ export function EmployeeLeavePage({
             <DialogCloseButton />
           </DialogHeader>
           <DialogBody>
-            <p className="text-body-sm text-foreground-secondary">
+            <p className="text-body-sm text-muted-foreground">
               Apakah Anda yakin ingin mengajukan penghapusan data attendance ini?
             </p>
           </DialogBody>

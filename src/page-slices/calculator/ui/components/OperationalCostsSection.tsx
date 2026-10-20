@@ -23,10 +23,10 @@ export function OperationalCostsSection({
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h3 className="text-label-md text-foreground-primary">
+          <h3 className="text-label-md text-foreground">
             Operational Costs
           </h3>
-          <p className="text-body-sm text-foreground-secondary">
+          <p className="text-body-sm text-muted-foreground">
             Monthly overhead allocation used for this project.
           </p>
         </div>
@@ -69,7 +69,7 @@ export function OperationalCostsSection({
       <div className="mt-6 space-y-3">
         {costItems.length === 0 && (
           <div className="rounded-md border border-dashed p-6 text-center">
-            <p className="text-body-sm text-foreground-secondary">
+            <p className="text-body-sm text-muted-foreground">
               No operational costs loaded yet.
             </p>
           </div>
@@ -77,17 +77,17 @@ export function OperationalCostsSection({
         {costItems.map((item) => (
           <div
             key={item.id ?? item.item_name}
-            className="border-neutral-primary bg-surface flex flex-wrap items-center justify-between gap-2 rounded-lg border px-4 py-3"
+            className="border-border bg-card flex flex-wrap items-center justify-between gap-2 rounded-lg border px-4 py-3"
           >
             <div>
-              <p className="text-label-md text-foreground-primary">
+              <p className="text-label-md text-foreground">
                 {item.item_name}
               </p>
-              <p className="text-label-xs text-foreground-secondary">
+              <p className="text-label-xs text-muted-foreground">
                 {item.category}
               </p>
             </div>
-            <div className="text-label-md text-foreground-primary">
+            <div className="text-label-md text-foreground">
               Rp {formatNumber(String(item.amount_idr ?? 0))}
             </div>
           </div>

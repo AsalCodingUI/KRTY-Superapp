@@ -23,7 +23,7 @@ export function ProjectContextSection({
 }: ProjectContextSectionProps) {
   return (
     <div>
-      <h3 className="text-label-md text-foreground-primary">Project Context</h3>
+      <h3 className="text-label-md text-foreground">Project Context</h3>
       <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
         <div>
           <Label htmlFor="revenue">Revenue (USD)</Label>

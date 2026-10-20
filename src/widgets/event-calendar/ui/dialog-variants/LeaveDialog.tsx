@@ -72,28 +72,28 @@ export function LeaveDialog({ open, onOpenChange, event }: LeaveDialogProps) {
 
           {/* Employee Name */}
           <div className="space-y-2">
-            <div className="text-label-sm text-foreground-secondary flex items-center gap-2">
-              <RiUserLine className="text-foreground-secondary h-4 w-4" />
+            <div className="text-label-sm text-muted-foreground flex items-center gap-2">
+              <RiUserLine className="text-muted-foreground h-4 w-4" />
               <span>Karyawan</span>
             </div>
-            <div className="text-body-sm text-foreground-primary pl-6">{employeeName}</div>
+            <div className="text-body-sm text-foreground pl-6">{employeeName}</div>
           </div>
 
           {/* Date Range */}
           <div className="space-y-2">
-            <div className="text-label-sm text-foreground-secondary flex items-center gap-2">
-              <RiCalendarLine className="text-foreground-secondary h-4 w-4" />
+            <div className="text-label-sm text-muted-foreground flex items-center gap-2">
+              <RiCalendarLine className="text-muted-foreground h-4 w-4" />
               <span>Periode Cuti</span>
             </div>
             <div className="space-y-1 pl-6">
-              <div className="text-foreground-primary flex items-center gap-2">
-                <span className="text-body-sm text-foreground-secondary">Mulai:</span>
+              <div className="text-foreground flex items-center gap-2">
+                <span className="text-body-sm text-muted-foreground">Mulai:</span>
                 <span className="text-body-sm">
                   {format(event.start, "EEEE, d MMMM yyyy", { locale: id })}
                 </span>
               </div>
-              <div className="text-foreground-primary flex items-center gap-2">
-                <span className="text-body-sm text-foreground-secondary">
+              <div className="text-foreground flex items-center gap-2">
+                <span className="text-body-sm text-muted-foreground">
                   Selesai:
                 </span>
                 <span className="text-body-sm">
@@ -106,14 +106,14 @@ export function LeaveDialog({ open, onOpenChange, event }: LeaveDialogProps) {
           {/* Reason/Description */}
           {event.description && (
             <div className="space-y-2">
-              <div className="text-label-sm text-foreground-secondary flex items-center gap-2">
-                <RiFileTextLine className="text-foreground-secondary h-4 w-4" />
+              <div className="text-label-sm text-muted-foreground flex items-center gap-2">
+                <RiFileTextLine className="text-muted-foreground h-4 w-4" />
                 <span>Alasan</span>
               </div>
               <div
                 className={cx(
-                  "text-body-sm text-foreground-primary pl-6",
-                  "bg-surface-neutral-secondary border-neutral-primary rounded-md border p-3",
+                  "text-body-sm text-foreground pl-6",
+                  "bg-muted border-border rounded-md border p-3",
                 )}
               >
                 {event.description}

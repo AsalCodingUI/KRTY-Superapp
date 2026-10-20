@@ -414,7 +414,7 @@ export function getEventDotColorClass(color: string): string {
     emerald: "bg-emerald-500 dark:bg-emerald-600",
     orange: "bg-orange-500 dark:bg-orange-600",
     violet: "bg-violet-500 dark:bg-violet-600",
-    blue: "bg-surface-brand dark:bg-surface-brand",
+    blue: "bg-primary dark:bg-primary",
     rose: "bg-rose-500 dark:bg-rose-600",
     amber: "bg-amber-500 dark:bg-amber-600",
     cyan: "bg-cyan-500 dark:bg-cyan-600",

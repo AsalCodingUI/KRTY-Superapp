@@ -54,18 +54,18 @@ export function EventCard({
   const getColorClasses = (color: EventColor): string => {
     const colorMap: Record<EventColor, string> = {
       emerald:
-        "bg-surface-success-light text-foreground-success-dark border-success-subtle",
+        "bg-success/10 text-success border-success/30",
       orange:
-        "bg-surface-warning-light text-foreground-warning-dark border-warning-subtle",
+        "bg-warning/10 text-warning border-warning/30",
       violet:
-        "bg-surface-chart-4 text-foreground-chart-4 border-border-neutral-secondary",
-      blue: "bg-surface-brand-light text-foreground-brand-dark border-brand-light",
-      rose: "bg-surface-chart-5 text-foreground-chart-5 border-border-neutral-secondary",
+        "bg-purple-500/10 text-purple-700 dark:text-purple-300 border-border",
+      blue: "bg-primary/10 text-primary border-primary/30",
+      rose: "bg-pink-500/10 text-pink-700 dark:text-pink-300 border-border",
       amber:
-        "bg-surface-warning-light text-foreground-warning-dark border-warning-subtle",
-      cyan: "bg-surface-chart-6 text-foreground-chart-6 border-border-neutral-secondary",
+        "bg-warning/10 text-warning border-warning/30",
+      cyan: "bg-cyan-500/10 text-cyan-700 dark:text-cyan-300 border-border",
       neutral:
-        "bg-surface-neutral-secondary text-foreground-secondary border-neutral-secondary",
+        "bg-muted text-muted-foreground border-border",
     }
     return colorMap[color] || colorMap.neutral
   }

@@ -170,7 +170,7 @@ export function WorkQualityTab() {
                   </TableCell>
                   <TableCell>
                     <span
-                      className="text-foreground-primary block font-medium whitespace-normal break-words line-clamp-2"
+                      className="text-foreground block font-medium whitespace-normal break-words line-clamp-2"
                       title={competency.name}
                     >
                       {competency.name}
@@ -178,7 +178,7 @@ export function WorkQualityTab() {
                   </TableCell>
                   <TableCell>
                     <span
-                      className="text-foreground-secondary block whitespace-normal break-words"
+                      className="text-muted-foreground block whitespace-normal break-words"
                       title={competency.description || "-"}
                     >
                       {competency.description || "-"}
@@ -201,7 +201,7 @@ export function WorkQualityTab() {
                           handleDelete(competency.id, competency.name)
                         }
                         title="Delete Competency"
-                        className="text-foreground-danger-dark hover:bg-surface-danger-light"
+                        className="text-destructive hover:bg-destructive/10"
                       >
                         <RiDeleteBin6Line className="size-3.5" />
                       </Button>
@@ -216,15 +216,15 @@ export function WorkQualityTab() {
 
       {/* INFO BOX */}
       <div className="bg-primary/10 rounded-lg p-4">
-        <h4 className="text-label-md text-foreground-brand-primary">
+        <h4 className="text-label-md text-primary">
           How Work Quality Assessment Works
         </h4>
-        <p className="text-label-md text-foreground-brand-primary/80 mt-2">
+        <p className="text-label-md text-primary/80 mt-2">
           Competencies defined here will automatically appear as checklists when
           admins grade employee projects. The competencies shown are filtered by
           the employee&apos;s role in the project.
         </p>
-        <p className="text-body-sm text-foreground-brand-primary/80 mt-2">
+        <p className="text-body-sm text-primary/80 mt-2">
           <strong>Example:</strong> If an employee is assigned as &quot;UIX
           Designer&quot; on a project, only competencies for &quot;UIX
           Designer&quot; role will appear in their Work Quality checklist.

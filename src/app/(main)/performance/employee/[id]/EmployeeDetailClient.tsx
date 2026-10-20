@@ -148,8 +148,8 @@ export function EmployeeDetailClient({
       <div
         className={
           showBackButton
-            ? "bg-surface-neutral-primary flex flex-col rounded-xxl px-4 py-5 space-y-5 xl:px-5"
-            : "bg-surface-neutral-primary flex flex-col rounded-xxl space-y-5"
+            ? "bg-card flex flex-col rounded-xxl px-4 py-5 space-y-5 xl:px-5"
+            : "bg-card flex flex-col rounded-xxl space-y-5"
         }
       >
         {/* Back Button - Only for Admin/Stakeholder POV */}
@@ -171,10 +171,10 @@ export function EmployeeDetailClient({
               src={employee.avatar_url || undefined}
             />
             <div>
-              <h1 className="text-heading-md text-foreground-primary">
+              <h1 className="text-heading-md text-foreground">
                 {employee.full_name}
               </h1>
-              <p className="text-label-md text-foreground-secondary">
+              <p className="text-label-md text-muted-foreground">
                 {employee.job_title}
               </p>
             </div>
@@ -213,7 +213,7 @@ export function EmployeeDetailClient({
                 {overview.map((row, idx) => (
                   <TableRow
                     key={idx}
-                    className="group transition-colors hover:bg-surface-state-neutral-light-hover"
+                    className="group transition-colors hover:bg-accent"
                   >
                     <TableCell>{row.objective}</TableCell>
                     <TableCell>{row.keyResult}</TableCell>
@@ -222,7 +222,7 @@ export function EmployeeDetailClient({
                     <TableCell>
                       {row.result !== null ? (
                         <div className="flex items-center gap-2">
-                          <span className="text-foreground-primary font-medium">
+                          <span className="text-foreground font-medium">
                             {row.result}%
                           </span>
                           {(() => {
@@ -258,7 +258,7 @@ export function EmployeeDetailClient({
                           })()}
                         </div>
                       ) : (
-                        <span className="text-foreground-disable">No data yet</span>
+                        <span className="text-muted-foreground/50">No data yet</span>
                       )}
                     </TableCell>
                   </TableRow>
@@ -299,7 +299,7 @@ export function EmployeeDetailClient({
                 {assignments.map((assignment) => (
                   <TableRow
                     key={assignment.id}
-                    className="group cursor-pointer transition-colors hover:bg-surface-state-neutral-light-hover"
+                    className="group cursor-pointer transition-colors hover:bg-accent"
                     onClick={() => handleProjectRowClick(assignment)}
                   >
                     <TableCell>
@@ -307,7 +307,7 @@ export function EmployeeDetailClient({
                         <Link
                           href={`/performance/employee/${employee.id}/project/${assignment.projects.id}?back=${encodeURIComponent(projectBackHref)}`}
                           onClick={(e) => e.stopPropagation()}
-                          className="text-foreground-primary hover:text-foreground-primary font-medium"
+                          className="text-foreground hover:text-foreground font-medium"
                           title={
                             assignment.projects.description
                               ? `${assignment.projects.name} — ${assignment.projects.description}`
@@ -323,7 +323,7 @@ export function EmployeeDetailClient({
                             e.stopPropagation()
                             openProjectModal(assignment)
                           }}
-                          className="text-foreground-primary hover:text-foreground-primary font-medium text-left"
+                          className="text-foreground hover:text-foreground font-medium text-left"
                           title={
                             assignment.projects.description
                               ? `${assignment.projects.name} — ${assignment.projects.description}`
@@ -385,7 +385,7 @@ export function EmployeeDetailClient({
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <span className="text-foreground-primary">
+                      <span className="text-foreground">
                         {format(
                           new Date(assignment.projects.start_date),
                           "MMM d",

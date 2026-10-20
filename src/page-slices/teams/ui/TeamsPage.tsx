@@ -85,8 +85,8 @@ export function TeamsPage({
     <>
       <div className="flex flex-col">
         <div className="flex items-center gap-2 rounded-xxl px-5 pt-4 pb-3">
-          <RiGroupLine className="size-4 text-foreground-secondary" />
-          <p className="text-label-md text-foreground-primary">
+          <RiGroupLine className="size-4 text-muted-foreground" />
+          <p className="text-label-md text-foreground">
             Team Members
           </p>
         </div>
@@ -102,19 +102,19 @@ export function TeamsPage({
             ].map((item) => (
               <div
                 key={item.label}
-                className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-lg border px-4 py-3"
+                className="border-border bg-card flex flex-col gap-1 rounded-lg border px-4 py-3"
               >
-                <p className="text-label-sm text-foreground-secondary">
+                <p className="text-label-sm text-muted-foreground">
                   {item.label}
                 </p>
-                <p className="text-heading-md text-foreground-primary">
+                <p className="text-heading-md text-foreground">
                   {item.value}
                 </p>
               </div>
             ))}
           </section>
 
-          <div className="flex flex-col gap-3 border-b border-neutral-primary bg-surface-neutral-primary px-5 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-3 border-b border-border bg-card px-5 py-3 sm:flex-row sm:items-center sm:justify-between">
             <TextInput
               type="search"
               placeholder="Search..."

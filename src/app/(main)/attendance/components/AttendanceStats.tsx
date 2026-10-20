@@ -138,13 +138,13 @@ export function AttendanceStats({
       )}
 
       {staleSession && (
-        <div className="bg-danger/10 border-danger/20 mb-6 rounded-md border p-4">
+        <div className="bg-destructive/10 border-destructive/20 mb-6 rounded-md border p-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h3 className="text-label-md text-foreground-danger-dark">
+              <h3 className="text-label-md text-destructive">
                 Sesi attendance sebelumnya belum ditutup
               </h3>
-              <p className="text-body-sm text-foreground-secondary mt-1">
+              <p className="text-body-sm text-muted-foreground mt-1">
                 Sesi tanggal {format(parseISO(getAttendanceLogLocalDate(staleSession)), "dd MMM yyyy")} masih aktif.
                 Tutup sesi ini dulu sebelum clock in hari ini.
               </p>
@@ -168,14 +168,14 @@ export function AttendanceStats({
         {/* CARD 1: CLOCK ACTION */}
         <Card className="flex h-full flex-col justify-between px-4 py-3">
           <div>
-            <dt className="text-label-md text-foreground-secondary">
+            <dt className="text-label-md text-muted-foreground">
               Current Time
             </dt>
             <dd className="mt-2 flex items-baseline gap-2">
-              <span className="text-display-xxs text-foreground-primary tabular-nums">
+              <span className="text-display-xxs text-foreground tabular-nums">
                 {currentTime ? format(currentTime, "HH:mm:ss") : "--:--:--"}
               </span>
-              <span className="text-body-sm text-foreground-secondary">
+              <span className="text-body-sm text-muted-foreground">
                 {currentTime ? format(currentTime, "EEEE, dd MMM") : ""}
               </span>
             </dd>
@@ -190,7 +190,7 @@ export function AttendanceStats({
                     <Button asChild size="sm" variant="secondary" type="button">
                       <button>
                         {getStatusLabel(selectedStatus)}
-                        <RiArrowDownSLine className="text-foreground-secondary ml-2 size-4 shrink-0" />
+                        <RiArrowDownSLine className="text-muted-foreground ml-2 size-4 shrink-0" />
                       </button>
                     </Button>
                   </DropdownMenuTrigger>
@@ -257,23 +257,23 @@ export function AttendanceStats({
 
         {/* CARD 2: SESSION INFO */}
         <Card className="h-full px-4 py-3">
-          <h3 className="text-label-md text-foreground-secondary">
+          <h3 className="text-label-md text-muted-foreground">
             Session Info
           </h3>
-          <dl className="text-body-sm mt-4 divide-y divide-neutral-primary">
+          <dl className="text-body-sm mt-4 divide-y divide-border">
             <div className="flex items-center justify-between py-2">
-              <dt className="text-foreground-secondary">
+              <dt className="text-muted-foreground">
                 First Clock In
               </dt>
-              <dd className="text-foreground-primary font-medium">
+              <dd className="text-foreground font-medium">
                 {activeSession ? formatTime(activeSession.clock_in) : "--:--"}
               </dd>
             </div>
             <div className="flex items-center justify-between py-2">
-              <dt className="text-foreground-secondary">
+              <dt className="text-muted-foreground">
                 Working Duration
               </dt>
-              <dd className="text-foreground-primary font-medium tabular-nums">
+              <dd className="text-foreground font-medium tabular-nums">
                 {activeSession && currentTime
                   ? (() => {
                     const start = new Date(activeSession.clock_in).getTime()
@@ -303,10 +303,10 @@ export function AttendanceStats({
               </dd>
             </div>
             <div className="flex items-center justify-between py-2">
-              <dt className="text-foreground-secondary">
+              <dt className="text-muted-foreground">
                 Activity
               </dt>
-              <dd className="text-foreground-primary font-medium">
+              <dd className="text-foreground font-medium">
                 {activeSession
                   ? activeSession.is_break
                     ? "On Break"
@@ -325,13 +325,13 @@ export function AttendanceStats({
             <DialogCloseButton />
           </DialogHeader>
           <DialogBody>
-            <p className="text-body-sm text-foreground-secondary">
+            <p className="text-body-sm text-muted-foreground">
               Kami mendeteksi sesi attendance lama yang belum ditutup. Ini
               biasanya terjadi saat laptop sleep, browser tertutup, atau koneksi
               terputus sebelum clock out tersimpan.
             </p>
             {staleSession && (
-              <p className="text-body-sm text-foreground-secondary mt-3">
+              <p className="text-body-sm text-muted-foreground mt-3">
                 Sesi dari{" "}
                 {format(
                   parseISO(getAttendanceLogLocalDate(staleSession)),
@@ -375,7 +375,7 @@ export function AttendanceStats({
             <DialogCloseButton />
           </DialogHeader>
           <DialogBody>
-            <p className="text-body-sm text-foreground-secondary">
+            <p className="text-body-sm text-muted-foreground">
               {confirmAction === "CLOCK_IN"
                 ? `Anda akan masuk dengan status: ${getStatusLabel(selectedStatus)}. Lanjutkan?`
                 : "Apakah Anda yakin ingin mengakhiri sesi kerja ini?"}

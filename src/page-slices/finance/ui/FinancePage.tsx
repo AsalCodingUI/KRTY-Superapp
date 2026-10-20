@@ -178,12 +178,12 @@ function InvoicesTabContent({
                     }}
                   >
                     <TableCell>
-                      <span className="text-foreground-primary font-medium">
+                      <span className="text-foreground font-medium">
                         {inv.invoice_number}
                       </span>
                     </TableCell>
                     <TableCell>
-                      <span className="text-foreground-primary">
+                      <span className="text-foreground">
                         {project?.name || "—"}
                       </span>
                     </TableCell>
@@ -316,11 +316,11 @@ export function FinancePage() {
   return (
     <div className="flex flex-col">
       <div className="rounded-xxl flex items-center gap-2 px-5 pt-4 pb-3">
-        <RiMoneyDollarCircleLine className="text-foreground-secondary size-4" />
-        <p className="text-label-md text-foreground-primary">Finance</p>
+        <RiMoneyDollarCircleLine className="text-muted-foreground size-4" />
+        <p className="text-label-md text-foreground">Finance</p>
       </div>
 
-      <div className="bg-surface-neutral-primary rounded-xxl flex flex-col">
+      <div className="bg-card rounded-xxl flex flex-col">
         <div className="px-5 py-2">
           {isInvoicesLoading ? (
             <div className="flex items-center justify-center py-8">
@@ -337,12 +337,12 @@ export function FinancePage() {
               ].map((stat) => (
                 <div
                   key={stat.label}
-                  className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-lg border px-4 py-3"
+                  className="border-border bg-card flex flex-col gap-1 rounded-lg border px-4 py-3"
                 >
-                  <dt className="text-label-sm text-foreground-secondary">
+                  <dt className="text-label-sm text-muted-foreground">
                     {stat.label}
                   </dt>
-                  <dd className="text-heading-md text-foreground-primary">
+                  <dd className="text-heading-md text-foreground">
                     {stat.value}
                   </dd>
                 </div>
@@ -351,7 +351,7 @@ export function FinancePage() {
           )}
         </div>
 
-        <div className="border-neutral-primary border-b px-5 pt-2">
+        <div className="border-border border-b px-5 pt-2">
           <div className="pb-2 xl:hidden">
             <Select
               value={activeTab}

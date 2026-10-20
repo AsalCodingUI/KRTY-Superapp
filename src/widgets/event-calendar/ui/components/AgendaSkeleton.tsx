@@ -8,7 +8,7 @@ export function AgendaSkeleton() {
       {Array.from({ length: 5 }).map((_, i) => (
         <div
           key={i}
-          className="border-neutral-primary flex gap-4 rounded-lg border p-4"
+          className="border-border flex gap-4 rounded-lg border p-4"
         >
           {/* Date column */}
           <div className="flex w-16 flex-col items-center gap-1">

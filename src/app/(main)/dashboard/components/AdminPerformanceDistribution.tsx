@@ -29,10 +29,10 @@ export function AdminPerformanceDistribution({
   return (
     <Card>
       <div className="mb-3 flex items-center justify-between">
-        <p className="text-label-md text-foreground-secondary">
+        <p className="text-label-md text-muted-foreground">
           Performance Distribution
         </p>
-        <span className="text-body-xs text-foreground-tertiary tabular-nums">
+        <span className="text-body-xs text-muted-foreground/70 tabular-nums">
           {total} employees
         </span>
       </div>
@@ -46,23 +46,23 @@ export function AdminPerformanceDistribution({
           className="min-h-[160px] px-0 py-6"
         />
       ) : (
-        <div className="border-neutral-primary divide-neutral-primary overflow-hidden rounded-lg border divide-y">
+        <div className="border-border divide-border overflow-hidden rounded-lg border divide-y">
           {items.map((item) => {
             const percentage = total > 0 ? Math.round((item.count / total) * 100) : 0
 
             return (
               <div key={item.label} className="px-3 py-2">
                 <div className="mb-1 flex items-center justify-between gap-3">
-                  <p className="text-body-sm text-foreground-primary">
+                  <p className="text-body-sm text-foreground">
                     {item.label}
                   </p>
-                  <p className="text-body-xs text-foreground-secondary tabular-nums">
+                  <p className="text-body-xs text-muted-foreground tabular-nums">
                     {item.count} ({percentage}%)
                   </p>
                 </div>
-                <div className="bg-surface-neutral-secondary h-1.5 overflow-hidden rounded-full">
+                <div className="bg-muted h-1.5 overflow-hidden rounded-full">
                   <div
-                    className="bg-foreground-brand-primary h-full rounded-full"
+                    className="bg-primary h-full rounded-full"
                     style={{ width: `${percentage}%` }}
                   />
                 </div>

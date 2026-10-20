@@ -66,15 +66,15 @@ export function TeamMemberList({
       {members.map((member) => (
         <div
           key={member.id}
-          className="border-border bg-surface flex items-center justify-between rounded-lg border p-4"
+          className="border-border bg-card flex items-center justify-between rounded-lg border p-4"
         >
           <div className="flex items-center gap-4">
-            <span className="bg-muted text-label-md text-content-subtle inline-flex size-10 items-center justify-center rounded-full">
+            <span className="bg-muted text-label-md text-muted-foreground inline-flex size-10 items-center justify-center rounded-full">
               {getInitials(member.full_name || "")}
             </span>
             <div>
-              <p className="text-content font-medium">{member.full_name}</p>
-              <p className="text-body-sm text-content-subtle">{member.email}</p>
+              <p className="text-foreground font-medium">{member.full_name}</p>
+              <p className="text-body-sm text-muted-foreground">{member.email}</p>
             </div>
           </div>
 
@@ -83,7 +83,7 @@ export function TeamMemberList({
               <Badge variant={getJobTitleVariant(member.job_title || "")}>
                 {member.job_title}
               </Badge>
-              <p className="text-body-sm text-content-subtle mt-1">
+              <p className="text-body-sm text-muted-foreground mt-1">
                 {formatRupiah(member.hourly_rate || 0)}/hr
               </p>
             </div>

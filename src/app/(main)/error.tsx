@@ -17,25 +17,25 @@ export default function Error({
   }, [error])
 
   return (
-    <div className="bg-surface min-h-[calc(100vh-1rem)] px-4 py-8">
+    <div className="bg-card min-h-[calc(100vh-1rem)] px-4 py-8">
       <div className="flex min-h-[calc(100vh-6rem)] items-center justify-center">
         <Card className="w-full p-8 text-center">
           <div className="space-y-5">
-            <div className="bg-surface-danger-light mx-auto flex size-14 items-center justify-center rounded-full border border-border-danger-light">
-              <span className="text-heading-md text-foreground-danger">⚠️</span>
+            <div className="bg-destructive/10 mx-auto flex size-14 items-center justify-center rounded-full border border-destructive/30">
+              <span className="text-heading-md text-destructive">⚠️</span>
             </div>
 
-            <h2 className="text-heading-lg text-foreground-primary">
+            <h2 className="text-heading-lg text-foreground">
               Terjadi Kesalahan
             </h2>
 
-            <p className="text-body-sm text-foreground-secondary">
+            <p className="text-body-sm text-muted-foreground">
               Maaf, terjadi kesalahan saat memuat halaman ini. Silakan coba lagi
               atau kembali ke dashboard.
             </p>
 
             {error.digest && (
-              <p className="text-body-xs text-foreground-tertiary tabular-nums">
+              <p className="text-body-xs text-muted-foreground/70 tabular-nums">
                 Error ID: {error.digest}
               </p>
             )}

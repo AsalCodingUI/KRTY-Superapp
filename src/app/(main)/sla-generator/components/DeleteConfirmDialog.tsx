@@ -43,10 +43,10 @@ export function DeleteConfirmDialog({
         </DialogHeader>
         <DialogBody>
           <div className="flex items-start gap-4">
-            <div className="bg-surface-danger-light text-foreground-danger flex h-10 w-10 items-center justify-center rounded-full">
+            <div className="bg-destructive/10 text-destructive flex h-10 w-10 items-center justify-center rounded-full">
               <RiErrorWarningLine className="size-5" />
             </div>
-            <p className="text-body-sm text-foreground-secondary">{description}</p>
+            <p className="text-body-sm text-muted-foreground">{description}</p>
           </div>
         </DialogBody>
         <DialogFooter>

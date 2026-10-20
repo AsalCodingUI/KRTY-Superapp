@@ -80,7 +80,7 @@ export const MonthView = memo(function MonthView({
     <>
       <div className="flex h-full min-w-[700px] w-full max-w-full flex-col overflow-hidden">
         {/* Weekday headers */}
-        <div className="border-neutral-primary bg-surface flex border-b">
+        <div className="border-border bg-card flex border-b">
           {/* Week number header (removed) */}
 
           {/* Day headers */}
@@ -89,8 +89,8 @@ export const MonthView = memo(function MonthView({
               <div
                 key={day}
                 className={cx(
-                  "border-neutral-primary text-label-sm text-foreground-secondary border-r py-2 text-center last:border-r-0",
-                  index >= 5 && "bg-surface-neutral-secondary/50",
+                  "border-border text-label-sm text-muted-foreground border-r py-2 text-center last:border-r-0",
+                  index >= 5 && "bg-muted/50",
                 )}
               >
                 {day}
@@ -122,9 +122,9 @@ export const MonthView = memo(function MonthView({
                 <div
                   key={dayKey}
                   className={cx(
-                    "border-neutral-primary flex min-h-[96px] flex-col border-r border-b p-1 last:border-r-0 sm:min-h-[120px] sm:p-2",
-                    isWeekend && "bg-surface-neutral-secondary/50",
-                    "hover:bg-surface-state-neutral-light-hover cursor-pointer transition-colors",
+                    "border-border flex min-h-[96px] flex-col border-r border-b p-1 last:border-r-0 sm:min-h-[120px] sm:p-2",
+                    isWeekend && "bg-muted/50",
+                    "hover:bg-accent cursor-pointer transition-colors",
                   )}
                   onClick={() => handleDaySelect(day, dayEvents)}
                 >
@@ -134,12 +134,12 @@ export const MonthView = memo(function MonthView({
                       className={cx(
                         "text-label-sm flex h-6 w-6 items-center justify-center rounded-md",
                         isSelected
-                          ? "bg-surface-brand text-foreground-on-color"
+                          ? "bg-primary text-primary-foreground"
                           : showTodayIndicator
-                            ? "text-foreground-brand font-semibold"
+                            ? "text-primary font-semibold"
                             : isCurrentMonth
-                              ? "text-foreground-primary"
-                              : "text-foreground-disable",
+                              ? "text-foreground"
+                              : "text-muted-foreground/50",
                       )}
                     >
                       {format(day, "d")}
@@ -154,11 +154,11 @@ export const MonthView = memo(function MonthView({
                         {dayEvents.slice(0, 4).map((event) => (
                           <span
                             key={event.id}
-                            className="size-1.5 rounded-full bg-surface-brand"
+                            className="size-1.5 rounded-full bg-primary"
                           />
                         ))}
                         {dayEvents.length > 4 && (
-                          <span className="text-foreground-tertiary text-[9px] leading-none">
+                          <span className="text-muted-foreground/70 text-[9px] leading-none">
                             +{dayEvents.length - 4}
                           </span>
                         )}
@@ -199,7 +199,7 @@ export const MonthView = memo(function MonthView({
                                 e.stopPropagation()
                                 setOpenPopover(dayKey)
                               }}
-                              className="text-label-xs text-content-muted hover:text-content w-full px-2 py-1 text-left"
+                              className="text-label-xs text-muted-foreground/70 hover:text-foreground w-full px-2 py-1 text-left"
                             >
                               +{dayEvents.length - 3} lainnya
                             </button>
@@ -210,7 +210,7 @@ export const MonthView = memo(function MonthView({
                             onClick={(e) => e.stopPropagation()}
                           >
                             <div className="space-y-2">
-                              <h4 className="text-label-md text-content mb-3">
+                              <h4 className="text-label-md text-foreground mb-3">
                                 {format(day, "EEEE, dd MMMM yyyy", { locale: id })}
                               </h4>
                               <div className="max-h-80 space-y-2 overflow-y-auto">
@@ -247,8 +247,8 @@ export const MonthView = memo(function MonthView({
                 })
               : "Jadwal"}
           </DrawerTitle>
-          <div className="border-neutral-primary flex items-center justify-between border-b px-4 py-4">
-            <h3 className="text-heading-sm text-foreground-primary">
+          <div className="border-border flex items-center justify-between border-b px-4 py-4">
+            <h3 className="text-heading-sm text-foreground">
               {mobileSelectedDay
                 ? format(mobileSelectedDay, "EEEE, dd MMMM yyyy", {
                     locale: id,
@@ -258,7 +258,7 @@ export const MonthView = memo(function MonthView({
             <DrawerClose asChild>
               <button
                 type="button"
-                className="text-foreground-tertiary hover:text-foreground-primary inline-flex size-8 items-center justify-center rounded-full transition-colors"
+                className="text-muted-foreground/70 hover:text-foreground inline-flex size-8 items-center justify-center rounded-full transition-colors"
                 aria-label="Tutup panel jadwal"
               >
                 <RiCloseLine className="size-6" />
@@ -268,7 +268,7 @@ export const MonthView = memo(function MonthView({
           <DrawerBody className="overflow-y-auto px-4 py-4 pb-6">
             <div className="space-y-3">
               {mobileSelectedEvents.length === 0 ? (
-                <p className="text-body-sm text-foreground-secondary">
+                <p className="text-body-sm text-muted-foreground">
                   Tidak ada event pada tanggal ini.
                 </p>
               ) : (

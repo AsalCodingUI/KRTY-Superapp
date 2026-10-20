@@ -139,10 +139,10 @@ export function EmployeeAttendanceWidget({
   return (
     <div className="space-y-4">
 
-      <div className="rounded-lg border border-neutral-primary bg-surface-neutral-primary px-3 py-2">
+      <div className="rounded-lg border border-border bg-card px-3 py-2">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-label-sm text-foreground-secondary">Today</span>
+            <span className="text-label-sm text-muted-foreground">Today</span>
             <Badge
               variant={
                 todayStatus === "Clocked In"
@@ -156,7 +156,7 @@ export function EmployeeAttendanceWidget({
             >
               {todayStatus}
             </Badge>
-            <span className="text-body-xs text-foreground-tertiary">
+            <span className="text-body-xs text-muted-foreground/70">
               {currentTime ? format(currentTime, "HH:mm:ss, EEE dd MMM") : ""}
             </span>
           </div>
@@ -213,7 +213,7 @@ export function EmployeeAttendanceWidget({
             <DialogCloseButton />
           </DialogHeader>
           <DialogBody>
-            <p className="text-body-sm text-foreground-secondary">
+            <p className="text-body-sm text-muted-foreground">
               Kami mendeteksi sesi attendance sebelumnya masih terbuka. Ini bisa
               terjadi kalau laptop mati, browser tertutup, atau clock out gagal
               tersimpan.
@@ -240,7 +240,7 @@ export function EmployeeAttendanceWidget({
       </Dialog>
 
       <div>
-        <h4 className="text-label-md text-foreground-primary mb-3">
+        <h4 className="text-label-md text-foreground mb-3">
           Attendance History (Last 7 Days)
         </h4>
         {logs.length === 0 ? (
@@ -251,12 +251,12 @@ export function EmployeeAttendanceWidget({
             icon={<RiCheckboxCircleLine className="size-5" />}
           />
         ) : (
-          <div className="border-neutral-primary divide-neutral-primary overflow-hidden rounded-lg border divide-y">
+          <div className="border-border divide-border overflow-hidden rounded-lg border divide-y">
             {logs.slice(0, 7).map((log) => (
               <div key={log.id} className="px-3 py-2">
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex min-w-0 items-center gap-2">
-                    <span className="text-body-sm text-foreground-primary">
+                    <span className="text-body-sm text-foreground">
                       {format(new Date(getAttendanceLogLocalDate(log)), "EEE, dd MMM yyyy")}
                     </span>
                     <Badge
@@ -266,7 +266,7 @@ export function EmployeeAttendanceWidget({
                       {log.status || "Present"}
                     </Badge>
                   </div>
-                  <span className="text-body-xs text-foreground-secondary whitespace-nowrap">
+                  <span className="text-body-xs text-muted-foreground whitespace-nowrap">
                     {log.clock_in ? format(new Date(log.clock_in), "HH:mm") : "--:--"}
                     {" - "}
                     {log.clock_out ? format(new Date(log.clock_out), "HH:mm") : "Active"}
@@ -279,11 +279,11 @@ export function EmployeeAttendanceWidget({
       </div>
 
       <div>
-        <h4 className="text-label-md text-foreground-primary mb-3">
+        <h4 className="text-label-md text-foreground mb-3">
           Leave Requests
         </h4>
         {recentLeaves.length > 0 ? (
-          <div className="border-neutral-primary divide-neutral-primary overflow-hidden rounded-lg border divide-y">
+          <div className="border-border divide-border overflow-hidden rounded-lg border divide-y">
             {recentLeaves.map((leave) => (
               <div
                 key={leave.id}
@@ -291,7 +291,7 @@ export function EmployeeAttendanceWidget({
               >
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="text-body-sm text-foreground-primary">
+                    <span className="text-body-sm text-foreground">
                       {leave.leave_type}
                     </span>
                     <Badge
@@ -311,7 +311,7 @@ export function EmployeeAttendanceWidget({
                           : "Pending"}
                     </Badge>
                   </div>
-                  <p className="text-body-xs text-foreground-secondary mt-1">
+                  <p className="text-body-xs text-muted-foreground mt-1">
                     {format(new Date(leave.start_date), "dd MMM yyyy")} -{" "}
                     {format(new Date(leave.end_date), "dd MMM yyyy")}
                   </p>

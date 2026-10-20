@@ -44,18 +44,18 @@ export function LeaveStats({ requests }: LeaveStatsProps) {
   return (
     <div className="relative w-full">
       <Card>
-        <dt className="text-label-md text-foreground-secondary">
+        <dt className="text-label-md text-muted-foreground">
           Annual Leave Balance
         </dt>
-        <dd className="text-display-xxs text-foreground-primary mt-2">
+        <dd className="text-display-xxs text-foreground mt-2">
           {stats.balance} Days
         </dd>
 
         <ProgressBar value={percentage} className="mt-6" />
 
         <dd className="text-label-md mt-2 flex items-center justify-between">
-          <span className="text-foreground-brand-primary font-medium">{percentage}% used</span>
-          <span className="text-foreground-secondary">
+          <span className="text-primary font-medium">{percentage}% used</span>
+          <span className="text-muted-foreground">
             {stats.used} of {MAX_LEAVE} days
           </span>
         </dd>

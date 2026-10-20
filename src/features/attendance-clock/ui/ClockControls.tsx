@@ -54,7 +54,7 @@ export function ClockControls({
               <Button asChild size="sm" variant="secondary" type="button">
                 <button>
                   {getStatusLabel(selectedStatus)}
-                  <RiArrowDownSLine className="text-content-subtle ml-2 size-4 shrink-0" />
+                  <RiArrowDownSLine className="text-muted-foreground ml-2 size-4 shrink-0" />
                 </button>
               </Button>
             </DropdownMenuTrigger>

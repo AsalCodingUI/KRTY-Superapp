@@ -3,16 +3,16 @@ import { Badge } from "@/shared/ui"
 export function LeaveRules() {
   return (
     // HAPUS class scroll dari sini
-    <div className="text-body-sm text-foreground-secondary space-y-4">
+    <div className="text-body-sm text-muted-foreground space-y-4">
       {/* SECTION 1: ATURAN CUTI */}
       <section>
-        <h4 className="text-foreground-primary text-heading-sm mb-3">
+        <h4 className="text-foreground text-heading-sm mb-3">
           Aturan Cuti
         </h4>
         <ol className="ml-4 list-outside list-decimal space-y-2">
           <li>
             Setiap karyawan mendapatkan jatah cuti sebanyak{" "}
-            <span className="text-foreground-primary font-medium">
+            <span className="text-foreground font-medium">
               12 kali
             </span>{" "}
             dalam setahun.
@@ -48,7 +48,7 @@ export function LeaveRules() {
 
       {/* SECTION 2: SYARAT & KETENTUAN */}
       <section>
-        <h4 className="text-foreground-primary text-heading-sm mb-3">
+        <h4 className="text-foreground text-heading-sm mb-3">
           Syarat & Ketentuan Pengambilan Cuti:
         </h4>
         <ol className="ml-4 list-outside list-decimal space-y-2">
@@ -70,17 +70,17 @@ export function LeaveRules() {
 
       {/* SECTION 3: CONTOH KASUS (CALLOUT) */}
       <section>
-        <h4 className="text-foreground-primary text-heading-sm mb-3">
+        <h4 className="text-foreground text-heading-sm mb-3">
           Contoh Aturan Cuti yang Diperbolehkan
         </h4>
-        <div className="bg-surface-neutral space-y-3 rounded-lg border p-4">
+        <div className="bg-muted space-y-3 rounded-lg border p-4">
           {/* Pertanyaan */}
           <div className="flex gap-3">
-            <div className="bg-border text-label-xs text-foreground-secondary flex h-5 w-5 shrink-0 items-center justify-center rounded-full">
+            <div className="bg-border text-label-xs text-muted-foreground flex h-5 w-5 shrink-0 items-center justify-center rounded-full">
               ?
             </div>
             <p>
-              <span className="text-foreground-primary font-medium">
+              <span className="text-foreground font-medium">
                 Pertanyaan:
               </span>{" "}
               Karena jatah cuti saya dalam satu tahun ada 12 kali, lalu di bulan
@@ -96,7 +96,7 @@ export function LeaveRules() {
             <Badge variant="error" size="sm" className="h-5 w-5 justify-center rounded-full p-0">
               !
             </Badge>
-            <p className="text-foreground-danger">
+            <p className="text-destructive">
               <span className="font-semibold">Jawaban:</span> Tidak boleh.
               Pengambilan cuti secara langsung diperbolehkan jika di bawah 5
               hari.
@@ -105,10 +105,10 @@ export function LeaveRules() {
 
           {/* Alasan */}
           <div className="flex gap-3">
-            <div className="bg-border text-label-xs text-foreground-secondary flex h-5 w-5 shrink-0 items-center justify-center rounded-full">
+            <div className="bg-border text-label-xs text-muted-foreground flex h-5 w-5 shrink-0 items-center justify-center rounded-full">
               i
             </div>
-            <p className="text-foreground-secondary italic">
+            <p className="text-muted-foreground italic">
               <span className="font-semibold not-italic">Alasan:</span> Karena
               kami ingin meminimalisir risiko proyek yang tidak ada pengganti
               sementara.
@@ -119,7 +119,7 @@ export function LeaveRules() {
 
       {/* SECTION 4: ATURAN WFH */}
       <section>
-        <h4 className="text-foreground-primary text-heading-sm mb-3">
+        <h4 className="text-foreground text-heading-sm mb-3">
           Aturan WFH
         </h4>
         <ol className="ml-4 list-outside list-decimal space-y-2">

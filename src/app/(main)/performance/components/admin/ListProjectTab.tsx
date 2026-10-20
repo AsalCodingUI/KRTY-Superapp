@@ -206,7 +206,7 @@ export function ListProjectTab({
                   <TableRow key={project.id}>
                     <TableCell>
                       <span
-                        className="text-foreground-primary font-medium"
+                        className="text-foreground font-medium"
                         title={
                           project.description
                             ? `${project.name} — ${project.description}`
@@ -220,7 +220,7 @@ export function ListProjectTab({
                       {project.quarter_id ? (
                         <QuarterBadge quarter={project.quarter_id} />
                       ) : (
-                        <span className="text-foreground-disable">
+                        <span className="text-muted-foreground/50">
                           No quarter
                         </span>
                       )}
@@ -237,7 +237,7 @@ export function ListProjectTab({
                       })()}
                     </TableCell>
                     <TableCell>
-                      <span className="text-foreground-primary">
+                      <span className="text-foreground">
                         {format(new Date(project.start_date), "MMM d, yyyy")} –{" "}
                         {format(new Date(project.end_date), "MMM d, yyyy")}
                       </span>
@@ -263,7 +263,7 @@ export function ListProjectTab({
                           )}
                         </AvatarGroup>
                       ) : (
-                        <span className="text-foreground-disable">
+                        <span className="text-muted-foreground/50">
                           No assignments
                         </span>
                       )}
@@ -285,7 +285,7 @@ export function ListProjectTab({
                             size="icon-sm"
                             onClick={() => handlePermanentDelete(project)}
                             title="Permanently Delete (Cannot be undone)"
-                            className="text-foreground-danger-dark hover:bg-surface-danger-light"
+                            className="text-destructive hover:bg-destructive/10"
                           >
                             <RiDeleteBin6Line className="size-3.5" />
                           </Button>
@@ -295,7 +295,7 @@ export function ListProjectTab({
                             size="icon-sm"
                             onClick={() => handleDelete(project)}
                             title="Archive Project"
-                            className="text-foreground-danger-dark hover:bg-surface-danger-light"
+                            className="text-destructive hover:bg-destructive/10"
                           >
                             <RiDeleteBin6Line className="size-3.5" />
                           </Button>

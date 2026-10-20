@@ -31,7 +31,7 @@ export function SquadSection({
 }: SquadSectionProps) {
   return (
     <div>
-      <h3 className="text-label-md text-foreground-primary mb-4">
+      <h3 className="text-label-md text-foreground mb-4">
         Squad Allocation
       </h3>
 
@@ -68,21 +68,21 @@ export function SquadSection({
             return (
               <div
                 key={member.id}
-                className="border-neutral-primary bg-surface rounded-lg border p-4"
+                className="border-border bg-card rounded-lg border p-4"
               >
                 <div className="mb-4 flex items-start justify-between">
                   <div>
-                    <p className="text-label-md text-foreground-primary">
+                    <p className="text-label-md text-foreground">
                       {profile?.full_name}
                     </p>
-                    <p className="text-label-xs text-foreground-secondary">
+                    <p className="text-label-xs text-muted-foreground">
                       {profile?.job_title}
                     </p>
                   </div>
                   <Button
                     variant="ghost"
                     size="xs"
-                    className="text-foreground-tertiary size-6 p-0"
+                    className="text-muted-foreground/70 size-6 p-0"
                     onClick={() => onRemoveSquadMember(member.id)}
                   >
                     <RiDeleteBinLine className="size-4" />
@@ -90,7 +90,7 @@ export function SquadSection({
                 </div>
 
                 <div className="flex items-center gap-4">
-                  <span className="text-label-xs text-foreground-secondary w-16">
+                  <span className="text-label-xs text-muted-foreground w-16">
                     Allocation
                   </span>
                   <Slider
@@ -100,7 +100,7 @@ export function SquadSection({
                     onValueChange={(val) => onUpdateAllocation(member.id, val)}
                     className="flex-1"
                   />
-                  <span className="text-label-sm text-foreground-primary w-10 text-right">
+                  <span className="text-label-sm text-foreground w-10 text-right">
                     {member.allocation}%
                   </span>
                 </div>
@@ -110,7 +110,7 @@ export function SquadSection({
 
           {squad.length === 0 && (
             <div className="rounded-md border border-dashed p-6 text-center">
-              <p className="text-body-sm text-foreground-secondary">
+              <p className="text-body-sm text-muted-foreground">
                 No team members allocated yet.
               </p>
             </div>

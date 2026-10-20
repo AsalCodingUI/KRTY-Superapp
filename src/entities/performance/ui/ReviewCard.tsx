@@ -43,10 +43,10 @@ export function ReviewCard({
 
   return (
     <Card>
-      <h3 className="text-content mb-4 font-semibold">{title}</h3>
+      <h3 className="text-foreground mb-4 font-semibold">{title}</h3>
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <span className="text-display-xxs text-content">
+          <span className="text-display-xxs text-foreground">
             {score !== null ? `${score}%` : "—"}
           </span>
           {score !== null && showStars && (
@@ -67,10 +67,10 @@ export function ReviewCard({
           </Badge>
         )}
         {description && (
-          <p className="text-body-xs text-content-subtle">{description}</p>
+          <p className="text-body-xs text-muted-foreground">{description}</p>
         )}
         {weighted !== undefined && (
-          <p className="text-body-xs text-content-subtle">
+          <p className="text-body-xs text-muted-foreground">
             Weight: {weighted}% of total score
           </p>
         )}

@@ -39,7 +39,7 @@ export function ProjectCalculatorEditPage({
         </Button>
       </div>
 
-      <div className="bg-surface-neutral-primary rounded-xxl flex flex-col p-5">
+      <div className="bg-card rounded-xxl flex flex-col p-5">
         <CalculatorPage
           teamMembers={teamMembers}
           operationalCosts={operationalCosts}

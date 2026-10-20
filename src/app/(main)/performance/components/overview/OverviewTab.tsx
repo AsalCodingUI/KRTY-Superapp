@@ -151,9 +151,9 @@ function EmployeeOverview({
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
         {/* Overall Score Card */}
         <Card className="flex flex-col justify-between border-l-4 border-l-accent-brand">
-          <dt className="text-foreground-secondary text-label-md">Overall Score</dt>
+          <dt className="text-muted-foreground text-label-md">Overall Score</dt>
           <dd className="mt-2 flex items-baseline gap-2">
-            <span className="text-foreground-primary text-display-xs">
+            <span className="text-foreground text-display-xs">
               {overallScore !== null ? `${overallScore}%` : "—"}
             </span>
           </dd>
@@ -170,29 +170,29 @@ function EmployeeOverview({
 
         {/* KPI Achievement Card */}
         <Card>
-          <dt className="text-foreground-secondary text-label-md">KPI SLA Project</dt>
+          <dt className="text-muted-foreground text-label-md">KPI SLA Project</dt>
           <dd className="mt-2 flex items-baseline gap-2">
-            <span className="text-foreground-primary text-display-xs">
+            <span className="text-foreground text-display-xs">
               {slaRow?.result !== null ? `${slaRow?.result}%` : "—"}
             </span>
             {slaRow?.target && (
-              <span className="text-foreground-secondary text-body-sm">
+              <span className="text-muted-foreground text-body-sm">
                 / {slaRow.target}%
               </span>
             )}
           </dd>
-          <p className="text-foreground-secondary text-body-xs mt-4">
+          <p className="text-muted-foreground text-body-xs mt-4">
             Weight: {slaRow?.weighted || 0}% of total score
           </p>
         </Card>
 
         {/* 360 Feedback Rating Card */}
         <Card>
-          <dt className="text-foreground-secondary text-label-md">
+          <dt className="text-muted-foreground text-label-md">
             360 Feedback Rating
           </dt>
           <dd className="mt-2 flex items-baseline gap-2">
-            <span className="text-foreground-primary text-display-xs">
+            <span className="text-foreground text-display-xs">
               {reviewRow?.result !== null ? `${reviewRow?.result}%` : "—"}
             </span>
             {reviewRow?.result !== null && (
@@ -209,7 +209,7 @@ function EmployeeOverview({
               </div>
             )}
           </dd>
-          <p className="text-foreground-secondary text-body-xs mt-4">
+          <p className="text-muted-foreground text-body-xs mt-4">
             Weight: {reviewRow?.weighted || 0}% of total score
           </p>
         </Card>
@@ -219,13 +219,13 @@ function EmployeeOverview({
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* SLA Progress */}
         <Card>
-          <h3 className="text-foreground-primary mb-4 font-semibold">
+          <h3 className="text-foreground mb-4 font-semibold">
             SLA Project Progress
           </h3>
           <div className="space-y-4">
             <div>
               <div className="text-label-md mb-2 flex justify-between">
-                <span className="text-foreground-secondary">Achievement</span>
+                <span className="text-muted-foreground">Achievement</span>
                 <span className="font-medium">
                   {slaRow?.result !== null ? `${slaRow?.result}%` : "—"}
                 </span>
@@ -243,7 +243,7 @@ function EmployeeOverview({
                 }
               />
             </div>
-            <p className="text-foreground-secondary text-body-xs">
+            <p className="text-muted-foreground text-body-xs">
               Target: {slaRow?.target || 90}% on-time delivery
             </p>
           </div>
@@ -251,12 +251,12 @@ function EmployeeOverview({
 
         {/* 360 Review Summary */}
         <Card>
-          <h3 className="text-foreground-primary mb-4 font-semibold">
+          <h3 className="text-foreground mb-4 font-semibold">
             360 Review Summary
           </h3>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-foreground-primary text-display-xxs">
+              <span className="text-foreground text-display-xxs">
                 {reviewRow?.result !== null ? `${reviewRow?.result}%` : "—"}
               </span>
               {reviewRow?.result != null && (
@@ -265,7 +265,7 @@ function EmployeeOverview({
                 </Badge>
               )}
             </div>
-            <p className="text-foreground-secondary text-body-xs">
+            <p className="text-muted-foreground text-body-xs">
               Peer review score for {selectedQuarter}
             </p>
           </div>
@@ -273,11 +273,11 @@ function EmployeeOverview({
 
         {/* Work Quality */}
         <Card>
-          <h3 className="text-foreground-primary mb-4 font-semibold">Work Quality</h3>
+          <h3 className="text-foreground mb-4 font-semibold">Work Quality</h3>
           <div className="space-y-4">
             <div>
               <div className="text-label-md mb-2 flex justify-between">
-                <span className="text-foreground-secondary">Quality Score</span>
+                <span className="text-muted-foreground">Quality Score</span>
                 <span className="font-medium">
                   {qualityRow?.result !== null ? `${qualityRow?.result}%` : "—"}
                 </span>
@@ -295,7 +295,7 @@ function EmployeeOverview({
                 }
               />
             </div>
-            <p className="text-foreground-secondary text-body-xs">
+            <p className="text-muted-foreground text-body-xs">
               Weight: {qualityRow?.weighted || 0}% of total score
             </p>
           </div>
@@ -305,7 +305,7 @@ function EmployeeOverview({
       {/* ASSIGNED PROJECTS */}
       <Card>
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-label-md text-foreground-primary">Assigned Projects</h3>
+          <h3 className="text-label-md text-foreground">Assigned Projects</h3>
           <Badge variant="info">{activeProjects.length} Active</Badge>
         </div>
 
@@ -347,12 +347,12 @@ function EmployeeOverview({
                   href={`/performance/employee/${profile?.id}/project/${assignment.projects.id}`}
                   className="block"
                 >
-                  <div className="border-neutral-primary bg-surface-neutral-secondary hover:bg-hover flex items-center justify-between rounded-lg border p-3 transition-colors">
+                  <div className="border-border bg-muted hover:bg-accent flex items-center justify-between rounded-lg border p-3 transition-colors">
                     <div className="min-w-0 flex-1">
-                      <h4 className="text-foreground-primary truncate font-medium">
+                      <h4 className="text-foreground truncate font-medium">
                         {assignment.projects.name}
                       </h4>
-                      <p className="text-foreground-secondary text-body-xs mt-0.5">
+                      <p className="text-muted-foreground text-body-xs mt-0.5">
                         {assignment.role_in_project}
                       </p>
                     </div>
@@ -366,7 +366,7 @@ function EmployeeOverview({
                       >
                         {assignment.projects.status}
                       </Badge>
-                      <div className="text-foreground-secondary text-body-xs">
+                      <div className="text-muted-foreground text-body-xs">
                         SLA: {slaPercent}% • Quality: {qualityAchieved}/
                         {qualityScores.length}
                       </div>
@@ -376,7 +376,7 @@ function EmployeeOverview({
               )
             })}
             {assignments.length > 5 && (
-              <p className="text-foreground-secondary text-body-xs mt-2 text-center">
+              <p className="text-muted-foreground text-body-xs mt-2 text-center">
                 + {assignments.length - 5} more projects
               </p>
             )}
@@ -420,7 +420,7 @@ function StakeholderOverview({
   if (!stats) {
     return (
       <EmptyState
-        icon={<RiGroupLine className="text-foreground-tertiary size-12" />}
+        icon={<RiGroupLine className="text-muted-foreground/70 size-12" />}
         title="No data available"
         description="Could not load team performance data."
       />
@@ -444,13 +444,13 @@ function StakeholderOverview({
         <Card>
           <div className="flex items-center gap-4">
             <div className="bg-primary/10 flex h-12 w-12 items-center justify-center rounded-lg">
-              <RiGroupLine className="text-foreground-brand-primary size-6" />
+              <RiGroupLine className="text-primary size-6" />
             </div>
             <div>
-              <dt className="text-foreground-secondary text-label-md">
+              <dt className="text-muted-foreground text-label-md">
                 Total Employees
               </dt>
-              <dd className="text-foreground-primary text-display-xxs">
+              <dd className="text-foreground text-display-xxs">
                 {stats.totalEmployees}
               </dd>
             </div>
@@ -463,10 +463,10 @@ function StakeholderOverview({
               <RiLineChartLine className="text-success size-6" />
             </div>
             <div>
-              <dt className="text-foreground-secondary text-label-md">
+              <dt className="text-muted-foreground text-label-md">
                 Avg. Performance
               </dt>
-              <dd className="text-foreground-primary text-display-xxs">
+              <dd className="text-foreground text-display-xxs">
                 {stats.avgPerformance > 0 ? `${stats.avgPerformance}%` : "—"}
               </dd>
             </div>
@@ -479,10 +479,10 @@ function StakeholderOverview({
               <RiCheckboxCircleLine className="text-warning size-6" />
             </div>
             <div>
-              <dt className="text-foreground-secondary text-label-md">
+              <dt className="text-muted-foreground text-label-md">
                 Pending Reviews
               </dt>
-              <dd className="text-foreground-primary text-display-xxs">
+              <dd className="text-foreground text-display-xxs">
                 {stats.pendingReviews}
               </dd>
             </div>
@@ -495,10 +495,10 @@ function StakeholderOverview({
               <RiBriefcaseLine className="text-info size-6" />
             </div>
             <div>
-              <dt className="text-foreground-secondary text-label-md">
+              <dt className="text-muted-foreground text-label-md">
                 Active Projects
               </dt>
-              <dd className="text-foreground-primary text-display-xxs">
+              <dd className="text-foreground text-display-xxs">
                 {stats.activeProjects}
               </dd>
             </div>
@@ -508,13 +508,13 @@ function StakeholderOverview({
 
       {/* PERFORMANCE DISTRIBUTION */}
       <Card>
-        <h3 className="text-foreground-primary mb-4 font-semibold">
+        <h3 className="text-foreground mb-4 font-semibold">
           Performance Distribution
         </h3>
         {distributionTotal === 0 ? (
           <div className="py-8 text-center">
-            <RiUserLine className="text-foreground-tertiary mx-auto size-12" />
-            <p className="text-foreground-secondary text-body-sm mt-2">
+            <RiUserLine className="text-muted-foreground/70 mx-auto size-12" />
+            <p className="text-muted-foreground text-body-sm mt-2">
               No performance data available for this quarter
             </p>
           </div>
@@ -606,10 +606,10 @@ function StakeholderOverview({
                 <div key={item.name} className="flex items-center gap-2">
                   <div className={`size-3 rounded-full ${item.color}`} />
                   <div className="text-label-xs">
-                    <span className="text-foreground-primary font-medium">
+                    <span className="text-foreground font-medium">
                       {item.count}
                     </span>{" "}
-                    <span className="text-foreground-secondary">{item.name}</span>
+                    <span className="text-muted-foreground">{item.name}</span>
                   </div>
                 </div>
               ))}
@@ -629,11 +629,11 @@ function StakeholderOverview({
           <Card className="hover:border-primary cursor-pointer transition-colors">
             <div className="flex items-center gap-4">
               <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-lg">
-                <RiLineChartLine className="text-foreground-brand-primary size-5" />
+                <RiLineChartLine className="text-primary size-5" />
               </div>
               <div>
-                <h4 className="text-foreground-primary font-medium">Manage KPI</h4>
-                <p className="text-foreground-secondary text-label-xs">
+                <h4 className="text-foreground font-medium">Manage KPI</h4>
+                <p className="text-muted-foreground text-label-xs">
                   View and edit employee KPI scores
                 </p>
               </div>
@@ -653,8 +653,8 @@ function StakeholderOverview({
                 <RiUserLine className="text-success size-5" />
               </div>
               <div>
-                <h4 className="text-foreground-primary font-medium">360 Reviews</h4>
-                <p className="text-foreground-secondary text-label-xs">
+                <h4 className="text-foreground font-medium">360 Reviews</h4>
+                <p className="text-muted-foreground text-label-xs">
                   Monitor peer review progress
                 </p>
               </div>

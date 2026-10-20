@@ -36,7 +36,7 @@ export const columns = (onEdit: (item: LeaveRequest) => void) =>
         />
       ),
       cell: ({ row }) => (
-        <span className="text-foreground-secondary tabular-nums">
+        <span className="text-muted-foreground tabular-nums">
           {row.index + 1}
         </span>
       ),
@@ -56,9 +56,9 @@ export const columns = (onEdit: (item: LeaveRequest) => void) =>
         const start = new Date(row.original.start_date)
         const end = new Date(row.original.end_date)
         return (
-          <span className="text-foreground-primary whitespace-nowrap">
+          <span className="text-foreground whitespace-nowrap">
             {format(start, "dd MMM yyyy")}
-            <span className="text-foreground-secondary mx-1.5">s/d</span>
+            <span className="text-muted-foreground mx-1.5">s/d</span>
             {format(end, "dd MMM yyyy")}
           </span>
         )
@@ -108,13 +108,13 @@ export const columns = (onEdit: (item: LeaveRequest) => void) =>
       ),
       cell: ({ row }) => {
         const url = row.getValue("proof_url") as string
-        if (!url) return <span className="text-foreground-disable">-</span>
+        if (!url) return <span className="text-muted-foreground/50">-</span>
         return (
           <a
             href={url}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-label-xs text-foreground-brand-dark hover:text-foreground-brand inline-flex items-center gap-1"
+            className="text-label-xs text-primary hover:text-primary inline-flex items-center gap-1"
           >
             <RiFilePaperLine className="size-3.5" /> View
           </a>
@@ -158,7 +158,7 @@ export const columns = (onEdit: (item: LeaveRequest) => void) =>
             variant="tertiary"
             size="icon-sm"
             className={cx(
-              isRejected ? "text-foreground-warning-dark" : "",
+              isRejected ? "text-warning" : "",
             )}
             onClick={() => onEdit(item)}
             disabled={isLocked}

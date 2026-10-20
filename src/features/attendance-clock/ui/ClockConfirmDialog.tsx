@@ -44,7 +44,7 @@ export function ClockConfirmDialog({
           <DialogCloseButton />
         </DialogHeader>
         <DialogBody>
-          <p className="text-body-sm text-foreground-secondary">
+          <p className="text-body-sm text-muted-foreground">
             {action === "CLOCK_IN"
               ? `Anda akan masuk dengan status: ${getStatusLabel(status || "Present")}. Lanjutkan?`
               : "Apakah Anda yakin ingin mengakhiri sesi kerja ini?"}

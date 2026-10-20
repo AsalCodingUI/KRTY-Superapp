@@ -40,7 +40,7 @@ export function AttendanceRecord({
       <div className="space-y-3 p-4">
         {showDate && (
           <div className="flex items-center justify-between">
-            <span className="text-label-md text-content">
+            <span className="text-label-md text-foreground">
               {format(new Date(log.date), "dd MMM yyyy")}
             </span>
             {isActive && <Badge variant="success">Active</Badge>}
@@ -49,14 +49,14 @@ export function AttendanceRecord({
 
         <div className="text-body-sm grid grid-cols-2 gap-4">
           <div>
-            <p className="text-content-subtle">Clock In</p>
-            <p className="text-content font-medium tabular-nums">
+            <p className="text-muted-foreground">Clock In</p>
+            <p className="text-foreground font-medium tabular-nums">
               {formatTime(log.clock_in)}
             </p>
           </div>
           <div>
-            <p className="text-content-subtle">Clock Out</p>
-            <p className="text-content font-medium tabular-nums">
+            <p className="text-muted-foreground">Clock Out</p>
+            <p className="text-foreground font-medium tabular-nums">
               {formatTime(log.clock_out)}
             </p>
           </div>
@@ -65,8 +65,8 @@ export function AttendanceRecord({
         {showDuration && !isActive && (
           <div className="border-border border-t pt-2">
             <div className="text-body-sm flex items-center justify-between">
-              <span className="text-content-subtle">Duration</span>
-              <span className="text-content font-medium tabular-nums">
+              <span className="text-muted-foreground">Duration</span>
+              <span className="text-foreground font-medium tabular-nums">
                 {getDuration()}
               </span>
             </div>
@@ -76,7 +76,7 @@ export function AttendanceRecord({
         {log.status && (
           <div className="border-border border-t pt-2">
             <div className="text-body-sm flex items-center justify-between">
-              <span className="text-content-subtle">Status</span>
+              <span className="text-muted-foreground">Status</span>
               <Badge variant={log.status === "Present" ? "default" : "warning"}>
                 {log.status}
               </Badge>

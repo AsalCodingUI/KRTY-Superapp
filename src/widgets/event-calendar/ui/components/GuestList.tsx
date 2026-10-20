@@ -26,10 +26,10 @@ export function GuestList({
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h4 className="text-label-md text-content flex items-center gap-2">
+        <h4 className="text-label-md text-foreground flex items-center gap-2">
           <span>{guests.length} tamu</span>
           {guests.length > 0 && (
-            <span className="text-body-xs text-content-muted">
+            <span className="text-body-xs text-muted-foreground/70">
               {acceptedCount} ya, {pendingCount} menunggu
             </span>
           )}
@@ -56,8 +56,8 @@ export function GuestList({
               className={cx(
                 "text-label-xs flex h-8 w-8 items-center justify-center rounded-full",
                 guest.isOrganizer
-                  ? "bg-surface-brand text-primary-fg"
-                  : "bg-muted text-content",
+                  ? "bg-primary text-primary-fg"
+                  : "bg-muted text-foreground",
               )}
             >
               {guest.name?.[0]?.toUpperCase() || guest.email[0].toUpperCase()}
@@ -66,17 +66,17 @@ export function GuestList({
             {/* Info */}
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">
-                <p className="text-label-md text-content truncate">
+                <p className="text-label-md text-foreground truncate">
                   {guest.name || guest.email}
                 </p>
                 {guest.isOrganizer && (
-                  <span className="text-body-xs text-content-muted">
+                  <span className="text-body-xs text-muted-foreground/70">
                     Penyelenggara
                   </span>
                 )}
               </div>
               {guest.name && (
-                <p className="text-body-xs text-content-muted truncate">
+                <p className="text-body-xs text-muted-foreground/70 truncate">
                   {guest.email}
                 </p>
               )}
@@ -87,11 +87,11 @@ export function GuestList({
               className={cx(
                 "text-body-xs flex items-center gap-1 rounded-full px-2 py-1",
                 guest.status === "accepted" &&
-                  "bg-success-subtle text-success-text",
+                  "bg-success/10 text-success",
                 guest.status === "pending" &&
-                  "bg-warning-subtle text-warning-text",
+                  "bg-warning/10 text-warning",
                 guest.status === "declined" &&
-                  "bg-danger-subtle text-danger-text",
+                  "bg-destructive/10 text-destructive",
               )}
             >
               {guest.status === "accepted" && (

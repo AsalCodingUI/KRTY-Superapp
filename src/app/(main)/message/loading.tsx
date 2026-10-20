@@ -14,7 +14,7 @@ export default function MessageLoading() {
         {[...Array(6)].map((_, i) => (
           <div
             key={i}
-            className="border-neutral-primary bg-surface-neutral-primary flex items-start gap-4 rounded-lg border p-4"
+            className="border-border bg-card flex items-start gap-4 rounded-lg border p-4"
           >
             <Skeleton className="h-10 w-10 flex-shrink-0 rounded-full" />
             <div className="flex-1 space-y-2">

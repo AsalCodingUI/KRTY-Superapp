@@ -287,14 +287,14 @@ export function LeadReviewTab() {
                     className={cx(
                       "group cursor-pointer transition-colors",
                       isSelected
-                        ? "bg-surface-state-neutral-light-hover"
-                        : "hover:bg-surface-state-neutral-light-hover",
+                        ? "bg-accent"
+                        : "hover:bg-accent",
                     )}
                   >
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <span
-                          className="text-foreground-primary font-medium max-w-[320px] truncate"
+                          className="text-foreground font-medium max-w-[320px] truncate"
                           title={project.name}
                         >
                           {project.name}
@@ -313,17 +313,17 @@ export function LeadReviewTab() {
                       {project.quarter_id ? (
                         <Badge variant="info">{project.quarter_id}</Badge>
                       ) : (
-                        <span className="text-foreground-disable">-</span>
+                        <span className="text-muted-foreground/50">-</span>
                       )}
                     </TableCell>
                     <TableCell>
-                      <span className="text-body-sm text-foreground-secondary whitespace-nowrap">
+                      <span className="text-body-sm text-muted-foreground whitespace-nowrap">
                         {timeline}
                       </span>
                     </TableCell>
                     <TableCell>
                       {members.length === 0 ? (
-                        <span className="text-foreground-disable">No team</span>
+                        <span className="text-muted-foreground/50">No team</span>
                       ) : (
                         <AvatarGroup>
                           {visibleMembers.map((member) => (
@@ -364,34 +364,34 @@ export function LeadReviewTab() {
               if (!open) setSelectedProjectId(null)
             }}
           >
-            <DrawerContent className="fixed inset-0 z-50 flex flex-col overflow-y-auto bg-surface-neutral-primary p-0 sm:inset-y-6 sm:left-auto sm:right-6 sm:w-[560px] sm:max-w-[560px] sm:rounded-xl sm:border sm:border-neutral-primary sm:shadow-regular-md">
+            <DrawerContent className="fixed inset-0 z-50 flex flex-col overflow-y-auto bg-card p-0 sm:inset-y-6 sm:left-auto sm:right-6 sm:w-[560px] sm:max-w-[560px] sm:rounded-xl sm:border sm:border-border sm:shadow-regular-md">
               <div className="relative pl-5 pr-xl pb-lg pt-5">
                 <DrawerTitle className="pr-12">
                   {selectedProject?.name || "Project Detail"}
                 </DrawerTitle>
                 <DrawerClose
-                  className="absolute right-[var(--padding-xl)] top-[var(--padding-xl)] inline-flex items-center justify-center rounded-md p-md text-foreground-tertiary transition-colors hover:bg-surface-neutral-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground-brand"
+                  className="absolute right-[var(--padding-xl)] top-[var(--padding-xl)] inline-flex items-center justify-center rounded-md p-md text-muted-foreground/70 transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                   aria-label="Close"
                 >
                   <RiCloseLine className="size-[14px]" />
                 </DrawerClose>
               </div>
-              <DrawerBody className="space-y-4 bg-surface-neutral-primary p-5">
+              <DrawerBody className="space-y-4 bg-card p-5">
                 {selectedProject && (
                   <>
                     <div className="space-y-4">
                       <div className="flex items-center justify-between gap-4">
-                        <p className="text-label-xs text-foreground-tertiary">
+                        <p className="text-label-xs text-muted-foreground/70">
                           Quarter
                         </p>
                         {selectedProject.quarter_id ? (
                           <Badge variant="info">{selectedProject.quarter_id}</Badge>
                         ) : (
-                          <span className="text-foreground-disable">-</span>
+                          <span className="text-muted-foreground/50">-</span>
                         )}
                       </div>
                       <div className="flex items-center justify-between gap-4">
-                        <p className="text-label-xs text-foreground-tertiary">
+                        <p className="text-label-xs text-muted-foreground/70">
                           Status
                         </p>
                         {selectedProject.status ? (
@@ -399,14 +399,14 @@ export function LeadReviewTab() {
                             {selectedProject.status}
                           </Badge>
                         ) : (
-                          <span className="text-foreground-disable">-</span>
+                          <span className="text-muted-foreground/50">-</span>
                         )}
                       </div>
                       <div className="flex items-center justify-between gap-4">
-                        <p className="text-label-xs text-foreground-tertiary">
+                        <p className="text-label-xs text-muted-foreground/70">
                           Timeline
                         </p>
-                        <span className="text-body-sm text-foreground-primary text-right">
+                        <span className="text-body-sm text-foreground text-right">
                           {(() => {
                             const startDate = selectedProject.start_date
                               ? new Date(selectedProject.start_date)
@@ -430,7 +430,7 @@ export function LeadReviewTab() {
 
                     <TableSection
                       title="Team Members"
-                      titleClassName="text-label-md text-foreground-primary"
+                      titleClassName="text-label-md text-foreground"
                     >
                       {selectedProject.members.length === 0 ? (
                         <EmptyState
@@ -463,7 +463,7 @@ export function LeadReviewTab() {
                                       src={member.avatar || undefined}
                                       initials={member.name?.[0] || "?"}
                                     />
-                                    <span className="text-foreground-primary truncate max-w-[140px]">
+                                    <span className="text-foreground truncate max-w-[140px]">
                                       {member.name || "-"}
                                     </span>
                                     {member.isLead && (
@@ -474,13 +474,13 @@ export function LeadReviewTab() {
                                   </div>
                                 </TableCell>
                                 <TableCell className="w-[1%] whitespace-nowrap">
-                                  <span className="text-foreground-secondary">
+                                  <span className="text-muted-foreground">
                                     {member.jobTitle || "-"}
                                   </span>
                                 </TableCell>
                                 <TableCell className="w-[1%] whitespace-nowrap">
                                   {profile?.id === member.id ? (
-                                    <span className="text-foreground-disable">-</span>
+                                    <span className="text-muted-foreground/50">-</span>
                                   ) : (
                                     <Button
                                       type="button"

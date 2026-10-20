@@ -441,32 +441,32 @@ export function PerformancePage() {
   return (
     <div className="flex flex-col">
       <div className="rounded-xxl flex items-center gap-2 px-5 pt-4 pb-3">
-        <RiBarChartBoxLine className="text-foreground-secondary size-4" />
-        <p className="text-label-md text-foreground-primary">
+        <RiBarChartBoxLine className="text-muted-foreground size-4" />
+        <p className="text-label-md text-foreground">
           Individual Performance
         </p>
       </div>
 
-      <div className="bg-surface-neutral-primary rounded-xxl flex flex-col">
+      <div className="bg-card rounded-xxl flex flex-col">
         {isStakeholder ? (
           <>
             <div className="gap-lg grid grid-cols-1 px-5 py-2 sm:grid-cols-2 lg:grid-cols-5">
               {adminStats.map((item) => (
                 <div
                   key={item.label}
-                  className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-lg border px-4 py-3"
+                  className="border-border bg-card flex flex-col gap-1 rounded-lg border px-4 py-3"
                 >
-                  <p className="text-label-sm text-foreground-secondary">
+                  <p className="text-label-sm text-muted-foreground">
                     {item.label}
                   </p>
-                  <p className="text-heading-md text-foreground-primary">
+                  <p className="text-heading-md text-foreground">
                     {item.value}
                   </p>
                 </div>
               ))}
             </div>
 
-            <div className="border-neutral-primary border-b px-5 pt-2">
+            <div className="border-border border-b px-5 pt-2">
               <div className="space-y-3 pb-3 xl:hidden">
                 <Select
                   value={activeTab}
@@ -587,13 +587,13 @@ export function PerformancePage() {
                 return (
                   <div
                     key={item.key}
-                    className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-lg border px-4 py-3"
+                    className="border-border bg-card flex flex-col gap-1 rounded-lg border px-4 py-3"
                   >
-                    <p className="text-label-sm text-foreground-secondary">
+                    <p className="text-label-sm text-muted-foreground">
                       {item.label}
                     </p>
                     <div className="flex items-center gap-2">
-                      <p className="text-heading-md text-foreground-primary">
+                      <p className="text-heading-md text-foreground">
                         {formatPercent(item.score)}
                       </p>
                       <Badge size="sm" variant={badge.variant}>
@@ -603,13 +603,13 @@ export function PerformancePage() {
                   </div>
                 )
               })}
-              <div className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-lg border px-4 py-3 lg:col-span-2">
-                <p className="text-label-sm text-foreground-secondary">
+              <div className="border-border bg-card flex flex-col gap-1 rounded-lg border px-4 py-3 lg:col-span-2">
+                <p className="text-label-sm text-muted-foreground">
                   360 Feedback Cycle
                 </p>
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2">
-                    <p className="text-heading-md text-foreground-primary whitespace-nowrap">
+                    <p className="text-heading-md text-foreground whitespace-nowrap">
                       {isCycleActive && activeCycleRange
                         ? activeCycleRange
                         : "No Active"}
@@ -632,7 +632,7 @@ export function PerformancePage() {
               </div>
             </div>
 
-            <div className="border-neutral-primary border-b px-5 pt-2">
+            <div className="border-border border-b px-5 pt-2">
               <div className="space-y-3 pb-3 xl:hidden">
                 <Select
                   value={activeTab}

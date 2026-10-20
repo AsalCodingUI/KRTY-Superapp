@@ -33,7 +33,7 @@ export function AdminEmployeeSpotlight({
   return (
     <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
       <Card>
-        <p className="text-label-md text-foreground-secondary mb-3">
+        <p className="text-label-md text-muted-foreground mb-3">
           Top Performers
         </p>
 
@@ -46,7 +46,7 @@ export function AdminEmployeeSpotlight({
             className="min-h-[160px] px-0 py-6"
           />
         ) : (
-          <div className="border-neutral-primary divide-neutral-primary overflow-hidden rounded-lg border divide-y">
+          <div className="border-border divide-border overflow-hidden rounded-lg border divide-y">
             {topPerformers.map((employee) => {
               const badge = getRatingBadge(employee.overall_percentage)
               return (
@@ -54,22 +54,22 @@ export function AdminEmployeeSpotlight({
                   key={employee.employee_id}
                   href={`/performance/employee/${employee.employee_id}`}
                 >
-                  <div className="hover:bg-surface-neutral-secondary flex items-center gap-3 px-3 py-2 transition-colors">
+                  <div className="hover:bg-muted flex items-center gap-3 px-3 py-2 transition-colors">
                     <Avatar
                       size="sm"
                       initials={employee.employee_name?.[0] || "?"}
                       src={employee.employee_avatar || undefined}
                     />
                     <div className="min-w-0 flex-1">
-                      <h4 className="text-foreground-primary text-label-md truncate">
+                      <h4 className="text-foreground text-label-md truncate">
                         {employee.employee_name}
                       </h4>
-                      <p className="text-body-xs text-foreground-secondary truncate">
+                      <p className="text-body-xs text-muted-foreground truncate">
                         {employee.employee_job_title}
                       </p>
                     </div>
                     <div className="shrink-0 text-right">
-                      <div className="text-heading-md text-foreground-primary">
+                      <div className="text-heading-md text-foreground">
                         {employee.overall_percentage}%
                       </div>
                       <Badge
@@ -88,7 +88,7 @@ export function AdminEmployeeSpotlight({
       </Card>
 
       <Card>
-        <p className="text-label-md text-foreground-secondary mb-3">
+        <p className="text-label-md text-muted-foreground mb-3">
           Needs Attention
         </p>
 
@@ -101,7 +101,7 @@ export function AdminEmployeeSpotlight({
             className="min-h-[160px] px-0 py-6"
           />
         ) : (
-          <div className="border-neutral-primary divide-neutral-primary overflow-hidden rounded-lg border divide-y">
+          <div className="border-border divide-border overflow-hidden rounded-lg border divide-y">
             {employeesNeedingAttention.map((employee) => {
               const badge = getRatingBadge(employee.overall_percentage)
               return (
@@ -109,22 +109,22 @@ export function AdminEmployeeSpotlight({
                   key={employee.employee_id}
                   href={`/performance/employee/${employee.employee_id}`}
                 >
-                  <div className="hover:bg-surface-neutral-secondary flex items-center gap-3 px-3 py-2 transition-colors">
+                  <div className="hover:bg-muted flex items-center gap-3 px-3 py-2 transition-colors">
                     <Avatar
                       size="sm"
                       initials={employee.employee_name?.[0] || "?"}
                       src={employee.employee_avatar || undefined}
                     />
                     <div className="min-w-0 flex-1">
-                      <h4 className="text-foreground-primary text-label-md truncate">
+                      <h4 className="text-foreground text-label-md truncate">
                         {employee.employee_name}
                       </h4>
-                      <p className="text-body-xs text-foreground-secondary truncate">
+                      <p className="text-body-xs text-muted-foreground truncate">
                         {employee.employee_job_title}
                       </p>
                     </div>
                     <div className="shrink-0 text-right">
-                      <div className="text-heading-md text-foreground-primary">
+                      <div className="text-heading-md text-foreground">
                         {employee.overall_percentage}%
                       </div>
                       <Badge

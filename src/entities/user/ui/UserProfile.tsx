@@ -31,11 +31,11 @@ export function UserProfile({
         aria-label="User settings"
         variant="ghost"
         className={cx(
-          "group text-label-md text-content hover:bg-muted data-[state=open]:bg-muted dark:hover:bg-muted flex items-center rounded-md p-1",
+          "group text-label-md text-foreground hover:bg-muted data-[state=open]:bg-muted dark:hover:bg-muted flex items-center rounded-md p-1",
         )}
       >
         <span
-          className="border-border bg-surface text-body-xs text-content-subtle dark:bg-surface dark:text-content-subtle flex size-7 shrink-0 items-center justify-center rounded-full border"
+          className="border-border bg-card text-body-xs text-muted-foreground dark:bg-card dark:text-muted-foreground flex size-7 shrink-0 items-center justify-center rounded-full border"
           aria-hidden="true"
         >
           {initials}
@@ -50,12 +50,12 @@ export function UserProfile({
       variant="ghost"
       className={cx(
         focusRing,
-        "group text-label-md text-content hover:bg-muted data-[state=open]:bg-muted dark:hover:bg-muted flex w-full items-center justify-between rounded-md p-2",
+        "group text-label-md text-foreground hover:bg-muted data-[state=open]:bg-muted dark:hover:bg-muted flex w-full items-center justify-between rounded-md p-2",
       )}
     >
       <span className="flex min-w-0 items-center gap-3">
         <span
-          className="border-border bg-surface text-body-xs text-content-subtle dark:bg-surface dark:text-content-subtle flex size-8 shrink-0 items-center justify-center rounded-full border"
+          className="border-border bg-card text-body-xs text-muted-foreground dark:bg-card dark:text-muted-foreground flex size-8 shrink-0 items-center justify-center rounded-full border"
           aria-hidden="true"
         >
           {initials}
@@ -65,7 +65,7 @@ export function UserProfile({
         </span>
       </span>
       <RiMore2Fill
-        className="text-content-subtle group-hover:text-content-subtle group-hover:dark:text-content-placeholder size-4 shrink-0"
+        className="text-muted-foreground group-hover:text-muted-foreground group-hover:dark:text-muted-foreground/60 size-4 shrink-0"
         aria-hidden="true"
       />
     </Button>

@@ -68,7 +68,7 @@ export const columns = (onRequestDelete?: (id: string) => void) =>
           return <Badge variant="warning">On Break</Badge>
         }
         return (
-          <span className="font-medium text-foreground-success-dark">
+          <span className="font-medium text-success">
             Active
           </span>
         )

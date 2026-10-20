@@ -37,8 +37,8 @@ export function NotificationsPage() {
   return (
     <div className="flex flex-col">
       <div className="rounded-xxl flex items-center gap-2 px-4 pt-4 pb-3 xl:px-5">
-        <RiNotification3Line className="text-foreground-secondary size-4" />
-        <p className="text-label-md text-foreground-primary">Notifications</p>
+        <RiNotification3Line className="text-muted-foreground size-4" />
+        <p className="text-label-md text-foreground">Notifications</p>
         {unreadCount > 0 && (
           <Badge size="sm" variant="info">
             {unreadCount}
@@ -46,8 +46,8 @@ export function NotificationsPage() {
         )}
       </div>
 
-      <div className="bg-surface-neutral-primary rounded-xxl flex flex-col">
-        <div className="border-neutral-primary border-b px-4 pt-3 xl:px-5">
+      <div className="bg-card rounded-xxl flex flex-col">
+        <div className="border-border border-b px-4 pt-3 xl:px-5">
           <TabNavigation className="border-b-0">
             <TabNavigationLink
               active={activeTab === "unread"}
@@ -85,8 +85,8 @@ export function NotificationsPage() {
                   href={notification.link || "#"}
                   onClick={() => markAsRead(notification.id)}
                   className={cx(
-                    "hover:bg-surface-neutral-secondary block rounded-md px-3 py-3 transition-colors",
-                    !notification.is_read ? "bg-surface-brand-light" : "",
+                    "hover:bg-muted block rounded-md px-3 py-3 transition-colors",
+                    !notification.is_read ? "bg-primary/10" : "",
                   )}
                 >
                   <div className="flex gap-3">
@@ -94,18 +94,18 @@ export function NotificationsPage() {
                       className={cx(
                         "mt-1.5 size-2 shrink-0 rounded-full",
                         !notification.is_read
-                          ? "bg-surface-brand"
+                          ? "bg-primary"
                           : "bg-transparent",
                       )}
                     />
                     <div className="min-w-0 flex-1">
-                      <p className="text-foreground-primary text-label-md">
+                      <p className="text-foreground text-label-md">
                         {notification.title}
                       </p>
-                      <p className="text-foreground-secondary text-body-sm mt-1 line-clamp-2">
+                      <p className="text-muted-foreground text-body-sm mt-1 line-clamp-2">
                         {notification.message}
                       </p>
-                      <p className="text-foreground-tertiary text-body-xs mt-2">
+                      <p className="text-muted-foreground/70 text-body-xs mt-2">
                         {new Date(
                           notification.created_at || "",
                         ).toLocaleDateString(undefined, {
@@ -119,7 +119,7 @@ export function NotificationsPage() {
                     </div>
                     <button
                       onClick={(event) => handleDelete(event, notification.id)}
-                      className="text-foreground-tertiary hover:text-foreground-primary hover:bg-surface-neutral-secondary mt-1 inline-flex size-8 shrink-0 items-center justify-center rounded-md"
+                      className="text-muted-foreground/70 hover:text-foreground hover:bg-muted mt-1 inline-flex size-8 shrink-0 items-center justify-center rounded-md"
                       aria-label="Delete notification"
                     >
                       <RiDeleteBinLine className="size-4" />

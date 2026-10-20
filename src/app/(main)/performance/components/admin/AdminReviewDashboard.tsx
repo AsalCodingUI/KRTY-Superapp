@@ -429,7 +429,7 @@ export function AdminReviewDashboard({
                   <TableRow key={item.userId}>
                     <TableCell>
                       <span
-                        className="text-foreground-primary font-medium"
+                        className="text-foreground font-medium"
                         title={
                           item.jobTitle && item.jobTitle !== "-"
                             ? `${item.name} — ${item.jobTitle}`
@@ -468,9 +468,9 @@ export function AdminReviewDashboard({
                             )}
                           </AvatarGroup>
                         ) : (
-                          <span className="text-foreground-disable">None</span>
+                          <span className="text-muted-foreground/50">None</span>
                         )}
-                        <span className="text-foreground-secondary">
+                        <span className="text-muted-foreground">
                           ({item.percentage}%)
                         </span>
                       </div>
@@ -504,7 +504,7 @@ export function AdminReviewDashboard({
                             )}
                           </AvatarGroup>
                         ) : (
-                          <span className="text-body-xs text-foreground-disable">
+                          <span className="text-body-xs text-muted-foreground/50">
                             None
                           </span>
                         )}

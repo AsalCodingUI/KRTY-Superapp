@@ -84,9 +84,9 @@ export const EVENT_TYPE_REGISTRY: Record<string, EventTypeDefinition> = {
     label: "Cuti",
     color: "rose",
     colorMapping: {
-      background: "bg-danger-subtle",
-      text: "text-danger-text",
-      border: "border-danger",
+      background: "bg-destructive/10",
+      text: "text-destructive",
+      border: "border-destructive",
       semanticCategory: "danger",
       label: "Cuti",
     },
@@ -96,8 +96,8 @@ export const EVENT_TYPE_REGISTRY: Record<string, EventTypeDefinition> = {
     label: "Acara",
     color: "orange",
     colorMapping: {
-      background: "bg-warning-subtle",
-      text: "text-warning-text",
+      background: "bg-warning/10",
+      text: "text-warning",
       border: "border-warning",
       semanticCategory: "warning",
       label: "Acara",
@@ -108,8 +108,8 @@ export const EVENT_TYPE_REGISTRY: Record<string, EventTypeDefinition> = {
     label: "Rapat 301",
     color: "amber",
     colorMapping: {
-      background: "bg-warning-subtle",
-      text: "text-warning-text",
+      background: "bg-warning/10",
+      text: "text-warning",
       border: "border-warning",
       semanticCategory: "warning",
       label: "Rapat 301",
@@ -120,8 +120,8 @@ export const EVENT_TYPE_REGISTRY: Record<string, EventTypeDefinition> = {
     label: "Libur Perusahaan",
     color: "emerald",
     colorMapping: {
-      background: "bg-success-subtle",
-      text: "text-success-text",
+      background: "bg-success/10",
+      text: "text-success",
       border: "border-success",
       semanticCategory: "success",
       label: "Libur Perusahaan",
@@ -133,7 +133,7 @@ export const EVENT_TYPE_REGISTRY: Record<string, EventTypeDefinition> = {
     color: "neutral",
     colorMapping: {
       background: "bg-muted",
-      text: "text-content",
+      text: "text-foreground",
       border: "border-border",
       semanticCategory: "neutral",
       label: "Hari Libur Nasional",
@@ -171,29 +171,29 @@ export const COLOR_TO_SEMANTIC_MAPPING: Record<EventColor, EventColorMapping> =
       label: "Primary",
     },
     emerald: {
-      background: "bg-success-subtle",
-      text: "text-success-text",
+      background: "bg-success/10",
+      text: "text-success",
       border: "border-success",
       semanticCategory: "success",
       label: "Success",
     },
     rose: {
-      background: "bg-danger-subtle",
-      text: "text-danger-text",
-      border: "border-danger",
+      background: "bg-destructive/10",
+      text: "text-destructive",
+      border: "border-destructive",
       semanticCategory: "danger",
       label: "Danger",
     },
     orange: {
-      background: "bg-warning-subtle",
-      text: "text-warning-text",
+      background: "bg-warning/10",
+      text: "text-warning",
       border: "border-warning",
       semanticCategory: "warning",
       label: "Warning",
     },
     amber: {
-      background: "bg-warning-subtle",
-      text: "text-warning-text",
+      background: "bg-warning/10",
+      text: "text-warning",
       border: "border-warning",
       semanticCategory: "warning",
       label: "Warning",
@@ -207,7 +207,7 @@ export const COLOR_TO_SEMANTIC_MAPPING: Record<EventColor, EventColorMapping> =
     },
     neutral: {
       background: "bg-muted",
-      text: "text-content",
+      text: "text-foreground",
       border: "border-border",
       semanticCategory: "neutral",
       label: "Neutral",
@@ -277,7 +277,7 @@ export function getEventColorClasses(
     case "solid":
       // For solid variant, use stronger background colors
       const solidBg = mapping.background.replace("-subtle", "")
-      return `${solidBg} text-foreground-on-color border ${mapping.border}`
+      return `${solidBg} text-primary-foreground border ${mapping.border}`
     case "default":
     default:
       return `${mapping.background} ${mapping.text} border ${mapping.border}`
@@ -302,7 +302,7 @@ export function getEventTypeColorClasses(
       return `${mapping.background} ${mapping.text} border ${mapping.border}`
     case "solid":
       const solidBg = mapping.background.replace("-subtle", "")
-      return `${solidBg} text-foreground-on-color border ${mapping.border}`
+      return `${solidBg} text-primary-foreground border ${mapping.border}`
     case "default":
     default:
       return `${mapping.background} ${mapping.text} border ${mapping.border}`

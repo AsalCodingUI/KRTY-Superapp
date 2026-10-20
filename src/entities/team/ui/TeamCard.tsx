@@ -69,10 +69,10 @@ export function TeamCard({ data }: TeamCardProps) {
     <div className="max-w-full">
       <dl className="grid grid-cols-1">
         <Card>
-          <dt className="text-label-md text-content-subtle">
+          <dt className="text-label-md text-muted-foreground">
             Total Team Members
           </dt>
-          <dd className="text-display-xxs text-content mt-1">{totalMembers}</dd>
+          <dd className="text-display-xxs text-foreground mt-1">{totalMembers}</dd>
 
           <CategoryBar
             values={barValues}
@@ -92,10 +92,10 @@ export function TeamCard({ data }: TeamCardProps) {
                   aria-hidden="true"
                 />
                 <div className="flex items-baseline gap-1.5">
-                  <span className="text-content font-semibold">
+                  <span className="text-foreground font-semibold">
                     {item.percentage}%
                   </span>
-                  <span className="text-content-subtle">
+                  <span className="text-muted-foreground">
                     {item.name} ({item.count})
                   </span>
                 </div>

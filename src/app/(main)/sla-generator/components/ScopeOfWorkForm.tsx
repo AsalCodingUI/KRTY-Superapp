@@ -79,7 +79,7 @@ function SortableItem({
     <div
       ref={setNodeRef}
       style={style}
-      className={`bg-surface-neutral-primary border-neutral-primary group relative rounded-md border p-4 ${isDragging ? "shadow-regular-md z-50" : ""}`}
+      className={`bg-card border-border group relative rounded-md border p-4 ${isDragging ? "shadow-regular-md z-50" : ""}`}
     >
       <Accordion
         type="single"
@@ -92,20 +92,20 @@ function SortableItem({
             <div
               {...attributes}
               {...listeners}
-              className="hover:bg-surface-state-neutral-light-hover text-foreground-tertiary cursor-grab rounded p-1 transition-colors active:cursor-grabbing"
+              className="hover:bg-accent text-muted-foreground/70 cursor-grab rounded p-1 transition-colors active:cursor-grabbing"
               title="Drag to reorder"
             >
               <RiDraggable className="h-5 w-5" />
             </div>
 
             <div className="flex items-center gap-1">
-              <AccordionTrigger className="text-label-sm text-foreground-secondary hover:text-foreground-primary !w-auto !flex-none rounded-md !px-2 !py-1">
+              <AccordionTrigger className="text-label-sm text-muted-foreground hover:text-foreground !w-auto !flex-none rounded-md !px-2 !py-1">
                 Description
               </AccordionTrigger>
               <Button
                 variant="ghost"
                 size="xs"
-                className="text-foreground-tertiary h-8 w-8 p-0"
+                className="text-muted-foreground/70 h-8 w-8 p-0"
                 onClick={() => deleteItem(index)}
               >
                 <RiDeleteBinLine className="h-4 w-4" />
@@ -244,7 +244,7 @@ export const ScopeOfWorkForm = ({ data, onChange }: ScopeOfWorkFormProps) => {
   return (
     <div className="space-y-4">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <h3 className="text-label-md text-foreground-primary">Scope of Work</h3>
+        <h3 className="text-label-md text-foreground">Scope of Work</h3>
         <div className="flex flex-wrap gap-2">
           <Button variant="secondary" size="sm" onClick={handleImport}>
             <RiUploadLine className="mr-2 h-4 w-4" /> Import
@@ -282,7 +282,7 @@ export const ScopeOfWorkForm = ({ data, onChange }: ScopeOfWorkFormProps) => {
       <Button
         variant="secondary"
         onClick={addItem}
-        className="border-neutral-primary hover:border-foreground-tertiary w-full border-dashed"
+        className="border-border hover:border-muted-foreground/70 w-full border-dashed"
       >
         <RiAddLine className="mr-2 h-4 w-4" /> Add Item
       </Button>

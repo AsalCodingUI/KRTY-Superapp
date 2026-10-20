@@ -9,7 +9,7 @@ import type { VariantProps } from "tailwind-variants"
 // ============================================================================
 
 const avatarVariants = tv({
-  base: "ring-surface dark:ring-surface relative inline-flex items-center justify-center overflow-hidden rounded-full font-medium ring-2",
+  base: "ring-card dark:ring-card relative inline-flex items-center justify-center overflow-hidden rounded-full font-medium ring-2",
   variants: {
     size: {
       xs: "text-label-xs h-6 w-6",
@@ -20,14 +20,14 @@ const avatarVariants = tv({
     },
     color: {
       // Using chart colors for visual consistency with data viz
-      chart1: "bg-surface-chart-1 text-foreground-chart-1",
-      chart2: "bg-surface-chart-2 text-foreground-chart-2",
-      chart3: "bg-surface-chart-3 text-foreground-chart-3",
-      chart4: "bg-surface-chart-4 text-foreground-chart-4",
-      chart5: "bg-surface-chart-5 text-foreground-chart-5",
+      chart1: "bg-blue-500/10 text-blue-700 dark:text-blue-300",
+      chart2: "bg-amber-500/10 text-amber-700 dark:text-amber-300",
+      chart3: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
+      chart4: "bg-purple-500/10 text-purple-700 dark:text-purple-300",
+      chart5: "bg-pink-500/10 text-pink-700 dark:text-pink-300",
       // Semantic colors
-      primary: "bg-surface-brand-light text-foreground-brand-dark",
-      muted: "bg-surface-neutral-secondary text-foreground-secondary",
+      primary: "bg-primary/10 text-primary",
+      muted: "bg-muted text-muted-foreground",
     },
   },
   defaultVariants: {
@@ -140,9 +140,9 @@ AvatarGroup.displayName = "AvatarGroup"
 const avatarOverflowVariants = tv({
   base: [
     "flex items-center justify-center rounded-full font-medium",
-    "bg-surface-neutral-secondary",
-    "ring-surface ring-2",
-    "text-foreground-secondary",
+    "bg-muted",
+    "ring-card ring-2",
+    "text-muted-foreground",
   ],
   variants: {
     size: {

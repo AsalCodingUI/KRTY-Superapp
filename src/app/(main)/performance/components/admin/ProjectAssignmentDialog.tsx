@@ -206,8 +206,8 @@ export function ProjectAssignmentDialog({
 
         <DialogBody className="flex-1 space-y-4 overflow-y-auto">
           {/* Add New Assignment Section */}
-          <div className="border-neutral-primary bg-surface-neutral-secondary space-y-4 rounded-lg border p-4">
-            <h4 className="text-label-md text-foreground-primary">
+          <div className="border-border bg-muted space-y-4 rounded-lg border p-4">
+            <h4 className="text-label-md text-foreground">
               Add New Assignment
             </h4>
 
@@ -252,13 +252,13 @@ export function ProjectAssignmentDialog({
 
           {/* Current Assignments */}
           <div className="space-y-3">
-            <h4 className="text-label-md text-foreground-primary">
+            <h4 className="text-label-md text-foreground">
               Current Team ({assignments.length})
             </h4>
 
             {assignments.length === 0 ? (
-              <div className="border-neutral-primary rounded-lg border border-dashed p-8 text-center">
-                <p className="text-body-sm text-foreground-secondary">
+              <div className="border-border rounded-lg border border-dashed p-8 text-center">
+                <p className="text-body-sm text-muted-foreground">
                   No team members assigned yet. Add your first team member
                   above.
                 </p>
@@ -268,7 +268,7 @@ export function ProjectAssignmentDialog({
                 {assignments.map((assignment) => (
                   <div
                     key={assignment.id}
-                    className="border-neutral-primary bg-surface-neutral-primary flex items-center justify-between rounded-lg border p-3"
+                    className="border-border bg-card flex items-center justify-between rounded-lg border p-3"
                   >
                     <div className="flex items-center gap-3">
                       <Avatar
@@ -276,10 +276,10 @@ export function ProjectAssignmentDialog({
                         alt={assignment.profiles.full_name || "User"}
                       />
                       <div>
-                        <p className="text-foreground-primary font-medium">
+                        <p className="text-foreground font-medium">
                           {assignment.profiles.full_name || "Unknown User"}
                         </p>
-                        <p className="text-body-sm text-foreground-secondary">
+                        <p className="text-body-sm text-muted-foreground">
                           {assignment.profiles.job_title || "No job title"}
                         </p>
                       </div>
@@ -287,7 +287,7 @@ export function ProjectAssignmentDialog({
 
                     <div className="flex items-center gap-4">
                       <div className="text-right">
-                        <p className="text-label-md text-foreground-primary">
+                        <p className="text-label-md text-foreground">
                           {assignment.role_in_project}
                         </p>
                       </div>
@@ -297,7 +297,7 @@ export function ProjectAssignmentDialog({
                         size="sm"
                         onClick={() => handleRemoveAssignment(assignment.id)}
                         disabled={loading}
-                        className="text-foreground-danger hover:bg-surface-danger-light"
+                        className="text-destructive hover:bg-destructive/10"
                       >
                         <RiDeleteBin6Line className="size-4" />
                       </Button>

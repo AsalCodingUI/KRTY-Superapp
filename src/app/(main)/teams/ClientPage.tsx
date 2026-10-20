@@ -49,11 +49,11 @@ export function TeamsClientPage({
   return (
     <div className="flex flex-col">
       <div className="flex items-center gap-2 rounded-xxl px-5 pt-4 pb-3">
-        <RiGroupLine className="size-4 text-foreground-secondary" />
-        <p className="text-label-md text-foreground-primary">Team Members</p>
+        <RiGroupLine className="size-4 text-muted-foreground" />
+        <p className="text-label-md text-foreground">Team Members</p>
       </div>
 
-      <div className="bg-surface-neutral-primary flex flex-col rounded-xxl">
+      <div className="bg-card flex flex-col rounded-xxl">
         <div className="space-y-4 p-5">
           {/* POSISI BARU: DI BAWAH JUDUL */}
           <section>

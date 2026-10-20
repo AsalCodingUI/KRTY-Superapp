@@ -6,10 +6,10 @@ export default function CalendarLoading() {
       {/* Sidebar skeleton */}
       <div className="hidden w-64 flex-shrink-0 space-y-4 lg:block">
         <Skeleton className="h-8 w-full" />
-        <div className="border-neutral-primary bg-surface-neutral-primary rounded-lg border p-4">
+        <div className="border-border bg-card rounded-lg border p-4">
           <Skeleton className="h-40 w-full" />
         </div>
-        <div className="border-neutral-primary bg-surface-neutral-primary rounded-lg border p-4">
+        <div className="border-border bg-card rounded-lg border p-4">
           <Skeleton className="h-24 w-full" />
         </div>
       </div>
@@ -27,13 +27,13 @@ export default function CalendarLoading() {
         </div>
 
         {/* Calendar grid */}
-        <div className="border-neutral-primary bg-surface-neutral-primary flex-1 overflow-hidden rounded-lg border">
+        <div className="border-border bg-card flex-1 overflow-hidden rounded-lg border">
           {/* Header row */}
-          <div className="border-neutral-primary grid grid-cols-7 border-b">
+          <div className="border-border grid grid-cols-7 border-b">
             {[...Array(7)].map((_, i) => (
               <div
                 key={i}
-                className="border-neutral-primary border-r p-2 last:border-r-0"
+                className="border-border border-r p-2 last:border-r-0"
               >
                 <Skeleton className="mx-auto h-4 w-8" />
               </div>
@@ -44,12 +44,12 @@ export default function CalendarLoading() {
           {[...Array(5)].map((_, row) => (
             <div
               key={row}
-              className="border-neutral-primary grid grid-cols-7 border-b last:border-b-0"
+              className="border-border grid grid-cols-7 border-b last:border-b-0"
             >
               {[...Array(7)].map((_, col) => (
                 <div
                   key={col}
-                  className="border-neutral-primary h-24 border-r p-2 last:border-r-0"
+                  className="border-border h-24 border-r p-2 last:border-r-0"
                 >
                   <Skeleton className="mb-2 h-4 w-6" />
                   {row % 2 === 0 && col % 3 === 0 && (

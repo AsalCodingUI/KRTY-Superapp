@@ -22,14 +22,14 @@ import { MiniCalendar } from "./mini-calendar"
 import type { EventColor } from "./types"
 
 const CATEGORY_DOT_CLASSES: Record<EventColor, string> = {
-  blue: "bg-surface-brand",
-  violet: "bg-surface-brand",
-  emerald: "bg-surface-success",
-  rose: "bg-surface-danger",
-  orange: "bg-surface-warning",
-  amber: "bg-surface-warning",
-  cyan: "bg-surface-brand",
-  neutral: "bg-surface-neutral-secondary",
+  blue: "bg-primary",
+  violet: "bg-primary",
+  emerald: "bg-success",
+  rose: "bg-destructive",
+  orange: "bg-warning",
+  amber: "bg-warning",
+  cyan: "bg-primary",
+  neutral: "bg-muted",
 }
 
 const MOBILE_BOTTOM_SHEET_CLASSNAME =
@@ -43,7 +43,7 @@ function SidebarContent() {
 
       <div className="flex w-full flex-col gap-lg">
         <div className="flex items-center py-md">
-          <h4 className="text-label-sm text-foreground-secondary">
+          <h4 className="text-label-sm text-muted-foreground">
             Kalender Kretya
           </h4>
         </div>
@@ -52,12 +52,12 @@ function SidebarContent() {
             <button
               key={category.id}
               onClick={() => toggleColor(category.color)}
-              className="text-label-sm text-foreground-secondary hover:bg-surface-state-neutral-light-hover flex w-full items-center gap-sm overflow-hidden rounded-md px-lg py-sm text-left transition-colors"
+              className="text-label-sm text-muted-foreground hover:bg-accent flex w-full items-center gap-sm overflow-hidden rounded-md px-lg py-sm text-left transition-colors"
             >
               <span className="flex size-4 shrink-0 items-center justify-center">
                 <span
                   className={cx(
-                    "size-2 rounded-full border border-neutral-white",
+                    "size-2 rounded-full border border-white",
                     CATEGORY_DOT_CLASSES[category.color],
                   )}
                 />
@@ -66,9 +66,9 @@ function SidebarContent() {
                 {category.name}
               </span>
               {category.isActive ? (
-                <RiEyeLine className="text-foreground-tertiary size-4 shrink-0" />
+                <RiEyeLine className="text-muted-foreground/70 size-4 shrink-0" />
               ) : (
-                <RiEyeOffLine className="text-foreground-tertiary size-4 shrink-0" />
+                <RiEyeOffLine className="text-muted-foreground/70 size-4 shrink-0" />
               )}
             </button>
           ))}
@@ -80,7 +80,7 @@ function SidebarContent() {
 
 export function CalendarSidebar() {
   return (
-    <div className="bg-surface hidden h-full w-[220px] flex-shrink-0 overflow-y-auto lg:block">
+    <div className="bg-card hidden h-full w-[220px] flex-shrink-0 overflow-y-auto lg:block">
       <SidebarContent />
     </div>
   )
@@ -103,12 +103,12 @@ export function CalendarSidebarMobileTrigger() {
       </DrawerTrigger>
       <DrawerContent className={MOBILE_BOTTOM_SHEET_CLASSNAME}>
         <DrawerTitle className="sr-only">Kalender</DrawerTitle>
-        <div className="border-neutral-primary flex items-center justify-between border-b px-4 py-4">
-          <h3 className="text-heading-sm text-foreground-primary">Kalender</h3>
+        <div className="border-border flex items-center justify-between border-b px-4 py-4">
+          <h3 className="text-heading-sm text-foreground">Kalender</h3>
           <DrawerClose asChild>
             <button
               type="button"
-              className="text-foreground-tertiary hover:text-foreground-primary inline-flex size-8 items-center justify-center rounded-full transition-colors"
+              className="text-muted-foreground/70 hover:text-foreground inline-flex size-8 items-center justify-center rounded-full transition-colors"
               aria-label="Tutup panel kalender"
             >
               <RiCloseLine className="size-6" />

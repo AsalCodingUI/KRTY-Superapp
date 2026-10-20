@@ -45,10 +45,10 @@ export function AdminPendingActions({
     <div className="space-y-4">
       <Card>
         <div className="mb-3 flex items-center justify-between">
-          <p className="text-label-md text-foreground-secondary">
+          <p className="text-label-md text-muted-foreground">
             Pending Reviews
           </p>
-          <span className="text-body-xs text-foreground-tertiary tabular-nums">
+          <span className="text-body-xs text-muted-foreground/70 tabular-nums">
             {pendingReviews.length} items
           </span>
         </div>
@@ -63,13 +63,13 @@ export function AdminPendingActions({
           />
         ) : (
           <>
-            <div className="border-neutral-primary divide-neutral-primary overflow-hidden rounded-lg border divide-y">
+            <div className="border-border divide-border overflow-hidden rounded-lg border divide-y">
               {pendingReviews.slice(0, 5).map((review) => (
                 <Link
                   key={`${review.employee_id}-${review.cycle_id}`}
                   href={`/performance?tab=360review`}
                 >
-                  <div className="hover:bg-surface-neutral-secondary flex items-center justify-between px-3 py-2 transition-colors">
+                  <div className="hover:bg-muted flex items-center justify-between px-3 py-2 transition-colors">
                     <div className="flex items-center gap-3">
                       <Avatar
                         size="sm"
@@ -77,10 +77,10 @@ export function AdminPendingActions({
                         src={review.employee_avatar || undefined}
                       />
                       <div>
-                        <h4 className="text-foreground-primary text-label-md">
+                        <h4 className="text-foreground text-label-md">
                           {review.employee_name}
                         </h4>
-                        <p className="text-body-xs text-foreground-secondary">
+                        <p className="text-body-xs text-muted-foreground">
                           {review.employee_job_title}
                         </p>
                       </div>
@@ -89,7 +89,7 @@ export function AdminPendingActions({
                       <Badge size="sm" variant="info">
                         {review.cycle_name}
                       </Badge>
-                      <RiArrowRightLine className="text-foreground-secondary size-4" />
+                      <RiArrowRightLine className="text-muted-foreground size-4" />
                     </div>
                   </div>
                 </Link>
@@ -111,10 +111,10 @@ export function AdminPendingActions({
 
       <Card>
         <div className="mb-3 flex items-center justify-between">
-          <p className="text-label-md text-foreground-secondary">
+          <p className="text-label-md text-muted-foreground">
             Leave Approvals
           </p>
-          <span className="text-body-xs text-foreground-tertiary tabular-nums">
+          <span className="text-body-xs text-muted-foreground/70 tabular-nums">
             {pendingLeaveApprovals.length} items
           </span>
         </div>
@@ -129,7 +129,7 @@ export function AdminPendingActions({
           />
         ) : (
           <>
-            <div className="border-neutral-primary divide-neutral-primary overflow-hidden rounded-lg border divide-y">
+            <div className="border-border divide-border overflow-hidden rounded-lg border divide-y">
               {pendingLeaveApprovals.slice(0, 5).map((leave) => {
                 const daysAgo = Math.floor(
                   (new Date().getTime() -
@@ -139,7 +139,7 @@ export function AdminPendingActions({
 
                 return (
                   <Link key={leave.id} href="/leave">
-                    <div className="hover:bg-surface-neutral-secondary px-3 py-2 transition-colors">
+                    <div className="hover:bg-muted px-3 py-2 transition-colors">
                       <div className="mb-2 flex items-start justify-between">
                         <div className="flex items-center gap-3">
                           <Avatar
@@ -148,10 +148,10 @@ export function AdminPendingActions({
                             src={leave.user_avatar || undefined}
                           />
                           <div>
-                            <h4 className="text-foreground-primary text-label-md">
+                            <h4 className="text-foreground text-label-md">
                               {leave.user_name}
                             </h4>
-                            <p className="text-body-xs text-foreground-secondary">
+                            <p className="text-body-xs text-muted-foreground">
                               {leave.leave_type} • {leave.days_requested} days
                             </p>
                           </div>
@@ -162,12 +162,12 @@ export function AdminPendingActions({
                           </Badge>
                         )}
                       </div>
-                      <div className="text-body-xs text-foreground-secondary ml-11">
+                      <div className="text-body-xs text-muted-foreground ml-11">
                         {format(new Date(leave.start_date), "MMM d")} -{" "}
                         {format(new Date(leave.end_date), "MMM d, yyyy")}
                       </div>
                       {leave.reason && (
-                        <div className="text-body-xs text-foreground-secondary mt-1 ml-11 line-clamp-1">
+                        <div className="text-body-xs text-muted-foreground mt-1 ml-11 line-clamp-1">
                           {leave.reason}
                         </div>
                       )}

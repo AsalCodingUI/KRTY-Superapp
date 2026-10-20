@@ -42,18 +42,18 @@ export function LeaveCard({
       <div className="flex items-start justify-between">
         <div className="flex-1">
           {showUserInfo && userFullName && (
-            <p className="text-label-md text-content mb-1">{userFullName}</p>
+            <p className="text-label-md text-foreground mb-1">{userFullName}</p>
           )}
-          <h3 className="text-heading-sm text-content">{leave.leave_type}</h3>
-          <p className="text-label-md text-content-subtle mt-1">
+          <h3 className="text-heading-sm text-foreground">{leave.leave_type}</h3>
+          <p className="text-label-md text-muted-foreground mt-1">
             {format(startDate, "MMM dd, yyyy")} -{" "}
             {format(endDate, "MMM dd, yyyy")}
           </p>
-          <p className="text-body-xs text-content-placeholder mt-1">
+          <p className="text-body-xs text-muted-foreground/60 mt-1">
             {duration} business day{duration !== 1 ? "s" : ""}
           </p>
           {leave.reason && (
-            <p className="text-body-sm text-content-subtle mt-2 line-clamp-2">
+            <p className="text-body-sm text-muted-foreground mt-2 line-clamp-2">
               {leave.reason}
             </p>
           )}

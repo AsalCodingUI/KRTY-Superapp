@@ -107,11 +107,11 @@ export const createTeamColumns = (
 
         return (
           <div className="flex items-center gap-x-3">
-            <span className="bg-surface-neutral-secondary text-foreground-secondary inline-flex size-5 items-center justify-center rounded-full text-[10px] leading-[16px]">
+            <span className="bg-muted text-muted-foreground inline-flex size-5 items-center justify-center rounded-full text-[10px] leading-[16px]">
               {initials}
             </span>
             <span
-              className="text-foreground-primary font-medium whitespace-nowrap"
+              className="text-foreground font-medium whitespace-nowrap"
               title={name}
             >
               {name}

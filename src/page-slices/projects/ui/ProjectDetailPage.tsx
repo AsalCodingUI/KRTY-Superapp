@@ -109,44 +109,44 @@ function ProjectOverviewContent({ project }: { project: ProjectDetail }) {
   return (
     <Card className="space-y-5">
       <div className="space-y-2">
-        <p className="text-label-sm text-foreground-secondary">Project name</p>
-        <p className="text-body-md text-foreground-primary font-medium">
+        <p className="text-label-sm text-muted-foreground">Project name</p>
+        <p className="text-body-md text-foreground font-medium">
           {project.name}
         </p>
       </div>
       <div className="space-y-2">
-        <p className="text-label-sm text-foreground-secondary">Description</p>
-        <p className="text-body-sm text-foreground-primary">
+        <p className="text-label-sm text-muted-foreground">Description</p>
+        <p className="text-body-sm text-foreground">
           {project.description || "No description"}
         </p>
       </div>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div className="space-y-2">
-          <p className="text-label-sm text-foreground-secondary">Timeline</p>
-          <p className="text-body-sm text-foreground-primary">
+          <p className="text-label-sm text-muted-foreground">Timeline</p>
+          <p className="text-body-sm text-foreground">
             {format(new Date(project.start_date), "MMM d, yyyy")} -{" "}
             {format(new Date(project.end_date), "MMM d, yyyy")}
           </p>
         </div>
         <div className="space-y-2">
-          <p className="text-label-sm text-foreground-secondary">Status</p>
+          <p className="text-label-sm text-muted-foreground">Status</p>
           <Badge variant={getStatusVariant(project.status)}>
             {project.status}
           </Badge>
         </div>
         <div className="space-y-2">
-          <p className="text-label-sm text-foreground-secondary">Quarter</p>
+          <p className="text-label-sm text-muted-foreground">Quarter</p>
           {project.quarter_id ? (
             <QuarterBadge quarter={project.quarter_id} />
           ) : (
-            <span className="text-foreground-disable text-body-sm">
+            <span className="text-muted-foreground/50 text-body-sm">
               No quarter
             </span>
           )}
         </div>
       </div>
       <div className="space-y-3">
-        <p className="text-label-sm text-foreground-secondary">Team members</p>
+        <p className="text-label-sm text-muted-foreground">Team members</p>
         {teamMembers.length > 0 ? (
           <div className="space-y-3">
             {teamMembers.map((member) => (
@@ -162,10 +162,10 @@ function ProjectOverviewContent({ project }: { project: ProjectDetail }) {
                     .slice(0, 2)}
                 />
                 <div className="min-w-0">
-                  <p className="text-body-sm text-foreground-primary truncate font-medium">
+                  <p className="text-body-sm text-foreground truncate font-medium">
                     {member.name}
                   </p>
-                  <p className="text-label-xs text-foreground-secondary">
+                  <p className="text-label-xs text-muted-foreground">
                     {member.role}
                   </p>
                 </div>
@@ -173,7 +173,7 @@ function ProjectOverviewContent({ project }: { project: ProjectDetail }) {
             ))}
           </div>
         ) : (
-          <p className="text-body-sm text-foreground-secondary">
+          <p className="text-body-sm text-muted-foreground">
             No team members assigned.
           </p>
         )}
@@ -232,10 +232,10 @@ function CalculationsTabContent({ projectId }: { projectId: string }) {
               className="flex items-center justify-between gap-3"
             >
               <div className="min-w-0 flex-1">
-                <p className="text-body-sm text-foreground-primary truncate font-medium">
+                <p className="text-body-sm text-foreground truncate font-medium">
                   {calculation.title}
                 </p>
-                <p className="text-label-xs text-foreground-secondary">
+                <p className="text-label-xs text-muted-foreground">
                   {format(new Date(calculation.created_at), "MMM d, yyyy")}
                 </p>
               </div>
@@ -257,7 +257,7 @@ function CalculationsTabContent({ projectId }: { projectId: string }) {
                   size="icon-sm"
                   title="Delete Calculation"
                   onClick={() => setPendingDeleteId(calculation.id)}
-                  className="text-foreground-danger-dark hover:bg-surface-danger-light"
+                  className="text-destructive hover:bg-destructive/10"
                 >
                   <RiDeleteBin6Line className="size-3.5" />
                 </Button>
@@ -341,13 +341,13 @@ function SLAsTabContent({ projectId }: { projectId: string }) {
               className="flex items-center justify-between gap-3"
             >
               <div className="min-w-0 flex-1">
-                <p className="text-body-sm text-foreground-primary truncate font-medium">
+                <p className="text-body-sm text-foreground truncate font-medium">
                   {sla.client_name}
                 </p>
-                <p className="text-label-xs text-foreground-secondary truncate">
+                <p className="text-label-xs text-muted-foreground truncate">
                   {sla.project_name}
                 </p>
-                <p className="text-label-xs text-foreground-secondary">
+                <p className="text-label-xs text-muted-foreground">
                   {format(new Date(sla.created_at), "MMM d, yyyy")}
                 </p>
               </div>
@@ -367,7 +367,7 @@ function SLAsTabContent({ projectId }: { projectId: string }) {
                   size="icon-sm"
                   title="Delete SLA"
                   onClick={() => setPendingDeleteId(sla.id)}
-                  className="text-foreground-danger-dark hover:bg-surface-danger-light"
+                  className="text-destructive hover:bg-destructive/10"
                 >
                   <RiDeleteBin6Line className="size-3.5" />
                 </Button>
@@ -486,14 +486,14 @@ function FinanceTabContent({ projectId }: { projectId: string }) {
                     className="flex items-center justify-between gap-3"
                   >
                     <div className="min-w-0 flex-1">
-                      <p className="text-body-sm text-foreground-primary truncate font-medium">
+                      <p className="text-body-sm text-foreground truncate font-medium">
                         {inv.invoice_number}
                       </p>
-                      <p className="text-label-xs text-foreground-secondary">
+                      <p className="text-label-xs text-muted-foreground">
                         {format(new Date(inv.issue_date), "MMM d, yyyy")} →{" "}
                         {format(new Date(inv.due_date), "MMM d, yyyy")}
                       </p>
-                      <p className="text-label-xs text-foreground-secondary">
+                      <p className="text-label-xs text-muted-foreground">
                         {formatCurrency(inv.amount_idr)} (paid:{" "}
                         {formatCurrency(inv.amount_paid_idr)})
                       </p>
@@ -524,7 +524,7 @@ function FinanceTabContent({ projectId }: { projectId: string }) {
                         size="icon-sm"
                         title="Delete Invoice"
                         onClick={() => setPendingDeleteId(inv.id)}
-                        className="text-foreground-danger-dark hover:bg-surface-danger-light"
+                        className="text-destructive hover:bg-destructive/10"
                       >
                         <RiDeleteBin6Line className="size-3.5" />
                       </Button>
@@ -615,11 +615,11 @@ export function ProjectDetailPage({ project }: { project: ProjectDetail }) {
         </Button>
       </div>
 
-      <div className="bg-surface-neutral-primary rounded-xxl flex flex-col">
+      <div className="bg-card rounded-xxl flex flex-col">
         <div className="px-5 pt-5">
           <div className="pb-4">
             <div className="flex items-center justify-between gap-3">
-              <h1 className="text-heading-md text-foreground-primary">
+              <h1 className="text-heading-md text-foreground">
                 {project.name}
               </h1>
               <Badge variant={getStatusVariant(project.status)}>
@@ -629,7 +629,7 @@ export function ProjectDetailPage({ project }: { project: ProjectDetail }) {
           </div>
         </div>
 
-        <div className="border-neutral-primary border-b px-5 pt-2">
+        <div className="border-border border-b px-5 pt-2">
           <div className="pb-2 xl:hidden">
             <Select
               value={activeTab}

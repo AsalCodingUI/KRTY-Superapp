@@ -32,7 +32,7 @@ export function MiniCalendar() {
   return (
     <div className="flex w-full flex-col items-center gap-lg">
       <div className="flex w-full items-center justify-center py-md text-center">
-        <p className="text-label-sm text-foreground-secondary">
+        <p className="text-label-sm text-muted-foreground">
           {format(currentDate, "dd MMMM yyyy", { locale: id })}
         </p>
       </div>
@@ -44,8 +44,8 @@ export function MiniCalendar() {
             <div
               key={`${day}-${index}`}
               className={cx(
-                "text-label-sm text-foreground-secondary flex size-7 items-center justify-center rounded-md text-center",
-                index >= 5 && "bg-surface-neutral-secondary/50",
+                "text-label-sm text-muted-foreground flex size-7 items-center justify-center rounded-md text-center",
+                index >= 5 && "bg-muted/50",
               )}
             >
               {day}
@@ -66,16 +66,16 @@ export function MiniCalendar() {
                 onClick={() => handleDayClick(day)}
                 className={cx(
                   "text-label-sm flex w-full aspect-square items-center justify-center rounded-md transition-colors",
-                  !isCurrentMonth && "text-foreground-disable",
+                  !isCurrentMonth && "text-muted-foreground/50",
                   isCurrentMonth &&
                   !isSelected &&
-                  "text-foreground-secondary hover:bg-surface-state-neutral-light-hover",
+                  "text-muted-foreground hover:bg-accent",
                   isCurrentMonth &&
                   !isSelected &&
                   isWeekend &&
-                  "bg-surface-neutral-secondary/50",
+                  "bg-muted/50",
                   isSelected &&
-                  "bg-surface-brand text-foreground-on-color hover:bg-surface-brand",
+                  "bg-primary text-primary-foreground hover:bg-primary",
                 )}
               >
                 {format(day, "d")}

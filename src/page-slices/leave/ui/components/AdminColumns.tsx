@@ -94,7 +94,7 @@ export const adminColumns = (
               color="neutral"
             />
             <span
-              className="text-foreground-primary font-medium whitespace-nowrap"
+              className="text-foreground font-medium whitespace-nowrap"
               title={name}
             >
               {name}
@@ -118,9 +118,9 @@ export const adminColumns = (
         const start = new Date(row.original.start_date)
         const end = new Date(row.original.end_date)
         return (
-          <span className="text-foreground-primary whitespace-nowrap">
+          <span className="text-foreground whitespace-nowrap">
             {format(start, "dd MMM")}
-            <span className="text-foreground-secondary mx-1">-</span>
+            <span className="text-muted-foreground mx-1">-</span>
             {format(end, "dd MMM yyyy")}
           </span>
         )
@@ -139,13 +139,13 @@ export const adminColumns = (
       ),
       cell: ({ row }) => {
         const createdAt = row.getValue("created_at") as string | null
-        if (!createdAt) return <span className="text-foreground-disable">-</span>
+        if (!createdAt) return <span className="text-muted-foreground/50">-</span>
         const parsed = new Date(createdAt)
         if (Number.isNaN(parsed.getTime())) {
-          return <span className="text-foreground-disable">-</span>
+          return <span className="text-muted-foreground/50">-</span>
         }
         return (
-          <span className="text-foreground-primary whitespace-nowrap">
+          <span className="text-foreground whitespace-nowrap">
             {format(parsed, "dd MMM yyyy, HH:mm")}
           </span>
         )
@@ -196,13 +196,13 @@ export const adminColumns = (
       ),
       cell: ({ row }) => {
         const url = row.getValue("proof_url") as string
-        if (!url) return <span className="text-foreground-disable">-</span>
+        if (!url) return <span className="text-muted-foreground/50">-</span>
         return (
           <a
             href={url}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-label-xs text-foreground-brand-dark hover:text-foreground-brand inline-flex items-center gap-1"
+            className="text-label-xs text-primary hover:text-primary inline-flex items-center gap-1"
           >
             <RiFilePaperLine className="size-3.5" /> View
           </a>
@@ -246,7 +246,7 @@ export const adminColumns = (
                   <Button
                     variant="tertiary"
                     size="icon-sm"
-                    className="text-foreground-danger-dark"
+                    className="text-destructive"
                     title="Reject"
                     onClick={() => onReject(item.id)}
                   >
@@ -255,7 +255,7 @@ export const adminColumns = (
                   <Button
                     variant="tertiary"
                     size="icon-sm"
-                    className="text-foreground-success-dark"
+                    className="text-success"
                     title="Approve"
                     onClick={() => onApprove(item.id)}
                   >

@@ -42,12 +42,6 @@
       ],
       "@/pages/*": [
         "./src/page-slices/*"
-      ],
-      "@/components/ui": [
-        "./src/shared/ui"
-      ],
-      "@/components/ui/*": [
-        "./src/shared/ui/*"
       ]
     },
     "target": "ES2017"

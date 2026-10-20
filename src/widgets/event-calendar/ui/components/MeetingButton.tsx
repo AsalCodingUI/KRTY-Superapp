@@ -33,17 +33,17 @@ export function MeetingButton({ meetingUrl, className }: MeetingButtonProps) {
       <div className="flex items-center gap-2">
         <Button
           onClick={handleJoin}
-          className="bg-surface-brand hover:bg-surface-brand-hover text-primary-fg flex-1"
+          className="bg-primary hover:bg-primary/90 text-primary-fg flex-1"
         >
           <RiVideoOnLine className="mr-2 h-4 w-4" />
           Gabung via Google Meet
         </Button>
         <button
           onClick={handleCopy}
-          className="border-border-border hover:bg-muted rounded-lg border p-2 transition-colors"
+          className="border-border hover:bg-muted rounded-lg border p-2 transition-colors"
           title="Salin tautan meeting"
         >
-          <RiFileCopyLine className="text-content h-4 w-4" />
+          <RiFileCopyLine className="text-foreground h-4 w-4" />
         </button>
       </div>
 
@@ -54,7 +54,7 @@ export function MeetingButton({ meetingUrl, className }: MeetingButtonProps) {
       )}
 
       <div className="mt-2">
-        <p className="text-body-xs text-content-muted">
+        <p className="text-body-xs text-muted-foreground/70">
           Durasi panggilan grup dibatasi 1 jam
         </p>
         <a

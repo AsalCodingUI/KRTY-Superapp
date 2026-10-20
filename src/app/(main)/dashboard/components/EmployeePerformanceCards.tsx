@@ -53,27 +53,27 @@ export function EmployeePerformanceCards({
     <div className="space-y-4">
 
       {competencyItems.length > 0 && (
-        <div className="border-neutral-primary bg-surface-neutral-primary rounded-lg border px-4 py-3">
+        <div className="border-border bg-card rounded-lg border px-4 py-3">
           <div className="mb-3 flex items-center justify-between">
-            <p className="text-label-sm text-foreground-secondary">
+            <p className="text-label-sm text-muted-foreground">
               Competency Snapshot
             </p>
-            <span className="text-body-xs text-foreground-tertiary">{quarter}</span>
+            <span className="text-body-xs text-muted-foreground/70">{quarter}</span>
           </div>
           <div className="space-y-2">
             {competencyItems.map((item) => (
               <div key={item.label} className="space-y-1">
                 <div className="flex items-center justify-between">
-                  <span className="text-body-xs text-foreground-secondary">
+                  <span className="text-body-xs text-muted-foreground">
                     {item.label}
                   </span>
-                  <span className="text-body-xs text-foreground-primary tabular-nums">
+                  <span className="text-body-xs text-foreground tabular-nums">
                     {Math.round(item.value)}%
                   </span>
                 </div>
-                <div className="bg-surface-neutral-secondary h-1.5 overflow-hidden rounded-full">
+                <div className="bg-muted h-1.5 overflow-hidden rounded-full">
                   <div
-                    className="bg-foreground-brand-primary h-full rounded-full"
+                    className="bg-primary h-full rounded-full"
                     style={{ width: `${Math.max(0, Math.min(100, item.value))}%` }}
                   />
                 </div>
@@ -84,21 +84,21 @@ export function EmployeePerformanceCards({
       )}
 
       {upcomingReviews.length === 0 ? (
-        <p className="text-body-xs text-foreground-tertiary">
+        <p className="text-body-xs text-muted-foreground/70">
           No active review cycle.
         </p>
       ) : (
-        <div className="border-neutral-primary divide-neutral-primary overflow-hidden rounded-lg border divide-y">
+        <div className="border-border divide-border overflow-hidden rounded-lg border divide-y">
           {upcomingReviews.slice(0, 2).map((review) => (
             <div
               key={review.cycle_id}
               className="flex items-center justify-between px-3 py-2"
             >
               <div>
-                <p className="text-body-sm text-foreground-primary">
+                <p className="text-body-sm text-foreground">
                   {review.cycle_name}
                 </p>
-                <p className="text-body-xs text-foreground-secondary">
+                <p className="text-body-xs text-muted-foreground">
                   Due {format(new Date(review.end_date), "dd MMM yyyy")}
                 </p>
               </div>
@@ -110,25 +110,25 @@ export function EmployeePerformanceCards({
         </div>
       )}
 
-      <div className="border-neutral-primary rounded-lg border px-4 py-3">
-        <p className="text-label-sm text-foreground-secondary mb-2">Jadwal 1:1</p>
+      <div className="border-border rounded-lg border px-4 py-3">
+        <p className="text-label-sm text-muted-foreground mb-2">Jadwal 1:1</p>
         {upcomingOneOnOne.length === 0 ? (
-          <p className="text-body-xs text-foreground-tertiary">
+          <p className="text-body-xs text-muted-foreground/70">
             Belum ada jadwal 1:1 terdekat.
           </p>
         ) : (
-          <div className="border-neutral-primary divide-neutral-primary overflow-hidden rounded-lg border divide-y">
+          <div className="border-border divide-border overflow-hidden rounded-lg border divide-y">
             {upcomingOneOnOne.slice(0, 2).map((slot) => (
               <div
                 key={slot.id}
                 className="flex items-center justify-between gap-3 px-3 py-2"
               >
                 <div className="min-w-0">
-                  <p className="text-body-sm text-foreground-primary">
+                  <p className="text-body-sm text-foreground">
                     {format(new Date(slot.start_at), "dd MMM yyyy · HH:mm")} -{" "}
                     {format(new Date(slot.end_at), "HH:mm")}
                   </p>
-                  <p className="text-body-xs text-foreground-secondary truncate">
+                  <p className="text-body-xs text-muted-foreground truncate">
                     {slot.organizer_name ? `With ${slot.organizer_name}` : "1:1 Session"}
                     {slot.mode === "offline" && slot.location
                       ? ` • ${slot.location}`
@@ -140,7 +140,7 @@ export function EmployeePerformanceCards({
                     href={slot.meeting_url}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-body-xs text-foreground-brand-primary hover:underline whitespace-nowrap"
+                    className="text-body-xs text-primary hover:underline whitespace-nowrap"
                   >
                     Join
                   </a>

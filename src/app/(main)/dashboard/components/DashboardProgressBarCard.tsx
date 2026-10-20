@@ -34,16 +34,16 @@ export function ProgressBarCard({
       <div className="flex flex-col justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <dt className="text-foreground-primary sm:text-label-md">
+            <dt className="text-foreground sm:text-label-md">
               {title}
             </dt>
             <Badge variant="zinc">{change}</Badge>
           </div>
           <dd className="mt-2 flex items-baseline gap-2">
-            <span className="text-heading-lg text-foreground-primary">
+            <span className="text-heading-lg text-foreground">
               {value}
             </span>
-            <span className="text-body-sm text-foreground-tertiary">
+            <span className="text-body-sm text-muted-foreground/70">
               {valueDescription}
             </span>
           </dd>
@@ -51,12 +51,12 @@ export function ProgressBarCard({
             {data.map((item) => (
               <li key={item.title}>
                 <p className="text-label-md flex justify-between">
-                  <span className="text-foreground-primary font-medium">
+                  <span className="text-foreground font-medium">
                     {item.title}
                   </span>
-                  <span className="text-foreground-primary font-medium">
+                  <span className="text-foreground font-medium">
                     {item.current}
-                    <span className="text-foreground-tertiary font-normal">
+                    <span className="text-muted-foreground/70 font-normal">
                       /{item.allowed}
                       {item.unit}
                     </span>
@@ -71,9 +71,9 @@ export function ProgressBarCard({
           </ul>
         </div>
         <div>
-          <p className="text-body-xs text-foreground-tertiary mt-6">
+          <p className="text-body-xs text-muted-foreground/70 mt-6">
             {ctaDescription}{" "}
-            <a href={ctaLink} className="text-foreground-brand-primary hover:text-foreground-brand-primary-hover">
+            <a href={ctaLink} className="text-primary hover:text-primary/90">
               {ctaText}
             </a>
           </p>

@@ -42,10 +42,10 @@ export function LeaveBalance({
 
   return (
     <Card>
-      <dt className="text-label-md text-content-subtle dark:text-content-subtle">
+      <dt className="text-label-md text-muted-foreground dark:text-muted-foreground">
         Annual Leave Balance
       </dt>
-      <dd className="text-display-xxs text-content dark:text-content mt-2">
+      <dd className="text-display-xxs text-foreground dark:text-foreground mt-2">
         {stats.balance} Days
       </dd>
 
@@ -57,7 +57,7 @@ export function LeaveBalance({
             <span className="text-primary font-medium">
               {stats.percentage}% used
             </span>
-            <span className="text-content-subtle dark:text-content-subtle">
+            <span className="text-muted-foreground dark:text-muted-foreground">
               {stats.used} of {maxLeave} days
             </span>
           </dd>

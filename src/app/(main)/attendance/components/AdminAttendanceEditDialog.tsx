@@ -149,7 +149,7 @@ export function AdminAttendanceEditDialog({
             </div>
           </div>
           {error && (
-            <p className="text-body-sm text-foreground-danger-dark mt-4">
+            <p className="text-body-sm text-destructive mt-4">
               {error}
             </p>
           )}

@@ -52,7 +52,7 @@ export const remainingLeaveColumns = [
             color="neutral"
           />
           <span
-            className="text-foreground-primary font-medium whitespace-nowrap"
+            className="text-foreground font-medium whitespace-nowrap"
             title={name}
           >
             {name}
@@ -90,7 +90,7 @@ export const remainingLeaveColumns = [
       />
     ),
     cell: () => (
-      <span className="text-foreground-secondary tabular-nums">12 Days</span>
+      <span className="text-muted-foreground tabular-nums">12 Days</span>
     ),
     meta: { displayName: "Total Quota" },
   }),
@@ -105,7 +105,7 @@ export const remainingLeaveColumns = [
       />
     ),
     cell: ({ row }) => (
-      <span className="text-foreground-secondary tabular-nums">
+      <span className="text-muted-foreground tabular-nums">
         {row.getValue("leave_used") ?? 0} Days
       </span>
     ),
@@ -122,7 +122,7 @@ export const remainingLeaveColumns = [
       />
     ),
     cell: ({ row }) => (
-      <span className="text-foreground-primary font-medium tabular-nums">
+      <span className="text-foreground font-medium tabular-nums">
         {row.getValue("leave_balance") ?? 12} Days
       </span>
     ),

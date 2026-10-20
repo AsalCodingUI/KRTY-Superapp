@@ -1380,7 +1380,7 @@ export const SLADocumentPreview = React.forwardRef<
       `}</style>
 
       {/* --- TOP NAVIGATION --- */}
-      <div className="bg-surface/80 shadow-sm-border z-50 mb-4 flex items-center gap-4 rounded-full px-2 py-2 backdrop-blur-md print:hidden">
+      <div className="bg-card/80 shadow-sm-border z-50 mb-4 flex items-center gap-4 rounded-full px-2 py-2 backdrop-blur-md print:hidden">
         <Button
           variant="ghost"
           onClick={prevPage}

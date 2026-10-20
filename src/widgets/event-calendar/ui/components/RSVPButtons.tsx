@@ -15,7 +15,7 @@ export function RSVPButtons({
 }: RSVPButtonsProps) {
   return (
     <div className="space-y-2">
-      <h4 className="text-label-md text-content">Akan hadir?</h4>
+      <h4 className="text-label-md text-foreground">Akan hadir?</h4>
       <div className="flex gap-2">
         <button
           onClick={() => onChange("yes")}
@@ -24,8 +24,8 @@ export function RSVPButtons({
             "text-label-md flex-1 rounded-lg px-4 py-2 transition-all",
             "border disabled:cursor-not-allowed disabled:opacity-50",
             value === "yes"
-              ? "bg-surface-brand text-primary-fg border-primary"
-              : "bg-surface text-content border-border-border hover:bg-muted",
+              ? "bg-primary text-primary-fg border-primary"
+              : "bg-card text-foreground border-border hover:bg-muted",
           )}
         >
           Ya
@@ -37,8 +37,8 @@ export function RSVPButtons({
             "text-label-md flex-1 rounded-lg px-4 py-2 transition-all",
             "border disabled:cursor-not-allowed disabled:opacity-50",
             value === "no"
-              ? "bg-surface text-content border-border-border ring-border ring-2"
-              : "bg-surface text-content border-border-border hover:bg-muted",
+              ? "bg-card text-foreground border-border ring-border ring-2"
+              : "bg-card text-foreground border-border hover:bg-muted",
           )}
         >
           Tidak
@@ -50,8 +50,8 @@ export function RSVPButtons({
             "text-label-md flex-1 rounded-lg px-4 py-2 transition-all",
             "border disabled:cursor-not-allowed disabled:opacity-50",
             value === "maybe"
-              ? "bg-surface text-content border-border-border ring-border ring-2"
-              : "bg-surface text-content border-border-border hover:bg-muted",
+              ? "bg-card text-foreground border-border ring-border ring-2"
+              : "bg-card text-foreground border-border hover:bg-muted",
           )}
         >
           Mungkin

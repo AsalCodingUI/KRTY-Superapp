@@ -285,7 +285,7 @@ export function LeaveRequestModal({
         // SCROLL DI PINDAH KE SINI (Parent Container)
         <div className="mt-6 max-h-[70vh] overflow-y-auto pr-2 sm:max-h-[60vh]">
           <LeaveRules />
-          <div className="bg-surface-neutral-secondary mt-6 flex items-start space-x-3 rounded-md border p-3">
+          <div className="bg-muted mt-6 flex items-start space-x-3 rounded-md border p-3">
             <Checkbox
               id="terms"
               checked={isTermsAccepted}
@@ -296,11 +296,11 @@ export function LeaveRequestModal({
             <div className="grid gap-1.5 leading-none">
               <label
                 htmlFor="terms"
-                className="text-label-md text-foreground-primary cursor-pointer peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                className="text-label-md text-foreground cursor-pointer peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
               >
                 I agree to the terms and conditions
               </label>
-              <p className="text-body-xs text-foreground-secondary">
+              <p className="text-body-xs text-muted-foreground">
                 By checking this box, I confirm that I have read and understood
                 the leave policy above.
               </p>
@@ -312,29 +312,29 @@ export function LeaveRequestModal({
 
     return (
       <div className="space-y-4">
-        <div className="rounded-lg border border-neutral-primary bg-surface-neutral-primary p-4">
+        <div className="rounded-lg border border-border bg-card p-4">
           <div className="space-y-3">
             <div className="flex items-center justify-between gap-4">
-              <span className="text-label-sm text-foreground-secondary">
+              <span className="text-label-sm text-muted-foreground">
                 Name
               </span>
-              <span className="text-body-sm text-foreground-primary text-right">
+              <span className="text-body-sm text-foreground text-right">
                 {userProfile.full_name || "-"}
               </span>
             </div>
             <div className="flex items-center justify-between gap-4">
-              <span className="text-label-sm text-foreground-secondary">
+              <span className="text-label-sm text-muted-foreground">
                 Leave Type
               </span>
-              <span className="text-body-sm text-foreground-primary text-right">
+              <span className="text-body-sm text-foreground text-right">
                 {formData.leave_type || "-"}
               </span>
             </div>
             <div className="flex items-center justify-between gap-4">
-              <span className="text-label-sm text-foreground-secondary">
+              <span className="text-label-sm text-muted-foreground">
                 Date Range
               </span>
-              <span className="text-body-sm text-foreground-primary text-right">
+              <span className="text-body-sm text-foreground text-right">
                 {formData.start_date && formData.end_date
                   ? `${format(formData.start_date, "dd MMM yyyy")} - ${format(
                       formData.end_date,
@@ -344,10 +344,10 @@ export function LeaveRequestModal({
               </span>
             </div>
             <div className="flex items-center justify-between gap-4">
-              <span className="text-label-sm text-foreground-secondary">
+              <span className="text-label-sm text-muted-foreground">
                 Duration
               </span>
-              <span className="text-body-sm text-foreground-primary text-right">
+              <span className="text-body-sm text-foreground text-right">
                 {formData.start_date && formData.end_date
                   ? `${calculateBusinessDays(
                       formData.start_date,
@@ -357,19 +357,19 @@ export function LeaveRequestModal({
               </span>
             </div>
             <div className="space-y-1">
-              <span className="text-label-sm text-foreground-secondary">
+              <span className="text-label-sm text-muted-foreground">
                 Reason
               </span>
-              <p className="text-body-sm text-foreground-primary">
+              <p className="text-body-sm text-foreground">
                 {formData.reason || "-"}
               </p>
             </div>
             {formData.leave_type === "Sick Leave" && (
               <div className="flex items-center justify-between gap-4">
-                <span className="text-label-sm text-foreground-secondary">
+                <span className="text-label-sm text-muted-foreground">
                   Medical Proof
                 </span>
-                <span className="text-body-sm text-foreground-primary text-right">
+                <span className="text-body-sm text-foreground text-right">
                   {formData.proof_file || formData.proof_url
                     ? "Attached"
                     : "Not attached"}

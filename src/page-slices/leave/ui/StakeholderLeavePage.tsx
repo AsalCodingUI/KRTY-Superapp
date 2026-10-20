@@ -525,8 +525,8 @@ export function StakeholderLeavePage({
     <>
       <div className="flex flex-col">
         <div className="flex items-center gap-2 rounded-xxl px-5 pt-4 pb-3">
-          <RiCalendarCheckLine className="size-4 text-foreground-secondary" />
-          <p className="text-label-md text-foreground-primary">
+          <RiCalendarCheckLine className="size-4 text-muted-foreground" />
+          <p className="text-label-md text-foreground">
             Leave & Attendance Center
           </p>
         </div>
@@ -808,24 +808,24 @@ function AttendanceOverviewPanel({
   ]
 
   return (
-    <div className="flex flex-col rounded-xxl bg-surface-neutral-primary">
+    <div className="flex flex-col rounded-xxl bg-card">
       <div className="grid grid-cols-2 gap-3 px-5 py-2 lg:grid-cols-5">
         {stats.map((item) => (
           <div
             key={item.label}
-            className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-lg border px-4 py-3"
+            className="border-border bg-card flex flex-col gap-1 rounded-lg border px-4 py-3"
           >
-            <p className="text-label-sm text-foreground-secondary">
+            <p className="text-label-sm text-muted-foreground">
               {item.label}
             </p>
-            <p className="text-heading-md text-foreground-primary">
+            <p className="text-heading-md text-foreground">
               {item.value}
             </p>
           </div>
         ))}
       </div>
 
-      <div className="px-5 pt-2 border-b border-neutral-primary space-y-3">
+      <div className="px-5 pt-2 border-b border-border space-y-3">
         <div className="xl:hidden">
           {isClient ? (
             <Select
@@ -844,7 +844,7 @@ function AttendanceOverviewPanel({
               </SelectContent>
             </Select>
           ) : (
-            <div className="border-neutral-primary h-9 w-full rounded-md border bg-surface-neutral-primary" />
+            <div className="border-border h-9 w-full rounded-md border bg-card" />
           )}
         </div>
         <div className="hidden xl:flex items-start justify-between gap-4">

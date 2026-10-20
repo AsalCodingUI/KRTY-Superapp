@@ -99,12 +99,12 @@ function ProjectsStats({ projectStats }: { projectStats: ProjectStats }) {
       {stats.map((stat) => (
         <div
           key={stat.label}
-          className="border-neutral-primary bg-surface-neutral-primary flex flex-col gap-1 rounded-lg border px-4 py-3"
+          className="border-border bg-card flex flex-col gap-1 rounded-lg border px-4 py-3"
         >
-          <dt className="text-label-sm text-foreground-secondary">
+          <dt className="text-label-sm text-muted-foreground">
             {stat.label}
           </dt>
-          <dd className="text-heading-md text-foreground-primary">
+          <dd className="text-heading-md text-foreground">
             {stat.value}
           </dd>
         </div>
@@ -122,7 +122,7 @@ function ProjectsTableContent({ projects }: { projects: ProjectListItem[] }) {
           <DataTableColumnHeader column={column} title="Project Name" />
         ),
         cell: ({ row }) => (
-          <span className="text-label-md text-foreground-primary">
+          <span className="text-label-md text-foreground">
             {row.getValue("name")}
           </span>
         ),
@@ -136,7 +136,7 @@ function ProjectsTableContent({ projects }: { projects: ProjectListItem[] }) {
           return quarterId ? (
             <QuarterBadge quarter={quarterId} />
           ) : (
-            <span className="text-foreground-disable">No quarter</span>
+            <span className="text-muted-foreground/50">No quarter</span>
           )
         },
       }),
@@ -156,7 +156,7 @@ function ProjectsTableContent({ projects }: { projects: ProjectListItem[] }) {
           <DataTableColumnHeader column={column} title="Timeline" />
         ),
         cell: ({ row }) => (
-          <span className="text-foreground-primary">
+          <span className="text-foreground">
             {format(new Date(row.original.start_date), "MMM d, yyyy")} -{" "}
             {format(new Date(row.original.end_date), "MMM d, yyyy")}
           </span>
@@ -190,7 +190,7 @@ function ProjectsTableContent({ projects }: { projects: ProjectListItem[] }) {
               )}
             </AvatarGroup>
           ) : (
-            <span className="text-foreground-disable">No assignments</span>
+            <span className="text-muted-foreground/50">No assignments</span>
           )
         },
       }),
@@ -379,11 +379,11 @@ export function ProjectsListPage() {
   return (
     <div className="flex flex-col">
       <div className="rounded-xxl flex items-center gap-2 px-5 pt-4 pb-3">
-        <RiFolderLine className="text-foreground-secondary size-4" />
-        <p className="text-label-md text-foreground-primary">Projects</p>
+        <RiFolderLine className="text-muted-foreground size-4" />
+        <p className="text-label-md text-foreground">Projects</p>
       </div>
 
-      <div className="bg-surface-neutral-primary flex flex-col rounded-xxl">
+      <div className="bg-card flex flex-col rounded-xxl">
         <section className="px-5 py-2">
           {isProjectsLoading || isSLAsLoading || isCalculationsLoading ? (
             <div className="flex items-center justify-center py-8">
@@ -394,7 +394,7 @@ export function ProjectsListPage() {
           )}
         </section>
 
-        <div className="px-5 pt-2 border-b border-neutral-primary">
+        <div className="px-5 pt-2 border-b border-border">
           <div className="xl:hidden pb-2">
             <Select
               value={activeTab}

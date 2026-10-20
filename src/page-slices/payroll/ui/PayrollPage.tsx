@@ -7,8 +7,8 @@ export function PayrollPage() {
   return (
     <div className="flex flex-col">
       <div className="flex items-center gap-2 rounded-xxl px-5 pt-4 pb-3">
-        <RiFundsBoxLine className="size-4 text-foreground-secondary" />
-        <p className="text-label-md text-foreground-primary">Payroll System</p>
+        <RiFundsBoxLine className="size-4 text-muted-foreground" />
+        <p className="text-label-md text-foreground">Payroll System</p>
       </div>
 
       <div className="flex flex-col rounded-xxl">

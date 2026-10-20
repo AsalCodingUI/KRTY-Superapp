@@ -58,13 +58,13 @@ export function AdminDashboard({ data }: AdminDashboardProps) {
   return (
     <div className="flex flex-col">
       <div className="flex items-center gap-2 rounded-xxl px-4 pt-4 pb-3 xl:px-5">
-        <RiBarChartBoxLine className="size-4 text-foreground-secondary" />
-        <p className="text-label-md text-foreground-primary">
+        <RiBarChartBoxLine className="size-4 text-muted-foreground" />
+        <p className="text-label-md text-foreground">
           Dashboard Overview
         </p>
       </div>
 
-      <div className="bg-surface-neutral-primary flex flex-col rounded-xxl">
+      <div className="bg-card flex flex-col rounded-xxl">
         <div className="space-y-5 pt-2 pb-5 px-4 xl:px-5">
           <section>
             <AdminMetricsOverview

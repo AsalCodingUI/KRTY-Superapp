@@ -24,25 +24,25 @@ export default function GlobalError({
   return (
     <html lang="en">
       <body>
-        <div className="bg-surface min-h-screen px-4 py-8">
+        <div className="bg-card min-h-screen px-4 py-8">
           <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center">
             <Card className="w-full p-8 text-center">
               <div className="space-y-5">
-                <div className="bg-surface-danger-light mx-auto flex size-14 items-center justify-center rounded-full border border-border-danger-light">
-                  <RiErrorWarningLine className="size-6 text-foreground-danger" />
+                <div className="bg-destructive/10 mx-auto flex size-14 items-center justify-center rounded-full border border-destructive/30">
+                  <RiErrorWarningLine className="size-6 text-destructive" />
                 </div>
 
                 <div className="space-y-2">
-                  <h1 className="text-heading-lg text-foreground-primary">
+                  <h1 className="text-heading-lg text-foreground">
                     Something went wrong
                   </h1>
-                  <p className="text-body-sm text-foreground-secondary">
+                  <p className="text-body-sm text-muted-foreground">
                     We encountered an unexpected error. Please try again or return to dashboard.
                   </p>
                 </div>
 
                 {error.digest && (
-                  <p className="text-body-xs text-foreground-tertiary tabular-nums">
+                  <p className="text-body-xs text-muted-foreground/70 tabular-nums">
                     Error ID: {error.digest}
                   </p>
                 )}

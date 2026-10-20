@@ -35,11 +35,11 @@ export function KPICard({
 
   return (
     <Card>
-      <h3 className="text-content mb-4 font-semibold">{title}</h3>
+      <h3 className="text-foreground mb-4 font-semibold">{title}</h3>
       <div className="space-y-4">
         <div>
           <div className="text-body-sm mb-2 flex justify-between">
-            <span className="text-content-subtle">Achievement</span>
+            <span className="text-muted-foreground">Achievement</span>
             <span className="font-medium">
               {score !== null ? `${score}%` : "—"}
             </span>
@@ -47,12 +47,12 @@ export function KPICard({
           <ProgressBar value={score || 0} variant={getProgressVariant(score)} />
         </div>
         {target && (
-          <p className="text-body-xs text-content-subtle">
+          <p className="text-body-xs text-muted-foreground">
             Target: {target}% {description || "achievement"}
           </p>
         )}
         {weighted !== undefined && (
-          <p className="text-body-xs text-content-subtle">
+          <p className="text-body-xs text-muted-foreground">
             Weight: {weighted}% of total score
           </p>
         )}
