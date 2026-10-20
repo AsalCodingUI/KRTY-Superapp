@@ -25,7 +25,7 @@ export function RSVPButtons({
             "border disabled:cursor-not-allowed disabled:opacity-50",
             value === "yes"
               ? "bg-primary text-primary-fg border-primary"
-              : "bg-card text-foreground border-border hover:bg-muted",
+              : "text-foreground border-border hover:bg-muted",
           )}
         >
           Ya
@@ -37,8 +37,8 @@ export function RSVPButtons({
             "text-label-md flex-1 rounded-lg px-4 py-2 transition-all",
             "border disabled:cursor-not-allowed disabled:opacity-50",
             value === "no"
-              ? "bg-card text-foreground border-border ring-border ring-2"
-              : "bg-card text-foreground border-border hover:bg-muted",
+              ? "text-foreground border-border ring-border ring-2"
+              : "text-foreground border-border hover:bg-muted",
           )}
         >
           Tidak
@@ -50,8 +50,8 @@ export function RSVPButtons({
             "text-label-md flex-1 rounded-lg px-4 py-2 transition-all",
             "border disabled:cursor-not-allowed disabled:opacity-50",
             value === "maybe"
-              ? "bg-card text-foreground border-border ring-border ring-2"
-              : "bg-card text-foreground border-border hover:bg-muted",
+              ? "text-foreground border-border ring-border ring-2"
+              : "text-foreground border-border hover:bg-muted",
           )}
         >
           Mungkin

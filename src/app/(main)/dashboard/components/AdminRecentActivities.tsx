@@ -45,7 +45,7 @@ export function AdminRecentActivities({
           className="min-h-[160px] px-0 py-6"
         />
       ) : (
-        <div className="border-border divide-border overflow-hidden rounded-lg border divide-y">
+        <div className="divide-border divide-y">
           {activities.map((activity) => (
             <div
               key={activity.id}

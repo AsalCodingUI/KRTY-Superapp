@@ -16,7 +16,7 @@ export default function SLAGeneratorLoading() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Left column - Form */}
         <div className="space-y-4">
-          <div className="border-border bg-card space-y-4 rounded-lg border p-6">
+          <div className="border-border space-y-4 rounded-lg border p-6">
             <Skeleton className="h-6 w-40" />
             <div className="space-y-4">
               {[...Array(4)].map((_, i) => (
@@ -28,7 +28,7 @@ export default function SLAGeneratorLoading() {
             </div>
           </div>
 
-          <div className="border-border bg-card space-y-4 rounded-lg border p-6">
+          <div className="border-border space-y-4 rounded-lg border p-6">
             <Skeleton className="h-6 w-32" />
             {[...Array(3)].map((_, i) => (
               <div
@@ -47,14 +47,14 @@ export default function SLAGeneratorLoading() {
         </div>
 
         {/* Right column - Preview */}
-        <div className="border-border bg-card space-y-4 rounded-lg border p-6">
+        <div className="border-border space-y-4 rounded-lg border p-6">
           <div className="flex items-center justify-between">
             <Skeleton className="h-6 w-32" />
             <Skeleton className="h-8 w-20 rounded-md" />
           </div>
 
           {/* A4 preview skeleton */}
-          <div className="border-border bg-card aspect-[210/297] space-y-4 rounded-md border p-8">
+          <div className="border-border aspect-[210/297] space-y-4 rounded-md border p-8">
             <Skeleton className="mx-auto h-8 w-3/4" />
             <Skeleton className="mx-auto h-4 w-1/2" />
             <div className="space-y-3 pt-8">

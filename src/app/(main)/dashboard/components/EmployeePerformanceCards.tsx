@@ -53,7 +53,7 @@ export function EmployeePerformanceCards({
     <div className="space-y-4">
 
       {competencyItems.length > 0 && (
-        <div className="border-border bg-card rounded-lg border px-4 py-3">
+        <div className="border-border rounded-lg border px-4 py-3">
           <div className="mb-3 flex items-center justify-between">
             <p className="text-label-sm text-muted-foreground">
               Competency Snapshot
@@ -88,7 +88,7 @@ export function EmployeePerformanceCards({
           No active review cycle.
         </p>
       ) : (
-        <div className="border-border divide-border overflow-hidden rounded-lg border divide-y">
+        <div className="divide-border divide-y">
           {upcomingReviews.slice(0, 2).map((review) => (
             <div
               key={review.cycle_id}
@@ -117,7 +117,7 @@ export function EmployeePerformanceCards({
             Belum ada jadwal 1:1 terdekat.
           </p>
         ) : (
-          <div className="border-border divide-border overflow-hidden rounded-lg border divide-y">
+          <div className="divide-border divide-y">
             {upcomingOneOnOne.slice(0, 2).map((slot) => (
               <div
                 key={slot.id}

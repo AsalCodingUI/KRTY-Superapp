@@ -78,7 +78,7 @@ export function OperationalCostsSection({
         {costItems.map((item) => (
           <div
             key={item.id ?? item.item_name}
-            className="border-border bg-card flex flex-wrap items-center justify-between gap-2 rounded-lg border px-4 py-3"
+            className="border-border flex flex-wrap items-center justify-between gap-2 rounded-lg border px-4 py-3"
           >
             <div>
               <p className="text-label-md text-foreground">

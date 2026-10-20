@@ -47,7 +47,7 @@ export const DayView = memo(function DayView({
   }, [events, currentDate])
 
   return (
-    <div className="bg-card flex min-w-[320px] flex-col">
+    <div className="flex min-w-[320px] flex-col">
       {/* Header */}
 
       {/* Time grid */}
@@ -59,7 +59,7 @@ export const DayView = memo(function DayView({
       >
         <div className="relative flex">
           {/* Time labels */}
-          <div className="border-border bg-card w-12 flex-shrink-0 border-r sm:w-16">
+          <div className="border-border w-12 flex-shrink-0 border-r sm:w-16">
             {timeSlots.map((slot) => {
               const minute = slot.getMinutes()
               if (minute !== 0) return null // Only show hour labels
@@ -84,7 +84,7 @@ export const DayView = memo(function DayView({
                   className="text-label-xs text-muted-foreground/70 relative h-[var(--height)] pr-2 text-right"
                   style={baseStyle}
                 >
-                  <span className="absolute -top-2 right-2 bg-card px-1">
+                  <span className="absolute -top-2 right-2 bg-sidebar px-1">
                     {format(slot, "HH:mm")}
                   </span>
                 </div>

@@ -33,11 +33,11 @@ export function AdminAttendanceOverview({
         Today&apos;s Attendance Overview
       </p>
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border bg-border sm:grid-cols-4">
         {items.map((item) => (
           <div
             key={item.label}
-            className="border-border bg-card rounded-lg border px-3 py-3"
+            className="bg-background md:bg-sidebar h-full px-3 py-3"
           >
             <p className="text-label-sm text-muted-foreground">
               {item.label}
@@ -49,7 +49,7 @@ export function AdminAttendanceOverview({
         ))}
       </div>
 
-      <div className="border-border mt-4 space-y-4 rounded-lg border px-4 py-3">
+      <div className="mt-4 space-y-4">
         <div className="flex items-end justify-between gap-4">
           <div>
             <p className="text-label-md text-muted-foreground">

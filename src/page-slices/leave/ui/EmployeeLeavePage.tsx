@@ -370,8 +370,8 @@ export function EmployeeLeavePage({
         </div>
 
         <div className="flex flex-col">
-          <div className="grid grid-cols-2 gap-3 py-2 lg:grid-cols-5">
-            <div className="border-border bg-card col-span-2 flex flex-col gap-1 rounded-lg border px-4 py-3">
+          <div className="grid grid-cols-2 my-2 lg:grid-cols-5 gap-px overflow-hidden rounded-xl border bg-border">
+            <div className="bg-background md:bg-sidebar col-span-2 flex flex-col gap-1 px-4 py-3">
               <p className="text-label-sm text-muted-foreground">
                 Current Time
               </p>
@@ -478,7 +478,7 @@ export function EmployeeLeavePage({
               </div>
             </div>
 
-            <div className="border-border bg-card flex flex-col gap-1 rounded-lg border px-4 py-3">
+            <div className="bg-background md:bg-sidebar flex h-full flex-col gap-1 px-4 py-3 [&:last-child:nth-child(odd)]:col-span-2 lg:[&:last-child:nth-child(odd)]:col-span-1">
               <p className="text-label-sm text-muted-foreground">
                 Annual Leave Balance
               </p>
@@ -487,14 +487,14 @@ export function EmployeeLeavePage({
               </p>
             </div>
 
-            <div className="border-border bg-card flex flex-col gap-1 rounded-lg border px-4 py-3">
+            <div className="bg-background md:bg-sidebar flex h-full flex-col gap-1 px-4 py-3 [&:last-child:nth-child(odd)]:col-span-2 lg:[&:last-child:nth-child(odd)]:col-span-1">
               <p className="text-label-sm text-muted-foreground">Sick Leave</p>
               <p className="text-heading-md text-foreground">
                 {leaveStats.sickDays}
               </p>
             </div>
 
-            <div className="border-border bg-card flex flex-col gap-1 rounded-lg border px-4 py-3">
+            <div className="bg-background md:bg-sidebar flex h-full flex-col gap-1 px-4 py-3 [&:last-child:nth-child(odd)]:col-span-2 lg:[&:last-child:nth-child(odd)]:col-span-1">
               <p className="text-label-sm text-muted-foreground">
                 Work From Home
               </p>
@@ -524,7 +524,7 @@ export function EmployeeLeavePage({
                   </SelectContent>
                 </Select>
               ) : (
-                <div className="border-border bg-card h-9 w-full rounded-lg border" />
+                <div className="border-border h-9 w-full rounded-lg border" />
               )}
               {isMounted("leave") && activeTab === "leave" && (
                 <div className="grid grid-cols-2 gap-2">

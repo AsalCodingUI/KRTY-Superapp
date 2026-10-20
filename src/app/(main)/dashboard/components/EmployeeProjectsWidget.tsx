@@ -49,7 +49,7 @@ export function EmployeeProjectsWidget({
   return (
 
 
-    <div className="border-border divide-border overflow-hidden rounded-lg border divide-y">
+    <div className="divide-border divide-y">
       {projects.slice(0, 5).map((project, index) => {
         const endDate = new Date(project.end_date)
         const endDateValid = isValid(endDate)

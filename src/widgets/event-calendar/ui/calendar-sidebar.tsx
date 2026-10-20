@@ -79,7 +79,7 @@ function SidebarContent() {
 
 export function CalendarSidebar() {
   return (
-    <div className="bg-card hidden h-full w-[220px] flex-shrink-0 overflow-y-auto lg:block">
+    <div className="hidden h-full w-[220px] flex-shrink-0 overflow-y-auto lg:block">
       <SidebarContent />
     </div>
   )

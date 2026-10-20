@@ -83,7 +83,7 @@ export const MonthView = memo(function MonthView({
     <>
       <div className="flex h-full w-full max-w-full min-w-[700px] flex-col overflow-hidden">
         {/* Weekday headers */}
-        <div className="border-border bg-card flex border-b">
+        <div className="border-border flex border-b">
           {/* Week number header (removed) */}
 
           {/* Day headers */}

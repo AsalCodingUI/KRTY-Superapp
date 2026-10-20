@@ -49,7 +49,7 @@ export const WeekView = memo(function WeekView({
   return (
     <div className="flex min-w-[720px] flex-col">
       {/* Header with days */}
-      <div className="border-border bg-card sticky top-0 z-10 flex border-b">
+      <div className="border-border bg-sidebar sticky top-0 z-10 flex border-b">
         {/* Time column header */}
         <div className="border-border w-12 flex-shrink-0 border-r sm:w-16" />
 
@@ -91,7 +91,7 @@ export const WeekView = memo(function WeekView({
       >
         <div className="relative flex">
           {/* Time labels */}
-          <div className="border-border bg-card w-12 flex-shrink-0 border-r sm:w-16">
+          <div className="border-border w-12 flex-shrink-0 border-r sm:w-16">
             {timeSlots.map((slot) => {
               if (slot.getMinutes() !== 0) return null // Only show hour labels
 
@@ -115,7 +115,7 @@ export const WeekView = memo(function WeekView({
                   className="text-label-xs text-muted-foreground/70 relative h-[var(--height)] pr-2 text-right"
                   style={baseStyle}
                 >
-                  <span className="absolute -top-2 right-2 bg-card px-1">
+                  <span className="absolute -top-2 right-2 bg-sidebar px-1">
                     {format(slot, "HH:mm")}
                   </span>
                 </div>

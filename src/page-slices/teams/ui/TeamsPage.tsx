@@ -96,7 +96,7 @@ export function TeamsPage({
         </div>
 
         <div className="flex flex-col">
-          <section className="grid grid-cols-1 gap-3 py-2 sm:grid-cols-2 lg:grid-cols-5">
+          <section className="grid grid-cols-1 my-2 sm:grid-cols-2 lg:grid-cols-5 gap-px overflow-hidden rounded-xl border bg-border">
             {[
               { label: "Total Team", value: totalMembers },
               { label: "Designers", value: totalDesigners },
@@ -106,7 +106,7 @@ export function TeamsPage({
             ].map((item) => (
               <div
                 key={item.label}
-                className="border-border bg-card flex flex-col gap-1 rounded-lg border px-4 py-3"
+                className="bg-background md:bg-sidebar flex h-full flex-col gap-1 px-4 py-3 [&:last-child:nth-child(odd)]:col-span-2 lg:[&:last-child:nth-child(odd)]:col-span-1"
               >
                 <p className="text-label-sm text-muted-foreground">
                   {item.label}
@@ -116,7 +116,7 @@ export function TeamsPage({
             ))}
           </section>
 
-          <div className="border-border bg-card flex flex-col gap-3 border-b px-5 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="border-border flex flex-col gap-3 border-b px-5 py-3 sm:flex-row sm:items-center sm:justify-between">
             <InputGroup className="h-7 w-full sm:w-[260px]">
               <InputGroupAddon>
                 <RiSearchLine />

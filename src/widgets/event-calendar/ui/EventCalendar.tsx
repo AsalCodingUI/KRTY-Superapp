@@ -186,7 +186,7 @@ export function EventCalendar({
   return (
     <EventVisibilityProvider initialCategories={categories}>
       <CalendarDndProvider events={events} onEventUpdate={handleEventUpdate}>
-        <div className="bg-card flex h-full w-full flex-1 min-w-0 flex-col overflow-hidden lg:flex-row lg:gap-6">
+        <div className="flex h-full w-full flex-1 min-w-0 flex-col overflow-hidden lg:flex-row lg:gap-6">
           {/* Sidebar with mini calendar */}
           <CalendarSidebar />
 

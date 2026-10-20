@@ -200,8 +200,8 @@ export function EmployeeProjectView({
           </div>
 
           {/* STATS */}
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div className="border-border bg-card flex flex-col gap-1 rounded-lg border px-4 py-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-px overflow-hidden rounded-xl border bg-border">
+            <div className="bg-background md:bg-sidebar flex h-full flex-col gap-1 px-4 py-3 [&:last-child:nth-child(odd)]:col-span-2 lg:[&:last-child:nth-child(odd)]:col-span-1">
               <dt className="text-label-sm text-muted-foreground">SLA Score</dt>
               <div className="flex items-center gap-2">
                 <dd className="text-heading-md text-foreground">
@@ -215,7 +215,7 @@ export function EmployeeProjectView({
                 </Badge>
               </div>
             </div>
-            <div className="border-border bg-card flex flex-col gap-1 rounded-lg border px-4 py-3">
+            <div className="bg-background md:bg-sidebar flex h-full flex-col gap-1 px-4 py-3 [&:last-child:nth-child(odd)]:col-span-2 lg:[&:last-child:nth-child(odd)]:col-span-1">
               <dt className="text-label-sm text-muted-foreground">
                 Work Quality
               </dt>

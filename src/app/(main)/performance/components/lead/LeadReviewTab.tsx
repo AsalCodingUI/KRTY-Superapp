@@ -383,20 +383,20 @@ export function LeadReviewTab() {
             <SheetContent
               side="right"
               showCloseButton={false}
-              className="bg-card sm:border-border sm:shadow-regular-md flex flex-col gap-0 overflow-y-auto p-0 data-[side=right]:w-full sm:rounded-xl sm:border sm:data-[side=right]:inset-y-6 sm:data-[side=right]:right-6 sm:data-[side=right]:h-auto sm:data-[side=right]:w-[560px] sm:data-[side=right]:max-w-[560px]"
+              className="sm:border-border sm:shadow-regular-md flex flex-col gap-0 overflow-y-auto p-0 data-[side=right]:w-full sm:rounded-xl sm:border sm:data-[side=right]:inset-y-6 sm:data-[side=right]:right-6 sm:data-[side=right]:h-auto sm:data-[side=right]:w-[560px] sm:data-[side=right]:max-w-[560px]"
             >
               <div className="relative pt-5 pr-3 pb-2 pl-5">
                 <SheetTitle className="pr-12">
                   {selectedProject?.name || "Project Detail"}
                 </SheetTitle>
                 <SheetClose
-                  className="text-muted-foreground/70 hover:bg-muted focus-visible:ring-primary absolute top-[var(--padding-xl)] right-[var(--padding-xl)] inline-flex items-center justify-center rounded-md p-1.5 transition-colors focus-visible:ring-2 focus-visible:outline-none"
+                  className="text-muted-foreground/70 hover:bg-muted focus-visible:ring-primary absolute top-3 right-3 inline-flex items-center justify-center rounded-md p-1.5 transition-colors focus-visible:ring-2 focus-visible:outline-none"
                   aria-label="Close"
                 >
                   <RiCloseLine className="size-[14px]" />
                 </SheetClose>
               </div>
-              <div className="bg-card flex-1 space-y-4 p-5">
+              <div className="flex-1 space-y-4 p-5">
                 {selectedProject && (
                   <>
                     <div className="space-y-4">

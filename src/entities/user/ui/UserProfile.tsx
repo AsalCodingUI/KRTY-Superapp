@@ -36,7 +36,7 @@ export function UserProfile({
         )}
       >
         <span
-          className="border-border bg-card text-body-xs text-muted-foreground dark:bg-card dark:text-muted-foreground flex size-7 shrink-0 items-center justify-center rounded-full border"
+          className="border-border text-body-xs text-muted-foreground dark:text-muted-foreground flex size-7 shrink-0 items-center justify-center rounded-full border"
           aria-hidden="true"
         >
           {initials}
@@ -57,7 +57,7 @@ export function UserProfile({
     >
       <span className="flex min-w-0 items-center gap-3">
         <span
-          className="border-border bg-card text-body-xs text-muted-foreground dark:bg-card dark:text-muted-foreground flex size-8 shrink-0 items-center justify-center rounded-full border"
+          className="border-border text-body-xs text-muted-foreground dark:text-muted-foreground flex size-8 shrink-0 items-center justify-center rounded-full border"
           aria-hidden="true"
         >
           {initials}

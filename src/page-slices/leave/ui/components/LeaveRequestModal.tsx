@@ -318,7 +318,7 @@ export function LeaveRequestModal({
 
     return (
       <div className="space-y-4">
-        <div className="border-border bg-card rounded-lg border p-4">
+        <div className="border-border rounded-lg border p-4">
           <div className="space-y-3">
             <div className="flex items-center justify-between gap-4">
               <span className="text-label-sm text-muted-foreground">Name</span>

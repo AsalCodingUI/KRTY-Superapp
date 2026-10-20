@@ -207,8 +207,8 @@ function CalendarContent({
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col">
-        <div className="grid grid-cols-2 gap-3 py-3 sm:gap-3 sm:py-2 xl:grid-cols-3">
-          <div className="border-border bg-card flex flex-col gap-1 rounded-lg border px-4 py-3">
+        <div className="grid grid-cols-2 my-3 sm:my-2 xl:grid-cols-3 gap-px overflow-hidden rounded-xl border bg-border">
+          <div className="bg-background md:bg-sidebar flex h-full flex-col gap-1 px-4 py-3 [&:last-child:nth-child(odd)]:col-span-2 lg:[&:last-child:nth-child(odd)]:col-span-1">
             <p className="text-label-sm text-muted-foreground">
               Tanggal Saat Ini
             </p>
@@ -216,13 +216,13 @@ function CalendarContent({
               {format(currentDate, "EEEE, dd MMM", { locale: id })}
             </p>
           </div>
-          <div className="border-border bg-card flex flex-col gap-1 rounded-lg border px-4 py-3">
+          <div className="bg-background md:bg-sidebar flex h-full flex-col gap-1 px-4 py-3 [&:last-child:nth-child(odd)]:col-span-2 lg:[&:last-child:nth-child(odd)]:col-span-1">
             <p className="text-label-sm text-muted-foreground">
               Rapat Hari Ini
             </p>
             <p className="text-heading-md text-foreground">{meetingCount}</p>
           </div>
-          <div className="border-border bg-card flex flex-col gap-1 rounded-lg border px-4 py-3">
+          <div className="bg-background md:bg-sidebar flex h-full flex-col gap-1 px-4 py-3 [&:last-child:nth-child(odd)]:col-span-2 lg:[&:last-child:nth-child(odd)]:col-span-1">
             <p className="text-label-sm text-muted-foreground">
               Jadwal Minggu Ini
             </p>

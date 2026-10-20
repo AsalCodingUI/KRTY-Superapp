@@ -138,8 +138,8 @@ export function EmployeeDashboard({
             </div>
           </div>
 
-          <section className="grid grid-cols-2 gap-3 lg:grid-cols-5">
-            <div className="border-border bg-card flex flex-col gap-1 rounded-lg border px-4 py-3">
+          <section className="grid grid-cols-2 lg:grid-cols-5 gap-px overflow-hidden rounded-xl border bg-border">
+            <div className="bg-background md:bg-sidebar flex h-full flex-col gap-1 px-4 py-3 [&:last-child:nth-child(odd)]:col-span-2 lg:[&:last-child:nth-child(odd)]:col-span-1">
               <p className="text-label-sm text-muted-foreground">
                 Leave Balance
               </p>
@@ -147,7 +147,7 @@ export function EmployeeDashboard({
                 {data.leaveBalance} days
               </p>
             </div>
-            <div className="border-border bg-card flex flex-col gap-1 rounded-lg border px-4 py-3">
+            <div className="bg-background md:bg-sidebar flex h-full flex-col gap-1 px-4 py-3 [&:last-child:nth-child(odd)]:col-span-2 lg:[&:last-child:nth-child(odd)]:col-span-1">
               <p className="text-label-sm text-muted-foreground">On Time SLA</p>
               <p className="text-heading-md text-foreground">
                 {data.performanceOverview.slaScore !== null
@@ -155,7 +155,7 @@ export function EmployeeDashboard({
                   : "0.0%"}
               </p>
             </div>
-            <div className="border-border bg-card flex flex-col gap-1 rounded-lg border px-4 py-3">
+            <div className="bg-background md:bg-sidebar flex h-full flex-col gap-1 px-4 py-3 [&:last-child:nth-child(odd)]:col-span-2 lg:[&:last-child:nth-child(odd)]:col-span-1">
               <p className="text-label-sm text-muted-foreground">360 Review</p>
               <p className="text-heading-md text-foreground">
                 {data.performanceOverview.reviewScore !== null
@@ -163,7 +163,7 @@ export function EmployeeDashboard({
                   : "0.0%"}
               </p>
             </div>
-            <div className="border-border bg-card flex flex-col gap-1 rounded-lg border px-4 py-3">
+            <div className="bg-background md:bg-sidebar flex h-full flex-col gap-1 px-4 py-3 [&:last-child:nth-child(odd)]:col-span-2 lg:[&:last-child:nth-child(odd)]:col-span-1">
               <p className="text-label-sm text-muted-foreground">
                 Work Quality
               </p>
@@ -173,7 +173,7 @@ export function EmployeeDashboard({
                   : "0.0%"}
               </p>
             </div>
-            <div className="border-border bg-card flex flex-col gap-1 rounded-lg border px-4 py-3">
+            <div className="bg-background md:bg-sidebar flex h-full flex-col gap-1 px-4 py-3 [&:last-child:nth-child(odd)]:col-span-2 lg:[&:last-child:nth-child(odd)]:col-span-1">
               <p className="text-label-sm text-muted-foreground">Quarter</p>
               <p className="text-heading-md text-foreground">
                 {data.performanceOverview.quarter}

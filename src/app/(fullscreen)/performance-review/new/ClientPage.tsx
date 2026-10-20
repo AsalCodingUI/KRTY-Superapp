@@ -89,7 +89,7 @@ function JustificationField({
   const trimmedLength = value.trim().length
 
   return (
-    <div className="bg-muted mt-3 rounded-lg p-3">
+    <div className="mt-3 rounded-lg p-3">
       <div className="mb-2 flex items-center gap-2">
         <RiInformationLine className="text-muted-foreground size-4 shrink-0" />
         <div className="flex flex-1 items-center justify-between gap-3">
@@ -240,7 +240,7 @@ export default function ReviewFormClientPage({
   ]
 
   return (
-    <div className="bg-card min-h-screen">
+    <div className="min-h-screen">
       <Dialog open={showExitConfirm} onOpenChange={setShowExitConfirm}>
         <DialogContent>
           <DialogHeader>
@@ -270,7 +270,7 @@ export default function ReviewFormClientPage({
         </DialogContent>
       </Dialog>
 
-      <div className="border-border bg-card sticky top-0 z-10 border-b">
+      <div className="border-border bg-sidebar sticky top-0 z-10 border-b">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-14 items-center justify-between">
             <div className="flex items-center gap-3">

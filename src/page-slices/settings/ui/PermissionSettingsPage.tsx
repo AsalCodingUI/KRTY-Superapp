@@ -433,7 +433,7 @@ export default function PermissionSettingsPage({
                       return (
                         <div
                           key={page.slug}
-                          className="border-border bg-card flex items-center justify-between rounded-md border px-3 py-2"
+                          className="border-border flex items-center justify-between rounded-md border px-3 py-2"
                         >
                           <div className="min-w-0 pr-3">
                             <p className="text-label-xs text-foreground truncate">

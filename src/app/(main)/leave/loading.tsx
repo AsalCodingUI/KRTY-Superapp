@@ -16,7 +16,7 @@ export default function LeaveLoading() {
         {[1, 2, 3].map((i) => (
           <div
             key={i}
-            className="border-border bg-card space-y-3 rounded-lg border p-6"
+            className="border-border space-y-3 rounded-lg border p-6"
           >
             <Skeleton className="h-4 w-24" />
             <Skeleton className="h-8 w-16" />
@@ -25,7 +25,7 @@ export default function LeaveLoading() {
       </div>
 
       {/* Table Skeleton */}
-      <div className="border-border bg-card overflow-hidden rounded-lg border">
+      <div className="border-border overflow-hidden rounded-lg border">
         {/* Table Header */}
         <div className="border-border flex gap-4 border-b p-4">
           {[1, 2, 3, 4, 5].map((i) => (

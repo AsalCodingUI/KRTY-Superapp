@@ -47,7 +47,7 @@ export function EmptyState({
         "min-h-[220px] gap-0 p-3",
         isInner
           ? "rounded-none border-0 bg-transparent"
-          : "rounded-lg border border-solid border-border bg-card",
+          : "rounded-lg border border-solid border-border",
         className,
       )}
     >

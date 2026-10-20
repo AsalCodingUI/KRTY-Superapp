@@ -187,7 +187,7 @@ export function Notifications({ variant = "default" }: NotificationsProps) {
               <motion.div
                 ref={panelRef}
                 className={cx(
-                  "fixed z-50 flex max-h-[calc(100vh-24px)] flex-col overflow-hidden bg-card",
+                  "fixed z-50 flex max-h-[calc(100vh-24px)] flex-col overflow-hidden bg-sidebar",
                   isMobile
                     ? "inset-0 rounded-none border-0 shadow-none"
                     : "h-[600px] w-full max-w-[386px] rounded-xl border border-border shadow-regular-md",

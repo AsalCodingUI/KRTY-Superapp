@@ -143,7 +143,7 @@ export function EmployeeAttendanceWidget({
 
   return (
     <div className="space-y-4">
-      <div className="border-border bg-card rounded-lg border px-3 py-2">
+      <div className="border-border rounded-lg border px-3 py-2">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-label-sm text-muted-foreground">Today</span>

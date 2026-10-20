@@ -47,7 +47,7 @@ export function AdminPerformanceDistribution({
           className="min-h-[160px] px-0 py-6"
         />
       ) : (
-        <div className="border-border divide-border overflow-hidden rounded-lg border divide-y">
+        <div className="divide-border divide-y">
           {items.map((item) => {
             const percentage = total > 0 ? Math.round((item.count / total) * 100) : 0
 

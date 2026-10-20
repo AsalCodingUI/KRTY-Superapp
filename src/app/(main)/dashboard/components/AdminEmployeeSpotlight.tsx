@@ -49,7 +49,7 @@ export function AdminEmployeeSpotlight({
             className="min-h-[160px] px-0 py-6"
           />
         ) : (
-          <div className="border-border divide-border overflow-hidden rounded-lg border divide-y">
+          <div className="divide-border divide-y">
             {topPerformers.map((employee) => {
               const badge = getRatingBadge(employee.overall_percentage)
               return (
@@ -105,7 +105,7 @@ export function AdminEmployeeSpotlight({
             className="min-h-[160px] px-0 py-6"
           />
         ) : (
-          <div className="border-border divide-border overflow-hidden rounded-lg border divide-y">
+          <div className="divide-border divide-y">
             {employeesNeedingAttention.map((employee) => {
               const badge = getRatingBadge(employee.overall_percentage)
               return (

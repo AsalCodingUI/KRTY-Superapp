@@ -7,7 +7,6 @@ import {
   RiFolderLine,
   RiGroupLine,
   RiHome2Line,
-  RiMoneyDollarCircleLine,
   RiSettings5Line
 } from "@/shared/ui/lucide-icons"
 
@@ -62,12 +61,6 @@ export const navigationConfig: NavigationConfig = {
       name: "Projects",
       href: siteConfig.baseLinks.projects,
       icon: RiFolderLine,
-      roles: ["stakeholder"],
-    },
-    {
-      name: "Finance",
-      href: siteConfig.baseLinks.finance,
-      icon: RiMoneyDollarCircleLine,
       roles: ["stakeholder"],
     },
     {

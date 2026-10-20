@@ -25,7 +25,7 @@ export default function GlobalError({
   return (
     <html lang="en">
       <body>
-        <div className="bg-card min-h-screen px-4 py-8">
+        <div className="min-h-screen px-4 py-8">
           <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center">
             <Card className="w-full gap-0 p-8 text-center">
               <div className="space-y-5">

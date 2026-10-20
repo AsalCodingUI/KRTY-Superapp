@@ -137,7 +137,7 @@ export function FinancialHUD({
         </div>
       </div>
 
-      <div className="bg-card border-border mt-6 flex items-center gap-3 rounded-md border p-3 shadow-sm">
+      <div className="border-border mt-6 flex items-center gap-3 rounded-md border p-3 shadow-sm">
         {isHealthy ? (
           <RiCheckboxCircleFill
             className="text-success size-5 shrink-0"

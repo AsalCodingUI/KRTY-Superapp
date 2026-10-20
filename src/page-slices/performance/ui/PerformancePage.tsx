@@ -449,11 +449,11 @@ export function PerformancePage() {
       <div className="flex flex-col">
         {isStakeholder ? (
           <>
-            <div className="grid grid-cols-1 gap-3 py-2 sm:grid-cols-2 lg:grid-cols-5">
+            <div className="grid grid-cols-1 my-2 sm:grid-cols-2 lg:grid-cols-5 gap-px overflow-hidden rounded-xl border bg-border">
               {adminStats.map((item) => (
                 <div
                   key={item.label}
-                  className="border-border bg-card flex flex-col gap-1 rounded-lg border px-4 py-3"
+                  className="bg-background md:bg-sidebar flex h-full flex-col gap-1 px-4 py-3 [&:last-child:nth-child(odd)]:col-span-2 lg:[&:last-child:nth-child(odd)]:col-span-1"
                 >
                   <p className="text-label-sm text-muted-foreground">
                     {item.label}
@@ -582,13 +582,13 @@ export function PerformancePage() {
           </>
         ) : (
           <>
-            <div className="grid grid-cols-1 gap-3 py-2 sm:grid-cols-2 lg:grid-cols-5">
+            <div className="grid grid-cols-1 my-2 sm:grid-cols-2 lg:grid-cols-5 gap-px overflow-hidden rounded-xl border bg-border">
               {employeeStats.map((item) => {
                 const badge = getRatingBadge(item.score)
                 return (
                   <div
                     key={item.key}
-                    className="border-border bg-card flex flex-col gap-1 rounded-lg border px-4 py-3"
+                    className="bg-background md:bg-sidebar flex h-full flex-col gap-1 px-4 py-3 [&:last-child:nth-child(odd)]:col-span-2 lg:[&:last-child:nth-child(odd)]:col-span-1"
                   >
                     <p className="text-label-sm text-muted-foreground">
                       {item.label}
@@ -602,7 +602,7 @@ export function PerformancePage() {
                   </div>
                 )
               })}
-              <div className="border-border bg-card flex flex-col gap-1 rounded-lg border px-4 py-3 lg:col-span-2">
+              <div className="bg-background md:bg-sidebar flex h-full flex-col gap-1 px-4 py-3 [&:last-child:nth-child(odd)]:col-span-2 lg:[&:last-child:nth-child(odd)]:col-span-1 lg:col-span-2">
                 <p className="text-label-sm text-muted-foreground">
                   360 Feedback Cycle
                 </p>

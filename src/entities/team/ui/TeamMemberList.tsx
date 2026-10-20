@@ -66,7 +66,7 @@ export function TeamMemberList({
       {members.map((member) => (
         <div
           key={member.id}
-          className="border-border bg-card flex items-center justify-between rounded-lg border p-4"
+          className="border-border flex items-center justify-between rounded-lg border p-4"
         >
           <div className="flex items-center gap-4">
             <span className="bg-muted text-label-md text-muted-foreground inline-flex size-10 items-center justify-center rounded-full">

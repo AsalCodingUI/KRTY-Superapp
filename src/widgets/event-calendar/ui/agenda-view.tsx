@@ -21,7 +21,7 @@ export function AgendaView({ events, onEventClick }: AgendaViewProps) {
   }, [events, currentDate])
 
   return (
-    <div className="bg-card flex h-full flex-col">
+    <div className="flex h-full flex-col">
       {/* Header */}
 
       {/* Event count */}

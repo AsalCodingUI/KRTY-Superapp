@@ -26,21 +26,21 @@ export function AdminMetricsOverview({
   ]
 
   return (
-    <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
+    <div className="grid grid-cols-2 lg:grid-cols-5 gap-px overflow-hidden rounded-xl border bg-border">
       {items.map((item) => {
         const content = (
-          <div className="border-border bg-card flex flex-col gap-1 rounded-lg border px-4 py-3">
+          <div className="bg-background md:bg-sidebar flex h-full flex-col gap-1 px-4 py-3 [&:last-child:nth-child(odd)]:col-span-2 lg:[&:last-child:nth-child(odd)]:col-span-1">
             <p className="text-label-sm text-muted-foreground">{item.label}</p>
             <p className="text-heading-md text-foreground">{item.value}</p>
           </div>
         )
 
         if (!item.href) {
-          return <div key={item.label}>{content}</div>
+          return <div key={item.label} className="h-full last:col-span-2 lg:last:col-span-1">{content}</div>
         }
 
         return (
-          <Link key={item.label} href={item.href}>
+          <Link key={item.label} href={item.href} className="h-full last:col-span-2 lg:last:col-span-1">
             {content}
           </Link>
         )

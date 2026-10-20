@@ -38,7 +38,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="bg-card flex min-h-screen flex-1 flex-col justify-center px-4 lg:px-6">
+    <div className="flex min-h-screen flex-1 flex-col justify-center px-4 lg:px-6">
       <div className="w-full">
         <h3 className="text-heading-md text-foreground dark:text-foreground mt-6 text-center">
           Sign in to kretya account

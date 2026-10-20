@@ -262,7 +262,7 @@ export default function SLAContainer({
           className={`border-border bg-card flex h-full w-full flex-col border-r lg:w-1/2 print:hidden ${activeTab === "preview" ? "hidden lg:flex" : "flex"}`}
         >
           {/* Header */}
-          <div className="border-border bg-card sticky top-0 z-10 flex items-center justify-between border-b px-5 py-4">
+          <div className="border-border bg-sidebar sticky top-0 z-10 flex items-center justify-between border-b px-5 py-4">
             <div className="flex min-w-0 items-center gap-3">
               <Button
                 variant="ghost"
@@ -507,7 +507,7 @@ export default function SLAContainer({
           className={`bg-card flex h-full w-full flex-col lg:w-1/2 print:block print:w-full ${activeTab === "editor" ? "hidden lg:flex" : "flex"}`}
         >
           {/* Mobile Header for Preview */}
-          <div className="border-border bg-card flex items-center justify-between border-b px-5 py-4 lg:hidden print:hidden">
+          <div className="border-border flex items-center justify-between border-b px-5 py-4 lg:hidden print:hidden">
             <span className="text-label-md text-foreground">PDF Preview</span>
             <div className="flex gap-2">
               <Button

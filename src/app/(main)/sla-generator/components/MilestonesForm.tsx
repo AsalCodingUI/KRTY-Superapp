@@ -84,7 +84,7 @@ export const MilestonesForm = ({ data, onChange }: MilestonesFormProps) => {
       {data[mKey].map((item, index) => (
         <div
           key={index}
-          className="bg-card border-border group relative rounded-md border p-4"
+          className="border-border group relative rounded-md border p-4"
         >
           <Button
             variant="ghost"

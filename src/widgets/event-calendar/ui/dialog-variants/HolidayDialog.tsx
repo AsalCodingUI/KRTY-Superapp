@@ -46,7 +46,7 @@ export function HolidayDialog({
           </div>
 
           {/* Date */}
-          <div className="bg-muted border-border rounded-lg border p-4">
+          <div className="border-border rounded-lg border p-4">
             <div className="flex items-center gap-3">
               <RiCalendarLine className="text-muted-foreground h-5 w-5" />
               <div>

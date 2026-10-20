@@ -67,7 +67,7 @@ export function AdminPendingActions({
           />
         ) : (
           <>
-            <div className="border-border divide-border overflow-hidden rounded-lg border divide-y">
+            <div className="divide-border divide-y">
               {pendingReviews.slice(0, 5).map((review) => (
                 <Link
                   key={`${review.employee_id}-${review.cycle_id}`}
@@ -134,7 +134,7 @@ export function AdminPendingActions({
           />
         ) : (
           <>
-            <div className="border-border divide-border overflow-hidden rounded-lg border divide-y">
+            <div className="divide-border divide-y">
               {pendingLeaveApprovals.slice(0, 5).map((leave) => {
                 const daysAgo = Math.floor(
                   (new Date().getTime() -

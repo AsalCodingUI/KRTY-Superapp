@@ -684,7 +684,7 @@ export default function CalculatorClientPage({
                   {savedCalculations.map((calc) => (
                     <div
                       key={calc.id}
-                      className={`border-border bg-card flex items-center justify-between gap-3 rounded-lg border px-4 py-3`}
+                      className={`border-border flex items-center justify-between gap-3 rounded-lg border px-4 py-3`}
                     >
                       <div className="min-w-0 flex-1">
                         <p className="text-label-md text-foreground truncate">
@@ -749,7 +749,7 @@ export default function CalculatorClientPage({
       <div
         className={
           showHeader
-            ? "bg-card rounded-xl flex flex-col p-5"
+            ? "rounded-xl flex flex-col p-5"
             : "flex flex-col"
         }
       >

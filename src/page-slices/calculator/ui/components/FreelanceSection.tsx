@@ -43,7 +43,7 @@ export function FreelanceSection({
         {freelanceSquad.map((member) => (
           <div
             key={member.id}
-            className="border-border bg-card rounded-lg border p-4"
+            className="border-border rounded-lg border p-4"
           >
             <div className="mb-1 flex items-start justify-between gap-4">
               <div className="grid flex-1 grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">

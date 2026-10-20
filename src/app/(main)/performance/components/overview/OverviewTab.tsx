@@ -358,7 +358,7 @@ function EmployeeOverview({
                   href={`/performance/employee/${profile?.id}/project/${assignment.projects.id}`}
                   className="block"
                 >
-                  <div className="border-border bg-muted hover:bg-accent flex items-center justify-between rounded-lg border p-3 transition-colors">
+                  <div className="border-border hover:bg-accent flex items-center justify-between rounded-lg border p-3 transition-colors">
                     <div className="min-w-0 flex-1">
                       <h4 className="text-foreground truncate font-medium">
                         {assignment.projects.name}

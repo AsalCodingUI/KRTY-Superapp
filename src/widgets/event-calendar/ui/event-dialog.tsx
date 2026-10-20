@@ -334,7 +334,7 @@ export function EventDialog({
             </div>
 
             {/* Date & Time */}
-            <div className="bg-muted border-border grid grid-cols-2 gap-4 rounded-lg border p-4">
+            <div className="border-border grid grid-cols-2 gap-4 rounded-lg border p-4">
               <div>
                 <p className="text-label-sm text-muted-foreground mb-1">
                   Mulai

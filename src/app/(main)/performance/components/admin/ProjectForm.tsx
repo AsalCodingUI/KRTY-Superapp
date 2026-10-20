@@ -469,7 +469,7 @@ export function ProjectForm({
                   {teamMembers.map((member) => (
                     <div
                       key={member.userId}
-                      className="border-border bg-card flex items-center justify-between rounded-lg border p-2"
+                      className="border-border flex items-center justify-between rounded-lg border p-2"
                     >
                       <div className="flex items-center gap-2">
                         <Avatar className="size-7">
@@ -515,7 +515,7 @@ export function ProjectForm({
             </div>
           </div>
 
-          <DialogFooter className="border-border bg-card sticky bottom-0 border-t pt-4">
+          <DialogFooter className="border-border bg-sidebar sticky bottom-0 border-t pt-4">
             <Button
               size="sm"
               type="button"
