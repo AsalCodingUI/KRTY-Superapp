@@ -31,8 +31,8 @@ interface NotificationsProps {
   variant?: "default" | "icon"
 }
 
-const SIDEBAR_WIDTH = 256
-const PANEL_GUTTER = 12
+const PANEL_GUTTER = 8
+const PANEL_WIDTH = 386
 
 export function Notifications({ variant = "default" }: NotificationsProps) {
   const {
@@ -64,10 +64,14 @@ export function Notifications({ variant = "default" }: NotificationsProps) {
         return
       }
 
+      // Drop down from the bell, right edges aligned.
+      const rect = triggerRef.current?.getBoundingClientRect()
+      if (!rect) return
       setPanelStyle({
-        top: PANEL_GUTTER,
-        left: SIDEBAR_WIDTH + PANEL_GUTTER,
-        width: 386,
+        top: rect.bottom + PANEL_GUTTER,
+        right: Math.max(PANEL_GUTTER, window.innerWidth - rect.right),
+        width: PANEL_WIDTH,
+        maxHeight: `calc(100vh - ${rect.bottom + PANEL_GUTTER * 2}px)`,
       })
     }
 
@@ -184,10 +188,10 @@ export function Notifications({ variant = "default" }: NotificationsProps) {
               <motion.div
                 ref={panelRef}
                 className={cx(
-                  "bg-sidebar fixed z-50 flex max-h-[calc(100vh-24px)] flex-col overflow-hidden",
+                  "bg-popover fixed z-50 flex max-h-[calc(100vh-24px)] flex-col overflow-hidden",
                   isMobile
                     ? "inset-0 rounded-none border-0 shadow-none"
-                    : "border-border shadow-regular-md h-[600px] w-full max-w-[386px] rounded-xl border",
+                    : "border-border h-[560px] w-full max-w-[386px] origin-top-right rounded-xl border shadow-lg",
                 )}
                 style={panelStyle}
                 initial={
@@ -203,7 +207,7 @@ export function Notifications({ variant = "default" }: NotificationsProps) {
                 exit={
                   isMobile
                     ? { opacity: 0, y: 16 }
-                    : { opacity: 0, y: 8, scale: 0.98 }
+                    : { opacity: 0, y: -4, scale: 0.98 }
                 }
                 transition={{ type: "spring", stiffness: 420, damping: 32 }}
               >
@@ -279,7 +283,7 @@ export function Notifications({ variant = "default" }: NotificationsProps) {
                       </div>
                     ) : (
                       <div className="py-2">
-                        <div className="divide-y divide-zinc-100 dark:divide-zinc-900">
+                        <div className="divide-border divide-y">
                           {filteredNotifications.map((notification) => (
                             <Link
                               key={notification.id}

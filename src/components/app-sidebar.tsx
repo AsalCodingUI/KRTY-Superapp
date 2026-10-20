@@ -4,6 +4,7 @@ import * as React from "react"
 
 import { siteConfig } from "@/app/siteConfig"
 import { NavMain } from "@/components/nav-main"
+import { BrandLogo } from "@/components/brand-logo"
 import { NavUser } from "@/components/nav-user"
 import {
   Sidebar,
@@ -51,7 +52,7 @@ function canOpen(href: string, permissions: PermissionMap) {
 type SidebarProject = { id: string; name: string; href: string }
 
 /**
- * Active projects for the Kretya workspace: every active project for
+ * Active projects for the Project workspace: every active project for
  * stakeholders, the user's own assignments for everyone else.
  */
 function useSidebarProjects(profile: { id: string; role: string } | null) {
@@ -170,20 +171,20 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <Link
               href={siteConfig.baseLinks.dashboard}
               prefetch={false}
-              className="bg-sidebar-primary text-sidebar-primary-foreground flex size-7 items-center justify-center rounded-md text-sm font-semibold"
+              className="bg-sidebar-primary text-sidebar-primary-foreground flex size-7 items-center justify-center rounded-md"
               aria-label={siteConfig.name}
             >
-              K
+              <BrandLogo className="size-5" />
             </Link>
           </SidebarHeader>
           <SidebarContent>
             <SidebarGroup>
               <SidebarGroupContent>
-                <SidebarMenu className="items-center gap-1">
+                <SidebarMenu className="items-center">
                   {loading
                     ? Array.from({ length: 3 }).map((_, i) => (
                         <SidebarMenuItem key={i}>
-                          <div className="bg-sidebar-accent size-8 rounded-md" />
+                          <div className="bg-sidebar-accent size-7 rounded-md" />
                         </SidebarMenuItem>
                       ))
                     : visible.map((ws) => (
@@ -192,7 +193,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                             tooltip={{ children: ws.name, hidden: false }}
                             isActive={ws.id === active?.id}
                             onClick={() => setSelected(ws.id)}
-                            className="size-8! justify-center p-0!"
+                            className="size-7! justify-center p-0!"
                           >
                             <ws.icon />
                             <span className="sr-only">{ws.name}</span>
@@ -245,7 +246,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               />
             ) : null}
 
-            {active?.id === "kretya" && projects.length > 0 && (
+            {active?.id === "project" && projects.length > 0 && (
               <SidebarGroup>
                 <SidebarGroupLabel>Active projects</SidebarGroupLabel>
                 <SidebarMenu>

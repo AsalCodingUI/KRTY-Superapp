@@ -16,19 +16,18 @@ import {
   RiGroupLine,
   RiHome2Line,
   RiLockLine,
-  RiNotification3Line,
   RiTeamLine,
   RiUserLine,
 } from "@/shared/ui/lucide-icons"
 
 /**
  * Two-level navigation: the rail switches between workspaces, the sub sidebar
- * lists the pages of the active one. Pages are the existing routes; which
+ * lists the pages of the active one (Personal, Project, Human Resource). Pages are the existing routes; which
  * workspace a route belongs to can depend on the role (e.g. /leave is the
  * personal view for employees and the approval center for stakeholders).
  */
 
-export type WorkspaceId = "personal" | "kretya" | "hr"
+export type WorkspaceId = "personal" | "project" | "hr"
 
 export type WorkspaceProfile = {
   role?: string | null
@@ -63,6 +62,12 @@ export const workspaces: Workspace[] = [
     icon: RiUserLine,
     items: (p) => [
       { name: "Home", href: links.dashboard, icon: RiHome2Line },
+      // Personal schedule; same calendar for now, its own view comes later.
+      {
+        name: "Calendar",
+        href: `${links.calendar}/personal`,
+        icon: RiCalendarLine,
+      },
       // Stakeholders manage these from Human Resource instead.
       ...(isAdmin(p)
         ? []
@@ -78,16 +83,11 @@ export const workspaces: Workspace[] = [
               icon: RiBarChartBoxLine,
             },
           ]),
-      {
-        name: "Notifications",
-        href: "/notifications",
-        icon: RiNotification3Line,
-      },
     ],
   },
   {
-    id: "kretya",
-    name: "Kretya",
+    id: "project",
+    name: "Project",
     icon: RiBriefcaseLine,
     items: () => [
       { name: "Calendar", href: links.calendar, icon: RiCalendarLine },
@@ -146,7 +146,7 @@ export function matchesRoute(pathname: string, href: string) {
 
 /**
  * The workspace whose page best matches the path (longest href wins), so
- * /projects/calculator lands in Kretya and /settings/team-access in HR.
+ * /projects/calculator lands in Project and /settings/team-access in HR.
  */
 export function resolveWorkspace(
   pathname: string,

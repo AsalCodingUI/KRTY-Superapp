@@ -16,7 +16,6 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import {
-  Bell as BellIcon,
   Settings as SettingsIcon,
   Logout as LogOutIcon,
   MessageCircle as MessageCircleIcon,
@@ -58,12 +57,14 @@ export function NavUser({
             // the profile loads, which shifted Base UI's generated ids.
             id="nav-user-menu-trigger"
             render={
-              <SidebarMenuButton className="aria-expanded:bg-sidebar-accent size-8! justify-center p-0!" />
+              <SidebarMenuButton className="aria-expanded:bg-sidebar-accent size-7! justify-center p-0!" />
             }
           >
-            <Avatar className="size-6">
+            <Avatar className="size-5">
               <AvatarImage src={user.avatar} alt={user.name} />
-              <AvatarFallback className="text-xs">{initials}</AvatarFallback>
+              <AvatarFallback className="text-[10px]">
+                {initials}
+              </AvatarFallback>
             </Avatar>
             <span className="sr-only">{user.name}</span>
           </DropdownMenuTrigger>
@@ -89,10 +90,6 @@ export function NavUser({
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem render={<Link href="/notifications" />}>
-                <BellIcon />
-                Notifications
-              </DropdownMenuItem>
               <DropdownMenuItem render={<Link href="/settings/general" />}>
                 <SettingsIcon />
                 Settings
