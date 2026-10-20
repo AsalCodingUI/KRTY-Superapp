@@ -213,7 +213,7 @@ export function DataTable<TData>({
                   className={cn(
                     "group transition-colors select-none",
                     enableHover
-                      ? "hover:bg-foreground/[0.025]"
+                      ? "hover:bg-foreground/[0.04]"
                       : "hover:bg-transparent",
                     enableSelection ? "cursor-pointer" : "cursor-default",
                   )}

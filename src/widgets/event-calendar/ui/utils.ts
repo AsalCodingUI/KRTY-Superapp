@@ -423,3 +423,54 @@ export function getEventDotColorClass(color: string): string {
 
   return colorMap[color] || colorMap.blue
 }
+
+/**
+ * Side-by-side layout for overlapping events in one day column: each event
+ * gets a lane, and every event in an overlapping cluster shares its width.
+ */
+export function layoutDayEvents(
+  events: CalendarEvent[],
+  day: Date,
+  pixelsPerHour: number,
+) {
+  const dayStart = startOfDay(day)
+  const items = events
+    .map((event) => ({
+      event,
+      ...calculateEventPosition(event, dayStart, pixelsPerHour),
+    }))
+    .sort((a, b) => a.top - b.top || b.height - a.height)
+
+  const placed: {
+    event: CalendarEvent
+    top: number
+    height: number
+    lane: number
+    lanes: number
+  }[] = []
+  let cluster: typeof placed = []
+  let clusterEnd = -Infinity
+  const laneEnds: number[] = []
+
+  const closeCluster = () => {
+    const lanes = Math.max(1, ...cluster.map((c) => c.lane + 1))
+    cluster.forEach((c) => (c.lanes = lanes))
+    cluster = []
+    laneEnds.length = 0
+  }
+
+  for (const item of items) {
+    // Short events still occupy at least a row, so treat their height as 20px.
+    const bottom = item.top + Math.max(item.height, 20)
+    if (item.top >= clusterEnd && cluster.length) closeCluster()
+    let lane = laneEnds.findIndex((end) => end <= item.top)
+    if (lane === -1) lane = laneEnds.length
+    laneEnds[lane] = bottom
+    const entry = { ...item, lane, lanes: 1 }
+    placed.push(entry)
+    cluster.push(entry)
+    clusterEnd = Math.max(clusterEnd === -Infinity ? 0 : clusterEnd, bottom)
+  }
+  if (cluster.length) closeCluster()
+  return placed
+}

@@ -73,7 +73,7 @@ export function AdminEmployeeSpotlight({
                       </p>
                     </div>
                     <div className="shrink-0 text-right">
-                      <div className="text-foreground text-lg font-semibold">
+                      <div className="text-foreground text-xl font-medium tabular-nums">
                         {employee.overall_percentage}%
                       </div>
                       <Badge variant={badge.variant} className="mt-1 text-xs">
@@ -126,7 +126,7 @@ export function AdminEmployeeSpotlight({
                       </p>
                     </div>
                     <div className="shrink-0 text-right">
-                      <div className="text-foreground text-lg font-semibold">
+                      <div className="text-foreground text-xl font-medium tabular-nums">
                         {employee.overall_percentage}%
                       </div>
                       <Badge variant={badge.variant} className="mt-1 text-xs">

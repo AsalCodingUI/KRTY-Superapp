@@ -42,7 +42,7 @@ export function AdminMetricsOverview({
         const content = (
           <div className="flex min-w-0 flex-col gap-1">
             <p className="text-muted-foreground text-sm">{item.label}</p>
-            <p className="text-foreground text-2xl font-medium tracking-tight tabular-nums">
+            <p className="text-foreground text-xl font-medium tabular-nums">
               {item.value}
             </p>
           </div>

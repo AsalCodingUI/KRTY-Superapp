@@ -9,10 +9,8 @@ import { NavUser } from "@/components/nav-user"
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarHeader,
   SidebarMenu,
-  SidebarMenuButton,
   SidebarMenuItem,
   SidebarMenuSkeleton,
 } from "@/components/ui/sidebar"
@@ -21,7 +19,6 @@ import { navigationConfig } from "@/shared/config/navigation"
 import { usePagePermissions } from "@/shared/hooks/usePagePermissions"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { hasRoleAccess } from "@/shared/lib/roles"
-import Link from "next/link"
 import { usePathname } from "next/navigation"
 
 const ADMIN_CONTACT_LINK = "https://wa.me/6289525418707"
@@ -74,24 +71,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar variant="inset" {...props}>
       <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              size="lg"
-              render={<Link href={siteConfig.baseLinks.dashboard} prefetch={false} />}
-            >
-              <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg text-sm font-semibold">
-                K
-              </div>
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{siteConfig.name}</span>
-                <span className="truncate text-xs capitalize">
-                  {profile?.role ?? "Workspace"}
-                </span>
-              </div>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+        <NavUser
+          user={{
+            name: profile?.full_name ?? "Loading…",
+            email: profile?.email || userEmail || "",
+          }}
+          onSignOut={handleSignOut}
+          contactHref={ADMIN_CONTACT_LINK}
+        />
       </SidebarHeader>
       <SidebarContent>
         {loading ? (
@@ -107,16 +94,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         )}
         <NavSecondary items={navSecondary} className="mt-auto" />
       </SidebarContent>
-      <SidebarFooter>
-        <NavUser
-          user={{
-            name: profile?.full_name ?? "Loading…",
-            email: profile?.email || userEmail || "",
-          }}
-          onSignOut={handleSignOut}
-          contactHref={ADMIN_CONTACT_LINK}
-        />
-      </SidebarFooter>
     </Sidebar>
   )
 }

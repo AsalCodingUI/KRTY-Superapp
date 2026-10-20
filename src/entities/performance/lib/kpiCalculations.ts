@@ -53,11 +53,11 @@ export function getScoreLabel(score: number): string {
 export function getScoreColor(score: number): string {
   // Semantic tints, matching the Badge success/info/warning/destructive variants.
   const colors: Record<number, string> = {
-    5: "border-success/20 bg-success/10 text-success",
-    4: "border-info/20 bg-info/10 text-info",
-    3: "border-border bg-foreground/[0.07] text-muted-foreground",
-    2: "border-warning/20 bg-warning/10 text-warning",
-    1: "border-destructive/20 bg-destructive/10 text-destructive",
+    5: "bg-success/15 text-success",
+    4: "bg-info/15 text-info",
+    3: "bg-foreground/[0.07] text-muted-foreground",
+    2: "bg-warning/15 text-warning",
+    1: "bg-destructive/15 text-destructive",
   }
   return colors[score] || colors[3]
 }

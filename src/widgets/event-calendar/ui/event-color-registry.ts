@@ -60,9 +60,9 @@ export const EVENT_TYPE_REGISTRY: Record<string, EventTypeDefinition> = {
     label: "Rapat Internal",
     color: "blue",
     colorMapping: {
-      background: "bg-primary/10",
+      background: "bg-primary/15",
       text: "text-primary",
-      border: "border-primary/25",
+      border: "border-transparent",
       semanticCategory: "primary",
       label: "Rapat Internal",
     },
@@ -72,9 +72,9 @@ export const EVENT_TYPE_REGISTRY: Record<string, EventTypeDefinition> = {
     label: "Kerja dari Rumah",
     color: "violet",
     colorMapping: {
-      background: "bg-primary/10",
+      background: "bg-primary/15",
       text: "text-primary",
-      border: "border-primary/25",
+      border: "border-transparent",
       semanticCategory: "primary",
       label: "Kerja dari Rumah",
     },
@@ -84,9 +84,9 @@ export const EVENT_TYPE_REGISTRY: Record<string, EventTypeDefinition> = {
     label: "Cuti",
     color: "rose",
     colorMapping: {
-      background: "bg-destructive/10",
+      background: "bg-destructive/15",
       text: "text-destructive",
-      border: "border-destructive/25",
+      border: "border-transparent",
       semanticCategory: "danger",
       label: "Cuti",
     },
@@ -96,9 +96,9 @@ export const EVENT_TYPE_REGISTRY: Record<string, EventTypeDefinition> = {
     label: "Acara",
     color: "orange",
     colorMapping: {
-      background: "bg-warning/10",
+      background: "bg-warning/15",
       text: "text-warning",
-      border: "border-warning/25",
+      border: "border-transparent",
       semanticCategory: "warning",
       label: "Acara",
     },
@@ -108,9 +108,9 @@ export const EVENT_TYPE_REGISTRY: Record<string, EventTypeDefinition> = {
     label: "Rapat 301",
     color: "amber",
     colorMapping: {
-      background: "bg-warning/10",
+      background: "bg-warning/15",
       text: "text-warning",
-      border: "border-warning/25",
+      border: "border-transparent",
       semanticCategory: "warning",
       label: "Rapat 301",
     },
@@ -120,9 +120,9 @@ export const EVENT_TYPE_REGISTRY: Record<string, EventTypeDefinition> = {
     label: "Libur Perusahaan",
     color: "emerald",
     colorMapping: {
-      background: "bg-success/10",
+      background: "bg-success/15",
       text: "text-success",
-      border: "border-success/25",
+      border: "border-transparent",
       semanticCategory: "success",
       label: "Libur Perusahaan",
     },
@@ -157,51 +157,51 @@ const EVENT_TYPE_ALIASES: Record<string, string> = {
 export const COLOR_TO_SEMANTIC_MAPPING: Record<EventColor, EventColorMapping> =
   {
     blue: {
-      background: "bg-primary/10",
+      background: "bg-primary/15",
       text: "text-primary",
-      border: "border-primary/25",
+      border: "border-transparent",
       semanticCategory: "primary",
       label: "Primary",
     },
     violet: {
-      background: "bg-primary/10",
+      background: "bg-primary/15",
       text: "text-primary",
-      border: "border-primary/25",
+      border: "border-transparent",
       semanticCategory: "primary",
       label: "Primary",
     },
     emerald: {
-      background: "bg-success/10",
+      background: "bg-success/15",
       text: "text-success",
-      border: "border-success/25",
+      border: "border-transparent",
       semanticCategory: "success",
       label: "Success",
     },
     rose: {
-      background: "bg-destructive/10",
+      background: "bg-destructive/15",
       text: "text-destructive",
-      border: "border-destructive/25",
+      border: "border-transparent",
       semanticCategory: "danger",
       label: "Danger",
     },
     orange: {
-      background: "bg-warning/10",
+      background: "bg-warning/15",
       text: "text-warning",
-      border: "border-warning/25",
+      border: "border-transparent",
       semanticCategory: "warning",
       label: "Warning",
     },
     amber: {
-      background: "bg-warning/10",
+      background: "bg-warning/15",
       text: "text-warning",
-      border: "border-warning/25",
+      border: "border-transparent",
       semanticCategory: "warning",
       label: "Warning",
     },
     cyan: {
-      background: "bg-info/10",
+      background: "bg-info/15",
       text: "text-info",
-      border: "border-info/25",
+      border: "border-transparent",
       semanticCategory: "info",
       label: "Info",
     },
@@ -276,7 +276,7 @@ export function getEventColorClasses(
       return `${mapping.background} ${mapping.text} border ${mapping.border}`
     case "solid":
       // For solid variant, use stronger background colors
-      const solidBg = mapping.background.replace(/\/10$/, "")
+      const solidBg = mapping.background.replace(/\/15$/, "")
       return `${solidBg} text-primary-foreground border ${mapping.border}`
     case "default":
     default:
@@ -301,7 +301,7 @@ export function getEventTypeColorClasses(
     case "subtle":
       return `${mapping.background} ${mapping.text} border ${mapping.border}`
     case "solid":
-      const solidBg = mapping.background.replace(/\/10$/, "")
+      const solidBg = mapping.background.replace(/\/15$/, "")
       return `${solidBg} text-primary-foreground border ${mapping.border}`
     case "default":
     default:

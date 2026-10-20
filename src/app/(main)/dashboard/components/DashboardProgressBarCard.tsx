@@ -39,7 +39,7 @@ export function ProgressBarCard({
             <Badge variant="secondary">{change}</Badge>
           </div>
           <dd className="mt-2 flex items-baseline gap-2">
-            <span className="text-foreground text-xl font-semibold">
+            <span className="text-foreground text-xl font-medium tabular-nums">
               {value}
             </span>
             <span className="text-muted-foreground/70 text-sm">

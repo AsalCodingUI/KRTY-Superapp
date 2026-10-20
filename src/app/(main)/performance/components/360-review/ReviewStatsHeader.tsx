@@ -44,7 +44,7 @@ export function ReviewStatsHeader({
             <Badge variant="secondary">{selectedQuarter}</Badge>
           </div>
           <div className="flex items-baseline justify-between gap-3">
-            <p className="text-foreground text-lg font-semibold">
+            <p className="text-foreground text-xl font-medium tabular-nums">
               {getQuarterMonths(selectedQuarter)}
             </p>
             <span className="text-muted-foreground text-sm font-medium whitespace-nowrap">
@@ -61,7 +61,7 @@ export function ReviewStatsHeader({
             Overall Score
           </h3>
           <div className="flex items-baseline justify-between gap-3">
-            <p className="text-foreground text-lg font-semibold">
+            <p className="text-foreground text-xl font-medium tabular-nums">
               {overallPercentage}%
             </p>
             <div className="flex items-center gap-2">

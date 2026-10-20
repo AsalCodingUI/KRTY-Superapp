@@ -165,7 +165,7 @@ export default function SLADashboard({
   return (
     <>
       {!hideTitle && (
-        <h1 className="text-foreground dark:text-foreground text-lg font-semibold sm:text-xl">
+        <h1 className="text-foreground dark:text-foreground text-2xl font-semibold tracking-tight">
           SLA Generator
         </h1>
       )}

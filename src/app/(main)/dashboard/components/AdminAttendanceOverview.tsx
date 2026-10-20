@@ -37,7 +37,7 @@ export function AdminAttendanceOverview({
         {items.map((item) => (
           <div key={item.label} className="min-w-0">
             <p className="text-muted-foreground text-sm">{item.label}</p>
-            <p className="text-foreground mt-1 text-lg font-semibold">
+            <p className="text-foreground mt-1 text-xl font-medium tabular-nums">
               {item.value}
             </p>
           </div>
@@ -50,13 +50,13 @@ export function AdminAttendanceOverview({
             <p className="text-muted-foreground text-sm">
               Overall Attendance Rate
             </p>
-            <p className="text-foreground mt-1 text-lg font-semibold">
+            <p className="text-foreground mt-1 text-xl font-medium tabular-nums">
               {onTimePercentage}%
             </p>
           </div>
           <div className="text-right">
             <p className="text-muted-foreground text-sm">Present Today</p>
-            <p className="text-foreground mt-1 text-lg font-semibold">
+            <p className="text-foreground mt-1 text-xl font-medium tabular-nums">
               {totalToday} / {total}
             </p>
           </div>

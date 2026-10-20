@@ -97,7 +97,7 @@ function ProjectsStats({ projectStats }: { projectStats: ProjectStats }) {
       {stats.map((stat) => (
         <div key={stat.label} className="flex min-w-0 flex-col gap-1">
           <dt className="text-muted-foreground text-sm">{stat.label}</dt>
-          <dd className="text-foreground text-2xl font-medium tracking-tight tabular-nums">
+          <dd className="text-foreground text-xl font-medium tabular-nums">
             {stat.value}
           </dd>
         </div>
@@ -380,7 +380,7 @@ export function ProjectsListPage() {
   return (
     <div className="flex flex-col">
       <div className="flex items-center gap-2 pb-4">
-        <h1 className="text-foreground truncate text-xl font-semibold tracking-tight">
+        <h1 className="text-foreground truncate text-2xl font-semibold tracking-tight">
           Projects
         </h1>
       </div>

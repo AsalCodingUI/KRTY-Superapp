@@ -1,7 +1,7 @@
 "use client"
 
 import { cx } from "@/shared/lib/utils"
-import { format, isSameDay, startOfDay } from "date-fns"
+import { format, isSameDay } from "date-fns"
 import { id } from "date-fns/locale"
 import { memo, useMemo } from "react"
 import { useCalendarContext } from "./calendar-context"
@@ -11,8 +11,8 @@ import { EventItem } from "./event-item"
 import { useCurrentTimeIndicator } from "./hooks/use-current-time-indicator"
 import type { CalendarEvent } from "./types"
 import {
-  calculateEventPosition,
   generateTimeSlots,
+  layoutDayEvents,
   getDayKey,
   groupEventsByDay,
   getWeekDays,
@@ -161,22 +161,17 @@ export const WeekView = memo(function WeekView({
 
                 {/* Events */}
                 <div className="pointer-events-none absolute inset-0">
-                  {dayEvents.map((event) => {
-                    const dayStart = startOfDay(day)
-                    const { top, height } = calculateEventPosition(
-                      event,
-                      dayStart,
-                      PIXELS_PER_HOUR,
-                    )
-
-                    return (
+                  {layoutDayEvents(dayEvents, day, PIXELS_PER_HOUR).map(
+                    ({ event, top, height, lane, lanes }) => (
                       <div
                         key={event.id}
-                        className="pointer-events-auto absolute top-[var(--top)] right-1 left-1 h-[var(--height)] overflow-hidden rounded-sm"
+                        className="pointer-events-auto absolute top-[var(--top)] left-[var(--left)] h-[var(--height)] w-[var(--width)] overflow-hidden rounded-sm px-0.5"
                         style={
                           {
                             "--top": `${top}px`,
                             "--height": `${height}px`,
+                            "--left": `calc(${(lane / lanes) * 100}% + 2px)`,
+                            "--width": `calc(${100 / lanes}% - 4px)`,
                           } as React.CSSProperties
                         }
                       >
@@ -190,8 +185,8 @@ export const WeekView = memo(function WeekView({
                           />
                         </DraggableEvent>
                       </div>
-                    )
-                  })}
+                    ),
+                  )}
                 </div>
 
                 {/* Current time indicator */}

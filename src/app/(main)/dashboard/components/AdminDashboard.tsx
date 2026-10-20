@@ -52,7 +52,7 @@ export function AdminDashboard({ data }: AdminDashboardProps) {
   return (
     <div className="flex flex-col">
       <div className="flex items-center gap-2 pb-4">
-        <h1 className="text-foreground truncate text-xl font-semibold tracking-tight">
+        <h1 className="text-foreground truncate text-2xl font-semibold tracking-tight">
           Dashboard Overview
         </h1>
       </div>

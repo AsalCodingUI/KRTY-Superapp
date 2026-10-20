@@ -3,17 +3,13 @@
 import {
   Breadcrumb,
   BreadcrumbItem,
-  BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
-  BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
-import { siteConfig } from "@/app/siteConfig"
 import { navigationConfig } from "@/shared/config/navigation"
 import { Notifications } from "@/widgets/notifications/ui/Notifications"
-import Link from "next/link"
 import { usePathname } from "next/navigation"
 
 /** Current section name, taken from the navigation config (fallback: path). */
@@ -21,7 +17,9 @@ function useSectionTitle() {
   const pathname = usePathname()
   const items = [...navigationConfig.main, ...navigationConfig.footer]
   const match = items
-    .filter((item) => pathname === item.href || pathname.startsWith(`${item.href}/`))
+    .filter(
+      (item) => pathname === item.href || pathname.startsWith(`${item.href}/`),
+    )
     .sort((a, b) => b.href.length - a.href.length)[0]
   if (match) return match.name
   if (pathname.startsWith("/settings")) return "Settings"
@@ -42,12 +40,6 @@ export function SiteHeader() {
         />
         <Breadcrumb>
           <BreadcrumbList>
-            <BreadcrumbItem className="hidden md:block">
-              <BreadcrumbLink render={<Link href={siteConfig.baseLinks.dashboard} />}>
-                {siteConfig.name}
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator className="hidden md:block" />
             <BreadcrumbItem>
               <BreadcrumbPage>{title}</BreadcrumbPage>
             </BreadcrumbItem>

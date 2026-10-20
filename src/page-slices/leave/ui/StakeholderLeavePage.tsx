@@ -535,7 +535,7 @@ export function StakeholderLeavePage({
     <>
       <div className="flex flex-col">
         <div className="flex items-center gap-2 pb-4">
-          <h1 className="text-foreground truncate text-xl font-semibold tracking-tight">
+          <h1 className="text-foreground truncate text-2xl font-semibold tracking-tight">
             Leave & Attendance Center
           </h1>
         </div>
@@ -838,7 +838,7 @@ function AttendanceOverviewPanel({
         {stats.map((item) => (
           <div key={item.label} className="flex min-w-0 flex-col gap-1">
             <p className="text-muted-foreground text-sm">{item.label}</p>
-            <p className="text-foreground text-2xl font-medium tracking-tight tabular-nums">
+            <p className="text-foreground text-xl font-medium tabular-nums">
               {item.value}
             </p>
           </div>

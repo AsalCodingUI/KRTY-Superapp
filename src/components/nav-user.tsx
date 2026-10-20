@@ -14,9 +14,13 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar,
 } from "@/components/ui/sidebar"
-import { Bell as BellIcon, ChevronsUpDown as ChevronsUpDownIcon, Logout as LogOutIcon, MessageCircle as MessageCircleIcon } from "@/components/icons"
+import {
+  Bell as BellIcon,
+  ChevronsUpDown as ChevronsUpDownIcon,
+  Logout as LogOutIcon,
+  MessageCircle as MessageCircleIcon,
+} from "@/components/icons"
 import Link from "next/link"
 
 function initialsOf(name: string) {
@@ -43,7 +47,6 @@ export function NavUser({
   onSignOut: () => void
   contactHref?: string
 }) {
-  const { isMobile } = useSidebar()
   const initials = initialsOf(user.name)
 
   return (
@@ -69,9 +72,9 @@ export function NavUser({
             <ChevronsUpDownIcon className="ml-auto size-4" />
           </DropdownMenuTrigger>
           <DropdownMenuContent
-            className="min-w-56 rounded-lg"
-            side={isMobile ? "bottom" : "right"}
-            align="end"
+            className="w-(--anchor-width) min-w-56 rounded-lg"
+            side="bottom"
+            align="start"
             sideOffset={4}
           >
             <DropdownMenuGroup>

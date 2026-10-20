@@ -182,7 +182,7 @@ export function EmployeeProjectView({
               className={`${hideBackButton ? "" : "mt-4"} flex items-start justify-between`}
             >
               <div>
-                <h1 className="text-foreground text-2xl font-medium tracking-tight tabular-nums">
+                <h1 className="text-foreground text-2xl font-semibold tracking-tight">
                   {assignment.projects.name}
                 </h1>
                 <div className="mt-1">
@@ -204,7 +204,7 @@ export function EmployeeProjectView({
             <div className="flex min-w-0 flex-col gap-1">
               <dt className="text-muted-foreground text-sm">SLA Score</dt>
               <div className="flex items-center gap-2">
-                <dd className="text-foreground text-2xl font-medium tracking-tight tabular-nums">
+                <dd className="text-foreground text-xl font-medium tabular-nums">
                   {totalPercentage.toFixed(1)}%
                 </dd>
                 <Badge
@@ -218,7 +218,7 @@ export function EmployeeProjectView({
             <div className="flex min-w-0 flex-col gap-1">
               <dt className="text-muted-foreground text-sm">Work Quality</dt>
               <div className="flex items-center gap-2">
-                <dd className="text-foreground text-2xl font-medium tracking-tight tabular-nums">
+                <dd className="text-foreground text-xl font-medium tabular-nums">
                   {competencies.filter((c) => c.isAchieved).length}/
                   {competencies.length}
                 </dd>

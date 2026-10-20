@@ -1,7 +1,7 @@
 "use client"
 
 import { cx } from "@/shared/lib/utils"
-import { format, isSameDay, startOfDay } from "date-fns"
+import { format, isSameDay } from "date-fns"
 import { memo, useMemo } from "react"
 import { useCalendarContext } from "./calendar-context"
 import { DraggableEvent } from "./draggable-event"
@@ -10,7 +10,7 @@ import { EventItem } from "./event-item"
 import { useCurrentTimeIndicator } from "./hooks/use-current-time-indicator"
 import type { CalendarEvent } from "./types"
 import {
-  calculateEventPosition,
+  layoutDayEvents,
   getDayKey,
   generateTimeSlots,
   groupEventsByDay,
@@ -125,22 +125,17 @@ export const DayView = memo(function DayView({
 
             {/* Events */}
             <div className="pointer-events-none absolute inset-0 px-2">
-              {dayEvents.map((event) => {
-                const dayStart = startOfDay(currentDate)
-                const { top, height } = calculateEventPosition(
-                  event,
-                  dayStart,
-                  PIXELS_PER_HOUR,
-                )
-
-                return (
+              {layoutDayEvents(dayEvents, currentDate, PIXELS_PER_HOUR).map(
+                ({ event, top, height, lane, lanes }) => (
                   <div
                     key={event.id}
-                    className="pointer-events-auto absolute top-[var(--top)] right-2 left-2 h-[var(--height)]"
+                    className="pointer-events-auto absolute top-[var(--top)] left-[var(--left)] h-[var(--height)] w-[var(--width)] px-0.5"
                     style={
                       {
                         "--top": `${top}px`,
                         "--height": `${height}px`,
+                        "--left": `calc(${(lane / lanes) * 100}%)`,
+                        "--width": `calc(${100 / lanes}%)`,
                       } as React.CSSProperties
                     }
                   >
@@ -154,8 +149,8 @@ export const DayView = memo(function DayView({
                       />
                     </DraggableEvent>
                   </div>
-                )
-              })}
+                ),
+              )}
             </div>
 
             {/* Current time indicator */}

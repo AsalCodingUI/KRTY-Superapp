@@ -28,7 +28,7 @@ const CATEGORY_DOT_CLASSES: Record<EventColor, string> = {
   orange: "bg-warning",
   amber: "bg-warning",
   cyan: "bg-primary",
-  neutral: "bg-muted",
+  neutral: "bg-muted-foreground",
 }
 
 const MOBILE_BOTTOM_SHEET_CLASSNAME =
@@ -56,7 +56,7 @@ function SidebarContent() {
               <span className="flex size-4 shrink-0 items-center justify-center">
                 <span
                   className={cx(
-                    "size-2 rounded-full border border-white",
+                    "size-2 rounded-[3px]",
                     CATEGORY_DOT_CLASSES[category.color],
                   )}
                 />
