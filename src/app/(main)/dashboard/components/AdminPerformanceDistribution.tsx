@@ -28,9 +28,9 @@ export function AdminPerformanceDistribution({
   const total = items.reduce((sum, item) => sum + item.count, 0)
 
   return (
-    <Card className="gap-0 p-4">
+    <Card className="gap-3">
       <div className="mb-3 flex items-center justify-between">
-        <p className="text-muted-foreground text-sm font-medium">
+        <p className="text-foreground text-sm font-medium">
           Performance Distribution
         </p>
         <span className="text-muted-foreground/70 text-xs tabular-nums">

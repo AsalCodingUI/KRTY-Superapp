@@ -194,7 +194,7 @@ export function BaseReadOnlyDialog({
 
           {/* Info Message */}
           {infoMessage && (
-            <div className="bg-primary/10 border-primary/20 rounded-lg border p-3">
+            <div className="bg-primary/10 border-primary/20 bg-foreground/[0.03] rounded-lg p-3">
               <p className="text-primary text-xs">ℹ️ {infoMessage}</p>
             </div>
           )}

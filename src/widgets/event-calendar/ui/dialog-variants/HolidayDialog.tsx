@@ -46,7 +46,7 @@ export function HolidayDialog({
           </div>
 
           {/* Date */}
-          <div className="border-border rounded-lg border p-4">
+          <div className="bg-foreground/[0.03] rounded-lg p-4">
             <div className="flex items-center gap-3">
               <RiCalendarLine className="text-muted-foreground h-5 w-5" />
               <div>
@@ -75,7 +75,7 @@ export function HolidayDialog({
           )}
 
           {/* Info notice */}
-          <div className="bg-primary/10 border-primary/20 rounded-lg border p-3">
+          <div className="bg-primary/10 border-primary/20 bg-foreground/[0.03] rounded-lg p-3">
             <p className="text-primary text-xs">
               ℹ️ Ini adalah hari libur nasional dari kalender Indonesia. Data
               ini tidak dapat diubah atau dihapus.

@@ -68,7 +68,7 @@ export function SquadSection({
             return (
               <div
                 key={member.id}
-                className="border-border rounded-lg border p-4"
+                className="bg-foreground/[0.03] rounded-lg p-4"
               >
                 <div className="mb-4 flex items-start justify-between">
                   <div>

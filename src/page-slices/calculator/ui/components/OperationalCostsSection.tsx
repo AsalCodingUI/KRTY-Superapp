@@ -72,7 +72,7 @@ export function OperationalCostsSection({
         {costItems.map((item) => (
           <div
             key={item.id ?? item.item_name}
-            className="border-border flex flex-wrap items-center justify-between gap-2 rounded-lg border px-4 py-3"
+            className="bg-foreground/[0.03] flex flex-wrap items-center justify-between gap-2 rounded-lg px-4 py-3"
           >
             <div>
               <p className="text-foreground text-sm font-medium">

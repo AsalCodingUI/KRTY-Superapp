@@ -52,7 +52,7 @@ export function EmployeePerformanceCards({
   return (
     <div className="space-y-4">
       {competencyItems.length > 0 && (
-        <div className="border-border rounded-lg border px-4 py-3">
+        <div className="bg-foreground/[0.03] rounded-lg px-4 py-3">
           <div className="mb-3 flex items-center justify-between">
             <p className="text-muted-foreground text-sm font-medium">
               Competency Snapshot
@@ -109,7 +109,7 @@ export function EmployeePerformanceCards({
         </div>
       )}
 
-      <div className="border-border rounded-lg border px-4 py-3">
+      <div className="bg-foreground/[0.03] rounded-lg px-4 py-3">
         <p className="text-muted-foreground mb-2 text-sm font-medium">
           Jadwal 1:1
         </p>

@@ -93,16 +93,11 @@ function ProjectsStats({ projectStats }: { projectStats: ProjectStats }) {
   ]
 
   return (
-    <dl className="bg-border grid grid-cols-1 gap-px overflow-hidden rounded-xl border sm:grid-cols-2 lg:grid-cols-5">
+    <dl className="grid grid-cols-1 gap-x-8 gap-y-4 py-2 sm:grid-cols-2 lg:grid-cols-5">
       {stats.map((stat) => (
-        <div
-          key={stat.label}
-          className="bg-background md:bg-sidebar flex h-full flex-col gap-1 px-4 py-3 [&:last-child:nth-child(odd)]:col-span-2 lg:[&:last-child:nth-child(odd)]:col-span-1"
-        >
-          <dt className="text-muted-foreground text-sm font-medium">
-            {stat.label}
-          </dt>
-          <dd className="text-foreground text-lg font-semibold">
+        <div key={stat.label} className="flex min-w-0 flex-col gap-1">
+          <dt className="text-muted-foreground text-sm">{stat.label}</dt>
+          <dd className="text-foreground text-2xl font-medium tracking-tight tabular-nums">
             {stat.value}
           </dd>
         </div>

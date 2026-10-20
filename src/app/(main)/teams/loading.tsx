@@ -14,10 +14,7 @@ export default function TeamsLoading() {
       {/* Team Cards Grid Skeleton */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {[1, 2, 3, 4, 5, 6].map((i) => (
-          <div
-            key={i}
-            className="border-border space-y-4 rounded-lg border p-6"
-          >
+          <div key={i} className="space-y-4 rounded-lg">
             <div className="flex items-center justify-between">
               <Skeleton className="h-5 w-32" />
               <Skeleton className="h-6 w-16 rounded-full" />

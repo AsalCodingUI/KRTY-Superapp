@@ -37,14 +37,12 @@ export function AdminMetricsOverview({
   ]
 
   return (
-    <div className="bg-border grid grid-cols-2 gap-px overflow-hidden rounded-xl border lg:grid-cols-5">
+    <div className="grid grid-cols-2 gap-x-8 gap-y-4 py-2 lg:grid-cols-5">
       {items.map((item) => {
         const content = (
-          <div className="bg-background md:bg-sidebar flex h-full flex-col gap-1 px-4 py-3 [&:last-child:nth-child(odd)]:col-span-2 lg:[&:last-child:nth-child(odd)]:col-span-1">
-            <p className="text-muted-foreground text-sm font-medium">
-              {item.label}
-            </p>
-            <p className="text-foreground text-lg font-semibold">
+          <div className="flex min-w-0 flex-col gap-1">
+            <p className="text-muted-foreground text-sm">{item.label}</p>
+            <p className="text-foreground text-2xl font-medium tracking-tight tabular-nums">
               {item.value}
             </p>
           </div>

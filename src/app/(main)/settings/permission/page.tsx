@@ -41,7 +41,9 @@ export default async function PermissionRoute() {
 
   if (profilesError) {
     return (
-      <div className="p-4 text-red-500">Error loading permissions data.</div>
+      <div className="text-destructive p-4">
+        Error loading permissions data.
+      </div>
     )
   }
 

@@ -65,7 +65,7 @@ export function TeamStats({ data }: TeamStatsProps) {
   return (
     <div className="max-w-full">
       <dl className="grid grid-cols-1">
-        <Card className="gap-0 p-4">
+        <Card className="gap-3">
           <dt className="text-muted-foreground text-sm font-medium">
             Total Team Members
           </dt>

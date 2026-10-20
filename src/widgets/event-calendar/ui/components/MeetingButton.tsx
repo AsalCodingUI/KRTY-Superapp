@@ -40,7 +40,7 @@ export function MeetingButton({ meetingUrl, className }: MeetingButtonProps) {
         </Button>
         <button
           onClick={handleCopy}
-          className="border-border hover:bg-muted rounded-lg border p-2 transition-colors"
+          className="hover:bg-muted bg-foreground/[0.03] rounded-lg p-2 transition-colors"
           title="Salin tautan meeting"
         >
           <RiFileCopyLine className="text-foreground h-4 w-4" />

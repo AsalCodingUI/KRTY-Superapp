@@ -64,7 +64,7 @@ function StarRating({
             type="button"
             onClick={() => onChange(star)}
             className={`p-1 transition-all hover:scale-110 focus:outline-none ${
-              star <= value ? "text-yellow-400" : "text-muted-foreground/70"
+              star <= value ? "text-warning" : "text-muted-foreground/70"
             }`}
           >
             <RiStarFill className="size-6" />
@@ -288,7 +288,7 @@ export default function ReviewFormClientPage({
         <div className="flex gap-8">
           <div className="hidden w-56 shrink-0 lg:block">
             <div className="sticky top-20">
-              <Card className="gap-0 space-y-4 p-4">
+              <Card className="gap-3 space-y-4">
                 <div>
                   <p className="text-foreground text-sm font-medium">
                     Review Progress
@@ -342,7 +342,7 @@ export default function ReviewFormClientPage({
               </p>
             </div>
 
-            <Card className="gap-0 p-4">
+            <Card className="gap-3">
               <div className="flex gap-3">
                 <RiInformationLine className="text-muted-foreground mt-0.5 size-5 shrink-0" />
                 <div>
@@ -357,7 +357,7 @@ export default function ReviewFormClientPage({
               </div>
             </Card>
 
-            <Card className="gap-0 space-y-4 overflow-visible p-4">
+            <Card className="gap-3 space-y-4 overflow-visible">
               <Label htmlFor="colleague-select">
                 Who do you want to review?
               </Label>
@@ -382,7 +382,7 @@ export default function ReviewFormClientPage({
 
             {formData.reviewee_id && (
               <>
-                <Card className="gap-0 space-y-4 p-4">
+                <Card className="gap-3 space-y-4">
                   <p className="text-foreground text-sm font-medium">
                     Rate their competencies
                   </p>
@@ -526,7 +526,7 @@ export default function ReviewFormClientPage({
                   </div>
                 </Card>
 
-                <Card className="gap-0 space-y-4 p-4">
+                <Card className="gap-3 space-y-4">
                   <div>
                     <Label htmlFor="feedback-continue">
                       CONTINUE (Strength)

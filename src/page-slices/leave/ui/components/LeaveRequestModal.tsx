@@ -291,7 +291,7 @@ export function LeaveRequestModal({
         // SCROLL DI PINDAH KE SINI (Parent Container)
         <div className="mt-6 max-h-[70vh] overflow-y-auto pr-2 sm:max-h-[60vh]">
           <LeaveRules />
-          <div className="bg-muted mt-6 flex items-start space-x-3 rounded-md border p-3">
+          <div className="bg-muted bg-foreground/[0.03] mt-6 flex items-start space-x-3 rounded-md p-3">
             <Checkbox
               id="terms"
               checked={isTermsAccepted}
@@ -318,7 +318,7 @@ export function LeaveRequestModal({
 
     return (
       <div className="space-y-4">
-        <div className="border-border rounded-lg border p-4">
+        <div className="bg-foreground/[0.03] rounded-lg p-4">
           <div className="space-y-3">
             <div className="flex items-center justify-between gap-4">
               <span className="text-muted-foreground text-sm font-medium">

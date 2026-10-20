@@ -182,7 +182,7 @@ export function DataTable<TData>({
                     <TableHead
                       key={header.id}
                       className={cn(
-                        "text-muted-foreground h-10 px-3 py-2 text-sm font-medium whitespace-nowrap",
+                        "text-muted-foreground h-9 px-2 text-xs font-medium whitespace-nowrap",
                         isSelectionColumn && "w-14 px-2 text-center",
                         header.column.columnDef.meta?.className,
                       )}
@@ -212,7 +212,9 @@ export function DataTable<TData>({
                   }
                   className={cn(
                     "group transition-colors select-none",
-                    enableHover ? "hover:bg-accent" : "hover:bg-transparent",
+                    enableHover
+                      ? "hover:bg-foreground/[0.025]"
+                      : "hover:bg-transparent",
                     enableSelection ? "cursor-pointer" : "cursor-default",
                   )}
                 >
@@ -223,7 +225,7 @@ export function DataTable<TData>({
                       <TableCell
                         key={cell.id}
                         className={cn(
-                          "relative h-10 px-3 py-2 text-sm whitespace-nowrap",
+                          "relative px-2 py-2.5 text-sm whitespace-nowrap",
                           isSelectionColumn && "w-14 px-2 text-center",
                           cell.column.columnDef.meta?.className,
                         )}

@@ -71,7 +71,7 @@ export function LeaveRules() {
         <h4 className="text-foreground mb-3 text-base font-semibold">
           Contoh Aturan Cuti yang Diperbolehkan
         </h4>
-        <div className="space-y-3 rounded-lg border p-4">
+        <div className="bg-foreground/[0.03] space-y-3 rounded-lg p-4">
           {/* Pertanyaan */}
           <div className="flex gap-3">
             <div className="bg-border text-muted-foreground flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-medium">

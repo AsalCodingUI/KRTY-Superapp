@@ -369,14 +369,12 @@ export function EmployeeLeavePage({
         </div>
 
         <div className="flex flex-col">
-          <div className="bg-border my-2 grid grid-cols-2 gap-px overflow-hidden rounded-xl border lg:grid-cols-5">
-            <div className="bg-background md:bg-sidebar col-span-2 flex flex-col gap-1 px-4 py-3">
-              <p className="text-muted-foreground text-sm font-medium">
-                Current Time
-              </p>
+          <div className="my-2 grid grid-cols-2 gap-x-8 gap-y-4 py-2 lg:grid-cols-5">
+            <div className="col-span-2 flex min-w-0 flex-col gap-1">
+              <p className="text-muted-foreground text-sm">Current Time</p>
               <div className="flex flex-wrap items-center justify-between gap-4">
                 <div className="flex flex-wrap items-baseline gap-2">
-                  <p className="text-foreground text-lg font-semibold">
+                  <p className="text-foreground text-2xl font-medium tracking-tight tabular-nums">
                     {currentTime ? format(currentTime, "HH:mm:ss") : "--:--:--"}
                   </p>
                   <p className="text-muted-foreground text-sm">
@@ -471,29 +469,25 @@ export function EmployeeLeavePage({
               </div>
             </div>
 
-            <div className="bg-background md:bg-sidebar flex h-full flex-col gap-1 px-4 py-3 [&:last-child:nth-child(odd)]:col-span-2 lg:[&:last-child:nth-child(odd)]:col-span-1">
-              <p className="text-muted-foreground text-sm font-medium">
+            <div className="flex min-w-0 flex-col gap-1">
+              <p className="text-muted-foreground text-sm">
                 Annual Leave Balance
               </p>
-              <p className="text-foreground text-lg font-semibold">
+              <p className="text-foreground text-2xl font-medium tracking-tight tabular-nums">
                 {leaveStats.annualRemaining}/{leaveStats.annualTotal} Days
               </p>
             </div>
 
-            <div className="bg-background md:bg-sidebar flex h-full flex-col gap-1 px-4 py-3 [&:last-child:nth-child(odd)]:col-span-2 lg:[&:last-child:nth-child(odd)]:col-span-1">
-              <p className="text-muted-foreground text-sm font-medium">
-                Sick Leave
-              </p>
-              <p className="text-foreground text-lg font-semibold">
+            <div className="flex min-w-0 flex-col gap-1">
+              <p className="text-muted-foreground text-sm">Sick Leave</p>
+              <p className="text-foreground text-2xl font-medium tracking-tight tabular-nums">
                 {leaveStats.sickDays}
               </p>
             </div>
 
-            <div className="bg-background md:bg-sidebar flex h-full flex-col gap-1 px-4 py-3 [&:last-child:nth-child(odd)]:col-span-2 lg:[&:last-child:nth-child(odd)]:col-span-1">
-              <p className="text-muted-foreground text-sm font-medium">
-                Work From Home
-              </p>
-              <p className="text-foreground text-lg font-semibold">
+            <div className="flex min-w-0 flex-col gap-1">
+              <p className="text-muted-foreground text-sm">Work From Home</p>
+              <p className="text-foreground text-2xl font-medium tracking-tight tabular-nums">
                 {leaveStats.wfhDays}
               </p>
             </div>
@@ -519,7 +513,7 @@ export function EmployeeLeavePage({
                   </SelectContent>
                 </Select>
               ) : (
-                <div className="border-border h-9 w-full rounded-lg border" />
+                <div className="bg-foreground/[0.03] h-9 w-full rounded-lg" />
               )}
               {isMounted("leave") && activeTab === "leave" && (
                 <div className="grid grid-cols-2 gap-2">

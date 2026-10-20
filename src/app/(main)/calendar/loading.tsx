@@ -6,10 +6,10 @@ export default function CalendarLoading() {
       {/* Sidebar skeleton */}
       <div className="hidden w-64 flex-shrink-0 space-y-4 lg:block">
         <Skeleton className="h-8 w-full" />
-        <div className="border-border rounded-lg border p-4">
+        <div className="rounded-lg">
           <Skeleton className="h-40 w-full" />
         </div>
-        <div className="border-border rounded-lg border p-4">
+        <div className="rounded-lg">
           <Skeleton className="h-24 w-full" />
         </div>
       </div>
@@ -27,7 +27,7 @@ export default function CalendarLoading() {
         </div>
 
         {/* Calendar grid */}
-        <div className="border-border flex-1 overflow-hidden rounded-lg border">
+        <div className="flex-1 overflow-hidden rounded-lg">
           {/* Header row */}
           <div className="border-border grid grid-cols-7 border-b">
             {[...Array(7)].map((_, i) => (

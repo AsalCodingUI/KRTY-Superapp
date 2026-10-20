@@ -143,7 +143,7 @@ export function EmployeeAttendanceWidget({
 
   return (
     <div className="space-y-4">
-      <div className="border-border rounded-lg border px-3 py-2">
+      <div className="bg-foreground/[0.03] rounded-lg px-3 py-2">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-muted-foreground text-sm font-medium">
@@ -252,7 +252,7 @@ export function EmployeeAttendanceWidget({
             icon={<RiCheckboxCircleLine className="size-5" />}
           />
         ) : (
-          <div className="border-border divide-border divide-y overflow-hidden rounded-lg border">
+          <div className="divide-border divide-y">
             {logs.slice(0, 7).map((log) => (
               <div key={log.id} className="px-3 py-2">
                 <div className="flex items-center justify-between gap-3">
@@ -290,7 +290,7 @@ export function EmployeeAttendanceWidget({
           Leave Requests
         </h4>
         {recentLeaves.length > 0 ? (
-          <div className="border-border divide-border divide-y overflow-hidden rounded-lg border">
+          <div className="divide-border divide-y">
             {recentLeaves.map((leave) => (
               <div
                 key={leave.id}

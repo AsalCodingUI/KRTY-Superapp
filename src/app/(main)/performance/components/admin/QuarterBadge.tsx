@@ -6,7 +6,7 @@ interface QuarterBadgeProps {
 
 export function QuarterBadge({ quarter }: QuarterBadgeProps) {
   return (
-    <Badge variant="info">
+    <Badge variant="secondary">
       {quarter}
     </Badge>
   )

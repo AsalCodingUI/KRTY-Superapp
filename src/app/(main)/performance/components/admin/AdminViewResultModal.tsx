@@ -212,7 +212,7 @@ export function AdminViewResultModal({
                   ratingLevel={ratingLevel}
                 />
 
-                <Card className="gap-0 p-4">
+                <Card className="gap-3">
                   <h3 className="text-muted-foreground mb-4 text-sm font-medium">
                     Competency Matrix
                   </h3>

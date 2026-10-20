@@ -165,7 +165,7 @@ function EmployeeOverview({
       {/* SCORECARD SUMMARY */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
         {/* Overall Score Card */}
-        <Card className="border-l-primary flex flex-col justify-between gap-0 border-l-4 p-4">
+        <Card className="bg-foreground/[0.03] flex flex-col justify-between gap-0 rounded-lg p-4">
           <dt className="text-muted-foreground text-sm font-medium">
             Overall Score
           </dt>
@@ -186,7 +186,7 @@ function EmployeeOverview({
         </Card>
 
         {/* KPI Achievement Card */}
-        <Card className="gap-0 p-4">
+        <Card className="gap-3">
           <dt className="text-muted-foreground text-sm font-medium">
             KPI SLA Project
           </dt>
@@ -206,7 +206,7 @@ function EmployeeOverview({
         </Card>
 
         {/* 360 Feedback Rating Card */}
-        <Card className="gap-0 p-4">
+        <Card className="gap-3">
           <dt className="text-muted-foreground text-sm font-medium">
             360 Feedback Rating
           </dt>
@@ -238,7 +238,7 @@ function EmployeeOverview({
       {/* PERFORMANCE DETAILS */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* SLA Progress */}
-        <Card className="gap-0 p-4">
+        <Card className="gap-3">
           <h3 className="text-foreground mb-4 font-semibold">
             SLA Project Progress
           </h3>
@@ -272,7 +272,7 @@ function EmployeeOverview({
         </Card>
 
         {/* 360 Review Summary */}
-        <Card className="gap-0 p-4">
+        <Card className="gap-3">
           <h3 className="text-foreground mb-4 font-semibold">
             360 Review Summary
           </h3>
@@ -294,7 +294,7 @@ function EmployeeOverview({
         </Card>
 
         {/* Work Quality */}
-        <Card className="gap-0 p-4">
+        <Card className="gap-3">
           <h3 className="text-foreground mb-4 font-semibold">Work Quality</h3>
           <div className="space-y-4">
             <div>
@@ -327,7 +327,7 @@ function EmployeeOverview({
       </div>
 
       {/* ASSIGNED PROJECTS */}
-      <Card className="gap-0 p-4">
+      <Card className="gap-3">
         <div className="mb-4 flex items-center justify-between">
           <h3 className="text-foreground text-sm font-medium">
             Assigned Projects
@@ -373,7 +373,7 @@ function EmployeeOverview({
                   href={`/performance/employee/${profile?.id}/project/${assignment.projects.id}`}
                   className="block"
                 >
-                  <div className="border-border hover:bg-accent flex items-center justify-between rounded-lg border p-3 transition-colors">
+                  <div className="hover:bg-accent bg-foreground/[0.03] flex items-center justify-between rounded-lg p-3 transition-colors">
                     <div className="min-w-0 flex-1">
                       <h4 className="text-foreground truncate font-medium">
                         {assignment.projects.name}
@@ -468,7 +468,7 @@ function StakeholderOverview({
 
       {/* TEAM METRICS */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        <Card className="gap-0 p-4">
+        <Card className="gap-3">
           <div className="flex items-center gap-4">
             <div className="bg-primary/10 flex h-12 w-12 items-center justify-center rounded-lg">
               <RiGroupLine className="text-primary size-6" />
@@ -484,7 +484,7 @@ function StakeholderOverview({
           </div>
         </Card>
 
-        <Card className="gap-0 p-4">
+        <Card className="gap-3">
           <div className="flex items-center gap-4">
             <div className="bg-success/10 flex h-12 w-12 items-center justify-center rounded-lg">
               <RiLineChartLine className="text-success size-6" />
@@ -500,7 +500,7 @@ function StakeholderOverview({
           </div>
         </Card>
 
-        <Card className="gap-0 p-4">
+        <Card className="gap-3">
           <div className="flex items-center gap-4">
             <div className="bg-warning/10 flex h-12 w-12 items-center justify-center rounded-lg">
               <RiCheckboxCircleLine className="text-warning size-6" />
@@ -516,7 +516,7 @@ function StakeholderOverview({
           </div>
         </Card>
 
-        <Card className="gap-0 p-4">
+        <Card className="gap-3">
           <div className="flex items-center gap-4">
             <div className="bg-info/10 flex h-12 w-12 items-center justify-center rounded-lg">
               <RiBriefcaseLine className="text-info size-6" />
@@ -534,7 +534,7 @@ function StakeholderOverview({
       </div>
 
       {/* PERFORMANCE DISTRIBUTION */}
-      <Card className="gap-0 p-4">
+      <Card className="gap-3">
         <h3 className="text-foreground mb-4 font-semibold">
           Performance Distribution
         </h3>
@@ -653,7 +653,7 @@ function StakeholderOverview({
             /* Switch to KPI tab */
           }}
         >
-          <Card className="hover:ring-primary cursor-pointer gap-0 p-4 transition-colors">
+          <Card className="bg-foreground/[0.03] hover:bg-foreground/[0.06] cursor-pointer gap-0 rounded-lg p-4 transition-colors">
             <div className="flex items-center gap-4">
               <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-lg">
                 <RiLineChartLine className="text-primary size-5" />
@@ -674,7 +674,7 @@ function StakeholderOverview({
             /* Switch to 360 Review tab */
           }}
         >
-          <Card className="hover:ring-primary cursor-pointer gap-0 p-4 transition-colors">
+          <Card className="bg-foreground/[0.03] hover:bg-foreground/[0.06] cursor-pointer gap-0 rounded-lg p-4 transition-colors">
             <div className="flex items-center gap-4">
               <div className="bg-success/10 flex h-10 w-10 items-center justify-center rounded-lg">
                 <RiUserLine className="text-success size-5" />

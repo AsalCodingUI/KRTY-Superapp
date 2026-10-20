@@ -28,20 +28,15 @@ export function AdminAttendanceOverview({
   ]
 
   return (
-    <Card className="gap-0 p-4">
-      <p className="text-muted-foreground mb-3 text-sm font-medium">
+    <Card className="gap-3">
+      <p className="text-foreground text-sm font-medium">
         Today&apos;s Attendance Overview
       </p>
 
-      <div className="bg-border grid grid-cols-2 gap-px overflow-hidden rounded-xl border sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-x-8 gap-y-4 py-2 sm:grid-cols-4">
         {items.map((item) => (
-          <div
-            key={item.label}
-            className="bg-background md:bg-sidebar h-full px-3 py-3"
-          >
-            <p className="text-muted-foreground text-sm font-medium">
-              {item.label}
-            </p>
+          <div key={item.label} className="min-w-0">
+            <p className="text-muted-foreground text-sm">{item.label}</p>
             <p className="text-foreground mt-1 text-lg font-semibold">
               {item.value}
             </p>
@@ -52,7 +47,7 @@ export function AdminAttendanceOverview({
       <div className="mt-4 space-y-4">
         <div className="flex items-end justify-between gap-4">
           <div>
-            <p className="text-muted-foreground text-sm font-medium">
+            <p className="text-muted-foreground text-sm">
               Overall Attendance Rate
             </p>
             <p className="text-foreground mt-1 text-lg font-semibold">
@@ -60,9 +55,7 @@ export function AdminAttendanceOverview({
             </p>
           </div>
           <div className="text-right">
-            <p className="text-muted-foreground text-sm font-medium">
-              Present Today
-            </p>
+            <p className="text-muted-foreground text-sm">Present Today</p>
             <p className="text-foreground mt-1 text-lg font-semibold">
               {totalToday} / {total}
             </p>

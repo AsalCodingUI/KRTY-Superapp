@@ -12,10 +12,7 @@ export default function MessageLoading() {
       {/* Message list */}
       <div className="space-y-4">
         {[...Array(6)].map((_, i) => (
-          <div
-            key={i}
-            className="border-border flex items-start gap-4 rounded-lg border p-4"
-          >
+          <div key={i} className="flex items-start gap-4 rounded-lg">
             <Skeleton className="h-10 w-10 flex-shrink-0 rounded-full" />
             <div className="flex-1 space-y-2">
               <div className="flex items-center justify-between">

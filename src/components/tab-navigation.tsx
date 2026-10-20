@@ -49,7 +49,7 @@ const TabNavigation = React.forwardRef<
       >
         <NavigationMenuPrimitive.List
           className={cn(
-            "border-border flex items-start justify-start gap-1 border-b whitespace-nowrap",
+            "border-border flex items-start justify-start gap-5 border-b whitespace-nowrap",
             className,
           )}
         >
@@ -113,7 +113,7 @@ const TabNavigationLink = React.forwardRef<
           {getSubtree({ asChild, children }, (children) => (
             <span
               className={cn(
-                "text-muted-foreground relative inline-flex items-center justify-center px-1 pb-1.5 whitespace-nowrap transition-colors",
+                "text-muted-foreground relative inline-flex items-center justify-center pb-1.5 whitespace-nowrap transition-colors",
                 "group-hover:text-foreground group-data-[active]:text-foreground",
                 // active underline (shadcn tabs "line" style)
                 "after:bg-primary after:absolute after:inset-x-0 after:-bottom-px after:h-0.5 after:opacity-0 after:transition-opacity group-data-[active]:after:opacity-100",
@@ -123,8 +123,7 @@ const TabNavigationLink = React.forwardRef<
             >
               <span
                 className={cn(
-                  "inline-flex h-8 items-center justify-center gap-1.5 rounded-2xl px-2.5",
-                  "group-hover:bg-accent group-hover:text-accent-foreground",
+                  "inline-flex h-8 items-center justify-center gap-1.5",
                 )}
               >
                 {showLeadingIcon && leadingIcon && (

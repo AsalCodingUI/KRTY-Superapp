@@ -19,15 +19,15 @@ export default function ProjectsLoading() {
 
       {/* Content Skeleton */}
       <div className="space-y-4">
-        <div className="border-border rounded-lg border p-6">
+        <div className="rounded-lg">
           <Skeleton className="h-6 w-40" />
           <Skeleton className="mt-4 h-24 w-full" />
         </div>
-        <div className="border-border rounded-lg border p-6">
+        <div className="rounded-lg">
           <Skeleton className="h-6 w-32" />
           <Skeleton className="mt-4 h-32 w-full" />
         </div>
-        <div className="border-border rounded-lg border p-6">
+        <div className="rounded-lg">
           <Skeleton className="h-6 w-48" />
           <Skeleton className="mt-4 h-40 w-full" />
         </div>

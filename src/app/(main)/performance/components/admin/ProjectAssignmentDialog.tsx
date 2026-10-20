@@ -210,7 +210,7 @@ export function ProjectAssignmentDialog({
 
         <div className="flex-1 space-y-4 overflow-y-auto">
           {/* Add New Assignment Section */}
-          <div className="border-border space-y-4 rounded-lg border p-4">
+          <div className="bg-foreground/[0.03] space-y-4 rounded-lg p-4">
             <h4 className="text-foreground text-sm font-medium">
               Add New Assignment
             </h4>
@@ -272,7 +272,7 @@ export function ProjectAssignmentDialog({
                 {assignments.map((assignment) => (
                   <div
                     key={assignment.id}
-                    className="border-border flex items-center justify-between rounded-lg border p-3"
+                    className="bg-foreground/[0.03] flex items-center justify-between rounded-lg p-3"
                   >
                     <div className="flex items-center gap-3">
                       <Avatar>

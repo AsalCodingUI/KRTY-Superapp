@@ -480,7 +480,7 @@ export function InvoiceFormDialog({
               {lineItems.map((item) => (
                 <div
                   key={item.id}
-                  className="border-border grid grid-cols-12 items-end gap-2 rounded-lg border p-3"
+                  className="bg-foreground/[0.03] grid grid-cols-12 items-end gap-2 rounded-lg p-3"
                 >
                   <div className="col-span-12 space-y-1 sm:col-span-5">
                     <Label>Description</Label>

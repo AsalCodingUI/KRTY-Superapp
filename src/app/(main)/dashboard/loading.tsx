@@ -18,10 +18,7 @@ export default function DashboardLoading() {
 
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
             {[1, 2, 3, 4, 5].map((i) => (
-              <div
-                key={i}
-                className="border-border space-y-3 rounded-lg border p-4"
-              >
+              <div key={i} className="space-y-3 rounded-lg">
                 <Skeleton className="h-4 w-20" />
                 <Skeleton className="h-7 w-16" />
               </div>
@@ -29,11 +26,11 @@ export default function DashboardLoading() {
           </div>
 
           <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-            <div className="border-border rounded-lg border p-4">
+            <div className="rounded-lg">
               <Skeleton className="mb-4 h-4 w-40" />
               <Skeleton className="h-44 w-full" />
             </div>
-            <div className="border-border rounded-lg border p-4">
+            <div className="rounded-lg">
               <Skeleton className="mb-4 h-4 w-40" />
               <Skeleton className="h-44 w-full" />
             </div>

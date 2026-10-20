@@ -17,7 +17,7 @@ interface TableSectionProps {
 /**
  * TableSection - Consistent wrapper for all tables
  *
- * Provides standardized outer border, header, and layout for tables.
+ * Provides a standardized (borderless) header and layout for tables.
  *
  * @example
  * <TableSection title="Team Members" description="Manage your team">
@@ -40,15 +40,12 @@ export function TableSection({
   return (
     <div
       data-slot="table-section"
-      className={cn(
-        "border-border text-card-foreground overflow-hidden rounded-lg border",
-        className,
-      )}
+      className={cn("text-card-foreground flex flex-col gap-1", className)}
     >
       {hasHeader && (
         <div
           className={cn(
-            "flex items-center justify-between gap-4 px-3 py-2",
+            "flex min-h-8 items-center justify-between gap-4 pb-1",
             headerClassName,
           )}
         >

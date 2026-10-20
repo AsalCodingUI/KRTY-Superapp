@@ -182,11 +182,11 @@ export function EmployeeProjectView({
               className={`${hideBackButton ? "" : "mt-4"} flex items-start justify-between`}
             >
               <div>
-                <h1 className="text-foreground text-lg font-semibold">
+                <h1 className="text-foreground text-2xl font-medium tracking-tight tabular-nums">
                   {assignment.projects.name}
                 </h1>
                 <div className="mt-1">
-                  <p className="text-muted-foreground text-sm font-medium">
+                  <p className="text-muted-foreground text-sm">
                     {assignment.projects.description || "..."}
                   </p>
                 </div>
@@ -200,13 +200,11 @@ export function EmployeeProjectView({
           </div>
 
           {/* STATS */}
-          <div className="bg-border grid grid-cols-1 gap-px overflow-hidden rounded-xl border md:grid-cols-2">
-            <div className="bg-background md:bg-sidebar flex h-full flex-col gap-1 px-4 py-3 [&:last-child:nth-child(odd)]:col-span-2 lg:[&:last-child:nth-child(odd)]:col-span-1">
-              <dt className="text-muted-foreground text-sm font-medium">
-                SLA Score
-              </dt>
+          <div className="grid grid-cols-1 gap-x-8 gap-y-4 py-2 md:grid-cols-2">
+            <div className="flex min-w-0 flex-col gap-1">
+              <dt className="text-muted-foreground text-sm">SLA Score</dt>
               <div className="flex items-center gap-2">
-                <dd className="text-foreground text-lg font-semibold">
+                <dd className="text-foreground text-2xl font-medium tracking-tight tabular-nums">
                   {totalPercentage.toFixed(1)}%
                 </dd>
                 <Badge
@@ -217,12 +215,10 @@ export function EmployeeProjectView({
                 </Badge>
               </div>
             </div>
-            <div className="bg-background md:bg-sidebar flex h-full flex-col gap-1 px-4 py-3 [&:last-child:nth-child(odd)]:col-span-2 lg:[&:last-child:nth-child(odd)]:col-span-1">
-              <dt className="text-muted-foreground text-sm font-medium">
-                Work Quality
-              </dt>
+            <div className="flex min-w-0 flex-col gap-1">
+              <dt className="text-muted-foreground text-sm">Work Quality</dt>
               <div className="flex items-center gap-2">
-                <dd className="text-foreground text-lg font-semibold">
+                <dd className="text-foreground text-2xl font-medium tracking-tight tabular-nums">
                   {competencies.filter((c) => c.isAchieved).length}/
                   {competencies.length}
                 </dd>

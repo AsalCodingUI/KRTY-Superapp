@@ -26,20 +26,22 @@ export default async function TeamAccessRoute() {
     redirect("/dashboard")
   }
 
-  const [{ data: profiles, error: profilesError }, { data: teams, error: teamsError }] =
-    await Promise.all([
-      supabase
-        .from("profiles")
-        .select(
-          "id, full_name, email, role, job_title, is_super_admin, avatar_url, hourly_rate, krt_id, leave_balance, leave_used, manager_id, team_id, created_at, updated_at",
-        )
-        .order("full_name", { ascending: true }),
-      supabase.from("teams").select("id, name, code, created_at").order("name"),
-    ])
+  const [
+    { data: profiles, error: profilesError },
+    { data: teams, error: teamsError },
+  ] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select(
+        "id, full_name, email, role, job_title, is_super_admin, avatar_url, hourly_rate, krt_id, leave_balance, leave_used, manager_id, team_id, created_at, updated_at",
+      )
+      .order("full_name", { ascending: true }),
+    supabase.from("teams").select("id, name, code, created_at").order("name"),
+  ])
 
   if (profilesError || teamsError) {
     return (
-      <div className="p-4 text-red-500">
+      <div className="text-destructive p-4">
         Error loading team access data.
       </div>
     )

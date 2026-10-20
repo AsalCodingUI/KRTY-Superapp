@@ -28,7 +28,7 @@ export function DataTableColumnHeader<TData, TValue>({
   if (!canSort) {
     return (
       <div
-        className={cn("text-muted-foreground text-sm font-medium", className)}
+        className={cn("text-muted-foreground text-xs font-medium", className)}
       >
         {title}
       </div>
@@ -43,7 +43,7 @@ export function DataTableColumnHeader<TData, TValue>({
         className,
       )}
     >
-      <span className="text-muted-foreground text-sm font-medium whitespace-nowrap">
+      <span className="text-muted-foreground text-xs font-medium whitespace-nowrap">
         {title}
       </span>
       {/* Stacked sort indicator */}

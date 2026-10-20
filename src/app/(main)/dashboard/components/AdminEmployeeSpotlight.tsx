@@ -35,10 +35,8 @@ export function AdminEmployeeSpotlight({
 
   return (
     <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-      <Card className="gap-0 p-4">
-        <p className="text-muted-foreground mb-3 text-sm font-medium">
-          Top Performers
-        </p>
+      <Card className="gap-3">
+        <p className="text-foreground text-sm font-medium">Top Performers</p>
 
         {topPerformers.length === 0 ? (
           <EmptyState
@@ -90,10 +88,8 @@ export function AdminEmployeeSpotlight({
         )}
       </Card>
 
-      <Card className="gap-0 p-4">
-        <p className="text-muted-foreground mb-3 text-sm font-medium">
-          Needs Attention
-        </p>
+      <Card className="gap-3">
+        <p className="text-foreground text-sm font-medium">Needs Attention</p>
 
         {employeesNeedingAttention.length === 0 ? (
           <EmptyState

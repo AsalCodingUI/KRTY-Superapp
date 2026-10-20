@@ -6,10 +6,7 @@ export function AgendaSkeleton() {
   return (
     <div className="space-y-4 p-4">
       {Array.from({ length: 5 }).map((_, i) => (
-        <div
-          key={i}
-          className="border-border flex gap-4 rounded-lg border p-4"
-        >
+        <div key={i} className="bg-foreground/[0.03] flex gap-4 rounded-lg p-4">
           {/* Date column */}
           <div className="flex w-16 flex-col items-center gap-1">
             <Skeleton className="h-4 w-12" />

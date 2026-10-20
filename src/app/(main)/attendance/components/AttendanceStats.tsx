@@ -170,7 +170,7 @@ export function AttendanceStats({
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         {/* CARD 1: CLOCK ACTION */}
-        <Card className="flex h-full flex-col justify-between gap-0 px-4 py-3">
+        <Card className="flex h-full flex-col justify-between gap-1">
           <div>
             <dt className="text-muted-foreground text-sm font-medium">
               Current Time
@@ -256,7 +256,7 @@ export function AttendanceStats({
         </Card>
 
         {/* CARD 2: SESSION INFO */}
-        <Card className="h-full gap-0 px-4 py-3">
+        <Card className="h-full gap-1">
           <h3 className="text-muted-foreground text-sm font-medium">
             Session Info
           </h3>

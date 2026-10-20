@@ -28,11 +28,9 @@ export function AdminRecentActivities({
   activities,
 }: AdminRecentActivitiesProps) {
   return (
-    <Card className="gap-0 p-4">
+    <Card className="gap-3">
       <div className="mb-3 flex items-center justify-between">
-        <p className="text-muted-foreground text-sm font-medium">
-          Activity Feed
-        </p>
+        <p className="text-foreground text-sm font-medium">Activity Feed</p>
         <span className="text-muted-foreground/70 text-xs tabular-nums">
           {activities.length} items
         </span>

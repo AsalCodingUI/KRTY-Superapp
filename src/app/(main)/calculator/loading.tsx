@@ -35,7 +35,7 @@ export default function CalculatorLoading() {
 
       {/* RIGHT COLUMN - HUD */}
       <div className="lg:col-span-5">
-        <div className="border-border bg-sidebar sticky top-6 space-y-4 rounded-lg border p-6">
+        <div className="bg-sidebar sticky top-6 space-y-4 rounded-lg">
           <Skeleton className="h-6 w-32" />
           {[1, 2, 3, 4].map((i) => (
             <div key={i} className="space-y-2">

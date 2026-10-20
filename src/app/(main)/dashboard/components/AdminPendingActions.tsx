@@ -44,11 +44,9 @@ export function AdminPendingActions({
 }: AdminPendingActionsProps) {
   return (
     <div className="space-y-4">
-      <Card className="gap-0 p-4">
+      <Card className="gap-3">
         <div className="mb-3 flex items-center justify-between">
-          <p className="text-muted-foreground text-sm font-medium">
-            Pending Reviews
-          </p>
+          <p className="text-foreground text-sm font-medium">Pending Reviews</p>
           <span className="text-muted-foreground/70 text-xs tabular-nums">
             {pendingReviews.length} items
           </span>
@@ -111,11 +109,9 @@ export function AdminPendingActions({
         )}
       </Card>
 
-      <Card className="gap-0 p-4">
+      <Card className="gap-3">
         <div className="mb-3 flex items-center justify-between">
-          <p className="text-muted-foreground text-sm font-medium">
-            Leave Approvals
-          </p>
+          <p className="text-foreground text-sm font-medium">Leave Approvals</p>
           <span className="text-muted-foreground/70 text-xs tabular-nums">
             {pendingLeaveApprovals.length} items
           </span>

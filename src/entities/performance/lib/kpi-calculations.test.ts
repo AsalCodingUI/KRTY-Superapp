@@ -114,15 +114,15 @@ describe("kpi-calculations", () => {
 
   describe("getScoreColor", () => {
     it("returns color classes for each score", () => {
-      expect(getScoreColor(5)).toContain("purple")
-      expect(getScoreColor(4)).toContain("blue")
-      expect(getScoreColor(3)).toContain("green")
-      expect(getScoreColor(2)).toContain("yellow")
-      expect(getScoreColor(1)).toContain("red")
+      expect(getScoreColor(5)).toContain("text-success")
+      expect(getScoreColor(4)).toContain("text-info")
+      expect(getScoreColor(3)).toContain("text-muted-foreground")
+      expect(getScoreColor(2)).toContain("text-warning")
+      expect(getScoreColor(1)).toContain("text-destructive")
     })
 
     it("returns default color for invalid scores", () => {
-      expect(getScoreColor(0)).toContain("green")
+      expect(getScoreColor(0)).toBe(getScoreColor(3))
     })
   })
 

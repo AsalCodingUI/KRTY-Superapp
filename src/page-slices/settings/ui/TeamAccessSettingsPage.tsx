@@ -472,7 +472,7 @@ export default function TeamAccessSettingsPage({
               return (
                 <div
                   key={profile.id}
-                  className="border-border flex flex-col gap-3 rounded-xl border px-4 py-3 md:flex-row md:items-center md:justify-between"
+                  className="bg-foreground/[0.03] flex flex-col gap-3 rounded-xl px-4 py-3 md:flex-row md:items-center md:justify-between"
                 >
                   <div className="flex items-start gap-3">
                     <Avatar>

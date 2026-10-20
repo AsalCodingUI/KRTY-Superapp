@@ -14,10 +14,7 @@ export default function LeaveLoading() {
       {/* Stats Cards Skeleton */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {[1, 2, 3].map((i) => (
-          <div
-            key={i}
-            className="border-border space-y-3 rounded-lg border p-6"
-          >
+          <div key={i} className="space-y-3 rounded-lg">
             <Skeleton className="h-4 w-24" />
             <Skeleton className="h-8 w-16" />
           </div>
@@ -25,7 +22,7 @@ export default function LeaveLoading() {
       </div>
 
       {/* Table Skeleton */}
-      <div className="border-border overflow-hidden rounded-lg border">
+      <div className="overflow-hidden rounded-lg">
         {/* Table Header */}
         <div className="border-border flex gap-4 border-b p-4">
           {[1, 2, 3, 4, 5].map((i) => (

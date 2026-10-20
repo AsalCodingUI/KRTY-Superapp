@@ -111,7 +111,7 @@ export function EmployeeDashboard({
       <div className="flex flex-col">
         <div className="space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <h1 className="text-foreground text-lg font-semibold">
+            <h1 className="text-foreground text-2xl font-medium tracking-tight tabular-nums">
               Welcome back, {firstName}
             </h1>
             <div className="flex items-center gap-2">
@@ -138,50 +138,40 @@ export function EmployeeDashboard({
             </div>
           </div>
 
-          <section className="bg-border grid grid-cols-2 gap-px overflow-hidden rounded-xl border lg:grid-cols-5">
-            <div className="bg-background md:bg-sidebar flex h-full flex-col gap-1 px-4 py-3 [&:last-child:nth-child(odd)]:col-span-2 lg:[&:last-child:nth-child(odd)]:col-span-1">
-              <p className="text-muted-foreground text-sm font-medium">
-                Leave Balance
-              </p>
-              <p className="text-foreground text-lg font-semibold">
+          <section className="grid grid-cols-2 gap-x-8 gap-y-4 py-2 lg:grid-cols-5">
+            <div className="flex min-w-0 flex-col gap-1">
+              <p className="text-muted-foreground text-sm">Leave Balance</p>
+              <p className="text-foreground text-2xl font-medium tracking-tight tabular-nums">
                 {data.leaveBalance} days
               </p>
             </div>
-            <div className="bg-background md:bg-sidebar flex h-full flex-col gap-1 px-4 py-3 [&:last-child:nth-child(odd)]:col-span-2 lg:[&:last-child:nth-child(odd)]:col-span-1">
-              <p className="text-muted-foreground text-sm font-medium">
-                On Time SLA
-              </p>
-              <p className="text-foreground text-lg font-semibold">
+            <div className="flex min-w-0 flex-col gap-1">
+              <p className="text-muted-foreground text-sm">On Time SLA</p>
+              <p className="text-foreground text-2xl font-medium tracking-tight tabular-nums">
                 {data.performanceOverview.slaScore !== null
                   ? `${Number(data.performanceOverview.slaScore).toFixed(1)}%`
                   : "0.0%"}
               </p>
             </div>
-            <div className="bg-background md:bg-sidebar flex h-full flex-col gap-1 px-4 py-3 [&:last-child:nth-child(odd)]:col-span-2 lg:[&:last-child:nth-child(odd)]:col-span-1">
-              <p className="text-muted-foreground text-sm font-medium">
-                360 Review
-              </p>
-              <p className="text-foreground text-lg font-semibold">
+            <div className="flex min-w-0 flex-col gap-1">
+              <p className="text-muted-foreground text-sm">360 Review</p>
+              <p className="text-foreground text-2xl font-medium tracking-tight tabular-nums">
                 {data.performanceOverview.reviewScore !== null
                   ? `${Number(data.performanceOverview.reviewScore).toFixed(1)}%`
                   : "0.0%"}
               </p>
             </div>
-            <div className="bg-background md:bg-sidebar flex h-full flex-col gap-1 px-4 py-3 [&:last-child:nth-child(odd)]:col-span-2 lg:[&:last-child:nth-child(odd)]:col-span-1">
-              <p className="text-muted-foreground text-sm font-medium">
-                Work Quality
-              </p>
-              <p className="text-foreground text-lg font-semibold">
+            <div className="flex min-w-0 flex-col gap-1">
+              <p className="text-muted-foreground text-sm">Work Quality</p>
+              <p className="text-foreground text-2xl font-medium tracking-tight tabular-nums">
                 {data.performanceOverview.workQualityScore !== null
                   ? `${Number(data.performanceOverview.workQualityScore).toFixed(1)}%`
                   : "0.0%"}
               </p>
             </div>
-            <div className="bg-background md:bg-sidebar flex h-full flex-col gap-1 px-4 py-3 [&:last-child:nth-child(odd)]:col-span-2 lg:[&:last-child:nth-child(odd)]:col-span-1">
-              <p className="text-muted-foreground text-sm font-medium">
-                Quarter
-              </p>
-              <p className="text-foreground text-lg font-semibold">
+            <div className="flex min-w-0 flex-col gap-1">
+              <p className="text-muted-foreground text-sm">Quarter</p>
+              <p className="text-foreground text-2xl font-medium tracking-tight tabular-nums">
                 {data.performanceOverview.quarter}
               </p>
             </div>
@@ -189,7 +179,7 @@ export function EmployeeDashboard({
 
           <section className="grid grid-cols-1 gap-5 lg:grid-cols-2">
             <div className="space-y-2">
-              <p className="text-muted-foreground text-sm font-medium">
+              <p className="text-muted-foreground text-sm">
                 Leave & Attendance
               </p>
               <EmployeeAttendanceWidget
@@ -201,9 +191,7 @@ export function EmployeeDashboard({
             </div>
 
             <div className="space-y-2">
-              <p className="text-muted-foreground text-sm font-medium">
-                Performance
-              </p>
+              <p className="text-muted-foreground text-sm">Performance</p>
               <EmployeePerformanceCards
                 slaScore={data.performanceOverview.slaScore}
                 reviewScore={data.performanceOverview.reviewScore}
@@ -217,9 +205,7 @@ export function EmployeeDashboard({
           </section>
 
           <section className="space-y-2">
-            <p className="text-muted-foreground text-sm font-medium">
-              Active Projects
-            </p>
+            <p className="text-muted-foreground text-sm">Active Projects</p>
             <EmployeeProjectsWidget
               projects={data.activeProjects}
               userId={data.user.id}

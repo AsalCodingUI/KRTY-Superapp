@@ -207,28 +207,22 @@ function CalendarContent({
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col">
-        <div className="bg-border my-3 grid grid-cols-2 gap-px overflow-hidden rounded-xl border sm:my-2 xl:grid-cols-3">
-          <div className="bg-background md:bg-sidebar flex h-full flex-col gap-1 px-4 py-3 [&:last-child:nth-child(odd)]:col-span-2 lg:[&:last-child:nth-child(odd)]:col-span-1">
-            <p className="text-muted-foreground text-sm font-medium">
-              Tanggal Saat Ini
-            </p>
-            <p className="text-foreground text-lg font-semibold">
+        <div className="my-3 grid grid-cols-2 gap-x-8 gap-y-4 py-2 sm:my-2 xl:grid-cols-3">
+          <div className="flex min-w-0 flex-col gap-1">
+            <p className="text-muted-foreground text-sm">Tanggal Saat Ini</p>
+            <p className="text-foreground text-2xl font-medium tracking-tight tabular-nums">
               {format(currentDate, "EEEE, dd MMM", { locale: id })}
             </p>
           </div>
-          <div className="bg-background md:bg-sidebar flex h-full flex-col gap-1 px-4 py-3 [&:last-child:nth-child(odd)]:col-span-2 lg:[&:last-child:nth-child(odd)]:col-span-1">
-            <p className="text-muted-foreground text-sm font-medium">
-              Rapat Hari Ini
-            </p>
-            <p className="text-foreground text-lg font-semibold">
+          <div className="flex min-w-0 flex-col gap-1">
+            <p className="text-muted-foreground text-sm">Rapat Hari Ini</p>
+            <p className="text-foreground text-2xl font-medium tracking-tight tabular-nums">
               {meetingCount}
             </p>
           </div>
-          <div className="bg-background md:bg-sidebar flex h-full flex-col gap-1 px-4 py-3 [&:last-child:nth-child(odd)]:col-span-2 lg:[&:last-child:nth-child(odd)]:col-span-1">
-            <p className="text-muted-foreground text-sm font-medium">
-              Jadwal Minggu Ini
-            </p>
-            <p className="text-foreground text-lg font-semibold">
+          <div className="flex min-w-0 flex-col gap-1">
+            <p className="text-muted-foreground text-sm">Jadwal Minggu Ini</p>
+            <p className="text-foreground text-2xl font-medium tracking-tight tabular-nums">
               {upcomingThisWeek}
             </p>
           </div>

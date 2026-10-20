@@ -449,16 +449,11 @@ export function PerformancePage() {
       <div className="flex flex-col">
         {isStakeholder ? (
           <>
-            <div className="bg-border my-2 grid grid-cols-1 gap-px overflow-hidden rounded-xl border sm:grid-cols-2 lg:grid-cols-5">
+            <div className="my-2 grid grid-cols-1 gap-x-8 gap-y-4 py-2 sm:grid-cols-2 lg:grid-cols-5">
               {adminStats.map((item) => (
-                <div
-                  key={item.label}
-                  className="bg-background md:bg-sidebar flex h-full flex-col gap-1 px-4 py-3 [&:last-child:nth-child(odd)]:col-span-2 lg:[&:last-child:nth-child(odd)]:col-span-1"
-                >
-                  <p className="text-muted-foreground text-sm font-medium">
-                    {item.label}
-                  </p>
-                  <p className="text-foreground text-lg font-semibold">
+                <div key={item.label} className="flex min-w-0 flex-col gap-1">
+                  <p className="text-muted-foreground text-sm">{item.label}</p>
+                  <p className="text-foreground text-2xl font-medium tracking-tight tabular-nums">
                     {item.value}
                   </p>
                 </div>
@@ -582,19 +577,16 @@ export function PerformancePage() {
           </>
         ) : (
           <>
-            <div className="bg-border my-2 grid grid-cols-1 gap-px overflow-hidden rounded-xl border sm:grid-cols-2 lg:grid-cols-5">
+            <div className="my-2 grid grid-cols-1 gap-x-8 gap-y-4 py-2 sm:grid-cols-2 lg:grid-cols-5">
               {employeeStats.map((item) => {
                 const badge = getRatingBadge(item.score)
                 return (
-                  <div
-                    key={item.key}
-                    className="bg-background md:bg-sidebar flex h-full flex-col gap-1 px-4 py-3 [&:last-child:nth-child(odd)]:col-span-2 lg:[&:last-child:nth-child(odd)]:col-span-1"
-                  >
-                    <p className="text-muted-foreground text-sm font-medium">
+                  <div key={item.key} className="flex min-w-0 flex-col gap-1">
+                    <p className="text-muted-foreground text-sm">
                       {item.label}
                     </p>
                     <div className="flex items-center gap-2">
-                      <p className="text-foreground text-lg font-semibold">
+                      <p className="text-foreground text-2xl font-medium tracking-tight tabular-nums">
                         {formatPercent(item.score)}
                       </p>
                       <Badge variant={badge.variant}>{badge.label}</Badge>
@@ -602,13 +594,13 @@ export function PerformancePage() {
                   </div>
                 )
               })}
-              <div className="bg-background md:bg-sidebar flex h-full flex-col gap-1 px-4 py-3 lg:col-span-2 [&:last-child:nth-child(odd)]:col-span-2 lg:[&:last-child:nth-child(odd)]:col-span-1">
-                <p className="text-muted-foreground text-sm font-medium">
+              <div className="flex min-w-0 flex-col gap-1 lg:col-span-2">
+                <p className="text-muted-foreground text-sm">
                   360 Feedback Cycle
                 </p>
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2">
-                    <p className="text-foreground text-lg font-semibold whitespace-nowrap">
+                    <p className="text-foreground text-2xl font-medium tracking-tight whitespace-nowrap tabular-nums">
                       {isCycleActive && activeCycleRange
                         ? activeCycleRange
                         : "No Active"}

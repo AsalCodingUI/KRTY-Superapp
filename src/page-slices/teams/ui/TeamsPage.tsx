@@ -96,7 +96,7 @@ export function TeamsPage({
         </div>
 
         <div className="flex flex-col">
-          <section className="bg-border my-2 grid grid-cols-1 gap-px overflow-hidden rounded-xl border sm:grid-cols-2 lg:grid-cols-5">
+          <section className="my-2 grid grid-cols-1 gap-x-8 gap-y-4 py-2 sm:grid-cols-2 lg:grid-cols-5">
             {[
               { label: "Total Team", value: totalMembers },
               { label: "Designers", value: totalDesigners },
@@ -104,21 +104,16 @@ export function TeamsPage({
               { label: "Project Managers", value: totalPMs },
               { label: "Admin/Stakeholder", value: totalAdmins },
             ].map((item) => (
-              <div
-                key={item.label}
-                className="bg-background md:bg-sidebar flex h-full flex-col gap-1 px-4 py-3 [&:last-child:nth-child(odd)]:col-span-2 lg:[&:last-child:nth-child(odd)]:col-span-1"
-              >
-                <p className="text-muted-foreground text-sm font-medium">
-                  {item.label}
-                </p>
-                <p className="text-foreground text-lg font-semibold">
+              <div key={item.label} className="flex min-w-0 flex-col gap-1">
+                <p className="text-muted-foreground text-sm">{item.label}</p>
+                <p className="text-foreground text-2xl font-medium tracking-tight tabular-nums">
                   {item.value}
                 </p>
               </div>
             ))}
           </section>
 
-          <div className="border-border flex flex-col gap-3 border-b px-5 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <InputGroup className="w-full sm:w-[260px]">
               <InputGroupAddon>
                 <RiSearchLine />
