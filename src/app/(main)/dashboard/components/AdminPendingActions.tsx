@@ -77,7 +77,7 @@ export function AdminPendingActions({
                     <div className="flex items-center gap-3">
                       <Avatar className="size-7">
                         <AvatarImage src={review.employee_avatar || undefined} />
-                        <AvatarFallback className="text-label-xs">
+                        <AvatarFallback className="text-[10px]">
                           {review.employee_name?.[0] || "?"}
                         </AvatarFallback>
                       </Avatar>
@@ -149,7 +149,7 @@ export function AdminPendingActions({
                         <div className="flex items-center gap-3">
                           <Avatar className="size-7">
                             <AvatarImage src={leave.user_avatar || undefined} />
-                            <AvatarFallback className="text-label-xs">
+                            <AvatarFallback className="text-[10px]">
                               {leave.user_name?.[0] || "?"}
                             </AvatarFallback>
                           </Avatar>

@@ -60,7 +60,7 @@ export function AdminEmployeeSpotlight({
                   <div className="hover:bg-muted flex items-center gap-3 px-3 py-2 transition-colors">
                     <Avatar className="size-7">
                       <AvatarImage src={employee.employee_avatar || undefined} />
-                      <AvatarFallback className="text-label-xs">
+                      <AvatarFallback className="text-[10px]">
                         {employee.employee_name?.[0] || "?"}
                       </AvatarFallback>
                     </Avatar>
@@ -116,7 +116,7 @@ export function AdminEmployeeSpotlight({
                   <div className="hover:bg-muted flex items-center gap-3 px-3 py-2 transition-colors">
                     <Avatar className="size-7">
                       <AvatarImage src={employee.employee_avatar || undefined} />
-                      <AvatarFallback className="text-label-xs">
+                      <AvatarFallback className="text-[10px]">
                         {employee.employee_name?.[0] || "?"}
                       </AvatarFallback>
                     </Avatar>

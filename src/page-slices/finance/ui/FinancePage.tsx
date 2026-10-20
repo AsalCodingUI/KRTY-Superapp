@@ -366,7 +366,7 @@ export function FinancePage() {
           )}
         </div>
 
-        <div className="border-border border-b px-5 pt-2">
+        <div className="border-border border-b pt-2">
           <div className="pb-2 xl:hidden">
             <Select
               value={activeTab}
@@ -399,7 +399,7 @@ export function FinancePage() {
           </div>
         </div>
 
-        <div className="p-5">
+        <div className="py-4">
           {isMounted("invoices") && (
             <div
               className={

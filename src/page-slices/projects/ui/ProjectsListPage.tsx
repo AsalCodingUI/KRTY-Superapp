@@ -170,7 +170,7 @@ function ProjectsTableContent({ projects }: { projects: ProjectListItem[] }) {
                 {teamMembers.slice(0, 3).map((member) => (
                   <Avatar key={member.id} className="size-7">
                     <AvatarImage src={member.image} alt={member.name} />
-                    <AvatarFallback className="text-label-xs">
+                    <AvatarFallback className="text-[10px]">
                       {member.name
                         .split(" ")
                         .map((part) => part[0])
@@ -387,7 +387,7 @@ export function ProjectsListPage() {
       </div>
 
       <div className="flex flex-col">
-        <section className="px-5 py-2">
+        <section className="py-2">
           {isProjectsLoading || isSLAsLoading || isCalculationsLoading ? (
             <div className="flex items-center justify-center py-8">
               <Spinner className="size-8" />
@@ -397,7 +397,7 @@ export function ProjectsListPage() {
           )}
         </section>
 
-        <div className="border-border border-b px-5 pt-2">
+        <div className="border-border border-b pt-2">
           <div className="pb-2 xl:hidden">
             <Select
               value={activeTab}
@@ -437,7 +437,7 @@ export function ProjectsListPage() {
           </div>
         </div>
 
-        <div className="p-5">
+        <div className="py-4">
           {isMounted("projects") && (
             <div
               className={

@@ -96,7 +96,7 @@ export function TeamsPage({
         </div>
 
         <div className="flex flex-col">
-          <section className="grid grid-cols-1 gap-3 px-5 py-2 sm:grid-cols-2 lg:grid-cols-5">
+          <section className="grid grid-cols-1 gap-3 py-2 sm:grid-cols-2 lg:grid-cols-5">
             {[
               { label: "Total Team", value: totalMembers },
               { label: "Designers", value: totalDesigners },
@@ -143,7 +143,7 @@ export function TeamsPage({
             )}
           </div>
 
-          <div className="p-5">
+          <div className="py-4">
             <DataTable
               data={filteredData}
               columns={createTeamColumns({ canSelect: canManage })}

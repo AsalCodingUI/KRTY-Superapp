@@ -862,7 +862,7 @@ function AttendanceOverviewPanel({
         ))}
       </div>
 
-      <div className="border-border space-y-3 border-b px-5 pt-2">
+      <div className="border-border space-y-3 border-b pt-2">
         <div className="xl:hidden">
           {isClient ? (
             <Select
@@ -916,7 +916,7 @@ function AttendanceOverviewPanel({
         </div>
       </div>
 
-      <div className="p-5">
+      <div className="py-4">
         {activeTab === "approval" && (
           <div className="block space-y-5">{approvalContent}</div>
         )}

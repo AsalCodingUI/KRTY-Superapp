@@ -152,7 +152,7 @@ function ProjectOverviewContent({ project }: { project: ProjectDetail }) {
               <div key={member.id} className="flex items-center gap-3">
                 <Avatar className="size-7">
                   <AvatarImage src={member.image} alt={member.name} />
-                  <AvatarFallback className="text-label-xs">
+                  <AvatarFallback className="text-[10px]">
                     {member.name
                       .split(" ")
                       .map((part) => part[0])
@@ -632,7 +632,7 @@ export function ProjectDetailPage({ project }: { project: ProjectDetail }) {
           </div>
         </div>
 
-        <div className="border-border border-b px-5 pt-2">
+        <div className="border-border border-b pt-2">
           <div className="pb-2 xl:hidden">
             <Select
               value={activeTab}
@@ -679,7 +679,7 @@ export function ProjectDetailPage({ project }: { project: ProjectDetail }) {
           </div>
         </div>
 
-        <div className="p-5">
+        <div className="py-4">
           {isMounted("overview") && (
             <div
               className={

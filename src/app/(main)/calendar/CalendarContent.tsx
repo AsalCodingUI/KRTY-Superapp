@@ -232,7 +232,7 @@ function CalendarContent({
           </div>
         </div>
 
-        <div className="border-border border-b px-4 py-3 sm:py-2 xl:px-5">
+        <div className="border-border border-b py-3 sm:py-2">
           <CalendarToolbar
             onAddEvent={() => setDialogOpen(true)}
             showAddEvent={isStakeholder}
@@ -240,7 +240,7 @@ function CalendarContent({
           />
         </div>
 
-        <div className="flex min-h-0 w-full flex-1 overflow-hidden p-3 sm:p-5">
+        <div className="flex min-h-0 w-full flex-1 overflow-hidden py-3 sm:py-4">
           {loading || googleLoading ? (
             <CalendarSkeleton />
           ) : allEvents.length === 0 ? (

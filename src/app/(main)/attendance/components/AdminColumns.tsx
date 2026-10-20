@@ -39,7 +39,7 @@ export const adminAttendanceColumns = (
               src={row.original.profiles?.avatar_url || undefined}
               alt={fullName}
             />
-            <AvatarFallback className="text-label-xs">{initials}</AvatarFallback>
+            <AvatarFallback className="text-[10px]">{initials}</AvatarFallback>
           </Avatar>
           <span
             className="text-foreground font-medium whitespace-nowrap"

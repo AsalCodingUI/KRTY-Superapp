@@ -302,7 +302,7 @@ export default function PermissionSettingsPage({
                       src={user.avatar_url || undefined}
                       alt={user.full_name || user.email || "User"}
                     />
-                    <AvatarFallback className="text-label-xs">
+                    <AvatarFallback className="text-[10px]">
                       {initials}
                     </AvatarFallback>
                   </Avatar>

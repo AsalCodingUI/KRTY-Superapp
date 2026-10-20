@@ -247,7 +247,7 @@ export default function PerformanceClientPage() {
         </div>
 
         {/* TAB CONTENT */}
-        <div className="px-4 py-5 xl:px-5">
+        <div className="py-4">
           {isMounted("overview") && (
             <div
               className={

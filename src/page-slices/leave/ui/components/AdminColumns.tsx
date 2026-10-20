@@ -96,7 +96,7 @@ export const adminColumns = (
                 src={row.original.profiles?.avatar_url || undefined}
                 alt={name}
               />
-              <AvatarFallback className="text-label-xs">
+              <AvatarFallback className="text-[10px]">
                 {initials}
               </AvatarFallback>
             </Avatar>

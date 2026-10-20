@@ -23,7 +23,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "text-background [--btn-bg:var(--foreground)] hover:[--btn-bg:color-mix(in_oklab,var(--foreground)_90%,var(--background))] active:[--btn-bg:color-mix(in_oklab,var(--foreground)_80%,var(--background))]",
+          "text-primary-foreground [--btn-bg:var(--primary)] hover:[--btn-bg:color-mix(in_oklab,var(--primary)_88%,black)] active:[--btn-bg:color-mix(in_oklab,var(--primary)_78%,black)]",
         secondary:
           "text-foreground [--btn-bg:var(--tint)] hover:[--btn-bg:var(--tint-hover)] active:[--btn-bg:var(--tint)] aria-expanded:[--btn-bg:var(--tint-hover)]",
         outline:

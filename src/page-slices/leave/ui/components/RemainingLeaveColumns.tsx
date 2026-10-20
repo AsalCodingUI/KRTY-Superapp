@@ -50,7 +50,7 @@ export const remainingLeaveColumns = [
               src={avatarUrl}
               alt={name}
             />
-            <AvatarFallback className="text-label-xs">
+            <AvatarFallback className="text-[10px]">
               {initials}
             </AvatarFallback>
           </Avatar>

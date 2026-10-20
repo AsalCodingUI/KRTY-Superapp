@@ -449,7 +449,7 @@ export function PerformancePage() {
       <div className="flex flex-col">
         {isStakeholder ? (
           <>
-            <div className="grid grid-cols-1 gap-3 px-5 py-2 sm:grid-cols-2 lg:grid-cols-5">
+            <div className="grid grid-cols-1 gap-3 py-2 sm:grid-cols-2 lg:grid-cols-5">
               {adminStats.map((item) => (
                 <div
                   key={item.label}
@@ -465,7 +465,7 @@ export function PerformancePage() {
               ))}
             </div>
 
-            <div className="border-border border-b px-5 pt-2">
+            <div className="border-border border-b pt-2">
               <div className="space-y-3 pb-3 xl:hidden">
                 <Select
                   value={activeTab}
@@ -582,7 +582,7 @@ export function PerformancePage() {
           </>
         ) : (
           <>
-            <div className="grid grid-cols-1 gap-3 px-5 py-2 sm:grid-cols-2 lg:grid-cols-5">
+            <div className="grid grid-cols-1 gap-3 py-2 sm:grid-cols-2 lg:grid-cols-5">
               {employeeStats.map((item) => {
                 const badge = getRatingBadge(item.score)
                 return (
@@ -629,7 +629,7 @@ export function PerformancePage() {
               </div>
             </div>
 
-            <div className="border-border border-b px-5 pt-2">
+            <div className="border-border border-b pt-2">
               <div className="space-y-3 pb-3 xl:hidden">
                 <Select
                   value={activeTab}
@@ -733,7 +733,7 @@ export function PerformancePage() {
           </>
         )}
 
-        <div className="p-5">
+        <div className="py-4">
           {isMounted("kpi") && (
             <div
               className={

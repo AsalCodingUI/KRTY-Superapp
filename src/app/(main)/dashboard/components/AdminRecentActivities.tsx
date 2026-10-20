@@ -55,7 +55,7 @@ export function AdminRecentActivities({
                 <div className="flex items-start gap-2">
                   <Avatar className="size-5">
                     <AvatarImage src={activity.user_avatar || undefined} />
-                    <AvatarFallback className="text-label-xs">
+                    <AvatarFallback className="text-[10px]">
                       {activity.user_name?.[0] || "?"}
                     </AvatarFallback>
                   </Avatar>

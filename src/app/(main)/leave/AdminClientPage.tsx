@@ -152,7 +152,7 @@ export default function LeaveAdminPage({
           </div>
         </div>
 
-        <div className="px-4 py-5 xl:px-5">
+        <div className="py-4">
           {mountedTabs.has("approval") && (
             <div
               className={

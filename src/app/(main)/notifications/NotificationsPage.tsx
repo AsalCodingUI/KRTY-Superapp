@@ -59,7 +59,7 @@ export function NotificationsPage() {
         </div>
 
         <div
-          className={cx("p-3 sm:p-5", unreadCount > 0 ? "pb-24 sm:pb-5" : "")}
+          className={cx("py-3 sm:py-4", unreadCount > 0 ? "pb-24 sm:pb-5" : "")}
         >
           {filteredNotifications.length === 0 ? (
             <EmptyState

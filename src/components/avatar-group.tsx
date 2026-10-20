@@ -32,7 +32,7 @@ const AvatarGroup = React.forwardRef<HTMLDivElement, AvatarGroupProps>(
     return (
       <AvatarGroupPrimitive
         ref={ref}
-        className={cn("flex items-center -space-x-2", className)}
+        className={cn("flex items-center -space-x-1 *:data-[slot=avatar]:ring-2 *:data-[slot=avatar]:ring-card", className)}
         {...props}
       >
         {children}

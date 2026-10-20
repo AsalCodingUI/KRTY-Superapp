@@ -24,7 +24,7 @@ export default function FinanceLoading() {
           </div>
         </div>
 
-        <div className="border-border border-b px-5 pt-2">
+        <div className="border-border border-b pt-2">
           <Skeleton className="mb-2 h-10 w-48" />
         </div>
 

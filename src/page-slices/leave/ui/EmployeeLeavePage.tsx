@@ -504,7 +504,7 @@ export function EmployeeLeavePage({
             </div>
           </div>
 
-          <div className="border-border border-b px-5 pt-2">
+          <div className="border-border border-b pt-2">
             <div className="space-y-3 pb-2 xl:hidden">
               {hasClientMounted ? (
                 <Select
@@ -580,7 +580,7 @@ export function EmployeeLeavePage({
             </div>
           </div>
 
-          <div className="p-5">
+          <div className="py-4">
             {isMounted("attendance") && (
               <div
                 className={

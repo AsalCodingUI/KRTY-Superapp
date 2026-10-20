@@ -12,7 +12,7 @@ export function PayrollPage() {
       </div>
 
       <div className="flex flex-col">
-        <div className="p-5">
+        <div className="py-4">
           <EmptyState
             title="Payroll data unavailable"
             description="Payroll records will appear here."

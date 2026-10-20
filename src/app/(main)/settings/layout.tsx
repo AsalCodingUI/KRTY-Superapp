@@ -104,7 +104,7 @@ export default function Layout({
           </div>
         </div>
 
-        <div className="px-4 py-5 xl:px-5">{children}</div>
+        <div className="py-4">{children}</div>
       </div>
     </div>
   )
