@@ -3,7 +3,7 @@
 import { createClient } from "@/shared/api/supabase/client"
 import { canManageByRole } from "@/shared/lib/roles"
 import { Database } from "@/shared/types/database.types"
-import QueryProvider from "@/shared/ui/providers/QueryProvider"
+import QueryProvider from "@/components/providers/query-provider"
 import {
   CalendarProvider,
   getAllEventTypes,
