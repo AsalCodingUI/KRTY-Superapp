@@ -166,7 +166,7 @@ export function DataTable<TData>({
       )}
 
       <div
-        className="relative overflow-hidden"
+        className="relative"
         role="region"
         aria-label="Data table"
         tabIndex={0}

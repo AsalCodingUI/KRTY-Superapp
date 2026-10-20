@@ -362,19 +362,13 @@ export function EmployeeLeavePage({
           </DialogContent>
         </Dialog>
 
-        <div className="flex items-center gap-2 pb-4">
-          <h1 className="text-foreground truncate text-2xl font-semibold tracking-tight">
-            Leave & Attendance Center
-          </h1>
-        </div>
-
         <div className="flex flex-col">
           <div className="my-2 grid grid-cols-2 gap-x-8 gap-y-4 py-2 lg:grid-cols-5">
             <div className="col-span-2 flex min-w-0 flex-col gap-1">
               <p className="text-muted-foreground text-sm">Current Time</p>
               <div className="flex flex-wrap items-center justify-between gap-4">
                 <div className="flex flex-wrap items-baseline gap-2">
-                  <p className="text-foreground text-xl font-medium tabular-nums">
+                  <p className="text-foreground text-lg font-medium tabular-nums">
                     {currentTime ? format(currentTime, "HH:mm:ss") : "--:--:--"}
                   </p>
                   <p className="text-muted-foreground text-sm">
@@ -473,21 +467,21 @@ export function EmployeeLeavePage({
               <p className="text-muted-foreground text-sm">
                 Annual Leave Balance
               </p>
-              <p className="text-foreground text-xl font-medium tabular-nums">
+              <p className="text-foreground text-lg font-medium tabular-nums">
                 {leaveStats.annualRemaining}/{leaveStats.annualTotal} Days
               </p>
             </div>
 
             <div className="flex min-w-0 flex-col gap-1">
               <p className="text-muted-foreground text-sm">Sick Leave</p>
-              <p className="text-foreground text-xl font-medium tabular-nums">
+              <p className="text-foreground text-lg font-medium tabular-nums">
                 {leaveStats.sickDays}
               </p>
             </div>
 
             <div className="flex min-w-0 flex-col gap-1">
               <p className="text-muted-foreground text-sm">Work From Home</p>
-              <p className="text-foreground text-xl font-medium tabular-nums">
+              <p className="text-foreground text-lg font-medium tabular-nums">
                 {leaveStats.wfhDays}
               </p>
             </div>
@@ -502,7 +496,10 @@ export function EmployeeLeavePage({
                     setActiveTab(value as "attendance" | "leave")
                   }
                 >
-                  <SelectTrigger className="w-full">
+                  <SelectTrigger
+                    id="leave-employee-tab-select"
+                    className="w-full"
+                  >
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>

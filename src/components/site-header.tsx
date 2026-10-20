@@ -41,7 +41,7 @@ export function SiteHeader() {
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbPage>{title}</BreadcrumbPage>
+              <BreadcrumbPage className="font-medium">{title}</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>

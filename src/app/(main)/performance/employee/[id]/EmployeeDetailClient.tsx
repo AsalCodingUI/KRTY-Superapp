@@ -171,7 +171,7 @@ export function EmployeeDetailClient({
               </AvatarFallback>
             </Avatar>
             <div>
-              <h1 className="text-foreground text-2xl font-semibold tracking-tight">
+              <h1 className="text-foreground text-lg font-semibold">
                 {employee.full_name}
               </h1>
               <p className="text-muted-foreground text-sm font-medium">

@@ -176,7 +176,7 @@ export function AttendanceStats({
               Current Time
             </dt>
             <dd className="mt-2 flex items-baseline gap-2">
-              <span className="text-foreground text-xl font-medium tabular-nums">
+              <span className="text-foreground text-lg font-medium tabular-nums">
                 {currentTime ? format(currentTime, "HH:mm:ss") : "--:--:--"}
               </span>
               <span className="text-muted-foreground text-sm">

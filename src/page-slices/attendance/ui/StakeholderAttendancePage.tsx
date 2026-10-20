@@ -47,7 +47,6 @@ interface StakeholderAttendancePageProps {
 
 export function StakeholderAttendancePage({
   logs,
-  showHeader = true,
 }: StakeholderAttendancePageProps) {
   const supabase = createClient()
   const router = useRouter()
@@ -212,14 +211,6 @@ export function StakeholderAttendancePage({
   return (
     <>
       <div className="flex flex-col">
-        {showHeader && (
-          <div className="flex items-center gap-2 pb-4">
-            <h1 className="text-foreground truncate text-2xl font-semibold tracking-tight">
-              Attendance Overview
-            </h1>
-          </div>
-        )}
-
         <div className="flex flex-col">
           <div className="space-y-4 p-5">
             {/* Summary Cards (Fokus Hari Ini) */}

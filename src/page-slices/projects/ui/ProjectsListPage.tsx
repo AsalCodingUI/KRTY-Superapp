@@ -97,7 +97,7 @@ function ProjectsStats({ projectStats }: { projectStats: ProjectStats }) {
       {stats.map((stat) => (
         <div key={stat.label} className="flex min-w-0 flex-col gap-1">
           <dt className="text-muted-foreground text-sm">{stat.label}</dt>
-          <dd className="text-foreground text-xl font-medium tabular-nums">
+          <dd className="text-foreground text-lg font-medium tabular-nums">
             {stat.value}
           </dd>
         </div>
@@ -379,12 +379,6 @@ export function ProjectsListPage() {
 
   return (
     <div className="flex flex-col">
-      <div className="flex items-center gap-2 pb-4">
-        <h1 className="text-foreground truncate text-2xl font-semibold tracking-tight">
-          Projects
-        </h1>
-      </div>
-
       <div className="flex flex-col">
         <section className="py-2">
           {isProjectsLoading || isSLAsLoading || isCalculationsLoading ? (
@@ -402,7 +396,7 @@ export function ProjectsListPage() {
               value={activeTab}
               onValueChange={(value) => setActiveTab(value as TabType)}
             >
-              <SelectTrigger className="w-full">
+              <SelectTrigger id="projects-tab-select" className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

@@ -59,12 +59,6 @@ export default function Layout({
 
   return (
     <div className="flex flex-col">
-      <div className="flex items-center gap-2 pb-4">
-        <h1 className="text-foreground truncate text-2xl font-semibold tracking-tight">
-          Settings
-        </h1>
-      </div>
-
       <div className="flex flex-col">
         <div className="border-border border-b">
           <div className="pb-2 xl:hidden">
@@ -74,7 +68,7 @@ export default function Layout({
                 if (value !== null && value !== pathname) router.push(value)
               }}
             >
-              <SelectTrigger className="w-full">
+              <SelectTrigger id="settings-tab-select" className="w-full">
                 <SelectValue placeholder="Select section" />
               </SelectTrigger>
               <SelectContent>

@@ -116,7 +116,7 @@ const TabNavigationLink = React.forwardRef<
                 "text-muted-foreground relative inline-flex items-center justify-center pb-1.5 whitespace-nowrap transition-colors",
                 "group-hover:text-foreground group-data-[active]:text-foreground",
                 // active underline (shadcn tabs "line" style)
-                "after:bg-primary after:absolute after:inset-x-0 after:-bottom-px after:h-0.5 after:opacity-0 after:transition-opacity group-data-[active]:after:opacity-100",
+                "after:bg-foreground after:absolute after:inset-x-0 after:-bottom-px after:h-0.5 after:opacity-0 after:transition-opacity group-data-[active]:after:opacity-100",
                 disabled && "text-muted-foreground/50 pointer-events-none",
                 className,
               )}

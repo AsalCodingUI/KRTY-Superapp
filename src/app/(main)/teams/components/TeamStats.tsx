@@ -69,7 +69,7 @@ export function TeamStats({ data }: TeamStatsProps) {
           <dt className="text-muted-foreground text-sm font-medium">
             Total Team Members
           </dt>
-          <dd className="text-foreground mt-1 text-xl font-medium tabular-nums">
+          <dd className="text-foreground mt-1 text-lg font-medium tabular-nums">
             {totalMembers}
           </dd>
 

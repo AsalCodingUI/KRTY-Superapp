@@ -440,12 +440,6 @@ export function PerformancePage() {
 
   return (
     <div className="flex flex-col">
-      <div className="flex items-center gap-2 pb-4">
-        <h1 className="text-foreground truncate text-2xl font-semibold tracking-tight">
-          Individual Performance
-        </h1>
-      </div>
-
       <div className="flex flex-col">
         {isStakeholder ? (
           <>
@@ -453,7 +447,7 @@ export function PerformancePage() {
               {adminStats.map((item) => (
                 <div key={item.label} className="flex min-w-0 flex-col gap-1">
                   <p className="text-muted-foreground text-sm">{item.label}</p>
-                  <p className="text-foreground text-xl font-medium tabular-nums">
+                  <p className="text-foreground text-lg font-medium tabular-nums">
                     {item.value}
                   </p>
                 </div>
@@ -468,7 +462,7 @@ export function PerformancePage() {
                     value !== null && setActiveTab(value as TabType)
                   }
                 >
-                  <SelectTrigger className="w-full">
+                  <SelectTrigger id="performance-tab-select" className="w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -586,7 +580,7 @@ export function PerformancePage() {
                       {item.label}
                     </p>
                     <div className="flex items-center gap-2">
-                      <p className="text-foreground text-xl font-medium tabular-nums">
+                      <p className="text-foreground text-lg font-medium tabular-nums">
                         {formatPercent(item.score)}
                       </p>
                       <Badge variant={badge.variant}>{badge.label}</Badge>
@@ -628,7 +622,10 @@ export function PerformancePage() {
                     value !== null && setActiveTab(value as TabType)
                   }
                 >
-                  <SelectTrigger className="w-full">
+                  <SelectTrigger
+                    id="performance-tab-select-2"
+                    className="w-full"
+                  >
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>

@@ -250,12 +250,6 @@ export default function SLAContainer({
 
   return (
     <div className="flex flex-col">
-      <div className="flex items-center gap-2 pb-4 print:hidden">
-        <h1 className="text-foreground truncate text-2xl font-semibold tracking-tight">
-          {slaId ? "Edit SLA" : "Create SLA"}
-        </h1>
-      </div>
-
       <div className="flex h-full w-full flex-col overflow-hidden lg:flex-row print:bg-white">
         {/* --- LEFT PANEL: EDITOR (Scrollable) --- */}
         <div

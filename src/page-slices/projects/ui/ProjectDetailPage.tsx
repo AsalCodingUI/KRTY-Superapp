@@ -632,7 +632,7 @@ export function ProjectDetailPage({ project }: { project: ProjectDetail }) {
               value={activeTab}
               onValueChange={(value) => setActiveTab(value as TabType)}
             >
-              <SelectTrigger className="w-full">
+              <SelectTrigger id="project-detail-tab-select" className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

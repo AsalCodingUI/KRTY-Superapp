@@ -534,12 +534,6 @@ export function StakeholderLeavePage({
   return (
     <>
       <div className="flex flex-col">
-        <div className="flex items-center gap-2 pb-4">
-          <h1 className="text-foreground truncate text-2xl font-semibold tracking-tight">
-            Leave & Attendance Center
-          </h1>
-        </div>
-
         <AttendanceOverviewPanel
           activeTab={activeTab}
           onTabChange={setActiveTab}
@@ -838,7 +832,7 @@ function AttendanceOverviewPanel({
         {stats.map((item) => (
           <div key={item.label} className="flex min-w-0 flex-col gap-1">
             <p className="text-muted-foreground text-sm">{item.label}</p>
-            <p className="text-foreground text-xl font-medium tabular-nums">
+            <p className="text-foreground text-lg font-medium tabular-nums">
               {item.value}
             </p>
           </div>
@@ -854,7 +848,7 @@ function AttendanceOverviewPanel({
                 onTabChange(value as "attendance" | "approval" | "remaining")
               }
             >
-              <SelectTrigger className="w-full">
+              <SelectTrigger id="leave-tab-select" className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

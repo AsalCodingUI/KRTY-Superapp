@@ -164,12 +164,6 @@ export default function SLADashboard({
 
   return (
     <>
-      {!hideTitle && (
-        <h1 className="text-foreground dark:text-foreground text-2xl font-semibold tracking-tight">
-          SLA Generator
-        </h1>
-      )}
-
       <div className={hideTitle ? "mb-4" : "mt-4"}>
         {embedded ? (
           <div className="flex flex-wrap items-center justify-between gap-3">
@@ -213,7 +207,7 @@ export default function SLADashboard({
                   setActiveTab(value as "active" | "archive")
                 }
               >
-                <SelectTrigger className="w-full">
+                <SelectTrigger id="sla-tab-select" className="w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>

@@ -153,12 +153,6 @@ export default function PerformanceClientPage() {
 
   return (
     <div className="flex flex-col">
-      <div className="flex items-center gap-2 pb-4">
-        <h1 className="text-foreground truncate text-2xl font-semibold tracking-tight">
-          Individual Performance
-        </h1>
-      </div>
-
       <div className="flex flex-col">
         <div className="border-border border-b">
           <div className="pb-2 xl:hidden">
@@ -166,7 +160,10 @@ export default function PerformanceClientPage() {
               value={activeTab}
               onValueChange={(value) => setActiveTab(value as TabType)}
             >
-              <SelectTrigger className="w-full">
+              <SelectTrigger
+                id="performance-client-tab-select"
+                className="w-full"
+              >
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

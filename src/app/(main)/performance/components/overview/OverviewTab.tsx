@@ -170,7 +170,7 @@ function EmployeeOverview({
             Overall Score
           </dt>
           <dd className="mt-2 flex items-baseline gap-2">
-            <span className="text-foreground text-xl font-medium tabular-nums">
+            <span className="text-foreground text-lg font-medium tabular-nums">
               {overallScore !== null ? `${overallScore}%` : "—"}
             </span>
           </dd>
@@ -191,7 +191,7 @@ function EmployeeOverview({
             KPI SLA Project
           </dt>
           <dd className="mt-2 flex items-baseline gap-2">
-            <span className="text-foreground text-xl font-medium tabular-nums">
+            <span className="text-foreground text-lg font-medium tabular-nums">
               {slaRow?.result !== null ? `${slaRow?.result}%` : "—"}
             </span>
             {slaRow?.target && (
@@ -211,7 +211,7 @@ function EmployeeOverview({
             360 Feedback Rating
           </dt>
           <dd className="mt-2 flex items-baseline gap-2">
-            <span className="text-foreground text-xl font-medium tabular-nums">
+            <span className="text-foreground text-lg font-medium tabular-nums">
               {reviewRow?.result !== null ? `${reviewRow?.result}%` : "—"}
             </span>
             {reviewRow?.result !== null && (
@@ -278,7 +278,7 @@ function EmployeeOverview({
           </h3>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-foreground text-xl font-medium tabular-nums">
+              <span className="text-foreground text-lg font-medium tabular-nums">
                 {reviewRow?.result !== null ? `${reviewRow?.result}%` : "—"}
               </span>
               {reviewRow?.result != null && (
@@ -477,7 +477,7 @@ function StakeholderOverview({
               <dt className="text-muted-foreground text-sm font-medium">
                 Total Employees
               </dt>
-              <dd className="text-foreground text-xl font-medium tabular-nums">
+              <dd className="text-foreground text-lg font-medium tabular-nums">
                 {stats.totalEmployees}
               </dd>
             </div>
@@ -493,7 +493,7 @@ function StakeholderOverview({
               <dt className="text-muted-foreground text-sm font-medium">
                 Avg. Performance
               </dt>
-              <dd className="text-foreground text-xl font-medium tabular-nums">
+              <dd className="text-foreground text-lg font-medium tabular-nums">
                 {stats.avgPerformance > 0 ? `${stats.avgPerformance}%` : "—"}
               </dd>
             </div>
@@ -509,7 +509,7 @@ function StakeholderOverview({
               <dt className="text-muted-foreground text-sm font-medium">
                 Pending Reviews
               </dt>
-              <dd className="text-foreground text-xl font-medium tabular-nums">
+              <dd className="text-foreground text-lg font-medium tabular-nums">
                 {stats.pendingReviews}
               </dd>
             </div>
@@ -525,7 +525,7 @@ function StakeholderOverview({
               <dt className="text-muted-foreground text-sm font-medium">
                 Active Projects
               </dt>
-              <dd className="text-foreground text-xl font-medium tabular-nums">
+              <dd className="text-foreground text-lg font-medium tabular-nums">
                 {stats.activeProjects}
               </dd>
             </div>

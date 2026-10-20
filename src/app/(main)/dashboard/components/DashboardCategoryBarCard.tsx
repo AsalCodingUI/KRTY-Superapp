@@ -41,7 +41,7 @@ export function CategoryBarCard({
             <Badge variant="secondary">{change}</Badge>
           </div>
           <p className="mt-2 flex items-baseline gap-2">
-            <span className="text-foreground text-xl font-medium tabular-nums">
+            <span className="text-foreground text-lg font-medium tabular-nums">
               {value}
             </span>
             <span className="text-muted-foreground/70 text-sm">

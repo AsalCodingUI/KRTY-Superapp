@@ -108,12 +108,6 @@ export default function LeaveAdminPage({
 
   return (
     <div className="flex flex-col">
-      <div className="flex items-center gap-2 pb-4">
-        <h1 className="text-foreground truncate text-2xl font-semibold tracking-tight">
-          Leave Approval Center
-        </h1>
-      </div>
-
       <div className="flex flex-col">
         <div className="border-border border-b">
           <div className="pb-2 xl:hidden">
@@ -123,7 +117,7 @@ export default function LeaveAdminPage({
                 setActiveTab(value as "approval" | "remaining")
               }
             >
-              <SelectTrigger className="w-full">
+              <SelectTrigger id="leave-admin-tab-select" className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

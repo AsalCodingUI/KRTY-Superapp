@@ -4,7 +4,6 @@ import { useNotifications } from "@/shared/hooks/useNotifications"
 import { cx } from "@/shared/lib/utils"
 import { EmptyState } from "@/components/empty-state"
 import { TabNavigation, TabNavigationLink } from "@/components/tab-navigation"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { RiDeleteBinLine, RiNotification3Line } from "@/shared/ui/lucide-icons"
 import Link from "next/link"
@@ -33,13 +32,6 @@ export function NotificationsPage() {
 
   return (
     <div className="flex flex-col">
-      <div className="flex items-center gap-2 pb-4">
-        <h1 className="text-foreground truncate text-2xl font-semibold tracking-tight">
-          Notifications
-        </h1>
-        {unreadCount > 0 && <Badge variant="info">{unreadCount}</Badge>}
-      </div>
-
       <div className="flex flex-col">
         <div className="border-border border-b">
           <TabNavigation className="border-b-0">

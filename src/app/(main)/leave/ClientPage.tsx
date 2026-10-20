@@ -80,12 +80,6 @@ export default function LeaveClientPage({
 
   return (
     <div className="flex flex-col">
-      <div className="flex items-center gap-2 pb-4">
-        <h1 className="text-foreground truncate text-2xl font-semibold tracking-tight">
-          Leave &amp; Permission
-        </h1>
-      </div>
-
       <div className="flex flex-col">
         <div className="space-y-4 py-5">
           {/* 2. STATS SECTION (Passing 'requests' agar hitungannya Realtime) */}
