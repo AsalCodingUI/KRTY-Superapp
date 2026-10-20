@@ -1,5 +1,6 @@
-import { ToastProvider } from "@/shared/ui"
-import QueryProvider from "@/shared/ui/providers/QueryProvider"
+import { Toaster } from "@/components/ui/sonner"
+import { TooltipProvider } from "@/components/ui/tooltip"
+import QueryProvider from "@/components/providers/query-provider"
 import type { Metadata, Viewport } from "next"
 import { ThemeProvider } from "next-themes"
 import { Inter } from "next/font/google"
@@ -57,9 +58,11 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <QueryProvider>
-            {/* Sidebar dan main wrapper dipindah ke layout (main) */}
-            {children}
-            <ToastProvider />
+            <TooltipProvider>
+              {/* Sidebar dan main wrapper dipindah ke layout (main) */}
+              {children}
+              <Toaster position="top-right" />
+            </TooltipProvider>
           </QueryProvider>
         </ThemeProvider>
       </body>

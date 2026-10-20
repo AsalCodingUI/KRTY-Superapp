@@ -81,7 +81,6 @@ export * from "./misc/QuarterFilter"
 export * from "./misc/Typography"
 
 // Providers
-export * from "./providers/QueryProvider"
 export * from "./providers/ToastProvider"
 
 // Icons
