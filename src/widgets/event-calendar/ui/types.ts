@@ -8,7 +8,7 @@ export type EventColor =
   | "cyan"
   | "neutral"
 
-export type ViewMode = "month" | "week" | "day" | "agenda"
+export type ViewMode = "month" | "week" | "day" | "agenda" | "timeline"
 
 export interface Guest {
   email: string

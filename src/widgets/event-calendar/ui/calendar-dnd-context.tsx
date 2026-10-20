@@ -71,12 +71,13 @@ export function CalendarDndProvider({
     }
 
     // Parse the drop target data
-    // Format: "slot-{date}-{hour}-{minute}"
-    const dropData = over.id as string
+    // Format: "slot-{dayStartEpochMs}-{hour}-{minute}" (see slotId()).
+    const dropData = String(over.id)
+    const match = /^slot-(\d+)-(\d+)-(\d+)$/.exec(dropData)
 
-    if (dropData.startsWith("slot-")) {
-      const [, dateStr, hourStr, minuteStr] = dropData.split("-")
-      const newStart = new Date(dateStr)
+    if (match) {
+      const [, dayMs, hourStr, minuteStr] = match
+      const newStart = new Date(Number(dayMs))
       newStart.setHours(parseInt(hourStr), parseInt(minuteStr), 0, 0)
 
       // Calculate duration

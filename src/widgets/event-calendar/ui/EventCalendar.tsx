@@ -4,7 +4,6 @@ import { useMemo, useState } from "react"
 import { AgendaView } from "./agenda-view"
 import { useCalendarContext } from "./calendar-context"
 import { CalendarDndProvider } from "./calendar-dnd-context"
-import { CalendarSidebar, CalendarSidebarMobileTrigger } from "./calendar-sidebar"
 import { DayView } from "./day-view"
 import { EventDialog } from "./event-dialog"
 import {
@@ -12,6 +11,7 @@ import {
   useEventVisibility,
 } from "./hooks/use-event-visibility"
 import { MonthView } from "./month-view"
+import { TimelineView } from "./timeline-view"
 import type { CalendarEvent, EventCategory } from "./types"
 import { filterEventsByRange, getViewRange } from "./utils"
 import { WeekView } from "./week-view"
@@ -105,10 +105,6 @@ function CalendarContent({
   return (
     <>
       <div className="relative min-h-0 flex-1 overflow-hidden">
-        {/* Mobile filter FAB */}
-        <div className="fixed bottom-[calc(env(safe-area-inset-bottom)+5.25rem)] left-1/2 z-[60] -translate-x-1/2 lg:hidden">
-          <CalendarSidebarMobileTrigger />
-        </div>
         {viewMode === "month" && (
           <div className="h-full overflow-auto">
             <MonthView
@@ -136,6 +132,11 @@ function CalendarContent({
               onSlotClick={handleSlotClick}
               canEdit={canEdit}
             />
+          </div>
+        )}
+        {viewMode === "timeline" && (
+          <div className="h-full overflow-auto">
+            <TimelineView />
           </div>
         )}
         {viewMode === "agenda" && (
@@ -186,11 +187,7 @@ export function EventCalendar({
   return (
     <EventVisibilityProvider initialCategories={categories}>
       <CalendarDndProvider events={events} onEventUpdate={handleEventUpdate}>
-        <div className="flex h-full w-full flex-1 min-w-0 flex-col overflow-hidden lg:flex-row lg:gap-6">
-          {/* Sidebar with mini calendar */}
-          <CalendarSidebar />
-
-          {/* Main calendar area */}
+        <div className="flex h-full w-full min-w-0 flex-1 flex-col overflow-hidden">
           <div className="flex h-full w-full flex-1 flex-col overflow-hidden">
             <CalendarContent
               events={events}

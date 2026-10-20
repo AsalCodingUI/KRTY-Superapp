@@ -12,6 +12,7 @@ import { id } from "date-fns/locale"
 import { useEffect, memo, useMemo, useState } from "react"
 import { useCalendarContext } from "./calendar-context"
 import { EventItem } from "./event-item"
+import { isAllDayEvent, toneOf } from "./event-tone"
 import type { CalendarEvent } from "./types"
 import { getDayKey, getMonthViewDays, groupEventsByDay } from "./utils"
 import {
@@ -36,7 +37,7 @@ export const MonthView = memo(function MonthView({
   onEventClick,
   onDayClick,
 }: MonthViewProps) {
-  const { currentDate, selectedDate, setSelectedDate } = useCalendarContext()
+  const { currentDate, setSelectedDate } = useCalendarContext()
   const monthDays = useMemo(() => getMonthViewDays(currentDate), [currentDate])
   const today = new Date()
   const [openPopover, setOpenPopover] = useState<string | null>(null)
@@ -88,13 +89,10 @@ export const MonthView = memo(function MonthView({
 
           {/* Day headers */}
           <div className="grid flex-1 grid-cols-7">
-            {WEEKDAY_LABELS.map((day, index) => (
+            {WEEKDAY_LABELS.map((day) => (
               <div
                 key={day}
-                className={cx(
-                  "border-border text-muted-foreground border-r py-2 text-center text-sm font-medium last:border-r-0",
-                  index >= 5 && "bg-muted/50",
-                )}
+                className="text-muted-foreground border-r px-2.5 py-2 text-sm last:border-r-0"
               >
                 {day}
               </div>
@@ -111,10 +109,6 @@ export const MonthView = memo(function MonthView({
               const dayEvents = eventsByDay.get(getDayKey(day)) ?? []
               const isToday = isSameDay(day, today)
               const isCurrentMonth = isSameMonth(day, currentDate)
-              const isSelected =
-                selectedDate !== null ? isSameDay(day, selectedDate) : isToday
-              const showTodayIndicator = isToday && !isSelected
-              const isWeekend = day.getDay() === 0 || day.getDay() === 6
               const dayKey = day.toISOString()
               const hasMoreEvents = dayEvents.length > 3
               const displayEvents = dayEvents.slice(0, 3)
@@ -123,9 +117,9 @@ export const MonthView = memo(function MonthView({
                 <div
                   key={dayKey}
                   className={cx(
-                    "border-border flex min-h-[96px] flex-col border-r border-b p-1 last:border-r-0 sm:min-h-[120px] sm:p-2",
-                    isWeekend && "bg-muted/50",
-                    "hover:bg-accent cursor-pointer transition-colors",
+                    "flex min-h-[96px] flex-col border-r border-b p-1.5 sm:min-h-[120px] [&:nth-child(7n)]:border-r-0",
+                    isToday && "bg-foreground/[0.025]",
+                    "hover:bg-foreground/[0.03] cursor-pointer transition-colors",
                   )}
                   onClick={() => handleDaySelect(day, dayEvents)}
                 >
@@ -133,14 +127,12 @@ export const MonthView = memo(function MonthView({
                   <div className="mb-1 flex items-center justify-between">
                     <span
                       className={cx(
-                        "flex h-6 w-6 items-center justify-center rounded-md text-sm font-medium",
-                        isSelected
-                          ? "bg-primary text-primary-foreground"
-                          : showTodayIndicator
-                            ? "text-primary font-semibold"
-                            : isCurrentMonth
-                              ? "text-foreground"
-                              : "text-muted-foreground/50",
+                        "flex h-5 min-w-5 items-center justify-center rounded-md px-1 text-[13px] tabular-nums",
+                        isToday
+                          ? "bg-foreground text-background font-medium"
+                          : isCurrentMonth
+                            ? "text-muted-foreground"
+                            : "text-muted-foreground/40",
                       )}
                     >
                       {format(day, "d")}
@@ -167,23 +159,31 @@ export const MonthView = memo(function MonthView({
                     )}
 
                     {/* Desktop: show event items */}
-                    <div className="hidden space-y-1 sm:block">
+                    <div className="hidden space-y-px sm:block">
                       {displayEvents.map((event) => (
-                        <div
+                        <button
                           key={event.id}
-                          className="h-auto"
+                          type="button"
                           onClick={(e) => {
                             e.stopPropagation()
                             onEventClick?.(event)
                           }}
+                          className="hover:bg-accent flex w-full min-w-0 cursor-pointer items-center gap-1.5 rounded-sm px-1 py-0.5 text-left text-[13px]"
+                          title={event.title}
                         >
-                          <EventItem
-                            event={event}
-                            compact={true}
-                            showTime={true}
-                            className="w-full"
+                          <span
+                            className={cx(
+                              "size-1.5 shrink-0 rounded-full",
+                              toneOf(event.color).dot,
+                            )}
                           />
-                        </div>
+                          {!isAllDayEvent(event) && (
+                            <span className="text-muted-foreground shrink-0 tabular-nums">
+                              {format(event.start, "HH:mm")}
+                            </span>
+                          )}
+                          <span className="truncate">{event.title}</span>
+                        </button>
                       ))}
 
                       {/* More events indicator */}

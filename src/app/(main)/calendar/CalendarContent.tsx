@@ -5,25 +5,18 @@ import { useTabRoute } from "@/shared/hooks/useTabRoute"
 import {
   CalendarSkeleton,
   CalendarToolbar,
-  EmptyState,
   useCalendarContext,
   type CalendarEvent,
   type EventCategory,
   type ViewMode,
 } from "@/widgets/event-calendar"
+import { EventVisibilityProvider } from "@/widgets/event-calendar/ui/hooks/use-event-visibility"
 import { useGoogleCalendar } from "@/widgets/event-calendar/ui/hooks/use-google-calendar"
 import { getViewRange } from "@/widgets/event-calendar/ui/utils"
 import { useQuery } from "@tanstack/react-query"
-import {
-  endOfDay,
-  endOfWeek,
-  format,
-  isSameDay,
-  startOfDay,
-  startOfWeek,
-} from "date-fns"
-import { id } from "date-fns/locale"
+import { endOfDay, startOfDay } from "date-fns"
 import dynamic from "next/dynamic"
+import { usePathname } from "next/navigation"
 import { useEffect, useMemo } from "react"
 import { toast } from "sonner"
 
@@ -37,6 +30,14 @@ const EventCalendar = dynamic(
     loading: () => null,
   },
 )
+
+const CALENDAR_VIEWS: readonly ViewMode[] = [
+  "week",
+  "month",
+  "timeline",
+  "day",
+  "agenda",
+]
 
 // Separate component to use useCalendarContext
 function CalendarContent({
@@ -70,14 +71,18 @@ function CalendarContent({
     goToPrevious,
     setViewMode,
   } = useCalendarContext()
-  const { activeTab: viewTab, setActiveTab: setViewTab } = useTabRoute<
-    "month" | "week" | "day" | "agenda"
-  >({
-    basePath: "/calendar",
-    tabs: ["month", "week", "day", "agenda"],
-    defaultTab: "week",
-    mode: "history",
-  })
+  const pathname = usePathname()
+  // Personal calendar lives under /calendar/personal/<view>.
+  const basePath = pathname.startsWith("/calendar/personal")
+    ? "/calendar/personal"
+    : "/calendar"
+  const { activeTab: viewTab, setActiveTab: setViewTab } =
+    useTabRoute<ViewMode>({
+      basePath,
+      tabs: CALENDAR_VIEWS,
+      defaultTab: "week",
+      mode: "history",
+    })
   const { isConnected } = useGoogleCalendar()
 
   const viewRange = useMemo(() => {
@@ -153,42 +158,6 @@ function CalendarContent({
     return Array.from(map.values())
   }, [events, googleEvents])
 
-  const { meetingCount, upcomingThisWeek } = useMemo(() => {
-    const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 }).getTime()
-    const weekEnd = endOfWeek(currentDate, { weekStartsOn: 1 }).getTime()
-    let meetingsToday = 0
-    let upcoming = 0
-
-    for (const event of allEvents) {
-      const eventStart = event.start.getTime()
-      if (eventStart >= weekStart && eventStart <= weekEnd) {
-        upcoming += 1
-      }
-
-      if (!isSameDay(event.start, currentDate)) continue
-
-      const type = (event.type || "").toLowerCase()
-      const title = (event.title || "").toLowerCase()
-      const description = (event.description || "").toLowerCase()
-      const isMeeting =
-        Boolean(event.meetingUrl) ||
-        type.includes("meeting") ||
-        type === "internal" ||
-        type === "internal meeting" ||
-        title.includes("meeting") ||
-        description.includes("meeting")
-
-      if (isMeeting) {
-        meetingsToday += 1
-      }
-    }
-
-    return {
-      meetingCount: meetingsToday,
-      upcomingThisWeek: upcoming,
-    }
-  }, [allEvents, currentDate])
-
   // Keyboard shortcuts
   useKeyboardShortcuts({
     onCreateEvent: isStakeholder ? () => setDialogOpen(true) : () => {},
@@ -199,64 +168,33 @@ function CalendarContent({
   })
 
   return (
-    <div className="flex min-h-[calc(100vh-1rem)] flex-col">
-      <div className="flex min-h-0 flex-1 flex-col">
-        <div className="my-3 grid grid-cols-2 gap-x-8 gap-y-4 py-2 sm:my-2 xl:grid-cols-3">
-          <div className="flex min-w-0 flex-col gap-1">
-            <p className="text-muted-foreground text-sm">Tanggal Saat Ini</p>
-            <p className="text-foreground text-lg font-medium tabular-nums">
-              {format(currentDate, "EEEE, dd MMM", { locale: id })}
-            </p>
-          </div>
-          <div className="flex min-w-0 flex-col gap-1">
-            <p className="text-muted-foreground text-sm">Rapat Hari Ini</p>
-            <p className="text-foreground text-lg font-medium tabular-nums">
-              {meetingCount}
-            </p>
-          </div>
-          <div className="flex min-w-0 flex-col gap-1">
-            <p className="text-muted-foreground text-sm">Jadwal Minggu Ini</p>
-            <p className="text-foreground text-lg font-medium tabular-nums">
-              {upcomingThisWeek}
-            </p>
-          </div>
-        </div>
+    <EventVisibilityProvider initialCategories={categories}>
+      {/* Fill the viewport under the header; the grid scrolls inside. */}
+      <div className="flex h-[calc(100svh-4rem)] min-h-[520px] flex-col gap-4 pt-1">
+        <CalendarToolbar
+          onAddEvent={() => setDialogOpen(true)}
+          showAddEvent={isStakeholder}
+          onViewChange={handleViewChange}
+        />
 
-        <div className="border-border border-b py-3 sm:py-2">
-          <CalendarToolbar
-            onAddEvent={() => setDialogOpen(true)}
-            showAddEvent={isStakeholder}
-            onViewChange={handleViewChange}
-          />
-        </div>
-
-        <div className="flex min-h-0 w-full flex-1 overflow-hidden py-3 sm:py-4">
-          {loading || googleLoading ? (
+        <div className="bg-sidebar flex min-h-0 flex-1 overflow-hidden rounded-xl border">
+          {loading || (googleLoading && viewMode !== "timeline") ? (
             <CalendarSkeleton />
-          ) : allEvents.length === 0 ? (
-            <EmptyState
-              onCreateEvent={
-                isStakeholder ? () => setDialogOpen(true) : undefined
-              }
-            />
           ) : (
-            <div className="flex min-h-0 w-full flex-1">
-              <EventCalendar
-                events={allEvents}
-                onEventAdd={handleEventAdd}
-                onEventUpdate={handleEventUpdate}
-                onEventDelete={handleEventDelete}
-                categories={categories}
-                canEdit={isStakeholder}
-                dialogOpen={dialogOpen}
-                onDialogOpenChange={setDialogOpen}
-              />
-            </div>
+            <EventCalendar
+              events={allEvents}
+              onEventAdd={handleEventAdd}
+              onEventUpdate={handleEventUpdate}
+              onEventDelete={handleEventDelete}
+              categories={categories}
+              canEdit={isStakeholder}
+              dialogOpen={dialogOpen}
+              onDialogOpenChange={setDialogOpen}
+            />
           )}
         </div>
       </div>
-      {/* EventDialog is now handled inside EventCalendar component to avoid duplication */}
-    </div>
+    </EventVisibilityProvider>
   )
 }
 

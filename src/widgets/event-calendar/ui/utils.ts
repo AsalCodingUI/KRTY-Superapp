@@ -104,8 +104,18 @@ export function getViewRange(
     case "day":
     case "agenda":
       return getDayRange(date)
+    case "timeline":
+      return getTimelineRange(date)
     default:
       return getWeekRange(date)
+  }
+}
+
+/** Timeline: the month around `date` plus one month either side. */
+export function getTimelineRange(date: Date): { start: Date; end: Date } {
+  return {
+    start: startOfMonth(subMonths(date, 1)),
+    end: endOfMonth(addMonths(date, 1)),
   }
 }
 
@@ -119,6 +129,7 @@ export function getNextPeriod(date: Date, viewMode: ViewMode): Date {
     case "week":
       return addWeeks(date, 1)
     case "month":
+    case "timeline":
       return addMonths(date, 1)
     case "agenda":
       return addWeeks(date, 1)
@@ -137,6 +148,7 @@ export function getPreviousPeriod(date: Date, viewMode: ViewMode): Date {
     case "week":
       return subWeeks(date, 1)
     case "month":
+    case "timeline":
       return subMonths(date, 1)
     case "agenda":
       return subWeeks(date, 1)
@@ -473,4 +485,9 @@ export function layoutDayEvents(
   }
   if (cluster.length) closeCluster()
   return placed
+}
+
+/** Drop-target id for a time slot; parsed by the DnD provider. */
+export function slotId(day: Date, hour: number, minute = 0) {
+  return `slot-${startOfDay(day).getTime()}-${hour}-${minute}`
 }

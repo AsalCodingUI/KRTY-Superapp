@@ -26,6 +26,9 @@ export function EventVisibilityProvider({
   children,
   initialCategories = [],
 }: EventVisibilityProviderProps) {
+  // Already provided higher up (e.g. the page also renders the filter
+  // menu): reuse that state instead of starting a second one.
+  const parent = useContext(EventVisibilityContext)
   const [categories, setCategories] =
     useState<EventCategory[]>(initialCategories)
   const [visibleColors, setVisibleColors] = useState<Set<EventColor>>(
@@ -62,6 +65,8 @@ export function EventVisibilityProvider({
     categories,
     setCategories,
   }
+
+  if (parent) return <>{children}</>
 
   return (
     <EventVisibilityContext.Provider value={value}>

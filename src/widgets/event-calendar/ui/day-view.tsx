@@ -11,6 +11,7 @@ import { useCurrentTimeIndicator } from "./hooks/use-current-time-indicator"
 import type { CalendarEvent } from "./types"
 import {
   layoutDayEvents,
+  slotId,
   getDayKey,
   generateTimeSlots,
   groupEventsByDay,
@@ -104,7 +105,7 @@ export const DayView = memo(function DayView({
               return (
                 <DroppableCell
                   key={slot.toISOString()}
-                  id={`slot-${currentDate.toISOString()}-${hour}-${minute}`}
+                  id={slotId(currentDate, hour, minute)}
                   className={cx(
                     "border-border hover:bg-accent h-[var(--height)] cursor-pointer border-b transition-colors",
                     minute === 30 ? "border-transparent" : "border-border",
