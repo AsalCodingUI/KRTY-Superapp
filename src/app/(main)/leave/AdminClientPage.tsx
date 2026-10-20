@@ -123,7 +123,7 @@ export default function LeaveAdminPage({
                 setActiveTab(value as "approval" | "remaining")
               }
             >
-              <SelectTrigger size="sm" className="w-full">
+              <SelectTrigger className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

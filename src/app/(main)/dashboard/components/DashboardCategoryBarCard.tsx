@@ -37,23 +37,19 @@ export function CategoryBarCard({
       <div className="flex flex-col justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <h3 className="text-foreground sm:text-label-md">
-              {title}
-            </h3>
+            <h3 className="text-foreground sm:text-sm">{title}</h3>
             <Badge variant="secondary">{change}</Badge>
           </div>
           <p className="mt-2 flex items-baseline gap-2">
-            <span className="text-foreground text-heading-lg">
+            <span className="text-foreground text-xl font-semibold">
               {value}
             </span>
-            <span className="text-muted-foreground/70 text-body-sm">
+            <span className="text-muted-foreground/70 text-sm">
               {valueDescription}
             </span>
           </p>
           <div className="mt-4">
-            <p className="text-foreground text-label-md">
-              {subtitle}
-            </p>
+            <p className="text-foreground text-sm font-medium">{subtitle}</p>
             <div className="mt-2 flex items-center gap-0.5">
               {data.map((item) => (
                 <div
@@ -71,17 +67,12 @@ export function CategoryBarCard({
           </div>
           <ul role="list" className="mt-5 space-y-2">
             {data.map((item) => (
-              <li
-                key={item.title}
-                className="text-body-xs flex items-center gap-2"
-              >
+              <li key={item.title} className="flex items-center gap-2 text-xs">
                 <span
                   className={cx(item.color, "size-2.5 rounded-sm")}
                   aria-hidden="true"
                 />
-                <span className="text-foreground">
-                  {item.title}
-                </span>
+                <span className="text-foreground">{item.title}</span>
                 <span className="text-muted-foreground/70">
                   ({item.value} / {item.percentage}%)
                 </span>
@@ -89,7 +80,7 @@ export function CategoryBarCard({
             ))}
           </ul>
         </div>
-        <p className="text-muted-foreground/70 text-body-xs mt-6">
+        <p className="text-muted-foreground/70 mt-6 text-xs">
           {ctaDescription}{" "}
           <a href={ctaLink} className="text-primary hover:text-primary/90">
             {ctaText}

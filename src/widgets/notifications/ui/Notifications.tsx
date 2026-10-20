@@ -3,10 +3,7 @@
 import { useNotifications } from "@/shared/hooks/useNotifications"
 import { cx, focusRing } from "@/shared/lib/utils"
 import { EmptyState } from "@/components/empty-state"
-import {
-  TabNavigation,
-  TabNavigationLink,
-} from "@/components/tab-navigation"
+import { TabNavigation, TabNavigationLink } from "@/components/tab-navigation"
 import {
   Select,
   SelectContent,
@@ -141,17 +138,17 @@ export function Notifications({ variant = "default" }: NotificationsProps) {
         className={cx(
           variant === "default"
             ? cx(
-              "hover:bg-muted text-label-md flex w-full items-center gap-x-2.5 rounded-md px-2 py-1.5 transition",
-              isOpen
-                ? "bg-muted text-foreground"
-                : "text-muted-foreground hover:text-foreground",
-            )
+                "hover:bg-muted flex w-full items-center gap-x-2.5 rounded-md px-2 py-1.5 text-sm font-medium transition",
+                isOpen
+                  ? "bg-muted text-foreground"
+                  : "text-muted-foreground hover:text-foreground",
+              )
             : cx(
-              "flex size-7 shrink-0 items-center justify-center rounded-md transition-colors focus:outline-none",
-              isOpen
-                ? "text-foreground bg-muted"
-                : "text-muted-foreground hover:text-foreground hover:bg-muted",
-            ),
+                "flex size-7 shrink-0 items-center justify-center rounded-md transition-colors focus:outline-none",
+                isOpen
+                  ? "text-foreground bg-muted"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted",
+              ),
           focusRing,
         )}
         aria-label="Notification Center"
@@ -162,8 +159,8 @@ export function Notifications({ variant = "default" }: NotificationsProps) {
           />
           {unreadCount > 0 && variant === "icon" && (
             <span className="absolute top-0 right-0 -mt-1 -mr-1 flex size-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-destructive opacity-75"></span>
-              <span className="relative inline-flex size-2 rounded-full bg-destructive"></span>
+              <span className="bg-destructive absolute inline-flex h-full w-full animate-ping rounded-full opacity-75"></span>
+              <span className="bg-destructive relative inline-flex size-2 rounded-full"></span>
             </span>
           )}
         </div>
@@ -172,7 +169,7 @@ export function Notifications({ variant = "default" }: NotificationsProps) {
           <>
             <span>Notification Center</span>
             {unreadCount > 0 && (
-              <span className="bg-primary/10 text-primary text-label-xs ml-auto flex items-center justify-center rounded-full px-2 py-0.5">
+              <span className="bg-primary/10 text-primary ml-auto flex items-center justify-center rounded-full px-2 py-0.5 text-xs font-medium">
                 {unreadCount}
               </span>
             )}
@@ -187,10 +184,10 @@ export function Notifications({ variant = "default" }: NotificationsProps) {
               <motion.div
                 ref={panelRef}
                 className={cx(
-                  "fixed z-50 flex max-h-[calc(100vh-24px)] flex-col overflow-hidden bg-sidebar",
+                  "bg-sidebar fixed z-50 flex max-h-[calc(100vh-24px)] flex-col overflow-hidden",
                   isMobile
                     ? "inset-0 rounded-none border-0 shadow-none"
-                    : "h-[600px] w-full max-w-[386px] rounded-xl border border-border shadow-regular-md",
+                    : "border-border shadow-regular-md h-[600px] w-full max-w-[386px] rounded-xl border",
                 )}
                 style={panelStyle}
                 initial={
@@ -211,15 +208,15 @@ export function Notifications({ variant = "default" }: NotificationsProps) {
                 transition={{ type: "spring", stiffness: 420, damping: 32 }}
               >
                 <div className="flex h-full flex-col">
-                  <div className="flex items-center justify-between px-5 pb-2 pt-4">
-                    <h3 className="text-heading-sm text-foreground">
+                  <div className="flex items-center justify-between px-5 pt-4 pb-2">
+                    <h3 className="text-foreground text-base font-semibold">
                       Notifications
                     </h3>
                     <div className="flex items-center gap-2">
                       {unreadCount > 0 && (
                         <button
                           onClick={() => markAllAsRead()}
-                          className="text-muted-foreground text-label-xs hover:text-foreground"
+                          className="text-muted-foreground hover:text-foreground text-xs font-medium"
                         >
                           Mark all as read
                         </button>
@@ -233,15 +230,15 @@ export function Notifications({ variant = "default" }: NotificationsProps) {
                     </div>
                   </div>
 
-                  <div className="px-5 pt-2 border-b border-border">
-                    <div className="xl:hidden pb-2">
+                  <div className="border-border border-b px-5 pt-2">
+                    <div className="pb-2 xl:hidden">
                       <Select
                         value={activeTab}
                         onValueChange={(value) =>
                           setActiveTab(value as "unread" | "all")
                         }
                       >
-                        <SelectTrigger size="sm" className="w-full">
+                        <SelectTrigger className="w-full">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -292,9 +289,7 @@ export function Notifications({ variant = "default" }: NotificationsProps) {
                               }
                               className={cx(
                                 "hover:bg-muted block px-4 py-4 transition-colors",
-                                !notification.is_read
-                                  ? "bg-primary/10"
-                                  : "",
+                                !notification.is_read ? "bg-primary/10" : "",
                               )}
                             >
                               <div className="flex gap-3">
@@ -307,13 +302,13 @@ export function Notifications({ variant = "default" }: NotificationsProps) {
                                   )}
                                 />
                                 <div className="flex-1">
-                                  <p className="text-foreground text-label-md">
+                                  <p className="text-foreground text-sm font-medium">
                                     {notification.title}
                                   </p>
-                                  <p className="text-muted-foreground text-body-sm mt-1 line-clamp-2">
+                                  <p className="text-muted-foreground mt-1 line-clamp-2 text-sm">
                                     {notification.message}
                                   </p>
-                                  <p className="text-muted-foreground/70 text-body-xs mt-2">
+                                  <p className="text-muted-foreground/70 mt-2 text-xs">
                                     {new Date(
                                       notification.created_at || "",
                                     ).toLocaleDateString(undefined, {

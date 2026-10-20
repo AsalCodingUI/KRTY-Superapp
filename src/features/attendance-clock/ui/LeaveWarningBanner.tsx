@@ -17,10 +17,10 @@ export function LeaveWarningBanner({ isOnLeave }: LeaveWarningBannerProps) {
           aria-hidden="true"
         />
         <div className="ml-3">
-          <h3 className="text-label-md text-warning">
+          <h3 className="text-warning text-sm font-medium">
             Anda sedang cuti hari ini
           </h3>
-          <div className="text-body-sm text-warning/80 mt-1">
+          <div className="text-warning/80 mt-1 text-sm">
             <p>
               Silakan pilih status <b>Cuti Masuk</b> jika ingin bekerja, atau
               sesuaikan kebutuhan.

@@ -32,7 +32,7 @@ export function EmployeeProjectsWidget({
     return (
       <div className="border-border rounded-lg border p-4">
         {showHeader && (
-          <h3 className="text-label-md text-foreground mb-4">
+          <h3 className="text-foreground mb-4 text-sm font-medium">
             Active Projects
           </h3>
         )}
@@ -47,17 +47,15 @@ export function EmployeeProjectsWidget({
   }
 
   return (
-
-
     <div className="divide-border divide-y">
       {projects.slice(0, 5).map((project, index) => {
         const endDate = new Date(project.end_date)
         const endDateValid = isValid(endDate)
         const daysUntilDeadline = endDateValid
           ? Math.ceil(
-            (endDate.getTime() - new Date().getTime()) /
-            (1000 * 60 * 60 * 24),
-          )
+              (endDate.getTime() - new Date().getTime()) /
+                (1000 * 60 * 60 * 24),
+            )
           : Number.NaN
         const isOverdue = daysUntilDeadline < 0
         const isUrgent = daysUntilDeadline >= 0 && daysUntilDeadline <= 7
@@ -71,15 +69,15 @@ export function EmployeeProjectsWidget({
             <div className="flex items-start justify-between gap-4 px-3 py-2">
               <div className="min-w-0 flex-1">
                 <div className="mb-1 flex items-center gap-2">
-                  <h4 className="text-foreground text-label-md truncate">
+                  <h4 className="text-foreground truncate text-sm font-medium">
                     {project.name}
                   </h4>
-                  <Badge variant="info" className="text-body-xs shrink-0">
+                  <Badge variant="info" className="shrink-0 text-xs">
                     {project.quarter_id}
                   </Badge>
                 </div>
 
-                <div className="text-body-xs text-muted-foreground flex items-center gap-3">
+                <div className="text-muted-foreground flex items-center gap-3 text-xs">
                   <div className="flex items-center gap-1">
                     <span>SLA:</span>
                     <span className="text-foreground font-medium">
@@ -96,19 +94,19 @@ export function EmployeeProjectsWidget({
 
                 <div className="mt-2 flex items-center gap-2">
                   {isOverdue ? (
-                    <Badge variant="destructive" className="text-body-xs">
+                    <Badge variant="destructive" className="text-xs">
                       Overdue
                     </Badge>
                   ) : isUrgent ? (
-                    <Badge variant="warning" className="text-body-xs">
+                    <Badge variant="warning" className="text-xs">
                       Due in {daysUntilDeadline} days
                     </Badge>
                   ) : endDateValid ? (
-                    <span className="text-body-xs text-muted-foreground/70">
+                    <span className="text-muted-foreground/70 text-xs">
                       Due {format(endDate, "MMM d, yyyy")}
                     </span>
                   ) : (
-                    <span className="text-body-xs text-muted-foreground/70">
+                    <span className="text-muted-foreground/70 text-xs">
                       Due —
                     </span>
                   )}
@@ -119,7 +117,5 @@ export function EmployeeProjectsWidget({
         )
       })}
     </div>
-
-
   )
 }

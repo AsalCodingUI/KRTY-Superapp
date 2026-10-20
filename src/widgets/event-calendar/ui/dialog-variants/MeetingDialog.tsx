@@ -96,9 +96,9 @@ export function MeetingDialog({
         <div className="flex-1 space-y-5 overflow-y-auto">
           {/* Event Title & Type */}
           <div className="flex items-start justify-between gap-4">
-              <h3 className="text-heading-sm text-foreground break-words">
-                {event.title}
-              </h3>
+            <h3 className="text-foreground text-base font-semibold break-words">
+              {event.title}
+            </h3>
             <Badge variant="info" className="shrink-0">
               {event.type || "Rapat"}
             </Badge>
@@ -110,20 +110,24 @@ export function MeetingDialog({
           {/* Date & Time */}
           <div className="border-border grid grid-cols-2 gap-4 rounded-lg border p-4">
             <div>
-              <p className="text-label-sm text-muted-foreground mb-1">Mulai</p>
-              <p className="text-body-sm text-foreground">
+              <p className="text-muted-foreground mb-1 text-sm font-medium">
+                Mulai
+              </p>
+              <p className="text-foreground text-sm">
                 {format(event.start, "dd MMM yyyy", { locale: id })}
               </p>
-              <p className="text-body-sm text-muted-foreground mt-0.5">
+              <p className="text-muted-foreground mt-0.5 text-sm">
                 {format(event.start, "HH:mm")}
               </p>
             </div>
             <div>
-              <p className="text-label-sm text-muted-foreground mb-1">Selesai</p>
-              <p className="text-body-sm text-foreground">
+              <p className="text-muted-foreground mb-1 text-sm font-medium">
+                Selesai
+              </p>
+              <p className="text-foreground text-sm">
                 {format(event.end, "dd MMM yyyy", { locale: id })}
               </p>
-              <p className="text-body-sm text-muted-foreground mt-0.5">
+              <p className="text-muted-foreground mt-0.5 text-sm">
                 {format(event.end, "HH:mm")}
               </p>
             </div>
@@ -139,11 +143,11 @@ export function MeetingDialog({
           {/* Location */}
           {event.location && (
             <div className="space-y-2">
-              <p className="text-label-sm text-muted-foreground flex items-center gap-2">
+              <p className="text-muted-foreground flex items-center gap-2 text-sm font-medium">
                 <RiMapPinLine className="h-4 w-4" />
                 Lokasi
               </p>
-              <p className="text-body-sm text-foreground break-words pl-6">
+              <p className="text-foreground pl-6 text-sm break-words">
                 {event.location}
               </p>
             </div>
@@ -152,15 +156,17 @@ export function MeetingDialog({
           {/* Description */}
           {event.description && (
             <div className="border-border space-y-2 border-t pt-4">
-              <p className="text-label-sm text-muted-foreground">Deskripsi</p>
-              <p className="text-body-sm text-foreground break-words whitespace-pre-wrap">
+              <p className="text-muted-foreground text-sm font-medium">
+                Deskripsi
+              </p>
+              <p className="text-foreground text-sm break-words whitespace-pre-wrap">
                 {event.description}
               </p>
             </div>
           )}
 
           {/* Calendar Info */}
-          <div className="text-body-xs text-muted-foreground border-border flex items-center gap-2 border-t pt-4">
+          <div className="text-muted-foreground border-border flex items-center gap-2 border-t pt-4 text-xs">
             <RiCalendarLine className="h-4 w-4" />
             <span>{event.organizer || "Kretya Studio"}</span>
           </div>
@@ -183,11 +189,10 @@ export function MeetingDialog({
               <>
                 {isDeletePending ? (
                   <div className="animate-fadeIn flex w-full items-center gap-2">
-                    <span className="text-label-md text-destructive whitespace-nowrap">
+                    <span className="text-destructive text-sm font-medium whitespace-nowrap">
                       Yakin hapus?
                     </span>
                     <Button
-                      size="sm"
                       type="button"
                       variant="destructive"
                       onClick={handleConfirmDelete}
@@ -196,7 +201,6 @@ export function MeetingDialog({
                       Ya, Hapus
                     </Button>
                     <Button
-                      size="sm"
                       type="button"
                       variant="outline"
                       onClick={handleCancelDelete}
@@ -208,7 +212,6 @@ export function MeetingDialog({
                 ) : (
                   <>
                     <Button
-                      size="sm"
                       type="button"
                       variant="outline"
                       onClick={handleDeleteClick}
@@ -228,7 +231,6 @@ export function MeetingDialog({
 
           {!isDeletePending && (
             <Button
-              size="sm"
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}

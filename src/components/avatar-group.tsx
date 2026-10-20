@@ -10,13 +10,13 @@ type AvatarSize = "xxxs" | "xxs" | "xs" | "sm" | "md" | "lg" | "xl"
 
 /** Legacy avatar size scale (px + text size), reusable for shadcn `Avatar` via className. */
 const avatarSizeClasses: Record<AvatarSize, string> = {
-  xxxs: "size-3.5 text-label-xs leading-4",
-  xxs: "size-4 text-label-xs leading-4",
-  xs: "size-5 text-label-xs leading-4",
-  sm: "size-7 text-label-xs",
-  md: "size-8 text-label-md",
-  lg: "size-12 text-heading-lg",
-  xl: "size-16 text-display-xxs",
+  xxxs: "size-3.5 text-xs leading-4 font-medium",
+  xxs: "size-4 text-xs leading-4 font-medium",
+  xs: "size-5 text-xs leading-4 font-medium",
+  sm: "size-7 text-xs font-medium",
+  md: "size-8 text-sm font-medium",
+  lg: "size-12 text-xl font-semibold",
+  xl: "size-16 text-2xl font-semibold",
 }
 
 // ============================================================================
@@ -32,7 +32,10 @@ const AvatarGroup = React.forwardRef<HTMLDivElement, AvatarGroupProps>(
     return (
       <AvatarGroupPrimitive
         ref={ref}
-        className={cn("flex items-center -space-x-1 *:data-[slot=avatar]:ring-2 *:data-[slot=avatar]:ring-card", className)}
+        className={cn(
+          "*:data-[slot=avatar]:ring-card flex items-center -space-x-1 *:data-[slot=avatar]:ring-2",
+          className,
+        )}
         {...props}
       >
         {children}
@@ -58,7 +61,7 @@ const AvatarOverflow = React.forwardRef<HTMLDivElement, AvatarOverflowProps>(
       <AvatarGroupCount
         ref={ref}
         className={cn(
-          "font-medium text-muted-foreground",
+          "text-muted-foreground font-medium",
           avatarSizeClasses[size],
           className,
         )}

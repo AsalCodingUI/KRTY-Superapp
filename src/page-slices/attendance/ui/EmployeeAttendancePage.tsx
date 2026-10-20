@@ -341,7 +341,7 @@ export function EmployeeAttendancePage({
           />
 
           <div>
-            <h3 className="text-heading-md text-foreground mb-3">
+            <h3 className="text-foreground mb-3 text-lg font-semibold">
               Attendance History
             </h3>
             <AttendanceHistoryList
@@ -359,16 +359,16 @@ export function EmployeeAttendancePage({
             <DialogTitle>Konfirmasi Hapus</DialogTitle>
           </DialogHeader>
           <div>
-            <p className="text-body-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               Apakah Anda yakin ingin menghapus catatan kehadiran ini?
               Permintaan akan direview oleh stakeholder.
             </p>
           </div>
           <DialogFooter>
-            <Button size="sm" variant="outline" onClick={cancelDelete}>
+            <Button variant="outline" onClick={cancelDelete}>
               Batal
             </Button>
-            <Button size="sm" variant="destructive" onClick={confirmDelete}>
+            <Button variant="destructive" onClick={confirmDelete}>
               Ya, Hapus
             </Button>
           </DialogFooter>

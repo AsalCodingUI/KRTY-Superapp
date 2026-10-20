@@ -330,7 +330,6 @@ export function ProjectForm({
             <div className="space-y-2">
               <Label htmlFor="name">Project Name *</Label>
               <Input
-                className="h-7"
                 id="name"
                 name="name"
                 placeholder="e.g., Website Redesign Q1"
@@ -369,12 +368,12 @@ export function ProjectForm({
             {previewQuarter && (
               <div className="bg-primary/10 rounded-lg p-3">
                 <div className="flex items-center gap-2">
-                  <span className="text-label-md text-primary">
+                  <span className="text-primary text-sm font-medium">
                     Auto Quarter Assignment:
                   </span>
                   <QuarterBadge quarter={previewQuarter} />
                 </div>
-                <p className="text-body-xs text-primary/80 mt-1">
+                <p className="text-primary/80 mt-1 text-xs">
                   This project will be assigned to {previewQuarter} based on the
                   end date.
                 </p>
@@ -401,7 +400,7 @@ export function ProjectForm({
                   name="status"
                   defaultValue={(project.status ?? "Active") as string}
                 >
-                  <SelectTrigger className="w-full" size="sm">
+                  <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -417,10 +416,10 @@ export function ProjectForm({
             <div className="space-y-4">
               {/* Section Header */}
               <div className="border-border border-t pt-4">
-                <h4 className="text-label-md text-foreground">
+                <h4 className="text-foreground text-sm font-medium">
                   Assign Team Members (Optional)
                 </h4>
-                <p className="text-body-sm text-muted-foreground mt-1">
+                <p className="text-muted-foreground mt-1 text-sm">
                   Add team members who will work on this project
                 </p>
               </div>
@@ -432,7 +431,7 @@ export function ProjectForm({
                     value={selectedUserId}
                     onValueChange={(v) => v !== null && setSelectedUserId(v)}
                   >
-                    <SelectTrigger className="w-full" size="sm">
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Choose a team member" />
                     </SelectTrigger>
                     <SelectContent>
@@ -451,7 +450,6 @@ export function ProjectForm({
                 </div>
 
                 <Button
-                  size="sm"
                   type="button"
                   onClick={handleAddTeamMember}
                   disabled={!selectedUserId}
@@ -480,16 +478,16 @@ export function ProjectForm({
                           <AvatarFallback />
                         </Avatar>
                         <div>
-                          <p className="text-label-md text-foreground">
+                          <p className="text-foreground text-sm font-medium">
                             {member.userName}
                           </p>
-                          <p className="text-body-xs text-muted-foreground">
+                          <p className="text-muted-foreground text-xs">
                             {member.userJobTitle || "No job title"}
                           </p>
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
-                        <label className="text-body-xs text-muted-foreground flex items-center gap-2">
+                        <label className="text-muted-foreground flex items-center gap-2 text-xs">
                           <Checkbox
                             checked={member.isLead}
                             onCheckedChange={(checked) =>
@@ -501,7 +499,6 @@ export function ProjectForm({
                         <Button
                           type="button"
                           variant="ghost"
-                          size="sm"
                           onClick={() => handleRemoveTeamMember(member)}
                           className="text-destructive hover:bg-destructive/10"
                         >
@@ -517,7 +514,6 @@ export function ProjectForm({
 
           <DialogFooter className="border-border bg-sidebar sticky bottom-0 border-t pt-4">
             <Button
-              size="sm"
               type="button"
               variant="outline"
               onClick={onClose}
@@ -525,7 +521,7 @@ export function ProjectForm({
             >
               Cancel
             </Button>
-            <Button size="sm" type="submit" disabled={loading}>
+            <Button type="submit" disabled={loading}>
               {loading
                 ? "Saving..."
                 : isEdit

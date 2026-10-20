@@ -147,14 +147,14 @@ export function EmployeeDetailClient({
       <div
         className={
           showBackButton
-            ? "rounded-xl flex flex-col space-y-5 px-4 py-5 xl:px-5"
-            : "rounded-xl flex flex-col space-y-5"
+            ? "flex flex-col space-y-5 rounded-xl px-4 py-5 xl:px-5"
+            : "flex flex-col space-y-5 rounded-xl"
         }
       >
         {/* Back Button - Only for Admin/Stakeholder POV */}
         {showBackButton && (
           <Link href="/performance">
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost">
               <RiArrowLeftLine className="mr-2 size-4" />
               Back to KPI
             </Button>
@@ -171,10 +171,10 @@ export function EmployeeDetailClient({
               </AvatarFallback>
             </Avatar>
             <div>
-              <h1 className="text-heading-md text-foreground">
+              <h1 className="text-foreground text-lg font-semibold">
                 {employee.full_name}
               </h1>
-              <p className="text-label-md text-muted-foreground">
+              <p className="text-muted-foreground text-sm font-medium">
                 {employee.job_title}
               </p>
             </div>

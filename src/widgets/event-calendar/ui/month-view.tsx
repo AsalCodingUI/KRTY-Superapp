@@ -92,7 +92,7 @@ export const MonthView = memo(function MonthView({
               <div
                 key={day}
                 className={cx(
-                  "border-border text-label-sm text-muted-foreground border-r py-2 text-center last:border-r-0",
+                  "border-border text-muted-foreground border-r py-2 text-center text-sm font-medium last:border-r-0",
                   index >= 5 && "bg-muted/50",
                 )}
               >
@@ -133,7 +133,7 @@ export const MonthView = memo(function MonthView({
                   <div className="mb-1 flex items-center justify-between">
                     <span
                       className={cx(
-                        "text-label-sm flex h-6 w-6 items-center justify-center rounded-md",
+                        "flex h-6 w-6 items-center justify-center rounded-md text-sm font-medium",
                         isSelected
                           ? "bg-primary text-primary-foreground"
                           : showTodayIndicator
@@ -201,7 +201,7 @@ export const MonthView = memo(function MonthView({
                                   e.stopPropagation()
                                   setOpenPopover(dayKey)
                                 }}
-                                className="text-label-xs text-muted-foreground/70 hover:text-foreground w-full px-2 py-1 text-left"
+                                className="text-muted-foreground/70 hover:text-foreground w-full px-2 py-1 text-left text-xs font-medium"
                               />
                             }
                           >
@@ -213,7 +213,7 @@ export const MonthView = memo(function MonthView({
                             onClick={(e) => e.stopPropagation()}
                           >
                             <div className="space-y-2">
-                              <h4 className="text-label-md text-foreground mb-3">
+                              <h4 className="text-foreground mb-3 text-sm font-medium">
                                 {format(day, "EEEE, dd MMMM yyyy", {
                                   locale: id,
                                 })}
@@ -257,7 +257,7 @@ export const MonthView = memo(function MonthView({
               : "Jadwal"}
           </SheetTitle>
           <div className="border-border flex items-center justify-between border-b px-4 py-4">
-            <h3 className="text-heading-sm text-foreground">
+            <h3 className="text-foreground text-base font-semibold">
               {mobileSelectedDay
                 ? format(mobileSelectedDay, "EEEE, dd MMMM yyyy", {
                     locale: id,
@@ -279,7 +279,7 @@ export const MonthView = memo(function MonthView({
           <div className="flex-1 overflow-y-auto px-4 py-4 pb-6">
             <div className="space-y-3">
               {mobileSelectedEvents.length === 0 ? (
-                <p className="text-body-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   Tidak ada event pada tanggal ini.
                 </p>
               ) : (

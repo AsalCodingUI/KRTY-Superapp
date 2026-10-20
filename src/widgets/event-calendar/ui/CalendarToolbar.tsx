@@ -55,7 +55,6 @@ export function CalendarToolbar({
             render={
               <Button
                 variant="outline"
-                size="sm"
                 type="button"
                 className="flex items-center gap-1"
               />
@@ -79,13 +78,13 @@ export function CalendarToolbar({
         </DropdownMenu>
 
         <div className="flex items-center gap-1">
-          <Button variant="outline" size="icon-sm" onClick={goToPrevious}>
+          <Button variant="outline" size="icon" onClick={goToPrevious}>
             <RiArrowLeftSLine className="size-4" />
           </Button>
-          <Button variant="outline" size="sm" onClick={goToToday}>
+          <Button variant="outline" onClick={goToToday}>
             Hari Ini
           </Button>
-          <Button variant="outline" size="icon-sm" onClick={goToNext}>
+          <Button variant="outline" size="icon" onClick={goToNext}>
             <RiArrowRightSLine className="size-4" />
           </Button>
         </div>
@@ -93,7 +92,7 @@ export function CalendarToolbar({
 
       <div className="flex items-center gap-3">
         <div className="hidden items-center gap-2 sm:flex">
-          <span className="text-label-sm text-muted-foreground">
+          <span className="text-muted-foreground text-sm font-medium">
             Google Kalender
           </span>
           {isLoading ? (
@@ -105,7 +104,7 @@ export function CalendarToolbar({
           )}
         </div>
         {showAddEvent && (
-          <Button size="sm" onClick={onAddEvent}>
+          <Button onClick={onAddEvent}>
             <RiAddLine data-icon="inline-start" />
             Jadwal Baru
           </Button>

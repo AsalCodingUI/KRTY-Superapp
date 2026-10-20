@@ -53,7 +53,7 @@ function StarRating({
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <Label>{label}</Label>
-        <span className="text-label-xs text-muted-foreground">
+        <span className="text-muted-foreground text-xs font-medium">
           {value > 0 ? value + "/5" : "—"}
         </span>
       </div>
@@ -93,11 +93,11 @@ function JustificationField({
       <div className="mb-2 flex items-center gap-2">
         <RiInformationLine className="text-muted-foreground size-4 shrink-0" />
         <div className="flex flex-1 items-center justify-between gap-3">
-          <p className="text-label-xs text-muted-foreground">
+          <p className="text-muted-foreground text-xs font-medium">
             Why this rating for {label}?
           </p>
           <span
-            className={`text-label-xs ${
+            className={`text-xs font-medium ${
               isComplete ? "text-success" : "text-muted-foreground"
             }`}
           >
@@ -111,7 +111,7 @@ function JustificationField({
         onChange={(e) => onChange(e.target.value)}
         className="min-h-[60px]"
       />
-      <p className="text-body-xs text-muted-foreground mt-2">
+      <p className="text-muted-foreground mt-2 text-xs">
         Minimum 10 non-space characters.
       </p>
     </div>
@@ -247,21 +247,16 @@ export default function ReviewFormClientPage({
             <DialogTitle>Leave review?</DialogTitle>
           </DialogHeader>
           <div>
-            <p className="text-body-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               Your progress will not be saved.
             </p>
           </div>
           <DialogFooter>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowExitConfirm(false)}
-            >
+            <Button variant="ghost" onClick={() => setShowExitConfirm(false)}>
               Cancel
             </Button>
             <Button
               variant="destructive"
-              size="sm"
               onClick={() => router.push("/performance")}
             >
               Leave
@@ -276,12 +271,14 @@ export default function ReviewFormClientPage({
             <div className="flex items-center gap-3">
               <Button
                 variant="ghost"
-                size="icon-sm"
+                size="icon"
                 onClick={() => setShowExitConfirm(true)}
               >
                 <RiArrowLeftLine className="size-4" />
               </Button>
-              <span className="text-label-md text-foreground">360 Review</span>
+              <span className="text-foreground text-sm font-medium">
+                360 Review
+              </span>
             </div>
           </div>
         </div>
@@ -293,10 +290,10 @@ export default function ReviewFormClientPage({
             <div className="sticky top-20">
               <Card className="gap-0 space-y-4 p-4">
                 <div>
-                  <p className="text-label-md text-foreground">
+                  <p className="text-foreground text-sm font-medium">
                     Review Progress
                   </p>
-                  <p className="text-body-xs text-muted-foreground mt-1">
+                  <p className="text-muted-foreground mt-1 text-xs">
                     Complete all steps to submit
                   </p>
                 </div>
@@ -314,13 +311,13 @@ export default function ReviewFormClientPage({
                           </div>
                         ) : (
                           <div className="border-border flex size-6 shrink-0 items-center justify-center rounded-full border-2">
-                            <span className="text-label-xs text-muted-foreground/70">
+                            <span className="text-muted-foreground/70 text-xs font-medium">
                               {step.number}
                             </span>
                           </div>
                         )}
                         <span
-                          className={`text-label-sm ${
+                          className={`text-sm font-medium ${
                             step.complete
                               ? "text-foreground font-medium"
                               : "text-muted-foreground/70"
@@ -337,10 +334,10 @@ export default function ReviewFormClientPage({
 
           <div className="min-w-0 flex-1 space-y-5">
             <div>
-              <h1 className="text-heading-md text-foreground">
+              <h1 className="text-foreground text-lg font-semibold">
                 New Feedback Review
               </h1>
-              <p className="text-body-sm text-muted-foreground mt-1">
+              <p className="text-muted-foreground mt-1 text-sm">
                 Provide anonymous feedback for your colleague
               </p>
             </div>
@@ -349,10 +346,10 @@ export default function ReviewFormClientPage({
               <div className="flex gap-3">
                 <RiInformationLine className="text-muted-foreground mt-0.5 size-5 shrink-0" />
                 <div>
-                  <p className="text-label-md text-foreground">
+                  <p className="text-foreground text-sm font-medium">
                     Anonymous Feedback System
                   </p>
-                  <p className="text-body-xs text-muted-foreground mt-1">
+                  <p className="text-muted-foreground mt-1 text-xs">
                     Your feedback is anonymous and will be processed by AI to
                     maintain objectivity.
                   </p>
@@ -370,11 +367,7 @@ export default function ReviewFormClientPage({
                   setFormData((prev) => ({ ...prev, reviewee_id: val ?? "" }))
                 }
               >
-                <SelectTrigger
-                  id="colleague-select"
-                  size="sm"
-                  className="mt-2 w-full"
-                >
+                <SelectTrigger id="colleague-select" className="mt-2 w-full">
                   <SelectValue placeholder="Select a colleague..." />
                 </SelectTrigger>
                 <SelectContent>
@@ -390,7 +383,7 @@ export default function ReviewFormClientPage({
             {formData.reviewee_id && (
               <>
                 <Card className="gap-0 space-y-4 p-4">
-                  <p className="text-label-md text-foreground">
+                  <p className="text-foreground text-sm font-medium">
                     Rate their competencies
                   </p>
                   <div className="space-y-4">
@@ -538,7 +531,7 @@ export default function ReviewFormClientPage({
                     <Label htmlFor="feedback-continue">
                       CONTINUE (Strength)
                     </Label>
-                    <p className="text-body-xs text-muted-foreground mt-1">
+                    <p className="text-muted-foreground mt-1 text-xs">
                       What positive things should they keep doing?
                     </p>
                     <Textarea
@@ -557,7 +550,7 @@ export default function ReviewFormClientPage({
 
                   <div>
                     <Label htmlFor="feedback-start">START (Opportunity)</Label>
-                    <p className="text-body-xs text-muted-foreground mt-1">
+                    <p className="text-muted-foreground mt-1 text-xs">
                       What new things should they start doing?
                     </p>
                     <Textarea
@@ -576,7 +569,7 @@ export default function ReviewFormClientPage({
 
                   <div>
                     <Label htmlFor="feedback-stop">STOP (Blocker)</Label>
-                    <p className="text-body-xs text-muted-foreground mt-1">
+                    <p className="text-muted-foreground mt-1 text-xs">
                       What habits should they stop?
                     </p>
                     <Textarea
@@ -596,7 +589,6 @@ export default function ReviewFormClientPage({
 
                 <div className="flex justify-end pt-2 pb-8">
                   <Button
-                    size="sm"
                     onClick={handleSubmit}
                     disabled={
                       loading ||

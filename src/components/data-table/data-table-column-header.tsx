@@ -2,12 +2,17 @@
 
 import * as React from "react"
 import type { Column } from "@tanstack/react-table"
-import { ChevronDown as ChevronDownIcon, ChevronUp as ChevronUpIcon } from "@/components/icons"
+import {
+  ChevronDown as ChevronDownIcon,
+  ChevronUp as ChevronUpIcon,
+} from "@/components/icons"
 
 import { cn } from "@/lib/utils"
 
-interface DataTableColumnHeaderProps<TData, TValue>
-  extends React.HTMLAttributes<HTMLDivElement> {
+interface DataTableColumnHeaderProps<
+  TData,
+  TValue,
+> extends React.HTMLAttributes<HTMLDivElement> {
   column: Column<TData, TValue>
   title: string
 }
@@ -22,7 +27,9 @@ export function DataTableColumnHeader<TData, TValue>({
 
   if (!canSort) {
     return (
-      <div className={cn("text-label-sm text-muted-foreground", className)}>
+      <div
+        className={cn("text-muted-foreground text-sm font-medium", className)}
+      >
         {title}
       </div>
     )
@@ -36,21 +43,21 @@ export function DataTableColumnHeader<TData, TValue>({
         className,
       )}
     >
-      <span className="text-label-sm whitespace-nowrap text-muted-foreground">
+      <span className="text-muted-foreground text-sm font-medium whitespace-nowrap">
         {title}
       </span>
       {/* Stacked sort indicator */}
       <div className="-space-y-2">
         <ChevronUpIcon
           className={cn(
-            "size-3.5 text-muted-foreground",
+            "text-muted-foreground size-3.5",
             isSorted === "desc" && "opacity-30",
           )}
           aria-hidden="true"
         />
         <ChevronDownIcon
           className={cn(
-            "size-3.5 text-muted-foreground",
+            "text-muted-foreground size-3.5",
             isSorted === "asc" && "opacity-30",
           )}
           aria-hidden="true"

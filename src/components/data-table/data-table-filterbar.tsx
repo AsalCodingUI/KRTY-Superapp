@@ -57,19 +57,18 @@ export function DataTableFilterbar<TData>({
             placeholder="Search..."
             value={searchTerm}
             onChange={handleSearchChange}
-            className="h-7 w-full sm:max-w-[250px]"
+            className="w-full sm:max-w-[250px]"
           />
         )}
 
         {isFiltered && (
           <Button
             variant="ghost"
-            size="sm"
             onClick={() => {
               table.resetColumnFilters()
               setSearchTerm("")
             }}
-            className="border border-border px-2 font-semibold text-primary sm:border-none"
+            className="border-border text-primary border px-2 font-semibold sm:border-none"
           >
             Clear filters
           </Button>
@@ -78,7 +77,7 @@ export function DataTableFilterbar<TData>({
 
       <div className="flex items-center gap-2">
         {showExport && (
-          <Button variant="outline" size="sm" className="hidden lg:inline-flex">
+          <Button variant="outline" className="hidden lg:inline-flex">
             <DownloadIcon data-icon="inline-start" aria-hidden="true" />
             Export
           </Button>
@@ -87,7 +86,7 @@ export function DataTableFilterbar<TData>({
         {showViewOptions && <DataTableViewOptions table={table} />}
 
         {onCreate && (
-          <Button onClick={onCreate} size="sm">
+          <Button onClick={onCreate}>
             <PlusIcon data-icon="inline-start" aria-hidden="true" />
             {actionLabel}
           </Button>

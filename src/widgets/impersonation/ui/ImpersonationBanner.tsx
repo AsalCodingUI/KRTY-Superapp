@@ -9,7 +9,8 @@ import { toast } from "sonner"
 
 export function ImpersonationBanner() {
   const router = useRouter()
-  const { isImpersonating, profile, authProfile, refreshProfile } = useUserProfile()
+  const { isImpersonating, profile, authProfile, refreshProfile } =
+    useUserProfile()
   const [loading, setLoading] = useState(false)
 
   if (!isImpersonating || !profile) return null
@@ -33,7 +34,9 @@ export function ImpersonationBanner() {
       router.refresh()
       router.push("/settings/permission")
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to exit impersonation")
+      toast.error(
+        error instanceof Error ? error.message : "Failed to exit impersonation",
+      )
     } finally {
       setLoading(false)
     }
@@ -42,7 +45,7 @@ export function ImpersonationBanner() {
   return (
     <div className="bg-warning/10 sticky top-0 z-40 px-5 py-2">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-body-sm text-warning min-w-0 truncate">
+        <p className="text-warning min-w-0 truncate text-sm">
           Viewing as{" "}
           <strong>{profile.full_name || profile.email || "User"}</strong>
           {authProfile?.full_name ? (
@@ -54,7 +57,6 @@ export function ImpersonationBanner() {
         </p>
         <Button
           variant="outline"
-          size="sm"
           onClick={stopImpersonation}
           disabled={loading}
         >

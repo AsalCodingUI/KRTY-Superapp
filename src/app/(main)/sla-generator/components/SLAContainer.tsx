@@ -266,16 +266,16 @@ export default function SLAContainer({
             <div className="flex min-w-0 items-center gap-3">
               <Button
                 variant="ghost"
-                size="icon-sm"
+                size="icon"
                 onClick={onBack ?? (() => router.back())}
               >
                 <RiArrowLeftLine className="text-muted-foreground/70 size-5" />
               </Button>
               <div className="min-w-0">
-                <p className="text-label-md text-foreground truncate">
+                <p className="text-foreground truncate text-sm font-medium">
                   {slaId ? "Edit SLA" : "New SLA"}
                 </p>
-                <p className="text-body-sm text-muted-foreground truncate">
+                <p className="text-muted-foreground truncate text-sm">
                   {clientInfo.company || "Untitled Project"}
                 </p>
               </div>
@@ -291,7 +291,6 @@ export default function SLAContainer({
               </div>
 
               <Button
-                size="sm"
                 onClick={handleSaveToDatabase}
                 disabled={saving || !clientInfo.name}
                 className="hidden lg:flex"
@@ -302,7 +301,7 @@ export default function SLAContainer({
 
               <Button
                 variant="outline"
-                size="icon-sm"
+                size="icon"
                 onClick={handleExportJson}
                 className="hidden lg:flex"
                 title="Export JSON"
@@ -311,7 +310,7 @@ export default function SLAContainer({
               </Button>
               <Button
                 onClick={handlePrint}
-                size="icon-sm"
+                size="icon"
                 variant="outline"
                 className="hidden lg:flex"
                 title="Print PDF"
@@ -324,7 +323,7 @@ export default function SLAContainer({
           {/* Form Content */}
           <div className="flex-1 space-y-5 overflow-y-auto p-5">
             <section className="space-y-4">
-              <h3 className="text-label-md text-foreground">
+              <h3 className="text-foreground text-sm font-medium">
                 Client Information
               </h3>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -333,7 +332,6 @@ export default function SLAContainer({
                     <Label>Client Name</Label>
                     <div className="mt-2">
                       <Input
-                        className="h-7"
                         value={clientInfo.name}
                         onChange={(e) =>
                           setClientInfo({ ...clientInfo, name: e.target.value })
@@ -346,7 +344,6 @@ export default function SLAContainer({
                     <Label>Email</Label>
                     <div className="mt-2">
                       <Input
-                        className="h-7"
                         value={clientInfo.email}
                         onChange={(e) =>
                           setClientInfo({
@@ -364,7 +361,6 @@ export default function SLAContainer({
                     <Label>Company / Project Name</Label>
                     <div className="mt-2">
                       <Input
-                        className="h-7"
                         value={clientInfo.company}
                         onChange={(e) =>
                           setClientInfo({
@@ -380,7 +376,6 @@ export default function SLAContainer({
                     <Label>Date</Label>
                     <div className="mt-2">
                       <Input
-                        className="h-7"
                         value={clientInfo.date}
                         onChange={(e) =>
                           setClientInfo({ ...clientInfo, date: e.target.value })
@@ -393,7 +388,6 @@ export default function SLAContainer({
                   <Label>Address</Label>
                   <div className="mt-2">
                     <Input
-                      className="h-7"
                       value={clientInfo.address}
                       onChange={(e) =>
                         setClientInfo({
@@ -410,7 +404,7 @@ export default function SLAContainer({
             <Separator />
 
             <section className="space-y-4">
-              <h3 className="text-label-md text-foreground">
+              <h3 className="text-foreground text-sm font-medium">
                 Agency Information
               </h3>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -418,7 +412,6 @@ export default function SLAContainer({
                   <Label>Agency Name</Label>
                   <div className="mt-2">
                     <Input
-                      className="h-7"
                       value={agencyInfo.name}
                       onChange={(e) =>
                         setAgencyInfo({ ...agencyInfo, name: e.target.value })
@@ -430,7 +423,6 @@ export default function SLAContainer({
                   <Label>Representative Name</Label>
                   <div className="mt-2">
                     <Input
-                      className="h-7"
                       value={agencyInfo.repName}
                       onChange={(e) =>
                         setAgencyInfo({
@@ -445,7 +437,6 @@ export default function SLAContainer({
                   <Label>Representative Title</Label>
                   <div className="mt-2">
                     <Input
-                      className="h-7"
                       value={agencyInfo.repTitle}
                       onChange={(e) =>
                         setAgencyInfo({
@@ -460,7 +451,6 @@ export default function SLAContainer({
                   <Label>Email</Label>
                   <div className="mt-2">
                     <Input
-                      className="h-7"
                       value={agencyInfo.email}
                       onChange={(e) =>
                         setAgencyInfo({ ...agencyInfo, email: e.target.value })
@@ -508,16 +498,18 @@ export default function SLAContainer({
         >
           {/* Mobile Header for Preview */}
           <div className="border-border flex items-center justify-between border-b px-5 py-4 lg:hidden print:hidden">
-            <span className="text-label-md text-foreground">PDF Preview</span>
+            <span className="text-foreground text-sm font-medium">
+              PDF Preview
+            </span>
             <div className="flex gap-2">
               <Button
-                size="icon-sm"
+                size="icon"
                 onClick={handleSaveToDatabase}
                 disabled={saving}
               >
                 <RiSave3Line />
               </Button>
-              <Button onClick={handlePrint} size="icon-sm">
+              <Button onClick={handlePrint} size="icon">
                 <RiPrinterLine />
               </Button>
             </div>

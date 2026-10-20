@@ -41,7 +41,7 @@ export function TableSection({
     <div
       data-slot="table-section"
       className={cn(
-        "overflow-hidden rounded-lg border border-border text-card-foreground",
+        "border-border text-card-foreground overflow-hidden rounded-lg border",
         className,
       )}
     >
@@ -55,14 +55,17 @@ export function TableSection({
           {title && (
             <div className="min-w-0">
               <h3
-                className={cn("text-label-md text-foreground", titleClassName)}
+                className={cn(
+                  "text-foreground text-sm font-medium",
+                  titleClassName,
+                )}
               >
                 {title}
               </h3>
               {description && (
                 <p
                   className={cn(
-                    "mt-1 text-body-sm text-muted-foreground/70",
+                    "text-muted-foreground/70 mt-1 text-sm",
                     descriptionClassName,
                   )}
                 >

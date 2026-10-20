@@ -145,7 +145,7 @@ export function AdminAttendanceEditDialog({
                 value={status}
                 onValueChange={(v) => v !== null && setStatus(v)}
               >
-                <SelectTrigger size="sm" className="w-full">
+                <SelectTrigger className="w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -156,15 +156,11 @@ export function AdminAttendanceEditDialog({
               </Select>
             </div>
           </div>
-          {error && (
-            <p className="text-body-sm text-destructive mt-4">{error}</p>
-          )}
+          {error && <p className="text-destructive mt-4 text-sm">{error}</p>}
         </div>
         <DialogFooter>
-          <DialogClose render={<Button variant="outline" size="sm" />}>
-            Batal
-          </DialogClose>
-          <Button size="sm" disabled={loading} onClick={handleSubmit}>
+          <DialogClose render={<Button variant="outline" />}>Batal</DialogClose>
+          <Button disabled={loading} onClick={handleSubmit}>
             {loading && <Spinner data-icon="inline-start" />}
             Simpan Perubahan
           </Button>

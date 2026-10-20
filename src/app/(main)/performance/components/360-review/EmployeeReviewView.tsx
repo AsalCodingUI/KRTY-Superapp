@@ -226,44 +226,44 @@ export function EmployeeReviewView({
             <div className="lg:col-span-4">
               <Accordion multiple defaultValue={["executive-summary"]}>
                 <AccordionItem value="executive-summary">
-                  <AccordionTrigger className="text-label-md px-4 py-3">
+                  <AccordionTrigger className="px-4 py-3 text-sm font-medium">
                     <span className="font-medium">Executive Summary</span>
                   </AccordionTrigger>
                   <AccordionContent>
-                    <p className="text-muted-foreground text-body-sm whitespace-pre-line">
+                    <p className="text-muted-foreground text-sm whitespace-pre-line">
                       {result.summary.additional}
                     </p>
                   </AccordionContent>
                 </AccordionItem>
 
                 <AccordionItem value="keep-doing">
-                  <AccordionTrigger className="text-label-md px-4 py-3">
+                  <AccordionTrigger className="px-4 py-3 text-sm font-medium">
                     <span className="font-medium">Keep Doing</span>
                   </AccordionTrigger>
                   <AccordionContent>
-                    <p className="text-muted-foreground text-body-sm whitespace-pre-line">
+                    <p className="text-muted-foreground text-sm whitespace-pre-line">
                       {result.summary.strength}
                     </p>
                   </AccordionContent>
                 </AccordionItem>
 
                 <AccordionItem value="start-doing">
-                  <AccordionTrigger className="text-label-md px-4 py-3">
+                  <AccordionTrigger className="px-4 py-3 text-sm font-medium">
                     <span className="font-medium">Start Doing</span>
                   </AccordionTrigger>
                   <AccordionContent>
-                    <p className="text-muted-foreground text-body-sm whitespace-pre-line">
+                    <p className="text-muted-foreground text-sm whitespace-pre-line">
                       {result.summary.growth}
                     </p>
                   </AccordionContent>
                 </AccordionItem>
 
                 <AccordionItem value="stop-doing">
-                  <AccordionTrigger className="text-label-md px-4 py-3">
+                  <AccordionTrigger className="px-4 py-3 text-sm font-medium">
                     <span className="font-medium">Stop Doing</span>
                   </AccordionTrigger>
                   <AccordionContent>
-                    <p className="text-muted-foreground text-body-sm whitespace-pre-line">
+                    <p className="text-muted-foreground text-sm whitespace-pre-line">
                       {result.summary.stop}
                     </p>
                   </AccordionContent>
@@ -289,7 +289,7 @@ export function EmployeeReviewView({
               />
 
               <Card className="gap-0 p-4">
-                <h3 className="text-label-sm text-muted-foreground mb-4 font-medium">
+                <h3 className="text-muted-foreground mb-4 text-sm font-medium">
                   Competency Matrix
                 </h3>
                 <div className="flex justify-center">
@@ -306,7 +306,7 @@ export function EmployeeReviewView({
                 {skillRatings && (
                   <div className="border-border space-y-3 border-t pt-4">
                     <div className="flex items-center justify-between">
-                      <span className="text-label-sm text-muted-foreground">
+                      <span className="text-muted-foreground text-sm font-medium">
                         Leadership
                       </span>
                       <Badge
@@ -318,7 +318,7 @@ export function EmployeeReviewView({
                       </Badge>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-label-sm text-muted-foreground">
+                      <span className="text-muted-foreground text-sm font-medium">
                         Quality
                       </span>
                       <Badge
@@ -330,7 +330,7 @@ export function EmployeeReviewView({
                       </Badge>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-label-sm text-muted-foreground">
+                      <span className="text-muted-foreground text-sm font-medium">
                         Reliability
                       </span>
                       <Badge
@@ -342,7 +342,7 @@ export function EmployeeReviewView({
                       </Badge>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-label-sm text-muted-foreground">
+                      <span className="text-muted-foreground text-sm font-medium">
                         Communication
                       </span>
                       <Badge
@@ -354,7 +354,7 @@ export function EmployeeReviewView({
                       </Badge>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-label-sm text-muted-foreground">
+                      <span className="text-muted-foreground text-sm font-medium">
                         Initiative
                       </span>
                       <Badge

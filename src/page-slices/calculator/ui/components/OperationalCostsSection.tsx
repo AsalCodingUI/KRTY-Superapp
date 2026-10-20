@@ -24,28 +24,24 @@ export function OperationalCostsSection({
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h3 className="text-label-md text-foreground">
+          <h3 className="text-foreground text-sm font-medium">
             Operational Costs
           </h3>
-          <p className="text-body-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             Monthly overhead allocation used for this project.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <Button variant="outline" size="sm" onClick={onDownloadTemplateCSV}>
+          <Button variant="outline" onClick={onDownloadTemplateCSV}>
             Download CSV Template
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onDownloadTemplateJSON}
-          >
+          <Button variant="outline" onClick={onDownloadTemplateJSON}>
             Download JSON Template
           </Button>
-          <Button variant="outline" size="sm" onClick={onExportCSV}>
+          <Button variant="outline" onClick={onExportCSV}>
             Export CSV
           </Button>
-          <Button variant="outline" size="sm" onClick={onExportJSON}>
+          <Button variant="outline" onClick={onExportJSON}>
             Export JSON
           </Button>
           <Label className="cursor-pointer">
@@ -60,9 +56,7 @@ export function OperationalCostsSection({
                 e.currentTarget.value = ""
               }}
             />
-            <Button size="sm" type="button">
-              Import Costs
-            </Button>
+            <Button type="button">Import Costs</Button>
           </Label>
         </div>
       </div>
@@ -70,7 +64,7 @@ export function OperationalCostsSection({
       <div className="mt-6 space-y-3">
         {costItems.length === 0 && (
           <div className="rounded-md border border-dashed p-6 text-center">
-            <p className="text-body-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               No operational costs loaded yet.
             </p>
           </div>
@@ -81,14 +75,14 @@ export function OperationalCostsSection({
             className="border-border flex flex-wrap items-center justify-between gap-2 rounded-lg border px-4 py-3"
           >
             <div>
-              <p className="text-label-md text-foreground">
+              <p className="text-foreground text-sm font-medium">
                 {item.item_name}
               </p>
-              <p className="text-label-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs font-medium">
                 {item.category}
               </p>
             </div>
-            <div className="text-label-md text-foreground">
+            <div className="text-foreground text-sm font-medium">
               Rp {formatNumber(String(item.amount_idr ?? 0))}
             </div>
           </div>

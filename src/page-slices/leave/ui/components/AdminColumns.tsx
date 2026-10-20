@@ -210,7 +210,7 @@ export const adminColumns = (
             href={url}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-label-xs text-primary hover:text-primary inline-flex items-center gap-1"
+            className="text-primary hover:text-primary inline-flex items-center gap-1 text-xs font-medium"
           >
             <RiFilePaperLine className="size-3.5" /> View
           </a>
@@ -253,7 +253,7 @@ export const adminColumns = (
                 <div className="flex justify-end gap-2">
                   <Button
                     variant="ghost"
-                    size="icon-sm"
+                    size="icon"
                     className="text-destructive"
                     title="Reject"
                     onClick={() => onReject(item.id)}
@@ -262,7 +262,7 @@ export const adminColumns = (
                   </Button>
                   <Button
                     variant="ghost"
-                    size="icon-sm"
+                    size="icon"
                     className="text-success"
                     title="Approve"
                     onClick={() => onApprove(item.id)}

@@ -146,7 +146,9 @@ export function EmployeeAttendanceWidget({
       <div className="border-border rounded-lg border px-3 py-2">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-label-sm text-muted-foreground">Today</span>
+            <span className="text-muted-foreground text-sm font-medium">
+              Today
+            </span>
             <Badge
               variant={
                 todayStatus === "Clocked In"
@@ -160,7 +162,7 @@ export function EmployeeAttendanceWidget({
             >
               {todayStatus}
             </Badge>
-            <span className="text-body-xs text-muted-foreground/70">
+            <span className="text-muted-foreground/70 text-xs">
               {currentTime ? format(currentTime, "HH:mm:ss, EEE dd MMM") : ""}
             </span>
           </div>
@@ -168,7 +170,6 @@ export function EmployeeAttendanceWidget({
           <div className="flex items-center gap-2">
             {activeSession ? (
               <Button
-                size="sm"
                 variant="outline"
                 disabled={loading}
                 onClick={() => handleClockOut(activeSession.id)}
@@ -178,7 +179,6 @@ export function EmployeeAttendanceWidget({
               </Button>
             ) : staleSession ? (
               <Button
-                size="sm"
                 variant="outline"
                 disabled={loading}
                 onClick={() => handleResolvePreviousSession(staleSession.id)}
@@ -188,7 +188,6 @@ export function EmployeeAttendanceWidget({
               </Button>
             ) : (
               <Button
-                size="sm"
                 variant="outline"
                 disabled={loading || Boolean(staleSession)}
                 onClick={() => handleClockIn("Present")}
@@ -198,7 +197,6 @@ export function EmployeeAttendanceWidget({
               </Button>
             )}
             <Button
-              size="sm"
               variant="outline"
               onClick={() => {
                 setIsLeaveModalOpen(true)
@@ -216,7 +214,7 @@ export function EmployeeAttendanceWidget({
             <DialogTitle>Session Lama Belum Ditutup</DialogTitle>
           </DialogHeader>
           <div>
-            <p className="text-body-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               Kami mendeteksi sesi attendance sebelumnya masih terbuka. Ini bisa
               terjadi kalau laptop mati, browser tertutup, atau clock out gagal
               tersimpan.
@@ -224,19 +222,12 @@ export function EmployeeAttendanceWidget({
           </div>
           <DialogFooter>
             <DialogClose
-              render={
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full sm:w-fit"
-                />
-              }
+              render={<Button variant="outline" className="w-full sm:w-fit" />}
             >
               Nanti
             </DialogClose>
             {staleSession && (
               <Button
-                size="sm"
                 variant="destructive"
                 disabled={loading}
                 className="w-full sm:w-fit"
@@ -250,7 +241,7 @@ export function EmployeeAttendanceWidget({
       </Dialog>
 
       <div>
-        <h4 className="text-label-md text-foreground mb-3">
+        <h4 className="text-foreground mb-3 text-sm font-medium">
           Attendance History (Last 7 Days)
         </h4>
         {logs.length === 0 ? (
@@ -266,7 +257,7 @@ export function EmployeeAttendanceWidget({
               <div key={log.id} className="px-3 py-2">
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex min-w-0 items-center gap-2">
-                    <span className="text-body-sm text-foreground">
+                    <span className="text-foreground text-sm">
                       {format(
                         new Date(getAttendanceLogLocalDate(log)),
                         "EEE, dd MMM yyyy",
@@ -278,7 +269,7 @@ export function EmployeeAttendanceWidget({
                       {log.status || "Present"}
                     </Badge>
                   </div>
-                  <span className="text-body-xs text-muted-foreground whitespace-nowrap">
+                  <span className="text-muted-foreground text-xs whitespace-nowrap">
                     {log.clock_in
                       ? format(new Date(log.clock_in), "HH:mm")
                       : "--:--"}
@@ -295,7 +286,9 @@ export function EmployeeAttendanceWidget({
       </div>
 
       <div>
-        <h4 className="text-label-md text-foreground mb-3">Leave Requests</h4>
+        <h4 className="text-foreground mb-3 text-sm font-medium">
+          Leave Requests
+        </h4>
         {recentLeaves.length > 0 ? (
           <div className="border-border divide-border divide-y overflow-hidden rounded-lg border">
             {recentLeaves.map((leave) => (
@@ -305,7 +298,7 @@ export function EmployeeAttendanceWidget({
               >
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="text-body-sm text-foreground">
+                    <span className="text-foreground text-sm">
                       {leave.leave_type}
                     </span>
                     <Badge
@@ -324,7 +317,7 @@ export function EmployeeAttendanceWidget({
                           : "Pending"}
                     </Badge>
                   </div>
-                  <p className="text-body-xs text-muted-foreground mt-1">
+                  <p className="text-muted-foreground mt-1 text-xs">
                     {format(new Date(leave.start_date), "dd MMM yyyy")} -{" "}
                     {format(new Date(leave.end_date), "dd MMM yyyy")}
                   </p>

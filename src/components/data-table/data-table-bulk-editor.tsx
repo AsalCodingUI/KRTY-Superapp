@@ -64,7 +64,6 @@ function BulkCommand({
     <Button
       type="button"
       variant="ghost"
-      size="sm"
       onClick={() => void action()}
       disabled={disabled}
       aria-label={label}
@@ -124,7 +123,7 @@ function DataTableBulkEditor<TData>({
           "bg-foreground text-background",
         )}
       >
-        <div className="text-body-sm px-3 py-2 font-medium tabular-nums">
+        <div className="px-3 py-2 text-sm font-medium tabular-nums">
           {selectedCount} selected
         </div>
         <BulkSeparator />

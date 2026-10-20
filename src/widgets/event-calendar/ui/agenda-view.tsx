@@ -25,7 +25,7 @@ export function AgendaView({ events, onEventClick }: AgendaViewProps) {
       {/* Header */}
 
       {/* Event count */}
-      <div className="text-body-xs text-muted-foreground/70 px-6 py-3">
+      <div className="text-muted-foreground/70 px-6 py-3 text-xs">
         {dayEvents.length} jadwal hari ini
       </div>
 
@@ -33,10 +33,10 @@ export function AgendaView({ events, onEventClick }: AgendaViewProps) {
       <div className="flex-1 overflow-y-auto px-6 pb-6">
         {dayEvents.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center text-center">
-            <div className="mb-4 flex size-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
+            <div className="bg-muted text-muted-foreground mb-4 flex size-12 items-center justify-center rounded-full">
               <RiCalendar2Line className="size-5" />
             </div>
-            <p className="text-body-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               Tidak ada jadwal hari ini
             </p>
           </div>

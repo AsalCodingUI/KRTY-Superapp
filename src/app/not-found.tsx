@@ -14,21 +14,17 @@ export default function NotFound() {
             </div>
 
             <div className="space-y-2">
-              <p className="text-body-sm text-muted-foreground/70">Error 404</p>
-              <h1 className="text-heading-lg text-foreground">
+              <p className="text-muted-foreground/70 text-sm">Error 404</p>
+              <h1 className="text-foreground text-xl font-semibold">
                 Page not found
               </h1>
-              <p className="text-body-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 Sorry, we couldn&apos;t find the page you&apos;re looking for.
               </p>
             </div>
 
             <div className="pt-1">
-              <Button
-                size="sm"
-                nativeButton={false}
-                render={<Link href="/dashboard" />}
-              >
+              <Button nativeButton={false} render={<Link href="/dashboard" />}>
                 Back to Dashboard
                 <RiArrowRightLine className="ml-2 size-4" aria-hidden="true" />
               </Button>

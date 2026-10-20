@@ -44,18 +44,22 @@ export function LeaveCard({
       <div className="flex items-start justify-between">
         <div className="flex-1">
           {showUserInfo && userFullName && (
-            <p className="text-label-md text-foreground mb-1">{userFullName}</p>
+            <p className="text-foreground mb-1 text-sm font-medium">
+              {userFullName}
+            </p>
           )}
-          <h3 className="text-heading-sm text-foreground">{leave.leave_type}</h3>
-          <p className="text-label-md text-muted-foreground mt-1">
+          <h3 className="text-foreground text-base font-semibold">
+            {leave.leave_type}
+          </h3>
+          <p className="text-muted-foreground mt-1 text-sm font-medium">
             {format(startDate, "MMM dd, yyyy")} -{" "}
             {format(endDate, "MMM dd, yyyy")}
           </p>
-          <p className="text-body-xs text-muted-foreground/60 mt-1">
+          <p className="text-muted-foreground/60 mt-1 text-xs">
             {duration} business day{duration !== 1 ? "s" : ""}
           </p>
           {leave.reason && (
-            <p className="text-body-sm text-muted-foreground mt-2 line-clamp-2">
+            <p className="text-muted-foreground mt-2 line-clamp-2 text-sm">
               {leave.reason}
             </p>
           )}
@@ -63,12 +67,7 @@ export function LeaveCard({
         <Badge variant={getStatusColor(leave.status)}>{leave.status}</Badge>
       </div>
       {onEdit && leave.status === "pending" && (
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => onEdit(leave)}
-          className="mt-3"
-        >
+        <Button variant="ghost" onClick={() => onEdit(leave)} className="mt-3">
           Edit Request
         </Button>
       )}

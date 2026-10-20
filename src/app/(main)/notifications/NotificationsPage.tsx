@@ -88,13 +88,13 @@ export function NotificationsPage() {
                       )}
                     />
                     <div className="min-w-0 flex-1">
-                      <p className="text-foreground text-label-md">
+                      <p className="text-foreground text-sm font-medium">
                         {notification.title}
                       </p>
-                      <p className="text-muted-foreground text-body-sm mt-1 line-clamp-2">
+                      <p className="text-muted-foreground mt-1 line-clamp-2 text-sm">
                         {notification.message}
                       </p>
-                      <p className="text-muted-foreground/70 text-body-xs mt-2">
+                      <p className="text-muted-foreground/70 mt-2 text-xs">
                         {new Date(
                           notification.created_at || "",
                         ).toLocaleDateString(undefined, {
@@ -125,7 +125,6 @@ export function NotificationsPage() {
         <div className="fixed bottom-[calc(env(safe-area-inset-bottom)+5.25rem)] left-1/2 z-[60] -translate-x-1/2 sm:hidden">
           <Button
             variant="outline"
-            size="sm"
             onClick={() => markAllAsRead()}
             className="shadow-regular-lg rounded-full"
           >

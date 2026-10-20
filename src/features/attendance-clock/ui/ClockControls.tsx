@@ -51,7 +51,7 @@ export function ClockControls({
           {/* DROPDOWN STATUS */}
           <DropdownMenu>
             <DropdownMenuTrigger
-              render={<Button size="sm" variant="outline" type="button" />}
+              render={<Button variant="outline" type="button" />}
             >
               {getStatusLabel(selectedStatus)}
               <RiArrowDownSLine className="text-muted-foreground ml-2 size-4 shrink-0" />
@@ -70,7 +70,6 @@ export function ClockControls({
           </DropdownMenu>
 
           <Button
-            size="sm"
             onClick={() => onConfirmOpen("CLOCK_IN", selectedStatus)}
             disabled={loading}
           >
@@ -80,7 +79,6 @@ export function ClockControls({
       ) : (
         <>
           <Button
-            size="sm"
             variant="destructive"
             onClick={() => onConfirmOpen("CLOCK_OUT")}
             disabled={loading}
@@ -88,7 +86,6 @@ export function ClockControls({
             <RiLogoutBoxLine className="mr-2 size-4" /> Clock Out
           </Button>
           <Button
-            size="sm"
             variant="outline"
             onClick={() =>
               onToggleBreak(activeSession.id, activeSession.is_break || false)

@@ -16,10 +16,10 @@ export default function LoginPage() {
 
     try {
       const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
+        provider: "google",
         options: {
           redirectTo: `${window.location.origin}/auth/callback`,
-        }
+        },
       })
 
       if (error) {
@@ -40,10 +40,10 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen flex-1 flex-col justify-center px-4 lg:px-6">
       <div className="w-full">
-        <h3 className="text-heading-md text-foreground dark:text-foreground mt-6 text-center">
+        <h3 className="text-foreground dark:text-foreground mt-6 text-center text-lg font-semibold">
           Sign in to kretya account
         </h3>
-        <p className="text-body-sm text-muted-foreground mt-2 text-center">
+        <p className="text-muted-foreground mt-2 text-center text-sm">
           Login securely with your Google Workspace or Gmail account
         </p>
 
@@ -51,7 +51,7 @@ export default function LoginPage() {
           <div className="space-y-4">
             {/* Error Message */}
             {error && (
-              <div className="bg-destructive/10 text-body-sm text-destructive ring-destructive/30 rounded-md p-3 ring-1 ring-inset">
+              <div className="bg-destructive/10 text-destructive ring-destructive/30 rounded-md p-3 text-sm ring-1 ring-inset">
                 {error}
               </div>
             )}
@@ -59,14 +59,13 @@ export default function LoginPage() {
             <Button
               onClick={handleGoogleLogin}
               variant="outline"
-              size="sm"
-              className="w-hug flex items-center mx-auto gap-3"
+              className="w-hug mx-auto flex items-center gap-3"
               disabled={loading}
             >
-              <span>{loading ? "Menghubungkan..." : "Lanjutkan dengan Google"}</span>
+              <span>
+                {loading ? "Menghubungkan..." : "Lanjutkan dengan Google"}
+              </span>
             </Button>
-
-
           </div>
         </div>
       </div>

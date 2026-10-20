@@ -41,16 +41,16 @@ export function UserCard({
           size={avatarSize}
         />
         <div className="min-w-0 flex-1">
-          <p className="text-label-md text-foreground truncate">
+          <p className="text-foreground truncate text-sm font-medium">
             {user.full_name || "Unknown User"}
           </p>
           {showEmail && user.email && (
-            <p className="text-body-xs text-muted-foreground truncate">
+            <p className="text-muted-foreground truncate text-xs">
               {user.email}
             </p>
           )}
           {showJobTitle && user.job_title && (
-            <p className="text-body-xs text-muted-foreground/60 truncate">
+            <p className="text-muted-foreground/60 truncate text-xs">
               {user.job_title}
             </p>
           )}

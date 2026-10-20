@@ -46,7 +46,7 @@ export function KPICard({
       <h3 className="text-foreground mb-4 font-semibold">{title}</h3>
       <div className="space-y-4">
         <div>
-          <div className="text-body-sm mb-2 flex justify-between">
+          <div className="mb-2 flex justify-between text-sm">
             <span className="text-muted-foreground">Achievement</span>
             <span className="font-medium">
               {score !== null ? `${score}%` : "—"}
@@ -58,12 +58,12 @@ export function KPICard({
           />
         </div>
         {target && (
-          <p className="text-body-xs text-muted-foreground">
+          <p className="text-muted-foreground text-xs">
             Target: {target}% {description || "achievement"}
           </p>
         )}
         {weighted !== undefined && (
-          <p className="text-body-xs text-muted-foreground">
+          <p className="text-muted-foreground text-xs">
             Weight: {weighted}% of total score
           </p>
         )}

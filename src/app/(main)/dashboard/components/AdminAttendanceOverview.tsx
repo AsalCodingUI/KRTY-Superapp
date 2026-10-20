@@ -29,20 +29,20 @@ export function AdminAttendanceOverview({
 
   return (
     <Card className="gap-0 p-4">
-      <p className="text-label-md text-muted-foreground mb-3">
+      <p className="text-muted-foreground mb-3 text-sm font-medium">
         Today&apos;s Attendance Overview
       </p>
 
-      <div className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border bg-border sm:grid-cols-4">
+      <div className="bg-border grid grid-cols-2 gap-px overflow-hidden rounded-xl border sm:grid-cols-4">
         {items.map((item) => (
           <div
             key={item.label}
             className="bg-background md:bg-sidebar h-full px-3 py-3"
           >
-            <p className="text-label-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm font-medium">
               {item.label}
             </p>
-            <p className="mt-1 text-heading-md text-foreground">
+            <p className="text-foreground mt-1 text-lg font-semibold">
               {item.value}
             </p>
           </div>
@@ -52,18 +52,18 @@ export function AdminAttendanceOverview({
       <div className="mt-4 space-y-4">
         <div className="flex items-end justify-between gap-4">
           <div>
-            <p className="text-label-md text-muted-foreground">
+            <p className="text-muted-foreground text-sm font-medium">
               Overall Attendance Rate
             </p>
-            <p className="mt-1 text-heading-md text-foreground">
+            <p className="text-foreground mt-1 text-lg font-semibold">
               {onTimePercentage}%
             </p>
           </div>
           <div className="text-right">
-            <p className="text-label-md text-muted-foreground">
+            <p className="text-muted-foreground text-sm font-medium">
               Present Today
             </p>
-            <p className="mt-1 text-heading-md text-foreground">
+            <p className="text-foreground mt-1 text-lg font-semibold">
               {totalToday} / {total}
             </p>
           </div>

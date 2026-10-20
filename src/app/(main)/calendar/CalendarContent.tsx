@@ -207,26 +207,28 @@ function CalendarContent({
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col">
-        <div className="grid grid-cols-2 my-3 sm:my-2 xl:grid-cols-3 gap-px overflow-hidden rounded-xl border bg-border">
+        <div className="bg-border my-3 grid grid-cols-2 gap-px overflow-hidden rounded-xl border sm:my-2 xl:grid-cols-3">
           <div className="bg-background md:bg-sidebar flex h-full flex-col gap-1 px-4 py-3 [&:last-child:nth-child(odd)]:col-span-2 lg:[&:last-child:nth-child(odd)]:col-span-1">
-            <p className="text-label-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm font-medium">
               Tanggal Saat Ini
             </p>
-            <p className="text-heading-md text-foreground">
+            <p className="text-foreground text-lg font-semibold">
               {format(currentDate, "EEEE, dd MMM", { locale: id })}
             </p>
           </div>
           <div className="bg-background md:bg-sidebar flex h-full flex-col gap-1 px-4 py-3 [&:last-child:nth-child(odd)]:col-span-2 lg:[&:last-child:nth-child(odd)]:col-span-1">
-            <p className="text-label-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm font-medium">
               Rapat Hari Ini
             </p>
-            <p className="text-heading-md text-foreground">{meetingCount}</p>
+            <p className="text-foreground text-lg font-semibold">
+              {meetingCount}
+            </p>
           </div>
           <div className="bg-background md:bg-sidebar flex h-full flex-col gap-1 px-4 py-3 [&:last-child:nth-child(odd)]:col-span-2 lg:[&:last-child:nth-child(odd)]:col-span-1">
-            <p className="text-label-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm font-medium">
               Jadwal Minggu Ini
             </p>
-            <p className="text-heading-md text-foreground">
+            <p className="text-foreground text-lg font-semibold">
               {upcomingThisWeek}
             </p>
           </div>

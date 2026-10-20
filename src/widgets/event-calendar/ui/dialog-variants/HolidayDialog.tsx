@@ -36,7 +36,7 @@ export function HolidayDialog({
           {/* Holiday Title */}
           <div>
             <div className="flex items-start justify-between gap-4">
-              <h3 className="text-heading-sm text-foreground break-words">
+              <h3 className="text-foreground text-base font-semibold break-words">
                 {event.title}
               </h3>
               <Badge variant="secondary" className="shrink-0">
@@ -50,11 +50,11 @@ export function HolidayDialog({
             <div className="flex items-center gap-3">
               <RiCalendarLine className="text-muted-foreground h-5 w-5" />
               <div>
-                <p className="text-body-sm text-foreground">
+                <p className="text-foreground text-sm">
                   {format(event.start, "EEEE, dd MMMM yyyy", { locale: id })}
                 </p>
                 {event.allDay && (
-                  <p className="text-body-xs text-muted-foreground mt-0.5">
+                  <p className="text-muted-foreground mt-0.5 text-xs">
                     Sepanjang hari
                   </p>
                 )}
@@ -65,16 +65,18 @@ export function HolidayDialog({
           {/* Description */}
           {event.description && (
             <div className="border-border space-y-2 border-t pt-4">
-              <h4 className="text-label-sm text-muted-foreground">Tentang hari libur ini</h4>
-              <p className="text-body-sm text-foreground break-words whitespace-pre-wrap">
+              <h4 className="text-muted-foreground text-sm font-medium">
+                Tentang hari libur ini
+              </h4>
+              <p className="text-foreground text-sm break-words whitespace-pre-wrap">
                 {event.description}
               </p>
             </div>
           )}
 
           {/* Info notice */}
-          <div className="bg-primary/10 rounded-lg border border-primary/20 p-3">
-              <p className="text-body-xs text-primary">
+          <div className="bg-primary/10 border-primary/20 rounded-lg border p-3">
+            <p className="text-primary text-xs">
               ℹ️ Ini adalah hari libur nasional dari kalender Indonesia. Data
               ini tidak dapat diubah atau dihapus.
             </p>
@@ -83,7 +85,6 @@ export function HolidayDialog({
 
         <DialogFooter>
           <Button
-            size="sm"
             type="button"
             variant="outline"
             onClick={() => onOpenChange(false)}

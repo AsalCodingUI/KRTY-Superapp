@@ -23,6 +23,7 @@ export interface SegmentedControlProps<T extends string> {
   disabled?: boolean
   className?: string
   fitContent?: boolean
+  /** @deprecated kept for API compatibility; one size (shadcn default). */
   size?: "sm" | "md"
 }
 
@@ -33,9 +34,7 @@ export function SegmentedControl<T extends string>({
   disabled,
   className,
   fitContent = false,
-  size = "md",
 }: SegmentedControlProps<T>) {
-  const isSmall = size === "sm"
   const activeIndex = items.findIndex((item) => item.value === value)
 
   return (
@@ -48,8 +47,8 @@ export function SegmentedControl<T extends string>({
         if (next[0]) onChange(next[0] as T)
       }}
       className={cn(
-        "bg-muted p-0.5",
-        isSmall ? "rounded-md" : "rounded-lg",
+        // Same metrics as shadcn TabsList (h-8, p-[3px]).
+        "bg-muted text-muted-foreground h-8 items-center rounded-2xl p-[3px]",
         fitContent ? "inline-flex w-auto" : "flex w-full",
         disabled && "pointer-events-none opacity-50",
         className,
@@ -73,14 +72,13 @@ export function SegmentedControl<T extends string>({
             disabled={Boolean(disabled || item.disabled)}
             className={cn(
               // reset toggle-group "spacing=0" joined styles
-              "text-label-sm relative h-auto min-w-0 gap-0.5 border-0 whitespace-nowrap shadow-none",
+              "relative h-[calc(100%-1px)] min-w-0 gap-1.5 border border-transparent text-sm font-medium whitespace-nowrap shadow-none",
               "group-data-[spacing=0]/toggle-group:rounded-[inherit] group-data-horizontal/toggle-group:data-[spacing=0]:first:rounded-[inherit] group-data-horizontal/toggle-group:data-[spacing=0]:last:rounded-[inherit]",
-              isSmall ? "rounded-sm! px-1.5! py-0.5" : "rounded-md! px-2! py-1",
+              "rounded-2xl! px-2! py-0.5",
               fitContent ? "flex-none" : "flex-1",
-              "text-muted-foreground/70 hover:bg-accent hover:text-muted-foreground",
-              "data-pressed:bg-background data-pressed:text-foreground data-pressed:hover:bg-background data-pressed:shadow-sm",
+              "text-foreground/60 hover:text-foreground hover:bg-transparent",
               // Base UI Toggle marks the active item with data-pressed
-              "data-pressed:bg-background data-pressed:text-foreground data-pressed:hover:bg-background data-pressed:shadow-sm",
+              "data-pressed:bg-background data-pressed:text-foreground data-pressed:hover:bg-background dark:data-pressed:border-input dark:data-pressed:bg-input/30",
               "disabled:text-muted-foreground/50",
               showDivider &&
                 "after:bg-border after:absolute after:inset-y-1.5 after:-right-px after:w-px",

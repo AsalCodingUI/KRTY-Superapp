@@ -42,14 +42,14 @@ export function AttendanceRecord({
       <div className="space-y-3 p-4">
         {showDate && (
           <div className="flex items-center justify-between">
-            <span className="text-label-md text-foreground">
+            <span className="text-foreground text-sm font-medium">
               {format(new Date(log.date), "dd MMM yyyy")}
             </span>
             {isActive && <Badge variant="success">Active</Badge>}
           </div>
         )}
 
-        <div className="text-body-sm grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
             <p className="text-muted-foreground">Clock In</p>
             <p className="text-foreground font-medium tabular-nums">
@@ -66,7 +66,7 @@ export function AttendanceRecord({
 
         {showDuration && !isActive && (
           <div className="border-border border-t pt-2">
-            <div className="text-body-sm flex items-center justify-between">
+            <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">Duration</span>
               <span className="text-foreground font-medium tabular-nums">
                 {getDuration()}
@@ -77,9 +77,11 @@ export function AttendanceRecord({
 
         {log.status && (
           <div className="border-border border-t pt-2">
-            <div className="text-body-sm flex items-center justify-between">
+            <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">Status</span>
-              <Badge variant={log.status === "Present" ? "secondary" : "warning"}>
+              <Badge
+                variant={log.status === "Present" ? "secondary" : "warning"}
+              >
                 {log.status}
               </Badge>
             </div>

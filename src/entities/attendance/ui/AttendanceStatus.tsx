@@ -78,9 +78,7 @@ export function AttendanceStatus({
       {showIcon && (
         <Icon className={cx("shrink-0", size === "sm" ? "size-3" : "size-4")} />
       )}
-      <span className={cx(size === "sm" && "text-body-xs")}>
-        {config.label}
-      </span>
+      <span className={cx(size === "sm" && "text-xs")}>{config.label}</span>
     </Badge>
   )
 }

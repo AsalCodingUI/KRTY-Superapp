@@ -41,40 +41,41 @@ export function EmployeePerformanceCards({
 }: EmployeePerformanceCardsProps) {
   const competencyItems = competencyScores
     ? [
-      { label: "Leadership", value: competencyScores.leadership },
-      { label: "Quality", value: competencyScores.quality },
-      { label: "Reliability", value: competencyScores.reliability },
-      { label: "Communication", value: competencyScores.communication },
-      { label: "Initiative", value: competencyScores.initiative },
-    ]
+        { label: "Leadership", value: competencyScores.leadership },
+        { label: "Quality", value: competencyScores.quality },
+        { label: "Reliability", value: competencyScores.reliability },
+        { label: "Communication", value: competencyScores.communication },
+        { label: "Initiative", value: competencyScores.initiative },
+      ]
     : []
 
   return (
     <div className="space-y-4">
-
       {competencyItems.length > 0 && (
         <div className="border-border rounded-lg border px-4 py-3">
           <div className="mb-3 flex items-center justify-between">
-            <p className="text-label-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm font-medium">
               Competency Snapshot
             </p>
-            <span className="text-body-xs text-muted-foreground/70">{quarter}</span>
+            <span className="text-muted-foreground/70 text-xs">{quarter}</span>
           </div>
           <div className="space-y-2">
             {competencyItems.map((item) => (
               <div key={item.label} className="space-y-1">
                 <div className="flex items-center justify-between">
-                  <span className="text-body-xs text-muted-foreground">
+                  <span className="text-muted-foreground text-xs">
                     {item.label}
                   </span>
-                  <span className="text-body-xs text-foreground tabular-nums">
+                  <span className="text-foreground text-xs tabular-nums">
                     {Math.round(item.value)}%
                   </span>
                 </div>
                 <div className="bg-muted h-1.5 overflow-hidden rounded-full">
                   <div
                     className="bg-primary h-full rounded-full"
-                    style={{ width: `${Math.max(0, Math.min(100, item.value))}%` }}
+                    style={{
+                      width: `${Math.max(0, Math.min(100, item.value))}%`,
+                    }}
                   />
                 </div>
               </div>
@@ -84,7 +85,7 @@ export function EmployeePerformanceCards({
       )}
 
       {upcomingReviews.length === 0 ? (
-        <p className="text-body-xs text-muted-foreground/70">
+        <p className="text-muted-foreground/70 text-xs">
           No active review cycle.
         </p>
       ) : (
@@ -95,10 +96,8 @@ export function EmployeePerformanceCards({
               className="flex items-center justify-between px-3 py-2"
             >
               <div>
-                <p className="text-body-sm text-foreground">
-                  {review.cycle_name}
-                </p>
-                <p className="text-body-xs text-muted-foreground">
+                <p className="text-foreground text-sm">{review.cycle_name}</p>
+                <p className="text-muted-foreground text-xs">
                   Due {format(new Date(review.end_date), "dd MMM yyyy")}
                 </p>
               </div>
@@ -111,9 +110,11 @@ export function EmployeePerformanceCards({
       )}
 
       <div className="border-border rounded-lg border px-4 py-3">
-        <p className="text-label-sm text-muted-foreground mb-2">Jadwal 1:1</p>
+        <p className="text-muted-foreground mb-2 text-sm font-medium">
+          Jadwal 1:1
+        </p>
         {upcomingOneOnOne.length === 0 ? (
-          <p className="text-body-xs text-muted-foreground/70">
+          <p className="text-muted-foreground/70 text-xs">
             Belum ada jadwal 1:1 terdekat.
           </p>
         ) : (
@@ -124,12 +125,14 @@ export function EmployeePerformanceCards({
                 className="flex items-center justify-between gap-3 px-3 py-2"
               >
                 <div className="min-w-0">
-                  <p className="text-body-sm text-foreground">
+                  <p className="text-foreground text-sm">
                     {format(new Date(slot.start_at), "dd MMM yyyy · HH:mm")} -{" "}
                     {format(new Date(slot.end_at), "HH:mm")}
                   </p>
-                  <p className="text-body-xs text-muted-foreground truncate">
-                    {slot.organizer_name ? `With ${slot.organizer_name}` : "1:1 Session"}
+                  <p className="text-muted-foreground truncate text-xs">
+                    {slot.organizer_name
+                      ? `With ${slot.organizer_name}`
+                      : "1:1 Session"}
                     {slot.mode === "offline" && slot.location
                       ? ` • ${slot.location}`
                       : ` • ${slot.mode}`}
@@ -140,7 +143,7 @@ export function EmployeePerformanceCards({
                     href={slot.meeting_url}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-body-xs text-primary hover:underline whitespace-nowrap"
+                    className="text-primary text-xs whitespace-nowrap hover:underline"
                   >
                     Join
                   </a>

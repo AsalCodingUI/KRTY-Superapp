@@ -522,7 +522,9 @@ export default function CalculatorClientPage({
     <div className="grid grid-cols-1 gap-6 md:grid-cols-12 md:gap-8">
       <div className="space-y-6 md:col-span-7">
         <div>
-          <h3 className="text-label-md text-foreground mb-4">Calculation</h3>
+          <h3 className="text-foreground mb-4 text-sm font-medium">
+            Calculation
+          </h3>
           {hideProjectSelector ? (
             <div className="grid grid-cols-1 gap-4 md:flex md:items-end">
               <div className="md:flex-1">
@@ -537,7 +539,6 @@ export default function CalculatorClientPage({
               </div>
               <div className="flex gap-3 md:shrink-0">
                 <Button
-                  size="sm"
                   onClick={handleSave}
                   disabled={!selectedProjectId || isSaving}
                   className="whitespace-nowrap"
@@ -546,7 +547,6 @@ export default function CalculatorClientPage({
                   Save
                 </Button>
                 <Button
-                  size="sm"
                   variant="outline"
                   onClick={handleNew}
                   className="whitespace-nowrap"
@@ -575,7 +575,7 @@ export default function CalculatorClientPage({
                     value={selectedProjectId}
                     disabled={Boolean(prefilledProjectId)}
                   >
-                    <SelectTrigger size="sm" className="mt-1 w-full">
+                    <SelectTrigger className="mt-1 w-full">
                       <SelectValue placeholder="Select Project..." />
                     </SelectTrigger>
                     <SelectContent>
@@ -590,7 +590,6 @@ export default function CalculatorClientPage({
               </div>
               <div className="flex gap-3 md:shrink-0">
                 <Button
-                  size="sm"
                   onClick={handleSave}
                   disabled={!selectedProjectId || isSaving}
                   className="whitespace-nowrap"
@@ -599,7 +598,6 @@ export default function CalculatorClientPage({
                   Save
                 </Button>
                 <Button
-                  size="sm"
                   variant="outline"
                   onClick={handleNew}
                   className="whitespace-nowrap"
@@ -670,7 +668,7 @@ export default function CalculatorClientPage({
           <>
             <Separator className="my-2" />
             <div>
-              <h3 className="text-label-md text-foreground mb-4">
+              <h3 className="text-foreground mb-4 text-sm font-medium">
                 Saved Calculations
               </h3>
               {savedCalculations.length === 0 ? (
@@ -687,24 +685,23 @@ export default function CalculatorClientPage({
                       className={`border-border flex items-center justify-between gap-3 rounded-lg border px-4 py-3`}
                     >
                       <div className="min-w-0 flex-1">
-                        <p className="text-label-md text-foreground truncate">
+                        <p className="text-foreground truncate text-sm font-medium">
                           {calc.title}
                         </p>
-                        <p className="text-label-xs text-muted-foreground">
+                        <p className="text-muted-foreground text-xs font-medium">
                           {format(new Date(calc.created_at), "MMM d, yyyy")}
                         </p>
                       </div>
                       <div className="flex shrink-0 items-center gap-2">
                         <Button
                           variant="outline"
-                          size="sm"
                           onClick={() => handleLoad(calc)}
                         >
                           Load
                         </Button>
                         <Button
                           variant="ghost"
-                          size="icon-sm"
+                          size="icon"
                           className="text-muted-foreground/70 size-6 p-0"
                           onClick={() => setPendingDeleteId(calc.id)}
                         >
@@ -748,9 +745,7 @@ export default function CalculatorClientPage({
 
       <div
         className={
-          showHeader
-            ? "rounded-xl flex flex-col p-5"
-            : "flex flex-col"
+          showHeader ? "flex flex-col rounded-xl p-5" : "flex flex-col"
         }
       >
         {calculatorContent}

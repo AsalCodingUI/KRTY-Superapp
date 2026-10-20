@@ -22,31 +22,31 @@ export default function Error({
       <div className="flex min-h-[calc(100vh-6rem)] items-center justify-center">
         <Card className="w-full gap-0 p-8 text-center">
           <div className="space-y-5">
-            <div className="bg-destructive/10 mx-auto flex size-14 items-center justify-center rounded-full border border-destructive/30">
-              <span className="text-heading-md text-destructive">⚠️</span>
+            <div className="bg-destructive/10 border-destructive/30 mx-auto flex size-14 items-center justify-center rounded-full border">
+              <span className="text-destructive text-lg font-semibold">⚠️</span>
             </div>
 
-            <h2 className="text-heading-lg text-foreground">
+            <h2 className="text-foreground text-xl font-semibold">
               Terjadi Kesalahan
             </h2>
 
-            <p className="text-body-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               Maaf, terjadi kesalahan saat memuat halaman ini. Silakan coba lagi
               atau kembali ke dashboard.
             </p>
 
             {error.digest && (
-              <p className="text-body-xs text-muted-foreground/70 tabular-nums">
+              <p className="text-muted-foreground/70 text-xs tabular-nums">
                 Error ID: {error.digest}
               </p>
             )}
 
             <div className="flex flex-wrap justify-center gap-2 pt-1">
-              <Button variant="outline" size="sm" onClick={reset}>
+              <Button variant="outline" onClick={reset}>
                 <RiRefreshLine className="mr-2 size-4" />
                 Coba Lagi
               </Button>
-              <Button size="sm" onClick={() => (window.location.href = "/dashboard")}>
+              <Button onClick={() => (window.location.href = "/dashboard")}>
                 <RiHome2Line className="mr-2 size-4" />
                 Dashboard
               </Button>

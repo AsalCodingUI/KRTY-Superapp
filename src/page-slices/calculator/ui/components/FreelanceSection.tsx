@@ -24,13 +24,12 @@ export function FreelanceSection({
 }: FreelanceSectionProps) {
   return (
     <div>
-      <h3 className="text-label-md text-foreground mb-4">
+      <h3 className="text-foreground mb-4 text-sm font-medium">
         Freelance / COGS (Optional)
       </h3>
 
       <div className="mb-4">
         <Button
-          size="sm"
           variant="outline"
           className="w-full"
           onClick={onAddFreelanceMember}
@@ -41,10 +40,7 @@ export function FreelanceSection({
 
       <div className="space-y-4">
         {freelanceSquad.map((member) => (
-          <div
-            key={member.id}
-            className="border-border rounded-lg border p-4"
-          >
+          <div key={member.id} className="border-border rounded-lg border p-4">
             <div className="mb-1 flex items-start justify-between gap-4">
               <div className="grid flex-1 grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 <div>
@@ -113,7 +109,7 @@ export function FreelanceSection({
               </div>
               <Button
                 variant="ghost"
-                size="icon-sm"
+                size="icon"
                 className="text-muted-foreground/70 size-6 p-0"
                 onClick={() => onRemoveFreelanceMember(member.id)}
               >
@@ -125,7 +121,7 @@ export function FreelanceSection({
 
         {freelanceSquad.length === 0 && (
           <div className="rounded-md border border-dashed p-6 text-center">
-            <p className="text-body-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               No freelance costs added.
             </p>
           </div>

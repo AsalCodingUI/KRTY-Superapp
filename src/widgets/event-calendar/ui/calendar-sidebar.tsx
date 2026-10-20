@@ -42,7 +42,7 @@ function SidebarContent() {
 
       <div className="flex w-full flex-col gap-3">
         <div className="flex items-center py-1.5">
-          <h4 className="text-label-sm text-muted-foreground">
+          <h4 className="text-muted-foreground text-sm font-medium">
             Kalender Kretya
           </h4>
         </div>
@@ -51,7 +51,7 @@ function SidebarContent() {
             <button
               key={category.id}
               onClick={() => toggleColor(category.color)}
-              className="text-label-sm text-muted-foreground hover:bg-accent flex w-full items-center gap-1 overflow-hidden rounded-md px-2 py-1 text-left transition-colors"
+              className="text-muted-foreground hover:bg-accent flex w-full items-center gap-1 overflow-hidden rounded-md px-2 py-1 text-left text-sm font-medium transition-colors"
             >
               <span className="flex size-4 shrink-0 items-center justify-center">
                 <span
@@ -93,7 +93,6 @@ export function CalendarSidebarMobileTrigger() {
         render={
           <Button
             variant="outline"
-            size="sm"
             className="shadow-regular-lg rounded-full lg:hidden"
             aria-label="Buka filter kalender"
           />
@@ -109,7 +108,7 @@ export function CalendarSidebarMobileTrigger() {
       >
         <SheetTitle className="sr-only">Kalender</SheetTitle>
         <div className="border-border flex items-center justify-between border-b px-4 py-4">
-          <h3 className="text-heading-sm text-foreground">Kalender</h3>
+          <h3 className="text-foreground text-base font-semibold">Kalender</h3>
           <SheetClose
             render={
               <button

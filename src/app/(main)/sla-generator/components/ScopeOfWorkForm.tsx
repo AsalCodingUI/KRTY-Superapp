@@ -100,7 +100,7 @@ function SortableItem({
             </div>
 
             <div className="flex items-center gap-1">
-              <AccordionTrigger className="text-label-sm text-muted-foreground hover:text-foreground w-auto flex-none items-center gap-1 rounded-md px-2 py-1 hover:no-underline">
+              <AccordionTrigger className="text-muted-foreground hover:text-foreground w-auto flex-none items-center gap-1 rounded-md px-2 py-1 text-sm font-medium hover:no-underline">
                 Description
               </AccordionTrigger>
               <Button
@@ -118,7 +118,6 @@ function SortableItem({
             <div className="sm:col-span-2 md:col-span-1">
               <Label className="mb-1">No</Label>
               <Input
-                className="h-7"
                 value={item.no}
                 onChange={(e) => updateItem(index, "no", e.target.value)}
               />
@@ -126,7 +125,6 @@ function SortableItem({
             <div className="sm:col-span-4 md:col-span-3">
               <Label className="mb-1">Category</Label>
               <Input
-                className="h-7"
                 value={item.category}
                 onChange={(e) => updateItem(index, "category", e.target.value)}
                 placeholder="Category"
@@ -135,7 +133,6 @@ function SortableItem({
             <div className="sm:col-span-12 md:col-span-8">
               <Label className="mb-1">Page/Flow</Label>
               <Input
-                className="h-7"
                 value={item.flow}
                 onChange={(e) => updateItem(index, "flow", e.target.value)}
                 placeholder="e.g. Login Screen"
@@ -248,12 +245,12 @@ export const ScopeOfWorkForm = ({ data, onChange }: ScopeOfWorkFormProps) => {
   return (
     <div className="space-y-4">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <h3 className="text-label-md text-foreground">Scope of Work</h3>
+        <h3 className="text-foreground text-sm font-medium">Scope of Work</h3>
         <div className="flex flex-wrap gap-2">
-          <Button variant="outline" size="sm" onClick={handleImport}>
+          <Button variant="outline" onClick={handleImport}>
             <RiUploadLine data-icon="inline-start" /> Import
           </Button>
-          <Button variant="outline" size="sm" onClick={handleExport}>
+          <Button variant="outline" onClick={handleExport}>
             <RiFileCopyLine data-icon="inline-start" /> Copy JSON
           </Button>
         </div>
@@ -285,7 +282,6 @@ export const ScopeOfWorkForm = ({ data, onChange }: ScopeOfWorkFormProps) => {
 
         <Button
           variant="outline"
-          size="sm"
           onClick={addItem}
           className="border-border hover:border-muted-foreground/70 w-full border-dashed"
         >

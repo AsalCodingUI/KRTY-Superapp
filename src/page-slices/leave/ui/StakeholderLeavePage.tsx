@@ -594,11 +594,7 @@ export function StakeholderLeavePage({
                   setManualForm((prev) => ({ ...prev, user_id: value }))
                 }
               >
-                <SelectTrigger
-                  size="sm"
-                  id="manual-user"
-                  className="mt-2 w-full"
-                >
+                <SelectTrigger id="manual-user" className="mt-2 w-full">
                   <SelectValue placeholder="Select employee" />
                 </SelectTrigger>
                 <SelectContent>
@@ -654,11 +650,7 @@ export function StakeholderLeavePage({
                     }))
                   }
                 >
-                  <SelectTrigger
-                    size="sm"
-                    id="manual-leave-type"
-                    className="mt-2 w-full"
-                  >
+                  <SelectTrigger id="manual-leave-type" className="mt-2 w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -679,11 +671,7 @@ export function StakeholderLeavePage({
                     }))
                   }
                 >
-                  <SelectTrigger
-                    size="sm"
-                    id="manual-status"
-                    className="mt-2 w-full"
-                  >
+                  <SelectTrigger id="manual-status" className="mt-2 w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -735,7 +723,7 @@ export function StakeholderLeavePage({
               <Label htmlFor="manual-proof-url">Proof URL</Label>
               <Input
                 id="manual-proof-url"
-                className="mt-2 h-7"
+                className="mt-2"
                 placeholder="https://..."
                 value={manualForm.proof_url}
                 onChange={(e) =>
@@ -748,14 +736,10 @@ export function StakeholderLeavePage({
             </div>
           </div>
           <DialogFooter>
-            <DialogClose render={<Button size="sm" variant="ghost" />}>
+            <DialogClose render={<Button variant="ghost" />}>
               Cancel
             </DialogClose>
-            <Button
-              size="sm"
-              disabled={manualSaving}
-              onClick={handleManualSubmit}
-            >
+            <Button disabled={manualSaving} onClick={handleManualSubmit}>
               {manualSaving && <Spinner data-icon="inline-start" />}
               Save Manual Request
             </Button>
@@ -850,14 +834,18 @@ function AttendanceOverviewPanel({
 
   return (
     <div className="flex flex-col">
-      <div className="grid grid-cols-2 my-2 lg:grid-cols-5 gap-px overflow-hidden rounded-xl border bg-border">
+      <div className="bg-border my-2 grid grid-cols-2 gap-px overflow-hidden rounded-xl border lg:grid-cols-5">
         {stats.map((item) => (
           <div
             key={item.label}
             className="bg-background md:bg-sidebar flex h-full flex-col gap-1 px-4 py-3 [&:last-child:nth-child(odd)]:col-span-2 lg:[&:last-child:nth-child(odd)]:col-span-1"
           >
-            <p className="text-label-sm text-muted-foreground">{item.label}</p>
-            <p className="text-heading-md text-foreground">{item.value}</p>
+            <p className="text-muted-foreground text-sm font-medium">
+              {item.label}
+            </p>
+            <p className="text-foreground text-lg font-semibold">
+              {item.value}
+            </p>
           </div>
         ))}
       </div>
@@ -871,7 +859,7 @@ function AttendanceOverviewPanel({
                 onTabChange(value as "attendance" | "approval" | "remaining")
               }
             >
-              <SelectTrigger size="sm" className="w-full">
+              <SelectTrigger className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -909,9 +897,7 @@ function AttendanceOverviewPanel({
             </TabNavigationLink>
           </TabNavigation>
           {activeTab === "approval" && (
-            <Button size="sm" onClick={onAddManualLeave}>
-              Added Manually
-            </Button>
+            <Button onClick={onAddManualLeave}>Added Manually</Button>
           )}
         </div>
       </div>

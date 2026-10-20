@@ -35,7 +35,6 @@ export function ProjectCalculatorEditPage({
       <div className="flex items-center gap-2 pb-4">
         <Button
           variant="outline"
-          size="sm"
           onClick={() => router.push(`/projects/${projectId}/calculations`)}
         >
           <RiArrowLeftLine className="mr-2 size-4" />

@@ -36,7 +36,7 @@ export function AdminEmployeeSpotlight({
   return (
     <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
       <Card className="gap-0 p-4">
-        <p className="text-label-md text-muted-foreground mb-3">
+        <p className="text-muted-foreground mb-3 text-sm font-medium">
           Top Performers
         </p>
 
@@ -59,27 +59,26 @@ export function AdminEmployeeSpotlight({
                 >
                   <div className="hover:bg-muted flex items-center gap-3 px-3 py-2 transition-colors">
                     <Avatar className="size-7">
-                      <AvatarImage src={employee.employee_avatar || undefined} />
+                      <AvatarImage
+                        src={employee.employee_avatar || undefined}
+                      />
                       <AvatarFallback className="text-[10px]">
                         {employee.employee_name?.[0] || "?"}
                       </AvatarFallback>
                     </Avatar>
                     <div className="min-w-0 flex-1">
-                      <h4 className="text-foreground text-label-md truncate">
+                      <h4 className="text-foreground truncate text-sm font-medium">
                         {employee.employee_name}
                       </h4>
-                      <p className="text-body-xs text-muted-foreground truncate">
+                      <p className="text-muted-foreground truncate text-xs">
                         {employee.employee_job_title}
                       </p>
                     </div>
                     <div className="shrink-0 text-right">
-                      <div className="text-heading-md text-foreground">
+                      <div className="text-foreground text-lg font-semibold">
                         {employee.overall_percentage}%
                       </div>
-                      <Badge
-                        variant={badge.variant}
-                        className="text-body-xs mt-1"
-                      >
+                      <Badge variant={badge.variant} className="mt-1 text-xs">
                         {badge.label}
                       </Badge>
                     </div>
@@ -92,7 +91,7 @@ export function AdminEmployeeSpotlight({
       </Card>
 
       <Card className="gap-0 p-4">
-        <p className="text-label-md text-muted-foreground mb-3">
+        <p className="text-muted-foreground mb-3 text-sm font-medium">
           Needs Attention
         </p>
 
@@ -115,27 +114,26 @@ export function AdminEmployeeSpotlight({
                 >
                   <div className="hover:bg-muted flex items-center gap-3 px-3 py-2 transition-colors">
                     <Avatar className="size-7">
-                      <AvatarImage src={employee.employee_avatar || undefined} />
+                      <AvatarImage
+                        src={employee.employee_avatar || undefined}
+                      />
                       <AvatarFallback className="text-[10px]">
                         {employee.employee_name?.[0] || "?"}
                       </AvatarFallback>
                     </Avatar>
                     <div className="min-w-0 flex-1">
-                      <h4 className="text-foreground text-label-md truncate">
+                      <h4 className="text-foreground truncate text-sm font-medium">
                         {employee.employee_name}
                       </h4>
-                      <p className="text-body-xs text-muted-foreground truncate">
+                      <p className="text-muted-foreground truncate text-xs">
                         {employee.employee_job_title}
                       </p>
                     </div>
                     <div className="shrink-0 text-right">
-                      <div className="text-heading-md text-foreground">
+                      <div className="text-foreground text-lg font-semibold">
                         {employee.overall_percentage}%
                       </div>
-                      <Badge
-                        variant={badge.variant}
-                        className="text-body-xs mt-1"
-                      >
+                      <Badge variant={badge.variant} className="mt-1 text-xs">
                         {badge.label}
                       </Badge>
                     </div>

@@ -75,21 +75,22 @@ export const EventItem = memo(function EventItem({
     showTime && !event.allDay ? format(event.start, "HH:mm") : null
 
   if (compact) {
-    const compactLabel = showTime && !event.allDay
-      ? `${format(event.start, "HH:mm")} ${event.title}`
-      : event.title
+    const compactLabel =
+      showTime && !event.allDay
+        ? `${format(event.start, "HH:mm")} ${event.title}`
+        : event.title
 
     return (
       <button
         onClick={onClick}
         className={cx(
-          "flex w-full items-center gap-0.5 rounded-sm px-1 py-0.5 text-left text-label-xs",
+          "flex w-full items-center gap-0.5 rounded-sm px-1 py-0.5 text-left text-xs font-medium",
           colors.background,
           colors.text,
           className,
         )}
       >
-        <div className="flex self-stretch items-center px-0.5 py-[4px]">
+        <div className="flex items-center self-stretch px-0.5 py-[4px]">
           <span className={cx("h-full w-px rounded-full", colors.accent)} />
         </div>
         <span className="min-w-0 flex-1 truncate">{compactLabel}</span>
@@ -113,7 +114,7 @@ export const EventItem = memo(function EventItem({
         className,
       )}
     >
-      <div className="flex self-stretch items-center px-0.5 py-[4px]">
+      <div className="flex items-center self-stretch px-0.5 py-[4px]">
         <span className={cx("h-full w-px rounded-full", colors.accent)} />
       </div>
 
@@ -123,10 +124,10 @@ export const EventItem = memo(function EventItem({
           showMeta ? "gap-3" : "gap-0",
         )}
       >
-        <div className="flex flex-col text-label-xs leading-4">
+        <div className="flex flex-col text-xs leading-4 font-medium">
           <p className={cx("truncate", colors.text)}>{event.title}</p>
           {event.description && (
-            <p className="text-body-xs text-muted-foreground line-clamp-1">
+            <p className="text-muted-foreground line-clamp-1 text-xs">
               {event.description}
             </p>
           )}
@@ -136,16 +137,16 @@ export const EventItem = memo(function EventItem({
           <div className="flex flex-wrap items-center gap-3">
             {showTime && !event.allDay && (
               <div className="flex items-center gap-1">
-                <RiTimeLine className="size-3.5 text-muted-foreground" />
-                <span className="text-body-xs text-muted-foreground">
+                <RiTimeLine className="text-muted-foreground size-3.5" />
+                <span className="text-muted-foreground text-xs">
                   {format(event.start, "HH:mm")} - {format(event.end, "HH:mm")}
                 </span>
               </div>
             )}
             {event.location && (
               <div className="flex items-center gap-1">
-                <RiMapPinLine className="size-3.5 text-muted-foreground" />
-                <span className="text-body-xs text-muted-foreground truncate">
+                <RiMapPinLine className="text-muted-foreground size-3.5" />
+                <span className="text-muted-foreground truncate text-xs">
                   {event.location}
                 </span>
               </div>
@@ -156,7 +157,7 @@ export const EventItem = memo(function EventItem({
 
       {timeLabel && (
         <div className="flex items-center justify-center rounded-sm bg-[rgba(255,255,255,0.6)] px-1 py-0.5">
-          <span className="text-label-xs text-muted-foreground">
+          <span className="text-muted-foreground text-xs font-medium">
             {timeLabel}
           </span>
         </div>

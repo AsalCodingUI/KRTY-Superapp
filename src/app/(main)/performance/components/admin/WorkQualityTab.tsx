@@ -119,7 +119,7 @@ export function WorkQualityTab() {
           value={selectedRole}
           onValueChange={(v) => v !== null && setSelectedRole(v)}
         >
-          <SelectTrigger className="w-full sm:w-[220px]" size="sm">
+          <SelectTrigger className="w-full sm:w-[220px]">
             <SelectValue placeholder="Filter by role" />
           </SelectTrigger>
           <SelectContent>
@@ -137,7 +137,7 @@ export function WorkQualityTab() {
       <TableSection
         title="Work Quality Competency Library"
         actions={
-          <Button size="sm" onClick={() => setFormOpen(true)}>
+          <Button onClick={() => setFormOpen(true)}>
             <RiStarLine data-icon="inline-start" />
             Add Competency
           </Button>
@@ -205,7 +205,7 @@ export function WorkQualityTab() {
                     <div className="flex items-center justify-end gap-2">
                       <Button
                         variant="ghost"
-                        size="icon-sm"
+                        size="icon"
                         onClick={() => handleEdit(competency)}
                         title="Edit Competency"
                       >
@@ -213,7 +213,7 @@ export function WorkQualityTab() {
                       </Button>
                       <Button
                         variant="ghost"
-                        size="icon-sm"
+                        size="icon"
                         onClick={() =>
                           handleDelete(competency.id, competency.name)
                         }
@@ -233,15 +233,15 @@ export function WorkQualityTab() {
 
       {/* INFO BOX */}
       <div className="bg-primary/10 rounded-lg p-4">
-        <h4 className="text-label-md text-primary">
+        <h4 className="text-primary text-sm font-medium">
           How Work Quality Assessment Works
         </h4>
-        <p className="text-label-md text-primary/80 mt-2">
+        <p className="text-primary/80 mt-2 text-sm font-medium">
           Competencies defined here will automatically appear as checklists when
           admins grade employee projects. The competencies shown are filtered by
           the employee&apos;s role in the project.
         </p>
-        <p className="text-body-sm text-primary/80 mt-2">
+        <p className="text-primary/80 mt-2 text-sm">
           <strong>Example:</strong> If an employee is assigned as &quot;UIX
           Designer&quot; on a project, only competencies for &quot;UIX
           Designer&quot; role will appear in their Work Quality checklist.

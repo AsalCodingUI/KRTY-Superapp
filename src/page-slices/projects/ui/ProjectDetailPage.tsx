@@ -108,44 +108,44 @@ function ProjectOverviewContent({ project }: { project: ProjectDetail }) {
   return (
     <Card className="gap-0 space-y-5 p-4">
       <div className="space-y-2">
-        <p className="text-label-sm text-muted-foreground">Project name</p>
-        <p className="text-body-md text-foreground font-medium">
-          {project.name}
+        <p className="text-muted-foreground text-sm font-medium">
+          Project name
         </p>
+        <p className="text-foreground text-base font-medium">{project.name}</p>
       </div>
       <div className="space-y-2">
-        <p className="text-label-sm text-muted-foreground">Description</p>
-        <p className="text-body-sm text-foreground">
+        <p className="text-muted-foreground text-sm font-medium">Description</p>
+        <p className="text-foreground text-sm">
           {project.description || "No description"}
         </p>
       </div>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div className="space-y-2">
-          <p className="text-label-sm text-muted-foreground">Timeline</p>
-          <p className="text-body-sm text-foreground">
+          <p className="text-muted-foreground text-sm font-medium">Timeline</p>
+          <p className="text-foreground text-sm">
             {format(new Date(project.start_date), "MMM d, yyyy")} -{" "}
             {format(new Date(project.end_date), "MMM d, yyyy")}
           </p>
         </div>
         <div className="space-y-2">
-          <p className="text-label-sm text-muted-foreground">Status</p>
+          <p className="text-muted-foreground text-sm font-medium">Status</p>
           <Badge variant={getStatusVariant(project.status)}>
             {project.status}
           </Badge>
         </div>
         <div className="space-y-2">
-          <p className="text-label-sm text-muted-foreground">Quarter</p>
+          <p className="text-muted-foreground text-sm font-medium">Quarter</p>
           {project.quarter_id ? (
             <QuarterBadge quarter={project.quarter_id} />
           ) : (
-            <span className="text-muted-foreground/50 text-body-sm">
-              No quarter
-            </span>
+            <span className="text-muted-foreground/50 text-sm">No quarter</span>
           )}
         </div>
       </div>
       <div className="space-y-3">
-        <p className="text-label-sm text-muted-foreground">Team members</p>
+        <p className="text-muted-foreground text-sm font-medium">
+          Team members
+        </p>
         {teamMembers.length > 0 ? (
           <div className="space-y-3">
             {teamMembers.map((member) => (
@@ -161,10 +161,10 @@ function ProjectOverviewContent({ project }: { project: ProjectDetail }) {
                   </AvatarFallback>
                 </Avatar>
                 <div className="min-w-0">
-                  <p className="text-body-sm text-foreground truncate font-medium">
+                  <p className="text-foreground truncate text-sm font-medium">
                     {member.name}
                   </p>
-                  <p className="text-label-xs text-muted-foreground">
+                  <p className="text-muted-foreground text-xs font-medium">
                     {member.role}
                   </p>
                 </div>
@@ -172,7 +172,7 @@ function ProjectOverviewContent({ project }: { project: ProjectDetail }) {
             ))}
           </div>
         ) : (
-          <p className="text-body-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             No team members assigned.
           </p>
         )}
@@ -231,17 +231,17 @@ function CalculationsTabContent({ projectId }: { projectId: string }) {
               className="flex-row items-center justify-between gap-3 p-4"
             >
               <div className="min-w-0 flex-1">
-                <p className="text-body-sm text-foreground truncate font-medium">
+                <p className="text-foreground truncate text-sm font-medium">
                   {calculation.title}
                 </p>
-                <p className="text-label-xs text-muted-foreground">
+                <p className="text-muted-foreground text-xs font-medium">
                   {format(new Date(calculation.created_at), "MMM d, yyyy")}
                 </p>
               </div>
               <div className="flex items-center gap-2">
                 <Button
                   variant="ghost"
-                  size="icon-sm"
+                  size="icon"
                   title="Edit Calculation"
                   onClick={() =>
                     router.push(
@@ -253,7 +253,7 @@ function CalculationsTabContent({ projectId }: { projectId: string }) {
                 </Button>
                 <Button
                   variant="ghost"
-                  size="icon-sm"
+                  size="icon"
                   title="Delete Calculation"
                   onClick={() => setPendingDeleteId(calculation.id)}
                   className="text-destructive hover:bg-destructive/10"
@@ -340,20 +340,20 @@ function SLAsTabContent({ projectId }: { projectId: string }) {
               className="flex-row items-center justify-between gap-3 p-4"
             >
               <div className="min-w-0 flex-1">
-                <p className="text-body-sm text-foreground truncate font-medium">
+                <p className="text-foreground truncate text-sm font-medium">
                   {sla.client_name}
                 </p>
-                <p className="text-label-xs text-muted-foreground truncate">
+                <p className="text-muted-foreground truncate text-xs font-medium">
                   {sla.project_name}
                 </p>
-                <p className="text-label-xs text-muted-foreground">
+                <p className="text-muted-foreground text-xs font-medium">
                   {format(new Date(sla.created_at), "MMM d, yyyy")}
                 </p>
               </div>
               <div className="flex items-center gap-2">
                 <Button
                   variant="ghost"
-                  size="icon-sm"
+                  size="icon"
                   title="Edit SLA"
                   onClick={() =>
                     router.push(`/projects/${projectId}/sla/${sla.id}`)
@@ -363,7 +363,7 @@ function SLAsTabContent({ projectId }: { projectId: string }) {
                 </Button>
                 <Button
                   variant="ghost"
-                  size="icon-sm"
+                  size="icon"
                   title="Delete SLA"
                   onClick={() => setPendingDeleteId(sla.id)}
                   className="text-destructive hover:bg-destructive/10"
@@ -435,7 +435,6 @@ function FinanceTabContent({ projectId }: { projectId: string }) {
       <div className="space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <SegmentedControl
-            size="sm"
             fitContent
             value={subTab}
             onChange={(value) => setSubTab(value as "invoice" | "quotation")}
@@ -447,7 +446,6 @@ function FinanceTabContent({ projectId }: { projectId: string }) {
 
           {subTab === "invoice" && (
             <Button
-              size="sm"
               onClick={() => {
                 setEditInvoice(undefined)
                 setFormOpen(true)
@@ -485,14 +483,14 @@ function FinanceTabContent({ projectId }: { projectId: string }) {
                     className="flex-row items-center justify-between gap-3 p-4"
                   >
                     <div className="min-w-0 flex-1">
-                      <p className="text-body-sm text-foreground truncate font-medium">
+                      <p className="text-foreground truncate text-sm font-medium">
                         {inv.invoice_number}
                       </p>
-                      <p className="text-label-xs text-muted-foreground">
+                      <p className="text-muted-foreground text-xs font-medium">
                         {format(new Date(inv.issue_date), "MMM d, yyyy")} →{" "}
                         {format(new Date(inv.due_date), "MMM d, yyyy")}
                       </p>
-                      <p className="text-label-xs text-muted-foreground">
+                      <p className="text-muted-foreground text-xs font-medium">
                         {formatCurrency(inv.amount_idr)} (paid:{" "}
                         {formatCurrency(inv.amount_paid_idr)})
                       </p>
@@ -509,7 +507,7 @@ function FinanceTabContent({ projectId }: { projectId: string }) {
                       </Badge>
                       <Button
                         variant="ghost"
-                        size="icon-sm"
+                        size="icon"
                         title="Edit Invoice"
                         onClick={() => {
                           setEditInvoice(inv)
@@ -520,7 +518,7 @@ function FinanceTabContent({ projectId }: { projectId: string }) {
                       </Button>
                       <Button
                         variant="ghost"
-                        size="icon-sm"
+                        size="icon"
                         title="Delete Invoice"
                         onClick={() => setPendingDeleteId(inv.id)}
                         className="text-destructive hover:bg-destructive/10"
@@ -608,11 +606,7 @@ export function ProjectDetailPage({ project }: { project: ProjectDetail }) {
   return (
     <div className="flex flex-col">
       <div className="flex items-center gap-2 pb-4">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => router.push("/projects")}
-        >
+        <Button variant="outline" onClick={() => router.push("/projects")}>
           <RiArrowLeftLine className="mr-2 size-4" />
           Back to Projects
         </Button>
@@ -622,7 +616,7 @@ export function ProjectDetailPage({ project }: { project: ProjectDetail }) {
         <div className="">
           <div className="pb-4">
             <div className="flex items-center justify-between gap-3">
-              <h1 className="text-heading-md text-foreground">
+              <h1 className="text-foreground text-lg font-semibold">
                 {project.name}
               </h1>
               <Badge variant={getStatusVariant(project.status)}>
@@ -638,7 +632,7 @@ export function ProjectDetailPage({ project }: { project: ProjectDetail }) {
               value={activeTab}
               onValueChange={(value) => setActiveTab(value as TabType)}
             >
-              <SelectTrigger size="sm" className="w-full">
+              <SelectTrigger className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

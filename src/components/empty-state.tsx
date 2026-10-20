@@ -47,7 +47,7 @@ export function EmptyState({
         "min-h-[220px] gap-0 p-3",
         isInner
           ? "rounded-none border-0 bg-transparent"
-          : "rounded-lg border border-solid border-border",
+          : "border-border rounded-lg border border-solid",
         className,
       )}
     >
@@ -55,31 +55,31 @@ export function EmptyState({
         {icon !== null && (
           <EmptyMedia
             variant="icon"
-            className="mb-0 size-12 rounded-full bg-muted text-muted-foreground"
+            className="bg-muted text-muted-foreground mb-0 size-12 rounded-full"
           >
             {icon || <HammerIcon className="size-5" />}
           </EmptyMedia>
         )}
         <EmptyTitle
           className={cn(
-            "font-sans text-label-md tracking-normal text-muted-foreground",
+            "text-muted-foreground font-sans text-sm font-medium tracking-normal",
             icon !== null && "mt-4",
           )}
         >
           {title}
         </EmptyTitle>
-        <EmptyDescription className="mt-1 text-label-sm text-muted-foreground">
+        <EmptyDescription className="text-muted-foreground mt-1 text-sm font-medium">
           {description}
         </EmptyDescription>
         {subtitle && (
-          <EmptyDescription className="mt-1 text-label-sm text-muted-foreground">
+          <EmptyDescription className="text-muted-foreground mt-1 text-sm font-medium">
             {subtitle}
           </EmptyDescription>
         )}
       </EmptyHeader>
       {action && (
         <EmptyContent className="mt-6">
-          <Button variant="outline" size="sm" onClick={action.onClick}>
+          <Button variant="outline" onClick={action.onClick}>
             {action.label}
           </Button>
         </EmptyContent>

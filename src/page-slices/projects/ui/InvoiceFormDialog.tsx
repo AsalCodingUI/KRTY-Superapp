@@ -148,18 +148,18 @@ export function PaymentMethodManagerDialog({
                       <Input
                         value={editingName}
                         onChange={(e) => setEditingName(e.target.value)}
-                        className="h-7 flex-1"
+                        className="flex-1"
                       />
                       <Button
                         variant="ghost"
-                        size="icon-sm"
+                        size="icon"
                         onClick={handleUpdate}
                       >
                         <RiCheckLine className="size-3.5" />
                       </Button>
                       <Button
                         variant="ghost"
-                        size="icon-sm"
+                        size="icon"
                         onClick={() => setEditingId(null)}
                       >
                         <RiCloseLine className="size-3.5" />
@@ -168,7 +168,7 @@ export function PaymentMethodManagerDialog({
                   ) : (
                     <>
                       <span
-                        className="text-body-sm text-foreground flex-1 cursor-pointer truncate"
+                        className="text-foreground flex-1 cursor-pointer truncate text-sm"
                         onClick={() => {
                           setEditingId(m.id)
                           setEditingName(m.name)
@@ -178,7 +178,7 @@ export function PaymentMethodManagerDialog({
                       </span>
                       <Button
                         variant="ghost"
-                        size="icon-sm"
+                        size="icon"
                         onClick={() => setPendingDeleteId(m.id)}
                         className="text-destructive"
                       >
@@ -194,12 +194,12 @@ export function PaymentMethodManagerDialog({
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
                 placeholder="New method name"
-                className="h-7 flex-1"
+                className="flex-1"
                 onKeyDown={(e) => {
                   if (e.key === "Enter") handleAdd()
                 }}
               />
-              <Button size="sm" onClick={handleAdd} disabled={!newName.trim()}>
+              <Button onClick={handleAdd} disabled={!newName.trim()}>
                 Add
               </Button>
             </div>
@@ -373,7 +373,6 @@ export function InvoiceFormDialog({
               <div className="space-y-1">
                 <Label>Invoice Number</Label>
                 <Input
-                  className="h-7"
                   value={invoiceNumber}
                   onChange={(e) => setInvoiceNumber(e.target.value)}
                   placeholder="INV-KR-2601-001"
@@ -387,7 +386,7 @@ export function InvoiceFormDialog({
                     v !== null && setStatus(v as InvoiceStatus)
                   }
                 >
-                  <SelectTrigger size="sm" className="w-full">
+                  <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -402,7 +401,6 @@ export function InvoiceFormDialog({
               <div className="space-y-1">
                 <Label>Issue Date</Label>
                 <Input
-                  className="h-7"
                   type="date"
                   value={issueDate}
                   onChange={(e) => setIssueDate(e.target.value)}
@@ -411,7 +409,6 @@ export function InvoiceFormDialog({
               <div className="space-y-1">
                 <Label>Due Date</Label>
                 <Input
-                  className="h-7"
                   type="date"
                   value={dueDate}
                   onChange={(e) => setDueDate(e.target.value)}
@@ -422,7 +419,7 @@ export function InvoiceFormDialog({
                   <Label>Payment Method</Label>
                   <button
                     type="button"
-                    className="text-label-xs text-primary hover:underline"
+                    className="text-primary text-xs font-medium hover:underline"
                     onClick={() => setPmDialogOpen(true)}
                   >
                     Manage
@@ -432,7 +429,7 @@ export function InvoiceFormDialog({
                   value={paymentMethodId}
                   onValueChange={(v) => v !== null && setPaymentMethodId(v)}
                 >
-                  <SelectTrigger size="sm" className="w-full">
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select..." />
                   </SelectTrigger>
                   <SelectContent>
@@ -447,7 +444,6 @@ export function InvoiceFormDialog({
               <div className="space-y-1">
                 <Label>Amount (IDR)</Label>
                 <Input
-                  className="h-7"
                   type="number"
                   value={amountIdr}
                   onChange={(e) => setAmountIdr(e.target.value)}
@@ -457,7 +453,6 @@ export function InvoiceFormDialog({
               <div className="space-y-1">
                 <Label>Amount Paid (IDR)</Label>
                 <Input
-                  className="h-7"
                   type="number"
                   value={amountPaidIdr}
                   onChange={(e) => setAmountPaidIdr(e.target.value)}
@@ -478,7 +473,7 @@ export function InvoiceFormDialog({
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <Label>Line Items</Label>
-                <Button variant="outline" size="sm" onClick={addLineItem}>
+                <Button variant="outline" onClick={addLineItem}>
                   <RiAddLine className="mr-1 size-3" /> Add Item
                 </Button>
               </div>
@@ -490,7 +485,6 @@ export function InvoiceFormDialog({
                   <div className="col-span-12 space-y-1 sm:col-span-5">
                     <Label>Description</Label>
                     <Input
-                      className="h-7"
                       value={item.description}
                       onChange={(e) =>
                         updateLineItem(item.id, "description", e.target.value)
@@ -501,7 +495,6 @@ export function InvoiceFormDialog({
                   <div className="col-span-3 space-y-1 sm:col-span-2">
                     <Label>Qty</Label>
                     <Input
-                      className="h-7"
                       type="number"
                       value={item.quantity}
                       onChange={(e) =>
@@ -516,7 +509,6 @@ export function InvoiceFormDialog({
                   <div className="col-span-4 space-y-1 sm:col-span-2">
                     <Label>Unit Price</Label>
                     <Input
-                      className="h-7"
                       type="number"
                       value={item.unit_price_idr}
                       onChange={(e) =>
@@ -533,13 +525,13 @@ export function InvoiceFormDialog({
                     <Input
                       value={item.total_idr}
                       readOnly
-                      className="bg-muted h-7"
+                      className="bg-muted"
                     />
                   </div>
                   <div className="col-span-1 flex justify-end">
                     <Button
                       variant="ghost"
-                      size="icon-sm"
+                      size="icon"
                       onClick={() => removeLineItem(item.id)}
                       className="text-destructive"
                     >
@@ -549,7 +541,7 @@ export function InvoiceFormDialog({
                 </div>
               ))}
               {lineItems.length > 0 && (
-                <div className="text-body-sm text-foreground text-right font-semibold">
+                <div className="text-foreground text-right text-sm font-semibold">
                   Total: {formatCurrency(lineItemsTotal)}
                 </div>
               )}
@@ -557,14 +549,13 @@ export function InvoiceFormDialog({
           </div>
           <DialogFooter>
             <Button
-              size="sm"
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={saving}
             >
               Cancel
             </Button>
-            <Button size="sm" onClick={handleSubmit} disabled={saving}>
+            <Button onClick={handleSubmit} disabled={saving}>
               {saving && <Spinner data-icon="inline-start" />}
               {invoice ? "Update" : "Create"}
             </Button>

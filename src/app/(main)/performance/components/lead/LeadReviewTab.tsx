@@ -326,7 +326,7 @@ export function LeadReviewTab() {
                       )}
                     </TableCell>
                     <TableCell>
-                      <span className="text-body-sm text-muted-foreground whitespace-nowrap">
+                      <span className="text-muted-foreground text-sm whitespace-nowrap">
                         {timeline}
                       </span>
                     </TableCell>
@@ -401,7 +401,7 @@ export function LeadReviewTab() {
                   <>
                     <div className="space-y-4">
                       <div className="flex items-center justify-between gap-4">
-                        <p className="text-label-xs text-muted-foreground/70">
+                        <p className="text-muted-foreground/70 text-xs font-medium">
                           Quarter
                         </p>
                         {selectedProject.quarter_id ? (
@@ -413,7 +413,7 @@ export function LeadReviewTab() {
                         )}
                       </div>
                       <div className="flex items-center justify-between gap-4">
-                        <p className="text-label-xs text-muted-foreground/70">
+                        <p className="text-muted-foreground/70 text-xs font-medium">
                           Status
                         </p>
                         {selectedProject.status ? (
@@ -425,10 +425,10 @@ export function LeadReviewTab() {
                         )}
                       </div>
                       <div className="flex items-center justify-between gap-4">
-                        <p className="text-label-xs text-muted-foreground/70">
+                        <p className="text-muted-foreground/70 text-xs font-medium">
                           Timeline
                         </p>
-                        <span className="text-body-sm text-foreground text-right">
+                        <span className="text-foreground text-right text-sm">
                           {(() => {
                             const startDate = selectedProject.start_date
                               ? new Date(selectedProject.start_date)
@@ -452,7 +452,7 @@ export function LeadReviewTab() {
 
                     <TableSection
                       title="Team Members"
-                      titleClassName="text-label-md text-foreground"
+                      titleClassName="text-sm text-foreground font-medium"
                     >
                       {selectedProject.members.length === 0 ? (
                         <EmptyState
@@ -508,7 +508,6 @@ export function LeadReviewTab() {
                                     <Button
                                       type="button"
                                       variant="outline"
-                                      size="sm"
                                       onClick={() => handleOpenReview(member)}
                                     >
                                       Review KPI

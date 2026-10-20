@@ -147,7 +147,8 @@ export function DataTable<TData>({
 
   const rows = table.getRowModel().rows
   const hasBulkActions =
-    enableSelection && Boolean(onDelete || onBulkApprove || onBulkReject || onEdit)
+    enableSelection &&
+    Boolean(onDelete || onBulkApprove || onBulkReject || onEdit)
 
   const tableContent = (
     <div className={showFilterbar ? "space-y-4" : ""}>
@@ -181,7 +182,7 @@ export function DataTable<TData>({
                     <TableHead
                       key={header.id}
                       className={cn(
-                        "h-10 px-3 py-2 text-label-sm whitespace-nowrap text-muted-foreground",
+                        "text-muted-foreground h-10 px-3 py-2 text-sm font-medium whitespace-nowrap",
                         isSelectionColumn && "w-14 px-2 text-center",
                         header.column.columnDef.meta?.className,
                       )}
@@ -222,7 +223,7 @@ export function DataTable<TData>({
                       <TableCell
                         key={cell.id}
                         className={cn(
-                          "relative h-10 px-3 py-2 text-body-sm whitespace-nowrap",
+                          "relative h-10 px-3 py-2 text-sm whitespace-nowrap",
                           isSelectionColumn && "w-14 px-2 text-center",
                           cell.column.columnDef.meta?.className,
                         )}

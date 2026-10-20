@@ -225,18 +225,18 @@ export function StakeholderAttendancePage({
             {/* Summary Cards (Fokus Hari Ini) */}
             <div className="grid gap-3 sm:grid-cols-2">
               <Card className="gap-0 px-4 py-3">
-                <dt className="text-label-sm text-muted-foreground">
+                <dt className="text-muted-foreground text-sm font-medium">
                   Present Today
                 </dt>
-                <dd className="text-heading-md text-foreground mt-2">
+                <dd className="text-foreground mt-2 text-lg font-semibold">
                   {todaysLogs.length}
                 </dd>
               </Card>
               <Card className="gap-0 px-4 py-3">
-                <dt className="text-label-sm text-muted-foreground">
+                <dt className="text-muted-foreground text-sm font-medium">
                   Currently Active
                 </dt>
-                <dd className="text-heading-md text-foreground mt-2">
+                <dd className="text-foreground mt-2 text-lg font-semibold">
                   {todaysLogs.filter((l) => !l.clock_out).length}
                 </dd>
               </Card>
@@ -244,7 +244,7 @@ export function StakeholderAttendancePage({
 
             {/* Accordion List */}
             <div className="space-y-4">
-              <h3 className="text-heading-md text-foreground">
+              <h3 className="text-foreground text-lg font-semibold">
                 Attendance History
               </h3>
               <AdminAttendanceHistoryList

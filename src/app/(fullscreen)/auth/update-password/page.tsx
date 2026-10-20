@@ -52,10 +52,10 @@ export default function UpdatePasswordPage() {
   return (
     <div className="flex min-h-screen flex-1 flex-col justify-center px-4 lg:px-6">
       <div className="w-full">
-        <h3 className="text-heading-md text-foreground dark:text-foreground mt-6 text-center">
+        <h3 className="text-foreground dark:text-foreground mt-6 text-center text-lg font-semibold">
           Update your password
         </h3>
-        <p className="text-body-sm text-muted-foreground/70 mt-2 text-center">
+        <p className="text-muted-foreground/70 mt-2 text-center text-sm">
           Please enter your new password below.
         </p>
 
@@ -63,14 +63,14 @@ export default function UpdatePasswordPage() {
           <form onSubmit={handleUpdatePassword} className="space-y-4">
             {/* Success Message */}
             {success && (
-              <div className="bg-success/10 text-body-sm text-success ring-success/20 rounded-md p-3 ring-1 ring-inset">
+              <div className="bg-success/10 text-success ring-success/20 rounded-md p-3 text-sm ring-1 ring-inset">
                 Password updated successfully! Redirecting...
               </div>
             )}
 
             {/* Error Message */}
             {error && (
-              <div className="bg-destructive/10 text-body-sm text-destructive ring-destructive/20 rounded-md p-3 ring-1 ring-inset">
+              <div className="bg-destructive/10 text-destructive ring-destructive/20 rounded-md p-3 text-sm ring-1 ring-inset">
                 {error}
               </div>
             )}
@@ -78,7 +78,7 @@ export default function UpdatePasswordPage() {
             <div>
               <Label
                 htmlFor="password"
-                className="text-label-md text-foreground dark:text-foreground"
+                className="text-foreground dark:text-foreground text-sm font-medium"
               >
                 New Password
               </Label>
@@ -88,7 +88,7 @@ export default function UpdatePasswordPage() {
                 name="password"
                 autoComplete="new-password"
                 placeholder="••••••••"
-                className="mt-2 h-7"
+                className="mt-2"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -99,7 +99,7 @@ export default function UpdatePasswordPage() {
             <div>
               <Label
                 htmlFor="confirm-password"
-                className="text-label-md text-foreground dark:text-foreground"
+                className="text-foreground dark:text-foreground text-sm font-medium"
               >
                 Confirm Password
               </Label>
@@ -109,7 +109,7 @@ export default function UpdatePasswordPage() {
                 name="confirm-password"
                 autoComplete="new-password"
                 placeholder="••••••••"
-                className="mt-2 h-7"
+                className="mt-2"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
@@ -117,12 +117,12 @@ export default function UpdatePasswordPage() {
               />
             </div>
 
-            <Button type="submit" size="sm" className="w-full" disabled={loading}>
+            <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Updating..." : "Update password"}
             </Button>
           </form>
 
-          <p className="text-body-sm text-muted-foreground/70 mt-6 text-center">
+          <p className="text-muted-foreground/70 mt-6 text-center text-sm">
             Remember your password?{" "}
             <a
               href="/login"

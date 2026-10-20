@@ -31,7 +31,9 @@ export function SquadSection({
 }: SquadSectionProps) {
   return (
     <div>
-      <h3 className="text-label-md text-foreground mb-4">Squad Allocation</h3>
+      <h3 className="text-foreground mb-4 text-sm font-medium">
+        Squad Allocation
+      </h3>
 
       <div className="block">
         <div className="mb-4 flex gap-3">
@@ -39,7 +41,7 @@ export function SquadSection({
             onValueChange={(v) => v !== null && onSelectedMemberChange(v)}
             value={selectedMemberToAdd}
           >
-            <SelectTrigger size="sm" className="w-full">
+            <SelectTrigger className="w-full">
               <SelectValue placeholder="Select Team Member..." />
             </SelectTrigger>
             <SelectContent>
@@ -51,7 +53,6 @@ export function SquadSection({
             </SelectContent>
           </Select>
           <Button
-            size="sm"
             onClick={() => {
               onAddSquadMember(selectedMemberToAdd)
               onSelectedMemberChange("")
@@ -71,16 +72,16 @@ export function SquadSection({
               >
                 <div className="mb-4 flex items-start justify-between">
                   <div>
-                    <p className="text-label-md text-foreground">
+                    <p className="text-foreground text-sm font-medium">
                       {profile?.full_name}
                     </p>
-                    <p className="text-label-xs text-muted-foreground">
+                    <p className="text-muted-foreground text-xs font-medium">
                       {profile?.job_title}
                     </p>
                   </div>
                   <Button
                     variant="ghost"
-                    size="icon-sm"
+                    size="icon"
                     className="text-muted-foreground/70 size-6 p-0"
                     onClick={() => onRemoveSquadMember(member.id)}
                   >
@@ -89,7 +90,7 @@ export function SquadSection({
                 </div>
 
                 <div className="flex items-center gap-4">
-                  <span className="text-label-xs text-muted-foreground w-16">
+                  <span className="text-muted-foreground w-16 text-xs font-medium">
                     Allocation
                   </span>
                   <Slider
@@ -104,7 +105,7 @@ export function SquadSection({
                     }
                     className="flex-1"
                   />
-                  <span className="text-label-sm text-foreground w-10 text-right">
+                  <span className="text-foreground w-10 text-right text-sm font-medium">
                     {member.allocation}%
                   </span>
                 </div>
@@ -114,7 +115,7 @@ export function SquadSection({
 
           {squad.length === 0 && (
             <div className="rounded-md border border-dashed p-6 text-center">
-              <p className="text-body-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 No team members allocated yet.
               </p>
             </div>

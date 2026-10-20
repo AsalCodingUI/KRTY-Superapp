@@ -166,7 +166,7 @@ export default function PerformanceClientPage() {
               value={activeTab}
               onValueChange={(value) => setActiveTab(value as TabType)}
             >
-              <SelectTrigger size="sm" className="w-full">
+              <SelectTrigger className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

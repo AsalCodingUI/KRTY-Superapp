@@ -151,7 +151,7 @@ const RadarChart = React.forwardRef<HTMLDivElement, RadarChartProps>(
                       />
                       <div className="flex flex-1 items-center justify-between gap-2 leading-none">
                         <span className="text-muted-foreground">{name}</span>
-                        <span className="font-medium text-foreground tabular-nums">
+                        <span className="text-foreground font-medium tabular-nums">
                           {typeof value === "number"
                             ? valueFormatter(value)
                             : String(value)}
@@ -167,7 +167,7 @@ const RadarChart = React.forwardRef<HTMLDivElement, RadarChartProps>(
           {showLegend && (
             <ChartLegend
               content={
-                <ChartLegendContent className="pt-5 text-body-sm text-muted-foreground" />
+                <ChartLegendContent className="text-muted-foreground pt-5 text-sm" />
               }
             />
           )}

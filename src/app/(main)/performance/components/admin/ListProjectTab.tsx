@@ -156,7 +156,7 @@ export function ListProjectTab({
           value={selectedStatus}
           onValueChange={(v) => v !== null && setSelectedStatus(v)}
         >
-          <SelectTrigger className="w-full sm:w-[180px]" size="sm">
+          <SelectTrigger className="w-full sm:w-[180px]">
             <SelectValue placeholder="Filter by status" />
           </SelectTrigger>
           <SelectContent>
@@ -172,7 +172,7 @@ export function ListProjectTab({
       <TableSection
         title="Project Configuration"
         actions={
-          <Button size="sm" onClick={() => setFormOpen(true)}>
+          <Button onClick={() => setFormOpen(true)}>
             <RiFolderLine data-icon="inline-start" />
             New Project
           </Button>
@@ -297,7 +297,7 @@ export function ListProjectTab({
                       <div className="flex items-center justify-end gap-2">
                         <Button
                           variant="ghost"
-                          size="icon-sm"
+                          size="icon"
                           onClick={() => handleEdit(project)}
                           title="Edit Project"
                         >
@@ -307,7 +307,7 @@ export function ListProjectTab({
                         {project.status === "Archived" ? (
                           <Button
                             variant="ghost"
-                            size="icon-sm"
+                            size="icon"
                             onClick={() => handlePermanentDelete(project)}
                             title="Permanently Delete (Cannot be undone)"
                             className="text-destructive hover:bg-destructive/10"
@@ -317,7 +317,7 @@ export function ListProjectTab({
                         ) : (
                           <Button
                             variant="ghost"
-                            size="icon-sm"
+                            size="icon"
                             onClick={() => handleDelete(project)}
                             title="Archive Project"
                             className="text-destructive hover:bg-destructive/10"

@@ -277,10 +277,13 @@ export default function TeamAccessSettingsPage({
   return (
     <section className="space-y-6" aria-labelledby="team-access-title">
       <div className="space-y-1">
-        <h1 id="team-access-title" className="text-heading-md text-foreground">
+        <h1
+          id="team-access-title"
+          className="text-foreground text-lg font-semibold"
+        >
           Team Access
         </h1>
-        <p className="text-body-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           Add team members from settings and jump into their workspace with
           super admin impersonation.
         </p>
@@ -288,7 +291,7 @@ export default function TeamAccessSettingsPage({
 
       {isImpersonating && effectiveProfile && authProfile && (
         <div className="border-border bg-warning/10 flex items-center justify-between rounded-md border px-4 py-3">
-          <p className="text-body-sm text-warning">
+          <p className="text-warning text-sm">
             Viewing as{" "}
             <strong>
               {effectiveProfile.full_name || effectiveProfile.email || "User"}
@@ -296,7 +299,6 @@ export default function TeamAccessSettingsPage({
           </p>
           <Button
             variant="outline"
-            size="sm"
             onClick={() => handleImpersonation(null)}
             disabled={loadingImpersonationId === "stop"}
           >
@@ -307,8 +309,10 @@ export default function TeamAccessSettingsPage({
 
       <div className="border-border border p-4">
         <div className="mb-4">
-          <h2 className="text-label-md text-foreground">Add Team Member</h2>
-          <p className="text-body-sm text-muted-foreground mt-1">
+          <h2 className="text-foreground text-sm font-medium">
+            Add Team Member
+          </h2>
+          <p className="text-muted-foreground mt-1 text-sm">
             This creates a managed profile directly from the app so you do not
             need to edit data manually.
           </p>
@@ -318,7 +322,6 @@ export default function TeamAccessSettingsPage({
           <div className="grid gap-2">
             <Label htmlFor="full_name">Full Name</Label>
             <Input
-              className="h-7"
               id="full_name"
               placeholder="e.g. Taufiq"
               value={form.full_name}
@@ -332,7 +335,6 @@ export default function TeamAccessSettingsPage({
           <div className="grid gap-2">
             <Label htmlFor="email">Email</Label>
             <Input
-              className="h-7"
               id="email"
               type="email"
               placeholder="name@company.com"
@@ -356,7 +358,7 @@ export default function TeamAccessSettingsPage({
                 }))
               }
             >
-              <SelectTrigger size="sm" className="w-full">
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select role" />
               </SelectTrigger>
               <SelectContent>
@@ -380,7 +382,7 @@ export default function TeamAccessSettingsPage({
                 }))
               }
             >
-              <SelectTrigger size="sm" className="w-full">
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select job title" />
               </SelectTrigger>
               <SelectContent>
@@ -396,7 +398,6 @@ export default function TeamAccessSettingsPage({
           <div className="grid gap-2">
             <Label htmlFor="hourly_rate">Hourly Rate</Label>
             <Input
-              className="h-7"
               id="hourly_rate"
               type="number"
               placeholder="Optional"
@@ -423,7 +424,7 @@ export default function TeamAccessSettingsPage({
                 }))
               }
             >
-              <SelectTrigger size="sm" className="w-full">
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select team" />
               </SelectTrigger>
               <SelectContent>
@@ -438,7 +439,7 @@ export default function TeamAccessSettingsPage({
           </div>
 
           <div className="flex justify-end md:col-span-2">
-            <Button size="sm" type="submit" disabled={submitting}>
+            <Button type="submit" disabled={submitting}>
               {submitting ? "Adding member..." : "Add Team Member"}
             </Button>
           </div>
@@ -447,8 +448,10 @@ export default function TeamAccessSettingsPage({
 
       <div className="border-border border p-4">
         <div className="mb-4">
-          <h2 className="text-label-md text-foreground">Team Directory</h2>
-          <p className="text-body-sm text-muted-foreground mt-1">
+          <h2 className="text-foreground text-sm font-medium">
+            Team Directory
+          </h2>
+          <p className="text-muted-foreground mt-1 text-sm">
             Super admins can switch into any listed profile from here.
           </p>
         </div>
@@ -477,16 +480,16 @@ export default function TeamAccessSettingsPage({
                         src={profile.avatar_url || undefined}
                         alt={profile.full_name || profile.email || "Avatar"}
                       />
-                      <AvatarFallback className="text-label-md">
+                      <AvatarFallback className="text-sm font-medium">
                         {profile.full_name?.[0] || profile.email?.[0] || "?"}
                       </AvatarFallback>
                     </Avatar>
                     <div className="space-y-2">
                       <div>
-                        <p className="text-label-md text-foreground">
+                        <p className="text-foreground text-sm font-medium">
                           {profile.full_name || "Unnamed user"}
                         </p>
-                        <p className="text-body-sm text-muted-foreground">
+                        <p className="text-muted-foreground text-sm">
                           {profile.email || "-"}
                         </p>
                       </div>
@@ -517,7 +520,6 @@ export default function TeamAccessSettingsPage({
                     ) : null}
                     <Button
                       variant="outline"
-                      size="sm"
                       onClick={() => handleImpersonation(profile.id)}
                       disabled={
                         loadingImpersonationId === profile.id ||
@@ -532,7 +534,6 @@ export default function TeamAccessSettingsPage({
                     </Button>
                     <Button
                       variant="destructive"
-                      size="sm"
                       onClick={() => setDeleteTarget(profile)}
                       disabled={
                         deletingId === profile.id ||

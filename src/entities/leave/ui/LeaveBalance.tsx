@@ -43,10 +43,10 @@ export function LeaveBalance({
 
   return (
     <Card className="gap-0 p-4">
-      <dt className="text-label-md text-muted-foreground dark:text-muted-foreground">
+      <dt className="text-muted-foreground dark:text-muted-foreground text-sm font-medium">
         Annual Leave Balance
       </dt>
-      <dd className="text-display-xxs text-foreground dark:text-foreground mt-2">
+      <dd className="text-foreground dark:text-foreground mt-2 text-2xl font-semibold">
         {stats.balance} Days
       </dd>
 
@@ -54,7 +54,7 @@ export function LeaveBalance({
         <>
           <Progress value={stats.percentage} className="mt-6" />
 
-          <dd className="text-label-md mt-2 flex items-center justify-between">
+          <dd className="mt-2 flex items-center justify-between text-sm font-medium">
             <span className="text-primary font-medium">
               {stats.percentage}% used
             </span>

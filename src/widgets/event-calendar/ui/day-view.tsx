@@ -81,10 +81,10 @@ export const DayView = memo(function DayView({
               return (
                 <div
                   key={slot.toISOString()}
-                  className="text-label-xs text-muted-foreground/70 relative h-[var(--height)] pr-2 text-right"
+                  className="text-muted-foreground/70 relative h-[var(--height)] pr-2 text-right text-xs font-medium"
                   style={baseStyle}
                 >
-                  <span className="absolute -top-2 right-2 bg-sidebar px-1">
+                  <span className="bg-sidebar absolute -top-2 right-2 px-1">
                     {format(slot, "HH:mm")}
                   </span>
                 </div>
@@ -93,12 +93,7 @@ export const DayView = memo(function DayView({
           </div>
 
           {/* Day column */}
-          <div
-            className={cx(
-              "relative flex-1",
-              isWeekend && "bg-muted/50",
-            )}
-          >
+          <div className={cx("relative flex-1", isWeekend && "bg-muted/50")}>
             {/* Time slots */}
             {timeSlots.map((slot) => {
               const hour = slot.getHours()
@@ -112,9 +107,7 @@ export const DayView = memo(function DayView({
                   id={`slot-${currentDate.toISOString()}-${hour}-${minute}`}
                   className={cx(
                     "border-border hover:bg-accent h-[var(--height)] cursor-pointer border-b transition-colors",
-                    minute === 30
-                      ? "border-transparent"
-                      : "border-border",
+                    minute === 30 ? "border-transparent" : "border-border",
                   )}
                   style={
                     {

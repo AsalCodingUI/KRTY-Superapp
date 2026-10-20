@@ -30,8 +30,10 @@ export function AdminRecentActivities({
   return (
     <Card className="gap-0 p-4">
       <div className="mb-3 flex items-center justify-between">
-        <p className="text-label-md text-muted-foreground">Activity Feed</p>
-        <span className="text-body-xs text-muted-foreground/70 tabular-nums">
+        <p className="text-muted-foreground text-sm font-medium">
+          Activity Feed
+        </p>
+        <span className="text-muted-foreground/70 text-xs tabular-nums">
           {activities.length} items
         </span>
       </div>
@@ -60,7 +62,7 @@ export function AdminRecentActivities({
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1">
-                    <p className="text-label-md text-foreground">
+                    <p className="text-foreground text-sm font-medium">
                       <span className="font-medium">
                         {activity.user_name || "Unknown"}
                       </span>{" "}
@@ -68,7 +70,7 @@ export function AdminRecentActivities({
                         {activity.description}
                       </span>
                     </p>
-                    <p className="text-body-xs text-muted-foreground/70 mt-0.5">
+                    <p className="text-muted-foreground/70 mt-0.5 text-xs">
                       {formatDistanceToNow(new Date(activity.timestamp), {
                         addSuffix: true,
                       })}

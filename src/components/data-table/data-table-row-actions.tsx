@@ -43,7 +43,7 @@ export function DataTableRowActions({
         render={
           <Button
             variant="ghost"
-            size="icon-sm"
+            size="icon"
             type="button"
             aria-label={triggerLabel}
             // Don't toggle row selection when opening the menu

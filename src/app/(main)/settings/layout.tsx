@@ -74,7 +74,7 @@ export default function Layout({
                 if (value !== null && value !== pathname) router.push(value)
               }}
             >
-              <SelectTrigger size="sm" className="w-full">
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select section" />
               </SelectTrigger>
               <SelectContent>

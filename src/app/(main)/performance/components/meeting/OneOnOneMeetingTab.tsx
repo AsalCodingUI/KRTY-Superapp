@@ -93,10 +93,7 @@ export function OneOnOneMeetingTab({
 
   const queryClient = useQueryClient()
 
-  const {
-    data: slotResponse,
-    isLoading,
-  } = useQuery({
+  const { data: slotResponse, isLoading } = useQuery({
     queryKey: ["one-on-one-slots", selectedQuarter],
     queryFn: async () => {
       try {
@@ -154,7 +151,9 @@ export function OneOnOneMeetingTab({
 
       toast.success("Slot berhasil ditambahkan")
       setDate("")
-      await queryClient.invalidateQueries({ queryKey: ["one-on-one-slots", selectedQuarter] })
+      await queryClient.invalidateQueries({
+        queryKey: ["one-on-one-slots", selectedQuarter],
+      })
     } catch {
       toast.error("Gagal menambahkan slot")
     } finally {
@@ -176,7 +175,9 @@ export function OneOnOneMeetingTab({
       }
 
       toast.success("Slot berhasil dibooking")
-      await queryClient.invalidateQueries({ queryKey: ["one-on-one-slots", selectedQuarter] })
+      await queryClient.invalidateQueries({
+        queryKey: ["one-on-one-slots", selectedQuarter],
+      })
     } catch {
       toast.error("Slot sudah diambil orang lain")
     } finally {
@@ -200,7 +201,9 @@ export function OneOnOneMeetingTab({
       toast.success(
         action === "cancel" ? "Slot dibatalkan" : "Booking dibatalkan",
       )
-      await queryClient.invalidateQueries({ queryKey: ["one-on-one-slots", selectedQuarter] })
+      await queryClient.invalidateQueries({
+        queryKey: ["one-on-one-slots", selectedQuarter],
+      })
     } catch {
       toast.error("Gagal membatalkan")
     } finally {
@@ -222,7 +225,9 @@ export function OneOnOneMeetingTab({
       }
 
       toast.success("Slot dihapus")
-      await queryClient.invalidateQueries({ queryKey: ["one-on-one-slots", selectedQuarter] })
+      await queryClient.invalidateQueries({
+        queryKey: ["one-on-one-slots", selectedQuarter],
+      })
     } catch {
       toast.error("Gagal menghapus slot")
     } finally {
@@ -241,20 +246,17 @@ export function OneOnOneMeetingTab({
 
     setRescheduleId(editingSlotId)
     try {
-      const response = await fetch(
-        `/api/one-on-one/slots/${editingSlotId}`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            date: editDate,
-            startTime: editStartTime,
-            endTime: editEndTime,
-            startAt,
-            endAt,
-          }),
-        },
-      )
+      const response = await fetch(`/api/one-on-one/slots/${editingSlotId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          date: editDate,
+          startTime: editStartTime,
+          endTime: editEndTime,
+          startAt,
+          endAt,
+        }),
+      })
 
       if (!response.ok) {
         throw new Error("reschedule_failed")
@@ -262,7 +264,9 @@ export function OneOnOneMeetingTab({
 
       toast.success("Jadwal berhasil diubah")
       setEditingSlotId(null)
-      await queryClient.invalidateQueries({ queryKey: ["one-on-one-slots", selectedQuarter] })
+      await queryClient.invalidateQueries({
+        queryKey: ["one-on-one-slots", selectedQuarter],
+      })
     } catch {
       toast.error("Gagal mengubah jadwal")
     } finally {
@@ -326,7 +330,7 @@ export function OneOnOneMeetingTab({
                   setMode(value as "online" | "offline")
                 }
               >
-                <SelectTrigger className="w-full" size="sm">
+                <SelectTrigger className="w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -340,7 +344,6 @@ export function OneOnOneMeetingTab({
               <div className="flex flex-col gap-2">
                 <Label>Lokasi</Label>
                 <Input
-                  className="h-7"
                   value={location}
                   onChange={(event) => setLocation(event.target.value)}
                   placeholder="Ruangan / lokasi meeting"
@@ -351,7 +354,6 @@ export function OneOnOneMeetingTab({
             <div className="flex items-end xl:justify-end">
               <Button
                 variant="outline"
-                size="sm"
                 onClick={handleCreateSlot}
                 disabled={submitting}
               >
@@ -376,7 +378,9 @@ export function OneOnOneMeetingTab({
           <TableBody>
             {(isAdmin ? slots : availableSlots).map((slot) => (
               <TableRow key={slot.id}>
-                <TableCell>{formatSlotTime(slot.start_at, slot.end_at)}</TableCell>
+                <TableCell>
+                  {formatSlotTime(slot.start_at, slot.end_at)}
+                </TableCell>
                 <TableCell>
                   <Badge variant="secondary">
                     {slot.mode === "online" ? "Online" : "Offline"}
@@ -406,7 +410,6 @@ export function OneOnOneMeetingTab({
                   {isAdmin ? (
                     <div className="flex items-center gap-2">
                       <Button
-                        size="sm"
                         variant="outline"
                         onClick={() => startEdit(slot)}
                         disabled={slot.status === "cancelled"}
@@ -414,7 +417,6 @@ export function OneOnOneMeetingTab({
                         Reschedule
                       </Button>
                       <Button
-                        size="sm"
                         variant="outline"
                         onClick={() => handleDelete(slot.id)}
                         disabled={cancelId === slot.id}
@@ -422,7 +424,6 @@ export function OneOnOneMeetingTab({
                         Delete
                       </Button>
                       <Button
-                        size="sm"
                         variant="destructive"
                         onClick={() => handleCancel(slot.id, "cancel")}
                         disabled={cancelId === slot.id}
@@ -432,7 +433,6 @@ export function OneOnOneMeetingTab({
                     </div>
                   ) : (
                     <Button
-                      size="sm"
                       variant="outline"
                       onClick={() => handleBookSlot(slot.id)}
                       disabled={bookingId === slot.id}
@@ -443,7 +443,7 @@ export function OneOnOneMeetingTab({
                 </TableCell>
               </TableRow>
             ))}
-            {((isAdmin ? slots : availableSlots).length === 0) && (
+            {(isAdmin ? slots : availableSlots).length === 0 && (
               <TableRow>
                 <TableCell colSpan={5} className="p-0">
                   {isLoading ? (
@@ -452,7 +452,9 @@ export function OneOnOneMeetingTab({
                     </div>
                   ) : (
                     <EmptyState
-                      title={isAdmin ? "No 1:1 slots yet" : "No available slots"}
+                      title={
+                        isAdmin ? "No 1:1 slots yet" : "No available slots"
+                      }
                       description={
                         isAdmin
                           ? "Create a slot to start scheduling."
@@ -498,18 +500,13 @@ export function OneOnOneMeetingTab({
               </div>
               <div className="flex items-end gap-2">
                 <Button
-                  size="sm"
                   variant="outline"
                   onClick={handleReschedule}
                   disabled={rescheduleId === editingSlotId}
                 >
                   Simpan
                 </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => setEditingSlotId(null)}
-                >
+                <Button variant="ghost" onClick={() => setEditingSlotId(null)}>
                   Batal
                 </Button>
               </div>
@@ -531,7 +528,9 @@ export function OneOnOneMeetingTab({
             <TableBody>
               {mySlots.map((slot) => (
                 <TableRow key={slot.id}>
-                  <TableCell>{formatSlotTime(slot.start_at, slot.end_at)}</TableCell>
+                  <TableCell>
+                    {formatSlotTime(slot.start_at, slot.end_at)}
+                  </TableCell>
                   <TableCell>
                     <Badge variant="secondary">
                       {slot.mode === "online" ? "Online" : "Offline"}
@@ -541,7 +540,6 @@ export function OneOnOneMeetingTab({
                     <div className="flex items-center gap-2">
                       {slot.meeting_url ? (
                         <Button
-                          size="sm"
                           variant="outline"
                           onClick={() =>
                             window.open(slot.meeting_url || "", "_blank")
@@ -550,14 +548,13 @@ export function OneOnOneMeetingTab({
                           Join
                         </Button>
                       ) : slot.mode === "online" ? (
-                        <Button size="sm" variant="outline" disabled>
+                        <Button variant="outline" disabled>
                           Join
                         </Button>
                       ) : (
                         <span>{slot.location || "-"}</span>
                       )}
                       <Button
-                        size="sm"
                         variant="destructive"
                         onClick={() => handleCancel(slot.id, "release")}
                         disabled={cancelId === slot.id}

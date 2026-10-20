@@ -32,7 +32,7 @@ export function MiniCalendar() {
   return (
     <div className="flex w-full flex-col items-center gap-3">
       <div className="flex w-full items-center justify-center py-1.5 text-center">
-        <p className="text-label-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm font-medium">
           {format(currentDate, "dd MMMM yyyy", { locale: id })}
         </p>
       </div>
@@ -44,7 +44,7 @@ export function MiniCalendar() {
             <div
               key={`${day}-${index}`}
               className={cx(
-                "text-label-sm text-muted-foreground flex size-7 items-center justify-center rounded-md text-center",
+                "text-muted-foreground flex size-7 items-center justify-center rounded-md text-center text-sm font-medium",
                 index >= 5 && "bg-muted/50",
               )}
             >
@@ -65,17 +65,14 @@ export function MiniCalendar() {
                 key={day.toISOString()}
                 onClick={() => handleDayClick(day)}
                 className={cx(
-                  "text-label-sm flex w-full aspect-square items-center justify-center rounded-md transition-colors",
+                  "flex aspect-square w-full items-center justify-center rounded-md text-sm font-medium transition-colors",
                   !isCurrentMonth && "text-muted-foreground/50",
                   isCurrentMonth &&
-                  !isSelected &&
-                  "text-muted-foreground hover:bg-accent",
-                  isCurrentMonth &&
-                  !isSelected &&
-                  isWeekend &&
-                  "bg-muted/50",
+                    !isSelected &&
+                    "text-muted-foreground hover:bg-accent",
+                  isCurrentMonth && !isSelected && isWeekend && "bg-muted/50",
                   isSelected &&
-                  "bg-primary text-primary-foreground hover:bg-primary",
+                    "bg-primary text-primary-foreground hover:bg-primary",
                 )}
               >
                 {format(day, "d")}

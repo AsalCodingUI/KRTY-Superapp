@@ -165,7 +165,7 @@ export default function SLADashboard({
   return (
     <>
       {!hideTitle && (
-        <h1 className="text-heading-md text-foreground sm:text-heading-lg dark:text-foreground">
+        <h1 className="text-foreground dark:text-foreground text-lg font-semibold sm:text-xl">
           SLA Generator
         </h1>
       )}
@@ -175,7 +175,6 @@ export default function SLADashboard({
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex min-w-0 items-center gap-3">
               <SegmentedControl
-                size="sm"
                 fitContent
                 value={activeTab}
                 onChange={(value) =>
@@ -186,7 +185,7 @@ export default function SLADashboard({
                   { value: "archive", label: "Archive" },
                 ]}
               />
-              <InputGroup className="h-7 w-[250px]">
+              <InputGroup className="w-[250px]">
                 <InputGroupAddon>
                   <RiSearchLine aria-hidden="true" />
                 </InputGroupAddon>
@@ -199,10 +198,7 @@ export default function SLADashboard({
               </InputGroup>
             </div>
             {canManage && activeTab === "active" && (
-              <Button
-                size="sm"
-                onClick={() => router.push("/sla-generator?mode=create")}
-              >
+              <Button onClick={() => router.push("/sla-generator?mode=create")}>
                 <RiAddLine data-icon="inline-start" aria-hidden="true" />
                 Create New SLA
               </Button>
@@ -217,7 +213,7 @@ export default function SLADashboard({
                   setActiveTab(value as "active" | "archive")
                 }
               >
-                <SelectTrigger size="sm" className="w-full">
+                <SelectTrigger className="w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>

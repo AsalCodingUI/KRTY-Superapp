@@ -171,7 +171,7 @@ export function EmployeeProjectView({
           <div>
             {!hideBackButton && (
               <Link href={backHref || "/performance"}>
-                <Button variant="ghost" size="sm">
+                <Button variant="ghost">
                   <RiArrowLeftLine className="mr-2 size-4" />
                   Back to KPI
                 </Button>
@@ -182,11 +182,11 @@ export function EmployeeProjectView({
               className={`${hideBackButton ? "" : "mt-4"} flex items-start justify-between`}
             >
               <div>
-                <h1 className="text-heading-md text-foreground">
+                <h1 className="text-foreground text-lg font-semibold">
                   {assignment.projects.name}
                 </h1>
                 <div className="mt-1">
-                  <p className="text-label-sm text-muted-foreground">
+                  <p className="text-muted-foreground text-sm font-medium">
                     {assignment.projects.description || "..."}
                   </p>
                 </div>
@@ -200,11 +200,13 @@ export function EmployeeProjectView({
           </div>
 
           {/* STATS */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-px overflow-hidden rounded-xl border bg-border">
+          <div className="bg-border grid grid-cols-1 gap-px overflow-hidden rounded-xl border md:grid-cols-2">
             <div className="bg-background md:bg-sidebar flex h-full flex-col gap-1 px-4 py-3 [&:last-child:nth-child(odd)]:col-span-2 lg:[&:last-child:nth-child(odd)]:col-span-1">
-              <dt className="text-label-sm text-muted-foreground">SLA Score</dt>
+              <dt className="text-muted-foreground text-sm font-medium">
+                SLA Score
+              </dt>
               <div className="flex items-center gap-2">
-                <dd className="text-heading-md text-foreground">
+                <dd className="text-foreground text-lg font-semibold">
                   {totalPercentage.toFixed(1)}%
                 </dd>
                 <Badge
@@ -216,11 +218,11 @@ export function EmployeeProjectView({
               </div>
             </div>
             <div className="bg-background md:bg-sidebar flex h-full flex-col gap-1 px-4 py-3 [&:last-child:nth-child(odd)]:col-span-2 lg:[&:last-child:nth-child(odd)]:col-span-1">
-              <dt className="text-label-sm text-muted-foreground">
+              <dt className="text-muted-foreground text-sm font-medium">
                 Work Quality
               </dt>
               <div className="flex items-center gap-2">
-                <dd className="text-heading-md text-foreground">
+                <dd className="text-foreground text-lg font-semibold">
                   {competencies.filter((c) => c.isAchieved).length}/
                   {competencies.length}
                 </dd>
@@ -313,7 +315,7 @@ export function EmployeeProjectView({
 
           <TableSection title="Work Quality Assessment">
             {loading ? (
-              <div className="text-body-sm text-muted-foreground p-8 text-center">
+              <div className="text-muted-foreground p-8 text-center text-sm">
                 Loading competencies...
               </div>
             ) : competencies.length === 0 ? (

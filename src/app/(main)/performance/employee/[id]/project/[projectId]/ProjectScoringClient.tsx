@@ -322,7 +322,7 @@ export const ProjectScoringClient = forwardRef<
           <div>
             {!hideBackButton && (
               <Link href={backHref || `/performance/employee/${employee.id}`}>
-                <Button variant="ghost" size="sm">
+                <Button variant="ghost">
                   <RiArrowLeftLine className="mr-2 size-4" />
                   Back to {employee.full_name || "Employee"}
                 </Button>
@@ -333,11 +333,11 @@ export const ProjectScoringClient = forwardRef<
               className={`${hideBackButton ? "" : "mt-4"} flex items-start justify-between`}
             >
               <div>
-                <h1 className="text-heading-md text-foreground">
+                <h1 className="text-foreground text-lg font-semibold">
                   {assignment.projects.name}
                 </h1>
                 {assignment.projects.description && (
-                  <p className="text-label-sm text-muted-foreground mt-1">
+                  <p className="text-muted-foreground mt-1 text-sm font-medium">
                     {assignment.projects.description}
                   </p>
                 )}
@@ -350,11 +350,13 @@ export const ProjectScoringClient = forwardRef<
           </div>
 
           {/* KPI OVERVIEW */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-px overflow-hidden rounded-xl border bg-border">
+          <div className="bg-border grid grid-cols-1 gap-px overflow-hidden rounded-xl border md:grid-cols-2">
             <div className="bg-background md:bg-sidebar flex h-full flex-col gap-1 px-4 py-3 [&:last-child:nth-child(odd)]:col-span-2 lg:[&:last-child:nth-child(odd)]:col-span-1">
-              <dt className="text-label-sm text-muted-foreground">SLA Score</dt>
+              <dt className="text-muted-foreground text-sm font-medium">
+                SLA Score
+              </dt>
               <div className="flex items-center gap-2">
-                <dd className="text-heading-md text-foreground">
+                <dd className="text-foreground text-lg font-semibold">
                   {totalPercentage.toFixed(1)}%
                 </dd>
                 <Badge
@@ -366,11 +368,11 @@ export const ProjectScoringClient = forwardRef<
               </div>
             </div>
             <div className="bg-background md:bg-sidebar flex h-full flex-col gap-1 px-4 py-3 [&:last-child:nth-child(odd)]:col-span-2 lg:[&:last-child:nth-child(odd)]:col-span-1">
-              <dt className="text-label-sm text-muted-foreground">
+              <dt className="text-muted-foreground text-sm font-medium">
                 Work Quality
               </dt>
               <div className="flex items-center gap-2">
-                <dd className="text-heading-md text-foreground">
+                <dd className="text-foreground text-lg font-semibold">
                   {competencies.filter((c) => c.isAchieved).length}/
                   {competencies.length}
                 </dd>
@@ -390,7 +392,7 @@ export const ProjectScoringClient = forwardRef<
                 title="SLA Calculation"
                 className="lg:col-span-7"
                 actions={
-                  <Button onClick={handleSaveSLA} disabled={saving} size="sm">
+                  <Button onClick={handleSaveSLA} disabled={saving}>
                     <RiSave3Line className="mr-2 size-4" />
                     {saving ? "Saving..." : "Save"}
                   </Button>
@@ -416,7 +418,7 @@ export const ProjectScoringClient = forwardRef<
                         <TableCell className="text-center">
                           <Input
                             type="number"
-                            className="mx-auto h-7 w-20 text-center"
+                            className="mx-auto w-20 text-center"
                             value={milestone.weight}
                             onChange={(e) =>
                               handleMilestoneChange(
@@ -438,7 +440,7 @@ export const ProjectScoringClient = forwardRef<
                               )
                             }
                           >
-                            <SelectTrigger size="sm" className="mx-auto w-28">
+                            <SelectTrigger className="mx-auto w-28">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -511,11 +513,7 @@ export const ProjectScoringClient = forwardRef<
                     {competencies.filter((c) => c.isAchieved).length}/
                     {competencies.length} Achieved
                   </Badge>
-                  <Button
-                    size="sm"
-                    onClick={handleSaveQuality}
-                    disabled={saving}
-                  >
+                  <Button onClick={handleSaveQuality} disabled={saving}>
                     <RiSave3Line className="mr-2 size-4" />
                     {saving ? "Saving..." : "Save"}
                   </Button>
@@ -523,7 +521,7 @@ export const ProjectScoringClient = forwardRef<
               }
             >
               {loading ? (
-                <div className="text-body-sm text-muted-foreground p-8 text-center">
+                <div className="text-muted-foreground p-8 text-center text-sm">
                   Loading competencies...
                 </div>
               ) : competencies.length === 0 ? (
@@ -561,7 +559,6 @@ export const ProjectScoringClient = forwardRef<
                           <TableCell className="text-center">
                             <Button
                               variant={comp.isAchieved ? "default" : "outline"}
-                              size="sm"
                               onClick={() => handleToggleCompetency(index)}
                             >
                               {comp.isAchieved ? (

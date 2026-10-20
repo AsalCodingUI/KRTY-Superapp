@@ -211,7 +211,7 @@ export function ProjectAssignmentDialog({
         <div className="flex-1 space-y-4 overflow-y-auto">
           {/* Add New Assignment Section */}
           <div className="border-border space-y-4 rounded-lg border p-4">
-            <h4 className="text-label-md text-foreground">
+            <h4 className="text-foreground text-sm font-medium">
               Add New Assignment
             </h4>
 
@@ -223,7 +223,7 @@ export function ProjectAssignmentDialog({
                   onValueChange={(v) => v !== null && setSelectedUserId(v)}
                   disabled={availableUsers.length === 0}
                 >
-                  <SelectTrigger className="w-full" size="sm">
+                  <SelectTrigger className="w-full">
                     <SelectValue
                       placeholder={
                         availableUsers.length === 0
@@ -244,7 +244,6 @@ export function ProjectAssignmentDialog({
               </div>
 
               <Button
-                size="sm"
                 onClick={handleAddAssignment}
                 disabled={!selectedUserId || loading}
                 variant="outline"
@@ -257,13 +256,13 @@ export function ProjectAssignmentDialog({
 
           {/* Current Assignments */}
           <div className="space-y-3">
-            <h4 className="text-label-md text-foreground">
+            <h4 className="text-foreground text-sm font-medium">
               Current Team ({assignments.length})
             </h4>
 
             {assignments.length === 0 ? (
               <div className="border-border rounded-lg border border-dashed p-8 text-center">
-                <p className="text-body-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   No team members assigned yet. Add your first team member
                   above.
                 </p>
@@ -287,7 +286,7 @@ export function ProjectAssignmentDialog({
                         <p className="text-foreground font-medium">
                           {assignment.profiles.full_name || "Unknown User"}
                         </p>
-                        <p className="text-body-sm text-muted-foreground">
+                        <p className="text-muted-foreground text-sm">
                           {assignment.profiles.job_title || "No job title"}
                         </p>
                       </div>
@@ -295,14 +294,13 @@ export function ProjectAssignmentDialog({
 
                     <div className="flex items-center gap-4">
                       <div className="text-right">
-                        <p className="text-label-md text-foreground">
+                        <p className="text-foreground text-sm font-medium">
                           {assignment.role_in_project}
                         </p>
                       </div>
 
                       <Button
                         variant="ghost"
-                        size="sm"
                         onClick={() => handleRemoveAssignment(assignment.id)}
                         disabled={loading}
                         className="text-destructive hover:bg-destructive/10"
@@ -318,7 +316,7 @@ export function ProjectAssignmentDialog({
         </div>
 
         <DialogFooter>
-          <Button size="sm" variant="outline" onClick={onClose}>
+          <Button variant="outline" onClick={onClose}>
             Close
           </Button>
         </DialogFooter>

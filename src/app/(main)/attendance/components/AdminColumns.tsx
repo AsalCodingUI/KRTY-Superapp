@@ -91,9 +91,7 @@ export const adminAttendanceColumns = (
       if (row.original.is_break) {
         return <Badge variant="warning">On Break</Badge>
       }
-      return (
-        <span className="font-medium text-success">Active</span>
-      )
+      return <span className="text-success font-medium">Active</span>
     },
     meta: { className: "w-[15%]", displayName: "Clock Out" },
   },
@@ -150,15 +148,13 @@ export const adminAttendanceColumns = (
       return (
         <div className="flex items-center gap-2">
           <Badge
-            variant={row.original.status === "Cuti Masuk" ? "warning" : "secondary"}
+            variant={
+              row.original.status === "Cuti Masuk" ? "warning" : "secondary"
+            }
           >
             {row.original.status}
           </Badge>
-          {wasEdited && (
-            <Badge variant="info">
-              Edited
-            </Badge>
-          )}
+          {wasEdited && <Badge variant="info">Edited</Badge>}
         </div>
       )
     },
@@ -178,7 +174,6 @@ export const adminAttendanceColumns = (
         return (
           <Button
             variant="ghost"
-            size="sm"
             onClick={() => onCloseSession(row.original.id)}
           >
             Tutup Sesi
@@ -193,7 +188,6 @@ export const adminAttendanceColumns = (
           {onEditSession && (
             <Button
               variant="ghost"
-              size="sm"
               onClick={() => onEditSession(row.original.id)}
             >
               Edit
@@ -202,7 +196,6 @@ export const adminAttendanceColumns = (
           {onApproveDelete && hasDeleteRequest && (
             <Button
               variant="ghost"
-              size="sm"
               onClick={() => onApproveDelete(row.original.id)}
             >
               Approve Delete

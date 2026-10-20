@@ -62,13 +62,12 @@ export function ReminderPicker({
               key={index}
               className="bg-muted/50 border-border flex items-center justify-between rounded-md border p-2"
             >
-              <span className="text-body-sm text-foreground">
+              <span className="text-foreground text-sm">
                 🔔 {getReminderLabel(reminder.minutes)}
               </span>
               <Button
                 type="button"
                 variant="ghost"
-                size="sm"
                 onClick={() => handleRemove(index)}
                 disabled={disabled}
                 className="h-6 w-6 p-0"
@@ -87,7 +86,7 @@ export function ReminderPicker({
           onValueChange={(v) => v !== null && setSelectedMinutes(v)}
           disabled={disabled}
         >
-          <SelectTrigger size="sm" className="flex-1">
+          <SelectTrigger className="flex-1">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -104,7 +103,6 @@ export function ReminderPicker({
         <Button
           type="button"
           variant="outline"
-          size="sm"
           onClick={handleAdd}
           disabled={disabled}
         >
@@ -114,9 +112,7 @@ export function ReminderPicker({
       </div>
 
       {value.length === 0 && (
-        <p className="text-body-xs text-muted-foreground/70">
-          Belum ada pengingat
-        </p>
+        <p className="text-muted-foreground/70 text-xs">Belum ada pengingat</p>
       )}
     </div>
   )

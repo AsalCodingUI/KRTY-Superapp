@@ -449,16 +449,16 @@ export function PerformancePage() {
       <div className="flex flex-col">
         {isStakeholder ? (
           <>
-            <div className="grid grid-cols-1 my-2 sm:grid-cols-2 lg:grid-cols-5 gap-px overflow-hidden rounded-xl border bg-border">
+            <div className="bg-border my-2 grid grid-cols-1 gap-px overflow-hidden rounded-xl border sm:grid-cols-2 lg:grid-cols-5">
               {adminStats.map((item) => (
                 <div
                   key={item.label}
                   className="bg-background md:bg-sidebar flex h-full flex-col gap-1 px-4 py-3 [&:last-child:nth-child(odd)]:col-span-2 lg:[&:last-child:nth-child(odd)]:col-span-1"
                 >
-                  <p className="text-label-sm text-muted-foreground">
+                  <p className="text-muted-foreground text-sm font-medium">
                     {item.label}
                   </p>
-                  <p className="text-heading-md text-foreground">
+                  <p className="text-foreground text-lg font-semibold">
                     {item.value}
                   </p>
                 </div>
@@ -473,7 +473,7 @@ export function PerformancePage() {
                     value !== null && setActiveTab(value as TabType)
                   }
                 >
-                  <SelectTrigger size="sm" className="w-full">
+                  <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -490,7 +490,7 @@ export function PerformancePage() {
                     value={selectedYear.toString()}
                     onValueChange={(v) => v !== null && handleYearChange(v)}
                   >
-                    <SelectTrigger className="w-[92px]" size="sm">
+                    <SelectTrigger className="w-[92px]">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -560,7 +560,7 @@ export function PerformancePage() {
                     value={selectedYear.toString()}
                     onValueChange={(v) => v !== null && handleYearChange(v)}
                   >
-                    <SelectTrigger className="w-[96px]" size="sm">
+                    <SelectTrigger className="w-[96px]">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -582,7 +582,7 @@ export function PerformancePage() {
           </>
         ) : (
           <>
-            <div className="grid grid-cols-1 my-2 sm:grid-cols-2 lg:grid-cols-5 gap-px overflow-hidden rounded-xl border bg-border">
+            <div className="bg-border my-2 grid grid-cols-1 gap-px overflow-hidden rounded-xl border sm:grid-cols-2 lg:grid-cols-5">
               {employeeStats.map((item) => {
                 const badge = getRatingBadge(item.score)
                 return (
@@ -590,11 +590,11 @@ export function PerformancePage() {
                     key={item.key}
                     className="bg-background md:bg-sidebar flex h-full flex-col gap-1 px-4 py-3 [&:last-child:nth-child(odd)]:col-span-2 lg:[&:last-child:nth-child(odd)]:col-span-1"
                   >
-                    <p className="text-label-sm text-muted-foreground">
+                    <p className="text-muted-foreground text-sm font-medium">
                       {item.label}
                     </p>
                     <div className="flex items-center gap-2">
-                      <p className="text-heading-md text-foreground">
+                      <p className="text-foreground text-lg font-semibold">
                         {formatPercent(item.score)}
                       </p>
                       <Badge variant={badge.variant}>{badge.label}</Badge>
@@ -602,13 +602,13 @@ export function PerformancePage() {
                   </div>
                 )
               })}
-              <div className="bg-background md:bg-sidebar flex h-full flex-col gap-1 px-4 py-3 [&:last-child:nth-child(odd)]:col-span-2 lg:[&:last-child:nth-child(odd)]:col-span-1 lg:col-span-2">
-                <p className="text-label-sm text-muted-foreground">
+              <div className="bg-background md:bg-sidebar flex h-full flex-col gap-1 px-4 py-3 lg:col-span-2 [&:last-child:nth-child(odd)]:col-span-2 lg:[&:last-child:nth-child(odd)]:col-span-1">
+                <p className="text-muted-foreground text-sm font-medium">
                   360 Feedback Cycle
                 </p>
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2">
-                    <p className="text-heading-md text-foreground whitespace-nowrap">
+                    <p className="text-foreground text-lg font-semibold whitespace-nowrap">
                       {isCycleActive && activeCycleRange
                         ? activeCycleRange
                         : "No Active"}
@@ -619,7 +619,6 @@ export function PerformancePage() {
                   </div>
                   <Button
                     variant="outline"
-                    size="sm"
                     disabled={!isCycleActive}
                     onClick={() => router.push("/performance-review/new")}
                   >
@@ -637,7 +636,7 @@ export function PerformancePage() {
                     value !== null && setActiveTab(value as TabType)
                   }
                 >
-                  <SelectTrigger size="sm" className="w-full">
+                  <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -654,7 +653,7 @@ export function PerformancePage() {
                     value={selectedYear.toString()}
                     onValueChange={(v) => v !== null && handleYearChange(v)}
                   >
-                    <SelectTrigger className="w-[92px]" size="sm">
+                    <SelectTrigger className="w-[92px]">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -711,7 +710,7 @@ export function PerformancePage() {
                     value={selectedYear.toString()}
                     onValueChange={(v) => v !== null && handleYearChange(v)}
                   >
-                    <SelectTrigger className="w-[96px]" size="sm">
+                    <SelectTrigger className="w-[96px]">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>

@@ -50,7 +50,7 @@ export const activeSLAColumns = (
     cell: ({ row }) => (
       <div className="flex gap-2">
         <Button
-          size="icon-sm"
+          size="icon"
           variant="ghost"
           onClick={() => onView(row.original.id)}
         >
@@ -59,14 +59,14 @@ export const activeSLAColumns = (
         {options.canManage !== false && (
           <>
             <Button
-              size="icon-sm"
+              size="icon"
               variant="ghost"
               onClick={() => onEdit(row.original.id)}
             >
               <RiEditLine className="size-3.5" />
             </Button>
             <Button
-              size="icon-sm"
+              size="icon"
               variant="ghost"
               onClick={() => onArchive(row.original.id)}
             >
@@ -115,14 +115,14 @@ export const archivedSLAColumns = (
       cell: ({ row }) => (
         <div className="flex gap-2">
           <Button
-            size="icon-sm"
+            size="icon"
             variant="ghost"
             onClick={() => onRestore(row.original.id)}
           >
             <RiRefreshLine className="size-3.5" />
           </Button>
           <Button
-            size="icon-sm"
+            size="icon"
             variant="ghost"
             onClick={() => onDelete(row.original.id)}
           >

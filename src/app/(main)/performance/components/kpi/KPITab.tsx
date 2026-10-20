@@ -77,11 +77,7 @@ type Assignment = {
   }>
 }
 
-export function KPITab({
-  selectedQuarter,
-}: {
-  selectedQuarter?: string
-}) {
+export function KPITab({ selectedQuarter }: { selectedQuarter?: string }) {
   const { profile, loading: profileLoading } = useUserProfile()
   const [searchQuery, setSearchQuery] = useState("")
   const [pageIndex, setPageIndex] = useState(0)
@@ -89,19 +85,13 @@ export function KPITab({
   const canManage = canManageByRole(profile?.role)
 
   // For employee view
-  const {
-    data: employeesResult,
-    isLoading: employeesLoading,
-  } = useQuery({
+  const { data: employeesResult, isLoading: employeesLoading } = useQuery({
     queryKey: ["employees", searchQuery, pageIndex, pageSize],
     queryFn: () => getAllEmployees(searchQuery, pageIndex, pageSize),
     enabled: !!(canManage && profile),
   })
 
-  const {
-    data: employeeDetailResult,
-    isLoading: employeeLoading,
-  } = useQuery({
+  const { data: employeeDetailResult, isLoading: employeeLoading } = useQuery({
     queryKey: ["employee-detail", profile?.id, selectedQuarter],
     queryFn: () => getEmployeeDetail(profile!.id, selectedQuarter),
     enabled: !!(!canManage && profile?.id),
@@ -171,7 +161,7 @@ export function KPITab({
   return (
     <div className="space-y-4">
       <div>
-        <InputGroup className="h-7">
+        <InputGroup>
           <InputGroupAddon>
             <RiSearchLine aria-hidden="true" />
           </InputGroupAddon>
@@ -186,9 +176,7 @@ export function KPITab({
         </InputGroup>
       </div>
 
-      <TableSection
-        title="Employee KPI Management"
-      >
+      <TableSection title="Employee KPI Management">
         <Table>
           <TableHeader>
             <TableRow className="h-[40px] hover:bg-transparent">
@@ -214,13 +202,19 @@ export function KPITab({
                 <TableCell colSpan={6} className="p-0">
                   <EmptyState
                     icon={<RiUserLine className="size-5" />}
-                    title={searchQuery ? "No employees found" : "No employees yet"}
+                    title={
+                      searchQuery ? "No employees found" : "No employees yet"
+                    }
                     description={
                       searchQuery
                         ? "Try a different keyword."
                         : "Employees will appear after they are added."
                     }
-                    subtitle={searchQuery ? "No matching results." : "No employee data yet."}
+                    subtitle={
+                      searchQuery
+                        ? "No matching results."
+                        : "No employee data yet."
+                    }
                     placement="inner"
                   />
                 </TableCell>
@@ -229,12 +223,14 @@ export function KPITab({
               employees.map((employee) => (
                 <TableRow key={employee.id}>
                   <TableCell>
-                    <span className="font-medium text-foreground">
+                    <span className="text-foreground font-medium">
                       {employee.full_name || "Unknown"}
                     </span>
                   </TableCell>
                   <TableCell>
-                    <span className="text-muted-foreground">{employee.email}</span>
+                    <span className="text-muted-foreground">
+                      {employee.email}
+                    </span>
                   </TableCell>
                   <TableCell>
                     <span className="text-muted-foreground">
@@ -242,16 +238,16 @@ export function KPITab({
                     </span>
                   </TableCell>
                   <TableCell>
-                    <span className="text-foreground">{employee.project_count}</span>
+                    <span className="text-foreground">
+                      {employee.project_count}
+                    </span>
                   </TableCell>
                   <TableCell>
                     <Badge variant="success">{employee.active_projects}</Badge>
                   </TableCell>
                   <TableCell className="text-right">
                     <Link href={`/performance/employee/${employee.id}`}>
-                      <Button variant="outline" size="sm">
-                        View KPI Details
-                      </Button>
+                      <Button variant="outline">View KPI Details</Button>
                     </Link>
                   </TableCell>
                 </TableRow>
@@ -261,13 +257,12 @@ export function KPITab({
         </Table>
         {totalPages > 1 && (
           <div className="flex items-center justify-between pt-3">
-            <span className="text-body-sm text-muted-foreground">
+            <span className="text-muted-foreground text-sm">
               Page {pageIndex + 1} of {totalPages}
             </span>
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"
-                size="sm"
                 onClick={() => setPageIndex((prev) => Math.max(0, prev - 1))}
                 disabled={pageIndex === 0}
               >
@@ -275,11 +270,8 @@ export function KPITab({
               </Button>
               <Button
                 variant="outline"
-                size="sm"
                 onClick={() =>
-                  setPageIndex((prev) =>
-                    Math.min(totalPages - 1, prev + 1),
-                  )
+                  setPageIndex((prev) => Math.min(totalPages - 1, prev + 1))
                 }
                 disabled={pageIndex >= totalPages - 1}
               >

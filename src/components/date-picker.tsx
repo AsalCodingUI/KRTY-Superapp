@@ -196,11 +196,10 @@ const Trigger = ({
       <Button
         type="button"
         variant="outline"
-        size="sm"
         disabled={disabled}
         aria-invalid={hasError || props["aria-invalid"] || undefined}
         className={cn(
-          "group/date-picker text-body-sm w-full justify-start gap-1.5 px-2 text-left font-normal",
+          "group/date-picker w-full justify-start gap-1.5 px-2 text-left text-sm font-normal",
           className,
         )}
         {...props}
@@ -224,7 +223,7 @@ const Trigger = ({
 )
 
 const contentClassName =
-  "w-auto max-h-[85vh] max-w-[95vw] gap-0 overflow-y-auto overscroll-y-contain rounded-xl p-0 text-body-sm"
+  "w-auto max-h-[85vh] max-w-[95vw] gap-0 overflow-y-auto overscroll-y-contain rounded-xl p-0 text-sm"
 
 // ============================================================================
 // Presets
@@ -271,11 +270,10 @@ const PresetContainer = <TPreset extends Preset, TValue>({
           <Button
             type="button"
             variant="ghost"
-            size="sm"
             title={preset.label}
             data-active={matchesCurrent(preset) || undefined}
             aria-label={`Select ${preset.label}`}
-            className="border-border text-body-sm text-muted-foreground data-active:bg-muted data-active:text-foreground w-full justify-start truncate border font-normal sm:border-none"
+            className="border-border text-muted-foreground data-active:bg-muted data-active:text-foreground w-full justify-start truncate border text-sm font-normal sm:border-none"
             onClick={() => {
               if (isRangePreset(preset)) onSelect(preset.dateRange as TValue)
               else if (isDatePreset(preset)) onSelect(preset.date as TValue)
@@ -318,7 +316,7 @@ function TimeField({
       disabled={disabled}
       required={required}
       aria-label={ariaLabel}
-      className="text-body-sm h-7 tabular-nums"
+      className="tabular-nums"
     />
   )
 }
@@ -488,18 +486,12 @@ const SingleDatePicker = ({
               <Button
                 type="button"
                 variant="outline"
-                size="sm"
                 className="flex-1"
                 onClick={() => onOpenChange(false)}
               >
                 {translations?.cancel ?? "Cancel"}
               </Button>
-              <Button
-                type="button"
-                size="sm"
-                className="flex-1"
-                onClick={onApply}
-              >
+              <Button type="button" className="flex-1" onClick={onApply}>
                 {translations?.apply ?? "Apply"}
               </Button>
             </div>
@@ -742,7 +734,6 @@ const RangeDatePicker = ({
                   <Button
                     type="button"
                     variant="outline"
-                    size="sm"
                     className="flex-1 sm:flex-none"
                     onClick={() => onOpenChange(false)}
                   >
@@ -750,7 +741,6 @@ const RangeDatePicker = ({
                   </Button>
                   <Button
                     type="button"
-                    size="sm"
                     className="flex-1 sm:flex-none"
                     onClick={onApply}
                   >

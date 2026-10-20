@@ -49,7 +49,7 @@ const TabNavigation = React.forwardRef<
       >
         <NavigationMenuPrimitive.List
           className={cn(
-            "flex items-start justify-start gap-1 border-b border-border whitespace-nowrap",
+            "border-border flex items-start justify-start gap-1 border-b whitespace-nowrap",
             className,
           )}
         >
@@ -100,7 +100,7 @@ const TabNavigationLink = React.forwardRef<
           data-active={active ? "" : undefined}
           aria-current={active ? "page" : undefined}
           className={cn(
-            "group relative flex shrink-0 items-center justify-center rounded-md outline-none select-none focus-visible:ring-3 focus-visible:ring-ring/30",
+            "group focus-visible:ring-ring/30 relative flex shrink-0 items-center justify-center rounded-md outline-none select-none focus-visible:ring-3",
             disabled
               ? "pointer-events-none cursor-not-allowed"
               : "cursor-pointer",
@@ -113,17 +113,17 @@ const TabNavigationLink = React.forwardRef<
           {getSubtree({ asChild, children }, (children) => (
             <span
               className={cn(
-                "relative inline-flex items-center justify-center px-1 pb-1.5 whitespace-nowrap text-muted-foreground transition-colors",
+                "text-muted-foreground relative inline-flex items-center justify-center px-1 pb-1.5 whitespace-nowrap transition-colors",
                 "group-hover:text-foreground group-data-[active]:text-foreground",
                 // active underline (shadcn tabs "line" style)
-                "after:absolute after:inset-x-0 after:-bottom-px after:h-0.5 after:bg-primary after:opacity-0 after:transition-opacity group-data-[active]:after:opacity-100",
-                disabled && "pointer-events-none text-muted-foreground/50",
+                "after:bg-primary after:absolute after:inset-x-0 after:-bottom-px after:h-0.5 after:opacity-0 after:transition-opacity group-data-[active]:after:opacity-100",
+                disabled && "text-muted-foreground/50 pointer-events-none",
                 className,
               )}
             >
               <span
                 className={cn(
-                  "inline-flex h-7 items-center justify-center gap-0.5 rounded-md px-2",
+                  "inline-flex h-8 items-center justify-center gap-1.5 rounded-2xl px-2.5",
                   "group-hover:bg-accent group-hover:text-accent-foreground",
                 )}
               >
@@ -132,11 +132,11 @@ const TabNavigationLink = React.forwardRef<
                     {leadingIcon}
                   </span>
                 )}
-                <span className="px-0.5 text-label-sm text-current">
+                <span className="px-0.5 text-sm font-medium text-current">
                   {children}
                 </span>
                 {showBadge && badge !== undefined && badge !== null && (
-                  <span className="flex min-w-5 items-center justify-center rounded-full bg-primary px-1.5 py-0.5 text-label-xs text-primary-foreground">
+                  <span className="bg-primary text-primary-foreground flex min-w-5 items-center justify-center rounded-full px-1.5 py-0.5 text-xs font-medium">
                     {badge}
                   </span>
                 )}

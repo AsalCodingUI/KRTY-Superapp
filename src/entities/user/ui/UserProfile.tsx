@@ -30,13 +30,12 @@ export function UserProfile({
       <Button
         aria-label="User settings"
         variant="ghost"
-        size="sm"
         className={cx(
-          "group text-label-md text-foreground hover:bg-muted data-popup-open:bg-muted dark:hover:bg-muted flex items-center rounded-md p-1",
+          "group text-foreground hover:bg-muted data-popup-open:bg-muted dark:hover:bg-muted flex items-center rounded-md p-1 text-sm font-medium",
         )}
       >
         <span
-          className="border-border text-body-xs text-muted-foreground dark:text-muted-foreground flex size-7 shrink-0 items-center justify-center rounded-full border"
+          className="border-border text-muted-foreground dark:text-muted-foreground flex size-7 shrink-0 items-center justify-center rounded-full border text-xs"
           aria-hidden="true"
         >
           {initials}
@@ -49,15 +48,14 @@ export function UserProfile({
     <Button
       aria-label="User settings"
       variant="ghost"
-      size="sm"
       className={cx(
         focusRing,
-        "group text-label-md text-foreground hover:bg-muted data-popup-open:bg-muted dark:hover:bg-muted flex w-full items-center justify-between rounded-md p-2",
+        "group text-foreground hover:bg-muted data-popup-open:bg-muted dark:hover:bg-muted flex w-full items-center justify-between rounded-md p-2 text-sm font-medium",
       )}
     >
       <span className="flex min-w-0 items-center gap-3">
         <span
-          className="border-border text-body-xs text-muted-foreground dark:text-muted-foreground flex size-8 shrink-0 items-center justify-center rounded-full border"
+          className="border-border text-muted-foreground dark:text-muted-foreground flex size-8 shrink-0 items-center justify-center rounded-full border text-xs"
           aria-hidden="true"
         >
           {initials}

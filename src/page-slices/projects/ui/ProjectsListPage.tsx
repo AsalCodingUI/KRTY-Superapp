@@ -93,14 +93,18 @@ function ProjectsStats({ projectStats }: { projectStats: ProjectStats }) {
   ]
 
   return (
-    <dl className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-px overflow-hidden rounded-xl border bg-border">
+    <dl className="bg-border grid grid-cols-1 gap-px overflow-hidden rounded-xl border sm:grid-cols-2 lg:grid-cols-5">
       {stats.map((stat) => (
         <div
           key={stat.label}
           className="bg-background md:bg-sidebar flex h-full flex-col gap-1 px-4 py-3 [&:last-child:nth-child(odd)]:col-span-2 lg:[&:last-child:nth-child(odd)]:col-span-1"
         >
-          <dt className="text-label-sm text-muted-foreground">{stat.label}</dt>
-          <dd className="text-heading-md text-foreground">{stat.value}</dd>
+          <dt className="text-muted-foreground text-sm font-medium">
+            {stat.label}
+          </dt>
+          <dd className="text-foreground text-lg font-semibold">
+            {stat.value}
+          </dd>
         </div>
       ))}
     </dl>
@@ -117,7 +121,7 @@ function ProjectsTableContent({ projects }: { projects: ProjectListItem[] }) {
             <DataTableColumnHeader column={column} title="Project Name" />
           ),
           cell: ({ row }) => (
-            <span className="text-label-md text-foreground">
+            <span className="text-foreground text-sm font-medium">
               {row.getValue("name")}
             </span>
           ),
@@ -194,7 +198,7 @@ function ProjectsTableContent({ projects }: { projects: ProjectListItem[] }) {
           cell: ({ row }) => (
             <div className="flex justify-end">
               <Button
-                size="icon-sm"
+                size="icon"
                 variant="ghost"
                 onClick={() => router.push(`/projects/${row.original.id}`)}
                 title="Open Project"
@@ -403,7 +407,7 @@ export function ProjectsListPage() {
               value={activeTab}
               onValueChange={(value) => setActiveTab(value as TabType)}
             >
-              <SelectTrigger size="sm" className="w-full">
+              <SelectTrigger className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

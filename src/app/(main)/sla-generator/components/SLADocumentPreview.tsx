@@ -1391,7 +1391,7 @@ export const SLADocumentPreview = React.forwardRef<
           <RiArrowLeftSLine size={16} />
         </Button>
 
-        <span className="text-tremor-content text-body-sm min-w-[60px] text-center tabular-nums">
+        <span className="text-tremor-content min-w-[60px] text-center text-sm tabular-nums">
           {pageNum} <span className="text-tremor-content-subtle">/</span>{" "}
           {pages.length + 1}
         </span>
@@ -1448,7 +1448,7 @@ export const SLADocumentPreview = React.forwardRef<
                   alignItems: "center",
                 }}
               >
-                <div className="text-display-xxs text-white">
+                <div className="text-2xl font-semibold text-white">
                   KRETYA STUDIO
                 </div>
               </div>

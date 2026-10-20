@@ -70,7 +70,7 @@ export function RecurrenceSelector({
       value={getCurrentValue()}
       onValueChange={(v) => v !== null && handleChange(v)}
     >
-      <SelectTrigger size="sm" className="w-full">
+      <SelectTrigger className="w-full">
         <SelectValue placeholder="Tidak berulang" />
       </SelectTrigger>
       <SelectContent>

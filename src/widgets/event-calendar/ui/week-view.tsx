@@ -65,12 +65,8 @@ export const WeekView = memo(function WeekView({
                 isWeekend && "bg-muted/50",
               )}
             >
-              <div className="text-label-sm text-muted-foreground flex items-center justify-center gap-0.5">
-                <span
-                  className={cx(
-                    isToday && "text-primary font-semibold",
-                  )}
-                >
+              <div className="text-muted-foreground flex items-center justify-center gap-0.5 text-sm font-medium">
+                <span className={cx(isToday && "text-primary font-semibold")}>
                   {format(day, "d")}
                 </span>
                 <span className="text-muted-foreground/70">
@@ -112,10 +108,10 @@ export const WeekView = memo(function WeekView({
               return (
                 <div
                   key={slot.toISOString()}
-                  className="text-label-xs text-muted-foreground/70 relative h-[var(--height)] pr-2 text-right"
+                  className="text-muted-foreground/70 relative h-[var(--height)] pr-2 text-right text-xs font-medium"
                   style={baseStyle}
                 >
-                  <span className="absolute -top-2 right-2 bg-sidebar px-1">
+                  <span className="bg-sidebar absolute -top-2 right-2 px-1">
                     {format(slot, "HH:mm")}
                   </span>
                 </div>

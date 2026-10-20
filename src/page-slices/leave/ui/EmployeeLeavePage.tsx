@@ -329,13 +329,13 @@ export function EmployeeLeavePage({
               <DialogTitle>Sesi Sebelumnya Masih Aktif</DialogTitle>
             </DialogHeader>
             <div>
-              <p className="text-body-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 Kami mendeteksi sesi attendance sebelumnya belum tertutup. Ini
                 biasanya terjadi kalau laptop mati, browser tertutup, atau clock
                 out gagal terkirim.
               </p>
               {staleSession && (
-                <p className="text-body-sm text-muted-foreground mt-3">
+                <p className="text-muted-foreground mt-3 text-sm">
                   Tutup sesi dari{" "}
                   {format(
                     parseISO(getAttendanceLogLocalDate(staleSession)),
@@ -346,12 +346,11 @@ export function EmployeeLeavePage({
               )}
             </div>
             <DialogFooter>
-              <DialogClose render={<Button size="sm" variant="outline" />}>
+              <DialogClose render={<Button variant="outline" />}>
                 Nanti
               </DialogClose>
               {staleSession && (
                 <Button
-                  size="sm"
                   variant="destructive"
                   disabled={loading}
                   onClick={() => handleResolvePreviousSession(staleSession.id)}
@@ -370,17 +369,17 @@ export function EmployeeLeavePage({
         </div>
 
         <div className="flex flex-col">
-          <div className="grid grid-cols-2 my-2 lg:grid-cols-5 gap-px overflow-hidden rounded-xl border bg-border">
+          <div className="bg-border my-2 grid grid-cols-2 gap-px overflow-hidden rounded-xl border lg:grid-cols-5">
             <div className="bg-background md:bg-sidebar col-span-2 flex flex-col gap-1 px-4 py-3">
-              <p className="text-label-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm font-medium">
                 Current Time
               </p>
               <div className="flex flex-wrap items-center justify-between gap-4">
                 <div className="flex flex-wrap items-baseline gap-2">
-                  <p className="text-heading-md text-foreground">
+                  <p className="text-foreground text-lg font-semibold">
                     {currentTime ? format(currentTime, "HH:mm:ss") : "--:--:--"}
                   </p>
-                  <p className="text-body-sm text-muted-foreground">
+                  <p className="text-muted-foreground text-sm">
                     {currentTime ? format(currentTime, "EEEE, dd MMM") : ""}
                   </p>
                 </div>
@@ -390,7 +389,7 @@ export function EmployeeLeavePage({
                     <div className="h-[28px]" />
                   ) : staleSession && !activeSession ? (
                     <div className="flex flex-col items-end gap-2">
-                      <p className="text-body-xs text-destructive text-right">
+                      <p className="text-destructive text-right text-xs">
                         Sesi{" "}
                         {format(
                           parseISO(getAttendanceLogLocalDate(staleSession)),
@@ -399,7 +398,6 @@ export function EmployeeLeavePage({
                         belum ditutup.
                       </p>
                       <Button
-                        size="sm"
                         variant="destructive"
                         onClick={() =>
                           handleResolvePreviousSession(staleSession.id)
@@ -414,9 +412,7 @@ export function EmployeeLeavePage({
                     <>
                       <DropdownMenu>
                         <DropdownMenuTrigger
-                          render={
-                            <Button size="sm" variant="outline" type="button" />
-                          }
+                          render={<Button variant="outline" type="button" />}
                         >
                           {getStatusLabel(selectedStatus)}
                           <RiArrowDownSLine className="text-muted-foreground ml-2 size-4 shrink-0" />
@@ -440,7 +436,6 @@ export function EmployeeLeavePage({
                         </DropdownMenuContent>
                       </DropdownMenu>
                       <Button
-                        size="sm"
                         onClick={() => handleClockIn(selectedStatus)}
                         disabled={loading || Boolean(staleSession)}
                       >
@@ -451,7 +446,6 @@ export function EmployeeLeavePage({
                   ) : (
                     <>
                       <Button
-                        size="sm"
                         variant="outline"
                         onClick={() =>
                           handleToggleBreak(
@@ -464,7 +458,6 @@ export function EmployeeLeavePage({
                         {activeSession.is_break ? "End Break" : "Break"}
                       </Button>
                       <Button
-                        size="sm"
                         onClick={() => handleClockOut(activeSession.id)}
                         variant="destructive"
                         disabled={loading}
@@ -479,26 +472,28 @@ export function EmployeeLeavePage({
             </div>
 
             <div className="bg-background md:bg-sidebar flex h-full flex-col gap-1 px-4 py-3 [&:last-child:nth-child(odd)]:col-span-2 lg:[&:last-child:nth-child(odd)]:col-span-1">
-              <p className="text-label-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm font-medium">
                 Annual Leave Balance
               </p>
-              <p className="text-heading-md text-foreground">
+              <p className="text-foreground text-lg font-semibold">
                 {leaveStats.annualRemaining}/{leaveStats.annualTotal} Days
               </p>
             </div>
 
             <div className="bg-background md:bg-sidebar flex h-full flex-col gap-1 px-4 py-3 [&:last-child:nth-child(odd)]:col-span-2 lg:[&:last-child:nth-child(odd)]:col-span-1">
-              <p className="text-label-sm text-muted-foreground">Sick Leave</p>
-              <p className="text-heading-md text-foreground">
+              <p className="text-muted-foreground text-sm font-medium">
+                Sick Leave
+              </p>
+              <p className="text-foreground text-lg font-semibold">
                 {leaveStats.sickDays}
               </p>
             </div>
 
             <div className="bg-background md:bg-sidebar flex h-full flex-col gap-1 px-4 py-3 [&:last-child:nth-child(odd)]:col-span-2 lg:[&:last-child:nth-child(odd)]:col-span-1">
-              <p className="text-label-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm font-medium">
                 Work From Home
               </p>
-              <p className="text-heading-md text-foreground">
+              <p className="text-foreground text-lg font-semibold">
                 {leaveStats.wfhDays}
               </p>
             </div>
@@ -513,7 +508,7 @@ export function EmployeeLeavePage({
                     setActiveTab(value as "attendance" | "leave")
                   }
                 >
-                  <SelectTrigger size="sm" className="w-full">
+                  <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -529,7 +524,6 @@ export function EmployeeLeavePage({
               {isMounted("leave") && activeTab === "leave" && (
                 <div className="grid grid-cols-2 gap-2">
                   <Button
-                    size="sm"
                     variant="outline"
                     onClick={() => setTermsOpen(true)}
                     className="w-full"
@@ -537,7 +531,7 @@ export function EmployeeLeavePage({
                     <RiFileTextLine className="mr-2 size-3.5" />
                     Terms & Conditions
                   </Button>
-                  <Button size="sm" onClick={handleAdd} className="w-full">
+                  <Button onClick={handleAdd} className="w-full">
                     <RiAddLine className="mr-2 size-3.5" />
                     Request Leave
                   </Button>
@@ -563,15 +557,11 @@ export function EmployeeLeavePage({
 
               {isMounted("leave") && activeTab === "leave" && (
                 <div className="flex items-center gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => setTermsOpen(true)}
-                  >
+                  <Button variant="outline" onClick={() => setTermsOpen(true)}>
                     <RiFileTextLine className="mr-2 size-3.5" />
                     Read Terms &amp; Conditions
                   </Button>
-                  <Button size="sm" onClick={handleAdd}>
+                  <Button onClick={handleAdd}>
                     <RiAddLine className="mr-2 size-3.5" />
                     Request Leave
                   </Button>
@@ -642,28 +632,18 @@ export function EmployeeLeavePage({
             <DialogTitle>Confirm Delete</DialogTitle>
           </DialogHeader>
           <div>
-            <p className="text-body-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               Apakah Anda yakin ingin mengajukan penghapusan data attendance
               ini?
             </p>
           </div>
           <DialogFooter>
             <DialogClose
-              render={
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="w-full sm:w-fit"
-                />
-              }
+              render={<Button variant="outline" className="w-full sm:w-fit" />}
             >
               Cancel
             </DialogClose>
-            <Button
-              size="sm"
-              className="w-full sm:w-fit"
-              onClick={confirmDelete}
-            >
+            <Button className="w-full sm:w-fit" onClick={confirmDelete}>
               Confirm
             </Button>
           </DialogFooter>
@@ -680,13 +660,7 @@ export function EmployeeLeavePage({
           </div>
           <DialogFooter>
             <DialogClose
-              render={
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="w-full sm:w-fit"
-                />
-              }
+              render={<Button variant="outline" className="w-full sm:w-fit" />}
             >
               Close
             </DialogClose>

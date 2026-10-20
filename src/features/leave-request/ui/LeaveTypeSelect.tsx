@@ -29,7 +29,7 @@ export function LeaveTypeSelect({
         onValueChange={(v) => v !== null && onChange(v)}
         disabled={disabled}
       >
-        <SelectTrigger id="type" size="sm" className="mt-2 w-full">
+        <SelectTrigger id="type" className="mt-2 w-full">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>

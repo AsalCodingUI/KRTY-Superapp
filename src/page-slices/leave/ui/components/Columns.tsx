@@ -114,7 +114,7 @@ export const columns = (onEdit: (item: LeaveRequest) => void) =>
             href={url}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-label-xs text-primary hover:text-primary inline-flex items-center gap-1"
+            className="text-primary hover:text-primary inline-flex items-center gap-1 text-xs font-medium"
           >
             <RiFilePaperLine className="size-3.5" /> View
           </a>
@@ -156,10 +156,8 @@ export const columns = (onEdit: (item: LeaveRequest) => void) =>
         return (
           <Button
             variant="ghost"
-            size="icon-sm"
-            className={cn(
-              isRejected ? "text-warning" : "",
-            )}
+            size="icon"
+            className={cn(isRejected ? "text-warning" : "")}
             onClick={() => onEdit(item)}
             disabled={isLocked}
             title={isRejected ? "Fix & Resubmit" : "Edit Request"}

@@ -2,7 +2,10 @@
 
 import type { Table } from "@tanstack/react-table"
 import { ChevronsLeftIcon, ChevronsRightIcon } from "lucide-react"
-import { ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon } from "@/components/icons"
+import {
+  ChevronLeft as ChevronLeftIcon,
+  ChevronRight as ChevronRightIcon,
+} from "@/components/icons"
 
 import { Button } from "@/components/ui/button"
 
@@ -58,7 +61,7 @@ export function DataTablePagination<TData>({
           <Button
             key={button.srText}
             variant="outline"
-            size="icon-sm"
+            size="icon"
             className={button.mobileView}
             onClick={() => {
               button.onClick()

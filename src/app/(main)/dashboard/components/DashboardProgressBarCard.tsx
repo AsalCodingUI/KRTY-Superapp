@@ -35,23 +35,21 @@ export function ProgressBarCard({
       <div className="flex flex-col justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <dt className="text-foreground sm:text-label-md">
-              {title}
-            </dt>
+            <dt className="text-foreground sm:text-sm">{title}</dt>
             <Badge variant="secondary">{change}</Badge>
           </div>
           <dd className="mt-2 flex items-baseline gap-2">
-            <span className="text-heading-lg text-foreground">
+            <span className="text-foreground text-xl font-semibold">
               {value}
             </span>
-            <span className="text-body-sm text-muted-foreground/70">
+            <span className="text-muted-foreground/70 text-sm">
               {valueDescription}
             </span>
           </dd>
           <ul role="list" className="mt-4 space-y-5">
             {data.map((item) => (
               <li key={item.title}>
-                <p className="text-label-md flex justify-between">
+                <p className="flex justify-between text-sm font-medium">
                   <span className="text-foreground font-medium">
                     {item.title}
                   </span>
@@ -63,16 +61,13 @@ export function ProgressBarCard({
                     </span>
                   </span>
                 </p>
-                <Progress
-                  value={item.percentage}
-                  className="mt-2 h-1.5"
-                />
+                <Progress value={item.percentage} className="mt-2 h-1.5" />
               </li>
             ))}
           </ul>
         </div>
         <div>
-          <p className="text-body-xs text-muted-foreground/70 mt-6">
+          <p className="text-muted-foreground/70 mt-6 text-xs">
             {ctaDescription}{" "}
             <a href={ctaLink} className="text-primary hover:text-primary/90">
               {ctaText}

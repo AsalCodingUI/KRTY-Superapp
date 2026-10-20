@@ -102,12 +102,12 @@ export function AdminAttendanceHistoryList({
                 <div className="flex w-full items-center justify-between pr-4">
                   <div className="flex flex-col items-start sm:flex-row sm:items-center sm:gap-3">
                     <span
-                      className="text-label-md text-foreground"
+                      className="text-foreground text-sm font-medium"
                       suppressHydrationWarning
                     >
                       {format(dateObj, "eeee, dd MMMM yyyy")}
                       {isCurrentDay && (
-                        <span className="text-body-xs text-primary ml-2">
+                        <span className="text-primary ml-2 text-xs">
                           (Today)
                         </span>
                       )}
@@ -115,7 +115,7 @@ export function AdminAttendanceHistoryList({
                   </div>
 
                   <div className="flex items-center gap-3">
-                    <div className="text-body-sm text-muted-foreground flex items-center gap-2">
+                    <div className="text-muted-foreground flex items-center gap-2 text-sm">
                       <span className="hidden sm:inline">Present:</span>
                       <span className="text-foreground font-medium">
                         {totalPresent}
@@ -161,7 +161,6 @@ export function AdminAttendanceHistoryList({
         <div className="flex justify-center">
           <Button
             variant="outline"
-            size="sm"
             onClick={() => setVisibleDays((prev) => prev + 14)}
           >
             Load more

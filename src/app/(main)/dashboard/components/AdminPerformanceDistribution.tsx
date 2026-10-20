@@ -30,10 +30,10 @@ export function AdminPerformanceDistribution({
   return (
     <Card className="gap-0 p-4">
       <div className="mb-3 flex items-center justify-between">
-        <p className="text-label-md text-muted-foreground">
+        <p className="text-muted-foreground text-sm font-medium">
           Performance Distribution
         </p>
-        <span className="text-body-xs text-muted-foreground/70 tabular-nums">
+        <span className="text-muted-foreground/70 text-xs tabular-nums">
           {total} employees
         </span>
       </div>
@@ -49,15 +49,14 @@ export function AdminPerformanceDistribution({
       ) : (
         <div className="divide-border divide-y">
           {items.map((item) => {
-            const percentage = total > 0 ? Math.round((item.count / total) * 100) : 0
+            const percentage =
+              total > 0 ? Math.round((item.count / total) * 100) : 0
 
             return (
               <div key={item.label} className="px-3 py-2">
                 <div className="mb-1 flex items-center justify-between gap-3">
-                  <p className="text-body-sm text-foreground">
-                    {item.label}
-                  </p>
-                  <p className="text-body-xs text-muted-foreground tabular-nums">
+                  <p className="text-foreground text-sm">{item.label}</p>
+                  <p className="text-muted-foreground text-xs tabular-nums">
                     {item.count} ({percentage}%)
                   </p>
                 </div>

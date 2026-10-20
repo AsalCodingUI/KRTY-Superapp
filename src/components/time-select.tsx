@@ -130,7 +130,7 @@ function TimeSelect({
         }}
         disabled={disabled}
       >
-        <SelectTrigger size="sm" className="w-full flex-1">
+        <SelectTrigger className="w-full flex-1">
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
         <SelectContent className="max-h-[240px]">
@@ -144,7 +144,6 @@ function TimeSelect({
 
       <SegmentedControl<Period>
         fitContent
-        size="sm"
         value={selectedPeriod || "AM"}
         disabled={disabled || !selectedClockValue}
         onChange={(period) => {

@@ -58,7 +58,7 @@ export function LeaveRequestForm({
           id="name"
           value={userProfile.full_name || ""}
           disabled
-          className="bg-muted mt-2 h-7"
+          className="bg-muted mt-2"
         />
       </div>
       <div>
@@ -71,7 +71,7 @@ export function LeaveRequestForm({
             val !== null && onFormDataChange({ ...formData, leave_type: val })
           }
         >
-          <SelectTrigger id="type" size="sm" className="mt-2 w-full">
+          <SelectTrigger id="type" className="mt-2 w-full">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -99,7 +99,7 @@ export function LeaveRequestForm({
         />
 
         {formData.start_date && formData.end_date && (
-          <p className="text-body-xs text-muted-foreground mt-2">
+          <p className="text-muted-foreground mt-2 text-xs">
             Durasi:{" "}
             {calculateBusinessDays(formData.start_date, formData.end_date)} hari
             kerja.
@@ -109,8 +109,8 @@ export function LeaveRequestForm({
           <p
             className={
               noticeInvalid
-                ? "text-body-xs text-destructive mt-1"
-                : "text-body-xs text-muted-foreground mt-1"
+                ? "text-destructive mt-1 text-xs"
+                : "text-muted-foreground mt-1 text-xs"
             }
           >
             {noticeMessage}
@@ -139,18 +139,18 @@ export function LeaveRequestForm({
             <Input
               type="file"
               accept="image/*"
-              className="h-7 w-full"
+              className="w-full"
               onChange={onFileChange}
               disabled={compressing}
             />
             {compressing && (
-              <span className="text-body-xs text-primary flex animate-pulse items-center gap-1 whitespace-nowrap">
+              <span className="text-primary flex animate-pulse items-center gap-1 text-xs whitespace-nowrap">
                 <RiLoader2Line className="size-3 animate-spin" />
                 Processing...
               </span>
             )}
           </div>
-          <p className="text-body-xs text-muted-foreground/60 mt-1">
+          <p className="text-muted-foreground/60 mt-1 text-xs">
             Max 1MB (Auto Compressed).
           </p>
         </div>

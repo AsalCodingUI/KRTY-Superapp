@@ -43,14 +43,14 @@ export function DeleteConfirmDialog({
             <div className="bg-destructive/10 text-destructive flex h-10 w-10 items-center justify-center rounded-full">
               <RiErrorWarningLine className="size-5" />
             </div>
-            <p className="text-body-sm text-muted-foreground">{description}</p>
+            <p className="text-muted-foreground text-sm">{description}</p>
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" size="sm" onClick={onClose}>
+          <Button variant="outline" onClick={onClose}>
             {cancelText}
           </Button>
-          <Button variant="destructive" size="sm" onClick={handleConfirm}>
+          <Button variant="destructive" onClick={handleConfirm}>
             {confirmText}
           </Button>
         </DialogFooter>

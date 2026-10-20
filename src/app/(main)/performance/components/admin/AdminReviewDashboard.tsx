@@ -418,7 +418,6 @@ export function AdminReviewDashboard({
             {activeCycleData ? (
               <>
                 <Button
-                  size="sm"
                   disabled={loading}
                   onClick={handleSaveCycle}
                   variant="outline"
@@ -427,7 +426,6 @@ export function AdminReviewDashboard({
                   Update
                 </Button>
                 <Button
-                  size="sm"
                   disabled={loading}
                   onClick={handleEndCycle}
                   variant="destructive"
@@ -443,7 +441,6 @@ export function AdminReviewDashboard({
               </>
             ) : (
               <Button
-                size="sm"
                 disabled={loading}
                 onClick={handleSaveCycle}
                 className="w-full"
@@ -580,7 +577,7 @@ export function AdminReviewDashboard({
                             )}
                           </AvatarGroup>
                         ) : (
-                          <span className="text-body-xs text-muted-foreground/50">
+                          <span className="text-muted-foreground/50 text-xs">
                             None
                           </span>
                         )}
@@ -612,7 +609,6 @@ export function AdminReviewDashboard({
                     <TableCell className="text-right">
                       {item.summaryData ? (
                         <Button
-                          size="sm"
                           variant="ghost"
                           onClick={() => handleViewResult(item)}
                         >
@@ -624,7 +620,6 @@ export function AdminReviewDashboard({
                         </Button>
                       ) : (
                         <Button
-                          size="sm"
                           variant="ghost"
                           onClick={() => handleTriggerN8N(item)}
                           disabled={item.percentage === 0}

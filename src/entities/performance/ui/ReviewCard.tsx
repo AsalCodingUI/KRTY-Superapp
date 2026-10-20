@@ -47,7 +47,7 @@ export function ReviewCard({
       <h3 className="text-foreground mb-4 font-semibold">{title}</h3>
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <span className="text-display-xxs text-foreground">
+          <span className="text-foreground text-2xl font-semibold">
             {score !== null ? `${score}%` : "—"}
           </span>
           {score !== null && showStars && (
@@ -55,8 +55,9 @@ export function ReviewCard({
               {[...Array(5)].map((_, i) => (
                 <RiStarFill
                   key={i}
-                  className={`size-4 ${i < getStarCount(score) ? "" : "opacity-30"
-                    }`}
+                  className={`size-4 ${
+                    i < getStarCount(score) ? "" : "opacity-30"
+                  }`}
                 />
               ))}
             </div>
@@ -68,10 +69,10 @@ export function ReviewCard({
           </Badge>
         )}
         {description && (
-          <p className="text-body-xs text-muted-foreground">{description}</p>
+          <p className="text-muted-foreground text-xs">{description}</p>
         )}
         {weighted !== undefined && (
-          <p className="text-body-xs text-muted-foreground">
+          <p className="text-muted-foreground text-xs">
             Weight: {weighted}% of total score
           </p>
         )}

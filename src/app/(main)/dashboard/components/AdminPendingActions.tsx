@@ -5,10 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import {
-  RiArrowRightLine,
-  RiFileList3Line,
-} from "@/shared/ui/lucide-icons"
+import { RiArrowRightLine, RiFileList3Line } from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
 import Link from "next/link"
 
@@ -49,10 +46,10 @@ export function AdminPendingActions({
     <div className="space-y-4">
       <Card className="gap-0 p-4">
         <div className="mb-3 flex items-center justify-between">
-          <p className="text-label-md text-muted-foreground">
+          <p className="text-muted-foreground text-sm font-medium">
             Pending Reviews
           </p>
-          <span className="text-body-xs text-muted-foreground/70 tabular-nums">
+          <span className="text-muted-foreground/70 text-xs tabular-nums">
             {pendingReviews.length} items
           </span>
         </div>
@@ -76,24 +73,24 @@ export function AdminPendingActions({
                   <div className="hover:bg-muted flex items-center justify-between px-3 py-2 transition-colors">
                     <div className="flex items-center gap-3">
                       <Avatar className="size-7">
-                        <AvatarImage src={review.employee_avatar || undefined} />
+                        <AvatarImage
+                          src={review.employee_avatar || undefined}
+                        />
                         <AvatarFallback className="text-[10px]">
                           {review.employee_name?.[0] || "?"}
                         </AvatarFallback>
                       </Avatar>
                       <div>
-                        <h4 className="text-foreground text-label-md">
+                        <h4 className="text-foreground text-sm font-medium">
                           {review.employee_name}
                         </h4>
-                        <p className="text-body-xs text-muted-foreground">
+                        <p className="text-muted-foreground text-xs">
                           {review.employee_job_title}
                         </p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Badge variant="info">
-                        {review.cycle_name}
-                      </Badge>
+                      <Badge variant="info">{review.cycle_name}</Badge>
                       <RiArrowRightLine className="text-muted-foreground size-4" />
                     </div>
                   </div>
@@ -104,7 +101,7 @@ export function AdminPendingActions({
             {pendingReviews.length > 5 && (
               <div className="mt-3">
                 <Link href="/performance?tab=360review">
-                  <Button variant="outline" size="sm" className="w-full">
+                  <Button variant="outline" className="w-full">
                     View All {pendingReviews.length} Pending Reviews
                   </Button>
                 </Link>
@@ -116,10 +113,10 @@ export function AdminPendingActions({
 
       <Card className="gap-0 p-4">
         <div className="mb-3 flex items-center justify-between">
-          <p className="text-label-md text-muted-foreground">
+          <p className="text-muted-foreground text-sm font-medium">
             Leave Approvals
           </p>
-          <span className="text-body-xs text-muted-foreground/70 tabular-nums">
+          <span className="text-muted-foreground/70 text-xs tabular-nums">
             {pendingLeaveApprovals.length} items
           </span>
         </div>
@@ -154,26 +151,24 @@ export function AdminPendingActions({
                             </AvatarFallback>
                           </Avatar>
                           <div>
-                            <h4 className="text-foreground text-label-md">
+                            <h4 className="text-foreground text-sm font-medium">
                               {leave.user_name}
                             </h4>
-                            <p className="text-body-xs text-muted-foreground">
+                            <p className="text-muted-foreground text-xs">
                               {leave.leave_type} • {leave.days_requested} days
                             </p>
                           </div>
                         </div>
                         {daysAgo <= 2 && (
-                          <Badge variant="destructive">
-                            New
-                          </Badge>
+                          <Badge variant="destructive">New</Badge>
                         )}
                       </div>
-                      <div className="text-body-xs text-muted-foreground ml-11">
+                      <div className="text-muted-foreground ml-11 text-xs">
                         {format(new Date(leave.start_date), "MMM d")} -{" "}
                         {format(new Date(leave.end_date), "MMM d, yyyy")}
                       </div>
                       {leave.reason && (
-                        <div className="text-body-xs text-muted-foreground mt-1 ml-11 line-clamp-1">
+                        <div className="text-muted-foreground mt-1 ml-11 line-clamp-1 text-xs">
                           {leave.reason}
                         </div>
                       )}
@@ -186,7 +181,7 @@ export function AdminPendingActions({
             {pendingLeaveApprovals.length > 5 && (
               <div className="mt-3">
                 <Link href="/leave">
-                  <Button variant="outline" size="sm" className="w-full">
+                  <Button variant="outline" className="w-full">
                     View All {pendingLeaveApprovals.length} Requests
                   </Button>
                 </Link>

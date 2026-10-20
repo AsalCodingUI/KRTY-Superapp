@@ -53,19 +53,15 @@ export function EventCard({
 }: EventCardProps) {
   const getColorClasses = (color: EventColor): string => {
     const colorMap: Record<EventColor, string> = {
-      emerald:
-        "bg-success/10 text-success border-success/30",
-      orange:
-        "bg-warning/10 text-warning border-warning/30",
+      emerald: "bg-success/10 text-success border-success/30",
+      orange: "bg-warning/10 text-warning border-warning/30",
       violet:
         "bg-purple-500/10 text-purple-700 dark:text-purple-300 border-border",
       blue: "bg-primary/10 text-primary border-primary/30",
       rose: "bg-pink-500/10 text-pink-700 dark:text-pink-300 border-border",
-      amber:
-        "bg-warning/10 text-warning border-warning/30",
+      amber: "bg-warning/10 text-warning border-warning/30",
       cyan: "bg-cyan-500/10 text-cyan-700 dark:text-cyan-300 border-border",
-      neutral:
-        "bg-muted text-muted-foreground border-border",
+      neutral: "bg-muted text-muted-foreground border-border",
     }
     return colorMap[color] || colorMap.neutral
   }
@@ -77,7 +73,7 @@ export function EventCard({
       <button
         onClick={onClick}
         className={cx(
-          "text-body-xs w-full rounded border px-2 py-1 text-left",
+          "w-full rounded border px-2 py-1 text-left text-xs",
           "transition-all hover:shadow-sm",
           "truncate",
           colorClass,
@@ -105,23 +101,23 @@ export function EventCard({
     >
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
-          <h4 className="text-label-md mb-1 truncate">{title}</h4>
+          <h4 className="mb-1 truncate text-sm font-medium">{title}</h4>
           {description && (
-            <p className="text-body-xs mb-2 line-clamp-2 opacity-80">
+            <p className="mb-2 line-clamp-2 text-xs opacity-80">
               {description}
             </p>
           )}
         </div>
         {showTime && !allDay && (
           <div className="flex-shrink-0">
-            <span className="text-label-xs bg-muted rounded-full px-2 py-1">
+            <span className="bg-muted rounded-full px-2 py-1 text-xs font-medium">
               {format(start, "HH:mm")}
             </span>
           </div>
         )}
       </div>
 
-      <div className="text-body-xs mt-2 flex items-center gap-3 opacity-70">
+      <div className="mt-2 flex items-center gap-3 text-xs opacity-70">
         {showTime && !allDay && (
           <div className="flex items-center gap-1">
             <RiTimeLine className="h-3.5 w-3.5" />

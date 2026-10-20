@@ -12,11 +12,11 @@ const avatarVariants = tv({
   base: "ring-card dark:ring-card relative inline-flex items-center justify-center overflow-hidden rounded-full font-medium ring-2",
   variants: {
     size: {
-      xs: "text-label-xs h-6 w-6",
-      sm: "text-label-xs h-8 w-8",
-      md: "text-label-md h-10 w-10",
-      lg: "text-body-md h-12 w-12",
-      xl: "text-body-lg h-16 w-16",
+      xs: "h-6 w-6 text-xs font-medium",
+      sm: "h-8 w-8 text-xs font-medium",
+      md: "h-10 w-10 text-sm font-medium",
+      lg: "h-12 w-12 text-base",
+      xl: "h-16 w-16 text-lg",
     },
     color: {
       // Using chart colors for visual consistency with data viz
@@ -146,11 +146,11 @@ const avatarOverflowVariants = tv({
   ],
   variants: {
     size: {
-      xs: "text-body-xs h-6 w-6",
-      sm: "text-body-xs h-8 w-8",
-      md: "text-body-sm h-10 w-10",
-      lg: "text-body-md h-12 w-12",
-      xl: "text-body-lg h-16 w-16",
+      xs: "h-6 w-6 text-xs",
+      sm: "h-8 w-8 text-xs",
+      md: "h-10 w-10 text-sm",
+      lg: "h-12 w-12 text-base",
+      xl: "h-16 w-16 text-lg",
     },
   },
   defaultVariants: {

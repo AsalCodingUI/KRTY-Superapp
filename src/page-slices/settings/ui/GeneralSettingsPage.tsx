@@ -9,7 +9,7 @@ export default function GeneralSettingsPage() {
 
   if (loading) {
     return (
-      <div className="text-muted-foreground text-body-sm p-4">
+      <div className="text-muted-foreground p-4 text-sm">
         Loading profile...
       </div>
     )
@@ -26,7 +26,7 @@ export default function GeneralSettingsPage() {
             >
               Personal information
             </h2>
-            <p className="text-muted-foreground text-body-sm mt-1">
+            <p className="text-muted-foreground mt-1 text-sm">
               Information associated with your profile.
             </p>
           </div>
@@ -40,7 +40,7 @@ export default function GeneralSettingsPage() {
                   id="full-name"
                   value={profile?.full_name || ""}
                   disabled
-                  className="mt-2 h-7"
+                  className="mt-2"
                 />
               </div>
 
@@ -53,7 +53,7 @@ export default function GeneralSettingsPage() {
                   type="email"
                   value={profile?.email || ""}
                   disabled
-                  className="mt-2 h-7"
+                  className="mt-2"
                 />
               </div>
 
@@ -65,7 +65,7 @@ export default function GeneralSettingsPage() {
                   id="job-title"
                   value={profile?.job_title || ""}
                   disabled
-                  className="mt-2 h-7"
+                  className="mt-2"
                 />
               </div>
             </div>

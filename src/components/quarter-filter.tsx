@@ -80,7 +80,7 @@ export function QuarterFilter({
           value={selectedYear.toString()}
           onValueChange={(v) => v !== null && handleYearChange(v)}
         >
-          <SelectTrigger className="w-[100px]" size="sm">
+          <SelectTrigger className="w-[100px]">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -98,7 +98,6 @@ export function QuarterFilter({
         onChange={handleQuarterChange}
         items={visibleQuarters}
         fitContent
-        size="sm"
         className="w-auto"
       />
     </div>

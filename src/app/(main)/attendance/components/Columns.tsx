@@ -67,11 +67,7 @@ export const columns = (onRequestDelete?: (id: string) => void) =>
         if (row.original.is_break) {
           return <Badge variant="warning">On Break</Badge>
         }
-        return (
-          <span className="font-medium text-success">
-            Active
-          </span>
-        )
+        return <span className="text-success font-medium">Active</span>
       },
       meta: { className: "w-1/5", displayName: "Clock Out" },
     }),
@@ -88,7 +84,9 @@ export const columns = (onRequestDelete?: (id: string) => void) =>
         row.original.is_break && !row.original.clock_out ? (
           <Badge variant="warning">On Break</Badge>
         ) : (
-          <span className="tabular-nums">{calculateDuration(row.original)}</span>
+          <span className="tabular-nums">
+            {calculateDuration(row.original)}
+          </span>
         ),
       meta: { className: "w-1/5", displayName: "Total Work" },
     }),
@@ -118,7 +116,6 @@ export const columns = (onRequestDelete?: (id: string) => void) =>
         return (
           <Button
             variant="ghost"
-            size="sm"
             onClick={() => onRequestDelete(row.original.id)}
           >
             Request Delete

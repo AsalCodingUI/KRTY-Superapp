@@ -19,7 +19,10 @@ import {
 } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 import type { Table } from "@tanstack/react-table"
-import { GripVertical as GripVerticalIcon, SlidersHorizontal as Settings2Icon } from "@/components/icons"
+import {
+  GripVertical as GripVerticalIcon,
+  SlidersHorizontal as Settings2Icon,
+} from "@/components/icons"
 
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -76,13 +79,13 @@ function SortableItem<TData>({
             checked={column.getIsVisible()}
             onCheckedChange={(value) => column.toggleVisibility(!!value)}
           />
-          <label htmlFor={checkboxId} className="text-body-sm">
+          <label htmlFor={checkboxId} className="text-sm">
             {item.label}
           </label>
         </div>
         <Button
           variant="ghost"
-          size="icon-sm"
+          size="icon"
           className="-mr-1 cursor-grab active:cursor-grabbing"
           {...attributes}
           {...listeners}
@@ -138,7 +141,6 @@ function DataTableViewOptions<TData>({
           render={
             <Button
               variant="outline"
-              size="sm"
               className="ml-auto hidden lg:inline-flex"
             />
           }

@@ -42,7 +42,7 @@ export function ClockConfirmDialog({
           </DialogTitle>
         </DialogHeader>
         <div>
-          <p className="text-body-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             {action === "CLOCK_IN"
               ? `Anda akan masuk dengan status: ${getStatusLabel(status || "Present")}. Lanjutkan?`
               : "Apakah Anda yakin ingin mengakhiri sesi kerja ini?"}
@@ -50,14 +50,11 @@ export function ClockConfirmDialog({
         </div>
         <DialogFooter>
           <DialogClose
-            render={
-              <Button size="sm" variant="outline" className="w-full sm:w-fit" />
-            }
+            render={<Button variant="outline" className="w-full sm:w-fit" />}
           >
             Cancel
           </DialogClose>
           <Button
-            size="sm"
             disabled={loading}
             onClick={onConfirm}
             className="w-full sm:w-fit"

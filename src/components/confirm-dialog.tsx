@@ -56,7 +56,7 @@ export function ConfirmDialog({
       <AlertDialogContent className="sm:max-w-md">
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>
-          <AlertDialogDescription className="text-body-sm">
+          <AlertDialogDescription className="text-sm">
             {description}
           </AlertDialogDescription>
         </AlertDialogHeader>
@@ -65,7 +65,6 @@ export function ConfirmDialog({
               open while an async onConfirm is running. */}
           <Button
             variant="outline"
-            size="sm"
             onClick={() => onOpenChange(false)}
             disabled={isBusy}
           >
@@ -73,7 +72,6 @@ export function ConfirmDialog({
           </Button>
           <Button
             variant={variant === "destructive" ? "destructive" : "default"}
-            size="sm"
             onClick={handleConfirm}
             disabled={isBusy}
           >

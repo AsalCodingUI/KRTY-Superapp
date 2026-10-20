@@ -124,7 +124,6 @@ export function TeamFormDialog({
                 Full Name
               </Label>
               <Input
-                className="h-7"
                 id="name"
                 placeholder="e.g. Emma Stone"
                 value={formData.full_name}
@@ -139,7 +138,6 @@ export function TeamFormDialog({
                 Email Address
               </Label>
               <Input
-                className="h-7"
                 id="email"
                 type="email"
                 placeholder="emma@kretya.studio"
@@ -155,7 +153,6 @@ export function TeamFormDialog({
                 Hourly Rate (IDR)
               </Label>
               <Input
-                className="h-7"
                 id="rate"
                 type="number"
                 placeholder="0"
@@ -175,14 +172,13 @@ export function TeamFormDialog({
             {/* FIX: Ganti DialogClose dengan Button biasa onClick={onClose} */}
             <Button
               variant="outline"
-              size="sm"
               type="button"
               onClick={onClose}
               disabled={loading}
             >
               Cancel
             </Button>
-            <Button type="submit" size="sm" disabled={loading}>
+            <Button type="submit" disabled={loading}>
               {loading
                 ? "Saving..."
                 : initialData
@@ -239,23 +235,17 @@ export function DeleteConfirmDialog({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-foreground dark:text-label-md text-foreground">
+          <DialogTitle className="text-foreground text-foreground dark:text-sm">
             Delete member?
           </DialogTitle>
         </DialogHeader>
         <DialogFooter>
           {/* FIX: Ganti DialogClose dengan Button biasa */}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onClose}
-            disabled={loading}
-          >
+          <Button variant="outline" onClick={onClose} disabled={loading}>
             Cancel
           </Button>
           <Button
             variant="destructive"
-            size="sm"
             onClick={handleDelete}
             disabled={loading}
           >

@@ -92,7 +92,7 @@ export function CompetencyForm({
                 defaultValue={competency?.role || availableRoles[0]}
                 required
               >
-                <SelectTrigger className="w-full" size="sm">
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select role" />
                 </SelectTrigger>
                 <SelectContent>
@@ -109,7 +109,6 @@ export function CompetencyForm({
             <div className="space-y-2">
               <Label htmlFor="name">Competency Name *</Label>
               <Input
-                className="h-7"
                 id="name"
                 name="name"
                 placeholder="e.g., Consistency, Clean Code, Design Quality"
@@ -133,7 +132,6 @@ export function CompetencyForm({
 
           <DialogFooter>
             <Button
-              size="sm"
               type="button"
               variant="outline"
               onClick={onClose}
@@ -141,7 +139,7 @@ export function CompetencyForm({
             >
               Cancel
             </Button>
-            <Button size="sm" type="submit" disabled={loading}>
+            <Button type="submit" disabled={loading}>
               {loading ? "Saving..." : isEdit ? "Update" : "Create"}
             </Button>
           </DialogFooter>

@@ -3,7 +3,10 @@
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { canManageByRole } from "@/shared/lib/roles"
 import { EmptyState } from "@/components/empty-state"
-import { QuarterFilter, type QuarterFilterValue } from "@/components/quarter-filter"
+import {
+  QuarterFilter,
+  type QuarterFilterValue,
+} from "@/components/quarter-filter"
 import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
@@ -105,14 +108,15 @@ function EmployeeOverview({
   onQuarterChange,
 }: OverviewTabProps) {
   const { profile } = useUserProfile()
-  const [internalQuarter, setInternalQuarter] =
-    useState<QuarterFilterValue>(() => {
+  const [internalQuarter, setInternalQuarter] = useState<QuarterFilterValue>(
+    () => {
       const now = new Date()
       const y = now.getFullYear()
       const m = now.getMonth() + 1
       const q = m <= 3 ? "Q1" : m <= 6 ? "Q2" : m <= 9 ? "Q3" : "Q4"
       return `${y}-${q}`
-    })
+    },
+  )
   const selectedQuarter = controlledQuarter ?? internalQuarter
   const setSelectedQuarter = onQuarterChange ?? setInternalQuarter
   const { data, isLoading } = useQuery({
@@ -161,10 +165,12 @@ function EmployeeOverview({
       {/* SCORECARD SUMMARY */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
         {/* Overall Score Card */}
-        <Card className="gap-0 p-4 flex flex-col justify-between border-l-4 border-l-primary">
-          <dt className="text-muted-foreground text-label-md">Overall Score</dt>
+        <Card className="border-l-primary flex flex-col justify-between gap-0 border-l-4 p-4">
+          <dt className="text-muted-foreground text-sm font-medium">
+            Overall Score
+          </dt>
           <dd className="mt-2 flex items-baseline gap-2">
-            <span className="text-foreground text-display-xs">
+            <span className="text-foreground text-3xl font-semibold">
               {overallScore !== null ? `${overallScore}%` : "—"}
             </span>
           </dd>
@@ -181,29 +187,31 @@ function EmployeeOverview({
 
         {/* KPI Achievement Card */}
         <Card className="gap-0 p-4">
-          <dt className="text-muted-foreground text-label-md">KPI SLA Project</dt>
+          <dt className="text-muted-foreground text-sm font-medium">
+            KPI SLA Project
+          </dt>
           <dd className="mt-2 flex items-baseline gap-2">
-            <span className="text-foreground text-display-xs">
+            <span className="text-foreground text-3xl font-semibold">
               {slaRow?.result !== null ? `${slaRow?.result}%` : "—"}
             </span>
             {slaRow?.target && (
-              <span className="text-muted-foreground text-body-sm">
+              <span className="text-muted-foreground text-sm">
                 / {slaRow.target}%
               </span>
             )}
           </dd>
-          <p className="text-muted-foreground text-body-xs mt-4">
+          <p className="text-muted-foreground mt-4 text-xs">
             Weight: {slaRow?.weighted || 0}% of total score
           </p>
         </Card>
 
         {/* 360 Feedback Rating Card */}
         <Card className="gap-0 p-4">
-          <dt className="text-muted-foreground text-label-md">
+          <dt className="text-muted-foreground text-sm font-medium">
             360 Feedback Rating
           </dt>
           <dd className="mt-2 flex items-baseline gap-2">
-            <span className="text-foreground text-display-xs">
+            <span className="text-foreground text-3xl font-semibold">
               {reviewRow?.result !== null ? `${reviewRow?.result}%` : "—"}
             </span>
             {reviewRow?.result !== null && (
@@ -211,16 +219,17 @@ function EmployeeOverview({
                 {[...Array(5)].map((_, i) => (
                   <RiStarFill
                     key={i}
-                    className={`size-4 ${i < Math.round((reviewRow?.result || 0) / 20)
-                      ? ""
-                      : "opacity-30"
-                      }`}
+                    className={`size-4 ${
+                      i < Math.round((reviewRow?.result || 0) / 20)
+                        ? ""
+                        : "opacity-30"
+                    }`}
                   />
                 ))}
               </div>
             )}
           </dd>
-          <p className="text-muted-foreground text-body-xs mt-4">
+          <p className="text-muted-foreground mt-4 text-xs">
             Weight: {reviewRow?.weighted || 0}% of total score
           </p>
         </Card>
@@ -235,7 +244,7 @@ function EmployeeOverview({
           </h3>
           <div className="space-y-4">
             <div>
-              <div className="text-label-md mb-2 flex justify-between">
+              <div className="mb-2 flex justify-between text-sm font-medium">
                 <span className="text-muted-foreground">Achievement</span>
                 <span className="font-medium">
                   {slaRow?.result !== null ? `${slaRow?.result}%` : "—"}
@@ -243,18 +252,20 @@ function EmployeeOverview({
               </div>
               <Progress
                 value={slaRow?.result || 0}
-                className={progressIndicatorClass[
-                  slaRow?.result != null && slaRow.result >= 90
-                    ? "success"
-                    : slaRow?.result != null && slaRow.result >= 75
-                      ? "default"
-                      : slaRow?.result != null
-                        ? "warning"
-                        : "default"
-                ]}
+                className={
+                  progressIndicatorClass[
+                    slaRow?.result != null && slaRow.result >= 90
+                      ? "success"
+                      : slaRow?.result != null && slaRow.result >= 75
+                        ? "default"
+                        : slaRow?.result != null
+                          ? "warning"
+                          : "default"
+                  ]
+                }
               />
             </div>
-            <p className="text-muted-foreground text-body-xs">
+            <p className="text-muted-foreground text-xs">
               Target: {slaRow?.target || 90}% on-time delivery
             </p>
           </div>
@@ -267,7 +278,7 @@ function EmployeeOverview({
           </h3>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-foreground text-display-xxs">
+              <span className="text-foreground text-2xl font-semibold">
                 {reviewRow?.result !== null ? `${reviewRow?.result}%` : "—"}
               </span>
               {reviewRow?.result != null && (
@@ -276,7 +287,7 @@ function EmployeeOverview({
                 </Badge>
               )}
             </div>
-            <p className="text-muted-foreground text-body-xs">
+            <p className="text-muted-foreground text-xs">
               Peer review score for {selectedQuarter}
             </p>
           </div>
@@ -287,7 +298,7 @@ function EmployeeOverview({
           <h3 className="text-foreground mb-4 font-semibold">Work Quality</h3>
           <div className="space-y-4">
             <div>
-              <div className="text-label-md mb-2 flex justify-between">
+              <div className="mb-2 flex justify-between text-sm font-medium">
                 <span className="text-muted-foreground">Quality Score</span>
                 <span className="font-medium">
                   {qualityRow?.result !== null ? `${qualityRow?.result}%` : "—"}
@@ -295,18 +306,20 @@ function EmployeeOverview({
               </div>
               <Progress
                 value={qualityRow?.result || 0}
-                className={progressIndicatorClass[
-                  qualityRow?.result != null && qualityRow.result >= 90
-                    ? "success"
-                    : qualityRow?.result != null && qualityRow.result >= 75
-                      ? "default"
-                      : qualityRow?.result != null
-                        ? "warning"
-                        : "default"
-                ]}
+                className={
+                  progressIndicatorClass[
+                    qualityRow?.result != null && qualityRow.result >= 90
+                      ? "success"
+                      : qualityRow?.result != null && qualityRow.result >= 75
+                        ? "default"
+                        : qualityRow?.result != null
+                          ? "warning"
+                          : "default"
+                  ]
+                }
               />
             </div>
-            <p className="text-muted-foreground text-body-xs">
+            <p className="text-muted-foreground text-xs">
               Weight: {qualityRow?.weighted || 0}% of total score
             </p>
           </div>
@@ -316,7 +329,9 @@ function EmployeeOverview({
       {/* ASSIGNED PROJECTS */}
       <Card className="gap-0 p-4">
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-label-md text-foreground">Assigned Projects</h3>
+          <h3 className="text-foreground text-sm font-medium">
+            Assigned Projects
+          </h3>
           <Badge variant="info">{activeProjects.length} Active</Badge>
         </div>
 
@@ -363,7 +378,7 @@ function EmployeeOverview({
                       <h4 className="text-foreground truncate font-medium">
                         {assignment.projects.name}
                       </h4>
-                      <p className="text-muted-foreground text-body-xs mt-0.5">
+                      <p className="text-muted-foreground mt-0.5 text-xs">
                         {assignment.role_in_project}
                       </p>
                     </div>
@@ -377,7 +392,7 @@ function EmployeeOverview({
                       >
                         {assignment.projects.status}
                       </Badge>
-                      <div className="text-muted-foreground text-body-xs">
+                      <div className="text-muted-foreground text-xs">
                         SLA: {slaPercent}% • Quality: {qualityAchieved}/
                         {qualityScores.length}
                       </div>
@@ -387,7 +402,7 @@ function EmployeeOverview({
               )
             })}
             {assignments.length > 5 && (
-              <p className="text-muted-foreground text-body-xs mt-2 text-center">
+              <p className="text-muted-foreground mt-2 text-center text-xs">
                 + {assignments.length - 5} more projects
               </p>
             )}
@@ -403,14 +418,15 @@ function StakeholderOverview({
   selectedQuarter: controlledQuarter,
   onQuarterChange,
 }: OverviewTabProps) {
-  const [internalQuarter, setInternalQuarter] =
-    useState<QuarterFilterValue>(() => {
+  const [internalQuarter, setInternalQuarter] = useState<QuarterFilterValue>(
+    () => {
       const now = new Date()
       const y = now.getFullYear()
       const m = now.getMonth() + 1
       const q = m <= 3 ? "Q1" : m <= 6 ? "Q2" : m <= 9 ? "Q3" : "Q4"
       return `${y}-${q}`
-    })
+    },
+  )
   const selectedQuarter = controlledQuarter ?? internalQuarter
   const setSelectedQuarter = onQuarterChange ?? setInternalQuarter
   const { data: statsResult, isLoading } = useQuery({
@@ -458,10 +474,10 @@ function StakeholderOverview({
               <RiGroupLine className="text-primary size-6" />
             </div>
             <div>
-              <dt className="text-muted-foreground text-label-md">
+              <dt className="text-muted-foreground text-sm font-medium">
                 Total Employees
               </dt>
-              <dd className="text-foreground text-display-xxs">
+              <dd className="text-foreground text-2xl font-semibold">
                 {stats.totalEmployees}
               </dd>
             </div>
@@ -474,10 +490,10 @@ function StakeholderOverview({
               <RiLineChartLine className="text-success size-6" />
             </div>
             <div>
-              <dt className="text-muted-foreground text-label-md">
+              <dt className="text-muted-foreground text-sm font-medium">
                 Avg. Performance
               </dt>
-              <dd className="text-foreground text-display-xxs">
+              <dd className="text-foreground text-2xl font-semibold">
                 {stats.avgPerformance > 0 ? `${stats.avgPerformance}%` : "—"}
               </dd>
             </div>
@@ -490,10 +506,10 @@ function StakeholderOverview({
               <RiCheckboxCircleLine className="text-warning size-6" />
             </div>
             <div>
-              <dt className="text-muted-foreground text-label-md">
+              <dt className="text-muted-foreground text-sm font-medium">
                 Pending Reviews
               </dt>
-              <dd className="text-foreground text-display-xxs">
+              <dd className="text-foreground text-2xl font-semibold">
                 {stats.pendingReviews}
               </dd>
             </div>
@@ -506,10 +522,10 @@ function StakeholderOverview({
               <RiBriefcaseLine className="text-info size-6" />
             </div>
             <div>
-              <dt className="text-muted-foreground text-label-md">
+              <dt className="text-muted-foreground text-sm font-medium">
                 Active Projects
               </dt>
-              <dd className="text-foreground text-display-xxs">
+              <dd className="text-foreground text-2xl font-semibold">
                 {stats.activeProjects}
               </dd>
             </div>
@@ -525,7 +541,7 @@ function StakeholderOverview({
         {distributionTotal === 0 ? (
           <div className="py-8 text-center">
             <RiUserLine className="text-muted-foreground/70 mx-auto size-12" />
-            <p className="text-muted-foreground text-body-sm mt-2">
+            <p className="text-muted-foreground mt-2 text-sm">
               No performance data available for this quarter
             </p>
           </div>
@@ -616,7 +632,7 @@ function StakeholderOverview({
               ].map((item) => (
                 <div key={item.name} className="flex items-center gap-2">
                   <div className={`size-3 rounded-full ${item.color}`} />
-                  <div className="text-label-xs">
+                  <div className="text-xs font-medium">
                     <span className="text-foreground font-medium">
                       {item.count}
                     </span>{" "}
@@ -637,14 +653,14 @@ function StakeholderOverview({
             /* Switch to KPI tab */
           }}
         >
-          <Card className="gap-0 p-4 hover:ring-primary cursor-pointer transition-colors">
+          <Card className="hover:ring-primary cursor-pointer gap-0 p-4 transition-colors">
             <div className="flex items-center gap-4">
               <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-lg">
                 <RiLineChartLine className="text-primary size-5" />
               </div>
               <div>
                 <h4 className="text-foreground font-medium">Manage KPI</h4>
-                <p className="text-muted-foreground text-label-xs">
+                <p className="text-muted-foreground text-xs font-medium">
                   View and edit employee KPI scores
                 </p>
               </div>
@@ -658,14 +674,14 @@ function StakeholderOverview({
             /* Switch to 360 Review tab */
           }}
         >
-          <Card className="gap-0 p-4 hover:ring-primary cursor-pointer transition-colors">
+          <Card className="hover:ring-primary cursor-pointer gap-0 p-4 transition-colors">
             <div className="flex items-center gap-4">
               <div className="bg-success/10 flex h-10 w-10 items-center justify-center rounded-lg">
                 <RiUserLine className="text-success size-5" />
               </div>
               <div>
                 <h4 className="text-foreground font-medium">360 Reviews</h4>
-                <p className="text-muted-foreground text-label-xs">
+                <p className="text-muted-foreground text-xs font-medium">
                   Monitor peer review progress
                 </p>
               </div>

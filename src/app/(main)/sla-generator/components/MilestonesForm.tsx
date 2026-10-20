@@ -70,8 +70,8 @@ export const MilestonesForm = ({ data, onChange }: MilestonesFormProps) => {
   }) => (
     <div className="mt-4 space-y-4">
       <div className="flex items-center justify-between">
-        <h4 className="text-label-md text-foreground">{title}</h4>
-        <div className="text-label-xs text-muted-foreground">
+        <h4 className="text-foreground text-sm font-medium">{title}</h4>
+        <div className="text-muted-foreground text-xs font-medium">
           Total:{" "}
           {data[mKey].reduce(
             (acc, item) => acc + (parseInt(item.time) || 0),
@@ -99,7 +99,6 @@ export const MilestonesForm = ({ data, onChange }: MilestonesFormProps) => {
             <div className="md:col-span-2 lg:col-span-1">
               <Label className="mb-1">No</Label>
               <Input
-                className="h-7"
                 value={item.no}
                 onChange={(e) => updateItem(mKey, index, "no", e.target.value)}
               />
@@ -107,7 +106,6 @@ export const MilestonesForm = ({ data, onChange }: MilestonesFormProps) => {
             <div className="md:col-span-6 lg:col-span-5">
               <Label className="mb-1">Category</Label>
               <Input
-                className="h-7"
                 value={item.category}
                 onChange={(e) =>
                   updateItem(mKey, index, "category", e.target.value)
@@ -124,9 +122,9 @@ export const MilestonesForm = ({ data, onChange }: MilestonesFormProps) => {
                   onChange={(e) =>
                     updateItem(mKey, index, "time", e.target.value)
                   }
-                  className="h-7 pr-8"
+                  className="pr-8"
                 />
-                <span className="text-body-xs text-muted-foreground absolute top-2 right-2">
+                <span className="text-muted-foreground absolute top-2 right-2 text-xs">
                   d
                 </span>
               </div>
@@ -148,7 +146,6 @@ export const MilestonesForm = ({ data, onChange }: MilestonesFormProps) => {
 
       <Button
         variant="outline"
-        size="sm"
         onClick={() => addItem(mKey)}
         className="border-border hover:border-muted-foreground/70 w-full border-dashed"
       >
@@ -160,7 +157,7 @@ export const MilestonesForm = ({ data, onChange }: MilestonesFormProps) => {
   return (
     <div>
       <div className="mb-4">
-        <h3 className="text-label-md text-foreground">
+        <h3 className="text-foreground text-sm font-medium">
           Milestones & Timeline
         </h3>
       </div>

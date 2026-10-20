@@ -15,13 +15,13 @@ export function RSVPButtons({
 }: RSVPButtonsProps) {
   return (
     <div className="space-y-2">
-      <h4 className="text-label-md text-foreground">Akan hadir?</h4>
+      <h4 className="text-foreground text-sm font-medium">Akan hadir?</h4>
       <div className="flex gap-2">
         <button
           onClick={() => onChange("yes")}
           disabled={disabled}
           className={cx(
-            "text-label-md flex-1 rounded-lg px-4 py-2 transition-all",
+            "flex-1 rounded-lg px-4 py-2 text-sm font-medium transition-all",
             "border disabled:cursor-not-allowed disabled:opacity-50",
             value === "yes"
               ? "bg-primary text-primary-fg border-primary"
@@ -34,7 +34,7 @@ export function RSVPButtons({
           onClick={() => onChange("no")}
           disabled={disabled}
           className={cx(
-            "text-label-md flex-1 rounded-lg px-4 py-2 transition-all",
+            "flex-1 rounded-lg px-4 py-2 text-sm font-medium transition-all",
             "border disabled:cursor-not-allowed disabled:opacity-50",
             value === "no"
               ? "text-foreground border-border ring-border ring-2"
@@ -47,7 +47,7 @@ export function RSVPButtons({
           onClick={() => onChange("maybe")}
           disabled={disabled}
           className={cx(
-            "text-label-md flex-1 rounded-lg px-4 py-2 transition-all",
+            "flex-1 rounded-lg px-4 py-2 text-sm font-medium transition-all",
             "border disabled:cursor-not-allowed disabled:opacity-50",
             value === "maybe"
               ? "text-foreground border-border ring-border ring-2"

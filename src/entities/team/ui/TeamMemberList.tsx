@@ -69,12 +69,12 @@ export function TeamMemberList({
           className="border-border flex items-center justify-between rounded-lg border p-4"
         >
           <div className="flex items-center gap-4">
-            <span className="bg-muted text-label-md text-muted-foreground inline-flex size-10 items-center justify-center rounded-full">
+            <span className="bg-muted text-muted-foreground inline-flex size-10 items-center justify-center rounded-full text-sm font-medium">
               {getInitials(member.full_name || "")}
             </span>
             <div>
               <p className="text-foreground font-medium">{member.full_name}</p>
-              <p className="text-body-sm text-muted-foreground">{member.email}</p>
+              <p className="text-muted-foreground text-sm">{member.email}</p>
             </div>
           </div>
 
@@ -83,7 +83,7 @@ export function TeamMemberList({
               <Badge variant={getJobTitleVariant(member.job_title || "")}>
                 {member.job_title}
               </Badge>
-              <p className="text-body-sm text-muted-foreground mt-1">
+              <p className="text-muted-foreground mt-1 text-sm">
                 {formatRupiah(member.hourly_rate || 0)}/hr
               </p>
             </div>

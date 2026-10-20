@@ -66,10 +66,12 @@ export function TeamStats({ data }: TeamStatsProps) {
     <div className="max-w-full">
       <dl className="grid grid-cols-1">
         <Card className="gap-0 p-4">
-          <dt className="text-label-md text-muted-foreground">
+          <dt className="text-muted-foreground text-sm font-medium">
             Total Team Members
           </dt>
-          <dd className="text-display-xxs text-foreground mt-1">{totalMembers}</dd>
+          <dd className="text-foreground mt-1 text-2xl font-semibold">
+            {totalMembers}
+          </dd>
 
           <CategoryBar
             values={barValues}
@@ -80,7 +82,7 @@ export function TeamStats({ data }: TeamStatsProps) {
 
           <ul
             role="list"
-            className="text-body-sm mt-4 flex flex-wrap gap-x-8 gap-y-4"
+            className="mt-4 flex flex-wrap gap-x-8 gap-y-4 text-sm"
           >
             {statsData.map((item) => (
               <li key={item.name} className="flex items-center gap-3">
@@ -89,7 +91,7 @@ export function TeamStats({ data }: TeamStatsProps) {
                   aria-hidden="true"
                 />
                 <div className="flex items-baseline gap-1.5">
-                  <span className="text-label-md text-foreground">
+                  <span className="text-foreground text-sm font-medium">
                     {item.percentage}%
                   </span>
                   <span className="text-muted-foreground">

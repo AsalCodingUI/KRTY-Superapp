@@ -230,9 +230,7 @@ export default function PermissionSettingsPage({
   if (profileLoading) {
     return (
       <section className="flex flex-col items-center justify-center py-16 text-center">
-        <p className="text-muted-foreground text-body-sm">
-          Loading permissions...
-        </p>
+        <p className="text-muted-foreground text-sm">Loading permissions...</p>
       </section>
     )
   }
@@ -241,8 +239,10 @@ export default function PermissionSettingsPage({
     return (
       <section className="flex flex-col items-center justify-center py-16 text-center">
         <RiLockLine className="text-muted-foreground mb-3 size-8" />
-        <h3 className="text-label-md text-foreground">Access Restricted</h3>
-        <p className="text-muted-foreground text-body-sm mt-1">
+        <h3 className="text-foreground text-sm font-medium">
+          Access Restricted
+        </h3>
+        <p className="text-muted-foreground mt-1 text-sm">
           Only Super Admins can manage user permissions.
         </p>
       </section>
@@ -255,7 +255,7 @@ export default function PermissionSettingsPage({
 
       {isImpersonating && effectiveProfile && authProfile && (
         <div className="border-border bg-warning/10 mt-4 flex items-center justify-between rounded-md border px-3 py-2">
-          <p className="text-body-sm text-warning">
+          <p className="text-warning text-sm">
             Viewing as{" "}
             <strong>
               {effectiveProfile.full_name || effectiveProfile.email || "User"}
@@ -263,7 +263,6 @@ export default function PermissionSettingsPage({
           </p>
           <Button
             variant="outline"
-            size="sm"
             onClick={() => handleImpersonation(null)}
             disabled={loadingImpersonationId === "stop"}
           >
@@ -307,13 +306,13 @@ export default function PermissionSettingsPage({
                     </AvatarFallback>
                   </Avatar>
                   <div className="truncate">
-                    <p className="text-foreground text-label-md flex items-center gap-1.5 truncate">
+                    <p className="text-foreground flex items-center gap-1.5 truncate text-sm font-medium">
                       {user.full_name || "Unknown User"}
                       {user.is_super_admin && (
                         <Badge variant="info">Super Admin</Badge>
                       )}
                     </p>
-                    <p className="text-muted-foreground text-body-xs truncate">
+                    <p className="text-muted-foreground truncate text-xs">
                       {user.email}
                     </p>
                   </div>
@@ -325,7 +324,6 @@ export default function PermissionSettingsPage({
                   {!isCurrentUser && (
                     <Button
                       variant={user.is_super_admin ? "outline" : "ghost"}
-                      size="sm"
                       onClick={() =>
                         handleSuperAdminToggle(
                           user.id,
@@ -343,7 +341,6 @@ export default function PermissionSettingsPage({
                   {!isCurrentUser && (
                     <Button
                       variant={isViewingThisUser ? "outline" : "ghost"}
-                      size="sm"
                       onClick={() =>
                         handleImpersonation(isViewingThisUser ? null : user.id)
                       }
@@ -355,7 +352,7 @@ export default function PermissionSettingsPage({
 
                   {/* Job Title */}
                   <div className="w-full sm:w-40">
-                    <span className="text-muted-foreground text-body-xs mb-1 block sm:hidden">
+                    <span className="text-muted-foreground mb-1 block text-xs sm:hidden">
                       Job Title
                     </span>
                     <Select
@@ -365,7 +362,7 @@ export default function PermissionSettingsPage({
                       }
                       disabled={loadingId === user.id}
                     >
-                      <SelectTrigger size="sm" className="w-full">
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select Job" />
                       </SelectTrigger>
                       <SelectContent>
@@ -380,7 +377,7 @@ export default function PermissionSettingsPage({
 
                   {/* Role */}
                   <div className="w-full sm:w-36">
-                    <span className="text-muted-foreground text-body-xs mb-1 block sm:hidden">
+                    <span className="text-muted-foreground mb-1 block text-xs sm:hidden">
                       Role
                     </span>
                     <Select
@@ -390,7 +387,7 @@ export default function PermissionSettingsPage({
                       }
                       disabled={loadingId === user.id}
                     >
-                      <SelectTrigger size="sm" className="w-full">
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select Role" />
                       </SelectTrigger>
                       <SelectContent align="end">
@@ -405,7 +402,6 @@ export default function PermissionSettingsPage({
 
                   <Button
                     variant="outline"
-                    size="sm"
                     onClick={() =>
                       setExpandedUserId(isExpanded ? null : user.id)
                     }
@@ -419,7 +415,7 @@ export default function PermissionSettingsPage({
               {/* ── Expanded page permissions ── */}
               {isExpanded && (
                 <div className="py-4">
-                  <p className="text-muted-foreground text-label-xs mb-3">
+                  <p className="text-muted-foreground mb-3 text-xs font-medium">
                     Page Access
                   </p>
                   <div className="grid gap-2 sm:grid-cols-2">
@@ -436,10 +432,10 @@ export default function PermissionSettingsPage({
                           className="border-border flex items-center justify-between rounded-md border px-3 py-2"
                         >
                           <div className="min-w-0 pr-3">
-                            <p className="text-label-xs text-foreground truncate">
+                            <p className="text-foreground truncate text-xs font-medium">
                               {page.label}
                             </p>
-                            <p className="text-body-xs text-muted-foreground/70 truncate">
+                            <p className="text-muted-foreground/70 truncate text-xs">
                               {page.slug}
                             </p>
                           </div>
@@ -476,7 +472,7 @@ export default function PermissionSettingsPage({
                       )
                     })}
                   </div>
-                  <p className="text-muted-foreground/70 text-body-xs mt-3">
+                  <p className="text-muted-foreground/70 mt-3 text-xs">
                     Toggle each page directly. Allowed = on, Denied = off.
                   </p>
                 </div>
