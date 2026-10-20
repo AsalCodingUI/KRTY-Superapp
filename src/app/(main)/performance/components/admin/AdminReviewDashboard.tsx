@@ -21,7 +21,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import {
   RiCheckDoubleLine,
   RiErrorWarningLine,
@@ -120,9 +124,9 @@ export function AdminReviewDashboard({
       const activeCycle = cycle || null
       const activeCycleDate = cycle
         ? {
-          from: new Date(cycle.start_date),
-          to: new Date(cycle.end_date),
-        }
+            from: new Date(cycle.start_date),
+            to: new Date(cycle.end_date),
+          }
         : undefined
 
       // B. Ambil Data Karyawan
@@ -150,13 +154,16 @@ export function AdminReviewDashboard({
         .eq("name", targetCycleName) // Exact match, bukan ilike
 
       // Gabungkan hasil pencarian UUID
-      const validCycleIds = (cyclesByName || []).map((c: { id: string }) => c.id)
+      const validCycleIds = (cyclesByName || []).map(
+        (c: { id: string }) => c.id,
+      )
       const quarterUUID = validCycleIds.length > 0 ? validCycleIds[0] : null
 
       const legacyCycleId = targetCycleName
-      const cycleIdsToFetch = validCycleIds.length > 0
-        ? [...validCycleIds, legacyCycleId]
-        : [legacyCycleId]
+      const cycleIdsToFetch =
+        validCycleIds.length > 0
+          ? [...validCycleIds, legacyCycleId]
+          : [legacyCycleId]
       const summaryCycleIdsToFetch = validCycleIds
 
       // D. Fetch REVIEWS
@@ -181,60 +188,79 @@ export function AdminReviewDashboard({
           : []
 
       // F. Calculate Stats
-      const stats = employees.map((targetEmp: { id: string; full_name: string | null; job_title: string | null }) => {
-        const reviewsReceived = safeReviews.filter(
-          (r: { reviewee_id: string; cycle_id: string; reviewer_id: string }) => r.reviewee_id === targetEmp.id,
-        )
-        const reviewerIds = reviewsReceived.map((r: { reviewer_id: string }) => r.reviewer_id)
-        const userActiveCycleId =
-          reviewsReceived.length > 0 ? reviewsReceived[0].cycle_id : null
-
-        const reviewedBy = employees
-          .filter((e: { id: string }) => reviewerIds.includes(e.id))
-          .map((e: { full_name: string | null }) => ({ name: e.full_name || "Unknown" }))
-
-        const pendingBy = employees
-          .filter((e: { id: string }) => e.id !== targetEmp.id && !reviewerIds.includes(e.id))
-          .map((e: { full_name: string | null }) => ({ name: e.full_name || "Unknown" }))
-
-        const totalPeers = employees.length - 1
-        const percentage =
-          totalPeers > 0
-            ? Math.round((reviewedBy.length / totalPeers) * 100)
-            : 0
-
-        let existingSummary = null
-        let debugMatchInfo = "No Match"
-
-        if (userActiveCycleId) {
-          existingSummary = allSummaries.find(
-            (s: { reviewee_id: string; cycle_id: string }) =>
-              s.reviewee_id === targetEmp.id &&
-              s.cycle_id === userActiveCycleId,
+      const stats = employees.map(
+        (targetEmp: {
+          id: string
+          full_name: string | null
+          job_title: string | null
+        }) => {
+          const reviewsReceived = safeReviews.filter(
+            (r: {
+              reviewee_id: string
+              cycle_id: string
+              reviewer_id: string
+            }) => r.reviewee_id === targetEmp.id,
           )
-          if (existingSummary) debugMatchInfo = `Exact`
-        }
-        if (!existingSummary) {
-          existingSummary = allSummaries.find(
-            (s: { reviewee_id: string; cycle_id: string }) =>
-              s.reviewee_id === targetEmp.id &&
-              validCycleIds.includes(s.cycle_id),
+          const reviewerIds = reviewsReceived.map(
+            (r: { reviewer_id: string }) => r.reviewer_id,
           )
-          if (existingSummary) debugMatchInfo = `Cross / Orphan`
-        }
+          const userActiveCycleId =
+            reviewsReceived.length > 0 ? reviewsReceived[0].cycle_id : null
 
-        return {
-          userId: targetEmp.id,
-          name: targetEmp.full_name || "Unknown",
-          jobTitle: targetEmp.job_title || "-",
-          reviewedBy,
-          pendingBy,
-          percentage,
-          cycleIdUsed: userActiveCycleId,
-          summaryData: existingSummary || null,
-          debugInfo: debugMatchInfo,
-        }
-      })
+          const reviewedBy = employees
+            .filter((e: { id: string }) => reviewerIds.includes(e.id))
+            .map((e: { full_name: string | null }) => ({
+              name: e.full_name || "Unknown",
+            }))
+
+          const pendingBy = employees
+            .filter(
+              (e: { id: string }) =>
+                e.id !== targetEmp.id && !reviewerIds.includes(e.id),
+            )
+            .map((e: { full_name: string | null }) => ({
+              name: e.full_name || "Unknown",
+            }))
+
+          const totalPeers = employees.length - 1
+          const percentage =
+            totalPeers > 0
+              ? Math.round((reviewedBy.length / totalPeers) * 100)
+              : 0
+
+          let existingSummary = null
+          let debugMatchInfo = "No Match"
+
+          if (userActiveCycleId) {
+            existingSummary = allSummaries.find(
+              (s: { reviewee_id: string; cycle_id: string }) =>
+                s.reviewee_id === targetEmp.id &&
+                s.cycle_id === userActiveCycleId,
+            )
+            if (existingSummary) debugMatchInfo = `Exact`
+          }
+          if (!existingSummary) {
+            existingSummary = allSummaries.find(
+              (s: { reviewee_id: string; cycle_id: string }) =>
+                s.reviewee_id === targetEmp.id &&
+                validCycleIds.includes(s.cycle_id),
+            )
+            if (existingSummary) debugMatchInfo = `Cross / Orphan`
+          }
+
+          return {
+            userId: targetEmp.id,
+            name: targetEmp.full_name || "Unknown",
+            jobTitle: targetEmp.job_title || "-",
+            reviewedBy,
+            pendingBy,
+            percentage,
+            cycleIdUsed: userActiveCycleId,
+            summaryData: existingSummary || null,
+            debugInfo: debugMatchInfo,
+          }
+        },
+      )
 
       return {
         activeCycleData: activeCycle,
@@ -285,7 +311,9 @@ export function AdminReviewDashboard({
         is_active: true,
       })
       toast.success("Siklus dimulai")
-      await queryClient.invalidateQueries({ queryKey: ["admin-review-dashboard", selectedQuarter] })
+      await queryClient.invalidateQueries({
+        queryKey: ["admin-review-dashboard", selectedQuarter],
+      })
     }
     setLoading(false)
   }
@@ -303,7 +331,9 @@ export function AdminReviewDashboard({
       .update({ is_active: false })
       .eq("id", activeCycleData.id)
     toast.info("Siklus ditutup")
-    await queryClient.invalidateQueries({ queryKey: ["admin-review-dashboard", selectedQuarter] })
+    await queryClient.invalidateQueries({
+      queryKey: ["admin-review-dashboard", selectedQuarter],
+    })
     setLoading(false)
   }
 
@@ -346,7 +376,9 @@ export function AdminReviewDashboard({
       console.error(e)
       toast.error("Gagal memproses")
     }
-    await queryClient.invalidateQueries({ queryKey: ["admin-review-dashboard", selectedQuarter] })
+    await queryClient.invalidateQueries({
+      queryKey: ["admin-review-dashboard", selectedQuarter],
+    })
   }
 
   const handleViewResult = (employeeData: ReviewStatus) => {
@@ -466,23 +498,38 @@ export function AdminReviewDashboard({
                       <div className="flex items-center gap-2">
                         {item.reviewedBy.length > 0 ? (
                           <AvatarGroup>
-                            {item.reviewedBy.slice(0, 5).map((reviewer, idx) => (
-                              <Tooltip key={idx}>
-                                <TooltipTrigger asChild>
-                                  <Avatar className="size-7">
-                                    <AvatarFallback className="text-xs">
-                                      {reviewer.name.split(" ").map((n) => n[0]).join("").substring(0, 2)}
-                                    </AvatarFallback>
-                                  </Avatar>
-                                </TooltipTrigger>
-                                <TooltipContent>{reviewer.name}</TooltipContent>
-                              </Tooltip>
-                            ))}
+                            {item.reviewedBy
+                              .slice(0, 5)
+                              .map((reviewer, idx) => (
+                                <Tooltip key={idx}>
+                                  <TooltipTrigger
+                                    render={
+                                      <Avatar className="size-7">
+                                        <AvatarFallback className="text-xs">
+                                          {reviewer.name
+                                            .split(" ")
+                                            .map((n) => n[0])
+                                            .join("")
+                                            .substring(0, 2)}
+                                        </AvatarFallback>
+                                      </Avatar>
+                                    }
+                                  />
+                                  <TooltipContent>
+                                    {reviewer.name}
+                                  </TooltipContent>
+                                </Tooltip>
+                              ))}
                             {item.reviewedBy.length > 5 && (
                               <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <AvatarOverflow count={item.reviewedBy.length - 5} size="sm" />
-                                </TooltipTrigger>
+                                <TooltipTrigger
+                                  render={
+                                    <AvatarOverflow
+                                      count={item.reviewedBy.length - 5}
+                                      size="sm"
+                                    />
+                                  }
+                                />
                                 <TooltipContent>{`+ ${item.reviewedBy.length - 5} more`}</TooltipContent>
                               </Tooltip>
                             )}
@@ -502,21 +549,32 @@ export function AdminReviewDashboard({
                           <AvatarGroup>
                             {item.pendingBy.slice(0, 5).map((pending, idx) => (
                               <Tooltip key={idx}>
-                                <TooltipTrigger asChild>
-                                  <Avatar className="size-7">
-                                    <AvatarFallback className="text-xs">
-                                      {pending.name.split(" ").map((n) => n[0]).join("").substring(0, 2)}
-                                    </AvatarFallback>
-                                  </Avatar>
-                                </TooltipTrigger>
+                                <TooltipTrigger
+                                  render={
+                                    <Avatar className="size-7">
+                                      <AvatarFallback className="text-xs">
+                                        {pending.name
+                                          .split(" ")
+                                          .map((n) => n[0])
+                                          .join("")
+                                          .substring(0, 2)}
+                                      </AvatarFallback>
+                                    </Avatar>
+                                  }
+                                />
                                 <TooltipContent>{pending.name}</TooltipContent>
                               </Tooltip>
                             ))}
                             {item.pendingBy.length > 5 && (
                               <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <AvatarOverflow count={item.pendingBy.length - 5} size="sm" />
-                                </TooltipTrigger>
+                                <TooltipTrigger
+                                  render={
+                                    <AvatarOverflow
+                                      count={item.pendingBy.length - 5}
+                                      size="sm"
+                                    />
+                                  }
+                                />
                                 <TooltipContent>{`+ ${item.pendingBy.length - 5} more`}</TooltipContent>
                               </Tooltip>
                             )}
@@ -540,8 +598,12 @@ export function AdminReviewDashboard({
                             <RiTimeLine className="size-3.5" /> Collecting
                           </Badge>
                         ) : (
-                          <Badge variant="secondary" className="gap-1 pr-2 pl-1">
-                            <RiErrorWarningLine className="size-3.5" /> Not Started
+                          <Badge
+                            variant="secondary"
+                            className="gap-1 pr-2 pl-1"
+                          >
+                            <RiErrorWarningLine className="size-3.5" /> Not
+                            Started
                           </Badge>
                         )}
                       </div>
@@ -554,7 +616,10 @@ export function AdminReviewDashboard({
                           variant="ghost"
                           onClick={() => handleViewResult(item)}
                         >
-                          <RiEyeLine data-icon="inline-start" className="size-3.5" />
+                          <RiEyeLine
+                            data-icon="inline-start"
+                            className="size-3.5"
+                          />
                           View Result
                         </Button>
                       ) : (
@@ -565,7 +630,10 @@ export function AdminReviewDashboard({
                           disabled={item.percentage === 0}
                           title="Process Individual"
                         >
-                          <RiRocketLine data-icon="inline-start" className="size-3.5" />
+                          <RiRocketLine
+                            data-icon="inline-start"
+                            className="size-3.5"
+                          />
                           Process
                         </Button>
                       )}

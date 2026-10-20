@@ -5,12 +5,11 @@ import { Skeleton } from "@/components/ui/skeleton"
 export default function DashboardLoading() {
   return (
     <div className="flex flex-col">
-      <div className="flex items-center gap-2 rounded-xxl px-4 pt-4 pb-3 xl:px-5">
-        <Skeleton className="size-4 rounded-sm" />
+      <div className="flex items-center gap-2 pb-4">
         <Skeleton className="h-4 w-40" />
       </div>
 
-      <div className="bg-card flex flex-col rounded-xxl">
+      <div className="flex flex-col">
         <div className="space-y-5 p-4 sm:p-5">
           <div>
             <Skeleton className="mb-2 h-5 w-44" />

@@ -9,11 +9,11 @@ import { useMountedTabs } from "@/shared/hooks/useMountedTabs"
 import { useTabRoute } from "@/shared/hooks/useTabRoute"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { canManageByRole, canManageProjects } from "@/shared/lib/roles"
-import { QuarterFilter, type QuarterFilterValue } from "@/components/quarter-filter"
 import {
-  TabNavigation,
-  TabNavigationLink,
-} from "@/components/tab-navigation"
+  QuarterFilter,
+  type QuarterFilterValue,
+} from "@/components/quarter-filter"
+import { TabNavigation, TabNavigationLink } from "@/components/tab-navigation"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -23,7 +23,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { RiBarChartBoxLine } from "@/shared/ui/lucide-icons"
 import dynamic from "next/dynamic"
 import { useRouter } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
@@ -441,17 +440,16 @@ export function PerformancePage() {
 
   return (
     <div className="flex flex-col">
-      <div className="rounded-xxl flex items-center gap-2 px-5 pt-4 pb-3">
-        <RiBarChartBoxLine className="text-muted-foreground size-4" />
-        <p className="text-label-md text-foreground">
+      <div className="flex items-center gap-2 pb-4">
+        <h1 className="text-foreground truncate text-xl font-semibold tracking-tight">
           Individual Performance
-        </p>
+        </h1>
       </div>
 
-      <div className="bg-card rounded-xxl flex flex-col">
+      <div className="flex flex-col">
         {isStakeholder ? (
           <>
-            <div className="gap-3 grid grid-cols-1 px-5 py-2 sm:grid-cols-2 lg:grid-cols-5">
+            <div className="grid grid-cols-1 gap-3 px-5 py-2 sm:grid-cols-2 lg:grid-cols-5">
               {adminStats.map((item) => (
                 <div
                   key={item.label}
@@ -471,7 +469,9 @@ export function PerformancePage() {
               <div className="space-y-3 pb-3 xl:hidden">
                 <Select
                   value={activeTab}
-                  onValueChange={(value) => setActiveTab(value as TabType)}
+                  onValueChange={(value) =>
+                    value !== null && setActiveTab(value as TabType)
+                  }
                 >
                   <SelectTrigger size="sm" className="w-full">
                     <SelectValue />
@@ -488,7 +488,7 @@ export function PerformancePage() {
                 <div className="flex items-center gap-2">
                   <Select
                     value={selectedYear.toString()}
-                    onValueChange={handleYearChange}
+                    onValueChange={(v) => v !== null && handleYearChange(v)}
                   >
                     <SelectTrigger className="w-[92px]" size="sm">
                       <SelectValue />
@@ -558,7 +558,7 @@ export function PerformancePage() {
                 <div className="flex items-center gap-2">
                   <Select
                     value={selectedYear.toString()}
-                    onValueChange={handleYearChange}
+                    onValueChange={(v) => v !== null && handleYearChange(v)}
                   >
                     <SelectTrigger className="w-[96px]" size="sm">
                       <SelectValue />
@@ -582,7 +582,7 @@ export function PerformancePage() {
           </>
         ) : (
           <>
-            <div className="gap-3 grid grid-cols-1 px-5 py-2 sm:grid-cols-2 lg:grid-cols-5">
+            <div className="grid grid-cols-1 gap-3 px-5 py-2 sm:grid-cols-2 lg:grid-cols-5">
               {employeeStats.map((item) => {
                 const badge = getRatingBadge(item.score)
                 return (
@@ -597,9 +597,7 @@ export function PerformancePage() {
                       <p className="text-heading-md text-foreground">
                         {formatPercent(item.score)}
                       </p>
-                      <Badge variant={badge.variant}>
-                        {badge.label}
-                      </Badge>
+                      <Badge variant={badge.variant}>{badge.label}</Badge>
                     </div>
                   </div>
                 )
@@ -616,9 +614,7 @@ export function PerformancePage() {
                         : "No Active"}
                     </p>
                     {isCycleActive ? (
-                      <Badge variant="success">
-                        Active
-                      </Badge>
+                      <Badge variant="success">Active</Badge>
                     ) : null}
                   </div>
                   <Button
@@ -637,7 +633,9 @@ export function PerformancePage() {
               <div className="space-y-3 pb-3 xl:hidden">
                 <Select
                   value={activeTab}
-                  onValueChange={(value) => setActiveTab(value as TabType)}
+                  onValueChange={(value) =>
+                    value !== null && setActiveTab(value as TabType)
+                  }
                 >
                   <SelectTrigger size="sm" className="w-full">
                     <SelectValue />
@@ -654,7 +652,7 @@ export function PerformancePage() {
                 <div className="flex items-center gap-2">
                   <Select
                     value={selectedYear.toString()}
-                    onValueChange={handleYearChange}
+                    onValueChange={(v) => v !== null && handleYearChange(v)}
                   >
                     <SelectTrigger className="w-[92px]" size="sm">
                       <SelectValue />
@@ -711,7 +709,7 @@ export function PerformancePage() {
                 <div className="flex items-center gap-2">
                   <Select
                     value={selectedYear.toString()}
-                    onValueChange={handleYearChange}
+                    onValueChange={(v) => v !== null && handleYearChange(v)}
                   >
                     <SelectTrigger className="w-[96px]" size="sm">
                       <SelectValue />

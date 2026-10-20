@@ -104,7 +104,12 @@ export function EmployeeAttendanceWidget({
     }
   }, [router, supabase, userId])
 
-  const { loading, handleClockIn, handleClockOut, handleResolvePreviousSession } = useClockActions({
+  const {
+    loading,
+    handleClockIn,
+    handleClockOut,
+    handleResolvePreviousSession,
+  } = useClockActions({
     logs: logs as never[],
     onLogsUpdate: (next) => setLogs(next as AttendanceLog[]),
   })
@@ -114,7 +119,9 @@ export function EmployeeAttendanceWidget({
     logs,
     currentTime ?? new Date(),
   )
-  const todayRecord = logs.find((log) => getAttendanceLogLocalDate(log) === today)
+  const todayRecord = logs.find(
+    (log) => getAttendanceLogLocalDate(log) === today,
+  )
 
   const todayStatus = useMemo(() => {
     if (activeSession) return "Clocked In"
@@ -136,8 +143,7 @@ export function EmployeeAttendanceWidget({
 
   return (
     <div className="space-y-4">
-
-      <div className="rounded-lg border border-border bg-card px-3 py-2">
+      <div className="border-border bg-card rounded-lg border px-3 py-2">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-label-sm text-muted-foreground">Today</span>
@@ -147,9 +153,9 @@ export function EmployeeAttendanceWidget({
                   ? "success"
                   : todayStatus === "Previous Session Open"
                     ? "warning"
-                  : todayStatus === "Completed"
-                    ? "info"
-                    : "warning"
+                    : todayStatus === "Completed"
+                      ? "info"
+                      : "warning"
               }
             >
               {todayStatus}
@@ -217,10 +223,16 @@ export function EmployeeAttendanceWidget({
             </p>
           </div>
           <DialogFooter>
-            <DialogClose asChild>
-              <Button variant="outline" size="sm" className="w-full sm:w-fit">
-                Nanti
-              </Button>
+            <DialogClose
+              render={
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full sm:w-fit"
+                />
+              }
+            >
+              Nanti
             </DialogClose>
             {staleSession && (
               <Button
@@ -249,13 +261,16 @@ export function EmployeeAttendanceWidget({
             icon={<RiCheckboxCircleLine className="size-5" />}
           />
         ) : (
-          <div className="border-border divide-border overflow-hidden rounded-lg border divide-y">
+          <div className="border-border divide-border divide-y overflow-hidden rounded-lg border">
             {logs.slice(0, 7).map((log) => (
               <div key={log.id} className="px-3 py-2">
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex min-w-0 items-center gap-2">
                     <span className="text-body-sm text-foreground">
-                      {format(new Date(getAttendanceLogLocalDate(log)), "EEE, dd MMM yyyy")}
+                      {format(
+                        new Date(getAttendanceLogLocalDate(log)),
+                        "EEE, dd MMM yyyy",
+                      )}
                     </span>
                     <Badge
                       variant={log.status === "Late" ? "warning" : "secondary"}
@@ -264,9 +279,13 @@ export function EmployeeAttendanceWidget({
                     </Badge>
                   </div>
                   <span className="text-body-xs text-muted-foreground whitespace-nowrap">
-                    {log.clock_in ? format(new Date(log.clock_in), "HH:mm") : "--:--"}
+                    {log.clock_in
+                      ? format(new Date(log.clock_in), "HH:mm")
+                      : "--:--"}
                     {" - "}
-                    {log.clock_out ? format(new Date(log.clock_out), "HH:mm") : "Active"}
+                    {log.clock_out
+                      ? format(new Date(log.clock_out), "HH:mm")
+                      : "Active"}
                   </span>
                 </div>
               </div>
@@ -276,11 +295,9 @@ export function EmployeeAttendanceWidget({
       </div>
 
       <div>
-        <h4 className="text-label-md text-foreground mb-3">
-          Leave Requests
-        </h4>
+        <h4 className="text-label-md text-foreground mb-3">Leave Requests</h4>
         {recentLeaves.length > 0 ? (
-          <div className="border-border divide-border overflow-hidden rounded-lg border divide-y">
+          <div className="border-border divide-border divide-y overflow-hidden rounded-lg border">
             {recentLeaves.map((leave) => (
               <div
                 key={leave.id}

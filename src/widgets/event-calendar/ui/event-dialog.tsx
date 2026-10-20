@@ -24,7 +24,11 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { RiCloseLine, RiDeleteBinLine, RiSaveLine } from "@/shared/ui/lucide-icons"
+import {
+  RiCloseLine,
+  RiDeleteBinLine,
+  RiSaveLine,
+} from "@/shared/ui/lucide-icons"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format } from "date-fns"
 import { id } from "date-fns/locale"
@@ -35,7 +39,10 @@ import { HolidayDialog } from "./dialog-variants/HolidayDialog"
 import { LeaveDialog } from "./dialog-variants/LeaveDialog"
 import { MeetingDialog } from "./dialog-variants/MeetingDialog"
 import { PerformanceDialog } from "./dialog-variants/PerformanceDialog"
-import { getAllEventTypes, getEventTypeDefinition } from "./event-color-registry"
+import {
+  getAllEventTypes,
+  getEventTypeDefinition,
+} from "./event-color-registry"
 import type { CalendarEvent } from "./types"
 
 const eventSchema = z.object({
@@ -115,32 +122,32 @@ export function EventDialog({
 
   const defaultValues: EventFormData = event
     ? {
-      title: event.title,
-      description: event.description || "",
-      start: format(event.start, "yyyy-MM-dd'T'HH:mm"),
-      end: format(event.end, "yyyy-MM-dd'T'HH:mm"),
-      location: event.location || "",
-      color: event.color,
-      type: normalizedEventType || "Event",
-      allDay: event.allDay || false,
-    }
+        title: event.title,
+        description: event.description || "",
+        start: format(event.start, "yyyy-MM-dd'T'HH:mm"),
+        end: format(event.end, "yyyy-MM-dd'T'HH:mm"),
+        location: event.location || "",
+        color: event.color,
+        type: normalizedEventType || "Event",
+        allDay: event.allDay || false,
+      }
     : {
-      title: "",
-      description: "",
-      start: initialDate
-        ? format(initialDate, "yyyy-MM-dd'T'HH:mm")
-        : format(new Date(), "yyyy-MM-dd'T'HH:mm"),
-      end: initialDate
-        ? format(
-          new Date(initialDate.getTime() + 60 * 60 * 1000),
-          "yyyy-MM-dd'T'HH:mm",
-        )
-        : format(new Date(Date.now() + 60 * 60 * 1000), "yyyy-MM-dd'T'HH:mm"),
-      location: "",
-      color: "blue",
-      type: "Event",
-      allDay: false,
-    }
+        title: "",
+        description: "",
+        start: initialDate
+          ? format(initialDate, "yyyy-MM-dd'T'HH:mm")
+          : format(new Date(), "yyyy-MM-dd'T'HH:mm"),
+        end: initialDate
+          ? format(
+              new Date(initialDate.getTime() + 60 * 60 * 1000),
+              "yyyy-MM-dd'T'HH:mm",
+            )
+          : format(new Date(Date.now() + 60 * 60 * 1000), "yyyy-MM-dd'T'HH:mm"),
+        location: "",
+        color: "blue",
+        type: "Event",
+        allDay: false,
+      }
 
   const {
     register,
@@ -318,7 +325,7 @@ export function EventDialog({
               <h3 className="text-heading-sm text-foreground break-words">
                 {event.title}
               </h3>
-                <Badge
+              <Badge
                 variant={getBadgeVariant(event.color)}
                 className="shrink-0"
               >
@@ -415,7 +422,7 @@ export function EventDialog({
                 <Label htmlFor="type">Tipe Jadwal</Label>
                 <Select
                   value={selectedType}
-                  onValueChange={handleTypeChange}
+                  onValueChange={(v) => v !== null && handleTypeChange(v)}
                   disabled={readOnly}
                 >
                   <SelectTrigger size="sm" className="w-full">
@@ -436,7 +443,9 @@ export function EventDialog({
                 <Checkbox
                   id="allDay"
                   checked={watch("allDay") || false}
-                  onCheckedChange={(checked) => setValue("allDay", checked === true)}
+                  onCheckedChange={(checked) =>
+                    setValue("allDay", checked === true)
+                  }
                   disabled={readOnly}
                 />
                 <Label htmlFor="allDay" className="cursor-pointer">
@@ -472,7 +481,10 @@ export function EventDialog({
                               currentStart.getMinutes(),
                             )
                           }
-                          setValue("start", format(newDate, "yyyy-MM-dd'T'HH:mm"))
+                          setValue(
+                            "start",
+                            format(newDate, "yyyy-MM-dd'T'HH:mm"),
+                          )
                         }
                       }}
                       placeholder="Pilih tanggal"

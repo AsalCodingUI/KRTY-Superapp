@@ -31,14 +31,12 @@ export function SquadSection({
 }: SquadSectionProps) {
   return (
     <div>
-      <h3 className="text-label-md text-foreground mb-4">
-        Squad Allocation
-      </h3>
+      <h3 className="text-label-md text-foreground mb-4">Squad Allocation</h3>
 
       <div className="block">
         <div className="mb-4 flex gap-3">
           <Select
-            onValueChange={onSelectedMemberChange}
+            onValueChange={(v) => v !== null && onSelectedMemberChange(v)}
             value={selectedMemberToAdd}
           >
             <SelectTrigger size="sm" className="w-full">
@@ -98,7 +96,12 @@ export function SquadSection({
                     value={[member.allocation]}
                     max={100}
                     step={5}
-                    onValueChange={(val) => onUpdateAllocation(member.id, val)}
+                    onValueChange={(val) =>
+                      onUpdateAllocation(
+                        member.id,
+                        Array.isArray(val) ? [...val] : [val as number],
+                      )
+                    }
                     className="flex-1"
                   />
                   <span className="text-label-sm text-foreground w-10 text-right">

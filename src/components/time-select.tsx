@@ -91,7 +91,13 @@ function to24HourValue(clockValue: string, period: Period) {
   }
 
   const normalizedHour =
-    period === "AM" ? (hour12 === 12 ? 0 : hour12) : hour12 === 12 ? 12 : hour12 + 12
+    period === "AM"
+      ? hour12 === 12
+        ? 0
+        : hour12
+      : hour12 === 12
+        ? 12
+        : hour12 + 12
 
   return `${String(normalizedHour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`
 }
@@ -119,6 +125,7 @@ function TimeSelect({
       <Select
         value={selectedClockValue}
         onValueChange={(nextClockValue) => {
+          if (nextClockValue === null) return
           onValueChange?.(to24HourValue(nextClockValue, selectedPeriod || "AM"))
         }}
         disabled={disabled}

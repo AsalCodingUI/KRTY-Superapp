@@ -30,7 +30,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 import { RiCloseLine, RiTeamLine } from "@/shared/ui/lucide-icons"
 import { format, isValid } from "date-fns"
@@ -106,7 +110,9 @@ export function LeadReviewTab() {
 
       const { data: assignments, error: assignmentError } = await supabase
         .from("project_assignments")
-        .select("project_id,is_lead,profiles(id,full_name,avatar_url,job_title)")
+        .select(
+          "project_id,is_lead,profiles(id,full_name,avatar_url,job_title)",
+        )
         .in("project_id", projectIds)
 
       if (assignmentError) return []
@@ -134,24 +140,30 @@ export function LeadReviewTab() {
         })
       })
 
-      assignments?.forEach((assignment: { project_id: string; is_lead: boolean; profiles: unknown }) => {
-        const project = projectMap.get(assignment.project_id)
-        // Supabase infers profiles as array but it's actually a single object from JOIN
-        const profile = assignment.profiles as unknown as {
-          id: string
-          full_name: string | null
-          avatar_url: string | null
-          job_title: string | null
-        } | null
-        if (!project || !profile) return
-        project.members.push({
-          id: profile.id,
-          name: profile.full_name,
-          avatar: profile.avatar_url,
-          jobTitle: profile.job_title,
-          isLead: Boolean(assignment.is_lead),
-        })
-      })
+      assignments?.forEach(
+        (assignment: {
+          project_id: string
+          is_lead: boolean
+          profiles: unknown
+        }) => {
+          const project = projectMap.get(assignment.project_id)
+          // Supabase infers profiles as array but it's actually a single object from JOIN
+          const profile = assignment.profiles as unknown as {
+            id: string
+            full_name: string | null
+            avatar_url: string | null
+            job_title: string | null
+          } | null
+          if (!project || !profile) return
+          project.members.push({
+            id: profile.id,
+            name: profile.full_name,
+            avatar: profile.avatar_url,
+            jobTitle: profile.job_title,
+            isLead: Boolean(assignment.is_lead),
+          })
+        },
+      )
 
       return Array.from(projectMap.values())
     },
@@ -270,9 +282,9 @@ export function LeadReviewTab() {
                 const timeline =
                   startDate && endDate && isValid(startDate) && isValid(endDate)
                     ? `${format(startDate, "MMM d, yyyy")} – ${format(
-                      endDate,
-                      "MMM d, yyyy",
-                    )}`
+                        endDate,
+                        "MMM d, yyyy",
+                      )}`
                     : "-"
 
                 const members = project.members.filter((m) => !m.isLead)
@@ -286,15 +298,13 @@ export function LeadReviewTab() {
                     onClick={() => setSelectedProjectId(project.id)}
                     className={cn(
                       "group cursor-pointer transition-colors",
-                      isSelected
-                        ? "bg-accent"
-                        : "hover:bg-accent",
+                      isSelected ? "bg-accent" : "hover:bg-accent",
                     )}
                   >
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <span
-                          className="text-foreground font-medium max-w-[320px] truncate"
+                          className="text-foreground max-w-[320px] truncate font-medium"
                           title={project.name}
                         >
                           {project.name}
@@ -322,24 +332,30 @@ export function LeadReviewTab() {
                     </TableCell>
                     <TableCell>
                       {members.length === 0 ? (
-                        <span className="text-muted-foreground/50">No team</span>
+                        <span className="text-muted-foreground/50">
+                          No team
+                        </span>
                       ) : (
                         <AvatarGroup>
                           {visibleMembers.map((member) => (
                             <Tooltip key={member.id}>
-                              <TooltipTrigger asChild>
-                                <Link
-                                  href={`/performance/employee/${member.id}`}
-                                  className="block"
-                                  onClick={(event) => event.stopPropagation()}
-                                >
-                                  <Avatar className="size-5">
-                                    <AvatarImage src={member.avatar || undefined} />
-                                    <AvatarFallback className="text-xs">
-                                      {member.name?.[0] || "?"}
-                                    </AvatarFallback>
-                                  </Avatar>
-                                </Link>
+                              <TooltipTrigger
+                                render={
+                                  <Link
+                                    href={`/performance/employee/${member.id}`}
+                                    className="block"
+                                    onClick={(event) => event.stopPropagation()}
+                                  />
+                                }
+                              >
+                                <Avatar className="size-5">
+                                  <AvatarImage
+                                    src={member.avatar || undefined}
+                                  />
+                                  <AvatarFallback className="text-xs">
+                                    {member.name?.[0] || "?"}
+                                  </AvatarFallback>
+                                </Avatar>
                               </TooltipTrigger>
                               <TooltipContent side="top">
                                 {member.name || "-"}
@@ -367,20 +383,20 @@ export function LeadReviewTab() {
             <SheetContent
               side="right"
               showCloseButton={false}
-              className="flex flex-col gap-0 overflow-y-auto bg-card p-0 data-[side=right]:w-full sm:data-[side=right]:inset-y-6 sm:data-[side=right]:right-6 sm:data-[side=right]:h-auto sm:data-[side=right]:w-[560px] sm:data-[side=right]:max-w-[560px] sm:rounded-xl sm:border sm:border-border sm:shadow-regular-md"
+              className="bg-card sm:border-border sm:shadow-regular-md flex flex-col gap-0 overflow-y-auto p-0 data-[side=right]:w-full sm:rounded-xl sm:border sm:data-[side=right]:inset-y-6 sm:data-[side=right]:right-6 sm:data-[side=right]:h-auto sm:data-[side=right]:w-[560px] sm:data-[side=right]:max-w-[560px]"
             >
-              <div className="relative pl-5 pr-3 pb-2 pt-5">
+              <div className="relative pt-5 pr-3 pb-2 pl-5">
                 <SheetTitle className="pr-12">
                   {selectedProject?.name || "Project Detail"}
                 </SheetTitle>
                 <SheetClose
-                  className="absolute right-[var(--padding-xl)] top-[var(--padding-xl)] inline-flex items-center justify-center rounded-md p-1.5 text-muted-foreground/70 transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                  className="text-muted-foreground/70 hover:bg-muted focus-visible:ring-primary absolute top-[var(--padding-xl)] right-[var(--padding-xl)] inline-flex items-center justify-center rounded-md p-1.5 transition-colors focus-visible:ring-2 focus-visible:outline-none"
                   aria-label="Close"
                 >
                   <RiCloseLine className="size-[14px]" />
                 </SheetClose>
               </div>
-              <div className="flex-1 space-y-4 bg-card p-5">
+              <div className="bg-card flex-1 space-y-4 p-5">
                 {selectedProject && (
                   <>
                     <div className="space-y-4">
@@ -389,7 +405,9 @@ export function LeadReviewTab() {
                           Quarter
                         </p>
                         {selectedProject.quarter_id ? (
-                          <Badge variant="info">{selectedProject.quarter_id}</Badge>
+                          <Badge variant="info">
+                            {selectedProject.quarter_id}
+                          </Badge>
                         ) : (
                           <span className="text-muted-foreground/50">-</span>
                         )}
@@ -423,9 +441,9 @@ export function LeadReviewTab() {
                               isValid(startDate) &&
                               isValid(endDate)
                               ? `${format(startDate, "MMM d, yyyy")} – ${format(
-                                endDate,
-                                "MMM d, yyyy",
-                              )}`
+                                  endDate,
+                                  "MMM d, yyyy",
+                                )}`
                               : "-"
                           })()}
                         </span>
@@ -446,9 +464,7 @@ export function LeadReviewTab() {
                         <Table>
                           <TableHeader>
                             <TableRow className="h-[40px] hover:bg-transparent">
-                              <TableHead className="min-w-0">
-                                Member
-                              </TableHead>
+                              <TableHead className="min-w-0">Member</TableHead>
                               <TableHead className="w-[1%] whitespace-nowrap">
                                 Role
                               </TableHead>
@@ -463,18 +479,18 @@ export function LeadReviewTab() {
                                 <TableCell className="min-w-0 align-top">
                                   <div className="flex items-center gap-2">
                                     <Avatar className="size-5">
-                                      <AvatarImage src={member.avatar || undefined} />
+                                      <AvatarImage
+                                        src={member.avatar || undefined}
+                                      />
                                       <AvatarFallback className="text-xs">
                                         {member.name?.[0] || "?"}
                                       </AvatarFallback>
                                     </Avatar>
-                                    <span className="text-foreground truncate max-w-[140px]">
+                                    <span className="text-foreground max-w-[140px] truncate">
                                       {member.name || "-"}
                                     </span>
                                     {member.isLead && (
-                                      <Badge variant="info">
-                                        Lead
-                                      </Badge>
+                                      <Badge variant="info">Lead</Badge>
                                     )}
                                   </div>
                                 </TableCell>
@@ -485,7 +501,9 @@ export function LeadReviewTab() {
                                 </TableCell>
                                 <TableCell className="w-[1%] whitespace-nowrap">
                                   {profile?.id === member.id ? (
-                                    <span className="text-muted-foreground/50">-</span>
+                                    <span className="text-muted-foreground/50">
+                                      -
+                                    </span>
                                   ) : (
                                     <Button
                                       type="button"

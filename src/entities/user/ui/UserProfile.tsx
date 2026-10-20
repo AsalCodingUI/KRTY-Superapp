@@ -30,9 +30,9 @@ export function UserProfile({
       <Button
         aria-label="User settings"
         variant="ghost"
-      size="sm"
+        size="sm"
         className={cx(
-          "group text-label-md text-foreground hover:bg-muted data-[state=open]:bg-muted dark:hover:bg-muted flex items-center rounded-md p-1",
+          "group text-label-md text-foreground hover:bg-muted data-popup-open:bg-muted dark:hover:bg-muted flex items-center rounded-md p-1",
         )}
       >
         <span
@@ -52,7 +52,7 @@ export function UserProfile({
       size="sm"
       className={cx(
         focusRing,
-        "group text-label-md text-foreground hover:bg-muted data-[state=open]:bg-muted dark:hover:bg-muted flex w-full items-center justify-between rounded-md p-2",
+        "group text-label-md text-foreground hover:bg-muted data-popup-open:bg-muted dark:hover:bg-muted flex w-full items-center justify-between rounded-md p-2",
       )}
     >
       <span className="flex min-w-0 items-center gap-3">

@@ -82,7 +82,7 @@ export function AdminAttendanceHistoryList({
   return (
     <div className="space-y-3">
       <Accordion
-        type="multiple"
+        multiple
         className="space-y-3"
         defaultValue={defaultOpenDate ? [defaultOpenDate] : []}
       >
@@ -107,7 +107,7 @@ export function AdminAttendanceHistoryList({
                     >
                       {format(dateObj, "eeee, dd MMMM yyyy")}
                       {isCurrentDay && (
-                        <span className="text-body-xs ml-2 text-primary">
+                        <span className="text-body-xs text-primary ml-2">
                           (Today)
                         </span>
                       )}
@@ -168,7 +168,6 @@ export function AdminAttendanceHistoryList({
           </Button>
         </div>
       )}
-
     </div>
   )
 }

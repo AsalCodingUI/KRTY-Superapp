@@ -27,7 +27,11 @@ import { RiBarChartBoxLine } from "@/shared/ui/lucide-icons"
 import { ReviewStatsHeader } from "../360-review/ReviewStatsHeader"
 
 const toBadgeVariant = (variant: ReturnType<typeof getRatingBadgeVariant>) =>
-  variant === "error" ? "destructive" : variant === "default" ? "secondary" : variant
+  variant === "error"
+    ? "destructive"
+    : variant === "default"
+      ? "secondary"
+      : variant
 
 type PerformanceSummary =
   Database["public"]["Tables"]["performance_summaries"]["Row"]
@@ -151,7 +155,7 @@ export function AdminViewResultModal({
           {summaryData ? (
             <div className="grid grid-cols-1 gap-3 lg:grid-cols-6">
               <div className="lg:col-span-4">
-                <Accordion type="multiple" defaultValue={["executive-summary"]}>
+                <Accordion multiple defaultValue={["executive-summary"]}>
                   <AccordionItem value="executive-summary">
                     <AccordionTrigger className="text-label-md px-4 py-3">
                       <span className="font-medium">Executive Summary</span>
@@ -199,7 +203,7 @@ export function AdminViewResultModal({
                 </Accordion>
               </div>
 
-              <div className="lg:col-span-2 flex flex-col gap-3">
+              <div className="flex flex-col gap-3 lg:col-span-2">
                 <ReviewStatsHeader
                   selectedQuarter={displayQuarter}
                   totalReviewers={totalReviewers}
@@ -230,9 +234,9 @@ export function AdminViewResultModal({
                           Leadership
                         </span>
                         <Badge
-                          variant={toBadgeVariant(getRatingBadgeVariant(
-                            skillRatings.leadership,
-                          ))}
+                          variant={toBadgeVariant(
+                            getRatingBadgeVariant(skillRatings.leadership),
+                          )}
                         >
                           {skillRatings.leadership}
                         </Badge>
@@ -242,7 +246,9 @@ export function AdminViewResultModal({
                           Quality
                         </span>
                         <Badge
-                          variant={toBadgeVariant(getRatingBadgeVariant(skillRatings.quality))}
+                          variant={toBadgeVariant(
+                            getRatingBadgeVariant(skillRatings.quality),
+                          )}
                         >
                           {skillRatings.quality}
                         </Badge>
@@ -252,9 +258,9 @@ export function AdminViewResultModal({
                           Reliability
                         </span>
                         <Badge
-                          variant={toBadgeVariant(getRatingBadgeVariant(
-                            skillRatings.reliability,
-                          ))}
+                          variant={toBadgeVariant(
+                            getRatingBadgeVariant(skillRatings.reliability),
+                          )}
                         >
                           {skillRatings.reliability}
                         </Badge>
@@ -264,9 +270,9 @@ export function AdminViewResultModal({
                           Communication
                         </span>
                         <Badge
-                          variant={toBadgeVariant(getRatingBadgeVariant(
-                            skillRatings.communication,
-                          ))}
+                          variant={toBadgeVariant(
+                            getRatingBadgeVariant(skillRatings.communication),
+                          )}
                         >
                           {skillRatings.communication}
                         </Badge>
@@ -276,9 +282,9 @@ export function AdminViewResultModal({
                           Initiative
                         </span>
                         <Badge
-                          variant={toBadgeVariant(getRatingBadgeVariant(
-                            skillRatings.initiative,
-                          ))}
+                          variant={toBadgeVariant(
+                            getRatingBadgeVariant(skillRatings.initiative),
+                          )}
                         >
                           {skillRatings.initiative}
                         </Badge>

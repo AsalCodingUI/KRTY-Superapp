@@ -84,7 +84,7 @@ export function ReminderPicker({
       <div className="flex gap-2">
         <Select
           value={selectedMinutes}
-          onValueChange={setSelectedMinutes}
+          onValueChange={(v) => v !== null && setSelectedMinutes(v)}
           disabled={disabled}
         >
           <SelectTrigger size="sm" className="flex-1">
@@ -114,7 +114,9 @@ export function ReminderPicker({
       </div>
 
       {value.length === 0 && (
-        <p className="text-body-xs text-muted-foreground/70">Belum ada pengingat</p>
+        <p className="text-body-xs text-muted-foreground/70">
+          Belum ada pengingat
+        </p>
       )}
     </div>
   )

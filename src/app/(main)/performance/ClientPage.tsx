@@ -6,10 +6,7 @@ import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { createClient } from "@/shared/api/supabase/client"
 import { canManageByRole, canManageProjects } from "@/shared/lib/roles"
 import type { QuarterFilterValue } from "@/components/quarter-filter"
-import {
-  TabNavigation,
-  TabNavigationLink,
-} from "@/components/tab-navigation"
+import { TabNavigation, TabNavigationLink } from "@/components/tab-navigation"
 import {
   Select,
   SelectContent,
@@ -17,7 +14,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { RiBarChartBoxLine } from "@/shared/ui/lucide-icons"
 import dynamic from "next/dynamic"
 import { useEffect, useMemo, useState } from "react"
 
@@ -157,16 +153,15 @@ export default function PerformanceClientPage() {
 
   return (
     <div className="flex flex-col">
-      <div className="flex items-center gap-2 rounded-xxl px-4 pt-4 pb-3 xl:px-5">
-        <RiBarChartBoxLine className="size-4 text-muted-foreground" />
-        <p className="text-label-md text-foreground">
+      <div className="flex items-center gap-2 pb-4">
+        <h1 className="text-foreground truncate text-xl font-semibold tracking-tight">
           Individual Performance
-        </p>
+        </h1>
       </div>
 
-      <div className="bg-card flex flex-col rounded-xxl">
-        <div className="border-b border-border px-4 pt-2 xl:px-5">
-          <div className="xl:hidden pb-2">
+      <div className="flex flex-col">
+        <div className="border-border border-b">
+          <div className="pb-2 xl:hidden">
             <Select
               value={activeTab}
               onValueChange={(value) => setActiveTab(value as TabType)}
@@ -179,13 +174,17 @@ export default function PerformanceClientPage() {
                 <SelectItem value="kpi">KPI</SelectItem>
                 <SelectItem value="360-review">360 Review</SelectItem>
                 <SelectItem value="one-on-one">Jadwal 1:1</SelectItem>
-                {isLead && <SelectItem value="lead-review">Team KPI</SelectItem>}
+                {isLead && (
+                  <SelectItem value="lead-review">Team KPI</SelectItem>
+                )}
                 {canManageProjectTab && (
                   <SelectItem value="list-project">List Project</SelectItem>
                 )}
                 {isStakeholder && (
                   <>
-                    <SelectItem value="competency-library">Competency Library</SelectItem>
+                    <SelectItem value="competency-library">
+                      Competency Library
+                    </SelectItem>
                   </>
                 )}
               </SelectContent>
@@ -247,50 +246,84 @@ export default function PerformanceClientPage() {
           </div>
         </div>
 
-          {/* TAB CONTENT */}
-          <div className="px-4 py-5 xl:px-5">
-            {isMounted("overview") && (
-              <div className={activeTab === "overview" ? "block space-y-5" : "hidden space-y-5"}>
-                <OverviewTab />
-              </div>
-            )}
-            {isMounted("kpi") && (
-              <div className={activeTab === "kpi" ? "block space-y-5" : "hidden space-y-5"}>
-                <KPITab />
-              </div>
-            )}
-            {isMounted("360-review") && (
-              <div className={activeTab === "360-review" ? "block space-y-5" : "hidden space-y-5"}>
-                <Review360Tab />
-              </div>
-            )}
-            {isMounted("one-on-one") && (
-              <div className={activeTab === "one-on-one" ? "block space-y-5" : "hidden space-y-5"}>
-                <OneOnOneMeetingTab selectedQuarter={selectedQuarter} />
-              </div>
-            )}
-            {isLead && isMounted("lead-review") && (
-              <div className={activeTab === "lead-review" ? "block space-y-5" : "hidden space-y-5"}>
-                <LeadReviewTab />
-              </div>
-            )}
-            {canManageProjectTab && isMounted("list-project") && (
-              <div className={activeTab === "list-project" ? "block space-y-5" : "hidden space-y-5"}>
-                <ListProjectTab selectedQuarter={selectedQuarter} />
-              </div>
-            )}
-            {isStakeholder && isMounted("competency-library") && (
-              <div
-                className={
-                  activeTab === "competency-library"
-                    ? "block space-y-5"
-                    : "hidden space-y-5"
-                }
-              >
-                <WorkQualityTab />
-              </div>
-            )}
-          </div>
+        {/* TAB CONTENT */}
+        <div className="px-4 py-5 xl:px-5">
+          {isMounted("overview") && (
+            <div
+              className={
+                activeTab === "overview"
+                  ? "block space-y-5"
+                  : "hidden space-y-5"
+              }
+            >
+              <OverviewTab />
+            </div>
+          )}
+          {isMounted("kpi") && (
+            <div
+              className={
+                activeTab === "kpi" ? "block space-y-5" : "hidden space-y-5"
+              }
+            >
+              <KPITab />
+            </div>
+          )}
+          {isMounted("360-review") && (
+            <div
+              className={
+                activeTab === "360-review"
+                  ? "block space-y-5"
+                  : "hidden space-y-5"
+              }
+            >
+              <Review360Tab />
+            </div>
+          )}
+          {isMounted("one-on-one") && (
+            <div
+              className={
+                activeTab === "one-on-one"
+                  ? "block space-y-5"
+                  : "hidden space-y-5"
+              }
+            >
+              <OneOnOneMeetingTab selectedQuarter={selectedQuarter} />
+            </div>
+          )}
+          {isLead && isMounted("lead-review") && (
+            <div
+              className={
+                activeTab === "lead-review"
+                  ? "block space-y-5"
+                  : "hidden space-y-5"
+              }
+            >
+              <LeadReviewTab />
+            </div>
+          )}
+          {canManageProjectTab && isMounted("list-project") && (
+            <div
+              className={
+                activeTab === "list-project"
+                  ? "block space-y-5"
+                  : "hidden space-y-5"
+              }
+            >
+              <ListProjectTab selectedQuarter={selectedQuarter} />
+            </div>
+          )}
+          {isStakeholder && isMounted("competency-library") && (
+            <div
+              className={
+                activeTab === "competency-library"
+                  ? "block space-y-5"
+                  : "hidden space-y-5"
+              }
+            >
+              <WorkQualityTab />
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )

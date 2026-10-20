@@ -68,7 +68,7 @@ export function LeaveRequestForm({
         <Select
           value={formData.leave_type}
           onValueChange={(val) =>
-            onFormDataChange({ ...formData, leave_type: val })
+            val !== null && onFormDataChange({ ...formData, leave_type: val })
           }
         >
           <SelectTrigger id="type" size="sm" className="mt-2 w-full">
@@ -144,7 +144,7 @@ export function LeaveRequestForm({
               disabled={compressing}
             />
             {compressing && (
-              <span className="text-body-xs flex animate-pulse items-center gap-1 whitespace-nowrap text-primary">
+              <span className="text-body-xs text-primary flex animate-pulse items-center gap-1 whitespace-nowrap">
                 <RiLoader2Line className="size-3 animate-spin" />
                 Processing...
               </span>

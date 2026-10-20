@@ -40,13 +40,12 @@ export function SegmentedControl<T extends string>({
 
   return (
     <ToggleGroup
-      type="single"
       spacing={0}
-      value={value}
+      value={[value]}
       disabled={disabled}
       onValueChange={(next) => {
-        // Radix emits "" when the active item is clicked again; keep a value selected.
-        if (next) onChange(next as T)
+        // Base UI emits [] when the active item is clicked again; keep a value selected.
+        if (next[0]) onChange(next[0] as T)
       }}
       className={cn(
         "bg-muted p-0.5",
@@ -74,17 +73,17 @@ export function SegmentedControl<T extends string>({
             disabled={Boolean(disabled || item.disabled)}
             className={cn(
               // reset toggle-group "spacing=0" joined styles
-              "relative h-auto min-w-0 gap-0.5 border-0 text-label-sm whitespace-nowrap shadow-none",
+              "text-label-sm relative h-auto min-w-0 gap-0.5 border-0 whitespace-nowrap shadow-none",
               "group-data-[spacing=0]/toggle-group:rounded-[inherit] group-data-horizontal/toggle-group:data-[spacing=0]:first:rounded-[inherit] group-data-horizontal/toggle-group:data-[spacing=0]:last:rounded-[inherit]",
-              isSmall
-                ? "rounded-sm! px-1.5! py-0.5"
-                : "rounded-md! px-2! py-1",
+              isSmall ? "rounded-sm! px-1.5! py-0.5" : "rounded-md! px-2! py-1",
               fitContent ? "flex-none" : "flex-1",
               "text-muted-foreground/70 hover:bg-accent hover:text-muted-foreground",
-              "data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-sm data-[state=on]:hover:bg-background",
+              "data-pressed:bg-background data-pressed:text-foreground data-pressed:hover:bg-background data-pressed:shadow-sm",
+              // Base UI Toggle marks the active item with data-pressed
+              "data-pressed:bg-background data-pressed:text-foreground data-pressed:hover:bg-background data-pressed:shadow-sm",
               "disabled:text-muted-foreground/50",
               showDivider &&
-                "after:absolute after:inset-y-1.5 after:-right-px after:w-px after:bg-border",
+                "after:bg-border after:absolute after:inset-y-1.5 after:-right-px after:w-px",
             )}
           >
             {showLeadingIcon && LeadingIcon && (

@@ -16,8 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { createClient } from "@/shared/api/supabase/client"
-import {
-} from "@/shared/ui/lucide-icons"
+import {} from "@/shared/ui/lucide-icons"
 import { useTheme } from "next-themes"
 import * as React from "react"
 
@@ -44,7 +43,7 @@ export function DropdownUserProfile({
 
   React.useEffect(() => {
     setMounted(true)
-    const updateMobile = () => setIsMobile(window.innerWidth < 1280)
+    const updateMobile = () => setIsMobile(window.innerWidth < 768)
     updateMobile()
     window.addEventListener("resize", updateMobile)
     return () => window.removeEventListener("resize", updateMobile)
@@ -60,7 +59,11 @@ export function DropdownUserProfile({
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
+      {React.isValidElement(children) ? (
+        <DropdownMenuTrigger render={children} />
+      ) : (
+        <DropdownMenuTrigger>{children}</DropdownMenuTrigger>
+      )}
 
       <DropdownMenuContent align={align}>
         <DropdownMenuLabel>{displayEmail}</DropdownMenuLabel>
@@ -70,7 +73,9 @@ export function DropdownUserProfile({
             <DropdownMenuRadioGroup value={theme} onValueChange={setTheme}>
               <DropdownMenuRadioItem value="light">Light</DropdownMenuRadioItem>
               <DropdownMenuRadioItem value="dark">Dark</DropdownMenuRadioItem>
-              <DropdownMenuRadioItem value="system">System</DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="system">
+                System
+              </DropdownMenuRadioItem>
             </DropdownMenuRadioGroup>
           </DropdownMenuGroup>
         ) : (
@@ -79,9 +84,15 @@ export function DropdownUserProfile({
               <DropdownMenuSubTrigger>Theme</DropdownMenuSubTrigger>
               <DropdownMenuSubContent>
                 <DropdownMenuRadioGroup value={theme} onValueChange={setTheme}>
-                  <DropdownMenuRadioItem value="light">Light</DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="dark">Dark</DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="system">System</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="light">
+                    Light
+                  </DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="dark">
+                    Dark
+                  </DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="system">
+                    System
+                  </DropdownMenuRadioItem>
                 </DropdownMenuRadioGroup>
               </DropdownMenuSubContent>
             </DropdownMenuSub>
@@ -90,7 +101,9 @@ export function DropdownUserProfile({
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem
-            onClick={() => window.open(adminContactLink, "_blank", "noopener,noreferrer")}
+            onClick={() =>
+              window.open(adminContactLink, "_blank", "noopener,noreferrer")
+            }
           >
             Contact Admin
           </DropdownMenuItem>

@@ -11,9 +11,11 @@
   }
   html {
     @apply font-sans;
+    font-size: 15px;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground text-sm;
+    font-feature-settings: "cv11", "ss01";
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }

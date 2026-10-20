@@ -146,8 +146,12 @@ export function AttendanceStats({
                 Sesi attendance sebelumnya belum ditutup
               </h3>
               <p className="text-body-sm text-muted-foreground mt-1">
-                Sesi tanggal {format(parseISO(getAttendanceLogLocalDate(staleSession)), "dd MMM yyyy")} masih aktif.
-                Tutup sesi ini dulu sebelum clock in hari ini.
+                Sesi tanggal{" "}
+                {format(
+                  parseISO(getAttendanceLogLocalDate(staleSession)),
+                  "dd MMM yyyy",
+                )}{" "}
+                masih aktif. Tutup sesi ini dulu sebelum clock in hari ini.
               </p>
             </div>
             <Button
@@ -187,13 +191,13 @@ export function AttendanceStats({
               <>
                 {/* DROPDOWN STATUS */}
                 <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button asChild size="sm" variant="outline" type="button">
-                      <button>
-                        {getStatusLabel(selectedStatus)}
-                        <RiArrowDownSLine className="text-muted-foreground ml-2 size-4 shrink-0" />
-                      </button>
-                    </Button>
+                  <DropdownMenuTrigger
+                    render={
+                      <Button size="sm" variant="outline" type="button" />
+                    }
+                  >
+                    {getStatusLabel(selectedStatus)}
+                    <RiArrowDownSLine className="text-muted-foreground ml-2 size-4 shrink-0" />
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start">
                     <DropdownMenuItem
@@ -259,55 +263,47 @@ export function AttendanceStats({
 
         {/* CARD 2: SESSION INFO */}
         <Card className="h-full gap-0 px-4 py-3">
-          <h3 className="text-label-md text-muted-foreground">
-            Session Info
-          </h3>
-          <dl className="text-body-sm mt-4 divide-y divide-border">
+          <h3 className="text-label-md text-muted-foreground">Session Info</h3>
+          <dl className="text-body-sm divide-border mt-4 divide-y">
             <div className="flex items-center justify-between py-2">
-              <dt className="text-muted-foreground">
-                First Clock In
-              </dt>
+              <dt className="text-muted-foreground">First Clock In</dt>
               <dd className="text-foreground font-medium">
                 {activeSession ? formatTime(activeSession.clock_in) : "--:--"}
               </dd>
             </div>
             <div className="flex items-center justify-between py-2">
-              <dt className="text-muted-foreground">
-                Working Duration
-              </dt>
+              <dt className="text-muted-foreground">Working Duration</dt>
               <dd className="text-foreground font-medium tabular-nums">
                 {activeSession && currentTime
                   ? (() => {
-                    const start = new Date(activeSession.clock_in).getTime()
-                    const now = currentTime.getTime()
-                    let workingMs = now - start
+                      const start = new Date(activeSession.clock_in).getTime()
+                      const now = currentTime.getTime()
+                      let workingMs = now - start
 
-                    // Subtract accumulated break time
-                    workingMs -= (activeSession.break_total || 0) * 60 * 1000
+                      // Subtract accumulated break time
+                      workingMs -= (activeSession.break_total || 0) * 60 * 1000
 
-                    // If currently on break, subtract current break duration too
-                    if (activeSession.is_break && activeSession.break_start) {
-                      const breakStart = new Date(
-                        activeSession.break_start,
-                      ).getTime()
-                      const currentBreakMs = now - breakStart
-                      workingMs -= currentBreakMs
-                    }
+                      // If currently on break, subtract current break duration too
+                      if (activeSession.is_break && activeSession.break_start) {
+                        const breakStart = new Date(
+                          activeSession.break_start,
+                        ).getTime()
+                        const currentBreakMs = now - breakStart
+                        workingMs -= currentBreakMs
+                      }
 
-                    const hours = Math.floor(workingMs / (1000 * 60 * 60))
-                    const mins = Math.floor(
-                      (workingMs % (1000 * 60 * 60)) / (1000 * 60),
-                    )
-                    const secs = Math.floor((workingMs % (1000 * 60)) / 1000)
-                    return `${hours}h ${mins}m ${secs}s`
-                  })()
+                      const hours = Math.floor(workingMs / (1000 * 60 * 60))
+                      const mins = Math.floor(
+                        (workingMs % (1000 * 60 * 60)) / (1000 * 60),
+                      )
+                      const secs = Math.floor((workingMs % (1000 * 60)) / 1000)
+                      return `${hours}h ${mins}m ${secs}s`
+                    })()
                   : "--:--:--"}
               </dd>
             </div>
             <div className="flex items-center justify-between py-2">
-              <dt className="text-muted-foreground">
-                Activity
-              </dt>
+              <dt className="text-muted-foreground">Activity</dt>
               <dd className="text-foreground font-medium">
                 {activeSession
                   ? activeSession.is_break
@@ -343,10 +339,16 @@ export function AttendanceStats({
             )}
           </div>
           <DialogFooter>
-            <DialogClose asChild>
-              <Button variant="outline" size="sm" className="w-full sm:w-fit">
-                Nanti
-              </Button>
+            <DialogClose
+              render={
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full sm:w-fit"
+                />
+              }
+            >
+              Nanti
             </DialogClose>
             {staleSession && (
               <Button
@@ -383,10 +385,16 @@ export function AttendanceStats({
             </p>
           </div>
           <DialogFooter>
-            <DialogClose asChild>
-              <Button variant="outline" size="sm" className="w-full sm:w-fit">
-                Cancel
-              </Button>
+            <DialogClose
+              render={
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full sm:w-fit"
+                />
+              }
+            >
+              Cancel
             </DialogClose>
             <Button
               size="sm"

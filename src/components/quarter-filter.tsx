@@ -54,8 +54,7 @@ export function QuarterFilter({
   const selectedYear =
     value === "All" ? years[0] : parseInt(value.split("-")[0]) || years[0]
 
-  const selectedQuarter =
-    value === "All" ? "All" : value.split("-")[1] || "Q1"
+  const selectedQuarter = value === "All" ? "All" : value.split("-")[1] || "Q1"
 
   const visibleQuarters = hideAll
     ? QUARTERS.filter((q) => q.value !== "All")
@@ -70,9 +69,7 @@ export function QuarterFilter({
 
   const handleQuarterChange = (quarter: string) => {
     onChange?.(
-      quarter === "All"
-        ? `${selectedYear}-All`
-        : `${selectedYear}-${quarter}`,
+      quarter === "All" ? `${selectedYear}-All` : `${selectedYear}-${quarter}`,
     )
   }
 
@@ -81,7 +78,7 @@ export function QuarterFilter({
       {showYear && (
         <Select
           value={selectedYear.toString()}
-          onValueChange={handleYearChange}
+          onValueChange={(v) => v !== null && handleYearChange(v)}
         >
           <SelectTrigger className="w-[100px]" size="sm">
             <SelectValue />

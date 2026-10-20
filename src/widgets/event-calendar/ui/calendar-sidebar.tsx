@@ -89,16 +89,18 @@ export function CalendarSidebarMobileTrigger() {
   const [open, setOpen] = useState(false)
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger asChild>
-        <Button
-          variant="outline"
-          size="sm"
-          className="rounded-full shadow-regular-lg lg:hidden"
-          aria-label="Buka filter kalender"
-        >
-          <RiEqualizer2Line className="size-4" />
-          <span>Atur</span>
-        </Button>
+      <SheetTrigger
+        render={
+          <Button
+            variant="outline"
+            size="sm"
+            className="shadow-regular-lg rounded-full lg:hidden"
+            aria-label="Buka filter kalender"
+          />
+        }
+      >
+        <RiEqualizer2Line className="size-4" />
+        <span>Atur</span>
       </SheetTrigger>
       <SheetContent
         side="bottom"
@@ -108,14 +110,16 @@ export function CalendarSidebarMobileTrigger() {
         <SheetTitle className="sr-only">Kalender</SheetTitle>
         <div className="border-border flex items-center justify-between border-b px-4 py-4">
           <h3 className="text-heading-sm text-foreground">Kalender</h3>
-          <SheetClose asChild>
-            <button
-              type="button"
-              className="text-muted-foreground/70 hover:text-foreground inline-flex size-8 items-center justify-center rounded-full transition-colors"
-              aria-label="Tutup panel kalender"
-            >
-              <RiCloseLine className="size-6" />
-            </button>
+          <SheetClose
+            render={
+              <button
+                type="button"
+                className="text-muted-foreground/70 hover:text-foreground inline-flex size-8 items-center justify-center rounded-full transition-colors"
+                aria-label="Tutup panel kalender"
+              />
+            }
+          >
+            <RiCloseLine className="size-6" />
           </SheetClose>
         </div>
         <div className="flex-1 overflow-y-auto px-4 py-4 pb-6">

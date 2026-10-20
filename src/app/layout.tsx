@@ -3,14 +3,24 @@ import { TooltipProvider } from "@/components/ui/tooltip"
 import QueryProvider from "@/components/providers/query-provider"
 import type { Metadata, Viewport } from "next"
 import { ThemeProvider } from "next-themes"
-import { Inter } from "next/font/google"
+import { Geist_Mono, Inter } from "next/font/google"
 import "./globals.css"
 import { siteConfig } from "./siteConfig"
-import { cn } from "@/lib/utils";
 
 // Sidebar dihapus dari sini!
 
-const inter = Inter({subsets:['latin'],variable:'--font-sans'})
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  axes: ["opsz"],
+  variable: "--font-sans",
+})
+
+const geistMono = Geist_Mono({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-mono",
+})
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -43,7 +53,11 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={cn("font-sans", inter.variable)} suppressHydrationWarning>
+    <html
+      lang="en"
+      className={`${inter.variable} ${geistMono.variable}`}
+      suppressHydrationWarning
+    >
       <body
         className="selection:bg-primary/20 selection:text-primary min-h-dvh overflow-x-hidden overflow-y-scroll scroll-auto antialiased"
         suppressHydrationWarning

@@ -5,13 +5,12 @@ import { Skeleton } from "@/components/ui/skeleton"
 export default function FinanceLoading() {
   return (
     <div className="flex flex-col">
-      <div className="flex items-center gap-2 rounded-xxl px-5 pt-4 pb-3">
-        <Skeleton className="size-4 rounded-sm" />
+      <div className="flex items-center gap-2 pb-4">
         <Skeleton className="h-4 w-24" />
       </div>
 
-      <div className="bg-card flex flex-col rounded-xxl">
-        <div className="px-5 py-2">
+      <div className="flex flex-col">
+        <div className="py-2">
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
             {[1, 2, 3, 4, 5].map((i) => (
               <div

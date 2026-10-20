@@ -13,7 +13,7 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group"
-import { RiAddLine, RiGroupLine, RiSearchLine } from "@/shared/ui/lucide-icons"
+import { RiAddLine, RiSearchLine } from "@/shared/ui/lucide-icons"
 import { useMemo, useState } from "react"
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
@@ -89,14 +89,13 @@ export function TeamsPage({
   return (
     <>
       <div className="flex flex-col">
-        <div className="flex items-center gap-2 rounded-xxl px-5 pt-4 pb-3">
-          <RiGroupLine className="size-4 text-muted-foreground" />
-          <p className="text-label-md text-foreground">
+        <div className="flex items-center gap-2 pb-4">
+          <h1 className="text-foreground truncate text-xl font-semibold tracking-tight">
             Team Members
-          </p>
+          </h1>
         </div>
 
-        <div className="flex flex-col rounded-xxl">
+        <div className="flex flex-col">
           <section className="grid grid-cols-1 gap-3 px-5 py-2 sm:grid-cols-2 lg:grid-cols-5">
             {[
               { label: "Total Team", value: totalMembers },
@@ -112,14 +111,12 @@ export function TeamsPage({
                 <p className="text-label-sm text-muted-foreground">
                   {item.label}
                 </p>
-                <p className="text-heading-md text-foreground">
-                  {item.value}
-                </p>
+                <p className="text-heading-md text-foreground">{item.value}</p>
               </div>
             ))}
           </section>
 
-          <div className="flex flex-col gap-3 border-b border-border bg-card px-5 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="border-border bg-card flex flex-col gap-3 border-b px-5 py-3 sm:flex-row sm:items-center sm:justify-between">
             <InputGroup className="h-7 w-full sm:w-[260px]">
               <InputGroupAddon>
                 <RiSearchLine />
@@ -160,27 +157,27 @@ export function TeamsPage({
               onEdit={
                 canManage
                   ? (item) => {
-                    setEditingItem(item)
-                    setIsAddOpen(true)
-                  }
+                      setEditingItem(item)
+                      setIsAddOpen(true)
+                    }
                   : undefined
               }
               onDelete={
                 canManage
                   ? async (ids) => {
-                    if (!confirm(`Delete ${ids.length} team member(s)?`))
-                      return
-                    const supabase = createClient()
-                    const { error } = await supabase
-                      .from("profiles")
-                      .delete()
-                      .in("id", ids as string[])
-                    if (error) {
-                      toast.error("Error deleting: " + error.message)
-                    } else {
-                      router.refresh()
+                      if (!confirm(`Delete ${ids.length} team member(s)?`))
+                        return
+                      const supabase = createClient()
+                      const { error } = await supabase
+                        .from("profiles")
+                        .delete()
+                        .in("id", ids as string[])
+                      if (error) {
+                        toast.error("Error deleting: " + error.message)
+                      } else {
+                        router.refresh()
+                      }
                     }
-                  }
                   : undefined
               }
               showTableWrapper={false}

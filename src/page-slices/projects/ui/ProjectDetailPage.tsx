@@ -607,15 +607,19 @@ export function ProjectDetailPage({ project }: { project: ProjectDetail }) {
 
   return (
     <div className="flex flex-col">
-      <div className="rounded-xxl flex items-center gap-2 px-5 pt-4 pb-3">
-        <Button variant="outline" size="sm" onClick={() => router.push("/projects")}>
+      <div className="flex items-center gap-2 pb-4">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => router.push("/projects")}
+        >
           <RiArrowLeftLine className="mr-2 size-4" />
           Back to Projects
         </Button>
       </div>
 
-      <div className="bg-card rounded-xxl flex flex-col">
-        <div className="px-5 pt-5">
+      <div className="flex flex-col">
+        <div className="">
           <div className="pb-4">
             <div className="flex items-center justify-between gap-3">
               <h1 className="text-heading-md text-foreground">

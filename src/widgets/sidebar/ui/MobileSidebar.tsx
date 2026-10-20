@@ -22,7 +22,7 @@ import {
 import { RiMenuLine } from "@/shared/ui/lucide-icons"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { type ReactNode, useMemo } from "react"
+import { isValidElement, type ReactNode, useMemo } from "react"
 
 interface MobileSidebarProps {
   children?: ReactNode
@@ -99,21 +99,25 @@ export default function MobileSidebar({ children }: MobileSidebarProps) {
   return (
     <>
       <Sheet>
-        <SheetTrigger asChild>
-          {children ?? (
-            <Button
-              variant="ghost"
-              size="sm"
-              aria-label="open sidebar"
-              className="group hover:bg-muted data-[state=open]:bg-muted dark:hover:bg-muted text-label-md flex items-center rounded-md p-2"
-            >
-              <RiMenuLine
-                className="size-6 shrink-0 sm:size-5"
-                aria-hidden="true"
-              />
-            </Button>
-          )}
-        </SheetTrigger>
+        <SheetTrigger
+          render={
+            isValidElement(children) ? (
+              children
+            ) : (
+              <Button
+                variant="ghost"
+                size="sm"
+                aria-label="open sidebar"
+                className="group hover:bg-muted data-popup-open:bg-muted dark:hover:bg-muted text-label-md flex items-center rounded-md p-2"
+              >
+                <RiMenuLine
+                  className="size-6 shrink-0 sm:size-5"
+                  aria-hidden="true"
+                />
+              </Button>
+            )
+          }
+        />
         <SheetContent
           side="right"
           className="data-[side=right]:w-[95vw] data-[side=right]:sm:max-w-lg"
@@ -139,24 +143,27 @@ export default function MobileSidebar({ children }: MobileSidebarProps) {
                 ) : (
                   drawerNavItems.map((item) => (
                     <li key={item.name}>
-                      <SheetClose asChild>
-                        <Link
-                          href={item.href}
-                          prefetch={false}
-                          className={cx(
-                            isActive(item.href)
-                              ? "bg-muted text-foreground dark:bg-muted font-semibold"
-                              : "text-muted-foreground hover:text-foreground hover:bg-muted",
-                            "text-label-lg sm:text-label-md flex items-center gap-x-2.5 rounded-md px-2 py-1.5 transition",
-                            focusRing,
-                          )}
-                        >
-                          <item.icon
-                            className="size-5 shrink-0"
-                            aria-hidden="true"
+                      <SheetClose
+                        nativeButton={false}
+                        render={
+                          <Link
+                            href={item.href}
+                            prefetch={false}
+                            className={cx(
+                              isActive(item.href)
+                                ? "bg-muted text-foreground dark:bg-muted font-semibold"
+                                : "text-muted-foreground hover:text-foreground hover:bg-muted",
+                              "text-label-lg sm:text-label-md flex items-center gap-x-2.5 rounded-md px-2 py-1.5 transition",
+                              focusRing,
+                            )}
                           />
-                          {item.name}
-                        </Link>
+                        }
+                      >
+                        <item.icon
+                          className="size-5 shrink-0"
+                          aria-hidden="true"
+                        />
+                        {item.name}
                       </SheetClose>
                     </li>
                   ))
@@ -183,24 +190,27 @@ export default function MobileSidebar({ children }: MobileSidebarProps) {
                   >
                     {shortcutItems.map((item) => (
                       <li key={item.name}>
-                        <SheetClose asChild>
-                          <Link
-                            href={item.href}
-                            prefetch={false}
-                            className={cx(
-                              isActive(item.href)
-                                ? "bg-muted text-foreground dark:bg-muted font-semibold"
-                                : "text-muted-foreground hover:text-foreground hover:bg-muted",
-                              "sm:text-label-md flex items-center gap-x-2.5 rounded-md px-2 py-1.5 transition",
-                              focusRing,
-                            )}
-                          >
-                            <item.icon
-                              className="size-4 shrink-0"
-                              aria-hidden="true"
+                        <SheetClose
+                          nativeButton={false}
+                          render={
+                            <Link
+                              href={item.href}
+                              prefetch={false}
+                              className={cx(
+                                isActive(item.href)
+                                  ? "bg-muted text-foreground dark:bg-muted font-semibold"
+                                  : "text-muted-foreground hover:text-foreground hover:bg-muted",
+                                "sm:text-label-md flex items-center gap-x-2.5 rounded-md px-2 py-1.5 transition",
+                                focusRing,
+                              )}
                             />
-                            {item.name}
-                          </Link>
+                          }
+                        >
+                          <item.icon
+                            className="size-4 shrink-0"
+                            aria-hidden="true"
+                          />
+                          {item.name}
                         </SheetClose>
                       </li>
                     ))}

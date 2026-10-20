@@ -49,10 +49,12 @@ export function ClockConfirmDialog({
           </p>
         </div>
         <DialogFooter>
-          <DialogClose asChild>
-            <Button size="sm" variant="outline" className="w-full sm:w-fit">
-              Cancel
-            </Button>
+          <DialogClose
+            render={
+              <Button size="sm" variant="outline" className="w-full sm:w-fit" />
+            }
+          >
+            Cancel
           </DialogClose>
           <Button
             size="sm"

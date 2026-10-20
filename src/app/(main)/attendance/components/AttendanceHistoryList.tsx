@@ -87,7 +87,7 @@ export function AttendanceHistoryList({
   return (
     <div className="space-y-3">
       <Accordion
-        type="multiple"
+        multiple
         className="space-y-3"
         defaultValue={defaultOpenDate ? [defaultOpenDate] : []}
       >
@@ -106,19 +106,17 @@ export function AttendanceHistoryList({
               <AccordionTrigger>
                 <div className="flex w-full items-center justify-between pr-4">
                   <div className="flex flex-col items-start sm:flex-row sm:items-center sm:gap-3">
-                    <span
-                      className="text-foreground"
-                      suppressHydrationWarning
-                    >
+                    <span className="text-foreground" suppressHydrationWarning>
                       {format(dateObj, "eeee, dd MMMM yyyy")}
                       {isCurrentDay && (
-                        <span className="text-body-xs ml-2 text-primary">
+                        <span className="text-body-xs text-primary ml-2">
                           (Today)
                         </span>
                       )}
                     </span>
                     <span className="text-body-xs text-muted-foreground">
-                      {dailyLogs.length} Session{dailyLogs.length > 1 ? "s" : ""}
+                      {dailyLogs.length} Session
+                      {dailyLogs.length > 1 ? "s" : ""}
                     </span>
                   </div>
 

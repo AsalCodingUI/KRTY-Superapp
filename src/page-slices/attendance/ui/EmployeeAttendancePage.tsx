@@ -16,7 +16,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { RiCalendarCheckLine } from "@/shared/ui/lucide-icons"
 import { differenceInMinutes, format } from "date-fns"
 import { useRouter } from "next/navigation"
 import { useCallback, useEffect, useState } from "react"
@@ -128,7 +127,10 @@ export function EmployeeAttendancePage({
   )
 
   const handleClockOut = useCallback(
-    async (logId: string, options?: { reason?: "default" | "stale_resolved" }) => {
+    async (
+      logId: string,
+      options?: { reason?: "default" | "stale_resolved" },
+    ) => {
       setLoading(true)
       const now = new Date().toISOString()
       const noteTag =
@@ -147,7 +149,9 @@ export function EmployeeAttendancePage({
                 ...log,
                 clock_out: now,
                 is_break: false,
-                notes: noteTag ? mergeAttendanceNote(log.notes, noteTag) : log.notes,
+                notes: noteTag
+                  ? mergeAttendanceNote(log.notes, noteTag)
+                  : log.notes,
               }
             : log,
         ),
@@ -163,7 +167,7 @@ export function EmployeeAttendancePage({
             notes:
               noteTag && currentLog
                 ? mergeAttendanceNote(currentLog.notes, noteTag)
-                : currentLog?.notes ?? null,
+                : (currentLog?.notes ?? null),
           })
           .eq("id", logId)
 
@@ -207,11 +211,11 @@ export function EmployeeAttendancePage({
             prev.map((log) =>
               log.id === logId
                 ? {
-                  ...log,
-                  is_break: false,
-                  break_start: null,
-                  break_total: newTotalBreak,
-                }
+                    ...log,
+                    is_break: false,
+                    break_start: null,
+                    break_total: newTotalBreak,
+                  }
                 : log,
             ),
           )
@@ -318,12 +322,13 @@ export function EmployeeAttendancePage({
 
   return (
     <div className="flex flex-col">
-      <div className="flex items-center gap-2 rounded-xxl px-5 pt-4 pb-3">
-        <RiCalendarCheckLine className="size-4 text-muted-foreground" />
-        <p className="text-label-md text-foreground">Attendance</p>
+      <div className="flex items-center gap-2 pb-4">
+        <h1 className="text-foreground truncate text-xl font-semibold tracking-tight">
+          Attendance
+        </h1>
       </div>
 
-      <div className="flex flex-col rounded-xxl bg-card">
+      <div className="flex flex-col">
         <div className="space-y-4 p-5">
           <AttendanceStats
             profile={profile}

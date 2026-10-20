@@ -104,19 +104,19 @@ export default function CalculatorClientPage({
 
   const [phases, setPhases] = useState<Phase[]>(
     initialCalculation
-      ? ((initialCalculation.phases as unknown as Phase[]) || DEFAULT_PHASES)
+      ? (initialCalculation.phases as unknown as Phase[]) || DEFAULT_PHASES
       : DEFAULT_PHASES,
   )
 
   const [squad, setSquad] = useState<SquadMember[]>(
     initialCalculation
-      ? ((initialCalculation.squad as unknown as SquadMember[]) || [])
+      ? (initialCalculation.squad as unknown as SquadMember[]) || []
       : [],
   )
   const [freelanceSquad, setFreelanceSquad] = useState<FreelanceMember[]>(
     initialCalculation
-      ? ((initialCalculation.freelance_squad as unknown as FreelanceMember[]) ||
-        [])
+      ? (initialCalculation.freelance_squad as unknown as FreelanceMember[]) ||
+          []
       : [],
   )
   const [costItems, setCostItems] = useState<OperationalCost[]>(
@@ -522,9 +522,7 @@ export default function CalculatorClientPage({
     <div className="grid grid-cols-1 gap-6 md:grid-cols-12 md:gap-8">
       <div className="space-y-6 md:col-span-7">
         <div>
-          <h3 className="text-label-md text-foreground mb-4">
-            Calculation
-          </h3>
+          <h3 className="text-label-md text-foreground mb-4">Calculation</h3>
           {hideProjectSelector ? (
             <div className="grid grid-cols-1 gap-4 md:flex md:items-end">
               <div className="md:flex-1">
@@ -573,7 +571,7 @@ export default function CalculatorClientPage({
                 <div>
                   <Label htmlFor="project">Project</Label>
                   <Select
-                    onValueChange={setSelectedProjectId}
+                    onValueChange={(v) => v !== null && setSelectedProjectId(v)}
                     value={selectedProjectId}
                     disabled={Boolean(prefilledProjectId)}
                   >
@@ -621,9 +619,7 @@ export default function CalculatorClientPage({
           hoursPerDay={hoursPerDay}
           targetMarginPercent={targetMarginPercent}
           onRevenueChange={(val) => setRevenueUSD(formatNumber(val))}
-          onExchangeRateChange={(val) =>
-            setExchangeRate(formatNumber(val))
-          }
+          onExchangeRateChange={(val) => setExchangeRate(formatNumber(val))}
           onHoursPerDayChange={setHoursPerDay}
           onTargetMarginChange={setTargetMarginPercent}
         />
@@ -743,18 +739,17 @@ export default function CalculatorClientPage({
   return (
     <div className="flex flex-col">
       {showHeader && (
-        <div className="rounded-xxl flex items-center gap-2 px-5 pt-4 pb-3">
-          <RiCalculatorLine className="text-muted-foreground size-4" />
-          <p className="text-label-md text-foreground">
+        <div className="flex items-center gap-2 pb-4">
+          <h1 className="text-foreground truncate text-xl font-semibold tracking-tight">
             Project Calculator
-          </p>
+          </h1>
         </div>
       )}
 
       <div
         className={
           showHeader
-            ? "bg-card rounded-xxl flex flex-col p-5"
+            ? "bg-card rounded-card flex flex-col p-5"
             : "flex flex-col"
         }
       >

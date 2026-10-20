@@ -2,12 +2,16 @@
 
 import { CalculatorPage } from "@/page-slices/calculator"
 import type { Database } from "@/shared/types/database.types"
-import type { OperationalCost, TeamMember } from "@/page-slices/calculator/ui/types"
+import type {
+  OperationalCost,
+  TeamMember,
+} from "@/page-slices/calculator/ui/types"
 import { Button } from "@/components/ui/button"
 import { RiArrowLeftLine } from "@/shared/ui/lucide-icons"
 import { useRouter } from "next/navigation"
 
-type ProjectCalculation = Database["public"]["Tables"]["project_calculations"]["Row"]
+type ProjectCalculation =
+  Database["public"]["Tables"]["project_calculations"]["Row"]
 
 export function ProjectCalculatorEditPage({
   projectId,
@@ -28,7 +32,7 @@ export function ProjectCalculatorEditPage({
 
   return (
     <div className="flex flex-col">
-      <div className="rounded-xxl flex items-center gap-2 px-5 pt-4 pb-3">
+      <div className="flex items-center gap-2 pb-4">
         <Button
           variant="outline"
           size="sm"
@@ -39,7 +43,7 @@ export function ProjectCalculatorEditPage({
         </Button>
       </div>
 
-      <div className="bg-card rounded-xxl flex flex-col p-5">
+      <div className="flex flex-col p-5">
         <CalculatorPage
           teamMembers={teamMembers}
           operationalCosts={operationalCosts}

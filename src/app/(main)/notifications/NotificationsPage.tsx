@@ -33,18 +33,15 @@ export function NotificationsPage() {
 
   return (
     <div className="flex flex-col">
-      <div className="rounded-xxl flex items-center gap-2 px-4 pt-4 pb-3 xl:px-5">
-        <RiNotification3Line className="text-muted-foreground size-4" />
-        <p className="text-label-md text-foreground">Notifications</p>
-        {unreadCount > 0 && (
-          <Badge variant="info">
-            {unreadCount}
-          </Badge>
-        )}
+      <div className="flex items-center gap-2 pb-4">
+        <h1 className="text-foreground truncate text-xl font-semibold tracking-tight">
+          Notifications
+        </h1>
+        {unreadCount > 0 && <Badge variant="info">{unreadCount}</Badge>}
       </div>
 
-      <div className="bg-card rounded-xxl flex flex-col">
-        <div className="border-border border-b px-4 pt-3 xl:px-5">
+      <div className="flex flex-col">
+        <div className="border-border border-b">
           <TabNavigation className="border-b-0">
             <TabNavigationLink
               active={activeTab === "unread"}
@@ -62,10 +59,7 @@ export function NotificationsPage() {
         </div>
 
         <div
-          className={cx(
-            "p-3 sm:p-5",
-            unreadCount > 0 ? "pb-24 sm:pb-5" : "",
-          )}
+          className={cx("p-3 sm:p-5", unreadCount > 0 ? "pb-24 sm:pb-5" : "")}
         >
           {filteredNotifications.length === 0 ? (
             <EmptyState
@@ -90,9 +84,7 @@ export function NotificationsPage() {
                     <div
                       className={cx(
                         "mt-1.5 size-2 shrink-0 rounded-full",
-                        !notification.is_read
-                          ? "bg-primary"
-                          : "bg-transparent",
+                        !notification.is_read ? "bg-primary" : "bg-transparent",
                       )}
                     />
                     <div className="min-w-0 flex-1">
@@ -135,7 +127,7 @@ export function NotificationsPage() {
             variant="outline"
             size="sm"
             onClick={() => markAllAsRead()}
-            className="rounded-full shadow-regular-lg"
+            className="shadow-regular-lg rounded-full"
           >
             Mark all as read
           </Button>

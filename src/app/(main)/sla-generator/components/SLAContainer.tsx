@@ -10,7 +10,6 @@ import { createClient as createClientBrowser } from "@/shared/api/supabase/clien
 import { logError } from "@/shared/lib/utils/logger"
 import {
   RiArrowLeftLine,
-  RiFileList3Line,
   RiPrinterLine,
   RiSave3Line,
   RiSaveLine,
@@ -251,14 +250,13 @@ export default function SLAContainer({
 
   return (
     <div className="flex flex-col">
-      <div className="flex items-center gap-2 rounded-xxl px-5 pt-4 pb-3 print:hidden">
-        <RiFileList3Line className="size-4 text-muted-foreground" />
-        <p className="text-label-md text-foreground">
+      <div className="flex items-center gap-2 pb-4 print:hidden">
+        <h1 className="text-foreground truncate text-xl font-semibold tracking-tight">
           {slaId ? "Edit SLA" : "Create SLA"}
-        </p>
+        </h1>
       </div>
 
-      <div className="bg-card flex h-full w-full flex-col overflow-hidden rounded-xxl lg:flex-row print:bg-white">
+      <div className="flex h-full w-full flex-col overflow-hidden lg:flex-row print:bg-white">
         {/* --- LEFT PANEL: EDITOR (Scrollable) --- */}
         <div
           className={`border-border bg-card flex h-full w-full flex-col border-r lg:w-1/2 print:hidden ${activeTab === "preview" ? "hidden lg:flex" : "flex"}`}
@@ -351,7 +349,10 @@ export default function SLAContainer({
                         className="h-7"
                         value={clientInfo.email}
                         onChange={(e) =>
-                          setClientInfo({ ...clientInfo, email: e.target.value })
+                          setClientInfo({
+                            ...clientInfo,
+                            email: e.target.value,
+                          })
                         }
                         placeholder="john@example.com"
                       />
@@ -395,7 +396,10 @@ export default function SLAContainer({
                       className="h-7"
                       value={clientInfo.address}
                       onChange={(e) =>
-                        setClientInfo({ ...clientInfo, address: e.target.value })
+                        setClientInfo({
+                          ...clientInfo,
+                          address: e.target.value,
+                        })
                       }
                     />
                   </div>
@@ -429,7 +433,10 @@ export default function SLAContainer({
                       className="h-7"
                       value={agencyInfo.repName}
                       onChange={(e) =>
-                        setAgencyInfo({ ...agencyInfo, repName: e.target.value })
+                        setAgencyInfo({
+                          ...agencyInfo,
+                          repName: e.target.value,
+                        })
                       }
                     />
                   </div>
@@ -501,9 +508,7 @@ export default function SLAContainer({
         >
           {/* Mobile Header for Preview */}
           <div className="border-border bg-card flex items-center justify-between border-b px-5 py-4 lg:hidden print:hidden">
-            <span className="text-label-md text-foreground">
-              PDF Preview
-            </span>
+            <span className="text-label-md text-foreground">PDF Preview</span>
             <div className="flex gap-2">
               <Button
                 size="icon-sm"

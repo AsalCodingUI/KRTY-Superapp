@@ -190,33 +190,35 @@ const Trigger = ({
   disabled,
   ...props
 }: TriggerProps) => (
-  <PopoverTrigger asChild>
-    <Button
-      type="button"
-      variant="outline"
-      size="sm"
-      disabled={disabled}
-      aria-invalid={hasError || props["aria-invalid"] || undefined}
-      className={cn(
-        "group/date-picker w-full justify-start gap-1.5 px-2 text-left text-body-sm font-normal",
-        className,
-      )}
-      {...props}
-    >
-      <CalendarIcon
-        data-icon="inline-start"
+  <PopoverTrigger
+    render={
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        disabled={disabled}
+        aria-invalid={hasError || props["aria-invalid"] || undefined}
         className={cn(
-          "size-4 shrink-0",
-          hasError ? "text-destructive" : "text-muted-foreground",
+          "group/date-picker text-body-sm w-full justify-start gap-1.5 px-2 text-left font-normal",
+          className,
         )}
-        aria-hidden="true"
+        {...props}
       />
-      <span className="flex-1 truncate">
-        {children ?? (
-          <span className="text-muted-foreground/70">{placeholder}</span>
-        )}
-      </span>
-    </Button>
+    }
+  >
+    <CalendarIcon
+      data-icon="inline-start"
+      className={cn(
+        "size-4 shrink-0",
+        hasError ? "text-destructive" : "text-muted-foreground",
+      )}
+      aria-hidden="true"
+    />
+    <span className="flex-1 truncate">
+      {children ?? (
+        <span className="text-muted-foreground/70">{placeholder}</span>
+      )}
+    </span>
   </PopoverTrigger>
 )
 
@@ -247,11 +249,11 @@ const PresetContainer = <TPreset extends Preset, TValue>({
       const value = currentValue as DateRange | undefined
       return Boolean(
         value?.from &&
-          value.to &&
-          preset.dateRange.from &&
-          preset.dateRange.to &&
-          isSameDay(value.from, preset.dateRange.from) &&
-          isSameDay(value.to, preset.dateRange.to),
+        value.to &&
+        preset.dateRange.from &&
+        preset.dateRange.to &&
+        isSameDay(value.from, preset.dateRange.from) &&
+        isSameDay(value.to, preset.dateRange.to),
       )
     }
     if (isDatePreset(preset)) {
@@ -272,7 +274,7 @@ const PresetContainer = <TPreset extends Preset, TValue>({
             title={preset.label}
             data-active={matchesCurrent(preset) || undefined}
             aria-label={`Select ${preset.label}`}
-            className="w-full justify-start truncate border border-border text-body-sm font-normal text-muted-foreground data-active:bg-muted data-active:text-foreground sm:border-none"
+            className="border-border text-body-sm text-muted-foreground data-active:bg-muted data-active:text-foreground w-full justify-start truncate border font-normal sm:border-none"
             onClick={() => {
               if (isRangePreset(preset)) onSelect(preset.dateRange as TValue)
               else if (isDatePreset(preset)) onSelect(preset.date as TValue)
@@ -288,7 +290,7 @@ const PresetContainer = <TPreset extends Preset, TValue>({
 
 function PresetPanel({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative flex h-14 w-full items-center overflow-auto border-b border-border sm:h-auto sm:w-40 sm:items-start sm:self-stretch sm:border-r sm:border-b-0">
+    <div className="border-border relative flex h-14 w-full items-center overflow-auto border-b sm:h-auto sm:w-40 sm:items-start sm:self-stretch sm:border-r sm:border-b-0">
       <div className="px-2 sm:w-full sm:py-2">{children}</div>
     </div>
   )
@@ -315,7 +317,7 @@ function TimeField({
       disabled={disabled}
       required={required}
       aria-label={ariaLabel}
-      className="h-7 text-body-sm tabular-nums"
+      className="text-body-sm h-7 tabular-nums"
     />
   )
 }
@@ -440,7 +442,7 @@ const SingleDatePicker = ({
       <PopoverContent
         align={align}
         sideOffset={10}
-        onOpenAutoFocus={(e) => e.preventDefault()}
+        initialFocus={false}
         className={contentClassName}
       >
         <div className="flex flex-col sm:flex-row sm:items-start">
@@ -471,7 +473,7 @@ const SingleDatePicker = ({
               className="bg-transparent"
             />
             {showTimePicker && (
-              <div className="border-t border-border p-3">
+              <div className="border-border border-t p-3">
                 <TimeField
                   aria-label="Time"
                   value={time}
@@ -481,7 +483,7 @@ const SingleDatePicker = ({
                 />
               </div>
             )}
-            <div className="flex items-center gap-x-2 border-t border-border p-3">
+            <div className="border-border flex items-center gap-x-2 border-t p-3">
               <Button
                 type="button"
                 variant="outline"
@@ -666,7 +668,7 @@ const RangeDatePicker = ({
       <PopoverContent
         align={align}
         sideOffset={instant ? 8 : 10}
-        onOpenAutoFocus={(e) => e.preventDefault()}
+        initialFocus={false}
         className={contentClassName}
       >
         <div className="flex flex-col overflow-x-auto sm:flex-row sm:items-start">
@@ -699,7 +701,7 @@ const RangeDatePicker = ({
               classNames={{ months: "relative flex flex-row gap-4" }}
             />
             {showTimePicker && (
-              <div className="flex items-center justify-evenly gap-x-3 border-t border-border p-3">
+              <div className="border-border flex items-center justify-evenly gap-x-3 border-t p-3">
                 <div className="flex flex-1 items-center gap-x-2">
                   <span className="text-muted-foreground">
                     {translations?.start ?? "Start"}:
@@ -712,7 +714,7 @@ const RangeDatePicker = ({
                     required={required}
                   />
                 </div>
-                <MinusIcon className="size-4 shrink-0 text-muted-foreground/70" />
+                <MinusIcon className="text-muted-foreground/70 size-4 shrink-0" />
                 <div className="flex flex-1 items-center gap-x-2">
                   <span className="text-muted-foreground">
                     {translations?.end ?? "End"}:
@@ -728,7 +730,7 @@ const RangeDatePicker = ({
               </div>
             )}
             {!instant && (
-              <div className="border-t border-border p-3 sm:flex sm:items-center sm:justify-between">
+              <div className="border-border border-t p-3 sm:flex sm:items-center sm:justify-between">
                 <p className="text-foreground tabular-nums">
                   <span className="text-muted-foreground">
                     {translations?.range ?? "Range"}:
@@ -778,7 +780,9 @@ const validatePresets = (
     if ("date" in preset) {
       const presetYear = preset.date.getFullYear()
       if (fromYear && presetYear < fromYear)
-        throw new Error(`Preset ${preset.label} is before fromYear ${fromYear}.`)
+        throw new Error(
+          `Preset ${preset.label} is before fromYear ${fromYear}.`,
+        )
       if (toYear && presetYear > toYear)
         throw new Error(`Preset ${preset.label} is after toYear ${toYear}.`)
       if (fromMonth && preset.date.getMonth() < fromMonth.getMonth())

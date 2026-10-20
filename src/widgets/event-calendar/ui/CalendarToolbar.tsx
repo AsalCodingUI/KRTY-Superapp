@@ -51,18 +51,18 @@ export function CalendarToolbar({
     <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
       <div className="flex items-center justify-between gap-3 sm:justify-start sm:gap-4">
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              asChild
-              variant="outline"
-              size="sm"
-              type="button"
-            >
-              <button className="flex items-center gap-1">
-                <span>{currentViewLabel}</span>
-                <RiArrowDownSLine className="text-muted-foreground size-4 shrink-0" />
-              </button>
-            </Button>
+          <DropdownMenuTrigger
+            render={
+              <Button
+                variant="outline"
+                size="sm"
+                type="button"
+                className="flex items-center gap-1"
+              />
+            }
+          >
+            <span>{currentViewLabel}</span>
+            <RiArrowDownSLine className="text-muted-foreground size-4 shrink-0" />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start">
             <DropdownMenuRadioGroup
@@ -70,10 +70,7 @@ export function CalendarToolbar({
               onValueChange={(value) => handleViewChange(value as ViewMode)}
             >
               {viewOptions.map((option) => (
-                <DropdownMenuRadioItem
-                  key={option.value}
-                  value={option.value}
-                >
+                <DropdownMenuRadioItem key={option.value} value={option.value}>
                   {option.label}
                 </DropdownMenuRadioItem>
               ))}

@@ -25,10 +25,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import {
-  RiArrowLeftLine,
-  RiFolderLine
-} from "@/shared/ui/lucide-icons"
+import { RiArrowLeftLine, RiFolderLine } from "@/shared/ui/lucide-icons"
 import { useQuery } from "@tanstack/react-query"
 import { format } from "date-fns"
 import Link from "next/link"
@@ -107,7 +104,9 @@ export function EmployeeDetailClient({
   const { data, isLoading } = useQuery({
     queryKey: ["employee-detail-view", employee.id, selectedQuarter],
     queryFn: async () => {
-      const quarter = selectedQuarter.includes("All") ? undefined : selectedQuarter
+      const quarter = selectedQuarter.includes("All")
+        ? undefined
+        : selectedQuarter
       const [assignmentsResult, overviewResult] = await Promise.all([
         getEmployeeDetail(employee.id, quarter),
         getEmployeeOverview(employee.id, quarter),
@@ -148,8 +147,8 @@ export function EmployeeDetailClient({
       <div
         className={
           showBackButton
-            ? "bg-card flex flex-col rounded-xxl px-4 py-5 space-y-5 xl:px-5"
-            : "bg-card flex flex-col rounded-xxl space-y-5"
+            ? "bg-card rounded-card flex flex-col space-y-5 px-4 py-5 xl:px-5"
+            : "bg-card rounded-card flex flex-col space-y-5"
         }
       >
         {/* Back Button - Only for Admin/Stakeholder POV */}
@@ -184,8 +183,9 @@ export function EmployeeDetailClient({
 
         {/* QUARTER OVERVIEW */}
         <TableSection
-          title={`Quarter ${selectedQuarter.includes("All") ? "Performance" : selectedQuarter
-            }`}
+          title={`Quarter ${
+            selectedQuarter.includes("All") ? "Performance" : selectedQuarter
+          }`}
         >
           {isLoading ? (
             <div className="flex items-center justify-center py-8">
@@ -214,7 +214,7 @@ export function EmployeeDetailClient({
                 {overview.map((row, idx) => (
                   <TableRow
                     key={idx}
-                    className="group transition-colors hover:bg-accent"
+                    className="group hover:bg-accent transition-colors"
                   >
                     <TableCell>{row.objective}</TableCell>
                     <TableCell>{row.keyResult}</TableCell>
@@ -229,9 +229,7 @@ export function EmployeeDetailClient({
                           {(() => {
                             if (row.result >= 95)
                               return (
-                                <Badge variant="success">
-                                  Outstanding
-                                </Badge>
+                                <Badge variant="success">Outstanding</Badge>
                               )
                             if (row.result >= 85)
                               return (
@@ -241,9 +239,7 @@ export function EmployeeDetailClient({
                               )
                             if (row.result >= 75)
                               return (
-                                <Badge variant="info">
-                                  Meets Expectation
-                                </Badge>
+                                <Badge variant="info">Meets Expectation</Badge>
                               )
                             if (row.result >= 60)
                               return (
@@ -259,7 +255,9 @@ export function EmployeeDetailClient({
                           })()}
                         </div>
                       ) : (
-                        <span className="text-muted-foreground/50">No data yet</span>
+                        <span className="text-muted-foreground/50">
+                          No data yet
+                        </span>
                       )}
                     </TableCell>
                   </TableRow>
@@ -300,7 +298,7 @@ export function EmployeeDetailClient({
                 {assignments.map((assignment) => (
                   <TableRow
                     key={assignment.id}
-                    className="group cursor-pointer transition-colors hover:bg-accent"
+                    className="group hover:bg-accent cursor-pointer transition-colors"
                     onClick={() => handleProjectRowClick(assignment)}
                   >
                     <TableCell>
@@ -324,7 +322,7 @@ export function EmployeeDetailClient({
                             e.stopPropagation()
                             openProjectModal(assignment)
                           }}
-                          className="text-foreground hover:text-foreground font-medium text-left"
+                          className="text-foreground hover:text-foreground text-left font-medium"
                           title={
                             assignment.projects.description
                               ? `${assignment.projects.name} — ${assignment.projects.description}`

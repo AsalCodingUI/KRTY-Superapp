@@ -3,9 +3,7 @@
 import { siteConfig } from "@/app/siteConfig"
 import { MobileBottomNav } from "./MobileBottomNav"
 import MobileSidebar from "./MobileSidebar"
-import { SidebarFooter } from "./SidebarFooter"
-import { SidebarHeader } from "./SidebarHeader"
-import { SidebarMenu } from "./SidebarMenu"
+import { AppSidebar } from "./AppSidebar"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { RiMenuLine } from "@/shared/ui/lucide-icons"
 import { UserProfileMobile } from "./UserProfile"
@@ -16,20 +14,9 @@ export function Sidebar() {
 
   return (
     <>
-      <nav className="border-border bg-background hidden border-r xl:fixed xl:inset-y-0 xl:z-50 xl:flex xl:w-64 xl:flex-col">
-        <aside className="flex grow flex-col overflow-y-auto">
-          <div>
-            <SidebarHeader />
-          </div>
-          <div className="flex-1">
-            <SidebarMenu />
-          </div>
-          <div className="mt-auto" />
-          <SidebarFooter />
-        </aside>
-      </nav>
+      <AppSidebar />
 
-      <div className="border-border bg-card fixed top-0 right-0 left-0 z-40 flex h-[calc(env(safe-area-inset-top)+3.25rem)] items-end justify-between border-b px-4 pb-2 xl:hidden">
+      <div className="bg-canvas fixed top-0 right-0 left-0 z-40 flex h-[calc(env(safe-area-inset-top)+3.25rem)] items-end justify-between border-b px-4 pb-2 md:hidden">
         <span className="text-label-md text-foreground font-semibold">
           {siteConfig.name}
         </span>

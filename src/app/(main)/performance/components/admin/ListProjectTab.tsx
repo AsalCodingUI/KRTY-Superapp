@@ -117,7 +117,9 @@ export function ListProjectTab({
       const result = await deleteProject(confirmAction.project.id)
       if (result.success) {
         toast.success("Project archived")
-        queryClient.invalidateQueries({ queryKey: ["projects", selectedQuarter, selectedStatus] })
+        queryClient.invalidateQueries({
+          queryKey: ["projects", selectedQuarter, selectedStatus],
+        })
       } else {
         toast.error("Gagal arsip")
       }
@@ -125,7 +127,9 @@ export function ListProjectTab({
       const result = await permanentDeleteProject(confirmAction.project.id)
       if (result.success) {
         toast.success("Project dihapus")
-        queryClient.invalidateQueries({ queryKey: ["projects", selectedQuarter, selectedStatus] })
+        queryClient.invalidateQueries({
+          queryKey: ["projects", selectedQuarter, selectedStatus],
+        })
       } else {
         toast.error("Gagal hapus")
       }
@@ -139,14 +143,19 @@ export function ListProjectTab({
   }
 
   const handleFormSuccess = () => {
-    queryClient.invalidateQueries({ queryKey: ["projects", selectedQuarter, selectedStatus] })
+    queryClient.invalidateQueries({
+      queryKey: ["projects", selectedQuarter, selectedStatus],
+    })
   }
 
   return (
     <div className="space-y-4">
       {/* FILTERS */}
       <div className="flex items-center gap-3">
-        <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+        <Select
+          value={selectedStatus}
+          onValueChange={(v) => v !== null && setSelectedStatus(v)}
+        >
           <SelectTrigger className="w-full sm:w-[180px]" size="sm">
             <SelectValue placeholder="Filter by status" />
           </SelectTrigger>
@@ -202,9 +211,7 @@ export function ListProjectTab({
                 <TableHead>Status</TableHead>
                 <TableHead>Timeline</TableHead>
                 <TableHead>Team</TableHead>
-                <TableHead className="text-right">
-                  Actions
-                </TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -274,7 +281,10 @@ export function ListProjectTab({
                             </Avatar>
                           ))}
                           {teamMembers.length > 3 && (
-                            <AvatarOverflow count={teamMembers.length - 3} size="sm" />
+                            <AvatarOverflow
+                              count={teamMembers.length - 3}
+                              size="sm"
+                            />
                           )}
                         </AvatarGroup>
                       ) : (

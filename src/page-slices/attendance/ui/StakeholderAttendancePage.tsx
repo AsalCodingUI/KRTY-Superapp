@@ -10,7 +10,6 @@ import {
 import { Database } from "@/shared/types/database.types"
 import { ConfirmDialog } from "@/components/confirm-dialog"
 import { Card } from "@/components/ui/card"
-import { RiCalendarLine } from "@/shared/ui/lucide-icons"
 import { useRouter } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
@@ -53,7 +52,9 @@ export function StakeholderAttendancePage({
   const supabase = createClient()
   const router = useRouter()
   const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const [pendingConfirm, setPendingConfirm] = useState<PendingConfirm | null>(null)
+  const [pendingConfirm, setPendingConfirm] = useState<PendingConfirm | null>(
+    null,
+  )
   const [confirmLoading, setConfirmLoading] = useState(false)
   const [editingLogId, setEditingLogId] = useState<string | null>(null)
   const [editLoading, setEditLoading] = useState(false)
@@ -212,15 +213,14 @@ export function StakeholderAttendancePage({
     <>
       <div className="flex flex-col">
         {showHeader && (
-          <div className="flex items-center gap-2 rounded-xxl px-5 pt-4 pb-3">
-            <RiCalendarLine className="size-4 text-muted-foreground" />
-            <p className="text-label-md text-foreground">
+          <div className="flex items-center gap-2 pb-4">
+            <h1 className="text-foreground truncate text-xl font-semibold tracking-tight">
               Attendance Overview
-            </p>
+            </h1>
           </div>
         )}
 
-        <div className="flex flex-col rounded-xxl bg-card">
+        <div className="flex flex-col">
           <div className="space-y-4 p-5">
             {/* Summary Cards (Fokus Hari Ini) */}
             <div className="grid gap-3 sm:grid-cols-2">

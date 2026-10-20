@@ -43,7 +43,6 @@ import {
   RiFileTextLine,
   RiLoginBoxLine,
   RiLogoutBoxLine,
-  RiUserSmileLine,
 } from "@/shared/ui/lucide-icons"
 import { format, parseISO } from "date-fns"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
@@ -104,11 +103,10 @@ export function EmployeeLeavePage({
     handleClockOut,
     handleToggleBreak,
     handleResolvePreviousSession,
-  } =
-    useClockActions({
-      logs,
-      onLogsUpdate: setLogs,
-    })
+  } = useClockActions({
+    logs,
+    onLogsUpdate: setLogs,
+  })
 
   useEffect(() => {
     setLogs(attendanceLogs)
@@ -348,8 +346,8 @@ export function EmployeeLeavePage({
               )}
             </div>
             <DialogFooter>
-              <DialogClose asChild>
-                <Button size="sm" variant="outline">Nanti</Button>
+              <DialogClose render={<Button size="sm" variant="outline" />}>
+                Nanti
               </DialogClose>
               {staleSession && (
                 <Button
@@ -365,16 +363,15 @@ export function EmployeeLeavePage({
           </DialogContent>
         </Dialog>
 
-        <div className="flex items-center gap-2 rounded-xxl px-5 pt-4 pb-3">
-          <RiUserSmileLine className="size-4 text-muted-foreground" />
-          <p className="text-label-md text-foreground">
+        <div className="flex items-center gap-2 pb-4">
+          <h1 className="text-foreground truncate text-xl font-semibold tracking-tight">
             Leave & Attendance Center
-          </p>
+          </h1>
         </div>
 
-        <div className="flex flex-col rounded-xxl bg-card">
-          <div className="grid grid-cols-2 gap-3 px-5 py-2 lg:grid-cols-5">
-            <div className="border-border bg-card flex flex-col gap-1 rounded-lg border px-4 py-3 col-span-2">
+        <div className="flex flex-col">
+          <div className="grid grid-cols-2 gap-3 py-2 lg:grid-cols-5">
+            <div className="border-border bg-card col-span-2 flex flex-col gap-1 rounded-lg border px-4 py-3">
               <p className="text-label-sm text-muted-foreground">
                 Current Time
               </p>
@@ -394,7 +391,12 @@ export function EmployeeLeavePage({
                   ) : staleSession && !activeSession ? (
                     <div className="flex flex-col items-end gap-2">
                       <p className="text-body-xs text-destructive text-right">
-                        Sesi {format(parseISO(getAttendanceLogLocalDate(staleSession)), "dd MMM yyyy")} belum ditutup.
+                        Sesi{" "}
+                        {format(
+                          parseISO(getAttendanceLogLocalDate(staleSession)),
+                          "dd MMM yyyy",
+                        )}{" "}
+                        belum ditutup.
                       </p>
                       <Button
                         size="sm"
@@ -411,11 +413,13 @@ export function EmployeeLeavePage({
                   ) : !activeSession ? (
                     <>
                       <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button size="sm" variant="outline" type="button">
-                            {getStatusLabel(selectedStatus)}
-                            <RiArrowDownSLine className="text-muted-foreground ml-2 size-4 shrink-0" />
-                          </Button>
+                        <DropdownMenuTrigger
+                          render={
+                            <Button size="sm" variant="outline" type="button" />
+                          }
+                        >
+                          {getStatusLabel(selectedStatus)}
+                          <RiArrowDownSLine className="text-muted-foreground ml-2 size-4 shrink-0" />
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="start">
                           <DropdownMenuItem
@@ -484,9 +488,7 @@ export function EmployeeLeavePage({
             </div>
 
             <div className="border-border bg-card flex flex-col gap-1 rounded-lg border px-4 py-3">
-              <p className="text-label-sm text-muted-foreground">
-                Sick Leave
-              </p>
+              <p className="text-label-sm text-muted-foreground">Sick Leave</p>
               <p className="text-heading-md text-foreground">
                 {leaveStats.sickDays}
               </p>
@@ -502,8 +504,8 @@ export function EmployeeLeavePage({
             </div>
           </div>
 
-          <div className="px-5 pt-2 border-b border-border">
-            <div className="xl:hidden space-y-3 pb-2">
+          <div className="border-border border-b px-5 pt-2">
+            <div className="space-y-3 pb-2 xl:hidden">
               {hasClientMounted ? (
                 <Select
                   value={activeTab}
@@ -515,7 +517,9 @@ export function EmployeeLeavePage({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="attendance">Attendance History</SelectItem>
+                    <SelectItem value="attendance">
+                      Attendance History
+                    </SelectItem>
                     <SelectItem value="leave">Leave Requests</SelectItem>
                   </SelectContent>
                 </Select>
@@ -541,7 +545,7 @@ export function EmployeeLeavePage({
               )}
             </div>
 
-            <div className="hidden xl:flex items-start justify-between gap-4">
+            <div className="hidden items-start justify-between gap-4 xl:flex">
               <TabNavigation className="border-b-0">
                 <TabNavigationLink
                   active={activeTab === "attendance"}
@@ -578,7 +582,13 @@ export function EmployeeLeavePage({
 
           <div className="p-5">
             {isMounted("attendance") && (
-              <div className={activeTab === "attendance" ? "block space-y-5" : "hidden space-y-5"}>
+              <div
+                className={
+                  activeTab === "attendance"
+                    ? "block space-y-5"
+                    : "hidden space-y-5"
+                }
+              >
                 <AttendanceHistoryList
                   logs={logs}
                   onRequestDelete={(id) => {
@@ -590,10 +600,12 @@ export function EmployeeLeavePage({
             )}
 
             {isMounted("leave") && (
-              <div className={activeTab === "leave" ? "block space-y-5" : "hidden space-y-5"}>
-                <TableSection
-                  title="Leave Requests"
-                >
+              <div
+                className={
+                  activeTab === "leave" ? "block space-y-5" : "hidden space-y-5"
+                }
+              >
+                <TableSection title="Leave Requests">
                   <DataTable
                     data={requests}
                     columns={columns(handleEdit)}
@@ -613,7 +625,6 @@ export function EmployeeLeavePage({
                 </TableSection>
               </div>
             )}
-
           </div>
         </div>
       </div>
@@ -632,16 +643,27 @@ export function EmployeeLeavePage({
           </DialogHeader>
           <div>
             <p className="text-body-sm text-muted-foreground">
-              Apakah Anda yakin ingin mengajukan penghapusan data attendance ini?
+              Apakah Anda yakin ingin mengajukan penghapusan data attendance
+              ini?
             </p>
           </div>
           <DialogFooter>
-            <DialogClose asChild>
-              <Button size="sm" variant="outline" className="w-full sm:w-fit">
-                Cancel
-              </Button>
+            <DialogClose
+              render={
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="w-full sm:w-fit"
+                />
+              }
+            >
+              Cancel
             </DialogClose>
-            <Button size="sm" className="w-full sm:w-fit" onClick={confirmDelete}>
+            <Button
+              size="sm"
+              className="w-full sm:w-fit"
+              onClick={confirmDelete}
+            >
               Confirm
             </Button>
           </DialogFooter>
@@ -657,10 +679,16 @@ export function EmployeeLeavePage({
             <LeaveRules />
           </div>
           <DialogFooter>
-            <DialogClose asChild>
-              <Button size="sm" variant="outline" className="w-full sm:w-fit">
-                Close
-              </Button>
+            <DialogClose
+              render={
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="w-full sm:w-fit"
+                />
+              }
+            >
+              Close
             </DialogClose>
           </DialogFooter>
         </DialogContent>

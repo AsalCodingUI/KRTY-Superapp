@@ -66,7 +66,10 @@ export function RecurrenceSelector({
   }
 
   return (
-    <Select value={getCurrentValue()} onValueChange={handleChange}>
+    <Select
+      value={getCurrentValue()}
+      onValueChange={(v) => v !== null && handleChange(v)}
+    >
       <SelectTrigger size="sm" className="w-full">
         <SelectValue placeholder="Tidak berulang" />
       </SelectTrigger>
@@ -74,7 +77,9 @@ export function RecurrenceSelector({
         <SelectItem value="none">Tidak berulang</SelectItem>
         <SelectItem value="daily">Harian</SelectItem>
         <SelectItem value="weekly">Mingguan pada {dayName}</SelectItem>
-        <SelectItem value="monthly">Bulanan pada tanggal {dayOfMonth}</SelectItem>
+        <SelectItem value="monthly">
+          Bulanan pada tanggal {dayOfMonth}
+        </SelectItem>
         <SelectItem value="yearly">Tahunan</SelectItem>
         {value && getCurrentValue() === "custom" && (
           <SelectItem value="custom">Kustom</SelectItem>

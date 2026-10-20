@@ -82,9 +82,7 @@ function SortableItem({
       className={`bg-card border-border group relative rounded-md border p-4 ${isDragging ? "shadow-regular-md z-50" : ""}`}
     >
       <Accordion
-        type="single"
-        collapsible
-        defaultValue="description"
+        defaultValue={["description"]}
         className="space-y-0 overflow-visible rounded-none border-0"
       >
         <AccordionItem
@@ -285,14 +283,14 @@ export const ScopeOfWorkForm = ({ data, onChange }: ScopeOfWorkFormProps) => {
           </SortableContext>
         </DndContext>
 
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={addItem}
-        className="border-border hover:border-muted-foreground/70 w-full border-dashed"
-      >
-        <RiAddLine data-icon="inline-start" /> Add Item
-      </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={addItem}
+          className="border-border hover:border-muted-foreground/70 w-full border-dashed"
+        >
+          <RiAddLine data-icon="inline-start" /> Add Item
+        </Button>
       </div>
     </div>
   )

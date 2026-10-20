@@ -46,8 +46,14 @@ function SortableItem<TData>({
   item: Item
   table: Table<TData>
 }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
-    useSortable({ id: item.id })
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: item.id })
 
   const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
@@ -82,7 +88,7 @@ function SortableItem<TData>({
           {...listeners}
           aria-label={`Reorder ${item.label}`}
         >
-          <GripVerticalIcon className="size-4 text-muted-foreground" />
+          <GripVerticalIcon className="text-muted-foreground size-4" />
         </Button>
       </div>
     </div>
@@ -92,7 +98,9 @@ function SortableItem<TData>({
 /**
  * Column visibility and ordering options for DataTable.
  */
-function DataTableViewOptions<TData>({ table }: DataTableViewOptionsProps<TData>) {
+function DataTableViewOptions<TData>({
+  table,
+}: DataTableViewOptionsProps<TData>) {
   const [items, setItems] = React.useState<Item[]>(() =>
     table.getAllColumns().map((column) => ({
       id: column.id,
@@ -126,11 +134,17 @@ function DataTableViewOptions<TData>({ table }: DataTableViewOptionsProps<TData>
   return (
     <div className="flex justify-center">
       <Popover>
-        <PopoverTrigger asChild>
-          <Button variant="outline" size="sm" className="ml-auto hidden lg:inline-flex">
-            <Settings2Icon data-icon="inline-start" aria-hidden="true" />
-            View
-          </Button>
+        <PopoverTrigger
+          render={
+            <Button
+              variant="outline"
+              size="sm"
+              className="ml-auto hidden lg:inline-flex"
+            />
+          }
+        >
+          <Settings2Icon data-icon="inline-start" aria-hidden="true" />
+          View
         </PopoverTrigger>
         <PopoverContent align="end" sideOffset={7} className="w-fit gap-2 p-4">
           <Label className="mb-1 block font-medium">Display properties</Label>

@@ -82,7 +82,9 @@ export default function PermissionSettingsPage({
     dedupeProfilesByEmail(initialData),
   )
   const [loadingId, setLoadingId] = useState<string | null>(null)
-  const [loadingImpersonationId, setLoadingImpersonationId] = useState<string | null>(null)
+  const [loadingImpersonationId, setLoadingImpersonationId] = useState<
+    string | null
+  >(null)
   const [expandedUserId, setExpandedUserId] = useState<string | null>(null)
   const [loadingPermissionKey, setLoadingPermissionKey] = useState<
     string | null
@@ -139,9 +141,7 @@ export default function PermissionSettingsPage({
       if (error) throw error
 
       setProfiles((prev) =>
-        prev.map((p) =>
-          p.id === id ? { ...p, is_super_admin: !current } : p,
-        ),
+        prev.map((p) => (p.id === id ? { ...p, is_super_admin: !current } : p)),
       )
     } catch (error) {
       console.error("Gagal toggle super admin:", error)
@@ -218,7 +218,9 @@ export default function PermissionSettingsPage({
       router.push("/leave")
     } catch (error) {
       console.error("Failed to switch user", error)
-      toast.error(error instanceof Error ? error.message : "Failed to switch user")
+      toast.error(
+        error instanceof Error ? error.message : "Failed to switch user",
+      )
     } finally {
       setLoadingImpersonationId(null)
     }
@@ -239,9 +241,7 @@ export default function PermissionSettingsPage({
     return (
       <section className="flex flex-col items-center justify-center py-16 text-center">
         <RiLockLine className="text-muted-foreground mb-3 size-8" />
-        <h3 className="text-label-md text-foreground">
-          Access Restricted
-        </h3>
+        <h3 className="text-label-md text-foreground">Access Restricted</h3>
         <p className="text-muted-foreground text-body-sm mt-1">
           Only Super Admins can manage user permissions.
         </p>
@@ -251,13 +251,15 @@ export default function PermissionSettingsPage({
 
   return (
     <section aria-labelledby="permissions-title">
-      <div className="sm:flex sm:items-center sm:justify-between">
-      </div>
+      <div className="sm:flex sm:items-center sm:justify-between"></div>
 
       {isImpersonating && effectiveProfile && authProfile && (
-        <div className="mt-4 flex items-center justify-between rounded-md border border-border bg-warning/10 px-3 py-2">
+        <div className="border-border bg-warning/10 mt-4 flex items-center justify-between rounded-md border px-3 py-2">
           <p className="text-body-sm text-warning">
-            Viewing as <strong>{effectiveProfile.full_name || effectiveProfile.email || "User"}</strong>
+            Viewing as{" "}
+            <strong>
+              {effectiveProfile.full_name || effectiveProfile.email || "User"}
+            </strong>
           </p>
           <Button
             variant="outline"
@@ -270,15 +272,15 @@ export default function PermissionSettingsPage({
         </div>
       )}
 
-      <ul role="list" className="mt-6 divide-y divide-border">
+      <ul role="list" className="divide-border mt-6 divide-y">
         {profiles.map((user) => {
           const initials = user.full_name
             ? user.full_name
-              .split(" ")
-              .map((n) => n[0])
-              .slice(0, 2)
-              .join("")
-              .toUpperCase()
+                .split(" ")
+                .map((n) => n[0])
+                .slice(0, 2)
+                .join("")
+                .toUpperCase()
             : "U"
 
           const isExpanded = expandedUserId === user.id
@@ -287,7 +289,8 @@ export default function PermissionSettingsPage({
           const isViewingThisUser =
             isImpersonating && effectiveProfile?.id === user.id
           const impersonationBusy =
-            loadingImpersonationId === user.id || loadingImpersonationId === "stop"
+            loadingImpersonationId === user.id ||
+            loadingImpersonationId === "stop"
 
           return (
             <li key={user.id} className="py-3">
@@ -307,9 +310,7 @@ export default function PermissionSettingsPage({
                     <p className="text-foreground text-label-md flex items-center gap-1.5 truncate">
                       {user.full_name || "Unknown User"}
                       {user.is_super_admin && (
-                        <Badge variant="info">
-                          Super Admin
-                        </Badge>
+                        <Badge variant="info">Super Admin</Badge>
                       )}
                     </p>
                     <p className="text-muted-foreground text-body-xs truncate">
@@ -360,7 +361,7 @@ export default function PermissionSettingsPage({
                     <Select
                       value={user.job_title || undefined}
                       onValueChange={(val) =>
-                        handleUpdate(user.id, "job_title", val)
+                        val !== null && handleUpdate(user.id, "job_title", val)
                       }
                       disabled={loadingId === user.id}
                     >
@@ -385,7 +386,7 @@ export default function PermissionSettingsPage({
                     <Select
                       value={user.role}
                       onValueChange={(val) =>
-                        handleUpdate(user.id, "role", val)
+                        val !== null && handleUpdate(user.id, "role", val)
                       }
                       disabled={loadingId === user.id}
                     >

@@ -1,6 +1,10 @@
 "use client"
 
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 import { cx } from "@/shared/lib/utils"
 import { RiCloseLine } from "@/shared/ui/lucide-icons"
 import { format, isSameDay, isSameMonth } from "date-fns"
@@ -77,7 +81,7 @@ export const MonthView = memo(function MonthView({
 
   return (
     <>
-      <div className="flex h-full min-w-[700px] w-full max-w-full flex-col overflow-hidden">
+      <div className="flex h-full w-full max-w-full min-w-[700px] flex-col overflow-hidden">
         {/* Weekday headers */}
         <div className="border-border bg-card flex border-b">
           {/* Week number header (removed) */}
@@ -108,9 +112,7 @@ export const MonthView = memo(function MonthView({
               const isToday = isSameDay(day, today)
               const isCurrentMonth = isSameMonth(day, currentDate)
               const isSelected =
-                selectedDate !== null
-                  ? isSameDay(day, selectedDate)
-                  : isToday
+                selectedDate !== null ? isSameDay(day, selectedDate) : isToday
               const showTodayIndicator = isToday && !isSelected
               const isWeekend = day.getDay() === 0 || day.getDay() === 6
               const dayKey = day.toISOString()
@@ -153,7 +155,7 @@ export const MonthView = memo(function MonthView({
                         {dayEvents.slice(0, 4).map((event) => (
                           <span
                             key={event.id}
-                            className="size-1.5 rounded-full bg-primary"
+                            className="bg-primary size-1.5 rounded-full"
                           />
                         ))}
                         {dayEvents.length > 4 && (
@@ -165,7 +167,7 @@ export const MonthView = memo(function MonthView({
                     )}
 
                     {/* Desktop: show event items */}
-                    <div className="hidden sm:block space-y-1">
+                    <div className="hidden space-y-1 sm:block">
                       {displayEvents.map((event) => (
                         <div
                           key={event.id}
@@ -192,16 +194,18 @@ export const MonthView = memo(function MonthView({
                             setOpenPopover(open ? dayKey : null)
                           }
                         >
-                          <PopoverTrigger asChild>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                setOpenPopover(dayKey)
-                              }}
-                              className="text-label-xs text-muted-foreground/70 hover:text-foreground w-full px-2 py-1 text-left"
-                            >
-                              +{dayEvents.length - 3} lainnya
-                            </button>
+                          <PopoverTrigger
+                            render={
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  setOpenPopover(dayKey)
+                                }}
+                                className="text-label-xs text-muted-foreground/70 hover:text-foreground w-full px-2 py-1 text-left"
+                              />
+                            }
+                          >
+                            +{dayEvents.length - 3} lainnya
                           </PopoverTrigger>
                           <PopoverContent
                             className="w-[min(320px,calc(100vw-2rem))] p-3"
@@ -210,7 +214,9 @@ export const MonthView = memo(function MonthView({
                           >
                             <div className="space-y-2">
                               <h4 className="text-label-md text-foreground mb-3">
-                                {format(day, "EEEE, dd MMMM yyyy", { locale: id })}
+                                {format(day, "EEEE, dd MMMM yyyy", {
+                                  locale: id,
+                                })}
                               </h4>
                               <div className="max-h-80 space-y-2 overflow-y-auto">
                                 {dayEvents.map((event) => (
@@ -258,14 +264,16 @@ export const MonthView = memo(function MonthView({
                   })
                 : "Jadwal"}
             </h3>
-            <SheetClose asChild>
-              <button
-                type="button"
-                className="text-muted-foreground/70 hover:text-foreground inline-flex size-8 items-center justify-center rounded-full transition-colors"
-                aria-label="Tutup panel jadwal"
-              >
-                <RiCloseLine className="size-6" />
-              </button>
+            <SheetClose
+              render={
+                <button
+                  type="button"
+                  className="text-muted-foreground/70 hover:text-foreground inline-flex size-8 items-center justify-center rounded-full transition-colors"
+                  aria-label="Tutup panel jadwal"
+                />
+              }
+            >
+              <RiCloseLine className="size-6" />
             </SheetClose>
           </div>
           <div className="flex-1 overflow-y-auto px-4 py-4 pb-6">

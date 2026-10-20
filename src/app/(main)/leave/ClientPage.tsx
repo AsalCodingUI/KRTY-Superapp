@@ -6,7 +6,6 @@ import { LeaveStats } from "@/page-slices/leave/ui/components/LeaveStats"
 import { createClient } from "@/shared/api/supabase/client"
 import { Database } from "@/shared/types/database.types"
 import { DataTable } from "@/components/data-table"
-import { RiCalendarLine } from "@/shared/ui/lucide-icons"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
 
@@ -81,15 +80,14 @@ export default function LeaveClientPage({
 
   return (
     <div className="flex flex-col">
-      <div className="flex items-center gap-2 rounded-xxl px-4 pt-4 pb-3 xl:px-5">
-        <RiCalendarLine className="size-4 text-muted-foreground" />
-        <p className="text-label-md text-foreground">
+      <div className="flex items-center gap-2 pb-4">
+        <h1 className="text-foreground truncate text-xl font-semibold tracking-tight">
           Leave &amp; Permission
-        </p>
+        </h1>
       </div>
 
-      <div className="bg-card flex flex-col rounded-xxl">
-        <div className="space-y-4 px-4 py-5 xl:px-5">
+      <div className="flex flex-col">
+        <div className="space-y-4 py-5">
           {/* 2. STATS SECTION (Passing 'requests' agar hitungannya Realtime) */}
           <section>
             <LeaveStats requests={requests} />

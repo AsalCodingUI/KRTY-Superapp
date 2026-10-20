@@ -98,9 +98,7 @@ function JustificationField({
           </p>
           <span
             className={`text-label-xs ${
-              isComplete
-                ? "text-success"
-                : "text-muted-foreground"
+              isComplete ? "text-success" : "text-muted-foreground"
             }`}
           >
             {trimmedLength}/10
@@ -206,9 +204,10 @@ export default function ReviewFormClientPage({
           cycle_id: cycleId,
         }),
       })
-      const result = (await response.json().catch(() => null)) as
-        | { success?: boolean; error?: string }
-        | null
+      const result = (await response.json().catch(() => null)) as {
+        success?: boolean
+        error?: string
+      } | null
 
       if (!response.ok) {
         toast.error(result?.error || "Failed to submit review")
@@ -282,9 +281,7 @@ export default function ReviewFormClientPage({
               >
                 <RiArrowLeftLine className="size-4" />
               </Button>
-              <span className="text-label-md text-foreground">
-                360 Review
-              </span>
+              <span className="text-label-md text-foreground">360 Review</span>
             </div>
           </div>
         </div>
@@ -294,7 +291,7 @@ export default function ReviewFormClientPage({
         <div className="flex gap-8">
           <div className="hidden w-56 shrink-0 lg:block">
             <div className="sticky top-20">
-              <Card className="gap-0 p-4 space-y-4">
+              <Card className="gap-0 space-y-4 p-4">
                 <div>
                   <p className="text-label-md text-foreground">
                     Review Progress
@@ -363,14 +360,14 @@ export default function ReviewFormClientPage({
               </div>
             </Card>
 
-            <Card className="gap-0 p-4 space-y-4 overflow-visible">
+            <Card className="gap-0 space-y-4 overflow-visible p-4">
               <Label htmlFor="colleague-select">
                 Who do you want to review?
               </Label>
               <Select
                 value={formData.reviewee_id}
                 onValueChange={(val) =>
-                  setFormData((prev) => ({ ...prev, reviewee_id: val }))
+                  setFormData((prev) => ({ ...prev, reviewee_id: val ?? "" }))
                 }
               >
                 <SelectTrigger
@@ -392,7 +389,7 @@ export default function ReviewFormClientPage({
 
             {formData.reviewee_id && (
               <>
-                <Card className="gap-0 p-4 space-y-4">
+                <Card className="gap-0 space-y-4 p-4">
                   <p className="text-label-md text-foreground">
                     Rate their competencies
                   </p>
@@ -536,7 +533,7 @@ export default function ReviewFormClientPage({
                   </div>
                 </Card>
 
-                <Card className="gap-0 p-4 space-y-4">
+                <Card className="gap-0 space-y-4 p-4">
                   <div>
                     <Label htmlFor="feedback-continue">
                       CONTINUE (Strength)

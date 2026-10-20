@@ -12,7 +12,6 @@ import {
 import { toast } from "sonner"
 import { Database } from "@/shared/types/database.types"
 import { createClient } from "@/shared/api/supabase/client"
-import { RiCalendarLine } from "@/shared/ui/lucide-icons"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
 import {
@@ -109,16 +108,15 @@ export default function LeaveAdminPage({
 
   return (
     <div className="flex flex-col">
-      <div className="flex items-center gap-2 rounded-xxl px-4 pt-4 pb-3 xl:px-5">
-        <RiCalendarLine className="size-4 text-muted-foreground" />
-        <p className="text-label-md text-foreground">
+      <div className="flex items-center gap-2 pb-4">
+        <h1 className="text-foreground truncate text-xl font-semibold tracking-tight">
           Leave Approval Center
-        </p>
+        </h1>
       </div>
 
-      <div className="bg-card flex flex-col rounded-xxl">
-        <div className="border-b border-border px-4 pt-2 xl:px-5">
-          <div className="xl:hidden pb-2">
+      <div className="flex flex-col">
+        <div className="border-border border-b">
+          <div className="pb-2 xl:hidden">
             <Select
               value={activeTab}
               onValueChange={(value) =>
@@ -156,7 +154,13 @@ export default function LeaveAdminPage({
 
         <div className="px-4 py-5 xl:px-5">
           {mountedTabs.has("approval") && (
-            <div className={activeTab === "approval" ? "block space-y-5" : "hidden space-y-5"}>
+            <div
+              className={
+                activeTab === "approval"
+                  ? "block space-y-5"
+                  : "hidden space-y-5"
+              }
+            >
               <section>
                 <LeaveAdminStats requests={requests} />
               </section>
@@ -198,7 +202,13 @@ export default function LeaveAdminPage({
           )}
 
           {mountedTabs.has("remaining") && (
-            <div className={activeTab === "remaining" ? "block space-y-5" : "hidden space-y-5"}>
+            <div
+              className={
+                activeTab === "remaining"
+                  ? "block space-y-5"
+                  : "hidden space-y-5"
+              }
+            >
               <RemainingLeaveView data={profiles} />
             </div>
           )}

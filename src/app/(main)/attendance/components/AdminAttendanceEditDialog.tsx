@@ -66,9 +66,7 @@ export function AdminAttendanceEditDialog({
 
     setDate(log.date)
     setClockIn(format(new Date(log.clock_in), "HH:mm"))
-    setClockOut(
-      log.clock_out ? format(new Date(log.clock_out), "HH:mm") : "",
-    )
+    setClockOut(log.clock_out ? format(new Date(log.clock_out), "HH:mm") : "")
     setStatus(log.status || "Present")
     setError(null)
   }, [log, open])
@@ -91,7 +89,10 @@ export function AdminAttendanceEditDialog({
     const clockInDate = combineLocalDateTime(date, clockIn)
     const clockOutDate = combineLocalDateTime(date, clockOut)
 
-    if (Number.isNaN(clockInDate.getTime()) || Number.isNaN(clockOutDate.getTime())) {
+    if (
+      Number.isNaN(clockInDate.getTime()) ||
+      Number.isNaN(clockOutDate.getTime())
+    ) {
       setError("Format tanggal atau jam tidak valid.")
       return
     }
@@ -132,11 +133,18 @@ export function AdminAttendanceEditDialog({
             </div>
             <div className="flex flex-col gap-2">
               <Label>Clock Out</Label>
-              <TimeSelect value={clockOut} onValueChange={setClockOut} step={5} />
+              <TimeSelect
+                value={clockOut}
+                onValueChange={setClockOut}
+                step={5}
+              />
             </div>
             <div className="flex flex-col gap-2 sm:col-span-3">
               <Label>Status</Label>
-              <Select value={status} onValueChange={setStatus}>
+              <Select
+                value={status}
+                onValueChange={(v) => v !== null && setStatus(v)}
+              >
                 <SelectTrigger size="sm" className="w-full">
                   <SelectValue />
                 </SelectTrigger>
@@ -149,16 +157,12 @@ export function AdminAttendanceEditDialog({
             </div>
           </div>
           {error && (
-            <p className="text-body-sm text-destructive mt-4">
-              {error}
-            </p>
+            <p className="text-body-sm text-destructive mt-4">{error}</p>
           )}
         </div>
         <DialogFooter>
-          <DialogClose asChild>
-            <Button variant="outline" size="sm">
-              Batal
-            </Button>
+          <DialogClose render={<Button variant="outline" size="sm" />}>
+            Batal
           </DialogClose>
           <Button size="sm" disabled={loading} onClick={handleSubmit}>
             {loading && <Spinner data-icon="inline-start" />}

@@ -1,7 +1,6 @@
 "use client"
 
 import dynamic from "next/dynamic"
-import { RiBarChartBoxLine } from "@/shared/ui/lucide-icons"
 import type { AdminDashboardData } from "../actions/dashboard-admin-actions"
 
 const AdminAttendanceOverview = dynamic(
@@ -22,15 +21,12 @@ const AdminEmployeeSpotlight = dynamic(
 
 const AdminMetricsOverview = dynamic(
   () =>
-    import("./AdminMetricsOverview").then(
-      (mod) => mod.AdminMetricsOverview,
-    ),
+    import("./AdminMetricsOverview").then((mod) => mod.AdminMetricsOverview),
   { loading: () => null },
 )
 
 const AdminPendingActions = dynamic(
-  () =>
-    import("./AdminPendingActions").then((mod) => mod.AdminPendingActions),
+  () => import("./AdminPendingActions").then((mod) => mod.AdminPendingActions),
   { loading: () => null },
 )
 
@@ -44,9 +40,7 @@ const AdminPerformanceDistribution = dynamic(
 
 const AdminRecentActivities = dynamic(
   () =>
-    import("./AdminRecentActivities").then(
-      (mod) => mod.AdminRecentActivities,
-    ),
+    import("./AdminRecentActivities").then((mod) => mod.AdminRecentActivities),
   { loading: () => null },
 )
 
@@ -57,15 +51,14 @@ interface AdminDashboardProps {
 export function AdminDashboard({ data }: AdminDashboardProps) {
   return (
     <div className="flex flex-col">
-      <div className="flex items-center gap-2 rounded-xxl px-4 pt-4 pb-3 xl:px-5">
-        <RiBarChartBoxLine className="size-4 text-muted-foreground" />
-        <p className="text-label-md text-foreground">
+      <div className="flex items-center gap-2 pb-4">
+        <h1 className="text-foreground truncate text-xl font-semibold tracking-tight">
           Dashboard Overview
-        </p>
+        </h1>
       </div>
 
-      <div className="bg-card flex flex-col rounded-xxl">
-        <div className="space-y-5 pt-2 pb-5 px-4 xl:px-5">
+      <div className="flex flex-col">
+        <div className="space-y-4">
           <section>
             <AdminMetricsOverview
               totalEmployees={data.teamMetrics.totalEmployees}

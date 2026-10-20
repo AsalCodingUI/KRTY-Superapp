@@ -6,7 +6,11 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Database } from "@/shared/types/database.types"
-import { RiCheckLine, RiCloseLine, RiFilePaperLine } from "@/shared/ui/lucide-icons"
+import {
+  RiCheckLine,
+  RiCloseLine,
+  RiFilePaperLine,
+} from "@/shared/ui/lucide-icons"
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table"
 import { format } from "date-fns"
 
@@ -47,12 +51,10 @@ export const adminColumns = (
             id: "select",
             header: ({ table }) => (
               <Checkbox
-                checked={
-                  table.getIsAllPageRowsSelected()
-                    ? true
-                    : table.getIsSomeRowsSelected()
-                      ? "indeterminate"
-                      : false
+                checked={table.getIsAllPageRowsSelected()}
+                indeterminate={
+                  !table.getIsAllPageRowsSelected() &&
+                  table.getIsSomeRowsSelected()
                 }
                 onCheckedChange={() => table.toggleAllPageRowsSelected()}
                 className=""
@@ -131,7 +133,7 @@ export const adminColumns = (
         )
       },
       meta: { displayName: "Date Range" },
-  }),
+    }),
 
     // 4. Submission Date (Admin only preview)
     columnHelper.accessor("created_at", {
@@ -144,7 +146,8 @@ export const adminColumns = (
       ),
       cell: ({ row }) => {
         const createdAt = row.getValue("created_at") as string | null
-        if (!createdAt) return <span className="text-muted-foreground/50">-</span>
+        if (!createdAt)
+          return <span className="text-muted-foreground/50">-</span>
         const parsed = new Date(createdAt)
         if (Number.isNaN(parsed.getTime())) {
           return <span className="text-muted-foreground/50">-</span>

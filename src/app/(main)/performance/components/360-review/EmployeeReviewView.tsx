@@ -2,7 +2,10 @@
 
 import { RadarChart } from "@/components/charts/radar-chart"
 import { EmptyState } from "@/components/empty-state"
-import { QuarterFilter, type QuarterFilterValue } from "@/components/quarter-filter"
+import {
+  QuarterFilter,
+  type QuarterFilterValue,
+} from "@/components/quarter-filter"
 import {
   Accordion,
   AccordionContent,
@@ -25,7 +28,11 @@ import { useEffect, useState } from "react"
 import { ReviewStatsHeader } from "./ReviewStatsHeader"
 
 const toBadgeVariant = (variant: ReturnType<typeof getRatingBadgeVariant>) =>
-  variant === "error" ? "destructive" : variant === "default" ? "secondary" : variant
+  variant === "error"
+    ? "destructive"
+    : variant === "default"
+      ? "secondary"
+      : variant
 
 // --- TIPE DATA ---
 type AnalysisResult = {
@@ -217,7 +224,7 @@ export function EmployeeReviewView({
         <>
           <div className="grid grid-cols-1 gap-3 lg:grid-cols-6">
             <div className="lg:col-span-4">
-              <Accordion type="multiple" defaultValue={["executive-summary"]}>
+              <Accordion multiple defaultValue={["executive-summary"]}>
                 <AccordionItem value="executive-summary">
                   <AccordionTrigger className="text-label-md px-4 py-3">
                     <span className="font-medium">Executive Summary</span>
@@ -264,14 +271,20 @@ export function EmployeeReviewView({
               </Accordion>
             </div>
 
-            <div className="lg:col-span-2 flex flex-col gap-3">
+            <div className="flex flex-col gap-3 lg:col-span-2">
               <ReviewStatsHeader
                 selectedQuarter={selectedQuarter}
                 totalReviewers={totalReviewers}
-                overallScore={summaryData ? Number(summaryData.overall_score) : 0}
-                overallPercentage={summaryData ? summaryData.overall_percentage : 0}
+                overallScore={
+                  summaryData ? Number(summaryData.overall_score) : 0
+                }
+                overallPercentage={
+                  summaryData ? summaryData.overall_percentage : 0
+                }
                 ratingLevel={
-                  summaryData ? getRatingLevel(summaryData.overall_percentage) : "-"
+                  summaryData
+                    ? getRatingLevel(summaryData.overall_percentage)
+                    : "-"
                 }
               />
 
@@ -297,7 +310,9 @@ export function EmployeeReviewView({
                         Leadership
                       </span>
                       <Badge
-                        variant={toBadgeVariant(getRatingBadgeVariant(skillRatings.leadership))}
+                        variant={toBadgeVariant(
+                          getRatingBadgeVariant(skillRatings.leadership),
+                        )}
                       >
                         {skillRatings.leadership}
                       </Badge>
@@ -306,7 +321,11 @@ export function EmployeeReviewView({
                       <span className="text-label-sm text-muted-foreground">
                         Quality
                       </span>
-                      <Badge variant={toBadgeVariant(getRatingBadgeVariant(skillRatings.quality))}>
+                      <Badge
+                        variant={toBadgeVariant(
+                          getRatingBadgeVariant(skillRatings.quality),
+                        )}
+                      >
                         {skillRatings.quality}
                       </Badge>
                     </div>
@@ -315,7 +334,9 @@ export function EmployeeReviewView({
                         Reliability
                       </span>
                       <Badge
-                        variant={toBadgeVariant(getRatingBadgeVariant(skillRatings.reliability))}
+                        variant={toBadgeVariant(
+                          getRatingBadgeVariant(skillRatings.reliability),
+                        )}
                       >
                         {skillRatings.reliability}
                       </Badge>
@@ -325,7 +346,9 @@ export function EmployeeReviewView({
                         Communication
                       </span>
                       <Badge
-                        variant={toBadgeVariant(getRatingBadgeVariant(skillRatings.communication))}
+                        variant={toBadgeVariant(
+                          getRatingBadgeVariant(skillRatings.communication),
+                        )}
                       >
                         {skillRatings.communication}
                       </Badge>
@@ -335,7 +358,9 @@ export function EmployeeReviewView({
                         Initiative
                       </span>
                       <Badge
-                        variant={toBadgeVariant(getRatingBadgeVariant(skillRatings.initiative))}
+                        variant={toBadgeVariant(
+                          getRatingBadgeVariant(skillRatings.initiative),
+                        )}
                       >
                         {skillRatings.initiative}
                       </Badge>

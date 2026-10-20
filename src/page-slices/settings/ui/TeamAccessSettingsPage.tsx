@@ -209,14 +209,18 @@ export default function TeamAccessSettingsPage({
       }
 
       toast.success(
-        targetUserId ? "Now viewing selected team member" : "Returned to your account",
+        targetUserId
+          ? "Now viewing selected team member"
+          : "Returned to your account",
       )
       await refreshProfile()
       router.refresh()
       router.push("/dashboard")
     } catch (error) {
       console.error("Failed to switch user", error)
-      toast.error(error instanceof Error ? error.message : "Failed to switch user")
+      toast.error(
+        error instanceof Error ? error.message : "Failed to switch user",
+      )
     } finally {
       setLoadingImpersonationId(null)
     }
@@ -227,9 +231,12 @@ export default function TeamAccessSettingsPage({
 
     setDeletingId(deleteTarget.id)
     try {
-      const response = await fetch(`/api/admin/team-members/${deleteTarget.id}`, {
-        method: "DELETE",
-      })
+      const response = await fetch(
+        `/api/admin/team-members/${deleteTarget.id}`,
+        {
+          method: "DELETE",
+        },
+      )
       const payload = await response.json().catch(() => ({}))
 
       if (!response.ok) {
@@ -270,20 +277,17 @@ export default function TeamAccessSettingsPage({
   return (
     <section className="space-y-6" aria-labelledby="team-access-title">
       <div className="space-y-1">
-        <h1
-          id="team-access-title"
-          className="text-heading-md text-foreground"
-        >
+        <h1 id="team-access-title" className="text-heading-md text-foreground">
           Team Access
         </h1>
         <p className="text-body-sm text-muted-foreground">
-          Add team members from settings and jump into their workspace with super
-          admin impersonation.
+          Add team members from settings and jump into their workspace with
+          super admin impersonation.
         </p>
       </div>
 
       {isImpersonating && effectiveProfile && authProfile && (
-        <div className="flex items-center justify-between rounded-md border border-border bg-warning/10 px-4 py-3">
+        <div className="border-border bg-warning/10 flex items-center justify-between rounded-md border px-4 py-3">
           <p className="text-body-sm text-warning">
             Viewing as{" "}
             <strong>
@@ -301,11 +305,9 @@ export default function TeamAccessSettingsPage({
         </div>
       )}
 
-      <div className="rounded-xxl border border-border bg-card p-4">
+      <div className="border-border border p-4">
         <div className="mb-4">
-          <h2 className="text-label-md text-foreground">
-            Add Team Member
-          </h2>
+          <h2 className="text-label-md text-foreground">Add Team Member</h2>
           <p className="text-body-sm text-muted-foreground mt-1">
             This creates a managed profile directly from the app so you do not
             need to edit data manually.
@@ -350,8 +352,7 @@ export default function TeamAccessSettingsPage({
                 setForm((prev) => ({
                   ...prev,
                   role: value as FormState["role"],
-                  job_title:
-                    value === "stakeholder" ? "Admin" : prev.job_title,
+                  job_title: value === "stakeholder" ? "Admin" : prev.job_title,
                 }))
               }
             >
@@ -415,6 +416,7 @@ export default function TeamAccessSettingsPage({
             <Select
               value={form.team_id || "__none__"}
               onValueChange={(value) =>
+                value !== null &&
                 setForm((prev) => ({
                   ...prev,
                   team_id: value === "__none__" ? "" : value,
@@ -435,7 +437,7 @@ export default function TeamAccessSettingsPage({
             </Select>
           </div>
 
-          <div className="md:col-span-2 flex justify-end">
+          <div className="flex justify-end md:col-span-2">
             <Button size="sm" type="submit" disabled={submitting}>
               {submitting ? "Adding member..." : "Add Team Member"}
             </Button>
@@ -443,11 +445,9 @@ export default function TeamAccessSettingsPage({
         </form>
       </div>
 
-      <div className="rounded-xxl border border-border bg-card p-4">
+      <div className="border-border border p-4">
         <div className="mb-4">
-          <h2 className="text-label-md text-foreground">
-            Team Directory
-          </h2>
+          <h2 className="text-label-md text-foreground">Team Directory</h2>
           <p className="text-body-sm text-muted-foreground mt-1">
             Super admins can switch into any listed profile from here.
           </p>
@@ -469,7 +469,7 @@ export default function TeamAccessSettingsPage({
               return (
                 <div
                   key={profile.id}
-                  className="flex flex-col gap-3 rounded-xl border border-border px-4 py-3 md:flex-row md:items-center md:justify-between"
+                  className="border-border flex flex-col gap-3 rounded-xl border px-4 py-3 md:flex-row md:items-center md:justify-between"
                 >
                   <div className="flex items-start gap-3">
                     <Avatar>
@@ -498,8 +498,12 @@ export default function TeamAccessSettingsPage({
                         <Badge variant={getJobTitleVariant(profile.job_title)}>
                           {profile.job_title || "No title"}
                         </Badge>
-                        {profile.krt_id && <Badge variant="secondary">{profile.krt_id}</Badge>}
-                        {assignedTeam?.name && <Badge variant="secondary">{assignedTeam.name}</Badge>}
+                        {profile.krt_id && (
+                          <Badge variant="secondary">{profile.krt_id}</Badge>
+                        )}
+                        {assignedTeam?.name && (
+                          <Badge variant="secondary">{assignedTeam.name}</Badge>
+                        )}
                         {profile.is_super_admin && (
                           <Badge variant="warning">Super Admin</Badge>
                         )}
@@ -531,7 +535,8 @@ export default function TeamAccessSettingsPage({
                       size="sm"
                       onClick={() => setDeleteTarget(profile)}
                       disabled={
-                        deletingId === profile.id || authProfile?.id === profile.id
+                        deletingId === profile.id ||
+                        authProfile?.id === profile.id
                       }
                     >
                       {deletingId === profile.id ? "Deleting..." : "Delete"}

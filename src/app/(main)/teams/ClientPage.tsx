@@ -10,7 +10,6 @@ import { TeamFormDialog } from "./components/TeamDialogs"
 import { TeamStats } from "./components/TeamStats"
 
 import { DataTable } from "@/components/data-table"
-import { RiGroupLine } from "@/shared/ui/lucide-icons"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"]
@@ -48,12 +47,13 @@ export function TeamsClientPage({
 
   return (
     <div className="flex flex-col">
-      <div className="flex items-center gap-2 rounded-xxl px-5 pt-4 pb-3">
-        <RiGroupLine className="size-4 text-muted-foreground" />
-        <p className="text-label-md text-foreground">Team Members</p>
+      <div className="flex items-center gap-2 pb-4">
+        <h1 className="text-foreground truncate text-xl font-semibold tracking-tight">
+          Team Members
+        </h1>
       </div>
 
-      <div className="bg-card flex flex-col rounded-xxl">
+      <div className="flex flex-col">
         <div className="space-y-4 p-5">
           {/* POSISI BARU: DI BAWAH JUDUL */}
           <section>
@@ -72,35 +72,35 @@ export function TeamsClientPage({
               onCreate={
                 canManage
                   ? () => {
-                    setEditingItem(null)
-                    setIsAddOpen(true)
-                  }
+                      setEditingItem(null)
+                      setIsAddOpen(true)
+                    }
                   : undefined
               }
               onEdit={
                 canManage
                   ? (item) => {
-                    setEditingItem(item)
-                    setIsAddOpen(true)
-                  }
+                      setEditingItem(item)
+                      setIsAddOpen(true)
+                    }
                   : undefined
               }
               onDelete={
                 canManage
                   ? async (ids) => {
-                    if (!confirm(`Delete ${ids.length} team member(s)?`))
-                      return
-                    const supabase = createClient()
-                    const { error } = await supabase
-                      .from("profiles")
-                      .delete()
-                      .in("id", ids as string[])
-                    if (error) {
-                      toast.error("Error deleting: " + error.message)
-                    } else {
-                      router.refresh()
+                      if (!confirm(`Delete ${ids.length} team member(s)?`))
+                        return
+                      const supabase = createClient()
+                      const { error } = await supabase
+                        .from("profiles")
+                        .delete()
+                        .in("id", ids as string[])
+                      if (error) {
+                        toast.error("Error deleting: " + error.message)
+                      } else {
+                        router.refresh()
+                      }
                     }
-                  }
                   : undefined
               }
               showTableWrapper={true}

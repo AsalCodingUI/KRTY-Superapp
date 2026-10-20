@@ -9,7 +9,10 @@ import {
   ATTENDANCE_NOTE_TAGS,
   mergeAttendanceNote,
 } from "@/shared/lib/attendance"
-import { getAttendanceLogLocalDate, getLocalDateString } from "@/shared/lib/date"
+import {
+  getAttendanceLogLocalDate,
+  getLocalDateString,
+} from "@/shared/lib/date"
 import { canManageByRole } from "@/shared/lib/roles"
 import { Database } from "@/shared/types/database.types"
 import { ConfirmDialog } from "@/components/confirm-dialog"
@@ -36,7 +39,6 @@ import {
 } from "@/components/ui/select"
 import { Spinner } from "@/components/ui/spinner"
 import { Textarea } from "@/components/ui/textarea"
-import { RiCalendarCheckLine } from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
@@ -49,7 +51,12 @@ import { remainingLeaveColumns } from "./components/RemainingLeaveColumns"
 
 type Profile = Pick<
   Database["public"]["Tables"]["profiles"]["Row"],
-  "id" | "full_name" | "avatar_url" | "job_title" | "leave_used" | "leave_balance"
+  | "id"
+  | "full_name"
+  | "avatar_url"
+  | "job_title"
+  | "leave_used"
+  | "leave_balance"
 >
 type AttendanceLog = Database["public"]["Tables"]["attendance_logs"]["Row"]
 type AttendanceLogWithProfile = AttendanceLog & {
@@ -129,7 +136,9 @@ export function StakeholderLeavePage({
   })
   const canManage = canManageByRole(role)
   const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const [pendingConfirm, setPendingConfirm] = useState<PendingConfirm | null>(null)
+  const [pendingConfirm, setPendingConfirm] = useState<PendingConfirm | null>(
+    null,
+  )
   const [confirmLoading, setConfirmLoading] = useState(false)
   const [isClient, setIsClient] = useState(false)
   const [manualModalOpen, setManualModalOpen] = useState(false)
@@ -326,7 +335,8 @@ export function StakeholderLeavePage({
     setEditingLogId(logId)
   }
 
-  const editingLog = attendanceLogs.find((log) => log.id === editingLogId) ?? null
+  const editingLog =
+    attendanceLogs.find((log) => log.id === editingLogId) ?? null
 
   const handleUpdateAttendanceSession = async (payload: {
     date: string
@@ -446,72 +456,72 @@ export function StakeholderLeavePage({
         onBulkApprove={
           canManage
             ? async (ids) => {
-              runWithConfirm({
-                title: "Approve leave requests",
-                description: `Approve ${ids.length} leave request(s)?`,
-                confirmText: "Approve",
-                onConfirm: async () => {
-                  const { error } = await supabase
-                    .from("leave_requests")
-                    .update({ status: "approved" })
-                    .in("id", ids as number[])
-                  if (error) {
-                    toast.error(error.message || "Failed to approve requests")
-                    return
-                  }
-                  toast.success("Leave request(s) approved")
-                  router.refresh()
-                },
-              })
-            }
+                runWithConfirm({
+                  title: "Approve leave requests",
+                  description: `Approve ${ids.length} leave request(s)?`,
+                  confirmText: "Approve",
+                  onConfirm: async () => {
+                    const { error } = await supabase
+                      .from("leave_requests")
+                      .update({ status: "approved" })
+                      .in("id", ids as number[])
+                    if (error) {
+                      toast.error(error.message || "Failed to approve requests")
+                      return
+                    }
+                    toast.success("Leave request(s) approved")
+                    router.refresh()
+                  },
+                })
+              }
             : undefined
         }
         onBulkReject={
           canManage
             ? async (ids) => {
-              runWithConfirm({
-                title: "Reject leave requests",
-                description: `Reject ${ids.length} leave request(s)?`,
-                confirmText: "Reject",
-                variant: "destructive",
-                onConfirm: async () => {
-                  const { error } = await supabase
-                    .from("leave_requests")
-                    .update({ status: "rejected" })
-                    .in("id", ids as number[])
-                  if (error) {
-                    toast.error(error.message || "Failed to reject requests")
-                    return
-                  }
-                  toast.success("Leave request(s) rejected")
-                  router.refresh()
-                },
-              })
-            }
+                runWithConfirm({
+                  title: "Reject leave requests",
+                  description: `Reject ${ids.length} leave request(s)?`,
+                  confirmText: "Reject",
+                  variant: "destructive",
+                  onConfirm: async () => {
+                    const { error } = await supabase
+                      .from("leave_requests")
+                      .update({ status: "rejected" })
+                      .in("id", ids as number[])
+                    if (error) {
+                      toast.error(error.message || "Failed to reject requests")
+                      return
+                    }
+                    toast.success("Leave request(s) rejected")
+                    router.refresh()
+                  },
+                })
+              }
             : undefined
         }
         onDelete={
           canManage
             ? async (ids) => {
-              runWithConfirm({
-                title: "Delete leave requests",
-                description: `Delete ${ids.length} leave request(s)? This cannot be undone.`,
-                confirmText: "Delete",
-                variant: "destructive",
-                onConfirm: async () => {
-                  const { error } = await supabase
-                    .from("leave_requests")
-                    .delete()
-                    .in("id", ids as number[])
-                  if (error) {
-                    toast.error(error.message || "Failed to delete requests")
-                    return
-                  }
-                  toast.success("Leave request(s) deleted")
-                  router.refresh()
-                },
-              })
-            }
+                runWithConfirm({
+                  title: "Delete leave requests",
+                  description: `Delete ${ids.length} leave request(s)? This cannot be undone.`,
+                  confirmText: "Delete",
+                  variant: "destructive",
+                  onConfirm: async () => {
+                    const { error } = await supabase
+                      .from("leave_requests")
+                      .delete()
+                      .in("id", ids as number[])
+                    if (error) {
+                      toast.error(error.message || "Failed to delete requests")
+                      return
+                    }
+                    toast.success("Leave request(s) deleted")
+                    router.refresh()
+                  },
+                })
+              }
             : undefined
         }
         showTableWrapper={false}
@@ -524,11 +534,10 @@ export function StakeholderLeavePage({
   return (
     <>
       <div className="flex flex-col">
-        <div className="flex items-center gap-2 rounded-xxl px-5 pt-4 pb-3">
-          <RiCalendarCheckLine className="size-4 text-muted-foreground" />
-          <p className="text-label-md text-foreground">
+        <div className="flex items-center gap-2 pb-4">
+          <h1 className="text-foreground truncate text-xl font-semibold tracking-tight">
             Leave & Attendance Center
-          </p>
+          </h1>
         </div>
 
         <AttendanceOverviewPanel
@@ -581,10 +590,15 @@ export function StakeholderLeavePage({
               <Select
                 value={manualForm.user_id}
                 onValueChange={(value) =>
+                  value !== null &&
                   setManualForm((prev) => ({ ...prev, user_id: value }))
                 }
               >
-                <SelectTrigger size="sm" id="manual-user" className="mt-2 w-full">
+                <SelectTrigger
+                  size="sm"
+                  id="manual-user"
+                  className="mt-2 w-full"
+                >
                   <SelectValue placeholder="Select employee" />
                 </SelectTrigger>
                 <SelectContent>
@@ -640,7 +654,11 @@ export function StakeholderLeavePage({
                     }))
                   }
                 >
-                  <SelectTrigger size="sm" id="manual-leave-type" className="mt-2 w-full">
+                  <SelectTrigger
+                    size="sm"
+                    id="manual-leave-type"
+                    className="mt-2 w-full"
+                  >
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -661,7 +679,11 @@ export function StakeholderLeavePage({
                     }))
                   }
                 >
-                  <SelectTrigger size="sm" id="manual-status" className="mt-2 w-full">
+                  <SelectTrigger
+                    size="sm"
+                    id="manual-status"
+                    className="mt-2 w-full"
+                  >
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -726,10 +748,14 @@ export function StakeholderLeavePage({
             </div>
           </div>
           <DialogFooter>
-            <DialogClose asChild>
-              <Button size="sm" variant="ghost">Cancel</Button>
+            <DialogClose render={<Button size="sm" variant="ghost" />}>
+              Cancel
             </DialogClose>
-            <Button size="sm" disabled={manualSaving} onClick={handleManualSubmit}>
+            <Button
+              size="sm"
+              disabled={manualSaving}
+              onClick={handleManualSubmit}
+            >
               {manualSaving && <Spinner data-icon="inline-start" />}
               Save Manual Request
             </Button>
@@ -800,32 +826,43 @@ function AttendanceOverviewPanel({
   ).length
 
   const stats = [
-    { label: "On Leave Today", value: overviewStats?.onLeaveToday ?? onLeaveToday },
-    { label: "Pending Requests", value: overviewStats?.pendingRequests ?? pendingRequests },
-    { label: "Total Approved", value: overviewStats?.totalApproved ?? totalApproved },
-    { label: "Present Today", value: overviewStats?.presentToday ?? presentToday },
-    { label: "Currently Active", value: overviewStats?.currentlyActive ?? currentlyActive },
+    {
+      label: "On Leave Today",
+      value: overviewStats?.onLeaveToday ?? onLeaveToday,
+    },
+    {
+      label: "Pending Requests",
+      value: overviewStats?.pendingRequests ?? pendingRequests,
+    },
+    {
+      label: "Total Approved",
+      value: overviewStats?.totalApproved ?? totalApproved,
+    },
+    {
+      label: "Present Today",
+      value: overviewStats?.presentToday ?? presentToday,
+    },
+    {
+      label: "Currently Active",
+      value: overviewStats?.currentlyActive ?? currentlyActive,
+    },
   ]
 
   return (
-    <div className="flex flex-col rounded-xxl bg-card">
-      <div className="grid grid-cols-2 gap-3 px-5 py-2 lg:grid-cols-5">
+    <div className="flex flex-col">
+      <div className="grid grid-cols-2 gap-3 py-2 lg:grid-cols-5">
         {stats.map((item) => (
           <div
             key={item.label}
             className="border-border bg-card flex flex-col gap-1 rounded-lg border px-4 py-3"
           >
-            <p className="text-label-sm text-muted-foreground">
-              {item.label}
-            </p>
-            <p className="text-heading-md text-foreground">
-              {item.value}
-            </p>
+            <p className="text-label-sm text-muted-foreground">{item.label}</p>
+            <p className="text-heading-md text-foreground">{item.value}</p>
           </div>
         ))}
       </div>
 
-      <div className="px-5 pt-2 border-b border-border space-y-3">
+      <div className="border-border space-y-3 border-b px-5 pt-2">
         <div className="xl:hidden">
           {isClient ? (
             <Select
@@ -844,10 +881,10 @@ function AttendanceOverviewPanel({
               </SelectContent>
             </Select>
           ) : (
-            <div className="border-border h-9 w-full rounded-md border bg-card" />
+            <div className="border-border bg-card h-9 w-full rounded-md border" />
           )}
         </div>
-        <div className="hidden xl:flex items-start justify-between gap-4">
+        <div className="hidden items-start justify-between gap-4 xl:flex">
           <TabNavigation className="border-b-0">
             <TabNavigationLink
               active={activeTab === "attendance"}
@@ -884,12 +921,22 @@ function AttendanceOverviewPanel({
           <div className="block space-y-5">{approvalContent}</div>
         )}
         {isMounted("remaining") && (
-          <div className={activeTab === "remaining" ? "block space-y-5" : "hidden space-y-5"}>
+          <div
+            className={
+              activeTab === "remaining" ? "block space-y-5" : "hidden space-y-5"
+            }
+          >
             {remainingContent}
           </div>
         )}
         {isMounted("attendance") && (
-          <div className={activeTab === "attendance" ? "block space-y-5" : "hidden space-y-5"}>
+          <div
+            className={
+              activeTab === "attendance"
+                ? "block space-y-5"
+                : "hidden space-y-5"
+            }
+          >
             <AdminAttendanceHistoryList
               logs={attendanceLogs}
               onApproveDelete={onApproveAttendanceDelete}
@@ -904,11 +951,7 @@ function AttendanceOverviewPanel({
 }
 
 // --- SUB-COMPONENT (Sekarang lebih sederhana & cepat) ---
-function RemainingLeaveView({
-  data,
-}: {
-  data: Profile[]
-}) {
+function RemainingLeaveView({ data }: { data: Profile[] }) {
   return (
     <section>
       <DataTable

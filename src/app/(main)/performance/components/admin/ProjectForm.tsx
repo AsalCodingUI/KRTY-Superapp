@@ -315,7 +315,10 @@ export function ProjectForm({
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="flex max-h-[90vh] flex-col sm:max-w-2xl">
-        <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col gap-6">
+        <form
+          onSubmit={handleSubmit}
+          className="flex min-h-0 flex-1 flex-col gap-6"
+        >
           <DialogHeader>
             <DialogTitle>
               {isEdit ? "Edit Project" : "Create New Project"}
@@ -412,108 +415,107 @@ export function ProjectForm({
 
             {/* Team Assignment */}
             <div className="space-y-4">
-                {/* Section Header */}
-                <div className="border-border border-t pt-4">
-                  <h4 className="text-label-md text-foreground">
-                    Assign Team Members (Optional)
-                  </h4>
-                  <p className="text-body-sm text-muted-foreground mt-1">
-                    Add team members who will work on this project
-                  </p>
-                </div>
+              {/* Section Header */}
+              <div className="border-border border-t pt-4">
+                <h4 className="text-label-md text-foreground">
+                  Assign Team Members (Optional)
+                </h4>
+                <p className="text-body-sm text-muted-foreground mt-1">
+                  Add team members who will work on this project
+                </p>
+              </div>
 
-                <div className="grid grid-cols-[1fr,auto] items-end gap-3">
-                  <div className="space-y-2">
-                    <Label htmlFor="assign-user">Select User</Label>
-                    <Select
-                      value={selectedUserId}
-                      onValueChange={setSelectedUserId}
-                    >
-                      <SelectTrigger className="w-full" size="sm">
-                        <SelectValue placeholder="Choose a team member" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {users
-                          .filter(
-                            (u) =>
-                              !teamMembers.some((tm) => tm.userId === u.id),
-                          )
-                          .map((user) => (
-                            <SelectItem key={user.id} value={user.id}>
-                              {user.full_name || user.email}{" "}
-                              {user.job_title ? `(${user.job_title})` : ""}
-                            </SelectItem>
-                          ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <Button
-                    size="sm"
-                    type="button"
-                    onClick={handleAddTeamMember}
-                    disabled={!selectedUserId}
-                    variant="outline"
+              <div className="grid grid-cols-[1fr,auto] items-end gap-3">
+                <div className="space-y-2">
+                  <Label htmlFor="assign-user">Select User</Label>
+                  <Select
+                    value={selectedUserId}
+                    onValueChange={(v) => v !== null && setSelectedUserId(v)}
                   >
-                    <RiUserAddLine className="mr-2 size-4" />
-                    Add to Team
-                  </Button>
+                    <SelectTrigger className="w-full" size="sm">
+                      <SelectValue placeholder="Choose a team member" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {users
+                        .filter(
+                          (u) => !teamMembers.some((tm) => tm.userId === u.id),
+                        )
+                        .map((user) => (
+                          <SelectItem key={user.id} value={user.id}>
+                            {user.full_name || user.email}{" "}
+                            {user.job_title ? `(${user.job_title})` : ""}
+                          </SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
-                {/* Team Members List */}
-                {teamMembers.length > 0 && (
-                  <div className="space-y-2">
-                    <Label>Team Members ({teamMembers.length})</Label>
-                    {teamMembers.map((member) => (
-                      <div
-                        key={member.userId}
-                        className="border-border bg-card flex items-center justify-between rounded-lg border p-2"
-                      >
-                        <div className="flex items-center gap-2">
-                          <Avatar className="size-7">
-                            <AvatarImage
-                              src={member.userAvatar || undefined}
-                              alt={member.userName}
-                            />
-                            <AvatarFallback />
-                          </Avatar>
-                          <div>
-                            <p className="text-label-md text-foreground">
-                              {member.userName}
-                            </p>
-                            <p className="text-body-xs text-muted-foreground">
-                              {member.userJobTitle || "No job title"}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <label className="flex items-center gap-2 text-body-xs text-muted-foreground">
-                            <Checkbox
-                              checked={member.isLead}
-                              onCheckedChange={(checked) =>
-                                handleToggleLead(member, checked === true)
-                              }
-                            />
-                            Lead
-                          </label>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleRemoveTeamMember(member)}
-                            className="text-destructive hover:bg-destructive/10"
-                          >
-                            <RiDeleteBin6Line className="size-4" />
-                          </Button>
+                <Button
+                  size="sm"
+                  type="button"
+                  onClick={handleAddTeamMember}
+                  disabled={!selectedUserId}
+                  variant="outline"
+                >
+                  <RiUserAddLine className="mr-2 size-4" />
+                  Add to Team
+                </Button>
+              </div>
+
+              {/* Team Members List */}
+              {teamMembers.length > 0 && (
+                <div className="space-y-2">
+                  <Label>Team Members ({teamMembers.length})</Label>
+                  {teamMembers.map((member) => (
+                    <div
+                      key={member.userId}
+                      className="border-border bg-card flex items-center justify-between rounded-lg border p-2"
+                    >
+                      <div className="flex items-center gap-2">
+                        <Avatar className="size-7">
+                          <AvatarImage
+                            src={member.userAvatar || undefined}
+                            alt={member.userName}
+                          />
+                          <AvatarFallback />
+                        </Avatar>
+                        <div>
+                          <p className="text-label-md text-foreground">
+                            {member.userName}
+                          </p>
+                          <p className="text-body-xs text-muted-foreground">
+                            {member.userJobTitle || "No job title"}
+                          </p>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+                      <div className="flex items-center gap-3">
+                        <label className="text-body-xs text-muted-foreground flex items-center gap-2">
+                          <Checkbox
+                            checked={member.isLead}
+                            onCheckedChange={(checked) =>
+                              handleToggleLead(member, checked === true)
+                            }
+                          />
+                          Lead
+                        </label>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleRemoveTeamMember(member)}
+                          className="text-destructive hover:bg-destructive/10"
+                        >
+                          <RiDeleteBin6Line className="size-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
-          <DialogFooter className="sticky bottom-0 border-t border-border bg-card pt-4">
+          <DialogFooter className="border-border bg-card sticky bottom-0 border-t pt-4">
             <Button
               size="sm"
               type="button"

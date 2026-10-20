@@ -2,7 +2,6 @@
 
 import { useKeyboardShortcuts } from "@/shared/hooks/useKeyboardShortcuts"
 import { useTabRoute } from "@/shared/hooks/useTabRoute"
-import { RiCalendarLine } from "@/shared/ui/lucide-icons"
 import {
   CalendarSkeleton,
   CalendarToolbar,
@@ -71,13 +70,14 @@ function CalendarContent({
     goToPrevious,
     setViewMode,
   } = useCalendarContext()
-  const { activeTab: viewTab, setActiveTab: setViewTab } =
-    useTabRoute<"month" | "week" | "day" | "agenda">({
-      basePath: "/calendar",
-      tabs: ["month", "week", "day", "agenda"],
-      defaultTab: "week",
-      mode: "history",
-    })
+  const { activeTab: viewTab, setActiveTab: setViewTab } = useTabRoute<
+    "month" | "week" | "day" | "agenda"
+  >({
+    basePath: "/calendar",
+    tabs: ["month", "week", "day", "agenda"],
+    defaultTab: "week",
+    mode: "history",
+  })
   const { isConnected } = useGoogleCalendar()
 
   const viewRange = useMemo(() => {
@@ -191,7 +191,7 @@ function CalendarContent({
 
   // Keyboard shortcuts
   useKeyboardShortcuts({
-    onCreateEvent: isStakeholder ? () => setDialogOpen(true) : () => { },
+    onCreateEvent: isStakeholder ? () => setDialogOpen(true) : () => {},
     onGoToday: goToToday,
     onPrevious: goToPrevious,
     onNext: goToNext,
@@ -200,13 +200,14 @@ function CalendarContent({
 
   return (
     <div className="flex min-h-[calc(100vh-1rem)] flex-col">
-      <div className="flex items-center gap-3 rounded-xxl px-4 pt-4 pb-3 xl:px-5">
-        <RiCalendarLine className="size-4 text-muted-foreground" />
-        <p className="text-label-md text-foreground">Kalender</p>
+      <div className="flex items-center gap-2 pb-4">
+        <h1 className="text-foreground truncate text-xl font-semibold tracking-tight">
+          Kalender
+        </h1>
       </div>
 
-      <div className="flex min-h-0 flex-1 flex-col rounded-xxl bg-card">
-        <div className="grid grid-cols-2 gap-3 px-4 py-3 sm:gap-3 sm:py-2 xl:grid-cols-3 xl:px-5">
+      <div className="flex min-h-0 flex-1 flex-col">
+        <div className="grid grid-cols-2 gap-3 py-3 sm:gap-3 sm:py-2 xl:grid-cols-3">
           <div className="border-border bg-card flex flex-col gap-1 rounded-lg border px-4 py-3">
             <p className="text-label-sm text-muted-foreground">
               Tanggal Saat Ini
@@ -219,9 +220,7 @@ function CalendarContent({
             <p className="text-label-sm text-muted-foreground">
               Rapat Hari Ini
             </p>
-            <p className="text-heading-md text-foreground">
-              {meetingCount}
-            </p>
+            <p className="text-heading-md text-foreground">{meetingCount}</p>
           </div>
           <div className="border-border bg-card flex flex-col gap-1 rounded-lg border px-4 py-3">
             <p className="text-label-sm text-muted-foreground">
@@ -233,7 +232,7 @@ function CalendarContent({
           </div>
         </div>
 
-        <div className="border-b border-border px-4 py-3 sm:py-2 xl:px-5">
+        <div className="border-border border-b px-4 py-3 sm:py-2 xl:px-5">
           <CalendarToolbar
             onAddEvent={() => setDialogOpen(true)}
             showAddEvent={isStakeholder}

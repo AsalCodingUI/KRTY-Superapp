@@ -24,7 +24,11 @@ export function LeaveTypeSelect({
       <Label htmlFor="type" className="font-medium">
         Pengajuan Untuk
       </Label>
-      <Select value={value} onValueChange={onChange} disabled={disabled}>
+      <Select
+        value={value}
+        onValueChange={(v) => v !== null && onChange(v)}
+        disabled={disabled}
+      >
         <SelectTrigger id="type" size="sm" className="mt-2 w-full">
           <SelectValue />
         </SelectTrigger>

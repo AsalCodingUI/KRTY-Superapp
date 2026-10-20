@@ -22,7 +22,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { RiDeleteBin6Line, RiEdit2Line, RiStarLine } from "@/shared/ui/lucide-icons"
+import {
+  RiDeleteBin6Line,
+  RiEdit2Line,
+  RiStarLine,
+} from "@/shared/ui/lucide-icons"
 import { useState } from "react"
 import { toast } from "sonner"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
@@ -41,13 +45,14 @@ const availableRoles = Constants.public.Enums.project_role_enum.filter(
 const getRoleBadgeVariant = (
   role: string,
 ): "info" | "success" | "warning" | "secondary" => {
-  const variants: Record<string, "info" | "success" | "warning" | "secondary"> = {
-    "UIX Designer": "info",
-    "Brand Designer": "warning",
-    "Webflow Developer": "success",
-    "Web Developer": "success",
-    "Project Manager": "secondary",
-  }
+  const variants: Record<string, "info" | "success" | "warning" | "secondary"> =
+    {
+      "UIX Designer": "info",
+      "Brand Designer": "warning",
+      "Webflow Developer": "success",
+      "Web Developer": "success",
+      "Project Manager": "secondary",
+    }
   return variants[role] || "secondary"
 }
 
@@ -83,7 +88,9 @@ export function WorkQualityTab() {
     const result = await deleteCompetency(confirmDelete.id)
     if (result.success) {
       toast.success("Competency deleted")
-      queryClient.invalidateQueries({ queryKey: ["competencies", selectedRole] })
+      queryClient.invalidateQueries({
+        queryKey: ["competencies", selectedRole],
+      })
     } else {
       toast.error("Gagal hapus")
     }
@@ -108,7 +115,10 @@ export function WorkQualityTab() {
     <div className="space-y-4">
       {/* FILTER */}
       <div className="flex items-center gap-3">
-        <Select value={selectedRole} onValueChange={setSelectedRole}>
+        <Select
+          value={selectedRole}
+          onValueChange={(v) => v !== null && setSelectedRole(v)}
+        >
           <SelectTrigger className="w-full sm:w-[220px]" size="sm">
             <SelectValue placeholder="Filter by role" />
           </SelectTrigger>
@@ -164,9 +174,7 @@ export function WorkQualityTab() {
                 <TableHead className="w-[180px]">Role</TableHead>
                 <TableHead className="w-[260px]">Competency Name</TableHead>
                 <TableHead>Description</TableHead>
-                <TableHead className="w-[120px] text-right">
-                  Actions
-                </TableHead>
+                <TableHead className="w-[120px] text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -179,7 +187,7 @@ export function WorkQualityTab() {
                   </TableCell>
                   <TableCell>
                     <span
-                      className="text-foreground block font-medium whitespace-normal break-words line-clamp-2"
+                      className="text-foreground line-clamp-2 block font-medium break-words whitespace-normal"
                       title={competency.name}
                     >
                       {competency.name}
@@ -187,7 +195,7 @@ export function WorkQualityTab() {
                   </TableCell>
                   <TableCell>
                     <span
-                      className="text-muted-foreground block whitespace-normal break-words"
+                      className="text-muted-foreground block break-words whitespace-normal"
                       title={competency.description || "-"}
                     >
                       {competency.description || "-"}

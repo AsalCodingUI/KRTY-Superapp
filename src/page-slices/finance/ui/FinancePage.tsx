@@ -15,10 +15,7 @@ import { useMountedTabs } from "@/shared/hooks/useMountedTabs"
 import { useTabRoute } from "@/shared/hooks/useTabRoute"
 import type { Database } from "@/shared/types/database.types"
 import { EmptyState } from "@/components/empty-state"
-import {
-  TabNavigation,
-  TabNavigationLink,
-} from "@/components/tab-navigation"
+import { TabNavigation, TabNavigationLink } from "@/components/tab-navigation"
 import { TableSection } from "@/components/table-section"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -45,7 +42,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { RiAddLine, RiFileList3Line, RiMoneyDollarCircleLine } from "@/shared/ui/lucide-icons"
+import {
+  RiAddLine,
+  RiFileList3Line,
+  RiMoneyDollarCircleLine,
+} from "@/shared/ui/lucide-icons"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { format } from "date-fns"
 import dynamic from "next/dynamic"
@@ -82,7 +83,10 @@ function SelectProjectDialog({
           <DialogTitle>Select Project</DialogTitle>
         </DialogHeader>
         <div className="space-y-3">
-          <Select value={selected} onValueChange={setSelected}>
+          <Select
+            value={selected}
+            onValueChange={(v) => v !== null && setSelected(v)}
+          >
             <SelectTrigger size="sm" className="w-full">
               <SelectValue placeholder="Choose a project..." />
             </SelectTrigger>
@@ -96,7 +100,11 @@ function SelectProjectDialog({
           </Select>
         </div>
         <DialogFooter>
-          <Button size="sm" variant="outline" onClick={() => onOpenChange(false)}>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+          >
             Cancel
           </Button>
           <Button
@@ -205,7 +213,7 @@ function InvoicesTabContent({
                       <Badge
                         variant={
                           INVOICE_STATUS_VARIANTS[
-                          inv.status as InvoiceStatus
+                            inv.status as InvoiceStatus
                           ] || "secondary"
                         }
                       >
@@ -321,13 +329,14 @@ export function FinancePage() {
 
   return (
     <div className="flex flex-col">
-      <div className="rounded-xxl flex items-center gap-2 px-5 pt-4 pb-3">
-        <RiMoneyDollarCircleLine className="text-muted-foreground size-4" />
-        <p className="text-label-md text-foreground">Finance</p>
+      <div className="flex items-center gap-2 pb-4">
+        <h1 className="text-foreground truncate text-xl font-semibold tracking-tight">
+          Finance
+        </h1>
       </div>
 
-      <div className="bg-card rounded-xxl flex flex-col">
-        <div className="px-5 py-2">
+      <div className="flex flex-col">
+        <div className="py-2">
           {isInvoicesLoading ? (
             <div className="flex items-center justify-center py-8">
               <Spinner className="size-8" />

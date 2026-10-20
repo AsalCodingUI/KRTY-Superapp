@@ -20,7 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Spinner } from "@/components/ui/spinner"
-import { RiArrowRightLine, RiFolderLine } from "@/shared/ui/lucide-icons"
+import { RiArrowRightLine } from "@/shared/ui/lucide-icons"
 import { useQuery } from "@tanstack/react-query"
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
@@ -32,7 +32,8 @@ type ProjectStatus = Database["public"]["Enums"]["project_status_enum"]
 type TabType = "projects" | "calculator" | "sla"
 type SLARow = Database["public"]["Tables"]["slas"]["Row"]
 type OperationalCost = Database["public"]["Tables"]["operational_costs"]["Row"]
-type ProjectCalculation = Database["public"]["Tables"]["project_calculations"]["Row"]
+type ProjectCalculation =
+  Database["public"]["Tables"]["project_calculations"]["Row"]
 
 type ProjectAssignment = {
   id: string
@@ -98,12 +99,8 @@ function ProjectsStats({ projectStats }: { projectStats: ProjectStats }) {
           key={stat.label}
           className="border-border bg-card flex flex-col gap-1 rounded-lg border px-4 py-3"
         >
-          <dt className="text-label-sm text-muted-foreground">
-            {stat.label}
-          </dt>
-          <dd className="text-heading-md text-foreground">
-            {stat.value}
-          </dd>
+          <dt className="text-label-sm text-muted-foreground">{stat.label}</dt>
+          <dd className="text-heading-md text-foreground">{stat.value}</dd>
         </div>
       ))}
     </dl>
@@ -113,100 +110,101 @@ function ProjectsStats({ projectStats }: { projectStats: ProjectStats }) {
 function ProjectsTableContent({ projects }: { projects: ProjectListItem[] }) {
   const router = useRouter()
   const columns = useMemo(
-    () => [
-      projectColumnHelper.accessor("name", {
-        header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Project Name" />
-        ),
-        cell: ({ row }) => (
-          <span className="text-label-md text-foreground">
-            {row.getValue("name")}
-          </span>
-        ),
-      }),
-      projectColumnHelper.accessor("quarter_id", {
-        header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Quarter" />
-        ),
-        cell: ({ row }) => {
-          const quarterId = row.getValue("quarter_id") as string | null
-          return quarterId ? (
-            <QuarterBadge quarter={quarterId} />
-          ) : (
-            <span className="text-muted-foreground/50">No quarter</span>
-          )
-        },
-      }),
-      projectColumnHelper.accessor("status", {
-        header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Status" />
-        ),
-        cell: ({ row }) => (
-          <Badge variant={getStatusVariant(row.getValue("status"))}>
-            {row.getValue("status")}
-          </Badge>
-        ),
-      }),
-      projectColumnHelper.display({
-        id: "timeline",
-        header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Timeline" />
-        ),
-        cell: ({ row }) => (
-          <span className="text-foreground">
-            {format(new Date(row.original.start_date), "MMM d, yyyy")} -{" "}
-            {format(new Date(row.original.end_date), "MMM d, yyyy")}
-          </span>
-        ),
-      }),
-      projectColumnHelper.display({
-        id: "team",
-        header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Team" />
-        ),
-        cell: ({ row }) => {
-          const teamMembers = getProjectTeamMembers(row.original)
+    () =>
+      [
+        projectColumnHelper.accessor("name", {
+          header: ({ column }) => (
+            <DataTableColumnHeader column={column} title="Project Name" />
+          ),
+          cell: ({ row }) => (
+            <span className="text-label-md text-foreground">
+              {row.getValue("name")}
+            </span>
+          ),
+        }),
+        projectColumnHelper.accessor("quarter_id", {
+          header: ({ column }) => (
+            <DataTableColumnHeader column={column} title="Quarter" />
+          ),
+          cell: ({ row }) => {
+            const quarterId = row.getValue("quarter_id") as string | null
+            return quarterId ? (
+              <QuarterBadge quarter={quarterId} />
+            ) : (
+              <span className="text-muted-foreground/50">No quarter</span>
+            )
+          },
+        }),
+        projectColumnHelper.accessor("status", {
+          header: ({ column }) => (
+            <DataTableColumnHeader column={column} title="Status" />
+          ),
+          cell: ({ row }) => (
+            <Badge variant={getStatusVariant(row.getValue("status"))}>
+              {row.getValue("status")}
+            </Badge>
+          ),
+        }),
+        projectColumnHelper.display({
+          id: "timeline",
+          header: ({ column }) => (
+            <DataTableColumnHeader column={column} title="Timeline" />
+          ),
+          cell: ({ row }) => (
+            <span className="text-foreground">
+              {format(new Date(row.original.start_date), "MMM d, yyyy")} -{" "}
+              {format(new Date(row.original.end_date), "MMM d, yyyy")}
+            </span>
+          ),
+        }),
+        projectColumnHelper.display({
+          id: "team",
+          header: ({ column }) => (
+            <DataTableColumnHeader column={column} title="Team" />
+          ),
+          cell: ({ row }) => {
+            const teamMembers = getProjectTeamMembers(row.original)
 
-          return teamMembers.length > 0 ? (
-            <AvatarGroup>
-              {teamMembers.slice(0, 3).map((member) => (
-                <Avatar key={member.id} className="size-7">
-                  <AvatarImage src={member.image} alt={member.name} />
-                  <AvatarFallback className="text-label-xs">
-                    {member.name
-                      .split(" ")
-                      .map((part) => part[0])
-                      .join("")
-                      .slice(0, 2)}
-                  </AvatarFallback>
-                </Avatar>
-              ))}
-              {teamMembers.length > 3 && (
-                <AvatarOverflow count={teamMembers.length - 3} size="sm" />
-              )}
-            </AvatarGroup>
-          ) : (
-            <span className="text-muted-foreground/50">No assignments</span>
-          )
-        },
-      }),
-      projectColumnHelper.display({
-        id: "actions",
-        header: () => <div className="text-right">Actions</div>,
-        cell: ({ row }) => (
-          <div className="flex justify-end">
-            <Button
-              size="icon-sm"
-              variant="ghost"
-              onClick={() => router.push(`/projects/${row.original.id}`)}
-              title="Open Project"
-            >
-              <RiArrowRightLine className="size-3.5" />
-            </Button>
-          </div>
-        ),
-      }),
-    ] as ColumnDef<ProjectListItem, unknown>[],
+            return teamMembers.length > 0 ? (
+              <AvatarGroup>
+                {teamMembers.slice(0, 3).map((member) => (
+                  <Avatar key={member.id} className="size-7">
+                    <AvatarImage src={member.image} alt={member.name} />
+                    <AvatarFallback className="text-label-xs">
+                      {member.name
+                        .split(" ")
+                        .map((part) => part[0])
+                        .join("")
+                        .slice(0, 2)}
+                    </AvatarFallback>
+                  </Avatar>
+                ))}
+                {teamMembers.length > 3 && (
+                  <AvatarOverflow count={teamMembers.length - 3} size="sm" />
+                )}
+              </AvatarGroup>
+            ) : (
+              <span className="text-muted-foreground/50">No assignments</span>
+            )
+          },
+        }),
+        projectColumnHelper.display({
+          id: "actions",
+          header: () => <div className="text-right">Actions</div>,
+          cell: ({ row }) => (
+            <div className="flex justify-end">
+              <Button
+                size="icon-sm"
+                variant="ghost"
+                onClick={() => router.push(`/projects/${row.original.id}`)}
+                title="Open Project"
+              >
+                <RiArrowRightLine className="size-3.5" />
+              </Button>
+            </div>
+          ),
+        }),
+      ] as ColumnDef<ProjectListItem, unknown>[],
     [router],
   )
 
@@ -220,7 +218,8 @@ function ProjectsTableContent({ projects }: { projects: ProjectListItem[] }) {
         showViewOptions={false}
         showFilterbar={false}
         showTableWrapper={true}
-        tableTitle="Project List" />
+        tableTitle="Project List"
+      />
     </section>
   )
 }
@@ -312,20 +311,22 @@ export function ProjectsListPage() {
       },
     })
 
-  const { data: calculatorProjectsData, isLoading: isCalculatorProjectsLoading } =
-    useQuery({
-      queryKey: ["projects", "calculator", "projects"],
-      queryFn: async () => {
-        const { data, error } = await supabase
-          .from("projects")
-          .select("id, name")
-          .neq("status", "Archived")
-          .order("name", { ascending: true })
+  const {
+    data: calculatorProjectsData,
+    isLoading: isCalculatorProjectsLoading,
+  } = useQuery({
+    queryKey: ["projects", "calculator", "projects"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("projects")
+        .select("id, name")
+        .neq("status", "Archived")
+        .order("name", { ascending: true })
 
-        if (error) throw error
-        return (data || []) as { id: string; name: string }[]
-      },
-    })
+      if (error) throw error
+      return (data || []) as { id: string; name: string }[]
+    },
+  })
 
   const { data: slasData, isLoading: isSLAsLoading } = useQuery({
     queryKey: ["projects", "list-page", "slas"],
@@ -348,38 +349,44 @@ export function ProjectsListPage() {
     },
   })
 
-  const { data: calculationsData, isLoading: isCalculationsLoading } = useQuery({
-    queryKey: ["projects", "list-page", "calculations"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("project_calculations")
-        .select("id")
+  const { data: calculationsData, isLoading: isCalculationsLoading } = useQuery(
+    {
+      queryKey: ["projects", "list-page", "calculations"],
+      queryFn: async () => {
+        const { data, error } = await supabase
+          .from("project_calculations")
+          .select("id")
 
-      if (error) throw error
-      return (data || []) as Pick<ProjectCalculation, "id">[]
+        if (error) throw error
+        return (data || []) as Pick<ProjectCalculation, "id">[]
+      },
     },
-  })
+  )
 
   const projectStats = {
     total: projectsData?.length || 0,
     active:
-      projectsData?.filter((project) => project.status === "Active").length || 0,
+      projectsData?.filter((project) => project.status === "Active").length ||
+      0,
     archived:
-      projectsData?.filter((project) => project.status === "Archived").length || 0,
+      projectsData?.filter((project) => project.status === "Archived").length ||
+      0,
     calculations: calculationsData?.length || 0,
     activeSlas:
-      slasData?.filter((sla: { archived_at: string | null }) => !sla.archived_at)
-        .length || 0,
+      slasData?.filter(
+        (sla: { archived_at: string | null }) => !sla.archived_at,
+      ).length || 0,
   }
 
   return (
     <div className="flex flex-col">
-      <div className="rounded-xxl flex items-center gap-2 px-5 pt-4 pb-3">
-        <RiFolderLine className="text-muted-foreground size-4" />
-        <p className="text-label-md text-foreground">Projects</p>
+      <div className="flex items-center gap-2 pb-4">
+        <h1 className="text-foreground truncate text-xl font-semibold tracking-tight">
+          Projects
+        </h1>
       </div>
 
-      <div className="bg-card flex flex-col rounded-xxl">
+      <div className="flex flex-col">
         <section className="px-5 py-2">
           {isProjectsLoading || isSLAsLoading || isCalculationsLoading ? (
             <div className="flex items-center justify-center py-8">
@@ -390,8 +397,8 @@ export function ProjectsListPage() {
           )}
         </section>
 
-        <div className="px-5 pt-2 border-b border-border">
-          <div className="xl:hidden pb-2">
+        <div className="border-border border-b px-5 pt-2">
+          <div className="pb-2 xl:hidden">
             <Select
               value={activeTab}
               onValueChange={(value) => setActiveTab(value as TabType)}
@@ -433,7 +440,11 @@ export function ProjectsListPage() {
         <div className="p-5">
           {isMounted("projects") && (
             <div
-              className={activeTab === "projects" ? "block space-y-5" : "hidden space-y-5"}
+              className={
+                activeTab === "projects"
+                  ? "block space-y-5"
+                  : "hidden space-y-5"
+              }
             >
               {isProjectsLoading ? (
                 <div className="flex items-center justify-center py-12">
@@ -446,11 +457,15 @@ export function ProjectsListPage() {
           )}
           {isMounted("calculator") && (
             <div
-              className={activeTab === "calculator" ? "block space-y-5" : "hidden space-y-5"}
+              className={
+                activeTab === "calculator"
+                  ? "block space-y-5"
+                  : "hidden space-y-5"
+              }
             >
               {isTeamMembersLoading ||
-                isOperationalCostsLoading ||
-                isCalculatorProjectsLoading ? (
+              isOperationalCostsLoading ||
+              isCalculatorProjectsLoading ? (
                 <div className="flex items-center justify-center py-12">
                   <Spinner className="size-8" />
                 </div>
@@ -465,7 +480,11 @@ export function ProjectsListPage() {
             </div>
           )}
           {isMounted("sla") && (
-            <div className={activeTab === "sla" ? "block space-y-5" : "hidden space-y-5"}>
+            <div
+              className={
+                activeTab === "sla" ? "block space-y-5" : "hidden space-y-5"
+              }
+            >
               {isSLAsLoading ? (
                 <div className="flex items-center justify-center py-12">
                   <Spinner className="size-8" />

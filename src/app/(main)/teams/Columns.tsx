@@ -43,9 +43,9 @@ type TeamColumnsOptions = {
   canSelect?: boolean
 }
 
-export const createTeamColumns = (
-  { canSelect = true }: TeamColumnsOptions = {},
-) =>
+export const createTeamColumns = ({
+  canSelect = true,
+}: TeamColumnsOptions = {}) =>
   [
     ...(canSelect
       ? [
@@ -53,12 +53,10 @@ export const createTeamColumns = (
             id: "select",
             header: ({ table }) => (
               <Checkbox
-                checked={
-                  table.getIsAllPageRowsSelected()
-                    ? true
-                    : table.getIsSomeRowsSelected()
-                      ? "indeterminate"
-                      : false
+                checked={table.getIsAllPageRowsSelected()}
+                indeterminate={
+                  !table.getIsAllPageRowsSelected() &&
+                  table.getIsSomeRowsSelected()
                 }
                 onCheckedChange={() => table.toggleAllPageRowsSelected()}
                 className=""
@@ -154,7 +152,9 @@ export const createTeamColumns = (
       cell: ({ row }) => {
         const role = row.getValue("role") as string
         const displayRole = role.charAt(0).toUpperCase() + role.slice(1)
-        const variant = canManageByRole(role) ? ("success" as const) : ("secondary" as const)
+        const variant = canManageByRole(role)
+          ? ("success" as const)
+          : ("secondary" as const)
         return <Badge variant={variant}>{displayRole}</Badge>
       },
     }),

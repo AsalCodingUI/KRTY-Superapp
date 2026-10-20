@@ -383,7 +383,9 @@ export function InvoiceFormDialog({
                 <Label>Status</Label>
                 <Select
                   value={status}
-                  onValueChange={(v) => setStatus(v as InvoiceStatus)}
+                  onValueChange={(v) =>
+                    v !== null && setStatus(v as InvoiceStatus)
+                  }
                 >
                   <SelectTrigger size="sm" className="w-full">
                     <SelectValue />
@@ -428,7 +430,7 @@ export function InvoiceFormDialog({
                 </div>
                 <Select
                   value={paymentMethodId}
-                  onValueChange={setPaymentMethodId}
+                  onValueChange={(v) => v !== null && setPaymentMethodId(v)}
                 >
                   <SelectTrigger size="sm" className="w-full">
                     <SelectValue placeholder="Select..." />

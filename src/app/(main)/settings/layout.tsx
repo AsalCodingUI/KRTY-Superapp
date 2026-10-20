@@ -13,7 +13,6 @@ import { useUserProfile } from "@/shared/hooks/useUserProfile" // Import hook bu
 import { hasRoleAccess } from "@/shared/lib/roles"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { RiSettings5Line } from "@/shared/ui/lucide-icons"
 
 // Definisi Tab dengan Role Access
 const settingsTabs = [
@@ -60,18 +59,19 @@ export default function Layout({
 
   return (
     <div className="flex flex-col">
-      <div className="flex items-center gap-2 rounded-xxl px-4 pt-4 pb-3 xl:px-5">
-        <RiSettings5Line className="size-4 text-muted-foreground" />
-        <p className="text-label-md text-foreground">Settings</p>
+      <div className="flex items-center gap-2 pb-4">
+        <h1 className="text-foreground truncate text-xl font-semibold tracking-tight">
+          Settings
+        </h1>
       </div>
 
-      <div className="flex flex-col rounded-xxl">
-        <div className="border-b border-border px-4 pt-2 xl:px-5">
-          <div className="xl:hidden pb-2">
+      <div className="flex flex-col">
+        <div className="border-border border-b">
+          <div className="pb-2 xl:hidden">
             <Select
               value={pathname}
               onValueChange={(value) => {
-                if (value !== pathname) router.push(value)
+                if (value !== null && value !== pathname) router.push(value)
               }}
             >
               <SelectTrigger size="sm" className="w-full">

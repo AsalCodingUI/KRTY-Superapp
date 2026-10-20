@@ -316,8 +316,8 @@ export const ProjectScoringClient = forwardRef<
 
   return (
     <div className="flex flex-col">
-      <div className="bg-card flex flex-col rounded-xxl">
-        <div className="space-y-5 px-4 py-5 xl:px-5">
+      <div className="flex flex-col">
+        <div className="space-y-4 py-5">
           {/* HEADER */}
           <div>
             {!hideBackButton && (
@@ -329,7 +329,9 @@ export const ProjectScoringClient = forwardRef<
               </Link>
             )}
 
-            <div className={`${hideBackButton ? "" : "mt-4"} flex items-start justify-between`}>
+            <div
+              className={`${hideBackButton ? "" : "mt-4"} flex items-start justify-between`}
+            >
               <div>
                 <h1 className="text-heading-md text-foreground">
                   {assignment.projects.name}
@@ -350,14 +352,15 @@ export const ProjectScoringClient = forwardRef<
           {/* KPI OVERVIEW */}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="border-border bg-card flex flex-col gap-1 rounded-lg border px-4 py-3">
-              <dt className="text-label-sm text-muted-foreground">
-                SLA Score
-              </dt>
+              <dt className="text-label-sm text-muted-foreground">SLA Score</dt>
               <div className="flex items-center gap-2">
                 <dd className="text-heading-md text-foreground">
                   {totalPercentage.toFixed(1)}%
                 </dd>
-                <Badge variant="secondary" className={`${getScoreColor(finalScore)}`}>
+                <Badge
+                  variant="secondary"
+                  className={`${getScoreColor(finalScore)}`}
+                >
                   {getScoreLabel(finalScore)}
                 </Badge>
               </div>
@@ -397,12 +400,8 @@ export const ProjectScoringClient = forwardRef<
                   <TableHeader>
                     <TableRow>
                       <TableHead>Milestone</TableHead>
-                      <TableHead className="text-center">
-                        Weight (%)
-                      </TableHead>
-                      <TableHead className="text-center">
-                        Result
-                      </TableHead>
+                      <TableHead className="text-center">Weight (%)</TableHead>
+                      <TableHead className="text-center">Result</TableHead>
                       <TableHead className="text-center">
                         Real Achieve
                       </TableHead>
@@ -417,7 +416,7 @@ export const ProjectScoringClient = forwardRef<
                         <TableCell className="text-center">
                           <Input
                             type="number"
-                            className="mx-auto w-20 text-center h-7"
+                            className="mx-auto h-7 w-20 text-center"
                             value={milestone.weight}
                             onChange={(e) =>
                               handleMilestoneChange(
@@ -432,7 +431,11 @@ export const ProjectScoringClient = forwardRef<
                           <Select
                             value={milestone.result}
                             onValueChange={(v) =>
-                              handleMilestoneChange(index, "result", v as SLAResult)
+                              handleMilestoneChange(
+                                index,
+                                "result",
+                                v as SLAResult,
+                              )
                             }
                           >
                             <SelectTrigger size="sm" className="mx-auto w-28">
@@ -441,13 +444,17 @@ export const ProjectScoringClient = forwardRef<
                             <SelectContent>
                               {milestone.name === "Handover" ? (
                                 <>
-                                  <SelectItem value="On Time">On Time</SelectItem>
+                                  <SelectItem value="On Time">
+                                    On Time
+                                  </SelectItem>
                                   <SelectItem value="Delay">Delay</SelectItem>
                                 </>
                               ) : (
                                 <>
                                   <SelectItem value="Faster">Faster</SelectItem>
-                                  <SelectItem value="On Time">On Time</SelectItem>
+                                  <SelectItem value="On Time">
+                                    On Time
+                                  </SelectItem>
                                   <SelectItem value="Delay">Delay</SelectItem>
                                 </>
                               )}
@@ -504,7 +511,11 @@ export const ProjectScoringClient = forwardRef<
                     {competencies.filter((c) => c.isAchieved).length}/
                     {competencies.length} Achieved
                   </Badge>
-                  <Button size="sm" onClick={handleSaveQuality} disabled={saving}>
+                  <Button
+                    size="sm"
+                    onClick={handleSaveQuality}
+                    disabled={saving}
+                  >
                     <RiSave3Line className="mr-2 size-4" />
                     {saving ? "Saving..." : "Save"}
                   </Button>
@@ -526,9 +537,7 @@ export const ProjectScoringClient = forwardRef<
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="w-[200px]">
-                          Competency
-                        </TableHead>
+                        <TableHead className="w-[200px]">Competency</TableHead>
                         <TableHead className="min-w-[520px]">
                           Description
                         </TableHead>
@@ -540,13 +549,15 @@ export const ProjectScoringClient = forwardRef<
                     <TableBody>
                       {competencies.map((comp, index) => (
                         <TableRow key={comp.id}>
-                          <TableCell className="font-medium">{comp.name}</TableCell>
-                            <TableCell
-                              className="text-muted-foreground whitespace-normal break-words"
-                              title={comp.description || "-"}
-                            >
-                              {comp.description || "..."}
-                            </TableCell>
+                          <TableCell className="font-medium">
+                            {comp.name}
+                          </TableCell>
+                          <TableCell
+                            className="text-muted-foreground break-words whitespace-normal"
+                            title={comp.description || "-"}
+                          >
+                            {comp.description || "..."}
+                          </TableCell>
                           <TableCell className="text-center">
                             <Button
                               variant={comp.isAchieved ? "default" : "outline"}

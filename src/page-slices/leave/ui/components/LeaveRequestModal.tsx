@@ -1,6 +1,9 @@
 "use client"
 
-import { LeaveFormData, LeaveRequestForm } from "@/features/leave-request/ui/LeaveRequestForm"
+import {
+  LeaveFormData,
+  LeaveRequestForm,
+} from "@/features/leave-request/ui/LeaveRequestForm"
 import { createClient } from "@/shared/api/supabase/client"
 import { calculateBusinessDays } from "@/shared/lib/date"
 import { Database } from "@/shared/types/database.types"
@@ -237,7 +240,8 @@ export function LeaveRequestModal({
           body: JSON.stringify({ ...payload, id: formData.id }),
         })
         const result = await response.json().catch(() => ({}))
-        if (!response.ok) throw new Error(result?.error || "Failed to update leave request")
+        if (!response.ok)
+          throw new Error(result?.error || "Failed to update leave request")
       } else {
         const response = await fetch("/api/leave/requests", {
           method: "POST",
@@ -245,7 +249,8 @@ export function LeaveRequestModal({
           body: JSON.stringify(payload),
         })
         const result = await response.json().catch(() => ({}))
-        if (!response.ok) throw new Error(result?.error || "Failed to submit leave request")
+        if (!response.ok)
+          throw new Error(result?.error || "Failed to submit leave request")
       }
       router.refresh()
       onClose()
@@ -258,7 +263,7 @@ export function LeaveRequestModal({
               "message" in error &&
               typeof (error as { message?: unknown }).message === "string"
             ? (error as { message: string }).message
-          : "Failed to submit request"
+            : "Failed to submit request"
       console.error("Leave request submit error:", error)
       toast.error(message)
     } finally {
@@ -313,12 +318,10 @@ export function LeaveRequestModal({
 
     return (
       <div className="space-y-4">
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="border-border bg-card rounded-lg border p-4">
           <div className="space-y-3">
             <div className="flex items-center justify-between gap-4">
-              <span className="text-label-sm text-muted-foreground">
-                Name
-              </span>
+              <span className="text-label-sm text-muted-foreground">Name</span>
               <span className="text-body-sm text-foreground text-right">
                 {userProfile.full_name || "-"}
               </span>
@@ -387,14 +390,16 @@ export function LeaveRequestModal({
     if (step === 1) {
       return (
         <>
-          <DialogClose asChild>
-            <Button
-              size="sm"
-              variant="ghost"
-              className="mt-2 w-full sm:mt-0 sm:w-fit"
-            >
-              Cancel
-            </Button>
+          <DialogClose
+            render={
+              <Button
+                size="sm"
+                variant="ghost"
+                className="mt-2 w-full sm:mt-0 sm:w-fit"
+              />
+            }
+          >
+            Cancel
           </DialogClose>
           <Button
             size="sm"
@@ -479,12 +484,12 @@ export function LeaveRequestModal({
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={(val) => !val && onClose()}>
-      <DialogContent
-        className="flex max-h-[90vh] flex-col sm:max-w-lg"
-        onPointerDownOutside={(e) => e.preventDefault()}
-        onInteractOutside={(e) => e.preventDefault()}
-      >
+    <Dialog
+      open={isOpen}
+      onOpenChange={(val) => !val && onClose()}
+      disablePointerDismissal
+    >
+      <DialogContent className="flex max-h-[90vh] flex-col sm:max-w-lg">
         <form
           onSubmit={(e) => e.preventDefault()}
           className="flex min-h-0 flex-1 flex-col gap-6"
@@ -493,9 +498,7 @@ export function LeaveRequestModal({
             <DialogTitle>{getTitle()}</DialogTitle>
           </DialogHeader>
 
-          <div className="min-h-0 overflow-y-auto">
-            {renderContent()}
-          </div>
+          <div className="min-h-0 overflow-y-auto">{renderContent()}</div>
 
           <DialogFooter>{renderFooter()}</DialogFooter>
         </form>

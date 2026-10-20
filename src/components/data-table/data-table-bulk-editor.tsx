@@ -7,8 +7,8 @@ import { Button } from "@/components/ui/button"
 import { Kbd } from "@/components/ui/kbd"
 import {
   Popover,
-  PopoverAnchor,
   PopoverContent,
+  PopoverTrigger,
 } from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
 
@@ -28,7 +28,7 @@ type DataTableBulkEditorProps<TData> = {
 // ============================================================================
 
 function BulkSeparator() {
-  return <div aria-hidden="true" className="mx-1 h-4 w-px bg-background/20" />
+  return <div aria-hidden="true" className="bg-background/20 mx-1 h-4 w-px" />
 }
 
 function BulkCommand({
@@ -68,10 +68,10 @@ function BulkCommand({
       onClick={() => void action()}
       disabled={disabled}
       aria-label={label}
-      className="gap-x-1.5 text-background hover:bg-background/10 hover:text-background dark:hover:bg-background/10"
+      className="text-background hover:bg-background/10 hover:text-background dark:hover:bg-background/10 gap-x-1.5"
     >
       <span>{label}</span>
-      <Kbd className="hidden bg-background/20 text-background sm:inline-flex">
+      <Kbd className="bg-background/20 text-background hidden sm:inline-flex">
         {(shortcut.label ?? shortcut.shortcut).toUpperCase()}
       </Kbd>
     </Button>
@@ -106,17 +106,25 @@ function DataTableBulkEditor<TData>({
 
   return (
     <Popover open={hasSelectedRows}>
-      <PopoverAnchor className="fixed inset-x-0 bottom-8 mx-auto flex w-fit items-center" />
+      {/* Base UI has no PopoverAnchor: an inert, empty trigger acts as the anchor. */}
+      <PopoverTrigger
+        nativeButton={false}
+        tabIndex={-1}
+        aria-hidden
+        render={
+          <div className="fixed inset-x-0 bottom-8 mx-auto flex w-fit items-center" />
+        }
+      />
       <PopoverContent
         side="top"
         sideOffset={0}
-        onOpenAutoFocus={(event) => event.preventDefault()}
+        initialFocus={false}
         className={cn(
           "w-auto flex-row items-center gap-x-0.5 rounded-xl p-1 ring-0",
           "bg-foreground text-background",
         )}
       >
-        <div className="px-3 py-2 text-body-sm font-medium tabular-nums">
+        <div className="text-body-sm px-3 py-2 font-medium tabular-nums">
           {selectedCount} selected
         </div>
         <BulkSeparator />

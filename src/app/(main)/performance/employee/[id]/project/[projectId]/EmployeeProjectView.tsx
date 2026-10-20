@@ -165,8 +165,8 @@ export function EmployeeProjectView({
 
   return (
     <div className="flex flex-col">
-      <div className="bg-card flex flex-col rounded-xxl">
-        <div className="space-y-5 px-4 py-5 xl:px-5">
+      <div className="flex flex-col">
+        <div className="space-y-4 py-5">
           {/* HEADER */}
           <div>
             {!hideBackButton && (
@@ -178,7 +178,9 @@ export function EmployeeProjectView({
               </Link>
             )}
 
-            <div className={`${hideBackButton ? "" : "mt-4"} flex items-start justify-between`}>
+            <div
+              className={`${hideBackButton ? "" : "mt-4"} flex items-start justify-between`}
+            >
               <div>
                 <h1 className="text-heading-md text-foreground">
                   {assignment.projects.name}
@@ -200,14 +202,15 @@ export function EmployeeProjectView({
           {/* STATS */}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="border-border bg-card flex flex-col gap-1 rounded-lg border px-4 py-3">
-              <dt className="text-label-sm text-muted-foreground">
-                SLA Score
-              </dt>
+              <dt className="text-label-sm text-muted-foreground">SLA Score</dt>
               <div className="flex items-center gap-2">
                 <dd className="text-heading-md text-foreground">
                   {totalPercentage.toFixed(1)}%
                 </dd>
-                <Badge variant="secondary" className={`${getScoreColor(finalScore)}`}>
+                <Badge
+                  variant="secondary"
+                  className={`${getScoreColor(finalScore)}`}
+                >
                   {getScoreLabel(finalScore)}
                 </Badge>
               </div>
@@ -221,7 +224,10 @@ export function EmployeeProjectView({
                   {competencies.filter((c) => c.isAchieved).length}/
                   {competencies.length}
                 </dd>
-                <Badge variant="secondary" className={`${getScoreColor(mapPercentageToScore(qualityPercentage))}`}>
+                <Badge
+                  variant="secondary"
+                  className={`${getScoreColor(mapPercentageToScore(qualityPercentage))}`}
+                >
                   {getScoreLabel(mapPercentageToScore(qualityPercentage))}
                 </Badge>
               </div>
@@ -235,15 +241,9 @@ export function EmployeeProjectView({
                 <TableHeader>
                   <TableRow>
                     <TableHead>Milestone</TableHead>
-                    <TableHead className="text-center">
-                      Weight (%)
-                    </TableHead>
-                    <TableHead className="text-center">
-                      Result
-                    </TableHead>
-                    <TableHead className="text-center">
-                      Real Achieve
-                    </TableHead>
+                    <TableHead className="text-center">Weight (%)</TableHead>
+                    <TableHead className="text-center">Result</TableHead>
+                    <TableHead className="text-center">Real Achieve</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -311,9 +311,7 @@ export function EmployeeProjectView({
             </TableSection>
           </div>
 
-          <TableSection
-            title="Work Quality Assessment"
-          >
+          <TableSection title="Work Quality Assessment">
             {loading ? (
               <div className="text-body-sm text-muted-foreground p-8 text-center">
                 Loading competencies...
@@ -330,7 +328,9 @@ export function EmployeeProjectView({
                   <TableHeader>
                     <TableRow>
                       <TableHead className="w-[200px]">Competency</TableHead>
-                      <TableHead className="min-w-[520px]">Description</TableHead>
+                      <TableHead className="min-w-[520px]">
+                        Description
+                      </TableHead>
                       <TableHead className="w-[140px] text-center">
                         Status
                       </TableHead>
@@ -339,8 +339,10 @@ export function EmployeeProjectView({
                   <TableBody>
                     {competencies.map((comp) => (
                       <TableRow key={comp.id}>
-                        <TableCell className="font-medium">{comp.name}</TableCell>
-                        <TableCell className="text-muted-foreground whitespace-normal break-words">
+                        <TableCell className="font-medium">
+                          {comp.name}
+                        </TableCell>
+                        <TableCell className="text-muted-foreground break-words whitespace-normal">
                           {comp.description || "..."}
                         </TableCell>
                         <TableCell className="text-center">

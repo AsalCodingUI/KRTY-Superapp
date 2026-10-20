@@ -109,7 +109,7 @@ export function MobileBottomNav() {
   return (
     <nav
       aria-label="Mobile quick navigation"
-      className="border-border bg-card fixed right-0 bottom-0 left-0 z-[55] border-t xl:hidden"
+      className="border-border bg-card fixed right-0 bottom-0 left-0 z-[55] border-t md:hidden"
     >
       <div
         className="mx-auto grid max-w-lg px-2 pt-1 pb-[calc(0.5rem+env(safe-area-inset-bottom))]"
@@ -143,8 +143,8 @@ export function MobileBottomNav() {
                 <tab.icon className="size-6 shrink-0" aria-hidden="true" />
                 {tab.isNotifications && unreadCount > 0 && (
                   <span className="absolute top-0 right-0 -mt-1 -mr-1 flex size-2">
-                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-destructive opacity-75" />
-                    <span className="relative inline-flex size-2 rounded-full bg-destructive" />
+                    <span className="bg-destructive absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" />
+                    <span className="bg-destructive relative inline-flex size-2 rounded-full" />
                   </span>
                 )}
               </span>

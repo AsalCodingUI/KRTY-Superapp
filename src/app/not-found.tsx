@@ -9,8 +9,8 @@ export default function NotFound() {
       <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center">
         <Card className="w-full gap-0 p-8 text-center">
           <div className="space-y-5">
-            <div className="bg-destructive/10 mx-auto flex size-14 items-center justify-center rounded-full border border-destructive/30">
-              <RiErrorWarningLine className="size-6 text-destructive" />
+            <div className="bg-destructive/10 border-destructive/30 mx-auto flex size-14 items-center justify-center rounded-full border">
+              <RiErrorWarningLine className="text-destructive size-6" />
             </div>
 
             <div className="space-y-2">
@@ -24,11 +24,13 @@ export default function NotFound() {
             </div>
 
             <div className="pt-1">
-              <Button size="sm" asChild>
-                <Link href="/dashboard">
-                  Back to Dashboard
-                  <RiArrowRightLine className="ml-2 size-4" aria-hidden="true" />
-                </Link>
+              <Button
+                size="sm"
+                nativeButton={false}
+                render={<Link href="/dashboard" />}
+              >
+                Back to Dashboard
+                <RiArrowRightLine className="ml-2 size-4" aria-hidden="true" />
               </Button>
             </div>
           </div>

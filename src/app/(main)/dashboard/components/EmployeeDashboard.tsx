@@ -1,7 +1,10 @@
 "use client"
 
 import dynamic from "next/dynamic"
-import { QuarterFilter, type QuarterFilterValue } from "@/components/quarter-filter"
+import {
+  QuarterFilter,
+  type QuarterFilterValue,
+} from "@/components/quarter-filter"
 import {
   Select,
   SelectContent,
@@ -9,7 +12,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { RiBarChartBoxLine } from "@/shared/ui/lucide-icons"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useMemo, useState } from "react"
 import type { EmployeeDashboardData } from "../actions/dashboard-employee-actions"
@@ -68,7 +70,7 @@ export function EmployeeDashboard({
   }, [])
   const validInitialQuarter =
     typeof initialQuarter === "string" &&
-      /^\d{4}-(Q[1-4]|All)$/.test(initialQuarter)
+    /^\d{4}-(Q[1-4]|All)$/.test(initialQuarter)
       ? (initialQuarter as QuarterFilterValue)
       : getCurrentQuarterValue()
   const [selectedQuarter, setSelectedQuarter] =
@@ -100,15 +102,14 @@ export function EmployeeDashboard({
 
   return (
     <div className="flex flex-col">
-      <div className="rounded-xxl flex items-center gap-2 px-4 pt-4 pb-3 xl:px-5">
-        <RiBarChartBoxLine className="text-muted-foreground size-4" />
-        <p className="text-label-md text-foreground">
+      <div className="flex items-center gap-2 pb-4">
+        <h1 className="text-foreground truncate text-xl font-semibold tracking-tight">
           Dashboard Overview
-        </p>
+        </h1>
       </div>
 
-      <div className="bg-card rounded-xxl flex flex-col">
-        <div className="space-y-5 pt-2 pb-5 px-4 xl:px-5">
+      <div className="flex flex-col">
+        <div className="space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h1 className="text-heading-md text-foreground">
               Welcome back, {firstName}
@@ -116,7 +117,7 @@ export function EmployeeDashboard({
             <div className="flex items-center gap-2">
               <Select
                 value={selectedYear.toString()}
-                onValueChange={handleYearChange}
+                onValueChange={(v) => v !== null && handleYearChange(v)}
               >
                 <SelectTrigger className="w-[96px]" size="sm">
                   <SelectValue />
@@ -139,30 +140,44 @@ export function EmployeeDashboard({
 
           <section className="grid grid-cols-2 gap-3 lg:grid-cols-5">
             <div className="border-border bg-card flex flex-col gap-1 rounded-lg border px-4 py-3">
-              <p className="text-label-sm text-muted-foreground">Leave Balance</p>
-              <p className="text-heading-md text-foreground">{data.leaveBalance} days</p>
+              <p className="text-label-sm text-muted-foreground">
+                Leave Balance
+              </p>
+              <p className="text-heading-md text-foreground">
+                {data.leaveBalance} days
+              </p>
             </div>
             <div className="border-border bg-card flex flex-col gap-1 rounded-lg border px-4 py-3">
               <p className="text-label-sm text-muted-foreground">On Time SLA</p>
               <p className="text-heading-md text-foreground">
-                {data.performanceOverview.slaScore !== null ? `${Number(data.performanceOverview.slaScore).toFixed(1)}%` : "0.0%"}
+                {data.performanceOverview.slaScore !== null
+                  ? `${Number(data.performanceOverview.slaScore).toFixed(1)}%`
+                  : "0.0%"}
               </p>
             </div>
             <div className="border-border bg-card flex flex-col gap-1 rounded-lg border px-4 py-3">
               <p className="text-label-sm text-muted-foreground">360 Review</p>
               <p className="text-heading-md text-foreground">
-                {data.performanceOverview.reviewScore !== null ? `${Number(data.performanceOverview.reviewScore).toFixed(1)}%` : "0.0%"}
+                {data.performanceOverview.reviewScore !== null
+                  ? `${Number(data.performanceOverview.reviewScore).toFixed(1)}%`
+                  : "0.0%"}
               </p>
             </div>
             <div className="border-border bg-card flex flex-col gap-1 rounded-lg border px-4 py-3">
-              <p className="text-label-sm text-muted-foreground">Work Quality</p>
+              <p className="text-label-sm text-muted-foreground">
+                Work Quality
+              </p>
               <p className="text-heading-md text-foreground">
-                {data.performanceOverview.workQualityScore !== null ? `${Number(data.performanceOverview.workQualityScore).toFixed(1)}%` : "0.0%"}
+                {data.performanceOverview.workQualityScore !== null
+                  ? `${Number(data.performanceOverview.workQualityScore).toFixed(1)}%`
+                  : "0.0%"}
               </p>
             </div>
             <div className="border-border bg-card flex flex-col gap-1 rounded-lg border px-4 py-3">
               <p className="text-label-sm text-muted-foreground">Quarter</p>
-              <p className="text-heading-md text-foreground">{data.performanceOverview.quarter}</p>
+              <p className="text-heading-md text-foreground">
+                {data.performanceOverview.quarter}
+              </p>
             </div>
           </section>
 
@@ -180,9 +195,7 @@ export function EmployeeDashboard({
             </div>
 
             <div className="space-y-2">
-              <p className="text-label-sm text-muted-foreground">
-                Performance
-              </p>
+              <p className="text-label-sm text-muted-foreground">Performance</p>
               <EmployeePerformanceCards
                 slaScore={data.performanceOverview.slaScore}
                 reviewScore={data.performanceOverview.reviewScore}

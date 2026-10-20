@@ -220,7 +220,7 @@ export function ProjectAssignmentDialog({
                 <Label htmlFor="user">Select User</Label>
                 <Select
                   value={selectedUserId}
-                  onValueChange={setSelectedUserId}
+                  onValueChange={(v) => v !== null && setSelectedUserId(v)}
                   disabled={availableUsers.length === 0}
                 >
                   <SelectTrigger className="w-full" size="sm">

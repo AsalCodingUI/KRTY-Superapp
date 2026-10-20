@@ -50,13 +50,11 @@ export function ClockControls({
         <>
           {/* DROPDOWN STATUS */}
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button asChild size="sm" variant="outline" type="button">
-                <button>
-                  {getStatusLabel(selectedStatus)}
-                  <RiArrowDownSLine className="text-muted-foreground ml-2 size-4 shrink-0" />
-                </button>
-              </Button>
+            <DropdownMenuTrigger
+              render={<Button size="sm" variant="outline" type="button" />}
+            >
+              {getStatusLabel(selectedStatus)}
+              <RiArrowDownSLine className="text-muted-foreground ml-2 size-4 shrink-0" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start">
               <DropdownMenuItem onClick={() => setSelectedStatus("Present")}>

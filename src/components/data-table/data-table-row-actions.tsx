@@ -39,20 +39,22 @@ export function DataTableRowActions({
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          type="button"
-          aria-label={triggerLabel}
-          // Don't toggle row selection when opening the menu
-          onClick={(event) => event.stopPropagation()}
-          className="text-muted-foreground data-[state=open]:bg-muted"
-        >
-          {triggerIcon ?? (
-            <EllipsisIcon className="size-4 shrink-0" aria-hidden="true" />
-          )}
-        </Button>
+      <DropdownMenuTrigger
+        render={
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            type="button"
+            aria-label={triggerLabel}
+            // Don't toggle row selection when opening the menu
+            onClick={(event) => event.stopPropagation()}
+            className="text-muted-foreground data-popup-open:bg-muted"
+          />
+        }
+      >
+        {triggerIcon ?? (
+          <EllipsisIcon className="size-4 shrink-0" aria-hidden="true" />
+        )}
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align={align}
@@ -68,7 +70,7 @@ export function DataTableRowActions({
             className="flex items-center gap-2"
           >
             {action.icon ? (
-              <span className="flex size-4 shrink-0 items-center justify-center text-muted-foreground">
+              <span className="text-muted-foreground flex size-4 shrink-0 items-center justify-center">
                 {action.icon}
               </span>
             ) : null}

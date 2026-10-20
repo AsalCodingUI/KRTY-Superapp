@@ -1,3 +1,4 @@
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { Spinner } from "@/components/ui/spinner"
 import { ImpersonationBanner } from "@/widgets/impersonation/ui/ImpersonationBanner"
 import { SidebarShell } from "@/widgets/sidebar/ui/SidebarShell"
@@ -17,23 +18,13 @@ export default function Layout({
   children: React.ReactNode
 }>) {
   return (
-    <>
-      {/* Sidebar - blends with body background */}
+    <SidebarProvider>
+      {/* Desktop: inset sidebar over the canvas. Mobile: top bar + bottom nav. */}
       <SidebarShell />
-
-      {/* Main content with "Floating Page" effect */}
-      <main className="pb-[calc(4.5rem+env(safe-area-inset-bottom))] xl:pb-0 xl:pl-64">
-        {/* Floating panel wrapper with margin, rounded corners, and distinct background */}
-        <div className="bg-background min-h-screen">
-          <div className="bg-card dark:bg-background min-h-screen pt-[calc(env(safe-area-inset-top)+3.25rem)] xl:min-h-[calc(100vh-1rem)] xl:pt-0">
-            {/* Content container with max-width for readability */}
-            <ImpersonationBanner />
-            <Suspense fallback={<PageFallback />}>
-              <div>{children}</div>
-            </Suspense>
-          </div>
-        </div>
-      </main>
-    </>
+      <SidebarInset className="pt-[calc(env(safe-area-inset-top)+3.25rem+1rem)] pb-[calc(4.5rem+env(safe-area-inset-bottom))] md:pt-4 md:pb-4">
+        <ImpersonationBanner />
+        <Suspense fallback={<PageFallback />}>{children}</Suspense>
+      </SidebarInset>
+    </SidebarProvider>
   )
 }
