@@ -182,7 +182,7 @@ export function DataTable<TData>({
                     <TableHead
                       key={header.id}
                       className={cn(
-                        "text-muted-foreground h-9 px-2 text-xs font-medium whitespace-nowrap",
+                        "text-muted-foreground h-10 px-2 text-xs font-medium whitespace-nowrap",
                         isSelectionColumn && "w-14 px-2 text-center",
                         header.column.columnDef.meta?.className,
                       )}
@@ -225,7 +225,7 @@ export function DataTable<TData>({
                       <TableCell
                         key={cell.id}
                         className={cn(
-                          "relative px-2 py-2.5 text-sm whitespace-nowrap",
+                          "relative h-12 px-2 py-1 text-sm whitespace-nowrap",
                           isSelectionColumn && "w-14 px-2 text-center",
                           cell.column.columnDef.meta?.className,
                         )}

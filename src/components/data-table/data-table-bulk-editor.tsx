@@ -24,11 +24,11 @@ type DataTableBulkEditorProps<TData> = {
 }
 
 // ============================================================================
-// Floating command bar primitives (inverted surface)
+// Floating command bar primitives
 // ============================================================================
 
 function BulkSeparator() {
-  return <div aria-hidden="true" className="bg-background/20 mx-1 h-4 w-px" />
+  return <div aria-hidden="true" className="bg-border mx-1 h-4 w-px" />
 }
 
 function BulkCommand({
@@ -67,10 +67,10 @@ function BulkCommand({
       onClick={() => void action()}
       disabled={disabled}
       aria-label={label}
-      className="text-background hover:bg-background/10 hover:text-background dark:hover:bg-background/10 gap-x-1.5"
+      className="gap-x-1.5"
     >
       <span>{label}</span>
-      <Kbd className="bg-background/20 text-background hidden sm:inline-flex">
+      <Kbd className="hidden sm:inline-flex">
         {(shortcut.label ?? shortcut.shortcut).toUpperCase()}
       </Kbd>
     </Button>
@@ -119,63 +119,61 @@ function DataTableBulkEditor<TData>({
         sideOffset={0}
         initialFocus={false}
         className={cn(
-          "w-auto flex-row items-center gap-x-0.5 rounded-xl p-1 ring-0",
-          "bg-foreground text-background",
+          "w-auto flex-row items-center gap-x-0.5 rounded-xl p-1",
+          "bg-popover text-popover-foreground ring-border shadow-lg ring-1",
         )}
       >
-        <div className="px-3 py-2 text-sm font-medium tabular-nums">
+        <div className="text-muted-foreground px-3 py-2 text-sm font-medium tabular-nums">
           {selectedCount} selected
         </div>
-        <BulkSeparator />
-
-        {onEdit && selectedCount === 1 && (
-          <>
+        {[
+          onEdit && selectedCount === 1 && (
             <BulkCommand
+              key="edit"
               label="Edit"
               action={() => onEdit(selectedRows[0].original)}
               shortcut={{ shortcut: "e" }}
             />
-            <BulkSeparator />
-          </>
-        )}
-
-        {onApprove && (
-          <BulkCommand
-            label="Approve"
-            action={() => runBulk(onApprove)}
-            shortcut={{ shortcut: "a" }}
-          />
-        )}
-
-        {onReject && (
-          <>
-            <BulkSeparator />
+          ),
+          onApprove && (
             <BulkCommand
+              key="approve"
+              label="Approve"
+              action={() => runBulk(onApprove)}
+              shortcut={{ shortcut: "a" }}
+            />
+          ),
+          onReject && (
+            <BulkCommand
+              key="reject"
               label="Reject"
               action={() => runBulk(onReject)}
               shortcut={{ shortcut: "r" }}
             />
-          </>
-        )}
-
-        {onDelete && (
-          <>
-            <BulkSeparator />
+          ),
+          onDelete && (
             <BulkCommand
+              key="delete"
               label="Delete"
               action={() => runBulk(onDelete)}
               shortcut={{ shortcut: "d" }}
             />
-          </>
-        )}
-
-        <BulkSeparator />
-
-        <BulkCommand
-          label="Reset"
-          action={() => table.resetRowSelection()}
-          shortcut={{ shortcut: "Escape", label: "esc" }}
-        />
+          ),
+          <BulkCommand
+            key="reset"
+            label="Reset"
+            action={() => table.resetRowSelection()}
+            shortcut={{ shortcut: "Escape", label: "esc" }}
+          />,
+        ]
+          .filter(Boolean)
+          .map((command, index) => (
+            // One separator between neighbours, never doubled.
+            <React.Fragment key={index}>
+              <BulkSeparator />
+              {command}
+            </React.Fragment>
+          ))}
       </PopoverContent>
     </Popover>
   )

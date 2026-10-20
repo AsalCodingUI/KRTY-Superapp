@@ -35,8 +35,6 @@ export function SegmentedControl<T extends string>({
   className,
   fitContent = false,
 }: SegmentedControlProps<T>) {
-  const activeIndex = items.findIndex((item) => item.value === value)
-
   return (
     <ToggleGroup
       spacing={0}
@@ -48,22 +46,17 @@ export function SegmentedControl<T extends string>({
       }}
       className={cn(
         // Same metrics as shadcn TabsList (h-8, p-[3px]).
-        "bg-muted text-muted-foreground h-8 items-center rounded-2xl p-[3px]",
+        "bg-muted text-muted-foreground h-8 items-center rounded-lg p-[3px]",
         fitContent ? "inline-flex w-auto" : "flex w-full",
         disabled && "pointer-events-none opacity-50",
         className,
       )}
     >
-      {items.map((item, index) => {
+      {items.map((item) => {
         const LeadingIcon = item.leadingIcon ?? item.icon
         const TrailingIcon = item.trailingIcon
         const showLeadingIcon = item.showLeadingIcon ?? true
         const showTrailingIcon = item.showTrailingIcon ?? true
-        // Divider between two inactive neighbours (hidden next to the active item)
-        const showDivider =
-          index < items.length - 1 &&
-          (activeIndex === -1 ||
-            (activeIndex !== index && activeIndex !== index + 1))
 
         return (
           <ToggleGroupItem
@@ -74,14 +67,12 @@ export function SegmentedControl<T extends string>({
               // reset toggle-group "spacing=0" joined styles
               "relative h-[calc(100%-1px)] min-w-0 gap-1.5 border border-transparent text-sm font-medium whitespace-nowrap shadow-none",
               "group-data-[spacing=0]/toggle-group:rounded-[inherit] group-data-horizontal/toggle-group:data-[spacing=0]:first:rounded-[inherit] group-data-horizontal/toggle-group:data-[spacing=0]:last:rounded-[inherit]",
-              "rounded-2xl! px-2! py-0.5",
+              "rounded-md! px-2! py-0.5",
               fitContent ? "flex-none" : "flex-1",
               "text-foreground/60 hover:text-foreground hover:bg-transparent",
               // Base UI Toggle marks the active item with data-pressed
-              "data-pressed:bg-background data-pressed:text-foreground data-pressed:hover:bg-background dark:data-pressed:border-input dark:data-pressed:bg-input/30",
+              "data-pressed:bg-foreground/[0.13] data-pressed:text-foreground data-pressed:hover:bg-foreground/[0.13] data-pressed:border-transparent",
               "disabled:text-muted-foreground/50",
-              showDivider &&
-                "after:bg-border after:absolute after:inset-y-1.5 after:-right-px after:w-px",
             )}
           >
             {showLeadingIcon && LeadingIcon && (
