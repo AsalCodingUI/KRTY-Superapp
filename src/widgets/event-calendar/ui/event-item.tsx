@@ -83,13 +83,13 @@ export const EventItem = memo(function EventItem({
       <button
         onClick={onClick}
         className={cx(
-          "flex w-full items-center gap-xs rounded-sm px-sm py-xs text-left text-label-xs",
+          "flex w-full items-center gap-0.5 rounded-sm px-1 py-0.5 text-left text-label-xs",
           colors.background,
           colors.text,
           className,
         )}
       >
-        <div className="flex self-stretch items-center px-xs py-[4px]">
+        <div className="flex self-stretch items-center px-0.5 py-[4px]">
           <span className={cx("h-full w-px rounded-full", colors.accent)} />
         </div>
         <span className="min-w-0 flex-1 truncate">{compactLabel}</span>
@@ -108,19 +108,19 @@ export const EventItem = memo(function EventItem({
     <button
       onClick={handleClick}
       className={cx(
-        "flex w-full items-start gap-sm rounded-md p-sm text-left",
+        "flex w-full items-start gap-1 rounded-md p-1 text-left",
         colors.background,
         className,
       )}
     >
-      <div className="flex self-stretch items-center px-xs py-[4px]">
+      <div className="flex self-stretch items-center px-0.5 py-[4px]">
         <span className={cx("h-full w-px rounded-full", colors.accent)} />
       </div>
 
       <div
         className={cx(
-          "flex min-w-0 flex-1 flex-col p-xs",
-          showMeta ? "gap-lg" : "gap-0",
+          "flex min-w-0 flex-1 flex-col p-0.5",
+          showMeta ? "gap-3" : "gap-0",
         )}
       >
         <div className="flex flex-col text-label-xs leading-4">
@@ -133,9 +133,9 @@ export const EventItem = memo(function EventItem({
         </div>
 
         {showMeta && (
-          <div className="flex flex-wrap items-center gap-lg">
+          <div className="flex flex-wrap items-center gap-3">
             {showTime && !event.allDay && (
-              <div className="flex items-center gap-sm">
+              <div className="flex items-center gap-1">
                 <RiTimeLine className="size-3.5 text-muted-foreground" />
                 <span className="text-body-xs text-muted-foreground">
                   {format(event.start, "HH:mm")} - {format(event.end, "HH:mm")}
@@ -143,7 +143,7 @@ export const EventItem = memo(function EventItem({
               </div>
             )}
             {event.location && (
-              <div className="flex items-center gap-sm">
+              <div className="flex items-center gap-1">
                 <RiMapPinLine className="size-3.5 text-muted-foreground" />
                 <span className="text-body-xs text-muted-foreground truncate">
                   {event.location}
@@ -155,7 +155,7 @@ export const EventItem = memo(function EventItem({
       </div>
 
       {timeLabel && (
-        <div className="flex items-center justify-center rounded-sm bg-[rgba(255,255,255,0.6)] px-sm py-xs">
+        <div className="flex items-center justify-center rounded-sm bg-[rgba(255,255,255,0.6)] px-1 py-0.5">
           <span className="text-label-xs text-muted-foreground">
             {timeLabel}
           </span>

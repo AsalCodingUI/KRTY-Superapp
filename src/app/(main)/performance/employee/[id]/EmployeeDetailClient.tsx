@@ -192,7 +192,7 @@ export function EmployeeDetailClient({
               <Spinner className="size-8" />
             </div>
           ) : overview.length === 0 ? (
-            <div className="px-xl pb-xl">
+            <div className="px-3 pb-3">
               <EmptyState
                 title="No data available for this quarter"
                 description="Performance data is not available yet."
@@ -276,7 +276,7 @@ export function EmployeeDetailClient({
               <Spinner className="size-8" />
             </div>
           ) : assignments.length === 0 ? (
-            <div className="px-xl pb-xl">
+            <div className="px-3 pb-3">
               <EmptyState
                 title="No projects assigned in this quarter"
                 description="Projects will appear after assignment."

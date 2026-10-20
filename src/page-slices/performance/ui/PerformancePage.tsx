@@ -451,7 +451,7 @@ export function PerformancePage() {
       <div className="bg-card rounded-xxl flex flex-col">
         {isStakeholder ? (
           <>
-            <div className="gap-lg grid grid-cols-1 px-5 py-2 sm:grid-cols-2 lg:grid-cols-5">
+            <div className="gap-3 grid grid-cols-1 px-5 py-2 sm:grid-cols-2 lg:grid-cols-5">
               {adminStats.map((item) => (
                 <div
                   key={item.label}
@@ -582,7 +582,7 @@ export function PerformancePage() {
           </>
         ) : (
           <>
-            <div className="gap-lg grid grid-cols-1 px-5 py-2 sm:grid-cols-2 lg:grid-cols-5">
+            <div className="gap-3 grid grid-cols-1 px-5 py-2 sm:grid-cols-2 lg:grid-cols-5">
               {employeeStats.map((item) => {
                 const badge = getRatingBadge(item.score)
                 return (

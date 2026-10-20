@@ -30,16 +30,16 @@ export function MiniCalendar() {
   }
 
   return (
-    <div className="flex w-full flex-col items-center gap-lg">
-      <div className="flex w-full items-center justify-center py-md text-center">
+    <div className="flex w-full flex-col items-center gap-3">
+      <div className="flex w-full items-center justify-center py-1.5 text-center">
         <p className="text-label-sm text-muted-foreground">
           {format(currentDate, "dd MMMM yyyy", { locale: id })}
         </p>
       </div>
 
-      <div className="flex w-full max-w-[320px] flex-col gap-sm">
+      <div className="flex w-full max-w-[320px] flex-col gap-1">
         {/* Day headers */}
-        <div className="grid grid-cols-7 gap-sm">
+        <div className="grid grid-cols-7 gap-1">
           {["Sn", "Sl", "Rb", "Km", "Jm", "Sb", "Mg"].map((day, index) => (
             <div
               key={`${day}-${index}`}
@@ -54,7 +54,7 @@ export function MiniCalendar() {
         </div>
 
         {/* Calendar grid */}
-        <div className="grid grid-cols-7 gap-sm">
+        <div className="grid grid-cols-7 gap-1">
           {days.map((day) => {
             const isCurrentMonth = isSameMonth(day, currentDate)
             const isSelected = isSameDay(day, currentDate)

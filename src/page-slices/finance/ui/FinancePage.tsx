@@ -333,7 +333,7 @@ export function FinancePage() {
               <Spinner className="size-8" />
             </div>
           ) : (
-            <div className="grid gap-lg sm:grid-cols-2 xl:grid-cols-5">
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
               {[
                 { label: "Total Invoices", value: String(invoices.length) },
                 { label: "Total Billed", value: formatCurrency(totalBilled) },

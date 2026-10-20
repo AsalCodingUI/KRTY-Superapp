@@ -369,12 +369,12 @@ export function LeadReviewTab() {
               showCloseButton={false}
               className="flex flex-col gap-0 overflow-y-auto bg-card p-0 data-[side=right]:w-full sm:data-[side=right]:inset-y-6 sm:data-[side=right]:right-6 sm:data-[side=right]:h-auto sm:data-[side=right]:w-[560px] sm:data-[side=right]:max-w-[560px] sm:rounded-xl sm:border sm:border-border sm:shadow-regular-md"
             >
-              <div className="relative pl-5 pr-xl pb-lg pt-5">
+              <div className="relative pl-5 pr-3 pb-2 pt-5">
                 <SheetTitle className="pr-12">
                   {selectedProject?.name || "Project Detail"}
                 </SheetTitle>
                 <SheetClose
-                  className="absolute right-[var(--padding-xl)] top-[var(--padding-xl)] inline-flex items-center justify-center rounded-md p-md text-muted-foreground/70 transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                  className="absolute right-[var(--padding-xl)] top-[var(--padding-xl)] inline-flex items-center justify-center rounded-md p-1.5 text-muted-foreground/70 transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                   aria-label="Close"
                 >
                   <RiCloseLine className="size-[14px]" />

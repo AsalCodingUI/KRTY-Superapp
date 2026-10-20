@@ -92,7 +92,7 @@ function ProjectsStats({ projectStats }: { projectStats: ProjectStats }) {
   ]
 
   return (
-    <dl className="grid grid-cols-1 gap-lg sm:grid-cols-2 lg:grid-cols-5">
+    <dl className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
       {stats.map((stat) => (
         <div
           key={stat.label}

@@ -37,21 +37,21 @@ const MOBILE_BOTTOM_SHEET_CLASSNAME =
 function SidebarContent() {
   const { categories, toggleColor } = useEventVisibility()
   return (
-    <div className="flex flex-col items-start gap-lg">
+    <div className="flex flex-col items-start gap-3">
       <MiniCalendar />
 
-      <div className="flex w-full flex-col gap-lg">
-        <div className="flex items-center py-md">
+      <div className="flex w-full flex-col gap-3">
+        <div className="flex items-center py-1.5">
           <h4 className="text-label-sm text-muted-foreground">
             Kalender Kretya
           </h4>
         </div>
-        <div className="flex w-full flex-col gap-sm">
+        <div className="flex w-full flex-col gap-1">
           {categories.map((category) => (
             <button
               key={category.id}
               onClick={() => toggleColor(category.color)}
-              className="text-label-sm text-muted-foreground hover:bg-accent flex w-full items-center gap-sm overflow-hidden rounded-md px-lg py-sm text-left transition-colors"
+              className="text-label-sm text-muted-foreground hover:bg-accent flex w-full items-center gap-1 overflow-hidden rounded-md px-2 py-1 text-left transition-colors"
             >
               <span className="flex size-4 shrink-0 items-center justify-center">
                 <span
@@ -61,7 +61,7 @@ function SidebarContent() {
                   )}
                 />
               </span>
-              <span className="flex-1 px-xs text-current">
+              <span className="flex-1 px-0.5 text-current">
                 {category.name}
               </span>
               {category.isActive ? (

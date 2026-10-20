@@ -280,17 +280,17 @@ export function OneOnOneMeetingTab({
   }
 
   return (
-    <div className="flex flex-col gap-lg">
+    <div className="flex flex-col gap-3">
       {isAdmin && (
         <TableSection
           title={`Buat Slot 1:1 (${selectedQuarter})`}
-          contentClassName="px-xl pb-xl pt-sm"
+          contentClassName="px-3 pb-3 pt-1"
         >
           <div
             className={
               mode === "offline"
-                ? "grid grid-cols-1 gap-lg xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.95fr)_minmax(0,0.95fr)_minmax(0,1.1fr)_minmax(0,1.1fr)_auto] xl:items-end"
-                : "grid grid-cols-1 gap-lg xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.95fr)_minmax(0,0.95fr)_minmax(0,1.2fr)_auto] xl:items-end"
+                ? "grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.95fr)_minmax(0,0.95fr)_minmax(0,1.1fr)_minmax(0,1.1fr)_auto] xl:items-end"
+                : "grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.95fr)_minmax(0,0.95fr)_minmax(0,1.2fr)_auto] xl:items-end"
             }
           >
             <div className="flex flex-col gap-2">
@@ -470,7 +470,7 @@ export function OneOnOneMeetingTab({
 
         {isAdmin && editingSlotId && (
           <div className="border-border bg-card mt-4 rounded-lg border p-3">
-            <div className="grid grid-cols-1 gap-lg md:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)_minmax(0,1fr)_auto] md:items-end">
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)_minmax(0,1fr)_auto] md:items-end">
               <div className="flex flex-col gap-2">
                 <Label>Tanggal</Label>
                 <DatePicker

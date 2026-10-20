@@ -26,7 +26,7 @@ export function AdminMetricsOverview({
   ]
 
   return (
-    <div className="grid grid-cols-2 gap-lg lg:grid-cols-5">
+    <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
       {items.map((item) => {
         const content = (
           <div className="border-border bg-card flex flex-col gap-1 rounded-lg border px-4 py-3">

@@ -65,7 +65,7 @@ export const WeekView = memo(function WeekView({
                 isWeekend && "bg-muted/50",
               )}
             >
-              <div className="text-label-sm text-muted-foreground flex items-center justify-center gap-xs">
+              <div className="text-label-sm text-muted-foreground flex items-center justify-center gap-0.5">
                 <span
                   className={cx(
                     isToday && "text-primary font-semibold",

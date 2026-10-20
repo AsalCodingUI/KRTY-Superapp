@@ -12,7 +12,7 @@ export default function FinanceLoading() {
 
       <div className="bg-card flex flex-col rounded-xxl">
         <div className="px-5 py-2">
-          <div className="grid gap-lg sm:grid-cols-2 xl:grid-cols-5">
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
             {[1, 2, 3, 4, 5].map((i) => (
               <div
                 key={i}

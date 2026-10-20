@@ -223,7 +223,7 @@ export function StakeholderAttendancePage({
         <div className="flex flex-col rounded-xxl bg-card">
           <div className="space-y-4 p-5">
             {/* Summary Cards (Fokus Hari Ini) */}
-            <div className="grid gap-lg sm:grid-cols-2">
+            <div className="grid gap-3 sm:grid-cols-2">
               <Card className="gap-0 px-4 py-3">
                 <dt className="text-label-sm text-muted-foreground">
                   Present Today

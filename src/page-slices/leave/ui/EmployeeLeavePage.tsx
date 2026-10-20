@@ -373,7 +373,7 @@ export function EmployeeLeavePage({
         </div>
 
         <div className="flex flex-col rounded-xxl bg-card">
-          <div className="grid grid-cols-2 gap-lg px-5 py-2 lg:grid-cols-5">
+          <div className="grid grid-cols-2 gap-3 px-5 py-2 lg:grid-cols-5">
             <div className="border-border bg-card flex flex-col gap-1 rounded-lg border px-4 py-3 col-span-2">
               <p className="text-label-sm text-muted-foreground">
                 Current Time

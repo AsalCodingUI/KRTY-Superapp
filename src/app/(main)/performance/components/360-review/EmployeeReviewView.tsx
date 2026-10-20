@@ -206,7 +206,7 @@ export function EmployeeReviewView({
   }, [profile, currentCycleId, supabase, selectedQuarter])
 
   return (
-    <div className="flex flex-col gap-lg">
+    <div className="flex flex-col gap-3">
       {/* 1. Quarter Filter */}
       {showQuarterFilter && (
         <QuarterFilter value={selectedQuarter} onChange={setSelectedQuarter} />
@@ -215,7 +215,7 @@ export function EmployeeReviewView({
       {/* 4. CONTENT DETAIL (Accordion & Radar) */}
       {result ? (
         <>
-          <div className="grid grid-cols-1 gap-lg lg:grid-cols-6">
+          <div className="grid grid-cols-1 gap-3 lg:grid-cols-6">
             <div className="lg:col-span-4">
               <Accordion type="multiple" defaultValue={["executive-summary"]}>
                 <AccordionItem value="executive-summary">
@@ -264,7 +264,7 @@ export function EmployeeReviewView({
               </Accordion>
             </div>
 
-            <div className="lg:col-span-2 flex flex-col gap-lg">
+            <div className="lg:col-span-2 flex flex-col gap-3">
               <ReviewStatsHeader
                 selectedQuarter={selectedQuarter}
                 totalReviewers={totalReviewers}

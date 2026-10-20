@@ -137,7 +137,7 @@ export function EmployeeDashboard({
             </div>
           </div>
 
-          <section className="grid grid-cols-2 gap-lg lg:grid-cols-5">
+          <section className="grid grid-cols-2 gap-3 lg:grid-cols-5">
             <div className="border-border bg-card flex flex-col gap-1 rounded-lg border px-4 py-3">
               <p className="text-label-sm text-muted-foreground">Leave Balance</p>
               <p className="text-heading-md text-foreground">{data.leaveBalance} days</p>

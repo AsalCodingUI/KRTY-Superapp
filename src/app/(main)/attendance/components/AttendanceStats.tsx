@@ -165,7 +165,7 @@ export function AttendanceStats({
         </div>
       )}
 
-      <div className="grid grid-cols-1 gap-lg sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         {/* CARD 1: CLOCK ACTION */}
         <Card className="flex h-full flex-col justify-between gap-0 px-4 py-3">
           <div>

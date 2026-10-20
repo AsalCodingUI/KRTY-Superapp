@@ -48,8 +48,8 @@ export function CalendarToolbar({
     viewOptions.find((option) => option.value === viewMode)?.label ?? "Bulan"
 
   return (
-    <div className="flex flex-col gap-lg sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-      <div className="flex items-center justify-between gap-lg sm:justify-start sm:gap-xl">
+    <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+      <div className="flex items-center justify-between gap-3 sm:justify-start sm:gap-4">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -58,7 +58,7 @@ export function CalendarToolbar({
               size="sm"
               type="button"
             >
-              <button className="flex items-center gap-sm">
+              <button className="flex items-center gap-1">
                 <span>{currentViewLabel}</span>
                 <RiArrowDownSLine className="text-muted-foreground size-4 shrink-0" />
               </button>
@@ -81,7 +81,7 @@ export function CalendarToolbar({
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <div className="flex items-center gap-sm">
+        <div className="flex items-center gap-1">
           <Button variant="outline" size="icon-sm" onClick={goToPrevious}>
             <RiArrowLeftSLine className="size-4" />
           </Button>
@@ -94,7 +94,7 @@ export function CalendarToolbar({
         </div>
       </div>
 
-      <div className="flex items-center gap-lg">
+      <div className="flex items-center gap-3">
         <div className="hidden items-center gap-2 sm:flex">
           <span className="text-label-sm text-muted-foreground">
             Google Kalender

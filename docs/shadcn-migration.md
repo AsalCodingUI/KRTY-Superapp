@@ -90,3 +90,23 @@ kecuali `src/shared/ui/lucide-icons.tsx` (re-export ikon, tetap dipakai apa adan
 | `surface-state-neutral-light-hover`, `hover` | `accent` |
 | `border-neutral-*`, `divide-neutral-*` | `border-border`, `divide-border` |
 | `chart-4/5/6` (kategori ungu/pink/cyan) | `purple-*`, `pink-*`, `cyan-*` Tailwind |
+
+## Fase 2 — Base UI (`components.json` style `base-rhea`, paket `@base-ui/react`)
+
+Semua primitive di `src/components/ui/*` sekarang memakai **Base UI**, bukan Radix. Perbedaan API yang sering muncul:
+
+| Radix (lama) | Base UI (baru) |
+|---|---|
+| `<XTrigger asChild><Button/></XTrigger>` | `<XTrigger render={<Button />} />` (anak dari elemen lama dipindah jadi children elemen di `render`, atau tetap jadi children trigger bila trigger sendiri sudah elemen yang benar) |
+| `<Button asChild><Link href="/x">…</Link></Button>` | `<Button render={<Link href="/x" />}>…</Button>` (`nativeButton={false}` bila render bukan `<button>`) |
+| `Select onValueChange={(v: string) => …}` | callback menerima `string \| null` → `onValueChange={(v) => v !== null && setX(v)}` atau `setX(v ?? "")` |
+| `Select` multiple / generic | `value`/`defaultValue` bertipe `T \| null` |
+| `Checkbox onCheckedChange={(c: boolean \| "indeterminate") => …}` | `(checked: boolean) => …`; prop `indeterminate` terpisah |
+| `Slider value={[n]} onValueChange={(v: number[]) => …}` | `value` bisa `number \| readonly number[]` → normalisasi `Array.isArray(v) ? v[0] : v` |
+| `Accordion type="single" collapsible defaultValue="a"` | `Accordion defaultValue={["a"]}` (selalu array; multiple via `multiple`) |
+| `PopoverContent onOpenAutoFocus={(e) => e.preventDefault()}` | hapus; gunakan `initialFocus={false}` pada `PopoverContent`/Popup bila tersedia |
+| `onPointerDownOutside` | hapus atau pakai `onOpenChange(open, details)` |
+| `PopoverAnchor` | tidak ada — pakai `PopoverTrigger` atau posisikan via `anchor` prop pada Positioner |
+| `DialogClose asChild` | `<DialogClose render={<Button variant="outline" />}>Batal</DialogClose>` |
+
+Baca tipe komponen di `src/components/ui/<nama>.tsx` dan `node_modules/@base-ui/react` bila ragu. Jangan edit `src/components/ui/*`.
