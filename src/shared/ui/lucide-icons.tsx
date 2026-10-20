@@ -31,7 +31,7 @@ import {
 
 const defaultIconProps: Partial<LucideProps> = {
   size: 24,
-  strokeWidth: 1.75,
+  strokeWidth: 2,
 }
 
 export type RemixiconComponentType = React.ForwardRefExoticComponent<

@@ -96,7 +96,7 @@ export function animated(Icon: AnimatedIconSource, displayName: string) {
             )}
             style={
               {
-                "--icon-stroke": strokeWidth ?? 1.5,
+                "--icon-stroke": strokeWidth ?? 2,
                 color,
                 ...style,
               } as React.CSSProperties

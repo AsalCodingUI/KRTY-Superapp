@@ -6,15 +6,11 @@ import { ThemeProvider } from "next-themes"
 import { Geist_Mono, Inter } from "next/font/google"
 import "./globals.css"
 import { siteConfig } from "./siteConfig"
+import { cn } from "@/lib/utils";
 
 // Sidebar dihapus dari sini!
 
-const inter = Inter({
-  subsets: ["latin"],
-  display: "swap",
-  axes: ["opsz"],
-  variable: "--font-sans",
-})
+const inter = Inter({subsets:['latin'],variable:'--font-sans'})
 
 const geistMono = Geist_Mono({
   subsets: ["latin"],
@@ -55,7 +51,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${geistMono.variable}`}
+      className={cn(geistMono.variable, "font-sans", inter.variable)}
       suppressHydrationWarning
     >
       <body
@@ -64,8 +60,8 @@ export default function RootLayout({
       >
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
-          enableSystem
+          defaultTheme="dark"
+          forcedTheme="dark"
           disableTransitionOnChange
         >
           <QueryProvider>

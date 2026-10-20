@@ -119,6 +119,6 @@ Baca tipe komponen di `src/components/ui/<nama>.tsx` dan `node_modules/@base-ui/
   `@/shared/ui/lucide-icons` — API sama seperti lucide-react (`className`, `size`, `strokeWidth`, aria props).
 - Adapter `animated()` (`src/components/icons/animated.tsx`) memutar animasi saat **parent interaktif terdekat**
   (button, link, menu item, tab, sidebar item) di-hover / keyboard-focus. `standalone` = animasi saat ikon sendiri di-hover.
-- Stroke default 1.5 (sesuai bahasa desain). Ikon tanpa versi animasi tetap lucide-react statis.
+- Stroke default 2 (default lucide/shadcn). Ikon tanpa versi animasi tetap lucide-react statis.
 - Tambah ikon baru: unduh JSON dari registry ke `src/components/icons/`, lalu regenerasi `index.ts`
   (satu baris `export const Name = animated(NameIconSource, "Name")`).

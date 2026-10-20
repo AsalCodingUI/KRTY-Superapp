@@ -749,7 +749,7 @@ export default function CalculatorClientPage({
       <div
         className={
           showHeader
-            ? "bg-card rounded-card flex flex-col p-5"
+            ? "bg-card rounded-xl flex flex-col p-5"
             : "flex flex-col"
         }
       >

@@ -147,8 +147,8 @@ export function EmployeeDetailClient({
       <div
         className={
           showBackButton
-            ? "bg-card rounded-card flex flex-col space-y-5 px-4 py-5 xl:px-5"
-            : "bg-card rounded-card flex flex-col space-y-5"
+            ? "bg-card rounded-xl flex flex-col space-y-5 px-4 py-5 xl:px-5"
+            : "bg-card rounded-xl flex flex-col space-y-5"
         }
       >
         {/* Back Button - Only for Admin/Stakeholder POV */}
