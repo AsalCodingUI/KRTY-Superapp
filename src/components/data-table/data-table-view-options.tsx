@@ -19,7 +19,7 @@ import {
 } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 import type { Table } from "@tanstack/react-table"
-import { GripVerticalIcon, Settings2Icon } from "lucide-react"
+import { GripVertical as GripVerticalIcon, SlidersHorizontal as Settings2Icon } from "@/components/icons"
 
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"

@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import type { Column } from "@tanstack/react-table"
-import { ChevronDownIcon, ChevronUpIcon } from "lucide-react"
+import { ChevronDown as ChevronDownIcon, ChevronUp as ChevronUpIcon } from "@/components/icons"
 
 import { cn } from "@/lib/utils"
 

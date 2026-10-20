@@ -12,7 +12,7 @@ import {
   type PaginationState,
   type RowSelectionState,
 } from "@tanstack/react-table"
-import { FileTextIcon } from "lucide-react"
+import { FileText as FileTextIcon } from "@/components/icons"
 
 import { EmptyState } from "@/components/empty-state"
 import { TableSection } from "@/components/table-section"

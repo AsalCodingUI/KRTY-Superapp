@@ -1,108 +1,31 @@
+import * as A from "@/components/icons"
 import * as React from "react"
 import type { LucideIcon, LucideProps } from "lucide-react"
 import {
   AlertCircle,
   AlertTriangle,
-  AlignCenter,
-  AlignLeft,
-  AlignRight,
-  Archive,
-  ArrowDown,
-  ArrowLeft,
-  ArrowRight,
-  ArrowUp,
   BadgeCheck,
-  BarChart3,
-  Bell,
-  Bold,
-  Briefcase,
   Calculator,
-  Calendar,
-  CalendarCheck,
   CalendarClock,
-  CalendarDays,
-  Check,
-  CheckCheck,
-  CheckCircle,
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-  ChevronUp,
   ChevronsLeft,
   ChevronsRight,
-  Chrome,
   Circle,
-  CircleCheck,
-  CircleDollarSign,
   CircleX,
-  Clock,
-  Coffee,
   Columns2,
   Computer,
-  Copy,
-  Download,
-  Edit,
-  Edit2,
-  ExternalLink,
-  Eye,
-  EyeOff,
-  FileText,
   Flower,
-  Folder,
-  FolderOpen,
-  Github,
-  GripVertical,
-  Hammer,
-  Heart,
-  HelpCircle,
-  Home,
   Info,
-  Italic,
-  LayoutGrid,
-  LineChart,
   ListChecks,
-  Loader,
-  Loader2,
-  LogIn,
-  LogOut,
-  Lock,
   Mail,
-  MapPin,
-  Menu,
-  MessageCircle,
   Minus,
-  Moon,
   MoreHorizontal,
   MoreVertical,
-  Pencil,
-  Phone,
-  Plus,
   Printer,
-  Radio,
-  RefreshCw,
-  Rocket,
   Rows2,
   Save,
-  Search,
-  Send,
-  Settings,
-  Settings2,
-  SlidersHorizontal,
-  Smile,
   Star,
   StopCircle,
-  Sun,
-  Trash,
-  Trash2,
-  Twitter,
-  Underline,
-  Upload,
-  User,
-  UserPlus,
-  Users,
   Video,
-  Wallet,
-  X,
   XCircle,
 } from "lucide-react"
 
@@ -123,117 +46,117 @@ const withDefaults = (Icon: LucideIcon): RemixiconComponentType => {
   return Wrapped
 }
 
-export const RiAddLine = withDefaults(Plus)
+export const RiAddLine = A.Plus as unknown as RemixiconComponentType
 export const RiAlarmWarningLine = withDefaults(AlertTriangle)
 export const RiAlertFill = withDefaults(AlertCircle)
-export const RiAlignCenter = withDefaults(AlignCenter)
-export const RiAlignLeft = withDefaults(AlignLeft)
-export const RiAlignRight = withDefaults(AlignRight)
-export const RiArchiveLine = withDefaults(Archive)
-export const RiArrowDownLine = withDefaults(ArrowDown)
-export const RiArrowDownSLine = withDefaults(ChevronDown)
+export const RiAlignCenter = A.AlignCenter as unknown as RemixiconComponentType
+export const RiAlignLeft = A.AlignLeft as unknown as RemixiconComponentType
+export const RiAlignRight = A.AlignRight as unknown as RemixiconComponentType
+export const RiArchiveLine = A.Archive as unknown as RemixiconComponentType
+export const RiArrowDownLine = A.ArrowDown as unknown as RemixiconComponentType
+export const RiArrowDownSLine = A.ChevronDown as unknown as RemixiconComponentType
 export const RiArrowLeftDoubleLine = withDefaults(ChevronsLeft)
-export const RiArrowLeftLine = withDefaults(ArrowLeft)
-export const RiArrowLeftSLine = withDefaults(ChevronLeft)
+export const RiArrowLeftLine = A.ArrowLeft as unknown as RemixiconComponentType
+export const RiArrowLeftSLine = A.ChevronLeft as unknown as RemixiconComponentType
 export const RiArrowRightDoubleLine = withDefaults(ChevronsRight)
-export const RiArrowRightLine = withDefaults(ArrowRight)
-export const RiArrowRightSLine = withDefaults(ChevronRight)
-export const RiArrowUpLine = withDefaults(ArrowUp)
-export const RiArrowUpSLine = withDefaults(ChevronUp)
-export const RiBarChartBoxLine = withDefaults(BarChart3)
-export const RiBold = withDefaults(Bold)
-export const RiBriefcaseLine = withDefaults(Briefcase)
+export const RiArrowRightLine = A.ArrowRight as unknown as RemixiconComponentType
+export const RiArrowRightSLine = A.ChevronRight as unknown as RemixiconComponentType
+export const RiArrowUpLine = A.ArrowUp as unknown as RemixiconComponentType
+export const RiArrowUpSLine = A.ChevronUp as unknown as RemixiconComponentType
+export const RiBarChartBoxLine = A.ChartColumnIncreasing as unknown as RemixiconComponentType
+export const RiBold = A.Bold as unknown as RemixiconComponentType
+export const RiBriefcaseLine = A.BriefcaseBusiness as unknown as RemixiconComponentType
 export const RiCalculatorLine = withDefaults(Calculator)
-export const RiCalendar2Fill = withDefaults(CalendarDays)
-export const RiCalendar2Line = withDefaults(CalendarDays)
-export const RiCalendarCheckLine = withDefaults(CalendarCheck)
+export const RiCalendar2Fill = A.CalendarDays as unknown as RemixiconComponentType
+export const RiCalendar2Line = A.CalendarDays as unknown as RemixiconComponentType
+export const RiCalendarCheckLine = A.CalendarCheck as unknown as RemixiconComponentType
 export const RiCalendarEventLine = withDefaults(CalendarClock)
-export const RiCalendarLine = withDefaults(Calendar)
+export const RiCalendarLine = A.CalendarDays as unknown as RemixiconComponentType
 export const RiCalendarScheduleLine = withDefaults(CalendarClock)
 export const RiCheckboxBlankCircleLine = withDefaults(Circle)
-export const RiCheckboxCircleFill = withDefaults(CheckCircle)
-export const RiCheckboxCircleLine = withDefaults(CircleCheck)
-export const RiCheckDoubleLine = withDefaults(CheckCheck)
-export const RiCheckLine = withDefaults(Check)
+export const RiCheckboxCircleFill = A.CircleCheck as unknown as RemixiconComponentType
+export const RiCheckboxCircleLine = A.CircleCheck as unknown as RemixiconComponentType
+export const RiCheckDoubleLine = A.CheckCheck as unknown as RemixiconComponentType
+export const RiCheckLine = A.Check as unknown as RemixiconComponentType
 export const RiCloseCircleFill = withDefaults(XCircle)
 export const RiCloseCircleLine = withDefaults(CircleX)
-export const RiCloseLine = withDefaults(X)
+export const RiCloseLine = A.X as unknown as RemixiconComponentType
 export const RiComputerLine = withDefaults(Computer)
-export const RiCupLine = withDefaults(Coffee)
-export const RiDeleteBin6Line = withDefaults(Trash2)
-export const RiDeleteBinLine = withDefaults(Trash)
-export const RiDownloadLine = withDefaults(Download)
-export const RiDraggable = withDefaults(GripVertical)
-export const RiEdit2Line = withDefaults(Edit2)
-export const RiEditLine = withDefaults(Edit)
-export const RiEqualizer2Line = withDefaults(SlidersHorizontal)
+export const RiCupLine = A.Coffee as unknown as RemixiconComponentType
+export const RiDeleteBin6Line = A.Delete as unknown as RemixiconComponentType
+export const RiDeleteBinLine = A.Delete as unknown as RemixiconComponentType
+export const RiDownloadLine = A.Download as unknown as RemixiconComponentType
+export const RiDraggable = A.GripVertical as unknown as RemixiconComponentType
+export const RiEdit2Line = A.SquarePen as unknown as RemixiconComponentType
+export const RiEditLine = A.SquarePen as unknown as RemixiconComponentType
+export const RiEqualizer2Line = A.SlidersHorizontal as unknown as RemixiconComponentType
 export const RiErrorWarningLine = withDefaults(AlertCircle)
-export const RiExternalLinkLine = withDefaults(ExternalLink)
-export const RiEyeFill = withDefaults(Eye)
-export const RiEyeLine = withDefaults(Eye)
-export const RiEyeOffFill = withDefaults(EyeOff)
-export const RiEyeOffLine = withDefaults(EyeOff)
-export const RiFileCopyLine = withDefaults(Copy)
+export const RiExternalLinkLine = A.ExternalLink as unknown as RemixiconComponentType
+export const RiEyeFill = A.Eye as unknown as RemixiconComponentType
+export const RiEyeLine = A.Eye as unknown as RemixiconComponentType
+export const RiEyeOffFill = A.EyeOff as unknown as RemixiconComponentType
+export const RiEyeOffLine = A.EyeOff as unknown as RemixiconComponentType
+export const RiFileCopyLine = A.Copy as unknown as RemixiconComponentType
 export const RiFileList3Line = withDefaults(ListChecks)
-export const RiFilePaperLine = withDefaults(FileText)
-export const RiFileTextLine = withDefaults(FileText)
+export const RiFilePaperLine = A.FileText as unknown as RemixiconComponentType
+export const RiFileTextLine = A.FileText as unknown as RemixiconComponentType
 export const RiFlowerFill = withDefaults(Flower)
-export const RiFolder3Line = withDefaults(FolderOpen)
-export const RiFolderLine = withDefaults(Folder)
-export const RiFundsBoxLine = withDefaults(Wallet)
-export const RiGithubFill = withDefaults(Github)
-export const RiGoogleFill = withDefaults(Chrome)
-export const RiGroupLine = withDefaults(Users)
-export const RiHammerLine = withDefaults(Hammer)
-export const RiHeartFill = withDefaults(Heart)
-export const RiHome2Line = withDefaults(Home)
+export const RiFolder3Line = A.FolderOpen as unknown as RemixiconComponentType
+export const RiFolderLine = A.FolderOpen as unknown as RemixiconComponentType
+export const RiFundsBoxLine = A.Wallet as unknown as RemixiconComponentType
+export const RiGithubFill = A.Github as unknown as RemixiconComponentType
+export const RiGoogleFill = A.Chrome as unknown as RemixiconComponentType
+export const RiGroupLine = A.Users as unknown as RemixiconComponentType
+export const RiHammerLine = A.Hammer as unknown as RemixiconComponentType
+export const RiHeartFill = A.Heart as unknown as RemixiconComponentType
+export const RiHome2Line = A.Home as unknown as RemixiconComponentType
 export const RiInformationLine = withDefaults(Info)
-export const RiItalic = withDefaults(Italic)
+export const RiItalic = A.Italic as unknown as RemixiconComponentType
 export const RiLayout2Line = withDefaults(Columns2)
-export const RiLayoutGridLine = withDefaults(LayoutGrid)
+export const RiLayoutGridLine = A.LayoutGrid as unknown as RemixiconComponentType
 export const RiLayoutRowLine = withDefaults(Rows2)
-export const RiLineChartLine = withDefaults(LineChart)
+export const RiLineChartLine = A.ChartLine as unknown as RemixiconComponentType
 export const RiListCheck2 = withDefaults(ListChecks)
-export const RiLoader2Fill = withDefaults(Loader2)
-export const RiLoader2Line = withDefaults(Loader2)
-export const RiLoader4Line = withDefaults(Loader)
-export const RiLoginBoxLine = withDefaults(LogIn)
-export const RiLogoutBoxLine = withDefaults(LogOut)
-export const RiLockLine = withDefaults(Lock)
+export const RiLoader2Fill = A.LoaderCircle as unknown as RemixiconComponentType
+export const RiLoader2Line = A.LoaderCircle as unknown as RemixiconComponentType
+export const RiLoader4Line = A.Loader as unknown as RemixiconComponentType
+export const RiLoginBoxLine = A.LogIn as unknown as RemixiconComponentType
+export const RiLogoutBoxLine = A.Logout as unknown as RemixiconComponentType
+export const RiLockLine = A.Lock as unknown as RemixiconComponentType
 export const RiMailLine = withDefaults(Mail)
-export const RiMailSendLine = withDefaults(Send)
-export const RiMapPinLine = withDefaults(MapPin)
-export const RiMenuLine = withDefaults(Menu)
-export const RiMessage3Line = withDefaults(MessageCircle)
-export const RiMoneyDollarCircleLine = withDefaults(CircleDollarSign)
-export const RiMoonLine = withDefaults(Moon)
+export const RiMailSendLine = A.Send as unknown as RemixiconComponentType
+export const RiMapPinLine = A.MapPin as unknown as RemixiconComponentType
+export const RiMenuLine = A.Menu as unknown as RemixiconComponentType
+export const RiMessage3Line = A.MessageCircle as unknown as RemixiconComponentType
+export const RiMoneyDollarCircleLine = A.CircleDollarSign as unknown as RemixiconComponentType
+export const RiMoonLine = A.Moon as unknown as RemixiconComponentType
 export const RiMore2Fill = withDefaults(MoreVertical)
 export const RiMoreFill = withDefaults(MoreHorizontal)
-export const RiNotification3Line = withDefaults(Bell)
-export const RiPencilLine = withDefaults(Pencil)
+export const RiNotification3Line = A.Bell as unknown as RemixiconComponentType
+export const RiPencilLine = A.SquarePen as unknown as RemixiconComponentType
 export const RiPrinterLine = withDefaults(Printer)
-export const RiQuestionLine = withDefaults(HelpCircle)
-export const RiRadioButtonFill = withDefaults(Radio)
-export const RiRefreshLine = withDefaults(RefreshCw)
-export const RiRocketLine = withDefaults(Rocket)
+export const RiQuestionLine = A.CircleHelp as unknown as RemixiconComponentType
+export const RiRadioButtonFill = A.Radio as unknown as RemixiconComponentType
+export const RiRefreshLine = A.RefreshCW as unknown as RemixiconComponentType
+export const RiRocketLine = A.Rocket as unknown as RemixiconComponentType
 export const RiSave3Line = withDefaults(Save)
 export const RiSaveLine = withDefaults(Save)
-export const RiSearchLine = withDefaults(Search)
-export const RiSettings3Line = withDefaults(Settings2)
-export const RiSettings5Line = withDefaults(Settings)
+export const RiSearchLine = A.Search as unknown as RemixiconComponentType
+export const RiSettings3Line = A.SlidersHorizontal as unknown as RemixiconComponentType
+export const RiSettings5Line = A.Settings as unknown as RemixiconComponentType
 export const RiStarFill = withDefaults(Star)
 export const RiStarLine = withDefaults(Star)
 export const RiStopCircleLine = withDefaults(StopCircle)
 export const RiSubtractFill = withDefaults(Minus)
-export const RiSunLine = withDefaults(Sun)
-export const RiTeamLine = withDefaults(Users)
-export const RiTimeLine = withDefaults(Clock)
-export const RiTwitterFill = withDefaults(Twitter)
-export const RiUnderline = withDefaults(Underline)
-export const RiUploadLine = withDefaults(Upload)
-export const RiUserAddLine = withDefaults(UserPlus)
-export const RiUserLine = withDefaults(User)
-export const RiUserSmileLine = withDefaults(Smile)
+export const RiSunLine = A.Sun as unknown as RemixiconComponentType
+export const RiTeamLine = A.Users as unknown as RemixiconComponentType
+export const RiTimeLine = A.Clock as unknown as RemixiconComponentType
+export const RiTwitterFill = A.Twitter as unknown as RemixiconComponentType
+export const RiUnderline = A.Underline as unknown as RemixiconComponentType
+export const RiUploadLine = A.Upload as unknown as RemixiconComponentType
+export const RiUserAddLine = A.UserPlus as unknown as RemixiconComponentType
+export const RiUserLine = A.User as unknown as RemixiconComponentType
+export const RiUserSmileLine = A.Smile as unknown as RemixiconComponentType
 export const RiVerifiedBadgeFill = withDefaults(BadgeCheck)
 export const RiVideoOnLine = withDefaults(Video)
-export const RiWhatsappLine = withDefaults(Phone)
+export const RiWhatsappLine = A.Phone as unknown as RemixiconComponentType

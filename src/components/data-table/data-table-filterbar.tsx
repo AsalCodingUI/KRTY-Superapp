@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import type { Table } from "@tanstack/react-table"
-import { DownloadIcon, PlusIcon } from "lucide-react"
+import { Download as DownloadIcon, Plus as PlusIcon } from "@/components/icons"
 import { useDebouncedCallback } from "use-debounce"
 
 import { Button } from "@/components/ui/button"
