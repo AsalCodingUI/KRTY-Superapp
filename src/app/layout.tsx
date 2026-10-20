@@ -11,7 +11,7 @@ import { siteConfig } from "./siteConfig"
 const inter = Inter({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-inter",
+  variable: "--font-sans",
 })
 
 export const metadata: Metadata = {
@@ -45,12 +45,17 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className={inter.variable} suppressHydrationWarning>
       <body
-        className={`${inter.className} text-content selection:bg-primary/20 selection:text-primary min-h-dvh overflow-x-hidden overflow-y-scroll scroll-auto antialiased`}
+        className="selection:bg-primary/20 selection:text-primary min-h-dvh overflow-x-hidden overflow-y-scroll scroll-auto antialiased"
         suppressHydrationWarning
       >
-        <ThemeProvider forcedTheme="light" attribute="class">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
           <QueryProvider>
             {/* Sidebar dan main wrapper dipindah ke layout (main) */}
             {children}

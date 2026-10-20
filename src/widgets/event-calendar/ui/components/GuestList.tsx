@@ -37,7 +37,7 @@ export function GuestList({
         {showAddButton && onAddGuest && (
           <button
             onClick={onAddGuest}
-            className="text-body-xs text-primary hover:text-primary-hover flex items-center gap-1"
+            className="text-body-xs text-primary hover:text-primary/90 flex items-center gap-1"
           >
             <RiUserAddLine className="h-3.5 w-3.5" />
             Tambah tamu

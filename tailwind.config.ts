@@ -33,11 +33,11 @@ const config: Config = {
       "input-focus": "var(--shadow-outline-brand)",
     },
     fontFamily: {
-      sans: ['"Inter Variable"', "sans-serif"],
-      display: ['"Switzer Variable"', "sans-serif"],
-      heading: ['"Switzer Variable"', "sans-serif"],
-      body: ['"Inter Variable"', "sans-serif"],
-      label: ['"Inter Variable"', "sans-serif"],
+      sans: ["var(--font-sans)", "sans-serif"],
+      display: ["var(--font-heading)", "sans-serif"],
+      heading: ["var(--font-heading)", "sans-serif"],
+      body: ["var(--font-sans)", "sans-serif"],
+      label: ["var(--font-sans)", "sans-serif"],
     },
     fontSize: {
       // Display - Switzer Variable, 500
@@ -215,10 +215,7 @@ const config: Config = {
         // --- ⌘ ・ MAPPED - COLORS ---
 
         // Background
-        background: "var(--bg-background)",
-        muted: "var(--bg-muted)",
         hover: "var(--bg-hover)",
-        accent: "var(--bg-accent)",
         inverted: "var(--bg-inverted)",
 
         // Surface
@@ -279,7 +276,6 @@ const config: Config = {
 
         // Foreground
         foreground: {
-          DEFAULT: "var(--foreground-primary)", // Default text color
           primary: "var(--foreground-primary)",
           secondary: "var(--foreground-secondary)",
           tertiary: "var(--foreground-tertiary)",
@@ -329,12 +325,6 @@ const config: Config = {
           },
         },
 
-        // Legacy/Backwards Compat - Mapping to new Token System
-        primary: {
-          DEFAULT: "var(--surface-brand)",
-          foreground: "var(--foreground-on-color)",
-          hover: "var(--surface-brand-hov)",
-        },
 
         // Content/Text aliases
         content: {
