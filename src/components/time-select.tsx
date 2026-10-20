@@ -2,7 +2,6 @@
 
 import * as React from "react"
 
-import { SegmentedControl } from "@/components/segmented-control"
 import {
   Select,
   SelectContent,
@@ -12,26 +11,32 @@ import {
 } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 
-type TimeOption = { value: string; label: string }
-type Period = "AM" | "PM"
+const optionsCache = new Map<number, string[]>()
 
-const timeOptionsCache = new Map<number, TimeOption[]>()
-
-const getTimeOptions = (step: number) => {
+/** 24-hour "HH:mm" values from 00:00, every `step` minutes. */
+function getTimeOptions(step: number) {
   const normalizedStep = Math.max(1, Math.min(60, step))
-  const cached = timeOptionsCache.get(normalizedStep)
+  const cached = optionsCache.get(normalizedStep)
   if (cached) return cached
 
-  const options: TimeOption[] = []
-  for (let hour = 1; hour <= 12; hour += 1) {
-    for (let minute = 0; minute < 60; minute += normalizedStep) {
-      const value = `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`
-      options.push({ value, label: value })
-    }
+  const options: string[] = []
+  for (let minutes = 0; minutes < 24 * 60; minutes += normalizedStep) {
+    const hour = Math.floor(minutes / 60)
+    const minute = minutes % 60
+    options.push(
+      `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`,
+    )
   }
-
-  timeOptionsCache.set(normalizedStep, options)
+  optionsCache.set(normalizedStep, options)
   return options
+}
+
+function normalize(value?: string) {
+  if (!value) return undefined
+  const [h, m] = value.split(":").map(Number)
+  if (Number.isNaN(h) || Number.isNaN(m) || h < 0 || h > 23 || m < 0 || m > 59)
+    return undefined
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`
 }
 
 export interface TimeSelectProps {
@@ -42,120 +47,47 @@ export interface TimeSelectProps {
   step?: number
   placeholder?: string
   disabled?: boolean
-  /** Accepted for API compatibility; both sizes render at 28px like the legacy kit. */
+  /** Accepted for API compatibility. */
   size?: "default" | "sm"
   className?: string
-}
-
-function parse24HourValue(value?: string) {
-  if (!value) return null
-
-  const [hourRaw, minuteRaw] = value.split(":")
-  const hour = Number(hourRaw)
-  const minute = Number(minuteRaw)
-
-  if (
-    Number.isNaN(hour) ||
-    Number.isNaN(minute) ||
-    hour < 0 ||
-    hour > 23 ||
-    minute < 0 ||
-    minute > 59
-  ) {
-    return null
-  }
-
-  const period: Period = hour >= 12 ? "PM" : "AM"
-  const hour12 = hour % 12 || 12
-
-  return {
-    clockValue: `${String(hour12).padStart(2, "0")}:${String(minute).padStart(2, "0")}`,
-    period,
-  }
-}
-
-function to24HourValue(clockValue: string, period: Period) {
-  const [hourRaw, minuteRaw] = clockValue.split(":")
-  const hour12 = Number(hourRaw)
-  const minute = Number(minuteRaw)
-
-  if (
-    Number.isNaN(hour12) ||
-    Number.isNaN(minute) ||
-    hour12 < 1 ||
-    hour12 > 12 ||
-    minute < 0 ||
-    minute > 59
-  ) {
-    return clockValue
-  }
-
-  const normalizedHour =
-    period === "AM"
-      ? hour12 === 12
-        ? 0
-        : hour12
-      : hour12 === 12
-        ? 12
-        : hour12 + 12
-
-  return `${String(normalizedHour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`
 }
 
 function TimeSelect({
   value,
   onValueChange,
   step = 15,
-  placeholder = "Select time",
+  placeholder = "Pilih jam",
   disabled = false,
   className,
 }: TimeSelectProps) {
-  const options = React.useMemo(() => getTimeOptions(step), [step])
-  const parsedValue = React.useMemo(() => parse24HourValue(value), [value])
-  const selectedClockValue = parsedValue?.clockValue
-  const selectedPeriod = parsedValue?.period
+  const selected = normalize(value)
+  const options = React.useMemo(() => {
+    const base = getTimeOptions(step)
+    // Keep an off-step saved value (e.g. 10:10) selectable and visible.
+    return selected && !base.includes(selected)
+      ? [...base, selected].sort()
+      : base
+  }, [step, selected])
 
   return (
-    <div
-      className={cn(
-        "grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2",
-        className,
-      )}
+    <Select
+      value={selected ?? null}
+      onValueChange={(next) => {
+        if (next) onValueChange?.(next)
+      }}
+      disabled={disabled}
     >
-      <Select
-        value={selectedClockValue}
-        onValueChange={(nextClockValue) => {
-          if (nextClockValue === null) return
-          onValueChange?.(to24HourValue(nextClockValue, selectedPeriod || "AM"))
-        }}
-        disabled={disabled}
-      >
-        <SelectTrigger className="w-full flex-1">
-          <SelectValue placeholder={placeholder} />
-        </SelectTrigger>
-        <SelectContent className="max-h-[240px]">
-          {options.map((option) => (
-            <SelectItem key={option.value} value={option.value}>
-              {option.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-
-      <SegmentedControl<Period>
-        fitContent
-        value={selectedPeriod || "AM"}
-        disabled={disabled || !selectedClockValue}
-        onChange={(period) => {
-          if (!selectedClockValue) return
-          onValueChange?.(to24HourValue(selectedClockValue, period))
-        }}
-        items={[
-          { value: "AM", label: "AM" },
-          { value: "PM", label: "PM" },
-        ]}
-      />
-    </div>
+      <SelectTrigger className={cn("w-full tabular-nums", className)}>
+        <SelectValue placeholder={placeholder} />
+      </SelectTrigger>
+      <SelectContent className="max-h-60">
+        {options.map((option) => (
+          <SelectItem key={option} value={option} className="tabular-nums">
+            {option}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   )
 }
 

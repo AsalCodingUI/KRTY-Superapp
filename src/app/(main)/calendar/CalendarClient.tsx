@@ -15,7 +15,11 @@ import {
 } from "@/widgets/event-calendar"
 import { GoogleCalendarProvider } from "@/widgets/event-calendar/ui/google-calendar-context"
 import { getViewRange } from "@/widgets/event-calendar/ui/utils"
-import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query"
+import {
+  keepPreviousData,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query"
 import { endOfDay, startOfDay } from "date-fns"
 import { useMemo, useState } from "react"
 import { toast } from "sonner"
@@ -46,12 +50,18 @@ type CalendarEventRowLite = Pick<
 >
 type LeaveRequestCalendarRow = Pick<
   Database["public"]["Tables"]["leave_requests"]["Row"],
-  "id" | "start_date" | "end_date" | "leave_type" | "status" | "reason" | "user_id"
+  | "id"
+  | "start_date"
+  | "end_date"
+  | "leave_type"
+  | "status"
+  | "reason"
+  | "user_id"
 > & {
   profiles?:
-  | { full_name?: string | null }
-  | { full_name?: string | null }[]
-  | null
+    | { full_name?: string | null }
+    | { full_name?: string | null }[]
+    | null
 }
 type OneOnOneCalendarRow = Pick<
   Database["public"]["Tables"]["one_on_one_slots"]["Row"],
@@ -69,13 +79,13 @@ type OneOnOneCalendarRow = Pick<
   | "updated_at"
 > & {
   organizer?:
-  | { full_name?: string | null; email?: string | null }
-  | { full_name?: string | null; email?: string | null }[]
-  | null
+    | { full_name?: string | null; email?: string | null }
+    | { full_name?: string | null; email?: string | null }[]
+    | null
   booked_by_profile?:
-  | { full_name?: string | null; email?: string | null }
-  | { full_name?: string | null; email?: string | null }[]
-  | null
+    | { full_name?: string | null; email?: string | null }
+    | { full_name?: string | null; email?: string | null }[]
+    | null
 }
 
 interface CalendarClientProps {
@@ -173,8 +183,7 @@ const mapLeaveRowToEvent = (row: LeaveRequestCalendarRow): CalendarEvent => {
     ? "WFH"
     : "Cuti"
   const typeDefinition = getEventTypeDefinition(normalizedType)
-  const profile =
-    Array.isArray(row.profiles) ? row.profiles[0] : row.profiles
+  const profile = Array.isArray(row.profiles) ? row.profiles[0] : row.profiles
   const employeeName = profile?.full_name || "Karyawan"
   const startDate = startOfDay(new Date(row.start_date))
   const endDate = endOfDay(new Date(row.end_date))
@@ -206,8 +215,7 @@ const mapSlotToEvent = (slot: OneOnOneCalendarRow): CalendarEvent | null => {
     organizerProfile?.full_name || organizerProfile?.email || "Penyelenggara"
   const employeeName =
     bookedProfile?.full_name || bookedProfile?.email || "Karyawan"
-  const statusLabel =
-    slot.status === "cancelled" ? "Dibatalkan" : "Terjadwal"
+  const statusLabel = slot.status === "cancelled" ? "Dibatalkan" : "Terjadwal"
   const titleBase = `Ulasan 1:1 (${slot.cycle_name})`
   const title =
     slot.status === "cancelled" ? `${titleBase} (Dibatalkan)` : titleBase
@@ -231,10 +239,16 @@ const mapSlotToEvent = (slot: OneOnOneCalendarRow): CalendarEvent | null => {
     description: detailLines.join("\n"),
     start: new Date(slot.start_at),
     end: new Date(slot.end_at),
-    color: slot.status === "cancelled" ? "neutral" : typeDefinition?.color ?? "amber",
+    color:
+      slot.status === "cancelled"
+        ? "neutral"
+        : (typeDefinition?.color ?? "amber"),
     type: "301 Meeting",
     meetingUrl: slot.meeting_url ?? undefined,
-    location: slot.mode === "offline" ? slot.location ?? undefined : slot.meeting_url ?? undefined,
+    location:
+      slot.mode === "offline"
+        ? (slot.location ?? undefined)
+        : (slot.meeting_url ?? undefined),
     organizer: organizerName,
     employeeId: slot.booked_by ?? undefined,
     allDay: false,
@@ -251,7 +265,10 @@ function CalendarDataLayer({ role, userId }: CalendarClientProps) {
   const categories: EventCategory[] = useMemo(() => {
     const EMPLOYEE_HIDDEN_TYPES = ["WFH", "Cuti"]
     return getAllEventTypes()
-      .filter((eventType) => isStakeholder || !EMPLOYEE_HIDDEN_TYPES.includes(eventType.value))
+      .filter(
+        (eventType) =>
+          isStakeholder || !EMPLOYEE_HIDDEN_TYPES.includes(eventType.value),
+      )
       .map((eventType) => ({
         id: eventType.value.toLowerCase().replace(/\s+/g, "-"),
         name: eventType.label,
@@ -282,9 +299,7 @@ function CalendarDataLayer({ role, userId }: CalendarClientProps) {
           .select(
             "id,title,description,start_at,end_at,color,location,all_day,meeting_url,guests,reminders,rsvp_status,organizer,event_type,user_id,is_recurring,recurrence_rule",
           )
-          .or(
-            `start_at.lte.${rangeEndIso},end_at.gte.${rangeStartIso}`,
-          )
+          .or(`start_at.lte.${rangeEndIso},end_at.gte.${rangeStartIso}`)
 
         if (error) {
           throw error
@@ -299,11 +314,16 @@ function CalendarDataLayer({ role, userId }: CalendarClientProps) {
     staleTime: 30_000,
   })
 
-  const {
-    data: leaveRequests = [],
-    isLoading: leaveLoading,
-  } = useQuery<LeaveRequestCalendarRow[]>({
-    queryKey: ["calendar-leave", userId, isStakeholder, rangeStartDate, rangeEndDate],
+  const { data: leaveRequests = [], isLoading: leaveLoading } = useQuery<
+    LeaveRequestCalendarRow[]
+  >({
+    queryKey: [
+      "calendar-leave",
+      userId,
+      isStakeholder,
+      rangeStartDate,
+      rangeEndDate,
+    ],
     queryFn: async () => {
       try {
         let query = supabase
@@ -312,9 +332,7 @@ function CalendarDataLayer({ role, userId }: CalendarClientProps) {
             "id,start_date,end_date,leave_type,status,reason,user_id,profiles(full_name)",
           )
           .eq("status", "approved")
-          .or(
-            `start_date.lte.${rangeEndDate},end_date.gte.${rangeStartDate}`,
-          )
+          .or(`start_date.lte.${rangeEndDate},end_date.gte.${rangeStartDate}`)
 
         if (!isStakeholder && userId) {
           query = query.eq("user_id", userId)
@@ -333,10 +351,9 @@ function CalendarDataLayer({ role, userId }: CalendarClientProps) {
     staleTime: 30_000,
   })
 
-  const {
-    data: oneOnOneSlots = [],
-    isLoading: oneOnOneLoading,
-  } = useQuery<OneOnOneCalendarRow[]>({
+  const { data: oneOnOneSlots = [], isLoading: oneOnOneLoading } = useQuery<
+    OneOnOneCalendarRow[]
+  >({
     queryKey: [
       "calendar-1on1",
       userId,
@@ -351,15 +368,14 @@ function CalendarDataLayer({ role, userId }: CalendarClientProps) {
           throw new Error("fetch_failed")
         }
 
-        const payload = (await response.json().catch(() => null)) as
-          | { slots?: OneOnOneCalendarRow[] }
-          | null
+        const payload = (await response.json().catch(() => null)) as {
+          slots?: OneOnOneCalendarRow[]
+        } | null
 
         const slots = payload?.slots || []
         return slots.filter(
           (slot) =>
-            slot.start_at <= rangeEndIso &&
-            slot.end_at >= rangeStartIso,
+            slot.start_at <= rangeEndIso && slot.end_at >= rangeStartIso,
         )
       } catch (error) {
         toast.error("Gagal memuat jadwal 1:1")
@@ -410,15 +426,16 @@ function CalendarDataLayer({ role, userId }: CalendarClientProps) {
       payload.color = typeDefinition?.color ?? "blue"
     }
 
-    const { error } = await supabase
-      .from("calendar_events")
-      .insert([payload])
+    const { error } = await supabase.from("calendar_events").insert([payload])
     if (error) {
       toast.error("Tambah event gagal")
-      return
+      // Reject so the dialog stays open with the user's input.
+      throw error
     }
     toast.success("Event ditambah")
-    queryClient.invalidateQueries({ queryKey: ["calendar-events", rangeStartIso, rangeEndIso] })
+    queryClient.invalidateQueries({
+      queryKey: ["calendar-events", rangeStartIso, rangeEndIso],
+    })
     setDialogOpen(false)
   }
 
@@ -432,10 +449,12 @@ function CalendarDataLayer({ role, userId }: CalendarClientProps) {
 
     if (error) {
       toast.error("Ubah event gagal")
-      return
+      throw error
     }
     toast.success("Event diubah")
-    queryClient.invalidateQueries({ queryKey: ["calendar-events", rangeStartIso, rangeEndIso] })
+    queryClient.invalidateQueries({
+      queryKey: ["calendar-events", rangeStartIso, rangeEndIso],
+    })
     setDialogOpen(false)
   }
 
@@ -449,7 +468,9 @@ function CalendarDataLayer({ role, userId }: CalendarClientProps) {
       return
     }
     toast.success("Event dihapus")
-    queryClient.invalidateQueries({ queryKey: ["calendar-events", rangeStartIso, rangeEndIso] })
+    queryClient.invalidateQueries({
+      queryKey: ["calendar-events", rangeStartIso, rangeEndIso],
+    })
   }
 
   return (

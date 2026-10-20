@@ -34,6 +34,8 @@ export function DraggableEvent({
       {...(!disabled ? attributes : {})}
       {...(!disabled ? listeners : {})}
       className={cx(
+        // Fill the slot the view sized for the event.
+        "h-full",
         !disabled && "cursor-grab active:cursor-grabbing",
         isDragging && "z-50 opacity-50",
       )}

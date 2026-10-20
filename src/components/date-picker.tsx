@@ -195,11 +195,12 @@ const Trigger = ({
     render={
       <Button
         type="button"
-        variant="outline"
+        variant="ghost"
         disabled={disabled}
         aria-invalid={hasError || props["aria-invalid"] || undefined}
         className={cn(
-          "group/date-picker w-full justify-start gap-1.5 px-2 text-left text-sm font-normal",
+          // Same surface as Input / SelectTrigger.
+          "group/date-picker bg-input/50 hover:bg-input/70 aria-expanded:bg-input/70 w-full justify-start gap-2 border-transparent px-2.5 text-left text-sm font-normal",
           className,
         )}
         {...props}

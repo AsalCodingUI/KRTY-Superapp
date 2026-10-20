@@ -54,8 +54,12 @@ export function EventVisibilityProvider({
   }, [])
 
   const isColorVisible = useCallback(
-    (color: EventColor) => visibleColors.has(color),
-    [visibleColors],
+    (color: EventColor) =>
+      visibleColors.has(color) ||
+      // A colour no category controls can't be hidden by the filter, so it
+      // must stay visible (it used to disappear silently).
+      !categories.some((category) => category.color === color),
+    [visibleColors, categories],
   )
 
   const value: EventVisibilityContextValue = {

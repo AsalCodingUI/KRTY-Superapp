@@ -117,7 +117,7 @@ export const MonthView = memo(function MonthView({
                 <div
                   key={dayKey}
                   className={cx(
-                    "flex min-h-[96px] flex-col border-r border-b p-1.5 sm:min-h-[120px] [&:nth-child(7n)]:border-r-0",
+                    "flex min-h-[96px] flex-col border-r border-b p-1.5 sm:min-h-[120px] [&:nth-child(7n)]:border-r-0 [&:nth-last-child(-n+7)]:border-b-0",
                     isToday && "bg-foreground/[0.025]",
                     "hover:bg-foreground/[0.03] cursor-pointer transition-colors",
                   )}
@@ -127,7 +127,7 @@ export const MonthView = memo(function MonthView({
                   <div className="mb-1 flex items-center justify-between">
                     <span
                       className={cx(
-                        "flex h-5 min-w-5 items-center justify-center rounded-md px-1 text-[13px] tabular-nums",
+                        "flex size-6 items-center justify-center rounded-[5px] text-[13px] tabular-nums",
                         isToday
                           ? "bg-foreground text-background font-medium"
                           : isCurrentMonth

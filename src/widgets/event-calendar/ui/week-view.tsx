@@ -119,7 +119,7 @@ export const WeekView = memo(function WeekView({
                   className={cx(
                     "tabular-nums",
                     isToday
-                      ? "bg-foreground text-background rounded-md px-1.5 font-medium"
+                      ? "bg-foreground text-background flex size-6 items-center justify-center rounded-[5px] font-medium"
                       : "text-muted-foreground",
                   )}
                 >
@@ -254,17 +254,32 @@ export const WeekView = memo(function WeekView({
                               onEventClick?.(event)
                             }}
                             className={cx(
-                              "flex h-full w-full cursor-pointer flex-col overflow-hidden rounded-md border-l-[3px] px-2 py-1 text-left transition-colors",
+                              "flex h-full w-full cursor-pointer flex-col overflow-hidden rounded-md px-2 text-left transition-colors",
+                              // Short events (< ~30 min) get a tighter line so
+                              // the title isn't clipped.
+                              height < 30 ? "justify-center py-0" : "py-1",
                               tone.block,
-                              tone.edge,
                               isPast && "opacity-60",
                             )}
                           >
-                            <span className="truncate text-[13px] leading-5 font-medium">
-                              {event.title}
+                            <span
+                              className={cx(
+                                "flex min-w-0 items-center gap-1.5 font-medium",
+                                height < 30
+                                  ? "text-xs leading-4"
+                                  : "text-[13px] leading-5",
+                              )}
+                            >
+                              <span
+                                className={cx(
+                                  "size-1.5 shrink-0 rounded-full",
+                                  tone.dot,
+                                )}
+                              />
+                              <span className="truncate">{event.title}</span>
                             </span>
                             {height >= 40 && (
-                              <span className="text-muted-foreground truncate text-xs tabular-nums">
+                              <span className="text-muted-foreground truncate pl-3 text-xs tabular-nums">
                                 {formatRange(event)}
                               </span>
                             )}

@@ -1,65 +1,22 @@
 import { Skeleton } from "@/components/ui/skeleton"
+import { CalendarSkeleton } from "@/widgets/event-calendar/ui/components/CalendarSkeleton"
 
+/** Mirrors the calendar page: toolbar + one bordered calendar surface. */
 export default function CalendarLoading() {
   return (
-    <div className="flex h-full gap-4 lg:gap-6">
-      {/* Sidebar skeleton */}
-      <div className="hidden w-64 flex-shrink-0 space-y-4 lg:block">
-        <Skeleton className="h-8 w-full" />
-        <div className="rounded-lg">
-          <Skeleton className="h-40 w-full" />
-        </div>
-        <div className="rounded-lg">
-          <Skeleton className="h-24 w-full" />
+    <div className="flex h-[calc(100svh-4rem)] min-h-[520px] flex-col gap-4 pt-1">
+      <div className="flex items-center justify-between">
+        <Skeleton className="h-8 w-56 rounded-lg" />
+        <div className="flex items-center gap-2">
+          <Skeleton className="h-4 w-28" />
+          <Skeleton className="size-8" />
+          <Skeleton className="size-8" />
+          <Skeleton className="h-8 w-20" />
+          <Skeleton className="h-8 w-24" />
         </div>
       </div>
-
-      {/* Main calendar skeleton */}
-      <div className="flex flex-1 flex-col space-y-4">
-        {/* Toolbar */}
-        <div className="flex items-center justify-between">
-          <Skeleton className="h-8 w-48" />
-          <div className="flex gap-2">
-            <Skeleton className="h-10 w-10 rounded-md" />
-            <Skeleton className="h-10 w-10 rounded-md" />
-            <Skeleton className="h-10 w-24 rounded-md" />
-          </div>
-        </div>
-
-        {/* Calendar grid */}
-        <div className="flex-1 overflow-hidden rounded-lg">
-          {/* Header row */}
-          <div className="border-border grid grid-cols-7 border-b">
-            {[...Array(7)].map((_, i) => (
-              <div
-                key={i}
-                className="border-border border-r p-2 last:border-r-0"
-              >
-                <Skeleton className="mx-auto h-4 w-8" />
-              </div>
-            ))}
-          </div>
-
-          {/* Calendar rows */}
-          {[...Array(5)].map((_, row) => (
-            <div
-              key={row}
-              className="border-border grid grid-cols-7 border-b last:border-b-0"
-            >
-              {[...Array(7)].map((_, col) => (
-                <div
-                  key={col}
-                  className="border-border h-24 border-r p-2 last:border-r-0"
-                >
-                  <Skeleton className="mb-2 h-4 w-6" />
-                  {row % 2 === 0 && col % 3 === 0 && (
-                    <Skeleton className="h-5 w-full rounded" />
-                  )}
-                </div>
-              ))}
-            </div>
-          ))}
-        </div>
+      <div className="bg-sidebar flex min-h-0 flex-1 overflow-hidden rounded-xl border">
+        <CalendarSkeleton />
       </div>
     </div>
   )

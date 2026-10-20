@@ -1,6 +1,5 @@
 "use client"
 
-import { siteConfig } from "@/app/siteConfig"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { createClient } from "@/shared/api/supabase/client"
@@ -24,7 +23,11 @@ import {
   parseISO,
 } from "date-fns"
 import { id as idLocale } from "date-fns/locale"
-import Link from "next/link"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { useCalendarContext } from "./calendar-context"
 import { getTimelineRange } from "./utils"
@@ -36,7 +39,6 @@ type TimelineProject = {
   status: "Active" | "Completed" | "Archived" | null
   start: Date
   end: Date
-  href: string
   members: Member[]
 }
 
@@ -60,11 +62,11 @@ const LABEL_WIDTH = 240
 const ROW = "h-9"
 
 const TINTS = [
-  { bar: "bg-primary/15 border-l-primary", dot: "bg-primary" },
-  { bar: "bg-success/15 border-l-success", dot: "bg-success" },
-  { bar: "bg-warning/15 border-l-warning", dot: "bg-warning" },
-  { bar: "bg-destructive/15 border-l-destructive", dot: "bg-destructive" },
-  { bar: "bg-info/15 border-l-info", dot: "bg-info" },
+  { bar: "bg-primary/15 hover:bg-primary/25", dot: "bg-primary" },
+  { bar: "bg-success/15 hover:bg-success/25", dot: "bg-success" },
+  { bar: "bg-warning/15 hover:bg-warning/25", dot: "bg-warning" },
+  { bar: "bg-destructive/15 hover:bg-destructive/25", dot: "bg-destructive" },
+  { bar: "bg-info/15 hover:bg-info/25", dot: "bg-info" },
 ]
 function tintFor(id: string) {
   let hash = 0
@@ -123,9 +125,6 @@ function useTimelineProjects(rangeStart: Date, rangeEnd: Date) {
         status: p.status,
         start: parseISO(p.start_date),
         end: parseISO(p.end_date),
-        href: admin
-          ? `${siteConfig.baseLinks.projects}/${p.id}`
-          : `${siteConfig.baseLinks.performance}/employee/${profile.id}/project/${p.id}`,
         members: (p.project_assignments ?? [])
           .map((a) => ({
             userId: a.user_id,
@@ -304,13 +303,9 @@ export function TimelineView() {
                       tintFor(row.project.id).dot,
                     )}
                   />
-                  <Link
-                    href={row.project.href}
-                    prefetch={false}
-                    className="min-w-0 flex-1 truncate font-medium hover:underline"
-                  >
+                  <span className="min-w-0 flex-1 truncate font-medium">
                     {row.project.name}
-                  </Link>
+                  </span>
                   <Badge variant={statusVariant(row.project.status)}>
                     {row.project.status ?? "—"}
                   </Badge>
@@ -373,7 +368,7 @@ export function TimelineView() {
                         className={cx(
                           "text-[11px] tabular-nums",
                           isToday
-                            ? "bg-foreground text-background rounded-md px-1 font-medium"
+                            ? "bg-foreground text-background flex size-5 items-center justify-center rounded-[4px] font-medium"
                             : "text-muted-foreground",
                         )}
                       >
@@ -426,25 +421,43 @@ export function TimelineView() {
                 className={cx(ROW, "relative border-b")}
               >
                 {row.kind === "project" ? (
-                  <Link
-                    href={row.project.href}
-                    prefetch={false}
-                    title={`${row.project.name} · ${format(row.project.start, "d MMM", { locale: idLocale })} – ${format(row.project.end, "d MMM yyyy", { locale: idLocale })}`}
-                    className={cx(
-                      "absolute top-1.5 bottom-1.5 flex items-center justify-between gap-2 overflow-hidden rounded-md border-l-[3px] px-2 text-xs transition-colors hover:brightness-125",
-                      tint.bar,
-                    )}
-                    style={{ left, width }}
-                  >
-                    <span className="truncate font-medium">
-                      {row.project.name}
-                    </span>
-                    {width > 120 && (
-                      <span className="text-muted-foreground shrink-0 tabular-nums">
-                        {duration} hari
+                  <Tooltip>
+                    <TooltipTrigger
+                      render={
+                        <div
+                          className={cx(
+                            "absolute top-1.5 bottom-1.5 flex items-center gap-2 overflow-hidden rounded-md px-2 text-xs transition-colors",
+                            tint.bar,
+                          )}
+                          style={{ left, width }}
+                        />
+                      }
+                    >
+                      <span
+                        className={cx(
+                          "size-1.5 shrink-0 rounded-full",
+                          tint.dot,
+                        )}
+                      />
+                      <span className="min-w-0 flex-1 truncate font-medium">
+                        {row.project.name}
                       </span>
-                    )}
-                  </Link>
+                      {width > 120 && (
+                        <span className="text-muted-foreground shrink-0 tabular-nums">
+                          {duration} hari
+                        </span>
+                      )}
+                    </TooltipTrigger>
+                    <TooltipContent side="top">
+                      {row.project.name} ·{" "}
+                      {format(row.project.start, "d MMM", { locale: idLocale })}{" "}
+                      –{" "}
+                      {format(row.project.end, "d MMM yyyy", {
+                        locale: idLocale,
+                      })}{" "}
+                      · {duration} hari
+                    </TooltipContent>
+                  </Tooltip>
                 ) : (
                   <div
                     className="bg-foreground/[0.06] absolute top-3 bottom-3 rounded-full"

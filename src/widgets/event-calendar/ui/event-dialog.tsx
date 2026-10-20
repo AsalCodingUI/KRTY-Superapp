@@ -45,25 +45,48 @@ import {
 } from "./event-color-registry"
 import type { CalendarEvent } from "./types"
 
-const eventSchema = z.object({
-  title: z.string().min(1, "Judul harus diisi"),
-  description: z.string().optional(),
-  start: z.string(),
-  end: z.string(),
-  location: z.string().optional(),
-  color: z.enum([
-    "emerald",
-    "orange",
-    "violet",
-    "blue",
-    "rose",
-    "amber",
-    "cyan",
-    "neutral",
-  ]),
-  type: z.string().optional(),
-  allDay: z.boolean().optional(),
-})
+/** Now, rounded up to the next quarter hour (new events start on a slot). */
+function nextQuarterHour() {
+  const d = new Date()
+  d.setSeconds(0, 0)
+  d.setMinutes(Math.ceil(d.getMinutes() / 15) * 15)
+  return d
+}
+
+const eventSchema = z
+  .object({
+    title: z.string().min(1, "Judul harus diisi"),
+    description: z.string().optional(),
+    start: z.string(),
+    end: z.string(),
+    location: z.string().optional(),
+    color: z.enum([
+      "emerald",
+      "orange",
+      "violet",
+      "blue",
+      "rose",
+      "amber",
+      "cyan",
+      "neutral",
+    ]),
+    type: z.string().optional(),
+    allDay: z.boolean().optional(),
+  })
+  .refine(
+    (data) => {
+      const start = new Date(data.start)
+      const end = new Date(data.end)
+      if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()))
+        return false
+      // All-day: compare dates only (may end the same day). Timed: end later.
+      return data.allDay
+        ? new Date(end).setHours(0, 0, 0, 0) >=
+            new Date(start).setHours(0, 0, 0, 0)
+        : end.getTime() > start.getTime()
+    },
+    { message: "Selesai harus setelah mulai", path: ["end"] },
+  )
 
 type EventFormData = z.infer<typeof eventSchema>
 
@@ -136,13 +159,16 @@ export function EventDialog({
         description: "",
         start: initialDate
           ? format(initialDate, "yyyy-MM-dd'T'HH:mm")
-          : format(new Date(), "yyyy-MM-dd'T'HH:mm"),
+          : format(nextQuarterHour(), "yyyy-MM-dd'T'HH:mm"),
         end: initialDate
           ? format(
               new Date(initialDate.getTime() + 60 * 60 * 1000),
               "yyyy-MM-dd'T'HH:mm",
             )
-          : format(new Date(Date.now() + 60 * 60 * 1000), "yyyy-MM-dd'T'HH:mm"),
+          : format(
+              new Date(nextQuarterHour().getTime() + 60 * 60 * 1000),
+              "yyyy-MM-dd'T'HH:mm",
+            ),
         location: "",
         color: "blue",
         type: "Event",
@@ -161,6 +187,24 @@ export function EventDialog({
     defaultValues,
   })
 
+  /**
+   * Move the start and carry the end along so the duration stays the same
+   * (otherwise picking a later start leaves the end before it).
+   */
+  const moveStart = (nextStart: Date) => {
+    const prevStart = new Date(watch("start"))
+    const prevEnd = new Date(watch("end"))
+    const duration = prevEnd.getTime() - prevStart.getTime()
+    const keep =
+      Number.isFinite(duration) && duration > 0 ? duration : 60 * 60 * 1000
+    setValue("start", format(nextStart, "yyyy-MM-dd'T'HH:mm"))
+    setValue(
+      "end",
+      format(new Date(nextStart.getTime() + keep), "yyyy-MM-dd'T'HH:mm"),
+      { shouldValidate: Boolean(errors.end) },
+    )
+  }
+
   // Memoize reset function to prevent unnecessary re-renders
   const resetForm = useCallback(() => {
     if (event) {
@@ -175,7 +219,7 @@ export function EventDialog({
         allDay: event.allDay || false,
       })
     } else {
-      const startDate = initialDate || new Date()
+      const startDate = initialDate || nextQuarterHour()
       const endDate = new Date(startDate.getTime() + 60 * 60 * 1000)
 
       reset({
@@ -205,6 +249,12 @@ export function EventDialog({
   }, [open])
 
   const selectedType = watch("type")
+  // Older events can carry a type that's no longer in the list (e.g.
+  // "Sharing Santuy"); keep it selectable so editing doesn't lose it.
+  const typeOptions =
+    selectedType && !EVENT_TYPES.some((t) => t.value === selectedType)
+      ? [...EVENT_TYPES, { value: selectedType, label: selectedType }]
+      : EVENT_TYPES
 
   // Auto-set color based on type
   const handleTypeChange = (type: string) => {
@@ -319,7 +369,7 @@ export function EventDialog({
         </DialogHeader>
 
         {event && readOnly && !isEditing ? (
-          <div className="space-y-5 overflow-y-auto">
+          <div className="-mx-1 space-y-5 overflow-y-auto px-1 py-1">
             {/* Event Title & Type */}
             <div className="flex items-start justify-between gap-4">
               <h3 className="text-foreground text-base font-semibold break-words">
@@ -401,9 +451,9 @@ export function EventDialog({
           </div>
         ) : (
           <form onSubmit={handleSubmit(onSubmit)} className="min-h-0 flex-1">
-            <div className="space-y-5 overflow-y-auto">
+            <div className="-mx-1 space-y-5 overflow-y-auto px-1 py-1">
               {/* Title */}
-              <div>
+              <div className="flex flex-col gap-2">
                 <Label htmlFor="title">Judul *</Label>
                 <Input
                   id="title"
@@ -413,14 +463,14 @@ export function EventDialog({
                   disabled={readOnly}
                 />
                 {errors.title?.message && (
-                  <FieldError className="mt-1 text-xs">
+                  <FieldError className="text-xs">
                     {errors.title.message}
                   </FieldError>
                 )}
               </div>
 
               {/* Type */}
-              <div>
+              <div className="flex flex-col gap-2">
                 <Label htmlFor="type">Tipe Jadwal</Label>
                 <Select
                   value={selectedType}
@@ -431,7 +481,7 @@ export function EventDialog({
                     <SelectValue placeholder="Pilih tipe" />
                   </SelectTrigger>
                   <SelectContent>
-                    {EVENT_TYPES.map((type) => (
+                    {typeOptions.map((type) => (
                       <SelectItem key={type.value} value={type.value}>
                         {type.label}
                       </SelectItem>
@@ -458,11 +508,10 @@ export function EventDialog({
               {/* Date and Time */}
               <div className="space-y-4">
                 {/* Start Date & Time */}
-                <div>
+                <div className="flex flex-col gap-2">
                   <Label htmlFor="start">Mulai *</Label>
                   <div
                     className={cx(
-                      "mt-1",
                       watch("allDay") ? "" : "grid grid-cols-2 gap-2",
                     )}
                   >
@@ -483,10 +532,7 @@ export function EventDialog({
                               currentStart.getMinutes(),
                             )
                           }
-                          setValue(
-                            "start",
-                            format(newDate, "yyyy-MM-dd'T'HH:mm"),
-                          )
+                          moveStart(newDate)
                         }
                       }}
                       placeholder="Pilih tanggal"
@@ -512,10 +558,7 @@ export function EventDialog({
                               parseInt(hours),
                               parseInt(minutes),
                             )
-                            setValue(
-                              "start",
-                              format(currentStart, "yyyy-MM-dd'T'HH:mm"),
-                            )
+                            moveStart(currentStart)
                           }
                         }}
                         disabled={readOnly}
@@ -523,18 +566,17 @@ export function EventDialog({
                     )}
                   </div>
                   {errors.start && (
-                    <p className="text-destructive mt-1 text-xs">
+                    <p className="text-destructive text-xs">
                       {errors.start.message}
                     </p>
                   )}
                 </div>
 
                 {/* End Date & Time */}
-                <div>
+                <div className="flex flex-col gap-2">
                   <Label htmlFor="end">Selesai *</Label>
                   <div
                     className={cx(
-                      "mt-1",
                       watch("allDay") ? "" : "grid grid-cols-2 gap-2",
                     )}
                   >
@@ -590,7 +632,7 @@ export function EventDialog({
                     )}
                   </div>
                   {errors.end && (
-                    <p className="text-destructive mt-1 text-xs">
+                    <p className="text-destructive text-xs">
                       {errors.end.message}
                     </p>
                   )}
@@ -598,7 +640,7 @@ export function EventDialog({
               </div>
 
               {/* Location */}
-              <div>
+              <div className="flex flex-col gap-2">
                 <Label htmlFor="location">Lokasi</Label>
                 <Input
                   id="location"
@@ -609,7 +651,7 @@ export function EventDialog({
               </div>
 
               {/* Description */}
-              <div>
+              <div className="flex flex-col gap-2">
                 <Label htmlFor="description">Deskripsi</Label>
                 <Textarea
                   id="description"
