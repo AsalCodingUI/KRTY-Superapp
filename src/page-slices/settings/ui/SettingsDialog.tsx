@@ -67,7 +67,7 @@ export function SettingsDialog() {
       }}
     >
       <DialogContent className="flex h-[min(680px,85vh)] w-[min(1080px,92vw)] max-w-none gap-0 overflow-hidden p-0 sm:max-w-none">
-        <nav className="bg-background flex w-52 shrink-0 flex-col gap-px border-r p-2 pt-4">
+        <nav className="bg-background flex w-52 shrink-0 flex-col gap-1 border-r p-2 pt-4">
           {visible.map((item) => (
             <button
               key={item.id}
@@ -75,7 +75,7 @@ export function SettingsDialog() {
               onClick={() => open(item.id)}
               aria-current={item.id === active.id ? "page" : undefined}
               className={cx(
-                "flex h-7 cursor-pointer items-center gap-2 rounded-md px-2 text-left text-sm transition-colors [&_svg]:size-4",
+                "flex h-8 cursor-pointer items-center gap-2.5 rounded-md px-2.5 text-left text-sm transition-colors [&_svg]:size-4",
                 item.id === active.id
                   ? "bg-accent text-foreground font-medium"
                   : "text-muted-foreground hover:bg-accent hover:text-foreground",

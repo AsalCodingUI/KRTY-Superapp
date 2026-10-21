@@ -22,6 +22,7 @@ import {
 import { createClient } from "@/shared/api/supabase/client"
 import {
   matchesRoute,
+  resolveActiveChild,
   resolveWorkspace,
   workspaces,
   type WorkspaceId,
@@ -237,12 +238,26 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               </SidebarMenu>
             ) : active ? (
               <NavMain
-                items={active.items.map((item) => ({
-                  title: item.name,
-                  url: item.href,
-                  icon: <item.icon />,
-                  isActive: item.href === activeHref,
-                }))}
+                items={active.items.map((item) => {
+                  const children = (item.children ?? []).filter(
+                    (c) => !c.can || c.can(profile as WorkspaceProfile),
+                  )
+                  const activeChild =
+                    item.href === activeHref
+                      ? resolveActiveChild(pathname, children)
+                      : undefined
+                  return {
+                    title: item.name,
+                    url: item.href,
+                    icon: <item.icon />,
+                    isActive: item.href === activeHref,
+                    items: children.map((c) => ({
+                      title: c.name,
+                      url: c.href,
+                      isActive: c.href === activeChild,
+                    })),
+                  }
+                })}
               />
             ) : null}
 

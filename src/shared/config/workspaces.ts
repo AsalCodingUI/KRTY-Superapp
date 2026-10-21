@@ -2,16 +2,15 @@ import { siteConfig } from "@/app/siteConfig"
 import {
   canAccessProjectCalculator,
   canAccessSLAGenerator,
+  canManageProjects,
   isAdminRole,
 } from "@/shared/lib/roles"
 import {
   RemixiconComponentType,
   RiBarChartBoxLine,
   RiBriefcaseLine,
-  RiCalculatorLine,
   RiCalendarCheckLine,
   RiCalendarLine,
-  RiFileTextLine,
   RiFolderLine,
   RiGroupLine,
   RiHome2Line,
@@ -33,12 +32,21 @@ export type WorkspaceProfile = {
   is_super_admin?: boolean | null
 }
 
+export interface WorkspaceSubItem {
+  name: string
+  /** The first sub-item is the page's default tab and uses the parent href. */
+  href: string
+  can?: (profile: WorkspaceProfile) => boolean
+}
+
 export interface WorkspaceItem {
   name: string
   href: string
   icon: RemixiconComponentType
   /** Extra in-app rule on top of the page permission (route gating). */
   can?: (profile: WorkspaceProfile) => boolean
+  /** The page's tabs, shown nested under it while it is open. */
+  children?: WorkspaceSubItem[]
 }
 
 export interface Workspace {
@@ -74,11 +82,39 @@ export const workspaces: Workspace[] = [
         name: "Leave & Attendance",
         href: links.leave,
         icon: RiCalendarCheckLine,
+        // Mirrors the tabs in StakeholderLeavePage / EmployeeLeavePage.
+        children: isAdmin(p)
+          ? [
+              { name: "Attendance History", href: links.leave },
+              { name: "Approvals Leave", href: `${links.leave}/approval` },
+              { name: "Remaining Leave", href: `${links.leave}/remaining` },
+            ]
+          : [
+              { name: "Attendance History", href: links.leave },
+              { name: "Leave Requests", href: `${links.leave}/leave` },
+            ],
       },
       {
         name: "Performance",
         href: links.performance,
         icon: RiBarChartBoxLine,
+        // Mirrors PerformancePage tabs (Team KPI depends on a runtime lead
+        // check, so it stays a page tab only).
+        children: [
+          { name: "KPI", href: links.performance },
+          { name: "360 Review", href: `${links.performance}/360-review` },
+          { name: "Jadwal 1:1", href: `${links.performance}/one-on-one` },
+          {
+            name: "List Project",
+            href: `${links.performance}/list-project`,
+            can: (q) => isAdmin(q) || canManageProjects(q),
+          },
+          {
+            name: "Competency Library",
+            href: `${links.performance}/competency-library`,
+            can: isAdmin,
+          },
+        ],
       },
     ],
   },
@@ -88,18 +124,23 @@ export const workspaces: Workspace[] = [
     icon: RiBriefcaseLine,
     items: () => [
       { name: "Calendar", href: links.calendar, icon: RiCalendarLine },
-      { name: "Projects", href: links.projects, icon: RiFolderLine },
       {
-        name: "Calculator",
-        href: `${links.projects}/calculator`,
-        icon: RiCalculatorLine,
-        can: (p) => canAccessProjectCalculator(p),
-      },
-      {
-        name: "SLA Generator",
-        href: `${links.projects}/sla`,
-        icon: RiFileTextLine,
-        can: (p) => canAccessSLAGenerator(p),
+        name: "Projects",
+        href: links.projects,
+        icon: RiFolderLine,
+        children: [
+          { name: "Daftar Project", href: links.projects },
+          {
+            name: "Calculator",
+            href: `${links.projects}/calculator`,
+            can: (p) => canAccessProjectCalculator(p),
+          },
+          {
+            name: "SLA Generator",
+            href: `${links.projects}/sla`,
+            can: (p) => canAccessSLAGenerator(p),
+          },
+        ],
       },
     ],
   },
@@ -130,4 +171,19 @@ export function resolveWorkspace(
     }
   }
   return best?.id ?? "personal"
+}
+
+/**
+ * Active sub-item: the longest child href that matches; the first child (the
+ * page's default tab) when only the parent matches (e.g. /projects/<id>).
+ */
+export function resolveActiveChild(
+  pathname: string,
+  children: WorkspaceSubItem[],
+): string | undefined {
+  const [first, ...rest] = children
+  const hit = rest
+    .filter((c) => matchesRoute(pathname, c.href))
+    .sort((a, b) => b.href.length - a.href.length)[0]
+  return hit?.href ?? first?.href
 }
