@@ -3,9 +3,14 @@
 import {
   Breadcrumb,
   BreadcrumbItem,
+  BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
+  BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
+import { matchProjectPath } from "@/shared/config/project-sections"
+import { useProjectSummary } from "@/shared/hooks/useProjectSummary"
+import Link from "next/link"
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { workspaces } from "@/shared/config/workspaces"
@@ -32,6 +37,9 @@ function useSectionTitle() {
 
 export function SiteHeader() {
   const title = useSectionTitle()
+  const pathname = usePathname()
+  const projectPath = matchProjectPath(pathname)
+  const { data: project } = useProjectSummary(projectPath?.id)
 
   return (
     <header className="flex h-12 shrink-0 items-center gap-2">
@@ -43,9 +51,33 @@ export function SiteHeader() {
         />
         <Breadcrumb>
           <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbPage className="font-medium">{title}</BreadcrumbPage>
-            </BreadcrumbItem>
+            {projectPath ? (
+              <>
+                <BreadcrumbItem>
+                  <BreadcrumbLink render={<Link href="/projects" />}>
+                    Projects
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbLink
+                    render={<Link href={`/projects/${projectPath.id}`} />}
+                  >
+                    {project?.name ?? "…"}
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbPage className="font-medium">
+                    {projectPath.section.name}
+                  </BreadcrumbPage>
+                </BreadcrumbItem>
+              </>
+            ) : (
+              <BreadcrumbItem>
+                <BreadcrumbPage className="font-medium">{title}</BreadcrumbPage>
+              </BreadcrumbItem>
+            )}
           </BreadcrumbList>
         </Breadcrumb>
         <div className="ml-auto">

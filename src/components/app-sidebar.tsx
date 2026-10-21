@@ -5,6 +5,7 @@ import * as React from "react"
 import { siteConfig } from "@/app/siteConfig"
 import { NavMain } from "@/components/nav-main"
 import { BrandLogo } from "@/components/brand-logo"
+import { NavProject } from "@/components/nav-project"
 import { NavUser } from "@/components/nav-user"
 import { ProjectAvatar } from "@/components/project-avatar"
 import { useNavBadges } from "@/components/use-nav-badges"
@@ -23,6 +24,7 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar"
 import { createClient } from "@/shared/api/supabase/client"
+import { matchProjectPath } from "@/shared/config/project-sections"
 import {
   matchesRoute,
   resolveActiveChild,
@@ -99,6 +101,7 @@ function useSidebarProjects(profile: { id: string; role: string } | null) {
 /** Deterministic tint per project so each one keeps its colour. */
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname()
+  const projectPath = matchProjectPath(pathname)
   const { profile, userEmail, loading: profileLoading } = useUserProfile()
   const { permissions, loading: permLoading } = usePagePermissions()
   const loading = profileLoading || permLoading
@@ -244,6 +247,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   </SidebarMenuItem>
                 ))}
               </SidebarMenu>
+            ) : projectPath ? (
+              <NavProject />
             ) : active ? (
               <NavMain
                 items={active.items.map((item) => {
@@ -270,28 +275,30 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               />
             ) : null}
 
-            {active?.id === "project" && projects.length > 0 && (
-              <SidebarGroup>
-                <SidebarGroupLabel>Active projects</SidebarGroupLabel>
-                <SidebarMenu>
-                  {projects.map((project) => (
-                    <SidebarMenuItem key={project.id}>
-                      <SidebarMenuButton
-                        isActive={matchesRoute(pathname, project.href)}
-                        render={<Link href={project.href} prefetch={false} />}
-                      >
-                        <ProjectAvatar
-                          id={project.id}
-                          name={project.name}
-                          className="size-4 rounded-[4px]"
-                        />
-                        <span className="truncate">{project.name}</span>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
-                </SidebarMenu>
-              </SidebarGroup>
-            )}
+            {!projectPath &&
+              active?.id === "project" &&
+              projects.length > 0 && (
+                <SidebarGroup>
+                  <SidebarGroupLabel>Active projects</SidebarGroupLabel>
+                  <SidebarMenu>
+                    {projects.map((project) => (
+                      <SidebarMenuItem key={project.id}>
+                        <SidebarMenuButton
+                          isActive={matchesRoute(pathname, project.href)}
+                          render={<Link href={project.href} prefetch={false} />}
+                        >
+                          <ProjectAvatar
+                            id={project.id}
+                            name={project.name}
+                            className="size-4 rounded-[4px]"
+                          />
+                          <span className="truncate">{project.name}</span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    ))}
+                  </SidebarMenu>
+                </SidebarGroup>
+              )}
           </SidebarContent>
         </Sidebar>
       </div>

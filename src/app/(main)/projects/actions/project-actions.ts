@@ -235,6 +235,15 @@ export async function setProjectStatus(
 export async function deleteProject(id: string): Promise<Result> {
   const supabase = await admin()
   if (!supabase) return { success: false, error: "Khusus admin." }
+  // Files in storage aren't cascaded with the rows; remove them first.
+  const [{ data: files }, { data: docs }] = await Promise.all([
+    supabase.from("project_files").select("file_path").eq("project_id", id),
+    supabase.from("project_documents").select("file_path").eq("project_id", id),
+  ])
+  const paths = [...(files ?? []), ...(docs ?? [])]
+    .map((f: { file_path: string | null }) => f.file_path)
+    .filter((path): path is string => Boolean(path))
+  if (paths.length) await supabase.storage.from("project-files").remove(paths)
   const { data, error } = await supabase
     .from("projects")
     .delete()

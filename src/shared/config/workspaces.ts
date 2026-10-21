@@ -1,7 +1,5 @@
 import { siteConfig } from "@/app/siteConfig"
-import {
-  isAdminRole,
-} from "@/shared/lib/roles"
+import { isAdminRole } from "@/shared/lib/roles"
 import {
   RemixiconComponentType,
   RiBarChartBoxLine,

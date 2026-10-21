@@ -832,6 +832,213 @@ export type Database = {
           },
         ]
       }
+      project_documents: {
+        Row: {
+          id: string
+          project_id: string
+          kind: string
+          title: string
+          status: string
+          file_path: string | null
+          file_name: string | null
+          file_size: number | null
+          created_by: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          project_id: string
+          kind?: string
+          title: string
+          status?: string
+          file_path?: string | null
+          file_name?: string | null
+          file_size?: number | null
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          project_id?: string
+          kind?: string
+          title?: string
+          status?: string
+          file_path?: string | null
+          file_name?: string | null
+          file_size?: number | null
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      project_files: {
+        Row: {
+          id: string
+          project_id: string
+          folder_id: string | null
+          name: string
+          file_path: string
+          file_size: number | null
+          mime_type: string | null
+          created_by: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          project_id: string
+          folder_id?: string | null
+          name: string
+          file_path: string
+          file_size?: number | null
+          mime_type?: string | null
+          created_by?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          project_id?: string
+          folder_id?: string | null
+          name?: string
+          file_path?: string
+          file_size?: number | null
+          mime_type?: string | null
+          created_by?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      project_folders: {
+        Row: {
+          id: string
+          project_id: string
+          name: string
+          created_by: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          project_id: string
+          name: string
+          created_by?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          project_id?: string
+          name?: string
+          created_by?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      project_phases: {
+        Row: {
+          id: string
+          project_id: string
+          name: string
+          position: number
+          status: string
+          completed_at: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          project_id: string
+          name: string
+          position: number
+          status?: string
+          completed_at?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          project_id?: string
+          name?: string
+          position?: number
+          status?: string
+          completed_at?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      project_steps: {
+        Row: {
+          id: string
+          project_id: string
+          phase_id: string
+          title: string
+          status: string
+          position: number
+          created_by: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          project_id: string
+          phase_id: string
+          title: string
+          status?: string
+          position?: number
+          created_by?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          project_id?: string
+          phase_id?: string
+          title?: string
+          status?: string
+          position?: number
+          created_by?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      project_tasks: {
+        Row: {
+          id: string
+          project_id: string
+          phase_id: string | null
+          parent_id: string | null
+          title: string
+          assignee_id: string | null
+          due_date: string | null
+          done: boolean
+          completed_at: string | null
+          created_by: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          project_id: string
+          phase_id?: string | null
+          parent_id?: string | null
+          title: string
+          assignee_id?: string | null
+          due_date?: string | null
+          done?: boolean
+          completed_at?: string | null
+          created_by?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          project_id?: string
+          phase_id?: string | null
+          parent_id?: string | null
+          title?: string
+          assignee_id?: string | null
+          due_date?: string | null
+          done?: boolean
+          completed_at?: string | null
+          created_by?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
       project_invoices: {
         Row: {
           amount_idr: number
@@ -1035,6 +1242,10 @@ export type Database = {
       }
       projects: {
         Row: {
+          client_name: string | null
+          client_contact: string | null
+          client_email: string | null
+          client_phone: string | null
           created_at: string | null
           description: string | null
           end_date: string
@@ -1046,6 +1257,10 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          client_name?: string | null
+          client_contact?: string | null
+          client_email?: string | null
+          client_phone?: string | null
           created_at?: string | null
           description?: string | null
           end_date: string
@@ -1057,6 +1272,10 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          client_name?: string | null
+          client_contact?: string | null
+          client_email?: string | null
+          client_phone?: string | null
           created_at?: string | null
           description?: string | null
           end_date?: string
