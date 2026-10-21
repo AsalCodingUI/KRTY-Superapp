@@ -1,19 +1,19 @@
-"use client";
+"use client"
 
-import type { Variants } from "motion/react";
-import { motion, useAnimation } from "motion/react";
-import type { HTMLAttributes } from "react";
-import { forwardRef, useCallback, useImperativeHandle, useRef } from "react";
+import type { Variants } from "motion/react"
+import { motion, useAnimation } from "motion/react"
+import type { HTMLAttributes } from "react"
+import { forwardRef, useCallback, useImperativeHandle, useRef } from "react"
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils"
 
 export interface RocketIconHandle {
-  startAnimation: () => void;
-  stopAnimation: () => void;
+  startAnimation: () => void
+  stopAnimation: () => void
 }
 
 interface RocketIconProps extends HTMLAttributes<HTMLDivElement> {
-  size?: number;
+  size?: number
 }
 
 const VARIANTS: Variants = {
@@ -32,7 +32,7 @@ const VARIANTS: Variants = {
       times: [0, 0.15, 0.3, 0.45, 0.6, 0.75, 0.9, 1],
     },
   },
-};
+}
 
 const FIRE_VARIANTS: Variants = {
   normal: {
@@ -53,43 +53,43 @@ const FIRE_VARIANTS: Variants = {
       times: [0, 0.2, 0.5, 0.8, 1],
     },
   },
-};
+}
 
 const RocketIcon = forwardRef<RocketIconHandle, RocketIconProps>(
   ({ onMouseEnter, onMouseLeave, className, size = 28, ...props }, ref) => {
-    const controls = useAnimation();
-    const isControlledRef = useRef(false);
+    const controls = useAnimation()
+    const isControlledRef = useRef(false)
 
     useImperativeHandle(ref, () => {
-      isControlledRef.current = true;
+      isControlledRef.current = true
 
       return {
         startAnimation: () => controls.start("animate"),
         stopAnimation: () => controls.start("normal"),
-      };
-    });
+      }
+    })
 
     const handleMouseEnter = useCallback(
       (e: React.MouseEvent<HTMLDivElement>) => {
         if (isControlledRef.current) {
-          onMouseEnter?.(e);
+          onMouseEnter?.(e)
         } else {
-          controls.start("animate");
+          controls.start("animate")
         }
       },
-      [controls, onMouseEnter]
-    );
+      [controls, onMouseEnter],
+    )
 
     const handleMouseLeave = useCallback(
       (e: React.MouseEvent<HTMLDivElement>) => {
         if (isControlledRef.current) {
-          onMouseLeave?.(e);
+          onMouseLeave?.(e)
         } else {
-          controls.start("normal");
+          controls.start("normal")
         }
       },
-      [controls, onMouseLeave]
-    );
+      [controls, onMouseLeave],
+    )
 
     return (
       <div
@@ -121,10 +121,10 @@ const RocketIcon = forwardRef<RocketIconHandle, RocketIconProps>(
           <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" />
         </motion.svg>
       </div>
-    );
-  }
-);
+    )
+  },
+)
 
-RocketIcon.displayName = "RocketIcon";
+RocketIcon.displayName = "RocketIcon"
 
-export { RocketIcon };
+export { RocketIcon }

@@ -17,10 +17,13 @@ import {
 } from "@/components/ui/sidebar"
 import {
   Settings as SettingsIcon,
+  ArrowLeft as UndoIcon,
   Logout as LogOutIcon,
   MessageCircle as MessageCircleIcon,
 } from "@/components/icons"
 import { useSettingsModal } from "@/shared/hooks/useSettingsModal"
+import { useUserProfile } from "@/shared/hooks/useUserProfile"
+import { useStopImpersonation } from "@/widgets/impersonation/model/useStopImpersonation"
 
 function initialsOf(name: string) {
   return (
@@ -48,6 +51,8 @@ export function NavUser({
 }) {
   const initials = initialsOf(user.name)
   const settings = useSettingsModal()
+  const { isImpersonating } = useUserProfile()
+  const { stop: stopImpersonation } = useStopImpersonation()
 
   return (
     // Centred in the rail.
@@ -109,6 +114,12 @@ export function NavUser({
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
+              {isImpersonating && (
+                <DropdownMenuItem onClick={stopImpersonation}>
+                  <UndoIcon />
+                  Kembali ke akun saya
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem onClick={onSignOut}>
                 <LogOutIcon />
                 Log out

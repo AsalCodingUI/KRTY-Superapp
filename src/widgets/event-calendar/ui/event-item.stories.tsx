@@ -52,11 +52,35 @@ export const CompactDefault: Story = {
 export const CompactColors: Story = {
   render: () => (
     <div className="space-y-2">
-      <EventItem compact showTime event={createEvent({ id: "b", color: "blue", title: "09:30 Meeting" })} />
-      <EventItem compact showTime event={createEvent({ id: "g", color: "emerald", title: "Company Update" })} />
-      <EventItem compact showTime event={createEvent({ id: "y", color: "amber", title: "Urgent Review" })} />
-      <EventItem compact showTime event={createEvent({ id: "r", color: "rose", title: "Leave Approval" })} />
-      <EventItem compact showTime event={createEvent({ id: "n", color: "neutral", title: "Reminder" })} />
+      <EventItem
+        compact
+        showTime
+        event={createEvent({ id: "b", color: "blue", title: "09:30 Meeting" })}
+      />
+      <EventItem
+        compact
+        showTime
+        event={createEvent({
+          id: "g",
+          color: "emerald",
+          title: "Company Update",
+        })}
+      />
+      <EventItem
+        compact
+        showTime
+        event={createEvent({ id: "y", color: "amber", title: "Urgent Review" })}
+      />
+      <EventItem
+        compact
+        showTime
+        event={createEvent({ id: "r", color: "rose", title: "Leave Approval" })}
+      />
+      <EventItem
+        compact
+        showTime
+        event={createEvent({ id: "n", color: "neutral", title: "Reminder" })}
+      />
     </div>
   ),
 }

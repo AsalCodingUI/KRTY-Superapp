@@ -1,69 +1,61 @@
 "use client"
 
-import { useUserProfile } from "@/shared/hooks/useUserProfile"
-import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
-import { useRouter } from "next/navigation"
-import { useState } from "react"
-import { toast } from "sonner"
+import { useUserProfile } from "@/shared/hooks/useUserProfile"
+import { AppBanner } from "@/widgets/app-banner/ui/AppBanner"
+import { useEffect, useState } from "react"
+import { useStopImpersonation } from "../model/useStopImpersonation"
 
+const DISMISS_KEY = "impersonation_banner_hidden"
+
+/** "Kamu melihat sebagai …" while an admin uses view-as. */
 export function ImpersonationBanner() {
-  const router = useRouter()
-  const { isImpersonating, profile, authProfile, refreshProfile } =
-    useUserProfile()
-  const [loading, setLoading] = useState(false)
+  const { isImpersonating, profile, authProfile } = useUserProfile()
+  const { stop, loading } = useStopImpersonation()
+  const [hiddenFor, setHiddenFor] = useState<string | null>(null)
 
-  if (!isImpersonating || !profile) return null
-
-  const stopImpersonation = async () => {
-    setLoading(true)
+  // Closing hides it for this person until the tab closes; the account
+  // menu still has "Kembali ke akun saya".
+  useEffect(() => {
     try {
-      const response = await fetch("/api/admin/impersonation", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: null }),
-      })
-
-      if (!response.ok) {
-        const payload = await response.json().catch(() => ({}))
-        throw new Error(payload?.error || "Failed to exit impersonation")
-      }
-
-      await refreshProfile()
-      toast.success("Returned to your account")
-      router.refresh()
-      router.push("/dashboard?settings=members")
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Failed to exit impersonation",
-      )
-    } finally {
-      setLoading(false)
+      setHiddenFor(window.sessionStorage.getItem(DISMISS_KEY))
+    } catch {
+      // Storage blocked: the banner just shows.
     }
-  }
+  }, [])
+
+  if (!isImpersonating || !profile || hiddenFor === profile.id) return null
 
   return (
-    <div className="bg-warning/10 sticky top-0 z-40 px-5 py-2">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-warning min-w-0 truncate text-sm">
-          Viewing as{" "}
-          <strong>{profile.full_name || profile.email || "User"}</strong>
-          {authProfile?.full_name ? (
-            <span className="text-warning/85">
-              {" "}
-              • Original: {authProfile.full_name}
-            </span>
-          ) : null}
-        </p>
-        <Button
-          variant="outline"
-          onClick={stopImpersonation}
+    <AppBanner
+      tone="warning"
+      onClose={() => {
+        setHiddenFor(profile.id)
+        try {
+          window.sessionStorage.setItem(DISMISS_KEY, profile.id)
+        } catch {
+          // Storage blocked: hidden until reload.
+        }
+      }}
+      action={
+        <button
+          type="button"
+          onClick={stop}
           disabled={loading}
+          className="flex shrink-0 items-center gap-1.5 rounded-md px-2 py-1 text-sm font-medium hover:bg-current/10 disabled:opacity-60"
         >
-          {loading && <Spinner data-icon="inline-start" />}
-          Back to my account
-        </Button>
-      </div>
-    </div>
+          {loading && <Spinner className="size-3.5" />}
+          Kembali ke akun saya
+        </button>
+      }
+    >
+      Kamu melihat sebagai{" "}
+      <strong className="font-semibold">
+        {profile.full_name || profile.email || "anggota"}
+      </strong>
+      {authProfile?.full_name && (
+        <span className="opacity-80"> · akun asli {authProfile.full_name}</span>
+      )}
+    </AppBanner>
   )
 }

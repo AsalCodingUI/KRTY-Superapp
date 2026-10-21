@@ -34,9 +34,9 @@ export function EmptyState({
       action={
         onCreateEvent
           ? {
-            label: "Buat jadwal pertama",
-            onClick: onCreateEvent,
-          }
+              label: "Buat jadwal pertama",
+              onClick: onCreateEvent,
+            }
           : undefined
       }
     />

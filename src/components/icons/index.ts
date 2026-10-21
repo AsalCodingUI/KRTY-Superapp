@@ -87,10 +87,16 @@ export const ArrowRight = animated(ArrowRightIconSource, "ArrowRight")
 export const ArrowUp = animated(ArrowUpIconSource, "ArrowUp")
 export const Bell = animated(BellIconSource, "Bell")
 export const Bold = animated(BoldIconSource, "Bold")
-export const BriefcaseBusiness = animated(BriefcaseBusinessIconSource, "BriefcaseBusiness")
+export const BriefcaseBusiness = animated(
+  BriefcaseBusinessIconSource,
+  "BriefcaseBusiness",
+)
 export const CalendarCheck = animated(CalendarCheckIconSource, "CalendarCheck")
 export const CalendarDays = animated(CalendarDaysIconSource, "CalendarDays")
-export const ChartColumnIncreasing = animated(ChartColumnIncreasingIconSource, "ChartColumnIncreasing")
+export const ChartColumnIncreasing = animated(
+  ChartColumnIncreasingIconSource,
+  "ChartColumnIncreasing",
+)
 export const ChartLine = animated(ChartLineIconSource, "ChartLine")
 export const CheckCheck = animated(CheckCheckIconSource, "CheckCheck")
 export const Check = animated(CheckIconSource, "Check")
@@ -98,10 +104,16 @@ export const ChevronDown = animated(ChevronDownIconSource, "ChevronDown")
 export const ChevronLeft = animated(ChevronLeftIconSource, "ChevronLeft")
 export const ChevronRight = animated(ChevronRightIconSource, "ChevronRight")
 export const ChevronUp = animated(ChevronUpIconSource, "ChevronUp")
-export const ChevronsUpDown = animated(ChevronsUpDownIconSource, "ChevronsUpDown")
+export const ChevronsUpDown = animated(
+  ChevronsUpDownIconSource,
+  "ChevronsUpDown",
+)
 export const Chrome = animated(ChromeIconSource, "Chrome")
 export const CircleCheck = animated(CircleCheckIconSource, "CircleCheck")
-export const CircleDollarSign = animated(CircleDollarSignIconSource, "CircleDollarSign")
+export const CircleDollarSign = animated(
+  CircleDollarSignIconSource,
+  "CircleDollarSign",
+)
 export const CircleHelp = animated(CircleHelpIconSource, "CircleHelp")
 export const Clock = animated(ClockIconSource, "Clock")
 export const Coffee = animated(CoffeeIconSource, "Coffee")
@@ -137,7 +149,10 @@ export const Rocket = animated(RocketIconSource, "Rocket")
 export const Search = animated(SearchIconSource, "Search")
 export const Send = animated(SendIconSource, "Send")
 export const Settings = animated(SettingsIconSource, "Settings")
-export const SlidersHorizontal = animated(SlidersHorizontalIconSource, "SlidersHorizontal")
+export const SlidersHorizontal = animated(
+  SlidersHorizontalIconSource,
+  "SlidersHorizontal",
+)
 export const Smile = animated(SmileIconSource, "Smile")
 export const SquarePen = animated(SquarePenIconSource, "SquarePen")
 export const Sun = animated(SunIconSource, "Sun")

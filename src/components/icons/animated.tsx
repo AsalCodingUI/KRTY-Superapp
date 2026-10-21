@@ -15,8 +15,10 @@ type AnimatedIconSource = React.ForwardRefExoticComponent<
   } & React.RefAttributes<AnimatedIconHandle>
 >
 
-export interface AnimatedIconProps
-  extends Omit<React.HTMLAttributes<HTMLDivElement>, "color"> {
+export interface AnimatedIconProps extends Omit<
+  React.HTMLAttributes<HTMLDivElement>,
+  "color"
+> {
   /** Pixel size of the svg (CSS `size-*` classes still win). */
   size?: number | string
   strokeWidth?: number | string
@@ -50,7 +52,15 @@ const TRIGGER_SELECTOR = [
 export function animated(Icon: AnimatedIconSource, displayName: string) {
   const Wrapped = React.forwardRef<SVGSVGElement, AnimatedIconProps>(
     function AnimatedIcon(
-      { className, size = 24, strokeWidth, color, standalone = false, style, ...props },
+      {
+        className,
+        size = 24,
+        strokeWidth,
+        color,
+        standalone = false,
+        style,
+        ...props
+      },
       _ref,
     ) {
       const anchorRef = React.useRef<HTMLSpanElement>(null)
@@ -60,7 +70,8 @@ export function animated(Icon: AnimatedIconSource, displayName: string) {
         if (standalone) return
         const anchor = anchorRef.current
         const trigger =
-          anchor?.closest<HTMLElement>(TRIGGER_SELECTOR) ?? anchor?.parentElement
+          anchor?.closest<HTMLElement>(TRIGGER_SELECTOR) ??
+          anchor?.parentElement
         if (!trigger) return
         const start = () => handleRef.current?.startAnimation()
         const stop = () => handleRef.current?.stopAnimation()

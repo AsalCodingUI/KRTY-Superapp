@@ -1,19 +1,19 @@
-"use client";
+"use client"
 
-import type { Variants } from "motion/react";
-import { motion, useAnimation } from "motion/react";
-import type { HTMLAttributes } from "react";
-import { forwardRef, useCallback, useImperativeHandle, useRef } from "react";
+import type { Variants } from "motion/react"
+import { motion, useAnimation } from "motion/react"
+import type { HTMLAttributes } from "react"
+import { forwardRef, useCallback, useImperativeHandle, useRef } from "react"
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils"
 
 export interface RadioIconHandle {
-  startAnimation: () => void;
-  stopAnimation: () => void;
+  startAnimation: () => void
+  stopAnimation: () => void
 }
 
 interface RadioIconProps extends HTMLAttributes<HTMLDivElement> {
-  size?: number;
+  size?: number
 }
 
 const VARIANTS: Variants = {
@@ -36,47 +36,47 @@ const VARIANTS: Variants = {
       delay: i * 0.1,
     },
   }),
-};
+}
 
 const RadioIcon = forwardRef<RadioIconHandle, RadioIconProps>(
   ({ onMouseEnter, onMouseLeave, className, size = 28, ...props }, ref) => {
-    const controls = useAnimation();
-    const isControlledRef = useRef(false);
+    const controls = useAnimation()
+    const isControlledRef = useRef(false)
 
     useImperativeHandle(ref, () => {
-      isControlledRef.current = true;
+      isControlledRef.current = true
 
       return {
         startAnimation: async () => {
-          await controls.start("fadeOut");
-          controls.start("fadeIn");
+          await controls.start("fadeOut")
+          controls.start("fadeIn")
         },
         stopAnimation: () => controls.start("normal"),
-      };
-    });
+      }
+    })
 
     const handleMouseEnter = useCallback(
       async (e: React.MouseEvent<HTMLDivElement>) => {
         if (isControlledRef.current) {
-          onMouseEnter?.(e);
+          onMouseEnter?.(e)
         } else {
-          await controls.start("fadeOut");
-          controls.start("fadeIn");
+          await controls.start("fadeOut")
+          controls.start("fadeIn")
         }
       },
-      [controls, onMouseEnter]
-    );
+      [controls, onMouseEnter],
+    )
 
     const handleMouseLeave = useCallback(
       (e: React.MouseEvent<HTMLDivElement>) => {
         if (isControlledRef.current) {
-          onMouseLeave?.(e);
+          onMouseLeave?.(e)
         } else {
-          controls.start("normal");
+          controls.start("normal")
         }
       },
-      [controls, onMouseLeave]
-    );
+      [controls, onMouseLeave],
+    )
 
     return (
       <div
@@ -127,10 +127,10 @@ const RadioIcon = forwardRef<RadioIconHandle, RadioIconProps>(
           />
         </svg>
       </div>
-    );
-  }
-);
+    )
+  },
+)
 
-RadioIcon.displayName = "RadioIcon";
+RadioIcon.displayName = "RadioIcon"
 
-export { RadioIcon };
+export { RadioIcon }

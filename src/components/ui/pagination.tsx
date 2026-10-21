@@ -3,7 +3,10 @@ import { cn } from "cn"
 
 import { Button } from "@/components/ui/button"
 import { MoreHorizontalIcon } from "lucide-react"
-import { ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon } from "@/components/icons"
+import {
+  ChevronLeft as ChevronLeftIcon,
+  ChevronRight as ChevronRightIcon,
+} from "@/components/icons"
 
 function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
   return (
@@ -109,12 +112,11 @@ function PaginationEllipsis({
       data-slot="pagination-ellipsis"
       className={cn(
         "flex size-8 items-center justify-center [&_svg:not([class*='size-'])]:size-4",
-        className
+        className,
       )}
       {...props}
     >
-      <MoreHorizontalIcon
-      />
+      <MoreHorizontalIcon />
       <span className="sr-only">More pages</span>
     </span>
   )

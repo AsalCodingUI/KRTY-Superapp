@@ -3,6 +3,7 @@ import { SiteHeader } from "@/components/site-header"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { Spinner } from "@/components/ui/spinner"
 import { SettingsDialog } from "@/page-slices/settings"
+import { AppBannerStack } from "@/widgets/app-banner/ui/AppBanner"
 import { ImpersonationBanner } from "@/widgets/impersonation/ui/ImpersonationBanner"
 import { Suspense } from "react"
 
@@ -20,12 +21,17 @@ export default function Layout({
   children: React.ReactNode
 }>) {
   return (
-    <SidebarProvider>
+    <SidebarProvider className="flex-wrap">
+      {/* Full-width banners above everything (view-as, later announcements). */}
+      <div className="w-full">
+        <AppBannerStack>
+          <ImpersonationBanner />
+        </AppBannerStack>
+      </div>
       <AppSidebar />
       <SidebarInset>
         <SiteHeader />
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-          <ImpersonationBanner />
           <Suspense fallback={<PageFallback />}>{children}</Suspense>
         </div>
         {/* Settings opens as a modal over any page (?settings=<section>). */}

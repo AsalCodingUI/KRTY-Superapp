@@ -19,6 +19,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarMenuSkeleton,
+  SidebarRail,
 } from "@/components/ui/sidebar"
 import { createClient } from "@/shared/api/supabase/client"
 import {
@@ -173,6 +174,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       className="overflow-hidden"
       {...props}
     >
+      <SidebarRail />
       {/* Row wrapper: the mobile sheet stacks its children vertically. */}
       <div className="flex h-full w-full flex-row">
         {/* Rail: workspaces */}
