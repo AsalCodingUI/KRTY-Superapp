@@ -4,6 +4,8 @@ import { toast } from "sonner"
 import { createTeamColumns } from "@/app/(main)/teams/Columns"
 import { TeamFormDialog } from "@/app/(main)/teams/components/TeamDialogs"
 import { createClient } from "@/shared/api/supabase/client"
+import { useSettingsModal } from "@/shared/hooks/useSettingsModal"
+import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { canManageByRole } from "@/shared/lib/roles"
 import { Database } from "@/shared/types/database.types"
 import { DataTable } from "@/components/data-table"
@@ -13,7 +15,7 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group"
-import { RiAddLine, RiSearchLine } from "@/shared/ui/lucide-icons"
+import { RiAddLine, RiLockLine, RiSearchLine } from "@/shared/ui/lucide-icons"
 import { useMemo, useState } from "react"
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
@@ -44,6 +46,9 @@ export function TeamsPage({
   const [searchTerm, setSearchTerm] = useState("")
 
   const canManage = canManageByRole(role)
+  const { profile } = useUserProfile()
+  const isSuperAdmin = profile?.is_super_admin === true
+  const settings = useSettingsModal()
 
   // Handle page change
   const handlePageChange = (newPage: number) => {
@@ -120,17 +125,29 @@ export function TeamsPage({
               />
             </InputGroup>
 
-            {canManage && (
-              <Button
-                onClick={() => {
-                  setEditingItem(null)
-                  setIsAddOpen(true)
-                }}
-              >
-                <RiAddLine className="mr-2 size-4" />
-                Add Member
-              </Button>
-            )}
+            <div className="flex items-center gap-2">
+              {/* Roles, page access and "view as" live in Settings. */}
+              {isSuperAdmin && (
+                <Button
+                  variant="outline"
+                  onClick={() => settings.open("members")}
+                >
+                  <RiLockLine data-icon="inline-start" />
+                  Anggota & Akses
+                </Button>
+              )}
+              {canManage && (
+                <Button
+                  onClick={() => {
+                    setEditingItem(null)
+                    setIsAddOpen(true)
+                  }}
+                >
+                  <RiAddLine data-icon="inline-start" />
+                  Add Member
+                </Button>
+              )}
+            </div>
           </div>
 
           <div className="py-4">

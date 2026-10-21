@@ -32,7 +32,7 @@ export function ImpersonationBanner() {
       await refreshProfile()
       toast.success("Returned to your account")
       router.refresh()
-      router.push("/settings/permission")
+      router.push("/dashboard?settings=members")
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Failed to exit impersonation",
