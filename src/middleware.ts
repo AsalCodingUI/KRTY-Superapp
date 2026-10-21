@@ -218,7 +218,13 @@ export async function middleware(request: NextRequest) {
     return supabaseResponse
   }
 
-  if (!matched || matched.granted !== true) {
+  // A path no permission row covers isn't an app page: let Next render its
+  // 404 instead of bouncing to the dashboard. Only known pages are gated.
+  if (!matched) {
+    return supabaseResponse
+  }
+
+  if (matched.granted !== true) {
     const firstAllowed = rows.find((row) => row.granted)?.page_slug
 
     if (firstAllowed && firstAllowed !== url.pathname) {

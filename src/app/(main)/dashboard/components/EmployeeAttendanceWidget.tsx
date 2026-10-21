@@ -160,8 +160,8 @@ export function EmployeeAttendanceWidget({
         </h4>
         {logs.length === 0 ? (
           <EmptyState
-            title="No attendance records"
-            description="Clock in to start tracking your attendance."
+            title="Belum ada data kehadiran"
+            description="Clock in untuk mulai mencatat kehadiranmu."
             placement="inner"
             icon={<RiCheckboxCircleLine className="size-5" />}
           />
@@ -241,8 +241,8 @@ export function EmployeeAttendanceWidget({
           </div>
         ) : (
           <EmptyState
-            title="No recent leave requests"
-            description="Submit a leave request when you need time off."
+            title="Belum ada pengajuan cuti"
+            description="Ajukan cuti kalau kamu butuh libur."
             placement="inner"
             icon={<RiCalendarLine className="size-5" />}
           />

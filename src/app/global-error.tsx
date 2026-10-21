@@ -18,97 +18,83 @@ export default function GlobalError({
     console.error("Root Layout Error:", error)
   }, [error])
 
+  // The root layout itself failed, so no CSS: plain inline styles that
+  // match the app's dark theme.
   return (
-    <html lang="en">
+    <html lang="id">
       <body
         style={{
           margin: 0,
-          fontFamily:
-            "Inter, -apple-system, BlinkMacSystemFont, sans-serif",
-          backgroundColor: "#fafafa",
+          minHeight: "100vh",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          minHeight: "100vh",
+          background: "#141414",
+          color: "#ededed",
+          fontFamily: "Inter, -apple-system, BlinkMacSystemFont, sans-serif",
+          textAlign: "center",
         }}
       >
-        <div
-          style={{
-            maxWidth: 420,
-            padding: 32,
-            textAlign: "center",
-            background: "#fff",
-            borderRadius: 12,
-            border: "1px solid #e5e5e5",
-          }}
-        >
+        <div style={{ maxWidth: 420, padding: 24 }}>
           <div
             style={{
-              width: 48,
-              height: 48,
-              borderRadius: "50%",
-              background: "#fef2f2",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              margin: "0 auto 16px",
-              fontSize: 24,
+              fontSize: 112,
+              fontWeight: 600,
+              lineHeight: 1,
+              letterSpacing: "-0.04em",
+              color: "rgba(237,237,237,0.18)",
             }}
           >
-            !
+            :(
           </div>
-          <h1 style={{ fontSize: 18, fontWeight: 600, margin: "0 0 8px" }}>
-            Something went wrong
+          <h1 style={{ fontSize: 20, fontWeight: 600, margin: "8px 0 8px" }}>
+            Aplikasi gagal dimuat
           </h1>
-          <p
-            style={{
-              fontSize: 14,
-              color: "#6b7280",
-              margin: "0 0 20px",
-              lineHeight: 1.5,
-            }}
-          >
-            An unexpected error occurred. Please try again.
+          <p style={{ fontSize: 14, color: "#a1a1a1", margin: 0, lineHeight: 1.6 }}>
+            Coba muat ulang. Kalau masih terjadi, kirim kode di bawah ke admin.
           </p>
           {error.digest && (
-            <p
+            <code
               style={{
+                display: "inline-block",
+                marginTop: 16,
+                padding: "4px 8px",
+                borderRadius: 6,
+                background: "#262626",
+                color: "#a1a1a1",
                 fontSize: 12,
-                color: "#9ca3af",
-                margin: "0 0 16px",
-                fontFamily: "monospace",
               }}
             >
-              Error ID: {error.digest}
-            </p>
+              Kode: {error.digest}
+            </code>
           )}
-          <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
-            <button
-              onClick={() => (window.location.href = "/dashboard")}
+          <div style={{ display: "flex", gap: 8, justifyContent: "center", marginTop: 32 }}>
+            <a
+              href="/dashboard"
               style={{
-                padding: "8px 16px",
+                padding: "8px 14px",
                 borderRadius: 8,
-                border: "1px solid #e5e5e5",
-                background: "#fff",
-                cursor: "pointer",
+                border: "1px solid #333",
+                color: "#ededed",
                 fontSize: 14,
+                textDecoration: "none",
               }}
             >
-              Dashboard
-            </button>
+              Ke Dashboard
+            </a>
             <button
               onClick={reset}
               style={{
-                padding: "8px 16px",
+                padding: "8px 14px",
                 borderRadius: 8,
-                border: "none",
-                background: "#18181b",
+                border: 0,
+                background: "#4a90d9",
                 color: "#fff",
-                cursor: "pointer",
                 fontSize: 14,
+                cursor: "pointer",
               }}
             >
-              Try Again
+              Coba lagi
             </button>
           </div>
         </div>

@@ -39,8 +39,8 @@ export function AdminRecentActivities({
       {activities.length === 0 ? (
         <EmptyState
           icon={<RiFileList3Line className="size-5" />}
-          title="No recent activities"
-          description="Recent team activity will appear here."
+          title="Belum ada aktivitas"
+          description="Aktivitas terbaru tim akan muncul di sini."
           placement="inner"
           className="min-h-[160px] px-0 py-6"
         />

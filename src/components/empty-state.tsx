@@ -1,15 +1,7 @@
 import * as React from "react"
-import { Hammer as HammerIcon } from "@/components/icons"
+import { Inbox } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import {
-  Empty,
-  EmptyContent,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "@/components/ui/empty"
 import { cn } from "@/lib/utils"
 
 interface EmptyStateProps {
@@ -23,13 +15,17 @@ interface EmptyStateProps {
     onClick: () => void
   }
   /**
-   * outer: use rounded + border (standalone empty state)
-   * inner: no rounded + no border (inside card/table/modal)
+   * outer: dashed outline (standalone empty state)
+   * inner: no outline (inside a list, panel or dialog)
    */
   placement?: "outer" | "inner"
   className?: string
 }
 
+/**
+ * Calm empty state: a small stacked tile with the icon, a clear title, one
+ * line of help, and an optional next step.
+ */
 export function EmptyState({
   title,
   description,
@@ -39,52 +35,44 @@ export function EmptyState({
   placement = "outer",
   className,
 }: EmptyStateProps) {
-  const isInner = placement === "inner"
-
   return (
-    <Empty
+    <div
+      data-slot="empty"
       className={cn(
-        "min-h-[220px] gap-0 p-3",
-        isInner
-          ? "rounded-none border-0 bg-transparent"
-          : "border-border rounded-lg border border-solid",
+        "flex w-full min-w-0 flex-col items-center justify-center px-6 py-14 text-center",
+        placement === "outer" &&
+          "border-border bg-muted/10 rounded-xl border border-dashed",
         className,
       )}
     >
-      <EmptyHeader className="gap-0">
-        {icon !== null && (
-          <EmptyMedia
-            variant="icon"
-            className="bg-muted text-muted-foreground mb-0 size-10 rounded-lg"
-          >
-            {icon || <HammerIcon className="size-5" />}
-          </EmptyMedia>
-        )}
-        <EmptyTitle
-          className={cn(
-            "text-muted-foreground font-sans text-sm font-medium tracking-normal",
-            icon !== null && "mt-4",
-          )}
-        >
-          {title}
-        </EmptyTitle>
-        <EmptyDescription className="text-muted-foreground mt-1 text-sm font-medium">
-          {description}
-        </EmptyDescription>
-        {subtitle && (
-          <EmptyDescription className="text-muted-foreground mt-1 text-sm font-medium">
-            {subtitle}
-          </EmptyDescription>
-        )}
-      </EmptyHeader>
-      {action && (
-        <EmptyContent className="mt-6">
-          <Button variant="outline" onClick={action.onClick}>
-            {action.label}
-          </Button>
-        </EmptyContent>
+      {icon !== null && (
+        <div aria-hidden className="relative mb-5 size-12">
+          <div className="bg-muted/50 ring-foreground/5 absolute inset-0 translate-x-1.5 -translate-y-1 rotate-6 rounded-xl ring-1" />
+          <div className="bg-muted text-muted-foreground ring-foreground/10 relative flex size-12 items-center justify-center rounded-xl shadow-sm ring-1 [&_svg]:size-5">
+            {icon ?? <Inbox />}
+          </div>
+        </div>
       )}
-    </Empty>
+      <p className="text-foreground text-sm font-medium">{title}</p>
+      <p className="text-muted-foreground mt-1 max-w-xs text-sm leading-relaxed text-balance">
+        {description}
+      </p>
+      {subtitle && (
+        <p className="text-muted-foreground/80 mt-1 max-w-xs text-xs text-balance">
+          {subtitle}
+        </p>
+      )}
+      {action && (
+        <Button
+          variant="outline"
+          size="sm"
+          className="mt-5"
+          onClick={action.onClick}
+        >
+          {action.label}
+        </Button>
+      )}
+    </div>
   )
 }
 

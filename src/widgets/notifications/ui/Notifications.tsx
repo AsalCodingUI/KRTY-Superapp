@@ -275,8 +275,8 @@ export function Notifications({ variant = "default" }: NotificationsProps) {
                     {filteredNotifications.length === 0 ? (
                       <div className="flex h-full flex-1 items-center justify-center p-4">
                         <EmptyState
-                          title="No notifications yet"
-                          description="Nothing new in this tab."
+                          title="Belum ada notifikasi"
+                          description="Belum ada yang baru di tab ini."
                           icon={<RiNotification3Line className="size-5" />}
                           placement="inner"
                         />

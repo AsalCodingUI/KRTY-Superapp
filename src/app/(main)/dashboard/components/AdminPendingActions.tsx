@@ -55,8 +55,8 @@ export function AdminPendingActions({
         {pendingReviews.length === 0 ? (
           <EmptyState
             icon={<RiFileList3Line className="size-5" />}
-            title="No pending reviews"
-            description="All performance reviews are completed."
+            title="Tidak ada review tertunda"
+            description="Semua penilaian sudah lengkap."
             placement="inner"
             className="min-h-[160px] px-0 py-6"
           />
@@ -120,8 +120,8 @@ export function AdminPendingActions({
         {pendingLeaveApprovals.length === 0 ? (
           <EmptyState
             icon={<RiFileList3Line className="size-5" />}
-            title="No leave approvals pending"
-            description="There are no leave requests waiting for review."
+            title="Tidak ada cuti yang menunggu"
+            description="Semua pengajuan cuti sudah ditinjau."
             placement="inner"
             className="min-h-[160px] px-0 py-6"
           />

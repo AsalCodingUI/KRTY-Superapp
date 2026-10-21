@@ -55,8 +55,8 @@ export function NotificationsPage() {
         >
           {filteredNotifications.length === 0 ? (
             <EmptyState
-              title="No notifications"
-              description="Nothing new in this tab."
+              title="Belum ada notifikasi"
+              description="Belum ada yang baru di tab ini."
               icon={<RiNotification3Line className="size-5" />}
               placement="inner"
             />

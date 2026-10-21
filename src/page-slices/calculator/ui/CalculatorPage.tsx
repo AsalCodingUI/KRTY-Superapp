@@ -674,8 +674,8 @@ export default function CalculatorClientPage({
               {savedCalculations.length === 0 ? (
                 <EmptyState
                   icon={<RiCalculatorLine className="size-5" />}
-                  title="No saved calculations yet"
-                  description="Saved calculations for this project will appear here."
+                  title="Belum ada kalkulasi tersimpan"
+                  description="Kalkulasi yang disimpan untuk project ini akan muncul di sini."
                 />
               ) : (
                 <div className="space-y-3">

@@ -41,8 +41,8 @@ export function AdminEmployeeSpotlight({
         {topPerformers.length === 0 ? (
           <EmptyState
             icon={<RiStarLine className="size-5" />}
-            title="No top performers yet"
-            description="Top performer insights will appear once review data is available."
+            title="Belum ada performa teratas"
+            description="Muncul setelah ada data KPI di kuartal ini."
             placement="inner"
             className="min-h-[160px] px-0 py-6"
           />
@@ -94,8 +94,8 @@ export function AdminEmployeeSpotlight({
         {employeesNeedingAttention.length === 0 ? (
           <EmptyState
             icon={<RiStarLine className="size-5" />}
-            title="No employees need attention"
-            description="Everyone is currently performing within the expected range."
+            title="Tidak ada yang perlu diperhatikan"
+            description="Semua anggota sedang dalam rentang yang diharapkan."
             placement="inner"
             className="min-h-[160px] px-0 py-6"
           />
