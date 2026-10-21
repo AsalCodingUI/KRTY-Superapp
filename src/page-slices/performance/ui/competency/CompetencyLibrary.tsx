@@ -218,7 +218,7 @@ export function CompetencyLibrary() {
             </div>
           )}
           <DialogFooter>
-            <Button variant="ghost" onClick={() => setDraft(null)}>
+            <Button variant="outline" onClick={() => setDraft(null)}>
               Batal
             </Button>
             <Button onClick={save} disabled={saving}>

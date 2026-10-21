@@ -335,7 +335,7 @@ export function LeaveRequestModal({
         <DialogFooter>
           {step === 1 ? (
             <>
-              <DialogClose render={<Button variant="ghost" />}>
+              <DialogClose render={<Button variant="outline" />}>
                 Batal
               </DialogClose>
               <Button

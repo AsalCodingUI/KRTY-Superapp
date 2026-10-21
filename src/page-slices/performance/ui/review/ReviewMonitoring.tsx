@@ -353,7 +353,7 @@ export function ReviewMonitoring({ period }: { period: string }) {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="ghost" onClick={() => setPeriodOpen(false)}>
+            <Button variant="outline" onClick={() => setPeriodOpen(false)}>
               Batal
             </Button>
             <Button onClick={savePeriod} disabled={busy}>

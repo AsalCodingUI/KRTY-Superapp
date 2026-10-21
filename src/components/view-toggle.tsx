@@ -1,13 +1,14 @@
 "use client"
 
 import { cn } from "@/lib/utils"
-import { ListIcon, Table2 } from "lucide-react"
+import { Columns3, ListIcon, Table2 } from "lucide-react"
 import * as React from "react"
 
-export type ViewMode = "list" | "table"
+export type ViewMode = "list" | "table" | "kanban"
 
 const OPTIONS = [
   { value: "list", label: "Tampilan list", icon: ListIcon },
+  { value: "kanban", label: "Tampilan kanban", icon: Columns3 },
   { value: "table", label: "Tampilan tabel", icon: Table2 },
 ] as const
 
@@ -22,7 +23,8 @@ export function useViewMode(storageKey: string, fallback: ViewMode = "list") {
   React.useEffect(() => {
     try {
       const saved = window.localStorage.getItem(key)
-      if (saved === "list" || saved === "table") setMode(saved)
+      if (saved === "list" || saved === "table" || saved === "kanban")
+        setMode(saved)
     } catch {
       // Storage blocked: keep the default.
     }
@@ -47,10 +49,13 @@ export function useViewMode(storageKey: string, fallback: ViewMode = "list") {
 export function ViewToggle({
   value,
   onValueChange,
+  modes = ["list", "table"],
   className,
 }: {
   value: ViewMode
   onValueChange: (value: ViewMode) => void
+  /** Which views this page offers (default list + table). */
+  modes?: ViewMode[]
   className?: string
 }) {
   return (
@@ -62,22 +67,24 @@ export function ViewToggle({
         className,
       )}
     >
-      {OPTIONS.map(({ value: option, label, icon: Icon }) => (
-        <button
-          key={option}
-          type="button"
-          title={label}
-          aria-label={label}
-          aria-pressed={value === option}
-          onClick={() => onValueChange(option)}
-          className={cn(
-            "text-muted-foreground hover:text-foreground flex size-7 items-center justify-center rounded-[5px] transition-colors [&_svg]:size-4",
-            value === option && "bg-background text-foreground shadow-xs",
-          )}
-        >
-          <Icon />
-        </button>
-      ))}
+      {OPTIONS.filter((o) => modes.includes(o.value)).map(
+        ({ value: option, label, icon: Icon }) => (
+          <button
+            key={option}
+            type="button"
+            title={label}
+            aria-label={label}
+            aria-pressed={value === option}
+            onClick={() => onValueChange(option)}
+            className={cn(
+              "text-muted-foreground hover:text-foreground flex size-7 items-center justify-center rounded-[5px] transition-colors [&_svg]:size-4",
+              value === option && "bg-background text-foreground shadow-xs",
+            )}
+          >
+            <Icon />
+          </button>
+        ),
+      )}
     </div>
   )
 }

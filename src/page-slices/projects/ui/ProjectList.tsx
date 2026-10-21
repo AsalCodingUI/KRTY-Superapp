@@ -9,6 +9,7 @@ import {
   ListRow,
   ListRowActions,
 } from "@/components/grouped-list"
+import { ProjectAvatar } from "@/components/project-avatar"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
@@ -106,6 +107,7 @@ export function ProjectList({
               }))
               return (
                 <ListRow key={project.id} className="relative">
+                  <ProjectAvatar id={project.id} name={project.name} />
                   <Link
                     href={`/projects/${project.id}`}
                     prefetch={false}

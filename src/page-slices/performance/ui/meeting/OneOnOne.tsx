@@ -311,7 +311,7 @@ export function OneOnOne({ period }: { period: string }) {
           </div>
         )}
         <DialogFooter>
-          <Button variant="ghost" onClick={() => setForm(null)}>
+          <Button variant="outline" onClick={() => setForm(null)}>
             Batal
           </Button>
           <Button onClick={saveForm} disabled={saving}>

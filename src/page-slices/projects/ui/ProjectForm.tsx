@@ -374,7 +374,7 @@ export function ProjectForm({
         )}
 
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)}>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
             Batal
           </Button>
           <Button onClick={submit} disabled={saving}>

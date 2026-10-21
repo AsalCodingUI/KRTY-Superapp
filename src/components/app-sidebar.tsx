@@ -6,6 +6,7 @@ import { siteConfig } from "@/app/siteConfig"
 import { NavMain } from "@/components/nav-main"
 import { BrandLogo } from "@/components/brand-logo"
 import { NavUser } from "@/components/nav-user"
+import { ProjectAvatar } from "@/components/project-avatar"
 import { useNavBadges } from "@/components/use-nav-badges"
 import {
   Sidebar,
@@ -96,19 +97,6 @@ function useSidebarProjects(profile: { id: string; role: string } | null) {
 }
 
 /** Deterministic tint per project so each one keeps its colour. */
-const PROJECT_TINTS = [
-  "bg-primary/20 text-primary",
-  "bg-success/20 text-success",
-  "bg-warning/20 text-warning",
-  "bg-destructive/20 text-destructive",
-  "bg-info/20 text-info",
-]
-function tintFor(id: string) {
-  let hash = 0
-  for (const ch of id) hash = (hash * 31 + ch.charCodeAt(0)) | 0
-  return PROJECT_TINTS[Math.abs(hash) % PROJECT_TINTS.length]
-}
-
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname()
   const { profile, userEmail, loading: profileLoading } = useUserProfile()
@@ -292,11 +280,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         isActive={matchesRoute(pathname, project.href)}
                         render={<Link href={project.href} prefetch={false} />}
                       >
-                        <span
-                          className={`flex size-4 shrink-0 items-center justify-center rounded-[4px] text-[10px] font-semibold ${tintFor(project.id)}`}
-                        >
-                          {project.name.charAt(0).toUpperCase()}
-                        </span>
+                        <ProjectAvatar
+                          id={project.id}
+                          name={project.name}
+                          className="size-4 rounded-[4px]"
+                        />
                         <span className="truncate">{project.name}</span>
                       </SidebarMenuButton>
                     </SidebarMenuItem>

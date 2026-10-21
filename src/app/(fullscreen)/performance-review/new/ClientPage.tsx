@@ -352,7 +352,7 @@ export default function ReviewFormClientPage({
             <DialogDescription>Isian kamu belum tersimpan.</DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="ghost" onClick={() => setConfirmLeave(false)}>
+            <Button variant="outline" onClick={() => setConfirmLeave(false)}>
               Lanjut mengisi
             </Button>
             <Button

@@ -35,6 +35,9 @@ const Toaster = ({ ...props }: ToasterProps) => {
       toastOptions={{
         classNames: {
           toast: "cn-toast",
+          // Quiet × on the right, matching the toast instead of a white ring.
+          closeButton:
+            "!left-auto !right-2 !top-1/2 !-translate-y-1/2 !translate-x-0 !size-6 !rounded-md !border-0 !bg-transparent !text-muted-foreground hover:!bg-muted hover:!text-foreground",
         },
       }}
       {...props}

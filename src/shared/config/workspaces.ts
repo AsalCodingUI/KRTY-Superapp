@@ -1,7 +1,5 @@
 import { siteConfig } from "@/app/siteConfig"
 import {
-  canAccessProjectCalculator,
-  canAccessSLAGenerator,
   isAdminRole,
 } from "@/shared/lib/roles"
 import {
@@ -122,19 +120,6 @@ export const workspaces: Workspace[] = [
         name: "Projects",
         href: links.projects,
         icon: RiFolderLine,
-        children: [
-          { name: "Daftar Project", href: links.projects },
-          {
-            name: "Calculator",
-            href: `${links.projects}/calculator`,
-            can: (p) => canAccessProjectCalculator(p),
-          },
-          {
-            name: "SLA Generator",
-            href: `${links.projects}/sla`,
-            can: (p) => canAccessSLAGenerator(p),
-          },
-        ],
       },
     ],
   },

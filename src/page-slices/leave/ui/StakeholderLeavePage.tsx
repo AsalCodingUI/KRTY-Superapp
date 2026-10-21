@@ -891,7 +891,7 @@ export function StakeholderLeavePage({
             </div>
           </div>
           <DialogFooter>
-            <DialogClose render={<Button variant="ghost" />}>
+            <DialogClose render={<Button variant="outline" />}>
               Cancel
             </DialogClose>
             <Button disabled={manualSaving} onClick={handleManualSubmit}>

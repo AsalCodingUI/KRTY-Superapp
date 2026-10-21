@@ -1,583 +1,156 @@
 "use client"
 
-import { ListChip } from "@/components/grouped-list"
-import type { TeamMember } from "@/page-slices/calculator/ui/types"
-import { createClient } from "@/shared/api/supabase/client"
-import { useMountedTabs } from "@/shared/hooks/useMountedTabs"
-import { useTabRoute } from "@/shared/hooks/useTabRoute"
-import type { Database } from "@/shared/types/database.types"
-import { AvatarGroup, AvatarOverflow } from "@/components/avatar-group"
-import { DataTable, DataTableColumnHeader } from "@/components/data-table"
-import { TabNavigation, TabNavigationLink } from "@/components/tab-navigation"
-import {
-  useViewMode,
-  ViewToggle,
-  type ViewMode,
-} from "@/components/view-toggle"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { Spinner } from "@/components/ui/spinner"
-import { RiArrowRightLine } from "@/shared/ui/lucide-icons"
-import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { createColumnHelper, type ColumnDef } from "@tanstack/react-table"
-import { format } from "date-fns"
-import dynamic from "next/dynamic"
-import { useRouter } from "next/navigation"
-import { useMemo, useState } from "react"
-import { toast } from "sonner"
 import {
   deleteProject,
   setProjectStatus,
 } from "@/app/(main)/projects/actions/project-actions"
+import { AvatarGroup, AvatarOverflow } from "@/components/avatar-group"
 import { ConfirmDialog } from "@/components/confirm-dialog"
+import { DataTable, DataTableColumnHeader } from "@/components/data-table"
+import { ListChip } from "@/components/grouped-list"
+import { ProjectAvatar } from "@/components/project-avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
+import { Spinner } from "@/components/ui/spinner"
+import { useViewMode, ViewToggle } from "@/components/view-toggle"
+import { createClient } from "@/shared/api/supabase/client"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { canManageByRole } from "@/shared/lib/roles"
 import { RiAddLine } from "@/shared/ui/lucide-icons"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
+import type { ColumnDef } from "@tanstack/react-table"
+import { format } from "date-fns"
+import { id as idLocale } from "date-fns/locale"
+import Link from "next/link"
+import { useMemo, useState } from "react"
+import { toast } from "sonner"
 import { ProjectForm } from "./ProjectForm"
-import { ProjectList, type ProjectActions } from "./ProjectList"
+import { ProjectKanban } from "./ProjectKanban"
+import {
+  ProjectList,
+  type ProjectActions,
+  type ProjectListRow,
+} from "./ProjectList"
 
-type ProjectStatus = Database["public"]["Enums"]["project_status_enum"]
-type TabType = "projects" | "calculator" | "sla"
-type SLARow = Database["public"]["Tables"]["slas"]["Row"]
-type OperationalCost = Database["public"]["Tables"]["operational_costs"]["Row"]
-type ProjectCalculation =
-  Database["public"]["Tables"]["project_calculations"]["Row"]
-
-type ProjectAssignment = {
-  id: string
-  role_in_project: string
-  profiles: {
-    id: string
-    full_name: string | null
-    avatar_url: string | null
-  } | null
+const STATUS_LABELS: Record<ProjectListRow["status"], string> = {
+  Active: "Aktif",
+  Completed: "Selesai",
+  Archived: "Diarsipkan",
 }
 
-type ProjectListItem = {
-  id: string
-  name: string
-  status: ProjectStatus
-  start_date: string
-  end_date: string
-  quarter_id: string | null
-  project_assignments: ProjectAssignment[] | null
-}
+const QUERY_KEY = ["projects", "list-page"]
 
-type ProjectStats = {
-  total: number
-  active: number
-  archived: number
-  calculations: number
-  activeSlas: number
-}
-
-const projectColumnHelper = createColumnHelper<ProjectListItem>()
-
-const getStatusVariant = (
-  status: ProjectStatus,
-): "success" | "info" | "secondary" => {
-  const variants: Record<ProjectStatus, "success" | "info" | "secondary"> = {
-    Active: "success",
-    Completed: "info",
-    Archived: "secondary",
-  }
-  return variants[status]
-}
-
-const getProjectTeamMembers = (project: ProjectListItem) =>
-  project.project_assignments?.map((assignment) => ({
-    id: assignment.id,
-    name: assignment.profiles?.full_name || "Unknown",
-    image: assignment.profiles?.avatar_url || undefined,
-  })) || []
-
-function ProjectsStats({ projectStats }: { projectStats: ProjectStats }) {
-  const stats = [
-    { label: "Total Projects", value: projectStats.total },
-    { label: "Active Projects", value: projectStats.active },
-    { label: "Archived Projects", value: projectStats.archived },
-    { label: "Saved Calculations", value: projectStats.calculations },
-    { label: "Active SLAs", value: projectStats.activeSlas },
-  ]
-
-  return (
-    <dl className="grid grid-cols-1 gap-x-8 gap-y-4 py-2 sm:grid-cols-2 lg:grid-cols-5">
-      {stats.map((stat) => (
-        <div key={stat.label} className="flex min-w-0 flex-col gap-1">
-          <dt className="text-muted-foreground text-sm">{stat.label}</dt>
-          <dd className="text-foreground text-lg font-medium tabular-nums">
-            {stat.value}
-          </dd>
-        </div>
-      ))}
-    </dl>
-  )
-}
-
-function ProjectsTableContent({
-  projects,
-  view,
-  actions,
-}: {
-  projects: ProjectListItem[]
-  view: ViewMode
-  actions?: ProjectActions
-}) {
-  const router = useRouter()
-  const columns = useMemo(
-    () =>
-      [
-        projectColumnHelper.accessor("name", {
-          header: ({ column }) => (
-            <DataTableColumnHeader column={column} title="Project Name" />
-          ),
-          cell: ({ row }) => (
-            <span className="text-foreground text-sm font-medium">
-              {row.getValue("name")}
-            </span>
-          ),
-        }),
-        projectColumnHelper.accessor("quarter_id", {
-          header: ({ column }) => (
-            <DataTableColumnHeader column={column} title="Quarter" />
-          ),
-          cell: ({ row }) => {
-            const quarterId = row.getValue("quarter_id") as string | null
-            return quarterId ? (
-              <ListChip>{quarterId}</ListChip>
-            ) : (
-              <span className="text-muted-foreground/50">No quarter</span>
-            )
-          },
-        }),
-        projectColumnHelper.accessor("status", {
-          header: ({ column }) => (
-            <DataTableColumnHeader column={column} title="Status" />
-          ),
-          cell: ({ row }) => (
-            <Badge variant={getStatusVariant(row.getValue("status"))}>
-              {row.getValue("status")}
-            </Badge>
-          ),
-        }),
-        projectColumnHelper.display({
-          id: "timeline",
-          header: ({ column }) => (
-            <DataTableColumnHeader column={column} title="Timeline" />
-          ),
-          cell: ({ row }) => (
-            <span className="text-foreground">
-              {format(new Date(row.original.start_date), "MMM d, yyyy")} -{" "}
-              {format(new Date(row.original.end_date), "MMM d, yyyy")}
-            </span>
-          ),
-        }),
-        projectColumnHelper.display({
-          id: "team",
-          header: ({ column }) => (
-            <DataTableColumnHeader column={column} title="Team" />
-          ),
-          cell: ({ row }) => {
-            const teamMembers = getProjectTeamMembers(row.original)
-
-            return teamMembers.length > 0 ? (
-              <AvatarGroup>
-                {teamMembers.slice(0, 3).map((member) => (
-                  <Avatar key={member.id} className="size-7">
-                    <AvatarImage src={member.image} alt={member.name} />
-                    <AvatarFallback className="text-[10px]">
-                      {member.name
-                        .split(" ")
-                        .map((part) => part[0])
-                        .join("")
-                        .slice(0, 2)}
-                    </AvatarFallback>
-                  </Avatar>
-                ))}
-                {teamMembers.length > 3 && (
-                  <AvatarOverflow count={teamMembers.length - 3} size="sm" />
-                )}
-              </AvatarGroup>
-            ) : (
-              <span className="text-muted-foreground/50">No assignments</span>
-            )
-          },
-        }),
-        projectColumnHelper.display({
-          id: "actions",
-          header: () => <div className="text-right">Actions</div>,
-          cell: ({ row }) => (
-            <div className="flex justify-end">
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={() => router.push(`/projects/${row.original.id}`)}
-                title="Open Project"
-              >
-                <RiArrowRightLine className="size-3.5" />
-              </Button>
-            </div>
-          ),
-        }),
-      ] as ColumnDef<ProjectListItem, unknown>[],
-    [router],
-  )
-
-  if (view === "list")
-    return <ProjectList projects={projects} actions={actions} />
-
-  return (
-    <section>
-      <DataTable
-        data={projects}
-        columns={columns}
-        enableSelection={false}
-        showExport={false}
-        showViewOptions={false}
-        showFilterbar={false}
-        showTableWrapper={false}
-      />
-    </section>
-  )
-}
-
-const ProjectsTab = dynamic(() => Promise.resolve(ProjectsTableContent), {
-  loading: () => null,
-})
-
-const CalculatorTab = dynamic(
-  () => import("@/page-slices/calculator/ui/CalculatorPage"),
-  {
-    loading: () => null,
-  },
-)
-
-const SLATab = dynamic(
-  () => import("@/app/(main)/sla-generator/components/SLADashboard"),
-  {
-    loading: () => null,
-  },
-)
-
+/**
+ * Daftar Project: list, kanban (drag to change status) or table. Calculator
+ * and SLA Generator are hidden here for now; they move elsewhere later.
+ */
 export function ProjectsListPage() {
   const supabase = useMemo(() => createClient(), [])
-  const { activeTab, setActiveTab } = useTabRoute<TabType>({
-    basePath: "/projects",
-    tabs: ["projects", "calculator", "sla"],
-    defaultTab: "projects",
-    mode: "history",
-  })
-  const { isMounted } = useMountedTabs(activeTab)
-  const [view, setView] = useViewMode("projects")
+  const queryClient = useQueryClient()
   const { profile } = useUserProfile()
   const isAdmin = canManageByRole(profile?.role)
-  const queryClient = useQueryClient()
+  const [view, setView] = useViewMode("projects")
   const [formOpen, setFormOpen] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
-  const [deleting, setDeleting] = useState<ProjectListItem | null>(null)
-  const refreshProjects = () =>
+  const [deleting, setDeleting] = useState<ProjectListRow | null>(null)
+
+  const { data: projects = [], isLoading } = useQuery({
+    queryKey: QUERY_KEY,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("projects")
+        .select(
+          `id, name, status, start_date, end_date, quarter_id,
+           project_assignments ( id, profiles ( full_name, avatar_url ) )`,
+        )
+        .order("end_date", { ascending: false })
+      if (error) throw error
+      return (data ?? []) as unknown as ProjectListRow[]
+    },
+  })
+
+  const refresh = () =>
     queryClient.invalidateQueries({ queryKey: ["projects"] })
-  const projectActions: ProjectActions | undefined = isAdmin
+
+  const changeStatus = async (
+    project: ProjectListRow,
+    status: ProjectListRow["status"],
+  ) => {
+    const result = await setProjectStatus(project.id, status)
+    if (!result.success) {
+      toast.error(result.error)
+      return false
+    }
+    toast.success(`${project.name} → ${STATUS_LABELS[status]}`)
+    refresh()
+    return true
+  }
+
+  const actions: ProjectActions | undefined = isAdmin
     ? {
         onEdit: (project) => {
           setEditingId(project.id)
           setFormOpen(true)
         },
-        onToggleArchive: async (project) => {
-          const next = project.status === "Archived" ? "Active" : "Archived"
-          const result = await setProjectStatus(project.id, next)
-          if (result.success) {
-            toast.success(
-              next === "Archived" ? "Project diarsipkan" : "Project diaktifkan",
-            )
-            refreshProjects()
-          } else {
-            toast.error(result.error)
-          }
-        },
-        onDelete: (project) => setDeleting(project as ProjectListItem),
+        onToggleArchive: (project) =>
+          void changeStatus(
+            project,
+            project.status === "Archived" ? "Active" : "Archived",
+          ),
+        onDelete: setDeleting,
       }
     : undefined
 
-  const { data: projectsData, isLoading: isProjectsLoading } = useQuery({
-    queryKey: ["projects", "list-page"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("projects")
-        .select(
-          `
-            id,
-            name,
-            status,
-            start_date,
-            end_date,
-            quarter_id,
-            project_assignments (
-              id,
-              role_in_project,
-              profiles (
-                id,
-                full_name,
-                avatar_url
-              )
-            )
-          `,
-        )
-        .order("created_at", { ascending: false })
-
-      if (error) throw error
-      return (data || []) as ProjectListItem[]
-    },
-  })
-
-  const { data: teamMembersData, isLoading: isTeamMembersLoading } = useQuery({
-    queryKey: ["projects", "calculator", "team-members"],
-    queryFn: async () => {
-      // Salaries are only readable by stakeholders, via this function.
-      const { data, error } = await supabase.rpc("get_team_compensation")
-
-      if (error) throw error
-      return (data || []).filter(
-        (p: { role: string }) => p.role === "employee",
-      ) as unknown as TeamMember[]
-    },
-  })
-
-  const { data: operationalCostsData, isLoading: isOperationalCostsLoading } =
-    useQuery({
-      queryKey: ["projects", "calculator", "operational-costs"],
-      queryFn: async () => {
-        const { data, error } = await supabase
-          .from("operational_costs")
-          .select("*")
-          .order("item_name", { ascending: true })
-
-        if (error) throw error
-        return (data || []) as OperationalCost[]
-      },
-    })
-
-  const {
-    data: calculatorProjectsData,
-    isLoading: isCalculatorProjectsLoading,
-  } = useQuery({
-    queryKey: ["projects", "calculator", "projects"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("projects")
-        .select("id, name")
-        .neq("status", "Archived")
-        .order("name", { ascending: true })
-
-      if (error) throw error
-      return (data || []) as { id: string; name: string }[]
-    },
-  })
-
-  const { data: slasData, isLoading: isSLAsLoading } = useQuery({
-    queryKey: ["projects", "list-page", "slas"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("slas")
-        .select("id,client_name,project_name,created_at,archived_at")
-        .order("created_at", { ascending: false })
-
-      if (error) throw error
-
-      return (data || []).map((row: SLARow) => ({
-        id: row.id,
-        client_name: row.client_name,
-        title: row.project_name,
-        status: row.archived_at ? "Archived" : "Active",
-        created_at: row.created_at,
-        archived_at: row.archived_at,
-      }))
-    },
-  })
-
-  const { data: calculationsData, isLoading: isCalculationsLoading } = useQuery(
-    {
-      queryKey: ["projects", "list-page", "calculations"],
-      queryFn: async () => {
-        const { data, error } = await supabase
-          .from("project_calculations")
-          .select("id")
-
-        if (error) throw error
-        return (data || []) as Pick<ProjectCalculation, "id">[]
-      },
-    },
-  )
-
-  const projectStats = {
-    total: projectsData?.length || 0,
-    active:
-      projectsData?.filter((project) => project.status === "Active").length ||
-      0,
-    archived:
-      projectsData?.filter((project) => project.status === "Archived").length ||
-      0,
-    calculations: calculationsData?.length || 0,
-    activeSlas:
-      slasData?.filter(
-        (sla: { archived_at: string | null }) => !sla.archived_at,
-      ).length || 0,
-  }
+  const active = projects.filter((p) => p.status === "Active").length
 
   return (
-    <div className="flex flex-col">
-      <div className="flex flex-col">
-        <section className="py-2">
-          {isProjectsLoading || isSLAsLoading || isCalculationsLoading ? (
-            <div className="flex items-center justify-center py-8">
-              <Spinner className="size-8" />
-            </div>
-          ) : (
-            <ProjectsStats projectStats={projectStats} />
-          )}
-        </section>
-
-        <div className="border-border border-b pt-2">
-          <div className="pb-2 xl:hidden">
-            <Select
-              value={activeTab}
-              onValueChange={(value) => setActiveTab(value as TabType)}
+    <div className="flex flex-col gap-4 py-2">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="text-muted-foreground text-sm">
+          {projects.length} project · {active} aktif
+        </p>
+        <div className="flex items-center gap-2">
+          <ViewToggle
+            value={view}
+            onValueChange={setView}
+            modes={["list", "kanban", "table"]}
+          />
+          {isAdmin && (
+            <Button
+              onClick={() => {
+                setEditingId(null)
+                setFormOpen(true)
+              }}
             >
-              <SelectTrigger id="projects-tab-select" className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="projects">Projects</SelectItem>
-                <SelectItem value="calculator">Calculator</SelectItem>
-                <SelectItem value="sla">SLA Generator</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="hidden items-center justify-between gap-4 xl:flex">
-            <TabNavigation value={activeTab} className="border-b-0">
-              <TabNavigationLink
-                active={activeTab === "projects"}
-                onClick={() => setActiveTab("projects")}
-              >
-                Projects
-              </TabNavigationLink>
-              <TabNavigationLink
-                active={activeTab === "calculator"}
-                onClick={() => setActiveTab("calculator")}
-              >
-                Calculator
-              </TabNavigationLink>
-              <TabNavigationLink
-                active={activeTab === "sla"}
-                onClick={() => setActiveTab("sla")}
-              >
-                SLA Generator
-              </TabNavigationLink>
-            </TabNavigation>
-            <div className="flex items-center gap-2">
-              {activeTab !== "calculator" && (
-                <ViewToggle value={view} onValueChange={setView} />
-              )}
-              {isAdmin && activeTab === "projects" && (
-                <Button
-                  onClick={() => {
-                    setEditingId(null)
-                    setFormOpen(true)
-                  }}
-                >
-                  <RiAddLine data-icon="inline-start" />
-                  Project baru
-                </Button>
-              )}
-            </div>
-          </div>
-        </div>
-
-        <div className="py-4">
-          {isMounted("projects") && (
-            <div
-              className={
-                activeTab === "projects"
-                  ? "block space-y-5"
-                  : "hidden space-y-5"
-              }
-            >
-              {isProjectsLoading ? (
-                <div className="flex items-center justify-center py-12">
-                  <Spinner className="size-8" />
-                </div>
-              ) : (
-                <ProjectsTab
-                  projects={projectsData || []}
-                  view={view}
-                  actions={projectActions}
-                />
-              )}
-            </div>
-          )}
-          {isMounted("calculator") && (
-            <div
-              className={
-                activeTab === "calculator"
-                  ? "block space-y-5"
-                  : "hidden space-y-5"
-              }
-            >
-              {isTeamMembersLoading ||
-              isOperationalCostsLoading ||
-              isCalculatorProjectsLoading ? (
-                <div className="flex items-center justify-center py-12">
-                  <Spinner className="size-8" />
-                </div>
-              ) : (
-                <CalculatorTab
-                  teamMembers={teamMembersData || []}
-                  operationalCosts={operationalCostsData || []}
-                  projects={calculatorProjectsData || []}
-                  showHeader={false}
-                />
-              )}
-            </div>
-          )}
-          {isMounted("sla") && (
-            <div
-              className={
-                activeTab === "sla" ? "block space-y-5" : "hidden space-y-5"
-              }
-            >
-              {isSLAsLoading ? (
-                <div className="flex items-center justify-center py-12">
-                  <Spinner className="size-8" />
-                </div>
-              ) : (
-                <div>
-                  <SLATab
-                    slas={slasData || []}
-                    hideTitle
-                    embedded
-                    view={view}
-                  />
-                </div>
-              )}
-            </div>
+              <RiAddLine data-icon="inline-start" />
+              Project baru
+            </Button>
           )}
         </div>
       </div>
+
+      {isLoading ? (
+        <div className="flex justify-center py-16">
+          <Spinner className="size-6" />
+        </div>
+      ) : view === "kanban" ? (
+        <ProjectKanban
+          projects={projects}
+          onMove={isAdmin ? changeStatus : undefined}
+        />
+      ) : view === "table" ? (
+        <ProjectTable projects={projects} />
+      ) : (
+        <ProjectList projects={projects} actions={actions} />
+      )}
+
       {isAdmin && (
         <>
           <ProjectForm
             projectId={editingId}
             open={formOpen}
             onOpenChange={setFormOpen}
-            onSaved={refreshProjects}
+            onSaved={refresh}
           />
           <ConfirmDialog
             open={Boolean(deleting)}
@@ -592,7 +165,7 @@ export function ProjectsListPage() {
               const result = await deleteProject(deleting.id)
               if (result.success) {
                 toast.success("Project dihapus")
-                refreshProjects()
+                refresh()
               } else {
                 toast.error(result.error)
               }
@@ -602,5 +175,97 @@ export function ProjectsListPage() {
         </>
       )}
     </div>
+  )
+}
+
+function ProjectTable({ projects }: { projects: ProjectListRow[] }) {
+  const columns: ColumnDef<ProjectListRow>[] = [
+    {
+      accessorKey: "name",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Project" />
+      ),
+      cell: ({ row }) => (
+        <Link
+          href={`/projects/${row.original.id}`}
+          prefetch={false}
+          className="flex items-center gap-2 font-medium hover:underline"
+        >
+          <ProjectAvatar id={row.original.id} name={row.original.name} />
+          {row.original.name}
+        </Link>
+      ),
+    },
+    {
+      accessorKey: "status",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Status" />
+      ),
+      cell: ({ row }) => STATUS_LABELS[row.original.status],
+    },
+    {
+      accessorKey: "quarter_id",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Kuartal" />
+      ),
+      cell: ({ row }) =>
+        row.original.quarter_id ? (
+          <ListChip>{row.original.quarter_id}</ListChip>
+        ) : (
+          <span className="text-muted-foreground/60">—</span>
+        ),
+    },
+    {
+      accessorKey: "end_date",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Jadwal" />
+      ),
+      cell: ({ row }) => (
+        <span className="text-muted-foreground tabular-nums">
+          {format(new Date(row.original.start_date), "d MMM", {
+            locale: idLocale,
+          })}{" "}
+          –{" "}
+          {format(new Date(row.original.end_date), "d MMM yyyy", {
+            locale: idLocale,
+          })}
+        </span>
+      ),
+    },
+    {
+      id: "team",
+      header: () => <span>Tim</span>,
+      cell: ({ row }) => {
+        const team = row.original.project_assignments ?? []
+        if (team.length === 0)
+          return <span className="text-muted-foreground/60">—</span>
+        return (
+          <AvatarGroup>
+            {team.slice(0, 3).map((a) => (
+              <Avatar key={a.id} className="size-6">
+                <AvatarImage src={a.profiles?.avatar_url || undefined} alt="" />
+                <AvatarFallback className="text-[10px]">
+                  {(a.profiles?.full_name || "U").slice(0, 2).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+            ))}
+            {team.length > 3 && (
+              <AvatarOverflow count={team.length - 3} size="xs" />
+            )}
+          </AvatarGroup>
+        )
+      },
+    },
+  ]
+  return (
+    <DataTable
+      data={projects}
+      columns={columns}
+      enableSelection={false}
+      showExport={false}
+      showViewOptions={false}
+      showFilterbar={false}
+      showTableWrapper={false}
+    />
   )
 }

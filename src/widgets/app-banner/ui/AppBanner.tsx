@@ -7,8 +7,10 @@ import * as React from "react"
 export type BannerTone = "warning" | "info"
 
 const TONES: Record<BannerTone, string> = {
-  warning: "bg-warning/15 text-warning",
-  info: "bg-primary/15 text-primary",
+  // Opaque tints: page content scrolls underneath the banner.
+  warning:
+    "bg-[color-mix(in_oklch,var(--warning)_16%,var(--background))] text-warning",
+  info: "bg-[color-mix(in_oklch,var(--primary)_16%,var(--background))] text-primary",
 }
 
 /**
@@ -30,7 +32,7 @@ export function AppBanner({
     <div
       role="status"
       className={cn(
-        "flex min-h-9 w-full items-center gap-3 px-4 text-sm",
+        "flex min-h-11 w-full items-center gap-3 px-4 py-2.5 text-sm",
         TONES[tone],
       )}
     >
