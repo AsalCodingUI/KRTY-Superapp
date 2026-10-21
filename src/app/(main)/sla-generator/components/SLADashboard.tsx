@@ -4,9 +4,11 @@ import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
 import { DeleteConfirmDialog } from "./DeleteConfirmDialog"
+import { SLAList } from "./SLAList"
 import { activeSLAColumns, archivedSLAColumns, type SLA } from "./SLAColumns"
 import { createClient } from "@/shared/api/supabase/client"
 import { DataTable } from "@/components/data-table"
+import type { ViewMode } from "@/components/view-toggle"
 import { SegmentedControl } from "@/components/segmented-control"
 import { TabNavigation, TabNavigationLink } from "@/components/tab-navigation"
 import { Button } from "@/components/ui/button"
@@ -35,10 +37,13 @@ export default function SLADashboard({
   slas,
   hideTitle = false,
   embedded = false,
+  view = "table",
 }: {
   slas: SLA[]
   hideTitle?: boolean
   embedded?: boolean
+  /** Embedded in Projects, the page's list/table switch decides. */
+  view?: ViewMode
 }) {
   const router = useRouter()
   const supabase = createClient()
@@ -239,52 +244,76 @@ export default function SLADashboard({
       <div className="mt-6">
         {isMounted("active") && (
           <div className={activeTab === "active" ? "block" : "hidden"}>
-            <DataTable
-              data={filteredActiveSLAs}
-              columns={activeSLAColumns(
-                handleEdit,
-                (id) => setSlaToArchive(id),
-                handleView,
-                { canManage },
-              )}
-              showExport={false}
-              showViewOptions={false}
-              showFilterbar={!embedded}
-              onCreate={
-                !embedded && canManage
-                  ? () => router.push("/sla-generator?mode=create")
-                  : undefined
-              }
-              actionLabel="Create New SLA"
-              onDelete={canManage ? handleArchive : undefined}
-              enableSelection={canManage}
-              showTableWrapper={false}
-              tableTitle="Active SLAs"
-              tableDescription="Manage your active Service Level Agreements"
-              searchKey="client_name"
-            />
+            {view === "list" ? (
+              <SLAList
+                slas={filteredActiveSLAs}
+                archived={false}
+                canManage={canManage}
+                onOpen={handleView}
+                onArchive={(id) => setSlaToArchive(id)}
+                onRestore={handleRestore}
+                onDelete={(id) => setSlaToDelete(id)}
+              />
+            ) : (
+              <DataTable
+                data={filteredActiveSLAs}
+                columns={activeSLAColumns(
+                  handleEdit,
+                  (id) => setSlaToArchive(id),
+                  handleView,
+                  { canManage },
+                )}
+                showExport={false}
+                showViewOptions={false}
+                showFilterbar={!embedded}
+                onCreate={
+                  !embedded && canManage
+                    ? () => router.push("/sla-generator?mode=create")
+                    : undefined
+                }
+                actionLabel="Create New SLA"
+                onDelete={canManage ? handleArchive : undefined}
+                enableSelection={canManage}
+                showTableWrapper={false}
+                tableTitle="Active SLAs"
+                tableDescription="Manage your active Service Level Agreements"
+                searchKey="client_name"
+              />
+            )}
           </div>
         )}
         {isMounted("archive") && (
           <div className={activeTab === "archive" ? "block" : "hidden"}>
-            <DataTable
-              data={filteredArchivedSLAs}
-              columns={archivedSLAColumns(
-                handleRestore,
-                (id) => setSlaToDelete(id),
-                { canManage },
-              )}
-              showExport={false}
-              showViewOptions={false}
-              showFilterbar={!embedded}
-              onCreate={undefined}
-              onDelete={canManage ? handlePermanentDelete : undefined}
-              enableSelection={canManage}
-              showTableWrapper={false}
-              tableTitle="Archived SLAs"
-              tableDescription="Restore or permanently delete archived SLAs"
-              searchKey="client_name"
-            />
+            {view === "list" ? (
+              <SLAList
+                slas={filteredArchivedSLAs}
+                archived
+                canManage={canManage}
+                onOpen={handleView}
+                onArchive={(id) => setSlaToArchive(id)}
+                onRestore={handleRestore}
+                onDelete={(id) => setSlaToDelete(id)}
+              />
+            ) : (
+              <DataTable
+                data={filteredArchivedSLAs}
+                columns={archivedSLAColumns(
+                  handleRestore,
+                  (id) => setSlaToDelete(id),
+                  { canManage },
+                )}
+                showExport={false}
+                showViewOptions={false}
+                showFilterbar={!embedded}
+                onCreate={undefined}
+                onDelete={canManage ? handlePermanentDelete : undefined}
+                enableSelection={canManage}
+                showTableWrapper={false}
+                tableTitle="Archived SLAs"
+                tableDescription="Restore or permanently delete archived SLAs"
+                searchKey="client_name"
+              />
+            )}
           </div>
         )}
       </div>

@@ -9,6 +9,11 @@ import type { Database } from "@/shared/types/database.types"
 import { AvatarGroup, AvatarOverflow } from "@/components/avatar-group"
 import { DataTable, DataTableColumnHeader } from "@/components/data-table"
 import { TabNavigation, TabNavigationLink } from "@/components/tab-navigation"
+import {
+  useViewMode,
+  ViewToggle,
+  type ViewMode,
+} from "@/components/view-toggle"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -27,6 +32,7 @@ import { format } from "date-fns"
 import dynamic from "next/dynamic"
 import { useRouter } from "next/navigation"
 import { useMemo } from "react"
+import { ProjectList } from "./ProjectList"
 
 type ProjectStatus = Database["public"]["Enums"]["project_status_enum"]
 type TabType = "projects" | "calculator" | "sla"
@@ -106,7 +112,13 @@ function ProjectsStats({ projectStats }: { projectStats: ProjectStats }) {
   )
 }
 
-function ProjectsTableContent({ projects }: { projects: ProjectListItem[] }) {
+function ProjectsTableContent({
+  projects,
+  view,
+}: {
+  projects: ProjectListItem[]
+  view: ViewMode
+}) {
   const router = useRouter()
   const columns = useMemo(
     () =>
@@ -207,6 +219,8 @@ function ProjectsTableContent({ projects }: { projects: ProjectListItem[] }) {
     [router],
   )
 
+  if (view === "list") return <ProjectList projects={projects} />
+
   return (
     <section>
       <DataTable
@@ -250,6 +264,7 @@ export function ProjectsListPage() {
     mode: "history",
   })
   const { isMounted } = useMountedTabs(activeTab)
+  const [view, setView] = useViewMode("projects")
 
   const { data: projectsData, isLoading: isProjectsLoading } = useQuery({
     queryKey: ["projects", "list-page"],
@@ -406,7 +421,7 @@ export function ProjectsListPage() {
               </SelectContent>
             </Select>
           </div>
-          <div className="hidden xl:block">
+          <div className="hidden items-center justify-between gap-4 xl:flex">
             <TabNavigation value={activeTab} className="border-b-0">
               <TabNavigationLink
                 active={activeTab === "projects"}
@@ -427,6 +442,9 @@ export function ProjectsListPage() {
                 SLA Generator
               </TabNavigationLink>
             </TabNavigation>
+            {activeTab !== "calculator" && (
+              <ViewToggle value={view} onValueChange={setView} />
+            )}
           </div>
         </div>
 
@@ -444,7 +462,7 @@ export function ProjectsListPage() {
                   <Spinner className="size-8" />
                 </div>
               ) : (
-                <ProjectsTab projects={projectsData || []} />
+                <ProjectsTab projects={projectsData || []} view={view} />
               )}
             </div>
           )}
@@ -484,7 +502,12 @@ export function ProjectsListPage() {
                 </div>
               ) : (
                 <div>
-                  <SLATab slas={slasData || []} hideTitle embedded />
+                  <SLATab
+                    slas={slasData || []}
+                    hideTitle
+                    embedded
+                    view={view}
+                  />
                 </div>
               )}
             </div>

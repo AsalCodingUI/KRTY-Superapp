@@ -15,7 +15,7 @@ import { LEAVE_STATUS_LABELS, LEAVE_TYPE_LABELS } from "@/shared/lib/leave"
 import type { Database } from "@/shared/types/database.types"
 import { RiCalendarLine, RiFilePaperLine } from "@/shared/ui/lucide-icons"
 import { formatLeaveRange, leaveDays } from "./AdminLeaveList"
-import { ListPager } from "./ListPager"
+import { ListPager } from "@/components/list-pager"
 import { LeaveStatusIcon } from "./StatusIcon"
 
 type LeaveRequest = Database["public"]["Tables"]["leave_requests"]["Row"]

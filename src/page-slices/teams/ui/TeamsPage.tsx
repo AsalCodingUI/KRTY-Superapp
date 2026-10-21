@@ -5,6 +5,8 @@ import { useSettingsModal } from "@/shared/hooks/useSettingsModal"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { Database } from "@/shared/types/database.types"
 import { DataTable } from "@/components/data-table"
+import { ListPager } from "@/components/list-pager"
+import { useViewMode, ViewToggle } from "@/components/view-toggle"
 import { Button } from "@/components/ui/button"
 import {
   InputGroup,
@@ -13,6 +15,7 @@ import {
 } from "@/components/ui/input-group"
 import { RiLockLine, RiSearchLine } from "@/shared/ui/lucide-icons"
 import { useMemo, useState } from "react"
+import { TeamList } from "./TeamList"
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 
@@ -38,6 +41,7 @@ export function TeamsPage({
   const searchParams = useSearchParams()
 
   const [searchTerm, setSearchTerm] = useState("")
+  const [view, setView] = useViewMode("teams")
 
   const { profile } = useUserProfile()
   const isSuperAdmin = profile?.is_super_admin === true
@@ -119,6 +123,7 @@ export function TeamsPage({
             </InputGroup>
 
             <div className="flex items-center gap-2">
+              <ViewToggle value={view} onValueChange={setView} />
               {/* The directory is read-only; members are managed in Settings. */}
               {isSuperAdmin && (
                 <Button
@@ -133,17 +138,28 @@ export function TeamsPage({
           </div>
 
           <div className="py-4">
-            <DataTable
-              data={filteredData}
-              columns={createTeamColumns({ canSelect: false })}
-              manualPagination={true}
-              pageCount={pageCount}
-              pageIndex={page - 1} // Convert 1-index to 0-index
-              onPageChange={handlePageChange}
-              showFilterbar={false}
-              enableSelection={false}
-              showTableWrapper={false}
-            />
+            {view === "table" ? (
+              <DataTable
+                data={filteredData}
+                columns={createTeamColumns({ canSelect: false })}
+                manualPagination={true}
+                pageCount={pageCount}
+                pageIndex={page - 1} // Convert 1-index to 0-index
+                onPageChange={handlePageChange}
+                showFilterbar={false}
+                enableSelection={false}
+                showTableWrapper={false}
+              />
+            ) : (
+              <div className="flex flex-col gap-4">
+                <TeamList members={filteredData} />
+                <ListPager
+                  page={page}
+                  pageCount={pageCount}
+                  onPageChange={handlePageChange}
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>

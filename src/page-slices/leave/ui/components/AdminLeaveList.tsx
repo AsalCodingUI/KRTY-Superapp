@@ -27,7 +27,7 @@ import {
   format,
 } from "date-fns"
 import { id as idLocale } from "date-fns/locale"
-import { ListPager } from "./ListPager"
+import { ListPager } from "@/components/list-pager"
 import { LeaveStatusIcon } from "./StatusIcon"
 
 export type LeaveRequestWithProfile =
