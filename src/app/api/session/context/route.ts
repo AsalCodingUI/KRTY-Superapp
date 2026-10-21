@@ -22,7 +22,7 @@ type PermissionRow = {
 }
 
 const PROFILE_SELECT =
-  "id, full_name, email, role, job_title, krt_id, hourly_rate, team_id, is_super_admin, created_at"
+  "id, full_name, email, role, job_title, krt_id, team_id, is_super_admin, created_at"
 
 export async function GET() {
   const supabase = await createClient()

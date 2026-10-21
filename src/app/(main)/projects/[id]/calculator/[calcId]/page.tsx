@@ -43,9 +43,7 @@ export default async function ProjectCalculatorEditRoute({
   }
 
   const { data: teamMembers } = await supabase
-    .from("profiles")
-    .select("id, full_name, job_title, hourly_rate, monthly_salary")
-    .eq("role", "employee")
+    .rpc("get_team_compensation")
 
   const { data: operationalCosts } = await supabase
     .from("operational_costs")
@@ -56,7 +54,7 @@ export default async function ProjectCalculatorEditRoute({
       projectId={id}
       calcId={calcId}
       project={project}
-      teamMembers={teamMembers || []}
+      teamMembers={(teamMembers || []).filter((p: { role: string }) => p.role === "employee")}
       operationalCosts={operationalCosts || []}
       calculation={calculation}
     />

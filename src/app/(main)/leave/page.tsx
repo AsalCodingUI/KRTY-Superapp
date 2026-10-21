@@ -64,7 +64,7 @@ export default async function LeaveRoute({
   // 🚀 PARALLEL FETCH: Profile first (needed for role check)
   const profile = await resolveProfileByUserIdOrEmail<Profile>(
     supabase,
-    "id, krt_id, email, full_name, avatar_url, role, job_title, hourly_rate, team_id, created_at, updated_at, leave_balance, leave_used, manager_id, is_super_admin, monthly_salary, join_date, employment_type",
+    "id, krt_id, email, full_name, avatar_url, role, job_title, team_id, created_at, updated_at, leave_balance, leave_used, manager_id, is_super_admin, join_date, employment_type",
     effectiveUserId,
     effectiveUserId === user.id ? user.email : null,
   )

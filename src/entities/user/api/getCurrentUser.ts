@@ -25,7 +25,7 @@ export async function getCurrentUser(): Promise<{
 
     const data = await resolveProfileByUserIdOrEmail<UserProfile>(
       supabase,
-      "id, full_name, email, role, job_title, krt_id, hourly_rate, team_id, avatar_url, created_at",
+      "id, full_name, email, role, job_title, krt_id, team_id, avatar_url, created_at",
       user.id,
       user.email,
     )

@@ -7,10 +7,7 @@ export default async function CalculatorRoute() {
   const supabase = await createClient()
 
   const { data: profiles } = await supabase
-    .from("profiles")
-    .select("id, full_name, job_title, hourly_rate, monthly_salary")
-    .eq("role", "employee")
-    .order("full_name", { ascending: true })
+    .rpc("get_team_compensation")
 
   const { data: operationalCosts } = await supabase
     .from("operational_costs")
@@ -27,7 +24,7 @@ export default async function CalculatorRoute() {
 
   return (
     <CalculatorPage
-      teamMembers={profiles || []}
+      teamMembers={(profiles || []).filter((p: { role: string }) => p.role === "employee")}
       operationalCosts={operationalCosts || []}
       projects={(projects || []).map((p: { id: string; name: string }) => ({
         id: p.id,

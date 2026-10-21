@@ -82,7 +82,7 @@ const PAGES = navigationConfig.main.map((item) => ({
 }))
 
 const PROFILE_COLUMNS =
-  "id, full_name, email, role, job_title, is_super_admin, avatar_url, hourly_rate, team_id, join_date, employment_type"
+  "id, full_name, email, role, job_title, is_super_admin, avatar_url, team_id, join_date, employment_type"
 
 function useMembersData() {
   return useQuery({

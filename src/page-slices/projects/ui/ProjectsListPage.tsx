@@ -300,14 +300,13 @@ export function ProjectsListPage() {
   const { data: teamMembersData, isLoading: isTeamMembersLoading } = useQuery({
     queryKey: ["projects", "calculator", "team-members"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("id, full_name, job_title, hourly_rate, monthly_salary")
-        .eq("role", "employee")
-        .order("full_name", { ascending: true })
+      // Salaries are only readable by stakeholders, via this function.
+      const { data, error } = await supabase.rpc("get_team_compensation")
 
       if (error) throw error
-      return (data || []) as unknown as TeamMember[]
+      return (data || []).filter(
+        (p: { role: string }) => p.role === "employee",
+      ) as unknown as TeamMember[]
     },
   })
 

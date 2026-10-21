@@ -1203,6 +1203,17 @@ export type Database = {
       }
     }
     Functions: {
+      get_team_compensation: {
+        Args: never
+        Returns: {
+          id: string
+          full_name: string | null
+          job_title: string | null
+          role: Database["public"]["Enums"]["app_role"]
+          hourly_rate: number | null
+          monthly_salary: number | null
+        }[]
+      }
       calculate_working_days: {
         Args: { end_date: string; start_date: string }
         Returns: number

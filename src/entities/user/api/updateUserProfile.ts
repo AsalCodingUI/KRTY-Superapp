@@ -19,7 +19,7 @@ export async function updateUserProfile(
       .update(updates)
       .eq("id", userId)
       .select(
-        "id, full_name, email, role, job_title, krt_id, hourly_rate, team_id, avatar_url",
+        "id, full_name, email, role, job_title, krt_id, team_id, avatar_url",
       )
       .single()
 

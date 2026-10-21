@@ -26,7 +26,7 @@ export function useUserProfile() {
         const { data: profileData, error: profileError } = await supabase
           .from("profiles")
           .select(
-            "id, full_name, email, role, job_title, krt_id, hourly_rate, team_id, avatar_url, created_at",
+            "id, full_name, email, role, job_title, krt_id, team_id, avatar_url, created_at",
           )
           .eq("id", user.id)
           .maybeSingle()
@@ -41,7 +41,7 @@ export function useUserProfile() {
           const { data: emailProfiles, error: emailLookupError } = await supabase
             .from("profiles")
             .select(
-              "id, full_name, email, role, job_title, krt_id, hourly_rate, team_id, avatar_url, created_at",
+              "id, full_name, email, role, job_title, krt_id, team_id, avatar_url, created_at",
             )
             .eq("email", user.email)
             .order("created_at", { ascending: true })
