@@ -1004,8 +1004,8 @@ function AttendanceOverviewPanel({
         ))}
       </div>
 
-      <div className="border-border space-y-3 border-b pt-2">
-        <div className="xl:hidden">
+      <div className="border-border border-b pt-2">
+        <div className="pb-3 xl:hidden">
           {isClient ? (
             <Select
               value={activeTab}
@@ -1026,39 +1026,41 @@ function AttendanceOverviewPanel({
             <div className="bg-foreground/[0.03] h-9 w-full rounded-md" />
           )}
         </div>
-        <div className="hidden items-start justify-between gap-4 xl:flex">
-          <TabNavigation className="border-b-0">
-            <TabNavigationLink
-              active={activeTab === "approval"}
-              onClick={() => onTabChange("approval")}
-              showLeadingIcon={false}
-            >
-              Persetujuan
-            </TabNavigationLink>
-            <TabNavigationLink
-              active={activeTab === "attendance"}
-              onClick={() => onTabChange("attendance")}
-              showLeadingIcon={false}
-            >
-              Kehadiran
-            </TabNavigationLink>
-            <TabNavigationLink
-              active={activeTab === "remaining"}
-              onClick={() => onTabChange("remaining")}
-              showLeadingIcon={false}
-            >
-              Saldo Cuti
-            </TabNavigationLink>
-          </TabNavigation>
-        </div>
-        {/* Visible on every screen size (used to be desktop-only). */}
-        <div className="flex items-center justify-end gap-2 pb-2 xl:-mt-12">
-          <ViewToggle value={view} onValueChange={onViewChange} />
-          {activeTab === "approval" && (
-            <Button variant="outline" onClick={onAddManualLeave}>
-              Tambah manual
-            </Button>
-          )}
+        <div className="flex items-end justify-between gap-4">
+          <div className="hidden xl:block">
+            <TabNavigation className="border-b-0">
+              <TabNavigationLink
+                active={activeTab === "approval"}
+                onClick={() => onTabChange("approval")}
+                showLeadingIcon={false}
+              >
+                Persetujuan
+              </TabNavigationLink>
+              <TabNavigationLink
+                active={activeTab === "attendance"}
+                onClick={() => onTabChange("attendance")}
+                showLeadingIcon={false}
+              >
+                Kehadiran
+              </TabNavigationLink>
+              <TabNavigationLink
+                active={activeTab === "remaining"}
+                onClick={() => onTabChange("remaining")}
+                showLeadingIcon={false}
+              >
+                Saldo Cuti
+              </TabNavigationLink>
+            </TabNavigation>
+          </div>
+          {/* Visible on every screen size (used to be desktop-only). */}
+          <div className="ml-auto flex items-center gap-2 pb-1.5">
+            <ViewToggle value={view} onValueChange={onViewChange} />
+            {activeTab === "approval" && (
+              <Button variant="outline" onClick={onAddManualLeave}>
+                Tambah manual
+              </Button>
+            )}
+          </div>
         </div>
       </div>
 

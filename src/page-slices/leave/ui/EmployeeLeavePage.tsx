@@ -292,8 +292,8 @@ export function EmployeeLeavePage({
         </dl>
 
         <div className="flex flex-col">
-          <div className="flex items-end justify-between gap-4">
-            <TabNavigation className="flex-1">
+          <div className="flex items-end justify-between gap-4 border-b">
+            <TabNavigation className="border-b-0">
               <TabNavigationLink
                 active={activeTab === "attendance"}
                 onClick={() => setActiveTab("attendance")}
