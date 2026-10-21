@@ -72,48 +72,49 @@
 }
 
 :root {
+  /* Minimal warm-neutral light palette (Notion Mail style): white canvas,
+     white sidebar, near-black ink, hairline borders, blue accent. */
   --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
+  --foreground: oklch(0.255 0.003 84);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
+  --card-foreground: oklch(0.255 0.003 84);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.488 0.243 264.376);
-  --primary-foreground: oklch(0.97 0.014 254.604);
-  --secondary: oklch(0.967 0.001 286.375);
-  --secondary-foreground: oklch(0.21 0.006 285.885);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.985 0 0);
-  --success: oklch(0.596 0.145 163.225);
-  --success-foreground: oklch(0.985 0 0);
-  --warning: oklch(0.666 0.179 58.318);
-  --warning-foreground: oklch(0.985 0 0);
-  --info: oklch(0.546 0.245 262.881);
-  --info-foreground: oklch(0.985 0 0);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  --popover-foreground: oklch(0.255 0.003 84);
+  --primary: oklch(0.6 0.16 250);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.965 0.002 84);
+  --secondary-foreground: oklch(0.255 0.003 84);
+  --muted: oklch(0.97 0.002 84);
+  --muted-foreground: oklch(0.56 0.006 84);
+  --accent: oklch(0.945 0.003 84);
+  --accent-foreground: oklch(0.255 0.003 84);
+  --destructive: oklch(0.6 0.2 25);
+  --destructive-foreground: oklch(0.99 0 0);
+  --success: oklch(0.63 0.16 145);
+  --success-foreground: oklch(0.99 0 0);
+  --warning: oklch(0.8 0.16 85);
+  --warning-foreground: oklch(0.25 0.03 85);
+  --info: oklch(0.58 0.19 295);
+  --info-foreground: oklch(0.99 0 0);
+  --border: oklch(0.925 0.003 84);
+  --input: oklch(0.255 0.003 84 / 6%);
+  --ring: oklch(0.6 0.16 250 / 45%);
   --chart-1: oklch(0.879 0.169 91.605);
   --chart-2: oklch(0.769 0.188 70.08);
   --chart-3: oklch(0.666 0.179 58.318);
   --chart-4: oklch(0.555 0.163 48.998);
   --chart-5: oklch(0.473 0.137 46.201);
   --radius: 0.5rem;
-  --sidebar: oklch(0.985 0 0);
-  /* Dialogs: muted frame (header/footer) around a raised panel. */
-  --dialog-shell: oklch(0.975 0 0);
+  --sidebar: oklch(1 0 0);
+  --sidebar-foreground: oklch(0.36 0.005 84);
+  --sidebar-primary: oklch(0.6 0.16 250);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.255 0.003 84 / 5.5%);
+  --sidebar-accent-foreground: oklch(0.255 0.003 84);
+  --sidebar-border: oklch(0.925 0.003 84);
+  --sidebar-ring: oklch(0.6 0.16 250 / 45%);
+  --dialog-shell: oklch(0.978 0.002 84);
   --dialog-panel: oklch(1 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.546 0.245 262.881);
-  --sidebar-primary-foreground: oklch(0.97 0.014 254.604);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
 }
 
 .dark {

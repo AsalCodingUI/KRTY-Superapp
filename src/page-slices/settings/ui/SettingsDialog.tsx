@@ -11,9 +11,11 @@ import { cx } from "@/shared/lib/utils"
 import {
   RemixiconComponentType,
   RiGroupLine,
+  RiSunLine,
   RiTimeLine,
   RiUserLine,
 } from "@/shared/ui/lucide-icons"
+import { AppearanceSettings } from "./AppearanceSettings"
 import { AttendanceSettings } from "./AttendanceSettings"
 import GeneralSettingsPage from "./GeneralSettingsPage"
 import { MembersAccessSettings } from "./MembersAccessSettings"
@@ -36,6 +38,12 @@ const SECTIONS: Section[] = [
     name: "Umum",
     description: "Informasi profil kamu.",
     icon: RiUserLine,
+  },
+  {
+    id: "appearance",
+    name: "Tampilan",
+    description: "Pilih tema terang, gelap, atau ikuti sistem.",
+    icon: RiSunLine,
   },
   {
     id: "members",
@@ -119,6 +127,7 @@ export function SettingsDialog() {
             )}
           >
             {active.id === "general" && <GeneralSettingsPage />}
+            {active.id === "appearance" && <AppearanceSettings />}
             {active.id === "members" && <MembersAccessSettings />}
             {active.id === "attendance" && <AttendanceSettings />}
           </div>
