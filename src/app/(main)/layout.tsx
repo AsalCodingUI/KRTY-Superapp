@@ -2,6 +2,7 @@ import { AppSidebar } from "@/components/app-sidebar"
 import { SiteHeader } from "@/components/site-header"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { Spinner } from "@/components/ui/spinner"
+import { SettingsDialog } from "@/page-slices/settings"
 import { ImpersonationBanner } from "@/widgets/impersonation/ui/ImpersonationBanner"
 import { Suspense } from "react"
 
@@ -27,6 +28,10 @@ export default function Layout({
           <ImpersonationBanner />
           <Suspense fallback={<PageFallback />}>{children}</Suspense>
         </div>
+        {/* Settings opens as a modal over any page (?settings=<section>). */}
+        <Suspense fallback={null}>
+          <SettingsDialog />
+        </Suspense>
       </SidebarInset>
     </SidebarProvider>
   )

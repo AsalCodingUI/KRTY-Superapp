@@ -275,20 +275,8 @@ export default function TeamAccessSettingsPage({
   }
 
   return (
-    <section className="space-y-6" aria-labelledby="team-access-title">
-      <div className="space-y-1">
-        <h1
-          id="team-access-title"
-          className="text-foreground text-lg font-semibold"
-        >
-          Team Access
-        </h1>
-        <p className="text-muted-foreground text-sm">
-          Add team members from settings and jump into their workspace with
-          super admin impersonation.
-        </p>
-      </div>
-
+    // Title and description come from the settings modal header.
+    <section className="space-y-6" aria-label="Team Access">
       {isImpersonating && effectiveProfile && authProfile && (
         <div className="border-border bg-warning/10 flex items-center justify-between rounded-md border px-4 py-3">
           <p className="text-warning text-sm">

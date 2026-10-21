@@ -1,5 +1,6 @@
-import { GeneralSettingsPage } from "@/page-slices/settings"
+import { redirect } from "next/navigation"
 
-export default function GeneralRoute() {
-  return <GeneralSettingsPage />
+/** Settings is a modal now; old links open it over the dashboard. */
+export default function SettingsRedirect() {
+  redirect("/dashboard?settings=general")
 }

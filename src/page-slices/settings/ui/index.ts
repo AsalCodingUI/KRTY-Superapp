@@ -8,3 +8,4 @@
 export { default as GeneralSettingsPage } from "./GeneralSettingsPage"
 export { default as PermissionSettingsPage } from "./PermissionSettingsPage"
 export { default as TeamAccessSettingsPage } from "./TeamAccessSettingsPage"
+export { SettingsDialog } from "./SettingsDialog"

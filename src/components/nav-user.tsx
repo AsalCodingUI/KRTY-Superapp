@@ -20,7 +20,7 @@ import {
   Logout as LogOutIcon,
   MessageCircle as MessageCircleIcon,
 } from "@/components/icons"
-import Link from "next/link"
+import { useSettingsModal } from "@/shared/hooks/useSettingsModal"
 
 function initialsOf(name: string) {
   return (
@@ -47,6 +47,7 @@ export function NavUser({
   contactHref?: string
 }) {
   const initials = initialsOf(user.name)
+  const settings = useSettingsModal()
 
   return (
     <SidebarMenu>
@@ -90,7 +91,7 @@ export function NavUser({
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem render={<Link href="/settings/general" />}>
+              <DropdownMenuItem onClick={() => settings.open("general")}>
                 <SettingsIcon />
                 Settings
               </DropdownMenuItem>
