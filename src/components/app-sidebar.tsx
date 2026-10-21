@@ -6,6 +6,7 @@ import { siteConfig } from "@/app/siteConfig"
 import { NavMain } from "@/components/nav-main"
 import { BrandLogo } from "@/components/brand-logo"
 import { NavUser } from "@/components/nav-user"
+import { useNavBadges } from "@/components/use-nav-badges"
 import {
   Sidebar,
   SidebarContent,
@@ -142,6 +143,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     profile ? { id: profile.id, role: profile.role } : null,
   )
 
+  const badges = useNavBadges(
+    profile ? { id: profile.id, role: profile.role } : null,
+  )
+  /** Workspaces with something waiting get a dot on their rail icon. */
+  const hasBadge = (ws: (typeof visible)[number]) =>
+    ws.items.some(
+      (item) =>
+        (badges[item.href] ?? 0) > 0 ||
+        (item.children ?? []).some((c) => (badges[c.href] ?? 0) > 0),
+    )
+
   const handleSignOut = async () => {
     await createClient().auth.signOut()
     // Full reload so no client state survives the sign-out.
@@ -194,9 +206,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                             tooltip={{ children: ws.name, hidden: false }}
                             isActive={ws.id === active?.id}
                             onClick={() => setSelected(ws.id)}
-                            className="size-8! justify-center p-0!"
+                            className="relative size-8! justify-center p-0!"
                           >
                             <ws.icon />
+                            {ws.id !== active?.id && hasBadge(ws) && (
+                              <span
+                                aria-hidden
+                                className="bg-primary absolute top-1 right-1 size-1.5 rounded-full"
+                              />
+                            )}
                             <span className="sr-only">{ws.name}</span>
                           </SidebarMenuButton>
                         </SidebarMenuItem>
@@ -255,6 +273,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                       title: c.name,
                       url: c.href,
                       isActive: c.href === activeChild,
+                      badge: badges[c.href],
                     })),
                   }
                 })}

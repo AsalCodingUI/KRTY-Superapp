@@ -12,6 +12,16 @@ import {
 } from "@/components/ui/sidebar"
 import Link from "next/link"
 
+/** Count of things waiting on this page; hidden when zero. */
+function NavBadge({ count }: { count?: number }) {
+  if (!count) return null
+  return (
+    <span className="bg-primary/15 text-primary ml-auto flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full px-1.5 text-xs font-medium tabular-nums group-data-[collapsible=icon]:hidden">
+      {count > 99 ? "99+" : count}
+    </span>
+  )
+}
+
 export function NavMain({
   label,
   items,
@@ -22,11 +32,13 @@ export function NavMain({
     url: string
     icon: React.ReactNode
     isActive?: boolean
+    badge?: number
     /** Page tabs; listed under the page while it is open. */
     items?: {
       title: string
       url: string
       isActive?: boolean
+      badge?: number
     }[]
   }[]
 }) {
@@ -47,7 +59,16 @@ export function NavMain({
                 render={<Link href={item.url} prefetch={false} />}
               >
                 {item.icon}
-                <span>{item.title}</span>
+                <span className="truncate">{item.title}</span>
+                {/* The tabs show their own counts while listed. */}
+                {!showSub && (
+                  <NavBadge
+                    count={
+                      item.badge ??
+                      item.items?.reduce((n, sub) => n + (sub.badge ?? 0), 0)
+                    }
+                  />
+                )}
               </SidebarMenuButton>
               {showSub && (
                 <SidebarMenuSub>
@@ -57,7 +78,8 @@ export function NavMain({
                         isActive={subItem.isActive}
                         render={<Link href={subItem.url} prefetch={false} />}
                       >
-                        <span>{subItem.title}</span>
+                        <span className="truncate">{subItem.title}</span>
+                        <NavBadge count={subItem.badge} />
                       </SidebarMenuSubButton>
                     </SidebarMenuSubItem>
                   ))}

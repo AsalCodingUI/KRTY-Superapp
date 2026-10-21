@@ -101,7 +101,7 @@ export function ClockControls({
     return (
       <div className="flex items-center gap-2">
         <Select value={status} onValueChange={(v) => v && setStatus(v)}>
-          <SelectTrigger className="w-36" aria-label="Status kehadiran">
+          <SelectTrigger className="w-32" aria-label="Status kehadiran">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>

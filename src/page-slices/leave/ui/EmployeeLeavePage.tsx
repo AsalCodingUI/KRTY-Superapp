@@ -18,12 +18,9 @@ import { createClient } from "@/shared/api/supabase/client"
 import { useMountedTabs } from "@/shared/hooks/useMountedTabs"
 import { useTabRoute } from "@/shared/hooks/useTabRoute"
 import { getLocalDateString } from "@/shared/lib/date"
-import {
-  annualLeaveSummary,
-  businessDaysInYear,
-} from "@/shared/lib/leave"
+import { annualLeaveSummary, businessDaysInYear } from "@/shared/lib/leave"
 import { Database } from "@/shared/types/database.types"
-import { RiAddLine, RiFileTextLine } from "@/shared/ui/lucide-icons"
+import { RiAddLine } from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
 import { id as idLocale } from "date-fns/locale"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
@@ -210,18 +207,17 @@ export function EmployeeLeavePage({
   return (
     <>
       <div className="flex flex-col gap-6">
-        {/* Today: clock + actions */}
+        {/* Today: time + the one primary action (clock in/out) */}
         <div className="flex flex-wrap items-center justify-between gap-4 pt-1">
           <div className="flex items-center gap-4">
-            <div className="flex flex-col">
-              <span className="text-lg font-medium tabular-nums">
-                {now ? format(now, "HH:mm:ss") : "--:--:--"}
+            <p className="flex items-baseline gap-2">
+              <span className="text-base font-medium tabular-nums">
+                {now ? format(now, "HH:mm") : "--:--"}
               </span>
               <span className="text-muted-foreground text-sm">
                 {now ? format(now, "EEEE, d MMMM", { locale: idLocale }) : ""}
               </span>
-            </div>
-            <div className="bg-border h-8 w-px" />
+            </p>
             <ClockControls
               logs={logs}
               onLogsUpdate={setLogs}
@@ -229,22 +225,25 @@ export function EmployeeLeavePage({
               now={now}
             />
           </div>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" onClick={() => setRulesOpen(true)}>
-              <RiFileTextLine data-icon="inline-start" />
-              Aturan cuti
-            </Button>
-            <Button onClick={() => openRequest(null)}>
-              <RiAddLine data-icon="inline-start" />
-              Ajukan cuti
-            </Button>
-          </div>
+          <Button variant="secondary" onClick={() => openRequest(null)}>
+            <RiAddLine data-icon="inline-start" />
+            Ajukan cuti
+          </Button>
         </div>
 
         {/* Balances (one shared rule, see shared/lib/leave) */}
-        <dl className="grid grid-cols-3 gap-x-8 py-1">
+        <dl className="flex flex-wrap gap-x-16 gap-y-4 py-1">
           <div className="flex flex-col gap-1">
-            <dt className="text-muted-foreground text-sm">Sisa cuti tahunan</dt>
+            <dt className="text-muted-foreground flex items-center gap-2 text-sm">
+              Sisa cuti tahunan
+              <button
+                type="button"
+                onClick={() => setRulesOpen(true)}
+                className="text-muted-foreground/70 hover:text-foreground text-xs underline-offset-2 hover:underline"
+              >
+                Aturan
+              </button>
+            </dt>
             {stats.annual.eligible ? (
               <dd className="text-lg font-medium tabular-nums">
                 {stats.annual.remaining}
