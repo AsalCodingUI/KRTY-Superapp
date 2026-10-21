@@ -13,16 +13,6 @@ type Profile = Database["public"]["Tables"]["profiles"]["Row"]
 
 const columnHelper = createColumnHelper<Profile>()
 
-// Formatter Rupiah
-const formatRupiah = (value: number) => {
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(value)
-}
-
 // Warna Warni Job Title
 const getJobTitleVariant = (title: string) => {
   switch (title) {
@@ -156,24 +146,6 @@ export const createTeamColumns = ({
           ? ("success" as const)
           : ("secondary" as const)
         return <Badge variant={variant}>{displayRole}</Badge>
-      },
-    }),
-    columnHelper.accessor("hourly_rate", {
-      header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title="Hourly Rate"
-          className="whitespace-nowrap"
-        />
-      ),
-      enableSorting: false,
-      meta: {
-        className: "text-right tabular-nums whitespace-nowrap",
-        displayName: "Hourly Rate",
-      },
-      cell: ({ row }) => {
-        const rate = row.getValue("hourly_rate") as number
-        return <span className="tabular-nums">{formatRupiah(rate)}</span>
       },
     }),
     columnHelper.accessor("email", {

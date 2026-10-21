@@ -25,7 +25,7 @@ export default async function TeamsRoute({
   const [dataResult, roleResult] = await Promise.all([
     supabase
       .from("profiles")
-      .select("id, full_name, email, job_title, role, hourly_rate")
+      .select("id, full_name, email, job_title, role")
       .order("full_name", { ascending: true })
       .range(from, to),
     user

@@ -545,7 +545,6 @@ type AddForm = {
   role: "employee" | "stakeholder"
   job_title: string
   team_id: string
-  hourly_rate: string
 }
 const EMPTY_FORM: AddForm = {
   full_name: "",
@@ -553,7 +552,6 @@ const EMPTY_FORM: AddForm = {
   role: "employee",
   job_title: "Designer",
   team_id: NO_TEAM,
-  hourly_rate: "",
 }
 
 /** One form for new members (the only place members are added). */
@@ -589,8 +587,8 @@ function AddMemberDialog({
         body: JSON.stringify({
           ...form,
           team_id: form.team_id === NO_TEAM ? null : form.team_id,
-          hourly_rate:
-            form.hourly_rate.trim() === "" ? null : Number(form.hourly_rate),
+          // Rates are handled in Finance later; not set here.
+          hourly_rate: null,
         }),
       })
       const payload = await response.json().catch(() => ({}))
@@ -689,18 +687,6 @@ function AddMemberDialog({
                   ))}
                 </SelectContent>
               </Select>
-            </div>
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="member-rate">Rate per jam</Label>
-              <Input
-                id="member-rate"
-                type="number"
-                min={0}
-                inputMode="numeric"
-                placeholder="0"
-                value={form.hourly_rate}
-                onChange={(e) => set("hourly_rate", e.target.value)}
-              />
             </div>
           </div>
           <DialogFooter>

@@ -1,12 +1,8 @@
 "use client"
 
-import { toast } from "sonner"
 import { createTeamColumns } from "@/app/(main)/teams/Columns"
-import { TeamFormDialog } from "@/app/(main)/teams/components/TeamDialogs"
-import { createClient } from "@/shared/api/supabase/client"
 import { useSettingsModal } from "@/shared/hooks/useSettingsModal"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
-import { canManageByRole } from "@/shared/lib/roles"
 import { Database } from "@/shared/types/database.types"
 import { DataTable } from "@/components/data-table"
 import { Button } from "@/components/ui/button"
@@ -15,7 +11,7 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group"
-import { RiAddLine, RiLockLine, RiSearchLine } from "@/shared/ui/lucide-icons"
+import { RiLockLine, RiSearchLine } from "@/shared/ui/lucide-icons"
 import { useMemo, useState } from "react"
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
@@ -27,6 +23,7 @@ interface TeamsPageProps {
   page: number
   pageSize: number
   totalCount: number
+  /** Kept for the route's props; the page is read-only for everyone. */
   role?: string
 }
 
@@ -35,17 +32,13 @@ export function TeamsPage({
   page,
   pageSize,
   totalCount,
-  role,
 }: TeamsPageProps) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
-  const [isAddOpen, setIsAddOpen] = useState(false)
-  const [editingItem, setEditingItem] = useState<Profile | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
 
-  const canManage = canManageByRole(role)
   const { profile } = useUserProfile()
   const isSuperAdmin = profile?.is_super_admin === true
   const settings = useSettingsModal()
@@ -126,7 +119,7 @@ export function TeamsPage({
             </InputGroup>
 
             <div className="flex items-center gap-2">
-              {/* Roles, page access and "view as" live in Settings. */}
+              {/* The directory is read-only; members are managed in Settings. */}
               {isSuperAdmin && (
                 <Button
                   variant="outline"
@@ -136,70 +129,24 @@ export function TeamsPage({
                   Anggota & Akses
                 </Button>
               )}
-              {canManage && (
-                <Button
-                  onClick={() => {
-                    setEditingItem(null)
-                    setIsAddOpen(true)
-                  }}
-                >
-                  <RiAddLine data-icon="inline-start" />
-                  Add Member
-                </Button>
-              )}
             </div>
           </div>
 
           <div className="py-4">
             <DataTable
               data={filteredData}
-              columns={createTeamColumns({ canSelect: canManage })}
+              columns={createTeamColumns({ canSelect: false })}
               manualPagination={true}
               pageCount={pageCount}
               pageIndex={page - 1} // Convert 1-index to 0-index
               onPageChange={handlePageChange}
               showFilterbar={false}
-              enableSelection={canManage}
-              onCreate={undefined}
-              onEdit={
-                canManage
-                  ? (item) => {
-                      setEditingItem(item)
-                      setIsAddOpen(true)
-                    }
-                  : undefined
-              }
-              onDelete={
-                canManage
-                  ? async (ids) => {
-                      if (!confirm(`Delete ${ids.length} team member(s)?`))
-                        return
-                      const supabase = createClient()
-                      const { error } = await supabase
-                        .from("profiles")
-                        .delete()
-                        .in("id", ids as string[])
-                      if (error) {
-                        toast.error("Error deleting: " + error.message)
-                      } else {
-                        router.refresh()
-                      }
-                    }
-                  : undefined
-              }
+              enableSelection={false}
               showTableWrapper={false}
             />
           </div>
         </div>
       </div>
-
-      {canManage && (
-        <TeamFormDialog
-          isOpen={isAddOpen}
-          onClose={() => setIsAddOpen(false)}
-          initialData={editingItem}
-        />
-      )}
     </>
   )
 }
