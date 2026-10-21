@@ -1,796 +1,145 @@
 "use client"
 
-import {
-  getEmployeeOverview,
-  getOverviewStats,
-} from "@/entities/performance/api/client"
+import { QuarterFilter } from "@/components/quarter-filter"
+import { TabNavigation, TabNavigationLink } from "@/components/tab-navigation"
+import { useViewMode, ViewToggle } from "@/components/view-toggle"
 import { createClient } from "@/shared/api/supabase/client"
-import { useMountedTabs } from "@/shared/hooks/useMountedTabs"
 import { useTabRoute } from "@/shared/hooks/useTabRoute"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
-import { canManageByRole, canManageProjects } from "@/shared/lib/roles"
-import {
-  QuarterFilter,
-  type QuarterFilterValue,
-} from "@/components/quarter-filter"
-import { TabNavigation, TabNavigationLink } from "@/components/tab-navigation"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import dynamic from "next/dynamic"
-import { useRouter } from "next/navigation"
-import { useEffect, useMemo, useState } from "react"
+import { canManageByRole } from "@/shared/lib/roles"
+import { useQuery } from "@tanstack/react-query"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { useMemo } from "react"
+import { CompetencyLibrary } from "./competency/CompetencyLibrary"
+import { EmployeeKpiView } from "./kpi/EmployeeKpiView"
+import { LeadTeam } from "./kpi/LeadTeam"
+import { normalizePeriod, periodYears } from "./kpi/period"
+import { TeamKpiList } from "./kpi/TeamKpiList"
+import { OneOnOne } from "./meeting/OneOnOne"
+import { MyReview } from "./review/MyReview"
+import { ReviewMonitoring } from "./review/ReviewMonitoring"
+import { Spinner } from "@/components/ui/spinner"
 
-// Dynamic imports for tab components - only load when needed
-const KPITab = dynamic(
-  () =>
-    import("@/app/(main)/performance/components/kpi/KPITab").then(
-      (mod) => mod.KPITab,
-    ),
-  {
-    loading: () => null,
-  },
-)
+type Tab = "kpi" | "360-review" | "one-on-one" | "team" | "competency-library"
 
-const Review360Tab = dynamic(
-  () =>
-    import("@/app/(main)/performance/components/360-review/Review360Tab").then(
-      (mod) => mod.Review360Tab,
-    ),
-  {
-    loading: () => null,
-  },
-)
+const TABS: readonly Tab[] = [
+  "kpi",
+  "360-review",
+  "one-on-one",
+  "team",
+  "competency-library",
+]
 
-const OneOnOneMeetingTab = dynamic(
-  () =>
-    import("@/app/(main)/performance/components/meeting/OneOnOneMeetingTab").then(
-      (mod) => mod.OneOnOneMeetingTab,
-    ),
-  {
-    loading: () => null,
-  },
-)
-
-const ListProjectTab = dynamic(
-  () =>
-    import("@/app/(main)/performance/components/admin/ListProjectTab").then(
-      (mod) => mod.ListProjectTab,
-    ),
-  {
-    loading: () => null,
-  },
-)
-
-const WorkQualityTab = dynamic(
-  () =>
-    import("@/app/(main)/performance/components/admin/WorkQualityTab").then(
-      (mod) => mod.WorkQualityTab,
-    ),
-  {
-    loading: () => null,
-  },
-)
-
-const LeadReviewTab = dynamic(
-  () =>
-    import("@/app/(main)/performance/components/lead/LeadReviewTab").then(
-      (mod) => mod.LeadReviewTab,
-    ),
-  {
-    loading: () => null,
-  },
-)
-
-type TabType =
-  | "kpi"
-  | "360-review"
-  | "one-on-one"
-  | "lead-review"
-  | "list-project"
-  | "competency-library"
-
-function getCurrentQuarterValue(): QuarterFilterValue {
-  const now = new Date()
-  const year = now.getFullYear()
-  const month = now.getMonth() + 1
-
-  let quarter = "Q1"
-  if (month >= 4 && month <= 6) quarter = "Q2"
-  else if (month >= 7 && month <= 9) quarter = "Q3"
-  else if (month >= 10) quarter = "Q4"
-
-  return `${year}-${quarter}`
-}
-
-function getAvailableYears(centerYear: number): number[] {
-  return [centerYear - 1, centerYear, centerYear + 1]
-}
-
+/**
+ * Performance: KPI, 360 review, 1:1 and (for leads) the team to score.
+ * One period filter for every tab, kept in the URL (?periode=2026-Q4).
+ */
 export function PerformancePage() {
   const router = useRouter()
-  const { activeTab, setActiveTab } = useTabRoute<TabType>({
-    basePath: "/performance",
-    tabs: [
-      "kpi",
-      "360-review",
-      "one-on-one",
-      "lead-review",
-      "list-project",
-      "competency-library",
-    ],
-    defaultTab: "kpi",
-    mode: "history",
-  })
-  const { isMounted } = useMountedTabs(activeTab)
-  const [selectedQuarter, setSelectedQuarter] = useState<QuarterFilterValue>(
-    () => getCurrentQuarterValue(),
-  )
-  const [statsData, setStatsData] = useState<{
-    totalEmployees: number
-    avgPerformance: number
-    pendingReviews: number
-    activeProjects: number
-  } | null>(null)
-  const [statsLoading, setStatsLoading] = useState(true)
-  const [employeeStatsLoading, setEmployeeStatsLoading] = useState(true)
-  const [employeeOverview, setEmployeeOverview] = useState<
-    Array<{
-      objective: string
-      result: number | null
-    }>
-  >([])
-  const [employeeReviewScore, setEmployeeReviewScore] = useState<number | null>(
-    null,
-  )
-  const [employeeReviewLoading, setEmployeeReviewLoading] = useState(true)
-  const [isCycleActive, setIsCycleActive] = useState(false)
-  const [activeCycleRange, setActiveCycleRange] = useState<string | null>(null)
-  const [isLead, setIsLead] = useState(false)
-
-  const { profile } = useUserProfile()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const { profile, loading } = useUserProfile()
+  const isAdmin = canManageByRole(profile?.role)
+  const period = normalizePeriod(searchParams.get("periode"))
+  const [view, setView] = useViewMode("performance-kpi")
   const supabase = useMemo(() => createClient(), [])
 
-  const isStakeholder = canManageByRole(profile?.role)
-  const canManageProjectTab = canManageProjects(profile)
+  const { activeTab, setActiveTab } = useTabRoute<Tab>({
+    basePath: "/performance",
+    tabs: TABS,
+    defaultTab: "kpi",
+    preserveQuery: true,
+  })
 
-  useEffect(() => {
-    if (
-      !canManageProjectTab &&
-      (activeTab === "list-project" || activeTab === "competency-library")
-    ) {
-      setActiveTab("kpi")
-    }
-  }, [activeTab, canManageProjectTab, setActiveTab])
-  const availableYears = useMemo(
-    () => getAvailableYears(new Date().getFullYear()),
-    [],
-  )
-  const selectedYear = (() => {
-    if (selectedQuarter === "All") return availableYears[0]
-    const parsed = Number(selectedQuarter.split("-")[0])
-    return Number.isNaN(parsed) ? availableYears[0] : parsed
-  })()
-
-  const handleYearChange = (yearStr: string) => {
-    const year = Number(yearStr)
-    const quarter = selectedQuarter.split("-")[1] || "Q1"
-    const normalizedQuarter = quarter === "All" ? "All" : quarter
-    setSelectedQuarter(`${year}-${normalizedQuarter}`)
-  }
-
-  const formatCycleRange = (start: string, end: string) => {
-    const startDate = new Date(start)
-    const endDate = new Date(end)
-    if (Number.isNaN(startDate.getTime()) || Number.isNaN(endDate.getTime())) {
-      return null
-    }
-
-    const startText = startDate.toLocaleDateString("id-ID", {
-      day: "numeric",
-      month: "short",
-    })
-    const endText = endDate.toLocaleDateString("id-ID", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    })
-    return `${startText} - ${endText}`
-  }
-
-  const getRatingBadge = (score: number | null) => {
-    const normalizedScore = score ?? 0
-    if (normalizedScore >= 95)
-      return { variant: "success", label: "Outstanding" } as const
-    if (normalizedScore >= 85)
-      return { variant: "success", label: "Above" } as const
-    if (normalizedScore >= 75)
-      return { variant: "info", label: "Meets" } as const
-    if (normalizedScore >= 60)
-      return { variant: "warning", label: "Below" } as const
-    return { variant: "destructive", label: "Needs" } as const
-  }
-  useEffect(() => {
-    let isMounted = true
-    setStatsLoading(true)
-    getOverviewStats(selectedQuarter)
-      .then((result) => {
-        if (!isMounted) return
-        if (result.success && result.data) {
-          setStatsData(result.data)
-        } else {
-          setStatsData(null)
-        }
-      })
-      .catch(() => {
-        if (isMounted) setStatsData(null)
-      })
-      .finally(() => {
-        if (isMounted) setStatsLoading(false)
-      })
-
-    return () => {
-      isMounted = false
-    }
-  }, [selectedQuarter])
-
-  useEffect(() => {
-    let isMounted = true
-    const checkLead = async () => {
-      if (!profile?.id) {
-        if (isMounted) setIsLead(false)
-        return
-      }
-      const { count, error } = await supabase
+  const { data: isLead = false } = useQuery({
+    queryKey: ["is-lead", profile?.id],
+    enabled: Boolean(profile?.id),
+    queryFn: async () => {
+      const { count } = await supabase
         .from("project_assignments")
         .select("id", { count: "exact", head: true })
-        .eq("user_id", profile.id)
+        .eq("user_id", profile!.id)
         .eq("is_lead", true)
-
-      if (!isMounted) return
-      if (error) {
-        console.error("Error checking lead assignments:", error)
-        setIsLead(false)
-        return
-      }
-      setIsLead(Boolean(count && count > 0))
-    }
-
-    checkLead()
-    return () => {
-      isMounted = false
-    }
-  }, [profile?.id, supabase])
-
-  useEffect(() => {
-    const checkCycle = async () => {
-      const now = new Date().toISOString()
-      const { data } = await supabase
-        .from("review_cycles")
-        .select("id, start_date, end_date")
-        .lte("start_date", now)
-        .gte("end_date", now)
-        .eq("is_active", true)
-        .order("start_date", { ascending: false })
-        .limit(1)
-        .maybeSingle()
-
-      setIsCycleActive(Boolean(data))
-      setActiveCycleRange(
-        data?.start_date && data?.end_date
-          ? formatCycleRange(data.start_date, data.end_date)
-          : null,
-      )
-    }
-
-    checkCycle()
-  }, [supabase])
-
-  useEffect(() => {
-    if (!profile?.id || isStakeholder) return
-    let isMounted = true
-    setEmployeeStatsLoading(true)
-    getEmployeeOverview(profile.id, selectedQuarter)
-      .then((result) => {
-        if (!isMounted) return
-        if (result.success && result.data) {
-          setEmployeeOverview(result.data)
-        } else {
-          setEmployeeOverview([])
-        }
-      })
-      .catch(() => {
-        if (isMounted) setEmployeeOverview([])
-      })
-      .finally(() => {
-        if (isMounted) setEmployeeStatsLoading(false)
-      })
-
-    return () => {
-      isMounted = false
-    }
-  }, [profile?.id, selectedQuarter, isStakeholder])
-
-  useEffect(() => {
-    if (!profile?.id || isStakeholder) return
-    let isMounted = true
-    const loadReviewScore = async () => {
-      setEmployeeReviewLoading(true)
-      try {
-        const { data: cycles } = await supabase
-          .from("review_cycles")
-          .select("id")
-          .eq("name", selectedQuarter)
-
-        const cycleIds = cycles
-          ?.map((cycle: { id: string }) => cycle.id)
-          .filter(Boolean) as string[] | undefined
-
-        if (!cycleIds || cycleIds.length === 0) {
-          if (isMounted) setEmployeeReviewScore(null)
-          return
-        }
-
-        const { data: summaries } = await supabase
-          .from("performance_summaries")
-          .select("overall_percentage")
-          .eq("reviewee_id", profile.id)
-          .in("cycle_id", cycleIds)
-          .order("created_at", { ascending: false })
-          .limit(1)
-
-        if (isMounted) {
-          setEmployeeReviewScore(summaries?.[0]?.overall_percentage ?? null)
-        }
-      } finally {
-        if (isMounted) setEmployeeReviewLoading(false)
-      }
-    }
-
-    loadReviewScore()
-    return () => {
-      isMounted = false
-    }
-  }, [profile?.id, selectedQuarter, isStakeholder, supabase])
-
-  const adminStats = [
-    {
-      label: "Total Employees",
-      value: statsLoading ? "—" : (statsData?.totalEmployees ?? "—"),
+      return Boolean(count)
     },
-    {
-      label: "Avg. Performance",
-      value: statsLoading
-        ? "—"
-        : statsData?.avgPerformance
-          ? `${statsData.avgPerformance}%`
-          : "—",
-    },
-    {
-      label: "Pending Reviews",
-      value: statsLoading ? "—" : (statsData?.pendingReviews ?? "—"),
-    },
-    {
-      label: "Active Project",
-      value: statsLoading ? "—" : (statsData?.activeProjects ?? "—"),
-    },
-    {
-      label: "360 Review",
-      value: isCycleActive ? "Active" : "No Active",
-    },
-  ]
+  })
 
-  const getEmployeeMetric = (key: string) => {
-    const row = employeeOverview.find((item) => item.objective === key)
-    if (employeeStatsLoading) return null
-    if (!row || row.result === null) return 0
-    return Number(row.result)
+  const setPeriod = (value: string) => {
+    const params = new URLSearchParams(searchParams.toString())
+    params.set("periode", value)
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false })
   }
 
-  const formatPercent = (value: number | null) => {
-    if (value === null) return "0.0%"
-    return `${Number(value).toFixed(1)}%`
-  }
-
-  const employeeStats = [
-    {
-      key: "sla",
-      label: "On Time SLA Project",
-      score: getEmployeeMetric("On Time SLA Project"),
-    },
-    {
-      key: "review",
-      label: "360 Review",
-      score:
-        employeeReviewLoading || employeeReviewScore === null
-          ? 0
-          : Number(employeeReviewScore),
-    },
-    {
-      key: "quality",
-      label: "Work Quality Competency",
-      score: getEmployeeMetric("Work Quality Competency"),
-    },
-  ]
-
-  const stakeholderTabItems: Array<{ value: TabType; label: string }> = [
-    { value: "kpi", label: "KPI" },
-    { value: "360-review", label: "360 Review" },
+  const tabs: { value: Tab; label: string }[] = [
+    { value: "kpi", label: isAdmin ? "KPI tim" : "KPI saya" },
+    { value: "360-review", label: "360 review" },
     { value: "one-on-one", label: "Jadwal 1:1" },
-    ...(isLead ? [{ value: "lead-review" as TabType, label: "Team KPI" }] : []),
-    { value: "list-project", label: "List Project" },
-    { value: "competency-library", label: "Competency Library" },
-  ]
-
-  const employeeTabItems: Array<{ value: TabType; label: string }> = [
-    { value: "kpi", label: "KPI" },
-    { value: "360-review", label: "360 Review" },
-    { value: "one-on-one", label: "Jadwal 1:1" },
-    ...(isLead ? [{ value: "lead-review" as TabType, label: "Team KPI" }] : []),
-    ...(canManageProjectTab
-      ? [{ value: "list-project" as TabType, label: "List Project" }]
+    ...(isLead ? [{ value: "team" as Tab, label: "Tim saya" }] : []),
+    ...(isAdmin
+      ? [{ value: "competency-library" as Tab, label: "Kompetensi" }]
       : []),
   ]
 
+  if (loading || !profile) {
+    return (
+      <div className="flex justify-center py-16">
+        <Spinner className="size-6" />
+      </div>
+    )
+  }
+
+  const allowed = tabs.some((t) => t.value === activeTab)
+  const tab: Tab = allowed ? activeTab : "kpi"
+
   return (
-    <div className="flex flex-col">
-      <div className="flex flex-col">
-        {isStakeholder ? (
-          <>
-            <div className="my-2 grid grid-cols-1 gap-x-8 gap-y-4 py-2 sm:grid-cols-2 lg:grid-cols-5">
-              {adminStats.map((item) => (
-                <div key={item.label} className="flex min-w-0 flex-col gap-1">
-                  <p className="text-muted-foreground text-sm">{item.label}</p>
-                  <p className="text-foreground text-lg font-medium tabular-nums">
-                    {item.value}
-                  </p>
-                </div>
-              ))}
-            </div>
-
-            <div className="border-border border-b pt-2">
-              <div className="space-y-3 pb-3 xl:hidden">
-                <Select
-                  value={activeTab}
-                  onValueChange={(value) =>
-                    value !== null && setActiveTab(value as TabType)
-                  }
-                >
-                  <SelectTrigger id="performance-tab-select" className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {stakeholderTabItems.map((item) => (
-                      <SelectItem key={item.value} value={item.value}>
-                        {item.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                <div className="flex items-center gap-2">
-                  <Select
-                    value={selectedYear.toString()}
-                    onValueChange={(v) => v !== null && handleYearChange(v)}
-                  >
-                    <SelectTrigger className="w-[92px]">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {availableYears.map((year) => (
-                        <SelectItem key={year} value={year.toString()}>
-                          {year}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <div className="min-w-0 flex-1">
-                    <QuarterFilter
-                      value={selectedQuarter}
-                      onChange={setSelectedQuarter}
-                      showYear={false}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="hidden items-start justify-between gap-4 xl:flex">
-                <TabNavigation className="border-b-0" value={activeTab}>
-                  <TabNavigationLink
-                    active={activeTab === "kpi"}
-                    onClick={() => setActiveTab("kpi")}
-                  >
-                    KPI
-                  </TabNavigationLink>
-                  <TabNavigationLink
-                    active={activeTab === "360-review"}
-                    onClick={() => setActiveTab("360-review")}
-                  >
-                    360 Review
-                  </TabNavigationLink>
-                  <TabNavigationLink
-                    active={activeTab === "one-on-one"}
-                    onClick={() => setActiveTab("one-on-one")}
-                  >
-                    Jadwal 1:1
-                  </TabNavigationLink>
-
-                  {isLead && (
-                    <TabNavigationLink
-                      active={activeTab === "lead-review"}
-                      onClick={() => setActiveTab("lead-review")}
-                    >
-                      Team KPI
-                    </TabNavigationLink>
-                  )}
-
-                  <TabNavigationLink
-                    active={activeTab === "list-project"}
-                    onClick={() => setActiveTab("list-project")}
-                  >
-                    List Project
-                  </TabNavigationLink>
-                  <TabNavigationLink
-                    active={activeTab === "competency-library"}
-                    onClick={() => setActiveTab("competency-library")}
-                  >
-                    Competency Library
-                  </TabNavigationLink>
-                </TabNavigation>
-
-                <div className="flex items-center gap-2">
-                  <Select
-                    value={selectedYear.toString()}
-                    onValueChange={(v) => v !== null && handleYearChange(v)}
-                  >
-                    <SelectTrigger className="w-[96px]">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {availableYears.map((year) => (
-                        <SelectItem key={year} value={year.toString()}>
-                          {year}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <QuarterFilter
-                    value={selectedQuarter}
-                    onChange={setSelectedQuarter}
-                    showYear={false}
-                  />
-                </div>
-              </div>
-            </div>
-          </>
-        ) : (
-          <>
-            <div className="my-2 grid grid-cols-1 gap-x-8 gap-y-4 py-2 sm:grid-cols-2 lg:grid-cols-5">
-              {employeeStats.map((item) => {
-                const badge = getRatingBadge(item.score)
-                return (
-                  <div key={item.key} className="flex min-w-0 flex-col gap-1">
-                    <p className="text-muted-foreground text-sm">
-                      {item.label}
-                    </p>
-                    <div className="flex items-center gap-2">
-                      <p className="text-foreground text-lg font-medium tabular-nums">
-                        {formatPercent(item.score)}
-                      </p>
-                      <Badge variant={badge.variant}>{badge.label}</Badge>
-                    </div>
-                  </div>
-                )
-              })}
-              <div className="flex min-w-0 flex-col gap-1 lg:col-span-2">
-                <p className="text-muted-foreground text-sm">
-                  360 Feedback Cycle
-                </p>
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-2">
-                    <p className="text-foreground text-2xl font-medium tracking-tight whitespace-nowrap tabular-nums">
-                      {isCycleActive && activeCycleRange
-                        ? activeCycleRange
-                        : "No Active"}
-                    </p>
-                    {isCycleActive ? (
-                      <Badge variant="success">Active</Badge>
-                    ) : null}
-                  </div>
-                  <Button
-                    variant="outline"
-                    disabled={!isCycleActive}
-                    onClick={() => router.push("/performance-review/new")}
-                  >
-                    Create Review
-                  </Button>
-                </div>
-              </div>
-            </div>
-
-            <div className="border-border border-b pt-2">
-              <div className="space-y-3 pb-3 xl:hidden">
-                <Select
-                  value={activeTab}
-                  onValueChange={(value) =>
-                    value !== null && setActiveTab(value as TabType)
-                  }
-                >
-                  <SelectTrigger
-                    id="performance-tab-select-2"
-                    className="w-full"
-                  >
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {employeeTabItems.map((item) => (
-                      <SelectItem key={item.value} value={item.value}>
-                        {item.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                <div className="flex items-center gap-2">
-                  <Select
-                    value={selectedYear.toString()}
-                    onValueChange={(v) => v !== null && handleYearChange(v)}
-                  >
-                    <SelectTrigger className="w-[92px]">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {availableYears.map((year) => (
-                        <SelectItem key={year} value={year.toString()}>
-                          {year}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <div className="min-w-0 flex-1">
-                    <QuarterFilter
-                      value={selectedQuarter}
-                      onChange={setSelectedQuarter}
-                      showYear={false}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="hidden items-start justify-between gap-4 xl:flex">
-                <TabNavigation className="border-b-0" value={activeTab}>
-                  <TabNavigationLink
-                    active={activeTab === "kpi"}
-                    onClick={() => setActiveTab("kpi")}
-                  >
-                    KPI
-                  </TabNavigationLink>
-                  <TabNavigationLink
-                    active={activeTab === "360-review"}
-                    onClick={() => setActiveTab("360-review")}
-                  >
-                    360 Review
-                  </TabNavigationLink>
-                  <TabNavigationLink
-                    active={activeTab === "one-on-one"}
-                    onClick={() => setActiveTab("one-on-one")}
-                  >
-                    Jadwal 1:1
-                  </TabNavigationLink>
-
-                  {isLead && (
-                    <TabNavigationLink
-                      active={activeTab === "lead-review"}
-                      onClick={() => setActiveTab("lead-review")}
-                    >
-                      Team KPI
-                    </TabNavigationLink>
-                  )}
-                </TabNavigation>
-
-                <div className="flex items-center gap-2">
-                  <Select
-                    value={selectedYear.toString()}
-                    onValueChange={(v) => v !== null && handleYearChange(v)}
-                  >
-                    <SelectTrigger className="w-[96px]">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {availableYears.map((year) => (
-                        <SelectItem key={year} value={year.toString()}>
-                          {year}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <QuarterFilter
-                    value={selectedQuarter}
-                    onChange={setSelectedQuarter}
-                    showYear={false}
-                  />
-                </div>
-              </div>
-            </div>
-          </>
-        )}
-
-        <div className="py-4">
-          {isMounted("kpi") && (
-            <div
-              className={
-                activeTab === "kpi" ? "block space-y-5" : "hidden space-y-5"
-              }
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-2 border-b">
+        <TabNavigation className="border-b-0">
+          {tabs.map((t) => (
+            <TabNavigationLink
+              key={t.value}
+              active={tab === t.value}
+              onClick={() => setActiveTab(t.value)}
             >
-              <KPITab selectedQuarter={selectedQuarter} />
-            </div>
+              {t.label}
+            </TabNavigationLink>
+          ))}
+        </TabNavigation>
+        <div className="flex h-10 items-center gap-2 pb-2">
+          {tab === "kpi" && isAdmin && (
+            <ViewToggle value={view} onValueChange={setView} />
           )}
-          {isMounted("360-review") && (
-            <div
-              className={
-                activeTab === "360-review"
-                  ? "block space-y-5"
-                  : "hidden space-y-5"
-              }
-            >
-              <Review360Tab
-                selectedQuarter={selectedQuarter}
-                onQuarterChange={setSelectedQuarter}
-              />
-            </div>
-          )}
-          {isMounted("one-on-one") && (
-            <div
-              className={
-                activeTab === "one-on-one"
-                  ? "block space-y-5"
-                  : "hidden space-y-5"
-              }
-            >
-              <OneOnOneMeetingTab selectedQuarter={selectedQuarter} />
-            </div>
-          )}
-          {isLead && isMounted("lead-review") && (
-            <div
-              className={
-                activeTab === "lead-review"
-                  ? "block space-y-5"
-                  : "hidden space-y-5"
-              }
-            >
-              <LeadReviewTab />
-            </div>
-          )}
-          {canManageProjectTab && isMounted("list-project") && (
-            <div
-              className={
-                activeTab === "list-project"
-                  ? "block space-y-5"
-                  : "hidden space-y-5"
-              }
-            >
-              <ListProjectTab selectedQuarter={selectedQuarter} />
-            </div>
-          )}
-          {isStakeholder && isMounted("competency-library") && (
-            <div
-              className={
-                activeTab === "competency-library"
-                  ? "block space-y-5"
-                  : "hidden space-y-5"
-              }
-            >
-              <WorkQualityTab />
-            </div>
+          {tab !== "competency-library" && (
+            <QuarterFilter
+              value={period}
+              onChange={setPeriod}
+              years={periodYears()}
+            />
           )}
         </div>
       </div>
+
+      {tab === "kpi" &&
+        (isAdmin ? (
+          <TeamKpiList scope={period} view={view} />
+        ) : (
+          <EmployeeKpiView
+            userId={profile.id}
+            scope={period}
+            hrefFor={(p) =>
+              `/performance/employee/${profile.id}/project/${p.projectId}?periode=${encodeURIComponent(period)}`
+            }
+          />
+        ))}
+      {tab === "360-review" &&
+        (isAdmin ? (
+          <ReviewMonitoring period={period} />
+        ) : (
+          <MyReview period={period} />
+        ))}
+      {tab === "one-on-one" && <OneOnOne period={period} />}
+      {tab === "team" && <LeadTeam period={period} />}
+      {tab === "competency-library" && isAdmin && <CompetencyLibrary />}
     </div>
   )
 }

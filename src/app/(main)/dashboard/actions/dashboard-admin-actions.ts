@@ -6,7 +6,11 @@ import { resolveProfileByUserIdOrEmail } from "@/shared/lib/profile-resolution"
 import { canManageByRole } from "@/shared/lib/roles"
 import { getDailyStats } from "@/entities/attendance/api"
 import { getLeaveDashboardStats } from "@/entities/leave/api"
-import { getPerformanceDashboardStats } from "@/entities/performance/api"
+import {
+  getTeamKpi,
+  type TeamKpiRow,
+} from "@/app/(main)/performance/actions/kpi-actions"
+import { getDashboardReviewStats } from "@/entities/performance/api"
 import type { LeaveRequestWithProfile } from "@/entities/leave/model/types"
 import { getCurrentQuarter } from "@/shared/lib/date/quarter"
 
@@ -118,12 +122,17 @@ export async function getAdminDashboardData(): Promise<{
     const currentQuarter = getCurrentQuarter()
 
     // Parallel fetch all data using dedicated entity functions
-    const [dailyAttendanceStats, leaveStats, performanceStats] =
+    const [dailyAttendanceStats, leaveStats, reviewStats, teamKpi] =
       await Promise.all([
         getDailyStats(todayStr),
         getLeaveDashboardStats(),
-        getPerformanceDashboardStats(currentQuarter),
+        getDashboardReviewStats(currentQuarter),
+        getTeamKpi(currentQuarter),
       ])
+    const performanceStats = {
+      ...reviewStats,
+      ...summarizeTeamKpi(teamKpi.success ? teamKpi.data : []),
+    }
 
     // Build recent activities
     const recentActivities: AdminDashboardData["recentActivities"] = []
@@ -134,7 +143,7 @@ export async function getAdminDashboardData(): Promise<{
         type: "review",
         user_name: review.profiles?.full_name || null,
         user_avatar: review.profiles?.avatar_url || null,
-        description: "Submitted 360 review",
+        description: "Mengirim 360 review",
         timestamp: review.created_at,
       })
     })
@@ -227,5 +236,50 @@ export async function getAdminDashboardData(): Promise<{
   } catch (error) {
     console.error("Error fetching admin dashboard data:", error)
     return { success: false, error: "Failed to fetch dashboard data" }
+  }
+}
+
+/** Distribution, average, top and attention lists from the team's final KPI. */
+function summarizeTeamKpi(rows: TeamKpiRow[]) {
+  const scored = rows
+    .filter((r) => r.final.score !== null)
+    .map((r) => ({ ...r, score: r.final.score as number }))
+    .sort((a, b) => b.score - a.score)
+  const distribution = {
+    outstanding: 0,
+    aboveExpectation: 0,
+    meetsExpectation: 0,
+    belowExpectation: 0,
+    needsImprovement: 0,
+  }
+  for (const r of scored) {
+    if (r.score >= 95) distribution.outstanding++
+    else if (r.score >= 85) distribution.aboveExpectation++
+    else if (r.score >= 75) distribution.meetsExpectation++
+    else if (r.score >= 60) distribution.belowExpectation++
+    else distribution.needsImprovement++
+  }
+  const person = (r: (typeof scored)[number]) => ({
+    employee_id: r.id,
+    employee_name: r.full_name,
+    employee_avatar: r.avatar_url,
+    employee_job_title: r.job_title,
+    overall_percentage: Math.round(r.score),
+  })
+  return {
+    distribution,
+    avgTeamPerformance: scored.length
+      ? Math.round(
+          (scored.reduce((s, r) => s + r.score, 0) / scored.length) * 10,
+        ) / 10
+      : null,
+    topPerformers: scored.slice(0, 5).map(person),
+    employeesNeedingAttention: scored
+      .filter((r) => r.score < 75)
+      .slice(0, 5)
+      .map((r) => ({
+        ...person(r),
+        reason: r.score < 60 ? "Jauh di bawah target" : "Di bawah harapan",
+      })),
   }
 }

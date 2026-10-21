@@ -7,7 +7,9 @@ import {
   ListChip,
   ListGroup,
   ListRow,
+  ListRowActions,
 } from "@/components/grouped-list"
+import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   RiArrowRightSLine,
@@ -58,7 +60,20 @@ function range(start: string, end: string) {
 }
 
 /** Daftar Project grouped by status; archived starts collapsed. */
-export function ProjectList({ projects }: { projects: ProjectListRow[] }) {
+export type ProjectActions = {
+  onEdit: (project: ProjectListRow) => void
+  onToggleArchive: (project: ProjectListRow) => void
+  onDelete: (project: ProjectListRow) => void
+}
+
+export function ProjectList({
+  projects,
+  actions,
+}: {
+  projects: ProjectListRow[]
+  /** Stakeholders manage projects from the list. */
+  actions?: ProjectActions
+}) {
   if (projects.length === 0) {
     return (
       <EmptyState
@@ -105,6 +120,34 @@ export function ProjectList({ projects }: { projects: ProjectListRow[] }) {
                     <RiCalendarLine className="size-3.5" />
                     {range(project.start_date, project.end_date)}
                   </ListChip>
+                  {actions && (
+                    <ListRowActions className="relative z-10">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => actions.onEdit(project)}
+                      >
+                        Ubah
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => actions.onToggleArchive(project)}
+                      >
+                        {project.status === "Archived"
+                          ? "Aktifkan"
+                          : "Arsipkan"}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="text-destructive hover:text-destructive"
+                        onClick={() => actions.onDelete(project)}
+                      >
+                        Hapus
+                      </Button>
+                    </ListRowActions>
+                  )}
                   <div className="flex w-24 shrink-0 justify-end">
                     {team.length > 0 ? (
                       <AvatarGroup>

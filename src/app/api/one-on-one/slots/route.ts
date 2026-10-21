@@ -46,14 +46,14 @@ export async function GET(request: NextRequest) {
       )
       .order("start_at", { ascending: true })
 
-    if (cycle) {
+    if (cycle && /^\d{4}-All$/.test(cycle)) {
+      query = query.like("cycle_name", `${cycle.slice(0, 4)}-%`)
+    } else if (cycle) {
       query = query.eq("cycle_name", cycle)
     }
 
     if (!isAdmin) {
-      query = query.or(
-        `status.eq.open,booked_by.eq.${profile.id}`,
-      )
+      query = query.or(`status.eq.open,booked_by.eq.${profile.id}`)
     }
 
     const { data, error } = await query
@@ -97,8 +97,8 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { cycle, mode, location, slots } = body as {
-      cycle: string
+    const { mode, location, slots } = body as {
+      cycle?: string
       mode: "online" | "offline"
       location?: string
       slots: Array<{
@@ -110,24 +110,41 @@ export async function POST(request: NextRequest) {
       }>
     }
 
-    if (!cycle || !mode || !slots?.length) {
+    if (!mode || !slots?.length) {
       return NextResponse.json({ error: "invalid_payload" }, { status: 400 })
     }
 
     const payload = slots.map((slot) => {
-      const startAt = slot.startAt ? new Date(slot.startAt) : new Date(`${slot.date}T${slot.startTime}`)
-      const endAt = slot.endAt ? new Date(slot.endAt) : new Date(`${slot.date}T${slot.endTime}`)
+      const startAt = slot.startAt
+        ? new Date(slot.startAt)
+        : new Date(`${slot.date}T${slot.startTime}`)
+      const endAt = slot.endAt
+        ? new Date(slot.endAt)
+        : new Date(`${slot.date}T${slot.endTime}`)
+      // The slot belongs to the quarter of its date, not the page filter.
+      const local = new Date(startAt.getTime() + 7 * 60 * 60 * 1000)
+      const quarter = `${local.getUTCFullYear()}-Q${Math.floor(local.getUTCMonth() / 3) + 1}`
 
       return {
-        cycle_name: cycle,
+        cycle_name: quarter,
         organizer_id: profile.id,
         start_at: startAt.toISOString(),
         end_at: endAt.toISOString(),
         mode,
-        location: mode === "offline" ? location ?? null : null,
+        location: mode === "offline" ? (location ?? null) : null,
         status: "open",
       }
     })
+
+    const invalid = payload.some(
+      (slot) =>
+        Number.isNaN(new Date(slot.start_at).getTime()) ||
+        new Date(slot.end_at) <= new Date(slot.start_at) ||
+        new Date(slot.start_at).getTime() < Date.now() - 60_000,
+    )
+    if (invalid) {
+      return NextResponse.json({ error: "invalid_time" }, { status: 400 })
+    }
 
     const adminSupabase = createAdminClient()
     const { error } = await adminSupabase

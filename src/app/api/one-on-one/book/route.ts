@@ -102,7 +102,8 @@ export async function POST(request: NextRequest) {
       calendarId: env.calendarId,
       summary,
       description,
-      location: slot.mode === "offline" ? slot.location ?? undefined : undefined,
+      location:
+        slot.mode === "offline" ? (slot.location ?? undefined) : undefined,
       start: slot.start_at,
       end: slot.end_at,
       attendees,

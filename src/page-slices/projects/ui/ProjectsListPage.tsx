@@ -1,6 +1,6 @@
 "use client"
 
-import { QuarterBadge } from "@/app/(main)/performance/components/admin/QuarterBadge"
+import { ListChip } from "@/components/grouped-list"
 import type { TeamMember } from "@/page-slices/calculator/ui/types"
 import { createClient } from "@/shared/api/supabase/client"
 import { useMountedTabs } from "@/shared/hooks/useMountedTabs"
@@ -26,13 +26,23 @@ import {
 } from "@/components/ui/select"
 import { Spinner } from "@/components/ui/spinner"
 import { RiArrowRightLine } from "@/shared/ui/lucide-icons"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
 import dynamic from "next/dynamic"
 import { useRouter } from "next/navigation"
-import { useMemo } from "react"
-import { ProjectList } from "./ProjectList"
+import { useMemo, useState } from "react"
+import { toast } from "sonner"
+import {
+  deleteProject,
+  setProjectStatus,
+} from "@/app/(main)/projects/actions/project-actions"
+import { ConfirmDialog } from "@/components/confirm-dialog"
+import { useUserProfile } from "@/shared/hooks/useUserProfile"
+import { canManageByRole } from "@/shared/lib/roles"
+import { RiAddLine } from "@/shared/ui/lucide-icons"
+import { ProjectForm } from "./ProjectForm"
+import { ProjectList, type ProjectActions } from "./ProjectList"
 
 type ProjectStatus = Database["public"]["Enums"]["project_status_enum"]
 type TabType = "projects" | "calculator" | "sla"
@@ -115,9 +125,11 @@ function ProjectsStats({ projectStats }: { projectStats: ProjectStats }) {
 function ProjectsTableContent({
   projects,
   view,
+  actions,
 }: {
   projects: ProjectListItem[]
   view: ViewMode
+  actions?: ProjectActions
 }) {
   const router = useRouter()
   const columns = useMemo(
@@ -140,7 +152,7 @@ function ProjectsTableContent({
           cell: ({ row }) => {
             const quarterId = row.getValue("quarter_id") as string | null
             return quarterId ? (
-              <QuarterBadge quarter={quarterId} />
+              <ListChip>{quarterId}</ListChip>
             ) : (
               <span className="text-muted-foreground/50">No quarter</span>
             )
@@ -219,7 +231,8 @@ function ProjectsTableContent({
     [router],
   )
 
-  if (view === "list") return <ProjectList projects={projects} />
+  if (view === "list")
+    return <ProjectList projects={projects} actions={actions} />
 
   return (
     <section>
@@ -230,8 +243,7 @@ function ProjectsTableContent({
         showExport={false}
         showViewOptions={false}
         showFilterbar={false}
-        showTableWrapper={true}
-        tableTitle="Project List"
+        showTableWrapper={false}
       />
     </section>
   )
@@ -265,6 +277,35 @@ export function ProjectsListPage() {
   })
   const { isMounted } = useMountedTabs(activeTab)
   const [view, setView] = useViewMode("projects")
+  const { profile } = useUserProfile()
+  const isAdmin = canManageByRole(profile?.role)
+  const queryClient = useQueryClient()
+  const [formOpen, setFormOpen] = useState(false)
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [deleting, setDeleting] = useState<ProjectListItem | null>(null)
+  const refreshProjects = () =>
+    queryClient.invalidateQueries({ queryKey: ["projects"] })
+  const projectActions: ProjectActions | undefined = isAdmin
+    ? {
+        onEdit: (project) => {
+          setEditingId(project.id)
+          setFormOpen(true)
+        },
+        onToggleArchive: async (project) => {
+          const next = project.status === "Archived" ? "Active" : "Archived"
+          const result = await setProjectStatus(project.id, next)
+          if (result.success) {
+            toast.success(
+              next === "Archived" ? "Project diarsipkan" : "Project diaktifkan",
+            )
+            refreshProjects()
+          } else {
+            toast.error(result.error)
+          }
+        },
+        onDelete: (project) => setDeleting(project as ProjectListItem),
+      }
+    : undefined
 
   const { data: projectsData, isLoading: isProjectsLoading } = useQuery({
     queryKey: ["projects", "list-page"],
@@ -441,9 +482,22 @@ export function ProjectsListPage() {
                 SLA Generator
               </TabNavigationLink>
             </TabNavigation>
-            {activeTab !== "calculator" && (
-              <ViewToggle value={view} onValueChange={setView} />
-            )}
+            <div className="flex items-center gap-2">
+              {activeTab !== "calculator" && (
+                <ViewToggle value={view} onValueChange={setView} />
+              )}
+              {isAdmin && activeTab === "projects" && (
+                <Button
+                  onClick={() => {
+                    setEditingId(null)
+                    setFormOpen(true)
+                  }}
+                >
+                  <RiAddLine data-icon="inline-start" />
+                  Project baru
+                </Button>
+              )}
+            </div>
           </div>
         </div>
 
@@ -461,7 +515,11 @@ export function ProjectsListPage() {
                   <Spinner className="size-8" />
                 </div>
               ) : (
-                <ProjectsTab projects={projectsData || []} view={view} />
+                <ProjectsTab
+                  projects={projectsData || []}
+                  view={view}
+                  actions={projectActions}
+                />
               )}
             </div>
           )}
@@ -513,6 +571,36 @@ export function ProjectsListPage() {
           )}
         </div>
       </div>
+      {isAdmin && (
+        <>
+          <ProjectForm
+            projectId={editingId}
+            open={formOpen}
+            onOpenChange={setFormOpen}
+            onSaved={refreshProjects}
+          />
+          <ConfirmDialog
+            open={Boolean(deleting)}
+            onOpenChange={(open) => !open && setDeleting(null)}
+            title={`Hapus ${deleting?.name ?? "project"}?`}
+            description="Project, timnya, dan semua nilai SLA & kompetensi di project ini dihapus permanen. Kalau hanya ingin menyembunyikan, arsipkan saja."
+            confirmText="Hapus permanen"
+            cancelText="Batal"
+            variant="destructive"
+            onConfirm={async () => {
+              if (!deleting) return
+              const result = await deleteProject(deleting.id)
+              if (result.success) {
+                toast.success("Project dihapus")
+                refreshProjects()
+              } else {
+                toast.error(result.error)
+              }
+              setDeleting(null)
+            }}
+          />
+        </>
+      )}
     </div>
   )
 }

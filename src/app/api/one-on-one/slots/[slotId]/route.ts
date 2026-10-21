@@ -45,7 +45,13 @@ export async function PATCH(
     const adminSupabase = createAdminClient()
 
     const body = await request.json()
-    const { date, startTime, endTime, startAt: startAtInput, endAt: endAtInput } = body as {
+    const {
+      date,
+      startTime,
+      endTime,
+      startAt: startAtInput,
+      endAt: endAtInput,
+    } = body as {
       date?: string
       startTime?: string
       endTime?: string
@@ -67,8 +73,12 @@ export async function PATCH(
       return NextResponse.json({ error: "slot_not_found" }, { status: 404 })
     }
 
-    const startAt = startAtInput ? new Date(startAtInput) : new Date(`${date}T${startTime}`)
-    const endAt = endAtInput ? new Date(endAtInput) : new Date(`${date}T${endTime}`)
+    const startAt = startAtInput
+      ? new Date(startAtInput)
+      : new Date(`${date}T${startTime}`)
+    const endAt = endAtInput
+      ? new Date(endAtInput)
+      : new Date(`${date}T${endTime}`)
 
     if (startAt >= endAt) {
       return NextResponse.json({ error: "invalid_time" }, { status: 400 })
@@ -90,7 +100,8 @@ export async function PATCH(
         eventId: slot.google_event_id,
         start: startAt.toISOString(),
         end: endAt.toISOString(),
-        location: slot.mode === "offline" ? slot.location ?? undefined : undefined,
+        location:
+          slot.mode === "offline" ? (slot.location ?? undefined) : undefined,
       })
 
       if (!updatedEvent) {

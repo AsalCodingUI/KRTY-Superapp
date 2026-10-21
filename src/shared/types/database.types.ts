@@ -1071,6 +1071,7 @@ export type Database = {
       }
       review_cycles: {
         Row: {
+          quarter: string | null
           created_at: string | null
           end_date: string
           id: string
@@ -1079,6 +1080,7 @@ export type Database = {
           start_date: string
         }
         Insert: {
+          quarter?: string | null
           created_at?: string | null
           end_date: string
           id?: string
@@ -1087,6 +1089,7 @@ export type Database = {
           start_date: string
         }
         Update: {
+          quarter?: string | null
           created_at?: string | null
           end_date?: string
           id?: string
@@ -1203,6 +1206,14 @@ export type Database = {
       }
     }
     Functions: {
+      save_assignment_scores: {
+        Args: { p_assignment_id: string; p_sla: Json; p_quality: Json }
+        Returns: undefined
+      }
+      review_pairs: {
+        Args: { p_quarter: string }
+        Returns: { reviewer_id: string; reviewee_id: string }[]
+      }
       get_team_compensation: {
         Args: never
         Returns: {

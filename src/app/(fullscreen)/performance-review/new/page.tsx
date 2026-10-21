@@ -1,75 +1,69 @@
 import { createClient } from "@/shared/api/supabase/server"
-import { dedupeProfilesByEmail } from "@/shared/lib/profile-dedupe"
-import { resolveProfileByUserIdOrEmail } from "@/shared/lib/profile-resolution"
+import { resolveEffectiveUserId } from "@/shared/lib/impersonation-server"
 import { redirect } from "next/navigation"
 import ReviewFormClientPage from "./ClientPage"
 
 export const dynamic = "force-dynamic"
 
-export default async function NewReviewPage() {
+/**
+ * 360 review form. Only teammates from the same project in the open cycle's
+ * quarter who haven't been reviewed yet can be picked (see review_pairs).
+ */
+export default async function NewReviewPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ untuk?: string }>
+}) {
+  const { untuk } = await searchParams
   const supabase = await createClient()
-
   const {
     data: { user },
   } = await supabase.auth.getUser()
   if (!user) redirect("/login")
-
-  const actorProfile = await resolveProfileByUserIdOrEmail<{
-    id: string
-    email: string | null
-    created_at: string | null
-  }>(
-    supabase,
-    "id, email, created_at",
-    user.id,
-    user.email,
-  )
+  const me = await resolveEffectiveUserId(supabase, user.id, user.email)
 
   const now = new Date().toISOString()
-  const { data: activeCycle } = await supabase
+  const { data: cycle } = await supabase
     .from("review_cycles")
-    .select("id, start_date, end_date, is_active")
+    .select("id, quarter")
+    .eq("is_active", true)
     .lte("start_date", now)
     .gte("end_date", now)
-    .eq("is_active", true)
-    .order("start_date", { ascending: false })
-    .limit(1)
+    .not("quarter", "is", null)
     .maybeSingle()
+  if (!cycle?.quarter) redirect("/performance/360-review")
 
-  if (!activeCycle) {
-    redirect("/performance?error=cycle_closed")
-  }
+  const [{ data: pairs }, { data: done }] = await Promise.all([
+    supabase.rpc("review_pairs", { p_quarter: cycle.quarter }),
+    supabase
+      .from("performance_reviews")
+      .select("reviewee_id")
+      .eq("cycle_id", cycle.id)
+      .eq("reviewer_id", me),
+  ])
+  const reviewed = new Set(
+    (done ?? []).map((r: { reviewee_id: string }) => r.reviewee_id),
+  )
+  const ids = [
+    ...new Set(
+      ((pairs ?? []) as { reviewer_id: string; reviewee_id: string }[])
+        .filter((p) => p.reviewer_id === me && !reviewed.has(p.reviewee_id))
+        .map((p) => p.reviewee_id),
+    ),
+  ]
+  if (ids.length === 0) redirect("/performance/360-review")
 
   const { data: colleagues } = await supabase
     .from("profiles")
-    .select("id, email, full_name, job_title, role, created_at")
-    .neq("role", "stakeholder")
-    .order("full_name", { ascending: true })
-
-  const colleagueOptions = Array.from(
-    new Map(
-      dedupeProfilesByEmail(colleagues || [])
-        .filter((colleague) => colleague.id !== actorProfile?.id)
-        .map((colleague) => {
-          const key = colleague.email?.trim().toLowerCase()
-            || `${(colleague.full_name || "").trim().toLowerCase()}::${(colleague.job_title || "").trim().toLowerCase()}`
-
-          return [
-            key,
-            {
-              id: colleague.id,
-              full_name: colleague.full_name ?? null,
-              job_title: colleague.job_title ?? null,
-            },
-          ] as const
-        }),
-    ).values(),
-  )
+    .select("id, full_name, job_title")
+    .in("id", ids)
+    .order("full_name")
 
   return (
     <ReviewFormClientPage
-      cycleId={activeCycle.id}
-      colleagues={colleagueOptions}
+      cycleId={cycle.id}
+      colleagues={colleagues ?? []}
+      initialRevieweeId={untuk && ids.includes(untuk) ? untuk : undefined}
     />
   )
 }

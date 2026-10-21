@@ -1,54 +1,40 @@
-import { notFound } from "next/navigation"
-import { getEmployeeDetail } from "../../actions/employee-kpi-actions"
+import { EmployeeKpiPage } from "@/page-slices/performance/ui/kpi/EmployeeKpiPage"
+import { createClient } from "@/shared/api/supabase/server"
+import { resolveEffectiveUserId } from "@/shared/lib/impersonation-server"
+import { canManageByRole } from "@/shared/lib/roles"
+import { notFound, redirect } from "next/navigation"
 
 export const dynamic = "force-dynamic"
-import { EmployeeDetailClient } from "./EmployeeDetailClient"
 
-// Type matching EmployeeDetailClient's Assignment type
-type Assignment = {
-  id: string
-  role_in_project: string
-  weight_in_quarter: number | null
-  projects: {
-    id: string
-    name: string
-    description: string | null
-    start_date: string
-    end_date: string
-    quarter_id: string
-    status: string
-  }
-  project_sla_scores: Array<{
-    score_achieved: number
-    weight_percentage: number
-  }>
-  project_work_quality_scores: Array<{
-    is_achieved: boolean
-  }>
-}
-
-interface EmployeeDetailPageProps {
-  params: Promise<{
-    id: string
-  }>
-}
-
-export default async function EmployeeDetailPage({
+export default async function EmployeeKpiRoute({
   params,
-}: EmployeeDetailPageProps) {
+}: {
+  params: Promise<{ id: string }>
+}) {
   const { id } = await params
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) redirect("/login")
 
-  const result = await getEmployeeDetail(id)
+  const viewerId = await resolveEffectiveUserId(supabase, user.id, user.email)
+  const { data: viewer } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", viewerId)
+    .maybeSingle()
+  // Members see their own KPI on /performance; this page is the admin view.
+  if (viewerId === id && !canManageByRole(viewer?.role))
+    redirect("/performance")
+  if (!canManageByRole(viewer?.role)) notFound()
 
-  if (!result.success || !result.data) {
-    notFound()
-  }
+  const { data: employee } = await supabase
+    .from("profiles")
+    .select("id, full_name, avatar_url, job_title")
+    .eq("id", id)
+    .maybeSingle()
+  if (!employee) notFound()
 
-  return (
-    <EmployeeDetailClient
-      employee={result.data.employee}
-      initialAssignments={result.data.assignments as unknown as Assignment[]}
-      showBackButton={true}
-    />
-  )
+  return <EmployeeKpiPage employee={employee} />
 }

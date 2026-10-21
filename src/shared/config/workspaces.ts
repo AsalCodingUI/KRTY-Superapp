@@ -2,7 +2,6 @@ import { siteConfig } from "@/app/siteConfig"
 import {
   canAccessProjectCalculator,
   canAccessSLAGenerator,
-  canManageProjects,
   isAdminRole,
 } from "@/shared/lib/roles"
 import {
@@ -102,15 +101,10 @@ export const workspaces: Workspace[] = [
         // check, so it stays a page tab only).
         children: [
           { name: "KPI", href: links.performance },
-          { name: "360 Review", href: `${links.performance}/360-review` },
+          { name: "360 review", href: `${links.performance}/360-review` },
           { name: "Jadwal 1:1", href: `${links.performance}/one-on-one` },
           {
-            name: "List Project",
-            href: `${links.performance}/list-project`,
-            can: (q) => isAdmin(q) || canManageProjects(q),
-          },
-          {
-            name: "Competency Library",
+            name: "Kompetensi",
             href: `${links.performance}/competency-library`,
             can: isAdmin,
           },

@@ -1,6 +1,6 @@
 "use client"
 
-import { QuarterBadge } from "@/app/(main)/performance/components/admin/QuarterBadge"
+import { ListChip } from "@/components/grouped-list"
 import {
   deleteCalculation,
   getCalculationsByProject,
@@ -136,7 +136,7 @@ function ProjectOverviewContent({ project }: { project: ProjectDetail }) {
         <div className="space-y-2">
           <p className="text-muted-foreground text-sm font-medium">Quarter</p>
           {project.quarter_id ? (
-            <QuarterBadge quarter={project.quarter_id} />
+            <ListChip>{project.quarter_id}</ListChip>
           ) : (
             <span className="text-muted-foreground/50 text-sm">No quarter</span>
           )}

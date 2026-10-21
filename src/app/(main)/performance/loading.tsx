@@ -1,37 +1,18 @@
-"use client"
-
 import { Skeleton } from "@/components/ui/skeleton"
 
 export default function PerformanceLoading() {
   return (
-    <div className="space-y-4">
-      {/* Header Skeleton */}
-      <div>
-        <Skeleton className="h-7 w-64" />
-      </div>
-
-      {/* Tab Navigation Skeleton */}
-      <div className="border-border flex gap-2 border-b">
-        {[1, 2, 3, 4].map((i) => (
-          <Skeleton key={i} className="h-10 w-24 rounded-t" />
-        ))}
-      </div>
-
-      {/* Content Skeleton */}
-      <div className="space-y-4">
-        <div className="rounded-lg">
-          <Skeleton className="h-6 w-40" />
-          <Skeleton className="mt-4 h-24 w-full" />
+    <div className="flex flex-col gap-6 py-2">
+      <div className="flex items-center justify-between border-b pb-3">
+        <div className="flex gap-6">
+          {[56, 80, 72].map((w) => (
+            <Skeleton key={w} className="h-5" style={{ width: w }} />
+          ))}
         </div>
-        <div className="rounded-lg">
-          <Skeleton className="h-6 w-32" />
-          <Skeleton className="mt-4 h-32 w-full" />
-        </div>
-        <div className="rounded-lg">
-          <Skeleton className="h-6 w-48" />
-          <Skeleton className="mt-4 h-40 w-full" />
-        </div>
+        <Skeleton className="h-8 w-72" />
       </div>
+      <Skeleton className="h-24 w-full" />
+      <Skeleton className="h-64 w-full" />
     </div>
   )
 }

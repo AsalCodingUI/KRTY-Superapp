@@ -4,7 +4,6 @@ import { createClient } from "@/shared/api/supabase/server"
 import { calculateBusinessDays, getLocalDateString } from "@/shared/lib/date"
 import { getCurrentQuarter } from "@/shared/lib/date/quarter"
 import { resolveProfileByUserIdOrEmail } from "@/shared/lib/profile-resolution"
-import type { PeerReviewScores } from "@/shared/types/dashboard.types"
 import { Database } from "@/shared/types/database.types"
 
 export type EmployeeDashboardData = {
@@ -82,12 +81,7 @@ export async function getEmployeeDashboardData(
       id: string
       email: string | null
       is_super_admin: boolean | null
-    }>(
-      supabase,
-      "id, email, is_super_admin, created_at",
-      user.id,
-      user.email,
-    )
+    }>(supabase, "id, email, is_super_admin, created_at", user.id, user.email)
 
     if (targetUserId !== (actorProfile?.id || user.id)) {
       if (!actorProfile?.is_super_admin) {
@@ -170,9 +164,9 @@ export async function getEmployeeDashboardData(
 
       (() => {
         let query = supabase
-        .from("project_assignments")
-        .select(
-          `
+          .from("project_assignments")
+          .select(
+            `
                     id,
                     projects!inner (
                         id,
@@ -189,10 +183,10 @@ export async function getEmployeeDashboardData(
                         is_achieved
                     )
                 `,
-        )
-        .eq("user_id", targetUserId)
-        .eq("projects.status", "Active")
-        .limit(10)
+          )
+          .eq("user_id", targetUserId)
+          .eq("projects.status", "Active")
+          .limit(10)
 
         if (selectedQuarterPart === "All" && selectedYear) {
           query = query.like("projects.quarter_id", `${selectedYear}-%`)
@@ -205,10 +199,10 @@ export async function getEmployeeDashboardData(
 
       (() => {
         let query = supabase
-        .from("review_cycles")
-        .select("id, name, end_date, is_active")
-        .order("end_date", { ascending: true })
-        .limit(3)
+          .from("review_cycles")
+          .select("id, name, end_date, is_active")
+          .order("end_date", { ascending: true })
+          .limit(3)
 
         if (selectedQuarterPart === "All" && selectedYear) {
           query = query.like("name", `${selectedYear}-%`)
@@ -221,15 +215,15 @@ export async function getEmployeeDashboardData(
 
       (() => {
         let query = supabase
-        .from("one_on_one_slots")
-        .select(
-          "id, start_at, end_at, mode, location, meeting_url, status, organizer:profiles!one_on_one_slots_organizer_id_fkey(full_name)",
-        )
-        .eq("booked_by", targetUserId)
-        .gte("end_at", new Date().toISOString())
-        .in("status", ["booking", "booked"])
-        .order("start_at", { ascending: true })
-        .limit(3)
+          .from("one_on_one_slots")
+          .select(
+            "id, start_at, end_at, mode, location, meeting_url, status, organizer:profiles!one_on_one_slots_organizer_id_fkey(full_name)",
+          )
+          .eq("booked_by", targetUserId)
+          .gte("end_at", new Date().toISOString())
+          .in("status", ["booking", "booked"])
+          .order("start_at", { ascending: true })
+          .limit(3)
 
         if (selectedQuarterPart === "All" && selectedYear) {
           query = query.like("cycle_name", `${selectedYear}-%`)
@@ -250,73 +244,41 @@ export async function getEmployeeDashboardData(
         .gte("end_date", leaveYearStart.toISOString()),
     ])
 
-    const { data: latestReview } = await supabase
-      .from("performance_reviews")
-      .select(
-        `
-                score_leadership,
-                score_quality,
-                score_reliability,
-                score_communication,
-                score_initiative,
-                peer_reviews!inner (
-                    score_leadership,
-                    score_quality,
-                    score_reliability,
-                    score_communication,
-                    score_initiative
-                )
-            `,
-      )
-      .eq("employee_id", targetUserId)
-      .eq("cycle_id", activeQuarter)
-      .not("self_score", "is", null)
-      .order("created_at", { ascending: false })
-      .limit(1)
+    // Latest 360 summary for this quarter (scores are averages on 1-5).
+    const { data: quarterCycle } = await supabase
+      .from("review_cycles")
+      .select("id")
+      .eq("quarter", activeQuarter)
       .maybeSingle()
+    const { data: latestSummary } = quarterCycle
+      ? await supabase
+          .from("performance_summaries")
+          .select(
+            "score_leadership, score_quality, score_reliability, score_communication, score_initiative",
+          )
+          .eq("reviewee_id", targetUserId)
+          .eq("cycle_id", quarterCycle.id)
+          .maybeSingle()
+      : { data: null }
 
-    let competencyScores = null
-    if (latestReview) {
-      const peerReviews = (latestReview.peer_reviews ||
-        []) as PeerReviewScores[]
-      const totalReviewers = peerReviews.length + 1
-
-      const calcAvg = (selfScore: number, peerScores: number[]) => {
-        const total =
-          selfScore + peerScores.reduce((sum, score) => sum + score, 0)
-        return (total / totalReviewers / 5) * 100
-      }
-
-      competencyScores = {
-        leadership: calcAvg(
-          latestReview.score_leadership,
-          peerReviews.map((p) => p.score_leadership),
-        ),
-        quality: calcAvg(
-          latestReview.score_quality,
-          peerReviews.map((p) => p.score_quality),
-        ),
-        reliability: calcAvg(
-          latestReview.score_reliability,
-          peerReviews.map((p) => p.score_reliability),
-        ),
-        communication: calcAvg(
-          latestReview.score_communication,
-          peerReviews.map((p) => p.score_communication),
-        ),
-        initiative: calcAvg(
-          latestReview.score_initiative,
-          peerReviews.map((p) => p.score_initiative),
-        ),
-      }
-    }
+    const toPercent = (value: number | null) =>
+      value === null ? 0 : (Number(value) / 5) * 100
+    const competencyScores = latestSummary
+      ? {
+          leadership: toPercent(latestSummary.score_leadership),
+          quality: toPercent(latestSummary.score_quality),
+          reliability: toPercent(latestSummary.score_reliability),
+          communication: toPercent(latestSummary.score_communication),
+          initiative: toPercent(latestSummary.score_initiative),
+        }
+      : null
 
     const reviewCycles = reviewCyclesResult.data || []
+    // Cycles where this person already reviewed at least one teammate.
     const { data: submittedReviews } = await supabase
       .from("performance_reviews")
       .select("cycle_id")
-      .eq("employee_id", targetUserId)
-      .not("self_score", "is", null)
+      .eq("reviewer_id", targetUserId)
       .in(
         "cycle_id",
         reviewCycles.map((c: { id: string }) => c.id),
@@ -330,17 +292,14 @@ export async function getEmployeeDashboardData(
       start_date: string
       end_date: string
     }>
-    const approvedAnnualUsed = approvedAnnualRows.reduce(
-      (total, req) => {
-        const start = new Date(req.start_date)
-        const end = new Date(req.end_date)
-        const clampedStart = start < leaveYearStart ? leaveYearStart : start
-        const clampedEnd = end > leaveYearEnd ? leaveYearEnd : end
-        if (clampedEnd < clampedStart) return total
-        return total + calculateBusinessDays(clampedStart, clampedEnd)
-      },
-      0,
-    )
+    const approvedAnnualUsed = approvedAnnualRows.reduce((total, req) => {
+      const start = new Date(req.start_date)
+      const end = new Date(req.end_date)
+      const clampedStart = start < leaveYearStart ? leaveYearStart : start
+      const clampedEnd = end > leaveYearEnd ? leaveYearEnd : end
+      if (clampedEnd < clampedStart) return total
+      return total + calculateBusinessDays(clampedStart, clampedEnd)
+    }, 0)
     const leaveBalance = Math.max(0, 12 - approvedAnnualUsed)
 
     // Define the raw shape returned by Supabase (where relations are arrays)
@@ -367,7 +326,10 @@ export async function getEmployeeDashboardData(
       location: string | null
       meeting_url: string | null
       status: string
-      organizer: { full_name: string | null } | { full_name: string | null }[] | null
+      organizer:
+        | { full_name: string | null }
+        | { full_name: string | null }[]
+        | null
     }
 
     const activeProjects = (
@@ -419,27 +381,31 @@ export async function getEmployeeDashboardData(
             : activeQuarter,
       },
       activeProjects,
-      upcomingReviews: reviewCycles.map((cycle: { id: string; name: string; end_date: string }) => ({
-        cycle_id: cycle.id,
-        cycle_name: cycle.name,
-        end_date: cycle.end_date,
-        has_submitted: submittedCycleIds.has(cycle.id),
-      })),
-      upcomingOneOnOne: ((oneOnOneResult.data || []) as RawOneOnOneSlot[]).map((slot) => {
-        const organizer = Array.isArray(slot.organizer)
-          ? slot.organizer[0]
-          : slot.organizer
-        return {
-          id: slot.id,
-          start_at: slot.start_at,
-          end_at: slot.end_at,
-          mode: slot.mode,
-          location: slot.location,
-          meeting_url: slot.meeting_url,
-          status: slot.status,
-          organizer_name: organizer?.full_name ?? null,
-        }
-      }),
+      upcomingReviews: reviewCycles.map(
+        (cycle: { id: string; name: string; end_date: string }) => ({
+          cycle_id: cycle.id,
+          cycle_name: cycle.name,
+          end_date: cycle.end_date,
+          has_submitted: submittedCycleIds.has(cycle.id),
+        }),
+      ),
+      upcomingOneOnOne: ((oneOnOneResult.data || []) as RawOneOnOneSlot[]).map(
+        (slot) => {
+          const organizer = Array.isArray(slot.organizer)
+            ? slot.organizer[0]
+            : slot.organizer
+          return {
+            id: slot.id,
+            start_at: slot.start_at,
+            end_at: slot.end_at,
+            mode: slot.mode,
+            location: slot.location,
+            meeting_url: slot.meeting_url,
+            status: slot.status,
+            organizer_name: organizer?.full_name ?? null,
+          }
+        },
+      ),
       competencyScores,
     }
 
@@ -448,9 +414,12 @@ export async function getEmployeeDashboardData(
     }>
     if (reviewRows.length > 0) {
       const avgReview =
-        reviewRows.reduce((sum: number, row) => sum + (row.overall_percentage || 0), 0) /
-        reviewRows.length
-      dashboardData.performanceOverview.reviewScore = Math.round(avgReview * 10) / 10
+        reviewRows.reduce(
+          (sum: number, row) => sum + (row.overall_percentage || 0),
+          0,
+        ) / reviewRows.length
+      dashboardData.performanceOverview.reviewScore =
+        Math.round(avgReview * 10) / 10
     }
 
     if (activeProjects.length > 0) {

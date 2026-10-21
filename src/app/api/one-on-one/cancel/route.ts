@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
 
     const { data: slot, error: slotError } = await adminSupabase
       .from("one_on_one_slots")
-      .select("id, booked_by, google_event_id")
+      .select("id, booked_by, google_event_id, status")
       .eq("id", slotId)
       .single()
 
@@ -64,6 +64,11 @@ export async function POST(request: NextRequest) {
 
     if (action === "release" && slot.booked_by !== profile.id) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+    }
+
+    // A slot the organizer cancelled can't be "released" back to open.
+    if (action === "release" && slot.status !== "booked") {
+      return NextResponse.json({ error: "slot_not_booked" }, { status: 409 })
     }
 
     if (slot.google_event_id) {

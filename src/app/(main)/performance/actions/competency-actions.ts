@@ -1,99 +1,105 @@
 "use server"
 
-import type { Database } from "@/shared/types/database.types"
 import { createClient } from "@/shared/api/supabase/server"
+import { resolveEffectiveUserId } from "@/shared/lib/impersonation-server"
+import { canManageByRole } from "@/shared/lib/roles"
+import type { Database } from "@/shared/types/database.types"
 
-type Competency = Database["public"]["Tables"]["competency_library"]["Row"]
+type Role = Database["public"]["Enums"]["project_role_enum"]
 
-export async function getCompetencies(roleFilter?: string) {
-  const supabase = await createClient()
-
-  let query = supabase
-    .from("competency_library")
-    .select("id, role, name, description, category")
-    .order("role", { ascending: true })
-    .order("name", { ascending: true })
-
-  // Apply role filter if provided
-  if (roleFilter && roleFilter !== "All") {
-    query = query.eq("role", roleFilter)
-  }
-
-  const { data, error } = await query
-
-  if (error) {
-    console.error("Error fetching competencies:", error)
-    return { success: false, error: error.message, data: [] }
-  }
-
-  return { success: true, data: data as Competency[] }
+export type CompetencyRow = {
+  id: string
+  role: Role
+  name: string
+  description: string | null
+  /** How many saved project scores use it (deleting would erase them). */
+  usage: number
 }
 
-export async function createCompetency(formData: FormData) {
+type Result = { success: boolean; error?: string }
+
+async function admin() {
   const supabase = await createClient()
-
-  const competencyData = {
-    role: formData.get(
-      "role",
-    ) as Database["public"]["Enums"]["project_role_enum"],
-    name: formData.get("name") as string,
-    description: formData.get("description") as string,
-    category: formData.get("category") as string,
-  }
-
-  const { data, error } = await supabase
-    .from("competency_library")
-    .insert(competencyData)
-    .select("id, role, name, description, category")
-    .single()
-
-  if (error) {
-    console.error("Error creating competency:", error)
-    return { success: false, error: error.message }
-  }
-
-  return { success: true, data }
-}
-
-export async function updateCompetency(id: string, formData: FormData) {
-  const supabase = await createClient()
-
-  const competencyData = {
-    role: formData.get(
-      "role",
-    ) as Database["public"]["Enums"]["project_role_enum"],
-    name: formData.get("name") as string,
-    description: formData.get("description") as string,
-    category: formData.get("category") as string,
-  }
-
-  const { data, error } = await supabase
-    .from("competency_library")
-    .update(competencyData)
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return null
+  const id = await resolveEffectiveUserId(supabase, user.id, user.email)
+  const { data } = await supabase
+    .from("profiles")
+    .select("role")
     .eq("id", id)
-    .select("id, role, name, description, category")
-    .single()
-
-  if (error) {
-    console.error("Error updating competency:", error)
-    return { success: false, error: error.message }
-  }
-
-  return { success: true, data }
+    .maybeSingle()
+  return canManageByRole(data?.role) ? supabase : null
 }
 
-export async function deleteCompetency(id: string) {
+export async function getCompetencies(): Promise<CompetencyRow[]> {
   const supabase = await createClient()
+  const { data } = await supabase
+    .from("competency_library")
+    .select("id, role, name, description, project_work_quality_scores(count)")
+    .order("role")
+    .order("name")
+  return (data ?? []).map(
+    (c: {
+      id: string
+      role: Role
+      name: string
+      description: string | null
+      project_work_quality_scores: { count: number }[]
+    }) => ({
+      id: c.id,
+      role: c.role,
+      name: c.name,
+      description: c.description,
+      usage: c.project_work_quality_scores?.[0]?.count ?? 0,
+    }),
+  )
+}
 
+export async function saveCompetency(input: {
+  id?: string
+  role: Role
+  name: string
+  description: string
+}): Promise<Result> {
+  const supabase = await admin()
+  if (!supabase) return { success: false, error: "Khusus admin." }
+  const name = input.name.trim()
+  if (!name) return { success: false, error: "Nama kompetensi wajib diisi." }
+  const row = {
+    role: input.role,
+    name,
+    description: input.description.trim() || null,
+  }
+  const { error } = input.id
+    ? await supabase.from("competency_library").update(row).eq("id", input.id)
+    : await supabase.from("competency_library").insert(row)
+  if (error?.code === "23505") {
+    return { success: false, error: "Kompetensi dengan nama itu sudah ada." }
+  }
+  if (error) return { success: false, error: "Gagal menyimpan kompetensi." }
+  return { success: true }
+}
+
+/** Refuses when saved scores use it: deleting would rewrite past KPIs. */
+export async function deleteCompetency(id: string): Promise<Result> {
+  const supabase = await admin()
+  if (!supabase) return { success: false, error: "Khusus admin." }
+  const { count } = await supabase
+    .from("project_work_quality_scores")
+    .select("id", { count: "exact", head: true })
+    .eq("competency_id", id)
+  if (count) {
+    return {
+      success: false,
+      error: `Sudah dipakai di ${count} penilaian, jadi tidak bisa dihapus.`,
+    }
+  }
   const { error } = await supabase
     .from("competency_library")
     .delete()
     .eq("id", id)
-
-  if (error) {
-    console.error("Error deleting competency:", error)
-    return { success: false, error: error.message }
-  }
-
+  if (error) return { success: false, error: "Gagal menghapus kompetensi." }
   return { success: true }
 }

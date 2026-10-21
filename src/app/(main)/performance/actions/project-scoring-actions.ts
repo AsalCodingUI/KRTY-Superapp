@@ -1,176 +1,133 @@
 "use server"
 
+import {
+  DEFAULT_MILESTONES,
+  type SLAResult,
+} from "@/entities/performance/lib/kpi"
 import { createClient } from "@/shared/api/supabase/server"
 import { revalidatePath } from "next/cache"
 
-type MilestoneData = {
+export type MilestoneInput = {
   name: string
   weight: number
-  result: string
-  scoreAchieved: number
-  targetPercentage: number
+  result: SLAResult
 }
 
-export async function getProjectScores(assignmentId: string) {
-  const supabase = await createClient()
-
-  // Get SLA scores
-  const { data: slaScores, error: slaError } = await supabase
-    .from("project_sla_scores")
-    .select(
-      "id, assignment_id, milestone_name, weight_percentage, actual_result, score_achieved, target_percentage",
-    )
-    .eq("assignment_id", assignmentId)
-
-  if (slaError) {
-    console.error("Error fetching SLA scores:", slaError)
-    return { success: false, error: slaError.message }
-  }
-
-  // Get work quality scores
-  const { data: qualityScores, error: qualityError } = await supabase
-    .from("project_work_quality_scores")
-    .select(
-      `
-            id,
-            assignment_id,
-            competency_id,
-            is_achieved,
-            competency_library (
-                id,
-                name,
-                description,
-                role
-            )
-        `,
-    )
-    .eq("assignment_id", assignmentId)
-
-  if (qualityError) {
-    console.error("Error fetching quality scores:", qualityError)
-    return { success: false, error: qualityError.message }
-  }
-
-  return {
-    success: true,
-    data: {
-      slaScores: slaScores || [],
-      qualityScores: qualityScores || [],
-    },
-  }
+export type CompetencyInput = {
+  id: string
+  name: string
+  description: string | null
+  isAchieved: boolean
 }
 
-export async function saveSLAScores(
+export type ProjectScoring = {
+  /** False until someone has saved SLA milestones for this member. */
+  slaScored: boolean
+  qualityScored: boolean
+  milestones: MilestoneInput[]
+  competencies: CompetencyInput[]
+}
+
+/**
+ * Saved scores for one member on one project, or the default milestones and
+ * the role's competency list when nothing is saved yet. RLS decides who can
+ * read them (stakeholders, the member, or their project lead).
+ */
+export async function getProjectScoring(
   assignmentId: string,
-  milestones: MilestoneData[],
-) {
+  roleInProject: string,
+): Promise<ProjectScoring> {
   const supabase = await createClient()
+  const [{ data: sla }, { data: quality }, { data: library }] =
+    await Promise.all([
+      supabase
+        .from("project_sla_scores")
+        .select("milestone_name, weight_percentage, actual_result, created_at")
+        .eq("assignment_id", assignmentId)
+        .order("created_at"),
+      supabase
+        .from("project_work_quality_scores")
+        .select("competency_id, is_achieved")
+        .eq("assignment_id", assignmentId),
+      supabase
+        .from("competency_library")
+        .select("id, name, description")
+        .eq("role", roleInProject)
+        .order("name"),
+    ])
 
-  const normalizedMilestones = milestones
-    .map((milestone) => ({
-      name: milestone.name.trim(),
-      weight: milestone.weight,
-      result: milestone.result,
-      scoreAchieved: milestone.scoreAchieved,
-      targetPercentage: milestone.targetPercentage,
-    }))
-    .filter((milestone) => milestone.name && Number.isFinite(milestone.weight))
-
-  const uniqueMilestones = new Map<string, MilestoneData>()
-  for (const milestone of normalizedMilestones) {
-    uniqueMilestones.set(milestone.name, milestone)
-  }
-
-  // Delete existing SLA scores for this assignment
-  await supabase
-    .from("project_sla_scores")
-    .delete()
-    .eq("assignment_id", assignmentId)
-
-  // Insert new scores
-  const scoresData = Array.from(uniqueMilestones.values()).map((milestone) => ({
-    assignment_id: assignmentId,
-    milestone_name: milestone.name,
-    weight_percentage: milestone.weight,
-    actual_result: milestone.result,
-    score_achieved: milestone.scoreAchieved,
-    target_percentage: milestone.targetPercentage,
-  }))
-
-  if (scoresData.length === 0) {
-    revalidatePath("/performance")
-    return { success: true }
-  }
-
-  const { error } = await supabase.from("project_sla_scores").insert(scoresData)
-
-  if (error) {
-    console.error("Error saving SLA scores:", error)
-    return { success: false, error: error.message }
-  }
-
-  revalidatePath("/performance")
-  return { success: true }
-}
-
-export async function saveWorkQualityScores(
-  assignmentId: string,
-  competencies: { competencyId: string; isAchieved: boolean }[],
-) {
-  const supabase = await createClient()
-
-  const uniqueCompetencies = new Map<string, boolean>()
-  for (const comp of competencies) {
-    if (!comp.competencyId) continue
-    uniqueCompetencies.set(comp.competencyId, comp.isAchieved)
-  }
-
-  // Delete existing quality scores for this assignment
-  await supabase
-    .from("project_work_quality_scores")
-    .delete()
-    .eq("assignment_id", assignmentId)
-
-  // Insert new scores
-  const scoresData = Array.from(uniqueCompetencies.entries()).map(
-    ([competencyId, isAchieved]) => ({
-      assignment_id: assignmentId,
-      competency_id: competencyId,
-      is_achieved: isAchieved,
-    }),
+  const achieved = new Map(
+    (quality ?? []).map(
+      (q: { competency_id: string; is_achieved: boolean }) => [
+        q.competency_id,
+        q.is_achieved,
+      ],
+    ),
   )
 
-  if (scoresData.length === 0) {
-    revalidatePath("/performance")
-    return { success: true }
+  return {
+    slaScored: (sla ?? []).length > 0,
+    qualityScored: (quality ?? []).length > 0,
+    milestones: sla?.length
+      ? sla.map(
+          (s: {
+            milestone_name: string
+            weight_percentage: number
+            actual_result: string
+          }) => ({
+            name: s.milestone_name,
+            weight: Number(s.weight_percentage),
+            result: (s.actual_result as SLAResult) ?? "On Time",
+          }),
+        )
+      : DEFAULT_MILESTONES.map((m) => ({ ...m, result: "On Time" })),
+    competencies: (library ?? []).map(
+      (c: { id: string; name: string; description: string | null }) => ({
+        ...c,
+        isAchieved: achieved.get(c.id) ?? false,
+      }),
+    ),
   }
-
-  const { error } = await supabase
-    .from("project_work_quality_scores")
-    .insert(scoresData)
-
-  if (error) {
-    console.error("Error saving quality scores:", error)
-    return { success: false, error: error.message }
-  }
-
-  revalidatePath("/performance")
-  return { success: true }
 }
 
-export async function getCompetenciesForRole(role: string) {
+/**
+ * Saves milestones and competencies in one transaction
+ * (save_assignment_scores checks the caller may score this member and that
+ * the weights add up to 100).
+ */
+export async function saveProjectScores(
+  assignmentId: string,
+  milestones: MilestoneInput[],
+  competencies: { id: string; isAchieved: boolean }[],
+): Promise<{ success: boolean; error?: string }> {
   const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { success: false, error: "Silakan login dulu." }
 
-  const { data, error } = await supabase
-    .from("competency_library")
-    .select("id, role, name, description, category")
-    .eq("role", role)
-    .order("name", { ascending: true })
+  const { error } = await supabase.rpc("save_assignment_scores", {
+    p_assignment_id: assignmentId,
+    p_sla: milestones.map((m) => ({
+      name: m.name.trim(),
+      weight: m.weight,
+      result: m.result,
+    })),
+    p_quality: competencies.map((c) => ({
+      competencyId: c.id,
+      isAchieved: c.isAchieved,
+    })),
+  })
 
   if (error) {
-    console.error("Error fetching competencies:", error)
-    return { success: false, error: error.message, data: [] }
+    // Our own checks raise readable Indonesian messages; hide anything else.
+    const readable = ["42501", "22023"].includes(error.code ?? "")
+    return {
+      success: false,
+      error: readable ? error.message : "Gagal menyimpan nilai.",
+    }
   }
 
-  return { success: true, data: data || [] }
+  revalidatePath("/performance", "layout")
+  return { success: true }
 }
