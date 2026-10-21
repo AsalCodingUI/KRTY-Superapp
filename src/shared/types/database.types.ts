@@ -229,6 +229,7 @@ export type Database = {
           leave_type: string
           proof_url: string | null
           reason: string | null
+          review_note: string | null
           start_date: string
           status: Database["public"]["Enums"]["request_status"]
           updated_at: string | null
@@ -241,6 +242,7 @@ export type Database = {
           leave_type?: string
           proof_url?: string | null
           reason?: string | null
+          review_note?: string | null
           start_date: string
           status?: Database["public"]["Enums"]["request_status"]
           updated_at?: string | null
@@ -253,6 +255,7 @@ export type Database = {
           leave_type?: string
           proof_url?: string | null
           reason?: string | null
+          review_note?: string | null
           start_date?: string
           status?: Database["public"]["Enums"]["request_status"]
           updated_at?: string | null

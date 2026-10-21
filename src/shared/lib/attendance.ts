@@ -31,3 +31,18 @@ export function mergeAttendanceNote(
   tags.add(tag)
   return Array.from(tags).join("|")
 }
+
+export function removeAttendanceNote(
+  notes: string | null | undefined,
+  tag: string,
+): string | null {
+  const tags = getAttendanceNoteTags(notes).filter((t) => t !== tag)
+  return tags.length ? tags.join("|") : null
+}
+
+/** Display labels for stored attendance statuses. */
+export const ATTENDANCE_STATUS_LABELS: Record<string, string> = {
+  Present: "Hadir",
+  Lembur: "Lembur",
+  "Cuti Masuk": "Cuti Masuk",
+}

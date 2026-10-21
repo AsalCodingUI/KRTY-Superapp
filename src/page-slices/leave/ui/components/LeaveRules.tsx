@@ -2,7 +2,6 @@ import { Badge } from "@/components/ui/badge"
 
 export function LeaveRules() {
   return (
-    // HAPUS class scroll dari sini
     <div className="text-muted-foreground space-y-4 text-sm">
       {/* SECTION 1: ATURAN CUTI */}
       <section>
@@ -12,12 +11,12 @@ export function LeaveRules() {
         <ol className="ml-4 list-outside list-decimal space-y-2">
           <li>
             Setiap karyawan mendapatkan jatah cuti sebanyak{" "}
-            <span className="text-foreground font-medium">12 kali</span> dalam
+            <span className="text-foreground font-medium">12 hari</span> dalam
             setahun.
           </li>
           <li>
             Pengajuan cuti harus dilakukan{" "}
-            <span className="rounded bg-orange-100 px-1 font-semibold text-orange-800">
+            <span className="bg-warning/15 text-warning rounded px-1 font-medium">
               paling lambat 7 hari
             </span>{" "}
             sebelum tanggal rencana cuti. Jika pengajuan dilakukan mendadak,
@@ -36,7 +35,7 @@ export function LeaveRules() {
           <li>
             Namun, sesuai peraturan perusahaan, dalam satu minggu tidak
             diperbolehkan mengambil cuti lebih dari{" "}
-            <span className="rounded bg-orange-100 px-1 font-semibold text-orange-800">
+            <span className="bg-warning/15 text-warning rounded px-1 font-medium">
               5 hari kerja secara langsung
             </span>
             .
@@ -79,9 +78,8 @@ export function LeaveRules() {
             </div>
             <p>
               <span className="text-foreground font-medium">Pertanyaan:</span>{" "}
-              Karena jatah cuti saya dalam satu tahun ada 12 kali, lalu di bulan
-              ini, pada minggu pertama, saya ingin mengambil cuti 5 hari kerja
-              secara langsung. Apakah boleh?
+              Jatah cuti saya 12 hari setahun. Bulan ini saya ingin mengambil
+              cuti 6 hari kerja berturut-turut. Apakah boleh?
             </p>
           </div>
 
@@ -93,9 +91,8 @@ export function LeaveRules() {
               !
             </Badge>
             <p className="text-destructive">
-              <span className="font-semibold">Jawaban:</span> Tidak boleh.
-              Pengambilan cuti secara langsung diperbolehkan jika di bawah 5
-              hari.
+              <span className="font-semibold">Jawaban:</span> Tidak boleh. Cuti
+              berturut-turut maksimal 5 hari kerja per pengajuan.
             </p>
           </div>
 

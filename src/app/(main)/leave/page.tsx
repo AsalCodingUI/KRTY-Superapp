@@ -5,12 +5,12 @@ import { Database } from "@/shared/types/database.types"
 
 export const dynamic = "force-dynamic"
 import {
-  calculateBusinessDays,
   getAttendanceLogLocalDate,
   getLocalDateString,
 } from "@/shared/lib/date"
 import { resolveEffectiveUserId } from "@/shared/lib/impersonation-server"
 import { resolveProfileByUserIdOrEmail } from "@/shared/lib/profile-resolution"
+import { annualLeaveSummary } from "@/shared/lib/leave"
 import { canManageByRole } from "@/shared/lib/roles"
 
 type AttendanceLogWithProfile =
@@ -106,13 +106,13 @@ export default async function LeaveRoute({
       supabase
         .from("leave_requests")
         .select(
-          "id,start_date,end_date,leave_type,reason,proof_url,status,created_at,updated_at,user_id,profiles(full_name, avatar_url)",
+          "id,start_date,end_date,leave_type,reason,review_note,proof_url,status,created_at,updated_at,user_id,profiles(full_name, avatar_url)",
         )
         .order("created_at", { ascending: false })
         .range(from, to),
       supabase
         .from("profiles")
-        .select("id, full_name, avatar_url, job_title, leave_used, leave_balance")
+        .select("id, full_name, avatar_url, job_title")
         .order("full_name", { ascending: true }),
       supabase
         .from("attendance_logs")
@@ -146,44 +146,37 @@ export default async function LeaveRoute({
         .gte("end_date", today),
     ])
 
-    const annualUsedByUser = new Map<string, number>()
+    // One balance rule for everyone (see shared/lib/leave).
+    const approvedByUser = new Map<
+      string,
+      { start_date: string; end_date: string }[]
+    >()
     for (const req of approvedAnnualResult.data || []) {
-      const days = Math.max(
-        0,
-        calculateBusinessDays(new Date(req.start_date), new Date(req.end_date)),
-      )
-      annualUsedByUser.set(
-        req.user_id,
-        (annualUsedByUser.get(req.user_id) || 0) + days,
-      )
+      const list = approvedByUser.get(req.user_id) ?? []
+      list.push(req)
+      approvedByUser.set(req.user_id, list)
     }
 
-    const hydratedProfiles = (profilesResult.data || []).map((p: {
-      id: string
-      full_name: string | null
-      avatar_url: string | null
-      job_title: string | null
-      leave_used: number | null
-      leave_balance: number | null
-    }) => {
-      const totalQuota = Math.max(
-        0,
-        (p.leave_used ?? 0) + (p.leave_balance ?? 12),
-      )
-      const used = annualUsedByUser.get(p.id) || 0
-      const remaining = Math.max(0, totalQuota - used)
-      return {
-        ...p,
-        leave_used: used,
-        leave_balance: remaining,
-      }
-    })
+    const hydratedProfiles = (profilesResult.data || []).map(
+      (p: {
+        id: string
+        full_name: string | null
+        avatar_url: string | null
+        job_title: string | null
+      }) => {
+        const summary = annualLeaveSummary(approvedByUser.get(p.id) ?? [])
+        return {
+          ...p,
+          leave_quota: summary.quota,
+          leave_used: summary.used,
+          leave_balance: summary.remaining,
+        }
+      },
+    )
 
     const todayAttendanceLogs = (
       (attendanceLogsResult.data || []) as AttendanceLogWithProfile[]
-    ).filter(
-      (log) => getAttendanceLogLocalDate(log) === today,
-    )
+    ).filter((log) => getAttendanceLogLocalDate(log) === today)
     const presentToday = todayAttendanceLogs.length
     const currentlyActive = todayAttendanceLogs.filter(
       (log) => !log.clock_out,
@@ -214,7 +207,12 @@ export default async function LeaveRoute({
   const adminSupabase = createAdminClient()
 
   // 🚀 PARALLEL FETCH: Count + Requests + Attendance Logs
-  const [countResult, requestsResult, attendanceLogsResult, statsRequestsResult] = await Promise.all([
+  const [
+    countResult,
+    requestsResult,
+    attendanceLogsResult,
+    statsRequestsResult,
+  ] = await Promise.all([
     adminSupabase
       .from("leave_requests")
       .select("id", { count: "exact", head: true })
@@ -222,7 +220,7 @@ export default async function LeaveRoute({
     adminSupabase
       .from("leave_requests")
       .select(
-        "id,start_date,end_date,leave_type,reason,proof_url,status,created_at,updated_at,user_id",
+        "id,start_date,end_date,leave_type,reason,review_note,proof_url,status,created_at,updated_at,user_id",
       )
       .in("user_id", scopedProfileIds)
       .order("created_at", { ascending: false })
@@ -240,7 +238,7 @@ export default async function LeaveRoute({
     adminSupabase
       .from("leave_requests")
       .select(
-        "id,start_date,end_date,leave_type,reason,proof_url,status,created_at,updated_at,user_id",
+        "id,start_date,end_date,leave_type,reason,review_note,proof_url,status,created_at,updated_at,user_id",
       )
       .in("user_id", scopedProfileIds),
   ])

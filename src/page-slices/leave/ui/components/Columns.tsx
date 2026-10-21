@@ -3,167 +3,147 @@
 import { DataTableColumnHeader } from "@/components/data-table"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
+import { LEAVE_STATUS_LABELS, LEAVE_TYPE_LABELS } from "@/shared/lib/leave"
 import { Database } from "@/shared/types/database.types"
-import { RiEditLine, RiFilePaperLine } from "@/shared/ui/lucide-icons"
+import { RiFilePaperLine } from "@/shared/ui/lucide-icons"
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table"
 import { format } from "date-fns"
+import { id as idLocale } from "date-fns/locale"
 
 type LeaveRequest = Database["public"]["Tables"]["leave_requests"]["Row"]
 
 const columnHelper = createColumnHelper<LeaveRequest>()
 
-const getStatusBadge = (status: string) => {
-  switch (status) {
-    case "approved":
-      return <Badge variant="success">Approved</Badge>
-    case "rejected":
-      return <Badge variant="destructive">Rejected</Badge>
-    default:
-      return <Badge variant="warning">Pending</Badge>
-  }
-}
+const STATUS_VARIANT = {
+  approved: "success",
+  rejected: "destructive",
+  pending: "warning",
+} as const
 
-export const columns = (onEdit: (item: LeaveRequest) => void) =>
+export const columns = ({
+  onEdit,
+  onCancel,
+}: {
+  onEdit: (item: LeaveRequest) => void
+  onCancel: (item: LeaveRequest) => void
+}) =>
   [
-    columnHelper.display({
-      id: "index",
-      header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title="No"
-          className="whitespace-nowrap"
-        />
-      ),
-      cell: ({ row }) => (
-        <span className="text-muted-foreground tabular-nums">
-          {row.index + 1}
-        </span>
-      ),
-      enableSorting: false,
-      meta: { displayName: "No" },
-    }),
-
     columnHelper.accessor("start_date", {
       header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title="Date Range"
-          className="whitespace-nowrap"
-        />
+        <DataTableColumnHeader column={column} title="Tanggal" />
       ),
       cell: ({ row }) => {
         const start = new Date(row.original.start_date)
         const end = new Date(row.original.end_date)
         return (
-          <span className="text-foreground whitespace-nowrap">
-            {format(start, "dd MMM yyyy")}
-            <span className="text-muted-foreground mx-1.5">s/d</span>
-            {format(end, "dd MMM yyyy")}
+          <span className="whitespace-nowrap tabular-nums">
+            {format(start, "d MMM", { locale: idLocale })}
+            <span className="text-muted-foreground mx-1">–</span>
+            {format(end, "d MMM yyyy", { locale: idLocale })}
           </span>
         )
       },
-      meta: { displayName: "Date Range" },
+      meta: { displayName: "Tanggal" },
     }),
 
     columnHelper.accessor("leave_type", {
       header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title="Type"
-          className="whitespace-nowrap"
-        />
+        <DataTableColumnHeader column={column} title="Jenis" />
       ),
+      cell: ({ row }) =>
+        LEAVE_TYPE_LABELS[row.original.leave_type] ?? row.original.leave_type,
       enableSorting: false,
-      meta: { className: "text-left whitespace-nowrap", displayName: "Type" },
+      meta: { displayName: "Jenis" },
     }),
 
     columnHelper.accessor("reason", {
       header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title="Reason"
-          className="whitespace-nowrap"
-        />
+        <DataTableColumnHeader column={column} title="Alasan" />
       ),
       cell: ({ row }) => (
         <div
-          className="max-w-[200px] truncate"
-          title={row.getValue("reason") || ""}
+          className="max-w-[240px] truncate"
+          title={row.original.reason || ""}
         >
-          {row.getValue("reason")}
+          {row.original.reason || (
+            <span className="text-muted-foreground/60">—</span>
+          )}
         </div>
       ),
       enableSorting: false,
-      meta: { displayName: "Reason" },
+      meta: { displayName: "Alasan" },
     }),
 
     columnHelper.accessor("proof_url", {
       header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title="Proof"
-          className="whitespace-nowrap"
-        />
+        <DataTableColumnHeader column={column} title="Bukti" />
       ),
       cell: ({ row }) => {
-        const url = row.getValue("proof_url") as string
-        if (!url) return <span className="text-muted-foreground/50">-</span>
+        const url = row.original.proof_url
+        if (!url) return <span className="text-muted-foreground/60">—</span>
         return (
           <a
             href={url}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-primary hover:text-primary inline-flex items-center gap-1 text-xs font-medium"
+            className="text-primary inline-flex items-center gap-1 text-xs font-medium hover:underline"
           >
-            <RiFilePaperLine className="size-3.5" /> View
+            <RiFilePaperLine className="size-3.5" /> Lihat
           </a>
         )
       },
       enableSorting: false,
-      meta: { displayName: "Proof" },
+      meta: { displayName: "Bukti" },
     }),
 
     columnHelper.accessor("status", {
       header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title="Status"
-          className="whitespace-nowrap"
-        />
+        <DataTableColumnHeader column={column} title="Status" />
       ),
-      cell: ({ row }) => getStatusBadge(row.getValue("status")),
+      cell: ({ row }) => {
+        const { status, review_note } = row.original
+        return (
+          <div className="flex flex-col items-start gap-0.5">
+            <Badge variant={STATUS_VARIANT[status]}>
+              {LEAVE_STATUS_LABELS[status] ?? status}
+            </Badge>
+            {review_note && (
+              <span
+                className="text-muted-foreground max-w-[220px] truncate text-xs"
+                title={review_note}
+              >
+                {review_note}
+              </span>
+            )}
+          </div>
+        )
+      },
       enableSorting: false,
       meta: { displayName: "Status" },
     }),
 
     columnHelper.display({
       id: "actions",
-      header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title="Action"
-          className="text-right whitespace-nowrap"
-        />
-      ),
-      meta: { className: "text-right", displayName: "Action" },
+      header: () => <span className="sr-only">Aksi</span>,
+      meta: { className: "text-right", displayName: "Aksi" },
       cell: ({ row }) => {
         const item = row.original
-        // Hanya kunci jika Approved. Rejected bisa diedit untuk Resubmit.
-        const isLocked = item.status === "approved"
-        const isRejected = item.status === "rejected"
-
+        if (item.status === "approved") return null
         return (
-          <Button
-            variant="ghost"
-            size="icon"
-            className={cn(isRejected ? "text-warning" : "")}
-            onClick={() => onEdit(item)}
-            disabled={isLocked}
-            title={isRejected ? "Fix & Resubmit" : "Edit Request"}
-          >
-            <RiEditLine className="size-3.5" />
-          </Button>
+          <div className="flex justify-end gap-1">
+            <Button variant="ghost" onClick={() => onEdit(item)}>
+              {item.status === "rejected" ? "Ajukan ulang" : "Ubah"}
+            </Button>
+            {item.status === "pending" && (
+              <Button
+                variant="ghost"
+                className="text-destructive hover:text-destructive"
+                onClick={() => onCancel(item)}
+              >
+                Batalkan
+              </Button>
+            )}
+          </div>
         )
       },
       enableSorting: false,

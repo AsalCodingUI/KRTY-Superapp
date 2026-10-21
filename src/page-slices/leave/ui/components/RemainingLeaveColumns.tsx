@@ -3,13 +3,20 @@
 import { DataTableColumnHeader } from "@/components/data-table"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
+import { ANNUAL_LEAVE_QUOTA } from "@/shared/lib/leave"
 import { Database } from "@/shared/types/database.types"
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table"
 
+/** Balances come from the shared annual-leave summary (leave route). */
 type Profile = Pick<
   Database["public"]["Tables"]["profiles"]["Row"],
-  "id" | "full_name" | "avatar_url" | "job_title" | "leave_used" | "leave_balance"
->
+  | "id"
+  | "full_name"
+  | "avatar_url"
+  | "job_title"
+  | "leave_used"
+  | "leave_balance"
+> & { leave_quota?: number }
 
 const columnHelper = createColumnHelper<Profile>()
 
@@ -35,7 +42,7 @@ export const remainingLeaveColumns = [
     header: ({ column }) => (
       <DataTableColumnHeader
         column={column}
-        title="Employee"
+        title="Karyawan"
         className="whitespace-nowrap"
       />
     ),
@@ -46,13 +53,8 @@ export const remainingLeaveColumns = [
       return (
         <div className="flex items-center gap-3">
           <Avatar className="size-5">
-            <AvatarImage
-              src={avatarUrl}
-              alt={name}
-            />
-            <AvatarFallback className="text-[10px]">
-              {initials}
-            </AvatarFallback>
+            <AvatarImage src={avatarUrl} alt={name} />
+            <AvatarFallback className="text-[10px]">{initials}</AvatarFallback>
           </Avatar>
           <span
             className="text-foreground font-medium whitespace-nowrap"
@@ -71,7 +73,7 @@ export const remainingLeaveColumns = [
     header: ({ column }) => (
       <DataTableColumnHeader
         column={column}
-        title="Job Title"
+        title="Jabatan"
         className="whitespace-nowrap"
       />
     ),
@@ -82,53 +84,52 @@ export const remainingLeaveColumns = [
     meta: { displayName: "Job Title" },
   }),
 
-  // 3. Total Quota (Fixed 12 Days)
   columnHelper.display({
     id: "total_quota",
     header: ({ column }) => (
       <DataTableColumnHeader
         column={column}
-        title="Total Quota"
-        className="whitespace-nowrap"
-      />
-    ),
-    cell: () => (
-      <span className="text-muted-foreground tabular-nums">12 Days</span>
-    ),
-    meta: { displayName: "Total Quota" },
-  }),
-
-  // 4. Used -> Ambil 'leave_used' (Contoh Alex: 2)
-  columnHelper.accessor("leave_used", {
-    header: ({ column }) => (
-      <DataTableColumnHeader
-        column={column}
-        title="Used"
+        title="Jatah"
         className="whitespace-nowrap"
       />
     ),
     cell: ({ row }) => (
       <span className="text-muted-foreground tabular-nums">
-        {row.getValue("leave_used") ?? 0} Days
+        {row.original.leave_quota ?? ANNUAL_LEAVE_QUOTA} hari
       </span>
     ),
-    meta: { displayName: "Used" },
+    meta: { displayName: "Jatah" },
   }),
 
-  // 5. Remaining -> Ambil 'leave_balance' (Contoh Alex: 10)
+  columnHelper.accessor("leave_used", {
+    header: ({ column }) => (
+      <DataTableColumnHeader
+        column={column}
+        title="Terpakai"
+        className="whitespace-nowrap"
+      />
+    ),
+    cell: ({ row }) => (
+      <span className="text-muted-foreground tabular-nums">
+        {row.getValue("leave_used") ?? 0} hari
+      </span>
+    ),
+    meta: { displayName: "Terpakai" },
+  }),
+
   columnHelper.accessor("leave_balance", {
     header: ({ column }) => (
       <DataTableColumnHeader
         column={column}
-        title="Remaining"
+        title="Sisa"
         className="whitespace-nowrap"
       />
     ),
     cell: ({ row }) => (
       <span className="text-foreground font-medium tabular-nums">
-        {row.getValue("leave_balance") ?? 12} Days
+        {row.getValue("leave_balance") ?? ANNUAL_LEAVE_QUOTA} hari
       </span>
     ),
-    meta: { displayName: "Remaining" },
+    meta: { displayName: "Sisa" },
   }),
 ] as ColumnDef<Profile>[]

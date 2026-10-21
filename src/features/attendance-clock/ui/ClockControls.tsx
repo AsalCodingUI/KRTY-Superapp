@@ -2,101 +2,170 @@
 
 import { Button } from "@/components/ui/button"
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import {
-  RiArrowDownSLine,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
+  getAttendanceLogLocalDate,
+  getAttendanceSessionState,
+} from "@/shared/lib/date"
+import type { Database } from "@/shared/types/database.types"
+import {
   RiCupLine,
   RiLoginBoxLine,
   RiLogoutBoxLine,
 } from "@/shared/ui/lucide-icons"
+import { format, parseISO } from "date-fns"
+import { id as idLocale } from "date-fns/locale"
 import { useState } from "react"
+import { useClockActions } from "../model/useClockActions"
+
+type AttendanceLog = Database["public"]["Tables"]["attendance_logs"]["Row"]
+
+/** Stored values stay as before; only the labels are Indonesian. */
+export const CLOCK_STATUSES = [
+  { value: "Present", label: "Hadir" },
+  { value: "Lembur", label: "Lembur" },
+  { value: "Cuti Masuk", label: "Cuti Masuk" },
+] as const
 
 interface ClockControlsProps {
-  activeSession: {
-    id: string
-    is_break: boolean | null
-  } | null
-  isOnLeave: boolean
-  loading: boolean
-  onClockIn: (status: string) => void
-  onClockOut: (logId: string) => void
-  onToggleBreak: (logId: string, isBreak: boolean) => void
-  onConfirmOpen: (action: "CLOCK_IN" | "CLOCK_OUT", status?: string) => void
+  logs: AttendanceLog[]
+  onLogsUpdate: (logs: AttendanceLog[]) => void
+  /** Approved leave today: default the status to "Cuti Masuk". */
+  isOnLeave?: boolean
+  now?: Date | null
 }
 
+/**
+ * The one clock-in/out control, used on the dashboard and on Leave &
+ * Attendance so both offer the same status choice, break and confirmations.
+ */
 export function ClockControls({
-  activeSession,
-  isOnLeave,
-  loading,
-  onToggleBreak,
-  onConfirmOpen,
+  logs,
+  onLogsUpdate,
+  isOnLeave = false,
+  now,
 }: ClockControlsProps) {
-  const [selectedStatus, setSelectedStatus] = useState<string>(
+  const [status, setStatus] = useState<string>(
     isOnLeave ? "Cuti Masuk" : "Present",
   )
+  const [confirmClockOut, setConfirmClockOut] = useState(false)
+  const {
+    loading,
+    handleClockIn,
+    handleClockOut,
+    handleToggleBreak,
+    handleResolvePreviousSession,
+  } = useClockActions({ logs, onLogsUpdate })
 
-  const getStatusLabel = (val: string) => {
-    if (val === "Present") return "Available"
-    return val
+  // SSR placeholder keeps the tree stable until the clock is known.
+  if (!now) return <div className="h-8" />
+
+  const { staleSession, activeSession } = getAttendanceSessionState(logs, now)
+
+  if (staleSession && !activeSession) {
+    return (
+      <div className="flex items-center gap-3">
+        <p className="text-destructive text-sm">
+          Sesi{" "}
+          {format(parseISO(getAttendanceLogLocalDate(staleSession)), "d MMM", {
+            locale: idLocale,
+          })}{" "}
+          belum ditutup
+        </p>
+        <Button
+          variant="destructive"
+          disabled={loading}
+          onClick={() => handleResolvePreviousSession(staleSession.id)}
+        >
+          Tutup sesi sebelumnya
+        </Button>
+      </div>
+    )
+  }
+
+  if (!activeSession) {
+    return (
+      <div className="flex items-center gap-2">
+        <Select value={status} onValueChange={(v) => v && setStatus(v)}>
+          <SelectTrigger className="w-36" aria-label="Status kehadiran">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {CLOCK_STATUSES.map((s) => (
+              <SelectItem key={s.value} value={s.value}>
+                {s.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Button onClick={() => handleClockIn(status)} disabled={loading}>
+          <RiLoginBoxLine data-icon="inline-start" />
+          Clock In
+        </Button>
+      </div>
+    )
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-3">
-      {!activeSession ? (
-        <>
-          {/* DROPDOWN STATUS */}
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              render={<Button variant="outline" type="button" />}
-            >
-              {getStatusLabel(selectedStatus)}
-              <RiArrowDownSLine className="text-muted-foreground ml-2 size-4 shrink-0" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start">
-              <DropdownMenuItem onClick={() => setSelectedStatus("Present")}>
-                Available
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setSelectedStatus("Lembur")}>
-                Lembur
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setSelectedStatus("Cuti Masuk")}>
-                Cuti Masuk
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+    <div className="flex items-center gap-2">
+      <Button
+        variant="outline"
+        disabled={loading}
+        onClick={() =>
+          handleToggleBreak(activeSession.id, activeSession.is_break || false)
+        }
+      >
+        <RiCupLine data-icon="inline-start" />
+        {activeSession.is_break ? "Selesai istirahat" : "Istirahat"}
+      </Button>
+      <Button
+        variant="destructive"
+        disabled={loading}
+        onClick={() => setConfirmClockOut(true)}
+      >
+        <RiLogoutBoxLine data-icon="inline-start" />
+        Clock Out
+      </Button>
 
-          <Button
-            onClick={() => onConfirmOpen("CLOCK_IN", selectedStatus)}
-            disabled={loading}
-          >
-            <RiLoginBoxLine className="mr-2 size-4" /> Clock In
-          </Button>
-        </>
-      ) : (
-        <>
-          <Button
-            variant="destructive"
-            onClick={() => onConfirmOpen("CLOCK_OUT")}
-            disabled={loading}
-          >
-            <RiLogoutBoxLine className="mr-2 size-4" /> Clock Out
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() =>
-              onToggleBreak(activeSession.id, activeSession.is_break || false)
-            }
-            disabled={loading}
-          >
-            <RiCupLine className="mr-2 size-4" />
-            {activeSession.is_break ? "End Break" : "Break"}
-          </Button>
-        </>
-      )}
+      <Dialog open={confirmClockOut} onOpenChange={setConfirmClockOut}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Clock out sekarang?</DialogTitle>
+            <DialogDescription>
+              Sesi hari ini akan ditutup pada {format(new Date(), "HH:mm")}.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <DialogClose render={<Button variant="outline" />}>
+              Batal
+            </DialogClose>
+            <Button
+              variant="destructive"
+              disabled={loading}
+              onClick={async () => {
+                await handleClockOut(activeSession.id)
+                setConfirmClockOut(false)
+              }}
+            >
+              Clock Out
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

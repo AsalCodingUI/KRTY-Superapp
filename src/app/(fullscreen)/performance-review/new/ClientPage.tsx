@@ -307,7 +307,7 @@ export default function ReviewFormClientPage({
                       >
                         {step.complete ? (
                           <div className="bg-success flex size-6 shrink-0 items-center justify-center rounded-full">
-                            <RiCheckLine className="text-success size-4" />
+                            <RiCheckLine className="text-success-foreground size-4" />
                           </div>
                         ) : (
                           <div className="border-border flex size-6 shrink-0 items-center justify-center rounded-full border-2">

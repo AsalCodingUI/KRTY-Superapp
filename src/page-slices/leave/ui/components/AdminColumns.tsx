@@ -3,6 +3,7 @@
 import { DataTableColumnHeader } from "@/components/data-table"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
+import { LEAVE_TYPE_LABELS } from "@/shared/lib/leave"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Database } from "@/shared/types/database.types"
@@ -24,11 +25,11 @@ const columnHelper = createColumnHelper<LeaveRequestWithProfile>()
 const getStatusBadge = (status: string) => {
   switch (status) {
     case "approved":
-      return <Badge variant="success">Approved</Badge>
+      return <Badge variant="success">Disetujui</Badge>
     case "rejected":
-      return <Badge variant="destructive">Rejected</Badge>
+      return <Badge variant="destructive">Ditolak</Badge>
     default:
-      return <Badge variant="warning">Pending</Badge>
+      return <Badge variant="warning">Menunggu</Badge>
   }
 }
 
@@ -82,7 +83,7 @@ export const adminColumns = (
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title="Employee"
+          title="Karyawan"
           className="whitespace-nowrap"
         />
       ),
@@ -117,7 +118,7 @@ export const adminColumns = (
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title="Date Range"
+          title="Tanggal"
           className="whitespace-nowrap"
         />
       ),
@@ -140,7 +141,7 @@ export const adminColumns = (
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title="Submission Date"
+          title="Diajukan"
           className="whitespace-nowrap"
         />
       ),
@@ -166,11 +167,13 @@ export const adminColumns = (
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title="Type"
+          title="Jenis"
           className="whitespace-nowrap"
         />
       ),
-      meta: { displayName: "Type", className: "whitespace-nowrap" },
+      cell: ({ row }) =>
+        LEAVE_TYPE_LABELS[row.original.leave_type] ?? row.original.leave_type,
+      meta: { displayName: "Jenis", className: "whitespace-nowrap" },
     }),
 
     // 6. Reason
@@ -178,7 +181,7 @@ export const adminColumns = (
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title="Reason"
+          title="Alasan"
           className="whitespace-nowrap"
         />
       ),
@@ -198,7 +201,7 @@ export const adminColumns = (
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title="Proof"
+          title="Bukti"
           className="whitespace-nowrap"
         />
       ),
@@ -240,7 +243,7 @@ export const adminColumns = (
             header: ({ column }) => (
               <DataTableColumnHeader
                 column={column}
-                title="Action"
+                title="Aksi"
                 className="text-right whitespace-nowrap"
               />
             ),
@@ -255,8 +258,12 @@ export const adminColumns = (
                     variant="ghost"
                     size="icon"
                     className="text-destructive"
-                    title="Reject"
-                    onClick={() => onReject(item.id)}
+                    title="Tolak"
+                    // Don't also toggle the row's selection.
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onReject(item.id)
+                    }}
                   >
                     <RiCloseLine className="size-3.5" />
                   </Button>
@@ -264,8 +271,11 @@ export const adminColumns = (
                     variant="ghost"
                     size="icon"
                     className="text-success"
-                    title="Approve"
-                    onClick={() => onApprove(item.id)}
+                    title="Setujui"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onApprove(item.id)
+                    }}
                   >
                     <RiCheckLine className="size-3.5" />
                   </Button>

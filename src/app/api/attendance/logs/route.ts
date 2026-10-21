@@ -1,6 +1,9 @@
 import { createAdminClient } from "@/shared/api/supabase/admin"
 import { createClient } from "@/shared/api/supabase/server"
-import { ATTENDANCE_NOTE_TAGS, mergeAttendanceNote } from "@/shared/lib/attendance"
+import {
+  ATTENDANCE_NOTE_TAGS,
+  mergeAttendanceNote,
+} from "@/shared/lib/attendance"
 import { resolveProfileByUserIdOrEmail } from "@/shared/lib/profile-resolution"
 import { differenceInMinutes, format } from "date-fns"
 import { NextRequest, NextResponse } from "next/server"
@@ -48,17 +51,16 @@ async function getCanonicalProfile() {
   const profile = await resolveProfileByUserIdOrEmail<{
     id: string
     email: string | null
-  }>(
-    supabase,
-    "id, email, created_at",
-    user.id,
-    user.email,
-  )
+  }>(supabase, "id, email, created_at", user.id, user.email)
 
   return { user, profile }
 }
 
-async function getOwnedLogOrThrow(adminSupabase: ReturnType<typeof createAdminClient>, logId: string, ownerId: string) {
+async function getOwnedLogOrThrow(
+  adminSupabase: ReturnType<typeof createAdminClient>,
+  logId: string,
+  ownerId: string,
+) {
   const { data: log, error } = await adminSupabase
     .from("attendance_logs")
     .select("id, user_id, break_start, break_total, notes")
@@ -111,7 +113,12 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Attendance POST error", error)
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Failed to save attendance log" },
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to save attendance log",
+      },
       { status: 500 },
     )
   }
@@ -194,12 +201,20 @@ export async function PATCH(request: NextRequest) {
     }
 
     if (parsed.data.action === "request_delete") {
-      await getOwnedLogOrThrow(adminSupabase, parsed.data.logId, profile.id)
+      const ownedLog = await getOwnedLogOrThrow(
+        adminSupabase,
+        parsed.data.logId,
+        profile.id,
+      )
 
       const { data, error } = await adminSupabase
         .from("attendance_logs")
         .update({
-          notes: ATTENDANCE_NOTE_TAGS.deleteRequested,
+          // Keep existing tags (e.g. an admin edit) instead of overwriting.
+          notes: mergeAttendanceNote(
+            ownedLog.notes,
+            ATTENDANCE_NOTE_TAGS.deleteRequested,
+          ),
         })
         .eq("id", parsed.data.logId)
         .select()
@@ -236,7 +251,12 @@ export async function PATCH(request: NextRequest) {
   } catch (error) {
     console.error("Attendance PATCH error", error)
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Failed to update attendance log" },
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to update attendance log",
+      },
       { status: 500 },
     )
   }

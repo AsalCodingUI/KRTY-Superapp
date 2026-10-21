@@ -9,7 +9,6 @@
  * - Slices in this layer should not directly import from each other
  */
 
-export * from "./attendance"
 export * from "./leave"
 export * from "./performance"
 export * from "./teams"

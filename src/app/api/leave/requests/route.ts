@@ -11,7 +11,9 @@ const requestSchema = z.object({
   leave_type: z.string().min(1),
   reason: z.string().nullable().optional(),
   proof_url: z.string().nullable().optional(),
-  status: z.string().default("pending"),
+  // Ignored: employees can't set their own status. New and edited requests
+  // are always "pending" until a stakeholder reviews them.
+  status: z.string().optional(),
 })
 
 async function getCanonicalProfile() {
@@ -27,12 +29,7 @@ async function getCanonicalProfile() {
   const profile = await resolveProfileByUserIdOrEmail<{
     id: string
     email: string | null
-  }>(
-    supabase,
-    "id, email, created_at",
-    user.id,
-    user.email,
-  )
+  }>(supabase, "id, email, created_at", user.id, user.email)
 
   return { user, profile }
 }
@@ -60,7 +57,7 @@ export async function POST(request: NextRequest) {
       leave_type: parsed.data.leave_type,
       reason: parsed.data.reason || null,
       proof_url: parsed.data.proof_url || null,
-      status: parsed.data.status || "pending",
+      status: "pending" as const,
     }
 
     const adminSupabase = createAdminClient()
@@ -106,13 +103,22 @@ export async function PATCH(request: NextRequest) {
     const adminSupabase = createAdminClient()
     const { data: existing, error: existingError } = await adminSupabase
       .from("leave_requests")
-      .select("id, user_id")
+      .select("id, user_id, status")
       .eq("id", parsed.data.id)
       .maybeSingle()
 
     if (existingError) throw existingError
     if (!existing || existing.user_id !== profile.id) {
-      return NextResponse.json({ error: "Leave request not found" }, { status: 404 })
+      return NextResponse.json(
+        { error: "Leave request not found" },
+        { status: 404 },
+      )
+    }
+    if (existing.status === "approved") {
+      return NextResponse.json(
+        { error: "Pengajuan yang sudah disetujui tidak bisa diubah" },
+        { status: 409 },
+      )
     }
 
     const payload = {
@@ -122,12 +128,13 @@ export async function PATCH(request: NextRequest) {
       leave_type: parsed.data.leave_type,
       reason: parsed.data.reason || null,
       proof_url: parsed.data.proof_url || null,
-      status: parsed.data.status || "pending",
+      status: "pending" as const,
     }
 
     const { data, error } = await adminSupabase
       .from("leave_requests")
-      .update(payload)
+      // Resubmitting clears the previous reviewer note.
+      .update({ ...payload, review_note: null })
       .eq("id", parsed.data.id)
       .select()
       .single()
@@ -143,6 +150,68 @@ export async function PATCH(request: NextRequest) {
           error instanceof Error
             ? error.message
             : "Failed to update leave request",
+      },
+      { status: 500 },
+    )
+  }
+}
+
+const cancelSchema = z.object({ id: z.number() })
+
+/**
+ * DELETE /api/leave/requests — cancel your own request while it is still
+ * pending (employees can't delete rows directly under RLS).
+ */
+export async function DELETE(request: NextRequest) {
+  try {
+    const { user, profile } = await getCanonicalProfile()
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+    if (!profile) {
+      return NextResponse.json({ error: "Profile not found" }, { status: 404 })
+    }
+
+    const parsed = cancelSchema.safeParse(
+      await request.json().catch(() => null),
+    )
+    if (!parsed.success) {
+      return NextResponse.json({ error: "Invalid request" }, { status: 400 })
+    }
+
+    const adminSupabase = createAdminClient()
+    const { data: existing, error: existingError } = await adminSupabase
+      .from("leave_requests")
+      .select("id, user_id, status")
+      .eq("id", parsed.data.id)
+      .maybeSingle()
+    if (existingError) throw existingError
+    if (!existing || existing.user_id !== profile.id) {
+      return NextResponse.json(
+        { error: "Leave request not found" },
+        { status: 404 },
+      )
+    }
+    if (existing.status !== "pending") {
+      return NextResponse.json(
+        { error: "Hanya pengajuan yang masih menunggu yang bisa dibatalkan" },
+        { status: 409 },
+      )
+    }
+
+    const { error } = await adminSupabase
+      .from("leave_requests")
+      .delete()
+      .eq("id", parsed.data.id)
+    if (error) throw error
+
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error("Leave request cancel error", error)
+    return NextResponse.json(
+      {
+        error:
+          error instanceof Error ? error.message : "Failed to cancel request",
       },
       { status: 500 },
     )

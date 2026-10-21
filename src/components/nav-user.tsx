@@ -50,7 +50,8 @@ export function NavUser({
   const settings = useSettingsModal()
 
   return (
-    <SidebarMenu>
+    // Centred in the rail.
+    <SidebarMenu className="items-center">
       <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger
@@ -58,10 +59,10 @@ export function NavUser({
             // the profile loads, which shifted Base UI's generated ids.
             id="nav-user-menu-trigger"
             render={
-              <SidebarMenuButton className="aria-expanded:bg-sidebar-accent size-7! justify-center p-0!" />
+              <SidebarMenuButton className="aria-expanded:bg-sidebar-accent size-8! justify-center p-0!" />
             }
           >
-            <Avatar className="size-5">
+            <Avatar className="size-6">
               <AvatarImage src={user.avatar} alt={user.name} />
               <AvatarFallback className="text-[10px]">
                 {initials}

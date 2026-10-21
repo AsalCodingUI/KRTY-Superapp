@@ -1,12 +1,5 @@
 "use client"
 
-import {
-  LeaveFormData,
-  LeaveRequestForm,
-} from "@/features/leave-request/ui/LeaveRequestForm"
-import { createClient } from "@/shared/api/supabase/client"
-import { calculateBusinessDays } from "@/shared/lib/date"
-import { Database } from "@/shared/types/database.types"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
@@ -18,9 +11,24 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Spinner } from "@/components/ui/spinner"
+import {
+  LeaveFormData,
+  LeaveRequestForm,
+} from "@/features/leave-request/ui/LeaveRequestForm"
+import { createClient } from "@/shared/api/supabase/client"
+import { calculateBusinessDays } from "@/shared/lib/date"
+import {
+  ANNUAL_LEAVE_MAX_DAYS,
+  ANNUAL_LEAVE_MIN_NOTICE_DAYS,
+  ANNUAL_LEAVE_QUOTA,
+  LEAVE_TYPE_LABELS,
+  annualLeaveSummary,
+} from "@/shared/lib/leave"
+import { Database } from "@/shared/types/database.types"
 import imageCompression from "browser-image-compression"
-import { useRouter } from "next/navigation"
 import { differenceInCalendarDays, format, startOfDay } from "date-fns"
+import { id as idLocale } from "date-fns/locale"
+import { useRouter } from "next/navigation"
 import React, { useEffect, useState } from "react"
 import { toast } from "sonner"
 import { LeaveRules } from "./LeaveRules"
@@ -28,7 +36,6 @@ import { LeaveRules } from "./LeaveRules"
 type Profile = Database["public"]["Tables"]["profiles"]["Row"]
 type LeaveRequest = Database["public"]["Tables"]["leave_requests"]["Row"]
 type LeaveRequestUserProfile = Pick<Profile, "id" | "full_name">
-const MIN_LEAVE_NOTICE_DAYS = 7
 
 interface ModalProps {
   isOpen: boolean
@@ -37,6 +44,16 @@ interface ModalProps {
   userProfile: LeaveRequestUserProfile
 }
 
+const EMPTY_FORM: LeaveFormData = {
+  leave_type: "Annual Leave",
+  reason: "",
+  start_date: undefined,
+  end_date: undefined,
+  proof_file: null,
+  proof_url: "",
+}
+
+/** Two steps: fill in, then check & send (rules agreed once, on new requests). */
 export function LeaveRequestModal({
   isOpen,
   onClose,
@@ -45,459 +62,303 @@ export function LeaveRequestModal({
 }: ModalProps) {
   const supabase = createClient()
   const router = useRouter()
+  const isEdit = Boolean(initialData)
 
-  const [step, setStep] = useState(1)
+  const [step, setStep] = useState<1 | 2>(1)
   const [loading, setLoading] = useState(false)
   const [compressing, setCompressing] = useState(false)
-
-  const [isTermsAccepted, setIsTermsAccepted] = useState(false)
-
-  const [formData, setFormData] = useState<LeaveFormData>({
-    leave_type: "Annual Leave",
-    reason: "",
-    start_date: undefined,
-    end_date: undefined,
-    proof_file: null,
-    proof_url: "",
-  })
-
-  const today = startOfDay(new Date())
-  const startDate = formData.start_date ? startOfDay(formData.start_date) : null
-  const daysUntilStart =
-    startDate !== null ? differenceInCalendarDays(startDate, today) : null
-  const isAnnualLeave = formData.leave_type === "Annual Leave"
-  const isInsufficientNotice =
-    isAnnualLeave &&
-    daysUntilStart !== null &&
-    daysUntilStart <= MIN_LEAVE_NOTICE_DAYS
-  const noticeMessage =
-    !isAnnualLeave || daysUntilStart === null
-      ? undefined
-      : isInsufficientNotice
-        ? `Pengajuan cuti minimal H-${MIN_LEAVE_NOTICE_DAYS + 1}. Saat ini masih H-${Math.max(daysUntilStart, 0)}, jadi belum bisa diajukan.`
-        : `Pengajuan memenuhi ketentuan jeda (${daysUntilStart} hari sebelum tanggal mulai).`
+  const [agreed, setAgreed] = useState(false)
+  const [showRules, setShowRules] = useState(false)
+  const [formData, setFormData] = useState<LeaveFormData>(EMPTY_FORM)
 
   useEffect(() => {
-    if (isOpen) {
-      setStep(1)
-      setIsTermsAccepted(false)
-      if (initialData) {
-        setFormData({
-          id: initialData.id,
-          leave_type: initialData.leave_type,
-          reason: initialData.reason || "",
-          start_date: startOfDay(new Date(initialData.start_date)),
-          end_date: startOfDay(new Date(initialData.end_date)),
-          proof_url: initialData.proof_url || "",
-          proof_file: null,
-        })
-      } else {
-        setFormData({
-          leave_type: "Annual Leave",
-          reason: "",
-          start_date: undefined,
-          end_date: undefined,
-          proof_file: null,
-          proof_url: "",
-        })
-      }
-    }
+    if (!isOpen) return
+    setStep(1)
+    setAgreed(false)
+    setShowRules(false)
+    setFormData(
+      initialData
+        ? {
+            id: initialData.id,
+            leave_type: initialData.leave_type,
+            reason: initialData.reason || "",
+            start_date: startOfDay(new Date(initialData.start_date)),
+            end_date: startOfDay(new Date(initialData.end_date)),
+            proof_url: initialData.proof_url || "",
+            proof_file: null,
+          }
+        : EMPTY_FORM,
+    )
   }, [isOpen, initialData])
 
+  const today = startOfDay(new Date())
+  const start = formData.start_date ? startOfDay(formData.start_date) : null
+  const end = formData.end_date ? startOfDay(formData.end_date) : start
+  const daysUntilStart =
+    start !== null ? differenceInCalendarDays(start, today) : null
+  const isAnnual = formData.leave_type === "Annual Leave"
+  const tooLate =
+    isAnnual &&
+    daysUntilStart !== null &&
+    daysUntilStart < ANNUAL_LEAVE_MIN_NOTICE_DAYS
+  const noticeMessage =
+    !isAnnual || daysUntilStart === null
+      ? undefined
+      : tooLate
+        ? `Cuti tahunan diajukan paling lambat H-${ANNUAL_LEAVE_MIN_NOTICE_DAYS}. Tanggal ini masih H-${Math.max(daysUntilStart, 0)}.`
+        : `Memenuhi ketentuan: diajukan H-${daysUntilStart}.`
+  const requestedDays =
+    start && end ? Math.max(0, calculateBusinessDays(start, end)) : 0
+
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0]
-      const options = {
+    const file = e.target.files?.[0]
+    if (!file) return
+    try {
+      setCompressing(true)
+      const compressed = await imageCompression(file, {
         maxSizeMB: 1,
         maxWidthOrHeight: 1920,
         useWebWorker: true,
-      }
-      try {
-        setCompressing(true)
-        const compressedFile = await imageCompression(file, options)
-        setFormData({ ...formData, proof_file: compressedFile })
-      } catch (error) {
-        console.error("Compression failed:", error)
-        toast.error("Failed to process image.")
-      } finally {
-        setCompressing(false)
-      }
+      })
+      setFormData((prev) => ({ ...prev, proof_file: compressed }))
+    } catch (error) {
+      console.error("Compression failed:", error)
+      toast.error("Gagal memproses gambar")
+    } finally {
+      setCompressing(false)
     }
   }
 
-  const handleSubmit = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault()
-    if (!formData.start_date || !formData.end_date) return
-    if (formData.start_date > formData.end_date) {
-      toast.error("End date must be after start date")
-      return
-    }
-    if (isInsufficientNotice) {
-      toast.error(
-        `Pengajuan cuti harus dilakukan minimal H-${MIN_LEAVE_NOTICE_DAYS + 1} sebelum tanggal mulai`,
-      )
-      return
+  /** Same checks before showing step 2 and before sending. */
+  const validate = async (): Promise<string | null> => {
+    if (!start || !end) return "Pilih tanggal cuti"
+    if (start > end) return "Tanggal selesai harus setelah tanggal mulai"
+    if (requestedDays <= 0) return "Rentang tanggal tidak berisi hari kerja"
+    if (!formData.reason?.trim()) return "Isi alasan pengajuan"
+    if (!isAnnual) return null
+    if (tooLate)
+      return `Cuti tahunan diajukan paling lambat H-${ANNUAL_LEAVE_MIN_NOTICE_DAYS}`
+    if (requestedDays > ANNUAL_LEAVE_MAX_DAYS)
+      return `Maksimal ${ANNUAL_LEAVE_MAX_DAYS} hari kerja per pengajuan`
+
+    const year = new Date().getFullYear()
+    const { data, error } = await supabase
+      .from("leave_requests")
+      .select("start_date,end_date")
+      .eq("user_id", userProfile.id)
+      .eq("status", "approved")
+      .eq("leave_type", "Annual Leave")
+      .lte("start_date", `${year}-12-31`)
+      .gte("end_date", `${year}-01-01`)
+    if (error) return "Gagal memeriksa sisa cuti"
+    const { remaining } = annualLeaveSummary(data ?? [], year)
+    if (requestedDays > remaining)
+      return `Sisa cuti tahunan tinggal ${remaining} dari ${ANNUAL_LEAVE_QUOTA} hari`
+    return null
+  }
+
+  const goToReview = async () => {
+    if (formData.start_date && !formData.end_date) {
+      setFormData((prev) => ({ ...prev, end_date: prev.start_date }))
     }
     setLoading(true)
+    const problem = await validate()
+    setLoading(false)
+    if (problem) {
+      toast.error(problem)
+      return
+    }
+    setStep(2)
+  }
 
+  const submit = async () => {
+    if (!start || !end) return
+    setLoading(true)
     try {
-      const requestedDays = calculateBusinessDays(
-        formData.start_date,
-        formData.end_date,
-      )
+      const problem = await validate()
+      if (problem) throw new Error(problem)
 
-      if (requestedDays <= 0) {
-        toast.error("Invalid date range")
-        setLoading(false)
-        return
-      }
-
-      if (formData.leave_type === "Annual Leave") {
-        const now = new Date()
-        const yearStart = new Date(now.getFullYear(), 0, 1)
-        const yearEnd = new Date(now.getFullYear(), 11, 31)
-        const { data: approvedAnnual, error: annualError } = await supabase
-          .from("leave_requests")
-          .select("start_date,end_date")
-          .eq("user_id", userProfile.id)
-          .eq("status", "approved")
-          .eq("leave_type", "Annual Leave")
-          .lte("start_date", format(yearEnd, "yyyy-MM-dd"))
-          .gte("end_date", format(yearStart, "yyyy-MM-dd"))
-
-        if (annualError) throw annualError
-
-        const usedDays = (approvedAnnual || []).reduce(
-          (total: number, req: { start_date: string; end_date: string }) => {
-            const start = startOfDay(new Date(req.start_date))
-            const end = startOfDay(new Date(req.end_date))
-            const clampedStart = start < yearStart ? yearStart : start
-            const clampedEnd = end > yearEnd ? yearEnd : end
-            if (clampedEnd < clampedStart) return total
-            const days = calculateBusinessDays(clampedStart, clampedEnd)
-            return total + days
-          },
-          0,
-        )
-
-        const MAX_LEAVE = 12
-        const { data: balanceRow } = await supabase
-          .from("leave_balances")
-          .select("remaining")
-          .eq("user_id", userProfile.id)
-          .maybeSingle()
-        const remainingBalance =
-          typeof balanceRow?.remaining === "number"
-            ? balanceRow.remaining
-            : Math.max(0, MAX_LEAVE - usedDays)
-
-        if (requestedDays > remainingBalance) {
-          toast.error("Annual leave quota exceeded")
-          setLoading(false)
-          return
-        }
-
-        if (requestedDays > 5) {
-          toast.error("Maximum 5 business days per request")
-          setLoading(false)
-          return
-        }
-
-        if (usedDays + requestedDays > MAX_LEAVE) {
-          toast.error("Annual leave quota exceeded")
-          setLoading(false)
-          return
-        }
-      }
-
-      let finalProofUrl = formData.proof_url
+      let proofUrl = formData.proof_url
       if (formData.proof_file) {
-        const fileExt = formData.proof_file.name.split(".").pop() || "jpg"
-        const fileName = `${userProfile.id}/${Date.now()}.${fileExt}`
+        const ext = formData.proof_file.name.split(".").pop() || "jpg"
+        const path = `${userProfile.id}/${Date.now()}.${ext}`
         const { error: uploadError } = await supabase.storage
           .from("leave-proofs")
-          .upload(fileName, formData.proof_file)
-        if (uploadError) throw uploadError
-        const { data: publicUrl } = supabase.storage
-          .from("leave-proofs")
-          .getPublicUrl(fileName)
-        finalProofUrl = publicUrl.publicUrl
+          .upload(path, formData.proof_file)
+        if (uploadError) throw new Error("Gagal mengunggah bukti")
+        proofUrl = supabase.storage.from("leave-proofs").getPublicUrl(path)
+          .data.publicUrl
       }
 
       const payload = {
-        start_date: format(startOfDay(formData.start_date), "yyyy-MM-dd"),
-        end_date: format(startOfDay(formData.end_date), "yyyy-MM-dd"),
+        start_date: format(start, "yyyy-MM-dd"),
+        end_date: format(end, "yyyy-MM-dd"),
         leave_type: formData.leave_type || "Annual Leave",
         reason: formData.reason || null,
-        proof_url: finalProofUrl || null,
-        status: "pending",
+        proof_url: proofUrl || null,
       }
+      const response = await fetch("/api/leave/requests", {
+        method: isEdit ? "PATCH" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(
+          isEdit ? { ...payload, id: formData.id } : payload,
+        ),
+      })
+      const result = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(result?.error || "Gagal mengirim")
 
-      if (formData.id) {
-        const response = await fetch("/api/leave/requests", {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...payload, id: formData.id }),
-        })
-        const result = await response.json().catch(() => ({}))
-        if (!response.ok)
-          throw new Error(result?.error || "Failed to update leave request")
-      } else {
-        const response = await fetch("/api/leave/requests", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        })
-        const result = await response.json().catch(() => ({}))
-        if (!response.ok)
-          throw new Error(result?.error || "Failed to submit leave request")
-      }
+      toast.success(isEdit ? "Pengajuan diperbarui" : "Pengajuan dikirim")
       router.refresh()
       onClose()
-    } catch (error: unknown) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : typeof error === "object" &&
-              error !== null &&
-              "message" in error &&
-              typeof (error as { message?: unknown }).message === "string"
-            ? (error as { message: string }).message
-            : "Failed to submit request"
-      console.error("Leave request submit error:", error)
-      toast.error(message)
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Gagal mengirim pengajuan",
+      )
     } finally {
       setLoading(false)
     }
   }
 
-  const renderContent = () => {
-    if (step === 1) {
-      return (
-        <LeaveRequestForm
-          formData={formData}
-          userProfile={userProfile}
-          compressing={compressing}
-          noticeMessage={noticeMessage}
-          noticeInvalid={isInsufficientNotice}
-          onFormDataChange={setFormData}
-          onFileChange={handleFileChange}
-        />
-      )
-    }
-
-    if (step === 2) {
-      return (
-        // SCROLL DI PINDAH KE SINI (Parent Container)
-        <div className="mt-6 max-h-[70vh] overflow-y-auto pr-2 sm:max-h-[60vh]">
-          <LeaveRules />
-          <div className="bg-muted bg-foreground/[0.03] mt-6 flex items-start space-x-3 rounded-md p-3">
-            <Checkbox
-              id="terms"
-              checked={isTermsAccepted}
-              onCheckedChange={(checked) =>
-                setIsTermsAccepted(checked === true)
-              }
-            />
-            <div className="grid gap-1.5 leading-none">
-              <label
-                htmlFor="terms"
-                className="text-foreground cursor-pointer text-sm font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
-                I agree to the terms and conditions
-              </label>
-              <p className="text-muted-foreground text-xs">
-                By checking this box, I confirm that I have read and understood
-                the leave policy above.
-              </p>
-            </div>
-          </div>
-        </div>
-      )
-    }
-
-    return (
-      <div className="space-y-4">
-        <div className="bg-foreground/[0.03] rounded-lg p-4">
-          <div className="space-y-3">
-            <div className="flex items-center justify-between gap-4">
-              <span className="text-muted-foreground text-sm font-medium">
-                Name
-              </span>
-              <span className="text-foreground text-right text-sm">
-                {userProfile.full_name || "-"}
-              </span>
-            </div>
-            <div className="flex items-center justify-between gap-4">
-              <span className="text-muted-foreground text-sm font-medium">
-                Leave Type
-              </span>
-              <span className="text-foreground text-right text-sm">
-                {formData.leave_type || "-"}
-              </span>
-            </div>
-            <div className="flex items-center justify-between gap-4">
-              <span className="text-muted-foreground text-sm font-medium">
-                Date Range
-              </span>
-              <span className="text-foreground text-right text-sm">
-                {formData.start_date && formData.end_date
-                  ? `${format(formData.start_date, "dd MMM yyyy")} - ${format(
-                      formData.end_date,
-                      "dd MMM yyyy",
-                    )}`
-                  : "-"}
-              </span>
-            </div>
-            <div className="flex items-center justify-between gap-4">
-              <span className="text-muted-foreground text-sm font-medium">
-                Duration
-              </span>
-              <span className="text-foreground text-right text-sm">
-                {formData.start_date && formData.end_date
-                  ? `${calculateBusinessDays(
-                      formData.start_date,
-                      formData.end_date,
-                    )} business days`
-                  : "-"}
-              </span>
-            </div>
-            <div className="space-y-1">
-              <span className="text-muted-foreground text-sm font-medium">
-                Reason
-              </span>
-              <p className="text-foreground text-sm">
-                {formData.reason || "-"}
-              </p>
-            </div>
-            {formData.leave_type === "Sick Leave" && (
-              <div className="flex items-center justify-between gap-4">
-                <span className="text-muted-foreground text-sm font-medium">
-                  Medical Proof
-                </span>
-                <span className="text-foreground text-right text-sm">
-                  {formData.proof_file || formData.proof_url
-                    ? "Attached"
-                    : "Not attached"}
-                </span>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  const renderFooter = () => {
-    if (step === 1) {
-      return (
-        <>
-          <DialogClose
-            render={
-              <Button
-                variant="ghost"
-                className="mt-2 w-full sm:mt-0 sm:w-fit"
-              />
-            }
-          >
-            Cancel
-          </DialogClose>
-          <Button
-            className="w-full sm:w-fit"
-            type="button"
-            onClick={() => {
-              if (formData.start_date && !formData.end_date) {
-                setFormData((prev) => ({ ...prev, end_date: prev.start_date }))
-              }
-              setStep(2)
-            }}
-            disabled={
-              !formData.start_date ||
-              !formData.reason ||
-              compressing ||
-              isInsufficientNotice
-            }
-          >
-            {compressing ? "Processing Image..." : "Next"}
-          </Button>
-        </>
-      )
-    }
-
-    if (step === 2) {
-      return (
-        <>
-          <Button
-            variant="ghost"
-            type="button"
-            className="mt-2 w-full sm:mt-0 sm:w-fit"
-            onClick={() => setStep(1)}
-          >
-            Back
-          </Button>
-          <Button
-            className="w-full sm:w-fit"
-            type="button"
-            onClick={() => setStep(3)}
-            disabled={!isTermsAccepted || isInsufficientNotice}
-          >
-            I Agree
-          </Button>
-        </>
-      )
-    }
-
-    return (
-      <>
-        <Button
-          variant="ghost"
-          type="button"
-          className="mt-2 w-full sm:mt-0 sm:w-fit"
-          onClick={() => setStep(1)}
-        >
-          Check Again
-        </Button>
-        <Button
-          className="w-full sm:w-fit"
-          type="button"
-          onClick={() => handleSubmit()}
-          disabled={isInsufficientNotice || loading}
-        >
-          {loading && <Spinner data-icon="inline-start" />}
-          Confirm & Submit
-        </Button>
-      </>
-    )
-  }
-
-  const getTitle = () => {
-    if (step === 1) {
-      if (initialData?.status === "rejected") return "Resubmit Request"
-      return initialData ? "Edit Request" : "New Leave Request"
-    }
-    if (step === 2) return "Terms & Conditions"
-    return "Final Confirmation"
+  const summary: [string, React.ReactNode][] = [
+    ["Jenis", LEAVE_TYPE_LABELS[formData.leave_type] ?? formData.leave_type],
+    [
+      "Tanggal",
+      start && end
+        ? `${format(start, "d MMM", { locale: idLocale })} – ${format(end, "d MMM yyyy", { locale: idLocale })}`
+        : "—",
+    ],
+    ["Durasi", `${requestedDays} hari kerja`],
+    ["Alasan", formData.reason || "—"],
+  ]
+  if (formData.leave_type === "Sick Leave") {
+    summary.push([
+      "Surat dokter",
+      formData.proof_file || formData.proof_url ? "Terlampir" : "Tidak ada",
+    ])
   }
 
   return (
-    <Dialog
-      open={isOpen}
-      onOpenChange={(val) => !val && onClose()}
-      disablePointerDismissal
-    >
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="flex max-h-[90vh] flex-col sm:max-w-lg">
-        <form
-          onSubmit={(e) => e.preventDefault()}
-          className="flex min-h-0 flex-1 flex-col gap-6"
-        >
-          <DialogHeader>
-            <DialogTitle>{getTitle()}</DialogTitle>
-          </DialogHeader>
+        <DialogHeader>
+          <DialogTitle>
+            {step === 1
+              ? isEdit
+                ? initialData?.status === "rejected"
+                  ? "Ajukan ulang"
+                  : "Ubah pengajuan"
+                : "Ajukan cuti"
+              : "Periksa pengajuan"}
+          </DialogTitle>
+        </DialogHeader>
 
-          <div className="min-h-0 overflow-y-auto">{renderContent()}</div>
+        <div className="-mx-1 min-h-0 flex-1 overflow-y-auto px-1 py-1">
+          {step === 1 ? (
+            <LeaveRequestForm
+              formData={formData}
+              userProfile={userProfile}
+              compressing={compressing}
+              noticeMessage={noticeMessage}
+              noticeInvalid={tooLate}
+              onFormDataChange={setFormData}
+              onFileChange={handleFileChange}
+            />
+          ) : (
+            <div className="flex flex-col gap-5">
+              <dl className="flex flex-col">
+                {summary.map(([label, value]) => (
+                  <div
+                    key={label}
+                    className="flex justify-between gap-6 border-b py-2.5 text-sm last:border-b-0"
+                  >
+                    <dt className="text-muted-foreground shrink-0">{label}</dt>
+                    <dd className="text-right">{value}</dd>
+                  </div>
+                ))}
+              </dl>
 
-          <DialogFooter>{renderFooter()}</DialogFooter>
-        </form>
+              {isAnnual && (
+                <ul className="text-muted-foreground list-disc space-y-1 pl-5 text-sm">
+                  <li>
+                    Diajukan paling lambat H-{ANNUAL_LEAVE_MIN_NOTICE_DAYS}.
+                  </li>
+                  <li>
+                    Maksimal {ANNUAL_LEAVE_MAX_DAYS} hari kerja per pengajuan.
+                  </li>
+                  <li>
+                    Jatah {ANNUAL_LEAVE_QUOTA} hari per tahun, tidak
+                    diakumulasi.
+                  </li>
+                </ul>
+              )}
+
+              {!isEdit && (
+                <div className="flex flex-col gap-2">
+                  <label className="flex cursor-pointer items-start gap-2.5 text-sm">
+                    <Checkbox
+                      checked={agreed}
+                      onCheckedChange={(checked) => setAgreed(checked === true)}
+                      className="mt-0.5"
+                    />
+                    <span>Saya sudah membaca dan menyetujui aturan cuti.</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setShowRules((v) => !v)}
+                    className="text-primary w-fit cursor-pointer pl-6 text-sm hover:underline"
+                  >
+                    {showRules ? "Sembunyikan aturan" : "Lihat aturan lengkap"}
+                  </button>
+                  {showRules && (
+                    <div className="max-h-64 overflow-y-auto rounded-lg border p-3">
+                      <LeaveRules />
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        <DialogFooter>
+          {step === 1 ? (
+            <>
+              <DialogClose render={<Button variant="ghost" />}>
+                Batal
+              </DialogClose>
+              <Button
+                type="button"
+                onClick={goToReview}
+                disabled={
+                  !formData.start_date ||
+                  !formData.reason ||
+                  compressing ||
+                  tooLate ||
+                  loading
+                }
+              >
+                {(compressing || loading) && (
+                  <Spinner data-icon="inline-start" />
+                )}
+                Lanjut
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button variant="ghost" type="button" onClick={() => setStep(1)}>
+                Kembali
+              </Button>
+              <Button
+                type="button"
+                onClick={submit}
+                disabled={loading || (!isEdit && !agreed)}
+              >
+                {loading && <Spinner data-icon="inline-start" />}
+                {isEdit ? "Simpan & kirim ulang" : "Kirim pengajuan"}
+              </Button>
+            </>
+          )}
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   )

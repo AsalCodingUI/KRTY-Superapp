@@ -198,7 +198,7 @@ export const adminAttendanceColumns = (
               variant="ghost"
               onClick={() => onApproveDelete(row.original.id)}
             >
-              Approve Delete
+              Tinjau hapus
             </Button>
           )}
         </div>

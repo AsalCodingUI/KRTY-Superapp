@@ -1,6 +1,6 @@
 "use client"
 
-import { useClockActions } from "@/features/attendance-clock/model/useClockActions"
+import { ClockControls } from "@/features/attendance-clock"
 import { LeaveRequestModal } from "@/page-slices/leave/ui/components/LeaveRequestModal"
 import { createClient } from "@/shared/api/supabase/client"
 import {
@@ -12,20 +12,7 @@ import { Database } from "@/shared/types/database.types"
 import { EmptyState } from "@/components/empty-state"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
-import {
-  RiCalendarLine,
-  RiCheckboxCircleLine,
-  RiLoginBoxLine,
-  RiLogoutBoxLine,
-} from "@/shared/ui/lucide-icons"
+import { RiCalendarLine, RiCheckboxCircleLine } from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
 import { useRouter } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
@@ -53,7 +40,6 @@ export function EmployeeAttendanceWidget({
     useState<LeaveRequest[]>(recentLeaveRequests)
   const [currentTime, setCurrentTime] = useState<Date | null>(null)
   const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false)
-  const [isStaleDialogOpen, setIsStaleDialogOpen] = useState(false)
 
   useEffect(() => {
     setLogs(recentAttendance)
@@ -104,16 +90,6 @@ export function EmployeeAttendanceWidget({
     }
   }, [router, supabase, userId])
 
-  const {
-    loading,
-    handleClockIn,
-    handleClockOut,
-    handleResolvePreviousSession,
-  } = useClockActions({
-    logs: logs as never[],
-    onLogsUpdate: (next) => setLogs(next as AttendanceLog[]),
-  })
-
   const today = getLocalDateString()
   const { staleSession, activeSession } = getAttendanceSessionState(
     logs,
@@ -124,20 +100,16 @@ export function EmployeeAttendanceWidget({
   )
 
   const todayStatus = useMemo(() => {
-    if (activeSession) return "Clocked In"
-    if (staleSession) return "Previous Session Open"
-    if (todayRecord?.clock_out) return "Completed"
-    return "Not Checked In"
+    if (activeSession) return "Sedang bekerja"
+    if (staleSession) return "Sesi belum ditutup"
+    if (todayRecord?.clock_out) return "Selesai"
+    return "Belum clock in"
   }, [activeSession, staleSession, todayRecord])
 
-  useEffect(() => {
-    if (staleSession && !activeSession) {
-      setIsStaleDialogOpen(true)
-      return
-    }
-
-    setIsStaleDialogOpen(false)
-  }, [staleSession, activeSession])
+  const isOnLeaveToday = leaveRequests.some(
+    (r) =>
+      r.status === "approved" && r.start_date <= today && r.end_date >= today,
+  )
 
   const recentLeaves = leaveRequests.slice(0, 5)
 
@@ -147,15 +119,15 @@ export function EmployeeAttendanceWidget({
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-muted-foreground text-sm font-medium">
-              Today
+              Hari ini
             </span>
             <Badge
               variant={
-                todayStatus === "Clocked In"
+                todayStatus === "Sedang bekerja"
                   ? "success"
-                  : todayStatus === "Previous Session Open"
+                  : todayStatus === "Sesi belum ditutup"
                     ? "warning"
-                    : todayStatus === "Completed"
+                    : todayStatus === "Selesai"
                       ? "info"
                       : "warning"
               }
@@ -168,77 +140,19 @@ export function EmployeeAttendanceWidget({
           </div>
 
           <div className="flex items-center gap-2">
-            {activeSession ? (
-              <Button
-                variant="outline"
-                disabled={loading}
-                onClick={() => handleClockOut(activeSession.id)}
-              >
-                <RiLogoutBoxLine data-icon="inline-start" />
-                Clock Out
-              </Button>
-            ) : staleSession ? (
-              <Button
-                variant="outline"
-                disabled={loading}
-                onClick={() => handleResolvePreviousSession(staleSession.id)}
-              >
-                <RiLogoutBoxLine data-icon="inline-start" />
-                Tutup Sesi Lama
-              </Button>
-            ) : (
-              <Button
-                variant="outline"
-                disabled={loading || Boolean(staleSession)}
-                onClick={() => handleClockIn("Present")}
-              >
-                <RiLoginBoxLine data-icon="inline-start" />
-                Clock In
-              </Button>
-            )}
-            <Button
-              variant="outline"
-              onClick={() => {
-                setIsLeaveModalOpen(true)
-              }}
-            >
-              Leave Request
+            {/* Same control as Leave & Attendance (status, break, confirm). */}
+            <ClockControls
+              logs={logs}
+              onLogsUpdate={setLogs}
+              isOnLeave={isOnLeaveToday}
+              now={currentTime}
+            />
+            <Button variant="outline" onClick={() => setIsLeaveModalOpen(true)}>
+              Ajukan cuti
             </Button>
           </div>
         </div>
       </div>
-
-      <Dialog open={isStaleDialogOpen} onOpenChange={setIsStaleDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Session Lama Belum Ditutup</DialogTitle>
-          </DialogHeader>
-          <div>
-            <p className="text-muted-foreground text-sm">
-              Kami mendeteksi sesi attendance sebelumnya masih terbuka. Ini bisa
-              terjadi kalau laptop mati, browser tertutup, atau clock out gagal
-              tersimpan.
-            </p>
-          </div>
-          <DialogFooter>
-            <DialogClose
-              render={<Button variant="outline" className="w-full sm:w-fit" />}
-            >
-              Nanti
-            </DialogClose>
-            {staleSession && (
-              <Button
-                variant="destructive"
-                disabled={loading}
-                className="w-full sm:w-fit"
-                onClick={() => handleResolvePreviousSession(staleSession.id)}
-              >
-                Tutup Sesi Lama
-              </Button>
-            )}
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
       <div>
         <h4 className="text-foreground mb-3 text-sm font-medium">

@@ -1,52 +1,35 @@
 "use client"
 
 import { AttendanceHistoryList } from "@/app/(main)/attendance/components/AttendanceHistoryList"
-import { useClockActions } from "@/features/attendance-clock/model/useClockActions"
-import { createClient } from "@/shared/api/supabase/client"
-import { useMountedTabs } from "@/shared/hooks/useMountedTabs"
-import { useTabRoute } from "@/shared/hooks/useTabRoute"
-import { calculateBusinessDays } from "@/shared/lib/date"
-import {
-  getAttendanceLogLocalDate,
-  getAttendanceSessionState,
-  getLocalDateString,
-} from "@/shared/lib/date"
-import { Database } from "@/shared/types/database.types"
 import { DataTable } from "@/components/data-table"
 import { TabNavigation, TabNavigationLink } from "@/components/tab-navigation"
-import { TableSection } from "@/components/table-section"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogClose,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { ClockControls } from "@/features/attendance-clock"
+import { createClient } from "@/shared/api/supabase/client"
+import { useMountedTabs } from "@/shared/hooks/useMountedTabs"
+import { useTabRoute } from "@/shared/hooks/useTabRoute"
+import { getLocalDateString } from "@/shared/lib/date"
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import {
-  RiAddLine,
-  RiArrowDownSLine,
-  RiFileTextLine,
-  RiLoginBoxLine,
-  RiLogoutBoxLine,
-} from "@/shared/ui/lucide-icons"
-import { format, parseISO } from "date-fns"
+  ANNUAL_LEAVE_QUOTA,
+  annualLeaveSummary,
+  businessDaysInYear,
+} from "@/shared/lib/leave"
+import { Database } from "@/shared/types/database.types"
+import { RiAddLine, RiFileTextLine } from "@/shared/ui/lucide-icons"
+import { format } from "date-fns"
+import { id as idLocale } from "date-fns/locale"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
+import { toast } from "sonner"
 import { columns } from "./components/Columns"
 import { LeaveRequestModal } from "./components/LeaveRequestModal"
 import { LeaveRules } from "./components/LeaveRules"
@@ -65,6 +48,8 @@ interface EmployeeLeavePageProps {
   totalCount: number
 }
 
+const isWfh = (type: string) => type === "WFH" || type === "Work From Home"
+
 export function EmployeeLeavePage({
   profile,
   requests,
@@ -79,8 +64,6 @@ export function EmployeeLeavePage({
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [editingItem, setEditingItem] = useState<LeaveRequest | null>(null)
   const { activeTab, setActiveTab } = useTabRoute<"attendance" | "leave">({
     basePath: "/leave",
     tabs: ["attendance", "leave"],
@@ -89,56 +72,38 @@ export function EmployeeLeavePage({
     mode: "history",
   })
   const { isMounted } = useMountedTabs(activeTab)
-  const [currentTime, setCurrentTime] = useState<Date | null>(null)
-  const [logs, setLogs] = useState<AttendanceLog[]>(attendanceLogs)
-  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
-  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
-  const [termsOpen, setTermsOpen] = useState(false)
-  const [isStaleDialogOpen, setIsStaleDialogOpen] = useState(false)
-  const [hasClientMounted, setHasClientMounted] = useState(false)
 
-  const {
-    loading,
-    handleClockIn,
-    handleClockOut,
-    handleToggleBreak,
-    handleResolvePreviousSession,
-  } = useClockActions({
-    logs,
-    onLogsUpdate: setLogs,
-  })
+  const [now, setNow] = useState<Date | null>(null)
+  const [logs, setLogs] = useState<AttendanceLog[]>(attendanceLogs)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [editingItem, setEditingItem] = useState<LeaveRequest | null>(null)
+  const [rulesOpen, setRulesOpen] = useState(false)
+  const [deleteLogId, setDeleteLogId] = useState<string | null>(null)
+  const [cancelTarget, setCancelTarget] = useState<LeaveRequest | null>(null)
+  const [busy, setBusy] = useState(false)
+
+  useEffect(() => setLogs(attendanceLogs), [attendanceLogs])
 
   useEffect(() => {
-    setLogs(attendanceLogs)
-  }, [attendanceLogs])
+    setNow(new Date())
+    const timer = setInterval(() => setNow(new Date()), 1000)
+    return () => clearInterval(timer)
+  }, [])
 
-  // --- 1. LOGIC REALTIME (Agar otomatis refresh saat status berubah/diedit) ---
+  // Live refresh when a request or attendance log changes elsewhere.
   useEffect(() => {
     const channel = supabase
-      .channel("employee-leave-changes")
+      .channel("employee-leave-page")
       .on(
         "postgres_changes",
         {
-          event: "*", // Dengarkan semua event (INSERT, UPDATE)
+          event: "*",
           schema: "public",
           table: "leave_requests",
-          filter: `user_id=eq.${profile.id}`, // Hanya dengarkan data milik user ini
+          filter: `user_id=eq.${profile.id}`,
         },
-        () => {
-          // Refresh halaman server component
-          router.refresh()
-        },
+        () => router.refresh(),
       )
-      .subscribe()
-
-    return () => {
-      supabase.removeChannel(channel)
-    }
-  }, [supabase, router, profile.id])
-
-  useEffect(() => {
-    const channel = supabase
-      .channel("employee-attendance")
       .on(
         "postgres_changes",
         {
@@ -147,463 +112,213 @@ export function EmployeeLeavePage({
           table: "attendance_logs",
           filter: `user_id=eq.${profile.id}`,
         },
-        () => {
-          router.refresh()
-        },
+        () => router.refresh(),
       )
       .subscribe()
-
     return () => {
       supabase.removeChannel(channel)
     }
   }, [supabase, router, profile.id])
 
-  useEffect(() => {
-    setCurrentTime(new Date())
-    const timer = setInterval(() => setCurrentTime(new Date()), 1000)
-    return () => clearInterval(timer)
-  }, [])
+  const requestsForStats = statsRequests.length > 0 ? statsRequests : requests
 
-  useEffect(() => {
-    setHasClientMounted(true)
-  }, [])
+  const stats = useMemo(() => {
+    const year = new Date().getFullYear()
+    const approved = requestsForStats.filter((r) => r.status === "approved")
+    const sum = (items: LeaveRequest[]) =>
+      items.reduce((total, r) => total + businessDaysInYear(r, year), 0)
+    return {
+      annual: annualLeaveSummary(
+        approved.filter((r) => r.leave_type === "Annual Leave"),
+        year,
+      ),
+      sick: sum(approved.filter((r) => r.leave_type === "Sick Leave")),
+      wfh: sum(approved.filter((r) => isWfh(r.leave_type))),
+    }
+  }, [requestsForStats])
 
-  // Handle pagination
+  const today = now ? getLocalDateString(now) : ""
+  const isOnLeave = Boolean(
+    today &&
+    requestsForStats.some(
+      (r) =>
+        r.status === "approved" && r.start_date <= today && r.end_date >= today,
+    ),
+  )
+
+  const openRequest = (item: LeaveRequest | null) => {
+    setEditingItem(item)
+    setIsModalOpen(true)
+  }
+
   const handlePageChange = (newPage: number) => {
     const params = new URLSearchParams(searchParams)
     params.set("page", (newPage + 1).toString())
     router.push(`${pathname}?${params.toString()}`)
   }
 
-  const pageCount = Math.ceil(totalCount / pageSize)
-  const requestsForStats = statsRequests.length > 0 ? statsRequests : requests
-
-  // Open Edit Modal
-  const handleEdit = (item: LeaveRequest) => {
-    setEditingItem(item)
-    setIsModalOpen(true)
-  }
-
-  // Open Add Modal
-  const handleAdd = () => {
-    setEditingItem(null)
-    setIsModalOpen(true)
-  }
-
-  const today = currentTime ? getLocalDateString(currentTime) : ""
-  const { staleSession, activeSession } = getAttendanceSessionState(
-    logs,
-    currentTime ?? new Date(),
-  )
-
-  const isOnLeave = useMemo(() => {
-    if (!today) return false
-    return requestsForStats.some(
-      (req) =>
-        req.status === "approved" &&
-        req.start_date <= today &&
-        req.end_date >= today,
-    )
-  }, [requestsForStats, today])
-
-  const [selectedStatus, setSelectedStatus] = useState<string>(
-    isOnLeave ? "Cuti Masuk" : "Present",
-  )
-
-  useEffect(() => {
-    if (!activeSession) {
-      setSelectedStatus(isOnLeave ? "Cuti Masuk" : "Present")
-    }
-  }, [isOnLeave, activeSession])
-
-  useEffect(() => {
-    if (staleSession && !activeSession) {
-      setIsStaleDialogOpen(true)
-      return
-    }
-
-    setIsStaleDialogOpen(false)
-  }, [staleSession, activeSession])
-
-  const getStatusLabel = (val: string) => {
-    if (val === "Present") return "Available"
-    return val
-  }
-
-  const leaveStats = useMemo(() => {
-    const MAX_LEAVE = 12
-    const now = new Date()
-    const yearStart = new Date(now.getFullYear(), 0, 1)
-    const yearEnd = new Date(now.getFullYear(), 11, 31)
-    const overlapsYear = (req: LeaveRequest) => {
-      const start = new Date(req.start_date)
-      const end = new Date(req.end_date)
-      return start <= yearEnd && end >= yearStart
-    }
-
-    const approvedAnnual = requestsForStats.filter(
-      (req) =>
-        req.status === "approved" &&
-        req.leave_type === "Annual Leave" &&
-        overlapsYear(req),
-    )
-    const approvedSick = requestsForStats.filter(
-      (req) =>
-        req.status === "approved" &&
-        req.leave_type === "Sick Leave" &&
-        overlapsYear(req),
-    )
-    const approvedWfh = requestsForStats.filter(
-      (req) =>
-        req.status === "approved" &&
-        (req.leave_type === "WFH" || req.leave_type === "Work From Home") &&
-        overlapsYear(req),
-    )
-
-    const sumDays = (items: LeaveRequest[]) =>
-      items.reduce((total, req) => {
-        const start = new Date(req.start_date)
-        const end = new Date(req.end_date)
-        const clampedStart = start < yearStart ? yearStart : start
-        const clampedEnd = end > yearEnd ? yearEnd : end
-        if (clampedEnd < clampedStart) return total
-        const days = calculateBusinessDays(clampedStart, clampedEnd)
-        return total + days
-      }, 0)
-
-    const usedAnnual = sumDays(approvedAnnual)
-    const sickDays = sumDays(approvedSick)
-    const wfhDays = sumDays(approvedWfh)
-
-    const annualRemaining = Math.max(0, MAX_LEAVE - usedAnnual)
-
-    return {
-      annualUsed: Math.max(0, usedAnnual),
-      annualRemaining,
-      annualTotal: MAX_LEAVE,
-      sickDays,
-      wfhDays,
-    }
-  }, [requestsForStats])
-
-  const confirmDelete = async () => {
-    if (!pendingDeleteId) return
-    setDeleteConfirmOpen(false)
-
-    const oldLogs = logs
-    setLogs((prev) =>
-      prev.map((log) =>
-        log.id === pendingDeleteId
-          ? { ...log, notes: "DELETE_REQUESTED" }
-          : log,
-      ),
-    )
-
+  const confirmDeleteRequest = async () => {
+    if (!deleteLogId) return
+    setBusy(true)
+    const previous = logs
     try {
       const response = await fetch("/api/attendance/logs", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "request_delete",
-          logId: pendingDeleteId,
-        }),
+        body: JSON.stringify({ action: "request_delete", logId: deleteLogId }),
       })
       const payload = await response.json().catch(() => ({}))
-
-      if (!response.ok) {
-        throw new Error(payload?.error || "Failed to request delete")
-      }
-    } catch (error) {
-      setLogs(oldLogs)
+      if (!response.ok) throw new Error(payload?.error)
+      setLogs((prev) =>
+        prev.map((log) => (log.id === deleteLogId ? payload.data : log)),
+      )
+      toast.success("Permintaan hapus dikirim ke admin")
+    } catch {
+      setLogs(previous)
+      toast.error("Gagal mengirim permintaan hapus")
     } finally {
-      setPendingDeleteId(null)
+      setBusy(false)
+      setDeleteLogId(null)
+    }
+  }
+
+  const confirmCancel = async () => {
+    if (!cancelTarget) return
+    setBusy(true)
+    try {
+      const response = await fetch("/api/leave/requests", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: cancelTarget.id }),
+      })
+      const payload = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(payload?.error)
+      toast.success("Pengajuan dibatalkan")
+      setCancelTarget(null)
+      router.refresh()
+    } catch (error) {
+      toast.error(
+        error instanceof Error && error.message
+          ? error.message
+          : "Gagal membatalkan pengajuan",
+      )
+    } finally {
+      setBusy(false)
     }
   }
 
   return (
     <>
-      <div className="flex flex-col">
-        <Dialog open={isStaleDialogOpen} onOpenChange={setIsStaleDialogOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Sesi Sebelumnya Masih Aktif</DialogTitle>
-            </DialogHeader>
-            <div>
-              <p className="text-muted-foreground text-sm">
-                Kami mendeteksi sesi attendance sebelumnya belum tertutup. Ini
-                biasanya terjadi kalau laptop mati, browser tertutup, atau clock
-                out gagal terkirim.
-              </p>
-              {staleSession && (
-                <p className="text-muted-foreground mt-3 text-sm">
-                  Tutup sesi dari{" "}
-                  {format(
-                    parseISO(getAttendanceLogLocalDate(staleSession)),
-                    "dd MMM yyyy",
-                  )}{" "}
-                  dulu sebelum memulai sesi baru.
-                </p>
-              )}
+      <div className="flex flex-col gap-6">
+        {/* Today: clock + actions */}
+        <div className="flex flex-wrap items-center justify-between gap-4 pt-1">
+          <div className="flex items-center gap-4">
+            <div className="flex flex-col">
+              <span className="text-lg font-medium tabular-nums">
+                {now ? format(now, "HH:mm:ss") : "--:--:--"}
+              </span>
+              <span className="text-muted-foreground text-sm">
+                {now ? format(now, "EEEE, d MMMM", { locale: idLocale }) : ""}
+              </span>
             </div>
-            <DialogFooter>
-              <DialogClose render={<Button variant="outline" />}>
-                Nanti
-              </DialogClose>
-              {staleSession && (
-                <Button
-                  variant="destructive"
-                  disabled={loading}
-                  onClick={() => handleResolvePreviousSession(staleSession.id)}
-                >
-                  Tutup Sesi Sebelumnya
-                </Button>
-              )}
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+            <div className="bg-border h-8 w-px" />
+            <ClockControls
+              logs={logs}
+              onLogsUpdate={setLogs}
+              isOnLeave={isOnLeave}
+              now={now}
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" onClick={() => setRulesOpen(true)}>
+              <RiFileTextLine data-icon="inline-start" />
+              Aturan cuti
+            </Button>
+            <Button onClick={() => openRequest(null)}>
+              <RiAddLine data-icon="inline-start" />
+              Ajukan cuti
+            </Button>
+          </div>
+        </div>
+
+        {/* Balances (one shared rule, see shared/lib/leave) */}
+        <dl className="grid grid-cols-3 gap-x-8 py-1">
+          <div className="flex flex-col gap-1">
+            <dt className="text-muted-foreground text-sm">Sisa cuti tahunan</dt>
+            <dd className="text-lg font-medium tabular-nums">
+              {stats.annual.remaining}
+              <span className="text-muted-foreground text-sm font-normal">
+                {" "}
+                / {ANNUAL_LEAVE_QUOTA} hari
+              </span>
+            </dd>
+          </div>
+          <div className="flex flex-col gap-1">
+            <dt className="text-muted-foreground text-sm">Sakit tahun ini</dt>
+            <dd className="text-lg font-medium tabular-nums">
+              {stats.sick}
+              <span className="text-muted-foreground text-sm font-normal">
+                {" "}
+                hari
+              </span>
+            </dd>
+          </div>
+          <div className="flex flex-col gap-1">
+            <dt className="text-muted-foreground text-sm">WFH tahun ini</dt>
+            <dd className="text-lg font-medium tabular-nums">
+              {stats.wfh}
+              <span className="text-muted-foreground text-sm font-normal">
+                {" "}
+                hari
+              </span>
+            </dd>
+          </div>
+        </dl>
 
         <div className="flex flex-col">
-          <div className="my-2 grid grid-cols-2 gap-x-8 gap-y-4 py-2 lg:grid-cols-5">
-            <div className="col-span-2 flex min-w-0 flex-col gap-1">
-              <p className="text-muted-foreground text-sm">Current Time</p>
-              <div className="flex flex-wrap items-center justify-between gap-4">
-                <div className="flex flex-wrap items-baseline gap-2">
-                  <p className="text-foreground text-lg font-medium tabular-nums">
-                    {currentTime ? format(currentTime, "HH:mm:ss") : "--:--:--"}
-                  </p>
-                  <p className="text-muted-foreground text-sm">
-                    {currentTime ? format(currentTime, "EEEE, dd MMM") : ""}
-                  </p>
-                </div>
-                <div className="flex flex-wrap items-center justify-end gap-2">
-                  {!currentTime ? (
-                    // SSR placeholder — keeps component tree stable to avoid Radix ID hydration mismatch
-                    <div className="h-[28px]" />
-                  ) : staleSession && !activeSession ? (
-                    <div className="flex flex-col items-end gap-2">
-                      <p className="text-destructive text-right text-xs">
-                        Sesi{" "}
-                        {format(
-                          parseISO(getAttendanceLogLocalDate(staleSession)),
-                          "dd MMM yyyy",
-                        )}{" "}
-                        belum ditutup.
-                      </p>
-                      <Button
-                        variant="destructive"
-                        onClick={() =>
-                          handleResolvePreviousSession(staleSession.id)
-                        }
-                        disabled={loading}
-                      >
-                        <RiLogoutBoxLine className="mr-2 size-4" />
-                        Tutup Sesi Sebelumnya
-                      </Button>
-                    </div>
-                  ) : !activeSession ? (
-                    <>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger
-                          render={<Button variant="outline" type="button" />}
-                        >
-                          {getStatusLabel(selectedStatus)}
-                          <RiArrowDownSLine className="text-muted-foreground ml-2 size-4 shrink-0" />
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="start">
-                          <DropdownMenuItem
-                            onClick={() => setSelectedStatus("Present")}
-                          >
-                            Available
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => setSelectedStatus("Lembur")}
-                          >
-                            Lembur
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => setSelectedStatus("Cuti Masuk")}
-                          >
-                            Cuti Masuk
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                      <Button
-                        onClick={() => handleClockIn(selectedStatus)}
-                        disabled={loading || Boolean(staleSession)}
-                      >
-                        <RiLoginBoxLine className="mr-2 size-4" />
-                        Clock In
-                      </Button>
-                    </>
-                  ) : (
-                    <>
-                      <Button
-                        variant="outline"
-                        onClick={() =>
-                          handleToggleBreak(
-                            activeSession.id,
-                            activeSession.is_break || false,
-                          )
-                        }
-                        disabled={loading}
-                      >
-                        {activeSession.is_break ? "End Break" : "Break"}
-                      </Button>
-                      <Button
-                        onClick={() => handleClockOut(activeSession.id)}
-                        variant="destructive"
-                        disabled={loading}
-                      >
-                        <RiLogoutBoxLine className="mr-2 size-4" />
-                        Clock Out
-                      </Button>
-                    </>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <div className="flex min-w-0 flex-col gap-1">
-              <p className="text-muted-foreground text-sm">
-                Annual Leave Balance
-              </p>
-              <p className="text-foreground text-lg font-medium tabular-nums">
-                {leaveStats.annualRemaining}/{leaveStats.annualTotal} Days
-              </p>
-            </div>
-
-            <div className="flex min-w-0 flex-col gap-1">
-              <p className="text-muted-foreground text-sm">Sick Leave</p>
-              <p className="text-foreground text-lg font-medium tabular-nums">
-                {leaveStats.sickDays}
-              </p>
-            </div>
-
-            <div className="flex min-w-0 flex-col gap-1">
-              <p className="text-muted-foreground text-sm">Work From Home</p>
-              <p className="text-foreground text-lg font-medium tabular-nums">
-                {leaveStats.wfhDays}
-              </p>
-            </div>
-          </div>
-
-          <div className="border-border border-b pt-2">
-            <div className="space-y-3 pb-2 xl:hidden">
-              {hasClientMounted ? (
-                <Select
-                  value={activeTab}
-                  onValueChange={(value) =>
-                    setActiveTab(value as "attendance" | "leave")
-                  }
-                >
-                  <SelectTrigger
-                    id="leave-employee-tab-select"
-                    className="w-full"
-                  >
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="attendance">
-                      Attendance History
-                    </SelectItem>
-                    <SelectItem value="leave">Leave Requests</SelectItem>
-                  </SelectContent>
-                </Select>
-              ) : (
-                <div className="bg-foreground/[0.03] h-9 w-full rounded-lg" />
-              )}
-              {isMounted("leave") && activeTab === "leave" && (
-                <div className="grid grid-cols-2 gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => setTermsOpen(true)}
-                    className="w-full"
-                  >
-                    <RiFileTextLine className="mr-2 size-3.5" />
-                    Terms & Conditions
-                  </Button>
-                  <Button onClick={handleAdd} className="w-full">
-                    <RiAddLine className="mr-2 size-3.5" />
-                    Request Leave
-                  </Button>
-                </div>
-              )}
-            </div>
-
-            <div className="hidden items-start justify-between gap-4 xl:flex">
-              <TabNavigation className="border-b-0">
-                <TabNavigationLink
-                  active={activeTab === "attendance"}
-                  onClick={() => setActiveTab("attendance")}
-                >
-                  Attendance History
-                </TabNavigationLink>
-                <TabNavigationLink
-                  active={activeTab === "leave"}
-                  onClick={() => setActiveTab("leave")}
-                >
-                  Leave Requests
-                </TabNavigationLink>
-              </TabNavigation>
-
-              {isMounted("leave") && activeTab === "leave" && (
-                <div className="flex items-center gap-2">
-                  <Button variant="outline" onClick={() => setTermsOpen(true)}>
-                    <RiFileTextLine className="mr-2 size-3.5" />
-                    Read Terms &amp; Conditions
-                  </Button>
-                  <Button onClick={handleAdd}>
-                    <RiAddLine className="mr-2 size-3.5" />
-                    Request Leave
-                  </Button>
-                </div>
-              )}
-            </div>
-          </div>
+          <TabNavigation>
+            <TabNavigationLink
+              active={activeTab === "attendance"}
+              onClick={() => setActiveTab("attendance")}
+            >
+              Kehadiran
+            </TabNavigationLink>
+            <TabNavigationLink
+              active={activeTab === "leave"}
+              onClick={() => setActiveTab("leave")}
+            >
+              Cuti
+            </TabNavigationLink>
+          </TabNavigation>
 
           <div className="py-4">
             {isMounted("attendance") && (
-              <div
-                className={
-                  activeTab === "attendance"
-                    ? "block space-y-5"
-                    : "hidden space-y-5"
-                }
-              >
+              <div className={activeTab === "attendance" ? "block" : "hidden"}>
                 <AttendanceHistoryList
                   logs={logs}
-                  onRequestDelete={(id) => {
-                    setPendingDeleteId(id)
-                    setDeleteConfirmOpen(true)
-                  }}
+                  onRequestDelete={(id) => setDeleteLogId(id)}
                 />
               </div>
             )}
-
             {isMounted("leave") && (
-              <div
-                className={
-                  activeTab === "leave" ? "block space-y-5" : "hidden space-y-5"
-                }
-              >
-                <TableSection title="Leave Requests">
-                  <DataTable
-                    data={requests}
-                    columns={columns(handleEdit)}
-                    manualPagination={true}
-                    pageCount={pageCount}
-                    pageIndex={page - 1}
-                    onPageChange={handlePageChange}
-                    onCreate={undefined}
-                    showExport={false}
-                    showViewOptions={false}
-                    enableSelection={false}
-                    enableHover={false}
-                    searchKey="reason"
-                    showTableWrapper={false}
-                    showFilterbar={false}
-                  />
-                </TableSection>
+              <div className={activeTab === "leave" ? "block" : "hidden"}>
+                <DataTable
+                  data={requests}
+                  columns={columns({
+                    onEdit: openRequest,
+                    onCancel: setCancelTarget,
+                  })}
+                  manualPagination
+                  pageCount={Math.ceil(totalCount / pageSize)}
+                  pageIndex={page - 1}
+                  onPageChange={handlePageChange}
+                  showExport={false}
+                  showViewOptions={false}
+                  enableSelection={false}
+                  enableHover={false}
+                  showTableWrapper={false}
+                  showFilterbar={false}
+                />
               </div>
             )}
           </div>
@@ -617,45 +332,62 @@ export function EmployeeLeavePage({
         userProfile={profile}
       />
 
-      <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
-        <DialogContent className="sm:max-w-md">
+      <Dialog
+        open={deleteLogId !== null}
+        onOpenChange={(open) => !open && setDeleteLogId(null)}
+      >
+        <DialogContent className="sm:max-w-sm">
           <DialogHeader>
-            <DialogTitle>Confirm Delete</DialogTitle>
+            <DialogTitle>Minta hapus data kehadiran?</DialogTitle>
+            <DialogDescription>
+              Admin akan meninjau permintaan ini sebelum datanya dihapus.
+            </DialogDescription>
           </DialogHeader>
-          <div>
-            <p className="text-muted-foreground text-sm">
-              Apakah Anda yakin ingin mengajukan penghapusan data attendance
-              ini?
-            </p>
-          </div>
           <DialogFooter>
-            <DialogClose
-              render={<Button variant="outline" className="w-full sm:w-fit" />}
-            >
-              Cancel
+            <DialogClose render={<Button variant="outline" />}>
+              Batal
             </DialogClose>
-            <Button className="w-full sm:w-fit" onClick={confirmDelete}>
-              Confirm
+            <Button disabled={busy} onClick={confirmDeleteRequest}>
+              Kirim permintaan
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      <Dialog open={termsOpen} onOpenChange={setTermsOpen}>
-        <DialogContent className="sm:max-w-3xl">
+      <Dialog
+        open={cancelTarget !== null}
+        onOpenChange={(open) => !open && setCancelTarget(null)}
+      >
+        <DialogContent className="sm:max-w-sm">
           <DialogHeader>
-            <DialogTitle>Terms &amp; Conditions</DialogTitle>
+            <DialogTitle>Batalkan pengajuan?</DialogTitle>
+            <DialogDescription>
+              Pengajuan yang belum disetujui ini akan dihapus.
+            </DialogDescription>
           </DialogHeader>
-          <div className="max-h-[70vh] overflow-y-auto">
+          <DialogFooter>
+            <DialogClose render={<Button variant="outline" />}>
+              Kembali
+            </DialogClose>
+            <Button
+              variant="destructive"
+              disabled={busy}
+              onClick={confirmCancel}
+            >
+              Batalkan pengajuan
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={rulesOpen} onOpenChange={setRulesOpen}>
+        <DialogContent className="sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Aturan cuti</DialogTitle>
+          </DialogHeader>
+          <div className="-mx-1 max-h-[70vh] overflow-y-auto px-1">
             <LeaveRules />
           </div>
-          <DialogFooter>
-            <DialogClose
-              render={<Button variant="outline" className="w-full sm:w-fit" />}
-            >
-              Close
-            </DialogClose>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
     </>

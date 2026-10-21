@@ -1,6 +1,11 @@
 "use client"
 
 import { Database } from "@/shared/types/database.types"
+import {
+  ATTENDANCE_NOTE_TAGS,
+  ATTENDANCE_STATUS_LABELS,
+  hasAttendanceNote,
+} from "@/shared/lib/attendance"
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table"
 import { format } from "date-fns"
 import { DataTableColumnHeader } from "@/components/data-table"
@@ -40,7 +45,7 @@ export const columns = (onRequestDelete?: (id: string) => void) =>
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title="Clock In"
+          title="Masuk"
           className="whitespace-nowrap"
         />
       ),
@@ -55,7 +60,7 @@ export const columns = (onRequestDelete?: (id: string) => void) =>
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title="Clock Out"
+          title="Keluar"
           className="whitespace-nowrap"
         />
       ),
@@ -76,7 +81,7 @@ export const columns = (onRequestDelete?: (id: string) => void) =>
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title="Total Work"
+          title="Durasi"
           className="whitespace-nowrap"
         />
       ),
@@ -102,7 +107,7 @@ export const columns = (onRequestDelete?: (id: string) => void) =>
         const status = row.getValue("status") as string
         return (
           <Badge variant={status === "Cuti Masuk" ? "warning" : "secondary"}>
-            {status}
+            {ATTENDANCE_STATUS_LABELS[status] ?? status}
           </Badge>
         )
       },
@@ -110,18 +115,31 @@ export const columns = (onRequestDelete?: (id: string) => void) =>
     }),
     columnHelper.display({
       id: "actions",
-      header: "Actions",
+      header: () => <span className="sr-only">Aksi</span>,
       cell: ({ row }) => {
         if (!onRequestDelete) return null
+        // Already asked: show the state instead of a second request.
+        if (
+          hasAttendanceNote(
+            row.original.notes,
+            ATTENDANCE_NOTE_TAGS.deleteRequested,
+          )
+        ) {
+          return (
+            <span className="text-muted-foreground text-xs">
+              Menunggu dihapus
+            </span>
+          )
+        }
         return (
           <Button
             variant="ghost"
             onClick={() => onRequestDelete(row.original.id)}
           >
-            Request Delete
+            Minta hapus
           </Button>
         )
       },
-      meta: { className: "w-1/5", displayName: "Actions" },
+      meta: { className: "w-1/5 text-right", displayName: "Aksi" },
     }),
   ] as ColumnDef<AttendanceLog>[]

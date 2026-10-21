@@ -85,13 +85,13 @@ export const workspaces: Workspace[] = [
         // Mirrors the tabs in StakeholderLeavePage / EmployeeLeavePage.
         children: isAdmin(p)
           ? [
-              { name: "Attendance History", href: links.leave },
-              { name: "Approvals Leave", href: `${links.leave}/approval` },
-              { name: "Remaining Leave", href: `${links.leave}/remaining` },
+              { name: "Persetujuan", href: links.leave },
+              { name: "Kehadiran", href: `${links.leave}/attendance` },
+              { name: "Saldo Cuti", href: `${links.leave}/remaining` },
             ]
           : [
-              { name: "Attendance History", href: links.leave },
-              { name: "Leave Requests", href: `${links.leave}/leave` },
+              { name: "Kehadiran", href: links.leave },
+              { name: "Cuti", href: `${links.leave}/leave` },
             ],
       },
       {

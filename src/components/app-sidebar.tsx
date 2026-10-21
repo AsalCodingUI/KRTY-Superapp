@@ -166,13 +166,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         {/* Rail: workspaces */}
         <Sidebar
           collapsible="none"
-          className="border-sidebar-border w-[calc(var(--sidebar-width-icon)+1px)]! border-r bg-transparent"
+          className="border-sidebar-border w-[calc(var(--sidebar-width-icon)+1px)]! border-r bg-transparent group-data-[state=collapsed]:border-r-0"
         >
           <SidebarHeader className="h-12 items-center justify-center">
             <Link
               href={siteConfig.baseLinks.dashboard}
               prefetch={false}
-              className="bg-sidebar-primary text-sidebar-primary-foreground flex size-7 items-center justify-center rounded-md"
+              className="bg-sidebar-primary text-sidebar-primary-foreground flex size-8 items-center justify-center rounded-md"
               aria-label={siteConfig.name}
             >
               <BrandLogo className="size-5" />
@@ -181,11 +181,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarContent>
             <SidebarGroup>
               <SidebarGroupContent>
-                <SidebarMenu className="items-center">
+                <SidebarMenu className="items-center gap-1">
                   {loading
                     ? Array.from({ length: 3 }).map((_, i) => (
                         <SidebarMenuItem key={i}>
-                          <div className="bg-sidebar-accent size-7 rounded-md" />
+                          <div className="bg-sidebar-accent size-8 rounded-md" />
                         </SidebarMenuItem>
                       ))
                     : visible.map((ws) => (
@@ -194,7 +194,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                             tooltip={{ children: ws.name, hidden: false }}
                             isActive={ws.id === active?.id}
                             onClick={() => setSelected(ws.id)}
-                            className="size-7! justify-center p-0!"
+                            className="size-8! justify-center p-0!"
                           >
                             <ws.icon />
                             <span className="sr-only">{ws.name}</span>
