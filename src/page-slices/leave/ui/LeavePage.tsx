@@ -22,7 +22,12 @@ const StakeholderLeavePage = dynamic(
 type Profile = Database["public"]["Tables"]["profiles"]["Row"]
 type ProfileSummary = Pick<
   Profile,
-  "id" | "full_name" | "avatar_url" | "job_title" | "leave_used" | "leave_balance"
+  | "id"
+  | "full_name"
+  | "avatar_url"
+  | "job_title"
+  | "leave_used"
+  | "leave_balance"
 >
 type LeaveRequest = Database["public"]["Tables"]["leave_requests"]["Row"]
 type AttendanceLog = Database["public"]["Tables"]["attendance_logs"]["Row"]

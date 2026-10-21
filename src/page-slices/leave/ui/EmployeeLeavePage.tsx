@@ -1,7 +1,6 @@
 "use client"
 
 import { AttendanceHistoryList } from "@/app/(main)/attendance/components/AttendanceHistoryList"
-import { DataTable } from "@/components/data-table"
 import { TabNavigation, TabNavigationLink } from "@/components/tab-navigation"
 import { Button } from "@/components/ui/button"
 import {
@@ -26,7 +25,7 @@ import { id as idLocale } from "date-fns/locale"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
 import { toast } from "sonner"
-import { columns } from "./components/Columns"
+import { EmployeeLeaveList } from "./components/EmployeeLeaveList"
 import { LeaveRequestModal } from "./components/LeaveRequestModal"
 import { LeaveRules } from "./components/LeaveRules"
 
@@ -314,22 +313,13 @@ export function EmployeeLeavePage({
             )}
             {isMounted("leave") && (
               <div className={activeTab === "leave" ? "block" : "hidden"}>
-                <DataTable
-                  data={requests}
-                  columns={columns({
-                    onEdit: openRequest,
-                    onCancel: setCancelTarget,
-                  })}
-                  manualPagination
+                <EmployeeLeaveList
+                  requests={requests}
+                  onEdit={openRequest}
+                  onCancel={setCancelTarget}
+                  page={page}
                   pageCount={Math.ceil(totalCount / pageSize)}
-                  pageIndex={page - 1}
                   onPageChange={handlePageChange}
-                  showExport={false}
-                  showViewOptions={false}
-                  enableSelection={false}
-                  enableHover={false}
-                  showTableWrapper={false}
-                  showFilterbar={false}
                 />
               </div>
             )}

@@ -18,7 +18,6 @@ import { calculateBusinessDays } from "@/shared/lib/date"
 import { canManageByRole } from "@/shared/lib/roles"
 import { Database } from "@/shared/types/database.types"
 import { ConfirmDialog } from "@/components/confirm-dialog"
-import { DataTable } from "@/components/data-table"
 import { DatePicker } from "@/components/date-picker"
 import { TabNavigation, TabNavigationLink } from "@/components/tab-navigation"
 import { Button } from "@/components/ui/button"
@@ -47,10 +46,10 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import {
-  adminColumns,
-  LeaveRequestWithProfile,
-} from "./components/AdminColumns"
-import { remainingLeaveColumns } from "./components/RemainingLeaveColumns"
+  AdminLeaveList,
+  type LeaveRequestWithProfile,
+} from "./components/AdminLeaveList"
+import { RemainingLeaveList } from "./components/RemainingLeaveList"
 
 type Profile = Pick<
   Database["public"]["Tables"]["profiles"]["Row"],
@@ -477,81 +476,57 @@ export function StakeholderLeavePage({
     }
   }
 
+  const approveMany = (ids: number[]) =>
+    runWithConfirm({
+      title: "Setujui semua pengajuan?",
+      description: `${ids.length} pengajuan akan disetujui.`,
+      confirmText: "Setujui",
+      onConfirm: async () => {
+        const { error } = await supabase
+          .from("leave_requests")
+          .update({ status: "approved" })
+          .in("id", ids)
+        if (error) {
+          toast.error(error.message || "Gagal menyetujui pengajuan")
+          return
+        }
+        toast.success("Pengajuan disetujui")
+        router.refresh()
+      },
+    })
+
+  const deleteRequest = (id: number) =>
+    runWithConfirm({
+      title: "Hapus pengajuan?",
+      description: "Pengajuan ini akan dihapus permanen.",
+      confirmText: "Hapus",
+      variant: "destructive",
+      onConfirm: async () => {
+        const { error } = await supabase
+          .from("leave_requests")
+          .delete()
+          .eq("id", id)
+        if (error) {
+          toast.error(error.message || "Gagal menghapus pengajuan")
+          return
+        }
+        toast.success("Pengajuan dihapus")
+        router.refresh()
+      },
+    })
+
   const approvalContent = (
-    <section>
-      <DataTable
-        data={requests}
-        columns={adminColumns(handleApprove, handleReject, {
-          canSelect: canManage,
-          canManage,
-        })}
-        showExport={false}
-        showViewOptions={false}
-        showFilterbar={false}
-        onCreate={undefined}
-        manualPagination={true}
-        pageCount={pageCount}
-        pageIndex={page - 1}
-        onPageChange={handlePageChange}
-        enableSelection={canManage}
-        onBulkApprove={
-          canManage
-            ? async (ids) => {
-                runWithConfirm({
-                  title: "Setujui pengajuan?",
-                  description: `${ids.length} pengajuan akan disetujui.`,
-                  confirmText: "Setujui",
-                  onConfirm: async () => {
-                    const { error } = await supabase
-                      .from("leave_requests")
-                      .update({ status: "approved" })
-                      .in("id", ids as number[])
-                    if (error) {
-                      toast.error(error.message || "Gagal menyetujui pengajuan")
-                      return
-                    }
-                    toast.success("Pengajuan disetujui")
-                    router.refresh()
-                  },
-                })
-              }
-            : undefined
-        }
-        onBulkReject={
-          canManage
-            ? async (ids) => {
-                setRejectNote("")
-                setRejectIds(ids as number[])
-              }
-            : undefined
-        }
-        onDelete={
-          canManage
-            ? async (ids) => {
-                runWithConfirm({
-                  title: "Hapus pengajuan?",
-                  description: `${ids.length} pengajuan akan dihapus permanen.`,
-                  confirmText: "Delete",
-                  variant: "destructive",
-                  onConfirm: async () => {
-                    const { error } = await supabase
-                      .from("leave_requests")
-                      .delete()
-                      .in("id", ids as number[])
-                    if (error) {
-                      toast.error(error.message || "Gagal menghapus pengajuan")
-                      return
-                    }
-                    toast.success("Pengajuan dihapus")
-                    router.refresh()
-                  },
-                })
-              }
-            : undefined
-        }
-        showTableWrapper={false}
-      />
-    </section>
+    <AdminLeaveList
+      requests={requests}
+      canManage={canManage}
+      onApprove={handleApprove}
+      onReject={handleReject}
+      onApproveMany={approveMany}
+      onDelete={deleteRequest}
+      page={page}
+      pageCount={pageCount}
+      onPageChange={handlePageChange}
+    />
   )
 
   const remainingContent = <RemainingLeaveView data={profiles} />
@@ -1029,21 +1004,6 @@ function AttendanceOverviewPanel({
   )
 }
 
-// --- SUB-COMPONENT (Sekarang lebih sederhana & cepat) ---
 function RemainingLeaveView({ data }: { data: Profile[] }) {
-  return (
-    <section>
-      <DataTable
-        data={data}
-        columns={remainingLeaveColumns}
-        showExport={false}
-        showViewOptions={false}
-        showFilterbar={false}
-        actionLabel=""
-        enableSelection={false}
-        onDelete={undefined}
-        showTableWrapper={false}
-      />
-    </section>
-  )
+  return <RemainingLeaveList data={data} />
 }

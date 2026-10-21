@@ -43,6 +43,8 @@ export default async function LeaveRoute({
     user.email,
   )
 
+  const ADMIN_REQUEST_COLUMNS =
+    "id,start_date,end_date,leave_type,reason,review_note,proof_url,status,created_at,updated_at,user_id,profiles(full_name, avatar_url)"
   const page = Number(resolvedSearchParams.page) || 1
   const pageSize = 20
   const from = (page - 1) * pageSize
@@ -100,19 +102,31 @@ export default async function LeaveRoute({
       approvedCountResult,
       onLeaveTodayCountResult,
     ] = await Promise.all([
+      // Every pending request (they need action), then paged history.
       supabase
         .from("leave_requests")
-        .select("id", { count: "exact", head: true }),
-      supabase
-        .from("leave_requests")
-        .select(
-          "id,start_date,end_date,leave_type,reason,review_note,proof_url,status,created_at,updated_at,user_id,profiles(full_name, avatar_url)",
-        )
-        .order("created_at", { ascending: false })
-        .range(from, to),
+        .select("id", { count: "exact", head: true })
+        .neq("status", "pending"),
+      Promise.all([
+        supabase
+          .from("leave_requests")
+          .select(ADMIN_REQUEST_COLUMNS)
+          .eq("status", "pending")
+          .order("start_date", { ascending: true }),
+        supabase
+          .from("leave_requests")
+          .select(ADMIN_REQUEST_COLUMNS)
+          .neq("status", "pending")
+          .order("created_at", { ascending: false })
+          .range(from, to),
+      ]).then(([pending, history]) => ({
+        data: [...(pending.data || []), ...(history.data || [])],
+      })),
       supabase
         .from("profiles")
-        .select("id, full_name, avatar_url, job_title, join_date, employment_type")
+        .select(
+          "id, full_name, avatar_url, job_title, join_date, employment_type",
+        )
         .order("full_name", { ascending: true }),
       supabase
         .from("attendance_logs")
