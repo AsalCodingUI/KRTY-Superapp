@@ -55,6 +55,8 @@ type Profile = Pick<
   | "avatar_url"
   | "hourly_rate"
   | "team_id"
+  | "join_date"
+  | "employment_type"
 >
 type Team = Pick<Database["public"]["Tables"]["teams"]["Row"], "id" | "name">
 type Access = Record<string, Record<string, boolean>>
@@ -65,6 +67,10 @@ const ROLE_OPTIONS = [
 ] as const
 const JOB_TITLES = ["Admin", "Project Manager", "Designer", "Web Developer"]
 const NO_TEAM = "__none__"
+const EMPLOYMENT_LABELS: Record<string, string> = {
+  karyawan: "Karyawan",
+  magang: "Magang",
+}
 
 /**
  * Pages that can be switched per member. Settings sections are gated by super
@@ -76,7 +82,7 @@ const PAGES = navigationConfig.main.map((item) => ({
 }))
 
 const PROFILE_COLUMNS =
-  "id, full_name, email, role, job_title, is_super_admin, avatar_url, hourly_rate, team_id"
+  "id, full_name, email, role, job_title, is_super_admin, avatar_url, hourly_rate, team_id, join_date, employment_type"
 
 function useMembersData() {
   return useQuery({
@@ -169,7 +175,15 @@ export function MembersAccessSettings() {
   const updateProfile = async (
     id: string,
     patch: Partial<
-      Pick<Profile, "role" | "job_title" | "team_id" | "is_super_admin">
+      Pick<
+        Profile,
+        | "role"
+        | "job_title"
+        | "team_id"
+        | "is_super_admin"
+        | "join_date"
+        | "employment_type"
+      >
     >,
   ) => {
     const key = `${id}:${Object.keys(patch)[0]}`
@@ -443,6 +457,47 @@ export function MembersAccessSettings() {
                     ))}
                   </SelectContent>
                 </Select>
+              </Row>
+              <Row label="Status">
+                <Select
+                  value={selected.employment_type ?? "karyawan"}
+                  onValueChange={(v) =>
+                    v && updateProfile(selected.id, { employment_type: v })
+                  }
+                  disabled={savingKey === `${selected.id}:employment_type`}
+                >
+                  <SelectTrigger className="w-44">
+                    <SelectValue>
+                      {(v: string) => EMPLOYMENT_LABELS[v] ?? v}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent align="end">
+                    {Object.entries(EMPLOYMENT_LABELS).map(([value, label]) => (
+                      <SelectItem key={value} value={value}>
+                        {label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </Row>
+              <Row
+                label="Mulai kerja"
+                hint="Sejak resmi jadi karyawan. Dipakai untuk jatah cuti."
+              >
+                <Input
+                  key={`${selected.id}:${selected.join_date ?? ""}`}
+                  type="date"
+                  className="w-44"
+                  defaultValue={selected.join_date ?? ""}
+                  max={new Date().toISOString().slice(0, 10)}
+                  disabled={savingKey === `${selected.id}:join_date`}
+                  onBlur={(e) => {
+                    const next = e.target.value || null
+                    if (next !== (selected.join_date ?? null)) {
+                      updateProfile(selected.id, { join_date: next })
+                    }
+                  }}
+                />
               </Row>
               <Row
                 label="Super admin"

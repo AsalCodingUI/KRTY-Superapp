@@ -142,18 +142,30 @@ export function LeaveRequestModal({
       return `Maksimal ${ANNUAL_LEAVE_MAX_DAYS} hari kerja per pengajuan`
 
     const year = new Date().getFullYear()
-    const { data, error } = await supabase
-      .from("leave_requests")
-      .select("start_date,end_date")
-      .eq("user_id", userProfile.id)
-      .eq("status", "approved")
-      .eq("leave_type", "Annual Leave")
-      .lte("start_date", `${year}-12-31`)
-      .gte("end_date", `${year}-01-01`)
+    const [{ data, error }, { data: employment }] = await Promise.all([
+      supabase
+        .from("leave_requests")
+        .select("start_date,end_date")
+        .eq("user_id", userProfile.id)
+        .eq("status", "approved")
+        .eq("leave_type", "Annual Leave")
+        .lte("start_date", `${year}-12-31`)
+        .gte("end_date", `${year}-01-01`),
+      supabase
+        .from("profiles")
+        .select("join_date, employment_type")
+        .eq("id", userProfile.id)
+        .maybeSingle(),
+    ])
     if (error) return "Gagal memeriksa sisa cuti"
-    const { remaining } = annualLeaveSummary(data ?? [], year)
-    if (requestedDays > remaining)
-      return `Sisa cuti tahunan tinggal ${remaining} dari ${ANNUAL_LEAVE_QUOTA} hari`
+    const summary = annualLeaveSummary(data ?? [], year, employment ?? {})
+    if (!summary.eligible) {
+      return summary.eligibleFrom
+        ? `Cuti tahunan bisa diajukan mulai ${format(summary.eligibleFrom, "d MMMM yyyy", { locale: idLocale })}`
+        : (summary.note ?? "Belum berhak cuti tahunan")
+    }
+    if (requestedDays > summary.remaining)
+      return `Sisa cuti tahunan tinggal ${summary.remaining} dari ${summary.quota} hari`
     return null
   }
 

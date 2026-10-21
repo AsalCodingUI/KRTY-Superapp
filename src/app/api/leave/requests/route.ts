@@ -1,7 +1,14 @@
 import { createAdminClient } from "@/shared/api/supabase/admin"
 import { createClient } from "@/shared/api/supabase/server"
+import { calculateBusinessDays } from "@/shared/lib/date"
+import {
+  ANNUAL_LEAVE_MAX_DAYS,
+  ANNUAL_LEAVE_MIN_NOTICE_DAYS,
+  annualLeaveSummary,
+} from "@/shared/lib/leave"
 import { resolveProfileByUserIdOrEmail } from "@/shared/lib/profile-resolution"
 import { NextRequest, NextResponse } from "next/server"
+import { differenceInCalendarDays, startOfDay } from "date-fns"
 import { z } from "zod"
 
 const requestSchema = z.object({
@@ -34,6 +41,58 @@ async function getCanonicalProfile() {
   return { user, profile }
 }
 
+/**
+ * Server-side annual-leave rules (the form checks the same, but the API is
+ * the one that can't be bypassed). Returns an error message or null.
+ */
+async function checkAnnualLeave(
+  adminSupabase: ReturnType<typeof createAdminClient>,
+  userId: string,
+  startDate: string,
+  endDate: string,
+  excludeId?: number,
+): Promise<string | null> {
+  const start = startOfDay(new Date(startDate))
+  const end = startOfDay(new Date(endDate))
+  if (end < start) return "Tanggal selesai harus setelah tanggal mulai"
+  const requested = calculateBusinessDays(start, end)
+  if (requested <= 0) return "Rentang tanggal tidak berisi hari kerja"
+  if (
+    differenceInCalendarDays(start, startOfDay(new Date())) <
+    ANNUAL_LEAVE_MIN_NOTICE_DAYS
+  )
+    return `Cuti tahunan diajukan paling lambat H-${ANNUAL_LEAVE_MIN_NOTICE_DAYS}`
+  if (requested > ANNUAL_LEAVE_MAX_DAYS)
+    return `Maksimal ${ANNUAL_LEAVE_MAX_DAYS} hari kerja per pengajuan`
+
+  const year = start.getFullYear()
+  let approvedQuery = adminSupabase
+    .from("leave_requests")
+    .select("start_date,end_date")
+    .eq("user_id", userId)
+    .eq("status", "approved")
+    .eq("leave_type", "Annual Leave")
+    .lte("start_date", `${year}-12-31`)
+    .gte("end_date", `${year}-01-01`)
+  if (excludeId) approvedQuery = approvedQuery.neq("id", excludeId)
+
+  const [{ data: approved, error }, { data: employment }] = await Promise.all([
+    approvedQuery,
+    adminSupabase
+      .from("profiles")
+      .select("join_date, employment_type")
+      .eq("id", userId)
+      .maybeSingle(),
+  ])
+  if (error) throw error
+
+  const summary = annualLeaveSummary(approved ?? [], year, employment ?? {})
+  if (!summary.eligible) return summary.note ?? "Belum berhak cuti tahunan"
+  if (requested > summary.remaining)
+    return `Sisa cuti tahunan tinggal ${summary.remaining} dari ${summary.quota} hari`
+  return null
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { user, profile } = await getCanonicalProfile()
@@ -61,6 +120,17 @@ export async function POST(request: NextRequest) {
     }
 
     const adminSupabase = createAdminClient()
+    if (payload.leave_type === "Annual Leave") {
+      const problem = await checkAnnualLeave(
+        adminSupabase,
+        profile.id,
+        payload.start_date,
+        payload.end_date,
+      )
+      if (problem) {
+        return NextResponse.json({ error: problem }, { status: 422 })
+      }
+    }
     const { data, error } = await adminSupabase
       .from("leave_requests")
       .insert(payload)
@@ -129,6 +199,19 @@ export async function PATCH(request: NextRequest) {
       reason: parsed.data.reason || null,
       proof_url: parsed.data.proof_url || null,
       status: "pending" as const,
+    }
+
+    if (payload.leave_type === "Annual Leave") {
+      const problem = await checkAnnualLeave(
+        adminSupabase,
+        profile.id,
+        payload.start_date,
+        payload.end_date,
+        parsed.data.id,
+      )
+      if (problem) {
+        return NextResponse.json({ error: problem }, { status: 422 })
+      }
     }
 
     const { data, error } = await adminSupabase

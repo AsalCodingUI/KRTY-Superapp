@@ -19,7 +19,6 @@ import { useMountedTabs } from "@/shared/hooks/useMountedTabs"
 import { useTabRoute } from "@/shared/hooks/useTabRoute"
 import { getLocalDateString } from "@/shared/lib/date"
 import {
-  ANNUAL_LEAVE_QUOTA,
   annualLeaveSummary,
   businessDaysInYear,
 } from "@/shared/lib/leave"
@@ -131,11 +130,12 @@ export function EmployeeLeavePage({
       annual: annualLeaveSummary(
         approved.filter((r) => r.leave_type === "Annual Leave"),
         year,
+        profile,
       ),
       sick: sum(approved.filter((r) => r.leave_type === "Sick Leave")),
       wfh: sum(approved.filter((r) => isWfh(r.leave_type))),
     }
-  }, [requestsForStats])
+  }, [requestsForStats, profile])
 
   const today = now ? getLocalDateString(now) : ""
   const isOnLeave = Boolean(
@@ -245,13 +245,26 @@ export function EmployeeLeavePage({
         <dl className="grid grid-cols-3 gap-x-8 py-1">
           <div className="flex flex-col gap-1">
             <dt className="text-muted-foreground text-sm">Sisa cuti tahunan</dt>
-            <dd className="text-lg font-medium tabular-nums">
-              {stats.annual.remaining}
-              <span className="text-muted-foreground text-sm font-normal">
-                {" "}
-                / {ANNUAL_LEAVE_QUOTA} hari
+            {stats.annual.eligible ? (
+              <dd className="text-lg font-medium tabular-nums">
+                {stats.annual.remaining}
+                <span className="text-muted-foreground text-sm font-normal">
+                  {" "}
+                  / {stats.annual.quota} hari
+                </span>
+              </dd>
+            ) : (
+              <dd className="text-muted-foreground text-lg font-medium">
+                {stats.annual.eligibleFrom
+                  ? `Mulai ${format(stats.annual.eligibleFrom, "d MMM yyyy", { locale: idLocale })}`
+                  : "Tidak ada"}
+              </dd>
+            )}
+            {stats.annual.note && (
+              <span className="text-muted-foreground/70 text-xs">
+                {stats.annual.note}
               </span>
-            </dd>
+            )}
           </div>
           <div className="flex flex-col gap-1">
             <dt className="text-muted-foreground text-sm">Sakit tahun ini</dt>

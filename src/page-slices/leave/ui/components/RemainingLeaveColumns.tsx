@@ -16,7 +16,7 @@ type Profile = Pick<
   | "job_title"
   | "leave_used"
   | "leave_balance"
-> & { leave_quota?: number }
+> & { leave_quota?: number; leave_note?: string | null }
 
 const columnHelper = createColumnHelper<Profile>()
 
@@ -94,9 +94,16 @@ export const remainingLeaveColumns = [
       />
     ),
     cell: ({ row }) => (
-      <span className="text-muted-foreground tabular-nums">
-        {row.original.leave_quota ?? ANNUAL_LEAVE_QUOTA} hari
-      </span>
+      <div className="flex flex-col">
+        <span className="text-muted-foreground tabular-nums">
+          {row.original.leave_quota ?? ANNUAL_LEAVE_QUOTA} hari
+        </span>
+        {row.original.leave_note && (
+          <span className="text-muted-foreground/70 text-xs">
+            {row.original.leave_note}
+          </span>
+        )}
+      </div>
     ),
     meta: { displayName: "Jatah" },
   }),

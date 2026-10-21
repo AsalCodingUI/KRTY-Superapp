@@ -605,6 +605,8 @@ export type Database = {
           avatar_url: string | null
           created_at: string | null
           email: string | null
+          employment_type: string
+          join_date: string | null
           full_name: string | null
           hourly_rate: number | null
           id: string
@@ -623,6 +625,8 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string | null
           email?: string | null
+          employment_type?: string
+          join_date?: string | null
           full_name?: string | null
           hourly_rate?: number | null
           id: string
@@ -641,6 +645,8 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string | null
           email?: string | null
+          employment_type?: string
+          join_date?: string | null
           full_name?: string | null
           hourly_rate?: number | null
           id?: string

@@ -62,7 +62,7 @@ export default async function LeaveRoute({
   // 🚀 PARALLEL FETCH: Profile first (needed for role check)
   const profile = await resolveProfileByUserIdOrEmail<Profile>(
     supabase,
-    "id, krt_id, email, full_name, avatar_url, role, job_title, hourly_rate, team_id, created_at, updated_at, leave_balance, leave_used, manager_id, is_super_admin, monthly_salary",
+    "id, krt_id, email, full_name, avatar_url, role, job_title, hourly_rate, team_id, created_at, updated_at, leave_balance, leave_used, manager_id, is_super_admin, monthly_salary, join_date, employment_type",
     effectiveUserId,
     effectiveUserId === user.id ? user.email : null,
   )
@@ -112,7 +112,7 @@ export default async function LeaveRoute({
         .range(from, to),
       supabase
         .from("profiles")
-        .select("id, full_name, avatar_url, job_title")
+        .select("id, full_name, avatar_url, job_title, join_date, employment_type")
         .order("full_name", { ascending: true }),
       supabase
         .from("attendance_logs")
@@ -163,11 +163,18 @@ export default async function LeaveRoute({
         full_name: string | null
         avatar_url: string | null
         job_title: string | null
+        join_date: string | null
+        employment_type: string
       }) => {
-        const summary = annualLeaveSummary(approvedByUser.get(p.id) ?? [])
+        const summary = annualLeaveSummary(
+          approvedByUser.get(p.id) ?? [],
+          new Date().getFullYear(),
+          p,
+        )
         return {
           ...p,
           leave_quota: summary.quota,
+          leave_note: summary.note,
           leave_used: summary.used,
           leave_balance: summary.remaining,
         }

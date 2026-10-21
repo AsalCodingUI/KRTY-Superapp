@@ -49,14 +49,13 @@ export function LeaveRules() {
           Syarat & Ketentuan Pengambilan Cuti:
         </h4>
         <ol className="ml-4 list-outside list-decimal space-y-2">
+          <li>Magang tidak mendapat cuti tahunan.</li>
           <li>
-            Karyawan yang sudah bekerja selama satu tahun berhak mendapatkan
-            cuti.
+            Cuti tahunan bisa diambil setelah 6 bulan bekerja, dihitung sejak
+            resmi jadi karyawan (setelah masa magang): 1 hari untuk setiap bulan
+            kerja.
           </li>
-          <li>
-            Cuti dapat diberikan setelah 6 bulan bekerja, terhitung setelah masa
-            intern (3 bulan).
-          </li>
+          <li>Setelah 12 bulan bekerja, jatah cuti penuh 12 hari per tahun.</li>
           <li>
             Cuti tidak dapat diakumulasi, sehingga jika dalam satu tahun cuti
             tidak digunakan, maka cuti tersebut akan hangus dan diperbarui di
