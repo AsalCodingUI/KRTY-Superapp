@@ -10,6 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
@@ -357,7 +358,7 @@ export function EventDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="flex max-h-[90vh] flex-col sm:max-w-lg">
+      <DialogContent className="sm:max-w-[35rem]">
         <DialogHeader>
           <DialogTitle>
             {event
@@ -450,287 +451,300 @@ export function EventDialog({
             </div>
           </div>
         ) : (
-          <form onSubmit={handleSubmit(onSubmit)} className="min-h-0 flex-1">
-            <div className="-mx-1 space-y-5 overflow-y-auto px-1 py-1">
-              {/* Title */}
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="title">Judul *</Label>
-                <Input
-                  id="title"
-                  {...register("title")}
-                  placeholder="Masukkan judul jadwal"
-                  aria-invalid={!!errors.title}
-                  disabled={readOnly}
-                />
-                {errors.title?.message && (
-                  <FieldError className="text-xs">
-                    {errors.title.message}
-                  </FieldError>
-                )}
-              </div>
-
-              {/* Type */}
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="type">Tipe Jadwal</Label>
-                <Select
-                  value={selectedType}
-                  onValueChange={(v) => v !== null && handleTypeChange(v)}
-                  disabled={readOnly}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Pilih tipe" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {typeOptions.map((type) => (
-                      <SelectItem key={type.value} value={type.value}>
-                        {type.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* All Day Toggle */}
-              <div className="flex items-center gap-2">
-                <Checkbox
-                  id="allDay"
-                  checked={watch("allDay") || false}
-                  onCheckedChange={(checked) =>
-                    setValue("allDay", checked === true)
-                  }
-                  disabled={readOnly}
-                />
-                <Label htmlFor="allDay" className="cursor-pointer">
-                  Sepanjang Hari
-                </Label>
-              </div>
-
-              {/* Date and Time */}
-              <div className="space-y-4">
-                {/* Start Date & Time */}
+          <>
+            <form
+              id="event-form"
+              onSubmit={handleSubmit(onSubmit)}
+              className="min-h-0 flex-1"
+            >
+              <div className="-mx-1 space-y-5 overflow-y-auto px-1 py-1">
+                {/* Title */}
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="start">Mulai *</Label>
-                  <div
-                    className={cx(
-                      watch("allDay") ? "" : "grid grid-cols-2 gap-2",
-                    )}
-                  >
-                    <DatePicker
-                      value={
-                        watch("start") ? new Date(watch("start")) : undefined
-                      }
-                      onChange={(date: Date | undefined) => {
-                        if (date) {
-                          const currentStart = watch("start")
-                            ? new Date(watch("start"))
-                            : new Date()
-                          const newDate = new Date(date)
-                          // Preserve time from current start if valid
-                          if (!isNaN(currentStart.getTime())) {
-                            newDate.setHours(
-                              currentStart.getHours(),
-                              currentStart.getMinutes(),
-                            )
-                          }
-                          moveStart(newDate)
-                        }
-                      }}
-                      placeholder="Pilih tanggal"
-                      disabled={readOnly}
-                    />
-                    {!watch("allDay") && (
-                      <TimeSelect
-                        value={(() => {
-                          const startValue = watch("start")
-                          if (!startValue) return ""
-                          const date = new Date(startValue)
-                          return isNaN(date.getTime())
-                            ? ""
-                            : format(date, "HH:mm")
-                        })()}
-                        onValueChange={(value) => {
-                          const currentStart = watch("start")
-                            ? new Date(watch("start"))
-                            : new Date()
-                          const [hours, minutes] = value.split(":")
-                          if (!isNaN(currentStart.getTime())) {
-                            currentStart.setHours(
-                              parseInt(hours),
-                              parseInt(minutes),
-                            )
-                            moveStart(currentStart)
-                          }
-                        }}
-                        disabled={readOnly}
-                      />
-                    )}
-                  </div>
-                  {errors.start && (
-                    <p className="text-destructive text-xs">
-                      {errors.start.message}
-                    </p>
+                  <Label htmlFor="title">Judul *</Label>
+                  <Input
+                    id="title"
+                    {...register("title")}
+                    placeholder="Masukkan judul jadwal"
+                    aria-invalid={!!errors.title}
+                    disabled={readOnly}
+                  />
+                  {errors.title?.message && (
+                    <FieldError className="text-xs">
+                      {errors.title.message}
+                    </FieldError>
                   )}
                 </div>
 
-                {/* End Date & Time */}
+                {/* Type */}
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="end">Selesai *</Label>
-                  <div
-                    className={cx(
-                      watch("allDay") ? "" : "grid grid-cols-2 gap-2",
-                    )}
+                  <Label htmlFor="type">Tipe Jadwal</Label>
+                  <Select
+                    value={selectedType}
+                    onValueChange={(v) => v !== null && handleTypeChange(v)}
+                    disabled={readOnly}
                   >
-                    <DatePicker
-                      value={watch("end") ? new Date(watch("end")) : undefined}
-                      onChange={(date: Date | undefined) => {
-                        if (date) {
-                          const currentEnd = watch("end")
-                            ? new Date(watch("end"))
-                            : new Date()
-                          const newDate = new Date(date)
-                          // Preserve time from current end if valid
-                          if (!isNaN(currentEnd.getTime())) {
-                            newDate.setHours(
-                              currentEnd.getHours(),
-                              currentEnd.getMinutes(),
-                            )
-                          }
-                          setValue("end", format(newDate, "yyyy-MM-dd'T'HH:mm"))
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Pilih tipe" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {typeOptions.map((type) => (
+                        <SelectItem key={type.value} value={type.value}>
+                          {type.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* All Day Toggle */}
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="allDay"
+                    checked={watch("allDay") || false}
+                    onCheckedChange={(checked) =>
+                      setValue("allDay", checked === true)
+                    }
+                    disabled={readOnly}
+                  />
+                  <Label htmlFor="allDay" className="cursor-pointer">
+                    Sepanjang Hari
+                  </Label>
+                </div>
+
+                {/* Date and Time */}
+                <div className="space-y-4">
+                  {/* Start Date & Time */}
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="start">Mulai *</Label>
+                    <div
+                      className={cx(
+                        watch("allDay") ? "" : "grid grid-cols-2 gap-2",
+                      )}
+                    >
+                      <DatePicker
+                        value={
+                          watch("start") ? new Date(watch("start")) : undefined
                         }
-                      }}
-                      placeholder="Pilih tanggal"
-                      disabled={readOnly}
-                    />
-                    {!watch("allDay") && (
-                      <TimeSelect
-                        value={(() => {
-                          const endValue = watch("end")
-                          if (!endValue) return ""
-                          const date = new Date(endValue)
-                          return isNaN(date.getTime())
-                            ? ""
-                            : format(date, "HH:mm")
-                        })()}
-                        onValueChange={(value) => {
-                          const currentEnd = watch("end")
-                            ? new Date(watch("end"))
-                            : new Date()
-                          const [hours, minutes] = value.split(":")
-                          if (!isNaN(currentEnd.getTime())) {
-                            currentEnd.setHours(
-                              parseInt(hours),
-                              parseInt(minutes),
-                            )
+                        onChange={(date: Date | undefined) => {
+                          if (date) {
+                            const currentStart = watch("start")
+                              ? new Date(watch("start"))
+                              : new Date()
+                            const newDate = new Date(date)
+                            // Preserve time from current start if valid
+                            if (!isNaN(currentStart.getTime())) {
+                              newDate.setHours(
+                                currentStart.getHours(),
+                                currentStart.getMinutes(),
+                              )
+                            }
+                            moveStart(newDate)
+                          }
+                        }}
+                        placeholder="Pilih tanggal"
+                        disabled={readOnly}
+                      />
+                      {!watch("allDay") && (
+                        <TimeSelect
+                          value={(() => {
+                            const startValue = watch("start")
+                            if (!startValue) return ""
+                            const date = new Date(startValue)
+                            return isNaN(date.getTime())
+                              ? ""
+                              : format(date, "HH:mm")
+                          })()}
+                          onValueChange={(value) => {
+                            const currentStart = watch("start")
+                              ? new Date(watch("start"))
+                              : new Date()
+                            const [hours, minutes] = value.split(":")
+                            if (!isNaN(currentStart.getTime())) {
+                              currentStart.setHours(
+                                parseInt(hours),
+                                parseInt(minutes),
+                              )
+                              moveStart(currentStart)
+                            }
+                          }}
+                          disabled={readOnly}
+                        />
+                      )}
+                    </div>
+                    {errors.start && (
+                      <p className="text-destructive text-xs">
+                        {errors.start.message}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* End Date & Time */}
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="end">Selesai *</Label>
+                    <div
+                      className={cx(
+                        watch("allDay") ? "" : "grid grid-cols-2 gap-2",
+                      )}
+                    >
+                      <DatePicker
+                        value={
+                          watch("end") ? new Date(watch("end")) : undefined
+                        }
+                        onChange={(date: Date | undefined) => {
+                          if (date) {
+                            const currentEnd = watch("end")
+                              ? new Date(watch("end"))
+                              : new Date()
+                            const newDate = new Date(date)
+                            // Preserve time from current end if valid
+                            if (!isNaN(currentEnd.getTime())) {
+                              newDate.setHours(
+                                currentEnd.getHours(),
+                                currentEnd.getMinutes(),
+                              )
+                            }
                             setValue(
                               "end",
-                              format(currentEnd, "yyyy-MM-dd'T'HH:mm"),
+                              format(newDate, "yyyy-MM-dd'T'HH:mm"),
                             )
                           }
                         }}
+                        placeholder="Pilih tanggal"
                         disabled={readOnly}
                       />
+                      {!watch("allDay") && (
+                        <TimeSelect
+                          value={(() => {
+                            const endValue = watch("end")
+                            if (!endValue) return ""
+                            const date = new Date(endValue)
+                            return isNaN(date.getTime())
+                              ? ""
+                              : format(date, "HH:mm")
+                          })()}
+                          onValueChange={(value) => {
+                            const currentEnd = watch("end")
+                              ? new Date(watch("end"))
+                              : new Date()
+                            const [hours, minutes] = value.split(":")
+                            if (!isNaN(currentEnd.getTime())) {
+                              currentEnd.setHours(
+                                parseInt(hours),
+                                parseInt(minutes),
+                              )
+                              setValue(
+                                "end",
+                                format(currentEnd, "yyyy-MM-dd'T'HH:mm"),
+                              )
+                            }
+                          }}
+                          disabled={readOnly}
+                        />
+                      )}
+                    </div>
+                    {errors.end && (
+                      <p className="text-destructive text-xs">
+                        {errors.end.message}
+                      </p>
                     )}
                   </div>
-                  {errors.end && (
-                    <p className="text-destructive text-xs">
-                      {errors.end.message}
-                    </p>
-                  )}
                 </div>
+
+                {/* Location */}
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="location">Lokasi</Label>
+                  <Input
+                    id="location"
+                    {...register("location")}
+                    placeholder="Masukkan lokasi (opsional)"
+                    disabled={readOnly}
+                  />
+                </div>
+
+                {/* Description */}
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="description">Deskripsi</Label>
+                  <Textarea
+                    id="description"
+                    {...register("description")}
+                    placeholder="Tambahkan deskripsi (opsional)"
+                    rows={3}
+                    disabled={readOnly}
+                  />
+                </div>
+
+                {/* Recurrence hidden for now */}
               </div>
-
-              {/* Location */}
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="location">Lokasi</Label>
-                <Input
-                  id="location"
-                  {...register("location")}
-                  placeholder="Masukkan lokasi (opsional)"
-                  disabled={readOnly}
-                />
-              </div>
-
-              {/* Description */}
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="description">Deskripsi</Label>
-                <Textarea
-                  id="description"
-                  {...register("description")}
-                  placeholder="Tambahkan deskripsi (opsional)"
-                  rows={3}
-                  disabled={readOnly}
-                />
-              </div>
-
-              {/* Recurrence hidden for now */}
-
-              {/* Actions */}
-              <div className="border-border flex items-center justify-between border-t pt-4">
-                <div className="flex-1">
-                  {!readOnly && event && onDelete && (
-                    <>
-                      {isDeletePending ? (
-                        <div className="animate-fadeIn flex items-center gap-2">
-                          <span className="text-destructive text-sm font-medium">
-                            Yakin hapus?
-                          </span>
-                          <Button
-                            type="button"
-                            variant="destructive"
-                            onClick={handleConfirmDelete}
-                            disabled={loading}
-                            className=""
-                          >
-                            Ya, Hapus
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            onClick={handleCancelDelete}
-                            disabled={loading}
-                          >
-                            Batal
-                          </Button>
-                        </div>
-                      ) : (
+            </form>
+            <DialogFooter className="sm:justify-between">
+              <div className="flex-1">
+                {!readOnly && event && onDelete && (
+                  <>
+                    {isDeletePending ? (
+                      <div className="animate-fadeIn flex items-center gap-2">
+                        <span className="text-destructive text-sm font-medium">
+                          Yakin hapus?
+                        </span>
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          onClick={handleConfirmDelete}
+                          disabled={loading}
+                          className=""
+                        >
+                          Ya, Hapus
+                        </Button>
                         <Button
                           type="button"
                           variant="outline"
-                          onClick={handleDeleteClick}
+                          onClick={handleCancelDelete}
                           disabled={loading}
-                          className="text-destructive hover:bg-destructive/10"
                         >
-                          <RiDeleteBinLine className="mr-2 h-4 w-4" />
-                          Hapus
+                          Batal
                         </Button>
-                      )}
-                    </>
-                  )}
-                </div>
-                <div className="ml-4 flex gap-2">
-                  {!isDeletePending && (
-                    <>
+                      </div>
+                    ) : (
                       <Button
                         type="button"
                         variant="outline"
-                        onClick={() => onOpenChange(false)}
+                        onClick={handleDeleteClick}
+                        disabled={loading}
+                        className="text-destructive hover:bg-destructive/10"
+                      >
+                        <RiDeleteBinLine className="mr-2 h-4 w-4" />
+                        Hapus
+                      </Button>
+                    )}
+                  </>
+                )}
+              </div>
+              <div className="ml-4 flex gap-2">
+                {!isDeletePending && (
+                  <>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => onOpenChange(false)}
+                      disabled={loading}
+                    >
+                      <RiCloseLine className="mr-2 h-4 w-4" />
+                      {readOnly ? "Tutup" : "Batal"}
+                    </Button>
+                    {!readOnly && (
+                      <Button
+                        type="submit"
+                        form="event-form"
                         disabled={loading}
                       >
-                        <RiCloseLine className="mr-2 h-4 w-4" />
-                        {readOnly ? "Tutup" : "Batal"}
+                        <RiSaveLine className="mr-2 h-4 w-4" />
+                        {loading ? "Menyimpan..." : "Simpan"}
                       </Button>
-                      {!readOnly && (
-                        <Button type="submit" disabled={loading}>
-                          <RiSaveLine className="mr-2 h-4 w-4" />
-                          {loading ? "Menyimpan..." : "Simpan"}
-                        </Button>
-                      )}
-                    </>
-                  )}
-                </div>
+                    )}
+                  </>
+                )}
               </div>
-            </div>
-          </form>
+            </DialogFooter>
+          </>
         )}
       </DialogContent>
     </Dialog>

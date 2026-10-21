@@ -239,7 +239,7 @@ export function OneOnOne({ period }: { period: string }) {
 
   const slotForm = (
     <Dialog open={Boolean(form)} onOpenChange={(o) => !o && setForm(null)}>
-      <DialogContent className="sm:max-w-sm">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>
             {editing ? "Ubah jadwal" : "Tambah slot 1:1"}

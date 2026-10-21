@@ -214,7 +214,7 @@ export function ProjectForm({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="flex max-h-[90vh] flex-col sm:max-w-xl">
+      <DialogContent className="sm:max-w-[35rem]">
         <DialogHeader>
           <DialogTitle>
             {projectId ? "Ubah project" : "Project baru"}

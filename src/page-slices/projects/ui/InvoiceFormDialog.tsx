@@ -131,7 +131,7 @@ export function PaymentMethodManagerDialog({
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-[360px]">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>Manage Payment Methods</DialogTitle>
           </DialogHeader>
@@ -362,7 +362,7 @@ export function InvoiceFormDialog({
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-[600px]">
+        <DialogContent className="sm:max-w-[35rem]">
           <DialogHeader>
             <DialogTitle>
               {invoice ? "Edit Invoice" : "New Invoice"}

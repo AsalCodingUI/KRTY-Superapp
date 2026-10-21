@@ -80,7 +80,7 @@ export function SettingsDialog() {
         if (!next) close()
       }}
     >
-      <DialogContent className="flex h-[min(680px,85vh)] w-[min(1080px,92vw)] max-w-none gap-0 overflow-hidden p-0 sm:max-w-none">
+      <DialogContent bare className="flex h-[min(680px,85vh)] w-[min(1080px,92vw)] max-w-none gap-0 overflow-hidden p-0 sm:max-w-none">
         <nav className="bg-background flex w-52 shrink-0 flex-col gap-1 border-r p-2 pt-4">
           {visible.map((item) => (
             <button

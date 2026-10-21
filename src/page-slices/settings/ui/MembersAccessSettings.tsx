@@ -663,11 +663,15 @@ function AddMemberDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>Tambah anggota</DialogTitle>
         </DialogHeader>
-        <form onSubmit={submit} className="flex flex-col gap-4">
+        <form
+          id="add-member-form"
+          onSubmit={submit}
+          className="flex flex-col gap-4"
+        >
           <div className="flex flex-col gap-2">
             <Label htmlFor="member-name">Nama lengkap</Label>
             <Input
@@ -744,19 +748,19 @@ function AddMemberDialog({
               </Select>
             </div>
           </div>
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-            >
-              Batal
-            </Button>
-            <Button type="submit" disabled={saving}>
-              Tambah
-            </Button>
-          </DialogFooter>
         </form>
+        <DialogFooter>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+          >
+            Batal
+          </Button>
+          <Button type="submit" form="add-member-form" disabled={saving}>
+            Tambah
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   )

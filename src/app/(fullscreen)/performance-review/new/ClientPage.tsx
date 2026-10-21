@@ -346,7 +346,7 @@ export default function ReviewFormClientPage({
       </main>
 
       <Dialog open={confirmLeave} onOpenChange={setConfirmLeave}>
-        <DialogContent className="sm:max-w-sm">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>Tinggalkan penilaian?</DialogTitle>
             <DialogDescription>Isian kamu belum tersimpan.</DialogDescription>

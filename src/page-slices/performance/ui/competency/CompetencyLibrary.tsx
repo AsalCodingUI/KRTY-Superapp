@@ -168,7 +168,7 @@ export function CompetencyLibrary() {
       </GroupedList>
 
       <Dialog open={Boolean(draft)} onOpenChange={(o) => !o && setDraft(null)}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>
               {draft?.id ? "Ubah kompetensi" : "Kompetensi baru"}

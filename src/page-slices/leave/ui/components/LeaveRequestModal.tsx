@@ -251,7 +251,7 @@ export function LeaveRequestModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="flex max-h-[90vh] flex-col sm:max-w-lg">
+      <DialogContent className="sm:max-w-[35rem]">
         <DialogHeader>
           <DialogTitle>
             {step === 1

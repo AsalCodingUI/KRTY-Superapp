@@ -5,6 +5,10 @@ import { AlertDialog as AlertDialogPrimitive } from "@base-ui/react/alert-dialog
 import { cn } from "cn"
 
 import { Button } from "@/components/ui/button"
+import {
+  DialogSections,
+  dialogShellClassName,
+} from "@/components/ui/dialog-sections"
 
 function AlertDialog({ ...props }: AlertDialogPrimitive.Root.Props) {
   return <AlertDialogPrimitive.Root data-slot="alert-dialog" {...props} />
@@ -41,6 +45,7 @@ function AlertDialogOverlay({
 function AlertDialogContent({
   className,
   size = "default",
+  children,
   ...props
 }: AlertDialogPrimitive.Popup.Props & {
   size?: "default" | "sm"
@@ -52,11 +57,20 @@ function AlertDialogContent({
         data-slot="alert-dialog-content"
         data-size={size}
         className={cn(
-          "group/alert-dialog-content bg-popover text-popover-foreground ring-foreground/5 dark:ring-foreground/10 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 fixed top-1/2 left-1/2 z-50 grid w-full -translate-x-1/2 -translate-y-1/2 gap-6 rounded-xl p-6 shadow-xl ring-1 duration-100 outline-none data-[size=default]:max-w-xs data-[size=sm]:max-w-xs data-[size=default]:sm:max-w-md",
+          "group/alert-dialog-content",
+          dialogShellClassName,
+          "data-[size=sm]:sm:max-w-xs",
           className,
         )}
         {...props}
-      />
+      >
+        <DialogSections
+          isHeader={(el) => el.type === AlertDialogHeader}
+          isFooter={(el) => el.type === AlertDialogFooter}
+        >
+          {children}
+        </DialogSections>
+      </AlertDialogPrimitive.Popup>
     </AlertDialogPortal>
   )
 }
@@ -117,7 +131,7 @@ function AlertDialogTitle({
     <AlertDialogPrimitive.Title
       data-slot="alert-dialog-title"
       className={cn(
-        "font-heading text-lg font-medium sm:group-data-[size=default]/alert-dialog-content:group-has-data-[slot=alert-dialog-media]/alert-dialog-content:col-start-2",
+        "font-heading text-base font-medium sm:group-data-[size=default]/alert-dialog-content:group-has-data-[slot=alert-dialog-media]/alert-dialog-content:col-start-2",
         className,
       )}
       {...props}

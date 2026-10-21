@@ -88,7 +88,7 @@ export function MeetingDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="flex max-h-[90vh] flex-col sm:max-w-lg">
+      <DialogContent className="sm:max-w-[35rem]">
         <DialogHeader>
           <DialogTitle>Detail Rapat</DialogTitle>
         </DialogHeader>

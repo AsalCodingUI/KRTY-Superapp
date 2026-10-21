@@ -377,7 +377,7 @@ export function EmployeeLeavePage({
         open={deleteLogId !== null}
         onOpenChange={(open) => !open && setDeleteLogId(null)}
       >
-        <DialogContent className="sm:max-w-sm">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>Minta hapus data kehadiran?</DialogTitle>
             <DialogDescription>
@@ -399,7 +399,7 @@ export function EmployeeLeavePage({
         open={cancelTarget !== null}
         onOpenChange={(open) => !open && setCancelTarget(null)}
       >
-        <DialogContent className="sm:max-w-sm">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>Batalkan pengajuan?</DialogTitle>
             <DialogDescription>
@@ -422,7 +422,7 @@ export function EmployeeLeavePage({
       </Dialog>
 
       <Dialog open={rulesOpen} onOpenChange={setRulesOpen}>
-        <DialogContent className="sm:max-w-2xl">
+        <DialogContent className="sm:max-w-[35rem]">
           <DialogHeader>
             <DialogTitle>Aturan cuti</DialogTitle>
           </DialogHeader>

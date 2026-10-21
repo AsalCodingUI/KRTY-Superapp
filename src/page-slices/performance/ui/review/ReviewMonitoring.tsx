@@ -316,7 +316,7 @@ export function ReviewMonitoring({ period }: { period: string }) {
       )}
 
       <Dialog open={periodOpen} onOpenChange={setPeriodOpen}>
-        <DialogContent className="sm:max-w-sm">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>
               {cycle ? "Periode 360" : "Buka periode 360"} ·{" "}
@@ -391,7 +391,7 @@ export function ReviewMonitoring({ period }: { period: string }) {
         open={Boolean(viewing)}
         onOpenChange={(o) => !o && setViewing(null)}
       >
-        <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-3xl">
+        <DialogContent className="sm:max-w-3xl">
           <DialogHeader>
             <DialogTitle>
               Hasil 360 · {viewing?.full_name} · {periodLabel(period)}

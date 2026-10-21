@@ -654,7 +654,7 @@ export function StakeholderLeavePage({
         open={rejectIds !== null}
         onOpenChange={(open) => !open && setRejectIds(null)}
       >
-        <DialogContent className="sm:max-w-md">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>
               {rejectIds && rejectIds.length > 1
@@ -695,7 +695,7 @@ export function StakeholderLeavePage({
         open={deleteReviewId !== null}
         onOpenChange={(open) => !open && setDeleteReviewId(null)}
       >
-        <DialogContent className="sm:max-w-md">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>Permintaan hapus data kehadiran</DialogTitle>
             <DialogDescription>
@@ -735,7 +735,7 @@ export function StakeholderLeavePage({
       />
 
       <Dialog open={manualModalOpen} onOpenChange={setManualModalOpen}>
-        <DialogContent className="flex max-h-[90vh] flex-col sm:max-w-lg">
+        <DialogContent className="sm:max-w-[35rem]">
           <DialogHeader>
             <DialogTitle>Tambah cuti manual</DialogTitle>
           </DialogHeader>

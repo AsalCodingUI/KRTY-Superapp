@@ -85,7 +85,7 @@ export function BaseReadOnlyDialog({
   }
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-[35rem]">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>

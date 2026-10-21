@@ -53,7 +53,7 @@ export function LeaveDialog({ open, onOpenChange, event }: LeaveDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-[35rem]">
         <DialogHeader>
           <DialogTitle>Detail Cuti</DialogTitle>
         </DialogHeader>

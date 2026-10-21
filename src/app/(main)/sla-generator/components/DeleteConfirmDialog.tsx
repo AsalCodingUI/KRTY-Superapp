@@ -34,7 +34,7 @@ export function DeleteConfirmDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>

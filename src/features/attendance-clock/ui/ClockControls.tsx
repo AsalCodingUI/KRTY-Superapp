@@ -154,7 +154,7 @@ export function ClockControls({
       </Button>
 
       <Dialog open={confirmClockOut} onOpenChange={setConfirmClockOut}>
-        <DialogContent className="sm:max-w-sm">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>Clock out sekarang?</DialogTitle>
             <DialogDescription>

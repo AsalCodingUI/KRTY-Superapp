@@ -29,6 +29,8 @@
   --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
   --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-dialog-shell: var(--dialog-shell);
+  --color-dialog-panel: var(--dialog-panel);
   --color-sidebar: var(--sidebar);
   --color-chart-5: var(--chart-5);
   --color-chart-4: var(--chart-4);
@@ -102,6 +104,9 @@
   --chart-5: oklch(0.473 0.137 46.201);
   --radius: 0.5rem;
   --sidebar: oklch(0.985 0 0);
+  /* Dialogs: muted frame (header/footer) around a raised panel. */
+  --dialog-shell: oklch(0.975 0 0);
+  --dialog-panel: oklch(1 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.546 0.245 262.881);
   --sidebar-primary-foreground: oklch(0.97 0.014 254.604);
@@ -145,6 +150,8 @@
   --chart-4: oklch(0.555 0.163 48.998);
   --chart-5: oklch(0.473 0.137 46.201);
   --sidebar: oklch(0.205 0 0);
+  --dialog-shell: oklch(0.17 0 0);
+  --dialog-panel: oklch(0.24 0 0);
   --sidebar-foreground: oklch(0.935 0 0);
   --sidebar-primary: oklch(0.78 0.11 238);
   --sidebar-primary-foreground: oklch(0.18 0.03 245);
