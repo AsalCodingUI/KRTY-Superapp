@@ -14,10 +14,7 @@ interface UseClockActionsProps {
   onLogsUpdate: (logs: AttendanceLog[]) => void
 }
 
-export function useClockActions({
-  logs,
-  onLogsUpdate,
-}: UseClockActionsProps) {
+export function useClockActions({ logs, onLogsUpdate }: UseClockActionsProps) {
   const [loading, setLoading] = useState(false)
 
   const handleClockIn = useCallback(
@@ -208,7 +205,9 @@ export function useClockActions({
       } catch (error: unknown) {
         onLogsUpdate(oldLogs)
         const message =
-          error instanceof Error ? error.message : "Gagal menutup sesi sebelumnya"
+          error instanceof Error
+            ? error.message
+            : "Gagal menutup sesi sebelumnya"
         toast.error(message)
       } finally {
         setLoading(false)

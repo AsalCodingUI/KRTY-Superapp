@@ -105,7 +105,7 @@ export function ReviewMonitoring({ period }: { period: string }) {
     )
   }
 
-  const { cycle, rows } = data
+  const { cycle, rows, unpaired } = data
 
   const openPeriodForm = () => {
     setDates(
@@ -208,10 +208,10 @@ export function ReviewMonitoring({ period }: { period: string }) {
         </div>
       </section>
 
-      {rows.length === 0 ? (
+      {rows.length === 0 && unpaired.length === 0 ? (
         <EmptyState
-          title="Belum ada pasangan penilai"
-          description={`Belum ada karyawan yang satu project di ${periodLabel(period)}.`}
+          title="Belum ada karyawan"
+          description="Karyawan akan muncul di sini."
           icon={<RiGroupLine className="size-5" />}
           placement="inner"
         />
@@ -285,6 +285,33 @@ export function ReviewMonitoring({ period }: { period: string }) {
               </ListGroup>
             )
           })}
+          {unpaired.length > 0 && (
+            <ListGroup
+              label="Tanpa rekan satu project"
+              count={unpaired.length}
+              action={
+                <span className="text-muted-foreground hidden text-xs sm:inline">
+                  Tambahkan ke project yang berjalan di {periodLabel(period)}{" "}
+                  agar bisa menilai & dinilai
+                </span>
+              }
+            >
+              {unpaired.map((person) => (
+                <ListRow key={person.id} className="text-muted-foreground">
+                  <Avatar className="size-5">
+                    <AvatarImage src={person.avatar_url || undefined} alt="" />
+                    <AvatarFallback className="text-[10px]">
+                      {(person.full_name || "U").slice(0, 2).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="truncate">{person.full_name}</span>
+                  <span className="min-w-0 flex-1 truncate text-xs">
+                    {person.job_title}
+                  </span>
+                </ListRow>
+              ))}
+            </ListGroup>
+          )}
         </GroupedList>
       )}
 

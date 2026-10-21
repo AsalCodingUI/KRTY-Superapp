@@ -50,7 +50,6 @@ const SECTIONS: Section[] = [
     name: "Kehadiran",
     description: "Aturan clock in & clock out untuk semua anggota.",
     icon: RiTimeLine,
-    adminOnly: true,
   },
 ]
 

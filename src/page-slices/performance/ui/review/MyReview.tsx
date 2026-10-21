@@ -55,10 +55,14 @@ export function MyReview({ period }: { period: string }) {
             </p>
           </div>
           {targets.length === 0 ? (
-            <p className="text-muted-foreground border-t py-6 text-sm">
-              Kamu belum satu project dengan karyawan lain di{" "}
-              {periodLabel(period)}.
-            </p>
+            <div className="flex flex-col gap-1 border-t py-6 text-sm">
+              <p>Belum ada rekan untuk kamu nilai di {periodLabel(period)}.</p>
+              <p className="text-muted-foreground">
+                Yang dinilai adalah karyawan yang satu project denganmu (project
+                yang berjalan di kuartal ini atau masih aktif). Kalau project
+                kamu belum terdaftar, hubungi admin.
+              </p>
+            </div>
           ) : (
             <GroupedList>
               {[

@@ -173,6 +173,8 @@ export type MonitoringRow = Person & {
 export type MonitoringData = {
   cycle: ReviewCycle | null
   rows: MonitoringRow[]
+  /** Employees with no teammate to review or be reviewed by. */
+  unpaired: Person[]
 }
 
 /** Admin view of a quarter: each reviewee's teammates and progress. */
@@ -180,26 +182,35 @@ export async function getReviewMonitoring(
   quarter: string,
 ): Promise<MonitoringData> {
   const me = await viewer()
-  if (!me?.isStakeholder) return { cycle: null, rows: [] }
+  if (!me?.isStakeholder) return { cycle: null, rows: [], unpaired: [] }
   const { supabase } = me
   const cycle = await cycleFor(supabase, quarter)
 
-  const [{ data: pairs }, { data: reviews }, { data: summaries }] =
-    await Promise.all([
-      supabase.rpc("review_pairs", { p_quarter: quarter }),
-      cycle
-        ? supabase
-            .from("performance_reviews")
-            .select("reviewer_id, reviewee_id")
-            .eq("cycle_id", cycle.id)
-        : Promise.resolve({ data: [] }),
-      cycle
-        ? supabase
-            .from("performance_summaries")
-            .select("reviewee_id, overall_percentage")
-            .eq("cycle_id", cycle.id)
-        : Promise.resolve({ data: [] }),
-    ])
+  const [
+    { data: pairs },
+    { data: reviews },
+    { data: summaries },
+    { data: employees },
+  ] = await Promise.all([
+    supabase.rpc("review_pairs", { p_quarter: quarter }),
+    cycle
+      ? supabase
+          .from("performance_reviews")
+          .select("reviewer_id, reviewee_id")
+          .eq("cycle_id", cycle.id)
+      : Promise.resolve({ data: [] }),
+    cycle
+      ? supabase
+          .from("performance_summaries")
+          .select("reviewee_id, overall_percentage")
+          .eq("cycle_id", cycle.id)
+      : Promise.resolve({ data: [] }),
+    supabase
+      .from("profiles")
+      .select("id, full_name, avatar_url, job_title")
+      .eq("role", "employee")
+      .order("full_name"),
+  ])
 
   const done = new Set(
     ((reviews ?? []) as { reviewer_id: string; reviewee_id: string }[]).map(
@@ -248,8 +259,20 @@ export async function getReviewMonitoring(
     ).map((s) => [s.reviewee_id, s]),
   )
 
+  const paired = new Set<string>()
+  for (const p of (pairs ?? []) as {
+    reviewer_id: string
+    reviewee_id: string
+  }[]) {
+    paired.add(p.reviewer_id)
+    paired.add(p.reviewee_id)
+  }
+
   return {
     cycle,
+    unpaired: ((employees ?? []) as Person[]).filter(
+      (e) => !paired.has(e.id) && !reviewersOf.has(e.id),
+    ),
     rows: [...reviewersOf.entries()]
       .filter(([id]) => byId.has(id))
       .map(([id, reviewers]) => ({

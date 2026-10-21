@@ -68,7 +68,7 @@ export default function RootLayout({
             <TooltipProvider>
               {/* Sidebar dan main wrapper dipindah ke layout (main) */}
               {children}
-              <Toaster position="top-right" />
+              <Toaster position="bottom-right" closeButton />
             </TooltipProvider>
           </QueryProvider>
         </ThemeProvider>

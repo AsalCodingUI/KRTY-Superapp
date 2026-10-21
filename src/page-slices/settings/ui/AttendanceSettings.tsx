@@ -4,33 +4,22 @@ import { TimeSelect } from "@/components/time-select"
 import { Switch } from "@/components/ui/switch"
 import { createClient } from "@/shared/api/supabase/client"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
-import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { isAdminRole } from "@/shared/lib/roles"
+import {
+  useAutoClockOut,
+  type AutoClockOut,
+} from "@/shared/hooks/useAutoClockOut"
+import { useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
 import { toast } from "sonner"
-
-export type AutoClockOut = { enabled: boolean; time: string }
 
 const KEY = "auto_clock_out"
 const DEFAULTS: AutoClockOut = { enabled: false, time: "17:00" }
 
-/** Read by the cron job in migrations/add_auto_clock_out.sql. */
-export function useAutoClockOut() {
-  return useQuery({
-    queryKey: ["app-settings", KEY],
-    queryFn: async (): Promise<AutoClockOut> => {
-      const { data, error } = await createClient()
-        .from("app_settings")
-        .select("value")
-        .eq("key", KEY)
-        .maybeSingle()
-      if (error) throw error
-      return { ...DEFAULTS, ...((data?.value as Partial<AutoClockOut>) ?? {}) }
-    },
-  })
-}
-
 export function AttendanceSettings() {
   const { profile } = useUserProfile()
+  // Everyone sees the rule; only admins change it (RLS enforces this too).
+  const canEdit = profile?.is_super_admin === true || isAdminRole(profile?.role)
   const queryClient = useQueryClient()
   const { data, isLoading } = useAutoClockOut()
   const [saving, setSaving] = useState(false)
@@ -59,13 +48,16 @@ export function AttendanceSettings() {
 
   return (
     <div className="flex max-w-2xl flex-col">
+      {!canEdit && (
+        <p className="text-muted-foreground pb-2 text-sm">Diatur oleh admin.</p>
+      )}
       <Row
         label="Clock out otomatis"
         hint="Sesi yang lupa ditutup akan di-clock out otomatis, dan anggotanya dapat notifikasi."
       >
         <Switch
           checked={value.enabled}
-          disabled={isLoading || saving}
+          disabled={!canEdit || isLoading || saving}
           onCheckedChange={(enabled) => save({ ...value, enabled })}
           aria-label="Clock out otomatis"
         />
@@ -78,7 +70,7 @@ export function AttendanceSettings() {
           className="w-28"
           value={value.time}
           step={30}
-          disabled={!value.enabled || isLoading || saving}
+          disabled={!canEdit || !value.enabled || isLoading || saving}
           onValueChange={(time) => save({ ...value, time })}
         />
       </Row>

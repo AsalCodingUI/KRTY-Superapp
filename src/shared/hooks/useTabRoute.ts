@@ -65,15 +65,7 @@ export function useTabRoute<T extends string>({
         window.history.pushState({}, "", href)
       }
     },
-    [
-      basePath,
-      defaultTab,
-      mode,
-      pathname,
-      preserveQuery,
-      router,
-      searchParams,
-    ],
+    [basePath, defaultTab, mode, pathname, preserveQuery, router, searchParams],
   )
 
   return { activeTab, setActiveTab }

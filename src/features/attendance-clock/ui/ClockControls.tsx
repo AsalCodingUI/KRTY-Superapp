@@ -30,6 +30,7 @@ import {
 import { format, parseISO } from "date-fns"
 import { id as idLocale } from "date-fns/locale"
 import { useState } from "react"
+import { useAutoClockOut } from "@/shared/hooks/useAutoClockOut"
 import { useClockActions } from "../model/useClockActions"
 
 type AttendanceLog = Database["public"]["Tables"]["attendance_logs"]["Row"]
@@ -70,6 +71,8 @@ export function ClockControls({
     handleToggleBreak,
     handleResolvePreviousSession,
   } = useClockActions({ logs, onLogsUpdate })
+
+  const { data: autoClockOut } = useAutoClockOut()
 
   // SSR placeholder keeps the tree stable until the clock is known.
   if (!now) return <div className="h-8" />
@@ -122,6 +125,15 @@ export function ClockControls({
 
   return (
     <div className="flex items-center gap-2">
+      {autoClockOut?.enabled && (
+        <span
+          className="text-muted-foreground text-xs"
+          title="Diatur admin di Pengaturan › Kehadiran"
+        >
+          Clock out otomatis{" "}
+          {activeSession.status === "Lembur" ? "23:59" : autoClockOut.time}
+        </span>
+      )}
       <Button
         variant="outline"
         disabled={loading}

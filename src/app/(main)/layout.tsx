@@ -21,24 +21,25 @@ export default function Layout({
   children: React.ReactNode
 }>) {
   return (
-    <SidebarProvider className="flex-wrap">
+    <SidebarProvider className="flex-col">
       {/* Full-width banners above everything (view-as, later announcements). */}
-      <div className="w-full">
-        <AppBannerStack>
-          <ImpersonationBanner />
-        </AppBannerStack>
+      <AppBannerStack>
+        <ImpersonationBanner />
+      </AppBannerStack>
+      {/* Sidebar and page stay siblings: the inset styles key off the sidebar. */}
+      <div className="flex w-full flex-1">
+        <AppSidebar />
+        <SidebarInset>
+          <SiteHeader />
+          <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+            <Suspense fallback={<PageFallback />}>{children}</Suspense>
+          </div>
+          {/* Settings opens as a modal over any page (?settings=<section>). */}
+          <Suspense fallback={null}>
+            <SettingsDialog />
+          </Suspense>
+        </SidebarInset>
       </div>
-      <AppSidebar />
-      <SidebarInset>
-        <SiteHeader />
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-          <Suspense fallback={<PageFallback />}>{children}</Suspense>
-        </div>
-        {/* Settings opens as a modal over any page (?settings=<section>). */}
-        <Suspense fallback={null}>
-          <SettingsDialog />
-        </Suspense>
-      </SidebarInset>
     </SidebarProvider>
   )
 }

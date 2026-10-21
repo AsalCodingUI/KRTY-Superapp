@@ -43,9 +43,9 @@ export function useNotifications() {
       throw new Error("Failed to fetch notifications")
     }
 
-    const payload = (await response.json().catch(() => null)) as
-      | { notifications?: Notification[] }
-      | null
+    const payload = (await response.json().catch(() => null)) as {
+      notifications?: Notification[]
+    } | null
     const data = payload?.notifications || []
 
     if (data) {
@@ -106,9 +106,12 @@ export function useNotifications() {
 
     if (!authProfile?.id) return
 
-    const response = await fetch(`/api/notifications?id=${encodeURIComponent(id)}`, {
-      method: "DELETE",
-    })
+    const response = await fetch(
+      `/api/notifications?id=${encodeURIComponent(id)}`,
+      {
+        method: "DELETE",
+      },
+    )
 
     if (!response.ok) {
       setNotifications(snapshot)
@@ -156,7 +159,10 @@ export function useNotifications() {
       }
     }
 
-    window.addEventListener(NOTIFICATIONS_SYNC_EVENT, handleSync as EventListener)
+    window.addEventListener(
+      NOTIFICATIONS_SYNC_EVENT,
+      handleSync as EventListener,
+    )
     return () =>
       window.removeEventListener(
         NOTIFICATIONS_SYNC_EVENT,
