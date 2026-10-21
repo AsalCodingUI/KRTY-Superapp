@@ -3,6 +3,8 @@ export const ATTENDANCE_NOTE_TAGS = {
   staleSessionResolved: "STALE_SESSION_RESOLVED",
   adminClosedSession: "ADMIN_CLOSED_SESSION",
   adminEditedSession: "ADMIN_EDITED_SESSION",
+  /** Closed by the auto clock-out job (migrations/add_auto_clock_out.sql). */
+  autoClockOut: "AUTO_CLOCK_OUT",
 } as const
 
 export function getAttendanceNoteTags(

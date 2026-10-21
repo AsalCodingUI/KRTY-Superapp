@@ -1,7 +1,10 @@
 "use client"
 
 import { AttendanceHistoryList } from "@/app/(main)/attendance/components/AttendanceHistoryList"
+import { AttendanceHistoryTable } from "@/app/(main)/attendance/components/AttendanceHistoryTable"
+import { DataTable } from "@/components/data-table"
 import { TabNavigation, TabNavigationLink } from "@/components/tab-navigation"
+import { useViewMode, ViewToggle } from "@/components/view-toggle"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -25,6 +28,7 @@ import { id as idLocale } from "date-fns/locale"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
 import { toast } from "sonner"
+import { columns } from "./components/Columns"
 import { EmployeeLeaveList } from "./components/EmployeeLeaveList"
 import { LeaveRequestModal } from "./components/LeaveRequestModal"
 import { LeaveRules } from "./components/LeaveRules"
@@ -67,6 +71,7 @@ export function EmployeeLeavePage({
     mode: "history",
   })
   const { isMounted } = useMountedTabs(activeTab)
+  const [view, setView] = useViewMode("leave")
 
   const [now, setNow] = useState<Date | null>(null)
   const [logs, setLogs] = useState<AttendanceLog[]>(attendanceLogs)
@@ -287,40 +292,74 @@ export function EmployeeLeavePage({
         </dl>
 
         <div className="flex flex-col">
-          <TabNavigation>
-            <TabNavigationLink
-              active={activeTab === "attendance"}
-              onClick={() => setActiveTab("attendance")}
-            >
-              Kehadiran
-            </TabNavigationLink>
-            <TabNavigationLink
-              active={activeTab === "leave"}
-              onClick={() => setActiveTab("leave")}
-            >
-              Cuti
-            </TabNavigationLink>
-          </TabNavigation>
+          <div className="flex items-end justify-between gap-4">
+            <TabNavigation className="flex-1">
+              <TabNavigationLink
+                active={activeTab === "attendance"}
+                onClick={() => setActiveTab("attendance")}
+              >
+                Kehadiran
+              </TabNavigationLink>
+              <TabNavigationLink
+                active={activeTab === "leave"}
+                onClick={() => setActiveTab("leave")}
+              >
+                Cuti
+              </TabNavigationLink>
+            </TabNavigation>
+            <ViewToggle
+              value={view}
+              onValueChange={setView}
+              className="mb-1.5"
+            />
+          </div>
 
           <div className="py-4">
             {isMounted("attendance") && (
               <div className={activeTab === "attendance" ? "block" : "hidden"}>
-                <AttendanceHistoryList
-                  logs={logs}
-                  onRequestDelete={(id) => setDeleteLogId(id)}
-                />
+                {view === "table" ? (
+                  <AttendanceHistoryTable
+                    logs={logs}
+                    onRequestDelete={(id) => setDeleteLogId(id)}
+                  />
+                ) : (
+                  <AttendanceHistoryList
+                    logs={logs}
+                    onRequestDelete={(id) => setDeleteLogId(id)}
+                  />
+                )}
               </div>
             )}
             {isMounted("leave") && (
               <div className={activeTab === "leave" ? "block" : "hidden"}>
-                <EmployeeLeaveList
-                  requests={requests}
-                  onEdit={openRequest}
-                  onCancel={setCancelTarget}
-                  page={page}
-                  pageCount={Math.ceil(totalCount / pageSize)}
-                  onPageChange={handlePageChange}
-                />
+                {view === "table" ? (
+                  <DataTable
+                    data={requests}
+                    columns={columns({
+                      onEdit: openRequest,
+                      onCancel: setCancelTarget,
+                    })}
+                    manualPagination
+                    pageCount={Math.ceil(totalCount / pageSize)}
+                    pageIndex={page - 1}
+                    onPageChange={handlePageChange}
+                    showExport={false}
+                    showViewOptions={false}
+                    enableSelection={false}
+                    enableHover={false}
+                    showTableWrapper={false}
+                    showFilterbar={false}
+                  />
+                ) : (
+                  <EmployeeLeaveList
+                    requests={requests}
+                    onEdit={openRequest}
+                    onCancel={setCancelTarget}
+                    page={page}
+                    pageCount={Math.ceil(totalCount / pageSize)}
+                    onPageChange={handlePageChange}
+                  />
+                )}
               </div>
             )}
           </div>

@@ -172,6 +172,11 @@ function AttendanceRow({
             {(log.status && ATTENDANCE_STATUS_LABELS[log.status]) ?? log.status}
           </span>
         )}
+        {hasAttendanceNote(log.notes, ATTENDANCE_NOTE_TAGS.autoClockOut) && (
+          <span className="text-muted-foreground/70 shrink-0 text-xs">
+            · clock out otomatis
+          </span>
+        )}
       </div>
 
       {onRequestDelete &&

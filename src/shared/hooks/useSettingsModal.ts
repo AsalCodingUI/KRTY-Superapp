@@ -3,7 +3,7 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useCallback } from "react"
 
-export type SettingsSection = "general" | "members"
+export type SettingsSection = "general" | "members" | "attendance"
 
 export const SETTINGS_PARAM = "settings"
 

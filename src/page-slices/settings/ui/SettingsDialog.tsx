@@ -6,12 +6,15 @@ import {
   type SettingsSection,
 } from "@/shared/hooks/useSettingsModal"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
+import { isAdminRole } from "@/shared/lib/roles"
 import { cx } from "@/shared/lib/utils"
 import {
   RemixiconComponentType,
   RiGroupLine,
+  RiTimeLine,
   RiUserLine,
 } from "@/shared/ui/lucide-icons"
+import { AttendanceSettings } from "./AttendanceSettings"
 import GeneralSettingsPage from "./GeneralSettingsPage"
 import { MembersAccessSettings } from "./MembersAccessSettings"
 
@@ -21,6 +24,8 @@ type Section = {
   description: string
   icon: RemixiconComponentType
   superAdminOnly?: boolean
+  /** Stakeholders (and super admins) only. */
+  adminOnly?: boolean
   /** Renders edge to edge and manages its own scrolling. */
   fullBleed?: boolean
 }
@@ -40,6 +45,13 @@ const SECTIONS: Section[] = [
     superAdminOnly: true,
     fullBleed: true,
   },
+  {
+    id: "attendance",
+    name: "Kehadiran",
+    description: "Aturan clock in & clock out untuk semua anggota.",
+    icon: RiTimeLine,
+    adminOnly: true,
+  },
 ]
 
 /** Old links (?settings=team-access / permission) land on Members. */
@@ -53,7 +65,10 @@ export function SettingsDialog() {
   const { profile } = useUserProfile()
   const isSuperAdmin = profile?.is_super_admin === true
 
-  const visible = SECTIONS.filter((s) => !s.superAdminOnly || isSuperAdmin)
+  const isAdmin = isSuperAdmin || isAdminRole(profile?.role)
+  const visible = SECTIONS.filter(
+    (s) => (!s.superAdminOnly || isSuperAdmin) && (!s.adminOnly || isAdmin),
+  )
   const requested = section ? (ALIASES[section] ?? section) : null
   // Unknown or not-allowed sections fall back to the first one.
   const active =
@@ -106,6 +121,7 @@ export function SettingsDialog() {
           >
             {active.id === "general" && <GeneralSettingsPage />}
             {active.id === "members" && <MembersAccessSettings />}
+            {active.id === "attendance" && <AttendanceSettings />}
           </div>
         </div>
       </DialogContent>

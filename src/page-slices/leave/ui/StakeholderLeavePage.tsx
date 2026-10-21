@@ -2,6 +2,7 @@
 
 import { AdminAttendanceEditDialog } from "@/app/(main)/attendance/components/AdminAttendanceEditDialog"
 import { AdminAttendanceHistoryList } from "@/app/(main)/attendance/components/AdminAttendanceHistoryList"
+import { AdminAttendanceHistoryTable } from "@/app/(main)/attendance/components/AdminAttendanceHistoryTable"
 import { createClient } from "@/shared/api/supabase/client"
 import { useMountedTabs } from "@/shared/hooks/useMountedTabs"
 import { useTabRoute } from "@/shared/hooks/useTabRoute"
@@ -18,6 +19,12 @@ import { calculateBusinessDays } from "@/shared/lib/date"
 import { canManageByRole } from "@/shared/lib/roles"
 import { Database } from "@/shared/types/database.types"
 import { ConfirmDialog } from "@/components/confirm-dialog"
+import { DataTable } from "@/components/data-table"
+import {
+  useViewMode,
+  ViewToggle,
+  type ViewMode,
+} from "@/components/view-toggle"
 import { DatePicker } from "@/components/date-picker"
 import { TabNavigation, TabNavigationLink } from "@/components/tab-navigation"
 import { Button } from "@/components/ui/button"
@@ -45,10 +52,12 @@ import { format } from "date-fns"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
+import { adminColumns } from "./components/AdminColumns"
 import {
   AdminLeaveList,
   type LeaveRequestWithProfile,
 } from "./components/AdminLeaveList"
+import { remainingLeaveColumns } from "./components/RemainingLeaveColumns"
 import { RemainingLeaveList } from "./components/RemainingLeaveList"
 
 type Profile = Pick<
@@ -219,6 +228,8 @@ export function StakeholderLeavePage({
       supabase.removeChannel(channel)
     }
   }, [supabase, router])
+
+  const [view, setView] = useViewMode("leave")
 
   const handlePageChange = (newPage: number) => {
     const params = new URLSearchParams(searchParams)
@@ -515,21 +526,95 @@ export function StakeholderLeavePage({
       },
     })
 
-  const approvalContent = (
-    <AdminLeaveList
-      requests={requests}
-      canManage={canManage}
-      onApprove={handleApprove}
-      onReject={handleReject}
-      onApproveMany={approveMany}
-      onDelete={deleteRequest}
-      page={page}
-      pageCount={pageCount}
-      onPageChange={handlePageChange}
-    />
-  )
+  const approvalContent =
+    view === "table" ? (
+      <DataTable
+        data={requests}
+        columns={adminColumns(handleApprove, handleReject, {
+          canSelect: canManage,
+          canManage,
+        })}
+        showExport={false}
+        showViewOptions={false}
+        showFilterbar={false}
+        onCreate={undefined}
+        manualPagination={true}
+        pageCount={pageCount}
+        pageIndex={page - 1}
+        onPageChange={handlePageChange}
+        enableSelection={canManage}
+        onBulkApprove={
+          canManage
+            ? async (ids) => {
+                runWithConfirm({
+                  title: "Setujui pengajuan?",
+                  description: `${ids.length} pengajuan akan disetujui.`,
+                  confirmText: "Setujui",
+                  onConfirm: async () => {
+                    const { error } = await supabase
+                      .from("leave_requests")
+                      .update({ status: "approved" })
+                      .in("id", ids as number[])
+                    if (error) {
+                      toast.error(error.message || "Gagal menyetujui pengajuan")
+                      return
+                    }
+                    toast.success("Pengajuan disetujui")
+                    router.refresh()
+                  },
+                })
+              }
+            : undefined
+        }
+        onBulkReject={
+          canManage
+            ? async (ids) => {
+                setRejectNote("")
+                setRejectIds(ids as number[])
+              }
+            : undefined
+        }
+        onDelete={
+          canManage
+            ? async (ids) => {
+                runWithConfirm({
+                  title: "Hapus pengajuan?",
+                  description: `${ids.length} pengajuan akan dihapus permanen.`,
+                  confirmText: "Delete",
+                  variant: "destructive",
+                  onConfirm: async () => {
+                    const { error } = await supabase
+                      .from("leave_requests")
+                      .delete()
+                      .in("id", ids as number[])
+                    if (error) {
+                      toast.error(error.message || "Gagal menghapus pengajuan")
+                      return
+                    }
+                    toast.success("Pengajuan dihapus")
+                    router.refresh()
+                  },
+                })
+              }
+            : undefined
+        }
+        showTableWrapper={false}
+      />
+    ) : (
+      <AdminLeaveList
+        requests={requests}
+        canManage={canManage}
+        onApprove={handleApprove}
+        onReject={handleReject}
+        onApproveMany={approveMany}
+        onDelete={deleteRequest}
+        page={page}
+        pageCount={pageCount}
+        onPageChange={handlePageChange}
+      />
+    )
 
-  const remainingContent = <RemainingLeaveView data={profiles} />
+  const remainingContent = <RemainingLeaveView data={profiles} view={view} />
 
   return (
     <>
@@ -545,6 +630,8 @@ export function StakeholderLeavePage({
           onCloseAttendanceSession={handleCloseAttendanceSession}
           onEditAttendanceSession={handleEditAttendanceSession}
           onAddManualLeave={openManualModal}
+          view={view}
+          onViewChange={setView}
           overviewStats={overviewStats}
           isClient={isClient}
         />
@@ -829,6 +916,8 @@ function AttendanceOverviewPanel({
   onCloseAttendanceSession,
   onEditAttendanceSession,
   onAddManualLeave,
+  view,
+  onViewChange,
   overviewStats,
   isClient,
 }: {
@@ -842,6 +931,8 @@ function AttendanceOverviewPanel({
   onCloseAttendanceSession: (logId: string) => void
   onEditAttendanceSession: (logId: string) => void
   onAddManualLeave: () => void
+  view: ViewMode
+  onViewChange: (view: ViewMode) => void
   isClient: boolean
   overviewStats?: {
     onLeaveToday: number
@@ -961,13 +1052,14 @@ function AttendanceOverviewPanel({
           </TabNavigation>
         </div>
         {/* Visible on every screen size (used to be desktop-only). */}
-        {activeTab === "approval" && (
-          <div className="flex justify-end pb-2 xl:-mt-12">
+        <div className="flex items-center justify-end gap-2 pb-2 xl:-mt-12">
+          <ViewToggle value={view} onValueChange={onViewChange} />
+          {activeTab === "approval" && (
             <Button variant="outline" onClick={onAddManualLeave}>
               Tambah manual
             </Button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       <div className="py-4">
@@ -991,12 +1083,21 @@ function AttendanceOverviewPanel({
                 : "hidden space-y-5"
             }
           >
-            <AdminAttendanceHistoryList
-              logs={attendanceLogs}
-              onApproveDelete={onApproveAttendanceDelete}
-              onCloseSession={onCloseAttendanceSession}
-              onEditSession={onEditAttendanceSession}
-            />
+            {view === "table" ? (
+              <AdminAttendanceHistoryTable
+                logs={attendanceLogs}
+                onApproveDelete={onApproveAttendanceDelete}
+                onCloseSession={onCloseAttendanceSession}
+                onEditSession={onEditAttendanceSession}
+              />
+            ) : (
+              <AdminAttendanceHistoryList
+                logs={attendanceLogs}
+                onApproveDelete={onApproveAttendanceDelete}
+                onCloseSession={onCloseAttendanceSession}
+                onEditSession={onEditAttendanceSession}
+              />
+            )}
           </div>
         )}
       </div>
@@ -1004,6 +1105,25 @@ function AttendanceOverviewPanel({
   )
 }
 
-function RemainingLeaveView({ data }: { data: Profile[] }) {
-  return <RemainingLeaveList data={data} />
+function RemainingLeaveView({
+  data,
+  view,
+}: {
+  data: Profile[]
+  view: ViewMode
+}) {
+  if (view === "list") return <RemainingLeaveList data={data} />
+  return (
+    <DataTable
+      data={data}
+      columns={remainingLeaveColumns}
+      showExport={false}
+      showViewOptions={false}
+      showFilterbar={false}
+      actionLabel=""
+      enableSelection={false}
+      onDelete={undefined}
+      showTableWrapper={false}
+    />
+  )
 }

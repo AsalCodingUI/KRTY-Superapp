@@ -176,6 +176,11 @@ function AdminAttendanceRow({
             · diedit admin
           </span>
         )}
+        {hasAttendanceNote(log.notes, ATTENDANCE_NOTE_TAGS.autoClockOut) && (
+          <span className="text-muted-foreground/70 shrink-0 text-xs">
+            · clock out otomatis
+          </span>
+        )}
       </div>
 
       <ListRowActions>
