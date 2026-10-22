@@ -47,7 +47,7 @@ export function MyReview({ period }: { period: string }) {
       {cycle?.isOpen && (
         <section className="flex flex-col gap-2">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <h2 className="text-sm font-medium">Nilai rekan satu project</h2>
+            <h2 className="text-sm font-medium">Nilai rekan kerja</h2>
             <p className="text-muted-foreground text-xs">
               Periode dibuka sampai{" "}
               {format(new Date(cycle.end_date), "d MMMM", { locale: idLocale })}
@@ -58,9 +58,8 @@ export function MyReview({ period }: { period: string }) {
             <div className="flex flex-col gap-1 border-t py-6 text-sm">
               <p>Belum ada rekan untuk kamu nilai di {periodLabel(period)}.</p>
               <p className="text-muted-foreground">
-                Yang dinilai adalah karyawan yang satu project denganmu (project
-                yang berjalan di kuartal ini atau masih aktif). Kalau project
-                kamu belum terdaftar, hubungi admin.
+                Semua karyawan saling menilai (admin tidak ikut). Kalau namamu
+                atau rekanmu belum muncul, hubungi admin.
               </p>
             </div>
           ) : (

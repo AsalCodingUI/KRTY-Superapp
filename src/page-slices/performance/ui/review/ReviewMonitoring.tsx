@@ -186,7 +186,7 @@ export function ReviewMonitoring({ period }: { period: string }) {
           <p className="text-muted-foreground text-xs">
             {cycle
               ? `${format(new Date(cycle.start_date), "d MMM", { locale: idLocale })} – ${format(new Date(cycle.end_date), "d MMM yyyy", { locale: idLocale })} · ${reviewsDone} dari ${reviewsTotal} penilaian masuk`
-              : "Belum dibuka. Karyawan menilai rekan yang satu project di kuartal ini."}
+              : "Belum dibuka. Semua karyawan saling menilai; admin tidak ikut."}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -287,12 +287,11 @@ export function ReviewMonitoring({ period }: { period: string }) {
           })}
           {unpaired.length > 0 && (
             <ListGroup
-              label="Tanpa rekan satu project"
+              label="Belum punya rekan untuk dinilai"
               count={unpaired.length}
               action={
                 <span className="text-muted-foreground hidden text-xs sm:inline">
-                  Tambahkan ke project yang berjalan di {periodLabel(period)}{" "}
-                  agar bisa menilai & dinilai
+                  Butuh minimal dua karyawan
                 </span>
               }
             >
@@ -323,8 +322,8 @@ export function ReviewMonitoring({ period }: { period: string }) {
               {periodLabel(period)}
             </DialogTitle>
             <DialogDescription>
-              Karyawan menilai rekan yang satu project di kuartal ini. Periode
-              lain yang masih terbuka akan ditutup.
+              Semua karyawan saling menilai (admin tidak ikut). Periode lain
+              yang masih terbuka akan ditutup.
             </DialogDescription>
           </DialogHeader>
           <div className="grid grid-cols-2 gap-3">

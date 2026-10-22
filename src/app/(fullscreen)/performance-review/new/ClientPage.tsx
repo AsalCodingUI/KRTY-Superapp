@@ -228,7 +228,7 @@ export default function ReviewFormClientPage({
 
       <main className="mx-auto flex max-w-2xl flex-col gap-8 px-4 py-8">
         <div className="flex flex-col gap-1">
-          <h1 className="text-lg font-semibold">Nilai rekan satu project</h1>
+          <h1 className="text-lg font-semibold">Nilai rekan kerja</h1>
           <p className="text-muted-foreground text-sm">
             Nama kamu tidak ditampilkan ke rekan yang kamu nilai. Admin bisa
             melihatnya, dan penilaian dirangkum oleh AI.

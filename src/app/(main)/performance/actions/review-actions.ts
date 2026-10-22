@@ -6,8 +6,8 @@ import { canManageByRole } from "@/shared/lib/roles"
 import { revalidatePath } from "next/cache"
 
 /**
- * 360 review (decision Oct 2026): employees review the employees they share a
- * project with in the cycle's quarter (review_pairs). One cycle per quarter,
+ * 360 review (decision 22 Oct 2026): every employee reviews every other
+ * employee; admins take no part (review_pairs). One cycle per quarter,
  * opened and closed by an admin. Admins may see who reviewed whom; the
  * reviewee never does.
  */
@@ -177,7 +177,7 @@ export type MonitoringData = {
   unpaired: Person[]
 }
 
-/** Admin view of a quarter: each reviewee's teammates and progress. */
+/** Admin view of a quarter: each reviewee's reviewers and progress. */
 export async function getReviewMonitoring(
   quarter: string,
 ): Promise<MonitoringData> {

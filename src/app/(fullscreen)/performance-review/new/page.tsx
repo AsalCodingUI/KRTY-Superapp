@@ -6,8 +6,8 @@ import ReviewFormClientPage from "./ClientPage"
 export const dynamic = "force-dynamic"
 
 /**
- * 360 review form. Only teammates from the same project in the open cycle's
- * quarter who haven't been reviewed yet can be picked (see review_pairs).
+ * 360 review form. Any other employee not reviewed yet in the open cycle
+ * can be picked (see review_pairs; admins are left out).
  */
 export default async function NewReviewPage({
   searchParams,

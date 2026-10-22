@@ -37,9 +37,9 @@ const fail = (error: string, status: number) =>
 
 /**
  * Submit a 360 review. Rules (also why the browser can't insert directly):
- * the cycle must be open, the reviewee must share a project with the reviewer
- * in the cycle's quarter (review_pairs), once per pair, and very low or
- * perfect scores need a reason.
+ * the cycle must be open, reviewer and reviewee are both employees (not
+ * admins, not the same person; review_pairs), once per pair, and very low
+ * or perfect scores need a reason.
  */
 export async function POST(request: NextRequest) {
   const guard = guardApiRoute(request)
@@ -98,7 +98,7 @@ export async function POST(request: NextRequest) {
     )
     if (!allowed) {
       return fail(
-        "Kamu hanya bisa menilai rekan satu project di kuartal ini.",
+        "Kamu hanya bisa menilai sesama karyawan, bukan diri sendiri atau admin.",
         403,
       )
     }

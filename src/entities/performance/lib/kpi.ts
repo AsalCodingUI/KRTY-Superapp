@@ -50,7 +50,7 @@ export const KPI_PARTS: {
   {
     key: "review",
     label: "360 review",
-    description: "Penilaian dari rekan satu project",
+    description: "Penilaian dari rekan kerja",
     weight: 15,
     target: 85,
   },
