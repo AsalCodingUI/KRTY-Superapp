@@ -1,7 +1,7 @@
 "use client"
 
 import type { Variants } from "motion/react"
-import { motion, useAnimation } from "motion/react"
+import { m, useAnimation } from "motion/react"
 import type { HTMLAttributes } from "react"
 import { forwardRef, useCallback, useImperativeHandle, useRef } from "react"
 
@@ -81,12 +81,12 @@ const LogInIcon = forwardRef<LogInIconHandle, LogInIconProps>(
           xmlns="http://www.w3.org/2000/svg"
         >
           <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
-          <motion.polyline
+          <m.polyline
             animate={controls}
             points="10 17 15 12 10 7"
             variants={PATH_VARIANTS}
           />
-          <motion.line
+          <m.line
             animate={controls}
             variants={PATH_VARIANTS}
             x1="3"

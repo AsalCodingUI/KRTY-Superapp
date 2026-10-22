@@ -182,7 +182,7 @@ export function DataTable<TData>({
                     <TableHead
                       key={header.id}
                       className={cn(
-                        "text-muted-foreground h-10 px-2 text-xs font-medium whitespace-nowrap",
+                        "text-muted-foreground h-10 px-2 text-[13px] font-medium whitespace-nowrap",
                         isSelectionColumn && "w-14 px-2 text-center",
                         header.column.columnDef.meta?.className,
                       )}
@@ -211,10 +211,15 @@ export function DataTable<TData>({
                       : undefined
                   }
                   className={cn(
-                    "group transition-colors select-none",
-                    enableHover
-                      ? "hover:bg-foreground/[0.04]"
-                      : "hover:bg-transparent",
+                    // A <tr> can't take border-radius, so the highlight is
+                    // painted on the cells (ends rounded). Inset shadows in the
+                    // surface colour trim 2px off the top and bottom so it
+                    // clears the dividers; the outer 1px shadow bridges the
+                    // fractional seam to the next cell.
+                    "group select-none [--row-bg:transparent] hover:bg-transparent data-[state=selected]:bg-transparent",
+                    "*:bg-(--row-bg) *:shadow-[inset_0_2px_0_var(--row-surface),inset_0_-2px_0_var(--row-surface)] *:not-last:shadow-[inset_0_2px_0_var(--row-surface),inset_0_-2px_0_var(--row-surface),3px_0_0_-2px_var(--row-bg)] *:first:rounded-l-lg *:last:rounded-r-lg",
+                    "data-[state=selected]:[--row-bg:var(--row-selected)]!",
+                    enableHover && "hover:[--row-bg:var(--row-hover)]",
                     enableSelection ? "cursor-pointer" : "cursor-default",
                   )}
                 >
@@ -243,8 +248,8 @@ export function DataTable<TData>({
               <TableRow className="hover:bg-transparent">
                 <TableCell colSpan={columns.length} className="p-6">
                   <EmptyState
-                    title="No data available"
-                    description="No rows to display."
+                    title="Belum ada data"
+                    description="Data akan muncul di sini."
                     icon={<FileTextIcon className="size-5" />}
                     placement="inner"
                   />

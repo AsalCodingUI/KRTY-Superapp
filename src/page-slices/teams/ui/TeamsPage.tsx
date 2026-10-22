@@ -1,12 +1,11 @@
 "use client"
 
+import { PageHeader } from "@/components/page-header"
 import { createTeamColumns } from "@/app/(main)/teams/Columns"
-import { useSettingsModal } from "@/shared/hooks/useSettingsModal"
+import Link from "next/link"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { Database } from "@/shared/types/database.types"
 import { DataTable } from "@/components/data-table"
-import { ListPager } from "@/components/list-pager"
-import { useViewMode, ViewToggle } from "@/components/view-toggle"
 import { Button } from "@/components/ui/button"
 import {
   InputGroup,
@@ -15,7 +14,6 @@ import {
 } from "@/components/ui/input-group"
 import { RiLockLine, RiSearchLine } from "@/shared/ui/lucide-icons"
 import { useMemo, useState } from "react"
-import { TeamList } from "./TeamList"
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 
@@ -41,11 +39,9 @@ export function TeamsPage({
   const searchParams = useSearchParams()
 
   const [searchTerm, setSearchTerm] = useState("")
-  const [view, setView] = useViewMode("teams")
 
   const { profile } = useUserProfile()
   const isSuperAdmin = profile?.is_super_admin === true
-  const settings = useSettingsModal()
 
   // Handle page change
   const handlePageChange = (newPage: number) => {
@@ -73,6 +69,8 @@ export function TeamsPage({
     })
   }, [initialData, normalizedSearch])
 
+  const teamColumns = useMemo(() => createTeamColumns({ canSelect: false }), [])
+
   const totalMembers = initialData.length
   const totalDesigners = initialData.filter(
     (profile) => profile.job_title === "Designer",
@@ -88,81 +86,74 @@ export function TeamsPage({
       profile.role === "stakeholder" || profile.job_title === "Admin",
   ).length
 
+  const stats = [
+    { label: "Total anggota", value: totalMembers },
+    { label: "Designer", value: totalDesigners },
+    { label: "Developer", value: totalDevelopers },
+    { label: "Project Manager", value: totalPMs },
+    { label: "Admin/Stakeholder", value: totalAdmins },
+  ]
+
   return (
-    <>
-      <div className="flex flex-col">
-        <div className="flex flex-col">
-          <section className="my-2 grid grid-cols-1 gap-x-8 gap-y-4 py-2 sm:grid-cols-2 lg:grid-cols-5">
-            {[
-              { label: "Total Team", value: totalMembers },
-              { label: "Designers", value: totalDesigners },
-              { label: "Developers", value: totalDevelopers },
-              { label: "Project Managers", value: totalPMs },
-              { label: "Admin/Stakeholder", value: totalAdmins },
-            ].map((item) => (
-              <div key={item.label} className="flex min-w-0 flex-col gap-1">
-                <p className="text-muted-foreground text-sm">{item.label}</p>
-                <p className="text-foreground text-lg font-medium tabular-nums">
-                  {item.value}
-                </p>
-              </div>
-            ))}
-          </section>
+    <div className="flex flex-col">
+      {/* Title + actions, a stats band, the search row, then the list. */}
+      <PageHeader
+        className="pt-6 pb-4"
+        title="Team"
+        actions={
+          // The directory is read-only; members are managed on their own page.
+          isSuperAdmin && (
+            <Button
+              variant="outline"
+              nativeButton={false}
+              render={<Link href="/teams/access" prefetch={false} />}
+            >
+              <RiLockLine data-icon="inline-start" />
+              Anggota & Akses
+            </Button>
+          )
+        }
+      />
 
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <InputGroup className="w-full sm:w-[260px]">
-              <InputGroupAddon>
-                <RiSearchLine />
-              </InputGroupAddon>
-              <InputGroupInput
-                type="search"
-                placeholder="Search..."
-                value={searchTerm}
-                onChange={(event) => setSearchTerm(event.target.value)}
-              />
-            </InputGroup>
-
-            <div className="flex items-center gap-2">
-              <ViewToggle value={view} onValueChange={setView} />
-              {/* The directory is read-only; members are managed in Settings. */}
-              {isSuperAdmin && (
-                <Button
-                  variant="outline"
-                  onClick={() => settings.open("members")}
-                >
-                  <RiLockLine data-icon="inline-start" />
-                  Anggota & Akses
-                </Button>
-              )}
-            </div>
+      <div className="stat-strip bleed gutter-x border-border border-b py-4">
+        {stats.map((item) => (
+          <div key={item.label} className="stat-tile">
+            <p className="text-muted-foreground text-sm">{item.label}</p>
+            <p className="text-foreground text-xl font-normal tracking-tight tabular-nums">
+              {item.value}
+            </p>
           </div>
-
-          <div className="py-4">
-            {view === "table" ? (
-              <DataTable
-                data={filteredData}
-                columns={createTeamColumns({ canSelect: false })}
-                manualPagination={true}
-                pageCount={pageCount}
-                pageIndex={page - 1} // Convert 1-index to 0-index
-                onPageChange={handlePageChange}
-                showFilterbar={false}
-                enableSelection={false}
-                showTableWrapper={false}
-              />
-            ) : (
-              <div className="flex flex-col gap-4">
-                <TeamList members={filteredData} />
-                <ListPager
-                  page={page}
-                  pageCount={pageCount}
-                  onPageChange={handlePageChange}
-                />
-              </div>
-            )}
-          </div>
-        </div>
+        ))}
       </div>
-    </>
+
+      <div className="pt-4 pb-3">
+        <InputGroup className="w-full sm:w-[260px]">
+          <InputGroupAddon>
+            <RiSearchLine />
+          </InputGroupAddon>
+          <InputGroupInput
+            type="search"
+            placeholder="Cari anggota..."
+            value={searchTerm}
+            onChange={(event) => setSearchTerm(event.target.value)}
+          />
+        </InputGroup>
+      </div>
+
+      <div className="pb-4">
+        {/* One view only: the table. */}
+        <DataTable
+          data={filteredData}
+          columns={teamColumns}
+          manualPagination={true}
+          pageCount={pageCount}
+          pageIndex={page - 1} // Convert 1-index to 0-index
+          onPageChange={handlePageChange}
+          showFilterbar={false}
+          enableSelection={false}
+          showTableWrapper={false}
+        />
+      </div>
+    </div>
   )
 }

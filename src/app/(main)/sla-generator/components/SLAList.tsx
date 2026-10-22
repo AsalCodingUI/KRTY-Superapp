@@ -1,19 +1,21 @@
 "use client"
 
+import { EmptyValue } from "@/components/empty-value"
 import { EmptyState } from "@/components/empty-state"
-import {
-  GroupedList,
-  ListGroup,
-  ListRow,
-  ListRowActions,
-} from "@/components/grouped-list"
+import { GroupedList, ListRow, ListRowActions } from "@/components/grouped-list"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 import { RiFileTextLine } from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
 import { id as idLocale } from "date-fns/locale"
 import type { SLA } from "./SLAColumns"
 
-/** SLAs grouped by client. Active rows open the editor; archived can be restored. */
+/** Shared column template so the header and rows line up. */
+const ROW_GRID =
+  "grid grid-cols-[minmax(0,1fr)_6.5rem] items-center gap-x-4 md:grid-cols-[minmax(0,1fr)_12rem_6.5rem_10rem]"
+
+/** SLAs as one flat list. Active rows open the editor; archived can be restored. */
 export function SLAList({
   slas,
   archived,
@@ -46,79 +48,94 @@ export function SLAList({
     )
   }
 
-  const groups = new Map<string, SLA[]>()
-  for (const sla of slas) {
-    const key = sla.client_name?.trim() || "Tanpa klien"
-    groups.set(key, [...(groups.get(key) ?? []), sla])
-  }
-
   return (
     <GroupedList>
-      {[...groups.entries()]
-        .sort((a, b) => a[0].localeCompare(b[0]))
-        .map(([client, items]) => (
-          <ListGroup key={client} label={client} count={items.length}>
-            {items.map((sla) => {
-              const date = archived ? sla.archived_at : sla.created_at
-              return (
-                <ListRow key={sla.id}>
+      <div
+        className={cn(
+          ROW_GRID,
+          "gutter-x text-muted-foreground border-border h-9 border-b text-[13px]",
+        )}
+      >
+        <span>SLA</span>
+        <span className="hidden md:block">Klien</span>
+        <span className="text-right">{archived ? "Diarsipkan" : "Dibuat"}</span>
+        <span className="hidden md:block" />
+      </div>
+      {slas.map((sla) => {
+        const date = archived ? sla.archived_at : sla.created_at
+        const title = sla.title || "Tanpa judul"
+        const client = sla.client_name?.trim()
+        return (
+          <ListRow key={sla.id} className={cn(ROW_GRID, "min-h-14")}>
+            <div className="flex min-w-0 items-center gap-3">
+              <span className="bg-muted text-muted-foreground flex size-7 shrink-0 items-center justify-center rounded-md">
+                <RiFileTextLine className="size-3.5" />
+              </span>
+              <div className="flex min-w-0 flex-col">
+                {archived ? (
+                  <span className="text-foreground truncate">{title}</span>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => onOpen(sla.id)}
+                    className="text-foreground truncate text-left outline-none after:absolute after:inset-0 focus-visible:underline"
+                  >
+                    {title}
+                  </button>
+                )}
+                {client && (
+                  <span className="text-tertiary-foreground truncate text-[13px] md:hidden">
+                    {client}
+                  </span>
+                )}
+              </div>
+            </div>
+            <div className="hidden min-w-0 md:block">
+              <Badge variant="secondary" className="max-w-full">
+                <span className="truncate">{client || "Tanpa klien"}</span>
+              </Badge>
+            </div>
+            <span className="text-muted-foreground text-right tabular-nums">
+              {date
+                ? format(new Date(date), "d MMM yyyy", { locale: idLocale })
+                : <EmptyValue />}
+            </span>
+            <div className="hidden justify-end md:flex">
+              {canManage && (
+                <ListRowActions className="relative z-10">
                   {archived ? (
-                    <span className="min-w-0 flex-1 truncate font-medium">
-                      {sla.title || "Tanpa judul"}
-                    </span>
+                    <>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => onRestore(sla.id)}
+                      >
+                        Pulihkan
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-destructive hover:text-destructive"
+                        onClick={() => onDelete(sla.id)}
+                      >
+                        Hapus
+                      </Button>
+                    </>
                   ) : (
-                    <button
-                      type="button"
-                      onClick={() => onOpen(sla.id)}
-                      className="min-w-0 flex-1 truncate text-left font-medium hover:underline"
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onArchive(sla.id)}
                     >
-                      {sla.title || "Tanpa judul"}
-                    </button>
+                      Arsipkan
+                    </Button>
                   )}
-                  {canManage && (
-                    <ListRowActions>
-                      {archived ? (
-                        <>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => onRestore(sla.id)}
-                          >
-                            Pulihkan
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-destructive hover:text-destructive"
-                            onClick={() => onDelete(sla.id)}
-                          >
-                            Hapus
-                          </Button>
-                        </>
-                      ) : (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => onArchive(sla.id)}
-                        >
-                          Arsipkan
-                        </Button>
-                      )}
-                    </ListRowActions>
-                  )}
-                  {date && (
-                    <span className="text-muted-foreground w-36 shrink-0 text-right text-xs">
-                      {archived ? "Diarsipkan " : "Dibuat "}
-                      {format(new Date(date), "d MMM yyyy", {
-                        locale: idLocale,
-                      })}
-                    </span>
-                  )}
-                </ListRow>
-              )
-            })}
-          </ListGroup>
-        ))}
+                </ListRowActions>
+              )}
+            </div>
+          </ListRow>
+        )
+      })}
     </GroupedList>
   )
 }

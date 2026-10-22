@@ -1,4 +1,4 @@
-import { ProjectsListPage } from "@/page-slices/projects"
+import { ProjectsListPage } from "@/page-slices/projects/ui/ProjectsListPage"
 import { createClient } from "@/shared/api/supabase/server"
 
 export const dynamic = "force-dynamic"

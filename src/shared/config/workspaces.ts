@@ -71,7 +71,20 @@ export const workspaces: Workspace[] = [
       },
       // Stakeholders also manage the team from here.
       ...(isAdmin(p)
-        ? [{ name: "Team", href: links.teams, icon: RiGroupLine }]
+        ? [
+            {
+              name: "Team",
+              href: links.teams,
+              icon: RiGroupLine,
+              // Super admins also manage members & page access here.
+              children: p.is_super_admin
+                ? [
+                    { name: "Direktori", href: links.teams },
+                    { name: "Anggota & Akses", href: `${links.teams}/access` },
+                  ]
+                : undefined,
+            },
+          ]
         : []),
       {
         name: "Leave & Attendance",

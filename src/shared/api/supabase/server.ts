@@ -1,7 +1,15 @@
 import { createServerClient } from "@supabase/ssr"
 import { cookies } from "next/headers"
+import { cache } from "react"
 
-export async function createClient() {
+/**
+ * One Supabase client per server request. `cache()` scopes it to the current
+ * render, so a page, its server actions and entity helpers all share it —
+ * and share its memoized `auth.getUser()` (one Auth round trip, not one per
+ * helper). Outside a render (route handlers) `cache()` doesn't dedupe and
+ * every call still gets a fresh client.
+ */
+export const createClient = cache(async () => {
   // Check if env vars are available
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -21,7 +29,7 @@ export async function createClient() {
 
   const cookieStore = await cookies()
 
-  return createServerClient(
+  const client = createServerClient(
     supabaseUrl,
     supabaseAnonKey,
     {
@@ -43,4 +51,31 @@ export async function createClient() {
       },
     },
   )
-}
+
+  // Memoize the argument-less getUser() for this client's lifetime (one
+  // request). Any auth mutation on the client drops the memo.
+  const auth = client.auth
+  const getUser = auth.getUser.bind(auth)
+  let pendingUser: ReturnType<typeof getUser> | null = null
+  auth.getUser = ((jwt?: string) => {
+    if (jwt) return getUser(jwt)
+    pendingUser ??= getUser()
+    return pendingUser
+  }) as typeof auth.getUser
+  for (const method of [
+    "updateUser",
+    "signOut",
+    "setSession",
+    "refreshSession",
+    "exchangeCodeForSession",
+    "verifyOtp",
+  ] as const) {
+    const original = (auth[method] as (...args: unknown[]) => unknown).bind(auth)
+    ;(auth as unknown as Record<string, unknown>)[method] = (...args: unknown[]) => {
+      pendingUser = null
+      return original(...args)
+    }
+  }
+
+  return client
+})

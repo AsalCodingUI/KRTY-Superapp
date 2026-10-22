@@ -93,7 +93,7 @@ function SortableItem({
             <div
               {...attributes}
               {...listeners}
-              className="hover:bg-accent text-muted-foreground/70 cursor-grab rounded p-1 transition-colors active:cursor-grabbing"
+              className="hover:bg-accent text-tertiary-foreground cursor-grab rounded p-1 transition-colors active:cursor-grabbing"
               title="Drag to reorder"
             >
               <RiDraggable className="h-5 w-5" />
@@ -106,7 +106,7 @@ function SortableItem({
               <Button
                 variant="ghost"
                 size="icon"
-                className="text-muted-foreground/70"
+                className="text-tertiary-foreground"
                 onClick={() => deleteItem(index)}
               >
                 <RiDeleteBinLine className="h-4 w-4" />

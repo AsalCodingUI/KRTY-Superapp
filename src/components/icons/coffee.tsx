@@ -1,7 +1,7 @@
 "use client"
 
 import type { Variants } from "motion/react"
-import { motion, useAnimation } from "motion/react"
+import { m, useAnimation } from "motion/react"
 import type { HTMLAttributes } from "react"
 import { forwardRef, useCallback, useImperativeHandle, useRef } from "react"
 
@@ -88,19 +88,19 @@ const CoffeeIcon = forwardRef<CoffeeIconHandle, CoffeeIconProps>(
           width={size}
           xmlns="http://www.w3.org/2000/svg"
         >
-          <motion.path
+          <m.path
             animate={controls}
             custom={0.2}
             d="M10 2v2"
             variants={PATH_VARIANTS}
           />
-          <motion.path
+          <m.path
             animate={controls}
             custom={0.4}
             d="M14 2v2"
             variants={PATH_VARIANTS}
           />
-          <motion.path
+          <m.path
             animate={controls}
             custom={0}
             d="M6 2v2"

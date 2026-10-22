@@ -1,4 +1,4 @@
-import { ProjectWorkspacePage } from "@/page-slices/projects"
+import { ProjectWorkspacePage } from "@/page-slices/projects/ui/workspace/ProjectWorkspacePage"
 import { assertProjectAccess } from "./access"
 
 export const dynamic = "force-dynamic"

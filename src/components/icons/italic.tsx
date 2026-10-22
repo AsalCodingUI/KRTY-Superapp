@@ -1,7 +1,7 @@
 "use client"
 
 import type { Variants } from "motion/react"
-import { motion, useAnimation } from "motion/react"
+import { m, useAnimation } from "motion/react"
 import type { HTMLAttributes } from "react"
 import { forwardRef, useCallback, useImperativeHandle, useRef } from "react"
 
@@ -79,7 +79,7 @@ const ItalicIcon = forwardRef<ItalicIconHandle, ItalicIconProps>(
           width={size}
           xmlns="http://www.w3.org/2000/svg"
         >
-          <motion.line
+          <m.line
             animate={controls}
             transition={{ duration: 0.2 }}
             variants={LINE_VARIANTS}
@@ -88,7 +88,7 @@ const ItalicIcon = forwardRef<ItalicIconHandle, ItalicIconProps>(
             y1="4"
             y2="4"
           />
-          <motion.line
+          <m.line
             animate={controls}
             transition={{ duration: 0.2 }}
             variants={LINE_VARIANTS}
@@ -97,7 +97,7 @@ const ItalicIcon = forwardRef<ItalicIconHandle, ItalicIconProps>(
             y1="20"
             y2="20"
           />
-          <motion.line
+          <m.line
             animate={controls}
             transition={{
               delay: 0.1,

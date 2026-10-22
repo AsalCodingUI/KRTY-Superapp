@@ -1,5 +1,6 @@
 "use client"
 
+import { Collapse } from "@/components/ui/collapse"
 import { cn } from "@/lib/utils"
 import { RiArrowDownSLine } from "@/shared/ui/lucide-icons"
 import * as React from "react"
@@ -16,7 +17,7 @@ export function GroupedList({
   return (
     <div
       data-slot="grouped-list"
-      className={cn("-mx-4 flex flex-col", className)}
+      className={cn("bleed flex flex-col", className)}
       {...props}
     />
   )
@@ -41,7 +42,7 @@ export function ListGroup({
   const [open, setOpen] = React.useState(defaultOpen)
   return (
     <section data-slot="list-group" data-open={open || undefined}>
-      <div className="bg-muted/40 flex h-10 items-center gap-2 px-4 text-sm">
+      <div className="bg-muted/40 gutter-x flex h-10 items-center gap-2 rounded-lg text-sm">
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
@@ -57,12 +58,16 @@ export function ListGroup({
           {icon}
           <span className="truncate font-medium">{label}</span>
           {count !== undefined && (
-            <span className="text-muted-foreground tabular-nums">{count}</span>
+            <span className="text-tertiary-foreground tabular-nums">
+              {count}
+            </span>
           )}
         </button>
         {action}
       </div>
-      {open && <div className="flex flex-col">{children}</div>}
+      <Collapse open={open} className="flex flex-col">
+        {children}
+      </Collapse>
     </section>
   )
 }
@@ -72,7 +77,10 @@ export function ListRow({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="list-row"
       className={cn(
-        "group/row border-border/50 hover:bg-muted/30 flex min-h-12 items-center gap-3 border-b px-4 py-2 text-sm",
+        // Hover fill sits behind the content, inset from the dividers, same
+        // colour and shape as table rows.
+        "group/row border-border/50 gutter-x relative isolate flex min-h-12 items-center gap-3 border-b py-2 text-sm",
+        "before:absolute before:inset-x-0 before:inset-y-0.5 before:-z-10 before:rounded-lg before:transition-colors hover:before:bg-(--row-hover)",
         className,
       )}
       {...props}
@@ -81,7 +89,7 @@ export function ListRow({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 export const listChipClassName =
-  "bg-muted text-muted-foreground inline-flex h-6 shrink-0 items-center gap-1.5 rounded-md px-2 text-xs whitespace-nowrap"
+  "bg-muted text-muted-foreground inline-flex h-6 shrink-0 items-center gap-1.5 rounded-md px-2 text-[13px] whitespace-nowrap"
 
 /** Small borderless chip for row metadata (type, dates, notes). */
 export function ListChip({

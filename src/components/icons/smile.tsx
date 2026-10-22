@@ -1,7 +1,7 @@
 "use client"
 
 import type { Variants } from "motion/react"
-import { motion, useAnimation } from "motion/react"
+import { m, useAnimation } from "motion/react"
 import type { HTMLAttributes } from "react"
 import { forwardRef, useCallback, useImperativeHandle, useRef } from "react"
 
@@ -113,7 +113,7 @@ const SmileIcon = forwardRef<SmileIconHandle, SmileIconProps>(
         onMouseLeave={handleMouseLeave}
         {...props}
       >
-        <motion.svg
+        <m.svg
           animate={controls}
           fill="none"
           height={size}
@@ -127,14 +127,14 @@ const SmileIcon = forwardRef<SmileIconHandle, SmileIconProps>(
           width={size}
           xmlns="http://www.w3.org/2000/svg"
         >
-          <motion.circle cx="12" cy="12" r="10" />
-          <motion.path
+          <m.circle cx="12" cy="12" r="10" />
+          <m.path
             animate={controls}
             d="M8 14s1.5 2 4 2 4-2 4-2"
             initial="normal"
             variants={mouthVariants}
           />
-          <motion.line
+          <m.line
             animate={controls}
             initial="normal"
             variants={eyeVariants}
@@ -143,7 +143,7 @@ const SmileIcon = forwardRef<SmileIconHandle, SmileIconProps>(
             y1="9"
             y2="9"
           />
-          <motion.line
+          <m.line
             animate={controls}
             initial="normal"
             variants={eyeVariants}
@@ -152,7 +152,7 @@ const SmileIcon = forwardRef<SmileIconHandle, SmileIconProps>(
             y1="9"
             y2="9"
           />
-        </motion.svg>
+        </m.svg>
       </div>
     )
   },

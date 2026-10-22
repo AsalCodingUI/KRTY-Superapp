@@ -1,28 +1,40 @@
 "use client"
 
 import { EmptyState } from "@/components/empty-state"
-import {
-  GroupedList,
-  ListChip,
-  ListGroup,
-  ListRow,
-  ListRowActions,
-  listChipClassName,
-} from "@/components/grouped-list"
+import { GroupedList, ListRow } from "@/components/grouped-list"
+import { ListPager } from "@/components/list-pager"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
 import { LEAVE_STATUS_LABELS, LEAVE_TYPE_LABELS } from "@/shared/lib/leave"
 import type { Database } from "@/shared/types/database.types"
-import { RiCalendarLine, RiFilePaperLine } from "@/shared/ui/lucide-icons"
+import {
+  RiCalendarLine,
+  RiFilePaperLine,
+  RiMoreFill,
+} from "@/shared/ui/lucide-icons"
 import { formatLeaveRange, leaveDays } from "./AdminLeaveList"
-import { ListPager } from "@/components/list-pager"
-import { LeaveStatusIcon } from "./StatusIcon"
 
 type LeaveRequest = Database["public"]["Tables"]["leave_requests"]["Row"]
 
-const GROUPS = ["pending", "approved", "rejected"] as const
+const STATUS_VARIANT = {
+  approved: "success",
+  rejected: "destructive",
+  pending: "warning",
+} as const
 
-/** The employee's own requests, grouped by outcome. */
+/** Shared column template so the header and every row line up. */
+const ROW_GRID =
+  // The last column is one small "more" button, so Status sits at the edge.
+  "grid grid-cols-[minmax(0,1fr)_6.5rem_2rem] items-center gap-x-4 md:grid-cols-[minmax(0,1fr)_7.5rem_5rem_6.5rem_2rem]"
+
+/** The employee's own requests as one flat list; status is a column. */
 export function EmployeeLeaveList({
   requests,
   onEdit,
@@ -52,81 +64,26 @@ export function EmployeeLeaveList({
   return (
     <div className="flex flex-col gap-4">
       <GroupedList>
-        {GROUPS.map((status) => {
-          const items = requests.filter((r) => r.status === status)
-          if (items.length === 0) return null
-          return (
-            <ListGroup
-              key={status}
-              icon={<LeaveStatusIcon status={status} />}
-              label={LEAVE_STATUS_LABELS[status]}
-              count={items.length}
-            >
-              {items.map((req) => (
-                <ListRow key={req.id}>
-                  <div className="flex min-w-0 flex-1 items-center gap-2">
-                    <span className="shrink-0 font-medium">
-                      {LEAVE_TYPE_LABELS[req.leave_type] ?? req.leave_type}
-                    </span>
-                    {req.reason && (
-                      <span
-                        className="text-muted-foreground truncate"
-                        title={req.reason}
-                      >
-                        {req.reason}
-                      </span>
-                    )}
-                  </div>
-
-                  {status !== "approved" && (
-                    <ListRowActions>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => onEdit(req)}
-                      >
-                        {status === "rejected" ? "Ajukan ulang" : "Ubah"}
-                      </Button>
-                      {status === "pending" && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-destructive hover:text-destructive"
-                          onClick={() => onCancel(req)}
-                        >
-                          Batalkan
-                        </Button>
-                      )}
-                    </ListRowActions>
-                  )}
-                  {req.review_note && (
-                    <ListChip className="max-w-56" title={req.review_note}>
-                      <span className="truncate">{req.review_note}</span>
-                    </ListChip>
-                  )}
-                  {req.proof_url && (
-                    <a
-                      href={req.proof_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={cn(listChipClassName, "hover:text-foreground")}
-                    >
-                      <RiFilePaperLine className="size-3.5" />
-                      Bukti
-                    </a>
-                  )}
-                  <ListChip>
-                    <RiCalendarLine className="size-3.5" />
-                    {formatLeaveRange(req.start_date, req.end_date)}
-                  </ListChip>
-                  <span className="text-muted-foreground w-12 shrink-0 text-right text-xs tabular-nums">
-                    {leaveDays(req.start_date, req.end_date)} hari
-                  </span>
-                </ListRow>
-              ))}
-            </ListGroup>
-          )
-        })}
+        <div
+          className={cn(
+            ROW_GRID,
+            "gutter-x text-muted-foreground border-border h-9 border-b text-[13px]",
+          )}
+        >
+          <span>Tanggal</span>
+          <span className="hidden md:block">Jenis</span>
+          <span className="hidden text-right md:block">Durasi</span>
+          <span>Status</span>
+          <span />
+        </div>
+        {requests.map((req) => (
+          <LeaveRow
+            key={req.id}
+            req={req}
+            onEdit={onEdit}
+            onCancel={onCancel}
+          />
+        ))}
       </GroupedList>
       <ListPager
         page={page}
@@ -134,5 +91,101 @@ export function EmployeeLeaveList({
         onPageChange={onPageChange}
       />
     </div>
+  )
+}
+
+function LeaveRow({
+  req,
+  onEdit,
+  onCancel,
+}: {
+  req: LeaveRequest
+  onEdit: (item: LeaveRequest) => void
+  onCancel: (item: LeaveRequest) => void
+}) {
+  const type = LEAVE_TYPE_LABELS[req.leave_type] ?? req.leave_type
+
+  return (
+    <ListRow className={cn(ROW_GRID, "min-h-14")}>
+      <div className="flex min-w-0 flex-col">
+        <span className="text-foreground truncate tabular-nums">
+          {formatLeaveRange(req.start_date, req.end_date)}
+          {/* Type and duration have their own columns from md up. */}
+          <span className="text-muted-foreground md:hidden">
+            {" "}
+            · {type} · {leaveDays(req.start_date, req.end_date)} hari
+          </span>
+        </span>
+        {(req.reason || req.review_note || req.proof_url) && (
+          <span className="text-tertiary-foreground flex min-w-0 items-center gap-1.5 text-[13px]">
+            {req.reason && (
+              <span className="truncate" title={req.reason}>
+                {req.reason}
+              </span>
+            )}
+            {req.review_note && (
+              <span className="truncate" title={req.review_note}>
+                {req.reason ? "· " : ""}Catatan: {req.review_note}
+              </span>
+            )}
+            {req.proof_url && (
+              <a
+                href={req.proof_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-muted-foreground hover:text-foreground inline-flex shrink-0 items-center gap-1 transition-colors"
+              >
+                <RiFilePaperLine className="size-3.5" />
+                Bukti
+              </a>
+            )}
+          </span>
+        )}
+      </div>
+
+      <div className="hidden md:block">
+        <Badge variant="secondary">{type}</Badge>
+      </div>
+      <span className="text-muted-foreground hidden text-right tabular-nums md:block">
+        {leaveDays(req.start_date, req.end_date)} hari
+      </span>
+      <div>
+        <Badge variant={STATUS_VARIANT[req.status]}>
+          {LEAVE_STATUS_LABELS[req.status] ?? req.status}
+        </Badge>
+      </div>
+
+      <div className="flex justify-end">
+        {req.status !== "approved" && (
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  aria-label="Aksi pengajuan"
+                  className="text-muted-foreground"
+                />
+              }
+            >
+              <RiMoreFill />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="min-w-40">
+              <DropdownMenuItem onClick={() => onEdit(req)}>
+                {req.status === "rejected" ? "Ajukan ulang" : "Ubah tanggal"}
+              </DropdownMenuItem>
+              {req.status === "pending" && (
+                <DropdownMenuItem
+                  variant="destructive"
+                  onClick={() => onCancel(req)}
+                >
+                  Batalkan
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
+      </div>
+    </ListRow>
   )
 }

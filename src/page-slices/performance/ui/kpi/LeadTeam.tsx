@@ -2,18 +2,42 @@
 
 import { getLeadTeam } from "@/app/(main)/performance/actions/kpi-actions"
 import { EmptyState } from "@/components/empty-state"
-import {
-  GroupedList,
-  ListChip,
-  ListGroup,
-  ListRow,
-} from "@/components/grouped-list"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { GroupedList, ListRow } from "@/components/grouped-list"
+import { Badge } from "@/components/ui/badge"
 import { Spinner } from "@/components/ui/spinner"
+import { cn } from "@/lib/utils"
 import { formatPercent } from "@/entities/performance/lib/kpi"
 import { RiArrowRightSLine, RiGroupLine } from "@/shared/ui/lucide-icons"
 import { useQuery } from "@tanstack/react-query"
 import Link from "next/link"
+import { GridGroup, ListColumns, PersonCell } from "../list"
+
+/** Shared column template so the header, project rows and members line up. */
+const ROW_GRID =
+  "grid grid-cols-[minmax(0,1fr)_4.5rem_4.5rem_1rem] items-center gap-x-4 md:grid-cols-[minmax(0,1fr)_10rem_5rem_5rem_1rem]"
+
+function Score({ value }: { value: number | null }) {
+  return (
+    <span className="flex justify-end">
+      {value === null ? (
+        <Badge variant="warning">Belum</Badge>
+      ) : (
+        <span className="text-foreground tabular-nums">
+          {formatPercent(value)}
+        </span>
+      )}
+    </span>
+  )
+}
+
+/** "3 belum" for a project header, or nothing when all are scored. */
+function Pending({ count }: { count: number }) {
+  return (
+    <span className="text-tertiary-foreground text-right text-[13px] tabular-nums">
+      {count > 0 ? `${count} belum` : ""}
+    </span>
+  )
+}
 
 /** "Tim saya": projects the user leads, members to score on each. */
 export function LeadTeam({ period }: { period: string }) {
@@ -48,72 +72,71 @@ export function LeadTeam({ period }: { period: string }) {
   }
 
   return (
-    <div className="flex flex-col gap-2">
-      <p className="text-muted-foreground text-sm">
-        Nilai milestone SLA dan kompetensi anggota di project yang kamu pimpin.
-      </p>
-      <GroupedList>
-        {data.data.map((project) => (
-          <ListGroup
-            key={project.projectId}
-            label={project.name}
-            count={project.members.length}
-            action={
-              project.quarter ? (
-                <span className="text-muted-foreground text-xs">
-                  {project.quarter}
-                </span>
-              ) : undefined
-            }
-          >
-            {project.members.length === 0 ? (
-              <ListRow className="text-muted-foreground">
-                Belum ada anggota lain di project ini.
-              </ListRow>
-            ) : (
-              project.members.map((m) => (
-                <ListRow key={m.assignmentId} className="relative">
-                  <Avatar className="size-5">
-                    <AvatarImage src={m.avatar_url || undefined} alt="" />
-                    <AvatarFallback className="text-[10px]">
-                      {(m.full_name || "U").slice(0, 2).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
+    <GroupedList>
+      <ListColumns grid={ROW_GRID}>
+        <span>Anggota</span>
+        <span className="hidden md:block">Peran</span>
+        <span className="text-right">SLA</span>
+        <span className="text-right">Kualitas</span>
+        <span />
+      </ListColumns>
+      {data.data.map((project) => (
+        <GridGroup
+          key={project.projectId}
+          grid={ROW_GRID}
+          label={project.name}
+          extra={
+            project.quarter ? (
+              <Badge variant="secondary">{project.quarter}</Badge>
+            ) : undefined
+          }
+          summary={
+            <>
+              <span className="text-tertiary-foreground hidden text-[13px] tabular-nums md:block">
+                {project.members.length} anggota
+              </span>
+              <Pending
+                count={project.members.filter((m) => m.sla === null).length}
+              />
+              <Pending
+                count={project.members.filter((m) => m.quality === null).length}
+              />
+              <span />
+            </>
+          }
+        >
+          {project.members.length === 0 ? (
+            <ListRow className="text-muted-foreground">
+              Belum ada anggota lain di project ini.
+            </ListRow>
+          ) : (
+            project.members.map((m) => (
+              <ListRow
+                key={m.assignmentId}
+                className={cn(ROW_GRID, "min-h-14")}
+              >
+                <PersonCell name={m.full_name} avatarUrl={m.avatar_url}>
                   <Link
                     href={`/performance/employee/${m.id}/project/${project.projectId}?dari=tim&periode=${encodeURIComponent(period)}`}
                     prefetch={false}
-                    className="min-w-0 flex-1 truncate font-medium outline-none after:absolute after:inset-0"
+                    className="text-foreground truncate outline-none after:absolute after:inset-0 focus-visible:underline"
                   >
                     {m.full_name}
                   </Link>
-                  <ListChip>{m.role}</ListChip>
-                  <span className="w-24 text-right text-xs">
-                    <span className="text-muted-foreground">SLA </span>
-                    {m.sla === null ? (
-                      <span className="text-warning">belum</span>
-                    ) : (
-                      <span className="font-medium tabular-nums">
-                        {formatPercent(m.sla)}
-                      </span>
-                    )}
-                  </span>
-                  <span className="w-28 text-right text-xs">
-                    <span className="text-muted-foreground">Kualitas </span>
-                    {m.quality === null ? (
-                      <span className="text-warning">belum</span>
-                    ) : (
-                      <span className="font-medium tabular-nums">
-                        {formatPercent(m.quality)}
-                      </span>
-                    )}
-                  </span>
-                  <RiArrowRightSLine className="text-muted-foreground size-4 shrink-0 opacity-0 transition-opacity group-hover/row:opacity-100" />
-                </ListRow>
-              ))
-            )}
-          </ListGroup>
-        ))}
-      </GroupedList>
-    </div>
+                </PersonCell>
+                <div className="hidden min-w-0 md:block">
+                  <Badge variant="secondary" className="max-w-full">
+                    <span className="truncate">{m.role}</span>
+                  </Badge>
+                </div>
+                <Score value={m.sla} />
+                <Score value={m.quality} />
+                <RiArrowRightSLine className="text-muted-foreground size-4 shrink-0 opacity-0 transition-opacity group-hover/row:opacity-100" />
+              </ListRow>
+            ))
+          )}
+        </GridGroup>
+      ))}
+    </GroupedList>
   )
 }

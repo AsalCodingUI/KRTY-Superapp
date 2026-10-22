@@ -3,16 +3,19 @@
 import { createClient } from "@/shared/api/supabase/client"
 import { canManageByRole } from "@/shared/lib/roles"
 import { Database } from "@/shared/types/database.types"
-import QueryProvider from "@/components/providers/query-provider"
 import {
-  CalendarProvider,
   getAllEventTypes,
   getEventTypeDefinition,
+} from "@/widgets/event-calendar/lib/event-color-registry"
+import {
+  CalendarProvider,
   useCalendarContext,
-  type CalendarEvent,
-  type EventCategory,
-  type EventColor,
-} from "@/widgets/event-calendar"
+} from "@/widgets/event-calendar/ui/calendar-context"
+import type {
+  CalendarEvent,
+  EventCategory,
+  EventColor,
+} from "@/widgets/event-calendar/ui/types"
 import { GoogleCalendarProvider } from "@/widgets/event-calendar/ui/google-calendar-context"
 import { getViewRange } from "@/widgets/event-calendar/ui/utils"
 import {
@@ -299,7 +302,9 @@ function CalendarDataLayer({ role, userId }: CalendarClientProps) {
           .select(
             "id,title,description,start_at,end_at,color,location,all_day,meeting_url,guests,reminders,rsvp_status,organizer,event_type,user_id,is_recurring,recurrence_rule",
           )
-          .or(`start_at.lte.${rangeEndIso},end_at.gte.${rangeStartIso}`)
+          // Overlaps the range; recurring events can start long before it.
+          .lte("start_at", rangeEndIso)
+          .or(`end_at.gte.${rangeStartIso},end_at.is.null,is_recurring.eq.true`)
 
         if (error) {
           throw error
@@ -332,7 +337,8 @@ function CalendarDataLayer({ role, userId }: CalendarClientProps) {
             "id,start_date,end_date,leave_type,status,reason,user_id,profiles(full_name)",
           )
           .eq("status", "approved")
-          .or(`start_date.lte.${rangeEndDate},end_date.gte.${rangeStartDate}`)
+          .lte("start_date", rangeEndDate)
+          .gte("end_date", rangeStartDate)
 
         if (!isStakeholder && userId) {
           query = query.eq("user_id", userId)
@@ -491,12 +497,10 @@ function CalendarDataLayer({ role, userId }: CalendarClientProps) {
 
 export default function CalendarClient({ role, userId }: CalendarClientProps) {
   return (
-    <QueryProvider>
-      <CalendarProvider>
-        <GoogleCalendarProvider>
-          <CalendarDataLayer role={role} userId={userId} />
-        </GoogleCalendarProvider>
-      </CalendarProvider>
-    </QueryProvider>
+    <CalendarProvider>
+      <GoogleCalendarProvider>
+        <CalendarDataLayer role={role} userId={userId} />
+      </GoogleCalendarProvider>
+    </CalendarProvider>
   )
 }

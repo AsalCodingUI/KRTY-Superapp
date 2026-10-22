@@ -1,15 +1,19 @@
+import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { ratingFor, type RatingTone } from "@/entities/performance/lib/kpi"
 
-const TONES: Record<RatingTone, string> = {
-  success: "bg-success/15 text-success",
-  info: "bg-info/15 text-info",
-  neutral: "bg-muted text-muted-foreground",
-  warning: "bg-warning/15 text-warning",
-  destructive: "bg-destructive/15 text-destructive",
+const VARIANTS: Record<
+  RatingTone,
+  "success" | "info" | "secondary" | "warning" | "destructive"
+> = {
+  success: "success",
+  info: "info",
+  neutral: "secondary",
+  warning: "warning",
+  destructive: "destructive",
 }
 
-/** Borderless tinted rating label; nothing when there's no score yet. */
+/** Rating label as a status badge; nothing when there's no score yet. */
 export function RatingChip({
   score,
   className,
@@ -20,15 +24,9 @@ export function RatingChip({
   const rating = ratingFor(score)
   if (!rating) return null
   return (
-    <span
-      className={cn(
-        "inline-flex h-5 shrink-0 items-center rounded-sm px-1.5 text-xs font-medium whitespace-nowrap",
-        TONES[rating.tone],
-        className,
-      )}
-    >
+    <Badge variant={VARIANTS[rating.tone]} className={className}>
       {rating.label}
-    </span>
+    </Badge>
   )
 }
 

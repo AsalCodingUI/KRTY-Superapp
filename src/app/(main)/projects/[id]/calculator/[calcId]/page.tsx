@@ -1,4 +1,4 @@
-import { ProjectCalculatorEditPage } from "@/page-slices/projects"
+import { ProjectCalculatorEditPage } from "@/page-slices/projects/ui/ProjectCalculatorEditPage"
 import { createClient } from "@/shared/api/supabase/server"
 import { notFound } from "next/navigation"
 
@@ -17,36 +17,33 @@ export default async function ProjectCalculatorEditRoute({
   const { id, calcId } = await params
   const supabase = await createClient()
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  // Every read is independent (the project id comes from the route), so run
+  // them together instead of one after another.
+  const [
+    {
+      data: { user },
+    },
+    { data: calculation },
+    { data: project },
+    { data: teamMembers },
+    { data: operationalCosts },
+  ] = await Promise.all([
+    supabase.auth.getUser(),
+    supabase
+      .from("project_calculations")
+      .select("*")
+      .eq("id", calcId)
+      .maybeSingle(),
+    supabase.from("projects").select("id, name").eq("id", id).maybeSingle(),
+    supabase.rpc("get_team_compensation"),
+    supabase.from("operational_costs").select("*"),
+  ])
+
   if (user == null) return <div>Please login</div>
 
-  const { data: calculation } = await supabase
-    .from("project_calculations")
-    .select("*")
-    .eq("id", calcId)
-    .maybeSingle()
-
-  if (!calculation) {
+  if (!calculation || !project || calculation.project_id !== project.id) {
     notFound()
   }
-
-  const { data: project } = await supabase
-    .from("projects")
-    .select("id, name")
-    .eq("id", calculation.project_id)
-    .maybeSingle()
-
-  if (!project || project.id !== id) {
-    notFound()
-  }
-
-  const { data: teamMembers } = await supabase.rpc("get_team_compensation")
-
-  const { data: operationalCosts } = await supabase
-    .from("operational_costs")
-    .select("*")
 
   return (
     <ProjectCalculatorEditPage

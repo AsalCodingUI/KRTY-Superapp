@@ -29,7 +29,7 @@ export function GuestList({
         <h4 className="text-foreground flex items-center gap-2 text-sm font-medium">
           <span>{guests.length} tamu</span>
           {guests.length > 0 && (
-            <span className="text-muted-foreground/70 text-xs">
+            <span className="text-tertiary-foreground text-xs">
               {acceptedCount} ya, {pendingCount} menunggu
             </span>
           )}
@@ -70,13 +70,13 @@ export function GuestList({
                   {guest.name || guest.email}
                 </p>
                 {guest.isOrganizer && (
-                  <span className="text-muted-foreground/70 text-xs">
+                  <span className="text-tertiary-foreground text-xs">
                     Penyelenggara
                   </span>
                 )}
               </div>
               {guest.name && (
-                <p className="text-muted-foreground/70 truncate text-xs">
+                <p className="text-tertiary-foreground truncate text-xs">
                   {guest.email}
                 </p>
               )}

@@ -151,7 +151,7 @@ export const MonthView = memo(function MonthView({
                           />
                         ))}
                         {dayEvents.length > 4 && (
-                          <span className="text-muted-foreground/70 text-[9px] leading-none">
+                          <span className="text-tertiary-foreground text-[9px] leading-none">
                             +{dayEvents.length - 4}
                           </span>
                         )}
@@ -201,7 +201,7 @@ export const MonthView = memo(function MonthView({
                                   e.stopPropagation()
                                   setOpenPopover(dayKey)
                                 }}
-                                className="text-muted-foreground/70 hover:text-foreground w-full px-2 py-1 text-left text-xs font-medium"
+                                className="text-tertiary-foreground hover:text-foreground w-full px-2 py-1 text-left text-xs font-medium"
                               />
                             }
                           >
@@ -268,7 +268,7 @@ export const MonthView = memo(function MonthView({
               render={
                 <button
                   type="button"
-                  className="text-muted-foreground/70 hover:text-foreground inline-flex size-8 items-center justify-center rounded-full transition-colors"
+                  className="text-tertiary-foreground hover:text-foreground inline-flex size-8 items-center justify-center rounded-full transition-colors"
                   aria-label="Tutup panel jadwal"
                 />
               }

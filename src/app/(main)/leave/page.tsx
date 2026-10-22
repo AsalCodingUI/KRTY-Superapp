@@ -73,22 +73,6 @@ export default async function LeaveRoute({
     return <div>Profile not found</div>
   }
 
-  const scopedProfileIds = Array.from(
-    new Set([
-      profile.id,
-      ...(profile.email
-        ? (
-            (
-              await supabase
-                .from("profiles")
-                .select("id")
-                .eq("email", profile.email)
-            ).data || []
-          ).map((row: { id: string }) => row.id)
-        : []),
-    ]),
-  )
-
   // --- JALUR 1: STAKEHOLDER (Admin View) ---
   if (canManageByRole(profile?.role)) {
     // 🚀 PARALLEL FETCH: Count + Requests + Profiles
@@ -225,6 +209,23 @@ export default async function LeaveRoute({
   }
 
   // --- JALUR 2: EMPLOYEE (Karyawan View) ---
+  // Only the employee view needs the duplicate-profile ids.
+  const scopedProfileIds = Array.from(
+    new Set([
+      profile.id,
+      ...(profile.email
+        ? (
+            (
+              await supabase
+                .from("profiles")
+                .select("id")
+                .eq("email", profile.email)
+            ).data || []
+          ).map((row: { id: string }) => row.id)
+        : []),
+    ]),
+  )
+
   const adminSupabase = createAdminClient()
 
   // 🚀 PARALLEL FETCH: Count + Requests + Attendance Logs

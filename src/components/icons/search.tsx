@@ -1,6 +1,6 @@
 "use client"
 
-import { motion, useAnimation } from "motion/react"
+import { m, useAnimation } from "motion/react"
 import type { HTMLAttributes } from "react"
 import { forwardRef, useCallback, useImperativeHandle, useRef } from "react"
 
@@ -58,7 +58,7 @@ const SearchIcon = forwardRef<SearchIconHandle, SearchIconProps>(
         onMouseLeave={handleMouseLeave}
         {...props}
       >
-        <motion.svg
+        <m.svg
           animate={controls}
           fill="none"
           height={size}
@@ -83,7 +83,7 @@ const SearchIcon = forwardRef<SearchIconHandle, SearchIconProps>(
         >
           <circle cx="11" cy="11" r="8" />
           <path d="m21 21-4.3-4.3" />
-        </motion.svg>
+        </m.svg>
       </div>
     )
   },

@@ -1,4 +1,4 @@
-import { ProjectSLAEditPage } from "@/page-slices/projects"
+import { ProjectSLAEditPage } from "@/page-slices/projects/ui/ProjectSLAEditPage"
 import { createClient } from "@/shared/api/supabase/server"
 import { notFound } from "next/navigation"
 

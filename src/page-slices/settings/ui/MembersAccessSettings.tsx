@@ -1,6 +1,8 @@
 "use client"
 
 import { ConfirmDialog } from "@/components/confirm-dialog"
+import { EmptyValue } from "@/components/empty-value"
+import { GroupedList, ListRow } from "@/components/grouped-list"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -25,6 +27,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Switch } from "@/components/ui/switch"
 import { createClient } from "@/shared/api/supabase/client"
@@ -115,6 +123,10 @@ function useMembersData() {
   })
 }
 
+/** Shared columns for the header row and every member row. */
+const MEMBER_GRID =
+  "grid grid-cols-[minmax(0,1fr)_4rem] items-center gap-x-4 md:grid-cols-[minmax(0,1fr)_8rem_10rem_4rem] lg:grid-cols-[minmax(0,1fr)_8rem_10rem_10rem_4rem]"
+
 function initialOf(profile: Pick<Profile, "full_name" | "email">) {
   return (profile.full_name || profile.email || "?").charAt(0).toUpperCase()
 }
@@ -159,7 +171,6 @@ export function MembersAccessSettings() {
     if (!data) return
     setProfiles(data.profiles)
     setAccess(data.access)
-    setSelectedId((prev) => prev ?? data.profiles[0]?.id ?? null)
   }, [data])
 
   const teams = data?.teams ?? []
@@ -241,11 +252,13 @@ export function MembersAccessSettings() {
       })
       if (!response.ok) {
         const payload = await response.json().catch(() => ({}))
-        throw new Error(payload?.error || "Gagal berpindah akun")
+        throw new Error(
+          payload?.error || `Gagal berpindah akun (${response.status})`,
+        )
       }
       await refreshProfile()
       toast.success("Sekarang melihat sebagai anggota ini")
-      // Leaves the settings modal and reloads as that member.
+      // Reloads the app as that member.
       router.push("/dashboard")
       router.refresh()
     } catch (err) {
@@ -283,290 +296,338 @@ export function MembersAccessSettings() {
     )
   }
 
+  const totalPages = PAGES.length
+
   return (
-    <div className="flex h-full min-h-0">
-      {/* Member list */}
-      <div className="flex w-72 shrink-0 flex-col border-r">
-        <div className="flex items-center gap-2 p-3">
-          <InputGroup>
-            <InputGroupAddon>
-              <RiSearchLine />
-            </InputGroupAddon>
-            <InputGroupInput
-              placeholder="Cari anggota"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-            />
-          </InputGroup>
-          <Button
-            size="icon"
-            variant="outline"
-            aria-label="Tambah anggota"
-            onClick={() => setAdding(true)}
-          >
-            <RiAddLine />
-          </Button>
-        </div>
-        <div className="min-h-0 flex-1 overflow-y-auto px-2 pb-2">
-          {isLoading
-            ? Array.from({ length: 8 }).map((_, i) => (
-                <div key={i} className="flex items-center gap-2.5 px-2 py-2">
-                  <Skeleton className="size-7 rounded-full" />
-                  <Skeleton className="h-3.5 w-32" />
-                </div>
-              ))
-            : filtered.map((p) => (
-                <button
-                  key={p.id}
-                  type="button"
-                  onClick={() => setSelectedId(p.id)}
-                  className={cx(
-                    "flex w-full cursor-pointer items-center gap-2.5 rounded-md px-2 py-1.5 text-left transition-colors",
-                    p.id === selectedId ? "bg-accent" : "hover:bg-accent/60",
-                  )}
-                >
-                  <Avatar className="size-7">
-                    <AvatarImage src={p.avatar_url || undefined} alt="" />
-                    <AvatarFallback className="text-xs">
-                      {initialOf(p)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm">
-                      {p.full_name || p.email}
-                    </span>
-                    <span className="text-muted-foreground block truncate text-xs">
-                      {p.job_title || "—"}
-                    </span>
-                  </span>
-                  {p.role === "stakeholder" && (
-                    <span
-                      className="bg-primary size-1.5 shrink-0 rounded-full"
-                      title="Stakeholder"
-                    />
-                  )}
-                </button>
-              ))}
-          {!isLoading && filtered.length === 0 && (
-            <p className="text-muted-foreground px-2 py-4 text-sm">
-              Tidak ada anggota.
-            </p>
-          )}
-        </div>
+    <div className="flex flex-col">
+      {/* Toolbar: search left, add on the right. */}
+      <div className="flex items-center justify-between gap-3 pb-3">
+        <InputGroup className="w-full sm:w-[260px]">
+          <InputGroupAddon>
+            <RiSearchLine />
+          </InputGroupAddon>
+          <InputGroupInput
+            placeholder="Cari anggota..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+        </InputGroup>
+        <Button onClick={() => setAdding(true)}>
+          <RiAddLine data-icon="inline-start" />
+          Tambah anggota
+        </Button>
       </div>
 
-      {/* Member detail */}
-      <div className="min-w-0 flex-1 overflow-y-auto">
-        {selected ? (
-          <div className="flex flex-col gap-8 p-6">
-            <div className="flex items-center gap-3">
-              <Avatar className="size-10">
-                <AvatarImage src={selected.avatar_url || undefined} alt="" />
-                <AvatarFallback>{initialOf(selected)}</AvatarFallback>
-              </Avatar>
-              <div className="min-w-0 flex-1">
-                <p className="flex items-center gap-2 truncate font-medium">
-                  {selected.full_name || "Tanpa nama"}
-                  {isSelf && <Badge variant="secondary">Kamu</Badge>}
-                </p>
-                <p className="text-muted-foreground truncate text-sm">
-                  {selected.email}
-                </p>
-              </div>
-              {!isSelf && (
-                <Button
-                  variant="outline"
-                  disabled={switching}
-                  onClick={() => viewAs(selected.id)}
-                >
-                  <RiEyeLine data-icon="inline-start" />
-                  Lihat sebagai
-                </Button>
-              )}
-            </div>
-
-            <section className="flex flex-col">
-              <h3 className="text-muted-foreground mb-1 text-xs font-medium">
-                Peran
-              </h3>
-              <Row
-                label="Role"
-                hint="Stakeholder bisa mengelola tim & project."
-              >
-                <Select
-                  value={selected.role}
-                  onValueChange={(v) =>
-                    v &&
-                    v !== selected.role &&
-                    updateProfile(selected.id, { role: v as Profile["role"] })
-                  }
-                  disabled={savingKey === `${selected.id}:role`}
-                >
-                  <SelectTrigger className="w-44">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent align="end">
-                    {ROLE_OPTIONS.map((r) => (
-                      <SelectItem key={r.value} value={r.value}>
-                        {r.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </Row>
-              <Row label="Jabatan">
-                <Select
-                  value={selected.job_title ?? null}
-                  onValueChange={(v) =>
-                    v && updateProfile(selected.id, { job_title: v })
-                  }
-                  disabled={savingKey === `${selected.id}:job_title`}
-                >
-                  <SelectTrigger className="w-44">
-                    <SelectValue placeholder="Pilih jabatan" />
-                  </SelectTrigger>
-                  <SelectContent align="end">
-                    {JOB_TITLES.map((job) => (
-                      <SelectItem key={job} value={job}>
-                        {job}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </Row>
-              <Row label="Tim">
-                <Select
-                  value={selected.team_id ?? NO_TEAM}
-                  onValueChange={(v) =>
-                    v &&
-                    updateProfile(selected.id, {
-                      team_id: v === NO_TEAM ? null : v,
-                    })
-                  }
-                  disabled={savingKey === `${selected.id}:team_id`}
-                >
-                  <SelectTrigger className="w-44">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent align="end">
-                    <SelectItem value={NO_TEAM}>Tanpa tim</SelectItem>
-                    {teams.map((t) => (
-                      <SelectItem key={t.id} value={t.id}>
-                        {t.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </Row>
-              <Row label="Status">
-                <Select
-                  value={selected.employment_type ?? "karyawan"}
-                  onValueChange={(v) =>
-                    v && updateProfile(selected.id, { employment_type: v })
-                  }
-                  disabled={savingKey === `${selected.id}:employment_type`}
-                >
-                  <SelectTrigger className="w-44">
-                    <SelectValue>
-                      {(v: string) => EMPLOYMENT_LABELS[v] ?? v}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent align="end">
-                    {Object.entries(EMPLOYMENT_LABELS).map(([value, label]) => (
-                      <SelectItem key={value} value={value}>
-                        {label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </Row>
-              <Row
-                label="Mulai kerja"
-                hint="Sejak resmi jadi karyawan. Dipakai untuk jatah cuti."
-              >
-                <Input
-                  key={`${selected.id}:${selected.join_date ?? ""}`}
-                  type="date"
-                  className="w-44"
-                  defaultValue={selected.join_date ?? ""}
-                  max={new Date().toISOString().slice(0, 10)}
-                  disabled={savingKey === `${selected.id}:join_date`}
-                  onBlur={(e) => {
-                    const next = e.target.value || null
-                    if (next !== (selected.join_date ?? null)) {
-                      updateProfile(selected.id, { join_date: next })
+      {/* Members: one aligned list; a row opens the member in a sheet. */}
+      <GroupedList>
+        <div
+          className={cx(
+            MEMBER_GRID,
+            "gutter-x text-muted-foreground border-border h-9 border-b text-[13px]",
+          )}
+        >
+          <span>Nama</span>
+          <span className="hidden md:block">Role</span>
+          <span className="hidden md:block">Jabatan</span>
+          <span className="hidden lg:block">Tim</span>
+          <span className="text-right">Akses</span>
+        </div>
+        {isLoading
+          ? Array.from({ length: 8 }).map((_, i) => (
+              <ListRow key={i} className={cx(MEMBER_GRID, "min-h-14")}>
+                <span className="flex items-center gap-3">
+                  <Skeleton className="size-7 rounded-full" />
+                  <Skeleton className="h-3.5 w-40" />
+                </span>
+              </ListRow>
+            ))
+          : filtered.map((p) => {
+              const granted = PAGES.filter(
+                (page) => access[p.id]?.[page.slug] === true,
+              ).length
+              const team = teams.find((t) => t.id === p.team_id)
+              return (
+                <ListRow
+                  key={p.id}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => setSelectedId(p.id)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault()
+                      setSelectedId(p.id)
                     }
                   }}
-                />
-              </Row>
-              <Row
-                label="Super admin"
-                hint={
-                  isSelf
-                    ? "Tidak bisa mengubah status kamu sendiri."
-                    : "Bisa membuka pengaturan anggota & akses."
-                }
-              >
-                <Switch
-                  checked={selected.is_super_admin === true}
-                  disabled={
-                    isSelf || savingKey === `${selected.id}:is_super_admin`
-                  }
-                  onCheckedChange={(checked) =>
-                    updateProfile(selected.id, { is_super_admin: checked })
-                  }
-                  aria-label="Super admin"
-                />
-              </Row>
-            </section>
+                  className={cx(
+                    MEMBER_GRID,
+                    "min-h-14 cursor-pointer outline-none",
+                  )}
+                >
+                  <span className="flex min-w-0 items-center gap-3">
+                    <Avatar className="size-7">
+                      <AvatarImage src={p.avatar_url || undefined} alt="" />
+                      <AvatarFallback className="text-[11px]">
+                        {initialOf(p)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="flex min-w-0 flex-col">
+                      <span className="text-foreground flex items-center gap-2 truncate">
+                        {p.full_name || p.email}
+                        {p.is_super_admin && (
+                          <Badge variant="info">Super admin</Badge>
+                        )}
+                      </span>
+                      <span className="text-tertiary-foreground truncate text-[13px]">
+                        {p.email}
+                      </span>
+                    </span>
+                  </span>
+                  <span className="hidden md:block">
+                    <Badge variant="secondary">
+                      {ROLE_OPTIONS.find((r) => r.value === p.role)?.label ??
+                        p.role}
+                    </Badge>
+                  </span>
+                  <span className="text-muted-foreground hidden truncate md:block">
+                    {p.job_title || <EmptyValue />}
+                  </span>
+                  <span className="text-muted-foreground hidden truncate lg:block">
+                    {team?.name ?? <EmptyValue />}
+                  </span>
+                  <span className="text-right tabular-nums">
+                    {granted}
+                    <span className="text-tertiary-foreground">
+                      {" "}
+                      / {totalPages}
+                    </span>
+                  </span>
+                </ListRow>
+              )
+            })}
+      </GroupedList>
+      {!isLoading && filtered.length === 0 && (
+        <p className="text-muted-foreground py-8 text-center text-sm">
+          Tidak ada anggota.
+        </p>
+      )}
 
-            <section className="flex flex-col">
-              <h3 className="text-muted-foreground mb-1 text-xs font-medium">
-                Akses halaman
-              </h3>
-              {PAGES.map((page) => {
-                const granted = access[selected.id]?.[page.slug] === true
-                return (
-                  <Row key={page.slug} label={page.name}>
-                    <Switch
-                      checked={granted}
-                      disabled={savingKey === `${selected.id}:${page.slug}`}
-                      onCheckedChange={(checked) =>
-                        togglePage(selected.id, page.slug, checked)
-                      }
-                      aria-label={`Akses ${page.name}`}
-                    />
-                  </Row>
-                )
-              })}
-            </section>
-
-            {!isSelf && (
-              <section className="flex items-center justify-between gap-6 border-t pt-6">
-                <div>
-                  <p className="text-sm">Hapus anggota</p>
-                  <p className="text-muted-foreground text-xs">
-                    Menghapus profil dan aksesnya. Tidak bisa dibatalkan.
+      <Sheet
+        open={selected !== null}
+        onOpenChange={(open) => {
+          if (!open) setSelectedId(null)
+        }}
+      >
+        <SheetContent className="w-full gap-0 sm:max-w-md">
+          <SheetHeader>
+            <SheetTitle>Detail anggota</SheetTitle>
+          </SheetHeader>
+          {selected && (
+            <div className="flex min-h-0 flex-1 flex-col gap-8 overflow-y-auto px-5 pt-5 pb-6">
+              <div className="flex items-center gap-3">
+                <Avatar className="size-10">
+                  <AvatarImage src={selected.avatar_url || undefined} alt="" />
+                  <AvatarFallback>{initialOf(selected)}</AvatarFallback>
+                </Avatar>
+                <div className="min-w-0 flex-1">
+                  <p className="flex items-center gap-2 truncate font-medium">
+                    {selected.full_name || "Tanpa nama"}
+                    {isSelf && <Badge variant="secondary">Kamu</Badge>}
+                  </p>
+                  <p className="text-muted-foreground truncate text-sm">
+                    {selected.email}
                   </p>
                 </div>
-                <Button
-                  variant="destructive"
-                  onClick={() => setDeleteTarget(selected)}
+                {!isSelf && (
+                  <Button
+                    variant="outline"
+                    disabled={switching}
+                    onClick={() => viewAs(selected.id)}
+                  >
+                    <RiEyeLine data-icon="inline-start" />
+                    Lihat sebagai
+                  </Button>
+                )}
+              </div>
+
+              <section className="flex flex-col">
+                <h3 className="text-muted-foreground mb-1 text-xs font-medium">
+                  Peran
+                </h3>
+                <Row
+                  label="Role"
+                  hint="Stakeholder bisa mengelola tim & project."
                 >
-                  <RiDeleteBinLine data-icon="inline-start" />
-                  Hapus
-                </Button>
+                  <Select
+                    value={selected.role}
+                    onValueChange={(v) =>
+                      v &&
+                      v !== selected.role &&
+                      updateProfile(selected.id, { role: v as Profile["role"] })
+                    }
+                    disabled={savingKey === `${selected.id}:role`}
+                  >
+                    <SelectTrigger className="w-44">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent align="end">
+                      {ROLE_OPTIONS.map((r) => (
+                        <SelectItem key={r.value} value={r.value}>
+                          {r.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Row>
+                <Row label="Jabatan">
+                  <Select
+                    value={selected.job_title ?? null}
+                    onValueChange={(v) =>
+                      v && updateProfile(selected.id, { job_title: v })
+                    }
+                    disabled={savingKey === `${selected.id}:job_title`}
+                  >
+                    <SelectTrigger className="w-44">
+                      <SelectValue placeholder="Pilih jabatan" />
+                    </SelectTrigger>
+                    <SelectContent align="end">
+                      {JOB_TITLES.map((job) => (
+                        <SelectItem key={job} value={job}>
+                          {job}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Row>
+                <Row label="Tim">
+                  <Select
+                    value={selected.team_id ?? NO_TEAM}
+                    onValueChange={(v) =>
+                      v &&
+                      updateProfile(selected.id, {
+                        team_id: v === NO_TEAM ? null : v,
+                      })
+                    }
+                    disabled={savingKey === `${selected.id}:team_id`}
+                  >
+                    <SelectTrigger className="w-44">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent align="end">
+                      <SelectItem value={NO_TEAM}>Tanpa tim</SelectItem>
+                      {teams.map((t) => (
+                        <SelectItem key={t.id} value={t.id}>
+                          {t.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Row>
+                <Row label="Status">
+                  <Select
+                    value={selected.employment_type ?? "karyawan"}
+                    onValueChange={(v) =>
+                      v && updateProfile(selected.id, { employment_type: v })
+                    }
+                    disabled={savingKey === `${selected.id}:employment_type`}
+                  >
+                    <SelectTrigger className="w-44">
+                      <SelectValue>
+                        {(v: string) => EMPLOYMENT_LABELS[v] ?? v}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent align="end">
+                      {Object.entries(EMPLOYMENT_LABELS).map(
+                        ([value, label]) => (
+                          <SelectItem key={value} value={value}>
+                            {label}
+                          </SelectItem>
+                        ),
+                      )}
+                    </SelectContent>
+                  </Select>
+                </Row>
+                <Row
+                  label="Mulai kerja"
+                  hint="Sejak resmi jadi karyawan. Dipakai untuk jatah cuti."
+                >
+                  <Input
+                    key={`${selected.id}:${selected.join_date ?? ""}`}
+                    type="date"
+                    className="w-44"
+                    defaultValue={selected.join_date ?? ""}
+                    max={new Date().toISOString().slice(0, 10)}
+                    disabled={savingKey === `${selected.id}:join_date`}
+                    onBlur={(e) => {
+                      const next = e.target.value || null
+                      if (next !== (selected.join_date ?? null)) {
+                        updateProfile(selected.id, { join_date: next })
+                      }
+                    }}
+                  />
+                </Row>
+                <Row
+                  label="Super admin"
+                  hint={
+                    isSelf
+                      ? "Tidak bisa mengubah status kamu sendiri."
+                      : "Bisa membuka pengaturan anggota & akses."
+                  }
+                >
+                  <Switch
+                    checked={selected.is_super_admin === true}
+                    disabled={
+                      isSelf || savingKey === `${selected.id}:is_super_admin`
+                    }
+                    onCheckedChange={(checked) =>
+                      updateProfile(selected.id, { is_super_admin: checked })
+                    }
+                    aria-label="Super admin"
+                  />
+                </Row>
               </section>
-            )}
-          </div>
-        ) : (
-          !isLoading && (
-            <p className="text-muted-foreground p-6 text-sm">
-              Pilih anggota di sebelah kiri.
-            </p>
-          )
-        )}
-      </div>
+
+              <section className="flex flex-col">
+                <h3 className="text-muted-foreground mb-1 text-xs font-medium">
+                  Akses halaman
+                </h3>
+                {PAGES.map((page) => {
+                  const granted = access[selected.id]?.[page.slug] === true
+                  return (
+                    <Row key={page.slug} label={page.name}>
+                      <Switch
+                        checked={granted}
+                        disabled={savingKey === `${selected.id}:${page.slug}`}
+                        onCheckedChange={(checked) =>
+                          togglePage(selected.id, page.slug, checked)
+                        }
+                        aria-label={`Akses ${page.name}`}
+                      />
+                    </Row>
+                  )
+                })}
+              </section>
+
+              {!isSelf && (
+                <section className="flex items-center justify-between gap-6 border-t pt-6">
+                  <div>
+                    <p className="text-sm">Hapus anggota</p>
+                    <p className="text-muted-foreground text-xs">
+                      Menghapus profil dan aksesnya. Tidak bisa dibatalkan.
+                    </p>
+                  </div>
+                  <Button
+                    variant="destructive"
+                    onClick={() => setDeleteTarget(selected)}
+                  >
+                    <RiDeleteBinLine data-icon="inline-start" />
+                    Hapus
+                  </Button>
+                </section>
+              )}
+            </div>
+          )}
+        </SheetContent>
+      </Sheet>
 
       <AddMemberDialog
         open={adding}

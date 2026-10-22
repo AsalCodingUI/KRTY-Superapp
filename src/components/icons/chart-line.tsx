@@ -1,7 +1,7 @@
 "use client"
 
 import type { Variants } from "motion/react"
-import { motion, useAnimation } from "motion/react"
+import { m, useAnimation } from "motion/react"
 import type { HTMLAttributes } from "react"
 import { forwardRef, useCallback, useImperativeHandle, useRef } from "react"
 
@@ -87,7 +87,7 @@ const ChartLineIcon = forwardRef<ChartLineIconHandle, ChartLineIconProps>(
           xmlns="http://www.w3.org/2000/svg"
         >
           <path d="M3 3v16a2 2 0 0 0 2 2h16" />
-          <motion.path
+          <m.path
             animate={controls}
             d="m7 13 3-3 4 4 5-5"
             variants={VARIANTS}

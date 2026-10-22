@@ -1,33 +1,17 @@
 "use client"
 
+import { EmptyValue } from "@/components/empty-value"
 import { Database } from "@/shared/types/database.types"
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table"
 import { DataTableColumnHeader } from "@/components/data-table"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
 import { canManageByRole } from "@/shared/lib/roles"
 
-// DataTableRowActions SUDAH DIHAPUS IMPORT-NYA
-
 type Profile = Database["public"]["Tables"]["profiles"]["Row"]
 
 const columnHelper = createColumnHelper<Profile>()
-
-// Warna Warni Job Title
-const getJobTitleVariant = (title: string) => {
-  switch (title) {
-    case "Admin":
-      return "destructive" as const
-    case "Project Manager":
-      return "warning" as const
-    case "Designer":
-      return "success" as const
-    case "Web Developer":
-      return "info" as const
-    default:
-      return "secondary" as const
-  }
-}
 
 type TeamColumnsOptions = {
   canSelect?: boolean
@@ -73,35 +57,36 @@ export const createTeamColumns = ({
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title="Name"
+          title="Nama"
           className="whitespace-nowrap"
         />
       ),
       enableSorting: true,
       meta: {
         className: "text-left",
-        displayName: "Name",
+        displayName: "Nama",
       },
       cell: ({ row }) => {
-        const name = row.getValue("full_name") as string
+        const name = (row.getValue("full_name") as string) || "Unknown"
         const initials = name
-          ? name
-              .split(" ")
-              .map((n) => n[0])
-              .slice(0, 2)
-              .join("")
-              .toUpperCase()
-          : "U"
+          .split(" ")
+          .map((n) => n[0])
+          .slice(0, 2)
+          .join("")
+          .toUpperCase()
 
         return (
-          <div className="flex items-center gap-x-3">
-            <span className="bg-muted text-muted-foreground inline-flex size-5 items-center justify-center rounded-full text-[10px] leading-[16px]">
-              {initials}
-            </span>
-            <span
-              className="text-foreground font-medium whitespace-nowrap"
-              title={name}
-            >
+          <div className="flex items-center gap-3">
+            <Avatar className="size-5">
+              <AvatarImage
+                src={row.original.avatar_url || undefined}
+                alt={name}
+              />
+              <AvatarFallback className="text-[10px]">
+                {initials}
+              </AvatarFallback>
+            </Avatar>
+            <span className="text-foreground whitespace-nowrap" title={name}>
               {name}
             </span>
           </div>
@@ -112,41 +97,41 @@ export const createTeamColumns = ({
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title="Job Title"
+          title="Jabatan"
           className="whitespace-nowrap"
         />
       ),
       enableSorting: false,
       meta: {
         className: "text-left whitespace-nowrap",
-        displayName: "Job Title",
+        displayName: "Jabatan",
       },
-      cell: ({ row }) => {
-        const title = row.getValue("job_title") as string
-        return <Badge variant={getJobTitleVariant(title)}>{title}</Badge>
-      },
+      cell: ({ row }) => (
+        <Badge variant="secondary">
+          {(row.getValue("job_title") as string) || "Tanpa jabatan"}
+        </Badge>
+      ),
     }),
     columnHelper.accessor("role", {
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title="Role"
+          title="Akses"
           className="whitespace-nowrap"
         />
       ),
       enableSorting: false,
       meta: {
         className: "text-left",
-        displayName: "Role",
+        displayName: "Akses",
       },
-      cell: ({ row }) => {
-        const role = row.getValue("role") as string
-        const displayRole = role.charAt(0).toUpperCase() + role.slice(1)
-        const variant = canManageByRole(role)
-          ? ("success" as const)
-          : ("secondary" as const)
-        return <Badge variant={variant}>{displayRole}</Badge>
-      },
+      cell: ({ row }) => (
+        <span className="text-muted-foreground whitespace-nowrap">
+          {canManageByRole(row.getValue("role") as string)
+            ? "Stakeholder"
+            : "Karyawan"}
+        </span>
+      ),
     }),
     columnHelper.accessor("email", {
       header: ({ column }) => (
@@ -161,7 +146,17 @@ export const createTeamColumns = ({
         className: "text-left",
         displayName: "Email",
       },
+      cell: ({ row }) => {
+        const email = row.getValue("email") as string | null
+        if (!email) return <EmptyValue />
+        return (
+          <a
+            href={`mailto:${email}`}
+            className="text-muted-foreground hover:text-foreground whitespace-nowrap transition-colors"
+          >
+            {email}
+          </a>
+        )
+      },
     }),
-
-    // KOLOM ACTIONS SUDAH DIHAPUS TOTAL
   ] as ColumnDef<Profile>[]

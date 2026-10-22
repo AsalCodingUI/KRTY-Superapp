@@ -1,6 +1,5 @@
 "use client"
 
-import dynamic from "next/dynamic"
 import {
   QuarterFilter,
   type QuarterFilterValue,
@@ -16,29 +15,17 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useMemo, useState } from "react"
 import type { EmployeeDashboardData } from "../actions/dashboard-employee-actions"
 
-const EmployeeAttendanceWidget = dynamic(
-  () =>
-    import("./EmployeeAttendanceWidget").then(
-      (mod) => mod.EmployeeAttendanceWidget,
-    ),
-  { loading: () => null },
-)
-
-const EmployeePerformanceCards = dynamic(
-  () =>
-    import("./EmployeePerformanceCards").then(
-      (mod) => mod.EmployeePerformanceCards,
-    ),
-  { loading: () => null },
-)
-
-const EmployeeProjectsWidget = dynamic(
-  () =>
-    import("./EmployeeProjectsWidget").then(
-      (mod) => mod.EmployeeProjectsWidget,
-    ),
-  { loading: () => null },
-)
+import { CalendarDays, ChartColumn, Clock, Plus } from "lucide-react"
+import {
+  HomeAction,
+  HomeActions,
+  HomeColumn,
+  HomeGreeting,
+  HomeGrid,
+} from "./home-card"
+import { EmployeeAttendanceWidget } from "./EmployeeAttendanceWidget"
+import { EmployeePerformanceCards } from "./EmployeePerformanceCards"
+import { EmployeeProjectsWidget } from "./EmployeeProjectsWidget"
 
 interface EmployeeDashboardProps {
   data: EmployeeDashboardData
@@ -100,114 +87,80 @@ export function EmployeeDashboard({
     router.replace(`${pathname}?${params.toString()}`)
   }
 
+  const [leaveOpen, setLeaveOpen] = useState(false)
+
   return (
-    <div className="flex flex-col">
-      <div className="flex flex-col">
-        <div className="space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <h1 className="text-foreground text-lg font-medium">
-              Welcome back, {firstName}
-            </h1>
-            <div className="flex items-center gap-2">
-              <Select
-                value={selectedYear.toString()}
-                onValueChange={(v) => v !== null && handleYearChange(v)}
-              >
-                <SelectTrigger className="w-[96px]">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableYears.map((year) => (
-                    <SelectItem key={year} value={year.toString()}>
-                      {year}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <QuarterFilter
-                value={selectedQuarter}
-                onChange={handleQuarterChange}
-                showYear={false}
-              />
-            </div>
-          </div>
+    <HomeColumn>
+      <HomeGreeting title={`Halo, ${firstName}`} />
 
-          <section className="grid grid-cols-2 gap-x-8 gap-y-4 py-2 lg:grid-cols-5">
-            <div className="flex min-w-0 flex-col gap-1">
-              <p className="text-muted-foreground text-sm">Leave Balance</p>
-              <p className="text-foreground text-lg font-medium tabular-nums">
-                {data.leaveBalance} days
-              </p>
-            </div>
-            <div className="flex min-w-0 flex-col gap-1">
-              <p className="text-muted-foreground text-sm">On Time SLA</p>
-              <p className="text-foreground text-lg font-medium tabular-nums">
-                {data.performanceOverview.slaScore !== null
-                  ? `${Number(data.performanceOverview.slaScore).toFixed(1)}%`
-                  : "0.0%"}
-              </p>
-            </div>
-            <div className="flex min-w-0 flex-col gap-1">
-              <p className="text-muted-foreground text-sm">360 Review</p>
-              <p className="text-foreground text-lg font-medium tabular-nums">
-                {data.performanceOverview.reviewScore !== null
-                  ? `${Number(data.performanceOverview.reviewScore).toFixed(1)}%`
-                  : "0.0%"}
-              </p>
-            </div>
-            <div className="flex min-w-0 flex-col gap-1">
-              <p className="text-muted-foreground text-sm">Work Quality</p>
-              <p className="text-foreground text-lg font-medium tabular-nums">
-                {data.performanceOverview.workQualityScore !== null
-                  ? `${Number(data.performanceOverview.workQualityScore).toFixed(1)}%`
-                  : "0.0%"}
-              </p>
-            </div>
-            <div className="flex min-w-0 flex-col gap-1">
-              <p className="text-muted-foreground text-sm">Quarter</p>
-              <p className="text-foreground text-lg font-medium tabular-nums">
-                {data.performanceOverview.quarter}
-              </p>
-            </div>
-          </section>
-
-          <section className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-            <div className="space-y-2">
-              <p className="text-muted-foreground text-sm">
-                Leave & Attendance
-              </p>
-              <EmployeeAttendanceWidget
-                userId={data.user.id}
-                userFullName={data.user.full_name}
-                recentAttendance={data.recentAttendance}
-                recentLeaveRequests={data.recentLeaveRequests}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <p className="text-muted-foreground text-sm">Performance</p>
-              <EmployeePerformanceCards
-                slaScore={data.performanceOverview.slaScore}
-                reviewScore={data.performanceOverview.reviewScore}
-                workQualityScore={data.performanceOverview.workQualityScore}
-                quarter={data.performanceOverview.quarter}
-                competencyScores={data.competencyScores}
-                upcomingReviews={data.upcomingReviews}
-                upcomingOneOnOne={data.upcomingOneOnOne}
-              />
-            </div>
-          </section>
-
-          <section className="space-y-2">
-            <p className="text-muted-foreground text-sm">Active Projects</p>
-            <EmployeeProjectsWidget
-              projects={data.activeProjects}
-              userId={data.user.id}
-              showHeader={false}
+      <HomeActions
+        aside={
+          <>
+            <Select
+              value={selectedYear.toString()}
+              onValueChange={(v) => v !== null && handleYearChange(v)}
+            >
+              <SelectTrigger className="w-[96px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {availableYears.map((year) => (
+                  <SelectItem key={year} value={year.toString()}>
+                    {year}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <QuarterFilter
+              value={selectedQuarter}
+              onChange={handleQuarterChange}
+              showYear={false}
             />
-          </section>
-        </div>
-      </div>
-    </div>
+          </>
+        }
+      >
+        <HomeAction primary onClick={() => setLeaveOpen(true)} icon={<Plus />}>
+          Ajukan cuti
+        </HomeAction>
+        <HomeAction href="/leave" icon={<Clock />}>
+          Kehadiran
+        </HomeAction>
+        <HomeAction href="/performance" icon={<ChartColumn />}>
+          KPI saya
+        </HomeAction>
+        <HomeAction href="/calendar" icon={<CalendarDays />}>
+          Kalender
+        </HomeAction>
+      </HomeActions>
+
+      <HomeGrid>
+        <EmployeeAttendanceWidget
+          userId={data.user.id}
+          userFullName={data.user.full_name}
+          recentAttendance={data.recentAttendance}
+          recentLeaveRequests={data.recentLeaveRequests}
+          leaveBalance={data.leaveBalance}
+          isLeaveModalOpen={leaveOpen}
+          onLeaveModalChange={setLeaveOpen}
+        />
+      </HomeGrid>
+
+      <HomeGrid>
+        <EmployeePerformanceCards
+          slaScore={data.performanceOverview.slaScore}
+          reviewScore={data.performanceOverview.reviewScore}
+          workQualityScore={data.performanceOverview.workQualityScore}
+          quarter={data.performanceOverview.quarter}
+          competencyScores={data.competencyScores}
+          upcomingReviews={data.upcomingReviews}
+          upcomingOneOnOne={data.upcomingOneOnOne}
+        />
+      </HomeGrid>
+
+      <EmployeeProjectsWidget
+        projects={data.activeProjects}
+        userId={data.user.id}
+      />
+    </HomeColumn>
   )
 }

@@ -4,21 +4,15 @@ import { Skeleton } from "@/components/ui/skeleton"
 
 export default function ProjectDetailLoading() {
   return (
-    <div className="space-y-4">
-      {/* Header Skeleton */}
-      <div>
-        <Skeleton className="h-7 w-64" />
-      </div>
-
-      {/* Tab Navigation Skeleton */}
-      <div className="border-border flex gap-2 border-b">
-        {[1, 2, 3, 4].map((i) => (
-          <Skeleton key={i} className="h-10 w-24 rounded-t" />
-        ))}
+    <div className="flex flex-col">
+      {/* Same rhythm as the page: title row, then content. */}
+      <div className="flex items-center justify-between pt-6 pb-4">
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-9 w-32 rounded-md" />
       </div>
 
       {/* Content Skeleton */}
-      <div className="space-y-4">
+      <div className="space-y-4 pb-4">
         <div className="rounded-lg">
           <Skeleton className="h-6 w-40" />
           <Skeleton className="mt-4 h-24 w-full" />

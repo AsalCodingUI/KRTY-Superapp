@@ -11,10 +11,11 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
+import { Collapse } from "@/components/ui/collapse"
 import { cn } from "@/lib/utils"
 import { ChevronRight } from "lucide-react"
-import Link from "next/link"
-import { useEffect, useState } from "react"
+import { PrefetchLink } from "@/components/prefetch-link"
+import { memo, useEffect, useState } from "react"
 
 /** Count of things waiting on this page; hidden when zero. */
 function NavBadge({ count }: { count?: number }) {
@@ -26,7 +27,8 @@ function NavBadge({ count }: { count?: number }) {
   )
 }
 
-export function NavMain({
+/** Memoized: the sidebar passes a memoized `items` array. */
+export const NavMain = memo(function NavMain({
   label,
   items,
 }: {
@@ -63,7 +65,7 @@ export function NavMain({
                 // With the tabs listed, the active tab is highlighted instead.
                 isActive={item.isActive && !(open && childActive)}
                 className={nested ? "pr-8" : undefined}
-                render={<Link href={item.url} prefetch={false} />}
+                render={<PrefetchLink href={item.url} />}
               >
                 {item.icon}
                 <span className="truncate">{item.title}</span>
@@ -97,20 +99,24 @@ export function NavMain({
                   />
                 </SidebarMenuAction>
               )}
-              {open && (
-                <SidebarMenuSub>
-                  {item.items!.map((subItem) => (
-                    <SidebarMenuSubItem key={subItem.url}>
-                      <SidebarMenuSubButton
-                        isActive={subItem.isActive}
-                        render={<Link href={subItem.url} prefetch={false} />}
-                      >
-                        <span className="truncate">{subItem.title}</span>
-                        <NavBadge count={subItem.badge} />
-                      </SidebarMenuSubButton>
-                    </SidebarMenuSubItem>
-                  ))}
-                </SidebarMenuSub>
+              {nested && (
+                <Collapse open={open}>
+                  <SidebarMenuSub>
+                    {item.items!.map((subItem) => (
+                      <SidebarMenuSubItem key={subItem.url}>
+                        <SidebarMenuSubButton
+                          isActive={subItem.isActive}
+                          // Line the badge up with the parent row's chevron.
+                          className={subItem.badge ? "pr-1.5" : undefined}
+                          render={<PrefetchLink href={subItem.url} />}
+                        >
+                          <span className="truncate">{subItem.title}</span>
+                          <NavBadge count={subItem.badge} />
+                        </SidebarMenuSubButton>
+                      </SidebarMenuSubItem>
+                    ))}
+                  </SidebarMenuSub>
+                </Collapse>
               )}
             </SidebarMenuItem>
           )
@@ -118,7 +124,7 @@ export function NavMain({
       </SidebarMenu>
     </SidebarGroup>
   )
-}
+})
 
 const COLLAPSED_KEY = "sidebar_collapsed_items"
 

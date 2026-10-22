@@ -1,7 +1,7 @@
 "use client"
 
 import type { Transition, Variants } from "motion/react"
-import { motion, useAnimation } from "motion/react"
+import { m, useAnimation } from "motion/react"
 import type { HTMLAttributes } from "react"
 import { forwardRef, useCallback, useImperativeHandle, useRef } from "react"
 
@@ -91,7 +91,7 @@ const ChromeIcon = forwardRef<ChromeIconHandle, ChromeIconProps>(
           xmlns="http://www.w3.org/2000/svg"
         >
           <circle cx="12" cy="12" r="10" />
-          <motion.circle
+          <m.circle
             animate={controls}
             custom={0}
             cx="12"
@@ -99,7 +99,7 @@ const ChromeIcon = forwardRef<ChromeIconHandle, ChromeIconProps>(
             r="4"
             variants={VARIANTS}
           />
-          <motion.line
+          <m.line
             animate={controls}
             custom={3}
             variants={VARIANTS}
@@ -108,7 +108,7 @@ const ChromeIcon = forwardRef<ChromeIconHandle, ChromeIconProps>(
             y1="8"
             y2="8"
           />
-          <motion.line
+          <m.line
             animate={controls}
             custom={3}
             variants={VARIANTS}
@@ -117,7 +117,7 @@ const ChromeIcon = forwardRef<ChromeIconHandle, ChromeIconProps>(
             y1="6.06"
             y2="14"
           />
-          <motion.line
+          <m.line
             animate={controls}
             custom={3}
             variants={VARIANTS}

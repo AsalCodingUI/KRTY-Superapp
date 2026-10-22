@@ -44,7 +44,7 @@ export function CategoryBarCard({
             <span className="text-foreground text-lg font-medium tabular-nums">
               {value}
             </span>
-            <span className="text-muted-foreground/70 text-sm">
+            <span className="text-tertiary-foreground text-sm">
               {valueDescription}
             </span>
           </p>
@@ -73,14 +73,14 @@ export function CategoryBarCard({
                   aria-hidden="true"
                 />
                 <span className="text-foreground">{item.title}</span>
-                <span className="text-muted-foreground/70">
+                <span className="text-tertiary-foreground">
                   ({item.value} / {item.percentage}%)
                 </span>
               </li>
             ))}
           </ul>
         </div>
-        <p className="text-muted-foreground/70 mt-6 text-xs">
+        <p className="text-tertiary-foreground mt-6 text-xs">
           {ctaDescription}{" "}
           <a href={ctaLink} className="text-primary hover:text-primary/90">
             {ctaText}

@@ -1,5 +1,6 @@
 "use client"
 
+import { orEmpty } from "@/components/empty-value"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
@@ -25,7 +26,6 @@ import {
   annualLeaveSummary,
 } from "@/shared/lib/leave"
 import { Database } from "@/shared/types/database.types"
-import imageCompression from "browser-image-compression"
 import { differenceInCalendarDays, format, startOfDay } from "date-fns"
 import { id as idLocale } from "date-fns/locale"
 import { useRouter } from "next/navigation"
@@ -115,6 +115,9 @@ export function LeaveRequestModal({
     if (!file) return
     try {
       setCompressing(true)
+      const { default: imageCompression } = await import(
+        "browser-image-compression"
+      )
       const compressed = await imageCompression(file, {
         maxSizeMB: 1,
         maxWidthOrHeight: 1920,
@@ -284,7 +287,7 @@ export function LeaveRequestModal({
                     className="flex justify-between gap-6 border-b py-2.5 text-sm last:border-b-0"
                   >
                     <dt className="text-muted-foreground shrink-0">{label}</dt>
-                    <dd className="text-right">{value}</dd>
+                    <dd className="text-right">{orEmpty(value)}</dd>
                   </div>
                 ))}
               </dl>

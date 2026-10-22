@@ -1,9 +1,9 @@
 /**
  * Public API for pages/settings/ui
  *
- * This file defines the public interface for this module.
- * Only exports from this file should be imported by other modules.
+ * There is no settings page any more; these pieces live inside other pages
+ * (Anggota & Akses under Team, the auto clock-out rule under Kehadiran).
  */
 
-export { default as GeneralSettingsPage } from "./GeneralSettingsPage"
-export { SettingsDialog } from "./SettingsDialog"
+export { AttendanceSettings } from "./AttendanceSettings"
+export { MembersAccessSettings } from "./MembersAccessSettings"

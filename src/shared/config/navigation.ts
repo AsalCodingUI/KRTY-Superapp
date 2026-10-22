@@ -7,7 +7,6 @@ import {
   RiFolderLine,
   RiGroupLine,
   RiHome2Line,
-  RiSettings5Line
 } from "@/shared/ui/lucide-icons"
 
 interface NavigationItem {
@@ -24,14 +23,8 @@ interface NavigationConfig {
 }
 
 export const navigationConfig: NavigationConfig = {
-  footer: [
-    {
-      name: "Settings",
-      href: siteConfig.baseLinks.settings.general,
-      icon: RiSettings5Line,
-      roles: ["stakeholder", "employee"],
-    },
-  ],
+  // No settings page any more (theme is in the sidebar).
+  footer: [],
   main: [
     {
       name: "Dashboard",

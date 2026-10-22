@@ -1,7 +1,16 @@
 "use client"
 
 import { Badge } from "@/components/ui/badge"
+import { ArrowUpRight } from "lucide-react"
+import {
+  HomeCard,
+  HomeEmpty,
+  HomeIconLink,
+  HomeRow,
+  HomeStats,
+} from "./home-card"
 import { format } from "date-fns"
+import { id as idLocale } from "date-fns/locale"
 
 interface EmployeePerformanceCardsProps {
   slaScore: number | null
@@ -34,11 +43,16 @@ interface EmployeePerformanceCardsProps {
 }
 
 export function EmployeePerformanceCards({
+  slaScore,
+  reviewScore,
+  workQualityScore,
   quarter,
   competencyScores,
   upcomingReviews = [],
   upcomingOneOnOne = [],
 }: EmployeePerformanceCardsProps) {
+  const pct = (v: number | null) =>
+    v !== null ? `${Number(v).toFixed(1)}%` : "–"
   const competencyItems = competencyScores
     ? [
         { label: "Leadership", value: competencyScores.leadership },
@@ -48,29 +62,38 @@ export function EmployeePerformanceCards({
         { label: "Initiative", value: competencyScores.initiative },
       ]
     : []
+  const reviews = upcomingReviews.slice(0, 3)
+  const slots = upcomingOneOnOne.slice(0, 3)
 
   return (
-    <div className="space-y-4">
-      {competencyItems.length > 0 && (
-        <div className="py-2">
-          <div className="mb-3 flex items-center justify-between">
-            <p className="text-muted-foreground text-sm font-medium">
-              Competency Snapshot
-            </p>
-            <span className="text-muted-foreground/70 text-xs">{quarter}</span>
-          </div>
-          <div className="space-y-2">
+    <>
+      <HomeCard
+        title="Performa"
+        badge={<Badge variant="secondary">{quarter}</Badge>}
+        actions={
+          <HomeIconLink href="/performance" label="Buka KPI">
+            <ArrowUpRight />
+          </HomeIconLink>
+        }
+      >
+        <HomeStats
+          items={[
+            { label: "SLA tepat waktu", value: pct(slaScore) },
+            { label: "Review 360", value: pct(reviewScore) },
+            { label: "Kualitas kerja", value: pct(workQualityScore) },
+          ]}
+        />
+        {competencyItems.length > 0 ? (
+          <div className="flex flex-col gap-2.5">
             {competencyItems.map((item) => (
-              <div key={item.label} className="space-y-1">
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground text-xs">
-                    {item.label}
-                  </span>
-                  <span className="text-foreground text-xs tabular-nums">
-                    {Math.round(item.value)}%
-                  </span>
-                </div>
-                <div className="bg-muted h-1.5 overflow-hidden rounded-full">
+              <div
+                key={item.label}
+                className="flex items-center gap-3 text-[13px]"
+              >
+                <span className="text-muted-foreground w-28 shrink-0">
+                  {item.label}
+                </span>
+                <div className="bg-muted h-1.5 flex-1 overflow-hidden rounded-full">
                   <div
                     className="bg-primary h-full rounded-full"
                     style={{
@@ -78,83 +101,77 @@ export function EmployeePerformanceCards({
                     }}
                   />
                 </div>
+                <span className="w-10 shrink-0 text-right font-medium tabular-nums">
+                  {Math.round(item.value)}%
+                </span>
               </div>
             ))}
           </div>
-        </div>
-      )}
-
-      {upcomingReviews.length === 0 ? (
-        <p className="text-muted-foreground/70 text-xs">
-          No active review cycle.
-        </p>
-      ) : (
-        <div className="divide-border divide-y">
-          {upcomingReviews.slice(0, 2).map((review) => (
-            <div
-              key={review.cycle_id}
-              className="flex items-center justify-between px-3 py-2"
-            >
-              <div>
-                <p className="text-foreground text-sm">{review.cycle_name}</p>
-                <p className="text-muted-foreground text-xs">
-                  Due {format(new Date(review.end_date), "dd MMM yyyy")}
-                </p>
-              </div>
-              <Badge variant={review.has_submitted ? "success" : "warning"}>
-                {review.has_submitted ? "Submitted" : "Pending"}
-              </Badge>
-            </div>
-          ))}
-        </div>
-      )}
-
-      <div className="py-2">
-        <p className="text-muted-foreground mb-2 text-sm font-medium">
-          Jadwal 1:1
-        </p>
-        {upcomingOneOnOne.length === 0 ? (
-          <p className="text-muted-foreground/70 text-xs">
-            Belum ada jadwal 1:1 terdekat.
-          </p>
         ) : (
-          <div className="divide-border divide-y">
-            {upcomingOneOnOne.slice(0, 2).map((slot) => (
-              <div
-                key={slot.id}
-                className="flex items-center justify-between gap-3 px-3 py-2"
-              >
-                <div className="min-w-0">
-                  <p className="text-foreground text-sm">
-                    {format(new Date(slot.start_at), "dd MMM yyyy · HH:mm")} -{" "}
-                    {format(new Date(slot.end_at), "HH:mm")}
-                  </p>
-                  <p className="text-muted-foreground truncate text-xs">
-                    {slot.organizer_name
-                      ? `With ${slot.organizer_name}`
-                      : "1:1 Session"}
-                    {slot.mode === "offline" && slot.location
-                      ? ` • ${slot.location}`
-                      : ` • ${slot.mode}`}
-                  </p>
-                </div>
-                {slot.meeting_url ? (
-                  <a
-                    href={slot.meeting_url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-primary text-xs whitespace-nowrap hover:underline"
-                  >
-                    Join
-                  </a>
-                ) : (
-                  <Badge variant="secondary">Scheduled</Badge>
-                )}
-              </div>
-            ))}
-          </div>
+          <HomeEmpty>
+            Nilai kompetensi muncul setelah review kuartal ini.
+          </HomeEmpty>
         )}
-      </div>
-    </div>
+      </HomeCard>
+
+      <HomeCard
+        title="Review & 1:1"
+        actions={
+          <HomeIconLink href="/performance?tab=360review" label="Buka review">
+            <ArrowUpRight />
+          </HomeIconLink>
+        }
+      >
+        <div className="flex flex-1 flex-col">
+          {reviews.length === 0 && slots.length === 0 ? (
+            <HomeEmpty>Belum ada review atau sesi 1:1 terjadwal.</HomeEmpty>
+          ) : (
+            <>
+              {reviews.map((review) => (
+                <HomeRow
+                  key={review.cycle_id}
+                  href="/performance?tab=360review"
+                  title={review.cycle_name}
+                  subtitle={`Tenggat ${format(new Date(review.end_date), "d MMM yyyy", { locale: idLocale })}`}
+                  trailing={
+                    <Badge
+                      variant={review.has_submitted ? "success" : "warning"}
+                    >
+                      {review.has_submitted ? "Terkirim" : "Belum diisi"}
+                    </Badge>
+                  }
+                />
+              ))}
+              {slots.map((slot) => (
+                <HomeRow
+                  key={slot.id}
+                  title={`1:1 · ${format(new Date(slot.start_at), "EEE, d MMM · HH:mm", { locale: idLocale })}`}
+                  subtitle={
+                    (slot.organizer_name
+                      ? `Dengan ${slot.organizer_name}`
+                      : "Sesi 1:1") +
+                    (slot.mode === "offline" && slot.location
+                      ? ` · ${slot.location}`
+                      : ` · ${slot.mode}`)
+                  }
+                  trailing={
+                    slot.meeting_url ? (
+                      <a
+                        href={slot.meeting_url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-primary text-[13px] font-medium hover:underline"
+                      >
+                        Gabung
+                      </a>
+                    ) : null
+                  }
+                />
+              ))}
+            </>
+          )}
+        </div>
+      </HomeCard>
+    </>
   )
 }

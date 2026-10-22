@@ -32,16 +32,24 @@ export function StatusPage({
       {/* Dotted field fading out from the centre. */}
       <div
         aria-hidden
-        className="text-foreground/[0.07] pointer-events-none absolute inset-0 [background-image:radial-gradient(currentColor_1px,transparent_1px)] [background-size:22px_22px] [mask-image:radial-gradient(ellipse_at_center,black_10%,transparent_65%)]"
+        className="text-foreground/[0.07] pointer-events-none absolute inset-0 [background-image:radial-gradient(currentColor_1px,transparent_1px)] [mask-image:radial-gradient(ellipse_at_center,black_10%,transparent_65%)] [background-size:22px_22px]"
       />
       <div className="relative flex max-w-md flex-col items-center">
+        {/* Padding gives tall glyphs like "(" room: bg-clip-text only paints
+            inside the box, so anything past the line box would be cut. */}
         <span
           aria-hidden
-          className="from-foreground/70 to-foreground/5 bg-gradient-to-b bg-clip-text text-[7rem] leading-none font-semibold tracking-tighter text-transparent tabular-nums select-none sm:text-[9rem]"
+          className={cn(
+            "from-foreground/70 to-foreground/5 bg-gradient-to-b bg-clip-text px-[0.08em] py-[0.12em] text-[7rem] leading-none font-semibold text-transparent tabular-nums select-none sm:text-[9rem]",
+            // Tight tracking suits "404"; on a two-glyph face it shifts it off centre.
+            code.length > 2 && "tracking-tighter",
+          )}
         >
           {code}
         </span>
-        <h1 className="mt-2 text-xl font-semibold tracking-tight">{title}</h1>
+        <h1 className="text-heading mt-1 text-xl font-semibold tracking-tight">
+          {title}
+        </h1>
         <p className="text-muted-foreground mt-2 text-sm leading-relaxed text-balance">
           {description}
         </p>

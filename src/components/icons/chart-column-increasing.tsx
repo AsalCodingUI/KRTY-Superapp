@@ -1,7 +1,7 @@
 "use client"
 
 import type { Variants } from "motion/react"
-import { motion, useAnimation } from "motion/react"
+import { m, useAnimation } from "motion/react"
 import type { HTMLAttributes } from "react"
 import { forwardRef, useCallback, useImperativeHandle, useRef } from "react"
 
@@ -97,14 +97,14 @@ const ChartColumnIncreasingIcon = forwardRef<
         width={size}
         xmlns="http://www.w3.org/2000/svg"
       >
-        <motion.path
+        <m.path
           animate={controls}
           custom={1}
           d="M13 17V9"
           initial="visible"
           variants={LINE_VARIANTS}
         />
-        <motion.path
+        <m.path
           animate={controls}
           custom={2}
           d="M18 17V5"
@@ -112,7 +112,7 @@ const ChartColumnIncreasingIcon = forwardRef<
           variants={LINE_VARIANTS}
         />
         <path d="M3 3v16a2 2 0 0 0 2 2h16" />
-        <motion.path
+        <m.path
           animate={controls}
           custom={0}
           d="M8 17v-3"

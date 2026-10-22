@@ -25,7 +25,9 @@ export default async function TeamsRoute({
   const [dataResult, roleResult] = await Promise.all([
     supabase
       .from("profiles")
-      .select("id, full_name, email, job_title, role")
+      .select("id, full_name, email, job_title, role, avatar_url", {
+        count: "exact",
+      })
       .order("full_name", { ascending: true })
       .range(from, to),
     user
@@ -52,7 +54,8 @@ export default async function TeamsRoute({
       initialData={dedupedProfiles}
       page={page}
       pageSize={pageSize}
-      totalCount={dedupedProfiles.length}
+      // Total across all pages, not just this page's rows.
+      totalCount={dataResult.count ?? dedupedProfiles.length}
       role={role}
     />
   )

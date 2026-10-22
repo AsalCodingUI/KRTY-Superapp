@@ -44,7 +44,10 @@ function ProgressIndicator({
   return (
     <ProgressPrimitive.Indicator
       data-slot="progress-indicator"
-      className={cn("bg-primary h-full transition-all", className)}
+      className={cn(
+        "bg-primary h-full transition-[width] duration-300 ease-out",
+        className,
+      )}
       {...props}
     />
   )

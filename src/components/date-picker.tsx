@@ -199,8 +199,8 @@ const Trigger = ({
         disabled={disabled}
         aria-invalid={hasError || props["aria-invalid"] || undefined}
         className={cn(
-          // Same surface as Input / SelectTrigger.
-          "group/date-picker bg-input/50 hover:bg-input/70 aria-expanded:bg-input/70 w-full justify-start gap-2 border-transparent px-2.5 text-left text-sm font-normal",
+          // Same surface as Input / SelectTrigger, and no press-in: it is a field.
+          "group/date-picker active:scale-100 bg-field hover:bg-field-hover hover:border-field-border-hover aria-expanded:bg-field-hover border-field-border w-full justify-start gap-2 px-3 text-left text-sm font-normal",
           className,
         )}
         {...props}
@@ -217,7 +217,7 @@ const Trigger = ({
     />
     <span className="flex-1 truncate">
       {children ?? (
-        <span className="text-muted-foreground/70">{placeholder}</span>
+        <span className="text-tertiary-foreground">{placeholder}</span>
       )}
     </span>
   </PopoverTrigger>
@@ -708,7 +708,7 @@ const RangeDatePicker = ({
                     required={required}
                   />
                 </div>
-                <MinusIcon className="text-muted-foreground/70 size-4 shrink-0" />
+                <MinusIcon className="text-tertiary-foreground size-4 shrink-0" />
                 <div className="flex flex-1 items-center gap-x-2">
                   <span className="text-muted-foreground">
                     {translations?.end ?? "End"}:

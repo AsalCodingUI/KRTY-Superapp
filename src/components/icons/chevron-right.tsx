@@ -1,7 +1,7 @@
 "use client"
 
 import type { Transition } from "motion/react"
-import { motion, useAnimation } from "motion/react"
+import { m, useAnimation } from "motion/react"
 import type { HTMLAttributes } from "react"
 import { forwardRef, useCallback, useImperativeHandle, useRef } from "react"
 
@@ -76,7 +76,7 @@ const ChevronRightIcon = forwardRef<
         width={size}
         xmlns="http://www.w3.org/2000/svg"
       >
-        <motion.path
+        <m.path
           animate={controls}
           d="m9 18 6-6-6-6"
           transition={DEFAULT_TRANSITION}

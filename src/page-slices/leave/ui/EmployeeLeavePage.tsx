@@ -1,10 +1,9 @@
 "use client"
 
 import { AttendanceHistoryList } from "@/app/(main)/attendance/components/AttendanceHistoryList"
-import { AttendanceHistoryTable } from "@/app/(main)/attendance/components/AttendanceHistoryTable"
-import { DataTable } from "@/components/data-table"
+import { AttendanceSettings } from "@/page-slices/settings/ui"
+import { PageHeader } from "@/components/page-header"
 import { TabNavigation, TabNavigationLink } from "@/components/tab-navigation"
-import { useViewMode, ViewToggle } from "@/components/view-toggle"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -17,6 +16,7 @@ import {
 } from "@/components/ui/dialog"
 import { ClockControls } from "@/features/attendance-clock"
 import { createClient } from "@/shared/api/supabase/client"
+import { useMinuteClock } from "@/shared/hooks/useMinuteClock"
 import { useMountedTabs } from "@/shared/hooks/useMountedTabs"
 import { useTabRoute } from "@/shared/hooks/useTabRoute"
 import { getLocalDateString } from "@/shared/lib/date"
@@ -25,13 +25,17 @@ import { Database } from "@/shared/types/database.types"
 import { RiAddLine } from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
 import { id as idLocale } from "date-fns/locale"
+import dynamic from "next/dynamic"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { toast } from "sonner"
-import { columns } from "./components/Columns"
 import { EmployeeLeaveList } from "./components/EmployeeLeaveList"
-import { LeaveRequestModal } from "./components/LeaveRequestModal"
 import { LeaveRules } from "./components/LeaveRules"
+
+// Modal (and its form deps) only loads once the user opens it.
+const LeaveRequestModal = dynamic(() =>
+  import("./components/LeaveRequestModal").then((m) => m.LeaveRequestModal),
+)
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"]
 type LeaveRequest = Database["public"]["Tables"]["leave_requests"]["Row"]
@@ -71,11 +75,13 @@ export function EmployeeLeavePage({
     mode: "history",
   })
   const { isMounted } = useMountedTabs(activeTab)
-  const [view, setView] = useViewMode("leave")
 
-  const [now, setNow] = useState<Date | null>(null)
+  // Only HH:mm is shown, so tick on the minute rather than every second.
+  const now = useMinuteClock()
   const [logs, setLogs] = useState<AttendanceLog[]>(attendanceLogs)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [modalMounted, setModalMounted] = useState(false)
+  if (isModalOpen && !modalMounted) setModalMounted(true)
   const [editingItem, setEditingItem] = useState<LeaveRequest | null>(null)
   const [rulesOpen, setRulesOpen] = useState(false)
   const [deleteLogId, setDeleteLogId] = useState<string | null>(null)
@@ -83,12 +89,6 @@ export function EmployeeLeavePage({
   const [busy, setBusy] = useState(false)
 
   useEffect(() => setLogs(attendanceLogs), [attendanceLogs])
-
-  useEffect(() => {
-    setNow(new Date())
-    const timer = setInterval(() => setNow(new Date()), 1000)
-    return () => clearInterval(timer)
-  }, [])
 
   // Live refresh when a request or attendance log changes elsewhere.
   useEffect(() => {
@@ -147,10 +147,10 @@ export function EmployeeLeavePage({
     ),
   )
 
-  const openRequest = (item: LeaveRequest | null) => {
+  const openRequest = useCallback((item: LeaveRequest | null) => {
     setEditingItem(item)
     setIsModalOpen(true)
-  }
+  }, [])
 
   const handlePageChange = (newPage: number) => {
     const params = new URLSearchParams(searchParams)
@@ -210,80 +210,88 @@ export function EmployeeLeavePage({
 
   return (
     <>
-      <div className="flex flex-col gap-6">
-        {/* Today: time + the one primary action (clock in/out) */}
-        <div className="flex flex-wrap items-center justify-between gap-4 pt-1">
-          <div className="flex items-center gap-4">
-            <p className="flex items-baseline gap-2">
-              <span className="text-base font-medium tabular-nums">
-                {now ? format(now, "HH:mm") : "--:--"}
-              </span>
-              <span className="text-muted-foreground text-sm">
-                {now ? format(now, "EEEE, d MMMM", { locale: idLocale }) : ""}
-              </span>
-            </p>
-            <ClockControls
-              logs={logs}
-              onLogsUpdate={setLogs}
-              isOnLeave={isOnLeave}
-              now={now}
-            />
-          </div>
-          <Button variant="secondary" onClick={() => openRequest(null)}>
-            <RiAddLine data-icon="inline-start" />
-            Ajukan cuti
-          </Button>
+      <div className="flex flex-col">
+        {/* Same order as the admin view: title + actions, tabs, a stats band,
+            today's clock row, then the list. */}
+        <PageHeader
+          className="pt-6 pb-4"
+          title="Leave & Attendance"
+          actions={
+            <Button variant="secondary" onClick={() => openRequest(null)}>
+              <RiAddLine data-icon="inline-start" />
+              Ajukan cuti
+            </Button>
+          }
+        />
+
+        <div className="bleed gutter-x border-border border-b">
+          <TabNavigation className="border-b-0">
+            <TabNavigationLink
+              active={activeTab === "attendance"}
+              onClick={() => setActiveTab("attendance")}
+              showLeadingIcon={false}
+            >
+              Kehadiran
+            </TabNavigationLink>
+            <TabNavigationLink
+              active={activeTab === "leave"}
+              onClick={() => setActiveTab("leave")}
+              showLeadingIcon={false}
+            >
+              Cuti
+            </TabNavigationLink>
+          </TabNavigation>
         </div>
 
         {/* Balances (one shared rule, see shared/lib/leave) */}
-        <dl className="flex flex-wrap gap-x-16 gap-y-4 py-1">
-          <div className="flex flex-col gap-1">
+        <dl className="stat-strip bleed gutter-x border-border border-b py-4">
+          <div className="stat-tile">
             <dt className="text-muted-foreground flex items-center gap-2 text-sm">
               Sisa cuti tahunan
               <button
                 type="button"
                 onClick={() => setRulesOpen(true)}
-                className="text-muted-foreground/70 hover:text-foreground text-xs underline-offset-2 hover:underline"
+                className="text-tertiary-foreground hover:text-foreground text-xs underline-offset-2 hover:underline"
               >
                 Aturan
               </button>
             </dt>
             {stats.annual.eligible ? (
-              <dd className="text-lg font-medium tabular-nums">
+              <dd className="text-foreground text-xl font-normal tracking-tight tabular-nums">
                 {stats.annual.remaining}
-                <span className="text-muted-foreground text-sm font-normal">
+                <span className="text-tertiary-foreground text-sm tracking-normal">
                   {" "}
                   / {stats.annual.quota} hari
                 </span>
               </dd>
             ) : (
-              <dd className="text-muted-foreground text-lg font-medium">
+              <dd className="text-muted-foreground text-xl font-normal tracking-tight">
                 {stats.annual.eligibleFrom
                   ? `Mulai ${format(stats.annual.eligibleFrom, "d MMM yyyy", { locale: idLocale })}`
                   : "Tidak ada"}
               </dd>
             )}
             {stats.annual.note && (
-              <span className="text-muted-foreground/70 text-xs">
+              <span className="text-tertiary-foreground text-xs">
                 {stats.annual.note}
               </span>
             )}
           </div>
-          <div className="flex flex-col gap-1">
+          <div className="stat-tile">
             <dt className="text-muted-foreground text-sm">Sakit tahun ini</dt>
-            <dd className="text-lg font-medium tabular-nums">
+            <dd className="text-foreground text-xl font-normal tracking-tight tabular-nums">
               {stats.sick}
-              <span className="text-muted-foreground text-sm font-normal">
+              <span className="text-tertiary-foreground text-sm tracking-normal">
                 {" "}
                 hari
               </span>
             </dd>
           </div>
-          <div className="flex flex-col gap-1">
+          <div className="stat-tile">
             <dt className="text-muted-foreground text-sm">WFH tahun ini</dt>
-            <dd className="text-lg font-medium tabular-nums">
+            <dd className="text-foreground text-xl font-normal tracking-tight tabular-nums">
               {stats.wfh}
-              <span className="text-muted-foreground text-sm font-normal">
+              <span className="text-tertiary-foreground text-sm tracking-normal">
                 {" "}
                 hari
               </span>
@@ -291,87 +299,60 @@ export function EmployeeLeavePage({
           </div>
         </dl>
 
-        <div className="flex flex-col">
-          <div className="flex items-end justify-between gap-4 border-b">
-            <TabNavigation className="border-b-0">
-              <TabNavigationLink
-                active={activeTab === "attendance"}
-                onClick={() => setActiveTab("attendance")}
-              >
-                Kehadiran
-              </TabNavigationLink>
-              <TabNavigationLink
-                active={activeTab === "leave"}
-                onClick={() => setActiveTab("leave")}
-              >
-                Cuti
-              </TabNavigationLink>
-            </TabNavigation>
-            <ViewToggle
-              value={view}
-              onValueChange={setView}
-              className="mb-1.5"
+        {/* Today: time, then auto clock-out and the one primary action */}
+        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3 pt-4 pb-3">
+          <p className="flex items-baseline gap-2">
+            <span className="text-foreground tabular-nums">
+              {now ? format(now, "HH:mm") : "--:--"}
+            </span>
+            <span className="text-muted-foreground text-sm">
+              {now ? format(now, "EEEE, d MMMM", { locale: idLocale }) : ""}
+            </span>
+          </p>
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
+            {/* Each employee's own auto clock-out, next to clock in/out. */}
+            <AttendanceSettings />
+            <ClockControls
+              logs={logs}
+              onLogsUpdate={setLogs}
+              isOnLeave={isOnLeave}
+              now={now}
             />
           </div>
+        </div>
 
-          <div className="py-4">
-            {isMounted("attendance") && (
-              <div className={activeTab === "attendance" ? "block" : "hidden"}>
-                {view === "table" ? (
-                  <AttendanceHistoryTable
-                    logs={logs}
-                    onRequestDelete={(id) => setDeleteLogId(id)}
-                  />
-                ) : (
-                  <AttendanceHistoryList
-                    logs={logs}
-                    onRequestDelete={(id) => setDeleteLogId(id)}
-                  />
-                )}
-              </div>
-            )}
-            {isMounted("leave") && (
-              <div className={activeTab === "leave" ? "block" : "hidden"}>
-                {view === "table" ? (
-                  <DataTable
-                    data={requests}
-                    columns={columns({
-                      onEdit: openRequest,
-                      onCancel: setCancelTarget,
-                    })}
-                    manualPagination
-                    pageCount={Math.ceil(totalCount / pageSize)}
-                    pageIndex={page - 1}
-                    onPageChange={handlePageChange}
-                    showExport={false}
-                    showViewOptions={false}
-                    enableSelection={false}
-                    enableHover={false}
-                    showTableWrapper={false}
-                    showFilterbar={false}
-                  />
-                ) : (
-                  <EmployeeLeaveList
-                    requests={requests}
-                    onEdit={openRequest}
-                    onCancel={setCancelTarget}
-                    page={page}
-                    pageCount={Math.ceil(totalCount / pageSize)}
-                    onPageChange={handlePageChange}
-                  />
-                )}
-              </div>
-            )}
-          </div>
+        <div className="pb-4">
+          {isMounted("attendance") && (
+            <div className={activeTab === "attendance" ? "block" : "hidden"}>
+              <AttendanceHistoryList
+                logs={logs}
+                onRequestDelete={(id) => setDeleteLogId(id)}
+              />
+            </div>
+          )}
+          {isMounted("leave") && (
+            <div className={activeTab === "leave" ? "block" : "hidden"}>
+              <EmployeeLeaveList
+                requests={requests}
+                onEdit={openRequest}
+                onCancel={setCancelTarget}
+                page={page}
+                pageCount={Math.ceil(totalCount / pageSize)}
+                onPageChange={handlePageChange}
+              />
+            </div>
+          )}
         </div>
       </div>
 
-      <LeaveRequestModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        initialData={editingItem}
-        userProfile={profile}
-      />
+      {modalMounted && (
+        <LeaveRequestModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          initialData={editingItem}
+          userProfile={profile}
+        />
+      )}
 
       <Dialog
         open={deleteLogId !== null}

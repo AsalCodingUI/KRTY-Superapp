@@ -1,7 +1,7 @@
 "use client"
 
 import type { Transition, Variants } from "motion/react"
-import { motion, useAnimation } from "motion/react"
+import { m, useAnimation } from "motion/react"
 import type { HTMLAttributes } from "react"
 import { forwardRef, useCallback, useImperativeHandle, useRef } from "react"
 
@@ -87,7 +87,7 @@ const LoaderIcon = forwardRef<LoaderIconHandle, LoaderIconProps>(
           width={size}
           xmlns="http://www.w3.org/2000/svg"
         >
-          <motion.g
+          <m.g
             animate={controls}
             style={{ transformOrigin: "12px 12px" }}
             transition={DEFAULT_TRANSITION}
@@ -101,7 +101,7 @@ const LoaderIcon = forwardRef<LoaderIconHandle, LoaderIconProps>(
             <path d="m4.9 19.1 2.9-2.9" />
             <path d="M2 12h4" />
             <path d="m4.9 4.9 2.9 2.9" />
-          </motion.g>
+          </m.g>
         </svg>
       </div>
     )

@@ -2,15 +2,17 @@ import { cn } from "cn"
 import * as React from "react"
 
 /**
- * Clerk-style dialog layout shared by Dialog and AlertDialog: header and
- * footer sit on the muted shell, everything between them is a raised panel.
- * A confirm (header + footer only) puts the header in the panel instead.
+ * Single-surface dialog layout shared by Dialog and AlertDialog (Resend /
+ * Perplexity style): a small title with the close button in the corner,
+ * the content right under it, actions at the bottom. No bands, no dividers.
  */
 export const dialogShellClassName =
-  "bg-dialog-shell text-popover-foreground ring-foreground/10 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 fixed top-1/2 left-1/2 z-50 flex max-h-[calc(100svh-4rem)] w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-xl text-sm shadow-2xl ring-1 duration-100 outline-none sm:max-w-[27.5rem]"
+  "bg-popover text-popover-foreground data-open:animate-in data-open:fade-in-0 data-open:zoom-in-96 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-96 fixed top-1/2 left-1/2 z-50 flex max-h-[calc(100svh-4rem)] w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-2xl text-sm duration-250 outline-none sm:max-w-[27.5rem] smooth-shadow-ring-md ease-out"
 
+// The body scrolls, so it keeps 4px below its last field (and nested scroll
+// wrappers get 4px all round) so focus rings are not clipped by the overflow.
 export const dialogPanelClassName =
-  "bg-dialog-panel ring-foreground/10 flex min-h-0 flex-col gap-4 overflow-y-auto rounded-xl px-6 py-5 shadow-sm ring-1"
+  "flex min-h-0 flex-col gap-4 overflow-y-auto px-5 pt-4 pb-1 [&>.overflow-auto]:-m-1 [&>.overflow-auto]:p-1 [&>.overflow-y-auto]:-m-1 [&>.overflow-y-auto]:p-1"
 
 export function DialogSections({
   children,
@@ -36,26 +38,30 @@ export function DialogSections({
 
   // Not built from header/body/footer: keep the content as written.
   if (header.length === 0 && footer.length === 0) {
-    return <div className="flex min-h-0 flex-col gap-6 p-6">{body}</div>
+    return <div className="flex min-h-0 flex-col gap-5 p-5">{body}</div>
   }
 
-  const hasBody = body.length > 0
   return (
     <>
-      {hasBody && header.length > 0 && (
-        <div className="shrink-0 px-6 pt-5 pr-14 pb-4">{header}</div>
+      {header.length > 0 && (
+        <div className="shrink-0 px-5 pt-5 pr-12">{header}</div>
       )}
-      {(hasBody || header.length > 0) && (
+      {body.length > 0 && (
         <div
           data-slot="dialog-body"
-          className={cn(dialogPanelClassName, !hasBody && "pr-14")}
+          className={cn(dialogPanelClassName, header.length === 0 && "pt-5")}
         >
-          {hasBody ? body : header}
+          {body}
         </div>
       )}
-      {footer.length > 0 && (
-        <div className="shrink-0 px-6 py-3.5">{footer}</div>
-      )}
+      <div
+        className={cn(
+          "shrink-0 px-5 pb-5",
+          footer.length > 0 ? "pt-4" : "pt-0",
+        )}
+      >
+        {footer}
+      </div>
     </>
   )
 }

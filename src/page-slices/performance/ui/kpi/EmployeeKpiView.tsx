@@ -42,16 +42,13 @@ export function EmployeeKpiView({
 
   const { parts, final, projects } = data.data
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col">
       <KpiSummary parts={parts} final={final} />
-      <section className="flex flex-col gap-2">
-        <h2 className="text-sm font-medium">Project</h2>
-        <ProjectKpiList
-          projects={projects}
-          hrefFor={hrefFor}
-          showQuarter={!/^\d{4}-Q[1-4]$/.test(scope)}
-        />
-      </section>
+      <ProjectKpiList
+        projects={projects}
+        hrefFor={hrefFor}
+        showQuarter={!/^\d{4}-Q[1-4]$/.test(scope)}
+      />
     </div>
   )
 }

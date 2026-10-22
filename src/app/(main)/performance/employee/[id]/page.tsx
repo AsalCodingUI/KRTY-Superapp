@@ -18,7 +18,15 @@ export default async function EmployeeKpiRoute({
   } = await supabase.auth.getUser()
   if (!user) redirect("/login")
 
-  const viewerId = await resolveEffectiveUserId(supabase, user.id, user.email)
+  // The employee row doesn't depend on the viewer: fetch both together.
+  const [viewerId, { data: employee }] = await Promise.all([
+    resolveEffectiveUserId(supabase, user.id, user.email),
+    supabase
+      .from("profiles")
+      .select("id, full_name, avatar_url, job_title")
+      .eq("id", id)
+      .maybeSingle(),
+  ])
   const { data: viewer } = await supabase
     .from("profiles")
     .select("role")
@@ -28,12 +36,6 @@ export default async function EmployeeKpiRoute({
   if (viewerId === id && !canManageByRole(viewer?.role))
     redirect("/performance")
   if (!canManageByRole(viewer?.role)) notFound()
-
-  const { data: employee } = await supabase
-    .from("profiles")
-    .select("id, full_name, avatar_url, job_title")
-    .eq("id", id)
-    .maybeSingle()
   if (!employee) notFound()
 
   return <EmployeeKpiPage employee={employee} />

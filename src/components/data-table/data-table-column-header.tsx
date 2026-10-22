@@ -28,41 +28,45 @@ export function DataTableColumnHeader<TData, TValue>({
   if (!canSort) {
     return (
       <div
-        className={cn("text-muted-foreground text-xs font-medium", className)}
+        className={cn(
+          "text-muted-foreground text-[13px] font-medium",
+          className,
+        )}
       >
         {title}
       </div>
     )
   }
 
+  // One quiet arrow: shown when sorted, hinted on hover otherwise.
+  const Arrow = isSorted === "asc" ? ChevronUpIcon : ChevronDownIcon
   return (
     <div
       onClick={column.getToggleSortingHandler()}
       className={cn(
-        "flex cursor-pointer items-center gap-2 select-none",
+        "group/sort flex cursor-pointer items-center gap-1 select-none",
         className,
       )}
     >
-      <span className="text-muted-foreground text-xs font-medium whitespace-nowrap">
+      <span
+        className={cn(
+          "text-[13px] font-medium whitespace-nowrap transition-colors",
+          isSorted
+            ? "text-foreground"
+            : "text-muted-foreground group-hover/sort:text-foreground",
+        )}
+      >
         {title}
       </span>
-      {/* Stacked sort indicator */}
-      <div className="-space-y-2">
-        <ChevronUpIcon
-          className={cn(
-            "text-muted-foreground size-3.5",
-            isSorted === "desc" && "opacity-30",
-          )}
-          aria-hidden="true"
-        />
-        <ChevronDownIcon
-          className={cn(
-            "text-muted-foreground size-3.5",
-            isSorted === "asc" && "opacity-30",
-          )}
-          aria-hidden="true"
-        />
-      </div>
+      <Arrow
+        className={cn(
+          "size-3.5 transition-opacity",
+          isSorted
+            ? "text-foreground opacity-100"
+            : "text-muted-foreground opacity-0 group-hover/sort:opacity-100",
+        )}
+        aria-hidden="true"
+      />
     </div>
   )
 }

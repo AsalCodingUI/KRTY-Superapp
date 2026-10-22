@@ -82,10 +82,10 @@ export const DayView = memo(function DayView({
               return (
                 <div
                   key={slot.toISOString()}
-                  className="text-muted-foreground/70 relative h-[var(--height)] pr-2 text-right text-xs font-medium"
+                  className="text-tertiary-foreground relative h-[var(--height)] pr-2 text-right text-xs font-medium"
                   style={baseStyle}
                 >
-                  <span className="bg-sidebar absolute -top-2 right-2 px-1">
+                  <span className="bg-background dark:bg-surface absolute -top-2 right-2 px-1">
                     {format(slot, "HH:mm")}
                   </span>
                 </div>

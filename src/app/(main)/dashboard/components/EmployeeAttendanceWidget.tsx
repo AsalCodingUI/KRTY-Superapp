@@ -1,21 +1,37 @@
 "use client"
 
 import { ClockControls } from "@/features/attendance-clock"
-import { LeaveRequestModal } from "@/page-slices/leave/ui/components/LeaveRequestModal"
 import { createClient } from "@/shared/api/supabase/client"
+import { useMinuteClock } from "@/shared/hooks/useMinuteClock"
 import {
   getAttendanceLogLocalDate,
   getAttendanceSessionState,
   getLocalDateString,
 } from "@/shared/lib/date"
 import { Database } from "@/shared/types/database.types"
-import { EmptyState } from "@/components/empty-state"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { RiCalendarLine, RiCheckboxCircleLine } from "@/shared/ui/lucide-icons"
+import { ArrowUpRight, Plus } from "lucide-react"
+import {
+  HomeCard,
+  HomeEmpty,
+  HomeFigure,
+  HomeFooter,
+  HomeIconLink,
+  HomeRow,
+} from "./home-card"
 import { format } from "date-fns"
+import { id as idLocale } from "date-fns/locale"
+import dynamic from "next/dynamic"
 import { useRouter } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
+
+// Modal (and its form deps) only loads once the user opens it.
+const LeaveRequestModal = dynamic(() =>
+  import("@/page-slices/leave/ui/components/LeaveRequestModal").then(
+    (m) => m.LeaveRequestModal,
+  ),
+)
 
 type AttendanceLog = Database["public"]["Tables"]["attendance_logs"]["Row"]
 type LeaveRequest = Database["public"]["Tables"]["leave_requests"]["Row"]
@@ -25,6 +41,9 @@ interface EmployeeAttendanceWidgetProps {
   userFullName?: string | null
   recentAttendance: AttendanceLog[]
   recentLeaveRequests: LeaveRequest[]
+  leaveBalance: number
+  isLeaveModalOpen: boolean
+  onLeaveModalChange: (open: boolean) => void
 }
 
 export function EmployeeAttendanceWidget({
@@ -32,14 +51,19 @@ export function EmployeeAttendanceWidget({
   userFullName,
   recentAttendance,
   recentLeaveRequests,
+  leaveBalance,
+  isLeaveModalOpen,
+  onLeaveModalChange,
 }: EmployeeAttendanceWidgetProps) {
   const supabase = createClient()
   const router = useRouter()
   const [logs, setLogs] = useState<AttendanceLog[]>(recentAttendance)
   const [leaveRequests, setLeaveRequests] =
     useState<LeaveRequest[]>(recentLeaveRequests)
-  const [currentTime, setCurrentTime] = useState<Date | null>(null)
-  const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false)
+  // Only HH:mm is shown, so tick on the minute rather than every second.
+  const currentTime = useMinuteClock()
+  const [leaveModalMounted, setLeaveModalMounted] = useState(false)
+  if (isLeaveModalOpen && !leaveModalMounted) setLeaveModalMounted(true)
 
   useEffect(() => {
     setLogs(recentAttendance)
@@ -48,12 +72,6 @@ export function EmployeeAttendanceWidget({
   useEffect(() => {
     setLeaveRequests(recentLeaveRequests)
   }, [recentLeaveRequests])
-
-  useEffect(() => {
-    setCurrentTime(new Date())
-    const timer = setInterval(() => setCurrentTime(new Date()), 1000)
-    return () => clearInterval(timer)
-  }, [])
 
   useEffect(() => {
     const attendanceChannel = supabase
@@ -113,149 +131,141 @@ export function EmployeeAttendanceWidget({
 
   const recentLeaves = leaveRequests.slice(0, 5)
 
+  const statusVariant =
+    todayStatus === "Sedang bekerja"
+      ? "success"
+      : todayStatus === "Selesai"
+        ? "info"
+        : "warning"
+
+  const leaveLabel = (status: string | null) =>
+    status === "approved"
+      ? { variant: "success" as const, label: "Disetujui" }
+      : status === "rejected"
+        ? { variant: "destructive" as const, label: "Ditolak" }
+        : { variant: "warning" as const, label: "Menunggu" }
+
+  // Two cards side by side: today's clock, and leave.
   return (
-    <div className="space-y-4">
-      <div className="py-2">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-muted-foreground text-sm font-medium">
-              Hari ini
-            </span>
-            <Badge
-              variant={
-                todayStatus === "Sedang bekerja"
-                  ? "success"
-                  : todayStatus === "Sesi belum ditutup"
-                    ? "warning"
-                    : todayStatus === "Selesai"
-                      ? "info"
-                      : "warning"
-              }
-            >
-              {todayStatus}
-            </Badge>
-            <span className="text-muted-foreground/70 text-xs">
-              {currentTime ? format(currentTime, "HH:mm:ss, EEE dd MMM") : ""}
-            </span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            {/* Same control as Leave & Attendance (status, break, confirm). */}
-            <ClockControls
-              logs={logs}
-              onLogsUpdate={setLogs}
-              isOnLeave={isOnLeaveToday}
-              now={currentTime}
-            />
-            <Button variant="outline" onClick={() => setIsLeaveModalOpen(true)}>
-              Ajukan cuti
-            </Button>
-          </div>
+    <>
+      <HomeCard
+        title="Hari ini"
+        badge={<Badge variant={statusVariant}>{todayStatus}</Badge>}
+        actions={
+          <HomeIconLink href="/leave" label="Buka kehadiran">
+            <ArrowUpRight />
+          </HomeIconLink>
+        }
+      >
+        <HomeFigure
+          value={currentTime ? format(currentTime, "HH:mm") : "--:--"}
+          hint={
+            currentTime
+              ? format(currentTime, "EEEE, d MMMM", { locale: idLocale })
+              : "\u00a0"
+          }
+        />
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Same control as Leave & Attendance (status, break, confirm). */}
+          <ClockControls
+            logs={logs}
+            onLogsUpdate={setLogs}
+            isOnLeave={isOnLeaveToday}
+            now={currentTime}
+          />
         </div>
-      </div>
-
-      <div>
-        <h4 className="text-foreground mb-3 text-sm font-medium">
-          Attendance History (Last 7 Days)
-        </h4>
-        {logs.length === 0 ? (
-          <EmptyState
-            title="Belum ada data kehadiran"
-            description="Clock in untuk mulai mencatat kehadiranmu."
-            placement="inner"
-            icon={<RiCheckboxCircleLine className="size-5" />}
-          />
-        ) : (
-          <div className="divide-border divide-y">
-            {logs.slice(0, 7).map((log) => (
-              <div key={log.id} className="px-3 py-2">
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex min-w-0 items-center gap-2">
-                    <span className="text-foreground text-sm">
-                      {format(
-                        new Date(getAttendanceLogLocalDate(log)),
-                        "EEE, dd MMM yyyy",
-                      )}
+        <div className="flex flex-col">
+          {logs.length === 0 ? (
+            <HomeEmpty>Clock in untuk mulai mencatat kehadiranmu.</HomeEmpty>
+          ) : (
+            logs.slice(0, 4).map((log) => (
+              <HomeRow
+                key={log.id}
+                title={format(
+                  new Date(getAttendanceLogLocalDate(log)),
+                  "EEE, d MMM",
+                  {
+                    locale: idLocale,
+                  },
+                )}
+                trailing={
+                  <>
+                    {log.status === "Late" && (
+                      <Badge variant="warning">Terlambat</Badge>
+                    )}
+                    <span className="text-muted-foreground text-[13px]">
+                      {log.clock_in
+                        ? format(new Date(log.clock_in), "HH:mm")
+                        : "--:--"}
+                      {" – "}
+                      {log.clock_out
+                        ? format(new Date(log.clock_out), "HH:mm")
+                        : "aktif"}
                     </span>
-                    <Badge
-                      variant={log.status === "Late" ? "warning" : "secondary"}
-                    >
-                      {log.status || "Present"}
-                    </Badge>
-                  </div>
-                  <span className="text-muted-foreground text-xs whitespace-nowrap">
-                    {log.clock_in
-                      ? format(new Date(log.clock_in), "HH:mm")
-                      : "--:--"}
-                    {" - "}
-                    {log.clock_out
-                      ? format(new Date(log.clock_out), "HH:mm")
-                      : "Active"}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+                  </>
+                }
+              />
+            ))
+          )}
+        </div>
+      </HomeCard>
 
-      <div>
-        <h4 className="text-foreground mb-3 text-sm font-medium">
-          Leave Requests
-        </h4>
-        {recentLeaves.length > 0 ? (
-          <div className="divide-border divide-y">
-            {recentLeaves.map((leave) => (
-              <div
-                key={leave.id}
-                className="flex items-center justify-between gap-3 px-3 py-2"
-              >
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="text-foreground text-sm">
-                      {leave.leave_type}
-                    </span>
-                    <Badge
-                      variant={
-                        leave.status === "approved"
-                          ? "success"
-                          : leave.status === "rejected"
-                            ? "destructive"
-                            : "warning"
-                      }
-                    >
-                      {leave.status === "approved"
-                        ? "Approved"
-                        : leave.status === "rejected"
-                          ? "Rejected"
-                          : "Pending"}
-                    </Badge>
-                  </div>
-                  <p className="text-muted-foreground mt-1 text-xs">
-                    {format(new Date(leave.start_date), "dd MMM yyyy")} -{" "}
-                    {format(new Date(leave.end_date), "dd MMM yyyy")}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <EmptyState
-            title="Belum ada pengajuan cuti"
-            description="Ajukan cuti kalau kamu butuh libur."
-            placement="inner"
-            icon={<RiCalendarLine className="size-5" />}
-          />
-        )}
-      </div>
+      <HomeCard
+        title="Cuti"
+        actions={
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            className="text-muted-foreground"
+            aria-label="Ajukan cuti"
+            title="Ajukan cuti"
+            onClick={() => onLeaveModalChange(true)}
+          >
+            <Plus />
+          </Button>
+        }
+      >
+        <HomeFigure value={leaveBalance} unit="hari" hint="Sisa cuti tahunan" />
+        <div className="flex flex-col">
+          {recentLeaves.length === 0 ? (
+            <HomeEmpty>Belum ada pengajuan cuti.</HomeEmpty>
+          ) : (
+            recentLeaves.slice(0, 3).map((leave) => {
+              const badge = leaveLabel(leave.status)
+              return (
+                <HomeRow
+                  key={leave.id}
+                  title={leave.leave_type}
+                  subtitle={
+                    format(new Date(leave.start_date), "d MMM", {
+                      locale: idLocale,
+                    }) +
+                    (leave.end_date !== leave.start_date
+                      ? ` – ${format(new Date(leave.end_date), "d MMM yyyy", { locale: idLocale })}`
+                      : "")
+                  }
+                  trailing={
+                    <Badge variant={badge.variant}>{badge.label}</Badge>
+                  }
+                />
+              )
+            })
+          )}
+        </div>
+        <HomeFooter
+          label="Pengajuan"
+          value={`${leaveRequests.length} tercatat`}
+          href="/leave/leave"
+        />
+      </HomeCard>
 
-      <LeaveRequestModal
-        isOpen={isLeaveModalOpen}
-        onClose={() => {
-          setIsLeaveModalOpen(false)
-        }}
-        userProfile={{ id: userId, full_name: userFullName || null }}
-      />
-    </div>
+      {leaveModalMounted && (
+        <LeaveRequestModal
+          isOpen={isLeaveModalOpen}
+          onClose={() => onLeaveModalChange(false)}
+          userProfile={{ id: userId, full_name: userFullName || null }}
+        />
+      )}
+    </>
   )
 }

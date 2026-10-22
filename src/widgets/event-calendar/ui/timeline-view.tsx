@@ -1,5 +1,6 @@
 "use client"
 
+import { EmptyValue } from "@/components/empty-value"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { createClient } from "@/shared/api/supabase/client"
@@ -237,7 +238,7 @@ export function TimelineView() {
         className="flex shrink-0 flex-col border-r"
         style={{ width: LABEL_WIDTH }}
       >
-        <div className="bg-sidebar sticky top-0 z-20 flex h-[61px] items-end gap-0.5 border-b px-2 pb-2">
+        <div className="bg-background dark:bg-surface sticky top-0 z-20 flex h-[61px] items-end gap-0.5 border-b px-2 pb-2">
           <button
             type="button"
             aria-label="Perkecil"
@@ -307,7 +308,7 @@ export function TimelineView() {
                     {row.project.name}
                   </span>
                   <Badge variant={statusVariant(row.project.status)}>
-                    {row.project.status ?? "—"}
+                    {row.project.status ?? <EmptyValue />}
                   </Badge>
                 </div>
               ) : (
@@ -342,7 +343,7 @@ export function TimelineView() {
       <div ref={scrollRef} className="min-w-0 flex-1 overflow-x-auto">
         <div className="relative" style={{ width: gridWidth }}>
           {/* Header: months + days */}
-          <div className="bg-sidebar sticky top-0 z-20 border-b">
+          <div className="bg-background dark:bg-surface sticky top-0 z-20 border-b">
             <div className="flex h-7 items-end">
               {months.map((m) => (
                 <div

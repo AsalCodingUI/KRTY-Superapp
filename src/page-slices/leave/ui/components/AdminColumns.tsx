@@ -1,19 +1,22 @@
 "use client"
 
+import { EmptyValue } from "@/components/empty-value"
 import { DataTableColumnHeader } from "@/components/data-table"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { LEAVE_TYPE_LABELS } from "@/shared/lib/leave"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
-import type { LeaveRequestWithProfile } from "./AdminLeaveList"
+import {
+  formatLeaveRange,
+  type LeaveRequestWithProfile,
+} from "./AdminLeaveList"
 import {
   RiCheckLine,
   RiCloseLine,
   RiFilePaperLine,
 } from "@/shared/ui/lucide-icons"
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table"
-import { format } from "date-fns"
 
 export type { LeaveRequestWithProfile }
 
@@ -119,44 +122,12 @@ export const adminColumns = (
           className="whitespace-nowrap"
         />
       ),
-      cell: ({ row }) => {
-        const start = new Date(row.original.start_date)
-        const end = new Date(row.original.end_date)
-        return (
-          <span className="text-foreground whitespace-nowrap">
-            {format(start, "dd MMM")}
-            <span className="text-muted-foreground mx-1">-</span>
-            {format(end, "dd MMM yyyy")}
-          </span>
-        )
-      },
-      meta: { displayName: "Date Range" },
-    }),
-
-    // 4. Submission Date (Admin only preview)
-    columnHelper.accessor("created_at", {
-      header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title="Diajukan"
-          className="whitespace-nowrap"
-        />
+      cell: ({ row }) => (
+        <span className="text-foreground whitespace-nowrap tabular-nums">
+          {formatLeaveRange(row.original.start_date, row.original.end_date)}
+        </span>
       ),
-      cell: ({ row }) => {
-        const createdAt = row.getValue("created_at") as string | null
-        if (!createdAt)
-          return <span className="text-muted-foreground/50">-</span>
-        const parsed = new Date(createdAt)
-        if (Number.isNaN(parsed.getTime())) {
-          return <span className="text-muted-foreground/50">-</span>
-        }
-        return (
-          <span className="text-foreground whitespace-nowrap">
-            {format(parsed, "dd MMM yyyy, HH:mm")}
-          </span>
-        )
-      },
-      meta: { displayName: "Submission Date" },
+      meta: { displayName: "Date Range" },
     }),
 
     // 5. Type
@@ -182,42 +153,34 @@ export const adminColumns = (
           className="whitespace-nowrap"
         />
       ),
-      cell: ({ row }) => (
-        <div
-          className="max-w-[200px] truncate"
-          title={row.getValue("reason") || ""}
-        >
-          {row.getValue("reason")}
-        </div>
-      ),
-      meta: { displayName: "Reason" },
-    }),
-
-    // 7. Proof
-    columnHelper.accessor("proof_url", {
-      header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title="Bukti"
-          className="whitespace-nowrap"
-        />
-      ),
       cell: ({ row }) => {
-        const url = row.getValue("proof_url") as string
-        if (!url) return <span className="text-muted-foreground/50">-</span>
+        const reason = row.original.reason
+        const proof = row.original.proof_url
         return (
-          <a
-            href={url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-primary hover:text-primary inline-flex items-center gap-1 text-xs font-medium"
-          >
-            <RiFilePaperLine className="size-3.5" /> Lihat
-          </a>
+          <div className="flex max-w-[280px] items-center gap-1.5">
+            <span
+              className="text-muted-foreground truncate"
+              title={reason || ""}
+            >
+              {reason || <EmptyValue />}
+            </span>
+            {proof && (
+              <a
+                href={proof}
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Lihat bukti"
+                aria-label="Lihat bukti"
+                onClick={(e) => e.stopPropagation()}
+                className="text-muted-foreground hover:text-foreground shrink-0 transition-colors"
+              >
+                <RiFilePaperLine className="size-3.5" />
+              </a>
+            )}
+          </div>
         )
       },
-      enableSorting: false,
-      meta: { displayName: "Proof" },
+      meta: { displayName: "Reason" },
     }),
 
     // 8. Status
@@ -237,13 +200,7 @@ export const adminColumns = (
       ? [
           columnHelper.display({
             id: "actions",
-            header: ({ column }) => (
-              <DataTableColumnHeader
-                column={column}
-                title="Aksi"
-                className="text-right whitespace-nowrap"
-              />
-            ),
+            header: () => <span className="sr-only">Aksi</span>,
             meta: { className: "text-right", displayName: "Action" },
             cell: ({ row }) => {
               const item = row.original

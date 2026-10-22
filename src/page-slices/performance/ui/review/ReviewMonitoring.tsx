@@ -1,5 +1,6 @@
 "use client"
 
+import { orEmpty } from "@/components/empty-value"
 import {
   closeReviewCycle,
   getReviewMonitoring,
@@ -9,13 +10,7 @@ import {
 } from "@/app/(main)/performance/actions/review-actions"
 import { ConfirmDialog } from "@/components/confirm-dialog"
 import { EmptyState } from "@/components/empty-state"
-import {
-  GroupedList,
-  ListChip,
-  ListGroup,
-  ListRow,
-} from "@/components/grouped-list"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { GroupedList, ListRow } from "@/components/grouped-list"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -28,6 +23,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Spinner } from "@/components/ui/spinner"
+import { cn } from "@/lib/utils"
 import { formatPercent } from "@/entities/performance/lib/kpi"
 import { RiGroupLine } from "@/shared/ui/lucide-icons"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
@@ -36,7 +32,12 @@ import { id as idLocale } from "date-fns/locale"
 import { useState } from "react"
 import { toast } from "sonner"
 import { isQuarter, periodLabel } from "../kpi/period"
+import { GridGroup, ListColumns, PersonCell, StatBand } from "../list"
 import { ReviewResult } from "./ReviewResult"
+
+/** Shared column template so the header, group summaries and rows line up. */
+const ROW_GRID =
+  "grid grid-cols-[minmax(0,1fr)_3.5rem_5.5rem] items-center gap-x-4 md:grid-cols-[minmax(0,1fr)_4.5rem_4.5rem_5.5rem]"
 
 type Status = "processed" | "complete" | "progress" | "waiting"
 
@@ -166,29 +167,40 @@ export function ReviewMonitoring({ period }: { period: string }) {
   )
   const reviewsTotal = rows.reduce((n, r) => n + r.reviewers.length, 0)
 
+  const countOf = (status: Status) =>
+    rows.filter((r) => statusOf(r) === status).length
+
   return (
-    <div className="flex flex-col gap-6">
-      <section className="flex flex-wrap items-center justify-between gap-4">
-        <div className="flex flex-col gap-0.5">
-          <p className="text-sm font-medium">
-            Periode {periodLabel(period)}
-            {cycle?.isOpen && (
-              <span className="text-success ml-2 text-xs font-normal">
-                Sedang dibuka
-              </span>
-            )}
-            {cycle && !cycle.isOpen && (
-              <span className="text-muted-foreground ml-2 text-xs font-normal">
-                Ditutup
-              </span>
-            )}
-          </p>
-          <p className="text-muted-foreground text-xs">
-            {cycle
-              ? `${format(new Date(cycle.start_date), "d MMM", { locale: idLocale })} – ${format(new Date(cycle.end_date), "d MMM yyyy", { locale: idLocale })} · ${reviewsDone} dari ${reviewsTotal} penilaian masuk`
-              : "Belum dibuka. Semua karyawan saling menilai; admin tidak ikut."}
-          </p>
-        </div>
+    <div className="flex flex-col">
+      <StatBand
+        stats={[
+          {
+            label: `Periode ${periodLabel(period)}`,
+            value: cycle
+              ? cycle.isOpen
+                ? "Dibuka"
+                : "Ditutup"
+              : "Belum dibuka",
+          },
+          {
+            label: "Tanggal",
+            value: cycle
+              ? `${format(new Date(cycle.start_date), "d MMM", { locale: idLocale })} – ${format(new Date(cycle.end_date), "d MMM yyyy", { locale: idLocale })}`
+              : "—",
+          },
+          {
+            label: "Penilaian masuk",
+            value: `${reviewsDone} / ${reviewsTotal}`,
+          },
+          { label: "Siap diproses", value: countOf("complete") },
+          { label: "Sudah diproses", value: countOf("processed") },
+        ]}
+      />
+
+      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 py-3">
+        <p className="text-muted-foreground text-sm">
+          Semua karyawan saling menilai; admin tidak ikut.
+        </p>
         <div className="flex items-center gap-2">
           {cycle?.is_active && (
             <Button variant="ghost" onClick={() => setClosing(true)}>
@@ -206,7 +218,7 @@ export function ReviewMonitoring({ period }: { period: string }) {
               : "Buka periode"}
           </Button>
         </div>
-      </section>
+      </div>
 
       {rows.length === 0 && unpaired.length === 0 ? (
         <EmptyState
@@ -217,50 +229,80 @@ export function ReviewMonitoring({ period }: { period: string }) {
         />
       ) : (
         <GroupedList>
+          <ListColumns grid={ROW_GRID}>
+            <span>Karyawan</span>
+            <span className="text-right">Penilai</span>
+            <span className="hidden text-right md:block">Hasil</span>
+            <span />
+          </ListColumns>
           {STATUS_GROUPS.map(({ key, label }) => {
             const items = rows.filter((r) => statusOf(r) === key)
             if (items.length === 0) return null
+            const groupDone = items.reduce(
+              (n, r) => n + r.reviewers.filter((x) => x.done).length,
+              0,
+            )
+            const groupTotal = items.reduce((n, r) => n + r.reviewers.length, 0)
             return (
-              <ListGroup
+              <GridGroup
                 key={key}
+                grid={ROW_GRID}
                 label={label}
-                count={items.length}
+                extra={
+                  <span className="text-tertiary-foreground tabular-nums">
+                    {items.length}
+                  </span>
+                }
                 defaultOpen={
                   key !== "processed" || items.length === rows.length
+                }
+                summary={
+                  <>
+                    <span className="text-muted-foreground text-right text-[13px] tabular-nums">
+                      {groupDone}/{groupTotal}
+                    </span>
+                    <span className="hidden md:block" />
+                    <span />
+                  </>
                 }
               >
                 {items.map((row) => {
                   const done = row.reviewers.filter((r) => r.done).length
                   const pending = row.reviewers.filter((r) => !r.done)
                   return (
-                    <ListRow key={row.id}>
-                      <Avatar className="size-5">
-                        <AvatarImage src={row.avatar_url || undefined} alt="" />
-                        <AvatarFallback className="text-[10px]">
-                          {(row.full_name || "U").slice(0, 2).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span className="truncate font-medium">
-                        {row.full_name}
-                      </span>
-                      <span
-                        className="text-muted-foreground min-w-0 flex-1 truncate text-xs"
+                    <ListRow key={row.id} className={cn(ROW_GRID, "min-h-14")}>
+                      <div
+                        className="min-w-0"
                         title={row.reviewers
                           .map((r) => `${r.full_name}${r.done ? " ✓" : ""}`)
                           .join(", ")}
                       >
-                        {pending.length
-                          ? `Menunggu ${pending.map((r) => r.full_name).join(", ")}`
-                          : `Dinilai ${row.reviewers.map((r) => r.full_name).join(", ")}`}
+                        <PersonCell
+                          name={row.full_name}
+                          avatarUrl={row.avatar_url}
+                          secondary={
+                            pending.length
+                              ? `Menunggu ${pending.map((r) => r.full_name).join(", ")}`
+                              : `Dinilai ${row.reviewers.map((r) => r.full_name).join(", ")}`
+                          }
+                        />
+                      </div>
+                      <span className="text-right tabular-nums">
+                        {done}
+                        <span className="text-muted-foreground">
+                          {" "}
+                          / {row.reviewers.length}
+                        </span>
                       </span>
-                      <ListChip className="tabular-nums">
-                        {done}/{row.reviewers.length}
-                      </ListChip>
-                      {row.summary ? (
-                        <>
-                          <span className="w-12 text-right text-sm font-medium tabular-nums">
-                            {formatPercent(row.summary.overall_percentage)}
-                          </span>
+                      <span className="hidden text-right tabular-nums md:block">
+                        {orEmpty(
+                          row.summary
+                            ? formatPercent(row.summary.overall_percentage)
+                            : null,
+                        )}
+                      </span>
+                      <div className="flex justify-end">
+                        {row.summary ? (
                           <Button
                             size="sm"
                             variant="ghost"
@@ -268,48 +310,48 @@ export function ReviewMonitoring({ period }: { period: string }) {
                           >
                             Lihat
                           </Button>
-                        </>
-                      ) : (
-                        <Button
-                          size="sm"
-                          variant={key === "complete" ? "secondary" : "ghost"}
-                          disabled={done === 0 || !cycle}
-                          onClick={() => setProcessing(row)}
-                        >
-                          Proses
-                        </Button>
-                      )}
+                        ) : (
+                          <Button
+                            size="sm"
+                            variant={key === "complete" ? "secondary" : "ghost"}
+                            disabled={done === 0 || !cycle}
+                            onClick={() => setProcessing(row)}
+                          >
+                            Proses
+                          </Button>
+                        )}
+                      </div>
                     </ListRow>
                   )
                 })}
-              </ListGroup>
+              </GridGroup>
             )
           })}
           {unpaired.length > 0 && (
-            <ListGroup
+            <GridGroup
+              grid={ROW_GRID}
               label="Belum punya rekan untuk dinilai"
-              count={unpaired.length}
-              action={
-                <span className="text-muted-foreground hidden text-xs sm:inline">
+              extra={
+                <span className="text-tertiary-foreground tabular-nums">
+                  {unpaired.length}
+                </span>
+              }
+              summary={
+                <span className="text-tertiary-foreground col-span-2 hidden text-right text-[13px] sm:block md:col-span-3">
                   Butuh minimal dua karyawan
                 </span>
               }
             >
               {unpaired.map((person) => (
-                <ListRow key={person.id} className="text-muted-foreground">
-                  <Avatar className="size-5">
-                    <AvatarImage src={person.avatar_url || undefined} alt="" />
-                    <AvatarFallback className="text-[10px]">
-                      {(person.full_name || "U").slice(0, 2).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span className="truncate">{person.full_name}</span>
-                  <span className="min-w-0 flex-1 truncate text-xs">
-                    {person.job_title}
-                  </span>
+                <ListRow key={person.id} className={cn(ROW_GRID, "min-h-14")}>
+                  <PersonCell
+                    name={person.full_name}
+                    avatarUrl={person.avatar_url}
+                    secondary={person.job_title}
+                  />
                 </ListRow>
               ))}
-            </ListGroup>
+            </GridGroup>
           )}
         </GroupedList>
       )}

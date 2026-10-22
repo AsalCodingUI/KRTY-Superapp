@@ -25,7 +25,7 @@ export function AgendaView({ events, onEventClick }: AgendaViewProps) {
       {/* Header */}
 
       {/* Event count */}
-      <div className="text-muted-foreground/70 px-6 py-3 text-xs">
+      <div className="text-tertiary-foreground px-6 py-3 text-xs">
         {dayEvents.length} jadwal hari ini
       </div>
 

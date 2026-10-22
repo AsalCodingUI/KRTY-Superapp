@@ -1,7 +1,7 @@
 "use client"
 
 import type { Transition } from "motion/react"
-import { motion, useAnimation } from "motion/react"
+import { m, useAnimation } from "motion/react"
 import type { HTMLAttributes } from "react"
 import { forwardRef, useCallback, useImperativeHandle, useRef } from "react"
 
@@ -77,7 +77,7 @@ const AlignRightIcon = forwardRef<AlignRightIconHandle, AlignRightIconProps>(
           width={size}
           xmlns="http://www.w3.org/2000/svg"
         >
-          <motion.line
+          <m.line
             animate={controls}
             transition={DEFAULT_TRANSITION}
             variants={{
@@ -90,7 +90,7 @@ const AlignRightIcon = forwardRef<AlignRightIconHandle, AlignRightIconProps>(
             y2="6"
           />
 
-          <motion.line
+          <m.line
             animate={controls}
             transition={DEFAULT_TRANSITION}
             variants={{
@@ -103,7 +103,7 @@ const AlignRightIcon = forwardRef<AlignRightIconHandle, AlignRightIconProps>(
             y2="12"
           />
 
-          <motion.line
+          <m.line
             animate={controls}
             transition={DEFAULT_TRANSITION}
             variants={{

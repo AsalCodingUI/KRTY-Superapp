@@ -14,8 +14,8 @@ const TONES: Record<BannerTone, string> = {
 }
 
 /**
- * One full-width line at the very top of the app. Used for "view as" now and
- * for team announcements later; every banner can be closed.
+ * One compact line in the dark app chrome, under the top bar. Used for
+ * "view as" now and for team announcements later; every banner can be closed.
  */
 export function AppBanner({
   tone = "info",
@@ -32,7 +32,7 @@ export function AppBanner({
     <div
       role="status"
       className={cn(
-        "flex min-h-11 w-full items-center gap-3 px-4 py-2.5 text-sm",
+        "flex min-h-9 w-full items-center gap-3 rounded-lg px-3 py-1 text-sm",
         TONES[tone],
       )}
     >
@@ -51,8 +51,8 @@ export function AppBanner({
 }
 
 /**
- * Banner stack pinned above the sidebar and page. Publishes its height as
- * --app-banner-height so the fixed sidebar starts below it.
+ * Banner stack in the dark chrome between the top bar and the page. Publishes
+ * its height as --app-banner-height so the fixed sidebar starts below it.
  */
 export function AppBannerStack({ children }: { children: React.ReactNode }) {
   const ref = React.useRef<HTMLDivElement>(null)
@@ -75,7 +75,7 @@ export function AppBannerStack({ children }: { children: React.ReactNode }) {
   return (
     <div
       ref={ref}
-      className="sticky top-0 z-50 flex w-full flex-col empty:hidden"
+      className="dark flex w-full shrink-0 flex-col gap-1.5 px-2 pb-2 empty:hidden"
     >
       {children}
     </div>

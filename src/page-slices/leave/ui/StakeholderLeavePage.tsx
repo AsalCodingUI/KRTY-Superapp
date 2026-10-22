@@ -1,8 +1,7 @@
 "use client"
 
-import { AdminAttendanceEditDialog } from "@/app/(main)/attendance/components/AdminAttendanceEditDialog"
+import { PageHeader } from "@/components/page-header"
 import { AdminAttendanceHistoryList } from "@/app/(main)/attendance/components/AdminAttendanceHistoryList"
-import { AdminAttendanceHistoryTable } from "@/app/(main)/attendance/components/AdminAttendanceHistoryTable"
 import { createClient } from "@/shared/api/supabase/client"
 import { useMountedTabs } from "@/shared/hooks/useMountedTabs"
 import { useTabRoute } from "@/shared/hooks/useTabRoute"
@@ -20,11 +19,6 @@ import { canManageByRole } from "@/shared/lib/roles"
 import { Database } from "@/shared/types/database.types"
 import { ConfirmDialog } from "@/components/confirm-dialog"
 import { DataTable } from "@/components/data-table"
-import {
-  useViewMode,
-  ViewToggle,
-  type ViewMode,
-} from "@/components/view-toggle"
 import { DatePicker } from "@/components/date-picker"
 import { TabNavigation, TabNavigationLink } from "@/components/tab-navigation"
 import { Button } from "@/components/ui/button"
@@ -49,16 +43,20 @@ import {
 import { Spinner } from "@/components/ui/spinner"
 import { Textarea } from "@/components/ui/textarea"
 import { format } from "date-fns"
+import dynamic from "next/dynamic"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { toast } from "sonner"
 import { adminColumns } from "./components/AdminColumns"
-import {
-  AdminLeaveList,
-  type LeaveRequestWithProfile,
-} from "./components/AdminLeaveList"
-import { remainingLeaveColumns } from "./components/RemainingLeaveColumns"
+import { type LeaveRequestWithProfile } from "./components/AdminLeaveList"
 import { RemainingLeaveList } from "./components/RemainingLeaveList"
+
+// Edit dialog only loads once an admin opens a session to edit.
+const AdminAttendanceEditDialog = dynamic(() =>
+  import("@/app/(main)/attendance/components/AdminAttendanceEditDialog").then(
+    (m) => m.AdminAttendanceEditDialog,
+  ),
+)
 
 type Profile = Pick<
   Database["public"]["Tables"]["profiles"]["Row"],
@@ -229,8 +227,6 @@ export function StakeholderLeavePage({
     }
   }, [supabase, router])
 
-  const [view, setView] = useViewMode("leave")
-
   const handlePageChange = (newPage: number) => {
     const params = new URLSearchParams(searchParams)
     params.set("page", (newPage + 1).toString())
@@ -254,23 +250,35 @@ export function StakeholderLeavePage({
     }
   }
 
-  const handleApprove = async (id: number) => {
-    const { error } = await supabase
-      .from("leave_requests")
-      .update({ status: "approved", review_note: null })
-      .eq("id", id)
-    if (error) {
-      toast.error(error.message || "Gagal menyetujui pengajuan")
-      return
-    }
-    toast.success("Pengajuan disetujui")
-    router.refresh()
-  }
+  const handleApprove = useCallback(
+    async (id: number) => {
+      const { error } = await supabase
+        .from("leave_requests")
+        .update({ status: "approved", review_note: null })
+        .eq("id", id)
+      if (error) {
+        toast.error(error.message || "Gagal menyetujui pengajuan")
+        return
+      }
+      toast.success("Pengajuan disetujui")
+      router.refresh()
+    },
+    [supabase, router],
+  )
 
-  const handleReject = async (id: number) => {
+  const handleReject = useCallback(async (id: number) => {
     setRejectNote("")
     setRejectIds([id])
-  }
+  }, [])
+
+  const approvalColumns = useMemo(
+    () =>
+      adminColumns(handleApprove, handleReject, {
+        canSelect: canManage,
+        canManage,
+      }),
+    [handleApprove, handleReject, canManage],
+  )
 
   const confirmReject = async () => {
     if (!rejectIds) return
@@ -379,6 +387,8 @@ export function StakeholderLeavePage({
 
   const editingLog =
     attendanceLogs.find((log) => log.id === editingLogId) ?? null
+  const [editDialogMounted, setEditDialogMounted] = useState(false)
+  if (editingLog && !editDialogMounted) setEditDialogMounted(true)
 
   const handleUpdateAttendanceSession = async (payload: {
     date: string
@@ -487,134 +497,80 @@ export function StakeholderLeavePage({
     }
   }
 
-  const approveMany = (ids: number[]) =>
-    runWithConfirm({
-      title: "Setujui semua pengajuan?",
-      description: `${ids.length} pengajuan akan disetujui.`,
-      confirmText: "Setujui",
-      onConfirm: async () => {
-        const { error } = await supabase
-          .from("leave_requests")
-          .update({ status: "approved" })
-          .in("id", ids)
-        if (error) {
-          toast.error(error.message || "Gagal menyetujui pengajuan")
-          return
-        }
-        toast.success("Pengajuan disetujui")
-        router.refresh()
-      },
-    })
+  // Persetujuan is always a table; Saldo Cuti is always a flat list.
+  const approvalContent = (
+    <DataTable
+      data={requests}
+      columns={approvalColumns}
+      showExport={false}
+      showViewOptions={false}
+      showFilterbar={false}
+      onCreate={undefined}
+      manualPagination={true}
+      pageCount={pageCount}
+      pageIndex={page - 1}
+      onPageChange={handlePageChange}
+      enableSelection={canManage}
+      onBulkApprove={
+        canManage
+          ? async (ids) => {
+              runWithConfirm({
+                title: "Setujui pengajuan?",
+                description: `${ids.length} pengajuan akan disetujui.`,
+                confirmText: "Setujui",
+                onConfirm: async () => {
+                  const { error } = await supabase
+                    .from("leave_requests")
+                    .update({ status: "approved" })
+                    .in("id", ids as number[])
+                  if (error) {
+                    toast.error(error.message || "Gagal menyetujui pengajuan")
+                    return
+                  }
+                  toast.success("Pengajuan disetujui")
+                  router.refresh()
+                },
+              })
+            }
+          : undefined
+      }
+      onBulkReject={
+        canManage
+          ? async (ids) => {
+              setRejectNote("")
+              setRejectIds(ids as number[])
+            }
+          : undefined
+      }
+      onDelete={
+        canManage
+          ? async (ids) => {
+              runWithConfirm({
+                title: "Hapus pengajuan?",
+                description: `${ids.length} pengajuan akan dihapus permanen.`,
+                confirmText: "Delete",
+                variant: "destructive",
+                onConfirm: async () => {
+                  const { error } = await supabase
+                    .from("leave_requests")
+                    .delete()
+                    .in("id", ids as number[])
+                  if (error) {
+                    toast.error(error.message || "Gagal menghapus pengajuan")
+                    return
+                  }
+                  toast.success("Pengajuan dihapus")
+                  router.refresh()
+                },
+              })
+            }
+          : undefined
+      }
+      showTableWrapper={false}
+    />
+  )
 
-  const deleteRequest = (id: number) =>
-    runWithConfirm({
-      title: "Hapus pengajuan?",
-      description: "Pengajuan ini akan dihapus permanen.",
-      confirmText: "Hapus",
-      variant: "destructive",
-      onConfirm: async () => {
-        const { error } = await supabase
-          .from("leave_requests")
-          .delete()
-          .eq("id", id)
-        if (error) {
-          toast.error(error.message || "Gagal menghapus pengajuan")
-          return
-        }
-        toast.success("Pengajuan dihapus")
-        router.refresh()
-      },
-    })
-
-  const approvalContent =
-    view === "table" ? (
-      <DataTable
-        data={requests}
-        columns={adminColumns(handleApprove, handleReject, {
-          canSelect: canManage,
-          canManage,
-        })}
-        showExport={false}
-        showViewOptions={false}
-        showFilterbar={false}
-        onCreate={undefined}
-        manualPagination={true}
-        pageCount={pageCount}
-        pageIndex={page - 1}
-        onPageChange={handlePageChange}
-        enableSelection={canManage}
-        onBulkApprove={
-          canManage
-            ? async (ids) => {
-                runWithConfirm({
-                  title: "Setujui pengajuan?",
-                  description: `${ids.length} pengajuan akan disetujui.`,
-                  confirmText: "Setujui",
-                  onConfirm: async () => {
-                    const { error } = await supabase
-                      .from("leave_requests")
-                      .update({ status: "approved" })
-                      .in("id", ids as number[])
-                    if (error) {
-                      toast.error(error.message || "Gagal menyetujui pengajuan")
-                      return
-                    }
-                    toast.success("Pengajuan disetujui")
-                    router.refresh()
-                  },
-                })
-              }
-            : undefined
-        }
-        onBulkReject={
-          canManage
-            ? async (ids) => {
-                setRejectNote("")
-                setRejectIds(ids as number[])
-              }
-            : undefined
-        }
-        onDelete={
-          canManage
-            ? async (ids) => {
-                runWithConfirm({
-                  title: "Hapus pengajuan?",
-                  description: `${ids.length} pengajuan akan dihapus permanen.`,
-                  confirmText: "Delete",
-                  variant: "destructive",
-                  onConfirm: async () => {
-                    const { error } = await supabase
-                      .from("leave_requests")
-                      .delete()
-                      .in("id", ids as number[])
-                    if (error) {
-                      toast.error(error.message || "Gagal menghapus pengajuan")
-                      return
-                    }
-                    toast.success("Pengajuan dihapus")
-                    router.refresh()
-                  },
-                })
-              }
-            : undefined
-        }
-        showTableWrapper={false}
-      />
-    ) : (
-      <AdminLeaveList
-        requests={requests}
-        canManage={canManage}
-        onApprove={handleApprove}
-        onReject={handleReject}
-        onApproveMany={approveMany}
-        onDelete={deleteRequest}
-        page={page}
-        pageCount={pageCount}
-        onPageChange={handlePageChange}
-      />
-    )
-
-  const remainingContent = <RemainingLeaveView data={profiles} view={view} />
+  const remainingContent = <RemainingLeaveList data={profiles} />
 
   return (
     <>
@@ -630,8 +586,6 @@ export function StakeholderLeavePage({
           onCloseAttendanceSession={handleCloseAttendanceSession}
           onEditAttendanceSession={handleEditAttendanceSession}
           onAddManualLeave={openManualModal}
-          view={view}
-          onViewChange={setView}
           overviewStats={overviewStats}
           isClient={isClient}
         />
@@ -724,15 +678,17 @@ export function StakeholderLeavePage({
         </DialogContent>
       </Dialog>
 
-      <AdminAttendanceEditDialog
-        log={editingLog}
-        open={Boolean(editingLog)}
-        loading={editLoading}
-        onOpenChange={(open) => {
-          if (!open) setEditingLogId(null)
-        }}
-        onSubmit={handleUpdateAttendanceSession}
-      />
+      {editDialogMounted && (
+        <AdminAttendanceEditDialog
+          log={editingLog}
+          open={Boolean(editingLog)}
+          loading={editLoading}
+          onOpenChange={(open) => {
+            if (!open) setEditingLogId(null)
+          }}
+          onSubmit={handleUpdateAttendanceSession}
+        />
+      )}
 
       <Dialog open={manualModalOpen} onOpenChange={setManualModalOpen}>
         <DialogContent className="sm:max-w-[35rem]">
@@ -916,8 +872,6 @@ function AttendanceOverviewPanel({
   onCloseAttendanceSession,
   onEditAttendanceSession,
   onAddManualLeave,
-  view,
-  onViewChange,
   overviewStats,
   isClient,
 }: {
@@ -931,8 +885,6 @@ function AttendanceOverviewPanel({
   onCloseAttendanceSession: (logId: string) => void
   onEditAttendanceSession: (logId: string) => void
   onAddManualLeave: () => void
-  view: ViewMode
-  onViewChange: (view: ViewMode) => void
   isClient: boolean
   overviewStats?: {
     onLeaveToday: number
@@ -945,28 +897,40 @@ function AttendanceOverviewPanel({
   const { isMounted } = useMountedTabs(activeTab)
   const today = getLocalDateString()
 
-  const onLeaveToday = leaveRequests.filter(
-    (req) =>
-      req.status === "approved" &&
-      req.start_date <= today &&
-      req.end_date >= today,
-  ).length
-
-  const pendingRequests = leaveRequests.filter(
-    (req) => req.status === "pending",
-  ).length
-
-  const totalApproved = leaveRequests.filter(
-    (req) => req.status === "approved",
-  ).length
-
-  const presentToday = attendanceLogs.filter(
-    (log) => getAttendanceLogLocalDate(log) === today,
-  ).length
-
-  const currentlyActive = attendanceLogs.filter(
-    (log) => getAttendanceLogLocalDate(log) === today && !log.clock_out,
-  ).length
+  // Fallback counts, only used when the server didn't send overviewStats.
+  const {
+    onLeaveToday,
+    pendingRequests,
+    totalApproved,
+    presentToday,
+    currentlyActive,
+  } = useMemo(() => {
+    let onLeaveToday = 0
+    let pendingRequests = 0
+    let totalApproved = 0
+    for (const req of leaveRequests) {
+      if (req.status === "pending") pendingRequests++
+      if (req.status === "approved") {
+        totalApproved++
+        if (req.start_date <= today && req.end_date >= today) onLeaveToday++
+      }
+    }
+    let presentToday = 0
+    let currentlyActive = 0
+    for (const log of attendanceLogs) {
+      if (getAttendanceLogLocalDate(log) === today) {
+        presentToday++
+        if (!log.clock_out) currentlyActive++
+      }
+    }
+    return {
+      onLeaveToday,
+      pendingRequests,
+      totalApproved,
+      presentToday,
+      currentlyActive,
+    }
+  }, [leaveRequests, attendanceLogs, today])
 
   const stats = [
     {
@@ -993,18 +957,20 @@ function AttendanceOverviewPanel({
 
   return (
     <div className="flex flex-col">
-      <div className="my-2 grid grid-cols-2 gap-x-8 gap-y-4 py-2 lg:grid-cols-5">
-        {stats.map((item) => (
-          <div key={item.label} className="flex min-w-0 flex-col gap-1">
-            <p className="text-muted-foreground text-sm">{item.label}</p>
-            <p className="text-foreground text-lg font-medium tabular-nums">
-              {item.value}
-            </p>
-          </div>
-        ))}
-      </div>
+      {/* Mercury order: title + actions, tabs, a stats band, then the list. */}
+      <PageHeader
+        className="pt-6 pb-4"
+        title="Leave & Attendance"
+        actions={
+          activeTab === "approval" ? (
+            <Button variant="outline" onClick={onAddManualLeave}>
+              Tambah manual
+            </Button>
+          ) : null
+        }
+      />
 
-      <div className="border-border border-b pt-2">
+      <div className="bleed gutter-x border-border border-b">
         <div className="pb-3 xl:hidden">
           {isClient ? (
             <Select
@@ -1026,45 +992,46 @@ function AttendanceOverviewPanel({
             <div className="bg-foreground/[0.03] h-9 w-full rounded-md" />
           )}
         </div>
-        <div className="flex items-end justify-between gap-4">
-          <div className="hidden xl:block">
-            <TabNavigation className="border-b-0">
-              <TabNavigationLink
-                active={activeTab === "approval"}
-                onClick={() => onTabChange("approval")}
-                showLeadingIcon={false}
-              >
-                Persetujuan
-              </TabNavigationLink>
-              <TabNavigationLink
-                active={activeTab === "attendance"}
-                onClick={() => onTabChange("attendance")}
-                showLeadingIcon={false}
-              >
-                Kehadiran
-              </TabNavigationLink>
-              <TabNavigationLink
-                active={activeTab === "remaining"}
-                onClick={() => onTabChange("remaining")}
-                showLeadingIcon={false}
-              >
-                Saldo Cuti
-              </TabNavigationLink>
-            </TabNavigation>
-          </div>
-          {/* Visible on every screen size (used to be desktop-only). */}
-          <div className="ml-auto flex items-center gap-2 pb-1.5">
-            <ViewToggle value={view} onValueChange={onViewChange} />
-            {activeTab === "approval" && (
-              <Button variant="outline" onClick={onAddManualLeave}>
-                Tambah manual
-              </Button>
-            )}
-          </div>
+        <div className="hidden xl:block">
+          <TabNavigation className="border-b-0">
+            <TabNavigationLink
+              active={activeTab === "approval"}
+              onClick={() => onTabChange("approval")}
+              showLeadingIcon={false}
+            >
+              Persetujuan
+            </TabNavigationLink>
+            <TabNavigationLink
+              active={activeTab === "attendance"}
+              onClick={() => onTabChange("attendance")}
+              showLeadingIcon={false}
+            >
+              Kehadiran
+            </TabNavigationLink>
+            <TabNavigationLink
+              active={activeTab === "remaining"}
+              onClick={() => onTabChange("remaining")}
+              showLeadingIcon={false}
+            >
+              Saldo Cuti
+            </TabNavigationLink>
+          </TabNavigation>
         </div>
       </div>
 
-      <div className="py-4">
+      {/* Full-bleed band between the tabs and the list. */}
+      <div className="stat-strip bleed gutter-x border-border border-b py-4">
+        {stats.map((item) => (
+          <div key={item.label} className="stat-tile">
+            <p className="text-muted-foreground text-sm">{item.label}</p>
+            <p className="text-foreground text-xl font-normal tracking-tight tabular-nums">
+              {item.value}
+            </p>
+          </div>
+        ))}
+      </div>
+
+      <div className="pb-4">
         {activeTab === "approval" && (
           <div className="block space-y-5">{approvalContent}</div>
         )}
@@ -1078,54 +1045,16 @@ function AttendanceOverviewPanel({
           </div>
         )}
         {isMounted("attendance") && (
-          <div
-            className={
-              activeTab === "attendance"
-                ? "block space-y-5"
-                : "hidden space-y-5"
-            }
-          >
-            {view === "table" ? (
-              <AdminAttendanceHistoryTable
-                logs={attendanceLogs}
-                onApproveDelete={onApproveAttendanceDelete}
-                onCloseSession={onCloseAttendanceSession}
-                onEditSession={onEditAttendanceSession}
-              />
-            ) : (
-              <AdminAttendanceHistoryList
-                logs={attendanceLogs}
-                onApproveDelete={onApproveAttendanceDelete}
-                onCloseSession={onCloseAttendanceSession}
-                onEditSession={onEditAttendanceSession}
-              />
-            )}
+          <div className={activeTab === "attendance" ? "block" : "hidden"}>
+            <AdminAttendanceHistoryList
+              logs={attendanceLogs}
+              onApproveDelete={onApproveAttendanceDelete}
+              onCloseSession={onCloseAttendanceSession}
+              onEditSession={onEditAttendanceSession}
+            />
           </div>
         )}
       </div>
     </div>
-  )
-}
-
-function RemainingLeaveView({
-  data,
-  view,
-}: {
-  data: Profile[]
-  view: ViewMode
-}) {
-  if (view === "list") return <RemainingLeaveList data={data} />
-  return (
-    <DataTable
-      data={data}
-      columns={remainingLeaveColumns}
-      showExport={false}
-      showViewOptions={false}
-      showFilterbar={false}
-      actionLabel=""
-      enableSelection={false}
-      onDelete={undefined}
-      showTableWrapper={false}
-    />
   )
 }

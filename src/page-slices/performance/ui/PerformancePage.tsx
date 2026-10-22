@@ -1,5 +1,6 @@
 "use client"
 
+import { PageHeader } from "@/components/page-header"
 import { QuarterFilter } from "@/components/quarter-filter"
 import { TabNavigation, TabNavigationLink } from "@/components/tab-navigation"
 import { useViewMode, ViewToggle } from "@/components/view-toggle"
@@ -10,15 +11,53 @@ import { canManageByRole } from "@/shared/lib/roles"
 import { useQuery } from "@tanstack/react-query"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useMemo } from "react"
-import { CompetencyLibrary } from "./competency/CompetencyLibrary"
 import { EmployeeKpiView } from "./kpi/EmployeeKpiView"
-import { LeadTeam } from "./kpi/LeadTeam"
 import { normalizePeriod, periodYears } from "./kpi/period"
 import { TeamKpiList } from "./kpi/TeamKpiList"
-import { OneOnOne } from "./meeting/OneOnOne"
-import { MyReview } from "./review/MyReview"
-import { ReviewMonitoring } from "./review/ReviewMonitoring"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Spinner } from "@/components/ui/spinner"
+import dynamic from "next/dynamic"
+
+/** Stats band + list placeholder while a tab's chunk loads (as loading.tsx). */
+function TabFallback() {
+  return (
+    <>
+      <div className="bleed gutter-x border-border flex gap-10 border-b py-4">
+        {[0, 1, 2].map((i) => (
+          <div key={i} className="flex flex-col gap-2">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-6 w-16" />
+          </div>
+        ))}
+      </div>
+      <Skeleton className="mt-4 h-64 w-full" />
+    </>
+  )
+}
+
+// KPI is the default tab and stays eager; the rest load when opened.
+const loading = () => <TabFallback />
+const ReviewMonitoring = dynamic(
+  () => import("./review/ReviewMonitoring").then((m) => m.ReviewMonitoring),
+  { loading },
+)
+const MyReview = dynamic(
+  () => import("./review/MyReview").then((m) => m.MyReview),
+  { loading },
+)
+const OneOnOne = dynamic(
+  () => import("./meeting/OneOnOne").then((m) => m.OneOnOne),
+  { loading },
+)
+const LeadTeam = dynamic(
+  () => import("./kpi/LeadTeam").then((m) => m.LeadTeam),
+  { loading },
+)
+const CompetencyLibrary = dynamic(
+  () =>
+    import("./competency/CompetencyLibrary").then((m) => m.CompetencyLibrary),
+  { loading },
+)
 
 type Tab = "kpi" | "360-review" | "one-on-one" | "team" | "competency-library"
 
@@ -92,8 +131,27 @@ export function PerformancePage() {
   const tab: Tab = allowed ? activeTab : "kpi"
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-2 border-b">
+    <div className="flex flex-col">
+      <PageHeader
+        className="pt-6 pb-4"
+        title="Performance"
+        actions={
+          <>
+            {tab === "kpi" && isAdmin && (
+              <ViewToggle value={view} onValueChange={setView} />
+            )}
+            {tab !== "competency-library" && (
+              <QuarterFilter
+                value={period}
+                onChange={setPeriod}
+                years={periodYears()}
+              />
+            )}
+          </>
+        }
+      />
+
+      <div className="bleed gutter-x border-border border-b">
         <TabNavigation className="border-b-0">
           {tabs.map((t) => (
             <TabNavigationLink
@@ -105,41 +163,32 @@ export function PerformancePage() {
             </TabNavigationLink>
           ))}
         </TabNavigation>
-        <div className="flex h-10 items-center gap-2 pb-2">
-          {tab === "kpi" && isAdmin && (
-            <ViewToggle value={view} onValueChange={setView} />
-          )}
-          {tab !== "competency-library" && (
-            <QuarterFilter
-              value={period}
-              onChange={setPeriod}
-              years={periodYears()}
-            />
-          )}
-        </div>
       </div>
 
-      {tab === "kpi" &&
-        (isAdmin ? (
-          <TeamKpiList scope={period} view={view} />
-        ) : (
-          <EmployeeKpiView
-            userId={profile.id}
-            scope={period}
-            hrefFor={(p) =>
-              `/performance/employee/${profile.id}/project/${p.projectId}?periode=${encodeURIComponent(period)}`
-            }
-          />
-        ))}
-      {tab === "360-review" &&
-        (isAdmin ? (
-          <ReviewMonitoring period={period} />
-        ) : (
-          <MyReview period={period} />
-        ))}
-      {tab === "one-on-one" && <OneOnOne period={period} />}
-      {tab === "team" && <LeadTeam period={period} />}
-      {tab === "competency-library" && isAdmin && <CompetencyLibrary />}
+      {/* Each tab brings its own stats band / toolbar, then the list. */}
+      <div className="pb-4">
+        {tab === "kpi" &&
+          (isAdmin ? (
+            <TeamKpiList scope={period} view={view} />
+          ) : (
+            <EmployeeKpiView
+              userId={profile.id}
+              scope={period}
+              hrefFor={(p) =>
+                `/performance/employee/${profile.id}/project/${p.projectId}?periode=${encodeURIComponent(period)}`
+              }
+            />
+          ))}
+        {tab === "360-review" &&
+          (isAdmin ? (
+            <ReviewMonitoring period={period} />
+          ) : (
+            <MyReview period={period} />
+          ))}
+        {tab === "one-on-one" && <OneOnOne period={period} />}
+        {tab === "team" && <LeadTeam period={period} />}
+        {tab === "competency-library" && isAdmin && <CompetencyLibrary />}
+      </div>
     </div>
   )
 }

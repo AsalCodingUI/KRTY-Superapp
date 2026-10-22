@@ -42,7 +42,7 @@ export function ProgressBarCard({
             <span className="text-foreground text-lg font-medium tabular-nums">
               {value}
             </span>
-            <span className="text-muted-foreground/70 text-sm">
+            <span className="text-tertiary-foreground text-sm">
               {valueDescription}
             </span>
           </dd>
@@ -55,7 +55,7 @@ export function ProgressBarCard({
                   </span>
                   <span className="text-foreground font-medium">
                     {item.current}
-                    <span className="text-muted-foreground/70 font-normal">
+                    <span className="text-tertiary-foreground font-normal">
                       /{item.allowed}
                       {item.unit}
                     </span>
@@ -67,7 +67,7 @@ export function ProgressBarCard({
           </ul>
         </div>
         <div>
-          <p className="text-muted-foreground/70 mt-6 text-xs">
+          <p className="text-tertiary-foreground mt-6 text-xs">
             {ctaDescription}{" "}
             <a href={ctaLink} className="text-primary hover:text-primary/90">
               {ctaText}

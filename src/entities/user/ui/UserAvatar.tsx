@@ -9,7 +9,7 @@ import type { VariantProps } from "tailwind-variants"
 // ============================================================================
 
 const avatarVariants = tv({
-  base: "ring-card dark:ring-card relative inline-flex items-center justify-center overflow-hidden rounded-full font-medium ring-2",
+  base: "ring-background dark:ring-surface relative inline-flex items-center justify-center overflow-hidden rounded-full font-medium ring-2",
   variants: {
     size: {
       xs: "h-6 w-6 text-xs font-medium",
@@ -20,11 +20,11 @@ const avatarVariants = tv({
     },
     color: {
       // Using chart colors for visual consistency with data viz
-      chart1: "bg-blue-500/10 text-blue-700 dark:text-blue-300",
-      chart2: "bg-amber-500/10 text-amber-700 dark:text-amber-300",
-      chart3: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
-      chart4: "bg-purple-500/10 text-purple-700 dark:text-purple-300",
-      chart5: "bg-pink-500/10 text-pink-700 dark:text-pink-300",
+      chart1: "bg-blue-3 text-blue-11",
+      chart2: "bg-amber-3 text-amber-11",
+      chart3: "bg-green-3 text-green-11",
+      chart4: "bg-purple-3 text-purple-11",
+      chart5: "bg-pink-3 text-pink-11",
       // Semantic colors
       primary: "bg-primary/10 text-primary",
       muted: "bg-muted text-muted-foreground",
@@ -141,7 +141,7 @@ const avatarOverflowVariants = tv({
   base: [
     "flex items-center justify-center rounded-full font-medium",
     "bg-muted",
-    "ring-card ring-2",
+    "ring-background dark:ring-surface ring-2",
     "text-muted-foreground",
   ],
   variants: {

@@ -1,7 +1,7 @@
 "use client"
 
 import type { Variants } from "motion/react"
-import { motion, useAnimation } from "motion/react"
+import { m, useAnimation } from "motion/react"
 import type { HTMLAttributes } from "react"
 import { forwardRef, useCallback, useImperativeHandle, useRef } from "react"
 
@@ -78,7 +78,7 @@ const BriefcaseBusinessIcon = forwardRef<
       onMouseLeave={handleMouseLeave}
       {...props}
     >
-      <motion.svg
+      <m.svg
         animate={controls}
         fill="none"
         height={size}
@@ -97,7 +97,7 @@ const BriefcaseBusinessIcon = forwardRef<
         <path d="M16 6V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
         <path d="M22 13a18.15 18.15 0 0 1-20 0" />
         <rect height="14" rx="2" width="20" x="2" y="6" />
-      </motion.svg>
+      </m.svg>
     </div>
   )
 })

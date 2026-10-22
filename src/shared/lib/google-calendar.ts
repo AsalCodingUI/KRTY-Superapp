@@ -36,7 +36,22 @@ export function getGoogleEnv() {
   return { clientId, clientSecret, refreshToken, calendarId }
 }
 
+// Access tokens live ~1h; reuse one per server process instead of running
+// the OAuth refresh on every calendar request.
+let cachedToken: { value: string; expiresAt: number } | null = null
+let pendingToken: Promise<string | null> | null = null
+
 export async function getGoogleAccessToken(): Promise<string | null> {
+  if (cachedToken && cachedToken.expiresAt > Date.now()) {
+    return cachedToken.value
+  }
+  pendingToken ??= refreshGoogleAccessToken().finally(() => {
+    pendingToken = null
+  })
+  return pendingToken
+}
+
+async function refreshGoogleAccessToken(): Promise<string | null> {
   const env = getGoogleEnv()
   if (!env) return null
 
@@ -57,8 +72,17 @@ export async function getGoogleAccessToken(): Promise<string | null> {
     return null
   }
 
-  const data = (await response.json()) as { access_token?: string }
-  return data.access_token ?? null
+  const data = (await response.json()) as {
+    access_token?: string
+    expires_in?: number
+  }
+  if (!data.access_token) return null
+  // Refresh a minute early so a token never expires mid-request.
+  cachedToken = {
+    value: data.access_token,
+    expiresAt: Date.now() + ((data.expires_in ?? 3600) - 60) * 1000,
+  }
+  return data.access_token
 }
 
 export async function fetchGoogleCalendarEvents({

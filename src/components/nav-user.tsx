@@ -16,12 +16,10 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import {
-  Settings as SettingsIcon,
   ArrowLeft as UndoIcon,
   Logout as LogOutIcon,
   MessageCircle as MessageCircleIcon,
 } from "@/components/icons"
-import { useSettingsModal } from "@/shared/hooks/useSettingsModal"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { useStopImpersonation } from "@/widgets/impersonation/model/useStopImpersonation"
 
@@ -40,6 +38,8 @@ export function NavUser({
   user,
   onSignOut,
   contactHref,
+  showName = false,
+  side = "right",
 }: {
   user: {
     name: string
@@ -48,15 +48,17 @@ export function NavUser({
   }
   onSignOut: () => void
   contactHref?: string
+  /** Show the name next to the avatar (top bar). */
+  showName?: boolean
+  side?: "right" | "bottom"
 }) {
   const initials = initialsOf(user.name)
-  const settings = useSettingsModal()
   const { isImpersonating } = useUserProfile()
   const { stop: stopImpersonation } = useStopImpersonation()
 
   return (
     // Centred in the rail.
-    <SidebarMenu className="items-center">
+    <SidebarMenu className={showName ? "w-auto" : "items-center"}>
       <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger
@@ -64,7 +66,13 @@ export function NavUser({
             // the profile loads, which shifted Base UI's generated ids.
             id="nav-user-menu-trigger"
             render={
-              <SidebarMenuButton className="aria-expanded:bg-sidebar-accent size-8! justify-center p-0!" />
+              <SidebarMenuButton
+                className={
+                  showName
+                    ? "text-foreground h-8 w-auto gap-2 px-1.5 hover:bg-transparent active:bg-transparent aria-expanded:bg-transparent"
+                    : "aria-expanded:bg-sidebar-accent size-8! justify-center p-0!"
+                }
+              />
             }
           >
             <Avatar className="size-6">
@@ -73,11 +81,19 @@ export function NavUser({
                 {initials}
               </AvatarFallback>
             </Avatar>
-            <span className="sr-only">{user.name}</span>
+            <span
+              className={
+                showName
+                  ? "hidden max-w-40 truncate text-sm font-medium lg:inline"
+                  : "sr-only"
+              }
+            >
+              {user.name}
+            </span>
           </DropdownMenuTrigger>
           <DropdownMenuContent
             className="min-w-56 rounded-lg"
-            side="right"
+            side={side}
             align="end"
             sideOffset={4}
           >
@@ -97,10 +113,6 @@ export function NavUser({
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem onClick={() => settings.open("general")}>
-                <SettingsIcon />
-                Settings
-              </DropdownMenuItem>
               {contactHref && (
                 <DropdownMenuItem
                   onClick={() =>

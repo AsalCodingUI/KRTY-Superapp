@@ -142,18 +142,16 @@ async function reviewScoresByUser(
 ) {
   const map = new Map<string, number[]>()
   if (userIds.length === 0) return map
-  const { data: cycles } = await applyScope(
-    supabase.from("review_cycles").select("id").not("quarter", "is", null),
-    "quarter",
+  // One query: summaries joined to their cycle, scoped by the cycle quarter.
+  const { data: summaries } = await applyScope(
+    supabase
+      .from("performance_summaries")
+      .select("reviewee_id, overall_percentage, review_cycles!inner(quarter)")
+      .not("review_cycles.quarter", "is", null)
+      .in("reviewee_id", userIds),
+    "review_cycles.quarter",
     scope,
   )
-  const cycleIds = (cycles ?? []).map((c: { id: string }) => c.id)
-  if (cycleIds.length === 0) return map
-  const { data: summaries } = await supabase
-    .from("performance_summaries")
-    .select("reviewee_id, overall_percentage")
-    .in("cycle_id", cycleIds)
-    .in("reviewee_id", userIds)
   for (const s of summaries ?? []) {
     if (s.overall_percentage === null) continue
     map.set(s.reviewee_id, [
@@ -176,26 +174,27 @@ export async function getEmployeeKpi(
   }
   const { supabase } = me
 
-  const [{ data: employee }, { data: assignments, error }] = await Promise.all([
-    supabase
-      .from("profiles")
-      .select("id, full_name, avatar_url, job_title")
-      .eq("id", userId)
-      .maybeSingle(),
-    applyScope(
+  const [{ data: employee }, { data: assignments, error }, reviews] =
+    await Promise.all([
       supabase
-        .from("project_assignments")
-        .select(ASSIGNMENT_SELECT)
-        .eq("user_id", userId),
-      "projects.quarter_id",
-      scope,
-    ),
-  ])
+        .from("profiles")
+        .select("id, full_name, avatar_url, job_title")
+        .eq("id", userId)
+        .maybeSingle(),
+      applyScope(
+        supabase
+          .from("project_assignments")
+          .select(ASSIGNMENT_SELECT)
+          .eq("user_id", userId),
+        "projects.quarter_id",
+        scope,
+      ),
+      reviewScoresByUser(supabase, scope, [userId]),
+    ])
   if (!employee) return { success: false, error: "Anggota tidak ditemukan." }
   if (error) return { success: false, error: "Gagal memuat KPI." }
 
   const rows = (assignments ?? []) as unknown as AssignmentRow[]
-  const reviews = await reviewScoresByUser(supabase, scope, [userId])
   const parts = partsFrom(rows, reviews.get(userId) ?? [])
 
   return {

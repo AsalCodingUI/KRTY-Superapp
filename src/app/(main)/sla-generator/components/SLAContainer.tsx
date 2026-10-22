@@ -14,12 +14,19 @@ import {
   RiSave3Line,
   RiSaveLine,
 } from "@/shared/ui/lucide-icons"
+import dynamic from "next/dynamic"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
-import { MilestonesForm } from "./MilestonesForm"
-import { ScopeOfWorkForm } from "./ScopeOfWorkForm"
-import SLADocumentPreview from "./SLADocumentPreview"
+
+// Heavy editor sections and the document preview ship as separate chunks.
+const MilestonesForm = dynamic(() =>
+  import("./MilestonesForm").then((m) => m.MilestonesForm),
+)
+const ScopeOfWorkForm = dynamic(() =>
+  import("./ScopeOfWorkForm").then((m) => m.ScopeOfWorkForm),
+)
+const SLADocumentPreview = dynamic(() => import("./SLADocumentPreview"))
 
 // --- INITIAL DATA ---
 const DEFAULT_SCOPE = [
@@ -256,14 +263,14 @@ export default function SLAContainer({
           className={`border-border bg-card flex h-full w-full flex-col border-r lg:w-1/2 print:hidden ${activeTab === "preview" ? "hidden lg:flex" : "flex"}`}
         >
           {/* Header */}
-          <div className="border-border bg-sidebar sticky top-0 z-10 flex items-center justify-between border-b px-5 py-4">
+          <div className="border-border bg-background dark:bg-surface sticky top-0 z-10 flex items-center justify-between border-b px-5 py-4">
             <div className="flex min-w-0 items-center gap-3">
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={onBack ?? (() => router.back())}
               >
-                <RiArrowLeftLine className="text-muted-foreground/70 size-5" />
+                <RiArrowLeftLine className="text-tertiary-foreground size-5" />
               </Button>
               <div className="min-w-0">
                 <p className="text-foreground truncate text-sm font-medium">

@@ -1,5 +1,7 @@
 "use client"
 
+import { EmptyValue } from "@/components/empty-value"
+import { PageHeader } from "@/components/page-header"
 import {
   deleteProject,
   setProjectStatus,
@@ -10,6 +12,7 @@ import { DataTable, DataTableColumnHeader } from "@/components/data-table"
 import { ListChip } from "@/components/grouped-list"
 import { ProjectAvatar } from "@/components/project-avatar"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
 import { useViewMode, ViewToggle } from "@/components/view-toggle"
@@ -21,16 +24,30 @@ import { useQuery, useQueryClient } from "@tanstack/react-query"
 import type { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
 import { id as idLocale } from "date-fns/locale"
+import dynamic from "next/dynamic"
 import Link from "next/link"
 import { useMemo, useState } from "react"
 import { toast } from "sonner"
-import { ProjectForm } from "./ProjectForm"
-import { ProjectKanban } from "./ProjectKanban"
 import {
   ProjectList,
   type ProjectActions,
   type ProjectListRow,
 } from "./ProjectList"
+
+// Kanban (dnd) and the form dialog load only when used.
+const ProjectKanban = dynamic(
+  () => import("./ProjectKanban").then((m) => m.ProjectKanban),
+  {
+    loading: () => (
+      <div className="flex justify-center py-16">
+        <Spinner className="size-6" />
+      </div>
+    ),
+  },
+)
+const ProjectForm = dynamic(() =>
+  import("./ProjectForm").then((m) => m.ProjectForm),
+)
 
 const STATUS_LABELS: Record<ProjectListRow["status"], string> = {
   Active: "Aktif",
@@ -51,6 +68,8 @@ export function ProjectsListPage() {
   const isAdmin = canManageByRole(profile?.role)
   const [view, setView] = useViewMode("projects")
   const [formOpen, setFormOpen] = useState(false)
+  const [formMounted, setFormMounted] = useState(false)
+  if (formOpen && !formMounted) setFormMounted(true)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [deleting, setDeleting] = useState<ProjectListRow | null>(null)
 
@@ -60,7 +79,7 @@ export function ProjectsListPage() {
       const { data, error } = await supabase
         .from("projects")
         .select(
-          `id, name, status, start_date, end_date, quarter_id,
+          `id, name, status, start_date, end_date, quarter_id, client_name,
            project_assignments ( id, profiles ( full_name, avatar_url ) )`,
         )
         .order("end_date", { ascending: false })
@@ -101,57 +120,60 @@ export function ProjectsListPage() {
       }
     : undefined
 
-  const active = projects.filter((p) => p.status === "Active").length
-
   return (
-    <div className="flex flex-col gap-4 py-2">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-muted-foreground text-sm">
-          {projects.length} project · {active} aktif
-        </p>
-        <div className="flex items-center gap-2">
-          <ViewToggle
-            value={view}
-            onValueChange={setView}
-            modes={["list", "kanban", "table"]}
-          />
-          {isAdmin && (
-            <Button
-              onClick={() => {
-                setEditingId(null)
-                setFormOpen(true)
-              }}
-            >
-              <RiAddLine data-icon="inline-start" />
-              Project baru
-            </Button>
-          )}
-        </div>
-      </div>
+    <div className="flex flex-col">
+      <PageHeader
+        className="pt-6 pb-4"
+        title="Projects"
+        actions={
+          <div className="flex items-center gap-2">
+            <ViewToggle
+              value={view}
+              onValueChange={setView}
+              modes={["list", "kanban", "table"]}
+            />
+            {isAdmin && (
+              <Button
+                onClick={() => {
+                  setEditingId(null)
+                  setFormOpen(true)
+                }}
+              >
+                <RiAddLine data-icon="inline-start" />
+                Project baru
+              </Button>
+            )}
+          </div>
+        }
+      />
 
-      {isLoading ? (
-        <div className="flex justify-center py-16">
-          <Spinner className="size-6" />
-        </div>
-      ) : view === "kanban" ? (
-        <ProjectKanban
-          projects={projects}
-          onMove={isAdmin ? changeStatus : undefined}
-        />
-      ) : view === "table" ? (
-        <ProjectTable projects={projects} />
-      ) : (
-        <ProjectList projects={projects} actions={actions} />
-      )}
+      <div className="pb-4">
+        {isLoading ? (
+          <div className="flex justify-center py-16">
+            <Spinner className="size-6" />
+          </div>
+        ) : view === "kanban" ? (
+          <ProjectKanban
+            projects={projects}
+            onMove={isAdmin ? changeStatus : undefined}
+          />
+        ) : view === "table" ? (
+          <ProjectTable projects={projects} />
+        ) : (
+          <ProjectList projects={projects} actions={actions} />
+        )}
+      </div>
 
       {isAdmin && (
         <>
-          <ProjectForm
-            projectId={editingId}
-            open={formOpen}
-            onOpenChange={setFormOpen}
-            onSaved={refresh}
-          />
+          {formMounted && (
+            <ProjectForm
+              projectId={editingId}
+              open={formOpen}
+              onOpenChange={setFormOpen}
+              onSaved={refresh}
+            />
+          )}
           <ConfirmDialog
             open={Boolean(deleting)}
             onOpenChange={(open) => !open && setDeleting(null)}
@@ -189,7 +211,7 @@ function ProjectTable({ projects }: { projects: ProjectListRow[] }) {
         <Link
           href={`/projects/${row.original.id}`}
           prefetch={false}
-          className="flex items-center gap-2 font-medium hover:underline"
+          className="flex items-center gap-2 hover:underline"
         >
           <ProjectAvatar id={row.original.id} name={row.original.name} />
           {row.original.name}
@@ -201,7 +223,13 @@ function ProjectTable({ projects }: { projects: ProjectListRow[] }) {
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Status" />
       ),
-      cell: ({ row }) => STATUS_LABELS[row.original.status],
+      cell: ({ row }) => (
+        <Badge
+          variant={row.original.status === "Active" ? "success" : "secondary"}
+        >
+          {STATUS_LABELS[row.original.status]}
+        </Badge>
+      ),
     },
     {
       accessorKey: "quarter_id",
@@ -212,7 +240,7 @@ function ProjectTable({ projects }: { projects: ProjectListRow[] }) {
         row.original.quarter_id ? (
           <ListChip>{row.original.quarter_id}</ListChip>
         ) : (
-          <span className="text-muted-foreground/60">—</span>
+          <EmptyValue />
         ),
     },
     {
@@ -237,8 +265,7 @@ function ProjectTable({ projects }: { projects: ProjectListRow[] }) {
       header: () => <span>Tim</span>,
       cell: ({ row }) => {
         const team = row.original.project_assignments ?? []
-        if (team.length === 0)
-          return <span className="text-muted-foreground/60">—</span>
+        if (team.length === 0) return <EmptyValue />
         return (
           <AvatarGroup>
             {team.slice(0, 3).map((a) => (

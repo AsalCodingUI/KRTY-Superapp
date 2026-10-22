@@ -1,5 +1,7 @@
 "use client"
 
+import { EmptyValue } from "@/components/empty-value"
+import { PageHeader } from "@/components/page-header"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -164,115 +166,123 @@ export function ProjectTasks({ projectId }: { projectId: string }) {
   }
 
   return (
-    <div className="flex flex-col gap-4 py-2">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <div className="bg-muted/60 flex items-center gap-0.5 rounded-md p-0.5 text-sm">
-            {(
-              [
-                ["all", "Semua"],
-                ["todo", "Belum"],
-                ["done", "Selesai"],
-              ] as const
-            ).map(([key, label]) => (
-              <button
-                key={key}
-                type="button"
-                aria-pressed={filter === key}
-                onClick={() => setFilter(key)}
-                className={cn(
-                  "text-muted-foreground hover:text-foreground flex h-7 items-center gap-1.5 rounded-[5px] px-2.5",
-                  filter === key && "bg-background text-foreground shadow-xs",
-                )}
-              >
-                {label}
-                <span className="text-muted-foreground/80 tabular-nums">
-                  {counts[key]}
-                </span>
-              </button>
-            ))}
-          </div>
-          <Button
-            size="sm"
-            variant={mine ? "secondary" : "ghost"}
-            aria-pressed={mine}
-            onClick={() => setMine((v) => !v)}
-          >
-            Punya saya
+    <div className="flex flex-col">
+      <PageHeader
+        className="pt-6 pb-4"
+        title="Tugas"
+        actions={
+          <Button onClick={() => setAdding(true)}>
+            <RiAddLine data-icon="inline-start" />
+            Tugas baru
           </Button>
+        }
+      />
+      <div className="flex flex-col gap-4 pb-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <div className="bg-muted/60 flex items-center gap-0.5 rounded-md p-0.5 text-sm">
+              {(
+                [
+                  ["all", "Semua"],
+                  ["todo", "Belum"],
+                  ["done", "Selesai"],
+                ] as const
+              ).map(([key, label]) => (
+                <button
+                  key={key}
+                  type="button"
+                  aria-pressed={filter === key}
+                  onClick={() => setFilter(key)}
+                  className={cn(
+                    "text-muted-foreground hover:text-foreground flex h-7 items-center gap-1.5 rounded-[5px] px-2.5",
+                    filter === key && "bg-background text-foreground shadow-xs",
+                  )}
+                >
+                  {label}
+                  <span className="text-muted-foreground/80 tabular-nums">
+                    {counts[key]}
+                  </span>
+                </button>
+              ))}
+            </div>
+            <Button
+              size="sm"
+              variant={mine ? "secondary" : "ghost"}
+              aria-pressed={mine}
+              onClick={() => setMine((v) => !v)}
+            >
+              Punya saya
+            </Button>
+          </div>
         </div>
-        <Button onClick={() => setAdding(true)}>
-          <RiAddLine data-icon="inline-start" />
-          Tugas baru
-        </Button>
-      </div>
 
-      <div className="-mx-4 flex flex-col text-sm">
-        <div className="text-muted-foreground border-border grid grid-cols-[2.5rem_minmax(0,1fr)_8rem_10rem_7rem_5rem] items-center border-b px-4 py-2 text-xs">
-          <span />
-          <span>Tugas</span>
-          <span>Phase</span>
-          <span>PIC</span>
-          <span>Deadline</span>
-          <span className="text-right">Dibuat</span>
-        </div>
-
-        {adding && (
-          <div className="border-border/50 grid grid-cols-[2.5rem_minmax(0,1fr)] items-center border-b px-4 py-2">
+        <div className="bleed flex flex-col text-sm">
+          <div className="text-muted-foreground border-border gutter-x grid grid-cols-[2.5rem_minmax(0,1fr)_8rem_10rem_7rem_5rem] items-center border-b py-2 text-xs">
             <span />
-            <Input
-              autoFocus
-              value={newTitle}
-              placeholder="Nama tugas, Enter untuk simpan"
-              onChange={(e) => setNewTitle(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") addTop()
-                if (e.key === "Escape") {
-                  setAdding(false)
-                  setNewTitle("")
-                }
-              }}
-              onBlur={() => {
-                if (!newTitle.trim()) setAdding(false)
-              }}
-              className="h-8"
-            />
+            <span>Tugas</span>
+            <span>Phase</span>
+            <span>PIC</span>
+            <span>Deadline</span>
+            <span className="text-right">Dibuat</span>
           </div>
-        )}
 
-        {isLoading ? (
-          <div className="flex justify-center py-12">
-            <Spinner className="size-6" />
-          </div>
-        ) : visible.length === 0 && !adding ? (
-          <button
-            type="button"
-            onClick={() => setAdding(true)}
-            className="text-muted-foreground hover:text-foreground py-12 text-center"
-          >
-            {filter === "done"
-              ? "Belum ada tugas yang selesai."
-              : "Belum ada tugas. Tambah tugas pertama."}
-          </button>
-        ) : (
-          visible.map((task) => (
-            <TaskRows
-              key={task.id}
-              task={task}
-              subtasks={subsOf.get(task.id) ?? []}
-              expanded={Boolean(expanded[task.id])}
-              onExpand={(open) =>
-                setExpanded((e) => ({ ...e, [task.id]: open }))
-              }
-              phases={phases}
-              team={team}
-              onUpdate={update}
-              onToggle={toggle}
-              onRemove={remove}
-              onAddSub={(title) => create(title, task.id)}
-            />
-          ))
-        )}
+          {adding && (
+            <div className="border-border/50 gutter-x grid grid-cols-[2.5rem_minmax(0,1fr)] items-center border-b py-2">
+              <span />
+              <Input
+                autoFocus
+                value={newTitle}
+                placeholder="Nama tugas, Enter untuk simpan"
+                onChange={(e) => setNewTitle(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") addTop()
+                  if (e.key === "Escape") {
+                    setAdding(false)
+                    setNewTitle("")
+                  }
+                }}
+                onBlur={() => {
+                  if (!newTitle.trim()) setAdding(false)
+                }}
+                className="h-8"
+              />
+            </div>
+          )}
+
+          {isLoading ? (
+            <div className="flex justify-center py-12">
+              <Spinner className="size-6" />
+            </div>
+          ) : visible.length === 0 && !adding ? (
+            <button
+              type="button"
+              onClick={() => setAdding(true)}
+              className="text-muted-foreground hover:text-foreground py-12 text-center"
+            >
+              {filter === "done"
+                ? "Belum ada tugas yang selesai."
+                : "Belum ada tugas. Tambah tugas pertama."}
+            </button>
+          ) : (
+            visible.map((task) => (
+              <TaskRows
+                key={task.id}
+                task={task}
+                subtasks={subsOf.get(task.id) ?? []}
+                expanded={Boolean(expanded[task.id])}
+                onExpand={(open) =>
+                  setExpanded((e) => ({ ...e, [task.id]: open }))
+                }
+                phases={phases}
+                team={team}
+                onUpdate={update}
+                onToggle={toggle}
+                onRemove={remove}
+                onAddSub={(title) => create(title, task.id)}
+              />
+            ))
+          )}
+        </div>
       </div>
     </div>
   )
@@ -324,7 +334,7 @@ function TaskRows({
 
   return (
     <>
-      <div className="group/task border-border/50 hover:bg-muted/20 grid min-h-11 grid-cols-[2.5rem_minmax(0,1fr)_8rem_10rem_7rem_5rem] items-center border-b px-4">
+      <div className="group/task border-border/50 hover:bg-muted/20 gutter-x grid min-h-11 grid-cols-[2.5rem_minmax(0,1fr)_8rem_10rem_7rem_5rem] items-center border-b">
         <div className="flex items-center gap-1">
           <button
             type="button"
@@ -437,7 +447,7 @@ function TaskRows({
                     </span>
                   </span>
                 ) : (
-                  <span className="text-muted-foreground">—</span>
+                  <EmptyValue />
                 )
               }
             </SelectValue>
@@ -467,7 +477,7 @@ function TaskRows({
             )}
           >
             <RiCalendarLine className="size-3.5" />
-            {task.due_date ? dueLabel(task.due_date) : "—"}
+            {task.due_date ? dueLabel(task.due_date) : <EmptyValue />}
           </button>
           <input
             ref={dateRef}

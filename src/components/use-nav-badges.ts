@@ -12,6 +12,12 @@ export type NavBadges = Record<string, number>
 
 const links = siteConfig.baseLinks
 
+/** Stable fallback so consumers' memo deps don't change every render. */
+const EMPTY_BADGES: NavBadges = Object.freeze({}) as NavBadges
+
+/** attendance_logs changes on every clock-in, so coalesce bursts. */
+const REALTIME_DEBOUNCE_MS = 2_000
+
 /**
  * Things waiting on the current user, shown as sidebar badges. Stakeholders
  * see pending leave requests (Persetujuan) and attendance delete requests
@@ -28,8 +34,8 @@ export function useNavBadges(profile: { id: string; role: string } | null) {
   const { data } = useQuery({
     queryKey,
     enabled,
+    // No polling: the realtime subscription below invalidates on change.
     staleTime: 30_000,
-    refetchInterval: 120_000,
     queryFn: async (): Promise<NavBadges> => {
       const supabase = createClient()
       const [leave, attendance] = await Promise.all([
@@ -52,7 +58,14 @@ export function useNavBadges(profile: { id: string; role: string } | null) {
   React.useEffect(() => {
     if (!enabled) return
     const supabase = createClient()
-    const refresh = () => queryClient.invalidateQueries({ queryKey })
+    let timer: ReturnType<typeof setTimeout> | undefined
+    const refresh = () => {
+      if (timer) clearTimeout(timer)
+      timer = setTimeout(() => {
+        timer = undefined
+        void queryClient.invalidateQueries({ queryKey })
+      }, REALTIME_DEBOUNCE_MS)
+    }
     const channel = supabase
       .channel("nav-badges")
       .on(
@@ -67,9 +80,10 @@ export function useNavBadges(profile: { id: string; role: string } | null) {
       )
       .subscribe()
     return () => {
+      if (timer) clearTimeout(timer)
       supabase.removeChannel(channel)
     }
   }, [enabled, queryClient, queryKey])
 
-  return data ?? {}
+  return data ?? EMPTY_BADGES
 }

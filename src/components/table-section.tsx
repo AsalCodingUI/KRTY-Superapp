@@ -62,7 +62,7 @@ export function TableSection({
               {description && (
                 <p
                   className={cn(
-                    "text-muted-foreground/70 mt-1 text-sm",
+                    "text-tertiary-foreground mt-1 text-sm",
                     descriptionClassName,
                   )}
                 >

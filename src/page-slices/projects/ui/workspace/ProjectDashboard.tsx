@@ -1,5 +1,7 @@
 "use client"
 
+import { orEmpty } from "@/components/empty-value"
+import { PageHeader } from "@/components/page-header"
 import { ProjectAvatar } from "@/components/project-avatar"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -114,182 +116,186 @@ export function ProjectDashboard({ projectId }: { projectId: string }) {
   }
 
   return (
-    <div className="flex flex-col gap-6 py-2">
-      <header className="flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <ProjectAvatar
-            id={project.id}
-            name={project.name}
-            className="size-12 rounded-xl text-lg"
-          />
-          <div className="flex flex-col gap-0.5">
-            <h1 className="text-xl font-semibold">{project.name}</h1>
-            <p className="text-muted-foreground text-sm">
-              {project.client_name ?? "Tanpa klien"}
-              {activePhase
-                ? ` · ${activePhase.name}`
-                : " · Semua phase selesai"}
-            </p>
-          </div>
-        </div>
-        {viewer.isAdmin && activePhase && (
-          <Button
-            variant="outline"
-            disabled={busy}
-            onClick={() => activate(activePhase, true)}
-          >
-            Selesaikan {activePhase.name}
-          </Button>
-        )}
-      </header>
-
-      <div className="ring-foreground/10 grid overflow-hidden rounded-xl ring-1 sm:grid-cols-3">
-        {phases.map((phase) => {
-          const phaseSteps = steps.filter((s) => s.phase_id === phase.id)
-          const open = phaseSteps.filter((s) => s.status !== "done").length
-          return (
-            <button
-              key={phase.id}
-              type="button"
-              onClick={() => setSelected(phase.id)}
-              className={cn(
-                "group/phase not-last:border-r-border relative flex items-center gap-3 border-b-2 border-transparent px-5 py-4 text-left transition-colors sm:not-last:border-r",
-                current?.id === phase.id
-                  ? "bg-muted/40 border-b-foreground"
-                  : "hover:bg-muted/20",
-              )}
+    <div className="flex flex-col">
+      <PageHeader
+        className="pt-6 pb-4"
+        title={
+          <span className="flex items-center gap-3">
+            <ProjectAvatar
+              id={project.id}
+              name={project.name}
+              className="size-7 rounded-md text-[11px]"
+            />
+            <span className="min-w-0 truncate">{project.name}</span>
+          </span>
+        }
+        actions={
+          viewer.isAdmin &&
+          activePhase && (
+            <Button
+              variant="outline"
+              disabled={busy}
+              onClick={() => activate(activePhase, true)}
             >
-              <span
+              Selesaikan {activePhase.name}
+            </Button>
+          )
+        }
+      />
+      <div className="flex flex-col gap-6 pb-4">
+        <div className="ring-foreground/10 grid overflow-hidden rounded-xl ring-1 sm:grid-cols-3">
+          {phases.map((phase) => {
+            const phaseSteps = steps.filter((s) => s.phase_id === phase.id)
+            const open = phaseSteps.filter((s) => s.status !== "done").length
+            return (
+              <button
+                key={phase.id}
+                type="button"
+                onClick={() => setSelected(phase.id)}
                 className={cn(
-                  "flex size-9 shrink-0 items-center justify-center rounded-full text-sm font-medium",
-                  phase.status === "done"
-                    ? "bg-muted text-foreground"
-                    : phase.status === "active"
-                      ? "ring-primary text-primary ring-2"
-                      : "ring-border text-muted-foreground ring-1",
+                  "group/phase not-last:border-r-border relative flex items-center gap-3 border-b-2 border-transparent px-5 py-4 text-left transition-colors sm:not-last:border-r",
+                  current?.id === phase.id
+                    ? "bg-muted/40 border-b-foreground"
+                    : "hover:bg-muted/20",
                 )}
               >
-                {phase.status === "done" ? (
-                  <RiCheckLine className="size-4" />
-                ) : (
-                  phase.position
-                )}
-              </span>
-              <span className="flex min-w-0 flex-col">
-                <span className="text-muted-foreground text-xs">
-                  Phase {phase.position}
-                </span>
                 <span
                   className={cn(
-                    "truncate text-base font-medium",
-                    phase.status === "todo" && "text-muted-foreground",
+                    "flex size-9 shrink-0 items-center justify-center rounded-full text-sm font-medium",
+                    phase.status === "done"
+                      ? "bg-muted text-foreground"
+                      : phase.status === "active"
+                        ? "ring-primary text-primary ring-2"
+                        : "ring-border text-muted-foreground ring-1",
                   )}
                 >
-                  {phase.name}
+                  {phase.status === "done" ? (
+                    <RiCheckLine className="size-4" />
+                  ) : (
+                    phase.position
+                  )}
                 </span>
-                <span className="text-muted-foreground text-xs">
-                  {phase.status === "done"
-                    ? `Selesai ${phase.completed_at ? format(new Date(phase.completed_at), "d MMM", { locale: idLocale }) : ""}`
-                    : phaseSteps.length
-                      ? `${open} dari ${phaseSteps.length} langkah belum selesai`
-                      : phase.status === "active"
-                        ? "Sedang berjalan"
-                        : "Belum mulai"}
+                <span className="flex min-w-0 flex-col">
+                  <span className="text-muted-foreground text-xs">
+                    Phase {phase.position}
+                  </span>
+                  <span
+                    className={cn(
+                      "truncate text-base font-medium",
+                      phase.status === "todo" && "text-muted-foreground",
+                    )}
+                  >
+                    {phase.name}
+                  </span>
+                  <span className="text-muted-foreground text-xs">
+                    {phase.status === "done"
+                      ? `Selesai ${phase.completed_at ? format(new Date(phase.completed_at), "d MMM", { locale: idLocale }) : ""}`
+                      : phaseSteps.length
+                        ? `${open} dari ${phaseSteps.length} langkah belum selesai`
+                        : phase.status === "active"
+                          ? "Sedang berjalan"
+                          : "Belum mulai"}
+                  </span>
                 </span>
-              </span>
-              {viewer.isAdmin && phase.status !== "active" && (
-                <span
-                  role="button"
-                  tabIndex={0}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    activate(phase)
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
+                {viewer.isAdmin && phase.status !== "active" && (
+                  <span
+                    role="button"
+                    tabIndex={0}
+                    onClick={(e) => {
                       e.stopPropagation()
                       activate(phase)
-                    }
-                  }}
-                  className="text-muted-foreground hover:text-foreground absolute top-2 right-3 hidden text-xs group-hover/phase:block"
-                >
-                  Jadikan aktif
-                </span>
-              )}
-            </button>
-          )
-        })}
-      </div>
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.stopPropagation()
+                        activate(phase)
+                      }
+                    }}
+                    className="text-muted-foreground hover:text-foreground absolute top-2 right-3 hidden text-xs group-hover/phase:block"
+                  >
+                    Jadikan aktif
+                  </span>
+                )}
+              </button>
+            )
+          })}
+        </div>
 
-      <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
-        {current && (
-          <ProcessPanel
-            projectId={projectId}
-            phase={current}
-            steps={steps.filter((s) => s.phase_id === current.id)}
-            viewerId={viewer.id}
-          />
-        )}
-
-        <aside className="ring-foreground/10 flex flex-col gap-5 rounded-xl p-4 text-sm ring-1">
-          <ProjectAbout
-            projectId={projectId}
-            description={project.description}
-            canEdit={viewer.isAdmin}
-          />
-          <Facts
-            title="Progress"
-            rows={[
-              ["Status", project.status ? STATUS_LABELS[project.status] : "—"],
-              [
-                "Phase",
-                activePhase
-                  ? `${activePhase.name} · ${activePhase.position} dari ${phases.length}`
-                  : "Selesai",
-              ],
-              ["Tugas terbuka", String(openTasks)],
-            ]}
-          />
-          <Facts
-            title="Tanggal"
-            rows={[
-              ["Mulai", day(project.start_date)],
-              ["Deadline", day(project.end_date)],
-              ["Kuartal", project.quarter_id ?? "—"],
-            ]}
-          />
-          {(project.client_name || project.client_contact) && (
-            <Facts
-              title="Klien"
-              rows={[
-                ["Nama", project.client_name ?? "—"],
-                ["Kontak", project.client_contact ?? "—"],
-                ["Email", project.client_email ?? "—"],
-              ]}
+        <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
+          {current && (
+            <ProcessPanel
+              projectId={projectId}
+              phase={current}
+              steps={steps.filter((s) => s.phase_id === current.id)}
+              viewerId={viewer.id}
             />
           )}
-          <section className="flex flex-col gap-2">
-            <h3 className="font-medium">Tim</h3>
-            {team.length === 0 ? (
-              <p className="text-muted-foreground">Belum ada anggota.</p>
-            ) : (
-              team.map((m) => (
-                <div key={m.assignmentId} className="flex items-center gap-2">
-                  <Avatar className="size-6">
-                    <AvatarImage src={m.avatar_url || undefined} alt="" />
-                    <AvatarFallback className="text-[10px]">
-                      {(m.full_name || "U").slice(0, 2).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span className="min-w-0 flex-1 truncate">{m.full_name}</span>
-                  <span className="text-muted-foreground shrink-0 text-xs">
-                    {m.isLead ? "Lead" : m.role}
-                  </span>
-                </div>
-              ))
+
+          <aside className="ring-foreground/10 flex flex-col gap-5 rounded-xl p-4 text-sm ring-1">
+            <ProjectAbout
+              projectId={projectId}
+              description={project.description}
+              canEdit={viewer.isAdmin}
+            />
+            <Facts
+              title="Progress"
+              rows={[
+                [
+                  "Status",
+                  project.status ? STATUS_LABELS[project.status] : "—",
+                ],
+                [
+                  "Phase",
+                  activePhase
+                    ? `${activePhase.name} · ${activePhase.position} dari ${phases.length}`
+                    : "Selesai",
+                ],
+                ["Tugas terbuka", String(openTasks)],
+              ]}
+            />
+            <Facts
+              title="Tanggal"
+              rows={[
+                ["Mulai", day(project.start_date)],
+                ["Deadline", day(project.end_date)],
+                ["Kuartal", project.quarter_id ?? "—"],
+              ]}
+            />
+            {(project.client_name || project.client_contact) && (
+              <Facts
+                title="Klien"
+                rows={[
+                  ["Nama", project.client_name ?? "—"],
+                  ["Kontak", project.client_contact ?? "—"],
+                  ["Email", project.client_email ?? "—"],
+                ]}
+              />
             )}
-          </section>
-        </aside>
+            <section className="flex flex-col gap-2">
+              <h3 className="font-medium">Tim</h3>
+              {team.length === 0 ? (
+                <p className="text-muted-foreground">Belum ada anggota.</p>
+              ) : (
+                team.map((m) => (
+                  <div key={m.assignmentId} className="flex items-center gap-2">
+                    <Avatar className="size-6">
+                      <AvatarImage src={m.avatar_url || undefined} alt="" />
+                      <AvatarFallback className="text-[10px]">
+                        {(m.full_name || "U").slice(0, 2).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="min-w-0 flex-1 truncate">
+                      {m.full_name}
+                    </span>
+                    <span className="text-muted-foreground shrink-0 text-xs">
+                      {m.isLead ? "Lead" : m.role}
+                    </span>
+                  </div>
+                ))
+              )}
+            </section>
+          </aside>
+        </div>
       </div>
     </div>
   )
@@ -302,7 +308,7 @@ function Facts({ title, rows }: { title: string; rows: [string, string][] }) {
       {rows.map(([label, value]) => (
         <div key={label} className="flex items-baseline justify-between gap-3">
           <span className="text-muted-foreground">{label}</span>
-          <span className="truncate text-right">{value}</span>
+          <span className="truncate text-right">{orEmpty(value)}</span>
         </div>
       ))}
     </section>

@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import dynamic from "next/dynamic"
 import type { Table } from "@tanstack/react-table"
 import { Download as DownloadIcon, Plus as PlusIcon } from "@/components/icons"
 import { useDebouncedCallback } from "use-debounce"
@@ -8,7 +9,10 @@ import { useDebouncedCallback } from "use-debounce"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
-import { DataTableViewOptions } from "./data-table-view-options"
+// View options pull in @dnd-kit; load only when a table actually shows them.
+const DataTableViewOptions = dynamic(
+  () => import("./data-table-view-options").then((m) => m.DataTableViewOptions)
+) as typeof import("./data-table-view-options").DataTableViewOptions
 
 interface DataTableFilterbarProps<TData> {
   table: Table<TData>

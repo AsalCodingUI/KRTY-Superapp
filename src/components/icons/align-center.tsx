@@ -1,6 +1,6 @@
 "use client"
 
-import { motion, useAnimation } from "motion/react"
+import { m, useAnimation } from "motion/react"
 import type { HTMLAttributes } from "react"
 import { forwardRef, useCallback, useImperativeHandle, useRef } from "react"
 
@@ -69,7 +69,7 @@ const AlignCenterIcon = forwardRef<AlignCenterIconHandle, AlignCenterIconProps>(
           width={size}
           xmlns="http://www.w3.org/2000/svg"
         >
-          <motion.path
+          <m.path
             animate={controls}
             d="M17 12H7"
             variants={{

@@ -12,4 +12,3 @@
 export {}
 export * from "./utils"
 export * from "./quarter"
-export * from "./recurrence"

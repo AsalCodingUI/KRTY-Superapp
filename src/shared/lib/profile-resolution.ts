@@ -1,4 +1,5 @@
 import { mergeDuplicateProfiles } from "@/shared/lib/profile-dedupe"
+import { cache } from "react"
 
 type SupabaseLike = {
   from: (table: string) => {
@@ -14,11 +15,26 @@ type SupabaseLike = {
   }
 }
 
-export async function resolveProfileByUserIdOrEmail<T extends { id: string; email?: string | null }>(
+/**
+ * Deduped per server request (React `cache`): a page and the helpers it calls
+ * asking for the same profile share one query.
+ */
+export function resolveProfileByUserIdOrEmail<T extends { id: string; email?: string | null }>(
   supabase: SupabaseLike,
   select: string,
   userId: string,
   email?: string | null,
+): Promise<T | null> {
+  return resolveProfile(supabase, select, userId, email ?? null) as Promise<T | null>
+}
+
+const resolveProfile = cache(async function resolveProfile<
+  T extends { id: string; email?: string | null },
+>(
+  supabase: SupabaseLike,
+  select: string,
+  userId: string,
+  email: string | null,
 ): Promise<T | null> {
   const { data: byId, error: byIdError } = await supabase
     .from("profiles")
@@ -53,4 +69,4 @@ export async function resolveProfileByUserIdOrEmail<T extends { id: string; emai
   if (profiles.length === 1) return profiles[0]
 
   return mergeDuplicateProfiles(profiles)
-}
+})

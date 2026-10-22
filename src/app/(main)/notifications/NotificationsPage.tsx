@@ -1,13 +1,30 @@
 "use client"
 
+import { EmptyValue } from "@/components/empty-value"
+import { PageHeader } from "@/components/page-header"
 import { useNotifications } from "@/shared/hooks/useNotifications"
-import { cx } from "@/shared/lib/utils"
 import { EmptyState } from "@/components/empty-state"
+import { GroupedList, ListRow, ListRowActions } from "@/components/grouped-list"
 import { TabNavigation, TabNavigationLink } from "@/components/tab-navigation"
 import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 import { RiDeleteBinLine, RiNotification3Line } from "@/shared/ui/lucide-icons"
+import { format, isThisYear, isToday } from "date-fns"
+import { id as idLocale } from "date-fns/locale"
 import Link from "next/link"
 import { useState, type MouseEvent as ReactMouseEvent } from "react"
+
+/** Shared column template: message, time, hover actions. */
+const ROW_GRID =
+  "grid grid-cols-[minmax(0,1fr)_auto_2rem] items-center gap-x-4 sm:grid-cols-[minmax(0,1fr)_6rem_2rem]"
+
+/** "14:05" today, "23 Okt" this year, otherwise "23 Okt 2025". */
+function shortTime(date: Date) {
+  if (isToday(date)) return format(date, "HH:mm")
+  return format(date, isThisYear(date) ? "d MMM" : "d MMM yyyy", {
+    locale: idLocale,
+  })
+}
 
 export function NotificationsPage() {
   const {
@@ -32,85 +49,116 @@ export function NotificationsPage() {
 
   return (
     <div className="flex flex-col">
-      <div className="flex flex-col">
-        <div className="border-border border-b">
-          <TabNavigation className="border-b-0">
-            <TabNavigationLink
-              active={activeTab === "unread"}
-              onClick={() => setActiveTab("unread")}
+      <PageHeader
+        className="pt-6 pb-4"
+        title="Notifikasi"
+        actions={
+          unreadCount > 0 && (
+            <Button
+              variant="outline"
+              className="hidden sm:inline-flex"
+              onClick={() => markAllAsRead()}
             >
-              Unread
-            </TabNavigationLink>
-            <TabNavigationLink
-              active={activeTab === "all"}
-              onClick={() => setActiveTab("all")}
-            >
-              All
-            </TabNavigationLink>
-          </TabNavigation>
-        </div>
+              Tandai semua dibaca
+            </Button>
+          )
+        }
+      />
 
-        <div
-          className={cx("py-3 sm:py-4", unreadCount > 0 ? "pb-24 sm:pb-5" : "")}
-        >
-          {filteredNotifications.length === 0 ? (
-            <EmptyState
-              title="Belum ada notifikasi"
-              description="Belum ada yang baru di tab ini."
-              icon={<RiNotification3Line className="size-5" />}
-              placement="inner"
-            />
-          ) : (
-            <div className="space-y-3">
-              {filteredNotifications.map((notification) => (
-                <Link
+      <div className="bleed gutter-x border-border border-b">
+        <TabNavigation className="border-b-0">
+          <TabNavigationLink
+            active={activeTab === "unread"}
+            onClick={() => setActiveTab("unread")}
+            showLeadingIcon={false}
+          >
+            Belum dibaca
+          </TabNavigationLink>
+          <TabNavigationLink
+            active={activeTab === "all"}
+            onClick={() => setActiveTab("all")}
+            showLeadingIcon={false}
+          >
+            Semua
+          </TabNavigationLink>
+        </TabNavigation>
+      </div>
+
+      <div className={cn("pb-4", unreadCount > 0 && "pb-24 sm:pb-4")}>
+        {filteredNotifications.length === 0 ? (
+          <EmptyState
+            title="Belum ada notifikasi"
+            description="Belum ada yang baru di tab ini."
+            icon={<RiNotification3Line className="size-5" />}
+            placement="inner"
+          />
+        ) : (
+          <GroupedList>
+            {filteredNotifications.map((notification) => {
+              const created = notification.created_at
+                ? new Date(notification.created_at)
+                : null
+              return (
+                <ListRow
                   key={notification.id}
-                  href={notification.link || "#"}
-                  onClick={() => markAsRead(notification.id)}
-                  className={cx(
-                    "hover:bg-accent -mx-3 block rounded-md px-3 py-3 transition-colors",
-                    !notification.is_read ? "bg-primary/10" : "",
-                  )}
+                  className={cn(ROW_GRID, "min-h-14")}
                 >
-                  <div className="flex gap-3">
-                    <div
-                      className={cx(
-                        "mt-1.5 size-2 shrink-0 rounded-full",
-                        !notification.is_read ? "bg-primary" : "bg-transparent",
+                  <div className="flex min-w-0 items-center gap-3">
+                    <span
+                      aria-hidden
+                      className={cn(
+                        "size-2 shrink-0 rounded-full",
+                        notification.is_read ? "bg-transparent" : "bg-primary",
                       )}
                     />
-                    <div className="min-w-0 flex-1">
-                      <p className="text-foreground text-sm font-medium">
+                    <div className="flex min-w-0 flex-col">
+                      {/* The link covers the whole row; delete sits above it. */}
+                      <Link
+                        href={notification.link || "#"}
+                        onClick={() => markAsRead(notification.id)}
+                        className="text-foreground truncate outline-none after:absolute after:inset-0 focus-visible:underline"
+                      >
                         {notification.title}
-                      </p>
-                      <p className="text-muted-foreground mt-1 line-clamp-2 text-sm">
-                        {notification.message}
-                      </p>
-                      <p className="text-muted-foreground/70 mt-2 text-xs">
-                        {new Date(
-                          notification.created_at || "",
-                        ).toLocaleDateString(undefined, {
-                          day: "numeric",
-                          month: "short",
-                          year: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </p>
+                        {!notification.is_read && (
+                          <span className="sr-only"> (belum dibaca)</span>
+                        )}
+                      </Link>
+                      {notification.message && (
+                        <span className="text-tertiary-foreground truncate text-[13px]">
+                          {notification.message}
+                        </span>
+                      )}
                     </div>
-                    <button
-                      onClick={(event) => handleDelete(event, notification.id)}
-                      className="text-muted-foreground/70 hover:text-foreground hover:bg-muted mt-1 inline-flex size-8 shrink-0 items-center justify-center rounded-md"
-                      aria-label="Delete notification"
-                    >
-                      <RiDeleteBinLine className="size-4" />
-                    </button>
                   </div>
-                </Link>
-              ))}
-            </div>
-          )}
-        </div>
+                  <span
+                    className="text-muted-foreground text-right text-[13px] whitespace-nowrap tabular-nums"
+                    title={
+                      created
+                        ? format(created, "d MMM yyyy, HH:mm", {
+                            locale: idLocale,
+                          })
+                        : undefined
+                    }
+                  >
+                    {created ? shortTime(created) : <EmptyValue />}
+                  </span>
+                  {/* Always visible on touch screens, hover-only from sm up. */}
+                  <ListRowActions className="relative z-10 justify-end max-sm:opacity-100">
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      aria-label="Hapus notifikasi"
+                      title="Hapus"
+                      onClick={(event) => handleDelete(event, notification.id)}
+                    >
+                      <RiDeleteBinLine />
+                    </Button>
+                  </ListRowActions>
+                </ListRow>
+              )
+            })}
+          </GroupedList>
+        )}
       </div>
 
       {unreadCount > 0 && (
@@ -120,7 +168,7 @@ export function NotificationsPage() {
             onClick={() => markAllAsRead()}
             className="shadow-lg"
           >
-            Mark all as read
+            Tandai semua dibaca
           </Button>
         </div>
       )}

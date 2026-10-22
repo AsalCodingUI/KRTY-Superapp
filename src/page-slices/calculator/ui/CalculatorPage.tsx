@@ -702,7 +702,7 @@ export default function CalculatorClientPage({
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="text-muted-foreground/70 size-6 p-0"
+                          className="text-tertiary-foreground size-6 p-0"
                           onClick={() => setPendingDeleteId(calc.id)}
                         >
                           <RiDeleteBinLine className="size-4" />

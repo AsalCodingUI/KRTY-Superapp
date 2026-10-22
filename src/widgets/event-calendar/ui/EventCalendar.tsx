@@ -1,20 +1,32 @@
 "use client"
 
+import dynamic from "next/dynamic"
 import { useMemo, useState } from "react"
-import { AgendaView } from "./agenda-view"
 import { useCalendarContext } from "./calendar-context"
 import { CalendarDndProvider } from "./calendar-dnd-context"
-import { DayView } from "./day-view"
-import { EventDialog } from "./event-dialog"
 import {
   EventVisibilityProvider,
   useEventVisibility,
 } from "./hooks/use-event-visibility"
-import { MonthView } from "./month-view"
-import { TimelineView } from "./timeline-view"
 import type { CalendarEvent, EventCategory } from "./types"
 import { filterEventsByRange, getViewRange } from "./utils"
 import { WeekView } from "./week-view"
+
+// Week is the default view and stays in the main chunk; the other views and
+// the event dialog load on demand.
+const MonthView = dynamic(() =>
+  import("./month-view").then((m) => m.MonthView),
+)
+const DayView = dynamic(() => import("./day-view").then((m) => m.DayView))
+const TimelineView = dynamic(() =>
+  import("./timeline-view").then((m) => m.TimelineView),
+)
+const AgendaView = dynamic(() =>
+  import("./agenda-view").then((m) => m.AgendaView),
+)
+const EventDialog = dynamic(() =>
+  import("./event-dialog").then((m) => m.EventDialog),
+)
 
 export interface EventCalendarProps {
   events: CalendarEvent[]
@@ -53,6 +65,11 @@ function CalendarContent({
 
   // Handle external dialog trigger (from toolbar button)
   const isDialogOpen = dialogOpen || !!(externalDialogOpen && !selectedEvent)
+
+  // Mount the (lazily loaded) dialog on first open, then keep it mounted so
+  // close animations and state resets behave as before.
+  const [dialogMounted, setDialogMounted] = useState(false)
+  if (isDialogOpen && !dialogMounted) setDialogMounted(true)
 
   const handleDialogClose = (open: boolean) => {
     setDialogOpen(open)
@@ -149,15 +166,17 @@ function CalendarContent({
         )}
       </div>
 
-      <EventDialog
-        open={isDialogOpen}
-        onOpenChange={handleDialogClose}
-        event={selectedEvent}
-        initialDate={dialogInitialDate}
-        onDelete={onEventDelete}
-        onSave={handleSave}
-        readOnly={!canEdit || !!selectedEvent?.googleEventId}
-      />
+      {dialogMounted && (
+        <EventDialog
+          open={isDialogOpen}
+          onOpenChange={handleDialogClose}
+          event={selectedEvent}
+          initialDate={dialogInitialDate}
+          onDelete={onEventDelete}
+          onSave={handleSave}
+          readOnly={!canEdit || !!selectedEvent?.googleEventId}
+        />
+      )}
     </>
   )
 }

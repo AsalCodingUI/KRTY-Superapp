@@ -35,7 +35,7 @@ function DialogOverlay({
     <DialogPrimitive.Backdrop
       data-slot="dialog-overlay"
       className={cn(
-        "data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0 fixed inset-0 isolate z-50 bg-black/30 duration-100 supports-backdrop-filter:backdrop-blur-sm",
+        "data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0 bg-backdrop fixed inset-0 isolate z-50 duration-250 ease-out",
         className,
       )}
       {...props}
@@ -61,7 +61,7 @@ function DialogContent({
         data-slot="dialog-content"
         className={cn(
           bare
-            ? "bg-popover text-popover-foreground ring-foreground/10 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 rounded-xl text-sm shadow-2xl ring-1 duration-100 outline-none"
+            ? "bg-popover text-popover-foreground data-open:animate-in data-open:fade-in-0 data-open:zoom-in-96 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-96 smooth-shadow-ring-md fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 rounded-xl text-sm duration-250 ease-out outline-none"
             : dialogShellClassName,
           className,
         )}
@@ -83,7 +83,7 @@ function DialogContent({
             render={
               <Button
                 variant="ghost"
-                className="text-muted-foreground hover:text-foreground absolute top-4 right-4"
+                className="text-muted-foreground hover:text-foreground absolute top-3.5 right-3.5"
                 size="icon-sm"
               />
             }
@@ -139,7 +139,7 @@ function DialogTitle({ className, ...props }: DialogPrimitive.Title.Props) {
     <DialogPrimitive.Title
       data-slot="dialog-title"
       className={cn(
-        "font-heading text-base leading-snug font-medium",
+        "font-heading text-heading text-[15px] leading-snug font-medium",
         className,
       )}
       {...props}

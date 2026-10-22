@@ -166,7 +166,7 @@ function Column({
           <DraggableCard key={p.id} project={p} canDrag={canDrag} />
         ))}
         {projects.length === 0 && (
-          <p className="text-muted-foreground/70 px-1.5 py-6 text-center text-xs">
+          <p className="text-tertiary-foreground px-1.5 py-6 text-center text-xs">
             {canDrag ? "Geser project ke sini" : "Belum ada project"}
           </p>
         )}
@@ -218,7 +218,7 @@ export function ProjectKanban({
       onDragEnd={onDragEnd}
       onDragCancel={() => setActiveId(null)}
     >
-      <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-2">
+      <div className="bleed gutter-x flex gap-3 overflow-x-auto pb-2">
         {COLUMNS.map((col) => (
           <Column
             key={col.status}

@@ -1,14 +1,19 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { toast } from "sonner"
 import { DeleteConfirmDialog } from "./DeleteConfirmDialog"
 import { SLAList } from "./SLAList"
 import { activeSLAColumns, archivedSLAColumns, type SLA } from "./SLAColumns"
 import { createClient } from "@/shared/api/supabase/client"
 import { DataTable } from "@/components/data-table"
-import type { ViewMode } from "@/components/view-toggle"
+import { PageHeader } from "@/components/page-header"
+import {
+  useViewMode,
+  ViewToggle,
+  type ViewMode,
+} from "@/components/view-toggle"
 import { SegmentedControl } from "@/components/segmented-control"
 import { TabNavigation, TabNavigationLink } from "@/components/tab-navigation"
 import { Button } from "@/components/ui/button"
@@ -37,7 +42,7 @@ export default function SLADashboard({
   slas,
   hideTitle = false,
   embedded = false,
-  view = "table",
+  view: viewProp = "table",
 }: {
   slas: SLA[]
   hideTitle?: boolean
@@ -56,7 +61,10 @@ export default function SLADashboard({
     mode: "history",
   })
   const [embeddedTab, setEmbeddedTab] = useState<"active" | "archive">("active")
-  const [embeddedSearchTerm, setEmbeddedSearchTerm] = useState("")
+  const [searchTerm, setSearchTerm] = useState("")
+  // Standalone page: the viewer's own list/table choice. Embedded: the host's.
+  const [savedView, setView] = useViewMode("sla-generator", "table")
+  const view = embedded ? viewProp : savedView
   const activeTab = embedded ? embeddedTab : routeTab
   const setActiveTab = embedded ? setEmbeddedTab : setRouteTab
   const { isMounted } = useMountedTabs(activeTab)
@@ -69,16 +77,13 @@ export default function SLADashboard({
   // Filter data based on tab
   const activeSLAs = slas.filter((sla) => !sla.archived_at)
   const archivedSLAs = slas.filter((sla) => sla.archived_at)
-  const embeddedSearchValue = embeddedSearchTerm.trim().toLowerCase()
+  const searchValue = searchTerm.trim().toLowerCase()
   const filterBySearch = (rows: SLA[]) => {
-    if (!embedded || embeddedSearchValue === "") return rows
+    if (searchValue === "") return rows
     return rows.filter((row) => {
       const client = row.client_name?.toLowerCase?.() || ""
       const project = row.title?.toLowerCase?.() || ""
-      return (
-        client.includes(embeddedSearchValue) ||
-        project.includes(embeddedSearchValue)
-      )
+      return client.includes(searchValue) || project.includes(searchValue)
     })
   }
   const filteredActiveSLAs = filterBySearch(activeSLAs)
@@ -100,13 +105,19 @@ export default function SLADashboard({
     }
   }, [supabase, router])
 
-  const handleEdit = (id: string) => {
-    router.push(`/sla-generator?mode=edit&id=${id}`)
-  }
+  const handleEdit = useCallback(
+    (id: string) => {
+      router.push(`/sla-generator?mode=edit&id=${id}`)
+    },
+    [router],
+  )
 
-  const handleView = (id: string) => {
-    router.push(`/sla-generator?mode=edit&id=${id}`)
-  }
+  const handleView = useCallback(
+    (id: string) => {
+      router.push(`/sla-generator?mode=edit&id=${id}`)
+    },
+    [router],
+  )
 
   // Archive handler (soft delete)
   const handleArchive = async (ids: unknown[]) => {
@@ -124,19 +135,37 @@ export default function SLADashboard({
   }
 
   // Restore handler
-  const handleRestore = async (id: string) => {
-    const { error } = await supabase
-      .from("slas")
-      .update({ archived_at: null })
-      .eq("id", id)
+  const handleRestore = useCallback(
+    async (id: string) => {
+      const { error } = await supabase
+        .from("slas")
+        .update({ archived_at: null })
+        .eq("id", id)
 
-    if (error) {
-      toast.error("Gagal pulihkan")
-    } else {
-      toast.success("SLA dipulihkan")
-      router.refresh()
-    }
-  }
+      if (error) {
+        toast.error("Gagal pulihkan")
+      } else {
+        toast.success("SLA dipulihkan")
+        router.refresh()
+      }
+    },
+    [supabase, router],
+  )
+
+  const activeColumns = useMemo(
+    () =>
+      activeSLAColumns(handleEdit, (id) => setSlaToArchive(id), handleView, {
+        canManage,
+      }),
+    [handleEdit, handleView, canManage],
+  )
+  const archivedColumns = useMemo(
+    () =>
+      archivedSLAColumns(handleRestore, (id) => setSlaToDelete(id), {
+        canManage,
+      }),
+    [handleRestore, canManage],
+  )
 
   // Permanent delete handler
   const handlePermanentDelete = async (ids: unknown[]) => {
@@ -167,10 +196,66 @@ export default function SLADashboard({
     }
   }
 
+  const createButton = canManage && activeTab === "active" && (
+    <Button onClick={() => router.push("/sla-generator?mode=create")}>
+      <RiAddLine data-icon="inline-start" aria-hidden="true" />
+      SLA baru
+    </Button>
+  )
+  const searchInput = (
+    <InputGroup className="w-full sm:w-[250px]">
+      <InputGroupAddon>
+        <RiSearchLine aria-hidden="true" />
+      </InputGroupAddon>
+      <InputGroupInput
+        type="search"
+        placeholder="Cari klien atau project..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
+    </InputGroup>
+  )
+
+  const renderTab = (tab: "active" | "archive") => {
+    const archived = tab === "archive"
+    const rows = archived ? filteredArchivedSLAs : filteredActiveSLAs
+    if (view === "list") {
+      return (
+        <SLAList
+          slas={rows}
+          archived={archived}
+          canManage={canManage}
+          onOpen={handleView}
+          onArchive={(id) => setSlaToArchive(id)}
+          onRestore={handleRestore}
+          onDelete={(id) => setSlaToDelete(id)}
+        />
+      )
+    }
+    return (
+      <DataTable
+        data={rows}
+        columns={archived ? archivedColumns : activeColumns}
+        showExport={false}
+        showViewOptions={false}
+        showFilterbar={false}
+        onDelete={
+          canManage
+            ? archived
+              ? handlePermanentDelete
+              : handleArchive
+            : undefined
+        }
+        enableSelection={canManage}
+        showTableWrapper={false}
+      />
+    )
+  }
+
   return (
     <>
-      <div className={hideTitle ? "mb-4" : "mt-4"}>
-        {embedded ? (
+      {embedded ? (
+        <div className={hideTitle ? "mb-4" : "mt-4"}>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex min-w-0 items-center gap-3">
               <SegmentedControl
@@ -180,32 +265,30 @@ export default function SLADashboard({
                   setActiveTab(value as "active" | "archive")
                 }
                 items={[
-                  { value: "active", label: "Active" },
-                  { value: "archive", label: "Archive" },
+                  { value: "active", label: "Aktif" },
+                  { value: "archive", label: "Arsip" },
                 ]}
               />
-              <InputGroup className="w-[250px]">
-                <InputGroupAddon>
-                  <RiSearchLine aria-hidden="true" />
-                </InputGroupAddon>
-                <InputGroupInput
-                  type="search"
-                  placeholder="Search..."
-                  value={embeddedSearchTerm}
-                  onChange={(e) => setEmbeddedSearchTerm(e.target.value)}
-                />
-              </InputGroup>
+              {searchInput}
             </div>
-            {canManage && activeTab === "active" && (
-              <Button onClick={() => router.push("/sla-generator?mode=create")}>
-                <RiAddLine data-icon="inline-start" aria-hidden="true" />
-                Create New SLA
-              </Button>
-            )}
+            {createButton}
           </div>
-        ) : (
-          <>
-            <div className="xl:hidden">
+        </div>
+      ) : (
+        <>
+          {/* Title + actions, bordered tabs, then the toolbar. */}
+          <PageHeader
+            className="pt-6 pb-4"
+            title="SLA Generator"
+            actions={
+              <>
+                <ViewToggle value={view} onValueChange={setView} />
+                {createButton}
+              </>
+            }
+          />
+          <div className="bleed gutter-x border-border border-b">
+            <div className="pb-3 xl:hidden">
               <Select
                 value={activeTab}
                 onValueChange={(value) =>
@@ -216,104 +299,45 @@ export default function SLADashboard({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="archive">Archive</SelectItem>
+                  <SelectItem value="active">Aktif</SelectItem>
+                  <SelectItem value="archive">Arsip</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="hidden xl:block">
-              <TabNavigation>
+              <TabNavigation className="border-b-0">
                 <TabNavigationLink
                   active={activeTab === "active"}
                   onClick={() => setActiveTab("active")}
+                  showLeadingIcon={false}
                 >
-                  Active
+                  Aktif
                 </TabNavigationLink>
                 <TabNavigationLink
                   active={activeTab === "archive"}
                   onClick={() => setActiveTab("archive")}
+                  showLeadingIcon={false}
                 >
-                  Archive
+                  Arsip
                 </TabNavigationLink>
               </TabNavigation>
             </div>
-          </>
-        )}
-      </div>
+          </div>
+          <div className="flex items-center justify-between gap-3 pt-4 pb-3">
+            {searchInput}
+          </div>
+        </>
+      )}
 
-      <div className="mt-6">
+      <div className="pb-4">
         {isMounted("active") && (
           <div className={activeTab === "active" ? "block" : "hidden"}>
-            {view === "list" ? (
-              <SLAList
-                slas={filteredActiveSLAs}
-                archived={false}
-                canManage={canManage}
-                onOpen={handleView}
-                onArchive={(id) => setSlaToArchive(id)}
-                onRestore={handleRestore}
-                onDelete={(id) => setSlaToDelete(id)}
-              />
-            ) : (
-              <DataTable
-                data={filteredActiveSLAs}
-                columns={activeSLAColumns(
-                  handleEdit,
-                  (id) => setSlaToArchive(id),
-                  handleView,
-                  { canManage },
-                )}
-                showExport={false}
-                showViewOptions={false}
-                showFilterbar={!embedded}
-                onCreate={
-                  !embedded && canManage
-                    ? () => router.push("/sla-generator?mode=create")
-                    : undefined
-                }
-                actionLabel="Create New SLA"
-                onDelete={canManage ? handleArchive : undefined}
-                enableSelection={canManage}
-                showTableWrapper={false}
-                tableTitle="Active SLAs"
-                tableDescription="Manage your active Service Level Agreements"
-                searchKey="client_name"
-              />
-            )}
+            {renderTab("active")}
           </div>
         )}
         {isMounted("archive") && (
           <div className={activeTab === "archive" ? "block" : "hidden"}>
-            {view === "list" ? (
-              <SLAList
-                slas={filteredArchivedSLAs}
-                archived
-                canManage={canManage}
-                onOpen={handleView}
-                onArchive={(id) => setSlaToArchive(id)}
-                onRestore={handleRestore}
-                onDelete={(id) => setSlaToDelete(id)}
-              />
-            ) : (
-              <DataTable
-                data={filteredArchivedSLAs}
-                columns={archivedSLAColumns(
-                  handleRestore,
-                  (id) => setSlaToDelete(id),
-                  { canManage },
-                )}
-                showExport={false}
-                showViewOptions={false}
-                showFilterbar={!embedded}
-                onCreate={undefined}
-                onDelete={canManage ? handlePermanentDelete : undefined}
-                enableSelection={canManage}
-                showTableWrapper={false}
-                tableTitle="Archived SLAs"
-                tableDescription="Restore or permanently delete archived SLAs"
-                searchKey="client_name"
-              />
-            )}
+            {renderTab("archive")}
           </div>
         )}
       </div>

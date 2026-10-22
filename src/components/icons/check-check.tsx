@@ -1,7 +1,7 @@
 "use client"
 
 import type { Variants } from "motion/react"
-import { motion, useAnimation } from "motion/react"
+import { m, useAnimation } from "motion/react"
 import type { HTMLAttributes } from "react"
 import { forwardRef, useCallback, useImperativeHandle, useRef } from "react"
 
@@ -92,14 +92,14 @@ const CheckCheckIcon = forwardRef<CheckCheckIconHandle, CheckCheckIconProps>(
           width={size}
           xmlns="http://www.w3.org/2000/svg"
         >
-          <motion.path
+          <m.path
             animate={controls}
             custom={0}
             d="M2 12 7 17L18 6"
             initial="normal"
             variants={PATH_VARIANTS}
           />
-          <motion.path
+          <m.path
             animate={controls}
             custom={1}
             d="M13 16L14.5 17.5L22 10"

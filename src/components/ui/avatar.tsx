@@ -82,7 +82,7 @@ function AvatarGroup({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="avatar-group"
       className={cn(
-        "group/avatar-group *:data-[slot=avatar]:ring-sidebar flex -space-x-1.5 *:data-[slot=avatar]:ring-2",
+        "group/avatar-group *:data-[slot=avatar]:ring-background dark:*:data-[slot=avatar]:ring-surface flex -space-x-1.5 *:data-[slot=avatar]:ring-2",
         className,
       )}
       {...props}
@@ -98,7 +98,7 @@ function AvatarGroupCount({
     <div
       data-slot="avatar-group-count"
       className={cn(
-        "bg-muted text-muted-foreground ring-sidebar relative flex size-8 shrink-0 items-center justify-center rounded-full text-sm ring-2 group-has-data-[size=lg]/avatar-group:size-10 group-has-data-[size=sm]/avatar-group:size-6 [&_svg]:size-4 group-has-data-[size=lg]/avatar-group:[&_svg]:size-5 group-has-data-[size=sm]/avatar-group:[&_svg]:size-3",
+        "bg-muted text-muted-foreground ring-background dark:ring-surface relative flex size-8 shrink-0 items-center justify-center rounded-full text-sm ring-2 group-has-data-[size=lg]/avatar-group:size-10 group-has-data-[size=sm]/avatar-group:size-6 [&_svg]:size-4 group-has-data-[size=lg]/avatar-group:[&_svg]:size-5 group-has-data-[size=sm]/avatar-group:[&_svg]:size-3",
         className,
       )}
       {...props}

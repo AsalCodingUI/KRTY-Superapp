@@ -130,6 +130,8 @@ export async function getEmployeeDashboardData(
       reviewCyclesResult,
       oneOnOneResult,
       approvedAnnualLeaveResult,
+      latestSummaryResult,
+      ownReviewsResult,
     ] = await Promise.all([
       supabase
         .from("leave_requests")
@@ -242,16 +244,16 @@ export async function getEmployeeDashboardData(
         .eq("leave_type", "Annual Leave")
         .lte("start_date", leaveYearEnd.toISOString())
         .gte("end_date", leaveYearStart.toISOString()),
-    ])
 
-    // Latest 360 summary for this quarter (scores are averages on 1-5).
-    const { data: quarterCycle } = await supabase
-      .from("review_cycles")
-      .select("id")
-      .eq("quarter", activeQuarter)
-      .maybeSingle()
-    const { data: latestSummary } = quarterCycle
-      ? await supabase
+      // Latest 360 summary for this quarter (scores are averages on 1-5).
+      (async () => {
+        const { data: quarterCycle } = await supabase
+          .from("review_cycles")
+          .select("id")
+          .eq("quarter", activeQuarter)
+          .maybeSingle()
+        if (!quarterCycle) return { data: null }
+        return supabase
           .from("performance_summaries")
           .select(
             "score_leadership, score_quality, score_reliability, score_communication, score_initiative",
@@ -259,7 +261,16 @@ export async function getEmployeeDashboardData(
           .eq("reviewee_id", targetUserId)
           .eq("cycle_id", quarterCycle.id)
           .maybeSingle()
-      : { data: null }
+      })(),
+
+      // Cycles this person reviewed in; narrowed to the listed cycles below.
+      supabase
+        .from("performance_reviews")
+        .select("cycle_id")
+        .eq("reviewer_id", targetUserId),
+    ])
+
+    const latestSummary = latestSummaryResult.data
 
     const toPercent = (value: number | null) =>
       value === null ? 0 : (Number(value) / 5) * 100
@@ -275,17 +286,13 @@ export async function getEmployeeDashboardData(
 
     const reviewCycles = reviewCyclesResult.data || []
     // Cycles where this person already reviewed at least one teammate.
-    const { data: submittedReviews } = await supabase
-      .from("performance_reviews")
-      .select("cycle_id")
-      .eq("reviewer_id", targetUserId)
-      .in(
-        "cycle_id",
-        reviewCycles.map((c: { id: string }) => c.id),
-      )
-
+    const listedCycleIds = new Set(
+      reviewCycles.map((c: { id: string }) => c.id),
+    )
     const submittedCycleIds = new Set(
-      submittedReviews?.map((r: { cycle_id: string }) => r.cycle_id) || [],
+      (ownReviewsResult.data || [])
+        .map((r: { cycle_id: string }) => r.cycle_id)
+        .filter((id: string) => listedCycleIds.has(id)),
     )
 
     const approvedAnnualRows = (approvedAnnualLeaveResult.data || []) as Array<{

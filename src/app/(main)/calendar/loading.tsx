@@ -15,7 +15,7 @@ export default function CalendarLoading() {
           <Skeleton className="h-8 w-24" />
         </div>
       </div>
-      <div className="bg-sidebar flex min-h-0 flex-1 overflow-hidden rounded-xl border">
+      <div className="bg-background dark:bg-surface flex min-h-0 flex-1 overflow-hidden rounded-xl border">
         <CalendarSkeleton />
       </div>
     </div>

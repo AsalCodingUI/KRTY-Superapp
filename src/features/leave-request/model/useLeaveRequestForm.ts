@@ -1,5 +1,4 @@
 import { Database } from "@/shared/types/database.types"
-import imageCompression from "browser-image-compression"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
 
@@ -74,6 +73,9 @@ export function useLeaveRequestForm({
       }
       try {
         setCompressing(true)
+        const { default: imageCompression } = await import(
+          "browser-image-compression"
+        )
         const compressedFile = await imageCompression(file, options)
         setFormData((prev) => ({ ...prev, proof_file: compressedFile }))
       } catch (error) {

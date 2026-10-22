@@ -55,7 +55,7 @@ export default function UpdatePasswordPage() {
         <h3 className="text-foreground dark:text-foreground mt-6 text-center text-lg font-semibold">
           Update your password
         </h3>
-        <p className="text-muted-foreground/70 mt-2 text-center text-sm">
+        <p className="text-tertiary-foreground mt-2 text-center text-sm">
           Please enter your new password below.
         </p>
 
@@ -122,7 +122,7 @@ export default function UpdatePasswordPage() {
             </Button>
           </form>
 
-          <p className="text-muted-foreground/70 mt-6 text-center text-sm">
+          <p className="text-tertiary-foreground mt-6 text-center text-sm">
             Remember your password?{" "}
             <a
               href="/login"

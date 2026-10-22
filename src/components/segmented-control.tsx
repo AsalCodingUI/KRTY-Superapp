@@ -46,7 +46,7 @@ export function SegmentedControl<T extends string>({
       }}
       className={cn(
         // Same metrics as shadcn TabsList (h-8, p-[3px]).
-        "bg-muted text-muted-foreground h-8 items-center rounded-lg p-[3px]",
+        "bg-accent dark:bg-muted text-muted-foreground h-8 items-center rounded-full p-0.5",
         fitContent ? "inline-flex w-auto" : "flex w-full",
         disabled && "pointer-events-none opacity-50",
         className,
@@ -65,13 +65,14 @@ export function SegmentedControl<T extends string>({
             disabled={Boolean(disabled || item.disabled)}
             className={cn(
               // reset toggle-group "spacing=0" joined styles
-              "relative h-[calc(100%-1px)] min-w-0 gap-1.5 border border-transparent text-sm font-medium whitespace-nowrap shadow-none",
+              "relative h-full min-w-0 gap-1.5 border border-transparent text-sm font-medium whitespace-nowrap shadow-none",
               "group-data-[spacing=0]/toggle-group:rounded-[inherit] group-data-horizontal/toggle-group:data-[spacing=0]:first:rounded-[inherit] group-data-horizontal/toggle-group:data-[spacing=0]:last:rounded-[inherit]",
-              "rounded-md! px-2! py-0.5",
+              "rounded-full! px-2! py-0.5",
               fitContent ? "flex-none" : "flex-1",
               "text-foreground/60 hover:text-foreground hover:bg-transparent",
               // Base UI Toggle marks the active item with data-pressed
-              "data-pressed:bg-foreground/[0.13] data-pressed:text-foreground data-pressed:hover:bg-foreground/[0.13] data-pressed:border-transparent",
+              "data-pressed:bg-background data-pressed:text-foreground data-pressed:hover:bg-background data-pressed:smooth-shadow-ring-xs data-pressed:border-transparent",
+              "dark:data-pressed:bg-foreground/[0.13] dark:data-pressed:hover:bg-foreground/[0.13] dark:data-pressed:shadow-none",
               "disabled:text-muted-foreground/50",
             )}
           >

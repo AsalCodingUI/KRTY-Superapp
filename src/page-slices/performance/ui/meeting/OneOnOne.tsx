@@ -2,14 +2,9 @@
 
 import { ConfirmDialog } from "@/components/confirm-dialog"
 import { EmptyState } from "@/components/empty-state"
-import {
-  GroupedList,
-  ListChip,
-  ListGroup,
-  ListRow,
-  ListRowActions,
-} from "@/components/grouped-list"
+import { GroupedList, ListRow, ListRowActions } from "@/components/grouped-list"
 import { TimeSelect } from "@/components/time-select"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -23,15 +18,17 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { SegmentedControl } from "@/components/segmented-control"
 import { Spinner } from "@/components/ui/spinner"
+import { cn } from "@/lib/utils"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { canManageByRole } from "@/shared/lib/roles"
 import { RiAddLine, RiCalendarLine } from "@/shared/ui/lucide-icons"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { format, isPast, isToday, isTomorrow } from "date-fns"
 import { id as idLocale } from "date-fns/locale"
-import { useMemo, useState } from "react"
+import { useMemo, useState, type ReactNode } from "react"
 import { toast } from "sonner"
 import { periodLabel } from "../kpi/period"
+import { GridGroup, ListColumns, StatBand } from "../list"
 
 type Slot = {
   id: string
@@ -89,15 +86,58 @@ async function post(url: string, body: unknown, method = "POST") {
   return res?.ok ?? false
 }
 
-function ModeChip({ slot }: { slot: Slot }) {
+const modeLabel = (slot: Slot) =>
+  slot.mode === "online"
+    ? "Online"
+    : `Offline${slot.location ? ` · ${slot.location}` : ""}`
+
+function ModeBadge({ slot }: { slot: Slot }) {
   return (
-    <ListChip>
-      {slot.mode === "online"
-        ? "Online"
-        : `Offline${slot.location ? ` · ${slot.location}` : ""}`}
-    </ListChip>
+    <div className="hidden min-w-0 md:block">
+      <Badge variant="secondary" className="max-w-full">
+        <span className="truncate">{modeLabel(slot)}</span>
+      </Badge>
+    </div>
   )
 }
+
+/** Shared column templates so headers, day summaries and rows line up. */
+const ADMIN_GRID =
+  "grid grid-cols-[minmax(0,1fr)_6rem] items-center gap-x-4 md:grid-cols-[minmax(0,1fr)_12rem_6rem] lg:grid-cols-[minmax(0,1fr)_12rem_6rem_12rem]"
+const EMPLOYEE_GRID =
+  "grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 md:grid-cols-[minmax(0,1fr)_12rem_10rem]"
+
+/** Two-line first cell: the time, then who / what. */
+function SlotCell({
+  primary,
+  secondary,
+  muted,
+}: {
+  primary: ReactNode
+  secondary?: ReactNode
+  muted?: boolean
+}) {
+  return (
+    <div className="flex min-w-0 flex-col">
+      <span
+        className={cn(
+          "truncate tabular-nums",
+          muted ? "text-muted-foreground" : "text-foreground",
+        )}
+      >
+        {primary}
+      </span>
+      {secondary && (
+        <span className="text-tertiary-foreground truncate text-[13px]">
+          {secondary}
+        </span>
+      )}
+    </div>
+  )
+}
+
+const shortDate = (slot: Slot, pattern = "d MMM") =>
+  format(new Date(slot.start_at), pattern, { locale: idLocale })
 
 /** Jadwal 1:1: admins publish slots, employees pick one. */
 export function OneOnOne({ period }: { period: string }) {
@@ -340,19 +380,27 @@ export function OneOnOne({ period }: { period: string }) {
 
   // ── Admin ────────────────────────────────────────────────────────────
   if (isAdmin) {
-    const statusOf = (s: Slot) =>
-      s.status === "cancelled"
-        ? "Dibatalkan"
-        : s.booked_by_profile
-          ? s.booked_by_profile.full_name
-          : "Tersedia"
+    const statusBadge = (s: Slot) =>
+      s.status === "cancelled" ? (
+        <Badge variant="destructive">Dibatalkan</Badge>
+      ) : s.booked_by_profile ? (
+        <Badge variant="secondary">Terisi</Badge>
+      ) : (
+        <Badge variant="success">Tersedia</Badge>
+      )
     return (
-      <div className="flex flex-col gap-4">
-        <div className="flex items-center justify-between gap-4">
-          <p className="text-muted-foreground text-sm">
-            {upcoming.filter((s) => s.status === "booked").length} terisi ·{" "}
-            {open.length} tersedia
-          </p>
+      <div className="flex flex-col">
+        <StatBand
+          stats={[
+            {
+              label: "Terisi",
+              value: upcoming.filter((s) => s.status === "booked").length,
+            },
+            { label: "Tersedia", value: open.length },
+            { label: "Sudah lewat", value: past.length },
+          ]}
+        />
+        <div className="flex justify-end py-3">
           <Button onClick={openCreate}>
             <RiAddLine data-icon="inline-start" />
             Tambah slot
@@ -367,96 +415,115 @@ export function OneOnOne({ period }: { period: string }) {
           />
         ) : (
           <GroupedList>
+            <ListColumns grid={ADMIN_GRID}>
+              <span>Jadwal</span>
+              <span className="hidden md:block">Tempat</span>
+              <span>Status</span>
+              <span className="hidden lg:block" />
+            </ListColumns>
             {byDay(upcoming).map(([day, items]) => (
-              <ListGroup key={day} label={dayLabel(day)} count={items.length}>
+              <GridGroup
+                key={day}
+                grid={ADMIN_GRID}
+                label={dayLabel(day)}
+                summary={
+                  <>
+                    <span className="text-tertiary-foreground hidden text-[13px] tabular-nums md:block">
+                      {items.length} slot
+                    </span>
+                    <span className="text-tertiary-foreground text-[13px] tabular-nums">
+                      {items.filter((s) => s.booked_by_profile).length} terisi
+                    </span>
+                    <span className="hidden lg:block" />
+                  </>
+                }
+              >
                 {items.map((s) => (
-                  <ListRow key={s.id}>
-                    <span className="w-24 shrink-0 font-medium tabular-nums">
-                      {timeRange(s)}
-                    </span>
-                    <span
-                      className={
-                        s.status === "cancelled"
-                          ? "text-muted-foreground min-w-0 flex-1 truncate line-through"
-                          : s.booked_by_profile
-                            ? "min-w-0 flex-1 truncate"
-                            : "text-success min-w-0 flex-1 truncate"
-                      }
-                    >
-                      {statusOf(s)}
-                    </span>
-                    <ListRowActions>
-                      {s.status !== "cancelled" && (
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => openReschedule(s)}
-                        >
-                          Ubah jadwal
-                        </Button>
-                      )}
-                      {s.status === "booked" ? (
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="text-destructive hover:text-destructive"
-                          disabled={busyId === s.id}
-                          onClick={() =>
-                            setConfirm({
-                              title: "Batalkan 1:1 ini?",
-                              description: `${s.booked_by_profile?.full_name ?? "Karyawan"} akan diberi tahu.`,
-                              confirmText: "Batalkan",
-                              run: () => act(s, "cancel"),
-                            })
-                          }
-                        >
-                          Batalkan
-                        </Button>
-                      ) : (
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="text-destructive hover:text-destructive"
-                          disabled={busyId === s.id}
-                          onClick={() =>
-                            setConfirm({
-                              title: "Hapus slot ini?",
-                              description: "Slot dihapus permanen.",
-                              confirmText: "Hapus",
-                              run: () => act(s, "remove"),
-                            })
-                          }
-                        >
-                          Hapus
-                        </Button>
-                      )}
-                    </ListRowActions>
-                    <ModeChip slot={s} />
+                  <ListRow key={s.id} className={cn(ADMIN_GRID, "min-h-14")}>
+                    <SlotCell
+                      primary={timeRange(s)}
+                      secondary={s.booked_by_profile?.full_name}
+                      muted={s.status === "cancelled"}
+                    />
+                    <ModeBadge slot={s} />
+                    <div>{statusBadge(s)}</div>
+                    {/* Actions wrap under the row on narrow screens. */}
+                    <div className="col-span-full flex justify-end lg:col-span-1">
+                      <ListRowActions className="max-lg:opacity-100">
+                        {s.status !== "cancelled" && (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => openReschedule(s)}
+                          >
+                            Ubah jadwal
+                          </Button>
+                        )}
+                        {s.status === "booked" ? (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-destructive hover:text-destructive"
+                            disabled={busyId === s.id}
+                            onClick={() =>
+                              setConfirm({
+                                title: "Batalkan 1:1 ini?",
+                                description: `${s.booked_by_profile?.full_name ?? "Karyawan"} akan diberi tahu.`,
+                                confirmText: "Batalkan",
+                                run: () => act(s, "cancel"),
+                              })
+                            }
+                          >
+                            Batalkan
+                          </Button>
+                        ) : (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-destructive hover:text-destructive"
+                            disabled={busyId === s.id}
+                            onClick={() =>
+                              setConfirm({
+                                title: "Hapus slot ini?",
+                                description: "Slot dihapus permanen.",
+                                confirmText: "Hapus",
+                                run: () => act(s, "remove"),
+                              })
+                            }
+                          >
+                            Hapus
+                          </Button>
+                        )}
+                      </ListRowActions>
+                    </div>
                   </ListRow>
                 ))}
-              </ListGroup>
+              </GridGroup>
             ))}
             {past.length > 0 && (
-              <ListGroup
+              <GridGroup
+                grid={ADMIN_GRID}
                 label="Sudah lewat"
-                count={past.length}
+                extra={
+                  <span className="text-tertiary-foreground tabular-nums">
+                    {past.length}
+                  </span>
+                }
                 defaultOpen={false}
               >
                 {[...past].reverse().map((s) => (
-                  <ListRow key={s.id} className="text-muted-foreground">
-                    <span className="w-40 shrink-0 tabular-nums">
-                      {format(new Date(s.start_at), "d MMM", {
-                        locale: idLocale,
-                      })}{" "}
-                      · {timeRange(s)}
-                    </span>
-                    <span className="min-w-0 flex-1 truncate">
-                      {statusOf(s)}
-                    </span>
-                    <ModeChip slot={s} />
+                  <ListRow key={s.id} className={cn(ADMIN_GRID, "min-h-14")}>
+                    <SlotCell
+                      primary={`${shortDate(s)} · ${timeRange(s)}`}
+                      secondary={s.booked_by_profile?.full_name}
+                      muted
+                    />
+                    <ModeBadge slot={s} />
+                    <div>{statusBadge(s)}</div>
+                    <span className="hidden lg:block" />
                   </ListRow>
                 ))}
-              </ListGroup>
+              </GridGroup>
             )}
           </GroupedList>
         )}
@@ -467,78 +534,93 @@ export function OneOnOne({ period }: { period: string }) {
   }
 
   // ── Employee ─────────────────────────────────────────────────────────
+  const next = myUpcoming.find((s) => s.status === "booked")
   return (
-    <div className="flex flex-col gap-8">
-      <section className="flex flex-col gap-2">
-        <h2 className="text-sm font-medium">Jadwal kamu</h2>
+    <div className="flex flex-col">
+      <StatBand
+        stats={[
+          {
+            label: "Jadwal kamu",
+            value: next
+              ? `${shortDate(next, "EEE, d MMM")} · ${format(new Date(next.start_at), "HH:mm")}`
+              : "Belum ada",
+          },
+          { label: "Slot tersedia", value: open.length },
+        ]}
+      />
+
+      <section className="flex flex-col">
+        <h2 className="text-foreground pt-4 pb-3 text-sm">Jadwal kamu</h2>
         {myUpcoming.length === 0 ? (
           <p className="text-muted-foreground border-t py-6 text-sm">
             Kamu belum memilih jadwal 1:1
             {open.length ? ". Pilih salah satu slot di bawah." : "."}
           </p>
         ) : (
-          <div className="-mx-4 flex flex-col">
+          <GroupedList>
+            <ListColumns grid={EMPLOYEE_GRID}>
+              <span>Jadwal</span>
+              <span className="hidden md:block">Tempat</span>
+              <span />
+            </ListColumns>
             {myUpcoming.map((s) => (
-              <div
-                key={s.id}
-                className="border-border/50 group/row flex min-h-12 items-center gap-3 border-b px-4 py-2 text-sm first:border-t"
-              >
-                <span className="w-44 shrink-0 font-medium">
-                  {format(new Date(s.start_at), "EEE, d MMM", {
-                    locale: idLocale,
-                  })}{" "}
-                  · <span className="tabular-nums">{timeRange(s)}</span>
-                </span>
-                <span className="text-muted-foreground min-w-0 flex-1 truncate">
-                  {s.status === "cancelled"
-                    ? "Dibatalkan admin, pilih slot lain"
-                    : `dengan ${s.organizer?.full_name ?? "admin"}`}
-                </span>
-                <ModeChip slot={s} />
-                {s.status === "booked" && (
-                  <>
-                    {s.meeting_url && (
+              <ListRow key={s.id} className={cn(EMPLOYEE_GRID, "min-h-14")}>
+                <SlotCell
+                  primary={`${shortDate(s, "EEE, d MMM")} · ${timeRange(s)}`}
+                  secondary={
+                    s.status === "cancelled"
+                      ? "Dibatalkan admin, pilih slot lain"
+                      : `dengan ${s.organizer?.full_name ?? "admin"}`
+                  }
+                  muted={s.status === "cancelled"}
+                />
+                <ModeBadge slot={s} />
+                <div className="flex justify-end gap-1">
+                  {s.status === "booked" && (
+                    <>
+                      {s.meeting_url && (
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          nativeButton={false}
+                          render={
+                            <a
+                              href={s.meeting_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            />
+                          }
+                        >
+                          Gabung
+                        </Button>
+                      )}
                       <Button
                         size="sm"
-                        variant="secondary"
-                        nativeButton={false}
-                        render={
-                          <a
-                            href={s.meeting_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          />
+                        variant="ghost"
+                        disabled={busyId === s.id}
+                        onClick={() =>
+                          setConfirm({
+                            title: "Lepas jadwal ini?",
+                            description:
+                              "Slot akan tersedia lagi untuk orang lain.",
+                            confirmText: "Lepas",
+                            run: () => act(s, "release"),
+                          })
                         }
                       >
-                        Gabung
+                        Lepas
                       </Button>
-                    )}
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      disabled={busyId === s.id}
-                      onClick={() =>
-                        setConfirm({
-                          title: "Lepas jadwal ini?",
-                          description:
-                            "Slot akan tersedia lagi untuk orang lain.",
-                          confirmText: "Lepas",
-                          run: () => act(s, "release"),
-                        })
-                      }
-                    >
-                      Lepas
-                    </Button>
-                  </>
-                )}
-              </div>
+                    </>
+                  )}
+                </div>
+              </ListRow>
             ))}
-          </div>
+          </GroupedList>
         )}
       </section>
 
-      <section className="flex flex-col gap-2">
-        <h2 className="text-sm font-medium">Slot tersedia</h2>
+      <section className="flex flex-col">
+        <h2 className="text-foreground pt-6 pb-3 text-sm">Slot tersedia</h2>
         {open.length === 0 ? (
           <EmptyState
             title="Belum ada slot tersedia"
@@ -548,36 +630,58 @@ export function OneOnOne({ period }: { period: string }) {
           />
         ) : (
           <GroupedList>
+            <ListColumns grid={EMPLOYEE_GRID}>
+              <span>Jadwal</span>
+              <span className="hidden md:block">Tempat</span>
+              <span />
+            </ListColumns>
             {byDay(open).map(([day, items]) => (
-              <ListGroup key={day} label={dayLabel(day)} count={items.length}>
+              <GridGroup
+                key={day}
+                grid={EMPLOYEE_GRID}
+                label={dayLabel(day)}
+                summary={
+                  <>
+                    <span className="text-tertiary-foreground hidden text-[13px] tabular-nums md:block">
+                      {items.length} slot
+                    </span>
+                    <span />
+                  </>
+                }
+              >
                 {items.map((s) => (
-                  <ListRow key={s.id}>
-                    <span className="w-24 shrink-0 font-medium tabular-nums">
-                      {timeRange(s)}
-                    </span>
-                    <span className="text-muted-foreground min-w-0 flex-1 truncate">
-                      dengan {s.organizer?.full_name ?? "admin"}
-                    </span>
-                    <ModeChip slot={s} />
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      disabled={
-                        busyId === s.id ||
-                        myUpcoming.some((m) => m.status === "booked")
+                  <ListRow key={s.id} className={cn(EMPLOYEE_GRID, "min-h-14")}>
+                    <SlotCell
+                      primary={timeRange(s)}
+                      secondary={
+                        <>
+                          dengan {s.organizer?.full_name ?? "admin"}
+                          <span className="md:hidden"> · {modeLabel(s)}</span>
+                        </>
                       }
-                      title={
-                        myUpcoming.some((m) => m.status === "booked")
-                          ? "Lepas jadwalmu dulu untuk memilih slot lain"
-                          : undefined
-                      }
-                      onClick={() => act(s, "book")}
-                    >
-                      Pilih
-                    </Button>
+                    />
+                    <ModeBadge slot={s} />
+                    <div className="flex justify-end">
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        disabled={
+                          busyId === s.id ||
+                          myUpcoming.some((m) => m.status === "booked")
+                        }
+                        title={
+                          myUpcoming.some((m) => m.status === "booked")
+                            ? "Lepas jadwalmu dulu untuk memilih slot lain"
+                            : undefined
+                        }
+                        onClick={() => act(s, "book")}
+                      >
+                        Pilih
+                      </Button>
+                    </div>
                   </ListRow>
                 ))}
-              </ListGroup>
+              </GridGroup>
             ))}
           </GroupedList>
         )}

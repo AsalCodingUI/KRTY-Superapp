@@ -1,8 +1,9 @@
 import { AppSidebar } from "@/components/app-sidebar"
+import { AppTopbar } from "@/components/app-topbar"
+import { WorkspaceNavProvider } from "@/components/workspace-nav"
 import { SiteHeader } from "@/components/site-header"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { Spinner } from "@/components/ui/spinner"
-import { SettingsDialog } from "@/page-slices/settings"
 import { AppBannerStack } from "@/widgets/app-banner/ui/AppBanner"
 import { ImpersonationBanner } from "@/widgets/impersonation/ui/ImpersonationBanner"
 import { Suspense } from "react"
@@ -21,25 +22,26 @@ export default function Layout({
   children: React.ReactNode
 }>) {
   return (
-    <SidebarProvider className="flex-col">
-      {/* Full-width banners above everything (view-as, later announcements). */}
-      <AppBannerStack>
-        <ImpersonationBanner />
-      </AppBannerStack>
-      {/* Sidebar and page stay siblings: the inset styles key off the sidebar. */}
-      <div className="flex w-full flex-1">
-        <AppSidebar />
-        <SidebarInset>
-          <SiteHeader />
-          <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-            <Suspense fallback={<PageFallback />}>{children}</Suspense>
-          </div>
-          {/* Settings opens as a modal over any page (?settings=<section>). */}
-          <Suspense fallback={null}>
-            <SettingsDialog />
-          </Suspense>
-        </SidebarInset>
-      </div>
+    <SidebarProvider className="bg-chrome h-svh min-h-0 flex-col overflow-hidden">
+      <WorkspaceNavProvider>
+        <AppTopbar />
+        {/* Banners (view-as, later announcements) sit in the dark chrome. */}
+        <AppBannerStack>
+          <ImpersonationBanner />
+        </AppBannerStack>
+        {/* Sidebar and page stay siblings: the inset styles key off the sidebar.
+            The row is one rounded sheet under the top bar; the page is a
+            second rounded sheet inside it, next to the sidebar. */}
+        <div className="bg-sidebar flex min-h-0 w-full flex-1 md:overflow-hidden md:rounded-t-2xl">
+          <AppSidebar />
+          <SidebarInset className="dark:bg-surface overflow-y-auto overscroll-contain [--bleed:0.75rem] [--page-gutter:1.25rem] md:rounded-t-2xl md:[--page-gutter:2.5rem] xl:[--page-gutter:4rem]">
+            <SiteHeader />
+            <div className="gutter-x flex flex-1 flex-col gap-4 pb-6">
+              <Suspense fallback={<PageFallback />}>{children}</Suspense>
+            </div>
+          </SidebarInset>
+        </div>
+      </WorkspaceNavProvider>
     </SidebarProvider>
   )
 }

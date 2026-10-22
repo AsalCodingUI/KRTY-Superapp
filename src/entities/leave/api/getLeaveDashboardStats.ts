@@ -10,12 +10,13 @@ export interface LeaveDashboardStats {
 export async function getLeaveDashboardStats(): Promise<LeaveDashboardStats> {
   const supabase = await createClient()
 
-  const [pendingLeavesResult, recentLeavesResult] = await Promise.all([
-    // Pending leave approvals (limit 20)
-    supabase
-      .from("leave_requests")
-      .select(
-        `
+  const [pendingLeavesResult, recentLeavesResult, pendingCountResult] =
+    await Promise.all([
+      // Pending leave approvals (limit 20)
+      supabase
+        .from("leave_requests")
+        .select(
+          `
                 id,
                 user_id,
                 leave_type,
@@ -29,16 +30,16 @@ export async function getLeaveDashboardStats(): Promise<LeaveDashboardStats> {
                     avatar_url
                 )
             `,
-      )
-      .eq("status", "pending")
-      .order("created_at", { ascending: false })
-      .limit(20),
+        )
+        .eq("status", "pending")
+        .order("created_at", { ascending: false })
+        .limit(20),
 
-    // Recent leave requests (last 10)
-    supabase
-      .from("leave_requests")
-      .select(
-        `
+      // Recent leave requests (last 10)
+      supabase
+        .from("leave_requests")
+        .select(
+          `
                 id,
                 user_id,
                 leave_type,
@@ -52,15 +53,22 @@ export async function getLeaveDashboardStats(): Promise<LeaveDashboardStats> {
                     avatar_url
                 )
             `,
-      )
-      .order("created_at", { ascending: false })
-      .limit(10),
-  ])
+        )
+        .order("created_at", { ascending: false })
+        .limit(10),
+
+      // True pending total: the list above is capped at 20.
+      supabase
+        .from("leave_requests")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "pending"),
+    ])
 
   return {
     pendingLeaves: (pendingLeavesResult.data ||
       []) as LeaveRequestWithProfile[],
     recentLeaves: (recentLeavesResult.data || []) as LeaveRequestWithProfile[],
-    pendingCount: pendingLeavesResult.data?.length || 0,
+    pendingCount:
+      pendingCountResult.count ?? pendingLeavesResult.data?.length ?? 0,
   }
 }

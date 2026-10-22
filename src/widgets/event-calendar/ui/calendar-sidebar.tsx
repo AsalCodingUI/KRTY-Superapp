@@ -65,9 +65,9 @@ function SidebarContent() {
                 {category.name}
               </span>
               {category.isActive ? (
-                <RiEyeLine className="text-muted-foreground/70 size-4 shrink-0" />
+                <RiEyeLine className="text-tertiary-foreground size-4 shrink-0" />
               ) : (
-                <RiEyeOffLine className="text-muted-foreground/70 size-4 shrink-0" />
+                <RiEyeOffLine className="text-tertiary-foreground size-4 shrink-0" />
               )}
             </button>
           ))}
@@ -113,7 +113,7 @@ export function CalendarSidebarMobileTrigger() {
             render={
               <button
                 type="button"
-                className="text-muted-foreground/70 hover:text-foreground inline-flex size-8 items-center justify-center rounded-full transition-colors"
+                className="text-tertiary-foreground hover:text-foreground inline-flex size-8 items-center justify-center rounded-full transition-colors"
                 aria-label="Tutup panel kalender"
               />
             }

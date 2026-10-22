@@ -1,7 +1,7 @@
 "use client"
 
 import type { Transition, Variants } from "motion/react"
-import { motion, useAnimation } from "motion/react"
+import { m, useAnimation } from "motion/react"
 import type { HTMLAttributes } from "react"
 import { forwardRef, useCallback, useImperativeHandle, useRef } from "react"
 
@@ -90,7 +90,7 @@ const LoaderCircleIcon = forwardRef<
         width={size}
         xmlns="http://www.w3.org/2000/svg"
       >
-        <motion.path
+        <m.path
           animate={controls}
           d="M21 12a9 9 0 1 1-6.219-8.56"
           style={{ transformOrigin: "12px 12px" }}

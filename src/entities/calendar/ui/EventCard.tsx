@@ -55,12 +55,11 @@ export function EventCard({
     const colorMap: Record<EventColor, string> = {
       emerald: "bg-success/10 text-success border-success/30",
       orange: "bg-warning/10 text-warning border-warning/30",
-      violet:
-        "bg-purple-500/10 text-purple-700 dark:text-purple-300 border-border",
+      violet: "bg-purple-3 text-purple-11 border-border",
       blue: "bg-primary/10 text-primary border-primary/30",
-      rose: "bg-pink-500/10 text-pink-700 dark:text-pink-300 border-border",
+      rose: "bg-pink-3 text-pink-11 border-border",
       amber: "bg-warning/10 text-warning border-warning/30",
-      cyan: "bg-cyan-500/10 text-cyan-700 dark:text-cyan-300 border-border",
+      cyan: "bg-cyan-3 text-cyan-11 border-border",
       neutral: "bg-muted text-muted-foreground border-border",
     }
     return colorMap[color] || colorMap.neutral
@@ -74,7 +73,7 @@ export function EventCard({
         onClick={onClick}
         className={cx(
           "w-full rounded border px-2 py-1 text-left text-xs",
-          "transition-all hover:shadow-sm",
+          "transition-shadow hover:shadow-sm",
           "truncate",
           colorClass,
           className,
@@ -93,7 +92,7 @@ export function EventCard({
       onClick={onClick}
       className={cx(
         "w-full rounded-lg border p-3 text-left",
-        "transition-all hover:shadow-md",
+        "transition-shadow hover:shadow-md",
         "group",
         colorClass,
         className,

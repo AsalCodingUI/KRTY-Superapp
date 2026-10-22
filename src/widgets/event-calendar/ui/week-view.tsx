@@ -78,7 +78,7 @@ export const WeekView = memo(function WeekView({
   return (
     <div ref={rootRef} className="flex min-w-[760px] flex-col text-sm">
       {/* Day header + all-day strip (sticky) */}
-      <div className="bg-sidebar sticky top-0 z-20 border-b">
+      <div className="bg-background dark:bg-surface sticky top-0 z-20 border-b">
         <div className="flex">
           <div className="flex w-14 shrink-0 items-center justify-center gap-0.5 border-r">
             <button

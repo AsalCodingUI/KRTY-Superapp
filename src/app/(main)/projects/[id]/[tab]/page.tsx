@@ -1,4 +1,4 @@
-import { ProjectWorkspacePage } from "@/page-slices/projects"
+import { ProjectWorkspacePage } from "@/page-slices/projects/ui/workspace/ProjectWorkspacePage"
 import { notFound, redirect } from "next/navigation"
 import { assertProjectAccess } from "../access"
 

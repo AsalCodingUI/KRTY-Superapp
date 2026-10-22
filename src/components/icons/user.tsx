@@ -1,7 +1,7 @@
 "use client"
 
 import type { Variants } from "motion/react"
-import { motion, useAnimation } from "motion/react"
+import { m, useAnimation } from "motion/react"
 import type { HTMLAttributes } from "react"
 import { forwardRef, useCallback, useImperativeHandle, useRef } from "react"
 
@@ -91,7 +91,7 @@ const UserIcon = forwardRef<UserIconHandle, UserIconProps>(
           width={size}
           xmlns="http://www.w3.org/2000/svg"
         >
-          <motion.circle
+          <m.circle
             animate={controls}
             cx="12"
             cy="8"
@@ -99,7 +99,7 @@ const UserIcon = forwardRef<UserIconHandle, UserIconProps>(
             variants={CIRCLE_VARIANT}
           />
 
-          <motion.path
+          <m.path
             animate={controls}
             d="M20 21a8 8 0 0 0-16 0"
             transition={{

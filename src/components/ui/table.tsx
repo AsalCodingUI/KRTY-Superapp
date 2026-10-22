@@ -7,12 +7,12 @@ function Table({ className, ...props }: React.ComponentProps<"table">) {
   return (
     <div
       data-slot="table-container"
-      className="relative -mx-4 w-[calc(100%+2rem)] overflow-x-auto"
+      className="bleed relative w-[calc(100%+2*var(--page-gutter,1rem))] overflow-x-auto"
     >
       <table
         data-slot="table"
         className={cn(
-          "w-full caption-bottom text-sm [&_tr>*:first-child]:pl-4 [&_tr>*:last-child]:pr-4",
+          "w-full caption-bottom text-sm [&_tr>*:first-child]:pl-[var(--page-gutter,1rem)] [&_tr>*:last-child]:pr-[var(--page-gutter,1rem)]",
           className,
         )}
         {...props}
@@ -69,7 +69,7 @@ function TableHead({ className, ...props }: React.ComponentProps<"th">) {
     <th
       data-slot="table-head"
       className={cn(
-        "text-muted-foreground h-9 px-2 text-left align-middle text-xs font-medium whitespace-nowrap [&:has([role=checkbox])]:pr-0",
+        "text-muted-foreground h-9 px-2 text-left align-middle text-[13px] font-medium whitespace-nowrap [&:has([role=checkbox])]:pr-0",
         className,
       )}
       {...props}

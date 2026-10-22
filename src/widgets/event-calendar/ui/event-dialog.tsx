@@ -32,19 +32,32 @@ import {
 } from "@/shared/ui/lucide-icons"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format } from "date-fns"
+import dynamic from "next/dynamic"
 import { id } from "date-fns/locale"
 import { useCallback, useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-import { HolidayDialog } from "./dialog-variants/HolidayDialog"
-import { LeaveDialog } from "./dialog-variants/LeaveDialog"
-import { MeetingDialog } from "./dialog-variants/MeetingDialog"
-import { PerformanceDialog } from "./dialog-variants/PerformanceDialog"
 import {
   getAllEventTypes,
   getEventTypeDefinition,
 } from "./event-color-registry"
 import type { CalendarEvent } from "./types"
+
+// Read-only variant dialogs are only needed for specific event types.
+const HolidayDialog = dynamic(() =>
+  import("./dialog-variants/HolidayDialog").then((m) => m.HolidayDialog),
+)
+const LeaveDialog = dynamic(() =>
+  import("./dialog-variants/LeaveDialog").then((m) => m.LeaveDialog),
+)
+const MeetingDialog = dynamic(() =>
+  import("./dialog-variants/MeetingDialog").then((m) => m.MeetingDialog),
+)
+const PerformanceDialog = dynamic(() =>
+  import("./dialog-variants/PerformanceDialog").then(
+    (m) => m.PerformanceDialog,
+  ),
+)
 
 /** Now, rounded up to the next quarter hour (new events start on a slot). */
 function nextQuarterHour() {

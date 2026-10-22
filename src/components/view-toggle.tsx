@@ -63,7 +63,7 @@ export function ViewToggle({
       role="group"
       aria-label="Tampilan"
       className={cn(
-        "bg-muted/60 flex items-center gap-0.5 rounded-md p-0.5",
+        "bg-accent dark:bg-muted/60 flex items-center gap-0.5 rounded-full p-0.5",
         className,
       )}
     >
@@ -77,8 +77,9 @@ export function ViewToggle({
             aria-pressed={value === option}
             onClick={() => onValueChange(option)}
             className={cn(
-              "text-muted-foreground hover:text-foreground flex size-7 items-center justify-center rounded-[5px] transition-colors [&_svg]:size-4",
-              value === option && "bg-background text-foreground shadow-xs",
+              "text-muted-foreground hover:text-foreground flex size-7 items-center justify-center rounded-full transition-colors [&_svg]:size-3.5",
+              value === option &&
+                "bg-background text-foreground smooth-shadow-ring-xs dark:shadow-xs",
             )}
           >
             <Icon />

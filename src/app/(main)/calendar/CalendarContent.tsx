@@ -2,14 +2,16 @@
 
 import { useKeyboardShortcuts } from "@/shared/hooks/useKeyboardShortcuts"
 import { useTabRoute } from "@/shared/hooks/useTabRoute"
-import {
-  CalendarSkeleton,
-  CalendarToolbar,
-  useCalendarContext,
-  type CalendarEvent,
-  type EventCategory,
-  type ViewMode,
-} from "@/widgets/event-calendar"
+// Deep imports (not the `@/widgets/event-calendar` barrel) so the dynamic
+// EventCalendar split below isn't defeated by the barrel's static re-exports.
+import { useCalendarContext } from "@/widgets/event-calendar/ui/calendar-context"
+import { CalendarToolbar } from "@/widgets/event-calendar/ui/CalendarToolbar"
+import { CalendarSkeleton } from "@/widgets/event-calendar/ui/components/CalendarSkeleton"
+import type {
+  CalendarEvent,
+  EventCategory,
+  ViewMode,
+} from "@/widgets/event-calendar/ui/types"
 import { EventVisibilityProvider } from "@/widgets/event-calendar/ui/hooks/use-event-visibility"
 import { useGoogleCalendar } from "@/widgets/event-calendar/ui/hooks/use-google-calendar"
 import { getViewRange } from "@/widgets/event-calendar/ui/utils"
@@ -177,7 +179,7 @@ function CalendarContent({
           onViewChange={handleViewChange}
         />
 
-        <div className="bg-sidebar flex min-h-0 flex-1 overflow-hidden rounded-xl border">
+        <div className="bg-background dark:bg-surface flex min-h-0 flex-1 overflow-hidden rounded-xl border">
           {loading || (googleLoading && viewMode !== "timeline") ? (
             <CalendarSkeleton />
           ) : (

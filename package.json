@@ -3,6 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "sideEffects": [
+    "*.css",
+    "**/*.css"
+  ],
   "scripts": {
     "dev": "next dev -H 0.0.0.0 --turbopack",
     "build": "node scripts/clean-next.mjs && next build && node scripts/copy-standalone-assets.mjs",
@@ -70,6 +74,7 @@
     "recharts": "3.8.0",
     "rrule": "^2.8.1",
     "shadcn": "^4.22.1",
+    "shadow-plugin": "^2.1.1",
     "sonner": "^2.0.7",
     "tailwind-merge": "^2.6.0",
     "tailwind-variants": "^0.3.1",

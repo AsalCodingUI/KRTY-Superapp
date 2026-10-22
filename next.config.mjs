@@ -93,20 +93,19 @@ const nextConfig = {
 
     // Experimental features for better performance
     experimental: {
+        // Only packages actually imported from src (barrel imports rewritten
+        // to per-module imports so unused exports never reach the bundle).
         optimizePackageImports: [
-            '@radix-ui/react-dialog',
-            '@radix-ui/react-dropdown-menu',
-            '@radix-ui/react-popover',
-            '@radix-ui/react-select',
-            '@radix-ui/react-tabs',
-            '@radix-ui/react-tooltip',
-            '@radix-ui/react-accordion',
+            'motion',
+            'radix-ui',
+            '@base-ui/react',
+            '@dnd-kit/core',
+            '@dnd-kit/sortable',
             '@tanstack/react-query',
             '@tanstack/react-table',
             'lucide-react',
             'recharts',
             'date-fns',
-            'framer-motion',
         ],
         staleTimes: {
             dynamic: 30,

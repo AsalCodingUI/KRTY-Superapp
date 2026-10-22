@@ -89,7 +89,7 @@ export const MilestonesForm = ({ data, onChange }: MilestonesFormProps) => {
           <Button
             variant="ghost"
             size="icon"
-            className="text-muted-foreground/70 absolute top-2 right-2"
+            className="text-tertiary-foreground absolute top-2 right-2"
             onClick={() => deleteItem(mKey, index)}
           >
             <RiDeleteBinLine className="h-4 w-4" />

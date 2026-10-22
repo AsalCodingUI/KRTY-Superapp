@@ -1,5 +1,6 @@
 "use client"
 
+import { EmptyValue } from "@/components/empty-value"
 import {
   deleteCompetency,
   getCompetencies,
@@ -7,12 +8,9 @@ import {
   type CompetencyRow,
 } from "@/app/(main)/performance/actions/competency-actions"
 import { ConfirmDialog } from "@/components/confirm-dialog"
-import {
-  GroupedList,
-  ListGroup,
-  ListRow,
-  ListRowActions,
-} from "@/components/grouped-list"
+import { EmptyState } from "@/components/empty-state"
+import { GroupedList, ListRow, ListRowActions } from "@/components/grouped-list"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -32,14 +30,22 @@ import {
 } from "@/components/ui/select"
 import { Spinner } from "@/components/ui/spinner"
 import { Textarea } from "@/components/ui/textarea"
+import { cn } from "@/lib/utils"
 import { Constants } from "@/shared/types/database.types"
-import { RiAddLine } from "@/shared/ui/lucide-icons"
+import { RiAddLine, RiFileList3Line } from "@/shared/ui/lucide-icons"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
 import { toast } from "sonner"
+import { ListColumns, StatBand } from "../list"
 
 type Role = CompetencyRow["role"]
 const ROLES = Constants.public.Enums.project_role_enum as readonly Role[]
+
+const ALL = "all"
+
+/** Shared column template so the header and rows line up. */
+const ROW_GRID =
+  "grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 md:grid-cols-[minmax(0,1fr)_10rem_6rem_8rem]"
 
 type Draft = { id?: string; role: Role; name: string; description: string }
 
@@ -53,6 +59,7 @@ export function CompetencyLibrary() {
   const [draft, setDraft] = useState<Draft | null>(null)
   const [saving, setSaving] = useState(false)
   const [removing, setRemoving] = useState<CompetencyRow | null>(null)
+  const [roleFilter, setRoleFilter] = useState<Role | typeof ALL>(ALL)
   const refresh = () =>
     queryClient.invalidateQueries({ queryKey: ["competencies"] })
 
@@ -78,16 +85,51 @@ export function CompetencyLibrary() {
     refresh()
   }
 
+  const items = data
+    .filter((c) => roleFilter === ALL || c.role === roleFilter)
+    .sort(
+      (a, b) =>
+        ROLES.indexOf(a.role) - ROLES.indexOf(b.role) ||
+        a.name.localeCompare(b.name),
+    )
+
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between gap-4">
-        <p className="text-muted-foreground text-sm">
-          Checklist kualitas kerja per peran di project. Dipakai saat menilai
-          anggota.
-        </p>
+    <div className="flex flex-col">
+      {/* Competencies per role; a 0 means members in that role get no
+          work-quality score. */}
+      <StatBand
+        stats={ROLES.map((role) => ({
+          label: role,
+          value: data.filter((c) => c.role === role).length,
+        }))}
+      />
+
+      <div className="flex items-center justify-between gap-4 py-3">
+        <Select
+          value={roleFilter}
+          onValueChange={(v) => v && setRoleFilter(v as Role | typeof ALL)}
+        >
+          <SelectTrigger className="w-48">
+            <SelectValue>
+              {(v: string) => (v === ALL ? "Semua peran" : v)}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL}>Semua peran</SelectItem>
+            {ROLES.map((r) => (
+              <SelectItem key={r} value={r}>
+                {r}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <Button
           onClick={() =>
-            setDraft({ role: ROLES[0], name: "", description: "" })
+            setDraft({
+              role: roleFilter === ALL ? ROLES[0] : roleFilter,
+              name: "",
+              description: "",
+            })
           }
         >
           <RiAddLine data-icon="inline-start" />
@@ -95,77 +137,71 @@ export function CompetencyLibrary() {
         </Button>
       </div>
 
-      <GroupedList>
-        {ROLES.map((role) => {
-          const items = data.filter((c) => c.role === role)
-          return (
-            <ListGroup
-              key={role}
-              label={role}
-              count={items.length}
-              action={
+      {items.length === 0 ? (
+        <EmptyState
+          title="Belum ada kompetensi"
+          description={
+            roleFilter === ALL
+              ? "Tambahkan checklist kualitas kerja per peran di project."
+              : "Anggota dengan peran ini tidak punya nilai kualitas kerja."
+          }
+          icon={<RiFileList3Line className="size-5" />}
+          placement="inner"
+        />
+      ) : (
+        <GroupedList>
+          <ListColumns grid={ROW_GRID}>
+            <span>Kompetensi</span>
+            <span className="hidden md:block">Peran</span>
+            <span className="hidden text-right md:block">Dipakai</span>
+            <span />
+          </ListColumns>
+          {items.map((c) => (
+            <ListRow key={c.id} className={cn(ROW_GRID, "min-h-14")}>
+              <div className="flex min-w-0 flex-col">
+                <span className="text-foreground truncate">{c.name}</span>
+                {c.description && (
+                  <span className="text-tertiary-foreground truncate text-[13px]">
+                    {c.description}
+                  </span>
+                )}
+              </div>
+              <div className="hidden min-w-0 md:block">
+                <Badge variant="secondary" className="max-w-full">
+                  <span className="truncate">{c.role}</span>
+                </Badge>
+              </div>
+              <span className="text-muted-foreground hidden text-right tabular-nums md:block">
+                {c.usage > 0 ? `${c.usage} penilaian` : <EmptyValue />}
+              </span>
+              <ListRowActions className="justify-end">
                 <Button
-                  size="icon-sm"
+                  size="sm"
                   variant="ghost"
-                  aria-label={`Tambah kompetensi ${role}`}
-                  onClick={() => setDraft({ role, name: "", description: "" })}
+                  onClick={() =>
+                    setDraft({
+                      id: c.id,
+                      role: c.role,
+                      name: c.name,
+                      description: c.description ?? "",
+                    })
+                  }
                 >
-                  <RiAddLine />
+                  Ubah
                 </Button>
-              }
-            >
-              {items.length === 0 ? (
-                <ListRow className="text-muted-foreground">
-                  Belum ada kompetensi. Anggota dengan peran ini tidak punya
-                  nilai kualitas kerja.
-                </ListRow>
-              ) : (
-                items.map((c) => (
-                  <ListRow key={c.id}>
-                    <div className="flex min-w-0 flex-1 flex-col">
-                      <span className="font-medium">{c.name}</span>
-                      {c.description && (
-                        <span className="text-muted-foreground truncate text-xs">
-                          {c.description}
-                        </span>
-                      )}
-                    </div>
-                    <ListRowActions>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() =>
-                          setDraft({
-                            id: c.id,
-                            role: c.role,
-                            name: c.name,
-                            description: c.description ?? "",
-                          })
-                        }
-                      >
-                        Ubah
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="text-destructive hover:text-destructive"
-                        onClick={() => setRemoving(c)}
-                      >
-                        Hapus
-                      </Button>
-                    </ListRowActions>
-                    {c.usage > 0 && (
-                      <span className="text-muted-foreground w-24 shrink-0 text-right text-xs tabular-nums">
-                        {c.usage} penilaian
-                      </span>
-                    )}
-                  </ListRow>
-                ))
-              )}
-            </ListGroup>
-          )
-        })}
-      </GroupedList>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="text-destructive hover:text-destructive"
+                  onClick={() => setRemoving(c)}
+                >
+                  Hapus
+                </Button>
+              </ListRowActions>
+            </ListRow>
+          ))}
+        </GroupedList>
+      )}
 
       <Dialog open={Boolean(draft)} onOpenChange={(o) => !o && setDraft(null)}>
         <DialogContent>

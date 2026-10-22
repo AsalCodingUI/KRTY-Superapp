@@ -52,7 +52,7 @@ export function MeetingButton({ meetingUrl, className }: MeetingButtonProps) {
       )}
 
       <div className="mt-2">
-        <p className="text-muted-foreground/70 text-xs">
+        <p className="text-tertiary-foreground text-xs">
           Durasi panggilan grup dibatasi 1 jam
         </p>
         <a

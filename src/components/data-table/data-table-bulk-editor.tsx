@@ -3,8 +3,13 @@
 import * as React from "react"
 import type { RowSelectionState, Table } from "@tanstack/react-table"
 
-import { Button } from "@/components/ui/button"
-import { Kbd } from "@/components/ui/kbd"
+import { Ban, Check, Pencil, Trash2, X } from "lucide-react"
+
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import {
   Popover,
   PopoverContent,
@@ -24,23 +29,27 @@ type DataTableBulkEditorProps<TData> = {
 }
 
 // ============================================================================
-// Floating command bar primitives
+// Floating command bar primitives (dark pill, icon buttons)
 // ============================================================================
 
 function BulkSeparator() {
-  return <div aria-hidden="true" className="bg-border mx-1 h-4 w-px" />
+  return <div aria-hidden="true" className="mx-0.5 h-4 w-px bg-white/15" />
 }
 
 function BulkCommand({
   label,
+  icon,
   action,
   shortcut,
   disabled,
+  tone,
 }: {
   label: string
+  icon: React.ReactNode
   action: () => void | Promise<void>
   shortcut: { shortcut: string; label?: string }
   disabled?: boolean
+  tone?: "danger"
 }) {
   const actionRef = React.useRef(action)
   React.useEffect(() => {
@@ -50,6 +59,8 @@ function BulkCommand({
   React.useEffect(() => {
     if (disabled) return
     const handleKeyDown = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null
+      if (target?.closest("input, textarea, [contenteditable=true]")) return
       if (event.key === shortcut.shortcut) {
         event.preventDefault()
         event.stopPropagation()
@@ -61,19 +72,30 @@ function BulkCommand({
   }, [shortcut.shortcut, disabled])
 
   return (
-    <Button
-      type="button"
-      variant="ghost"
-      onClick={() => void action()}
-      disabled={disabled}
-      aria-label={label}
-      className="gap-x-1.5"
-    >
-      <span>{label}</span>
-      <Kbd className="hidden sm:inline-flex">
-        {(shortcut.label ?? shortcut.shortcut).toUpperCase()}
-      </Kbd>
-    </Button>
+    <Tooltip>
+      <TooltipTrigger
+        render={
+          <button
+            type="button"
+            onClick={() => void action()}
+            disabled={disabled}
+            aria-label={label}
+            className={cn(
+              "flex size-8 cursor-pointer items-center justify-center rounded-full text-white/80 transition-[background-color,color,scale] duration-150 ease-out outline-none hover:bg-white/10 hover:text-white focus-visible:ring-2 focus-visible:ring-white/30 active:scale-[0.94] disabled:pointer-events-none disabled:opacity-40 [&_svg]:size-4",
+              tone === "danger" && "hover:text-red-9",
+            )}
+          />
+        }
+      >
+        {icon}
+      </TooltipTrigger>
+      <TooltipContent>
+        {label}{" "}
+        <span className="opacity-60">
+          {(shortcut.label ?? shortcut.shortcut).toUpperCase()}
+        </span>
+      </TooltipContent>
+    </Tooltip>
   )
 }
 
@@ -119,18 +141,19 @@ function DataTableBulkEditor<TData>({
         sideOffset={0}
         initialFocus={false}
         className={cn(
-          "w-auto flex-row items-center gap-x-0.5 rounded-xl p-1",
-          "bg-popover text-popover-foreground ring-border shadow-lg ring-1",
+          "w-auto flex-row items-center gap-x-0.5 rounded-full p-1",
+          "bg-chrome text-white shadow-lg ring-1 ring-white/10",
         )}
       >
-        <div className="text-muted-foreground px-3 py-2 text-sm font-medium tabular-nums">
-          {selectedCount} selected
-        </div>
+        <span className="pr-1 pl-3 text-sm text-white/70 tabular-nums">
+          {selectedCount} dipilih
+        </span>
         {[
           onEdit && selectedCount === 1 && (
             <BulkCommand
               key="edit"
               label="Edit"
+              icon={<Pencil />}
               action={() => onEdit(selectedRows[0].original)}
               shortcut={{ shortcut: "e" }}
             />
@@ -138,7 +161,8 @@ function DataTableBulkEditor<TData>({
           onApprove && (
             <BulkCommand
               key="approve"
-              label="Approve"
+              label="Setujui"
+              icon={<Check />}
               action={() => runBulk(onApprove)}
               shortcut={{ shortcut: "a" }}
             />
@@ -146,7 +170,8 @@ function DataTableBulkEditor<TData>({
           onReject && (
             <BulkCommand
               key="reject"
-              label="Reject"
+              label="Tolak"
+              icon={<Ban />}
               action={() => runBulk(onReject)}
               shortcut={{ shortcut: "r" }}
             />
@@ -154,26 +179,21 @@ function DataTableBulkEditor<TData>({
           onDelete && (
             <BulkCommand
               key="delete"
-              label="Delete"
+              label="Hapus"
+              icon={<Trash2 />}
+              tone="danger"
               action={() => runBulk(onDelete)}
               shortcut={{ shortcut: "d" }}
             />
           ),
-          <BulkCommand
-            key="reset"
-            label="Reset"
-            action={() => table.resetRowSelection()}
-            shortcut={{ shortcut: "Escape", label: "esc" }}
-          />,
-        ]
-          .filter(Boolean)
-          .map((command, index) => (
-            // One separator between neighbours, never doubled.
-            <React.Fragment key={index}>
-              <BulkSeparator />
-              {command}
-            </React.Fragment>
-          ))}
+        ].filter(Boolean)}
+        <BulkSeparator />
+        <BulkCommand
+          label="Batal pilih"
+          icon={<X />}
+          action={() => table.resetRowSelection()}
+          shortcut={{ shortcut: "Escape", label: "esc" }}
+        />
       </PopoverContent>
     </Popover>
   )

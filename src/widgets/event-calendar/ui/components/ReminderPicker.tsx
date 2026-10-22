@@ -112,7 +112,7 @@ export function ReminderPicker({
       </div>
 
       {value.length === 0 && (
-        <p className="text-muted-foreground/70 text-xs">Belum ada pengingat</p>
+        <p className="text-tertiary-foreground text-xs">Belum ada pengingat</p>
       )}
     </div>
   )

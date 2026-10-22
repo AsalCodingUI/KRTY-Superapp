@@ -62,14 +62,23 @@ export default async function SLAPage({
     .order("created_at", { ascending: false })
 
   const slas =
-    data?.map((row: { id: string; client_name: string; project_name: string; created_at: string; archived_at: string | null }) => ({
-      id: row.id,
-      client_name: row.client_name,
-      title: row.project_name,
-      status: row.archived_at ? "Archived" : "Active",
-      created_at: row.created_at,
-      archived_at: row.archived_at,
-    })) || []
+    data?.map(
+      (row: {
+        id: string
+        client_name: string
+        project_name: string
+        created_at: string
+        archived_at: string | null
+      }) => ({
+        id: row.id,
+        client_name: row.client_name,
+        title: row.project_name,
+        status: row.archived_at ? "Archived" : "Active",
+        created_at: row.created_at,
+        archived_at: row.archived_at,
+      }),
+    ) || []
 
+  // SLADashboard renders the page header (its actions are client-side).
   return <SLADashboard slas={slas} />
 }

@@ -110,7 +110,7 @@ export function FreelanceSection({
               <Button
                 variant="ghost"
                 size="icon"
-                className="text-muted-foreground/70 size-6 p-0"
+                className="text-tertiary-foreground size-6 p-0"
                 onClick={() => onRemoveFreelanceMember(member.id)}
               >
                 <RiDeleteBinLine className="size-4" />

@@ -1,7 +1,7 @@
 "use client"
 
 import type { Transition, Variants } from "motion/react"
-import { motion, useAnimation } from "motion/react"
+import { m, useAnimation } from "motion/react"
 import type { HTMLAttributes } from "react"
 import { forwardRef, useCallback, useImperativeHandle, useRef } from "react"
 
@@ -107,7 +107,7 @@ const ClockIcon = forwardRef<ClockIconHandle, ClockIconProps>(
           xmlns="http://www.w3.org/2000/svg"
         >
           <circle cx="12" cy="12" r="10" />
-          <motion.line
+          <m.line
             animate={controls}
             initial="normal"
             transition={HAND_TRANSITION}
@@ -117,7 +117,7 @@ const ClockIcon = forwardRef<ClockIconHandle, ClockIconProps>(
             y1="12"
             y2="6"
           />
-          <motion.line
+          <m.line
             animate={controls}
             initial="normal"
             transition={MINUTE_HAND_TRANSITION}

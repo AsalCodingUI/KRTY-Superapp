@@ -74,7 +74,7 @@ export function TimelineSection({
             <Button
               variant="ghost"
               size="icon"
-              className="text-muted-foreground/70 size-8 shrink-0 justify-self-end p-0"
+              className="text-tertiary-foreground size-8 shrink-0 justify-self-end p-0"
               onClick={() => onRemovePhase(phase.id)}
             >
               <RiDeleteBinLine className="size-4" />

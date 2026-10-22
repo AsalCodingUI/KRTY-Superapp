@@ -39,16 +39,16 @@ export function EmptyState({
     <div
       data-slot="empty"
       className={cn(
-        "flex w-full min-w-0 flex-col items-center justify-center px-6 py-14 text-center",
+        "enter-rise flex w-full min-w-0 flex-col items-center justify-center px-6 py-14 text-center",
         placement === "outer" &&
-          "border-border bg-muted/10 rounded-xl border border-dashed",
+          "border-border rounded-xl border border-dashed",
         className,
       )}
     >
       {icon !== null && (
         <div aria-hidden className="relative mb-5 size-12">
-          <div className="bg-muted/50 ring-foreground/5 absolute inset-0 translate-x-1.5 -translate-y-1 rotate-6 rounded-xl ring-1" />
-          <div className="bg-muted text-muted-foreground ring-foreground/10 relative flex size-12 items-center justify-center rounded-xl shadow-sm ring-1 [&_svg]:size-5">
+          <div className="bg-background dark:bg-surface smooth-shadow-ring-xs absolute inset-0 translate-x-1.5 -translate-y-1 rotate-6 rounded-xl" />
+          <div className="bg-background dark:bg-surface text-muted-foreground smooth-shadow-ring-sm relative flex size-12 items-center justify-center rounded-xl [&_svg]:size-5">
             {icon ?? <Inbox />}
           </div>
         </div>

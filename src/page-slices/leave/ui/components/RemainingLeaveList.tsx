@@ -1,7 +1,9 @@
 "use client"
 
-import { GroupedList, ListGroup, ListRow } from "@/components/grouped-list"
+import { GroupedList, ListRow } from "@/components/grouped-list"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import { cn } from "@/lib/utils"
 import { ANNUAL_LEAVE_QUOTA } from "@/shared/lib/leave"
 
 type BalanceProfile = {
@@ -15,71 +17,85 @@ type BalanceProfile = {
   leave_note?: string | null
 }
 
-/** Saldo Cuti: everyone's annual-leave balance, grouped by job title. */
+/** Shared column template so the header and rows line up. */
+const ROW_GRID =
+  "grid grid-cols-[minmax(0,1fr)_6rem] items-center gap-x-4 md:grid-cols-[minmax(0,1fr)_10rem_6rem_8rem_6rem]"
+
+/** Saldo Cuti: everyone's annual-leave balance as one flat list. */
 export function RemainingLeaveList({ data }: { data: BalanceProfile[] }) {
-  const groups = new Map<string, BalanceProfile[]>()
-  for (const p of data) {
-    const key = p.job_title || "Tanpa jabatan"
-    groups.set(key, [...(groups.get(key) ?? []), p])
-  }
+  const people = [...data].sort((a, b) =>
+    (a.full_name || "").localeCompare(b.full_name || ""),
+  )
 
   return (
     <GroupedList>
-      {[...groups.entries()]
-        .sort((a, b) => a[0].localeCompare(b[0]))
-        .map(([title, people]) => (
-          <ListGroup key={title} label={title} count={people.length}>
-            {people.map((p) => {
-              const name = p.full_name || "Unknown"
-              const quota = p.leave_quota ?? ANNUAL_LEAVE_QUOTA
-              const used = p.leave_used ?? 0
-              const remaining = p.leave_balance ?? quota
-              return (
-                <ListRow key={p.id}>
-                  <Avatar className="size-5">
-                    <AvatarImage src={p.avatar_url || undefined} alt={name} />
-                    <AvatarFallback className="text-[10px]">
-                      {name.slice(0, 2).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex min-w-0 flex-1 items-center gap-2">
-                    <span className="truncate font-medium">{name}</span>
-                    {p.leave_note && (
-                      <span className="text-muted-foreground/70 truncate text-xs">
-                        {p.leave_note}
-                      </span>
-                    )}
-                  </div>
-                  <span className="text-muted-foreground w-24 shrink-0 text-right text-xs tabular-nums">
-                    {used} terpakai
+      <div
+        className={cn(
+          ROW_GRID,
+          "gutter-x text-muted-foreground border-border h-9 border-b text-[13px]",
+        )}
+      >
+        <span>Karyawan</span>
+        <span className="hidden md:block">Jabatan</span>
+        <span className="hidden text-right md:block">Terpakai</span>
+        <span className="hidden md:block" />
+        <span className="text-right">Sisa</span>
+      </div>
+      {people.map((p) => {
+        const name = p.full_name || "Unknown"
+        const quota = p.leave_quota ?? ANNUAL_LEAVE_QUOTA
+        const used = p.leave_used ?? 0
+        const remaining = p.leave_balance ?? quota
+        return (
+          <ListRow key={p.id} className={cn(ROW_GRID, "min-h-14")}>
+            <div className="flex min-w-0 items-center gap-3">
+              <Avatar className="size-7">
+                <AvatarImage src={p.avatar_url || undefined} alt={name} />
+                <AvatarFallback className="text-[11px]">
+                  {name.slice(0, 2).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex min-w-0 flex-col">
+                <span className="text-foreground truncate">{name}</span>
+                {p.leave_note && (
+                  <span className="text-tertiary-foreground truncate text-[13px]">
+                    {p.leave_note}
                   </span>
-                  <div
-                    className="bg-muted h-1.5 w-32 shrink-0 overflow-hidden rounded-full"
-                    role="meter"
-                    aria-valuemin={0}
-                    aria-valuemax={quota}
-                    aria-valuenow={used}
-                    aria-label={`${used} dari ${quota} hari terpakai`}
-                  >
-                    <div
-                      className="bg-primary h-full rounded-full"
-                      style={{
-                        width: `${quota ? Math.min(100, (used / quota) * 100) : 0}%`,
-                      }}
-                    />
-                  </div>
-                  <span className="w-24 shrink-0 text-right text-xs tabular-nums">
-                    <span className="font-medium">{remaining}</span>
-                    <span className="text-muted-foreground">
-                      {" "}
-                      / {quota} hari
-                    </span>
-                  </span>
-                </ListRow>
-              )
-            })}
-          </ListGroup>
-        ))}
+                )}
+              </div>
+            </div>
+            <div className="hidden min-w-0 md:block">
+              <Badge variant="secondary" className="max-w-full">
+                <span className="truncate">
+                  {p.job_title || "Tanpa jabatan"}
+                </span>
+              </Badge>
+            </div>
+            <span className="text-muted-foreground hidden text-right tabular-nums md:block">
+              {used} hari
+            </span>
+            <div
+              className="bg-muted hidden h-1.5 overflow-hidden rounded-full md:block"
+              role="meter"
+              aria-valuemin={0}
+              aria-valuemax={quota}
+              aria-valuenow={used}
+              aria-label={`${used} dari ${quota} hari terpakai`}
+            >
+              <div
+                className="bg-primary h-full rounded-full"
+                style={{
+                  width: `${quota ? Math.min(100, (used / quota) * 100) : 0}%`,
+                }}
+              />
+            </div>
+            <span className="text-right tabular-nums">
+              {remaining}
+              <span className="text-muted-foreground"> / {quota}</span>
+            </span>
+          </ListRow>
+        )
+      })}
     </GroupedList>
   )
 }

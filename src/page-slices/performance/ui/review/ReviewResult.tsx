@@ -1,3 +1,4 @@
+import { EmptyValue, orEmpty } from "@/components/empty-value"
 import type { ReviewSummary } from "@/app/(main)/performance/actions/review-actions"
 import { formatPercent } from "@/entities/performance/lib/kpi"
 import { RatingChip, ScoreBar } from "../kpi/RatingChip"
@@ -31,7 +32,7 @@ export function ReviewResult({ summary }: { summary: ReviewSummary }) {
           <p className="text-muted-foreground text-sm">Nilai 360</p>
           <div className="flex items-center gap-2">
             <span className="text-3xl font-semibold tabular-nums">
-              {formatPercent(overall)}
+              {orEmpty(formatPercent(overall))}
             </span>
             <RatingChip score={overall} />
           </div>
@@ -49,8 +50,8 @@ export function ReviewResult({ summary }: { summary: ReviewSummary }) {
                 <div className="flex items-baseline justify-between text-sm">
                   <dt className="text-muted-foreground">{label}</dt>
                   <dd className="font-medium tabular-nums">
-                    {value === null ? "—" : value.toFixed(1)}
-                    <span className="text-muted-foreground/70 text-xs font-normal">
+                    {value === null ? <EmptyValue /> : value.toFixed(1)}
+                    <span className="text-tertiary-foreground text-xs font-normal">
                       {" "}
                       / 5
                     </span>

@@ -1,174 +1,116 @@
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { Database } from "@/shared/types/database.types"
-import { useCallback, useEffect, useState } from "react"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { useCallback, useMemo } from "react"
 
 type Notification = Database["public"]["Tables"]["notifications"]["Row"]
-type NotificationsSyncDetail =
-  | { type: "markAsRead"; id: string }
-  | { type: "markAllAsRead" }
-  | { type: "delete"; id: string }
 
-const NOTIFICATIONS_SYNC_EVENT = "kretya:notifications-sync"
+/** Every consumer shares this cache entry, so there is a single poller. */
+export const NOTIFICATIONS_QUERY_KEY = ["notifications"] as const
 
-function broadcastNotificationsSync(detail: NotificationsSyncDetail) {
-  if (typeof window === "undefined") return
-  window.dispatchEvent(
-    new CustomEvent<NotificationsSyncDetail>(NOTIFICATIONS_SYNC_EVENT, {
-      detail,
-    }),
-  )
+const POLL_INTERVAL_MS = 60_000
+const EMPTY: Notification[] = []
+
+async function fetchNotificationList(): Promise<Notification[]> {
+  const response = await fetch("/api/notifications", {
+    credentials: "include",
+    cache: "no-store",
+  })
+  if (!response.ok) throw new Error("Failed to fetch notifications")
+
+  const payload = (await response.json().catch(() => null)) as {
+    notifications?: Notification[]
+  } | null
+  return payload?.notifications || []
 }
 
 export function useNotifications() {
-  const [notifications, setNotifications] = useState<Notification[]>([])
-  const [unreadCount, setUnreadCount] = useState(0)
-  const [loading, setLoading] = useState(true)
+  const queryClient = useQueryClient()
   const { authProfile, loading: profileLoading } = useUserProfile()
+  const userId = authProfile?.id
+  // Scoped per user so a different session never sees a stale list.
+  const queryKey = useMemo(
+    () => [...NOTIFICATIONS_QUERY_KEY, userId] as const,
+    [userId],
+  )
 
-  const fetchNotifications = useCallback(async () => {
-    if (!authProfile?.id) {
-      setNotifications([])
-      setUnreadCount(0)
-      setLoading(profileLoading)
-      return null
-    }
+  const query = useQuery({
+    queryKey,
+    queryFn: fetchNotificationList,
+    enabled: Boolean(userId),
+    staleTime: 30_000,
+    refetchInterval: POLL_INTERVAL_MS,
+    refetchIntervalInBackground: false,
+  })
 
-    const response = await fetch("/api/notifications", {
-      credentials: "include",
-      cache: "no-store",
-    })
+  const notifications = userId ? (query.data ?? EMPTY) : EMPTY
+  const unreadCount = useMemo(
+    () => notifications.filter((n) => !n.is_read).length,
+    [notifications],
+  )
+  const loading = userId ? query.isPending : profileLoading
 
-    if (!response.ok) {
-      setLoading(false)
-      throw new Error("Failed to fetch notifications")
-    }
+  /** Optimistically rewrite the cached list; returns the previous one. */
+  const update = useCallback(
+    async (fn: (prev: Notification[]) => Notification[]) => {
+      // Don't let an in-flight poll overwrite the optimistic state.
+      await queryClient.cancelQueries({ queryKey })
+      const previous = queryClient.getQueryData<Notification[]>(queryKey)
+      queryClient.setQueryData<Notification[]>(queryKey, (prev) =>
+        fn(prev ?? EMPTY),
+      )
+      return previous
+    },
+    [queryClient, queryKey],
+  )
 
-    const payload = (await response.json().catch(() => null)) as {
-      notifications?: Notification[]
-    } | null
-    const data = payload?.notifications || []
+  const markAsRead = useCallback(
+    async (id: string) => {
+      await update((prev) =>
+        prev.map((n) => (n.id === id ? { ...n, is_read: true } : n)),
+      )
+      await fetch("/api/notifications", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      })
+    },
+    [update],
+  )
 
-    if (data) {
-      setNotifications(data)
-      setUnreadCount(data.filter((n: Notification) => !n.is_read).length)
-    }
-    setLoading(false)
-
-    // Return userID untuk dipakai di subscription filter
-    return authProfile.id
-  }, [authProfile?.id, profileLoading])
-
-  const markAsRead = async (id: string) => {
-    // Optimistic Update (Update UI duluan biar berasa instan)
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, is_read: true } : n)),
-    )
-    setUnreadCount((prev) => Math.max(0, prev - 1))
-    broadcastNotificationsSync({ type: "markAsRead", id })
-
-    // Kirim ke server
-    await fetch("/api/notifications", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id }),
-    })
-  }
-
-  const markAllAsRead = async () => {
-    // Optimistic Update
-    setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })))
-    setUnreadCount(0)
-    broadcastNotificationsSync({ type: "markAllAsRead" })
-
-    if (!authProfile?.id) return
+  const markAllAsRead = useCallback(async () => {
+    await update((prev) => prev.map((n) => ({ ...n, is_read: true })))
+    if (!userId) return
 
     await fetch("/api/notifications", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ markAll: true }),
     })
-  }
+  }, [update, userId])
 
-  const deleteNotification = async (id: string) => {
-    let snapshot: Notification[] = []
-    let deleted: Notification | undefined
+  const deleteNotification = useCallback(
+    async (id: string) => {
+      const snapshot = await update((prev) => prev.filter((n) => n.id !== id))
+      if (!userId) return
 
-    setNotifications((prev) => {
-      snapshot = prev
-      deleted = prev.find((n) => n.id === id)
-      return prev.filter((n) => n.id !== id)
-    })
-
-    if (deleted && !deleted.is_read) {
-      setUnreadCount((prev) => Math.max(0, prev - 1))
-    }
-    broadcastNotificationsSync({ type: "delete", id })
-
-    if (!authProfile?.id) return
-
-    const response = await fetch(
-      `/api/notifications?id=${encodeURIComponent(id)}`,
-      {
-        method: "DELETE",
-      },
-    )
-
-    if (!response.ok) {
-      setNotifications(snapshot)
-      setUnreadCount(snapshot.filter((n) => !n.is_read).length)
-    }
-  }
-
-  useEffect(() => {
-    void fetchNotifications()
-
-    const intervalId = window.setInterval(() => {
-      void fetchNotifications()
-    }, 60_000)
-
-    return () => window.clearInterval(intervalId)
-  }, [fetchNotifications])
-
-  useEffect(() => {
-    if (typeof window === "undefined") return
-
-    const handleSync = (event: Event) => {
-      const detail = (event as CustomEvent<NotificationsSyncDetail>).detail
-      if (!detail) return
-
-      if (detail.type === "markAsRead") {
-        setNotifications((prev) =>
-          prev.map((n) => (n.id === detail.id ? { ...n, is_read: true } : n)),
-        )
-        setUnreadCount((prev) => Math.max(0, prev - 1))
-        return
-      }
-
-      if (detail.type === "markAllAsRead") {
-        setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })))
-        setUnreadCount(0)
-        return
-      }
-
-      if (detail.type === "delete") {
-        setNotifications((prev) => {
-          const next = prev.filter((n) => n.id !== detail.id)
-          setUnreadCount(next.filter((n) => !n.is_read).length)
-          return next
-        })
-      }
-    }
-
-    window.addEventListener(
-      NOTIFICATIONS_SYNC_EVENT,
-      handleSync as EventListener,
-    )
-    return () =>
-      window.removeEventListener(
-        NOTIFICATIONS_SYNC_EVENT,
-        handleSync as EventListener,
+      const response = await fetch(
+        `/api/notifications?id=${encodeURIComponent(id)}`,
+        { method: "DELETE" },
       )
-  }, [])
+      if (!response.ok) {
+        queryClient.setQueryData<Notification[]>(queryKey, snapshot)
+      }
+    },
+    [queryClient, queryKey, update, userId],
+  )
+
+  const { refetch: refetchQuery } = query
+  const refetch = useCallback(async () => {
+    if (!userId) return null
+    await refetchQuery()
+    return userId
+  }, [refetchQuery, userId])
 
   return {
     notifications,
@@ -177,6 +119,6 @@ export function useNotifications() {
     markAsRead,
     markAllAsRead,
     deleteNotification,
-    refetch: fetchNotifications,
+    refetch,
   }
 }

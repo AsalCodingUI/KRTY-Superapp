@@ -1,7 +1,7 @@
 "use client"
 
 import type { Variants } from "motion/react"
-import { motion, useAnimation } from "motion/react"
+import { m, useAnimation } from "motion/react"
 import type { HTMLAttributes } from "react"
 import { forwardRef, useCallback, useImperativeHandle, useRef } from "react"
 
@@ -79,13 +79,13 @@ const UnderlineIcon = forwardRef<UnderlineIconHandle, UnderlineIconProps>(
           width={size}
           xmlns="http://www.w3.org/2000/svg"
         >
-          <motion.path
+          <m.path
             animate={controls}
             d="M6 4v6a6 6 0 0 0 12 0V4"
             transition={{ duration: 0.3 }}
             variants={VARIANTS}
           />
-          <motion.line
+          <m.line
             animate={controls}
             transition={{
               delay: 0.2,

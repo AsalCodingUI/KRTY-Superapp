@@ -1,7 +1,7 @@
 "use client"
 
 import type { Variants } from "motion/react"
-import { motion, useAnimation } from "motion/react"
+import { m, useAnimation } from "motion/react"
 import type { HTMLAttributes } from "react"
 import { forwardRef, useCallback, useImperativeHandle, useRef } from "react"
 
@@ -95,7 +95,7 @@ const UserPlusIcon = forwardRef<UserPlusIconHandle, UserPlusIconProps>(
         >
           <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
           <circle cx="9" cy="7" r="4" />
-          <motion.g
+          <m.g
             animate={controls}
             initial="normal"
             style={{ transformOrigin: "19px 11px" }}
@@ -103,7 +103,7 @@ const UserPlusIcon = forwardRef<UserPlusIconHandle, UserPlusIconProps>(
           >
             <line x1="19" x2="19" y1="8" y2="14" />
             <line x1="22" x2="16" y1="11" y2="11" />
-          </motion.g>
+          </m.g>
         </svg>
       </div>
     )

@@ -1,7 +1,7 @@
 "use client"
 
 import type { Variants } from "motion/react"
-import { motion, useAnimation } from "motion/react"
+import { m, useAnimation } from "motion/react"
 import type { HTMLAttributes } from "react"
 import { forwardRef, useCallback, useImperativeHandle, useRef } from "react"
 
@@ -115,13 +115,13 @@ const CircleDollarSignIcon = forwardRef<
         xmlns="http://www.w3.org/2000/svg"
       >
         <circle cx="12" cy="12" r="10" />
-        <motion.path
+        <m.path
           animate={controls}
           d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"
           initial="normal"
           variants={DOLLAR_MAIN_VARIANTS}
         />
-        <motion.path
+        <m.path
           animate={controls}
           d="M12 18V6"
           initial="normal"

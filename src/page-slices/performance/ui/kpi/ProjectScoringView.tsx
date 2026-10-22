@@ -1,12 +1,15 @@
 "use client"
 
+import { orEmpty } from "@/components/empty-value"
 import {
   saveProjectScores,
   type MilestoneInput,
   type ProjectScoring,
 } from "@/app/(main)/performance/actions/project-scoring-actions"
 import { EmptyState } from "@/components/empty-state"
-import { ListChip } from "@/components/grouped-list"
+import { GroupedList, ListRow } from "@/components/grouped-list"
+import { PageHeader } from "@/components/page-header"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -35,9 +38,23 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
 import { toast } from "sonner"
+import { ListColumns } from "../list"
 import { RatingChip } from "./RatingChip"
 
 const RESULTS: SLAResult[] = ["Faster", "On Time", "Delay"]
+
+/** Shared column templates so the headers and rows line up. */
+const MILESTONE_GRID =
+  "grid grid-cols-[minmax(0,1fr)_5rem_8.5rem] items-center gap-x-4 sm:grid-cols-[minmax(0,1fr)_5.5rem_9rem_3.5rem]"
+const COMPETENCY_GRID =
+  "grid grid-cols-[minmax(0,1fr)_7rem] items-center gap-x-4"
+
+const RESULT_VARIANTS: Record<SLAResult, "success" | "secondary" | "warning"> =
+  {
+    Faster: "success",
+    "On Time": "secondary",
+    Delay: "warning",
+  }
 
 /**
  * One member's scores on one project. Admins and the project lead edit
@@ -136,48 +153,56 @@ export function ProjectScoringView({
   }
 
   return (
-    <div className="flex flex-col gap-6 py-2">
-      <div className="flex flex-col gap-3">
-        <Link
-          href={backHref}
-          className="text-muted-foreground hover:text-foreground flex w-fit items-center gap-1.5 text-sm"
-        >
-          <RiArrowLeftLine className="size-4" />
-          {backLabel}
-        </Link>
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div className="flex min-w-0 flex-col gap-1.5">
-            <h1 className="text-lg font-semibold">{project.name}</h1>
-            <div className="flex flex-wrap items-center gap-1.5">
-              <span className="text-muted-foreground text-sm">
-                {employeeName}
-              </span>
-              <ListChip>{roleInProject}</ListChip>
-              {project.quarter && <ListChip>{project.quarter}</ListChip>}
-            </div>
-          </div>
-          {canEdit && (
+    <div className="flex flex-col pb-4">
+      <Link
+        href={backHref}
+        className="text-muted-foreground hover:text-foreground flex w-fit items-center gap-1.5 pt-6 text-sm"
+      >
+        <RiArrowLeftLine className="size-4" />
+        {backLabel}
+      </Link>
+      <PageHeader
+        className="pt-2 pb-4"
+        title={project.name}
+        actions={
+          canEdit && (
             <Button onClick={save} disabled={saving || !dirty}>
               {saving ? "Menyimpan…" : dirty ? "Simpan nilai" : "Tersimpan"}
             </Button>
-          )}
-        </div>
-      </div>
+          )
+        }
+      />
 
-      <dl className="flex flex-wrap gap-x-16 gap-y-4">
+      <dl className="stat-strip bleed gutter-x border-border border-b py-4">
+        {[
+          { label: "Anggota", value: employeeName },
+          { label: "Peran", value: roleInProject },
+          ...(project.quarter
+            ? [{ label: "Kuartal", value: project.quarter }]
+            : []),
+        ].map(({ label, value }) => (
+          <div key={label} className="stat-tile">
+            <dt className="text-muted-foreground text-sm">{label}</dt>
+            <dd className="text-foreground text-xl font-normal tracking-tight">
+              {value}
+            </dd>
+          </div>
+        ))}
         {[
           { label: "SLA project", value: sla },
           { label: "Kualitas kerja", value: quality },
         ].map(({ label, value }) => (
-          <div key={label} className="flex flex-col gap-1">
+          <div key={label} className="stat-tile">
             <dt className="text-muted-foreground text-sm">{label}</dt>
             <dd className="flex items-center gap-2">
               {value === null ? (
-                <span className="text-muted-foreground">Belum dinilai</span>
+                <span className="text-muted-foreground text-xl font-normal tracking-tight">
+                  Belum dinilai
+                </span>
               ) : (
                 <>
-                  <span className="text-lg font-medium tabular-nums">
-                    {formatPercent(value, 1)}
+                  <span className="text-foreground text-xl font-normal tracking-tight tabular-nums">
+                    {orEmpty(formatPercent(value, 1))}
                   </span>
                   <RatingChip score={value} />
                 </>
@@ -188,9 +213,9 @@ export function ProjectScoringView({
       </dl>
 
       <section className="flex flex-col">
-        <div className="flex items-baseline justify-between gap-4 pb-2">
-          <h2 className="text-sm font-medium">Milestone SLA</h2>
-          <p className="text-muted-foreground text-xs">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 pt-6 pb-3">
+          <h2 className="text-foreground text-sm">Milestone SLA</h2>
+          <p className="text-muted-foreground text-[13px]">
             Lebih cepat 120% · Tepat waktu 100% · Terlambat 80% dari bobot
           </p>
         </div>
@@ -199,18 +224,22 @@ export function ProjectScoringView({
             Milestone project ini belum dinilai.
           </p>
         ) : (
-          <div className="-mx-4 flex flex-col">
+          <GroupedList>
+            <ListColumns grid={MILESTONE_GRID}>
+              <span>Milestone</span>
+              <span className="text-right">Bobot</span>
+              <span>Hasil</span>
+              <span className="hidden text-right sm:block">Nilai</span>
+            </ListColumns>
             {milestones.map((m, index) => (
-              <div
+              <ListRow
                 key={`${m.name}-${index}`}
-                className="border-border/50 flex min-h-12 items-center gap-3 border-b px-4 py-2 text-sm first:border-t"
+                className={cn(MILESTONE_GRID, "min-h-14")}
               >
-                <span className="min-w-0 flex-1 truncate font-medium">
-                  {m.name}
-                </span>
+                <span className="text-foreground truncate">{m.name}</span>
                 {canEdit ? (
                   <>
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center justify-end gap-1.5">
                       <Input
                         type="number"
                         min={0}
@@ -232,7 +261,7 @@ export function ProjectScoringView({
                         v && updateMilestone(index, { result: v as SLAResult })
                       }
                     >
-                      <SelectTrigger className="h-8 w-36">
+                      <SelectTrigger className="h-8 w-full">
                         <SelectValue>
                           {(v: SLAResult) => SLA_RESULT_LABELS[v]}
                         </SelectValue>
@@ -248,38 +277,37 @@ export function ProjectScoringView({
                   </>
                 ) : (
                   <>
-                    <span className="text-muted-foreground w-16 text-right text-xs tabular-nums">
-                      bobot {m.weight}%
+                    <span className="text-muted-foreground text-right tabular-nums">
+                      {m.weight}%
                     </span>
-                    <ListChip
-                      className={cn(
-                        m.result === "Faster" && "text-success",
-                        m.result === "Delay" && "text-warning",
-                      )}
-                    >
-                      {SLA_RESULT_LABELS[m.result]}
-                    </ListChip>
+                    <div>
+                      <Badge variant={RESULT_VARIANTS[m.result]}>
+                        {SLA_RESULT_LABELS[m.result]}
+                      </Badge>
+                    </div>
                   </>
                 )}
-                <span className="w-14 text-right text-xs font-medium tabular-nums">
+                <span className="text-foreground hidden text-right tabular-nums sm:block">
                   {(m.weight * SLA_RESULT_PERCENT[m.result]) / 100}
                 </span>
-              </div>
+              </ListRow>
             ))}
             {canEdit && totalWeight !== 100 && (
-              <p className="text-warning px-4 pt-2 text-xs">
+              <p className="text-warning gutter-x pt-2 text-xs">
                 Total bobot {totalWeight}%, harus 100%.
               </p>
             )}
-          </div>
+          </GroupedList>
         )}
       </section>
 
       <section className="flex flex-col">
-        <div className="flex items-baseline justify-between gap-4 pb-2">
-          <h2 className="text-sm font-medium">Kompetensi ({roleInProject})</h2>
+        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 pt-6 pb-3">
+          <h2 className="text-foreground text-sm">
+            Kompetensi ({roleInProject})
+          </h2>
           {showQuality && competencies.length > 0 && (
-            <p className="text-muted-foreground text-xs tabular-nums">
+            <p className="text-muted-foreground text-[13px] tabular-nums">
               {competencies.filter((c) => c.isAchieved).length} dari{" "}
               {competencies.length} tercapai
             </p>
@@ -297,42 +325,45 @@ export function ProjectScoringView({
             Kompetensi di project ini belum dinilai.
           </p>
         ) : (
-          <div className="-mx-4 flex flex-col">
+          <GroupedList>
+            <ListColumns grid={COMPETENCY_GRID}>
+              <span>Kompetensi</span>
+              <span className="text-right">Status</span>
+            </ListColumns>
             {competencies.map((c) => (
-              <div
-                key={c.id}
-                className="border-border/50 flex min-h-12 items-center gap-3 border-b px-4 py-2 text-sm first:border-t"
-              >
-                <div className="flex min-w-0 flex-1 flex-col">
-                  <span className="font-medium">{c.name}</span>
+              <ListRow key={c.id} className={cn(COMPETENCY_GRID, "min-h-14")}>
+                <div className="flex min-w-0 flex-col">
+                  <span className="text-foreground truncate">{c.name}</span>
                   {c.description && (
-                    <span className="text-muted-foreground text-xs">
+                    <span className="text-tertiary-foreground text-[13px]">
                       {c.description}
                     </span>
                   )}
                 </div>
-                {canEdit ? (
-                  <Button
-                    variant={c.isAchieved ? "secondary" : "ghost"}
-                    size="sm"
-                    aria-pressed={c.isAchieved}
-                    onClick={() => toggleCompetency(c.id)}
-                    className={cn(
-                      "w-28 justify-center",
-                      c.isAchieved ? "text-success" : "text-muted-foreground",
-                    )}
-                  >
-                    {c.isAchieved && <RiCheckLine data-icon="inline-start" />}
-                    {c.isAchieved ? "Tercapai" : "Belum"}
-                  </Button>
-                ) : (
-                  <ListChip className={cn(c.isAchieved && "text-success")}>
-                    {c.isAchieved ? "Tercapai" : "Belum"}
-                  </ListChip>
-                )}
-              </div>
+                <div className="flex justify-end">
+                  {canEdit ? (
+                    <Button
+                      variant={c.isAchieved ? "secondary" : "ghost"}
+                      size="sm"
+                      aria-pressed={c.isAchieved}
+                      onClick={() => toggleCompetency(c.id)}
+                      className={cn(
+                        "w-28 justify-center",
+                        c.isAchieved ? "text-success" : "text-muted-foreground",
+                      )}
+                    >
+                      {c.isAchieved && <RiCheckLine data-icon="inline-start" />}
+                      {c.isAchieved ? "Tercapai" : "Belum"}
+                    </Button>
+                  ) : (
+                    <Badge variant={c.isAchieved ? "success" : "secondary"}>
+                      {c.isAchieved ? "Tercapai" : "Belum"}
+                    </Badge>
+                  )}
+                </div>
+              </ListRow>
             ))}
-          </div>
+          </GroupedList>
         )}
       </section>
     </div>

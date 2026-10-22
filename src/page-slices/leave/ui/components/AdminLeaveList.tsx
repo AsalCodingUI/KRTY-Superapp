@@ -1,15 +1,15 @@
 "use client"
 
+import { EmptyValue } from "@/components/empty-value"
 import { EmptyState } from "@/components/empty-state"
 import {
   GroupedList,
-  ListChip,
   ListGroup,
   ListRow,
   ListRowActions,
-  listChipClassName,
 } from "@/components/grouped-list"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { calculateBusinessDays } from "@/shared/lib/date"
@@ -57,6 +57,35 @@ function shortAgo(date: Date, now = new Date()) {
   return format(date, "d MMM", { locale: idLocale })
 }
 
+/** Shared column template so rows line up across every status group. */
+const ROW_GRID =
+  "grid grid-cols-[minmax(0,1fr)_7rem] items-center gap-x-4 md:grid-cols-[minmax(0,1fr)_7.5rem_10rem_5rem] lg:grid-cols-[minmax(0,1fr)_7.5rem_10rem_5rem_5rem_9rem]"
+
+const LEAVE_TYPE_BADGE: Record<string, "info" | "warning" | "secondary"> = {
+  "Annual Leave": "info",
+  "Sick Leave": "warning",
+  WFH: "secondary",
+  "Work From Home": "secondary",
+}
+
+function LeaveListHeader() {
+  return (
+    <div
+      className={cn(
+        ROW_GRID,
+        "gutter-x text-muted-foreground border-border h-9 border-b text-[13px]",
+      )}
+    >
+      <span>Karyawan</span>
+      <span>Jenis</span>
+      <span className="hidden md:block">Tanggal</span>
+      <span className="hidden text-right md:block">Durasi</span>
+      <span className="hidden text-right lg:block">Diajukan</span>
+      <span className="hidden lg:block" />
+    </div>
+  )
+}
+
 export function leaveDays(start: string, end: string) {
   return Math.max(1, calculateBusinessDays(new Date(start), new Date(end)))
 }
@@ -100,6 +129,7 @@ export function AdminLeaveList({
   return (
     <div className="flex flex-col gap-4">
       <GroupedList>
+        <LeaveListHeader />
         {GROUPS.map((status) => {
           const items = requests.filter((r) => r.status === status)
           if (items.length === 0) return null
@@ -162,94 +192,112 @@ function LeaveRow({
   const days = leaveDays(req.start_date, req.end_date)
   const submitted = req.created_at ? new Date(req.created_at) : null
 
+  const type = LEAVE_TYPE_LABELS[req.leave_type] ?? req.leave_type
+
   return (
-    <ListRow>
-      <Avatar className="size-5">
-        <AvatarImage src={req.profiles?.avatar_url || undefined} alt={name} />
-        <AvatarFallback className="text-[10px]">
-          {name.slice(0, 2).toUpperCase()}
-        </AvatarFallback>
-      </Avatar>
-      <div className="flex min-w-0 flex-1 items-center gap-2">
-        <span className="shrink-0 font-medium">{name}</span>
-        <span className="text-muted-foreground shrink-0">
-          {LEAVE_TYPE_LABELS[req.leave_type] ?? req.leave_type}
-        </span>
-        {req.reason && (
-          <span
-            className="text-muted-foreground/70 truncate"
-            title={req.reason}
-          >
-            · {req.reason}
-          </span>
-        )}
+    <ListRow className={cn(ROW_GRID, "min-h-14")}>
+      <div className="flex min-w-0 items-center gap-3">
+        <Avatar className="size-7">
+          <AvatarImage src={req.profiles?.avatar_url || undefined} alt={name} />
+          <AvatarFallback className="text-[11px]">
+            {name.slice(0, 2).toUpperCase()}
+          </AvatarFallback>
+        </Avatar>
+        <div className="flex min-w-0 flex-col">
+          <span className="text-foreground truncate">{name}</span>
+          {(req.reason || req.review_note || req.proof_url) && (
+            <span className="text-tertiary-foreground flex min-w-0 items-center gap-1.5 text-[13px]">
+              {req.reason && (
+                <span className="truncate" title={req.reason}>
+                  {req.reason}
+                </span>
+              )}
+              {req.review_note && (
+                <span className="truncate" title={req.review_note}>
+                  {req.reason ? "· " : ""}Catatan: {req.review_note}
+                </span>
+              )}
+              {req.proof_url && (
+                <a
+                  href={req.proof_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-muted-foreground hover:text-foreground inline-flex shrink-0 items-center gap-1 transition-colors"
+                >
+                  <RiFilePaperLine className="size-3.5" />
+                  Bukti
+                </a>
+              )}
+            </span>
+          )}
+        </div>
       </div>
 
-      {req.review_note && (
-        <ListChip className="max-w-56" title={req.review_note}>
-          <span className="truncate">{req.review_note}</span>
-        </ListChip>
-      )}
-      {req.proof_url && (
-        <a
-          href={req.proof_url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={cn(listChipClassName, "hover:text-foreground")}
-        >
-          <RiFilePaperLine className="size-3.5" />
-          Bukti
-        </a>
-      )}
-      <ListChip>
-        <RiCalendarLine className="size-3.5" />
+      <div>
+        <Badge variant={LEAVE_TYPE_BADGE[req.leave_type] ?? "secondary"}>
+          {type}
+        </Badge>
+      </div>
+      <span className="text-foreground hidden truncate tabular-nums md:block">
         {formatLeaveRange(req.start_date, req.end_date)}
-      </ListChip>
-      <span className="text-muted-foreground w-12 shrink-0 text-right text-xs tabular-nums">
+      </span>
+      <span className="text-muted-foreground hidden text-right tabular-nums md:block">
         {days} hari
       </span>
-      {submitted && (
-        <span
-          className="text-muted-foreground/70 hidden w-16 shrink-0 text-right text-xs whitespace-nowrap lg:inline"
-          title={`Diajukan ${format(submitted, "d MMM yyyy, HH:mm", { locale: idLocale })}`}
-          suppressHydrationWarning
-        >
-          {shortAgo(submitted)}
-        </span>
-      )}
+      <span
+        className="text-tertiary-foreground hidden text-right text-[13px] whitespace-nowrap lg:block"
+        title={
+          submitted
+            ? `Diajukan ${format(submitted, "d MMM yyyy, HH:mm", { locale: idLocale })}`
+            : undefined
+        }
+        suppressHydrationWarning
+      >
+        {submitted ? shortAgo(submitted) : <EmptyValue />}
+      </span>
 
-      {canManage &&
-        (req.status === "pending" ? (
-          <div className="flex w-36 shrink-0 items-center justify-end gap-1">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-muted-foreground"
-              onClick={() => onReject(req.id)}
-            >
-              Tolak
-            </Button>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => onApprove(req.id)}
-            >
-              Setujui
-            </Button>
-          </div>
-        ) : (
-          <ListRowActions className="w-36 justify-end">
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              aria-label="Hapus pengajuan"
-              title="Hapus"
-              onClick={() => onDelete(req.id)}
-            >
-              <RiDeleteBinLine />
-            </Button>
-          </ListRowActions>
-        ))}
+      {/* Pending actions wrap under the row on narrow screens. */}
+      <div
+        className={cn(
+          "justify-end",
+          canManage && req.status === "pending"
+            ? "col-span-full flex lg:col-span-1"
+            : "hidden lg:flex",
+        )}
+      >
+        {canManage &&
+          (req.status === "pending" ? (
+            <div className="flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-muted-foreground"
+                onClick={() => onReject(req.id)}
+              >
+                Tolak
+              </Button>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => onApprove(req.id)}
+              >
+                Setujui
+              </Button>
+            </div>
+          ) : (
+            <ListRowActions>
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                aria-label="Hapus pengajuan"
+                title="Hapus"
+                onClick={() => onDelete(req.id)}
+              >
+                <RiDeleteBinLine />
+              </Button>
+            </ListRowActions>
+          ))}
+      </div>
     </ListRow>
   )
 }

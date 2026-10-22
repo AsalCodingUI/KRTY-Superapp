@@ -1,4 +1,5 @@
 import { cookies } from "next/headers"
+import { cache } from "react"
 import { IMPERSONATION_COOKIE_NAME } from "@/shared/lib/impersonation"
 import { dedupeProfilesByEmail } from "@/shared/lib/profile-dedupe"
 
@@ -8,10 +9,19 @@ export async function getImpersonationCookieUserId(): Promise<string | null> {
   return value || null
 }
 
-export async function resolveEffectiveUserId(
+export function resolveEffectiveUserId(
   supabase: any,
   authUserId: string,
   authEmail?: string | null,
+): Promise<string> {
+  return resolveEffectiveUserIdCached(supabase, authUserId, authEmail ?? null)
+}
+
+/** Deduped per server request (React `cache`). */
+const resolveEffectiveUserIdCached = cache(async function resolve(
+  supabase: any,
+  authUserId: string,
+  authEmail: string | null,
 ): Promise<string> {
   const { data: directProfile } = await supabase
     .from("profiles")
@@ -59,4 +69,4 @@ export async function resolveEffectiveUserId(
   }
 
   return impersonatedUserId
-}
+})

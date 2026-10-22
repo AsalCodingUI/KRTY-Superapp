@@ -14,7 +14,6 @@ import Link from "next/link"
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { workspaces } from "@/shared/config/workspaces"
-import { Notifications } from "@/widgets/notifications/ui/Notifications"
 import { usePathname } from "next/navigation"
 
 /** Current section name, taken from the navigation config (fallback: path). */
@@ -43,7 +42,7 @@ export function SiteHeader() {
 
   return (
     <header className="flex h-12 shrink-0 items-center gap-2">
-      <div className="flex flex-1 items-center gap-2 px-4">
+      <div className="gutter-x flex flex-1 items-center gap-2">
         <SidebarTrigger className="-ml-1" />
         <Separator
           orientation="vertical"
@@ -80,9 +79,6 @@ export function SiteHeader() {
             )}
           </BreadcrumbList>
         </Breadcrumb>
-        <div className="ml-auto">
-          <Notifications variant="icon" />
-        </div>
       </div>
     </header>
   )

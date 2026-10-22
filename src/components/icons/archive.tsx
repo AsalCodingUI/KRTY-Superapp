@@ -1,7 +1,7 @@
 "use client"
 
 import type { Variants } from "motion/react"
-import { motion, useAnimation } from "motion/react"
+import { m, useAnimation } from "motion/react"
 import type { HTMLAttributes } from "react"
 import { forwardRef, useCallback, useImperativeHandle, useRef } from "react"
 
@@ -101,7 +101,7 @@ const ArchiveIcon = forwardRef<ArchiveIconHandle, ArchiveIconProps>(
           width={size}
           xmlns="http://www.w3.org/2000/svg"
         >
-          <motion.rect
+          <m.rect
             animate={controls}
             height="5"
             initial="normal"
@@ -111,12 +111,12 @@ const ArchiveIcon = forwardRef<ArchiveIconHandle, ArchiveIconProps>(
             x="2"
             y="3"
           />
-          <motion.path
+          <m.path
             animate={controls}
             d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"
             variants={PATH_VARIANTS}
           />
-          <motion.path
+          <m.path
             animate={controls}
             d="M10 12h4"
             variants={SECONDARY_PATH_VARIANTS}

@@ -23,7 +23,7 @@ export function useStopImpersonation() {
       await refreshProfile()
       toast.success("Kembali ke akun kamu")
       router.refresh()
-      router.push("/dashboard?settings=members")
+      router.push("/teams/access")
     } catch {
       toast.error("Gagal kembali ke akun kamu")
     } finally {

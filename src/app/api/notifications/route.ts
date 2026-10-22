@@ -43,6 +43,8 @@ export async function GET() {
       .select("*")
       .eq("user_id", profile.id)
       .order("created_at", { ascending: false })
+      // Polled every minute by the top bar: cap the payload to recent history.
+      .limit(200)
 
     if (error) {
       throw error

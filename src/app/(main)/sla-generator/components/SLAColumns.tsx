@@ -1,4 +1,4 @@
-import { Badge } from "@/components/ui/badge"
+import { EmptyValue } from "@/components/empty-value"
 import { Button } from "@/components/ui/button"
 import {
   RiArchiveLine,
@@ -8,6 +8,8 @@ import {
   RiRefreshLine,
 } from "@/shared/ui/lucide-icons"
 import { ColumnDef } from "@tanstack/react-table"
+import { format } from "date-fns"
+import { id as idLocale } from "date-fns/locale"
 
 // Define the shape of our data (must match SLADashboard definition)
 export interface SLA {
@@ -17,6 +19,15 @@ export interface SLA {
   status: string
   created_at: string | null
   archived_at: string | null
+}
+
+function shortDate(value: string | null) {
+  if (!value) return <EmptyValue />
+  return (
+    <span className="text-muted-foreground tabular-nums">
+      {format(new Date(value), "d MMM yyyy", { locale: idLocale })}
+    </span>
+  )
 }
 
 type SLAColumnOptions = {
@@ -30,23 +41,22 @@ export const activeSLAColumns = (
   options: SLAColumnOptions = {},
 ): ColumnDef<SLA>[] => [
   {
-    accessorKey: "client_name",
-    header: "Client Name",
-  },
-  {
     accessorKey: "title",
-    header: "Project/Title",
+    header: "SLA",
+    cell: ({ row }) => row.original.title || "Tanpa judul",
   },
   {
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ getValue }) => (
-      <Badge variant="secondary">{getValue() as string}</Badge>
-    ),
+    accessorKey: "client_name",
+    header: "Klien",
+  },
+  {
+    accessorKey: "created_at",
+    header: "Dibuat",
+    cell: ({ getValue }) => shortDate(getValue() as string | null),
   },
   {
     id: "actions",
-    header: "Actions",
+    header: () => <span className="sr-only">Aksi</span>,
     cell: ({ row }) => (
       <div className="flex gap-2">
         <Button
@@ -86,20 +96,18 @@ export const archivedSLAColumns = (
 ): ColumnDef<SLA>[] => {
   const baseColumns: ColumnDef<SLA>[] = [
     {
-      accessorKey: "client_name",
-      header: "Client Name",
+      accessorKey: "title",
+      header: "SLA",
+      cell: ({ row }) => row.original.title || "Tanpa judul",
     },
     {
-      accessorKey: "title",
-      header: "Project/Title",
+      accessorKey: "client_name",
+      header: "Klien",
     },
     {
       accessorKey: "archived_at",
-      header: "Archived At",
-      cell: ({ getValue }) => {
-        const val = getValue() as string | null
-        return val ? new Date(val).toLocaleDateString() : "-"
-      },
+      header: "Diarsipkan",
+      cell: ({ getValue }) => shortDate(getValue() as string | null),
     },
   ]
 
@@ -111,7 +119,7 @@ export const archivedSLAColumns = (
     ...baseColumns,
     {
       id: "actions",
-      header: "Actions",
+      header: () => <span className="sr-only">Aksi</span>,
       cell: ({ row }) => (
         <div className="flex gap-2">
           <Button

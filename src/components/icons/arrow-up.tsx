@@ -1,7 +1,7 @@
 "use client"
 
 import type { Variants } from "motion/react"
-import { motion, useAnimation } from "motion/react"
+import { m, useAnimation } from "motion/react"
 import type { HTMLAttributes } from "react"
 import { forwardRef, useCallback, useImperativeHandle, useRef } from "react"
 
@@ -91,12 +91,12 @@ const ArrowUpIcon = forwardRef<ArrowUpIconHandle, ArrowUpIconProps>(
           width={size}
           xmlns="http://www.w3.org/2000/svg"
         >
-          <motion.path
+          <m.path
             animate={controls}
             d="m5 12 7-7 7 7"
             variants={PATH_VARIANTS}
           />
-          <motion.path
+          <m.path
             animate={controls}
             d="M12 19V5"
             variants={SECOND_PATH_VARIANTS}
