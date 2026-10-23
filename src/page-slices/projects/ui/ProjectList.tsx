@@ -1,5 +1,6 @@
 "use client"
 
+import { AnimatePresence } from "motion/react"
 import { AvatarGroup, AvatarOverflow } from "@/components/avatar-group"
 import { EmptyState } from "@/components/empty-state"
 import {
@@ -123,14 +124,16 @@ export function ProjectList({
             count={items.length}
             defaultOpen={status !== "Archived"}
           >
-            {items.map((project) => (
-              <ProjectRow
-                key={project.id}
-                project={project}
-                grid={grid}
-                actions={actions}
-              />
-            ))}
+            <AnimatePresence initial={false}>
+              {items.map((project) => (
+                <ProjectRow
+                  key={project.id}
+                  project={project}
+                  grid={grid}
+                  actions={actions}
+                />
+              ))}
+            </AnimatePresence>
           </ListGroup>
         )
       })}

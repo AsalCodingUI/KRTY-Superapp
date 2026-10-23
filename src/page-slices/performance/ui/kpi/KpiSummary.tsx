@@ -1,3 +1,4 @@
+import { RollingValue } from "@/components/rolling-value"
 import { EmptyValue, orEmpty } from "@/components/empty-value"
 import {
   formatPercent,
@@ -28,7 +29,9 @@ export function KpiSummary({
         <dt className="text-muted-foreground text-sm">Nilai akhir</dt>
         <dd className="flex items-center gap-2">
           <span className="text-foreground text-xl font-normal tracking-tight tabular-nums">
-            {final.score === null ? <EmptyValue /> : Math.round(final.score)}
+            <RollingValue value={final.score === null ? null : Math.round(final.score)}>
+              {final.score === null ? <EmptyValue /> : Math.round(final.score)}
+            </RollingValue>
           </span>
           <RatingChip score={final.score} />
         </dd>
@@ -53,7 +56,9 @@ export function KpiSummary({
             </dt>
             <dd className="flex items-baseline gap-1.5">
               <span className="text-foreground text-xl font-normal tracking-tight tabular-nums">
-                {orEmpty(formatPercent(value))}
+                <RollingValue value={value}>
+                  {orEmpty(formatPercent(value))}
+                </RollingValue>
               </span>
               <span className="text-tertiary-foreground text-xs tabular-nums">
                 target {part.target}%

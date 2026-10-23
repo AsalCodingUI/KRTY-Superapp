@@ -5,6 +5,7 @@ import {
   AlertCircle,
   AlertTriangle,
   BadgeCheck,
+  BookOpen,
   Calculator,
   CalendarClock,
   ChevronsLeft,
@@ -98,6 +99,7 @@ export const RiEyeOffFill = A.EyeOff as unknown as RemixiconComponentType
 export const RiEyeOffLine = A.EyeOff as unknown as RemixiconComponentType
 export const RiFileCopyLine = A.Copy as unknown as RemixiconComponentType
 export const RiFileList3Line = /*#__PURE__*/ withDefaults(ListChecks)
+export const RiBookOpenLine = /*#__PURE__*/ withDefaults(BookOpen)
 export const RiFilePaperLine = A.FileText as unknown as RemixiconComponentType
 export const RiFileTextLine = A.FileText as unknown as RemixiconComponentType
 export const RiFlowerFill = /*#__PURE__*/ withDefaults(Flower)

@@ -95,10 +95,12 @@ export function EmployeePerformanceCards({
                 </span>
                 <div className="bg-muted h-1.5 flex-1 overflow-hidden rounded-full">
                   <div
-                    className="bg-primary h-full rounded-full"
-                    style={{
-                      width: `${Math.max(0, Math.min(100, item.value))}%`,
-                    }}
+                    className="bar-grow bg-primary h-full rounded-full"
+                    style={
+                      {
+                        "--bar": `${Math.max(0, Math.min(100, item.value))}%`,
+                      } as React.CSSProperties
+                    }
                   />
                 </div>
                 <span className="w-10 shrink-0 text-right font-medium tabular-nums">

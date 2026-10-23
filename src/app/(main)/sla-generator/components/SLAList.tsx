@@ -1,5 +1,6 @@
 "use client"
 
+import { AnimatePresence } from "motion/react"
 import { EmptyValue } from "@/components/empty-value"
 import { EmptyState } from "@/components/empty-state"
 import { GroupedList, ListRow, ListRowActions } from "@/components/grouped-list"
@@ -61,81 +62,85 @@ export function SLAList({
         <span className="text-right">{archived ? "Diarsipkan" : "Dibuat"}</span>
         <span className="hidden md:block" />
       </div>
-      {slas.map((sla) => {
-        const date = archived ? sla.archived_at : sla.created_at
-        const title = sla.title || "Tanpa judul"
-        const client = sla.client_name?.trim()
-        return (
-          <ListRow key={sla.id} className={cn(ROW_GRID, "min-h-14")}>
-            <div className="flex min-w-0 items-center gap-3">
-              <span className="bg-muted text-muted-foreground flex size-7 shrink-0 items-center justify-center rounded-md">
-                <RiFileTextLine className="size-3.5" />
-              </span>
-              <div className="flex min-w-0 flex-col">
-                {archived ? (
-                  <span className="text-foreground truncate">{title}</span>
+      <AnimatePresence initial={false}>
+        {slas.map((sla) => {
+          const date = archived ? sla.archived_at : sla.created_at
+          const title = sla.title || "Tanpa judul"
+          const client = sla.client_name?.trim()
+          return (
+            <ListRow key={sla.id} className={cn(ROW_GRID, "min-h-14")}>
+              <div className="flex min-w-0 items-center gap-3">
+                <span className="bg-muted text-muted-foreground flex size-7 shrink-0 items-center justify-center rounded-md">
+                  <RiFileTextLine className="size-3.5" />
+                </span>
+                <div className="flex min-w-0 flex-col">
+                  {archived ? (
+                    <span className="text-foreground truncate">{title}</span>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => onOpen(sla.id)}
+                      className="text-foreground truncate text-left outline-none after:absolute after:inset-0 focus-visible:underline"
+                    >
+                      {title}
+                    </button>
+                  )}
+                  {client && (
+                    <span className="text-tertiary-foreground truncate text-[13px] md:hidden">
+                      {client}
+                    </span>
+                  )}
+                </div>
+              </div>
+              <div className="hidden min-w-0 md:block">
+                <Badge variant="secondary" className="max-w-full">
+                  <span className="truncate">{client || "Tanpa klien"}</span>
+                </Badge>
+              </div>
+              <span className="text-muted-foreground text-right tabular-nums">
+                {date ? (
+                  format(new Date(date), "d MMM yyyy", { locale: idLocale })
                 ) : (
-                  <button
-                    type="button"
-                    onClick={() => onOpen(sla.id)}
-                    className="text-foreground truncate text-left outline-none after:absolute after:inset-0 focus-visible:underline"
-                  >
-                    {title}
-                  </button>
+                  <EmptyValue />
                 )}
-                {client && (
-                  <span className="text-tertiary-foreground truncate text-[13px] md:hidden">
-                    {client}
-                  </span>
+              </span>
+              <div className="hidden justify-end md:flex">
+                {canManage && (
+                  <ListRowActions className="relative z-10">
+                    {archived ? (
+                      <>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => onRestore(sla.id)}
+                        >
+                          Pulihkan
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-destructive hover:text-destructive"
+                          onClick={() => onDelete(sla.id)}
+                        >
+                          Hapus
+                        </Button>
+                      </>
+                    ) : (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => onArchive(sla.id)}
+                      >
+                        Arsipkan
+                      </Button>
+                    )}
+                  </ListRowActions>
                 )}
               </div>
-            </div>
-            <div className="hidden min-w-0 md:block">
-              <Badge variant="secondary" className="max-w-full">
-                <span className="truncate">{client || "Tanpa klien"}</span>
-              </Badge>
-            </div>
-            <span className="text-muted-foreground text-right tabular-nums">
-              {date
-                ? format(new Date(date), "d MMM yyyy", { locale: idLocale })
-                : <EmptyValue />}
-            </span>
-            <div className="hidden justify-end md:flex">
-              {canManage && (
-                <ListRowActions className="relative z-10">
-                  {archived ? (
-                    <>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => onRestore(sla.id)}
-                      >
-                        Pulihkan
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-destructive hover:text-destructive"
-                        onClick={() => onDelete(sla.id)}
-                      >
-                        Hapus
-                      </Button>
-                    </>
-                  ) : (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => onArchive(sla.id)}
-                    >
-                      Arsipkan
-                    </Button>
-                  )}
-                </ListRowActions>
-              )}
-            </div>
-          </ListRow>
-        )
-      })}
+            </ListRow>
+          )
+        })}
+      </AnimatePresence>
     </GroupedList>
   )
 }

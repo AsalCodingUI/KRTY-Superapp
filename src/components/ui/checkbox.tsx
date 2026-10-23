@@ -2,8 +2,7 @@
 
 import { Checkbox as CheckboxPrimitive } from "@base-ui/react/checkbox"
 import { cn } from "cn"
-import { Check as CheckIcon } from "@/components/icons"
-import { Minus } from "lucide-react"
+import { Check, Minus } from "lucide-react"
 
 function Checkbox({ className, ...props }: CheckboxPrimitive.Root.Props) {
   return (
@@ -19,7 +18,11 @@ function Checkbox({ className, ...props }: CheckboxPrimitive.Root.Props) {
         data-slot="checkbox-indicator"
         className="grid place-content-center text-current transition-none [&_svg]:size-3.5"
       >
-        <CheckIcon className="group-data-indeterminate/checkbox:hidden" />
+        {/* The tick draws itself in when checked (the indicator mounts then). */}
+        <Check
+          strokeWidth={2.5}
+          className="animate-check-draw [stroke-dasharray:24] group-data-indeterminate/checkbox:hidden motion-reduce:animate-none"
+        />
         <Minus className="hidden group-data-indeterminate/checkbox:block" />
       </CheckboxPrimitive.Indicator>
     </CheckboxPrimitive.Root>

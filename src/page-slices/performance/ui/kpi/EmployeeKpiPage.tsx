@@ -1,10 +1,9 @@
 "use client"
 
+import { useBreadcrumbs } from "@/components/page-breadcrumbs"
 import { PageHeader } from "@/components/page-header"
 import { QuarterFilter } from "@/components/quarter-filter"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { RiArrowLeftLine } from "@/shared/ui/lucide-icons"
-import Link from "next/link"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { EmployeeKpiView } from "./EmployeeKpiView"
 import { normalizePeriod, periodYears } from "./period"
@@ -24,6 +23,11 @@ export function EmployeeKpiPage({
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const period = normalizePeriod(searchParams.get("periode"))
+  const backHref = `/performance?periode=${encodeURIComponent(period)}`
+  useBreadcrumbs([
+    { label: "KPI tim", href: backHref },
+    { label: employee.full_name || "Karyawan" },
+  ])
 
   const setPeriod = (value: string) => {
     const params = new URLSearchParams(searchParams.toString())
@@ -33,15 +37,9 @@ export function EmployeeKpiPage({
 
   return (
     <div className="flex flex-col pb-4">
-      <Link
-        href={`/performance?periode=${encodeURIComponent(period)}`}
-        className="text-muted-foreground hover:text-foreground flex w-fit items-center gap-1.5 pt-6 text-sm"
-      >
-        <RiArrowLeftLine className="size-4" />
-        KPI tim
-      </Link>
       <PageHeader
-        className="pt-2 pb-4"
+        className="pt-6 pb-4"
+        back={{ href: backHref, label: "KPI tim" }}
         title={
           <span className="flex items-center gap-3">
             <Avatar className="size-8">

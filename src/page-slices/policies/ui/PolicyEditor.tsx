@@ -1,0 +1,605 @@
+"use client"
+
+import { savePolicyDraft } from "@/app/(main)/policies/actions/policy-actions"
+import { EmptyState } from "@/components/empty-state"
+import { ListChip } from "@/components/grouped-list"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Separator } from "@/components/ui/separator"
+import { Spinner } from "@/components/ui/spinner"
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
+import { cn } from "@/lib/utils"
+import { useUserProfile } from "@/shared/hooks/useUserProfile"
+import { canManageByRole } from "@/shared/lib/roles"
+import {
+  RiBookOpenLine,
+  RiCloseLine,
+  RiFileTextLine,
+} from "@/shared/ui/lucide-icons"
+import { Markdown as MarkdownExtension } from "@tiptap/markdown"
+import { TableKit } from "@tiptap/extension-table"
+import { Placeholder } from "@tiptap/extensions"
+import { EditorContent, useEditor } from "@tiptap/react"
+import StarterKit from "@tiptap/starter-kit"
+import { useQueryClient } from "@tanstack/react-query"
+import { format } from "date-fns"
+import { id as idLocale } from "date-fns/locale"
+import { Cloud, CloudOff } from "lucide-react"
+import { useCallback, useEffect, useRef, useState } from "react"
+import { toast } from "sonner"
+import {
+  POLICY_CATEGORIES,
+  policyKeys,
+  splitVersions,
+  usePolicy,
+} from "../model/data"
+import { DocToolbar } from "./DocToolbar"
+import { SelectionMenu } from "./SelectionMenu"
+import {
+  BLOCK_ITEMS,
+  SlashCommand,
+  SlashMenu,
+  createSlashBridge,
+} from "./slash-command"
+import { PublishDialog } from "./PublishDialog"
+
+/** The editor appends an empty trailing paragraph; ignore end whitespace. */
+const sameBody = (a: string, b: string) => a.trimEnd() === b.trimEnd()
+
+type Form = { title: string; category: string; summary: string; body: string }
+type SaveState = "idle" | "dirty" | "saving" | "saved" | "error"
+
+const AUTOSAVE_MS = 1200
+
+/**
+ * Reading styles inside the editor; they mirror ./Markdown so what the
+ * admin writes looks like what employees read.
+ */
+const PROSE = cn(
+  "text-foreground/90 min-h-[40svh] text-[15px] leading-7 outline-none",
+  "[&_h1]:text-heading [&_h1]:mt-8 [&_h1]:mb-3 [&_h1]:text-xl [&_h1]:font-semibold [&_h1]:tracking-tight",
+  "[&_h2]:text-heading [&_h2]:mt-7 [&_h2]:mb-2 [&_h2]:text-base [&_h2]:font-semibold",
+  "[&_h3]:text-heading [&_h3]:mt-6 [&_h3]:mb-2 [&_h3]:text-sm [&_h3]:font-semibold",
+  "[&_p]:my-3.5 [&_strong]:text-foreground [&_strong]:font-semibold",
+  "[&_ul]:my-3 [&_ul]:list-disc [&_ul]:space-y-1.5 [&_ul]:pl-5 [&_ol]:my-3 [&_ol]:list-decimal [&_ol]:space-y-1.5 [&_ol]:pl-5 [&_li]:pl-1 [&_li_p]:my-0 [&_li::marker]:text-muted-foreground",
+  "[&_a]:text-primary [&_a]:underline [&_a]:underline-offset-3",
+  "[&_blockquote]:border-border [&_blockquote]:my-4 [&_blockquote]:rounded-lg [&_blockquote]:border [&_blockquote]:border-l-[3px] [&_blockquote]:px-4 [&_blockquote]:py-1",
+  "[&_hr]:border-border [&_hr]:my-6",
+  "[&_code]:bg-muted [&_code]:rounded [&_code]:px-1 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-[0.85em]",
+  "[&_pre]:bg-muted [&_pre]:my-4 [&_pre]:rounded-lg [&_pre]:p-3 [&_pre]:text-[13px] [&_pre_code]:bg-transparent [&_pre_code]:p-0",
+  "[&_table]:my-4 [&_table]:w-full [&_table]:border-collapse [&_table]:text-sm",
+  "[&_th]:border-border [&_th]:text-muted-foreground [&_th]:border-b [&_th]:px-3 [&_th]:py-2 [&_th]:text-left [&_th]:font-medium",
+  "[&_td]:border-border/60 [&_td]:border-b [&_td]:px-3 [&_td]:py-2 [&_td]:align-top [&_td_p]:my-0 [&_th_p]:my-0",
+  "[&_.selectedCell]:bg-primary/10",
+  // Placeholder on the empty line with the caret.
+  "[&_.is-empty]:before:text-muted-foreground/60 [&_.is-empty]:before:pointer-events-none [&_.is-empty]:before:float-left [&_.is-empty]:before:h-0 [&_.is-empty]:before:content-[attr(data-placeholder)]",
+)
+
+export type EditorExit = { id: string | null; published?: boolean }
+
+/**
+ * Writes a new rule (`id` null) or the draft of an existing one in a large
+ * modal (Dovetail notes). Saves on its own; closing flushes the last edits.
+ */
+export function PolicyEditorDialog({
+  id,
+  onExit,
+}: {
+  id: string | null
+  /** Called after closing or publishing, with the rule's id once it exists. */
+  onExit: (exit: EditorExit) => void
+}) {
+  // The URL gains the new id after the first save; keep editing the same doc.
+  const [initialId] = useState(id)
+  const closeRef = useRef<() => void>(() => onExit({ id: initialId }))
+
+  return (
+    <Dialog
+      open
+      onOpenChange={(open, details) => {
+        // Esc belongs to the editor (slash menu, link field); close with ×.
+        if (!open && details.reason !== "escape-key") closeRef.current()
+      }}
+    >
+      <DialogContent
+        bare
+        showCloseButton={false}
+        className="flex h-[min(58rem,94svh)] w-full flex-col overflow-hidden p-0 sm:max-w-6xl"
+      >
+        <EditorLoader id={initialId} onExit={onExit} closeRef={closeRef} />
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+function EditorLoader({
+  id,
+  onExit,
+  closeRef,
+}: {
+  id: string | null
+  onExit: (exit: EditorExit) => void
+  closeRef: React.MutableRefObject<() => void>
+}) {
+  const { profile, loading: profileLoading } = useUserProfile()
+  const isAdmin = canManageByRole(profile?.role)
+  const { data: policy, isLoading } = usePolicy(id ?? "")
+
+  if ((id && isLoading) || profileLoading) {
+    return (
+      <div className="flex flex-1 items-center justify-center">
+        <DialogTitle className="sr-only">Memuat aturan</DialogTitle>
+        <Spinner className="size-6" />
+      </div>
+    )
+  }
+  if (!isAdmin || (id && !policy)) {
+    return (
+      <div className="flex flex-1 items-center justify-center p-6">
+        <DialogTitle className="sr-only">Aturan</DialogTitle>
+        <EmptyState
+          placement="inner"
+          title={isAdmin ? "Aturan tidak ditemukan" : "Khusus admin"}
+          description={
+            isAdmin
+              ? "Mungkin sudah dihapus."
+              : "Hanya admin yang bisa menulis dan mengubah aturan."
+          }
+          icon={<RiFileTextLine />}
+          action={{ label: "Tutup", onClick: () => onExit({ id }) }}
+        />
+      </div>
+    )
+  }
+
+  const { published, latest, draft } = splitVersions(policy?.versions ?? [])
+  const source = draft ?? latest
+  return (
+    <DocumentEditor
+      id={id}
+      hasPublished={published.length > 0}
+      nextVersion={published.length + 1}
+      updatedAt={source?.updated_at ?? null}
+      author={source?.author?.full_name ?? null}
+      onExit={onExit}
+      closeRef={closeRef}
+      initial={{
+        title: source?.title ?? "",
+        category: policy?.category ?? POLICY_CATEGORIES[0],
+        summary: source?.summary ?? "",
+        body: source?.body ?? "",
+      }}
+    />
+  )
+}
+
+function DocumentEditor({
+  id,
+  hasPublished,
+  nextVersion,
+  updatedAt,
+  author,
+  initial,
+  onExit,
+  closeRef,
+}: {
+  id: string | null
+  hasPublished: boolean
+  nextVersion: number
+  updatedAt: string | null
+  author: string | null
+  initial: Form
+  onExit: (exit: EditorExit) => void
+  closeRef: React.MutableRefObject<() => void>
+}) {
+  const queryClient = useQueryClient()
+  const { profile } = useUserProfile()
+
+  const [docId, setDocId] = useState(id)
+  const [form, setForm] = useState<Form>(initial)
+  const [saveState, setSaveState] = useState<SaveState>(id ? "saved" : "idle")
+  const [savedAt, setSavedAt] = useState<string | null>(updatedAt)
+  const [publishing, setPublishing] = useState(false)
+
+  // Latest values for the save loop, without re-creating callbacks per key.
+  const formRef = useRef(form)
+  formRef.current = form
+  const docIdRef = useRef(docId)
+  docIdRef.current = docId
+  const saveStateRef = useRef(saveState)
+  saveStateRef.current = saveState
+  const inFlight = useRef<Promise<string | null> | null>(null)
+  const pending = useRef(false)
+  const [slash] = useState(createSlashBridge)
+  const [confirmClose, setConfirmClose] = useState(false)
+  // What the server has. The editor re-serializes Markdown on load (e.g.
+  // "_x_" → "*x*"), so the baseline body is taken from the editor itself;
+  // opening a rule without typing must not create a draft.
+  const baseline = useRef<Form>(initial)
+  const isSaved = (f: Form) =>
+    f.title === baseline.current.title &&
+    f.category === baseline.current.category &&
+    f.summary === baseline.current.summary &&
+    sameBody(f.body, baseline.current.body)
+
+  const editor = useEditor({
+    immediatelyRender: false,
+    extensions: [
+      StarterKit.configure({
+        // Markdown has no underline; keep the source clean.
+        underline: false,
+        heading: { levels: [1, 2, 3] },
+        link: { openOnClick: false, autolink: true },
+      }),
+      TableKit.configure({ table: { resizable: false } }),
+      Placeholder.configure({
+        showOnlyCurrent: true,
+        placeholder: ({ node }) =>
+          node.type.name === "heading"
+            ? `Judul ${node.attrs.level}`
+            : "Ketik / untuk menyisipkan blok, atau mulai menulis…",
+      }),
+      SlashCommand(slash),
+      MarkdownExtension,
+    ],
+    content: initial.body,
+    contentType: "markdown",
+    onCreate: ({ editor: e }) => {
+      const body = e.getMarkdown()
+      if (id) baseline.current = { ...baseline.current, body }
+      formRef.current = { ...formRef.current, body }
+      setForm(formRef.current)
+      // An update fired while loading would have marked it dirty.
+      setSaveState(id ? "saved" : "idle")
+    },
+    editorProps: {
+      attributes: { class: PROSE, "aria-label": "Isi aturan" },
+    },
+    onUpdate: ({ editor: e }) => change({ body: e.getMarkdown() }),
+  })
+
+  /** Applies an edit; typing back to the saved text counts as saved again. */
+  function change(patch: Partial<Form>) {
+    const next = { ...formRef.current, ...patch }
+    formRef.current = next
+    setForm(next)
+    setSaveState(
+      isSaved(next) ? (docIdRef.current ? "saved" : "idle") : "dirty",
+    )
+  }
+  const set = <K extends keyof Form>(key: K, value: Form[K]) =>
+    change({ [key]: value } as Partial<Form>)
+
+  /** Saves now; overlapping calls queue one more save after the current one. */
+  const save = useCallback(async (): Promise<string | null> => {
+    if (inFlight.current) {
+      pending.current = true
+      return inFlight.current
+    }
+    const run = (async () => {
+      setSaveState("saving")
+      const snapshot = formRef.current
+      const result = await savePolicyDraft(docIdRef.current, snapshot)
+      if (!result.success || !result.data) {
+        setSaveState("error")
+        toast.error(result.success ? "Gagal menyimpan." : result.error)
+        return null
+      }
+      const newId = result.data.id
+      if (!docIdRef.current) {
+        docIdRef.current = newId
+        setDocId(newId)
+        // Point the URL at the saved rule so a reload reopens it.
+        const params = new URLSearchParams(window.location.search)
+        params.set("aturan", newId)
+        params.set("edit", "1")
+        window.history.replaceState(null, "", `/policies?${params}`)
+      }
+      baseline.current = snapshot
+      setSavedAt(new Date().toISOString())
+      // Edits made while saving stay pending.
+      setSaveState(isSaved(formRef.current) ? "saved" : "dirty")
+      queryClient.invalidateQueries({ queryKey: policyKeys.all })
+      return newId
+    })()
+    inFlight.current = run
+    const saved = await run
+    inFlight.current = null
+    if (pending.current) {
+      pending.current = false
+      return save()
+    }
+    return saved
+  }, [queryClient])
+
+  // Autosave once typing pauses; a rule needs a title before it is created.
+  useEffect(() => {
+    if (saveState !== "dirty" || !form.title.trim() || isSaved(form)) return
+    const t = setTimeout(() => void save(), AUTOSAVE_MS)
+    return () => clearTimeout(t)
+  }, [form, saveState, save])
+
+  useEffect(() => {
+    const unsaved = saveState === "dirty" || saveState === "saving"
+    if (!unsaved) return
+    const warn = (e: BeforeUnloadEvent) => e.preventDefault()
+    window.addEventListener("beforeunload", warn)
+    return () => window.removeEventListener("beforeunload", warn)
+  }, [saveState])
+
+  // ⌘S / Ctrl+S saves right away.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key.toLowerCase() === "s" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault()
+        if (!formRef.current.title.trim()) {
+          toast.error("Isi judul dulu.")
+          return
+        }
+        void save()
+      }
+    }
+    window.addEventListener("keydown", onKey)
+    return () => window.removeEventListener("keydown", onKey)
+  }, [save])
+
+  const publish = async () => {
+    if (!form.title.trim()) return toast.error("Judul aturan wajib diisi.")
+    if (!form.body.trim()) return toast.error("Isi aturan masih kosong.")
+    const saved = saveState === "saved" && docId ? docId : await save()
+    if (saved) setPublishing(true)
+  }
+
+  // Unsaved edits ask first (save / discard / keep editing); a save already
+  // in flight just finishes before leaving.
+  const close = useCallback(async () => {
+    const state = saveStateRef.current
+    if (state === "dirty") {
+      setConfirmClose(true)
+      return
+    }
+    if (state === "saving") await inFlight.current
+    onExit({ id: docIdRef.current })
+  }, [onExit])
+  closeRef.current = () => void close()
+
+  const saveAndClose = async () => {
+    if (!formRef.current.title.trim()) {
+      toast.error("Isi judul dulu supaya bisa disimpan.")
+      return
+    }
+    const saved = await save()
+    if (!saved) return
+    setConfirmClose(false)
+    onExit({ id: saved })
+  }
+
+  const shownAuthor = profile?.full_name ?? author ?? "Admin"
+  const title = form.title.trim() || "Tanpa judul"
+
+  return (
+    <>
+      <header className="border-border flex h-14 shrink-0 items-center gap-2 border-b pr-3 pl-5">
+        <RiBookOpenLine className="text-muted-foreground size-4 shrink-0" />
+        <DialogTitle className="flex min-w-0 items-center gap-1.5 text-sm font-normal">
+          <span className="text-muted-foreground shrink-0">Aturan</span>
+          <span className="text-muted-foreground/60">/</span>
+          <span className="truncate font-medium">{title}</span>
+        </DialogTitle>
+        <ListChip className="ml-1 shrink-0">
+          {hasPublished ? "Draf perubahan" : "Draf"}
+        </ListChip>
+        <SaveStatus state={saveState} />
+
+        <div className="ml-auto flex shrink-0 items-center gap-2">
+          <Select
+            value={form.category}
+            onValueChange={(v) => v && set("category", v)}
+          >
+            <SelectTrigger size="sm" className="w-40" aria-label="Kategori">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent align="end">
+              {[...new Set([...POLICY_CATEGORIES, form.category])].map((c) => (
+                <SelectItem key={c} value={c}>
+                  {c}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Button size="sm" onClick={publish} disabled={saveState === "saving"}>
+            Terbitkan
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            aria-label="Tutup"
+            className="text-muted-foreground"
+            onClick={() => void close()}
+          >
+            <RiCloseLine />
+          </Button>
+        </div>
+      </header>
+
+      <div className="border-border flex h-12 shrink-0 items-center overflow-x-auto border-b px-3">
+        {editor && <DocToolbar editor={editor} />}
+      </div>
+
+      <div className="min-h-0 flex-1 overflow-y-auto">
+        <div className="mx-auto w-full max-w-3xl px-8 pt-12 pb-32 sm:px-16">
+          <textarea
+            rows={1}
+            maxLength={160}
+            autoFocus={!id}
+            placeholder="Judul aturan"
+            aria-label="Judul aturan"
+            value={form.title}
+            onChange={(e) => set("title", e.target.value.replace(/\n/g, " "))}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault()
+                if (!editor) return
+                // Synchronous, so keys typed right after land in the body.
+                editor.commands.setTextSelection(1)
+                editor.view.focus()
+              }
+            }}
+            className="text-heading placeholder:text-muted-foreground/50 field-sizing-content w-full resize-none border-0 bg-transparent p-0 text-4xl leading-tight font-semibold tracking-tight shadow-none outline-none focus:ring-0"
+          />
+
+          <div className="text-muted-foreground mt-4 flex flex-wrap items-center gap-x-6 gap-y-1 text-sm">
+            <span>
+              Terakhir diedit:{" "}
+              {savedAt
+                ? format(new Date(savedAt), "d MMM yyyy, HH:mm", {
+                    locale: idLocale,
+                  })
+                : "belum disimpan"}
+            </span>
+            <span className="flex items-center gap-2">
+              Oleh:
+              <Avatar className="size-5">
+                <AvatarFallback className="text-[9px]">
+                  {shownAuthor.slice(0, 2).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <span className="text-foreground">{shownAuthor}</span>
+            </span>
+          </div>
+
+          <input
+            maxLength={300}
+            placeholder="Tambahkan ringkasan singkat (opsional)"
+            aria-label="Ringkasan"
+            value={form.summary}
+            onChange={(e) => set("summary", e.target.value)}
+            className="text-muted-foreground placeholder:text-muted-foreground/50 mt-3 w-full border-0 bg-transparent p-0 text-[15px] shadow-none outline-none focus:ring-0"
+          />
+
+          <Separator className="my-8" />
+
+          <EditorContent editor={editor} />
+
+          {/* A blank rule offers the common blocks, like a fresh doc. */}
+          {editor?.isEmpty && (
+            <div className="mt-2 flex flex-wrap gap-2">
+              {BLOCK_ITEMS.filter((b) =>
+                [
+                  "h2",
+                  "bullet",
+                  "ordered",
+                  "table",
+                  "quote",
+                  "divider",
+                ].includes(b.id),
+              ).map((b) => (
+                <Button
+                  key={b.id}
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => b.run(editor)}
+                >
+                  <b.icon data-icon="inline-start" />
+                  {b.title}
+                </Button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {editor && <SelectionMenu editor={editor} />}
+      <SlashMenu bridge={slash} />
+
+      <AlertDialog open={confirmClose} onOpenChange={setConfirmClose}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Simpan perubahan?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Ada perubahan yang belum tersimpan. Kalau tidak disimpan,
+              perubahan sejak penyimpanan terakhir akan hilang.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <Button variant="outline" onClick={() => setConfirmClose(false)}>
+              Batal
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setConfirmClose(false)
+                onExit({ id: docIdRef.current })
+              }}
+            >
+              Jangan simpan
+            </Button>
+            <Button onClick={saveAndClose} disabled={saveState === "saving"}>
+              {saveState === "saving" && <Spinner data-icon="inline-start" />}
+              Simpan
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {docId && (
+        <PublishDialog
+          policyId={docId}
+          title={form.title}
+          nextVersion={nextVersion}
+          open={publishing}
+          onOpenChange={setPublishing}
+          onPublished={() => {
+            queryClient.invalidateQueries({ queryKey: policyKeys.all })
+            onExit({ id: docId, published: true })
+          }}
+        />
+      )}
+    </>
+  )
+}
+
+function SaveStatus({ state }: { state: SaveState }) {
+  if (state === "idle") return null
+  const label =
+    state === "saving"
+      ? "Menyimpan…"
+      : state === "dirty"
+        ? "Belum disimpan"
+        : state === "error"
+          ? "Gagal menyimpan"
+          : "Tersimpan"
+  const Icon = state === "error" ? CloudOff : Cloud
+  return (
+    <span
+      className={cn(
+        "text-muted-foreground hidden shrink-0 items-center gap-1.5 text-xs sm:flex",
+        state === "error" && "text-destructive",
+      )}
+      aria-live="polite"
+    >
+      {state === "saving" ? (
+        <Spinner className="size-3.5" />
+      ) : (
+        <Icon className="size-3.5" />
+      )}
+      {label}
+    </span>
+  )
+}

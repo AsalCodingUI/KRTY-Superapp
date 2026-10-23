@@ -1,5 +1,7 @@
 "use client"
 
+import { cn } from "@/lib/utils"
+import { TAB_ENTER, useTabSwitched } from "@/shared/hooks/useTabSwitched"
 import { PageHeader } from "@/components/page-header"
 import { QuarterFilter } from "@/components/quarter-filter"
 import { TabNavigation, TabNavigationLink } from "@/components/tab-navigation"
@@ -89,6 +91,7 @@ export function PerformancePage() {
     defaultTab: "kpi",
     preserveQuery: true,
   })
+  const tabSwitched = useTabSwitched(activeTab)
 
   const { data: isLead = false } = useQuery({
     queryKey: ["is-lead", profile?.id],
@@ -166,7 +169,7 @@ export function PerformancePage() {
       </div>
 
       {/* Each tab brings its own stats band / toolbar, then the list. */}
-      <div className="pb-4">
+      <div key={tab} className={cn("pb-4", tabSwitched && TAB_ENTER)}>
         {tab === "kpi" &&
           (isAdmin ? (
             <TeamKpiList scope={period} view={view} />

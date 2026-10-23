@@ -1,3 +1,4 @@
+import { RollingValue } from "@/components/rolling-value"
 import { orEmpty } from "@/components/empty-value"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -161,7 +162,7 @@ export function HomeFigure({
   return (
     <div className="flex flex-col gap-1">
       <p className="text-heading text-[1.75rem] leading-none font-normal tracking-tight tabular-nums">
-        {orEmpty(value)}
+        <RollingValue value={typeof value === "number" || typeof value === "string" ? value : null}>{orEmpty(value)}</RollingValue>
         {unit && (
           <span className="text-muted-foreground ml-1.5 text-base font-normal tracking-normal">
             {unit}
@@ -197,7 +198,9 @@ export function HomeStats({
               item.tone,
             )}
           >
-            {orEmpty(item.value)}
+            <RollingValue value={typeof item.value === "number" || typeof item.value === "string" ? item.value : null}>
+              {orEmpty(item.value)}
+            </RollingValue>
           </dd>
         </div>
       ))}

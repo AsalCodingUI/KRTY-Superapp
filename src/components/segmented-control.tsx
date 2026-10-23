@@ -2,6 +2,7 @@
 
 import * as React from "react"
 
+import { SlidingIndicator } from "@/components/sliding-indicator"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { cn } from "@/lib/utils"
 
@@ -46,12 +47,17 @@ export function SegmentedControl<T extends string>({
       }}
       className={cn(
         // Same metrics as shadcn TabsList (h-8, p-[3px]).
-        "bg-accent dark:bg-muted text-muted-foreground h-8 items-center rounded-full p-0.5",
+        "bg-accent dark:bg-muted text-muted-foreground relative h-8 items-center rounded-full p-0.5",
         fitContent ? "inline-flex w-auto" : "flex w-full",
         disabled && "pointer-events-none opacity-50",
         className,
       )}
     >
+      {/* One highlight that slides to the pressed item. */}
+      <SlidingIndicator
+        activeSelector="[data-pressed]"
+        className="bg-background smooth-shadow-ring-xs dark:bg-foreground/[0.13] rounded-full dark:shadow-none"
+      />
       {items.map((item) => {
         const LeadingIcon = item.leadingIcon ?? item.icon
         const TrailingIcon = item.trailingIcon
@@ -71,8 +77,8 @@ export function SegmentedControl<T extends string>({
               fitContent ? "flex-none" : "flex-1",
               "text-foreground/60 hover:text-foreground hover:bg-transparent",
               // Base UI Toggle marks the active item with data-pressed
-              "data-pressed:bg-background data-pressed:text-foreground data-pressed:hover:bg-background data-pressed:smooth-shadow-ring-xs data-pressed:border-transparent",
-              "dark:data-pressed:bg-foreground/[0.13] dark:data-pressed:hover:bg-foreground/[0.13] dark:data-pressed:shadow-none",
+              // The pressed look comes from the sliding indicator behind.
+              "data-pressed:text-foreground data-pressed:border-transparent data-pressed:bg-transparent data-pressed:hover:bg-transparent",
               "disabled:text-muted-foreground/50",
             )}
           >

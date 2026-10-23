@@ -3,6 +3,7 @@
 import * as React from "react"
 import { NavigationMenu as NavigationMenuPrimitive } from "radix-ui"
 
+import { SlidingIndicator } from "@/components/sliding-indicator"
 import { cn } from "@/lib/utils"
 
 type ElementWithChildren = React.ReactElement<{ children?: React.ReactNode }>
@@ -49,10 +50,16 @@ const TabNavigation = React.forwardRef<
       >
         <NavigationMenuPrimitive.List
           className={cn(
-            "border-border flex items-start justify-start gap-7 border-b whitespace-nowrap",
+            "border-border relative flex items-start justify-start gap-7 border-b whitespace-nowrap",
             className,
           )}
         >
+          {/* One underline that slides to the active tab. */}
+          <SlidingIndicator
+            activeSelector="[data-active]"
+            variant="underline"
+            className="bg-primary -mt-px h-0.5"
+          />
           {children}
         </NavigationMenuPrimitive.List>
       </NavigationMenuPrimitive.Root>
@@ -115,8 +122,6 @@ const TabNavigationLink = React.forwardRef<
               className={cn(
                 "text-muted-foreground relative inline-flex items-center justify-center pb-1.5 whitespace-nowrap transition-colors",
                 "group-hover:text-foreground group-data-[active]:text-foreground",
-                // active underline (shadcn tabs "line" style)
-                "after:bg-primary after:absolute after:inset-x-0 after:-bottom-px after:h-0.5 after:opacity-0 after:transition-opacity group-data-[active]:after:opacity-100",
                 disabled && "text-muted-foreground/50 pointer-events-none",
                 className,
               )}

@@ -1,135 +1,57 @@
-import { Badge } from "@/components/ui/badge"
+"use client"
 
+import { Markdown } from "@/components/markdown"
+import { Spinner } from "@/components/ui/spinner"
+import {
+  POLICY_SLUGS,
+  usePublishedPolicy,
+} from "@/entities/policy/model/usePublishedPolicy"
+import { format } from "date-fns"
+import { id as idLocale } from "date-fns/locale"
+import Link from "next/link"
+
+/**
+ * Aturan cuti, read from the "aturan-cuti" rule in Aturan so HR edits it in
+ * one place and every leave screen shows the version in force.
+ */
 export function LeaveRules() {
+  const { data: policy, isLoading } = usePublishedPolicy(POLICY_SLUGS.leave)
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center py-8">
+        <Spinner className="size-5" />
+      </div>
+    )
+  }
+
+  if (!policy) {
+    return (
+      <p className="text-muted-foreground text-sm">
+        Aturan cuti belum diterbitkan. Tanyakan ke admin, atau cek di{" "}
+        <Link href="/policies" className="text-primary hover:underline">
+          Aturan
+        </Link>
+        .
+      </p>
+    )
+  }
+
   return (
-    <div className="text-muted-foreground space-y-4 text-sm">
-      {/* SECTION 1: ATURAN CUTI */}
-      <section>
-        <h4 className="text-foreground mb-3 text-base font-semibold">
-          Aturan Cuti
-        </h4>
-        <ol className="ml-4 list-outside list-decimal space-y-2">
-          <li>
-            Setiap karyawan mendapatkan jatah cuti sebanyak{" "}
-            <span className="text-foreground font-medium">12 hari</span> dalam
-            setahun.
-          </li>
-          <li>
-            Pengajuan cuti harus dilakukan{" "}
-            <span className="bg-warning/15 text-warning rounded px-1 font-medium">
-              paling lambat 7 hari
-            </span>{" "}
-            sebelum tanggal rencana cuti. Jika pengajuan dilakukan mendadak,
-            kami berhak menolak kecuali dalam keadaan darurat. Cuti tidak dapat
-            diuangkan.
-          </li>
-          <li>
-            Jika pengambilan cuti dilakukan tidak sesuai aturan no.2 maka cuti
-            tersebut ditukar/digantikan dengan WFH.
-          </li>
-          <li>
-            Batas pengambilan cuti per bulan tidak lagi diberlakukan sesuai
-            aturan sebelumnya, sehingga teman-teman bisa menggunakan cuti secara
-            bijaksana.
-          </li>
-          <li>
-            Namun, sesuai peraturan perusahaan, dalam satu minggu tidak
-            diperbolehkan mengambil cuti lebih dari{" "}
-            <span className="bg-warning/15 text-warning rounded px-1 font-medium">
-              5 hari kerja secara langsung
-            </span>
-            .
-          </li>
-        </ol>
-      </section>
-
-      {/* SECTION 2: SYARAT & KETENTUAN */}
-      <section>
-        <h4 className="text-foreground mb-3 text-base font-semibold">
-          Syarat & Ketentuan Pengambilan Cuti:
-        </h4>
-        <ol className="ml-4 list-outside list-decimal space-y-2">
-          <li>Magang tidak mendapat cuti tahunan.</li>
-          <li>
-            Cuti tahunan bisa diambil setelah 6 bulan bekerja, dihitung sejak
-            resmi jadi karyawan (setelah masa magang): 1 hari untuk setiap bulan
-            kerja.
-          </li>
-          <li>Setelah 12 bulan bekerja, jatah cuti penuh 12 hari per tahun.</li>
-          <li>
-            Cuti tidak dapat diakumulasi, sehingga jika dalam satu tahun cuti
-            tidak digunakan, maka cuti tersebut akan hangus dan diperbarui di
-            tahun berikutnya.
-          </li>
-        </ol>
-      </section>
-
-      {/* SECTION 3: CONTOH KASUS (CALLOUT) */}
-      <section>
-        <h4 className="text-foreground mb-3 text-base font-semibold">
-          Contoh Aturan Cuti yang Diperbolehkan
-        </h4>
-        <div className="bg-foreground/[0.03] space-y-3 rounded-lg p-4">
-          {/* Pertanyaan */}
-          <div className="flex gap-3">
-            <div className="bg-border text-muted-foreground flex h-5 w-5 shrink-0 items-center justify-center rounded-sm text-xs font-medium">
-              ?
-            </div>
-            <p>
-              <span className="text-foreground font-medium">Pertanyaan:</span>{" "}
-              Jatah cuti saya 12 hari setahun. Bulan ini saya ingin mengambil
-              cuti 6 hari kerja berturut-turut. Apakah boleh?
-            </p>
-          </div>
-
-          <div className="bg-border my-2 h-px w-full"></div>
-
-          {/* Jawaban */}
-          <div className="flex gap-3">
-            <Badge variant="destructive" className="h-5 w-5 justify-center p-0">
-              !
-            </Badge>
-            <p className="text-destructive">
-              <span className="font-semibold">Jawaban:</span> Tidak boleh. Cuti
-              berturut-turut maksimal 5 hari kerja per pengajuan.
-            </p>
-          </div>
-
-          {/* Alasan */}
-          <div className="flex gap-3">
-            <div className="bg-border text-muted-foreground flex h-5 w-5 shrink-0 items-center justify-center rounded-sm text-xs font-medium">
-              i
-            </div>
-            <p className="text-muted-foreground italic">
-              <span className="font-semibold not-italic">Alasan:</span> Karena
-              kami ingin meminimalisir risiko proyek yang tidak ada pengganti
-              sementara.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* SECTION 4: ATURAN WFH */}
-      <section>
-        <h4 className="text-foreground mb-3 text-base font-semibold">
-          Aturan WFH
-        </h4>
-        <ol className="ml-4 list-outside list-decimal space-y-2">
-          <li>
-            WFH diperbolehkan jika alasannya jelas atau ada urusan mendadak yang
-            mendesak.
-          </li>
-          <li>
-            Selama WFH, karyawan harus tetap dapat dihubungi dan mudah dicari
-            ketika dibutuhkan. Jika tidak, kesempatan WFH akan dicabut.
-          </li>
-          <li>
-            Jika ada urusan mendadak yang harus diselesaikan terlebih dahulu dan
-            belum ingin mengambil cuti, harap informasikan jam berapa Anda bisa
-            kembali dihubungi, agar kami dapat mengetahui detail informasinya.
-          </li>
-        </ol>
-      </section>
+    <div className="flex flex-col gap-4">
+      <Markdown className="text-sm leading-6">{policy.body}</Markdown>
+      <p className="text-muted-foreground border-border border-t pt-3 text-xs">
+        Versi {policy.version}
+        {policy.effectiveAt &&
+          ` · berlaku sejak ${format(new Date(policy.effectiveAt), "d MMM yyyy", { locale: idLocale })}`}
+        {" · "}
+        <Link
+          href={`/policies/${policy.id}`}
+          className="text-primary hover:underline"
+        >
+          Buka di Aturan
+        </Link>
+      </p>
     </div>
   )
 }

@@ -1,12 +1,14 @@
 "use client"
 
+import { SlidingIndicator } from "@/components/sliding-indicator"
 import { cn } from "@/lib/utils"
-import { Columns3, ListIcon, Table2 } from "lucide-react"
+import { Columns3, LayoutGrid, ListIcon, Table2 } from "lucide-react"
 import * as React from "react"
 
-export type ViewMode = "list" | "table" | "kanban"
+export type ViewMode = "grid" | "list" | "table" | "kanban"
 
 const OPTIONS = [
+  { value: "grid", label: "Tampilan grid", icon: LayoutGrid },
   { value: "list", label: "Tampilan list", icon: ListIcon },
   { value: "kanban", label: "Tampilan kanban", icon: Columns3 },
   { value: "table", label: "Tampilan tabel", icon: Table2 },
@@ -23,8 +25,7 @@ export function useViewMode(storageKey: string, fallback: ViewMode = "list") {
   React.useEffect(() => {
     try {
       const saved = window.localStorage.getItem(key)
-      if (saved === "list" || saved === "table" || saved === "kanban")
-        setMode(saved)
+      if (OPTIONS.some((o) => o.value === saved)) setMode(saved as ViewMode)
     } catch {
       // Storage blocked: keep the default.
     }
@@ -63,10 +64,14 @@ export function ViewToggle({
       role="group"
       aria-label="Tampilan"
       className={cn(
-        "bg-accent dark:bg-muted/60 flex items-center gap-0.5 rounded-full p-0.5",
+        "bg-accent dark:bg-muted/60 relative flex items-center gap-0.5 rounded-full p-0.5",
         className,
       )}
     >
+      <SlidingIndicator
+        activeSelector="[aria-pressed=true]"
+        className="bg-background smooth-shadow-ring-xs rounded-full dark:shadow-xs"
+      />
       {OPTIONS.filter((o) => modes.includes(o.value)).map(
         ({ value: option, label, icon: Icon }) => (
           <button
@@ -77,9 +82,8 @@ export function ViewToggle({
             aria-pressed={value === option}
             onClick={() => onValueChange(option)}
             className={cn(
-              "text-muted-foreground hover:text-foreground flex size-7 items-center justify-center rounded-full transition-colors [&_svg]:size-3.5",
-              value === option &&
-                "bg-background text-foreground smooth-shadow-ring-xs dark:shadow-xs",
+              "text-muted-foreground hover:text-foreground relative flex size-7 items-center justify-center rounded-full transition-colors [&_svg]:size-3.5",
+              value === option && "text-foreground",
             )}
           >
             <Icon />

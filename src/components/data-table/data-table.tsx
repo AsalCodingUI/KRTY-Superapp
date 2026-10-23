@@ -1,5 +1,6 @@
 "use client"
 
+import { AnimatePresence, m } from "motion/react"
 import * as React from "react"
 import {
   flexRender,
@@ -24,11 +25,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { HoverHighlight } from "@/components/sliding-indicator"
 import { cn } from "@/lib/utils"
 
 import { DataTableBulkEditor } from "./data-table-bulk-editor"
 import { DataTableFilterbar } from "./data-table-filterbar"
 import { DataTablePagination } from "./data-table-pagination"
+
+const MotionTableRow = m.create(TableRow)
 
 /**
  * DataTable with built-in pagination, filtering, sorting, and bulk actions.
@@ -171,6 +175,14 @@ export function DataTable<TData>({
         aria-label="Data table"
         tabIndex={0}
       >
+        {/* Row hover: one highlight that follows the pointer (rows only,
+            not the empty state). */}
+        {enableHover && (
+          <HoverHighlight
+            itemSelector="tbody > tr[data-slot=table-row]:not(:has(> td[colspan]))"
+            className="bg-(--row-hover)"
+          />
+        )}
         <Table className="min-w-full">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -201,49 +213,63 @@ export function DataTable<TData>({
           </TableHeader>
           <TableBody>
             {rows.length ? (
-              rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() ? "selected" : undefined}
-                  onClick={
-                    enableSelection
-                      ? () => row.toggleSelected(!row.getIsSelected())
-                      : undefined
-                  }
-                  className={cn(
-                    // A <tr> can't take border-radius, so the highlight is
-                    // painted on the cells (ends rounded). Inset shadows in the
-                    // surface colour trim 2px off the top and bottom so it
-                    // clears the dividers; the outer 1px shadow bridges the
-                    // fractional seam to the next cell.
-                    "group select-none [--row-bg:transparent] hover:bg-transparent data-[state=selected]:bg-transparent",
-                    "*:bg-(--row-bg) *:shadow-[inset_0_2px_0_var(--row-surface),inset_0_-2px_0_var(--row-surface)] *:not-last:shadow-[inset_0_2px_0_var(--row-surface),inset_0_-2px_0_var(--row-surface),3px_0_0_-2px_var(--row-bg)] *:first:rounded-l-lg *:last:rounded-r-lg",
-                    "data-[state=selected]:[--row-bg:var(--row-selected)]!",
-                    enableHover && "hover:[--row-bg:var(--row-hover)]",
-                    enableSelection ? "cursor-pointer" : "cursor-default",
-                  )}
-                >
-                  {row.getVisibleCells().map((cell) => {
-                    const isSelectionColumn = cell.column.id === "select"
-                    if (isSelectionColumn && !enableSelection) return null
-                    return (
-                      <TableCell
-                        key={cell.id}
-                        className={cn(
-                          "relative h-12 px-2 py-1 text-sm whitespace-nowrap",
-                          isSelectionColumn && "w-14 px-2 text-center",
-                          cell.column.columnDef.meta?.className,
-                        )}
-                      >
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext(),
-                        )}
-                      </TableCell>
-                    )
-                  })}
-                </TableRow>
-              ))
+              // Added/removed rows fade (approve, delete). Paging, sorting and
+              // filtering re-key the group so they swap without animating.
+              <AnimatePresence
+                initial={false}
+                key={`${table.getState().pagination.pageIndex}:${JSON.stringify(
+                  table.getState().columnFilters,
+                )}:${String(table.getState().globalFilter ?? "")}:${JSON.stringify(
+                  table.getState().sorting,
+                )}`}
+              >
+                {rows.map((row) => (
+                  <MotionTableRow
+                    key={row.id}
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, transition: { duration: 0.16 } }}
+                    transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
+                    data-state={row.getIsSelected() ? "selected" : undefined}
+                    onClick={
+                      enableSelection
+                        ? () => row.toggleSelected(!row.getIsSelected())
+                        : undefined
+                    }
+                    className={cn(
+                      // A <tr> can't take border-radius, so the highlight is
+                      // painted on the cells (ends rounded). Inset shadows in the
+                      // surface colour trim 2px off the top and bottom so it
+                      // clears the dividers; the outer 1px shadow bridges the
+                      // fractional seam to the next cell.
+                      "group select-none [--row-bg:transparent] hover:bg-transparent data-[state=selected]:bg-transparent",
+                      "*:bg-(--row-bg) *:shadow-[inset_0_2px_0_var(--row-surface),inset_0_-2px_0_var(--row-surface)] *:not-last:shadow-[inset_0_2px_0_var(--row-surface),inset_0_-2px_0_var(--row-surface),3px_0_0_-2px_var(--row-bg)] *:first:rounded-l-lg *:last:rounded-r-lg",
+                      "data-[state=selected]:[--row-bg:var(--row-selected)]!",
+                      enableSelection ? "cursor-pointer" : "cursor-default",
+                    )}
+                  >
+                    {row.getVisibleCells().map((cell) => {
+                      const isSelectionColumn = cell.column.id === "select"
+                      if (isSelectionColumn && !enableSelection) return null
+                      return (
+                        <TableCell
+                          key={cell.id}
+                          className={cn(
+                            "relative h-12 px-2 py-1 text-sm whitespace-nowrap",
+                            isSelectionColumn && "w-14 px-2 text-center",
+                            cell.column.columnDef.meta?.className,
+                          )}
+                        >
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext(),
+                          )}
+                        </TableCell>
+                      )
+                    })}
+                  </MotionTableRow>
+                ))}
+              </AnimatePresence>
             ) : (
               <TableRow className="hover:bg-transparent">
                 <TableCell colSpan={columns.length} className="p-6">

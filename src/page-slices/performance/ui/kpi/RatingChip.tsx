@@ -51,12 +51,12 @@ export function ScoreBar({
     >
       <div
         className={cn(
-          "h-full rounded-full",
+          "bar-grow h-full rounded-full",
           value !== null && target !== undefined && value < target
             ? "bg-warning"
             : "bg-primary",
         )}
-        style={{ width: `${width}%` }}
+        style={{ "--bar": `${width}%` } as React.CSSProperties}
       />
       {target !== undefined && (
         <div

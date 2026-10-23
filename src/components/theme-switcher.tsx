@@ -1,5 +1,6 @@
 "use client"
 
+import { SlidingIndicator } from "@/components/sliding-indicator"
 import { cn } from "@/lib/utils"
 import { Monitor, Moon, Sun } from "lucide-react"
 import { useTheme } from "next-themes"
@@ -27,10 +28,14 @@ export function ThemeSwitcher({ className }: { className?: string }) {
       role="radiogroup"
       aria-label="Tema"
       className={cn(
-        "bg-sidebar-accent dark:bg-muted inline-flex w-fit items-center gap-0.5 self-start rounded-full p-0.5",
+        "bg-sidebar-accent dark:bg-muted relative inline-flex w-fit items-center gap-0.5 self-start rounded-full p-0.5",
         className,
       )}
     >
+      <SlidingIndicator
+        activeSelector="[aria-checked=true]"
+        className="bg-background smooth-shadow-ring-xs dark:bg-foreground/[0.13] rounded-full dark:shadow-none"
+      />
       {ITEMS.map(({ value, label, icon: Icon }) => {
         const active = current === value
         return (
@@ -43,9 +48,9 @@ export function ThemeSwitcher({ className }: { className?: string }) {
             title={label}
             onClick={() => setTheme(value)}
             className={cn(
-              "focus-visible:ring-focus-ring grid size-7 cursor-pointer place-items-center rounded-full transition-[color,background-color] duration-150 ease-out outline-none focus-visible:ring-2 [&_svg]:size-3.5",
+              "focus-visible:ring-focus-ring relative grid size-7 cursor-pointer place-items-center rounded-full transition-colors duration-150 ease-out outline-none focus-visible:ring-2 [&_svg]:size-3.5",
               active
-                ? "bg-background text-foreground smooth-shadow-ring-xs dark:bg-foreground/[0.13] dark:shadow-none"
+                ? "text-foreground"
                 : "text-muted-foreground hover:text-foreground",
             )}
           >

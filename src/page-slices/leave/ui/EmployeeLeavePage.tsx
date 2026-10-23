@@ -1,5 +1,8 @@
 "use client"
 
+import { cn } from "@/lib/utils"
+import { TAB_ENTER, useTabSwitched } from "@/shared/hooks/useTabSwitched"
+import { RollingValue } from "@/components/rolling-value"
 import { AttendanceHistoryList } from "@/app/(main)/attendance/components/AttendanceHistoryList"
 import { AttendanceSettings } from "@/page-slices/settings/ui"
 import { PageHeader } from "@/components/page-header"
@@ -74,6 +77,7 @@ export function EmployeeLeavePage({
     preserveQuery: true,
     mode: "history",
   })
+  const tabSwitched = useTabSwitched(activeTab)
   const { isMounted } = useMountedTabs(activeTab)
 
   // Only HH:mm is shown, so tick on the minute rather than every second.
@@ -258,7 +262,7 @@ export function EmployeeLeavePage({
             </dt>
             {stats.annual.eligible ? (
               <dd className="text-foreground text-xl font-normal tracking-tight tabular-nums">
-                {stats.annual.remaining}
+                <RollingValue>{stats.annual.remaining}</RollingValue>
                 <span className="text-tertiary-foreground text-sm tracking-normal">
                   {" "}
                   / {stats.annual.quota} hari
@@ -280,7 +284,7 @@ export function EmployeeLeavePage({
           <div className="stat-tile">
             <dt className="text-muted-foreground text-sm">Sakit tahun ini</dt>
             <dd className="text-foreground text-xl font-normal tracking-tight tabular-nums">
-              {stats.sick}
+              <RollingValue>{stats.sick}</RollingValue>
               <span className="text-tertiary-foreground text-sm tracking-normal">
                 {" "}
                 hari
@@ -290,7 +294,7 @@ export function EmployeeLeavePage({
           <div className="stat-tile">
             <dt className="text-muted-foreground text-sm">WFH tahun ini</dt>
             <dd className="text-foreground text-xl font-normal tracking-tight tabular-nums">
-              {stats.wfh}
+              <RollingValue>{stats.wfh}</RollingValue>
               <span className="text-tertiary-foreground text-sm tracking-normal">
                 {" "}
                 hari
@@ -323,7 +327,13 @@ export function EmployeeLeavePage({
 
         <div className="pb-4">
           {isMounted("attendance") && (
-            <div className={activeTab === "attendance" ? "block" : "hidden"}>
+            <div
+              className={
+                activeTab === "attendance"
+                  ? cn("block", tabSwitched && TAB_ENTER)
+                  : "hidden"
+              }
+            >
               <AttendanceHistoryList
                 logs={logs}
                 onRequestDelete={(id) => setDeleteLogId(id)}
@@ -331,7 +341,13 @@ export function EmployeeLeavePage({
             </div>
           )}
           {isMounted("leave") && (
-            <div className={activeTab === "leave" ? "block" : "hidden"}>
+            <div
+              className={
+                activeTab === "leave"
+                  ? cn("block", tabSwitched && TAB_ENTER)
+                  : "hidden"
+              }
+            >
               <EmployeeLeaveList
                 requests={requests}
                 onEdit={openRequest}

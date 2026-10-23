@@ -1,5 +1,6 @@
 "use client"
 
+import { RollingValue } from "@/components/rolling-value"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -29,8 +30,9 @@ import {
 } from "@/shared/ui/lucide-icons"
 import { format, parseISO } from "date-fns"
 import { id as idLocale } from "date-fns/locale"
+import { AnimatePresence, m } from "motion/react"
+import * as React from "react"
 import { useState } from "react"
-import { useAutoClockOut } from "@/shared/hooks/useAutoClockOut"
 import { useClockActions } from "../model/useClockActions"
 
 type AttendanceLog = Database["public"]["Tables"]["attendance_logs"]["Row"]
@@ -72,7 +74,22 @@ export function ClockControls({
     handleResolvePreviousSession,
   } = useClockActions({ logs, onLogsUpdate })
 
-  const { data: autoClockOut } = useAutoClockOut()
+  // The control group crossfades when the state changes (clock in → working
+  // → clock out); nothing animates on first render.
+  const swap = (key: string, node: React.ReactNode) => (
+    <AnimatePresence initial={false} mode="popLayout">
+      <m.div
+        key={key}
+        className="flex"
+        initial={{ opacity: 0, y: 4, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: -4, scale: 0.98 }}
+        transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
+      >
+        {node}
+      </m.div>
+    </AnimatePresence>
+  )
 
   // SSR placeholder keeps the tree stable until the clock is known.
   if (!now) return <div className="h-8" />
@@ -80,7 +97,8 @@ export function ClockControls({
   const { staleSession, activeSession } = getAttendanceSessionState(logs, now)
 
   if (staleSession && !activeSession) {
-    return (
+    return swap(
+      "stale",
       <div className="flex items-center gap-3">
         <p className="text-destructive text-sm">
           Sesi{" "}
@@ -96,12 +114,13 @@ export function ClockControls({
         >
           Tutup sesi sebelumnya
         </Button>
-      </div>
+      </div>,
     )
   }
 
   if (!activeSession) {
-    return (
+    return swap(
+      "idle",
       <div className="flex items-center gap-2">
         <Select value={status} onValueChange={(v) => v && setStatus(v)}>
           <SelectTrigger className="w-32" aria-label="Status kehadiran">
@@ -119,21 +138,14 @@ export function ClockControls({
           <RiLoginBoxLine data-icon="inline-start" />
           Clock In
         </Button>
-      </div>
+      </div>,
     )
   }
 
-  return (
+  return swap(
+    "working",
     <div className="flex items-center gap-2">
-      {autoClockOut?.enabled && (
-        <span
-          className="text-muted-foreground text-xs"
-          title="Diatur admin di Pengaturan › Kehadiran"
-        >
-          Clock out otomatis{" "}
-          {activeSession.status === "Lembur" ? "23:59" : autoClockOut.time}
-        </span>
-      )}
+      {/* Auto clock-out is set (and its time shown) next to these controls. */}
       <Button
         variant="outline"
         disabled={loading}
@@ -142,7 +154,9 @@ export function ClockControls({
         }
       >
         <RiCupLine data-icon="inline-start" />
-        {activeSession.is_break ? "Selesai istirahat" : "Istirahat"}
+        <RollingValue>
+          {activeSession.is_break ? "Selesai istirahat" : "Istirahat"}
+        </RollingValue>
       </Button>
       <Button
         variant="destructive"
@@ -178,6 +192,6 @@ export function ClockControls({
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </div>,
   )
 }

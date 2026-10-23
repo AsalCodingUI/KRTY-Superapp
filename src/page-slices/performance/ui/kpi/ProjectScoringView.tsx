@@ -7,6 +7,7 @@ import {
   type ProjectScoring,
 } from "@/app/(main)/performance/actions/project-scoring-actions"
 import { EmptyState } from "@/components/empty-state"
+import { useBreadcrumbs } from "@/components/page-breadcrumbs"
 import { GroupedList, ListRow } from "@/components/grouped-list"
 import { PageHeader } from "@/components/page-header"
 import { Badge } from "@/components/ui/badge"
@@ -28,13 +29,8 @@ import {
   slaPercent,
   type SLAResult,
 } from "@/entities/performance/lib/kpi"
-import {
-  RiArrowLeftLine,
-  RiCheckLine,
-  RiFileList3Line,
-} from "@/shared/ui/lucide-icons"
+import { RiCheckLine, RiFileList3Line } from "@/shared/ui/lucide-icons"
 import { useQueryClient } from "@tanstack/react-query"
-import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
 import { toast } from "sonner"
@@ -86,6 +82,10 @@ export function ProjectScoringView({
   )
   const [competencies, setCompetencies] = useState(initial.competencies)
   const [dirty, setDirty] = useState(false)
+  useBreadcrumbs([
+    { label: backLabel, href: backHref },
+    { label: project.name },
+  ])
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
@@ -154,15 +154,9 @@ export function ProjectScoringView({
 
   return (
     <div className="flex flex-col pb-4">
-      <Link
-        href={backHref}
-        className="text-muted-foreground hover:text-foreground flex w-fit items-center gap-1.5 pt-6 text-sm"
-      >
-        <RiArrowLeftLine className="size-4" />
-        {backLabel}
-      </Link>
       <PageHeader
-        className="pt-2 pb-4"
+        className="pt-6 pb-4"
+        back={{ href: backHref, label: backLabel }}
         title={project.name}
         actions={
           canEdit && (

@@ -8,6 +8,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
+import { useBreadcrumbTrail, type Crumb } from "@/components/page-breadcrumbs"
 import { matchProjectPath } from "@/shared/config/project-sections"
 import { useProjectSummary } from "@/shared/hooks/useProjectSummary"
 import Link from "next/link"
@@ -15,9 +16,10 @@ import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { workspaces } from "@/shared/config/workspaces"
 import { usePathname } from "next/navigation"
+import { Fragment } from "react"
 
-/** Current section name, taken from the navigation config (fallback: path). */
-function useSectionTitle() {
+/** Current section, taken from the navigation config (fallback: path). */
+function useSection(): Crumb {
   const pathname = usePathname()
   const items = workspaces.flatMap((ws) => [
     ...ws.items({ role: "stakeholder", is_super_admin: true }),
@@ -28,55 +30,70 @@ function useSectionTitle() {
       (item) => pathname === item.href || pathname.startsWith(`${item.href}/`),
     )
     .sort((a, b) => b.href.length - a.href.length)[0]
-  if (match) return match.name
-  if (pathname.startsWith("/settings")) return "Settings"
+  if (match) return { label: match.name, href: match.href }
+  if (pathname.startsWith("/settings")) return { label: "Settings" }
   const seg = pathname.split("/").filter(Boolean)[0] ?? "dashboard"
-  return seg.charAt(0).toUpperCase() + seg.slice(1).replace(/-/g, " ")
+  return {
+    label: seg.charAt(0).toUpperCase() + seg.slice(1).replace(/-/g, " "),
+    href: `/${seg}`,
+  }
 }
 
 export function SiteHeader() {
-  const title = useSectionTitle()
+  const section = useSection()
   const pathname = usePathname()
   const projectPath = matchProjectPath(pathname)
   const { data: project } = useProjectSummary(projectPath?.id)
+  const extra = useBreadcrumbTrail()
+
+  // Section (or the project trail), then whatever the page adds; every step
+  // but the last links back up.
+  const trail: Crumb[] = [
+    ...(projectPath
+      ? [
+          { label: "Projects", href: "/projects" },
+          { label: project?.name ?? "…", href: `/projects/${projectPath.id}` },
+          {
+            label: projectPath.section.name,
+            href: `/projects/${projectPath.id}${projectPath.slug ? `/${projectPath.slug}` : ""}`,
+          },
+        ]
+      : [section]),
+    ...extra,
+  ]
 
   return (
     <header className="flex h-12 shrink-0 items-center gap-2">
-      <div className="gutter-x flex flex-1 items-center gap-2">
+      <div className="gutter-x flex min-w-0 flex-1 items-center gap-2">
         <SidebarTrigger className="-ml-1" />
         <Separator
           orientation="vertical"
           className="mr-2 data-vertical:h-4 data-vertical:self-auto"
         />
-        <Breadcrumb>
-          <BreadcrumbList>
-            {projectPath ? (
-              <>
-                <BreadcrumbItem>
-                  <BreadcrumbLink render={<Link href="/projects" />}>
-                    Projects
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator />
-                <BreadcrumbItem>
-                  <BreadcrumbLink
-                    render={<Link href={`/projects/${projectPath.id}`} />}
-                  >
-                    {project?.name ?? "…"}
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator />
-                <BreadcrumbItem>
-                  <BreadcrumbPage className="font-medium">
-                    {projectPath.section.name}
-                  </BreadcrumbPage>
-                </BreadcrumbItem>
-              </>
-            ) : (
-              <BreadcrumbItem>
-                <BreadcrumbPage className="font-medium">{title}</BreadcrumbPage>
-              </BreadcrumbItem>
-            )}
+        <Breadcrumb className="min-w-0">
+          <BreadcrumbList className="flex-nowrap">
+            {trail.map((crumb, i) => {
+              const last = i === trail.length - 1
+              return (
+                <Fragment key={`${i}-${crumb.label}`}>
+                  {i > 0 && <BreadcrumbSeparator />}
+                  <BreadcrumbItem className={last ? "min-w-0" : "shrink-0"}>
+                    {last || !crumb.href ? (
+                      <BreadcrumbPage className="truncate font-medium">
+                        {crumb.label}
+                      </BreadcrumbPage>
+                    ) : (
+                      <BreadcrumbLink
+                        render={<Link href={crumb.href} prefetch={false} />}
+                        className="max-w-48 truncate"
+                      >
+                        {crumb.label}
+                      </BreadcrumbLink>
+                    )}
+                  </BreadcrumbItem>
+                </Fragment>
+              )
+            })}
           </BreadcrumbList>
         </Breadcrumb>
       </div>

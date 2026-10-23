@@ -1,5 +1,6 @@
 "use client"
 
+import { RollingValue } from "@/components/rolling-value"
 import { orEmpty } from "@/components/empty-value"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Collapse } from "@/components/ui/collapse"
@@ -125,7 +126,9 @@ export function StatBand({
         <div key={i} className="stat-tile">
           <p className="text-muted-foreground text-sm">{item.label}</p>
           <p className="text-foreground text-xl font-normal tracking-tight tabular-nums">
-            {orEmpty(item.value)}
+            <RollingValue value={typeof item.value === "number" || typeof item.value === "string" ? item.value : null}>
+              {orEmpty(item.value)}
+            </RollingValue>
           </p>
         </div>
       ))}

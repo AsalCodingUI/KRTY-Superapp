@@ -1,8 +1,10 @@
 "use client"
 
 import { Collapse } from "@/components/ui/collapse"
+import { HoverHighlight } from "@/components/sliding-indicator"
 import { cn } from "@/lib/utils"
 import { RiArrowDownSLine } from "@/shared/ui/lucide-icons"
+import { m, type HTMLMotionProps } from "motion/react"
 import * as React from "react"
 
 /**
@@ -10,16 +12,29 @@ import * as React from "react"
  * rows underneath, no column headers. Used where a table would only show
  * status + person + dates.
  */
+/** True once the list has mounted: rows added after that animate in. */
+const ListMounted = React.createContext(false)
+
 export function GroupedList({
   className,
+  children,
   ...props
 }: React.ComponentProps<"div">) {
+  const [mounted, setMounted] = React.useState(false)
+  React.useEffect(() => setMounted(true), [])
   return (
     <div
       data-slot="grouped-list"
-      className={cn("bleed flex flex-col", className)}
+      className={cn("bleed relative flex flex-col", className)}
       {...props}
-    />
+    >
+      {/* One hover highlight that follows the pointer between rows. */}
+      <HoverHighlight
+        itemSelector="[data-slot=list-row]"
+        className="bg-(--row-hover)"
+      />
+      <ListMounted.Provider value={mounted}>{children}</ListMounted.Provider>
+    </div>
   )
 }
 
@@ -72,18 +87,38 @@ export function ListGroup({
   )
 }
 
+const ROW_EASE = [0.23, 1, 0.32, 1] as const
+
+/**
+ * A list row. Rows added after the list mounted fade and settle in; inside
+ * an `AnimatePresence`, a removed row fades and its height folds away, so
+ * the rows below close the gap instead of jumping.
+ */
 export function ListRow({ className, ...props }: React.ComponentProps<"div">) {
+  const enter = React.useContext(ListMounted)
   return (
-    <div
+    <m.div
       data-slot="list-row"
+      initial={enter ? { opacity: 0, y: -4 } : false}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{
+        opacity: 0,
+        height: 0,
+        minHeight: 0,
+        paddingTop: 0,
+        paddingBottom: 0,
+        borderBottomWidth: 0,
+        overflow: "hidden",
+        transition: { duration: 0.2, ease: ROW_EASE },
+      }}
+      transition={{ duration: 0.2, ease: ROW_EASE }}
       className={cn(
-        // Hover fill sits behind the content, inset from the dividers, same
-        // colour and shape as table rows.
-        "group/row border-border/50 gutter-x relative isolate flex min-h-12 items-center gap-3 border-b py-2 text-sm",
-        "before:absolute before:inset-x-0 before:inset-y-0.5 before:-z-10 before:rounded-lg before:transition-colors hover:before:bg-(--row-hover)",
+        // Hover is GroupedList's sliding highlight; rows stay positioned so
+        // they paint above it.
+        "group/row border-border/50 gutter-x relative flex min-h-12 items-center gap-3 border-b py-2 text-sm",
         className,
       )}
-      {...props}
+      {...(props as HTMLMotionProps<"div">)}
     />
   )
 }

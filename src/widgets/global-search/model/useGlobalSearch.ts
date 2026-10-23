@@ -10,6 +10,7 @@ export type SearchScope =
   | "projects"
   | "tasks"
   | "files"
+  | "policies"
   | "people"
 
 export type SearchHit = {
@@ -63,41 +64,52 @@ export function useRecordSearch(query: string, options: { people: boolean }) {
     placeholderData: (prev) => prev,
     queryFn: async (): Promise<SearchHit[]> => {
       const like = likePattern(q)
-      const [projects, tasks, docs, files, people] = await Promise.all([
-        supabase
-          .from("projects")
-          .select("id, name, client_name, quarter_id")
-          .or(`name.ilike.${quoted(like)},client_name.ilike.${quoted(like)}`)
-          .order("end_date", { ascending: false })
-          .limit(LIMIT),
-        supabase
-          .from("project_tasks")
-          .select("id, title, done, project_id, projects ( id, name )")
-          .ilike("title", like)
-          .order("created_at", { ascending: false })
-          .limit(LIMIT),
-        supabase
-          .from("project_documents")
-          .select("id, title, project_id, projects ( id, name )")
-          .ilike("title", like)
-          .limit(LIMIT),
-        supabase
-          .from("project_files")
-          .select("id, name, project_id, projects ( id, name )")
-          .ilike("name", like)
-          .limit(LIMIT),
-        options.people
-          ? supabase
-              .from("profiles")
-              .select("id, full_name, job_title, avatar_url")
-              .or(`full_name.ilike.${quoted(like)},email.ilike.${quoted(like)}`)
-              .order("full_name")
-              .limit(LIMIT)
-          : Promise.resolve({ data: [], error: null }),
-      ])
+      const [projects, tasks, docs, files, policies, people] =
+        await Promise.all([
+          supabase
+            .from("projects")
+            .select("id, name, client_name, quarter_id")
+            .or(`name.ilike.${quoted(like)},client_name.ilike.${quoted(like)}`)
+            .order("end_date", { ascending: false })
+            .limit(LIMIT),
+          supabase
+            .from("project_tasks")
+            .select("id, title, done, project_id, projects ( id, name )")
+            .ilike("title", like)
+            .order("created_at", { ascending: false })
+            .limit(LIMIT),
+          supabase
+            .from("project_documents")
+            .select("id, title, project_id, projects ( id, name )")
+            .ilike("title", like)
+            .limit(LIMIT),
+          supabase
+            .from("project_files")
+            .select("id, name, project_id, projects ( id, name )")
+            .ilike("name", like)
+            .limit(LIMIT),
+          // Employees only get published, live rules (RLS).
+          supabase
+            .from("policy_documents")
+            .select("id, title, category")
+            .ilike("title", like)
+            .is("archived_at", null)
+            .order("title")
+            .limit(LIMIT),
+          options.people
+            ? supabase
+                .from("profiles")
+                .select("id, full_name, job_title, avatar_url")
+                .or(
+                  `full_name.ilike.${quoted(like)},email.ilike.${quoted(like)}`,
+                )
+                .order("full_name")
+                .limit(LIMIT)
+            : Promise.resolve({ data: [], error: null }),
+        ])
 
       // One failing source shouldn't hide the others.
-      for (const r of [projects, tasks, docs, files, people])
+      for (const r of [projects, tasks, docs, files, policies, people])
         if (r.error) console.warn("[search]", r.error.message)
 
       const hits: SearchHit[] = []
@@ -144,6 +156,15 @@ export function useRecordSearch(query: string, options: { people: boolean }) {
           meta: project ? `Library · ${project.name}` : "Library",
           href: `/projects/${f.project_id}/library`,
           projectId: f.project_id,
+        })
+      }
+      for (const p of policies.data ?? []) {
+        hits.push({
+          id: `policy:${p.id}`,
+          kind: "policies",
+          title: p.title,
+          meta: `Aturan · ${p.category}`,
+          href: `/policies/${p.id}`,
         })
       }
       for (const u of people.data ?? []) {

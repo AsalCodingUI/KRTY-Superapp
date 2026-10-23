@@ -1,5 +1,6 @@
 "use client"
 
+import { RollingValue } from "@/components/rolling-value"
 import { PageHeader } from "@/components/page-header"
 import { createTeamColumns } from "@/app/(main)/teams/Columns"
 import Link from "next/link"
@@ -120,7 +121,7 @@ export function TeamsPage({
           <div key={item.label} className="stat-tile">
             <p className="text-muted-foreground text-sm">{item.label}</p>
             <p className="text-foreground text-xl font-normal tracking-tight tabular-nums">
-              {item.value}
+              <RollingValue>{item.value}</RollingValue>
             </p>
           </div>
         ))}

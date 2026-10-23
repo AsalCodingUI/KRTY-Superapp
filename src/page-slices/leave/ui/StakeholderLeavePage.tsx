@@ -1,5 +1,8 @@
 "use client"
 
+import { cn } from "@/lib/utils"
+import { TAB_ENTER, useTabSwitched } from "@/shared/hooks/useTabSwitched"
+import { RollingValue } from "@/components/rolling-value"
 import { PageHeader } from "@/components/page-header"
 import { AdminAttendanceHistoryList } from "@/app/(main)/attendance/components/AdminAttendanceHistoryList"
 import { createClient } from "@/shared/api/supabase/client"
@@ -894,6 +897,7 @@ function AttendanceOverviewPanel({
     currentlyActive: number
   }
 }) {
+  const tabSwitched = useTabSwitched(activeTab)
   const { isMounted } = useMountedTabs(activeTab)
   const today = getLocalDateString()
 
@@ -1025,7 +1029,7 @@ function AttendanceOverviewPanel({
           <div key={item.label} className="stat-tile">
             <p className="text-muted-foreground text-sm">{item.label}</p>
             <p className="text-foreground text-xl font-normal tracking-tight tabular-nums">
-              {item.value}
+              <RollingValue>{item.value}</RollingValue>
             </p>
           </div>
         ))}
@@ -1033,19 +1037,29 @@ function AttendanceOverviewPanel({
 
       <div className="pb-4">
         {activeTab === "approval" && (
-          <div className="block space-y-5">{approvalContent}</div>
+          <div className={cn("block space-y-5", tabSwitched && TAB_ENTER)}>
+            {approvalContent}
+          </div>
         )}
         {isMounted("remaining") && (
           <div
             className={
-              activeTab === "remaining" ? "block space-y-5" : "hidden space-y-5"
+              activeTab === "remaining"
+                ? cn("block space-y-5", tabSwitched && TAB_ENTER)
+                : "hidden space-y-5"
             }
           >
             {remainingContent}
           </div>
         )}
         {isMounted("attendance") && (
-          <div className={activeTab === "attendance" ? "block" : "hidden"}>
+          <div
+            className={
+              activeTab === "attendance"
+                ? cn("block", tabSwitched && TAB_ENTER)
+                : "hidden"
+            }
+          >
             <AdminAttendanceHistoryList
               logs={attendanceLogs}
               onApproveDelete={onApproveAttendanceDelete}

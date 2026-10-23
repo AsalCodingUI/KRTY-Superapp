@@ -1,5 +1,6 @@
 "use client"
 
+import { AnimatePresence } from "motion/react"
 import { EmptyValue } from "@/components/empty-value"
 import { EmptyState } from "@/components/empty-state"
 import { GroupedList, ListRow, ListRowActions } from "@/components/grouped-list"
@@ -112,16 +113,18 @@ export function AdminAttendanceHistoryList({
             hydrated={hydrated}
             defaultOpen={index < OPEN_DAYS}
           >
-            {dayLogs.map((log) => (
-              <AdminAttendanceRow
-                key={log.id}
-                log={log}
-                hydrated={hydrated}
-                onApproveDelete={onApproveDelete}
-                onCloseSession={onCloseSession}
-                onEditSession={onEditSession}
-              />
-            ))}
+            <AnimatePresence initial={false}>
+              {dayLogs.map((log) => (
+                <AdminAttendanceRow
+                  key={log.id}
+                  log={log}
+                  hydrated={hydrated}
+                  onApproveDelete={onApproveDelete}
+                  onCloseSession={onCloseSession}
+                  onEditSession={onEditSession}
+                />
+              ))}
+            </AnimatePresence>
           </AttendanceDay>
         ))}
       </GroupedList>

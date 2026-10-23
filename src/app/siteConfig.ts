@@ -7,6 +7,7 @@ export const siteConfig = {
     dashboard: "/dashboard",
     leave: "/leave",
     performance: "/performance",
+    policies: "/policies",
     projects: "/projects",
     calculator: "/calculator",
     teams: "/teams",

@@ -83,10 +83,12 @@ export function RemainingLeaveList({ data }: { data: BalanceProfile[] }) {
               aria-label={`${used} dari ${quota} hari terpakai`}
             >
               <div
-                className="bg-primary h-full rounded-full"
-                style={{
-                  width: `${quota ? Math.min(100, (used / quota) * 100) : 0}%`,
-                }}
+                className="bar-grow bg-primary h-full rounded-full"
+                style={
+                  {
+                    "--bar": `${quota ? Math.min(100, (used / quota) * 100) : 0}%`,
+                  } as React.CSSProperties
+                }
               />
             </div>
             <span className="text-right tabular-nums">

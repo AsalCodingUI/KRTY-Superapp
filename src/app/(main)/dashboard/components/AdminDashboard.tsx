@@ -108,8 +108,8 @@ export function AdminDashboard({ data }: AdminDashboardProps) {
               split.map((s) => (
                 <div
                   key={s.label}
-                  className={cn("h-full", s.color)}
-                  style={{ width: `${(s.value / total) * 100}%` }}
+                  className={cn("bar-grow h-full", s.color)}
+                  style={{ "--bar": `${(s.value / total) * 100}%` } as React.CSSProperties}
                 />
               ))}
           </div>

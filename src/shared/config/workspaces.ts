@@ -3,6 +3,7 @@ import { isAdminRole } from "@/shared/lib/roles"
 import {
   RemixiconComponentType,
   RiBarChartBoxLine,
+  RiBookOpenLine,
   RiBriefcaseLine,
   RiCalendarCheckLine,
   RiCalendarLine,
@@ -119,6 +120,8 @@ export const workspaces: Workspace[] = [
           },
         ],
       },
+      // Office rules: everyone reads, stakeholders write.
+      { name: "Aturan", href: links.policies, icon: RiBookOpenLine },
     ],
   },
   {

@@ -621,6 +621,129 @@ export type Database = {
           },
         ]
       }
+      policy_documents: {
+        Row: {
+          archived_at: string | null
+          category: string
+          created_at: string
+          created_by: string | null
+          current_version_id: string | null
+          id: string
+          owner_role: string | null
+          slug: string
+          summary: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          archived_at?: string | null
+          category: string
+          created_at?: string
+          created_by?: string | null
+          current_version_id?: string | null
+          id?: string
+          owner_role?: string | null
+          slug: string
+          summary?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          archived_at?: string | null
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          current_version_id?: string | null
+          id?: string
+          owner_role?: string | null
+          slug?: string
+          summary?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "policy_documents_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "policy_documents_current_version_id_fkey"
+            columns: ["current_version_id"]
+            isOneToOne: false
+            referencedRelation: "policy_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      policy_versions: {
+        Row: {
+          body: string
+          change_summary: string | null
+          content: Json
+          created_at: string
+          created_by: string | null
+          document_id: string
+          effective_at: string | null
+          id: string
+          published_at: string | null
+          status: string
+          summary: string | null
+          title: string
+          updated_at: string
+          version_number: string
+        }
+        Insert: {
+          body?: string
+          change_summary?: string | null
+          content?: Json
+          created_at?: string
+          created_by?: string | null
+          document_id: string
+          effective_at?: string | null
+          id?: string
+          published_at?: string | null
+          status?: string
+          summary?: string | null
+          title: string
+          updated_at?: string
+          version_number: string
+        }
+        Update: {
+          body?: string
+          change_summary?: string | null
+          content?: Json
+          created_at?: string
+          created_by?: string | null
+          document_id?: string
+          effective_at?: string | null
+          id?: string
+          published_at?: string | null
+          status?: string
+          summary?: string | null
+          title?: string
+          updated_at?: string
+          version_number?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "policy_versions_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "policy_versions_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "policy_documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -1428,6 +1551,15 @@ export type Database = {
       save_assignment_scores: {
         Args: { p_assignment_id: string; p_sla: Json; p_quality: Json }
         Returns: undefined
+      }
+      publish_policy: {
+        Args: {
+          p_document_id: string
+          p_change_summary: string
+          p_effective_at?: string
+          p_notify?: boolean
+        }
+        Returns: string
       }
       review_pairs: {
         Args: { p_quarter: string }

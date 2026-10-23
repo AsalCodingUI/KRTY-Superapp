@@ -23,6 +23,7 @@ import { canManageByRole } from "@/shared/lib/roles"
 import {
   RiArrowDownLine,
   RiArrowUpLine,
+  RiBookOpenLine,
   RiCheckboxBlankCircleLine,
   RiCheckboxCircleLine,
   RiCloseLine,
@@ -50,6 +51,7 @@ const SCOPES: { value: SearchScope; label: string; admin?: boolean }[] = [
   { value: "projects", label: "Project" },
   { value: "tasks", label: "Tugas" },
   { value: "files", label: "File" },
+  { value: "policies", label: "Aturan" },
   { value: "people", label: "Orang", admin: true },
 ]
 
@@ -58,6 +60,7 @@ const GROUPS: { kind: SearchHit["kind"]; label: string }[] = [
   { kind: "projects", label: "Project" },
   { kind: "tasks", label: "Tugas" },
   { kind: "files", label: "File & dokumen" },
+  { kind: "policies", label: "Aturan" },
   { kind: "people", label: "Orang" },
 ]
 
@@ -71,6 +74,7 @@ const PAGE_KEYWORDS: [string, string][] = [
   ["/teams", "karyawan anggota tim direktori orang"],
   ["/projects", "proyek klien client"],
   ["/notifications", "notif pemberitahuan"],
+  ["/policies", "aturan kebijakan peraturan handbook sop"],
 ]
 
 function pageKeywords(href: string) {
@@ -415,6 +419,8 @@ function HitIcon({
       )
     case "files":
       return <RiFileTextLine className="text-muted-foreground" />
+    case "policies":
+      return <RiBookOpenLine className="text-muted-foreground" />
     default:
       return <RiTimeLine className="text-muted-foreground" />
   }

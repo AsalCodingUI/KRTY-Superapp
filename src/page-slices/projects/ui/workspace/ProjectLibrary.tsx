@@ -1,5 +1,6 @@
 "use client"
 
+import { useBreadcrumbs } from "@/components/page-breadcrumbs"
 import { PageHeader } from "@/components/page-header"
 import { ConfirmDialog } from "@/components/confirm-dialog"
 import { EmptyState } from "@/components/empty-state"
@@ -14,11 +15,7 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Spinner } from "@/components/ui/spinner"
-import {
-  RiAddLine,
-  RiArrowLeftLine,
-  RiFolderLine,
-} from "@/shared/ui/lucide-icons"
+import { RiAddLine, RiFolderLine } from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
 import { id as idLocale } from "date-fns/locale"
 import { FileImage, FileText, File as FileIcon, Upload } from "lucide-react"
@@ -88,6 +85,8 @@ export function ProjectLibrary({ projectId }: { projectId: string }) {
   const inFolder = files.filter((f) =>
     folder ? f.folder_id === folder.id : !f.folder_id,
   )
+
+  useBreadcrumbs(folder ? [{ label: folder.name }] : [])
 
   const go = (id: string | null) => {
     const params = new URLSearchParams(searchParams.toString())
@@ -180,24 +179,10 @@ export function ProjectLibrary({ projectId }: { projectId: string }) {
     <div className="flex flex-col">
       <PageHeader
         className="pt-6 pb-4"
-        title={
-          folder ? (
-            <span className="flex min-w-0 items-center gap-2">
-              <button
-                type="button"
-                onClick={() => go(null)}
-                className="text-muted-foreground hover:text-foreground flex items-center gap-1.5"
-              >
-                <RiArrowLeftLine className="size-5" />
-                Library
-              </button>
-              <span className="text-muted-foreground">/</span>
-              <span className="truncate">{folder.name}</span>
-            </span>
-          ) : (
-            "Library"
-          )
+        back={
+          folder ? { onClick: () => go(null), label: "Library" } : undefined
         }
+        title={folder ? folder.name : "Library"}
         actions={
           <>
             {!folder && (

@@ -1,5 +1,6 @@
 "use client"
 
+import { AnimatePresence } from "motion/react"
 import { ConfirmDialog } from "@/components/confirm-dialog"
 import { EmptyValue } from "@/components/empty-value"
 import { GroupedList, ListRow } from "@/components/grouped-list"
@@ -332,16 +333,19 @@ export function MembersAccessSettings() {
           <span className="hidden lg:block">Tim</span>
           <span className="text-right">Akses</span>
         </div>
-        {isLoading
-          ? Array.from({ length: 8 }).map((_, i) => (
-              <ListRow key={i} className={cx(MEMBER_GRID, "min-h-14")}>
-                <span className="flex items-center gap-3">
-                  <Skeleton className="size-7 rounded-full" />
-                  <Skeleton className="h-3.5 w-40" />
-                </span>
-              </ListRow>
-            ))
-          : filtered.map((p) => {
+        {isLoading ? (
+          Array.from({ length: 8 }).map((_, i) => (
+            <ListRow key={i} className={cx(MEMBER_GRID, "min-h-14")}>
+              <span className="flex items-center gap-3">
+                <Skeleton className="size-7 rounded-full" />
+                <Skeleton className="h-3.5 w-40" />
+              </span>
+            </ListRow>
+          ))
+        ) : (
+          // Re-keyed on search so filtering doesn't animate every row.
+          <AnimatePresence initial={false} key={query}>
+            {filtered.map((p) => {
               const granted = PAGES.filter(
                 (page) => access[p.id]?.[page.slug] === true,
               ).length
@@ -404,6 +408,8 @@ export function MembersAccessSettings() {
                 </ListRow>
               )
             })}
+          </AnimatePresence>
+        )}
       </GroupedList>
       {!isLoading && filtered.length === 0 && (
         <p className="text-muted-foreground py-8 text-center text-sm">

@@ -9,6 +9,43 @@
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
   --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+
+  /* Checkbox tick draws itself in (stroke), once, when it gets checked. */
+  --animate-check-draw: check-draw 160ms var(--ease-out) both;
+  @keyframes check-draw {
+    from {
+      stroke-dashoffset: 24;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  /* A tab's content settling in when you switch to it. Restarts whenever
+     a hidden panel is shown again (display: none → block). */
+  --animate-tab-enter: tab-enter 180ms var(--ease-out);
+  @keyframes tab-enter {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+  }
+
+  /* Badge count pops when it goes up (new item). */
+  --animate-count-pop: count-pop 260ms var(--ease-out);
+  @keyframes count-pop {
+    0% {
+      transform: scale(0.6);
+      opacity: 0;
+    }
+    60% {
+      transform: scale(1.12);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
 }
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
@@ -45,6 +82,19 @@
     0 16px 40px -8px rgb(0 0 0 / 0.55),
     0 4px 12px -2px rgb(0 0 0 / 0.35),
     0 0 0 var(--smooth-ring-width, 1px) var(--smooth-ring-color);
+}
+
+/* Progress/meter fills grow from 0 to their value once, when they appear,
+   and glide when the value changes. Set the value with --bar (e.g. 40%). */
+@utility bar-grow {
+  width: var(--bar, 0%);
+  transition: width 600ms var(--ease-out);
+  @starting-style {
+    width: 0;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
 }
 
 /* Gentle entrance for rare moments (empty states): rise and fade in once. */

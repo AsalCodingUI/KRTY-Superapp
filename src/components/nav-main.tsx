@@ -12,16 +12,34 @@ import {
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
 import { Collapse } from "@/components/ui/collapse"
+import { SlidingIndicator } from "@/components/sliding-indicator"
 import { cn } from "@/lib/utils"
 import { ChevronRight } from "lucide-react"
 import { PrefetchLink } from "@/components/prefetch-link"
-import { memo, useEffect, useState } from "react"
+import { memo, useEffect, useRef, useState } from "react"
 
-/** Count of things waiting on this page; hidden when zero. */
+/**
+ * Count of things waiting on this page; hidden when zero. It pops when the
+ * count goes up while you're here (not on first load), so new work is seen.
+ */
 function NavBadge({ count }: { count?: number }) {
+  const previous = useRef(count)
+  const [pops, setPops] = useState(0)
+  useEffect(() => {
+    if ((count ?? 0) > (previous.current ?? 0) && previous.current !== undefined)
+      setPops((n) => n + 1)
+    previous.current = count
+  }, [count])
+
   if (!count) return null
   return (
-    <span className="bg-primary/15 text-primary ml-auto flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full px-1.5 text-xs font-medium tabular-nums group-data-[collapsible=icon]:hidden">
+    <span
+      key={pops}
+      className={cn(
+        "bg-primary/15 text-primary ml-auto flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full px-1.5 text-xs font-medium tabular-nums group-data-[collapsible=icon]:hidden",
+        pops > 0 && "animate-count-pop motion-reduce:animate-none",
+      )}
+    >
       {count > 99 ? "99+" : count}
     </span>
   )
@@ -53,7 +71,12 @@ export const NavMain = memo(function NavMain({
   return (
     <SidebarGroup>
       {label && <SidebarGroupLabel>{label}</SidebarGroupLabel>}
-      <SidebarMenu>
+      <SidebarMenu className="relative">
+        {/* The active page's fill slides between rows (parents and tabs). */}
+        <SlidingIndicator
+          activeSelector="[data-active]"
+          className="bg-sidebar-active rounded-full"
+        />
         {items.map((item) => {
           const nested = (item.items?.length ?? 0) > 1
           const open = nested && !collapsed.includes(item.url)
@@ -64,7 +87,10 @@ export const NavMain = memo(function NavMain({
                 tooltip={item.title}
                 // With the tabs listed, the active tab is highlighted instead.
                 isActive={item.isActive && !(open && childActive)}
-                className={nested ? "pr-8" : undefined}
+                className={cn(
+                  "data-active:bg-transparent",
+                  nested && "pr-8",
+                )}
                 render={<PrefetchLink href={item.url} />}
               >
                 {item.icon}
@@ -107,7 +133,10 @@ export const NavMain = memo(function NavMain({
                         <SidebarMenuSubButton
                           isActive={subItem.isActive}
                           // Line the badge up with the parent row's chevron.
-                          className={subItem.badge ? "pr-1.5" : undefined}
+                          className={cn(
+                            "data-active:bg-transparent",
+                            subItem.badge && "pr-1.5",
+                          )}
                           render={<PrefetchLink href={subItem.url} />}
                         >
                           <span className="truncate">{subItem.title}</span>

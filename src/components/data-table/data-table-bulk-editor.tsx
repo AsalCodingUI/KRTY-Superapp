@@ -142,6 +142,8 @@ function DataTableBulkEditor<TData>({
         initialFocus={false}
         className={cn(
           "w-auto flex-row items-center gap-x-0.5 rounded-full p-1",
+          // Rises in from below with a slight scale, sinks back out.
+          "data-[side=top]:slide-in-from-bottom-4 data-open:zoom-in-[0.96] data-closed:slide-out-to-bottom-4 data-closed:zoom-out-[0.96] duration-200",
           "bg-chrome text-white shadow-lg ring-1 ring-white/10",
         )}
       >

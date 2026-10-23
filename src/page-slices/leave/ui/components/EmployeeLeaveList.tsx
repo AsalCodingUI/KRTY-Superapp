@@ -1,5 +1,6 @@
 "use client"
 
+import { AnimatePresence } from "motion/react"
 import { EmptyState } from "@/components/empty-state"
 import { GroupedList, ListRow } from "@/components/grouped-list"
 import { ListPager } from "@/components/list-pager"
@@ -76,14 +77,16 @@ export function EmployeeLeaveList({
           <span>Status</span>
           <span />
         </div>
-        {requests.map((req) => (
-          <LeaveRow
-            key={req.id}
-            req={req}
-            onEdit={onEdit}
-            onCancel={onCancel}
-          />
-        ))}
+        <AnimatePresence initial={false} key={page}>
+          {requests.map((req) => (
+            <LeaveRow
+              key={req.id}
+              req={req}
+              onEdit={onEdit}
+              onCancel={onCancel}
+            />
+          ))}
+        </AnimatePresence>
       </GroupedList>
       <ListPager
         page={page}
