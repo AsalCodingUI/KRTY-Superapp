@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Collapse } from "@/components/ui/collapse"
 import { cn } from "@/lib/utils"
 import { RiArrowDownSLine } from "@/shared/ui/lucide-icons"
+import { useT } from "@/shared/i18n/client"
 import * as React from "react"
 
 /** Column labels above a list; `grid` is the same template the rows use. */
@@ -41,7 +42,8 @@ export function PersonCell({
   /** Replaces the plain name, e.g. a row-covering link. */
   children?: React.ReactNode
 }) {
-  const label = name || "Unknown"
+  const t = useT("performance")
+  const label = name || t("unknown")
   return (
     <div className="flex min-w-0 items-center gap-3">
       <Avatar className="size-7">
@@ -126,7 +128,13 @@ export function StatBand({
         <div key={i} className="stat-tile">
           <p className="text-muted-foreground text-sm">{item.label}</p>
           <p className="text-foreground text-xl font-normal tracking-tight tabular-nums">
-            <RollingValue value={typeof item.value === "number" || typeof item.value === "string" ? item.value : null}>
+            <RollingValue
+              value={
+                typeof item.value === "number" || typeof item.value === "string"
+                  ? item.value
+                  : null
+              }
+            >
               {orEmpty(item.value)}
             </RollingValue>
           </p>

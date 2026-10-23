@@ -37,12 +37,13 @@ import { Placeholder } from "@tiptap/extensions"
 import { EditorContent, useEditor } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
 import { useQueryClient } from "@tanstack/react-query"
+import { useDateLocale, useT } from "@/shared/i18n/client"
 import { format } from "date-fns"
-import { id as idLocale } from "date-fns/locale"
 import { Cloud, CloudOff } from "lucide-react"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import {
+  categoryLabel,
   POLICY_CATEGORIES,
   policyKeys,
   splitVersions,
@@ -136,6 +137,8 @@ function EditorLoader({
   onExit: (exit: EditorExit) => void
   closeRef: React.MutableRefObject<() => void>
 }) {
+  const t = useT("policies")
+  const tc = useT("common")
   const { profile, loading: profileLoading } = useUserProfile()
   const isAdmin = canManageByRole(profile?.role)
   const { data: policy, isLoading } = usePolicy(id ?? "")
@@ -143,7 +146,7 @@ function EditorLoader({
   if ((id && isLoading) || profileLoading) {
     return (
       <div className="flex flex-1 items-center justify-center">
-        <DialogTitle className="sr-only">Memuat aturan</DialogTitle>
+        <DialogTitle className="sr-only">{t("loadingRule")}</DialogTitle>
         <Spinner className="size-6" />
       </div>
     )
@@ -151,17 +154,15 @@ function EditorLoader({
   if (!isAdmin || (id && !policy)) {
     return (
       <div className="flex flex-1 items-center justify-center p-6">
-        <DialogTitle className="sr-only">Aturan</DialogTitle>
+        <DialogTitle className="sr-only">{t("title")}</DialogTitle>
         <EmptyState
           placement="inner"
-          title={isAdmin ? "Aturan tidak ditemukan" : "Khusus admin"}
+          title={isAdmin ? t("notFound") : t("adminOnly")}
           description={
-            isAdmin
-              ? "Mungkin sudah dihapus."
-              : "Hanya admin yang bisa menulis dan mengubah aturan."
+            isAdmin ? t("notFoundDeleted") : t("adminOnlyDescription")
           }
           icon={<RiFileTextLine />}
-          action={{ label: "Tutup", onClick: () => onExit({ id }) }}
+          action={{ label: tc("close"), onClick: () => onExit({ id }) }}
         />
       </div>
     )
@@ -207,6 +208,12 @@ function DocumentEditor({
   onExit: (exit: EditorExit) => void
   closeRef: React.MutableRefObject<() => void>
 }) {
+  const t = useT("policies")
+  const tc = useT("common")
+  const dateLocale = useDateLocale()
+  // The editor's placeholder is set up once; read the current language here.
+  const tRef = useRef(t)
+  tRef.current = t
   const queryClient = useQueryClient()
   const { profile } = useUserProfile()
 
@@ -251,8 +258,8 @@ function DocumentEditor({
         showOnlyCurrent: true,
         placeholder: ({ node }) =>
           node.type.name === "heading"
-            ? `Judul ${node.attrs.level}`
-            : "Ketik / untuk menyisipkan blok, atau mulai menulis…",
+            ? tRef.current("headingPlaceholder", { level: node.attrs.level })
+            : tRef.current("bodyPlaceholder"),
       }),
       SlashCommand(slash),
       MarkdownExtension,
@@ -268,7 +275,7 @@ function DocumentEditor({
       setSaveState(id ? "saved" : "idle")
     },
     editorProps: {
-      attributes: { class: PROSE, "aria-label": "Isi aturan" },
+      attributes: { class: PROSE, "aria-label": t("bodyLabel") },
     },
     onUpdate: ({ editor: e }) => change({ body: e.getMarkdown() }),
   })
@@ -297,7 +304,7 @@ function DocumentEditor({
       const result = await savePolicyDraft(docIdRef.current, snapshot)
       if (!result.success || !result.data) {
         setSaveState("error")
-        toast.error(result.success ? "Gagal menyimpan." : result.error)
+        toast.error(result.success ? tRef.current("saveFailed") : result.error)
         return null
       }
       const newId = result.data.id
@@ -348,7 +355,7 @@ function DocumentEditor({
       if (e.key.toLowerCase() === "s" && (e.metaKey || e.ctrlKey)) {
         e.preventDefault()
         if (!formRef.current.title.trim()) {
-          toast.error("Isi judul dulu.")
+          toast.error(tRef.current("titleFirst"))
           return
         }
         void save()
@@ -359,8 +366,8 @@ function DocumentEditor({
   }, [save])
 
   const publish = async () => {
-    if (!form.title.trim()) return toast.error("Judul aturan wajib diisi.")
-    if (!form.body.trim()) return toast.error("Isi aturan masih kosong.")
+    if (!form.title.trim()) return toast.error(t("titleRequired"))
+    if (!form.body.trim()) return toast.error(t("bodyEmpty"))
     const saved = saveState === "saved" && docId ? docId : await save()
     if (saved) setPublishing(true)
   }
@@ -380,7 +387,7 @@ function DocumentEditor({
 
   const saveAndClose = async () => {
     if (!formRef.current.title.trim()) {
-      toast.error("Isi judul dulu supaya bisa disimpan.")
+      toast.error(t("titleFirstToSave"))
       return
     }
     const saved = await save()
@@ -390,19 +397,19 @@ function DocumentEditor({
   }
 
   const shownAuthor = profile?.full_name ?? author ?? "Admin"
-  const title = form.title.trim() || "Tanpa judul"
+  const title = form.title.trim() || t("untitled")
 
   return (
     <>
       <header className="border-border flex h-14 shrink-0 items-center gap-2 border-b pr-3 pl-5">
         <RiBookOpenLine className="text-muted-foreground size-4 shrink-0" />
         <DialogTitle className="flex min-w-0 items-center gap-1.5 text-sm font-normal">
-          <span className="text-muted-foreground shrink-0">Aturan</span>
+          <span className="text-muted-foreground shrink-0">{t("title")}</span>
           <span className="text-muted-foreground/60">/</span>
           <span className="truncate font-medium">{title}</span>
         </DialogTitle>
         <ListChip className="ml-1 shrink-0">
-          {hasPublished ? "Draf perubahan" : "Draf"}
+          {hasPublished ? t("changeDraft") : t("draft")}
         </ListChip>
         <SaveStatus state={saveState} />
 
@@ -411,24 +418,28 @@ function DocumentEditor({
             value={form.category}
             onValueChange={(v) => v && set("category", v)}
           >
-            <SelectTrigger size="sm" className="w-40" aria-label="Kategori">
+            <SelectTrigger
+              size="sm"
+              className="w-40"
+              aria-label={t("category")}
+            >
               <SelectValue />
             </SelectTrigger>
             <SelectContent align="end">
               {[...new Set([...POLICY_CATEGORIES, form.category])].map((c) => (
                 <SelectItem key={c} value={c}>
-                  {c}
+                  {categoryLabel(t, c)}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
           <Button size="sm" onClick={publish} disabled={saveState === "saving"}>
-            Terbitkan
+            {t("publish")}
           </Button>
           <Button
             variant="ghost"
             size="icon-sm"
-            aria-label="Tutup"
+            aria-label={tc("close")}
             className="text-muted-foreground"
             onClick={() => void close()}
           >
@@ -447,8 +458,8 @@ function DocumentEditor({
             rows={1}
             maxLength={160}
             autoFocus={!id}
-            placeholder="Judul aturan"
-            aria-label="Judul aturan"
+            placeholder={t("titlePlaceholder")}
+            aria-label={t("titlePlaceholder")}
             value={form.title}
             onChange={(e) => set("title", e.target.value.replace(/\n/g, " "))}
             onKeyDown={(e) => {
@@ -465,15 +476,15 @@ function DocumentEditor({
 
           <div className="text-muted-foreground mt-4 flex flex-wrap items-center gap-x-6 gap-y-1 text-sm">
             <span>
-              Terakhir diedit:{" "}
+              {t("lastEdited")}{" "}
               {savedAt
                 ? format(new Date(savedAt), "d MMM yyyy, HH:mm", {
-                    locale: idLocale,
+                    locale: dateLocale,
                   })
-                : "belum disimpan"}
+                : t("notSavedYet")}
             </span>
             <span className="flex items-center gap-2">
-              Oleh:
+              {t("by")}
               <Avatar className="size-5">
                 <AvatarFallback className="text-[9px]">
                   {shownAuthor.slice(0, 2).toUpperCase()}
@@ -485,8 +496,8 @@ function DocumentEditor({
 
           <input
             maxLength={300}
-            placeholder="Tambahkan ringkasan singkat (opsional)"
-            aria-label="Ringkasan"
+            placeholder={t("summaryPlaceholder")}
+            aria-label={t("summaryLabel")}
             value={form.summary}
             onChange={(e) => set("summary", e.target.value)}
             className="text-muted-foreground placeholder:text-muted-foreground/50 mt-3 w-full border-0 bg-transparent p-0 text-[15px] shadow-none outline-none focus:ring-0"
@@ -517,7 +528,7 @@ function DocumentEditor({
                   onClick={() => b.run(editor)}
                 >
                   <b.icon data-icon="inline-start" />
-                  {b.title}
+                  {t(b.title)}
                 </Button>
               ))}
             </div>
@@ -531,15 +542,14 @@ function DocumentEditor({
       <AlertDialog open={confirmClose} onOpenChange={setConfirmClose}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Simpan perubahan?</AlertDialogTitle>
+            <AlertDialogTitle>{t("saveChangesTitle")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Ada perubahan yang belum tersimpan. Kalau tidak disimpan,
-              perubahan sejak penyimpanan terakhir akan hilang.
+              {t("saveChangesDescription")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <Button variant="outline" onClick={() => setConfirmClose(false)}>
-              Batal
+              {tc("cancel")}
             </Button>
             <Button
               variant="outline"
@@ -548,11 +558,11 @@ function DocumentEditor({
                 onExit({ id: docIdRef.current })
               }}
             >
-              Jangan simpan
+              {t("dontSave")}
             </Button>
             <Button onClick={saveAndClose} disabled={saveState === "saving"}>
               {saveState === "saving" && <Spinner data-icon="inline-start" />}
-              Simpan
+              {tc("save")}
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -576,15 +586,16 @@ function DocumentEditor({
 }
 
 function SaveStatus({ state }: { state: SaveState }) {
+  const t = useT("policies")
   if (state === "idle") return null
   const label =
     state === "saving"
-      ? "Menyimpan…"
+      ? t("statusSaving")
       : state === "dirty"
-        ? "Belum disimpan"
+        ? t("statusDirty")
         : state === "error"
-          ? "Gagal menyimpan"
-          : "Tersimpan"
+          ? t("statusError")
+          : t("statusSaved")
   const Icon = state === "error" ? CloudOff : Cloud
   return (
     <span

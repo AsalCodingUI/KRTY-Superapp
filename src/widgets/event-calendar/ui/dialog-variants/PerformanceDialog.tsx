@@ -1,5 +1,6 @@
 "use client"
 
+import { useT } from "@/shared/i18n/client"
 import type { CalendarEvent } from "../types"
 import { BaseReadOnlyDialog } from "./BaseReadOnlyDialog"
 
@@ -16,18 +17,19 @@ export function PerformanceDialog({
   event,
   onDelete,
 }: PerformanceDialogProps) {
+  const t = useT("calendar")
   return (
     <BaseReadOnlyDialog
       open={open}
       onOpenChange={onOpenChange}
       event={event}
-      title="301 Meeting"
+      title={t("eventType301Meeting")}
       badges={[
-        { label: "301 Meeting", color: "amber" },
-        { label: "Ulasan Performa", color: "blue" },
+        { label: t("eventType301Meeting"), color: "amber" },
+        { label: t("performanceBadgeReview"), color: "blue" },
       ]}
       showLocation={true}
-      infoMessage="Ini adalah meeting 301 yang dijadwalkan dari sistem ulasan performa. Data ini tidak dapat diubah dari kalender."
+      infoMessage={t("performanceInfo")}
       onDelete={onDelete}
     />
   )

@@ -3,6 +3,7 @@
 import * as React from "react"
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog"
 import { cn } from "cn"
+import { useT } from "@/shared/i18n/client"
 
 import { Button } from "@/components/ui/button"
 import { X as XIcon } from "@/components/icons"
@@ -54,6 +55,7 @@ function DialogContent({
   /** Custom layout (e.g. Settings); skips the header/panel/footer sections. */
   bare?: boolean
 }) {
+  const t = useT("common")
   return (
     <DialogPortal>
       <DialogOverlay />
@@ -89,7 +91,7 @@ function DialogContent({
             }
           >
             <XIcon />
-            <span className="sr-only">Tutup</span>
+            <span className="sr-only">{t("close")}</span>
           </DialogPrimitive.Close>
         )}
       </DialogPrimitive.Popup>
@@ -115,6 +117,7 @@ function DialogFooter({
 }: React.ComponentProps<"div"> & {
   showCloseButton?: boolean
 }) {
+  const t = useT("common")
   return (
     <div
       data-slot="dialog-footer"
@@ -127,7 +130,7 @@ function DialogFooter({
       {children}
       {showCloseButton && (
         <DialogPrimitive.Close render={<Button variant="outline" />}>
-          Close
+          {t("close")}
         </DialogPrimitive.Close>
       )}
     </div>

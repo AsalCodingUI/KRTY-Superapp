@@ -1,3 +1,4 @@
+import { getT } from "@/shared/i18n/server"
 import { NextRequest, NextResponse } from "next/server"
 import { createAdminClient } from "@/shared/api/supabase/admin"
 import { createClient } from "@/shared/api/supabase/server"
@@ -7,6 +8,7 @@ import { logError } from "@/shared/lib/utils/logger"
 import { guardApiRoute } from "@/shared/lib/utils/security"
 
 export async function GET(request: NextRequest) {
+  const t = await getT("api")
   const guard = guardApiRoute(request)
   if (guard) return guard
 
@@ -17,7 +19,7 @@ export async function GET(request: NextRequest) {
     } = await supabase.auth.getUser()
 
     if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ error: t("unauthorized") }, { status: 401 })
     }
 
     const profile = await resolveProfileByUserIdOrEmail<{
@@ -27,7 +29,7 @@ export async function GET(request: NextRequest) {
     }>(supabase, "id, email, role, created_at", user.id, user.email)
 
     if (!profile) {
-      return NextResponse.json({ error: "Profile not found" }, { status: 404 })
+      return NextResponse.json({ error: t("profileNotFound") }, { status: 404 })
     }
 
     const isAdmin = canManageByRole(profile?.role)
@@ -69,6 +71,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const t = await getT("api")
   const guard = guardApiRoute(request)
   if (guard) return guard
 
@@ -79,7 +82,7 @@ export async function POST(request: NextRequest) {
     } = await supabase.auth.getUser()
 
     if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ error: t("unauthorized") }, { status: 401 })
     }
 
     const profile = await resolveProfileByUserIdOrEmail<{
@@ -89,11 +92,11 @@ export async function POST(request: NextRequest) {
     }>(supabase, "id, email, role, created_at", user.id, user.email)
 
     if (!profile) {
-      return NextResponse.json({ error: "Profile not found" }, { status: 404 })
+      return NextResponse.json({ error: t("profileNotFound") }, { status: 404 })
     }
 
     if (!canManageByRole(profile?.role)) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+      return NextResponse.json({ error: t("forbidden") }, { status: 403 })
     }
 
     const body = await request.json()

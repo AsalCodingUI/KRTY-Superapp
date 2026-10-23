@@ -1,3 +1,4 @@
+import { getT } from "@/shared/i18n/server"
 import { NextRequest, NextResponse } from "next/server"
 import { createAdminClient } from "@/shared/api/supabase/admin"
 import { createClient } from "@/shared/api/supabase/server"
@@ -17,6 +18,7 @@ export async function PATCH(
 ) {
   const guard = guardApiRoute(request)
   if (guard) return guard
+  const t = await getT("api")
 
   try {
     const { slotId } = await params
@@ -26,7 +28,7 @@ export async function PATCH(
     } = await supabase.auth.getUser()
 
     if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ error: t("unauthorized") }, { status: 401 })
     }
 
     const profile = await resolveProfileByUserIdOrEmail<{
@@ -36,11 +38,11 @@ export async function PATCH(
     }>(supabase, "id, email, role, created_at", user.id, user.email)
 
     if (!profile) {
-      return NextResponse.json({ error: "Profile not found" }, { status: 404 })
+      return NextResponse.json({ error: t("profileNotFound") }, { status: 404 })
     }
 
     if (!canManageByRole(profile?.role)) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+      return NextResponse.json({ error: t("forbidden") }, { status: 403 })
     }
     const adminSupabase = createAdminClient()
 

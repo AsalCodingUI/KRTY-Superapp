@@ -1,3 +1,4 @@
+import { getT } from "@/shared/i18n/server"
 import { guardApiRoute } from "@/shared/lib/utils/security"
 import { NextRequest, NextResponse } from "next/server"
 import { createAdminClient } from "@/shared/api/supabase/admin"
@@ -12,6 +13,7 @@ import {
 } from "@/shared/lib/google-calendar"
 
 export async function POST(request: NextRequest) {
+  const t = await getT("api")
   const guard = guardApiRoute(request)
   if (guard) return guard
 
@@ -22,7 +24,7 @@ export async function POST(request: NextRequest) {
     } = await supabase.auth.getUser()
 
     if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ error: t("unauthorized") }, { status: 401 })
     }
 
     const { slotId, action, remove } = (await request.json()) as {
@@ -42,7 +44,7 @@ export async function POST(request: NextRequest) {
     }>(supabase, "id, email, role, created_at", user.id, user.email)
 
     if (!profile) {
-      return NextResponse.json({ error: "Profile not found" }, { status: 404 })
+      return NextResponse.json({ error: t("profileNotFound") }, { status: 404 })
     }
 
     const isAdmin = canManageByRole(profile?.role)
@@ -59,11 +61,11 @@ export async function POST(request: NextRequest) {
     }
 
     if (action === "cancel" && !isAdmin) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+      return NextResponse.json({ error: t("forbidden") }, { status: 403 })
     }
 
     if (action === "release" && slot.booked_by !== profile.id) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+      return NextResponse.json({ error: t("forbidden") }, { status: 403 })
     }
 
     // A slot the organizer cancelled can't be "released" back to open.
@@ -98,7 +100,7 @@ export async function POST(request: NextRequest) {
 
     if (remove) {
       if (!isAdmin) {
-        return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+        return NextResponse.json({ error: t("forbidden") }, { status: 403 })
       }
       await adminSupabase.from("one_on_one_slots").delete().eq("id", slotId)
       return NextResponse.json({ success: true })

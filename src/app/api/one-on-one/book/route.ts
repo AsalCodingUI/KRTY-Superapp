@@ -1,3 +1,4 @@
+import { getT } from "@/shared/i18n/server"
 import { guardApiRoute } from "@/shared/lib/utils/security"
 import { NextRequest, NextResponse } from "next/server"
 import { createAdminClient } from "@/shared/api/supabase/admin"
@@ -11,6 +12,7 @@ import {
 } from "@/shared/lib/google-calendar"
 
 export async function POST(request: NextRequest) {
+  const t = await getT("api")
   const guard = guardApiRoute(request)
   if (guard) return guard
 
@@ -21,7 +23,7 @@ export async function POST(request: NextRequest) {
     } = await supabase.auth.getUser()
 
     if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ error: t("unauthorized") }, { status: 401 })
     }
 
     const { slotId } = (await request.json()) as { slotId?: string }
@@ -36,7 +38,7 @@ export async function POST(request: NextRequest) {
     }>(supabase, "id, email, full_name, created_at", user.id, user.email)
 
     if (!profile) {
-      return NextResponse.json({ error: "Profile not found" }, { status: 404 })
+      return NextResponse.json({ error: t("profileNotFound") }, { status: 404 })
     }
 
     const adminSupabase = createAdminClient()

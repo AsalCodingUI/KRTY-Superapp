@@ -15,7 +15,9 @@ export const createClient = cache(async () => {
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
   if (!supabaseUrl || !supabaseAnonKey) {
-    console.warn("Supabase env vars not available - creating mock client for build")
+    console.warn(
+      "Supabase env vars not available - creating mock client for build",
+    )
     // Return a minimal mock for build time
     return {
       auth: {
@@ -29,28 +31,24 @@ export const createClient = cache(async () => {
 
   const cookieStore = await cookies()
 
-  const client = createServerClient(
-    supabaseUrl,
-    supabaseAnonKey,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll()
-        },
-        setAll(cookiesToSet) {
-          try {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options),
-            )
-          } catch {
-            // The `setAll` method was called from a Server Component.
-            // This can be ignored if you have middleware refreshing
-            // user sessions.
-          }
-        },
+  const client = createServerClient(supabaseUrl, supabaseAnonKey, {
+    cookies: {
+      getAll() {
+        return cookieStore.getAll()
+      },
+      setAll(cookiesToSet) {
+        try {
+          cookiesToSet.forEach(({ name, value, options }) =>
+            cookieStore.set(name, value, options),
+          )
+        } catch {
+          // The `setAll` method was called from a Server Component.
+          // This can be ignored if you have middleware refreshing
+          // user sessions.
+        }
       },
     },
-  )
+  })
 
   // Memoize the argument-less getUser() for this client's lifetime (one
   // request). Any auth mutation on the client drops the memo.
@@ -70,8 +68,12 @@ export const createClient = cache(async () => {
     "exchangeCodeForSession",
     "verifyOtp",
   ] as const) {
-    const original = (auth[method] as (...args: unknown[]) => unknown).bind(auth)
-    ;(auth as unknown as Record<string, unknown>)[method] = (...args: unknown[]) => {
+    const original = (auth[method] as (...args: unknown[]) => unknown).bind(
+      auth,
+    )
+    ;(auth as unknown as Record<string, unknown>)[method] = (
+      ...args: unknown[]
+    ) => {
       pendingUser = null
       return original(...args)
     }

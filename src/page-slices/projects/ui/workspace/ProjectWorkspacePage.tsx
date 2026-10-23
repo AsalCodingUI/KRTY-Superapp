@@ -55,5 +55,14 @@ export function ProjectWorkspacePage({
   section: ProjectSection
 }) {
   const Page = PAGES[section]
-  return <Page projectId={projectId} />
+  // Settles in when you open a project or switch its section (same motion
+  // as tab switches elsewhere).
+  return (
+    <div
+      key={`${projectId}:${section}`}
+      className="animate-tab-enter motion-reduce:animate-none"
+    >
+      <Page projectId={projectId} />
+    </div>
+  )
 }

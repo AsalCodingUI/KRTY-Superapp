@@ -1,5 +1,6 @@
 import { ProjectCalculatorEditPage } from "@/page-slices/projects/ui/ProjectCalculatorEditPage"
 import { createClient } from "@/shared/api/supabase/server"
+import { getT } from "@/shared/i18n/server"
 import { notFound } from "next/navigation"
 
 export const dynamic = "force-dynamic"
@@ -39,7 +40,7 @@ export default async function ProjectCalculatorEditRoute({
     supabase.from("operational_costs").select("*"),
   ])
 
-  if (user == null) return <div>Please login</div>
+  if (user == null) return <div>{(await getT("projects"))("pleaseLogin")}</div>
 
   if (!calculation || !project || calculation.project_id !== project.id) {
     notFound()

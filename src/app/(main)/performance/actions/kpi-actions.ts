@@ -8,6 +8,7 @@ import {
   type KpiParts,
 } from "@/entities/performance/lib/kpi"
 import { createClient } from "@/shared/api/supabase/server"
+import { getT } from "@/shared/i18n/server"
 import { resolveEffectiveUserId } from "@/shared/lib/impersonation-server"
 import { canManageByRole } from "@/shared/lib/roles"
 
@@ -167,10 +168,10 @@ export async function getEmployeeKpi(
   userId: string,
   scope: KpiScope,
 ): Promise<Result<EmployeeKpi>> {
-  const me = await viewer()
-  if (!me) return { success: false, error: "Silakan login dulu." }
+  const [me, t] = await Promise.all([viewer(), getT("performance")])
+  if (!me) return { success: false, error: t("errLoginFirst") }
   if (userId !== me.id && !me.isStakeholder) {
-    return { success: false, error: "Kamu tidak punya akses ke KPI ini." }
+    return { success: false, error: t("errNoKpiAccess") }
   }
   const { supabase } = me
 
@@ -191,8 +192,8 @@ export async function getEmployeeKpi(
       ),
       reviewScoresByUser(supabase, scope, [userId]),
     ])
-  if (!employee) return { success: false, error: "Anggota tidak ditemukan." }
-  if (error) return { success: false, error: "Gagal memuat KPI." }
+  if (!employee) return { success: false, error: t("errMemberNotFound") }
+  if (error) return { success: false, error: t("kpiLoadFailed") }
 
   const rows = (assignments ?? []) as unknown as AssignmentRow[]
   const parts = partsFrom(rows, reviews.get(userId) ?? [])
@@ -221,10 +222,10 @@ export type TeamKpiRow = KpiPerson & {
 export async function getTeamKpi(
   scope: KpiScope,
 ): Promise<Result<TeamKpiRow[]>> {
-  const me = await viewer()
-  if (!me) return { success: false, error: "Silakan login dulu." }
+  const [me, t] = await Promise.all([viewer(), getT("performance")])
+  if (!me) return { success: false, error: t("errLoginFirst") }
   if (!me.isStakeholder) {
-    return { success: false, error: "Hanya admin yang bisa melihat KPI tim." }
+    return { success: false, error: t("errTeamKpiAdminOnly") }
   }
   const { supabase } = me
 
@@ -233,7 +234,7 @@ export async function getTeamKpi(
     .select("id, full_name, avatar_url, job_title")
     .eq("role", "employee")
     .order("full_name")
-  if (peopleError) return { success: false, error: "Gagal memuat anggota." }
+  if (peopleError) return { success: false, error: t("errMembersLoadFailed") }
   const ids = (people ?? []).map((p: KpiPerson) => p.id)
 
   const [{ data: assignments }, reviews] = await Promise.all([
@@ -285,8 +286,8 @@ export type LeadTeamProject = {
 export async function getLeadTeam(
   scope: KpiScope,
 ): Promise<Result<LeadTeamProject[]>> {
-  const me = await viewer()
-  if (!me) return { success: false, error: "Silakan login dulu." }
+  const [me, t] = await Promise.all([viewer(), getT("performance")])
+  if (!me) return { success: false, error: t("errLoginFirst") }
   const { supabase } = me
 
   const { data: led } = await applyScope(
@@ -310,7 +311,7 @@ export async function getLeadTeam(
     )
     .in("project_id", projectIds)
     .neq("user_id", me.id)
-  if (error) return { success: false, error: "Gagal memuat tim." }
+  if (error) return { success: false, error: t("teamLoadFailed") }
 
   const byProject = new Map<string, LeadTeamProject>()
   for (const row of (rows ?? []) as unknown as (AssignmentRow & {

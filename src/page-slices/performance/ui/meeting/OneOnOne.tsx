@@ -1,5 +1,6 @@
 "use client"
 
+import { DateField } from "@/components/date-field"
 import { ConfirmDialog } from "@/components/confirm-dialog"
 import { EmptyState } from "@/components/empty-state"
 import { GroupedList, ListRow, ListRowActions } from "@/components/grouped-list"
@@ -23,8 +24,8 @@ import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { canManageByRole } from "@/shared/lib/roles"
 import { RiAddLine, RiCalendarLine } from "@/shared/ui/lucide-icons"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { format, isPast, isToday, isTomorrow } from "date-fns"
-import { id as idLocale } from "date-fns/locale"
+import { useDateLocale, useT } from "@/shared/i18n/client"
+import { format, isPast, isToday, isTomorrow, type Locale } from "date-fns"
 import { useMemo, useState, type ReactNode } from "react"
 import { toast } from "sonner"
 import { periodLabel } from "../kpi/period"
@@ -43,6 +44,8 @@ type Slot = {
   booked_by_profile?: { id: string; full_name: string | null } | null
 }
 
+type PerformanceT = ReturnType<typeof useT<"performance">>
+
 type SlotForm = {
   date: string
   start: string
@@ -60,11 +63,11 @@ const toIso = (date: string, time: string) => {
 const timeRange = (slot: Slot) =>
   `${format(new Date(slot.start_at), "HH:mm")}–${format(new Date(slot.end_at), "HH:mm")}`
 
-function dayLabel(key: string) {
+function dayLabel(key: string, t: PerformanceT, locale: Locale) {
   const d = new Date(`${key}T00:00:00`)
-  const long = format(d, "EEEE, d MMMM", { locale: idLocale })
-  if (isToday(d)) return `Hari ini · ${long}`
-  if (isTomorrow(d)) return `Besok · ${long}`
+  const long = format(d, "EEEE, d MMMM", { locale })
+  if (isToday(d)) return t("dayToday", { date: long })
+  if (isTomorrow(d)) return t("dayTomorrow", { date: long })
   return long
 }
 
@@ -86,16 +89,19 @@ async function post(url: string, body: unknown, method = "POST") {
   return res?.ok ?? false
 }
 
-const modeLabel = (slot: Slot) =>
+const modeLabel = (slot: Slot, t: PerformanceT) =>
   slot.mode === "online"
-    ? "Online"
-    : `Offline${slot.location ? ` · ${slot.location}` : ""}`
+    ? t("modeOnline")
+    : slot.location
+      ? t("modeOfflineAt", { location: slot.location })
+      : t("modeOffline")
 
 function ModeBadge({ slot }: { slot: Slot }) {
+  const t = useT("performance")
   return (
     <div className="hidden min-w-0 md:block">
       <Badge variant="secondary" className="max-w-full">
-        <span className="truncate">{modeLabel(slot)}</span>
+        <span className="truncate">{modeLabel(slot, t)}</span>
       </Badge>
     </div>
   )
@@ -136,11 +142,14 @@ function SlotCell({
   )
 }
 
-const shortDate = (slot: Slot, pattern = "d MMM") =>
-  format(new Date(slot.start_at), pattern, { locale: idLocale })
+const shortDate = (slot: Slot, locale: Locale, pattern = "d MMM") =>
+  format(new Date(slot.start_at), pattern, { locale })
 
 /** Jadwal 1:1: admins publish slots, employees pick one. */
 export function OneOnOne({ period }: { period: string }) {
+  const t = useT("performance")
+  const tc = useT("common")
+  const dateLocale = useDateLocale()
   const { profile } = useUserProfile()
   const isAdmin = canManageByRole(profile?.role)
   const queryClient = useQueryClient()
@@ -194,12 +203,12 @@ export function OneOnOne({ period }: { period: string }) {
   const saveForm = async () => {
     if (!form) return
     if (form.end <= form.start) {
-      toast.error("Jam selesai harus setelah jam mulai.")
+      toast.error(t("endAfterStart"))
       return
     }
     const startAt = toIso(form.date, form.start)
     if (new Date(startAt) < new Date()) {
-      toast.error("Pilih waktu yang belum lewat.")
+      toast.error(t("pickFutureTime"))
       return
     }
     setSaving(true)
@@ -230,10 +239,10 @@ export function OneOnOne({ period }: { period: string }) {
         })
     setSaving(false)
     if (!ok) {
-      toast.error(editing ? "Gagal mengubah jadwal." : "Gagal menambah slot.")
+      toast.error(editing ? t("rescheduleFailed") : t("addSlotFailed"))
       return
     }
-    toast.success(editing ? "Jadwal diubah" : "Slot ditambahkan")
+    toast.success(editing ? t("rescheduled") : t("slotAdded"))
     setForm(null)
     refresh()
   }
@@ -253,13 +262,13 @@ export function OneOnOne({ period }: { period: string }) {
           })
     setBusyId(null)
     const messages = {
-      book: ["Jadwal 1:1 terkonfirmasi", "Slot sudah diambil orang lain."],
-      release: ["Jadwal dilepas", "Gagal melepas jadwal."],
-      cancel: ["Slot dibatalkan", "Gagal membatalkan slot."],
-      remove: ["Slot dihapus", "Gagal menghapus slot."],
+      book: ["bookSuccess", "bookFailed"],
+      release: ["releaseSuccess", "releaseFailed"],
+      cancel: ["cancelSuccess", "cancelFailed"],
+      remove: ["removeSuccess", "removeFailed"],
     } as const
-    if (ok) toast.success(messages[action][0])
-    else toast.error(messages[action][1])
+    if (ok) toast.success(t(messages[action][0]))
+    else toast.error(t(messages[action][1]))
     refresh()
   }
 
@@ -282,29 +291,30 @@ export function OneOnOne({ period }: { period: string }) {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            {editing ? "Ubah jadwal" : "Tambah slot 1:1"}
+            {editing ? t("reschedule") : t("addSlot11")}
           </DialogTitle>
           <DialogDescription>
             {editing?.booked_by_profile
-              ? `${editing.booked_by_profile.full_name} akan diberi tahu jadwal barunya.`
-              : "Karyawan bisa memilih slot ini di Jadwal 1:1."}
+              ? t("rescheduleNotify", {
+                  name: editing.booked_by_profile.full_name ?? "",
+                })
+              : t("slotFormDescription")}
           </DialogDescription>
         </DialogHeader>
         {form && (
           <div className="flex flex-col gap-3">
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="slot-date">Tanggal</Label>
-              <Input
+              <Label htmlFor="slot-date">{t("date")}</Label>
+              <DateField
                 id="slot-date"
-                type="date"
                 value={form.date}
                 min={format(new Date(), "yyyy-MM-dd")}
-                onChange={(e) => setForm({ ...form, date: e.target.value })}
+                onChange={(value) => setForm({ ...form, date: value })}
               />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="flex flex-col gap-1.5">
-                <Label>Mulai</Label>
+                <Label>{t("start")}</Label>
                 <TimeSelect
                   value={form.start}
                   onValueChange={(start) => {
@@ -315,7 +325,7 @@ export function OneOnOne({ period }: { period: string }) {
                 />
               </div>
               <div className="flex flex-col gap-1.5">
-                <Label>Selesai</Label>
+                <Label>{t("end")}</Label>
                 <TimeSelect
                   value={form.end}
                   onValueChange={(end) => setForm({ ...form, end })}
@@ -325,21 +335,21 @@ export function OneOnOne({ period }: { period: string }) {
             {!editing && (
               <>
                 <div className="flex flex-col gap-1.5">
-                  <Label>Tempat</Label>
+                  <Label>{t("place")}</Label>
                   <SegmentedControl<string>
                     value={form.mode}
                     onChange={(mode) =>
                       setForm({ ...form, mode: mode as SlotForm["mode"] })
                     }
                     items={[
-                      { value: "online", label: "Online (Meet)" },
-                      { value: "offline", label: "Offline" },
+                      { value: "online", label: t("modeOnlineMeet") },
+                      { value: "offline", label: t("modeOffline") },
                     ]}
                   />
                 </div>
                 {form.mode === "offline" && (
                   <Input
-                    placeholder="Lokasi, mis. ruang rapat"
+                    placeholder={t("locationPlaceholder")}
                     value={form.location}
                     onChange={(e) =>
                       setForm({ ...form, location: e.target.value })
@@ -352,10 +362,10 @@ export function OneOnOne({ period }: { period: string }) {
         )}
         <DialogFooter>
           <Button variant="outline" onClick={() => setForm(null)}>
-            Batal
+            {tc("cancel")}
           </Button>
           <Button onClick={saveForm} disabled={saving}>
-            {saving ? "Menyimpan…" : editing ? "Simpan" : "Tambah slot"}
+            {saving ? tc("saving") : editing ? tc("save") : t("addSlot")}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -368,8 +378,8 @@ export function OneOnOne({ period }: { period: string }) {
       onOpenChange={(o) => !o && setConfirm(null)}
       title={confirm?.title ?? ""}
       description={confirm?.description ?? ""}
-      confirmText={confirm?.confirmText ?? "Ya"}
-      cancelText="Batal"
+      confirmText={confirm?.confirmText ?? tc("yes")}
+      cancelText={tc("cancel")}
       variant="destructive"
       onConfirm={async () => {
         await confirm?.run()
@@ -382,57 +392,59 @@ export function OneOnOne({ period }: { period: string }) {
   if (isAdmin) {
     const statusBadge = (s: Slot) =>
       s.status === "cancelled" ? (
-        <Badge variant="destructive">Dibatalkan</Badge>
+        <Badge variant="destructive">{t("slotCancelled")}</Badge>
       ) : s.booked_by_profile ? (
-        <Badge variant="secondary">Terisi</Badge>
+        <Badge variant="secondary">{t("slotBooked")}</Badge>
       ) : (
-        <Badge variant="success">Tersedia</Badge>
+        <Badge variant="success">{t("slotAvailable")}</Badge>
       )
     return (
       <div className="flex flex-col">
         <StatBand
           stats={[
             {
-              label: "Terisi",
+              label: t("slotBooked"),
               value: upcoming.filter((s) => s.status === "booked").length,
             },
-            { label: "Tersedia", value: open.length },
-            { label: "Sudah lewat", value: past.length },
+            { label: t("slotAvailable"), value: open.length },
+            { label: t("slotPast"), value: past.length },
           ]}
         />
         <div className="flex justify-end py-3">
           <Button onClick={openCreate}>
             <RiAddLine data-icon="inline-start" />
-            Tambah slot
+            {t("addSlot")}
           </Button>
         </div>
         {slots.length === 0 ? (
           <EmptyState
-            title={`Belum ada slot di ${periodLabel(period)}`}
-            description="Tambahkan slot, karyawan akan diberi tahu."
+            title={t("noSlotsIn", { period: periodLabel(period, t) })}
+            description={t("noSlotsDescription")}
             icon={<RiCalendarLine className="size-5" />}
             placement="inner"
           />
         ) : (
           <GroupedList>
             <ListColumns grid={ADMIN_GRID}>
-              <span>Jadwal</span>
-              <span className="hidden md:block">Tempat</span>
-              <span>Status</span>
+              <span>{t("schedule")}</span>
+              <span className="hidden md:block">{t("place")}</span>
+              <span>{t("status")}</span>
               <span className="hidden lg:block" />
             </ListColumns>
             {byDay(upcoming).map(([day, items]) => (
               <GridGroup
                 key={day}
                 grid={ADMIN_GRID}
-                label={dayLabel(day)}
+                label={dayLabel(day, t, dateLocale)}
                 summary={
                   <>
                     <span className="text-tertiary-foreground hidden text-[13px] tabular-nums md:block">
-                      {items.length} slot
+                      {t("slotCount", { n: items.length })}
                     </span>
                     <span className="text-tertiary-foreground text-[13px] tabular-nums">
-                      {items.filter((s) => s.booked_by_profile).length} terisi
+                      {t("bookedCount", {
+                        n: items.filter((s) => s.booked_by_profile).length,
+                      })}
                     </span>
                     <span className="hidden lg:block" />
                   </>
@@ -456,7 +468,7 @@ export function OneOnOne({ period }: { period: string }) {
                             variant="ghost"
                             onClick={() => openReschedule(s)}
                           >
-                            Ubah jadwal
+                            {t("reschedule")}
                           </Button>
                         )}
                         {s.status === "booked" ? (
@@ -467,14 +479,18 @@ export function OneOnOne({ period }: { period: string }) {
                             disabled={busyId === s.id}
                             onClick={() =>
                               setConfirm({
-                                title: "Batalkan 1:1 ini?",
-                                description: `${s.booked_by_profile?.full_name ?? "Karyawan"} akan diberi tahu.`,
-                                confirmText: "Batalkan",
+                                title: t("cancelOneOnOneTitle"),
+                                description: t("willBeNotified", {
+                                  name:
+                                    s.booked_by_profile?.full_name ??
+                                    t("employee"),
+                                }),
+                                confirmText: t("cancelSlotAction"),
                                 run: () => act(s, "cancel"),
                               })
                             }
                           >
-                            Batalkan
+                            {t("cancelSlotAction")}
                           </Button>
                         ) : (
                           <Button
@@ -484,14 +500,14 @@ export function OneOnOne({ period }: { period: string }) {
                             disabled={busyId === s.id}
                             onClick={() =>
                               setConfirm({
-                                title: "Hapus slot ini?",
-                                description: "Slot dihapus permanen.",
-                                confirmText: "Hapus",
+                                title: t("deleteSlotTitle"),
+                                description: t("slotDeletePermanent"),
+                                confirmText: tc("delete"),
                                 run: () => act(s, "remove"),
                               })
                             }
                           >
-                            Hapus
+                            {tc("delete")}
                           </Button>
                         )}
                       </ListRowActions>
@@ -503,7 +519,7 @@ export function OneOnOne({ period }: { period: string }) {
             {past.length > 0 && (
               <GridGroup
                 grid={ADMIN_GRID}
-                label="Sudah lewat"
+                label={t("slotPast")}
                 extra={
                   <span className="text-tertiary-foreground tabular-nums">
                     {past.length}
@@ -514,7 +530,7 @@ export function OneOnOne({ period }: { period: string }) {
                 {[...past].reverse().map((s) => (
                   <ListRow key={s.id} className={cn(ADMIN_GRID, "min-h-14")}>
                     <SlotCell
-                      primary={`${shortDate(s)} · ${timeRange(s)}`}
+                      primary={`${shortDate(s, dateLocale)} · ${timeRange(s)}`}
                       secondary={s.booked_by_profile?.full_name}
                       muted
                     />
@@ -540,37 +556,40 @@ export function OneOnOne({ period }: { period: string }) {
       <StatBand
         stats={[
           {
-            label: "Jadwal kamu",
+            label: t("yourSchedule"),
             value: next
-              ? `${shortDate(next, "EEE, d MMM")} · ${format(new Date(next.start_at), "HH:mm")}`
-              : "Belum ada",
+              ? `${shortDate(next, dateLocale, "EEE, d MMM")} · ${format(new Date(next.start_at), "HH:mm")}`
+              : t("resultNone"),
           },
-          { label: "Slot tersedia", value: open.length },
+          { label: t("availableSlots"), value: open.length },
         ]}
       />
 
       <section className="flex flex-col">
-        <h2 className="text-foreground pt-4 pb-3 text-sm">Jadwal kamu</h2>
+        <h2 className="text-foreground pt-4 pb-3 text-sm">
+          {t("yourSchedule")}
+        </h2>
         {myUpcoming.length === 0 ? (
           <p className="text-muted-foreground border-t py-6 text-sm">
-            Kamu belum memilih jadwal 1:1
-            {open.length ? ". Pilih salah satu slot di bawah." : "."}
+            {open.length ? t("noOneOnOneYetPick") : t("noOneOnOneYet")}
           </p>
         ) : (
           <GroupedList>
             <ListColumns grid={EMPLOYEE_GRID}>
-              <span>Jadwal</span>
-              <span className="hidden md:block">Tempat</span>
+              <span>{t("schedule")}</span>
+              <span className="hidden md:block">{t("place")}</span>
               <span />
             </ListColumns>
             {myUpcoming.map((s) => (
               <ListRow key={s.id} className={cn(EMPLOYEE_GRID, "min-h-14")}>
                 <SlotCell
-                  primary={`${shortDate(s, "EEE, d MMM")} · ${timeRange(s)}`}
+                  primary={`${shortDate(s, dateLocale, "EEE, d MMM")} · ${timeRange(s)}`}
                   secondary={
                     s.status === "cancelled"
-                      ? "Dibatalkan admin, pilih slot lain"
-                      : `dengan ${s.organizer?.full_name ?? "admin"}`
+                      ? t("cancelledByAdmin")
+                      : t("withOrganizer", {
+                          name: s.organizer?.full_name ?? t("admin"),
+                        })
                   }
                   muted={s.status === "cancelled"}
                 />
@@ -591,7 +610,7 @@ export function OneOnOne({ period }: { period: string }) {
                             />
                           }
                         >
-                          Gabung
+                          {t("join")}
                         </Button>
                       )}
                       <Button
@@ -600,15 +619,14 @@ export function OneOnOne({ period }: { period: string }) {
                         disabled={busyId === s.id}
                         onClick={() =>
                           setConfirm({
-                            title: "Lepas jadwal ini?",
-                            description:
-                              "Slot akan tersedia lagi untuk orang lain.",
-                            confirmText: "Lepas",
+                            title: t("releaseTitle"),
+                            description: t("releaseDescription"),
+                            confirmText: t("release"),
                             run: () => act(s, "release"),
                           })
                         }
                       >
-                        Lepas
+                        {t("release")}
                       </Button>
                     </>
                   )}
@@ -620,30 +638,32 @@ export function OneOnOne({ period }: { period: string }) {
       </section>
 
       <section className="flex flex-col">
-        <h2 className="text-foreground pt-6 pb-3 text-sm">Slot tersedia</h2>
+        <h2 className="text-foreground pt-6 pb-3 text-sm">
+          {t("availableSlots")}
+        </h2>
         {open.length === 0 ? (
           <EmptyState
-            title="Belum ada slot tersedia"
-            description="Kamu akan diberi notifikasi saat ada slot baru."
+            title={t("noAvailableSlots")}
+            description={t("noAvailableSlotsDescription")}
             icon={<RiCalendarLine className="size-5" />}
             placement="inner"
           />
         ) : (
           <GroupedList>
             <ListColumns grid={EMPLOYEE_GRID}>
-              <span>Jadwal</span>
-              <span className="hidden md:block">Tempat</span>
+              <span>{t("schedule")}</span>
+              <span className="hidden md:block">{t("place")}</span>
               <span />
             </ListColumns>
             {byDay(open).map(([day, items]) => (
               <GridGroup
                 key={day}
                 grid={EMPLOYEE_GRID}
-                label={dayLabel(day)}
+                label={dayLabel(day, t, dateLocale)}
                 summary={
                   <>
                     <span className="text-tertiary-foreground hidden text-[13px] tabular-nums md:block">
-                      {items.length} slot
+                      {t("slotCount", { n: items.length })}
                     </span>
                     <span />
                   </>
@@ -655,8 +675,13 @@ export function OneOnOne({ period }: { period: string }) {
                       primary={timeRange(s)}
                       secondary={
                         <>
-                          dengan {s.organizer?.full_name ?? "admin"}
-                          <span className="md:hidden"> · {modeLabel(s)}</span>
+                          {t("withOrganizer", {
+                            name: s.organizer?.full_name ?? t("admin"),
+                          })}
+                          <span className="md:hidden">
+                            {" "}
+                            · {modeLabel(s, t)}
+                          </span>
                         </>
                       }
                     />
@@ -671,12 +696,12 @@ export function OneOnOne({ period }: { period: string }) {
                         }
                         title={
                           myUpcoming.some((m) => m.status === "booked")
-                            ? "Lepas jadwalmu dulu untuk memilih slot lain"
+                            ? t("releaseFirst")
                             : undefined
                         }
                         onClick={() => act(s, "book")}
                       >
-                        Pilih
+                        {t("pick")}
                       </Button>
                     </div>
                   </ListRow>

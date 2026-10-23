@@ -6,6 +6,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { useT } from "@/shared/i18n/client"
 ;("use client")
 
 interface LeaveTypeSelectProps {
@@ -19,10 +20,11 @@ export function LeaveTypeSelect({
   onChange,
   disabled,
 }: LeaveTypeSelectProps) {
+  const t = useT("leave")
   return (
     <div>
       <Label htmlFor="type" className="font-medium">
-        Pengajuan Untuk
+        {t("formRequestFor")}
       </Label>
       <Select
         value={value}
@@ -33,11 +35,9 @@ export function LeaveTypeSelect({
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="Annual Leave">
-            Annual Leave (Cuti Tahunan)
-          </SelectItem>
-          <SelectItem value="Sick Leave">Sick Leave (Sakit)</SelectItem>
-          <SelectItem value="WFH">WFH (Remote)</SelectItem>
+          <SelectItem value="Annual Leave">{t("typeAnnual")}</SelectItem>
+          <SelectItem value="Sick Leave">{t("typeSick")}</SelectItem>
+          <SelectItem value="WFH">{t("typeWfhRemote")}</SelectItem>
         </SelectContent>
       </Select>
     </div>

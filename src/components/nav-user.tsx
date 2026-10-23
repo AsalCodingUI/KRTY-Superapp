@@ -1,5 +1,6 @@
 "use client"
 
+import { useT } from "@/shared/i18n/client"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   DropdownMenu,
@@ -53,6 +54,7 @@ export function NavUser({
   side?: "right" | "bottom"
 }) {
   const initials = initialsOf(user.name)
+  const t = useT("common")
   const { isImpersonating } = useUserProfile()
   const { stop: stopImpersonation } = useStopImpersonation()
 
@@ -77,7 +79,7 @@ export function NavUser({
           >
             <Avatar className="size-6">
               <AvatarImage src={user.avatar} alt={user.name} />
-              <AvatarFallback className="text-[10px]">
+              <AvatarFallback className="bg-chrome-field blend-ink text-foreground/70 text-[10px]">
                 {initials}
               </AvatarFallback>
             </Avatar>
@@ -120,7 +122,7 @@ export function NavUser({
                   }
                 >
                   <MessageCircleIcon />
-                  Contact Admin
+                  {t("contactAdmin")}
                 </DropdownMenuItem>
               )}
             </DropdownMenuGroup>
@@ -129,12 +131,12 @@ export function NavUser({
               {isImpersonating && (
                 <DropdownMenuItem onClick={stopImpersonation}>
                   <UndoIcon />
-                  Kembali ke akun saya
+                  {t("backToMyAccount")}
                 </DropdownMenuItem>
               )}
               <DropdownMenuItem onClick={onSignOut}>
                 <LogOutIcon />
-                Log out
+                {t("logOut")}
               </DropdownMenuItem>
             </DropdownMenuGroup>
           </DropdownMenuContent>

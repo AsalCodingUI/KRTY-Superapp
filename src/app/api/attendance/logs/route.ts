@@ -1,3 +1,4 @@
+import { getT } from "@/shared/i18n/server"
 import { createAdminClient } from "@/shared/api/supabase/admin"
 import { createClient } from "@/shared/api/supabase/server"
 import {
@@ -56,6 +57,9 @@ async function getCanonicalProfile() {
   return { user, profile }
 }
 
+/** Thrown below; mapped to a translated message in the handlers. */
+const LOG_NOT_FOUND = "Attendance log not found"
+
 async function getOwnedLogOrThrow(
   adminSupabase: ReturnType<typeof createAdminClient>,
   logId: string,
@@ -69,26 +73,27 @@ async function getOwnedLogOrThrow(
 
   if (error) throw error
   if (!log || log.user_id !== ownerId) {
-    throw new Error("Attendance log not found")
+    throw new Error(LOG_NOT_FOUND)
   }
 
   return log
 }
 
 export async function POST(request: NextRequest) {
+  const t = await getT("api")
   try {
     const { user, profile } = await getCanonicalProfile()
     if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ error: t("unauthorized") }, { status: 401 })
     }
     if (!profile) {
-      return NextResponse.json({ error: "Profile not found" }, { status: 404 })
+      return NextResponse.json({ error: t("profileNotFound") }, { status: 404 })
     }
 
     const rawBody = await request.json().catch(() => null)
     const parsed = postSchema.safeParse(rawBody)
     if (!parsed.success) {
-      return NextResponse.json({ error: "Invalid request" }, { status: 400 })
+      return NextResponse.json({ error: t("invalidRequest") }, { status: 400 })
     }
 
     const adminSupabase = createAdminClient()
@@ -115,9 +120,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         error:
-          error instanceof Error
-            ? error.message
-            : "Failed to save attendance log",
+          error instanceof Error ? error.message : t("attendanceSaveFailed"),
       },
       { status: 500 },
     )
@@ -125,19 +128,20 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
+  const t = await getT("api")
   try {
     const { user, profile } = await getCanonicalProfile()
     if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ error: t("unauthorized") }, { status: 401 })
     }
     if (!profile) {
-      return NextResponse.json({ error: "Profile not found" }, { status: 404 })
+      return NextResponse.json({ error: t("profileNotFound") }, { status: 404 })
     }
 
     const rawBody = await request.json().catch(() => null)
     const parsed = patchSchema.safeParse(rawBody)
     if (!parsed.success) {
-      return NextResponse.json({ error: "Invalid request" }, { status: 400 })
+      return NextResponse.json({ error: t("invalidRequest") }, { status: 400 })
     }
 
     const adminSupabase = createAdminClient()
@@ -254,8 +258,10 @@ export async function PATCH(request: NextRequest) {
       {
         error:
           error instanceof Error
-            ? error.message
-            : "Failed to update attendance log",
+            ? error.message === LOG_NOT_FOUND
+              ? t("attendanceLogNotFound")
+              : error.message
+            : t("attendanceUpdateFailed"),
       },
       { status: 500 },
     )

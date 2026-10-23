@@ -1,6 +1,7 @@
 "use client"
 
 import { createClient } from "@/shared/api/supabase/client"
+import { useLocale, useT } from "@/shared/i18n/client"
 import { useQuery } from "@tanstack/react-query"
 import { useEffect, useMemo, useState } from "react"
 
@@ -55,10 +56,13 @@ type ProjectRef = { id: string; name: string } | null
  */
 export function useRecordSearch(query: string, options: { people: boolean }) {
   const supabase = useMemo(() => createClient(), [])
+  const t = useT("shell")
+  const tNav = useT("nav")
+  const locale = useLocale()
   const q = query.trim()
 
   return useQuery({
-    queryKey: ["global-search", q, options.people],
+    queryKey: ["global-search", q, options.people, locale],
     enabled: q.length >= 2,
     staleTime: 30_000,
     placeholderData: (prev) => prev,
@@ -142,7 +146,9 @@ export function useRecordSearch(query: string, options: { people: boolean }) {
           id: `doc:${d.id}`,
           kind: "files",
           title: d.title,
-          meta: project ? `Dokumen · ${project.name}` : "Dokumen",
+          meta: project
+            ? `${t("searchMetaDocument")} · ${project.name}`
+            : t("searchMetaDocument"),
           href: `/projects/${d.project_id}/documents`,
           projectId: d.project_id,
         })
@@ -153,7 +159,9 @@ export function useRecordSearch(query: string, options: { people: boolean }) {
           id: `file:${f.id}`,
           kind: "files",
           title: f.name,
-          meta: project ? `Library · ${project.name}` : "Library",
+          meta: project
+            ? `${t("searchMetaLibrary")} · ${project.name}`
+            : t("searchMetaLibrary"),
           href: `/projects/${f.project_id}/library`,
           projectId: f.project_id,
         })
@@ -163,7 +171,7 @@ export function useRecordSearch(query: string, options: { people: boolean }) {
           id: `policy:${p.id}`,
           kind: "policies",
           title: p.title,
-          meta: `Aturan · ${p.category}`,
+          meta: `${tNav("policies")} · ${p.category}`,
           href: `/policies/${p.id}`,
         })
       }
@@ -171,7 +179,7 @@ export function useRecordSearch(query: string, options: { people: boolean }) {
         hits.push({
           id: `person:${u.id}`,
           kind: "people",
-          title: u.full_name ?? "Tanpa nama",
+          title: u.full_name ?? t("searchUnnamed"),
           meta: u.job_title,
           href: `/performance/employee/${u.id}`,
           avatarUrl: u.avatar_url,

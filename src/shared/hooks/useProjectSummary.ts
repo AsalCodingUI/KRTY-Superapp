@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query"
 export type ProjectSummary = {
   id: string
   name: string
-  status: "Active" | "Completed" | "Archived"
+  status: "Planned" | "Active" | "Review" | "Completed" | "Archived"
   client_name: string | null
 }
 

@@ -24,7 +24,9 @@ function sortByCreatedAtAscending<T extends ProfileLike>(profiles: T[]) {
   })
 }
 
-export function mergeDuplicateProfiles<T extends ProfileLike>(profiles: T[]): T {
+export function mergeDuplicateProfiles<T extends ProfileLike>(
+  profiles: T[],
+): T {
   const sorted = sortByCreatedAtAscending(profiles)
   const oldest = sorted[0]
   const newest = sorted[sorted.length - 1]
@@ -42,8 +44,7 @@ export function mergeDuplicateProfiles<T extends ProfileLike>(profiles: T[]): T 
     hourly_rate: oldest.hourly_rate ?? newest.hourly_rate ?? null,
     team_id: oldest.team_id || newest.team_id || null,
     manager_id: oldest.manager_id || newest.manager_id || null,
-    is_super_admin:
-      newest.is_super_admin ?? oldest.is_super_admin ?? null,
+    is_super_admin: newest.is_super_admin ?? oldest.is_super_admin ?? null,
     monthly_salary: oldest.monthly_salary ?? newest.monthly_salary ?? null,
     leave_balance: oldest.leave_balance ?? newest.leave_balance ?? null,
     leave_used: oldest.leave_used ?? newest.leave_used ?? null,
@@ -51,7 +52,9 @@ export function mergeDuplicateProfiles<T extends ProfileLike>(profiles: T[]): T 
   } as T
 }
 
-export function dedupeProfilesByEmail<T extends ProfileLike>(profiles: T[]): T[] {
+export function dedupeProfilesByEmail<T extends ProfileLike>(
+  profiles: T[],
+): T[] {
   const groups = new Map<string, T[]>()
   const noEmail: T[] = []
 

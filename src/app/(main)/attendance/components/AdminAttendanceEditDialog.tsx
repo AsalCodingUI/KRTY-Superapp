@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Spinner } from "@/components/ui/spinner"
+import { useT } from "@/shared/i18n/client"
 import { format } from "date-fns"
 import { useEffect, useMemo, useState } from "react"
 
@@ -55,6 +56,8 @@ export function AdminAttendanceEditDialog({
   onOpenChange,
   onSubmit,
 }: AdminAttendanceEditDialogProps) {
+  const t = useT("leave")
+  const tc = useT("common")
   const [date, setDate] = useState("")
   const [clockIn, setClockIn] = useState("")
   const [clockOut, setClockOut] = useState("")
@@ -82,7 +85,7 @@ export function AdminAttendanceEditDialog({
     setError(null)
 
     if (!date || !clockIn || !clockOut) {
-      setError("Tanggal, clock in, dan clock out wajib diisi.")
+      setError(t("errEditRequired"))
       return
     }
 
@@ -93,12 +96,12 @@ export function AdminAttendanceEditDialog({
       Number.isNaN(clockInDate.getTime()) ||
       Number.isNaN(clockOutDate.getTime())
     ) {
-      setError("Format tanggal atau jam tidak valid.")
+      setError(t("errEditInvalid"))
       return
     }
 
     if (clockOutDate <= clockInDate) {
-      setError("Clock out harus lebih besar dari clock in.")
+      setError(t("errEditOrder"))
       return
     }
 
@@ -114,12 +117,12 @@ export function AdminAttendanceEditDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[35rem]">
         <DialogHeader>
-          <DialogTitle>Edit Attendance</DialogTitle>
+          <DialogTitle>{t("editAttendanceTitle")}</DialogTitle>
         </DialogHeader>
         <div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div className="flex flex-col gap-2 sm:col-span-3">
-              <Label>Tanggal</Label>
+              <Label>{t("colDate")}</Label>
               <DatePicker
                 value={parsedDate}
                 onChange={(value) =>
@@ -128,11 +131,11 @@ export function AdminAttendanceEditDialog({
               />
             </div>
             <div className="flex flex-col gap-2">
-              <Label>Clock In</Label>
+              <Label>{t("clockIn")}</Label>
               <TimeSelect value={clockIn} onValueChange={setClockIn} step={5} />
             </div>
             <div className="flex flex-col gap-2">
-              <Label>Clock Out</Label>
+              <Label>{t("clockOut")}</Label>
               <TimeSelect
                 value={clockOut}
                 onValueChange={setClockOut}
@@ -140,7 +143,7 @@ export function AdminAttendanceEditDialog({
               />
             </div>
             <div className="flex flex-col gap-2 sm:col-span-3">
-              <Label>Status</Label>
+              <Label>{t("colStatus")}</Label>
               <Select
                 value={status}
                 onValueChange={(v) => v !== null && setStatus(v)}
@@ -149,9 +152,11 @@ export function AdminAttendanceEditDialog({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Present">Available</SelectItem>
-                  <SelectItem value="Lembur">Lembur</SelectItem>
-                  <SelectItem value="Cuti Masuk">Cuti Masuk</SelectItem>
+                  <SelectItem value="Present">{t("statusPresent")}</SelectItem>
+                  <SelectItem value="Lembur">{t("statusOvertime")}</SelectItem>
+                  <SelectItem value="Cuti Masuk">
+                    {t("statusLeaveCheckIn")}
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -159,10 +164,12 @@ export function AdminAttendanceEditDialog({
           {error && <p className="text-destructive mt-4 text-sm">{error}</p>}
         </div>
         <DialogFooter>
-          <DialogClose render={<Button variant="outline" />}>Batal</DialogClose>
+          <DialogClose render={<Button variant="outline" />}>
+            {tc("cancel")}
+          </DialogClose>
           <Button disabled={loading} onClick={handleSubmit}>
             {loading && <Spinner data-icon="inline-start" />}
-            Simpan Perubahan
+            {t("saveChanges")}
           </Button>
         </DialogFooter>
       </DialogContent>

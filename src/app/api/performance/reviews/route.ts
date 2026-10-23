@@ -1,6 +1,7 @@
 import { createAdminClient } from "@/shared/api/supabase/admin"
 import { createClient } from "@/shared/api/supabase/server"
 import { resolveEffectiveUserId } from "@/shared/lib/impersonation-server"
+import { getT } from "@/shared/i18n/server"
 import { guardApiRoute } from "@/shared/lib/utils/security"
 import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
@@ -44,13 +45,14 @@ const fail = (error: string, status: number) =>
 export async function POST(request: NextRequest) {
   const guard = guardApiRoute(request)
   if (guard) return guard
+  const t = await getT("performance")
 
   try {
     const supabase = await createClient()
     const {
       data: { user },
     } = await supabase.auth.getUser()
-    if (!user) return fail("Silakan login dulu.", 401)
+    if (!user) return fail(t("errLoginFirst"), 401)
     const reviewerId = await resolveEffectiveUserId(
       supabase,
       user.id,
@@ -60,14 +62,14 @@ export async function POST(request: NextRequest) {
     const parsed = reviewSchema.safeParse(
       await request.json().catch(() => null),
     )
-    if (!parsed.success) return fail("Isian penilaian belum lengkap.", 400)
+    if (!parsed.success) return fail(t("errReviewIncomplete"), 400)
     const body = parsed.data
 
     for (const key of CRITERIA) {
       const value = body[`score_${key}`]
       const reason = (body[`justification_${key}`] ?? "").trim()
       if ((value <= 2 || value === 5) && reason.length < 10) {
-        return fail("Nilai 1–2 atau 5 perlu alasan minimal 10 karakter.", 400)
+        return fail(t("errReasonRequired"), 400)
       }
     }
 
@@ -84,7 +86,7 @@ export async function POST(request: NextRequest) {
       new Date(cycle.start_date).getTime() > now ||
       new Date(cycle.end_date).getTime() < now
     ) {
-      return fail("Periode 360 review sedang tidak dibuka.", 400)
+      return fail(t("errCycleClosed"), 400)
     }
 
     const { data: pairs, error: pairsError } = await admin.rpc("review_pairs", {
@@ -97,10 +99,7 @@ export async function POST(request: NextRequest) {
       (p) => p.reviewer_id === reviewerId && p.reviewee_id === body.reviewee_id,
     )
     if (!allowed) {
-      return fail(
-        "Kamu hanya bisa menilai sesama karyawan, bukan diri sendiri atau admin.",
-        403,
-      )
+      return fail(t("errReviewNotAllowed"), 403)
     }
 
     const { error } = await admin.from("performance_reviews").insert({
@@ -124,13 +123,13 @@ export async function POST(request: NextRequest) {
       status: "pending",
     })
     if (error?.code === "23505") {
-      return fail("Kamu sudah menilai rekan ini di periode ini.", 409)
+      return fail(t("errAlreadyReviewed"), 409)
     }
     if (error) throw error
 
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error("Performance review submit error", error)
-    return fail("Gagal mengirim penilaian. Coba lagi.", 500)
+    return fail(t("errSubmitFailed"), 500)
   }
 }

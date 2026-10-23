@@ -1,6 +1,8 @@
 "use client"
 
+import { PrefetchLink } from "@/components/prefetch-link"
 import { ProjectAvatar } from "@/components/project-avatar"
+import { SlidingIndicator } from "@/components/sliding-indicator"
 import {
   SidebarGroup,
   SidebarMenu,
@@ -12,12 +14,24 @@ import {
   PROJECT_SECTIONS,
 } from "@/shared/config/project-sections"
 import { useProjectSummary } from "@/shared/hooks/useProjectSummary"
+import { useT } from "@/shared/i18n/client"
+import type { MessageKey } from "@/shared/i18n/messages"
 import { RiArrowLeftLine } from "@/shared/ui/lucide-icons"
-import Link from "next/link"
 import { usePathname } from "next/navigation"
+
+/** "nav" message key for each project page, by slug (see PROJECT_SECTIONS). */
+export const PROJECT_SECTION_KEYS: Record<string, MessageKey<"nav">> = {
+  "": "projectDashboard",
+  tasks: "projectTasks",
+  invoices: "projectInvoices",
+  documents: "projectDocuments",
+  library: "projectLibrary",
+  settings: "projectSettings",
+}
 
 /** Sub sidebar while a project is open: back, the project, its pages. */
 export function NavProject() {
+  const t = useT("nav")
   const pathname = usePathname()
   const match = matchProjectPath(pathname)
   const { data: project } = useProjectSummary(match?.id)
@@ -29,44 +43,57 @@ export function NavProject() {
       <SidebarMenu>
         <SidebarMenuItem>
           <SidebarMenuButton
-            className="text-muted-foreground"
-            render={<Link href="/projects" prefetch={false} />}
+            tooltip={t("allProjects")}
+            className="blend-ink"
+            render={<PrefetchLink href="/projects" />}
           >
             <RiArrowLeftLine />
-            <span>Semua project</span>
+            <span>{t("allProjects")}</span>
           </SidebarMenuButton>
         </SidebarMenuItem>
         <SidebarMenuItem>
           <SidebarMenuButton
-            className="font-medium"
-            render={<Link href={base} prefetch={false} />}
+            tooltip={project?.name}
+            className="blend-ink"
+            render={<PrefetchLink href={base} />}
           >
             <ProjectAvatar
               id={match.id}
               name={project?.name ?? "P"}
-              className="size-4 rounded-[4px]"
+              className="size-4 rounded-[5px]"
             />
             <span className="truncate">{project?.name ?? "…"}</span>
           </SidebarMenuButton>
         </SidebarMenuItem>
       </SidebarMenu>
-      <SidebarMenu className="mt-2">
-        {PROJECT_SECTIONS.map((section) => (
-          <SidebarMenuItem key={section.slug}>
-            <SidebarMenuButton
-              isActive={match.slug === section.slug}
-              render={
-                <Link
-                  href={section.slug ? `${base}/${section.slug}` : base}
-                  prefetch={false}
-                />
-              }
-            >
-              <section.icon />
-              <span>{section.name}</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        ))}
+      {/* Same rows as the main nav: the active fill slides between them. */}
+      <SidebarMenu className="relative mt-2">
+        <SlidingIndicator
+          activeSelector="[data-active]"
+          className="bg-sidebar-active rounded-full shadow-(--shadow-chrome-active)"
+        />
+        {PROJECT_SECTIONS.map((section) => {
+          const title = PROJECT_SECTION_KEYS[section.slug]
+            ? t(PROJECT_SECTION_KEYS[section.slug])
+            : section.name
+          return (
+            <SidebarMenuItem key={section.slug}>
+              <SidebarMenuButton
+                tooltip={title}
+                isActive={match.slug === section.slug}
+                className="not-data-active:blend-ink data-active:bg-transparent"
+                render={
+                  <PrefetchLink
+                    href={section.slug ? `${base}/${section.slug}` : base}
+                  />
+                }
+              >
+                <section.icon />
+                <span className="truncate">{title}</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )
+        })}
       </SidebarMenu>
     </SidebarGroup>
   )

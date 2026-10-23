@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
+import { useT } from "@/shared/i18n/client"
 
 interface ConfirmDialogProps {
   open: boolean
@@ -29,13 +30,15 @@ export function ConfirmDialog({
   open,
   onOpenChange,
   onConfirm,
-  title = "Confirm Action",
-  description = "Are you sure you want to proceed?",
-  confirmText = "Confirm",
-  cancelText = "Cancel",
+  title,
+  description,
+  confirmText,
+  cancelText,
   variant = "default",
   loading = false,
 }: ConfirmDialogProps) {
+  const t = useT("shell")
+  const tc = useT("common")
   const [isSubmitting, setIsSubmitting] = React.useState(false)
   const isBusy = isSubmitting || loading
 
@@ -55,9 +58,9 @@ export function ConfirmDialog({
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>{title}</AlertDialogTitle>
+          <AlertDialogTitle>{title ?? t("confirmTitle")}</AlertDialogTitle>
           <AlertDialogDescription className="text-sm">
-            {description}
+            {description ?? t("confirmDescription")}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -68,7 +71,7 @@ export function ConfirmDialog({
             onClick={() => onOpenChange(false)}
             disabled={isBusy}
           >
-            {cancelText}
+            {cancelText ?? tc("cancel")}
           </Button>
           <Button
             variant={variant === "destructive" ? "destructive" : "default"}
@@ -76,7 +79,7 @@ export function ConfirmDialog({
             disabled={isBusy}
           >
             {isBusy && <Spinner data-icon="inline-start" />}
-            {confirmText}
+            {confirmText ?? t("confirm")}
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>

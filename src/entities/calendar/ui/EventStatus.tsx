@@ -1,7 +1,12 @@
 "use client"
 
-import { RiCheckLine, RiCloseLine, RiQuestionLine } from "@/shared/ui/lucide-icons"
+import {
+  RiCheckLine,
+  RiCloseLine,
+  RiQuestionLine,
+} from "@/shared/ui/lucide-icons"
 import { Badge } from "@/components/ui/badge"
+import { useT } from "@/shared/i18n/client"
 
 export type RSVPStatus = "yes" | "no" | "maybe" | "pending"
 
@@ -22,30 +27,31 @@ export function EventStatus({
   showIcon = true,
   className,
 }: EventStatusProps) {
+  const t = useT("calendar")
   const getStatusConfig = (status: RSVPStatus) => {
     switch (status) {
       case "yes":
         return {
-          label: "Accepted",
+          label: t("rsvpStatusAccepted"),
           variant: "success" as const,
           icon: <RiCheckLine className="size-3" />,
         }
       case "no":
         return {
-          label: "Declined",
+          label: t("rsvpStatusDeclined"),
           variant: "destructive" as const,
           icon: <RiCloseLine className="size-3" />,
         }
       case "maybe":
         return {
-          label: "Maybe",
+          label: t("rsvpStatusMaybe"),
           variant: "warning" as const,
           icon: <RiQuestionLine className="size-3" />,
         }
       case "pending":
       default:
         return {
-          label: "Pending",
+          label: t("rsvpStatusPending"),
           variant: "secondary" as const,
           icon: <RiQuestionLine className="size-3" />,
         }

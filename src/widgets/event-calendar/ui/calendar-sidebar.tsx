@@ -1,5 +1,6 @@
 "use client"
 
+import { useT } from "@/shared/i18n/client"
 import { cx } from "@/shared/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
@@ -35,6 +36,7 @@ const MOBILE_BOTTOM_SHEET_CLASSNAME =
   "z-[80] h-[80vh] overflow-hidden rounded-t-[24px] border-t p-0"
 
 function SidebarContent() {
+  const t = useT("calendar")
   const { categories, toggleColor } = useEventVisibility()
   return (
     <div className="flex flex-col items-start gap-3">
@@ -43,7 +45,7 @@ function SidebarContent() {
       <div className="flex w-full flex-col gap-3">
         <div className="flex items-center py-1.5">
           <h4 className="text-muted-foreground text-sm font-medium">
-            Kalender Kretya
+            {t("sidebarTitle")}
           </h4>
         </div>
         <div className="flex w-full flex-col gap-1">
@@ -86,6 +88,7 @@ export function CalendarSidebar() {
 }
 
 export function CalendarSidebarMobileTrigger() {
+  const t = useT("calendar")
   const [open, setOpen] = useState(false)
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -94,27 +97,29 @@ export function CalendarSidebarMobileTrigger() {
           <Button
             variant="outline"
             className="shadow-lg lg:hidden"
-            aria-label="Buka filter kalender"
+            aria-label={t("sidebarOpenFilter")}
           />
         }
       >
         <RiEqualizer2Line className="size-4" />
-        <span>Atur</span>
+        <span>{t("sidebarSettings")}</span>
       </SheetTrigger>
       <SheetContent
         side="bottom"
         showCloseButton={false}
         className={MOBILE_BOTTOM_SHEET_CLASSNAME}
       >
-        <SheetTitle className="sr-only">Kalender</SheetTitle>
+        <SheetTitle className="sr-only">{t("filterButton")}</SheetTitle>
         <div className="border-border flex items-center justify-between border-b px-4 py-4">
-          <h3 className="text-foreground text-base font-semibold">Kalender</h3>
+          <h3 className="text-foreground text-base font-semibold">
+            {t("filterButton")}
+          </h3>
           <SheetClose
             render={
               <button
                 type="button"
                 className="text-tertiary-foreground hover:text-foreground inline-flex size-8 items-center justify-center rounded-full transition-colors"
-                aria-label="Tutup panel kalender"
+                aria-label={t("sidebarClosePanel")}
               />
             }
           >

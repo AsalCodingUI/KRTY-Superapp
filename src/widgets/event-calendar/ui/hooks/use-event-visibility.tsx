@@ -4,6 +4,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useMemo,
   useState,
   type ReactNode,
 } from "react"
@@ -62,11 +63,25 @@ export function EventVisibilityProvider({
     [visibleColors, categories],
   )
 
+  // Names come from the caller (translated), so take them fresh from the
+  // prop on every render; only `isActive` lives in state. Without this a
+  // language switch kept the old names until a reload.
+  const displayCategories = useMemo(
+    () =>
+      categories.map((cat) => {
+        const fresh = initialCategories.find((c) => c.id === cat.id)
+        return fresh && fresh.name !== cat.name
+          ? { ...cat, name: fresh.name }
+          : cat
+      }),
+    [categories, initialCategories],
+  )
+
   const value: EventVisibilityContextValue = {
     visibleColors,
     toggleColor,
     isColorVisible,
-    categories,
+    categories: displayCategories,
     setCategories,
   }
 

@@ -44,12 +44,17 @@ export function SlidingIndicator({
       }
       const c = container.getBoundingClientRect()
       const a = active.getBoundingClientRect()
+      // Rects include ancestor transforms: a dialog opening at scale(0.95)
+      // would leave the pill 5% short, and nothing re-measures once the
+      // animation ends. Divide the scale back out to get layout pixels.
+      const sx = container.offsetWidth ? c.width / container.offsetWidth : 1
+      const sy = container.offsetHeight ? c.height / container.offsetHeight : 1
       setBox((prev) => {
         const next = {
-          x: a.left - c.left - container.clientLeft,
-          y: a.top - c.top - container.clientTop,
-          w: a.width,
-          h: a.height,
+          x: (a.left - c.left) / sx - container.clientLeft,
+          y: (a.top - c.top) / sy - container.clientTop,
+          w: a.width / sx,
+          h: a.height / sy,
         }
         return prev &&
           prev.x === next.x &&

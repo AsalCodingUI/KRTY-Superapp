@@ -8,10 +8,11 @@ import { useDebouncedCallback } from "use-debounce"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { useT } from "@/shared/i18n/client"
 
 // View options pull in @dnd-kit; load only when a table actually shows them.
-const DataTableViewOptions = dynamic(
-  () => import("./data-table-view-options").then((m) => m.DataTableViewOptions)
+const DataTableViewOptions = dynamic(() =>
+  import("./data-table-view-options").then((m) => m.DataTableViewOptions),
 ) as typeof import("./data-table-view-options").DataTableViewOptions
 
 interface DataTableFilterbarProps<TData> {
@@ -29,9 +30,10 @@ export function DataTableFilterbar<TData>({
   onCreate,
   showExport = true,
   showViewOptions = false,
-  actionLabel = "Add Member",
+  actionLabel,
   searchKey,
 }: DataTableFilterbarProps<TData>) {
+  const t = useT("shell")
   const isFiltered = table.getState().columnFilters.length > 0
   const [searchTerm, setSearchTerm] = React.useState<string>("")
 
@@ -58,7 +60,7 @@ export function DataTableFilterbar<TData>({
         {searchColumn && (
           <Input
             type="search"
-            placeholder="Search..."
+            placeholder={t("dataTableSearch")}
             value={searchTerm}
             onChange={handleSearchChange}
             className="w-full sm:max-w-[250px]"
@@ -74,7 +76,7 @@ export function DataTableFilterbar<TData>({
             }}
             className="border-border text-primary border px-2 font-semibold sm:border-none"
           >
-            Clear filters
+            {t("dataTableClearFilters")}
           </Button>
         )}
       </div>
@@ -83,7 +85,7 @@ export function DataTableFilterbar<TData>({
         {showExport && (
           <Button variant="outline" className="hidden lg:inline-flex">
             <DownloadIcon data-icon="inline-start" aria-hidden="true" />
-            Export
+            {t("dataTableExport")}
           </Button>
         )}
 
@@ -92,7 +94,7 @@ export function DataTableFilterbar<TData>({
         {onCreate && (
           <Button onClick={onCreate}>
             <PlusIcon data-icon="inline-start" aria-hidden="true" />
-            {actionLabel}
+            {actionLabel ?? t("dataTableAddMember")}
           </Button>
         )}
       </div>

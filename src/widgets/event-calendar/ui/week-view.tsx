@@ -1,9 +1,9 @@
 "use client"
 
+import { useDateLocale, useT } from "@/shared/i18n/client"
 import { cx } from "@/shared/lib/utils"
 import { RiAddLine, RiSubtractFill } from "@/shared/ui/lucide-icons"
 import { format, isBefore, isSameDay } from "date-fns"
-import { id } from "date-fns/locale"
 import { memo, useEffect, useMemo, useRef, useState } from "react"
 import { useCalendarContext } from "./calendar-context"
 import { DraggableEvent } from "./draggable-event"
@@ -45,6 +45,8 @@ export const WeekView = memo(function WeekView({
   canEdit = true,
 }: WeekViewProps) {
   const { currentDate } = useCalendarContext()
+  const t = useT("calendar")
+  const dateLocale = useDateLocale()
   const [step, setStep] = useState(DEFAULT_STEP)
   const hourHeight = HOUR_STEPS[step]
   const rootRef = useRef<HTMLDivElement>(null)
@@ -83,7 +85,7 @@ export const WeekView = memo(function WeekView({
           <div className="flex w-14 shrink-0 items-center justify-center gap-0.5 border-r">
             <button
               type="button"
-              aria-label="Perkecil"
+              aria-label={t("weekZoomOut")}
               disabled={step === 0}
               onClick={() => setStep((s) => Math.max(0, s - 1))}
               className="text-muted-foreground hover:text-foreground hover:bg-accent flex size-5 cursor-pointer items-center justify-center rounded-sm disabled:pointer-events-none disabled:opacity-40"
@@ -92,7 +94,7 @@ export const WeekView = memo(function WeekView({
             </button>
             <button
               type="button"
-              aria-label="Perbesar"
+              aria-label={t("weekZoomIn")}
               disabled={step === HOUR_STEPS.length - 1}
               onClick={() =>
                 setStep((s) => Math.min(HOUR_STEPS.length - 1, s + 1))
@@ -113,7 +115,7 @@ export const WeekView = memo(function WeekView({
                 )}
               >
                 <span className="text-muted-foreground">
-                  {format(day, "EEE", { locale: id })}
+                  {format(day, "EEE", { locale: dateLocale })}
                 </span>
                 <span
                   className={cx(
@@ -133,7 +135,7 @@ export const WeekView = memo(function WeekView({
         {/* All-day strip: reminders, leave, multi-day items */}
         <div className="flex">
           <div className="text-muted-foreground flex w-14 shrink-0 items-start justify-end border-r px-2 pt-2 text-[11px]">
-            Seharian
+            {t("weekAllDay")}
           </div>
           {weekDays.map((day) => {
             const items = allDayByDay.get(getDayKey(day)) ?? []
@@ -165,7 +167,9 @@ export const WeekView = memo(function WeekView({
                 ))}
                 {items.length > ALL_DAY_LIMIT && (
                   <span className="text-muted-foreground px-1 text-xs">
-                    +{items.length - ALL_DAY_LIMIT} lainnya
+                    {t("monthMoreEvents", {
+                      count: items.length - ALL_DAY_LIMIT,
+                    })}
                   </span>
                 )}
               </div>

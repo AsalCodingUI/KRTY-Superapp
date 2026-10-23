@@ -32,6 +32,7 @@ import { Spinner } from "@/components/ui/spinner"
 import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
 import { Constants } from "@/shared/types/database.types"
+import { useT } from "@/shared/i18n/client"
 import { RiAddLine, RiFileList3Line } from "@/shared/ui/lucide-icons"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
@@ -51,6 +52,8 @@ type Draft = { id?: string; role: Role; name: string; description: string }
 
 /** Competencies per project role; used as the checklist when scoring. */
 export function CompetencyLibrary() {
+  const t = useT("performance")
+  const tc = useT("common")
   const queryClient = useQueryClient()
   const { data, isLoading } = useQuery({
     queryKey: ["competencies"],
@@ -77,10 +80,10 @@ export function CompetencyLibrary() {
     const result = await saveCompetency(draft)
     setSaving(false)
     if (!result.success) {
-      toast.error(result.error ?? "Gagal menyimpan.")
+      toast.error(result.error ?? t("saveFailed"))
       return
     }
-    toast.success(draft.id ? "Kompetensi diubah" : "Kompetensi ditambahkan")
+    toast.success(draft.id ? t("competencyUpdated") : t("competencyAdded"))
     setDraft(null)
     refresh()
   }
@@ -111,11 +114,11 @@ export function CompetencyLibrary() {
         >
           <SelectTrigger className="w-48">
             <SelectValue>
-              {(v: string) => (v === ALL ? "Semua peran" : v)}
+              {(v: string) => (v === ALL ? t("allRoles") : v)}
             </SelectValue>
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value={ALL}>Semua peran</SelectItem>
+            <SelectItem value={ALL}>{t("allRoles")}</SelectItem>
             {ROLES.map((r) => (
               <SelectItem key={r} value={r}>
                 {r}
@@ -133,17 +136,17 @@ export function CompetencyLibrary() {
           }
         >
           <RiAddLine data-icon="inline-start" />
-          Kompetensi
+          {t("addCompetencyButton")}
         </Button>
       </div>
 
       {items.length === 0 ? (
         <EmptyState
-          title="Belum ada kompetensi"
+          title={t("noCompetencies")}
           description={
             roleFilter === ALL
-              ? "Tambahkan checklist kualitas kerja per peran di project."
-              : "Anggota dengan peran ini tidak punya nilai kualitas kerja."
+              ? t("noCompetenciesAllHint")
+              : t("noCompetenciesRoleHint")
           }
           icon={<RiFileList3Line className="size-5" />}
           placement="inner"
@@ -151,9 +154,9 @@ export function CompetencyLibrary() {
       ) : (
         <GroupedList>
           <ListColumns grid={ROW_GRID}>
-            <span>Kompetensi</span>
-            <span className="hidden md:block">Peran</span>
-            <span className="hidden text-right md:block">Dipakai</span>
+            <span>{t("competency")}</span>
+            <span className="hidden md:block">{t("role")}</span>
+            <span className="hidden text-right md:block">{t("used")}</span>
             <span />
           </ListColumns>
           {items.map((c) => (
@@ -172,7 +175,7 @@ export function CompetencyLibrary() {
                 </Badge>
               </div>
               <span className="text-muted-foreground hidden text-right tabular-nums md:block">
-                {c.usage > 0 ? `${c.usage} penilaian` : <EmptyValue />}
+                {c.usage > 0 ? t("usageCount", { n: c.usage }) : <EmptyValue />}
               </span>
               <ListRowActions className="justify-end">
                 <Button
@@ -187,7 +190,7 @@ export function CompetencyLibrary() {
                     })
                   }
                 >
-                  Ubah
+                  {t("editAction")}
                 </Button>
                 <Button
                   size="sm"
@@ -195,7 +198,7 @@ export function CompetencyLibrary() {
                   className="text-destructive hover:text-destructive"
                   onClick={() => setRemoving(c)}
                 >
-                  Hapus
+                  {tc("delete")}
                 </Button>
               </ListRowActions>
             </ListRow>
@@ -207,13 +210,13 @@ export function CompetencyLibrary() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {draft?.id ? "Ubah kompetensi" : "Kompetensi baru"}
+              {draft?.id ? t("editCompetency") : t("newCompetency")}
             </DialogTitle>
           </DialogHeader>
           {draft && (
             <div className="flex flex-col gap-3">
               <div className="flex flex-col gap-1.5">
-                <Label>Peran</Label>
+                <Label>{t("role")}</Label>
                 <Select
                   value={draft.role}
                   onValueChange={(v) =>
@@ -233,7 +236,7 @@ export function CompetencyLibrary() {
                 </Select>
               </div>
               <div className="flex flex-col gap-1.5">
-                <Label htmlFor="comp-name">Nama</Label>
+                <Label htmlFor="comp-name">{t("name")}</Label>
                 <Input
                   id="comp-name"
                   value={draft.name}
@@ -241,10 +244,10 @@ export function CompetencyLibrary() {
                 />
               </div>
               <div className="flex flex-col gap-1.5">
-                <Label htmlFor="comp-desc">Penjelasan</Label>
+                <Label htmlFor="comp-desc">{t("explanation")}</Label>
                 <Textarea
                   id="comp-desc"
-                  placeholder="Kapan kompetensi ini dianggap tercapai"
+                  placeholder={t("competencyDescriptionPlaceholder")}
                   value={draft.description}
                   onChange={(e) =>
                     setDraft({ ...draft, description: e.target.value })
@@ -255,10 +258,10 @@ export function CompetencyLibrary() {
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setDraft(null)}>
-              Batal
+              {tc("cancel")}
             </Button>
             <Button onClick={save} disabled={saving}>
-              {saving ? "Menyimpan…" : "Simpan"}
+              {saving ? tc("saving") : tc("save")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -267,20 +270,20 @@ export function CompetencyLibrary() {
       <ConfirmDialog
         open={Boolean(removing)}
         onOpenChange={(o) => !o && setRemoving(null)}
-        title={`Hapus "${removing?.name ?? ""}"?`}
+        title={t("deleteNamed", { name: removing?.name ?? "" })}
         description={
           removing?.usage
-            ? `Sudah dipakai di ${removing.usage} penilaian, jadi tidak bisa dihapus. Ubah namanya saja kalau perlu.`
-            : "Kompetensi dihapus permanen."
+            ? t("competencyInUse", { n: removing.usage })
+            : t("competencyDeletePermanent")
         }
-        confirmText="Hapus"
-        cancelText="Batal"
+        confirmText={tc("delete")}
+        cancelText={tc("cancel")}
         variant="destructive"
         onConfirm={async () => {
           if (!removing) return
           const result = await deleteCompetency(removing.id)
-          if (result.success) toast.success("Kompetensi dihapus")
-          else toast.error(result.error ?? "Gagal menghapus.")
+          if (result.success) toast.success(t("competencyDeleted"))
+          else toast.error(result.error ?? t("deleteFailed"))
           setRemoving(null)
           refresh()
         }}

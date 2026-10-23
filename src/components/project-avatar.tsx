@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils"
 
 /**
  * Solid project tiles (step 9 of each oklch.fyi scale), picked from the id so
- * a project keeps its colour. Bright hues carry dark text to stay legible.
+ * a project keeps its colour. Letters are always white.
  */
 const PROJECT_COLORS = [
   "bg-blue-9 text-white",
@@ -11,14 +11,14 @@ const PROJECT_COLORS = [
   "bg-orange-9 text-white",
   "bg-pink-9 text-white",
   "bg-teal-9 text-white",
-  "bg-amber-9 text-black/80",
+  "bg-amber-9 text-white",
   "bg-cyan-9 text-white",
   "bg-indigo-9 text-white",
   "bg-tomato-9 text-white",
   "bg-mint-9 text-white",
-  "bg-lime-9 text-black/80",
+  "bg-lime-9 text-white",
   "bg-red-9 text-white",
-  "bg-yellow-9 text-black/80",
+  "bg-yellow-9 text-white",
 ]
 
 export function projectColor(id: string) {

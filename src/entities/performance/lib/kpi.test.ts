@@ -73,11 +73,11 @@ describe("finalScore", () => {
 
 describe("ratingFor", () => {
   it("maps scores to the Indonesian rating scale", () => {
-    expect(ratingFor(96)?.label).toBe("Istimewa")
-    expect(ratingFor(85)?.label).toBe("Di atas harapan")
-    expect(ratingFor(75)?.label).toBe("Sesuai harapan")
-    expect(ratingFor(60)?.label).toBe("Di bawah harapan")
-    expect(ratingFor(10)?.label).toBe("Perlu perbaikan")
+    expect(ratingFor(96)?.label).toBe("ratingExceptional")
+    expect(ratingFor(85)?.label).toBe("ratingAbove")
+    expect(ratingFor(75)?.label).toBe("ratingMeets")
+    expect(ratingFor(60)?.label).toBe("ratingBelow")
+    expect(ratingFor(10)?.label).toBe("ratingNeedsWork")
     expect(ratingFor(null)).toBeNull()
   })
 })

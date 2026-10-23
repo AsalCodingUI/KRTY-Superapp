@@ -28,18 +28,18 @@ describe("annualLeaveEntitlement", () => {
   })
 
   it("gives 1 day per full month between 6 and 11 months", () => {
-    expect(annualLeaveEntitlement({ join_date: "2026-04-21" }, today)).toMatchObject(
-      { eligible: true, quota: 6 },
-    )
-    expect(annualLeaveEntitlement({ join_date: "2026-02-10" }, today)).toMatchObject(
-      { eligible: true, quota: 8 },
-    )
+    expect(
+      annualLeaveEntitlement({ join_date: "2026-04-21" }, today),
+    ).toMatchObject({ eligible: true, quota: 6 })
+    expect(
+      annualLeaveEntitlement({ join_date: "2026-02-10" }, today),
+    ).toMatchObject({ eligible: true, quota: 8 })
   })
 
   it("gives the full 12 days from 12 months", () => {
-    expect(annualLeaveEntitlement({ join_date: "2025-10-21" }, today)).toMatchObject(
-      { eligible: true, quota: 12 },
-    )
+    expect(
+      annualLeaveEntitlement({ join_date: "2025-10-21" }, today),
+    ).toMatchObject({ eligible: true, quota: 12 })
   })
 })
 

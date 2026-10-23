@@ -4,6 +4,7 @@ import { RiMore2Fill } from "@/shared/ui/lucide-icons"
 import type { User } from "./types"
 import { cx, focusRing } from "@/shared/lib/utils"
 import { Button } from "@/components/ui/button"
+import { useT } from "@/shared/i18n/client"
 
 export interface UserProfileProps {
   user: User | null
@@ -16,6 +17,8 @@ export function UserProfile({
   loading = false,
   variant = "desktop",
 }: UserProfileProps) {
+  const t = useT("teams")
+  const tc = useT("common")
   const initials = user?.full_name
     ? user.full_name
         .split(" ")
@@ -28,7 +31,7 @@ export function UserProfile({
   if (variant === "mobile") {
     return (
       <Button
-        aria-label="User settings"
+        aria-label={t("userSettings")}
         variant="ghost"
         className={cx(
           "group text-foreground hover:bg-muted data-popup-open:bg-muted dark:hover:bg-muted flex items-center rounded-md p-1 text-sm font-medium",
@@ -46,7 +49,7 @@ export function UserProfile({
 
   return (
     <Button
-      aria-label="User settings"
+      aria-label={t("userSettings")}
       variant="ghost"
       className={cx(
         focusRing,
@@ -61,7 +64,7 @@ export function UserProfile({
           {initials}
         </span>
         <span className="truncate">
-          {loading ? "Loading..." : (user?.full_name ?? "Guest")}
+          {loading ? tc("loading") : (user?.full_name ?? t("guest"))}
         </span>
       </span>
       <RiMore2Fill

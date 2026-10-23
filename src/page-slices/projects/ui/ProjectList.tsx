@@ -2,6 +2,8 @@
 
 import { AnimatePresence } from "motion/react"
 import { AvatarGroup, AvatarOverflow } from "@/components/avatar-group"
+import type { ProjectStatus } from "@/page-slices/projects/lib/status"
+import { ProjectStatusIcon } from "./ProjectStatusIcon"
 import { EmptyState } from "@/components/empty-state"
 import {
   GroupedList,
@@ -14,15 +16,14 @@ import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
 import { RiFolderLine } from "@/shared/ui/lucide-icons"
-import { format } from "date-fns"
-import { id as idLocale } from "date-fns/locale"
-import { CircleCheck, CircleDot, Archive } from "lucide-react"
+import { useDateLocale, useT } from "@/shared/i18n/client"
+import { format, type Locale } from "date-fns"
 import Link from "next/link"
 
 export type ProjectListRow = {
   id: string
   name: string
-  status: "Active" | "Completed" | "Archived"
+  status: ProjectStatus
   start_date: string
   end_date: string
   quarter_id: string | null
@@ -36,19 +37,11 @@ export type ProjectListRow = {
 }
 
 const GROUPS = [
-  { status: "Active", label: "Aktif", icon: CircleDot, tone: "text-primary" },
-  {
-    status: "Completed",
-    label: "Selesai",
-    icon: CircleCheck,
-    tone: "text-success",
-  },
-  {
-    status: "Archived",
-    label: "Diarsipkan",
-    icon: Archive,
-    tone: "text-muted-foreground",
-  },
+  { status: "Planned", labelKey: "statusPlanned" },
+  { status: "Active", labelKey: "statusActive" },
+  { status: "Review", labelKey: "statusReview" },
+  { status: "Completed", labelKey: "statusCompleted" },
+  { status: "Archived", labelKey: "statusArchived" },
 ] as const
 
 /** Shared column template so rows line up across every status group. */
@@ -58,8 +51,8 @@ const ROW_GRID =
 const ROW_GRID_ACTIONS =
   "grid grid-cols-[minmax(0,1fr)_6.5rem] items-center gap-x-4 md:grid-cols-[minmax(0,1fr)_7rem_6.5rem_13rem] lg:grid-cols-[minmax(0,1fr)_7rem_6.5rem_6.5rem_13rem]"
 
-function shortDate(value: string) {
-  return format(new Date(value), "d MMM yyyy", { locale: idLocale })
+function shortDate(value: string, locale: Locale) {
+  return format(new Date(value), "d MMM yyyy", { locale })
 }
 
 function initials(name: string) {
@@ -86,11 +79,12 @@ export function ProjectList({
   /** Stakeholders manage projects from the list. */
   actions?: ProjectActions
 }) {
+  const t = useT("projects")
   if (projects.length === 0) {
     return (
       <EmptyState
-        title="Belum ada project"
-        description="Project yang dibuat akan muncul di sini."
+        title={t("emptyTitle")}
+        description={t("emptyDescription")}
         icon={<RiFolderLine className="size-5" />}
         placement="inner"
       />
@@ -107,20 +101,20 @@ export function ProjectList({
           "gutter-x text-muted-foreground border-border h-9 border-b text-[13px]",
         )}
       >
-        <span>Project</span>
-        <span className="hidden md:block">Tim</span>
-        <span className="hidden text-right lg:block">Mulai</span>
-        <span className="text-right">Tenggat</span>
+        <span>{t("colProject")}</span>
+        <span className="hidden md:block">{t("colTeam")}</span>
+        <span className="hidden text-right lg:block">{t("colStart")}</span>
+        <span className="text-right">{t("colDue")}</span>
         {actions && <span className="hidden md:block" />}
       </div>
-      {GROUPS.map(({ status, label, icon: Icon, tone }) => {
+      {GROUPS.map(({ status, labelKey }) => {
         const items = projects.filter((p) => p.status === status)
         if (items.length === 0) return null
         return (
           <ListGroup
             key={status}
-            icon={<Icon aria-hidden className={`size-4 ${tone}`} />}
-            label={label}
+            icon={<ProjectStatusIcon status={status} />}
+            label={t(labelKey)}
             count={items.length}
             defaultOpen={status !== "Archived"}
           >
@@ -150,9 +144,12 @@ function ProjectRow({
   grid: string
   actions?: ProjectActions
 }) {
+  const t = useT("projects")
+  const tc = useT("common")
+  const dateLocale = useDateLocale()
   const team = (project.project_assignments ?? []).map((a) => ({
     id: a.id,
-    name: a.profiles?.full_name || "Unknown",
+    name: a.profiles?.full_name || t("unknownMember"),
     image: a.profiles?.avatar_url || undefined,
   }))
   const meta = [project.client_name, project.quarter_id].filter(Boolean)
@@ -199,15 +196,15 @@ function ProjectRow({
           </AvatarGroup>
         ) : (
           <span className="text-tertiary-foreground text-[13px]">
-            Belum ada tim
+            {t("noTeamYet")}
           </span>
         )}
       </div>
       <span className="text-muted-foreground hidden text-right tabular-nums lg:block">
-        {shortDate(project.start_date)}
+        {shortDate(project.start_date, dateLocale)}
       </span>
       <span className="text-foreground text-right tabular-nums">
-        {shortDate(project.end_date)}
+        {shortDate(project.end_date, dateLocale)}
       </span>
 
       {actions && (
@@ -218,14 +215,16 @@ function ProjectRow({
               variant="ghost"
               onClick={() => actions.onEdit(project)}
             >
-              Ubah
+              {t("actionEdit")}
             </Button>
             <Button
               size="sm"
               variant="ghost"
               onClick={() => actions.onToggleArchive(project)}
             >
-              {project.status === "Archived" ? "Aktifkan" : "Arsipkan"}
+              {project.status === "Archived"
+                ? t("actionActivate")
+                : t("actionArchive")}
             </Button>
             <Button
               size="sm"
@@ -233,7 +232,7 @@ function ProjectRow({
               className="text-destructive hover:text-destructive"
               onClick={() => actions.onDelete(project)}
             >
-              Hapus
+              {tc("delete")}
             </Button>
           </ListRowActions>
         </div>

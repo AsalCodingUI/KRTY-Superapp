@@ -8,9 +8,10 @@ import { GroupedList, ListRow, ListRowActions } from "@/components/grouped-list"
 import { TabNavigation, TabNavigationLink } from "@/components/tab-navigation"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import { useDateLocale, useT } from "@/shared/i18n/client"
 import { RiDeleteBinLine, RiNotification3Line } from "@/shared/ui/lucide-icons"
+import type { Locale } from "date-fns"
 import { format, isThisYear, isToday } from "date-fns"
-import { id as idLocale } from "date-fns/locale"
 import Link from "next/link"
 import { useState, type MouseEvent as ReactMouseEvent } from "react"
 
@@ -19,10 +20,10 @@ const ROW_GRID =
   "grid grid-cols-[minmax(0,1fr)_auto_2rem] items-center gap-x-4 sm:grid-cols-[minmax(0,1fr)_6rem_2rem]"
 
 /** "14:05" today, "23 Okt" this year, otherwise "23 Okt 2025". */
-function shortTime(date: Date) {
+function shortTime(date: Date, locale: Locale) {
   if (isToday(date)) return format(date, "HH:mm")
   return format(date, isThisYear(date) ? "d MMM" : "d MMM yyyy", {
-    locale: idLocale,
+    locale,
   })
 }
 
@@ -35,6 +36,9 @@ export function NotificationsPage() {
     deleteNotification,
   } = useNotifications()
   const [activeTab, setActiveTab] = useState<"unread" | "all">("unread")
+  const t = useT("shell")
+  const tc = useT("common")
+  const dateLocale = useDateLocale()
 
   const filteredNotifications =
     activeTab === "unread"
@@ -51,7 +55,7 @@ export function NotificationsPage() {
     <div className="flex flex-col">
       <PageHeader
         className="pt-6 pb-4"
-        title="Notifikasi"
+        title={t("notifications")}
         actions={
           unreadCount > 0 && (
             <Button
@@ -59,7 +63,7 @@ export function NotificationsPage() {
               className="hidden sm:inline-flex"
               onClick={() => markAllAsRead()}
             >
-              Tandai semua dibaca
+              {t("notificationsMarkAllRead")}
             </Button>
           )
         }
@@ -72,14 +76,14 @@ export function NotificationsPage() {
             onClick={() => setActiveTab("unread")}
             showLeadingIcon={false}
           >
-            Belum dibaca
+            {t("notificationsUnread")}
           </TabNavigationLink>
           <TabNavigationLink
             active={activeTab === "all"}
             onClick={() => setActiveTab("all")}
             showLeadingIcon={false}
           >
-            Semua
+            {tc("all")}
           </TabNavigationLink>
         </TabNavigation>
       </div>
@@ -87,8 +91,8 @@ export function NotificationsPage() {
       <div className={cn("pb-4", unreadCount > 0 && "pb-24 sm:pb-4")}>
         {filteredNotifications.length === 0 ? (
           <EmptyState
-            title="Belum ada notifikasi"
-            description="Belum ada yang baru di tab ini."
+            title={t("notificationsEmpty")}
+            description={t("notificationsNothingNewTab")}
             icon={<RiNotification3Line className="size-5" />}
             placement="inner"
           />
@@ -120,7 +124,10 @@ export function NotificationsPage() {
                       >
                         {notification.title}
                         {!notification.is_read && (
-                          <span className="sr-only"> (belum dibaca)</span>
+                          <span className="sr-only">
+                            {" "}
+                            {t("notificationsUnreadSr")}
+                          </span>
                         )}
                       </Link>
                       {notification.message && (
@@ -135,20 +142,20 @@ export function NotificationsPage() {
                     title={
                       created
                         ? format(created, "d MMM yyyy, HH:mm", {
-                            locale: idLocale,
+                            locale: dateLocale,
                           })
                         : undefined
                     }
                   >
-                    {created ? shortTime(created) : <EmptyValue />}
+                    {created ? shortTime(created, dateLocale) : <EmptyValue />}
                   </span>
                   {/* Always visible on touch screens, hover-only from sm up. */}
                   <ListRowActions className="relative z-10 justify-end max-sm:opacity-100">
                     <Button
                       variant="ghost"
                       size="icon-sm"
-                      aria-label="Hapus notifikasi"
-                      title="Hapus"
+                      aria-label={t("notificationsDelete")}
+                      title={tc("delete")}
                       onClick={(event) => handleDelete(event, notification.id)}
                     >
                       <RiDeleteBinLine />
@@ -168,7 +175,7 @@ export function NotificationsPage() {
             onClick={() => markAllAsRead()}
             className="shadow-lg"
           >
-            Tandai semua dibaca
+            {t("notificationsMarkAllRead")}
           </Button>
         </div>
       )}

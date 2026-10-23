@@ -1,5 +1,6 @@
 "use client"
 
+import { ProofLink } from "@/entities/leave/ui/ProofLink"
 import { AnimatePresence } from "motion/react"
 import { EmptyState } from "@/components/empty-state"
 import { GroupedList, ListRow } from "@/components/grouped-list"
@@ -13,13 +14,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
-import { LEAVE_STATUS_LABELS, LEAVE_TYPE_LABELS } from "@/shared/lib/leave"
+import { useDateLocale, useT } from "@/shared/i18n/client"
+import { daysKey, leaveStatusLabel, leaveTypeLabel } from "@/shared/lib/leave"
 import type { Database } from "@/shared/types/database.types"
-import {
-  RiCalendarLine,
-  RiFilePaperLine,
-  RiMoreFill,
-} from "@/shared/ui/lucide-icons"
+import { RiCalendarLine, RiMoreFill } from "@/shared/ui/lucide-icons"
 import { formatLeaveRange, leaveDays } from "./AdminLeaveList"
 
 type LeaveRequest = Database["public"]["Tables"]["leave_requests"]["Row"]
@@ -51,11 +49,12 @@ export function EmployeeLeaveList({
   pageCount: number
   onPageChange: (pageIndex: number) => void
 }) {
+  const t = useT("leave")
   if (requests.length === 0) {
     return (
       <EmptyState
-        title="Belum ada pengajuan"
-        description="Pengajuan cuti, sakit, dan WFH kamu akan muncul di sini."
+        title={t("emptyRequestsTitle")}
+        description={t("emptyRequestsSelfDesc")}
         icon={<RiCalendarLine className="size-5" />}
         placement="inner"
       />
@@ -71,10 +70,10 @@ export function EmployeeLeaveList({
             "gutter-x text-muted-foreground border-border h-9 border-b text-[13px]",
           )}
         >
-          <span>Tanggal</span>
-          <span className="hidden md:block">Jenis</span>
-          <span className="hidden text-right md:block">Durasi</span>
-          <span>Status</span>
+          <span>{t("colDate")}</span>
+          <span className="hidden md:block">{t("colType")}</span>
+          <span className="hidden text-right md:block">{t("colDuration")}</span>
+          <span>{t("colStatus")}</span>
           <span />
         </div>
         <AnimatePresence initial={false} key={page}>
@@ -106,17 +105,21 @@ function LeaveRow({
   onEdit: (item: LeaveRequest) => void
   onCancel: (item: LeaveRequest) => void
 }) {
-  const type = LEAVE_TYPE_LABELS[req.leave_type] ?? req.leave_type
+  const t = useT("leave")
+  const dateLocale = useDateLocale()
+  const type = leaveTypeLabel(req.leave_type, t)
+  const days = leaveDays(req.start_date, req.end_date)
+  const daysText = t(daysKey(days), { n: days })
 
   return (
     <ListRow className={cn(ROW_GRID, "min-h-14")}>
       <div className="flex min-w-0 flex-col">
         <span className="text-foreground truncate tabular-nums">
-          {formatLeaveRange(req.start_date, req.end_date)}
+          {formatLeaveRange(req.start_date, req.end_date, dateLocale)}
           {/* Type and duration have their own columns from md up. */}
           <span className="text-muted-foreground md:hidden">
             {" "}
-            · {type} · {leaveDays(req.start_date, req.end_date)} hari
+            · {type} · {daysText}
           </span>
         </span>
         {(req.reason || req.review_note || req.proof_url) && (
@@ -128,20 +131,11 @@ function LeaveRow({
             )}
             {req.review_note && (
               <span className="truncate" title={req.review_note}>
-                {req.reason ? "· " : ""}Catatan: {req.review_note}
+                {req.reason ? "· " : ""}
+                {t("reviewNote", { note: req.review_note })}
               </span>
             )}
-            {req.proof_url && (
-              <a
-                href={req.proof_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-foreground inline-flex shrink-0 items-center gap-1 transition-colors"
-              >
-                <RiFilePaperLine className="size-3.5" />
-                Bukti
-              </a>
-            )}
+            {req.proof_url && <ProofLink value={req.proof_url} />}
           </span>
         )}
       </div>
@@ -150,11 +144,11 @@ function LeaveRow({
         <Badge variant="secondary">{type}</Badge>
       </div>
       <span className="text-muted-foreground hidden text-right tabular-nums md:block">
-        {leaveDays(req.start_date, req.end_date)} hari
+        {daysText}
       </span>
       <div>
         <Badge variant={STATUS_VARIANT[req.status]}>
-          {LEAVE_STATUS_LABELS[req.status] ?? req.status}
+          {leaveStatusLabel(req.status, t)}
         </Badge>
       </div>
 
@@ -166,7 +160,7 @@ function LeaveRow({
                 <Button
                   variant="ghost"
                   size="icon-sm"
-                  aria-label="Aksi pengajuan"
+                  aria-label={t("requestActions")}
                   className="text-muted-foreground"
                 />
               }
@@ -175,14 +169,14 @@ function LeaveRow({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="min-w-40">
               <DropdownMenuItem onClick={() => onEdit(req)}>
-                {req.status === "rejected" ? "Ajukan ulang" : "Ubah tanggal"}
+                {req.status === "rejected" ? t("resubmit") : t("changeDates")}
               </DropdownMenuItem>
               {req.status === "pending" && (
                 <DropdownMenuItem
                   variant="destructive"
                   onClick={() => onCancel(req)}
                 >
-                  Batalkan
+                  {t("cancelAction")}
                 </DropdownMenuItem>
               )}
             </DropdownMenuContent>

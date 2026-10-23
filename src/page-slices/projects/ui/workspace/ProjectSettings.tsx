@@ -1,55 +1,61 @@
 "use client"
 
 import { PageHeader } from "@/components/page-header"
+import { cn } from "@/lib/utils"
+import { surfaceClassName } from "@/components/panel"
 import { deleteProject } from "@/app/(main)/projects/actions/project-actions"
+import { setProjectClient } from "@/app/(main)/clients/actions/client-actions"
+import { useClients } from "@/page-slices/clients/model/data"
+import { applyProcessToProject } from "@/app/(main)/processes/actions/process-actions"
+import { useProcesses } from "@/page-slices/processes/model/data"
+import { ClientFormDialog } from "@/page-slices/clients/ui/ClientFormDialog"
 import { ConfirmDialog } from "@/components/confirm-dialog"
 import { ProjectAvatar } from "@/components/project-avatar"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectSeparator,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Spinner } from "@/components/ui/spinner"
 import { useQueryClient } from "@tanstack/react-query"
+import { useDateLocale, useT } from "@/shared/i18n/client"
 import { format } from "date-fns"
-import { id as idLocale } from "date-fns/locale"
+import { ArrowUpRight } from "lucide-react"
 import dynamic from "next/dynamic"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { toast } from "sonner"
-import { supabase, useInvalidate, useViewer, useWorkspace } from "./data"
+import { useInvalidate, useViewer, useWorkspace } from "./data"
 
 // Edit dialog loads on first open.
 const ProjectForm = dynamic(() =>
   import("../ProjectForm").then((m) => m.ProjectForm),
 )
 
-const CLIENT_FIELDS = [
-  { key: "client_name", label: "Nama klien", placeholder: "mis. PT Westura" },
-  { key: "client_contact", label: "Kontak", placeholder: "Nama PIC di klien" },
-  { key: "client_email", label: "Email", placeholder: "pic@klien.com" },
-  { key: "client_phone", label: "Telepon / WhatsApp", placeholder: "08…" },
-] as const
-type ClientKey = (typeof CLIENT_FIELDS)[number]["key"]
+const NO_CLIENT = "__none"
+const NEW_CLIENT = "__new"
 
+/** A settings section: title + action in the header, content under it. */
 function Card({
   title,
-  description,
   action,
   children,
 }: {
   title: string
-  description?: string
   action?: React.ReactNode
   children?: React.ReactNode
 }) {
   return (
-    <section className="ring-foreground/10 flex flex-col rounded-xl ring-1">
+    <section className={cn(surfaceClassName, "flex flex-col")}>
       <header className="flex items-center justify-between gap-4 px-4 py-3">
-        <div className="min-w-0">
-          <h2 className="text-sm font-medium">{title}</h2>
-          {description && (
-            <p className="text-muted-foreground text-xs">{description}</p>
-          )}
-        </div>
+        <h2 className="min-w-0 truncate text-sm font-medium">{title}</h2>
         {action}
       </header>
       {children && <div className="border-t">{children}</div>}
@@ -59,33 +65,30 @@ function Card({
 
 /** Client contact, project & team, and deleting the project. */
 export function ProjectSettings({ projectId }: { projectId: string }) {
+  const t = useT("projects")
+  const tc = useT("common")
+  const tcl = useT("clients")
+  const tpr = useT("processes")
+  const dateLocale = useDateLocale()
   const router = useRouter()
   const queryClient = useQueryClient()
   const { data, isLoading } = useWorkspace(projectId)
   const viewer = useViewer()
   const invalidate = useInvalidate(projectId)
-  const [client, setClient] = useState<Record<ClientKey, string>>({
-    client_name: "",
-    client_contact: "",
-    client_email: "",
-    client_phone: "",
-  })
   const [saving, setSaving] = useState(false)
   const [editOpen, setEditOpen] = useState(false)
   const [editMounted, setEditMounted] = useState(false)
   if (editOpen && !editMounted) setEditMounted(true)
   const [deleting, setDeleting] = useState(false)
+  const [newClientOpen, setNewClientOpen] = useState(false)
+  const [editClientOpen, setEditClientOpen] = useState(false)
+  const { data: clients = [] } = useClients(viewer.isAdmin)
+  const { data: processes = [] } = useProcesses(viewer.isAdmin)
+  const [switchTo, setSwitchTo] = useState<{ id: string; name: string } | null>(
+    null,
+  )
 
   const project = data?.project
-  useEffect(() => {
-    if (!project) return
-    setClient({
-      client_name: project.client_name ?? "",
-      client_contact: project.client_contact ?? "",
-      client_email: project.client_email ?? "",
-      client_phone: project.client_phone ?? "",
-    })
-  }, [project])
 
   if (isLoading || !project || !data) {
     return (
@@ -95,154 +98,318 @@ export function ProjectSettings({ projectId }: { projectId: string }) {
     )
   }
 
-  const dirty = CLIENT_FIELDS.some(
-    ({ key }) => (project[key] ?? "") !== client[key].trim(),
-  )
-
-  const saveClient = async () => {
+  // Client details live on the client record only; the project links to it.
+  const linked = data.client
+  const linkedRow = clients.find((c) => c.id === linked?.id) ?? null
+  const linkClient = async (clientId: string | null) => {
     setSaving(true)
-    const { error } = await supabase()
-      .from("projects")
-      .update(
-        Object.fromEntries(
-          CLIENT_FIELDS.map(({ key }) => [key, client[key].trim() || null]),
-        ),
-      )
-      .eq("id", projectId)
+    const result = await setProjectClient(projectId, clientId)
     setSaving(false)
-    if (error) {
-      toast.error("Gagal menyimpan data klien.")
-      return
-    }
-    toast.success("Data klien disimpan")
+    if (!result.success) return void toast.error(result.error)
+    toast.success(tcl("linked"))
     invalidate("workspace")
     queryClient.invalidateQueries({ queryKey: ["project-summary", projectId] })
+    queryClient.invalidateQueries({ queryKey: ["clients"] })
   }
+  const clientOptions = clients.filter(
+    (c) => !c.archived_at || c.id === project.client_id,
+  )
 
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-col">
-      <PageHeader className="pt-6 pb-4" title="Pengaturan" />
+    <div className="flex w-full flex-col">
+      <PageHeader className="pt-6 pb-4" title={t("sectionSettings")} />
       <div className="flex flex-col gap-4 pb-4">
-        <div className="flex items-center gap-4 pb-2">
+        <div className="flex items-center gap-3 pb-1">
           <ProjectAvatar
             id={project.id}
             name={project.name}
-            className="size-12 rounded-xl text-lg"
+            className="size-9 rounded-[5px] text-sm"
           />
-          <div className="flex flex-col">
-            <h1 className="text-lg font-semibold">{project.name}</h1>
-            <p className="text-muted-foreground text-sm">
+          <div className="flex min-w-0 flex-col">
+            <h2 className="truncate text-sm font-medium">{project.name}</h2>
+            <p className="text-muted-foreground text-[13px] tabular-nums">
               {format(new Date(project.start_date), "d MMM yyyy", {
-                locale: idLocale,
+                locale: dateLocale,
               })}{" "}
               –{" "}
               {format(new Date(project.end_date), "d MMM yyyy", {
-                locale: idLocale,
+                locale: dateLocale,
               })}
               {project.quarter_id ? ` · ${project.quarter_id}` : ""}
             </p>
           </div>
         </div>
 
-        <Card
-          title="Klien"
-          description="Siapa klien project ini dan siapa yang dihubungi."
-          action={
-            viewer.isAdmin && (
-              <Button
-                size="sm"
-                onClick={saveClient}
-                disabled={!dirty || saving}
-              >
-                {saving ? "Menyimpan…" : "Simpan"}
-              </Button>
-            )
-          }
-        >
-          <div className="grid gap-3 p-4 sm:grid-cols-2">
-            {CLIENT_FIELDS.map(({ key, label, placeholder }) => (
-              <label key={key} className="flex flex-col gap-1.5 text-sm">
-                <span className="text-muted-foreground text-xs">{label}</span>
-                <Input
-                  value={client[key]}
-                  placeholder={placeholder}
-                  disabled={!viewer.isAdmin}
-                  onChange={(e) =>
-                    setClient({ ...client, [key]: e.target.value })
-                  }
-                />
-              </label>
-            ))}
+        {/* Settings on the left, the team beside them. */}
+        <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(20rem,26rem)]">
+          <div className="flex min-w-0 flex-col gap-4">
+            <Card
+              title={t("factsClient")}
+              action={
+                viewer.isAdmin && (
+                  <Select
+                    value={project.client_id ?? NO_CLIENT}
+                    disabled={saving}
+                    onValueChange={(v) => {
+                      if (!v || v === (project.client_id ?? NO_CLIENT)) return
+                      if (v === NEW_CLIENT) return setNewClientOpen(true)
+                      linkClient(v === NO_CLIENT ? null : v)
+                    }}
+                  >
+                    <SelectTrigger
+                      size="sm"
+                      className="w-48"
+                      aria-label={tcl("fieldClient")}
+                    >
+                      <SelectValue>
+                        {(value: string) =>
+                          value === NO_CLIENT
+                            ? tcl("noClient")
+                            : (clients.find((c) => c.id === value)?.name ??
+                              linked?.name)
+                        }
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent align="end">
+                      <SelectItem value={NO_CLIENT}>
+                        {tcl("noClient")}
+                      </SelectItem>
+                      {clientOptions.length > 0 && <SelectSeparator />}
+                      {clientOptions.map((c) => (
+                        <SelectItem key={c.id} value={c.id}>
+                          {c.name}
+                        </SelectItem>
+                      ))}
+                      <SelectSeparator />
+                      <SelectItem value={NEW_CLIENT}>
+                        {tcl("newClient")}…
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                )
+              }
+            >
+              {linked ? (
+                <dl className="grid gap-x-4 gap-y-3 p-4 text-sm sm:grid-cols-2">
+                  {[
+                    [t("clientName"), linked.name],
+                    [t("factsContact"), linked.contact_name],
+                    [t("factsEmail"), linked.email],
+                    [t("clientPhone"), linked.phone],
+                    [tcl("fieldAddress"), linked.address ?? linked.country],
+                    [tcl("fieldCurrency"), linked.currency],
+                  ].map(([label, value]) => (
+                    <div key={label} className="flex min-w-0 flex-col gap-1">
+                      <dt className="text-muted-foreground text-[13px]">
+                        {label}
+                      </dt>
+                      <dd
+                        className={cn(
+                          "truncate",
+                          !value && "text-tertiary-foreground",
+                        )}
+                      >
+                        {value || t("factsNotSet")}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+              ) : (
+                <p className="text-muted-foreground p-4 text-sm">
+                  {tcl("noClientLinkedHint")}
+                </p>
+              )}
+              {viewer.isAdmin && linked && (
+                <footer className="flex items-center justify-end gap-2 border-t px-4 py-3">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    nativeButton={false}
+                    render={
+                      <Link
+                        href={`/clients?klien=${linked.id}`}
+                        prefetch={false}
+                      />
+                    }
+                  >
+                    {tcl("manageClients")}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={!linkedRow}
+                    onClick={() => setEditClientOpen(true)}
+                  >
+                    {tcl("editClient")}
+                  </Button>
+                </footer>
+              )}
+            </Card>
+
+            {viewer.isAdmin && (
+              <Card
+                title={tpr("fieldProcess")}
+                action={
+                  <div className="flex items-center gap-1">
+                    <Select
+                      value={project.process_id ?? null}
+                      onValueChange={(v) => {
+                        const next = processes.find((p) => p.id === v)
+                        if (next && v !== project.process_id)
+                          setSwitchTo({ id: next.id, name: next.name })
+                      }}
+                    >
+                      <SelectTrigger
+                        size="sm"
+                        className="w-48"
+                        aria-label={tpr("fieldProcess")}
+                      >
+                        <SelectValue>
+                          {(value: string) =>
+                            processes.find((p) => p.id === value)?.name ??
+                            tpr("noProcess")
+                          }
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent align="end">
+                        {processes.map((p) => (
+                          <SelectItem key={p.id} value={p.id}>
+                            {p.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Button
+                      size="icon-sm"
+                      variant="ghost"
+                      aria-label={tpr("manageProcesses")}
+                      title={tpr("manageProcesses")}
+                      className="text-muted-foreground"
+                      nativeButton={false}
+                      render={
+                        <Link
+                          href={
+                            project.process_id
+                              ? `/processes/${project.process_id}`
+                              : "/processes"
+                          }
+                          prefetch={false}
+                        />
+                      }
+                    >
+                      <ArrowUpRight />
+                    </Button>
+                  </div>
+                }
+              />
+            )}
+
+            {viewer.isAdmin && (
+              <Card
+                title={t("deleteProject")}
+                action={
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="text-destructive hover:text-destructive"
+                    onClick={() => setDeleting(true)}
+                  >
+                    {t("deleteProject")}
+                  </Button>
+                }
+              />
+            )}
           </div>
-        </Card>
-
-        <Card
-          title="Tim"
-          description="Anggota, peran di project, dan lead."
-          action={
-            viewer.isAdmin && (
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => setEditOpen(true)}
-              >
-                Ubah project & tim
-              </Button>
-            )
-          }
-        >
-          {data.team.length === 0 ? (
-            <p className="text-muted-foreground px-4 py-6 text-sm">
-              Belum ada anggota.
-            </p>
-          ) : (
-            data.team.map((m) => (
-              <div
-                key={m.assignmentId}
-                className="flex items-center gap-3 border-b px-4 py-2.5 text-sm last:border-b-0"
-              >
-                <Avatar className="size-7">
-                  <AvatarImage src={m.avatar_url || undefined} alt="" />
-                  <AvatarFallback className="text-[10px]">
-                    {(m.full_name || "U").slice(0, 2).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex min-w-0 flex-1 flex-col">
-                  <span className="truncate">{m.full_name}</span>
-                  <span className="text-muted-foreground text-xs">
-                    {m.job_title}
-                  </span>
-                </div>
-                <span className="text-muted-foreground text-xs">{m.role}</span>
-                {m.isLead && (
-                  <span className="bg-primary/15 text-primary rounded-sm px-1.5 py-0.5 text-xs">
-                    Lead
-                  </span>
-                )}
-              </div>
-            ))
-          )}
-        </Card>
-
-        {viewer.isAdmin && (
           <Card
-            title="Hapus project"
-            description="Project, tim, tugas, dokumen, library, dan nilai KPI-nya ikut terhapus. Kalau cuma mau disembunyikan, arsipkan saja."
+            title={t("colTeam")}
             action={
-              <Button
-                size="sm"
-                variant="outline"
-                className="text-destructive hover:text-destructive"
-                onClick={() => setDeleting(true)}
-              >
-                Hapus project
-              </Button>
+              viewer.isAdmin && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setEditOpen(true)}
+                >
+                  {t("editProjectAndTeam")}
+                </Button>
+              )
             }
-          />
-        )}
+          >
+            {data.team.length === 0 ? (
+              <p className="text-muted-foreground px-4 py-6 text-sm">
+                {t("noMembersYet")}
+              </p>
+            ) : (
+              data.team.map((m) => (
+                <div
+                  key={m.assignmentId}
+                  className="border-border/50 flex min-h-12 items-center gap-3 border-b px-4 py-2 text-sm last:border-b-0"
+                >
+                  <Avatar className="size-7">
+                    <AvatarImage src={m.avatar_url || undefined} alt="" />
+                    <AvatarFallback className="text-[10px]">
+                      {(m.full_name || "U").slice(0, 2).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex min-w-0 flex-1 flex-col">
+                    <span className="truncate">{m.full_name}</span>
+                    <span className="text-tertiary-foreground truncate text-[13px]">
+                      {m.job_title}
+                    </span>
+                  </div>
+                  <span className="text-muted-foreground text-[13px]">
+                    {m.role}
+                  </span>
+                  {m.isLead && <Badge variant="info">{t("lead")}</Badge>}
+                </div>
+              ))
+            )}
+          </Card>
+        </div>
 
         {viewer.isAdmin && (
           <>
+            <ConfirmDialog
+              open={switchTo !== null}
+              onOpenChange={(open) => !open && setSwitchTo(null)}
+              title={tpr("changeProcessTitle", { name: switchTo?.name ?? "" })}
+              description={tpr("changeProcessDescription", {
+                name: switchTo?.name ?? "",
+              })}
+              confirmText={tpr("changeProcessConfirm")}
+              cancelText={tc("cancel")}
+              onConfirm={async () => {
+                if (!switchTo) return
+                const result = await applyProcessToProject(
+                  projectId,
+                  switchTo.id,
+                )
+                if (!result.success) return void toast.error(result.error)
+                toast.success(tpr("processApplied"))
+                invalidate("workspace", "steps", "tasks")
+                queryClient.invalidateQueries({ queryKey: ["processes"] })
+                queryClient.invalidateQueries({
+                  queryKey: ["project-summary", projectId],
+                })
+              }}
+            />
+            <ClientFormDialog
+              client={null}
+              open={newClientOpen}
+              onOpenChange={setNewClientOpen}
+              onSaved={(id) => linkClient(id)}
+            />
+            <ClientFormDialog
+              client={linkedRow}
+              open={editClientOpen}
+              onOpenChange={setEditClientOpen}
+              onSaved={() => {
+                invalidate("workspace")
+                queryClient.invalidateQueries({ queryKey: ["clients"] })
+                queryClient.invalidateQueries({
+                  queryKey: ["project-summary", projectId],
+                })
+              }}
+            />
             {editMounted && (
               <ProjectForm
                 projectId={projectId}
@@ -259,10 +426,10 @@ export function ProjectSettings({ projectId }: { projectId: string }) {
             <ConfirmDialog
               open={deleting}
               onOpenChange={setDeleting}
-              title={`Hapus ${project.name}?`}
-              description="Semua isi project dihapus permanen dan tidak bisa dikembalikan."
-              confirmText="Hapus permanen"
-              cancelText="Batal"
+              title={t("deleteTitle", { name: project.name })}
+              description={t("deleteSettingsDescription")}
+              confirmText={t("deletePermanently")}
+              cancelText={tc("cancel")}
               variant="destructive"
               onConfirm={async () => {
                 const result = await deleteProject(projectId)
@@ -270,7 +437,7 @@ export function ProjectSettings({ projectId }: { projectId: string }) {
                   toast.error(result.error)
                   return
                 }
-                toast.success("Project dihapus")
+                toast.success(t("projectDeleted"))
                 router.push("/projects")
               }}
             />

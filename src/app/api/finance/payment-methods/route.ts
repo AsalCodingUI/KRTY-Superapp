@@ -1,3 +1,4 @@
+import { getT } from "@/shared/i18n/server"
 import {
   deletePaymentMethod,
   getPaymentMethods,
@@ -10,11 +11,12 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const t = await getT("api")
   const body = (await request.json()) as { name?: string }
 
   if (!body.name?.trim()) {
     return Response.json(
-      { success: false, error: "Missing payment method name" },
+      { success: false, error: t("missingPaymentMethodName") },
       { status: 400 },
     )
   }
@@ -23,11 +25,12 @@ export async function POST(request: Request) {
 }
 
 export async function PATCH(request: Request) {
+  const t = await getT("api")
   const body = (await request.json()) as { id?: string; name?: string }
 
   if (!body.id || !body.name?.trim()) {
     return Response.json(
-      { success: false, error: "Missing id or name" },
+      { success: false, error: t("missingIdOrName") },
       { status: 400 },
     )
   }
@@ -36,11 +39,12 @@ export async function PATCH(request: Request) {
 }
 
 export async function DELETE(request: Request) {
+  const t = await getT("api")
   const body = (await request.json()) as { id?: string }
 
   if (!body.id) {
     return Response.json(
-      { success: false, error: "Missing payment method id" },
+      { success: false, error: t("missingPaymentMethodId") },
       { status: 400 },
     )
   }

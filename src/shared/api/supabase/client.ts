@@ -7,8 +7,10 @@ export function createClient() {
   if (!supabaseUrl || !supabaseAnonKey) {
     // During build time, env vars might not be available
     // Return a dummy client that won't be used
-    if (typeof window === 'undefined') {
-      console.warn("Supabase env vars not available during build - this is expected")
+    if (typeof window === "undefined") {
+      console.warn(
+        "Supabase env vars not available during build - this is expected",
+      )
       // Return a minimal mock client for build time
       return {
         auth: {},

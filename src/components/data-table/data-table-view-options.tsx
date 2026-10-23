@@ -27,6 +27,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
+import { useT } from "@/shared/i18n/client"
 import {
   Popover,
   PopoverContent,
@@ -49,6 +50,7 @@ function SortableItem<TData>({
   item: Item
   table: Table<TData>
 }) {
+  const t = useT("shell")
   const {
     attributes,
     listeners,
@@ -89,7 +91,7 @@ function SortableItem<TData>({
           className="-mr-1 cursor-grab active:cursor-grabbing"
           {...attributes}
           {...listeners}
-          aria-label={`Reorder ${item.label}`}
+          aria-label={t("dataTableReorder", { label: item.label })}
         >
           <GripVerticalIcon className="text-muted-foreground size-4" />
         </Button>
@@ -104,6 +106,7 @@ function SortableItem<TData>({
 function DataTableViewOptions<TData>({
   table,
 }: DataTableViewOptionsProps<TData>) {
+  const t = useT("shell")
   const [items, setItems] = React.useState<Item[]>(() =>
     table.getAllColumns().map((column) => ({
       id: column.id,
@@ -146,10 +149,12 @@ function DataTableViewOptions<TData>({
           }
         >
           <Settings2Icon data-icon="inline-start" aria-hidden="true" />
-          View
+          {t("viewLabel")}
         </PopoverTrigger>
         <PopoverContent align="end" sideOffset={7} className="w-fit gap-2 p-4">
-          <Label className="mb-1 block font-medium">Display properties</Label>
+          <Label className="mb-1 block font-medium">
+            {t("dataTableDisplayProperties")}
+          </Label>
           <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}

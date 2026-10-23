@@ -34,6 +34,7 @@ import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { canManageByRole } from "@/shared/lib/roles"
 import { useMountedTabs } from "@/shared/hooks/useMountedTabs"
 import { useTabRoute } from "@/shared/hooks/useTabRoute"
+import { useDateLocale, useT } from "@/shared/i18n/client"
 
 // Removing dependency on Database definitions which are missing
 // type SLA = Database["public"]["Tables"]["slas"]["Row"] & { archived_at: string | null };
@@ -50,6 +51,8 @@ export default function SLADashboard({
   /** Embedded in Projects, the page's list/table switch decides. */
   view?: ViewMode
 }) {
+  const t = useT("sla")
+  const dateLocale = useDateLocale()
   const router = useRouter()
   const supabase = createClient()
   const { activeTab: routeTab, setActiveTab: setRouteTab } = useTabRoute<
@@ -127,9 +130,9 @@ export default function SLADashboard({
       .in("id", ids as string[])
 
     if (error) {
-      toast.error("Gagal arsip")
+      toast.error(t("toastArchiveFailed"))
     } else {
-      toast.success("SLA diarsipkan")
+      toast.success(t("toastArchived"))
       router.refresh()
     }
   }
@@ -143,28 +146,32 @@ export default function SLADashboard({
         .eq("id", id)
 
       if (error) {
-        toast.error("Gagal pulihkan")
+        toast.error(t("toastRestoreFailed"))
       } else {
-        toast.success("SLA dipulihkan")
+        toast.success(t("toastRestored"))
         router.refresh()
       }
     },
-    [supabase, router],
+    [supabase, router, t],
   )
 
   const activeColumns = useMemo(
     () =>
       activeSLAColumns(handleEdit, (id) => setSlaToArchive(id), handleView, {
         canManage,
+        t,
+        dateLocale,
       }),
-    [handleEdit, handleView, canManage],
+    [handleEdit, handleView, canManage, t, dateLocale],
   )
   const archivedColumns = useMemo(
     () =>
       archivedSLAColumns(handleRestore, (id) => setSlaToDelete(id), {
         canManage,
+        t,
+        dateLocale,
       }),
-    [handleRestore, canManage],
+    [handleRestore, canManage, t, dateLocale],
   )
 
   // Permanent delete handler
@@ -175,9 +182,9 @@ export default function SLADashboard({
       .in("id", ids as string[])
 
     if (error) {
-      toast.error("Gagal hapus")
+      toast.error(t("toastDeleteFailed"))
     } else {
-      toast.success("SLA dihapus")
+      toast.success(t("toastDeleted"))
       router.refresh()
     }
   }
@@ -199,7 +206,7 @@ export default function SLADashboard({
   const createButton = canManage && activeTab === "active" && (
     <Button onClick={() => router.push("/sla-generator?mode=create")}>
       <RiAddLine data-icon="inline-start" aria-hidden="true" />
-      SLA baru
+      {t("newSla")}
     </Button>
   )
   const searchInput = (
@@ -209,7 +216,7 @@ export default function SLADashboard({
       </InputGroupAddon>
       <InputGroupInput
         type="search"
-        placeholder="Cari klien atau project..."
+        placeholder={t("searchPlaceholder")}
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />
@@ -265,8 +272,8 @@ export default function SLADashboard({
                   setActiveTab(value as "active" | "archive")
                 }
                 items={[
-                  { value: "active", label: "Aktif" },
-                  { value: "archive", label: "Arsip" },
+                  { value: "active", label: t("tabActive") },
+                  { value: "archive", label: t("tabArchive") },
                 ]}
               />
               {searchInput}
@@ -279,7 +286,7 @@ export default function SLADashboard({
           {/* Title + actions, bordered tabs, then the toolbar. */}
           <PageHeader
             className="pt-6 pb-4"
-            title="SLA Generator"
+            title={t("pageTitle")}
             actions={
               <>
                 <ViewToggle value={view} onValueChange={setView} />
@@ -299,8 +306,8 @@ export default function SLADashboard({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="active">Aktif</SelectItem>
-                  <SelectItem value="archive">Arsip</SelectItem>
+                  <SelectItem value="active">{t("tabActive")}</SelectItem>
+                  <SelectItem value="archive">{t("tabArchive")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -311,14 +318,14 @@ export default function SLADashboard({
                   onClick={() => setActiveTab("active")}
                   showLeadingIcon={false}
                 >
-                  Aktif
+                  {t("tabActive")}
                 </TabNavigationLink>
                 <TabNavigationLink
                   active={activeTab === "archive"}
                   onClick={() => setActiveTab("archive")}
                   showLeadingIcon={false}
                 >
-                  Arsip
+                  {t("tabArchive")}
                 </TabNavigationLink>
               </TabNavigation>
             </div>
@@ -347,9 +354,9 @@ export default function SLADashboard({
         isOpen={!!slaToArchive}
         onClose={() => setSlaToArchive(null)}
         onConfirm={confirmArchive}
-        title="Archive SLA"
-        description="This SLA will be moved to Archive. You can restore it later from the Archive tab."
-        confirmText="Archive"
+        title={t("archiveDialogTitle")}
+        description={t("archiveDialogDescription")}
+        confirmText={t("archiveConfirm")}
       />
 
       {/* Permanent Delete Confirmation Dialog */}
@@ -357,9 +364,9 @@ export default function SLADashboard({
         isOpen={!!slaToDelete}
         onClose={() => setSlaToDelete(null)}
         onConfirm={confirmDelete}
-        title="Delete SLA Permanently"
-        description="⚠️ This action cannot be undone. The SLA will be permanently deleted from the database."
-        confirmText="Delete Permanently"
+        title={t("deleteDialogTitle")}
+        description={t("deleteDialogDescription")}
+        confirmText={t("deleteConfirm")}
       />
     </>
   )

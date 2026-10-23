@@ -1,6 +1,7 @@
 "use client"
 
 import { useKeyboardShortcuts } from "@/shared/hooks/useKeyboardShortcuts"
+import { useT } from "@/shared/i18n/client"
 import { useTabRoute } from "@/shared/hooks/useTabRoute"
 // Deep imports (not the `@/widgets/event-calendar` barrel) so the dynamic
 // EventCalendar split below isn't defeated by the barrel's static re-exports.
@@ -73,6 +74,7 @@ function CalendarContent({
     goToPrevious,
     setViewMode,
   } = useCalendarContext()
+  const t = useT("calendar")
   const pathname = usePathname()
   // Personal calendar lives under /calendar/personal/<view>.
   const basePath = pathname.startsWith("/calendar/personal")
@@ -137,7 +139,7 @@ function CalendarContent({
           end: new Date(event.end),
         }))
       } catch (error) {
-        toast.error("Gagal memuat Google Calendar")
+        toast.error(t("toastGoogleLoadFailed"))
         throw error
       }
     },

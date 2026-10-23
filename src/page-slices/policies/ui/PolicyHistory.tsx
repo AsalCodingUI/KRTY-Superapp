@@ -6,24 +6,30 @@ import {
   format,
   formatDistanceToNowStrict,
 } from "date-fns"
-import { id as idLocale } from "date-fns/locale"
+import type { Locale } from "date-fns"
+import { useDateLocale, useT } from "@/shared/i18n/client"
+import type { MessageKey } from "@/shared/i18n/messages"
 import { FilePen, FilePlus2, RefreshCw } from "lucide-react"
 import type { PolicyVersion } from "../model/data"
 
 /** "16:16" today, "Kemarin, 16:16", "Jumat, 16:16" this week, else a date. */
-export function when(value: string | null) {
+export function when(
+  value: string | null,
+  t: (key: MessageKey<"policies">, vars?: Record<string, string>) => string,
+  locale: Locale,
+) {
   if (!value) return ""
   const date = new Date(value)
   const days = differenceInCalendarDays(new Date(), date)
   if (days === 0) {
     const minutes = (Date.now() - date.getTime()) / 60_000
     return minutes < 60
-      ? formatDistanceToNowStrict(date, { addSuffix: true, locale: idLocale })
-      : `Hari ini, ${format(date, "HH:mm")}`
+      ? formatDistanceToNowStrict(date, { addSuffix: true, locale })
+      : t("todayAt", { time: format(date, "HH:mm") })
   }
-  if (days === 1) return `Kemarin, ${format(date, "HH:mm")}`
-  if (days < 7) return format(date, "EEEE, HH:mm", { locale: idLocale })
-  return format(date, "d MMM yyyy", { locale: idLocale })
+  if (days === 1) return t("yesterdayAt", { time: format(date, "HH:mm") })
+  if (days < 7) return format(date, "EEEE, HH:mm", { locale })
+  return format(date, "d MMM yyyy", { locale })
 }
 
 type Entry = {
@@ -61,6 +67,8 @@ export function PolicyHistory({
   viewingId: string | null
   onSelect: (version: PolicyVersion) => void
 }) {
+  const t = useT("policies")
+  const dateLocale = useDateLocale()
   const entries: Entry[] = [
     ...(draft
       ? [
@@ -93,8 +101,10 @@ export function PolicyHistory({
   if (entries.length === 0) return null
 
   return (
-    <section aria-label="Riwayat" className="flex flex-col">
-      <h2 className="text-heading pb-4 text-sm font-semibold">Riwayat</h2>
+    <section aria-label={t("history")} className="flex flex-col">
+      <h2 className="text-heading pb-4 text-sm font-semibold">
+        {t("history")}
+      </h2>
       <ol className="flex flex-col">
         {entries.map((e, i) => {
           const { icon: Icon, tone } = ICONS[e.kind]
@@ -124,24 +134,26 @@ export function PolicyHistory({
                 <span className="text-muted-foreground text-sm leading-snug">
                   <span className="text-foreground">{e.who}</span>{" "}
                   {e.kind === "draft"
-                    ? "sedang menyiapkan perubahan."
+                    ? t("historyDraft")
                     : e.kind === "created"
-                      ? "menerbitkan aturan ini."
-                      : "memperbarui aturan ini."}
+                      ? t("historyCreated")
+                      : t("historyUpdated")}
                 </span>
                 <span className="text-muted-foreground flex flex-wrap items-center gap-x-2 text-[13px]">
-                  <span>{when(e.at)}</span>
+                  <span>{when(e.at, t, dateLocale)}</span>
                   {(e.current || e.viewing || e.kind === "draft") && (
                     <span aria-hidden>·</span>
                   )}
-                  {e.current && <span className="text-success">Berlaku</span>}
-                  {e.kind === "draft" && <span>Belum terbit</span>}
+                  {e.current && (
+                    <span className="text-success">{t("inForce")}</span>
+                  )}
+                  {e.kind === "draft" && <span>{t("notPublished")}</span>}
                   {e.viewing && (
-                    <span className="text-foreground">Sedang dilihat</span>
+                    <span className="text-foreground">{t("viewing")}</span>
                   )}
                   {!e.viewing && (
                     <span className="text-primary opacity-0 transition-opacity group-hover:opacity-100">
-                      Lihat
+                      {t("view")}
                     </span>
                   )}
                 </span>

@@ -1,6 +1,7 @@
 "use client"
 
 import { EmptyState as BaseEmptyState } from "@/components/empty-state"
+import { useT } from "@/shared/i18n/client"
 import { RiCalendar2Line } from "@/shared/ui/lucide-icons"
 
 interface EmptyStateProps {
@@ -12,12 +13,13 @@ export function EmptyState({
   onCreateEvent,
   filtered = false,
 }: EmptyStateProps) {
+  const t = useT("calendar")
   if (filtered) {
     return (
       <BaseEmptyState
         className="h-full"
-        title="Tidak ada jadwal yang cocok dengan filter"
-        description="Coba ubah filter Anda."
+        title={t("emptyFilteredTitle")}
+        description={t("emptyFilteredDescription")}
         icon={<RiCalendar2Line className="size-5" />}
         placement="inner"
       />
@@ -27,14 +29,14 @@ export function EmptyState({
   return (
     <BaseEmptyState
       className="h-full"
-      title="Belum ada jadwal"
-      description="Buat jadwal pertama Anda."
+      title={t("emptyTitle")}
+      description={t("emptyDescription")}
       icon={<RiCalendar2Line className="size-5" />}
       placement="inner"
       action={
         onCreateEvent
           ? {
-              label: "Buat jadwal pertama",
+              label: t("emptyAction"),
               onClick: onCreateEvent,
             }
           : undefined

@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
+import { useT } from "@/shared/i18n/client"
 import { RiAddLine, RiDeleteBinLine } from "@/shared/ui/lucide-icons"
 
 interface MilestoneItem {
@@ -26,6 +27,7 @@ interface MilestonesFormProps {
 }
 
 export const MilestonesForm = ({ data, onChange }: MilestonesFormProps) => {
+  const t = useT("sla")
   const updateMilestone = (key: keyof Milestones, newData: MilestoneItem[]) => {
     onChange({ ...data, [key]: newData })
   }
@@ -72,12 +74,12 @@ export const MilestonesForm = ({ data, onChange }: MilestonesFormProps) => {
       <div className="flex items-center justify-between">
         <h4 className="text-foreground text-sm font-medium">{title}</h4>
         <div className="text-muted-foreground text-xs font-medium">
-          Total:{" "}
-          {data[mKey].reduce(
-            (acc, item) => acc + (parseInt(item.time) || 0),
-            0,
-          )}{" "}
-          Days
+          {t("milestoneTotalDays", {
+            n: data[mKey].reduce(
+              (acc, item) => acc + (parseInt(item.time) || 0),
+              0,
+            ),
+          })}
         </div>
       </div>
 
@@ -97,24 +99,24 @@ export const MilestonesForm = ({ data, onChange }: MilestonesFormProps) => {
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
             <div className="md:col-span-2 lg:col-span-1">
-              <Label className="mb-1">No</Label>
+              <Label className="mb-1">{t("fieldNo")}</Label>
               <Input
                 value={item.no}
                 onChange={(e) => updateItem(mKey, index, "no", e.target.value)}
               />
             </div>
             <div className="md:col-span-6 lg:col-span-5">
-              <Label className="mb-1">Category</Label>
+              <Label className="mb-1">{t("category")}</Label>
               <Input
                 value={item.category}
                 onChange={(e) =>
                   updateItem(mKey, index, "category", e.target.value)
                 }
-                placeholder="Type"
+                placeholder={t("categoryPlaceholder")}
               />
             </div>
             <div className="md:col-span-4 lg:col-span-2">
-              <Label className="mb-1">Days</Label>
+              <Label className="mb-1">{t("days")}</Label>
               <div className="relative">
                 <Input
                   type="number"
@@ -125,19 +127,19 @@ export const MilestonesForm = ({ data, onChange }: MilestonesFormProps) => {
                   className="pr-8"
                 />
                 <span className="text-muted-foreground absolute top-2 right-2 text-xs">
-                  d
+                  {t("daysSuffix")}
                 </span>
               </div>
             </div>
             <div className="md:col-span-12">
-              <Label className="mb-1">Deliverables</Label>
+              <Label className="mb-1">{t("deliverables")}</Label>
               <Textarea
                 value={item.desc}
                 onChange={(e) =>
                   updateItem(mKey, index, "desc", e.target.value)
                 }
                 className="min-h-[60px]"
-                placeholder="- List items here..."
+                placeholder={t("deliverablesPlaceholder")}
               />
             </div>
           </div>
@@ -149,7 +151,7 @@ export const MilestonesForm = ({ data, onChange }: MilestonesFormProps) => {
         onClick={() => addItem(mKey)}
         className="border-border hover:border-muted-foreground/70 w-full border-dashed"
       >
-        <RiAddLine data-icon="inline-start" /> Add Deliverable
+        <RiAddLine data-icon="inline-start" /> {t("addDeliverable")}
       </Button>
     </div>
   )
@@ -158,24 +160,24 @@ export const MilestonesForm = ({ data, onChange }: MilestonesFormProps) => {
     <div>
       <div className="mb-4">
         <h3 className="text-foreground text-sm font-medium">
-          Milestones & Timeline
+          {t("milestonesTitle")}
         </h3>
       </div>
 
       <Tabs defaultValue="m1" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="m1">Milestone 1</TabsTrigger>
-          <TabsTrigger value="m2">Milestone 2</TabsTrigger>
-          <TabsTrigger value="m3">Milestone 3</TabsTrigger>
+          <TabsTrigger value="m1">{t("milestoneTab", { n: 1 })}</TabsTrigger>
+          <TabsTrigger value="m2">{t("milestoneTab", { n: 2 })}</TabsTrigger>
+          <TabsTrigger value="m3">{t("milestoneTab", { n: 3 })}</TabsTrigger>
         </TabsList>
         <TabsContent value="m1">
-          <MilestoneEditor mKey="m1" title="Style Guide & Initial Wireframes" />
+          <MilestoneEditor mKey="m1" title={t("milestone1Title")} />
         </TabsContent>
         <TabsContent value="m2">
-          <MilestoneEditor mKey="m2" title="High-Fidelity UI Design" />
+          <MilestoneEditor mKey="m2" title={t("milestone2Title")} />
         </TabsContent>
         <TabsContent value="m3">
-          <MilestoneEditor mKey="m3" title="Prototype & Final Adjustments" />
+          <MilestoneEditor mKey="m3" title={t("milestone3Title")} />
         </TabsContent>
       </Tabs>
     </div>

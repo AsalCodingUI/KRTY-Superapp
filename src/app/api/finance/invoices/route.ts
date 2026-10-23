@@ -1,3 +1,4 @@
+import { getT } from "@/shared/i18n/server"
 import {
   deleteInvoice,
   getAllInvoices,
@@ -24,6 +25,7 @@ export async function POST(request: Request) {
 }
 
 export async function PATCH(request: Request) {
+  const t = await getT("api")
   const body = (await request.json()) as {
     id?: string
     payload?: Partial<SaveInvoicePayload>
@@ -31,7 +33,7 @@ export async function PATCH(request: Request) {
 
   if (!body.id || !body.payload) {
     return Response.json(
-      { success: false, error: "Missing id or payload" },
+      { success: false, error: t("missingIdOrPayload") },
       { status: 400 },
     )
   }
@@ -40,11 +42,12 @@ export async function PATCH(request: Request) {
 }
 
 export async function DELETE(request: Request) {
+  const t = await getT("api")
   const body = (await request.json()) as { id?: string }
 
   if (!body.id) {
     return Response.json(
-      { success: false, error: "Missing invoice id" },
+      { success: false, error: t("missingInvoiceId") },
       { status: 400 },
     )
   }

@@ -1,5 +1,6 @@
 import { ProjectSLAEditPage } from "@/page-slices/projects/ui/ProjectSLAEditPage"
 import { createClient } from "@/shared/api/supabase/server"
+import { getT } from "@/shared/i18n/server"
 import { notFound } from "next/navigation"
 
 export const dynamic = "force-dynamic"
@@ -20,7 +21,7 @@ export default async function ProjectSLAEditRoute({
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  if (user == null) return <div>Please login</div>
+  if (user == null) return <div>{(await getT("projects"))("pleaseLogin")}</div>
 
   const { data: sla } = await supabase
     .from("slas")

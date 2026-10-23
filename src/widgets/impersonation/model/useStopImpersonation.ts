@@ -1,6 +1,7 @@
 "use client"
 
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
+import { useT } from "@/shared/i18n/client"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
@@ -10,6 +11,7 @@ export function useStopImpersonation() {
   const router = useRouter()
   const { refreshProfile } = useUserProfile()
   const [loading, setLoading] = useState(false)
+  const t = useT("shell")
 
   const stop = async () => {
     setLoading(true)
@@ -21,11 +23,11 @@ export function useStopImpersonation() {
       })
       if (!response.ok) throw new Error()
       await refreshProfile()
-      toast.success("Kembali ke akun kamu")
+      toast.success(t("impersonationStopped"))
       router.refresh()
       router.push("/teams/access")
     } catch {
-      toast.error("Gagal kembali ke akun kamu")
+      toast.error(t("impersonationStopFailed"))
     } finally {
       setLoading(false)
     }

@@ -1,20 +1,22 @@
 "use client"
 
 import { cn } from "@/lib/utils"
+import { useT } from "@/shared/i18n/client"
 import { RiCloseLine } from "@/shared/ui/lucide-icons"
 import * as React from "react"
 
 export type BannerTone = "warning" | "info"
 
+// Every banner is solid black; the ring keeps it apart from the dark chrome.
+const SOLID = "bg-black text-white dark:ring-1 dark:ring-white/10"
+
 const TONES: Record<BannerTone, string> = {
-  // Opaque tints: page content scrolls underneath the banner.
-  warning:
-    "bg-[color-mix(in_oklch,var(--warning)_16%,var(--background))] text-warning",
-  info: "bg-[color-mix(in_oklch,var(--primary)_16%,var(--background))] text-primary",
+  warning: SOLID,
+  info: SOLID,
 }
 
 /**
- * One compact line in the dark app chrome, under the top bar. Used for
+ * One compact line in the tinted app chrome, under the top bar. Used for
  * "view as" now and for team announcements later; every banner can be closed.
  */
 export function AppBanner({
@@ -28,6 +30,7 @@ export function AppBanner({
   action?: React.ReactNode
   onClose: () => void
 }) {
+  const t = useT("common")
   return (
     <div
       role="status"
@@ -41,7 +44,7 @@ export function AppBanner({
       <button
         type="button"
         onClick={onClose}
-        aria-label="Tutup"
+        aria-label={t("close")}
         className="flex size-6 shrink-0 items-center justify-center rounded-md opacity-70 transition-opacity hover:opacity-100"
       >
         <RiCloseLine className="size-4" />
@@ -51,7 +54,7 @@ export function AppBanner({
 }
 
 /**
- * Banner stack in the dark chrome between the top bar and the page. Publishes
+ * Banner stack in the tinted chrome between the top bar and the page. Publishes
  * its height as --app-banner-height so the fixed sidebar starts below it.
  */
 export function AppBannerStack({ children }: { children: React.ReactNode }) {
@@ -75,7 +78,7 @@ export function AppBannerStack({ children }: { children: React.ReactNode }) {
   return (
     <div
       ref={ref}
-      className="dark flex w-full shrink-0 flex-col gap-1.5 px-2 pb-2 empty:hidden"
+      className="flex w-full shrink-0 flex-col gap-1.5 px-2 pb-2 empty:hidden"
     >
       {children}
     </div>

@@ -1,3 +1,5 @@
+"use client"
+
 import { RollingValue } from "@/components/rolling-value"
 import { EmptyValue, orEmpty } from "@/components/empty-value"
 import {
@@ -6,6 +8,7 @@ import {
   type FinalScore,
   type KpiParts,
 } from "@/entities/performance/lib/kpi"
+import { useT } from "@/shared/i18n/client"
 import { RatingChip, ScoreBar } from "./RatingChip"
 
 /**
@@ -19,17 +22,20 @@ export function KpiSummary({
   parts: KpiParts
   final: FinalScore
 }) {
+  const t = useT("performance")
   const missingLabels = KPI_PARTS.filter((p) =>
     final.missing.includes(p.key),
-  ).map((p) => p.label)
+  ).map((p) => t(p.label))
 
   return (
     <dl className="stat-strip bleed gutter-x border-border border-b py-4">
       <div className="stat-tile min-w-44">
-        <dt className="text-muted-foreground text-sm">Nilai akhir</dt>
+        <dt className="text-muted-foreground text-sm">{t("finalScore")}</dt>
         <dd className="flex items-center gap-2">
           <span className="text-foreground text-xl font-normal tracking-tight tabular-nums">
-            <RollingValue value={final.score === null ? null : Math.round(final.score)}>
+            <RollingValue
+              value={final.score === null ? null : Math.round(final.score)}
+            >
               {final.score === null ? <EmptyValue /> : Math.round(final.score)}
             </RollingValue>
           </span>
@@ -37,10 +43,12 @@ export function KpiSummary({
         </dd>
         <dd className="text-tertiary-foreground text-[13px]">
           {final.score === null
-            ? "Belum ada data di periode ini."
+            ? t("noDataInPeriod")
             : missingLabels.length
-              ? `Tanpa ${missingLabels.join(" & ").toLowerCase()} (belum ada data).`
-              : "SLA 40% · 360 15% · Kualitas 45%"}
+              ? t("summaryWithout", {
+                  parts: missingLabels.join(" & ").toLowerCase(),
+                })
+              : t("summaryWeights")}
         </dd>
       </div>
 
@@ -49,9 +57,9 @@ export function KpiSummary({
         return (
           <div key={part.key} className="stat-tile min-w-44">
             <dt className="text-muted-foreground flex items-baseline justify-between gap-2 text-sm">
-              <span className="truncate">{part.label}</span>
+              <span className="truncate">{t(part.label)}</span>
               <span className="text-tertiary-foreground text-xs tabular-nums">
-                bobot {part.weight}%
+                {t("weightPercent", { n: part.weight })}
               </span>
             </dt>
             <dd className="flex items-baseline gap-1.5">
@@ -61,7 +69,7 @@ export function KpiSummary({
                 </RollingValue>
               </span>
               <span className="text-tertiary-foreground text-xs tabular-nums">
-                target {part.target}%
+                {t("targetPercent", { n: part.target })}
               </span>
             </dd>
             <dd>

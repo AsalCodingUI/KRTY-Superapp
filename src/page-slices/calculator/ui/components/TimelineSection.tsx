@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { useT } from "@/shared/i18n/client"
 import { RiAddLine, RiDeleteBinLine } from "@/shared/ui/lucide-icons"
 import { Phase } from "../types"
 
@@ -23,22 +24,25 @@ export function TimelineSection({
   onRemovePhase,
   onUpdatePhase,
 }: TimelineSectionProps) {
+  const t = useT("calculator")
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
         <div>
           <h3 className="text-foreground text-sm font-medium">
-            Timeline Engine
+            {t("timelineEngine")}
           </h3>
         </div>
-        <Badge variant="secondary">Total: {totalDuration} Days</Badge>
+        <Badge variant="secondary">
+          {t("totalDays", { count: totalDuration })}
+        </Badge>
       </div>
 
       <div className="space-y-4">
         <div className="text-muted-foreground hidden grid-cols-[minmax(0,1.8fr)_minmax(0,1fr)_minmax(0,1fr)_40px] gap-4 px-1 text-sm font-medium sm:grid">
-          <div>Phase Name</div>
-          <div className="text-center">Days</div>
-          <div className="text-center">Buffer</div>
+          <div>{t("phaseName")}</div>
+          <div className="text-center">{t("days")}</div>
+          <div className="text-center">{t("buffer")}</div>
           <div />
         </div>
 
@@ -50,7 +54,7 @@ export function TimelineSection({
             <Input
               value={phase.name}
               onChange={(e) => onUpdatePhase(phase.id, "name", e.target.value)}
-              placeholder="Phase Name"
+              placeholder={t("phaseName")}
               className="h-7 w-full"
             />
             <Input
@@ -60,7 +64,7 @@ export function TimelineSection({
               onChange={(e) =>
                 onUpdatePhase(phase.id, "days", Number(e.target.value))
               }
-              placeholder="Days"
+              placeholder={t("days")}
             />
             <Input
               type="number"
@@ -69,7 +73,7 @@ export function TimelineSection({
               onChange={(e) =>
                 onUpdatePhase(phase.id, "buffer", Number(e.target.value))
               }
-              placeholder="Buffer"
+              placeholder={t("buffer")}
             />
             <Button
               variant="ghost"
@@ -83,7 +87,7 @@ export function TimelineSection({
         ))}
 
         <Button variant="outline" className="mt-3 w-full" onClick={onAddPhase}>
-          <RiAddLine className="mr-2 size-4" /> Add Project Phase
+          <RiAddLine className="mr-2 size-4" /> {t("addProjectPhase")}
         </Button>
       </div>
     </div>

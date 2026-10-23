@@ -1,5 +1,10 @@
 "use client"
 
+import { FileField } from "@/components/file-field"
+import { Chip, FilePreview } from "./FilePreview"
+import { RowMenu, Section, type RowMenuItem } from "./ProjectLibrary"
+import { FileViewer, type ViewerItem } from "@/components/file-viewer"
+import { useFileDrop } from "@/shared/hooks/useFileDrop"
 import { PageHeader } from "@/components/page-header"
 import { ConfirmDialog } from "@/components/confirm-dialog"
 import { EmptyState } from "@/components/empty-state"
@@ -24,9 +29,9 @@ import {
 import { Spinner } from "@/components/ui/spinner"
 import { cn } from "@/lib/utils"
 import { RiAddLine, RiFileTextLine } from "@/shared/ui/lucide-icons"
+import { useDateLocale, useT } from "@/shared/i18n/client"
 import { format } from "date-fns"
-import { id as idLocale } from "date-fns/locale"
-import { FileSignature, FileText, Files } from "lucide-react"
+import { FileSignature, FileText, Files, Upload } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
 import {
@@ -38,49 +43,116 @@ import {
   useDocuments,
   useInvalidate,
   useViewer,
+  useWorkspace,
   type DocumentRow,
 } from "./data"
 
 const KINDS = {
-  proposal: { label: "Proposal", icon: FileText },
-  contract: { label: "Kontrak", icon: FileSignature },
-  other: { label: "Lainnya", icon: Files },
+  proposal: { labelKey: "docKindProposal", icon: FileText },
+  contract: { labelKey: "docKindContract", icon: FileSignature },
+  other: { labelKey: "docKindOther", icon: Files },
 } as const
 
 const STATUSES = {
-  draft: { label: "Draft", tone: "text-muted-foreground" },
-  sent: { label: "Dikirim ke klien", tone: "text-info" },
-  approved: { label: "Disetujui", tone: "text-success" },
-  signed: { label: "Ditandatangani", tone: "text-success" },
+  draft: {
+    labelKey: "docStatusDraft",
+    tone: "text-muted-foreground",
+    dot: "bg-warning",
+  },
+  sent: { labelKey: "docStatusSent", tone: "text-info", dot: "bg-info" },
+  approved: {
+    labelKey: "docStatusApproved",
+    tone: "text-success",
+    dot: "bg-success",
+  },
+  signed: {
+    labelKey: "docStatusSigned",
+    tone: "text-success",
+    dot: "bg-success",
+  },
 } as const
 
 type Kind = keyof typeof KINDS
 type Status = keyof typeof STATUSES
-type Draft = { kind: Kind; title: string; status: Status; file: File | null }
+type Draft = {
+  /** Set when editing an existing document. */
+  id?: string
+  kind: Kind
+  title: string
+  status: Status
+  /** A new file to upload (replaces the current one when editing). */
+  file: File | null
+  /** Name of the file already attached (editing). */
+  currentFile?: string | null
+}
+
+const NEW_DRAFT: Draft = {
+  kind: "proposal",
+  title: "",
+  status: "draft",
+  file: null,
+}
+
+const titleFromFile = (file: File) => file.name.replace(/\.[^.]+$/, "")
 
 /** Proposals, contracts and other files for the project, each with a status. */
 export function ProjectDocuments({ projectId }: { projectId: string }) {
+  const t = useT("projects")
+  const tc = useT("common")
+  const dateLocale = useDateLocale()
   const { data: documents = [], isLoading } = useDocuments(projectId)
   const viewer = useViewer()
   const invalidate = useInvalidate(projectId)
   const [draft, setDraft] = useState<Draft | null>(null)
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState<DocumentRow | null>(null)
+  const [viewing, setViewing] = useState<number | null>(null)
+  const { data: workspace } = useWorkspace(projectId)
+  const projectName = workspace?.project?.name ?? "project"
 
-  const create = async () => {
+  const save = async () => {
     if (!draft) return
     if (!draft.title.trim()) {
-      toast.error("Judul dokumen wajib diisi.")
+      toast.error(t("errDocTitleRequired"))
       return
     }
     setSaving(true)
     try {
+      const db = supabase()
       const path = draft.file
-        ? await uploadProjectFile(projectId, "documents", draft.file)
+        ? await uploadProjectFile(
+            projectId,
+            projectName,
+            "documents",
+            draft.file,
+          )
         : null
-      const { error } = await supabase()
-        .from("project_documents")
-        .insert({
+      const fileFields = draft.file
+        ? {
+            file_path: path,
+            file_name: draft.file.name,
+            file_size: draft.file.size,
+          }
+        : {}
+      if (draft.id) {
+        const previous = documents.find((d) => d.id === draft.id)
+        const { error } = await db
+          .from("project_documents")
+          .update({
+            kind: draft.kind,
+            title: draft.title.trim(),
+            status: draft.status,
+            ...fileFields,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", draft.id)
+        if (error) throw error
+        // The replaced file isn't needed anymore.
+        if (draft.file && previous?.file_path)
+          await db.storage.from(BUCKET).remove([previous.file_path])
+        toast.success(t("docSaved"))
+      } else {
+        const { error } = await db.from("project_documents").insert({
           project_id: projectId,
           kind: draft.kind,
           title: draft.title.trim(),
@@ -90,12 +162,13 @@ export function ProjectDocuments({ projectId }: { projectId: string }) {
           file_size: draft.file?.size ?? null,
           created_by: viewer.id,
         })
-      if (error) throw error
-      toast.success("Dokumen ditambahkan")
+        if (error) throw error
+        toast.success(t("docAdded"))
+      }
       setDraft(null)
       invalidate("documents")
     } catch {
-      toast.error("Gagal menyimpan dokumen.")
+      toast.error(t("errSaveDoc"))
     } finally {
       setSaving(false)
     }
@@ -106,43 +179,104 @@ export function ProjectDocuments({ projectId }: { projectId: string }) {
       .from("project_documents")
       .update({ status, updated_at: new Date().toISOString() })
       .eq("id", doc.id)
-    if (error) toast.error("Gagal mengubah status.")
+    if (error) toast.error(t("errChangeStatus"))
     invalidate("documents")
   }
 
-  const open = (doc: DocumentRow) =>
-    doc.file_path &&
-    openProjectFile(doc.file_path).catch(() =>
-      toast.error("File tidak bisa dibuka."),
-    )
+  // Documents with a file, in the order they're shown, for the viewer.
+  const ordered = (Object.keys(KINDS) as Kind[]).flatMap((kindKey) =>
+    documents.filter((d) =>
+      kindKey === "other"
+        ? !(d.kind in KINDS) || d.kind === "other"
+        : d.kind === kindKey,
+    ),
+  )
+  const withFile = ordered.filter((d) => d.file_path)
+  const signed = async (path: string, download?: string) => {
+    const { data: link, error } = await supabase()
+      .storage.from(BUCKET)
+      .createSignedUrl(path, 60 * 60, download ? { download } : undefined)
+    if (error || !link) throw error ?? new Error("no url")
+    return link.signedUrl
+  }
+  const viewerItems: ViewerItem[] = withFile.map((doc) => ({
+    key: doc.id,
+    name: doc.file_name ?? doc.title,
+    meta: `${doc.title} · ${formatBytes(doc.file_size)}`,
+    getUrl: () => signed(doc.file_path!),
+    getDownloadUrl: () => signed(doc.file_path!, doc.file_name ?? doc.title),
+  }))
+  const open = (doc: DocumentRow) => {
+    const index = withFile.findIndex((d) => d.id === doc.id)
+    if (index >= 0) setViewing(index)
+  }
+  const edit = (doc: DocumentRow) =>
+    setDraft({
+      id: doc.id,
+      kind: (doc.kind in KINDS ? doc.kind : "other") as Kind,
+      title: doc.title,
+      status: (doc.status in STATUSES ? doc.status : "draft") as Status,
+      file: null,
+      currentFile: doc.file_name,
+    })
 
-  const groups = [
-    {
-      key: "main",
-      items: documents.filter((d) => d.kind !== "other"),
-    },
-    { key: "other", items: documents.filter((d) => d.kind === "other") },
+  const docMenu = (doc: DocumentRow): RowMenuItem[] => [
+    ...(doc.file_path
+      ? [
+          { label: t("libOpen"), onSelect: () => open(doc) },
+          {
+            label: t("libDownload"),
+            onSelect: () =>
+              openProjectFile(doc.file_path!, doc.file_name ?? doc.title).catch(
+                () => toast.error(t("errDownload")),
+              ),
+          },
+        ]
+      : []),
+    ...(viewer.isAdmin
+      ? [
+          { label: t("actionEdit"), onSelect: () => edit(doc) },
+          ...(Object.keys(STATUSES) as Status[]).map((st, i) => ({
+            label: t(STATUSES[st].labelKey),
+            checked: doc.status === st,
+            separatorBefore: i === 0,
+            onSelect: () => setStatus(doc, st),
+          })),
+          {
+            label: tc("delete"),
+            destructive: true,
+            separatorBefore: true,
+            onSelect: () => setDeleting(doc),
+          },
+        ]
+      : []),
   ]
 
+  // Drop a file anywhere on the page to start a new document with it.
+  const drop = useFileDrop((files) => {
+    const file = files[0]
+    if (!file) return
+    setDraft({ ...NEW_DRAFT, file, title: titleFromFile(file) })
+  }, viewer.isAdmin && !draft)
+
   return (
-    <div className="flex flex-col">
+    <div className="relative flex flex-col" {...drop.bind}>
+      {drop.dragging && (
+        <div className="bg-primary/5 border-primary/40 pointer-events-none fixed inset-0 z-40 m-3 flex items-center justify-center rounded-2xl border-2 border-dashed backdrop-blur-[1px]">
+          <span className="bg-background smooth-shadow-ring-md flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium">
+            <Upload className="size-4" />
+            {tc("dropToUpload")}
+          </span>
+        </div>
+      )}
       <PageHeader
         className="pt-6 pb-4"
-        title="Dokumen"
+        title={t("sectionDocuments")}
         actions={
           viewer.isAdmin && (
-            <Button
-              onClick={() =>
-                setDraft({
-                  kind: "proposal",
-                  title: "",
-                  status: "draft",
-                  file: null,
-                })
-              }
-            >
+            <Button onClick={() => setDraft(NEW_DRAFT)}>
               <RiAddLine data-icon="inline-start" />
-              Dokumen baru
+              {t("newDocument")}
             </Button>
           )
         }
@@ -154,122 +288,93 @@ export function ProjectDocuments({ projectId }: { projectId: string }) {
           </div>
         ) : documents.length === 0 ? (
           <EmptyState
-            title="Belum ada dokumen"
-            description="Simpan proposal, kontrak, dan file penting project di sini."
+            title={t("docsEmptyTitle")}
+            description={t("docsEmptyDescription")}
             icon={<RiFileTextLine className="size-5" />}
             placement="inner"
           />
         ) : (
-          groups.map(({ key, items }) =>
-            items.length === 0 ? null : (
-              <section
-                key={key}
-                className={cn(
-                  "grid gap-3 md:grid-cols-2",
-                  key === "other" && "border-t pt-5",
-                )}
-              >
-                {items.map((doc) => {
-                  const kind = KINDS[doc.kind as Kind] ?? KINDS.other
-                  const status =
-                    STATUSES[doc.status as Status] ?? STATUSES.draft
-                  return (
-                    <article
-                      key={doc.id}
-                      className="ring-foreground/10 group/doc flex gap-4 rounded-xl p-2 ring-1"
-                    >
-                      <button
-                        type="button"
-                        onClick={() => open(doc)}
-                        disabled={!doc.file_path}
-                        className="bg-muted/60 text-muted-foreground enabled:hover:text-foreground flex aspect-[4/3] w-28 shrink-0 flex-col items-center justify-center gap-1 rounded-lg text-xs"
-                      >
-                        <kind.icon className="size-6" />
-                        {doc.file_name
-                          ? formatBytes(doc.file_size)
-                          : "Tanpa file"}
-                      </button>
-                      <div className="flex min-w-0 flex-1 flex-col py-1 pr-2">
-                        <div className="flex items-start justify-between gap-2">
-                          <button
-                            type="button"
-                            onClick={() => open(doc)}
-                            disabled={!doc.file_path}
-                            className="min-w-0 truncate text-left font-medium enabled:hover:underline"
-                          >
-                            {doc.title}
-                          </button>
-                          <span className="text-muted-foreground shrink-0 text-xs">
-                            {kind.label}
-                          </span>
-                        </div>
-                        {doc.file_name && (
-                          <span className="text-muted-foreground truncate text-xs">
-                            {doc.file_name}
-                          </span>
-                        )}
-                        <div className="mt-auto flex items-center justify-between gap-2 pt-3">
-                          {viewer.isAdmin ? (
-                            <Select
-                              value={doc.status}
-                              onValueChange={(v) =>
-                                v && setStatus(doc, v as Status)
-                              }
-                            >
-                              <SelectTrigger
-                                className={cn(
-                                  "hover:bg-muted/50 -ml-2 h-7 w-auto gap-1.5 border-0 bg-transparent px-2 text-xs shadow-none",
-                                  status.tone,
-                                )}
-                              >
-                                <span className="size-1.5 rounded-full bg-current" />
-                                <SelectValue>
-                                  {(v: Status) => STATUSES[v]?.label}
-                                </SelectValue>
-                              </SelectTrigger>
-                              <SelectContent>
-                                {(Object.keys(STATUSES) as Status[]).map(
-                                  (s) => (
-                                    <SelectItem key={s} value={s}>
-                                      {STATUSES[s].label}
-                                    </SelectItem>
-                                  ),
-                                )}
-                              </SelectContent>
-                            </Select>
-                          ) : (
-                            <span
-                              className={cn(
-                                "flex items-center gap-1.5 text-xs",
-                                status.tone,
-                              )}
-                            >
-                              <span className="size-1.5 rounded-full bg-current" />
-                              {status.label}
-                            </span>
+          // Grid like the library: a preview card per document, grouped by
+          // kind; status chip on the card, actions in ⋯.
+          <div className="flex flex-col gap-8">
+            {(Object.keys(KINDS) as Kind[]).map((kindKey) => {
+              const items = documents.filter((d) =>
+                kindKey === "other"
+                  ? !(d.kind in KINDS) || d.kind === "other"
+                  : d.kind === kindKey,
+              )
+              if (!items.length) return null
+              return (
+                <Section key={kindKey} title={t(KINDS[kindKey].labelKey)}>
+                  <div className="grid grid-cols-1 gap-x-4 gap-y-6 pb-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    {items.map((doc) => {
+                      const status =
+                        STATUSES[doc.status as Status] ?? STATUSES.draft
+                      return (
+                        <div
+                          key={doc.id}
+                          role="button"
+                          tabIndex={doc.file_path ? 0 : -1}
+                          onClick={() => open(doc)}
+                          onKeyDown={(e) => e.key === "Enter" && open(doc)}
+                          className={cn(
+                            "group/row focus-visible:ring-focus-ring flex min-w-0 flex-col gap-2 rounded-xl outline-none focus-visible:ring-2",
+                            doc.file_path && "cursor-pointer",
                           )}
-                          <span className="text-muted-foreground text-xs">
-                            {format(new Date(doc.updated_at), "d MMM", {
-                              locale: idLocale,
-                            })}
-                          </span>
-                        </div>
-                      </div>
-                      {viewer.isAdmin && (
-                        <button
-                          type="button"
-                          onClick={() => setDeleting(doc)}
-                          className="text-muted-foreground hover:text-destructive hidden self-start p-1 text-xs group-hover/doc:block"
                         >
-                          Hapus
-                        </button>
-                      )}
-                    </article>
-                  )
-                })}
-              </section>
-            ),
-          )
+                          <FilePreview
+                            file={{
+                              name: doc.file_name ?? doc.title,
+                              mime_type: null,
+                              file_path: doc.file_path,
+                            }}
+                            emptyLabel={t("noFile")}
+                            badge={
+                              <Chip className="static flex items-center gap-1.5">
+                                <span
+                                  className={cn(
+                                    "size-1.5 rounded-full",
+                                    status.dot,
+                                  )}
+                                />
+                                {t(status.labelKey)}
+                              </Chip>
+                            }
+                            className="ring-border/60 rounded-xl ring-1 transition-[filter] duration-150 group-hover/row:brightness-95"
+                          />
+                          <div className="flex min-w-0 items-start gap-2">
+                            <div className="flex min-w-0 flex-1 flex-col">
+                              <span
+                                className="truncate text-sm"
+                                title={doc.title}
+                              >
+                                {doc.title}
+                              </span>
+                              <span className="text-tertiary-foreground truncate text-[13px] tabular-nums">
+                                {doc.file_name
+                                  ? `${formatBytes(doc.file_size)} · `
+                                  : ""}
+                                {format(
+                                  new Date(doc.updated_at),
+                                  "d MMM yyyy",
+                                  {
+                                    locale: dateLocale,
+                                  },
+                                )}
+                              </span>
+                            </div>
+                            {docMenu(doc).length > 0 && (
+                              <RowMenu label={doc.title} items={docMenu(doc)} />
+                            )}
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </Section>
+              )
+            })}
+          </div>
         )}
 
         <Dialog
@@ -278,16 +383,16 @@ export function ProjectDocuments({ projectId }: { projectId: string }) {
         >
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Dokumen baru</DialogTitle>
-              <DialogDescription>
-                Upload proposal, kontrak, atau file lain beserta statusnya.
-              </DialogDescription>
+              <DialogTitle>
+                {draft?.id ? t("editDocument") : t("newDocument")}
+              </DialogTitle>
+              <DialogDescription>{t("docDialogDescription")}</DialogDescription>
             </DialogHeader>
             {draft && (
               <>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="flex flex-col gap-1.5">
-                    <Label>Jenis</Label>
+                    <Label>{t("docKind")}</Label>
                     <Select
                       value={draft.kind}
                       onValueChange={(v) =>
@@ -296,20 +401,20 @@ export function ProjectDocuments({ projectId }: { projectId: string }) {
                     >
                       <SelectTrigger className="w-full">
                         <SelectValue>
-                          {(v: Kind) => KINDS[v]?.label}
+                          {(v: Kind) => KINDS[v] && t(KINDS[v].labelKey)}
                         </SelectValue>
                       </SelectTrigger>
                       <SelectContent>
                         {(Object.keys(KINDS) as Kind[]).map((k) => (
                           <SelectItem key={k} value={k}>
-                            {KINDS[k].label}
+                            {t(KINDS[k].labelKey)}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <Label>Status</Label>
+                    <Label>{t("colStatus")}</Label>
                     <Select
                       value={draft.status}
                       onValueChange={(v) =>
@@ -318,13 +423,15 @@ export function ProjectDocuments({ projectId }: { projectId: string }) {
                     >
                       <SelectTrigger className="w-full">
                         <SelectValue>
-                          {(v: Status) => STATUSES[v]?.label}
+                          {(v: Status) =>
+                            STATUSES[v] && t(STATUSES[v].labelKey)
+                          }
                         </SelectValue>
                       </SelectTrigger>
                       <SelectContent>
                         {(Object.keys(STATUSES) as Status[]).map((s) => (
                           <SelectItem key={s} value={s}>
-                            {STATUSES[s].label}
+                            {t(STATUSES[s].labelKey)}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -332,29 +439,27 @@ export function ProjectDocuments({ projectId }: { projectId: string }) {
                   </div>
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="doc-title">Judul</Label>
+                  <Label htmlFor="doc-title">{t("docTitle")}</Label>
                   <Input
                     id="doc-title"
                     value={draft.title}
-                    placeholder="mis. Proposal Rebrand"
+                    placeholder={t("docTitlePlaceholder")}
                     onChange={(e) =>
                       setDraft({ ...draft, title: e.target.value })
                     }
                   />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="doc-file">File (opsional, maks 50 MB)</Label>
-                  <Input
+                  <Label htmlFor="doc-file">{t("docFileLabel")}</Label>
+                  <FileField
                     id="doc-file"
-                    type="file"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0] ?? null
+                    fileName={draft.file?.name ?? draft.currentFile}
+                    onChange={(files) => {
+                      const file = files?.[0] ?? null
                       setDraft({
                         ...draft,
                         file,
-                        title:
-                          draft.title ||
-                          (file ? file.name.replace(/\.[^.]+$/, "") : ""),
+                        title: draft.title || (file ? titleFromFile(file) : ""),
                       })
                     }}
                   />
@@ -363,22 +468,40 @@ export function ProjectDocuments({ projectId }: { projectId: string }) {
             )}
             <DialogFooter>
               <Button variant="outline" onClick={() => setDraft(null)}>
-                Batal
+                {tc("cancel")}
               </Button>
-              <Button onClick={create} disabled={saving}>
-                {saving ? "Menyimpan…" : "Simpan"}
+              <Button onClick={save} disabled={saving}>
+                {saving ? tc("saving") : tc("save")}
               </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
 
+        <FileViewer
+          items={viewerItems}
+          index={viewing}
+          onIndexChange={setViewing}
+          onClose={() => setViewing(null)}
+          actions={(item) => {
+            const doc = withFile.find((d) => d.id === item.key)
+            if (!doc) return null
+            return (
+              <RowMenu
+                alwaysVisible
+                label={doc.title}
+                items={docMenu(doc).filter((m) => m.label !== t("libOpen"))}
+              />
+            )
+          }}
+        />
+
         <ConfirmDialog
           open={Boolean(deleting)}
           onOpenChange={(o) => !o && setDeleting(null)}
-          title={`Hapus "${deleting?.title ?? ""}"?`}
-          description="Dokumen dan file-nya dihapus permanen."
-          confirmText="Hapus"
-          cancelText="Batal"
+          title={t("deleteNamedTitle", { name: deleting?.title ?? "" })}
+          description={t("docDeleteDescription")}
+          confirmText={tc("delete")}
+          cancelText={tc("cancel")}
           variant="destructive"
           onConfirm={async () => {
             if (!deleting) return
@@ -390,9 +513,10 @@ export function ProjectDocuments({ projectId }: { projectId: string }) {
               .from("project_documents")
               .delete()
               .eq("id", deleting.id)
-            if (error) toast.error("Gagal menghapus dokumen.")
-            else toast.success("Dokumen dihapus")
+            if (error) toast.error(t("errDeleteDoc"))
+            else toast.success(t("docDeleted"))
             setDeleting(null)
+            setViewing(null)
             invalidate("documents")
           }}
         />

@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { RiFileTextLine } from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
-import { id as idLocale } from "date-fns/locale"
+import { useDateLocale, useT } from "@/shared/i18n/client"
 import type { SLA } from "./SLAColumns"
 
 /** Shared column template so the header and rows line up. */
@@ -34,14 +34,15 @@ export function SLAList({
   onRestore: (id: string) => void
   onDelete: (id: string) => void
 }) {
+  const t = useT("sla")
+  const tc = useT("common")
+  const dateLocale = useDateLocale()
   if (slas.length === 0) {
     return (
       <EmptyState
-        title={archived ? "Arsip kosong" : "Belum ada SLA"}
+        title={archived ? t("emptyArchiveTitle") : t("emptyTitle")}
         description={
-          archived
-            ? "SLA yang diarsipkan akan muncul di sini."
-            : "SLA yang dibuat akan muncul di sini."
+          archived ? t("emptyArchiveDescription") : t("emptyDescription")
         }
         icon={<RiFileTextLine className="size-5" />}
         placement="inner"
@@ -57,15 +58,17 @@ export function SLAList({
           "gutter-x text-muted-foreground border-border h-9 border-b text-[13px]",
         )}
       >
-        <span>SLA</span>
-        <span className="hidden md:block">Klien</span>
-        <span className="text-right">{archived ? "Diarsipkan" : "Dibuat"}</span>
+        <span>{t("colSla")}</span>
+        <span className="hidden md:block">{t("colClient")}</span>
+        <span className="text-right">
+          {archived ? t("colArchived") : t("colCreated")}
+        </span>
         <span className="hidden md:block" />
       </div>
       <AnimatePresence initial={false}>
         {slas.map((sla) => {
           const date = archived ? sla.archived_at : sla.created_at
-          const title = sla.title || "Tanpa judul"
+          const title = sla.title || t("untitled")
           const client = sla.client_name?.trim()
           return (
             <ListRow key={sla.id} className={cn(ROW_GRID, "min-h-14")}>
@@ -94,12 +97,12 @@ export function SLAList({
               </div>
               <div className="hidden min-w-0 md:block">
                 <Badge variant="secondary" className="max-w-full">
-                  <span className="truncate">{client || "Tanpa klien"}</span>
+                  <span className="truncate">{client || t("noClient")}</span>
                 </Badge>
               </div>
               <span className="text-muted-foreground text-right tabular-nums">
                 {date ? (
-                  format(new Date(date), "d MMM yyyy", { locale: idLocale })
+                  format(new Date(date), "d MMM yyyy", { locale: dateLocale })
                 ) : (
                   <EmptyValue />
                 )}
@@ -114,7 +117,7 @@ export function SLAList({
                           size="sm"
                           onClick={() => onRestore(sla.id)}
                         >
-                          Pulihkan
+                          {t("restore")}
                         </Button>
                         <Button
                           variant="ghost"
@@ -122,7 +125,7 @@ export function SLAList({
                           className="text-destructive hover:text-destructive"
                           onClick={() => onDelete(sla.id)}
                         >
-                          Hapus
+                          {tc("delete")}
                         </Button>
                       </>
                     ) : (
@@ -131,7 +134,7 @@ export function SLAList({
                         size="sm"
                         onClick={() => onArchive(sla.id)}
                       >
-                        Arsipkan
+                        {t("archive")}
                       </Button>
                     )}
                   </ListRowActions>

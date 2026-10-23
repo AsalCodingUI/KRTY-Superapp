@@ -6,6 +6,7 @@ import { RollingValue } from "@/components/rolling-value"
 import { PageHeader } from "@/components/page-header"
 import { AdminAttendanceHistoryList } from "@/app/(main)/attendance/components/AdminAttendanceHistoryList"
 import { createClient } from "@/shared/api/supabase/client"
+import { useDateLocale, useT } from "@/shared/i18n/client"
 import { useMountedTabs } from "@/shared/hooks/useMountedTabs"
 import { useTabRoute } from "@/shared/hooks/useTabRoute"
 import {
@@ -132,6 +133,9 @@ export function StakeholderLeavePage({
   totalCount,
   role,
 }: StakeholderLeavePageProps) {
+  const t = useT("leave")
+  const tc = useT("common")
+  const dateLocale = useDateLocale()
   const supabase = createClient()
   const router = useRouter()
   const pathname = usePathname()
@@ -260,13 +264,13 @@ export function StakeholderLeavePage({
         .update({ status: "approved", review_note: null })
         .eq("id", id)
       if (error) {
-        toast.error(error.message || "Gagal menyetujui pengajuan")
+        toast.error(error.message || t("toastApproveFailed"))
         return
       }
-      toast.success("Pengajuan disetujui")
+      toast.success(t("toastApproved"))
       router.refresh()
     },
-    [supabase, router],
+    [supabase, router, t],
   )
 
   const handleReject = useCallback(async (id: number) => {
@@ -279,8 +283,10 @@ export function StakeholderLeavePage({
       adminColumns(handleApprove, handleReject, {
         canSelect: canManage,
         canManage,
+        t,
+        dateLocale,
       }),
-    [handleApprove, handleReject, canManage],
+    [handleApprove, handleReject, canManage, t, dateLocale],
   )
 
   const confirmReject = async () => {
@@ -292,13 +298,13 @@ export function StakeholderLeavePage({
       .in("id", rejectIds)
     setRejecting(false)
     if (error) {
-      toast.error(error.message || "Gagal menolak pengajuan")
+      toast.error(error.message || t("toastRejectFailed"))
       return
     }
     toast.success(
       rejectIds.length > 1
-        ? `${rejectIds.length} pengajuan ditolak`
-        : "Pengajuan ditolak",
+        ? t("toastRejectedOther", { n: rejectIds.length })
+        : t("toastRejectedOne"),
     )
     setRejectIds(null)
     router.refresh()
@@ -321,19 +327,19 @@ export function StakeholderLeavePage({
       })
       .eq("id", logId)
     if (error) {
-      toast.error(error.message || "Gagal menolak permintaan")
+      toast.error(error.message || t("toastDeclineFailed"))
       return
     }
-    toast.success("Permintaan hapus ditolak")
+    toast.success(t("toastDeleteRequestDeclined"))
     setDeleteReviewId(null)
     router.refresh()
   }
 
   const deleteAttendanceLog = async (logId: string) => {
     runWithConfirm({
-      title: "Hapus data kehadiran?",
-      description: "Data ini akan dihapus permanen.",
-      confirmText: "Hapus",
+      title: t("confirmDeleteLogTitle"),
+      description: t("confirmDeleteLogDesc"),
+      confirmText: tc("delete"),
       variant: "destructive",
       onConfirm: async () => {
         const { error } = await supabase
@@ -342,10 +348,10 @@ export function StakeholderLeavePage({
           .eq("id", logId)
 
         if (error) {
-          toast.error(error.message || "Gagal menghapus data kehadiran")
+          toast.error(error.message || t("toastDeleteLogFailed"))
           return
         }
-        toast.success("Data kehadiran dihapus")
+        toast.success(t("toastLogDeleted"))
         setDeleteReviewId(null)
         router.refresh()
       },
@@ -354,10 +360,9 @@ export function StakeholderLeavePage({
 
   const handleCloseAttendanceSession = async (logId: string) => {
     runWithConfirm({
-      title: "Tutup sesi attendance",
-      description:
-        "Sesi attendance yang masih aktif akan ditutup dengan waktu saat ini.",
-      confirmText: "Tutup sesi",
+      title: t("closeSessionTitle"),
+      description: t("closeSessionDesc"),
+      confirmText: t("closeSession"),
       onConfirm: async () => {
         const now = new Date().toISOString()
         const currentLog = attendanceLogs.find((log) => log.id === logId)
@@ -375,10 +380,10 @@ export function StakeholderLeavePage({
           .eq("id", logId)
 
         if (error) {
-          toast.error(error.message || "Gagal menutup sesi")
+          toast.error(error.message || t("toastCloseSessionFailed"))
           return
         }
-        toast.success("Sesi ditutup")
+        toast.success(t("toastSessionClosed"))
         router.refresh()
       },
     })
@@ -420,11 +425,11 @@ export function StakeholderLeavePage({
         .eq("id", editingLog.id)
 
       if (error) {
-        toast.error(error.message || "Gagal memperbarui kehadiran")
+        toast.error(error.message || t("toastUpdateAttendanceFailed"))
         return
       }
 
-      toast.success("Kehadiran diperbarui")
+      toast.success(t("toastAttendanceUpdated"))
       setEditingLogId(null)
       router.refresh()
     } finally {
@@ -448,15 +453,15 @@ export function StakeholderLeavePage({
 
   const handleManualSubmit = async () => {
     if (!manualForm.user_id) {
-      toast.error("Pilih karyawan")
+      toast.error(t("pickEmployee"))
       return
     }
     if (!manualForm.start_date || !manualForm.end_date) {
-      toast.error("Isi tanggal mulai dan selesai")
+      toast.error(t("errFillDates"))
       return
     }
     if (manualForm.start_date > manualForm.end_date) {
-      toast.error("Tanggal selesai harus setelah tanggal mulai")
+      toast.error(t("errEndBeforeStart"))
       return
     }
     if (
@@ -465,11 +470,11 @@ export function StakeholderLeavePage({
         new Date(manualForm.end_date),
       ) <= 0
     ) {
-      toast.error("Rentang tanggal tidak berisi hari kerja")
+      toast.error(t("errNoBusinessDays"))
       return
     }
     if (!manualForm.created_at) {
-      toast.error("Isi tanggal pengajuan")
+      toast.error(t("errFillSubmittedDate"))
       return
     }
 
@@ -488,11 +493,11 @@ export function StakeholderLeavePage({
       })
 
       if (error) {
-        toast.error(error.message || "Gagal menambah cuti manual")
+        toast.error(error.message || t("toastManualFailed"))
         return
       }
 
-      toast.success("Cuti manual ditambahkan")
+      toast.success(t("toastManualAdded"))
       setManualModalOpen(false)
       router.refresh()
     } finally {
@@ -518,19 +523,24 @@ export function StakeholderLeavePage({
         canManage
           ? async (ids) => {
               runWithConfirm({
-                title: "Setujui pengajuan?",
-                description: `${ids.length} pengajuan akan disetujui.`,
-                confirmText: "Setujui",
+                title: t("confirmApproveTitle"),
+                description: t(
+                  ids.length === 1
+                    ? "confirmApproveDescOne"
+                    : "confirmApproveDescOther",
+                  { n: ids.length },
+                ),
+                confirmText: t("approve"),
                 onConfirm: async () => {
                   const { error } = await supabase
                     .from("leave_requests")
                     .update({ status: "approved" })
                     .in("id", ids as number[])
                   if (error) {
-                    toast.error(error.message || "Gagal menyetujui pengajuan")
+                    toast.error(error.message || t("toastApproveFailed"))
                     return
                   }
-                  toast.success("Pengajuan disetujui")
+                  toast.success(t("toastApproved"))
                   router.refresh()
                 },
               })
@@ -549,9 +559,14 @@ export function StakeholderLeavePage({
         canManage
           ? async (ids) => {
               runWithConfirm({
-                title: "Hapus pengajuan?",
-                description: `${ids.length} pengajuan akan dihapus permanen.`,
-                confirmText: "Delete",
+                title: t("confirmDeleteTitle"),
+                description: t(
+                  ids.length === 1
+                    ? "confirmDeleteDescOne"
+                    : "confirmDeleteDescOther",
+                  { n: ids.length },
+                ),
+                confirmText: tc("delete"),
                 variant: "destructive",
                 onConfirm: async () => {
                   const { error } = await supabase
@@ -559,10 +574,10 @@ export function StakeholderLeavePage({
                     .delete()
                     .in("id", ids as number[])
                   if (error) {
-                    toast.error(error.message || "Gagal menghapus pengajuan")
+                    toast.error(error.message || t("toastDeleteFailed"))
                     return
                   }
-                  toast.success("Pengajuan dihapus")
+                  toast.success(t("toastDeleted"))
                   router.refresh()
                 },
               })
@@ -600,9 +615,9 @@ export function StakeholderLeavePage({
           if (!open) setPendingConfirm(null)
         }}
         onConfirm={handleConfirm}
-        title={pendingConfirm?.title || "Confirm action"}
+        title={pendingConfirm?.title || t("confirmDefaultTitle")}
         description={pendingConfirm?.description || ""}
-        confirmText={pendingConfirm?.confirmText || "Confirm"}
+        confirmText={pendingConfirm?.confirmText || t("confirmDefault")}
         variant={pendingConfirm?.variant}
         loading={confirmLoading}
       />
@@ -615,26 +630,24 @@ export function StakeholderLeavePage({
           <DialogHeader>
             <DialogTitle>
               {rejectIds && rejectIds.length > 1
-                ? `Tolak ${rejectIds.length} pengajuan?`
-                : "Tolak pengajuan?"}
+                ? t("rejectTitleOther", { n: rejectIds.length })
+                : t("rejectTitleOne")}
             </DialogTitle>
-            <DialogDescription>
-              Karyawan akan menerima notifikasi beserta catatan ini.
-            </DialogDescription>
+            <DialogDescription>{t("rejectDesc")}</DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="reject-note">Alasan (opsional)</Label>
+            <Label htmlFor="reject-note">{t("reasonOptional")}</Label>
             <Textarea
               id="reject-note"
               rows={3}
-              placeholder="Mis. bentrok dengan deadline project"
+              placeholder={t("rejectPlaceholder")}
               value={rejectNote}
               onChange={(e) => setRejectNote(e.target.value)}
             />
           </div>
           <DialogFooter>
             <DialogClose render={<Button variant="outline" />}>
-              Batal
+              {tc("cancel")}
             </DialogClose>
             <Button
               variant="destructive"
@@ -642,7 +655,7 @@ export function StakeholderLeavePage({
               onClick={confirmReject}
             >
               {rejecting && <Spinner data-icon="inline-start" />}
-              Tolak
+              {t("reject")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -654,11 +667,8 @@ export function StakeholderLeavePage({
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Permintaan hapus data kehadiran</DialogTitle>
-            <DialogDescription>
-              Karyawan meminta data ini dihapus. Hapus datanya, atau tolak
-              permintaannya agar data tetap tersimpan.
-            </DialogDescription>
+            <DialogTitle>{t("deleteReviewTitle")}</DialogTitle>
+            <DialogDescription>{t("deleteReviewDesc")}</DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button
@@ -667,7 +677,7 @@ export function StakeholderLeavePage({
                 deleteReviewId && declineAttendanceDelete(deleteReviewId)
               }
             >
-              Tolak permintaan
+              {t("declineRequest")}
             </Button>
             <Button
               variant="destructive"
@@ -675,7 +685,7 @@ export function StakeholderLeavePage({
                 deleteReviewId && deleteAttendanceLog(deleteReviewId)
               }
             >
-              Hapus data
+              {t("deleteData")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -696,11 +706,11 @@ export function StakeholderLeavePage({
       <Dialog open={manualModalOpen} onOpenChange={setManualModalOpen}>
         <DialogContent className="sm:max-w-[35rem]">
           <DialogHeader>
-            <DialogTitle>Tambah cuti manual</DialogTitle>
+            <DialogTitle>{t("manualTitle")}</DialogTitle>
           </DialogHeader>
           <div className="min-h-0 space-y-4 overflow-y-auto">
             <div>
-              <Label htmlFor="manual-user">Karyawan</Label>
+              <Label htmlFor="manual-user">{t("colEmployee")}</Label>
               <Select
                 value={manualForm.user_id}
                 onValueChange={(value) =>
@@ -709,7 +719,7 @@ export function StakeholderLeavePage({
                 }
               >
                 <SelectTrigger id="manual-user" className="mt-2 w-full">
-                  <SelectValue placeholder="Select employee" />
+                  <SelectValue placeholder={t("pickEmployee")} />
                 </SelectTrigger>
                 <SelectContent>
                   {profiles.map((profileItem) => (
@@ -723,7 +733,7 @@ export function StakeholderLeavePage({
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
-                <Label>Tanggal mulai</Label>
+                <Label>{t("startDate")}</Label>
                 <DatePicker
                   className="mt-2 w-full"
                   value={parseDateOnly(manualForm.start_date)}
@@ -733,11 +743,11 @@ export function StakeholderLeavePage({
                       start_date: date ? format(date, "yyyy-MM-dd") : "",
                     }))
                   }
-                  placeholder="Select start date"
+                  placeholder={t("selectStartDate")}
                 />
               </div>
               <div>
-                <Label>Tanggal selesai</Label>
+                <Label>{t("endDate")}</Label>
                 <DatePicker
                   className="mt-2 w-full"
                   value={parseDateOnly(manualForm.end_date)}
@@ -747,14 +757,14 @@ export function StakeholderLeavePage({
                       end_date: date ? format(date, "yyyy-MM-dd") : "",
                     }))
                   }
-                  placeholder="Select end date"
+                  placeholder={t("selectEndDate")}
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
-                <Label htmlFor="manual-leave-type">Jenis</Label>
+                <Label htmlFor="manual-leave-type">{t("colType")}</Label>
                 <Select
                   value={manualForm.leave_type}
                   onValueChange={(value) =>
@@ -768,14 +778,16 @@ export function StakeholderLeavePage({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Annual Leave">Cuti Tahunan</SelectItem>
-                    <SelectItem value="Sick Leave">Sakit</SelectItem>
-                    <SelectItem value="WFH">WFH</SelectItem>
+                    <SelectItem value="Annual Leave">
+                      {t("typeAnnual")}
+                    </SelectItem>
+                    <SelectItem value="Sick Leave">{t("typeSick")}</SelectItem>
+                    <SelectItem value="WFH">{t("typeWfh")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div>
-                <Label htmlFor="manual-status">Status</Label>
+                <Label htmlFor="manual-status">{t("colStatus")}</Label>
                 <Select
                   value={manualForm.status}
                   onValueChange={(value) =>
@@ -789,16 +801,22 @@ export function StakeholderLeavePage({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="pending">Menunggu</SelectItem>
-                    <SelectItem value="approved">Disetujui</SelectItem>
-                    <SelectItem value="rejected">Ditolak</SelectItem>
+                    <SelectItem value="pending">
+                      {t("statusPending")}
+                    </SelectItem>
+                    <SelectItem value="approved">
+                      {t("statusApproved")}
+                    </SelectItem>
+                    <SelectItem value="rejected">
+                      {t("statusRejected")}
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
 
             <div>
-              <Label>Tanggal pengajuan</Label>
+              <Label>{t("submittedDate")}</Label>
               <DatePicker
                 className="mt-2 w-full"
                 showTimePicker
@@ -813,16 +831,16 @@ export function StakeholderLeavePage({
                     created_at: date ? date.toISOString() : "",
                   }))
                 }
-                placeholder="Select submission date"
+                placeholder={t("selectSubmittedDate")}
               />
             </div>
 
             <div>
-              <Label htmlFor="manual-reason">Alasan</Label>
+              <Label htmlFor="manual-reason">{t("colReason")}</Label>
               <Textarea
                 id="manual-reason"
                 className="mt-2"
-                placeholder="Optional reason"
+                placeholder={t("reasonOptional")}
                 value={manualForm.reason}
                 onChange={(e) =>
                   setManualForm((prev) => ({
@@ -834,7 +852,7 @@ export function StakeholderLeavePage({
             </div>
 
             <div>
-              <Label htmlFor="manual-proof-url">Link bukti</Label>
+              <Label htmlFor="manual-proof-url">{t("proofLink")}</Label>
               <Input
                 id="manual-proof-url"
                 className="mt-2"
@@ -851,11 +869,11 @@ export function StakeholderLeavePage({
           </div>
           <DialogFooter>
             <DialogClose render={<Button variant="outline" />}>
-              Cancel
+              {tc("cancel")}
             </DialogClose>
             <Button disabled={manualSaving} onClick={handleManualSubmit}>
               {manualSaving && <Spinner data-icon="inline-start" />}
-              Simpan
+              {tc("save")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -897,6 +915,7 @@ function AttendanceOverviewPanel({
     currentlyActive: number
   }
 }) {
+  const t = useT("leave")
   const tabSwitched = useTabSwitched(activeTab)
   const { isMounted } = useMountedTabs(activeTab)
   const today = getLocalDateString()
@@ -938,23 +957,23 @@ function AttendanceOverviewPanel({
 
   const stats = [
     {
-      label: "Cuti hari ini",
+      label: t("statOnLeaveToday"),
       value: overviewStats?.onLeaveToday ?? onLeaveToday,
     },
     {
-      label: "Menunggu persetujuan",
+      label: t("statPending"),
       value: overviewStats?.pendingRequests ?? pendingRequests,
     },
     {
-      label: "Disetujui",
+      label: t("statApproved"),
       value: overviewStats?.totalApproved ?? totalApproved,
     },
     {
-      label: "Hadir hari ini",
+      label: t("statPresentToday"),
       value: overviewStats?.presentToday ?? presentToday,
     },
     {
-      label: "Sedang bekerja",
+      label: t("statWorkingNow"),
       value: overviewStats?.currentlyActive ?? currentlyActive,
     },
   ]
@@ -964,11 +983,11 @@ function AttendanceOverviewPanel({
       {/* Mercury order: title + actions, tabs, a stats band, then the list. */}
       <PageHeader
         className="pt-6 pb-4"
-        title="Leave & Attendance"
+        title={t("pageTitle")}
         actions={
           activeTab === "approval" ? (
             <Button variant="outline" onClick={onAddManualLeave}>
-              Tambah manual
+              {t("addManual")}
             </Button>
           ) : null
         }
@@ -987,9 +1006,9 @@ function AttendanceOverviewPanel({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="approval">Persetujuan</SelectItem>
-                <SelectItem value="attendance">Kehadiran</SelectItem>
-                <SelectItem value="remaining">Saldo Cuti</SelectItem>
+                <SelectItem value="approval">{t("tabApproval")}</SelectItem>
+                <SelectItem value="attendance">{t("tabAttendance")}</SelectItem>
+                <SelectItem value="remaining">{t("tabBalance")}</SelectItem>
               </SelectContent>
             </Select>
           ) : (
@@ -1003,21 +1022,21 @@ function AttendanceOverviewPanel({
               onClick={() => onTabChange("approval")}
               showLeadingIcon={false}
             >
-              Persetujuan
+              {t("tabApproval")}
             </TabNavigationLink>
             <TabNavigationLink
               active={activeTab === "attendance"}
               onClick={() => onTabChange("attendance")}
               showLeadingIcon={false}
             >
-              Kehadiran
+              {t("tabAttendance")}
             </TabNavigationLink>
             <TabNavigationLink
               active={activeTab === "remaining"}
               onClick={() => onTabChange("remaining")}
               showLeadingIcon={false}
             >
-              Saldo Cuti
+              {t("tabBalance")}
             </TabNavigationLink>
           </TabNavigation>
         </div>

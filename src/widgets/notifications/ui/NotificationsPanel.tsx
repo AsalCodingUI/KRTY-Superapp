@@ -6,9 +6,9 @@ import { SegmentedControl } from "@/components/segmented-control"
 import { Button } from "@/components/ui/button"
 import { SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { cn } from "@/lib/utils"
+import { useDateLocale, useT } from "@/shared/i18n/client"
 import { RiDeleteBinLine, RiNotification3Line } from "@/shared/ui/lucide-icons"
 import { format, formatDistanceToNowStrict } from "date-fns"
-import { id as idLocale } from "date-fns/locale"
 import Link from "next/link"
 import { useMemo, useState, type MouseEvent as ReactMouseEvent } from "react"
 
@@ -38,6 +38,9 @@ export default function NotificationsPanel({
   deleteNotification,
 }: NotificationsPanelProps) {
   const [activeTab, setActiveTab] = useState<"unread" | "all">("unread")
+  const t = useT("shell")
+  const tc = useT("common")
+  const dateLocale = useDateLocale()
 
   const filteredNotifications = useMemo(
     () =>
@@ -56,7 +59,7 @@ export default function NotificationsPanel({
   return (
     <SheetContent className="w-full gap-0 sm:max-w-md">
       <SheetHeader>
-        <SheetTitle>Notifikasi</SheetTitle>
+        <SheetTitle>{t("notifications")}</SheetTitle>
         {unreadCount > 0 && (
           <Button
             variant="ghost"
@@ -64,7 +67,7 @@ export default function NotificationsPanel({
             className="text-muted-foreground hover:text-foreground"
             onClick={() => markAllAsRead()}
           >
-            Baca semua
+            {t("notificationsReadAll")}
           </Button>
         )}
       </SheetHeader>
@@ -78,10 +81,10 @@ export default function NotificationsPanel({
               value: "unread",
               label:
                 unreadCount > 0
-                  ? `Belum dibaca (${unreadCount})`
-                  : "Belum dibaca",
+                  ? t("notificationsUnreadCount", { count: unreadCount })
+                  : t("notificationsUnread"),
             },
-            { value: "all", label: "Semua" },
+            { value: "all", label: tc("all") },
           ]}
         />
       </div>
@@ -92,10 +95,10 @@ export default function NotificationsPanel({
             <EmptyState
               title={
                 activeTab === "unread"
-                  ? "Semua sudah dibaca"
-                  : "Belum ada notifikasi"
+                  ? t("notificationsAllRead")
+                  : t("notificationsEmpty")
               }
-              description="Belum ada yang baru di sini."
+              description={t("notificationsNothingNew")}
               icon={<RiNotification3Line className="size-5" />}
               placement="inner"
             />
@@ -136,20 +139,23 @@ export default function NotificationsPanel({
                       >
                         {notification.title}
                         {!notification.is_read && (
-                          <span className="sr-only"> (belum dibaca)</span>
+                          <span className="sr-only">
+                            {" "}
+                            {t("notificationsUnreadSr")}
+                          </span>
                         )}
                       </Link>
                       {created && (
                         <time
                           dateTime={created.toISOString()}
                           title={format(created, "d MMM yyyy, HH:mm", {
-                            locale: idLocale,
+                            locale: dateLocale,
                           })}
                           className="text-tertiary-foreground shrink-0 text-xs tabular-nums"
                         >
                           {formatDistanceToNowStrict(created, {
                             addSuffix: true,
-                            locale: idLocale,
+                            locale: dateLocale,
                           })}
                         </time>
                       )}
@@ -164,8 +170,8 @@ export default function NotificationsPanel({
                   <Button
                     variant="ghost"
                     size="icon-sm"
-                    aria-label="Hapus notifikasi"
-                    title="Hapus"
+                    aria-label={t("notificationsDelete")}
+                    title={tc("delete")}
                     className="relative z-10 -my-1 shrink-0 opacity-100 transition-opacity group-focus-within/notif:opacity-100 group-hover/notif:opacity-100 sm:opacity-0"
                     onClick={(event) => handleDelete(event, notification.id)}
                   >

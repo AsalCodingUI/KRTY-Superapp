@@ -24,6 +24,7 @@ import {
   subDays,
   subMonths,
   subWeeks,
+  type Locale,
 } from "date-fns"
 import { id } from "date-fns/locale"
 import type { CalendarEvent, ViewMode } from "./types"
@@ -164,17 +165,18 @@ export function formatDateRange(
   start: Date,
   end: Date,
   viewMode: ViewMode,
+  locale: Locale = id,
 ): string {
   switch (viewMode) {
     case "day":
-      return format(start, "EEEE, dd MMMM yyyy", { locale: id })
+      return format(start, "EEEE, dd MMMM yyyy", { locale })
     case "week":
       if (isSameMonth(start, end)) {
-        return `${format(start, "dd", { locale: id })} - ${format(end, "dd MMMM yyyy", { locale: id })}`
+        return `${format(start, "dd", { locale })} - ${format(end, "dd MMMM yyyy", { locale })}`
       }
-      return `${format(start, "dd MMM", { locale: id })} - ${format(end, "dd MMM yyyy", { locale: id })}`
+      return `${format(start, "dd MMM", { locale })} - ${format(end, "dd MMM yyyy", { locale })}`
     case "month":
-      return format(start, "MMMM yyyy", { locale: id })
+      return format(start, "MMMM yyyy", { locale })
     case "agenda":
       return "Agenda"
     default:

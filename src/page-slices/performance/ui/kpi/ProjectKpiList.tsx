@@ -8,15 +8,19 @@ import { ProjectAvatar } from "@/components/project-avatar"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { formatPercent } from "@/entities/performance/lib/kpi"
+import { useT } from "@/shared/i18n/client"
+import type { MessageKey } from "@/shared/i18n/messages"
 import { RiArrowRightSLine, RiFolderLine } from "@/shared/ui/lucide-icons"
 import Link from "next/link"
 import { ListColumns } from "../list"
 
-const STATUS_ORDER = ["Active", "Completed", "Archived"]
-const STATUS_LABELS: Record<string, string> = {
-  Active: "Aktif",
-  Completed: "Selesai",
-  Archived: "Diarsipkan",
+const STATUS_ORDER = ["Active", "Review", "Planned", "Completed", "Archived"]
+const STATUS_LABELS: Record<string, MessageKey<"performance">> = {
+  Planned: "statusPlanned",
+  Active: "statusActive",
+  Review: "statusReview",
+  Completed: "statusCompleted",
+  Archived: "statusArchived",
 }
 
 /** Shared column template so the header and rows line up. */
@@ -41,11 +45,12 @@ export function ProjectKpiList({
   hrefFor: (project: KpiProject) => string
   showQuarter: boolean
 }) {
+  const t = useT("performance")
   if (projects.length === 0) {
     return (
       <EmptyState
-        title="Belum ada project"
-        description="Belum ada project di periode ini."
+        title={t("noProjects")}
+        description={t("noProjectsInPeriod")}
         icon={<RiFolderLine className="size-5" />}
         placement="inner"
       />
@@ -61,16 +66,16 @@ export function ProjectKpiList({
   return (
     <GroupedList>
       <ListColumns grid={ROW_GRID}>
-        <span>Project</span>
-        <span className="hidden md:block">Peran</span>
-        <span className="hidden md:block">Status</span>
-        <span className="hidden text-right md:block">SLA</span>
-        <span className="text-right">Kualitas</span>
+        <span>{t("project")}</span>
+        <span className="hidden md:block">{t("role")}</span>
+        <span className="hidden md:block">{t("status")}</span>
+        <span className="hidden text-right md:block">{t("sla")}</span>
+        <span className="text-right">{t("quality")}</span>
         <span />
       </ListColumns>
       {sorted.map((project) => {
         const meta = [
-          project.isLead && "Lead",
+          project.isLead && t("lead"),
           showQuarter && project.quarter,
         ].filter(Boolean)
         return (
@@ -108,7 +113,9 @@ export function ProjectKpiList({
               <Badge
                 variant={project.status === "Active" ? "success" : "secondary"}
               >
-                {STATUS_LABELS[project.status] ?? project.status}
+                {STATUS_LABELS[project.status]
+                  ? t(STATUS_LABELS[project.status])
+                  : project.status}
               </Badge>
             </div>
             <span className="hidden text-right md:block">

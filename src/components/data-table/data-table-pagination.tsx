@@ -8,6 +8,7 @@ import {
 } from "@/components/icons"
 
 import { Button } from "@/components/ui/button"
+import { useT } from "@/shared/i18n/client"
 
 interface DataTablePaginationProps<TData> {
   table: Table<TData>
@@ -19,6 +20,7 @@ interface DataTablePaginationProps<TData> {
 export function DataTablePagination<TData>({
   table,
 }: DataTablePaginationProps<TData>) {
+  const t = useT("shell")
   if (table.getPageCount() <= 1) {
     return null
   }
@@ -28,28 +30,28 @@ export function DataTablePagination<TData>({
       icon: ChevronsLeftIcon,
       onClick: () => table.setPageIndex(0),
       disabled: !table.getCanPreviousPage(),
-      srText: "First page",
+      srText: t("pagerFirst"),
       mobileView: "hidden sm:inline-flex",
     },
     {
       icon: ChevronLeftIcon,
       onClick: () => table.previousPage(),
       disabled: !table.getCanPreviousPage(),
-      srText: "Previous page",
+      srText: t("pagerPrevious"),
       mobileView: "",
     },
     {
       icon: ChevronRightIcon,
       onClick: () => table.nextPage(),
       disabled: !table.getCanNextPage(),
-      srText: "Next page",
+      srText: t("pagerNext"),
       mobileView: "",
     },
     {
       icon: ChevronsRightIcon,
       onClick: () => table.setPageIndex(table.getPageCount() - 1),
       disabled: !table.getCanNextPage(),
-      srText: "Last page",
+      srText: t("pagerLast"),
       mobileView: "hidden sm:inline-flex",
     },
   ]

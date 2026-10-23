@@ -1,5 +1,6 @@
 "use client"
 
+import { useDateLocale } from "@/shared/i18n/client"
 import { cx } from "@/shared/lib/utils"
 import {
   eachDayOfInterval,
@@ -11,11 +12,11 @@ import {
   startOfMonth,
   startOfWeek,
 } from "date-fns"
-import { id } from "date-fns/locale"
 import { useCalendarContext } from "./calendar-context"
 
 export function MiniCalendar() {
   const { currentDate, setCurrentDate, setSelectedDate } = useCalendarContext()
+  const dateLocale = useDateLocale()
 
   const monthStart = startOfMonth(currentDate)
   const monthEnd = endOfMonth(currentDate)
@@ -33,24 +34,27 @@ export function MiniCalendar() {
     <div className="flex w-full flex-col items-center gap-3">
       <div className="flex w-full items-center justify-center py-1.5 text-center">
         <p className="text-muted-foreground text-sm font-medium">
-          {format(currentDate, "dd MMMM yyyy", { locale: id })}
+          {format(currentDate, "dd MMMM yyyy", { locale: dateLocale })}
         </p>
       </div>
 
       <div className="flex w-full max-w-[320px] flex-col gap-1">
         {/* Day headers */}
         <div className="grid grid-cols-7 gap-1">
-          {["Sn", "Sl", "Rb", "Km", "Jm", "Sb", "Mg"].map((day, index) => (
-            <div
-              key={`${day}-${index}`}
-              className={cx(
-                "text-muted-foreground flex size-7 items-center justify-center rounded-md text-center text-sm font-medium",
-                index >= 5 && "bg-muted/50",
-              )}
-            >
-              {day}
-            </div>
-          ))}
+          {days
+            .slice(0, 7)
+            .map((day) => format(day, "EEEEEE", { locale: dateLocale }))
+            .map((day, index) => (
+              <div
+                key={`${day}-${index}`}
+                className={cx(
+                  "text-muted-foreground flex size-7 items-center justify-center rounded-md text-center text-sm font-medium",
+                  index >= 5 && "bg-muted/50",
+                )}
+              >
+                {day}
+              </div>
+            ))}
         </div>
 
         {/* Calendar grid */}

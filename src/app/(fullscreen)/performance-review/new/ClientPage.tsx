@@ -20,6 +20,7 @@ import {
 import { Spinner } from "@/components/ui/spinner"
 import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
+import { useT } from "@/shared/i18n/client"
 import { RiArrowLeftLine, RiStarFill } from "@/shared/ui/lucide-icons"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
@@ -34,28 +35,28 @@ type Colleague = {
 const CRITERIA = [
   {
     key: "quality",
-    label: "Kualitas kerja",
-    hint: "Hasil kerja rapi, teliti, sesuai standar",
+    label: "formCriterionQuality",
+    hint: "formCriterionQualityHint",
   },
   {
     key: "reliability",
-    label: "Keandalan & deadline",
-    hint: "Bisa diandalkan dan tepat waktu",
+    label: "formCriterionReliability",
+    hint: "formCriterionReliabilityHint",
   },
   {
     key: "communication",
-    label: "Komunikasi",
-    hint: "Jelas, responsif, terbuka",
+    label: "formCriterionCommunication",
+    hint: "formCriterionCommunicationHint",
   },
   {
     key: "initiative",
-    label: "Inisiatif & berkembang",
-    hint: "Proaktif dan mau belajar",
+    label: "formCriterionInitiative",
+    hint: "formCriterionInitiativeHint",
   },
   {
     key: "leadership",
-    label: "Kepemimpinan & kerja tim",
-    hint: "Membantu dan menggerakkan tim",
+    label: "formCriterionLeadership",
+    hint: "formCriterionLeadershipHint",
   },
 ] as const
 
@@ -64,21 +65,21 @@ type CriterionKey = (typeof CRITERIA)[number]["key"]
 const FEEDBACK = [
   {
     key: "feedback_continue",
-    label: "Pertahankan",
-    hint: "Hal baik yang perlu terus dilakukan",
-    placeholder: "Contoh: sangat teliti di detail desain…",
+    label: "sectionContinue",
+    hint: "feedbackContinueHint",
+    placeholder: "feedbackContinuePlaceholder",
   },
   {
     key: "feedback_start",
-    label: "Mulai lakukan",
-    hint: "Hal baru yang sebaiknya mulai dilakukan",
-    placeholder: "Contoh: mulai belajar Framer untuk prototyping…",
+    label: "sectionStart",
+    hint: "feedbackStartHint",
+    placeholder: "feedbackStartPlaceholder",
   },
   {
     key: "feedback_stop",
-    label: "Kurangi",
-    hint: "Kebiasaan yang sebaiknya dikurangi",
-    placeholder: "Contoh: menunda update status di Trello…",
+    label: "sectionStop",
+    hint: "feedbackStopHint",
+    placeholder: "feedbackStopPlaceholder",
   },
 ] as const
 
@@ -97,6 +98,7 @@ function Stars({
   onChange: (v: number) => void
   label: string
 }) {
+  const t = useT("performance")
   return (
     <div className="flex gap-0.5" role="radiogroup" aria-label={label}>
       {[1, 2, 3, 4, 5].map((star) => (
@@ -105,7 +107,7 @@ function Stars({
           type="button"
           role="radio"
           aria-checked={value === star}
-          aria-label={`${star} dari 5`}
+          aria-label={t("starsOf5", { n: star })}
           onClick={() => onChange(star)}
           className={cn(
             "focus-visible:ring-primary/40 rounded p-1 transition-colors outline-none focus-visible:ring-2",
@@ -131,6 +133,8 @@ export default function ReviewFormClientPage({
   colleagues: Colleague[]
   initialRevieweeId?: string
 }) {
+  const t = useT("performance")
+  const tc = useT("common")
   const router = useRouter()
   const [revieweeId, setRevieweeId] = useState(initialRevieweeId ?? "")
   const [scores, setScores] = useState<Record<CriterionKey, number>>({
@@ -195,14 +199,14 @@ export default function ReviewFormClientPage({
         error?: string
       } | null
       if (!response.ok || !result?.success) {
-        toast.error(result?.error || "Gagal mengirim penilaian.")
+        toast.error(result?.error || t("submitReviewFailed"))
         return
       }
-      toast.success("Penilaian terkirim")
+      toast.success(t("reviewSubmitted"))
       router.push("/performance/360-review")
       router.refresh()
     } catch {
-      toast.error("Gagal mengirim penilaian.")
+      toast.error(t("submitReviewFailed"))
     } finally {
       setLoading(false)
     }
@@ -218,35 +222,32 @@ export default function ReviewFormClientPage({
             variant="ghost"
             size="icon"
             onClick={leave}
-            aria-label="Kembali"
+            aria-label={tc("back")}
           >
             <RiArrowLeftLine className="size-4" />
           </Button>
-          <span className="text-sm font-medium">360 review</span>
+          <span className="text-sm font-medium">{t("tab360")}</span>
         </div>
       </header>
 
       <main className="mx-auto flex max-w-2xl flex-col gap-8 px-4 py-8">
         <div className="flex flex-col gap-1">
-          <h1 className="text-lg font-semibold">Nilai rekan kerja</h1>
-          <p className="text-muted-foreground text-sm">
-            Nama kamu tidak ditampilkan ke rekan yang kamu nilai. Admin bisa
-            melihatnya, dan penilaian dirangkum oleh AI.
-          </p>
+          <h1 className="text-lg font-semibold">{t("reviewTeammates")}</h1>
+          <p className="text-muted-foreground text-sm">{t("formIntro")}</p>
         </div>
 
         <section className="flex flex-col gap-2">
-          <Label htmlFor="colleague">Rekan</Label>
+          <Label htmlFor="colleague">{t("peer")}</Label>
           <Select
             value={revieweeId || null}
             onValueChange={(v) => setRevieweeId(v ?? "")}
           >
             <SelectTrigger id="colleague" className="w-full">
-              <SelectValue placeholder="Pilih rekan">
+              <SelectValue placeholder={t("pickPeer")}>
                 {() =>
                   selected
                     ? `${selected.full_name}${selected.job_title ? ` · ${selected.job_title}` : ""}`
-                    : "Pilih rekan"
+                    : t("pickPeer")
                 }
               </SelectValue>
             </SelectTrigger>
@@ -265,20 +266,20 @@ export default function ReviewFormClientPage({
           <>
             <section className="flex flex-col">
               <div className="flex items-baseline justify-between pb-2">
-                <h2 className="text-sm font-medium">Penilaian</h2>
+                <h2 className="text-sm font-medium">{t("ratings")}</h2>
                 <p className="text-muted-foreground text-xs">
-                  Nilai 1–2 atau 5 perlu alasan singkat
+                  {t("reasonRequiredNote")}
                 </p>
               </div>
               {CRITERIA.map(({ key, label, hint }) => (
                 <div key={key} className="flex flex-col gap-2 border-t py-3">
                   <div className="flex items-center justify-between gap-4">
                     <div className="min-w-0">
-                      <p className="text-sm">{label}</p>
-                      <p className="text-muted-foreground text-xs">{hint}</p>
+                      <p className="text-sm">{t(label)}</p>
+                      <p className="text-muted-foreground text-xs">{t(hint)}</p>
                     </div>
                     <Stars
-                      label={label}
+                      label={t(label)}
                       value={scores[key]}
                       onChange={(v) => setScores((s) => ({ ...s, [key]: v }))}
                     />
@@ -286,8 +287,11 @@ export default function ReviewFormClientPage({
                   {needsReason(scores[key]) && (
                     <div className="flex flex-col gap-1">
                       <Textarea
-                        aria-label={`Alasan nilai ${label}`}
-                        placeholder={`Kenapa nilai ${scores[key]} untuk ${label.toLowerCase()}?`}
+                        aria-label={t("reasonFor", { label: t(label) })}
+                        placeholder={t("reasonPlaceholder", {
+                          score: scores[key],
+                          label: t(label).toLowerCase(),
+                        })}
                         value={reasons[key]}
                         onChange={(e) =>
                           setReasons((r) => ({ ...r, [key]: e.target.value }))
@@ -302,8 +306,10 @@ export default function ReviewFormClientPage({
                             : "text-warning",
                         )}
                       >
-                        {reasons[key].trim().length}/{MIN_REASON} karakter
-                        minimal
+                        {t("minChars", {
+                          count: reasons[key].trim().length,
+                          min: MIN_REASON,
+                        })}
                       </span>
                     </div>
                   )}
@@ -312,14 +318,16 @@ export default function ReviewFormClientPage({
             </section>
 
             <section className="flex flex-col gap-5">
-              <h2 className="text-sm font-medium">Masukan</h2>
+              <h2 className="text-sm font-medium">{t("feedback")}</h2>
               {FEEDBACK.map(({ key, label, hint, placeholder }) => (
                 <div key={key} className="flex flex-col gap-1.5">
-                  <Label htmlFor={key}>{label}</Label>
-                  <p className="text-muted-foreground -mt-1 text-xs">{hint}</p>
+                  <Label htmlFor={key}>{t(label)}</Label>
+                  <p className="text-muted-foreground -mt-1 text-xs">
+                    {t(hint)}
+                  </p>
                   <Textarea
                     id={key}
-                    placeholder={placeholder}
+                    placeholder={t(placeholder)}
                     value={feedback[key]}
                     onChange={(e) =>
                       setFeedback((f) => ({ ...f, [key]: e.target.value }))
@@ -333,12 +341,12 @@ export default function ReviewFormClientPage({
             <div className="flex items-center justify-end gap-3 pb-8">
               {!canSubmit && (
                 <span className="text-muted-foreground text-xs">
-                  Lengkapi semua nilai dan masukan
+                  {t("completeAllFields")}
                 </span>
               )}
               <Button onClick={submit} disabled={loading || !canSubmit}>
                 {loading && <Spinner data-icon="inline-start" />}
-                Kirim penilaian
+                {t("submitReview")}
               </Button>
             </div>
           </>
@@ -348,18 +356,18 @@ export default function ReviewFormClientPage({
       <Dialog open={confirmLeave} onOpenChange={setConfirmLeave}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Tinggalkan penilaian?</DialogTitle>
-            <DialogDescription>Isian kamu belum tersimpan.</DialogDescription>
+            <DialogTitle>{t("leaveReviewTitle")}</DialogTitle>
+            <DialogDescription>{t("unsavedEntries")}</DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setConfirmLeave(false)}>
-              Lanjut mengisi
+              {t("keepFilling")}
             </Button>
             <Button
               variant="destructive"
               onClick={() => router.push("/performance/360-review")}
             >
-              Tinggalkan
+              {t("leave")}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -176,6 +176,57 @@ export type Database = {
           },
         ]
       }
+      clients: {
+        Row: {
+          address: string | null
+          archived_at: string | null
+          contact_name: string | null
+          country: string | null
+          created_at: string
+          created_by: string | null
+          currency: string
+          email: string | null
+          id: string
+          name: string
+          notes: string | null
+          phone: string | null
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          address?: string | null
+          archived_at?: string | null
+          contact_name?: string | null
+          country?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          email?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          phone?: string | null
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          address?: string | null
+          archived_at?: string | null
+          contact_name?: string | null
+          country?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          email?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
       competency_library: {
         Row: {
           category: string | null
@@ -200,6 +251,54 @@ export type Database = {
           id?: string
           name?: string
           role?: Database["public"]["Enums"]["project_role_enum"]
+        }
+        Relationships: []
+      }
+      finance_subscriptions: {
+        Row: {
+          currency: string
+          fx_rate: number | null
+          amount_idr: number
+          anchor_date: string
+          category: string
+          created_at: string
+          created_by: string | null
+          cycle: string
+          ends_on: string | null
+          id: string
+          name: string
+          notes: string | null
+          updated_at: string
+        }
+        Insert: {
+          currency?: string
+          fx_rate?: number | null
+          amount_idr: number
+          anchor_date: string
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          cycle?: string
+          ends_on?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          updated_at?: string
+        }
+        Update: {
+          currency?: string
+          fx_rate?: number | null
+          amount_idr?: number
+          anchor_date?: string
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          cycle?: string
+          ends_on?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
@@ -527,18 +626,36 @@ export type Database = {
       }
       payment_methods: {
         Row: {
+          type: string
+          details: Json
+          notes: string | null
+          qr_path: string | null
+          verified_at: string | null
+          sort: number
           created_at: string
           id: string
           is_active: boolean
           name: string
         }
         Insert: {
+          type?: string
+          details?: Json
+          notes?: string | null
+          qr_path?: string | null
+          verified_at?: string | null
+          sort?: number
           created_at?: string
           id?: string
           is_active?: boolean
           name: string
         }
         Update: {
+          type?: string
+          details?: Json
+          notes?: string | null
+          qr_path?: string | null
+          verified_at?: string | null
+          sort?: number
           created_at?: string
           id?: string
           is_active?: boolean
@@ -1087,6 +1204,105 @@ export type Database = {
         }
         Relationships: []
       }
+      process_phases: {
+        Row: {
+          description: string | null
+          id: string
+          name: string
+          position: number
+          process_id: string
+        }
+        Insert: {
+          description?: string | null
+          id?: string
+          name: string
+          position?: number
+          process_id: string
+        }
+        Update: {
+          description?: string | null
+          id?: string
+          name?: string
+          position?: number
+          process_id?: string
+        }
+        Relationships: []
+      }
+      process_steps: {
+        Row: {
+          description: string | null
+          id: string
+          phase_id: string
+          position: number
+          title: string
+        }
+        Insert: {
+          description?: string | null
+          id?: string
+          phase_id: string
+          position?: number
+          title: string
+        }
+        Update: {
+          description?: string | null
+          id?: string
+          phase_id?: string
+          position?: number
+          title?: string
+        }
+        Relationships: []
+      }
+      process_tasks: {
+        Row: {
+          id: string
+          position: number
+          step_id: string
+          title: string
+        }
+        Insert: {
+          id?: string
+          position?: number
+          step_id: string
+          title: string
+        }
+        Update: {
+          id?: string
+          position?: number
+          step_id?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      processes: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_default: boolean
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_default?: boolean
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_default?: boolean
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       project_steps: {
         Row: {
           id: string
@@ -1096,6 +1312,7 @@ export type Database = {
           status: string
           position: number
           created_by: string | null
+          description: string | null
           created_at: string
         }
         Insert: {
@@ -1106,6 +1323,7 @@ export type Database = {
           status?: string
           position?: number
           created_by?: string | null
+          description?: string | null
           created_at?: string
         }
         Update: {
@@ -1116,6 +1334,7 @@ export type Database = {
           status?: string
           position?: number
           created_by?: string | null
+          description?: string | null
           created_at?: string
         }
         Relationships: []
@@ -1164,6 +1383,12 @@ export type Database = {
       }
       project_invoices: {
         Row: {
+          payment_schedule: Json
+          client_snapshot: Json | null
+          payment_snapshot: Json | null
+          terms_note: string | null
+          currency: string
+          fx_rate: number | null
           amount_idr: number
           amount_paid_idr: number
           created_at: string
@@ -1175,10 +1400,16 @@ export type Database = {
           notes: string | null
           payment_method_id: string | null
           project_id: string
-          status: "Draft" | "Sent" | "Partial" | "Paid" | "Overdue"
+          status: "Draft" | "Sent" | "Partial" | "Paid" | "Overdue" | "Refunded"
           updated_at: string
         }
         Insert: {
+          payment_schedule?: Json
+          client_snapshot?: Json | null
+          payment_snapshot?: Json | null
+          terms_note?: string | null
+          currency?: string
+          fx_rate?: number | null
           amount_idr?: number
           amount_paid_idr?: number
           created_at?: string
@@ -1190,10 +1421,22 @@ export type Database = {
           notes?: string | null
           payment_method_id?: string | null
           project_id: string
-          status?: "Draft" | "Sent" | "Partial" | "Paid" | "Overdue"
+          status?:
+            | "Draft"
+            | "Sent"
+            | "Partial"
+            | "Paid"
+            | "Overdue"
+            | "Refunded"
           updated_at?: string
         }
         Update: {
+          payment_schedule?: Json
+          client_snapshot?: Json | null
+          payment_snapshot?: Json | null
+          terms_note?: string | null
+          currency?: string
+          fx_rate?: number | null
           amount_idr?: number
           amount_paid_idr?: number
           created_at?: string
@@ -1205,7 +1448,13 @@ export type Database = {
           notes?: string | null
           payment_method_id?: string | null
           project_id?: string
-          status?: "Draft" | "Sent" | "Partial" | "Paid" | "Overdue"
+          status?:
+            | "Draft"
+            | "Sent"
+            | "Partial"
+            | "Paid"
+            | "Overdue"
+            | "Refunded"
           updated_at?: string
         }
         Relationships: [
@@ -1365,6 +1614,8 @@ export type Database = {
       }
       projects: {
         Row: {
+          client_id: string | null
+          process_id: string | null
           client_name: string | null
           client_contact: string | null
           client_email: string | null
@@ -1380,6 +1631,8 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          client_id?: string | null
+          process_id?: string | null
           client_name?: string | null
           client_contact?: string | null
           client_email?: string | null
@@ -1395,6 +1648,8 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          client_id?: string | null
+          process_id?: string | null
           client_name?: string | null
           client_contact?: string | null
           client_email?: string | null
@@ -1548,6 +1803,22 @@ export type Database = {
       }
     }
     Functions: {
+      delete_project_phase: {
+        Args: { p_phase_id: string }
+        Returns: undefined
+      }
+      reorder_project_phases: {
+        Args: { p_ids: string[]; p_project_id: string }
+        Returns: undefined
+      }
+      apply_process: {
+        Args: {
+          p_process_id: string
+          p_project_id: string
+          p_replace?: boolean
+        }
+        Returns: undefined
+      }
       save_assignment_scores: {
         Args: { p_assignment_id: string; p_sla: Json; p_quality: Json }
         Returns: undefined
@@ -1605,7 +1876,12 @@ export type Database = {
         | "Webflow Developer"
         | "Project Manager"
         | "Admin"
-      project_status_enum: "Active" | "Completed" | "Archived"
+      project_status_enum:
+        | "Planned"
+        | "Active"
+        | "Review"
+        | "Completed"
+        | "Archived"
       request_status: "pending" | "approved" | "rejected"
     }
     CompositeTypes: {
@@ -1743,7 +2019,13 @@ export const Constants = {
         "Project Manager",
         "Admin",
       ],
-      project_status_enum: ["Active", "Completed", "Archived"],
+      project_status_enum: [
+        "Planned",
+        "Active",
+        "Review",
+        "Completed",
+        "Archived",
+      ],
       request_status: ["pending", "approved", "rejected"],
     },
   },

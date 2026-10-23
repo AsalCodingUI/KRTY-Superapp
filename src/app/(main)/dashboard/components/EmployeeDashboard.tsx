@@ -14,6 +14,7 @@ import {
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useMemo, useState } from "react"
 import type { EmployeeDashboardData } from "../actions/dashboard-employee-actions"
+import { useT } from "@/shared/i18n/client"
 
 import { CalendarDays, ChartColumn, Clock, Plus } from "lucide-react"
 import {
@@ -50,7 +51,9 @@ export function EmployeeDashboard({
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
-  const firstName = data.user.full_name?.split(" ")[0] || "User"
+  const t = useT("dashboard")
+  const firstName =
+    data.user.full_name?.split(" ")[0] || t("greetingFallbackName")
   const availableYears = useMemo(() => {
     const y = new Date().getFullYear()
     return [y - 1, y, y + 1]
@@ -91,7 +94,7 @@ export function EmployeeDashboard({
 
   return (
     <HomeColumn>
-      <HomeGreeting title={`Halo, ${firstName}`} />
+      <HomeGreeting title={t("greetingName", { name: firstName })} />
 
       <HomeActions
         aside={
@@ -120,16 +123,16 @@ export function EmployeeDashboard({
         }
       >
         <HomeAction primary onClick={() => setLeaveOpen(true)} icon={<Plus />}>
-          Ajukan cuti
+          {t("actionRequestLeave")}
         </HomeAction>
         <HomeAction href="/leave" icon={<Clock />}>
-          Kehadiran
+          {t("actionAttendance")}
         </HomeAction>
         <HomeAction href="/performance" icon={<ChartColumn />}>
-          KPI saya
+          {t("actionMyKpi")}
         </HomeAction>
         <HomeAction href="/calendar" icon={<CalendarDays />}>
-          Kalender
+          {t("actionCalendar")}
         </HomeAction>
       </HomeActions>
 

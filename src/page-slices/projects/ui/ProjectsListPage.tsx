@@ -1,5 +1,6 @@
 "use client"
 
+import { STATUS_LABEL_KEYS } from "@/page-slices/projects/lib/status"
 import { EmptyValue } from "@/components/empty-value"
 import { PageHeader } from "@/components/page-header"
 import {
@@ -10,20 +11,22 @@ import { AvatarGroup, AvatarOverflow } from "@/components/avatar-group"
 import { ConfirmDialog } from "@/components/confirm-dialog"
 import { DataTable, DataTableColumnHeader } from "@/components/data-table"
 import { ListChip } from "@/components/grouped-list"
+import { ProjectStatusIcon } from "./ProjectStatusIcon"
 import { ProjectAvatar } from "@/components/project-avatar"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { EmptyState } from "@/components/empty-state"
+import { Input } from "@/components/ui/input"
 import { Spinner } from "@/components/ui/spinner"
 import { useViewMode, ViewToggle } from "@/components/view-toggle"
 import { createClient } from "@/shared/api/supabase/client"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { canManageByRole } from "@/shared/lib/roles"
-import { RiAddLine } from "@/shared/ui/lucide-icons"
+import { RiAddLine, RiSearchLine } from "@/shared/ui/lucide-icons"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import type { ColumnDef } from "@tanstack/react-table"
+import { useDateLocale, useT } from "@/shared/i18n/client"
 import { format } from "date-fns"
-import { id as idLocale } from "date-fns/locale"
 import dynamic from "next/dynamic"
 import Link from "next/link"
 import { useMemo, useState } from "react"
@@ -49,12 +52,6 @@ const ProjectForm = dynamic(() =>
   import("./ProjectForm").then((m) => m.ProjectForm),
 )
 
-const STATUS_LABELS: Record<ProjectListRow["status"], string> = {
-  Active: "Aktif",
-  Completed: "Selesai",
-  Archived: "Diarsipkan",
-}
-
 const QUERY_KEY = ["projects", "list-page"]
 
 /**
@@ -62,18 +59,21 @@ const QUERY_KEY = ["projects", "list-page"]
  * and SLA Generator are hidden here for now; they move elsewhere later.
  */
 export function ProjectsListPage() {
+  const t = useT("projects")
+  const tc = useT("common")
   const supabase = useMemo(() => createClient(), [])
   const queryClient = useQueryClient()
   const { profile } = useUserProfile()
   const isAdmin = canManageByRole(profile?.role)
-  const [view, setView] = useViewMode("projects")
+  const [view, setView] = useViewMode("projects", "kanban")
+  const [query, setQuery] = useState("")
   const [formOpen, setFormOpen] = useState(false)
   const [formMounted, setFormMounted] = useState(false)
   if (formOpen && !formMounted) setFormMounted(true)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [deleting, setDeleting] = useState<ProjectListRow | null>(null)
 
-  const { data: projects = [], isLoading } = useQuery({
+  const { data: allProjects = [], isLoading } = useQuery({
     queryKey: QUERY_KEY,
     queryFn: async () => {
       const { data, error } = await supabase
@@ -88,6 +88,13 @@ export function ProjectsListPage() {
     },
   })
 
+  const needle = query.trim().toLowerCase()
+  const projects = needle
+    ? allProjects.filter((p) =>
+        `${p.name} ${p.client_name ?? ""}`.toLowerCase().includes(needle),
+      )
+    : allProjects
+
   const refresh = () =>
     queryClient.invalidateQueries({ queryKey: ["projects"] })
 
@@ -100,7 +107,7 @@ export function ProjectsListPage() {
       toast.error(result.error)
       return false
     }
-    toast.success(`${project.name} → ${STATUS_LABELS[status]}`)
+    toast.success(`${project.name} → ${t(STATUS_LABEL_KEYS[status])}`)
     refresh()
     return true
   }
@@ -124,13 +131,24 @@ export function ProjectsListPage() {
     <div className="flex flex-col">
       <PageHeader
         className="pt-6 pb-4"
-        title="Projects"
+        title={t("title")}
         actions={
           <div className="flex items-center gap-2">
+            <div className="relative w-56">
+              <RiSearchLine className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
+              <Input
+                type="search"
+                placeholder={t("searchPlaceholder")}
+                aria-label={t("searchLabel")}
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                className="pl-9"
+              />
+            </div>
             <ViewToggle
               value={view}
               onValueChange={setView}
-              modes={["list", "kanban", "table"]}
+              modes={["kanban", "list", "table"]}
             />
             {isAdmin && (
               <Button
@@ -140,7 +158,7 @@ export function ProjectsListPage() {
                 }}
               >
                 <RiAddLine data-icon="inline-start" />
-                Project baru
+                {t("newProject")}
               </Button>
             )}
           </div>
@@ -152,6 +170,12 @@ export function ProjectsListPage() {
           <div className="flex justify-center py-16">
             <Spinner className="size-6" />
           </div>
+        ) : needle && projects.length === 0 ? (
+          <EmptyState
+            title={t("noMatch", { query: query.trim() })}
+            description={t("noMatchHint")}
+            icon={<RiSearchLine />}
+          />
         ) : view === "kanban" ? (
           <ProjectKanban
             projects={projects}
@@ -177,16 +201,18 @@ export function ProjectsListPage() {
           <ConfirmDialog
             open={Boolean(deleting)}
             onOpenChange={(open) => !open && setDeleting(null)}
-            title={`Hapus ${deleting?.name ?? "project"}?`}
-            description="Project, timnya, dan semua nilai SLA & kompetensi di project ini dihapus permanen. Kalau hanya ingin menyembunyikan, arsipkan saja."
-            confirmText="Hapus permanen"
-            cancelText="Batal"
+            title={t("deleteTitle", {
+              name: deleting?.name ?? t("projectFallback"),
+            })}
+            description={t("deleteDescription")}
+            confirmText={t("deletePermanently")}
+            cancelText={tc("cancel")}
             variant="destructive"
             onConfirm={async () => {
               if (!deleting) return
               const result = await deleteProject(deleting.id)
               if (result.success) {
-                toast.success("Project dihapus")
+                toast.success(t("projectDeleted"))
                 refresh()
               } else {
                 toast.error(result.error)
@@ -201,11 +227,13 @@ export function ProjectsListPage() {
 }
 
 function ProjectTable({ projects }: { projects: ProjectListRow[] }) {
+  const t = useT("projects")
+  const dateLocale = useDateLocale()
   const columns: ColumnDef<ProjectListRow>[] = [
     {
       accessorKey: "name",
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Project" />
+        <DataTableColumnHeader column={column} title={t("colProject")} />
       ),
       cell: ({ row }) => (
         <Link
@@ -221,20 +249,19 @@ function ProjectTable({ projects }: { projects: ProjectListRow[] }) {
     {
       accessorKey: "status",
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Status" />
+        <DataTableColumnHeader column={column} title={t("colStatus")} />
       ),
       cell: ({ row }) => (
-        <Badge
-          variant={row.original.status === "Active" ? "success" : "secondary"}
-        >
-          {STATUS_LABELS[row.original.status]}
-        </Badge>
+        <span className="flex items-center gap-2">
+          <ProjectStatusIcon status={row.original.status} />
+          {t(STATUS_LABEL_KEYS[row.original.status])}
+        </span>
       ),
     },
     {
       accessorKey: "quarter_id",
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Kuartal" />
+        <DataTableColumnHeader column={column} title={t("colQuarter")} />
       ),
       cell: ({ row }) =>
         row.original.quarter_id ? (
@@ -246,23 +273,23 @@ function ProjectTable({ projects }: { projects: ProjectListRow[] }) {
     {
       accessorKey: "end_date",
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Jadwal" />
+        <DataTableColumnHeader column={column} title={t("colSchedule")} />
       ),
       cell: ({ row }) => (
         <span className="text-muted-foreground tabular-nums">
           {format(new Date(row.original.start_date), "d MMM", {
-            locale: idLocale,
+            locale: dateLocale,
           })}{" "}
           –{" "}
           {format(new Date(row.original.end_date), "d MMM yyyy", {
-            locale: idLocale,
+            locale: dateLocale,
           })}
         </span>
       ),
     },
     {
       id: "team",
-      header: () => <span>Tim</span>,
+      header: () => <span>{t("colTeam")}</span>,
       cell: ({ row }) => {
         const team = row.original.project_assignments ?? []
         if (team.length === 0) return <EmptyValue />

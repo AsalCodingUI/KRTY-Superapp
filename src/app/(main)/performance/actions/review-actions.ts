@@ -1,6 +1,7 @@
 "use server"
 
 import { createClient } from "@/shared/api/supabase/server"
+import { getT } from "@/shared/i18n/server"
 import { resolveEffectiveUserId } from "@/shared/lib/impersonation-server"
 import { canManageByRole } from "@/shared/lib/roles"
 import { revalidatePath } from "next/cache"
@@ -316,13 +317,13 @@ export async function saveReviewCycle(
   startDate: string,
   endDate: string,
 ): Promise<ActionResult> {
-  const me = await viewer()
-  if (!me?.isStakeholder) return { success: false, error: "Khusus admin." }
+  const [me, t] = await Promise.all([viewer(), getT("performance")])
+  if (!me?.isStakeholder) return { success: false, error: t("errAdminOnly") }
   if (!/^\d{4}-Q[1-4]$/.test(quarter)) {
-    return { success: false, error: "Pilih satu kuartal." }
+    return { success: false, error: t("errPickQuarter") }
   }
   if (!startDate || !endDate || endDate < startDate) {
-    return { success: false, error: "Tanggal selesai harus setelah mulai." }
+    return { success: false, error: t("errEndAfterStart") }
   }
   const { supabase } = me
   const start = `${startDate}T00:00:00+07:00`
@@ -347,19 +348,19 @@ export async function saveReviewCycle(
         end_date: end,
         is_active: true,
       })
-  if (error) return { success: false, error: "Gagal menyimpan periode." }
+  if (error) return { success: false, error: t("periodSaveFailed") }
   revalidatePath("/performance", "layout")
   return { success: true }
 }
 
 export async function closeReviewCycle(quarter: string): Promise<ActionResult> {
-  const me = await viewer()
-  if (!me?.isStakeholder) return { success: false, error: "Khusus admin." }
+  const [me, t] = await Promise.all([viewer(), getT("performance")])
+  if (!me?.isStakeholder) return { success: false, error: t("errAdminOnly") }
   const { error } = await me.supabase
     .from("review_cycles")
     .update({ is_active: false })
     .eq("quarter", quarter)
-  if (error) return { success: false, error: "Gagal menutup periode." }
+  if (error) return { success: false, error: t("periodCloseFailed") }
   revalidatePath("/performance", "layout")
   return { success: true }
 }

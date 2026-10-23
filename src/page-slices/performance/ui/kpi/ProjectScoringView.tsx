@@ -29,6 +29,7 @@ import {
   slaPercent,
   type SLAResult,
 } from "@/entities/performance/lib/kpi"
+import { useT } from "@/shared/i18n/client"
 import { RiCheckLine, RiFileList3Line } from "@/shared/ui/lucide-icons"
 import { useQueryClient } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
@@ -75,6 +76,8 @@ export function ProjectScoringView({
   backHref: string
   backLabel: string
 }) {
+  const t = useT("performance")
+  const tc = useT("common")
   const router = useRouter()
   const queryClient = useQueryClient()
   const [milestones, setMilestones] = useState<MilestoneInput[]>(
@@ -131,7 +134,7 @@ export function ProjectScoringView({
 
   const save = async () => {
     if (totalWeight !== 100) {
-      toast.error(`Total bobot harus 100% (sekarang ${totalWeight}%).`)
+      toast.error(t("weightMustBe100Now", { n: totalWeight }))
       return
     }
     setSaving(true)
@@ -142,10 +145,10 @@ export function ProjectScoringView({
     )
     setSaving(false)
     if (!result.success) {
-      toast.error(result.error ?? "Gagal menyimpan nilai.")
+      toast.error(result.error ?? t("scoresSaveFailed"))
       return
     }
-    toast.success("Nilai tersimpan")
+    toast.success(t("scoresSaved"))
     setDirty(false)
     queryClient.invalidateQueries({ queryKey: ["kpi"] })
     queryClient.invalidateQueries({ queryKey: ["kpi-team"] })
@@ -161,7 +164,7 @@ export function ProjectScoringView({
         actions={
           canEdit && (
             <Button onClick={save} disabled={saving || !dirty}>
-              {saving ? "Menyimpan…" : dirty ? "Simpan nilai" : "Tersimpan"}
+              {saving ? tc("saving") : dirty ? t("saveScores") : t("saved")}
             </Button>
           )
         }
@@ -169,10 +172,10 @@ export function ProjectScoringView({
 
       <dl className="stat-strip bleed gutter-x border-border border-b py-4">
         {[
-          { label: "Anggota", value: employeeName },
-          { label: "Peran", value: roleInProject },
+          { label: t("member"), value: employeeName },
+          { label: t("role"), value: roleInProject },
           ...(project.quarter
-            ? [{ label: "Kuartal", value: project.quarter }]
+            ? [{ label: t("quarter"), value: project.quarter }]
             : []),
         ].map(({ label, value }) => (
           <div key={label} className="stat-tile">
@@ -183,15 +186,15 @@ export function ProjectScoringView({
           </div>
         ))}
         {[
-          { label: "SLA project", value: sla },
-          { label: "Kualitas kerja", value: quality },
+          { label: t("partSla"), value: sla },
+          { label: t("partQuality"), value: quality },
         ].map(({ label, value }) => (
           <div key={label} className="stat-tile">
             <dt className="text-muted-foreground text-sm">{label}</dt>
             <dd className="flex items-center gap-2">
               {value === null ? (
                 <span className="text-muted-foreground text-xl font-normal tracking-tight">
-                  Belum dinilai
+                  {t("notScored")}
                 </span>
               ) : (
                 <>
@@ -208,22 +211,20 @@ export function ProjectScoringView({
 
       <section className="flex flex-col">
         <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 pt-6 pb-3">
-          <h2 className="text-foreground text-sm">Milestone SLA</h2>
-          <p className="text-muted-foreground text-[13px]">
-            Lebih cepat 120% · Tepat waktu 100% · Terlambat 80% dari bobot
-          </p>
+          <h2 className="text-foreground text-sm">{t("milestoneSla")}</h2>
+          <p className="text-muted-foreground text-[13px]">{t("slaLegend")}</p>
         </div>
         {!showSla ? (
           <p className="text-muted-foreground border-t py-6 text-sm">
-            Milestone project ini belum dinilai.
+            {t("milestonesNotScored")}
           </p>
         ) : (
           <GroupedList>
             <ListColumns grid={MILESTONE_GRID}>
-              <span>Milestone</span>
-              <span className="text-right">Bobot</span>
-              <span>Hasil</span>
-              <span className="hidden text-right sm:block">Nilai</span>
+              <span>{t("milestone")}</span>
+              <span className="text-right">{t("weight")}</span>
+              <span>{t("result")}</span>
+              <span className="hidden text-right sm:block">{t("score")}</span>
             </ListColumns>
             {milestones.map((m, index) => (
               <ListRow
@@ -240,7 +241,7 @@ export function ProjectScoringView({
                         max={100}
                         className="h-8 w-16 text-right tabular-nums"
                         value={m.weight}
-                        aria-label={`Bobot ${m.name}`}
+                        aria-label={t("weightOf", { name: m.name })}
                         onChange={(e) =>
                           updateMilestone(index, {
                             weight: Number(e.target.value),
@@ -257,13 +258,13 @@ export function ProjectScoringView({
                     >
                       <SelectTrigger className="h-8 w-full">
                         <SelectValue>
-                          {(v: SLAResult) => SLA_RESULT_LABELS[v]}
+                          {(v: SLAResult) => t(SLA_RESULT_LABELS[v])}
                         </SelectValue>
                       </SelectTrigger>
                       <SelectContent align="end">
                         {RESULTS.map((r) => (
                           <SelectItem key={r} value={r}>
-                            {SLA_RESULT_LABELS[r]}
+                            {t(SLA_RESULT_LABELS[r])}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -276,7 +277,7 @@ export function ProjectScoringView({
                     </span>
                     <div>
                       <Badge variant={RESULT_VARIANTS[m.result]}>
-                        {SLA_RESULT_LABELS[m.result]}
+                        {t(SLA_RESULT_LABELS[m.result])}
                       </Badge>
                     </div>
                   </>
@@ -288,7 +289,7 @@ export function ProjectScoringView({
             ))}
             {canEdit && totalWeight !== 100 && (
               <p className="text-warning gutter-x pt-2 text-xs">
-                Total bobot {totalWeight}%, harus 100%.
+                {t("weightTotalMustBe100", { n: totalWeight })}
               </p>
             )}
           </GroupedList>
@@ -298,31 +299,33 @@ export function ProjectScoringView({
       <section className="flex flex-col">
         <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 pt-6 pb-3">
           <h2 className="text-foreground text-sm">
-            Kompetensi ({roleInProject})
+            {t("competenciesForRole", { role: roleInProject })}
           </h2>
           {showQuality && competencies.length > 0 && (
             <p className="text-muted-foreground text-[13px] tabular-nums">
-              {competencies.filter((c) => c.isAchieved).length} dari{" "}
-              {competencies.length} tercapai
+              {t("achievedOfTotal", {
+                done: competencies.filter((c) => c.isAchieved).length,
+                total: competencies.length,
+              })}
             </p>
           )}
         </div>
         {competencies.length === 0 ? (
           <EmptyState
             placement="inner"
-            title="Belum ada kompetensi"
-            description={`Tambahkan kompetensi untuk ${roleInProject} di Competency Library.`}
+            title={t("noCompetencies")}
+            description={t("addCompetenciesForRole", { role: roleInProject })}
             icon={<RiFileList3Line className="size-5" />}
           />
         ) : !showQuality ? (
           <p className="text-muted-foreground border-t py-6 text-sm">
-            Kompetensi di project ini belum dinilai.
+            {t("competenciesNotScored")}
           </p>
         ) : (
           <GroupedList>
             <ListColumns grid={COMPETENCY_GRID}>
-              <span>Kompetensi</span>
-              <span className="text-right">Status</span>
+              <span>{t("competency")}</span>
+              <span className="text-right">{t("status")}</span>
             </ListColumns>
             {competencies.map((c) => (
               <ListRow key={c.id} className={cn(COMPETENCY_GRID, "min-h-14")}>
@@ -347,11 +350,11 @@ export function ProjectScoringView({
                       )}
                     >
                       {c.isAchieved && <RiCheckLine data-icon="inline-start" />}
-                      {c.isAchieved ? "Tercapai" : "Belum"}
+                      {c.isAchieved ? t("achieved") : t("notYet")}
                     </Button>
                   ) : (
                     <Badge variant={c.isAchieved ? "success" : "secondary"}>
-                      {c.isAchieved ? "Tercapai" : "Belum"}
+                      {c.isAchieved ? t("achieved") : t("notYet")}
                     </Badge>
                   )}
                 </div>

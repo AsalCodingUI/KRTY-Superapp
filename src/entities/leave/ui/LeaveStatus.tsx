@@ -2,6 +2,7 @@
 
 import { RiCheckLine, RiCloseLine, RiTimeLine } from "@/shared/ui/lucide-icons"
 import { Badge } from "@/components/ui/badge"
+import { useT } from "@/shared/i18n/client"
 
 interface LeaveStatusProps {
   status: "pending" | "approved" | "rejected"
@@ -14,25 +15,26 @@ export function LeaveStatus({
   showIcon = true,
   size = "md",
 }: LeaveStatusProps) {
+  const t = useT("leave")
   const getStatusConfig = (status: string) => {
     switch (status) {
       case "approved":
         return {
           variant: "success" as const,
           icon: RiCheckLine,
-          label: "Approved",
+          label: t("statusApproved"),
         }
       case "rejected":
         return {
           variant: "destructive" as const,
           icon: RiCloseLine,
-          label: "Rejected",
+          label: t("statusRejected"),
         }
       case "pending":
         return {
           variant: "warning" as const,
           icon: RiTimeLine,
-          label: "Pending",
+          label: t("statusPending"),
         }
       default:
         return {

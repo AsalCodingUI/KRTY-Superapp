@@ -63,6 +63,9 @@ const nextConfig = {
                             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
                             "font-src 'self' https://fonts.gstatic.com data:",
                             "img-src 'self' data: blob: https:",
+                            // Library previews: videos and PDFs straight from project storage.
+                            "media-src 'self' blob: https://supabase.kretyastudio.com https://*.supabase.co",
+                            "frame-src 'self' https://supabase.kretyastudio.com https://*.supabase.co",
                             "connect-src 'self' https://supabase.kretyastudio.com wss://supabase.kretyastudio.com https://*.supabase.co wss://*.supabase.co https://*.zeabur.app wss://*.zeabur.app https://n8n-private.kretyastudio.com",
                             "frame-ancestors 'self'",
                             "base-uri 'self'",

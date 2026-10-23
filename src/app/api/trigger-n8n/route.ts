@@ -1,3 +1,4 @@
+import { getT } from "@/shared/i18n/server"
 import { createClient } from "@/shared/api/supabase/server"
 import { resolveProfileByUserIdOrEmail } from "@/shared/lib/profile-resolution"
 import { canManageByRole } from "@/shared/lib/roles"
@@ -6,16 +7,14 @@ import { guardApiRoute } from "@/shared/lib/utils/security"
 import { NextRequest, NextResponse } from "next/server"
 
 export async function POST(request: NextRequest) {
+  const t = await getT("api")
   const guard = guardApiRoute(request)
   if (guard) return guard
 
   const webhookUrl = process.env.N8N_WEBHOOK_URL
 
   if (!webhookUrl) {
-    return NextResponse.json(
-      { error: "Configuration Error: Missing Webhook URL" },
-      { status: 500 },
-    )
+    return NextResponse.json({ error: t("webhookMissing") }, { status: 500 })
   }
 
   try {
@@ -28,7 +27,7 @@ export async function POST(request: NextRequest) {
     } = await supabase.auth.getUser()
 
     if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ error: t("unauthorized") }, { status: 401 })
     }
 
     const profile = await resolveProfileByUserIdOrEmail<{
@@ -38,7 +37,7 @@ export async function POST(request: NextRequest) {
     }>(supabase, "id, email, role, created_at", user.id, user.email)
 
     if (!canManageByRole(profile?.role)) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+      return NextResponse.json({ error: t("forbidden") }, { status: 403 })
     }
 
     // --- STEP 1: Coba ambil data dengan filter strict (Cycle ID harus cocok) ---
@@ -61,8 +60,8 @@ export async function POST(request: NextRequest) {
         success: true,
         count: 0,
         message: cycle_id
-          ? `No reviews found for cycle ${cycle_id}`
-          : "No reviews found for this user",
+          ? t("noReviewsForCycle", { cycle: cycle_id })
+          : t("noReviewsForUser"),
       })
     }
 
@@ -87,12 +86,15 @@ export async function POST(request: NextRequest) {
         status: response.status,
         responseBody: errorText.slice(0, 1000),
       })
-      return NextResponse.json({ error: "Failed to trigger workflow" }, { status: 502 })
+      return NextResponse.json(
+        { error: t("workflowTriggerFailed") },
+        { status: 502 },
+      )
     }
 
     return NextResponse.json({ success: true, count: reviews.length })
   } catch (error: unknown) {
     logError("Trigger n8n endpoint failed", error)
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    return NextResponse.json({ error: t("serverError") }, { status: 500 })
   }
 }

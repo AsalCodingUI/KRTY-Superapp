@@ -1,5 +1,6 @@
 "use client"
 
+import { DateField } from "@/components/date-field"
 import {
   deletePaymentMethod,
   saveInvoice,
@@ -36,6 +37,7 @@ import {
   RiCloseLine,
   RiDeleteBin6Line,
 } from "@/shared/ui/lucide-icons"
+import { useT } from "@/shared/i18n/client"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useEffect, useMemo, useState } from "react"
 import { toast } from "sonner"
@@ -61,6 +63,7 @@ export const INVOICE_STATUS_VARIANTS: Record<
   Partial: "warning",
   Paid: "success",
   Overdue: "destructive",
+  Refunded: "destructive",
 }
 
 export function PaymentMethodManagerDialog({
@@ -70,6 +73,8 @@ export function PaymentMethodManagerDialog({
   open: boolean
   onOpenChange: (open: boolean) => void
 }) {
+  const t = useT("finance")
+  const tc = useT("common")
   const supabase = useMemo(() => createClient(), [])
   const queryClient = useQueryClient()
   const [newName, setNewName] = useState("")
@@ -102,7 +107,7 @@ export function PaymentMethodManagerDialog({
       setNewName("")
       invalidate()
     } else {
-      toast.error("Failed to add payment method")
+      toast.error(t("addMethodFailed"))
     }
   }
 
@@ -113,7 +118,7 @@ export function PaymentMethodManagerDialog({
       setEditingId(null)
       invalidate()
     } else {
-      toast.error("Failed to update")
+      toast.error(t("updateFailed"))
     }
   }
 
@@ -123,7 +128,7 @@ export function PaymentMethodManagerDialog({
     if (result.success) {
       invalidate()
     } else {
-      toast.error("Failed to delete")
+      toast.error(t("deleteFailed"))
     }
     setPendingDeleteId(null)
   }
@@ -133,7 +138,7 @@ export function PaymentMethodManagerDialog({
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Manage Payment Methods</DialogTitle>
+            <DialogTitle>{t("managePaymentMethods")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
             {isLoading ? (
@@ -193,14 +198,14 @@ export function PaymentMethodManagerDialog({
               <Input
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
-                placeholder="New method name"
+                placeholder={t("newMethodName")}
                 className="flex-1"
                 onKeyDown={(e) => {
                   if (e.key === "Enter") handleAdd()
                 }}
               />
               <Button onClick={handleAdd} disabled={!newName.trim()}>
-                Add
+                {tc("add")}
               </Button>
             </div>
           </div>
@@ -213,22 +218,29 @@ export function PaymentMethodManagerDialog({
           if (!open) setPendingDeleteId(null)
         }}
         onConfirm={handleDelete}
-        title="Delete Payment Method?"
-        description="This will permanently delete this payment method."
-        confirmText="Delete"
-        cancelText="Cancel"
+        title={t("deleteMethodTitle")}
+        description={t("deleteMethodDescription")}
+        confirmText={tc("delete")}
+        cancelText={tc("cancel")}
         variant="destructive"
       />
     </>
   )
 }
 
-const formatCurrency = (n: number) =>
-  n.toLocaleString("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    maximumFractionDigits: 0,
-  })
+const CURRENCIES = ["IDR", "USD", "EUR", "SGD", "AUD", "GBP"]
+
+const formatCurrency = (n: number, currency = "IDR") => {
+  try {
+    return n.toLocaleString("id-ID", {
+      style: "currency",
+      currency,
+      maximumFractionDigits: currency === "IDR" ? 0 : 2,
+    })
+  } catch {
+    return `${currency} ${n.toLocaleString("id-ID")}`
+  }
+}
 
 export function InvoiceFormDialog({
   open,
@@ -245,6 +257,8 @@ export function InvoiceFormDialog({
   paymentMethods: PaymentMethodRow[]
   onSuccess: () => void
 }) {
+  const t = useT("finance")
+  const tc = useT("common")
   const queryClient = useQueryClient()
   const [saving, setSaving] = useState(false)
   const [pmDialogOpen, setPmDialogOpen] = useState(false)
@@ -256,6 +270,9 @@ export function InvoiceFormDialog({
   const [paymentMethodId, setPaymentMethodId] = useState<string>("")
   const [amountIdr, setAmountIdr] = useState("")
   const [amountPaidIdr, setAmountPaidIdr] = useState("")
+  // Amounts are in `currency`; fxRate = IDR actually received per 1 unit.
+  const [currency, setCurrency] = useState("IDR")
+  const [fxRate, setFxRate] = useState("")
   const [notes, setNotes] = useState("")
   const [lineItems, setLineItems] = useState<LineItemForm[]>([])
 
@@ -268,6 +285,8 @@ export function InvoiceFormDialog({
       setPaymentMethodId(invoice.payment_method_id || "")
       setAmountIdr(String(invoice.amount_idr))
       setAmountPaidIdr(String(invoice.amount_paid_idr))
+      setCurrency(invoice.currency ?? "IDR")
+      setFxRate(invoice.fx_rate ? String(invoice.fx_rate) : "")
       setNotes(invoice.notes || "")
       setLineItems((invoice.line_items as unknown as LineItemForm[]) || [])
     } else {
@@ -278,6 +297,8 @@ export function InvoiceFormDialog({
       setPaymentMethodId("")
       setAmountIdr("")
       setAmountPaidIdr("")
+      setCurrency("IDR")
+      setFxRate("")
       setNotes("")
       setLineItems([])
     }
@@ -322,7 +343,7 @@ export function InvoiceFormDialog({
 
   const handleSubmit = async () => {
     if (!invoiceNumber || !issueDate || !dueDate) {
-      toast.error("Invoice number, issue date, and due date are required")
+      toast.error(t("invoiceRequired"))
       return
     }
     setSaving(true)
@@ -335,6 +356,8 @@ export function InvoiceFormDialog({
         dueDate,
         amountIdr: Number(amountIdr) || 0,
         amountPaidIdr: Number(amountPaidIdr) || 0,
+        currency,
+        fxRate: currency === "IDR" ? null : Number(fxRate) || null,
         paymentMethodId: paymentMethodId || null,
         notes: notes || null,
         lineItems,
@@ -345,15 +368,15 @@ export function InvoiceFormDialog({
         : await saveInvoice(payload)
 
       if (result.success) {
-        toast.success(invoice ? "Invoice updated" : "Invoice created")
+        toast.success(invoice ? t("invoiceUpdated") : t("invoiceCreated"))
         queryClient.invalidateQueries({ queryKey: ["invoices", projectId] })
         onSuccess()
         onOpenChange(false)
       } else {
-        toast.error("error" in result ? result.error : "Failed to save")
+        toast.error("error" in result ? result.error : t("saveFailed"))
       }
     } catch {
-      toast.error("Failed to save invoice")
+      toast.error(t("saveInvoiceFailed"))
     } finally {
       setSaving(false)
     }
@@ -365,13 +388,13 @@ export function InvoiceFormDialog({
         <DialogContent className="sm:max-w-[35rem]">
           <DialogHeader>
             <DialogTitle>
-              {invoice ? "Edit Invoice" : "New Invoice"}
+              {invoice ? t("editInvoice") : t("newInvoice")}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-1">
-                <Label>Invoice Number</Label>
+                <Label>{t("invoiceNumber")}</Label>
                 <Input
                   value={invoiceNumber}
                   onChange={(e) => setInvoiceNumber(e.target.value)}
@@ -379,7 +402,7 @@ export function InvoiceFormDialog({
                 />
               </div>
               <div className="space-y-1">
-                <Label>Status</Label>
+                <Label>{t("status")}</Label>
                 <Select
                   value={status}
                   onValueChange={(v) =>
@@ -390,39 +413,35 @@ export function InvoiceFormDialog({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Draft">Draft</SelectItem>
-                    <SelectItem value="Sent">Sent</SelectItem>
-                    <SelectItem value="Partial">Partial</SelectItem>
-                    <SelectItem value="Paid">Paid</SelectItem>
-                    <SelectItem value="Overdue">Overdue</SelectItem>
+                    <SelectItem value="Draft">{t("statusDraft")}</SelectItem>
+                    <SelectItem value="Sent">{t("statusSent")}</SelectItem>
+                    <SelectItem value="Partial">
+                      {t("statusPartial")}
+                    </SelectItem>
+                    <SelectItem value="Paid">{t("statusPaid")}</SelectItem>
+                    <SelectItem value="Overdue">
+                      {t("statusOverdue")}
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-1">
-                <Label>Issue Date</Label>
-                <Input
-                  type="date"
-                  value={issueDate}
-                  onChange={(e) => setIssueDate(e.target.value)}
-                />
+                <Label>{t("issueDate")}</Label>
+                <DateField value={issueDate} onChange={setIssueDate} />
               </div>
               <div className="space-y-1">
-                <Label>Due Date</Label>
-                <Input
-                  type="date"
-                  value={dueDate}
-                  onChange={(e) => setDueDate(e.target.value)}
-                />
+                <Label>{t("dueDate")}</Label>
+                <DateField value={dueDate} onChange={setDueDate} />
               </div>
               <div className="space-y-1">
                 <div className="flex items-center justify-between">
-                  <Label>Payment Method</Label>
+                  <Label>{t("paymentMethod")}</Label>
                   <button
                     type="button"
                     className="text-primary text-xs font-medium hover:underline"
                     onClick={() => setPmDialogOpen(true)}
                   >
-                    Manage
+                    {t("manage")}
                   </button>
                 </div>
                 <Select
@@ -430,7 +449,7 @@ export function InvoiceFormDialog({
                   onValueChange={(v) => v !== null && setPaymentMethodId(v)}
                 >
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select..." />
+                    <SelectValue placeholder={t("selectPlaceholder")} />
                   </SelectTrigger>
                   <SelectContent>
                     {paymentMethods.map((pm) => (
@@ -442,7 +461,25 @@ export function InvoiceFormDialog({
                 </Select>
               </div>
               <div className="space-y-1">
-                <Label>Amount (IDR)</Label>
+                <Label>{t("currency")}</Label>
+                <Select
+                  value={currency}
+                  onValueChange={(v) => v && setCurrency(v)}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CURRENCIES.map((c) => (
+                      <SelectItem key={c} value={c}>
+                        {c}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <Label>{t("amountIn", { currency })}</Label>
                 <Input
                   type="number"
                   value={amountIdr}
@@ -451,7 +488,7 @@ export function InvoiceFormDialog({
                 />
               </div>
               <div className="space-y-1">
-                <Label>Amount Paid (IDR)</Label>
+                <Label>{t("amountPaidIn", { currency })}</Label>
                 <Input
                   type="number"
                   value={amountPaidIdr}
@@ -459,22 +496,37 @@ export function InvoiceFormDialog({
                   placeholder="0"
                 />
               </div>
+              {/* Amount and paid pair up; the rate only shows for foreign
+                  currency, under them. */}
+              {currency !== "IDR" ? (
+                <div className="space-y-1">
+                  <Label>{t("rateReceived", { currency })}</Label>
+                  <Input
+                    type="number"
+                    min={0}
+                    step="0.01"
+                    value={fxRate}
+                    onChange={(e) => setFxRate(e.target.value)}
+                    placeholder={t("rateDefaultPlaceholder")}
+                  />
+                </div>
+              ) : null}
             </div>
             <div className="space-y-1">
-              <Label>Notes</Label>
+              <Label>{t("notes")}</Label>
               <Textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder="Optional notes"
+                placeholder={t("notesPlaceholder")}
                 className="min-h-[60px]"
               />
             </div>
 
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <Label>Line Items</Label>
+                <Label>{t("lineItems")}</Label>
                 <Button variant="outline" onClick={addLineItem}>
-                  <RiAddLine className="mr-1 size-3" /> Add Item
+                  <RiAddLine className="mr-1 size-3" /> {t("addItem")}
                 </Button>
               </div>
               {lineItems.map((item) => (
@@ -483,17 +535,17 @@ export function InvoiceFormDialog({
                   className="bg-foreground/[0.03] grid grid-cols-12 items-end gap-2 rounded-lg p-3"
                 >
                   <div className="col-span-12 space-y-1 sm:col-span-5">
-                    <Label>Description</Label>
+                    <Label>{t("description")}</Label>
                     <Input
                       value={item.description}
                       onChange={(e) =>
                         updateLineItem(item.id, "description", e.target.value)
                       }
-                      placeholder="Item description"
+                      placeholder={t("itemDescription")}
                     />
                   </div>
                   <div className="col-span-3 space-y-1 sm:col-span-2">
-                    <Label>Qty</Label>
+                    <Label>{t("qty")}</Label>
                     <Input
                       type="number"
                       value={item.quantity}
@@ -507,7 +559,7 @@ export function InvoiceFormDialog({
                     />
                   </div>
                   <div className="col-span-4 space-y-1 sm:col-span-2">
-                    <Label>Unit Price</Label>
+                    <Label>{t("unitPrice")}</Label>
                     <Input
                       type="number"
                       value={item.unit_price_idr}
@@ -521,7 +573,7 @@ export function InvoiceFormDialog({
                     />
                   </div>
                   <div className="col-span-4 space-y-1 sm:col-span-2">
-                    <Label>Total</Label>
+                    <Label>{t("total")}</Label>
                     <Input
                       value={item.total_idr}
                       readOnly
@@ -542,7 +594,9 @@ export function InvoiceFormDialog({
               ))}
               {lineItems.length > 0 && (
                 <div className="text-foreground text-right text-sm font-semibold">
-                  Total: {formatCurrency(lineItemsTotal)}
+                  {t("totalWith", {
+                    amount: formatCurrency(lineItemsTotal, currency),
+                  })}
                 </div>
               )}
             </div>
@@ -553,11 +607,11 @@ export function InvoiceFormDialog({
               onClick={() => onOpenChange(false)}
               disabled={saving}
             >
-              Cancel
+              {tc("cancel")}
             </Button>
             <Button onClick={handleSubmit} disabled={saving}>
               {saving && <Spinner data-icon="inline-start" />}
-              {invoice ? "Update" : "Create"}
+              {invoice ? t("update") : t("create")}
             </Button>
           </DialogFooter>
         </DialogContent>

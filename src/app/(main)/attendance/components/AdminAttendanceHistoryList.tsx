@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import {
   ATTENDANCE_NOTE_TAGS,
-  ATTENDANCE_STATUS_LABELS,
+  attendanceStatusLabel,
   formatWorked,
   hasAttendanceNote,
   LONG_SESSION_MS,
@@ -23,6 +23,8 @@ import { Database } from "@/shared/types/database.types"
 import { RiArrowDownSLine, RiCalendarLine } from "@/shared/ui/lucide-icons"
 import { format, isToday, isYesterday, parseISO } from "date-fns"
 import { id as idLocale } from "date-fns/locale"
+import type { Locale } from "date-fns"
+import { useDateLocale, useT } from "@/shared/i18n/client"
 import * as React from "react"
 import { useEffect, useMemo, useState } from "react"
 
@@ -42,14 +44,19 @@ const OPEN_DAYS = 3
 const ROW_GRID =
   "grid grid-cols-[minmax(0,1fr)_4.5rem] items-center gap-x-4 md:grid-cols-[minmax(0,1fr)_6.5rem_7.5rem_4.5rem] lg:grid-cols-[minmax(0,1fr)_6.5rem_7.5rem_5.5rem_4.5rem_10rem]"
 
-export function dayLabel(date: string, hydrated = true) {
+export function dayLabel(
+  date: string,
+  hydrated = true,
+  locale: Locale = idLocale,
+  words = { today: "Hari ini", yesterday: "Kemarin" },
+) {
   const d = parseISO(date)
-  const long = format(d, "EEEE, d MMMM yyyy", { locale: idLocale })
+  const long = format(d, "EEEE, d MMMM yyyy", { locale })
   if (!hydrated) return long
   if (isToday(d))
-    return `Hari ini · ${format(d, "EEEE, d MMM", { locale: idLocale })}`
+    return `${words.today} · ${format(d, "EEEE, d MMM", { locale })}`
   if (isYesterday(d))
-    return `Kemarin · ${format(d, "EEEE, d MMM", { locale: idLocale })}`
+    return `${words.yesterday} · ${format(d, "EEEE, d MMM", { locale })}`
   return long
 }
 
@@ -65,6 +72,7 @@ export function AdminAttendanceHistoryList({
   onCloseSession?: (id: string) => void
   onEditSession?: (id: string) => void
 }) {
+  const t = useT("leave")
   const [visibleDays, setVisibleDays] = useState(DAYS_PER_PAGE)
   const [hydrated, setHydrated] = useState(false)
   useEffect(() => setHydrated(true), [])
@@ -81,8 +89,8 @@ export function AdminAttendanceHistoryList({
   if (logs.length === 0) {
     return (
       <EmptyState
-        title="Belum ada data kehadiran"
-        description="Data muncul setelah anggota tim clock in."
+        title={t("emptyAttendanceTitle")}
+        description={t("emptyAttendanceTeamDesc")}
         icon={<RiCalendarLine className="size-5" />}
         placement="inner"
       />
@@ -98,11 +106,11 @@ export function AdminAttendanceHistoryList({
             "gutter-x text-muted-foreground border-border h-9 border-b text-[13px]",
           )}
         >
-          <span>Karyawan</span>
-          <span className="hidden md:block">Status</span>
-          <span className="hidden md:block">Jam</span>
-          <span className="hidden text-right lg:block">Istirahat</span>
-          <span className="text-right">Durasi</span>
+          <span>{t("colEmployee")}</span>
+          <span className="hidden md:block">{t("colStatus")}</span>
+          <span className="hidden md:block">{t("colTime")}</span>
+          <span className="hidden text-right lg:block">{t("colBreak")}</span>
+          <span className="text-right">{t("colDuration")}</span>
           <span className="hidden lg:block" />
         </div>
         {groups.slice(0, visibleDays).map(([date, dayLogs], index) => (
@@ -135,7 +143,7 @@ export function AdminAttendanceHistoryList({
             variant="ghost"
             onClick={() => setVisibleDays((n) => n + DAYS_PER_PAGE)}
           >
-            Muat lebih banyak
+            {t("loadMore")}
           </Button>
         </div>
       )}
@@ -160,6 +168,9 @@ function AttendanceDay({
   defaultOpen: boolean
   children: React.ReactNode
 }) {
+  const t = useT("leave")
+  const tc = useT("common")
+  const dateLocale = useDateLocale()
   const [open, setOpen] = useState(defaultOpen)
   const d = useMemo(() => parseISO(date), [date])
   // Summary passes over the day's logs; recompute only when the logs change,
@@ -174,9 +185,9 @@ function AttendanceDay({
   )
   const relative = hydrated
     ? isToday(d)
-      ? "Hari ini"
+      ? "today"
       : isYesterday(d)
-        ? "Kemarin"
+        ? "yesterday"
         : null
     : null
 
@@ -201,11 +212,11 @@ function AttendanceDay({
             )}
           />
           <span className="text-foreground truncate" suppressHydrationWarning>
-            {format(d, "EEEE, d MMMM", { locale: idLocale })}
+            {format(d, "EEEE, d MMMM", { locale: dateLocale })}
           </span>
           {relative && (
-            <Badge variant={relative === "Hari ini" ? "info" : "secondary"}>
-              {relative}
+            <Badge variant={relative === "today" ? "info" : "secondary"}>
+              {tc(relative)}
             </Badge>
           )}
         </span>
@@ -227,19 +238,21 @@ function AttendanceDay({
           )}
         </span>
         <span className="text-muted-foreground hidden text-right text-[13px] tabular-nums lg:block">
-          {logs.length} sesi
+          {t(logs.length === 1 ? "sessionsOne" : "sessionsOther", {
+            n: logs.length,
+          })}
         </span>
         <span
           className="text-foreground text-right tabular-nums"
           suppressHydrationWarning
         >
-          {hydrated ? formatWorked(totalMs) : ""}
+          {hydrated ? formatWorked(totalMs, t("hourShort")) : ""}
         </span>
         <span className="hidden justify-end lg:flex">
           {active > 0 && (
             <span className="text-success flex items-center gap-1.5 text-[13px]">
               <span className="bg-success size-1.5 animate-pulse rounded-full motion-reduce:animate-none" />
-              {active} aktif
+              {t("activeCount", { n: active })}
             </span>
           )}
         </span>
@@ -265,7 +278,9 @@ function AdminAttendanceRow({
   onCloseSession?: (id: string) => void
   onEditSession?: (id: string) => void
 }) {
-  const name = log.profiles?.full_name || "Unknown"
+  const t = useT("leave")
+  const tc = useT("common")
+  const name = log.profiles?.full_name || t("unknownName")
   const isActive = !log.clock_out
   const deleteRequested = hasAttendanceNote(
     log.notes,
@@ -278,21 +293,19 @@ function AdminAttendanceRow({
 
   const status =
     log.is_break && isActive ? (
-      <Badge variant="warning">Istirahat</Badge>
+      <Badge variant="warning">{t("onBreak")}</Badge>
     ) : isActive ? (
-      <Badge variant="success">Aktif</Badge>
+      <Badge variant="success">{t("active")}</Badge>
     ) : log.status && log.status !== "Present" ? (
-      <Badge variant="secondary">
-        {ATTENDANCE_STATUS_LABELS[log.status] ?? log.status}
-      </Badge>
+      <Badge variant="secondary">{attendanceStatusLabel(log.status, t)}</Badge>
     ) : (
-      <Badge variant="secondary">Selesai</Badge>
+      <Badge variant="secondary">{t("done")}</Badge>
     )
   const notes = [
-    edited && "Diedit admin",
+    edited && t("noteEditedByAdmin"),
     hasAttendanceNote(log.notes, ATTENDANCE_NOTE_TAGS.autoClockOut) &&
-      "Clock out otomatis",
-    deleteRequested && "Minta dihapus",
+      t("noteAutoClockOut"),
+    deleteRequested && t("noteDeleteRequested"),
   ].filter(Boolean)
 
   return (
@@ -333,7 +346,7 @@ function AdminAttendanceRow({
             size="sm"
             onClick={() => onApproveDelete(log.id)}
           >
-            Tinjau hapus
+            {t("reviewDelete")}
           </Button>
         )}
         {isActive && onCloseSession && (
@@ -342,7 +355,7 @@ function AdminAttendanceRow({
             size="sm"
             onClick={() => onCloseSession(log.id)}
           >
-            Tutup sesi
+            {t("closeSession")}
           </Button>
         )}
         {onEditSession && !isActive && !deleteRequested && (
@@ -352,7 +365,7 @@ function AdminAttendanceRow({
               size="sm"
               onClick={() => onEditSession(log.id)}
             >
-              Edit
+              {tc("edit")}
             </Button>
           </ListRowActions>
         )}
@@ -369,6 +382,7 @@ function WorkedTime({
   log: Parameters<typeof workedMs>[0]
   hydrated: boolean
 }) {
+  const t = useT("leave")
   const ms = hydrated ? workedMs(log) : 0
   const long = ms > LONG_SESSION_MS
   return (
@@ -378,10 +392,10 @@ function WorkedTime({
           ? "text-warning text-right tabular-nums"
           : "text-foreground text-right tabular-nums"
       }
-      title={long ? "Lebih dari 12 jam, kemungkinan lupa clock out" : undefined}
+      title={long ? t("longSessionHint") : undefined}
       suppressHydrationWarning
     >
-      {hydrated ? formatWorked(ms) : ""}
+      {hydrated ? formatWorked(ms, t("hourShort")) : ""}
     </span>
   )
 }

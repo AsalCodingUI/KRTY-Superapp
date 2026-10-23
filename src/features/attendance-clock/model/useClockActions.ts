@@ -2,6 +2,7 @@ import {
   ATTENDANCE_NOTE_TAGS,
   mergeAttendanceNote,
 } from "@/shared/lib/attendance"
+import { useT } from "@/shared/i18n/client"
 import { Database } from "@/shared/types/database.types"
 import { differenceInMinutes } from "date-fns"
 import { useCallback, useState } from "react"
@@ -15,6 +16,7 @@ interface UseClockActionsProps {
 }
 
 export function useClockActions({ logs, onLogsUpdate }: UseClockActionsProps) {
+  const t = useT("leave")
   const [loading, setLoading] = useState(false)
 
   const handleClockIn = useCallback(
@@ -28,21 +30,22 @@ export function useClockActions({ logs, onLogsUpdate }: UseClockActionsProps) {
           body: JSON.stringify({ action: "clock_in", status }),
         })
         const payload = await response.json().catch(() => ({}))
-        if (!response.ok) throw new Error(payload?.error || "Clock in gagal")
+        if (!response.ok)
+          throw new Error(payload?.error || t("toastClockInFailed"))
         const data = payload.data as AttendanceLog
 
         // Optimistic update
         onLogsUpdate([data, ...logs])
-        toast.success("Clock in berhasil")
+        toast.success(t("toastClockedIn"))
       } catch (error: unknown) {
         const message =
-          error instanceof Error ? error.message : "Clock in gagal"
+          error instanceof Error ? error.message : t("toastClockInFailed")
         toast.error(message)
       } finally {
         setLoading(false)
       }
     },
-    [logs, onLogsUpdate],
+    [logs, onLogsUpdate, t],
   )
 
   const handleClockOut = useCallback(
@@ -66,19 +69,20 @@ export function useClockActions({ logs, onLogsUpdate }: UseClockActionsProps) {
           body: JSON.stringify({ action: "clock_out", logId }),
         })
         const payload = await response.json().catch(() => ({}))
-        if (!response.ok) throw new Error(payload?.error || "Clock out gagal")
-        toast.success("Clock out berhasil")
+        if (!response.ok)
+          throw new Error(payload?.error || t("toastClockOutFailed"))
+        toast.success(t("toastClockedOut"))
       } catch (error: unknown) {
         // Rollback on error
         onLogsUpdate(oldLogs)
         const message =
-          error instanceof Error ? error.message : "Clock out gagal"
+          error instanceof Error ? error.message : t("toastClockOutFailed")
         toast.error(message)
       } finally {
         setLoading(false)
       }
     },
-    [logs, onLogsUpdate],
+    [logs, onLogsUpdate, t],
   )
 
   const handleToggleBreak = useCallback(
@@ -126,8 +130,9 @@ export function useClockActions({ logs, onLogsUpdate }: UseClockActionsProps) {
             }),
           })
           const payload = await response.json().catch(() => ({}))
-          if (!response.ok) throw new Error(payload?.error || "Break gagal")
-          toast.success("Break selesai")
+          if (!response.ok)
+            throw new Error(payload?.error || t("toastBreakFailed"))
+          toast.success(t("toastBreakEnded"))
         } else {
           // Starting break
           const breakStartTime = now.toISOString()
@@ -151,18 +156,19 @@ export function useClockActions({ logs, onLogsUpdate }: UseClockActionsProps) {
             }),
           })
           const payload = await response.json().catch(() => ({}))
-          if (!response.ok) throw new Error(payload?.error || "Break gagal")
-          toast.success("Break dimulai")
+          if (!response.ok)
+            throw new Error(payload?.error || t("toastBreakFailed"))
+          toast.success(t("toastBreakStarted"))
         }
       } catch (error: unknown) {
         // Rollback on error
         onLogsUpdate(oldLogs)
-        toast.error("Break gagal")
+        toast.error(t("toastBreakFailed"))
       } finally {
         setLoading(false)
       }
     },
-    [logs, onLogsUpdate],
+    [logs, onLogsUpdate, t],
   )
 
   const handleResolvePreviousSession = useCallback(
@@ -199,21 +205,19 @@ export function useClockActions({ logs, onLogsUpdate }: UseClockActionsProps) {
         })
         const payload = await response.json().catch(() => ({}))
         if (!response.ok) {
-          throw new Error(payload?.error || "Gagal menutup sesi sebelumnya")
+          throw new Error(payload?.error || t("toastResolveFailed"))
         }
-        toast.success("Sesi sebelumnya berhasil ditutup")
+        toast.success(t("toastResolved"))
       } catch (error: unknown) {
         onLogsUpdate(oldLogs)
         const message =
-          error instanceof Error
-            ? error.message
-            : "Gagal menutup sesi sebelumnya"
+          error instanceof Error ? error.message : t("toastResolveFailed")
         toast.error(message)
       } finally {
         setLoading(false)
       }
     },
-    [logs, onLogsUpdate],
+    [logs, onLogsUpdate, t],
   )
 
   return {

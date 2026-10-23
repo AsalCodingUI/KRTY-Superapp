@@ -1,11 +1,13 @@
 import { PageHeader } from "@/components/page-header"
 import { createClient } from "@/shared/api/supabase/server"
+import { getT } from "@/shared/i18n/server"
 import { CalculatorPage } from "@/page-slices/calculator"
 
 export const dynamic = "force-dynamic"
 
 export default async function CalculatorRoute() {
   const supabase = await createClient()
+  const t = await getT("calculator")
 
   const [{ data: profiles }, { data: operationalCosts }, { data: projects }] =
     await Promise.all([
@@ -25,7 +27,7 @@ export default async function CalculatorRoute() {
 
   return (
     <div className="flex flex-col">
-      <PageHeader className="pt-6 pb-4" title="Calculator" />
+      <PageHeader className="pt-6 pb-4" title={t("pageTitle")} />
       <div className="pb-4">
         <CalculatorPage
           teamMembers={(profiles || []).filter(

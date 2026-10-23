@@ -1,6 +1,7 @@
 "use server"
 
 import { createClient } from "@/shared/api/supabase/server"
+import { getT } from "@/shared/i18n/server"
 import { resolveEffectiveUserId } from "@/shared/lib/impersonation-server"
 import { canManageByRole } from "@/shared/lib/roles"
 import type { Database } from "@/shared/types/database.types"
@@ -29,6 +30,8 @@ export type ProjectInput = {
   start_date: string
   end_date: string
   status?: ProjectStatus
+  /** New projects only: the process to copy (null = the default one). */
+  processId?: string | null
   members: ProjectMemberInput[]
 }
 
@@ -63,14 +66,12 @@ async function admin() {
   return canManageByRole(data?.role) ? supabase : null
 }
 
-function validate(input: ProjectInput): string | null {
-  if (!input.name.trim()) return "Nama project wajib diisi."
-  if (!input.start_date || !input.end_date)
-    return "Tanggal mulai dan selesai wajib diisi."
-  if (input.end_date < input.start_date)
-    return "Tanggal selesai harus setelah mulai."
-  if (input.members.filter((m) => m.isLead).length > 1)
-    return "Lead hanya satu orang."
+async function validate(input: ProjectInput): Promise<string | null> {
+  const t = await getT("projects")
+  if (!input.name.trim()) return t("errNameRequired")
+  if (!input.start_date || !input.end_date) return t("errDatesRequired")
+  if (input.end_date < input.start_date) return t("errEndBeforeStart")
+  if (input.members.filter((m) => m.isLead).length > 1) return t("errOneLead")
   return null
 }
 
@@ -144,9 +145,10 @@ export async function saveProject(
   id: string | null,
   input: ProjectInput,
 ): Promise<Result<{ id: string }>> {
+  const t = await getT("projects")
   const supabase = await admin()
-  if (!supabase) return { success: false, error: "Khusus admin." }
-  const invalid = validate(input)
+  if (!supabase) return { success: false, error: t("errAdminOnly") }
+  const invalid = await validate(input)
   if (invalid) return { success: false, error: invalid }
 
   const fields = {
@@ -155,6 +157,7 @@ export async function saveProject(
     start_date: input.start_date,
     end_date: input.end_date,
     ...(id && input.status ? { status: input.status } : {}),
+    ...(!id && input.processId ? { process_id: input.processId } : {}),
   }
   const { data: project, error } = id
     ? await supabase
@@ -164,8 +167,7 @@ export async function saveProject(
         .select("id")
         .maybeSingle()
     : await supabase.from("projects").insert(fields).select("id").single()
-  if (error || !project)
-    return { success: false, error: "Gagal menyimpan project." }
+  if (error || !project) return { success: false, error: t("errSaveProject") }
 
   const { data: current } = await supabase
     .from("project_assignments")
@@ -187,8 +189,7 @@ export async function saveProject(
       .from("project_assignments")
       .delete()
       .in("id", removed)
-    if (removeError)
-      return { success: false, error: "Gagal mengeluarkan anggota." }
+    if (removeError) return { success: false, error: t("errRemoveMember") }
   }
 
   for (const m of input.members) {
@@ -205,8 +206,7 @@ export async function saveProject(
           .update(row)
           .eq("id", existing)
       : await supabase.from("project_assignments").insert(row)
-    if (memberError)
-      return { success: false, error: "Gagal menyimpan anggota tim." }
+    if (memberError) return { success: false, error: t("errSaveMember") }
   }
 
   revalidatePath("/projects", "layout")
@@ -218,23 +218,25 @@ export async function setProjectStatus(
   id: string,
   status: ProjectStatus,
 ): Promise<Result> {
+  const t = await getT("projects")
   const supabase = await admin()
-  if (!supabase) return { success: false, error: "Khusus admin." }
+  if (!supabase) return { success: false, error: t("errAdminOnly") }
   const { data, error } = await supabase
     .from("projects")
     .update({ status })
     .eq("id", id)
     .select("id")
   if (error || !data?.length)
-    return { success: false, error: "Gagal mengubah status." }
+    return { success: false, error: t("errChangeStatus") }
   revalidatePath("/projects", "layout")
   return { success: true }
 }
 
 /** Permanent; also deletes the team's scores for this project. */
 export async function deleteProject(id: string): Promise<Result> {
+  const t = await getT("projects")
   const supabase = await admin()
-  if (!supabase) return { success: false, error: "Khusus admin." }
+  if (!supabase) return { success: false, error: t("errAdminOnly") }
   // Files in storage aren't cascaded with the rows; remove them first.
   const [{ data: files }, { data: docs }] = await Promise.all([
     supabase.from("project_files").select("file_path").eq("project_id", id),
@@ -250,7 +252,7 @@ export async function deleteProject(id: string): Promise<Result> {
     .eq("id", id)
     .select("id")
   if (error || !data?.length)
-    return { success: false, error: "Gagal menghapus project." }
+    return { success: false, error: t("errDeleteProject") }
   revalidatePath("/projects", "layout")
   revalidatePath("/performance", "layout")
   return { success: true }

@@ -2,7 +2,13 @@
 
 import { createClient } from "@/shared/api/supabase/server"
 
-export type InvoiceStatus = "Draft" | "Sent" | "Partial" | "Paid" | "Overdue"
+export type InvoiceStatus =
+  | "Draft"
+  | "Sent"
+  | "Partial"
+  | "Paid"
+  | "Overdue"
+  | "Refunded"
 
 export type LineItem = {
   id: string
@@ -20,6 +26,10 @@ export type SaveInvoicePayload = {
   dueDate: string
   amountIdr: number
   amountPaidIdr: number
+  /** Amounts above are in this currency (legacy *_idr column names). */
+  currency: string
+  /** IDR actually received per 1 unit; null = default rate. */
+  fxRate: number | null
   paymentMethodId: string | null
   notes: string | null
   lineItems: LineItem[]
@@ -69,6 +79,8 @@ export async function saveInvoice(payload: SaveInvoicePayload) {
       due_date: payload.dueDate,
       amount_idr: payload.amountIdr,
       amount_paid_idr: payload.amountPaidIdr,
+      currency: payload.currency,
+      fx_rate: payload.currency === "IDR" ? null : payload.fxRate,
       payment_method_id: payload.paymentMethodId,
       notes: payload.notes,
       line_items: payload.lineItems as unknown as Record<string, unknown>,
@@ -102,6 +114,10 @@ export async function updateInvoice(
   if (payload.amountIdr !== undefined) updateData.amount_idr = payload.amountIdr
   if (payload.amountPaidIdr !== undefined)
     updateData.amount_paid_idr = payload.amountPaidIdr
+  if (payload.currency !== undefined) {
+    updateData.currency = payload.currency
+    updateData.fx_rate = payload.currency === "IDR" ? null : payload.fxRate
+  }
   if (payload.paymentMethodId !== undefined)
     updateData.payment_method_id = payload.paymentMethodId
   if (payload.notes !== undefined) updateData.notes = payload.notes

@@ -7,6 +7,7 @@ import { SegmentedControl } from "@/components/segmented-control"
 import { useWorkspaceNav } from "@/components/workspace-nav"
 import { createClient } from "@/shared/api/supabase/client"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
+import { useT } from "@/shared/i18n/client"
 import { Notifications } from "@/widgets/notifications/ui/Notifications"
 import { GlobalSearch } from "@/widgets/global-search/ui/GlobalSearch"
 import { PrefetchLink } from "@/components/prefetch-link"
@@ -15,11 +16,13 @@ const ADMIN_CONTACT_LINK = "https://wa.me/6289525418707"
 
 /**
  * App chrome above the sidebar and page: brand, workspace switch, search (⌘K),
- * notifications and account. Always dark, in both themes.
+ * notifications and account. Sits on the tinted chrome with the sidebar.
  */
 export function AppTopbar() {
   const { profile, userEmail } = useUserProfile()
   const { loading, visible, active, select, hasBadge } = useWorkspaceNav()
+  const t = useT("nav")
+  const tc = useT("common")
 
   const handleSignOut = async () => {
     await createClient().auth.signOut()
@@ -28,14 +31,16 @@ export function AppTopbar() {
   }
 
   return (
-    <header className="dark bg-chrome text-foreground relative z-40 flex h-(--app-topbar-height) shrink-0 items-center gap-4 px-4">
+    // No fill of its own: the chrome behind it shows through, so the page
+    // sheet's shadow isn't cut off along the bar's bottom edge.
+    <header className="on-chrome text-foreground relative z-40 flex h-(--app-topbar-height) shrink-0 items-center gap-4 px-4">
       <div className="flex min-w-0 flex-1 items-center gap-4">
         <PrefetchLink
           href={siteConfig.baseLinks.dashboard}
           className="flex shrink-0 items-center gap-2"
           aria-label={siteConfig.name}
         >
-          <span className="bg-primary text-primary-foreground flex size-7 items-center justify-center rounded-md">
+          <span className="bg-chrome-field blend-ink text-foreground flex size-7 items-center justify-center rounded-md">
             <BrandLogo className="size-[18px]" />
           </span>
           <span className="hidden text-sm font-medium sm:inline">
@@ -49,13 +54,15 @@ export function AppTopbar() {
           active && (
             <SegmentedControl
               fitContent
+              className="fill-ink bg-transparent dark:bg-transparent"
+              indicatorClassName="shadow-(--shadow-chrome-active)"
               value={active.id}
               onChange={select}
               items={visible.map((ws) => ({
                 value: ws.id,
                 label: (
                   <span className="relative">
-                    {ws.name}
+                    {t(ws.name)}
                     {ws.id !== active.id && hasBadge(ws) && (
                       <span
                         aria-hidden
@@ -78,7 +85,7 @@ export function AppTopbar() {
           showName
           side="bottom"
           user={{
-            name: profile?.full_name ?? "Loading…",
+            name: profile?.full_name ?? tc("loading"),
             email: profile?.email || userEmail || "",
           }}
           onSignOut={handleSignOut}

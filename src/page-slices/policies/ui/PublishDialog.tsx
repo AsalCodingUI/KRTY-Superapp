@@ -1,5 +1,6 @@
 "use client"
 
+import { DateField } from "@/components/date-field"
 import { publishPolicy } from "@/app/(main)/policies/actions/policy-actions"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -11,9 +12,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { useT } from "@/shared/i18n/client"
 import { format } from "date-fns"
 import { useState } from "react"
 import { toast } from "sonner"
@@ -37,6 +38,8 @@ export function PublishDialog({
   onOpenChange: (open: boolean) => void
   onPublished: () => void
 }) {
+  const t = useT("policies")
+  const tc = useT("common")
   const first = nextVersion === 1
   const [note, setNote] = useState("")
   const [effectiveAt, setEffectiveAt] = useState(() =>
@@ -48,7 +51,7 @@ export function PublishDialog({
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!first && !note.trim()) {
-      toast.error("Tulis apa yang berubah di versi ini.")
+      toast.error(t("writeWhatChanged"))
       return
     }
     setSaving(true)
@@ -63,7 +66,9 @@ export function PublishDialog({
       return
     }
     toast.success(
-      first ? `${title} diterbitkan` : `Perubahan ${title} diterbitkan`,
+      first
+        ? t("publishedToast", { title })
+        : t("publishedChangesToast", { title }),
     )
     setNote("")
     onOpenChange(false)
@@ -75,12 +80,10 @@ export function PublishDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            {first ? "Terbitkan aturan" : "Terbitkan perubahan"}
+            {first ? t("publishRule") : t("publishChanges")}
           </DialogTitle>
           <DialogDescription>
-            {first
-              ? "Setelah terbit, aturan ini bisa dibaca semua karyawan."
-              : "Versi sebelumnya tetap tersimpan di riwayat."}
+            {first ? t("publishFirstDescription") : t("publishNextDescription")}
           </DialogDescription>
         </DialogHeader>
         <form
@@ -90,29 +93,26 @@ export function PublishDialog({
         >
           <div className="flex flex-col gap-2">
             <Label htmlFor="policy-note">
-              Apa yang berubah{first && " (opsional)"}
+              {first ? t("whatChangedOptional") : t("whatChanged")}
             </Label>
             <Textarea
               id="policy-note"
               rows={3}
               maxLength={300}
               placeholder={
-                first
-                  ? "Misalnya: aturan pertama untuk cuti melahirkan."
-                  : "Misalnya: cuti melahirkan jadi 3 bulan."
+                first ? t("notePlaceholderFirst") : t("notePlaceholderNext")
               }
               value={note}
               onChange={(e) => setNote(e.target.value)}
             />
           </div>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="policy-effective">Berlaku sejak</Label>
-            <Input
+            <Label htmlFor="policy-effective">{t("effectiveSinceLabel")}</Label>
+            <DateField
               id="policy-effective"
-              type="date"
               required
               value={effectiveAt}
-              onChange={(e) => setEffectiveAt(e.target.value)}
+              onChange={setEffectiveAt}
             />
           </div>
           <label className="flex cursor-pointer items-start gap-2.5 text-sm">
@@ -121,7 +121,7 @@ export function PublishDialog({
               onCheckedChange={(checked) => setNotify(checked === true)}
               className="mt-0.5"
             />
-            <span>Kirim notifikasi ke semua karyawan</span>
+            <span>{t("notifyEveryone")}</span>
           </label>
         </form>
         <DialogFooter>
@@ -130,10 +130,10 @@ export function PublishDialog({
             variant="outline"
             onClick={() => onOpenChange(false)}
           >
-            Batal
+            {tc("cancel")}
           </Button>
           <Button type="submit" form="publish-policy-form" disabled={saving}>
-            {saving ? "Menerbitkan…" : "Terbitkan"}
+            {saving ? t("publishing") : t("publish")}
           </Button>
         </DialogFooter>
       </DialogContent>

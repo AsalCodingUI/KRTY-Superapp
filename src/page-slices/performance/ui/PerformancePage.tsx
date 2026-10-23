@@ -10,6 +10,7 @@ import { createClient } from "@/shared/api/supabase/client"
 import { useTabRoute } from "@/shared/hooks/useTabRoute"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { canManageByRole } from "@/shared/lib/roles"
+import { useT } from "@/shared/i18n/client"
 import { useQuery } from "@tanstack/react-query"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useMemo } from "react"
@@ -76,6 +77,7 @@ const TABS: readonly Tab[] = [
  * One period filter for every tab, kept in the URL (?periode=2026-Q4).
  */
 export function PerformancePage() {
+  const t = useT("performance")
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -113,12 +115,12 @@ export function PerformancePage() {
   }
 
   const tabs: { value: Tab; label: string }[] = [
-    { value: "kpi", label: isAdmin ? "KPI tim" : "KPI saya" },
-    { value: "360-review", label: "360 review" },
-    { value: "one-on-one", label: "Jadwal 1:1" },
-    ...(isLead ? [{ value: "team" as Tab, label: "Tim saya" }] : []),
+    { value: "kpi", label: isAdmin ? t("teamKpi") : t("myKpi") },
+    { value: "360-review", label: t("tab360") },
+    { value: "one-on-one", label: t("tabOneOnOne") },
+    ...(isLead ? [{ value: "team" as Tab, label: t("tabMyTeam") }] : []),
     ...(isAdmin
-      ? [{ value: "competency-library" as Tab, label: "Kompetensi" }]
+      ? [{ value: "competency-library" as Tab, label: t("tabCompetency") }]
       : []),
   ]
 
@@ -130,14 +132,14 @@ export function PerformancePage() {
     )
   }
 
-  const allowed = tabs.some((t) => t.value === activeTab)
+  const allowed = tabs.some((item) => item.value === activeTab)
   const tab: Tab = allowed ? activeTab : "kpi"
 
   return (
     <div className="flex flex-col">
       <PageHeader
         className="pt-6 pb-4"
-        title="Performance"
+        title={t("pageTitle")}
         actions={
           <>
             {tab === "kpi" && isAdmin && (
@@ -156,13 +158,13 @@ export function PerformancePage() {
 
       <div className="bleed gutter-x border-border border-b">
         <TabNavigation className="border-b-0">
-          {tabs.map((t) => (
+          {tabs.map((item) => (
             <TabNavigationLink
-              key={t.value}
-              active={tab === t.value}
-              onClick={() => setActiveTab(t.value)}
+              key={item.value}
+              active={tab === item.value}
+              onClick={() => setActiveTab(item.value)}
             >
-              {t.label}
+              {item.label}
             </TabNavigationLink>
           ))}
         </TabNavigation>

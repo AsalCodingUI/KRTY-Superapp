@@ -5,6 +5,7 @@ import {
   type KpiProject,
 } from "@/app/(main)/performance/actions/kpi-actions"
 import { Spinner } from "@/components/ui/spinner"
+import { useT } from "@/shared/i18n/client"
 import { useQuery } from "@tanstack/react-query"
 import { KpiSummary } from "./KpiSummary"
 import { ProjectKpiList } from "./ProjectKpiList"
@@ -19,6 +20,7 @@ export function EmployeeKpiView({
   scope: string
   hrefFor: (project: KpiProject) => string
 }) {
+  const t = useT("performance")
   const { data, isLoading } = useQuery({
     queryKey: ["kpi", userId, scope],
     queryFn: () => getEmployeeKpi(userId, scope),
@@ -35,7 +37,7 @@ export function EmployeeKpiView({
   if (!data?.success) {
     return (
       <p className="text-muted-foreground py-16 text-center text-sm">
-        {data?.error ?? "Gagal memuat KPI."}
+        {data?.error ?? t("kpiLoadFailed")}
       </p>
     )
   }

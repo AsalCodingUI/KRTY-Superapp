@@ -7,6 +7,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Slider } from "@/components/ui/slider"
+import { useT } from "@/shared/i18n/client"
 import { RiAddLine, RiDeleteBinLine } from "@/shared/ui/lucide-icons"
 import { SquadMember, TeamMember } from "../types"
 
@@ -29,10 +30,12 @@ export function SquadSection({
   onRemoveSquadMember,
   onUpdateAllocation,
 }: SquadSectionProps) {
+  const t = useT("calculator")
+  const tc = useT("common")
   return (
     <div>
       <h3 className="text-foreground mb-4 text-sm font-medium">
-        Squad Allocation
+        {t("squadAllocation")}
       </h3>
 
       <div className="block">
@@ -42,7 +45,7 @@ export function SquadSection({
             value={selectedMemberToAdd}
           >
             <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select Team Member..." />
+              <SelectValue placeholder={t("selectTeamMember")} />
             </SelectTrigger>
             <SelectContent>
               {teamMembers.map((m) => (
@@ -58,7 +61,7 @@ export function SquadSection({
               onSelectedMemberChange("")
             }}
           >
-            <RiAddLine className="mr-2 size-4" /> Add
+            <RiAddLine className="mr-2 size-4" /> {tc("add")}
           </Button>
         </div>
 
@@ -91,7 +94,7 @@ export function SquadSection({
 
                 <div className="flex items-center gap-4">
                   <span className="text-muted-foreground w-16 text-xs font-medium">
-                    Allocation
+                    {t("allocation")}
                   </span>
                   <Slider
                     value={[member.allocation]}
@@ -116,7 +119,7 @@ export function SquadSection({
           {squad.length === 0 && (
             <div className="rounded-md border border-dashed p-6 text-center">
               <p className="text-muted-foreground text-sm">
-                No team members allocated yet.
+                {t("noTeamMembersAllocated")}
               </p>
             </div>
           )}

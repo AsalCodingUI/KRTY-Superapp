@@ -5,6 +5,7 @@ import {
   type SLAResult,
 } from "@/entities/performance/lib/kpi"
 import { createClient } from "@/shared/api/supabase/server"
+import { getT } from "@/shared/i18n/server"
 import { revalidatePath } from "next/cache"
 
 export type MilestoneInput = {
@@ -101,10 +102,11 @@ export async function saveProjectScores(
   competencies: { id: string; isAchieved: boolean }[],
 ): Promise<{ success: boolean; error?: string }> {
   const supabase = await createClient()
+  const t = await getT("performance")
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  if (!user) return { success: false, error: "Silakan login dulu." }
+  if (!user) return { success: false, error: t("errLoginFirst") }
 
   const { error } = await supabase.rpc("save_assignment_scores", {
     p_assignment_id: assignmentId,
@@ -124,7 +126,7 @@ export async function saveProjectScores(
     const readable = ["42501", "22023"].includes(error.code ?? "")
     return {
       success: false,
-      error: readable ? error.message : "Gagal menyimpan nilai.",
+      error: readable ? error.message : t("scoresSaveFailed"),
     }
   }
 

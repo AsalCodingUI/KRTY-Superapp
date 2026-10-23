@@ -23,6 +23,8 @@ export interface SegmentedControlProps<T extends string> {
   onChange: (value: T) => void
   disabled?: boolean
   className?: string
+  /** Replaces the sliding thumb's shadow (e.g. the chrome's active shadow). */
+  indicatorClassName?: string
   fitContent?: boolean
   /** @deprecated kept for API compatibility; one size (shadcn default). */
   size?: "sm" | "md"
@@ -34,6 +36,7 @@ export function SegmentedControl<T extends string>({
   onChange,
   disabled,
   className,
+  indicatorClassName,
   fitContent = false,
 }: SegmentedControlProps<T>) {
   return (
@@ -56,7 +59,10 @@ export function SegmentedControl<T extends string>({
       {/* One highlight that slides to the pressed item. */}
       <SlidingIndicator
         activeSelector="[data-pressed]"
-        className="bg-background smooth-shadow-ring-xs dark:bg-foreground/[0.13] rounded-full dark:shadow-none"
+        className={cn(
+          "bg-background dark:bg-foreground/[0.13] rounded-full",
+          indicatorClassName ?? "smooth-shadow-ring-xs dark:shadow-none",
+        )}
       />
       {items.map((item) => {
         const LeadingIcon = item.leadingIcon ?? item.icon

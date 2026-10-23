@@ -2,16 +2,17 @@
 
 import { SlidingIndicator } from "@/components/sliding-indicator"
 import { cn } from "@/lib/utils"
+import { useT } from "@/shared/i18n/client"
 import { Columns3, LayoutGrid, ListIcon, Table2 } from "lucide-react"
 import * as React from "react"
 
 export type ViewMode = "grid" | "list" | "table" | "kanban"
 
 const OPTIONS = [
-  { value: "grid", label: "Tampilan grid", icon: LayoutGrid },
-  { value: "list", label: "Tampilan list", icon: ListIcon },
-  { value: "kanban", label: "Tampilan kanban", icon: Columns3 },
-  { value: "table", label: "Tampilan tabel", icon: Table2 },
+  { value: "grid", label: "viewGrid", icon: LayoutGrid },
+  { value: "list", label: "viewList", icon: ListIcon },
+  { value: "kanban", label: "viewKanban", icon: Columns3 },
+  { value: "table", label: "viewTable", icon: Table2 },
 ] as const
 
 /**
@@ -59,10 +60,11 @@ export function ViewToggle({
   modes?: ViewMode[]
   className?: string
 }) {
+  const t = useT("shell")
   return (
     <div
       role="group"
-      aria-label="Tampilan"
+      aria-label={t("viewLabel")}
       className={cn(
         "bg-accent dark:bg-muted/60 relative flex items-center gap-0.5 rounded-full p-0.5",
         className,
@@ -77,8 +79,8 @@ export function ViewToggle({
           <button
             key={option}
             type="button"
-            title={label}
-            aria-label={label}
+            title={t(label)}
+            aria-label={t(label)}
             aria-pressed={value === option}
             onClick={() => onValueChange(option)}
             className={cn(

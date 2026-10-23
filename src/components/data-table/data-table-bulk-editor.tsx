@@ -16,6 +16,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
+import { useT } from "@/shared/i18n/client"
 
 type BulkIds = string[] | number[]
 
@@ -111,6 +112,8 @@ function DataTableBulkEditor<TData>({
   onApprove,
   onReject,
 }: DataTableBulkEditorProps<TData>) {
+  const t = useT("shell")
+  const tc = useT("common")
   const selectedCount = Object.keys(rowSelection).length
   const hasSelectedRows = selectedCount > 0
 
@@ -144,17 +147,17 @@ function DataTableBulkEditor<TData>({
           "w-auto flex-row items-center gap-x-0.5 rounded-full p-1",
           // Rises in from below with a slight scale, sinks back out.
           "data-[side=top]:slide-in-from-bottom-4 data-open:zoom-in-[0.96] data-closed:slide-out-to-bottom-4 data-closed:zoom-out-[0.96] duration-200",
-          "bg-chrome text-white shadow-lg ring-1 ring-white/10",
+          "bg-inverse text-white shadow-lg ring-1 ring-white/10",
         )}
       >
         <span className="pr-1 pl-3 text-sm text-white/70 tabular-nums">
-          {selectedCount} dipilih
+          {t("dataTableSelected", { count: selectedCount })}
         </span>
         {[
           onEdit && selectedCount === 1 && (
             <BulkCommand
               key="edit"
-              label="Edit"
+              label={tc("edit")}
               icon={<Pencil />}
               action={() => onEdit(selectedRows[0].original)}
               shortcut={{ shortcut: "e" }}
@@ -163,7 +166,7 @@ function DataTableBulkEditor<TData>({
           onApprove && (
             <BulkCommand
               key="approve"
-              label="Setujui"
+              label={t("dataTableApprove")}
               icon={<Check />}
               action={() => runBulk(onApprove)}
               shortcut={{ shortcut: "a" }}
@@ -172,7 +175,7 @@ function DataTableBulkEditor<TData>({
           onReject && (
             <BulkCommand
               key="reject"
-              label="Tolak"
+              label={t("dataTableReject")}
               icon={<Ban />}
               action={() => runBulk(onReject)}
               shortcut={{ shortcut: "r" }}
@@ -181,7 +184,7 @@ function DataTableBulkEditor<TData>({
           onDelete && (
             <BulkCommand
               key="delete"
-              label="Hapus"
+              label={tc("delete")}
               icon={<Trash2 />}
               tone="danger"
               action={() => runBulk(onDelete)}
@@ -191,7 +194,7 @@ function DataTableBulkEditor<TData>({
         ].filter(Boolean)}
         <BulkSeparator />
         <BulkCommand
-          label="Batal pilih"
+          label={t("dataTableClearSelection")}
           icon={<X />}
           action={() => table.resetRowSelection()}
           shortcut={{ shortcut: "Escape", label: "esc" }}

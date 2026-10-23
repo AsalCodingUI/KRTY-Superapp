@@ -1,5 +1,7 @@
 "use client"
 
+import { FileField } from "@/components/file-field"
+import { useT } from "@/shared/i18n/client"
 import { calculateBusinessDays } from "@/shared/lib/date"
 import { Database } from "@/shared/types/database.types"
 import { DateRangePicker } from "@/components/date-picker"
@@ -36,7 +38,7 @@ interface LeaveRequestFormProps {
   noticeMessage?: string
   noticeInvalid?: boolean
   onFormDataChange: (data: LeaveFormData) => void
-  onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+  onFileChange: (files: FileList | null) => void
 }
 
 export function LeaveRequestForm({
@@ -48,11 +50,16 @@ export function LeaveRequestForm({
   onFormDataChange,
   onFileChange,
 }: LeaveRequestFormProps) {
+  const t = useT("leave")
+  const businessDays =
+    formData.start_date && formData.end_date
+      ? calculateBusinessDays(formData.start_date, formData.end_date)
+      : 0
   return (
     <div className="grid gap-4">
       <div>
         <Label htmlFor="name" className="font-medium">
-          Nama
+          {t("formName")}
         </Label>
         <Input
           id="name"
@@ -63,7 +70,7 @@ export function LeaveRequestForm({
       </div>
       <div>
         <Label htmlFor="type" className="font-medium">
-          Pengajuan Untuk
+          {t("formRequestFor")}
         </Label>
         <Select
           value={formData.leave_type}
@@ -75,17 +82,15 @@ export function LeaveRequestForm({
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="Annual Leave">
-              Annual Leave (Cuti Tahunan)
-            </SelectItem>
-            <SelectItem value="Sick Leave">Sick Leave (Sakit)</SelectItem>
-            <SelectItem value="WFH">WFH (Remote)</SelectItem>
+            <SelectItem value="Annual Leave">{t("typeAnnual")}</SelectItem>
+            <SelectItem value="Sick Leave">{t("typeSick")}</SelectItem>
+            <SelectItem value="WFH">{t("typeWfhRemote")}</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
       <div>
-        <Label className="font-medium">Tanggal</Label>
+        <Label className="font-medium">{t("colDate")}</Label>
         <DateRangePicker
           className="mt-2 w-full"
           value={{ from: formData.start_date, to: formData.end_date }}
@@ -100,9 +105,12 @@ export function LeaveRequestForm({
 
         {formData.start_date && formData.end_date && (
           <p className="text-muted-foreground mt-2 text-xs">
-            Durasi:{" "}
-            {calculateBusinessDays(formData.start_date, formData.end_date)} hari
-            kerja.
+            {t("formDuration", {
+              days: t(
+                businessDays === 1 ? "workingDaysOne" : "workingDaysOther",
+                { n: businessDays },
+              ),
+            })}
           </p>
         )}
         {noticeMessage && (
@@ -120,12 +128,12 @@ export function LeaveRequestForm({
 
       <div>
         <Label htmlFor="reason" className="font-medium">
-          Alasan
+          {t("colReason")}
         </Label>
         <Textarea
           id="reason"
           className="mt-2"
-          placeholder="Jelaskan alasan cuti..."
+          placeholder={t("formReasonPlaceholder")}
           value={formData.reason}
           onChange={(e) =>
             onFormDataChange({ ...formData, reason: e.target.value })
@@ -134,24 +142,24 @@ export function LeaveRequestForm({
       </div>
       {formData.leave_type === "Sick Leave" && (
         <div>
-          <Label className="font-medium">Surat Dokter (Optional)</Label>
+          <Label className="font-medium">{t("formDoctorNote")}</Label>
           <div className="mt-2 flex items-center gap-2">
-            <Input
-              type="file"
-              accept="image/*"
+            <FileField
+              accept="image/*,application/pdf"
               className="w-full"
-              onChange={onFileChange}
+              fileName={formData.proof_file?.name}
+              onChange={(files) => onFileChange(files)}
               disabled={compressing}
             />
             {compressing && (
               <span className="text-primary flex animate-pulse items-center gap-1 text-xs whitespace-nowrap">
                 <RiLoader2Line className="size-3 animate-spin" />
-                Processing...
+                {t("processing")}
               </span>
             )}
           </div>
           <p className="text-muted-foreground/60 mt-1 text-xs">
-            Max 1MB (Auto Compressed).
+            {t("formFileHint")}
           </p>
         </div>
       )}

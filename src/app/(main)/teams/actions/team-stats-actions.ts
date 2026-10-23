@@ -1,6 +1,7 @@
 "use server"
 
 import { createClient } from "@/shared/api/supabase/server"
+import { getT } from "@/shared/i18n/server"
 import { logError } from "@/shared/lib/utils/logger"
 
 /**
@@ -10,6 +11,7 @@ import { logError } from "@/shared/lib/utils/logger"
  */
 export async function getTeamStats(teamMembers: string[]) {
   const supabase = await createClient()
+  const t = await getT("teams")
 
   if (!teamMembers || teamMembers.length === 0) {
     return {
@@ -34,7 +36,7 @@ export async function getTeamStats(teamMembers: string[]) {
     const statsMap = new Map<string, number>()
 
     profiles?.forEach((profile: { job_title: string | null }) => {
-      const jobTitle = profile.job_title || "Unknown"
+      const jobTitle = profile.job_title || t("noJobTitle")
       statsMap.set(jobTitle, (statsMap.get(jobTitle) || 0) + 1)
     })
 
@@ -58,8 +60,7 @@ export async function getTeamStats(teamMembers: string[]) {
     logError("[getTeamStats] Error:", error)
     return {
       success: false,
-      error:
-        error instanceof Error ? error.message : "Failed to fetch team stats",
+      error: error instanceof Error ? error.message : t("statsLoadError"),
       data: null,
     }
   }

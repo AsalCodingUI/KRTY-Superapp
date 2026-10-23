@@ -34,13 +34,14 @@ import {
   Undo2,
 } from "lucide-react"
 import { useState } from "react"
+import { useT } from "@/shared/i18n/client"
 import { BLOCK_ITEMS } from "./slash-command"
 
 const BLOCKS = [
-  { label: "Paragraf", level: 0 },
-  { label: "Judul 1", level: 1 },
-  { label: "Judul 2", level: 2 },
-  { label: "Judul 3", level: 3 },
+  { label: "paragraph", level: 0 },
+  { label: "blockH1", level: 1 },
+  { label: "blockH2", level: 2 },
+  { label: "blockH3", level: 3 },
 ] as const
 
 const keepFocus = (e: React.MouseEvent) => e.preventDefault()
@@ -90,6 +91,7 @@ function Divider() {
 
 /** Dovetail-style bar: block type, the common marks, "more" and insert (+). */
 export function DocToolbar({ editor }: { editor: Editor }) {
+  const t = useT("policies")
   const s = useEditorState({
     editor,
     selector: ({ editor: e }) => ({
@@ -124,7 +126,7 @@ export function DocToolbar({ editor }: { editor: Editor }) {
             />
           }
         >
-          {block.label}
+          {t(block.label)}
           <ChevronDown className="text-muted-foreground size-4" />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="min-w-40">
@@ -142,21 +144,21 @@ export function DocToolbar({ editor }: { editor: Editor }) {
                 b.level === 3 && "text-[13px] font-semibold",
               )}
             >
-              {b.label}
+              {t(b.label)}
             </DropdownMenuItem>
           ))}
         </DropdownMenuContent>
       </DropdownMenu>
       <Divider />
       <Tool
-        label="Tebal (⌘B)"
+        label={t("bold")}
         active={s.bold}
         onClick={() => chain().toggleBold().run()}
       >
         <Bold />
       </Tool>
       <Tool
-        label="Miring (⌘I)"
+        label={t("italic")}
         active={s.italic}
         onClick={() => chain().toggleItalic().run()}
       >
@@ -164,14 +166,14 @@ export function DocToolbar({ editor }: { editor: Editor }) {
       </Tool>
       <LinkTool editor={editor} active={s.link} />
       <Tool
-        label="Daftar"
+        label={t("blockBullet")}
         active={s.bullet}
         onClick={() => chain().toggleBulletList().run()}
       >
         <List />
       </Tool>
       <Tool
-        label="Daftar bernomor"
+        label={t("blockOrdered")}
         active={s.ordered}
         onClick={() => chain().toggleOrderedList().run()}
       >
@@ -184,8 +186,8 @@ export function DocToolbar({ editor }: { editor: Editor }) {
               type="button"
               variant="ghost"
               size="icon-sm"
-              aria-label="Format lainnya"
-              title="Format lainnya"
+              aria-label={t("moreFormats")}
+              title={t("moreFormats")}
               className="text-muted-foreground hover:text-foreground"
             />
           }
@@ -195,29 +197,29 @@ export function DocToolbar({ editor }: { editor: Editor }) {
         <DropdownMenuContent align="start" className="min-w-44">
           <DropdownMenuItem onClick={() => chain().toggleStrike().run()}>
             <Strikethrough />
-            Coret
+            {t("strike")}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => chain().toggleCode().run()}>
             <Code />
-            Kode
+            {t("code")}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => chain().toggleBlockquote().run()}>
             <Quote />
-            Kutipan
+            {t("blockQuote")}
           </DropdownMenuItem>
           <DropdownMenuItem
             disabled={!s.canUndo}
             onClick={() => chain().undo().run()}
           >
             <Undo2 />
-            Urungkan
+            {t("undo")}
           </DropdownMenuItem>
           <DropdownMenuItem
             disabled={!s.canRedo}
             onClick={() => chain().redo().run()}
           >
             <Redo2 />
-            Ulangi
+            {t("redo")}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -229,8 +231,8 @@ export function DocToolbar({ editor }: { editor: Editor }) {
               type="button"
               variant="ghost"
               size="icon-sm"
-              aria-label="Sisipkan blok"
-              title="Sisipkan blok (atau ketik /)"
+              aria-label={t("insertBlock")}
+              title={t("insertBlockHint")}
               className="text-muted-foreground hover:text-foreground"
             />
           }
@@ -239,11 +241,11 @@ export function DocToolbar({ editor }: { editor: Editor }) {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="min-w-56">
           <DropdownMenuGroup>
-            <DropdownMenuLabel>Sisipkan blok</DropdownMenuLabel>
+            <DropdownMenuLabel>{t("insertBlock")}</DropdownMenuLabel>
             {BLOCK_ITEMS.map((b) => (
               <DropdownMenuItem key={b.id} onClick={() => b.run(editor)}>
                 <b.icon />
-                {b.title}
+                {t(b.title)}
               </DropdownMenuItem>
             ))}
           </DropdownMenuGroup>
@@ -254,6 +256,8 @@ export function DocToolbar({ editor }: { editor: Editor }) {
 }
 
 function LinkTool({ editor, active }: { editor: Editor; active: boolean }) {
+  const t = useT("policies")
+  const tc = useT("common")
   const [open, setOpen] = useState(false)
   const [url, setUrl] = useState("")
 
@@ -283,8 +287,8 @@ function LinkTool({ editor, active }: { editor: Editor; active: boolean }) {
             type="button"
             variant="ghost"
             size="icon-sm"
-            aria-label="Tautan"
-            title="Tautan"
+            aria-label={t("link")}
+            title={t("link")}
             aria-pressed={active}
             className={cn(
               "text-muted-foreground hover:text-foreground",
@@ -319,11 +323,11 @@ function LinkTool({ editor, active }: { editor: Editor; active: boolean }) {
                   setOpen(false)
                 }}
               >
-                Hapus tautan
+                {t("removeLink")}
               </Button>
             )}
             <Button type="submit" size="sm">
-              Simpan
+              {tc("save")}
             </Button>
           </div>
         </form>

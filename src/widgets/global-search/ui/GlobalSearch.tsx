@@ -19,6 +19,8 @@ import { Spinner } from "@/components/ui/spinner"
 import { useWorkspaceNav } from "@/components/workspace-nav"
 import { cn } from "@/lib/utils"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
+import { useT } from "@/shared/i18n/client"
+import type { MessageKey } from "@/shared/i18n/messages"
 import { canManageByRole } from "@/shared/lib/roles"
 import {
   RiArrowDownLine,
@@ -45,36 +47,43 @@ import {
   type SearchScope,
 } from "../model/useGlobalSearch"
 
-const SCOPES: { value: SearchScope; label: string; admin?: boolean }[] = [
-  { value: "all", label: "Semua" },
-  { value: "pages", label: "Halaman" },
-  { value: "projects", label: "Project" },
-  { value: "tasks", label: "Tugas" },
-  { value: "files", label: "File" },
-  { value: "policies", label: "Aturan" },
-  { value: "people", label: "Orang", admin: true },
+type ShellKey = MessageKey<"shell">
+
+const SCOPES: { value: SearchScope; label: ShellKey; admin?: boolean }[] = [
+  { value: "all", label: "searchScopeAll" },
+  { value: "pages", label: "searchScopePages" },
+  { value: "projects", label: "searchScopeProjects" },
+  { value: "tasks", label: "searchScopeTasks" },
+  { value: "files", label: "searchScopeFiles" },
+  { value: "policies", label: "searchScopePolicies" },
+  { value: "people", label: "searchScopePeople", admin: true },
 ]
 
-const GROUPS: { kind: SearchHit["kind"]; label: string }[] = [
-  { kind: "pages", label: "Halaman" },
-  { kind: "projects", label: "Project" },
-  { kind: "tasks", label: "Tugas" },
-  { kind: "files", label: "File & dokumen" },
-  { kind: "policies", label: "Aturan" },
-  { kind: "people", label: "Orang" },
+const GROUPS: { kind: SearchHit["kind"]; label: ShellKey }[] = [
+  { kind: "pages", label: "searchScopePages" },
+  { kind: "projects", label: "searchScopeProjects" },
+  { kind: "tasks", label: "searchScopeTasks" },
+  { kind: "files", label: "searchGroupFiles" },
+  { kind: "policies", label: "searchScopePolicies" },
+  { kind: "people", label: "searchScopePeople" },
 ]
 
-/** Extra words people type for a page, matched on its href. */
+/**
+ * Extra words people type for a page, matched on its href. Both languages,
+ * so a page is found by either name whatever the UI language is.
+ */
 const PAGE_KEYWORDS: [string, string][] = [
-  ["/performance", "kpi nilai skor rating penilaian"],
+  ["/dashboard", "home beranda dashboard"],
+  ["/performance", "performance kinerja kpi nilai skor rating penilaian"],
   ["/performance/360-review", "rekan feedback"],
   ["/performance/one-on-one", "meeting 1on1"],
-  ["/leave", "cuti izin absen absensi kehadiran clock attendance"],
-  ["/calendar", "jadwal kalender agenda"],
-  ["/teams", "karyawan anggota tim direktori orang"],
-  ["/projects", "proyek klien client"],
-  ["/notifications", "notif pemberitahuan"],
-  ["/policies", "aturan kebijakan peraturan handbook sop"],
+  ["/leave", "leave cuti izin absen absensi kehadiran clock attendance"],
+  ["/calendar", "calendar jadwal kalender agenda schedule"],
+  ["/teams", "team karyawan anggota tim direktori orang members"],
+  ["/projects", "projects proyek klien client"],
+  ["/finance", "finance keuangan langganan subscriptions"],
+  ["/notifications", "notifications notif pemberitahuan"],
+  ["/policies", "policies rules aturan kebijakan peraturan handbook sop"],
 ]
 
 function pageKeywords(href: string) {
@@ -87,6 +96,8 @@ function pageKeywords(href: string) {
 export function GlobalSearch({ className }: { className?: string }) {
   const [open, setOpen] = useState(false)
   const [isMac, setIsMac] = useState(true)
+  const t = useT("shell")
+  const tc = useT("common")
 
   useEffect(() => {
     setIsMac(/mac|iphone|ipad/i.test(navigator.userAgent))
@@ -107,22 +118,22 @@ export function GlobalSearch({ className }: { className?: string }) {
         onClick={() => setOpen(true)}
         aria-keyshortcuts={isMac ? "Meta+K" : "Control+K"}
         className={cn(
-          "text-muted-foreground hover:text-foreground flex h-8 w-full items-center gap-2 rounded-lg bg-white/[0.07] px-2.5 text-sm transition-colors hover:bg-white/10",
+          "text-muted-foreground hover:text-foreground bg-chrome-field hover:bg-chrome-hover blend-ink flex h-8 w-full items-center gap-2 rounded-lg pr-1.5 pl-2.5 text-sm transition-colors",
           className,
         )}
       >
         <RiSearchLine className="size-4" />
-        <span>Cari</span>
+        <span>{tc("search")}</span>
         <KbdGroup className="ml-auto">
-          <Kbd className="bg-white/10">{isMac ? "⌘" : "Ctrl"}</Kbd>
-          <Kbd className="bg-white/10">K</Kbd>
+          <Kbd className="bg-chrome-field">{isMac ? "⌘" : "Ctrl"}</Kbd>
+          <Kbd className="bg-chrome-field">K</Kbd>
         </KbdGroup>
       </button>
       <CommandDialog
         open={open}
         onOpenChange={setOpen}
-        title="Cari"
-        description="Cari halaman, project, tugas, file, atau orang."
+        title={tc("search")}
+        description={t("searchDescription")}
       >
         {open && <SearchPanel onClose={() => setOpen(false)} />}
       </CommandDialog>
@@ -132,6 +143,8 @@ export function GlobalSearch({ className }: { className?: string }) {
 
 function SearchPanel({ onClose }: { onClose: () => void }) {
   const router = useRouter()
+  const t = useT("shell")
+  const tNav = useT("nav")
   const { profile } = useUserProfile()
   const isAdmin = canManageByRole(profile?.role)
   const { visible } = useWorkspaceNav()
@@ -143,7 +156,10 @@ function SearchPanel({ onClose }: { onClose: () => void }) {
   const debounced = useDebounced(query)
   const trimmed = query.trim()
 
-  const scopes = SCOPES.filter((s) => !s.admin || isAdmin)
+  const scopes = SCOPES.filter((s) => !s.admin || isAdmin).map((s) => ({
+    value: s.value,
+    label: t(s.label),
+  }))
   const { data: records = [], isFetching } = useRecordSearch(debounced, {
     people: isAdmin,
   })
@@ -162,22 +178,44 @@ function SearchPanel({ onClose }: { onClose: () => void }) {
     }
     for (const ws of visible) {
       for (const item of ws.items) {
-        add({ title: item.name, meta: ws.name, href: item.href }, item.icon)
+        add(
+          { title: tNav(item.name), meta: tNav(ws.name), href: item.href },
+          item.icon,
+        )
         for (const child of item.children ?? []) {
           if (child.can && !(profile && child.can(profile))) continue
           add(
-            { title: child.name, meta: item.name, href: child.href },
+            {
+              title: tNav(child.name),
+              meta: tNav(item.name),
+              href: child.href,
+            },
             item.icon,
           )
         }
       }
     }
     add(
-      { title: "Notifikasi", meta: "Akun", href: "/notifications" },
+      {
+        title: tNav("notifications"),
+        meta: tNav("account"),
+        href: "/notifications",
+      },
       RiNotification3Line,
     )
     return { pages: out, pageIcons: icons }
-  }, [visible, profile])
+  }, [visible, profile, tNav])
+
+  // Recent pages were saved with the names of the language at the time.
+  const recentHits = useMemo(
+    () =>
+      recent.map((hit) =>
+        hit.kind === "pages"
+          ? (pages.find((p) => p.href === hit.href) ?? hit)
+          : hit,
+      ),
+    [recent, pages],
+  )
 
   const results = useMemo(() => {
     const needle = trimmed.toLowerCase()
@@ -196,7 +234,7 @@ function SearchPanel({ onClose }: { onClose: () => void }) {
     return scope === "all" ? all : all.filter((h) => h.kind === scope)
   }, [pages, records, trimmed, debounced, scope])
 
-  const showRecent = !trimmed && scope === "all" && recent.length > 0
+  const showRecent = !trimmed && scope === "all" && recentHits.length > 0
   const searching =
     trimmed.length >= 2 && (isFetching || debounced.trim() !== trimmed)
 
@@ -231,7 +269,7 @@ function SearchPanel({ onClose }: { onClose: () => void }) {
         autoFocus
         value={query}
         onValueChange={setQuery}
-        placeholder="Cari halaman, project, tugas, file…"
+        placeholder={t("searchPlaceholder")}
         trailing={
           <>
             {searching && <Spinner className="text-muted-foreground size-4" />}
@@ -239,7 +277,7 @@ function SearchPanel({ onClose }: { onClose: () => void }) {
               <Button
                 variant="ghost"
                 size="icon-xs"
-                aria-label="Hapus pencarian"
+                aria-label={t("searchClear")}
                 className="text-muted-foreground"
                 onClick={() => {
                   setQuery("")
@@ -267,8 +305,8 @@ function SearchPanel({ onClose }: { onClose: () => void }) {
 
       <CommandList className="max-h-none min-h-0 flex-1 scroll-py-2 p-2">
         {showRecent && (
-          <CommandGroup heading="Terakhir dibuka">
-            {recent.map((hit) => (
+          <CommandGroup heading={t("searchRecent")}>
+            {recentHits.map((hit) => (
               <ResultItem
                 key={`recent-${hit.id}`}
                 value={`recent-${hit.id}`}
@@ -285,7 +323,9 @@ function SearchPanel({ onClose }: { onClose: () => void }) {
           return (
             <CommandGroup
               key={kind}
-              heading={!trimmed && kind === "pages" ? "Buka halaman" : label}
+              heading={
+                !trimmed && kind === "pages" ? t("searchOpenPage") : t(label)
+              }
             >
               {hits.map((hit) => (
                 <ResultItem
@@ -308,13 +348,11 @@ function SearchPanel({ onClose }: { onClose: () => void }) {
               icon={<RiSearchLine />}
               title={
                 trimmed.length === 1 && scope !== "pages"
-                  ? "Ketik minimal 2 huruf"
-                  : `Tidak ada hasil untuk “${trimmed}”`
+                  ? t("searchMinChars")
+                  : t("searchNoResults", { query: trimmed })
               }
               description={
-                scope === "all"
-                  ? "Coba kata lain, atau cek ejaannya."
-                  : "Coba kata lain, atau cari di Semua."
+                scope === "all" ? t("searchTryOther") : t("searchTryAll")
               }
             />
           </CommandEmpty>
@@ -331,21 +369,21 @@ function SearchPanel({ onClose }: { onClose: () => void }) {
               <RiArrowDownLine />
             </Kbd>
           </KbdGroup>
-          Pilih
+          {t("searchKeySelect")}
         </span>
         <span className="flex items-center gap-1.5">
           <Kbd>
             <CornerDownLeft />
           </Kbd>
-          Buka
+          {t("searchKeyOpen")}
         </span>
         <span className="flex items-center gap-1.5">
           <Kbd>Tab</Kbd>
-          Filter
+          {t("searchKeyFilter")}
         </span>
         <span className="ml-auto flex items-center gap-1.5">
           <Kbd>Esc</Kbd>
-          Tutup
+          {t("searchKeyClose")}
         </span>
       </footer>
     </Command>

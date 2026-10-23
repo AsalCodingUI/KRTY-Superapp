@@ -77,7 +77,8 @@
 .dark {
   --smooth-ring-color: rgba(255, 255, 255, 0.1);
 }
-.dark :is(.smooth-shadow-ring-sm, .smooth-shadow-ring-md, .smooth-shadow-ring-lg) {
+.dark
+  :is(.smooth-shadow-ring-sm, .smooth-shadow-ring-md, .smooth-shadow-ring-lg) {
   box-shadow:
     0 16px 40px -8px rgb(0 0 0 / 0.55),
     0 4px 12px -2px rgb(0 0 0 / 0.35),
@@ -114,6 +115,40 @@
 }
 @utility stat-tile {
   @apply flex min-w-0 flex-col gap-1;
+}
+
+/* Scrollbars: a thin rounded thumb that sits a little in from the edge, in
+   the text colour at low opacity (so it follows light/dark), no track.
+   Chromium/Safari use the -webkit- parts (rounded + inset); Firefox only
+   understands scrollbar-color/width, so it gets the thin native one. */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  border: 3.5px solid transparent;
+  border-radius: 9999px;
+  background-clip: padding-box;
+  background-color: color-mix(in oklch, var(--foreground) 16%, transparent);
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: color-mix(in oklch, var(--foreground) 30%, transparent);
+}
+::-webkit-scrollbar-thumb:active {
+  background-color: color-mix(in oklch, var(--foreground) 40%, transparent);
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+@supports (-moz-appearance: none) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklch, var(--foreground) 22%, transparent)
+      transparent;
+  }
 }
 
 @layer base {
@@ -153,7 +188,9 @@
 
 @theme inline {
   --font-heading: var(--font-sans);
-  --font-sans: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+  --font-sans:
+    var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -174,6 +211,10 @@
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-chrome: var(--chrome);
+  --color-chrome-hover: var(--chrome-hover);
+  --color-chrome-active: var(--chrome-active);
+  --color-chrome-field: var(--chrome-field);
+  --color-inverse: var(--inverse);
   --color-destructive-subtle: var(--destructive-subtle);
   --color-destructive-line: var(--destructive-line);
   --color-success-subtle: var(--success-subtle);
@@ -230,9 +271,33 @@
   /* Light theme — Stripe dashboard ("sail") structure with untinted grays:
      #2B2B2B ink, #E6E6E6 field lines, #F0F0F0 hairlines, #F7F7F7 offset
      surfaces, blue-9 primary, tinted feedback badges. */
-  /* App chrome (top bar + frame): dark in both themes. */
-  --chrome: oklch(0.145 0 0);
-  --app-topbar-height: 3rem;
+  /* App chrome (top bar + sidebar): one surface, tinted by the viewer's
+     color (--tint-h hue, --tint-c intensity 0–1; set by ChromeTint). Things
+     on it use translucent black/white so they work on any tint. */
+  --tint-h: 250;
+  --tint-c: 0;
+  /* Gradient chrome (optional): stops at this lightness, chroma scaled by
+     the intensity; the image itself comes from chrome-tint.ts. */
+  --chrome-gradient: none;
+  --grad-l: 0.9;
+  --grad-c: 0.1;
+  --chrome: oklch(
+    calc(0.945 - var(--tint-c) * 0.045) calc(var(--tint-c) * 0.085)
+      var(--tint-h)
+  );
+  --chrome-hover: oklch(0 0 0 / 5%);
+  --chrome-active: oklch(1 0 0 / 94%);
+  --chrome-field: oklch(0 0 0 / 6%);
+  --chrome-muted: oklch(0 0 0 / 55%);
+  --inverse: oklch(0.145 0 0);
+  /* Active tab on the chrome, and the page sheet floating on it. */
+  --shadow-chrome-active: 0px 7px 20px -2px rgba(0, 0, 0, 0.06);
+  --shadow-sheet:
+    0px 0px 0px 1px rgba(0, 0, 0, 0.05), 0px 7px 29px rgba(0, 0, 0, 0.06);
+  /* Something lifted off the page: the invoice paper, a dragged card. */
+  --shadow-lift:
+    0px 0px 0px 1px rgba(0, 0, 0, 0.05), 0px 7px 32px rgba(0, 0, 0, 0.1);
+  --app-topbar-height: 3.25rem;
   --background: #ffffff;
   --heading: #2b2b2b;
   --foreground: #2b2b2b;
@@ -283,13 +348,13 @@
   --chart-4: oklch(0.555 0.163 48.998);
   --chart-5: oklch(0.473 0.137 46.201);
   --radius: 0.625rem;
-  --sidebar: #f2f2f2;
+  --sidebar: var(--chrome);
   --surface: var(--background);
   --sidebar-foreground: #2b2b2b;
   --sidebar-primary: var(--blue-9);
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #e8e8e8;
-  --sidebar-active: #ffffff;
+  --sidebar-accent: var(--chrome-hover);
+  --sidebar-active: var(--chrome-active);
   --sidebar-accent-foreground: #2b2b2b;
   --sidebar-border: #f0f0f0;
   --sidebar-ring: oklch(0.629 0.187 252 / 50%);
@@ -353,19 +418,97 @@
   --chart-3: oklch(0.666 0.179 58.318);
   --chart-4: oklch(0.555 0.163 48.998);
   --chart-5: oklch(0.473 0.137 46.201);
-  --sidebar: oklch(0.18 0 0);
+  --chrome: oklch(
+    calc(0.17 + var(--tint-c) * 0.03) calc(var(--tint-c) * 0.05) var(--tint-h)
+  );
+  --grad-l: 0.25;
+  --grad-c: 0.075;
+  --chrome-hover: oklch(1 0 0 / 6%);
+  --chrome-active: oklch(1 0 0 / 14%);
+  --chrome-field: oklch(1 0 0 / 7%);
+  --chrome-muted: oklch(1 0 0 / 55%);
+  --shadow-chrome-active: none;
+  --shadow-sheet: 0px 0px 0px 1px rgba(255, 255, 255, 0.06);
+  --shadow-lift:
+    0px 0px 0px 1px rgba(255, 255, 255, 0.08), 0px 7px 32px rgba(0, 0, 0, 0.5);
+  --sidebar: var(--chrome);
   --surface: oklch(0.205 0 0);
   --dialog-shell: oklch(0.17 0 0);
   --dialog-panel: oklch(0.24 0 0);
   --sidebar-foreground: oklch(0.935 0 0);
   --sidebar-primary: var(--blue-9);
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: oklch(1 0 0 / 8%);
-  --sidebar-active: var(--sidebar-accent);
+  --sidebar-accent: var(--chrome-hover);
+  --sidebar-active: var(--chrome-active);
   --sidebar-accent-foreground: oklch(0.96 0 0);
   --sidebar-border: oklch(0.255 0 0);
   --sidebar-ring: oklch(0.629 0.187 252 / 60%);
   --row-surface: var(--surface);
   --row-hover: color-mix(in oklch, var(--foreground) 4%, var(--surface));
   --row-selected: color-mix(in oklch, var(--foreground) 6%, var(--surface));
+}
+
+/* A gradient chrome is painted once across the whole frame (top bar +
+   sidebar + gutters), so the desktop sidebar lets it show through. */
+[data-slot="sidebar-wrapper"] {
+  background-image: var(--chrome-gradient);
+}
+:root[data-chrome-gradient]
+  [data-slot="sidebar-wrapper"]
+  [data-slot="sidebar-inner"] {
+  background: transparent;
+}
+
+/* Muted text and icons on the tinted chrome are translucent ink, so they
+   pick up the tint instead of sitting on it as flat gray. */
+.on-chrome {
+  --muted-foreground: var(--chrome-muted);
+}
+
+/* Translucent ink on the tinted chrome blends instead of just layering:
+   plus-darker in light, plus-lighter in dark. Browsers without plus-darker
+   (Chrome) keep the plain translucent color. */
+@utility blend-ink {
+  mix-blend-mode: plus-darker;
+  &:where(.dark, .dark *) {
+    mix-blend-mode: plus-lighter;
+  }
+}
+/* Same for a pill's fill when it holds an opaque thumb (segmented controls):
+   only the fill layer blends; the thumb and labels sit on top of it. */
+@utility fill-ink {
+  position: relative;
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: var(--chrome-field);
+    mix-blend-mode: plus-darker;
+    pointer-events: none;
+  }
+  &:where(.dark, .dark *)::before {
+    mix-blend-mode: plus-lighter;
+  }
+}
+
+/* Word files drawn by docx-preview (components/office-view): pages sit on
+   the viewer like PDF pages, white paper with the lifted shadow. */
+.docx-view .docx-wrapper {
+  background: transparent;
+  padding: 0;
+  gap: 16px;
+}
+.docx-view .docx-wrapper > section.docx {
+  margin: 0;
+  border-radius: 4px;
+  box-shadow: var(--shadow-lift);
+}
+/* Thumbnails show just the first page; the tile draws the paper. */
+.docx-view-thumb .docx-wrapper > section.docx {
+  border-radius: 0;
+  box-shadow: none;
+}
+.docx-view-thumb .docx-wrapper > section.docx:not(:first-child) {
+  display: none;
 }

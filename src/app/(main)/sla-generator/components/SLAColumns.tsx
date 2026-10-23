@@ -8,8 +8,8 @@ import {
   RiRefreshLine,
 } from "@/shared/ui/lucide-icons"
 import { ColumnDef } from "@tanstack/react-table"
-import { format } from "date-fns"
-import { id as idLocale } from "date-fns/locale"
+import { format, type Locale } from "date-fns"
+import type { MessageKey } from "@/shared/i18n/messages"
 
 // Define the shape of our data (must match SLADashboard definition)
 export interface SLA {
@@ -21,42 +21,46 @@ export interface SLA {
   archived_at: string | null
 }
 
-function shortDate(value: string | null) {
+function shortDate(value: string | null, locale: Locale) {
   if (!value) return <EmptyValue />
   return (
     <span className="text-muted-foreground tabular-nums">
-      {format(new Date(value), "d MMM yyyy", { locale: idLocale })}
+      {format(new Date(value), "d MMM yyyy", { locale })}
     </span>
   )
 }
 
 type SLAColumnOptions = {
   canManage?: boolean
+  /** Translator for the "sla" namespace and the date-fns locale. */
+  t: (key: MessageKey<"sla">) => string
+  dateLocale: Locale
 }
 
 export const activeSLAColumns = (
   onEdit: (id: string) => void,
   onArchive: (id: string) => void,
   onView: (id: string) => void,
-  options: SLAColumnOptions = {},
+  options: SLAColumnOptions,
 ): ColumnDef<SLA>[] => [
   {
     accessorKey: "title",
-    header: "SLA",
-    cell: ({ row }) => row.original.title || "Tanpa judul",
+    header: options.t("colSla"),
+    cell: ({ row }) => row.original.title || options.t("untitled"),
   },
   {
     accessorKey: "client_name",
-    header: "Klien",
+    header: options.t("colClient"),
   },
   {
     accessorKey: "created_at",
-    header: "Dibuat",
-    cell: ({ getValue }) => shortDate(getValue() as string | null),
+    header: options.t("colCreated"),
+    cell: ({ getValue }) =>
+      shortDate(getValue() as string | null, options.dateLocale),
   },
   {
     id: "actions",
-    header: () => <span className="sr-only">Aksi</span>,
+    header: () => <span className="sr-only">{options.t("colActions")}</span>,
     cell: ({ row }) => (
       <div className="flex gap-2">
         <Button
@@ -92,22 +96,23 @@ export const activeSLAColumns = (
 export const archivedSLAColumns = (
   onRestore: (id: string) => void,
   onDelete: (id: string) => void,
-  options: SLAColumnOptions = {},
+  options: SLAColumnOptions,
 ): ColumnDef<SLA>[] => {
   const baseColumns: ColumnDef<SLA>[] = [
     {
       accessorKey: "title",
-      header: "SLA",
-      cell: ({ row }) => row.original.title || "Tanpa judul",
+      header: options.t("colSla"),
+      cell: ({ row }) => row.original.title || options.t("untitled"),
     },
     {
       accessorKey: "client_name",
-      header: "Klien",
+      header: options.t("colClient"),
     },
     {
       accessorKey: "archived_at",
-      header: "Diarsipkan",
-      cell: ({ getValue }) => shortDate(getValue() as string | null),
+      header: options.t("colArchived"),
+      cell: ({ getValue }) =>
+        shortDate(getValue() as string | null, options.dateLocale),
     },
   ]
 
@@ -119,7 +124,7 @@ export const archivedSLAColumns = (
     ...baseColumns,
     {
       id: "actions",
-      header: () => <span className="sr-only">Aksi</span>,
+      header: () => <span className="sr-only">{options.t("colActions")}</span>,
       cell: ({ row }) => (
         <div className="flex gap-2">
           <Button

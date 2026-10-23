@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { createClient } from "@/shared/api/supabase/client"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
+import { useDateLocale, useT } from "@/shared/i18n/client"
 import { isAdminRole } from "@/shared/lib/roles"
 import { cx } from "@/shared/lib/utils"
 import {
@@ -23,7 +24,6 @@ import {
   min as minDate,
   parseISO,
 } from "date-fns"
-import { id as idLocale } from "date-fns/locale"
 import {
   Tooltip,
   TooltipContent,
@@ -149,8 +149,18 @@ function statusVariant(status: TimelineProject["status"]) {
   return "secondary" as const
 }
 
+const STATUS_LABEL_KEYS = {
+  Active: "timelineStatusActive",
+  Completed: "timelineStatusCompleted",
+  Archived: "timelineStatusArchived",
+} as const
+
 export function TimelineView() {
   const { currentDate } = useCalendarContext()
+  const t = useT("calendar")
+  const idLocale = useDateLocale()
+  const daysLabel = (count: number) =>
+    t(count === 1 ? "durationDaysOne" : "durationDaysOther", { count })
   const range = useMemo(() => getTimelineRange(currentDate), [currentDate])
   const days = useMemo(
     () => eachDayOfInterval({ start: range.start, end: range.end }),
@@ -184,7 +194,7 @@ export function TimelineView() {
       }
     })
     return out
-  }, [days])
+  }, [days, idLocale])
 
   // Land on today (or the start) when the range or zoom changes.
   useEffect(() => {
@@ -241,7 +251,7 @@ export function TimelineView() {
         <div className="bg-background dark:bg-surface sticky top-0 z-20 flex h-[61px] items-end gap-0.5 border-b px-2 pb-2">
           <button
             type="button"
-            aria-label="Perkecil"
+            aria-label={t("weekZoomOut")}
             disabled={widthStep === 0}
             onClick={() => setWidthStep((s) => Math.max(0, s - 1))}
             className="text-muted-foreground hover:text-foreground hover:bg-accent flex size-5 cursor-pointer items-center justify-center rounded-sm disabled:pointer-events-none disabled:opacity-40"
@@ -250,7 +260,7 @@ export function TimelineView() {
           </button>
           <button
             type="button"
-            aria-label="Perbesar"
+            aria-label={t("weekZoomIn")}
             disabled={widthStep === DAY_WIDTHS.length - 1}
             onClick={() =>
               setWidthStep((s) => Math.min(DAY_WIDTHS.length - 1, s + 1))
@@ -260,7 +270,12 @@ export function TimelineView() {
             <RiAddLine className="size-3.5" />
           </button>
           <span className="text-muted-foreground ml-auto text-xs">
-            {projects.length} project
+            {t(
+              projects.length === 1
+                ? "timelineProjectsOne"
+                : "timelineProjectsOther",
+              { count: projects.length },
+            )}
           </span>
         </div>
 
@@ -285,7 +300,9 @@ export function TimelineView() {
                   <button
                     type="button"
                     aria-label={
-                      expanded.has(row.project.id) ? "Tutup tim" : "Lihat tim"
+                      expanded.has(row.project.id)
+                        ? t("timelineHideTeam")
+                        : t("timelineShowTeam")
                     }
                     onClick={() => toggle(row.project.id)}
                     disabled={row.project.members.length === 0}
@@ -308,7 +325,15 @@ export function TimelineView() {
                     {row.project.name}
                   </span>
                   <Badge variant={statusVariant(row.project.status)}>
-                    {row.project.status ?? <EmptyValue />}
+                    {row.project.status ? (
+                      STATUS_LABEL_KEYS[row.project.status] ? (
+                        t(STATUS_LABEL_KEYS[row.project.status])
+                      ) : (
+                        row.project.status
+                      )
+                    ) : (
+                      <EmptyValue />
+                    )}
                   </Badge>
                 </div>
               ) : (
@@ -326,7 +351,7 @@ export function TimelineView() {
                     {row.member.name}
                   </span>
                   <span className="ml-auto truncate text-xs">
-                    {row.member.isLead ? "Lead · " : ""}
+                    {row.member.isLead ? `${t("timelineLead")} · ` : ""}
                     {row.member.role}
                   </span>
                 </div>
@@ -334,7 +359,7 @@ export function TimelineView() {
             )}
         {!isLoading && projects.length === 0 && (
           <p className="text-muted-foreground px-3 py-6 text-sm">
-            Tidak ada project di rentang ini.
+            {t("timelineEmpty")}
           </p>
         )}
       </div>
@@ -445,7 +470,7 @@ export function TimelineView() {
                       </span>
                       {width > 120 && (
                         <span className="text-muted-foreground shrink-0 tabular-nums">
-                          {duration} hari
+                          {daysLabel(duration)}
                         </span>
                       )}
                     </TooltipTrigger>
@@ -456,7 +481,7 @@ export function TimelineView() {
                       {format(row.project.end, "d MMM yyyy", {
                         locale: idLocale,
                       })}{" "}
-                      · {duration} hari
+                      · {daysLabel(duration)}
                     </TooltipContent>
                   </Tooltip>
                 ) : (

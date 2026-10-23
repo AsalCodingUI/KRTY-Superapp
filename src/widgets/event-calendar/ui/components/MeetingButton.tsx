@@ -1,6 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
+import { useT } from "@/shared/i18n/client"
 import { logError } from "@/shared/lib/utils/logger"
 import { RiFileCopyLine, RiVideoOnLine } from "@/shared/ui/lucide-icons"
 import { useState } from "react"
@@ -11,6 +12,7 @@ interface MeetingButtonProps {
 }
 
 export function MeetingButton({ meetingUrl, className }: MeetingButtonProps) {
+  const t = useT("calendar")
   const [copied, setCopied] = useState(false)
 
   const handleCopy = async (e: React.MouseEvent) => {
@@ -36,24 +38,24 @@ export function MeetingButton({ meetingUrl, className }: MeetingButtonProps) {
           className="bg-primary hover:bg-primary/90 text-primary-foreground flex-1"
         >
           <RiVideoOnLine className="mr-2 h-4 w-4" />
-          Gabung via Google Meet
+          {t("meetingJoin")}
         </Button>
         <button
           onClick={handleCopy}
           className="hover:bg-muted bg-foreground/[0.03] rounded-lg p-2 transition-colors"
-          title="Salin tautan meeting"
+          title={t("meetingCopyLink")}
         >
           <RiFileCopyLine className="text-foreground h-4 w-4" />
         </button>
       </div>
 
       {copied && (
-        <p className="text-success mt-2 text-xs">Tautan berhasil disalin!</p>
+        <p className="text-success mt-2 text-xs">{t("meetingLinkCopied")}</p>
       )}
 
       <div className="mt-2">
         <p className="text-tertiary-foreground text-xs">
-          Durasi panggilan grup dibatasi 1 jam
+          {t("meetingDurationNote")}
         </p>
         <a
           href={meetingUrl}

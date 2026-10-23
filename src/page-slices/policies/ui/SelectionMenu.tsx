@@ -20,6 +20,7 @@ import {
   X,
 } from "lucide-react"
 import { useState } from "react"
+import { useT } from "@/shared/i18n/client"
 
 function Tool({
   label,
@@ -66,6 +67,8 @@ function Divider() {
  * headings and lists. Tables and empty selections don't show it.
  */
 export function SelectionMenu({ editor }: { editor: Editor }) {
+  const t = useT("policies")
+  const tc = useT("common")
   const [linking, setLinking] = useState(false)
   const [url, setUrl] = useState("")
 
@@ -114,15 +117,15 @@ export function SelectionMenu({ editor }: { editor: Editor }) {
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             onKeyDown={(e) => e.key === "Escape" && setLinking(false)}
-            placeholder="Tempel tautan…"
-            aria-label="Alamat tautan"
+            placeholder={t("pasteLink")}
+            aria-label={t("linkAddress")}
             className="h-7 w-64 border-0 bg-transparent px-2 text-sm shadow-none outline-none focus:ring-0"
           />
           <Button
             type="submit"
             variant="ghost"
             size="icon-sm"
-            aria-label="Simpan tautan"
+            aria-label={t("saveLink")}
           >
             <Check />
           </Button>
@@ -130,7 +133,7 @@ export function SelectionMenu({ editor }: { editor: Editor }) {
             type="button"
             variant="ghost"
             size="icon-sm"
-            aria-label="Batal"
+            aria-label={tc("cancel")}
             onClick={() => setLinking(false)}
           >
             <X />
@@ -139,14 +142,14 @@ export function SelectionMenu({ editor }: { editor: Editor }) {
       ) : (
         <>
           <Tool
-            label="Judul 1"
+            label={t("blockH1")}
             active={s.h1}
             onClick={() => chain().toggleHeading({ level: 1 }).run()}
           >
             <Heading1 />
           </Tool>
           <Tool
-            label="Judul 2"
+            label={t("blockH2")}
             active={s.h2}
             onClick={() => chain().toggleHeading({ level: 2 }).run()}
           >
@@ -154,35 +157,35 @@ export function SelectionMenu({ editor }: { editor: Editor }) {
           </Tool>
           <Divider />
           <Tool
-            label="Tebal (⌘B)"
+            label={t("bold")}
             active={s.bold}
             onClick={() => chain().toggleBold().run()}
           >
             <Bold />
           </Tool>
           <Tool
-            label="Miring (⌘I)"
+            label={t("italic")}
             active={s.italic}
             onClick={() => chain().toggleItalic().run()}
           >
             <Italic />
           </Tool>
           <Tool
-            label="Coret"
+            label={t("strike")}
             active={s.strike}
             onClick={() => chain().toggleStrike().run()}
           >
             <Strikethrough />
           </Tool>
           <Tool
-            label="Kode"
+            label={t("code")}
             active={s.code}
             onClick={() => chain().toggleCode().run()}
           >
             <Code />
           </Tool>
           <Tool
-            label={s.link ? "Ubah tautan" : "Tautan"}
+            label={s.link ? t("editLink") : t("link")}
             active={s.link}
             onClick={() => {
               setUrl(editor.getAttributes("link").href ?? "")
@@ -193,21 +196,21 @@ export function SelectionMenu({ editor }: { editor: Editor }) {
           </Tool>
           <Divider />
           <Tool
-            label="Daftar"
+            label={t("blockBullet")}
             active={s.bullet}
             onClick={() => chain().toggleBulletList().run()}
           >
             <List />
           </Tool>
           <Tool
-            label="Daftar bernomor"
+            label={t("blockOrdered")}
             active={s.ordered}
             onClick={() => chain().toggleOrderedList().run()}
           >
             <ListOrdered />
           </Tool>
           <Tool
-            label="Kutipan"
+            label={t("blockQuote")}
             active={s.quote}
             onClick={() => chain().toggleBlockquote().run()}
           >

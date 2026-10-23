@@ -30,11 +30,12 @@ import {
   RiPencilLine,
 } from "@/shared/ui/lucide-icons"
 import { useQueryClient } from "@tanstack/react-query"
-import { format } from "date-fns"
-import { id as idLocale } from "date-fns/locale"
+import { useDateLocale, useT } from "@/shared/i18n/client"
+import { format, type Locale } from "date-fns"
 import { useState } from "react"
 import { toast } from "sonner"
 import {
+  categoryLabel,
   policyKeys,
   splitVersions,
   usePolicy,
@@ -43,10 +44,8 @@ import {
 import { PolicyHistory } from "./PolicyHistory"
 import { PublishDialog } from "./PublishDialog"
 
-function day(value: string | null) {
-  return value
-    ? format(new Date(value), "d MMM yyyy", { locale: idLocale })
-    : ""
+function day(value: string | null, locale: Locale) {
+  return value ? format(new Date(value), "d MMM yyyy", { locale }) : ""
 }
 
 /**
@@ -99,6 +98,9 @@ function PolicyView({
   onEdit: () => void
   onClose: () => void
 }) {
+  const t = useT("policies")
+  const tc = useT("common")
+  const dateLocale = useDateLocale()
   const queryClient = useQueryClient()
   const { profile } = useUserProfile()
   const isAdmin = canManageByRole(profile?.role)
@@ -126,14 +128,14 @@ function PolicyView({
     latest && version?.status === "Published" && version.id !== latest.id,
   )
   const isDraft = version?.status === "Draft"
-  const title = version?.title ?? policy?.title ?? "Aturan"
+  const title = version?.title ?? policy?.title ?? t("title")
 
   const toggleArchive = async () => {
     if (!policy) return
     const archived = !policy.archived_at
     const result = await setPolicyArchived(id, archived)
     if (!result.success) return toast.error(result.error)
-    toast.success(archived ? "Aturan diarsipkan" : "Aturan dipulihkan")
+    toast.success(archived ? t("ruleArchived") : t("ruleRestored"))
     refresh()
   }
 
@@ -142,19 +144,21 @@ function PolicyView({
       <header className="border-border flex h-14 shrink-0 items-center gap-2 border-b pr-3 pl-5">
         <RiBookOpenLine className="text-muted-foreground size-4 shrink-0" />
         <DialogTitle className="text-muted-foreground min-w-0 truncate text-sm font-normal">
-          {policy ? `${policy.category} / ${title}` : "Aturan"}
+          {policy
+            ? `${categoryLabel(t, policy.category)} / ${title}`
+            : t("title")}
         </DialogTitle>
         <div className="ml-auto flex shrink-0 items-center gap-1">
           {isAdmin && policy && (
             <>
               {draft && (
                 <Button size="sm" onClick={() => setPublishing(true)}>
-                  Terbitkan
+                  {t("publish")}
                 </Button>
               )}
               <Button variant="outline" size="sm" onClick={onEdit}>
                 <RiPencilLine data-icon="inline-start" />
-                {draft ? "Lanjutkan draf" : "Edit"}
+                {draft ? t("continueDraft") : tc("edit")}
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger
@@ -162,7 +166,7 @@ function PolicyView({
                     <Button
                       variant="ghost"
                       size="icon-sm"
-                      aria-label="Aksi aturan"
+                      aria-label={t("ruleActions")}
                       className="text-muted-foreground"
                     />
                   }
@@ -172,12 +176,12 @@ function PolicyView({
                 <DropdownMenuContent align="end" className="min-w-44">
                   {draft && latest && (
                     <DropdownMenuItem onClick={() => setConfirm("discard")}>
-                      Buang draf
+                      {t("discardDraft")}
                     </DropdownMenuItem>
                   )}
                   {latest && (
                     <DropdownMenuItem onClick={toggleArchive}>
-                      {policy.archived_at ? "Pulihkan" : "Arsipkan"}
+                      {policy.archived_at ? t("restore") : t("archive")}
                     </DropdownMenuItem>
                   )}
                   <DropdownMenuSeparator />
@@ -185,7 +189,7 @@ function PolicyView({
                     variant="destructive"
                     onClick={() => setConfirm("delete")}
                   >
-                    Hapus aturan
+                    {t("deleteRule")}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -194,7 +198,7 @@ function PolicyView({
           <Button
             variant="ghost"
             size="icon-sm"
-            aria-label="Tutup"
+            aria-label={tc("close")}
             className="text-muted-foreground"
             onClick={onClose}
           >
@@ -212,8 +216,8 @@ function PolicyView({
           <EmptyState
             placement="inner"
             className="py-24"
-            title="Aturan tidak ditemukan"
-            description="Mungkin sudah dihapus atau diarsipkan."
+            title={t("notFound")}
+            description={t("notFoundDescription")}
             icon={<RiFileTextLine />}
           />
         ) : (
@@ -222,8 +226,10 @@ function PolicyView({
               <div className="border-border mb-8 flex flex-wrap items-center justify-between gap-2 rounded-lg border px-4 py-3 text-sm">
                 <span className="text-muted-foreground">
                   {isDraft
-                    ? "Ini draf. Karyawan belum bisa melihatnya sampai diterbitkan."
-                    : `Ini versi lama dari ${day(version?.published_at ?? null)}, bukan yang berlaku sekarang.`}
+                    ? t("draftBanner")
+                    : t("oldVersionBanner", {
+                        date: day(version?.published_at ?? null, dateLocale),
+                      })}
                 </span>
                 {latest && (
                   <button
@@ -231,7 +237,7 @@ function PolicyView({
                     onClick={() => onVersion(null)}
                     className="text-primary font-medium hover:underline"
                   >
-                    Lihat versi berlaku
+                    {t("viewCurrentVersion")}
                   </button>
                 )}
               </div>
@@ -241,23 +247,37 @@ function PolicyView({
               {title}
             </h1>
             <div className="text-muted-foreground mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
-              <ListChip>{policy.category}</ListChip>
-              {policy.archived_at && <ListChip>Diarsipkan</ListChip>}
+              <ListChip>{categoryLabel(t, policy.category)}</ListChip>
+              {policy.archived_at && <ListChip>{t("archived")}</ListChip>}
               {version && !isDraft && (
                 <>
-                  <span>Berlaku sejak {day(version.effective_at)}</span>
                   <span>
-                    Diperbarui {day(version.published_at)}
-                    {version.author?.full_name &&
-                      ` oleh ${version.author.full_name}`}
+                    {t("effectiveSince", {
+                      date: day(version.effective_at, dateLocale),
+                    })}
+                  </span>
+                  <span>
+                    {version.author?.full_name
+                      ? t("updatedOnBy", {
+                          date: day(version.published_at, dateLocale),
+                          name: version.author.full_name,
+                        })
+                      : t("updatedOn", {
+                          date: day(version.published_at, dateLocale),
+                        })}
                   </span>
                 </>
               )}
               {isDraft && version && (
                 <span>
-                  Draf disimpan {day(version.updated_at)}
-                  {version.author?.full_name &&
-                    ` oleh ${version.author.full_name}`}
+                  {version.author?.full_name
+                    ? t("draftSavedOnBy", {
+                        date: day(version.updated_at, dateLocale),
+                        name: version.author.full_name,
+                      })
+                    : t("draftSavedOn", {
+                        date: day(version.updated_at, dateLocale),
+                      })}
                 </span>
               )}
             </div>
@@ -272,7 +292,7 @@ function PolicyView({
             {version?.body.trim() ? (
               <Markdown>{version.body}</Markdown>
             ) : (
-              <p className="text-muted-foreground text-sm">Belum ada isi.</p>
+              <p className="text-muted-foreground text-sm">{t("noContent")}</p>
             )}
 
             <Separator className="mt-12 mb-8" />
@@ -312,14 +332,20 @@ function PolicyView({
       <ConfirmDialog
         open={confirm !== null}
         onOpenChange={(open) => !open && setConfirm(null)}
-        title={confirm === "delete" ? "Hapus aturan ini?" : "Buang draf?"}
+        title={
+          confirm === "delete"
+            ? t("deleteConfirmTitle")
+            : t("discardConfirmTitle")
+        }
         description={
           confirm === "delete"
-            ? "Aturan dan semua riwayatnya dihapus permanen. Kalau hanya ingin menyembunyikan, arsipkan saja."
-            : "Perubahan yang belum diterbitkan hilang. Isi yang berlaku tidak berubah."
+            ? t("deleteConfirmDescription")
+            : t("discardConfirmDescription")
         }
-        confirmText={confirm === "delete" ? "Hapus permanen" : "Buang draf"}
-        cancelText="Batal"
+        confirmText={
+          confirm === "delete" ? t("deletePermanently") : t("discardDraft")
+        }
+        cancelText={tc("cancel")}
         variant="destructive"
         onConfirm={async () => {
           const result =
@@ -332,10 +358,10 @@ function PolicyView({
           }
           refresh()
           if (confirm === "delete") {
-            toast.success("Aturan dihapus")
+            toast.success(t("ruleDeleted"))
             onClose()
           } else {
-            toast.success("Draf dibuang")
+            toast.success(t("draftDiscarded"))
             onVersion(null)
           }
         }}

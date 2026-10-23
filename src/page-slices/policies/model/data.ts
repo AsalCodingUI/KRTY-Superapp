@@ -1,6 +1,7 @@
 "use client"
 
 import { createClient } from "@/shared/api/supabase/client"
+import type { MessageKey } from "@/shared/i18n/messages"
 import { useQuery } from "@tanstack/react-query"
 import { useMemo } from "react"
 
@@ -13,6 +14,26 @@ export const POLICY_CATEGORIES = [
   "Keuangan",
   "Etika & perilaku",
 ] as const
+
+/** Stored category values stay Indonesian; only the label is translated. */
+const CATEGORY_KEYS: Record<string, MessageKey<"policies">> = {
+  Umum: "catGeneral",
+  Cuti: "catLeave",
+  Kehadiran: "catAttendance",
+  "Jam kerja": "catWorkHours",
+  Benefit: "catBenefit",
+  Keuangan: "catFinance",
+  "Etika & perilaku": "catEthics",
+}
+
+/** Display label for a category; custom categories show as written. */
+export function categoryLabel(
+  t: (key: MessageKey<"policies">) => string,
+  category: string,
+) {
+  const key = CATEGORY_KEYS[category]
+  return key ? t(key) : category
+}
 
 export type PolicyVersion = {
   id: string

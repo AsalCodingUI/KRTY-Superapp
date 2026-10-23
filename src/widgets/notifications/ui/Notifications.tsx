@@ -1,6 +1,7 @@
 "use client"
 
 import { useNotifications } from "@/shared/hooks/useNotifications"
+import { useT } from "@/shared/i18n/client"
 import { cx, focusRing } from "@/shared/lib/utils"
 import { RiNotification3Line } from "@/shared/ui/lucide-icons"
 import { Sheet } from "@/components/ui/sheet"
@@ -40,6 +41,7 @@ export function Notifications({ variant = "default" }: NotificationsProps) {
     deleteNotification,
   } = useNotifications()
   const [isOpen, setIsOpen] = useState(false)
+  const t = useT("shell")
   // The drawer loads on first open, then stays mounted for its exit animation.
   const [hasOpened, setHasOpened] = useState(false)
   const close = useCallback(() => setIsOpen(false), [])
@@ -73,7 +75,7 @@ export function Notifications({ variant = "default" }: NotificationsProps) {
               ),
           focusRing,
         )}
-        aria-label="Notification Center"
+        aria-label={t("notificationCenter")}
       >
         <div className="relative flex items-center justify-center">
           <RiNotification3Line
@@ -89,7 +91,7 @@ export function Notifications({ variant = "default" }: NotificationsProps) {
 
         {variant === "default" && (
           <>
-            <span>Notification Center</span>
+            <span>{t("notificationCenter")}</span>
             {unreadCount > 0 && (
               <span className="bg-primary/10 text-primary ml-auto flex items-center justify-center rounded-sm px-1.5 py-0.5 text-xs font-medium">
                 {unreadCount}

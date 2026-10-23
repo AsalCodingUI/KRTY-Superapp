@@ -1,5 +1,6 @@
 "use client"
 
+import { useT } from "@/shared/i18n/client"
 import { cx } from "@/shared/lib/utils"
 import {
   RiCheckLine,
@@ -20,6 +21,7 @@ export function GuestList({
   onAddGuest,
   showAddButton = false,
 }: GuestListProps) {
+  const t = useT("calendar")
   const acceptedCount = guests.filter((g) => g.status === "accepted").length
   const pendingCount = guests.filter((g) => g.status === "pending").length
 
@@ -27,10 +29,17 @@ export function GuestList({
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <h4 className="text-foreground flex items-center gap-2 text-sm font-medium">
-          <span>{guests.length} tamu</span>
+          <span>
+            {t(guests.length === 1 ? "guestsCountOne" : "guestsCountOther", {
+              count: guests.length,
+            })}
+          </span>
           {guests.length > 0 && (
             <span className="text-tertiary-foreground text-xs">
-              {acceptedCount} ya, {pendingCount} menunggu
+              {t("guestsSummary", {
+                accepted: acceptedCount,
+                pending: pendingCount,
+              })}
             </span>
           )}
         </h4>
@@ -40,7 +49,7 @@ export function GuestList({
             className="text-primary hover:text-primary/90 flex items-center gap-1 text-xs"
           >
             <RiUserAddLine className="h-3.5 w-3.5" />
-            Tambah tamu
+            {t("guestsAdd")}
           </button>
         )}
       </div>
@@ -71,7 +80,7 @@ export function GuestList({
                 </p>
                 {guest.isOrganizer && (
                   <span className="text-tertiary-foreground text-xs">
-                    Penyelenggara
+                    {t("guestsOrganizer")}
                   </span>
                 )}
               </div>

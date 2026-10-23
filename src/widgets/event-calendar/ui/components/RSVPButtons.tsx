@@ -1,5 +1,6 @@
 "use client"
 
+import { useT } from "@/shared/i18n/client"
 import { cx } from "@/shared/lib/utils"
 
 interface RSVPButtonsProps {
@@ -13,9 +14,12 @@ export function RSVPButtons({
   onChange,
   disabled = false,
 }: RSVPButtonsProps) {
+  const t = useT("calendar")
   return (
     <div className="space-y-2">
-      <h4 className="text-foreground text-sm font-medium">Akan hadir?</h4>
+      <h4 className="text-foreground text-sm font-medium">
+        {t("rsvpQuestion")}
+      </h4>
       <div className="flex gap-2">
         <button
           onClick={() => onChange("yes")}
@@ -28,7 +32,7 @@ export function RSVPButtons({
               : "text-foreground border-border hover:bg-muted",
           )}
         >
-          Ya
+          {t("rsvpYes")}
         </button>
         <button
           onClick={() => onChange("no")}
@@ -41,7 +45,7 @@ export function RSVPButtons({
               : "text-foreground border-border hover:bg-muted",
           )}
         >
-          Tidak
+          {t("rsvpNo")}
         </button>
         <button
           onClick={() => onChange("maybe")}
@@ -54,7 +58,7 @@ export function RSVPButtons({
               : "text-foreground border-border hover:bg-muted",
           )}
         >
-          Mungkin
+          {t("rsvpMaybe")}
         </button>
       </div>
     </div>

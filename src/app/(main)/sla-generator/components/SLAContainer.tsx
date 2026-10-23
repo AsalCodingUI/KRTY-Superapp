@@ -7,6 +7,7 @@ import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { createClient as createClientBrowser } from "@/shared/api/supabase/client"
+import { useT } from "@/shared/i18n/client"
 import { logError } from "@/shared/lib/utils/logger"
 import {
   RiArrowLeftLine,
@@ -136,6 +137,8 @@ export default function SLAContainer({
   onBack,
   projectId,
 }: SLAContainerProps) {
+  const t = useT("sla")
+  const tc = useT("common")
   const router = useRouter()
   const supabase = createClientBrowser()
   const [saving, setSaving] = useState(false)
@@ -193,7 +196,7 @@ export default function SLAContainer({
     } = await supabase.auth.getUser()
 
     if (!user) {
-      toast.error("Login dulu")
+      toast.error(t("toastLoginFirst"))
       setSaving(false)
       return
     }
@@ -219,10 +222,10 @@ export default function SLAContainer({
     }
 
     if (result.error) {
-      toast.error("Gagal simpan")
+      toast.error(t("toastSaveFailed"))
       logError("Error", result.error)
     } else {
-      toast.success(slaId ? "SLA diperbarui" : "SLA disimpan")
+      toast.success(slaId ? t("toastUpdated") : t("toastSaved"))
       if (!slaId && result.data) {
         const newId = Array.isArray(result.data)
           ? result.data[0]?.id
@@ -252,7 +255,7 @@ export default function SLAContainer({
     a.download = `sla-data-${new Date().getTime()}.json`
     a.click()
     URL.revokeObjectURL(url)
-    toast.success("Data diekspor")
+    toast.success(t("toastExported"))
   }
 
   return (
@@ -274,10 +277,10 @@ export default function SLAContainer({
               </Button>
               <div className="min-w-0">
                 <p className="text-foreground truncate text-sm font-medium">
-                  {slaId ? "Edit SLA" : "New SLA"}
+                  {slaId ? t("editSla") : t("newSla")}
                 </p>
                 <p className="text-muted-foreground truncate text-sm">
-                  {clientInfo.company || "Untitled Project"}
+                  {clientInfo.company || t("untitledProject")}
                 </p>
               </div>
             </div>
@@ -285,8 +288,8 @@ export default function SLAContainer({
               <div className="lg:hidden">
                 <Tabs value={activeTab} onValueChange={setActiveTab}>
                   <TabsList>
-                    <TabsTrigger value="editor">Editor</TabsTrigger>
-                    <TabsTrigger value="preview">Preview</TabsTrigger>
+                    <TabsTrigger value="editor">{t("tabEditor")}</TabsTrigger>
+                    <TabsTrigger value="preview">{t("tabPreview")}</TabsTrigger>
                   </TabsList>
                 </Tabs>
               </div>
@@ -297,7 +300,7 @@ export default function SLAContainer({
                 className="hidden lg:flex"
               >
                 <RiSave3Line data-icon="inline-start" />
-                {saving ? "Saving..." : "Save"}
+                {saving ? tc("saving") : tc("save")}
               </Button>
 
               <Button
@@ -305,7 +308,7 @@ export default function SLAContainer({
                 size="icon"
                 onClick={handleExportJson}
                 className="hidden lg:flex"
-                title="Export JSON"
+                title={t("exportJson")}
               >
                 <RiSaveLine />
               </Button>
@@ -314,7 +317,7 @@ export default function SLAContainer({
                 size="icon"
                 variant="outline"
                 className="hidden lg:flex"
-                title="Print PDF"
+                title={t("printPdf")}
               >
                 <RiPrinterLine />
               </Button>
@@ -325,24 +328,24 @@ export default function SLAContainer({
           <div className="flex-1 space-y-5 overflow-y-auto p-5">
             <section className="space-y-4">
               <h3 className="text-foreground text-sm font-medium">
-                Client Information
+                {t("clientInfo")}
               </h3>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div className="space-y-4">
                   <div>
-                    <Label>Client Name</Label>
+                    <Label>{t("clientName")}</Label>
                     <div className="mt-2">
                       <Input
                         value={clientInfo.name}
                         onChange={(e) =>
                           setClientInfo({ ...clientInfo, name: e.target.value })
                         }
-                        placeholder="e.g. John Doe"
+                        placeholder={t("clientNamePlaceholder")}
                       />
                     </div>
                   </div>
                   <div>
-                    <Label>Email</Label>
+                    <Label>{t("email")}</Label>
                     <div className="mt-2">
                       <Input
                         value={clientInfo.email}
@@ -359,7 +362,7 @@ export default function SLAContainer({
                 </div>
                 <div className="space-y-4">
                   <div>
-                    <Label>Company / Project Name</Label>
+                    <Label>{t("companyProjectName")}</Label>
                     <div className="mt-2">
                       <Input
                         value={clientInfo.company}
@@ -369,12 +372,12 @@ export default function SLAContainer({
                             company: e.target.value,
                           })
                         }
-                        placeholder="e.g. Acme Corp"
+                        placeholder={t("companyPlaceholder")}
                       />
                     </div>
                   </div>
                   <div>
-                    <Label>Date</Label>
+                    <Label>{t("date")}</Label>
                     <div className="mt-2">
                       <Input
                         value={clientInfo.date}
@@ -386,7 +389,7 @@ export default function SLAContainer({
                   </div>
                 </div>
                 <div className="sm:col-span-2">
-                  <Label>Address</Label>
+                  <Label>{t("address")}</Label>
                   <div className="mt-2">
                     <Input
                       value={clientInfo.address}
@@ -406,11 +409,11 @@ export default function SLAContainer({
 
             <section className="space-y-4">
               <h3 className="text-foreground text-sm font-medium">
-                Agency Information
+                {t("agencyInfo")}
               </h3>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div>
-                  <Label>Agency Name</Label>
+                  <Label>{t("agencyName")}</Label>
                   <div className="mt-2">
                     <Input
                       value={agencyInfo.name}
@@ -421,7 +424,7 @@ export default function SLAContainer({
                   </div>
                 </div>
                 <div>
-                  <Label>Representative Name</Label>
+                  <Label>{t("repName")}</Label>
                   <div className="mt-2">
                     <Input
                       value={agencyInfo.repName}
@@ -435,7 +438,7 @@ export default function SLAContainer({
                   </div>
                 </div>
                 <div>
-                  <Label>Representative Title</Label>
+                  <Label>{t("repTitle")}</Label>
                   <div className="mt-2">
                     <Input
                       value={agencyInfo.repTitle}
@@ -449,7 +452,7 @@ export default function SLAContainer({
                   </div>
                 </div>
                 <div>
-                  <Label>Email</Label>
+                  <Label>{t("email")}</Label>
                   <div className="mt-2">
                     <Input
                       value={agencyInfo.email}
@@ -460,7 +463,7 @@ export default function SLAContainer({
                   </div>
                 </div>
                 <div className="sm:col-span-2">
-                  <Label>Address</Label>
+                  <Label>{t("address")}</Label>
                   <div className="mt-2">
                     <Textarea
                       value={agencyInfo.address}
@@ -500,7 +503,7 @@ export default function SLAContainer({
           {/* Mobile Header for Preview */}
           <div className="border-border flex items-center justify-between border-b px-5 py-4 lg:hidden print:hidden">
             <span className="text-foreground text-sm font-medium">
-              PDF Preview
+              {t("pdfPreview")}
             </span>
             <div className="flex gap-2">
               <Button

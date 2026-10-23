@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { useT } from "@/shared/i18n/client"
 import { RiAddLine, RiDeleteBinLine } from "@/shared/ui/lucide-icons"
 import { FreelanceMember } from "../types"
 import { formatNumber } from "../utils"
@@ -22,10 +23,11 @@ export function FreelanceSection({
   onRemoveFreelanceMember,
   onUpdateFreelanceMember,
 }: FreelanceSectionProps) {
+  const t = useT("calculator")
   return (
     <div>
       <h3 className="text-foreground mb-4 text-sm font-medium">
-        Freelance / COGS (Optional)
+        {t("freelanceHeading")}
       </h3>
 
       <div className="mb-4">
@@ -34,7 +36,7 @@ export function FreelanceSection({
           className="w-full"
           onClick={onAddFreelanceMember}
         >
-          <RiAddLine className="mr-2 size-4" /> Add Freelance
+          <RiAddLine className="mr-2 size-4" /> {t("addFreelance")}
         </Button>
       </div>
 
@@ -45,7 +47,7 @@ export function FreelanceSection({
               <div className="grid flex-1 grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 <div>
                   <Label htmlFor={`freelance-name-${member.id}`}>
-                    Full Name
+                    {t("fullName")}
                   </Label>
                   <Input
                     id={`freelance-name-${member.id}`}
@@ -53,25 +55,29 @@ export function FreelanceSection({
                     onChange={(e) =>
                       onUpdateFreelanceMember(member.id, "name", e.target.value)
                     }
-                    placeholder="e.g. Jane Doe"
+                    placeholder={t("examplePlaceholder", { value: "Jane Doe" })}
                     className="mt-1 h-7"
                   />
                 </div>
                 <div>
-                  <Label htmlFor={`freelance-role-${member.id}`}>Role</Label>
+                  <Label htmlFor={`freelance-role-${member.id}`}>
+                    {t("role")}
+                  </Label>
                   <Input
                     id={`freelance-role-${member.id}`}
                     value={member.role}
                     onChange={(e) =>
                       onUpdateFreelanceMember(member.id, "role", e.target.value)
                     }
-                    placeholder="e.g. UI Designer"
+                    placeholder={t("examplePlaceholder", {
+                      value: "UI Designer",
+                    })}
                     className="mt-1 h-7"
                   />
                 </div>
                 <div>
                   <Label htmlFor={`freelance-fee-${member.id}`}>
-                    Total Fee (IDR)
+                    {t("totalFeeIdr")}
                   </Label>
                   <Input
                     id={`freelance-fee-${member.id}`}
@@ -84,13 +90,15 @@ export function FreelanceSection({
                         formatNumber(e.target.value),
                       )
                     }
-                    placeholder="e.g. 15,000,000"
+                    placeholder={t("examplePlaceholder", {
+                      value: "15,000,000",
+                    })}
                     className="mt-1 h-7"
                   />
                 </div>
                 <div className="sm:col-span-2 lg:col-span-3">
                   <Label htmlFor={`freelance-notes-${member.id}`}>
-                    Notes (optional)
+                    {t("notesOptional")}
                   </Label>
                   <Input
                     id={`freelance-notes-${member.id}`}
@@ -102,7 +110,7 @@ export function FreelanceSection({
                         e.target.value,
                       )
                     }
-                    placeholder="e.g. scoped for illustration"
+                    placeholder={t("freelanceNotesPlaceholder")}
                     className="mt-1 h-7"
                   />
                 </div>
@@ -122,7 +130,7 @@ export function FreelanceSection({
         {freelanceSquad.length === 0 && (
           <div className="rounded-md border border-dashed p-6 text-center">
             <p className="text-muted-foreground text-sm">
-              No freelance costs added.
+              {t("noFreelanceCosts")}
             </p>
           </div>
         )}

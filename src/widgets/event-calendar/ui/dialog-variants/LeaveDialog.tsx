@@ -1,5 +1,6 @@
 "use client"
 
+import { useDateLocale, useT } from "@/shared/i18n/client"
 import { cx } from "@/shared/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -16,7 +17,6 @@ import {
   RiUserLine,
 } from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
-import { id } from "date-fns/locale"
 import type { CalendarEvent } from "../types"
 
 interface LeaveDialogProps {
@@ -30,8 +30,8 @@ const parseLeaveTitle = (title: string) => {
   // Format: "Nama Karyawan - Tipe Cuti" atau "Nama Karyawan • Tipe Cuti"
   const parts = title.includes(" • ") ? title.split(" • ") : title.split(" - ")
   return {
-    employeeName: parts[0] || "Tidak diketahui",
-    leaveType: parts[1] || "Cuti",
+    employeeName: parts[0] || undefined,
+    leaveType: parts[1] || undefined,
   }
 }
 
@@ -48,21 +48,26 @@ const getLeaveTypeColor = (
 }
 
 export function LeaveDialog({ open, onOpenChange, event }: LeaveDialogProps) {
-  const { employeeName, leaveType } = parseLeaveTitle(event.title)
-  const badgeColor = getLeaveTypeColor(leaveType)
+  const t = useT("calendar")
+  const tc = useT("common")
+  const dateLocale = useDateLocale()
+  const parsed = parseLeaveTitle(event.title)
+  const employeeName = parsed.employeeName ?? t("leaveUnknownEmployee")
+  const leaveType = parsed.leaveType ?? t("fallbackLeaveType")
+  const badgeColor = getLeaveTypeColor(parsed.leaveType ?? "Cuti")
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[35rem]">
         <DialogHeader>
-          <DialogTitle>Detail Cuti</DialogTitle>
+          <DialogTitle>{t("leaveDialogTitle")}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-5">
           {/* Status Badge */}
           <div className="flex items-center gap-2">
             <Badge variant="secondary" color="emerald" className="text-sm">
-              Disetujui
+              {t("leaveApproved")}
             </Badge>
             <Badge variant="secondary" color={badgeColor} className="text-sm">
               {leaveType}
@@ -73,7 +78,7 @@ export function LeaveDialog({ open, onOpenChange, event }: LeaveDialogProps) {
           <div className="space-y-2">
             <div className="text-muted-foreground flex items-center gap-2 text-sm font-medium">
               <RiUserLine className="text-muted-foreground h-4 w-4" />
-              <span>Karyawan</span>
+              <span>{t("leaveEmployee")}</span>
             </div>
             <div className="text-foreground pl-6 text-sm">{employeeName}</div>
           </div>
@@ -82,19 +87,27 @@ export function LeaveDialog({ open, onOpenChange, event }: LeaveDialogProps) {
           <div className="space-y-2">
             <div className="text-muted-foreground flex items-center gap-2 text-sm font-medium">
               <RiCalendarLine className="text-muted-foreground h-4 w-4" />
-              <span>Periode Cuti</span>
+              <span>{t("leavePeriod")}</span>
             </div>
             <div className="space-y-1 pl-6">
               <div className="text-foreground flex items-center gap-2">
-                <span className="text-muted-foreground text-sm">Mulai:</span>
+                <span className="text-muted-foreground text-sm">
+                  {t("dialogStart")}:
+                </span>
                 <span className="text-sm">
-                  {format(event.start, "EEEE, d MMMM yyyy", { locale: id })}
+                  {format(event.start, "EEEE, d MMMM yyyy", {
+                    locale: dateLocale,
+                  })}
                 </span>
               </div>
               <div className="text-foreground flex items-center gap-2">
-                <span className="text-muted-foreground text-sm">Selesai:</span>
+                <span className="text-muted-foreground text-sm">
+                  {t("dialogEnd")}:
+                </span>
                 <span className="text-sm">
-                  {format(event.end, "EEEE, d MMMM yyyy", { locale: id })}
+                  {format(event.end, "EEEE, d MMMM yyyy", {
+                    locale: dateLocale,
+                  })}
                 </span>
               </div>
             </div>
@@ -105,7 +118,7 @@ export function LeaveDialog({ open, onOpenChange, event }: LeaveDialogProps) {
             <div className="space-y-2">
               <div className="text-muted-foreground flex items-center gap-2 text-sm font-medium">
                 <RiFileTextLine className="text-muted-foreground h-4 w-4" />
-                <span>Alasan</span>
+                <span>{t("leaveReasonLabel")}</span>
               </div>
               <div
                 className={cx(
@@ -121,7 +134,7 @@ export function LeaveDialog({ open, onOpenChange, event }: LeaveDialogProps) {
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Tutup
+            {tc("close")}
           </Button>
         </DialogFooter>
       </DialogContent>

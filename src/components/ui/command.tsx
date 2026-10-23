@@ -3,6 +3,7 @@
 import * as React from "react"
 import { Command as CommandPrimitive } from "cmdk"
 import { cn } from "cn"
+import { useT } from "@/shared/i18n/client"
 
 import {
   Dialog,
@@ -30,8 +31,8 @@ function Command({
 }
 
 function CommandDialog({
-  title = "Command Palette",
-  description = "Search for a command to run...",
+  title,
+  description,
   children,
   className,
   showCloseButton = false,
@@ -43,6 +44,7 @@ function CommandDialog({
   showCloseButton?: boolean
   children: React.ReactNode
 }) {
+  const t = useT("shell")
   return (
     <Dialog {...props}>
       <DialogContent
@@ -54,8 +56,10 @@ function CommandDialog({
         showCloseButton={showCloseButton}
       >
         <DialogHeader className="sr-only">
-          <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>{description}</DialogDescription>
+          <DialogTitle>{title ?? t("commandTitle")}</DialogTitle>
+          <DialogDescription>
+            {description ?? t("commandDescription")}
+          </DialogDescription>
         </DialogHeader>
         {children}
       </DialogContent>
@@ -80,7 +84,7 @@ function CommandInput({
       <CommandPrimitive.Input
         data-slot="command-input"
         className={cn(
-          "placeholder:text-muted-foreground h-full w-full min-w-0 bg-transparent text-[15px] border-0 p-0 shadow-none outline-hidden focus:shadow-none focus:ring-0 focus:outline-hidden focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50",
+          "placeholder:text-muted-foreground h-full w-full min-w-0 border-0 bg-transparent p-0 text-[15px] shadow-none outline-hidden focus:shadow-none focus:ring-0 focus:outline-hidden focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50",
           className,
         )}
         {...props}

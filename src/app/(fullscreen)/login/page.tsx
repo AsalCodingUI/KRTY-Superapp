@@ -2,10 +2,12 @@
 
 import { createClient } from "@/shared/api/supabase/client"
 import { Button } from "@/components/ui/button"
+import { useT } from "@/shared/i18n/client"
 import { useState } from "react"
 
 export default function LoginPage() {
   const supabase = createClient()
+  const t = useT("auth")
 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -29,9 +31,7 @@ export default function LoginPage() {
       // The redirect happens automatically via Supabase
     } catch (err: unknown) {
       const message =
-        err instanceof Error
-          ? err.message
-          : "Google login failed. Please try again."
+        err instanceof Error ? err.message : t("loginGoogleFailed")
       setError(message)
       setLoading(false)
     }
@@ -41,10 +41,10 @@ export default function LoginPage() {
     <div className="flex min-h-screen flex-1 flex-col justify-center px-4 lg:px-6">
       <div className="w-full">
         <h3 className="text-foreground dark:text-foreground mt-6 text-center text-lg font-semibold">
-          Sign in to kretya account
+          {t("loginTitle")}
         </h3>
         <p className="text-muted-foreground mt-2 text-center text-sm">
-          Login securely with your Google Workspace or Gmail account
+          {t("loginSubtitle")}
         </p>
 
         <div className="mt-6">
@@ -63,7 +63,7 @@ export default function LoginPage() {
               disabled={loading}
             >
               <span>
-                {loading ? "Menghubungkan..." : "Lanjutkan dengan Google"}
+                {loading ? t("loginConnecting") : t("loginWithGoogle")}
               </span>
             </Button>
           </div>

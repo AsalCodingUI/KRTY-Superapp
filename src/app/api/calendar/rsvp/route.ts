@@ -1,3 +1,4 @@
+import { getT } from "@/shared/i18n/server"
 import { createClient } from "@/shared/api/supabase/server"
 import { logError } from "@/shared/lib/utils/logger"
 import { NextRequest, NextResponse } from "next/server"
@@ -8,6 +9,7 @@ import { guardApiRoute } from "@/shared/lib/utils/security"
  * Update RSVP status for an event
  */
 export async function PATCH(request: NextRequest) {
+  const t = await getT("api")
   const guard = guardApiRoute(request)
   if (guard) return guard
 
@@ -17,7 +19,7 @@ export async function PATCH(request: NextRequest) {
       data: { user },
     } = await supabase.auth.getUser()
     if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ error: t("unauthorized") }, { status: 401 })
     }
 
     const body = await request.json()
@@ -25,14 +27,14 @@ export async function PATCH(request: NextRequest) {
 
     if (!eventId || !status) {
       return NextResponse.json(
-        { error: "Event ID and status required" },
+        { error: t("rsvpFieldsRequired") },
         { status: 400 },
       )
     }
 
     if (!["yes", "no", "maybe"].includes(status)) {
       return NextResponse.json(
-        { error: "Invalid RSVP status" },
+        { error: t("rsvpInvalidStatus") },
         { status: 400 },
       )
     }
@@ -48,7 +50,7 @@ export async function PATCH(request: NextRequest) {
     if (error) {
       logError("Failed to update RSVP:", error)
       return NextResponse.json(
-        { error: "Failed to update RSVP status" },
+        { error: t("rsvpUpdateFailed") },
         { status: 500 },
       )
     }
@@ -60,9 +62,6 @@ export async function PATCH(request: NextRequest) {
     })
   } catch (error) {
     logError("RSVP update error:", error)
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    )
+    return NextResponse.json({ error: t("serverError") }, { status: 500 })
   }
 }

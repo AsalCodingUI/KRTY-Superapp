@@ -4,12 +4,14 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { createClient } from "@/shared/api/supabase/client"
+import { useT } from "@/shared/i18n/client"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 
 export default function UpdatePasswordPage() {
   const router = useRouter()
   const supabase = createClient()
+  const t = useT("auth")
 
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
@@ -23,7 +25,7 @@ export default function UpdatePasswordPage() {
     setLoading(true)
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match")
+      setError(t("passwordsMismatch"))
       setLoading(false)
       return
     }
@@ -42,7 +44,7 @@ export default function UpdatePasswordPage() {
       }, 2000)
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : "Failed to update password"
+        err instanceof Error ? err.message : t("updatePasswordFailed")
       setError(message)
     } finally {
       setLoading(false)
@@ -53,10 +55,10 @@ export default function UpdatePasswordPage() {
     <div className="flex min-h-screen flex-1 flex-col justify-center px-4 lg:px-6">
       <div className="w-full">
         <h3 className="text-foreground dark:text-foreground mt-6 text-center text-lg font-semibold">
-          Update your password
+          {t("updatePasswordTitle")}
         </h3>
         <p className="text-tertiary-foreground mt-2 text-center text-sm">
-          Please enter your new password below.
+          {t("updatePasswordSubtitle")}
         </p>
 
         <div className="mt-6">
@@ -64,7 +66,7 @@ export default function UpdatePasswordPage() {
             {/* Success Message */}
             {success && (
               <div className="bg-success/10 text-success ring-success/20 rounded-md p-3 text-sm ring-1 ring-inset">
-                Password updated successfully! Redirecting...
+                {t("updatePasswordSuccess")}
               </div>
             )}
 
@@ -80,7 +82,7 @@ export default function UpdatePasswordPage() {
                 htmlFor="password"
                 className="text-foreground dark:text-foreground text-sm font-medium"
               >
-                New Password
+                {t("newPassword")}
               </Label>
               <Input
                 type="password"
@@ -101,7 +103,7 @@ export default function UpdatePasswordPage() {
                 htmlFor="confirm-password"
                 className="text-foreground dark:text-foreground text-sm font-medium"
               >
-                Confirm Password
+                {t("confirmPassword")}
               </Label>
               <Input
                 type="password"
@@ -118,17 +120,17 @@ export default function UpdatePasswordPage() {
             </div>
 
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Updating..." : "Update password"}
+              {loading ? t("updatingPassword") : t("updatePassword")}
             </Button>
           </form>
 
           <p className="text-tertiary-foreground mt-6 text-center text-sm">
-            Remember your password?{" "}
+            {t("rememberPassword")}{" "}
             <a
               href="/login"
               className="text-primary hover:text-primary/80 font-medium"
             >
-              Sign in
+              {t("signIn")}
             </a>
           </p>
         </div>

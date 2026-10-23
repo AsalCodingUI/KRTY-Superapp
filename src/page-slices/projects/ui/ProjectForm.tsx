@@ -1,5 +1,8 @@
 "use client"
 
+import { DateField } from "@/components/date-field"
+import { useProcesses } from "@/page-slices/processes/model/data"
+import { STATUS_LABEL_KEYS } from "@/page-slices/projects/lib/status"
 import {
   getAssignablePeople,
   getEditableProject,
@@ -28,6 +31,7 @@ import {
 import { Spinner } from "@/components/ui/spinner"
 import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
+import { useT } from "@/shared/i18n/client"
 import { Constants, type Database } from "@/shared/types/database.types"
 import { RiCloseLine } from "@/shared/ui/lucide-icons"
 import { useQuery } from "@tanstack/react-query"
@@ -37,12 +41,6 @@ import { toast } from "sonner"
 type ProjectRole = Database["public"]["Enums"]["project_role_enum"]
 type ProjectStatus = Database["public"]["Enums"]["project_status_enum"]
 const ROLES = Constants.public.Enums.project_role_enum as readonly ProjectRole[]
-
-const STATUS_LABELS: Record<ProjectStatus, string> = {
-  Active: "Aktif",
-  Completed: "Selesai",
-  Archived: "Diarsipkan",
-}
 
 /** Sensible default project role from the person's job title. */
 function roleFor(jobTitle: string | null): ProjectRole {
@@ -73,6 +71,8 @@ type Draft = {
   start_date: string
   end_date: string
   status: ProjectStatus
+  /** New projects: chosen process (null = the default one). */
+  processId: string | null
   members: Member[]
 }
 
@@ -81,7 +81,8 @@ const EMPTY: Draft = {
   description: "",
   start_date: "",
   end_date: "",
-  status: "Active",
+  status: "Planned",
+  processId: null,
   members: [],
 }
 
@@ -98,6 +99,9 @@ export function ProjectForm({
   onOpenChange: (open: boolean) => void
   onSaved: () => void
 }) {
+  const t = useT("projects")
+  const tc = useT("common")
+  const tp = useT("processes")
   const [draft, setDraft] = useState<Draft>(EMPTY)
   const [saving, setSaving] = useState(false)
 
@@ -122,9 +126,14 @@ export function ProjectForm({
         start_date: project.start_date,
         end_date: project.end_date,
         status: project.status,
+        processId: null,
         members: project.members,
       })
   }, [open, projectId, project])
+
+  const { data: processes = [] } = useProcesses(open && !projectId)
+  const processValue =
+    draft.processId ?? processes.find((p) => p.is_default)?.id ?? null
 
   const set = <K extends keyof Draft>(key: K, value: Draft[K]) =>
     setDraft((d) => ({ ...d, [key]: value }))
@@ -168,7 +177,7 @@ export function ProjectForm({
     if (
       member.scored &&
       !window.confirm(
-        `${member.full_name} sudah punya nilai di project ini. Mengeluarkannya akan menghapus nilainya. Lanjut?`,
+        t("formRemoveScoredConfirm", { name: member.full_name ?? "" }),
       )
     ) {
       return
@@ -187,6 +196,7 @@ export function ProjectForm({
       start_date: draft.start_date,
       end_date: draft.end_date,
       status: draft.status,
+      processId: processValue,
       members: draft.members.map(({ userId, role, isLead }) => ({
         userId,
         role,
@@ -198,7 +208,7 @@ export function ProjectForm({
       toast.error(result.error)
       return
     }
-    toast.success(projectId ? "Project disimpan" : "Project dibuat")
+    toast.success(projectId ? t("projectSaved") : t("projectCreated"))
     onSaved()
     onOpenChange(false)
   }
@@ -217,11 +227,12 @@ export function ProjectForm({
       <DialogContent className="sm:max-w-[35rem]">
         <DialogHeader>
           <DialogTitle>
-            {projectId ? "Ubah project" : "Project baru"}
+            {projectId ? t("formEditTitle") : t("newProject")}
           </DialogTitle>
           <DialogDescription>
-            Kuartal project mengikuti tanggal selesai
-            {quarter ? ` (${quarter})` : ""}.
+            {quarter
+              ? t("formQuarterHintWith", { quarter })
+              : t("formQuarterHint")}
           </DialogDescription>
         </DialogHeader>
 
@@ -232,52 +243,50 @@ export function ProjectForm({
         ) : (
           <div className="-mx-1 flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-1">
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="project-name">Nama</Label>
+              <Label htmlFor="project-name">{t("formName")}</Label>
               <Input
                 id="project-name"
                 value={draft.name}
                 onChange={(e) => set("name", e.target.value)}
-                placeholder="mis. Website Westura"
+                placeholder={t("formNamePlaceholder")}
               />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="flex flex-col gap-1.5">
-                <Label htmlFor="project-start">Mulai</Label>
-                <Input
+                <Label htmlFor="project-start">{t("colStart")}</Label>
+                <DateField
                   id="project-start"
-                  type="date"
                   value={draft.start_date}
-                  onChange={(e) => set("start_date", e.target.value)}
+                  onChange={(value) => set("start_date", value)}
                 />
               </div>
               <div className="flex flex-col gap-1.5">
-                <Label htmlFor="project-end">Selesai</Label>
-                <Input
+                <Label htmlFor="project-end">{t("formEnd")}</Label>
+                <DateField
                   id="project-end"
-                  type="date"
                   value={draft.end_date}
                   min={draft.start_date}
-                  onChange={(e) => set("end_date", e.target.value)}
+                  onChange={(value) => set("end_date", value)}
                 />
               </div>
             </div>
             {projectId && (
               <div className="flex flex-col gap-1.5">
-                <Label>Status</Label>
+                <Label>{t("colStatus")}</Label>
                 <Select
                   value={draft.status}
                   onValueChange={(v) => v && set("status", v as ProjectStatus)}
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue>
-                      {(v: ProjectStatus) => STATUS_LABELS[v]}
+                      {(v: ProjectStatus) => t(STATUS_LABEL_KEYS[v])}
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
-                    {(Object.keys(STATUS_LABELS) as ProjectStatus[]).map(
+                    {(Object.keys(STATUS_LABEL_KEYS) as ProjectStatus[]).map(
                       (s) => (
                         <SelectItem key={s} value={s}>
-                          {STATUS_LABELS[s]}
+                          {t(STATUS_LABEL_KEYS[s])}
                         </SelectItem>
                       ),
                     )}
@@ -285,8 +294,31 @@ export function ProjectForm({
                 </Select>
               </div>
             )}
+            {!projectId && processes.length > 0 && (
+              <div className="flex flex-col gap-1.5">
+                <Label>{tp("fieldProcess")}</Label>
+                <Select
+                  value={processValue}
+                  onValueChange={(v) => v && set("processId", v)}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {processes.map((p) => (
+                      <SelectItem key={p.id} value={p.id}>
+                        {p.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-muted-foreground text-xs">
+                  {tp("processHint")}
+                </p>
+              </div>
+            )}
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="project-desc">Deskripsi</Label>
+              <Label htmlFor="project-desc">{t("formDescription")}</Label>
               <Textarea
                 id="project-desc"
                 rows={2}
@@ -297,9 +329,9 @@ export function ProjectForm({
 
             <div className="flex flex-col gap-2 border-t pt-4">
               <div className="flex items-baseline justify-between">
-                <Label>Tim ({draft.members.length})</Label>
+                <Label>{t("formTeam", { n: draft.members.length })}</Label>
                 <span className="text-muted-foreground text-xs">
-                  Peran menentukan kompetensi yang dinilai
+                  {t("formRoleHint")}
                 </span>
               </div>
               {draft.members.map((m) => (
@@ -349,7 +381,9 @@ export function ProjectForm({
                     type="button"
                     size="icon-sm"
                     variant="ghost"
-                    aria-label={`Keluarkan ${m.full_name}`}
+                    aria-label={t("formRemoveMember", {
+                      name: m.full_name ?? "",
+                    })}
                     onClick={() => removeMember(m)}
                   >
                     <RiCloseLine />
@@ -358,7 +392,7 @@ export function ProjectForm({
               ))}
               <Select value={null} onValueChange={(v) => v && addMember(v)}>
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Tambah anggota…" />
+                  <SelectValue placeholder={t("formAddMember")} />
                 </SelectTrigger>
                 <SelectContent>
                   {available.map((p) => (
@@ -375,10 +409,10 @@ export function ProjectForm({
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Batal
+            {tc("cancel")}
           </Button>
           <Button onClick={submit} disabled={saving}>
-            {saving ? "Menyimpan…" : projectId ? "Simpan" : "Buat project"}
+            {saving ? tc("saving") : projectId ? tc("save") : t("formCreate")}
           </Button>
         </DialogFooter>
       </DialogContent>

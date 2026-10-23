@@ -2,6 +2,7 @@
 
 import { StatusPage } from "@/components/status-page"
 import { Button } from "@/components/ui/button"
+import { useT } from "@/shared/i18n/client"
 import { RiArrowLeftLine } from "@/shared/ui/lucide-icons"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
@@ -10,26 +11,30 @@ import { usePathname, useRouter } from "next/navigation"
 export function NotFoundView({ fullScreen = false }: { fullScreen?: boolean }) {
   const router = useRouter()
   const pathname = usePathname()
+  const t = useT("shell")
+  const tc = useT("common")
   return (
     <StatusPage
       className={fullScreen ? "min-h-svh" : undefined}
       code="404"
-      title="Halaman tidak ditemukan"
-      description="Mungkin link-nya salah, halamannya sudah dipindah, atau kamu tidak punya akses ke sini."
+      title={t("notFoundTitle")}
+      description={t("notFoundDescription")}
       detail={pathname}
       actions={
         <>
           <Button
             variant="outline"
             onClick={() =>
-              window.history.length > 1 ? router.back() : router.push("/dashboard")
+              window.history.length > 1
+                ? router.back()
+                : router.push("/dashboard")
             }
           >
             <RiArrowLeftLine data-icon="inline-start" />
-            Kembali
+            {tc("back")}
           </Button>
           <Button nativeButton={false} render={<Link href="/dashboard" />}>
-            Ke Dashboard
+            {t("goToDashboard")}
           </Button>
         </>
       }

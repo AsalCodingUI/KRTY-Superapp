@@ -1,3 +1,5 @@
+import type { MessageKey } from "@/shared/i18n/messages"
+
 export const ATTENDANCE_NOTE_TAGS = {
   deleteRequested: "DELETE_REQUESTED",
   staleSessionResolved: "STALE_SESSION_RESOLVED",
@@ -42,11 +44,23 @@ export function removeAttendanceNote(
   return tags.length ? tags.join("|") : null
 }
 
-/** Display labels for stored attendance statuses. */
-export const ATTENDANCE_STATUS_LABELS: Record<string, string> = {
-  Present: "Hadir",
-  Lembur: "Lembur",
-  "Cuti Masuk": "Cuti Masuk",
+/** Stored attendance statuses → "leave" message keys (translate at render). */
+export const ATTENDANCE_STATUS_LABEL_KEYS: Record<
+  string,
+  MessageKey<"leave">
+> = {
+  Present: "statusPresent",
+  Lembur: "statusOvertime",
+  "Cuti Masuk": "statusLeaveCheckIn",
+}
+
+/** Translated label for a stored attendance status (unknown ones pass through). */
+export function attendanceStatusLabel(
+  status: string,
+  t: (key: MessageKey<"leave">) => string,
+) {
+  const key = ATTENDANCE_STATUS_LABEL_KEYS[status]
+  return key ? t(key) : status
 }
 
 type WorkedLog = {
@@ -71,8 +85,8 @@ export function workedMs(log: WorkedLog, now: Date = new Date()): number {
 /** Sessions longer than this are most likely a missed clock-out. */
 export const LONG_SESSION_MS = 12 * 60 * 60_000
 
-/** "7j 45m" */
-export function formatWorked(ms: number): string {
+/** "7j 45m" (pass t("hourShort") as `hourUnit` for the UI language). */
+export function formatWorked(ms: number, hourUnit = "j"): string {
   const totalMinutes = Math.floor(ms / 60_000)
-  return `${Math.floor(totalMinutes / 60)}j ${totalMinutes % 60}m`
+  return `${Math.floor(totalMinutes / 60)}${hourUnit} ${totalMinutes % 60}m`
 }

@@ -1,5 +1,6 @@
 "use client"
 
+import { ProofLink } from "@/entities/leave/ui/ProofLink"
 import { EmptyValue } from "@/components/empty-value"
 import { EmptyState } from "@/components/empty-state"
 import {
@@ -13,18 +14,17 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { calculateBusinessDays } from "@/shared/lib/date"
-import { LEAVE_STATUS_LABELS, LEAVE_TYPE_LABELS } from "@/shared/lib/leave"
-import {
-  RiCalendarLine,
-  RiDeleteBinLine,
-  RiFilePaperLine,
-} from "@/shared/ui/lucide-icons"
+import { useDateLocale, useT } from "@/shared/i18n/client"
+import type { MessageKey } from "@/shared/i18n/messages"
+import { daysKey, leaveStatusLabel, leaveTypeLabel } from "@/shared/lib/leave"
+import { RiCalendarLine, RiDeleteBinLine } from "@/shared/ui/lucide-icons"
 import type { Database } from "@/shared/types/database.types"
 import {
   differenceInDays,
   differenceInHours,
   differenceInMinutes,
   format,
+  type Locale,
 } from "date-fns"
 import { id as idLocale } from "date-fns/locale"
 import { ListPager } from "@/components/list-pager"
@@ -37,24 +37,33 @@ export type LeaveRequestWithProfile =
 
 const GROUPS = ["pending", "approved", "rejected"] as const
 
-export function formatLeaveRange(start: string, end: string) {
+export function formatLeaveRange(
+  start: string,
+  end: string,
+  locale: Locale = idLocale,
+) {
   const s = new Date(start)
   const e = new Date(end)
-  if (start === end) return format(s, "d MMM yyyy", { locale: idLocale })
+  if (start === end) return format(s, "d MMM yyyy", { locale })
   const sameYear = s.getFullYear() === e.getFullYear()
-  return `${format(s, sameYear ? "d MMM" : "d MMM yyyy", { locale: idLocale })} – ${format(e, "d MMM yyyy", { locale: idLocale })}`
+  return `${format(s, sameYear ? "d MMM" : "d MMM yyyy", { locale })} – ${format(e, "d MMM yyyy", { locale })}`
 }
 
 /** "baru saja", "12 mnt", "3 jam", "5 hari", then the date. */
-function shortAgo(date: Date, now = new Date()) {
+function shortAgo(
+  date: Date,
+  t: (key: MessageKey<"leave">, vars?: Record<string, number>) => string,
+  locale: Locale,
+  now = new Date(),
+) {
   const mins = differenceInMinutes(now, date)
-  if (mins < 1) return "baru saja"
-  if (mins < 60) return `${mins} mnt`
+  if (mins < 1) return t("agoJustNow")
+  if (mins < 60) return t("agoMinutes", { n: mins })
   const hours = differenceInHours(now, date)
-  if (hours < 24) return `${hours} jam`
+  if (hours < 24) return t("agoHours", { n: hours })
   const days = differenceInDays(now, date)
-  if (days < 7) return `${days} hari`
-  return format(date, "d MMM", { locale: idLocale })
+  if (days < 7) return t("agoDays", { n: days })
+  return format(date, "d MMM", { locale })
 }
 
 /** Shared column template so rows line up across every status group. */
@@ -69,6 +78,7 @@ const LEAVE_TYPE_BADGE: Record<string, "info" | "warning" | "secondary"> = {
 }
 
 function LeaveListHeader() {
+  const t = useT("leave")
   return (
     <div
       className={cn(
@@ -76,11 +86,11 @@ function LeaveListHeader() {
         "gutter-x text-muted-foreground border-border h-9 border-b text-[13px]",
       )}
     >
-      <span>Karyawan</span>
-      <span>Jenis</span>
-      <span className="hidden md:block">Tanggal</span>
-      <span className="hidden text-right md:block">Durasi</span>
-      <span className="hidden text-right lg:block">Diajukan</span>
+      <span>{t("colEmployee")}</span>
+      <span>{t("colType")}</span>
+      <span className="hidden md:block">{t("colDate")}</span>
+      <span className="hidden text-right md:block">{t("colDuration")}</span>
+      <span className="hidden text-right lg:block">{t("colSubmitted")}</span>
       <span className="hidden lg:block" />
     </div>
   )
@@ -115,11 +125,12 @@ export function AdminLeaveList({
   pageCount: number
   onPageChange: (pageIndex: number) => void
 }) {
+  const t = useT("leave")
   if (requests.length === 0) {
     return (
       <EmptyState
-        title="Belum ada pengajuan"
-        description="Pengajuan cuti dari tim akan muncul di sini."
+        title={t("emptyRequestsTitle")}
+        description={t("emptyRequestsTeamDesc")}
         icon={<RiCalendarLine className="size-5" />}
         placement="inner"
       />
@@ -138,7 +149,7 @@ export function AdminLeaveList({
             <ListGroup
               key={status}
               icon={<LeaveStatusIcon status={status} />}
-              label={LEAVE_STATUS_LABELS[status]}
+              label={leaveStatusLabel(status, t)}
               count={items.length}
               action={
                 canManage && status === "pending" && items.length > 1 ? (
@@ -147,7 +158,7 @@ export function AdminLeaveList({
                     size="sm"
                     onClick={() => onApproveMany(pendingIds)}
                   >
-                    Setujui semua
+                    {t("approveAll")}
                   </Button>
                 ) : undefined
               }
@@ -188,11 +199,14 @@ function LeaveRow({
   onReject: (id: number) => void
   onDelete: (id: number) => void
 }) {
-  const name = req.profiles?.full_name || "Unknown"
+  const t = useT("leave")
+  const tc = useT("common")
+  const dateLocale = useDateLocale()
+  const name = req.profiles?.full_name || t("unknownName")
   const days = leaveDays(req.start_date, req.end_date)
   const submitted = req.created_at ? new Date(req.created_at) : null
 
-  const type = LEAVE_TYPE_LABELS[req.leave_type] ?? req.leave_type
+  const type = leaveTypeLabel(req.leave_type, t)
 
   return (
     <ListRow className={cn(ROW_GRID, "min-h-14")}>
@@ -214,20 +228,11 @@ function LeaveRow({
               )}
               {req.review_note && (
                 <span className="truncate" title={req.review_note}>
-                  {req.reason ? "· " : ""}Catatan: {req.review_note}
+                  {req.reason ? "· " : ""}
+                  {t("reviewNote", { note: req.review_note })}
                 </span>
               )}
-              {req.proof_url && (
-                <a
-                  href={req.proof_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-muted-foreground hover:text-foreground inline-flex shrink-0 items-center gap-1 transition-colors"
-                >
-                  <RiFilePaperLine className="size-3.5" />
-                  Bukti
-                </a>
-              )}
+              {req.proof_url && <ProofLink value={req.proof_url} />}
             </span>
           )}
         </div>
@@ -239,21 +244,25 @@ function LeaveRow({
         </Badge>
       </div>
       <span className="text-foreground hidden truncate tabular-nums md:block">
-        {formatLeaveRange(req.start_date, req.end_date)}
+        {formatLeaveRange(req.start_date, req.end_date, dateLocale)}
       </span>
       <span className="text-muted-foreground hidden text-right tabular-nums md:block">
-        {days} hari
+        {t(daysKey(days), { n: days })}
       </span>
       <span
         className="text-tertiary-foreground hidden text-right text-[13px] whitespace-nowrap lg:block"
         title={
           submitted
-            ? `Diajukan ${format(submitted, "d MMM yyyy, HH:mm", { locale: idLocale })}`
+            ? t("submittedAt", {
+                date: format(submitted, "d MMM yyyy, HH:mm", {
+                  locale: dateLocale,
+                }),
+              })
             : undefined
         }
         suppressHydrationWarning
       >
-        {submitted ? shortAgo(submitted) : <EmptyValue />}
+        {submitted ? shortAgo(submitted, t, dateLocale) : <EmptyValue />}
       </span>
 
       {/* Pending actions wrap under the row on narrow screens. */}
@@ -274,14 +283,14 @@ function LeaveRow({
                 className="text-muted-foreground"
                 onClick={() => onReject(req.id)}
               >
-                Tolak
+                {t("reject")}
               </Button>
               <Button
                 variant="secondary"
                 size="sm"
                 onClick={() => onApprove(req.id)}
               >
-                Setujui
+                {t("approve")}
               </Button>
             </div>
           ) : (
@@ -289,8 +298,8 @@ function LeaveRow({
               <Button
                 variant="ghost"
                 size="icon-sm"
-                aria-label="Hapus pengajuan"
-                title="Hapus"
+                aria-label={t("deleteRequest")}
+                title={tc("delete")}
                 onClick={() => onDelete(req.id)}
               >
                 <RiDeleteBinLine />

@@ -29,7 +29,7 @@ import {
   RiLogoutBoxLine,
 } from "@/shared/ui/lucide-icons"
 import { format, parseISO } from "date-fns"
-import { id as idLocale } from "date-fns/locale"
+import { useDateLocale, useT } from "@/shared/i18n/client"
 import { AnimatePresence, m } from "motion/react"
 import * as React from "react"
 import { useState } from "react"
@@ -37,11 +37,11 @@ import { useClockActions } from "../model/useClockActions"
 
 type AttendanceLog = Database["public"]["Tables"]["attendance_logs"]["Row"]
 
-/** Stored values stay as before; only the labels are Indonesian. */
+/** Stored values stay as before; labels are "leave" message keys. */
 export const CLOCK_STATUSES = [
-  { value: "Present", label: "Hadir" },
-  { value: "Lembur", label: "Lembur" },
-  { value: "Cuti Masuk", label: "Cuti Masuk" },
+  { value: "Present", labelKey: "statusPresent" },
+  { value: "Lembur", labelKey: "statusOvertime" },
+  { value: "Cuti Masuk", labelKey: "statusLeaveCheckIn" },
 ] as const
 
 interface ClockControlsProps {
@@ -62,6 +62,9 @@ export function ClockControls({
   isOnLeave = false,
   now,
 }: ClockControlsProps) {
+  const t = useT("leave")
+  const tc = useT("common")
+  const dateLocale = useDateLocale()
   const [status, setStatus] = useState<string>(
     isOnLeave ? "Cuti Masuk" : "Present",
   )
@@ -101,18 +104,20 @@ export function ClockControls({
       "stale",
       <div className="flex items-center gap-3">
         <p className="text-destructive text-sm">
-          Sesi{" "}
-          {format(parseISO(getAttendanceLogLocalDate(staleSession)), "d MMM", {
-            locale: idLocale,
-          })}{" "}
-          belum ditutup
+          {t("staleSession", {
+            date: format(
+              parseISO(getAttendanceLogLocalDate(staleSession)),
+              "d MMM",
+              { locale: dateLocale },
+            ),
+          })}
         </p>
         <Button
           variant="destructive"
           disabled={loading}
           onClick={() => handleResolvePreviousSession(staleSession.id)}
         >
-          Tutup sesi sebelumnya
+          {t("closePreviousSession")}
         </Button>
       </div>,
     )
@@ -123,20 +128,20 @@ export function ClockControls({
       "idle",
       <div className="flex items-center gap-2">
         <Select value={status} onValueChange={(v) => v && setStatus(v)}>
-          <SelectTrigger className="w-32" aria-label="Status kehadiran">
+          <SelectTrigger className="w-32" aria-label={t("attendanceStatus")}>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
             {CLOCK_STATUSES.map((s) => (
               <SelectItem key={s.value} value={s.value}>
-                {s.label}
+                {t(s.labelKey)}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
         <Button onClick={() => handleClockIn(status)} disabled={loading}>
           <RiLoginBoxLine data-icon="inline-start" />
-          Clock In
+          {t("clockIn")}
         </Button>
       </div>,
     )
@@ -155,7 +160,7 @@ export function ClockControls({
       >
         <RiCupLine data-icon="inline-start" />
         <RollingValue>
-          {activeSession.is_break ? "Selesai istirahat" : "Istirahat"}
+          {activeSession.is_break ? t("endBreak") : t("startBreak")}
         </RollingValue>
       </Button>
       <Button
@@ -164,20 +169,20 @@ export function ClockControls({
         onClick={() => setConfirmClockOut(true)}
       >
         <RiLogoutBoxLine data-icon="inline-start" />
-        Clock Out
+        {t("clockOut")}
       </Button>
 
       <Dialog open={confirmClockOut} onOpenChange={setConfirmClockOut}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Clock out sekarang?</DialogTitle>
+            <DialogTitle>{t("clockOutConfirmTitle")}</DialogTitle>
             <DialogDescription>
-              Sesi hari ini akan ditutup pada {format(new Date(), "HH:mm")}.
+              {t("clockOutConfirmDesc", { time: format(new Date(), "HH:mm") })}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <DialogClose render={<Button variant="outline" />}>
-              Batal
+              {tc("cancel")}
             </DialogClose>
             <Button
               variant="destructive"
@@ -187,7 +192,7 @@ export function ClockControls({
                 setConfirmClockOut(false)
               }}
             >
-              Clock Out
+              {t("clockOut")}
             </Button>
           </DialogFooter>
         </DialogContent>

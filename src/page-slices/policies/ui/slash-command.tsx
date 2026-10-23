@@ -18,11 +18,14 @@ import {
 } from "lucide-react"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { createPortal } from "react-dom"
+import { useT } from "@/shared/i18n/client"
+import type { MessageKey } from "@/shared/i18n/messages"
+import { policies } from "@/shared/i18n/messages/policies"
 
 export type BlockItem = {
   id: string
-  title: string
-  hint: string
+  title: MessageKey<"policies">
+  hint: MessageKey<"policies">
   keywords: string
   icon: LucideIcon
   run: (editor: Editor, range?: Range) => void
@@ -35,64 +38,64 @@ const at = (editor: Editor, range?: Range) =>
 export const BLOCK_ITEMS: BlockItem[] = [
   {
     id: "text",
-    title: "Teks",
-    hint: "Paragraf biasa",
+    title: "blockText",
+    hint: "blockTextHint",
     keywords: "text paragraf p",
     icon: Pilcrow,
     run: (e, r) => at(e, r).setParagraph().run(),
   },
   {
     id: "h1",
-    title: "Judul 1",
-    hint: "Judul bagian besar",
+    title: "blockH1",
+    hint: "blockH1Hint",
     keywords: "heading h1 judul",
     icon: Heading1,
     run: (e, r) => at(e, r).setHeading({ level: 1 }).run(),
   },
   {
     id: "h2",
-    title: "Judul 2",
-    hint: "Judul bagian",
+    title: "blockH2",
+    hint: "blockH2Hint",
     keywords: "heading h2 subjudul",
     icon: Heading2,
     run: (e, r) => at(e, r).setHeading({ level: 2 }).run(),
   },
   {
     id: "h3",
-    title: "Judul 3",
-    hint: "Judul kecil",
+    title: "blockH3",
+    hint: "blockH3Hint",
     keywords: "heading h3",
     icon: Heading3,
     run: (e, r) => at(e, r).setHeading({ level: 3 }).run(),
   },
   {
     id: "bullet",
-    title: "Daftar",
-    hint: "Daftar berpoin",
+    title: "blockBullet",
+    hint: "blockBulletHint",
     keywords: "list bullet poin ul",
     icon: List,
     run: (e, r) => at(e, r).toggleBulletList().run(),
   },
   {
     id: "ordered",
-    title: "Daftar bernomor",
-    hint: "Daftar 1, 2, 3",
+    title: "blockOrdered",
+    hint: "blockOrderedHint",
     keywords: "list numbered nomor ol",
     icon: ListOrdered,
     run: (e, r) => at(e, r).toggleOrderedList().run(),
   },
   {
     id: "quote",
-    title: "Kutipan",
-    hint: "Catatan atau contoh kasus",
+    title: "blockQuote",
+    hint: "blockQuoteHint",
     keywords: "quote kutipan catatan callout",
     icon: Quote,
     run: (e, r) => at(e, r).toggleBlockquote().run(),
   },
   {
     id: "table",
-    title: "Tabel",
-    hint: "Tabel 3 × 3",
+    title: "blockTable",
+    hint: "blockTableHint",
     keywords: "table tabel",
     icon: Table,
     run: (e, r) =>
@@ -100,16 +103,16 @@ export const BLOCK_ITEMS: BlockItem[] = [
   },
   {
     id: "divider",
-    title: "Garis pemisah",
-    hint: "Pisahkan bagian",
+    title: "blockDivider",
+    hint: "blockDividerHint",
     keywords: "divider hr garis pemisah",
     icon: Minus,
     run: (e, r) => at(e, r).setHorizontalRule().run(),
   },
   {
     id: "code",
-    title: "Blok kode",
-    hint: "Teks apa adanya",
+    title: "blockCode",
+    hint: "blockCodeHint",
     keywords: "code kode",
     icon: Code2,
     run: (e, r) => at(e, r).toggleCodeBlock().run(),
@@ -119,8 +122,11 @@ export const BLOCK_ITEMS: BlockItem[] = [
 function filterItems(query: string) {
   const q = query.trim().toLowerCase()
   if (!q) return BLOCK_ITEMS
+  // Match the title in either language, so typing works whatever the UI.
   return BLOCK_ITEMS.filter((i) =>
-    `${i.title} ${i.keywords}`.toLowerCase().includes(q),
+    `${policies.id[i.title]} ${policies.en[i.title]} ${i.keywords}`
+      .toLowerCase()
+      .includes(q),
   )
 }
 
@@ -187,6 +193,7 @@ export function SlashCommand(bridge: SlashBridge) {
 
 /** The "/" menu: block types, filtered as you type, arrows + Enter to pick. */
 export function SlashMenu({ bridge }: { bridge: SlashBridge }) {
+  const t = useT("policies")
   const [state, setState] = useState<MenuState>(null)
   const [index, setIndex] = useState(0)
   const listRef = useRef<HTMLDivElement>(null)
@@ -245,18 +252,18 @@ export function SlashMenu({ bridge }: { bridge: SlashBridge }) {
     <div
       ref={listRef}
       role="listbox"
-      aria-label="Sisipkan blok"
+      aria-label={t("insertBlock")}
       style={style}
       className="bg-popover text-popover-foreground smooth-shadow-ring-sm animate-in fade-in-0 zoom-in-95 z-50 max-h-80 w-72 overflow-y-auto rounded-xl p-1 text-sm"
     >
       {items.length === 0 ? (
         <p className="text-muted-foreground px-2 py-3 text-center">
-          Tidak ada blok “{state.query}”
+          {t("noBlock", { query: state.query })}
         </p>
       ) : (
         <>
           <p className="text-muted-foreground px-2 pt-1.5 pb-1 text-xs">
-            Sisipkan blok
+            {t("insertBlock")}
           </p>
           {items.map((item, i) => (
             <button
@@ -277,9 +284,9 @@ export function SlashMenu({ bridge }: { bridge: SlashBridge }) {
                 <item.icon className="text-muted-foreground size-4" />
               </span>
               <span className="flex min-w-0 flex-col">
-                <span className="text-foreground">{item.title}</span>
+                <span className="text-foreground">{t(item.title)}</span>
                 <span className="text-muted-foreground truncate text-xs">
-                  {item.hint}
+                  {t(item.hint)}
                 </span>
               </span>
             </button>

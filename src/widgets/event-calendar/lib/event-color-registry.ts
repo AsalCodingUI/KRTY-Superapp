@@ -327,3 +327,28 @@ export function getAllEventTypes(): EventTypeDefinition[] {
 export function isValidEventType(eventType: string): boolean {
   return eventType in EVENT_TYPE_REGISTRY
 }
+
+/** "calendar" i18n keys for each registered type's label (translate at render). */
+const EVENT_TYPE_LABEL_KEYS = {
+  Internal: "eventTypeInternal",
+  WFH: "eventTypeWfh",
+  Cuti: "eventTypeLeave",
+  Event: "eventTypeEvent",
+  "301 Meeting": "eventType301Meeting",
+  "Company Holiday": "eventTypeCompanyHoliday",
+  "Public Holiday": "eventTypePublicHoliday",
+} as const
+
+export type EventTypeLabelKey =
+  (typeof EVENT_TYPE_LABEL_KEYS)[keyof typeof EVENT_TYPE_LABEL_KEYS]
+
+/** Label key for a (possibly aliased) event type; undefined when unknown. */
+export function getEventTypeLabelKey(
+  eventType?: string,
+): EventTypeLabelKey | undefined {
+  const definition = getEventTypeDefinition(eventType)
+  if (!definition) return undefined
+  return EVENT_TYPE_LABEL_KEYS[
+    definition.value as keyof typeof EVENT_TYPE_LABEL_KEYS
+  ]
+}

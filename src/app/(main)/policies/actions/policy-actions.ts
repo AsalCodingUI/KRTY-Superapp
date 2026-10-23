@@ -1,6 +1,7 @@
 "use server"
 
 import { createClient } from "@/shared/api/supabase/server"
+import { getT } from "@/shared/i18n/server"
 import { resolveEffectiveUserId } from "@/shared/lib/impersonation-server"
 import { canManageByRole } from "@/shared/lib/roles"
 import { revalidatePath } from "next/cache"
@@ -44,8 +45,6 @@ async function admin() {
   return canManageByRole(data?.role) ? { supabase, userId: id } : null
 }
 
-const NOT_ALLOWED = "Hanya admin yang bisa mengelola aturan."
-
 function slugify(title: string) {
   const base = title
     .toLowerCase()
@@ -56,12 +55,14 @@ function slugify(title: string) {
   return `${base || "aturan"}-${crypto.randomUUID().slice(0, 6)}`
 }
 
-function validate(input: PolicyDraftInput): string | null {
-  if (!input.title.trim()) return "Judul aturan wajib diisi."
-  if (input.title.trim().length > 160) return "Judul maksimal 160 karakter."
-  if (!input.category.trim()) return "Pilih kategori."
-  if (input.summary.length > 300) return "Ringkasan maksimal 300 karakter."
-  if (input.body.length > 100_000) return "Isi aturan terlalu panjang."
+type T = Awaited<ReturnType<typeof getT<"policies">>>
+
+function validate(input: PolicyDraftInput, t: T): string | null {
+  if (!input.title.trim()) return t("errTitleRequired")
+  if (input.title.trim().length > 160) return t("errTitleTooLong")
+  if (!input.category.trim()) return t("errCategoryRequired")
+  if (input.summary.length > 300) return t("errSummaryTooLong")
+  if (input.body.length > 100_000) return t("errBodyTooLong")
   return null
 }
 
@@ -75,9 +76,10 @@ export async function savePolicyDraft(
   id: string | null,
   input: PolicyDraftInput,
 ): Promise<Result<{ id: string }>> {
+  const t = await getT("policies")
   const ctx = await admin()
-  if (!ctx) return { success: false, error: NOT_ALLOWED }
-  const invalid = validate(input)
+  if (!ctx) return { success: false, error: t("errNotAllowed") }
+  const invalid = validate(input, t)
   if (invalid) return { success: false, error: invalid }
   const { supabase, userId } = ctx
 
@@ -101,8 +103,7 @@ export async function savePolicyDraft(
       })
       .select("id")
       .single()
-    if (error || !data)
-      return { success: false, error: "Gagal membuat aturan." }
+    if (error || !data) return { success: false, error: t("errCreateFailed") }
     documentId = data.id
   } else {
     documentId = id
@@ -110,7 +111,7 @@ export async function savePolicyDraft(
       .from("policy_documents")
       .update({ category: input.category.trim() })
       .eq("id", documentId)
-    if (error) return { success: false, error: "Gagal menyimpan aturan." }
+    if (error) return { success: false, error: t("errSaveFailed") }
   }
 
   const { data: existing } = await supabase
@@ -151,7 +152,7 @@ export async function savePolicyDraft(
         version_number: "draft",
         status: "Draft",
       })
-  if (error) return { success: false, error: "Gagal menyimpan draf." }
+  if (error) return { success: false, error: t("errSaveDraftFailed") }
 
   revalidate(documentId)
   return { success: true, data: { id: documentId } }
@@ -161,10 +162,11 @@ export async function publishPolicy(
   id: string,
   input: PublishInput,
 ): Promise<Result> {
+  const t = await getT("policies")
   const ctx = await admin()
-  if (!ctx) return { success: false, error: NOT_ALLOWED }
+  if (!ctx) return { success: false, error: t("errNotAllowed") }
   if (input.changeSummary.length > 300)
-    return { success: false, error: "Catatan perubahan maksimal 300 karakter." }
+    return { success: false, error: t("errNoteTooLong") }
 
   const { error } = await ctx.supabase.rpc("publish_policy", {
     p_document_id: id,
@@ -184,8 +186,9 @@ export async function publishPolicy(
 export async function discardPolicyDraft(
   id: string,
 ): Promise<Result<{ deleted: boolean }>> {
+  const t = await getT("policies")
   const ctx = await admin()
-  if (!ctx) return { success: false, error: NOT_ALLOWED }
+  if (!ctx) return { success: false, error: t("errNotAllowed") }
   const { supabase } = ctx
 
   const { data: doc } = await supabase
@@ -193,7 +196,7 @@ export async function discardPolicyDraft(
     .select("current_version_id")
     .eq("id", id)
     .maybeSingle()
-  if (!doc) return { success: false, error: "Aturan tidak ditemukan." }
+  if (!doc) return { success: false, error: t("errNotFound") }
 
   const { error } = doc.current_version_id
     ? await supabase
@@ -202,7 +205,7 @@ export async function discardPolicyDraft(
         .eq("document_id", id)
         .eq("status", "Draft")
     : await supabase.from("policy_documents").delete().eq("id", id)
-  if (error) return { success: false, error: "Gagal membuang draf." }
+  if (error) return { success: false, error: t("errDiscardFailed") }
 
   revalidate(id)
   return { success: true, data: { deleted: !doc.current_version_id } }
@@ -212,25 +215,27 @@ export async function setPolicyArchived(
   id: string,
   archived: boolean,
 ): Promise<Result> {
+  const t = await getT("policies")
   const ctx = await admin()
-  if (!ctx) return { success: false, error: NOT_ALLOWED }
+  if (!ctx) return { success: false, error: t("errNotAllowed") }
   const { error } = await ctx.supabase
     .from("policy_documents")
     .update({ archived_at: archived ? new Date().toISOString() : null })
     .eq("id", id)
-  if (error) return { success: false, error: "Gagal mengubah status aturan." }
+  if (error) return { success: false, error: t("errArchiveFailed") }
   revalidate(id)
   return { success: true }
 }
 
 export async function deletePolicy(id: string): Promise<Result> {
+  const t = await getT("policies")
   const ctx = await admin()
-  if (!ctx) return { success: false, error: NOT_ALLOWED }
+  if (!ctx) return { success: false, error: t("errNotAllowed") }
   const { error } = await ctx.supabase
     .from("policy_documents")
     .delete()
     .eq("id", id)
-  if (error) return { success: false, error: "Gagal menghapus aturan." }
+  if (error) return { success: false, error: t("errDeleteFailed") }
   revalidate(id)
   return { success: true }
 }

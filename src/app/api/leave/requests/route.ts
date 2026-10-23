@@ -1,3 +1,4 @@
+import { getT } from "@/shared/i18n/server"
 import { createAdminClient } from "@/shared/api/supabase/admin"
 import { createClient } from "@/shared/api/supabase/server"
 import { calculateBusinessDays } from "@/shared/lib/date"
@@ -46,6 +47,7 @@ async function getCanonicalProfile() {
  * the one that can't be bypassed). Returns an error message or null.
  */
 async function checkAnnualLeave(
+  t: Awaited<ReturnType<typeof getT<"api">>>,
   adminSupabase: ReturnType<typeof createAdminClient>,
   userId: string,
   startDate: string,
@@ -54,16 +56,16 @@ async function checkAnnualLeave(
 ): Promise<string | null> {
   const start = startOfDay(new Date(startDate))
   const end = startOfDay(new Date(endDate))
-  if (end < start) return "Tanggal selesai harus setelah tanggal mulai"
+  if (end < start) return t("leaveEndBeforeStart")
   const requested = calculateBusinessDays(start, end)
-  if (requested <= 0) return "Rentang tanggal tidak berisi hari kerja"
+  if (requested <= 0) return t("leaveNoBusinessDays")
   if (
     differenceInCalendarDays(start, startOfDay(new Date())) <
     ANNUAL_LEAVE_MIN_NOTICE_DAYS
   )
-    return `Cuti tahunan diajukan paling lambat H-${ANNUAL_LEAVE_MIN_NOTICE_DAYS}`
+    return t("leaveMinNotice", { days: ANNUAL_LEAVE_MIN_NOTICE_DAYS })
   if (requested > ANNUAL_LEAVE_MAX_DAYS)
-    return `Maksimal ${ANNUAL_LEAVE_MAX_DAYS} hari kerja per pengajuan`
+    return t("leaveMaxDays", { days: ANNUAL_LEAVE_MAX_DAYS })
 
   const year = start.getFullYear()
   let approvedQuery = adminSupabase
@@ -87,26 +89,34 @@ async function checkAnnualLeave(
   if (error) throw error
 
   const summary = annualLeaveSummary(approved ?? [], year, employment ?? {})
-  if (!summary.eligible) return summary.note ?? "Belum berhak cuti tahunan"
+  if (!summary.eligible) {
+    if (!summary.noteKey) return t("leaveNotEligible")
+    const tLeave = await getT("leave")
+    return tLeave(summary.noteKey, summary.noteVars)
+  }
   if (requested > summary.remaining)
-    return `Sisa cuti tahunan tinggal ${summary.remaining} dari ${summary.quota} hari`
+    return t("leaveQuotaExceeded", {
+      remaining: summary.remaining,
+      quota: summary.quota,
+    })
   return null
 }
 
 export async function POST(request: NextRequest) {
+  const t = await getT("api")
   try {
     const { user, profile } = await getCanonicalProfile()
     if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ error: t("unauthorized") }, { status: 401 })
     }
     if (!profile) {
-      return NextResponse.json({ error: "Profile not found" }, { status: 404 })
+      return NextResponse.json({ error: t("profileNotFound") }, { status: 404 })
     }
 
     const rawBody = await request.json().catch(() => null)
     const parsed = requestSchema.safeParse(rawBody)
     if (!parsed.success) {
-      return NextResponse.json({ error: "Invalid request" }, { status: 400 })
+      return NextResponse.json({ error: t("invalidRequest") }, { status: 400 })
     }
 
     const payload = {
@@ -122,6 +132,7 @@ export async function POST(request: NextRequest) {
     const adminSupabase = createAdminClient()
     if (payload.leave_type === "Annual Leave") {
       const problem = await checkAnnualLeave(
+        t,
         adminSupabase,
         profile.id,
         payload.start_date,
@@ -144,10 +155,7 @@ export async function POST(request: NextRequest) {
     console.error("Leave request create error", error)
     return NextResponse.json(
       {
-        error:
-          error instanceof Error
-            ? error.message
-            : "Failed to submit leave request",
+        error: error instanceof Error ? error.message : t("leaveSubmitFailed"),
       },
       { status: 500 },
     )
@@ -155,19 +163,20 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
+  const t = await getT("api")
   try {
     const { user, profile } = await getCanonicalProfile()
     if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ error: t("unauthorized") }, { status: 401 })
     }
     if (!profile) {
-      return NextResponse.json({ error: "Profile not found" }, { status: 404 })
+      return NextResponse.json({ error: t("profileNotFound") }, { status: 404 })
     }
 
     const rawBody = await request.json().catch(() => null)
     const parsed = requestSchema.safeParse(rawBody)
     if (!parsed.success || !parsed.data.id) {
-      return NextResponse.json({ error: "Invalid request" }, { status: 400 })
+      return NextResponse.json({ error: t("invalidRequest") }, { status: 400 })
     }
 
     const adminSupabase = createAdminClient()
@@ -180,13 +189,13 @@ export async function PATCH(request: NextRequest) {
     if (existingError) throw existingError
     if (!existing || existing.user_id !== profile.id) {
       return NextResponse.json(
-        { error: "Leave request not found" },
+        { error: t("leaveRequestNotFound") },
         { status: 404 },
       )
     }
     if (existing.status === "approved") {
       return NextResponse.json(
-        { error: "Pengajuan yang sudah disetujui tidak bisa diubah" },
+        { error: t("leaveApprovedLocked") },
         { status: 409 },
       )
     }
@@ -203,6 +212,7 @@ export async function PATCH(request: NextRequest) {
 
     if (payload.leave_type === "Annual Leave") {
       const problem = await checkAnnualLeave(
+        t,
         adminSupabase,
         profile.id,
         payload.start_date,
@@ -229,10 +239,7 @@ export async function PATCH(request: NextRequest) {
     console.error("Leave request update error", error)
     return NextResponse.json(
       {
-        error:
-          error instanceof Error
-            ? error.message
-            : "Failed to update leave request",
+        error: error instanceof Error ? error.message : t("leaveUpdateFailed"),
       },
       { status: 500 },
     )
@@ -246,20 +253,21 @@ const cancelSchema = z.object({ id: z.number() })
  * pending (employees can't delete rows directly under RLS).
  */
 export async function DELETE(request: NextRequest) {
+  const t = await getT("api")
   try {
     const { user, profile } = await getCanonicalProfile()
     if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ error: t("unauthorized") }, { status: 401 })
     }
     if (!profile) {
-      return NextResponse.json({ error: "Profile not found" }, { status: 404 })
+      return NextResponse.json({ error: t("profileNotFound") }, { status: 404 })
     }
 
     const parsed = cancelSchema.safeParse(
       await request.json().catch(() => null),
     )
     if (!parsed.success) {
-      return NextResponse.json({ error: "Invalid request" }, { status: 400 })
+      return NextResponse.json({ error: t("invalidRequest") }, { status: 400 })
     }
 
     const adminSupabase = createAdminClient()
@@ -271,13 +279,13 @@ export async function DELETE(request: NextRequest) {
     if (existingError) throw existingError
     if (!existing || existing.user_id !== profile.id) {
       return NextResponse.json(
-        { error: "Leave request not found" },
+        { error: t("leaveRequestNotFound") },
         { status: 404 },
       )
     }
     if (existing.status !== "pending") {
       return NextResponse.json(
-        { error: "Hanya pengajuan yang masih menunggu yang bisa dibatalkan" },
+        { error: t("leaveOnlyPendingCancel") },
         { status: 409 },
       )
     }
@@ -293,8 +301,7 @@ export async function DELETE(request: NextRequest) {
     console.error("Leave request cancel error", error)
     return NextResponse.json(
       {
-        error:
-          error instanceof Error ? error.message : "Failed to cancel request",
+        error: error instanceof Error ? error.message : t("leaveCancelFailed"),
       },
       { status: 500 },
     )

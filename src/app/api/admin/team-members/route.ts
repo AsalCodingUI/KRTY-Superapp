@@ -2,19 +2,26 @@ import { createClient } from "@/shared/api/supabase/server"
 import { createAdminClient } from "@/shared/api/supabase/admin"
 import { resolveProfileByUserIdOrEmail } from "@/shared/lib/profile-resolution"
 import { Database } from "@/shared/types/database.types"
+import { getT } from "@/shared/i18n/server"
 import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
 
-const createTeamMemberSchema = z.object({
-  full_name: z.string().trim().min(2, "Full name is required."),
-  email: z.string().trim().email("Please enter a valid email."),
-  role: z.enum(["stakeholder", "employee"]),
-  job_title: z.enum(["Admin", "Project Manager", "Designer", "Web Developer"]),
-  hourly_rate: z
-    .union([z.number(), z.null()])
-    .optional(),
-  team_id: z.string().uuid().nullable().optional(),
-})
+type AuthT = Awaited<ReturnType<typeof getT<"auth">>>
+
+const createTeamMemberSchema = (t: AuthT) =>
+  z.object({
+    full_name: z.string().trim().min(2, t("apiFullNameRequired")),
+    email: z.string().trim().email(t("apiInvalidEmail")),
+    role: z.enum(["stakeholder", "employee"]),
+    job_title: z.enum([
+      "Admin",
+      "Project Manager",
+      "Designer",
+      "Web Developer",
+    ]),
+    hourly_rate: z.union([z.number(), z.null()]).optional(),
+    team_id: z.string().uuid().nullable().optional(),
+  })
 
 function getNextKrtId(krtIds: Array<string | null>) {
   const nextNumber =
@@ -32,6 +39,7 @@ function getNextKrtId(krtIds: Array<string | null>) {
 }
 
 export async function POST(request: NextRequest) {
+  const t = await getT("auth")
   try {
     const supabase = await createClient()
     const {
@@ -39,7 +47,7 @@ export async function POST(request: NextRequest) {
     } = await supabase.auth.getUser()
 
     if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ error: t("apiUnauthorized") }, { status: 401 })
     }
 
     const actorProfile = await resolveProfileByUserIdOrEmail<{
@@ -49,15 +57,15 @@ export async function POST(request: NextRequest) {
     }>(supabase, "id, email, is_super_admin, created_at", user.id, user.email)
 
     if (!actorProfile?.is_super_admin) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+      return NextResponse.json({ error: t("apiForbidden") }, { status: 403 })
     }
 
     const rawBody = await request.json().catch(() => null)
-    const parsed = createTeamMemberSchema.safeParse(rawBody)
+    const parsed = createTeamMemberSchema(t).safeParse(rawBody)
 
     if (!parsed.success) {
       return NextResponse.json(
-        { error: parsed.error.issues[0]?.message || "Invalid payload." },
+        { error: parsed.error.issues[0]?.message || t("apiInvalidPayload") },
         { status: 400 },
       )
     }
@@ -81,7 +89,7 @@ export async function POST(request: NextRequest) {
     if (existingProfile?.id) {
       return NextResponse.json(
         {
-          error: "A team member with this email already exists.",
+          error: t("apiMemberEmailExists"),
           code: "PROFILE_ALREADY_EXISTS",
           data: existingProfile,
         },
@@ -124,7 +132,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Create team member API error", error)
     return NextResponse.json(
-      { error: "Failed to create team member." },
+      { error: t("apiCreateMemberFailed") },
       { status: 500 },
     )
   }

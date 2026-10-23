@@ -7,19 +7,52 @@ import {
   RiSettings3Line,
   type RemixiconComponentType,
 } from "@/shared/ui/lucide-icons"
+import type { MessageKey } from "@/shared/i18n/messages"
 
 /** Pages inside a project (DesignerHQ-style), in sidebar order. */
 export const PROJECT_SECTIONS: {
   slug: string
   name: string
+  /** Translate with useT("projects") / getT("projects"). */
+  labelKey: MessageKey<"projects">
   icon: RemixiconComponentType
 }[] = [
-  { slug: "", name: "Dashboard", icon: RiLayoutGridLine },
-  { slug: "tasks", name: "Tugas", icon: RiFileList3Line },
-  { slug: "invoices", name: "Invoice", icon: RiMoneyDollarCircleLine },
-  { slug: "documents", name: "Dokumen", icon: RiFileTextLine },
-  { slug: "library", name: "Library", icon: RiFolderLine },
-  { slug: "settings", name: "Pengaturan", icon: RiSettings3Line },
+  {
+    slug: "",
+    name: "Dashboard",
+    labelKey: "sectionDashboard",
+    icon: RiLayoutGridLine,
+  },
+  {
+    slug: "tasks",
+    name: "Tugas",
+    labelKey: "sectionTasks",
+    icon: RiFileList3Line,
+  },
+  {
+    slug: "invoices",
+    name: "Invoice",
+    labelKey: "sectionInvoices",
+    icon: RiMoneyDollarCircleLine,
+  },
+  {
+    slug: "documents",
+    name: "Dokumen",
+    labelKey: "sectionDocuments",
+    icon: RiFileTextLine,
+  },
+  {
+    slug: "library",
+    name: "Library",
+    labelKey: "sectionLibrary",
+    icon: RiFolderLine,
+  },
+  {
+    slug: "settings",
+    name: "Pengaturan",
+    labelKey: "sectionSettings",
+    icon: RiSettings3Line,
+  },
 ]
 
 const UUID = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"

@@ -8,6 +8,8 @@ import {
 } from "@/shared/ui/lucide-icons"
 import { cx } from "@/shared/lib/utils"
 import { Badge } from "@/components/ui/badge"
+import type { MessageKey } from "@/shared/i18n/messages"
+import { useT } from "@/shared/i18n/client"
 
 export type AttendanceStatusType =
   | "present"
@@ -27,38 +29,38 @@ export interface AttendanceStatusProps {
 const statusConfig: Record<
   AttendanceStatusType,
   {
-    label: string
+    labelKey: MessageKey<"leave">
     variant: "success" | "destructive" | "warning" | "secondary"
     icon: React.ComponentType<{ className?: string }>
   }
 > = {
   present: {
-    label: "Present",
+    labelKey: "statusPresent",
     variant: "success",
     icon: RiCheckLine,
   },
   absent: {
-    label: "Absent",
+    labelKey: "statusAbsent",
     variant: "destructive",
     icon: RiCloseLine,
   },
   late: {
-    label: "Late",
+    labelKey: "statusLate",
     variant: "warning",
     icon: RiTimeLine,
   },
   on_break: {
-    label: "On Break",
+    labelKey: "onBreak",
     variant: "secondary",
     icon: RiCupLine,
   },
   clocked_out: {
-    label: "Clocked Out",
+    labelKey: "statusClockedOut",
     variant: "secondary",
     icon: RiCheckLine,
   },
   active: {
-    label: "Active",
+    labelKey: "active",
     variant: "success",
     icon: RiCheckLine,
   },
@@ -70,6 +72,7 @@ export function AttendanceStatus({
   showIcon = true,
   size = "md",
 }: AttendanceStatusProps) {
+  const t = useT("leave")
   const config = statusConfig[status]
   const Icon = config.icon
 
@@ -78,7 +81,9 @@ export function AttendanceStatus({
       {showIcon && (
         <Icon className={cx("shrink-0", size === "sm" ? "size-3" : "size-4")} />
       )}
-      <span className={cx(size === "sm" && "text-xs")}>{config.label}</span>
+      <span className={cx(size === "sm" && "text-xs")}>
+        {t(config.labelKey)}
+      </span>
     </Badge>
   )
 }

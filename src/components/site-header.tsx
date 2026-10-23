@@ -15,12 +15,15 @@ import Link from "next/link"
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { workspaces } from "@/shared/config/workspaces"
+import { PROJECT_SECTION_KEYS } from "@/components/nav-project"
+import { useT } from "@/shared/i18n/client"
 import { usePathname } from "next/navigation"
 import { Fragment } from "react"
 
 /** Current section, taken from the navigation config (fallback: path). */
 function useSection(): Crumb {
   const pathname = usePathname()
+  const t = useT("nav")
   const items = workspaces.flatMap((ws) => [
     ...ws.items({ role: "stakeholder", is_super_admin: true }),
     ...ws.items({ role: "employee" }),
@@ -30,8 +33,8 @@ function useSection(): Crumb {
       (item) => pathname === item.href || pathname.startsWith(`${item.href}/`),
     )
     .sort((a, b) => b.href.length - a.href.length)[0]
-  if (match) return { label: match.name, href: match.href }
-  if (pathname.startsWith("/settings")) return { label: "Settings" }
+  if (match) return { label: t(match.name), href: match.href }
+  if (pathname.startsWith("/settings")) return { label: t("settings") }
   const seg = pathname.split("/").filter(Boolean)[0] ?? "dashboard"
   return {
     label: seg.charAt(0).toUpperCase() + seg.slice(1).replace(/-/g, " "),
@@ -40,6 +43,7 @@ function useSection(): Crumb {
 }
 
 export function SiteHeader() {
+  const t = useT("nav")
   const section = useSection()
   const pathname = usePathname()
   const projectPath = matchProjectPath(pathname)
@@ -51,10 +55,12 @@ export function SiteHeader() {
   const trail: Crumb[] = [
     ...(projectPath
       ? [
-          { label: "Projects", href: "/projects" },
+          { label: t("projects"), href: "/projects" },
           { label: project?.name ?? "…", href: `/projects/${projectPath.id}` },
           {
-            label: projectPath.section.name,
+            label: PROJECT_SECTION_KEYS[projectPath.section.slug]
+              ? t(PROJECT_SECTION_KEYS[projectPath.section.slug])
+              : projectPath.section.name,
             href: `/projects/${projectPath.id}${projectPath.slug ? `/${projectPath.slug}` : ""}`,
           },
         ]

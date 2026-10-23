@@ -1,3 +1,4 @@
+import { getT } from "@/shared/i18n/server"
 import { createAdminClient } from "@/shared/api/supabase/admin"
 import { createClient } from "@/shared/api/supabase/server"
 import { resolveProfileByUserIdOrEmail } from "@/shared/lib/profile-resolution"
@@ -28,13 +29,14 @@ async function getCanonicalProfile() {
 }
 
 export async function GET() {
+  const t = await getT("api")
   try {
     const { user, profile } = await getCanonicalProfile()
     if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ error: t("unauthorized") }, { status: 401 })
     }
     if (!profile) {
-      return NextResponse.json({ error: "Profile not found" }, { status: 404 })
+      return NextResponse.json({ error: t("profileNotFound") }, { status: 404 })
     }
 
     const adminSupabase = createAdminClient()
@@ -54,26 +56,27 @@ export async function GET() {
   } catch (error) {
     console.error("Notifications GET error", error)
     return NextResponse.json(
-      { error: "Failed to fetch notifications" },
+      { error: t("notificationsFetchFailed") },
       { status: 500 },
     )
   }
 }
 
 export async function PATCH(request: NextRequest) {
+  const t = await getT("api")
   try {
     const { user, profile } = await getCanonicalProfile()
     if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ error: t("unauthorized") }, { status: 401 })
     }
     if (!profile) {
-      return NextResponse.json({ error: "Profile not found" }, { status: 404 })
+      return NextResponse.json({ error: t("profileNotFound") }, { status: 404 })
     }
 
     const rawBody = await request.json().catch(() => null)
     const parsed = markReadSchema.safeParse(rawBody)
     if (!parsed.success) {
-      return NextResponse.json({ error: "Invalid payload" }, { status: 400 })
+      return NextResponse.json({ error: t("invalidPayload") }, { status: 400 })
     }
 
     const adminSupabase = createAdminClient()
@@ -88,7 +91,10 @@ export async function PATCH(request: NextRequest) {
     } else if (parsed.data.id) {
       query = query.eq("id", parsed.data.id)
     } else {
-      return NextResponse.json({ error: "Notification id required" }, { status: 400 })
+      return NextResponse.json(
+        { error: t("notificationIdRequired") },
+        { status: 400 },
+      )
     }
 
     const { error } = await query
@@ -100,25 +106,29 @@ export async function PATCH(request: NextRequest) {
   } catch (error) {
     console.error("Notifications PATCH error", error)
     return NextResponse.json(
-      { error: "Failed to update notifications" },
+      { error: t("notificationsUpdateFailed") },
       { status: 500 },
     )
   }
 }
 
 export async function DELETE(request: NextRequest) {
+  const t = await getT("api")
   try {
     const { user, profile } = await getCanonicalProfile()
     if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ error: t("unauthorized") }, { status: 401 })
     }
     if (!profile) {
-      return NextResponse.json({ error: "Profile not found" }, { status: 404 })
+      return NextResponse.json({ error: t("profileNotFound") }, { status: 404 })
     }
 
     const id = new URL(request.url).searchParams.get("id")
     if (!id) {
-      return NextResponse.json({ error: "Notification id required" }, { status: 400 })
+      return NextResponse.json(
+        { error: t("notificationIdRequired") },
+        { status: 400 },
+      )
     }
 
     const adminSupabase = createAdminClient()
@@ -136,7 +146,7 @@ export async function DELETE(request: NextRequest) {
   } catch (error) {
     console.error("Notifications DELETE error", error)
     return NextResponse.json(
-      { error: "Failed to delete notification" },
+      { error: t("notificationDeleteFailed") },
       { status: 500 },
     )
   }

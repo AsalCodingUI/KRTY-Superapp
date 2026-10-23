@@ -1,5 +1,6 @@
 import { TeamsPage } from "@/page-slices/teams"
 import { createClient } from "@/shared/api/supabase/server"
+import { getT } from "@/shared/i18n/server"
 import { dedupeProfilesByEmail } from "@/shared/lib/profile-dedupe"
 import { resolveProfileByUserIdOrEmail } from "@/shared/lib/profile-resolution"
 
@@ -41,7 +42,8 @@ export default async function TeamsRoute({
 
   if (dataResult.error) {
     console.error("Error fetching profiles:", dataResult.error)
-    return <div>Error loading team members</div>
+    const t = await getT("teams")
+    return <div>{t("loadError")}</div>
   }
 
   const role = roleResult?.role ?? "employee"

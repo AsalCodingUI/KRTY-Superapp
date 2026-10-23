@@ -1,10 +1,10 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
+import { useDateLocale, useT } from "@/shared/i18n/client"
 import { logError } from "@/shared/lib/utils/logger"
 import { RiFileCopyLine } from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
-import { id } from "date-fns/locale"
 import { useState } from "react"
 import type { CalendarEvent } from "../types"
 
@@ -14,13 +14,15 @@ interface CopyEventButtonProps {
 }
 
 export function CopyEventButton({ event, className }: CopyEventButtonProps) {
+  const t = useT("calendar")
+  const dateLocale = useDateLocale()
   const [copied, setCopied] = useState(false)
 
   const handleCopy = async () => {
     const eventDetails = `
 📅 ${event.title}
-📍 ${event.location || "Tidak ada lokasi"}
-🕐 ${format(event.start, "PPP p", { locale: id })} - ${format(event.end, "p", { locale: id })}
+📍 ${event.location || t("copyNoLocation")}
+🕐 ${format(event.start, "PPP p", { locale: dateLocale })} - ${format(event.end, "p", { locale: dateLocale })}
 ${event.description ? `\n📝 ${event.description}` : ""}
 ${event.meetingUrl ? `\n🔗 ${event.meetingUrl}` : ""}
         `.trim()
@@ -37,7 +39,7 @@ ${event.meetingUrl ? `\n🔗 ${event.meetingUrl}` : ""}
   return (
     <Button variant="outline" onClick={handleCopy} className={className}>
       <RiFileCopyLine className="mr-2 h-4 w-4" />
-      {copied ? "Tersalin!" : "Salin Detail"}
+      {copied ? t("copyCopied") : t("copyDetails")}
     </Button>
   )
 }

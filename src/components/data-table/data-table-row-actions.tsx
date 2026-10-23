@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
+import { useT } from "@/shared/i18n/client"
 
 export interface DataTableRowAction {
   label: string
@@ -31,10 +32,11 @@ interface DataTableRowActionsProps {
 export function DataTableRowActions({
   actions,
   align = "end",
-  triggerLabel = "Row actions",
+  triggerLabel,
   triggerIcon,
   contentClassName,
 }: DataTableRowActionsProps) {
+  const t = useT("shell")
   if (!actions || actions.length === 0) return null
 
   return (
@@ -45,7 +47,7 @@ export function DataTableRowActions({
             variant="ghost"
             size="icon"
             type="button"
-            aria-label={triggerLabel}
+            aria-label={triggerLabel ?? t("dataTableRowActions")}
             // Don't toggle row selection when opening the menu
             onClick={(event) => event.stopPropagation()}
             className="text-muted-foreground data-popup-open:bg-muted"

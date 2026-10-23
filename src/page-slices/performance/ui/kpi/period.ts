@@ -12,9 +12,13 @@ export function normalizePeriod(value: string | null | undefined) {
   return currentQuarter()
 }
 
-export function periodLabel(value: string) {
+/** `t` is the "performance" translator (for "Tahun {year}"). */
+export function periodLabel(
+  value: string,
+  t: (key: "periodYear", vars: { year: string }) => string,
+) {
   const [year, part] = value.split("-")
-  return part === "All" ? `Tahun ${year}` : `${part} ${year}`
+  return part === "All" ? t("periodYear", { year }) : `${part} ${year}`
 }
 
 export function periodYears(center = new Date().getFullYear()) {

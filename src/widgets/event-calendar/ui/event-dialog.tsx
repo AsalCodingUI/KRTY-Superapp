@@ -1,5 +1,7 @@
 "use client"
 
+import { useDateLocale, useT } from "@/shared/i18n/client"
+import type { MessageKey } from "@/shared/i18n/messages"
 import { cx } from "@/shared/lib/utils"
 import { logError } from "@/shared/lib/utils/logger"
 import { DatePicker } from "@/components/date-picker"
@@ -33,13 +35,13 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format } from "date-fns"
 import dynamic from "next/dynamic"
-import { id } from "date-fns/locale"
 import { useCallback, useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import {
   getAllEventTypes,
   getEventTypeDefinition,
+  getEventTypeLabelKey,
 } from "./event-color-registry"
 import type { CalendarEvent } from "./types"
 
@@ -69,7 +71,7 @@ function nextQuarterHour() {
 
 const eventSchema = z
   .object({
-    title: z.string().min(1, "Judul harus diisi"),
+    title: z.string().min(1, "dialogErrorTitleRequired"),
     description: z.string().optional(),
     start: z.string(),
     end: z.string(),
@@ -99,10 +101,13 @@ const eventSchema = z
             new Date(start).setHours(0, 0, 0, 0)
         : end.getTime() > start.getTime()
     },
-    { message: "Selesai harus setelah mulai", path: ["end"] },
+    { message: "dialogErrorEndBeforeStart", path: ["end"] },
   )
 
 type EventFormData = z.infer<typeof eventSchema>
+
+/** Schema messages are "calendar" keys, translated where they're shown. */
+type CalendarKey = MessageKey<"calendar">
 
 interface EventDialogProps {
   open: boolean
@@ -151,6 +156,13 @@ export function EventDialog({
   // IMPORTANT: All hooks must be called BEFORE any conditional returns
   // This fixes the "Rendered more hooks than during the previous render" error
 
+  const t = useT("calendar")
+  const tc = useT("common")
+  const dateLocale = useDateLocale()
+  const typeLabel = (value: string, fallback: string) => {
+    const labelKey = getEventTypeLabelKey(value)
+    return labelKey ? t(labelKey) : fallback
+  }
   const [loading, setLoading] = useState(false)
   const [isEditing, setIsEditing] = useState(false) // Internal editing state
   const [isDeletePending, setIsDeletePending] = useState(false)
@@ -376,9 +388,9 @@ export function EventDialog({
           <DialogTitle>
             {event
               ? readOnly && !isEditing
-                ? "Detail Jadwal"
-                : "Edit Jadwal"
-              : "Tambah Jadwal Baru"}
+                ? t("dialogTitleDetail")
+                : t("dialogTitleEdit")
+              : t("dialogTitleNew")}
           </DialogTitle>
         </DialogHeader>
 
@@ -393,7 +405,9 @@ export function EventDialog({
                 variant={getBadgeVariant(event.color)}
                 className="shrink-0"
               >
-                {event.type || "Jadwal"}
+                {event.type
+                  ? typeLabel(event.type, event.type)
+                  : t("dialogTypeFallback")}
               </Badge>
             </div>
 
@@ -401,10 +415,10 @@ export function EventDialog({
             <div className="bg-foreground/[0.03] grid grid-cols-2 gap-4 rounded-lg p-4">
               <div>
                 <p className="text-muted-foreground mb-1 text-sm font-medium">
-                  Mulai
+                  {t("dialogStart")}
                 </p>
                 <p className="text-foreground text-sm">
-                  {format(event.start, "dd MMM yyyy", { locale: id })}
+                  {format(event.start, "dd MMM yyyy", { locale: dateLocale })}
                 </p>
                 {!event.allDay && (
                   <p className="text-muted-foreground mt-0.5 text-sm">
@@ -414,10 +428,10 @@ export function EventDialog({
               </div>
               <div>
                 <p className="text-muted-foreground mb-1 text-sm font-medium">
-                  Selesai
+                  {t("dialogEnd")}
                 </p>
                 <p className="text-foreground text-sm">
-                  {format(event.end, "dd MMM yyyy", { locale: id })}
+                  {format(event.end, "dd MMM yyyy", { locale: dateLocale })}
                 </p>
                 {!event.allDay && (
                   <p className="text-muted-foreground mt-0.5 text-sm">
@@ -431,7 +445,7 @@ export function EventDialog({
             {event.location && (
               <div className="space-y-2">
                 <p className="text-muted-foreground text-sm font-medium">
-                  Lokasi
+                  {t("dialogLocation")}
                 </p>
                 <p className="text-foreground text-sm break-words">
                   {event.location}
@@ -443,7 +457,7 @@ export function EventDialog({
             {event.description && (
               <div className="border-border space-y-2 border-t pt-4">
                 <p className="text-muted-foreground text-sm font-medium">
-                  Deskripsi
+                  {t("dialogDescription")}
                 </p>
                 <p className="text-foreground text-sm break-words whitespace-pre-wrap">
                   {event.description}
@@ -459,7 +473,7 @@ export function EventDialog({
                 onClick={() => onOpenChange(false)}
               >
                 <RiCloseLine className="mr-2 h-4 w-4" />
-                Tutup
+                {tc("close")}
               </Button>
             </div>
           </div>
@@ -473,36 +487,36 @@ export function EventDialog({
               <div className="-mx-1 space-y-5 overflow-y-auto px-1 py-1">
                 {/* Title */}
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="title">Judul *</Label>
+                  <Label htmlFor="title">{t("dialogTitleLabel")} *</Label>
                   <Input
                     id="title"
                     {...register("title")}
-                    placeholder="Masukkan judul jadwal"
+                    placeholder={t("dialogTitlePlaceholder")}
                     aria-invalid={!!errors.title}
                     disabled={readOnly}
                   />
                   {errors.title?.message && (
                     <FieldError className="text-xs">
-                      {errors.title.message}
+                      {t(errors.title.message as CalendarKey)}
                     </FieldError>
                   )}
                 </div>
 
                 {/* Type */}
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="type">Tipe Jadwal</Label>
+                  <Label htmlFor="type">{t("dialogTypeLabel")}</Label>
                   <Select
                     value={selectedType}
                     onValueChange={(v) => v !== null && handleTypeChange(v)}
                     disabled={readOnly}
                   >
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Pilih tipe" />
+                      <SelectValue placeholder={t("dialogTypePlaceholder")} />
                     </SelectTrigger>
                     <SelectContent>
                       {typeOptions.map((type) => (
                         <SelectItem key={type.value} value={type.value}>
-                          {type.label}
+                          {typeLabel(type.value, type.label)}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -520,7 +534,7 @@ export function EventDialog({
                     disabled={readOnly}
                   />
                   <Label htmlFor="allDay" className="cursor-pointer">
-                    Sepanjang Hari
+                    {t("dialogAllDay")}
                   </Label>
                 </div>
 
@@ -528,7 +542,7 @@ export function EventDialog({
                 <div className="space-y-4">
                   {/* Start Date & Time */}
                   <div className="flex flex-col gap-2">
-                    <Label htmlFor="start">Mulai *</Label>
+                    <Label htmlFor="start">{t("dialogStart")} *</Label>
                     <div
                       className={cx(
                         watch("allDay") ? "" : "grid grid-cols-2 gap-2",
@@ -554,7 +568,7 @@ export function EventDialog({
                             moveStart(newDate)
                           }
                         }}
-                        placeholder="Pilih tanggal"
+                        placeholder={t("dialogDatePlaceholder")}
                         disabled={readOnly}
                       />
                       {!watch("allDay") && (
@@ -586,14 +600,15 @@ export function EventDialog({
                     </div>
                     {errors.start && (
                       <p className="text-destructive text-xs">
-                        {errors.start.message}
+                        {errors.start.message &&
+                          t(errors.start.message as CalendarKey)}
                       </p>
                     )}
                   </div>
 
                   {/* End Date & Time */}
                   <div className="flex flex-col gap-2">
-                    <Label htmlFor="end">Selesai *</Label>
+                    <Label htmlFor="end">{t("dialogEnd")} *</Label>
                     <div
                       className={cx(
                         watch("allDay") ? "" : "grid grid-cols-2 gap-2",
@@ -622,7 +637,7 @@ export function EventDialog({
                             )
                           }
                         }}
-                        placeholder="Pilih tanggal"
+                        placeholder={t("dialogDatePlaceholder")}
                         disabled={readOnly}
                       />
                       {!watch("allDay") && (
@@ -657,7 +672,8 @@ export function EventDialog({
                     </div>
                     {errors.end && (
                       <p className="text-destructive text-xs">
-                        {errors.end.message}
+                        {errors.end.message &&
+                          t(errors.end.message as CalendarKey)}
                       </p>
                     )}
                   </div>
@@ -665,22 +681,22 @@ export function EventDialog({
 
                 {/* Location */}
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="location">Lokasi</Label>
+                  <Label htmlFor="location">{t("dialogLocation")}</Label>
                   <Input
                     id="location"
                     {...register("location")}
-                    placeholder="Masukkan lokasi (opsional)"
+                    placeholder={t("dialogLocationPlaceholder")}
                     disabled={readOnly}
                   />
                 </div>
 
                 {/* Description */}
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="description">Deskripsi</Label>
+                  <Label htmlFor="description">{t("dialogDescription")}</Label>
                   <Textarea
                     id="description"
                     {...register("description")}
-                    placeholder="Tambahkan deskripsi (opsional)"
+                    placeholder={t("dialogDescriptionPlaceholder")}
                     rows={3}
                     disabled={readOnly}
                   />
@@ -696,7 +712,7 @@ export function EventDialog({
                     {isDeletePending ? (
                       <div className="animate-fadeIn flex items-center gap-2">
                         <span className="text-destructive text-sm font-medium">
-                          Yakin hapus?
+                          {t("dialogDeleteConfirm")}
                         </span>
                         <Button
                           type="button"
@@ -705,7 +721,7 @@ export function EventDialog({
                           disabled={loading}
                           className=""
                         >
-                          Ya, Hapus
+                          {t("dialogDeleteYes")}
                         </Button>
                         <Button
                           type="button"
@@ -713,7 +729,7 @@ export function EventDialog({
                           onClick={handleCancelDelete}
                           disabled={loading}
                         >
-                          Batal
+                          {tc("cancel")}
                         </Button>
                       </div>
                     ) : (
@@ -725,7 +741,7 @@ export function EventDialog({
                         className="text-destructive hover:bg-destructive/10"
                       >
                         <RiDeleteBinLine className="mr-2 h-4 w-4" />
-                        Hapus
+                        {tc("delete")}
                       </Button>
                     )}
                   </>
@@ -741,7 +757,7 @@ export function EventDialog({
                       disabled={loading}
                     >
                       <RiCloseLine className="mr-2 h-4 w-4" />
-                      {readOnly ? "Tutup" : "Batal"}
+                      {readOnly ? tc("close") : tc("cancel")}
                     </Button>
                     {!readOnly && (
                       <Button
@@ -750,7 +766,7 @@ export function EventDialog({
                         disabled={loading}
                       >
                         <RiSaveLine className="mr-2 h-4 w-4" />
-                        {loading ? "Menyimpan..." : "Simpan"}
+                        {loading ? tc("saving") : tc("save")}
                       </Button>
                     )}
                   </>

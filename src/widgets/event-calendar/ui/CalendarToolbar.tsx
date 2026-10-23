@@ -20,8 +20,8 @@ import {
   RiArrowRightSLine,
   RiEqualizer2Line,
 } from "@/shared/ui/lucide-icons"
-import { format, isSameMonth, isSameYear } from "date-fns"
-import { id } from "date-fns/locale"
+import { useDateLocale, useT } from "@/shared/i18n/client"
+import { format, isSameMonth, isSameYear, type Locale } from "date-fns"
 import { useCalendarContext } from "./calendar-context"
 import { useGoogleCalendar } from "./hooks/use-google-calendar"
 import { useEventVisibility } from "./hooks/use-event-visibility"
@@ -29,10 +29,13 @@ import type { EventColor, ViewMode } from "./types"
 import { getViewRange } from "./utils"
 
 const VIEW_OPTIONS = [
-  { value: "week", label: "Minggu" },
-  { value: "month", label: "Bulan" },
-  { value: "timeline", label: "Timeline" },
-] satisfies { value: ViewMode; label: string }[]
+  { value: "week", labelKey: "viewWeek" },
+  { value: "month", labelKey: "viewMonth" },
+  { value: "timeline", labelKey: "viewTimeline" },
+] satisfies {
+  value: ViewMode
+  labelKey: "viewWeek" | "viewMonth" | "viewTimeline"
+}[]
 
 const DOT: Record<EventColor, string> = {
   blue: "bg-primary",
@@ -46,22 +49,23 @@ const DOT: Record<EventColor, string> = {
 }
 
 /** "19 – 25 Okt 2026", "Oktober 2026" or "Sep – Nov 2026". */
-function rangeLabel(date: Date, view: ViewMode) {
-  if (view === "month") return format(date, "MMMM yyyy", { locale: id })
+function rangeLabel(date: Date, view: ViewMode, locale: Locale) {
+  if (view === "month") return format(date, "MMMM yyyy", { locale })
   const { start, end } = getViewRange(date, view)
   if (view === "timeline") {
-    return `${format(start, "MMM", { locale: id })} – ${format(end, "MMM yyyy", { locale: id })}`
+    return `${format(start, "MMM", { locale })} – ${format(end, "MMM yyyy", { locale })}`
   }
   if (isSameMonth(start, end)) {
-    return `${format(start, "d")} – ${format(end, "d MMM yyyy", { locale: id })}`
+    return `${format(start, "d")} – ${format(end, "d MMM yyyy", { locale })}`
   }
   return isSameYear(start, end)
-    ? `${format(start, "d MMM", { locale: id })} – ${format(end, "d MMM yyyy", { locale: id })}`
-    : `${format(start, "d MMM yyyy", { locale: id })} – ${format(end, "d MMM yyyy", { locale: id })}`
+    ? `${format(start, "d MMM", { locale })} – ${format(end, "d MMM yyyy", { locale })}`
+    : `${format(start, "d MMM yyyy", { locale })} – ${format(end, "d MMM yyyy", { locale })}`
 }
 
 /** Category toggles (was the left legend). */
 function CalendarFilter() {
+  const t = useT("calendar")
   const { categories, toggleColor } = useEventVisibility()
   const hidden = categories.filter((c) => !c.isActive).length
   if (categories.length === 0) return null
@@ -69,10 +73,10 @@ function CalendarFilter() {
   return (
     <Popover>
       <PopoverTrigger
-        render={<Button variant="ghost" aria-label="Filter kalender" />}
+        render={<Button variant="ghost" aria-label={t("filterAriaLabel")} />}
       >
         <RiEqualizer2Line data-icon="inline-start" />
-        Kalender
+        {t("filterButton")}
         {hidden > 0 && (
           <span className="text-muted-foreground tabular-nums">
             {categories.length - hidden}/{categories.length}
@@ -122,6 +126,12 @@ export function CalendarToolbar({
     goToNext,
     goToPrevious,
   } = useCalendarContext()
+  const t = useT("calendar")
+  const dateLocale = useDateLocale()
+  const viewItems = VIEW_OPTIONS.map((o) => ({
+    value: o.value,
+    label: t(o.labelKey),
+  }))
   const { isConnected, isLoading } = useGoogleCalendar()
   const handleViewChange = onViewChange ?? setViewMode
   // Day/agenda are still reachable by URL; the switch shows the three main ones.
@@ -133,20 +143,20 @@ export function CalendarToolbar({
     <div className="flex items-center justify-between gap-4">
       <SegmentedControl<ViewMode>
         fitContent
-        items={VIEW_OPTIONS}
+        items={viewItems}
         value={value}
         onChange={handleViewChange}
       />
 
       <div className="flex items-center gap-1">
         <span className="mr-2 text-sm font-medium tabular-nums">
-          {rangeLabel(currentDate, viewMode)}
+          {rangeLabel(currentDate, viewMode, dateLocale)}
         </span>
         <Button
           variant="ghost"
           size="icon"
           onClick={goToPrevious}
-          aria-label="Sebelumnya"
+          aria-label={t("toolbarPrevious")}
         >
           <RiArrowLeftSLine />
         </Button>
@@ -154,12 +164,12 @@ export function CalendarToolbar({
           variant="ghost"
           size="icon"
           onClick={goToNext}
-          aria-label="Berikutnya"
+          aria-label={t("toolbarNext")}
         >
           <RiArrowRightSLine />
         </Button>
         <Button variant="outline" onClick={goToToday} className="ml-1">
-          Hari Ini
+          {t("toolbarToday")}
         </Button>
 
         <div className="bg-border mx-2 h-4 w-px" />
@@ -183,15 +193,18 @@ export function CalendarToolbar({
             />
           </TooltipTrigger>
           <TooltipContent>
-            Google Kalender{" "}
-            {isLoading ? "dicek…" : isConnected ? "terhubung" : "terputus"}
+            {isLoading
+              ? t("googleStatusChecking")
+              : isConnected
+                ? t("googleStatusConnected")
+                : t("googleStatusDisconnected")}
           </TooltipContent>
         </Tooltip>
 
         {showAddEvent && (
           <Button onClick={onAddEvent} className="ml-1">
             <RiAddLine data-icon="inline-start" />
-            Jadwal Baru
+            {t("toolbarNewEvent")}
           </Button>
         )}
       </div>

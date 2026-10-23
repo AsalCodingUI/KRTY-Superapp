@@ -1,6 +1,7 @@
 import { LeavePage } from "@/page-slices/leave"
 import { createAdminClient } from "@/shared/api/supabase/admin"
 import { createClient } from "@/shared/api/supabase/server"
+import { getT } from "@/shared/i18n/server"
 import { Database } from "@/shared/types/database.types"
 
 export const dynamic = "force-dynamic"
@@ -31,11 +32,12 @@ export default async function LeaveRoute({
 }) {
   const resolvedSearchParams = await searchParams
   const supabase = await createClient()
+  const t = await getT("leave")
 
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  if (!user) return <div>Please login.</div>
+  if (!user) return <div>{t("pleaseLogin")}</div>
 
   const effectiveUserId = await resolveEffectiveUserId(
     supabase,
@@ -70,7 +72,7 @@ export default async function LeaveRoute({
   )
 
   if (!profile) {
-    return <div>Profile not found</div>
+    return <div>{t("profileNotFound")}</div>
   }
 
   // --- JALUR 1: STAKEHOLDER (Admin View) ---
@@ -172,7 +174,9 @@ export default async function LeaveRoute({
         return {
           ...p,
           leave_quota: summary.quota,
-          leave_note: summary.note,
+          leave_note: summary.noteKey
+            ? t(summary.noteKey, summary.noteVars)
+            : null,
           leave_used: summary.used,
           leave_balance: summary.remaining,
         }

@@ -1,3 +1,4 @@
+import { getT } from "@/shared/i18n/server"
 import { createClient } from "@/shared/api/supabase/server"
 import { logError } from "@/shared/lib/utils/logger"
 import { canManageByRole } from "@/shared/lib/roles"
@@ -10,6 +11,7 @@ import { NextRequest, NextResponse } from "next/server"
  * This is a one-time endpoint to add the event_type column
  */
 export async function POST(request: NextRequest) {
+  const t = await getT("api")
   const guard = guardApiRoute(request)
   if (guard) return guard
 
@@ -21,7 +23,7 @@ export async function POST(request: NextRequest) {
       data: { user },
     } = await supabase.auth.getUser()
     if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ error: t("unauthorized") }, { status: 401 })
     }
 
     // Get user profile to check role
@@ -32,10 +34,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (!canManageByRole(profile?.role)) {
-      return NextResponse.json(
-        { error: "Forbidden - Admin only" },
-        { status: 403 },
-      )
+      return NextResponse.json({ error: t("adminOnly") }, { status: 403 })
     }
 
     // Execute the migration SQL
@@ -44,7 +43,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: false,
-      message: "Please run the following SQL in Supabase SQL Editor",
+      message: t("migrateRunSql"),
       sql: `
 -- Add event_type column to calendar_events table
 ALTER TABLE calendar_events 
@@ -58,7 +57,7 @@ CREATE INDEX IF NOT EXISTS idx_calendar_events_type ON calendar_events(event_typ
     logError("Migration error:", error)
     return NextResponse.json(
       {
-        error: "Migration failed",
+        error: t("migrateFailed"),
         sql: `
 -- Add event_type column to calendar_events table
 ALTER TABLE calendar_events 

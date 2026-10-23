@@ -13,6 +13,7 @@ import { Spinner } from "@/components/ui/spinner"
 import type { ViewMode } from "@/components/view-toggle"
 import { cn } from "@/lib/utils"
 import { formatPercent, ratingFor } from "@/entities/performance/lib/kpi"
+import { useT } from "@/shared/i18n/client"
 import { RiArrowRightSLine, RiGroupLine } from "@/shared/ui/lucide-icons"
 import { useQuery } from "@tanstack/react-query"
 import type { ColumnDef } from "@tanstack/react-table"
@@ -24,8 +25,13 @@ import { RatingChip } from "./RatingChip"
 const ROW_GRID =
   "grid grid-cols-[minmax(0,1fr)_3.5rem_1rem] items-center gap-x-4 md:grid-cols-[minmax(0,1fr)_4.5rem_4.5rem_4.5rem_3.5rem_9rem_1rem] lg:grid-cols-[minmax(0,1fr)_10rem_4.5rem_4.5rem_4.5rem_3.5rem_9rem_1rem]"
 
-const projectsLabel = (row: TeamKpiRow) =>
-  row.projectCount ? `${row.projectCount} project` : "Belum ada project"
+const projectsLabel = (
+  row: TeamKpiRow,
+  t: ReturnType<typeof useT<"performance">>,
+) =>
+  row.projectCount
+    ? t("projectCount", { n: row.projectCount })
+    : t("noProjects")
 
 function Part({
   value,
@@ -55,6 +61,7 @@ export function TeamKpiList({
   scope: string
   view: ViewMode
 }) {
+  const t = useT("performance")
   const { data, isLoading } = useQuery({
     queryKey: ["kpi-team", scope],
     queryFn: () => getTeamKpi(scope),
@@ -71,7 +78,7 @@ export function TeamKpiList({
   if (!data?.success) {
     return (
       <p className="text-muted-foreground py-16 text-center text-sm">
-        {data?.error ?? "Gagal memuat KPI tim."}
+        {data?.error ?? t("teamKpiLoadFailed")}
       </p>
     )
   }
@@ -79,8 +86,8 @@ export function TeamKpiList({
   if (rows.length === 0) {
     return (
       <EmptyState
-        title="Belum ada anggota"
-        description="Anggota tim akan muncul di sini."
+        title={t("noMembers")}
+        description={t("noMembersDescription")}
         icon={<RiGroupLine className="size-5" />}
         placement="inner"
       />
@@ -94,9 +101,9 @@ export function TeamKpiList({
   const stats = (
     <StatBand
       stats={[
-        { label: "Anggota", value: rows.length },
+        { label: t("member"), value: rows.length },
         {
-          label: "Rata-rata nilai akhir",
+          label: t("averageFinalScore"),
           value: scored.length ? (
             Math.round(
               scored.reduce((sum, r) => sum + (r.final.score ?? 0), 0) /
@@ -107,14 +114,14 @@ export function TeamKpiList({
           ),
         },
         {
-          label: "Di bawah harapan",
+          label: t("ratingBelow"),
           value: scored.filter((r) =>
             ["warning", "destructive"].includes(
               ratingFor(r.final.score)?.tone ?? "",
             ),
           ).length,
         },
-        { label: "Belum ada data", value: rows.length - scored.length },
+        { label: t("noData"), value: rows.length - scored.length },
       ]}
     />
   )
@@ -124,13 +131,13 @@ export function TeamKpiList({
       {
         accessorKey: "full_name",
         header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Anggota" />
+          <DataTableColumnHeader column={column} title={t("member")} />
         ),
         cell: ({ row }) => (
           <PersonCell
             name={row.original.full_name}
             avatarUrl={row.original.avatar_url}
-            secondary={projectsLabel(row.original)}
+            secondary={projectsLabel(row.original, t)}
           >
             <Link
               href={href(row.original)}
@@ -144,16 +151,16 @@ export function TeamKpiList({
       },
       ...(
         [
-          ["sla", "SLA"],
-          ["review", "360"],
-          ["quality", "Kualitas"],
+          ["sla", "sla"],
+          ["review", "review360Short"],
+          ["quality", "quality"],
         ] as const
       ).map(
         ([key, title]): ColumnDef<TeamKpiRow> => ({
           id: key,
           accessorFn: (r) => r.parts[key] ?? -1,
           header: ({ column }) => (
-            <DataTableColumnHeader column={column} title={title} />
+            <DataTableColumnHeader column={column} title={t(title)} />
           ),
           cell: ({ row }) => (
             <span className="tabular-nums">
@@ -166,7 +173,7 @@ export function TeamKpiList({
         id: "final",
         accessorFn: (r) => r.final.score ?? -1,
         header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Nilai akhir" />
+          <DataTableColumnHeader column={column} title={t("finalScore")} />
         ),
         cell: ({ row }) => (
           <div className="flex items-center gap-2">
@@ -207,13 +214,15 @@ export function TeamKpiList({
       {stats}
       <GroupedList>
         <ListColumns grid={ROW_GRID}>
-          <span>Anggota</span>
-          <span className="hidden lg:block">Jabatan</span>
-          <span className="hidden text-right md:block">SLA</span>
-          <span className="hidden text-right md:block">360</span>
-          <span className="hidden text-right md:block">Kualitas</span>
-          <span className="text-right">Nilai</span>
-          <span className="hidden md:block">Rating</span>
+          <span>{t("member")}</span>
+          <span className="hidden lg:block">{t("jobTitle")}</span>
+          <span className="hidden text-right md:block">{t("sla")}</span>
+          <span className="hidden text-right md:block">
+            {t("review360Short")}
+          </span>
+          <span className="hidden text-right md:block">{t("quality")}</span>
+          <span className="text-right">{t("score")}</span>
+          <span className="hidden md:block">{t("rating")}</span>
           <span />
         </ListColumns>
         {sorted.map((row) => (
@@ -221,13 +230,13 @@ export function TeamKpiList({
             <PersonCell
               name={row.full_name}
               avatarUrl={row.avatar_url}
-              secondary={projectsLabel(row)}
+              secondary={projectsLabel(row, t)}
             >
               <Link
                 href={href(row)}
                 prefetch={false}
                 className="text-foreground truncate outline-none after:absolute after:inset-0 focus-visible:underline"
-                aria-label={`KPI ${row.full_name}`}
+                aria-label={t("kpiOf", { name: row.full_name ?? "" })}
               >
                 {row.full_name}
               </Link>

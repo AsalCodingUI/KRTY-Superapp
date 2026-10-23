@@ -1,6 +1,17 @@
 "use client"
 
-import { useEffect } from "react"
+import { interpolate, LOCALE_COOKIE, toLocale } from "@/shared/i18n/config"
+import { shell } from "@/shared/i18n/messages/shell"
+import { useEffect, useState } from "react"
+
+/** No I18nProvider here (the root layout failed): read the cookie directly. */
+function readLocale() {
+  if (typeof document === "undefined") return toLocale(null)
+  const match = document.cookie.match(
+    new RegExp(`(?:^|; )${LOCALE_COOKIE}=([^;]*)`),
+  )
+  return toLocale(match?.[1])
+}
 
 /**
  * Root-level error boundary.
@@ -14,6 +25,8 @@ export default function GlobalError({
   error: Error & { digest?: string }
   reset: () => void
 }) {
+  const [locale] = useState(readLocale)
+  const t = shell[locale]
   useEffect(() => {
     console.error("Root Layout Error:", error)
   }, [error])
@@ -21,7 +34,7 @@ export default function GlobalError({
   // The root layout itself failed, so no CSS: plain inline styles that
   // match the app's dark theme.
   return (
-    <html lang="id">
+    <html lang={locale}>
       <body
         style={{
           margin: 0,
@@ -48,10 +61,17 @@ export default function GlobalError({
             :(
           </div>
           <h1 style={{ fontSize: 20, fontWeight: 600, margin: "8px 0 8px" }}>
-            Aplikasi gagal dimuat
+            {t.globalErrorTitle}
           </h1>
-          <p style={{ fontSize: 14, color: "#a1a1a1", margin: 0, lineHeight: 1.6 }}>
-            Coba muat ulang. Kalau masih terjadi, kirim kode di bawah ke admin.
+          <p
+            style={{
+              fontSize: 14,
+              color: "#a1a1a1",
+              margin: 0,
+              lineHeight: 1.6,
+            }}
+          >
+            {t.globalErrorDescription}
           </p>
           {error.digest && (
             <code
@@ -65,10 +85,17 @@ export default function GlobalError({
                 fontSize: 12,
               }}
             >
-              Kode: {error.digest}
+              {interpolate(t.errorCode, { code: error.digest })}
             </code>
           )}
-          <div style={{ display: "flex", gap: 8, justifyContent: "center", marginTop: 32 }}>
+          <div
+            style={{
+              display: "flex",
+              gap: 8,
+              justifyContent: "center",
+              marginTop: 32,
+            }}
+          >
             <a
               href="/dashboard"
               style={{
@@ -80,7 +107,7 @@ export default function GlobalError({
                 textDecoration: "none",
               }}
             >
-              Ke Dashboard
+              {t.goToDashboard}
             </a>
             <button
               onClick={reset}
@@ -94,7 +121,7 @@ export default function GlobalError({
                 cursor: "pointer",
               }}
             >
-              Coba lagi
+              {t.tryAgain}
             </button>
           </div>
         </div>

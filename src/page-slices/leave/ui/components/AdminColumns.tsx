@@ -1,49 +1,53 @@
 "use client"
 
+import { ProofLink } from "@/entities/leave/ui/ProofLink"
 import { EmptyValue } from "@/components/empty-value"
 import { DataTableColumnHeader } from "@/components/data-table"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { LEAVE_TYPE_LABELS } from "@/shared/lib/leave"
+import type { MessageKey } from "@/shared/i18n/messages"
+import { leaveTypeLabel } from "@/shared/lib/leave"
+import type { Locale } from "date-fns"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
   formatLeaveRange,
   type LeaveRequestWithProfile,
 } from "./AdminLeaveList"
-import {
-  RiCheckLine,
-  RiCloseLine,
-  RiFilePaperLine,
-} from "@/shared/ui/lucide-icons"
+import { RiCheckLine, RiCloseLine } from "@/shared/ui/lucide-icons"
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table"
 
 export type { LeaveRequestWithProfile }
 
 const columnHelper = createColumnHelper<LeaveRequestWithProfile>()
 
-const getStatusBadge = (status: string) => {
+type LeaveT = (key: MessageKey<"leave">) => string
+
+const getStatusBadge = (status: string, t: LeaveT) => {
   switch (status) {
     case "approved":
-      return <Badge variant="success">Disetujui</Badge>
+      return <Badge variant="success">{t("statusApproved")}</Badge>
     case "rejected":
-      return <Badge variant="destructive">Ditolak</Badge>
+      return <Badge variant="destructive">{t("statusRejected")}</Badge>
     default:
-      return <Badge variant="warning">Menunggu</Badge>
+      return <Badge variant="warning">{t("statusPending")}</Badge>
   }
 }
 
 type AdminColumnsOptions = {
   canSelect?: boolean
   canManage?: boolean
+  /** Translator for the "leave" namespace. */
+  t: LeaveT
+  dateLocale?: Locale
 }
 
 export const adminColumns = (
   onApprove: (id: number) => void,
   onReject: (id: number) => void,
-  options: AdminColumnsOptions = {},
+  options: AdminColumnsOptions,
 ) => {
-  const { canSelect = true, canManage = true } = options
+  const { canSelect = true, canManage = true, t, dateLocale } = options
 
   return [
     ...(canSelect
@@ -59,7 +63,7 @@ export const adminColumns = (
                 }
                 onCheckedChange={() => table.toggleAllPageRowsSelected()}
                 className=""
-                aria-label="Select all"
+                aria-label={t("selectAll")}
               />
             ),
             cell: ({ row }) => (
@@ -67,12 +71,12 @@ export const adminColumns = (
                 checked={row.getIsSelected()}
                 onCheckedChange={() => row.toggleSelected()}
                 className=""
-                aria-label="Select row"
+                aria-label={t("selectRow")}
               />
             ),
             enableSorting: false,
             enableHiding: false,
-            meta: { displayName: "Select" },
+            meta: { displayName: t("selectRow") },
           }),
         ]
       : []),
@@ -83,12 +87,12 @@ export const adminColumns = (
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title="Karyawan"
+          title={t("colEmployee")}
           className="whitespace-nowrap"
         />
       ),
       cell: ({ row }) => {
-        const name = row.original.profiles?.full_name || "Unknown"
+        const name = row.original.profiles?.full_name || t("unknownName")
         const initials = name.slice(0, 2).toUpperCase()
         return (
           <div className="flex items-center gap-3">
@@ -110,7 +114,7 @@ export const adminColumns = (
           </div>
         )
       },
-      meta: { displayName: "Employee" },
+      meta: { displayName: t("colEmployee") },
     }),
 
     // 3. Date Range
@@ -118,16 +122,20 @@ export const adminColumns = (
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title="Tanggal"
+          title={t("colDate")}
           className="whitespace-nowrap"
         />
       ),
       cell: ({ row }) => (
         <span className="text-foreground whitespace-nowrap tabular-nums">
-          {formatLeaveRange(row.original.start_date, row.original.end_date)}
+          {formatLeaveRange(
+            row.original.start_date,
+            row.original.end_date,
+            dateLocale,
+          )}
         </span>
       ),
-      meta: { displayName: "Date Range" },
+      meta: { displayName: t("colDate") },
     }),
 
     // 5. Type
@@ -135,13 +143,12 @@ export const adminColumns = (
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title="Jenis"
+          title={t("colType")}
           className="whitespace-nowrap"
         />
       ),
-      cell: ({ row }) =>
-        LEAVE_TYPE_LABELS[row.original.leave_type] ?? row.original.leave_type,
-      meta: { displayName: "Jenis", className: "whitespace-nowrap" },
+      cell: ({ row }) => leaveTypeLabel(row.original.leave_type, t),
+      meta: { displayName: t("colType"), className: "whitespace-nowrap" },
     }),
 
     // 6. Reason
@@ -149,7 +156,7 @@ export const adminColumns = (
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title="Alasan"
+          title={t("colReason")}
           className="whitespace-nowrap"
         />
       ),
@@ -164,23 +171,11 @@ export const adminColumns = (
             >
               {reason || <EmptyValue />}
             </span>
-            {proof && (
-              <a
-                href={proof}
-                target="_blank"
-                rel="noopener noreferrer"
-                title="Lihat bukti"
-                aria-label="Lihat bukti"
-                onClick={(e) => e.stopPropagation()}
-                className="text-muted-foreground hover:text-foreground shrink-0 transition-colors"
-              >
-                <RiFilePaperLine className="size-3.5" />
-              </a>
-            )}
+            {proof && <ProofLink value={proof} iconOnly />}
           </div>
         )
       },
-      meta: { displayName: "Reason" },
+      meta: { displayName: t("colReason") },
     }),
 
     // 8. Status
@@ -188,20 +183,20 @@ export const adminColumns = (
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title="Status"
+          title={t("colStatus")}
           className="whitespace-nowrap"
         />
       ),
-      cell: ({ row }) => getStatusBadge(row.getValue("status")),
-      meta: { displayName: "Status" },
+      cell: ({ row }) => getStatusBadge(row.getValue("status"), t),
+      meta: { displayName: t("colStatus") },
     }),
 
     ...(canManage
       ? [
           columnHelper.display({
             id: "actions",
-            header: () => <span className="sr-only">Aksi</span>,
-            meta: { className: "text-right", displayName: "Action" },
+            header: () => <span className="sr-only">{t("colActions")}</span>,
+            meta: { className: "text-right", displayName: t("colActions") },
             cell: ({ row }) => {
               const item = row.original
               if (item.status !== "pending") return null
@@ -212,7 +207,7 @@ export const adminColumns = (
                     variant="ghost"
                     size="icon"
                     className="text-destructive"
-                    title="Tolak"
+                    title={t("reject")}
                     // Don't also toggle the row's selection.
                     onClick={(e) => {
                       e.stopPropagation()
@@ -225,7 +220,7 @@ export const adminColumns = (
                     variant="ghost"
                     size="icon"
                     className="text-success"
-                    title="Setujui"
+                    title={t("approve")}
                     onClick={(e) => {
                       e.stopPropagation()
                       onApprove(item.id)

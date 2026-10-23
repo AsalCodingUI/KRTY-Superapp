@@ -26,6 +26,7 @@ import {
   RiCalculatorLine,
   RiDeleteBinLine,
 } from "@/shared/ui/lucide-icons"
+import { useDateLocale, useT } from "@/shared/i18n/client"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { format } from "date-fns"
 import { useEffect, useMemo, useState } from "react"
@@ -80,6 +81,9 @@ export default function CalculatorClientPage({
   initialCalculation?: ProjectCalculation | null
   showHeader?: boolean
 }) {
+  const t = useT("calculator")
+  const tc = useT("common")
+  const dateLocale = useDateLocale()
   const WORK_DAYS_PER_MONTH = 22
   const BILLABLE_UTILIZATION = 0.7
   const supabase = useMemo(() => createClient(), [])
@@ -132,7 +136,7 @@ export default function CalculatorClientPage({
     string | null
   >(initialCalculation?.id || null)
   const [calculationTitle, setCalculationTitle] = useState<string>(
-    initialCalculation?.title || "Untitled Calculation",
+    initialCalculation?.title || t("untitledCalculation"),
   )
   const [isSaving, setIsSaving] = useState(false)
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
@@ -238,7 +242,7 @@ export default function CalculatorClientPage({
   const addPhase = () => {
     setPhases([
       ...phases,
-      { id: createId(), name: "New Phase", days: 1, buffer: 0 },
+      { id: createId(), name: t("newPhase"), days: 1, buffer: 0 },
     ])
   }
 
@@ -257,7 +261,7 @@ export default function CalculatorClientPage({
   const addSquadMember = (profileId: string) => {
     if (!profileId) return
     if (squad.some((s) => s.profileId === profileId)) {
-      toast.warning("Member already added!")
+      toast.warning(t("toastMemberAlreadyAdded"))
       return
     }
     setSquad([...squad, { id: createId(), profileId, allocation: 100 }])
@@ -417,7 +421,7 @@ export default function CalculatorClientPage({
       .neq("id", "")
     if (deleteError) {
       setCostItems(previousItems)
-      toast.error("Failed to clear existing costs. No data was changed.")
+      toast.error(t("toastClearCostsFailed"))
       return
     }
 
@@ -427,14 +431,12 @@ export default function CalculatorClientPage({
         .insert(items)
       if (insertError) {
         setCostItems(previousItems)
-        toast.error(
-          `Import failed: ${insertError.message}. Previous costs have been restored locally — please refresh to sync with the server.`,
-        )
+        toast.error(t("toastImportFailed", { message: insertError.message }))
         return
       }
     }
 
-    toast.success(`Imported ${items.length} cost items`)
+    toast.success(t("toastImported", { count: items.length }))
     setPendingImportFile(null)
   }
 
@@ -465,12 +467,12 @@ export default function CalculatorClientPage({
         queryClient.invalidateQueries({
           queryKey: ["calculations", selectedProjectId],
         })
-        toast.success("Calculation saved")
+        toast.success(t("toastSaved"))
       } else {
-        toast.error("Failed to save")
+        toast.error(t("toastSaveFailed"))
       }
     } catch {
-      toast.error("Failed to save")
+      toast.error(t("toastSaveFailed"))
     } finally {
       setIsSaving(false)
     }
@@ -485,7 +487,7 @@ export default function CalculatorClientPage({
     setSquad([])
     setFreelanceSquad([])
     setCurrentCalculationId(null)
-    setCalculationTitle("Untitled Calculation")
+    setCalculationTitle(t("untitledCalculation"))
   }
 
   const handleLoad = (calc: (typeof savedCalculations)[number]) => {
@@ -498,7 +500,7 @@ export default function CalculatorClientPage({
     setFreelanceSquad(calc.freelance_squad as unknown as FreelanceMember[])
     setCurrentCalculationId(calc.id)
     setCalculationTitle(calc.title)
-    toast.success("Calculation loaded")
+    toast.success(t("toastLoaded"))
   }
 
   const handleDeleteCalculation = async () => {
@@ -511,9 +513,9 @@ export default function CalculatorClientPage({
       queryClient.invalidateQueries({
         queryKey: ["calculations", selectedProjectId],
       })
-      toast.success("Calculation deleted")
+      toast.success(t("toastDeleted"))
     } else {
-      toast.error("Failed to delete calculation")
+      toast.error(t("toastDeleteFailed"))
     }
     setPendingDeleteId(null)
   }
@@ -523,17 +525,17 @@ export default function CalculatorClientPage({
       <div className="space-y-6 md:col-span-7">
         <div>
           <h3 className="text-foreground mb-4 text-sm font-medium">
-            Calculation
+            {t("calculationHeading")}
           </h3>
           {hideProjectSelector ? (
             <div className="grid grid-cols-1 gap-4 md:flex md:items-end">
               <div className="md:flex-1">
-                <Label htmlFor="calcTitle">Title</Label>
+                <Label htmlFor="calcTitle">{t("titleLabel")}</Label>
                 <Input
                   id="calcTitle"
                   value={calculationTitle}
                   onChange={(e) => setCalculationTitle(e.target.value)}
-                  placeholder="Untitled Calculation"
+                  placeholder={t("untitledCalculation")}
                   className="mt-1 h-7"
                 />
               </div>
@@ -544,14 +546,14 @@ export default function CalculatorClientPage({
                   className="whitespace-nowrap"
                 >
                   {isSaving && <Spinner data-icon="inline-start" />}
-                  Save
+                  {tc("save")}
                 </Button>
                 <Button
                   variant="outline"
                   onClick={handleNew}
                   className="whitespace-nowrap"
                 >
-                  <RiAddLine className="mr-2 size-4" /> New
+                  <RiAddLine className="mr-2 size-4" /> {t("newCalculation")}
                 </Button>
               </div>
             </div>
@@ -559,24 +561,24 @@ export default function CalculatorClientPage({
             <div className="grid grid-cols-1 gap-4 md:flex md:items-end">
               <div className="grid grid-cols-1 gap-4 md:flex-1 md:grid-cols-2">
                 <div>
-                  <Label htmlFor="calcTitle">Title</Label>
+                  <Label htmlFor="calcTitle">{t("titleLabel")}</Label>
                   <Input
                     id="calcTitle"
                     value={calculationTitle}
                     onChange={(e) => setCalculationTitle(e.target.value)}
-                    placeholder="Untitled Calculation"
+                    placeholder={t("untitledCalculation")}
                     className="mt-1 h-7"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="project">Project</Label>
+                  <Label htmlFor="project">{t("projectLabel")}</Label>
                   <Select
                     onValueChange={(v) => v !== null && setSelectedProjectId(v)}
                     value={selectedProjectId}
                     disabled={Boolean(prefilledProjectId)}
                   >
                     <SelectTrigger className="mt-1 w-full">
-                      <SelectValue placeholder="Select Project..." />
+                      <SelectValue placeholder={t("selectProject")} />
                     </SelectTrigger>
                     <SelectContent>
                       {projects.map((p) => (
@@ -595,14 +597,14 @@ export default function CalculatorClientPage({
                   className="whitespace-nowrap"
                 >
                   {isSaving && <Spinner data-icon="inline-start" />}
-                  Save
+                  {tc("save")}
                 </Button>
                 <Button
                   variant="outline"
                   onClick={handleNew}
                   className="whitespace-nowrap"
                 >
-                  <RiAddLine className="mr-2 size-4" /> New
+                  <RiAddLine className="mr-2 size-4" /> {t("newCalculation")}
                 </Button>
               </div>
             </div>
@@ -669,13 +671,13 @@ export default function CalculatorClientPage({
             <Separator className="my-2" />
             <div>
               <h3 className="text-foreground mb-4 text-sm font-medium">
-                Saved Calculations
+                {t("savedCalculations")}
               </h3>
               {savedCalculations.length === 0 ? (
                 <EmptyState
                   icon={<RiCalculatorLine className="size-5" />}
-                  title="Belum ada kalkulasi tersimpan"
-                  description="Kalkulasi yang disimpan untuk project ini akan muncul di sini."
+                  title={t("savedEmptyTitle")}
+                  description={t("savedEmptyDescription")}
                 />
               ) : (
                 <div className="space-y-3">
@@ -689,7 +691,9 @@ export default function CalculatorClientPage({
                           {calc.title}
                         </p>
                         <p className="text-muted-foreground text-xs font-medium">
-                          {format(new Date(calc.created_at), "MMM d, yyyy")}
+                          {format(new Date(calc.created_at), "MMM d, yyyy", {
+                            locale: dateLocale,
+                          })}
                         </p>
                       </div>
                       <div className="flex shrink-0 items-center gap-2">
@@ -697,7 +701,7 @@ export default function CalculatorClientPage({
                           variant="outline"
                           onClick={() => handleLoad(calc)}
                         >
-                          Load
+                          {t("load")}
                         </Button>
                         <Button
                           variant="ghost"
@@ -751,10 +755,10 @@ export default function CalculatorClientPage({
         onConfirm={() => {
           if (pendingImportFile) processImport(pendingImportFile)
         }}
-        title="Replace Operational Costs?"
-        description="Importing will replace all existing operational costs. This action cannot be undone. Continue?"
-        confirmText="Import"
-        cancelText="Cancel"
+        title={t("replaceCostsTitle")}
+        description={t("replaceCostsDescription")}
+        confirmText={t("importConfirm")}
+        cancelText={tc("cancel")}
         variant="destructive"
       />
 
@@ -764,10 +768,10 @@ export default function CalculatorClientPage({
           if (!open) setPendingDeleteId(null)
         }}
         onConfirm={handleDeleteCalculation}
-        title="Delete Calculation?"
-        description="This calculation will be permanently deleted. This action cannot be undone."
-        confirmText="Delete"
-        cancelText="Cancel"
+        title={t("deleteCalculationTitle")}
+        description={t("deleteCalculationDescription")}
+        confirmText={tc("delete")}
+        cancelText={tc("cancel")}
         variant="destructive"
       />
     </div>

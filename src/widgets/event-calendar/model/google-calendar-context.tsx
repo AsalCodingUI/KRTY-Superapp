@@ -1,5 +1,6 @@
 "use client"
 
+import { useT } from "@/shared/i18n/client"
 import { useRouter, useSearchParams } from "next/navigation"
 import { createContext, useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"
@@ -23,6 +24,7 @@ interface GoogleCalendarProviderProps {
 export function GoogleCalendarProvider({
   children,
 }: GoogleCalendarProviderProps) {
+  const t = useT("calendar")
   const [isConnected, setIsConnected] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
@@ -67,9 +69,9 @@ export function GoogleCalendarProvider({
       }
     } catch (error) {
       console.error("Failed to connect Google Calendar:", error)
-      toast.error("Gagal konek kalender")
+      toast.error(t("googleConnectFailed"))
     }
-  }, [])
+  }, [t])
 
   const disconnect = useCallback(async () => {
     try {
@@ -79,16 +81,16 @@ export function GoogleCalendarProvider({
 
       if (response.ok) {
         setIsConnected(false)
-        toast.success("Kalender terputus")
+        toast.success(t("googleDisconnected"))
         router.refresh()
       } else {
         throw new Error("Failed to disconnect")
       }
     } catch (error) {
       console.error("Failed to disconnect Google Calendar:", error)
-      toast.error("Gagal putus kalender")
+      toast.error(t("googleDisconnectFailed"))
     }
-  }, [router])
+  }, [router, t])
 
   // Check connection on mount
   useEffect(() => {
@@ -101,25 +103,25 @@ export function GoogleCalendarProvider({
     const error = searchParams.get("error")
 
     if (connected === "true") {
-      toast.success("Kalender terhubung")
+      toast.success(t("googleConnected"))
       checkConnection()
       // Clean up URL
       router.replace("/calendar")
     } else if (error) {
       const errorMessages: Record<string, string> = {
-        no_code: "Kode kosong",
-        invalid_state: "State invalid",
-        unauthorized: "Harus login",
-        missing_credentials: "Config server",
-        token_exchange_failed: "Token gagal",
-        store_failed: "Simpan token gagal",
+        no_code: t("googleErrorNoCode"),
+        invalid_state: t("googleErrorInvalidState"),
+        unauthorized: t("googleErrorUnauthorized"),
+        missing_credentials: t("googleErrorMissingCredentials"),
+        token_exchange_failed: t("googleErrorTokenExchange"),
+        store_failed: t("googleErrorStoreFailed"),
       }
 
-      toast.error(errorMessages[error] || "Gagal konek kalender")
+      toast.error(errorMessages[error] || t("googleConnectFailed"))
       // Clean up URL
       router.replace("/calendar")
     }
-  }, [searchParams, checkConnection, router])
+  }, [searchParams, checkConnection, router, t])
 
   return (
     <GoogleCalendarContext.Provider

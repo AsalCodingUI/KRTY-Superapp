@@ -4,6 +4,8 @@ import { calculateBusinessDays } from "@/shared/lib/date"
 import { Database } from "@/shared/types/database.types"
 import { Card } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
+import { useT } from "@/shared/i18n/client"
+import { daysKey } from "@/shared/lib/leave"
 import { useMemo } from "react"
 
 type LeaveRequest = Database["public"]["Tables"]["leave_requests"]["Row"]
@@ -19,6 +21,7 @@ export function LeaveBalance({
   maxLeave = 12,
   showDetails = true,
 }: LeaveBalanceProps) {
+  const t = useT("leave")
   const stats = useMemo(() => {
     // Filter only approved Annual Leave requests
     const approvedLeaves = requests.filter(
@@ -44,10 +47,10 @@ export function LeaveBalance({
   return (
     <Card className="gap-0 p-4">
       <dt className="text-muted-foreground dark:text-muted-foreground text-sm font-medium">
-        Annual Leave Balance
+        {t("balanceTitle")}
       </dt>
       <dd className="text-foreground dark:text-foreground mt-2 text-2xl font-semibold">
-        {stats.balance} Days
+        {t(daysKey(stats.balance), { n: stats.balance })}
       </dd>
 
       {showDetails && (
@@ -56,10 +59,10 @@ export function LeaveBalance({
 
           <dd className="mt-2 flex items-center justify-between text-sm font-medium">
             <span className="text-primary font-medium">
-              {stats.percentage}% used
+              {t("percentUsed", { n: stats.percentage })}
             </span>
             <span className="text-muted-foreground dark:text-muted-foreground">
-              {stats.used} of {maxLeave} days
+              {t("usedOfDays", { used: stats.used, max: maxLeave })}
             </span>
           </dd>
         </>

@@ -8,6 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { useT } from "@/shared/i18n/client"
 import { RiAddLine, RiCloseLine } from "@/shared/ui/lucide-icons"
 import { useState } from "react"
 import type { Reminder } from "../types"
@@ -18,23 +19,39 @@ interface ReminderPickerProps {
   disabled?: boolean
 }
 
-const PRESET_REMINDERS = [
-  { label: "5 menit sebelum", minutes: 5 },
-  { label: "10 menit sebelum", minutes: 10 },
-  { label: "15 menit sebelum", minutes: 15 },
-  { label: "30 menit sebelum", minutes: 30 },
-  { label: "1 jam sebelum", minutes: 60 },
-  { label: "2 jam sebelum", minutes: 120 },
-  { label: "1 hari sebelum", minutes: 1440 },
-  { label: "2 hari sebelum", minutes: 2880 },
-]
+/** Preset offsets in minutes; labels are built per unit at render. */
+const PRESET_REMINDERS = [5, 10, 15, 30, 60, 120, 1440, 2880].map(
+  (minutes) => ({ minutes }),
+)
 
 export function ReminderPicker({
   value,
   onChange,
   disabled,
 }: ReminderPickerProps) {
+  const t = useT("calendar")
+  const tc = useT("common")
   const [selectedMinutes, setSelectedMinutes] = useState<string>("10")
+
+  const minutesLabel = (count: number) =>
+    t(count === 1 ? "reminderMinutesOne" : "reminderMinutesOther", { count })
+
+  /** Presets read in their natural unit ("1 hour before"). */
+  const presetLabel = (minutes: number) => {
+    if (minutes % 1440 === 0) {
+      const count = minutes / 1440
+      return t(count === 1 ? "reminderDaysOne" : "reminderDaysOther", {
+        count,
+      })
+    }
+    if (minutes % 60 === 0) {
+      const count = minutes / 60
+      return t(count === 1 ? "reminderHoursOne" : "reminderHoursOther", {
+        count,
+      })
+    }
+    return minutesLabel(minutes)
+  }
 
   const handleAdd = () => {
     const minutes = parseInt(selectedMinutes)
@@ -49,7 +66,7 @@ export function ReminderPicker({
 
   const getReminderLabel = (minutes: number) => {
     const preset = PRESET_REMINDERS.find((p) => p.minutes === minutes)
-    return preset?.label || `${minutes} menit sebelum`
+    return preset ? presetLabel(preset.minutes) : minutesLabel(minutes)
   }
 
   return (
@@ -95,7 +112,7 @@ export function ReminderPicker({
                 key={preset.minutes}
                 value={preset.minutes.toString()}
               >
-                {preset.label}
+                {presetLabel(preset.minutes)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -107,12 +124,12 @@ export function ReminderPicker({
           disabled={disabled}
         >
           <RiAddLine className="mr-1 h-4 w-4" />
-          Tambah
+          {tc("add")}
         </Button>
       </div>
 
       {value.length === 0 && (
-        <p className="text-tertiary-foreground text-xs">Belum ada pengingat</p>
+        <p className="text-tertiary-foreground text-xs">{t("reminderEmpty")}</p>
       )}
     </div>
   )

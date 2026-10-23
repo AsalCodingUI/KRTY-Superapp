@@ -17,20 +17,26 @@ import {
   LeaveRequestForm,
 } from "@/features/leave-request/ui/LeaveRequestForm"
 import { createClient } from "@/shared/api/supabase/client"
+import { useDateLocale, useT } from "@/shared/i18n/client"
 import { calculateBusinessDays } from "@/shared/lib/date"
 import {
   ANNUAL_LEAVE_MAX_DAYS,
   ANNUAL_LEAVE_MIN_NOTICE_DAYS,
   ANNUAL_LEAVE_QUOTA,
-  LEAVE_TYPE_LABELS,
   annualLeaveSummary,
+  leaveTypeLabel,
 } from "@/shared/lib/leave"
 import { Database } from "@/shared/types/database.types"
 import { differenceInCalendarDays, format, startOfDay } from "date-fns"
-import { id as idLocale } from "date-fns/locale"
 import { useRouter } from "next/navigation"
 import React, { useEffect, useState } from "react"
 import { toast } from "sonner"
+import { PROOF_BUCKET } from "@/entities/leave/ui/ProofLink"
+import {
+  slugify,
+  splitFileName,
+  uploadUnique,
+} from "@/shared/lib/storage-names"
 import { LeaveRules } from "./LeaveRules"
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"]
@@ -60,6 +66,9 @@ export function LeaveRequestModal({
   initialData,
   userProfile,
 }: ModalProps) {
+  const t = useT("leave")
+  const tc = useT("common")
+  const dateLocale = useDateLocale()
   const supabase = createClient()
   const router = useRouter()
   const isEdit = Boolean(initialData)
@@ -105,19 +114,26 @@ export function LeaveRequestModal({
     !isAnnual || daysUntilStart === null
       ? undefined
       : tooLate
-        ? `Cuti tahunan diajukan paling lambat H-${ANNUAL_LEAVE_MIN_NOTICE_DAYS}. Tanggal ini masih H-${Math.max(daysUntilStart, 0)}.`
-        : `Memenuhi ketentuan: diajukan H-${daysUntilStart}.`
+        ? t("noticeTooLate", {
+            min: ANNUAL_LEAVE_MIN_NOTICE_DAYS,
+            days: Math.max(daysUntilStart, 0),
+          })
+        : t("noticeOk", { days: daysUntilStart })
   const requestedDays =
     start && end ? Math.max(0, calculateBusinessDays(start, end)) : 0
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
+  const handleFileChange = async (files: FileList | null) => {
+    const file = files?.[0]
     if (!file) return
+    // PDFs (doctor's notes) go as they are; photos get compressed.
+    if (!file.type.startsWith("image/")) {
+      setFormData((prev) => ({ ...prev, proof_file: file }))
+      return
+    }
     try {
       setCompressing(true)
-      const { default: imageCompression } = await import(
-        "browser-image-compression"
-      )
+      const { default: imageCompression } =
+        await import("browser-image-compression")
       const compressed = await imageCompression(file, {
         maxSizeMB: 1,
         maxWidthOrHeight: 1920,
@@ -126,7 +142,7 @@ export function LeaveRequestModal({
       setFormData((prev) => ({ ...prev, proof_file: compressed }))
     } catch (error) {
       console.error("Compression failed:", error)
-      toast.error("Gagal memproses gambar")
+      toast.error(t("errImageFailed"))
     } finally {
       setCompressing(false)
     }
@@ -134,15 +150,14 @@ export function LeaveRequestModal({
 
   /** Same checks before showing step 2 and before sending. */
   const validate = async (): Promise<string | null> => {
-    if (!start || !end) return "Pilih tanggal cuti"
-    if (start > end) return "Tanggal selesai harus setelah tanggal mulai"
-    if (requestedDays <= 0) return "Rentang tanggal tidak berisi hari kerja"
-    if (!formData.reason?.trim()) return "Isi alasan pengajuan"
+    if (!start || !end) return t("errPickDates")
+    if (start > end) return t("errEndBeforeStart")
+    if (requestedDays <= 0) return t("errNoBusinessDays")
+    if (!formData.reason?.trim()) return t("errReasonRequired")
     if (!isAnnual) return null
-    if (tooLate)
-      return `Cuti tahunan diajukan paling lambat H-${ANNUAL_LEAVE_MIN_NOTICE_DAYS}`
+    if (tooLate) return t("errTooLate", { min: ANNUAL_LEAVE_MIN_NOTICE_DAYS })
     if (requestedDays > ANNUAL_LEAVE_MAX_DAYS)
-      return `Maksimal ${ANNUAL_LEAVE_MAX_DAYS} hari kerja per pengajuan`
+      return t("errMaxDays", { max: ANNUAL_LEAVE_MAX_DAYS })
 
     const year = new Date().getFullYear()
     const [{ data, error }, { data: employment }] = await Promise.all([
@@ -160,15 +175,24 @@ export function LeaveRequestModal({
         .eq("id", userProfile.id)
         .maybeSingle(),
     ])
-    if (error) return "Gagal memeriksa sisa cuti"
+    if (error) return t("errCheckBalance")
     const summary = annualLeaveSummary(data ?? [], year, employment ?? {})
     if (!summary.eligible) {
       return summary.eligibleFrom
-        ? `Cuti tahunan bisa diajukan mulai ${format(summary.eligibleFrom, "d MMMM yyyy", { locale: idLocale })}`
-        : (summary.note ?? "Belum berhak cuti tahunan")
+        ? t("errEligibleFrom", {
+            date: format(summary.eligibleFrom, "d MMMM yyyy", {
+              locale: dateLocale,
+            }),
+          })
+        : summary.noteKey
+          ? t(summary.noteKey, summary.noteVars)
+          : t("errNotEligible")
     }
     if (requestedDays > summary.remaining)
-      return `Sisa cuti tahunan tinggal ${summary.remaining} dari ${summary.quota} hari`
+      return t("errBalanceLeft", {
+        remaining: summary.remaining,
+        quota: summary.quota,
+      })
     return null
   }
 
@@ -195,14 +219,21 @@ export function LeaveRequestModal({
 
       let proofUrl = formData.proof_url
       if (formData.proof_file) {
-        const ext = formData.proof_file.name.split(".").pop() || "jpg"
-        const path = `${userProfile.id}/${Date.now()}.${ext}`
-        const { error: uploadError } = await supabase.storage
-          .from("leave-proofs")
-          .upload(path, formData.proof_file)
-        if (uploadError) throw new Error("Gagal mengunggah bukti")
-        proofUrl = supabase.storage.from("leave-proofs").getPublicUrl(path)
-          .data.publicUrl
+        // Readable path: "<nama>/<tanggal mulai>_<jenis cuti>.<ext>". The
+        // bucket is private, so we keep the path and sign it when viewing.
+        const { ext } = splitFileName(formData.proof_file.name)
+        try {
+          proofUrl = await uploadUnique(
+            supabase,
+            PROOF_BUCKET,
+            slugify(userProfile.full_name || "karyawan", 40),
+            `${format(start, "yyyy-MM-dd")}_${slugify(leaveTypeLabel(formData.leave_type || "Annual Leave", t), 30)}`,
+            ext || "jpg",
+            formData.proof_file,
+          )
+        } catch {
+          throw new Error(t("errUploadProof"))
+        }
       }
 
       const payload = {
@@ -220,35 +251,38 @@ export function LeaveRequestModal({
         ),
       })
       const result = await response.json().catch(() => ({}))
-      if (!response.ok) throw new Error(result?.error || "Gagal mengirim")
+      if (!response.ok) throw new Error(result?.error || t("errSendFailed"))
 
-      toast.success(isEdit ? "Pengajuan diperbarui" : "Pengajuan dikirim")
+      toast.success(isEdit ? t("toastRequestUpdated") : t("toastRequestSent"))
       router.refresh()
       onClose()
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Gagal mengirim pengajuan",
-      )
+      toast.error(error instanceof Error ? error.message : t("errSubmitFailed"))
     } finally {
       setLoading(false)
     }
   }
 
   const summary: [string, React.ReactNode][] = [
-    ["Jenis", LEAVE_TYPE_LABELS[formData.leave_type] ?? formData.leave_type],
+    [t("colType"), leaveTypeLabel(formData.leave_type, t)],
     [
-      "Tanggal",
+      t("colDate"),
       start && end
-        ? `${format(start, "d MMM", { locale: idLocale })} – ${format(end, "d MMM yyyy", { locale: idLocale })}`
+        ? `${format(start, "d MMM", { locale: dateLocale })} – ${format(end, "d MMM yyyy", { locale: dateLocale })}`
         : "—",
     ],
-    ["Durasi", `${requestedDays} hari kerja`],
-    ["Alasan", formData.reason || "—"],
+    [
+      t("colDuration"),
+      t(requestedDays === 1 ? "workingDaysOne" : "workingDaysOther", {
+        n: requestedDays,
+      }),
+    ],
+    [t("colReason"), formData.reason || "—"],
   ]
   if (formData.leave_type === "Sick Leave") {
     summary.push([
-      "Surat dokter",
-      formData.proof_file || formData.proof_url ? "Terlampir" : "Tidak ada",
+      t("summaryDoctorNote"),
+      formData.proof_file || formData.proof_url ? t("attached") : tc("none"),
     ])
   }
 
@@ -260,10 +294,10 @@ export function LeaveRequestModal({
             {step === 1
               ? isEdit
                 ? initialData?.status === "rejected"
-                  ? "Ajukan ulang"
-                  : "Ubah pengajuan"
-                : "Ajukan cuti"
-              : "Periksa pengajuan"}
+                  ? t("resubmit")
+                  : t("modalTitleEdit")
+                : t("requestLeave")
+              : t("modalTitleReview")}
           </DialogTitle>
         </DialogHeader>
 
@@ -295,15 +329,10 @@ export function LeaveRequestModal({
               {isAnnual && (
                 <ul className="text-muted-foreground list-disc space-y-1 pl-5 text-sm">
                   <li>
-                    Diajukan paling lambat H-{ANNUAL_LEAVE_MIN_NOTICE_DAYS}.
+                    {t("ruleNotice", { min: ANNUAL_LEAVE_MIN_NOTICE_DAYS })}
                   </li>
-                  <li>
-                    Maksimal {ANNUAL_LEAVE_MAX_DAYS} hari kerja per pengajuan.
-                  </li>
-                  <li>
-                    Jatah {ANNUAL_LEAVE_QUOTA} hari per tahun, tidak
-                    diakumulasi.
-                  </li>
+                  <li>{t("ruleMaxDays", { max: ANNUAL_LEAVE_MAX_DAYS })}</li>
+                  <li>{t("ruleQuota", { quota: ANNUAL_LEAVE_QUOTA })}</li>
                 </ul>
               )}
 
@@ -315,14 +344,14 @@ export function LeaveRequestModal({
                       onCheckedChange={(checked) => setAgreed(checked === true)}
                       className="mt-0.5"
                     />
-                    <span>Saya sudah membaca dan menyetujui aturan cuti.</span>
+                    <span>{t("agreeRules")}</span>
                   </label>
                   <button
                     type="button"
                     onClick={() => setShowRules((v) => !v)}
                     className="text-primary w-fit cursor-pointer pl-6 text-sm hover:underline"
                   >
-                    {showRules ? "Sembunyikan aturan" : "Lihat aturan lengkap"}
+                    {showRules ? t("hideRules") : t("showFullRules")}
                   </button>
                   {showRules && (
                     <div className="max-h-64 overflow-y-auto rounded-lg border p-3">
@@ -339,7 +368,7 @@ export function LeaveRequestModal({
           {step === 1 ? (
             <>
               <DialogClose render={<Button variant="outline" />}>
-                Batal
+                {tc("cancel")}
               </DialogClose>
               <Button
                 type="button"
@@ -355,13 +384,13 @@ export function LeaveRequestModal({
                 {(compressing || loading) && (
                   <Spinner data-icon="inline-start" />
                 )}
-                Lanjut
+                {t("next")}
               </Button>
             </>
           ) : (
             <>
               <Button variant="ghost" type="button" onClick={() => setStep(1)}>
-                Kembali
+                {tc("back")}
               </Button>
               <Button
                 type="button"
@@ -369,7 +398,7 @@ export function LeaveRequestModal({
                 disabled={loading || (!isEdit && !agreed)}
               >
                 {loading && <Spinner data-icon="inline-start" />}
-                {isEdit ? "Simpan & kirim ulang" : "Kirim pengajuan"}
+                {isEdit ? t("saveAndResubmit") : t("submitRequest")}
               </Button>
             </>
           )}

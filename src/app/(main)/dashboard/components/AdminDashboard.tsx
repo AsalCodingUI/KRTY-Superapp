@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { formatDistanceToNowStrict } from "date-fns"
-import { id as idLocale } from "date-fns/locale"
+import { useDateLocale, useT } from "@/shared/i18n/client"
 import {
   ArrowUpRight,
   CalendarCheck,
@@ -51,15 +51,17 @@ function Person({ name, src }: { name: string | null; src: string | null }) {
  */
 export function AdminDashboard({ data }: AdminDashboardProps) {
   const { profile } = useUserProfile()
+  const t = useT("dashboard")
+  const dateLocale = useDateLocale()
   const firstName = profile?.full_name?.split(" ")[0] ?? ""
 
   const att = data.attendanceOverview
   const total = att.totalToday + att.onLeave + att.absent
   const split = [
-    { label: "Tepat waktu", value: att.onTime, color: "bg-success" },
-    { label: "Terlambat", value: att.late, color: "bg-warning" },
-    { label: "Cuti", value: att.onLeave, color: "bg-info" },
-    { label: "Tidak hadir", value: att.absent, color: "bg-destructive" },
+    { label: t("splitOnTime"), value: att.onTime, color: "bg-success" },
+    { label: t("splitLate"), value: att.late, color: "bg-warning" },
+    { label: t("splitOnLeave"), value: att.onLeave, color: "bg-info" },
+    { label: t("splitAbsent"), value: att.absent, color: "bg-destructive" },
   ]
 
   const reviews = data.pendingReviewsList
@@ -69,39 +71,46 @@ export function AdminDashboard({ data }: AdminDashboardProps) {
 
   return (
     <HomeColumn>
-      <HomeGreeting title={firstName ? `Halo, ${firstName}` : "Halo"} />
+      <HomeGreeting
+        title={
+          firstName ? t("greetingName", { name: firstName }) : t("greeting")
+        }
+      />
 
       <HomeActions>
         <HomeAction primary href="/leave" icon={<CalendarCheck />}>
-          Persetujuan cuti
+          {t("actionLeaveApprovals")}
         </HomeAction>
         <HomeAction href="/leave/attendance" icon={<Clock />}>
-          Kehadiran
+          {t("actionAttendance")}
         </HomeAction>
         <HomeAction href="/performance?tab=360review" icon={<ClipboardCheck />}>
-          Review 360
+          {t("actionReview360")}
         </HomeAction>
         <HomeAction href="/teams" icon={<Users />}>
-          Tim
+          {t("actionTeam")}
         </HomeAction>
         <HomeAction href="/calendar" icon={<CalendarDays />}>
-          Kalender
+          {t("actionCalendar")}
         </HomeAction>
       </HomeActions>
 
       <HomeGrid>
         <HomeCard
-          title="Kehadiran hari ini"
+          title={t("adminAttendanceTitle")}
           actions={
-            <HomeIconLink href="/leave/attendance" label="Buka kehadiran">
+            <HomeIconLink href="/leave/attendance" label={t("openAttendance")}>
               <ArrowUpRight />
             </HomeIconLink>
           }
         >
           <HomeFigure
             value={`${att.totalToday} / ${total}`}
-            unit="hadir"
-            hint={`${data.teamMetrics.todayAttendanceRate}% dari ${data.teamMetrics.totalEmployees} anggota`}
+            unit={t("adminPresentUnit")}
+            hint={t("adminAttendanceHint", {
+              rate: data.teamMetrics.todayAttendanceRate,
+              total: data.teamMetrics.totalEmployees,
+            })}
           />
           <div className="bg-muted flex h-2 overflow-hidden rounded-full">
             {total > 0 &&
@@ -109,7 +118,11 @@ export function AdminDashboard({ data }: AdminDashboardProps) {
                 <div
                   key={s.label}
                   className={cn("bar-grow h-full", s.color)}
-                  style={{ "--bar": `${(s.value / total) * 100}%` } as React.CSSProperties}
+                  style={
+                    {
+                      "--bar": `${(s.value / total) * 100}%`,
+                    } as React.CSSProperties
+                  }
                 />
               ))}
           </div>
@@ -127,21 +140,24 @@ export function AdminDashboard({ data }: AdminDashboardProps) {
         </HomeCard>
 
         <HomeCard
-          title="Review tertunda"
+          title={t("adminPendingReviewsTitle")}
           badge={
             reviews.length > 0 ? (
               <Badge variant="secondary">{reviews.length}</Badge>
             ) : null
           }
           actions={
-            <HomeIconLink href="/performance?tab=360review" label="Buka review">
+            <HomeIconLink
+              href="/performance?tab=360review"
+              label={t("openReview")}
+            >
               <ArrowUpRight />
             </HomeIconLink>
           }
         >
           <div className="flex flex-1 flex-col">
             {reviews.length === 0 ? (
-              <HomeEmpty>Semua penilaian sudah lengkap.</HomeEmpty>
+              <HomeEmpty>{t("adminReviewsAllDone")}</HomeEmpty>
             ) : (
               reviews
                 .slice(0, 5)
@@ -156,7 +172,7 @@ export function AdminDashboard({ data }: AdminDashboardProps) {
                     subtitle={r.employee_job_title}
                     trailing={
                       <span className="text-muted-foreground text-[13px]">
-                        {r.reviewers_pending} belum menilai
+                        {t("adminReviewersPending", { n: r.reviewers_pending })}
                       </span>
                     }
                   />
@@ -168,18 +184,18 @@ export function AdminDashboard({ data }: AdminDashboardProps) {
 
       <HomeGrid>
         <HomeCard
-          title="Cuti"
+          title={t("leaveTitle")}
           actions={
-            <HomeIconLink href="/leave" label="Buka cuti">
+            <HomeIconLink href="/leave" label={t("openLeave")}>
               <ArrowUpRight />
             </HomeIconLink>
           }
         >
           <HomeStats
             items={[
-              { label: "Menunggu", value: leaves.length || "–" },
-              { label: "Cuti hari ini", value: att.onLeave || "–" },
-              { label: "Tidak hadir", value: att.absent || "–" },
+              { label: t("adminLeavePending"), value: leaves.length || "–" },
+              { label: t("adminLeaveToday"), value: att.onLeave || "–" },
+              { label: t("splitAbsent"), value: att.absent || "–" },
             ]}
           />
           <div className="flex flex-col">
@@ -192,23 +208,30 @@ export function AdminDashboard({ data }: AdminDashboardProps) {
                 subtitle={l.leave_type}
                 trailing={
                   <span className="text-muted-foreground text-[13px]">
-                    {l.days_requested} hari
+                    {t(l.days_requested === 1 ? "daysCountOne" : "daysCount", {
+                      n: l.days_requested,
+                    })}
                   </span>
                 }
               />
             ))}
           </div>
           <HomeFooter
-            label="Menunggu persetujuan"
-            value={`${leaves.length} pengajuan`}
+            label={t("adminLeaveAwaitingApproval")}
+            value={t(
+              leaves.length === 1
+                ? "adminLeaveRequestsCountOne"
+                : "adminLeaveRequestsCount",
+              { n: leaves.length },
+            )}
             href="/leave"
           />
         </HomeCard>
 
         <HomeCard
-          title="Performa tim"
+          title={t("adminTeamPerformanceTitle")}
           actions={
-            <HomeIconLink href="/performance" label="Buka performa">
+            <HomeIconLink href="/performance" label={t("openPerformance")}>
               <ArrowUpRight />
             </HomeIconLink>
           }
@@ -216,15 +239,18 @@ export function AdminDashboard({ data }: AdminDashboardProps) {
           <HomeStats
             items={[
               {
-                label: "Rata-rata skor",
+                label: t("adminAvgScore"),
                 value:
                   data.teamMetrics.avgTeamPerformance !== null
                     ? `${data.teamMetrics.avgTeamPerformance}%`
                     : "–",
               },
-              { label: "Teratas", value: data.topPerformers.length || "–" },
               {
-                label: "Perlu perhatian",
+                label: t("adminTopPerformers"),
+                value: data.topPerformers.length || "–",
+              },
+              {
+                label: t("adminNeedsAttention"),
                 value: data.employeesNeedingAttention.length || "–",
                 tone:
                   data.employeesNeedingAttention.length > 0
@@ -248,16 +274,22 @@ export function AdminDashboard({ data }: AdminDashboardProps) {
             ))}
           </div>
           <HomeFooter
-            label="Sudah dinilai"
-            value={rated > 0 ? `${rated} orang` : "Belum ada data"}
+            label={t("adminRated")}
+            value={
+              rated > 0
+                ? t(rated === 1 ? "adminRatedCountOne" : "adminRatedCount", {
+                    n: rated,
+                  })
+                : t("adminNoData")
+            }
             href="/performance"
           />
         </HomeCard>
       </HomeGrid>
 
-      <HomeCard title="Aktivitas terbaru">
+      <HomeCard title={t("adminRecentActivityTitle")}>
         {data.recentActivities.length === 0 ? (
-          <HomeEmpty>Aktivitas tim akan muncul di sini.</HomeEmpty>
+          <HomeEmpty>{t("adminRecentActivityEmpty")}</HomeEmpty>
         ) : (
           <div className="flex flex-col">
             {data.recentActivities.slice(0, 8).map((a) => (
@@ -267,7 +299,7 @@ export function AdminDashboard({ data }: AdminDashboardProps) {
                 title={
                   <>
                     <span className="font-medium">
-                      {a.user_name || "Unknown"}
+                      {a.user_name || t("unknownUser")}
                     </span>{" "}
                     <span className="text-muted-foreground">
                       {a.description}
@@ -280,7 +312,7 @@ export function AdminDashboard({ data }: AdminDashboardProps) {
                     suppressHydrationWarning
                   >
                     {formatDistanceToNowStrict(new Date(a.timestamp), {
-                      locale: idLocale,
+                      locale: dateLocale,
                     })}
                   </span>
                 }

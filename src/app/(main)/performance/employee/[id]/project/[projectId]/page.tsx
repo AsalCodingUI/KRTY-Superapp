@@ -1,6 +1,7 @@
 import { getProjectScoring } from "@/app/(main)/performance/actions/project-scoring-actions"
 import { ProjectScoringView } from "@/page-slices/performance/ui/kpi/ProjectScoringView"
 import { createClient } from "@/shared/api/supabase/server"
+import { getT } from "@/shared/i18n/server"
 import { resolveEffectiveUserId } from "@/shared/lib/impersonation-server"
 import { canManageByRole } from "@/shared/lib/roles"
 import { notFound, redirect } from "next/navigation"
@@ -20,7 +21,7 @@ export default async function ProjectScoringRoute({
 }) {
   const { id: employeeId, projectId } = await params
   const { periode, dari } = await searchParams
-  const supabase = await createClient()
+  const [supabase, t] = await Promise.all([createClient(), getT("performance")])
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -66,7 +67,7 @@ export default async function ProjectScoringRoute({
       : `/performance${period}`
   const employeeName =
     (assignment.profiles as unknown as { full_name: string | null } | null)
-      ?.full_name ?? "Anggota"
+      ?.full_name ?? t("member")
   const project = assignment.projects as unknown as {
     name: string
     quarter_id: string | null
@@ -86,7 +87,7 @@ export default async function ProjectScoringRoute({
       initial={scoring}
       canEdit={canEdit}
       backHref={backHref}
-      backLabel={fromTeam ? "Tim saya" : isSelf ? "KPI saya" : employeeName}
+      backLabel={fromTeam ? t("tabMyTeam") : isSelf ? t("myKpi") : employeeName}
     />
   )
 }

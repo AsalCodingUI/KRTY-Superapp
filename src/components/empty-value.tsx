@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils"
+import { useT } from "@/shared/i18n/client"
 import * as React from "react"
 
 /**
@@ -7,10 +8,11 @@ import * as React from "react"
  * cell or a big stat) instead of reading as a solid bar.
  */
 export function EmptyValue({ className }: { className?: string }) {
+  const t = useT("shell")
   return (
     <span
       role="img"
-      aria-label="Belum ada data"
+      aria-label={t("noData")}
       className={cn(
         "text-tertiary-foreground inline-block h-[0.09em] min-h-px w-[1.15em] rounded-full align-middle",
         "bg-[repeating-linear-gradient(90deg,currentColor_0_0.28em,transparent_0.28em_0.43em)]",

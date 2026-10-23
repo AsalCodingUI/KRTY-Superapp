@@ -1,5 +1,6 @@
 "use client"
 
+import { useDateLocale, useT } from "@/shared/i18n/client"
 import { logError } from "@/shared/lib/utils/logger"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -17,7 +18,6 @@ import {
   RiMapPinLine,
 } from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
-import { id } from "date-fns/locale"
 import { useState } from "react"
 import { CopyEventButton } from "../components/CopyEventButton"
 import { GuestList } from "../components/GuestList"
@@ -43,6 +43,9 @@ export function MeetingDialog({
   onDelete,
   onRSVPChange,
 }: MeetingDialogProps) {
+  const t = useT("calendar")
+  const tc = useT("common")
+  const dateLocale = useDateLocale()
   const [loading, setLoading] = useState(false)
   const [rsvpStatus, setRsvpStatus] = useState<
     "yes" | "no" | "maybe" | undefined
@@ -90,7 +93,7 @@ export function MeetingDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[35rem]">
         <DialogHeader>
-          <DialogTitle>Detail Rapat</DialogTitle>
+          <DialogTitle>{t("meetingDialogTitle")}</DialogTitle>
         </DialogHeader>
 
         <div className="flex-1 space-y-5 overflow-y-auto">
@@ -100,7 +103,9 @@ export function MeetingDialog({
               {event.title}
             </h3>
             <Badge variant="info" className="shrink-0">
-              {event.type || "Rapat"}
+              {event.type === "Internal"
+                ? t("eventTypeInternal")
+                : event.type || t("meetingTypeFallback")}
             </Badge>
           </div>
 
@@ -111,10 +116,10 @@ export function MeetingDialog({
           <div className="bg-foreground/[0.03] grid grid-cols-2 gap-4 rounded-lg p-4">
             <div>
               <p className="text-muted-foreground mb-1 text-sm font-medium">
-                Mulai
+                {t("dialogStart")}
               </p>
               <p className="text-foreground text-sm">
-                {format(event.start, "dd MMM yyyy", { locale: id })}
+                {format(event.start, "dd MMM yyyy", { locale: dateLocale })}
               </p>
               <p className="text-muted-foreground mt-0.5 text-sm">
                 {format(event.start, "HH:mm")}
@@ -122,10 +127,10 @@ export function MeetingDialog({
             </div>
             <div>
               <p className="text-muted-foreground mb-1 text-sm font-medium">
-                Selesai
+                {t("dialogEnd")}
               </p>
               <p className="text-foreground text-sm">
-                {format(event.end, "dd MMM yyyy", { locale: id })}
+                {format(event.end, "dd MMM yyyy", { locale: dateLocale })}
               </p>
               <p className="text-muted-foreground mt-0.5 text-sm">
                 {format(event.end, "HH:mm")}
@@ -145,7 +150,7 @@ export function MeetingDialog({
             <div className="space-y-2">
               <p className="text-muted-foreground flex items-center gap-2 text-sm font-medium">
                 <RiMapPinLine className="h-4 w-4" />
-                Lokasi
+                {t("dialogLocation")}
               </p>
               <p className="text-foreground pl-6 text-sm break-words">
                 {event.location}
@@ -157,7 +162,7 @@ export function MeetingDialog({
           {event.description && (
             <div className="border-border space-y-2 border-t pt-4">
               <p className="text-muted-foreground text-sm font-medium">
-                Deskripsi
+                {t("dialogDescription")}
               </p>
               <p className="text-foreground text-sm break-words whitespace-pre-wrap">
                 {event.description}
@@ -190,7 +195,7 @@ export function MeetingDialog({
                 {isDeletePending ? (
                   <div className="animate-fadeIn flex w-full items-center gap-2">
                     <span className="text-destructive text-sm font-medium whitespace-nowrap">
-                      Yakin hapus?
+                      {t("dialogDeleteConfirm")}
                     </span>
                     <Button
                       type="button"
@@ -198,7 +203,7 @@ export function MeetingDialog({
                       onClick={handleConfirmDelete}
                       disabled={loading}
                     >
-                      Ya, Hapus
+                      {t("dialogDeleteYes")}
                     </Button>
                     <Button
                       type="button"
@@ -206,7 +211,7 @@ export function MeetingDialog({
                       onClick={handleCancelDelete}
                       disabled={loading}
                     >
-                      Batal
+                      {tc("cancel")}
                     </Button>
                   </div>
                 ) : (
@@ -219,7 +224,7 @@ export function MeetingDialog({
                       className="text-destructive hover:bg-destructive/10"
                     >
                       <RiDeleteBinLine className="mr-2 h-4 w-4" />
-                      Hapus
+                      {tc("delete")}
                     </Button>
                     <CopyEventButton event={event} />
                   </>
@@ -237,7 +242,7 @@ export function MeetingDialog({
               disabled={loading}
             >
               <RiCloseLine className="mr-2 h-4 w-4" />
-              Tutup
+              {tc("close")}
             </Button>
           )}
         </DialogFooter>

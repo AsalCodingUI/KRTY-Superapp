@@ -4,7 +4,8 @@ import { GroupedList, ListRow } from "@/components/grouped-list"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
-import { ANNUAL_LEAVE_QUOTA } from "@/shared/lib/leave"
+import { useT } from "@/shared/i18n/client"
+import { ANNUAL_LEAVE_QUOTA, daysKey } from "@/shared/lib/leave"
 
 type BalanceProfile = {
   id: string
@@ -23,6 +24,7 @@ const ROW_GRID =
 
 /** Saldo Cuti: everyone's annual-leave balance as one flat list. */
 export function RemainingLeaveList({ data }: { data: BalanceProfile[] }) {
+  const t = useT("leave")
   const people = [...data].sort((a, b) =>
     (a.full_name || "").localeCompare(b.full_name || ""),
   )
@@ -35,14 +37,14 @@ export function RemainingLeaveList({ data }: { data: BalanceProfile[] }) {
           "gutter-x text-muted-foreground border-border h-9 border-b text-[13px]",
         )}
       >
-        <span>Karyawan</span>
-        <span className="hidden md:block">Jabatan</span>
-        <span className="hidden text-right md:block">Terpakai</span>
+        <span>{t("colEmployee")}</span>
+        <span className="hidden md:block">{t("colJobTitle")}</span>
+        <span className="hidden text-right md:block">{t("colUsed")}</span>
         <span className="hidden md:block" />
-        <span className="text-right">Sisa</span>
+        <span className="text-right">{t("colRemaining")}</span>
       </div>
       {people.map((p) => {
-        const name = p.full_name || "Unknown"
+        const name = p.full_name || t("unknownName")
         const quota = p.leave_quota ?? ANNUAL_LEAVE_QUOTA
         const used = p.leave_used ?? 0
         const remaining = p.leave_balance ?? quota
@@ -67,12 +69,12 @@ export function RemainingLeaveList({ data }: { data: BalanceProfile[] }) {
             <div className="hidden min-w-0 md:block">
               <Badge variant="secondary" className="max-w-full">
                 <span className="truncate">
-                  {p.job_title || "Tanpa jabatan"}
+                  {p.job_title || t("noJobTitle")}
                 </span>
               </Badge>
             </div>
             <span className="text-muted-foreground hidden text-right tabular-nums md:block">
-              {used} hari
+              {t(daysKey(used), { n: used })}
             </span>
             <div
               className="bg-muted hidden h-1.5 overflow-hidden rounded-full md:block"
@@ -80,7 +82,7 @@ export function RemainingLeaveList({ data }: { data: BalanceProfile[] }) {
               aria-valuemin={0}
               aria-valuemax={quota}
               aria-valuenow={used}
-              aria-label={`${used} dari ${quota} hari terpakai`}
+              aria-label={t("usedOfQuota", { used, quota })}
             >
               <div
                 className="bar-grow bg-primary h-full rounded-full"

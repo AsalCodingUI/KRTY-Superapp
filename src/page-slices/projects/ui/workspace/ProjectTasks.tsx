@@ -1,9 +1,18 @@
 "use client"
 
-import { EmptyValue } from "@/components/empty-value"
 import { PageHeader } from "@/components/page-header"
+import { TabNavigation, TabNavigationLink } from "@/components/tab-navigation"
+import { EmptyState } from "@/components/empty-state"
+import { EmptyValue } from "@/components/empty-value"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
+import { Calendar } from "@/components/ui/calendar"
+import { Checkbox } from "@/components/ui/checkbox"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 import { Input } from "@/components/ui/input"
 import {
   Select,
@@ -18,12 +27,18 @@ import {
   RiAddLine,
   RiArrowRightSLine,
   RiCalendarLine,
-  RiCheckLine,
+  RiCheckboxCircleLine,
   RiDeleteBinLine,
 } from "@/shared/ui/lucide-icons"
-import { differenceInCalendarDays, format, isToday, isTomorrow } from "date-fns"
-import { id as idLocale } from "date-fns/locale"
-import { useMemo, useRef, useState } from "react"
+import { useDateLocale, useT } from "@/shared/i18n/client"
+import {
+  differenceInCalendarDays,
+  format,
+  isToday,
+  isTomorrow,
+  type Locale,
+} from "date-fns"
+import { useMemo, useState } from "react"
 import { toast } from "sonner"
 import {
   supabase,
@@ -38,45 +53,23 @@ import {
 type Filter = "all" | "todo" | "done"
 const NONE = "__none__"
 
-function dueLabel(date: string) {
+function dueLabel(
+  date: string,
+  locale: Locale,
+  words: { today: string; tomorrow: string },
+) {
   const d = new Date(`${date}T00:00:00`)
-  if (isToday(d)) return "Hari ini"
-  if (isTomorrow(d)) return "Besok"
+  if (isToday(d)) return words.today
+  if (isTomorrow(d)) return words.tomorrow
   const diff = differenceInCalendarDays(d, new Date())
-  if (diff > 1 && diff < 7) return format(d, "EEE", { locale: idLocale })
-  return format(d, "d MMM", { locale: idLocale })
-}
-
-function Check({
-  done,
-  onToggle,
-  label,
-}: {
-  done: boolean
-  onToggle: () => void
-  label: string
-}) {
-  return (
-    <button
-      type="button"
-      role="checkbox"
-      aria-checked={done}
-      aria-label={label}
-      onClick={onToggle}
-      className={cn(
-        "flex size-4 shrink-0 items-center justify-center rounded-[5px] ring-1 transition-colors",
-        done
-          ? "bg-primary ring-primary text-primary-foreground"
-          : "ring-foreground/25 hover:ring-foreground/50",
-      )}
-    >
-      {done && <RiCheckLine className="size-3" />}
-    </button>
-  )
+  if (diff > 1 && diff < 7) return format(d, "EEE", { locale })
+  return format(d, "d MMM", { locale })
 }
 
 /** Project tasks (DesignerHQ-style table) with inline editing and subtasks. */
 export function ProjectTasks({ projectId }: { projectId: string }) {
+  const t = useT("projects")
+  const tc = useT("common")
   const { data: workspace } = useWorkspace(projectId)
   const { data: tasks = [], isLoading } = useTasks(projectId)
   const viewer = useViewer()
@@ -124,7 +117,7 @@ export function ProjectTasks({ projectId }: { projectId: string }) {
       .from("project_tasks")
       .update(patch)
       .eq("id", id)
-    if (error) toast.error("Gagal menyimpan tugas.")
+    if (error) toast.error(t("errSaveTask"))
     invalidate("tasks")
   }
 
@@ -142,7 +135,7 @@ export function ProjectTasks({ projectId }: { projectId: string }) {
         created_by: viewer.id,
       })
     if (error) {
-      toast.error("Gagal menambah tugas.")
+      toast.error(t("errAddTask"))
       return false
     }
     invalidate("tasks")
@@ -169,61 +162,57 @@ export function ProjectTasks({ projectId }: { projectId: string }) {
     <div className="flex flex-col">
       <PageHeader
         className="pt-6 pb-4"
-        title="Tugas"
+        title={t("sectionTasks")}
         actions={
           <Button onClick={() => setAdding(true)}>
             <RiAddLine data-icon="inline-start" />
-            Tugas baru
+            {t("newTask")}
           </Button>
         }
       />
-      <div className="flex flex-col gap-4 pb-4">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <div className="bg-muted/60 flex items-center gap-0.5 rounded-md p-0.5 text-sm">
-              {(
-                [
-                  ["all", "Semua"],
-                  ["todo", "Belum"],
-                  ["done", "Selesai"],
-                ] as const
-              ).map(([key, label]) => (
-                <button
-                  key={key}
-                  type="button"
-                  aria-pressed={filter === key}
-                  onClick={() => setFilter(key)}
-                  className={cn(
-                    "text-muted-foreground hover:text-foreground flex h-7 items-center gap-1.5 rounded-[5px] px-2.5",
-                    filter === key && "bg-background text-foreground shadow-xs",
-                  )}
-                >
-                  {label}
-                  <span className="text-muted-foreground/80 tabular-nums">
-                    {counts[key]}
-                  </span>
-                </button>
-              ))}
-            </div>
-            <Button
-              size="sm"
-              variant={mine ? "secondary" : "ghost"}
-              aria-pressed={mine}
-              onClick={() => setMine((v) => !v)}
+      <div className="border-border flex items-end justify-between gap-3 border-b">
+        <TabNavigation className="border-b-0">
+          {(
+            [
+              ["all", tc("all")],
+              ["todo", t("filterTodo")],
+              ["done", t("statusCompleted")],
+            ] as const
+          ).map(([key, label]) => (
+            <TabNavigationLink
+              key={key}
+              active={filter === key}
+              onClick={() => setFilter(key)}
+              showLeadingIcon={false}
             >
-              Punya saya
-            </Button>
-          </div>
-        </div>
-
+              {label}
+              {counts[key] > 0 && (
+                <span className="text-tertiary-foreground ml-1.5 tabular-nums">
+                  {counts[key]}
+                </span>
+              )}
+            </TabNavigationLink>
+          ))}
+        </TabNavigation>
+        <Button
+          size="sm"
+          variant="outline"
+          className={cn("mb-2", mine && "bg-muted text-foreground")}
+          aria-pressed={mine}
+          onClick={() => setMine((v) => !v)}
+        >
+          {t("filterMine")}
+        </Button>
+      </div>
+      <div className="flex flex-col gap-4 pb-4">
         <div className="bleed flex flex-col text-sm">
-          <div className="text-muted-foreground border-border gutter-x grid grid-cols-[2.5rem_minmax(0,1fr)_8rem_10rem_7rem_5rem] items-center border-b py-2 text-xs">
+          <div className="text-muted-foreground border-border gutter-x grid grid-cols-[2.5rem_minmax(0,1fr)_8rem_10rem_7rem_5rem] items-center border-b py-2 text-[13px]">
             <span />
-            <span>Tugas</span>
-            <span>Phase</span>
-            <span>PIC</span>
-            <span>Deadline</span>
-            <span className="text-right">Dibuat</span>
+            <span>{t("colTask")}</span>
+            <span>{t("factsPhase")}</span>
+            <span>{t("colPic")}</span>
+            <span>{t("factsDeadline")}</span>
+            <span className="text-right">{t("colCreated")}</span>
           </div>
 
           {adding && (
@@ -232,7 +221,7 @@ export function ProjectTasks({ projectId }: { projectId: string }) {
               <Input
                 autoFocus
                 value={newTitle}
-                placeholder="Nama tugas, Enter untuk simpan"
+                placeholder={t("taskPlaceholder")}
                 onChange={(e) => setNewTitle(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") addTop()
@@ -254,15 +243,19 @@ export function ProjectTasks({ projectId }: { projectId: string }) {
               <Spinner className="size-6" />
             </div>
           ) : visible.length === 0 && !adding ? (
-            <button
-              type="button"
-              onClick={() => setAdding(true)}
-              className="text-muted-foreground hover:text-foreground py-12 text-center"
-            >
-              {filter === "done"
-                ? "Belum ada tugas yang selesai."
-                : "Belum ada tugas. Tambah tugas pertama."}
-            </button>
+            <EmptyState
+              placement="inner"
+              icon={<RiCheckboxCircleLine className="size-5" />}
+              title={t("sectionTasks")}
+              description={
+                filter === "done" ? t("tasksEmptyDone") : t("tasksEmpty")
+              }
+              action={
+                filter === "done"
+                  ? undefined
+                  : { label: t("newTask"), onClick: () => setAdding(true) }
+              }
+            />
           ) : (
             visible.map((task) => (
               <TaskRows
@@ -311,10 +304,13 @@ function TaskRows({
   onRemove: (id: string) => void
   onAddSub: (title: string) => Promise<boolean>
 }) {
+  const t = useT("projects")
+  const tc = useT("common")
+  const dateLocale = useDateLocale()
   const [editing, setEditing] = useState(false)
   const [title, setTitle] = useState(task.title)
   const [subTitle, setSubTitle] = useState("")
-  const dateRef = useRef<HTMLInputElement>(null)
+  const [dateOpen, setDateOpen] = useState(false)
   const assignee = team.find((m) => m.id === task.assignee_id)
   const doneSubs = subtasks.filter((s) => s.done).length
   const overdue =
@@ -334,28 +330,31 @@ function TaskRows({
 
   return (
     <>
-      <div className="group/task border-border/50 hover:bg-muted/20 gutter-x grid min-h-11 grid-cols-[2.5rem_minmax(0,1fr)_8rem_10rem_7rem_5rem] items-center border-b">
+      <div className="group/task border-border/50 hover:bg-muted/20 gutter-x grid min-h-12 grid-cols-[2.5rem_minmax(0,1fr)_8rem_10rem_7rem_5rem] items-center border-b">
         <div className="flex items-center gap-1">
-          <button
-            type="button"
-            aria-label={expanded ? "Tutup subtugas" : "Buka subtugas"}
+          <Button
+            variant="ghost"
+            size="icon-xs"
+            aria-label={expanded ? t("collapseSubtasks") : t("expandSubtasks")}
+            aria-expanded={expanded}
             onClick={() => onExpand(!expanded)}
             className={cn(
-              "text-muted-foreground -ml-4 w-4",
-              subtasks.length === 0 && "invisible group-hover/task:visible",
+              "text-muted-foreground aria-expanded:text-muted-foreground -ml-6 aria-expanded:bg-transparent",
+              subtasks.length === 0 &&
+                "invisible group-hover/task:visible focus-visible:visible",
             )}
           >
             <RiArrowRightSLine
               className={cn(
-                "size-4 transition-transform",
+                "size-4! transition-transform",
                 expanded && "rotate-90",
               )}
             />
-          </button>
-          <Check
-            done={task.done}
-            onToggle={() => onToggle(task)}
-            label={task.done ? "Tandai belum selesai" : "Tandai selesai"}
+          </Button>
+          <Checkbox
+            checked={task.done}
+            onCheckedChange={() => onToggle(task)}
+            aria-label={task.done ? t("markUndone") : t("markDone")}
           />
         </div>
         <div className="flex min-w-0 items-center gap-2 pr-3">
@@ -387,18 +386,19 @@ function TaskRows({
             </button>
           )}
           {subtasks.length > 0 && (
-            <span className="text-muted-foreground shrink-0 text-xs tabular-nums">
+            <span className="text-muted-foreground shrink-0 text-[13px] tabular-nums">
               {doneSubs}/{subtasks.length}
             </span>
           )}
-          <button
-            type="button"
-            aria-label="Hapus tugas"
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            aria-label={t("deleteTask")}
             onClick={() => onRemove(task.id)}
-            className="text-muted-foreground hover:text-destructive ml-auto hidden shrink-0 group-hover/task:block"
+            className="text-muted-foreground hover:text-destructive ml-auto opacity-0 group-hover/task:opacity-100 focus-visible:opacity-100"
           >
-            <RiDeleteBinLine className="size-4" />
-          </button>
+            <RiDeleteBinLine />
+          </Button>
         </div>
         <Select
           value={task.phase_id ?? NONE}
@@ -406,15 +406,18 @@ function TaskRows({
             v && onUpdate(task.id, { phase_id: v === NONE ? null : v })
           }
         >
-          <SelectTrigger className="text-muted-foreground hover:bg-muted/50 h-7 w-[7.5rem] border-0 bg-transparent px-2 text-xs shadow-none">
+          <SelectTrigger
+            size="sm"
+            className="text-muted-foreground hover:bg-accent w-[7.5rem] border-transparent bg-transparent px-2.5 text-[13px] shadow-none hover:border-transparent"
+          >
             <SelectValue>
               {(v: string) =>
-                phases.find((p) => p.id === v)?.name ?? "Tanpa phase"
+                phases.find((p) => p.id === v)?.name ?? t("noPhase")
               }
             </SelectValue>
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value={NONE}>Tanpa phase</SelectItem>
+            <SelectItem value={NONE}>{t("noPhase")}</SelectItem>
             {phases.map((p) => (
               <SelectItem key={p.id} value={p.id}>
                 {p.name}
@@ -428,7 +431,10 @@ function TaskRows({
             v && onUpdate(task.id, { assignee_id: v === NONE ? null : v })
           }
         >
-          <SelectTrigger className="hover:bg-muted/50 h-7 w-[9.5rem] border-0 bg-transparent px-2 text-xs shadow-none">
+          <SelectTrigger
+            size="sm"
+            className="hover:bg-accent w-[9.5rem] border-transparent bg-transparent px-2.5 text-[13px] shadow-none hover:border-transparent"
+          >
             <SelectValue>
               {() =>
                 assignee ? (
@@ -453,7 +459,7 @@ function TaskRows({
             </SelectValue>
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value={NONE}>Tanpa PIC</SelectItem>
+            <SelectItem value={NONE}>{t("noPic")}</SelectItem>
             {team.map((m) => (
               <SelectItem key={m.id} value={m.id}>
                 {m.full_name}
@@ -461,38 +467,61 @@ function TaskRows({
             ))}
           </SelectContent>
         </Select>
-        <div className="relative">
-          <button
-            type="button"
-            onClick={() => dateRef.current?.showPicker?.()}
-            className={cn(
-              "hover:bg-muted/50 flex h-7 items-center gap-1.5 rounded-md px-2 text-xs",
-              task.due_date
-                ? overdue
-                  ? "text-destructive"
-                  : isToday(new Date(`${task.due_date}T00:00:00`))
-                    ? "text-warning"
-                    : "text-foreground"
-                : "text-muted-foreground",
-            )}
-          >
-            <RiCalendarLine className="size-3.5" />
-            {task.due_date ? dueLabel(task.due_date) : <EmptyValue />}
-          </button>
-          <input
-            ref={dateRef}
-            type="date"
-            tabIndex={-1}
-            aria-hidden
-            value={task.due_date ?? ""}
-            onChange={(e) =>
-              onUpdate(task.id, { due_date: e.target.value || null })
+        {/* Due date: the app's calendar in a popover (not the browser's). */}
+        <Popover open={dateOpen} onOpenChange={setDateOpen}>
+          <PopoverTrigger
+            render={
+              <Button
+                variant="ghost"
+                size="sm"
+                className={cn(
+                  "justify-self-start px-2.5 text-[13px] font-normal",
+                  task.due_date
+                    ? overdue
+                      ? "text-destructive"
+                      : isToday(new Date(`${task.due_date}T00:00:00`))
+                        ? "text-warning"
+                        : "text-foreground"
+                    : "text-muted-foreground",
+                )}
+              />
             }
-            className="pointer-events-none absolute inset-0 opacity-0"
-          />
-        </div>
-        <span className="text-muted-foreground text-right text-xs tabular-nums">
-          {format(new Date(task.created_at), "d MMM", { locale: idLocale })}
+          >
+            <RiCalendarLine data-icon="inline-start" className="size-3.5" />
+            {task.due_date ? (
+              dueLabel(task.due_date, dateLocale, {
+                today: tc("today"),
+                tomorrow: t("tomorrow"),
+              })
+            ) : (
+              <EmptyValue />
+            )}
+          </PopoverTrigger>
+          <PopoverContent align="end" className="w-auto p-0">
+            <Calendar
+              mode="single"
+              selected={
+                task.due_date
+                  ? new Date(`${task.due_date}T00:00:00`)
+                  : undefined
+              }
+              defaultMonth={
+                task.due_date
+                  ? new Date(`${task.due_date}T00:00:00`)
+                  : undefined
+              }
+              locale={dateLocale}
+              onSelect={(date) => {
+                onUpdate(task.id, {
+                  due_date: date ? format(date, "yyyy-MM-dd") : null,
+                })
+                setDateOpen(false)
+              }}
+            />
+          </PopoverContent>
+        </Popover>
+        <span className="text-muted-foreground text-right text-[13px] tabular-nums">
+          {format(new Date(task.created_at), "d MMM", { locale: dateLocale })}
         </span>
       </div>
 
@@ -503,15 +532,15 @@ function TaskRows({
               key={sub.id}
               className="group/sub flex min-h-9 items-center gap-2 pr-4"
             >
-              <Check
-                done={sub.done}
-                onToggle={() =>
+              <Checkbox
+                checked={sub.done}
+                onCheckedChange={() =>
                   onUpdate(sub.id, {
                     done: !sub.done,
                     completed_at: sub.done ? null : new Date().toISOString(),
                   })
                 }
-                label={sub.done ? "Tandai belum selesai" : "Tandai selesai"}
+                aria-label={sub.done ? t("markUndone") : t("markDone")}
               />
               <span
                 className={cn(
@@ -521,19 +550,20 @@ function TaskRows({
               >
                 {sub.title}
               </span>
-              <button
-                type="button"
-                aria-label="Hapus subtugas"
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                aria-label={t("deleteSubtask")}
                 onClick={() => onRemove(sub.id)}
-                className="text-muted-foreground hover:text-destructive hidden group-hover/sub:block"
+                className="text-muted-foreground hover:text-destructive opacity-0 group-hover/sub:opacity-100 focus-visible:opacity-100"
               >
-                <RiDeleteBinLine className="size-4" />
-              </button>
+                <RiDeleteBinLine />
+              </Button>
             </div>
           ))}
           <div className="flex items-center gap-2 py-1 pr-4">
-            <RiAddLine className="text-muted-foreground size-4" />
-            <input
+            <RiAddLine className="text-muted-foreground size-4 shrink-0" />
+            <Input
               value={subTitle}
               onChange={(e) => setSubTitle(e.target.value)}
               onKeyDown={async (e) => {
@@ -541,8 +571,9 @@ function TaskRows({
                   setSubTitle("")
                 }
               }}
-              placeholder="Tambah subtugas"
-              className="placeholder:text-muted-foreground h-8 flex-1 bg-transparent text-sm outline-none"
+              placeholder={t("addSubtask")}
+              aria-label={t("addSubtask")}
+              className="h-8 flex-1"
             />
           </div>
         </div>

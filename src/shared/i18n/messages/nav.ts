@@ -1,0 +1,88 @@
+/**
+ * "nav" strings: workspace, page and tab names (keys referenced from
+ * shared/config/workspaces.ts). `id` is the source of truth; `en` must have
+ * every key.
+ */
+const id = {
+  workspacePersonal: "Pribadi",
+  workspaceProject: "Project",
+
+  home: "Beranda",
+  calendar: "Kalender",
+  team: "Tim",
+  teamDirectory: "Direktori",
+  teamMembersAccess: "Anggota & Akses",
+  leaveAttendance: "Cuti & Kehadiran",
+  leaveApprovals: "Persetujuan",
+  leaveAttendanceTab: "Kehadiran",
+  leaveBalance: "Saldo Cuti",
+  leaveLeave: "Cuti",
+  performance: "Kinerja",
+  performanceKpi: "KPI",
+  performance360: "360 review",
+  performanceOneOnOne: "Jadwal 1:1",
+  performanceCompetency: "Kompetensi",
+  finance: "Keuangan",
+  financeOverview: "Ringkasan",
+  financeSubscriptions: "Langganan",
+  policies: "Aturan",
+  projects: "Project",
+  clients: "Klien",
+  processes: "Proses",
+  paymentMethods: "Pembayaran",
+  notifications: "Notifikasi",
+  account: "Akun",
+  settings: "Pengaturan",
+
+  allProjects: "Semua project",
+  activeProjects: "Project aktif",
+  projectDashboard: "Dashboard",
+  projectTasks: "Tugas",
+  projectInvoices: "Invoice",
+  projectDocuments: "Dokumen",
+  projectLibrary: "Library",
+  projectSettings: "Pengaturan",
+}
+
+const en: Record<keyof typeof id, string> = {
+  workspacePersonal: "Personal",
+  workspaceProject: "Project",
+
+  home: "Home",
+  calendar: "Calendar",
+  team: "Team",
+  teamDirectory: "Directory",
+  teamMembersAccess: "Members & access",
+  leaveAttendance: "Leave & Attendance",
+  leaveApprovals: "Approvals",
+  leaveAttendanceTab: "Attendance",
+  leaveBalance: "Leave balance",
+  leaveLeave: "Leave",
+  performance: "Performance",
+  performanceKpi: "KPI",
+  performance360: "360 review",
+  performanceOneOnOne: "1:1 meetings",
+  performanceCompetency: "Competencies",
+  finance: "Finance",
+  financeOverview: "Overview",
+  financeSubscriptions: "Subscriptions",
+  policies: "Rules",
+  projects: "Projects",
+  clients: "Clients",
+  processes: "Processes",
+  paymentMethods: "Payments",
+  notifications: "Notifications",
+  account: "Account",
+  settings: "Settings",
+
+  allProjects: "All projects",
+  activeProjects: "Active projects",
+  projectDashboard: "Dashboard",
+  projectTasks: "Tasks",
+  projectInvoices: "Invoices",
+  projectDocuments: "Documents",
+  projectLibrary: "Library",
+  projectSettings: "Settings",
+}
+
+export const nav = { id, en }

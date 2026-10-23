@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils"
 import { ChevronRight } from "lucide-react"
 import Link from "next/link"
 import * as React from "react"
+import { useT } from "@/shared/i18n/client"
 
 /**
  * Home building blocks (Mercury-style layout, our components): roomy cards
@@ -13,11 +14,7 @@ import * as React from "react"
 
 /** Full-width column on the page gutter, like every other page. */
 export function HomeColumn({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="flex w-full flex-col gap-4 pt-6 pb-10">
-      {children}
-    </div>
-  )
+  return <div className="flex w-full flex-col gap-4 pt-6 pb-10">{children}</div>
 }
 
 export function HomeGreeting({ title }: { title: React.ReactNode }) {
@@ -61,7 +58,11 @@ export function HomeAction({
 }) {
   const content = (
     <>
-      {icon && <span data-icon="inline-start">{icon}</span>}
+      {icon && (
+        <span data-icon="inline-start" className="flex items-center">
+          {icon}
+        </span>
+      )}
       {children}
     </>
   )
@@ -162,7 +163,15 @@ export function HomeFigure({
   return (
     <div className="flex flex-col gap-1">
       <p className="text-heading text-[1.75rem] leading-none font-normal tracking-tight tabular-nums">
-        <RollingValue value={typeof value === "number" || typeof value === "string" ? value : null}>{orEmpty(value)}</RollingValue>
+        <RollingValue
+          value={
+            typeof value === "number" || typeof value === "string"
+              ? value
+              : null
+          }
+        >
+          {orEmpty(value)}
+        </RollingValue>
         {unit && (
           <span className="text-muted-foreground ml-1.5 text-base font-normal tracking-normal">
             {unit}
@@ -198,7 +207,13 @@ export function HomeStats({
               item.tone,
             )}
           >
-            <RollingValue value={typeof item.value === "number" || typeof item.value === "string" ? item.value : null}>
+            <RollingValue
+              value={
+                typeof item.value === "number" || typeof item.value === "string"
+                  ? item.value
+                  : null
+              }
+            >
               {orEmpty(item.value)}
             </RollingValue>
           </dd>
@@ -213,13 +228,14 @@ export function HomeFooter({
   label,
   value,
   href,
-  linkLabel = "Lihat",
+  linkLabel,
 }: {
   label: string
   value: React.ReactNode
   href: string
   linkLabel?: string
 }) {
+  const t = useT("dashboard")
   return (
     <div className="border-border mt-auto flex items-end justify-between gap-3 border-t pt-4">
       <div className="flex min-w-0 flex-col gap-0.5">
@@ -235,7 +251,7 @@ export function HomeFooter({
         nativeButton={false}
         render={<Link href={href} prefetch={false} />}
       >
-        {linkLabel}
+        {linkLabel ?? t("footerView")}
         <ChevronRight data-icon="inline-end" />
       </Button>
     </div>

@@ -1,5 +1,6 @@
 "use client"
 
+import { DateField } from "@/components/date-field"
 import { AnimatePresence } from "motion/react"
 import { ConfirmDialog } from "@/components/confirm-dialog"
 import { EmptyValue } from "@/components/empty-value"
@@ -38,9 +39,12 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Switch } from "@/components/ui/switch"
 import { createClient } from "@/shared/api/supabase/client"
 import { navigationConfig } from "@/shared/config/navigation"
+import { siteConfig } from "@/app/siteConfig"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
+import { useT } from "@/shared/i18n/client"
 import { dedupeProfilesByEmail } from "@/shared/lib/profile-dedupe"
 import { cx } from "@/shared/lib/utils"
+import type { MessageKey } from "@/shared/i18n/messages"
 import type { Database } from "@/shared/types/database.types"
 import {
   RiAddLine,
@@ -71,24 +75,37 @@ type Team = Pick<Database["public"]["Tables"]["teams"]["Row"], "id" | "name">
 type Access = Record<string, Record<string, boolean>>
 
 const ROLE_OPTIONS = [
-  { value: "employee", label: "Employee" },
-  { value: "stakeholder", label: "Stakeholder" },
+  { value: "employee", labelKey: "roleEmployee" },
+  { value: "stakeholder", labelKey: "roleStakeholder" },
 ] as const
 const JOB_TITLES = ["Admin", "Project Manager", "Designer", "Web Developer"]
 const NO_TEAM = "__none__"
-const EMPLOYMENT_LABELS: Record<string, string> = {
-  karyawan: "Karyawan",
-  magang: "Magang",
-}
+const EMPLOYMENT_LABEL_KEYS = {
+  karyawan: "employmentKaryawan",
+  magang: "employmentMagang",
+} as const satisfies Record<string, MessageKey<"settings">>
 
 /**
  * Pages that can be switched per member. Settings sections are gated by super
  * admin instead, so only the real app pages are listed.
  */
-const PAGES = navigationConfig.main.map((item) => ({
-  slug: item.href,
-  name: item.name,
-}))
+type NavKey = MessageKey<"nav">
+const PAGE_LABELS: Record<string, NavKey> = {
+  [siteConfig.baseLinks.dashboard]: "home",
+  [siteConfig.baseLinks.calendar]: "calendar",
+  [siteConfig.baseLinks.leave]: "leaveAttendance",
+  [siteConfig.baseLinks.performance]: "performance",
+  [siteConfig.baseLinks.projects]: "projects",
+  [siteConfig.baseLinks.teams]: "team",
+  [siteConfig.baseLinks.finance]: "finance",
+}
+const PAGES = [
+  ...navigationConfig.main.map((item) => ({
+    slug: item.href,
+    name: item.name,
+  })),
+  { slug: siteConfig.baseLinks.finance, name: "Finance" },
+].map((page) => ({ ...page, key: PAGE_LABELS[page.slug] }))
 
 const PROFILE_COLUMNS =
   "id, full_name, email, role, job_title, is_super_admin, avatar_url, team_id, join_date, employment_type"
@@ -154,6 +171,9 @@ function Row({
 }
 
 export function MembersAccessSettings() {
+  const t = useT("settings")
+  const tc = useT("common")
+  const tn = useT("nav")
   const router = useRouter()
   const supabase = useMemo(() => createClient(), [])
   const { authProfile, refreshProfile } = useUserProfile()
@@ -210,9 +230,9 @@ export function MembersAccessSettings() {
       .eq("id", id)
     if (err) {
       setProfiles(previous)
-      toast.error("Gagal menyimpan perubahan.")
+      toast.error(t("saveChangesFailed"))
     } else {
-      toast.success("Tersimpan.")
+      toast.success(t("saved"))
     }
     setSavingKey(null)
   }
@@ -238,7 +258,7 @@ export function MembersAccessSettings() {
         ...prev,
         [userId]: { ...(prev[userId] ?? {}), [slug]: !next },
       }))
-      toast.error("Gagal mengubah akses.")
+      toast.error(t("changeAccessFailed"))
     }
     setSavingKey(null)
   }
@@ -254,16 +274,17 @@ export function MembersAccessSettings() {
       if (!response.ok) {
         const payload = await response.json().catch(() => ({}))
         throw new Error(
-          payload?.error || `Gagal berpindah akun (${response.status})`,
+          payload?.error ||
+            t("switchAccountFailedStatus", { status: response.status }),
         )
       }
       await refreshProfile()
-      toast.success("Sekarang melihat sebagai anggota ini")
+      toast.success(t("nowViewingAs"))
       // Reloads the app as that member.
       router.push("/dashboard")
       router.refresh()
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Gagal berpindah akun")
+      toast.error(err instanceof Error ? err.message : t("switchAccountFailed"))
     } finally {
       setSwitching(false)
     }
@@ -276,7 +297,7 @@ export function MembersAccessSettings() {
     })
     const payload = await response.json().catch(() => ({}))
     if (!response.ok) {
-      toast.error(payload?.error || "Gagal menghapus anggota")
+      toast.error(payload?.error || t("deleteMemberFailed"))
       throw new Error(payload?.error)
     }
     const deletedIds: string[] = Array.isArray(
@@ -288,12 +309,12 @@ export function MembersAccessSettings() {
     setProfiles(remaining)
     setSelectedId(remaining[0]?.id ?? null)
     setDeleteTarget(null)
-    toast.success("Anggota dihapus.")
+    toast.success(t("memberDeleted"))
   }
 
   if (error) {
     return (
-      <p className="text-destructive p-6 text-sm">Gagal memuat data anggota.</p>
+      <p className="text-destructive p-6 text-sm">{t("loadMembersFailed")}</p>
     )
   }
 
@@ -308,14 +329,14 @@ export function MembersAccessSettings() {
             <RiSearchLine />
           </InputGroupAddon>
           <InputGroupInput
-            placeholder="Cari anggota..."
+            placeholder={t("searchMembers")}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
         </InputGroup>
         <Button onClick={() => setAdding(true)}>
           <RiAddLine data-icon="inline-start" />
-          Tambah anggota
+          {t("addMember")}
         </Button>
       </div>
 
@@ -327,11 +348,11 @@ export function MembersAccessSettings() {
             "gutter-x text-muted-foreground border-border h-9 border-b text-[13px]",
           )}
         >
-          <span>Nama</span>
-          <span className="hidden md:block">Role</span>
-          <span className="hidden md:block">Jabatan</span>
-          <span className="hidden lg:block">Tim</span>
-          <span className="text-right">Akses</span>
+          <span>{t("colName")}</span>
+          <span className="hidden md:block">{t("colRole")}</span>
+          <span className="hidden md:block">{t("colJobTitle")}</span>
+          <span className="hidden lg:block">{t("colTeam")}</span>
+          <span className="text-right">{t("colAccess")}</span>
         </div>
         {isLoading ? (
           Array.from({ length: 8 }).map((_, i) => (
@@ -378,7 +399,7 @@ export function MembersAccessSettings() {
                       <span className="text-foreground flex items-center gap-2 truncate">
                         {p.full_name || p.email}
                         {p.is_super_admin && (
-                          <Badge variant="info">Super admin</Badge>
+                          <Badge variant="info">{t("superAdmin")}</Badge>
                         )}
                       </span>
                       <span className="text-tertiary-foreground truncate text-[13px]">
@@ -388,8 +409,12 @@ export function MembersAccessSettings() {
                   </span>
                   <span className="hidden md:block">
                     <Badge variant="secondary">
-                      {ROLE_OPTIONS.find((r) => r.value === p.role)?.label ??
-                        p.role}
+                      {(() => {
+                        const option = ROLE_OPTIONS.find(
+                          (r) => r.value === p.role,
+                        )
+                        return option ? t(option.labelKey) : p.role
+                      })()}
                     </Badge>
                   </span>
                   <span className="text-muted-foreground hidden truncate md:block">
@@ -413,7 +438,7 @@ export function MembersAccessSettings() {
       </GroupedList>
       {!isLoading && filtered.length === 0 && (
         <p className="text-muted-foreground py-8 text-center text-sm">
-          Tidak ada anggota.
+          {t("noMembers")}
         </p>
       )}
 
@@ -425,7 +450,7 @@ export function MembersAccessSettings() {
       >
         <SheetContent className="w-full gap-0 sm:max-w-md">
           <SheetHeader>
-            <SheetTitle>Detail anggota</SheetTitle>
+            <SheetTitle>{t("memberDetail")}</SheetTitle>
           </SheetHeader>
           {selected && (
             <div className="flex min-h-0 flex-1 flex-col gap-8 overflow-y-auto px-5 pt-5 pb-6">
@@ -436,8 +461,8 @@ export function MembersAccessSettings() {
                 </Avatar>
                 <div className="min-w-0 flex-1">
                   <p className="flex items-center gap-2 truncate font-medium">
-                    {selected.full_name || "Tanpa nama"}
-                    {isSelf && <Badge variant="secondary">Kamu</Badge>}
+                    {selected.full_name || t("noName")}
+                    {isSelf && <Badge variant="secondary">{t("you")}</Badge>}
                   </p>
                   <p className="text-muted-foreground truncate text-sm">
                     {selected.email}
@@ -450,19 +475,16 @@ export function MembersAccessSettings() {
                     onClick={() => viewAs(selected.id)}
                   >
                     <RiEyeLine data-icon="inline-start" />
-                    Lihat sebagai
+                    {t("viewAs")}
                   </Button>
                 )}
               </div>
 
               <section className="flex flex-col">
                 <h3 className="text-muted-foreground mb-1 text-xs font-medium">
-                  Peran
+                  {t("sectionRole")}
                 </h3>
-                <Row
-                  label="Role"
-                  hint="Stakeholder bisa mengelola tim & project."
-                >
+                <Row label={t("colRole")} hint={t("roleHint")}>
                   <Select
                     value={selected.role}
                     onValueChange={(v) =>
@@ -478,13 +500,13 @@ export function MembersAccessSettings() {
                     <SelectContent align="end">
                       {ROLE_OPTIONS.map((r) => (
                         <SelectItem key={r.value} value={r.value}>
-                          {r.label}
+                          {t(r.labelKey)}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </Row>
-                <Row label="Jabatan">
+                <Row label={t("colJobTitle")}>
                   <Select
                     value={selected.job_title ?? null}
                     onValueChange={(v) =>
@@ -493,7 +515,7 @@ export function MembersAccessSettings() {
                     disabled={savingKey === `${selected.id}:job_title`}
                   >
                     <SelectTrigger className="w-44">
-                      <SelectValue placeholder="Pilih jabatan" />
+                      <SelectValue placeholder={t("selectJobTitle")} />
                     </SelectTrigger>
                     <SelectContent align="end">
                       {JOB_TITLES.map((job) => (
@@ -504,7 +526,7 @@ export function MembersAccessSettings() {
                     </SelectContent>
                   </Select>
                 </Row>
-                <Row label="Tim">
+                <Row label={t("colTeam")}>
                   <Select
                     value={selected.team_id ?? NO_TEAM}
                     onValueChange={(v) =>
@@ -519,7 +541,7 @@ export function MembersAccessSettings() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent align="end">
-                      <SelectItem value={NO_TEAM}>Tanpa tim</SelectItem>
+                      <SelectItem value={NO_TEAM}>{t("noTeam")}</SelectItem>
                       {teams.map((t) => (
                         <SelectItem key={t.id} value={t.id}>
                           {t.name}
@@ -528,7 +550,7 @@ export function MembersAccessSettings() {
                     </SelectContent>
                   </Select>
                 </Row>
-                <Row label="Status">
+                <Row label={t("status")}>
                   <Select
                     value={selected.employment_type ?? "karyawan"}
                     onValueChange={(v) =>
@@ -538,33 +560,36 @@ export function MembersAccessSettings() {
                   >
                     <SelectTrigger className="w-44">
                       <SelectValue>
-                        {(v: string) => EMPLOYMENT_LABELS[v] ?? v}
+                        {(v: string) =>
+                          v in EMPLOYMENT_LABEL_KEYS
+                            ? t(
+                                EMPLOYMENT_LABEL_KEYS[
+                                  v as keyof typeof EMPLOYMENT_LABEL_KEYS
+                                ],
+                              )
+                            : v
+                        }
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent align="end">
-                      {Object.entries(EMPLOYMENT_LABELS).map(
-                        ([value, label]) => (
+                      {Object.entries(EMPLOYMENT_LABEL_KEYS).map(
+                        ([value, labelKey]) => (
                           <SelectItem key={value} value={value}>
-                            {label}
+                            {t(labelKey)}
                           </SelectItem>
                         ),
                       )}
                     </SelectContent>
                   </Select>
                 </Row>
-                <Row
-                  label="Mulai kerja"
-                  hint="Sejak resmi jadi karyawan. Dipakai untuk jatah cuti."
-                >
-                  <Input
-                    key={`${selected.id}:${selected.join_date ?? ""}`}
-                    type="date"
+                <Row label={t("joinDate")} hint={t("joinDateHint")}>
+                  <DateField
                     className="w-44"
-                    defaultValue={selected.join_date ?? ""}
+                    value={selected.join_date}
                     max={new Date().toISOString().slice(0, 10)}
                     disabled={savingKey === `${selected.id}:join_date`}
-                    onBlur={(e) => {
-                      const next = e.target.value || null
+                    onChange={(value) => {
+                      const next = value || null
                       if (next !== (selected.join_date ?? null)) {
                         updateProfile(selected.id, { join_date: next })
                       }
@@ -572,12 +597,8 @@ export function MembersAccessSettings() {
                   />
                 </Row>
                 <Row
-                  label="Super admin"
-                  hint={
-                    isSelf
-                      ? "Tidak bisa mengubah status kamu sendiri."
-                      : "Bisa membuka pengaturan anggota & akses."
-                  }
+                  label={t("superAdmin")}
+                  hint={isSelf ? t("superAdminSelfHint") : t("superAdminHint")}
                 >
                   <Switch
                     checked={selected.is_super_admin === true}
@@ -587,26 +608,29 @@ export function MembersAccessSettings() {
                     onCheckedChange={(checked) =>
                       updateProfile(selected.id, { is_super_admin: checked })
                     }
-                    aria-label="Super admin"
+                    aria-label={t("superAdmin")}
                   />
                 </Row>
               </section>
 
               <section className="flex flex-col">
                 <h3 className="text-muted-foreground mb-1 text-xs font-medium">
-                  Akses halaman
+                  {t("pageAccess")}
                 </h3>
                 {PAGES.map((page) => {
                   const granted = access[selected.id]?.[page.slug] === true
                   return (
-                    <Row key={page.slug} label={page.name}>
+                    <Row
+                      key={page.slug}
+                      label={page.key ? tn(page.key) : page.name}
+                    >
                       <Switch
                         checked={granted}
                         disabled={savingKey === `${selected.id}:${page.slug}`}
                         onCheckedChange={(checked) =>
                           togglePage(selected.id, page.slug, checked)
                         }
-                        aria-label={`Akses ${page.name}`}
+                        aria-label={t("pageAccessAria", { page: page.name })}
                       />
                     </Row>
                   )
@@ -616,9 +640,9 @@ export function MembersAccessSettings() {
               {!isSelf && (
                 <section className="flex items-center justify-between gap-6 border-t pt-6">
                   <div>
-                    <p className="text-sm">Hapus anggota</p>
+                    <p className="text-sm">{t("deleteMember")}</p>
                     <p className="text-muted-foreground text-xs">
-                      Menghapus profil dan aksesnya. Tidak bisa dibatalkan.
+                      {t("deleteMemberHint")}
                     </p>
                   </div>
                   <Button
@@ -626,7 +650,7 @@ export function MembersAccessSettings() {
                     onClick={() => setDeleteTarget(selected)}
                   >
                     <RiDeleteBinLine data-icon="inline-start" />
-                    Hapus
+                    {tc("delete")}
                   </Button>
                 </section>
               )}
@@ -650,10 +674,12 @@ export function MembersAccessSettings() {
         onOpenChange={(open) => {
           if (!open) setDeleteTarget(null)
         }}
-        title="Hapus anggota?"
-        description={`${deleteTarget?.full_name || deleteTarget?.email} akan dihapus beserta aksesnya.`}
-        confirmText="Hapus"
-        cancelText="Batal"
+        title={t("deleteMemberTitle")}
+        description={t("deleteMemberDescription", {
+          name: deleteTarget?.full_name || deleteTarget?.email || "",
+        })}
+        confirmText={tc("delete")}
+        cancelText={tc("cancel")}
         variant="destructive"
         onConfirm={deleteMember}
       />
@@ -690,6 +716,8 @@ function AddMemberDialog({
   existingEmails: string[]
   onAdded: (profile: Profile) => void
 }) {
+  const t = useT("settings")
+  const tc = useT("common")
   const [form, setForm] = useState<AddForm>(EMPTY_FORM)
   const [saving, setSaving] = useState(false)
   const set = <K extends keyof AddForm>(key: K, value: AddForm[K]) =>
@@ -698,7 +726,7 @@ function AddMemberDialog({
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (existingEmails.includes(form.email.trim().toLowerCase())) {
-      toast.info("Email ini sudah terdaftar.")
+      toast.info(t("emailAlreadyRegistered"))
       return
     }
     setSaving(true)
@@ -715,14 +743,14 @@ function AddMemberDialog({
       })
       const payload = await response.json().catch(() => ({}))
       if (!response.ok) {
-        throw new Error(payload?.error || "Gagal menambah anggota")
+        throw new Error(payload?.error || t("addMemberFailed"))
       }
       onAdded(payload.data as Profile)
-      toast.success("Anggota ditambahkan.")
+      toast.success(t("memberAdded"))
       setForm(EMPTY_FORM)
       onOpenChange(false)
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Gagal menambah anggota")
+      toast.error(err instanceof Error ? err.message : t("addMemberFailed"))
     } finally {
       setSaving(false)
     }
@@ -732,7 +760,7 @@ function AddMemberDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Tambah anggota</DialogTitle>
+          <DialogTitle>{t("addMember")}</DialogTitle>
         </DialogHeader>
         <form
           id="add-member-form"
@@ -740,7 +768,7 @@ function AddMemberDialog({
           className="flex flex-col gap-4"
         >
           <div className="flex flex-col gap-2">
-            <Label htmlFor="member-name">Nama lengkap</Label>
+            <Label htmlFor="member-name">{t("fullName")}</Label>
             <Input
               id="member-name"
               required
@@ -749,7 +777,7 @@ function AddMemberDialog({
             />
           </div>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="member-email">Email</Label>
+            <Label htmlFor="member-email">{t("email")}</Label>
             <Input
               id="member-email"
               type="email"
@@ -760,7 +788,7 @@ function AddMemberDialog({
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-2">
-              <Label>Jabatan</Label>
+              <Label>{t("colJobTitle")}</Label>
               <Select
                 value={form.job_title}
                 onValueChange={(v) => v && set("job_title", v)}
@@ -778,7 +806,7 @@ function AddMemberDialog({
               </Select>
             </div>
             <div className="flex flex-col gap-2">
-              <Label>Role</Label>
+              <Label>{t("colRole")}</Label>
               <Select
                 value={form.role}
                 onValueChange={(v) => v && set("role", v as AddForm["role"])}
@@ -789,14 +817,14 @@ function AddMemberDialog({
                 <SelectContent>
                   {ROLE_OPTIONS.map((r) => (
                     <SelectItem key={r.value} value={r.value}>
-                      {r.label}
+                      {t(r.labelKey)}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="flex flex-col gap-2">
-              <Label>Tim</Label>
+              <Label>{t("colTeam")}</Label>
               <Select
                 value={form.team_id}
                 onValueChange={(v) => v && set("team_id", v)}
@@ -805,7 +833,7 @@ function AddMemberDialog({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={NO_TEAM}>Tanpa tim</SelectItem>
+                  <SelectItem value={NO_TEAM}>{t("noTeam")}</SelectItem>
                   {teams.map((t) => (
                     <SelectItem key={t.id} value={t.id}>
                       {t.name}
@@ -822,10 +850,10 @@ function AddMemberDialog({
             variant="outline"
             onClick={() => onOpenChange(false)}
           >
-            Batal
+            {tc("cancel")}
           </Button>
           <Button type="submit" form="add-member-form" disabled={saving}>
-            Tambah
+            {tc("add")}
           </Button>
         </DialogFooter>
       </DialogContent>

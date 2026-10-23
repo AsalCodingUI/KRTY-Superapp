@@ -9,6 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
+import { useT } from "@/shared/i18n/client"
 
 export type Quarter = "Q1" | "Q2" | "Q3" | "Q4" | "All"
 
@@ -34,7 +35,8 @@ const QUARTERS: { label: string; value: Quarter }[] = [
   { label: "Q2", value: "Q2" },
   { label: "Q3", value: "Q3" },
   { label: "Q4", value: "Q4" },
-  { label: "Setahun", value: "All" },
+  // Translated at render.
+  { label: "quarterFullYear", value: "All" },
 ]
 
 /**
@@ -51,14 +53,15 @@ export function QuarterFilter({
   hideAll = false,
   className,
 }: QuarterFilterProps) {
+  const t = useT("shell")
   const selectedYear =
     value === "All" ? years[0] : parseInt(value.split("-")[0]) || years[0]
 
   const selectedQuarter = value === "All" ? "All" : value.split("-")[1] || "Q1"
 
-  const visibleQuarters = hideAll
-    ? QUARTERS.filter((q) => q.value !== "All")
-    : QUARTERS
+  const visibleQuarters = (
+    hideAll ? QUARTERS.filter((q) => q.value !== "All") : QUARTERS
+  ).map((q) => (q.value === "All" ? { ...q, label: t("quarterFullYear") } : q))
 
   const handleYearChange = (yearStr: string) => {
     const year = parseInt(yearStr)

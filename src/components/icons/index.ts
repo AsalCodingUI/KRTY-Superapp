@@ -77,13 +77,31 @@ import { UsersIcon as UsersIconSource } from "./users"
 import { WalletIcon as WalletIconSource } from "./wallet"
 import { XIcon as XIconSource } from "./x"
 
-export const AlignCenter = /*#__PURE__*/ animated(AlignCenterIconSource, "AlignCenter")
-export const AlignLeft = /*#__PURE__*/ animated(AlignLeftIconSource, "AlignLeft")
-export const AlignRight = /*#__PURE__*/ animated(AlignRightIconSource, "AlignRight")
+export const AlignCenter = /*#__PURE__*/ animated(
+  AlignCenterIconSource,
+  "AlignCenter",
+)
+export const AlignLeft = /*#__PURE__*/ animated(
+  AlignLeftIconSource,
+  "AlignLeft",
+)
+export const AlignRight = /*#__PURE__*/ animated(
+  AlignRightIconSource,
+  "AlignRight",
+)
 export const Archive = /*#__PURE__*/ animated(ArchiveIconSource, "Archive")
-export const ArrowDown = /*#__PURE__*/ animated(ArrowDownIconSource, "ArrowDown")
-export const ArrowLeft = /*#__PURE__*/ animated(ArrowLeftIconSource, "ArrowLeft")
-export const ArrowRight = /*#__PURE__*/ animated(ArrowRightIconSource, "ArrowRight")
+export const ArrowDown = /*#__PURE__*/ animated(
+  ArrowDownIconSource,
+  "ArrowDown",
+)
+export const ArrowLeft = /*#__PURE__*/ animated(
+  ArrowLeftIconSource,
+  "ArrowLeft",
+)
+export const ArrowRight = /*#__PURE__*/ animated(
+  ArrowRightIconSource,
+  "ArrowRight",
+)
 export const ArrowUp = /*#__PURE__*/ animated(ArrowUpIconSource, "ArrowUp")
 export const Bell = /*#__PURE__*/ animated(BellIconSource, "Bell")
 export const Bold = /*#__PURE__*/ animated(BoldIconSource, "Bold")
@@ -91,60 +109,111 @@ export const BriefcaseBusiness = /*#__PURE__*/ animated(
   BriefcaseBusinessIconSource,
   "BriefcaseBusiness",
 )
-export const CalendarCheck = /*#__PURE__*/ animated(CalendarCheckIconSource, "CalendarCheck")
-export const CalendarDays = /*#__PURE__*/ animated(CalendarDaysIconSource, "CalendarDays")
+export const CalendarCheck = /*#__PURE__*/ animated(
+  CalendarCheckIconSource,
+  "CalendarCheck",
+)
+export const CalendarDays = /*#__PURE__*/ animated(
+  CalendarDaysIconSource,
+  "CalendarDays",
+)
 export const ChartColumnIncreasing = /*#__PURE__*/ animated(
   ChartColumnIncreasingIconSource,
   "ChartColumnIncreasing",
 )
-export const ChartLine = /*#__PURE__*/ animated(ChartLineIconSource, "ChartLine")
-export const CheckCheck = /*#__PURE__*/ animated(CheckCheckIconSource, "CheckCheck")
+export const ChartLine = /*#__PURE__*/ animated(
+  ChartLineIconSource,
+  "ChartLine",
+)
+export const CheckCheck = /*#__PURE__*/ animated(
+  CheckCheckIconSource,
+  "CheckCheck",
+)
 export const Check = /*#__PURE__*/ animated(CheckIconSource, "Check")
-export const ChevronDown = /*#__PURE__*/ animated(ChevronDownIconSource, "ChevronDown")
-export const ChevronLeft = /*#__PURE__*/ animated(ChevronLeftIconSource, "ChevronLeft")
-export const ChevronRight = /*#__PURE__*/ animated(ChevronRightIconSource, "ChevronRight")
-export const ChevronUp = /*#__PURE__*/ animated(ChevronUpIconSource, "ChevronUp")
+export const ChevronDown = /*#__PURE__*/ animated(
+  ChevronDownIconSource,
+  "ChevronDown",
+)
+export const ChevronLeft = /*#__PURE__*/ animated(
+  ChevronLeftIconSource,
+  "ChevronLeft",
+)
+export const ChevronRight = /*#__PURE__*/ animated(
+  ChevronRightIconSource,
+  "ChevronRight",
+)
+export const ChevronUp = /*#__PURE__*/ animated(
+  ChevronUpIconSource,
+  "ChevronUp",
+)
 export const ChevronsUpDown = /*#__PURE__*/ animated(
   ChevronsUpDownIconSource,
   "ChevronsUpDown",
 )
 export const Chrome = /*#__PURE__*/ animated(ChromeIconSource, "Chrome")
-export const CircleCheck = /*#__PURE__*/ animated(CircleCheckIconSource, "CircleCheck")
+export const CircleCheck = /*#__PURE__*/ animated(
+  CircleCheckIconSource,
+  "CircleCheck",
+)
 export const CircleDollarSign = /*#__PURE__*/ animated(
   CircleDollarSignIconSource,
   "CircleDollarSign",
 )
-export const CircleHelp = /*#__PURE__*/ animated(CircleHelpIconSource, "CircleHelp")
+export const CircleHelp = /*#__PURE__*/ animated(
+  CircleHelpIconSource,
+  "CircleHelp",
+)
 export const Clock = /*#__PURE__*/ animated(ClockIconSource, "Clock")
 export const Coffee = /*#__PURE__*/ animated(CoffeeIconSource, "Coffee")
 export const Copy = /*#__PURE__*/ animated(CopyIconSource, "Copy")
 export const Delete = /*#__PURE__*/ animated(DeleteIconSource, "Delete")
 export const Download = /*#__PURE__*/ animated(DownloadIconSource, "Download")
-export const ExternalLink = /*#__PURE__*/ animated(ExternalLinkIconSource, "ExternalLink")
+export const ExternalLink = /*#__PURE__*/ animated(
+  ExternalLinkIconSource,
+  "ExternalLink",
+)
 export const EyeOff = /*#__PURE__*/ animated(EyeOffIconSource, "EyeOff")
 export const Eye = /*#__PURE__*/ animated(EyeIconSource, "Eye")
 export const FileText = /*#__PURE__*/ animated(FileTextIconSource, "FileText")
-export const FolderOpen = /*#__PURE__*/ animated(FolderOpenIconSource, "FolderOpen")
+export const FolderOpen = /*#__PURE__*/ animated(
+  FolderOpenIconSource,
+  "FolderOpen",
+)
 export const Github = /*#__PURE__*/ animated(GithubIconSource, "Github")
-export const GripVertical = /*#__PURE__*/ animated(GripVerticalIconSource, "GripVertical")
+export const GripVertical = /*#__PURE__*/ animated(
+  GripVerticalIconSource,
+  "GripVertical",
+)
 export const Hammer = /*#__PURE__*/ animated(HammerIconSource, "Hammer")
 export const Heart = /*#__PURE__*/ animated(HeartIconSource, "Heart")
 export const Home = /*#__PURE__*/ animated(HomeIconSource, "Home")
 export const Italic = /*#__PURE__*/ animated(ItalicIconSource, "Italic")
-export const LayoutGrid = /*#__PURE__*/ animated(LayoutGridIconSource, "LayoutGrid")
-export const LoaderCircle = /*#__PURE__*/ animated(LoaderCircleIconSource, "LoaderCircle")
+export const LayoutGrid = /*#__PURE__*/ animated(
+  LayoutGridIconSource,
+  "LayoutGrid",
+)
+export const LoaderCircle = /*#__PURE__*/ animated(
+  LoaderCircleIconSource,
+  "LoaderCircle",
+)
 export const Loader = /*#__PURE__*/ animated(LoaderIconSource, "Loader")
 export const Lock = /*#__PURE__*/ animated(LockIconSource, "Lock")
 export const LogIn = /*#__PURE__*/ animated(LogInIconSource, "LogIn")
 export const Logout = /*#__PURE__*/ animated(LogoutIconSource, "Logout")
 export const MapPin = /*#__PURE__*/ animated(MapPinIconSource, "MapPin")
 export const Menu = /*#__PURE__*/ animated(MenuIconSource, "Menu")
-export const MessageCircle = /*#__PURE__*/ animated(MessageCircleIconSource, "MessageCircle")
+export const MessageCircle = /*#__PURE__*/ animated(
+  MessageCircleIconSource,
+  "MessageCircle",
+)
 export const Moon = /*#__PURE__*/ animated(MoonIconSource, "Moon")
 export const Phone = /*#__PURE__*/ animated(PhoneIconSource, "Phone")
 export const Plus = /*#__PURE__*/ animated(PlusIconSource, "Plus")
 export const Radio = /*#__PURE__*/ animated(RadioIconSource, "Radio")
-export const RefreshCW = /*#__PURE__*/ animated(RefreshCWIconSource, "RefreshCW")
+export const RefreshCW = /*#__PURE__*/ animated(
+  RefreshCWIconSource,
+  "RefreshCW",
+)
 export const Rocket = /*#__PURE__*/ animated(RocketIconSource, "Rocket")
 export const Search = /*#__PURE__*/ animated(SearchIconSource, "Search")
 export const Send = /*#__PURE__*/ animated(SendIconSource, "Send")
@@ -154,10 +223,16 @@ export const SlidersHorizontal = /*#__PURE__*/ animated(
   "SlidersHorizontal",
 )
 export const Smile = /*#__PURE__*/ animated(SmileIconSource, "Smile")
-export const SquarePen = /*#__PURE__*/ animated(SquarePenIconSource, "SquarePen")
+export const SquarePen = /*#__PURE__*/ animated(
+  SquarePenIconSource,
+  "SquarePen",
+)
 export const Sun = /*#__PURE__*/ animated(SunIconSource, "Sun")
 export const Twitter = /*#__PURE__*/ animated(TwitterIconSource, "Twitter")
-export const Underline = /*#__PURE__*/ animated(UnderlineIconSource, "Underline")
+export const Underline = /*#__PURE__*/ animated(
+  UnderlineIconSource,
+  "Underline",
+)
 export const Upload = /*#__PURE__*/ animated(UploadIconSource, "Upload")
 export const UserPlus = /*#__PURE__*/ animated(UserPlusIconSource, "UserPlus")
 export const User = /*#__PURE__*/ animated(UserIconSource, "User")

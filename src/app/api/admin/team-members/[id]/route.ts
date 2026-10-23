@@ -1,6 +1,7 @@
 import { createAdminClient } from "@/shared/api/supabase/admin"
 import { createClient } from "@/shared/api/supabase/server"
 import { resolveProfileByUserIdOrEmail } from "@/shared/lib/profile-resolution"
+import { getT } from "@/shared/i18n/server"
 import { NextRequest, NextResponse } from "next/server"
 
 type RouteContext = {
@@ -8,6 +9,7 @@ type RouteContext = {
 }
 
 export async function DELETE(_request: NextRequest, context: RouteContext) {
+  const t = await getT("auth")
   try {
     const { id } = await context.params
     const supabase = await createClient()
@@ -16,7 +18,7 @@ export async function DELETE(_request: NextRequest, context: RouteContext) {
     } = await supabase.auth.getUser()
 
     if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ error: t("apiUnauthorized") }, { status: 401 })
     }
 
     const actorProfile = await resolveProfileByUserIdOrEmail<{
@@ -26,12 +28,12 @@ export async function DELETE(_request: NextRequest, context: RouteContext) {
     }>(supabase, "id, email, is_super_admin, created_at", user.id, user.email)
 
     if (!actorProfile?.is_super_admin) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+      return NextResponse.json({ error: t("apiForbidden") }, { status: 403 })
     }
 
     if (actorProfile.id === id) {
       return NextResponse.json(
-        { error: "You cannot delete the account you are currently using." },
+        { error: t("apiCannotDeleteSelf") },
         { status: 400 },
       )
     }
@@ -49,7 +51,7 @@ export async function DELETE(_request: NextRequest, context: RouteContext) {
     }
 
     if (!targetProfile?.id) {
-      return NextResponse.json({ error: "User not found." }, { status: 404 })
+      return NextResponse.json({ error: t("apiUserNotFound") }, { status: 404 })
     }
 
     const normalizedEmail = targetProfile.email?.trim().toLowerCase() || null
@@ -75,7 +77,7 @@ export async function DELETE(_request: NextRequest, context: RouteContext) {
 
     if (profileIdsToDelete.includes(actorProfile.id)) {
       return NextResponse.json(
-        { error: "You cannot delete the account you are currently using." },
+        { error: t("apiCannotDeleteSelf") },
         { status: 400 },
       )
     }
@@ -119,8 +121,8 @@ export async function DELETE(_request: NextRequest, context: RouteContext) {
       return NextResponse.json(
         {
           error: relatedDataBlocked
-            ? "This account is still linked to other records and cannot be deleted yet."
-            : "Failed to delete this account.",
+            ? t("apiDeleteLinked")
+            : t("apiDeleteAccountFailed"),
         },
         { status: 409 },
       )
@@ -137,7 +139,7 @@ export async function DELETE(_request: NextRequest, context: RouteContext) {
   } catch (error) {
     console.error("Delete team member API error", error)
     return NextResponse.json(
-      { error: "Failed to delete team member." },
+      { error: t("apiDeleteMemberFailed") },
       { status: 500 },
     )
   }

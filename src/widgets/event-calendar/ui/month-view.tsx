@@ -5,10 +5,10 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import { useDateLocale, useT } from "@/shared/i18n/client"
 import { cx } from "@/shared/lib/utils"
 import { RiCloseLine } from "@/shared/ui/lucide-icons"
 import { format, isSameDay, isSameMonth } from "date-fns"
-import { id } from "date-fns/locale"
 import { useEffect, memo, useMemo, useState } from "react"
 import { useCalendarContext } from "./calendar-context"
 import { EventItem } from "./event-item"
@@ -28,7 +28,6 @@ interface MonthViewProps {
   onDayClick?: (date: Date) => void
 }
 
-const WEEKDAY_LABELS = ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"]
 const MOBILE_DAY_EVENTS_DRAWER_CLASSNAME =
   "z-[82] h-[80vh] overflow-hidden rounded-t-[24px] border-t p-0"
 
@@ -38,7 +37,13 @@ export const MonthView = memo(function MonthView({
   onDayClick,
 }: MonthViewProps) {
   const { currentDate, setSelectedDate } = useCalendarContext()
+  const t = useT("calendar")
+  const dateLocale = useDateLocale()
   const monthDays = useMemo(() => getMonthViewDays(currentDate), [currentDate])
+  // Mon–Sun short names from the first grid row (weeks start on Monday).
+  const weekdayLabels = monthDays
+    .slice(0, 7)
+    .map((day) => format(day, "EEE", { locale: dateLocale }))
   const today = new Date()
   const [openPopover, setOpenPopover] = useState<string | null>(null)
   const [isMobile, setIsMobile] = useState(false)
@@ -89,7 +94,7 @@ export const MonthView = memo(function MonthView({
 
           {/* Day headers */}
           <div className="grid flex-1 grid-cols-7">
-            {WEEKDAY_LABELS.map((day) => (
+            {weekdayLabels.map((day) => (
               <div
                 key={day}
                 className="text-muted-foreground border-r px-2.5 py-2 text-sm last:border-r-0"
@@ -205,7 +210,9 @@ export const MonthView = memo(function MonthView({
                               />
                             }
                           >
-                            +{dayEvents.length - 3} lainnya
+                            {t("monthMoreEvents", {
+                              count: dayEvents.length - 3,
+                            })}
                           </PopoverTrigger>
                           <PopoverContent
                             className="w-[min(320px,calc(100vw-2rem))] p-3"
@@ -215,7 +222,7 @@ export const MonthView = memo(function MonthView({
                             <div className="space-y-2">
                               <h4 className="text-foreground mb-3 text-sm font-medium">
                                 {format(day, "EEEE, dd MMMM yyyy", {
-                                  locale: id,
+                                  locale: dateLocale,
                                 })}
                               </h4>
                               <div className="max-h-80 space-y-2 overflow-y-auto">
@@ -252,24 +259,24 @@ export const MonthView = memo(function MonthView({
           <SheetTitle className="sr-only">
             {mobileSelectedDay
               ? format(mobileSelectedDay, "EEEE, dd MMMM yyyy", {
-                  locale: id,
+                  locale: dateLocale,
                 })
-              : "Jadwal"}
+              : t("monthDayDrawerFallbackTitle")}
           </SheetTitle>
           <div className="border-border flex items-center justify-between border-b px-4 py-4">
             <h3 className="text-foreground text-base font-semibold">
               {mobileSelectedDay
                 ? format(mobileSelectedDay, "EEEE, dd MMMM yyyy", {
-                    locale: id,
+                    locale: dateLocale,
                   })
-                : "Jadwal"}
+                : t("monthDayDrawerFallbackTitle")}
             </h3>
             <SheetClose
               render={
                 <button
                   type="button"
                   className="text-tertiary-foreground hover:text-foreground inline-flex size-8 items-center justify-center rounded-full transition-colors"
-                  aria-label="Tutup panel jadwal"
+                  aria-label={t("monthDayDrawerClose")}
                 />
               }
             >
@@ -280,7 +287,7 @@ export const MonthView = memo(function MonthView({
             <div className="space-y-3">
               {mobileSelectedEvents.length === 0 ? (
                 <p className="text-muted-foreground text-sm">
-                  Tidak ada event pada tanggal ini.
+                  {t("monthDayDrawerEmpty")}
                 </p>
               ) : (
                 mobileSelectedEvents.map((event) => (

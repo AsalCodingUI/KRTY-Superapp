@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/page-header"
 import { createTeamColumns } from "@/app/(main)/teams/Columns"
 import Link from "next/link"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
+import { useT } from "@/shared/i18n/client"
 import { Database } from "@/shared/types/database.types"
 import { DataTable } from "@/components/data-table"
 import { Button } from "@/components/ui/button"
@@ -35,6 +36,7 @@ export function TeamsPage({
   pageSize,
   totalCount,
 }: TeamsPageProps) {
+  const t = useT("teams")
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -70,7 +72,10 @@ export function TeamsPage({
     })
   }, [initialData, normalizedSearch])
 
-  const teamColumns = useMemo(() => createTeamColumns({ canSelect: false }), [])
+  const teamColumns = useMemo(
+    () => createTeamColumns({ canSelect: false, t }),
+    [t],
+  )
 
   const totalMembers = initialData.length
   const totalDesigners = initialData.filter(
@@ -88,11 +93,11 @@ export function TeamsPage({
   ).length
 
   const stats = [
-    { label: "Total anggota", value: totalMembers },
-    { label: "Designer", value: totalDesigners },
-    { label: "Developer", value: totalDevelopers },
-    { label: "Project Manager", value: totalPMs },
-    { label: "Admin/Stakeholder", value: totalAdmins },
+    { label: t("statTotal"), value: totalMembers },
+    { label: t("statDesigner"), value: totalDesigners },
+    { label: t("statDeveloper"), value: totalDevelopers },
+    { label: t("statProjectManager"), value: totalPMs },
+    { label: t("statAdmin"), value: totalAdmins },
   ]
 
   return (
@@ -100,7 +105,7 @@ export function TeamsPage({
       {/* Title + actions, a stats band, the search row, then the list. */}
       <PageHeader
         className="pt-6 pb-4"
-        title="Team"
+        title={t("title")}
         actions={
           // The directory is read-only; members are managed on their own page.
           isSuperAdmin && (
@@ -110,7 +115,7 @@ export function TeamsPage({
               render={<Link href="/teams/access" prefetch={false} />}
             >
               <RiLockLine data-icon="inline-start" />
-              Anggota & Akses
+              {t("membersAccess")}
             </Button>
           )
         }
@@ -134,7 +139,7 @@ export function TeamsPage({
           </InputGroupAddon>
           <InputGroupInput
             type="search"
-            placeholder="Cari anggota..."
+            placeholder={t("searchPlaceholder")}
             value={searchTerm}
             onChange={(event) => setSearchTerm(event.target.value)}
           />

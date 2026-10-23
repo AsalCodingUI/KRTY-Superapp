@@ -4,6 +4,7 @@ import { useBreadcrumbs } from "@/components/page-breadcrumbs"
 import { PageHeader } from "@/components/page-header"
 import { QuarterFilter } from "@/components/quarter-filter"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { useT } from "@/shared/i18n/client"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { EmployeeKpiView } from "./EmployeeKpiView"
 import { normalizePeriod, periodYears } from "./period"
@@ -19,14 +20,15 @@ export function EmployeeKpiPage({
     job_title: string | null
   }
 }) {
+  const t = useT("performance")
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const period = normalizePeriod(searchParams.get("periode"))
   const backHref = `/performance?periode=${encodeURIComponent(period)}`
   useBreadcrumbs([
-    { label: "KPI tim", href: backHref },
-    { label: employee.full_name || "Karyawan" },
+    { label: t("teamKpi"), href: backHref },
+    { label: employee.full_name || t("employee") },
   ])
 
   const setPeriod = (value: string) => {
@@ -39,7 +41,7 @@ export function EmployeeKpiPage({
     <div className="flex flex-col pb-4">
       <PageHeader
         className="pt-6 pb-4"
-        back={{ href: backHref, label: "KPI tim" }}
+        back={{ href: backHref, label: t("teamKpi") }}
         title={
           <span className="flex items-center gap-3">
             <Avatar className="size-8">

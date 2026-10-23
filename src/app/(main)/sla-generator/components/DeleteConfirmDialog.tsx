@@ -1,3 +1,5 @@
+"use client"
+
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -6,6 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { useT } from "@/shared/i18n/client"
 import { RiErrorWarningLine } from "@/shared/ui/lucide-icons"
 
 interface DeleteConfirmDialogProps {
@@ -22,11 +25,13 @@ export function DeleteConfirmDialog({
   isOpen,
   onClose,
   onConfirm,
-  title = "Delete SLA",
-  description = "Are you sure you want to delete this SLA? This action cannot be undone.",
-  confirmText = "Delete",
-  cancelText = "Cancel",
+  title,
+  description,
+  confirmText,
+  cancelText,
 }: DeleteConfirmDialogProps) {
+  const t = useT("sla")
+  const tc = useT("common")
   const handleConfirm = () => {
     onConfirm()
     onClose()
@@ -36,22 +41,24 @@ export function DeleteConfirmDialog({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
+          <DialogTitle>{title ?? t("deleteDefaultTitle")}</DialogTitle>
         </DialogHeader>
         <div>
           <div className="flex items-start gap-4">
             <div className="bg-destructive/10 text-destructive flex h-10 w-10 items-center justify-center rounded-full">
               <RiErrorWarningLine className="size-5" />
             </div>
-            <p className="text-muted-foreground text-sm">{description}</p>
+            <p className="text-muted-foreground text-sm">
+              {description ?? t("deleteDefaultDescription")}
+            </p>
           </div>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
-            {cancelText}
+            {cancelText ?? tc("cancel")}
           </Button>
           <Button variant="destructive" onClick={handleConfirm}>
-            {confirmText}
+            {confirmText ?? tc("delete")}
           </Button>
         </DialogFooter>
       </DialogContent>

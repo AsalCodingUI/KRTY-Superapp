@@ -1,5 +1,6 @@
 "use client"
 
+import { useT } from "@/shared/i18n/client"
 import { RiCalendar2Line } from "@/shared/ui/lucide-icons"
 import { useMemo } from "react"
 import { useCalendarContext } from "./calendar-context"
@@ -14,6 +15,7 @@ interface AgendaViewProps {
 
 export function AgendaView({ events, onEventClick }: AgendaViewProps) {
   const { currentDate } = useCalendarContext()
+  const t = useT("calendar")
   const dayEvents = useMemo(() => {
     const map = groupEventsByDay(events, currentDate, currentDate)
     const list = map.get(getDayKey(currentDate)) ?? []
@@ -26,7 +28,9 @@ export function AgendaView({ events, onEventClick }: AgendaViewProps) {
 
       {/* Event count */}
       <div className="text-tertiary-foreground px-6 py-3 text-xs">
-        {dayEvents.length} jadwal hari ini
+        {t(dayEvents.length === 1 ? "agendaCountOne" : "agendaCountOther", {
+          count: dayEvents.length,
+        })}
       </div>
 
       {/* Events list */}
@@ -36,9 +40,7 @@ export function AgendaView({ events, onEventClick }: AgendaViewProps) {
             <div className="bg-muted text-muted-foreground mb-4 flex size-12 items-center justify-center rounded-full">
               <RiCalendar2Line className="size-5" />
             </div>
-            <p className="text-muted-foreground text-sm">
-              Tidak ada jadwal hari ini
-            </p>
+            <p className="text-muted-foreground text-sm">{t("agendaEmpty")}</p>
           </div>
         ) : (
           <div className="space-y-2">

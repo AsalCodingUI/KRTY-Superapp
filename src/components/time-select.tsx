@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
+import { useT } from "@/shared/i18n/client"
 
 const optionsCache = new Map<number, string[]>()
 
@@ -56,10 +57,11 @@ function TimeSelect({
   value,
   onValueChange,
   step = 15,
-  placeholder = "Pilih jam",
+  placeholder,
   disabled = false,
   className,
 }: TimeSelectProps) {
+  const t = useT("shell")
   const selected = normalize(value)
   const options = React.useMemo(() => {
     const base = getTimeOptions(step)
@@ -78,7 +80,7 @@ function TimeSelect({
       disabled={disabled}
     >
       <SelectTrigger className={cn("w-full tabular-nums", className)}>
-        <SelectValue placeholder={placeholder} />
+        <SelectValue placeholder={placeholder ?? t("timeSelectPlaceholder")} />
       </SelectTrigger>
       <SelectContent className="max-h-60">
         {options.map((option) => (

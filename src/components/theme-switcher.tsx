@@ -3,13 +3,14 @@
 import { SlidingIndicator } from "@/components/sliding-indicator"
 import { cn } from "@/lib/utils"
 import { Monitor, Moon, Sun } from "lucide-react"
+import { useT } from "@/shared/i18n/client"
 import { useTheme } from "next-themes"
 import { useEffect, useState } from "react"
 
 const ITEMS = [
-  { value: "light", label: "Terang", icon: Sun },
-  { value: "dark", label: "Gelap", icon: Moon },
-  { value: "system", label: "Sistem", icon: Monitor },
+  { value: "light", label: "themeLight", icon: Sun },
+  { value: "dark", label: "themeDark", icon: Moon },
+  { value: "system", label: "themeSystem", icon: Monitor },
 ] as const
 
 /**
@@ -18,6 +19,7 @@ const ITEMS = [
  */
 export function ThemeSwitcher({ className }: { className?: string }) {
   const { theme, setTheme } = useTheme()
+  const t = useT("common")
   // next-themes only knows the stored theme after mount.
   const [mounted, setMounted] = useState(false)
   useEffect(() => setMounted(true), [])
@@ -26,15 +28,15 @@ export function ThemeSwitcher({ className }: { className?: string }) {
   return (
     <div
       role="radiogroup"
-      aria-label="Tema"
+      aria-label={t("theme")}
       className={cn(
-        "bg-sidebar-accent dark:bg-muted relative inline-flex w-fit items-center gap-0.5 self-start rounded-full p-0.5",
+        "fill-ink inline-flex w-fit items-center gap-0.5 self-start rounded-full p-0.5",
         className,
       )}
     >
       <SlidingIndicator
         activeSelector="[aria-checked=true]"
-        className="bg-background smooth-shadow-ring-xs dark:bg-foreground/[0.13] rounded-full dark:shadow-none"
+        className="bg-background dark:bg-foreground/[0.13] rounded-full shadow-(--shadow-chrome-active)"
       />
       {ITEMS.map(({ value, label, icon: Icon }) => {
         const active = current === value
@@ -44,8 +46,8 @@ export function ThemeSwitcher({ className }: { className?: string }) {
             type="button"
             role="radio"
             aria-checked={active}
-            aria-label={label}
-            title={label}
+            aria-label={t(label)}
+            title={t(label)}
             onClick={() => setTheme(value)}
             className={cn(
               "focus-visible:ring-focus-ring relative grid size-7 cursor-pointer place-items-center rounded-full transition-colors duration-150 ease-out outline-none focus-visible:ring-2 [&_svg]:size-3.5",

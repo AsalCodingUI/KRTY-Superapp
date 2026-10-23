@@ -1,6 +1,9 @@
+"use client"
+
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { ratingFor, type RatingTone } from "@/entities/performance/lib/kpi"
+import { useT } from "@/shared/i18n/client"
 
 const VARIANTS: Record<
   RatingTone,
@@ -21,11 +24,12 @@ export function RatingChip({
   score: number | null
   className?: string
 }) {
+  const t = useT("performance")
   const rating = ratingFor(score)
   if (!rating) return null
   return (
     <Badge variant={VARIANTS[rating.tone]} className={className}>
-      {rating.label}
+      {t(rating.label)}
     </Badge>
   )
 }

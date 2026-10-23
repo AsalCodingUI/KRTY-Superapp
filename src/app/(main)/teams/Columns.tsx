@@ -7,6 +7,7 @@ import { DataTableColumnHeader } from "@/components/data-table"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
+import type { MessageKey } from "@/shared/i18n/messages"
 import { canManageByRole } from "@/shared/lib/roles"
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"]
@@ -15,11 +16,14 @@ const columnHelper = createColumnHelper<Profile>()
 
 type TeamColumnsOptions = {
   canSelect?: boolean
+  /** Translator for the "teams" namespace. */
+  t: (key: MessageKey<"teams">) => string
 }
 
 export const createTeamColumns = ({
   canSelect = true,
-}: TeamColumnsOptions = {}) =>
+  t,
+}: TeamColumnsOptions) =>
   [
     ...(canSelect
       ? [
@@ -34,7 +38,7 @@ export const createTeamColumns = ({
                 }
                 onCheckedChange={() => table.toggleAllPageRowsSelected()}
                 className=""
-                aria-label="Select all"
+                aria-label={t("selectAll")}
               />
             ),
             cell: ({ row }) => (
@@ -42,13 +46,13 @@ export const createTeamColumns = ({
                 checked={row.getIsSelected()}
                 onCheckedChange={() => row.toggleSelected()}
                 className=""
-                aria-label="Select row"
+                aria-label={t("selectRow")}
               />
             ),
             enableSorting: false,
             enableHiding: false,
             meta: {
-              displayName: "Select",
+              displayName: t("selectRow"),
             },
           }),
         ]
@@ -57,17 +61,17 @@ export const createTeamColumns = ({
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title="Nama"
+          title={t("colName")}
           className="whitespace-nowrap"
         />
       ),
       enableSorting: true,
       meta: {
         className: "text-left",
-        displayName: "Nama",
+        displayName: t("colName"),
       },
       cell: ({ row }) => {
-        const name = (row.getValue("full_name") as string) || "Unknown"
+        const name = (row.getValue("full_name") as string) || t("unknownName")
         const initials = name
           .split(" ")
           .map((n) => n[0])
@@ -97,18 +101,18 @@ export const createTeamColumns = ({
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title="Jabatan"
+          title={t("colJobTitle")}
           className="whitespace-nowrap"
         />
       ),
       enableSorting: false,
       meta: {
         className: "text-left whitespace-nowrap",
-        displayName: "Jabatan",
+        displayName: t("colJobTitle"),
       },
       cell: ({ row }) => (
         <Badge variant="secondary">
-          {(row.getValue("job_title") as string) || "Tanpa jabatan"}
+          {(row.getValue("job_title") as string) || t("noJobTitle")}
         </Badge>
       ),
     }),
@@ -116,20 +120,20 @@ export const createTeamColumns = ({
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title="Akses"
+          title={t("colAccess")}
           className="whitespace-nowrap"
         />
       ),
       enableSorting: false,
       meta: {
         className: "text-left",
-        displayName: "Akses",
+        displayName: t("colAccess"),
       },
       cell: ({ row }) => (
         <span className="text-muted-foreground whitespace-nowrap">
           {canManageByRole(row.getValue("role") as string)
-            ? "Stakeholder"
-            : "Karyawan"}
+            ? t("accessStakeholder")
+            : t("accessEmployee")}
         </span>
       ),
     }),
@@ -137,14 +141,14 @@ export const createTeamColumns = ({
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title="Email"
+          title={t("colEmail")}
           className="whitespace-nowrap"
         />
       ),
       enableSorting: false,
       meta: {
         className: "text-left",
-        displayName: "Email",
+        displayName: t("colEmail"),
       },
       cell: ({ row }) => {
         const email = row.getValue("email") as string | null

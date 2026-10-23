@@ -21,7 +21,7 @@ import {
   HomeRow,
 } from "./home-card"
 import { format } from "date-fns"
-import { id as idLocale } from "date-fns/locale"
+import { useDateLocale, useT } from "@/shared/i18n/client"
 import dynamic from "next/dynamic"
 import { useRouter } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
@@ -35,6 +35,13 @@ const LeaveRequestModal = dynamic(() =>
 
 type AttendanceLog = Database["public"]["Tables"]["attendance_logs"]["Row"]
 type LeaveRequest = Database["public"]["Tables"]["leave_requests"]["Row"]
+
+const statusKey = {
+  working: "statusWorking",
+  sessionOpen: "statusSessionOpen",
+  done: "statusDone",
+  notClockedIn: "statusNotClockedIn",
+} as const
 
 interface EmployeeAttendanceWidgetProps {
   userId: string
@@ -57,6 +64,8 @@ export function EmployeeAttendanceWidget({
 }: EmployeeAttendanceWidgetProps) {
   const supabase = createClient()
   const router = useRouter()
+  const t = useT("dashboard")
+  const dateLocale = useDateLocale()
   const [logs, setLogs] = useState<AttendanceLog[]>(recentAttendance)
   const [leaveRequests, setLeaveRequests] =
     useState<LeaveRequest[]>(recentLeaveRequests)
@@ -118,10 +127,10 @@ export function EmployeeAttendanceWidget({
   )
 
   const todayStatus = useMemo(() => {
-    if (activeSession) return "Sedang bekerja"
-    if (staleSession) return "Sesi belum ditutup"
-    if (todayRecord?.clock_out) return "Selesai"
-    return "Belum clock in"
+    if (activeSession) return "working"
+    if (staleSession) return "sessionOpen"
+    if (todayRecord?.clock_out) return "done"
+    return "notClockedIn"
   }, [activeSession, staleSession, todayRecord])
 
   const isOnLeaveToday = leaveRequests.some(
@@ -132,27 +141,29 @@ export function EmployeeAttendanceWidget({
   const recentLeaves = leaveRequests.slice(0, 5)
 
   const statusVariant =
-    todayStatus === "Sedang bekerja"
+    todayStatus === "working"
       ? "success"
-      : todayStatus === "Selesai"
+      : todayStatus === "done"
         ? "info"
         : "warning"
 
   const leaveLabel = (status: string | null) =>
     status === "approved"
-      ? { variant: "success" as const, label: "Disetujui" }
+      ? { variant: "success" as const, label: t("leaveApproved") }
       : status === "rejected"
-        ? { variant: "destructive" as const, label: "Ditolak" }
-        : { variant: "warning" as const, label: "Menunggu" }
+        ? { variant: "destructive" as const, label: t("leaveRejected") }
+        : { variant: "warning" as const, label: t("leavePending") }
 
   // Two cards side by side: today's clock, and leave.
   return (
     <>
       <HomeCard
-        title="Hari ini"
-        badge={<Badge variant={statusVariant}>{todayStatus}</Badge>}
+        title={t("todayTitle")}
+        badge={
+          <Badge variant={statusVariant}>{t(statusKey[todayStatus])}</Badge>
+        }
         actions={
-          <HomeIconLink href="/leave" label="Buka kehadiran">
+          <HomeIconLink href="/leave" label={t("openAttendance")}>
             <ArrowUpRight />
           </HomeIconLink>
         }
@@ -161,7 +172,7 @@ export function EmployeeAttendanceWidget({
           value={currentTime ? format(currentTime, "HH:mm") : "--:--"}
           hint={
             currentTime
-              ? format(currentTime, "EEEE, d MMMM", { locale: idLocale })
+              ? format(currentTime, "EEEE, d MMMM", { locale: dateLocale })
               : "\u00a0"
           }
         />
@@ -176,7 +187,7 @@ export function EmployeeAttendanceWidget({
         </div>
         <div className="flex flex-col">
           {logs.length === 0 ? (
-            <HomeEmpty>Clock in untuk mulai mencatat kehadiranmu.</HomeEmpty>
+            <HomeEmpty>{t("attendanceEmpty")}</HomeEmpty>
           ) : (
             logs.slice(0, 4).map((log) => (
               <HomeRow
@@ -185,13 +196,13 @@ export function EmployeeAttendanceWidget({
                   new Date(getAttendanceLogLocalDate(log)),
                   "EEE, d MMM",
                   {
-                    locale: idLocale,
+                    locale: dateLocale,
                   },
                 )}
                 trailing={
                   <>
                     {log.status === "Late" && (
-                      <Badge variant="warning">Terlambat</Badge>
+                      <Badge variant="warning">{t("attendanceLate")}</Badge>
                     )}
                     <span className="text-muted-foreground text-[13px]">
                       {log.clock_in
@@ -200,7 +211,7 @@ export function EmployeeAttendanceWidget({
                       {" – "}
                       {log.clock_out
                         ? format(new Date(log.clock_out), "HH:mm")
-                        : "aktif"}
+                        : t("attendanceActive")}
                     </span>
                   </>
                 }
@@ -211,24 +222,28 @@ export function EmployeeAttendanceWidget({
       </HomeCard>
 
       <HomeCard
-        title="Cuti"
+        title={t("leaveTitle")}
         actions={
           <Button
             variant="ghost"
             size="icon-sm"
             className="text-muted-foreground"
-            aria-label="Ajukan cuti"
-            title="Ajukan cuti"
+            aria-label={t("actionRequestLeave")}
+            title={t("actionRequestLeave")}
             onClick={() => onLeaveModalChange(true)}
           >
             <Plus />
           </Button>
         }
       >
-        <HomeFigure value={leaveBalance} unit="hari" hint="Sisa cuti tahunan" />
+        <HomeFigure
+          value={leaveBalance}
+          unit={t(leaveBalance === 1 ? "daysUnitOne" : "daysUnit")}
+          hint={t("leaveBalanceHint")}
+        />
         <div className="flex flex-col">
           {recentLeaves.length === 0 ? (
-            <HomeEmpty>Belum ada pengajuan cuti.</HomeEmpty>
+            <HomeEmpty>{t("leaveEmpty")}</HomeEmpty>
           ) : (
             recentLeaves.slice(0, 3).map((leave) => {
               const badge = leaveLabel(leave.status)
@@ -238,10 +253,10 @@ export function EmployeeAttendanceWidget({
                   title={leave.leave_type}
                   subtitle={
                     format(new Date(leave.start_date), "d MMM", {
-                      locale: idLocale,
+                      locale: dateLocale,
                     }) +
                     (leave.end_date !== leave.start_date
-                      ? ` – ${format(new Date(leave.end_date), "d MMM yyyy", { locale: idLocale })}`
+                      ? ` – ${format(new Date(leave.end_date), "d MMM yyyy", { locale: dateLocale })}`
                       : "")
                   }
                   trailing={
@@ -253,8 +268,8 @@ export function EmployeeAttendanceWidget({
           )}
         </div>
         <HomeFooter
-          label="Pengajuan"
-          value={`${leaveRequests.length} tercatat`}
+          label={t("leaveRequests")}
+          value={t("leaveRecordedCount", { n: leaveRequests.length })}
           href="/leave/leave"
         />
       </HomeCard>

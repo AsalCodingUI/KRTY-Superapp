@@ -5,6 +5,7 @@ import { calculateBusinessDays, getLocalDateString } from "@/shared/lib/date"
 import { getCurrentQuarter } from "@/shared/lib/date/quarter"
 import { resolveProfileByUserIdOrEmail } from "@/shared/lib/profile-resolution"
 import { Database } from "@/shared/types/database.types"
+import { getT } from "@/shared/i18n/server"
 
 export type EmployeeDashboardData = {
   user: {
@@ -65,6 +66,7 @@ export async function getEmployeeDashboardData(
   data?: EmployeeDashboardData
   error?: string
 }> {
+  const t = await getT("dashboard")
   try {
     const supabase = await createClient()
 
@@ -73,7 +75,7 @@ export async function getEmployeeDashboardData(
       error: authError,
     } = await supabase.auth.getUser()
     if (authError || !user) {
-      return { success: false, error: "Unauthorized" }
+      return { success: false, error: t("errorUnauthorized") }
     }
 
     const targetUserId = effectiveUserId || user.id
@@ -85,7 +87,7 @@ export async function getEmployeeDashboardData(
 
     if (targetUserId !== (actorProfile?.id || user.id)) {
       if (!actorProfile?.is_super_admin) {
-        return { success: false, error: "Access denied" }
+        return { success: false, error: t("errorAccessDenied") }
       }
     }
 
@@ -103,7 +105,7 @@ export async function getEmployeeDashboardData(
     )
 
     if (!profile) {
-      return { success: false, error: "Profile not found" }
+      return { success: false, error: t("profileNotFound") }
     }
 
     const quarterMatch = selectedQuarter?.match(/^(\d{4})-(Q[1-4]|All)$/)
@@ -187,7 +189,7 @@ export async function getEmployeeDashboardData(
                 `,
           )
           .eq("user_id", targetUserId)
-          .eq("projects.status", "Active")
+          .in("projects.status", ["Planned", "Active", "Review"])
           .limit(10)
 
         if (selectedQuarterPart === "All" && selectedYear) {
@@ -363,7 +365,7 @@ export async function getEmployeeDashboardData(
 
       return {
         id: project?.id || "",
-        name: project?.name || "Unknown Project",
+        name: project?.name || t("unknownProject"),
         status: project?.status || "Active",
         quarter_id: project?.quarter_id || "",
         end_date: project?.end_date || "",
@@ -452,6 +454,6 @@ export async function getEmployeeDashboardData(
     return { success: true, data: dashboardData }
   } catch (error) {
     console.error("Error fetching employee dashboard data:", error)
-    return { success: false, error: "Failed to fetch dashboard data" }
+    return { success: false, error: t("errorFetchFailed") }
   }
 }

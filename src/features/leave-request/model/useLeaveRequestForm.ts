@@ -1,3 +1,4 @@
+import { useT } from "@/shared/i18n/client"
 import { Database } from "@/shared/types/database.types"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
@@ -23,6 +24,7 @@ export function useLeaveRequestForm({
   isOpen,
   initialData,
 }: UseLeaveRequestFormProps) {
+  const t = useT("leave")
   const [step, setStep] = useState(1)
   const [compressing, setCompressing] = useState(false)
   const [isTermsAccepted, setIsTermsAccepted] = useState(false)
@@ -73,14 +75,13 @@ export function useLeaveRequestForm({
       }
       try {
         setCompressing(true)
-        const { default: imageCompression } = await import(
-          "browser-image-compression"
-        )
+        const { default: imageCompression } =
+          await import("browser-image-compression")
         const compressedFile = await imageCompression(file, options)
         setFormData((prev) => ({ ...prev, proof_file: compressedFile }))
       } catch (error) {
         console.error("Compression failed:", error)
-        toast.error("Failed to process image.")
+        toast.error(t("errImageFailed"))
       } finally {
         setCompressing(false)
       }

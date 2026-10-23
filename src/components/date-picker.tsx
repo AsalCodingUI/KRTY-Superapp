@@ -2,7 +2,6 @@
 
 import * as React from "react"
 import { format, type Locale } from "date-fns"
-import { enUS } from "date-fns/locale"
 import { MinusIcon } from "lucide-react"
 import { CalendarDays as CalendarIcon } from "@/components/icons"
 import type { Matcher } from "react-day-picker"
@@ -16,6 +15,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
+import { useDateLocale, useT } from "@/shared/i18n/client"
 
 // ============================================================================
 // Types
@@ -95,10 +95,11 @@ const isBrowserLocaleClockType24h = () => {
 }
 
 const formatDate = (date: Date, locale: Locale, includeTime?: boolean) => {
-  if (!includeTime) return format(date, "dd MMM, yyyy", { locale })
+  // Same short form as the rest of the app ("17 Jun 2026").
+  if (!includeTime) return format(date, "d MMM yyyy", { locale })
   return isBrowserLocaleClockType24h()
-    ? format(date, "dd MMM, yyyy HH:mm", { locale })
-    : format(date, "dd MMM, yyyy h:mm a", { locale })
+    ? format(date, "d MMM yyyy, HH:mm", { locale })
+    : format(date, "d MMM yyyy, h:mm a", { locale })
 }
 
 const toTimeString = (date: Date | undefined) =>
@@ -200,7 +201,7 @@ const Trigger = ({
         aria-invalid={hasError || props["aria-invalid"] || undefined}
         className={cn(
           // Same surface as Input / SelectTrigger, and no press-in: it is a field.
-          "group/date-picker active:scale-100 bg-field hover:bg-field-hover hover:border-field-border-hover aria-expanded:bg-field-hover border-field-border w-full justify-start gap-2 px-3 text-left text-sm font-normal",
+          "group/date-picker bg-field hover:bg-field-hover hover:border-field-border-hover aria-expanded:bg-field-hover border-field-border w-full justify-start gap-2 px-3 text-left text-sm font-normal active:scale-100",
           className,
         )}
         {...props}
@@ -264,6 +265,7 @@ const PresetContainer = <TPreset extends Preset, TValue>({
     return false
   }
 
+  const t = useT("shell")
   return (
     <ul className="flex items-start gap-x-2 sm:flex-col">
       {presets.map((preset, index) => (
@@ -273,7 +275,7 @@ const PresetContainer = <TPreset extends Preset, TValue>({
             variant="ghost"
             title={preset.label}
             data-active={matchesCurrent(preset) || undefined}
-            aria-label={`Select ${preset.label}`}
+            aria-label={t("datePresetSelect", { label: preset.label })}
             className="border-border text-muted-foreground data-active:bg-muted data-active:text-foreground w-full justify-start truncate border text-sm font-normal sm:border-none"
             onClick={() => {
               if (isRangePreset(preset)) onSelect(preset.dateRange as TValue)
@@ -351,17 +353,22 @@ const SingleDatePicker = ({
   disableNavigation,
   className,
   showTimePicker,
-  placeholder = "Select date",
+  placeholder: placeholderProp,
   hasError,
   translations,
   enableYearNavigation = false,
-  locale = enUS,
+  locale: localeProp,
   align = "center",
   required,
   id,
   inputSize: _inputSize,
   ...rest
 }: SingleDatePickerProps) => {
+  const t = useT("shell")
+  const tc = useT("common")
+  const uiLocale = useDateLocale()
+  const locale = localeProp ?? uiLocale
+  const placeholder = placeholderProp ?? t("dateSelect")
   const {
     fromYear,
     toYear,
@@ -475,7 +482,7 @@ const SingleDatePicker = ({
             {showTimePicker && (
               <div className="border-border border-t p-3">
                 <TimeField
-                  aria-label="Time"
+                  aria-label={t("dateTime")}
                   value={time}
                   onChange={onTimeChange}
                   disabled={!date}
@@ -490,10 +497,10 @@ const SingleDatePicker = ({
                 className="flex-1"
                 onClick={() => onOpenChange(false)}
               >
-                {translations?.cancel ?? "Cancel"}
+                {translations?.cancel ?? tc("cancel")}
               </Button>
               <Button type="button" className="flex-1" onClick={onApply}>
-                {translations?.apply ?? "Apply"}
+                {translations?.apply ?? t("dateApply")}
               </Button>
             </div>
           </div>
@@ -533,9 +540,9 @@ const RangeDatePicker = ({
   disableNavigation,
   disabledDays,
   enableYearNavigation = false,
-  locale = enUS,
+  locale: localeProp,
   showTimePicker,
-  placeholder = "Select date range",
+  placeholder: placeholderProp,
   hasError,
   translations,
   align = "center",
@@ -545,6 +552,11 @@ const RangeDatePicker = ({
   inputSize: _inputSize,
   ...rest
 }: DateRangePickerProps) => {
+  const t = useT("shell")
+  const tc = useT("common")
+  const uiLocale = useDateLocale()
+  const locale = localeProp ?? uiLocale
+  const placeholder = placeholderProp ?? t("dateRangeSelect")
   const {
     fromYear,
     toYear,
@@ -627,8 +639,8 @@ const RangeDatePicker = ({
     if (instant) {
       if (!r.from) return null
       return r.to
-        ? `${format(r.from, "LLL dd, y")} - ${format(r.to, "LLL dd, y")}`
-        : format(r.from, "LLL dd, y")
+        ? `${format(r.from, "LLL dd, y", { locale })} - ${format(r.to, "LLL dd, y", { locale })}`
+        : format(r.from, "LLL dd, y", { locale })
     }
     return `${r.from ? formatDate(r.from, locale, showTimePicker) : ""} - ${
       r.to ? formatDate(r.to, locale, showTimePicker) : ""
@@ -698,10 +710,10 @@ const RangeDatePicker = ({
               <div className="border-border flex items-center justify-evenly gap-x-3 border-t p-3">
                 <div className="flex flex-1 items-center gap-x-2">
                   <span className="text-muted-foreground">
-                    {translations?.start ?? "Start"}:
+                    {translations?.start ?? t("dateStart")}:
                   </span>
                   <TimeField
-                    aria-label="Start date time"
+                    aria-label={t("dateStartTime")}
                     value={startTime}
                     onChange={(v) => onTimeChange(v, "start")}
                     disabled={!range?.from}
@@ -711,10 +723,10 @@ const RangeDatePicker = ({
                 <MinusIcon className="text-tertiary-foreground size-4 shrink-0" />
                 <div className="flex flex-1 items-center gap-x-2">
                   <span className="text-muted-foreground">
-                    {translations?.end ?? "End"}:
+                    {translations?.end ?? t("dateEnd")}:
                   </span>
                   <TimeField
-                    aria-label="End date time"
+                    aria-label={t("dateEndTime")}
                     value={endTime}
                     onChange={(v) => onTimeChange(v, "end")}
                     disabled={!range?.to}
@@ -727,7 +739,7 @@ const RangeDatePicker = ({
               <div className="border-border border-t p-3 sm:flex sm:items-center sm:justify-between">
                 <p className="text-foreground tabular-nums">
                   <span className="text-muted-foreground">
-                    {translations?.range ?? "Range"}:
+                    {translations?.range ?? t("dateRange")}:
                   </span>{" "}
                   <span className="font-medium">{draftLabel}</span>
                 </p>
@@ -738,14 +750,14 @@ const RangeDatePicker = ({
                     className="flex-1 sm:flex-none"
                     onClick={() => onOpenChange(false)}
                   >
-                    {translations?.cancel ?? "Cancel"}
+                    {translations?.cancel ?? tc("cancel")}
                   </Button>
                   <Button
                     type="button"
                     className="flex-1 sm:flex-none"
                     onClick={onApply}
                   >
-                    {translations?.apply ?? "Apply"}
+                    {translations?.apply ?? t("dateApply")}
                   </Button>
                 </div>
               </div>

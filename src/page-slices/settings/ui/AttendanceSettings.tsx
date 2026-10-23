@@ -9,6 +9,7 @@ import {
   useAutoClockOut,
   type AutoClockOut,
 } from "@/shared/hooks/useAutoClockOut"
+import { useT } from "@/shared/i18n/client"
 import { useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
 import { toast } from "sonner"
@@ -18,6 +19,7 @@ import { toast } from "sonner"
  * row of the Kehadiran toolbar. Each person decides for themselves.
  */
 export function AttendanceSettings() {
+  const t = useT("settings")
   const queryClient = useQueryClient()
   const { data, isLoading } = useAutoClockOut()
   const [saving, setSaving] = useState(false)
@@ -37,15 +39,15 @@ export function AttendanceSettings() {
           auto_clock_out_time: next.time,
           updated_at: new Date().toISOString(),
         } as never)
-      : { error: new Error("Belum masuk") }
+      : { error: new Error(t("notSignedIn")) }
     if (error) {
       queryClient.setQueryData(AUTO_CLOCK_OUT_QUERY_KEY, value)
-      toast.error("Gagal menyimpan pengaturan.")
+      toast.error(t("saveSettingsFailed"))
     } else {
       toast.success(
         next.enabled
-          ? `Clock out otomatis pukul ${next.time}.`
-          : "Clock out otomatis dimatikan.",
+          ? t("autoClockOutOn", { time: next.time })
+          : t("autoClockOutOff"),
       )
     }
     setSaving(false)
@@ -58,9 +60,9 @@ export function AttendanceSettings() {
           checked={value.enabled}
           disabled={isLoading || saving}
           onCheckedChange={(enabled) => save({ ...value, enabled })}
-          aria-label="Clock out otomatis"
+          aria-label={t("autoClockOut")}
         />
-        <span className="whitespace-nowrap">Clock out otomatis</span>
+        <span className="whitespace-nowrap">{t("autoClockOut")}</span>
       </label>
       {value.enabled && (
         <TimeSelect

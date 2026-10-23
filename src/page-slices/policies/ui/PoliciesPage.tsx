@@ -21,11 +21,13 @@ import {
 import { Input } from "@/components/ui/input"
 import { useViewMode, ViewToggle } from "@/components/view-toggle"
 import { useState } from "react"
-import { format } from "date-fns"
-import { id as idLocale } from "date-fns/locale"
+import { format, type Locale } from "date-fns"
+import { useDateLocale, useT } from "@/shared/i18n/client"
+import type { MessageKey } from "@/shared/i18n/messages"
 import Link from "next/link"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import {
+  categoryLabel,
   POLICY_CATEGORIES,
   splitVersions,
   usePolicies,
@@ -44,35 +46,28 @@ function categoryOrder(category: string) {
 
 type Tab = "all" | "published" | "draft" | "archived"
 
-const TABS: { value: Tab; label: string }[] = [
-  { value: "all", label: "Semua" },
-  { value: "published", label: "Terbit" },
-  { value: "draft", label: "Draf" },
-  { value: "archived", label: "Diarsipkan" },
+type PoliciesKey = MessageKey<"policies">
+
+const TABS: { value: Tab; label: PoliciesKey }[] = [
+  { value: "all", label: "tabAll" },
+  { value: "published", label: "tabPublished" },
+  { value: "draft", label: "tabDraft" },
+  { value: "archived", label: "tabArchived" },
 ]
 
-const EMPTY_TAB: Record<Tab, { title: string; description: string }> = {
-  all: {
-    title: "Belum ada aturan",
-    description:
-      "Tulis aturan kantor pertama, misalnya aturan cuti atau jam kerja.",
-  },
-  published: {
-    title: "Belum ada aturan yang terbit",
-    description:
-      "Draf yang diterbitkan akan muncul di sini dan bisa dibaca karyawan.",
-  },
-  draft: {
-    title: "Tidak ada draf",
-    description:
-      "Aturan baru dan perubahan yang belum diterbitkan muncul di sini.",
-  },
-  archived: {
-    title: "Tidak ada arsip",
-    description:
-      "Aturan yang diarsipkan disembunyikan dari karyawan dan muncul di sini.",
-  },
-}
+const EMPTY_TAB: Record<Tab, { title: PoliciesKey; description: PoliciesKey }> =
+  {
+    all: { title: "emptyAllTitle", description: "emptyAllDescription" },
+    published: {
+      title: "emptyPublishedTitle",
+      description: "emptyPublishedDescription",
+    },
+    draft: { title: "emptyDraftTitle", description: "emptyDraftDescription" },
+    archived: {
+      title: "emptyArchivedTitle",
+      description: "emptyArchivedDescription",
+    },
+  }
 
 function matchesTab(p: PolicyListItem, tab: Tab) {
   const { latest, draft } = splitVersions(p.versions ?? [])
@@ -88,6 +83,7 @@ function matchesTab(p: PolicyListItem, tab: Tab) {
  * open straight in the editor); employees only ever see published rules.
  */
 export function PoliciesPage() {
+  const t = useT("policies")
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -97,7 +93,7 @@ export function PoliciesPage() {
 
   const requested = searchParams.get("status") as Tab | null
   const tab: Tab =
-    isAdmin && requested && TABS.some((t) => t.value === requested)
+    isAdmin && requested && TABS.some((item) => item.value === requested)
       ? requested
       : "all"
   const setTab = (next: Tab) => {
@@ -133,7 +129,7 @@ export function PoliciesPage() {
     (p) =>
       (isAdmin ? matchesTab(p, tab) : matchesTab(p, "published")) &&
       (!needle ||
-        `${titleOf(p)} ${p.summary ?? ""} ${p.category}`
+        `${titleOf(p)} ${p.summary ?? ""} ${p.category} ${categoryLabel(t, p.category)}`
           .toLowerCase()
           .includes(needle)),
   )
@@ -143,18 +139,20 @@ export function PoliciesPage() {
     (a, b) => categoryOrder(a) - categoryOrder(b) || a.localeCompare(b),
   )
   const empty = isAdmin
-    ? EMPTY_TAB[tab]
+    ? {
+        title: t(EMPTY_TAB[tab].title),
+        description: t(EMPTY_TAB[tab].description),
+      }
     : {
-        title: "Belum ada aturan",
-        description:
-          "Aturan kantor yang diterbitkan admin akan muncul di sini.",
+        title: t("emptyAllTitle"),
+        description: t("emptyEmployeeDescription"),
       }
 
   return (
     <div className="flex flex-col">
       <PageHeader
         className="pt-6 pb-4"
-        title="Aturan"
+        title={t("title")}
         actions={
           <>
             <ViewToggle
@@ -174,7 +172,7 @@ export function PoliciesPage() {
                 }
               >
                 <RiAddLine data-icon="inline-start" />
-                Aturan baru
+                {t("newRule")}
               </Button>
             )}
           </>
@@ -183,16 +181,18 @@ export function PoliciesPage() {
 
       {isAdmin && (
         <TabNavigation className="mb-4">
-          {TABS.map((t) => {
-            const count = policies.filter((p) => matchesTab(p, t.value)).length
+          {TABS.map((item) => {
+            const count = policies.filter((p) =>
+              matchesTab(p, item.value),
+            ).length
             return (
               <TabNavigationLink
-                key={t.value}
-                active={tab === t.value}
-                onClick={() => setTab(t.value)}
+                key={item.value}
+                active={tab === item.value}
+                onClick={() => setTab(item.value)}
                 showLeadingIcon={false}
               >
-                {t.label}
+                {t(item.label)}
                 {count > 0 && (
                   <span className="text-tertiary-foreground ml-1.5 tabular-nums">
                     {count}
@@ -208,8 +208,8 @@ export function PoliciesPage() {
         <RiSearchLine className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
         <Input
           type="search"
-          placeholder="Cari aturan…"
-          aria-label="Cari aturan"
+          placeholder={t("searchPlaceholder")}
+          aria-label={t("searchLabel")}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           className="pl-9"
@@ -223,10 +223,8 @@ export function PoliciesPage() {
           </div>
         ) : shown.length === 0 ? (
           <EmptyState
-            title={needle ? `Tidak ada aturan “${query.trim()}”` : empty.title}
-            description={
-              needle ? "Coba kata lain atau cek ejaannya." : empty.description
-            }
+            title={needle ? t("noMatch", { query: query.trim() }) : empty.title}
+            description={needle ? t("noMatchHint") : empty.description}
             icon={<RiFileTextLine />}
           />
         ) : view === "grid" ? (
@@ -237,7 +235,7 @@ export function PoliciesPage() {
                 <section key={category} className="flex flex-col gap-3">
                   <h2 className="text-muted-foreground flex items-center gap-2 text-sm">
                     <span className="text-foreground font-medium">
-                      {category}
+                      {categoryLabel(t, category)}
                     </span>
                     <span className="tabular-nums">{items.length}</span>
                   </h2>
@@ -260,7 +258,11 @@ export function PoliciesPage() {
             {categories.map((category) => {
               const items = shown.filter((p) => p.category === category)
               return (
-                <ListGroup key={category} label={category} count={items.length}>
+                <ListGroup
+                  key={category}
+                  label={categoryLabel(t, category)}
+                  count={items.length}
+                >
                   {items.map((p) => (
                     <PolicyRow
                       key={p.id}
@@ -316,6 +318,8 @@ function PolicyRow({
   isAdmin: boolean
   href: string
 }) {
+  const t = useT("policies")
+  const dateLocale = useDateLocale()
   const { latest, draft } = splitVersions(policy.versions ?? [])
   const title = titleOf(policy)
   const updated = latest?.published_at
@@ -342,14 +346,14 @@ function PolicyRow({
       </div>
       <div className="flex items-center gap-1.5">
         {isAdmin && draft && (
-          <ListChip>{latest ? "Ada draf" : "Draf"}</ListChip>
+          <ListChip>{latest ? t("hasDraft") : t("draft")}</ListChip>
         )}
-        {policy.archived_at && <ListChip>Diarsipkan</ListChip>}
+        {policy.archived_at && <ListChip>{t("archived")}</ListChip>}
       </div>
       <span className="text-muted-foreground hidden text-right text-[13px] tabular-nums md:block">
         {updated
-          ? format(new Date(updated), "d MMM yyyy", { locale: idLocale })
-          : "Belum terbit"}
+          ? format(new Date(updated), "d MMM yyyy", { locale: dateLocale })
+          : t("notPublished")}
       </span>
     </ListRow>
   )
@@ -360,14 +364,12 @@ function titleOf(policy: PolicyListItem) {
   return latest?.title ?? draft?.title ?? policy.title
 }
 
-function shortDate(value: string | null) {
-  return value
-    ? format(new Date(value), "d MMM yyyy", { locale: idLocale })
-    : ""
+function shortDate(value: string | null, locale: Locale) {
+  return value ? format(new Date(value), "d MMM yyyy", { locale }) : ""
 }
 
-function dayMonth(value: string | null) {
-  return value ? format(new Date(value), "d MMM", { locale: idLocale }) : ""
+function dayMonth(value: string | null, locale: Locale) {
+  return value ? format(new Date(value), "d MMM", { locale }) : ""
 }
 
 /** Grid card (Cloudflare catalog style): what it is up top, when in the footer. */
@@ -380,13 +382,15 @@ function PolicyCard({
   isAdmin: boolean
   href: string
 }) {
+  const t = useT("policies")
+  const dateLocale = useDateLocale()
   const { latest, draft } = splitVersions(policy.versions ?? [])
   const status = policy.archived_at
-    ? "Diarsipkan"
+    ? t("archived")
     : isAdmin && draft
       ? latest
-        ? "Ada draf"
-        : "Draf"
+        ? t("hasDraft")
+        : t("draft")
       : null
 
   return (
@@ -400,7 +404,7 @@ function PolicyCard({
       <div className="flex flex-1 flex-col gap-3 p-5">
         <div className="flex flex-wrap items-center gap-1.5">
           <span className="border-border rounded-full border px-2 py-0.5 text-xs">
-            {policy.category}
+            {categoryLabel(t, policy.category)}
           </span>
           {status && (
             <span className="bg-muted text-muted-foreground rounded-full px-2 py-0.5 text-xs">
@@ -412,20 +416,24 @@ function PolicyCard({
           {titleOf(policy)}
         </span>
         <p className="text-muted-foreground line-clamp-2 min-h-10 text-sm leading-5">
-          {policy.summary || "Belum ada ringkasan."}
+          {policy.summary || t("noSummary")}
         </p>
       </div>
       <div className="bg-muted/40 border-border text-muted-foreground flex items-center justify-between gap-3 border-t px-5 py-3 text-[13px]">
         <span className="truncate">
           {latest
-            ? `Berlaku sejak ${shortDate(latest.effective_at)}`
-            : "Belum terbit"}
+            ? t("effectiveSince", {
+                date: shortDate(latest.effective_at, dateLocale),
+              })
+            : t("notPublished")}
         </span>
         <span className="shrink-0 tabular-nums">
           {latest
-            ? `Diperbarui ${dayMonth(latest.published_at)}`
+            ? t("updatedOn", {
+                date: dayMonth(latest.published_at, dateLocale),
+              })
             : draft
-              ? `Disimpan ${dayMonth(draft.updated_at)}`
+              ? t("savedOn", { date: dayMonth(draft.updated_at, dateLocale) })
               : ""}
         </span>
       </div>

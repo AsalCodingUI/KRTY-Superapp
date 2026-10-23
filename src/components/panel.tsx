@@ -2,6 +2,10 @@ import { cn } from "@/lib/utils"
 import Link from "next/link"
 import * as React from "react"
 
+/** The card surface every bordered block uses (HomeCard, Panel, stats). */
+export const surfaceClassName =
+  "bg-card border-field-border dark:border-border rounded-xl border"
+
 /**
  * A bordered section on a page: header (title, count, action) over a body.
  * The standard container for dashboard blocks, so sections never float.
@@ -26,7 +30,8 @@ export function Panel({
   return (
     <section
       className={cn(
-        "bg-card border-field-border dark:border-border flex min-w-0 flex-col overflow-hidden rounded-xl border",
+        surfaceClassName,
+        "flex min-w-0 flex-col overflow-hidden",
         className,
       )}
     >

@@ -1,6 +1,5 @@
 const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token"
-const GOOGLE_EVENTS_URL =
-  "https://www.googleapis.com/calendar/v3/calendars"
+const GOOGLE_EVENTS_URL = "https://www.googleapis.com/calendar/v3/calendars"
 
 export interface GoogleCalendarEvent {
   id: string

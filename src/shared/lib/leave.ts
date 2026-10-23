@@ -1,3 +1,4 @@
+import type { MessageKey } from "@/shared/i18n/messages"
 import { calculateBusinessDays } from "@/shared/lib/date"
 import { addMonths, differenceInCalendarMonths } from "date-fns"
 
@@ -11,17 +12,38 @@ export const ANNUAL_LEAVE_MIN_NOTICE_DAYS = 7
 /** Longest single annual-leave request, in business days. */
 export const ANNUAL_LEAVE_MAX_DAYS = 5
 
-export const LEAVE_TYPE_LABELS: Record<string, string> = {
-  "Annual Leave": "Cuti Tahunan",
-  "Sick Leave": "Sakit",
-  WFH: "WFH",
-  "Work From Home": "WFH",
+type LeaveKey = MessageKey<"leave">
+
+/** Stored leave types → "leave" message keys (translate at render). */
+export const LEAVE_TYPE_LABEL_KEYS: Record<string, LeaveKey> = {
+  "Annual Leave": "typeAnnual",
+  "Sick Leave": "typeSick",
+  WFH: "typeWfh",
+  "Work From Home": "typeWfh",
 }
 
-export const LEAVE_STATUS_LABELS: Record<string, string> = {
-  pending: "Menunggu",
-  approved: "Disetujui",
-  rejected: "Ditolak",
+/** Stored leave statuses → "leave" message keys. */
+export const LEAVE_STATUS_LABEL_KEYS: Record<string, LeaveKey> = {
+  pending: "statusPending",
+  approved: "statusApproved",
+  rejected: "statusRejected",
+}
+
+/** Translated label for a stored leave type (unknown types pass through). */
+export function leaveTypeLabel(type: string, t: (key: LeaveKey) => string) {
+  const key = LEAVE_TYPE_LABEL_KEYS[type]
+  return key ? t(key) : type
+}
+
+/** Translated label for a stored leave status. */
+export function leaveStatusLabel(status: string, t: (key: LeaveKey) => string) {
+  const key = LEAVE_STATUS_LABEL_KEYS[status]
+  return key ? t(key) : status
+}
+
+/** "{n} hari" / "{n} day(s)" key for a count. */
+export function daysKey(n: number) {
+  return n === 1 ? ("daysOne" as const) : ("daysOther" as const)
 }
 
 /** Months of employment before annual leave can be taken at all. */
@@ -37,8 +59,11 @@ export type EmploymentInfo = {
 export type Entitlement = {
   eligible: boolean
   quota: number
-  /** Why the quota is what it is, for the UI. */
+  /** Why the quota is what it is (Indonesian, for API errors). */
   note: string | null
+  /** Same reason as a "leave" message key + vars, for the UI. */
+  noteKey: LeaveKey | null
+  noteVars?: Record<string, number>
   /** When the person becomes eligible (if not yet). */
   eligibleFrom: Date | null
 }
@@ -60,11 +85,18 @@ export function annualLeaveEntitlement(
       eligible: false,
       quota: 0,
       note: "Magang tidak mendapat cuti tahunan",
+      noteKey: "noteIntern",
       eligibleFrom: null,
     }
   }
   if (!info.join_date) {
-    return { eligible: true, quota: ANNUAL_LEAVE_QUOTA, note: null, eligibleFrom: null }
+    return {
+      eligible: true,
+      quota: ANNUAL_LEAVE_QUOTA,
+      note: null,
+      noteKey: null,
+      eligibleFrom: null,
+    }
   }
   const joined = new Date(info.join_date)
   let months = differenceInCalendarMonths(today, joined)
@@ -76,6 +108,8 @@ export function annualLeaveEntitlement(
       eligible: false,
       quota: 0,
       note: `Belum ${ANNUAL_LEAVE_ELIGIBLE_AFTER_MONTHS} bulan bekerja`,
+      noteKey: "noteNotYetEligible",
+      noteVars: { months: ANNUAL_LEAVE_ELIGIBLE_AFTER_MONTHS },
       eligibleFrom: addMonths(joined, ANNUAL_LEAVE_ELIGIBLE_AFTER_MONTHS),
     }
   }
@@ -84,10 +118,18 @@ export function annualLeaveEntitlement(
       eligible: true,
       quota: months,
       note: `${months} bulan bekerja: 1 hari per bulan`,
+      noteKey: "noteProrated",
+      noteVars: { months },
       eligibleFrom: null,
     }
   }
-  return { eligible: true, quota: ANNUAL_LEAVE_QUOTA, note: null, eligibleFrom: null }
+  return {
+    eligible: true,
+    quota: ANNUAL_LEAVE_QUOTA,
+    note: null,
+    noteKey: null,
+    eligibleFrom: null,
+  }
 }
 
 type DateRange = { start_date: string; end_date: string }

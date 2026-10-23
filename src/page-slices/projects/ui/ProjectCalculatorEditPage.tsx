@@ -8,6 +8,7 @@ import type {
 } from "@/page-slices/calculator/ui/types"
 import { Button } from "@/components/ui/button"
 import { RiArrowLeftLine } from "@/shared/ui/lucide-icons"
+import { useT } from "@/shared/i18n/client"
 import { useRouter } from "next/navigation"
 
 type ProjectCalculation =
@@ -29,6 +30,7 @@ export function ProjectCalculatorEditPage({
   calculation: ProjectCalculation
 }) {
   const router = useRouter()
+  const t = useT("projects")
 
   return (
     <div className="flex flex-col">
@@ -38,7 +40,7 @@ export function ProjectCalculatorEditPage({
           onClick={() => router.push(`/projects/${projectId}/calculations`)}
         >
           <RiArrowLeftLine className="mr-2 size-4" />
-          Back to Project
+          {t("backToProject")}
         </Button>
       </div>
 

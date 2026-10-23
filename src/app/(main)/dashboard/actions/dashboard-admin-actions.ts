@@ -13,6 +13,7 @@ import {
 import { getDashboardReviewStats } from "@/entities/performance/api"
 import type { LeaveRequestWithProfile } from "@/entities/leave/model/types"
 import { getCurrentQuarter } from "@/shared/lib/date/quarter"
+import { getT } from "@/shared/i18n/server"
 
 import { differenceInBusinessDays, parseISO } from "date-fns"
 
@@ -96,6 +97,7 @@ export async function getAdminDashboardData(): Promise<{
   data?: AdminDashboardData
   error?: string
 }> {
+  const t = await getT("dashboard")
   try {
     const supabase = await createClient()
 
@@ -105,7 +107,7 @@ export async function getAdminDashboardData(): Promise<{
       error: authError,
     } = await supabase.auth.getUser()
     if (authError || !user) {
-      return { success: false, error: "Unauthorized" }
+      return { success: false, error: t("errorUnauthorized") }
     }
 
     const profile = await resolveProfileByUserIdOrEmail<{
@@ -115,7 +117,7 @@ export async function getAdminDashboardData(): Promise<{
     }>(supabase, "id, email, role, created_at", user.id, user.email)
 
     if (!profile || !canManageByRole(profile.role)) {
-      return { success: false, error: "Access denied" }
+      return { success: false, error: t("errorAccessDenied") }
     }
 
     const todayStr = getLocalDateString()
@@ -131,7 +133,7 @@ export async function getAdminDashboardData(): Promise<{
       ])
     const performanceStats = {
       ...reviewStats,
-      ...summarizeTeamKpi(teamKpi.success ? teamKpi.data : []),
+      ...summarizeTeamKpi(teamKpi.success ? teamKpi.data : [], t),
     }
 
     // Build recent activities
@@ -143,7 +145,7 @@ export async function getAdminDashboardData(): Promise<{
         type: "review",
         user_name: review.profiles?.full_name || null,
         user_avatar: review.profiles?.avatar_url || null,
-        description: "Mengirim 360 review",
+        description: t("activitySubmittedReview"),
         timestamp: review.created_at,
       })
     })
@@ -152,19 +154,19 @@ export async function getAdminDashboardData(): Promise<{
     leaveStats.recentLeaves.forEach((leave: LeaveRequestWithProfile) => {
       let activityType: "leave_request" | "leave_approved" | "leave_rejected" =
         "leave_request"
-      let description = "Requested leave"
+      let description = t("activityRequestedLeave", { type: leave.leave_type })
 
       // Handle type mismatch between DB string and literal type
       const status = leave.status as string
 
       if (status === "approved") {
         activityType = "leave_approved"
-        description = `Leave approved (${leave.leave_type})`
+        description = t("activityLeaveApproved", { type: leave.leave_type })
       } else if (status === "rejected") {
         activityType = "leave_rejected"
-        description = `Leave rejected (${leave.leave_type})`
+        description = t("activityLeaveRejected", { type: leave.leave_type })
       } else {
-        description = `Requested ${leave.leave_type} leave`
+        description = t("activityRequestedLeave", { type: leave.leave_type })
       }
 
       recentActivities.push({
@@ -235,12 +237,15 @@ export async function getAdminDashboardData(): Promise<{
     return { success: true, data: dashboardData }
   } catch (error) {
     console.error("Error fetching admin dashboard data:", error)
-    return { success: false, error: "Failed to fetch dashboard data" }
+    return { success: false, error: t("errorFetchFailed") }
   }
 }
 
 /** Distribution, average, top and attention lists from the team's final KPI. */
-function summarizeTeamKpi(rows: TeamKpiRow[]) {
+function summarizeTeamKpi(
+  rows: TeamKpiRow[],
+  t: Awaited<ReturnType<typeof getT<"dashboard">>>,
+) {
   const scored = rows
     .filter((r) => r.final.score !== null)
     .map((r) => ({ ...r, score: r.final.score as number }))
@@ -279,7 +284,10 @@ function summarizeTeamKpi(rows: TeamKpiRow[]) {
       .slice(0, 5)
       .map((r) => ({
         ...person(r),
-        reason: r.score < 60 ? "Jauh di bawah target" : "Di bawah harapan",
+        reason:
+          r.score < 60
+            ? t("reasonFarBelowTarget")
+            : t("reasonBelowExpectation"),
       })),
   }
 }

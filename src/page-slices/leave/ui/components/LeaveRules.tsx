@@ -7,7 +7,7 @@ import {
   usePublishedPolicy,
 } from "@/entities/policy/model/usePublishedPolicy"
 import { format } from "date-fns"
-import { id as idLocale } from "date-fns/locale"
+import { useDateLocale, useT } from "@/shared/i18n/client"
 import Link from "next/link"
 
 /**
@@ -15,6 +15,8 @@ import Link from "next/link"
  * one place and every leave screen shows the version in force.
  */
 export function LeaveRules() {
+  const t = useT("leave")
+  const dateLocale = useDateLocale()
   const { data: policy, isLoading } = usePublishedPolicy(POLICY_SLUGS.leave)
 
   if (isLoading) {
@@ -28,9 +30,9 @@ export function LeaveRules() {
   if (!policy) {
     return (
       <p className="text-muted-foreground text-sm">
-        Aturan cuti belum diterbitkan. Tanyakan ke admin, atau cek di{" "}
+        {t("rulesNotPublished")}{" "}
         <Link href="/policies" className="text-primary hover:underline">
-          Aturan
+          {t("policiesLink")}
         </Link>
         .
       </p>
@@ -41,15 +43,15 @@ export function LeaveRules() {
     <div className="flex flex-col gap-4">
       <Markdown className="text-sm leading-6">{policy.body}</Markdown>
       <p className="text-muted-foreground border-border border-t pt-3 text-xs">
-        Versi {policy.version}
+        {t("rulesVersion", { version: policy.version })}
         {policy.effectiveAt &&
-          ` · berlaku sejak ${format(new Date(policy.effectiveAt), "d MMM yyyy", { locale: idLocale })}`}
+          ` · ${t("rulesEffectiveSince", { date: format(new Date(policy.effectiveAt), "d MMM yyyy", { locale: dateLocale }) })}`}
         {" · "}
         <Link
           href={`/policies/${policy.id}`}
           className="text-primary hover:underline"
         >
-          Buka di Aturan
+          {t("rulesOpenInPolicies")}
         </Link>
       </p>
     </div>

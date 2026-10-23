@@ -4,6 +4,7 @@ import { resolveProfileByUserIdOrEmail } from "@/shared/lib/profile-resolution"
 
 export const dynamic = "force-dynamic"
 import { canManageByRole } from "@/shared/lib/roles"
+import { getT } from "@/shared/i18n/server"
 import { redirect } from "next/navigation"
 import { getAdminDashboardData } from "./actions/dashboard-admin-actions"
 import { getEmployeeDashboardData } from "./actions/dashboard-employee-actions"
@@ -16,6 +17,7 @@ export default async function DashboardRoute({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
   const resolvedSearchParams = await searchParams
+  const t = await getT("dashboard")
   const supabase = await createClient()
 
   const {
@@ -35,12 +37,17 @@ export default async function DashboardRoute({
     email: string | null
     full_name: string | null
     role: string | null
-  }>(supabase, "id, email, full_name, role, created_at", effectiveUserId, user.email)
+  }>(
+    supabase,
+    "id, email, full_name, role, created_at",
+    effectiveUserId,
+    user.email,
+  )
 
   if (!profile) {
     return (
       <div className="py-12 text-center">
-        <p className="text-muted-foreground">Profile not found</p>
+        <p className="text-muted-foreground">{t("profileNotFound")}</p>
       </div>
     )
   }
@@ -56,7 +63,7 @@ export default async function DashboardRoute({
       return (
         <div className="py-12 text-center">
           <p className="text-muted-foreground">
-            {result.error || "Failed to load dashboard data"}
+            {result.error || t("loadFailed")}
           </p>
         </div>
       )
@@ -75,12 +82,14 @@ export default async function DashboardRoute({
       return (
         <div className="py-12 text-center">
           <p className="text-muted-foreground">
-            {result.error || "Failed to load dashboard data"}
+            {result.error || t("loadFailed")}
           </p>
         </div>
       )
     }
 
-    return <EmployeeDashboard data={result.data} initialQuarter={quarterParam} />
+    return (
+      <EmployeeDashboard data={result.data} initialQuarter={quarterParam} />
+    )
   }
 }

@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
+import { useT } from "@/shared/i18n/client"
 import { OperationalCost } from "../types"
 import { formatNumber } from "../utils"
 
@@ -20,32 +21,33 @@ export function OperationalCostsSection({
   onExportJSON,
   onImportFile,
 }: OperationalCostsSectionProps) {
+  const t = useT("calculator")
   return (
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h3 className="text-foreground text-sm font-medium">
-            Operational Costs
+            {t("operationalCosts")}
           </h3>
           <p className="text-muted-foreground text-sm">
-            Monthly overhead allocation used for this project.
+            {t("operationalCostsDescription")}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Button variant="outline" onClick={onDownloadTemplateCSV}>
-            Download CSV Template
+            {t("downloadCsvTemplate")}
           </Button>
           <Button variant="outline" onClick={onDownloadTemplateJSON}>
-            Download JSON Template
+            {t("downloadJsonTemplate")}
           </Button>
           <Button variant="outline" onClick={onExportCSV}>
-            Export CSV
+            {t("exportCsv")}
           </Button>
           <Button variant="outline" onClick={onExportJSON}>
-            Export JSON
+            {t("exportJson")}
           </Button>
           <Label className="cursor-pointer">
-            <span className="sr-only">Import Costs</span>
+            <span className="sr-only">{t("importCosts")}</span>
             <input
               type="file"
               accept=".csv,.json"
@@ -56,7 +58,7 @@ export function OperationalCostsSection({
                 e.currentTarget.value = ""
               }}
             />
-            <Button type="button">Import Costs</Button>
+            <Button type="button">{t("importCosts")}</Button>
           </Label>
         </div>
       </div>
@@ -65,7 +67,7 @@ export function OperationalCostsSection({
         {costItems.length === 0 && (
           <div className="rounded-md border border-dashed p-6 text-center">
             <p className="text-muted-foreground text-sm">
-              No operational costs loaded yet.
+              {t("noOperationalCosts")}
             </p>
           </div>
         )}

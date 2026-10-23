@@ -10,6 +10,11 @@
  *   part has no data yet the others are re-weighted, and it's listed as missing.
  */
 
+import type { MessageKey } from "@/shared/i18n/messages"
+
+/** A key of the "performance" namespace; screens translate it at render. */
+type PerformanceKey = MessageKey<"performance">
+
 export type SLAResult = "Faster" | "On Time" | "Delay"
 
 export const SLA_RESULT_PERCENT: Record<SLAResult, number> = {
@@ -18,10 +23,10 @@ export const SLA_RESULT_PERCENT: Record<SLAResult, number> = {
   Delay: 80,
 }
 
-export const SLA_RESULT_LABELS: Record<SLAResult, string> = {
-  Faster: "Lebih cepat",
-  "On Time": "Tepat waktu",
-  Delay: "Terlambat",
+export const SLA_RESULT_LABELS: Record<SLAResult, PerformanceKey> = {
+  Faster: "slaFaster",
+  "On Time": "slaOnTime",
+  Delay: "slaDelay",
 }
 
 /** Default milestones for every project role (weights sum to 100). */
@@ -35,29 +40,29 @@ export type KpiPart = "sla" | "review" | "quality"
 
 export const KPI_PARTS: {
   key: KpiPart
-  label: string
-  description: string
+  label: PerformanceKey
+  description: PerformanceKey
   weight: number
   target: number
 }[] = [
   {
     key: "sla",
-    label: "SLA project",
-    description: "Milestone project selesai tepat waktu",
+    label: "partSla",
+    description: "partSlaDescription",
     weight: 40,
     target: 90,
   },
   {
     key: "review",
-    label: "360 review",
-    description: "Penilaian dari rekan kerja",
+    label: "partReview",
+    description: "partReviewDescription",
     weight: 15,
     target: 85,
   },
   {
     key: "quality",
-    label: "Kualitas kerja",
-    description: "Kompetensi yang tercapai di project",
+    label: "partQuality",
+    description: "partQualityDescription",
     weight: 45,
     target: 90,
   },
@@ -126,12 +131,16 @@ export type RatingTone =
   | "warning"
   | "destructive"
 
-export const RATINGS: { min: number; label: string; tone: RatingTone }[] = [
-  { min: 95, label: "Istimewa", tone: "success" },
-  { min: 85, label: "Di atas harapan", tone: "info" },
-  { min: 75, label: "Sesuai harapan", tone: "neutral" },
-  { min: 60, label: "Di bawah harapan", tone: "warning" },
-  { min: -Infinity, label: "Perlu perbaikan", tone: "destructive" },
+export const RATINGS: {
+  min: number
+  label: PerformanceKey
+  tone: RatingTone
+}[] = [
+  { min: 95, label: "ratingExceptional", tone: "success" },
+  { min: 85, label: "ratingAbove", tone: "info" },
+  { min: 75, label: "ratingMeets", tone: "neutral" },
+  { min: 60, label: "ratingBelow", tone: "warning" },
+  { min: -Infinity, label: "ratingNeedsWork", tone: "destructive" },
 ]
 
 export function ratingFor(score: number | null) {

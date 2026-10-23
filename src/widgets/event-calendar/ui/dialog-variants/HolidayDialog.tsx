@@ -9,9 +9,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { useDateLocale, useT } from "@/shared/i18n/client"
 import { RiCalendarLine, RiCloseLine } from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
-import { id } from "date-fns/locale"
 import type { CalendarEvent } from "../types"
 
 interface HolidayDialogProps {
@@ -25,11 +25,14 @@ export function HolidayDialog({
   onOpenChange,
   event,
 }: HolidayDialogProps) {
+  const t = useT("calendar")
+  const tc = useT("common")
+  const dateLocale = useDateLocale()
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[35rem]">
         <DialogHeader>
-          <DialogTitle>Hari Libur Nasional</DialogTitle>
+          <DialogTitle>{t("eventTypePublicHoliday")}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-5">
@@ -40,7 +43,7 @@ export function HolidayDialog({
                 {event.title}
               </h3>
               <Badge variant="secondary" className="shrink-0">
-                Libur
+                {t("holidayBadge")}
               </Badge>
             </div>
           </div>
@@ -51,11 +54,13 @@ export function HolidayDialog({
               <RiCalendarLine className="text-muted-foreground h-5 w-5" />
               <div>
                 <p className="text-foreground text-sm">
-                  {format(event.start, "EEEE, dd MMMM yyyy", { locale: id })}
+                  {format(event.start, "EEEE, dd MMMM yyyy", {
+                    locale: dateLocale,
+                  })}
                 </p>
                 {event.allDay && (
                   <p className="text-muted-foreground mt-0.5 text-xs">
-                    Sepanjang hari
+                    {t("holidayAllDay")}
                   </p>
                 )}
               </div>
@@ -66,7 +71,7 @@ export function HolidayDialog({
           {event.description && (
             <div className="border-border space-y-2 border-t pt-4">
               <h4 className="text-muted-foreground text-sm font-medium">
-                Tentang hari libur ini
+                {t("holidayAbout")}
               </h4>
               <p className="text-foreground text-sm break-words whitespace-pre-wrap">
                 {event.description}
@@ -76,10 +81,7 @@ export function HolidayDialog({
 
           {/* Info notice */}
           <div className="bg-primary/10 border-primary/20 bg-foreground/[0.03] rounded-lg p-3">
-            <p className="text-primary text-xs">
-              ℹ️ Ini adalah hari libur nasional dari kalender Indonesia. Data
-              ini tidak dapat diubah atau dihapus.
-            </p>
+            <p className="text-primary text-xs">ℹ️ {t("holidayInfo")}</p>
           </div>
         </div>
 
@@ -90,7 +92,7 @@ export function HolidayDialog({
             onClick={() => onOpenChange(false)}
           >
             <RiCloseLine className="mr-2 h-4 w-4" />
-            Tutup
+            {tc("close")}
           </Button>
         </DialogFooter>
       </DialogContent>

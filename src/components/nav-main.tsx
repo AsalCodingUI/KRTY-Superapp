@@ -16,6 +16,7 @@ import { SlidingIndicator } from "@/components/sliding-indicator"
 import { cn } from "@/lib/utils"
 import { ChevronRight } from "lucide-react"
 import { PrefetchLink } from "@/components/prefetch-link"
+import { useT } from "@/shared/i18n/client"
 import { memo, useEffect, useRef, useState } from "react"
 
 /**
@@ -26,7 +27,10 @@ function NavBadge({ count }: { count?: number }) {
   const previous = useRef(count)
   const [pops, setPops] = useState(0)
   useEffect(() => {
-    if ((count ?? 0) > (previous.current ?? 0) && previous.current !== undefined)
+    if (
+      (count ?? 0) > (previous.current ?? 0) &&
+      previous.current !== undefined
+    )
       setPops((n) => n + 1)
     previous.current = count
   }, [count])
@@ -36,7 +40,7 @@ function NavBadge({ count }: { count?: number }) {
     <span
       key={pops}
       className={cn(
-        "bg-primary/15 text-primary ml-auto flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full px-1.5 text-xs font-medium tabular-nums group-data-[collapsible=icon]:hidden",
+        "bg-foreground/[0.08] text-foreground/70 blend-ink ml-auto flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full px-1.5 text-xs font-medium tabular-nums group-data-[collapsible=icon]:hidden",
         pops > 0 && "animate-count-pop motion-reduce:animate-none",
       )}
     >
@@ -67,6 +71,7 @@ export const NavMain = memo(function NavMain({
   }[]
 }) {
   const [collapsed, setCollapsed] = useCollapsedNav()
+  const t = useT("shell")
 
   return (
     <SidebarGroup>
@@ -75,7 +80,7 @@ export const NavMain = memo(function NavMain({
         {/* The active page's fill slides between rows (parents and tabs). */}
         <SlidingIndicator
           activeSelector="[data-active]"
-          className="bg-sidebar-active rounded-full"
+          className="bg-sidebar-active rounded-full shadow-(--shadow-chrome-active)"
         />
         {items.map((item) => {
           const nested = (item.items?.length ?? 0) > 1
@@ -88,7 +93,7 @@ export const NavMain = memo(function NavMain({
                 // With the tabs listed, the active tab is highlighted instead.
                 isActive={item.isActive && !(open && childActive)}
                 className={cn(
-                  "data-active:bg-transparent",
+                  "not-data-active:blend-ink data-active:bg-transparent",
                   nested && "pr-8",
                 )}
                 render={<PrefetchLink href={item.url} />}
@@ -108,7 +113,9 @@ export const NavMain = memo(function NavMain({
               {nested && (
                 <SidebarMenuAction
                   aria-label={
-                    open ? `Tutup ${item.title}` : `Buka ${item.title}`
+                    open
+                      ? t("navCollapse", { name: item.title })
+                      : t("navExpand", { name: item.title })
                   }
                   aria-expanded={open}
                   className="text-muted-foreground top-1.5! right-1.5"
@@ -134,7 +141,7 @@ export const NavMain = memo(function NavMain({
                           isActive={subItem.isActive}
                           // Line the badge up with the parent row's chevron.
                           className={cn(
-                            "data-active:bg-transparent",
+                            "not-data-active:blend-ink data-active:bg-transparent",
                             subItem.badge && "pr-1.5",
                           )}
                           render={<PrefetchLink href={subItem.url} />}

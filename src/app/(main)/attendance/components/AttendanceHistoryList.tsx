@@ -10,7 +10,7 @@ import { Collapse } from "@/components/ui/collapse"
 import { cn } from "@/lib/utils"
 import {
   ATTENDANCE_NOTE_TAGS,
-  ATTENDANCE_STATUS_LABELS,
+  attendanceStatusLabel,
   formatWorked,
   hasAttendanceNote,
   LONG_SESSION_MS,
@@ -20,7 +20,7 @@ import { getAttendanceLogLocalDate } from "@/shared/lib/date"
 import { Database } from "@/shared/types/database.types"
 import { RiArrowDownSLine, RiCalendarLine } from "@/shared/ui/lucide-icons"
 import { format, isToday, isYesterday, parseISO } from "date-fns"
-import { id as idLocale } from "date-fns/locale"
+import { useDateLocale, useT } from "@/shared/i18n/client"
 import * as React from "react"
 import { useEffect, useMemo, useState } from "react"
 
@@ -41,6 +41,7 @@ export function AttendanceHistoryList({
   logs: AttendanceLog[]
   onRequestDelete?: (id: string) => void
 }) {
+  const t = useT("leave")
   const [visibleDays, setVisibleDays] = useState(DAYS_PER_PAGE)
   const [hydrated, setHydrated] = useState(false)
   useEffect(() => setHydrated(true), [])
@@ -65,8 +66,8 @@ export function AttendanceHistoryList({
   if (logs.length === 0) {
     return (
       <EmptyState
-        title="Belum ada data kehadiran"
-        description="Data muncul setelah kamu clock in pertama kali."
+        title={t("emptyAttendanceTitle")}
+        description={t("emptyAttendanceSelfDesc")}
         icon={<RiCalendarLine className="size-5" />}
         placement="inner"
       />
@@ -82,10 +83,10 @@ export function AttendanceHistoryList({
             "gutter-x text-muted-foreground border-border h-9 border-b text-[13px]",
           )}
         >
-          <span>Jam</span>
-          <span className="hidden md:block">Status</span>
-          <span className="hidden text-right md:block">Istirahat</span>
-          <span className="text-right">Durasi</span>
+          <span>{t("colTime")}</span>
+          <span className="hidden md:block">{t("colStatus")}</span>
+          <span className="hidden text-right md:block">{t("colBreak")}</span>
+          <span className="text-right">{t("colDuration")}</span>
           <span className="hidden lg:block" />
         </div>
         {groups.slice(0, visibleDays).map(([date, dayLogs], index) => (
@@ -116,7 +117,7 @@ export function AttendanceHistoryList({
             variant="ghost"
             onClick={() => setVisibleDays((n) => n + DAYS_PER_PAGE)}
           >
-            Muat lebih banyak
+            {t("loadMore")}
           </Button>
         </div>
       )}
@@ -141,6 +142,9 @@ function AttendanceDay({
   defaultOpen: boolean
   children: React.ReactNode
 }) {
+  const t = useT("leave")
+  const tc = useT("common")
+  const dateLocale = useDateLocale()
   const [open, setOpen] = useState(defaultOpen)
   const d = parseISO(date)
   const active = logs.some((l) => !l.clock_out)
@@ -148,9 +152,9 @@ function AttendanceDay({
   const totalBreak = logs.reduce((sum, l) => sum + (l.break_total ?? 0), 0)
   const relative = hydrated
     ? isToday(d)
-      ? "Hari ini"
+      ? "today"
       : isYesterday(d)
-        ? "Kemarin"
+        ? "yesterday"
         : null
     : null
 
@@ -175,16 +179,18 @@ function AttendanceDay({
             )}
           />
           <span className="text-foreground truncate" suppressHydrationWarning>
-            {format(d, "EEEE, d MMMM", { locale: idLocale })}
+            {format(d, "EEEE, d MMMM", { locale: dateLocale })}
           </span>
           {relative && (
-            <Badge variant={relative === "Hari ini" ? "info" : "secondary"}>
-              {relative}
+            <Badge variant={relative === "today" ? "info" : "secondary"}>
+              {tc(relative)}
             </Badge>
           )}
         </span>
         <span className="text-muted-foreground hidden text-[13px] tabular-nums md:block">
-          {logs.length} sesi
+          {t(logs.length === 1 ? "sessionsOne" : "sessionsOther", {
+            n: logs.length,
+          })}
         </span>
         <span className="text-muted-foreground hidden text-right text-[13px] tabular-nums md:block">
           {totalBreak ? `${totalBreak}m` : ""}
@@ -193,13 +199,13 @@ function AttendanceDay({
           className="text-foreground text-right tabular-nums"
           suppressHydrationWarning
         >
-          {hydrated ? formatWorked(totalMs) : ""}
+          {hydrated ? formatWorked(totalMs, t("hourShort")) : ""}
         </span>
         <span className="hidden justify-end lg:flex">
           {active && (
             <span className="text-success flex items-center gap-1.5 text-[13px]">
               <span className="bg-success size-1.5 animate-pulse rounded-full motion-reduce:animate-none" />
-              Aktif
+              {t("active")}
             </span>
           )}
         </span>
@@ -221,6 +227,7 @@ function AttendanceRow({
   hydrated: boolean
   onRequestDelete?: (id: string) => void
 }) {
+  const t = useT("leave")
   const isActive = !log.clock_out
   const deleteRequested = hasAttendanceNote(
     log.notes,
@@ -229,22 +236,20 @@ function AttendanceRow({
 
   const status =
     log.is_break && isActive ? (
-      <Badge variant="warning">Istirahat</Badge>
+      <Badge variant="warning">{t("onBreak")}</Badge>
     ) : isActive ? (
-      <Badge variant="success">Aktif</Badge>
+      <Badge variant="success">{t("active")}</Badge>
     ) : log.status && log.status !== "Present" ? (
-      <Badge variant="secondary">
-        {ATTENDANCE_STATUS_LABELS[log.status] ?? log.status}
-      </Badge>
+      <Badge variant="secondary">{attendanceStatusLabel(log.status, t)}</Badge>
     ) : (
-      <Badge variant="secondary">Selesai</Badge>
+      <Badge variant="secondary">{t("done")}</Badge>
     )
   const notes = [
     hasAttendanceNote(log.notes, ATTENDANCE_NOTE_TAGS.adminEditedSession) &&
-      "Diedit admin",
+      t("noteEditedByAdmin"),
     hasAttendanceNote(log.notes, ATTENDANCE_NOTE_TAGS.autoClockOut) &&
-      "Clock out otomatis",
-    deleteRequested && "Menunggu dihapus",
+      t("noteAutoClockOut"),
+    deleteRequested && t("notePendingDelete"),
   ].filter(Boolean)
 
   return (
@@ -278,7 +283,7 @@ function AttendanceRow({
               size="sm"
               onClick={() => onRequestDelete(log.id)}
             >
-              Minta hapus
+              {t("requestDelete")}
             </Button>
           </ListRowActions>
         )}
@@ -295,6 +300,7 @@ function WorkedTime({
   log: Parameters<typeof workedMs>[0]
   hydrated: boolean
 }) {
+  const t = useT("leave")
   const ms = hydrated ? workedMs(log) : 0
   const long = ms > LONG_SESSION_MS
   return (
@@ -304,10 +310,10 @@ function WorkedTime({
           ? "text-warning text-right tabular-nums"
           : "text-foreground text-right tabular-nums"
       }
-      title={long ? "Lebih dari 12 jam, kemungkinan lupa clock out" : undefined}
+      title={long ? t("longSessionHint") : undefined}
       suppressHydrationWarning
     >
-      {hydrated ? formatWorked(ms) : ""}
+      {hydrated ? formatWorked(ms, t("hourShort")) : ""}
     </span>
   )
 }

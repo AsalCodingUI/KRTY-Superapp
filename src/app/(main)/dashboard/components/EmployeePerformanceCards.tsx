@@ -10,7 +10,7 @@ import {
   HomeStats,
 } from "./home-card"
 import { format } from "date-fns"
-import { id as idLocale } from "date-fns/locale"
+import { useDateLocale, useT } from "@/shared/i18n/client"
 
 interface EmployeePerformanceCardsProps {
   slaScore: number | null
@@ -51,15 +51,29 @@ export function EmployeePerformanceCards({
   upcomingReviews = [],
   upcomingOneOnOne = [],
 }: EmployeePerformanceCardsProps) {
+  const t = useT("dashboard")
+  const dateLocale = useDateLocale()
   const pct = (v: number | null) =>
     v !== null ? `${Number(v).toFixed(1)}%` : "–"
   const competencyItems = competencyScores
     ? [
-        { label: "Leadership", value: competencyScores.leadership },
-        { label: "Quality", value: competencyScores.quality },
-        { label: "Reliability", value: competencyScores.reliability },
-        { label: "Communication", value: competencyScores.communication },
-        { label: "Initiative", value: competencyScores.initiative },
+        {
+          label: t("competencyLeadership"),
+          value: competencyScores.leadership,
+        },
+        { label: t("competencyQuality"), value: competencyScores.quality },
+        {
+          label: t("competencyReliability"),
+          value: competencyScores.reliability,
+        },
+        {
+          label: t("competencyCommunication"),
+          value: competencyScores.communication,
+        },
+        {
+          label: t("competencyInitiative"),
+          value: competencyScores.initiative,
+        },
       ]
     : []
   const reviews = upcomingReviews.slice(0, 3)
@@ -68,19 +82,19 @@ export function EmployeePerformanceCards({
   return (
     <>
       <HomeCard
-        title="Performa"
+        title={t("performanceTitle")}
         badge={<Badge variant="secondary">{quarter}</Badge>}
         actions={
-          <HomeIconLink href="/performance" label="Buka KPI">
+          <HomeIconLink href="/performance" label={t("openKpi")}>
             <ArrowUpRight />
           </HomeIconLink>
         }
       >
         <HomeStats
           items={[
-            { label: "SLA tepat waktu", value: pct(slaScore) },
-            { label: "Review 360", value: pct(reviewScore) },
-            { label: "Kualitas kerja", value: pct(workQualityScore) },
+            { label: t("statSlaOnTime"), value: pct(slaScore) },
+            { label: t("statReview360"), value: pct(reviewScore) },
+            { label: t("statWorkQuality"), value: pct(workQualityScore) },
           ]}
         />
         {competencyItems.length > 0 ? (
@@ -110,23 +124,24 @@ export function EmployeePerformanceCards({
             ))}
           </div>
         ) : (
-          <HomeEmpty>
-            Nilai kompetensi muncul setelah review kuartal ini.
-          </HomeEmpty>
+          <HomeEmpty>{t("competencyEmpty")}</HomeEmpty>
         )}
       </HomeCard>
 
       <HomeCard
-        title="Review & 1:1"
+        title={t("reviewOneOnOneTitle")}
         actions={
-          <HomeIconLink href="/performance?tab=360review" label="Buka review">
+          <HomeIconLink
+            href="/performance?tab=360review"
+            label={t("openReview")}
+          >
             <ArrowUpRight />
           </HomeIconLink>
         }
       >
         <div className="flex flex-1 flex-col">
           {reviews.length === 0 && slots.length === 0 ? (
-            <HomeEmpty>Belum ada review atau sesi 1:1 terjadwal.</HomeEmpty>
+            <HomeEmpty>{t("reviewOneOnOneEmpty")}</HomeEmpty>
           ) : (
             <>
               {reviews.map((review) => (
@@ -134,12 +149,18 @@ export function EmployeePerformanceCards({
                   key={review.cycle_id}
                   href="/performance?tab=360review"
                   title={review.cycle_name}
-                  subtitle={`Tenggat ${format(new Date(review.end_date), "d MMM yyyy", { locale: idLocale })}`}
+                  subtitle={t("reviewDue", {
+                    date: format(new Date(review.end_date), "d MMM yyyy", {
+                      locale: dateLocale,
+                    }),
+                  })}
                   trailing={
                     <Badge
                       variant={review.has_submitted ? "success" : "warning"}
                     >
-                      {review.has_submitted ? "Terkirim" : "Belum diisi"}
+                      {review.has_submitted
+                        ? t("reviewSubmitted")
+                        : t("reviewNotFilled")}
                     </Badge>
                   }
                 />
@@ -147,14 +168,20 @@ export function EmployeePerformanceCards({
               {slots.map((slot) => (
                 <HomeRow
                   key={slot.id}
-                  title={`1:1 · ${format(new Date(slot.start_at), "EEE, d MMM · HH:mm", { locale: idLocale })}`}
+                  title={`1:1 · ${format(new Date(slot.start_at), "EEE, d MMM · HH:mm", { locale: dateLocale })}`}
                   subtitle={
                     (slot.organizer_name
-                      ? `Dengan ${slot.organizer_name}`
-                      : "Sesi 1:1") +
+                      ? t("oneOnOneWith", { name: slot.organizer_name })
+                      : t("oneOnOneSession")) +
                     (slot.mode === "offline" && slot.location
                       ? ` · ${slot.location}`
-                      : ` · ${slot.mode}`)
+                      : ` · ${
+                          slot.mode === "online"
+                            ? t("oneOnOneModeOnline")
+                            : slot.mode === "offline"
+                              ? t("oneOnOneModeOffline")
+                              : slot.mode
+                        }`)
                   }
                   trailing={
                     slot.meeting_url ? (
@@ -164,7 +191,7 @@ export function EmployeePerformanceCards({
                         rel="noreferrer"
                         className="text-primary text-[13px] font-medium hover:underline"
                       >
-                        Gabung
+                        {t("oneOnOneJoin")}
                       </a>
                     ) : null
                   }

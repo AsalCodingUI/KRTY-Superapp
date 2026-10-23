@@ -23,11 +23,15 @@ import { useMinuteClock } from "@/shared/hooks/useMinuteClock"
 import { useMountedTabs } from "@/shared/hooks/useMountedTabs"
 import { useTabRoute } from "@/shared/hooks/useTabRoute"
 import { getLocalDateString } from "@/shared/lib/date"
-import { annualLeaveSummary, businessDaysInYear } from "@/shared/lib/leave"
+import { useDateLocale, useT } from "@/shared/i18n/client"
+import {
+  annualLeaveSummary,
+  businessDaysInYear,
+  daysKey,
+} from "@/shared/lib/leave"
 import { Database } from "@/shared/types/database.types"
 import { RiAddLine } from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
-import { id as idLocale } from "date-fns/locale"
 import dynamic from "next/dynamic"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useCallback, useEffect, useMemo, useState } from "react"
@@ -65,6 +69,9 @@ export function EmployeeLeavePage({
   pageSize,
   totalCount,
 }: EmployeeLeavePageProps) {
+  const t = useT("leave")
+  const tc = useT("common")
+  const dateLocale = useDateLocale()
   const supabase = createClient()
   const router = useRouter()
   const pathname = usePathname()
@@ -177,10 +184,10 @@ export function EmployeeLeavePage({
       setLogs((prev) =>
         prev.map((log) => (log.id === deleteLogId ? payload.data : log)),
       )
-      toast.success("Permintaan hapus dikirim ke admin")
+      toast.success(t("toastDeleteRequestSent"))
     } catch {
       setLogs(previous)
-      toast.error("Gagal mengirim permintaan hapus")
+      toast.error(t("toastDeleteRequestFailed"))
     } finally {
       setBusy(false)
       setDeleteLogId(null)
@@ -198,14 +205,14 @@ export function EmployeeLeavePage({
       })
       const payload = await response.json().catch(() => ({}))
       if (!response.ok) throw new Error(payload?.error)
-      toast.success("Pengajuan dibatalkan")
+      toast.success(t("toastRequestCancelled"))
       setCancelTarget(null)
       router.refresh()
     } catch (error) {
       toast.error(
         error instanceof Error && error.message
           ? error.message
-          : "Gagal membatalkan pengajuan",
+          : t("toastCancelFailed"),
       )
     } finally {
       setBusy(false)
@@ -219,11 +226,11 @@ export function EmployeeLeavePage({
             today's clock row, then the list. */}
         <PageHeader
           className="pt-6 pb-4"
-          title="Leave & Attendance"
+          title={t("pageTitle")}
           actions={
             <Button variant="secondary" onClick={() => openRequest(null)}>
               <RiAddLine data-icon="inline-start" />
-              Ajukan cuti
+              {t("requestLeave")}
             </Button>
           }
         />
@@ -235,14 +242,14 @@ export function EmployeeLeavePage({
               onClick={() => setActiveTab("attendance")}
               showLeadingIcon={false}
             >
-              Kehadiran
+              {t("tabAttendance")}
             </TabNavigationLink>
             <TabNavigationLink
               active={activeTab === "leave"}
               onClick={() => setActiveTab("leave")}
               showLeadingIcon={false}
             >
-              Cuti
+              {t("tabLeave")}
             </TabNavigationLink>
           </TabNavigation>
         </div>
@@ -251,13 +258,13 @@ export function EmployeeLeavePage({
         <dl className="stat-strip bleed gutter-x border-border border-b py-4">
           <div className="stat-tile">
             <dt className="text-muted-foreground flex items-center gap-2 text-sm">
-              Sisa cuti tahunan
+              {t("statAnnualRemaining")}
               <button
                 type="button"
                 onClick={() => setRulesOpen(true)}
                 className="text-tertiary-foreground hover:text-foreground text-xs underline-offset-2 hover:underline"
               >
-                Aturan
+                {t("rules")}
               </button>
             </dt>
             {stats.annual.eligible ? (
@@ -265,39 +272,47 @@ export function EmployeeLeavePage({
                 <RollingValue>{stats.annual.remaining}</RollingValue>
                 <span className="text-tertiary-foreground text-sm tracking-normal">
                   {" "}
-                  / {stats.annual.quota} hari
+                  / {t(daysKey(stats.annual.quota), { n: stats.annual.quota })}
                 </span>
               </dd>
             ) : (
               <dd className="text-muted-foreground text-xl font-normal tracking-tight">
                 {stats.annual.eligibleFrom
-                  ? `Mulai ${format(stats.annual.eligibleFrom, "d MMM yyyy", { locale: idLocale })}`
-                  : "Tidak ada"}
+                  ? t("eligibleFrom", {
+                      date: format(stats.annual.eligibleFrom, "d MMM yyyy", {
+                        locale: dateLocale,
+                      }),
+                    })
+                  : tc("none")}
               </dd>
             )}
-            {stats.annual.note && (
+            {stats.annual.noteKey && (
               <span className="text-tertiary-foreground text-xs">
-                {stats.annual.note}
+                {t(stats.annual.noteKey, stats.annual.noteVars)}
               </span>
             )}
           </div>
           <div className="stat-tile">
-            <dt className="text-muted-foreground text-sm">Sakit tahun ini</dt>
+            <dt className="text-muted-foreground text-sm">
+              {t("statSickThisYear")}
+            </dt>
             <dd className="text-foreground text-xl font-normal tracking-tight tabular-nums">
               <RollingValue>{stats.sick}</RollingValue>
               <span className="text-tertiary-foreground text-sm tracking-normal">
                 {" "}
-                hari
+                {t(stats.sick === 1 ? "unitDaysOne" : "unitDaysOther")}
               </span>
             </dd>
           </div>
           <div className="stat-tile">
-            <dt className="text-muted-foreground text-sm">WFH tahun ini</dt>
+            <dt className="text-muted-foreground text-sm">
+              {t("statWfhThisYear")}
+            </dt>
             <dd className="text-foreground text-xl font-normal tracking-tight tabular-nums">
               <RollingValue>{stats.wfh}</RollingValue>
               <span className="text-tertiary-foreground text-sm tracking-normal">
                 {" "}
-                hari
+                {t(stats.wfh === 1 ? "unitDaysOne" : "unitDaysOther")}
               </span>
             </dd>
           </div>
@@ -310,7 +325,7 @@ export function EmployeeLeavePage({
               {now ? format(now, "HH:mm") : "--:--"}
             </span>
             <span className="text-muted-foreground text-sm">
-              {now ? format(now, "EEEE, d MMMM", { locale: idLocale }) : ""}
+              {now ? format(now, "EEEE, d MMMM", { locale: dateLocale }) : ""}
             </span>
           </p>
           <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
@@ -376,17 +391,15 @@ export function EmployeeLeavePage({
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Minta hapus data kehadiran?</DialogTitle>
-            <DialogDescription>
-              Admin akan meninjau permintaan ini sebelum datanya dihapus.
-            </DialogDescription>
+            <DialogTitle>{t("deleteLogTitle")}</DialogTitle>
+            <DialogDescription>{t("deleteLogDesc")}</DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <DialogClose render={<Button variant="outline" />}>
-              Batal
+              {tc("cancel")}
             </DialogClose>
             <Button disabled={busy} onClick={confirmDeleteRequest}>
-              Kirim permintaan
+              {t("sendRequest")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -398,21 +411,19 @@ export function EmployeeLeavePage({
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Batalkan pengajuan?</DialogTitle>
-            <DialogDescription>
-              Pengajuan yang belum disetujui ini akan dihapus.
-            </DialogDescription>
+            <DialogTitle>{t("cancelRequestTitle")}</DialogTitle>
+            <DialogDescription>{t("cancelRequestDesc")}</DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <DialogClose render={<Button variant="outline" />}>
-              Kembali
+              {tc("back")}
             </DialogClose>
             <Button
               variant="destructive"
               disabled={busy}
               onClick={confirmCancel}
             >
-              Batalkan pengajuan
+              {t("cancelRequestConfirm")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -421,7 +432,7 @@ export function EmployeeLeavePage({
       <Dialog open={rulesOpen} onOpenChange={setRulesOpen}>
         <DialogContent className="sm:max-w-[35rem]">
           <DialogHeader>
-            <DialogTitle>Aturan cuti</DialogTitle>
+            <DialogTitle>{t("rulesTitle")}</DialogTitle>
           </DialogHeader>
           <div className="-mx-1 max-h-[70vh] overflow-y-auto px-1">
             <LeaveRules />

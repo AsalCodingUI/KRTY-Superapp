@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/table"
 import { HoverHighlight } from "@/components/sliding-indicator"
 import { cn } from "@/lib/utils"
+import { useT } from "@/shared/i18n/client"
 
 import { DataTableBulkEditor } from "./data-table-bulk-editor"
 import { DataTableFilterbar } from "./data-table-filterbar"
@@ -112,6 +113,7 @@ export function DataTable<TData>({
   tableActions,
   defaultPageSize = 20,
 }: DataTableProps<TData> & { defaultPageSize?: number }) {
+  const t = useT("shell")
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({})
   const [internalPagination, setInternalPagination] =
     React.useState<PaginationState>({
@@ -172,7 +174,7 @@ export function DataTable<TData>({
       <div
         className="relative"
         role="region"
-        aria-label="Data table"
+        aria-label={t("dataTableLabel")}
         tabIndex={0}
       >
         {/* Row hover: one highlight that follows the pointer (rows only,
@@ -274,8 +276,8 @@ export function DataTable<TData>({
               <TableRow className="hover:bg-transparent">
                 <TableCell colSpan={columns.length} className="p-6">
                   <EmptyState
-                    title="Belum ada data"
-                    description="Data akan muncul di sini."
+                    title={t("noData")}
+                    description={t("dataTableEmptyDescription")}
                     icon={<FileTextIcon className="size-5" />}
                     placement="inner"
                   />

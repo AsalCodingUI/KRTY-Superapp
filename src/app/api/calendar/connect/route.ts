@@ -1,6 +1,10 @@
+import { getT } from "@/shared/i18n/server"
 import { NextRequest, NextResponse } from "next/server"
 import { logError } from "@/shared/lib/utils/logger"
-import { getGoogleAccessToken, getGoogleEnv } from "@/shared/lib/google-calendar"
+import {
+  getGoogleAccessToken,
+  getGoogleEnv,
+} from "@/shared/lib/google-calendar"
 import { guardApiRoute } from "@/shared/lib/utils/security"
 import { createClient } from "@/shared/api/supabase/server"
 
@@ -8,6 +12,7 @@ import { createClient } from "@/shared/api/supabase/server"
  * GET - Check Google Calendar connection status
  */
 export async function GET(request: NextRequest) {
+  const t = await getT("api")
   const guard = guardApiRoute(request)
   if (guard) return guard
 
@@ -17,7 +22,10 @@ export async function GET(request: NextRequest) {
       data: { user },
     } = await supabase.auth.getUser()
     if (!user) {
-      return NextResponse.json({ isConnected: false, error: "Unauthorized" }, { status: 401 })
+      return NextResponse.json(
+        { isConnected: false, error: t("unauthorized") },
+        { status: 401 },
+      )
     }
 
     const hasCredentials = !!getGoogleEnv()
@@ -34,7 +42,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     logError("Error checking Google Calendar connection:", error)
     return NextResponse.json(
-      { isConnected: false, error: "Failed to check connection" },
+      { isConnected: false, error: t("calendarCheckFailed") },
       { status: 500 },
     )
   }

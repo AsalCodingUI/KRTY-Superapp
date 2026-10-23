@@ -7,6 +7,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
+import { useT } from "@/shared/i18n/client"
 import { RiArrowLeftLine } from "@/shared/ui/lucide-icons"
 import Link from "next/link"
 import * as React from "react"
@@ -51,7 +52,8 @@ export function PageHeader({
 }
 
 function BackButton({ back }: { back: PageBack }) {
-  const label = `Kembali ke ${back.label}`
+  const t = useT("common")
+  const label = t("backTo", { label: back.label })
   return (
     <Tooltip>
       <TooltipTrigger

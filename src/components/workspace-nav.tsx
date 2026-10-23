@@ -21,7 +21,14 @@ type PermissionMap = Record<string, boolean> | null
 /** Same rule as middleware: the longest granted/denied slug prefix decides. */
 function canOpen(href: string, permissions: PermissionMap) {
   // Readable by everyone; not part of page access settings.
-  if (href === "/notifications" || href === "/policies") return true
+  if (
+    href === "/notifications" ||
+    href === "/policies" ||
+    href === "/clients" ||
+    href === "/processes" ||
+    href === "/payment-methods"
+  )
+    return true
   if (!permissions) return false
   const slug = Object.keys(permissions)
     .filter((s) => matchesRoute(href, s))

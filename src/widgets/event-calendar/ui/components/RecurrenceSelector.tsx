@@ -7,6 +7,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { useDateLocale, useT } from "@/shared/i18n/client"
+import { format } from "date-fns"
 import type { RecurrencePattern } from "../types"
 
 interface RecurrenceSelectorProps {
@@ -20,8 +22,10 @@ export function RecurrenceSelector({
   onChange,
   eventStart,
 }: RecurrenceSelectorProps) {
+  const t = useT("calendar")
+  const dateLocale = useDateLocale()
   const today = eventStart || new Date()
-  const dayName = today.toLocaleDateString("id-ID", { weekday: "long" })
+  const dayName = format(today, "EEEE", { locale: dateLocale })
   const dayOfMonth = today.getDate()
 
   const handleChange = (val: string) => {
@@ -71,18 +75,20 @@ export function RecurrenceSelector({
       onValueChange={(v) => v !== null && handleChange(v)}
     >
       <SelectTrigger className="w-full">
-        <SelectValue placeholder="Tidak berulang" />
+        <SelectValue placeholder={t("recurrenceNone")} />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="none">Tidak berulang</SelectItem>
-        <SelectItem value="daily">Harian</SelectItem>
-        <SelectItem value="weekly">Mingguan pada {dayName}</SelectItem>
-        <SelectItem value="monthly">
-          Bulanan pada tanggal {dayOfMonth}
+        <SelectItem value="none">{t("recurrenceNone")}</SelectItem>
+        <SelectItem value="daily">{t("recurrenceDaily")}</SelectItem>
+        <SelectItem value="weekly">
+          {t("recurrenceWeekly", { day: dayName })}
         </SelectItem>
-        <SelectItem value="yearly">Tahunan</SelectItem>
+        <SelectItem value="monthly">
+          {t("recurrenceMonthly", { day: dayOfMonth })}
+        </SelectItem>
+        <SelectItem value="yearly">{t("recurrenceYearly")}</SelectItem>
         {value && getCurrentValue() === "custom" && (
-          <SelectItem value="custom">Kustom</SelectItem>
+          <SelectItem value="custom">{t("recurrenceCustom")}</SelectItem>
         )}
       </SelectContent>
     </Select>

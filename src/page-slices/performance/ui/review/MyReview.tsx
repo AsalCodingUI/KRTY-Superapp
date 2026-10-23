@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils"
 import { RiBarChartBoxLine } from "@/shared/ui/lucide-icons"
 import { useQuery } from "@tanstack/react-query"
 import { format } from "date-fns"
-import { id as idLocale } from "date-fns/locale"
+import { useDateLocale, useT } from "@/shared/i18n/client"
 import Link from "next/link"
 import { isQuarter, periodLabel } from "../kpi/period"
 import { ListColumns, PersonCell, StatBand } from "../list"
@@ -22,6 +22,8 @@ const ROW_GRID =
 
 /** Employee 360: teammates to review while the cycle is open, then the result. */
 export function MyReview({ period }: { period: string }) {
+  const t = useT("performance")
+  const dateLocale = useDateLocale()
   const quarter = isQuarter(period)
   const { data, isLoading } = useQuery({
     queryKey: ["my-review", period],
@@ -32,7 +34,7 @@ export function MyReview({ period }: { period: string }) {
   if (!quarter) {
     return (
       <p className="text-muted-foreground py-16 text-center text-sm">
-        360 review dihitung per kuartal. Pilih salah satu kuartal di atas.
+        {t("review360PerQuarter")}
       </p>
     )
   }
@@ -45,38 +47,38 @@ export function MyReview({ period }: { period: string }) {
   }
 
   const { cycle, targets, summary } = data
-  const todo = targets.filter((t) => !t.done)
-  const done = targets.filter((t) => t.done)
+  const todo = targets.filter((p) => !p.done)
+  const done = targets.filter((p) => p.done)
 
   return (
     <div className="flex flex-col">
       <StatBand
         stats={[
           {
-            label: `Periode ${periodLabel(period)}`,
+            label: t("periodOf", { period: periodLabel(period, t) }),
             value: cycle
               ? cycle.isOpen
-                ? "Dibuka"
-                : "Ditutup"
-              : "Belum dibuka",
+                ? t("cycleOpen")
+                : t("cycleClosed")
+              : t("cycleNotOpened"),
           },
           ...(cycle?.isOpen
             ? [
                 {
-                  label: "Dibuka sampai",
+                  label: t("openUntil"),
                   value: format(new Date(cycle.end_date), "d MMM yyyy", {
-                    locale: idLocale,
+                    locale: dateLocale,
                   }),
                 },
                 {
-                  label: "Rekan dinilai",
+                  label: t("peersReviewed"),
                   value: `${done.length} / ${targets.length}`,
                 },
               ]
             : []),
           {
-            label: "Hasil",
-            value: summary ? "Tersedia" : "Belum ada",
+            label: t("result"),
+            value: summary ? t("resultAvailable") : t("resultNone"),
           },
         ]}
       />
@@ -84,39 +86,38 @@ export function MyReview({ period }: { period: string }) {
       {cycle?.isOpen && (
         <section className="flex flex-col">
           <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 py-3">
-            <h2 className="text-foreground text-sm">Nilai rekan kerja</h2>
+            <h2 className="text-foreground text-sm">{t("reviewTeammates")}</h2>
             <p className="text-muted-foreground text-[13px]">
-              Nama kamu tidak ditampilkan ke rekan yang kamu nilai.
+              {t("anonymousNote")}
             </p>
           </div>
           {targets.length === 0 ? (
             <div className="flex flex-col gap-1 border-t py-6 text-sm">
-              <p>Belum ada rekan untuk kamu nilai di {periodLabel(period)}.</p>
+              <p>{t("noPeersToReview", { period: periodLabel(period, t) })}</p>
               <p className="text-muted-foreground">
-                Semua karyawan saling menilai (admin tidak ikut). Kalau namamu
-                atau rekanmu belum muncul, hubungi admin.
+                {t("noPeersToReviewHint")}
               </p>
             </div>
           ) : (
             <GroupedList>
               <ListColumns grid={ROW_GRID}>
-                <span>Rekan</span>
-                <span className="hidden md:block">Jabatan</span>
-                <span className="text-right">Status</span>
+                <span>{t("peer")}</span>
+                <span className="hidden md:block">{t("jobTitle")}</span>
+                <span className="text-right">{t("status")}</span>
               </ListColumns>
-              {[...todo, ...done].map((t) => (
-                <ListRow key={t.id} className={cn(ROW_GRID, "min-h-14")}>
-                  <PersonCell name={t.full_name} avatarUrl={t.avatar_url} />
+              {[...todo, ...done].map((p) => (
+                <ListRow key={p.id} className={cn(ROW_GRID, "min-h-14")}>
+                  <PersonCell name={p.full_name} avatarUrl={p.avatar_url} />
                   <div className="hidden min-w-0 md:block">
-                    {t.job_title && (
+                    {p.job_title && (
                       <Badge variant="secondary" className="max-w-full">
-                        <span className="truncate">{t.job_title}</span>
+                        <span className="truncate">{p.job_title}</span>
                       </Badge>
                     )}
                   </div>
                   <div className="flex justify-end">
-                    {t.done ? (
-                      <Badge variant="success">Terkirim</Badge>
+                    {p.done ? (
+                      <Badge variant="success">{t("sent")}</Badge>
                     ) : (
                       <Button
                         size="sm"
@@ -124,12 +125,12 @@ export function MyReview({ period }: { period: string }) {
                         nativeButton={false}
                         render={
                           <Link
-                            href={`/performance-review/new?untuk=${t.id}`}
+                            href={`/performance-review/new?untuk=${p.id}`}
                             prefetch={false}
                           />
                         }
                       >
-                        Nilai
+                        {t("reviewAction")}
                       </Button>
                     )}
                   </div>
@@ -141,16 +142,16 @@ export function MyReview({ period }: { period: string }) {
       )}
 
       <section className="flex flex-col">
-        <h2 className="text-foreground pt-6 pb-3 text-sm">Hasil 360 kamu</h2>
+        <h2 className="text-foreground pt-6 pb-3 text-sm">
+          {t("your360Result")}
+        </h2>
         {summary ? (
           <ReviewResult summary={summary} />
         ) : (
           <EmptyState
-            title={`Belum ada hasil untuk ${periodLabel(period)}`}
+            title={t("noResultFor", { period: periodLabel(period, t) })}
             description={
-              cycle
-                ? "Hasil muncul setelah admin memproses penilaian dari rekanmu."
-                : "Belum ada periode 360 review di kuartal ini."
+              cycle ? t("resultAfterProcessing") : t("noCycleThisQuarter")
             }
             icon={<RiBarChartBoxLine className="size-5" />}
             placement="inner"

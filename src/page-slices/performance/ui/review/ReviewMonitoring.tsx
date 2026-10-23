@@ -1,5 +1,6 @@
 "use client"
 
+import { DateField } from "@/components/date-field"
 import { orEmpty } from "@/components/empty-value"
 import {
   closeReviewCycle,
@@ -20,7 +21,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Spinner } from "@/components/ui/spinner"
 import { cn } from "@/lib/utils"
@@ -28,7 +28,8 @@ import { formatPercent } from "@/entities/performance/lib/kpi"
 import { RiGroupLine } from "@/shared/ui/lucide-icons"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { format } from "date-fns"
-import { id as idLocale } from "date-fns/locale"
+import { useDateLocale, useT } from "@/shared/i18n/client"
+import type { MessageKey } from "@/shared/i18n/messages"
 import { useState } from "react"
 import { toast } from "sonner"
 import { isQuarter, periodLabel } from "../kpi/period"
@@ -41,11 +42,11 @@ const ROW_GRID =
 
 type Status = "processed" | "complete" | "progress" | "waiting"
 
-const STATUS_GROUPS: { key: Status; label: string }[] = [
-  { key: "complete", label: "Siap diproses" },
-  { key: "progress", label: "Masih berjalan" },
-  { key: "waiting", label: "Belum ada penilaian" },
-  { key: "processed", label: "Sudah diproses" },
+const STATUS_GROUPS: { key: Status; label: MessageKey<"performance"> }[] = [
+  { key: "complete", label: "groupReady" },
+  { key: "progress", label: "groupInProgress" },
+  { key: "waiting", label: "groupWaiting" },
+  { key: "processed", label: "groupProcessed" },
 ]
 
 function statusOf(row: MonitoringRow): Status {
@@ -68,6 +69,9 @@ function quarterDates(quarter: string) {
 
 /** Admin 360: the period for this quarter and everyone's progress. */
 export function ReviewMonitoring({ period }: { period: string }) {
+  const t = useT("performance")
+  const tc = useT("common")
+  const dateLocale = useDateLocale()
   const queryClient = useQueryClient()
   const quarter = isQuarter(period)
   const { data, isLoading } = useQuery({
@@ -94,7 +98,7 @@ export function ReviewMonitoring({ period }: { period: string }) {
   if (!quarter) {
     return (
       <p className="text-muted-foreground py-16 text-center text-sm">
-        360 review dikelola per kuartal. Pilih salah satu kuartal di atas.
+        {t("review360ManagedPerQuarter")}
       </p>
     )
   }
@@ -128,10 +132,10 @@ export function ReviewMonitoring({ period }: { period: string }) {
     const result = await saveReviewCycle(period, dates.start, dates.end)
     setBusy(false)
     if (!result.success) {
-      toast.error(result.error ?? "Gagal menyimpan periode.")
+      toast.error(result.error ?? t("periodSaveFailed"))
       return
     }
-    toast.success(cycle ? "Periode diperbarui" : "Periode 360 dibuka")
+    toast.success(cycle ? t("periodUpdated") : t("period360Opened"))
     setPeriodOpen(false)
     refresh()
   }
@@ -139,10 +143,10 @@ export function ReviewMonitoring({ period }: { period: string }) {
   const closePeriod = async () => {
     const result = await closeReviewCycle(period)
     if (!result.success) {
-      toast.error(result.error ?? "Gagal menutup periode.")
+      toast.error(result.error ?? t("periodCloseFailed"))
       return
     }
-    toast.success("Periode 360 ditutup")
+    toast.success(t("period360Closed"))
     refresh()
   }
 
@@ -154,10 +158,10 @@ export function ReviewMonitoring({ period }: { period: string }) {
       body: JSON.stringify({ reviewee_id: processing.id, cycle_id: cycle.id }),
     }).catch(() => null)
     if (!res?.ok) {
-      toast.error("Gagal mengirim ke AI. Coba lagi.")
+      toast.error(t("aiSendFailed"))
       return
     }
-    toast.success("Sedang diproses. Hasil muncul beberapa saat lagi.")
+    toast.success(t("processingStarted"))
     setTimeout(refresh, 8000)
   }
 
@@ -175,36 +179,36 @@ export function ReviewMonitoring({ period }: { period: string }) {
       <StatBand
         stats={[
           {
-            label: `Periode ${periodLabel(period)}`,
+            label: t("periodOf", { period: periodLabel(period, t) }),
             value: cycle
               ? cycle.isOpen
-                ? "Dibuka"
-                : "Ditutup"
-              : "Belum dibuka",
+                ? t("cycleOpen")
+                : t("cycleClosed")
+              : t("cycleNotOpened"),
           },
           {
-            label: "Tanggal",
+            label: t("dates"),
             value: cycle
-              ? `${format(new Date(cycle.start_date), "d MMM", { locale: idLocale })} – ${format(new Date(cycle.end_date), "d MMM yyyy", { locale: idLocale })}`
+              ? `${format(new Date(cycle.start_date), "d MMM", { locale: dateLocale })} – ${format(new Date(cycle.end_date), "d MMM yyyy", { locale: dateLocale })}`
               : "—",
           },
           {
-            label: "Penilaian masuk",
+            label: t("reviewsReceived"),
             value: `${reviewsDone} / ${reviewsTotal}`,
           },
-          { label: "Siap diproses", value: countOf("complete") },
-          { label: "Sudah diproses", value: countOf("processed") },
+          { label: t("groupReady"), value: countOf("complete") },
+          { label: t("groupProcessed"), value: countOf("processed") },
         ]}
       />
 
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 py-3">
         <p className="text-muted-foreground text-sm">
-          Semua karyawan saling menilai; admin tidak ikut.
+          {t("everyoneReviewsNote")}
         </p>
         <div className="flex items-center gap-2">
           {cycle?.is_active && (
             <Button variant="ghost" onClick={() => setClosing(true)}>
-              Tutup periode
+              {t("closePeriod")}
             </Button>
           )}
           <Button
@@ -213,26 +217,26 @@ export function ReviewMonitoring({ period }: { period: string }) {
           >
             {cycle
               ? cycle.is_active
-                ? "Ubah tanggal"
-                : "Buka lagi"
-              : "Buka periode"}
+                ? t("changeDates")
+                : t("reopen")
+              : t("openPeriod")}
           </Button>
         </div>
       </div>
 
       {rows.length === 0 && unpaired.length === 0 ? (
         <EmptyState
-          title="Belum ada karyawan"
-          description="Karyawan akan muncul di sini."
+          title={t("noEmployees")}
+          description={t("noEmployeesDescription")}
           icon={<RiGroupLine className="size-5" />}
           placement="inner"
         />
       ) : (
         <GroupedList>
           <ListColumns grid={ROW_GRID}>
-            <span>Karyawan</span>
-            <span className="text-right">Penilai</span>
-            <span className="hidden text-right md:block">Hasil</span>
+            <span>{t("employee")}</span>
+            <span className="text-right">{t("reviewers")}</span>
+            <span className="hidden text-right md:block">{t("result")}</span>
             <span />
           </ListColumns>
           {STATUS_GROUPS.map(({ key, label }) => {
@@ -247,7 +251,7 @@ export function ReviewMonitoring({ period }: { period: string }) {
               <GridGroup
                 key={key}
                 grid={ROW_GRID}
-                label={label}
+                label={t(label)}
                 extra={
                   <span className="text-tertiary-foreground tabular-nums">
                     {items.length}
@@ -282,8 +286,16 @@ export function ReviewMonitoring({ period }: { period: string }) {
                           avatarUrl={row.avatar_url}
                           secondary={
                             pending.length
-                              ? `Menunggu ${pending.map((r) => r.full_name).join(", ")}`
-                              : `Dinilai ${row.reviewers.map((r) => r.full_name).join(", ")}`
+                              ? t("waitingFor", {
+                                  names: pending
+                                    .map((r) => r.full_name)
+                                    .join(", "),
+                                })
+                              : t("reviewedBy", {
+                                  names: row.reviewers
+                                    .map((r) => r.full_name)
+                                    .join(", "),
+                                })
                           }
                         />
                       </div>
@@ -308,7 +320,7 @@ export function ReviewMonitoring({ period }: { period: string }) {
                             variant="ghost"
                             onClick={() => setViewing(row)}
                           >
-                            Lihat
+                            {t("view")}
                           </Button>
                         ) : (
                           <Button
@@ -317,7 +329,7 @@ export function ReviewMonitoring({ period }: { period: string }) {
                             disabled={done === 0 || !cycle}
                             onClick={() => setProcessing(row)}
                           >
-                            Proses
+                            {t("process")}
                           </Button>
                         )}
                       </div>
@@ -330,7 +342,7 @@ export function ReviewMonitoring({ period }: { period: string }) {
           {unpaired.length > 0 && (
             <GridGroup
               grid={ROW_GRID}
-              label="Belum punya rekan untuk dinilai"
+              label={t("unpairedGroup")}
               extra={
                 <span className="text-tertiary-foreground tabular-nums">
                   {unpaired.length}
@@ -338,7 +350,7 @@ export function ReviewMonitoring({ period }: { period: string }) {
               }
               summary={
                 <span className="text-tertiary-foreground col-span-2 hidden text-right text-[13px] sm:block md:col-span-3">
-                  Butuh minimal dua karyawan
+                  {t("needTwoEmployees")}
                 </span>
               }
             >
@@ -360,45 +372,38 @@ export function ReviewMonitoring({ period }: { period: string }) {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {cycle ? "Periode 360" : "Buka periode 360"} ·{" "}
-              {periodLabel(period)}
+              {cycle ? t("period360") : t("openPeriod360")} ·{" "}
+              {periodLabel(period, t)}
             </DialogTitle>
             <DialogDescription>
-              Semua karyawan saling menilai (admin tidak ikut). Periode lain
-              yang masih terbuka akan ditutup.
+              {t("periodDialogDescription")}
             </DialogDescription>
           </DialogHeader>
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="cycle-start">Mulai</Label>
-              <Input
+              <Label htmlFor="cycle-start">{t("start")}</Label>
+              <DateField
                 id="cycle-start"
-                type="date"
                 value={dates.start}
-                onChange={(e) =>
-                  setDates((d) => ({ ...d, start: e.target.value }))
-                }
+                onChange={(value) => setDates((d) => ({ ...d, start: value }))}
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="cycle-end">Selesai</Label>
-              <Input
+              <Label htmlFor="cycle-end">{t("end")}</Label>
+              <DateField
                 id="cycle-end"
-                type="date"
                 value={dates.end}
                 min={dates.start}
-                onChange={(e) =>
-                  setDates((d) => ({ ...d, end: e.target.value }))
-                }
+                onChange={(value) => setDates((d) => ({ ...d, end: value }))}
               />
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setPeriodOpen(false)}>
-              Batal
+              {tc("cancel")}
             </Button>
             <Button onClick={savePeriod} disabled={busy}>
-              {busy ? "Menyimpan…" : cycle ? "Simpan" : "Buka periode"}
+              {busy ? tc("saving") : cycle ? tc("save") : t("openPeriod")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -407,24 +412,27 @@ export function ReviewMonitoring({ period }: { period: string }) {
       <ConfirmDialog
         open={closing}
         onOpenChange={setClosing}
-        title="Tutup periode 360?"
-        description="Karyawan tidak bisa mengirim penilaian lagi sampai periode dibuka kembali."
-        confirmText="Tutup periode"
-        cancelText="Batal"
+        title={t("closePeriod360Title")}
+        description={t("closePeriod360Description")}
+        confirmText={t("closePeriod")}
+        cancelText={tc("cancel")}
         onConfirm={closePeriod}
       />
 
       <ConfirmDialog
         open={Boolean(processing)}
         onOpenChange={(open) => !open && setProcessing(null)}
-        title={`Proses hasil ${processing?.full_name ?? ""}?`}
+        title={t("processResultOf", { name: processing?.full_name ?? "" })}
         description={
           processing
-            ? `${processing.reviewers.filter((r) => r.done).length} dari ${processing.reviewers.length} rekan sudah menilai. Hasil dirangkum AI dan langsung terlihat oleh karyawan; proses ini hanya bisa dilakukan sekali.`
+            ? t("processDescription", {
+                done: processing.reviewers.filter((r) => r.done).length,
+                total: processing.reviewers.length,
+              })
             : ""
         }
-        confirmText="Proses"
-        cancelText="Batal"
+        confirmText={t("process")}
+        cancelText={tc("cancel")}
         onConfirm={process}
       />
 
@@ -435,7 +443,10 @@ export function ReviewMonitoring({ period }: { period: string }) {
         <DialogContent className="sm:max-w-3xl">
           <DialogHeader>
             <DialogTitle>
-              Hasil 360 · {viewing?.full_name} · {periodLabel(period)}
+              {t("result360Of", {
+                name: viewing?.full_name ?? "",
+                period: periodLabel(period, t),
+              })}
             </DialogTitle>
           </DialogHeader>
           {summaryLoading ? (
@@ -445,7 +456,7 @@ export function ReviewMonitoring({ period }: { period: string }) {
           ) : viewingSummary ? (
             <ReviewResult summary={viewingSummary} />
           ) : (
-            <p className="text-muted-foreground text-sm">Belum ada hasil.</p>
+            <p className="text-muted-foreground text-sm">{t("noResult")}</p>
           )}
         </DialogContent>
       </Dialog>

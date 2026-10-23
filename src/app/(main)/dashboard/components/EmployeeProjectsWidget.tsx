@@ -6,7 +6,7 @@ import { HomeCard, HomeEmpty, HomeIconLink, HomeRow } from "./home-card"
 import { ProjectAvatar } from "@/components/project-avatar"
 import { Badge } from "@/components/ui/badge"
 import { format, isValid } from "date-fns"
-import { id as idLocale } from "date-fns/locale"
+import { useDateLocale, useT } from "@/shared/i18n/client"
 
 interface Project {
   id: string
@@ -30,16 +30,18 @@ export function EmployeeProjectsWidget({
   userId,
   className,
 }: EmployeeProjectsWidgetProps) {
+  const t = useT("dashboard")
+  const dateLocale = useDateLocale()
   return (
     <HomeCard
-      title="Project aktif"
+      title={t("projectsTitle")}
       badge={
         projects.length > 0 ? (
           <Badge variant="secondary">{projects.length}</Badge>
         ) : null
       }
       actions={
-        <HomeIconLink href="/projects" label="Buka project">
+        <HomeIconLink href="/projects" label={t("openProjects")}>
           <ArrowUpRight />
         </HomeIconLink>
       }
@@ -47,7 +49,7 @@ export function EmployeeProjectsWidget({
     >
       <div className="flex flex-col">
         {projects.length === 0 ? (
-          <HomeEmpty>Project muncul di sini setelah kamu ditugaskan.</HomeEmpty>
+          <HomeEmpty>{t("projectsEmpty")}</HomeEmpty>
         ) : (
           projects.slice(0, 6).map((project, index) => {
             const endDate = new Date(project.end_date)
@@ -69,18 +71,30 @@ export function EmployeeProjectsWidget({
                   />
                 }
                 title={<span className="font-medium">{project.name}</span>}
-                subtitle={`${project.quarter_id} · SLA ${project.sla_percentage}% · Kualitas ${project.quality_achieved}/${project.quality_total}`}
+                subtitle={t("projectSubtitle", {
+                  quarter: project.quarter_id,
+                  sla: project.sla_percentage,
+                  achieved: project.quality_achieved,
+                  total: project.quality_total,
+                })}
                 trailing={
                   daysLeft < 0 ? (
-                    <Badge variant="destructive">Lewat tenggat</Badge>
+                    <Badge variant="destructive">{t("projectOverdue")}</Badge>
                   ) : daysLeft <= 7 ? (
                     <Badge variant="warning">
-                      {daysLeft === 0 ? "Hari ini" : `${daysLeft} hari lagi`}
+                      {daysLeft === 0
+                        ? t("projectDueToday")
+                        : t(
+                            daysLeft === 1
+                              ? "projectDaysLeftOne"
+                              : "projectDaysLeft",
+                            { n: daysLeft },
+                          )}
                     </Badge>
                   ) : (
                     <span className="text-tertiary-foreground text-[13px]">
                       {endDateValid ? (
-                        format(endDate, "d MMM yyyy", { locale: idLocale })
+                        format(endDate, "d MMM yyyy", { locale: dateLocale })
                       ) : (
                         <EmptyValue />
                       )}

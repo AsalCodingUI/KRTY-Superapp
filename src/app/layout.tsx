@@ -8,6 +8,10 @@ import { Geist, Geist_Mono } from "next/font/google"
 import "./globals.css"
 import { siteConfig } from "./siteConfig"
 import { cn } from "@/lib/utils"
+import { I18nProvider } from "@/shared/i18n/client"
+import { getLocale } from "@/shared/i18n/server"
+import { TINT_SCRIPT } from "@/shared/lib/chrome-tint"
+import { ThemeColorSync } from "@/components/theme-color-sync"
 
 // Sidebar dihapus dari sini!
 
@@ -48,17 +52,22 @@ export const viewport: Viewport = {
   userScalable: false,
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const locale = await getLocale()
   return (
     <html
-      lang="en"
+      lang={locale}
       className={cn(geistSans.variable, geistMono.variable, "font-sans")}
       suppressHydrationWarning
     >
+      <head>
+        {/* The viewer's chrome color, before first paint. */}
+        <script dangerouslySetInnerHTML={{ __html: TINT_SCRIPT }} />
+      </head>
       <body
         className="selection:bg-primary/20 selection:text-primary min-h-dvh overflow-x-hidden overflow-y-auto scroll-auto antialiased"
         suppressHydrationWarning
@@ -71,11 +80,15 @@ export default function RootLayout({
         >
           <MotionProvider>
             <QueryProvider>
-              <TooltipProvider>
-                {/* Sidebar dan main wrapper dipindah ke layout (main) */}
-                {children}
-                <Toaster position="bottom-right" closeButton />
-              </TooltipProvider>
+              <I18nProvider locale={locale}>
+                <TooltipProvider>
+                  {/* Sidebar dan main wrapper dipindah ke layout (main) */}
+                  {children}
+                  <Toaster position="bottom-right" closeButton />
+                  {/* Safari / mobile toolbar takes the chrome color. */}
+                  <ThemeColorSync />
+                </TooltipProvider>
+              </I18nProvider>
             </QueryProvider>
           </MotionProvider>
         </ThemeProvider>

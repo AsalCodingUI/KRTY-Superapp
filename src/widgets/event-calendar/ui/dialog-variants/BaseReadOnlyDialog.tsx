@@ -1,5 +1,6 @@
 "use client"
 
+import { useDateLocale, useT } from "@/shared/i18n/client"
 import { cx } from "@/shared/lib/utils"
 import { logError } from "@/shared/lib/utils/logger"
 import { Badge } from "@/components/ui/badge"
@@ -19,7 +20,6 @@ import {
   RiMapPinLine,
 } from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
-import { id } from "date-fns/locale"
 import { type ReactNode, useState } from "react"
 import type { CalendarEvent } from "../types"
 
@@ -59,6 +59,9 @@ export function BaseReadOnlyDialog({
   infoMessage,
   onDelete,
 }: BaseReadOnlyDialogProps) {
+  const t = useT("calendar")
+  const tc = useT("common")
+  const dateLocale = useDateLocale()
   const [loading, setLoading] = useState(false)
   const [isDeletePending, setIsDeletePending] = useState(false)
 
@@ -118,16 +121,21 @@ export function BaseReadOnlyDialog({
           <div className="space-y-2">
             <div className="text-muted-foreground flex items-center gap-2 text-sm font-medium">
               <RiCalendarLine className="text-muted-foreground h-4 w-4" />
-              <span>Waktu</span>
+              <span>{t("dialogTime")}</span>
             </div>
             <div className="space-y-1 pl-6">
               {event.allDay ? (
                 <div className="text-foreground text-sm">
-                  {format(event.start, "EEEE, d MMMM yyyy", { locale: id })}
+                  {format(event.start, "EEEE, d MMMM yyyy", {
+                    locale: dateLocale,
+                  })}
                   {event.start.getTime() !== event.end.getTime() && (
                     <>
                       {" "}
-                      - {format(event.end, "EEEE, d MMMM yyyy", { locale: id })}
+                      -{" "}
+                      {format(event.end, "EEEE, d MMMM yyyy", {
+                        locale: dateLocale,
+                      })}
                     </>
                   )}
                 </div>
@@ -135,21 +143,21 @@ export function BaseReadOnlyDialog({
                 <>
                   <div className="text-foreground flex items-center gap-2">
                     <span className="text-muted-foreground text-sm">
-                      Mulai:
+                      {t("dialogStart")}:
                     </span>
                     <span className="text-sm">
                       {format(event.start, "EEEE, d MMMM yyyy • HH:mm", {
-                        locale: id,
+                        locale: dateLocale,
                       })}
                     </span>
                   </div>
                   <div className="text-foreground flex items-center gap-2">
                     <span className="text-muted-foreground text-sm">
-                      Selesai:
+                      {t("dialogEnd")}:
                     </span>
                     <span className="text-sm">
                       {format(event.end, "EEEE, d MMMM yyyy • HH:mm", {
-                        locale: id,
+                        locale: dateLocale,
                       })}
                     </span>
                   </div>
@@ -163,7 +171,7 @@ export function BaseReadOnlyDialog({
             <div className="space-y-2">
               <div className="text-muted-foreground flex items-center gap-2 text-sm font-medium">
                 <RiMapPinLine className="text-muted-foreground h-4 w-4" />
-                <span>Lokasi</span>
+                <span>{t("dialogLocation")}</span>
               </div>
               <div className="text-foreground pl-6 text-sm">
                 {event.location}
@@ -176,7 +184,7 @@ export function BaseReadOnlyDialog({
             <div className="space-y-2">
               <div className="text-muted-foreground flex items-center gap-2 text-sm font-medium">
                 <RiFileTextLine className="text-muted-foreground h-4 w-4" />
-                <span>Deskripsi</span>
+                <span>{t("dialogDescription")}</span>
               </div>
               <div
                 className={cx(
@@ -207,7 +215,7 @@ export function BaseReadOnlyDialog({
                 {isDeletePending ? (
                   <div className="animate-fadeIn flex w-full items-center gap-2">
                     <span className="text-destructive text-sm font-medium whitespace-nowrap">
-                      Yakin hapus?
+                      {t("dialogDeleteConfirm")}
                     </span>
                     <Button
                       type="button"
@@ -216,7 +224,7 @@ export function BaseReadOnlyDialog({
                       disabled={loading}
                       className=""
                     >
-                      Ya, Hapus
+                      {t("dialogDeleteYes")}
                     </Button>
                     <Button
                       type="button"
@@ -224,7 +232,7 @@ export function BaseReadOnlyDialog({
                       onClick={handleCancelDelete}
                       disabled={loading}
                     >
-                      Batal
+                      {tc("cancel")}
                     </Button>
                   </div>
                 ) : (
@@ -236,7 +244,7 @@ export function BaseReadOnlyDialog({
                     className="text-destructive hover:bg-destructive/10"
                   >
                     <RiDeleteBinLine className="mr-2 h-4 w-4" />
-                    Hapus
+                    {tc("delete")}
                   </Button>
                 )}
               </>
@@ -249,7 +257,7 @@ export function BaseReadOnlyDialog({
               disabled={loading}
             >
               <RiCloseLine className="mr-2 h-4 w-4" />
-              Tutup
+              {tc("close")}
             </Button>
           )}
         </DialogFooter>

@@ -35,6 +35,7 @@ import {
 } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 import { toast } from "sonner"
+import { useT } from "@/shared/i18n/client"
 
 interface ScopeItem {
   no: string
@@ -60,6 +61,7 @@ function SortableItem({
   updateItem: (index: number, field: keyof ScopeItem, value: string) => void
   deleteItem: (index: number) => void
 }) {
+  const t = useT("sla")
   const {
     attributes,
     listeners,
@@ -94,14 +96,14 @@ function SortableItem({
               {...attributes}
               {...listeners}
               className="hover:bg-accent text-tertiary-foreground cursor-grab rounded p-1 transition-colors active:cursor-grabbing"
-              title="Drag to reorder"
+              title={t("dragToReorder")}
             >
               <RiDraggable className="h-5 w-5" />
             </div>
 
             <div className="flex items-center gap-1">
               <AccordionTrigger className="text-muted-foreground hover:text-foreground w-auto flex-none items-center gap-1 rounded-md px-2 py-1 text-sm font-medium hover:no-underline">
-                Description
+                {t("description")}
               </AccordionTrigger>
               <Button
                 variant="ghost"
@@ -116,36 +118,36 @@ function SortableItem({
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-12">
             <div className="sm:col-span-2 md:col-span-1">
-              <Label className="mb-1">No</Label>
+              <Label className="mb-1">{t("fieldNo")}</Label>
               <Input
                 value={item.no}
                 onChange={(e) => updateItem(index, "no", e.target.value)}
               />
             </div>
             <div className="sm:col-span-4 md:col-span-3">
-              <Label className="mb-1">Category</Label>
+              <Label className="mb-1">{t("category")}</Label>
               <Input
                 value={item.category}
                 onChange={(e) => updateItem(index, "category", e.target.value)}
-                placeholder="Category"
+                placeholder={t("category")}
               />
             </div>
             <div className="sm:col-span-12 md:col-span-8">
-              <Label className="mb-1">Page/Flow</Label>
+              <Label className="mb-1">{t("pageFlow")}</Label>
               <Input
                 value={item.flow}
                 onChange={(e) => updateItem(index, "flow", e.target.value)}
-                placeholder="e.g. Login Screen"
+                placeholder={t("pageFlowPlaceholder")}
               />
             </div>
           </div>
 
           <AccordionContent className="-mx-4 pt-3 pb-0">
-            <Label className="mb-1">Description</Label>
+            <Label className="mb-1">{t("description")}</Label>
             <Textarea
               value={item.desc}
               onChange={(e) => updateItem(index, "desc", e.target.value)}
-              placeholder="Detail description..."
+              placeholder={t("descriptionPlaceholder")}
               className="min-h-[80px]"
             />
           </AccordionContent>
@@ -156,6 +158,7 @@ function SortableItem({
 }
 
 export const ScopeOfWorkForm = ({ data, onChange }: ScopeOfWorkFormProps) => {
+  const t = useT("sla")
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -177,7 +180,7 @@ export const ScopeOfWorkForm = ({ data, onChange }: ScopeOfWorkFormProps) => {
         no: (i + 1).toString() + ".",
       }))
       onChange(reIndexed)
-      toast.success("Item diurutkan")
+      toast.success(t("toastReordered"))
     }
   }
 
@@ -211,7 +214,7 @@ export const ScopeOfWorkForm = ({ data, onChange }: ScopeOfWorkFormProps) => {
   const handleExport = () => {
     const jsonString = JSON.stringify(data, null, 2)
     navigator.clipboard.writeText(jsonString)
-    toast.success("JSON tersalin")
+    toast.success(t("toastJsonCopied"))
   }
 
   const handleImport = () => {
@@ -229,12 +232,12 @@ export const ScopeOfWorkForm = ({ data, onChange }: ScopeOfWorkFormProps) => {
           const parsed = JSON.parse(event.target?.result as string)
           if (Array.isArray(parsed)) {
             onChange(parsed)
-            toast.success("Scope dimuat")
+            toast.success(t("toastScopeLoaded"))
           } else {
-            toast.error("Format JSON salah")
+            toast.error(t("toastJsonInvalid"))
           }
         } catch (error) {
-          toast.error("Gagal parse JSON")
+          toast.error(t("toastJsonParseFailed"))
         }
       }
       reader.readAsText(file)
@@ -245,13 +248,15 @@ export const ScopeOfWorkForm = ({ data, onChange }: ScopeOfWorkFormProps) => {
   return (
     <div className="space-y-4">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <h3 className="text-foreground text-sm font-medium">Scope of Work</h3>
+        <h3 className="text-foreground text-sm font-medium">
+          {t("scopeOfWork")}
+        </h3>
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" onClick={handleImport}>
-            <RiUploadLine data-icon="inline-start" /> Import
+            <RiUploadLine data-icon="inline-start" /> {t("import")}
           </Button>
           <Button variant="outline" onClick={handleExport}>
-            <RiFileCopyLine data-icon="inline-start" /> Copy JSON
+            <RiFileCopyLine data-icon="inline-start" /> {t("copyJson")}
           </Button>
         </div>
       </div>
@@ -285,7 +290,7 @@ export const ScopeOfWorkForm = ({ data, onChange }: ScopeOfWorkFormProps) => {
           onClick={addItem}
           className="border-border hover:border-muted-foreground/70 w-full border-dashed"
         >
-          <RiAddLine data-icon="inline-start" /> Add Item
+          <RiAddLine data-icon="inline-start" /> {t("addItem")}
         </Button>
       </div>
     </div>

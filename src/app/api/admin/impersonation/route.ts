@@ -1,9 +1,11 @@
 import { createClient } from "@/shared/api/supabase/server"
 import { IMPERSONATION_COOKIE_NAME } from "@/shared/lib/impersonation"
 import { resolveProfileByUserIdOrEmail } from "@/shared/lib/profile-resolution"
+import { getT } from "@/shared/i18n/server"
 import { NextRequest, NextResponse } from "next/server"
 
 export async function POST(request: NextRequest) {
+  const t = await getT("auth")
   try {
     const supabase = await createClient()
     const {
@@ -11,7 +13,7 @@ export async function POST(request: NextRequest) {
     } = await supabase.auth.getUser()
 
     if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ error: t("apiUnauthorized") }, { status: 401 })
     }
 
     const actorProfile = await resolveProfileByUserIdOrEmail<{
@@ -21,7 +23,7 @@ export async function POST(request: NextRequest) {
     }>(supabase, "id, email, is_super_admin, created_at", user.id, user.email)
 
     if (!actorProfile?.is_super_admin) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+      return NextResponse.json({ error: t("apiForbidden") }, { status: 403 })
     }
 
     const body = await request.json().catch(() => ({}))
@@ -46,7 +48,7 @@ export async function POST(request: NextRequest) {
       .maybeSingle()
 
     if (!targetProfile?.id) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 })
+      return NextResponse.json({ error: t("apiUserNotFound") }, { status: 404 })
     }
 
     response.cookies.set(IMPERSONATION_COOKIE_NAME, targetUserId, {
@@ -58,6 +60,6 @@ export async function POST(request: NextRequest) {
     return response
   } catch (error) {
     console.error("Impersonation API error", error)
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    return NextResponse.json({ error: t("apiServerError") }, { status: 500 })
   }
 }

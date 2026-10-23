@@ -2,6 +2,7 @@
 
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
+import { useT } from "@/shared/i18n/client"
 import { RiAlertFill, RiCheckboxCircleFill } from "@/shared/ui/lucide-icons"
 
 interface FinancialHUDProps {
@@ -34,16 +35,19 @@ export function FinancialHUD({
   targetMargin,
   suggestedPrice,
 }: FinancialHUDProps) {
+  const t = useT("calculator")
   const isHealthy = marginPercent >= targetMargin
 
   return (
     <div className="sticky top-4 sm:top-8">
       <h4 className="text-foreground text-sm font-medium">
-        Financial Overview
+        {t("financialOverview")}
       </h4>
 
       <div className="mt-6">
-        <p className="text-muted-foreground text-sm font-medium">Net Profit</p>
+        <p className="text-muted-foreground text-sm font-medium">
+          {t("netProfit")}
+        </p>
         <div className="mt-1 flex flex-wrap items-baseline gap-3">
           <span className="text-foreground text-xl font-semibold">
             {formatIDR(netProfit)}
@@ -57,7 +61,7 @@ export function FinancialHUD({
                   : "destructive"
             }
           >
-            {marginPercent.toFixed(1)}% Margin
+            {t("marginBadge", { value: marginPercent.toFixed(1) })}
           </Badge>
         </div>
       </div>
@@ -67,7 +71,7 @@ export function FinancialHUD({
       <ul role="list" className="space-y-3">
         <li className="flex items-center justify-between">
           <span className="text-muted-foreground text-sm font-medium">
-            Gross Revenue
+            {t("grossRevenue")}
           </span>
           <span className="text-foreground text-sm font-medium">
             {formatIDR(grossRevenue)}
@@ -75,7 +79,7 @@ export function FinancialHUD({
         </li>
         <li className="flex items-center justify-between">
           <span className="text-muted-foreground text-sm font-medium">
-            Labor Cost (Salary)
+            {t("laborCost")}
           </span>
           <span className="text-destructive text-sm font-medium">
             -{formatIDR(totalLaborCost)}
@@ -83,7 +87,7 @@ export function FinancialHUD({
         </li>
         <li className="flex items-center justify-between">
           <span className="text-muted-foreground text-sm font-medium">
-            Overhead (Portion)
+            {t("overheadPortion")}
           </span>
           <span className="text-destructive text-sm font-medium">
             -{formatIDR(overheadCost)}
@@ -91,7 +95,7 @@ export function FinancialHUD({
         </li>
         <li className="flex items-center justify-between">
           <span className="text-muted-foreground text-sm font-medium">
-            COGS (Freelance)
+            {t("cogsFreelance")}
           </span>
           <span className="text-destructive text-sm font-medium">
             -{formatIDR(freelanceCost)}
@@ -99,7 +103,7 @@ export function FinancialHUD({
         </li>
         <li className="border-border flex items-center justify-between border-t pt-3">
           <span className="text-muted-foreground text-sm font-medium">
-            Total Cost
+            {t("totalCost")}
           </span>
           <span className="text-foreground text-sm font-medium">
             {formatIDR(totalCost)}
@@ -110,7 +114,7 @@ export function FinancialHUD({
       <div className="mt-6 space-y-3">
         <div className="flex items-center justify-between">
           <span className="text-muted-foreground text-sm font-medium">
-            Current Margin
+            {t("currentMargin")}
           </span>
           <span className="text-foreground text-sm font-medium">
             {marginPercent.toFixed(1)}%
@@ -118,12 +122,12 @@ export function FinancialHUD({
         </div>
         <div className="border-border border-t pt-4">
           <p className="text-muted-foreground text-sm font-medium">
-            Pricing Suggestion
+            {t("pricingSuggestion")}
           </p>
           <div className="mt-3 space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground text-sm font-medium">
-                Break-even Price
+                {t("breakEvenPrice")}
               </span>
               <span className="text-foreground text-sm font-medium">
                 {formatIDR(totalCost)}
@@ -131,7 +135,7 @@ export function FinancialHUD({
             </div>
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground text-sm font-medium">
-                Suggested Price ({targetMargin.toFixed(0)}% margin)
+                {t("suggestedPrice", { value: targetMargin.toFixed(0) })}
               </span>
               <span
                 className={`text-label-md ${isHealthy ? "text-success" : "text-destructive"}`}
@@ -156,9 +160,7 @@ export function FinancialHUD({
           />
         )}
         <span className="text-muted-foreground text-xs">
-          {isHealthy
-            ? "Margin meets target. Pricing looks healthy."
-            : "Margin is below target. Consider adjusting scope or price."}
+          {isHealthy ? t("marginHealthy") : t("marginBelowTarget")}
         </span>
       </div>
     </div>
