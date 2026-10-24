@@ -1,5 +1,6 @@
 "use client"
 
+import { PageHeader } from "@/components/page-header"
 import { DateField } from "@/components/date-field"
 import { AnimatePresence } from "motion/react"
 import { ConfirmDialog } from "@/components/confirm-dialog"
@@ -170,7 +171,8 @@ function Row({
   )
 }
 
-export function MembersAccessSettings() {
+/** The page header (title + Add) lives here, next to the dialog it opens. */
+export function MembersAccessSettings({ title }: { title: string }) {
   const t = useT("settings")
   const tc = useT("common")
   const tn = useT("nav")
@@ -314,7 +316,10 @@ export function MembersAccessSettings() {
 
   if (error) {
     return (
-      <p className="text-destructive p-6 text-sm">{t("loadMembersFailed")}</p>
+      <>
+        <PageHeader className="pt-6 pb-4" title={title} />
+        <p className="text-destructive text-sm">{t("loadMembersFailed")}</p>
+      </>
     )
   }
 
@@ -322,8 +327,17 @@ export function MembersAccessSettings() {
 
   return (
     <div className="flex flex-col">
-      {/* Toolbar: search left, add on the right. */}
-      <div className="flex items-center justify-between gap-3 pb-3">
+      <PageHeader
+        className="pt-6 pb-4"
+        title={title}
+        actions={
+          <Button onClick={() => setAdding(true)}>
+            <RiAddLine data-icon="inline-start" />
+            {t("addMember")}
+          </Button>
+        }
+      />
+      <div className="flex items-center gap-3 pb-3">
         <InputGroup className="w-full sm:w-[260px]">
           <InputGroupAddon>
             <RiSearchLine />
@@ -334,10 +348,6 @@ export function MembersAccessSettings() {
             onChange={(e) => setQuery(e.target.value)}
           />
         </InputGroup>
-        <Button onClick={() => setAdding(true)}>
-          <RiAddLine data-icon="inline-start" />
-          {t("addMember")}
-        </Button>
       </div>
 
       {/* Members: one aligned list; a row opens the member in a sheet. */}

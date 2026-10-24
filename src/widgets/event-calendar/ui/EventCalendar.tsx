@@ -14,16 +14,24 @@ import { WeekView } from "./week-view"
 
 // Week is the default view and stays in the main chunk; the other views and
 // the event dialog load on demand.
-const MonthView = dynamic(() => import("./month-view").then((m) => m.MonthView))
-const DayView = dynamic(() => import("./day-view").then((m) => m.DayView))
-const TimelineView = dynamic(() =>
-  import("./timeline-view").then((m) => m.TimelineView),
+const MonthView = dynamic(
+  () => import("./month-view").then((m) => m.MonthView),
+  { loading: () => null },
 )
-const AgendaView = dynamic(() =>
-  import("./agenda-view").then((m) => m.AgendaView),
+const DayView = dynamic(() => import("./day-view").then((m) => m.DayView), {
+  loading: () => null,
+})
+const TimelineView = dynamic(
+  () => import("./timeline-view").then((m) => m.TimelineView),
+  { loading: () => null },
 )
-const EventDialog = dynamic(() =>
-  import("./event-dialog").then((m) => m.EventDialog),
+const AgendaView = dynamic(
+  () => import("./agenda-view").then((m) => m.AgendaView),
+  { loading: () => null },
+)
+const EventDialog = dynamic(
+  () => import("./event-dialog").then((m) => m.EventDialog),
+  { loading: () => null },
 )
 
 export interface EventCalendarProps {

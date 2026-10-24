@@ -1,5 +1,6 @@
 "use client"
 
+import { RiAddLine } from "@/shared/ui/lucide-icons"
 import { cn } from "@/lib/utils"
 import { TAB_ENTER, useTabSwitched } from "@/shared/hooks/useTabSwitched"
 import { RollingValue } from "@/components/rolling-value"
@@ -56,10 +57,12 @@ import { type LeaveRequestWithProfile } from "./components/AdminLeaveList"
 import { RemainingLeaveList } from "./components/RemainingLeaveList"
 
 // Edit dialog only loads once an admin opens a session to edit.
-const AdminAttendanceEditDialog = dynamic(() =>
-  import("@/app/(main)/attendance/components/AdminAttendanceEditDialog").then(
-    (m) => m.AdminAttendanceEditDialog,
-  ),
+const AdminAttendanceEditDialog = dynamic(
+  () =>
+    import("@/app/(main)/attendance/components/AdminAttendanceEditDialog").then(
+      (m) => m.AdminAttendanceEditDialog,
+    ),
+  { loading: () => null },
 )
 
 type Profile = Pick<
@@ -986,7 +989,8 @@ function AttendanceOverviewPanel({
         title={t("pageTitle")}
         actions={
           activeTab === "approval" ? (
-            <Button variant="outline" onClick={onAddManualLeave}>
+            <Button onClick={onAddManualLeave}>
+              <RiAddLine data-icon="inline-start" />
               {t("addManual")}
             </Button>
           ) : null

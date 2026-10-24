@@ -2,12 +2,19 @@
 
 import { cn } from "@/lib/utils"
 import { useEffect, useRef, useState } from "react"
+import { runThumbnail, thumbnailCache } from "./thumbnail-queue"
 
 /**
  * Word and Excel files drawn in the browser (docx-preview, SheetJS): the
  * file never leaves the app. Both libraries load only when one is on screen.
  * Old binary .doc and PowerPoint aren't covered; those stay "download".
  */
+
+async function fetchBytes(url: string) {
+  const res = await fetch(url)
+  if (!res.ok) throw new Error(String(res.status))
+  return res.arrayBuffer()
+}
 
 /** Grabs a signed URL's bytes once per URL. */
 function useBytes(url: string | null | undefined) {
@@ -18,11 +25,7 @@ function useBytes(url: string | null | undefined) {
     let alive = true
     setBytes(null)
     setFailed(false)
-    fetch(url)
-      .then((res) => {
-        if (!res.ok) throw new Error(String(res.status))
-        return res.arrayBuffer()
-      })
+    fetchBytes(url)
       .then((data) => alive && setBytes(data))
       .catch(() => alive && setFailed(true))
     return () => {
@@ -140,28 +143,50 @@ export function DocxPages({
   )
 }
 
-/** The top of a Word document's first page, filling the box (thumbnails). */
+/** Rendered Word thumbnails (sanitized markup + page width) by path. */
+const docxThumbs = thumbnailCache<{ html: string; width: number }>(40)
+
+/**
+ * The top of a Word document's first page, filling the box (thumbnails).
+ * Waits for a free thumbnail slot; kept in memory per `cacheKey`.
+ */
 export function DocxThumbnail({
   url,
+  cacheKey,
   className,
 }: {
   url: string | null | undefined
+  /** Stable id of the file (e.g. its storage path) for the in-memory cache. */
+  cacheKey?: string | null
   className?: string
 }) {
-  const { bytes } = useBytes(url)
   const host = useRef<HTMLDivElement>(null)
   const [frame, width] = useWidth<HTMLDivElement>()
   const [pageWidth, setPageWidth] = useState(0)
   useEffect(() => {
-    if (!bytes || !host.current) return
+    const el = host.current
+    if (!el) return
+    const hit = docxThumbs.get(cacheKey)
+    if (hit) {
+      // The same markup renderDocx produced (links already cleaned).
+      el.innerHTML = hit.html
+      setPageWidth(hit.width)
+      return
+    }
+    if (!url) return
     let alive = true
-    renderDocx(bytes, host.current)
-      .then((w) => alive && setPageWidth(w))
-      .catch(() => {})
+    runThumbnail(async () => {
+      if (!alive) return
+      const bytes = await fetchBytes(url)
+      if (!alive) return
+      const w = await renderDocx(bytes, el)
+      docxThumbs.set(cacheKey, { html: el.innerHTML, width: w })
+      if (alive) setPageWidth(w)
+    }).catch(() => {})
     return () => {
       alive = false
     }
-  }, [bytes])
+  }, [url, cacheKey])
   return (
     <div ref={frame} className={cn("size-full overflow-hidden", className)}>
       <div
@@ -254,12 +279,12 @@ export function SheetView({
 
   return (
     <div className={cn("flex size-full flex-col p-6", className)}>
-      <div className="bg-background flex min-h-0 flex-1 flex-col overflow-hidden rounded-[4px] shadow-(--shadow-lift)">
+      <div className="bg-background flex min-h-0 flex-1 flex-col overflow-hidden rounded-[4px] shadow-(--elev-3)">
         <div className="min-h-0 flex-1 overflow-auto">
           <table className="border-separate border-spacing-0 text-xs tabular-nums">
-            <thead className="bg-muted text-muted-foreground sticky top-0 z-10">
+            <thead className="bg-muted-solid text-muted-foreground sticky top-0 z-10">
               <tr>
-                <th className="bg-muted sticky left-0 z-10 w-10 border-r border-b" />
+                <th className="bg-muted-solid sticky left-0 z-10 w-10 border-r border-b" />
                 {Array.from({ length: cols }, (_, i) => (
                   <th
                     key={i}
@@ -273,7 +298,7 @@ export function SheetView({
             <tbody>
               {sheet?.rows.map((row, r) => (
                 <tr key={r}>
-                  <td className="bg-muted text-muted-foreground sticky left-0 border-r border-b px-2 py-1 text-right">
+                  <td className="bg-muted-solid text-muted-foreground sticky left-0 border-r border-b px-2 py-1 text-right">
                     {r + 1}
                   </td>
                   {Array.from({ length: cols }, (_, c) => (
@@ -300,7 +325,7 @@ export function SheetView({
                 className={cn(
                   "shrink-0 rounded-md px-2.5 py-1 text-xs transition-colors",
                   i === active
-                    ? "bg-background text-foreground shadow-xs"
+                    ? "bg-background text-foreground shadow-(--elev-1)"
                     : "text-muted-foreground hover:text-foreground",
                 )}
               >
@@ -314,16 +339,47 @@ export function SheetView({
   )
 }
 
-/** The top-left of the first sheet (thumbnails). */
+/** First-sheet cells of thumbnails by path. */
+const sheetThumbs = thumbnailCache<string[][]>()
+
+/**
+ * The top-left of the first sheet (thumbnails). Waits for a free thumbnail
+ * slot; kept in memory per `cacheKey`.
+ */
 export function SheetThumbnail({
   url,
+  cacheKey,
   className,
 }: {
   url: string | null | undefined
+  /** Stable id of the file (e.g. its storage path) for the in-memory cache. */
+  cacheKey?: string | null
   className?: string
 }) {
-  const { sheets } = useSheets(url, 14, 5)
-  const rows = sheets?.[0]?.rows ?? []
+  const [parsed, setParsed] = useState<{
+    key: string
+    rows: string[][]
+  } | null>(null)
+  const cached = sheetThumbs.get(cacheKey)
+  useEffect(() => {
+    if (!url || sheetThumbs.get(cacheKey)) return
+    let alive = true
+    const key = cacheKey ?? url
+    runThumbnail(async () => {
+      if (!alive) return
+      const bytes = await fetchBytes(url)
+      if (!alive) return
+      const sheets = await readSheets(bytes, 14, 5)
+      const first = sheets[0]?.rows ?? []
+      sheetThumbs.set(cacheKey, first)
+      if (alive) setParsed({ key, rows: first })
+    }).catch(() => {})
+    return () => {
+      alive = false
+    }
+  }, [url, cacheKey])
+  const rows =
+    cached ?? (parsed && parsed.key === (cacheKey ?? url) ? parsed.rows : [])
   return (
     <table
       className={cn(

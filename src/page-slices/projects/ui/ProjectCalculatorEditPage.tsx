@@ -39,7 +39,7 @@ export function ProjectCalculatorEditPage({
           variant="outline"
           onClick={() => router.push(`/projects/${projectId}/calculations`)}
         >
-          <RiArrowLeftLine className="mr-2 size-4" />
+          <RiArrowLeftLine data-icon="inline-start" />
           {t("backToProject")}
         </Button>
       </div>

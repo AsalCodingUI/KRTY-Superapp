@@ -20,7 +20,7 @@ import { differenceInCalendarDays, format } from "date-fns"
 import { useDateLocale, useT } from "@/shared/i18n/client"
 import type { MessageKey } from "@/shared/i18n/messages"
 import dynamic from "next/dynamic"
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { toast } from "sonner"
 import type { InvoiceRecord } from "../invoice/InvoiceEditorDialog"
 import { createClient } from "@/shared/api/supabase/client"
@@ -41,8 +41,10 @@ import { RowMenu, type RowMenuItem } from "./ProjectLibrary"
 
 // Form dialog loads on first open.
 // The full-screen editor loads on first open.
-const InvoiceEditorDialog = dynamic(() =>
-  import("../invoice/InvoiceEditorDialog").then((m) => m.InvoiceEditorDialog),
+const InvoiceEditorDialog = dynamic(
+  () =>
+    import("../invoice/InvoiceEditorDialog").then((m) => m.InvoiceEditorDialog),
+  { loading: () => null },
 )
 
 type FinanceKey = MessageKey<"finance">
@@ -121,30 +123,41 @@ export function ProjectInvoices({ projectId }: { projectId: string }) {
     queryKey: ["invoices", projectId],
     queryFn: () => getInvoicesByProject(projectId),
   })
-  const invoices: InvoiceRecord[] = invoicesResult?.success
-    ? invoicesResult.data
-    : []
+  const invoices = useMemo<InvoiceRecord[]>(
+    () => (invoicesResult?.success ? invoicesResult.data : []),
+    [invoicesResult],
+  )
   const refresh = () =>
     queryClient.invalidateQueries({ queryKey: ["invoices", projectId] })
 
   // Amounts are in each invoice's currency; totals convert to IDR.
-  const { data: rates = {} } = useFxRates()
-  const idr = (amount: number, inv: InvoiceRecord) =>
-    toIdr(amount, inv.currency ?? "IDR", inv.fx_rate, rates) ?? 0
-  const received = invoices.reduce(
-    (sum, inv) => sum + idr(Number(inv.amount_paid_idr) || 0, inv),
-    0,
-  )
-  const open = invoices.filter(isOpen)
-  const openAmount = open.reduce(
-    (sum, inv) =>
-      sum +
-      idr(
-        (Number(inv.amount_idr) || 0) - (Number(inv.amount_paid_idr) || 0),
-        inv,
+  const { data: rates } = useFxRates()
+  const { received, openAmount, counts } = useMemo(() => {
+    const idr = (amount: number, inv: InvoiceRecord) =>
+      toIdr(amount, inv.currency ?? "IDR", inv.fx_rate, rates ?? {}) ?? 0
+    const open = invoices.filter(isOpen)
+    return {
+      received: invoices.reduce(
+        (sum, inv) => sum + idr(Number(inv.amount_paid_idr) || 0, inv),
+        0,
       ),
-    0,
-  )
+      openAmount: open.reduce(
+        (sum, inv) =>
+          sum +
+          idr(
+            (Number(inv.amount_idr) || 0) - (Number(inv.amount_paid_idr) || 0),
+            inv,
+          ),
+        0,
+      ),
+      counts: {
+        all: invoices.length,
+        Draft: invoices.filter((i) => i.status === "Draft").length,
+        open: open.length,
+        Paid: invoices.filter((i) => i.status === "Paid").length,
+      } as Record<string, number>,
+    }
+  }, [invoices, rates])
 
   const day = (date: string) =>
     format(new Date(date), "d MMM yyyy", { locale: dateLocale })
@@ -270,18 +283,16 @@ export function ProjectInvoices({ projectId }: { projectId: string }) {
       : []),
   ]
 
-  const counts: Record<string, number> = {
-    all: invoices.length,
-    Draft: invoices.filter((i) => i.status === "Draft").length,
-    open: open.length,
-    Paid: invoices.filter((i) => i.status === "Paid").length,
-  }
-  const visible = invoices.filter((inv) =>
-    filter === "all"
-      ? true
-      : filter === "open"
-        ? isOpen(inv)
-        : inv.status === filter,
+  const visible = useMemo(
+    () =>
+      invoices.filter((inv) =>
+        filter === "all"
+          ? true
+          : filter === "open"
+            ? isOpen(inv)
+            : inv.status === filter,
+      ),
+    [invoices, filter],
   )
 
   return (

@@ -553,7 +553,7 @@ export default function CalculatorClientPage({
                   onClick={handleNew}
                   className="whitespace-nowrap"
                 >
-                  <RiAddLine className="mr-2 size-4" /> {t("newCalculation")}
+                  <RiAddLine data-icon="inline-start" /> {t("newCalculation")}
                 </Button>
               </div>
             </div>
@@ -604,7 +604,7 @@ export default function CalculatorClientPage({
                   onClick={handleNew}
                   className="whitespace-nowrap"
                 >
-                  <RiAddLine className="mr-2 size-4" /> {t("newCalculation")}
+                  <RiAddLine data-icon="inline-start" /> {t("newCalculation")}
                 </Button>
               </div>
             </div>

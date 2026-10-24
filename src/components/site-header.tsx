@@ -18,24 +18,45 @@ import { workspaces } from "@/shared/config/workspaces"
 import { PROJECT_SECTION_KEYS } from "@/components/nav-project"
 import { useT } from "@/shared/i18n/client"
 import { usePathname } from "next/navigation"
-import { Fragment } from "react"
+import { Fragment, useMemo } from "react"
+
+// Every nav item any role can see (static config, built once).
+let navItems: ReturnType<(typeof workspaces)[number]["items"]> | undefined
+const allNavItems = () =>
+  (navItems ??= workspaces.flatMap((ws) => [
+    ...ws.items({ role: "stakeholder", is_super_admin: true }),
+    ...ws.items({ role: "employee" }),
+  ]))
+
+const OFF_NAV_SECTIONS: Record<
+  string,
+  "notifications" | "calculator" | "slaGenerator"
+> = {
+  notifications: "notifications",
+  calculator: "calculator",
+  "sla-generator": "slaGenerator",
+}
 
 /** Current section, taken from the navigation config (fallback: path). */
 function useSection(): Crumb {
   const pathname = usePathname()
   const t = useT("nav")
-  const items = workspaces.flatMap((ws) => [
-    ...ws.items({ role: "stakeholder", is_super_admin: true }),
-    ...ws.items({ role: "employee" }),
-  ])
-  const match = items
-    .filter(
-      (item) => pathname === item.href || pathname.startsWith(`${item.href}/`),
-    )
-    .sort((a, b) => b.href.length - a.href.length)[0]
+  const match = useMemo(
+    () =>
+      allNavItems()
+        .filter(
+          (item) =>
+            pathname === item.href || pathname.startsWith(`${item.href}/`),
+        )
+        .sort((a, b) => b.href.length - a.href.length)[0],
+    [pathname],
+  )
   if (match) return { label: t(match.name), href: match.href }
   if (pathname.startsWith("/settings")) return { label: t("settings") }
   const seg = pathname.split("/").filter(Boolean)[0] ?? "dashboard"
+  // Pages outside the sidebar still get a translated name.
+  const key = OFF_NAV_SECTIONS[seg]
+  if (key) return { label: t(key), href: `/${seg}` }
   return {
     label: seg.charAt(0).toUpperCase() + seg.slice(1).replace(/-/g, " "),
     href: `/${seg}`,

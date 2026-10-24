@@ -2,22 +2,27 @@
 
 import { createClient } from "@/shared/api/supabase/client"
 import { useQuery } from "@tanstack/react-query"
+import { parseISO } from "date-fns"
 import { useMemo } from "react"
 import type { InvoiceLite, Subscription } from "@/entities/finance/lib/money"
 
 export const financeKeys = {
   all: ["finance"] as const,
-  invoices: () => ["finance", "invoices"] as const,
+  invoices: (year?: number) =>
+    year === undefined
+      ? (["finance", "invoices"] as const)
+      : (["finance", "invoices", year] as const),
+  firstInvoiceYear: () => ["finance", "invoices", "first-year"] as const,
   subscriptions: () => ["finance", "subscriptions"] as const,
   goal: (year: number) => ["finance", "goal", year] as const,
   rates: () => ["finance", "fx-rates"] as const,
 }
 
-/** All invoices, not Draft (drafts are not money yet). Stakeholders only. */
-export function useFinanceInvoices() {
+/** One year's invoices (by issue date), not Draft. Stakeholders only. */
+export function useFinanceInvoices(year: number) {
   const supabase = useMemo(() => createClient(), [])
   return useQuery({
-    queryKey: financeKeys.invoices(),
+    queryKey: financeKeys.invoices(year),
     queryFn: async () => {
       const { data, error } = await supabase
         .from("project_invoices")
@@ -27,9 +32,30 @@ export function useFinanceInvoices() {
            project:projects ( id, name, client_name )`,
         )
         .neq("status", "Draft")
+        .gte("issue_date", `${year}-01-01`)
+        .lt("issue_date", `${year + 1}-01-01`)
         .order("due_date")
       if (error) throw error
       return (data ?? []) as unknown as InvoiceLite[]
+    },
+  })
+}
+
+/** The year of the earliest non-draft invoice (for the year picker). */
+export function useFirstInvoiceYear() {
+  const supabase = useMemo(() => createClient(), [])
+  return useQuery({
+    queryKey: financeKeys.firstInvoiceYear(),
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("project_invoices")
+        .select("issue_date")
+        .neq("status", "Draft")
+        .order("issue_date")
+        .limit(1)
+        .maybeSingle()
+      if (error) throw error
+      return data?.issue_date ? parseISO(data.issue_date).getFullYear() : null
     },
   })
 }

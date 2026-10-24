@@ -27,7 +27,7 @@ export function DroppableCell({
       style={style}
       className={cx(
         "transition-colors",
-        isOver && "bg-tremor-brand-subtle/20 ring-tremor-brand-subtle ring-2",
+        isOver && "bg-primary/8 ring-primary/40 ring-2",
         className,
       )}
     >

@@ -241,3 +241,56 @@ export const Wallet = /*#__PURE__*/ animated(WalletIconSource, "Wallet")
 export const X = /*#__PURE__*/ animated(XIconSource, "X")
 
 export type { AnimatedIconProps } from "./animated"
+
+import * as Extra from "./extra"
+
+export const ArrowUpRight = /*#__PURE__*/ animated(
+  Extra.ArrowUpRightIcon,
+  "ArrowUpRight",
+)
+export const BookOpen = /*#__PURE__*/ animated(Extra.BookOpenIcon, "BookOpen")
+export const Building2 = /*#__PURE__*/ animated(
+  Extra.Building2Icon,
+  "Building2",
+)
+export const Calculator = /*#__PURE__*/ animated(
+  Extra.CalculatorIcon,
+  "Calculator",
+)
+export const CalendarClock = /*#__PURE__*/ animated(
+  Extra.CalendarClockIcon,
+  "CalendarClock",
+)
+export const CircleAlert = /*#__PURE__*/ animated(
+  Extra.CircleAlertIcon,
+  "CircleAlert",
+)
+export const Columns2 = /*#__PURE__*/ animated(Extra.ColumnsIcon, "Columns2")
+export const CreditCard = /*#__PURE__*/ animated(
+  Extra.CreditCardIcon,
+  "CreditCard",
+)
+export const Info = /*#__PURE__*/ animated(Extra.InfoIcon, "Info")
+export const ListChecks = /*#__PURE__*/ animated(
+  Extra.ListChecksIcon,
+  "ListChecks",
+)
+export const Mail = /*#__PURE__*/ animated(Extra.MailIcon, "Mail")
+export const Monitor = /*#__PURE__*/ animated(Extra.MonitorIcon, "Monitor")
+export const MoreHorizontal = /*#__PURE__*/ animated(
+  Extra.MoreHorizontalIcon,
+  "MoreHorizontal",
+)
+export const MoreVertical = /*#__PURE__*/ animated(
+  Extra.MoreVerticalIcon,
+  "MoreVertical",
+)
+export const Play = /*#__PURE__*/ animated(Extra.PlayIcon, "Play")
+export const Printer = /*#__PURE__*/ animated(Extra.PrinterIcon, "Printer")
+export const Rows2 = /*#__PURE__*/ animated(Extra.RowsIcon, "Rows2")
+export const Save = /*#__PURE__*/ animated(Extra.SaveIcon, "Save")
+export const TriangleAlert = /*#__PURE__*/ animated(
+  Extra.TriangleAlertIcon,
+  "TriangleAlert",
+)
+export const Workflow = /*#__PURE__*/ animated(Extra.WorkflowIcon, "Workflow")

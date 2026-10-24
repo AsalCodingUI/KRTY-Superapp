@@ -9,9 +9,10 @@ import "./globals.css"
 import { siteConfig } from "./siteConfig"
 import { cn } from "@/lib/utils"
 import { I18nProvider } from "@/shared/i18n/client"
-import { getLocale } from "@/shared/i18n/server"
+import { getClientMessages, getLocale } from "@/shared/i18n/server"
 import { TINT_SCRIPT } from "@/shared/lib/chrome-tint"
 import { ThemeColorSync } from "@/components/theme-color-sync"
+import { ScrollbarAutoHide } from "@/components/scrollbar-auto-hide"
 
 // Sidebar dihapus dari sini!
 
@@ -80,13 +81,17 @@ export default async function RootLayout({
         >
           <MotionProvider>
             <QueryProvider>
-              <I18nProvider locale={locale}>
+              <I18nProvider
+                locale={locale}
+                messages={getClientMessages(locale)}
+              >
                 <TooltipProvider>
                   {/* Sidebar dan main wrapper dipindah ke layout (main) */}
                   {children}
                   <Toaster position="bottom-right" closeButton />
                   {/* Safari / mobile toolbar takes the chrome color. */}
                   <ThemeColorSync />
+                  <ScrollbarAutoHide />
                 </TooltipProvider>
               </I18nProvider>
             </QueryProvider>

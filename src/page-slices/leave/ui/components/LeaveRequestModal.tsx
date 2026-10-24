@@ -37,7 +37,19 @@ import {
   splitFileName,
   uploadUnique,
 } from "@/shared/lib/storage-names"
-import { LeaveRules } from "./LeaveRules"
+import dynamic from "next/dynamic"
+
+// Markdown renderer only loads when "show full rules" is clicked.
+const LeaveRules = dynamic(
+  () => import("./LeaveRules").then((m) => m.LeaveRules),
+  {
+    loading: () => (
+      <div className="flex justify-center py-8">
+        <Spinner className="size-5" />
+      </div>
+    ),
+  },
+)
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"]
 type LeaveRequest = Database["public"]["Tables"]["leave_requests"]["Row"]

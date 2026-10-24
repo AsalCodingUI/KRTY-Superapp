@@ -32,16 +32,32 @@ import {
 import { Database } from "@/shared/types/database.types"
 import { RiAddLine } from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
+import { Spinner } from "@/components/ui/spinner"
 import dynamic from "next/dynamic"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { toast } from "sonner"
 import { EmployeeLeaveList } from "./components/EmployeeLeaveList"
-import { LeaveRules } from "./components/LeaveRules"
+
+// Markdown renderer only loads when the rules dialog opens.
+const LeaveRules = dynamic(
+  () => import("./components/LeaveRules").then((m) => m.LeaveRules),
+  { loading: LeaveRulesLoading },
+)
+
+function LeaveRulesLoading() {
+  return (
+    <div className="flex justify-center py-8">
+      <Spinner className="size-5" />
+    </div>
+  )
+}
 
 // Modal (and its form deps) only loads once the user opens it.
-const LeaveRequestModal = dynamic(() =>
-  import("./components/LeaveRequestModal").then((m) => m.LeaveRequestModal),
+const LeaveRequestModal = dynamic(
+  () =>
+    import("./components/LeaveRequestModal").then((m) => m.LeaveRequestModal),
+  { loading: () => null },
 )
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"]

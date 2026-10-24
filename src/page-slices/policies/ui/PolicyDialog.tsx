@@ -39,7 +39,8 @@ import {
   policyKeys,
   splitVersions,
   usePolicy,
-  type PolicyVersion,
+  usePolicyBody,
+  type PolicyVersionMeta,
 } from "../model/data"
 import { PolicyHistory } from "./PolicyHistory"
 import { PublishDialog } from "./PublishDialog"
@@ -118,7 +119,7 @@ function PolicyView({
   const split = splitVersions(policy?.versions ?? [])
   const { published, latest } = split
   const draft = isAdmin ? split.draft : null
-  const version: PolicyVersion | null =
+  const version: PolicyVersionMeta | null =
     requested === "draft" && draft
       ? draft
       : (published.find((v) => v.version_number === requested) ??
@@ -129,6 +130,7 @@ function PolicyView({
   )
   const isDraft = version?.status === "Draft"
   const title = version?.title ?? policy?.title ?? t("title")
+  const { data: body, isPending: bodyPending } = usePolicyBody(version)
 
   const toggleArchive = async () => {
     if (!policy) return
@@ -289,8 +291,12 @@ function PolicyView({
 
             <Separator className="my-8" />
 
-            {version?.body.trim() ? (
-              <Markdown>{version.body}</Markdown>
+            {version && bodyPending ? (
+              <div className="flex justify-center py-8">
+                <Spinner className="size-5" />
+              </div>
+            ) : body?.trim() ? (
+              <Markdown>{body}</Markdown>
             ) : (
               <p className="text-muted-foreground text-sm">{t("noContent")}</p>
             )}

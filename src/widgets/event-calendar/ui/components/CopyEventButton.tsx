@@ -38,7 +38,7 @@ ${event.meetingUrl ? `\n🔗 ${event.meetingUrl}` : ""}
 
   return (
     <Button variant="outline" onClick={handleCopy} className={className}>
-      <RiFileCopyLine className="mr-2 h-4 w-4" />
+      <RiFileCopyLine data-icon="inline-start" />
       {copied ? t("copyCopied") : t("copyDetails")}
     </Button>
   )

@@ -47,8 +47,8 @@ export function EmptyState({
     >
       {icon !== null && (
         <div aria-hidden className="relative mb-5 size-12">
-          <div className="bg-background dark:bg-surface smooth-shadow-ring-xs absolute inset-0 translate-x-1.5 -translate-y-1 rotate-6 rounded-xl" />
-          <div className="bg-background dark:bg-surface text-muted-foreground smooth-shadow-ring-sm relative flex size-12 items-center justify-center rounded-xl [&_svg]:size-5">
+          <div className="bg-background dark:bg-surface absolute inset-0 translate-x-1.5 -translate-y-1 rotate-6 rounded-xl shadow-(--elev-1)" />
+          <div className="bg-background dark:bg-surface text-muted-foreground relative flex size-12 items-center justify-center rounded-xl shadow-(--elev-2) [&_svg]:size-5">
             {icon ?? <Inbox />}
           </div>
         </div>

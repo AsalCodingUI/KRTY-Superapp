@@ -14,9 +14,10 @@ import {
 import { Collapse } from "@/components/ui/collapse"
 import { SlidingIndicator } from "@/components/sliding-indicator"
 import { cn } from "@/lib/utils"
-import { ChevronRight } from "lucide-react"
+import { ChevronRight } from "@/components/icons"
 import { PrefetchLink } from "@/components/prefetch-link"
 import { useT } from "@/shared/i18n/client"
+import { usePathname } from "next/navigation"
 import { memo, useEffect, useRef, useState } from "react"
 
 /**
@@ -72,6 +73,11 @@ export const NavMain = memo(function NavMain({
 }) {
   const [collapsed, setCollapsed] = useCollapsedNav()
   const t = useT("shell")
+  // Only the group you're in is open; others open on demand (chevron) and
+  // close again when you move on, so the menu stays short.
+  const pathname = usePathname()
+  const [expanded, setExpanded] = useState<string[]>([])
+  useEffect(() => setExpanded([]), [pathname])
 
   return (
     <SidebarGroup>
@@ -80,12 +86,16 @@ export const NavMain = memo(function NavMain({
         {/* The active page's fill slides between rows (parents and tabs). */}
         <SlidingIndicator
           activeSelector="[data-active]"
-          className="bg-sidebar-active rounded-full shadow-(--shadow-chrome-active)"
+          className="bg-sidebar-active blend-light rounded-full"
+          shadowClassName="rounded-full shadow-(--elev-2)"
         />
         {items.map((item) => {
           const nested = (item.items?.length ?? 0) > 1
-          const open = nested && !collapsed.includes(item.url)
           const childActive = item.items?.some((sub) => sub.isActive) ?? false
+          const here = Boolean(item.isActive) || childActive
+          const open =
+            nested &&
+            (here ? !collapsed.includes(item.url) : expanded.includes(item.url))
           return (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton
@@ -119,13 +129,22 @@ export const NavMain = memo(function NavMain({
                   }
                   aria-expanded={open}
                   className="text-muted-foreground top-1.5! right-1.5"
-                  onClick={() =>
-                    setCollapsed(
-                      open
-                        ? [...collapsed, item.url]
-                        : collapsed.filter((url) => url !== item.url),
-                    )
-                  }
+                  onClick={() => {
+                    // The current group remembers being closed; others
+                    // just toggle for this visit.
+                    if (here)
+                      setCollapsed(
+                        open
+                          ? [...collapsed, item.url]
+                          : collapsed.filter((url) => url !== item.url),
+                      )
+                    else
+                      setExpanded(
+                        open
+                          ? expanded.filter((url) => url !== item.url)
+                          : [...expanded, item.url],
+                      )
+                  }}
                 >
                   <ChevronRight
                     className={cn("transition-transform", open && "rotate-90")}

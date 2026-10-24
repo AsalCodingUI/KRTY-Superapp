@@ -8,7 +8,7 @@ const id = {
   autoClockOutOff: "Clock out otomatis dimatikan.",
 
   // Members & access: labels
-  roleEmployee: "Employee",
+  roleEmployee: "Karyawan",
   roleStakeholder: "Stakeholder",
   employmentKaryawan: "Karyawan",
   employmentMagang: "Magang",

@@ -2,7 +2,7 @@
 
 import { SlidingIndicator } from "@/components/sliding-indicator"
 import { cn } from "@/lib/utils"
-import { Monitor, Moon, Sun } from "lucide-react"
+import { Monitor, Moon, Sun } from "@/components/icons"
 import { useT } from "@/shared/i18n/client"
 import { useTheme } from "next-themes"
 import { useEffect, useState } from "react"
@@ -36,7 +36,8 @@ export function ThemeSwitcher({ className }: { className?: string }) {
     >
       <SlidingIndicator
         activeSelector="[aria-checked=true]"
-        className="bg-background dark:bg-foreground/[0.13] rounded-full shadow-(--shadow-chrome-active)"
+        className="bg-thumb blend-light rounded-full"
+        shadowClassName="rounded-full shadow-(--elev-2)"
       />
       {ITEMS.map(({ value, label, icon: Icon }) => {
         const active = current === value

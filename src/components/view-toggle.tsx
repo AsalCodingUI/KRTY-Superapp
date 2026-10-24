@@ -3,7 +3,8 @@
 import { SlidingIndicator } from "@/components/sliding-indicator"
 import { cn } from "@/lib/utils"
 import { useT } from "@/shared/i18n/client"
-import { Columns3, LayoutGrid, ListIcon, Table2 } from "lucide-react"
+import { LayoutGrid } from "@/components/icons"
+import { Columns3, ListIcon, Table2 } from "lucide-react"
 import * as React from "react"
 
 export type ViewMode = "grid" | "list" | "table" | "kanban"
@@ -72,7 +73,8 @@ export function ViewToggle({
     >
       <SlidingIndicator
         activeSelector="[aria-pressed=true]"
-        className="bg-background smooth-shadow-ring-xs rounded-full dark:shadow-xs"
+        className="bg-thumb blend-light rounded-full"
+        shadowClassName="rounded-full shadow-(--elev-1)"
       />
       {OPTIONS.filter((o) => modes.includes(o.value)).map(
         ({ value: option, label, icon: Icon }) => (

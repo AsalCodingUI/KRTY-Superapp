@@ -160,12 +160,13 @@ export const workspaces: Workspace[] = [
     name: "workspaceProject",
     icon: RiBriefcaseLine,
     items: () => [
-      { name: "calendar", href: links.calendar, icon: RiCalendarLine },
+      // First item = where switching to this workspace lands.
       {
         name: "projects",
         href: links.projects,
         icon: RiFolderLine,
       },
+      { name: "calendar", href: links.calendar, icon: RiCalendarLine },
       // Who we work for; stakeholders only.
       {
         name: "clients",

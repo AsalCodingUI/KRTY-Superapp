@@ -1,9 +1,8 @@
 "use server"
 
-import { createClient } from "@/shared/api/supabase/server"
+import type { createClient } from "@/shared/api/supabase/server"
 import { getT } from "@/shared/i18n/server"
-import { resolveEffectiveUserId } from "@/shared/lib/impersonation-server"
-import { canManageByRole } from "@/shared/lib/roles"
+import { getAdminContext } from "@/shared/lib/admin-server"
 import { revalidatePath } from "next/cache"
 
 /** Processes (project templates) are stakeholder-only; RLS enforces the same. */
@@ -14,32 +13,19 @@ type Result<T = undefined> =
 
 type Db = Awaited<ReturnType<typeof createClient>>
 
-async function admin() {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) return null
-  const id = await resolveEffectiveUserId(supabase, user.id, user.email)
-  const { data } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", id)
-    .maybeSingle()
-  return canManageByRole(data?.role) ? { supabase, userId: id } : null
-}
+const admin = getAdminContext
 
 /** Runs `fn` as a stakeholder; any thrown/returned DB error becomes errSave. */
 async function run<T>(
   fn: (db: Db, userId: string) => Promise<Result<T>>,
 ): Promise<Result<T>> {
-  const t = await getT("processes")
-  const ctx = await admin()
+  const [t, ctx] = await Promise.all([getT("processes"), admin()])
   if (!ctx) return { success: false, error: t("errNotAllowed") }
   try {
-    const result = await fn(ctx.supabase, ctx.userId)
-    if (result.success) revalidatePath("/processes", "layout")
-    return result
+    // No revalidatePath: /processes pages render no server data (they fetch
+    // client-side via TanStack Query), so a refresh would only re-render the
+    // route tree for nothing.
+    return await fn(ctx.supabase, ctx.userId)
   } catch {
     return { success: false, error: t("errSave") }
   }
@@ -78,6 +64,11 @@ export async function createProcess(input: {
   })
 }
 
+/**
+ * Copies a process's phases → steps → tasks: one bulk insert per level. Ids
+ * are minted here so children can point at their new parents without reading
+ * the inserted rows back.
+ */
 async function copyTree(db: Db, fromId: string, toId: string) {
   const { data: phases } = await db
     .from("process_phases")
@@ -96,42 +87,58 @@ async function copyTree(db: Db, fromId: string, toId: string) {
       process_tasks: { title: string; position: number }[]
     }[]
   }
+  const phaseRows: {
+    id: string
+    process_id: string
+    name: string
+    description: string | null
+    position: number
+  }[] = []
+  const stepRows: {
+    id: string
+    phase_id: string
+    title: string
+    description: string | null
+    position: number
+  }[] = []
+  const taskRows: { step_id: string; title: string; position: number }[] = []
   for (const ph of (phases ?? []) as unknown as Tree[]) {
-    const { data: newPhase, error } = await db
-      .from("process_phases")
-      .insert({
-        process_id: toId,
-        name: ph.name,
-        description: ph.description,
-        position: ph.position,
-      })
-      .select("id")
-      .single()
-    if (error || !newPhase) throw error
+    const phaseId = crypto.randomUUID()
+    phaseRows.push({
+      id: phaseId,
+      process_id: toId,
+      name: ph.name,
+      description: ph.description,
+      position: ph.position,
+    })
     for (const st of ph.process_steps ?? []) {
-      const { data: newStep, error: stepError } = await db
-        .from("process_steps")
-        .insert({
-          phase_id: newPhase.id,
-          title: st.title,
-          description: st.description,
-          position: st.position,
+      const stepId = crypto.randomUUID()
+      stepRows.push({
+        id: stepId,
+        phase_id: phaseId,
+        title: st.title,
+        description: st.description,
+        position: st.position,
+      })
+      for (const task of st.process_tasks ?? [])
+        taskRows.push({
+          step_id: stepId,
+          title: task.title,
+          position: task.position,
         })
-        .select("id")
-        .single()
-      if (stepError || !newStep) throw stepError
-      const tasks = (st.process_tasks ?? []).map((task) => ({
-        step_id: newStep.id,
-        title: task.title,
-        position: task.position,
-      }))
-      if (tasks.length) {
-        const { error: taskError } = await db
-          .from("process_tasks")
-          .insert(tasks)
-        if (taskError) throw taskError
-      }
     }
+  }
+  if (phaseRows.length) {
+    const { error } = await db.from("process_phases").insert(phaseRows)
+    if (error) throw error
+  }
+  if (stepRows.length) {
+    const { error } = await db.from("process_steps").insert(stepRows)
+    if (error) throw error
+  }
+  if (taskRows.length) {
+    const { error } = await db.from("process_tasks").insert(taskRows)
+    if (error) throw error
   }
 }
 
@@ -223,13 +230,16 @@ export async function addItem(
       .select("id, position")
       .eq(PARENT[level], parentId)
       .order("position")
-    const list = siblings ?? []
+    const list = (siblings ?? []) as { id: string; position: number }[]
     const index = at === undefined ? list.length : Math.min(at, list.length)
-    for (const [i, row] of list.entries()) {
-      const position = i < index ? i : i + 1
-      if (row.position !== position)
-        await db.from(level).update({ position }).eq("id", row.id)
-    }
+    await Promise.all(
+      list.map((row, i) => {
+        const position = i < index ? i : i + 1
+        return row.position === position
+          ? null
+          : db.from(level).update({ position }).eq("id", row.id)
+      }),
+    )
     const { data, error } = await db
       .from(level)
       .insert({
@@ -283,18 +293,27 @@ export async function moveItem(
     if (!parentId) return fail("errSave")
     const { data: siblings } = await db
       .from(level)
-      .select("id")
+      .select("id, position")
       .eq(PARENT[level], parentId)
       .order("position")
-    const ids = ((siblings ?? []) as unknown as { id: string }[]).map(
-      (s) => s.id,
-    )
+    const rows = (siblings ?? []) as unknown as {
+      id: string
+      position: number
+    }[]
+    const ids = rows.map((s) => s.id)
     const from = ids.indexOf(id)
     const to = from + direction
     if (from === -1 || to < 0 || to >= ids.length) return { success: true }
     ;[ids[from], ids[to]] = [ids[to], ids[from]]
-    for (const [position, rowId] of ids.entries())
-      await db.from(level).update({ position }).eq("id", rowId)
+    // Same end state as rewriting every sibling; only changed rows are sent.
+    const current = new Map(rows.map((r) => [r.id, r.position]))
+    await Promise.all(
+      ids.map((rowId, position) =>
+        current.get(rowId) === position
+          ? null
+          : db.from(level).update({ position }).eq("id", rowId),
+      ),
+    )
     return { success: true }
   })
 }

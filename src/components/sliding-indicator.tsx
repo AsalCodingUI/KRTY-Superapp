@@ -23,10 +23,16 @@ export function SlidingIndicator({
   className,
   /** "fill" covers the item; "underline" is a bar along its bottom edge. */
   variant = "fill",
+  shadowClassName,
 }: {
   activeSelector: string
   className?: string
   variant?: "fill" | "underline"
+  /**
+   * The pill's shadow, drawn as its own layer under the fill: the fill can
+   * blend lighten (see-through white) while the shadow blends darken.
+   */
+  shadowClassName?: string
 }) {
   const ref = React.useRef<HTMLSpanElement>(null)
   const [box, setBox] = React.useState<Box | null>(null)
@@ -36,8 +42,20 @@ export function SlidingIndicator({
     const container = ref.current?.parentElement
     if (!container) return
 
+    const children = new Set<Element>(Array.from(container.children))
+    let watched: Element | null = null
+    // Assigned below; measure() keeps it pointed at the active item.
+    let resize: ResizeObserver | null = null
+
     const measure = () => {
       const active = container.querySelector<HTMLElement>(activeSelector)
+      if (active !== watched) {
+        // Follow a nested active item's own size too (direct children are
+        // observed already).
+        if (watched && !children.has(watched)) resize?.unobserve(watched)
+        if (active && !children.has(active)) resize?.observe(active)
+        watched = active
+      }
       if (!active) {
         setBox(null)
         return
@@ -73,10 +91,23 @@ export function SlidingIndicator({
     const frame = requestAnimationFrame(() => requestAnimationFrame(enable))
     const timer = window.setTimeout(enable, 120)
 
-    const resize = new ResizeObserver(measure)
+    // Observer bursts (clicks, resizes, the initial callbacks for every
+    // observed element) collapse into one measurement per frame.
+    let pending = 0
+    const schedule = () => {
+      if (pending) return
+      pending = requestAnimationFrame(() => {
+        pending = 0
+        measure()
+      })
+    }
+
+    resize = new ResizeObserver(schedule)
     resize.observe(container)
-    for (const child of Array.from(container.children)) resize.observe(child)
-    const mutations = new MutationObserver(measure)
+    // Siblings resizing (a count badge loading) can shift the active item.
+    for (const child of children) resize.observe(child)
+    if (watched && !children.has(watched)) resize.observe(watched)
+    const mutations = new MutationObserver(schedule)
     mutations.observe(container, {
       subtree: true,
       attributes: true,
@@ -90,40 +121,49 @@ export function SlidingIndicator({
         "aria-current",
       ],
     })
-    document.fonts?.ready.then(measure).catch(() => {})
+    document.fonts?.ready.then(schedule).catch(() => {})
 
     return () => {
       cancelAnimationFrame(frame)
+      cancelAnimationFrame(pending)
       window.clearTimeout(timer)
-      resize.disconnect()
+      resize?.disconnect()
       mutations.disconnect()
     }
   }, [activeSelector])
 
   const underline = variant === "underline"
-  return (
-    <span
-      ref={ref}
-      aria-hidden="true"
-      className={cn(
-        "pointer-events-none absolute top-0 left-0",
-        !box && "invisible",
-        animate &&
-          "transition-[transform,width,height] duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] motion-reduce:transition-none",
-        className,
-      )}
-      style={
-        box
-          ? {
-              width: box.w,
-              height: underline ? undefined : box.h,
-              transform: underline
-                ? `translate(${box.x}px, ${box.y + box.h}px)`
-                : `translate(${box.x}px, ${box.y}px)`,
-            }
-          : undefined
+  const style: React.CSSProperties | undefined = box
+    ? {
+        width: box.w,
+        height: underline ? undefined : box.h,
+        transform: underline
+          ? `translate(${box.x}px, ${box.y + box.h}px)`
+          : `translate(${box.x}px, ${box.y}px)`,
       }
-    />
+    : undefined
+  const base = cn(
+    "pointer-events-none absolute top-0 left-0",
+    !box && "invisible",
+    animate &&
+      "transition-[transform,width,height] duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] motion-reduce:transition-none",
+  )
+  return (
+    <>
+      {shadowClassName && (
+        <span
+          aria-hidden="true"
+          className={cn(base, "blend-shadow", shadowClassName)}
+          style={style}
+        />
+      )}
+      <span
+        ref={ref}
+        aria-hidden="true"
+        className={cn(base, className)}
+        style={style}
+      />
+    </>
   )
 }
 

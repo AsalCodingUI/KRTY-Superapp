@@ -22,7 +22,8 @@ export function LanguageSwitcher({ className }: { className?: string }) {
     >
       <SlidingIndicator
         activeSelector="[aria-checked=true]"
-        className="bg-background dark:bg-foreground/[0.13] rounded-full shadow-(--shadow-chrome-active)"
+        className="bg-thumb blend-light rounded-full"
+        shadowClassName="rounded-full shadow-(--elev-2)"
       />
       {LOCALES.map((value) => {
         const active = locale === value

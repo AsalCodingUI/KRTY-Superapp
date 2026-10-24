@@ -67,10 +67,12 @@ export function NavProject() {
         </SidebarMenuItem>
       </SidebarMenu>
       {/* Same rows as the main nav: the active fill slides between them. */}
-      <SidebarMenu className="relative mt-2">
+      {/* Same 4px step as between rows, so the list reads as one. */}
+      <SidebarMenu className="relative mt-1">
         <SlidingIndicator
           activeSelector="[data-active]"
-          className="bg-sidebar-active rounded-full shadow-(--shadow-chrome-active)"
+          className="bg-sidebar-active blend-light rounded-full"
+          shadowClassName="rounded-full shadow-(--elev-2)"
         />
         {PROJECT_SECTIONS.map((section) => {
           const title = PROJECT_SECTION_KEYS[section.slug]

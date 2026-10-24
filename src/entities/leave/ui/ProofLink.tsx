@@ -1,11 +1,17 @@
 "use client"
 
-import { FileViewer } from "@/components/file-viewer"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/shared/api/supabase/client"
 import { useT } from "@/shared/i18n/client"
 import { RiFilePaperLine } from "@/shared/ui/lucide-icons"
+import dynamic from "next/dynamic"
 import { useState } from "react"
+
+// Viewer (PDF / office renderers) only loads when a proof is opened.
+const FileViewer = dynamic(
+  () => import("@/components/file-viewer").then((m) => m.FileViewer),
+  { ssr: false },
+)
 
 export const PROOF_BUCKET = "leave-proofs"
 

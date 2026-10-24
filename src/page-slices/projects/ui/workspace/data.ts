@@ -10,7 +10,11 @@ import {
   uploadUnique,
 } from "@/shared/lib/storage-names"
 import type { Database } from "@/shared/types/database.types"
-import { useQuery, useQueryClient } from "@tanstack/react-query"
+import {
+  useQuery,
+  useQueryClient,
+  type QueryClient,
+} from "@tanstack/react-query"
 
 /**
  * Data for the project pages. Reads and writes go straight through Supabase;
@@ -157,21 +161,35 @@ export function useTasks(projectId: string) {
   })
 }
 
+// Every column of the row types, spelled out (no `*`).
+const DOCUMENT_COLUMNS =
+  "id, project_id, kind, title, status, file_path, file_name, file_size, created_by, created_at, updated_at"
+const FOLDER_COLUMNS = "id, project_id, name, created_by, created_at"
+const FILE_COLUMNS =
+  "id, project_id, folder_id, name, file_path, file_size, mime_type, created_by, created_at"
+
 export function useDocuments(projectId: string) {
+  const queryClient = useQueryClient()
   return useQuery({
     queryKey: keys.documents(projectId),
     queryFn: async () => {
       const { data } = await supabase()
         .from("project_documents")
-        .select("*")
+        .select(DOCUMENT_COLUMNS)
         .eq("project_id", projectId)
         .order("created_at", { ascending: false })
-      return (data ?? []) as DocumentRow[]
+      const rows = (data ?? []) as DocumentRow[]
+      await seedFileUrls(
+        queryClient,
+        rows.map((d) => d.file_path),
+      )
+      return rows
     },
   })
 }
 
 export function useLibrary(projectId: string) {
+  const queryClient = useQueryClient()
   return useQuery({
     queryKey: keys.library(projectId),
     queryFn: async () => {
@@ -179,18 +197,23 @@ export function useLibrary(projectId: string) {
       const [{ data: folders }, { data: files }] = await Promise.all([
         db
           .from("project_folders")
-          .select("*")
+          .select(FOLDER_COLUMNS)
           .eq("project_id", projectId)
           .order("name"),
         db
           .from("project_files")
-          .select("*")
+          .select(FILE_COLUMNS)
           .eq("project_id", projectId)
           .order("created_at", { ascending: false }),
       ])
+      const rows = (files ?? []) as FileRow[]
+      await seedFileUrls(
+        queryClient,
+        rows.map((f) => f.file_path),
+      )
       return {
         folders: (folders ?? []) as FolderRow[],
-        files: (files ?? []) as FileRow[],
+        files: rows,
       }
     },
   })
@@ -268,19 +291,55 @@ export function formatBytes(bytes: number | null) {
   return `${value.toFixed(value < 10 && i > 0 ? 1 : 0)} ${units[i]}`
 }
 
+const fileUrlKey = (path: string | null | undefined) =>
+  ["project-file-url", path] as const
+const FILE_URL_TTL_S = 60 * 60
+const FILE_URL_STALE_MS = 50 * 60 * 1000
+
+/**
+ * Signs every listed path in one request and puts each URL where
+ * `useFileUrl` looks, so a grid of tiles doesn't sign one by one. Paths with
+ * a fresh URL are skipped; failures just leave tiles to sign themselves.
+ */
+async function seedFileUrls(
+  queryClient: QueryClient,
+  paths: (string | null | undefined)[],
+) {
+  const now = Date.now()
+  const todo = [
+    ...new Set(paths.filter((p): p is string => Boolean(p))),
+  ].filter((p) => {
+    const state = queryClient.getQueryState(fileUrlKey(p))
+    return !state?.data || now - state.dataUpdatedAt > FILE_URL_STALE_MS
+  })
+  if (!todo.length) return
+  try {
+    const { data, error } = await supabase()
+      .storage.from(BUCKET)
+      .createSignedUrls(todo, FILE_URL_TTL_S)
+    if (error || !data) return
+    for (const item of data)
+      if (item.path && item.signedUrl && !item.error)
+        queryClient.setQueryData(fileUrlKey(item.path), item.signedUrl)
+  } catch {
+    // Tiles fall back to signing on their own.
+  }
+}
+
 /**
  * A signed URL for showing a private file inline (thumbnails, previews).
- * Lives an hour and is cached a little less, so grids don't re-sign.
+ * Lives an hour and is cached a little less, so grids don't re-sign. The
+ * library and documents lists pre-sign their files in one batch.
  */
 export function useFileUrl(path: string | null | undefined) {
   return useQuery({
-    queryKey: ["project-file-url", path],
+    queryKey: fileUrlKey(path),
     enabled: Boolean(path),
-    staleTime: 50 * 60 * 1000,
+    staleTime: FILE_URL_STALE_MS,
     queryFn: async () => {
       const { data, error } = await supabase()
         .storage.from(BUCKET)
-        .createSignedUrl(path!, 60 * 60)
+        .createSignedUrl(path!, FILE_URL_TTL_S)
       if (error || !data) throw error ?? new Error("no url")
       return data.signedUrl
     },

@@ -217,9 +217,6 @@ importers:
       shadcn:
         specifier: ^4.22.1
         version: 4.22.1
-      shadow-plugin:
-        specifier: ^2.1.1
-        version: 2.1.1
       sonner:
         specifier: ^2.0.7
         version: 2.0.7(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -329,6 +326,9 @@ importers:
       postcss:
         specifier: ^8.5.6
         version: 8.5.6
+      postcss-smooth-corners:
+        specifier: 0.1.1
+        version: 0.1.1(postcss@8.5.6)
       prettier:
         specifier: ^3.6.2
         version: 3.8.1
@@ -6040,6 +6040,12 @@ packages:
     resolution: {integrity: sha512-wWBro/7hJ40ye6TPiXkUQoXKCw23xSsjriUvqd7Uls9Sso3oLiON1flc18cCdnjgCRXw4fBVqUJJeOdDTh3P3g==}
     engines: {node: '>=4'}
 
+  postcss-smooth-corners@0.1.1:
+    resolution: {integrity: sha512-ol+p0chG1+LfWN6KgJy8wL8ZZslkVcaAgQJs+NBjGNoldq9WTfZoCYSM5FxeF1YAYb9jeUxKVxhO+MzQClejZA==}
+    engines: {node: '>=22.0'}
+    peerDependencies:
+      postcss: ^8.4.0
+
   postcss@8.4.31:
     resolution: {integrity: sha512-PS08Iboia9mts/2ygV3eLpY5ghnUcfLV/EXTOW1E2qYxJKGGBUtNjN76FYHnMs36RmARn41bC0AZmn+rR0OVpQ==}
     engines: {node: ^10 || ^12 || >=14}
@@ -6512,9 +6518,6 @@ packages:
     resolution: {integrity: sha512-LbB4Lro+b0qSVki/tgL5edtKylEnXe1ppxMJC12d7NHPgaT+eSgJGMQULwP72V7X9tbiUq7xfx3VDAfB7jdGoA==}
     engines: {node: '>=20.18.1'}
     hasBin: true
-
-  shadow-plugin@2.1.1:
-    resolution: {integrity: sha512-V4MwWPNzna/Zq6lIjT7vWAHf5uSCVDPkFG5m1cXs9WTtLGeLA3/NAtjJxxY3lYwBiA9O8+g/yLfC+c+P4qk4yw==}
 
   sharp@0.34.5:
     resolution: {integrity: sha512-Ou9I5Ft9WNcCbXrU9cMgPBcCK8LiwLqcbywW3t4oDV37n1pzpuNLsYiAV8eODnjbtQlSDwZ2cUEeQz4E54Hltg==}
@@ -13400,6 +13403,10 @@ snapshots:
       cssesc: 3.0.0
       util-deprecate: 1.0.2
 
+  postcss-smooth-corners@0.1.1(postcss@8.5.6):
+    dependencies:
+      postcss: 8.5.6
+
   postcss@8.4.31:
     dependencies:
       nanoid: 3.3.11
@@ -14041,8 +14048,6 @@ snapshots:
       - '@cfworker/json-schema'
       - babel-plugin-macros
       - supports-color
-
-  shadow-plugin@2.1.1: {}
 
   sharp@0.34.5:
     dependencies:

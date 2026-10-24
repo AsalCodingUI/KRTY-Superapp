@@ -83,11 +83,14 @@ function CalendarFilter() {
           </span>
         )}
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-56 gap-0 p-1">
+      <PopoverContent
+        align="end"
+        className="nest-rounded-2xl nest-p-1.5 w-56 gap-0 rounded-2xl p-1.5"
+      >
         {categories.map((category) => (
           <label
             key={category.id}
-            className="hover:bg-accent flex cursor-pointer items-center gap-2.5 rounded-md px-2 py-1.5 text-sm"
+            className="hover:bg-accent rounded-nested flex cursor-pointer items-center gap-2.5 px-2 py-1.5 text-sm"
           >
             <Checkbox
               checked={category.isActive}

@@ -190,7 +190,7 @@ function ChartTooltipContent({
   return (
     <div
       className={cn(
-        "bg-popover text-popover-foreground smooth-shadow-ring-sm grid min-w-32 items-start gap-1.5 rounded-xl px-2.5 py-1.5 text-xs",
+        "bg-popover text-popover-foreground grid min-w-32 items-start gap-1.5 rounded-xl px-2.5 py-1.5 text-xs shadow-(--elev-4)",
         className,
       )}
     >

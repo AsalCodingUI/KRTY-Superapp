@@ -37,6 +37,9 @@ function SheetOverlay({ className, ...props }: SheetPrimitive.Backdrop.Props) {
   )
 }
 
+/* A right sheet floats inside the page sheet with one 8px gap on top, right
+ * and bottom: below the top bar, and (from md, where the page has a 12px
+ * gutter) 12 + 8 = 20px from the window. */
 function SheetContent({
   className,
   children,
@@ -61,7 +64,7 @@ function SheetContent({
         data-slot="sheet-content"
         data-side={side}
         className={cn(
-          "bg-popover text-popover-foreground ease-drawer smooth-shadow-ring-md fixed z-50 flex flex-col bg-clip-padding text-sm transition-[opacity,translate,transform] duration-[400ms] data-ending-style:opacity-0 data-starting-style:opacity-0 data-[side=bottom]:inset-x-0 data-[side=bottom]:bottom-0 data-[side=bottom]:h-auto data-[side=bottom]:border-t data-[side=bottom]:data-ending-style:translate-y-[2.5rem] data-[side=bottom]:data-starting-style:translate-y-[2.5rem] data-[side=left]:inset-y-0 data-[side=left]:left-0 data-[side=left]:h-full data-[side=left]:w-3/4 data-[side=left]:border-r data-[side=left]:data-ending-style:translate-x-[-2.5rem] data-[side=left]:data-starting-style:translate-x-[-2.5rem] data-[side=right]:top-[calc(var(--app-topbar-height,0px)+var(--app-banner-height,0px)+0.5rem)] data-[side=right]:right-2 data-[side=right]:bottom-2 data-[side=right]:w-[calc(100%-1rem)] data-[side=right]:overflow-hidden data-[side=right]:rounded-xl data-[side=right]:data-ending-style:translate-x-[1.5rem] data-[side=right]:data-starting-style:translate-x-[1.5rem] data-[side=top]:inset-x-0 data-[side=top]:top-0 data-[side=top]:h-auto data-[side=top]:border-b data-[side=top]:data-ending-style:translate-y-[-2.5rem] data-[side=top]:data-starting-style:translate-y-[-2.5rem] data-[side=left]:sm:max-w-sm data-[side=right]:sm:max-w-md md:data-[side=right]:right-4 md:data-[side=right]:bottom-4",
+          "bg-popover text-popover-foreground ease-drawer fixed z-50 flex flex-col bg-clip-padding text-sm shadow-(--elev-5) transition-[opacity,translate,transform] duration-[400ms] data-ending-style:opacity-0 data-starting-style:opacity-0 data-[side=bottom]:inset-x-0 data-[side=bottom]:bottom-0 data-[side=bottom]:h-auto data-[side=bottom]:border-t data-[side=bottom]:data-ending-style:translate-y-[2.5rem] data-[side=bottom]:data-starting-style:translate-y-[2.5rem] data-[side=left]:inset-y-0 data-[side=left]:left-0 data-[side=left]:h-full data-[side=left]:w-3/4 data-[side=left]:border-r data-[side=left]:data-ending-style:translate-x-[-2.5rem] data-[side=left]:data-starting-style:translate-x-[-2.5rem] data-[side=right]:top-[calc(var(--app-topbar-height,0px)+var(--app-banner-height,0px)+0.5rem)] data-[side=right]:right-2 data-[side=right]:bottom-2 data-[side=right]:w-[calc(100%-1rem)] data-[side=right]:overflow-hidden data-[side=right]:rounded-3xl data-[side=right]:data-ending-style:translate-x-[1.5rem] data-[side=right]:data-starting-style:translate-x-[1.5rem] data-[side=top]:inset-x-0 data-[side=top]:top-0 data-[side=top]:h-auto data-[side=top]:border-b data-[side=top]:data-ending-style:translate-y-[-2.5rem] data-[side=top]:data-starting-style:translate-y-[-2.5rem] data-[side=left]:sm:max-w-sm data-[side=right]:sm:max-w-md md:data-[side=right]:right-5 md:data-[side=right]:bottom-5",
           className,
         )}
         {...props}

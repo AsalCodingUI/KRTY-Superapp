@@ -81,6 +81,7 @@ export function ProjectDashboard({ projectId }: { projectId: string }) {
   // Adding or renaming a phase (one small dialog), and deleting one.
   const [phaseDialog, setPhaseDialog] = useState<PhaseRow | "new" | null>(null)
   const [deletingPhase, setDeletingPhase] = useState<PhaseRow | null>(null)
+  const [completing, setCompleting] = useState(false)
 
   const phases = useMemo(() => data?.phases ?? [], [data?.phases])
   const activePhase = phases.find((p) => p.status === "active") ?? null
@@ -207,7 +208,7 @@ export function ProjectDashboard({ projectId }: { projectId: string }) {
                   variant="outline"
                   disabled={busy}
                   title={activePhase.name}
-                  onClick={() => activate(activePhase, true)}
+                  onClick={() => setCompleting(true)}
                 >
                   {t("completePhase", { name: clip(activePhase.name) })}
                 </Button>
@@ -371,6 +372,18 @@ export function ProjectDashboard({ projectId }: { projectId: string }) {
             title={phaseDialog === "new" ? t("addPhase") : t("renamePhase")}
             onSave={savePhaseName}
           />
+          {activePhase && (
+            <ConfirmDialog
+              open={completing}
+              onOpenChange={setCompleting}
+              title={t("completePhaseTitle", {
+                name: clip(activePhase.name),
+              })}
+              description={t("completePhaseDescription")}
+              confirmText={t("completePhase", { name: clip(activePhase.name) })}
+              onConfirm={() => activate(activePhase, true)}
+            />
+          )}
           <ConfirmDialog
             open={deletingPhase !== null}
             onOpenChange={(open) => !open && setDeletingPhase(null)}

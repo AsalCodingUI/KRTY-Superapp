@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@import "shadow-plugin";
 @import "./palette.css";
 
 /* Motion (Emil Kowalski's curves): the built-in easings are too weak for UI.
@@ -28,6 +27,16 @@
     from {
       opacity: 0;
       transform: translateY(4px);
+    }
+  }
+
+  /* Sidebar footer controls re-settling after collapse / expand: a short
+     delay so they appear while the width is still easing. */
+  --animate-footer-in: footer-in 240ms var(--ease-out) 60ms both;
+  @keyframes footer-in {
+    from {
+      opacity: 0;
+      transform: scale(0.94);
     }
   }
 
@@ -65,26 +74,6 @@
   --page-gutter: var(--bleed, 1rem);
 }
 
-/* Floating surfaces (menus, popovers, dialogs). The plugin's hairline is a
-   bright white 18% on dark, and its 1-4% black shadows vanish there; use a
-   quieter hairline and a real shadow instead. Light keeps a soft 6% edge. */
-.light,
-:root {
-  --smooth-ring-color: rgba(0, 0, 0, 0.08);
-  /* A true hairline: one device pixel on retina instead of two. */
-  --smooth-ring-width: 0.5px;
-}
-.dark {
-  --smooth-ring-color: rgba(255, 255, 255, 0.1);
-}
-.dark
-  :is(.smooth-shadow-ring-sm, .smooth-shadow-ring-md, .smooth-shadow-ring-lg) {
-  box-shadow:
-    0 16px 40px -8px rgb(0 0 0 / 0.55),
-    0 4px 12px -2px rgb(0 0 0 / 0.35),
-    0 0 0 var(--smooth-ring-width, 1px) var(--smooth-ring-color);
-}
-
 /* Progress/meter fills grow from 0 to their value once, when they appear,
    and glide when the value changes. Set the value with --bar (e.g. 40%). */
 @utility bar-grow {
@@ -119,6 +108,8 @@
 
 /* Scrollbars: a thin rounded thumb that sits a little in from the edge, in
    the text colour at low opacity (so it follows light/dark), no track.
+   Overlay-style: hidden until the container scrolls (ScrollbarAutoHide sets
+   data-scrolling) or the pointer is on the thumb itself.
    Chromium/Safari use the -webkit- parts (rounded + inset); Firefox only
    understands scrollbar-color/width, so it gets the thin native one. */
 ::-webkit-scrollbar {
@@ -132,6 +123,9 @@
   border: 3.5px solid transparent;
   border-radius: 9999px;
   background-clip: padding-box;
+  background-color: transparent;
+}
+[data-scrolling]::-webkit-scrollbar-thumb {
   background-color: color-mix(in oklch, var(--foreground) 16%, transparent);
 }
 ::-webkit-scrollbar-thumb:hover {
@@ -146,6 +140,9 @@
 @supports (-moz-appearance: none) {
   * {
     scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+  }
+  [data-scrolling] {
     scrollbar-color: color-mix(in oklch, var(--foreground) 22%, transparent)
       transparent;
   }
@@ -246,6 +243,8 @@
   --color-muted-foreground: var(--muted-foreground);
   --color-tertiary-foreground: var(--tertiary-foreground);
   --color-muted: var(--muted);
+  --color-muted-solid: var(--muted-solid);
+  --color-thumb: var(--thumb);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-secondary: var(--secondary);
   --color-primary-foreground: var(--primary-foreground);
@@ -276,6 +275,13 @@
      on it use translucent black/white so they work on any tint. */
   --tint-h: 250;
   --tint-c: 0;
+  /* Ink (light: text and other near-blacks; dark: the surfaces) leans a
+     little toward the chosen hue; zero chroma when the chrome is neutral. */
+  --tint-ink: calc(var(--tint-c) * 0.03);
+  /* Loading spinners: the theme's hue (a calm gray when it's neutral). */
+  --spinner: oklch(
+    calc(0.6 - var(--tint-c) * 0.02) calc(var(--tint-c) * 0.15) var(--tint-h)
+  );
   /* Gradient chrome (optional): stops at this lightness, chroma scaled by
      the intensity; the image itself comes from chrome-tint.ts. */
   --chrome-gradient: none;
@@ -287,33 +293,80 @@
   );
   --chrome-hover: oklch(0 0 0 / 5%);
   --chrome-active: oklch(1 0 0 / 94%);
+  /* Active thumbs (segmented, tabs, toggles): the same see-through white
+     as the sidebar's active pill. */
+  --thumb: var(--chrome-active);
   --chrome-field: oklch(0 0 0 / 6%);
   --chrome-muted: oklch(0 0 0 / 55%);
-  --inverse: oklch(0.145 0 0);
-  /* Active tab on the chrome, and the page sheet floating on it. */
-  --shadow-chrome-active: 0px 7px 20px -2px rgba(0, 0, 0, 0.06);
-  --shadow-sheet:
-    0px 0px 0px 1px rgba(0, 0, 0, 0.05), 0px 7px 29px rgba(0, 0, 0, 0.06);
-  /* Something lifted off the page: the invoice paper, a dragged card. */
-  --shadow-lift:
-    0px 0px 0px 1px rgba(0, 0, 0, 0.05), 0px 7px 32px rgba(0, 0, 0, 0.1);
-  --app-topbar-height: 3.25rem;
-  --background: #ffffff;
-  --heading: #2b2b2b;
-  --foreground: #2b2b2b;
-  --card: #ffffff;
-  --card-foreground: #2b2b2b;
+  --inverse: oklch(0.145 var(--tint-ink) var(--tint-h));
+  /* Elevation: the app's only shadows (use as shadow-(--elev-N)). Each is
+     a hairline, a small contact shadow and a wide ambient one with negative
+     spread, so it falls down instead of out; higher = further, wider,
+     darker. The ink leans to the theme hue so shadows match the tint.
+       1 control (thumbs, active pills, chips)
+       2 resting card / active item on the chrome
+       3 sheet / paper (page on the chrome, invoice, editor panels)
+       4 popover / menu (dropdown, select, popover, dragged item)
+       5 dialog (dialog, side sheet, file viewer) */
+  --elev-ink: calc(var(--tint-c) * 0.04);
+  --elev-1:
+    0 0 0 1px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.05),
+    0 1px 2px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.06);
+  --elev-2:
+    0 0 0 1px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.04),
+    0 1px 2px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.04),
+    0 6px 16px -4px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.07);
+  --elev-3:
+    0 0 0 1px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.045),
+    0 2px 4px -1px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.04),
+    0 16px 40px -10px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.11);
+  --elev-4:
+    0 0 0 1px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.05),
+    0 4px 10px -2px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.05),
+    0 24px 56px -14px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.17);
+  --elev-5:
+    0 0 0 1px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.05),
+    0 8px 18px -4px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.06),
+    0 36px 80px -18px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.22);
+  --app-topbar-height: 3.5rem;
+  /* The page: white, leaning to the chrome tint (pure white when neutral).
+     An opaque mix, so solid children never show as white patches. */
+  --background: color-mix(
+    in oklab,
+    #fff calc(100% - var(--tint-c) * 7%),
+    var(--chrome)
+  );
+  --heading: oklch(0.289 var(--tint-ink) var(--tint-h));
+  --foreground: oklch(0.289 var(--tint-ink) var(--tint-h));
+  --card: var(--background);
+  --card-foreground: oklch(0.289 var(--tint-ink) var(--tint-h));
   --popover: #ffffff;
-  --popover-foreground: #2b2b2b;
-  --primary: var(--blue-9);
+  --popover-foreground: oklch(0.289 var(--tint-ink) var(--tint-h));
+  /* Brand blue on the neutral theme; on a colored theme the primary turns
+     a deep shade of that theme instead (full from 25% intensity up), so
+     buttons, checks, tabs and links match the tint. */
+  --primary-mix: calc(min(1, var(--tint-c) * 4) * 100%);
+  --primary: color-mix(
+    in oklch,
+    var(--blue-9),
+    oklch(0.3 0.07 var(--tint-h)) var(--primary-mix)
+  );
   --primary-foreground: #ffffff;
-  --secondary: #f7f7f7;
-  --secondary-foreground: #383838;
-  --muted: #f7f7f7;
-  --muted-foreground: #4e4e4e;
-  --tertiary-foreground: #8a8a8a;
-  --accent: #f0f0f0;
-  --accent-foreground: #2b2b2b;
+  /* Fills, hovers, chips: see-through ink, so they pick up the tint of
+     whatever they sit on (page, popover, chrome). */
+  --secondary: oklch(0.22 var(--tint-ink) var(--tint-h) / 0.035);
+  --secondary-foreground: oklch(0.341 var(--tint-ink) var(--tint-h));
+  --muted: oklch(0.22 var(--tint-ink) var(--tint-h) / 0.035);
+  /* Opaque twin for sticky cells that cover scrolling content. */
+  --muted-solid: color-mix(
+    in oklab,
+    oklch(0.22 var(--tint-ink) var(--tint-h)) 3.5%,
+    var(--background)
+  );
+  --muted-foreground: oklch(0.424 var(--tint-ink) var(--tint-h));
+  --tertiary-foreground: oklch(0.633 var(--tint-ink) var(--tint-h));
+  --accent: oklch(0.22 var(--tint-ink) var(--tint-h) / 0.06);
+  --accent-foreground: oklch(0.289 var(--tint-ink) var(--tint-h));
   --destructive: var(--red-9);
   --destructive-foreground: #ffffff;
   --destructive-subtle: var(--red-3);
@@ -330,18 +383,19 @@
   --info-foreground: #ffffff;
   --info-subtle: var(--blue-3);
   --info-line: #a7e7fc;
-  --neutral-subtle: #f0f0f0;
+  --neutral-subtle: oklch(0.22 var(--tint-ink) var(--tint-h) / 0.06);
   --neutral-line: #e6e6e6;
-  --neutral-ink: #606060;
+  --neutral-ink: oklch(0.489 var(--tint-ink) var(--tint-h));
   --border: #f3f3f3;
   --input: #dddddd;
-  --field: #ffffff;
-  --field-hover: #ffffff;
+  --field: oklch(1 0 0 / 0.7);
+  --field-hover: oklch(1 0 0 / 0.9);
   --field-border: #ebebeb;
   --field-border-hover: #dcdcdc;
-  --focus-ring: oklch(0.629 0.187 252 / 22%);
-  --ring: oklch(0.629 0.187 252 / 50%);
-  --backdrop: rgb(0 0 0 / 40%);
+  --focus-ring: color-mix(in oklab, var(--primary) 22%, transparent);
+  --ring: color-mix(in oklab, var(--primary) 50%, transparent);
+  /* Behind dialogs: a light, tinted veil (the page stays readable). */
+  --backdrop: oklch(0.22 var(--tint-ink) var(--tint-h) / 0.18);
   --chart-1: oklch(0.879 0.169 91.605);
   --chart-2: oklch(0.769 0.188 70.08);
   --chart-3: oklch(0.666 0.179 58.318);
@@ -350,14 +404,14 @@
   --radius: 0.625rem;
   --sidebar: var(--chrome);
   --surface: var(--background);
-  --sidebar-foreground: #2b2b2b;
-  --sidebar-primary: var(--blue-9);
+  --sidebar-foreground: oklch(0.289 var(--tint-ink) var(--tint-h));
+  --sidebar-primary: var(--primary);
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: var(--chrome-hover);
   --sidebar-active: var(--chrome-active);
-  --sidebar-accent-foreground: #2b2b2b;
+  --sidebar-accent-foreground: oklch(0.289 var(--tint-ink) var(--tint-h));
   --sidebar-border: #f0f0f0;
-  --sidebar-ring: oklch(0.629 0.187 252 / 50%);
+  --sidebar-ring: var(--ring);
   /* Row highlights (tables + lists): opaque so cell edges never seam. */
   --row-surface: var(--background);
   --row-hover: color-mix(in oklch, var(--foreground) 4%, var(--background));
@@ -367,6 +421,9 @@
 }
 
 .dark {
+  /* Dark leans into the theme: the near-black surfaces carry its color. */
+  --tint-ink: calc(var(--tint-c) * 0.025);
+  --spinner: oklch(0.72 calc(var(--tint-c) * 0.13) var(--tint-h));
   --heading: var(--foreground);
   --destructive-subtle: var(--red-3);
   --destructive-line: transparent;
@@ -380,24 +437,34 @@
   --neutral-line: transparent;
   --neutral-ink: oklch(0.935 0 0 / 60%);
   --field-border-hover: transparent;
-  --focus-ring: oklch(0.629 0.187 252 / 22%);
+  --focus-ring: color-mix(in oklab, var(--primary) 22%, transparent);
   --backdrop: rgb(0 0 0 / 55%);
   /* Neutral graphite palette (design-tool inspector style): dark canvas,
      lifted panels, solid gray fields, navy/sky-blue accent. */
-  --background: oklch(0.185 0 0);
+  --background: oklch(0.155 var(--tint-ink) var(--tint-h));
   --foreground: oklch(0.935 0 0);
-  --card: oklch(0.215 0 0);
+  --card: oklch(0.185 var(--tint-ink) var(--tint-h));
   --card-foreground: oklch(0.935 0 0);
-  --popover: oklch(0.2 0 0);
+  --popover: oklch(0.235 var(--tint-ink) var(--tint-h));
   --popover-foreground: oklch(0.935 0 0);
-  --primary: var(--blue-9);
-  --primary-foreground: #ffffff;
-  --secondary: oklch(0.265 0 0);
+  /* Dark: a light shade of the theme, with dark text on it. */
+  --primary: color-mix(
+    in oklch,
+    var(--blue-9),
+    oklch(0.86 0.06 var(--tint-h)) var(--primary-mix)
+  );
+  --primary-foreground: color-mix(
+    in oklch,
+    #fff,
+    oklch(0.2 0.03 var(--tint-h)) var(--primary-mix)
+  );
+  --secondary: oklch(1 0 0 / 0.08);
   --secondary-foreground: oklch(0.935 0 0);
-  --muted: oklch(0.25 0 0);
+  --muted: oklch(1 0 0 / 0.06);
+  --muted-solid: color-mix(in oklab, #fff 6%, var(--background));
   --muted-foreground: oklch(0.69 0 0);
   --tertiary-foreground: oklch(0.54 0 0);
-  --accent: oklch(0.305 0 0);
+  --accent: oklch(1 0 0 / 0.1);
   --accent-foreground: oklch(0.96 0 0);
   --destructive: var(--red-9);
   --destructive-foreground: #ffffff;
@@ -407,45 +474,63 @@
   --warning-foreground: oklch(0.2 0.02 75);
   --info: var(--blue-9);
   --info-foreground: #ffffff;
-  --border: oklch(0.24 0 0);
+  --border: oklch(0.215 var(--tint-ink) var(--tint-h));
   --input: oklch(1 0 0 / 9%);
   --field: oklch(1 0 0 / 4.5%);
   --field-hover: oklch(1 0 0 / 6.3%);
   --field-border: transparent;
-  --ring: oklch(0.629 0.187 252 / 60%);
+  --ring: color-mix(in oklab, var(--primary) 60%, transparent);
   --chart-1: oklch(0.879 0.169 91.605);
   --chart-2: oklch(0.769 0.188 70.08);
   --chart-3: oklch(0.666 0.179 58.318);
   --chart-4: oklch(0.555 0.163 48.998);
   --chart-5: oklch(0.473 0.137 46.201);
   --chrome: oklch(
-    calc(0.17 + var(--tint-c) * 0.03) calc(var(--tint-c) * 0.05) var(--tint-h)
+    calc(0.135 + var(--tint-c) * 0.02) calc(var(--tint-c) * 0.06) var(--tint-h)
   );
-  --grad-l: 0.25;
+  --grad-l: 0.22;
   --grad-c: 0.075;
   --chrome-hover: oklch(1 0 0 / 6%);
   --chrome-active: oklch(1 0 0 / 14%);
+  /* Re-resolve: :root's --thumb was computed from the light value. */
+  --thumb: var(--chrome-active);
   --chrome-field: oklch(1 0 0 / 7%);
   --chrome-muted: oklch(1 0 0 / 55%);
-  --shadow-chrome-active: none;
-  --shadow-sheet: 0px 0px 0px 1px rgba(255, 255, 255, 0.06);
-  --shadow-lift:
-    0px 0px 0px 1px rgba(255, 255, 255, 0.08), 0px 7px 32px rgba(0, 0, 0, 0.5);
+  /* Dark: a white hairline carries the edge; the shadows themselves go
+     deep so they still read on dark surfaces. */
+  --elev-1: 0 0 0 1px oklch(1 0 0 / 0.07), 0 1px 2px oklch(0 0 0 / 0.4);
+  --elev-2: 0 0 0 1px oklch(1 0 0 / 0.07), 0 6px 16px -4px oklch(0 0 0 / 0.45);
+  --elev-3:
+    0 0 0 1px oklch(1 0 0 / 0.07), 0 16px 40px -10px oklch(0 0 0 / 0.55);
+  --elev-4:
+    0 0 0 1px oklch(1 0 0 / 0.08), 0 24px 56px -14px oklch(0 0 0 / 0.65);
+  --elev-5: 0 0 0 1px oklch(1 0 0 / 0.08), 0 36px 80px -18px oklch(0 0 0 / 0.7);
   --sidebar: var(--chrome);
-  --surface: oklch(0.205 0 0);
-  --dialog-shell: oklch(0.17 0 0);
-  --dialog-panel: oklch(0.24 0 0);
+  --surface: oklch(0.17 var(--tint-ink) var(--tint-h));
+  --dialog-shell: oklch(0.2 var(--tint-ink) var(--tint-h));
+  --dialog-panel: oklch(0.255 var(--tint-ink) var(--tint-h));
   --sidebar-foreground: oklch(0.935 0 0);
-  --sidebar-primary: var(--blue-9);
-  --sidebar-primary-foreground: #ffffff;
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
   --sidebar-accent: var(--chrome-hover);
   --sidebar-active: var(--chrome-active);
   --sidebar-accent-foreground: oklch(0.96 0 0);
-  --sidebar-border: oklch(0.255 0 0);
-  --sidebar-ring: oklch(0.629 0.187 252 / 60%);
+  --sidebar-border: oklch(0.225 var(--tint-ink) var(--tint-h));
+  --sidebar-ring: var(--ring);
   --row-surface: var(--surface);
   --row-hover: color-mix(in oklch, var(--foreground) 4%, var(--surface));
   --row-selected: color-mix(in oklch, var(--foreground) 6%, var(--surface));
+}
+
+/* Spinners take the theme's hue; inside a button they keep the button's
+   text color. In a layer, so a text-* class on a spinner still wins. */
+@layer base {
+  [data-slot="spinner"] {
+    color: var(--spinner);
+  }
+  :where(button, [data-slot="button"]) [data-slot="spinner"] {
+    color: currentColor;
+  }
 }
 
 /* A gradient chrome is painted once across the whole frame (top bar +
@@ -465,13 +550,99 @@
   --muted-foreground: var(--chrome-muted);
 }
 
+/* Concentric corners: a container sets its radius and padding once and the
+   rounded things inside it follow, inner radius = outer radius − padding
+   (20px outside, 8px padding → 12px inside), so nested curves stay
+   parallel. Floor of 4px so tight paddings never square the inner corner.
+     <div class="nest-rounded-2xl nest-p-2"><button class="rounded-nested">
+   The padding can live on an inner wrapper (a menu's list); for a gap that
+   isn't padding, set --nest-p directly ([--nest-p:8px]).
+   They sort before the plain rounded-* / p-* utilities, so a caller's
+   rounded-none / p-0 (or a variant) still wins. On a component that sets
+   its own rounded-* / p-*, pass the plain classes too so the merger
+   replaces the component's (rounded-2xl p-2 nest-rounded-2xl nest-p-2). */
+@utility nest-rounded-* {
+  --nest-r: --value(--radius-*, [length]);
+  border-radius: var(--nest-r);
+}
+@utility nest-p-* {
+  --nest-p: calc(var(--spacing) * --value(number));
+  --nest-p: --value([length]);
+  padding: var(--nest-p);
+}
+@utility rounded-nested {
+  /* With squircle corners every radius is drawn --corner-k times bigger,
+     so the padding counts that much too: (R − p)·k = R·k − p·k. */
+  border-radius: max(
+    var(--nest-min, 4px),
+    calc(var(--nest-r, 0px) - var(--nest-p, 0px) * var(--corner-k, 1))
+  );
+}
+
+/* The calendar draws its day circles with a 9999px radius from a variable;
+   squircle can't scale that and turns the circles into rounded squares, so
+   it keeps true round corners. */
+.rdp-root,
+.rdp-root * {
+  corner-shape: round !important;
+}
+
+/* Squircle size factor (postcss-smooth-corners scales radii by 1.715 where
+   corner-shape is supported). */
+:root {
+  --corner-k: 1;
+}
+@supports (corner-shape: squircle) {
+  :root {
+    --corner-k: 1.715;
+  }
+}
+
 /* Translucent ink on the tinted chrome blends instead of just layering:
-   plus-darker in light, plus-lighter in dark. Browsers without plus-darker
-   (Chrome) keep the plain translucent color. */
+   darken in light, lighten in dark (supported everywhere). */
 @utility blend-ink {
-  mix-blend-mode: plus-darker;
+  mix-blend-mode: darken;
   &:where(.dark, .dark *) {
-    mix-blend-mode: plus-lighter;
+    mix-blend-mode: lighten;
+  }
+}
+/* See-through white (active pills, thumbs) blends lighten, so the tint
+   under it still shows. Only for fill-only layers (sliding indicators):
+   on an element with text it would wash the text out. */
+@utility blend-light {
+  mix-blend-mode: lighten;
+}
+/* Shadows on the chrome blend darken, so they deepen the tint instead of
+   laying gray on it. Dark keeps them as they are: darken would erase the
+   white hairline, and black on near-black has nothing to deepen. */
+@utility blend-shadow {
+  mix-blend-mode: darken;
+  &:where(.dark, .dark *) {
+    mix-blend-mode: normal;
+  }
+}
+/* Banners on the chrome: a softened, see-through black blended darken, so
+   the chrome's tint still comes through. The fill is its own layer behind
+   the content (no isolation, so it blends with the chrome), and the text
+   stays pure white. */
+@utility banner-ink {
+  position: relative;
+  & > * {
+    position: relative;
+    z-index: 1;
+  }
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    border-radius: inherit;
+    background: oklch(0.12 calc(var(--tint-c) * 0.04) var(--tint-h) / 0.75);
+    mix-blend-mode: darken;
+    pointer-events: none;
+  }
+  &:where(.dark, .dark *)::before {
+    background: oklch(0 0 0 / 0.45);
   }
 }
 /* Same for a pill's fill when it holds an opaque thumb (segmented controls):
@@ -484,11 +655,11 @@
     inset: 0;
     border-radius: inherit;
     background: var(--chrome-field);
-    mix-blend-mode: plus-darker;
+    mix-blend-mode: darken;
     pointer-events: none;
   }
   &:where(.dark, .dark *)::before {
-    mix-blend-mode: plus-lighter;
+    mix-blend-mode: lighten;
   }
 }
 
@@ -502,7 +673,7 @@
 .docx-view .docx-wrapper > section.docx {
   margin: 0;
   border-radius: 4px;
-  box-shadow: var(--shadow-lift);
+  box-shadow: var(--elev-3);
 }
 /* Thumbnails show just the first page; the tile draws the paper. */
 .docx-view-thumb .docx-wrapper > section.docx {

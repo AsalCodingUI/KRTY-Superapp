@@ -26,7 +26,7 @@ import { Spinner } from "@/components/ui/spinner"
 import { useQueryClient } from "@tanstack/react-query"
 import { useDateLocale, useT } from "@/shared/i18n/client"
 import { format } from "date-fns"
-import { ArrowUpRight } from "lucide-react"
+import { ArrowUpRight } from "@/components/icons"
 import dynamic from "next/dynamic"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -35,8 +35,9 @@ import { toast } from "sonner"
 import { useInvalidate, useViewer, useWorkspace } from "./data"
 
 // Edit dialog loads on first open.
-const ProjectForm = dynamic(() =>
-  import("../ProjectForm").then((m) => m.ProjectForm),
+const ProjectForm = dynamic(
+  () => import("../ProjectForm").then((m) => m.ProjectForm),
+  { loading: () => null },
 )
 
 const NO_CLIENT = "__none"

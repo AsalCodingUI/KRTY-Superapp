@@ -304,7 +304,7 @@ function Sidebar({
         <div
           data-sidebar="sidebar"
           data-slot="sidebar-inner"
-          className="bg-sidebar group-data-[variant=floating]:ring-sidebar-border flex size-full flex-col group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:shadow-sm group-data-[variant=floating]:ring-1 group-data-[variant=inset]:bg-transparent"
+          className="bg-sidebar group-data-[variant=floating]:ring-sidebar-border flex size-full flex-col group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:shadow-(--elev-2) group-data-[variant=floating]:ring-1 group-data-[variant=inset]:bg-transparent"
         >
           {children}
         </div>
@@ -383,8 +383,14 @@ function SidebarRail({ className, ...props }: React.ComponentProps<"div">) {
       onPointerDown={onPointerDown}
       onDoubleClick={() => setWidth(null)}
       className={cn(
-        "hover:after:bg-sidebar-border absolute inset-y-0 right-0 z-20 hidden w-2 cursor-col-resize after:absolute after:inset-y-0 after:left-1/2 after:w-0.5 after:-translate-x-1/2 after:transition-colors md:block",
-        "group-data-[resizing=true]/sidebar-wrapper:after:bg-primary/60",
+        // A wide, invisible grab area; on hover a hairline (inset like the
+        // page sheet) and a small grip pill fade in. Both are ink blended
+        // into the chrome (darken / lighten), so they carry the tint.
+        "absolute inset-y-0 right-0 z-20 hidden w-3 cursor-col-resize md:block",
+        "before:bg-foreground/0 before:absolute before:inset-y-3 before:left-1/2 before:w-px before:-translate-x-1/2 before:rounded-full before:mix-blend-darken before:transition-colors before:duration-200 dark:before:mix-blend-lighten",
+        "after:bg-foreground/0 after:absolute after:top-1/2 after:left-1/2 after:h-9 after:w-1 after:-translate-1/2 after:rounded-full after:mix-blend-darken after:transition-[background-color,height] after:duration-200 dark:after:mix-blend-lighten",
+        "hover:before:bg-foreground/12 hover:after:bg-foreground/30",
+        "group-data-[resizing=true]/sidebar-wrapper:before:bg-foreground/15 group-data-[resizing=true]/sidebar-wrapper:after:bg-foreground/45 group-data-[resizing=true]/sidebar-wrapper:after:h-14",
         className,
       )}
       {...props}
@@ -550,7 +556,7 @@ function SidebarMenu({ className, ...props }: React.ComponentProps<"ul">) {
     <ul
       data-slot="sidebar-menu"
       data-sidebar="menu"
-      className={cn("flex w-full min-w-0 flex-col gap-0.5", className)}
+      className={cn("flex w-full min-w-0 flex-col gap-1", className)}
       {...props}
     />
   )
@@ -575,11 +581,11 @@ const sidebarMenuButtonVariants = cva(
         default:
           "not-data-active:hover:bg-sidebar-accent not-data-active:hover:text-sidebar-accent-foreground",
         outline:
-          "bg-background shadow-[0_0_0_1px_hsl(var(--sidebar-border))] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-[0_0_0_1px_hsl(var(--sidebar-accent))]",
+          "bg-background shadow-[0_0_0_1px_var(--sidebar-border)] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-[0_0_0_1px_var(--sidebar-accent)]",
       },
       size: {
-        default: "h-[30px] text-sm",
-        sm: "h-[30px] text-sm",
+        default: "h-8 text-sm",
+        sm: "h-8 text-sm",
         lg: "h-12 px-2 text-sm group-data-[collapsible=icon]:p-0!",
       },
     },
@@ -742,7 +748,7 @@ function SidebarMenuSubItem({
       data-slot="sidebar-menu-sub-item"
       data-sidebar="menu-sub-item"
       className={cn(
-        "group/menu-sub-item relative pt-0.5 pl-5 before:absolute before:top-0 before:left-0 before:h-1/2 before:w-3 before:rounded-bl-[10px] before:border-b before:border-l before:border-[color-mix(in_oklch,var(--foreground)_11%,var(--sidebar))] after:absolute after:inset-y-0 after:left-0 after:border-l after:border-[color-mix(in_oklch,var(--foreground)_11%,var(--sidebar))] last:after:hidden dark:before:border-[color-mix(in_oklch,var(--foreground)_16%,var(--sidebar))] dark:after:border-[color-mix(in_oklch,var(--foreground)_16%,var(--sidebar))]",
+        "group/menu-sub-item relative pt-1 pl-5 before:absolute before:top-0 before:left-0 before:h-1/2 before:w-3 before:rounded-bl-[10px] before:border-b before:border-l before:border-[color-mix(in_oklch,var(--foreground)_11%,var(--sidebar))] after:absolute after:inset-y-0 after:left-0 after:border-l after:border-[color-mix(in_oklch,var(--foreground)_11%,var(--sidebar))] last:after:hidden dark:before:border-[color-mix(in_oklch,var(--foreground)_16%,var(--sidebar))] dark:after:border-[color-mix(in_oklch,var(--foreground)_16%,var(--sidebar))]",
         className,
       )}
       {...props}

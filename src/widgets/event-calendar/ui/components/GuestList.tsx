@@ -65,7 +65,7 @@ export function GuestList({
               className={cx(
                 "flex h-8 w-8 items-center justify-center rounded-full text-xs font-medium",
                 guest.isOrganizer
-                  ? "bg-primary text-primary-fg"
+                  ? "bg-primary text-primary-foreground"
                   : "bg-muted text-foreground",
               )}
             >

@@ -72,7 +72,7 @@ export function NavUser({
                 className={
                   showName
                     ? "text-foreground h-8 w-auto gap-2 px-1.5 hover:bg-transparent active:bg-transparent aria-expanded:bg-transparent"
-                    : "aria-expanded:bg-sidebar-accent size-8! justify-center p-0!"
+                    : "aria-expanded:bg-sidebar-accent blend-ink size-8! justify-center p-0!"
                 }
               />
             }
@@ -94,7 +94,7 @@ export function NavUser({
             </span>
           </DropdownMenuTrigger>
           <DropdownMenuContent
-            className="min-w-56 rounded-lg"
+            className="min-w-56"
             side={side}
             align="end"
             sideOffset={4}

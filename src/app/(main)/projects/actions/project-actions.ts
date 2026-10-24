@@ -1,9 +1,7 @@
 "use server"
 
-import { createClient } from "@/shared/api/supabase/server"
 import { getT } from "@/shared/i18n/server"
-import { resolveEffectiveUserId } from "@/shared/lib/impersonation-server"
-import { canManageByRole } from "@/shared/lib/roles"
+import { getAdminContext } from "@/shared/lib/admin-server"
 import type { Database } from "@/shared/types/database.types"
 import { revalidatePath } from "next/cache"
 
@@ -52,18 +50,7 @@ export type EditableProject = {
 }
 
 async function admin() {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) return null
-  const id = await resolveEffectiveUserId(supabase, user.id, user.email)
-  const { data } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", id)
-    .maybeSingle()
-  return canManageByRole(data?.role) ? supabase : null
+  return (await getAdminContext())?.supabase ?? null
 }
 
 async function validate(input: ProjectInput): Promise<string | null> {
@@ -145,8 +132,7 @@ export async function saveProject(
   id: string | null,
   input: ProjectInput,
 ): Promise<Result<{ id: string }>> {
-  const t = await getT("projects")
-  const supabase = await admin()
+  const [t, supabase] = await Promise.all([getT("projects"), admin()])
   if (!supabase) return { success: false, error: t("errAdminOnly") }
   const invalid = await validate(input)
   if (invalid) return { success: false, error: invalid }
@@ -218,8 +204,7 @@ export async function setProjectStatus(
   id: string,
   status: ProjectStatus,
 ): Promise<Result> {
-  const t = await getT("projects")
-  const supabase = await admin()
+  const [t, supabase] = await Promise.all([getT("projects"), admin()])
   if (!supabase) return { success: false, error: t("errAdminOnly") }
   const { data, error } = await supabase
     .from("projects")
@@ -234,8 +219,7 @@ export async function setProjectStatus(
 
 /** Permanent; also deletes the team's scores for this project. */
 export async function deleteProject(id: string): Promise<Result> {
-  const t = await getT("projects")
-  const supabase = await admin()
+  const [t, supabase] = await Promise.all([getT("projects"), admin()])
   if (!supabase) return { success: false, error: t("errAdminOnly") }
   // Files in storage aren't cascaded with the rows; remove them first.
   const [{ data: files }, { data: docs }] = await Promise.all([

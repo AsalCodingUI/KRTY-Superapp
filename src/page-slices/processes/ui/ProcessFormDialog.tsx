@@ -27,7 +27,10 @@ import { Textarea } from "@/components/ui/textarea"
 import { useT } from "@/shared/i18n/client"
 import { useState } from "react"
 import { toast } from "sonner"
-import { useRefreshProcesses, type Process } from "../model/data"
+import { useRefreshProcesses } from "../model/data"
+
+/** What the form reads from a process (full or list-level). */
+type ProcessLike = { id: string; name: string; description: string | null }
 
 const BLANK = "__blank"
 
@@ -46,9 +49,9 @@ export function ProcessFormDialog({
   open: boolean
   onOpenChange: (open: boolean) => void
   /** Set to rename; null to create. */
-  process: Process | null
-  copyFrom?: Process | null
-  processes: Process[]
+  process: ProcessLike | null
+  copyFrom?: ProcessLike | null
+  processes: ProcessLike[]
   onSaved?: (id: string) => void
 }) {
   return (
@@ -76,9 +79,9 @@ function ProcessForm({
   processes,
   onDone,
 }: {
-  process: Process | null
-  copyFrom: Process | null
-  processes: Process[]
+  process: ProcessLike | null
+  copyFrom: ProcessLike | null
+  processes: ProcessLike[]
   onDone: (id?: string) => void
 }) {
   const t = useT("processes")

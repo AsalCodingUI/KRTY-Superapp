@@ -479,7 +479,7 @@ const TableRow = ({
 const CoverPageContainer = ({ children }: { children: React.ReactNode }) => (
   <div
     style={{ width: `${A4_WIDTH}px`, height: `${A4_HEIGHT}px` }}
-    className="relative mx-auto flex flex-col overflow-hidden bg-[#151515] text-white shadow-xl"
+    className="relative mx-auto flex flex-col overflow-hidden bg-[#151515] text-white shadow-(--elev-3)"
   >
     {children}
   </div>
@@ -493,7 +493,7 @@ const StandardPageContainer = ({ children }: { children: React.ReactNode }) => (
       minHeight: `${A4_HEIGHT}px`,
       maxHeight: `${A4_HEIGHT}px`,
     }}
-    className="shadow-sm-border relative mx-auto flex flex-col overflow-hidden rounded-sm bg-white text-black print:border-0 print:shadow-none"
+    className="relative mx-auto flex flex-col overflow-hidden rounded-sm bg-white text-black shadow-(--elev-3) print:border-0 print:shadow-none"
   >
     {children}
   </div>
@@ -1380,7 +1380,7 @@ export const SLADocumentPreview = React.forwardRef<
       `}</style>
 
       {/* --- TOP NAVIGATION --- */}
-      <div className="shadow-sm-border z-50 mb-4 flex items-center gap-4 rounded-xl px-2 py-2 backdrop-blur-md print:hidden">
+      <div className="z-50 mb-4 flex items-center gap-4 rounded-xl px-2 py-2 shadow-(--elev-3) backdrop-blur-md print:hidden">
         <Button
           variant="ghost"
           size="icon"
@@ -1390,8 +1390,8 @@ export const SLADocumentPreview = React.forwardRef<
           <RiArrowLeftSLine size={16} />
         </Button>
 
-        <span className="text-tremor-content min-w-[60px] text-center text-sm tabular-nums">
-          {pageNum} <span className="text-tremor-content-subtle">/</span>{" "}
+        <span className="text-muted-foreground min-w-[60px] text-center text-sm tabular-nums">
+          {pageNum} <span className="text-tertiary-foreground">/</span>{" "}
           {pages.length + 1}
         </span>
 

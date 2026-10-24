@@ -34,7 +34,7 @@ export function AppTopbar() {
     // No fill of its own: the chrome behind it shows through, so the page
     // sheet's shadow isn't cut off along the bar's bottom edge.
     <header className="on-chrome text-foreground relative z-40 flex h-(--app-topbar-height) shrink-0 items-center gap-4 px-4">
-      <div className="flex min-w-0 flex-1 items-center gap-4">
+      <div className="flex min-w-0 flex-1 items-center gap-6">
         <PrefetchLink
           href={siteConfig.baseLinks.dashboard}
           className="flex shrink-0 items-center gap-2"
@@ -55,7 +55,7 @@ export function AppTopbar() {
             <SegmentedControl
               fitContent
               className="fill-ink bg-transparent dark:bg-transparent"
-              indicatorClassName="shadow-(--shadow-chrome-active)"
+              indicatorClassName="shadow-(--elev-2)"
               value={active.id}
               onChange={select}
               items={visible.map((ws) => ({

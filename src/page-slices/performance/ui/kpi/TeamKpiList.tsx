@@ -18,6 +18,7 @@ import { RiArrowRightSLine, RiGroupLine } from "@/shared/ui/lucide-icons"
 import { useQuery } from "@tanstack/react-query"
 import type { ColumnDef } from "@tanstack/react-table"
 import Link from "next/link"
+import { useMemo } from "react"
 import { ListColumns, PersonCell, StatBand } from "../list"
 import { RatingChip } from "./RatingChip"
 
@@ -53,6 +54,78 @@ function Part({
   )
 }
 
+const kpiHref = (row: TeamKpiRow, scope: string) =>
+  `/performance/employee/${row.id}?periode=${encodeURIComponent(scope)}`
+
+function teamKpiColumns(
+  t: ReturnType<typeof useT<"performance">>,
+  scope: string,
+): ColumnDef<TeamKpiRow>[] {
+  const href = (row: TeamKpiRow) => kpiHref(row, scope)
+  return [
+    {
+      accessorKey: "full_name",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t("member")} />
+      ),
+      cell: ({ row }) => (
+        <PersonCell
+          name={row.original.full_name}
+          avatarUrl={row.original.avatar_url}
+          secondary={projectsLabel(row.original, t)}
+        >
+          <Link
+            href={href(row.original)}
+            prefetch={false}
+            className="text-foreground truncate hover:underline"
+          >
+            {row.original.full_name}
+          </Link>
+        </PersonCell>
+      ),
+    },
+    ...(
+      [
+        ["sla", "sla"],
+        ["review", "review360Short"],
+        ["quality", "quality"],
+      ] as const
+    ).map(
+      ([key, title]): ColumnDef<TeamKpiRow> => ({
+        id: key,
+        accessorFn: (r) => r.parts[key] ?? -1,
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title={t(title)} />
+        ),
+        cell: ({ row }) => (
+          <span className="tabular-nums">
+            {orEmpty(formatPercent(row.original.parts[key]))}
+          </span>
+        ),
+      }),
+    ),
+    {
+      id: "final",
+      accessorFn: (r) => r.final.score ?? -1,
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t("finalScore")} />
+      ),
+      cell: ({ row }) => (
+        <div className="flex items-center gap-2">
+          <span className="tabular-nums">
+            {row.original.final.score === null ? (
+              <EmptyValue />
+            ) : (
+              Math.round(row.original.final.score)
+            )}
+          </span>
+          <RatingChip score={row.original.final.score} />
+        </div>
+      ),
+    },
+  ]
+}
+
 /** Everyone's KPI for the period, best first (list) or as a table. */
 export function TeamKpiList({
   scope,
@@ -67,6 +140,7 @@ export function TeamKpiList({
     queryFn: () => getTeamKpi(scope),
     staleTime: 30_000,
   })
+  const columns = useMemo(() => teamKpiColumns(t, scope), [t, scope])
 
   if (isLoading) {
     return (
@@ -94,8 +168,7 @@ export function TeamKpiList({
     )
   }
 
-  const href = (row: TeamKpiRow) =>
-    `/performance/employee/${row.id}?periode=${encodeURIComponent(scope)}`
+  const href = (row: TeamKpiRow) => kpiHref(row, scope)
 
   const scored = rows.filter((r) => r.final.score !== null)
   const stats = (
@@ -127,68 +200,6 @@ export function TeamKpiList({
   )
 
   if (view === "table") {
-    const columns: ColumnDef<TeamKpiRow>[] = [
-      {
-        accessorKey: "full_name",
-        header: ({ column }) => (
-          <DataTableColumnHeader column={column} title={t("member")} />
-        ),
-        cell: ({ row }) => (
-          <PersonCell
-            name={row.original.full_name}
-            avatarUrl={row.original.avatar_url}
-            secondary={projectsLabel(row.original, t)}
-          >
-            <Link
-              href={href(row.original)}
-              prefetch={false}
-              className="text-foreground truncate hover:underline"
-            >
-              {row.original.full_name}
-            </Link>
-          </PersonCell>
-        ),
-      },
-      ...(
-        [
-          ["sla", "sla"],
-          ["review", "review360Short"],
-          ["quality", "quality"],
-        ] as const
-      ).map(
-        ([key, title]): ColumnDef<TeamKpiRow> => ({
-          id: key,
-          accessorFn: (r) => r.parts[key] ?? -1,
-          header: ({ column }) => (
-            <DataTableColumnHeader column={column} title={t(title)} />
-          ),
-          cell: ({ row }) => (
-            <span className="tabular-nums">
-              {orEmpty(formatPercent(row.original.parts[key]))}
-            </span>
-          ),
-        }),
-      ),
-      {
-        id: "final",
-        accessorFn: (r) => r.final.score ?? -1,
-        header: ({ column }) => (
-          <DataTableColumnHeader column={column} title={t("finalScore")} />
-        ),
-        cell: ({ row }) => (
-          <div className="flex items-center gap-2">
-            <span className="tabular-nums">
-              {row.original.final.score === null ? (
-                <EmptyValue />
-              ) : (
-                Math.round(row.original.final.score)
-              )}
-            </span>
-            <RatingChip score={row.original.final.score} />
-          </div>
-        ),
-      },
-    ]
     return (
       <>
         {stats}

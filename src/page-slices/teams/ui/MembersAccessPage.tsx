@@ -15,18 +15,22 @@ export function MembersAccessPage() {
 
   return (
     <div className="flex flex-col">
-      <PageHeader className="pt-6 pb-4" title={t("membersAccess")} />
-      {loading ? null : isSuperAdmin ? (
+      {loading ? (
+        <PageHeader className="pt-6 pb-4" title={t("membersAccess")} />
+      ) : isSuperAdmin ? (
         <div className="pb-4">
-          <MembersAccessSettings />
+          <MembersAccessSettings title={t("membersAccess")} />
         </div>
       ) : (
-        <EmptyState
-          title={t("noAccessTitle")}
-          description={t("noAccessDesc")}
-          icon={<RiLockLine className="size-5" />}
-          placement="inner"
-        />
+        <>
+          <PageHeader className="pt-6 pb-4" title={t("membersAccess")} />
+          <EmptyState
+            title={t("noAccessTitle")}
+            description={t("noAccessDesc")}
+            icon={<RiLockLine className="size-5" />}
+            placement="inner"
+          />
+        </>
       )}
     </div>
   )

@@ -8,7 +8,7 @@ import { GroupedList, ListRow } from "@/components/grouped-list"
 import { Collapse } from "@/components/ui/collapse"
 import { ViewToggle, useViewMode } from "@/components/view-toggle"
 import { FilePreview } from "./FilePreview"
-import { FileViewer, type ViewerItem } from "@/components/file-viewer"
+import type { ViewerItem } from "@/components/file-viewer"
 import { FILE_DRAG_TYPE, useFileDrop } from "@/shared/hooks/useFileDrop"
 import {
   Select,
@@ -38,19 +38,12 @@ import { Spinner } from "@/components/ui/spinner"
 import { RiAddLine, RiFolderLine, RiMoreFill } from "@/shared/ui/lucide-icons"
 import { useDateLocale, useT } from "@/shared/i18n/client"
 import { format, type Locale } from "date-fns"
-import {
-  Check,
-  ChevronDown,
-  FileImage,
-  FileText,
-  File as FileIcon,
-  Folder,
-  Plus,
-  Upload,
-} from "lucide-react"
+import { Check, ChevronDown, FileText, Plus, Upload } from "@/components/icons"
+import { FileImage, File as FileIcon, Folder } from "lucide-react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import * as React from "react"
 import { useRef, useState } from "react"
+import { mapLimit } from "@/shared/lib/storage-names"
 import { toast } from "sonner"
 import {
   BUCKET,
@@ -66,6 +59,13 @@ import {
   type FileRow,
   type FolderRow,
 } from "./data"
+import dynamic from "next/dynamic"
+
+// Viewer (PDF / office renderers) loads in its own chunk.
+const FileViewer = dynamic(
+  () => import("@/components/file-viewer").then((m) => m.FileViewer),
+  { ssr: false },
+)
 
 function iconFor(mime: string | null) {
   if (mime?.startsWith("image/")) return FileImage
@@ -202,7 +202,7 @@ function LibraryGrid({
                     }
                   }}
                   className={cn(
-                    "group/row hover:bg-muted/60 focus-visible:ring-focus-ring flex cursor-pointer items-center gap-3 rounded-xl p-2 transition-colors outline-none focus-visible:ring-2",
+                    "group/row hover:bg-muted/60 focus-visible:ring-focus-ring nest-rounded-xl nest-p-2 flex cursor-pointer items-center gap-3 transition-colors outline-none focus-visible:ring-2",
                     dropTarget === f.id &&
                       "bg-primary/10 ring-primary/40 ring-2",
                   )}
@@ -239,9 +239,9 @@ function LibraryGrid({
               <button
                 type="button"
                 onClick={onNewFolder}
-                className="hover:bg-muted/60 text-muted-foreground hover:text-foreground flex items-center gap-3 rounded-xl p-2 text-left text-sm transition-colors"
+                className="hover:bg-muted/60 text-muted-foreground hover:text-foreground nest-rounded-xl nest-p-2 flex items-center gap-3 text-left text-sm transition-colors"
               >
-                <span className="border-field-border-hover grid h-8 w-10 shrink-0 place-items-center rounded-md border border-dashed">
+                <span className="border-field-border-hover rounded-nested grid h-8 w-10 shrink-0 place-items-center border border-dashed">
                   <Plus className="size-4" />
                 </span>
                 {t("libNewFolder")}
@@ -418,32 +418,44 @@ export function ProjectLibrary({ projectId }: { projectId: string }) {
       return
     }
     setUploading(items.length)
-    let failed = 0
-    for (const file of items) {
+    // Three uploads at a time, then one insert for all of them.
+    const uploads = await mapLimit(items, 3, async (file) => {
       try {
-        const path = await uploadProjectFile(
-          projectId,
-          projectName,
-          "library",
-          file,
-        )
-        const { error } = await supabase()
-          .from("project_files")
-          .insert({
-            project_id: projectId,
-            folder_id: folder?.id ?? null,
-            name: file.name,
-            file_path: path,
-            file_size: file.size,
-            mime_type: file.type || null,
-            created_by: viewer.id,
-          })
-        if (error) throw error
-      } catch {
-        failed++
+        return await uploadProjectFile(projectId, projectName, "library", file)
+      } finally {
+        // The count stays at 1 until the rows are saved.
+        setUploading((n) => Math.max(1, n - 1))
       }
-      setUploading((n) => n - 1)
+    })
+    const rows = items.flatMap((file, i) => {
+      const result = uploads[i]
+      return result.status === "fulfilled"
+        ? [
+            {
+              project_id: projectId,
+              folder_id: folder?.id ?? null,
+              name: file.name,
+              file_path: result.value,
+              file_size: file.size,
+              mime_type: file.type || null,
+              created_by: viewer.id,
+            },
+          ]
+        : []
+    })
+    let failed = items.length - rows.length
+    if (rows.length) {
+      const db = supabase()
+      const { error } = await db.from("project_files").insert(rows)
+      // One bad row fails the batch: retry one by one to count per file.
+      if (error) {
+        const single = await Promise.all(
+          rows.map((row) => db.from("project_files").insert(row)),
+        )
+        failed += single.filter((r) => r.error).length
+      }
     }
+    setUploading(0)
     if (failed) toast.error(t("libUploadFailed", { n: failed }))
     else toast.success(t("libUploaded", { n: items.length }))
     if (inputRef.current) inputRef.current.value = ""
@@ -592,7 +604,7 @@ export function ProjectLibrary({ projectId }: { projectId: string }) {
     <div className="relative flex flex-col" {...drop.bind}>
       {drop.dragging && (
         <div className="bg-primary/5 border-primary/40 pointer-events-none fixed inset-0 z-40 m-3 flex items-center justify-center rounded-2xl border-2 border-dashed backdrop-blur-[1px]">
-          <span className="bg-background smooth-shadow-ring-md flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium">
+          <span className="bg-background flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium shadow-(--elev-4)">
             <Upload className="size-4" />
             {tc("dropToUpload")}
           </span>

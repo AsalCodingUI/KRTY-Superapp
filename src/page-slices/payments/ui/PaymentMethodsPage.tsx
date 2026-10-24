@@ -10,14 +10,23 @@ import {
   PAYMENT_TYPE_LABEL,
 } from "@/entities/finance/lib/invoice"
 import { usePaymentMethods } from "@/page-slices/projects/ui/invoice/data"
-import { InvoiceSettingsDialog } from "@/page-slices/projects/ui/invoice/InvoiceSettingsDialog"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { useDateLocale, useT } from "@/shared/i18n/client"
 import { canManageByRole } from "@/shared/lib/roles"
 import { RiAddLine, RiBankCardLine } from "@/shared/ui/lucide-icons"
 import { formatDistanceToNow } from "date-fns"
-import { AlertTriangle } from "lucide-react"
+import { TriangleAlert as AlertTriangle } from "@/components/icons"
+import dynamic from "next/dynamic"
 import { useState } from "react"
+
+// The settings dialog (methods + studio profile forms) only loads when opened.
+const InvoiceSettingsDialog = dynamic(
+  () =>
+    import("@/page-slices/projects/ui/invoice/InvoiceSettingsDialog").then(
+      (m) => m.InvoiceSettingsDialog,
+    ),
+  { loading: () => null },
+)
 
 /** What opens in the settings dialog: a method, a new one, or the studio. */
 type Opened =

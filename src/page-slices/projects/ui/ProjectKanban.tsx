@@ -67,8 +67,8 @@ function ProjectCard({
   return (
     <div
       className={cn(
-        "bg-card border-border group-hover/card:border-foreground/20 relative flex flex-col gap-1.5 rounded-2xl border px-3.5 py-3 text-sm transition-[border-color,box-shadow] duration-200",
-        dragging && "border-transparent shadow-(--shadow-lift)",
+        "bg-card border-border group-hover/card:border-foreground/20 rounded-nested relative flex flex-col gap-1.5 border px-3.5 py-3 text-sm transition-[border-color,box-shadow] duration-200",
+        dragging && "border-transparent shadow-(--elev-4)",
       )}
     >
       {/* Hover hint that the card can be picked up. */}
@@ -135,7 +135,7 @@ function DraggableCard({
       {...attributes}
       {...listeners}
       className={cn(
-        "group/card relative rounded-2xl transition-opacity duration-200 outline-none",
+        "group/card rounded-nested relative transition-opacity duration-200 outline-none",
         canDrag && "cursor-grab active:cursor-grabbing",
         // The spot it left, until it's dropped.
         isDragging && "opacity-40",
@@ -146,7 +146,7 @@ function DraggableCard({
         href={`/projects/${project.id}`}
         prefetch={false}
         draggable={false}
-        className="focus-visible:ring-primary/40 block rounded-2xl focus-visible:ring-2"
+        className="focus-visible:ring-primary/40 rounded-nested block focus-visible:ring-2"
       >
         <ProjectCard project={project} canDrag={canDrag} />
       </Link>
@@ -170,7 +170,7 @@ function Column({
       ref={setNodeRef}
       className={cn(
         // Border sits inside the box so the scroll container never clips it.
-        "flex min-h-64 min-w-60 flex-1 flex-col gap-2 rounded-2xl border border-dashed border-transparent p-1 transition-colors",
+        "nest-rounded-2xl nest-p-1 flex min-h-64 min-w-60 flex-1 flex-col gap-2 border border-dashed border-transparent transition-colors",
         isOver && "border-foreground/20 bg-foreground/[0.02]",
       )}
     >
@@ -219,7 +219,8 @@ function LiftedCard({
   }, [])
   return (
     <div
-      className="cursor-grabbing transition-transform duration-200 ease-out will-change-transform motion-reduce:transition-none"
+      // Outside the column: same corners as there (column radius − padding).
+      className="cursor-grabbing transition-transform duration-200 ease-out will-change-transform [--nest-p:calc(var(--spacing)*1)] [--nest-r:var(--radius-2xl)] motion-reduce:transition-none"
       style={{
         transform: `rotate(${tilt}deg) scale(${lifted ? 1.03 : 1})`,
       }}

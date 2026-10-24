@@ -59,9 +59,10 @@ export function SegmentedControl<T extends string>({
       {/* One highlight that slides to the pressed item. */}
       <SlidingIndicator
         activeSelector="[data-pressed]"
-        className={cn(
-          "bg-background dark:bg-foreground/[0.13] rounded-full",
-          indicatorClassName ?? "smooth-shadow-ring-xs dark:shadow-none",
+        className="bg-thumb blend-light rounded-full"
+        shadowClassName={cn(
+          "rounded-full",
+          indicatorClassName ?? "shadow-(--elev-1) dark:shadow-none",
         )}
       />
       {items.map((item) => {

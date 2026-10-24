@@ -61,7 +61,7 @@ export function SquadSection({
               onSelectedMemberChange("")
             }}
           >
-            <RiAddLine className="mr-2 size-4" /> {tc("add")}
+            <RiAddLine data-icon="inline-start" /> {tc("add")}
           </Button>
         </div>
 

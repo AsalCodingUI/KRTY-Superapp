@@ -10,10 +10,10 @@ import {
   ArrowUpRight,
   CalendarCheck,
   CalendarDays,
-  ClipboardCheck,
   Clock,
   Users,
-} from "lucide-react"
+} from "@/components/icons"
+import { ClipboardCheck } from "lucide-react"
 import type { AdminDashboardData } from "../actions/dashboard-admin-actions"
 import {
   HomeAction,
@@ -78,7 +78,7 @@ export function AdminDashboard({ data }: AdminDashboardProps) {
       />
 
       <HomeActions>
-        <HomeAction primary href="/leave" icon={<CalendarCheck />}>
+        <HomeAction href="/leave" icon={<CalendarCheck />}>
           {t("actionLeaveApprovals")}
         </HomeAction>
         <HomeAction href="/leave/attendance" icon={<Clock />}>

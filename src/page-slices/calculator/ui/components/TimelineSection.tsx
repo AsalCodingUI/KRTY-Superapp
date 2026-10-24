@@ -87,7 +87,7 @@ export function TimelineSection({
         ))}
 
         <Button variant="outline" className="mt-3 w-full" onClick={onAddPhase}>
-          <RiAddLine className="mr-2 size-4" /> {t("addProjectPhase")}
+          <RiAddLine data-icon="inline-start" /> {t("addProjectPhase")}
         </Button>
       </div>
     </div>

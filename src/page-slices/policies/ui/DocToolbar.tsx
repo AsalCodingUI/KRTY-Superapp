@@ -21,13 +21,15 @@ import { useEditorState, type Editor } from "@tiptap/react"
 import {
   Bold,
   ChevronDown,
-  Code,
   Italic,
+  MoreHorizontal,
+  Plus,
+} from "@/components/icons"
+import {
+  Code,
   Link2,
   List,
   ListOrdered,
-  MoreHorizontal,
-  Plus,
   Quote,
   Redo2,
   Strikethrough,

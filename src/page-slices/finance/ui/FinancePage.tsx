@@ -1,12 +1,9 @@
 "use client"
 
 import { EmptyState } from "@/components/empty-state"
-import {
-  HomeAction,
-  HomeActions,
-} from "@/app/(main)/dashboard/components/home-card"
 import { PageHeader } from "@/components/page-header"
-import { ArrowLeftRight, Eye, EyeOff, FileText, Target } from "lucide-react"
+import { Eye, EyeOff, FileText } from "@/components/icons"
+import { ArrowLeftRight, Target } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Tooltip,
@@ -14,7 +11,13 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { HideMoneyProvider, useHideMoney } from "../model/hide-money"
-import { SegmentedControl } from "@/components/segmented-control"
+import { TabNavigation, TabNavigationLink } from "@/components/tab-navigation"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import {
   Select,
   SelectContent,
@@ -26,22 +29,50 @@ import { Spinner } from "@/components/ui/spinner"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { useT } from "@/shared/i18n/client"
 import { canManageByRole } from "@/shared/lib/roles"
-import { RiAddLine, RiWalletLine } from "@/shared/ui/lucide-icons"
+import { RiAddLine, RiMoreFill, RiWalletLine } from "@/shared/ui/lucide-icons"
 import { parseISO } from "date-fns"
+import dynamic from "next/dynamic"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import type { Subscription } from "@/entities/finance/lib/money"
 import {
   useFinanceGoal,
   useFinanceInvoices,
+  useFirstInvoiceYear,
   useFxRates,
   useSubscriptions,
 } from "../model/data"
-import { FxRatesDialog } from "./FxRatesDialog"
-import { GoalDialog } from "./GoalDialog"
-import { OverviewTab } from "./OverviewTab"
-import { SubscriptionDialog } from "./SubscriptionDialog"
-import { SubscriptionsTab } from "./SubscriptionsTab"
+
+function TabFallback() {
+  return (
+    <div className="flex justify-center py-24">
+      <Spinner className="size-6" />
+    </div>
+  )
+}
+
+// Each tab is its own chunk: Subscriptions never loads recharts. Dialogs load
+// the first time they open.
+const OverviewTab = dynamic(
+  () => import("./OverviewTab").then((m) => m.OverviewTab),
+  { loading: TabFallback },
+)
+const SubscriptionsTab = dynamic(
+  () => import("./SubscriptionsTab").then((m) => m.SubscriptionsTab),
+  { loading: TabFallback },
+)
+const SubscriptionDialog = dynamic(
+  () => import("./SubscriptionDialog").then((m) => m.SubscriptionDialog),
+  { loading: () => null },
+)
+const FxRatesDialog = dynamic(
+  () => import("./FxRatesDialog").then((m) => m.FxRatesDialog),
+  { loading: () => null },
+)
+const GoalDialog = dynamic(
+  () => import("./GoalDialog").then((m) => m.GoalDialog),
+  { loading: () => null },
+)
 
 export type FinanceTab = "overview" | "subscriptions"
 
@@ -62,13 +93,15 @@ export function FinancePage({ tab }: { tab: FinanceTab }) {
 function FinanceContent({ tab }: { tab: FinanceTab }) {
   const { hidden, toggle } = useHideMoney()
   const t = useT("finance")
+  const tc = useT("common")
   const router = useRouter()
   const { profile, loading } = useUserProfile()
   const isAdmin = canManageByRole(profile?.role)
   const currentYear = new Date().getFullYear()
   const [year, setYear] = useState(currentYear)
 
-  const invoices = useFinanceInvoices()
+  const invoices = useFinanceInvoices(year)
+  const firstInvoiceYear = useFirstInvoiceYear()
   const subscriptions = useSubscriptions()
   const goal = useFinanceGoal(year)
   const fx = useFxRates()
@@ -78,6 +111,9 @@ function FinanceContent({ tab }: { tab: FinanceTab }) {
   const [subOpen, setSubOpen] = useState(false)
   const [goalOpen, setGoalOpen] = useState(false)
   const [fxOpen, setFxOpen] = useState(false)
+  const subMounted = useMountOnce(subOpen)
+  const fxMounted = useMountOnce(fxOpen)
+  const goalMounted = useMountOnce(goalOpen)
 
   const openSubscription = (sub: Subscription | null) => {
     setEditing(sub)
@@ -87,7 +123,7 @@ function FinanceContent({ tab }: { tab: FinanceTab }) {
   // Years with data, plus this year and the next.
   const firstYear = Math.min(
     currentYear,
-    ...(invoices.data ?? []).map((i) => parseISO(i.issue_date).getFullYear()),
+    firstInvoiceYear.data ?? currentYear,
     ...(subscriptions.data ?? []).map((s) =>
       parseISO(s.anchor_date).getFullYear(),
     ),
@@ -111,10 +147,10 @@ function FinanceContent({ tab }: { tab: FinanceTab }) {
 
   return (
     <div className="flex flex-col gap-4 pb-6">
-      <PageHeader className="pt-6" title={t("title")} />
-
-      <HomeActions
-        aside={
+      <PageHeader
+        className="pt-6"
+        title={t("title")}
+        actions={
           <>
             <Tooltip>
               <TooltipTrigger
@@ -154,37 +190,54 @@ function FinanceContent({ tab }: { tab: FinanceTab }) {
                 ))}
               </SelectContent>
             </Select>
-            <SegmentedControl
-              fitContent
-              value={tab}
-              onChange={(next) =>
-                router.push(TAB_HREF[next], { scroll: false })
-              }
-              items={[
-                { value: "overview", label: t("tabOverview") },
-                { value: "subscriptions", label: t("tabSubscriptions") },
-              ]}
-            />
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                render={
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    aria-label={tc("moreActions")}
+                    className="text-muted-foreground"
+                  />
+                }
+              >
+                <RiMoreFill />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="min-w-48">
+                <DropdownMenuItem onClick={() => setGoalOpen(true)}>
+                  <Target />
+                  {t("actionGoal", { year })}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setFxOpen(true)}>
+                  <ArrowLeftRight />
+                  {t("actionFx")}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push("/projects")}>
+                  <FileText />
+                  {t("actionInvoices")}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Button onClick={() => openSubscription(null)}>
+              <RiAddLine data-icon="inline-start" />
+              {t("actionAddSubscription")}
+            </Button>
           </>
         }
-      >
-        <HomeAction
-          primary
-          icon={<RiAddLine />}
-          onClick={() => openSubscription(null)}
-        >
-          {t("actionAddSubscription")}
-        </HomeAction>
-        <HomeAction icon={<Target />} onClick={() => setGoalOpen(true)}>
-          {t("actionGoal", { year })}
-        </HomeAction>
-        <HomeAction icon={<ArrowLeftRight />} onClick={() => setFxOpen(true)}>
-          {t("actionFx")}
-        </HomeAction>
-        <HomeAction icon={<FileText />} href="/projects">
-          {t("actionInvoices")}
-        </HomeAction>
-      </HomeActions>
+      />
+
+      <TabNavigation>
+        {(["overview", "subscriptions"] as const).map((value) => (
+          <TabNavigationLink
+            key={value}
+            active={tab === value}
+            onClick={() => router.push(TAB_HREF[value], { scroll: false })}
+            showLeadingIcon={false}
+          >
+            {value === "overview" ? t("tabOverview") : t("tabSubscriptions")}
+          </TabNavigationLink>
+        ))}
+      </TabNavigation>
 
       {busy ? (
         <div className="flex justify-center py-24">
@@ -216,20 +269,34 @@ function FinanceContent({ tab }: { tab: FinanceTab }) {
         />
       )}
 
-      <SubscriptionDialog
-        subscription={editing}
-        rates={rates}
-        open={subOpen}
-        onOpenChange={setSubOpen}
-      />
-      <FxRatesDialog rates={rates} open={fxOpen} onOpenChange={setFxOpen} />
-      <GoalDialog
-        key={`${year}-${goal.data ?? ""}`}
-        year={year}
-        current={goal.data ?? null}
-        open={goalOpen}
-        onOpenChange={setGoalOpen}
-      />
+      {/* Mounted on first open, then kept so close animations play. */}
+      {subMounted && (
+        <SubscriptionDialog
+          subscription={editing}
+          rates={rates}
+          open={subOpen}
+          onOpenChange={setSubOpen}
+        />
+      )}
+      {fxMounted && (
+        <FxRatesDialog rates={rates} open={fxOpen} onOpenChange={setFxOpen} />
+      )}
+      {goalMounted && (
+        <GoalDialog
+          key={`${year}-${goal.data ?? ""}`}
+          year={year}
+          current={goal.data ?? null}
+          open={goalOpen}
+          onOpenChange={setGoalOpen}
+        />
+      )}
     </div>
   )
+}
+
+/** True from the first time `open` is true onwards. */
+function useMountOnce(open: boolean) {
+  const [mounted, setMounted] = useState(open)
+  if (open && !mounted) setMounted(true)
+  return mounted
 }

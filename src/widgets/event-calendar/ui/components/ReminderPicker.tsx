@@ -123,7 +123,7 @@ export function ReminderPicker({
           onClick={handleAdd}
           disabled={disabled}
         >
-          <RiAddLine className="mr-1 h-4 w-4" />
+          <RiAddLine data-icon="inline-start" />
           {tc("add")}
         </Button>
       </div>

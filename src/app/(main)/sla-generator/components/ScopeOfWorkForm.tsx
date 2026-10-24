@@ -81,7 +81,7 @@ function SortableItem({
     <div
       ref={setNodeRef}
       style={style}
-      className={`bg-card border-border group relative rounded-md border p-4 ${isDragging ? "shadow-regular-md z-50" : ""}`}
+      className={`bg-card border-border group relative rounded-md border p-4 ${isDragging ? "z-50 shadow-(--elev-4)" : ""}`}
     >
       <Accordion
         defaultValue={["description"]}

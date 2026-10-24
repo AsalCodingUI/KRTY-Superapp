@@ -10,20 +10,33 @@ import {
   type Locale,
   type Vars,
 } from "./config"
-import { messages, type MessageKey, type Namespace } from "./messages"
+import type { MessageKey, Namespace } from "./messages"
+
+/** One language's strings per namespace, already merged over Indonesian. */
+export type ClientMessages = Record<string, Record<string, string>>
 
 const LocaleContext = React.createContext<Locale>(DEFAULT_LOCALE)
+const MessagesContext = React.createContext<ClientMessages>({})
 
-/** Set once in the root layout from the `locale` cookie. */
+/**
+ * Set once in the root layout from the `locale` cookie. The server passes only
+ * the active language's strings, so the dictionaries never ship as JS.
+ */
 export function I18nProvider({
   locale,
+  messages,
   children,
 }: {
   locale: Locale
+  messages: ClientMessages
   children: React.ReactNode
 }) {
   return (
-    <LocaleContext.Provider value={locale}>{children}</LocaleContext.Provider>
+    <LocaleContext.Provider value={locale}>
+      <MessagesContext.Provider value={messages}>
+        {children}
+      </MessagesContext.Provider>
+    </LocaleContext.Provider>
   )
 }
 
@@ -36,17 +49,13 @@ export function useLocale() {
  * Falls back to Indonesian, then to the key, so a gap never breaks a page.
  */
 export function useT<N extends Namespace>(namespace: N) {
-  const locale = useLocale()
+  const messages = React.useContext(MessagesContext)
   return React.useCallback(
     (key: MessageKey<N>, vars?: Vars) => {
-      const ns = messages[namespace] as unknown as Record<
-        Locale,
-        Record<string, string>
-      >
-      const text = ns[locale]?.[key as string] ?? ns.id[key as string]
+      const text = messages[namespace]?.[key as string]
       return interpolate(text ?? String(key), vars)
     },
-    [namespace, locale],
+    [namespace, messages],
   )
 }
 

@@ -24,6 +24,7 @@ import { useState } from "react"
 import { format, type Locale } from "date-fns"
 import { useDateLocale, useT } from "@/shared/i18n/client"
 import type { MessageKey } from "@/shared/i18n/messages"
+import dynamic from "next/dynamic"
 import Link from "next/link"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import {
@@ -33,8 +34,17 @@ import {
   usePolicies,
   type PolicyListItem,
 } from "../model/data"
-import { PolicyDialog } from "./PolicyDialog"
-import { PolicyEditorDialog } from "./PolicyEditor"
+
+// Viewer (react-markdown, history) and editor (TipTap/ProseMirror) only load
+// once a rule is opened (?aturan=).
+const PolicyDialog = dynamic(
+  () => import("./PolicyDialog").then((m) => m.PolicyDialog),
+  { loading: () => null },
+)
+const PolicyEditorDialog = dynamic(
+  () => import("./PolicyEditor").then((m) => m.PolicyEditorDialog),
+  { loading: () => null },
+)
 
 const ROW_GRID =
   "grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 md:grid-cols-[minmax(0,1fr)_auto_9rem]"

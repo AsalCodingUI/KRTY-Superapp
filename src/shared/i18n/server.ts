@@ -25,3 +25,17 @@ export async function getT<N extends Namespace>(namespace: N) {
 export async function getDateLocale() {
   return (await getLocale()) === "en" ? enUS : idLocale
 }
+
+/**
+ * The active language's strings for the client, each namespace merged over
+ * Indonesian so a missing key still falls back the same way as on the server.
+ */
+export function getClientMessages(locale: string) {
+  const out: Record<string, Record<string, string>> = {}
+  for (const [name, ns] of Object.entries(messages)) {
+    const byLocale = ns as unknown as Record<string, Record<string, string>>
+    out[name] =
+      locale === "id" ? byLocale.id : { ...byLocale.id, ...byLocale[locale] }
+  }
+  return out
+}

@@ -96,7 +96,7 @@ export function CalendarSidebarMobileTrigger() {
         render={
           <Button
             variant="outline"
-            className="shadow-lg lg:hidden"
+            className="shadow-(--elev-4) lg:hidden"
             aria-label={t("sidebarOpenFilter")}
           />
         }

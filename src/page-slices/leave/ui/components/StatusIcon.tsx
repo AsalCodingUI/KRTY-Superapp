@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils"
-import { CircleCheck, CircleDashed, CircleX } from "lucide-react"
+import { CircleDashed, CircleX, CircleCheck } from "lucide-react"
 
 /** Linear-style status glyph for leave requests. */
 export function LeaveStatusIcon({

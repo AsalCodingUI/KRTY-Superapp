@@ -48,8 +48,9 @@ const ProjectKanban = dynamic(
     ),
   },
 )
-const ProjectForm = dynamic(() =>
-  import("./ProjectForm").then((m) => m.ProjectForm),
+const ProjectForm = dynamic(
+  () => import("./ProjectForm").then((m) => m.ProjectForm),
+  { loading: () => null },
 )
 
 const QUERY_KEY = ["projects", "list-page"]
@@ -89,11 +90,15 @@ export function ProjectsListPage() {
   })
 
   const needle = query.trim().toLowerCase()
-  const projects = needle
-    ? allProjects.filter((p) =>
-        `${p.name} ${p.client_name ?? ""}`.toLowerCase().includes(needle),
-      )
-    : allProjects
+  const projects = useMemo(
+    () =>
+      needle
+        ? allProjects.filter((p) =>
+            `${p.name} ${p.client_name ?? ""}`.toLowerCase().includes(needle),
+          )
+        : allProjects,
+    [allProjects, needle],
+  )
 
   const refresh = () =>
     queryClient.invalidateQueries({ queryKey: ["projects"] })
@@ -134,7 +139,7 @@ export function ProjectsListPage() {
         title={t("title")}
         actions={
           <div className="flex items-center gap-2">
-            <div className="relative w-56">
+            <div className="relative w-64">
               <RiSearchLine className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
               <Input
                 type="search"
@@ -229,88 +234,94 @@ export function ProjectsListPage() {
 function ProjectTable({ projects }: { projects: ProjectListRow[] }) {
   const t = useT("projects")
   const dateLocale = useDateLocale()
-  const columns: ColumnDef<ProjectListRow>[] = [
-    {
-      accessorKey: "name",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={t("colProject")} />
-      ),
-      cell: ({ row }) => (
-        <Link
-          href={`/projects/${row.original.id}`}
-          prefetch={false}
-          className="flex items-center gap-2 hover:underline"
-        >
-          <ProjectAvatar id={row.original.id} name={row.original.name} />
-          {row.original.name}
-        </Link>
-      ),
-    },
-    {
-      accessorKey: "status",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={t("colStatus")} />
-      ),
-      cell: ({ row }) => (
-        <span className="flex items-center gap-2">
-          <ProjectStatusIcon status={row.original.status} />
-          {t(STATUS_LABEL_KEYS[row.original.status])}
-        </span>
-      ),
-    },
-    {
-      accessorKey: "quarter_id",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={t("colQuarter")} />
-      ),
-      cell: ({ row }) =>
-        row.original.quarter_id ? (
-          <ListChip>{row.original.quarter_id}</ListChip>
-        ) : (
-          <EmptyValue />
+  const columns = useMemo<ColumnDef<ProjectListRow>[]>(
+    () => [
+      {
+        accessorKey: "name",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title={t("colProject")} />
         ),
-    },
-    {
-      accessorKey: "end_date",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={t("colSchedule")} />
-      ),
-      cell: ({ row }) => (
-        <span className="text-muted-foreground tabular-nums">
-          {format(new Date(row.original.start_date), "d MMM", {
-            locale: dateLocale,
-          })}{" "}
-          –{" "}
-          {format(new Date(row.original.end_date), "d MMM yyyy", {
-            locale: dateLocale,
-          })}
-        </span>
-      ),
-    },
-    {
-      id: "team",
-      header: () => <span>{t("colTeam")}</span>,
-      cell: ({ row }) => {
-        const team = row.original.project_assignments ?? []
-        if (team.length === 0) return <EmptyValue />
-        return (
-          <AvatarGroup>
-            {team.slice(0, 3).map((a) => (
-              <Avatar key={a.id} className="size-6">
-                <AvatarImage src={a.profiles?.avatar_url || undefined} alt="" />
-                <AvatarFallback className="text-[10px]">
-                  {(a.profiles?.full_name || "U").slice(0, 2).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-            ))}
-            {team.length > 3 && (
-              <AvatarOverflow count={team.length - 3} size="xs" />
-            )}
-          </AvatarGroup>
-        )
+        cell: ({ row }) => (
+          <Link
+            href={`/projects/${row.original.id}`}
+            prefetch={false}
+            className="flex items-center gap-2 hover:underline"
+          >
+            <ProjectAvatar id={row.original.id} name={row.original.name} />
+            {row.original.name}
+          </Link>
+        ),
       },
-    },
-  ]
+      {
+        accessorKey: "status",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title={t("colStatus")} />
+        ),
+        cell: ({ row }) => (
+          <span className="flex items-center gap-2">
+            <ProjectStatusIcon status={row.original.status} />
+            {t(STATUS_LABEL_KEYS[row.original.status])}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "quarter_id",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title={t("colQuarter")} />
+        ),
+        cell: ({ row }) =>
+          row.original.quarter_id ? (
+            <ListChip>{row.original.quarter_id}</ListChip>
+          ) : (
+            <EmptyValue />
+          ),
+      },
+      {
+        accessorKey: "end_date",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title={t("colSchedule")} />
+        ),
+        cell: ({ row }) => (
+          <span className="text-muted-foreground tabular-nums">
+            {format(new Date(row.original.start_date), "d MMM", {
+              locale: dateLocale,
+            })}{" "}
+            –{" "}
+            {format(new Date(row.original.end_date), "d MMM yyyy", {
+              locale: dateLocale,
+            })}
+          </span>
+        ),
+      },
+      {
+        id: "team",
+        header: () => <span>{t("colTeam")}</span>,
+        cell: ({ row }) => {
+          const team = row.original.project_assignments ?? []
+          if (team.length === 0) return <EmptyValue />
+          return (
+            <AvatarGroup>
+              {team.slice(0, 3).map((a) => (
+                <Avatar key={a.id} className="size-6">
+                  <AvatarImage
+                    src={a.profiles?.avatar_url || undefined}
+                    alt=""
+                  />
+                  <AvatarFallback className="text-[10px]">
+                    {(a.profiles?.full_name || "U").slice(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+              ))}
+              {team.length > 3 && (
+                <AvatarOverflow count={team.length - 3} size="xs" />
+              )}
+            </AvatarGroup>
+          )
+        },
+      },
+    ],
+    [t, dateLocale],
+  )
   return (
     <DataTable
       data={projects}

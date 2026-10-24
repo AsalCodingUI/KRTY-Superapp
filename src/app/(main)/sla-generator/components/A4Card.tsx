@@ -39,7 +39,7 @@ export const A4Card = ({
 
   return (
     <div
-      className={`a4-card ${className} rounded-none ${shadow ? "shadow-sm-border" : ""} bg-card`}
+      className={`a4-card ${className} rounded-none ${shadow ? "shadow-(--elev-3)" : ""} bg-card`}
       style={{
         width: dimensions.width,
         height: dimensions.height,
@@ -67,7 +67,7 @@ export const A4CardContainer = ({
 }) => {
   return (
     <div
-      className={`a4-card-container bg-tremor-background-muted flex min-h-screen flex-col items-center gap-8 px-4 py-8 ${className}`}
+      className={`a4-card-container bg-popover flex min-h-screen flex-col items-center gap-8 px-4 py-8 ${className}`}
     >
       {children}
     </div>

@@ -3,7 +3,8 @@
 import * as React from "react"
 import type { RowSelectionState, Table } from "@tanstack/react-table"
 
-import { Ban, Check, Pencil, Trash2, X } from "lucide-react"
+import { Check, X } from "@/components/icons"
+import { Ban, Pencil, Trash2 } from "lucide-react"
 
 import {
   Tooltip,
@@ -147,7 +148,7 @@ function DataTableBulkEditor<TData>({
           "w-auto flex-row items-center gap-x-0.5 rounded-full p-1",
           // Rises in from below with a slight scale, sinks back out.
           "data-[side=top]:slide-in-from-bottom-4 data-open:zoom-in-[0.96] data-closed:slide-out-to-bottom-4 data-closed:zoom-out-[0.96] duration-200",
-          "bg-inverse text-white shadow-lg ring-1 ring-white/10",
+          "bg-inverse text-white shadow-(--elev-4) ring-1 ring-white/10",
         )}
       >
         <span className="pr-1 pl-3 text-sm text-white/70 tabular-nums">

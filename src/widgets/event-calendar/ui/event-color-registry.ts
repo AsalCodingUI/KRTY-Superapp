@@ -57,14 +57,14 @@ export interface EventTypeDefinition {
 export const EVENT_TYPE_REGISTRY: Record<string, EventTypeDefinition> = {
   Internal: {
     value: "Internal",
-    label: "Rapat Internal",
+    label: "Rapat internal",
     color: "blue",
     colorMapping: {
       background: "bg-primary/15",
       text: "text-primary",
       border: "border-transparent",
       semanticCategory: "primary",
-      label: "Rapat Internal",
+      label: "Rapat internal",
     },
   },
   WFH: {
@@ -117,26 +117,26 @@ export const EVENT_TYPE_REGISTRY: Record<string, EventTypeDefinition> = {
   },
   "Company Holiday": {
     value: "Company Holiday",
-    label: "Libur Perusahaan",
+    label: "Libur perusahaan",
     color: "emerald",
     colorMapping: {
       background: "bg-success/15",
       text: "text-success",
       border: "border-transparent",
       semanticCategory: "success",
-      label: "Libur Perusahaan",
+      label: "Libur perusahaan",
     },
   },
   "Public Holiday": {
     value: "Public Holiday",
-    label: "Hari Libur Nasional",
+    label: "Hari libur nasional",
     color: "neutral",
     colorMapping: {
       background: "bg-muted",
       text: "text-foreground",
       border: "border-border",
       semanticCategory: "neutral",
-      label: "Hari Libur Nasional",
+      label: "Hari libur nasional",
     },
   },
 }

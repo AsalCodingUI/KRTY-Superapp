@@ -21,13 +21,17 @@ import { useState } from "react"
 import { toast } from "sonner"
 
 // Heavy editor sections and the document preview ship as separate chunks.
-const MilestonesForm = dynamic(() =>
-  import("./MilestonesForm").then((m) => m.MilestonesForm),
+const MilestonesForm = dynamic(
+  () => import("./MilestonesForm").then((m) => m.MilestonesForm),
+  { loading: () => null },
 )
-const ScopeOfWorkForm = dynamic(() =>
-  import("./ScopeOfWorkForm").then((m) => m.ScopeOfWorkForm),
+const ScopeOfWorkForm = dynamic(
+  () => import("./ScopeOfWorkForm").then((m) => m.ScopeOfWorkForm),
+  { loading: () => null },
 )
-const SLADocumentPreview = dynamic(() => import("./SLADocumentPreview"))
+const SLADocumentPreview = dynamic(() => import("./SLADocumentPreview"), {
+  loading: () => null,
+})
 
 // --- INITIAL DATA ---
 const DEFAULT_SCOPE = [

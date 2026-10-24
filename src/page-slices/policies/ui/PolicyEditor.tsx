@@ -34,7 +34,7 @@ import {
 import { Markdown as MarkdownExtension } from "@tiptap/markdown"
 import { TableKit } from "@tiptap/extension-table"
 import { Placeholder } from "@tiptap/extensions"
-import { EditorContent, useEditor } from "@tiptap/react"
+import { EditorContent, useEditor, type Editor } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
 import { useQueryClient } from "@tanstack/react-query"
 import { useDateLocale, useT } from "@/shared/i18n/client"
@@ -48,6 +48,9 @@ import {
   policyKeys,
   splitVersions,
   usePolicy,
+  usePolicyBody,
+  type PolicyDetail,
+  type PolicyListItem,
 } from "../model/data"
 import { DocToolbar } from "./DocToolbar"
 import { SelectionMenu } from "./SelectionMenu"
@@ -120,7 +123,7 @@ export function PolicyEditorDialog({
       <DialogContent
         bare
         showCloseButton={false}
-        className="flex h-[min(58rem,94svh)] w-full flex-col overflow-hidden p-0 sm:max-w-6xl"
+        className="flex h-[min(56rem,92svh)] w-full flex-col overflow-hidden p-0 sm:max-w-5xl"
       >
         <EditorLoader id={initialId} onExit={onExit} closeRef={closeRef} />
       </DialogContent>
@@ -142,8 +145,11 @@ function EditorLoader({
   const { profile, loading: profileLoading } = useUserProfile()
   const isAdmin = canManageByRole(profile?.role)
   const { data: policy, isLoading } = usePolicy(id ?? "")
+  const { published, latest, draft } = splitVersions(policy?.versions ?? [])
+  const source = draft ?? latest
+  const { data: body, isPending: bodyPending } = usePolicyBody(source)
 
-  if ((id && isLoading) || profileLoading) {
+  if ((id && (isLoading || (source && bodyPending))) || profileLoading) {
     return (
       <div className="flex flex-1 items-center justify-center">
         <DialogTitle className="sr-only">{t("loadingRule")}</DialogTitle>
@@ -168,8 +174,6 @@ function EditorLoader({
     )
   }
 
-  const { published, latest, draft } = splitVersions(policy?.versions ?? [])
-  const source = draft ?? latest
   return (
     <DocumentEditor
       id={id}
@@ -183,7 +187,7 @@ function EditorLoader({
         title: source?.title ?? "",
         category: policy?.category ?? POLICY_CATEGORIES[0],
         summary: source?.summary ?? "",
-        body: source?.body ?? "",
+        body: body ?? "",
       }}
     />
   )
@@ -224,12 +228,17 @@ function DocumentEditor({
   const [publishing, setPublishing] = useState(false)
 
   // Latest values for the save loop, without re-creating callbacks per key.
+  // `formRef` is the source of truth (its body can be newer than `form`'s).
   const formRef = useRef(form)
-  formRef.current = form
   const docIdRef = useRef(docId)
   docIdRef.current = docId
   const saveStateRef = useRef(saveState)
   saveStateRef.current = saveState
+  // The body is serialized to Markdown only when needed (autosave, save,
+  // publish), not on every keystroke; `bodyStale` marks edits since then.
+  const editorRef = useRef<Editor | null>(null)
+  const bodyStale = useRef(false)
+  const autosaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const inFlight = useRef<Promise<string | null> | null>(null)
   const pending = useRef(false)
   const [slash] = useState(createSlashBridge)
@@ -243,6 +252,16 @@ function DocumentEditor({
     f.category === baseline.current.category &&
     f.summary === baseline.current.summary &&
     sameBody(f.body, baseline.current.body)
+
+  /** The form with an up-to-date body. */
+  const currentForm = (): Form => {
+    const e = editorRef.current
+    if (bodyStale.current && e) {
+      bodyStale.current = false
+      formRef.current = { ...formRef.current, body: e.getMarkdown() }
+    }
+    return formRef.current
+  }
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -267,6 +286,8 @@ function DocumentEditor({
     content: initial.body,
     contentType: "markdown",
     onCreate: ({ editor: e }) => {
+      editorRef.current = e
+      bodyStale.current = false
       const body = e.getMarkdown()
       if (id) baseline.current = { ...baseline.current, body }
       formRef.current = { ...formRef.current, body }
@@ -277,17 +298,30 @@ function DocumentEditor({
     editorProps: {
       attributes: { class: PROSE, "aria-label": t("bodyLabel") },
     },
-    onUpdate: ({ editor: e }) => change({ body: e.getMarkdown() }),
+    onUpdate: ({ editor: e }) => {
+      editorRef.current = e
+      bodyStale.current = true
+      if (saveStateRef.current !== "dirty") setSaveState("dirty")
+      scheduleAutosave()
+    },
   })
+  editorRef.current = editor
 
   /** Applies an edit; typing back to the saved text counts as saved again. */
   function change(patch: Partial<Form>) {
     const next = { ...formRef.current, ...patch }
     formRef.current = next
     setForm(next)
+    // A body edited since the last serialization is treated as unsaved; the
+    // autosave check settles it.
     setSaveState(
-      isSaved(next) ? (docIdRef.current ? "saved" : "idle") : "dirty",
+      !bodyStale.current && isSaved(next)
+        ? docIdRef.current
+          ? "saved"
+          : "idle"
+        : "dirty",
     )
+    scheduleAutosave()
   }
   const set = <K extends keyof Form>(key: K, value: Form[K]) =>
     change({ [key]: value } as Partial<Form>)
@@ -300,7 +334,8 @@ function DocumentEditor({
     }
     const run = (async () => {
       setSaveState("saving")
-      const snapshot = formRef.current
+      const snapshot = currentForm()
+      const wasNew = !docIdRef.current
       const result = await savePolicyDraft(docIdRef.current, snapshot)
       if (!result.success || !result.data) {
         setSaveState("error")
@@ -320,8 +355,10 @@ function DocumentEditor({
       baseline.current = snapshot
       setSavedAt(new Date().toISOString())
       // Edits made while saving stay pending.
-      setSaveState(isSaved(formRef.current) ? "saved" : "dirty")
-      queryClient.invalidateQueries({ queryKey: policyKeys.all })
+      const settled = !bodyStale.current && isSaved(formRef.current)
+      setSaveState(settled ? "saved" : "dirty")
+      if (!settled) scheduleAutosave()
+      updateCache(newId, wasNew, snapshot, result.data)
       return newId
     })()
     inFlight.current = run
@@ -332,14 +369,112 @@ function DocumentEditor({
       return save()
     }
     return saved
+    // The helpers it calls only read refs (and the stable query client).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [queryClient])
 
+  /**
+   * Puts the saved draft into the cached rule and list instead of refetching
+   * them; a new rule (or an unknown result) refetches.
+   */
+  function updateCache(
+    docId: string,
+    wasNew: boolean,
+    snapshot: Form,
+    saved: { versionId?: string; updatedAt?: string },
+  ) {
+    const detailKey = policyKeys.detail(docId)
+    const cached = queryClient.getQueryData<PolicyDetail | null>(detailKey)
+    if (wasNew || !cached) {
+      queryClient.invalidateQueries({ queryKey: policyKeys.list() })
+      queryClient.invalidateQueries({ queryKey: detailKey })
+      return
+    }
+    const category = snapshot.category.trim()
+    const knownDraft = cached.versions.find((v) => v.status === "Draft")
+    // A new draft we can't describe (or one replaced elsewhere): refetch.
+    if (
+      saved.versionId &&
+      (!saved.updatedAt || (knownDraft && knownDraft.id !== saved.versionId))
+    ) {
+      queryClient.invalidateQueries({ queryKey: policyKeys.list() })
+      queryClient.invalidateQueries({ queryKey: detailKey })
+      return
+    }
+    const draft =
+      saved.versionId && saved.updatedAt
+        ? {
+            id: saved.versionId,
+            status: "Draft" as const,
+            version_number: "draft",
+            title: snapshot.title.trim(),
+            summary: snapshot.summary.trim() || null,
+            change_summary: knownDraft?.change_summary ?? null,
+            effective_at: knownDraft?.effective_at ?? null,
+            published_at: knownDraft?.published_at ?? null,
+            updated_at: saved.updatedAt,
+            author: { full_name: profile?.full_name ?? null },
+          }
+        : null
+    if (draft)
+      queryClient.setQueryData(
+        policyKeys.body(draft.id, draft.updated_at),
+        snapshot.body,
+      )
+    const withDraft = <V extends { id: string; status: string }>(
+      versions: V[],
+      pick: (d: NonNullable<typeof draft>) => V,
+    ) =>
+      draft
+        ? [...versions.filter((v) => v.status !== "Draft"), pick(draft)]
+        : versions
+    queryClient.setQueryData<PolicyDetail | null>(detailKey, (old) =>
+      old
+        ? { ...old, category, versions: withDraft(old.versions, (d) => d) }
+        : old,
+    )
+    queryClient.setQueryData<PolicyListItem[]>(policyKeys.list(), (old) =>
+      old?.map((p) =>
+        p.id === docId
+          ? {
+              ...p,
+              category,
+              versions: withDraft(p.versions ?? [], (d) => ({
+                id: d.id,
+                status: d.status,
+                version_number: d.version_number,
+                title: d.title,
+                effective_at: d.effective_at,
+                published_at: d.published_at,
+                updated_at: d.updated_at,
+              })),
+            }
+          : p,
+      ),
+    )
+  }
+
   // Autosave once typing pauses; a rule needs a title before it is created.
-  useEffect(() => {
-    if (saveState !== "dirty" || !form.title.trim() || isSaved(form)) return
-    const t = setTimeout(() => void save(), AUTOSAVE_MS)
-    return () => clearTimeout(t)
-  }, [form, saveState, save])
+  function scheduleAutosave() {
+    if (autosaveTimer.current) clearTimeout(autosaveTimer.current)
+    autosaveTimer.current = setTimeout(() => {
+      autosaveTimer.current = null
+      if (saveStateRef.current !== "dirty") return
+      const current = currentForm()
+      if (isSaved(current)) {
+        setSaveState(docIdRef.current ? "saved" : "idle")
+        return
+      }
+      if (!current.title.trim()) return
+      void save()
+    }, AUTOSAVE_MS)
+  }
+  useEffect(
+    () => () => {
+      if (autosaveTimer.current) clearTimeout(autosaveTimer.current)
+    },
+    [],
+  )
 
   useEffect(() => {
     const unsaved = saveState === "dirty" || saveState === "saving"
@@ -367,7 +502,7 @@ function DocumentEditor({
 
   const publish = async () => {
     if (!form.title.trim()) return toast.error(t("titleRequired"))
-    if (!form.body.trim()) return toast.error(t("bodyEmpty"))
+    if (!currentForm().body.trim()) return toast.error(t("bodyEmpty"))
     const saved = saveState === "saved" && docId ? docId : await save()
     if (saved) setPublishing(true)
   }

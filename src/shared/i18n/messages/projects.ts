@@ -92,10 +92,13 @@ const id = {
   errDeleteProject: "Gagal menghapus project.",
 
   // Dashboard
-  errUpdatePhase: "Gagal memperbarui phase.",
+  errUpdatePhase: "Gagal memperbarui fase.",
   phaseCompleted: "{name} selesai",
   phaseActivated: "{name} jadi phase aktif",
   completePhase: "Selesaikan {name}",
+  completePhaseTitle: "Selesaikan {name}?",
+  completePhaseDescription:
+    "Fase ini ditandai selesai dan fase berikutnya jadi aktif. Bisa dibuka lagi dari daftar fase.",
   phaseN: "Fase {n}",
   phaseOfTotal: "Fase {n} dari {total}",
   phaseCount: "{total} fase",
@@ -176,7 +179,7 @@ const id = {
   deleteTask: "Hapus tugas",
   deleteSubtask: "Hapus subtugas",
   addSubtask: "Tambah subtugas",
-  noPhase: "Tanpa phase",
+  noPhase: "Tanpa fase",
   noPic: "Tanpa PIC",
   tomorrow: "Besok",
 
@@ -346,6 +349,9 @@ const en: Record<keyof typeof id, string> = {
   phaseCompleted: "{name} completed",
   phaseActivated: "{name} is now the active phase",
   completePhase: "Complete {name}",
+  completePhaseTitle: "Complete {name}?",
+  completePhaseDescription:
+    "This phase is marked done and the next one becomes active. You can reopen it from the phase list.",
   phaseN: "Phase {n}",
   phaseOfTotal: "Phase {n} of {total}",
   phaseCount: "{total} phases",

@@ -1,12 +1,12 @@
 "use client"
 
+import dynamic from "next/dynamic"
 import { PageHeader } from "@/components/page-header"
 import { TabNavigation, TabNavigationLink } from "@/components/tab-navigation"
 import { EmptyState } from "@/components/empty-state"
 import { EmptyValue } from "@/components/empty-value"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
   Popover,
@@ -49,6 +49,15 @@ import {
   type TaskRow,
   type TeamMember,
 } from "./data"
+
+// Month grid (react-day-picker) loads when the due-date popover first opens.
+const Calendar = dynamic(
+  () => import("@/components/ui/calendar").then((m) => m.Calendar),
+  {
+    ssr: false,
+    loading: () => <div className="h-[296px] w-[252px]" aria-busy />,
+  },
+)
 
 type Filter = "all" | "todo" | "done"
 const NONE = "__none__"

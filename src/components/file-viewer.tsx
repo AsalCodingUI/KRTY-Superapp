@@ -11,9 +11,9 @@ import {
   ChevronRight,
   Download,
   ExternalLink,
-  File as FileIcon,
   X,
-} from "lucide-react"
+} from "@/components/icons"
+import { File as FileIcon } from "lucide-react"
 import { useCallback, useEffect, useRef, useState } from "react"
 
 export type PreviewKind =
@@ -210,7 +210,7 @@ export function FileViewer({
               </Button>
             </header>
 
-            <div className="bg-background relative flex min-h-0 flex-1 items-center justify-center">
+            <div className="bg-popover relative flex min-h-0 flex-1 items-center justify-center">
               {kind === "none" || failed ? (
                 <div className="flex max-w-sm flex-col items-center gap-3 px-6 text-center">
                   <span className="bg-background ring-border flex size-14 items-center justify-center rounded-2xl ring-1">
@@ -236,7 +236,7 @@ export function FileViewer({
                 <img
                   src={url}
                   alt={item.name}
-                  className="max-h-[calc(100%-3rem)] max-w-[calc(100%-3rem)] rounded-[4px] object-contain shadow-(--shadow-lift)"
+                  className="max-h-[calc(100%-3rem)] max-w-[calc(100%-3rem)] rounded-[4px] object-contain shadow-(--elev-3)"
                 />
               ) : kind === "video" ? (
                 <video
@@ -244,7 +244,7 @@ export function FileViewer({
                   src={url}
                   controls
                   autoPlay
-                  className="max-h-[calc(100%-3rem)] max-w-[calc(100%-3rem)] rounded-[4px] shadow-(--shadow-lift)"
+                  className="max-h-[calc(100%-3rem)] max-w-[calc(100%-3rem)] rounded-[4px] shadow-(--elev-3)"
                 />
               ) : kind === "audio" ? (
                 <audio key={url} src={url} controls autoPlay />
@@ -257,7 +257,7 @@ export function FileViewer({
               ) : (
                 // Text sits on a page like the PDFs.
                 <div className="size-full overflow-y-auto px-6 py-6">
-                  <pre className="bg-background mx-auto min-h-full max-w-[852px] rounded-[4px] p-8 font-mono text-xs leading-5 whitespace-pre-wrap shadow-(--shadow-lift)">
+                  <pre className="bg-background mx-auto min-h-full max-w-[852px] rounded-[4px] p-8 font-mono text-xs leading-5 whitespace-pre-wrap shadow-(--elev-3)">
                     {text}
                   </pre>
                 </div>
@@ -270,7 +270,7 @@ export function FileViewer({
                     size="icon"
                     aria-label={t("previous")}
                     onClick={() => step(-1)}
-                    className="bg-background/90 absolute top-1/2 left-3 -translate-y-1/2 rounded-full"
+                    className="bg-background/90 dark:bg-popover/90 absolute top-1/2 left-3 -translate-y-1/2 rounded-full backdrop-blur-sm"
                   >
                     <ChevronLeft />
                   </Button>
@@ -279,7 +279,7 @@ export function FileViewer({
                     size="icon"
                     aria-label={t("next")}
                     onClick={() => step(1)}
-                    className="bg-background/90 absolute top-1/2 right-3 -translate-y-1/2 rounded-full"
+                    className="bg-background/90 dark:bg-popover/90 absolute top-1/2 right-3 -translate-y-1/2 rounded-full backdrop-blur-sm"
                   >
                     <ChevronRight />
                   </Button>

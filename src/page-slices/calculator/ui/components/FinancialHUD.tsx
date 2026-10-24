@@ -138,7 +138,7 @@ export function FinancialHUD({
                 {t("suggestedPrice", { value: targetMargin.toFixed(0) })}
               </span>
               <span
-                className={`text-label-md ${isHealthy ? "text-success" : "text-destructive"}`}
+                className={`text-sm font-medium ${isHealthy ? "text-success" : "text-destructive"}`}
               >
                 {formatIDR(suggestedPrice)}
               </span>
@@ -147,7 +147,7 @@ export function FinancialHUD({
         </div>
       </div>
 
-      <div className="bg-foreground/[0.03] mt-6 flex items-center gap-3 rounded-md p-3 shadow-sm">
+      <div className="bg-foreground/[0.03] mt-6 flex items-center gap-3 rounded-md p-3 shadow-(--elev-2)">
         {isHealthy ? (
           <RiCheckboxCircleFill
             className="text-success size-5 shrink-0"

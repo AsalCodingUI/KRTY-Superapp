@@ -2,8 +2,7 @@
 
 import { createClient } from "@/shared/api/supabase/server"
 import { getT } from "@/shared/i18n/server"
-import { resolveEffectiveUserId } from "@/shared/lib/impersonation-server"
-import { canManageByRole } from "@/shared/lib/roles"
+import { getAdminContext } from "@/shared/lib/admin-server"
 import type { Database } from "@/shared/types/database.types"
 
 type Role = Database["public"]["Enums"]["project_role_enum"]
@@ -20,18 +19,7 @@ export type CompetencyRow = {
 type Result = { success: boolean; error?: string }
 
 async function admin() {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) return null
-  const id = await resolveEffectiveUserId(supabase, user.id, user.email)
-  const { data } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", id)
-    .maybeSingle()
-  return canManageByRole(data?.role) ? supabase : null
+  return (await getAdminContext())?.supabase ?? null
 }
 
 export async function getCompetencies(): Promise<CompetencyRow[]> {

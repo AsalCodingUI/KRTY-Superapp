@@ -11,7 +11,7 @@ import { RiAddLine, RiFlowLine } from "@/shared/ui/lucide-icons"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Fragment, useState } from "react"
-import { countOf, useProcesses, type Process } from "../model/data"
+import { countOf, useProcesses, type ProcessSummary } from "../model/data"
 import { ProcessFormDialog } from "./ProcessFormDialog"
 
 /** Stakeholders' project templates (DesignerHQ "Processes"). */
@@ -83,7 +83,7 @@ export function ProcessesPage() {
   )
 }
 
-function ProcessCard({ process }: { process: Process }) {
+function ProcessCard({ process }: { process: ProcessSummary }) {
   const t = useT("processes")
   const n = countOf(process)
 

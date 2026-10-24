@@ -2,11 +2,12 @@
 
 import { DocxThumbnail, SheetThumbnail } from "@/components/office-view"
 import { PdfThumbnail } from "@/components/pdf-view"
+import { useInView } from "@/components/thumbnail-queue"
 import { cn } from "@/lib/utils"
 import { useT } from "@/shared/i18n/client"
 import { useQuery } from "@tanstack/react-query"
-import { Play } from "lucide-react"
-import { useState } from "react"
+import { Play } from "@/components/icons"
+import { useRef, useState } from "react"
 import { useFileUrl, type FileRow } from "./data"
 
 type Kind =
@@ -60,7 +61,7 @@ function Paper({
     <div className="flex h-full items-end justify-center px-[14%] pt-[9%]">
       <div
         className={cn(
-          "h-full w-full overflow-hidden rounded-t-[4px] bg-white shadow-(--shadow-lift)",
+          "h-full w-full overflow-hidden rounded-t-[4px] bg-white shadow-(--elev-3)",
           className,
         )}
       >
@@ -87,8 +88,8 @@ function useTextSnippet(url: string | undefined, enabled: boolean) {
 /** Soft tint behind files that have no preview (VEED style). */
 const NO_PREVIEW_TINT: Record<string, string> = {
   sheet: "from-green-3 to-green-5",
-  doc: "from-blue-3 to-violet-4",
-  other: "from-violet-3 to-blue-4",
+  doc: "from-blue-3 to-purple-4",
+  other: "from-purple-3 to-blue-4",
 }
 
 function formatDuration(seconds: number) {
@@ -139,7 +140,10 @@ export function FilePreview({
   const missing = !file.file_path
   const kind: Kind = missing ? "other" : fileKind(file)
   const needsUrl = kind !== "doc" && kind !== "other"
-  const { data: url } = useFileUrl(needsUrl ? file.file_path : null)
+  // Nothing loads until the tile is near the viewport.
+  const box = useRef<HTMLDivElement>(null)
+  const inView = useInView(box)
+  const { data: url } = useFileUrl(needsUrl && inView ? file.file_path : null)
   const textual = kind === "text" || kind === "csv"
   const { data: snippet } = useTextSnippet(url, textual)
   const [duration, setDuration] = useState<number | null>(null)
@@ -147,6 +151,7 @@ export function FilePreview({
 
   return (
     <div
+      ref={box}
       className={cn(
         "bg-muted pointer-events-none relative aspect-[16/10] overflow-hidden select-none",
         className,
@@ -189,7 +194,7 @@ export function FilePreview({
       {kind === "pdf" && (
         <Paper>
           {/* Drawn with pdf.js: the browser's PDF plugin isn't everywhere. */}
-          <PdfThumbnail url={url} />
+          <PdfThumbnail url={url} cacheKey={file.file_path} />
         </Paper>
       )}
 
@@ -234,13 +239,13 @@ export function FilePreview({
 
       {kind === "docx" && (
         <Paper>
-          <DocxThumbnail url={url} />
+          <DocxThumbnail url={url} cacheKey={file.file_path} />
         </Paper>
       )}
 
       {kind === "sheet" && (
         <Paper className="p-2">
-          <SheetThumbnail url={url} />
+          <SheetThumbnail url={url} cacheKey={file.file_path} />
         </Paper>
       )}
 

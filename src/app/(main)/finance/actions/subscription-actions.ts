@@ -1,8 +1,6 @@
 "use server"
 
-import { createClient } from "@/shared/api/supabase/server"
-import { resolveEffectiveUserId } from "@/shared/lib/impersonation-server"
-import { canManageByRole } from "@/shared/lib/roles"
+import { getAdminContext } from "@/shared/lib/admin-server"
 import { getT } from "@/shared/i18n/server"
 import { revalidatePath } from "next/cache"
 
@@ -28,20 +26,7 @@ export type SubscriptionInput = {
   notes: string
 }
 
-async function admin() {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) return null
-  const id = await resolveEffectiveUserId(supabase, user.id, user.email)
-  const { data } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", id)
-    .maybeSingle()
-  return canManageByRole(data?.role) ? { supabase, userId: id } : null
-}
+const admin = getAdminContext
 
 const DATE = /^\d{4}-\d{2}-\d{2}$/
 
@@ -74,8 +59,7 @@ export async function saveSubscription(
   id: string | null,
   input: SubscriptionInput,
 ): Promise<Result<{ id: string }>> {
-  const t = await getT("finance")
-  const ctx = await admin()
+  const [t, ctx] = await Promise.all([getT("finance"), admin()])
   if (!ctx) return { success: false, error: t("errNotAllowed") }
   const invalid = validate(input, t)
   if (invalid) return { success: false, error: invalid }
@@ -113,8 +97,7 @@ export async function saveSubscription(
 }
 
 export async function deleteSubscription(id: string): Promise<Result> {
-  const t = await getT("finance")
-  const ctx = await admin()
+  const [t, ctx] = await Promise.all([getT("finance"), admin()])
   if (!ctx) return { success: false, error: t("errNotAllowed") }
   const { error } = await ctx.supabase
     .from("finance_subscriptions")
@@ -130,8 +113,7 @@ export async function setFinanceGoal(
   year: number,
   amountIdr: number | null,
 ): Promise<Result> {
-  const t = await getT("finance")
-  const ctx = await admin()
+  const [t, ctx] = await Promise.all([getT("finance"), admin()])
   if (!ctx) return { success: false, error: t("errNotAllowed") }
   if (!Number.isInteger(year) || year < 2000 || year > 2100)
     return { success: false, error: t("errYearInvalid") }
@@ -161,8 +143,7 @@ export async function setFinanceGoal(
 export async function setFxRates(
   rates: Record<string, number>,
 ): Promise<Result> {
-  const t = await getT("finance")
-  const ctx = await admin()
+  const [t, ctx] = await Promise.all([getT("finance"), admin()])
   if (!ctx) return { success: false, error: t("errNotAllowed") }
   const clean: Record<string, number> = {}
   for (const [code, rate] of Object.entries(rates)) {

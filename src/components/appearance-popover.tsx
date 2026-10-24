@@ -6,7 +6,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { Slider } from "@/components/ui/slider"
+import { FillSlider } from "@/components/fill-slider"
 import { cn } from "@/lib/utils"
 import { useT } from "@/shared/i18n/client"
 import {
@@ -19,15 +19,23 @@ import {
   tintSwatch,
   type Tint,
 } from "@/shared/lib/chrome-tint"
-import { ChevronLeft, ChevronRight, Moon, Sparkles, Sun } from "lucide-react"
+import {
+  ChevronLeft,
+  ChevronRight,
+  Monitor,
+  Moon,
+  Sun,
+} from "@/components/icons"
+import { SegmentedControl } from "@/components/segmented-control"
 import { useTheme } from "next-themes"
 import { useEffect, useRef, useState } from "react"
 
 const MODES = [
-  { value: "system", label: "themeSystem", icon: Sparkles },
   { value: "light", label: "themeLight", icon: Sun },
   { value: "dark", label: "themeDark", icon: Moon },
+  { value: "system", label: "themeSystem", icon: Monitor },
 ] as const
+type Mode = (typeof MODES)[number]["value"]
 
 // Faint hue map under the dots: hue left → right, fading out downward
 // (bottom = no tint), so the pad hints where each color lives.
@@ -68,7 +76,7 @@ export function AppearancePopover({ className }: { className?: string }) {
             aria-label={t("appearance")}
             title={t("appearance")}
             className={cn(
-              "fill-ink hover:bg-chrome-hover text-muted-foreground hover:text-foreground aria-expanded:bg-sidebar-active size-8 rounded-full aria-expanded:shadow-(--shadow-chrome-active) aria-expanded:before:opacity-0",
+              "fill-ink hover:bg-chrome-hover text-muted-foreground hover:text-foreground aria-expanded:bg-sidebar-active size-8 rounded-full aria-expanded:shadow-(--elev-2) aria-expanded:before:opacity-0",
               className,
             )}
           />
@@ -84,8 +92,19 @@ export function AppearancePopover({ className }: { className?: string }) {
         side="top"
         align="start"
         sideOffset={8}
-        className="w-72 gap-0 rounded-2xl p-2"
+        className="nest-rounded-2xl nest-p-2 w-72 gap-0 rounded-2xl p-2"
       >
+        {/* Mode first, as its own row: the app's segmented control. */}
+        <SegmentedControl
+          className="mb-2 h-9"
+          value={mounted ? ((theme as Mode | undefined) ?? "system") : "system"}
+          onChange={(value: Mode) => setTheme(value)}
+          items={MODES.map(({ value, label, icon }) => ({
+            value,
+            label: t(label),
+            icon,
+          }))}
+        />
         <TintPad
           tint={tint}
           // On a gradient, the pad turns the whole gradient round the wheel.
@@ -95,37 +114,6 @@ export function AppearancePopover({ className }: { className?: string }) {
             const turn = (h: number) => (((h + shift) % 360) + 360) % 360
             update({ ...next, g: [turn(tint.g[0]), turn(tint.g[1])] })
           }}
-          header={
-            <div
-              role="radiogroup"
-              aria-label={t("theme")}
-              className="flex items-center justify-center gap-1"
-            >
-              {MODES.map(({ value, label, icon: Icon }) => {
-                const active = mounted && (theme ?? "system") === value
-                return (
-                  <button
-                    key={value}
-                    type="button"
-                    role="radio"
-                    aria-checked={active}
-                    aria-label={t(label)}
-                    title={t(label)}
-                    onPointerDown={(e) => e.stopPropagation()}
-                    onClick={() => setTheme(value)}
-                    className={cn(
-                      "focus-visible:ring-ring grid size-8 place-items-center rounded-lg transition-colors outline-none focus-visible:ring-2 [&_svg]:size-4",
-                      active
-                        ? "bg-foreground/10 text-foreground"
-                        : "text-muted-foreground hover:text-foreground",
-                    )}
-                  >
-                    <Icon aria-hidden />
-                  </button>
-                )
-              })}
-            </div>
-          }
         />
 
         <SwatchRail label={t("appearanceColor")}>
@@ -153,22 +141,13 @@ export function AppearancePopover({ className }: { className?: string }) {
           ))}
         </SwatchRail>
 
-        <div className="flex flex-col gap-2 px-1.5 pt-4 pb-1.5">
-          <div className="text-muted-foreground flex items-center justify-between text-xs">
-            <span>{t("intensity")}</span>
-            <span className="tabular-nums">{Math.round(tint.c * 100)}%</span>
-          </div>
-          <Slider
-            aria-label={t("intensity")}
-            min={0}
-            max={100}
-            value={[Math.round(tint.c * 100)]}
-            onValueChange={(v) => {
-              const value = Array.isArray(v) ? v[0] : v
-              update({ ...tint, c: value / 100 })
-            }}
-          />
-        </div>
+        <FillSlider
+          className="mt-3"
+          radiusClassName="rounded-nested"
+          label={t("intensity")}
+          value={Math.round(tint.c * 100)}
+          onChange={(value) => update({ ...tint, c: value / 100 })}
+        />
       </PopoverContent>
     </Popover>
   )
@@ -285,11 +264,9 @@ function Swatch({
 function TintPad({
   tint,
   onChange,
-  header,
 }: {
   tint: Tint
   onChange: (tint: Tint) => void
-  header: React.ReactNode
 }) {
   const t = useT("common")
   // The handle moves inside an inset area so it never clips at the edges.
@@ -307,8 +284,7 @@ function TintPad({
   }
 
   return (
-    <div className="bg-muted/60 relative overflow-hidden rounded-xl">
-      <div className="absolute inset-x-0 top-2 z-10">{header}</div>
+    <div className="bg-muted/60 rounded-nested relative overflow-hidden">
       <div
         role="slider"
         tabIndex={0}
@@ -337,7 +313,7 @@ function TintPad({
           e.preventDefault()
           onChange({ h: next.h, c: Math.round(next.c * 100) / 100 })
         }}
-        className="focus-visible:ring-ring relative mt-12 h-44 cursor-crosshair touch-none rounded-b-xl outline-none focus-visible:ring-2 focus-visible:ring-inset"
+        className="focus-visible:ring-ring rounded-nested relative h-40 cursor-crosshair touch-none outline-none focus-visible:ring-2 focus-visible:ring-inset"
       >
         <div
           aria-hidden
@@ -362,7 +338,7 @@ function TintPad({
           className="pointer-events-none absolute inset-4"
         >
           <span
-            className="absolute size-7 -translate-x-1/2 -translate-y-1/2 rounded-full border-[3px] border-white shadow-md"
+            className="absolute size-7 -translate-x-1/2 -translate-y-1/2 rounded-full border-[3px] border-white shadow-(--elev-2)"
             style={{
               left: `${(tint.h / 359) * 100}%`,
               top: `${(1 - tint.c) * 100}%`,

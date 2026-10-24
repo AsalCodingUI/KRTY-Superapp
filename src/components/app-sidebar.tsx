@@ -5,6 +5,7 @@ import { LanguageSwitcher } from "@/components/language-switcher"
 import { ThemeSwitcher } from "@/components/theme-switcher"
 import { AnimatePresence, m, type Variants } from "motion/react"
 import * as React from "react"
+import { cn } from "@/lib/utils"
 
 import { siteConfig } from "@/app/siteConfig"
 import { NavMain } from "@/components/nav-main"
@@ -23,6 +24,7 @@ import {
   SidebarMenuItem,
   SidebarMenuSkeleton,
   SidebarRail,
+  useSidebar,
 } from "@/components/ui/sidebar"
 import { createClient } from "@/shared/api/supabase/client"
 import { matchProjectPath } from "@/shared/config/project-sections"
@@ -32,6 +34,7 @@ import {
   type WorkspaceProfile,
 } from "@/shared/config/workspaces"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
+import { useTabSwitched } from "@/shared/hooks/useTabSwitched"
 import { useT } from "@/shared/i18n/client"
 import { isAdminRole } from "@/shared/lib/roles"
 import { useQuery } from "@tanstack/react-query"
@@ -88,9 +91,15 @@ const NAV_SLIDE: Variants = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname()
-  const projectPath = matchProjectPath(pathname)
   const { profile } = useUserProfile()
   const { loading, active, badges } = useWorkspaceNav()
+  // A project's own menu only while the Project workspace is shown (right
+  // after switching to Pribadi it gives way before the route changes).
+  const projectPath =
+    active?.id === "project" ? matchProjectPath(pathname) : null
+  const { state: sidebarState } = useSidebar()
+  // Only after the first collapse / expand, not on page load.
+  const sidebarToggled = useTabSwitched(sidebarState)
   // Which menu the sidebar shows; changing it slides the menus.
   const navKey = projectPath
     ? `project:${projectPath.id}`
@@ -211,8 +220,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarContent>
       {/* Theme, language and chrome color live here; there is no settings page. */}
       <SidebarFooter>
-        {/* Stacks vertically when the sidebar is collapsed to icons. */}
-        <div className="flex flex-nowrap items-center gap-2 group-data-[collapsible=icon]:flex-col">
+        {/* Stacks vertically when the sidebar is collapsed to icons. Re-keyed
+            on the sidebar state so the new arrangement fades and settles in
+            alongside the width animation instead of snapping. */}
+        <div
+          key={sidebarState}
+          className={cn(
+            "flex origin-bottom-left flex-nowrap items-center gap-2 group-data-[collapsible=icon]:flex-col",
+            sidebarToggled && "animate-footer-in motion-reduce:animate-none",
+          )}
+        >
           <ThemeSwitcher className="group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:self-center" />
           <LanguageSwitcher className="group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:self-center" />
           <AppearancePopover className="group-data-[collapsible=icon]:self-center" />

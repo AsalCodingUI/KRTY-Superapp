@@ -37,7 +37,7 @@ export function MeetingButton({ meetingUrl, className }: MeetingButtonProps) {
           onClick={handleJoin}
           className="bg-primary hover:bg-primary/90 text-primary-foreground flex-1"
         >
-          <RiVideoOnLine className="mr-2 h-4 w-4" />
+          <RiVideoOnLine data-icon="inline-start" />
           {t("meetingJoin")}
         </Button>
         <button

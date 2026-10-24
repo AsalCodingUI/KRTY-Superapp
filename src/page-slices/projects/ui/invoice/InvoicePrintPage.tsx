@@ -13,7 +13,7 @@ import {
 import { createClient } from "@/shared/api/supabase/client"
 import { useT } from "@/shared/i18n/client"
 import { useQuery } from "@tanstack/react-query"
-import { Printer } from "lucide-react"
+import { Printer } from "@/components/icons"
 import { useEffect, useRef } from "react"
 import { useAgency, useQrUrl } from "./data"
 import {
@@ -150,7 +150,7 @@ export function InvoicePrintPage({ id }: { id: string }) {
         </Button>
         <span className="text-muted-foreground text-sm">{t("printHint")}</span>
       </div>
-      <div className="invoice-print-sheet smooth-shadow-ring-md bg-white">
+      <div className="invoice-print-sheet bg-white shadow-(--elev-3)">
         <InvoiceDocument data={data} />
       </div>
     </div>

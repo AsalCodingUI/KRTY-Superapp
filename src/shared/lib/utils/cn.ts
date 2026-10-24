@@ -1,76 +1,15 @@
 // Tremor Raw cx [v0.0.0]
 
-import clsx, { type ClassValue } from "clsx"
-import { extendTailwindMerge } from "tailwind-merge"
+import type { ClassValue } from "clsx"
+import { cn } from "cn"
 
-const customTwMerge = extendTailwindMerge({
-  extend: {
-    classGroups: {
-      "font-size": [
-        {
-          text: [
-            "display-lg",
-            "display-md",
-            "display-sm",
-            "display-xs",
-            "display-xxs",
-            "heading-lg",
-            "heading-md",
-            "heading-sm",
-            "label-lg",
-            "label-md",
-            "label-sm",
-            "label-xs",
-            "body-lg",
-            "body-md",
-            "body-sm",
-            "body-xs",
-          ],
-        },
-      ],
-      "border-color": [
-        {
-          border: [
-            "neutral-primary",
-            "neutral-secondary",
-            "neutral-tertiary",
-            "neutral-disable",
-            "neutral-white",
-            "neutral-strong",
-            "brand",
-            "brand-light",
-            "brand-dark",
-            "success",
-            "success-subtle",
-            "danger",
-            "danger-subtle",
-            "warning",
-            "warning-subtle",
-            "input",
-            "border",
-          ],
-        },
-      ],
-      "text-color": [
-        {
-          text: [
-            "foreground-primary",
-            "foreground-secondary",
-            "foreground-tertiary",
-            "foreground-disable",
-            "foreground-on-color",
-            "brand",
-            "brand-light",
-            "brand-dark",
-          ],
-        },
-      ],
-    },
-  },
-})
-
+/**
+ * Same merger as `cn` (@/lib/utils), so the app ships one class merger, not
+ * `cn` plus tailwind-merge. The old Tremor custom groups (text-heading-*, …)
+ * are no longer used anywhere.
+ */
 export function cx(...args: ClassValue[]) {
-  return customTwMerge(clsx(...args))
+  return cn(...args)
 }
 
 // Tremor Raw focusInput [v0.0.1]
@@ -78,8 +17,7 @@ export function cx(...args: ClassValue[]) {
 export const focusInput = [
   // base
   "focus:outline-none",
-  // shadow color
-  "focus:shadow-input-focus",
+  // the field's own focus ring (see Input) draws the focus state
 ]
 
 // Tremor Raw focusRing [v0.0.1]
@@ -94,10 +32,8 @@ export const focusRing = [
 // Tremor Raw hasErrorInput [v0.0.1]
 
 export const hasErrorInput = [
-  // base
-  "shadow-input-error",
-  "hover:shadow-input-error",
-  "focus:shadow-input-error",
+  // aria-invalid rings on the field components draw the error state
+  "ring-2 ring-destructive/20 dark:ring-destructive/40",
 ]
 
 // Number formatter function

@@ -44,7 +44,10 @@ import {
 import { RiAddLine } from "@/shared/ui/lucide-icons"
 import { useQueryClient } from "@tanstack/react-query"
 import { formatDistanceToNow } from "date-fns"
-import { AlertTriangle, ChevronRight } from "lucide-react"
+import {
+  ChevronRight,
+  TriangleAlert as AlertTriangle,
+} from "@/components/icons"
 import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import {
@@ -337,9 +340,9 @@ function MethodForm({
       )}
 
       {draft.type === "crypto" && (
-        <div className="border-border flex flex-col gap-3 rounded-xl border p-3">
+        <div className="border-border nest-rounded-xl nest-p-3 flex flex-col gap-3 border">
           <div className="flex items-start gap-3">
-            <div className="bg-muted grid size-20 shrink-0 place-items-center overflow-hidden rounded-lg">
+            <div className="bg-muted rounded-nested grid size-20 shrink-0 place-items-center overflow-hidden">
               {(localQr || qrUrl) && (
                 // eslint-disable-next-line @next/next/no-img-element -- local or signed URL
                 <img

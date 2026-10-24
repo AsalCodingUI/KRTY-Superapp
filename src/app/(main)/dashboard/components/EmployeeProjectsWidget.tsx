@@ -1,7 +1,7 @@
 "use client"
 
 import { EmptyValue } from "@/components/empty-value"
-import { ArrowUpRight } from "lucide-react"
+import { ArrowUpRight } from "@/components/icons"
 import { HomeCard, HomeEmpty, HomeIconLink, HomeRow } from "./home-card"
 import { ProjectAvatar } from "@/components/project-avatar"
 import { Badge } from "@/components/ui/badge"

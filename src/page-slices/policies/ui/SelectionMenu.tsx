@@ -5,19 +5,16 @@ import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
 import { useEditorState, type Editor } from "@tiptap/react"
 import { BubbleMenu } from "@tiptap/react/menus"
+import { Bold, Check, Italic, X } from "@/components/icons"
 import {
-  Bold,
-  Check,
   Code,
   Heading1,
   Heading2,
-  Italic,
   Link2,
   List,
   ListOrdered,
   Quote,
   Strikethrough,
-  X,
 } from "lucide-react"
 import { useState } from "react"
 import { useT } from "@/shared/i18n/client"
@@ -108,7 +105,7 @@ export function SelectionMenu({ editor }: { editor: Editor }) {
       shouldShow={({ editor: e, from, to }) =>
         from !== to && e.isEditable && !e.isActive("codeBlock")
       }
-      className="bg-popover text-popover-foreground smooth-shadow-ring-sm z-40 flex items-center gap-0.5 rounded-xl p-1"
+      className="bg-popover text-popover-foreground nest-rounded-xl nest-p-1 z-40 flex items-center gap-0.5 shadow-(--elev-4)"
     >
       {linking ? (
         <form onSubmit={applyLink} className="flex items-center gap-1">

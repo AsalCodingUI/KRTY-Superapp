@@ -7,8 +7,9 @@ import * as React from "react"
 
 export type BannerTone = "warning" | "info"
 
-// Every banner is solid black; the ring keeps it apart from the dark chrome.
-const SOLID = "bg-black text-white dark:ring-1 dark:ring-white/10"
+// Every banner is a soft, tinted black (see banner-ink); the ring keeps it
+// apart from the dark chrome.
+const SOLID = "banner-ink text-white dark:ring-1 dark:ring-white/10"
 
 const TONES: Record<BannerTone, string> = {
   warning: SOLID,

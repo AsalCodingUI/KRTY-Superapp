@@ -60,7 +60,8 @@ export function FileField({
         onChange(files)
       }}
       className={cn(
-        "bg-field border-field-border flex h-8 min-w-0 items-center gap-2 rounded-full border pr-3 pl-1 text-sm transition-colors",
+        // 3px all round the button (32px field, 1px border, 24px button).
+        "bg-field border-field-border flex h-8 min-w-0 items-center gap-2 rounded-full border pr-3 pl-[3px] text-sm transition-colors",
         over && "border-primary/50 bg-primary/5",
         disabled && "opacity-50",
         className,
@@ -69,7 +70,7 @@ export function FileField({
       <Button
         type="button"
         variant="secondary"
-        size="sm"
+        size="xs"
         disabled={disabled}
         onClick={() => input.current?.click()}
         className="shrink-0"

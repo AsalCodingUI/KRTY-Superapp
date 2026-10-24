@@ -14,7 +14,7 @@ import {
 } from "@/shared/config/workspaces"
 import { usePagePermissions } from "@/shared/hooks/usePagePermissions"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 
 type PermissionMap = Record<string, boolean> | null
 
@@ -42,7 +42,11 @@ type WorkspaceNav = {
   loading: boolean
   visible: VisibleWorkspace[]
   active: VisibleWorkspace | undefined
-  /** Show another workspace's pages without navigating away. */
+  /** The workspace the current route belongs to (lags `active` on switch). */
+  routeId: WorkspaceId
+  /** Switched, and the new workspace's page is still loading. */
+  pending: boolean
+  /** Switch workspace: opens its first page (e.g. Project → /projects). */
   select: (id: WorkspaceId) => void
   badges: Record<string, number>
   hasBadge: (ws: VisibleWorkspace) => boolean
@@ -87,6 +91,28 @@ export function WorkspaceNavProvider({
   const activeId = selected ?? routeWorkspace
   const active = visible.find((ws) => ws.id === activeId) ?? visible[0]
 
+  // Switching lands on the workspace's first page, wherever you were (a
+  // project's tab, a personal page…), so the page never stays behind. The
+  // sidebar switches right away; the route follows.
+  const router = useRouter()
+  const select = React.useCallback(
+    (id: WorkspaceId) => {
+      if (id === active?.id) return
+      setSelected(id)
+      const first = visible.find((ws) => ws.id === id)?.items[0]?.href
+      if (first) router.push(first)
+    },
+    [active?.id, visible, router],
+  )
+  // Warm each workspace's landing page so a switch doesn't wait on it.
+  React.useEffect(() => {
+    for (const ws of visible) {
+      const first = ws.items[0]?.href
+      if (first) router.prefetch(first)
+    }
+  }, [visible, router])
+  const pending = selected !== null && selected !== routeWorkspace
+
   const badges = useNavBadges(
     profile ? { id: profile.id, role: profile.role } : null,
   )
@@ -105,11 +131,23 @@ export function WorkspaceNavProvider({
       loading: profileLoading || permLoading,
       visible,
       active,
-      select: setSelected,
+      routeId: routeWorkspace,
+      pending,
+      select,
       badges,
       hasBadge,
     }),
-    [profileLoading, permLoading, visible, active, badges, hasBadge],
+    [
+      profileLoading,
+      permLoading,
+      visible,
+      active,
+      routeWorkspace,
+      pending,
+      select,
+      badges,
+      hasBadge,
+    ],
   )
 
   return (

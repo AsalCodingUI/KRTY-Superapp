@@ -226,7 +226,7 @@ export function OverviewTab({
               cursor={false}
               content={({ active, payload, label }) =>
                 active && payload?.[0]?.value != null ? (
-                  <div className="bg-popover smooth-shadow-ring-sm rounded-lg px-3 py-2 text-xs">
+                  <div className="bg-popover rounded-lg px-3 py-2 text-xs shadow-(--elev-4)">
                     <div className="text-muted-foreground">
                       {label} {year}
                     </div>

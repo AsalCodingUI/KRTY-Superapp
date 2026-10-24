@@ -11,12 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import {
-  RiCalendarLine,
-  RiCloseLine,
-  RiDeleteBinLine,
-  RiMapPinLine,
-} from "@/shared/ui/lucide-icons"
+import { RiCalendarLine, RiMapPinLine } from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
 import { useState } from "react"
 import { CopyEventButton } from "../components/CopyEventButton"
@@ -223,7 +218,6 @@ export function MeetingDialog({
                       disabled={loading}
                       className="text-destructive hover:bg-destructive/10"
                     >
-                      <RiDeleteBinLine className="mr-2 h-4 w-4" />
                       {tc("delete")}
                     </Button>
                     <CopyEventButton event={event} />
@@ -241,7 +235,6 @@ export function MeetingDialog({
               onClick={() => onOpenChange(false)}
               disabled={loading}
             >
-              <RiCloseLine className="mr-2 h-4 w-4" />
               {tc("close")}
             </Button>
           )}

@@ -31,6 +31,8 @@ const id = {
   processes: "Proses",
   paymentMethods: "Pembayaran",
   notifications: "Notifikasi",
+  calculator: "Kalkulator",
+  slaGenerator: "SLA Generator",
   account: "Akun",
   settings: "Pengaturan",
 
@@ -72,6 +74,8 @@ const en: Record<keyof typeof id, string> = {
   processes: "Processes",
   paymentMethods: "Payments",
   notifications: "Notifications",
+  calculator: "Calculator",
+  slaGenerator: "SLA Generator",
   account: "Account",
   settings: "Settings",
 

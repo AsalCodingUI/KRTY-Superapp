@@ -1,13 +1,20 @@
 "use client"
 
-import { useEffect } from "react"
+import { applyTint, readTint } from "@/shared/lib/chrome-tint"
+import { useEffect, useLayoutEffect } from "react"
+
+// One shared 1×1 canvas for color conversion (created on first use).
+let ctx: CanvasRenderingContext2D | null | undefined
 
 /** Any CSS color (oklch, color-mix…) → #rrggbb, which every browser takes. */
 function toHex(color: string) {
-  const canvas = document.createElement("canvas")
-  canvas.width = canvas.height = 1
-  const ctx = canvas.getContext("2d")
+  if (ctx === undefined) {
+    const canvas = document.createElement("canvas")
+    canvas.width = canvas.height = 1
+    ctx = canvas.getContext("2d", { willReadFrequently: true })
+  }
   if (!ctx) return null
+  ctx.clearRect(0, 0, 1, 1)
   ctx.fillStyle = color
   ctx.fillRect(0, 0, 1, 1)
   const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data
@@ -20,6 +27,10 @@ function toHex(color: string) {
  * Follows the chrome tint, light/dark and the OS theme as they change.
  */
 export function ThemeColorSync() {
+  // Hydrating <html> drops the inline tint TINT_SCRIPT set before paint;
+  // put it back before the browser paints the hydrated page.
+  useLayoutEffect(() => applyTint(readTint()), [])
+
   useEffect(() => {
     const root = document.documentElement
     // A hidden probe resolves var(--chrome) to a concrete color.
@@ -38,24 +49,38 @@ export function ThemeColorSync() {
       document.head.appendChild(meta)
     }
 
+    let lastColor = ""
     const sync = () => {
-      const hex = toHex(getComputedStyle(probe).backgroundColor)
+      const color = getComputedStyle(probe).backgroundColor
+      if (color === lastColor) return
+      lastColor = color
+      const hex = toHex(color)
       if (hex && meta!.content !== hex) meta!.content = hex
+    }
+    // Coalesce bursts (e.g. dragging the appearance slider) to one per frame.
+    let frame = 0
+    const schedule = () => {
+      if (frame) return
+      frame = requestAnimationFrame(() => {
+        frame = 0
+        sync()
+      })
     }
 
     sync()
     // Tint lives in html's inline style; light/dark in its class.
-    const observer = new MutationObserver(sync)
+    const observer = new MutationObserver(schedule)
     observer.observe(root, {
       attributes: true,
       attributeFilter: ["class", "style", "data-theme"],
     })
     const media = window.matchMedia("(prefers-color-scheme: dark)")
-    media.addEventListener("change", sync)
+    media.addEventListener("change", schedule)
 
     return () => {
+      cancelAnimationFrame(frame)
       observer.disconnect()
-      media.removeEventListener("change", sync)
+      media.removeEventListener("change", schedule)
       probe.remove()
     }
   }, [])

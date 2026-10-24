@@ -16,7 +16,12 @@ import { useMemo, useState } from "react"
 import type { EmployeeDashboardData } from "../actions/dashboard-employee-actions"
 import { useT } from "@/shared/i18n/client"
 
-import { CalendarDays, ChartColumn, Clock, Plus } from "lucide-react"
+import {
+  CalendarDays,
+  ChartColumnIncreasing as ChartColumn,
+  Clock,
+  Plus,
+} from "@/components/icons"
 import {
   HomeAction,
   HomeActions,

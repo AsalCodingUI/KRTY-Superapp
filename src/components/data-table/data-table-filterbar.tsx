@@ -11,8 +11,9 @@ import { Input } from "@/components/ui/input"
 import { useT } from "@/shared/i18n/client"
 
 // View options pull in @dnd-kit; load only when a table actually shows them.
-const DataTableViewOptions = dynamic(() =>
-  import("./data-table-view-options").then((m) => m.DataTableViewOptions),
+const DataTableViewOptions = dynamic(
+  () => import("./data-table-view-options").then((m) => m.DataTableViewOptions),
+  { loading: () => null },
 ) as typeof import("./data-table-view-options").DataTableViewOptions
 
 interface DataTableFilterbarProps<TData> {

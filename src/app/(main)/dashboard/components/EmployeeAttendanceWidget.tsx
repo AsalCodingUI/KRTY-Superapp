@@ -11,7 +11,7 @@ import {
 import { Database } from "@/shared/types/database.types"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { ArrowUpRight, Plus } from "lucide-react"
+import { ArrowUpRight, Plus } from "@/components/icons"
 import {
   HomeCard,
   HomeEmpty,
@@ -27,10 +27,12 @@ import { useRouter } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
 
 // Modal (and its form deps) only loads once the user opens it.
-const LeaveRequestModal = dynamic(() =>
-  import("@/page-slices/leave/ui/components/LeaveRequestModal").then(
-    (m) => m.LeaveRequestModal,
-  ),
+const LeaveRequestModal = dynamic(
+  () =>
+    import("@/page-slices/leave/ui/components/LeaveRequestModal").then(
+      (m) => m.LeaveRequestModal,
+    ),
+  { loading: () => null },
 )
 
 type AttendanceLog = Database["public"]["Tables"]["attendance_logs"]["Row"]

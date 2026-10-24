@@ -34,8 +34,10 @@ function Calendar({
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
+      // --cell-radius matches rounded-full (infinity): a 9999px end next to an
+      // infinite one scales to ~0, which squared half of edge-of-row days.
       className={cn(
-        "group/calendar bg-background p-3 [--cell-radius:9999px] [--cell-size:--spacing(8)] in-data-[slot=card-content]:bg-transparent in-data-[slot=popover-content]:bg-transparent",
+        "group/calendar bg-background p-3 [--cell-radius:calc(infinity*1px)] [--cell-size:--spacing(8)] in-data-[slot=card-content]:bg-transparent in-data-[slot=popover-content]:bg-transparent",
         String.raw`rtl:**:[.rdp-button\_next>svg]:rotate-180`,
         String.raw`rtl:**:[.rdp-button\_previous>svg]:rotate-180`,
         className,

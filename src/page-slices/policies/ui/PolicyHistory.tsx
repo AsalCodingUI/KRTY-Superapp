@@ -9,8 +9,9 @@ import {
 import type { Locale } from "date-fns"
 import { useDateLocale, useT } from "@/shared/i18n/client"
 import type { MessageKey } from "@/shared/i18n/messages"
-import { FilePen, FilePlus2, RefreshCw } from "lucide-react"
-import type { PolicyVersion } from "../model/data"
+import { RefreshCW as RefreshCw } from "@/components/icons"
+import { FilePen, FilePlus2 } from "lucide-react"
+import type { PolicyVersionMeta as PolicyVersion } from "../model/data"
 
 /** "16:16" today, "Kemarin, 16:16", "Jumat, 16:16" this week, else a date. */
 export function when(

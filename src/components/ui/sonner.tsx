@@ -1,13 +1,15 @@
 "use client"
 
 import { Toaster as Sonner, type ToasterProps } from "sonner"
+// Static lucide icons: the root layout must not pull the animated icon set
+// (and motion) onto every page, /login included.
 import {
+  CircleCheckIcon,
   InfoIcon,
   TriangleAlertIcon,
   OctagonXIcon,
   Loader2Icon,
 } from "lucide-react"
-import { CircleCheck as CircleCheckIcon } from "@/components/icons"
 
 const Toaster = ({ ...props }: ToasterProps) => {
   // Toasts are always dark (like the top bar), in light mode too.
@@ -24,18 +26,24 @@ const Toaster = ({ ...props }: ToasterProps) => {
       }}
       style={
         {
-          "--normal-bg": "oklch(0.205 0 0)",
-          "--normal-text": "oklch(0.96 0 0)",
+          // Near-black, leaning a touch toward the chrome tint.
+          "--normal-bg":
+            "oklch(0.2 calc(var(--tint-c, 0) * 0.025) var(--tint-h, 250))",
+          "--normal-text": "oklch(0.97 0 0)",
           "--normal-border": "rgb(255 255 255 / 0.08)",
-          "--border-radius": "0.75rem",
         } as React.CSSProperties
       }
       toastOptions={{
         classNames: {
-          toast: "cn-toast",
-          // Quiet × on the right, matching the toast instead of a white ring.
+          toast:
+            "cn-toast !items-center !gap-3 !rounded-2xl !py-3.5 !pr-12 !pl-4 !text-sm !shadow-(--elev-4)",
+          icon: "!m-0 !size-[18px] [&>svg]:!size-[18px]",
+          title: "!font-medium !leading-5",
+          description: "!text-white/60 !leading-5",
+          // Quiet × centered on the right. Sonner positions it with
+          // `transform`, so that is reset rather than stacked on.
           closeButton:
-            "!left-auto !right-2 !top-1/2 !-translate-y-1/2 !translate-x-0 !size-6 !rounded-md !border-0 !bg-transparent !text-white/55 hover:!bg-white/10 hover:!text-white",
+            "!left-auto !right-3 !top-1/2 !-translate-y-1/2 !transform-none !size-7 !rounded-full !border-0 !bg-transparent !text-white/50 transition-colors hover:!bg-white/10 hover:!text-white",
         },
       }}
       {...props}

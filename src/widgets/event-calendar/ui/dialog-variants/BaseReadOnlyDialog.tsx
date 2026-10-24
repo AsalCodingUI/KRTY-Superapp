@@ -14,8 +14,6 @@ import {
 } from "@/components/ui/dialog"
 import {
   RiCalendarLine,
-  RiCloseLine,
-  RiDeleteBinLine,
   RiFileTextLine,
   RiMapPinLine,
 } from "@/shared/ui/lucide-icons"
@@ -243,7 +241,6 @@ export function BaseReadOnlyDialog({
                     disabled={loading}
                     className="text-destructive hover:bg-destructive/10"
                   >
-                    <RiDeleteBinLine className="mr-2 h-4 w-4" />
                     {tc("delete")}
                   </Button>
                 )}
@@ -256,7 +253,6 @@ export function BaseReadOnlyDialog({
               onClick={() => onOpenChange(false)}
               disabled={loading}
             >
-              <RiCloseLine className="mr-2 h-4 w-4" />
               {tc("close")}
             </Button>
           )}

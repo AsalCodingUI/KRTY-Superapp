@@ -36,7 +36,7 @@ export function FreelanceSection({
           className="w-full"
           onClick={onAddFreelanceMember}
         >
-          <RiAddLine className="mr-2 size-4" /> {t("addFreelance")}
+          <RiAddLine data-icon="inline-start" /> {t("addFreelance")}
         </Button>
       </div>
 

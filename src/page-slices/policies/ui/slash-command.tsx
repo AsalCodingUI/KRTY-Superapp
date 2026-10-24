@@ -254,7 +254,7 @@ export function SlashMenu({ bridge }: { bridge: SlashBridge }) {
       role="listbox"
       aria-label={t("insertBlock")}
       style={style}
-      className="bg-popover text-popover-foreground smooth-shadow-ring-sm animate-in fade-in-0 zoom-in-95 z-50 max-h-80 w-72 overflow-y-auto rounded-xl p-1 text-sm"
+      className="bg-popover text-popover-foreground animate-in fade-in-0 zoom-in-95 nest-rounded-xl nest-p-1 z-50 max-h-80 w-72 overflow-y-auto text-sm shadow-(--elev-4)"
     >
       {items.length === 0 ? (
         <p className="text-muted-foreground px-2 py-3 text-center">
@@ -276,7 +276,7 @@ export function SlashMenu({ bridge }: { bridge: SlashBridge }) {
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => state.command(item)}
               className={cn(
-                "flex w-full items-center gap-3 rounded-lg px-2 py-1.5 text-left",
+                "rounded-nested flex w-full items-center gap-3 px-2 py-1.5 text-left",
                 i === index && "bg-muted",
               )}
             >

@@ -31,7 +31,6 @@ export type ClientRow = {
   currency: string
   notes: string | null
   archived_at: string | null
-  created_at: string
   projects: ClientProject[]
 }
 
@@ -40,7 +39,11 @@ export const clientKeys = {
   list: () => ["clients", "list"] as const,
 }
 
-/** Every client with its projects and their invoices (stakeholders only). */
+/**
+ * Every client with its projects and their invoices (stakeholders only).
+ * Columns are the ones the cards, detail and edit dialogs read (the dialogs
+ * open from this list without a second request).
+ */
 export function useClients(enabled = true) {
   const supabase = useMemo(() => createClient(), [])
   return useQuery({
@@ -51,7 +54,7 @@ export function useClients(enabled = true) {
         .from("clients")
         .select(
           `id, name, contact_name, email, phone, website, country, address, currency,
-           notes, archived_at, created_at,
+           notes, archived_at,
            projects:projects!projects_client_id_fkey (
              id, name, status, end_date,
              project_invoices ( status, amount_idr, amount_paid_idr, currency, fx_rate )

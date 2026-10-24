@@ -6,8 +6,8 @@ const id = {
   viewTimeline: "Timeline",
   toolbarPrevious: "Sebelumnya",
   toolbarNext: "Berikutnya",
-  toolbarToday: "Hari Ini",
-  toolbarNewEvent: "Jadwal Baru",
+  toolbarToday: "Hari ini",
+  toolbarNewEvent: "Jadwal baru",
   filterAriaLabel: "Filter kalender",
   filterButton: "Kalender",
   googleStatusChecking: "Google Calendar dicek…",
@@ -21,13 +21,13 @@ const id = {
   sidebarClosePanel: "Tutup panel kalender",
 
   // Event types (registry labels)
-  eventTypeInternal: "Rapat Internal",
+  eventTypeInternal: "Rapat internal",
   eventTypeWfh: "Kerja dari Rumah",
   eventTypeLeave: "Cuti",
   eventTypeEvent: "Acara",
   eventType301Meeting: "Rapat 301",
-  eventTypeCompanyHoliday: "Libur Perusahaan",
-  eventTypePublicHoliday: "Hari Libur Nasional",
+  eventTypeCompanyHoliday: "Libur perusahaan",
+  eventTypePublicHoliday: "Hari libur nasional",
 
   // Month / week / agenda / timeline views
   monthMoreEvents: "+{count} lainnya",
@@ -60,15 +60,15 @@ const id = {
   emptyFilteredDescription: "Coba ubah filter Anda.",
 
   // Event dialog
-  dialogTitleNew: "Tambah Jadwal Baru",
-  dialogTitleEdit: "Edit Jadwal",
-  dialogTitleDetail: "Detail Jadwal",
+  dialogTitleNew: "Tambah jadwal baru",
+  dialogTitleEdit: "Edit jadwal",
+  dialogTitleDetail: "Detail jadwal",
   dialogTypeFallback: "Jadwal",
   dialogTitleLabel: "Judul",
   dialogTitlePlaceholder: "Masukkan judul jadwal",
-  dialogTypeLabel: "Tipe Jadwal",
+  dialogTypeLabel: "Tipe jadwal",
   dialogTypePlaceholder: "Pilih tipe",
-  dialogAllDay: "Sepanjang Hari",
+  dialogAllDay: "Sepanjang hari",
   dialogStart: "Mulai",
   dialogEnd: "Selesai",
   dialogTime: "Waktu",
@@ -78,7 +78,7 @@ const id = {
   dialogDescription: "Deskripsi",
   dialogDescriptionPlaceholder: "Tambahkan deskripsi (opsional)",
   dialogDeleteConfirm: "Yakin hapus?",
-  dialogDeleteYes: "Ya, Hapus",
+  dialogDeleteYes: "Ya, hapus",
   dialogErrorTitleRequired: "Judul harus diisi",
   dialogErrorEndBeforeStart: "Selesai harus setelah mulai",
 
@@ -88,15 +88,15 @@ const id = {
   holidayAbout: "Tentang hari libur ini",
   holidayInfo:
     "Ini adalah hari libur nasional dari kalender Indonesia. Data ini tidak dapat diubah atau dihapus.",
-  leaveDialogTitle: "Detail Cuti",
+  leaveDialogTitle: "Detail cuti",
   leaveApproved: "Disetujui",
   leaveEmployee: "Karyawan",
-  leavePeriod: "Periode Cuti",
+  leavePeriod: "Periode cuti",
   leaveReasonLabel: "Alasan",
   leaveUnknownEmployee: "Tidak diketahui",
-  meetingDialogTitle: "Detail Rapat",
+  meetingDialogTitle: "Detail rapat",
   meetingTypeFallback: "Rapat",
-  performanceBadgeReview: "Ulasan Performa",
+  performanceBadgeReview: "Ulasan performa",
   performanceInfo:
     "Ini adalah meeting 301 yang dijadwalkan dari sistem ulasan performa. Data ini tidak dapat diubah dari kalender.",
 
@@ -118,7 +118,7 @@ const id = {
   rsvpStatusDeclined: "Ditolak",
   rsvpStatusMaybe: "Mungkin",
   rsvpStatusPending: "Menunggu",
-  copyDetails: "Salin Detail",
+  copyDetails: "Salin detail",
   copyCopied: "Tersalin!",
   copyNoLocation: "Tidak ada lokasi",
 

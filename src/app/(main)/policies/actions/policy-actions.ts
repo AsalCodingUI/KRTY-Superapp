@@ -1,9 +1,7 @@
 "use server"
 
-import { createClient } from "@/shared/api/supabase/server"
 import { getT } from "@/shared/i18n/server"
-import { resolveEffectiveUserId } from "@/shared/lib/impersonation-server"
-import { canManageByRole } from "@/shared/lib/roles"
+import { getAdminContext } from "@/shared/lib/admin-server"
 import { revalidatePath } from "next/cache"
 
 /**
@@ -30,20 +28,7 @@ export type PublishInput = {
   notify: boolean
 }
 
-async function admin() {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) return null
-  const id = await resolveEffectiveUserId(supabase, user.id, user.email)
-  const { data } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", id)
-    .maybeSingle()
-  return canManageByRole(data?.role) ? { supabase, userId: id } : null
-}
+const admin = getAdminContext
 
 function slugify(title: string) {
   const base = title
@@ -71,13 +56,16 @@ function revalidate(id?: string) {
   if (id) revalidatePath(`/policies/${id}`)
 }
 
-/** Creates the rule (when `id` is empty) or updates its draft. */
+/**
+ * Creates the rule (when `id` is empty) or updates its draft. `versionId` /
+ * `updatedAt` describe the saved draft (absent when no draft was needed), so
+ * the editor can update its cache without refetching.
+ */
 export async function savePolicyDraft(
   id: string | null,
   input: PolicyDraftInput,
-): Promise<Result<{ id: string }>> {
-  const t = await getT("policies")
-  const ctx = await admin()
+): Promise<Result<{ id: string; versionId?: string; updatedAt?: string }>> {
+  const [t, ctx] = await Promise.all([getT("policies"), admin()])
   if (!ctx) return { success: false, error: t("errNotAllowed") }
   const invalid = validate(input, t)
   if (invalid) return { success: false, error: invalid }
@@ -90,7 +78,16 @@ export async function savePolicyDraft(
     created_by: userId,
   }
 
+  const findDraft = (documentId: string) =>
+    supabase
+      .from("policy_versions")
+      .select("id")
+      .eq("document_id", documentId)
+      .eq("status", "Draft")
+      .maybeSingle()
+
   let documentId: string
+  let existing: { id: string } | null
   if (!id) {
     const { data, error } = await supabase
       .from("policy_documents")
@@ -105,65 +102,79 @@ export async function savePolicyDraft(
       .single()
     if (error || !data) return { success: false, error: t("errCreateFailed") }
     documentId = data.id
+    existing = (await findDraft(documentId)).data
   } else {
     documentId = id
-    const { error } = await supabase
-      .from("policy_documents")
-      .update({ category: input.category.trim() })
-      .eq("id", documentId)
+    // Independent: the category update, the open draft, the version in force.
+    const [{ error }, { data: openDraft }, { data: doc }] = await Promise.all([
+      supabase
+        .from("policy_documents")
+        .update({ category: input.category.trim() })
+        .eq("id", documentId),
+      findDraft(documentId),
+      supabase
+        .from("policy_documents")
+        .select(
+          "current:policy_versions!policy_documents_current_version_id_fkey ( title, summary, body )",
+        )
+        .eq("id", documentId)
+        .maybeSingle(),
+    ])
     if (error) return { success: false, error: t("errSaveFailed") }
-  }
+    existing = openDraft
 
-  const { data: existing } = await supabase
-    .from("policy_versions")
-    .select("id")
-    .eq("document_id", documentId)
-    .eq("status", "Draft")
-    .maybeSingle()
-
-  // Nothing changed from the version in force: no draft to keep.
-  if (!existing && id) {
-    const { data: doc } = await supabase
-      .from("policy_documents")
-      .select(
-        "category, current:policy_versions!policy_documents_current_version_id_fkey ( title, summary, body )",
+    // Nothing changed from the version in force: no draft to keep.
+    if (!existing) {
+      const current = doc?.current as unknown as {
+        title: string
+        summary: string | null
+        body: string
+      } | null
+      if (
+        current &&
+        current.title === draft.title &&
+        (current.summary ?? null) === draft.summary &&
+        current.body.trimEnd() === draft.body.trimEnd()
       )
-      .eq("id", documentId)
-      .maybeSingle()
-    const current = doc?.current as unknown as {
-      title: string
-      summary: string | null
-      body: string
-    } | null
-    if (
-      current &&
-      current.title === draft.title &&
-      (current.summary ?? null) === draft.summary &&
-      current.body.trimEnd() === draft.body.trimEnd()
-    )
-      return { success: true, data: { id: documentId } }
+        return { success: true, data: { id: documentId } }
+    }
   }
 
-  const { error } = existing
-    ? await supabase.from("policy_versions").update(draft).eq("id", existing.id)
-    : await supabase.from("policy_versions").insert({
-        ...draft,
-        document_id: documentId,
-        version_number: "draft",
-        status: "Draft",
-      })
+  const { data: saved, error } = existing
+    ? await supabase
+        .from("policy_versions")
+        .update(draft)
+        .eq("id", existing.id)
+        .select("id, updated_at")
+        .maybeSingle()
+    : await supabase
+        .from("policy_versions")
+        .insert({
+          ...draft,
+          document_id: documentId,
+          version_number: "draft",
+          status: "Draft",
+        })
+        .select("id, updated_at")
+        .maybeSingle()
   if (error) return { success: false, error: t("errSaveDraftFailed") }
 
-  revalidate(documentId)
-  return { success: true, data: { id: documentId } }
+  // No revalidatePath: /policies renders no server data (client-fetched).
+  return {
+    success: true,
+    data: {
+      id: documentId,
+      versionId: saved?.id,
+      updatedAt: saved?.updated_at ?? undefined,
+    },
+  }
 }
 
 export async function publishPolicy(
   id: string,
   input: PublishInput,
 ): Promise<Result> {
-  const t = await getT("policies")
-  const ctx = await admin()
+  const [t, ctx] = await Promise.all([getT("policies"), admin()])
   if (!ctx) return { success: false, error: t("errNotAllowed") }
   if (input.changeSummary.length > 300)
     return { success: false, error: t("errNoteTooLong") }
@@ -186,8 +197,7 @@ export async function publishPolicy(
 export async function discardPolicyDraft(
   id: string,
 ): Promise<Result<{ deleted: boolean }>> {
-  const t = await getT("policies")
-  const ctx = await admin()
+  const [t, ctx] = await Promise.all([getT("policies"), admin()])
   if (!ctx) return { success: false, error: t("errNotAllowed") }
   const { supabase } = ctx
 
@@ -215,8 +225,7 @@ export async function setPolicyArchived(
   id: string,
   archived: boolean,
 ): Promise<Result> {
-  const t = await getT("policies")
-  const ctx = await admin()
+  const [t, ctx] = await Promise.all([getT("policies"), admin()])
   if (!ctx) return { success: false, error: t("errNotAllowed") }
   const { error } = await ctx.supabase
     .from("policy_documents")
@@ -228,8 +237,7 @@ export async function setPolicyArchived(
 }
 
 export async function deletePolicy(id: string): Promise<Result> {
-  const t = await getT("policies")
-  const ctx = await admin()
+  const [t, ctx] = await Promise.all([getT("policies"), admin()])
   if (!ctx) return { success: false, error: t("errNotAllowed") }
   const { error } = await ctx.supabase
     .from("policy_documents")

@@ -10,7 +10,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { useDateLocale, useT } from "@/shared/i18n/client"
-import { RiCalendarLine, RiCloseLine } from "@/shared/ui/lucide-icons"
+import { RiCalendarLine } from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
 import type { CalendarEvent } from "../types"
 
@@ -91,7 +91,6 @@ export function HolidayDialog({
             variant="outline"
             onClick={() => onOpenChange(false)}
           >
-            <RiCloseLine className="mr-2 h-4 w-4" />
             {tc("close")}
           </Button>
         </DialogFooter>

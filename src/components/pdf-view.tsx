@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils"
 import { useEffect, useRef, useState } from "react"
 import type { PDFDocumentProxy } from "pdfjs-dist"
+import { runThumbnail, thumbnailCache } from "./thumbnail-queue"
 
 /**
  * PDFs drawn with pdf.js instead of the browser's PDF plugin, which some
@@ -101,19 +102,91 @@ function useWidth<T extends HTMLElement>() {
   return [ref, width] as const
 }
 
-/** First page only, filling the box's width (thumbnails). */
+/** Rendered first pages (PNG data URLs) by storage path. */
+const pdfThumbs = thumbnailCache<string>()
+
+/**
+ * First page only, filling the box's width (thumbnails). Loads only the
+ * bytes page 1 needs (range requests, no pre-fetch), waits for a free
+ * thumbnail slot, and is kept as an image per `cacheKey` (storage path).
+ */
 export function PdfThumbnail({
   url,
+  cacheKey,
   className,
 }: {
   url: string | null | undefined
+  /** Stable id of the file (e.g. its storage path) for the in-memory cache. */
+  cacheKey?: string | null
   className?: string
 }) {
-  const { doc } = usePdf(url)
   const [ref, width] = useWidth<HTMLDivElement>()
+  const [rendered, setRendered] = useState<{ key: string; src: string } | null>(
+    null,
+  )
+  const cached = pdfThumbs.get(cacheKey)
+  const src =
+    cached ??
+    (rendered && rendered.key === (cacheKey ?? url) ? rendered.src : null)
+  const ready = width > 0
+
+  useEffect(() => {
+    if (!url || !ready || pdfThumbs.get(cacheKey)) return
+    let alive = true
+    let loading: { destroy: () => Promise<void> } | null = null
+    let render: { cancel: () => void } | null = null
+    const key = cacheKey ?? url
+    const target = ref.current?.clientWidth ?? 0
+    runThumbnail(async () => {
+      if (!alive) return
+      const lib = await loadPdfjs()
+      if (!alive) return
+      const task = lib.getDocument({
+        url,
+        // Only what page 1 needs: range requests, no background pre-fetch
+        // (pdf.js needs streaming off for that to hold).
+        disableAutoFetch: true,
+        disableStream: true,
+        rangeChunkSize: 65536,
+      })
+      loading = task
+      try {
+        const pdf = await task.promise
+        if (!alive) return
+        const page = await pdf.getPage(1)
+        if (!alive || target <= 0) return
+        const base = page.getViewport({ scale: 1 })
+        const ratio = Math.min(window.devicePixelRatio || 1, 2)
+        const viewport = page.getViewport({
+          scale: (target / base.width) * ratio,
+        })
+        const canvas = document.createElement("canvas")
+        canvas.width = Math.floor(viewport.width)
+        canvas.height = Math.floor(viewport.height)
+        const job = page.render({ canvas, viewport })
+        render = job
+        await job.promise
+        if (!alive && !cacheKey) return
+        const dataUrl = canvas.toDataURL("image/png")
+        pdfThumbs.set(cacheKey, dataUrl)
+        if (alive) setRendered({ key, src: dataUrl })
+      } finally {
+        void task.destroy()
+      }
+    }).catch(() => {})
+    return () => {
+      alive = false
+      render?.cancel()
+      void loading?.destroy()
+    }
+  }, [url, cacheKey, ready, ref])
+
   return (
     <div ref={ref} className={cn("size-full overflow-hidden", className)}>
-      {doc && width > 0 && <PdfPage doc={doc} page={1} width={width} />}
+      {src && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={src} alt="" className="block w-full bg-white" />
+      )}
     </div>
   )
 }
@@ -147,7 +220,7 @@ export function PdfPages({
               doc={doc}
               page={i + 1}
               width={pageWidth - 48}
-              className="rounded-[4px] shadow-(--shadow-lift)"
+              className="rounded-[4px] shadow-(--elev-3)"
             />
           ))}
         </div>

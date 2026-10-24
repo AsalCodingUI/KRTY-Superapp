@@ -46,7 +46,7 @@ export function InvoiceThumb({
       <div className="flex h-full justify-center px-[14%] pt-[9%]">
         <div
           ref={ref}
-          className="h-full w-full overflow-hidden rounded-t-[4px] bg-white shadow-(--shadow-lift)"
+          className="h-full w-full overflow-hidden rounded-t-[4px] bg-white shadow-(--elev-3)"
         >
           {width > 0 && (
             <div

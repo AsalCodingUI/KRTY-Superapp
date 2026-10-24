@@ -27,11 +27,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import {
-  RiCloseLine,
-  RiDeleteBinLine,
-  RiSaveLine,
-} from "@/shared/ui/lucide-icons"
+import {} from "@/shared/ui/lucide-icons"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format } from "date-fns"
 import dynamic from "next/dynamic"
@@ -46,19 +42,24 @@ import {
 import type { CalendarEvent } from "./types"
 
 // Read-only variant dialogs are only needed for specific event types.
-const HolidayDialog = dynamic(() =>
-  import("./dialog-variants/HolidayDialog").then((m) => m.HolidayDialog),
+const HolidayDialog = dynamic(
+  () => import("./dialog-variants/HolidayDialog").then((m) => m.HolidayDialog),
+  { loading: () => null },
 )
-const LeaveDialog = dynamic(() =>
-  import("./dialog-variants/LeaveDialog").then((m) => m.LeaveDialog),
+const LeaveDialog = dynamic(
+  () => import("./dialog-variants/LeaveDialog").then((m) => m.LeaveDialog),
+  { loading: () => null },
 )
-const MeetingDialog = dynamic(() =>
-  import("./dialog-variants/MeetingDialog").then((m) => m.MeetingDialog),
+const MeetingDialog = dynamic(
+  () => import("./dialog-variants/MeetingDialog").then((m) => m.MeetingDialog),
+  { loading: () => null },
 )
-const PerformanceDialog = dynamic(() =>
-  import("./dialog-variants/PerformanceDialog").then(
-    (m) => m.PerformanceDialog,
-  ),
+const PerformanceDialog = dynamic(
+  () =>
+    import("./dialog-variants/PerformanceDialog").then(
+      (m) => m.PerformanceDialog,
+    ),
+  { loading: () => null },
 )
 
 /** Now, rounded up to the next quarter hour (new events start on a slot). */
@@ -472,7 +473,6 @@ export function EventDialog({
                 variant="outline"
                 onClick={() => onOpenChange(false)}
               >
-                <RiCloseLine className="mr-2 h-4 w-4" />
                 {tc("close")}
               </Button>
             </div>
@@ -719,7 +719,6 @@ export function EventDialog({
                           variant="destructive"
                           onClick={handleConfirmDelete}
                           disabled={loading}
-                          className=""
                         >
                           {t("dialogDeleteYes")}
                         </Button>
@@ -735,12 +734,11 @@ export function EventDialog({
                     ) : (
                       <Button
                         type="button"
-                        variant="outline"
+                        variant="ghost"
                         onClick={handleDeleteClick}
                         disabled={loading}
-                        className="text-destructive hover:bg-destructive/10"
+                        className="text-destructive hover:text-destructive"
                       >
-                        <RiDeleteBinLine className="mr-2 h-4 w-4" />
                         {tc("delete")}
                       </Button>
                     )}
@@ -756,7 +754,6 @@ export function EventDialog({
                       onClick={() => onOpenChange(false)}
                       disabled={loading}
                     >
-                      <RiCloseLine className="mr-2 h-4 w-4" />
                       {readOnly ? tc("close") : tc("cancel")}
                     </Button>
                     {!readOnly && (
@@ -765,7 +762,6 @@ export function EventDialog({
                         form="event-form"
                         disabled={loading}
                       >
-                        <RiSaveLine className="mr-2 h-4 w-4" />
                         {loading ? tc("saving") : tc("save")}
                       </Button>
                     )}

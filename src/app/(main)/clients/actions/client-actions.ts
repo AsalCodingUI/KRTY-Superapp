@@ -1,9 +1,7 @@
 "use server"
 
-import { createClient } from "@/shared/api/supabase/server"
 import { getT } from "@/shared/i18n/server"
-import { resolveEffectiveUserId } from "@/shared/lib/impersonation-server"
-import { canManageByRole } from "@/shared/lib/roles"
+import { getAdminContext } from "@/shared/lib/admin-server"
 import { revalidatePath } from "next/cache"
 
 /** Clients are stakeholder-only; RLS enforces the same. */
@@ -24,20 +22,7 @@ export type ClientInput = {
   notes: string
 }
 
-async function admin() {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) return null
-  const id = await resolveEffectiveUserId(supabase, user.id, user.email)
-  const { data } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", id)
-    .maybeSingle()
-  return canManageByRole(data?.role) ? { supabase, userId: id } : null
-}
+const admin = getAdminContext
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -45,8 +30,7 @@ export async function saveClient(
   id: string | null,
   input: ClientInput,
 ): Promise<Result<{ id: string }>> {
-  const t = await getT("clients")
-  const ctx = await admin()
+  const [t, ctx] = await Promise.all([getT("clients"), admin()])
   if (!ctx) return { success: false, error: t("errNotAllowed") }
 
   const name = input.name.trim()
@@ -96,8 +80,7 @@ export async function setClientArchived(
   id: string,
   archived: boolean,
 ): Promise<Result> {
-  const t = await getT("clients")
-  const ctx = await admin()
+  const [t, ctx] = await Promise.all([getT("clients"), admin()])
   if (!ctx) return { success: false, error: t("errNotAllowed") }
   const { error } = await ctx.supabase
     .from("clients")
@@ -110,8 +93,7 @@ export async function setClientArchived(
 
 /** Projects keep their history; they only lose the link (and copied text). */
 export async function deleteClient(id: string): Promise<Result> {
-  const t = await getT("clients")
-  const ctx = await admin()
+  const [t, ctx] = await Promise.all([getT("clients"), admin()])
   if (!ctx) return { success: false, error: t("errNotAllowed") }
   const { error } = await ctx.supabase.from("clients").delete().eq("id", id)
   if (error) return { success: false, error: t("errDelete") }
@@ -125,8 +107,7 @@ export async function setProjectClient(
   projectId: string,
   clientId: string | null,
 ): Promise<Result> {
-  const t = await getT("clients")
-  const ctx = await admin()
+  const [t, ctx] = await Promise.all([getT("clients"), admin()])
   if (!ctx) return { success: false, error: t("errNotAllowed") }
   const { error } = await ctx.supabase
     .from("projects")

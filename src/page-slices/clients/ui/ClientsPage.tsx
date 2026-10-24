@@ -20,13 +20,18 @@ import {
 } from "@/shared/ui/lucide-icons"
 import Link from "next/link"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { useClients, type ClientRow } from "../model/data"
 import { summarize } from "../model/summary"
 import { ClientDialog } from "./ClientDialog"
 import { ClientFormDialog } from "./ClientFormDialog"
 
 type Tab = "active" | "archived"
+
+const NO_RATES: Record<string, number> = {}
+
+const inTab = (c: ClientRow, value: Tab) =>
+  value === "archived" ? Boolean(c.archived_at) : !c.archived_at
 
 const ROW_GRID =
   "grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 md:grid-cols-[minmax(0,1fr)_6rem_9rem]"
@@ -40,7 +45,7 @@ export function ClientsPage() {
   const { profile, loading: profileLoading } = useUserProfile()
   const isAdmin = canManageByRole(profile?.role)
   const { data: clients = [], isLoading } = useClients(isAdmin)
-  const { data: rates = {} } = useFxRates()
+  const { data: rates = NO_RATES } = useFxRates()
 
   const tab: Tab =
     searchParams.get("status") === "archived" ? "archived" : "active"
@@ -62,18 +67,26 @@ export function ClientsPage() {
   const [form, setForm] = useState<ClientRow | "new" | null>(null)
   const needle = query.trim().toLowerCase()
 
-  const inTab = (c: ClientRow, value: Tab) =>
-    value === "archived" ? Boolean(c.archived_at) : !c.archived_at
-  const shown = clients.filter(
-    (c) =>
-      inTab(c, tab) &&
-      (!needle ||
-        [c.name, c.contact_name, c.email, c.country]
-          .filter(Boolean)
-          .join(" ")
-          .toLowerCase()
-          .includes(needle)),
+  const shown = useMemo(
+    () =>
+      clients.filter(
+        (c) =>
+          inTab(c, tab) &&
+          (!needle ||
+            [c.name, c.contact_name, c.email, c.country]
+              .filter(Boolean)
+              .join(" ")
+              .toLowerCase()
+              .includes(needle)),
+      ),
+    [clients, tab, needle],
   )
+  const tabCounts = useMemo(() => {
+    const counts: Record<Tab, number> = { active: 0, archived: 0 }
+    for (const c of clients)
+      counts[inTab(c, "archived") ? "archived" : "active"]++
+    return counts
+  }, [clients])
   const open = openId ? clients.find((c) => c.id === openId) : undefined
 
   if (profileLoading)
@@ -114,7 +127,7 @@ export function ClientsPage() {
 
       <TabNavigation className="mb-4">
         {(["active", "archived"] as const).map((value) => {
-          const count = clients.filter((c) => inTab(c, value)).length
+          const count = tabCounts[value]
           return (
             <TabNavigationLink
               key={value}
@@ -222,7 +235,7 @@ function ClientCard({
   rates: Record<string, number>
 }) {
   const t = useT("clients")
-  const sum = summarize(client, rates)
+  const sum = useMemo(() => summarize(client, rates), [client, rates])
 
   return (
     <Link
@@ -272,7 +285,7 @@ function ClientListRow({
   rates: Record<string, number>
 }) {
   const t = useT("clients")
-  const sum = summarize(client, rates)
+  const sum = useMemo(() => summarize(client, rates), [client, rates])
 
   return (
     <ListRow className={`${ROW_GRID} min-h-14`}>

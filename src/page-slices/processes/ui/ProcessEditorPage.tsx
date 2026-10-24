@@ -37,6 +37,7 @@ import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
 import {
+  useProcess,
   useProcesses,
   useRefreshProcesses,
   type ProcessPhase,
@@ -66,10 +67,13 @@ export function ProcessEditorPage({ id }: { id: string }) {
   const refresh = useRefreshProcesses()
   const { profile, loading } = useUserProfile()
   const isAdmin = canManageByRole(profile?.role)
-  const { data: processes = [], isLoading } = useProcesses(isAdmin)
-  const process = processes.find((p) => p.id === id)
   const [selected, setSelected] = useState<string | null>(null)
   const [dialog, setDialog] = useState<"rename" | "duplicate" | null>(null)
+  const { data: process, isLoading } = useProcess(id, isAdmin)
+  // Only the "Duplicate" dialog lists the other processes.
+  const { data: processes = [] } = useProcesses(
+    isAdmin && dialog === "duplicate",
+  )
   const [confirm, setConfirm] = useState<
     { kind: "process" } | { kind: "phase"; phase: ProcessPhase } | null
   >(null)
@@ -175,8 +179,9 @@ export function ProcessEditorPage({ id }: { id: string }) {
                   className={cn(
                     surfaceClassName,
                     "group/phase relative flex items-center gap-3 px-3 py-2.5 transition-colors",
+                    // Active: default border, filled instead of outlined.
                     active
-                      ? "border-foreground/25 dark:border-foreground/25"
+                      ? "bg-muted"
                       : "hover:border-foreground/15 dark:hover:border-foreground/15",
                   )}
                 >

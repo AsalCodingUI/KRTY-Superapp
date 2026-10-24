@@ -63,7 +63,8 @@ function TabsList({
       ) : (
         <SlidingIndicator
           activeSelector="[data-active]"
-          className="bg-background smooth-shadow-ring-xs dark:bg-foreground/[0.13] rounded-full dark:shadow-none"
+          className="bg-thumb blend-light rounded-full"
+          shadowClassName="rounded-full shadow-(--elev-1) dark:shadow-none"
         />
       )}
       {children}

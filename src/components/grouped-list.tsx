@@ -4,7 +4,7 @@ import { Collapse } from "@/components/ui/collapse"
 import { HoverHighlight } from "@/components/sliding-indicator"
 import { cn } from "@/lib/utils"
 import { RiArrowDownSLine } from "@/shared/ui/lucide-icons"
-import { m, type HTMLMotionProps } from "motion/react"
+import { AnimatePresence, m, type HTMLMotionProps } from "motion/react"
 import * as React from "react"
 
 /**
@@ -14,6 +14,33 @@ import * as React from "react"
  */
 /** True once the list has mounted: rows added after that animate in. */
 const ListMounted = React.createContext(false)
+/** False for long lists: rows render as plain divs, without motion. */
+const ListAnimated = React.createContext(true)
+
+/** Above this many rows, rows render without per-row motion. */
+const ANIMATED_ROW_LIMIT = 50
+
+/**
+ * Rough row count: descends through groups, fragments and AnimatePresence;
+ * any other element counts as one row.
+ */
+function countRows(children: React.ReactNode): number {
+  let total = 0
+  React.Children.forEach(children, (child) => {
+    if (!React.isValidElement(child)) return
+    const type = child.type
+    if (
+      type === ListGroup ||
+      type === React.Fragment ||
+      type === AnimatePresence
+    ) {
+      total += countRows(
+        (child.props as { children?: React.ReactNode }).children,
+      )
+    } else total += 1
+  })
+  return total
+}
 
 export function GroupedList({
   className,
@@ -33,7 +60,9 @@ export function GroupedList({
         itemSelector="[data-slot=list-row]"
         className="bg-(--row-hover)"
       />
-      <ListMounted.Provider value={mounted}>{children}</ListMounted.Provider>
+      <ListAnimated.Provider value={countRows(children) <= ANIMATED_ROW_LIMIT}>
+        <ListMounted.Provider value={mounted}>{children}</ListMounted.Provider>
+      </ListAnimated.Provider>
     </div>
   )
 }
@@ -89,6 +118,11 @@ export function ListGroup({
 
 const ROW_EASE = [0.23, 1, 0.32, 1] as const
 
+// Hover is GroupedList's sliding highlight; rows stay positioned so they
+// paint above it.
+const listRowClassName =
+  "group/row border-border/50 gutter-x relative flex min-h-12 items-center gap-3 border-b py-2 text-sm"
+
 /**
  * A list row. Rows added after the list mounted fade and settle in; inside
  * an `AnimatePresence`, a removed row fades and its height folds away, so
@@ -96,6 +130,15 @@ const ROW_EASE = [0.23, 1, 0.32, 1] as const
  */
 export function ListRow({ className, ...props }: React.ComponentProps<"div">) {
   const enter = React.useContext(ListMounted)
+  const animated = React.useContext(ListAnimated)
+  if (!animated)
+    return (
+      <div
+        data-slot="list-row"
+        className={cn(listRowClassName, className)}
+        {...props}
+      />
+    )
   return (
     <m.div
       data-slot="list-row"
@@ -112,12 +155,7 @@ export function ListRow({ className, ...props }: React.ComponentProps<"div">) {
         transition: { duration: 0.2, ease: ROW_EASE },
       }}
       transition={{ duration: 0.2, ease: ROW_EASE }}
-      className={cn(
-        // Hover is GroupedList's sliding highlight; rows stay positioned so
-        // they paint above it.
-        "group/row border-border/50 gutter-x relative flex min-h-12 items-center gap-3 border-b py-2 text-sm",
-        className,
-      )}
+      className={cn(listRowClassName, className)}
       {...(props as HTMLMotionProps<"div">)}
     />
   )

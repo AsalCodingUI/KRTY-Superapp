@@ -3,7 +3,7 @@
 import { FileField } from "@/components/file-field"
 import { Chip, FilePreview } from "./FilePreview"
 import { RowMenu, Section, type RowMenuItem } from "./ProjectLibrary"
-import { FileViewer, type ViewerItem } from "@/components/file-viewer"
+import type { ViewerItem } from "@/components/file-viewer"
 import { useFileDrop } from "@/shared/hooks/useFileDrop"
 import { PageHeader } from "@/components/page-header"
 import { ConfirmDialog } from "@/components/confirm-dialog"
@@ -31,7 +31,8 @@ import { cn } from "@/lib/utils"
 import { RiAddLine, RiFileTextLine } from "@/shared/ui/lucide-icons"
 import { useDateLocale, useT } from "@/shared/i18n/client"
 import { format } from "date-fns"
-import { FileSignature, FileText, Files, Upload } from "lucide-react"
+import { FileText, Upload } from "@/components/icons"
+import { FileSignature, Files } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
 import {
@@ -46,6 +47,13 @@ import {
   useWorkspace,
   type DocumentRow,
 } from "./data"
+import dynamic from "next/dynamic"
+
+// Viewer (PDF / office renderers) loads in its own chunk.
+const FileViewer = dynamic(
+  () => import("@/components/file-viewer").then((m) => m.FileViewer),
+  { ssr: false },
+)
 
 const KINDS = {
   proposal: { labelKey: "docKindProposal", icon: FileText },
@@ -263,7 +271,7 @@ export function ProjectDocuments({ projectId }: { projectId: string }) {
     <div className="relative flex flex-col" {...drop.bind}>
       {drop.dragging && (
         <div className="bg-primary/5 border-primary/40 pointer-events-none fixed inset-0 z-40 m-3 flex items-center justify-center rounded-2xl border-2 border-dashed backdrop-blur-[1px]">
-          <span className="bg-background smooth-shadow-ring-md flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium">
+          <span className="bg-background flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium shadow-(--elev-4)">
             <Upload className="size-4" />
             {tc("dropToUpload")}
           </span>

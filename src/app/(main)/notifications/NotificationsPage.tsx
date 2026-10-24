@@ -173,7 +173,7 @@ export function NotificationsPage() {
           <Button
             variant="outline"
             onClick={() => markAllAsRead()}
-            className="shadow-lg"
+            className="shadow-(--elev-4)"
           >
             {t("notificationsMarkAllRead")}
           </Button>

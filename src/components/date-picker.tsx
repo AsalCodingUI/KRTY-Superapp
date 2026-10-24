@@ -1,13 +1,14 @@
 "use client"
 
 import * as React from "react"
+import dynamic from "next/dynamic"
 import { format, type Locale } from "date-fns"
 import { MinusIcon } from "lucide-react"
 import { CalendarDays as CalendarIcon } from "@/components/icons"
 import type { Matcher } from "react-day-picker"
 
 import { Button } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
+import type { Calendar as CalendarType } from "@/components/ui/calendar"
 import { Input } from "@/components/ui/input"
 import {
   Popover,
@@ -81,25 +82,27 @@ interface PickerProps extends CalendarBoundsProps {
   "aria-required"?: boolean
 }
 
-type CalendarLocale = React.ComponentProps<typeof Calendar>["locale"]
+type CalendarLocale = React.ComponentProps<typeof CalendarType>["locale"]
+
+// The month grid (react-day-picker + most of date-fns) loads when a picker
+// first opens, not with every page that has a date field.
+const loadCalendar = () =>
+  import("@/components/ui/calendar").then((m) => m.Calendar)
+const Calendar = dynamic(loadCalendar, {
+  ssr: false,
+  loading: () => <div className="h-[296px] w-[252px]" aria-busy />,
+})
+/** Warm the calendar chunk on trigger hover/focus. */
+const preloadCalendar = () => void loadCalendar()
 
 // ============================================================================
 // Helpers
 // ============================================================================
 
-const isBrowserLocaleClockType24h = () => {
-  const language =
-    typeof window !== "undefined" ? window.navigator.language : "en-US"
-  const hr = new Intl.DateTimeFormat(language, { hour: "numeric" }).format()
-  return Number.isInteger(Number(hr))
-}
-
 const formatDate = (date: Date, locale: Locale, includeTime?: boolean) => {
-  // Same short form as the rest of the app ("17 Jun 2026").
+  // Same short form as the rest of the app ("17 Jun 2026", 24-hour times).
   if (!includeTime) return format(date, "d MMM yyyy", { locale })
-  return isBrowserLocaleClockType24h()
-    ? format(date, "d MMM yyyy, HH:mm", { locale })
-    : format(date, "d MMM yyyy, h:mm a", { locale })
+  return format(date, "d MMM yyyy, HH:mm", { locale })
 }
 
 const toTimeString = (date: Date | undefined) =>
@@ -198,6 +201,8 @@ const Trigger = ({
         type="button"
         variant="ghost"
         disabled={disabled}
+        onPointerEnter={preloadCalendar}
+        onFocus={preloadCalendar}
         aria-invalid={hasError || props["aria-invalid"] || undefined}
         className={cn(
           // Same surface as Input / SelectTrigger, and no press-in: it is a field.
@@ -413,7 +418,15 @@ const SingleDatePicker = ({
   }
 
   const onDateChange = (next: Date | undefined) => {
-    setDate(next && showTimePicker ? applyTime(next, time) : next)
+    // A plain date is final on click (like the task due date); with a time
+    // the footer's Apply commits both.
+    if (!showTimePicker) {
+      setDate(next)
+      setOpen(false)
+      onChange?.(next)
+      return
+    }
+    setDate(next ? applyTime(next, time) : next)
   }
 
   const onTimeChange = (next: string) => {
@@ -490,19 +503,21 @@ const SingleDatePicker = ({
                 />
               </div>
             )}
-            <div className="border-border flex items-center gap-x-2 border-t p-3">
-              <Button
-                type="button"
-                variant="outline"
-                className="flex-1"
-                onClick={() => onOpenChange(false)}
-              >
-                {translations?.cancel ?? tc("cancel")}
-              </Button>
-              <Button type="button" className="flex-1" onClick={onApply}>
-                {translations?.apply ?? t("dateApply")}
-              </Button>
-            </div>
+            {showTimePicker && (
+              <div className="border-border flex items-center gap-x-2 border-t p-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => onOpenChange(false)}
+                >
+                  {translations?.cancel ?? tc("cancel")}
+                </Button>
+                <Button type="button" className="flex-1" onClick={onApply}>
+                  {translations?.apply ?? t("dateApply")}
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </PopoverContent>

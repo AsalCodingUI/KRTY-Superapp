@@ -2,7 +2,7 @@
 
 import { createClient } from "@/shared/api/supabase/client"
 import type { MessageKey } from "@/shared/i18n/messages"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useMemo } from "react"
 
 export const POLICY_CATEGORIES = [
@@ -68,14 +68,20 @@ export type PolicyListItem = {
   >[]
 }
 
+/** A version without its body (loaded per version with `usePolicyBody`). */
+export type PolicyVersionMeta = Omit<PolicyVersion, "body">
+
 export type PolicyDetail = Omit<PolicyListItem, "versions"> & {
-  versions: PolicyVersion[]
+  versions: PolicyVersionMeta[]
 }
 
 export const policyKeys = {
   all: ["policies"] as const,
   list: () => ["policies", "list"] as const,
   detail: (id: string) => ["policies", "detail", id] as const,
+  /** Keyed by `updated_at` too: a saved draft gets a new body. */
+  body: (versionId: string, updatedAt: string) =>
+    ["policies", "body", versionId, updatedAt] as const,
 }
 
 /** Published versions newest first; the draft (stakeholders only) apart. */
@@ -111,8 +117,14 @@ export function usePolicies() {
   })
 }
 
+/**
+ * One rule with its version list (no bodies). The body of the version in
+ * force comes along in the same request and seeds `usePolicyBody`; other
+ * versions load their body when opened.
+ */
 export function usePolicy(id: string) {
   const supabase = useMemo(() => createClient(), [])
+  const queryClient = useQueryClient()
   return useQuery({
     queryKey: policyKeys.detail(id),
     enabled: Boolean(id),
@@ -121,8 +133,11 @@ export function usePolicy(id: string) {
         .from("policy_documents")
         .select(
           `id, title, category, summary, archived_at, current_version_id,
+           current:policy_versions!policy_documents_current_version_id_fkey (
+             id, body
+           ),
            versions:policy_versions!policy_versions_document_id_fkey (
-             id, status, version_number, title, summary, body, change_summary,
+             id, status, version_number, title, summary, change_summary,
              effective_at, published_at, updated_at,
              author:profiles!policy_versions_created_by_fkey ( full_name )
            )`,
@@ -130,7 +145,39 @@ export function usePolicy(id: string) {
         .eq("id", id)
         .maybeSingle()
       if (error) throw error
-      return (data ?? null) as unknown as PolicyDetail | null
+      if (!data) return null
+      const { current, ...detail } = data as unknown as PolicyDetail & {
+        current: { id: string; body: string } | null
+      }
+      const inForce =
+        current && detail.versions?.find((v) => v.id === current.id)
+      if (current && inForce)
+        queryClient.setQueryData(
+          policyKeys.body(current.id, inForce.updated_at),
+          current.body,
+        )
+      return detail as PolicyDetail
+    },
+  })
+}
+
+/** The Markdown body of one version; fetched once per saved state. */
+export function usePolicyBody(
+  version: Pick<PolicyVersionMeta, "id" | "updated_at"> | null,
+) {
+  const supabase = useMemo(() => createClient(), [])
+  return useQuery({
+    queryKey: policyKeys.body(version?.id ?? "", version?.updated_at ?? ""),
+    enabled: Boolean(version),
+    staleTime: Infinity,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("policy_versions")
+        .select("body")
+        .eq("id", version!.id)
+        .maybeSingle()
+      if (error) throw error
+      return (data?.body as string | undefined) ?? ""
     },
   })
 }
