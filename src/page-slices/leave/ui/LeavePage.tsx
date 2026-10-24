@@ -1,23 +1,11 @@
-"use client"
-
 import { Database } from "@/shared/types/database.types"
 import { canManageByRole } from "@/shared/lib/roles"
-import dynamic from "next/dynamic"
+import { EmployeeLeavePage } from "./EmployeeLeavePage"
+import { StakeholderLeavePage } from "./StakeholderLeavePage"
 
-const EmployeeLeavePage = dynamic(
-  () => import("./EmployeeLeavePage").then((mod) => mod.EmployeeLeavePage),
-  {
-    loading: () => null,
-  },
-)
-
-const StakeholderLeavePage = dynamic(
-  () =>
-    import("./StakeholderLeavePage").then((mod) => mod.StakeholderLeavePage),
-  {
-    loading: () => null,
-  },
-)
+// A server component: it picks the page by role and only that client page
+// ships. (A client-side next/dynamic here could resolve after hydration
+// started and shift the useId-based ids inside the table.)
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"]
 type ProfileSummary = Pick<
