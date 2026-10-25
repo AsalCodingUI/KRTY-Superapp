@@ -311,20 +311,36 @@ export async function getReviewSummary(
 
 type ActionResult = { success: boolean; error?: string }
 
-/** Open (or reopen with new dates) the cycle for a quarter; closes others. */
+/** First and last day ("yyyy-MM-dd") of a calendar quarter like "2026-Q4". */
+function quarterBounds(quarter: string) {
+  const [year, q] = quarter.split("-Q").map(Number)
+  const pad = (n: number) => String(n).padStart(2, "0")
+  const lastDay = new Date(Date.UTC(year, q * 3, 0)).getUTCDate()
+  return {
+    start: `${year}-${pad((q - 1) * 3 + 1)}-01`,
+    end: `${year}-${pad(q * 3)}-${pad(lastDay)}`,
+  }
+}
+
+/**
+ * Open (or reopen) the cycle for a quarter; closes others. Quarters follow
+ * the calendar: the admin picks when reviewing starts (inside the quarter)
+ * and it runs to the quarter's last day.
+ */
 export async function saveReviewCycle(
   quarter: string,
   startDate: string,
-  endDate: string,
 ): Promise<ActionResult> {
   const [me, t] = await Promise.all([viewer(), getT("performance")])
   if (!me?.isStakeholder) return { success: false, error: t("errAdminOnly") }
   if (!/^\d{4}-Q[1-4]$/.test(quarter)) {
     return { success: false, error: t("errPickQuarter") }
   }
-  if (!startDate || !endDate || endDate < startDate) {
-    return { success: false, error: t("errEndAfterStart") }
+  const bounds = quarterBounds(quarter)
+  if (!startDate || startDate < bounds.start || startDate > bounds.end) {
+    return { success: false, error: t("errStartInQuarter") }
   }
+  const endDate = bounds.end
   const { supabase } = me
   const start = `${startDate}T00:00:00+07:00`
   const end = `${endDate}T23:59:59+07:00`

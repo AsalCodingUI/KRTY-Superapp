@@ -15,4 +15,3 @@ export type {
   RecurrencePattern,
   Reminder,
 } from "./types"
-export { useCalendarEvent, useCalendarEvents } from "./useCalendarEvents"

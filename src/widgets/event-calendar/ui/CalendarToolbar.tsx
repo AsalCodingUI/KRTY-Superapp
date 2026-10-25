@@ -85,7 +85,7 @@ function CalendarFilter() {
       </PopoverTrigger>
       <PopoverContent
         align="end"
-        className="nest-rounded-2xl nest-p-1.5 w-56 gap-0 rounded-2xl p-1.5"
+        className="nest-rounded-2xl nest-p-2 w-56 gap-0 rounded-2xl p-2"
       >
         {categories.map((category) => (
           <label

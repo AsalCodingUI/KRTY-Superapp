@@ -170,7 +170,7 @@ function Column({
       ref={setNodeRef}
       className={cn(
         // Border sits inside the box so the scroll container never clips it.
-        "nest-rounded-2xl nest-p-1 flex min-h-64 min-w-60 flex-1 flex-col gap-2 border border-dashed border-transparent transition-colors",
+        "nest-rounded-2xl nest-p-2 flex min-h-64 min-w-60 flex-1 flex-col gap-2 border border-dashed border-transparent transition-colors",
         isOver && "border-foreground/20 bg-foreground/[0.02]",
       )}
     >
@@ -220,7 +220,7 @@ function LiftedCard({
   return (
     <div
       // Outside the column: same corners as there (column radius − padding).
-      className="cursor-grabbing transition-transform duration-200 ease-out will-change-transform [--nest-p:calc(var(--spacing)*1)] [--nest-r:var(--radius-2xl)] motion-reduce:transition-none"
+      className="cursor-grabbing transition-transform duration-200 ease-out will-change-transform [--nest-p:calc(var(--spacing)*2)] [--nest-r:var(--radius-2xl)] motion-reduce:transition-none"
       style={{
         transform: `rotate(${tilt}deg) scale(${lifted ? 1.03 : 1})`,
       }}

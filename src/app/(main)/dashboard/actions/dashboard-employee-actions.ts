@@ -155,16 +155,27 @@ export async function getEmployeeDashboardData(
         .order("clock_in", { ascending: false })
         .limit(50),
 
-      supabase
-        .from("review_summary")
-        .select("overall_percentage")
-        .eq("employee_id", targetUserId)
-        .like(
-          "cycle_id",
-          selectedQuarterPart === "All" && selectedYear
-            ? `${selectedYear}-%`
-            : activeQuarter,
-        ),
+      // 360 results for the quarter, or every quarter of the year ("All").
+      (async () => {
+        const wholeYear = selectedQuarterPart === "All" && selectedYear
+        const cycles = wholeYear
+          ? supabase
+              .from("review_cycles")
+              .select("id")
+              .like("quarter", `${selectedYear}-%`)
+          : supabase
+              .from("review_cycles")
+              .select("id")
+              .eq("quarter", activeQuarter)
+        const { data: cycleRows } = await cycles
+        const ids = (cycleRows ?? []).map((c: { id: string }) => c.id)
+        if (ids.length === 0) return { data: [] }
+        return supabase
+          .from("performance_summaries")
+          .select("overall_percentage")
+          .eq("reviewee_id", targetUserId)
+          .in("cycle_id", ids)
+      })(),
 
       (() => {
         let query = supabase

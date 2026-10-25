@@ -7,6 +7,5 @@
  * FSD Rule: Keep your public API minimal and stable.
  */
 
-export * from "./api"
 export * from "./model"
 export * from "./ui"

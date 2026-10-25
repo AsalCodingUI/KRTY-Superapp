@@ -27,7 +27,7 @@ import { cn } from "@/lib/utils"
 import { formatPercent } from "@/entities/performance/lib/kpi"
 import { RiGroupLine } from "@/shared/ui/lucide-icons"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { format } from "date-fns"
+import { format, parseISO } from "date-fns"
 import { useDateLocale, useT } from "@/shared/i18n/client"
 import type { MessageKey } from "@/shared/i18n/messages"
 import { useState } from "react"
@@ -80,7 +80,8 @@ export function ReviewMonitoring({ period }: { period: string }) {
     enabled: quarter,
   })
   const [periodOpen, setPeriodOpen] = useState(false)
-  const [dates, setDates] = useState({ start: "", end: "" })
+  const [start, setStart] = useState("")
+  const [processingAll, setProcessingAll] = useState(false)
   const [closing, setClosing] = useState(false)
   const [processing, setProcessing] = useState<MonitoringRow | null>(null)
   const [viewing, setViewing] = useState<MonitoringRow | null>(null)
@@ -112,24 +113,24 @@ export function ReviewMonitoring({ period }: { period: string }) {
 
   const { cycle, rows, unpaired } = data
 
+  // Quarters follow the calendar; the admin only picks when reviewing
+  // starts, and it runs to the quarter's last day.
+  const bounds = quarterDates(period)
+  const clampToQuarter = (day: string) =>
+    day < bounds.start ? bounds.start : day > bounds.end ? bounds.end : day
+
   const openPeriodForm = () => {
-    setDates(
-      cycle
-        ? {
-            start: format(new Date(cycle.start_date), "yyyy-MM-dd"),
-            end: format(new Date(cycle.end_date), "yyyy-MM-dd"),
-          }
-        : {
-            start: format(new Date(), "yyyy-MM-dd"),
-            end: quarterDates(period).end,
-          },
+    setStart(
+      clampToQuarter(
+        format(cycle ? new Date(cycle.start_date) : new Date(), "yyyy-MM-dd"),
+      ),
     )
     setPeriodOpen(true)
   }
 
   const savePeriod = async () => {
     setBusy(true)
-    const result = await saveReviewCycle(period, dates.start, dates.end)
+    const result = await saveReviewCycle(period, start)
     setBusy(false)
     if (!result.success) {
       toast.error(result.error ?? t("periodSaveFailed"))
@@ -150,19 +151,47 @@ export function ReviewMonitoring({ period }: { period: string }) {
     refresh()
   }
 
-  const process = async () => {
-    if (!processing || !cycle) return
+  /** Process one person: the AI (n8n) writes the feedback and the result is
+   *  saved; the scores are computed from the reviews in the database. Waits
+   *  for the answer (about 30 seconds), so a failure shows right away. */
+  const processOne = async (row: MonitoringRow) => {
+    if (!cycle) return { ok: false, error: t("aiSendFailed") }
     const res = await fetch("/api/trigger-n8n", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ reviewee_id: processing.id, cycle_id: cycle.id }),
+      body: JSON.stringify({ reviewee_id: row.id, cycle_id: cycle.id }),
     }).catch(() => null)
-    if (!res?.ok) {
-      toast.error(t("aiSendFailed"))
-      return
+    if (res?.ok) return { ok: true }
+    const body = (await res?.json().catch(() => null)) as {
+      error?: string
+    } | null
+    return { ok: false, error: body?.error ?? t("aiSendFailed") }
+  }
+
+  const process = async () => {
+    const row = processing
+    if (!row) return
+    const id = toast.loading(t("processingOne", { name: row.full_name ?? "" }))
+    const result = await processOne(row)
+    if (result.ok) toast.success(t("resultReady"), { id })
+    else toast.error(result.error, { id })
+    refresh()
+  }
+
+  const processAll = async () => {
+    const ready = rows.filter((r) => statusOf(r) === "complete")
+    const id = toast.loading(t("processingMany", { done: 0, n: ready.length }))
+    let failed = 0
+    // One at a time: each AI call takes a while, and results show as they land.
+    for (const [i, row] of ready.entries()) {
+      if (!(await processOne(row)).ok) failed++
+      toast.loading(t("processingMany", { done: i + 1, n: ready.length }), {
+        id,
+      })
+      refresh()
     }
-    toast.success(t("processingStarted"))
-    setTimeout(refresh, 8000)
+    if (failed) toast.error(t("processAllFailed", { n: failed }), { id })
+    else toast.success(t("resultsReady", { n: ready.length }), { id })
   }
 
   const reviewsDone = rows.reduce(
@@ -206,6 +235,11 @@ export function ReviewMonitoring({ period }: { period: string }) {
           {t("everyoneReviewsNote")}
         </p>
         <div className="flex items-center gap-2">
+          {countOf("complete") > 0 && (
+            <Button variant="outline" onClick={() => setProcessingAll(true)}>
+              {t("processAll", { n: countOf("complete") })}
+            </Button>
+          )}
           {cycle?.is_active && (
             <Button variant="ghost" onClick={() => setClosing(true)}>
               {t("closePeriod")}
@@ -379,24 +413,22 @@ export function ReviewMonitoring({ period }: { period: string }) {
               {t("periodDialogDescription")}
             </DialogDescription>
           </DialogHeader>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="cycle-start">{t("start")}</Label>
-              <DateField
-                id="cycle-start"
-                value={dates.start}
-                onChange={(value) => setDates((d) => ({ ...d, start: value }))}
-              />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="cycle-end">{t("end")}</Label>
-              <DateField
-                id="cycle-end"
-                value={dates.end}
-                min={dates.start}
-                onChange={(value) => setDates((d) => ({ ...d, end: value }))}
-              />
-            </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="cycle-start">{t("start")}</Label>
+            <DateField
+              id="cycle-start"
+              value={start}
+              min={bounds.start}
+              max={bounds.end}
+              onChange={setStart}
+            />
+            <p className="text-muted-foreground text-xs">
+              {t("periodRunsUntil", {
+                date: format(parseISO(bounds.end), "d MMM yyyy", {
+                  locale: dateLocale,
+                }),
+              })}
+            </p>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setPeriodOpen(false)}>
@@ -434,6 +466,16 @@ export function ReviewMonitoring({ period }: { period: string }) {
         confirmText={t("process")}
         cancelText={tc("cancel")}
         onConfirm={process}
+      />
+
+      <ConfirmDialog
+        open={processingAll}
+        onOpenChange={setProcessingAll}
+        title={t("processAllTitle", { n: countOf("complete") })}
+        description={t("processAllDescription")}
+        confirmText={t("process")}
+        cancelText={tc("cancel")}
+        onConfirm={processAll}
       />
 
       <Dialog

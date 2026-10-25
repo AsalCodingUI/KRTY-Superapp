@@ -25,6 +25,17 @@ CREATE TABLE IF NOT EXISTS public.operational_costs (
   updated_at timestamptz NOT NULL DEFAULT now()
 );
 
+-- Stakeholders only, like finance_subscriptions: these are the studio's
+-- running costs, read next to salaries (get_team_compensation) in the
+-- calculator. Without RLS the anon key could read and write them.
+ALTER TABLE public.operational_costs ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Operational costs stakeholders" ON public.operational_costs;
+CREATE POLICY "Operational costs stakeholders"
+  ON public.operational_costs FOR ALL TO authenticated
+  USING (public.is_stakeholder())
+  WITH CHECK (public.is_stakeholder());
+
 -- Seed data
 INSERT INTO public.operational_costs (
   item_name,

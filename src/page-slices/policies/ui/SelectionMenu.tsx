@@ -105,7 +105,7 @@ export function SelectionMenu({ editor }: { editor: Editor }) {
       shouldShow={({ editor: e, from, to }) =>
         from !== to && e.isEditable && !e.isActive("codeBlock")
       }
-      className="bg-popover text-popover-foreground nest-rounded-xl nest-p-1 z-40 flex items-center gap-0.5 shadow-(--elev-4)"
+      className="bg-popover text-popover-foreground z-40 flex items-center gap-0.5 rounded-full p-1 shadow-(--elev-4)"
     >
       {linking ? (
         <form onSubmit={applyLink} className="flex items-center gap-1">

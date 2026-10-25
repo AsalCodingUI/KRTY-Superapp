@@ -1,0 +1,149 @@
+{
+ "name": "360 Review",
+ "nodes": [
+  {
+   "parameters": {
+    "httpMethod": "POST",
+    "path": "a5acabe5-c0fa-4380-b95b-22736a324ed9",
+    "options": {},
+    "responseMode": "lastNode",
+    "responseData": "firstEntryJson"
+   },
+   "type": "n8n-nodes-base.webhook",
+   "typeVersion": 2.1,
+   "position": [
+    0,
+    -16
+   ],
+   "id": "f2fd043b-c7fa-41f3-92fa-a3420b8e544f",
+   "name": "Webhook",
+   "webhookId": "a5acabe5-c0fa-4380-b95b-22736a324ed9"
+  },
+  {
+   "parameters": {
+    "jsCode": "// 1. Ambil data\nconst inputData = items[0].json.body;\nconst reviews = inputData.reviews || [];\nconst meta = inputData.meta || {};\n\n// Helper Clean Text\nconst cleanText = (text) => {\n  if (!text || typeof text !== 'string' || text.trim() === \"\" || text === \"-\") return null;\n  return text.trim().replace(/^\"|\"$/g, '').replace(/\\\\\"/g, '\"');\n};\n\n// 2. Variable Penampung Skor\nlet grandTotalScore = 0; \nlet count = 0;\n\n// Penampung per kategori (SUM)\nlet totalQ = 0, totalRel = 0, totalCom = 0, totalIni = 0, totalLead = 0;\n\nlet feedbackRaw = `Employee ID: ${meta.reviewee_id}\\n`;\nfeedbackRaw += `Total Review: ${reviews.length} Orang\\n\\n`;\n\nif (reviews.length === 0) {\n  feedbackRaw += \"BELUM ADA DATA.\\n\";\n} else {\n  reviews.forEach((r, index) => {\n    // Ambil nilai per kategori (default 0 jika null)\n    const q = Number(r.score_quality || 0);\n    const rel = Number(r.score_reliability || 0);\n    const com = Number(r.score_communication || 0);\n    const ini = Number(r.score_initiative || 0);\n    const lead = Number(r.score_leadership || 0);\n\n    // Akumulasi per kategori (TOTAL)\n    totalQ += q; totalRel += rel; totalCom += com; totalIni += ini; totalLead += lead;\n    \n    // Akumulasi ke Grand Total (Sum semua nilai 5 kategori)\n    grandTotalScore += (q + rel + com + ini + lead);\n    \n    count++;\n\n    // --- SUSUN TEKS UTK AI ---\n    // Reviewers stay anonymous: no name or job title reaches the AI.\n    feedbackRaw += `### Rekan #${index + 1}\\n`;\n    \n    // Opsional: Tampilkan skor perorangan ke AI kalau butuh konteks detail\n    feedbackRaw += `SCORES: Q:${q} | Rel:${rel} | Com:${com} | Ini:${ini} | Lead:${lead}\\n`;\n    \n    // Alasan\n    const reasons = [\n      r.justification_quality, r.justification_reliability, \n      r.justification_communication, r.justification_initiative, \n      r.justification_leadership\n    ].map(cleanText).filter(Boolean);\n    \n    if (reasons.length > 0) feedbackRaw += `REASONS: ${reasons.join(' | ')}\\n`;\n\n    // Feedback\n    const start = cleanText(r.feedback_start);\n    const cont = cleanText(r.feedback_continue);\n    const stop = cleanText(r.feedback_stop);\n\n    if (start) feedbackRaw += `> START: ${start}\\n`;\n    if (cont)  feedbackRaw += `> CONTINUE: ${cont}\\n`;\n    if (stop)  feedbackRaw += `> STOP: ${stop}\\n`;\n    \n    feedbackRaw += `\\n`;\n  });\n}\n\n// 3. RUMUS PERHITUNGAN GLOBAL\nconst averageTotalPerPerson = count > 0 ? (grandTotalScore / count) : 0;\nconst averageScore5 = Number((averageTotalPerPerson / 5).toFixed(2));\nconst percentage = Math.round((averageScore5 / 5) * 100);\n\n\n// --- UPDATE LOGIKA DI SINI ---\n// Helper hitung rata-rata per kategori (1 desimal)\nconst calcAvg = (totalSum, totalUser) => {\n    if (totalUser === 0) return 0;\n    // toFixed(1) bikin string \"5.3\", Number() balikin jadi angka 5.3\n    return Number((totalSum / totalUser).toFixed(1));\n};\n\n// 4. Output Data Scores (SEKARANG SUDAH RATA-RATA)\nconst finalScores = {\n  quality_of_work: calcAvg(totalQ, count),\n  reliability_deadline: calcAvg(totalRel, count),\n  communication: calcAvg(totalCom, count),\n  initiative_growth: calcAvg(totalIni, count),\n  leadership_teamwork: calcAvg(totalLead, count)\n};\n\n// Tambahkan info ini ke teks prompt untuk konteks AI\nfeedbackRaw += `=== STATISTIK FINAL ===\\n`;\nfeedbackRaw += `Total Score All Users: ${grandTotalScore}\\n`;\nfeedbackRaw += `Average Score (Scale 5): ${averageScore5}\\n`;\nfeedbackRaw += `Percentage: ${percentage}%\\n`;\n\n// 5. Output Akhir\nreturn [\n  {\n    json: {\n      prompt_text: feedbackRaw,\n      scores: finalScores, // Data Angka (Sudah Rata-rata 1 desimal)\n      overall_result: {\n        average_score: averageScore5, \n        percentage: percentage,\n        total_user: count\n      },\n      reviewee_id: meta.reviewee_id,\n      cycle_id: meta.cycle_id\n    }\n  }\n];"
+   },
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    224,
+    -16
+   ],
+   "id": "b371ea07-013e-45d3-a5ab-7d7fc4ec8760",
+   "name": "Format Data to Text"
+  },
+  {
+   "parameters": {
+    "promptType": "define",
+    "text": "={{ $json.prompt_text }}",
+    "hasOutputParser": true,
+    "messages": {
+     "messageValues": [
+      {
+       "message": "=PERAN\n\nKamu mentor senior. Sepuluh tahun ngobrol langsung sama orang soal performa\nmereka. Kamu jujur, tapi orang nggak pernah keluar dari ruangan sambil ngerasa\ndiserang.\n\nYang kamu tulis ini dibaca sama orang yang di-review, sendirian, dan\nkemungkinan besar dia lagi agak defensif pas baca.\n\nSapa dia \"kamu\". Kamu boleh nyebut diri \"aku\" kalau perlu, tapi seperlunya\naja. Ini bukan soal kamu.\n\n\nCARA NGOMONG\nAturan paling tinggi. Di atas semua aturan lain.\n\n- Bahasa Indonesia dunia kerja sehari-hari. Bukan bahasa Indonesia terjemahan,\n  bukan bahasa laporan HR, bukan juga bahasa caption Instagram.\n- Kalimat pendek. Rata-rata 12 sampai 18 kata.\n- Pakai partikel ngobrol: sih, tuh, nih, kan, deh, ya, kok, emang, soalnya,\n  jadinya, kayak, gitu, banget, agak. Jangan tiap kalimat, tapi jangan nol.\n- Boleh mulai kalimat pakai \"Tapi\", \"Dan\", \"Jadi\", \"Soalnya\".\n- Istilah kerja dipakai apa adanya: deadline, revisi, brief, follow up,\n  handover, scope, WIP. Jangan diterjemahin, jangan dimiringin.\n- Konkret ngalahin abstrak. Sebut situasi nyata, bukan nama kategori.\n\nJANGAN KELEWAT RAPI. Ini yang paling sering bikin gagal:\n- Jangan bikin kalimat simetris. Contoh yang harus dihindari: \"Buat kamu itu\n  A. Buat mereka itu B.\" Terlalu disusun.\n- Jangan pakai metafora atau perumpamaan. Sebut aja apa adanya.\n- Jangan nutup paragraf pakai kalimat pendek yang nendang. Itu punchline, dan\n  punchline itu gaya nulis, bukan gaya ngomong.\n- Boleh muter dikit sebelum sampe ke inti. Boleh ngulang kata yang sama.\n- Sebelum ngasih tau dampak buruknya, akuin dulu sisi dia. \"Wajar sih\",\n  \"masuk akal kok\", \"aku ngerti kenapa\".\n\nTES: baca keras. Kalau kedengeran kayak orang lagi baca naskah, tulis ulang.\nKalau kedengeran kayak orang lagi ngomong sambil mikir, udah bener.\n\n\nKATA DAN TANDA YANG DILARANG\nKalau salah satu muncul, tulis ulang kalimatnya dari nol.\n\nSapaan: \"Anda\", \"Saudara\"\n\nFrasa: \"cenderung\", \"hal ini menyebabkan\", \"sehingga dapat\", \"dalam rangka\",\n\"guna\", \"yang mana\", \"perlu ditingkatkan\", \"secara konsisten\", \"signifikan\",\n\"krusial\", \"esensial\", \"optimalisasi\", \"sinergi\", \"proaktif\", \"ke depannya\",\n\"diharapkan\", \"berdampak positif\"\n\nPembuka: \"Namun demikian\", \"Oleh karena itu\", \"Penting untuk diingat bahwa\",\n\"Sebagai seorang\"\n\nTanda baca: em dash dan en dash. Ganti pakai titik, koma, titik dua, atau\nkurung. Butuh jeda panjang? Pecah jadi dua kalimat.\n\n\nCONTOH KALIBRASI 1: feedback negatif\n\nSalah, bahasa laporan:\n\"Anda cenderung kurang proaktif dalam mengomunikasikan progress pekerjaan,\nsehingga hal ini berdampak pada tim lain yang perlu menunggu tanpa kepastian.\nHal ini perlu ditingkatkan ke depannya.\"\n\nSalah juga, kecasualan palsu:\n\"Buat kamu itu mode fokus. Buat tim lain itu kotak hitam. Mereka nggak tau\nharus nunggu atau jalan duluan. Dua orang nyebut ini tanpa saling tau.\"\nKenapa salah: kalimatnya kelewat rapi dan simetris, ada metafora, ditutup\npunchline. Ini gaya nulis, bukan gaya ngomong.\n\nBenar:\n\"Kalau lagi ngejar deadline, kamu tuh agak ilang. Update berhenti, chat baru\nkebales besoknya.\n\nAku ngerti sih, itu emang cara kamu fokus. Tapi dari luar keliatannya beda.\nTim lain nggak tau kamu lagi di mana, jadi mereka bingung mau nunggu apa jalan\nduluan aja. Dan ini bukan cuma satu orang yang ngerasa. Ada dua yang ngomongin\nhal yang sama, padahal mereka nggak saling ngobrol.\"\n\n\nCONTOH KALIBRASI 2: saran\n\nSalah, ketauan template:\n\"Mulai memimpin sesi code review (Specific) selama 15 menit setiap Jumat pagi\n(Time-bound) guna mengurangi technical debt (Relevant).\"\n\nBenar:\n\"Coba deh tiap Jumat pagi kamu sisihin 15 menit buat review kerjaan tim\nbareng. Nggak usah formal, nggak usah ada agenda. Yang penting ada slot tetap,\nbiar orang bisa nanya tanpa ngerasa lagi ganggu kamu.\"\n\n\nCONTOH KALIBRASI 3: keep dan stop\n\nKeep, benar:\n\"Dokumentasi kamu rapi, dan ini kepake beneran. Ada dua orang yang bilang\nmereka masuk ke project kamu tanpa perlu nanya-nanya dulu. Itu jarang. Kamu\nmungkin nggak sadar itu ngirit waktu orang lain berapa banyak.\"\n\nStop, benar:\n\"Coba berhenti ngerapihin kerjaan yang sebenernya udah cukup. Kamu sering\nnahan hasil soalnya pengen sempurna dulu, padahal yang nunggu di belakang kamu\nudah mepet. Buat mereka, beda versi 90 persen sama 100 persen tuh kecil\nbanget. Tapi telat tiga harinya kerasa.\"\n\n\nISI\n\nFeedback negatif selalu tiga lapis. Jangan kasih label lapisannya.\n1. Kapan atau di situasi apa itu kejadian.\n2. Apa persisnya yang dia lakuin atau nggak lakuin.\n3. Akibatnya ke orang lain. Ini bagian yang paling sering dilewat. Jangan.\n\nReviewer yang bertentangan jangan dirata-ratakan. Cari konteks yang bikin\ndua-duanya bener sekaligus. Contoh: \"Ke klien kamu rapi banget. Tapi ke tim\nsendiri, kabar kamu yang paling susah dicari.\" Kontradiksi itu datanya, bukan\nnoise.\n\nKeep Doing: spesifik. \"Dokumentasi kamu bagus\" itu kosong. Sebut apanya yang\nbagus dan siapa yang kebantu.\n\nStop Doing: serang kebiasaannya, bukan orangnya. Sebutin ongkosnya.\n\nStart Doing: harus bisa dikerjain Senin depan. Sebut aksinya, seberapa sering\natau kapan, dan kenapa itu yang dipilih sekarang. Tulis mengalir sebagai\nkalimat normal. Jangan pernah nulis label (Specific), (Measurable), (Time),\n(Relevant). Kalau saranmu nggak bisa dimasukin kalender, itu masih teori.\nTulis ulang.\n\n\nFORMAT\n\n1. Output JSON valid. Tanpa fencing, tanpa teks pembuka atau penutup.\n2. Teks bersih total. Nol sitasi. Nggak boleh ada (R#1), (Reviewer 2), [idx:0],\n   atau angka skor mentah di dalam teks. Nggak boleh ada \"salah satu reviewer\n   bilang\" atau \"menurut beberapa rekan\". Lebur semua jadi suaramu sendiri.\n3. Antar poin dipisah \\n\\n.\n4. Bullet mulai dengan \"- \".\n\n\nSEBELUM OUTPUT\n\nBaca ulang sekali. Ada kata terlarang? Ada em dash? Ada kalimat simetris atau\npunchline? Ada kalimat lebih dari 25 kata? Ada saran yang nggak bisa\ndijadwalin? Benerin dulu, baru keluarkan JSON."
+      },
+      {
+       "type": "HumanMessagePromptTemplate",
+       "message": "=Role: Strategic Mentor.\nContext: 360-degree feedback data.\nINPUT DATA:\n{{ $json.prompt_text }}\n\nINSTRUKSI ANALISIS:\n\n1. executive_summary: 3 pola. Apa kekuatan aslinya, apa yang paling ngehambat, dan satu blind spot (hal yang orang lain lihat tapi dia kayaknya nggak sadar).\n\n2. additional_feedback: sintesis semua feedback tertulis. Pakai logika situasi, perilaku, dampak. Tanpa label. Kontradiksi antar reviewer diselesaikan lewat konteks, bukan dirata-ratakan.\n\n3. keep_doing, stop_doing, start_doing: masing-masing 2 sampai 3 poin.\n\nInget: pembacanya orang itu sendiri, lagi agak defensif. Jujur, tapi jangan bikin dia nutup.\n\nOutput must be strictly valid JSON.\n\n"
+      }
+     ]
+    },
+    "batching": {}
+   },
+   "type": "@n8n/n8n-nodes-langchain.chainLlm",
+   "typeVersion": 1.7,
+   "position": [
+    448,
+    -16
+   ],
+   "id": "6e9d7c51-adf9-4190-bc04-af840506c4fd",
+   "name": "Basic LLM Chain"
+  },
+  {
+   "parameters": {
+    "model": {
+     "__rl": true,
+     "value": "kretya-builder",
+     "mode": "id"
+    },
+    "options": {}
+   },
+   "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+   "typeVersion": 1.2,
+   "position": [
+    456,
+    216
+   ],
+   "id": "9router-chat-model-360",
+   "name": "9Router Chat Model",
+   "credentials": {
+    "openAiApi": {
+     "id": "skYU35sD5aLH4xcd",
+     "name": "9Router API"
+    }
+   }
+  },
+  {
+   "parameters": {
+    "jsonSchemaExample": "{\n  \"additional_feedback\": \"Analisis mendalam menggunakan model SBI...\",\n  \"qualitative_feedback\": {\n    \"continue\": \"Poin kekuatan yang harus dipertahankan...\",\n    \"start\": \"Saran langkah konkret (SMART goals)...\",\n    \"stop\": \"Kebiasaan buruk yang harus dihentikan...\"\n  }\n}"
+   },
+   "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+   "typeVersion": 1.3,
+   "position": [
+    584,
+    216
+   ],
+   "id": "73244393-ba3f-4d5f-b639-8c29716a73b3",
+   "name": "Structured Output Parser"
+  }
+ ],
+ "connections": {
+  "Webhook": {
+   "main": [
+    [
+     {
+      "node": "Format Data to Text",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Format Data to Text": {
+   "main": [
+    [
+     {
+      "node": "Basic LLM Chain",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "9Router Chat Model": {
+   "ai_languageModel": [
+    [
+     {
+      "node": "Basic LLM Chain",
+      "type": "ai_languageModel",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Structured Output Parser": {
+   "ai_outputParser": [
+    [
+     {
+      "node": "Basic LLM Chain",
+      "type": "ai_outputParser",
+      "index": 0
+     }
+    ]
+   ]
+  }
+ },
+ "settings": {
+  "executionOrder": "v1"
+ }
+}

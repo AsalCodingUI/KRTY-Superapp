@@ -42,6 +42,9 @@ const id = {
   noReviewsForCycle: "Belum ada review untuk siklus {cycle}",
   noReviewsForUser: "Belum ada review untuk pengguna ini",
   workflowTriggerFailed: "Gagal menjalankan workflow",
+  aiResultInvalid:
+    "AI belum mengembalikan rangkuman yang lengkap. Coba proses lagi.",
+  aiTimeout: "AI terlalu lama menjawab. Coba proses lagi.",
   migrateRunSql: "Jalankan SQL berikut di Supabase SQL Editor",
   migrateFailed: "Migrasi gagal",
 
@@ -104,6 +107,9 @@ const en: Record<keyof typeof id, string> = {
   noReviewsForCycle: "No reviews found for cycle {cycle}",
   noReviewsForUser: "No reviews found for this user",
   workflowTriggerFailed: "Failed to trigger workflow",
+  aiResultInvalid:
+    "The AI didn't return a complete summary. Try processing again.",
+  aiTimeout: "The AI took too long to answer. Try processing again.",
   migrateRunSql: "Please run the following SQL in Supabase SQL Editor",
   migrateFailed: "Migration failed",
 
