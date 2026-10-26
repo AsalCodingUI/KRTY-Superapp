@@ -1,4 +1,5 @@
 import { DEFAULT_LOCALE_HEADER, LOCALE_COOKIE } from "@/shared/i18n/config"
+import { isClientHost, isClientPath } from "@/shared/lib/client-site"
 import { renameLegacyParams } from "@/shared/lib/url-params"
 import {
   accessLevel,
@@ -63,6 +64,15 @@ function writePermissionCache(
 }
 
 export async function middleware(request: NextRequest) {
+  // The public client site only serves the portal and shared reports; the
+  // rest of the app isn't there (it's reached over the VPN).
+  if (
+    isClientHost(request.headers.get("host")) &&
+    !isClientPath(request.nextUrl.pathname)
+  ) {
+    return new NextResponse("Not found", { status: 404 })
+  }
+
   // Old Indonesian param names (?periode=, ?proyek=…) → the English ones.
   if (!request.nextUrl.pathname.startsWith("/api")) {
     const renamed = renameLegacyParams(request.nextUrl)

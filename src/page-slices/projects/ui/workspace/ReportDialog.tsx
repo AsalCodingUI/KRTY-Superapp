@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/popover"
 import { Spinner } from "@/components/ui/spinner"
 import { MarkdownDocEditor } from "@/page-slices/policies/ui/doc-editor"
+import { clientUrl } from "@/shared/lib/client-site"
 import { useT } from "@/shared/i18n/client"
 import { RiCloseLine, RiFileCopyLine } from "@/shared/ui/lucide-icons"
 import { Link2 } from "lucide-react"
@@ -32,8 +33,8 @@ import {
 } from "./reports-data"
 
 /** The client link of a shared report. */
-export const reportShareUrl = (token: string) =>
-  `${window.location.origin}/r/${token}`
+/** The shared report's address on the public client site. */
+export const reportShareUrl = (token: string) => clientUrl(`/r/${token}`)
 
 /**
  * A daily report in the notes editor (title, toolbar, "/" blocks, images by

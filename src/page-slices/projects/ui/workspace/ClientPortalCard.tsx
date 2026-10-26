@@ -19,6 +19,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { formatDistanceToNowStrict } from "date-fns"
 import { useState } from "react"
 import { toast } from "sonner"
+import { clientUrl } from "@/shared/lib/client-site"
 import { portalKey } from "@/shared/lib/portal-docs"
 import { supabase } from "./data"
 
@@ -71,8 +72,8 @@ export function ClientPortalCard({
   const [disabling, setDisabling] = useState(false)
 
   // The readable link: /p/<project-name>-<code>.
-  const link = (code: string) =>
-    `${window.location.origin}/p/${portalKey(projectName, code)}`
+  // On the public client site (no VPN needed).
+  const link = (code: string) => clientUrl(`/p/${portalKey(projectName, code)}`)
   const invite = (l: string, p: string) =>
     t("portalInviteText", { name: projectName, link: l, pin: p })
 
