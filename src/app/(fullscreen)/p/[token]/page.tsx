@@ -6,6 +6,7 @@ import type {
   StepRow,
 } from "@/page-slices/projects/ui/workspace/data"
 import { createAdminClient } from "@/shared/api/supabase/admin"
+import { clientSafeMarkdown } from "@/shared/lib/storage-proxy"
 import { portalPage } from "./session"
 
 /** Portal home: status, phases and their steps, facts, latest reports. */
@@ -62,7 +63,10 @@ export default async function PortalHomePage({
       project={project}
       phases={(phases ?? []) as PhaseRow[]}
       steps={(steps ?? []) as StepRow[]}
-      reports={(reports ?? []) as unknown as PortalReport[]}
+      reports={((reports ?? []) as unknown as PortalReport[]).map((r) => ({
+        ...r,
+        body: clientSafeMarkdown(r.body, `/p/${token}`),
+      }))}
       links={
         (links ?? []) as unknown as {
           id: string

@@ -1,6 +1,7 @@
 import { AppIcon } from "@/components/app-icon"
 import { Markdown } from "@/components/markdown"
 import { createAdminClient } from "@/shared/api/supabase/admin"
+import { clientSafeMarkdown } from "@/shared/lib/storage-proxy"
 import { getDateLocale, getT } from "@/shared/i18n/server"
 import { format, parseISO } from "date-fns"
 import type { Metadata } from "next"
@@ -74,7 +75,7 @@ export default async function SharedReportPage({
         </div>
 
         {report.body.trim() ? (
-          <Markdown images>{report.body}</Markdown>
+          <Markdown images>{clientSafeMarkdown(report.body)}</Markdown>
         ) : (
           <p className="text-muted-foreground text-sm">{t("reportsEmpty")}</p>
         )}

@@ -4,6 +4,7 @@ import {
   type PortalReport,
 } from "@/page-slices/projects/ui/portal/PortalReports"
 import { createAdminClient } from "@/shared/api/supabase/admin"
+import { clientSafeMarkdown } from "@/shared/lib/storage-proxy"
 import { portalPage } from "../session"
 
 /** The reports the team shared with the client (a share link is on). */
@@ -25,5 +26,10 @@ export default async function PortalReportsPage({
     .eq("project_id" as never, session.project.id as never)
     .not("share_token" as never, "is", null)
     .order("report_date" as never, { ascending: false })
-  return <PortalReports reports={(data ?? []) as unknown as PortalReport[]} />
+  // Embedded pictures load through the app (storage is private).
+  const reports = ((data ?? []) as unknown as PortalReport[]).map((r) => ({
+    ...r,
+    body: clientSafeMarkdown(r.body, `/p/${token}`),
+  }))
+  return <PortalReports reports={reports} />
 }

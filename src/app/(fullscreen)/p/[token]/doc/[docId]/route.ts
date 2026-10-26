@@ -1,12 +1,12 @@
 import { createAdminClient } from "@/shared/api/supabase/admin"
 import { isPortalSignedIn, portalByToken } from "@/shared/lib/portal"
 import { CLIENT_DOC_STATUSES } from "@/shared/lib/portal-docs"
+import { proxyStorageObject } from "@/shared/lib/storage-proxy"
 import { NextRequest, NextResponse } from "next/server"
 
 /**
  * GET /p/<token>/doc/<id>: a project document the client may see (not a
- * draft) for a signed-in client; redirects to a signed link that works for half an hour
- * (`?download=1`: one that saves it under its name).
+ * draft) for a signed-in client; streams it from storage (`?download=1`: saved under its name).
  */
 export async function GET(
   request: NextRequest,
@@ -30,13 +30,13 @@ export async function GET(
   ) {
     return new NextResponse(null, { status: 404 })
   }
+  const download = request.nextUrl.searchParams.has("download")
   const { data } = await admin.storage
     .from("project-files")
-    .createSignedUrl(doc.file_path, 30 * 60, {
-      download: request.nextUrl.searchParams.has("download")
-        ? (doc.file_name ?? doc.title)
-        : undefined,
-    })
+    .createSignedUrl(doc.file_path!, 60)
   if (!data) return new NextResponse(null, { status: 404 })
-  return NextResponse.redirect(data.signedUrl, 302)
+  // Streamed through the app: storage isn't reachable from the client site.
+  return proxyStorageObject(request, data.signedUrl, {
+    downloadName: download ? (doc.file_name ?? doc.title) : undefined,
+  })
 }
