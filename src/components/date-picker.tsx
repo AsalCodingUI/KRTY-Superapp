@@ -70,6 +70,7 @@ interface PickerProps extends CalendarBoundsProps {
   placeholder?: string
   /** Both sizes render at 28px (legacy density). */
   inputSize?: InputSize
+  /** @deprecated Month and year are always pickable now. */
   enableYearNavigation?: boolean
   disableNavigation?: boolean
   hasError?: boolean
@@ -361,7 +362,7 @@ const SingleDatePicker = ({
   placeholder: placeholderProp,
   hasError,
   translations,
-  enableYearNavigation = false,
+  enableYearNavigation: _enableYearNavigation,
   locale: localeProp,
   align = "center",
   required,
@@ -484,7 +485,7 @@ const SingleDatePicker = ({
               onSelect={onDateChange}
               required={false}
               locale={locale as CalendarLocale}
-              captionLayout={enableYearNavigation ? "dropdown" : "label"}
+              captionLayout="dropdown"
               disableNavigation={disableNavigation}
               startMonth={bounds.startMonth}
               endMonth={bounds.endMonth}
@@ -554,7 +555,7 @@ const RangeDatePicker = ({
   disabled,
   disableNavigation,
   disabledDays,
-  enableYearNavigation = false,
+  enableYearNavigation: _enableYearNavigation,
   locale: localeProp,
   showTimePicker,
   placeholder: placeholderProp,
@@ -712,7 +713,7 @@ const RangeDatePicker = ({
               onMonthChange={setMonth}
               numberOfMonths={2}
               locale={locale as CalendarLocale}
-              captionLayout={enableYearNavigation ? "dropdown" : "label"}
+              captionLayout="dropdown"
               disableNavigation={disableNavigation}
               startMonth={bounds.startMonth}
               endMonth={bounds.endMonth}

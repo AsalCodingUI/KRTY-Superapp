@@ -30,7 +30,6 @@ import {
   RiCheckboxCircleLine,
   RiCloseLine,
   RiFileTextLine,
-  RiNotification3Line,
   RiSearchLine,
   RiTimeLine,
   type RemixiconComponentType,
@@ -82,8 +81,8 @@ const PAGE_KEYWORDS: [string, string][] = [
   ["/teams", "team karyawan anggota tim direktori orang members"],
   ["/projects", "projects proyek klien client"],
   ["/finance", "finance keuangan langganan subscriptions"],
-  ["/notifications", "notifications notif pemberitahuan"],
   ["/policies", "policies rules aturan kebijakan peraturan handbook sop"],
+  ["/contracts", "contracts kontrak pkwt pkwtt perjanjian kerja meterai nda"],
 ]
 
 function pageKeywords(href: string) {
@@ -168,14 +167,6 @@ function SearchPanel({ onClose }: { onClose: () => void }) {
         }
       }
     }
-    add(
-      {
-        title: tNav("notifications"),
-        meta: tNav("account"),
-        href: "/notifications",
-      },
-      RiNotification3Line,
-    )
     return { pages: out, pageIcons: icons }
   }, [visible, profile, tNav])
 
@@ -324,9 +315,7 @@ function SearchPanel({ onClose }: { onClose: () => void }) {
                   ? t("searchMinChars")
                   : t("searchNoResults", { query: trimmed })
               }
-              description={
-                scope === "all" ? t("searchTryOther") : t("searchTryAll")
-              }
+              description={scope === "all" ? undefined : t("searchTryAll")}
             />
           </CommandEmpty>
         )}
@@ -424,7 +413,7 @@ function HitIcon({
       )
     case "tasks":
       return hit.done ? (
-        <RiCheckboxCircleLine className="text-success" />
+        <RiCheckboxCircleLine className="text-success-ink" />
       ) : (
         <RiCheckboxBlankCircleLine className="text-muted-foreground" />
       )

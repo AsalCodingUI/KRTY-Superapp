@@ -120,7 +120,7 @@ const TabNavigationLink = React.forwardRef<
           {getSubtree({ asChild, children }, (children) => (
             <span
               className={cn(
-                "text-muted-foreground relative inline-flex items-center justify-center pb-1.5 whitespace-nowrap transition-colors",
+                "text-muted-foreground relative inline-flex items-center justify-center py-1.5 whitespace-nowrap transition-colors",
                 "group-hover:text-foreground group-data-[active]:text-foreground",
                 disabled && "text-muted-foreground/50 pointer-events-none",
                 className,

@@ -250,7 +250,7 @@ function AttendanceDay({
         </span>
         <span className="hidden justify-end lg:flex">
           {active > 0 && (
-            <span className="text-success flex items-center gap-1.5 text-[13px]">
+            <span className="text-success-ink flex items-center gap-1.5 text-[13px]">
               <span className="bg-success size-1.5 animate-pulse rounded-full motion-reduce:animate-none" />
               {t("activeCount", { n: active })}
             </span>

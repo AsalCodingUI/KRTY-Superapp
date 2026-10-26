@@ -2,8 +2,12 @@
 
 import { cn } from "@/lib/utils"
 import * as React from "react"
+import { flushSync } from "react-dom"
 
 type Box = { x: number; y: number; w: number; h: number }
+
+/** A placement, and whether it should slide there (vs. snap). */
+type Placement = Box & { glide: boolean }
 
 /**
  * The active-item highlight of a segmented control / tab row, drawn once and
@@ -35,7 +39,7 @@ export function SlidingIndicator({
   shadowClassName?: string
 }) {
   const ref = React.useRef<HTMLSpanElement>(null)
-  const [box, setBox] = React.useState<Box | null>(null)
+  const [box, setBox] = React.useState<Placement | null>(null)
   const [animate, setAnimate] = React.useState(false)
 
   React.useLayoutEffect(() => {
@@ -49,6 +53,10 @@ export function SlidingIndicator({
 
     const measure = () => {
       const active = container.querySelector<HTMLElement>(activeSelector)
+      // Slide only when the active item changes. When the same item just
+      // moves (a group opening above it, the sidebar collapsing), snap with
+      // it: chasing a target that moves every frame reads as jitter.
+      const glide = active !== watched
       if (active !== watched) {
         // Follow a nested active item's own size too (direct children are
         // observed already).
@@ -62,6 +70,11 @@ export function SlidingIndicator({
       }
       const c = container.getBoundingClientRect()
       const a = active.getBoundingClientRect()
+      // Hidden (a collapsed group, display: none): no pill.
+      if (a.width === 0 || a.height === 0) {
+        setBox(null)
+        return
+      }
       // Rects include ancestor transforms: a dialog opening at scale(0.95)
       // would leave the pill 5% short, and nothing re-measures once the
       // animation ends. Divide the scale back out to get layout pixels.
@@ -73,6 +86,7 @@ export function SlidingIndicator({
           y: (a.top - c.top) / sy - container.clientTop,
           w: a.width / sx,
           h: a.height / sy,
+          glide,
         }
         return prev &&
           prev.x === next.x &&
@@ -102,14 +116,28 @@ export function SlidingIndicator({
       })
     }
 
-    resize = new ResizeObserver(schedule)
+    // Resize callbacks run after layout and before paint: measuring right
+    // there keeps the pill on a moving item in the same frame (deferring a
+    // frame left it trailing behind while a group opened or closed).
+    resize = new ResizeObserver(() => flushSync(measure))
     resize.observe(container)
     // Siblings resizing (a count badge loading) can shift the active item.
     for (const child of children) resize.observe(child)
     if (watched && !children.has(watched)) resize.observe(watched)
-    const mutations = new MutationObserver(schedule)
+    // Items added later (a tab that appears once its data loads) shift the
+    // active one without resizing anything observed: watch them too.
+    const mutations = new MutationObserver((records) => {
+      for (const record of records)
+        for (const node of record.addedNodes)
+          if (node.parentElement === container && node instanceof Element) {
+            children.add(node)
+            resize?.observe(node)
+          }
+      schedule()
+    })
     mutations.observe(container, {
       subtree: true,
+      childList: true,
       attributes: true,
       attributeFilter: [
         "data-pressed",
@@ -146,6 +174,7 @@ export function SlidingIndicator({
     "pointer-events-none absolute top-0 left-0",
     !box && "invisible",
     animate &&
+      box?.glide &&
       "transition-[transform,width,height] duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] motion-reduce:transition-none",
   )
   return (

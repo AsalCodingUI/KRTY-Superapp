@@ -3,6 +3,11 @@ import * as React from "react"
 import type { LucideIcon, LucideProps } from "lucide-react"
 import {
   BadgeCheck,
+  List,
+  ListOrdered,
+  Megaphone,
+  NotebookPen,
+  Pin,
   ChevronsLeft,
   ChevronsRight,
   Circle,
@@ -74,6 +79,11 @@ export const RiCalendarLine =
 export const RiCalendarScheduleLine =
   A.CalendarClock as unknown as RemixiconComponentType
 export const RiCheckboxBlankCircleLine = /*#__PURE__*/ withDefaults(Circle)
+export const RiStickyNoteLine = /*#__PURE__*/ withDefaults(NotebookPen)
+export const RiPushpinLine = /*#__PURE__*/ withDefaults(Pin)
+export const RiListUnordered = /*#__PURE__*/ withDefaults(List)
+export const RiListOrdered = /*#__PURE__*/ withDefaults(ListOrdered)
+export const RiMegaphoneLine = /*#__PURE__*/ withDefaults(Megaphone)
 export const RiCheckboxCircleFill =
   A.CircleCheck as unknown as RemixiconComponentType
 export const RiCheckboxCircleLine =
@@ -120,6 +130,7 @@ export const RiGroupLine = A.Users as unknown as RemixiconComponentType
 export const RiHammerLine = A.Hammer as unknown as RemixiconComponentType
 export const RiHeartFill = A.Heart as unknown as RemixiconComponentType
 export const RiHome2Line = A.Home as unknown as RemixiconComponentType
+export const RiInboxLine = A.Inbox as unknown as RemixiconComponentType
 export const RiInformationLine = A.Info as unknown as RemixiconComponentType
 export const RiItalic = A.Italic as unknown as RemixiconComponentType
 export const RiLayout2Line = A.Columns2 as unknown as RemixiconComponentType

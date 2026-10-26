@@ -45,8 +45,13 @@ function countRows(children: React.ReactNode): number {
 export function GroupedList({
   className,
   children,
+  hover = true,
   ...props
-}: React.ComponentProps<"div">) {
+}: React.ComponentProps<"div"> & {
+  /** The highlight that follows the pointer; off for read-only lists where
+   *  rows don't do anything. */
+  hover?: boolean
+}) {
   const [mounted, setMounted] = React.useState(false)
   React.useEffect(() => setMounted(true), [])
   return (
@@ -56,10 +61,12 @@ export function GroupedList({
       {...props}
     >
       {/* One hover highlight that follows the pointer between rows. */}
-      <HoverHighlight
-        itemSelector="[data-slot=list-row]"
-        className="bg-(--row-hover)"
-      />
+      {hover && (
+        <HoverHighlight
+          itemSelector="[data-slot=list-row]"
+          className="bg-(--row-hover)"
+        />
+      )}
       <ListAnimated.Provider value={countRows(children) <= ANIMATED_ROW_LIMIT}>
         <ListMounted.Provider value={mounted}>{children}</ListMounted.Provider>
       </ListAnimated.Provider>

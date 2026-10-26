@@ -199,20 +199,38 @@ export const lineTotal = (line: Pick<InvoiceLine, "total_idr">) =>
   Number(line.total_idr) || 0
 
 export function invoiceTotals(lines: InvoiceLine[], schedule: ScheduleItem[]) {
-  const total = lines.reduce((sum, l) => sum + lineTotal(l), 0)
-  const share = (item: ScheduleItem) =>
-    Math.round(((total * (Number(item.percent) || 0)) / 100) * 100) / 100
-  const paid = schedule
-    .filter((s) => s.status === "paid")
-    .reduce((sum, s) => sum + share(s), 0)
+  const cents = (n: number) => Math.round(n * 100) / 100
+  const total = cents(lines.reduce((sum, l) => sum + lineTotal(l), 0))
   const percentSum = schedule.reduce(
     (sum, s) => sum + (Number(s.percent) || 0),
     0,
   )
+  // Each term rounds to cents; when the terms make 100% the last one takes
+  // the remainder, so paying every term pays exactly the total.
+  const shares = new Map<string, number>()
+  let shared = 0
+  schedule.forEach((item, i) => {
+    const amount =
+      percentSum === 100 && i === schedule.length - 1
+        ? cents(total - shared)
+        : cents((total * (Number(item.percent) || 0)) / 100)
+    shares.set(item.id, amount)
+    shared += amount
+  })
+  const share = (item: ScheduleItem) => shares.get(item.id) ?? 0
+  // Terms adding up to more than 100% never count as more than the total.
+  const paid = Math.min(
+    total,
+    cents(
+      schedule
+        .filter((s) => s.status === "paid")
+        .reduce((sum, s) => sum + share(s), 0),
+    ),
+  )
   return {
     total,
     paid,
-    balance: Math.max(0, total - paid),
+    balance: Math.max(0, cents(total - paid)),
     share,
     percentSum,
   }

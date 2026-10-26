@@ -1,5 +1,6 @@
 "use client"
 
+import { Button } from "@/components/ui/button"
 import { useDateLocale, useT } from "@/shared/i18n/client"
 import { cx } from "@/shared/lib/utils"
 import { RiAddLine, RiSubtractFill } from "@/shared/ui/lucide-icons"
@@ -24,6 +25,8 @@ interface WeekViewProps {
   onEventClick?: (event: CalendarEvent) => void
   onSlotClick?: (date: Date) => void
   canEdit?: boolean
+  /** Whether one event may be dragged; defaults to `canEdit`. */
+  canEditEvent?: (event: CalendarEvent) => boolean
 }
 
 /** Hour heights for the −/+ zoom; 64px matches the reference. */
@@ -43,6 +46,7 @@ export const WeekView = memo(function WeekView({
   onEventClick,
   onSlotClick,
   canEdit = true,
+  canEditEvent,
 }: WeekViewProps) {
   const { currentDate } = useCalendarContext()
   const t = useT("calendar")
@@ -83,26 +87,28 @@ export const WeekView = memo(function WeekView({
       <div className="bg-background dark:bg-surface sticky top-0 z-20 border-b">
         <div className="flex">
           <div className="flex w-14 shrink-0 items-center justify-center gap-0.5 border-r">
-            <button
-              type="button"
+            <Button
+              variant="ghost"
+              size="icon-xs"
+              className="text-muted-foreground"
               aria-label={t("weekZoomOut")}
               disabled={step === 0}
               onClick={() => setStep((s) => Math.max(0, s - 1))}
-              className="text-muted-foreground hover:text-foreground hover:bg-accent flex size-5 cursor-pointer items-center justify-center rounded-sm disabled:pointer-events-none disabled:opacity-40"
             >
-              <RiSubtractFill className="size-3.5" />
-            </button>
-            <button
-              type="button"
+              <RiSubtractFill />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon-xs"
+              className="text-muted-foreground"
               aria-label={t("weekZoomIn")}
               disabled={step === HOUR_STEPS.length - 1}
               onClick={() =>
                 setStep((s) => Math.min(HOUR_STEPS.length - 1, s + 1))
               }
-              className="text-muted-foreground hover:text-foreground hover:bg-accent flex size-5 cursor-pointer items-center justify-center rounded-sm disabled:pointer-events-none disabled:opacity-40"
             >
-              <RiAddLine className="size-3.5" />
-            </button>
+              <RiAddLine />
+            </Button>
           </div>
           {weekDays.map((day) => {
             const isToday = isSameDay(day, now)
@@ -250,7 +256,12 @@ export const WeekView = memo(function WeekView({
                           } as React.CSSProperties
                         }
                       >
-                        <DraggableEvent event={event} disabled={!canEdit}>
+                        <DraggableEvent
+                          event={event}
+                          disabled={
+                            !(canEditEvent ? canEditEvent(event) : canEdit)
+                          }
+                        >
                           <button
                             type="button"
                             onClick={(e) => {

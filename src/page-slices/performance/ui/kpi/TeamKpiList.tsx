@@ -2,25 +2,123 @@
 
 import { EmptyValue, orEmpty } from "@/components/empty-value"
 import {
+  getPeriodLock,
   getTeamKpi,
+  lockPeriod,
+  unlockPeriod,
   type TeamKpiRow,
 } from "@/app/(main)/performance/actions/kpi-actions"
-import { DataTable, DataTableColumnHeader } from "@/components/data-table"
+import { ConfirmDialog } from "@/components/confirm-dialog"
 import { EmptyState } from "@/components/empty-state"
 import { GroupedList, ListRow } from "@/components/grouped-list"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
-import type { ViewMode } from "@/components/view-toggle"
 import { cn } from "@/lib/utils"
 import { formatPercent, ratingFor } from "@/entities/performance/lib/kpi"
-import { useT } from "@/shared/i18n/client"
-import { RiArrowRightSLine, RiGroupLine } from "@/shared/ui/lucide-icons"
-import { useQuery } from "@tanstack/react-query"
-import type { ColumnDef } from "@tanstack/react-table"
+import { useDateLocale, useT } from "@/shared/i18n/client"
+import {
+  RiArrowRightSLine,
+  RiGroupLine,
+  RiLockLine,
+} from "@/shared/ui/lucide-icons"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { format, parseISO } from "date-fns"
 import Link from "next/link"
-import { useMemo } from "react"
+import { useState } from "react"
+import { toast } from "sonner"
 import { ListColumns, PersonCell, StatBand } from "../list"
+import { isQuarter, periodLabel } from "./period"
 import { RatingChip } from "./RatingChip"
+
+/**
+ * Closing a quarter: "Kunci periode" snapshots everyone's numbers; once
+ * locked, a badge plus "Buka kunci". Both ask first.
+ */
+function PeriodLockControl({ period }: { period: string }) {
+  const t = useT("performance")
+  const dateLocale = useDateLocale()
+  const queryClient = useQueryClient()
+  const [open, setOpen] = useState(false)
+  // Kept after closing so the dialog text doesn't flip while it fades out.
+  const [confirm, setConfirm] = useState<"lock" | "unlock">("lock")
+  const ask = (action: "lock" | "unlock") => {
+    setConfirm(action)
+    setOpen(true)
+  }
+  const { data: lock, isLoading } = useQuery({
+    queryKey: ["kpi-lock", period],
+    queryFn: () => getPeriodLock(period),
+    staleTime: 30_000,
+  })
+  if (isLoading || !lock) return null
+
+  const label = periodLabel(period, t)
+  const run = async () => {
+    const result =
+      confirm === "unlock"
+        ? await unlockPeriod(period)
+        : await lockPeriod(period)
+    if (!result.success) {
+      toast.error(result.error ?? t("periodLockFailed"))
+      return
+    }
+    toast.success(
+      confirm === "unlock" ? t("kpiPeriodUnlocked") : t("kpiPeriodLocked"),
+    )
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ["kpi-lock"] }),
+      queryClient.invalidateQueries({ queryKey: ["kpi-team"] }),
+      queryClient.invalidateQueries({ queryKey: ["kpi"] }),
+    ])
+  }
+
+  return (
+    <>
+      {lock.locked ? (
+        <>
+          <Badge variant="secondary" className="font-normal">
+            <RiLockLine data-icon="inline-start" />
+            {lock.lockedAt
+              ? t("kpiLockedOn", {
+                  date: format(parseISO(lock.lockedAt), "d MMM yyyy", {
+                    locale: dateLocale,
+                  }),
+                })
+              : t("kpiLocked")}
+          </Badge>
+          <Button variant="ghost" size="sm" onClick={() => ask("unlock")}>
+            {t("kpiUnlockPeriod")}
+          </Button>
+        </>
+      ) : (
+        <Button variant="outline" size="sm" onClick={() => ask("lock")}>
+          <RiLockLine data-icon="inline-start" />
+          {t("kpiLockPeriod")}
+        </Button>
+      )}
+      <ConfirmDialog
+        open={open}
+        onOpenChange={setOpen}
+        onConfirm={run}
+        title={
+          confirm === "unlock"
+            ? t("kpiUnlockConfirmTitle", { period: label })
+            : t("kpiLockConfirmTitle", { period: label })
+        }
+        description={
+          confirm === "unlock"
+            ? t("kpiUnlockConfirmDescription")
+            : t("kpiLockConfirmDescription")
+        }
+        confirmText={
+          confirm === "unlock" ? t("kpiUnlockPeriod") : t("kpiLockPeriod")
+        }
+        variant={confirm === "unlock" ? "destructive" : "default"}
+      />
+    </>
+  )
+}
 
 /** Shared column template so the header and rows line up. */
 const ROW_GRID =
@@ -55,92 +153,16 @@ function Part({
 }
 
 const kpiHref = (row: TeamKpiRow, scope: string) =>
-  `/performance/employee/${row.id}?periode=${encodeURIComponent(scope)}`
+  `/performance/employee/${row.id}?period=${encodeURIComponent(scope)}`
 
-function teamKpiColumns(
-  t: ReturnType<typeof useT<"performance">>,
-  scope: string,
-): ColumnDef<TeamKpiRow>[] {
-  const href = (row: TeamKpiRow) => kpiHref(row, scope)
-  return [
-    {
-      accessorKey: "full_name",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={t("member")} />
-      ),
-      cell: ({ row }) => (
-        <PersonCell
-          name={row.original.full_name}
-          avatarUrl={row.original.avatar_url}
-          secondary={projectsLabel(row.original, t)}
-        >
-          <Link
-            href={href(row.original)}
-            prefetch={false}
-            className="text-foreground truncate hover:underline"
-          >
-            {row.original.full_name}
-          </Link>
-        </PersonCell>
-      ),
-    },
-    ...(
-      [
-        ["sla", "sla"],
-        ["review", "review360Short"],
-        ["quality", "quality"],
-      ] as const
-    ).map(
-      ([key, title]): ColumnDef<TeamKpiRow> => ({
-        id: key,
-        accessorFn: (r) => r.parts[key] ?? -1,
-        header: ({ column }) => (
-          <DataTableColumnHeader column={column} title={t(title)} />
-        ),
-        cell: ({ row }) => (
-          <span className="tabular-nums">
-            {orEmpty(formatPercent(row.original.parts[key]))}
-          </span>
-        ),
-      }),
-    ),
-    {
-      id: "final",
-      accessorFn: (r) => r.final.score ?? -1,
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={t("finalScore")} />
-      ),
-      cell: ({ row }) => (
-        <div className="flex items-center gap-2">
-          <span className="tabular-nums">
-            {row.original.final.score === null ? (
-              <EmptyValue />
-            ) : (
-              Math.round(row.original.final.score)
-            )}
-          </span>
-          <RatingChip score={row.original.final.score} />
-        </div>
-      ),
-    },
-  ]
-}
-
-/** Everyone's KPI for the period, best first (list) or as a table. */
-export function TeamKpiList({
-  scope,
-  view,
-}: {
-  scope: string
-  view: ViewMode
-}) {
+/** Everyone's KPI for the period, best first. */
+export function TeamKpiList({ scope }: { scope: string }) {
   const t = useT("performance")
   const { data, isLoading } = useQuery({
     queryKey: ["kpi-team", scope],
     queryFn: () => getTeamKpi(scope),
     staleTime: 30_000,
   })
-  const columns = useMemo(() => teamKpiColumns(t, scope), [t, scope])
 
   if (isLoading) {
     return (
@@ -161,7 +183,6 @@ export function TeamKpiList({
     return (
       <EmptyState
         title={t("noMembers")}
-        description={t("noMembersDescription")}
         icon={<RiGroupLine className="size-5" />}
         placement="inner"
       />
@@ -196,25 +217,9 @@ export function TeamKpiList({
         },
         { label: t("noData"), value: rows.length - scored.length },
       ]}
+      aside={isQuarter(scope) ? <PeriodLockControl period={scope} /> : null}
     />
   )
-
-  if (view === "table") {
-    return (
-      <>
-        {stats}
-        <DataTable
-          data={rows}
-          columns={columns}
-          showExport={false}
-          showViewOptions={false}
-          showFilterbar={false}
-          enableSelection={false}
-          showTableWrapper={false}
-        />
-      </>
-    )
-  }
 
   const sorted = [...rows].sort(
     (a, b) => (b.final.score ?? -1) - (a.final.score ?? -1),

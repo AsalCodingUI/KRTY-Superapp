@@ -1,14 +1,16 @@
 "use client"
 
-import {
-  HomeCard,
-  HomeEmpty,
-  HomeRow,
-} from "@/app/(main)/dashboard/components/home-card"
+import { HomeCard, HomeRow } from "@/app/(main)/dashboard/components/home-card"
+import { EmptyState } from "@/components/empty-state"
+import { PieChart } from "lucide-react"
 import { SegmentedControl } from "@/components/segmented-control"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import { RiArrowLeftSLine, RiArrowRightSLine } from "@/shared/ui/lucide-icons"
+import {
+  RiArrowLeftSLine,
+  RiArrowRightSLine,
+  RiWalletLine,
+} from "@/shared/ui/lucide-icons"
 import {
   addDays,
   addMonths,
@@ -67,6 +69,8 @@ export function SubscriptionsTab({
   const locale = useLocale()
   const dateLocale = useDateLocale()
   const today = startOfDay(new Date())
+  // Today's charge already counts as paid, so "next" starts tomorrow.
+  const tomorrow = addDays(today, 1)
   const { start, end } = yearRange(year)
   const thisYear = year === today.getFullYear()
   const [view, setView] = useState<"list" | "month">("list")
@@ -85,7 +89,7 @@ export function SubscriptionsTab({
     today < end
       ? subscriptions
           .flatMap((s) =>
-            chargesBetween(s, addDays(today, 1), end).map((d) => ({ s, d })),
+            chargesBetween(s, tomorrow, end).map((d) => ({ s, d })),
           )
           .sort((a, b) => a.d.getTime() - b.d.getTime())
       : []
@@ -102,8 +106,8 @@ export function SubscriptionsTab({
   }, [active, rates])
 
   const sorted = [...subscriptions].sort((a, b) => {
-    const na = nextCharge(a, today)?.getTime() ?? Infinity
-    const nb = nextCharge(b, today)?.getTime() ?? Infinity
+    const na = nextCharge(a, tomorrow)?.getTime() ?? Infinity
+    const nb = nextCharge(b, tomorrow)?.getTime() ?? Infinity
     return na - nb || a.name.localeCompare(b.name)
   })
 
@@ -194,16 +198,17 @@ export function SubscriptionsTab({
           }
         >
           {subscriptions.length === 0 ? (
-            <div className="flex flex-col items-center gap-3 py-6">
-              <HomeEmpty>{t("noSubscriptions")}</HomeEmpty>
-              <Button variant="outline" size="sm" onClick={onAdd}>
-                {t("addSubscription")}
-              </Button>
-            </div>
+            <EmptyState
+              placement="inner"
+              icon={<RiWalletLine />}
+              title={t("noSubscriptionsTitle")}
+              description={t("noSubscriptionsHint")}
+              action={{ label: t("addSubscription"), onClick: onAdd }}
+            />
           ) : view === "list" ? (
             <div className="flex flex-col">
               {sorted.map((s) => {
-                const next = nextCharge(s, today)
+                const next = nextCharge(s, tomorrow)
                 const ended = !isActive(s, today)
                 const rate = rateOf(s.currency, s.fx_rate, rates)
                 return (
@@ -266,37 +271,49 @@ export function SubscriptionsTab({
         </HomeCard>
 
         <HomeCard title={t("byCategory")}>
-          <Donut
-            data={byCategory}
-            label={rupiahShort(perMonth, locale)}
-            sublabel={t("perMonthLower")}
-          />
           {byCategory.length === 0 ? (
-            <HomeEmpty>{t("noActiveCosts")}</HomeEmpty>
+            // Nothing running: no empty donut, the shared empty state.
+            <EmptyState
+              placement="inner"
+              icon={<PieChart />}
+              title={t("noActiveCostsTitle")}
+              description={t("noActiveCostsHint")}
+            />
           ) : (
-            <div className="flex flex-col">
-              {byCategory.map((c) => (
-                <HomeRow
-                  key={c.key}
-                  leading={
-                    <span
-                      aria-hidden
-                      className="size-2 rounded-full"
-                      style={{ background: c.color }}
-                    />
-                  }
-                  title={categoryLabel(t, c.key)}
-                  trailing={
-                    <>
-                      <span className="text-muted-foreground text-[13px]">
-                        {perMonth ? Math.round((c.value / perMonth) * 100) : 0}%
-                      </span>
-                      <span>{rupiah(c.value)}</span>
-                    </>
-                  }
-                />
-              ))}
-            </div>
+            <>
+              <Donut
+                data={byCategory}
+                label={rupiahShort(perMonth, locale)}
+                sublabel={t("perMonthLower")}
+              />
+
+              <div className="flex flex-col">
+                {byCategory.map((c) => (
+                  <HomeRow
+                    key={c.key}
+                    leading={
+                      <span
+                        aria-hidden
+                        className="size-2 rounded-full"
+                        style={{ background: c.color }}
+                      />
+                    }
+                    title={categoryLabel(t, c.key)}
+                    trailing={
+                      <>
+                        <span className="text-muted-foreground text-[13px]">
+                          {perMonth
+                            ? Math.round((c.value / perMonth) * 100)
+                            : 0}
+                          %
+                        </span>
+                        <span>{rupiah(c.value)}</span>
+                      </>
+                    }
+                  />
+                ))}
+              </div>
+            </>
           )}
         </HomeCard>
       </div>

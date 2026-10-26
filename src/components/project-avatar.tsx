@@ -31,6 +31,24 @@ export function projectColor(id: string) {
   return PROJECT_COLORS[(hash >>> 0) % PROJECT_COLORS.length]
 }
 
+/** The project's colour as a CSS variable (e.g. "var(--blue-9)"), for tints
+ *  that should match its avatar, like a timeline bar. */
+export function projectColorVar(id: string) {
+  const bg = projectColor(id).split(" ")[0] // "bg-blue-9"
+  return `var(--${bg.slice(3)})`
+}
+
+/** First letter or digit, so "[QA] Milxa" shows "Q". Not a \p{L} regex:
+ *  the server build matched "[" with it (hydration mismatch). */
+function initial(name: string) {
+  for (const ch of name) {
+    if (/[0-9]/.test(ch) || ch.toLowerCase() !== ch.toUpperCase()) {
+      return ch.toUpperCase()
+    }
+  }
+  return "P"
+}
+
 export function ProjectAvatar({
   id,
   name,
@@ -49,7 +67,7 @@ export function ProjectAvatar({
         className,
       )}
     >
-      {name.trim().charAt(0).toUpperCase() || "P"}
+      {initial(name)}
     </span>
   )
 }

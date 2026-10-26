@@ -121,10 +121,49 @@ export const EVENT_TYPE_REGISTRY: Record<string, EventTypeDefinition> = {
     color: "emerald",
     colorMapping: {
       background: "bg-success/15",
-      text: "text-success",
+      text: "text-success-ink",
       border: "border-transparent",
       semanticCategory: "success",
       label: "Libur perusahaan",
+    },
+  },
+  // Only its owner can see it (RLS: migrations/calendar_personal_santuy.sql).
+  Personal: {
+    value: "Personal",
+    label: "Pribadi",
+    color: "cyan",
+    colorMapping: {
+      background: "bg-info/15",
+      text: "text-info",
+      border: "border-transparent",
+      semanticCategory: "info",
+      label: "Pribadi",
+    },
+  },
+  // Open to everyone; any teammate can host one.
+  "Sharing Santuy": {
+    value: "Sharing Santuy",
+    label: "Sharing Santuy",
+    color: "pink",
+    colorMapping: {
+      background: "bg-pink-9/15",
+      text: "text-pink-11",
+      border: "border-transparent",
+      semanticCategory: "info",
+      label: "Sharing Santuy",
+    },
+  },
+  // Task deadlines (project_tasks.due_date), never stored as events.
+  Task: {
+    value: "Task",
+    label: "Tenggat tugas",
+    color: "teal",
+    colorMapping: {
+      background: "bg-teal-9/15",
+      text: "text-teal-11",
+      border: "border-transparent",
+      semanticCategory: "info",
+      label: "Tenggat tugas",
     },
   },
   "Public Holiday": {
@@ -146,6 +185,7 @@ const EVENT_TYPE_ALIASES: Record<string, string> = {
   CompanyHoliday: "Company Holiday",
   holiday: "Public Holiday",
   PublicHoliday: "Public Holiday",
+  SharingSantuy: "Sharing Santuy",
 }
 
 /**
@@ -172,7 +212,7 @@ export const COLOR_TO_SEMANTIC_MAPPING: Record<EventColor, EventColorMapping> =
     },
     emerald: {
       background: "bg-success/15",
-      text: "text-success",
+      text: "text-success-ink",
       border: "border-transparent",
       semanticCategory: "success",
       label: "Success",
@@ -204,6 +244,20 @@ export const COLOR_TO_SEMANTIC_MAPPING: Record<EventColor, EventColorMapping> =
       border: "border-transparent",
       semanticCategory: "info",
       label: "Info",
+    },
+    pink: {
+      background: "bg-pink-9/15",
+      text: "text-pink-11",
+      border: "border-transparent",
+      semanticCategory: "info",
+      label: "Pink",
+    },
+    teal: {
+      background: "bg-teal-9/15",
+      text: "text-teal-11",
+      border: "border-transparent",
+      semanticCategory: "info",
+      label: "Teal",
     },
     neutral: {
       background: "bg-muted",
@@ -337,6 +391,9 @@ const EVENT_TYPE_LABEL_KEYS = {
   "301 Meeting": "eventType301Meeting",
   "Company Holiday": "eventTypeCompanyHoliday",
   "Public Holiday": "eventTypePublicHoliday",
+  Personal: "eventTypePersonal",
+  "Sharing Santuy": "eventTypeSharingSantuy",
+  Task: "eventTypeTask",
 } as const
 
 export type EventTypeLabelKey =

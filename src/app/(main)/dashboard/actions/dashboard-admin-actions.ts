@@ -1,5 +1,6 @@
 "use server"
 
+import { leaveTypeLabel } from "@/shared/lib/leave"
 import { createClient } from "@/shared/api/supabase/server"
 import { getLocalDateString } from "@/shared/lib/date"
 import { resolveProfileByUserIdOrEmail } from "@/shared/lib/profile-resolution"
@@ -25,6 +26,8 @@ export type AdminDashboardData = {
     pendingLeaveApprovals: number
     todayAttendanceRate: number
     avgTeamPerformance: number | null
+    /** Quarter the team KPI figures are from (the latest with scores). */
+    performanceQuarter: string
   }
   performanceDistribution: {
     outstanding: number
@@ -124,17 +127,19 @@ export async function getAdminDashboardData(): Promise<{
     const currentQuarter = getCurrentQuarter()
 
     // Parallel fetch all data using dedicated entity functions
-    const [dailyAttendanceStats, leaveStats, reviewStats, teamKpi] =
+    const [dailyAttendanceStats, leaveStats, reviewStats, kpi, tl] =
       await Promise.all([
         getDailyStats(todayStr),
         getLeaveDashboardStats(),
         getDashboardReviewStats(currentQuarter),
-        getTeamKpi(currentQuarter),
+        latestTeamKpi(currentQuarter),
+        getT("leave"),
       ])
     const performanceStats = {
       ...reviewStats,
-      ...summarizeTeamKpi(teamKpi.success ? teamKpi.data : [], t),
+      ...summarizeTeamKpi(kpi.rows, t),
     }
+    const leaveType = (type: string) => leaveTypeLabel(type, tl)
 
     // Build recent activities
     const recentActivities: AdminDashboardData["recentActivities"] = []
@@ -154,19 +159,27 @@ export async function getAdminDashboardData(): Promise<{
     leaveStats.recentLeaves.forEach((leave: LeaveRequestWithProfile) => {
       let activityType: "leave_request" | "leave_approved" | "leave_rejected" =
         "leave_request"
-      let description = t("activityRequestedLeave", { type: leave.leave_type })
+      let description = t("activityRequestedLeave", {
+        type: leaveType(leave.leave_type),
+      })
 
       // Handle type mismatch between DB string and literal type
       const status = leave.status as string
 
       if (status === "approved") {
         activityType = "leave_approved"
-        description = t("activityLeaveApproved", { type: leave.leave_type })
+        description = t("activityLeaveApproved", {
+          type: leaveType(leave.leave_type),
+        })
       } else if (status === "rejected") {
         activityType = "leave_rejected"
-        description = t("activityLeaveRejected", { type: leave.leave_type })
+        description = t("activityLeaveRejected", {
+          type: leaveType(leave.leave_type),
+        })
       } else {
-        description = t("activityRequestedLeave", { type: leave.leave_type })
+        description = t("activityRequestedLeave", {
+          type: leaveType(leave.leave_type),
+        })
       }
 
       recentActivities.push({
@@ -199,7 +212,7 @@ export async function getAdminDashboardData(): Promise<{
           user_id: leave.user_id,
           user_name: leave.profiles?.full_name || null,
           user_avatar: leave.profiles?.avatar_url || null,
-          leave_type: leave.leave_type,
+          leave_type: leaveType(leave.leave_type),
           start_date: leave.start_date,
           end_date: leave.end_date,
           days_requested: daysRequested,
@@ -218,6 +231,7 @@ export async function getAdminDashboardData(): Promise<{
         todayAttendanceRate:
           Math.round(dailyAttendanceStats.attendanceRate * 10) / 10,
         avgTeamPerformance: performanceStats.avgTeamPerformance,
+        performanceQuarter: kpi.quarter,
       },
       performanceDistribution: performanceStats.distribution,
       pendingReviewsList: performanceStats.pendingReviewsList,
@@ -239,6 +253,29 @@ export async function getAdminDashboardData(): Promise<{
     console.error("Error fetching admin dashboard data:", error)
     return { success: false, error: t("errorFetchFailed") }
   }
+}
+
+/**
+ * The team's KPI for the latest quarter that has scores, from the current
+ * one back up to three quarters (early in a quarter nothing is scored yet,
+ * so the home page would show only dashes).
+ */
+async function latestTeamKpi(current: string) {
+  let [year, q] = current.split("-Q").map(Number)
+  let first: { quarter: string; rows: TeamKpiRow[] } | null = null
+  for (let i = 0; i < 4; i++) {
+    const quarter = `${year}-Q${q}`
+    const result = await getTeamKpi(quarter)
+    const rows = result.success ? result.data : []
+    first ??= { quarter, rows }
+    if (rows.some((r) => r.final.score !== null)) return { quarter, rows }
+    q -= 1
+    if (q === 0) {
+      q = 4
+      year -= 1
+    }
+  }
+  return first ?? { quarter: current, rows: [] }
 }
 
 /** Distribution, average, top and attention lists from the team's final KPI. */

@@ -11,9 +11,11 @@ const buttonGroupVariants = cva(
     variants: {
       orientation: {
         horizontal:
-          "*:data-slot:rounded-r-none [&>[data-slot]:not(:has(~[data-slot]))]:rounded-r-full! [&>[data-slot]~[data-slot]]:rounded-l-none [&>[data-slot]~[data-slot]]:border-l-0",
+          // Joined flat, with a faint divider in the text's colour (over the
+          // button's own fill, hence bg-clip-border).
+          "*:data-slot:rounded-r-none *:data-slot:bg-clip-border [&>[data-slot]:not(:has(~[data-slot]))]:rounded-r-full! [&>[data-slot]~[data-slot]]:rounded-l-none [&>[data-slot]~[data-slot]]:border-l [&>[data-slot]~[data-slot]]:border-l-current/25",
         vertical:
-          "flex-col *:data-slot:rounded-b-none [&>[data-slot]:not(:has(~[data-slot]))]:rounded-b-md! [&>[data-slot]~[data-slot]]:rounded-t-none [&>[data-slot]~[data-slot]]:border-t-0",
+          "flex-col *:data-slot:rounded-b-none *:data-slot:bg-clip-border [&>[data-slot]:not(:has(~[data-slot]))]:rounded-b-md! [&>[data-slot]~[data-slot]]:rounded-t-none [&>[data-slot]~[data-slot]]:border-t [&>[data-slot]~[data-slot]]:border-t-current/25",
       },
     },
     defaultVariants: {

@@ -11,6 +11,9 @@ import {
   RiFlowLine,
   RiCalendarCheckLine,
   RiCalendarLine,
+  RiCheckboxCircleLine,
+  RiStickyNoteLine,
+  RiFileTextLine,
   RiFolderLine,
   RiGroupLine,
   RiHome2Line,
@@ -72,7 +75,7 @@ export const workspaces: Workspace[] = [
     icon: RiUserLine,
     items: (p) => [
       { name: "home", href: links.dashboard, icon: RiHome2Line },
-      // Personal schedule; same calendar for now, its own view comes later.
+      // Your own agenda: events, 1:1s, leave, task deadlines, Sharing Santuy.
       {
         name: "calendar",
         href: `${links.calendar}/personal`,
@@ -85,16 +88,8 @@ export const workspaces: Workspace[] = [
               name: "team",
               href: links.teams,
               icon: RiGroupLine,
-              // Super admins also manage members & page access here.
-              children: p.is_super_admin
-                ? [
-                    { name: "teamDirectory", href: links.teams },
-                    {
-                      name: "teamMembersAccess",
-                      href: `${links.teams}/access`,
-                    },
-                  ]
-                : undefined,
+              // Directory and members & access are one page; super admins
+              // switch between them with the page's segmented control.
             },
           ] satisfies WorkspaceItem[])
         : []),
@@ -102,37 +97,40 @@ export const workspaces: Workspace[] = [
         name: "leaveAttendance",
         href: links.leave,
         icon: RiCalendarCheckLine,
-        // Mirrors the tabs in StakeholderLeavePage / EmployeeLeavePage.
+        // Mirrors the tabs in StakeholderLeavePage. Members get one page:
+        // requests and attendance together.
         children: isAdmin(p)
           ? [
               { name: "leaveApprovals", href: links.leave },
               { name: "leaveAttendanceTab", href: `${links.leave}/attendance` },
               { name: "leaveBalance", href: `${links.leave}/remaining` },
             ]
-          : [
-              { name: "leaveAttendanceTab", href: links.leave },
-              { name: "leaveLeave", href: `${links.leave}/leave` },
-            ],
+          : undefined,
       },
       {
         name: "performance",
         href: links.performance,
         icon: RiBarChartBoxLine,
         // Mirrors PerformancePage tabs (Team KPI depends on a runtime lead
-        // check, so it stays a page tab only).
-        children: [
-          { name: "performanceKpi", href: links.performance },
-          { name: "performance360", href: `${links.performance}/360-review` },
-          {
-            name: "performanceOneOnOne",
-            href: `${links.performance}/one-on-one`,
-          },
-          {
-            name: "performanceCompetency",
-            href: `${links.performance}/competency-library`,
-            can: isAdmin,
-          },
-        ],
+        // check, so it stays a page tab only). Members get one page: KPI,
+        // 360 and 1:1 together.
+        children: isAdmin(p)
+          ? [
+              { name: "performanceKpi", href: links.performance },
+              {
+                name: "performance360",
+                href: `${links.performance}/360-review`,
+              },
+              {
+                name: "performanceOneOnOne",
+                href: `${links.performance}/one-on-one`,
+              },
+              {
+                name: "performanceCompetency",
+                href: `${links.performance}/competency-library`,
+              },
+            ]
+          : undefined,
       },
       // Money in and recurring costs; stakeholders only.
       ...(isAdmin(p)
@@ -153,6 +151,8 @@ export const workspaces: Workspace[] = [
         : []),
       // Office rules: everyone reads, stakeholders write.
       { name: "policies", href: links.policies, icon: RiBookOpenLine },
+      // Employment contracts: employees see their own, stakeholders all.
+      { name: "contracts", href: links.contracts, icon: RiFileTextLine },
     ],
   },
   {
@@ -165,6 +165,18 @@ export const workspaces: Workspace[] = [
         name: "projects",
         href: links.projects,
         icon: RiFolderLine,
+      },
+      // The viewer's tasks across all their projects.
+      {
+        name: "myTasks",
+        href: `${links.projects}/my-tasks`,
+        icon: RiCheckboxCircleLine,
+      },
+      // The viewer's private notes and to-do lists.
+      {
+        name: "myNotes",
+        href: `${links.projects}/my-notes`,
+        icon: RiStickyNoteLine,
       },
       { name: "calendar", href: links.calendar, icon: RiCalendarLine },
       // Who we work for; stakeholders only.
@@ -199,7 +211,7 @@ export function matchesRoute(pathname: string, href: string) {
 
 /**
  * The workspace whose page best matches the path (longest href wins), so
- * /projects/calculator lands in Project and /calendar/personal in Personal.
+ * /projects/<id> lands in Project and /calendar/personal in Personal.
  */
 export function resolveWorkspace(
   pathname: string,

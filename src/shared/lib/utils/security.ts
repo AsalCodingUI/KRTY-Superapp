@@ -57,10 +57,12 @@ export function checkRateLimit(
   req: NextRequest,
   { limit = 10, windowMs = 60 * 1000 }: RateLimitOptions = {},
 ) {
-  const ip = getClientIp(req)
+  // Per route, not per IP alone: a whole office shares one IP, and one
+  // busy page (calendar, 1:1 slots) shouldn't lock everyone out of the rest.
+  const key = `${getClientIp(req)} ${req.nextUrl.pathname}`
   const now = Date.now()
 
-  const record = rateLimitMap.get(ip) ?? { count: 0, lastReset: now }
+  const record = rateLimitMap.get(key) ?? { count: 0, lastReset: now }
 
   // Reset window if expired
   if (now - record.lastReset > windowMs) {
@@ -75,7 +77,7 @@ export function checkRateLimit(
 
   // Increment
   record.count++
-  rateLimitMap.set(ip, record)
+  rateLimitMap.set(key, record)
 
   return true
 }
@@ -125,8 +127,8 @@ export function guardApiRoute(req: NextRequest) {
     )
   }
 
-  // 2. Check Rate Limit (e.g., 20 requests per minute per IP)
-  if (!checkRateLimit(req, { limit: 20, windowMs: 60 * 1000 })) {
+  // 2. Check Rate Limit (60 requests per minute per IP and route)
+  if (!checkRateLimit(req, { limit: 60, windowMs: 60 * 1000 })) {
     return NextResponse.json(
       { success: false, error: "Too many requests" },
       { status: 429 },

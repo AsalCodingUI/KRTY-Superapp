@@ -24,6 +24,10 @@ const PAGES = {
   tasks: dynamic(() => import("./ProjectTasks").then((m) => m.ProjectTasks), {
     loading,
   }),
+  reports: dynamic(
+    () => import("./ProjectReports").then((m) => m.ProjectReports),
+    { loading },
+  ),
   invoices: dynamic(
     () => import("./ProjectInvoices").then((m) => m.ProjectInvoices),
     { loading },
@@ -34,6 +38,10 @@ const PAGES = {
   ),
   library: dynamic(
     () => import("./ProjectLibrary").then((m) => m.ProjectLibrary),
+    { loading },
+  ),
+  assessment: dynamic(
+    () => import("./ProjectAssessment").then((m) => m.ProjectAssessment),
     { loading },
   ),
   settings: dynamic(

@@ -125,7 +125,11 @@ function LeaveRow({
         {(req.reason || req.review_note || req.proof_url) && (
           <span className="text-tertiary-foreground flex min-w-0 items-center gap-1.5 text-[13px]">
             {req.reason && (
-              <span className="truncate" title={req.reason}>
+              // Keeps its words when a long reviewer note follows.
+              <span
+                className="max-w-[60%] shrink-0 truncate"
+                title={req.reason}
+              >
                 {req.reason}
               </span>
             )}

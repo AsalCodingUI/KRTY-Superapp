@@ -2,19 +2,25 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { cn } from "@/lib/utils"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { formatDistanceToNowStrict } from "date-fns"
 import { useDateLocale, useT } from "@/shared/i18n/client"
 import {
   ArrowUpRight,
-  CalendarCheck,
   CalendarDays,
   Clock,
+  Inbox,
   Users,
 } from "@/components/icons"
+import {
+  ApprovalInbox,
+  InboxCount,
+} from "@/page-slices/leave/ui/components/ApprovalInbox"
+import { useRouter } from "next/navigation"
 import { ClipboardCheck } from "lucide-react"
 import type { AdminDashboardData } from "../actions/dashboard-admin-actions"
+import { AttendanceSplit, type SplitItem } from "./attendance-split"
+import { TeamKpiCard } from "./TeamKpiCard"
 import {
   HomeAction,
   HomeActions,
@@ -52,22 +58,38 @@ function Person({ name, src }: { name: string | null; src: string | null }) {
 export function AdminDashboard({ data }: AdminDashboardProps) {
   const { profile } = useUserProfile()
   const t = useT("dashboard")
+  const tl = useT("leave")
+  const router = useRouter()
   const dateLocale = useDateLocale()
   const firstName = profile?.full_name?.split(" ")[0] ?? ""
 
   const att = data.attendanceOverview
   const total = att.totalToday + att.onLeave + att.absent
-  const split = [
-    { label: t("splitOnTime"), value: att.onTime, color: "bg-success" },
-    { label: t("splitLate"), value: att.late, color: "bg-warning" },
-    { label: t("splitOnLeave"), value: att.onLeave, color: "bg-info" },
-    { label: t("splitAbsent"), value: att.absent, color: "bg-destructive" },
+  const split: SplitItem[] = [
+    // Lateness isn't recorded (every clock-in is "Present"), so no on-time
+    // / late split.
+    {
+      key: "present",
+      label: t("splitPresent"),
+      value: att.totalToday,
+      tone: "good",
+    },
+    {
+      key: "leave",
+      label: t("splitOnLeave"),
+      value: att.onLeave,
+      tone: "info",
+    },
+    {
+      key: "absent",
+      label: t("splitAbsent"),
+      value: att.absent,
+      tone: "neutral",
+    },
   ]
 
   const reviews = data.pendingReviewsList
   const leaves = data.pendingLeaveApprovals
-  const dist = data.performanceDistribution
-  const rated = Object.values(dist).reduce((a, b) => a + b, 0)
 
   return (
     <HomeColumn>
@@ -78,13 +100,19 @@ export function AdminDashboard({ data }: AdminDashboardProps) {
       />
 
       <HomeActions>
-        <HomeAction href="/leave" icon={<CalendarCheck />}>
-          {t("actionLeaveApprovals")}
-        </HomeAction>
+        <ApprovalInbox
+          onChanged={router.refresh}
+          trigger={(open, count) => (
+            <HomeAction onClick={open} icon={<Inbox />}>
+              {tl("inbox")}
+              <InboxCount count={count} />
+            </HomeAction>
+          )}
+        />
         <HomeAction href="/leave/attendance" icon={<Clock />}>
           {t("actionAttendance")}
         </HomeAction>
-        <HomeAction href="/performance?tab=360review" icon={<ClipboardCheck />}>
+        <HomeAction href="/performance/360-review" icon={<ClipboardCheck />}>
           {t("actionReview360")}
         </HomeAction>
         <HomeAction href="/teams" icon={<Users />}>
@@ -107,36 +135,8 @@ export function AdminDashboard({ data }: AdminDashboardProps) {
           <HomeFigure
             value={`${att.totalToday} / ${total}`}
             unit={t("adminPresentUnit")}
-            hint={t("adminAttendanceHint", {
-              rate: data.teamMetrics.todayAttendanceRate,
-              total: data.teamMetrics.totalEmployees,
-            })}
           />
-          <div className="bg-muted flex h-2 overflow-hidden rounded-full">
-            {total > 0 &&
-              split.map((s) => (
-                <div
-                  key={s.label}
-                  className={cn("bar-grow h-full", s.color)}
-                  style={
-                    {
-                      "--bar": `${(s.value / total) * 100}%`,
-                    } as React.CSSProperties
-                  }
-                />
-              ))}
-          </div>
-          <HomeStats
-            items={split.map((s) => ({
-              label: s.label,
-              value: (
-                <span className="inline-flex items-center gap-1.5">
-                  <span className={cn("size-1.5 rounded-full", s.color)} />
-                  {s.value}
-                </span>
-              ),
-            }))}
-          />
+          <AttendanceSplit items={split} total={total} />
         </HomeCard>
 
         <HomeCard
@@ -148,7 +148,7 @@ export function AdminDashboard({ data }: AdminDashboardProps) {
           }
           actions={
             <HomeIconLink
-              href="/performance?tab=360review"
+              href="/performance/360-review"
               label={t("openReview")}
             >
               <ArrowUpRight />
@@ -164,7 +164,7 @@ export function AdminDashboard({ data }: AdminDashboardProps) {
                 .map((r) => (
                   <HomeRow
                     key={`${r.employee_id}-${r.cycle_id}`}
-                    href="/performance?tab=360review"
+                    href="/performance/360-review"
                     leading={
                       <Person name={r.employee_name} src={r.employee_avatar} />
                     }
@@ -193,12 +193,16 @@ export function AdminDashboard({ data }: AdminDashboardProps) {
         >
           <HomeStats
             items={[
-              { label: t("adminLeavePending"), value: leaves.length || "–" },
-              { label: t("adminLeaveToday"), value: att.onLeave || "–" },
-              { label: t("splitAbsent"), value: att.absent || "–" },
+              // Counts: 0 is an answer, not missing data.
+              { label: t("adminLeavePending"), value: leaves.length },
+              { label: t("adminLeaveToday"), value: att.onLeave },
+              { label: t("splitAbsent"), value: att.absent },
             ]}
           />
-          <div className="flex flex-col">
+          <div className="flex flex-1 flex-col">
+            {leaves.length === 0 && (
+              <HomeEmpty>{t("adminLeaveNonePending")}</HomeEmpty>
+            )}
             {leaves.slice(0, 3).map((l) => (
               <HomeRow
                 key={l.id}
@@ -228,63 +232,7 @@ export function AdminDashboard({ data }: AdminDashboardProps) {
           />
         </HomeCard>
 
-        <HomeCard
-          title={t("adminTeamPerformanceTitle")}
-          actions={
-            <HomeIconLink href="/performance" label={t("openPerformance")}>
-              <ArrowUpRight />
-            </HomeIconLink>
-          }
-        >
-          <HomeStats
-            items={[
-              {
-                label: t("adminAvgScore"),
-                value:
-                  data.teamMetrics.avgTeamPerformance !== null
-                    ? `${data.teamMetrics.avgTeamPerformance}%`
-                    : "–",
-              },
-              {
-                label: t("adminTopPerformers"),
-                value: data.topPerformers.length || "–",
-              },
-              {
-                label: t("adminNeedsAttention"),
-                value: data.employeesNeedingAttention.length || "–",
-                tone:
-                  data.employeesNeedingAttention.length > 0
-                    ? "text-destructive"
-                    : undefined,
-              },
-            ]}
-          />
-          <div className="flex flex-col">
-            {data.employeesNeedingAttention.slice(0, 3).map((e) => (
-              <HomeRow
-                key={e.employee_id}
-                href={`/performance/employee/${e.employee_id}`}
-                leading={
-                  <Person name={e.employee_name} src={e.employee_avatar} />
-                }
-                title={e.employee_name}
-                subtitle={e.employee_job_title}
-                trailing={`${e.overall_percentage}%`}
-              />
-            ))}
-          </div>
-          <HomeFooter
-            label={t("adminRated")}
-            value={
-              rated > 0
-                ? t(rated === 1 ? "adminRatedCountOne" : "adminRatedCount", {
-                    n: rated,
-                  })
-                : t("adminNoData")
-            }
-            href="/performance"
-          />
-        </HomeCard>
+        <TeamKpiCard data={data} />
       </HomeGrid>
 
       <HomeCard title={t("adminRecentActivityTitle")}>
@@ -313,6 +261,7 @@ export function AdminDashboard({ data }: AdminDashboardProps) {
                   >
                     {formatDistanceToNowStrict(new Date(a.timestamp), {
                       locale: dateLocale,
+                      addSuffix: true,
                     })}
                   </span>
                 }

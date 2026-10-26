@@ -1,16 +1,21 @@
 "use client"
 
-import { useNotifications } from "@/shared/hooks/useNotifications"
+import {
+  URGENT_NOTIFICATION_TYPES,
+  useNotifications,
+} from "@/shared/hooks/useNotifications"
 import { useT } from "@/shared/i18n/client"
 import Link from "next/link"
 import { AppBanner } from "./AppBanner"
 
-/** Notification types that also show as a banner until read. */
-const BANNER_TYPES = new Set(["policy"])
+/** Notification types that also show as a banner until read: a new rule,
+ *  and an admin's urgent announcement. */
+const BANNER_TYPES = new Set(["policy", ...URGENT_NOTIFICATION_TYPES])
 
 /**
  * Team announcements in the chrome banner: the newest unread one (e.g. "Aturan
- * baru · Cuti 2027" when a rule is published with "notify everyone").
+ * baru · Cuti 2027" when a rule is published with "notify everyone", or an
+ * admin's urgent announcement).
  * Reading it or closing the banner marks the notification read, so the
  * banner and the bell stay in step.
  */

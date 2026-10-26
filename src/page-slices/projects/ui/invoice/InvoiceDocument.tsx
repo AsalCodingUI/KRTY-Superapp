@@ -206,14 +206,14 @@ export function InvoiceDocument({ data }: { data: InvoiceDocumentData }) {
 
       {/* Items ---------------------------------------------------------------- */}
       <section className="px-[60px] pt-10">
-        <div className="grid grid-cols-[50px_1fr_120px_190px] items-center border-b border-[#E5E5E5] px-3 pb-3 text-[16px]">
+        <div className="grid grid-cols-[50px_minmax(0,1fr)_120px_190px] items-center border-b border-[#E5E5E5] px-3 pb-3 text-[16px]">
           <span>No</span>
           <span>Point Description</span>
           <span>Timeline</span>
           <span>Price</span>
         </div>
         {data.lines.length === 0 && (
-          <div className="grid grid-cols-[50px_1fr_120px_190px] border-b border-[#E5E5E5] px-3 py-2 text-[16px]">
+          <div className="grid grid-cols-[50px_minmax(0,1fr)_120px_190px] border-b border-[#E5E5E5] px-3 py-2 text-[16px]">
             <span>1.</span>
             <Blank>Point description</Blank>
           </div>
@@ -221,11 +221,15 @@ export function InvoiceDocument({ data }: { data: InvoiceDocumentData }) {
         {data.lines.map((line, i) => (
           <div
             key={line.id}
-            className="grid grid-cols-[50px_1fr_120px_190px] items-center border-b border-[#E5E5E5] px-3 py-1.5 text-[16px] last:border-b-0"
+            className="grid grid-cols-[50px_minmax(0,1fr)_120px_190px] items-center border-b border-[#E5E5E5] px-3 py-1.5 text-[16px] last:border-b-0"
           >
             <span>{i + 1}.</span>
-            <span className="pr-4">{line.description || <Blank>—</Blank>}</span>
-            <span>{line.timeline}</span>
+            <span className="pr-4 [overflow-wrap:anywhere]">
+              {line.description || <Blank>—</Blank>}
+            </span>
+            <span className="pr-2 [overflow-wrap:anywhere]">
+              {line.timeline}
+            </span>
             <span className="flex items-center justify-between gap-2 whitespace-nowrap">
               {amount(line.total_idr, data.currency)}
               <CurrencyChip code={data.currency} />

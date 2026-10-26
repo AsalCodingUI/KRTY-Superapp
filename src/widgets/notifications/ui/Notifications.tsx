@@ -1,6 +1,9 @@
 "use client"
 
-import { useNotifications } from "@/shared/hooks/useNotifications"
+import {
+  useNotifications,
+  useNotificationsRealtime,
+} from "@/shared/hooks/useNotifications"
 import { useT } from "@/shared/i18n/client"
 import { cx, focusRing } from "@/shared/lib/utils"
 import { RiNotification3Line } from "@/shared/ui/lucide-icons"
@@ -39,7 +42,10 @@ export function Notifications({ variant = "default" }: NotificationsProps) {
     markAsRead,
     markAllAsRead,
     deleteNotification,
+    loading,
+    isError,
   } = useNotifications()
+  useNotificationsRealtime()
   const [isOpen, setIsOpen] = useState(false)
   const t = useT("shell")
   // The drawer loads on first open, then stays mounted for its exit animation.
@@ -107,6 +113,8 @@ export function Notifications({ variant = "default" }: NotificationsProps) {
             onClose={close}
             notifications={notifications}
             unreadCount={unreadCount}
+            loading={loading}
+            isError={isError}
             markAsRead={markAsRead}
             markAllAsRead={markAllAsRead}
             deleteNotification={deleteNotification}

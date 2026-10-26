@@ -1,10 +1,12 @@
 "use client"
 
 import dynamic from "next/dynamic"
+import { ConfirmDialog } from "@/components/confirm-dialog"
 import { PageHeader } from "@/components/page-header"
 import { TabNavigation, TabNavigationLink } from "@/components/tab-navigation"
 import { EmptyState } from "@/components/empty-state"
 import { EmptyValue } from "@/components/empty-value"
+import { ViewToggle, useViewMode } from "@/components/view-toggle"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -29,16 +31,12 @@ import {
   RiCalendarLine,
   RiCheckboxCircleLine,
   RiDeleteBinLine,
+  RiMessage3Line,
 } from "@/shared/ui/lucide-icons"
 import { useDateLocale, useT } from "@/shared/i18n/client"
-import {
-  differenceInCalendarDays,
-  format,
-  isToday,
-  isTomorrow,
-  type Locale,
-} from "date-fns"
-import { useMemo, useState } from "react"
+import { differenceInCalendarDays, format, isToday } from "date-fns"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { toast } from "sonner"
 import {
   supabase,
@@ -49,6 +47,19 @@ import {
   type TaskRow,
   type TeamMember,
 } from "./data"
+import { TaskBoard } from "./TaskBoard"
+import { TaskDialog } from "./TaskDialog"
+import {
+  byPosition,
+  positionBetween,
+  topPosition,
+  statusOf,
+  statusPatch,
+  useCommentCounts,
+  useTaskWriter,
+  type TaskStatus,
+} from "./task-data"
+import { dueLabel } from "./task-utils"
 
 // Month grid (react-day-picker) loads when the due-date popover first opens.
 const Calendar = dynamic(
@@ -62,32 +73,31 @@ const Calendar = dynamic(
 type Filter = "all" | "todo" | "done"
 const NONE = "__none__"
 
-function dueLabel(
-  date: string,
-  locale: Locale,
-  words: { today: string; tomorrow: string },
-) {
-  const d = new Date(`${date}T00:00:00`)
-  if (isToday(d)) return words.today
-  if (isTomorrow(d)) return words.tomorrow
-  const diff = differenceInCalendarDays(d, new Date())
-  if (diff > 1 && diff < 7) return format(d, "EEE", { locale })
-  return format(d, "d MMM", { locale })
-}
-
-/** Project tasks (DesignerHQ-style table) with inline editing and subtasks. */
+/**
+ * Project tasks: a Trello-style board (default) or the DesignerHQ-style
+ * table, both opening a task in a dialog with subtasks and comments.
+ */
 export function ProjectTasks({ projectId }: { projectId: string }) {
   const t = useT("projects")
   const tc = useT("common")
   const { data: workspace } = useWorkspace(projectId)
   const { data: tasks = [], isLoading } = useTasks(projectId)
+  const { data: commentCounts = {} } = useCommentCounts(projectId)
   const viewer = useViewer()
   const invalidate = useInvalidate(projectId)
+  const writer = useTaskWriter(projectId, () => toast.error(t("errSaveTask")))
+  const [view, setView] = useViewMode("project-tasks", "kanban")
+  const board = view !== "list"
   const [filter, setFilter] = useState<Filter>("todo")
   const [mine, setMine] = useState(false)
   const [adding, setAdding] = useState(false)
+  const [addSignal, setAddSignal] = useState(0)
   const [newTitle, setNewTitle] = useState("")
   const [expanded, setExpanded] = useState<Record<string, boolean>>({})
+  // The open task; kept while the dialog animates closed.
+  const [openId, setOpenId] = useState<string | null>(null)
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [deleting, setDeleting] = useState<TaskRow | null>(null)
 
   const phases = workspace?.phases ?? []
   const team = workspace?.team ?? []
@@ -96,41 +106,132 @@ export function ProjectTasks({ projectId }: { projectId: string }) {
   const top = tasks.filter((t) => !t.parent_id)
   const subsOf = useMemo(() => {
     const map = new Map<string, TaskRow[]>()
-    for (const t of tasks) {
+    for (const t of [...tasks].sort(byPosition)) {
       if (!t.parent_id) continue
       map.set(t.parent_id, [...(map.get(t.parent_id) ?? []), t])
     }
     return map
   }, [tasks])
 
+  // The open task lives in the URL (?task=<id>): a notification or a copied
+  // link opens it, and closing the task clears it again.
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const linked = searchParams.get("task")
+  const setTaskParam = (id: string | null) => {
+    const params = new URLSearchParams(searchParams.toString())
+    if (id) params.set("task", id)
+    else params.delete("task")
+    const query = params.toString()
+    router.replace(query ? `${pathname}?${query}` : pathname, {
+      scroll: false,
+    })
+  }
+
+  const openTask = (id: string) => {
+    setOpenId(id)
+    setDialogOpen(true)
+    if (linked !== id) setTaskParam(id)
+  }
+  const setTaskDialogOpen = (open: boolean) => {
+    setDialogOpen(open)
+    if (!open && linked) setTaskParam(null)
+  }
+
+  useEffect(() => {
+    if (!linked || !tasks.length) return
+    if (dialogOpen && openId === linked) return
+    const task = tasks.find((t) => t.id === linked)
+    // A subtask opens inside its parent.
+    if (task) {
+      setOpenId(task.parent_id ?? task.id)
+      setDialogOpen(true)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [linked, tasks])
+
   const counts = {
     all: top.length,
     todo: top.filter((t) => !t.done).length,
     done: top.filter((t) => t.done).length,
   }
+  const mineFilter = (t: TaskRow) => !mine || t.assignee_id === viewer.id
+  const boardTasks = useMemo(
+    () => top.filter(mineFilter),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [tasks, mine, viewer.id],
+  )
   const visible = top
     .filter((t) =>
       filter === "all" ? true : filter === "done" ? t.done : !t.done,
     )
-    .filter((t) => !mine || t.assignee_id === viewer.id)
+    .filter(mineFilter)
     .sort((a, b) => {
       if (a.done !== b.done) return Number(a.done) - Number(b.done)
       if (a.due_date && b.due_date) return a.due_date.localeCompare(b.due_date)
       if (a.due_date) return -1
       if (b.due_date) return 1
-      return a.created_at.localeCompare(b.created_at)
+      // Board order, so a task just added shows up at the top here too.
+      return byPosition(a, b)
     })
 
-  const update = async (id: string, patch: Partial<TaskRow>) => {
-    const { error } = await supabase()
-      .from("project_tasks")
-      .update(patch)
-      .eq("id", id)
-    if (error) toast.error(t("errSaveTask"))
-    invalidate("tasks")
+  const update = (id: string, patch: Partial<TaskRow>) => {
+    writer.patch(id, patch)
   }
 
-  const create = async (title: string, parentId: string | null = null) => {
+  const setStatus = (task: TaskRow, status: TaskStatus) => {
+    if (statusOf(task) === status) return
+    // Lands at the bottom of its new column.
+    const last = tasks
+      .filter(
+        (t) =>
+          t.parent_id === task.parent_id &&
+          t.id !== task.id &&
+          statusOf(t) === status,
+      )
+      .reduce<
+        number | null
+      >((max, t) => (t.position !== null && (max === null || t.position > max) ? t.position : max), null)
+    writer.patch(task.id, {
+      ...statusPatch(task, status),
+      position: positionBetween(last, null),
+    })
+  }
+
+  /** A card dropped into `status`; `order` is that column's new order. */
+  const move = (id: string, status: TaskStatus, order: string[]) => {
+    const task = tasks.find((t) => t.id === id)
+    if (!task) return
+    const byId = new Map(tasks.map((t) => [t.id, t]))
+    const index = order.indexOf(id)
+    const prev = byId.get(order[index - 1])?.position ?? null
+    const next = byId.get(order[index + 1])?.position ?? null
+    const missing =
+      (index > 0 && prev === null) ||
+      (index < order.length - 1 && next === null)
+    const position = missing ? null : positionBetween(prev, next)
+    if (position !== null) {
+      writer.patch(id, { ...statusPatch(task, status), position })
+      return
+    }
+    // No room between the neighbours: renumber the column.
+    writer.write(
+      order.map((rowId, i) => ({
+        id: rowId,
+        patch: {
+          ...(rowId === id ? statusPatch(task, status) : {}),
+          position: (i + 1) * 1024,
+        },
+      })),
+    )
+  }
+
+  const create = async (
+    title: string,
+    parentId: string | null = null,
+    status: TaskStatus = "todo",
+  ) => {
     const value = title.trim()
     if (!value) return false
     const parent = parentId ? tasks.find((t) => t.id === parentId) : null
@@ -140,6 +241,9 @@ export function ProjectTasks({ projectId }: { projectId: string }) {
         project_id: projectId,
         title: value,
         parent_id: parentId,
+        status,
+        // New tasks and subtasks go to the top, where they're added.
+        position: topPosition(tasks, parentId, parentId ? undefined : status),
         phase_id: parent?.phase_id ?? activePhase?.id ?? null,
         created_by: viewer.id,
       })
@@ -147,25 +251,34 @@ export function ProjectTasks({ projectId }: { projectId: string }) {
       toast.error(t("errAddTask"))
       return false
     }
-    invalidate("tasks")
+    await invalidate("tasks")
     return true
   }
 
   const remove = async (id: string) => {
-    await supabase().from("project_tasks").delete().eq("id", id)
+    if (id === openId) setDialogOpen(false)
+    const { error } = await supabase()
+      .from("project_tasks")
+      .delete()
+      .eq("id", id)
+    if (error) toast.error(t("errDeleteTask"))
     invalidate("tasks")
   }
 
-  const toggle = (task: TaskRow) =>
-    update(task.id, {
-      done: !task.done,
-      completed_at: task.done ? null : new Date().toISOString(),
-    })
+  const toggle = (task: TaskRow) => setStatus(task, task.done ? "todo" : "done")
 
+  // One task per Enter, even when it's pressed again before the save lands.
+  const busy = useRef(false)
   const addTop = async () => {
-    if (await create(newTitle)) setNewTitle("")
+    if (busy.current || !newTitle.trim()) return
+    busy.current = true
+    const ok = await create(newTitle)
+    busy.current = false
+    if (ok) setNewTitle("")
     else setAdding(false)
   }
+
+  const openRow = openId ? tasks.find((t) => t.id === openId) : null
 
   return (
     <div className="flex flex-col">
@@ -173,36 +286,51 @@ export function ProjectTasks({ projectId }: { projectId: string }) {
         className="pt-6 pb-4"
         title={t("sectionTasks")}
         actions={
-          <Button onClick={() => setAdding(true)}>
-            <RiAddLine data-icon="inline-start" />
-            {t("newTask")}
-          </Button>
+          <>
+            <ViewToggle
+              value={board ? "kanban" : "list"}
+              onValueChange={setView}
+              modes={["kanban", "list"]}
+            />
+            <Button
+              onClick={() =>
+                board ? setAddSignal((n) => n + 1) : setAdding(true)
+              }
+            >
+              <RiAddLine data-icon="inline-start" />
+              {t("newTask")}
+            </Button>
+          </>
         }
       />
       <div className="border-border flex items-end justify-between gap-3 border-b">
-        <TabNavigation className="border-b-0">
-          {(
-            [
-              ["all", tc("all")],
-              ["todo", t("filterTodo")],
-              ["done", t("statusCompleted")],
-            ] as const
-          ).map(([key, label]) => (
-            <TabNavigationLink
-              key={key}
-              active={filter === key}
-              onClick={() => setFilter(key)}
-              showLeadingIcon={false}
-            >
-              {label}
-              {counts[key] > 0 && (
-                <span className="text-tertiary-foreground ml-1.5 tabular-nums">
-                  {counts[key]}
-                </span>
-              )}
-            </TabNavigationLink>
-          ))}
-        </TabNavigation>
+        {board ? (
+          <span />
+        ) : (
+          <TabNavigation className="border-b-0">
+            {(
+              [
+                ["all", tc("all")],
+                ["todo", t("filterTodo")],
+                ["done", t("statusCompleted")],
+              ] as const
+            ).map(([key, label]) => (
+              <TabNavigationLink
+                key={key}
+                active={filter === key}
+                onClick={() => setFilter(key)}
+                showLeadingIcon={false}
+              >
+                {label}
+                {counts[key] > 0 && (
+                  <span className="text-tertiary-foreground ml-1.5 tabular-nums">
+                    {counts[key]}
+                  </span>
+                )}
+              </TabNavigationLink>
+            ))}
+          </TabNavigation>
+        )}
         <Button
           size="sm"
           variant="outline"
@@ -213,79 +341,128 @@ export function ProjectTasks({ projectId }: { projectId: string }) {
           {t("filterMine")}
         </Button>
       </div>
-      <div className="flex flex-col gap-4 pb-4">
-        <div className="bleed flex flex-col text-sm">
-          <div className="text-muted-foreground border-border gutter-x grid grid-cols-[2.5rem_minmax(0,1fr)_8rem_10rem_7rem_5rem] items-center border-b py-2 text-[13px]">
-            <span />
-            <span>{t("colTask")}</span>
-            <span>{t("factsPhase")}</span>
-            <span>{t("colPic")}</span>
-            <span>{t("factsDeadline")}</span>
-            <span className="text-right">{t("colCreated")}</span>
+
+      {board ? (
+        isLoading ? (
+          <div className="flex justify-center py-12">
+            <Spinner className="size-6" />
           </div>
-
-          {adding && (
-            <div className="border-border/50 gutter-x grid grid-cols-[2.5rem_minmax(0,1fr)] items-center border-b py-2">
+        ) : (
+          <TaskBoard
+            tasks={boardTasks}
+            subsOf={subsOf}
+            commentCounts={commentCounts}
+            team={team}
+            addSignal={addSignal}
+            onOpen={(task) => openTask(task.id)}
+            onMove={move}
+            onCreate={(title, status) => create(title, null, status)}
+          />
+        )
+      ) : (
+        <div className="flex flex-col gap-4 pb-4">
+          <div className="bleed flex flex-col text-sm">
+            <div className="text-muted-foreground border-border gutter-x grid grid-cols-[2.5rem_minmax(0,1fr)_8rem_10rem_7rem_5rem] items-center border-b py-2 text-[13px]">
               <span />
-              <Input
-                autoFocus
-                value={newTitle}
-                placeholder={t("taskPlaceholder")}
-                onChange={(e) => setNewTitle(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") addTop()
-                  if (e.key === "Escape") {
-                    setAdding(false)
-                    setNewTitle("")
-                  }
-                }}
-                onBlur={() => {
-                  if (!newTitle.trim()) setAdding(false)
-                }}
-                className="h-8"
-              />
+              <span>{t("colTask")}</span>
+              <span>{t("factsPhase")}</span>
+              <span>{t("colPic")}</span>
+              <span>{t("factsDeadline")}</span>
+              <span className="text-right">{t("colCreated")}</span>
             </div>
-          )}
 
-          {isLoading ? (
-            <div className="flex justify-center py-12">
-              <Spinner className="size-6" />
-            </div>
-          ) : visible.length === 0 && !adding ? (
-            <EmptyState
-              placement="inner"
-              icon={<RiCheckboxCircleLine className="size-5" />}
-              title={t("sectionTasks")}
-              description={
-                filter === "done" ? t("tasksEmptyDone") : t("tasksEmpty")
-              }
-              action={
-                filter === "done"
-                  ? undefined
-                  : { label: t("newTask"), onClick: () => setAdding(true) }
-              }
-            />
-          ) : (
-            visible.map((task) => (
-              <TaskRows
-                key={task.id}
-                task={task}
-                subtasks={subsOf.get(task.id) ?? []}
-                expanded={Boolean(expanded[task.id])}
-                onExpand={(open) =>
-                  setExpanded((e) => ({ ...e, [task.id]: open }))
+            {adding && (
+              <div className="border-border/50 gutter-x grid grid-cols-[2.5rem_minmax(0,1fr)] items-center border-b py-2">
+                <span />
+                <Input
+                  autoFocus
+                  value={newTitle}
+                  placeholder={t("taskPlaceholder")}
+                  onChange={(e) => setNewTitle(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") addTop()
+                    if (e.key === "Escape") {
+                      setAdding(false)
+                      setNewTitle("")
+                    }
+                  }}
+                  onBlur={() => {
+                    if (!newTitle.trim()) setAdding(false)
+                  }}
+                  className="h-8"
+                />
+              </div>
+            )}
+
+            {isLoading ? (
+              <div className="flex justify-center py-12">
+                <Spinner className="size-6" />
+              </div>
+            ) : visible.length === 0 && !adding ? (
+              <EmptyState
+                placement="inner"
+                icon={<RiCheckboxCircleLine className="size-5" />}
+                title={
+                  filter === "done" ? t("tasksEmptyDone") : t("tasksEmpty")
                 }
-                phases={phases}
-                team={team}
-                onUpdate={update}
-                onToggle={toggle}
-                onRemove={remove}
-                onAddSub={(title) => create(title, task.id)}
+                action={
+                  filter === "done"
+                    ? undefined
+                    : { label: t("newTask"), onClick: () => setAdding(true) }
+                }
               />
-            ))
-          )}
+            ) : (
+              visible.map((task) => (
+                <TaskRows
+                  key={task.id}
+                  task={task}
+                  subtasks={subsOf.get(task.id) ?? []}
+                  comments={commentCounts[task.id] ?? 0}
+                  expanded={Boolean(expanded[task.id])}
+                  onExpand={(open) =>
+                    setExpanded((e) => ({ ...e, [task.id]: open }))
+                  }
+                  phases={phases}
+                  team={team}
+                  onUpdate={update}
+                  onToggle={toggle}
+                  onRemove={remove}
+                  onDelete={() => setDeleting(task)}
+                  onOpen={() => openTask(task.id)}
+                  onAddSub={(title) => create(title, task.id)}
+                />
+              ))
+            )}
+          </div>
         </div>
-      </div>
+      )}
+
+      <TaskDialog
+        task={openRow ?? null}
+        open={dialogOpen}
+        onOpenChange={setTaskDialogOpen}
+        projectId={projectId}
+        subtasks={openRow ? (subsOf.get(openRow.id) ?? []) : []}
+        team={team}
+        viewerId={viewer.id}
+        onPatch={update}
+        onStatus={setStatus}
+        onAddSub={(title, parentId) => create(title, parentId)}
+        onRemove={remove}
+      />
+      <ConfirmDialog
+        open={deleting !== null}
+        onOpenChange={(open) => !open && setDeleting(null)}
+        title={t("deleteNamedTitle", { name: deleting?.title ?? "" })}
+        description={t("deleteTaskDescription")}
+        confirmText={tc("delete")}
+        cancelText={tc("cancel")}
+        variant="destructive"
+        onConfirm={() => {
+          if (deleting) remove(deleting.id)
+          setDeleting(null)
+        }}
+      />
     </div>
   )
 }
@@ -293,6 +470,7 @@ export function ProjectTasks({ projectId }: { projectId: string }) {
 function TaskRows({
   task,
   subtasks,
+  comments,
   expanded,
   onExpand,
   phases,
@@ -300,10 +478,13 @@ function TaskRows({
   onUpdate,
   onToggle,
   onRemove,
+  onDelete,
+  onOpen,
   onAddSub,
 }: {
   task: TaskRow
   subtasks: TaskRow[]
+  comments: number
   expanded: boolean
   onExpand: (open: boolean) => void
   phases: { id: string; name: string }[]
@@ -311,6 +492,9 @@ function TaskRows({
   onUpdate: (id: string, patch: Partial<TaskRow>) => void
   onToggle: (task: TaskRow) => void
   onRemove: (id: string) => void
+  /** Asks first: the task's subtasks and comments go with it. */
+  onDelete: () => void
+  onOpen: () => void
   onAddSub: (title: string) => Promise<boolean>
 }) {
   const t = useT("projects")
@@ -320,6 +504,14 @@ function TaskRows({
   const [title, setTitle] = useState(task.title)
   const [subTitle, setSubTitle] = useState("")
   const [dateOpen, setDateOpen] = useState(false)
+  const addingSub = useRef(false)
+  const addSub = async () => {
+    if (addingSub.current || !subTitle.trim()) return
+    addingSub.current = true
+    const ok = await onAddSub(subTitle)
+    addingSub.current = false
+    if (ok) setSubTitle("")
+  }
   const assignee = team.find((m) => m.id === task.assignee_id)
   const doneSubs = subtasks.filter((s) => s.done).length
   const overdue =
@@ -399,12 +591,30 @@ function TaskRows({
               {doneSubs}/{subtasks.length}
             </span>
           )}
+          {/* Opens the task dialog (description, comments). */}
+          <Button
+            variant="ghost"
+            size={comments > 0 ? "xs" : "icon-xs"}
+            aria-label={t("commentCount", { n: comments })}
+            onClick={onOpen}
+            className={cn(
+              "text-muted-foreground ml-auto shrink-0 text-[13px] font-normal tabular-nums",
+              comments === 0 &&
+                "opacity-0 group-hover/task:opacity-100 focus-visible:opacity-100",
+            )}
+          >
+            <RiMessage3Line
+              data-icon={comments > 0 ? "inline-start" : undefined}
+              className="size-3.5"
+            />
+            {comments > 0 && comments}
+          </Button>
           <Button
             variant="ghost"
             size="icon-sm"
             aria-label={t("deleteTask")}
-            onClick={() => onRemove(task.id)}
-            className="text-muted-foreground hover:text-destructive ml-auto opacity-0 group-hover/task:opacity-100 focus-visible:opacity-100"
+            onClick={onDelete}
+            className="text-muted-foreground hover:text-destructive opacity-0 group-hover/task:opacity-100 focus-visible:opacity-100"
           >
             <RiDeleteBinLine />
           </Button>
@@ -543,12 +753,7 @@ function TaskRows({
             >
               <Checkbox
                 checked={sub.done}
-                onCheckedChange={() =>
-                  onUpdate(sub.id, {
-                    done: !sub.done,
-                    completed_at: sub.done ? null : new Date().toISOString(),
-                  })
-                }
+                onCheckedChange={() => onToggle(sub)}
                 aria-label={sub.done ? t("markUndone") : t("markDone")}
               />
               <span
@@ -575,10 +780,8 @@ function TaskRows({
             <Input
               value={subTitle}
               onChange={(e) => setSubTitle(e.target.value)}
-              onKeyDown={async (e) => {
-                if (e.key === "Enter" && (await onAddSub(subTitle))) {
-                  setSubTitle("")
-                }
+              onKeyDown={(e) => {
+                if (e.key === "Enter") addSub()
               }}
               placeholder={t("addSubtask")}
               aria-label={t("addSubtask")}

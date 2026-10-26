@@ -3,7 +3,6 @@ import { guardApiRoute } from "@/shared/lib/utils/security"
 import { NextRequest, NextResponse } from "next/server"
 import { createAdminClient } from "@/shared/api/supabase/admin"
 import { createClient } from "@/shared/api/supabase/server"
-import { resolveProfileByUserIdOrEmail } from "@/shared/lib/profile-resolution"
 import { canManageByRole } from "@/shared/lib/roles"
 import { logError } from "@/shared/lib/utils/logger"
 import {
@@ -11,6 +10,7 @@ import {
   getGoogleAccessToken,
   getGoogleEnv,
 } from "@/shared/lib/google-calendar"
+import { slotViewer } from "../shared"
 
 export async function POST(request: NextRequest) {
   const t = await getT("api")
@@ -19,11 +19,8 @@ export async function POST(request: NextRequest) {
 
   try {
     const supabase = await createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
+    const profile = await slotViewer(supabase)
+    if (!profile) {
       return NextResponse.json({ error: t("unauthorized") }, { status: 401 })
     }
 
@@ -37,17 +34,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "invalid_payload" }, { status: 400 })
     }
 
-    const profile = await resolveProfileByUserIdOrEmail<{
-      id: string
-      email: string | null
-      role: string | null
-    }>(supabase, "id, email, role, created_at", user.id, user.email)
-
-    if (!profile) {
-      return NextResponse.json({ error: t("profileNotFound") }, { status: 404 })
-    }
-
-    const isAdmin = canManageByRole(profile?.role)
+    const isAdmin = canManageByRole(profile.role)
     const adminSupabase = createAdminClient()
 
     const { data: slot, error: slotError } = await adminSupabase

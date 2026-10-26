@@ -1,8 +1,8 @@
 /** "api" strings: errors and messages returned by route handlers. */
 const id = {
   // Shared
-  unauthorized: "Silakan masuk terlebih dahulu",
-  forbidden: "Anda tidak punya akses",
+  unauthorized: "Kamu belum masuk",
+  forbidden: "Kamu tidak punya akses",
   adminOnly: "Akses ditolak: khusus admin",
   profileNotFound: "Profil tidak ditemukan",
   invalidRequest: "Permintaan tidak valid",
@@ -27,10 +27,6 @@ const id = {
   rsvpUpdateFailed: "Gagal memperbarui status RSVP",
   calendarCheckFailed: "Gagal memeriksa koneksi kalender",
 
-  // Calculator
-  missingProjectId: "ID proyek belum diisi",
-  missingCalculationId: "ID kalkulasi belum diisi",
-
   // Finance
   missingInvoiceId: "ID invoice belum diisi",
   missingPaymentMethodName: "Nama metode pembayaran belum diisi",
@@ -40,7 +36,6 @@ const id = {
   // n8n / migrate
   webhookMissing: "Konfigurasi belum lengkap: URL webhook tidak ada",
   noReviewsForCycle: "Belum ada review untuk siklus {cycle}",
-  noReviewsForUser: "Belum ada review untuk pengguna ini",
   workflowTriggerFailed: "Gagal menjalankan workflow",
   aiResultInvalid:
     "AI belum mengembalikan rangkuman yang lengkap. Coba proses lagi.",
@@ -92,10 +87,6 @@ const en: Record<keyof typeof id, string> = {
   rsvpUpdateFailed: "Failed to update RSVP status",
   calendarCheckFailed: "Failed to check calendar connection",
 
-  // Calculator
-  missingProjectId: "Missing project id",
-  missingCalculationId: "Missing calculation id",
-
   // Finance
   missingInvoiceId: "Missing invoice id",
   missingPaymentMethodName: "Missing payment method name",
@@ -105,7 +96,6 @@ const en: Record<keyof typeof id, string> = {
   // n8n / migrate
   webhookMissing: "Configuration error: missing webhook URL",
   noReviewsForCycle: "No reviews found for cycle {cycle}",
-  noReviewsForUser: "No reviews found for this user",
   workflowTriggerFailed: "Failed to trigger workflow",
   aiResultInvalid:
     "The AI didn't return a complete summary. Try processing again.",

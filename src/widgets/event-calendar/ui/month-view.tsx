@@ -264,7 +264,7 @@ export const MonthView = memo(function MonthView({
               : t("monthDayDrawerFallbackTitle")}
           </SheetTitle>
           <div className="border-border flex items-center justify-between border-b px-4 py-4">
-            <h3 className="text-foreground text-base font-semibold">
+            <h3 className="text-heading text-base font-medium">
               {mobileSelectedDay
                 ? format(mobileSelectedDay, "EEEE, dd MMMM yyyy", {
                     locale: dateLocale,

@@ -1,6 +1,12 @@
 "use client"
 
-import { FileField } from "@/components/file-field"
+import { compressImage, isCompressible } from "@/shared/lib/compress-image"
+import { Switch } from "@/components/ui/switch"
+import {
+  FileDropCanvas,
+  twoPaneDialogClassName,
+  twoPanePanelClassName,
+} from "@/components/file-drop-canvas"
 import { Chip, FilePreview } from "./FilePreview"
 import { RowMenu, Section, type RowMenuItem } from "./ProjectLibrary"
 import type { ViewerItem } from "@/components/file-viewer"
@@ -9,14 +15,7 @@ import { PageHeader } from "@/components/page-header"
 import { ConfirmDialog } from "@/components/confirm-dialog"
 import { EmptyState } from "@/components/empty-state"
 import { Button } from "@/components/ui/button"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
@@ -42,6 +41,7 @@ import {
   supabase,
   uploadProjectFile,
   useDocuments,
+  useFileUrl,
   useInvalidate,
   useViewer,
   useWorkspace,
@@ -55,13 +55,13 @@ const FileViewer = dynamic(
   { ssr: false },
 )
 
-const KINDS = {
+export const KINDS = {
   proposal: { labelKey: "docKindProposal", icon: FileText },
   contract: { labelKey: "docKindContract", icon: FileSignature },
   other: { labelKey: "docKindOther", icon: Files },
 } as const
 
-const STATUSES = {
+export const STATUSES = {
   draft: {
     labelKey: "docStatusDraft",
     tone: "text-muted-foreground",
@@ -70,18 +70,18 @@ const STATUSES = {
   sent: { labelKey: "docStatusSent", tone: "text-info", dot: "bg-info" },
   approved: {
     labelKey: "docStatusApproved",
-    tone: "text-success",
+    tone: "text-success-ink",
     dot: "bg-success",
   },
   signed: {
     labelKey: "docStatusSigned",
-    tone: "text-success",
+    tone: "text-success-ink",
     dot: "bg-success",
   },
 } as const
 
-type Kind = keyof typeof KINDS
-type Status = keyof typeof STATUSES
+export type Kind = keyof typeof KINDS
+export type Status = keyof typeof STATUSES
 type Draft = {
   /** Set when editing an existing document. */
   id?: string
@@ -90,8 +90,12 @@ type Draft = {
   status: Status
   /** A new file to upload (replaces the current one when editing). */
   file: File | null
+  /** Upload a picture as it is, without compressing it. */
+  keepOriginal?: boolean
   /** Name of the file already attached (editing). */
   currentFile?: string | null
+  /** Storage path of that file, for the preview. */
+  currentPath?: string | null
 }
 
 const NEW_DRAFT: Draft = {
@@ -117,6 +121,9 @@ export function ProjectDocuments({ projectId }: { projectId: string }) {
   const [viewing, setViewing] = useState<number | null>(null)
   const { data: workspace } = useWorkspace(projectId)
   const projectName = workspace?.project?.name ?? "project"
+  const { data: storedUrl } = useFileUrl(
+    draft && !draft.file ? draft.currentPath : null,
+  )
 
   const save = async () => {
     if (!draft) return
@@ -127,19 +134,19 @@ export function ProjectDocuments({ projectId }: { projectId: string }) {
     setSaving(true)
     try {
       const db = supabase()
-      const path = draft.file
-        ? await uploadProjectFile(
-            projectId,
-            projectName,
-            "documents",
-            draft.file,
-          )
+      // Pictures are compressed first (unless kept original).
+      const file =
+        draft.file && !draft.keepOriginal
+          ? await compressImage(draft.file)
+          : draft.file
+      const path = file
+        ? await uploadProjectFile(projectId, projectName, "documents", file)
         : null
-      const fileFields = draft.file
+      const fileFields = file
         ? {
             file_path: path,
-            file_name: draft.file.name,
-            file_size: draft.file.size,
+            file_name: file.name,
+            file_size: file.size,
           }
         : {}
       if (draft.id) {
@@ -166,8 +173,8 @@ export function ProjectDocuments({ projectId }: { projectId: string }) {
           title: draft.title.trim(),
           status: draft.status,
           file_path: path,
-          file_name: draft.file?.name ?? null,
-          file_size: draft.file?.size ?? null,
+          file_name: file?.name ?? null,
+          file_size: file?.size ?? null,
           created_by: viewer.id,
         })
         if (error) throw error
@@ -226,6 +233,7 @@ export function ProjectDocuments({ projectId }: { projectId: string }) {
       status: (doc.status in STATUSES ? doc.status : "draft") as Status,
       file: null,
       currentFile: doc.file_name,
+      currentPath: doc.file_path,
     })
 
   const docMenu = (doc: DocumentRow): RowMenuItem[] => [
@@ -297,7 +305,6 @@ export function ProjectDocuments({ projectId }: { projectId: string }) {
         ) : documents.length === 0 ? (
           <EmptyState
             title={t("docsEmptyTitle")}
-            description={t("docsEmptyDescription")}
             icon={<RiFileTextLine className="size-5" />}
             placement="inner"
           />
@@ -389,99 +396,131 @@ export function ProjectDocuments({ projectId }: { projectId: string }) {
           open={Boolean(draft)}
           onOpenChange={(o) => !o && setDraft(null)}
         >
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>
-                {draft?.id ? t("editDocument") : t("newDocument")}
-              </DialogTitle>
-              <DialogDescription>{t("docDialogDescription")}</DialogDescription>
-            </DialogHeader>
+          {/* Same two-pane layout as the contract upload: file on the left. */}
+          <DialogContent
+            bare
+            showCloseButton={false}
+            className={twoPaneDialogClassName}
+          >
             {draft && (
               <>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="flex flex-col gap-1.5">
-                    <Label>{t("docKind")}</Label>
-                    <Select
-                      value={draft.kind}
-                      onValueChange={(v) =>
-                        v && setDraft({ ...draft, kind: v as Kind })
-                      }
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue>
-                          {(v: Kind) => KINDS[v] && t(KINDS[v].labelKey)}
-                        </SelectValue>
-                      </SelectTrigger>
-                      <SelectContent>
-                        {(Object.keys(KINDS) as Kind[]).map((k) => (
-                          <SelectItem key={k} value={k}>
-                            {t(KINDS[k].labelKey)}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                <FileDropCanvas
+                  file={draft.file}
+                  storedUrl={storedUrl}
+                  storedName={draft.currentFile}
+                  labels={{
+                    title: t("docDropTitle"),
+                    hint: t("docDropHint"),
+                    active: t("docDropActive"),
+                    replace: t("docReplaceFile"),
+                    remove: t("docRemoveFile"),
+                  }}
+                  onPick={(files) => {
+                    const file = files?.[0] ?? null
+                    if (!file) return
+                    setDraft({
+                      ...draft,
+                      file,
+                      title: draft.title || titleFromFile(file),
+                    })
+                  }}
+                  onClear={() => setDraft({ ...draft, file: null })}
+                />
+
+                <aside className={twoPanePanelClassName}>
+                  <div className="shrink-0 px-5 pt-5 pb-3">
+                    <DialogTitle className="text-heading text-xl font-normal tracking-tight">
+                      {draft.id ? t("editDocument") : t("newDocument")}
+                    </DialogTitle>
                   </div>
-                  <div className="flex flex-col gap-1.5">
-                    <Label>{t("colStatus")}</Label>
-                    <Select
-                      value={draft.status}
-                      onValueChange={(v) =>
-                        v && setDraft({ ...draft, status: v as Status })
-                      }
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue>
-                          {(v: Status) =>
-                            STATUSES[v] && t(STATUSES[v].labelKey)
+                  <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-5 pt-1 pb-5">
+                    {draft.file && isCompressible(draft.file) && (
+                      <label className="flex cursor-pointer items-center justify-between gap-3 text-sm">
+                        <span className="flex flex-col">
+                          <span>{t("keepOriginalImage")}</span>
+                          <span className="text-muted-foreground text-xs">
+                            {t("keepOriginalImageHint")}
+                          </span>
+                        </span>
+                        <Switch
+                          checked={Boolean(draft.keepOriginal)}
+                          onCheckedChange={(on) =>
+                            setDraft({ ...draft, keepOriginal: on })
                           }
-                        </SelectValue>
-                      </SelectTrigger>
-                      <SelectContent>
-                        {(Object.keys(STATUSES) as Status[]).map((s) => (
-                          <SelectItem key={s} value={s}>
-                            {t(STATUSES[s].labelKey)}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                        />
+                      </label>
+                    )}
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="flex flex-col gap-1.5">
+                        <Label>{t("docKind")}</Label>
+                        <Select
+                          value={draft.kind}
+                          onValueChange={(v) =>
+                            v && setDraft({ ...draft, kind: v as Kind })
+                          }
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue>
+                              {(v: Kind) => KINDS[v] && t(KINDS[v].labelKey)}
+                            </SelectValue>
+                          </SelectTrigger>
+                          <SelectContent>
+                            {(Object.keys(KINDS) as Kind[]).map((k) => (
+                              <SelectItem key={k} value={k}>
+                                {t(KINDS[k].labelKey)}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        <Label>{t("colStatus")}</Label>
+                        <Select
+                          value={draft.status}
+                          onValueChange={(v) =>
+                            v && setDraft({ ...draft, status: v as Status })
+                          }
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue>
+                              {(v: Status) =>
+                                STATUSES[v] && t(STATUSES[v].labelKey)
+                              }
+                            </SelectValue>
+                          </SelectTrigger>
+                          <SelectContent>
+                            {(Object.keys(STATUSES) as Status[]).map((s) => (
+                              <SelectItem key={s} value={s}>
+                                {t(STATUSES[s].labelKey)}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <Label htmlFor="doc-title">{t("docTitle")}</Label>
+                      <Input
+                        id="doc-title"
+                        value={draft.title}
+                        placeholder={t("docTitlePlaceholder")}
+                        onChange={(e) =>
+                          setDraft({ ...draft, title: e.target.value })
+                        }
+                      />
+                    </div>
                   </div>
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="doc-title">{t("docTitle")}</Label>
-                  <Input
-                    id="doc-title"
-                    value={draft.title}
-                    placeholder={t("docTitlePlaceholder")}
-                    onChange={(e) =>
-                      setDraft({ ...draft, title: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="doc-file">{t("docFileLabel")}</Label>
-                  <FileField
-                    id="doc-file"
-                    fileName={draft.file?.name ?? draft.currentFile}
-                    onChange={(files) => {
-                      const file = files?.[0] ?? null
-                      setDraft({
-                        ...draft,
-                        file,
-                        title: draft.title || (file ? titleFromFile(file) : ""),
-                      })
-                    }}
-                  />
-                </div>
+                  <footer className="border-border flex shrink-0 items-center justify-end gap-2 border-t px-4 py-3">
+                    <Button variant="outline" onClick={() => setDraft(null)}>
+                      {tc("cancel")}
+                    </Button>
+                    <Button onClick={save} disabled={saving}>
+                      {saving ? tc("saving") : tc("save")}
+                    </Button>
+                  </footer>
+                </aside>
               </>
             )}
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setDraft(null)}>
-                {tc("cancel")}
-              </Button>
-              <Button onClick={save} disabled={saving}>
-                {saving ? tc("saving") : tc("save")}
-              </Button>
-            </DialogFooter>
           </DialogContent>
         </Dialog>
 

@@ -155,23 +155,31 @@ export function HomeFigure({
   value,
   unit,
   hint,
+  roll = true,
 }: {
   value: React.ReactNode
   unit?: React.ReactNode
   hint?: React.ReactNode
+  /** Off for a live value like a clock: a roll on every tick (and on the
+   *  first fill-in) only gets in the way. */
+  roll?: boolean
 }) {
   return (
     <div className="flex flex-col gap-1">
       <p className="text-heading text-[1.75rem] leading-none font-normal tracking-tight tabular-nums">
-        <RollingValue
-          value={
-            typeof value === "number" || typeof value === "string"
-              ? value
-              : null
-          }
-        >
-          {orEmpty(value)}
-        </RollingValue>
+        {roll ? (
+          <RollingValue
+            value={
+              typeof value === "number" || typeof value === "string"
+                ? value
+                : null
+            }
+          >
+            {orEmpty(value)}
+          </RollingValue>
+        ) : (
+          orEmpty(value)
+        )}
         {unit && (
           <span className="text-muted-foreground ml-1.5 text-base font-normal tracking-normal">
             {unit}

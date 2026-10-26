@@ -7,6 +7,7 @@ import { cn } from "cn"
 import { Button } from "@/components/ui/button"
 import {
   DialogSections,
+  dialogSheetOnMobileClassName,
   dialogShellClassName,
 } from "@/components/ui/dialog-sections"
 
@@ -59,6 +60,9 @@ function AlertDialogContent({
         className={cn(
           "group/alert-dialog-content",
           dialogShellClassName,
+          dialogSheetOnMobileClassName,
+          // No drag here (a choice has to be made), so no grab handle.
+          "max-sm:pt-0 max-sm:before:hidden",
           "data-[size=sm]:sm:max-w-xs",
           className,
         )}

@@ -1,5 +1,10 @@
 "use client"
 
+import {
+  STATUS_LABEL_KEYS,
+  type ProjectStatus,
+} from "@/page-slices/projects/lib/status"
+import { ProjectStatusIcon } from "@/page-slices/projects/ui/ProjectStatusIcon"
 import { EmptyValue } from "@/components/empty-value"
 import { ArrowUpRight } from "@/components/icons"
 import { HomeCard, HomeEmpty, HomeIconLink, HomeRow } from "./home-card"
@@ -27,10 +32,10 @@ interface EmployeeProjectsWidgetProps {
 
 export function EmployeeProjectsWidget({
   projects,
-  userId,
   className,
 }: EmployeeProjectsWidgetProps) {
   const t = useT("dashboard")
+  const tp = useT("projects")
   const dateLocale = useDateLocale()
   return (
     <HomeCard
@@ -62,7 +67,7 @@ export function EmployeeProjectsWidget({
                 key={
                   project.id || `${project.name}-${project.quarter_id}-${index}`
                 }
-                href={`/performance/employee/${userId}/project/${project.id}`}
+                href={`/projects/${project.id}`}
                 leading={
                   <ProjectAvatar
                     id={project.id}
@@ -71,12 +76,18 @@ export function EmployeeProjectsWidget({
                   />
                 }
                 title={<span className="font-medium">{project.name}</span>}
-                subtitle={t("projectSubtitle", {
-                  quarter: project.quarter_id,
-                  sla: project.sla_percentage,
-                  achieved: project.quality_achieved,
-                  total: project.quality_total,
-                })}
+                subtitle={
+                  <span className="flex items-center gap-1.5">
+                    <ProjectStatusIcon
+                      status={project.status as ProjectStatus}
+                      className="size-3.5"
+                    />
+                    {tp(
+                      STATUS_LABEL_KEYS[project.status as ProjectStatus] ??
+                        "statusActive",
+                    )}
+                  </span>
+                }
                 trailing={
                   daysLeft < 0 ? (
                     <Badge variant="destructive">{t("projectOverdue")}</Badge>

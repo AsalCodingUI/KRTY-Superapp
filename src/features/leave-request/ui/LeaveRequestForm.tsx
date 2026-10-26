@@ -134,6 +134,7 @@ export function LeaveRequestForm({
           id="reason"
           className="mt-2"
           placeholder={t("formReasonPlaceholder")}
+          maxLength={1000}
           value={formData.reason}
           onChange={(e) =>
             onFormDataChange({ ...formData, reason: e.target.value })

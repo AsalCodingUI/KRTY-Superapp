@@ -1,12 +1,10 @@
 "use client"
 
-import { cn } from "@/lib/utils"
-import { TAB_ENTER, useTabSwitched } from "@/shared/hooks/useTabSwitched"
 import { RollingValue } from "@/components/rolling-value"
 import { AttendanceHistoryList } from "@/app/(main)/attendance/components/AttendanceHistoryList"
 import { AttendanceSettings } from "@/page-slices/settings/ui"
 import { PageHeader } from "@/components/page-header"
-import { TabNavigation, TabNavigationLink } from "@/components/tab-navigation"
+import { SectionTitle } from "@/components/section-title"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -20,8 +18,6 @@ import {
 import { ClockControls } from "@/features/attendance-clock"
 import { createClient } from "@/shared/api/supabase/client"
 import { useMinuteClock } from "@/shared/hooks/useMinuteClock"
-import { useMountedTabs } from "@/shared/hooks/useMountedTabs"
-import { useTabRoute } from "@/shared/hooks/useTabRoute"
 import { getLocalDateString } from "@/shared/lib/date"
 import { useDateLocale, useT } from "@/shared/i18n/client"
 import {
@@ -34,10 +30,9 @@ import { RiAddLine } from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
 import { Spinner } from "@/components/ui/spinner"
 import dynamic from "next/dynamic"
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { toast } from "sonner"
-import { EmployeeLeaveList } from "./components/EmployeeLeaveList"
 
 // Markdown renderer only loads when the rules dialog opens.
 const LeaveRules = dynamic(
@@ -60,18 +55,23 @@ const LeaveRequestModal = dynamic(
   { loading: () => null },
 )
 
+// Request history + progress, only once "Detail cuti" is opened.
+const LeaveDetailsModal = dynamic(
+  () =>
+    import("./components/LeaveDetailsModal").then((m) => m.LeaveDetailsModal),
+  { loading: () => null },
+)
+
 type Profile = Database["public"]["Tables"]["profiles"]["Row"]
 type LeaveRequest = Database["public"]["Tables"]["leave_requests"]["Row"]
 type AttendanceLog = Database["public"]["Tables"]["attendance_logs"]["Row"]
 
 interface EmployeeLeavePageProps {
   profile: Profile
+  /** All of the member's requests, newest first. */
   requests: LeaveRequest[]
   statsRequests?: LeaveRequest[]
   attendanceLogs: AttendanceLog[]
-  page: number
-  pageSize: number
-  totalCount: number
 }
 
 const isWfh = (type: string) => type === "WFH" || type === "Work From Home"
@@ -81,27 +81,12 @@ export function EmployeeLeavePage({
   requests,
   statsRequests = [],
   attendanceLogs,
-  page,
-  pageSize,
-  totalCount,
 }: EmployeeLeavePageProps) {
   const t = useT("leave")
   const tc = useT("common")
   const dateLocale = useDateLocale()
   const supabase = createClient()
   const router = useRouter()
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
-
-  const { activeTab, setActiveTab } = useTabRoute<"attendance" | "leave">({
-    basePath: "/leave",
-    tabs: ["attendance", "leave"],
-    defaultTab: "attendance",
-    preserveQuery: true,
-    mode: "history",
-  })
-  const tabSwitched = useTabSwitched(activeTab)
-  const { isMounted } = useMountedTabs(activeTab)
 
   // Only HH:mm is shown, so tick on the minute rather than every second.
   const now = useMinuteClock()
@@ -110,6 +95,9 @@ export function EmployeeLeavePage({
   const [modalMounted, setModalMounted] = useState(false)
   if (isModalOpen && !modalMounted) setModalMounted(true)
   const [editingItem, setEditingItem] = useState<LeaveRequest | null>(null)
+  const [detailsOpen, setDetailsOpen] = useState(false)
+  const [detailsMounted, setDetailsMounted] = useState(false)
+  if (detailsOpen && !detailsMounted) setDetailsMounted(true)
   const [rulesOpen, setRulesOpen] = useState(false)
   const [deleteLogId, setDeleteLogId] = useState<string | null>(null)
   const [cancelTarget, setCancelTarget] = useState<LeaveRequest | null>(null)
@@ -166,24 +154,24 @@ export function EmployeeLeavePage({
   }, [requestsForStats, profile])
 
   const today = now ? getLocalDateString(now) : ""
+  // WFH is a working day, so it keeps the normal "Hadir" status.
   const isOnLeave = Boolean(
     today &&
     requestsForStats.some(
       (r) =>
-        r.status === "approved" && r.start_date <= today && r.end_date >= today,
+        r.status === "approved" &&
+        !isWfh(r.leave_type) &&
+        r.start_date <= today &&
+        r.end_date >= today,
     ),
   )
 
+  // Editing swaps the details modal for the form; one dialog at a time.
   const openRequest = useCallback((item: LeaveRequest | null) => {
+    setDetailsOpen(false)
     setEditingItem(item)
     setIsModalOpen(true)
   }, [])
-
-  const handlePageChange = (newPage: number) => {
-    const params = new URLSearchParams(searchParams)
-    params.set("page", (newPage + 1).toString())
-    router.push(`${pathname}?${params.toString()}`)
-  }
 
   const confirmDeleteRequest = async () => {
     if (!deleteLogId) return
@@ -238,37 +226,24 @@ export function EmployeeLeavePage({
   return (
     <>
       <div className="flex flex-col">
-        {/* Same order as the admin view: title + actions, tabs, a stats band,
-            today's clock row, then the list. */}
+        {/* One page (like Performance for members): title + actions, the
+            balances, today's clock row, then attendance. Requests live in
+            the "Detail cuti" modal. */}
         <PageHeader
           className="pt-6 pb-4"
           title={t("pageTitle")}
           actions={
-            <Button variant="secondary" onClick={() => openRequest(null)}>
-              <RiAddLine data-icon="inline-start" />
-              {t("requestLeave")}
-            </Button>
+            <>
+              <Button variant="outline" onClick={() => setDetailsOpen(true)}>
+                {t("leaveDetails")}
+              </Button>
+              <Button variant="secondary" onClick={() => openRequest(null)}>
+                <RiAddLine data-icon="inline-start" />
+                {t("requestLeave")}
+              </Button>
+            </>
           }
         />
-
-        <div className="bleed gutter-x border-border border-b">
-          <TabNavigation className="border-b-0">
-            <TabNavigationLink
-              active={activeTab === "attendance"}
-              onClick={() => setActiveTab("attendance")}
-              showLeadingIcon={false}
-            >
-              {t("tabAttendance")}
-            </TabNavigationLink>
-            <TabNavigationLink
-              active={activeTab === "leave"}
-              onClick={() => setActiveTab("leave")}
-              showLeadingIcon={false}
-            >
-              {t("tabLeave")}
-            </TabNavigationLink>
-          </TabNavigation>
-        </div>
 
         {/* Balances (one shared rule, see shared/lib/leave) */}
         <dl className="stat-strip bleed gutter-x border-border border-b py-4">
@@ -356,41 +331,25 @@ export function EmployeeLeavePage({
           </div>
         </div>
 
-        <div className="pb-4">
-          {isMounted("attendance") && (
-            <div
-              className={
-                activeTab === "attendance"
-                  ? cn("block", tabSwitched && TAB_ENTER)
-                  : "hidden"
-              }
-            >
-              <AttendanceHistoryList
-                logs={logs}
-                onRequestDelete={(id) => setDeleteLogId(id)}
-              />
-            </div>
-          )}
-          {isMounted("leave") && (
-            <div
-              className={
-                activeTab === "leave"
-                  ? cn("block", tabSwitched && TAB_ENTER)
-                  : "hidden"
-              }
-            >
-              <EmployeeLeaveList
-                requests={requests}
-                onEdit={openRequest}
-                onCancel={setCancelTarget}
-                page={page}
-                pageCount={Math.ceil(totalCount / pageSize)}
-                onPageChange={handlePageChange}
-              />
-            </div>
-          )}
-        </div>
+        <section className="pb-4">
+          <SectionTitle>{t("sectionAttendance")}</SectionTitle>
+          <AttendanceHistoryList
+            logs={logs}
+            onRequestDelete={(id) => setDeleteLogId(id)}
+          />
+        </section>
       </div>
+
+      {detailsMounted && (
+        <LeaveDetailsModal
+          open={detailsOpen}
+          onOpenChange={setDetailsOpen}
+          requests={requests}
+          today={today}
+          onEdit={openRequest}
+          onCancel={setCancelTarget}
+        />
+      )}
 
       {modalMounted && (
         <LeaveRequestModal

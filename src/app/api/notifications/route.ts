@@ -1,6 +1,7 @@
 import { getT } from "@/shared/i18n/server"
 import { createAdminClient } from "@/shared/api/supabase/admin"
 import { createClient } from "@/shared/api/supabase/server"
+import { resolveEffectiveUserId } from "@/shared/lib/impersonation-server"
 import { resolveProfileByUserIdOrEmail } from "@/shared/lib/profile-resolution"
 import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
@@ -10,6 +11,11 @@ const markReadSchema = z.object({
   markAll: z.boolean().optional(),
 })
 
+/**
+ * Whose notifications: the signed-in person's, or, while a super admin
+ * views the app as someone, that person's (the same rule as every other
+ * "view as" read).
+ */
 async function getCanonicalProfile() {
   const supabase = await createClient()
   const {
@@ -17,15 +23,27 @@ async function getCanonicalProfile() {
   } = await supabase.auth.getUser()
 
   if (!user) {
-    return { user: null, profile: null }
+    return { user: null, profile: null, viewingAs: false }
   }
 
   const profile = await resolveProfileByUserIdOrEmail<{
     id: string
     email: string | null
   }>(supabase, "id, email, created_at", user.id, user.email)
+  if (!profile) return { user, profile: null, viewingAs: false }
 
-  return { user, profile }
+  const effectiveId = await resolveEffectiveUserId(
+    supabase,
+    user.id,
+    user.email,
+  )
+  return {
+    user,
+    profile:
+      effectiveId === profile.id ? profile : { ...profile, id: effectiveId },
+    // Viewing as someone is read-only: their rows aren't marked or removed.
+    viewingAs: effectiveId !== profile.id,
+  }
 }
 
 export async function GET() {
@@ -52,7 +70,17 @@ export async function GET() {
       throw error
     }
 
-    return NextResponse.json({ notifications: data || [] })
+    // The badge counts every unread one, not only those in the list.
+    const { count } = await adminSupabase
+      .from("notifications")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", profile.id)
+      .eq("is_read", false)
+
+    return NextResponse.json({
+      notifications: data || [],
+      unreadCount: count ?? null,
+    })
   } catch (error) {
     console.error("Notifications GET error", error)
     return NextResponse.json(
@@ -65,13 +93,15 @@ export async function GET() {
 export async function PATCH(request: NextRequest) {
   const t = await getT("api")
   try {
-    const { user, profile } = await getCanonicalProfile()
+    const { user, profile, viewingAs } = await getCanonicalProfile()
     if (!user) {
       return NextResponse.json({ error: t("unauthorized") }, { status: 401 })
     }
     if (!profile) {
       return NextResponse.json({ error: t("profileNotFound") }, { status: 404 })
     }
+
+    if (viewingAs) return NextResponse.json({ success: true })
 
     const rawBody = await request.json().catch(() => null)
     const parsed = markReadSchema.safeParse(rawBody)
@@ -115,13 +145,15 @@ export async function PATCH(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   const t = await getT("api")
   try {
-    const { user, profile } = await getCanonicalProfile()
+    const { user, profile, viewingAs } = await getCanonicalProfile()
     if (!user) {
       return NextResponse.json({ error: t("unauthorized") }, { status: 401 })
     }
     if (!profile) {
       return NextResponse.json({ error: t("profileNotFound") }, { status: 404 })
     }
+
+    if (viewingAs) return NextResponse.json({ success: true })
 
     const id = new URL(request.url).searchParams.get("id")
     if (!id) {

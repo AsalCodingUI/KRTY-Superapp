@@ -71,6 +71,11 @@ export function useClockActions({ logs, onLogsUpdate }: UseClockActionsProps) {
         const payload = await response.json().catch(() => ({}))
         if (!response.ok)
           throw new Error(payload?.error || t("toastClockOutFailed"))
+        // The server's row (break time folded in) replaces the guess.
+        if (payload.data)
+          onLogsUpdate(
+            logs.map((log) => (log.id === logId ? payload.data : log)),
+          )
         toast.success(t("toastClockedOut"))
       } catch (error: unknown) {
         // Rollback on error
@@ -207,6 +212,11 @@ export function useClockActions({ logs, onLogsUpdate }: UseClockActionsProps) {
         if (!response.ok) {
           throw new Error(payload?.error || t("toastResolveFailed"))
         }
+        // The server picks the clock-out time (the person's cut-off).
+        if (payload.data)
+          onLogsUpdate(
+            logs.map((log) => (log.id === logId ? payload.data : log)),
+          )
         toast.success(t("toastResolved"))
       } catch (error: unknown) {
         onLogsUpdate(oldLogs)

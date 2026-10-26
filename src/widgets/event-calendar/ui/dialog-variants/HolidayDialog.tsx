@@ -39,7 +39,7 @@ export function HolidayDialog({
           {/* Holiday Title */}
           <div>
             <div className="flex items-start justify-between gap-4">
-              <h3 className="text-foreground text-base font-semibold break-words">
+              <h3 className="text-heading text-base font-medium break-words">
                 {event.title}
               </h3>
               <Badge variant="secondary" className="shrink-0">

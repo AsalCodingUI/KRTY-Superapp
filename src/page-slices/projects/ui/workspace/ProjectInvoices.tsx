@@ -166,7 +166,7 @@ export function ProjectInvoices({ projectId }: { projectId: string }) {
     if (["Paid", "Draft", "Refunded"].includes(inv.status)) return null
     const days = differenceInCalendarDays(new Date(inv.due_date), new Date())
     return {
-      tone: days < 0 ? "text-destructive" : "text-success",
+      tone: days < 0 ? "text-destructive" : "text-success-ink",
       label:
         days < 0
           ? t("lateDays", { n: -days })

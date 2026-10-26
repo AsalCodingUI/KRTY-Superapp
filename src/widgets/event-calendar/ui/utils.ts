@@ -412,33 +412,6 @@ export function isMultiDayEvent(event: CalendarEvent): boolean {
 }
 
 /**
- * Get event color class
- * @deprecated Use getEventColorClasses from event-color-registry instead
- */
-export function getEventColorClass(color: string): string {
-  const { getEventColorClasses } = require("./event-color-registry")
-  return getEventColorClasses(color, "default")
-}
-
-/**
- * Get dot color class for event (used in month view)
- */
-export function getEventDotColorClass(color: string): string {
-  const colorMap: Record<string, string> = {
-    emerald: "bg-green-9 dark:bg-green-10",
-    orange: "bg-orange-9 dark:bg-orange-10",
-    violet: "bg-purple-9 dark:bg-purple-10",
-    blue: "bg-primary dark:bg-primary",
-    rose: "bg-tomato-9 dark:bg-tomato-10",
-    amber: "bg-amber-9 dark:bg-amber-10",
-    cyan: "bg-cyan-9 dark:bg-cyan-10",
-    neutral: "bg-neutral-500 dark:bg-neutral-400",
-  }
-
-  return colorMap[color] || colorMap.blue
-}
-
-/**
  * Side-by-side layout for overlapping events in one day column: each event
  * gets a lane, and every event in an overlapping cluster shares its width.
  */

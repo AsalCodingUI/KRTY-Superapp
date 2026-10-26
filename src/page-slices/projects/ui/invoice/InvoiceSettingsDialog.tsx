@@ -1,5 +1,6 @@
 "use client"
 
+import { compressImage } from "@/shared/lib/compress-image"
 import { ConfirmDialog } from "@/components/confirm-dialog"
 import { FileField } from "@/components/file-field"
 import { SegmentedControl } from "@/components/segmented-control"
@@ -110,7 +111,10 @@ export function InvoiceSettingsDialog({
         <div className="-mx-1 min-h-0 flex-1 overflow-y-auto px-1 pb-1">
           {open &&
             (tab === "methods" ? (
-              <MethodsTab initialMethodId={initialMethodId} />
+              <MethodsTab
+                initialMethodId={initialMethodId}
+                onClose={() => onOpenChange(false)}
+              />
             ) : (
               <StudioTab onDone={() => onOpenChange(false)} />
             ))}
@@ -120,7 +124,13 @@ export function InvoiceSettingsDialog({
   )
 }
 
-function MethodsTab({ initialMethodId }: { initialMethodId?: string | null }) {
+function MethodsTab({
+  initialMethodId,
+  onClose,
+}: {
+  initialMethodId?: string | null
+  onClose: () => void
+}) {
   const t = useT("invoices")
   const dateLocale = useDateLocale()
   const { data: methods = [] } = usePaymentMethods()
@@ -141,7 +151,15 @@ function MethodsTab({ initialMethodId }: { initialMethodId?: string | null }) {
     }
   }, [initialMethodId, methods])
 
-  if (draft) return <MethodForm draft={draft} onDone={() => setDraft(null)} />
+  // Opened on one method (from the Payment methods page): done closes the
+  // dialog instead of showing the same list again.
+  if (draft)
+    return (
+      <MethodForm
+        draft={draft}
+        onDone={initialMethodId ? onClose : () => setDraft(null)}
+      />
+    )
 
   return (
     <div className="flex flex-col gap-2 pt-2">
@@ -197,6 +215,20 @@ function MethodsTab({ initialMethodId }: { initialMethodId?: string | null }) {
   )
 }
 
+/**
+ * Deletes a replaced QR from storage unless an invoice still prints it
+ * (invoices keep the payment details they were sent with).
+ */
+async function removeQrIfUnused(path: string) {
+  const db = createClient()
+  const { count, error } = await db
+    .from("project_invoices")
+    .select("id", { count: "exact", head: true })
+    .eq("payment_snapshot->>qr_path", path)
+  if (error || count) return
+  await db.storage.from(FINANCE_BUCKET).remove([path])
+}
+
 function MethodForm({
   draft: initial,
   onDone,
@@ -250,10 +282,11 @@ function MethodForm({
           "qr",
           `${slugify(draft.name, 40)}_${dateStamp()}`,
           ext || "png",
-          qrFile,
+          // A QR stays sharp: compression keeps the format and only scales
+          // down pictures larger than it needs.
+          await compressImage(qrFile),
         )
-        if (draft.qr_path)
-          await db.storage.from(FINANCE_BUCKET).remove([draft.qr_path])
+        if (draft.qr_path) await removeQrIfUnused(draft.qr_path)
       }
       const row = {
         name: draft.name.trim(),
@@ -449,8 +482,7 @@ function MethodForm({
             .delete()
             .eq("id", draft.id!)
           if (error) return void toast.error(t("errMethod"))
-          if (draft.qr_path)
-            await db.storage.from(FINANCE_BUCKET).remove([draft.qr_path])
+          if (draft.qr_path) await removeQrIfUnused(draft.qr_path)
           toast.success(t("methodDeleted"))
           await refresh()
           onDone()

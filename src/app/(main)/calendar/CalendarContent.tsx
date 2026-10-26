@@ -3,6 +3,7 @@
 import { useKeyboardShortcuts } from "@/shared/hooks/useKeyboardShortcuts"
 import { useT } from "@/shared/i18n/client"
 import { useTabRoute } from "@/shared/hooks/useTabRoute"
+import { cx } from "@/shared/lib/utils"
 // Deep imports (not the `@/widgets/event-calendar` barrel) so the dynamic
 // EventCalendar split below isn't defeated by the barrel's static re-exports.
 import { useCalendarContext } from "@/widgets/event-calendar/ui/calendar-context"
@@ -19,9 +20,9 @@ import { getViewRange } from "@/widgets/event-calendar/ui/utils"
 import { useQuery } from "@tanstack/react-query"
 import { endOfDay, startOfDay } from "date-fns"
 import dynamic from "next/dynamic"
-import { usePathname } from "next/navigation"
-import { useEffect, useMemo } from "react"
+import { useEffect, useMemo, type ReactNode } from "react"
 import { toast } from "sonner"
+import { CALENDAR_HEIGHT } from "./calendar-height"
 
 const EventCalendar = dynamic(
   () =>
@@ -34,15 +35,30 @@ const EventCalendar = dynamic(
   },
 )
 
-const CALENDAR_VIEWS: readonly ViewMode[] = [
-  "week",
-  "month",
-  "timeline",
-  "day",
-  "agenda",
-]
+export type CalendarShellProps = {
+  events: CalendarEvent[]
+  loading: boolean
+  dialogOpen: boolean
+  setDialogOpen: (open: boolean) => void
+  handleEventAdd: (eventData: Partial<CalendarEvent>) => Promise<void>
+  handleEventUpdate: (eventData: Partial<CalendarEvent>) => Promise<void>
+  handleEventDelete: (eventId: string) => Promise<void>
+  /** May create events here. */
+  canAdd: boolean
+  canEditEvent: (event: CalendarEvent) => boolean
+  /** Types offered in the new-event form. */
+  eventTypes: string[]
+  categories: EventCategory[]
+  /** Views in the switch; the first is the default. */
+  views: ViewMode[]
+  basePath: string
+  /** Merge in the user's Google Calendar (personal calendar only). */
+  withGoogle: boolean
+  blockedGoogleEventIds?: string[]
+  onEventOpen?: (event: CalendarEvent) => boolean
+  timeline?: ReactNode
+}
 
-// Separate component to use useCalendarContext
 function CalendarContent({
   events,
   loading,
@@ -51,21 +67,17 @@ function CalendarContent({
   handleEventAdd,
   handleEventUpdate,
   handleEventDelete,
-  isStakeholder,
+  canAdd,
+  canEditEvent,
+  eventTypes,
   categories,
+  views,
+  basePath,
+  withGoogle,
   blockedGoogleEventIds,
-}: {
-  events: CalendarEvent[]
-  loading: boolean
-  dialogOpen: boolean
-  setDialogOpen: (open: boolean) => void
-  handleEventAdd: (eventData: Partial<CalendarEvent>) => Promise<void>
-  handleEventUpdate: (eventData: Partial<CalendarEvent>) => Promise<void>
-  handleEventDelete: (eventId: string) => Promise<void>
-  isStakeholder: boolean
-  categories: EventCategory[]
-  blockedGoogleEventIds?: string[]
-}) {
+  onEventOpen,
+  timeline,
+}: CalendarShellProps) {
   const {
     currentDate,
     viewMode,
@@ -75,16 +87,11 @@ function CalendarContent({
     setViewMode,
   } = useCalendarContext()
   const t = useT("calendar")
-  const pathname = usePathname()
-  // Personal calendar lives under /calendar/personal/<view>.
-  const basePath = pathname.startsWith("/calendar/personal")
-    ? "/calendar/personal"
-    : "/calendar"
   const { activeTab: viewTab, setActiveTab: setViewTab } =
     useTabRoute<ViewMode>({
       basePath,
-      tabs: CALENDAR_VIEWS,
-      defaultTab: "week",
+      tabs: views,
+      defaultTab: views[0],
       mode: "history",
     })
   const { isConnected } = useGoogleCalendar()
@@ -104,6 +111,7 @@ function CalendarContent({
   }, [viewTab, viewMode, setViewMode])
 
   const handleViewChange = (nextView: ViewMode) => {
+    if (!views.includes(nextView)) return
     if (nextView !== viewMode) {
       setViewMode(nextView)
     }
@@ -143,46 +151,53 @@ function CalendarContent({
         throw error
       }
     },
-    enabled: isConnected,
+    enabled: withGoogle && isConnected,
   })
 
-  const googleEvents = useMemo(() => {
-    if (!blockedGoogleEventIds?.length) return googleEventsRaw
-    const blockedSet = new Set(blockedGoogleEventIds)
-    return googleEventsRaw.filter(
-      (event) => !event.googleEventId || !blockedSet.has(event.googleEventId),
-    )
-  }, [googleEventsRaw, blockedGoogleEventIds])
-
   const allEvents = useMemo(() => {
-    if (googleEvents.length === 0) return events
+    if (!withGoogle || googleEventsRaw.length === 0) return events
+    const blocked = new Set(blockedGoogleEventIds ?? [])
     const map = new Map<string, CalendarEvent>()
     events.forEach((event) => map.set(event.id, event))
-    googleEvents.forEach((event) => map.set(event.id, event))
+    googleEventsRaw
+      .filter(
+        (event) => !event.googleEventId || !blocked.has(event.googleEventId),
+      )
+      .forEach((event) => map.set(event.id, event))
     return Array.from(map.values())
-  }, [events, googleEvents])
+  }, [events, googleEventsRaw, blockedGoogleEventIds, withGoogle])
 
-  // Keyboard shortcuts
   useKeyboardShortcuts({
-    onCreateEvent: isStakeholder ? () => setDialogOpen(true) : () => {},
+    onCreateEvent: canAdd ? () => setDialogOpen(true) : () => {},
     onGoToday: goToToday,
     onPrevious: goToPrevious,
     onNext: goToNext,
-    onViewChange: setViewMode,
+    onViewChange: handleViewChange,
   })
+
+  const waiting =
+    viewMode !== "timeline" &&
+    (loading || (withGoogle && isConnected && googleLoading))
 
   return (
     <EventVisibilityProvider initialCategories={categories}>
-      {/* Fill the viewport under the header; the grid scrolls inside. */}
-      <div className="flex h-[calc(100svh-4rem)] min-h-[520px] flex-col gap-4 pt-1">
+      {/* Fills the page sheet exactly; the grid scrolls inside. */}
+      <div
+        className={cx(
+          CALENDAR_HEIGHT,
+          "flex min-h-[520px] flex-col gap-4 pt-1",
+        )}
+      >
         <CalendarToolbar
           onAddEvent={() => setDialogOpen(true)}
-          showAddEvent={isStakeholder}
+          showAddEvent={canAdd}
           onViewChange={handleViewChange}
+          views={views}
+          showGoogleStatus={withGoogle}
         />
 
         <div className="bg-background dark:bg-surface flex min-h-0 flex-1 overflow-hidden rounded-xl border">
-          {loading || (googleLoading && viewMode !== "timeline") ? (
+          {waiting ? (
             <CalendarSkeleton />
           ) : (
             <EventCalendar
@@ -191,7 +206,11 @@ function CalendarContent({
               onEventUpdate={handleEventUpdate}
               onEventDelete={handleEventDelete}
               categories={categories}
-              canEdit={isStakeholder}
+              canEdit={canAdd}
+              canEditEvent={canEditEvent}
+              onEventOpen={onEventOpen}
+              eventTypes={eventTypes}
+              timeline={timeline}
               dialogOpen={dialogOpen}
               onDialogOpenChange={setDialogOpen}
             />

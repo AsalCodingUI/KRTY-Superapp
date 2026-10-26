@@ -119,8 +119,11 @@ export function GridGroup({
 /** Full-bleed stats band under the tabs. */
 export function StatBand({
   stats,
+  aside,
 }: {
   stats: { label: React.ReactNode; value: React.ReactNode }[]
+  /** Right-aligned controls, e.g. locking the period. */
+  aside?: React.ReactNode
 }) {
   return (
     <div className="stat-strip bleed gutter-x border-border border-b py-4">
@@ -140,6 +143,11 @@ export function StatBand({
           </p>
         </div>
       ))}
+      {aside && (
+        <div className="ml-auto flex items-center gap-2 self-center">
+          {aside}
+        </div>
+      )}
     </div>
   )
 }

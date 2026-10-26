@@ -164,7 +164,9 @@ export const adminColumns = (
         const reason = row.original.reason
         const proof = row.original.proof_url
         return (
-          <div className="flex max-w-[280px] items-center gap-1.5">
+          // Shrinks with the window (down to ~7rem) so the table fits the
+          // page instead of scrolling sideways on laptop widths.
+          <div className="flex max-w-[clamp(7rem,calc(100vw-66rem),17.5rem)] items-center gap-1.5">
             <span
               className="text-muted-foreground truncate"
               title={reason || ""}
@@ -219,7 +221,7 @@ export const adminColumns = (
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="text-success"
+                    className="text-success-ink"
                     title={t("approve")}
                     onClick={(e) => {
                       e.stopPropagation()

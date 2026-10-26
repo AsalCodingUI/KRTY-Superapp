@@ -5,21 +5,18 @@ import { TAB_ENTER, useTabSwitched } from "@/shared/hooks/useTabSwitched"
 import { PageHeader } from "@/components/page-header"
 import { QuarterFilter } from "@/components/quarter-filter"
 import { TabNavigation, TabNavigationLink } from "@/components/tab-navigation"
-import { useViewMode, ViewToggle } from "@/components/view-toggle"
-import { createClient } from "@/shared/api/supabase/client"
 import { useTabRoute } from "@/shared/hooks/useTabRoute"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { canManageByRole } from "@/shared/lib/roles"
 import { useT } from "@/shared/i18n/client"
-import { useQuery } from "@tanstack/react-query"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { useMemo } from "react"
-import { EmployeeKpiView } from "./kpi/EmployeeKpiView"
+import { MyKpiView } from "./kpi/MyKpiView"
 import { normalizePeriod, periodYears } from "./kpi/period"
 import { TeamKpiList } from "./kpi/TeamKpiList"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Spinner } from "@/components/ui/spinner"
 import dynamic from "next/dynamic"
+import { ProjectKpiSheet, projectSheetHref } from "./kpi/ProjectKpiSheet"
 
 /** Stats band + list placeholder while a tab's chunk loads (as loading.tsx). */
 function TabFallback() {
@@ -44,16 +41,8 @@ const ReviewMonitoring = dynamic(
   () => import("./review/ReviewMonitoring").then((m) => m.ReviewMonitoring),
   { loading },
 )
-const MyReview = dynamic(
-  () => import("./review/MyReview").then((m) => m.MyReview),
-  { loading },
-)
 const OneOnOne = dynamic(
   () => import("./meeting/OneOnOne").then((m) => m.OneOnOne),
-  { loading },
-)
-const LeadTeam = dynamic(
-  () => import("./kpi/LeadTeam").then((m) => m.LeadTeam),
   { loading },
 )
 const CompetencyLibrary = dynamic(
@@ -62,19 +51,19 @@ const CompetencyLibrary = dynamic(
   { loading },
 )
 
-type Tab = "kpi" | "360-review" | "one-on-one" | "team" | "competency-library"
+type Tab = "kpi" | "360-review" | "one-on-one" | "competency-library"
 
 const TABS: readonly Tab[] = [
   "kpi",
   "360-review",
   "one-on-one",
-  "team",
   "competency-library",
 ]
 
 /**
- * Performance: KPI, 360 review, 1:1 and (for leads) the team to score.
- * One period filter for every tab, kept in the URL (?periode=2026-Q4).
+ * Performance: KPI, 360 review and 1:1. A lead scores their team in the
+ * project's "Penilaian" page.
+ * One period filter for every tab, kept in the URL (?period=2026-Q4).
  */
 export function PerformancePage() {
   const t = useT("performance")
@@ -83,9 +72,7 @@ export function PerformancePage() {
   const searchParams = useSearchParams()
   const { profile, loading } = useUserProfile()
   const isAdmin = canManageByRole(profile?.role)
-  const period = normalizePeriod(searchParams.get("periode"))
-  const [view, setView] = useViewMode("performance-kpi")
-  const supabase = useMemo(() => createClient(), [])
+  const period = normalizePeriod(searchParams.get("period"))
 
   const { activeTab, setActiveTab } = useTabRoute<Tab>({
     basePath: "/performance",
@@ -95,30 +82,19 @@ export function PerformancePage() {
   })
   const tabSwitched = useTabSwitched(activeTab)
 
-  const { data: isLead = false } = useQuery({
-    queryKey: ["is-lead", profile?.id],
-    enabled: Boolean(profile?.id),
-    queryFn: async () => {
-      const { count } = await supabase
-        .from("project_assignments")
-        .select("id", { count: "exact", head: true })
-        .eq("user_id", profile!.id)
-        .eq("is_lead", true)
-      return Boolean(count)
-    },
-  })
-
   const setPeriod = (value: string) => {
     const params = new URLSearchParams(searchParams.toString())
-    params.set("periode", value)
+    params.set("period", value)
     router.replace(`${pathname}?${params.toString()}`, { scroll: false })
   }
 
   const tabs: { value: Tab; label: string }[] = [
     { value: "kpi", label: isAdmin ? t("teamKpi") : t("myKpi") },
-    { value: "360-review", label: t("tab360") },
-    { value: "one-on-one", label: t("tabOneOnOne") },
-    ...(isLead ? [{ value: "team" as Tab, label: t("tabMyTeam") }] : []),
+    ...(isAdmin ? [{ value: "360-review" as Tab, label: t("tab360") }] : []),
+    // Members get 360 and 1:1 as cards on their KPI page.
+    ...(isAdmin
+      ? [{ value: "one-on-one" as Tab, label: t("tabOneOnOne") }]
+      : []),
     ...(isAdmin
       ? [{ value: "competency-library" as Tab, label: t("tabCompetency") }]
       : []),
@@ -142,9 +118,6 @@ export function PerformancePage() {
         title={t("pageTitle")}
         actions={
           <>
-            {tab === "kpi" && isAdmin && (
-              <ViewToggle value={view} onValueChange={setView} />
-            )}
             {tab !== "competency-library" && (
               <QuarterFilter
                 value={period}
@@ -156,44 +129,51 @@ export function PerformancePage() {
         }
       />
 
-      <div className="bleed gutter-x border-border border-b">
-        <TabNavigation className="border-b-0">
-          {tabs.map((item) => (
-            <TabNavigationLink
-              key={item.value}
-              active={tab === item.value}
-              onClick={() => setActiveTab(item.value)}
-            >
-              {item.label}
-            </TabNavigationLink>
-          ))}
-        </TabNavigation>
-      </div>
+      {/* A member without a team has one page: no tabs. */}
+      {tabs.length > 1 && (
+        <div className="bleed gutter-x border-border border-b">
+          <TabNavigation className="border-b-0">
+            {tabs.map((item) => (
+              <TabNavigationLink
+                key={item.value}
+                active={tab === item.value}
+                onClick={() => setActiveTab(item.value)}
+              >
+                {item.label}
+              </TabNavigationLink>
+            ))}
+          </TabNavigation>
+        </div>
+      )}
 
       {/* Each tab brings its own stats band / toolbar, then the list. */}
-      <div key={tab} className={cn("pb-4", tabSwitched && TAB_ENTER)}>
+      <div
+        key={tab}
+        className={cn(
+          "pb-4",
+          // A lead's own KPI is cards, not a stats band: give them room
+          // under the tabs.
+          tab === "kpi" && !isAdmin && tabs.length > 1 && "pt-4",
+          tabSwitched && TAB_ENTER,
+        )}
+      >
         {tab === "kpi" &&
           (isAdmin ? (
-            <TeamKpiList scope={period} view={view} />
+            <TeamKpiList scope={period} />
           ) : (
-            <EmployeeKpiView
+            <MyKpiView
               userId={profile.id}
               scope={period}
               hrefFor={(p) =>
-                `/performance/employee/${profile.id}/project/${p.projectId}?periode=${encodeURIComponent(period)}`
+                projectSheetHref(pathname, { periode: period }, p.projectId)
               }
             />
           ))}
-        {tab === "360-review" &&
-          (isAdmin ? (
-            <ReviewMonitoring period={period} />
-          ) : (
-            <MyReview period={period} />
-          ))}
+        {tab === "360-review" && <ReviewMonitoring period={period} />}
         {tab === "one-on-one" && <OneOnOne period={period} />}
-        {tab === "team" && <LeadTeam period={period} />}
         {tab === "competency-library" && isAdmin && <CompetencyLibrary />}
       </div>
+      <ProjectKpiSheet defaultMember={profile.id} />
     </div>
   )
 }

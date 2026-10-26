@@ -31,11 +31,7 @@ import {
   RiCloseLine,
   RiFileTextLine,
 } from "@/shared/ui/lucide-icons"
-import { Markdown as MarkdownExtension } from "@tiptap/markdown"
-import { TableKit } from "@tiptap/extension-table"
-import { Placeholder } from "@tiptap/extensions"
 import { EditorContent, useEditor, type Editor } from "@tiptap/react"
-import StarterKit from "@tiptap/starter-kit"
 import { useQueryClient } from "@tanstack/react-query"
 import { useDateLocale, useT } from "@/shared/i18n/client"
 import { format } from "date-fns"
@@ -52,14 +48,11 @@ import {
   type PolicyDetail,
   type PolicyListItem,
 } from "../model/data"
+import { BlockHandle } from "./block-handle"
 import { DocToolbar } from "./DocToolbar"
 import { SelectionMenu } from "./SelectionMenu"
-import {
-  BLOCK_ITEMS,
-  SlashCommand,
-  SlashMenu,
-  createSlashBridge,
-} from "./slash-command"
+import { DOC_PROSE, docExtensions } from "./doc-editor"
+import { BLOCK_ITEMS, SlashMenu, createSlashBridge } from "./slash-command"
 import { PublishDialog } from "./PublishDialog"
 
 /** The editor appends an empty trailing paragraph; ignore end whitespace. */
@@ -69,30 +62,6 @@ type Form = { title: string; category: string; summary: string; body: string }
 type SaveState = "idle" | "dirty" | "saving" | "saved" | "error"
 
 const AUTOSAVE_MS = 1200
-
-/**
- * Reading styles inside the editor; they mirror ./Markdown so what the
- * admin writes looks like what employees read.
- */
-const PROSE = cn(
-  "text-foreground/90 min-h-[40svh] text-[15px] leading-7 outline-none",
-  "[&_h1]:text-heading [&_h1]:mt-8 [&_h1]:mb-3 [&_h1]:text-xl [&_h1]:font-semibold [&_h1]:tracking-tight",
-  "[&_h2]:text-heading [&_h2]:mt-7 [&_h2]:mb-2 [&_h2]:text-base [&_h2]:font-semibold",
-  "[&_h3]:text-heading [&_h3]:mt-6 [&_h3]:mb-2 [&_h3]:text-sm [&_h3]:font-semibold",
-  "[&_p]:my-3.5 [&_strong]:text-foreground [&_strong]:font-semibold",
-  "[&_ul]:my-3 [&_ul]:list-disc [&_ul]:space-y-1.5 [&_ul]:pl-5 [&_ol]:my-3 [&_ol]:list-decimal [&_ol]:space-y-1.5 [&_ol]:pl-5 [&_li]:pl-1 [&_li_p]:my-0 [&_li::marker]:text-muted-foreground",
-  "[&_a]:text-primary [&_a]:underline [&_a]:underline-offset-3",
-  "[&_blockquote]:border-border [&_blockquote]:my-4 [&_blockquote]:rounded-lg [&_blockquote]:border [&_blockquote]:border-l-[3px] [&_blockquote]:px-4 [&_blockquote]:py-1",
-  "[&_hr]:border-border [&_hr]:my-6",
-  "[&_code]:bg-muted [&_code]:rounded [&_code]:px-1 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-[0.85em]",
-  "[&_pre]:bg-muted [&_pre]:my-4 [&_pre]:rounded-lg [&_pre]:p-3 [&_pre]:text-[13px] [&_pre_code]:bg-transparent [&_pre_code]:p-0",
-  "[&_table]:my-4 [&_table]:w-full [&_table]:border-collapse [&_table]:text-sm",
-  "[&_th]:border-border [&_th]:text-muted-foreground [&_th]:border-b [&_th]:px-3 [&_th]:py-2 [&_th]:text-left [&_th]:font-medium",
-  "[&_td]:border-border/60 [&_td]:border-b [&_td]:px-3 [&_td]:py-2 [&_td]:align-top [&_td_p]:my-0 [&_th_p]:my-0",
-  "[&_.selectedCell]:bg-primary/10",
-  // Placeholder on the empty line with the caret.
-  "[&_.is-empty]:before:text-muted-foreground/60 [&_.is-empty]:before:pointer-events-none [&_.is-empty]:before:float-left [&_.is-empty]:before:h-0 [&_.is-empty]:before:content-[attr(data-placeholder)]",
-)
 
 export type EditorExit = { id: string | null; published?: boolean }
 
@@ -265,24 +234,11 @@ function DocumentEditor({
 
   const editor = useEditor({
     immediatelyRender: false,
-    extensions: [
-      StarterKit.configure({
-        // Markdown has no underline; keep the source clean.
-        underline: false,
-        heading: { levels: [1, 2, 3] },
-        link: { openOnClick: false, autolink: true },
-      }),
-      TableKit.configure({ table: { resizable: false } }),
-      Placeholder.configure({
-        showOnlyCurrent: true,
-        placeholder: ({ node }) =>
-          node.type.name === "heading"
-            ? tRef.current("headingPlaceholder", { level: node.attrs.level })
-            : tRef.current("bodyPlaceholder"),
-      }),
-      SlashCommand(slash),
-      MarkdownExtension,
-    ],
+    extensions: docExtensions(slash, (level) =>
+      level
+        ? tRef.current("headingPlaceholder", { level })
+        : tRef.current("bodyPlaceholder"),
+    ),
     content: initial.body,
     contentType: "markdown",
     onCreate: ({ editor: e }) => {
@@ -296,7 +252,7 @@ function DocumentEditor({
       setSaveState(id ? "saved" : "idle")
     },
     editorProps: {
-      attributes: { class: PROSE, "aria-label": t("bodyLabel") },
+      attributes: { class: DOC_PROSE, "aria-label": t("bodyLabel") },
     },
     onUpdate: ({ editor: e }) => {
       editorRef.current = e
@@ -348,7 +304,7 @@ function DocumentEditor({
         setDocId(newId)
         // Point the URL at the saved rule so a reload reopens it.
         const params = new URLSearchParams(window.location.search)
-        params.set("aturan", newId)
+        params.set("policy", newId)
         params.set("edit", "1")
         window.history.replaceState(null, "", `/policies?${params}`)
       }
@@ -640,7 +596,10 @@ function DocumentEditor({
 
           <Separator className="my-8" />
 
-          <EditorContent editor={editor} />
+          <div className="relative">
+            <EditorContent editor={editor} />
+            {editor && <BlockHandle editor={editor} />}
+          </div>
 
           {/* A blank rule offers the common blocks, like a fresh doc. */}
           {editor?.isEmpty && (

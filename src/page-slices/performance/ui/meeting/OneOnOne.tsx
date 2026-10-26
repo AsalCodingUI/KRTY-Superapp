@@ -31,7 +31,7 @@ import { toast } from "sonner"
 import { periodLabel } from "../kpi/period"
 import { GridGroup, ListColumns, StatBand } from "../list"
 
-type Slot = {
+export type Slot = {
   id: string
   cycle_name: string
   start_at: string
@@ -44,7 +44,7 @@ type Slot = {
   booked_by_profile?: { id: string; full_name: string | null } | null
 }
 
-type PerformanceT = ReturnType<typeof useT<"performance">>
+export type PerformanceT = ReturnType<typeof useT<"performance">>
 
 type SlotForm = {
   date: string
@@ -60,10 +60,10 @@ const toIso = (date: string, time: string) => {
   return new Date(y, m - 1, d, h, min).toISOString()
 }
 
-const timeRange = (slot: Slot) =>
+export const timeRange = (slot: Slot) =>
   `${format(new Date(slot.start_at), "HH:mm")}–${format(new Date(slot.end_at), "HH:mm")}`
 
-function dayLabel(key: string, t: PerformanceT, locale: Locale) {
+export function dayLabel(key: string, t: PerformanceT, locale: Locale) {
   const d = new Date(`${key}T00:00:00`)
   const long = format(d, "EEEE, d MMMM", { locale })
   if (isToday(d)) return t("dayToday", { date: long })
@@ -71,7 +71,7 @@ function dayLabel(key: string, t: PerformanceT, locale: Locale) {
   return long
 }
 
-function byDay(slots: Slot[]) {
+export function byDay(slots: Slot[]) {
   const map = new Map<string, Slot[]>()
   for (const s of slots) {
     const key = format(new Date(s.start_at), "yyyy-MM-dd")
@@ -80,16 +80,43 @@ function byDay(slots: Slot[]) {
   return [...map.entries()].sort((a, b) => a[0].localeCompare(b[0]))
 }
 
-async function post(url: string, body: unknown, method = "POST") {
+export async function post(
+  url: string,
+  body: unknown,
+  method = "POST",
+): Promise<{ ok: boolean; error?: string }> {
   const res = await fetch(url, {
     method,
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   }).catch(() => null)
-  return res?.ok ?? false
+  if (res?.ok) return { ok: true }
+  const data = (await res?.json().catch(() => null)) as {
+    error?: string
+  } | null
+  return { ok: false, error: data?.error }
 }
 
-const modeLabel = (slot: Slot, t: PerformanceT) =>
+const SLOT_ERRORS = {
+  slot_overlap: "slotOverlap",
+  slot_unavailable: "bookFailed",
+  already_booked: "alreadyBooked",
+  already_met: "alreadyMet",
+  slot_past: "slotGone",
+} as const
+
+/** A slot API error code as a message, else `fallback`. */
+export function slotError(
+  t: PerformanceT,
+  code: string | undefined,
+  fallback: Parameters<PerformanceT>[0],
+) {
+  return code && code in SLOT_ERRORS
+    ? t(SLOT_ERRORS[code as keyof typeof SLOT_ERRORS])
+    : t(fallback)
+}
+
+export const modeLabel = (slot: Slot, t: PerformanceT) =>
   slot.mode === "online"
     ? t("modeOnline")
     : slot.location
@@ -212,7 +239,7 @@ export function OneOnOne({ period }: { period: string }) {
       return
     }
     setSaving(true)
-    const ok = editing
+    const { ok, error } = editing
       ? await post(
           `/api/one-on-one/slots/${editing.id}`,
           {
@@ -239,7 +266,9 @@ export function OneOnOne({ period }: { period: string }) {
         })
     setSaving(false)
     if (!ok) {
-      toast.error(editing ? t("rescheduleFailed") : t("addSlotFailed"))
+      toast.error(
+        slotError(t, error, editing ? "rescheduleFailed" : "addSlotFailed"),
+      )
       return
     }
     toast.success(editing ? t("rescheduled") : t("slotAdded"))
@@ -252,7 +281,7 @@ export function OneOnOne({ period }: { period: string }) {
     action: "book" | "release" | "cancel" | "remove",
   ) => {
     setBusyId(slot.id)
-    const ok =
+    const { ok, error } =
       action === "book"
         ? await post("/api/one-on-one/book", { slotId: slot.id })
         : await post("/api/one-on-one/cancel", {
@@ -262,13 +291,13 @@ export function OneOnOne({ period }: { period: string }) {
           })
     setBusyId(null)
     const messages = {
-      book: ["bookSuccess", "bookFailed"],
+      book: ["bookSuccess", "bookError"],
       release: ["releaseSuccess", "releaseFailed"],
       cancel: ["cancelSuccess", "cancelFailed"],
       remove: ["removeSuccess", "removeFailed"],
     } as const
     if (ok) toast.success(t(messages[action][0]))
-    else toast.error(t(messages[action][1]))
+    else toast.error(slotError(t, error, messages[action][1]))
     refresh()
   }
 
@@ -285,6 +314,7 @@ export function OneOnOne({ period }: { period: string }) {
   const mine = slots.filter((s) => s.booked_by_profile?.id === profile?.id)
   const myUpcoming = mine.filter((s) => !isPast(new Date(s.end_at)))
   const open = upcoming.filter((s) => s.status === "open")
+  const nextLive = upcoming.find((s) => s.status !== "cancelled")
 
   const slotForm = (
     <Dialog open={Boolean(form)} onOpenChange={(o) => !o && setForm(null)}>
@@ -293,13 +323,16 @@ export function OneOnOne({ period }: { period: string }) {
           <DialogTitle>
             {editing ? t("reschedule") : t("addSlot11")}
           </DialogTitle>
-          <DialogDescription>
-            {editing?.booked_by_profile
-              ? t("rescheduleNotify", {
-                  name: editing.booked_by_profile.full_name ?? "",
-                })
-              : t("slotFormDescription")}
-          </DialogDescription>
+          {/* Only when someone gets told about it. */}
+          {(!editing || editing.booked_by_profile) && (
+            <DialogDescription>
+              {editing?.booked_by_profile
+                ? t("rescheduleNotify", {
+                    name: editing.booked_by_profile.full_name ?? "",
+                  })
+                : t("slotFormDescription")}
+            </DialogDescription>
+          )}
         </DialogHeader>
         {form && (
           <div className="flex flex-col gap-3">
@@ -349,6 +382,7 @@ export function OneOnOne({ period }: { period: string }) {
                 </div>
                 {form.mode === "offline" && (
                   <Input
+                    maxLength={120}
                     placeholder={t("locationPlaceholder")}
                     value={form.location}
                     onChange={(e) =>
@@ -403,34 +437,47 @@ export function OneOnOne({ period }: { period: string }) {
         <StatBand
           stats={[
             {
+              label: t("nextSlot"),
+              value: nextLive
+                ? `${shortDate(nextLive, dateLocale, "EEE, d MMM")} · ${format(new Date(nextLive.start_at), "HH:mm")}`
+                : null,
+            },
+            {
               label: t("slotBooked"),
               value: upcoming.filter((s) => s.status === "booked").length,
             },
             { label: t("slotAvailable"), value: open.length },
             { label: t("slotPast"), value: past.length },
           ]}
+          aside={
+            <Button onClick={openCreate}>
+              <RiAddLine data-icon="inline-start" />
+              {t("addSlot")}
+            </Button>
+          }
         />
-        <div className="flex justify-end py-3">
-          <Button onClick={openCreate}>
-            <RiAddLine data-icon="inline-start" />
-            {t("addSlot")}
-          </Button>
-        </div>
-        {slots.length === 0 ? (
+        {upcoming.length === 0 && (
           <EmptyState
-            title={t("noSlotsIn", { period: periodLabel(period, t) })}
+            title={
+              slots.length === 0
+                ? t("noSlotsIn", { period: periodLabel(period, t) })
+                : t("noUpcomingSlots")
+            }
             description={t("noSlotsDescription")}
             icon={<RiCalendarLine className="size-5" />}
             placement="inner"
           />
-        ) : (
+        )}
+        {slots.length > 0 && (
           <GroupedList>
-            <ListColumns grid={ADMIN_GRID}>
-              <span>{t("schedule")}</span>
-              <span className="hidden md:block">{t("place")}</span>
-              <span>{t("status")}</span>
-              <span className="hidden lg:block" />
-            </ListColumns>
+            {upcoming.length > 0 && (
+              <ListColumns grid={ADMIN_GRID}>
+                <span>{t("schedule")}</span>
+                <span className="hidden md:block">{t("place")}</span>
+                <span>{t("status")}</span>
+                <span className="hidden lg:block" />
+              </ListColumns>
+            )}
             {byDay(upcoming).map(([day, items]) => (
               <GridGroup
                 key={day}
@@ -443,7 +490,7 @@ export function OneOnOne({ period }: { period: string }) {
                     </span>
                     <span className="text-tertiary-foreground text-[13px] tabular-nums">
                       {t("bookedCount", {
-                        n: items.filter((s) => s.booked_by_profile).length,
+                        n: items.filter((s) => s.status === "booked").length,
                       })}
                     </span>
                     <span className="hidden lg:block" />
@@ -644,7 +691,6 @@ export function OneOnOne({ period }: { period: string }) {
         {open.length === 0 ? (
           <EmptyState
             title={t("noAvailableSlots")}
-            description={t("noAvailableSlotsDescription")}
             icon={<RiCalendarLine className="size-5" />}
             placement="inner"
           />

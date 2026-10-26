@@ -16,11 +16,6 @@ type ProfileRow = {
   created_at?: string | null
 }
 
-type PermissionRow = {
-  page_slug: string
-  granted: boolean
-}
-
 const PROFILE_SELECT =
   "id, full_name, email, role, job_title, krt_id, team_id, is_super_admin, created_at"
 
@@ -37,7 +32,6 @@ export async function GET() {
       profile: null,
       authProfile: null,
       userEmail: null,
-      permissions: null,
       isImpersonating: false,
     })
   }
@@ -92,7 +86,6 @@ export async function GET() {
       profile: null,
       authProfile: null,
       userEmail: user.email || null,
-      permissions: null,
       isImpersonating: false,
     })
   }
@@ -123,58 +116,22 @@ export async function GET() {
     impersonatedUserId !== authProfile.id,
   )
 
-  const loadPermissions = (userId: string) =>
-    supabase
-      .from("user_page_permissions")
-      .select("page_slug, granted")
-      .eq("user_id", userId)
-
   let effectiveProfile = authProfile
-  let permissionResult
 
   if (shouldImpersonate) {
-    // Fetch the target and its permissions together; fall back to the real
-    // user's permissions only if the target doesn't exist.
-    const [{ data: impersonatedProfile }, impersonatedPermissions] =
-      await Promise.all([
-        supabase
-          .from("profiles")
-          .select(PROFILE_SELECT)
-          .eq("id", impersonatedUserId)
-          .maybeSingle(),
-        loadPermissions(impersonatedUserId as string),
-      ])
-
-    if (impersonatedProfile) {
+    const { data: impersonatedProfile } = await supabase
+      .from("profiles")
+      .select(PROFILE_SELECT)
+      .eq("id", impersonatedUserId)
+      .maybeSingle()
+    if (impersonatedProfile)
       effectiveProfile = impersonatedProfile as ProfileRow
-      permissionResult = impersonatedPermissions
-    } else {
-      permissionResult = await loadPermissions(authProfile.id)
-    }
-  } else {
-    permissionResult = await loadPermissions(authProfile.id)
   }
-
-  const { data: permissionRows, error: permissionError } = permissionResult
-
-  if (permissionError) {
-    console.error("Session context permission lookup failed:", permissionError)
-  }
-
-  const normalizedPermissionRows = (permissionRows || []) as PermissionRow[]
-
-  const permissions =
-    normalizedPermissionRows.length > 0
-      ? Object.fromEntries(
-          normalizedPermissionRows.map((row) => [row.page_slug, row.granted]),
-        )
-      : null
 
   return Response.json({
     profile: effectiveProfile,
     authProfile,
     userEmail: user.email || null,
-    permissions,
     isImpersonating:
       shouldImpersonate && effectiveProfile.id !== authProfile.id,
   })

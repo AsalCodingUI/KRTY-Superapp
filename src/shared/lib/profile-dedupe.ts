@@ -11,8 +11,6 @@ type ProfileLike = {
   manager_id?: string | null
   is_super_admin?: boolean | null
   monthly_salary?: number | null
-  leave_balance?: number | null
-  leave_used?: number | null
   created_at?: string | null
 }
 
@@ -46,8 +44,6 @@ export function mergeDuplicateProfiles<T extends ProfileLike>(
     manager_id: oldest.manager_id || newest.manager_id || null,
     is_super_admin: newest.is_super_admin ?? oldest.is_super_admin ?? null,
     monthly_salary: oldest.monthly_salary ?? newest.monthly_salary ?? null,
-    leave_balance: oldest.leave_balance ?? newest.leave_balance ?? null,
-    leave_used: oldest.leave_used ?? newest.leave_used ?? null,
     created_at: oldest.created_at || newest.created_at || null,
   } as T
 }

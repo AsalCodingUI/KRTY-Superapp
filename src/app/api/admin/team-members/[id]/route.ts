@@ -82,6 +82,28 @@ export async function DELETE(_request: NextRequest, context: RouteContext) {
       )
     }
 
+    // Profile first: if linked data blocks it, the login must stay intact
+    // (deleting the auth user first left people locked out with a profile).
+    const { error: deleteProfileError } = await adminSupabase
+      .from("profiles")
+      .delete()
+      .in("id", profileIdsToDelete)
+
+    if (deleteProfileError) {
+      const message = deleteProfileError.message.toLowerCase()
+      const relatedDataBlocked =
+        message.includes("foreign key") || message.includes("violates")
+
+      return NextResponse.json(
+        {
+          error: relatedDataBlocked
+            ? t("apiDeleteLinked")
+            : t("apiDeleteAccountFailed"),
+        },
+        { status: 409 },
+      )
+    }
+
     const { data: authUsers, error: authUsersError } =
       await adminSupabase.auth.admin.listUsers({
         page: 1,
@@ -106,26 +128,6 @@ export async function DELETE(_request: NextRequest, context: RouteContext) {
       if (deleteAuthError) {
         throw deleteAuthError
       }
-    }
-
-    const { error: deleteProfileError } = await adminSupabase
-      .from("profiles")
-      .delete()
-      .in("id", profileIdsToDelete)
-
-    if (deleteProfileError) {
-      const message = deleteProfileError.message.toLowerCase()
-      const relatedDataBlocked =
-        message.includes("foreign key") || message.includes("violates")
-
-      return NextResponse.json(
-        {
-          error: relatedDataBlocked
-            ? t("apiDeleteLinked")
-            : t("apiDeleteAccountFailed"),
-        },
-        { status: 409 },
-      )
     }
 
     return NextResponse.json({

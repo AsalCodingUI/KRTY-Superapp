@@ -37,8 +37,20 @@ export function FxRatesDialog({
   const tc = useT("common")
   const queryClient = useQueryClient()
   const foreign = CURRENCIES.filter((c) => c !== "IDR")
-  const [values, setValues] = useState<Record<string, string>>({})
+  const seed = () =>
+    Object.fromEntries(
+      foreign.map((c) => [c, rates[c] ? String(rates[c]) : ""]),
+    )
+  const [values, setValues] = useState<Record<string, string>>(seed)
   const [saving, setSaving] = useState(false)
+  // The page opens this dialog itself (no onOpenChange(true)), so refill the
+  // fields from the saved rates each time it opens; saving empty fields
+  // would clear every rate.
+  const [wasOpen, setWasOpen] = useState(open)
+  if (open !== wasOpen) {
+    setWasOpen(open)
+    if (open) setValues(seed())
+  }
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -57,18 +69,7 @@ export function FxRatesDialog({
   }
 
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(next) => {
-        if (next)
-          setValues(
-            Object.fromEntries(
-              foreign.map((c) => [c, rates[c] ? String(rates[c]) : ""]),
-            ),
-          )
-        onOpenChange(next)
-      }}
-    >
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{t("fxTitle")}</DialogTitle>

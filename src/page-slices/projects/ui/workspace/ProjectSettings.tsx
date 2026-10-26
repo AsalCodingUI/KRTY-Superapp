@@ -1,5 +1,6 @@
 "use client"
 
+import { ClientPortalCard } from "./ClientPortalCard"
 import { PageHeader } from "@/components/page-header"
 import { cn } from "@/lib/utils"
 import { surfaceClassName } from "@/components/panel"
@@ -228,7 +229,7 @@ export function ProjectSettings({ projectId }: { projectId: string }) {
                     nativeButton={false}
                     render={
                       <Link
-                        href={`/clients?klien=${linked.id}`}
+                        href={`/clients?client=${linked.id}`}
                         prefetch={false}
                       />
                     }
@@ -302,6 +303,13 @@ export function ProjectSettings({ projectId }: { projectId: string }) {
                     </Button>
                   </div>
                 }
+              />
+            )}
+
+            {viewer.isAdmin && (
+              <ClientPortalCard
+                projectId={project.id}
+                projectName={project.name}
               />
             )}
 
@@ -428,7 +436,7 @@ export function ProjectSettings({ projectId }: { projectId: string }) {
               open={deleting}
               onOpenChange={setDeleting}
               title={t("deleteTitle", { name: project.name })}
-              description={t("deleteSettingsDescription")}
+              description={t("deleteDescription")}
               confirmText={t("deletePermanently")}
               cancelText={tc("cancel")}
               variant="destructive"

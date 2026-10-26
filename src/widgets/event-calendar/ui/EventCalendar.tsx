@@ -21,10 +21,6 @@ const MonthView = dynamic(
 const DayView = dynamic(() => import("./day-view").then((m) => m.DayView), {
   loading: () => null,
 })
-const TimelineView = dynamic(
-  () => import("./timeline-view").then((m) => m.TimelineView),
-  { loading: () => null },
-)
 const AgendaView = dynamic(
   () => import("./agenda-view").then((m) => m.AgendaView),
   { loading: () => null },
@@ -40,7 +36,17 @@ export interface EventCalendarProps {
   onEventUpdate?: (event: CalendarEvent) => Promise<void>
   onEventDelete?: (eventId: string) => Promise<void>
   categories?: EventCategory[]
+  /** May create events (slot clicks, the new-event dialog). */
   canEdit?: boolean
+  /** May change this event (dialog edit, drag); defaults to `canEdit`. */
+  canEditEvent?: (event: CalendarEvent) => boolean
+  /** Return true when the click was handled (e.g. a task deadline opens
+   *  its task) and the event dialog should stay closed. */
+  onEventOpen?: (event: CalendarEvent) => boolean
+  /** Types offered when creating an event (registry values). */
+  eventTypes?: string[]
+  /** The view in the "timeline" slot (only the project calendar has one). */
+  timeline?: React.ReactNode
   // Optional external control for dialog
   dialogOpen?: boolean
   onDialogOpenChange?: (open: boolean) => void
@@ -52,6 +58,10 @@ function CalendarContent({
   onEventUpdate,
   onEventDelete,
   canEdit,
+  canEditEvent = () => canEdit,
+  onEventOpen,
+  eventTypes,
+  timeline,
   externalDialogOpen,
   onExternalDialogClose,
 }: {
@@ -60,11 +70,15 @@ function CalendarContent({
   onEventUpdate: (event: CalendarEvent) => Promise<void>
   onEventDelete?: (eventId: string) => Promise<void>
   canEdit: boolean
+  canEditEvent?: (event: CalendarEvent) => boolean
+  onEventOpen?: (event: CalendarEvent) => boolean
+  eventTypes?: string[]
+  timeline?: React.ReactNode
   externalDialogOpen?: boolean
   onExternalDialogClose?: () => void
 }) {
   const { viewMode, currentDate } = useCalendarContext()
-  const { isColorVisible } = useEventVisibility()
+  const { isEventVisible } = useEventVisibility()
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [dialogInitialDate, setDialogInitialDate] = useState<Date | undefined>()
@@ -90,11 +104,11 @@ function CalendarContent({
   const visibleEvents = useMemo(() => {
     const range = getViewRange(currentDate, viewMode)
     const rangeEvents = filterEventsByRange(events, range.start, range.end)
-    return rangeEvents.filter((event) => isColorVisible(event.color))
-  }, [events, isColorVisible, currentDate, viewMode])
+    return rangeEvents.filter(isEventVisible)
+  }, [events, isEventVisible, currentDate, viewMode])
 
   const handleEventClick = (event: CalendarEvent) => {
-    // if (!canEdit) return; // Allow viewing details in read-only mode
+    if (onEventOpen?.(event)) return
     setSelectedEvent(event)
     setDialogOpen(true)
   }
@@ -144,6 +158,7 @@ function CalendarContent({
               onEventClick={handleEventClick}
               onSlotClick={handleSlotClick}
               canEdit={canEdit}
+              canEditEvent={canEditEvent}
             />
           </div>
         )}
@@ -154,13 +169,13 @@ function CalendarContent({
               onEventClick={handleEventClick}
               onSlotClick={handleSlotClick}
               canEdit={canEdit}
+              canEditEvent={canEditEvent}
             />
           </div>
         )}
         {viewMode === "timeline" && (
-          <div className="h-full overflow-auto">
-            <TimelineView />
-          </div>
+          // The timeline scrolls itself (both axes, pinned header + labels).
+          <div className="h-full">{timeline}</div>
         )}
         {viewMode === "agenda" && (
           <div className="h-full overflow-auto">
@@ -180,7 +195,12 @@ function CalendarContent({
           initialDate={dialogInitialDate}
           onDelete={onEventDelete}
           onSave={handleSave}
-          readOnly={!canEdit || !!selectedEvent?.googleEventId}
+          readOnly={
+            selectedEvent
+              ? !canEditEvent(selectedEvent) || !!selectedEvent.googleEventId
+              : !canEdit
+          }
+          eventTypes={eventTypes}
         />
       )}
     </>
@@ -194,6 +214,10 @@ export function EventCalendar({
   onEventDelete,
   categories = [],
   canEdit = true,
+  canEditEvent,
+  onEventOpen,
+  eventTypes,
+  timeline,
   dialogOpen: externalDialogOpen,
   onDialogOpenChange,
 }: EventCalendarProps) {
@@ -220,6 +244,10 @@ export function EventCalendar({
               onEventUpdate={handleEventUpdate}
               onEventDelete={onEventDelete}
               canEdit={canEdit}
+              canEditEvent={canEditEvent}
+              onEventOpen={onEventOpen}
+              eventTypes={eventTypes}
+              timeline={timeline}
               externalDialogOpen={externalDialogOpen}
               onExternalDialogClose={handleExternalDialogClose}
             />

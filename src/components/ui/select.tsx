@@ -132,7 +132,7 @@ function SelectContent({
           data-slot="select-content"
           data-align-trigger={alignItemWithTrigger}
           className={cn(
-            "bg-popover text-popover-foreground data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-left-2 data-[side=inline-start]:slide-in-from-right-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 nest-rounded-2xl nest-p-2 relative isolate z-50 max-h-(--available-height) w-max max-w-[min(22rem,var(--available-width))] min-w-[max(var(--anchor-width),9rem)] origin-(--transform-origin) overflow-x-hidden overflow-y-auto shadow-(--elev-4) duration-150 ease-out data-[align-trigger=true]:animate-none",
+            "group/select-content bg-popover text-popover-foreground data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-left-2 data-[side=inline-start]:slide-in-from-right-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 nest-rounded-2xl nest-p-2 relative isolate z-50 max-h-(--available-height) w-max max-w-[min(22rem,var(--available-width))] min-w-[max(var(--anchor-width),9rem)] origin-(--transform-origin) overflow-x-hidden overflow-y-auto shadow-(--elev-4) duration-150 ease-out [scrollbar-width:none] data-[align-trigger=true]:animate-none [&::-webkit-scrollbar]:hidden",
             className,
           )}
           {...props}
@@ -140,6 +140,7 @@ function SelectContent({
           <SelectScrollUpButton />
           <SelectPrimitive.List>{children}</SelectPrimitive.List>
           <SelectScrollDownButton />
+          <OverlayThumb />
         </SelectPrimitive.Popup>
       </SelectPrimitive.Positioner>
     </SelectPrimitive.Portal>
@@ -197,6 +198,46 @@ function SelectSeparator({
       data-slot="select-separator"
       className={cn("bg-border pointer-events-none -mx-1 my-1 h-px", className)}
       {...props}
+    />
+  )
+}
+
+/**
+ * The list's scrollbar drawn over the items (it takes no width, so the list
+ * stays as narrow as its widest item). Shows while scrolling or hovered.
+ */
+function OverlayThumb() {
+  const ref = React.useRef<HTMLSpanElement>(null)
+  React.useEffect(() => {
+    const thumb = ref.current
+    const box = thumb?.parentElement
+    if (!thumb || !box) return
+    const update = () => {
+      const { scrollTop, scrollHeight, clientHeight } = box
+      const scrollable = scrollHeight > clientHeight + 1
+      thumb.hidden = !scrollable
+      if (!scrollable) return
+      const height = Math.max(24, (clientHeight / scrollHeight) * clientHeight)
+      const travel = clientHeight - height - 8
+      const top =
+        scrollTop + 4 + (scrollTop / (scrollHeight - clientHeight)) * travel
+      thumb.style.height = `${height}px`
+      thumb.style.transform = `translateY(${top}px)`
+    }
+    update()
+    box.addEventListener("scroll", update, { passive: true })
+    const observer = new ResizeObserver(update)
+    observer.observe(box)
+    return () => {
+      box.removeEventListener("scroll", update)
+      observer.disconnect()
+    }
+  }, [])
+  return (
+    <span
+      ref={ref}
+      aria-hidden
+      className="bg-foreground/20 pointer-events-none absolute top-0 right-1 w-1 rounded-full opacity-0 transition-opacity duration-200 group-hover/select-content:opacity-100 group-data-[scrolling]/select-content:opacity-100"
     />
   )
 }

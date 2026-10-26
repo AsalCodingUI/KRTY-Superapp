@@ -1,11 +1,21 @@
 import { enUS, id as idLocale } from "date-fns/locale"
-import { cookies } from "next/headers"
-import { interpolate, LOCALE_COOKIE, toLocale, type Vars } from "./config"
+import { cookies, headers } from "next/headers"
+import {
+  DEFAULT_LOCALE_HEADER,
+  interpolate,
+  LOCALE_COOKIE,
+  toLocale,
+  type Vars,
+} from "./config"
 import { messages, type MessageKey, type Namespace } from "./messages"
 
-/** The viewer's language from the `locale` cookie (default Indonesian). */
+/** The viewer's language from the `locale` cookie (default Indonesian, or
+ *  the page's own default, e.g. English on client pages). */
 export async function getLocale() {
-  return toLocale((await cookies()).get(LOCALE_COOKIE)?.value)
+  return toLocale(
+    (await cookies()).get(LOCALE_COOKIE)?.value ??
+      (await headers()).get(DEFAULT_LOCALE_HEADER),
+  )
 }
 
 /** Server-side translator (pages, server actions, route handlers). */

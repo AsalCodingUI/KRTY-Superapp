@@ -55,6 +55,7 @@ import { toast } from "sonner"
 import { adminColumns } from "./components/AdminColumns"
 import { type LeaveRequestWithProfile } from "./components/AdminLeaveList"
 import { RemainingLeaveList } from "./components/RemainingLeaveList"
+import { ApprovalInbox } from "./components/ApprovalInbox"
 
 // Edit dialog only loads once an admin opens a session to edit.
 const AdminAttendanceEditDialog = dynamic(
@@ -67,13 +68,12 @@ const AdminAttendanceEditDialog = dynamic(
 
 type Profile = Pick<
   Database["public"]["Tables"]["profiles"]["Row"],
-  | "id"
-  | "full_name"
-  | "avatar_url"
-  | "job_title"
-  | "leave_used"
-  | "leave_balance"
->
+  "id" | "full_name" | "avatar_url" | "job_title"
+> & {
+  /** This year's annual leave, computed from approved requests. */
+  leave_used: number
+  leave_balance: number
+}
 type AttendanceLog = Database["public"]["Tables"]["attendance_logs"]["Row"]
 type AttendanceLogWithProfile = AttendanceLog & {
   profiles: {
@@ -262,12 +262,20 @@ export function StakeholderLeavePage({
 
   const handleApprove = useCallback(
     async (id: number) => {
-      const { error } = await supabase
+      // Only a pending request: another stakeholder may have decided it.
+      const { data, error } = await supabase
         .from("leave_requests")
         .update({ status: "approved", review_note: null })
         .eq("id", id)
+        .eq("status", "pending")
+        .select("id")
       if (error) {
         toast.error(error.message || t("toastApproveFailed"))
+        return
+      }
+      if (!data?.length) {
+        toast.error(t("toastAlreadyDecided"))
+        router.refresh()
         return
       }
       toast.success(t("toastApproved"))
@@ -295,20 +303,27 @@ export function StakeholderLeavePage({
   const confirmReject = async () => {
     if (!rejectIds) return
     setRejecting(true)
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from("leave_requests")
       .update({ status: "rejected", review_note: rejectNote.trim() || null })
       .in("id", rejectIds)
+      .eq("status", "pending")
+      .select("id")
     setRejecting(false)
     if (error) {
       toast.error(error.message || t("toastRejectFailed"))
       return
     }
-    toast.success(
-      rejectIds.length > 1
-        ? t("toastRejectedOther", { n: rejectIds.length })
-        : t("toastRejectedOne"),
-    )
+    const rejected = data?.length ?? 0
+    if (rejected === 0) {
+      toast.error(t("toastAlreadyDecided"))
+    } else {
+      toast.success(
+        rejected > 1
+          ? t("toastRejectedOther", { n: rejected })
+          : t("toastRejectedOne"),
+      )
+    }
     setRejectIds(null)
     router.refresh()
   }
@@ -341,7 +356,7 @@ export function StakeholderLeavePage({
   const deleteAttendanceLog = async (logId: string) => {
     runWithConfirm({
       title: t("confirmDeleteLogTitle"),
-      description: t("confirmDeleteLogDesc"),
+      description: t("cannotUndo"),
       confirmText: tc("delete"),
       variant: "destructive",
       onConfirm: async () => {
@@ -526,21 +541,26 @@ export function StakeholderLeavePage({
         canManage
           ? async (ids) => {
               runWithConfirm({
-                title: t("confirmApproveTitle"),
-                description: t(
+                title:
                   ids.length === 1
-                    ? "confirmApproveDescOne"
-                    : "confirmApproveDescOther",
-                  { n: ids.length },
-                ),
+                    ? t("confirmApproveTitleOne")
+                    : t("confirmApproveTitleOther", { n: ids.length }),
+                description: t("confirmApproveDesc"),
                 confirmText: t("approve"),
                 onConfirm: async () => {
-                  const { error } = await supabase
+                  // Selected history rows (already decided) stay as they are.
+                  const { data, error } = await supabase
                     .from("leave_requests")
-                    .update({ status: "approved" })
+                    .update({ status: "approved", review_note: null })
                     .in("id", ids as number[])
+                    .eq("status", "pending")
+                    .select("id")
                   if (error) {
                     toast.error(error.message || t("toastApproveFailed"))
+                    return
+                  }
+                  if (!data?.length) {
+                    toast.error(t("toastAlreadyDecided"))
                     return
                   }
                   toast.success(t("toastApproved"))
@@ -562,13 +582,11 @@ export function StakeholderLeavePage({
         canManage
           ? async (ids) => {
               runWithConfirm({
-                title: t("confirmDeleteTitle"),
-                description: t(
+                title:
                   ids.length === 1
-                    ? "confirmDeleteDescOne"
-                    : "confirmDeleteDescOther",
-                  { n: ids.length },
-                ),
+                    ? t("confirmDeleteTitleOne")
+                    : t("confirmDeleteTitleOther", { n: ids.length }),
+                description: t("cannotUndo"),
                 confirmText: tc("delete"),
                 variant: "destructive",
                 onConfirm: async () => {
@@ -607,6 +625,9 @@ export function StakeholderLeavePage({
           onCloseAttendanceSession={handleCloseAttendanceSession}
           onEditAttendanceSession={handleEditAttendanceSession}
           onAddManualLeave={openManualModal}
+          inbox={
+            canManage ? <ApprovalInbox onChanged={router.refresh} /> : null
+          }
           overviewStats={overviewStats}
           isClient={isClient}
         />
@@ -896,6 +917,7 @@ function AttendanceOverviewPanel({
   onCloseAttendanceSession,
   onEditAttendanceSession,
   onAddManualLeave,
+  inbox,
   overviewStats,
   isClient,
 }: {
@@ -909,6 +931,8 @@ function AttendanceOverviewPanel({
   onCloseAttendanceSession: (logId: string) => void
   onEditAttendanceSession: (logId: string) => void
   onAddManualLeave: () => void
+  /** Approval inbox trigger, shown beside "Add manually". */
+  inbox?: React.ReactNode
   isClient: boolean
   overviewStats?: {
     onLeaveToday: number
@@ -989,10 +1013,13 @@ function AttendanceOverviewPanel({
         title={t("pageTitle")}
         actions={
           activeTab === "approval" ? (
-            <Button onClick={onAddManualLeave}>
-              <RiAddLine data-icon="inline-start" />
-              {t("addManual")}
-            </Button>
+            <div className="flex items-center gap-2">
+              {inbox}
+              <Button onClick={onAddManualLeave}>
+                <RiAddLine data-icon="inline-start" />
+                {t("addManual")}
+              </Button>
+            </div>
           ) : null
         }
       />

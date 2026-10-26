@@ -22,6 +22,8 @@ interface DayViewProps {
   onEventClick?: (event: CalendarEvent) => void
   onSlotClick?: (date: Date) => void
   canEdit?: boolean
+  /** Whether one event may be dragged; defaults to `canEdit`. */
+  canEditEvent?: (event: CalendarEvent) => boolean
 }
 
 const PIXELS_PER_HOUR = 60
@@ -32,6 +34,7 @@ export const DayView = memo(function DayView({
   onEventClick,
   onSlotClick,
   canEdit = true,
+  canEditEvent,
 }: DayViewProps) {
   const { currentDate } = useCalendarContext()
   const timeSlots = useMemo(() => generateTimeSlots(30), []) // 30-minute intervals - only compute once
@@ -140,7 +143,10 @@ export const DayView = memo(function DayView({
                       } as React.CSSProperties
                     }
                   >
-                    <DraggableEvent event={event} disabled={!canEdit}>
+                    <DraggableEvent
+                      event={event}
+                      disabled={!(canEditEvent ? canEditEvent(event) : canEdit)}
+                    >
                       <EventItem
                         event={event}
                         onClick={() => onEventClick?.(event)}

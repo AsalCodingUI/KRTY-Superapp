@@ -59,7 +59,12 @@ export async function createProcess(input: {
       .single()
     if (error || !data)
       return fail(error?.code === "23505" ? "errDuplicate" : "errSave")
-    if (input.copyFrom) await copyTree(db, input.copyFrom, data.id)
+    if (input.copyFrom)
+      // A half-copied process would block a retry with the same name.
+      await copyTree(db, input.copyFrom, data.id).catch(async (e) => {
+        await db.from("processes").delete().eq("id", data.id)
+        throw e
+      })
     return { success: true, data: { id: data.id } }
   })
 }

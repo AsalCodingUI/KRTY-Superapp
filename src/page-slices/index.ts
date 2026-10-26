@@ -12,6 +12,4 @@
 export * from "./leave"
 export * from "./performance"
 export * from "./teams"
-export * from "./calendar"
-export * from "./calculator"
 export * from "./settings"

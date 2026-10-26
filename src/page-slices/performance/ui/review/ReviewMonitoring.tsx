@@ -12,19 +12,30 @@ import {
 import { ConfirmDialog } from "@/components/confirm-dialog"
 import { EmptyState } from "@/components/empty-state"
 import { GroupedList, ListRow } from "@/components/grouped-list"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import { Spinner } from "@/components/ui/spinner"
 import { cn } from "@/lib/utils"
 import { formatPercent } from "@/entities/performance/lib/kpi"
+import {
+  daysLeft,
+  latestCloseDay,
+  quarterBounds,
+  wibDay,
+} from "@/entities/performance/lib/review-cycle"
 import { RiGroupLine } from "@/shared/ui/lucide-icons"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { format, parseISO } from "date-fns"
@@ -34,11 +45,69 @@ import { useState } from "react"
 import { toast } from "sonner"
 import { isQuarter, periodLabel } from "../kpi/period"
 import { GridGroup, ListColumns, PersonCell, StatBand } from "../list"
+import { CycleStatusBadge, useCycleRange } from "./cycle-status"
 import { ReviewResult } from "./ReviewResult"
 
 /** Shared column template so the header, group summaries and rows line up. */
 const ROW_GRID =
-  "grid grid-cols-[minmax(0,1fr)_3.5rem_5.5rem] items-center gap-x-4 md:grid-cols-[minmax(0,1fr)_4.5rem_4.5rem_5.5rem]"
+  "grid grid-cols-[minmax(0,1fr)_3.5rem_5.5rem] items-center gap-x-4 md:grid-cols-[minmax(0,1fr)_12rem_4.5rem_5.5rem]"
+
+const MAX_FACES = 5
+
+/**
+ * Who reviews this person, as faces: the ones who are done in full colour,
+ * the ones still to review faded. Names and status on hover.
+ */
+function ReviewerStack({
+  reviewers,
+}: {
+  reviewers: MonitoringRow["reviewers"]
+}) {
+  const t = useT("performance")
+  const sorted = [...reviewers].sort((a, b) => Number(b.done) - Number(a.done))
+  // A few faces, then "+N", so a big team doesn't push the count over.
+  const shown = sorted.slice(0, MAX_FACES)
+  const more = sorted.length - shown.length
+  return (
+    <Tooltip>
+      <TooltipTrigger
+        render={
+          <div
+            aria-label={t("reviewers")}
+            className="avatar-stack hidden items-center -space-x-1 [--avatar-overlap:4px] md:flex"
+          />
+        }
+      >
+        {shown.map((r) => (
+          <Avatar
+            key={r.id}
+            className={cn("size-6", !r.done && "opacity-50 grayscale")}
+          >
+            <AvatarImage src={r.avatar_url || undefined} alt="" />
+            <AvatarFallback className="text-[10px]">
+              {(r.full_name || "?").slice(0, 2).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+        ))}
+        {more > 0 && (
+          <span className="text-muted-foreground pl-2 text-[11px] tabular-nums">
+            +{more}
+          </span>
+        )}
+      </TooltipTrigger>
+      <TooltipContent className="flex flex-col gap-0.5">
+        {sorted.map((r) => (
+          <span key={r.id} className="flex justify-between gap-4">
+            <span>{r.full_name || t("unknown")}</span>
+            <span className="opacity-60">
+              {t(r.done ? "reviewerDone" : "reviewerPending")}
+            </span>
+          </span>
+        ))}
+      </TooltipContent>
+    </Tooltip>
+  )
+}
 
 type Status = "processed" | "complete" | "progress" | "waiting"
 
@@ -56,22 +125,12 @@ function statusOf(row: MonitoringRow): Status {
   return done >= row.reviewers.length ? "complete" : "progress"
 }
 
-/** Quarter dates in WIB as yyyy-MM-dd for the period form. */
-function quarterDates(quarter: string) {
-  const [year, q] = quarter.split("-Q").map(Number)
-  const start = new Date(year, (q - 1) * 3, 1)
-  const end = new Date(year, q * 3, 0)
-  return {
-    start: format(start, "yyyy-MM-dd"),
-    end: format(end, "yyyy-MM-dd"),
-  }
-}
-
 /** Admin 360: the period for this quarter and everyone's progress. */
 export function ReviewMonitoring({ period }: { period: string }) {
   const t = useT("performance")
   const tc = useT("common")
   const dateLocale = useDateLocale()
+  const cycleRange = useCycleRange()
   const queryClient = useQueryClient()
   const quarter = isQuarter(period)
   const { data, isLoading } = useQuery({
@@ -81,6 +140,7 @@ export function ReviewMonitoring({ period }: { period: string }) {
   })
   const [periodOpen, setPeriodOpen] = useState(false)
   const [start, setStart] = useState("")
+  const [end, setEnd] = useState("")
   const [processingAll, setProcessingAll] = useState(false)
   const [closing, setClosing] = useState(false)
   const [processing, setProcessing] = useState<MonitoringRow | null>(null)
@@ -113,30 +173,42 @@ export function ReviewMonitoring({ period }: { period: string }) {
 
   const { cycle, rows, unpaired } = data
 
-  // Quarters follow the calendar; the admin only picks when reviewing
-  // starts, and it runs to the quarter's last day.
-  const bounds = quarterDates(period)
+  // The admin sets both dates (WIB days): the start inside the quarter, the
+  // close inside it or a little after (reopening for late reviewers).
+  const bounds = quarterBounds(period)
+  const lastClose = latestCloseDay(period)
   const clampToQuarter = (day: string) =>
     day < bounds.start ? bounds.start : day > bounds.end ? bounds.end : day
 
   const openPeriodForm = () => {
+    // A new period: from today (in the quarter) to the quarter's last day.
     setStart(
-      clampToQuarter(
-        format(cycle ? new Date(cycle.start_date) : new Date(), "yyyy-MM-dd"),
-      ),
+      clampToQuarter(cycle ? wibDay(cycle.start_date) : wibDay(new Date())),
     )
+    setEnd(cycle ? wibDay(cycle.end_date) : bounds.end)
     setPeriodOpen(true)
   }
+  const periodInvalid = !start || !end || end < start
 
   const savePeriod = async () => {
+    if (periodInvalid) {
+      toast.error(t("errEndBeforeStart360"))
+      return
+    }
     setBusy(true)
-    const result = await saveReviewCycle(period, start)
+    const result = await saveReviewCycle(period, start, end)
     setBusy(false)
     if (!result.success) {
       toast.error(result.error ?? t("periodSaveFailed"))
       return
     }
-    toast.success(cycle ? t("periodUpdated") : t("period360Opened"))
+    toast.success(
+      cycle
+        ? t("periodUpdated")
+        : start > wibDay(new Date())
+          ? t("period360Scheduled")
+          : t("period360Opened"),
+    )
     setPeriodOpen(false)
     refresh()
   }
@@ -205,44 +277,39 @@ export function ReviewMonitoring({ period }: { period: string }) {
 
   return (
     <div className="flex flex-col">
-      <StatBand
-        stats={[
-          {
-            label: t("periodOf", { period: periodLabel(period, t) }),
-            value: cycle
-              ? cycle.isOpen
-                ? t("cycleOpen")
-                : t("cycleClosed")
-              : t("cycleNotOpened"),
-          },
-          {
-            label: t("dates"),
-            value: cycle
-              ? `${format(new Date(cycle.start_date), "d MMM", { locale: dateLocale })} – ${format(new Date(cycle.end_date), "d MMM yyyy", { locale: dateLocale })}`
-              : "—",
-          },
-          {
-            label: t("reviewsReceived"),
-            value: `${reviewsDone} / ${reviewsTotal}`,
-          },
-          { label: t("groupReady"), value: countOf("complete") },
-          { label: t("groupProcessed"), value: countOf("processed") },
-        ]}
-      />
-
-      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 py-3">
-        <p className="text-muted-foreground text-sm">
-          {t("everyoneReviewsNote")}
-        </p>
+      {/* The period: what it is and when it runs, with its controls. */}
+      <div className="bleed gutter-x border-border flex flex-wrap items-center justify-between gap-x-6 gap-y-3 border-b py-4">
+        <div className="flex min-w-0 flex-col gap-1">
+          <div className="flex items-center gap-2">
+            <h2 className="text-foreground text-base font-medium">
+              {t("periodOf", { period: periodLabel(period, t) })}
+            </h2>
+            {cycle && <CycleStatusBadge status={cycle.status} />}
+          </div>
+          <p className="text-muted-foreground text-sm">
+            {cycle ? (
+              <>
+                <span className="tabular-nums">{cycleRange(cycle)}</span>
+                {cycle.status === "running" && (
+                  <>
+                    {" · "}
+                    {daysLeft(cycle.end_date) === 0
+                      ? t("cycleClosesToday")
+                      : t("cycleDaysLeft", { n: daysLeft(cycle.end_date) })}
+                  </>
+                )}
+              </>
+            ) : (
+              t("cycleNotOpened")
+            )}
+            {" · "}
+            {t("everyoneReviewsNote")}
+          </p>
+        </div>
         <div className="flex items-center gap-2">
-          {countOf("complete") > 0 && (
-            <Button variant="outline" onClick={() => setProcessingAll(true)}>
-              {t("processAll", { n: countOf("complete") })}
-            </Button>
-          )}
-          {cycle?.is_active && (
+          {(cycle?.status === "scheduled" || cycle?.status === "running") && (
             <Button variant="ghost" onClick={() => setClosing(true)}>
-              {t("closePeriod")}
+              {t("closeNow")}
             </Button>
           )}
           <Button
@@ -250,18 +317,35 @@ export function ReviewMonitoring({ period }: { period: string }) {
             onClick={openPeriodForm}
           >
             {cycle
-              ? cycle.is_active
-                ? t("changeDates")
-                : t("reopen")
+              ? cycle.status === "closed"
+                ? t("reopen")
+                : t("changePeriod")
               : t("openPeriod")}
           </Button>
         </div>
       </div>
 
+      <StatBand
+        stats={[
+          {
+            label: t("reviewsReceived"),
+            value: `${reviewsDone} / ${reviewsTotal}`,
+          },
+          { label: t("groupReady"), value: countOf("complete") },
+          { label: t("groupProcessed"), value: countOf("processed") },
+        ]}
+        aside={
+          countOf("complete") > 0 && (
+            <Button variant="outline" onClick={() => setProcessingAll(true)}>
+              {t("processAll", { n: countOf("complete") })}
+            </Button>
+          )
+        }
+      />
+
       {rows.length === 0 && unpaired.length === 0 ? (
         <EmptyState
           title={t("noEmployees")}
-          description={t("noEmployeesDescription")}
           icon={<RiGroupLine className="size-5" />}
           placement="inner"
         />
@@ -306,40 +390,22 @@ export function ReviewMonitoring({ period }: { period: string }) {
               >
                 {items.map((row) => {
                   const done = row.reviewers.filter((r) => r.done).length
-                  const pending = row.reviewers.filter((r) => !r.done)
                   return (
                     <ListRow key={row.id} className={cn(ROW_GRID, "min-h-14")}>
-                      <div
-                        className="min-w-0"
-                        title={row.reviewers
-                          .map((r) => `${r.full_name}${r.done ? " ✓" : ""}`)
-                          .join(", ")}
-                      >
-                        <PersonCell
-                          name={row.full_name}
-                          avatarUrl={row.avatar_url}
-                          secondary={
-                            pending.length
-                              ? t("waitingFor", {
-                                  names: pending
-                                    .map((r) => r.full_name)
-                                    .join(", "),
-                                })
-                              : t("reviewedBy", {
-                                  names: row.reviewers
-                                    .map((r) => r.full_name)
-                                    .join(", "),
-                                })
-                          }
-                        />
-                      </div>
-                      <span className="text-right tabular-nums">
-                        {done}
-                        <span className="text-muted-foreground">
-                          {" "}
-                          / {row.reviewers.length}
+                      <PersonCell
+                        name={row.full_name}
+                        avatarUrl={row.avatar_url}
+                      />
+                      <div className="flex items-center justify-end gap-3">
+                        <ReviewerStack reviewers={row.reviewers} />
+                        <span className="whitespace-nowrap tabular-nums">
+                          {done}
+                          <span className="text-muted-foreground">
+                            {" "}
+                            / {row.reviewers.length}
+                          </span>
                         </span>
-                      </span>
+                      </div>
                       <span className="hidden text-right tabular-nums md:block">
                         {orEmpty(
                           row.summary
@@ -409,32 +475,58 @@ export function ReviewMonitoring({ period }: { period: string }) {
               {cycle ? t("period360") : t("openPeriod360")} ·{" "}
               {periodLabel(period, t)}
             </DialogTitle>
-            <DialogDescription>
-              {t("periodDialogDescription")}
-            </DialogDescription>
           </DialogHeader>
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="cycle-start">{t("start")}</Label>
-            <DateField
-              id="cycle-start"
-              value={start}
-              min={bounds.start}
-              max={bounds.end}
-              onChange={setStart}
-            />
-            <p className="text-muted-foreground text-xs">
-              {t("periodRunsUntil", {
-                date: format(parseISO(bounds.end), "d MMM yyyy", {
-                  locale: dateLocale,
-                }),
-              })}
-            </p>
+          <div className="flex flex-col gap-3">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="cycle-start">{t("startDate")}</Label>
+                <DateField
+                  id="cycle-start"
+                  value={start}
+                  min={bounds.start}
+                  max={bounds.end}
+                  onChange={(day) => {
+                    setStart(day)
+                    if (end && day > end) setEnd(day)
+                  }}
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="cycle-end">{t("closeDate")}</Label>
+                <DateField
+                  id="cycle-end"
+                  value={end}
+                  min={start || bounds.start}
+                  max={lastClose}
+                  onChange={setEnd}
+                />
+              </div>
+            </div>
+            {start && end && (
+              <p
+                className={cn(
+                  "text-xs",
+                  periodInvalid ? "text-destructive" : "text-muted-foreground",
+                )}
+              >
+                {periodInvalid
+                  ? t("errEndBeforeStart360")
+                  : t("periodWindowHint", {
+                      start: format(parseISO(start), "d MMM", {
+                        locale: dateLocale,
+                      }),
+                      end: format(parseISO(end), "d MMM yyyy", {
+                        locale: dateLocale,
+                      }),
+                    })}
+              </p>
+            )}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setPeriodOpen(false)}>
               {tc("cancel")}
             </Button>
-            <Button onClick={savePeriod} disabled={busy}>
+            <Button onClick={savePeriod} disabled={busy || periodInvalid}>
               {busy ? tc("saving") : cycle ? tc("save") : t("openPeriod")}
             </Button>
           </DialogFooter>
@@ -482,7 +574,7 @@ export function ReviewMonitoring({ period }: { period: string }) {
         open={Boolean(viewing)}
         onOpenChange={(o) => !o && setViewing(null)}
       >
-        <DialogContent className="sm:max-w-3xl">
+        <DialogContent className="sm:max-w-5xl">
           <DialogHeader>
             <DialogTitle>
               {t("result360Of", {

@@ -254,6 +254,75 @@ export type Database = {
         }
         Relationships: []
       }
+      employee_contracts: {
+        Row: {
+          acknowledged_at: string | null
+          acknowledged_name: string | null
+          created_at: string
+          created_by: string | null
+          end_date: string | null
+          file_path: string
+          has_ematerai: boolean
+          id: string
+          kind: string
+          notes: string | null
+          start_date: string
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          acknowledged_at?: string | null
+          acknowledged_name?: string | null
+          created_at?: string
+          created_by?: string | null
+          end_date?: string | null
+          file_path: string
+          has_ematerai?: boolean
+          id?: string
+          kind?: string
+          notes?: string | null
+          start_date: string
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          acknowledged_at?: string | null
+          acknowledged_name?: string | null
+          created_at?: string
+          created_by?: string | null
+          end_date?: string | null
+          file_path?: string
+          has_ematerai?: boolean
+          id?: string
+          kind?: string
+          notes?: string | null
+          start_date?: string
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employee_contracts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employee_contracts_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       finance_subscriptions: {
         Row: {
           currency: string
@@ -541,6 +610,7 @@ export type Database = {
         Row: {
           created_at: string | null
           cycle_id: string
+          edited_at: string | null
           feedback_continue: string | null
           feedback_start: string | null
           feedback_stop: string | null
@@ -564,6 +634,7 @@ export type Database = {
         Insert: {
           created_at?: string | null
           cycle_id: string
+          edited_at?: string | null
           feedback_continue?: string | null
           feedback_start?: string | null
           feedback_stop?: string | null
@@ -587,6 +658,7 @@ export type Database = {
         Update: {
           created_at?: string | null
           cycle_id?: string
+          edited_at?: string | null
           feedback_continue?: string | null
           feedback_start?: string | null
           feedback_stop?: string | null
@@ -874,8 +946,6 @@ export type Database = {
           is_super_admin: boolean | null
           job_title: Database["public"]["Enums"]["job_title"]
           krt_id: string
-          leave_balance: number
-          leave_used: number
           manager_id: string | null
           monthly_salary: number | null
           role: Database["public"]["Enums"]["app_role"]
@@ -894,8 +964,6 @@ export type Database = {
           is_super_admin?: boolean | null
           job_title?: Database["public"]["Enums"]["job_title"]
           krt_id?: string
-          leave_balance?: number
-          leave_used?: number
           manager_id?: string | null
           monthly_salary?: number | null
           role?: Database["public"]["Enums"]["app_role"]
@@ -914,8 +982,6 @@ export type Database = {
           is_super_admin?: boolean | null
           job_title?: Database["public"]["Enums"]["job_title"]
           krt_id?: string
-          leave_balance?: number
-          leave_used?: number
           manager_id?: string | null
           monthly_salary?: number | null
           role?: Database["public"]["Enums"]["app_role"]
@@ -1018,6 +1084,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      kpi_period_locks: {
+        Row: {
+          period: string
+          locked_at: string
+          locked_by: string | null
+        }
+        Insert: {
+          period: string
+          locked_at?: string
+          locked_by?: string | null
+        }
+        Update: {
+          period?: string
+          locked_at?: string
+          locked_by?: string | null
+        }
+        Relationships: []
+      }
+      kpi_snapshots: {
+        Row: {
+          period: string
+          user_id: string
+          parts: Json
+          final: Json
+          created_at: string
+        }
+        Insert: {
+          period: string
+          user_id: string
+          parts: Json
+          final: Json
+          created_at?: string
+        }
+        Update: {
+          period?: string
+          user_id?: string
+          parts?: Json
+          final?: Json
+          created_at?: string
+        }
+        Relationships: []
       }
       project_calculations: {
         Row: {
@@ -1153,6 +1261,7 @@ export type Database = {
       project_folders: {
         Row: {
           id: string
+          is_internal: boolean
           project_id: string
           name: string
           created_by: string | null
@@ -1160,6 +1269,7 @@ export type Database = {
         }
         Insert: {
           id?: string
+          is_internal?: boolean
           project_id: string
           name: string
           created_by?: string | null
@@ -1167,6 +1277,7 @@ export type Database = {
         }
         Update: {
           id?: string
+          is_internal?: boolean
           project_id?: string
           name?: string
           created_by?: string | null
@@ -1183,6 +1294,8 @@ export type Database = {
           status: string
           completed_at: string | null
           created_at: string
+          due_date: string | null
+          sla_weight: number | null
         }
         Insert: {
           id?: string
@@ -1192,6 +1305,8 @@ export type Database = {
           status?: string
           completed_at?: string | null
           created_at?: string
+          due_date?: string | null
+          sla_weight?: number | null
         }
         Update: {
           id?: string
@@ -1201,6 +1316,8 @@ export type Database = {
           status?: string
           completed_at?: string | null
           created_at?: string
+          due_date?: string | null
+          sla_weight?: number | null
         }
         Relationships: []
       }
@@ -1352,6 +1469,9 @@ export type Database = {
           completed_at: string | null
           created_by: string | null
           created_at: string
+          status: string
+          position: number | null
+          description: string | null
         }
         Insert: {
           id?: string
@@ -1365,6 +1485,9 @@ export type Database = {
           completed_at?: string | null
           created_by?: string | null
           created_at?: string
+          status?: string
+          position?: number | null
+          description?: string | null
         }
         Update: {
           id?: string
@@ -1377,6 +1500,40 @@ export type Database = {
           done?: boolean
           completed_at?: string | null
           created_by?: string | null
+          created_at?: string
+          status?: string
+          position?: number | null
+          description?: string | null
+        }
+        Relationships: []
+      }
+      project_task_comments: {
+        Row: {
+          id: string
+          task_id: string
+          project_id: string
+          author_id: string
+          body: string
+          mentions: string[]
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          task_id: string
+          /** Set from the task by a trigger. */
+          project_id?: string
+          author_id?: string
+          body: string
+          mentions?: string[]
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          task_id?: string
+          project_id?: string
+          author_id?: string
+          body?: string
+          mentions?: string[]
           created_at?: string
         }
         Relationships: []
@@ -1537,6 +1694,8 @@ export type Database = {
           score_target: number | null
           target_percentage: number | null
           weight_percentage: number
+          phase_id: string | null
+          override_reason: string | null
         }
         Insert: {
           actual_result: string
@@ -1548,6 +1707,8 @@ export type Database = {
           score_target?: number | null
           target_percentage?: number | null
           weight_percentage: number
+          phase_id?: string | null
+          override_reason?: string | null
         }
         Update: {
           actual_result?: string
@@ -1559,6 +1720,8 @@ export type Database = {
           score_target?: number | null
           target_percentage?: number | null
           weight_percentage?: number
+          phase_id?: string | null
+          override_reason?: string | null
         }
         Relationships: [
           {
@@ -1803,6 +1966,10 @@ export type Database = {
       }
     }
     Functions: {
+      acknowledge_contract: {
+        Args: { contract_id: string; typed_name: string }
+        Returns: undefined
+      }
       delete_project_phase: {
         Args: { p_phase_id: string }
         Returns: undefined
@@ -1817,6 +1984,22 @@ export type Database = {
           p_project_id: string
           p_replace?: boolean
         }
+        Returns: undefined
+      }
+      review_cycle_averages: {
+        Args: { p_cycle_id: string }
+        Returns: {
+          people: number
+          overall_percentage: number
+          score_quality: number
+          score_reliability: number
+          score_communication: number
+          score_initiative: number
+          score_leadership: number
+        }[]
+      }
+      save_phase_overrides: {
+        Args: { p_assignment_id: string; p_overrides: Json }
         Returns: undefined
       }
       save_assignment_scores: {

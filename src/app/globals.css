@@ -55,6 +55,18 @@
       transform: scale(1);
     }
   }
+
+  /* The text caret in an empty code box (PIN). */
+  --animate-caret-blink: caret-blink 1.1s steps(1) infinite;
+  @keyframes caret-blink {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0;
+    }
+  }
 }
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
@@ -87,7 +99,82 @@
   }
 }
 
+/* The same, for a vertical bar: set --bar as its height. */
+@utility bar-grow-y {
+  height: var(--bar, 0%);
+  transition: height 600ms var(--ease-out);
+  @starting-style {
+    height: 0;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+/* Arrival for the sign-in screen. focus-in: opacity, blur and a touch of
+   scale, never a slide (the app icon). shimmer-in: text starts faint and
+   one band of full ink sweeps across it; stagger with --shimmer-n. Both
+   end as plain styles; reduced motion skips them. */
+@keyframes focus-in {
+  from {
+    visibility: hidden;
+    opacity: 0;
+    transform: scale(0.98);
+    filter: blur(4px);
+  }
+}
+@keyframes shimmer-in {
+  from,
+  to {
+    background-image: linear-gradient(
+      100deg,
+      currentColor 40%,
+      var(--shimmer-band, var(--foreground)) 50%,
+      var(--shimmer-from, var(--tertiary-foreground)) 60%
+    );
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: 0 0;
+  }
+}
+@utility focus-in {
+  @media (prefers-reduced-motion: no-preference) {
+    animation: focus-in 500ms cubic-bezier(0.165, 0.84, 0.44, 1) 180ms backwards;
+  }
+}
+@utility shimmer-in {
+  @media (prefers-reduced-motion: no-preference) {
+    animation: shimmer-in 500ms var(--ease-in-out)
+      calc(150ms + var(--shimmer-n, 2) * 50ms) backwards;
+  }
+}
+
 /* Gentle entrance for rare moments (empty states): rise and fade in once. */
+/* Overlapping avatars: instead of a ring in the page colour, each avatar
+   gets a circular bite cut where the next one sits (a real gap that works on
+   any background). Set --avatar-overlap to the negative spacing used. */
+@utility avatar-stack {
+  --avatar-gap: 2px;
+  &
+    > :is([data-slot="avatar"], [data-slot="avatar-group-count"]):not(
+      :last-child
+    ) {
+    mask-image: radial-gradient(
+      ellipse calc(50% + var(--avatar-gap)) calc(50% + var(--avatar-gap)) at
+        calc(150% - var(--avatar-overlap, 6px)) 50%,
+      transparent 97%,
+      #000 100%
+    );
+  }
+}
+
 @utility enter-rise {
   transition:
     opacity 300ms var(--ease-out),
@@ -234,6 +321,7 @@
   --color-destructive-foreground: var(--destructive-foreground);
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
+  --color-success-ink: var(--success-ink);
   --color-warning: var(--warning);
   --color-warning-foreground: var(--warning-foreground);
   --color-info: var(--info);
@@ -373,6 +461,8 @@
   --destructive-line: #fbd3dc;
   --success: var(--green-9);
   --success-foreground: #ffffff;
+  /* Green text and icons (not badges): one step lighter in dark. */
+  --success-ink: var(--green-9);
   --success-subtle: var(--green-3);
   --success-line: #a8f170;
   --warning: var(--amber-9);
@@ -431,7 +521,7 @@
   --success-line: transparent;
   --warning-subtle: var(--amber-3);
   --warning-line: transparent;
-  --info-subtle: var(--blue-3);
+  --info-subtle: var(--blue-4);
   --info-line: transparent;
   --neutral-subtle: oklch(0.935 0 0 / 7%);
   --neutral-line: transparent;
@@ -441,13 +531,16 @@
   --backdrop: rgb(0 0 0 / 55%);
   /* Neutral graphite palette (design-tool inspector style): dark canvas,
      lifted panels, solid gray fields, navy/sky-blue accent. */
-  --background: oklch(0.155 var(--tint-ink) var(--tint-h));
+  --background: oklch(0.185 var(--tint-ink) var(--tint-h));
   --foreground: oklch(0.935 0 0);
-  --card: oklch(0.185 var(--tint-ink) var(--tint-h));
+  --card: oklch(0.215 var(--tint-ink) var(--tint-h));
   --card-foreground: oklch(0.935 0 0);
-  --popover: oklch(0.235 var(--tint-ink) var(--tint-h));
+  --popover: oklch(0.24 var(--tint-ink) var(--tint-h));
   --popover-foreground: oklch(0.935 0 0);
-  /* Dark: a light shade of the theme, with dark text on it. */
+  /* Dark: a light shade of the theme, with dark text on it. All or nothing
+     (any tint switches it): halfway between blue with white text and the
+     pale shade with dark text, both land mid-gray and the label vanishes. */
+  --primary-mix: calc(min(1, var(--tint-c) * 1000) * 100%);
   --primary: color-mix(
     in oklch,
     var(--blue-9),
@@ -470,11 +563,12 @@
   --destructive-foreground: #ffffff;
   --success: var(--green-9);
   --success-foreground: #ffffff;
+  --success-ink: var(--green-10);
   --warning: var(--amber-9);
   --warning-foreground: oklch(0.2 0.02 75);
   --info: var(--blue-9);
   --info-foreground: #ffffff;
-  --border: oklch(0.215 var(--tint-ink) var(--tint-h));
+  --border: oklch(0.25 var(--tint-ink) var(--tint-h));
   --input: oklch(1 0 0 / 9%);
   --field: oklch(1 0 0 / 4.5%);
   --field-hover: oklch(1 0 0 / 6.3%);
@@ -486,7 +580,7 @@
   --chart-4: oklch(0.555 0.163 48.998);
   --chart-5: oklch(0.473 0.137 46.201);
   --chrome: oklch(
-    calc(0.135 + var(--tint-c) * 0.02) calc(var(--tint-c) * 0.06) var(--tint-h)
+    calc(0.165 + var(--tint-c) * 0.02) calc(var(--tint-c) * 0.06) var(--tint-h)
   );
   --grad-l: 0.22;
   --grad-c: 0.075;
@@ -506,16 +600,16 @@
     0 0 0 1px oklch(1 0 0 / 0.08), 0 24px 56px -14px oklch(0 0 0 / 0.65);
   --elev-5: 0 0 0 1px oklch(1 0 0 / 0.08), 0 36px 80px -18px oklch(0 0 0 / 0.7);
   --sidebar: var(--chrome);
-  --surface: oklch(0.17 var(--tint-ink) var(--tint-h));
-  --dialog-shell: oklch(0.2 var(--tint-ink) var(--tint-h));
-  --dialog-panel: oklch(0.255 var(--tint-ink) var(--tint-h));
+  --surface: oklch(0.2 var(--tint-ink) var(--tint-h));
+  --dialog-shell: oklch(0.215 var(--tint-ink) var(--tint-h));
+  --dialog-panel: oklch(0.26 var(--tint-ink) var(--tint-h));
   --sidebar-foreground: oklch(0.935 0 0);
   --sidebar-primary: var(--primary);
   --sidebar-primary-foreground: var(--primary-foreground);
   --sidebar-accent: var(--chrome-hover);
   --sidebar-active: var(--chrome-active);
   --sidebar-accent-foreground: oklch(0.96 0 0);
-  --sidebar-border: oklch(0.225 var(--tint-ink) var(--tint-h));
+  --sidebar-border: oklch(0.255 var(--tint-ink) var(--tint-h));
   --sidebar-ring: var(--ring);
   --row-surface: var(--surface);
   --row-hover: color-mix(in oklch, var(--foreground) 4%, var(--surface));
@@ -598,6 +692,14 @@
   }
 }
 
+/* An app-icon squircle (continuous corners, like iOS) as a mask, so it is
+   smooth in every browser, not only where corner-shape is supported. */
+@utility squircle-mask {
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M100.00 50.00L99.94 60.99L99.76 66.13L99.46 70.17L99.05 73.60L98.51 76.62L97.85 79.32L97.07 81.78L96.16 84.02L95.13 86.07L93.97 87.95L92.67 89.67L91.24 91.24L89.67 92.67L87.95 93.97L86.07 95.13L84.02 96.16L81.78 97.07L79.32 97.85L76.62 98.51L73.60 99.05L70.17 99.46L66.13 99.76L60.99 99.94L50.00 100.00L39.01 99.94L33.87 99.76L29.83 99.46L26.40 99.05L23.38 98.51L20.68 97.85L18.22 97.07L15.98 96.16L13.93 95.13L12.05 93.97L10.33 92.67L8.76 91.24L7.33 89.67L6.03 87.95L4.87 86.07L3.84 84.02L2.93 81.78L2.15 79.32L1.49 76.62L0.95 73.60L0.54 70.17L0.24 66.13L0.06 60.99L0.00 50.00L0.06 39.01L0.24 33.87L0.54 29.83L0.95 26.40L1.49 23.38L2.15 20.68L2.93 18.22L3.84 15.98L4.87 13.93L6.03 12.05L7.33 10.33L8.76 8.76L10.33 7.33L12.05 6.03L13.93 4.87L15.98 3.84L18.22 2.93L20.68 2.15L23.38 1.49L26.40 0.95L29.83 0.54L33.87 0.24L39.01 0.06L50.00 0.00L60.99 0.06L66.13 0.24L70.17 0.54L73.60 0.95L76.62 1.49L79.32 2.15L81.78 2.93L84.02 3.84L86.07 4.87L87.95 6.03L89.67 7.33L91.24 8.76L92.67 10.33L93.97 12.05L95.13 13.93L96.16 15.98L97.07 18.22L97.85 20.68L98.51 23.38L99.05 26.40L99.46 29.83L99.76 33.87L99.94 39.01Z'/%3E%3C/svg%3E");
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+}
+
 /* Translucent ink on the tinted chrome blends instead of just layering:
    darken in light, lighten in dark (supported everywhere). */
 @utility blend-ink {
@@ -621,8 +723,8 @@
     mix-blend-mode: normal;
   }
 }
-/* Banners on the chrome: a softened, see-through black blended darken, so
-   the chrome's tint still comes through. The fill is its own layer behind
+/* Banners on the chrome: a softened, see-through black blended darken (a
+   see-through white in dark mode), so the chrome's tint still comes through. The fill is its own layer behind
    the content (no isolation, so it blends with the chrome), and the text
    stays pure white. */
 @utility banner-ink {
@@ -641,8 +743,10 @@
     mix-blend-mode: darken;
     pointer-events: none;
   }
+  /* Dark: a light, see-through white instead, so it lifts off the chrome. */
   &:where(.dark, .dark *)::before {
-    background: oklch(0 0 0 / 0.45);
+    background: oklch(1 0 0 / 0.08);
+    mix-blend-mode: normal;
   }
 }
 /* Same for a pill's fill when it holds an opaque thumb (segmented controls):
@@ -682,4 +786,131 @@
 }
 .docx-view-thumb .docx-wrapper > section.docx:not(:first-child) {
   display: none;
+}
+
+/* Document editor drag & drop (block handles, see policies/ui/block-handle):
+   the landing bar and the dragged block's card. */
+.doc-dropcursor {
+  border-radius: 9999px;
+}
+.doc-drag-preview {
+  position: fixed;
+  top: -1000px;
+  left: -1000px;
+  max-height: 7.5rem;
+  overflow: hidden;
+  padding: 0.5rem 0.875rem;
+  border-radius: 0.75rem;
+  background: var(--popover);
+  color: var(--popover-foreground);
+  box-shadow: var(--elev-4);
+  font-size: 14px;
+  line-height: 1.5;
+  pointer-events: none;
+  z-index: 9999;
+}
+.doc-drag-preview > * {
+  margin: 0 !important;
+}
+.doc-drag-preview img {
+  max-height: 6rem;
+  width: auto !important;
+  border-radius: 0.5rem;
+}
+
+/* Checklists in documents ("- [ ]"): the box sits on the text's first
+   line, rounded like the app's checkbox; done items read quieter. */
+.ProseMirror ul[data-type="taskList"] {
+  list-style: none;
+  padding-left: 0.125rem;
+}
+.ProseMirror ul[data-type="taskList"] > li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+}
+.ProseMirror ul[data-type="taskList"] > li > label {
+  flex-shrink: 0;
+  display: flex;
+  height: 1.75em;
+  align-items: center;
+  user-select: none;
+}
+.ProseMirror ul[data-type="taskList"] > li > div {
+  flex: 1;
+  min-width: 0;
+}
+.ProseMirror ul[data-type="taskList"] > li > div > p {
+  margin: 0;
+}
+.ProseMirror ul[data-type="taskList"] input[type="checkbox"] {
+  appearance: none;
+  display: grid;
+  place-items: center;
+  width: 1.05em;
+  height: 1.05em;
+  margin: 0;
+  border-radius: 0.3em;
+  border: 1.5px solid color-mix(in oklch, var(--foreground) 28%, transparent);
+  background: var(--background);
+  cursor: pointer;
+  transition:
+    background-color 150ms,
+    border-color 150ms;
+}
+.ProseMirror ul[data-type="taskList"] input[type="checkbox"]::after {
+  content: "";
+  width: 0.55em;
+  height: 0.3em;
+  margin-top: -0.12em;
+  border: solid var(--primary-foreground);
+  border-width: 0 0 2px 2px;
+  transform: rotate(-45deg) scale(0);
+  transition: transform 150ms var(--ease-out);
+}
+.ProseMirror ul[data-type="taskList"] input[type="checkbox"]:checked {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+.ProseMirror ul[data-type="taskList"] input[type="checkbox"]:checked::after {
+  transform: rotate(-45deg) scale(1);
+}
+.ProseMirror[contenteditable="false"] ul[data-type="taskList"] input {
+  cursor: default;
+}
+.ProseMirror ul[data-type="taskList"] > li[data-checked="true"] > div {
+  color: var(--muted-foreground);
+  text-decoration: line-through;
+  text-decoration-color: color-mix(in oklch, currentColor 50%, transparent);
+}
+
+/* Library: a file dragged onto a folder (see ProjectLibrary fileDragImage). */
+.lib-drag-preview {
+  position: fixed;
+  top: -1000px;
+  left: -1000px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  max-width: 16rem;
+  padding: 0.375rem 0.75rem 0.375rem 0.375rem;
+  border-radius: 0.75rem;
+  background: var(--popover);
+  color: var(--popover-foreground);
+  box-shadow: var(--elev-4);
+  font-size: 13px;
+  pointer-events: none;
+  z-index: 9999;
+}
+.lib-drag-preview img {
+  width: 2rem;
+  height: 2rem;
+  flex-shrink: 0;
+  border-radius: 0.5rem;
+  object-fit: cover;
+}
+.lib-drag-preview span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

@@ -84,7 +84,6 @@ export function ProjectList({
     return (
       <EmptyState
         title={t("emptyTitle")}
-        description={t("emptyDescription")}
         icon={<RiFolderLine className="size-5" />}
         placement="inner"
       />

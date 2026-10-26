@@ -39,8 +39,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton"
 import { Switch } from "@/components/ui/switch"
 import { createClient } from "@/shared/api/supabase/client"
-import { navigationConfig } from "@/shared/config/navigation"
-import { siteConfig } from "@/app/siteConfig"
+import { accessLevel, type AccessLevel } from "@/shared/config/access"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { useT } from "@/shared/i18n/client"
 import { dedupeProfilesByEmail } from "@/shared/lib/profile-dedupe"
@@ -53,7 +52,7 @@ import {
   RiEyeLine,
   RiSearchLine,
 } from "@/shared/ui/lucide-icons"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
 import { toast } from "sonner"
@@ -73,7 +72,6 @@ type Profile = Pick<
   | "employment_type"
 >
 type Team = Pick<Database["public"]["Tables"]["teams"]["Row"], "id" | "name">
-type Access = Record<string, Record<string, boolean>>
 
 const ROLE_OPTIONS = [
   { value: "employee", labelKey: "roleEmployee" },
@@ -86,27 +84,12 @@ const EMPLOYMENT_LABEL_KEYS = {
   magang: "employmentMagang",
 } as const satisfies Record<string, MessageKey<"settings">>
 
-/**
- * Pages that can be switched per member. Settings sections are gated by super
- * admin instead, so only the real app pages are listed.
- */
-type NavKey = MessageKey<"nav">
-const PAGE_LABELS: Record<string, NavKey> = {
-  [siteConfig.baseLinks.dashboard]: "home",
-  [siteConfig.baseLinks.calendar]: "calendar",
-  [siteConfig.baseLinks.leave]: "leaveAttendance",
-  [siteConfig.baseLinks.performance]: "performance",
-  [siteConfig.baseLinks.projects]: "projects",
-  [siteConfig.baseLinks.teams]: "team",
-  [siteConfig.baseLinks.finance]: "finance",
-}
-const PAGES = [
-  ...navigationConfig.main.map((item) => ({
-    slug: item.href,
-    name: item.name,
-  })),
-  { slug: siteConfig.baseLinks.finance, name: "Finance" },
-].map((page) => ({ ...page, key: PAGE_LABELS[page.slug] }))
+/** Access level label keys (shared/config/access.ts decides what each opens). */
+const LEVEL_LABEL_KEYS = {
+  employee: "levelEmployee",
+  pm: "levelPm",
+  stakeholder: "levelStakeholder",
+} as const satisfies Record<AccessLevel, MessageKey<"settings">>
 
 const PROFILE_COLUMNS =
   "id, full_name, email, role, job_title, is_super_admin, avatar_url, team_id, join_date, employment_type"
@@ -116,27 +99,14 @@ function useMembersData() {
     queryKey: ["settings", "members"],
     queryFn: async () => {
       const supabase = createClient()
-      const [profiles, teams, permissions] = await Promise.all([
+      const [profiles, teams] = await Promise.all([
         supabase.from("profiles").select(PROFILE_COLUMNS).order("full_name"),
         supabase.from("teams").select("id, name").order("name"),
-        supabase
-          .from("user_page_permissions")
-          .select("user_id, page_slug, granted"),
       ])
       if (profiles.error) throw profiles.error
-      const access: Access = {}
-      for (const row of (permissions.data ?? []) as {
-        user_id: string
-        page_slug: string
-        granted: boolean
-      }[]) {
-        access[row.user_id] ??= {}
-        access[row.user_id][row.page_slug] = row.granted
-      }
       return {
         profiles: dedupeProfilesByEmail(profiles.data as Profile[]),
         teams: (teams.data ?? []) as Team[],
-        access,
       }
     },
   })
@@ -144,7 +114,7 @@ function useMembersData() {
 
 /** Shared columns for the header row and every member row. */
 const MEMBER_GRID =
-  "grid grid-cols-[minmax(0,1fr)_4rem] items-center gap-x-4 md:grid-cols-[minmax(0,1fr)_8rem_10rem_4rem] lg:grid-cols-[minmax(0,1fr)_8rem_10rem_10rem_4rem]"
+  "grid grid-cols-[minmax(0,1fr)_6rem] items-center gap-x-4 md:grid-cols-[minmax(0,1fr)_8rem_10rem_6rem] lg:grid-cols-[minmax(0,1fr)_8rem_10rem_10rem_6rem]"
 
 function initialOf(profile: Pick<Profile, "full_name" | "email">) {
   return (profile.full_name || profile.email || "?").charAt(0).toUpperCase()
@@ -171,18 +141,30 @@ function Row({
   )
 }
 
-/** The page header (title + Add) lives here, next to the dialog it opens. */
-export function MembersAccessSettings({ title }: { title: string }) {
+/**
+ * The Team page for super admins: one member table (with the directory's
+ * headcount stats), a row opens the member in a sheet with Profile and
+ * Access views. The page header (title + Add) lives here, next to the
+ * dialog it opens.
+ */
+export function MembersAccessSettings({
+  title,
+  showStats = false,
+}: {
+  title: string
+  /** Headcount by job title above the table (the Team page). */
+  showStats?: boolean
+}) {
   const t = useT("settings")
+  const tt = useT("teams")
   const tc = useT("common")
-  const tn = useT("nav")
   const router = useRouter()
+  const queryClient = useQueryClient()
   const supabase = useMemo(() => createClient(), [])
   const { authProfile, refreshProfile } = useUserProfile()
   const { data, isLoading, error } = useMembersData()
 
   const [profiles, setProfiles] = useState<Profile[]>([])
-  const [access, setAccess] = useState<Access>({})
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [query, setQuery] = useState("")
   const [savingKey, setSavingKey] = useState<string | null>(null)
@@ -193,7 +175,6 @@ export function MembersAccessSettings({ title }: { title: string }) {
   useEffect(() => {
     if (!data) return
     setProfiles(data.profiles)
-    setAccess(data.access)
   }, [data])
 
   const teams = data?.teams ?? []
@@ -239,32 +220,6 @@ export function MembersAccessSettings({ title }: { title: string }) {
     setSavingKey(null)
   }
 
-  const togglePage = async (userId: string, slug: string, next: boolean) => {
-    const key = `${userId}:${slug}`
-    setSavingKey(key)
-    setAccess((prev) => ({
-      ...prev,
-      [userId]: { ...(prev[userId] ?? {}), [slug]: next },
-    }))
-    const { error: err } = await supabase.from("user_page_permissions").upsert(
-      {
-        user_id: userId,
-        page_slug: slug,
-        granted: next,
-        granted_by: authProfile?.id,
-      },
-      { onConflict: "user_id,page_slug" },
-    )
-    if (err) {
-      setAccess((prev) => ({
-        ...prev,
-        [userId]: { ...(prev[userId] ?? {}), [slug]: !next },
-      }))
-      toast.error(t("changeAccessFailed"))
-    }
-    setSavingKey(null)
-  }
-
   const viewAs = async (userId: string) => {
     setSwitching(true)
     try {
@@ -280,6 +235,8 @@ export function MembersAccessSettings({ title }: { title: string }) {
             t("switchAccountFailedStatus", { status: response.status }),
         )
       }
+      // Cached data belongs to the previous account: drop it all.
+      queryClient.clear()
       await refreshProfile()
       toast.success(t("nowViewingAs"))
       // Reloads the app as that member.
@@ -323,8 +280,6 @@ export function MembersAccessSettings({ title }: { title: string }) {
     )
   }
 
-  const totalPages = PAGES.length
-
   return (
     <div className="flex flex-col">
       <PageHeader
@@ -337,7 +292,41 @@ export function MembersAccessSettings({ title }: { title: string }) {
           </Button>
         }
       />
-      <div className="flex items-center gap-3 pb-3">
+      {showStats && (
+        <div className="stat-strip bleed gutter-x border-border border-b py-4">
+          {[
+            { label: tt("statTotal"), value: profiles.length },
+            {
+              label: tt("statDesigner"),
+              value: profiles.filter((p) => p.job_title === "Designer").length,
+            },
+            {
+              label: tt("statDeveloper"),
+              value: profiles.filter((p) => p.job_title === "Web Developer")
+                .length,
+            },
+            {
+              label: tt("statProjectManager"),
+              value: profiles.filter((p) => p.job_title === "Project Manager")
+                .length,
+            },
+            {
+              label: tt("statAdmin"),
+              value: profiles.filter(
+                (p) => p.role === "stakeholder" || p.job_title === "Admin",
+              ).length,
+            },
+          ].map((item) => (
+            <div key={item.label} className="stat-tile">
+              <p className="text-muted-foreground text-sm">{item.label}</p>
+              <div className="text-foreground text-xl font-normal tracking-tight tabular-nums">
+                {isLoading ? <Skeleton className="mt-1 h-6 w-8" /> : item.value}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+      <div className={cx("flex items-center gap-3 pb-3", showStats && "pt-4")}>
         <InputGroup className="w-full sm:w-[260px]">
           <InputGroupAddon>
             <RiSearchLine />
@@ -377,16 +366,15 @@ export function MembersAccessSettings({ title }: { title: string }) {
           // Re-keyed on search so filtering doesn't animate every row.
           <AnimatePresence initial={false} key={query}>
             {filtered.map((p) => {
-              const granted = PAGES.filter(
-                (page) => access[p.id]?.[page.slug] === true,
-              ).length
               const team = teams.find((t) => t.id === p.team_id)
               return (
                 <ListRow
                   key={p.id}
                   role="button"
                   tabIndex={0}
-                  onClick={() => setSelectedId(p.id)}
+                  onClick={() => {
+                    setSelectedId(p.id)
+                  }}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault()
@@ -433,12 +421,8 @@ export function MembersAccessSettings({ title }: { title: string }) {
                   <span className="text-muted-foreground hidden truncate lg:block">
                     {team?.name ?? <EmptyValue />}
                   </span>
-                  <span className="text-right tabular-nums">
-                    {granted}
-                    <span className="text-tertiary-foreground">
-                      {" "}
-                      / {totalPages}
-                    </span>
+                  <span className="text-muted-foreground truncate text-right">
+                    {t(LEVEL_LABEL_KEYS[accessLevel(p)])}
                   </span>
                 </ListRow>
               )
@@ -491,16 +475,15 @@ export function MembersAccessSettings({ title }: { title: string }) {
               </div>
 
               <section className="flex flex-col">
-                <h3 className="text-muted-foreground mb-1 text-xs font-medium">
-                  {t("sectionRole")}
-                </h3>
                 <Row label={t("colRole")} hint={t("roleHint")}>
                   <Select
                     value={selected.role}
                     onValueChange={(v) =>
                       v &&
                       v !== selected.role &&
-                      updateProfile(selected.id, { role: v as Profile["role"] })
+                      updateProfile(selected.id, {
+                        role: v as Profile["role"],
+                      })
                     }
                     disabled={savingKey === `${selected.id}:role`}
                   >
@@ -621,30 +604,6 @@ export function MembersAccessSettings({ title }: { title: string }) {
                     aria-label={t("superAdmin")}
                   />
                 </Row>
-              </section>
-
-              <section className="flex flex-col">
-                <h3 className="text-muted-foreground mb-1 text-xs font-medium">
-                  {t("pageAccess")}
-                </h3>
-                {PAGES.map((page) => {
-                  const granted = access[selected.id]?.[page.slug] === true
-                  return (
-                    <Row
-                      key={page.slug}
-                      label={page.key ? tn(page.key) : page.name}
-                    >
-                      <Switch
-                        checked={granted}
-                        disabled={savingKey === `${selected.id}:${page.slug}`}
-                        onCheckedChange={(checked) =>
-                          togglePage(selected.id, page.slug, checked)
-                        }
-                        aria-label={t("pageAccessAria", { page: page.name })}
-                      />
-                    </Row>
-                  )
-                })}
               </section>
 
               {!isSelf && (

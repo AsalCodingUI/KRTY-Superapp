@@ -6,10 +6,15 @@ import { QuarterFilter } from "@/components/quarter-filter"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useT } from "@/shared/i18n/client"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { EmployeeKpiView } from "./EmployeeKpiView"
+import { MyKpiView } from "./MyKpiView"
 import { normalizePeriod, periodYears } from "./period"
+import { ProjectKpiSheet, projectSheetHref } from "./ProjectKpiSheet"
 
-/** Admin view of one member's KPI (/performance/employee/[id]). */
+/**
+ * A stakeholder's view of one member's KPI (/performance/employee/[id]):
+ * the member's own KPI page (MyKpiView), read-only, plus the lock state and
+ * what needs fixing.
+ */
 export function EmployeeKpiPage({
   employee,
 }: {
@@ -24,8 +29,8 @@ export function EmployeeKpiPage({
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
-  const period = normalizePeriod(searchParams.get("periode"))
-  const backHref = `/performance?periode=${encodeURIComponent(period)}`
+  const period = normalizePeriod(searchParams.get("period"))
+  const backHref = `/performance?period=${encodeURIComponent(period)}`
   useBreadcrumbs([
     { label: t("teamKpi"), href: backHref },
     { label: employee.full_name || t("employee") },
@@ -33,7 +38,7 @@ export function EmployeeKpiPage({
 
   const setPeriod = (value: string) => {
     const params = new URLSearchParams(searchParams.toString())
-    params.set("periode", value)
+    params.set("period", value)
     router.replace(`${pathname}?${params.toString()}`, { scroll: false })
   }
 
@@ -54,20 +59,25 @@ export function EmployeeKpiPage({
           </span>
         }
         actions={
-          <QuarterFilter
-            value={period}
-            onChange={setPeriod}
-            years={periodYears()}
-          />
+          <>
+            <QuarterFilter
+              value={period}
+              onChange={setPeriod}
+              years={periodYears()}
+            />
+          </>
         }
       />
-      <EmployeeKpiView
+      <MyKpiView
+        variant="stakeholder"
         userId={employee.id}
+        name={employee.full_name?.split(" ")[0] || t("employee")}
         scope={period}
         hrefFor={(p) =>
-          `/performance/employee/${employee.id}/project/${p.projectId}?periode=${encodeURIComponent(period)}`
+          projectSheetHref(pathname, { periode: period }, p.projectId)
         }
       />
+      <ProjectKpiSheet defaultMember={employee.id} />
     </div>
   )
 }

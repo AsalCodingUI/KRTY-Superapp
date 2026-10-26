@@ -50,7 +50,9 @@ export function MeetingButton({ meetingUrl, className }: MeetingButtonProps) {
       </div>
 
       {copied && (
-        <p className="text-success mt-2 text-xs">{t("meetingLinkCopied")}</p>
+        <p className="text-success-ink mt-2 text-xs">
+          {t("meetingLinkCopied")}
+        </p>
       )}
 
       <div className="mt-2">

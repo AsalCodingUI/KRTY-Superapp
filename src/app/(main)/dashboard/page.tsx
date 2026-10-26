@@ -73,8 +73,8 @@ export default async function DashboardRoute({
   } else {
     // Employee Dashboard
     const quarterParam =
-      typeof resolvedSearchParams.quarter === "string"
-        ? resolvedSearchParams.quarter
+      typeof resolvedSearchParams.period === "string"
+        ? resolvedSearchParams.period
         : undefined
     const result = await getEmployeeDashboardData(effectiveUserId, quarterParam)
 

@@ -10,32 +10,45 @@ export async function getDailyStats(
     await Promise.all([
       supabase.from("profiles").select("id", { count: "exact", head: true }),
 
-      supabase.from("attendance_logs").select("id, status").eq("date", date),
+      supabase
+        .from("attendance_logs")
+        .select("user_id, status")
+        .eq("date", date),
 
       supabase
         .from("leave_requests")
-        .select("id", { count: "exact", head: true })
+        .select("user_id")
         .eq("status", "approved")
         .lte("start_date", date)
         .gte("end_date", date),
     ])
 
   const totalEmployees = totalEmployeesResult.count || 0
-  const attendanceLogs = attendanceResult.data || []
-  const onLeaveCount = onLeaveResult.count || 0
+  const attendanceLogs = (attendanceResult.data || []) as Array<{
+    user_id: string
+    status: string | null
+  }>
 
-  const onTime = attendanceLogs.filter(
-    (log: { status: string | null }) => !log.status || log.status === "On Time",
-  ).length
-  const late = attendanceLogs.filter((log: { status: string | null }) => log.status === "Late").length
-  const totalPresent = onTime + late
+  // Logs are "Present" (or "Cuti Masuk": clocked in while on leave), so
+  // anyone with a log today is present; one person can have several logs.
+  const presentIds = new Set(attendanceLogs.map((log) => log.user_id))
+  const lateIds = new Set(
+    attendanceLogs.filter((log) => log.status === "Late").map((l) => l.user_id),
+  )
+  const totalPresent = presentIds.size
+  const late = lateIds.size
+  const onTime = totalPresent - late
+  // On leave and not clocked in anyway.
+  const onLeaveCount = new Set(
+    ((onLeaveResult.data || []) as Array<{ user_id: string }>)
+      .map((l) => l.user_id)
+      .filter((id) => !presentIds.has(id)),
+  ).size
 
   const absent = Math.max(0, totalEmployees - totalPresent - onLeaveCount)
 
   const attendanceRate =
-    totalEmployees > 0
-      ? ((totalPresent + onLeaveCount) / totalEmployees) * 100
-      : 0
+    totalEmployees > 0 ? (totalPresent / totalEmployees) * 100 : 0
 
   return {
     totalEmployees,

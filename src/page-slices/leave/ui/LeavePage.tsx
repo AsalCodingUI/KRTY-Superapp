@@ -10,13 +10,12 @@ import { StakeholderLeavePage } from "./StakeholderLeavePage"
 type Profile = Database["public"]["Tables"]["profiles"]["Row"]
 type ProfileSummary = Pick<
   Profile,
-  | "id"
-  | "full_name"
-  | "avatar_url"
-  | "job_title"
-  | "leave_used"
-  | "leave_balance"
->
+  "id" | "full_name" | "avatar_url" | "job_title"
+> & {
+  /** This year's annual leave, computed from approved requests. */
+  leave_used: number
+  leave_balance: number
+}
 type LeaveRequest = Database["public"]["Tables"]["leave_requests"]["Row"]
 type AttendanceLog = Database["public"]["Tables"]["attendance_logs"]["Row"]
 
@@ -83,9 +82,6 @@ export function LeavePage({
       requests={requests as LeaveRequest[]}
       statsRequests={statsRequests}
       attendanceLogs={attendanceLogs as AttendanceLog[]}
-      page={page}
-      pageSize={pageSize}
-      totalCount={totalCount}
     />
   )
 }

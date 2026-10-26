@@ -94,7 +94,7 @@ export function MeetingDialog({
         <div className="flex-1 space-y-5 overflow-y-auto">
           {/* Event Title & Type */}
           <div className="flex items-start justify-between gap-4">
-            <h3 className="text-foreground text-base font-semibold break-words">
+            <h3 className="text-heading text-base font-medium break-words">
               {event.title}
             </h3>
             <Badge variant="info" className="shrink-0">

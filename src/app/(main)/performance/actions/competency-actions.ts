@@ -54,12 +54,12 @@ export async function saveCompetency(input: {
 }): Promise<Result> {
   const [supabase, t] = await Promise.all([admin(), getT("performance")])
   if (!supabase) return { success: false, error: t("errAdminOnly") }
-  const name = input.name.trim()
+  const name = input.name.trim().slice(0, 120)
   if (!name) return { success: false, error: t("errCompetencyNameRequired") }
   const row = {
     role: input.role,
     name,
-    description: input.description.trim() || null,
+    description: input.description.trim().slice(0, 1000) || null,
   }
   const { error } = input.id
     ? await supabase.from("competency_library").update(row).eq("id", input.id)

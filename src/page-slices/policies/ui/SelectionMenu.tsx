@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
+import { NodeSelection } from "@tiptap/pm/state"
 import { useEditorState, type Editor } from "@tiptap/react"
 import { BubbleMenu } from "@tiptap/react/menus"
 import { Bold, Check, Italic, X } from "@/components/icons"
@@ -103,7 +104,12 @@ export function SelectionMenu({ editor }: { editor: Editor }) {
       editor={editor}
       options={{ placement: "top", offset: 8 }}
       shouldShow={({ editor: e, from, to }) =>
-        from !== to && e.isEditable && !e.isActive("codeBlock")
+        from !== to &&
+        e.isEditable &&
+        !e.isActive("codeBlock") &&
+        !e.isActive("image") &&
+        // A whole block picked with its handle isn't a text selection.
+        !(e.state.selection instanceof NodeSelection)
       }
       className="bg-popover text-popover-foreground z-40 flex items-center gap-0.5 rounded-full p-1 shadow-(--elev-4)"
     >
@@ -113,7 +119,12 @@ export function SelectionMenu({ editor }: { editor: Editor }) {
             autoFocus
             value={url}
             onChange={(e) => setUrl(e.target.value)}
-            onKeyDown={(e) => e.key === "Escape" && setLinking(false)}
+            onKeyDown={(e) => {
+              if (e.key !== "Escape") return
+              // Only the link field closes, not the dialog around it.
+              e.stopPropagation()
+              setLinking(false)
+            }}
             placeholder={t("pasteLink")}
             aria-label={t("linkAddress")}
             className="h-7 w-64 border-0 bg-transparent px-2 text-sm shadow-none outline-none focus:ring-0"

@@ -1,5 +1,6 @@
 "use client"
 
+import { getEventTypeDefinition } from "../../lib/event-color-registry"
 import {
   createContext,
   useCallback,
@@ -9,8 +10,8 @@ import {
   type ReactNode,
 } from "react"
 import type {
+  CalendarEvent,
   EventCategory,
-  EventColor,
   EventVisibilityContextValue,
 } from "../types"
 
@@ -23,66 +24,53 @@ interface EventVisibilityProviderProps {
   initialCategories?: EventCategory[]
 }
 
+/** The registry value of an event's type (aliases resolved). */
+export const eventTypeOf = (event: CalendarEvent) =>
+  getEventTypeDefinition(event.type)?.value ?? event.type
+
+/**
+ * Category filter: one checkbox per event type. Only the hidden ids live in
+ * state; names and the list itself come fresh from the caller (translated,
+ * and different per calendar).
+ */
 export function EventVisibilityProvider({
   children,
   initialCategories = [],
 }: EventVisibilityProviderProps) {
-  // Already provided higher up (e.g. the page also renders the filter
-  // menu): reuse that state instead of starting a second one.
+  // Already provided higher up: reuse that state.
   const parent = useContext(EventVisibilityContext)
-  const [categories, setCategories] =
-    useState<EventCategory[]>(initialCategories)
-  const [visibleColors, setVisibleColors] = useState<Set<EventColor>>(
-    new Set(initialCategories.filter((c) => c.isActive).map((c) => c.color)),
+  const [hidden, setHidden] = useState<Set<string>>(
+    () =>
+      new Set(initialCategories.filter((c) => !c.isActive).map((c) => c.id)),
   )
 
-  const toggleColor = useCallback((color: EventColor) => {
-    setVisibleColors((prev) => {
+  const toggleCategory = useCallback((id: string) => {
+    setHidden((prev) => {
       const next = new Set(prev)
-      if (next.has(color)) {
-        next.delete(color)
-      } else {
-        next.add(color)
-      }
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
       return next
     })
-
-    setCategories((prev) =>
-      prev.map((cat) =>
-        cat.color === color ? { ...cat, isActive: !cat.isActive } : cat,
-      ),
-    )
   }, [])
 
-  const isColorVisible = useCallback(
-    (color: EventColor) =>
-      visibleColors.has(color) ||
-      // A colour no category controls can't be hidden by the filter, so it
-      // must stay visible (it used to disappear silently).
-      !categories.some((category) => category.color === color),
-    [visibleColors, categories],
+  // A type no category controls (e.g. Google events) can't be hidden.
+  const isEventVisible = useCallback(
+    (event: CalendarEvent) => {
+      const type = eventTypeOf(event)
+      return !type || !hidden.has(type)
+    },
+    [hidden],
   )
 
-  // Names come from the caller (translated), so take them fresh from the
-  // prop on every render; only `isActive` lives in state. Without this a
-  // language switch kept the old names until a reload.
-  const displayCategories = useMemo(
-    () =>
-      categories.map((cat) => {
-        const fresh = initialCategories.find((c) => c.id === cat.id)
-        return fresh && fresh.name !== cat.name
-          ? { ...cat, name: fresh.name }
-          : cat
-      }),
-    [categories, initialCategories],
+  const categories = useMemo(
+    () => initialCategories.map((c) => ({ ...c, isActive: !hidden.has(c.id) })),
+    [initialCategories, hidden],
   )
 
   const value: EventVisibilityContextValue = {
-    visibleColors,
-    toggleColor,
-    isColorVisible,
-    categories: displayCategories,
-    setCategories,
+    toggleCategory,
+    isEventVisible,
+    categories,
   }
 
   if (parent) return <>{children}</>

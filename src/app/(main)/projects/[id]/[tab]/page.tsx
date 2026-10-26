@@ -6,9 +6,11 @@ export const dynamic = "force-dynamic"
 
 const SECTIONS = [
   "tasks",
+  "reports",
   "invoices",
   "documents",
   "library",
+  "assessment",
   "settings",
 ] as const
 type Section = (typeof SECTIONS)[number]
@@ -24,6 +26,6 @@ export default async function ProjectSectionRoute({
   if (["overview", "calculations", "slas"].includes(tab))
     redirect(`/projects/${id}`)
   if (!SECTIONS.includes(tab as Section)) notFound()
-  await assertProjectAccess(id)
+  await assertProjectAccess(id, tab)
   return <ProjectWorkspacePage projectId={id} section={tab as Section} />
 }

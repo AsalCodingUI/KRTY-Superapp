@@ -19,13 +19,10 @@ export type ProfileSubset = Pick<
   | "is_super_admin"
 >
 
-export type PagePermissionsMap = Record<string, boolean>
-
 export type SessionContextResponse = {
   profile: ProfileSubset | null
   authProfile: ProfileSubset | null
   userEmail: string | null
-  permissions: PagePermissionsMap | null
   isImpersonating: boolean
 }
 
@@ -58,7 +55,6 @@ export function useSessionContext() {
     profile,
     authProfile,
     userEmail: data?.userEmail || null,
-    permissions: data?.permissions ?? null,
     loading: isLoading,
     isAdmin: canManageByRole(profile?.role),
     isSuperAdmin: authProfile?.is_super_admin === true,

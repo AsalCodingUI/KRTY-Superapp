@@ -1,8 +1,6 @@
-import { MembersAccessPage } from "@/page-slices/teams"
+import { redirect } from "next/navigation"
 
-export const dynamic = "force-dynamic"
-
-/** Anggota & Akses: add members, set roles and which pages they can open. */
+/** Members & access now live in the Team table (sheet: Access). */
 export default function MembersAccessRoute() {
-  return <MembersAccessPage />
+  redirect("/teams")
 }

@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -57,7 +56,6 @@ export function GoalDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{t("goalTitle", { year })}</DialogTitle>
-          <DialogDescription>{t("goalDescription")}</DialogDescription>
         </DialogHeader>
         <form
           id="goal-form"

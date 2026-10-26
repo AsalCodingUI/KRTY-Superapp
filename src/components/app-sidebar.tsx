@@ -77,7 +77,9 @@ function useSidebarProjects(profile: { id: string; role: string } | null) {
         .map((p) => ({
           id: p.id,
           name: p.name,
-          href: `${siteConfig.baseLinks.performance}/employee/${profile.id}/project/${p.id}`,
+          // Members open their projects like stakeholders do (membership
+          // decides access).
+          href: `${siteConfig.baseLinks.projects}/${p.id}`,
         }))
     },
   })
@@ -111,8 +113,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     profile ? { id: profile.id, role: profile.role } : null,
   )
 
-  // Longest matching href is the active page (so /projects/calculator does
-  // not also light up /projects).
+  // Longest matching href is the active page (so /calendar/personal does
+  // not also light up /calendar).
   const activeHref = React.useMemo(
     () =>
       active?.items

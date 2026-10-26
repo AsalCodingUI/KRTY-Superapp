@@ -120,7 +120,7 @@ export async function POST(request: NextRequest) {
       .from("profiles")
       .insert(insertPayload)
       .select(
-        "id, full_name, email, role, job_title, avatar_url, hourly_rate, krt_id, team_id, is_super_admin, leave_balance, leave_used, manager_id, created_at, updated_at, monthly_salary",
+        "id, full_name, email, role, job_title, avatar_url, hourly_rate, krt_id, team_id, is_super_admin, manager_id, created_at, updated_at, monthly_salary",
       )
       .single()
 

@@ -6,6 +6,8 @@ export type EventColor =
   | "rose"
   | "amber"
   | "cyan"
+  | "pink"
+  | "teal"
   | "neutral"
 
 export type ViewMode = "month" | "week" | "day" | "agenda" | "timeline"
@@ -58,6 +60,7 @@ export interface CalendarEvent {
 }
 
 export interface EventCategory {
+  /** The event type it controls (registry value, e.g. "Sharing Santuy"). */
   id: string
   name: string
   color: EventColor
@@ -77,11 +80,10 @@ export interface CalendarContextValue {
 }
 
 export interface EventVisibilityContextValue {
-  visibleColors: Set<EventColor>
-  toggleColor: (color: EventColor) => void
-  isColorVisible: (color: EventColor) => boolean
+  /** Show or hide one category (an event type). */
+  toggleCategory: (id: string) => void
+  isEventVisible: (event: CalendarEvent) => boolean
   categories: EventCategory[]
-  setCategories: (categories: EventCategory[]) => void
 }
 
 export interface TimeSlot {

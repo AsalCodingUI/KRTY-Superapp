@@ -1,5 +1,7 @@
 "use client"
 
+import { leaveTypeLabel } from "@/shared/lib/leave"
+import { WeekHours } from "./week-hours"
 import { ClockControls } from "@/features/attendance-clock"
 import { createClient } from "@/shared/api/supabase/client"
 import { useMinuteClock } from "@/shared/hooks/useMinuteClock"
@@ -67,6 +69,7 @@ export function EmployeeAttendanceWidget({
   const supabase = createClient()
   const router = useRouter()
   const t = useT("dashboard")
+  const tl = useT("leave")
   const dateLocale = useDateLocale()
   const [logs, setLogs] = useState<AttendanceLog[]>(recentAttendance)
   const [leaveRequests, setLeaveRequests] =
@@ -171,6 +174,7 @@ export function EmployeeAttendanceWidget({
         }
       >
         <HomeFigure
+          roll={false}
           value={currentTime ? format(currentTime, "HH:mm") : "--:--"}
           hint={
             currentTime
@@ -187,39 +191,9 @@ export function EmployeeAttendanceWidget({
             now={currentTime}
           />
         </div>
-        <div className="flex flex-col">
-          {logs.length === 0 ? (
-            <HomeEmpty>{t("attendanceEmpty")}</HomeEmpty>
-          ) : (
-            logs.slice(0, 4).map((log) => (
-              <HomeRow
-                key={log.id}
-                title={format(
-                  new Date(getAttendanceLogLocalDate(log)),
-                  "EEE, d MMM",
-                  {
-                    locale: dateLocale,
-                  },
-                )}
-                trailing={
-                  <>
-                    {log.status === "Late" && (
-                      <Badge variant="warning">{t("attendanceLate")}</Badge>
-                    )}
-                    <span className="text-muted-foreground text-[13px]">
-                      {log.clock_in
-                        ? format(new Date(log.clock_in), "HH:mm")
-                        : "--:--"}
-                      {" – "}
-                      {log.clock_out
-                        ? format(new Date(log.clock_out), "HH:mm")
-                        : t("attendanceActive")}
-                    </span>
-                  </>
-                }
-              />
-            ))
-          )}
+        {/* This week's hours, under today's clock. */}
+        <div className="border-border mt-auto border-t pt-4">
+          <WeekHours logs={logs} now={currentTime ?? new Date()} />
         </div>
       </HomeCard>
 
@@ -252,7 +226,7 @@ export function EmployeeAttendanceWidget({
               return (
                 <HomeRow
                   key={leave.id}
-                  title={leave.leave_type}
+                  title={leaveTypeLabel(leave.leave_type, tl)}
                   subtitle={
                     format(new Date(leave.start_date), "d MMM", {
                       locale: dateLocale,
@@ -272,7 +246,7 @@ export function EmployeeAttendanceWidget({
         <HomeFooter
           label={t("leaveRequests")}
           value={t("leaveRecordedCount", { n: leaveRequests.length })}
-          href="/leave/leave"
+          href="/leave"
         />
       </HomeCard>
 

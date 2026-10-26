@@ -142,7 +142,12 @@ export async function saveProject(
     description: input.description.trim() || null,
     start_date: input.start_date,
     end_date: input.end_date,
-    ...(id && input.status ? { status: input.status } : {}),
+    // New projects start as "Belum mulai"; the status is edited later.
+    ...(id
+      ? input.status
+        ? { status: input.status }
+        : {}
+      : { status: "Planned" as const }),
     ...(!id && input.processId ? { process_id: input.processId } : {}),
   }
   const { data: project, error } = id

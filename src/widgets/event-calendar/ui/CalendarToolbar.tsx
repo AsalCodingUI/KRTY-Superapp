@@ -28,19 +28,20 @@ import { useEventVisibility } from "./hooks/use-event-visibility"
 import type { EventColor, ViewMode } from "./types"
 import { getViewRange } from "./utils"
 
-const VIEW_OPTIONS = [
-  { value: "week", labelKey: "viewWeek" },
-  { value: "month", labelKey: "viewMonth" },
-  { value: "timeline", labelKey: "viewTimeline" },
-] satisfies {
-  value: ViewMode
-  labelKey: "viewWeek" | "viewMonth" | "viewTimeline"
-}[]
+const VIEW_LABELS = {
+  week: "viewWeek",
+  month: "viewMonth",
+  timeline: "viewTimeline",
+  day: "viewDay",
+  agenda: "viewAgenda",
+} as const satisfies Record<ViewMode, string>
 
 const DOT: Record<EventColor, string> = {
   blue: "bg-primary",
-  violet: "bg-primary",
+  violet: "bg-purple-9",
   cyan: "bg-info",
+  pink: "bg-pink-9",
+  teal: "bg-teal-9",
   emerald: "bg-success",
   rose: "bg-destructive",
   orange: "bg-warning",
@@ -66,7 +67,7 @@ function rangeLabel(date: Date, view: ViewMode, locale: Locale) {
 /** Category toggles (was the left legend). */
 function CalendarFilter() {
   const t = useT("calendar")
-  const { categories, toggleColor } = useEventVisibility()
+  const { categories, toggleCategory } = useEventVisibility()
   const hidden = categories.filter((c) => !c.isActive).length
   if (categories.length === 0) return null
 
@@ -94,7 +95,7 @@ function CalendarFilter() {
           >
             <Checkbox
               checked={category.isActive}
-              onCheckedChange={() => toggleColor(category.color)}
+              onCheckedChange={() => toggleCategory(category.id)}
             />
             <span
               className={cx(
@@ -114,12 +115,18 @@ interface CalendarToolbarProps {
   onAddEvent: () => void
   showAddEvent?: boolean
   onViewChange?: (view: ViewMode) => void
+  /** Views in the switch, in order (others stay reachable by URL). */
+  views?: ViewMode[]
+  /** Google connection dot (only the personal calendar reads Google). */
+  showGoogleStatus?: boolean
 }
 
 export function CalendarToolbar({
   onAddEvent,
   showAddEvent = true,
   onViewChange,
+  views = ["week", "month", "timeline"],
+  showGoogleStatus = true,
 }: CalendarToolbarProps) {
   const {
     currentDate,
@@ -131,16 +138,13 @@ export function CalendarToolbar({
   } = useCalendarContext()
   const t = useT("calendar")
   const dateLocale = useDateLocale()
-  const viewItems = VIEW_OPTIONS.map((o) => ({
-    value: o.value,
-    label: t(o.labelKey),
+  const viewItems = views.map((view) => ({
+    value: view,
+    label: t(VIEW_LABELS[view]),
   }))
   const { isConnected, isLoading } = useGoogleCalendar()
   const handleViewChange = onViewChange ?? setViewMode
-  // Day/agenda are still reachable by URL; the switch shows the three main ones.
-  const value = VIEW_OPTIONS.some((o) => o.value === viewMode)
-    ? viewMode
-    : "week"
+  const value = views.includes(viewMode) ? viewMode : views[0]
 
   return (
     <div className="flex items-center justify-between gap-4">
@@ -178,31 +182,33 @@ export function CalendarToolbar({
         <div className="bg-border mx-2 h-4 w-px" />
 
         <CalendarFilter />
-        <Tooltip>
-          <TooltipTrigger
-            render={
-              <span className="flex size-8 items-center justify-center" />
-            }
-          >
-            <span
-              className={cx(
-                "size-2 rounded-full",
-                isLoading
-                  ? "bg-muted-foreground"
-                  : isConnected
-                    ? "bg-success"
-                    : "bg-destructive",
-              )}
-            />
-          </TooltipTrigger>
-          <TooltipContent>
-            {isLoading
-              ? t("googleStatusChecking")
-              : isConnected
-                ? t("googleStatusConnected")
-                : t("googleStatusDisconnected")}
-          </TooltipContent>
-        </Tooltip>
+        {showGoogleStatus && (
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <span className="flex size-8 items-center justify-center" />
+              }
+            >
+              <span
+                className={cx(
+                  "size-2 rounded-full",
+                  isLoading
+                    ? "bg-muted-foreground"
+                    : isConnected
+                      ? "bg-success"
+                      : "bg-destructive",
+                )}
+              />
+            </TooltipTrigger>
+            <TooltipContent>
+              {isLoading
+                ? t("googleStatusChecking")
+                : isConnected
+                  ? t("googleStatusConnected")
+                  : t("googleStatusDisconnected")}
+            </TooltipContent>
+          </Tooltip>
+        )}
 
         {showAddEvent && (
           <Button onClick={onAddEvent} className="ml-1">

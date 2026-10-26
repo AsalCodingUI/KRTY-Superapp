@@ -8,10 +8,9 @@ import { calendar } from "./calendar"
 import { teams } from "./teams"
 import { performance } from "./performance"
 import { projects } from "./projects"
-import { calculator } from "./calculator"
-import { sla } from "./sla"
 import { settings } from "./settings"
 import { policies } from "./policies"
+import { contracts } from "./contracts"
 import { finance } from "./finance"
 import { clients } from "./clients"
 import { processes } from "./processes"
@@ -33,10 +32,9 @@ export const messages = {
   teams,
   performance,
   projects,
-  calculator,
-  sla,
   settings,
   policies,
+  contracts,
   finance,
   clients,
   processes,

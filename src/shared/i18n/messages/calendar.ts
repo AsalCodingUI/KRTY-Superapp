@@ -4,21 +4,20 @@ const id = {
   viewWeek: "Minggu",
   viewMonth: "Bulan",
   viewTimeline: "Timeline",
+  viewDay: "Hari",
+  viewAgenda: "Agenda",
   toolbarPrevious: "Sebelumnya",
   toolbarNext: "Berikutnya",
   toolbarToday: "Hari ini",
   toolbarNewEvent: "Jadwal baru",
   filterAriaLabel: "Filter kalender",
   filterButton: "Kalender",
-  googleStatusChecking: "Google Calendar dicek…",
+  googleStatusChecking: "Mengecek Google Calendar…",
   googleStatusConnected: "Google Calendar terhubung",
   googleStatusDisconnected: "Google Calendar terputus",
 
   // Sidebar
   sidebarTitle: "Kalender Kretya",
-  sidebarOpenFilter: "Buka filter kalender",
-  sidebarSettings: "Atur",
-  sidebarClosePanel: "Tutup panel kalender",
 
   // Event types (registry labels)
   eventTypeInternal: "Rapat internal",
@@ -28,6 +27,22 @@ const id = {
   eventType301Meeting: "Rapat 301",
   eventTypeCompanyHoliday: "Libur perusahaan",
   eventTypePublicHoliday: "Hari libur nasional",
+  eventTypePersonal: "Pribadi",
+  eventTypeSharingSantuy: "Sharing Santuy",
+  eventTypeTask: "Tenggat tugas",
+
+  // Sharing Santuy
+  santuySpeaker: "Pembicara",
+  santuySpeakerPlaceholder: "Pilih teman yang sharing",
+  santuySpeakerBy: "Dibawakan {name}",
+  santuyWhen: "Waktu",
+  santuyParticipants: "Yang ikut",
+  santuyNoParticipants: "Belum ada yang ikut",
+  santuyJoin: "Ikut",
+  santuyLeave: "Batal ikut",
+  santuyJoined: "Kamu ikut sesi ini",
+  santuyLeft: "Kamu batal ikut",
+  santuyJoinFailed: "Gagal menyimpan, coba lagi",
 
   // Month / week / agenda / timeline views
   monthMoreEvents: "+{count} lainnya",
@@ -42,22 +57,24 @@ const id = {
   agendaEmpty: "Tidak ada jadwal hari ini",
   timelineProjectsOne: "{count} project",
   timelineProjectsOther: "{count} project",
-  timelineShowTeam: "Lihat tim",
-  timelineHideTeam: "Tutup tim",
+  timelineShowTasks: "Lihat tugas",
+  timelineHideTasks: "Tutup tugas",
   timelineLead: "Lead",
-  timelineEmpty: "Tidak ada project di rentang ini.",
-  timelineStatusActive: "Aktif",
-  timelineStatusCompleted: "Selesai",
-  timelineStatusArchived: "Diarsipkan",
+  timelineNoTeam: "Belum ada anggota tim",
+  timelineEmpty: "Belum ada project yang berjalan.",
+  timelineNoDates: "Belum ada tanggal",
+  timelineOutOfRange: "Di luar rentang ini",
+  timelineNoDue: "Tanpa tenggat",
+  timelineDue: "Tenggat {date}",
   durationDaysOne: "{count} hari",
   durationDaysOther: "{count} hari",
 
   // Empty state
   emptyTitle: "Belum ada jadwal",
-  emptyDescription: "Buat jadwal pertama Anda.",
+  emptyDescription: "Jadwal yang kamu buat muncul di kalender.",
   emptyAction: "Buat jadwal pertama",
-  emptyFilteredTitle: "Tidak ada jadwal yang cocok dengan filter",
-  emptyFilteredDescription: "Coba ubah filter Anda.",
+  emptyFilteredTitle: "Tidak ada jadwal yang cocok",
+  emptyFilteredDescription: "Coba ubah filternya.",
 
   // Event dialog
   dialogTitleNew: "Tambah jadwal baru",
@@ -86,8 +103,7 @@ const id = {
   holidayBadge: "Libur",
   holidayAllDay: "Sepanjang hari",
   holidayAbout: "Tentang hari libur ini",
-  holidayInfo:
-    "Ini adalah hari libur nasional dari kalender Indonesia. Data ini tidak dapat diubah atau dihapus.",
+  holidayInfo: "Libur nasional dari kalender Indonesia, tidak bisa diubah.",
   leaveDialogTitle: "Detail cuti",
   leaveApproved: "Disetujui",
   leaveEmployee: "Karyawan",
@@ -98,12 +114,12 @@ const id = {
   meetingTypeFallback: "Rapat",
   performanceBadgeReview: "Ulasan performa",
   performanceInfo:
-    "Ini adalah meeting 301 yang dijadwalkan dari sistem ulasan performa. Data ini tidak dapat diubah dari kalender.",
+    "Dijadwalkan dari ulasan performa, tidak bisa diubah di sini.",
 
   // Meeting / guests / RSVP / copy
   meetingJoin: "Gabung via Google Meet",
   meetingCopyLink: "Salin tautan meeting",
-  meetingLinkCopied: "Tautan berhasil disalin!",
+  meetingLinkCopied: "Tautan disalin",
   meetingDurationNote: "Durasi panggilan grup dibatasi 1 jam",
   guestsCountOne: "{count} tamu",
   guestsCountOther: "{count} tamu",
@@ -119,7 +135,7 @@ const id = {
   rsvpStatusMaybe: "Mungkin",
   rsvpStatusPending: "Menunggu",
   copyDetails: "Salin detail",
-  copyCopied: "Tersalin!",
+  copyCopied: "Tersalin",
   copyNoLocation: "Tidak ada lokasi",
 
   // Recurrence / reminders
@@ -141,7 +157,6 @@ const id = {
   fallbackEmployee: "Karyawan",
   fallbackOrganizer: "Penyelenggara",
   fallbackLeaveType: "Cuti",
-  leaveReason: "Alasan: {reason}",
   slotTitle: "Ulasan 1:1 ({cycle})",
   slotTitleCancelled: "{title} (Dibatalkan)",
   slotStatusBooked: "Terjadwal",
@@ -175,7 +190,7 @@ const id = {
   googleDisconnectFailed: "Gagal memutus Google Calendar",
   googleErrorNoCode: "Kode otorisasi kosong",
   googleErrorInvalidState: "Sesi otorisasi tidak valid",
-  googleErrorUnauthorized: "Silakan login dulu",
+  googleErrorUnauthorized: "Masuk dulu untuk melanjutkan",
   googleErrorMissingCredentials: "Konfigurasi server belum lengkap",
   googleErrorTokenExchange: "Gagal menukar token",
   googleErrorStoreFailed: "Gagal menyimpan token",
@@ -186,6 +201,8 @@ const en: Record<keyof typeof id, string> = {
   viewWeek: "Week",
   viewMonth: "Month",
   viewTimeline: "Timeline",
+  viewDay: "Day",
+  viewAgenda: "Agenda",
   toolbarPrevious: "Previous",
   toolbarNext: "Next",
   toolbarToday: "Today",
@@ -198,9 +215,6 @@ const en: Record<keyof typeof id, string> = {
 
   // Sidebar
   sidebarTitle: "Kretya calendars",
-  sidebarOpenFilter: "Open calendar filter",
-  sidebarSettings: "Options",
-  sidebarClosePanel: "Close calendar panel",
 
   // Event types (registry labels)
   eventTypeInternal: "Internal meeting",
@@ -210,6 +224,22 @@ const en: Record<keyof typeof id, string> = {
   eventType301Meeting: "301 Meeting",
   eventTypeCompanyHoliday: "Company holiday",
   eventTypePublicHoliday: "Public holiday",
+  eventTypePersonal: "Personal",
+  eventTypeSharingSantuy: "Sharing Santuy",
+  eventTypeTask: "Task deadline",
+
+  // Sharing Santuy
+  santuySpeaker: "Speaker",
+  santuySpeakerPlaceholder: "Pick the teammate sharing",
+  santuySpeakerBy: "Hosted by {name}",
+  santuyWhen: "When",
+  santuyParticipants: "Joining",
+  santuyNoParticipants: "Nobody has joined yet",
+  santuyJoin: "Join",
+  santuyLeave: "Leave",
+  santuyJoined: "You're in",
+  santuyLeft: "You left this session",
+  santuyJoinFailed: "Couldn't save, try again",
 
   // Month / week / agenda / timeline views
   monthMoreEvents: "+{count} more",
@@ -224,22 +254,24 @@ const en: Record<keyof typeof id, string> = {
   agendaEmpty: "No events today",
   timelineProjectsOne: "{count} project",
   timelineProjectsOther: "{count} projects",
-  timelineShowTeam: "Show team",
-  timelineHideTeam: "Hide team",
+  timelineShowTasks: "Show tasks",
+  timelineHideTasks: "Hide tasks",
   timelineLead: "Lead",
-  timelineEmpty: "No projects in this range.",
-  timelineStatusActive: "Active",
-  timelineStatusCompleted: "Completed",
-  timelineStatusArchived: "Archived",
+  timelineNoTeam: "No team members yet",
+  timelineEmpty: "No running projects yet.",
+  timelineNoDates: "No dates yet",
+  timelineOutOfRange: "Outside this range",
+  timelineNoDue: "No due date",
+  timelineDue: "Due {date}",
   durationDaysOne: "{count} day",
   durationDaysOther: "{count} days",
 
   // Empty state
   emptyTitle: "No events yet",
-  emptyDescription: "Create your first event.",
+  emptyDescription: "Events you create show up on the calendar.",
   emptyAction: "Create first event",
-  emptyFilteredTitle: "No events match the filter",
-  emptyFilteredDescription: "Try changing your filters.",
+  emptyFilteredTitle: "No matching events",
+  emptyFilteredDescription: "Try changing the filters.",
 
   // Event dialog
   dialogTitleNew: "New event",
@@ -268,8 +300,7 @@ const en: Record<keyof typeof id, string> = {
   holidayBadge: "Holiday",
   holidayAllDay: "All day",
   holidayAbout: "About this holiday",
-  holidayInfo:
-    "This is a public holiday from the Indonesian calendar. It can't be edited or deleted.",
+  holidayInfo: "Public holiday from the Indonesian calendar, can't be changed.",
   leaveDialogTitle: "Leave details",
   leaveApproved: "Approved",
   leaveEmployee: "Employee",
@@ -279,13 +310,12 @@ const en: Record<keyof typeof id, string> = {
   meetingDialogTitle: "Meeting details",
   meetingTypeFallback: "Meeting",
   performanceBadgeReview: "Performance review",
-  performanceInfo:
-    "This 301 meeting was scheduled from the performance review system. It can't be changed from the calendar.",
+  performanceInfo: "Scheduled from performance reviews, can't be changed here.",
 
   // Meeting / guests / RSVP / copy
   meetingJoin: "Join with Google Meet",
   meetingCopyLink: "Copy meeting link",
-  meetingLinkCopied: "Link copied!",
+  meetingLinkCopied: "Link copied",
   meetingDurationNote: "Group calls are limited to 1 hour",
   guestsCountOne: "{count} guest",
   guestsCountOther: "{count} guests",
@@ -301,7 +331,7 @@ const en: Record<keyof typeof id, string> = {
   rsvpStatusMaybe: "Maybe",
   rsvpStatusPending: "Pending",
   copyDetails: "Copy details",
-  copyCopied: "Copied!",
+  copyCopied: "Copied",
   copyNoLocation: "No location",
 
   // Recurrence / reminders
@@ -323,7 +353,6 @@ const en: Record<keyof typeof id, string> = {
   fallbackEmployee: "Employee",
   fallbackOrganizer: "Organizer",
   fallbackLeaveType: "Leave",
-  leaveReason: "Reason: {reason}",
   slotTitle: "1:1 review ({cycle})",
   slotTitleCancelled: "{title} (Cancelled)",
   slotStatusBooked: "Scheduled",
@@ -357,7 +386,7 @@ const en: Record<keyof typeof id, string> = {
   googleDisconnectFailed: "Couldn't disconnect Google Calendar",
   googleErrorNoCode: "Authorization code missing",
   googleErrorInvalidState: "Invalid authorization session",
-  googleErrorUnauthorized: "Please log in first",
+  googleErrorUnauthorized: "Log in to continue",
   googleErrorMissingCredentials: "Server configuration is incomplete",
   googleErrorTokenExchange: "Token exchange failed",
   googleErrorStoreFailed: "Couldn't save the token",

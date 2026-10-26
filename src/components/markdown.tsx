@@ -99,16 +99,44 @@ const components: Components = {
   img: () => null,
 }
 
+/** Pictures, for documents that have them (project reports). */
+const withImages: Components = {
+  ...components,
+  // Centred, at the width picked in the editor ("…#size=small|wide").
+  img: ({ node: _, src, alt }) => {
+    if (typeof src !== "string" || !/^https:\/\//.test(src)) return null
+    const size = /#size=(small|wide)$/.exec(src)?.[1]
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={src}
+        alt={alt ?? ""}
+        loading="lazy"
+        className={cn(
+          "border-border mx-auto my-4 block h-auto rounded-lg border",
+          size === "small" ? "w-2/5" : size === "wide" ? "w-full" : "w-[70%]",
+        )}
+      />
+    )
+  },
+}
+
 export function Markdown({
   children,
   className,
+  images = false,
 }: {
   children: string
   className?: string
+  /** Show images (https only); rules leave them out. */
+  images?: boolean
 }) {
   return (
     <div className={cn("text-foreground/90 text-[15px] leading-7", className)}>
-      <ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        components={images ? withImages : components}
+      >
         {children}
       </ReactMarkdown>
     </div>

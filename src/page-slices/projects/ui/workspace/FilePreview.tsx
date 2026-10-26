@@ -1,5 +1,6 @@
 "use client"
 
+import { Markdown } from "@/components/markdown"
 import { DocxThumbnail, SheetThumbnail } from "@/components/office-view"
 import { PdfThumbnail } from "@/components/pdf-view"
 import { useInView } from "@/components/thumbnail-queue"
@@ -127,6 +128,7 @@ export function FilePreview({
   file,
   badge,
   emptyLabel,
+  url: givenUrl,
   className,
 }: {
   /** `file_path` null = nothing uploaded yet (shows `emptyLabel`). */
@@ -134,6 +136,9 @@ export function FilePreview({
   /** Chip in the top-left corner, e.g. a document's status. */
   badge?: React.ReactNode
   emptyLabel?: string
+  /** A ready link to the file (e.g. the client portal's), instead of a
+   *  signed one from storage. */
+  url?: string
   className?: string
 }) {
   const t = useT("projects")
@@ -143,7 +148,10 @@ export function FilePreview({
   // Nothing loads until the tile is near the viewport.
   const box = useRef<HTMLDivElement>(null)
   const inView = useInView(box)
-  const { data: url } = useFileUrl(needsUrl && inView ? file.file_path : null)
+  const { data: signedUrl } = useFileUrl(
+    needsUrl && inView && !givenUrl ? file.file_path : null,
+  )
+  const url = givenUrl ? (needsUrl && inView ? givenUrl : undefined) : signedUrl
   const textual = kind === "text" || kind === "csv"
   const { data: snippet } = useTextSnippet(url, textual)
   const [duration, setDuration] = useState<number | null>(null)
@@ -198,7 +206,17 @@ export function FilePreview({
         </Paper>
       )}
 
-      {kind === "text" && (
+      {kind === "text" && /\.(md|markdown)$/i.test(file.name) && (
+        // A note: its Markdown laid out like the document, drawn at full
+        // size and scaled down onto the page (dark ink on the white paper).
+        <Paper className="relative">
+          <div className="pointer-events-none absolute top-0 left-0 w-[250%] origin-top-left scale-40 p-8 [&_*]:!text-neutral-800 [&_a]:!text-blue-600">
+            <Markdown>{snippet ?? ""}</Markdown>
+          </div>
+        </Paper>
+      )}
+
+      {kind === "text" && !/\.(md|markdown)$/i.test(file.name) && (
         <Paper className="p-3">
           <p className="line-clamp-[12] font-mono text-[7px] leading-[1.5] whitespace-pre-wrap text-neutral-700">
             {snippet ?? ""}

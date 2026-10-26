@@ -25,9 +25,19 @@ const EVENT_ITEM_COLORS: Record<
     text: "text-primary",
     accent: "bg-[var(--primary)]",
   },
+  pink: {
+    background: "bg-pink-9/10",
+    text: "text-pink-11",
+    accent: "bg-pink-9",
+  },
+  teal: {
+    background: "bg-teal-9/10",
+    text: "text-teal-11",
+    accent: "bg-teal-9",
+  },
   emerald: {
     background: "bg-success/10",
-    text: "text-success",
+    text: "text-success-ink",
     accent: "bg-[var(--border-success)]",
   },
   rose: {
@@ -156,7 +166,7 @@ export const EventItem = memo(function EventItem({
       </div>
 
       {timeLabel && (
-        <div className="flex items-center justify-center rounded-sm bg-[rgba(255,255,255,0.6)] px-1 py-0.5">
+        <div className="bg-background/60 flex items-center justify-center rounded-sm px-1 py-0.5">
           <span className="text-muted-foreground text-xs font-medium">
             {timeLabel}
           </span>

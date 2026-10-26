@@ -8,11 +8,18 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
 import type { MessageKey } from "@/shared/i18n/messages"
-import { canManageByRole } from "@/shared/lib/roles"
+import { accessLevel, type AccessLevel } from "@/shared/config/access"
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"]
 
 const columnHelper = createColumnHelper<Profile>()
+
+/** Same levels (and labels) as the super admin's member table. */
+const ACCESS_LABEL_KEYS = {
+  employee: "accessEmployee",
+  pm: "accessPm",
+  stakeholder: "accessStakeholder",
+} as const satisfies Record<AccessLevel, MessageKey<"teams">>
 
 type TeamColumnsOptions = {
   canSelect?: boolean
@@ -131,9 +138,7 @@ export const createTeamColumns = ({
       },
       cell: ({ row }) => (
         <span className="text-muted-foreground whitespace-nowrap">
-          {canManageByRole(row.getValue("role") as string)
-            ? t("accessStakeholder")
-            : t("accessEmployee")}
+          {t(ACCESS_LABEL_KEYS[accessLevel(row.original)])}
         </span>
       ),
     }),

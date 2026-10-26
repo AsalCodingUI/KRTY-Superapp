@@ -14,7 +14,7 @@ const id = {
   navCollapse: "Tutup {name}",
 
   // ⌘K search
-  searchDescription: "Cari halaman, project, tugas, file, atau orang.",
+  searchDescription: "Cari halaman, project, tugas, file, aturan, atau orang.",
   searchPlaceholder: "Cari halaman, project, tugas, file…",
   searchClear: "Hapus pencarian",
   searchScopeAll: "Semua",
@@ -29,8 +29,7 @@ const id = {
   searchOpenPage: "Buka halaman",
   searchMinChars: "Ketik minimal 2 huruf",
   searchNoResults: "Tidak ada hasil untuk “{query}”",
-  searchTryOther: "Coba kata lain, atau cek ejaannya.",
-  searchTryAll: "Coba kata lain, atau cari di Semua.",
+  searchTryAll: "Coba cari di Semua.",
   searchKeySelect: "Pilih",
   searchKeyOpen: "Buka",
   searchKeyFilter: "Filter",
@@ -45,18 +44,34 @@ const id = {
   notifications: "Notifikasi",
   notificationCenter: "Pusat notifikasi",
   notificationsReadAll: "Baca semua",
-  notificationsMarkAllRead: "Tandai semua dibaca",
   notificationsUnread: "Belum dibaca",
   notificationsUnreadCount: "Belum dibaca ({count})",
   notificationsUnreadSr: "(belum dibaca)",
   notificationsAllRead: "Semua sudah dibaca",
+  notificationsLoadFailed: "Notifikasi gagal dimuat",
   notificationsEmpty: "Belum ada notifikasi",
-  notificationsNothingNew: "Belum ada yang baru di sini.",
-  notificationsNothingNewTab: "Belum ada yang baru di tab ini.",
   notificationsDelete: "Hapus notifikasi",
 
   // Announcement banner (published rules)
   announcementRead: "Baca",
+  announcementUrgent: "Penting",
+  announcementNew: "Pengumuman",
+  announcementCompose: "Kirim pengumuman",
+  announcementTitle: "Judul",
+  announcementMessage: "Pesan",
+  announcementLink: "Link (opsional)",
+  announcementLinkHint: "Halaman di app (/leave) atau link web.",
+  announcementAudience: "Penerima",
+  announcementAll: "Semua",
+  announcementEmployees: "Karyawan",
+  announcementPeople: "Pilih orang",
+  announcementPickPeople: "Pilih minimal satu orang.",
+  announcementUrgentLabel: "Penting",
+  announcementUrgentHint: "Tampil sebagai banner sampai dibaca.",
+  announcementSend: "Kirim",
+  announcementSent: "Terkirim ke {n} orang",
+  announcementFailed: "Gagal mengirim pengumuman.",
+  announcementBadLink: "Link harus diawali / atau https://.",
 
   // View as (impersonation)
   impersonationViewingAs: "Kamu melihat sebagai",
@@ -68,20 +83,19 @@ const id = {
   // Error & 404 pages
   notFoundTitle: "Halaman tidak ditemukan",
   notFoundDescription:
-    "Mungkin link-nya salah, halamannya sudah dipindah, atau kamu tidak punya akses ke sini.",
+    "Link-nya salah, halamannya dipindah, atau kamu tidak punya akses.",
   errorTitle: "Ada yang tidak beres",
   errorDescription:
-    "Halaman ini gagal dimuat. Coba lagi sebentar; kalau masih terjadi, kirim kode di bawah ke admin.",
+    "Coba lagi. Kalau masih gagal, kirim kode di bawah ke admin.",
   errorCode: "Kode: {code}",
   globalErrorTitle: "Aplikasi gagal dimuat",
   globalErrorDescription:
-    "Coba muat ulang. Kalau masih terjadi, kirim kode di bawah ke admin.",
-  goToDashboard: "Ke Dashboard",
+    "Muat ulang. Kalau masih gagal, kirim kode di bawah ke admin.",
+  goToDashboard: "Ke Beranda",
   tryAgain: "Coba lagi",
 
   // Confirm dialog defaults
   confirmTitle: "Konfirmasi",
-  confirmDescription: "Yakin ingin melanjutkan?",
   confirm: "Konfirmasi",
 
   // Pagers
@@ -113,7 +127,6 @@ const id = {
   // Data table
   noData: "Belum ada data",
   dataTableLabel: "Tabel data",
-  dataTableEmptyDescription: "Data akan muncul di sini.",
   dataTableSearch: "Cari…",
   dataTableClearFilters: "Hapus filter",
   dataTableExport: "Ekspor",
@@ -138,7 +151,7 @@ const en: Record<keyof typeof id, string> = {
   navCollapse: "Collapse {name}",
 
   // ⌘K search
-  searchDescription: "Search pages, projects, tasks, files, or people.",
+  searchDescription: "Search pages, projects, tasks, files, rules, or people.",
   searchPlaceholder: "Search pages, projects, tasks, files…",
   searchClear: "Clear search",
   searchScopeAll: "All",
@@ -153,8 +166,7 @@ const en: Record<keyof typeof id, string> = {
   searchOpenPage: "Go to page",
   searchMinChars: "Type at least 2 characters",
   searchNoResults: "No results for “{query}”",
-  searchTryOther: "Try another word, or check the spelling.",
-  searchTryAll: "Try another word, or search in All.",
+  searchTryAll: "Try searching in All.",
   searchKeySelect: "Select",
   searchKeyOpen: "Open",
   searchKeyFilter: "Filter",
@@ -169,18 +181,34 @@ const en: Record<keyof typeof id, string> = {
   notifications: "Notifications",
   notificationCenter: "Notification center",
   notificationsReadAll: "Mark all read",
-  notificationsMarkAllRead: "Mark all as read",
   notificationsUnread: "Unread",
   notificationsUnreadCount: "Unread ({count})",
   notificationsUnreadSr: "(unread)",
   notificationsAllRead: "You're all caught up",
+  notificationsLoadFailed: "Couldn't load notifications",
   notificationsEmpty: "No notifications yet",
-  notificationsNothingNew: "Nothing new here yet.",
-  notificationsNothingNewTab: "Nothing new in this tab yet.",
   notificationsDelete: "Delete notification",
 
   // Announcement banner (published rules)
   announcementRead: "Read",
+  announcementUrgent: "Urgent",
+  announcementNew: "Announcement",
+  announcementCompose: "Send an announcement",
+  announcementTitle: "Title",
+  announcementMessage: "Message",
+  announcementLink: "Link (optional)",
+  announcementLinkHint: "An app page (/leave) or a web link.",
+  announcementAudience: "Recipients",
+  announcementAll: "Everyone",
+  announcementEmployees: "Employees",
+  announcementPeople: "Pick people",
+  announcementPickPeople: "Pick at least one person.",
+  announcementUrgentLabel: "Urgent",
+  announcementUrgentHint: "Shows as a banner until read.",
+  announcementSend: "Send",
+  announcementSent: "Sent to {n} people",
+  announcementFailed: "Couldn't send the announcement.",
+  announcementBadLink: "The link must start with / or https://.",
 
   // View as (impersonation)
   impersonationViewingAs: "You're viewing as",
@@ -192,20 +220,19 @@ const en: Record<keyof typeof id, string> = {
   // Error & 404 pages
   notFoundTitle: "Page not found",
   notFoundDescription:
-    "The link may be wrong, the page may have moved, or you don't have access to it.",
+    "The link is wrong, the page moved, or you don't have access.",
   errorTitle: "Something went wrong",
   errorDescription:
-    "This page failed to load. Try again in a moment; if it keeps happening, send the code below to an admin.",
+    "Try again. If it keeps failing, send the code below to an admin.",
   errorCode: "Code: {code}",
   globalErrorTitle: "The app failed to load",
   globalErrorDescription:
-    "Try reloading. If it keeps happening, send the code below to an admin.",
-  goToDashboard: "Go to Dashboard",
+    "Reload. If it keeps failing, send the code below to an admin.",
+  goToDashboard: "Go to Home",
   tryAgain: "Try again",
 
   // Confirm dialog defaults
   confirmTitle: "Confirm action",
-  confirmDescription: "Are you sure you want to proceed?",
   confirm: "Confirm",
 
   // Pagers
@@ -237,7 +264,6 @@ const en: Record<keyof typeof id, string> = {
   // Data table
   noData: "No data yet",
   dataTableLabel: "Data table",
-  dataTableEmptyDescription: "Data will appear here.",
   dataTableSearch: "Search…",
   dataTableClearFilters: "Clear filters",
   dataTableExport: "Export",

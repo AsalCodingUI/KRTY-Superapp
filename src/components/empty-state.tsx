@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils"
 
 interface EmptyStateProps {
   title: string
-  description: string
+  description?: string
   subtitle?: string
   /** Custom icon. Pass `null` to hide the icon entirely. */
   icon?: React.ReactNode
@@ -54,9 +54,11 @@ export function EmptyState({
         </div>
       )}
       <p className="text-foreground text-sm font-medium">{title}</p>
-      <p className="text-muted-foreground mt-1 max-w-xs text-sm leading-relaxed text-balance">
-        {description}
-      </p>
+      {description && (
+        <p className="text-muted-foreground mt-1 max-w-xs text-sm leading-relaxed text-balance">
+          {description}
+        </p>
+      )}
       {subtitle && (
         <p className="text-muted-foreground/80 mt-1 max-w-xs text-xs text-balance">
           {subtitle}

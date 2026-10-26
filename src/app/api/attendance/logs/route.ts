@@ -5,18 +5,28 @@ import {
   ATTENDANCE_NOTE_TAGS,
   mergeAttendanceNote,
 } from "@/shared/lib/attendance"
+import { resolveEffectiveUserId } from "@/shared/lib/impersonation-server"
 import { resolveProfileByUserIdOrEmail } from "@/shared/lib/profile-resolution"
-import { differenceInMinutes, format } from "date-fns"
+import { differenceInMinutes } from "date-fns"
 import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
 
-function getLocalDateString() {
-  return format(new Date(), "yyyy-MM-dd")
+const TZ = "Asia/Jakarta"
+
+/** yyyy-MM-dd in WIB, whatever timezone the server runs in. */
+function jakartaDate(at: Date = new Date()) {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: TZ }).format(at)
+}
+
+/** A WIB wall-clock time on a WIB date, as a Date (WIB has no DST). */
+function jakartaAt(date: string, time: string) {
+  return new Date(`${date}T${time}:00+07:00`)
 }
 
 const postSchema = z.object({
   action: z.literal("clock_in"),
-  status: z.string().trim().min(1),
+  // Same values as CLOCK_STATUSES in features/attendance-clock.
+  status: z.enum(["Present", "Lembur", "Cuti Masuk"]),
 })
 
 const patchSchema = z.discriminatedUnion("action", [
@@ -49,16 +59,28 @@ async function getCanonicalProfile() {
     return { user: null, profile: null }
   }
 
+  // "View as" acts as that person, like the pages and the review API.
+  const effectiveUserId = await resolveEffectiveUserId(
+    supabase,
+    user.id,
+    user.email,
+  )
   const profile = await resolveProfileByUserIdOrEmail<{
     id: string
     email: string | null
-  }>(supabase, "id, email, created_at", user.id, user.email)
+  }>(
+    supabase,
+    "id, email, created_at",
+    effectiveUserId,
+    effectiveUserId === user.id ? user.email : null,
+  )
 
   return { user, profile }
 }
 
 /** Thrown below; mapped to a translated message in the handlers. */
 const LOG_NOT_FOUND = "Attendance log not found"
+const LOG_CLOSED = "Attendance log already closed"
 
 async function getOwnedLogOrThrow(
   adminSupabase: ReturnType<typeof createAdminClient>,
@@ -67,7 +89,9 @@ async function getOwnedLogOrThrow(
 ) {
   const { data: log, error } = await adminSupabase
     .from("attendance_logs")
-    .select("id, user_id, break_start, break_total, notes")
+    .select(
+      "id, user_id, clock_in, clock_out, status, is_break, break_start, break_total, notes",
+    )
     .eq("id", logId)
     .maybeSingle()
 
@@ -77,6 +101,22 @@ async function getOwnedLogOrThrow(
   }
 
   return log
+}
+
+/** Break minutes including one still running at `at` (closing a session). */
+function closedBreakTotal(
+  log: {
+    is_break: boolean | null
+    break_start: string | null
+    break_total: number | null
+  },
+  at: Date,
+) {
+  const running =
+    log.is_break && log.break_start
+      ? Math.max(0, differenceInMinutes(at, new Date(log.break_start)))
+      : 0
+  return (log.break_total || 0) + running
 }
 
 export async function POST(request: NextRequest) {
@@ -97,12 +137,28 @@ export async function POST(request: NextRequest) {
     }
 
     const adminSupabase = createAdminClient()
+    const tLeave = await getT("leave")
+    // One open session at a time (a unique index backs this up for races).
+    const { data: open, error: openError } = await adminSupabase
+      .from("attendance_logs")
+      .select("id")
+      .eq("user_id", profile.id)
+      .is("clock_out", null)
+      .limit(1)
+    if (openError) throw openError
+    if (open && open.length > 0) {
+      return NextResponse.json(
+        { error: tLeave("errAlreadyClockedIn") },
+        { status: 409 },
+      )
+    }
+
     const now = new Date()
     const { data, error } = await adminSupabase
       .from("attendance_logs")
       .insert({
         user_id: profile.id,
-        date: getLocalDateString(),
+        date: jakartaDate(now),
         clock_in: now.toISOString(),
         status: parsed.data.status,
         clock_out: null,
@@ -112,6 +168,12 @@ export async function POST(request: NextRequest) {
       .select()
       .single()
 
+    if (error?.code === "23505") {
+      return NextResponse.json(
+        { error: tLeave("errAlreadyClockedIn") },
+        { status: 409 },
+      )
+    }
     if (error) throw error
 
     return NextResponse.json({ success: true, data })
@@ -147,12 +209,23 @@ export async function PATCH(request: NextRequest) {
     const adminSupabase = createAdminClient()
 
     if (parsed.data.action === "clock_out") {
-      await getOwnedLogOrThrow(adminSupabase, parsed.data.logId, profile.id)
+      const log = await getOwnedLogOrThrow(
+        adminSupabase,
+        parsed.data.logId,
+        profile.id,
+      )
+      if (log.clock_out) throw new Error(LOG_CLOSED)
 
-      const now = new Date().toISOString()
+      // A break still running ends with the session.
+      const now = new Date()
       const { data, error } = await adminSupabase
         .from("attendance_logs")
-        .update({ clock_out: now, is_break: false })
+        .update({
+          clock_out: now.toISOString(),
+          is_break: false,
+          break_start: null,
+          break_total: closedBreakTotal(log, now),
+        })
         .eq("id", parsed.data.logId)
         .select()
         .single()
@@ -167,6 +240,12 @@ export async function PATCH(request: NextRequest) {
         parsed.data.logId,
         profile.id,
       )
+      if (currentLog.clock_out) throw new Error(LOG_CLOSED)
+      // `isBreak` is the state the client saw. If the row is already the
+      // other way (double click, a second tab) there is nothing to toggle.
+      if (Boolean(currentLog.is_break) !== parsed.data.isBreak) {
+        return NextResponse.json({ success: true, data: currentLog })
+      }
 
       if (parsed.data.isBreak) {
         const breakStart = currentLog.break_start
@@ -233,14 +312,36 @@ export async function PATCH(request: NextRequest) {
       parsed.data.logId,
       profile.id,
     )
+    if (currentLog.clock_out) throw new Error(LOG_CLOSED)
 
-    const now = new Date().toISOString()
+    // A forgotten session closes at the person's cut-off on its own day
+    // (same rule as run_auto_clock_out), not "now": that counted the
+    // night(s) in between as work (sessions of 40+ hours).
+    const { data: pref } = await adminSupabase
+      .from("attendance_preferences" as never)
+      .select("auto_clock_out_time")
+      .eq("user_id", profile.id)
+      .maybeSingle()
+    const cutoff = (
+      (pref as { auto_clock_out_time?: string | null } | null)
+        ?.auto_clock_out_time ?? "17:00"
+    ).slice(0, 5)
+    const clockIn = new Date(currentLog.clock_in)
+    const day = jakartaDate(clockIn)
+    let closeAt = jakartaAt(day, cutoff)
+    if (currentLog.status === "Lembur" || closeAt <= clockIn) {
+      closeAt = jakartaAt(day, "23:59")
+    }
+    const now = new Date()
+    if (closeAt > now) closeAt = now
+
     const { data, error } = await adminSupabase
       .from("attendance_logs")
       .update({
-        clock_out: now,
+        clock_out: closeAt.toISOString(),
         is_break: false,
         break_start: null,
+        break_total: closedBreakTotal(currentLog, closeAt),
         notes: mergeAttendanceNote(
           currentLog.notes,
           ATTENDANCE_NOTE_TAGS.staleSessionResolved,
@@ -254,6 +355,13 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ success: true, data })
   } catch (error) {
     console.error("Attendance PATCH error", error)
+    if (error instanceof Error && error.message === LOG_CLOSED) {
+      const tLeave = await getT("leave")
+      return NextResponse.json(
+        { error: tLeave("errAlreadyClockedOut") },
+        { status: 409 },
+      )
+    }
     return NextResponse.json(
       {
         error:
@@ -263,7 +371,10 @@ export async function PATCH(request: NextRequest) {
               : error.message
             : t("attendanceUpdateFailed"),
       },
-      { status: 500 },
+      {
+        status:
+          error instanceof Error && error.message === LOG_NOT_FOUND ? 404 : 500,
+      },
     )
   }
 }

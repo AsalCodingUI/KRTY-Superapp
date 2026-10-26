@@ -2,7 +2,9 @@
 
 import { cn } from "@/lib/utils"
 import { useEffect, useRef, useState } from "react"
+import { usePinchZoom } from "@/shared/hooks/usePinchZoom"
 import { runThumbnail, thumbnailCache } from "./thumbnail-queue"
+import { ZoomPill } from "./zoomable"
 
 /**
  * Word and Excel files drawn in the browser (docx-preview, SheetJS): the
@@ -130,15 +132,26 @@ export function DocxPages({
     }
   }, [bytes, onError])
   // Pages keep their real size; narrow screens zoom them down to fit.
-  const zoom = pageWidth && width ? Math.min(1, (width - 48) / pageWidth) : 1
+  const fit = pageWidth && width ? Math.min(1, (width - 48) / pageWidth) : 1
+  // Trackpad pinch on top of that; two fingers pan (plain scrolling).
+  const [pinch, setPinch] = useState(1)
+  const zoomTo = usePinchZoom(frame, {
+    zoom: pinch,
+    setZoom: setPinch,
+    min: 0.5,
+    max: 4,
+  })
 
   return (
-    <div ref={frame} className={cn("size-full overflow-auto", className)}>
-      <div
-        ref={host}
-        className="docx-view py-6"
-        style={{ zoom, opacity: pageWidth ? 1 : 0 }}
-      />
+    <div className={cn("relative size-full", className)}>
+      <div ref={frame} className="size-full overflow-auto">
+        <div
+          ref={host}
+          className="docx-view w-max min-w-full py-6"
+          style={{ zoom: fit * pinch, opacity: pageWidth ? 1 : 0 }}
+        />
+      </div>
+      <ZoomPill zoom={pinch} zoomTo={zoomTo} />
     </div>
   )
 }
@@ -270,6 +283,9 @@ export function SheetView({
 }) {
   const { sheets, failed } = useSheets(url, 1000, 60)
   const [active, setActive] = useState(0)
+  const cells = useRef<HTMLDivElement>(null)
+  const [zoom, setZoom] = useState(1)
+  const zoomTo = usePinchZoom(cells, { zoom, setZoom, min: 0.5, max: 4 })
   useEffect(() => {
     if (failed) onError?.()
   }, [failed, onError])
@@ -279,9 +295,12 @@ export function SheetView({
 
   return (
     <div className={cn("flex size-full flex-col p-6", className)}>
-      <div className="bg-background flex min-h-0 flex-1 flex-col overflow-hidden rounded-[4px] shadow-(--elev-3)">
-        <div className="min-h-0 flex-1 overflow-auto">
-          <table className="border-separate border-spacing-0 text-xs tabular-nums">
+      <div className="bg-background relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-[4px] shadow-(--elev-3)">
+        <div ref={cells} className="min-h-0 flex-1 overflow-auto">
+          <table
+            className="border-separate border-spacing-0 text-xs tabular-nums"
+            style={{ zoom }}
+          >
             <thead className="bg-muted-solid text-muted-foreground sticky top-0 z-10">
               <tr>
                 <th className="bg-muted-solid sticky left-0 z-10 w-10 border-r border-b" />
@@ -315,6 +334,11 @@ export function SheetView({
             </tbody>
           </table>
         </div>
+        <ZoomPill
+          zoom={zoom}
+          zoomTo={zoomTo}
+          className={sheets.length > 1 ? "bottom-12" : undefined}
+        />
         {sheets.length > 1 && (
           <div className="bg-muted/50 flex shrink-0 gap-1 overflow-x-auto border-t p-1">
             {sheets.map((s, i) => (

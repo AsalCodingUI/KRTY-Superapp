@@ -58,7 +58,7 @@ export function ScoreBar({
           "bar-grow h-full rounded-full",
           value !== null && target !== undefined && value < target
             ? "bg-warning"
-            : "bg-primary",
+            : "bg-blue-9",
         )}
         style={{ "--bar": `${width}%` } as React.CSSProperties}
       />

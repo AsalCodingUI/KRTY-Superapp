@@ -36,8 +36,37 @@ export const metadata: Metadata = {
   description: siteConfig.description,
   authors: [{ name: "Kretya Studio" }],
   creator: "Kretya Studio",
+  // App icon (Icons/ in the repo root): the tab gets the transparent mark
+  // for the browser's theme (src/app/favicon.ico, the light one, for old
+  // browsers); the dock / home screen gets the dark tile.
   icons: {
-    icon: "/favicon.ico",
+    icon: [
+      {
+        url: "/icons/mark-light-32.png",
+        type: "image/png",
+        sizes: "32x32",
+        media: "(prefers-color-scheme: light)",
+      },
+      {
+        url: "/icons/mark-dark-32.png",
+        type: "image/png",
+        sizes: "32x32",
+        media: "(prefers-color-scheme: dark)",
+      },
+      {
+        url: "/icons/mark-light-192.png",
+        type: "image/png",
+        sizes: "192x192",
+        media: "(prefers-color-scheme: light)",
+      },
+      {
+        url: "/icons/mark-dark-192.png",
+        type: "image/png",
+        sizes: "192x192",
+        media: "(prefers-color-scheme: dark)",
+      },
+    ],
+    apple: [{ url: "/icons/icon-dark-180.png", sizes: "180x180" }],
   },
   robots: {
     index: false,

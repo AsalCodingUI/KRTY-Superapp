@@ -1,9 +1,19 @@
 "use server"
 
+import { createAdminClient } from "@/shared/api/supabase/admin"
 import { createClient } from "@/shared/api/supabase/server"
 import { getT } from "@/shared/i18n/server"
 import { resolveEffectiveUserId } from "@/shared/lib/impersonation-server"
 import { canManageByRole } from "@/shared/lib/roles"
+import {
+  cycleEnd,
+  cycleStart,
+  cycleStatus,
+  latestCloseDay,
+  quarterBounds,
+  REOPEN_GRACE_DAYS,
+  type CycleStatus,
+} from "@/entities/performance/lib/review-cycle"
 import { revalidatePath } from "next/cache"
 
 /**
@@ -19,7 +29,9 @@ export type ReviewCycle = {
   start_date: string
   end_date: string
   is_active: boolean
-  /** Active and today is inside the dates. */
+  /** From the admin's dates: scheduled / running / ended / closed. */
+  status: CycleStatus
+  /** Running: reviews can be given now. */
   isOpen: boolean
 }
 
@@ -36,6 +48,122 @@ export type ReviewSummary = {
   feedback_start: string | null
   feedback_stop: string | null
   total_user: number | null
+  /** Quarter of the cycle this result belongs to. */
+  quarter?: string
+  /** Team averages of the same cycle (only when ≥ 3 people have a result). */
+  benchmark?: ReviewScores | null
+  /** The same person's result in their previous cycle. */
+  previous?: (ReviewScores & { quarter: string }) | null
+  /** Overall result per cycle up to this one, with the team's average. */
+  history?: { quarter: string; overall: number | null; team: number | null }[]
+}
+
+export type ReviewScores = {
+  overall_percentage: number | null
+  score_quality: number | null
+  score_reliability: number | null
+  score_communication: number | null
+  score_initiative: number | null
+  score_leadership: number | null
+}
+
+const SCORE_KEYS = [
+  "overall_percentage",
+  "score_quality",
+  "score_reliability",
+  "score_communication",
+  "score_initiative",
+  "score_leadership",
+] as const
+
+function toScores(row: Record<string, unknown> | null): ReviewScores | null {
+  if (!row) return null
+  const out = {} as ReviewScores
+  for (const k of SCORE_KEYS)
+    out[k] = row[k] === null || row[k] === undefined ? null : Number(row[k])
+  return out
+}
+
+/**
+ * Adds the team average of the cycle and the person's previous result, so a
+ * score reads against something instead of on its own.
+ */
+async function withContext(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  summary: ReviewSummary | null,
+  revieweeId: string,
+  cycle: ReviewCycle,
+): Promise<ReviewSummary | null> {
+  if (!summary) return null
+  const [{ data: avg }, { data: earlier }] = await Promise.all([
+    supabase.rpc("review_cycle_averages", { p_cycle_id: cycle.id }),
+    supabase
+      .from("performance_summaries")
+      .select(
+        "overall_percentage, score_quality, score_reliability, score_communication, score_initiative, score_leadership, review_cycles!inner(id, quarter)",
+      )
+      .eq("reviewee_id", revieweeId)
+      .lt("review_cycles.quarter", cycle.quarter),
+  ])
+  type Earlier = Record<string, unknown> & {
+    review_cycles: { id: string; quarter: string }
+  }
+  const prev = ((earlier ?? []) as unknown as Earlier[])
+    .sort((a, b) =>
+      b.review_cycles.quarter.localeCompare(a.review_cycles.quarter),
+    )
+    .at(0)
+  const bench = (avg as Record<string, unknown>[] | null)?.[0] ?? null
+  // Last few cycles for the trend, each with its own team average.
+  const recent = ((earlier ?? []) as unknown as Earlier[])
+    .sort((a, b) =>
+      a.review_cycles.quarter.localeCompare(b.review_cycles.quarter),
+    )
+    .slice(-5)
+  const teams = await Promise.all(
+    recent.map((r) =>
+      supabase
+        .rpc("review_cycle_averages", { p_cycle_id: r.review_cycles.id })
+        .then(
+          ({
+            data,
+          }: {
+            data: { overall_percentage: number | null }[] | null
+          }) =>
+            data?.[0]?.overall_percentage == null
+              ? null
+              : Number(data[0].overall_percentage),
+        ),
+    ),
+  )
+  const history = [
+    ...recent.map((r, i) => ({
+      quarter: r.review_cycles.quarter,
+      overall:
+        r.overall_percentage == null ? null : Number(r.overall_percentage),
+      team: teams[i],
+    })),
+    {
+      quarter: cycle.quarter,
+      overall:
+        summary.overall_percentage == null
+          ? null
+          : Number(summary.overall_percentage),
+      team:
+        bench?.overall_percentage == null
+          ? null
+          : Number(bench.overall_percentage),
+    },
+  ]
+  return {
+    history,
+    ...summary,
+    quarter: cycle.quarter,
+    benchmark: toScores(bench),
+    previous: prev
+      ? { ...toScores(prev)!, quarter: prev.review_cycles.quarter }
+      : null,
+  }
 }
 
 type Person = {
@@ -77,17 +205,15 @@ function toCycle(row: {
   end_date: string
   is_active: boolean | null
 }): ReviewCycle {
-  const now = Date.now()
+  const status = cycleStatus(row)
   return {
     id: row.id,
     quarter: row.quarter ?? row.name,
     start_date: row.start_date,
     end_date: row.end_date,
     is_active: row.is_active === true,
-    isOpen:
-      row.is_active === true &&
-      new Date(row.start_date).getTime() <= now &&
-      new Date(row.end_date).getTime() >= now,
+    status,
+    isOpen: status === "running",
   }
 }
 
@@ -106,7 +232,13 @@ async function cycleFor(
 export type MyReviewData = {
   cycle: ReviewCycle | null
   /** Teammates to review this cycle (only while it's open). */
-  targets: (Person & { done: boolean })[]
+  /** `editable`: sent, not changed yet and not processed (one edit).
+   *  `processed`: their result is out, so no more reviews for them. */
+  targets: (Person & {
+    done: boolean
+    editable: boolean
+    processed: boolean
+  })[]
   summary: ReviewSummary | null
 }
 
@@ -128,7 +260,16 @@ export async function getMyReview(quarter: string): Promise<MyReviewData> {
     cycle.isOpen ? reviewTargets(supabase, me.id, cycle) : Promise.resolve([]),
   ])
 
-  return { cycle, targets, summary: (summary as ReviewSummary) ?? null }
+  return {
+    cycle,
+    targets,
+    summary: await withContext(
+      supabase,
+      (summary as ReviewSummary) ?? null,
+      me.id,
+      cycle,
+    ),
+  }
 }
 
 async function reviewTargets(
@@ -140,7 +281,7 @@ async function reviewTargets(
     supabase.rpc("review_pairs", { p_quarter: cycle.quarter }),
     supabase
       .from("performance_reviews")
-      .select("reviewee_id")
+      .select("reviewee_id, edited_at")
       .eq("cycle_id", cycle.id)
       .eq("reviewer_id", reviewerId),
   ])
@@ -152,22 +293,59 @@ async function reviewTargets(
     ),
   ]
   if (ids.length === 0) return []
-  const doneIds = new Set(
-    (done ?? []).map((r: { reviewee_id: string }) => r.reviewee_id),
+  const sent = new Map(
+    ((done ?? []) as { reviewee_id: string; edited_at: string | null }[]).map(
+      (r) => [r.reviewee_id, r.edited_at],
+    ),
   )
-  const { data: people } = await supabase
-    .from("profiles")
-    .select("id, full_name, avatar_url, job_title")
-    .in("id", ids)
-    .order("full_name")
+  const [{ data: people }, { data: processed }] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("id, full_name, avatar_url, job_title")
+      .in("id", ids)
+      .order("full_name"),
+    // Results are stakeholder-only (RLS); only whether one exists matters.
+    createAdminClient()
+      .from("performance_summaries")
+      .select("reviewee_id")
+      .eq("cycle_id", cycle.id)
+      .in("reviewee_id", ids),
+  ])
+  const processedIds = new Set(
+    (processed ?? []).map((r: { reviewee_id: string }) => r.reviewee_id),
+  )
   return ((people ?? []) as Person[]).map((p) => ({
     ...p,
-    done: doneIds.has(p.id),
+    done: sent.has(p.id),
+    editable:
+      sent.has(p.id) && sent.get(p.id) === null && !processedIds.has(p.id),
+    processed: processedIds.has(p.id),
   }))
 }
 
+type Pair = { reviewer_id: string; reviewee_id: string }
+
+/** Employees who joined after the cycle's closing date. */
+function lateJoiners(
+  people: { id: string; created_at?: string | null }[] | null,
+  cycle: ReviewCycle | null,
+) {
+  if (!cycle) return new Set<string>()
+  const end = new Date(cycle.end_date).getTime()
+  return new Set(
+    (people ?? [])
+      .filter((p) => p.created_at && new Date(p.created_at).getTime() > end)
+      .map((p) => p.id),
+  )
+}
+
 export type MonitoringRow = Person & {
-  reviewers: { id: string; full_name: string | null; done: boolean }[]
+  reviewers: {
+    id: string
+    full_name: string | null
+    avatar_url: string | null
+    done: boolean
+  }[]
   summary: { overall_percentage: number | null } | null
 }
 
@@ -188,7 +366,7 @@ export async function getReviewMonitoring(
   const cycle = await cycleFor(supabase, quarter)
 
   const [
-    { data: pairs },
+    { data: allPairs },
     { data: reviews },
     { data: summaries },
     { data: employees },
@@ -208,10 +386,16 @@ export async function getReviewMonitoring(
       : Promise.resolve({ data: [] }),
     supabase
       .from("profiles")
-      .select("id, full_name, avatar_url, job_title")
+      .select("id, full_name, avatar_url, job_title, created_at")
       .eq("role", "employee")
       .order("full_name"),
   ])
+
+  // People who joined after the cycle closed weren't part of it.
+  const late = lateJoiners(employees, cycle)
+  const pairs = ((allPairs ?? []) as Pair[]).filter(
+    (p) => !late.has(p.reviewer_id) && !late.has(p.reviewee_id),
+  )
 
   const done = new Set(
     ((reviews ?? []) as { reviewer_id: string; reviewee_id: string }[]).map(
@@ -271,9 +455,15 @@ export async function getReviewMonitoring(
 
   return {
     cycle,
-    unpaired: ((employees ?? []) as Person[]).filter(
-      (e) => !paired.has(e.id) && !reviewersOf.has(e.id),
-    ),
+    unpaired: ((employees ?? []) as Person[])
+      .filter((e) => !paired.has(e.id) && !reviewersOf.has(e.id))
+      .filter((e) => !late.has(e.id))
+      .map(({ id, full_name, avatar_url, job_title }) => ({
+        id,
+        full_name,
+        avatar_url,
+        job_title,
+      })),
     rows: [...reviewersOf.entries()]
       .filter(([id]) => byId.has(id))
       .map(([id, reviewers]) => ({
@@ -281,6 +471,7 @@ export async function getReviewMonitoring(
         reviewers: reviewers.map((r) => ({
           id: r,
           full_name: byId.get(r)?.full_name ?? null,
+          avatar_url: byId.get(r)?.avatar_url ?? null,
           done: done.has(`${r}:${id}`),
         })),
         summary: summaryOf.has(id)
@@ -306,30 +497,143 @@ export async function getReviewSummary(
     .eq("reviewee_id", revieweeId)
     .eq("cycle_id", cycle.id)
     .maybeSingle()
-  return (data as ReviewSummary) ?? null
+  return withContext(
+    me.supabase,
+    (data as ReviewSummary) ?? null,
+    revieweeId,
+    cycle,
+  )
+}
+
+export type ReviewStatusFor = {
+  cycle: ReviewCycle | null
+  /** Teammates who have reviewed this person / all who should. */
+  reviewersDone: number
+  reviewersTotal: number
+  summary: ReviewSummary | null
+}
+
+/**
+ * One person's 360 for a quarter, as a stakeholder sees it on their KPI
+ * page: the cycle, how many of their reviewers are done, and the result.
+ * Stakeholders only (who reviewed whom stays with the monitoring page).
+ */
+export async function getReviewStatusFor(
+  userId: string,
+  quarter: string,
+): Promise<ReviewStatusFor> {
+  const empty = {
+    cycle: null,
+    reviewersDone: 0,
+    reviewersTotal: 0,
+    summary: null,
+  }
+  const me = await viewer()
+  if (!me?.isStakeholder) return empty
+  const { supabase } = me
+  const cycle = await cycleFor(supabase, quarter)
+  if (!cycle) return empty
+
+  const [
+    { data: pairs },
+    { data: reviews },
+    { data: summary },
+    { data: late },
+  ] = await Promise.all([
+    supabase.rpc("review_pairs", { p_quarter: quarter }),
+    supabase
+      .from("performance_reviews")
+      .select("reviewer_id")
+      .eq("cycle_id", cycle.id)
+      .eq("reviewee_id", userId),
+    supabase
+      .from("performance_summaries")
+      .select(SUMMARY_COLUMNS)
+      .eq("reviewee_id", userId)
+      .eq("cycle_id", cycle.id)
+      .maybeSingle(),
+    supabase
+      .from("profiles")
+      .select("id, created_at")
+      .eq("role", "employee")
+      .gt("created_at", cycle.end_date),
+  ])
+  const lateIds = lateJoiners(late, cycle)
+  if (lateIds.has(userId)) return { ...empty, cycle }
+  // Reviewers due by the pairs, plus anyone who already reviewed (older
+  // cycles were "everyone reviews everyone").
+  const reviewers = new Set(
+    ((pairs ?? []) as { reviewer_id: string; reviewee_id: string }[])
+      .filter((p) => p.reviewee_id === userId && !lateIds.has(p.reviewer_id))
+      .map((p) => p.reviewer_id),
+  )
+  const done = new Set(
+    ((reviews ?? []) as { reviewer_id: string }[]).map((r) => r.reviewer_id),
+  )
+  done.forEach((id) => reviewers.add(id))
+
+  return {
+    cycle,
+    reviewersDone: done.size,
+    reviewersTotal: reviewers.size,
+    summary: await withContext(
+      supabase,
+      (summary as ReviewSummary) ?? null,
+      userId,
+      cycle,
+    ),
+  }
 }
 
 type ActionResult = { success: boolean; error?: string }
 
-/** First and last day ("yyyy-MM-dd") of a calendar quarter like "2026-Q4". */
-function quarterBounds(quarter: string) {
-  const [year, q] = quarter.split("-Q").map(Number)
-  const pad = (n: number) => String(n).padStart(2, "0")
-  const lastDay = new Date(Date.UTC(year, q * 3, 0)).getUTCDate()
-  return {
-    start: `${year}-${pad((q - 1) * 3 + 1)}-01`,
-    end: `${year}-${pad(q * 3)}-${pad(lastDay)}`,
-  }
-}
+/**
+ * Open (or reopen, or move) the cycle for a quarter. The admin sets both
+ * dates ("yyyy-MM-dd", inside the quarter): reviewing opens at 00:00 WIB on
+ * the first and closes at 23:59:59 WIB on the last. Windows stay inside
+ * their quarter, so cycles never overlap and other quarters are left alone
+ * (scheduling next quarter early must not close the running one). The
+ * "360 dibuka" notice follows the start date (review_cycle_schedule.sql).
+ */
+/** "2026-Q4" → "Q4 2026", as the app writes it. */
+const periodLabelOf = (quarter: string) =>
+  quarter.replace(/^(\d{4})-(Q[1-4])$/, "$2 $1")
 
 /**
- * Open (or reopen) the cycle for a quarter; closes others. Quarters follow
- * the calendar: the admin picks when reviewing starts (inside the quarter)
- * and it runs to the quarter's last day.
+ * Whether every reviewee of the cycle already has a processed result.
+ * People who joined after it closed aren't part of it (lateJoiners).
  */
+async function allProcessed(cycle: ReviewCycle) {
+  const admin = createAdminClient()
+  const [{ data: pairs }, { data: done }] = await Promise.all([
+    admin.rpc("review_pairs", { p_quarter: cycle.quarter }),
+    admin
+      .from("performance_summaries")
+      .select("reviewee_id")
+      .eq("cycle_id", cycle.id),
+  ])
+  const ids = [
+    ...new Set(
+      ((pairs ?? []) as { reviewee_id: string }[]).map((p) => p.reviewee_id),
+    ),
+  ]
+  if (ids.length === 0) return false
+  const { data: people } = await admin
+    .from("profiles")
+    .select("id, created_at")
+    .in("id", ids)
+  const late = lateJoiners(people, cycle)
+  const processed = new Set(
+    (done ?? []).map((r: { reviewee_id: string }) => r.reviewee_id),
+  )
+  const reviewees = ids.filter((id) => !late.has(id))
+  return reviewees.length > 0 && reviewees.every((id) => processed.has(id))
+}
+
 export async function saveReviewCycle(
   quarter: string,
   startDate: string,
+  endDate: string,
 ): Promise<ActionResult> {
   const [me, t] = await Promise.all([viewer(), getT("performance")])
   if (!me?.isStakeholder) return { success: false, error: t("errAdminOnly") }
@@ -337,21 +641,56 @@ export async function saveReviewCycle(
     return { success: false, error: t("errPickQuarter") }
   }
   const bounds = quarterBounds(quarter)
-  if (!startDate || startDate < bounds.start || startDate > bounds.end) {
+  const day = /^\d{4}-\d{2}-\d{2}$/
+  if (
+    !day.test(startDate) ||
+    startDate < bounds.start ||
+    startDate > bounds.end
+  ) {
     return { success: false, error: t("errStartInQuarter") }
   }
-  const endDate = bounds.end
+  // The close may run a little past the quarter (reopening for late
+  // reviewers), never before it.
+  if (
+    !day.test(endDate) ||
+    endDate < bounds.start ||
+    endDate > latestCloseDay(quarter)
+  ) {
+    return {
+      success: false,
+      error: t("errEndInQuarter", { days: REOPEN_GRACE_DAYS }),
+    }
+  }
+  if (endDate < startDate) {
+    return { success: false, error: t("errEndBeforeStart360") }
+  }
   const { supabase } = me
-  const start = `${startDate}T00:00:00+07:00`
-  const end = `${endDate}T23:59:59+07:00`
+  const start = cycleStart(startDate)
+  const end = cycleEnd(endDate)
 
-  await supabase
+  // One running window at a time: a reopened cycle can't overlap the next
+  // quarter's (the review form picks "the" open cycle).
+  const { data: others } = await supabase
     .from("review_cycles")
-    .update({ is_active: false })
+    .select("quarter")
     .eq("is_active", true)
     .neq("quarter", quarter)
+    .lte("start_date", end)
+    .gte("end_date", start)
+  if (others?.length) {
+    return {
+      success: false,
+      error: t("errCycleOverlap", {
+        period: periodLabelOf(others[0].quarter ?? ""),
+      }),
+    }
+  }
 
   const existing = await cycleFor(supabase, quarter)
+  // Reopening only helps while some results are still to be processed.
+  if (existing && (await allProcessed(existing))) {
+    return { success: false, error: t("errAllProcessed360") }
+  }
   const { error } = existing
     ? await supabase
         .from("review_cycles")
@@ -379,4 +718,58 @@ export async function closeReviewCycle(quarter: string): Promise<ActionResult> {
   if (error) return { success: false, error: t("periodCloseFailed") }
   revalidatePath("/performance", "layout")
   return { success: true }
+}
+
+export type MyReviewOf = {
+  scores: Record<
+    "quality" | "reliability" | "communication" | "initiative" | "leadership",
+    number
+  >
+  reasons: Record<
+    "quality" | "reliability" | "communication" | "initiative" | "leadership",
+    string
+  >
+  feedback: Record<
+    "feedback_start" | "feedback_continue" | "feedback_stop",
+    string
+  >
+}
+
+/** The viewer's own sent review of one teammate, to change it (once). */
+export async function getMyReviewOf(
+  cycleId: string,
+  revieweeId: string,
+): Promise<MyReviewOf | null> {
+  const me = await viewer()
+  if (!me) return null
+  const { data } = await me.supabase
+    .from("performance_reviews")
+    .select(
+      "score_quality, score_reliability, score_communication, score_initiative, score_leadership, justification_quality, justification_reliability, justification_communication, justification_initiative, justification_leadership, feedback_start, feedback_continue, feedback_stop",
+    )
+    .eq("cycle_id", cycleId)
+    .eq("reviewer_id", me.id)
+    .eq("reviewee_id", revieweeId)
+    .maybeSingle()
+  if (!data) return null
+  const keys = [
+    "quality",
+    "reliability",
+    "communication",
+    "initiative",
+    "leadership",
+  ] as const
+  return {
+    scores: Object.fromEntries(
+      keys.map((k) => [k, data[`score_${k}`] ?? 0]),
+    ) as MyReviewOf["scores"],
+    reasons: Object.fromEntries(
+      keys.map((k) => [k, data[`justification_${k}`] ?? ""]),
+    ) as MyReviewOf["reasons"],
+    feedback: {
+      feedback_start: data.feedback_start ?? "",
+      feedback_continue: data.feedback_continue ?? "",
+      feedback_stop: data.feedback_stop ?? "",
+    },
+  }
 }

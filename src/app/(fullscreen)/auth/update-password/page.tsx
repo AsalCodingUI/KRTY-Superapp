@@ -1,5 +1,6 @@
 "use client"
 
+import { AppIcon } from "@/components/app-icon"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -53,13 +54,11 @@ export default function UpdatePasswordPage() {
 
   return (
     <div className="flex min-h-screen flex-1 flex-col justify-center px-4 lg:px-6">
-      <div className="w-full">
-        <h3 className="text-foreground dark:text-foreground mt-6 text-center text-lg font-semibold">
+      <div className="mx-auto w-full max-w-sm">
+        <AppIcon size={192} className="mx-auto size-12 rounded-xl" />
+        <h1 className="text-foreground mt-6 text-center text-lg font-semibold">
           {t("updatePasswordTitle")}
-        </h3>
-        <p className="text-tertiary-foreground mt-2 text-center text-sm">
-          {t("updatePasswordSubtitle")}
-        </p>
+        </h1>
 
         <div className="mt-6">
           <form onSubmit={handleUpdatePassword} className="space-y-4">
@@ -119,7 +118,11 @@ export default function UpdatePasswordPage() {
               />
             </div>
 
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={loading || success}
+            >
               {loading ? t("updatingPassword") : t("updatePassword")}
             </Button>
           </form>

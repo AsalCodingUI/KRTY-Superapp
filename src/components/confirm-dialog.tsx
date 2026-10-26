@@ -59,9 +59,12 @@ export function ConfirmDialog({
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{title ?? t("confirmTitle")}</AlertDialogTitle>
-          <AlertDialogDescription className="text-sm">
-            {description ?? t("confirmDescription")}
-          </AlertDialogDescription>
+          {/* Only when it adds something (a consequence); no filler default. */}
+          {description && (
+            <AlertDialogDescription className="text-sm">
+              {description}
+            </AlertDialogDescription>
+          )}
         </AlertDialogHeader>
         <AlertDialogFooter>
           {/* Plain Buttons (not AlertDialogAction/Cancel) so the dialog stays

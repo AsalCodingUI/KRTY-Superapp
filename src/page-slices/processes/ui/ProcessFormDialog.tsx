@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -117,9 +116,6 @@ function ProcessForm({
     <>
       <DialogHeader>
         <DialogTitle>{process ? t("editTitle") : t("newTitle")}</DialogTitle>
-        {!process && (
-          <DialogDescription>{t("newDescription")}</DialogDescription>
-        )}
       </DialogHeader>
       <form id="process-form" onSubmit={submit} className="flex flex-col gap-4">
         <div className="flex flex-col gap-2">

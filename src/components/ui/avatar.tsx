@@ -51,7 +51,8 @@ function AvatarFallback({
     <AvatarPrimitive.Fallback
       data-slot="avatar-fallback"
       className={cn(
-        "bg-muted text-muted-foreground flex size-full items-center justify-center rounded-full text-sm font-medium group-data-[size=sm]/avatar:text-xs",
+        // Muted is translucent; layer it on the page colour so it stays solid.
+        "bg-background dark:bg-surface text-muted-foreground flex size-full items-center justify-center rounded-full bg-[linear-gradient(var(--muted),var(--muted))] text-sm font-medium group-data-[size=sm]/avatar:text-xs",
         className,
       )}
       {...props}
@@ -82,7 +83,7 @@ function AvatarGroup({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="avatar-group"
       className={cn(
-        "group/avatar-group *:data-[slot=avatar]:ring-background dark:*:data-[slot=avatar]:ring-surface flex -space-x-1.5 *:data-[slot=avatar]:ring-2",
+        "group/avatar-group avatar-stack flex -space-x-1.5 [--avatar-overlap:6px]",
         className,
       )}
       {...props}
@@ -98,7 +99,7 @@ function AvatarGroupCount({
     <div
       data-slot="avatar-group-count"
       className={cn(
-        "bg-muted text-muted-foreground ring-background dark:ring-surface relative flex size-8 shrink-0 items-center justify-center rounded-full text-sm ring-2 group-has-data-[size=lg]/avatar-group:size-10 group-has-data-[size=sm]/avatar-group:size-6 [&_svg]:size-4 group-has-data-[size=lg]/avatar-group:[&_svg]:size-5 group-has-data-[size=sm]/avatar-group:[&_svg]:size-3",
+        "bg-background dark:bg-surface text-muted-foreground relative flex size-8 shrink-0 items-center justify-center rounded-full bg-[linear-gradient(var(--muted),var(--muted))] text-sm group-has-data-[size=lg]/avatar-group:size-10 group-has-data-[size=sm]/avatar-group:size-6 [&_svg]:size-4 group-has-data-[size=lg]/avatar-group:[&_svg]:size-5 group-has-data-[size=sm]/avatar-group:[&_svg]:size-3",
         className,
       )}
       {...props}

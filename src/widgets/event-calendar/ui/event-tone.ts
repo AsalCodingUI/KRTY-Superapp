@@ -14,19 +14,29 @@ export const EVENT_TONE: Record<
     title: "text-primary",
   },
   violet: {
-    dot: "bg-primary",
-    block: "bg-primary/12 hover:bg-primary/18",
-    title: "text-primary",
+    dot: "bg-purple-9",
+    block: "bg-purple-9/12 hover:bg-purple-9/18",
+    title: "text-purple-11",
   },
   cyan: {
     dot: "bg-info",
     block: "bg-info/12 hover:bg-info/18",
     title: "text-info",
   },
+  pink: {
+    dot: "bg-pink-9",
+    block: "bg-pink-9/12 hover:bg-pink-9/18",
+    title: "text-pink-11",
+  },
+  teal: {
+    dot: "bg-teal-9",
+    block: "bg-teal-9/12 hover:bg-teal-9/18",
+    title: "text-teal-11",
+  },
   emerald: {
     dot: "bg-success",
     block: "bg-success/12 hover:bg-success/18",
-    title: "text-success",
+    title: "text-success-ink",
   },
   rose: {
     dot: "bg-destructive",

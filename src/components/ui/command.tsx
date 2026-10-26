@@ -50,7 +50,7 @@ function CommandDialog({
       <DialogContent
         bare
         className={cn(
-          "top-[14vh] flex max-h-[min(560px,76svh)] translate-y-0 flex-col overflow-hidden rounded-2xl! p-0 sm:max-w-[600px]",
+          "top-[14vh] flex max-h-[min(560px,76svh)] translate-y-0 flex-col overflow-hidden p-0 sm:max-w-[600px] sm:rounded-2xl!",
           className,
         )}
         showCloseButton={showCloseButton}

@@ -34,5 +34,5 @@ export * from "./ui/types"
 export {
   GoogleCalendarContext,
   GoogleCalendarProvider,
-} from "./model/google-calendar-context"
-export { useGoogleCalendar } from "./model/hooks/use-google-calendar"
+} from "./ui/google-calendar-context"
+export { useGoogleCalendar } from "./ui/hooks/use-google-calendar"

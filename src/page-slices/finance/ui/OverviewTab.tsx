@@ -195,6 +195,8 @@ export function OverviewTab({
             <CartesianGrid vertical={false} strokeDasharray="3 3" />
             <XAxis
               interval={0}
+              // Room for the first and last month labels.
+              padding={{ left: 16, right: 16 }}
               dataKey="month"
               tickLine={false}
               axisLine={false}
@@ -393,7 +395,7 @@ function OpenInvoices({
                             ? "text-destructive"
                             : days > 0
                               ? "text-warning"
-                              : "text-success",
+                              : "text-success-ink",
                         )}
                       >
                         {days > 0

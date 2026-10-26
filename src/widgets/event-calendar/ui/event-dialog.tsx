@@ -31,6 +31,9 @@ import {} from "@/shared/ui/lucide-icons"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format } from "date-fns"
 import dynamic from "next/dynamic"
+import { createClient } from "@/shared/api/supabase/client"
+import { useUserProfile } from "@/shared/hooks/useUserProfile"
+import { useQuery } from "@tanstack/react-query"
 import { useCallback, useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
@@ -38,7 +41,7 @@ import {
   getAllEventTypes,
   getEventTypeDefinition,
   getEventTypeLabelKey,
-} from "./event-color-registry"
+} from "../lib/event-color-registry"
 import type { CalendarEvent } from "./types"
 
 // Read-only variant dialogs are only needed for specific event types.
@@ -52,6 +55,13 @@ const LeaveDialog = dynamic(
 )
 const MeetingDialog = dynamic(
   () => import("./dialog-variants/MeetingDialog").then((m) => m.MeetingDialog),
+  { loading: () => null },
+)
+const SharingSantuyDialog = dynamic(
+  () =>
+    import("./dialog-variants/SharingSantuyDialog").then(
+      (m) => m.SharingSantuyDialog,
+    ),
   { loading: () => null },
 )
 const PerformanceDialog = dynamic(
@@ -77,6 +87,8 @@ const eventSchema = z
     start: z.string(),
     end: z.string(),
     location: z.string().optional(),
+    /** Sharing Santuy: who's sharing (a teammate's name). */
+    organizer: z.string().optional(),
     color: z.enum([
       "emerald",
       "orange",
@@ -85,6 +97,8 @@ const eventSchema = z
       "rose",
       "amber",
       "cyan",
+      "pink",
+      "teal",
       "neutral",
     ]),
     type: z.string().optional(),
@@ -118,13 +132,34 @@ interface EventDialogProps {
   onSave?: (event: Partial<CalendarEvent>) => Promise<void>
   onDelete?: (eventId: string) => Promise<void>
   readOnly?: boolean
+  /** Types offered for a new event (registry values); all when omitted. */
+  eventTypes?: string[]
 }
 
-// EVENT_TYPES must match the categories in CalendarClient.tsx getVisibleCategories()
-// Use centralized event type registry
+const SANTUY = "Sharing Santuy"
+
+// Holidays come from the holiday feed and task deadlines from tasks: neither
+// is created here.
 const EVENT_TYPES = getAllEventTypes().filter(
-  (type) => type.value !== "Public Holiday",
+  (type) => type.value !== "Public Holiday" && type.value !== "Task",
 )
+
+/** Teammates for the speaker picker. */
+function usePeople(enabled: boolean) {
+  return useQuery({
+    queryKey: ["calendar-people"],
+    enabled,
+    staleTime: 5 * 60_000,
+    queryFn: async () => {
+      const { data } = await createClient()
+        .from("profiles")
+        .select("id, full_name")
+        .not("full_name", "is", null)
+        .order("full_name")
+      return (data ?? []) as { id: string; full_name: string }[]
+    },
+  })
+}
 
 const getBadgeVariant = (color?: CalendarEvent["color"]) => {
   switch (color) {
@@ -136,6 +171,8 @@ const getBadgeVariant = (color?: CalendarEvent["color"]) => {
     case "amber":
       return "warning"
     case "cyan":
+    case "pink":
+    case "teal":
     case "blue":
     case "violet":
       return "info"
@@ -153,6 +190,7 @@ export function EventDialog({
   onSave,
   onDelete,
   readOnly = false,
+  eventTypes,
 }: EventDialogProps) {
   // IMPORTANT: All hooks must be called BEFORE any conditional returns
   // This fixes the "Rendered more hooks than during the previous render" error
@@ -169,6 +207,11 @@ export function EventDialog({
   const [isDeletePending, setIsDeletePending] = useState(false)
   const normalizedEventType =
     getEventTypeDefinition(event?.type)?.value ?? event?.type
+  const { profile } = useUserProfile()
+  const allowedTypes = eventTypes
+    ? EVENT_TYPES.filter((type) => eventTypes.includes(type.value))
+    : EVENT_TYPES
+  const newType = allowedTypes[0] ?? EVENT_TYPES[0]
 
   const defaultValues: EventFormData = event
     ? {
@@ -180,6 +223,7 @@ export function EventDialog({
         color: event.color,
         type: normalizedEventType || "Event",
         allDay: event.allDay || false,
+        organizer: event.organizer || "",
       }
     : {
         title: "",
@@ -197,9 +241,10 @@ export function EventDialog({
               "yyyy-MM-dd'T'HH:mm",
             ),
         location: "",
-        color: "blue",
-        type: "Event",
+        color: newType.color,
+        type: newType.value,
         allDay: false,
+        organizer: profile?.full_name ?? "",
       }
 
   const {
@@ -244,6 +289,7 @@ export function EventDialog({
         color: event.color,
         type: normalizedEventType || "Event",
         allDay: event.allDay || false,
+        organizer: event.organizer || "",
       })
     } else {
       const startDate = initialDate || nextQuarterHour()
@@ -255,12 +301,21 @@ export function EventDialog({
         start: format(startDate, "yyyy-MM-dd'T'HH:mm"),
         end: format(endDate, "yyyy-MM-dd'T'HH:mm"),
         location: "",
-        color: "blue",
-        type: "Event",
+        color: newType.color,
+        type: newType.value,
         allDay: false,
+        organizer: profile?.full_name ?? "",
       })
     }
-  }, [event, initialDate, normalizedEventType, reset])
+  }, [
+    event,
+    initialDate,
+    normalizedEventType,
+    reset,
+    newType.color,
+    newType.value,
+    profile?.full_name,
+  ])
 
   useEffect(() => {
     // Reset editing state when dialog opens/closes or event changes
@@ -279,9 +334,17 @@ export function EventDialog({
   // Older events can carry a type that's no longer in the list (e.g.
   // "Sharing Santuy"); keep it selectable so editing doesn't lose it.
   const typeOptions =
-    selectedType && !EVENT_TYPES.some((t) => t.value === selectedType)
-      ? [...EVENT_TYPES, { value: selectedType, label: selectedType }]
-      : EVENT_TYPES
+    selectedType && !allowedTypes.some((t) => t.value === selectedType)
+      ? [
+          ...allowedTypes,
+          getEventTypeDefinition(selectedType) ?? {
+            value: selectedType,
+            label: selectedType,
+          },
+        ]
+      : allowedTypes
+  const isSantuy = selectedType === SANTUY
+  const { data: people = [] } = usePeople(open && isSantuy && !readOnly)
 
   // Auto-set color based on type
   const handleTypeChange = (type: string) => {
@@ -318,6 +381,21 @@ export function EventDialog({
     )
   }
 
+  // Sharing Santuy: details + join; the host switches to the form to edit.
+  if (event && normalizedEventType === SANTUY && !isEditing) {
+    return (
+      <SharingSantuyDialog
+        key={event.id}
+        open={open}
+        onOpenChange={onOpenChange}
+        event={event}
+        canEdit={!readOnly}
+        onEdit={() => setIsEditing(true)}
+        onDelete={onDelete}
+      />
+    )
+  }
+
   // 4. Route to PerformanceDialog for system 301 Meeting - read-only
   if (event && event.id.startsWith("perf-")) {
     return (
@@ -345,6 +423,9 @@ export function EventDialog({
         location: data.location,
         color: data.color,
         type: data.type,
+        ...(data.type === SANTUY
+          ? { organizer: data.organizer || undefined }
+          : {}),
         isRecurring: false,
         recurrenceRule: undefined,
         recurrencePattern: undefined,
@@ -399,7 +480,7 @@ export function EventDialog({
           <div className="-mx-1 space-y-5 overflow-y-auto px-1 py-1">
             {/* Event Title & Type */}
             <div className="flex items-start justify-between gap-4">
-              <h3 className="text-foreground text-base font-semibold break-words">
+              <h3 className="text-heading text-base font-medium break-words">
                 {event.title}
               </h3>
               <Badge
@@ -522,6 +603,40 @@ export function EventDialog({
                     </SelectContent>
                   </Select>
                 </div>
+
+                {isSantuy && (
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="organizer">{t("santuySpeaker")}</Label>
+                    <Select
+                      value={watch("organizer") || ""}
+                      onValueChange={(v) =>
+                        v !== null && setValue("organizer", v)
+                      }
+                      disabled={readOnly}
+                    >
+                      <SelectTrigger id="organizer" className="w-full">
+                        <SelectValue
+                          placeholder={t("santuySpeakerPlaceholder")}
+                        />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {/* Keep a saved name even if it's not in the list. */}
+                        {[
+                          ...new Set(
+                            [
+                              watch("organizer"),
+                              ...people.map((p) => p.full_name),
+                            ].filter(Boolean),
+                          ),
+                        ].map((name) => (
+                          <SelectItem key={name} value={name!}>
+                            {name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
 
                 {/* All Day Toggle */}
                 <div className="flex items-center gap-2">

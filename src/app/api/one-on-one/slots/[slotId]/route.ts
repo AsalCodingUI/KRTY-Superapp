@@ -2,7 +2,6 @@ import { getT } from "@/shared/i18n/server"
 import { NextRequest, NextResponse } from "next/server"
 import { createAdminClient } from "@/shared/api/supabase/admin"
 import { createClient } from "@/shared/api/supabase/server"
-import { resolveProfileByUserIdOrEmail } from "@/shared/lib/profile-resolution"
 import { canManageByRole } from "@/shared/lib/roles"
 import { logError } from "@/shared/lib/utils/logger"
 import { guardApiRoute } from "@/shared/lib/utils/security"
@@ -11,6 +10,7 @@ import {
   getGoogleEnv,
   updateGoogleCalendarEvent,
 } from "@/shared/lib/google-calendar"
+import { overlapsOtherSlot, slotQuarter, slotViewer } from "../../shared"
 
 export async function PATCH(
   request: NextRequest,
@@ -23,25 +23,12 @@ export async function PATCH(
   try {
     const { slotId } = await params
     const supabase = await createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
+    const profile = await slotViewer(supabase)
+    if (!profile) {
       return NextResponse.json({ error: t("unauthorized") }, { status: 401 })
     }
 
-    const profile = await resolveProfileByUserIdOrEmail<{
-      id: string
-      email: string | null
-      role: string | null
-    }>(supabase, "id, email, role, created_at", user.id, user.email)
-
-    if (!profile) {
-      return NextResponse.json({ error: t("profileNotFound") }, { status: 404 })
-    }
-
-    if (!canManageByRole(profile?.role)) {
+    if (!canManageByRole(profile.role)) {
       return NextResponse.json({ error: t("forbidden") }, { status: 403 })
     }
     const adminSupabase = createAdminClient()
@@ -67,7 +54,7 @@ export async function PATCH(
 
     const { data: slot, error: slotError } = await adminSupabase
       .from("one_on_one_slots")
-      .select("id, google_event_id, mode, location")
+      .select("id, organizer_id, status, google_event_id, mode, location")
       .eq("id", slotId)
       .single()
 
@@ -82,8 +69,27 @@ export async function PATCH(
       ? new Date(endAtInput)
       : new Date(`${date}T${endTime}`)
 
-    if (startAt >= endAt) {
+    if (
+      Number.isNaN(startAt.getTime()) ||
+      startAt >= endAt ||
+      startAt.getTime() < Date.now() - 60_000
+    ) {
       return NextResponse.json({ error: "invalid_time" }, { status: 400 })
+    }
+    if (slot.status === "cancelled") {
+      return NextResponse.json({ error: "slot_cancelled" }, { status: 409 })
+    }
+    if (
+      slot.organizer_id &&
+      (await overlapsOtherSlot(
+        adminSupabase,
+        slot.organizer_id,
+        startAt.toISOString(),
+        endAt.toISOString(),
+        slot.id,
+      ))
+    ) {
+      return NextResponse.json({ error: "slot_overlap" }, { status: 409 })
     }
 
     if (slot.google_event_id) {
@@ -119,6 +125,8 @@ export async function PATCH(
       .update({
         start_at: startAt.toISOString(),
         end_at: endAt.toISOString(),
+        // Moved to another quarter: it's that quarter's 1:1 now.
+        cycle_name: slotQuarter(startAt),
         updated_at: new Date().toISOString(),
       })
       .eq("id", slotId)

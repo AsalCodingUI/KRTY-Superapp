@@ -31,10 +31,12 @@ export function useBreadcrumbTrail() {
   )
 }
 
-/** Sets the page's steps while it is mounted. */
-export function useBreadcrumbs(crumbs: Crumb[]) {
-  const key = JSON.stringify(crumbs)
+/** Sets the page's steps while it is mounted. `null` leaves them alone
+ *  (e.g. a detail shown in a sheet over a page that has its own steps). */
+export function useBreadcrumbs(crumbs: Crumb[] | null) {
+  const key = crumbs ? JSON.stringify(crumbs) : null
   useEffect(() => {
+    if (key === null) return
     emit(JSON.parse(key) as Crumb[])
     return () => emit(EMPTY)
   }, [key])

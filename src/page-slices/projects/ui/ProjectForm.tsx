@@ -105,10 +105,16 @@ export function ProjectForm({
   const [draft, setDraft] = useState<Draft>(EMPTY)
   const [saving, setSaving] = useState(false)
 
-  const { data: project, isLoading } = useQuery({
+  // Always fresh: a cached copy would bring back what the last save changed.
+  const {
+    data: project,
+    isLoading,
+    isFetching,
+  } = useQuery({
     queryKey: ["editable-project", projectId],
     queryFn: () => getEditableProject(projectId!),
     enabled: open && Boolean(projectId),
+    staleTime: 0,
   })
   const { data: people = [] } = useQuery({
     queryKey: ["assignable-people"],
@@ -375,7 +381,7 @@ export function ProjectForm({
                       updateMember(m.userId, { isLead: !m.isLead })
                     }
                   >
-                    Lead
+                    {t("lead")}
                   </Button>
                   <Button
                     type="button"
@@ -411,7 +417,18 @@ export function ProjectForm({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             {tc("cancel")}
           </Button>
-          <Button onClick={submit} disabled={saving}>
+          <Button
+            onClick={submit}
+            // Required fields first; while an existing project loads the
+            // draft still holds the previous one, so saving would copy it.
+            disabled={
+              saving ||
+              (Boolean(projectId) && (isFetching || !project)) ||
+              !draft.name.trim() ||
+              !draft.start_date ||
+              !draft.end_date
+            }
+          >
             {saving ? tc("saving") : projectId ? tc("save") : t("formCreate")}
           </Button>
         </DialogFooter>

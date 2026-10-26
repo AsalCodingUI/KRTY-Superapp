@@ -19,7 +19,6 @@ const id = {
   daysUnitOne: "hari",
 
   // Quick actions
-  actionLeaveApprovals: "Persetujuan cuti",
   actionAttendance: "Kehadiran",
   actionReview360: "360 review",
   actionTeam: "Tim",
@@ -31,9 +30,7 @@ const id = {
   adminAttendanceTitle: "Kehadiran hari ini",
   openAttendance: "Buka kehadiran",
   adminPresentUnit: "hadir",
-  adminAttendanceHint: "{rate}% dari {total} anggota",
-  splitOnTime: "Tepat waktu",
-  splitLate: "Terlambat",
+  splitPresent: "Hadir",
   splitOnLeave: "Cuti",
   splitAbsent: "Tidak hadir",
 
@@ -56,12 +53,13 @@ const id = {
   adminTeamPerformanceTitle: "Performa tim",
   openPerformance: "Buka performa",
   adminAvgScore: "Rata-rata skor",
-  adminTopPerformers: "Teratas",
   adminNeedsAttention: "Perlu perhatian",
   adminRated: "Sudah dinilai",
   adminRatedCount: "{n} orang",
   adminRatedCountOne: "{n} orang",
   adminNoData: "Belum ada data",
+  adminAllOnTrack: "Semua di atas batas perhatian.",
+  adminLeaveNonePending: "Tidak ada pengajuan cuti yang menunggu.",
   reasonFarBelowTarget: "Jauh di bawah target",
   reasonBelowExpectation: "Di bawah harapan",
 
@@ -79,9 +77,6 @@ const id = {
   statusSessionOpen: "Sesi belum ditutup",
   statusDone: "Selesai",
   statusNotClockedIn: "Belum clock in",
-  attendanceEmpty: "Clock in untuk mulai mencatat kehadiranmu.",
-  attendanceLate: "Terlambat",
-  attendanceActive: "aktif",
 
   // Employee: leave
   leaveBalanceHint: "Sisa cuti tahunan",
@@ -95,20 +90,15 @@ const id = {
   // Employee: performance
   performanceTitle: "Performa",
   openKpi: "Buka KPI",
-  statSlaOnTime: "SLA tepat waktu",
-  statReview360: "360 review",
-  statWorkQuality: "Kualitas kerja",
-  competencyLeadership: "Kepemimpinan",
-  competencyQuality: "Kualitas",
-  competencyReliability: "Keandalan",
-  competencyCommunication: "Komunikasi",
-  competencyInitiative: "Inisiatif",
-  competencyEmpty: "Nilai kompetensi muncul setelah review kuartal ini.",
 
   // Employee: review & 1:1
   reviewOneOnOneTitle: "Review & 1:1",
   reviewOneOnOneEmpty: "Belum ada review atau sesi 1:1 terjadwal.",
   reviewDue: "Tenggat {date}",
+  review360Label: "360 review · {period}",
+  weekTitle: "Minggu ini",
+  weekAhead: "belum lewat",
+  weekNoClockIn: "tidak clock in",
   reviewSubmitted: "Terkirim",
   reviewNotFilled: "Belum diisi",
   oneOnOneWith: "Dengan {name}",
@@ -121,7 +111,6 @@ const id = {
   projectsTitle: "Project aktif",
   openProjects: "Buka project",
   projectsEmpty: "Project muncul di sini setelah kamu ditugaskan.",
-  projectSubtitle: "{quarter} · SLA {sla}% · Kualitas {achieved}/{total}",
   projectOverdue: "Lewat tenggat",
   projectDueToday: "Hari ini",
   projectDaysLeft: "{n} hari lagi",
@@ -149,7 +138,6 @@ const en: Record<keyof typeof id, string> = {
   daysUnitOne: "day",
 
   // Quick actions
-  actionLeaveApprovals: "Leave approvals",
   actionAttendance: "Attendance",
   actionReview360: "360 review",
   actionTeam: "Team",
@@ -161,9 +149,7 @@ const en: Record<keyof typeof id, string> = {
   adminAttendanceTitle: "Attendance today",
   openAttendance: "Open attendance",
   adminPresentUnit: "present",
-  adminAttendanceHint: "{rate}% of {total} members",
-  splitOnTime: "On time",
-  splitLate: "Late",
+  splitPresent: "Present",
   splitOnLeave: "On leave",
   splitAbsent: "Absent",
 
@@ -186,12 +172,13 @@ const en: Record<keyof typeof id, string> = {
   adminTeamPerformanceTitle: "Team performance",
   openPerformance: "Open performance",
   adminAvgScore: "Average score",
-  adminTopPerformers: "Top",
   adminNeedsAttention: "Needs attention",
   adminRated: "Rated",
   adminRatedCount: "{n} people",
   adminRatedCountOne: "{n} person",
   adminNoData: "No data yet",
+  adminAllOnTrack: "Everyone is above the attention line.",
+  adminLeaveNonePending: "No leave requests waiting.",
   reasonFarBelowTarget: "Well below target",
   reasonBelowExpectation: "Below expectations",
 
@@ -209,9 +196,6 @@ const en: Record<keyof typeof id, string> = {
   statusSessionOpen: "Session not closed",
   statusDone: "Done",
   statusNotClockedIn: "Not clocked in",
-  attendanceEmpty: "Clock in to start tracking your attendance.",
-  attendanceLate: "Late",
-  attendanceActive: "active",
 
   // Employee: leave
   leaveBalanceHint: "Annual leave remaining",
@@ -225,20 +209,15 @@ const en: Record<keyof typeof id, string> = {
   // Employee: performance
   performanceTitle: "Performance",
   openKpi: "Open KPI",
-  statSlaOnTime: "SLA on time",
-  statReview360: "360 review",
-  statWorkQuality: "Work quality",
-  competencyLeadership: "Leadership",
-  competencyQuality: "Quality",
-  competencyReliability: "Reliability",
-  competencyCommunication: "Communication",
-  competencyInitiative: "Initiative",
-  competencyEmpty: "Competency scores appear after this quarter's review.",
 
   // Employee: review & 1:1
   reviewOneOnOneTitle: "Reviews & 1:1",
   reviewOneOnOneEmpty: "No reviews or 1:1 sessions scheduled yet.",
   reviewDue: "Due {date}",
+  review360Label: "360 review · {period}",
+  weekTitle: "This week",
+  weekAhead: "still ahead",
+  weekNoClockIn: "no clock-in",
   reviewSubmitted: "Submitted",
   reviewNotFilled: "Not filled in",
   oneOnOneWith: "With {name}",
@@ -251,7 +230,6 @@ const en: Record<keyof typeof id, string> = {
   projectsTitle: "Active projects",
   openProjects: "Open projects",
   projectsEmpty: "Projects show up here once you're assigned.",
-  projectSubtitle: "{quarter} · SLA {sla}% · Quality {achieved}/{total}",
   projectOverdue: "Overdue",
   projectDueToday: "Today",
   projectDaysLeft: "{n} days left",

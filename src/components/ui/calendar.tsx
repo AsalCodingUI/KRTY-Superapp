@@ -6,10 +6,18 @@ import {
   DayPicker,
   getDefaultClassNames,
   type DayButton,
+  type DropdownProps,
   type Locale,
 } from "react-day-picker"
 
 import { Button, buttonVariants } from "@/components/ui/button"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import {
   ChevronLeft as ChevronLeftIcon,
   ChevronRight as ChevronRightIcon,
@@ -20,7 +28,8 @@ function Calendar({
   className,
   classNames,
   showOutsideDays = true,
-  captionLayout = "label",
+  // Month and year are pickers of their own, so jumping far is one click.
+  captionLayout = "dropdown",
   buttonVariant = "ghost",
   locale,
   formatters,
@@ -30,6 +39,10 @@ function Calendar({
   buttonVariant?: React.ComponentProps<typeof Button>["variant"]
 }) {
   const defaultClassNames = getDefaultClassNames()
+  // The year list needs bounds; callers may pass their own (or undefined).
+  const year = new Date().getFullYear()
+  const startMonth = props.startMonth ?? new Date(year - 80, 0, 1)
+  const endMonth = props.endMonth ?? new Date(year + 10, 11, 31)
 
   return (
     <DayPicker
@@ -57,7 +70,8 @@ function Calendar({
         ),
         month: cn("flex w-full flex-col gap-4", defaultClassNames.month),
         nav: cn(
-          "absolute inset-x-0 top-0 flex w-full items-center justify-between gap-1",
+          // Spans the caption; only its arrows take clicks, not the pickers.
+          "pointer-events-none absolute inset-x-0 top-0 flex w-full items-center justify-between gap-1 *:pointer-events-auto",
           defaultClassNames.nav,
         ),
         button_previous: cn(
@@ -174,6 +188,7 @@ function Calendar({
         DayButton: ({ ...props }) => (
           <CalendarDayButton locale={locale} {...props} />
         ),
+        Dropdown: CalendarDropdown,
         WeekNumber: ({ children, ...props }) => {
           return (
             <td {...props}>
@@ -186,7 +201,61 @@ function Calendar({
         ...components,
       }}
       {...props}
+      startMonth={startMonth}
+      endMonth={endMonth}
     />
+  )
+}
+
+/**
+ * Month / year picker in the caption: the app's own rounded Select instead
+ * of the native <select> react-day-picker renders by default.
+ */
+function CalendarDropdown({
+  options,
+  value,
+  onChange,
+  disabled,
+  "aria-label": ariaLabel,
+}: DropdownProps) {
+  const current = options?.find((o) => String(o.value) === String(value))
+  return (
+    <Select
+      value={String(value)}
+      disabled={disabled}
+      onValueChange={(next) => {
+        if (next == null) return
+        // react-day-picker only reads `target.value` from the change event.
+        onChange?.({
+          target: { value: next },
+        } as unknown as React.ChangeEvent<HTMLSelectElement>)
+      }}
+    >
+      <SelectTrigger
+        size="sm"
+        aria-label={ariaLabel}
+        className="hover:bg-accent dark:hover:bg-accent h-7 gap-1 rounded-full border-transparent bg-transparent px-2.5 text-sm font-medium shadow-none hover:border-transparent dark:bg-transparent [&_svg]:size-3.5"
+      >
+        <SelectValue>{() => current?.label}</SelectValue>
+      </SelectTrigger>
+      {/* A plain list under (or over) the button with a fixed height; the
+          "item over the trigger" mode drifted off near dialog edges. */}
+      <SelectContent
+        side="bottom"
+        align="center"
+        className="max-h-[min(16rem,var(--available-height))] min-w-(--anchor-width)"
+      >
+        {options?.map((o) => (
+          <SelectItem
+            key={o.value}
+            value={String(o.value)}
+            disabled={o.disabled}
+          >
+            {o.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   )
 }
 

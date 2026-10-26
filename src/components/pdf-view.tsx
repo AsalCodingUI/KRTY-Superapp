@@ -1,9 +1,10 @@
 "use client"
 
 import { cn } from "@/lib/utils"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import type { PDFDocumentProxy } from "pdfjs-dist"
 import { runThumbnail, thumbnailCache } from "./thumbnail-queue"
+import { Zoomable } from "./zoomable"
 
 /**
  * PDFs drawn with pdf.js instead of the browser's PDF plugin, which some
@@ -48,7 +49,11 @@ function usePdf(url: string | null | undefined) {
   return { doc, failed }
 }
 
-/** Draws one page to fit `width` CSS pixels (sharp on retina). */
+/**
+ * Draws one page at `width` CSS pixels (sharp on retina). A new width takes
+ * effect at once by stretching the last drawing (smooth while pinching),
+ * then the page is redrawn sharp once the width stops changing.
+ */
 function PdfPage({
   doc,
   page,
@@ -61,25 +66,56 @@ function PdfPage({
   className?: string
 }) {
   const ref = useRef<HTMLCanvasElement>(null)
+  // Page height / width, known after the first draw.
+  const aspect = useRef<number | null>(null)
+  const drawn = useRef(false)
+
+  useLayoutEffect(() => {
+    const canvas = ref.current
+    if (!canvas || aspect.current === null) return
+    canvas.style.width = `${width}px`
+    canvas.style.height = `${Math.floor(width * aspect.current)}px`
+  }, [width])
+
   useEffect(() => {
     let task: { cancel: () => void } | null = null
     let alive = true
-    doc.getPage(page).then((p) => {
-      const canvas = ref.current
-      if (!alive || !canvas || width <= 0) return
-      const base = p.getViewport({ scale: 1 })
-      const ratio = Math.min(window.devicePixelRatio || 1, 2)
-      const viewport = p.getViewport({ scale: (width / base.width) * ratio })
-      canvas.width = Math.floor(viewport.width)
-      canvas.height = Math.floor(viewport.height)
-      canvas.style.width = `${width}px`
-      canvas.style.height = `${Math.floor(viewport.height / ratio)}px`
-      const render = p.render({ canvas, viewport })
-      task = render
-      render.promise.catch(() => {})
-    })
+    // First draw right away; later ones once the width settles.
+    const timer = window.setTimeout(
+      () => {
+        doc.getPage(page).then((p) => {
+          const canvas = ref.current
+          if (!alive || !canvas || width <= 0) return
+          const base = p.getViewport({ scale: 1 })
+          aspect.current = base.height / base.width
+          const ratio = Math.min(window.devicePixelRatio || 1, 2)
+          const viewport = p.getViewport({
+            scale: (width / base.width) * ratio,
+          })
+          // Draw off-screen, then swap, so the page never flashes blank.
+          const next = document.createElement("canvas")
+          next.width = Math.floor(viewport.width)
+          next.height = Math.floor(viewport.height)
+          const render = p.render({ canvas: next, viewport })
+          task = render
+          render.promise
+            .then(() => {
+              if (!alive) return
+              canvas.width = next.width
+              canvas.height = next.height
+              canvas.getContext("2d")?.drawImage(next, 0, 0)
+              canvas.style.width = `${width}px`
+              canvas.style.height = `${Math.floor(viewport.height / ratio)}px`
+              drawn.current = true
+            })
+            .catch(() => {})
+        })
+      },
+      drawn.current ? 180 : 0,
+    )
     return () => {
       alive = false
+      window.clearTimeout(timer)
       task?.cancel()
     }
   }, [doc, page, width])
@@ -191,40 +227,54 @@ export function PdfThumbnail({
   )
 }
 
-/** Every page stacked for reading (previews); stops at `maxPages`. */
+/**
+ * Every page stacked for reading (previews); stops at `maxPages`.
+ * Pinch on a trackpad to zoom, two fingers to pan.
+ */
 export function PdfPages({
   url,
   maxPages = 60,
   onError,
   className,
+  contentClassName,
 }: {
   url: string
   maxPages?: number
   onError?: () => void
   className?: string
+  /** On the stack of pages, e.g. extra top padding under a toolbar. */
+  contentClassName?: string
 }) {
   const { doc, failed } = usePdf(url)
-  const [ref, width] = useWidth<HTMLDivElement>()
   useEffect(() => {
     if (failed) onError?.()
   }, [failed, onError])
   const pages = doc ? Math.min(doc.numPages, maxPages) : 0
-  const pageWidth = Math.min(width, 900)
   return (
-    <div ref={ref} className={cn("size-full overflow-y-auto", className)}>
-      {doc && pageWidth > 0 && (
-        <div className="flex flex-col items-center gap-4 py-6">
-          {Array.from({ length: pages }, (_, i) => (
-            <PdfPage
-              key={i}
-              doc={doc}
-              page={i + 1}
-              width={pageWidth - 48}
-              className="rounded-[4px] shadow-(--elev-3)"
-            />
-          ))}
-        </div>
-      )}
-    </div>
+    <Zoomable className={cn("size-full", className)} min={0.5} max={4}>
+      {(zoom, view) => {
+        const pageWidth = Math.round((Math.min(view.width, 900) - 48) * zoom)
+        return (
+          doc && (
+            <div
+              className={cn(
+                "flex w-max min-w-full flex-col items-center gap-4 px-6 py-6",
+                contentClassName,
+              )}
+            >
+              {Array.from({ length: pages }, (_, i) => (
+                <PdfPage
+                  key={i}
+                  doc={doc}
+                  page={i + 1}
+                  width={pageWidth}
+                  className="rounded-[4px] shadow-(--elev-3)"
+                />
+              ))}
+            </div>
+          )
+        )
+      }}
+    </Zoomable>
   )
 }

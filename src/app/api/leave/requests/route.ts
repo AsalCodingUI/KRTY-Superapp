@@ -7,18 +7,22 @@ import {
   ANNUAL_LEAVE_MIN_NOTICE_DAYS,
   annualLeaveSummary,
 } from "@/shared/lib/leave"
+import { resolveEffectiveUserId } from "@/shared/lib/impersonation-server"
 import { resolveProfileByUserIdOrEmail } from "@/shared/lib/profile-resolution"
 import { NextRequest, NextResponse } from "next/server"
-import { differenceInCalendarDays, startOfDay } from "date-fns"
+import { differenceInCalendarDays, parseISO } from "date-fns"
 import { z } from "zod"
+
+const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/)
 
 const requestSchema = z.object({
   id: z.number().optional(),
-  start_date: z.string(),
-  end_date: z.string(),
-  leave_type: z.string().min(1),
-  reason: z.string().nullable().optional(),
-  proof_url: z.string().nullable().optional(),
+  start_date: isoDate,
+  end_date: isoDate,
+  // The types the request form offers.
+  leave_type: z.enum(["Annual Leave", "Sick Leave", "WFH"]),
+  reason: z.string().max(1000).nullable().optional(),
+  proof_url: z.string().max(500).nullable().optional(),
   // Ignored: employees can't set their own status. New and edited requests
   // are always "pending" until a stakeholder reviews them.
   status: z.string().optional(),
@@ -34,12 +38,65 @@ async function getCanonicalProfile() {
     return { user: null, profile: null }
   }
 
+  // "View as" acts as that person, like the pages and the review API.
+  const effectiveUserId = await resolveEffectiveUserId(
+    supabase,
+    user.id,
+    user.email,
+  )
   const profile = await resolveProfileByUserIdOrEmail<{
     id: string
     email: string | null
-  }>(supabase, "id, email, created_at", user.id, user.email)
+  }>(
+    supabase,
+    "id, email, created_at",
+    effectiveUserId,
+    effectiveUserId === user.id ? user.email : null,
+  )
 
   return { user, profile }
+}
+
+/** Today in WIB as yyyy-MM-dd, whatever timezone the server runs in. */
+function jakartaToday() {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jakarta" }).format(
+    new Date(),
+  )
+}
+
+/**
+ * Rules for every type: a real range with working days in it, not
+ * overlapping another pending/approved request of the same person.
+ * Returns an error message or null.
+ */
+async function checkDates(
+  t: Awaited<ReturnType<typeof getT<"api">>>,
+  adminSupabase: ReturnType<typeof createAdminClient>,
+  userId: string,
+  startDate: string,
+  endDate: string,
+  excludeId?: number,
+): Promise<string | null> {
+  if (endDate < startDate) return t("leaveEndBeforeStart")
+  if (calculateBusinessDays(parseISO(startDate), parseISO(endDate)) <= 0)
+    return t("leaveNoBusinessDays")
+
+  let overlapQuery = adminSupabase
+    .from("leave_requests")
+    .select("id")
+    .eq("user_id", userId)
+    .in("status", ["pending", "approved"])
+    .lte("start_date", endDate)
+    .gte("end_date", startDate)
+    .limit(1)
+  if (excludeId) overlapQuery = overlapQuery.neq("id", excludeId)
+  const { data: overlap, error } = await overlapQuery
+  if (error) throw error
+  if (overlap && overlap.length > 0) {
+    const tLeave = await getT("leave")
+    return tLeave("errOverlap")
+  }
+  return null
 }
 
 /**
@@ -54,13 +111,11 @@ async function checkAnnualLeave(
   endDate: string,
   excludeId?: number,
 ): Promise<string | null> {
-  const start = startOfDay(new Date(startDate))
-  const end = startOfDay(new Date(endDate))
-  if (end < start) return t("leaveEndBeforeStart")
+  const start = parseISO(startDate)
+  const end = parseISO(endDate)
   const requested = calculateBusinessDays(start, end)
-  if (requested <= 0) return t("leaveNoBusinessDays")
   if (
-    differenceInCalendarDays(start, startOfDay(new Date())) <
+    differenceInCalendarDays(start, parseISO(jakartaToday())) <
     ANNUAL_LEAVE_MIN_NOTICE_DAYS
   )
     return t("leaveMinNotice", { days: ANNUAL_LEAVE_MIN_NOTICE_DAYS })
@@ -68,11 +123,13 @@ async function checkAnnualLeave(
     return t("leaveMaxDays", { days: ANNUAL_LEAVE_MAX_DAYS })
 
   const year = start.getFullYear()
+  // Pending requests hold their days too, so several requests sent before
+  // any is approved can't add up past the quota.
   let approvedQuery = adminSupabase
     .from("leave_requests")
     .select("start_date,end_date")
     .eq("user_id", userId)
-    .eq("status", "approved")
+    .in("status", ["approved", "pending"])
     .eq("leave_type", "Annual Leave")
     .lte("start_date", `${year}-12-31`)
     .gte("end_date", `${year}-01-01`)
@@ -130,17 +187,25 @@ export async function POST(request: NextRequest) {
     }
 
     const adminSupabase = createAdminClient()
-    if (payload.leave_type === "Annual Leave") {
-      const problem = await checkAnnualLeave(
+    const problem =
+      (await checkDates(
         t,
         adminSupabase,
         profile.id,
         payload.start_date,
         payload.end_date,
-      )
-      if (problem) {
-        return NextResponse.json({ error: problem }, { status: 422 })
-      }
+      )) ??
+      (payload.leave_type === "Annual Leave"
+        ? await checkAnnualLeave(
+            t,
+            adminSupabase,
+            profile.id,
+            payload.start_date,
+            payload.end_date,
+          )
+        : null)
+    if (problem) {
+      return NextResponse.json({ error: problem }, { status: 422 })
     }
     const { data, error } = await adminSupabase
       .from("leave_requests")
@@ -210,18 +275,27 @@ export async function PATCH(request: NextRequest) {
       status: "pending" as const,
     }
 
-    if (payload.leave_type === "Annual Leave") {
-      const problem = await checkAnnualLeave(
+    const problem =
+      (await checkDates(
         t,
         adminSupabase,
         profile.id,
         payload.start_date,
         payload.end_date,
         parsed.data.id,
-      )
-      if (problem) {
-        return NextResponse.json({ error: problem }, { status: 422 })
-      }
+      )) ??
+      (payload.leave_type === "Annual Leave"
+        ? await checkAnnualLeave(
+            t,
+            adminSupabase,
+            profile.id,
+            payload.start_date,
+            payload.end_date,
+            parsed.data.id,
+          )
+        : null)
+    if (problem) {
+      return NextResponse.json({ error: problem }, { status: 422 })
     }
 
     const { data, error } = await adminSupabase

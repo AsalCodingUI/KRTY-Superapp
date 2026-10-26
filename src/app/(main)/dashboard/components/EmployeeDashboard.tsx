@@ -32,6 +32,7 @@ import {
 import { EmployeeAttendanceWidget } from "./EmployeeAttendanceWidget"
 import { EmployeePerformanceCards } from "./EmployeePerformanceCards"
 import { EmployeeProjectsWidget } from "./EmployeeProjectsWidget"
+import { HomeKpiCard } from "./HomeKpiCard"
 
 interface EmployeeDashboardProps {
   data: EmployeeDashboardData
@@ -84,14 +85,14 @@ export function EmployeeDashboard({
     setSelectedQuarter(nextQuarter)
 
     const params = new URLSearchParams(searchParams.toString())
-    params.set("quarter", nextQuarter)
+    params.set("period", nextQuarter)
     router.replace(`${pathname}?${params.toString()}`)
   }
 
   const handleQuarterChange = (value: QuarterFilterValue) => {
     setSelectedQuarter(value)
     const params = new URLSearchParams(searchParams.toString())
-    params.set("quarter", value)
+    params.set("period", value)
     router.replace(`${pathname}?${params.toString()}`)
   }
 
@@ -154,12 +155,17 @@ export function EmployeeDashboard({
       </HomeGrid>
 
       <HomeGrid>
+        <HomeKpiCard
+          userId={data.user.id}
+          // The KPI reads "2026-All" for a whole year, like the filter.
+          period={
+            selectedQuarter === "All" ? `${selectedYear}-All` : selectedQuarter
+          }
+        />
         <EmployeePerformanceCards
-          slaScore={data.performanceOverview.slaScore}
-          reviewScore={data.performanceOverview.reviewScore}
-          workQualityScore={data.performanceOverview.workQualityScore}
-          quarter={data.performanceOverview.quarter}
-          competencyScores={data.competencyScores}
+          period={
+            selectedQuarter === "All" ? `${selectedYear}-All` : selectedQuarter
+          }
           upcomingReviews={data.upcomingReviews}
           upcomingOneOnOne={data.upcomingOneOnOne}
         />

@@ -3,19 +3,18 @@
 import { RollingValue } from "@/components/rolling-value"
 import { PageHeader } from "@/components/page-header"
 import { createTeamColumns } from "@/app/(main)/teams/Columns"
-import Link from "next/link"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { useT } from "@/shared/i18n/client"
 import { Database } from "@/shared/types/database.types"
 import { DataTable } from "@/components/data-table"
-import { Button } from "@/components/ui/button"
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group"
-import { RiLockLine, RiSearchLine } from "@/shared/ui/lucide-icons"
+import { RiSearchLine } from "@/shared/ui/lucide-icons"
 import { useMemo, useState } from "react"
+import { MembersAccessSettings } from "@/page-slices/settings/ui"
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 
@@ -100,26 +99,20 @@ export function TeamsPage({
     { label: t("statAdmin"), value: totalAdmins },
   ]
 
+  // Super admins manage everyone from the same table (sheet: profile and
+  // access); everyone else gets the read-only directory.
+  if (isSuperAdmin) {
+    return (
+      <div className="flex flex-col pb-4">
+        <MembersAccessSettings title={t("title")} showStats />
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col">
       {/* Title + actions, a stats band, the search row, then the list. */}
-      <PageHeader
-        className="pt-6 pb-4"
-        title={t("title")}
-        actions={
-          // The directory is read-only; members are managed on their own page.
-          isSuperAdmin && (
-            <Button
-              variant="outline"
-              nativeButton={false}
-              render={<Link href="/teams/access" prefetch={false} />}
-            >
-              <RiLockLine data-icon="inline-start" />
-              {t("membersAccess")}
-            </Button>
-          )
-        }
-      />
+      <PageHeader className="pt-6 pb-4" title={t("title")} />
 
       <div className="stat-strip bleed gutter-x border-border border-b py-4">
         {stats.map((item) => (

@@ -4,7 +4,6 @@ import * as React from "react"
 
 import { useNavBadges } from "@/components/use-nav-badges"
 import {
-  matchesRoute,
   resolveWorkspace,
   workspaces,
   type Workspace,
@@ -12,29 +11,9 @@ import {
   type WorkspaceItem,
   type WorkspaceProfile,
 } from "@/shared/config/workspaces"
-import { usePagePermissions } from "@/shared/hooks/usePagePermissions"
+import { accessLevel, canOpenPage } from "@/shared/config/access"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { usePathname, useRouter } from "next/navigation"
-
-type PermissionMap = Record<string, boolean> | null
-
-/** Same rule as middleware: the longest granted/denied slug prefix decides. */
-function canOpen(href: string, permissions: PermissionMap) {
-  // Readable by everyone; not part of page access settings.
-  if (
-    href === "/notifications" ||
-    href === "/policies" ||
-    href === "/clients" ||
-    href === "/processes" ||
-    href === "/payment-methods"
-  )
-    return true
-  if (!permissions) return false
-  const slug = Object.keys(permissions)
-    .filter((s) => matchesRoute(href, s))
-    .sort((a, b) => b.length - a.length)[0]
-  return slug ? permissions[slug] === true : false
-}
 
 type VisibleWorkspace = Omit<Workspace, "items"> & { items: WorkspaceItem[] }
 
@@ -65,11 +44,11 @@ export function WorkspaceNavProvider({
 }) {
   const pathname = usePathname()
   const { profile, loading: profileLoading } = useUserProfile()
-  const { permissions, loading: permLoading } = usePagePermissions()
 
   const visible = React.useMemo<VisibleWorkspace[]>(() => {
     if (!profile) return []
     const p = profile as WorkspaceProfile
+    const level = accessLevel(p)
     return workspaces
       .filter((ws) => !ws.can || ws.can(p))
       .map((ws) => ({
@@ -78,12 +57,11 @@ export function WorkspaceNavProvider({
           .items(p)
           .filter(
             (item) =>
-              (!item.can || item.can(p)) &&
-              canOpen(item.href, permissions as PermissionMap),
+              (!item.can || item.can(p)) && canOpenPage(item.href, level),
           ),
       }))
       .filter((ws) => ws.items.length > 0)
-  }, [profile, permissions])
+  }, [profile])
 
   const routeWorkspace = resolveWorkspace(pathname, visible)
   const [selected, setSelected] = React.useState<WorkspaceId | null>(null)
@@ -128,7 +106,7 @@ export function WorkspaceNavProvider({
 
   const value = React.useMemo<WorkspaceNav>(
     () => ({
-      loading: profileLoading || permLoading,
+      loading: profileLoading,
       visible,
       active,
       routeId: routeWorkspace,
@@ -139,7 +117,6 @@ export function WorkspaceNavProvider({
     }),
     [
       profileLoading,
-      permLoading,
       visible,
       active,
       routeWorkspace,

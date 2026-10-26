@@ -1,7 +1,8 @@
 "use server"
 
 import { createClient } from "@/shared/api/supabase/server"
-import { calculateBusinessDays, getLocalDateString } from "@/shared/lib/date"
+import { getLocalDateString } from "@/shared/lib/date"
+import { annualLeaveSummary } from "@/shared/lib/leave"
 import { getCurrentQuarter } from "@/shared/lib/date/quarter"
 import { resolveProfileByUserIdOrEmail } from "@/shared/lib/profile-resolution"
 import { Database } from "@/shared/types/database.types"
@@ -97,9 +98,11 @@ export async function getEmployeeDashboardData(
       full_name: string | null
       job_title: string | null
       avatar_url: string | null
+      join_date: string | null
+      employment_type: string | null
     }>(
       supabase,
-      "id, email, full_name, job_title, avatar_url, created_at",
+      "id, email, full_name, job_title, avatar_url, join_date, employment_type, created_at",
       targetUserId,
       targetUserId === (actorProfile?.id || user.id) ? user.email : null,
     )
@@ -118,8 +121,6 @@ export async function getEmployeeDashboardData(
         : currentQuarter
 
     const leaveBalanceYear = selectedYear ?? new Date().getFullYear()
-    const leaveYearStart = new Date(leaveBalanceYear, 0, 1)
-    const leaveYearEnd = new Date(leaveBalanceYear, 11, 31)
     const sevenDaysAgo = new Date()
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6)
     const sevenDaysAgoStr = getLocalDateString(sevenDaysAgo)
@@ -200,14 +201,9 @@ export async function getEmployeeDashboardData(
                 `,
           )
           .eq("user_id", targetUserId)
+          // Every running project, whatever quarter it was planned in.
           .in("projects.status", ["Planned", "Active", "Review"])
           .limit(10)
-
-        if (selectedQuarterPart === "All" && selectedYear) {
-          query = query.like("projects.quarter_id", `${selectedYear}-%`)
-        } else {
-          query = query.eq("projects.quarter_id", activeQuarter)
-        }
 
         return query
       })(),
@@ -255,8 +251,9 @@ export async function getEmployeeDashboardData(
         .eq("user_id", targetUserId)
         .eq("status", "approved")
         .eq("leave_type", "Annual Leave")
-        .lte("start_date", leaveYearEnd.toISOString())
-        .gte("end_date", leaveYearStart.toISOString()),
+        // Plain dates: toISOString() would shift 31 Dec to the 30th in WIB.
+        .lte("start_date", `${leaveBalanceYear}-12-31`)
+        .gte("end_date", `${leaveBalanceYear}-01-01`),
 
       // Latest 360 summary for this quarter (scores are averages on 1-5).
       (async () => {
@@ -312,26 +309,24 @@ export async function getEmployeeDashboardData(
       start_date: string
       end_date: string
     }>
-    const approvedAnnualUsed = approvedAnnualRows.reduce((total, req) => {
-      const start = new Date(req.start_date)
-      const end = new Date(req.end_date)
-      const clampedStart = start < leaveYearStart ? leaveYearStart : start
-      const clampedEnd = end > leaveYearEnd ? leaveYearEnd : end
-      if (clampedEnd < clampedStart) return total
-      return total + calculateBusinessDays(clampedStart, clampedEnd)
-    }, 0)
-    const leaveBalance = Math.max(0, 12 - approvedAnnualUsed)
+    // Same rule as the leave page (prorated / intern entitlement).
+    const leaveBalance = annualLeaveSummary(
+      approvedAnnualRows,
+      leaveBalanceYear,
+      profile,
+    ).remaining
 
-    // Define the raw shape returned by Supabase (where relations are arrays)
+    type RawProject = {
+      id: string
+      name: string
+      status: string
+      quarter_id: string
+      end_date: string
+    }
+    // Define the raw shape returned by Supabase
     type RawProjectAssignment = {
       id: string
-      projects: {
-        id: string
-        name: string
-        status: string
-        quarter_id: string
-        end_date: string
-      }[]
+      projects: RawProject | RawProject[] | null
       project_sla_scores: {
         score_achieved: number
         weight_percentage: number
@@ -357,8 +352,11 @@ export async function getEmployeeDashboardData(
     ).map((assignment) => {
       const slaScores = assignment.project_sla_scores || []
       const qualityScores = assignment.project_work_quality_scores || []
-      // Supabase relations often come back as arrays, take the first one
-      const project = assignment.projects[0]
+      // A to-one relation (projects!inner) comes back as an object; older
+      // typings said array, so accept both.
+      const project = Array.isArray(assignment.projects)
+        ? assignment.projects[0]
+        : assignment.projects
 
       const realAchieve = slaScores.reduce(
         (sum, s) => sum + s.score_achieved,
@@ -387,7 +385,12 @@ export async function getEmployeeDashboardData(
     })
 
     const dashboardData: EmployeeDashboardData = {
-      user: profile,
+      user: {
+        id: profile.id,
+        full_name: profile.full_name,
+        job_title: profile.job_title,
+        avatar_url: profile.avatar_url,
+      },
       leaveBalance,
       recentLeaveRequests: recentLeaveResult.data || [],
       recentAttendance: recentAttendanceResult.data || [],

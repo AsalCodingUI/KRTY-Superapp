@@ -1,4 +1,5 @@
 import { getT } from "@/shared/i18n/server"
+import { createAdminClient } from "@/shared/api/supabase/admin"
 import { createClient } from "@/shared/api/supabase/server"
 import { logError } from "@/shared/lib/utils/logger"
 import { NextRequest, NextResponse } from "next/server"
@@ -39,8 +40,30 @@ export async function PATCH(request: NextRequest) {
       )
     }
 
-    // Update RSVP status in Supabase
-    const { data, error } = await supabase
+    // Only the owner or a guest (by id or email) answers; guests can't edit
+    // events (RLS), so the answer itself is written server-side.
+    const admin = createAdminClient()
+    const { data: event } = await admin
+      .from("calendar_events")
+      .select("id, user_id, guests")
+      .eq("id", eventId)
+      .maybeSingle()
+    const guests = (Array.isArray(event?.guests) ? event.guests : []) as (
+      | string
+      | { id?: string; email?: string }
+    )[]
+    const invited =
+      event?.user_id === user.id ||
+      guests.some((g) =>
+        typeof g === "string"
+          ? g === user.id || g === user.email
+          : g?.id === user.id || (!!user.email && g?.email === user.email),
+      )
+    if (!event || !invited) {
+      return NextResponse.json({ error: t("unauthorized") }, { status: 403 })
+    }
+
+    const { data, error } = await admin
       .from("calendar_events")
       .update({ rsvp_status: status })
       .eq("id", eventId)

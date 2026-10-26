@@ -24,3 +24,26 @@ export function periodLabel(
 export function periodYears(center = new Date().getFullYear()) {
   return [center - 1, center, center + 1]
 }
+
+/** "2026-Q2" → "Q2", or "Q2 2025" when it isn't `refYear`'s. */
+export function quarterShort(quarter: string, refYear?: string) {
+  const [year, part] = quarter.split("-")
+  return refYear && year === refYear ? part : `${part} ${year}`
+}
+
+/** Quarters from `from` to `to` inclusive ("2026-Q2" … "2026-Q4"). */
+export function quarterSpan(from: string, to: string, max = 8) {
+  let [y, q] = from.split("-Q").map(Number)
+  const out: string[] = []
+  for (let i = 0; i < 40; i++) {
+    const key = `${y}-Q${q}`
+    out.push(key)
+    if (key >= to) break
+    q += 1
+    if (q === 5) {
+      q = 1
+      y += 1
+    }
+  }
+  return out.length > max ? out.slice(-max) : out
+}

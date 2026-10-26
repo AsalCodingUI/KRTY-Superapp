@@ -218,9 +218,15 @@ function FinanceContent({ tab }: { tab: FinanceTab }) {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <Button onClick={() => openSubscription(null)}>
+            <Button
+              aria-label={t("actionAddSubscription")}
+              onClick={() => openSubscription(null)}
+            >
               <RiAddLine data-icon="inline-start" />
-              {t("actionAddSubscription")}
+              {/* Icon only on phones, or the header runs off screen. */}
+              <span className="hidden sm:inline">
+                {t("actionAddSubscription")}
+              </span>
             </Button>
           </>
         }

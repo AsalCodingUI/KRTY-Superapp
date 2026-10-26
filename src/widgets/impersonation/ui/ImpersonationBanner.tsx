@@ -3,6 +3,7 @@
 import { Spinner } from "@/components/ui/spinner"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { useT } from "@/shared/i18n/client"
+import { RiEyeLine } from "@/shared/ui/lucide-icons"
 import { AppBanner } from "@/widgets/app-banner/ui/AppBanner"
 import { useEffect, useState } from "react"
 import { useStopImpersonation } from "../model/useStopImpersonation"
@@ -52,12 +53,16 @@ export function ImpersonationBanner() {
         </button>
       }
     >
-      {t("impersonationViewingAs")}{" "}
+      {/* Phones: an eye stands in for the words so the name still fits. */}
+      <RiEyeLine aria-hidden className="mr-1.5 size-4 align-[-3px] sm:hidden" />
+      <span className="sr-only sm:not-sr-only">
+        {t("impersonationViewingAs")}{" "}
+      </span>
       <strong className="font-semibold">
         {profile.full_name || profile.email || t("impersonationMemberFallback")}
       </strong>
       {authProfile?.full_name && (
-        <span className="opacity-80">
+        <span className="hidden opacity-80 sm:inline">
           {" "}
           · {t("impersonationRealAccount", { name: authProfile.full_name })}
         </span>

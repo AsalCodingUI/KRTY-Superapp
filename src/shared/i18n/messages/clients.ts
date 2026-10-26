@@ -56,7 +56,7 @@ const id = {
   fieldAddress: "Alamat",
   editClient: "Ubah klien",
   noClientLinkedHint:
-    "Belum ada klien. Pilih klien di kanan atas, data kontak & invoice ikut dari sana.",
+    "Belum ada klien. Pilih di kanan atas; kontak dan invoice ikut dari sana.",
   fieldAddressPlaceholder: "Dipakai di invoice",
   fieldCurrency: "Mata uang",
   fieldNotes: "Catatan",
@@ -134,7 +134,7 @@ const en: Record<keyof typeof id, string> = {
   fieldAddress: "Address",
   editClient: "Edit client",
   noClientLinkedHint:
-    "No client yet. Pick one at the top right; contact details and invoices come from it.",
+    "No client yet. Pick one at the top right; contact details and invoices follow it.",
   fieldAddressPlaceholder: "Printed on invoices",
   fieldCurrency: "Currency",
   fieldNotes: "Notes",

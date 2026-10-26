@@ -270,6 +270,7 @@ export const CreditCard = /*#__PURE__*/ animated(
   Extra.CreditCardIcon,
   "CreditCard",
 )
+export const Inbox = /*#__PURE__*/ animated(Extra.InboxIcon, "Inbox")
 export const Info = /*#__PURE__*/ animated(Extra.InfoIcon, "Info")
 export const ListChecks = /*#__PURE__*/ animated(
   Extra.ListChecksIcon,

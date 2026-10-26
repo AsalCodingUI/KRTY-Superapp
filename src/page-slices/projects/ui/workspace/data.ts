@@ -1,5 +1,6 @@
 "use client"
 
+import { compressImage } from "@/shared/lib/compress-image"
 import { createClient } from "@/shared/api/supabase/client"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { canManageByRole } from "@/shared/lib/roles"
@@ -164,7 +165,8 @@ export function useTasks(projectId: string) {
 // Every column of the row types, spelled out (no `*`).
 const DOCUMENT_COLUMNS =
   "id, project_id, kind, title, status, file_path, file_name, file_size, created_by, created_at, updated_at"
-const FOLDER_COLUMNS = "id, project_id, name, created_by, created_at"
+const FOLDER_COLUMNS =
+  "id, project_id, name, is_internal, created_by, created_at"
 const FILE_COLUMNS =
   "id, project_id, folder_id, name, file_path, file_size, mime_type, created_by, created_at"
 
@@ -261,6 +263,31 @@ export async function uploadProjectFile(
     ext,
     file,
   )
+}
+
+/**
+ * A picture or attachment in a project note or task description: kept
+ * private in the project's folder ("…/lampiran") and linked through
+ * /api/files, which opens it only for someone signed in with access.
+ * Pictures are compressed unless `original`.
+ */
+export async function uploadInternalAsset(
+  projectId: string,
+  projectName: string,
+  picked: File,
+  original = false,
+) {
+  const file = original ? picked : await compressImage(picked)
+  const { base, ext } = splitFileName(file.name)
+  const path = await uploadUnique(
+    supabase(),
+    BUCKET,
+    `${slugify(projectName, 40)}--${projectId}/lampiran`,
+    slugify(base) || "file",
+    ext,
+    file,
+  )
+  return `/api/files/${BUCKET}/${path.split("/").map(encodeURIComponent).join("/")}`
 }
 
 /** Renames the stored file to match a new display name; returns the path. */

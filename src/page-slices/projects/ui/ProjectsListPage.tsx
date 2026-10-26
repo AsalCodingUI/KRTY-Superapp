@@ -56,8 +56,7 @@ const ProjectForm = dynamic(
 const QUERY_KEY = ["projects", "list-page"]
 
 /**
- * Daftar Project: list, kanban (drag to change status) or table. Calculator
- * and SLA Generator are hidden here for now; they move elsewhere later.
+ * Daftar Project: list, kanban (drag to change status) or table.
  */
 export function ProjectsListPage() {
   const t = useT("projects")
@@ -74,16 +73,31 @@ export function ProjectsListPage() {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [deleting, setDeleting] = useState<ProjectListRow | null>(null)
 
-  const { data: allProjects = [], isLoading } = useQuery({
-    queryKey: QUERY_KEY,
+  // Stakeholders see every project; everyone else the ones they're on
+  // (shared/config/access.ts). Pending until the profile is known.
+  const { data: allProjects = [], isPending: isLoading } = useQuery({
+    queryKey: [...QUERY_KEY, isAdmin ? "all" : profile?.id],
+    enabled: Boolean(profile),
     queryFn: async () => {
-      const { data, error } = await supabase
+      let request = supabase
         .from("projects")
         .select(
           `id, name, status, start_date, end_date, quarter_id, client_name,
            project_assignments ( id, profiles ( full_name, avatar_url ) )`,
         )
         .order("end_date", { ascending: false })
+      if (!isAdmin) {
+        const { data: mine, error: mineError } = await supabase
+          .from("project_assignments")
+          .select("project_id")
+          .eq("user_id", profile!.id)
+        if (mineError) throw mineError
+        request = request.in(
+          "id",
+          (mine ?? []).map((a: { project_id: string }) => a.project_id),
+        )
+      }
+      const { data, error } = await request
       if (error) throw error
       return (data ?? []) as unknown as ProjectListRow[]
     },
@@ -139,7 +153,7 @@ export function ProjectsListPage() {
         title={t("title")}
         actions={
           <div className="flex items-center gap-2">
-            <div className="relative w-64">
+            <div className="relative w-40 sm:w-64">
               <RiSearchLine className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
               <Input
                 type="search"
@@ -157,13 +171,15 @@ export function ProjectsListPage() {
             />
             {isAdmin && (
               <Button
+                aria-label={t("newProject")}
                 onClick={() => {
                   setEditingId(null)
                   setFormOpen(true)
                 }}
               >
                 <RiAddLine data-icon="inline-start" />
-                {t("newProject")}
+                {/* Icon only on phones, or the header runs off screen. */}
+                <span className="hidden sm:inline">{t("newProject")}</span>
               </Button>
             )}
           </div>
@@ -178,7 +194,6 @@ export function ProjectsListPage() {
         ) : needle && projects.length === 0 ? (
           <EmptyState
             title={t("noMatch", { query: query.trim() })}
-            description={t("noMatchHint")}
             icon={<RiSearchLine />}
           />
         ) : view === "kanban" ? (

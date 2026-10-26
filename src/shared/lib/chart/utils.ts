@@ -13,7 +13,7 @@ export const chartColors = {
     bg: "bg-green-9",
     stroke: "stroke-green-9",
     fill: "fill-green-9",
-    text: "text-green-9",
+    text: "text-success-ink",
   },
   violet: {
     bg: "bg-purple-9",

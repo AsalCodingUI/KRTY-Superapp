@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -144,7 +143,6 @@ function SubscriptionForm({
         <DialogTitle>
           {subscription ? t("editSubscription") : t("addSubscription")}
         </DialogTitle>
-        <DialogDescription>{t("subscriptionDescription")}</DialogDescription>
       </DialogHeader>
       <form
         id="subscription-form"

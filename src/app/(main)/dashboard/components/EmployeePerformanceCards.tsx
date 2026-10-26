@@ -2,28 +2,25 @@
 
 import { Badge } from "@/components/ui/badge"
 import { ArrowUpRight } from "@/components/icons"
-import {
-  HomeCard,
-  HomeEmpty,
-  HomeIconLink,
-  HomeRow,
-  HomeStats,
-} from "./home-card"
+import { periodLabel, isQuarter } from "@/page-slices/performance/ui/kpi/period"
+import { My360Actions } from "@/page-slices/performance/ui/review/MyReview"
+import { RiCalendarLine, RiGroupLine } from "@/shared/ui/lucide-icons"
+import { HomeCard, HomeEmpty, HomeIconLink, HomeRow } from "./home-card"
 import { format } from "date-fns"
 import { useDateLocale, useT } from "@/shared/i18n/client"
 
+/** A small tile in front of a row, like a project avatar. */
+function RowIcon({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="bg-muted text-muted-foreground flex size-8 shrink-0 items-center justify-center rounded-lg [&_svg]:size-4">
+      {children}
+    </span>
+  )
+}
+
 interface EmployeePerformanceCardsProps {
-  slaScore: number | null
-  reviewScore: number | null
-  workQualityScore: number | null
-  quarter: string
-  competencyScores?: {
-    leadership: number
-    quality: number
-    reliability: number
-    communication: number
-    initiative: number
-  } | null
+  /** The home page's period ("2026-Q4"): the 360 actions follow it. */
+  period: string
   upcomingReviews?: Array<{
     cycle_id: string
     cycle_name: string
@@ -42,99 +39,24 @@ interface EmployeePerformanceCardsProps {
   }>
 }
 
+/** Upcoming 360 reviews and 1:1 sessions (the KPI is HomeKpiCard). */
 export function EmployeePerformanceCards({
-  slaScore,
-  reviewScore,
-  workQualityScore,
-  quarter,
-  competencyScores,
+  period,
   upcomingReviews = [],
   upcomingOneOnOne = [],
 }: EmployeePerformanceCardsProps) {
   const t = useT("dashboard")
+  const tp = useT("performance")
   const dateLocale = useDateLocale()
-  const pct = (v: number | null) =>
-    v !== null ? `${Number(v).toFixed(1)}%` : "–"
-  const competencyItems = competencyScores
-    ? [
-        {
-          label: t("competencyLeadership"),
-          value: competencyScores.leadership,
-        },
-        { label: t("competencyQuality"), value: competencyScores.quality },
-        {
-          label: t("competencyReliability"),
-          value: competencyScores.reliability,
-        },
-        {
-          label: t("competencyCommunication"),
-          value: competencyScores.communication,
-        },
-        {
-          label: t("competencyInitiative"),
-          value: competencyScores.initiative,
-        },
-      ]
-    : []
   const reviews = upcomingReviews.slice(0, 3)
   const slots = upcomingOneOnOne.slice(0, 3)
 
   return (
     <>
       <HomeCard
-        title={t("performanceTitle")}
-        badge={<Badge variant="secondary">{quarter}</Badge>}
-        actions={
-          <HomeIconLink href="/performance" label={t("openKpi")}>
-            <ArrowUpRight />
-          </HomeIconLink>
-        }
-      >
-        <HomeStats
-          items={[
-            { label: t("statSlaOnTime"), value: pct(slaScore) },
-            { label: t("statReview360"), value: pct(reviewScore) },
-            { label: t("statWorkQuality"), value: pct(workQualityScore) },
-          ]}
-        />
-        {competencyItems.length > 0 ? (
-          <div className="flex flex-col gap-2.5">
-            {competencyItems.map((item) => (
-              <div
-                key={item.label}
-                className="flex items-center gap-3 text-[13px]"
-              >
-                <span className="text-muted-foreground w-28 shrink-0">
-                  {item.label}
-                </span>
-                <div className="bg-muted h-1.5 flex-1 overflow-hidden rounded-full">
-                  <div
-                    className="bar-grow bg-primary h-full rounded-full"
-                    style={
-                      {
-                        "--bar": `${Math.max(0, Math.min(100, item.value))}%`,
-                      } as React.CSSProperties
-                    }
-                  />
-                </div>
-                <span className="w-10 shrink-0 text-right font-medium tabular-nums">
-                  {Math.round(item.value)}%
-                </span>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <HomeEmpty>{t("competencyEmpty")}</HomeEmpty>
-        )}
-      </HomeCard>
-
-      <HomeCard
         title={t("reviewOneOnOneTitle")}
         actions={
-          <HomeIconLink
-            href="/performance?tab=360review"
-            label={t("openReview")}
-          >
+          <HomeIconLink href="/performance" label={t("openReview")}>
             <ArrowUpRight />
           </HomeIconLink>
         }
@@ -147,8 +69,17 @@ export function EmployeePerformanceCards({
               {reviews.map((review) => (
                 <HomeRow
                   key={review.cycle_id}
-                  href="/performance?tab=360review"
-                  title={review.cycle_name}
+                  href="/performance"
+                  leading={
+                    <RowIcon>
+                      <RiGroupLine />
+                    </RowIcon>
+                  }
+                  title={t("review360Label", {
+                    period: isQuarter(review.cycle_name)
+                      ? periodLabel(review.cycle_name, tp)
+                      : review.cycle_name,
+                  })}
                   subtitle={t("reviewDue", {
                     date: format(new Date(review.end_date), "d MMM yyyy", {
                       locale: dateLocale,
@@ -168,6 +99,11 @@ export function EmployeePerformanceCards({
               {slots.map((slot) => (
                 <HomeRow
                   key={slot.id}
+                  leading={
+                    <RowIcon>
+                      <RiCalendarLine />
+                    </RowIcon>
+                  }
                   title={`1:1 · ${format(new Date(slot.start_at), "EEE, d MMM · HH:mm", { locale: dateLocale })}`}
                   subtitle={
                     (slot.organizer_name
@@ -189,7 +125,7 @@ export function EmployeePerformanceCards({
                         href={slot.meeting_url}
                         target="_blank"
                         rel="noreferrer"
-                        className="text-primary text-[13px] font-medium hover:underline"
+                        className="text-info text-[13px] hover:underline"
                       >
                         {t("oneOnOneJoin")}
                       </a>
@@ -200,6 +136,8 @@ export function EmployeePerformanceCards({
             </>
           )}
         </div>
+        {/* Review teammates / read the result, as on the Kinerja page. */}
+        <My360Actions period={period} />
       </HomeCard>
     </>
   )

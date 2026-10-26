@@ -28,15 +28,6 @@ const allNavItems = () =>
     ...ws.items({ role: "employee" }),
   ]))
 
-const OFF_NAV_SECTIONS: Record<
-  string,
-  "notifications" | "calculator" | "slaGenerator"
-> = {
-  notifications: "notifications",
-  calculator: "calculator",
-  "sla-generator": "slaGenerator",
-}
-
 /** Current section, taken from the navigation config (fallback: path). */
 function useSection(): Crumb {
   const pathname = usePathname()
@@ -54,9 +45,6 @@ function useSection(): Crumb {
   if (match) return { label: t(match.name), href: match.href }
   if (pathname.startsWith("/settings")) return { label: t("settings") }
   const seg = pathname.split("/").filter(Boolean)[0] ?? "dashboard"
-  // Pages outside the sidebar still get a translated name.
-  const key = OFF_NAV_SECTIONS[seg]
-  if (key) return { label: t(key), href: `/${seg}` }
   return {
     label: seg.charAt(0).toUpperCase() + seg.slice(1).replace(/-/g, " "),
     href: `/${seg}`,

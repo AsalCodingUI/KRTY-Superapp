@@ -46,7 +46,10 @@ export default function Layout({
               aria-hidden
               className="blend-shadow pointer-events-none absolute inset-0 z-20 hidden shadow-(--elev-3) md:block md:rounded-3xl"
             />
-            <SidebarInset className="dark:bg-surface overflow-y-auto overscroll-contain [--bleed:0.75rem] [--page-gutter:1.25rem] md:z-20 md:rounded-3xl md:[--page-gutter:2.5rem] xl:[--page-gutter:4rem]">
+            {/* The scrollbar's room is always kept (scrollbar-gutter), so a
+                page that gets shorter (a filter, a tab) doesn't widen by
+                the scrollbar and shift everything sideways. */}
+            <SidebarInset className="dark:bg-surface overflow-y-auto overscroll-contain [--bleed:0.75rem] [--page-gutter:1.25rem] [scrollbar-gutter:stable] md:z-20 md:rounded-3xl md:[--page-gutter:2.5rem] xl:[--page-gutter:4rem]">
               <SiteHeader />
               <div className="gutter-x flex flex-1 flex-col gap-4 overflow-x-clip pb-6">
                 <WorkspaceTransition>

@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
+import { ButtonGroup } from "@/components/ui/button-group"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,7 +36,13 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Spinner } from "@/components/ui/spinner"
-import { RiAddLine, RiFolderLine, RiMoreFill } from "@/shared/ui/lucide-icons"
+import { Switch } from "@/components/ui/switch"
+import {
+  RiAddLine,
+  RiFolderLine,
+  RiLockLine,
+  RiMoreFill,
+} from "@/shared/ui/lucide-icons"
 import { useDateLocale, useT } from "@/shared/i18n/client"
 import { format, type Locale } from "date-fns"
 import { Check, ChevronDown, FileText, Plus, Upload } from "@/components/icons"
@@ -60,6 +67,8 @@ import {
   type FolderRow,
 } from "./data"
 import dynamic from "next/dynamic"
+import { isNote, NoteDialog } from "./NoteDialog"
+import { compressImage } from "@/shared/lib/compress-image"
 
 // Viewer (PDF / office renderers) loads in its own chunk.
 const FileViewer = dynamic(
@@ -73,12 +82,49 @@ function iconFor(mime: string | null) {
   return FileIcon
 }
 
-/** Folder tile drawn like DesignerHQ's (tab + body). */
-/** Pictures (incl. SVG, GIF) and video (mp4, webm…) belong in the library. */
+/** Pictures (incl. SVG, GIF), video (mp4, webm…) and Markdown notes belong
+ *  in the library; other documents in the Documents tab. */
 function isAsset(file: File) {
   return (
     /^(image|video)\//.test(file.type) ||
-    /\.(svg|webm|gif|webp|avif|mp4|mov)$/i.test(file.name)
+    /\.(svg|webm|gif|webp|avif|mp4|mov)$/i.test(file.name) ||
+    isNote(file.name)
+  )
+}
+
+/**
+ * What follows the pointer while a file is dragged onto a folder: a small
+ * chip with its thumbnail and name, not a copy of the whole card. Removed
+ * right after the browser snapshots it.
+ */
+function fileDragImage(source: HTMLElement, name: string) {
+  const chip = document.createElement("div")
+  chip.className = "lib-drag-preview"
+  const picture = source.querySelector("img")
+  if (picture) {
+    const thumb = document.createElement("img")
+    thumb.src = picture.currentSrc || picture.src
+    chip.append(thumb)
+  }
+  const label = document.createElement("span")
+  label.textContent = name
+  chip.append(label)
+  document.body.append(chip)
+  requestAnimationFrame(() => chip.remove())
+  return chip
+}
+
+/** "Internal": a folder kept from the client when the project is shared. */
+function InternalTag() {
+  const t = useT("projects")
+  return (
+    <span
+      className="bg-muted text-muted-foreground inline-flex items-center gap-1 rounded-full px-1.5 py-px text-[11px] font-medium"
+      title={t("libInternalFolderHint")}
+    >
+      <RiLockLine className="size-3" />
+      {t("libInternalTag")}
+    </span>
   )
 }
 
@@ -90,7 +136,7 @@ const LIB_GRID =
   "grid grid-cols-[minmax(0,1fr)_6rem_2rem] items-center gap-x-4 sm:grid-cols-[minmax(0,1fr)_6rem_5rem_2rem]"
 
 /** Yellow folder (VEED style): back tab + front body. */
-function FolderIcon({ className }: { className?: string }) {
+export function FolderIcon({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 40 32" className={className} aria-hidden="true">
       <path
@@ -172,6 +218,8 @@ function LibraryGrid({
   const t = useT("projects")
   const tc = useT("common")
   const [dropTarget, setDropTarget] = useState<string | null>(null)
+  // The file being dragged, dimmed in place.
+  const [dragging, setDragging] = useState<string | null>(null)
   return (
     <div className="flex flex-col gap-8">
       {(folders.length > 0 || onNewFolder) && (
@@ -204,7 +252,7 @@ function LibraryGrid({
                   className={cn(
                     "group/row hover:bg-muted/60 focus-visible:ring-focus-ring nest-rounded-xl nest-p-2 flex cursor-pointer items-center gap-3 transition-colors outline-none focus-visible:ring-2",
                     dropTarget === f.id &&
-                      "bg-primary/10 ring-primary/40 ring-2",
+                      "bg-primary/10 ring-primary/40 ring-2 ring-inset",
                   )}
                 >
                   <FolderIcon className="h-8 w-10 shrink-0" />
@@ -212,10 +260,11 @@ function LibraryGrid({
                     <span className="truncate text-sm" title={f.name}>
                       {f.name}
                     </span>
-                    <span className="text-tertiary-foreground text-[13px]">
+                    <span className="text-tertiary-foreground flex items-center gap-1.5 text-[13px]">
                       {count
                         ? t("libFileCount", { n: count })
                         : t("libFolderEmptyShort")}
+                      {f.is_internal && <InternalTag />}
                     </span>
                   </span>
                   <RowMenu
@@ -265,10 +314,20 @@ function LibraryGrid({
                   onDragStart={(e) => {
                     e.dataTransfer.setData(FILE_DRAG_TYPE, file.id)
                     e.dataTransfer.effectAllowed = "move"
+                    e.dataTransfer.setDragImage(
+                      fileDragImage(e.currentTarget, file.name),
+                      16,
+                      16,
+                    )
+                    setDragging(file.id)
                   }}
+                  onDragEnd={() => setDragging(null)}
                   onClick={open}
                   onKeyDown={(e) => e.key === "Enter" && open()}
-                  className="group/row focus-visible:ring-focus-ring flex min-w-0 cursor-pointer flex-col gap-2 rounded-xl outline-none focus-visible:ring-2"
+                  className={cn(
+                    "group/row focus-visible:ring-focus-ring flex min-w-0 cursor-pointer flex-col gap-2 rounded-xl transition-opacity outline-none focus-visible:ring-2",
+                    dragging === file.id && "opacity-40",
+                  )}
                 >
                   <FilePreview
                     file={file}
@@ -375,11 +434,15 @@ export function ProjectLibrary({ projectId }: { projectId: string }) {
   const [naming, setNaming] = useState<{
     folder?: FolderRow
     name: string
+    /** Kept from the client when the project is shared. */
+    internal: boolean
   } | null>(null)
   const [removing, setRemoving] = useState<
     { type: "file"; item: FileRow } | { type: "folder"; item: FolderRow } | null
   >(null)
   const [viewing, setViewing] = useState<number | null>(null)
+  // A Markdown note open in the note dialog (file null = writing a new one).
+  const [note, setNote] = useState<{ file: FileRow | null } | null>(null)
   const [renaming, setRenaming] = useState<{
     file: FileRow
     name: string
@@ -406,18 +469,27 @@ export function ProjectLibrary({ projectId }: { projectId: string }) {
     router.push(params.size ? `${pathname}?${params}` : pathname)
   }
 
+  // "Upload resolusi asli" skips the compression for that one pick.
+  const keepOriginal = useRef(false)
+
   const upload = async (list: FileList | null) => {
     if (!list?.length) return
+    const original = keepOriginal.current
+    keepOriginal.current = false
     // The library is for assets (pictures, SVG, video); documents live in
     // the Documents tab.
     const all = [...list]
-    const items = all.filter(isAsset)
-    if (items.length < all.length) toast.error(t("libAssetsOnly"))
-    if (!items.length) {
+    const assets = all.filter(isAsset)
+    if (assets.length < all.length) toast.error(t("libAssetsOnly"))
+    if (!assets.length) {
       if (inputRef.current) inputRef.current.value = ""
       return
     }
-    setUploading(items.length)
+    setUploading(assets.length)
+    // Pictures are compressed first (unless kept original).
+    const items = original
+      ? assets
+      : await Promise.all(assets.map(compressImage))
     // Three uploads at a time, then one insert for all of them.
     const uploads = await mapLimit(items, 3, async (file) => {
       try {
@@ -470,11 +542,14 @@ export function ProjectLibrary({ projectId }: { projectId: string }) {
     const { error } = naming.folder
       ? await db
           .from("project_folders")
-          .update({ name })
+          .update({ name, is_internal: naming.internal })
           .eq("id", naming.folder.id)
-      : await db
-          .from("project_folders")
-          .insert({ project_id: projectId, name, created_by: viewer.id })
+      : await db.from("project_folders").insert({
+          project_id: projectId,
+          name,
+          is_internal: naming.internal,
+          created_by: viewer.id,
+        })
     if (error?.code === "23505") {
       toast.error(t("errFolderExists"))
       return
@@ -566,7 +641,9 @@ export function ProjectLibrary({ projectId }: { projectId: string }) {
     getDownloadUrl: () => signed(file.file_path, file.name),
   }))
   const openFile = (file: FileRow) =>
-    setViewing(inFolder.findIndex((f) => f.id === file.id))
+    isNote(file.name)
+      ? setNote({ file })
+      : setViewing(inFolder.findIndex((f) => f.id === file.id))
 
   const fileMenu = (file: FileRow): RowMenuItem[] => [
     { label: t("libOpen"), onSelect: () => openFile(file) },
@@ -598,7 +675,12 @@ export function ProjectLibrary({ projectId }: { projectId: string }) {
     },
   ]
 
-  const drop = useFileDrop((list) => upload(list), uploading === 0)
+  // A drop is always a normal upload (an "original" pick may have been
+  // cancelled and left the flag on).
+  const drop = useFileDrop((list) => {
+    keepOriginal.current = false
+    return upload(list)
+  }, uploading === 0)
 
   return (
     <div className="relative flex flex-col" {...drop.bind}>
@@ -617,7 +699,16 @@ export function ProjectLibrary({ projectId }: { projectId: string }) {
             ? { onClick: () => go(null), label: t("sectionLibrary") }
             : undefined
         }
-        title={folder ? folder.name : t("sectionLibrary")}
+        title={
+          folder ? (
+            <span className="flex items-center gap-2">
+              {folder.name}
+              {folder.is_internal && <InternalTag />}
+            </span>
+          ) : (
+            t("sectionLibrary")
+          )
+        }
         actions={
           <>
             <ViewToggle
@@ -626,30 +717,65 @@ export function ProjectLibrary({ projectId }: { projectId: string }) {
               modes={["grid", "list"]}
             />
             {!folder && (
-              <Button variant="outline" onClick={() => setNaming({ name: "" })}>
+              <Button
+                variant="outline"
+                onClick={() => setNaming({ name: "", internal: false })}
+              >
                 <RiAddLine data-icon="inline-start" />
                 {t("libFolder")}
               </Button>
             )}
-            <Button
-              onClick={() => inputRef.current?.click()}
-              disabled={uploading > 0}
-            >
-              {uploading > 0 ? (
-                <Spinner data-icon="inline-start" />
-              ) : (
-                <Upload data-icon="inline-start" />
-              )}
-              {uploading > 0
-                ? t("libUploading", { n: uploading })
-                : t("libUpload")}
+            <Button variant="outline" onClick={() => setNote({ file: null })}>
+              <FileText data-icon="inline-start" />
+              {t("libNoteButton")}
             </Button>
+            <ButtonGroup>
+              <Button
+                onClick={() => {
+                  keepOriginal.current = false
+                  inputRef.current?.click()
+                }}
+                disabled={uploading > 0}
+              >
+                {uploading > 0 ? (
+                  <Spinner data-icon="inline-start" />
+                ) : (
+                  <Upload data-icon="inline-start" />
+                )}
+                {uploading > 0
+                  ? t("libUploading", { n: uploading })
+                  : t("libUpload")}
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  render={
+                    <Button
+                      size="icon"
+                      aria-label={t("libUploadOptions")}
+                      disabled={uploading > 0}
+                    />
+                  }
+                >
+                  <ChevronDown />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="min-w-56">
+                  <DropdownMenuItem
+                    onClick={() => {
+                      keepOriginal.current = true
+                      inputRef.current?.click()
+                    }}
+                  >
+                    {t("libUploadOriginal")}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </ButtonGroup>
             <input
               ref={inputRef}
               type="file"
               multiple
               hidden
-              accept="image/*,video/*"
+              accept="image/*,video/*,.md,text/markdown"
               onChange={(e) => upload(e.target.files)}
             />
           </>
@@ -674,8 +800,18 @@ export function ProjectLibrary({ projectId }: { projectId: string }) {
                 allFiles={files}
                 dateLocale={dateLocale}
                 onOpenFolder={go}
-                onNewFolder={folder ? undefined : () => setNaming({ name: "" })}
-                onRenameFolder={(f) => setNaming({ folder: f, name: f.name })}
+                onNewFolder={
+                  folder
+                    ? undefined
+                    : () => setNaming({ name: "", internal: false })
+                }
+                onRenameFolder={(f) =>
+                  setNaming({
+                    folder: f,
+                    name: f.name,
+                    internal: f.is_internal,
+                  })
+                }
                 onRemove={setRemoving}
                 fileMenu={fileMenu}
                 onOpenFile={openFile}
@@ -729,6 +865,7 @@ export function ProjectLibrary({ projectId }: { projectId: string }) {
                           <span className="truncate" title={f.name}>
                             {f.name}
                           </span>
+                          {f.is_internal && <InternalTag />}
                         </span>
                         <span className="text-muted-foreground text-right tabular-nums">
                           {t("libFileCount", { n: count })}
@@ -744,7 +881,11 @@ export function ProjectLibrary({ projectId }: { projectId: string }) {
                             {
                               label: t("actionEdit"),
                               onSelect: () =>
-                                setNaming({ folder: f, name: f.name }),
+                                setNaming({
+                                  folder: f,
+                                  name: f.name,
+                                  internal: f.is_internal,
+                                }),
                             },
                             {
                               label: tc("delete"),
@@ -769,6 +910,11 @@ export function ProjectLibrary({ projectId }: { projectId: string }) {
                       onDragStart={(e) => {
                         e.dataTransfer.setData(FILE_DRAG_TYPE, file.id)
                         e.dataTransfer.effectAllowed = "move"
+                        e.dataTransfer.setDragImage(
+                          fileDragImage(e.currentTarget, file.name),
+                          16,
+                          16,
+                        )
                       }}
                       onClick={open}
                       onKeyDown={(e) => e.key === "Enter" && open()}
@@ -796,11 +942,7 @@ export function ProjectLibrary({ projectId }: { projectId: string }) {
             ) : (
               <EmptyState
                 title={folder ? t("libFolderEmpty") : t("libEmpty")}
-                description={
-                  folder
-                    ? t("libFolderEmptyDescription")
-                    : t("libEmptyDescription")
-                }
+                description={folder ? undefined : t("libEmptyDescription")}
                 icon={<RiFolderLine className="size-5" />}
                 placement="inner"
               />
@@ -827,6 +969,23 @@ export function ProjectLibrary({ projectId }: { projectId: string }) {
               }
               onKeyDown={(e) => e.key === "Enter" && saveFolder()}
             />
+            <label className="flex cursor-pointer items-center justify-between gap-4">
+              <span className="flex flex-col gap-0.5">
+                <span className="flex items-center gap-1.5 text-sm font-medium">
+                  <RiLockLine className="text-muted-foreground size-3.5" />
+                  {t("libInternalFolder")}
+                </span>
+                <span className="text-muted-foreground text-xs">
+                  {t("libInternalFolderHint")}
+                </span>
+              </span>
+              <Switch
+                checked={naming?.internal ?? false}
+                onCheckedChange={(on) =>
+                  naming && setNaming({ ...naming, internal: on })
+                }
+              />
+            </label>
             <DialogFooter>
               <Button variant="outline" onClick={() => setNaming(null)}>
                 {tc("cancel")}
@@ -917,6 +1076,17 @@ export function ProjectLibrary({ projectId }: { projectId: string }) {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        <NoteDialog
+          open={Boolean(note)}
+          onOpenChange={(o) => !o && setNote(null)}
+          file={note?.file ?? null}
+          projectId={projectId}
+          projectName={projectName}
+          folderId={folder?.id ?? null}
+          viewerId={viewer.id}
+          onSaved={() => invalidate("library")}
+        />
 
         <FileViewer
           items={viewerItems}

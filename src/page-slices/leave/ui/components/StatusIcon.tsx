@@ -20,7 +20,7 @@ export function LeaveStatusIcon({
       aria-hidden
       className={cn(
         "size-4 shrink-0",
-        status === "approved" && "text-success",
+        status === "approved" && "text-success-ink",
         status === "rejected" && "text-destructive",
         status === "pending" && "text-warning",
         className,

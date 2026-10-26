@@ -297,7 +297,6 @@ export function DataTable<TData>({
                 <TableCell colSpan={columns.length} className="p-6">
                   <EmptyState
                     title={t("noData")}
-                    description={t("dataTableEmptyDescription")}
                     icon={<FileTextIcon className="size-5" />}
                     placement="inner"
                   />

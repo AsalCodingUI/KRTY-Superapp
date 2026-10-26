@@ -1,7 +1,6 @@
 // src/components/event-calendar/index.ts
 
 export { AgendaView } from "./agenda-view"
-export { CalendarSidebar } from "./calendar-sidebar"
 export { CalendarToolbar } from "./CalendarToolbar"
 export { DayView } from "./day-view"
 export { EventCalendar } from "./EventCalendar"

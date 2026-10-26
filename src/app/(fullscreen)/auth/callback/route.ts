@@ -7,7 +7,15 @@ export async function GET(request: Request) {
   // https://supabase.com/docs/guides/auth/server-side/nextjs
   const requestUrl = new URL(request.url)
   const code = requestUrl.searchParams.get("code")
-  const next = requestUrl.searchParams.get("next") ?? "/dashboard"
+  // Only same-site paths: "//evil.com" or "@evil.com" after the origin
+  // would send the fresh session somewhere else.
+  const rawNext = requestUrl.searchParams.get("next") ?? "/dashboard"
+  const next =
+    rawNext.startsWith("/") &&
+    !rawNext.startsWith("//") &&
+    !rawNext.includes("\\")
+      ? rawNext
+      : "/dashboard"
 
   // Use NEXT_PUBLIC_APP_URL to avoid proxy/gateway issues where
   // requestUrl.origin may resolve to an internal address (e.g. localhost:8080)
@@ -23,7 +31,6 @@ export async function GET(request: Request) {
   }
 
   // URL to redirect to after sign in process completes
-  return NextResponse.redirect(
-    `${origin}/login?error=Could not authenticate user`,
-  )
+  // The login page shows its own (translated) message for this.
+  return NextResponse.redirect(`${origin}/login?error=auth`)
 }

@@ -146,7 +146,7 @@ export function PolicyHistory({
                     <span aria-hidden>·</span>
                   )}
                   {e.current && (
-                    <span className="text-success">{t("inForce")}</span>
+                    <span className="text-success-ink">{t("inForce")}</span>
                   )}
                   {e.kind === "draft" && <span>{t("notPublished")}</span>}
                   {e.viewing && (

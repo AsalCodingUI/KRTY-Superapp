@@ -66,7 +66,7 @@ export default async function LeaveRoute({
   // 🚀 PARALLEL FETCH: Profile first (needed for role check)
   const profile = await resolveProfileByUserIdOrEmail<Profile>(
     supabase,
-    "id, krt_id, email, full_name, avatar_url, role, job_title, team_id, created_at, updated_at, leave_balance, leave_used, manager_id, is_super_admin, join_date, employment_type",
+    "id, krt_id, email, full_name, avatar_url, role, job_title, team_id, created_at, updated_at, manager_id, is_super_admin, join_date, employment_type",
     effectiveUserId,
     effectiveUserId === user.id ? user.email : null,
   )
@@ -232,25 +232,16 @@ export default async function LeaveRoute({
 
   const adminSupabase = createAdminClient()
 
-  // 🚀 PARALLEL FETCH: Count + Requests + Attendance Logs
-  const [
-    countResult,
-    requestsResult,
-    attendanceLogsResult,
-    statsRequestsResult,
-  ] = await Promise.all([
-    adminSupabase
-      .from("leave_requests")
-      .select("id", { count: "exact", head: true })
-      .in("user_id", scopedProfileIds),
+  // A member has few requests: load them all once, newest first. The page
+  // derives balances from them and the details modal pages them client-side.
+  const [requestsResult, attendanceLogsResult] = await Promise.all([
     adminSupabase
       .from("leave_requests")
       .select(
         "id,start_date,end_date,leave_type,reason,review_note,proof_url,status,created_at,updated_at,user_id",
       )
       .in("user_id", scopedProfileIds)
-      .order("created_at", { ascending: false })
-      .range(from, to),
+      .order("created_at", { ascending: false }),
     adminSupabase
       .from("attendance_logs")
       .select(
@@ -261,24 +252,19 @@ export default async function LeaveRoute({
       .order("date", { ascending: false })
       .order("clock_in", { ascending: false })
       .range(attendanceFrom, attendanceTo),
-    adminSupabase
-      .from("leave_requests")
-      .select(
-        "id,start_date,end_date,leave_type,reason,review_note,proof_url,status,created_at,updated_at,user_id",
-      )
-      .in("user_id", scopedProfileIds),
   ])
+  const memberRequests = requestsResult.data || []
 
   return (
     <LeavePage
       role="employee"
       profile={profile}
-      requests={requestsResult.data || []}
-      statsRequests={statsRequestsResult.data || []}
+      requests={memberRequests}
+      statsRequests={memberRequests}
       attendanceLogs={attendanceLogsResult.data || []}
       page={page}
-      pageSize={pageSize}
-      totalCount={countResult.count || 0}
+      pageSize={memberRequests.length}
+      totalCount={memberRequests.length}
     />
   )
 }

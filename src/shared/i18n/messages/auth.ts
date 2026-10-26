@@ -3,14 +3,13 @@
  * messages. `id` is the source of truth; `en` must have every key.
  */
 const id = {
-  loginTitle: "Masuk ke akun Kretya",
-  loginSubtitle: "Masuk dengan aman pakai akun Google Workspace atau Gmail",
+  loginTitle: "Masuk ke Kretya",
+  loginSubtitle: "Pakai akun Google Workspace atau Gmail.",
   loginGoogleFailed: "Gagal masuk dengan Google. Coba lagi.",
   loginConnecting: "Menghubungkan…",
   loginWithGoogle: "Lanjutkan dengan Google",
 
   updatePasswordTitle: "Perbarui password",
-  updatePasswordSubtitle: "Masukkan password baru kamu di bawah.",
   passwordsMismatch: "Password tidak sama",
   updatePasswordFailed: "Gagal memperbarui password",
   updatePasswordSuccess: "Password berhasil diperbarui! Mengalihkan…",
@@ -38,14 +37,13 @@ const id = {
 }
 
 const en: Record<keyof typeof id, string> = {
-  loginTitle: "Sign in to your Kretya account",
-  loginSubtitle: "Sign in securely with your Google Workspace or Gmail account",
+  loginTitle: "Sign in to Kretya",
+  loginSubtitle: "Use your Google Workspace or Gmail account.",
   loginGoogleFailed: "Google sign-in failed. Please try again.",
   loginConnecting: "Connecting…",
   loginWithGoogle: "Continue with Google",
 
   updatePasswordTitle: "Update your password",
-  updatePasswordSubtitle: "Please enter your new password below.",
   passwordsMismatch: "Passwords do not match",
   updatePasswordFailed: "Failed to update password",
   updatePasswordSuccess: "Password updated successfully! Redirecting…",

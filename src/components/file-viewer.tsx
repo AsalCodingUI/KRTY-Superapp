@@ -5,6 +5,8 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { DocxPages, SheetView } from "@/components/office-view"
 import { PdfPages } from "@/components/pdf-view"
 import { Spinner } from "@/components/ui/spinner"
+import { Zoomable, ZoomableImage } from "@/components/zoomable"
+import { MarkdownDocEditor } from "@/page-slices/policies/ui/doc-editor"
 import { useT } from "@/shared/i18n/client"
 import {
   ChevronLeft,
@@ -232,11 +234,15 @@ export function FileViewer({
               ) : !url ? (
                 <Spinner className="size-6" />
               ) : kind === "image" ? (
-                // eslint-disable-next-line @next/next/no-img-element -- signed, private URL
-                <img
+                // Pinch to zoom, two fingers to pan; swatches swap the
+                // backdrop behind an SVG.
+                <ZoomableImage
+                  key={url}
                   src={url}
                   alt={item.name}
-                  className="max-h-[calc(100%-3rem)] max-w-[calc(100%-3rem)] rounded-[4px] object-contain shadow-(--elev-3)"
+                  name={item.name}
+                  mime={item.mime}
+                  className="size-full"
                 />
               ) : kind === "video" ? (
                 <video
@@ -254,13 +260,35 @@ export function FileViewer({
                 <DocxPages url={url} onError={markFailed} />
               ) : kind === "sheet" ? (
                 <SheetView url={url} onError={markFailed} />
+              ) : item && /\.(md|markdown)$/i.test(item.name) ? (
+                // A note reads as the typeset document (the editor, shown
+                // only), on a page like the PDFs.
+                <div className="size-full overflow-y-auto px-6 py-6">
+                  <div className="bg-background mx-auto min-h-full w-[min(852px,calc(100vw-6rem))] rounded-[4px] shadow-(--elev-3)">
+                    <MarkdownDocEditor
+                      key={url}
+                      readOnly
+                      value={text ?? ""}
+                      ariaLabel={item.name}
+                      className="overflow-visible"
+                      onChange={() => {}}
+                    />
+                  </div>
+                </div>
               ) : (
                 // Text sits on a page like the PDFs.
-                <div className="size-full overflow-y-auto px-6 py-6">
-                  <pre className="bg-background mx-auto min-h-full max-w-[852px] rounded-[4px] p-8 font-mono text-xs leading-5 whitespace-pre-wrap shadow-(--elev-3)">
-                    {text}
-                  </pre>
-                </div>
+                <Zoomable className="size-full" min={0.5} max={4}>
+                  {(zoom) => (
+                    <div className="w-max min-w-full px-6 py-6">
+                      <pre
+                        className="bg-background mx-auto min-h-full w-[min(852px,calc(100vw-6rem))] rounded-[4px] p-8 font-mono text-xs leading-5 whitespace-pre-wrap shadow-(--elev-3)"
+                        style={{ zoom }}
+                      >
+                        {text}
+                      </pre>
+                    </div>
+                  )}
+                </Zoomable>
               )}
 
               {items.length > 1 && (

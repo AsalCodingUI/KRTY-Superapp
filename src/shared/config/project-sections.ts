@@ -1,10 +1,12 @@
 import {
   RiLayoutGridLine,
   RiFileList3Line,
+  RiFilePaperLine,
   RiFileTextLine,
   RiFolderLine,
   RiMoneyDollarCircleLine,
   RiSettings3Line,
+  RiStarLine,
   type RemixiconComponentType,
 } from "@/shared/ui/lucide-icons"
 import type { MessageKey } from "@/shared/i18n/messages"
@@ -30,6 +32,12 @@ export const PROJECT_SECTIONS: {
     icon: RiFileList3Line,
   },
   {
+    slug: "reports",
+    name: "Report",
+    labelKey: "sectionReports",
+    icon: RiFilePaperLine,
+  },
+  {
     slug: "invoices",
     name: "Invoice",
     labelKey: "sectionInvoices",
@@ -43,9 +51,15 @@ export const PROJECT_SECTIONS: {
   },
   {
     slug: "library",
-    name: "Library",
+    name: "Library & Aset",
     labelKey: "sectionLibrary",
     icon: RiFolderLine,
+  },
+  {
+    slug: "assessment",
+    name: "Penilaian",
+    labelKey: "sectionAssessment",
+    icon: RiStarLine,
   },
   {
     slug: "settings",

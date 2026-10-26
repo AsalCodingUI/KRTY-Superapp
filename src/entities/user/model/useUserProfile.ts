@@ -38,16 +38,20 @@ export function useUserProfile() {
         let resolvedProfile = profileData as UserProfile | null
 
         if (!resolvedProfile && user.email) {
-          const { data: emailProfiles, error: emailLookupError } = await supabase
-            .from("profiles")
-            .select(
-              "id, full_name, email, role, job_title, krt_id, team_id, avatar_url, created_at",
-            )
-            .eq("email", user.email)
-            .order("created_at", { ascending: true })
+          const { data: emailProfiles, error: emailLookupError } =
+            await supabase
+              .from("profiles")
+              .select(
+                "id, full_name, email, role, job_title, krt_id, team_id, avatar_url, created_at",
+              )
+              .eq("email", user.email)
+              .order("created_at", { ascending: true })
 
           if (emailLookupError && emailLookupError.code !== "PGRST116") {
-            console.error("Client email profile lookup failed:", emailLookupError)
+            console.error(
+              "Client email profile lookup failed:",
+              emailLookupError,
+            )
           }
 
           if ((emailProfiles || []).length === 1) {

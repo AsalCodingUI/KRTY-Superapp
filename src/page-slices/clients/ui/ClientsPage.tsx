@@ -49,7 +49,7 @@ export function ClientsPage() {
 
   const tab: Tab =
     searchParams.get("status") === "archived" ? "archived" : "active"
-  const openId = searchParams.get("klien")
+  const openId = searchParams.get("client")
   const withParams = (patch: Record<string, string | null>) => {
     const params = new URLSearchParams(searchParams.toString())
     for (const [key, value] of Object.entries(patch)) {

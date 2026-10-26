@@ -1,7 +1,6 @@
 /** "teams" strings. `id` is the source of truth; `en` must have every key. */
 const id = {
   title: "Tim",
-  membersAccess: "Anggota & Akses",
   loadError: "Gagal memuat anggota tim",
   statsLoadError: "Gagal memuat statistik tim",
 
@@ -11,7 +10,7 @@ const id = {
   statProjectManager: "Project Manager",
   statAdmin: "Admin/Stakeholder",
 
-  searchPlaceholder: "Cari anggota...",
+  searchPlaceholder: "Cari anggota…",
 
   colName: "Nama",
   colJobTitle: "Jabatan",
@@ -23,9 +22,9 @@ const id = {
   noJobTitle: "Tanpa jabatan",
   accessStakeholder: "Stakeholder",
   accessEmployee: "Karyawan",
+  accessPm: "PM",
 
   noAccessTitle: "Tidak punya akses",
-  noAccessDesc: "Halaman ini hanya untuk super admin.",
 
   userSettings: "Pengaturan pengguna",
   guest: "Tamu",
@@ -35,7 +34,6 @@ const id = {
 
 const en: Record<keyof typeof id, string> = {
   title: "Team",
-  membersAccess: "Members & access",
   loadError: "Couldn't load team members",
   statsLoadError: "Couldn't load team stats",
 
@@ -45,7 +43,7 @@ const en: Record<keyof typeof id, string> = {
   statProjectManager: "Project managers",
   statAdmin: "Admins/Stakeholders",
 
-  searchPlaceholder: "Search members...",
+  searchPlaceholder: "Search members…",
 
   colName: "Name",
   colJobTitle: "Job title",
@@ -57,9 +55,9 @@ const en: Record<keyof typeof id, string> = {
   noJobTitle: "No job title",
   accessStakeholder: "Stakeholder",
   accessEmployee: "Employee",
+  accessPm: "PM",
 
   noAccessTitle: "No access",
-  noAccessDesc: "This page is for super admins only.",
 
   userSettings: "User settings",
   guest: "Guest",

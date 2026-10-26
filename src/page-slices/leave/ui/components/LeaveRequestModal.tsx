@@ -71,6 +71,9 @@ const EMPTY_FORM: LeaveFormData = {
   proof_url: "",
 }
 
+/** Same limit as the leave-proofs bucket (migrations/leave_attendance_guards.sql). */
+const MAX_PROOF_BYTES = 5 * 1024 * 1024
+
 /** Two steps: fill in, then check & send (rules agreed once, on new requests). */
 export function LeaveRequestModal({
   isOpen,
@@ -139,6 +142,10 @@ export function LeaveRequestModal({
     if (!file) return
     // PDFs (doctor's notes) go as they are; photos get compressed.
     if (!file.type.startsWith("image/")) {
+      if (file.size > MAX_PROOF_BYTES) {
+        toast.error(t("errFileTooBig"))
+        return
+      }
       setFormData((prev) => ({ ...prev, proof_file: file }))
       return
     }

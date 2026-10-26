@@ -3,13 +3,13 @@ import { guardApiRoute } from "@/shared/lib/utils/security"
 import { NextRequest, NextResponse } from "next/server"
 import { createAdminClient } from "@/shared/api/supabase/admin"
 import { createClient } from "@/shared/api/supabase/server"
-import { resolveProfileByUserIdOrEmail } from "@/shared/lib/profile-resolution"
 import { logError } from "@/shared/lib/utils/logger"
 import {
   createGoogleCalendarEvent,
   getGoogleAccessToken,
   getGoogleEnv,
 } from "@/shared/lib/google-calendar"
+import { slotViewer } from "../shared"
 
 export async function POST(request: NextRequest) {
   const t = await getT("api")
@@ -18,11 +18,8 @@ export async function POST(request: NextRequest) {
 
   try {
     const supabase = await createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
+    const profile = await slotViewer(supabase)
+    if (!profile) {
       return NextResponse.json({ error: t("unauthorized") }, { status: 401 })
     }
 
@@ -31,24 +28,42 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "invalid_payload" }, { status: 400 })
     }
 
-    const profile = await resolveProfileByUserIdOrEmail<{
-      id: string
-      email: string | null
-      full_name: string | null
-    }>(supabase, "id, email, full_name, created_at", user.id, user.email)
-
-    if (!profile) {
-      return NextResponse.json({ error: t("profileNotFound") }, { status: 404 })
-    }
-
     const adminSupabase = createAdminClient()
+    const now = new Date().toISOString()
+
+    const { data: target } = await adminSupabase
+      .from("one_on_one_slots")
+      .select("id, cycle_name, start_at, status")
+      .eq("id", slotId)
+      .maybeSingle()
+    if (!target || target.status !== "open") {
+      return NextResponse.json({ error: "slot_unavailable" }, { status: 409 })
+    }
+    if (new Date(target.start_at).getTime() < Date.now()) {
+      return NextResponse.json({ error: "slot_past" }, { status: 409 })
+    }
+    // One 1:1 per person per quarter, upcoming or already held: release
+    // an upcoming one to pick another.
+    const { data: held } = await adminSupabase
+      .from("one_on_one_slots")
+      .select("end_at")
+      .eq("booked_by", profile.id)
+      .eq("cycle_name", target.cycle_name)
+      .in("status", ["booking", "booked"])
+    if (held?.length) {
+      const done = held.every((s) => new Date(s.end_at).getTime() <= Date.now())
+      return NextResponse.json(
+        { error: done ? "already_met" : "already_booked" },
+        { status: 409 },
+      )
+    }
 
     const { data: slot, error: claimError } = await adminSupabase
       .from("one_on_one_slots")
       .update({
         status: "booking",
         booked_by: profile.id,
-        booked_at: new Date().toISOString(),
+        booked_at: now,
       })
       .eq("id", slotId)
       .eq("status", "open")

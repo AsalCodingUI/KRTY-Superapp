@@ -1,7 +1,7 @@
 "use client"
 
 import { siteConfig } from "@/app/siteConfig"
-import { BrandLogo } from "@/components/brand-logo"
+import { AppIcon } from "@/components/app-icon"
 import { NavUser } from "@/components/nav-user"
 import { SegmentedControl } from "@/components/segmented-control"
 import { useWorkspaceNav } from "@/components/workspace-nav"
@@ -33,16 +33,18 @@ export function AppTopbar() {
   return (
     // No fill of its own: the chrome behind it shows through, so the page
     // sheet's shadow isn't cut off along the bar's bottom edge.
-    <header className="on-chrome text-foreground relative z-40 flex h-(--app-topbar-height) shrink-0 items-center gap-4 px-4">
-      <div className="flex min-w-0 flex-1 items-center gap-6">
+    <header className="on-chrome text-foreground relative z-40 flex h-(--app-topbar-height) shrink-0 items-center gap-4 px-4 md:grid md:grid-cols-[1fr_minmax(0,35rem)_1fr]">
+      {/* From md up a grid: equal sides keep the search centred, but they
+          never go below their content, so on narrower windows the search
+          shrinks instead of sliding over the workspace switch. No wrapping,
+          or the brand name would count as two short lines. */}
+      <div className="flex flex-1 items-center gap-6 whitespace-nowrap">
         <PrefetchLink
           href={siteConfig.baseLinks.dashboard}
           className="flex shrink-0 items-center gap-2"
           aria-label={siteConfig.name}
         >
-          <span className="bg-chrome-field blend-ink text-foreground flex size-7 items-center justify-center rounded-md">
-            <BrandLogo className="size-[18px]" />
-          </span>
+          <AppIcon size={192} variant="mark" className="size-[22px]" />
           <span className="hidden text-sm font-medium sm:inline">
             {siteConfig.name}
           </span>

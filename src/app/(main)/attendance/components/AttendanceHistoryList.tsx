@@ -31,7 +31,7 @@ const OPEN_DAYS = 3
 
 /** Shared column template so the header and every day's rows line up. */
 const ROW_GRID =
-  "grid grid-cols-[minmax(0,1fr)_4.5rem] items-center gap-x-4 md:grid-cols-[minmax(0,1fr)_6.5rem_5.5rem_4.5rem] lg:grid-cols-[minmax(0,1fr)_6.5rem_5.5rem_4.5rem_10rem]"
+  "grid grid-cols-[minmax(0,1fr)_4.5rem] items-center gap-x-4 md:grid-cols-[minmax(0,1fr)_6.5rem_5.5rem_4.5rem]"
 
 /** Kehadiran (employee): one group per day, one row per session. */
 export function AttendanceHistoryList({
@@ -87,7 +87,6 @@ export function AttendanceHistoryList({
           <span className="hidden md:block">{t("colStatus")}</span>
           <span className="hidden text-right md:block">{t("colBreak")}</span>
           <span className="text-right">{t("colDuration")}</span>
-          <span className="hidden lg:block" />
         </div>
         {groups.slice(0, visibleDays).map(([date, dayLogs], index) => (
           <AttendanceDay
@@ -186,6 +185,12 @@ function AttendanceDay({
               {tc(relative)}
             </Badge>
           )}
+          {active && (
+            <span className="text-success-ink flex items-center gap-1.5 text-[13px]">
+              <span className="bg-success size-1.5 animate-pulse rounded-full motion-reduce:animate-none" />
+              {t("active")}
+            </span>
+          )}
         </span>
         <span className="text-muted-foreground hidden text-[13px] tabular-nums md:block">
           {t(logs.length === 1 ? "sessionsOne" : "sessionsOther", {
@@ -200,14 +205,6 @@ function AttendanceDay({
           suppressHydrationWarning
         >
           {hydrated ? formatWorked(totalMs, t("hourShort")) : ""}
-        </span>
-        <span className="hidden justify-end lg:flex">
-          {active && (
-            <span className="text-success flex items-center gap-1.5 text-[13px]">
-              <span className="bg-success size-1.5 animate-pulse rounded-full motion-reduce:animate-none" />
-              {t("active")}
-            </span>
-          )}
         </span>
       </button>
       <Collapse open={open}>
@@ -252,6 +249,15 @@ function AttendanceRow({
     deleteRequested && t("notePendingDelete"),
   ].filter(Boolean)
 
+  const canRequestDelete = Boolean(
+    onRequestDelete && !isActive && !deleteRequested,
+  )
+  const requestDeleteButton = (
+    <Button variant="ghost" size="sm" onClick={() => onRequestDelete?.(log.id)}>
+      {t("requestDelete")}
+    </Button>
+  )
+
   return (
     <ListRow className={cn(ROW_GRID, "min-h-14")}>
       {/* Indented to sit under the day label, past the chevron. */}
@@ -272,22 +278,22 @@ function AttendanceRow({
       <span className="text-muted-foreground hidden text-right tabular-nums md:block">
         {log.break_total ? `${log.break_total}m` : <EmptyValue />}
       </span>
-      <WorkedTime log={log} hydrated={hydrated} />
-
-      {/* Actions wrap under the row on narrow screens. */}
-      <div className="col-span-full flex justify-end empty:hidden lg:col-span-1">
-        {onRequestDelete && !isActive && !deleteRequested && (
-          <ListRowActions className="max-lg:opacity-100">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onRequestDelete(log.id)}
-            >
-              {t("requestDelete")}
-            </Button>
+      {/* On wide screens the action floats over the duration cell on
+          hover (no empty column, so the table runs to the same edge as
+          every other page); on narrow ones it wraps under the row. */}
+      <span className="relative flex justify-end">
+        <WorkedTime log={log} hydrated={hydrated} />
+        {canRequestDelete && (
+          <ListRowActions className="bg-popover absolute inset-y-0 right-0 my-auto hidden h-fit rounded-full shadow-(--elev-2) lg:flex">
+            {requestDeleteButton}
           </ListRowActions>
         )}
-      </div>
+      </span>
+      {canRequestDelete && (
+        <div className="col-span-full flex justify-end lg:hidden">
+          {requestDeleteButton}
+        </div>
+      )}
     </ListRow>
   )
 }

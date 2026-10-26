@@ -1,18 +1,31 @@
 "use client"
 
 import { surfaceClassName } from "@/components/panel"
-import { STATUS_LABEL_KEYS } from "@/page-slices/projects/lib/status"
+import {
+  OPEN_STATUSES,
+  STATUS_LABEL_KEYS,
+} from "@/page-slices/projects/lib/status"
 import { PageHeader } from "@/components/page-header"
-import { StatStrip } from "@/components/stat-strip"
+import {
+  DashboardReportDialog,
+  LatestReports,
+  UpcomingTasks,
+} from "./DashboardHome"
+import { DesignLinks } from "./DesignLinks"
+import { ProjectProperties } from "./ProjectProperties"
+import type { Report } from "./reports-data"
 import { ProjectAvatar } from "@/components/project-avatar"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ConfirmDialog } from "@/components/confirm-dialog"
+import { DateField } from "@/components/date-field"
 import { DatePicker } from "@/components/date-picker"
+import { EmptyValue } from "@/components/empty-value"
 import { InlineText } from "@/components/inline-text"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -25,15 +38,33 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group"
 import { Spinner } from "@/components/ui/spinner"
 import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
 import {
   RiAddLine,
   RiCheckLine,
+  RiCalendarScheduleLine,
   RiDeleteBinLine,
+  RiErrorWarningLine,
   RiMoreFill,
 } from "@/shared/ui/lucide-icons"
+import {
+  daysBetween,
+  jakartaDay,
+  phaseWeights,
+  todayJakarta,
+} from "@/entities/performance/lib/kpi-phases"
 import { useDateLocale, useT } from "@/shared/i18n/client"
 import { format, parseISO, type Locale } from "date-fns"
 import {
@@ -47,7 +78,9 @@ import {
   UsersRound,
   type LucideIcon,
 } from "lucide-react"
+import { AnimatePresence, m, useReducedMotion } from "motion/react"
 import { useEffect, useMemo, useRef, useState } from "react"
+import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import {
   supabase,
@@ -77,11 +110,17 @@ export function ProjectDashboard({ projectId }: { projectId: string }) {
   const viewer = useViewer()
   const invalidate = useInvalidate(projectId)
   const [selected, setSelected] = useState<string | null>(null)
-  const [busy, setBusy] = useState(false)
   // Adding or renaming a phase (one small dialog), and deleting one.
   const [phaseDialog, setPhaseDialog] = useState<PhaseRow | "new" | null>(null)
   const [deletingPhase, setDeletingPhase] = useState<PhaseRow | null>(null)
   const [completing, setCompleting] = useState(false)
+  // Due dates, SLA weights and completion days (one dialog for all phases;
+  // the id is the phase it was opened from, highlighted there).
+  const [settingsFor, setSettingsFor] = useState<string | true | null>(null)
+  // The report window: a new report, or one opened from the list.
+  const [reportOpen, setReportOpen] = useState<{
+    report: Report | null
+  } | null>(null)
 
   const phases = useMemo(() => data?.phases ?? [], [data?.phases])
   const activePhase = phases.find((p) => p.status === "active") ?? null
@@ -108,7 +147,6 @@ export function ProjectDashboard({ projectId }: { projectId: string }) {
 
   /** Make `phase` the active one: earlier phases done, later ones to do. */
   const activate = async (phase: PhaseRow, completeIt = false) => {
-    setBusy(true)
     const db = supabase()
     const now = new Date().toISOString()
     const updates = phases.map((p) => {
@@ -132,7 +170,6 @@ export function ProjectDashboard({ projectId }: { projectId: string }) {
         .eq("id", p.id)
     })
     const results = await Promise.all(updates)
-    setBusy(false)
     if (results.some((r) => r.error)) {
       toast.error(t("errUpdatePhase"))
       return
@@ -201,53 +238,22 @@ export function ProjectDashboard({ projectId }: { projectId: string }) {
           </span>
         }
         actions={
-          viewer.isAdmin && (
-            <>
-              {activePhase && (
-                <Button
-                  variant="outline"
-                  disabled={busy}
-                  title={activePhase.name}
-                  onClick={() => setCompleting(true)}
-                >
-                  {t("completePhase", { name: clip(activePhase.name) })}
-                </Button>
-              )}
-            </>
-          )
+          <Button onClick={() => setReportOpen({ report: null })}>
+            <RiAddLine data-icon="inline-start" />
+            {t("reportNew")}
+          </Button>
         }
       />
-      <StatStrip
-        items={[
-          {
-            key: "status",
-            label: t("colStatus"),
-            value: project.status ? t(STATUS_LABEL_KEYS[project.status]) : "—",
-          },
-          {
-            key: "phase",
-            label: t("factsPhase"),
-            value: activePhase
-              ? t("factsPhaseValue", {
-                  name: clip(activePhase.name),
-                  n: activePhase.position,
-                  total: phases.length,
-                })
-              : t("statusCompleted"),
-          },
-          {
-            key: "tasks",
-            label: t("factsOpenTasks"),
-            value: openTasks,
-          },
-          {
-            key: "deadline",
-            label: t("factsDeadline"),
-            value: day(project.end_date, dateLocale),
-          },
-        ]}
+      <ProjectProperties
+        phases={phases}
+        steps={steps}
+        status={project.status ? t(STATUS_LABEL_KEYS[project.status]) : null}
+        statusTone={project.status}
+        start={project.start_date ? day(project.start_date, dateLocale) : null}
+        end={project.end_date ? day(project.end_date, dateLocale) : null}
+        openTasks={openTasks}
       />
-      <div className="flex flex-col gap-6 pt-6 pb-4">
+      <div className="flex flex-col gap-4 pt-6 pb-4">
         <PhaseRail
           phases={phases}
           steps={steps}
@@ -259,17 +265,38 @@ export function ProjectDashboard({ projectId }: { projectId: string }) {
           onRename={(phase) => setPhaseDialog(phase)}
           onMove={movePhase}
           onDelete={(phase) => setDeletingPhase(phase)}
+          onSettings={(phase) => setSettingsFor(phase?.id ?? true)}
+          onComplete={() => setCompleting(true)}
+          // Only running projects still need due dates for the KPI.
+          showMissingDue={
+            project.status !== null && OPEN_STATUSES.includes(project.status)
+          }
         />
 
         <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
-          {current && (
-            <ProcessPanel
-              projectId={projectId}
-              phase={current}
-              steps={steps.filter((s) => s.phase_id === current.id)}
-              viewerId={viewer.id}
-            />
-          )}
+          <div className="flex min-w-0 flex-col gap-4">
+            {current && (
+              <ProcessPanel
+                projectId={projectId}
+                phase={current}
+                steps={steps.filter((s) => s.phase_id === current.id)}
+                viewerId={viewer.id}
+              />
+            )}
+            <div className="grid gap-4 xl:grid-cols-2">
+              <UpcomingTasks
+                projectId={projectId}
+                base={`/projects/${projectId}`}
+                tasks={tasks}
+                team={team}
+              />
+              <LatestReports
+                projectId={projectId}
+                base={`/projects/${projectId}`}
+                onOpen={(report) => setReportOpen({ report })}
+              />
+            </div>
+          </div>
 
           <aside
             className={cn(surfaceClassName, "flex flex-col gap-5 p-4 text-sm")}
@@ -307,30 +334,19 @@ export function ProjectDashboard({ projectId }: { projectId: string }) {
                   field: "client_name",
                   value: client?.name ?? null,
                   readOnly: true,
-                },
-                {
-                  icon: UserRound,
-                  label: t("factsContact"),
-                  field: "client_contact",
-                  value: client?.contact_name ?? null,
-                  readOnly: true,
-                },
-                {
-                  icon: AtSign,
-                  label: t("factsEmail"),
-                  field: "client_email",
-                  value: client?.email ?? null,
-                  readOnly: true,
-                },
-                {
-                  icon: Phone,
-                  label: t("factsPhone"),
-                  field: "client_phone",
-                  value: client?.phone ?? null,
-                  readOnly: true,
+                  // Contact, email and phone on hover, not as rows.
+                  render: client && (
+                    <ClientContact
+                      name={client.name}
+                      contact={client.contact_name}
+                      email={client.email}
+                      phone={client.phone}
+                    />
+                  ),
                 },
               ]}
             />
+            <DesignLinks projectId={projectId} />
             <section className="border-border flex flex-col gap-2 border-t pt-4">
               <h3 className="text-muted-foreground flex items-center gap-2 [&_svg]:size-4">
                 <UsersRound aria-hidden="true" />
@@ -361,8 +377,22 @@ export function ProjectDashboard({ projectId }: { projectId: string }) {
         </div>
       </div>
 
+      <DashboardReportDialog
+        projectId={projectId}
+        viewer={viewer}
+        open={reportOpen}
+        onClose={() => setReportOpen(null)}
+      />
+
       {viewer.isAdmin && (
         <>
+          <PhaseSettingsDialog
+            projectId={projectId}
+            phases={phases}
+            open={settingsFor !== null}
+            focusId={typeof settingsFor === "string" ? settingsFor : null}
+            onOpenChange={(open) => !open && setSettingsFor(null)}
+          />
           <PhaseNameDialog
             open={phaseDialog !== null}
             onOpenChange={(open) => !open && setPhaseDialog(null)}
@@ -424,7 +454,7 @@ function clip(name: string, max = 28) {
  * minimum width and the rail scrolls sideways, fading at the edges, with the
  * selected phase kept in view.
  */
-function PhaseRail({
+export function PhaseRail({
   phases,
   steps,
   selectedId,
@@ -435,6 +465,9 @@ function PhaseRail({
   onRename,
   onMove,
   onDelete,
+  onSettings,
+  onComplete,
+  showMissingDue,
 }: {
   phases: PhaseRow[]
   steps: { phase_id: string | null; status: string }[]
@@ -446,12 +479,22 @@ function PhaseRail({
   onRename: (phase: PhaseRow) => void
   onMove: (phase: PhaseRow, delta: -1 | 1) => void
   onDelete: (phase: PhaseRow) => void
+  /** Opens the phase settings (due dates, weights), on a phase or all. */
+  onSettings: (phase?: PhaseRow) => void
+  /** Finishes the running phase (its ⋯ menu); admins only. */
+  onComplete?: () => void
+  showMissingDue: boolean
 }) {
   const t = useT("projects")
   const dateLocale = useDateLocale()
+  const reduce = useReducedMotion()
   const scroller = useRef<HTMLDivElement>(null)
   const [edges, setEdges] = useState({ start: false, end: false })
-  const active = phases.find((p) => p.status === "active") ?? null
+  // Days are Jakarta days, the same ones the KPI scores by.
+  const today = todayJakarta()
+  const shortDay = (d: string) =>
+    format(parseISO(d), "d MMM", { locale: dateLocale })
+  const missingDue = phases.filter((p) => !p.due_date).length
 
   // Fade only the side(s) that have more phases to scroll to.
   useEffect(() => {
@@ -486,48 +529,77 @@ function PhaseRail({
       : undefined
 
   return (
-    <section className="flex flex-col gap-3 pb-4">
+    <section className="flex flex-col gap-3">
       <div className="flex min-h-7 items-center justify-between gap-3">
-        <p className="min-w-0 truncate text-sm">
-          {active ? (
-            <>
-              {t("phaseOfTotal", {
-                n: phases.indexOf(active) + 1,
-                total: phases.length,
-              })}
-              <span className="text-muted-foreground" title={active.name}>
-                {" "}
-                · {clip(active.name)}
-              </span>
-            </>
-          ) : (
-            <span className="text-muted-foreground">
-              {t("phaseCount", { total: phases.length })}
-            </span>
-          )}
-        </p>
+        <div className="flex min-w-0 items-center gap-2 text-sm">
+          <span className="text-foreground shrink-0 font-medium">
+            {t("phasesTitle")}
+          </span>
+          {/* Without due dates the KPI can't judge a phase; say so here. */}
+          <AnimatePresence initial={false}>
+            {isAdmin && showMissingDue && missingDue > 0 && (
+              <m.div
+                initial={reduce ? false : { opacity: 0, x: -4 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={reduce ? { opacity: 0 } : { opacity: 0, x: -4 }}
+                transition={{ duration: 0.2, ease: EASE }}
+                className="bg-warning-subtle ml-1 flex min-w-0 items-center gap-1.5 rounded-full py-0.5 pr-0.5 pl-2 text-xs"
+              >
+                <RiErrorWarningLine className="text-warning size-3.5 shrink-0" />
+                <span className="text-foreground/80 min-w-0 truncate">
+                  {t("phasesMissingDue", { n: missingDue })}
+                </span>
+                <Button
+                  variant="ghost"
+                  size="xs"
+                  className="text-foreground h-5 shrink-0 rounded-full px-2 font-medium"
+                  onClick={() => onSettings()}
+                >
+                  {t("phaseSetDue")}
+                </Button>
+              </m.div>
+            )}
+          </AnimatePresence>
+        </div>
         {isAdmin && (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-muted-foreground shrink-0"
-            onClick={onAdd}
-          >
-            <RiAddLine data-icon="inline-start" />
-            {t("addPhase")}
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  aria-label={t("phaseActions")}
+                  className="text-muted-foreground"
+                />
+              }
+            >
+              <RiMoreFill />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="min-w-44">
+              {phases.length > 0 && (
+                <DropdownMenuItem onClick={() => onSettings()}>
+                  <RiCalendarScheduleLine />
+                  {t("phaseSettings")}
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuItem onClick={onAdd}>
+                <RiAddLine />
+                {t("addPhase")}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         )}
       </div>
 
       <div
         ref={scroller}
-        className="-mx-1 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="-m-1 overflow-x-auto p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         style={{ maskImage: mask, WebkitMaskImage: mask }}
       >
         <ol
-          className="grid gap-2"
+          className="grid gap-3"
           style={{
-            gridTemplateColumns: `repeat(${phases.length || 1}, minmax(8.5rem, 1fr))`,
+            gridTemplateColumns: `repeat(${phases.length || 1}, minmax(12rem, 1fr))`,
           }}
         >
           {phases.map((phase, i) => {
@@ -535,82 +607,130 @@ function PhaseRail({
             const doneSteps = phaseSteps.filter(
               (s) => s.status === "done",
             ).length
-            const open = phaseSteps.length - doneSteps
             const selected = phase.id === selectedId
-            const fill =
-              phase.status === "done"
-                ? 100
-                : phase.status === "active"
-                  ? Math.max(
-                      6,
-                      phaseSteps.length
-                        ? (doneSteps / phaseSteps.length) * 100
-                        : 0,
-                    )
-                  : 0
-            const meta =
-              phase.status === "done"
-                ? t("phaseDoneOn", {
-                    date: phase.completed_at
-                      ? format(new Date(phase.completed_at), "d MMM", {
-                          locale: dateLocale,
-                        })
-                      : "",
-                  })
-                : phaseSteps.length
-                  ? t("phaseStepsOpen", { open, total: phaseSteps.length })
-                  : phase.status === "active"
-                    ? t("phaseInProgress")
-                    : t("phaseNotStarted")
+            const isDone = phase.status === "done"
+            const isActive = phase.status === "active"
+            const fill = isDone
+              ? 100
+              : phaseSteps.length
+                ? (doneSteps / phaseSteps.length) * 100
+                : 0
+            const doneDay = phase.completed_at
+              ? jakartaDay(phase.completed_at)
+              : null
+            const status = isDone
+              ? t("phaseDoneOn", { date: doneDay ? shortDay(doneDay) : "" })
+              : isActive
+                ? t("phaseInProgress")
+                : t("phaseNotStarted")
+            // Late is late either way: still open past the due date
+            // (automatic Delay), or finished after it.
+            const due = phase.due_date
+            const overdueDays =
+              due && !isDone && today > due ? daysBetween(due, today) : 0
+            const overdue = overdueDays > 0
+            const lateBy =
+              due && isDone && doneDay && doneDay > due
+                ? daysBetween(due, doneDay)
+                : 0
+            const dueTitle = overdue
+              ? t("phaseOverdueTitle", { days: overdueDays })
+              : lateBy
+                ? t("phaseDoneLateTitle", { days: lateBy })
+                : undefined
             return (
               <li
                 key={phase.id}
                 data-slot="project-phase"
                 data-selected={selected || undefined}
-                className="group/phase relative flex min-w-0 flex-col gap-2"
+                className={cn(
+                  surfaceClassName,
+                  "group/phase relative flex min-w-0 flex-col gap-3 p-3.5 transition-colors",
+                  // The picked phase: a faint grey fill, the usual border.
+                  selected ? "bg-muted/60" : "hover:bg-muted/30",
+                )}
               >
                 <button
                   type="button"
                   aria-label={phase.name}
                   aria-current={selected ? "step" : undefined}
                   onClick={() => onSelect(phase.id)}
-                  className="focus-visible:ring-focus-ring absolute -inset-1 rounded-md outline-none focus-visible:ring-2"
+                  className="focus-visible:ring-focus-ring absolute inset-0 rounded-xl outline-none focus-visible:ring-2"
                 />
-                {/* The rail segment: thin, filled by progress. */}
-                <span className="bg-muted relative h-[3px] overflow-hidden rounded-full">
+                {/* 1. Marker and name; ⋯ keeps its place on the right. */}
+                <span className="flex min-w-0 items-center gap-2.5">
                   <span
+                    aria-hidden="true"
                     className={cn(
-                      "bar-grow absolute inset-y-0 left-0 rounded-full",
-                      phase.status === "done"
-                        ? "bg-foreground/25"
-                        : "bg-primary",
+                      "flex size-5 shrink-0 items-center justify-center rounded-full text-[11px] font-medium tabular-nums",
+                      isDone
+                        ? "bg-success text-white"
+                        : isActive
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted text-muted-foreground",
                     )}
-                    style={{ "--bar": `${fill}%` } as React.CSSProperties}
-                  />
-                </span>
-                <span className="flex min-w-0 items-center gap-1.5 pr-7">
-                  {phase.status === "done" && (
-                    <RiCheckLine className="text-muted-foreground size-3.5 shrink-0" />
-                  )}
+                  >
+                    {isDone ? <RiCheckLine className="size-3" /> : i + 1}
+                  </span>
                   <span
                     className={cn(
-                      "truncate text-sm transition-colors",
-                      selected
-                        ? "text-foreground font-medium"
-                        : phase.status === "todo"
-                          ? "text-muted-foreground group-hover/phase:text-foreground"
-                          : "text-foreground/80 group-hover/phase:text-foreground",
+                      "min-w-0 flex-1 truncate text-sm font-medium",
+                      isDone || isActive || selected
+                        ? "text-foreground"
+                        : "text-muted-foreground group-hover/phase:text-foreground",
                     )}
                     title={phase.name}
                   >
                     {phase.name}
                   </span>
+                  {isAdmin && <span className="size-6 shrink-0" />}
                 </span>
-                <span
-                  className="text-tertiary-foreground -mt-1.5 truncate text-[13px]"
-                  title={meta}
-                >
-                  {meta}
+                {/* 2. Status, and the due date (red when overdue). */}
+                <span className="flex min-w-0 items-center justify-between gap-2 text-[13px]">
+                  <span
+                    className={cn(
+                      "text-muted-foreground truncate",
+                      isActive && "text-primary",
+                      lateBy > 0 && "text-warning",
+                    )}
+                    title={dueTitle ?? status}
+                  >
+                    {status}
+                  </span>
+                  {due && !isDone && (
+                    <span
+                      className={cn(
+                        "flex shrink-0 items-center gap-1 tabular-nums",
+                        overdue
+                          ? "text-destructive font-medium"
+                          : "text-tertiary-foreground",
+                      )}
+                      title={dueTitle ?? t("phaseDue", { date: shortDay(due) })}
+                    >
+                      <RiCalendarScheduleLine className="size-3.5" />
+                      {shortDay(due)}
+                    </span>
+                  )}
+                </span>
+                {/* 3. Its steps: the bar and the count. */}
+                <span className="flex items-center gap-2.5">
+                  <span className="bg-muted relative h-1.5 flex-1 overflow-hidden rounded-full">
+                    <span
+                      className={cn(
+                        "bar-grow absolute inset-y-0 left-0 rounded-full",
+                        isDone ? "bg-success" : "bg-primary",
+                      )}
+                      style={{ "--bar": `${fill}%` } as React.CSSProperties}
+                    />
+                  </span>
+                  <span className="text-tertiary-foreground shrink-0 text-xs tabular-nums">
+                    {phaseSteps.length
+                      ? t("phaseStepsDone", {
+                          done: doneSteps,
+                          total: phaseSteps.length,
+                        })
+                      : t("phaseNoSteps")}
+                  </span>
                 </span>
                 {isAdmin && (
                   <DropdownMenu>
@@ -618,15 +738,24 @@ function PhaseRail({
                       render={
                         <Button
                           variant="ghost"
-                          size="icon-sm"
+                          size="icon-xs"
                           aria-label={t("phaseActions")}
-                          className="text-muted-foreground absolute top-2.5 right-0 opacity-0 group-hover/phase:opacity-100 focus-visible:opacity-100 data-popup-open:opacity-100"
+                          className="text-muted-foreground absolute top-3.5 right-3 opacity-0 group-hover/phase:opacity-100 focus-visible:opacity-100 data-popup-open:opacity-100 pointer-coarse:opacity-100"
                         />
                       }
                     >
                       <RiMoreFill />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="min-w-44">
+                      {isActive && onComplete && (
+                        <>
+                          <DropdownMenuItem onClick={onComplete}>
+                            <RiCheckLine />
+                            {t("completePhase", { name: clip(phase.name) })}
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                        </>
+                      )}
                       {phase.status !== "active" && (
                         <DropdownMenuItem onClick={() => onActivate(phase)}>
                           {t("makeActive")}
@@ -634,6 +763,9 @@ function PhaseRail({
                       )}
                       <DropdownMenuItem onClick={() => onRename(phase)}>
                         {t("renamePhase")}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => onSettings(phase)}>
+                        {t("phaseSettings")}
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         disabled={i === 0}
@@ -663,6 +795,250 @@ function PhaseRail({
         </ol>
       </div>
     </section>
+  )
+}
+
+const EASE = [0.23, 1, 0.32, 1] as const
+
+type PhaseDraft = { due: string; weight: string; doneAt: string }
+
+/** "" → no weight (shares the rest); otherwise a number 0–100. */
+function parseWeight(value: string): number | null | "invalid" {
+  const raw = value.trim().replace(",", ".")
+  if (!raw) return null
+  const n = Number(raw)
+  return Number.isFinite(n) && n >= 0 && n <= 100 ? n : "invalid"
+}
+
+const pct = (n: number) => `${Math.round(n * 10) / 10}`
+
+/**
+ * Due date, SLA weight and (for done phases) the completion day of every
+ * phase, in one list so the weights read against each other. Saving writes
+ * only what changed.
+ */
+function PhaseSettingsDialog({
+  projectId,
+  phases,
+  open,
+  focusId,
+  onOpenChange,
+}: {
+  projectId: string
+  phases: PhaseRow[]
+  open: boolean
+  focusId: string | null
+  onOpenChange: (open: boolean) => void
+}) {
+  const t = useT("projects")
+  const tc = useT("common")
+  const invalidate = useInvalidate(projectId)
+  const queryClient = useQueryClient()
+  const [drafts, setDrafts] = useState<Record<string, PhaseDraft>>({})
+  const [saving, setSaving] = useState(false)
+  const today = todayJakarta()
+
+  // Fresh from the rows each time it opens.
+  useEffect(() => {
+    if (!open) return
+    setDrafts(
+      Object.fromEntries(
+        phases.map((p) => [
+          p.id,
+          {
+            due: p.due_date ?? "",
+            weight: p.sla_weight === null ? "" : String(p.sla_weight),
+            doneAt: p.completed_at ? jakartaDay(p.completed_at) : "",
+          },
+        ]),
+      ),
+    )
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only on open
+  }, [open])
+
+  const draftOf = (p: PhaseRow): PhaseDraft =>
+    drafts[p.id] ?? { due: "", weight: "", doneAt: "" }
+  const patch = (id: string, next: Partial<PhaseDraft>) =>
+    setDrafts((d) => ({ ...d, [id]: { ...d[id], ...next } }))
+
+  // The split as the KPI will see it, live while typing.
+  const parsed = phases.map((p) => parseWeight(draftOf(p).weight))
+  const invalid = parsed.some((w) => w === "invalid")
+  const effective = phaseWeights(
+    phases.map((p, i) => ({
+      ...p,
+      sla_weight: typeof parsed[i] === "number" ? parsed[i] : null,
+    })),
+  )
+  const setWeights = parsed.filter((w): w is number => typeof w === "number")
+  const setTotal = setWeights.reduce((a, b) => a + b, 0)
+  const free = phases.length - setWeights.length
+  const scaled =
+    setWeights.length > 0 &&
+    (setTotal > 100 || (free === 0 && Math.abs(setTotal - 100) > 0.01))
+  const total = [...effective.values()].reduce((a, b) => a + b, 0)
+  const freeEach =
+    free > 0
+      ? (effective.get(phases.find((_, i) => parsed[i] === null)?.id ?? "") ??
+        0)
+      : 0
+
+  const save = async () => {
+    if (invalid) return
+    setSaving(true)
+    const db = supabase()
+    const updates = phases.flatMap((p, i) => {
+      const d = draftOf(p)
+      const row: {
+        due_date?: string | null
+        sla_weight?: number | null
+        completed_at?: string
+      } = {}
+      if ((d.due || null) !== p.due_date) row.due_date = d.due || null
+      const w = parsed[i] as number | null
+      if (w !== (p.sla_weight === null ? null : Number(p.sla_weight)))
+        row.sla_weight = w
+      // A corrected day lands at noon Jakarta, so it reads back as that day.
+      if (p.completed_at && d.doneAt && d.doneAt !== jakartaDay(p.completed_at))
+        row.completed_at = `${d.doneAt}T12:00:00+07:00`
+      return Object.keys(row).length
+        ? [db.from("project_phases").update(row).eq("id", p.id)]
+        : []
+    })
+    const results = await Promise.all(updates)
+    setSaving(false)
+    if (results.some((r) => r.error)) {
+      toast.error(t("errSavePhase"))
+    } else {
+      if (updates.length) toast.success(t("phasesSaved"))
+      onOpenChange(false)
+    }
+    if (updates.length) {
+      invalidate("workspace")
+      // Scores are computed from these dates.
+      queryClient.invalidateQueries({ queryKey: ["kpi"] })
+      queryClient.invalidateQueries({ queryKey: ["kpi-team"] })
+    }
+  }
+
+  const cols =
+    "sm:grid-cols-[minmax(0,1fr)_9.5rem_6rem_9.5rem] sm:items-center sm:gap-x-2"
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>{t("phaseSettings")}</DialogTitle>
+          <DialogDescription>{t("phaseSettingsDescription")}</DialogDescription>
+        </DialogHeader>
+        <div className="flex flex-col text-[13px]">
+          <div
+            className={cn(
+              "text-muted-foreground hidden px-2 pb-1.5 text-xs sm:grid",
+              cols,
+            )}
+          >
+            <span>{t("phaseColPhase")}</span>
+            <span>{t("phaseColDue")}</span>
+            <span>{t("phaseColWeight")}</span>
+            <span>{t("phaseColDoneAt")}</span>
+          </div>
+          <ol className="flex max-h-[min(24rem,55vh)] flex-col overflow-y-auto">
+            {phases.map((p, i) => {
+              const d = draftOf(p)
+              const bad = parsed[i] === "invalid"
+              return (
+                <li
+                  key={p.id}
+                  data-focused={p.id === focusId || undefined}
+                  className={cn(
+                    "data-focused:bg-muted/50 grid grid-cols-2 gap-x-2 gap-y-1.5 rounded-2xl px-2 py-1.5",
+                    cols,
+                  )}
+                >
+                  <span
+                    className="col-span-2 flex min-w-0 items-center gap-1.5 sm:col-span-1"
+                    title={p.name}
+                  >
+                    <span className="text-tertiary-foreground w-4 shrink-0 tabular-nums">
+                      {i + 1}
+                    </span>
+                    {p.status === "done" && (
+                      <RiCheckLine className="text-muted-foreground size-3.5 shrink-0" />
+                    )}
+                    <span className="truncate">{p.name}</span>
+                  </span>
+                  <DateField
+                    aria-label={t("phaseDueLabel", { name: p.name })}
+                    value={d.due}
+                    onChange={(due) => patch(p.id, { due })}
+                    className="h-7 w-full"
+                  />
+                  <InputGroup className="h-7">
+                    <InputGroupInput
+                      inputMode="decimal"
+                      aria-label={t("phaseWeightLabel", { name: p.name })}
+                      aria-invalid={bad || undefined}
+                      // The share it gets now, as a hint while it's unset.
+                      placeholder={pct(effective.get(p.id) ?? 0)}
+                      value={d.weight}
+                      onChange={(e) => patch(p.id, { weight: e.target.value })}
+                      className="tabular-nums"
+                    />
+                    <InputGroupAddon align="inline-end">%</InputGroupAddon>
+                  </InputGroup>
+                  {p.completed_at ? (
+                    <DateField
+                      aria-label={t("phaseDoneAtLabel", { name: p.name })}
+                      value={d.doneAt}
+                      max={today}
+                      onChange={(doneAt) =>
+                        // A done phase always has a day; clearing keeps it.
+                        doneAt && patch(p.id, { doneAt })
+                      }
+                      className="h-7 w-full"
+                    />
+                  ) : (
+                    <span className="hidden px-3 sm:block">
+                      <EmptyValue />
+                    </span>
+                  )}
+                </li>
+              )
+            })}
+          </ol>
+          <div className="text-muted-foreground mt-3 flex flex-col gap-0.5 px-2">
+            <p>{t("phaseWeightNote")}</p>
+            <p
+              className={cn(
+                "tabular-nums",
+                (invalid || scaled) && "text-warning",
+              )}
+              aria-live="polite"
+            >
+              {invalid
+                ? t("phaseWeightInvalid")
+                : [
+                    free > 0 &&
+                      t("phaseWeightSplit", { free, each: pct(freeEach) }),
+                    scaled && t("phaseWeightScaled", { set: pct(setTotal) }),
+                    t("phaseWeightTotal", { total: pct(total) }),
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")}
+            </p>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            {tc("cancel")}
+          </Button>
+          <Button disabled={saving || invalid} onClick={save}>
+            {saving ? tc("saving") : tc("save")}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }
 
@@ -743,6 +1119,8 @@ type Fact = {
   readOnly?: boolean
   /** Formatted value to show (defaults to `value`). */
   display?: string | null
+  /** Shown instead of the plain value (read-only rows). */
+  render?: React.ReactNode
 }
 
 /**
@@ -774,7 +1152,16 @@ function Facts({
   return (
     <dl className="grid grid-cols-[7rem_minmax(0,1fr)] gap-x-3">
       {rows.map(
-        ({ icon: Icon, label, field, kind, value, display, readOnly }) => (
+        ({
+          icon: Icon,
+          label,
+          field,
+          kind,
+          value,
+          display,
+          readOnly,
+          render,
+        }) => (
           <div key={field} className="contents">
             <dt className="text-muted-foreground flex min-h-8 items-center gap-2 [&_svg]:size-4 [&_svg]:shrink-0">
               <Icon aria-hidden="true" />
@@ -802,6 +1189,8 @@ function Facts({
                   onSave={(next) => save(field, next)}
                   className="h-7 text-sm font-normal"
                 />
+              ) : render ? (
+                render
               ) : (
                 <span
                   className={cn(
@@ -818,6 +1207,59 @@ function Facts({
         ),
       )}
     </dl>
+  )
+}
+
+/** The client's name; its contact, email and phone in a card on hover. */
+function ClientContact({
+  name,
+  contact,
+  email,
+  phone,
+}: {
+  name: string
+  contact: string | null
+  email: string | null
+  phone: string | null
+}) {
+  const rows = [
+    { icon: UserRound, value: contact, href: null },
+    { icon: AtSign, value: email, href: email && `mailto:${email}` },
+    {
+      icon: Phone,
+      value: phone,
+      href: phone && `tel:${phone.replace(/\s/g, "")}`,
+    },
+  ].filter((r) => r.value)
+  if (rows.length === 0) return <span className="truncate text-sm">{name}</span>
+  return (
+    // Opens on hover with a mouse, on tap / Enter elsewhere.
+    <Popover>
+      <PopoverTrigger
+        openOnHover
+        delay={150}
+        className="decoration-muted-foreground/40 focus-visible:ring-focus-ring min-w-0 truncate rounded-sm text-left text-sm underline decoration-dotted underline-offset-4 outline-none focus-visible:ring-2"
+      >
+        {name}
+      </PopoverTrigger>
+      <PopoverContent
+        align="start"
+        className="flex w-64 flex-col gap-2 p-3 text-sm"
+      >
+        {rows.map(({ icon: Icon, value, href }) => (
+          <span key={value} className="flex min-w-0 items-center gap-2">
+            <Icon className="text-muted-foreground size-4 shrink-0" />
+            {href ? (
+              <a href={href} className="hover:text-primary truncate">
+                {value}
+              </a>
+            ) : (
+              <span className="truncate">{value}</span>
+            )}
+          </span>
+        ))}
+      </PopoverContent>
+    </Popover>
   )
 }
 
@@ -926,10 +1368,7 @@ function ProcessPanel({
     invalidate("steps")
   }
 
-  const update = async (
-    id: string,
-    patch: { title?: string; description?: string | null },
-  ) => {
+  const update = async (id: string, patch: { title?: string }) => {
     const { error } = await supabase()
       .from("project_steps")
       .update(patch)
@@ -972,7 +1411,7 @@ function ProcessPanel({
             <div
               key={step.id}
               data-slot="project-step"
-              className="group/step border-border/50 flex min-h-11 items-center gap-3 border-b px-4 text-sm last:border-b-0"
+              className="group/step border-border/50 flex h-11 items-center gap-3 border-b pr-2 pl-4 text-sm last:border-b-0"
             >
               <button
                 type="button"
@@ -988,26 +1427,26 @@ function ProcessPanel({
                   <CircleDashed className="size-4" />
                 )}
               </button>
-              <span className="flex min-w-0 flex-1 flex-col py-1.5">
-                <InlineText
-                  value={step.title}
-                  required
-                  aria-label={step.title}
-                  className={cn(done && "text-muted-foreground line-through")}
-                  onSave={(title) => update(step.id, { title })}
-                />
-                <InlineText
-                  value={step.description ?? ""}
-                  placeholder={t("stepNotePlaceholder")}
-                  className={cn(
-                    "text-muted-foreground text-xs",
-                    !step.description &&
-                      "hidden group-focus-within/step:block group-hover/step:block",
-                  )}
-                  onSave={(description) =>
-                    update(step.id, { description: description || null })
-                  }
-                />
+              {/* One line per step: title, status, actions (no note). */}
+              <InlineText
+                value={step.title}
+                required
+                aria-label={step.title}
+                className={cn(
+                  "min-w-0 flex-1",
+                  done && "text-muted-foreground line-through",
+                )}
+                onSave={(title) => update(step.id, { title })}
+              />
+              <span
+                className={cn(
+                  "shrink-0 rounded-full px-2 py-0.5 text-xs",
+                  done
+                    ? "bg-success/15 text-success"
+                    : "bg-muted text-muted-foreground",
+                )}
+              >
+                {done ? t("statusCompleted") : t("stepDraft")}
               </span>
               <DropdownMenu>
                 <DropdownMenuTrigger
@@ -1016,7 +1455,7 @@ function ProcessPanel({
                       variant="ghost"
                       size="icon-sm"
                       aria-label={t("stepActions")}
-                      className="text-muted-foreground opacity-0 group-hover/step:opacity-100 focus-visible:opacity-100 data-popup-open:opacity-100"
+                      className="text-muted-foreground shrink-0 opacity-0 group-hover/step:opacity-100 focus-visible:opacity-100 data-popup-open:opacity-100"
                     />
                   }
                 >
@@ -1045,16 +1484,6 @@ function ProcessPanel({
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-              <span
-                className={cn(
-                  "rounded-sm px-1.5 py-0.5 text-xs",
-                  done
-                    ? "bg-success/15 text-success"
-                    : "bg-muted text-muted-foreground",
-                )}
-              >
-                {done ? t("statusCompleted") : t("stepDraft")}
-              </span>
             </div>
           )
         })}

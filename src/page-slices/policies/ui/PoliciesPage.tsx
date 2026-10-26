@@ -36,7 +36,7 @@ import {
 } from "../model/data"
 
 // Viewer (react-markdown, history) and editor (TipTap/ProseMirror) only load
-// once a rule is opened (?aturan=).
+// once a rule is opened (?policy=).
 const PolicyDialog = dynamic(
   () => import("./PolicyDialog").then((m) => m.PolicyDialog),
   { loading: () => null },
@@ -116,8 +116,8 @@ export function PoliciesPage() {
   }
 
   // RLS already hides drafts from employees; this also covers "view as".
-  // The open rule (?aturan=) shows as a modal over the list; ?edit=1 edits it.
-  const openId = searchParams.get("aturan")
+  // The open rule (?policy=) shows as a modal over the list; ?edit=1 edits it.
+  const openId = searchParams.get("policy")
   const editing = isAdmin && searchParams.get("edit") === "1" && Boolean(openId)
   const withParams = (patch: Record<string, string | null>) => {
     const params = new URLSearchParams(searchParams.toString())

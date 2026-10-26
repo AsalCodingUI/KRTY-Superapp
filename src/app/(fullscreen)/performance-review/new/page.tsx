@@ -1,3 +1,4 @@
+import { createAdminClient } from "@/shared/api/supabase/admin"
 import { createClient } from "@/shared/api/supabase/server"
 import { resolveEffectiveUserId } from "@/shared/lib/impersonation-server"
 import { redirect } from "next/navigation"
@@ -6,15 +7,16 @@ import ReviewFormClientPage from "./ClientPage"
 export const dynamic = "force-dynamic"
 
 /**
- * 360 review form. Any other employee not reviewed yet in the open cycle
- * can be picked (see review_pairs; admins are left out).
+ * 360 review form. Any other employee not reviewed yet in the open cycle,
+ * and whose result isn't processed, can be picked (see review_pairs;
+ * admins are left out).
  */
 export default async function NewReviewPage({
   searchParams,
 }: {
-  searchParams: Promise<{ untuk?: string }>
+  searchParams: Promise<{ for?: string }>
 }) {
-  const { untuk } = await searchParams
+  const { for: revieweeId } = await searchParams
   const supabase = await createClient()
   const {
     data: { user },
@@ -31,18 +33,26 @@ export default async function NewReviewPage({
     .gte("end_date", now)
     .not("quarter", "is", null)
     .maybeSingle()
-  if (!cycle?.quarter) redirect("/performance/360-review")
+  if (!cycle?.quarter) redirect("/performance")
 
-  const [{ data: pairs }, { data: done }] = await Promise.all([
-    supabase.rpc("review_pairs", { p_quarter: cycle.quarter }),
-    supabase
-      .from("performance_reviews")
-      .select("reviewee_id")
-      .eq("cycle_id", cycle.id)
-      .eq("reviewer_id", me),
-  ])
+  const [{ data: pairs }, { data: done }, { data: processed }] =
+    await Promise.all([
+      supabase.rpc("review_pairs", { p_quarter: cycle.quarter }),
+      supabase
+        .from("performance_reviews")
+        .select("reviewee_id")
+        .eq("cycle_id", cycle.id)
+        .eq("reviewer_id", me),
+      // Processed results take no more reviews (results are admin-only).
+      createAdminClient()
+        .from("performance_summaries")
+        .select("reviewee_id")
+        .eq("cycle_id", cycle.id),
+    ])
   const reviewed = new Set(
-    (done ?? []).map((r: { reviewee_id: string }) => r.reviewee_id),
+    [...(done ?? []), ...(processed ?? [])].map(
+      (r: { reviewee_id: string }) => r.reviewee_id,
+    ),
   )
   const ids = [
     ...new Set(
@@ -51,7 +61,7 @@ export default async function NewReviewPage({
         .map((p) => p.reviewee_id),
     ),
   ]
-  if (ids.length === 0) redirect("/performance/360-review")
+  if (ids.length === 0) redirect("/performance")
 
   const { data: colleagues } = await supabase
     .from("profiles")
@@ -63,7 +73,9 @@ export default async function NewReviewPage({
     <ReviewFormClientPage
       cycleId={cycle.id}
       colleagues={colleagues ?? []}
-      initialRevieweeId={untuk && ids.includes(untuk) ? untuk : undefined}
+      initialRevieweeId={
+        revieweeId && ids.includes(revieweeId) ? revieweeId : undefined
+      }
     />
   )
 }
