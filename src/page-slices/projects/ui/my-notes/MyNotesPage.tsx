@@ -274,6 +274,7 @@ export function MyNotesPage() {
             instead of modal and without a close button. Below lg it sits
             under the list as a card. */}
         <aside
+          data-slot="side-panel"
           aria-label={t("myNotesTitle")}
           className="bg-popover text-popover-foreground border-field-border dark:border-border lg:rounded-nested flex min-h-96 flex-col overflow-hidden rounded-3xl border bg-clip-padding text-sm lg:fixed lg:top-[calc(var(--app-topbar-height,0px)+var(--app-banner-height,0px)+0.5rem)] lg:right-5 lg:bottom-5 lg:z-30 lg:w-md lg:border-0 lg:shadow-(--elev-5) lg:[--nest-p:0.5rem] lg:[--nest-r:var(--radius-3xl)]"
         >

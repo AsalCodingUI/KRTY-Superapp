@@ -14,6 +14,25 @@ import { cookies } from "next/headers"
 import { cn } from "@/lib/utils"
 import { Suspense } from "react"
 
+/**
+ * Inside KRTY for Mac: the window's toolbar is 52pt (macOS's unified
+ * toolbar, where it centres the traffic lights), so the top bar matches;
+ * the right-hand sheets and panels sit 8px inside the page, as on the web; the chrome (sidebar and top bar) is see-through over the
+ * window's native blur, its wash leaning a little to the theme color (near
+ * white when neutral). The page stays solid.
+ */
+// As on the web: 8px inside the page on every side, the radius nested in
+// the page's (10px, squircle-scaled) minus that gap.
+const CORNER = "right:14px;bottom:14px;--nest-r:calc(10px * var(--corner-k,1))"
+const DESKTOP_CSS =
+  ":root{--app-topbar-height:52px}" +
+  `@media (min-width:768px){[data-slot="sheet-content"][data-side="right"]{${CORNER}}}` +
+  `@media (min-width:1024px){[data-slot="side-panel"]{${CORNER}}}` +
+  "html,body{background:transparent}" +
+  '[data-slot="sidebar-wrapper"]{background-color:color-mix(in oklab,color-mix(in oklab,#fff 55%,var(--chrome)) 55%,transparent)}' +
+  '.dark [data-slot="sidebar-wrapper"]{background-color:color-mix(in oklab,var(--chrome) 50%,transparent)}' +
+  '[data-slot="sidebar-inner"]{background:transparent}'
+
 function PageFallback() {
   return (
     <div className="flex min-h-[60vh] items-center justify-center">
@@ -30,20 +49,11 @@ export default async function Layout({
   const desktop = (await cookies()).get(DESKTOP_SHELL_COOKIE)?.value === "mac"
   return (
     <DesktopShellProvider value={desktop}>
-      {/* The Mac app's window toolbar is 52pt (macOS's unified toolbar,
-          where it centres the traffic lights); the top bar matches it. */}
       {desktop && (
-        <style href="krty-desktop-shell" precedence="default">
-          {
-            // The right-hand sheets sit in the same window corner. The
-            // chrome (sidebar and top bar) is see-through over the window's
-            // native blur, light leaning white; the page stays solid.
-            ':root{--app-topbar-height:52px}@media (min-width:768px){[data-slot="sheet-content"][data-side="right"]{right:6px;bottom:6px;--nest-r:10px}}' +
-              "html,body{background:transparent}" +
-              '[data-slot="sidebar-wrapper"]{background-color:rgb(255 255 255/0.5)}' +
-              '.dark [data-slot="sidebar-wrapper"]{background-color:rgb(24 24 27/0.45)}' +
-              '[data-slot="sidebar-inner"]{background:transparent}'
-          }
+        // A new href whenever the rules change: React keeps a hoisted
+        // style by its href.
+        <style href={`krty-desktop-${DESKTOP_CSS.length}`} precedence="default">
+          {DESKTOP_CSS}
         </style>
       )}
       <SidebarProvider className="bg-chrome h-svh min-h-0 flex-col overflow-hidden">
