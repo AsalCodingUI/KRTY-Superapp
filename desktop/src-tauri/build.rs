@@ -7,6 +7,7 @@ fn main() {
             "open_in_app",
             "set_tray_title",
             "set_autostart",
+            "set_theme",
             "notify",
         ]),
     ))

@@ -35,8 +35,14 @@ export default async function Layout({
       {desktop && (
         <style href="krty-desktop-shell" precedence="default">
           {
-            // The right-hand sheets sit in the same window corner.
-            ':root{--app-topbar-height:52px}@media (min-width:768px){[data-slot="sheet-content"][data-side="right"]{right:6px;bottom:6px;--nest-r:10px}}'
+            // The right-hand sheets sit in the same window corner. The
+            // chrome (sidebar and top bar) is see-through over the window's
+            // native blur, light leaning white; the page stays solid.
+            ':root{--app-topbar-height:52px}@media (min-width:768px){[data-slot="sheet-content"][data-side="right"]{right:6px;bottom:6px;--nest-r:10px}}' +
+              "html,body{background:transparent}" +
+              '[data-slot="sidebar-wrapper"]{background-color:rgb(255 255 255/0.5)}' +
+              '.dark [data-slot="sidebar-wrapper"]{background-color:rgb(24 24 27/0.45)}' +
+              '[data-slot="sidebar-inner"]{background:transparent}'
           }
         </style>
       )}

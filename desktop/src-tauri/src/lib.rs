@@ -260,6 +260,20 @@ fn set_autostart(app: AppHandle, enabled: bool) {
     let _ = if enabled { launcher.enable() } else { launcher.disable() };
 }
 
+/// Light or dark for the windows (their native blur follows it), as the
+/// web app's theme: "light", "dark" or "system".
+#[tauri::command]
+fn set_theme(app: AppHandle, theme: String) {
+    let theme = match theme.as_str() {
+        "light" => Some(tauri::Theme::Light),
+        "dark" => Some(tauri::Theme::Dark),
+        _ => None,
+    };
+    if let Some(w) = app.get_webview_window(APP) {
+        let _ = w.set_theme(theme);
+    }
+}
+
 #[tauri::command]
 fn notify(app: AppHandle, title: String, body: String) {
     #[cfg(target_os = "macos")]
@@ -386,6 +400,7 @@ pub fn run() {
             open_in_app,
             set_tray_title,
             set_autostart,
+            set_theme,
             notify
         ])
         .setup(move |app| {
@@ -397,13 +412,25 @@ pub fn run() {
                 // unified_toolbar and SHELL_SCRIPT).
                 .title_bar_style(tauri::TitleBarStyle::Overlay)
                 .hidden_title(true)
+                // See-through, over the native sidebar blur (the page
+                // itself stays solid; see the web app's desktop styles).
+                .transparent(true)
                 .inner_size(1360.0, 860.0)
                 .min_inner_size(960.0, 640.0)
                 .center()
                 .visible(false)
                 .build()?;
             #[cfg(target_os = "macos")]
-            unified_toolbar(&main);
+            {
+                unified_toolbar(&main);
+                use window_vibrancy::{apply_vibrancy, NSVisualEffectMaterial, NSVisualEffectState};
+                let _ = apply_vibrancy(
+                    &main,
+                    NSVisualEffectMaterial::Sidebar,
+                    Some(NSVisualEffectState::FollowsWindowActiveState),
+                    None,
+                );
+            }
             // Closing it keeps KRTY running in the menu bar.
             let keep = main.clone();
             main.on_window_event(move |event| {

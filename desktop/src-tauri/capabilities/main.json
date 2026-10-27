@@ -14,6 +14,7 @@
     "allow-open-in-app",
     "allow-set-tray-title",
     "allow-set-autostart",
+    "allow-set-theme",
     "allow-notify"
   ]
 }

@@ -1,5 +1,6 @@
 "use client"
 
+import { DesktopThemeSync } from "@/components/desktop-theme-sync"
 import { createContext, useContext, type ReactNode } from "react"
 
 const DesktopShellContext = createContext(false)
@@ -19,6 +20,7 @@ export function DesktopShellProvider({
 }) {
   return (
     <DesktopShellContext.Provider value={value}>
+      {value && <DesktopThemeSync />}
       {children}
     </DesktopShellContext.Provider>
   )
