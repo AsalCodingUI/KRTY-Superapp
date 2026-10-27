@@ -1,5 +1,7 @@
 "use client"
 
+import { useCanonicalParam } from "@/shared/hooks/useCanonicalParam"
+import { findByLinkKey, linkKey } from "@/shared/lib/url-params"
 import { ConfirmDialog } from "@/components/confirm-dialog"
 import { EmptyState } from "@/components/empty-state"
 import {
@@ -75,6 +77,10 @@ const ROW_GRID_ADMIN =
  * and manage everyone's, grouped by person, with the ones ending within 30
  * days called out.
  */
+/** `?contract=rizal-dwi-artanto-pkwt-1a2b3c4d`: whose contract, and which. */
+const contractKey = (c: ContractRow) =>
+  linkKey([c.person?.full_name, c.title].filter(Boolean).join(" "), c.id)
+
 export function ContractsPage({ viewer }: { viewer: ContractViewer }) {
   const t = useT("contracts")
   const router = useRouter()
@@ -149,7 +155,8 @@ export function ContractsPage({ viewer }: { viewer: ContractViewer }) {
       )
   }, [shown, viewer.isAdmin])
 
-  const open = openId ? contracts.find((c) => c.id === openId) : undefined
+  const open = findByLinkKey(contracts, openId)
+  useCanonicalParam("contract", openId, open && contractKey(open))
 
   const remove = async (contract: ContractRow) => {
     const { error } = await supabase()
@@ -163,14 +170,14 @@ export function ContractsPage({ viewer }: { viewer: ContractViewer }) {
     // The row is gone either way; a leftover file is only storage.
     await removeContractFile(contract.file_path).catch(() => undefined)
     toast.success(t("deleted"))
-    if (openId === contract.id) go({ contract: null })
+    if (open?.id === contract.id) go({ contract: null })
     queryClient.invalidateQueries({ queryKey: contractKeys.all })
   }
 
   const rowProps = (c: ContractRow) => ({
     contract: c,
     isAdmin: viewer.isAdmin,
-    onOpen: () => go({ contract: c.id }),
+    onOpen: () => go({ contract: contractKey(c) }),
     onEdit: () => setForm(c),
     onDelete: () => setDeleting(c),
   })

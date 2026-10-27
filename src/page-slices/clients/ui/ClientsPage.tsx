@@ -7,6 +7,8 @@ import { TabNavigation, TabNavigationLink } from "@/components/tab-navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Spinner } from "@/components/ui/spinner"
+import { useCanonicalParam } from "@/shared/hooks/useCanonicalParam"
+import { findByLinkKey, linkKey } from "@/shared/lib/url-params"
 import { useViewMode, ViewToggle } from "@/components/view-toggle"
 import { rupiah } from "@/entities/finance/lib/money"
 import { useFxRates } from "@/entities/finance/model/useFxRates"
@@ -87,7 +89,8 @@ export function ClientsPage() {
       counts[inTab(c, "archived") ? "archived" : "active"]++
     return counts
   }, [clients])
-  const open = openId ? clients.find((c) => c.id === openId) : undefined
+  const open = findByLinkKey(clients, openId)
+  useCanonicalParam("client", openId, open && linkKey(open.name, open.id))
 
   if (profileLoading)
     return (
@@ -187,7 +190,7 @@ export function ClientsPage() {
               <ClientCard
                 key={c.id}
                 client={c}
-                href={withParams({ client: c.id })}
+                href={withParams({ client: linkKey(c.name, c.id) })}
                 rates={rates}
               />
             ))}
@@ -198,7 +201,7 @@ export function ClientsPage() {
               <ClientListRow
                 key={c.id}
                 client={c}
-                href={withParams({ client: c.id })}
+                href={withParams({ client: linkKey(c.name, c.id) })}
                 rates={rates}
               />
             ))}

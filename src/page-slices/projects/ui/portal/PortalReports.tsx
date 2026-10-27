@@ -1,5 +1,7 @@
 "use client"
 
+import { useCanonicalParam } from "@/shared/hooks/useCanonicalParam"
+import { findByLinkKey, linkKey } from "@/shared/lib/url-params"
 import { EmptyState } from "@/components/empty-state"
 import { GroupedList, ListRow } from "@/components/grouped-list"
 import { PageHeader } from "@/components/page-header"
@@ -31,11 +33,18 @@ export function PortalReports({ reports }: { reports: PortalReport[] }) {
   const pathname = usePathname()
   // The open report lives in the URL (?report=…), so a link can open it.
   const openId = useSearchParams().get("report")
-  const openReport = reports.find((r) => r.id === openId) ?? null
+  const openReport = findByLinkKey(reports, openId) ?? null
+  useCanonicalParam(
+    "report",
+    openId,
+    openReport && linkKey(openReport.title, openReport.id),
+  )
   // Opening adds a history entry, so Back closes the report first.
-  const setOpen = (id: string | null) =>
-    id
-      ? router.push(`${pathname}?report=${id}`, { scroll: false })
+  const setOpen = (report: PortalReport | null) =>
+    report
+      ? router.push(`${pathname}?report=${linkKey(report.title, report.id)}`, {
+          scroll: false,
+        })
       : router.replace(pathname, { scroll: false })
   // A link to a report that's gone or no longer shared: drop the id.
   useEffect(() => {
@@ -61,8 +70,8 @@ export function PortalReports({ reports }: { reports: PortalReport[] }) {
                 role="link"
                 tabIndex={0}
                 className={cn(ROW_GRID, "min-h-14 cursor-pointer")}
-                onClick={() => setOpen(r.id)}
-                onKeyDown={(e) => e.key === "Enter" && setOpen(r.id)}
+                onClick={() => setOpen(r)}
+                onKeyDown={(e) => e.key === "Enter" && setOpen(r)}
               >
                 <span className="text-foreground truncate">{r.title}</span>
                 <div className="hidden min-w-0 items-center gap-2 md:flex">

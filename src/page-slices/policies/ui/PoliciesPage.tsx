@@ -11,6 +11,7 @@ import { PageHeader } from "@/components/page-header"
 import { TabNavigation, TabNavigationLink } from "@/components/tab-navigation"
 import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
+import { useCanonicalParam } from "@/shared/hooks/useCanonicalParam"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { canManageByRole } from "@/shared/lib/roles"
 import {
@@ -53,6 +54,8 @@ function categoryOrder(category: string) {
   const i = (POLICY_CATEGORIES as readonly string[]).indexOf(category)
   return i === -1 ? POLICY_CATEGORIES.length : i
 }
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 type Tab = "all" | "published" | "draft" | "archived"
 
@@ -117,7 +120,16 @@ export function PoliciesPage() {
 
   // RLS already hides drafts from employees; this also covers "view as".
   // The open rule (?policy=) shows as a modal over the list; ?edit=1 edits it.
-  const openId = searchParams.get("policy")
+  // Links carry the rule's slug (?policy=aturan-cuti); ids from older links
+  // and notifications still open it, and are swapped for the slug.
+  const openParam = searchParams.get("policy")
+  const openPolicy = policies.find(
+    (p) => p.slug === openParam || p.id === openParam,
+  )
+  const openId =
+    openParam === "new" || (openParam && UUID.test(openParam))
+      ? openParam
+      : (openPolicy?.id ?? null)
   const editing = isAdmin && searchParams.get("edit") === "1" && Boolean(openId)
   const withParams = (patch: Record<string, string | null>) => {
     const params = new URLSearchParams(searchParams.toString())
@@ -127,6 +139,9 @@ export function PoliciesPage() {
     }
     return params.size ? `${pathname}?${params}` : pathname
   }
+  const slugOf = (id: string | null) =>
+    id && (policies.find((p) => p.id === id)?.slug ?? id)
+  useCanonicalParam("policy", openParam, openPolicy?.slug)
   const closeModal = () =>
     router.replace(withParams({ policy: null, v: null, edit: null }), {
       scroll: false,
@@ -144,7 +159,7 @@ export function PoliciesPage() {
           .includes(needle)),
   )
   const hrefFor = (p: PolicyListItem) =>
-    withParams({ policy: p.id, edit: tab === "draft" ? "1" : null, v: null })
+    withParams({ policy: p.slug, edit: tab === "draft" ? "1" : null, v: null })
   const categories = [...new Set(shown.map((p) => p.category))].sort(
     (a, b) => categoryOrder(a) - categoryOrder(b) || a.localeCompare(b),
   )
@@ -294,9 +309,12 @@ export function PoliciesPage() {
             key="editor"
             id={openId === "new" ? null : openId}
             onExit={({ id }) =>
-              router.replace(withParams({ policy: id, edit: null, v: null }), {
-                scroll: false,
-              })
+              router.replace(
+                withParams({ policy: slugOf(id), edit: null, v: null }),
+                {
+                  scroll: false,
+                },
+              )
             }
           />
         ) : openId !== "new" ? (

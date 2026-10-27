@@ -1,5 +1,7 @@
 "use client"
 
+import { useCanonicalParam } from "@/shared/hooks/useCanonicalParam"
+import { findByLinkKey, linkKey } from "@/shared/lib/url-params"
 import { PageHeader } from "@/components/page-header"
 import { useBreadcrumbs } from "@/components/page-breadcrumbs"
 import { ConfirmDialog } from "@/components/confirm-dialog"
@@ -455,7 +457,12 @@ export function ProjectLibrary({ projectId }: { projectId: string }) {
 
   const folders = data?.folders ?? []
   const files = data?.files ?? []
-  const folder = folders.find((f) => f.id === folderId) ?? null
+  const folder = findByLinkKey(folders, folderId) ?? null
+  useCanonicalParam(
+    "folder",
+    folderId,
+    folder && linkKey(folder.name, folder.id),
+  )
   const inFolder = files.filter((f) =>
     folder ? f.folder_id === folder.id : !f.folder_id,
   )
@@ -464,7 +471,8 @@ export function ProjectLibrary({ projectId }: { projectId: string }) {
 
   const go = (id: string | null) => {
     const params = new URLSearchParams(searchParams.toString())
-    if (id) params.set("folder", id)
+    const target = id ? folders.find((f) => f.id === id) : null
+    if (id) params.set("folder", target ? linkKey(target.name, id) : id)
     else params.delete("folder")
     router.push(params.size ? `${pathname}?${params}` : pathname)
   }

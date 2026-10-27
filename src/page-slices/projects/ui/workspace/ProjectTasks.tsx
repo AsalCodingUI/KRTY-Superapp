@@ -1,5 +1,7 @@
 "use client"
 
+import { useCanonicalParam } from "@/shared/hooks/useCanonicalParam"
+import { findByLinkKey, linkKey } from "@/shared/lib/url-params"
 import dynamic from "next/dynamic"
 import { ConfirmDialog } from "@/components/confirm-dialog"
 import { PageHeader } from "@/components/page-header"
@@ -113,12 +115,18 @@ export function ProjectTasks({ projectId }: { projectId: string }) {
     return map
   }, [tasks])
 
-  // The open task lives in the URL (?task=<id>): a notification or a copied
-  // link opens it, and closing the task clears it again.
+  // The open task lives in the URL (?task=desain-logo-3f9a1c2b): a
+  // notification or a copied link opens it, and closing it clears it again.
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const linked = searchParams.get("task")
+  const linkedTask = findByLinkKey(tasks, linked)
+  useCanonicalParam(
+    "task",
+    linked,
+    linkedTask && linkKey(linkedTask.title, linkedTask.id),
+  )
   const setTaskParam = (id: string | null) => {
     const params = new URLSearchParams(searchParams.toString())
     if (id) params.set("task", id)
@@ -132,7 +140,8 @@ export function ProjectTasks({ projectId }: { projectId: string }) {
   const openTask = (id: string) => {
     setOpenId(id)
     setDialogOpen(true)
-    if (linked !== id) setTaskParam(id)
+    const task = tasks.find((t) => t.id === id)
+    if (linkedTask?.id !== id) setTaskParam(task ? linkKey(task.title, id) : id)
   }
   const setTaskDialogOpen = (open: boolean) => {
     setDialogOpen(open)
@@ -141,8 +150,8 @@ export function ProjectTasks({ projectId }: { projectId: string }) {
 
   useEffect(() => {
     if (!linked || !tasks.length) return
-    if (dialogOpen && openId === linked) return
-    const task = tasks.find((t) => t.id === linked)
+    const task = linkedTask
+    if (dialogOpen && openId === task?.id) return
     // A subtask opens inside its parent.
     if (task) {
       setOpenId(task.parent_id ?? task.id)

@@ -51,6 +51,7 @@ export type PolicyVersion = {
 
 export type PolicyListItem = {
   id: string
+  slug: string
   title: string
   category: string
   summary: string | null
@@ -104,7 +105,7 @@ export function usePolicies() {
       const { data, error } = await supabase
         .from("policy_documents")
         .select(
-          `id, title, category, summary, archived_at, current_version_id,
+          `id, slug, title, category, summary, archived_at, current_version_id,
            versions:policy_versions!policy_versions_document_id_fkey (
              id, status, version_number, title, effective_at, published_at,
              updated_at
