@@ -56,6 +56,63 @@ export type ReviewSummary = {
   previous?: (ReviewScores & { quarter: string }) | null
   /** Overall result per cycle up to this one, with the team's average. */
   history?: { quarter: string; overall: number | null; team: number | null }[]
+  /** What reviewers wrote, word for word: no names, sorted so the order
+   *  says nothing about who wrote what. Only with ≥ 3 reviewers. */
+  verbatim?: ReviewVerbatim | null
+}
+
+export type ReviewVerbatim = Record<
+  | "feedback_continue"
+  | "feedback_start"
+  | "feedback_stop"
+  | "justification_quality"
+  | "justification_reliability"
+  | "justification_communication"
+  | "justification_initiative"
+  | "justification_leadership",
+  string[]
+>
+
+const VERBATIM_KEYS = [
+  "feedback_continue",
+  "feedback_start",
+  "feedback_stop",
+  "justification_quality",
+  "justification_reliability",
+  "justification_communication",
+  "justification_initiative",
+  "justification_leadership",
+] as const
+
+/** Fewer reviewers than this and the words could point to who wrote them. */
+const VERBATIM_MIN_REVIEWERS = 3
+
+/**
+ * The reviews' own text for one person and cycle. Read with the admin
+ * client (reviewees can't read reviews about them) and only after the
+ * caller checked access; reviewer ids never leave this function.
+ */
+async function verbatimFor(
+  revieweeId: string,
+  cycleId: string,
+): Promise<ReviewVerbatim | null> {
+  const { data } = await createAdminClient()
+    .from("performance_reviews")
+    .select(VERBATIM_KEYS.join(", "))
+    .eq("reviewee_id", revieweeId)
+    .eq("cycle_id", cycleId)
+  const rows = (data ?? []) as unknown as Record<string, string | null>[]
+  if (rows.length < VERBATIM_MIN_REVIEWERS) return null
+  return Object.fromEntries(
+    VERBATIM_KEYS.map((k) => [
+      k,
+      rows
+        .map((r) => r[k]?.trim() ?? "")
+        // Skip fillers like "-" or "." that say nothing.
+        .filter((text) => /[\p{L}\p{N}]/u.test(text))
+        .sort((a, b) => a.localeCompare(b)),
+    ]),
+  ) as ReviewVerbatim
 }
 
 export type ReviewScores = {
@@ -95,7 +152,7 @@ async function withContext(
   cycle: ReviewCycle,
 ): Promise<ReviewSummary | null> {
   if (!summary) return null
-  const [{ data: avg }, { data: earlier }] = await Promise.all([
+  const [{ data: avg }, { data: earlier }, verbatim] = await Promise.all([
     supabase.rpc("review_cycle_averages", { p_cycle_id: cycle.id }),
     supabase
       .from("performance_summaries")
@@ -104,6 +161,7 @@ async function withContext(
       )
       .eq("reviewee_id", revieweeId)
       .lt("review_cycles.quarter", cycle.quarter),
+    verbatimFor(revieweeId, cycle.id),
   ])
   type Earlier = Record<string, unknown> & {
     review_cycles: { id: string; quarter: string }
@@ -159,6 +217,7 @@ async function withContext(
     history,
     ...summary,
     quarter: cycle.quarter,
+    verbatim,
     benchmark: toScores(bench),
     previous: prev
       ? { ...toScores(prev)!, quarter: prev.review_cycles.quarter }

@@ -1,10 +1,12 @@
 "use client"
 
 import { EmptyValue } from "@/components/empty-value"
+import { Tabs, TabsList, TabsContent, TabsTrigger } from "@/components/ui/tabs"
 import type { ReviewSummary } from "@/app/(main)/performance/actions/review-actions"
 import { RATINGS, ratingFor } from "@/entities/performance/lib/kpi"
 import { cn } from "@/lib/utils"
 import { useT } from "@/shared/i18n/client"
+import { useId } from "react"
 import { RatingChip } from "../kpi/RatingChip"
 
 export const CRITERIA = [
@@ -51,6 +53,25 @@ function paragraphsOf(text: string) {
     .split(/\n\s*\n/)
     .map((b) => b.trim().replace(/^- /, ""))
     .filter(Boolean)
+}
+
+/** Two sparkles in a violet-to-blue gradient: marks what the AI wrote. */
+function AiSparkle() {
+  const id = useId()
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden className="size-4">
+      <defs>
+        <linearGradient id={id} x1="2" y1="2" x2="22" y2="22">
+          <stop offset="0" stopColor="#a855f7" />
+          <stop offset="1" stopColor="#3b82f6" />
+        </linearGradient>
+      </defs>
+      <path
+        fill={`url(#${id})`}
+        d="M10 4c.6 4.6 2.4 6.4 7 7-4.6.6-6.4 2.4-7 7-.6-4.6-2.4-6.4-7-7 4.6-.6 6.4-2.4 7-7zM18.5 2c.3 2.1 1.1 2.9 3.2 3.2-2.1.3-2.9 1.1-3.2 3.2-.3-2.1-1.1-2.9-3.2-3.2 2.1-.3 2.9-1.1 3.2-3.2zM18 15.5c.25 1.6.9 2.25 2.5 2.5-1.6.25-2.25.9-2.5 2.5-.25-1.6-.9-2.25-2.5-2.5 1.6-.25 2.25-.9 2.5-2.5z"
+      />
+    </svg>
+  )
 }
 
 /**
@@ -163,50 +184,141 @@ export function ReviewResult({ summary }: { summary: ReviewSummary }) {
         </section>
       </div>
 
-      {/* Written feedback in one card: the summary, then keep / start /
-          stop, one under the other in the same style. */}
-      {(summary.additional_feedback ||
-        ACTIONS.some(({ key }) => summary[key])) && (
-        <section className="border-border flex flex-col rounded-2xl border">
-          {summary.additional_feedback ? (
-            <div className="flex flex-col gap-3 p-6">
-              <p className="text-muted-foreground text-sm">
-                {t("sectionSummary")}
-              </p>
-              <div className="text-foreground flex flex-col gap-3 text-[15px] leading-[1.75]">
-                {paragraphsOf(summary.additional_feedback).map((p, i) => (
-                  <p key={i}>{p}</p>
-                ))}
-              </div>
-            </div>
-          ) : null}
-
-          {/* Keep / start / stop under it, styled like the summary. */}
-          {ACTIONS.map(({ key, label, dot }) => {
-            const text = summary[key]
-            if (!text) return null
-            return (
-              <div
-                key={key}
-                className="border-border flex flex-col gap-3 border-t p-6 first:border-t-0"
-              >
-                <p className="text-muted-foreground flex items-center gap-2 text-sm">
-                  <span
-                    aria-hidden
-                    className={cn("size-2 rounded-full", dot)}
-                  />
-                  {t(label)}
-                </p>
-                <div className="text-foreground flex flex-col gap-3 text-[15px] leading-[1.75]">
-                  {itemsOf(text).map((item, i) => (
-                    <p key={i}>{item}</p>
-                  ))}
-                </div>
-              </div>
-            )
-          })}
-        </section>
+      {summary.verbatim ? (
+        <Tabs defaultValue="summary">
+          <TabsList>
+            <TabsTrigger value="summary" className="px-3">
+              <AiSparkle />
+              {t("rvTabSummary")}
+            </TabsTrigger>
+            <TabsTrigger value="verbatim" className="px-3">
+              {t("rvTabVerbatim")}
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="summary">
+            <WrittenFeedback summary={summary} />
+          </TabsContent>
+          <TabsContent value="verbatim">
+            <Verbatim verbatim={summary.verbatim} />
+          </TabsContent>
+        </Tabs>
+      ) : (
+        <WrittenFeedback summary={summary} />
       )}
     </div>
+  )
+}
+
+/** The AI's write-up: the summary, then keep / start / stop, one under the
+ *  other in the same style. */
+function WrittenFeedback({ summary }: { summary: ReviewSummary }) {
+  const t = useT("performance")
+  if (!(summary.additional_feedback || ACTIONS.some(({ key }) => summary[key])))
+    return null
+  return (
+    <section className="border-border flex flex-col rounded-2xl border">
+      {summary.additional_feedback ? (
+        <div className="flex flex-col gap-3 p-6">
+          <p className="text-muted-foreground text-sm">{t("sectionSummary")}</p>
+          <div className="text-foreground flex flex-col gap-3 text-[15px] leading-[1.75]">
+            {paragraphsOf(summary.additional_feedback).map((p, i) => (
+              <p key={i}>{p}</p>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
+      {/* Keep / start / stop under it, styled like the summary. */}
+      {ACTIONS.map(({ key, label, dot }) => {
+        const text = summary[key]
+        if (!text) return null
+        return (
+          <div
+            key={key}
+            className="border-border flex flex-col gap-3 border-t p-6 first:border-t-0"
+          >
+            <p className="text-muted-foreground flex items-center gap-2 text-sm">
+              <span aria-hidden className={cn("size-2 rounded-full", dot)} />
+              {t(label)}
+            </p>
+            <div className="text-foreground flex flex-col gap-3 text-[15px] leading-[1.75]">
+              {itemsOf(text).map((item, i) => (
+                <p key={i}>{item}</p>
+              ))}
+            </div>
+          </div>
+        )
+      })}
+    </section>
+  )
+}
+
+/** Reasons per criterion, in the order the criteria are listed. */
+const REASONS = [
+  { key: "justification_quality", label: "criterionQuality" },
+  { key: "justification_reliability", label: "criterionReliability" },
+  { key: "justification_communication", label: "criterionCommunication" },
+  { key: "justification_initiative", label: "criterionInitiative" },
+  { key: "justification_leadership", label: "criterionLeadership" },
+] as const
+
+/**
+ * What reviewers wrote, word for word, as lists: keep / start / stop
+ * first, then the reasons behind each criterion. No names, and the order
+ * is alphabetical so it doesn't hint at who wrote what.
+ */
+function Verbatim({
+  verbatim,
+}: {
+  verbatim: NonNullable<ReviewSummary["verbatim"]>
+}) {
+  const t = useT("performance")
+  const groups = [
+    ...ACTIONS.map(({ key, label, dot }) => ({ key, label, dot })),
+    ...REASONS.map(({ key, label }) => ({ key, label, dot: null })),
+  ].filter(({ key }) => verbatim[key].length > 0)
+
+  if (groups.length === 0)
+    return (
+      <p className="text-muted-foreground border-border rounded-2xl border p-6 text-sm">
+        {t("rvVerbatimEmpty")}
+      </p>
+    )
+
+  return (
+    <section className="border-border flex flex-col rounded-2xl border">
+      <p className="text-muted-foreground px-6 pt-5 text-[13px]">
+        {t("rvVerbatimNote")}
+      </p>
+      {groups.map(({ key, label, dot }, i) => (
+        <div
+          key={key}
+          className={cn(
+            "flex flex-col gap-3 p-6",
+            i > 0 ? "border-border border-t" : "pt-4",
+          )}
+        >
+          <p className="text-muted-foreground flex items-center gap-2 text-sm">
+            {dot && (
+              <span aria-hidden className={cn("size-2 rounded-full", dot)} />
+            )}
+            {dot ? t(label) : t("rvVerbatimReason", { criterion: t(label) })}
+            <span className="text-tertiary-foreground tabular-nums">
+              {verbatim[key].length}
+            </span>
+          </p>
+          <ul className="flex flex-col gap-2">
+            {verbatim[key].map((text, j) => (
+              <li
+                key={j}
+                className="text-foreground bg-muted/50 rounded-xl px-4 py-3 text-[15px] leading-[1.65] whitespace-pre-line"
+              >
+                {text}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </section>
   )
 }
