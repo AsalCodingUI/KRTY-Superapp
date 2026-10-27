@@ -29,6 +29,13 @@ export default async function Layout({
   const desktop = (await cookies()).get(DESKTOP_SHELL_COOKIE)?.value === "mac"
   return (
     <DesktopShellProvider value={desktop}>
+      {/* The Mac app's window toolbar is 52pt (macOS's unified toolbar,
+          where it centres the traffic lights); the top bar matches it. */}
+      {desktop && (
+        <style href="krty-desktop-shell" precedence="default">
+          {":root{--app-topbar-height:52px}"}
+        </style>
+      )}
       <SidebarProvider className="bg-chrome h-svh min-h-0 flex-col overflow-hidden">
         <WorkspaceNavProvider>
           <AppTopbar />

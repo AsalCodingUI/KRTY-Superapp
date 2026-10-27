@@ -105,7 +105,14 @@ export function AppTopbar() {
 }
 
 /** Pribadi / Project, with a dot on the one that has something new. */
-export function WorkspaceSwitch({ className }: { className?: string }) {
+export function WorkspaceSwitch({
+  className,
+  fill = false,
+}: {
+  className?: string
+  /** Stretch to the full width, each tab an equal share. */
+  fill?: boolean
+}) {
   const { loading, visible, active, select, hasBadge } = useWorkspaceNav()
   const t = useT("nav")
   return (
@@ -116,7 +123,7 @@ export function WorkspaceSwitch({ className }: { className?: string }) {
         visible.length > 1 &&
         active && (
           <SegmentedControl
-            fitContent
+            fitContent={!fill}
             className={cn(
               "fill-ink bg-transparent dark:bg-transparent",
               className,

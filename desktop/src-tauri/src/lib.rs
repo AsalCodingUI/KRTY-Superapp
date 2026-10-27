@@ -187,6 +187,23 @@ fn web_window<'a>(
     })
 }
 
+/// An empty unified toolbar: macOS then lays the traffic lights out the
+/// standard way for a window with a toolbar (inset, centred in a 52pt bar,
+/// full size), instead of nudging them by hand, which clips them.
+#[cfg(target_os = "macos")]
+fn unified_toolbar(window: &WebviewWindow) {
+    use objc2::{MainThreadMarker, MainThreadOnly};
+    use objc2_app_kit::{NSToolbar, NSWindow, NSWindowToolbarStyle};
+    let (Ok(ptr), Some(mtm)) = (window.ns_window(), MainThreadMarker::new()) else {
+        return;
+    };
+    // SAFETY: Tauri hands out the window's NSWindow, on the main thread.
+    let ns_window = unsafe { &*(ptr as *const NSWindow) };
+    let toolbar = NSToolbar::init(NSToolbar::alloc(mtm));
+    ns_window.setToolbar(Some(&toolbar));
+    ns_window.setToolbarStyle(NSWindowToolbarStyle::Unified);
+}
+
 // Commands the web app calls through window.__TAURI__.
 
 #[tauri::command]
@@ -252,16 +269,18 @@ pub fn run() {
             // The app window: the whole web app.
             let main = web_window(app, APP, "/dashboard")
                 .title("KRTY")
-                // No title bar of its own: the traffic lights sit in the web
-                // app's top bar (see SHELL_SCRIPT).
+                // No title bar of its own: the page runs up to the top and
+                // the traffic lights sit in the web app's top bar (see
+                // unified_toolbar and SHELL_SCRIPT).
                 .title_bar_style(tauri::TitleBarStyle::Overlay)
                 .hidden_title(true)
-                .traffic_light_position(tauri::LogicalPosition::new(18.0, 30.0))
                 .inner_size(1360.0, 860.0)
                 .min_inner_size(960.0, 640.0)
                 .center()
                 .visible(false)
                 .build()?;
+            #[cfg(target_os = "macos")]
+            unified_toolbar(&main);
             // Closing it keeps KRTY running in the menu bar.
             let keep = main.clone();
             main.on_window_event(move |event| {

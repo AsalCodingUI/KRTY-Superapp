@@ -169,16 +169,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarHeader className="gap-3 px-2.5 pt-1 pb-3">
           <PrefetchLink
             href={siteConfig.baseLinks.dashboard}
-            className="flex items-center gap-2 px-1"
+            // The mark in line with the menu's icons below (same size, same
+            // left edge).
+            className="flex items-center gap-2 px-3"
             aria-label={siteConfig.name}
           >
-            <AppIcon size={192} variant="mark" className="size-[22px]" />
+            <AppIcon size={96} variant="mark" className="size-4" />
             <span className="truncate text-sm font-medium group-data-[collapsible=icon]:hidden">
               {siteConfig.name}
             </span>
           </PrefetchLink>
           <div className="group-data-[collapsible=icon]:hidden">
-            <WorkspaceSwitch className="w-full" />
+            <WorkspaceSwitch fill />
           </div>
         </SidebarHeader>
       )}
