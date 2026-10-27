@@ -56,7 +56,7 @@ const TYPE_ICONS: [RegExp, React.ElementType][] = [
   [/^contract/, FileFilled],
 ]
 
-const iconFor = (type: string) =>
+export const iconFor = (type: string) =>
   TYPE_ICONS.find(([re]) => re.test(type))?.[1] ?? BellFilled
 
 export interface NotificationsPanelProps extends Pick<

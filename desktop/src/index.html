@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>KRTY</title>
+    <style>
+      :root { color-scheme: dark; }
+      html, body { margin: 0; height: 100%; background: transparent; }
+      body {
+        display: grid; place-items: center;
+        font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color: #eee; -webkit-user-select: none; user-select: none; cursor: default;
+      }
+      .card {
+        box-sizing: border-box; width: 420px; height: 560px; border-radius: 24px;
+        border: 1px solid rgb(255 255 255 / 0.08);
+        background: rgb(32 32 34 / 0.95);
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        gap: 8px; padding: 40px; text-align: center;
+      }
+      h1 { margin: 16px 0 0; font-size: 18px; font-weight: 500; }
+      p { margin: 0; color: #9a9a9e; font-size: 13px; }
+      button {
+        margin-top: 16px; border: 0; border-radius: 999px; padding: 9px 18px;
+        background: #3b82f6; color: #fff; font: inherit; font-weight: 500;
+      }
+      button:hover { background: #4b8ef7; }
+      .spin {
+        width: 20px; height: 20px; border-radius: 50%;
+        border: 2px solid rgb(255 255 255 / 0.15); border-top-color: #fff;
+        animation: spin .8s linear infinite;
+      }
+      @keyframes spin { to { transform: rotate(360deg); } }
+      [hidden] { display: none !important; }
+    </style>
+  </head>
+  <body>
+    <!-- Shown until the web app loads, or when it can't be reached (the
+         app is on the VPN). -->
+    <div class="card">
+      <div class="spin" id="spin"></div>
+      <div id="down" hidden>
+        <h1>KRTY tidak terjangkau</h1>
+        <p>Pastikan internet dan VPN kantor menyala, lalu coba lagi.</p>
+        <button id="retry">Coba lagi</button>
+      </div>
+    </div>
+    <script>
+      const APP = window.__KRTY_APP_URL__ || "https://app.kretyastudio.com"
+      const spin = document.getElementById("spin")
+      const down = document.getElementById("down")
+      async function go() {
+        spin.hidden = false
+        down.hidden = true
+        try {
+          const ctl = new AbortController()
+          setTimeout(() => ctl.abort(), 8000)
+          await fetch(APP + "/login", { mode: "no-cors", signal: ctl.signal })
+          // Which page this window shows: ?to=/dashboard (the app) or
+          // ?to=/desktop (the menu bar popover).
+          const to = new URLSearchParams(location.search).get("to") || "/dashboard"
+          location.replace(APP + to)
+        } catch {
+          spin.hidden = true
+          down.hidden = false
+        }
+      }
+      document.getElementById("retry").onclick = go
+      go()
+    </script>
+  </body>
+</html>

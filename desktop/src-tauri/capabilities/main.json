@@ -1,0 +1,10 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "main",
+  "description": "Both windows load the web app (the app window and the /desktop popover): they may call the app's own commands (open in the browser or the app window, menu bar title, start at login, notify).",
+  "windows": ["app", "popover"],
+  "remote": {
+    "urls": ["https://app.kretyastudio.com/*", "http://localhost:3000/*"]
+  },
+  "permissions": ["core:default"]
+}

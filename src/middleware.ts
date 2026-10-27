@@ -115,8 +115,14 @@ export async function middleware(request: NextRequest) {
   const isSharedReport = url.pathname.startsWith("/r/")
   // A project's client portal (/p/<token>), opened with its PIN.
   const isClientPortal = url.pathname.startsWith("/p/")
+  // The desktop app's window: it shows its own sign-in screen.
+  const isDesktopApp = url.pathname === "/desktop"
   const isPublicPage =
-    isLoginPage || isAuthPage || isSharedReport || isClientPortal
+    isLoginPage ||
+    isAuthPage ||
+    isSharedReport ||
+    isClientPortal ||
+    isDesktopApp
 
   // Biarkan API routes mengembalikan status JSON (401/403) dari route handler,
   // jangan dipaksa redirect ke /login.

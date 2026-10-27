@@ -1,0 +1,14 @@
+{
+  "name": "krty-desktop",
+  "private": true,
+  "version": "0.1.0",
+  "description": "KRTY for Mac: the menu bar app (a Tauri shell around app.kretyastudio.com/desktop)",
+  "scripts": {
+    "dev": "tauri dev",
+    "build": "tauri build",
+    "icons": "tauri icon ../public/icons/icon-dark-1024.png"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "2.12.4"
+  }
+}
