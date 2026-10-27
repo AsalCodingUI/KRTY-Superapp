@@ -7,6 +7,10 @@ import { ThemeSwitcher } from "@/components/theme-switcher"
 import { AnimatePresence, m, type Variants } from "motion/react"
 import * as React from "react"
 import { cn } from "@/lib/utils"
+import { siteConfig } from "@/app/siteConfig"
+import { AppIcon } from "@/components/app-icon"
+import { useDesktopShell } from "@/components/desktop-shell"
+import { WorkspaceSwitch } from "@/components/app-topbar"
 
 import { NavMain } from "@/components/nav-main"
 import { NavProject } from "@/components/nav-project"
@@ -25,6 +29,7 @@ import {
   SidebarMenuSkeleton,
   SidebarRail,
   useSidebar,
+  SidebarHeader,
 } from "@/components/ui/sidebar"
 import { createClient } from "@/shared/api/supabase/client"
 import { matchProjectPath } from "@/shared/config/project-sections"
@@ -92,6 +97,7 @@ const NAV_SLIDE: Variants = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const desktop = useDesktopShell()
   const pathname = usePathname()
   const { profile } = useUserProfile()
   const { loading, active, badges } = useWorkspaceNav()
@@ -157,6 +163,25 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       {...props}
     >
       <SidebarRail />
+      {/* In the Mac app the brand and the workspace switch live here (the
+          top bar holds the traffic lights instead). */}
+      {desktop && (
+        <SidebarHeader className="gap-3 px-2.5 pt-1 pb-3">
+          <PrefetchLink
+            href={siteConfig.baseLinks.dashboard}
+            className="flex items-center gap-2 px-1"
+            aria-label={siteConfig.name}
+          >
+            <AppIcon size={192} variant="mark" className="size-[22px]" />
+            <span className="truncate text-sm font-medium group-data-[collapsible=icon]:hidden">
+              {siteConfig.name}
+            </span>
+          </PrefetchLink>
+          <div className="group-data-[collapsible=icon]:hidden">
+            <WorkspaceSwitch className="w-full" />
+          </div>
+        </SidebarHeader>
+      )}
       {/* First row starts level with the top of the page sheet. */}
       <SidebarContent>
         {loading ? (

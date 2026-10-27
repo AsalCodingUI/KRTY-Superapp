@@ -14,6 +14,7 @@ import { useProjectSummary } from "@/shared/hooks/useProjectSummary"
 import Link from "next/link"
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
+import { useDesktopShell } from "@/components/desktop-shell"
 import { workspaces } from "@/shared/config/workspaces"
 import { PROJECT_SECTION_KEYS } from "@/components/nav-project"
 import { useT } from "@/shared/i18n/client"
@@ -58,6 +59,7 @@ export function SiteHeader() {
   const projectPath = matchProjectPath(pathname)
   const { data: project } = useProjectSummary(projectPath?.ref)
   const extra = useBreadcrumbTrail()
+  const desktop = useDesktopShell()
 
   // Section (or the project trail), then whatever the page adds; every step
   // but the last links back up.
@@ -80,11 +82,16 @@ export function SiteHeader() {
   return (
     <header className="flex h-12 shrink-0 items-center gap-2">
       <div className="gutter-x flex min-w-0 flex-1 items-center gap-2">
-        <SidebarTrigger className="-ml-1" />
-        <Separator
-          orientation="vertical"
-          className="mr-2 data-vertical:h-4 data-vertical:self-auto"
-        />
+        {/* In the Mac app the toggle sits in the top bar instead. */}
+        {!desktop && (
+          <>
+            <SidebarTrigger className="-ml-1" />
+            <Separator
+              orientation="vertical"
+              className="mr-2 data-vertical:h-4 data-vertical:self-auto"
+            />
+          </>
+        )}
         <Breadcrumb className="min-w-0">
           <BreadcrumbList className="flex-nowrap">
             {trail.map((crumb, i) => {

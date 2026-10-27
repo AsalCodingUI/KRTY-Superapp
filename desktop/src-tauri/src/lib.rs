@@ -135,25 +135,12 @@ fn handle_deep_link(app: &AppHandle, link: &url::Url) {
     });
 }
 
-/// Runs in every page: makes room for the traffic lights in the web app's
-/// top bar, and makes that bar drag the window (double click zooms),
-/// except on its buttons and fields.
+/// Runs in every page: makes the web app's top bar drag the window (double
+/// click zooms), except on its buttons and fields. (The web app lays itself
+/// out for the window by a cookie, set when the loader opens it through
+/// /auth/desktop-shell.)
 const SHELL_SCRIPT: &str = r#"
 (() => {
-  // Room for the traffic lights at the top bar's left end. A style of our
-  // own (kept in place if the page's head is rebuilt), not an attribute on
-  // <html>, which React resets when it hydrates.
-  const css = '[data-slot="app-topbar"]{padding-left:5.25rem!important}';
-  const ensure = () => {
-    if (document.getElementById("krty-shell-style")) return;
-    const style = document.createElement("style");
-    style.id = "krty-shell-style";
-    style.textContent = css;
-    (document.head || document.documentElement).appendChild(style);
-  };
-  ensure();
-  new MutationObserver(ensure).observe(document.documentElement, { childList: true, subtree: true });
-
   addEventListener("mousedown", (e) => {
     if (e.button !== 0) return;
     const bar = e.target.closest?.('[data-slot="app-topbar"]');
@@ -266,8 +253,7 @@ pub fn run() {
             let main = web_window(app, APP, "/dashboard")
                 .title("KRTY")
                 // No title bar of its own: the traffic lights sit in the web
-                // app's top bar (which leaves room and lets the window be
-                // dragged, see SHELL_SCRIPT).
+                // app's top bar (see SHELL_SCRIPT).
                 .title_bar_style(tauri::TitleBarStyle::Overlay)
                 .hidden_title(true)
                 .traffic_light_position(tauri::LogicalPosition::new(18.0, 30.0))
@@ -292,7 +278,9 @@ pub fn run() {
                 .resizable(false)
                 .decorations(false)
                 .transparent(true)
-                .shadow(true)
+                // No native shadow: on a transparent window it's a square
+                // edge around the rounded popover.
+                .shadow(false)
                 .always_on_top(true)
                 .skip_taskbar(true)
                 .visible(false)

@@ -60,7 +60,8 @@
           // Which page this window shows: ?to=/dashboard (the app) or
           // ?to=/desktop (the menu bar popover).
           const to = new URLSearchParams(location.search).get("to") || "/dashboard"
-          location.replace(APP + to)
+          // Through /auth/desktop-shell, which marks this as the app.
+          location.replace(APP + "/auth/desktop-shell?next=" + encodeURIComponent(to))
         } catch {
           spin.hidden = true
           down.hidden = false
