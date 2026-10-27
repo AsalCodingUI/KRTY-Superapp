@@ -173,7 +173,7 @@ export function PortalShell({
         <Sidebar collapsible="icon" className="on-chrome overflow-hidden">
           <SidebarRail />
           <SidebarContent>
-            <SidebarGroup className="pt-0">
+            <SidebarGroup className="pt-0.5">
               <SidebarMenu className="relative">
                 <SlidingIndicator
                   activeSelector="[data-active]"
