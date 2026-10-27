@@ -272,6 +272,17 @@ function AttendanceRow({
             {notes.join(" · ")}
           </span>
         )}
+        {/* Narrow screens: a quiet link under the times rather than a
+            button row under every session. */}
+        {canRequestDelete && (
+          <button
+            type="button"
+            onClick={() => onRequestDelete?.(log.id)}
+            className="text-tertiary-foreground hover:text-foreground -my-1 self-start py-1 text-[13px] underline-offset-2 hover:underline lg:hidden"
+          >
+            {t("requestDelete")}
+          </button>
+        )}
       </div>
 
       <div className="hidden md:block">{status}</div>
@@ -280,7 +291,7 @@ function AttendanceRow({
       </span>
       {/* On wide screens the action floats over the duration cell on
           hover (no empty column, so the table runs to the same edge as
-          every other page); on narrow ones it wraps under the row. */}
+          every other page); on narrow ones it's a link under the times. */}
       <span className="relative flex justify-end">
         <WorkedTime log={log} hydrated={hydrated} />
         {canRequestDelete && (
@@ -289,11 +300,6 @@ function AttendanceRow({
           </ListRowActions>
         )}
       </span>
-      {canRequestDelete && (
-        <div className="col-span-full flex justify-end lg:hidden">
-          {requestDeleteButton}
-        </div>
-      )}
     </ListRow>
   )
 }

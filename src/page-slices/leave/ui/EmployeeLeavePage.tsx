@@ -246,14 +246,14 @@ export function EmployeeLeavePage({
         />
 
         {/* Balances (one shared rule, see shared/lib/leave) */}
-        <dl className="stat-strip bleed gutter-x border-border border-b py-4">
+        <dl className="stat-strip bleed gutter-x border-border border-b py-4 max-sm:grid max-sm:grid-cols-3 max-sm:gap-x-3">
           <div className="stat-tile">
-            <dt className="text-muted-foreground flex items-center gap-2 text-sm">
+            <dt className="text-muted-foreground flex items-center gap-2 text-sm max-sm:min-h-[2lh] max-sm:items-start max-sm:text-[13px]">
               {t("statAnnualRemaining")}
               <button
                 type="button"
                 onClick={() => setRulesOpen(true)}
-                className="text-tertiary-foreground hover:text-foreground text-xs underline-offset-2 hover:underline"
+                className="text-tertiary-foreground hover:text-foreground text-xs underline-offset-2 hover:underline max-sm:hidden"
               >
                 {t("rules")}
               </button>
@@ -282,9 +282,17 @@ export function EmployeeLeavePage({
                 {t(stats.annual.noteKey, stats.annual.noteVars)}
               </span>
             )}
+            {/* Phones: under the figure, so the three labels stay level. */}
+            <button
+              type="button"
+              onClick={() => setRulesOpen(true)}
+              className="text-tertiary-foreground hover:text-foreground self-start text-xs underline-offset-2 hover:underline sm:hidden"
+            >
+              {t("rules")}
+            </button>
           </div>
           <div className="stat-tile">
-            <dt className="text-muted-foreground text-sm">
+            <dt className="text-muted-foreground text-sm max-sm:min-h-[2lh] max-sm:text-[13px]">
               {t("statSickThisYear")}
             </dt>
             <dd className="text-foreground text-xl font-normal tracking-tight tabular-nums">
@@ -296,7 +304,7 @@ export function EmployeeLeavePage({
             </dd>
           </div>
           <div className="stat-tile">
-            <dt className="text-muted-foreground text-sm">
+            <dt className="text-muted-foreground text-sm max-sm:min-h-[2lh] max-sm:text-[13px]">
               {t("statWfhThisYear")}
             </dt>
             <dd className="text-foreground text-xl font-normal tracking-tight tabular-nums">

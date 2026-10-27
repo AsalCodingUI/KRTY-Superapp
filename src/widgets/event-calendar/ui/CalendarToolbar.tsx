@@ -80,9 +80,10 @@ function CalendarFilter() {
         render={<Button variant="ghost" aria-label={t("filterAriaLabel")} />}
       >
         <RiEqualizer2Line data-icon="inline-start" />
-        {t("filterButton")}
+        {/* Icon only on phones, where the toolbar row is tight. */}
+        <span className="max-sm:sr-only">{t("filterButton")}</span>
         {hidden > 0 && (
-          <span className="text-muted-foreground tabular-nums">
+          <span className="text-muted-foreground tabular-nums max-sm:hidden">
             {categories.length - hidden}/{categories.length}
           </span>
         )}
@@ -150,7 +151,8 @@ export function CalendarToolbar({
   const value = views.includes(viewMode) ? viewMode : views[0]
 
   return (
-    <div className="flex items-center justify-between gap-4">
+    // Wraps to two rows on phones rather than squeezing the date.
+    <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
       <SegmentedControl<ViewMode>
         fitContent
         items={viewItems}
@@ -158,8 +160,8 @@ export function CalendarToolbar({
         onChange={handleViewChange}
       />
 
-      <div className="flex items-center gap-1">
-        <span className="mr-2 text-sm font-medium tabular-nums">
+      <div className="flex items-center gap-1 max-sm:w-full">
+        <span className="mr-2 text-sm font-medium whitespace-nowrap tabular-nums max-sm:mr-auto">
           {rangeLabel(currentDate, viewMode, dateLocale)}
         </span>
         <Button
@@ -178,18 +180,22 @@ export function CalendarToolbar({
         >
           <RiArrowRightSLine />
         </Button>
-        <Button variant="outline" onClick={goToToday} className="ml-1">
+        <Button
+          variant="outline"
+          onClick={goToToday}
+          className="ml-1 max-sm:px-3"
+        >
           {t("toolbarToday")}
         </Button>
 
-        <div className="bg-border mx-2 h-4 w-px" />
+        <div className="bg-border mx-2 h-4 w-px max-sm:hidden" />
 
         <CalendarFilter />
         {showGoogleStatus && (
           <Tooltip>
             <TooltipTrigger
               render={
-                <span className="flex size-8 items-center justify-center" />
+                <span className="flex size-8 items-center justify-center max-sm:hidden" />
               }
             >
               <span
@@ -214,9 +220,13 @@ export function CalendarToolbar({
         )}
 
         {showAddEvent && (
-          <Button onClick={onAddEvent} className="ml-1">
-            <RiAddLine data-icon="inline-start" />
-            {t("toolbarNewEvent")}
+          <Button
+            onClick={onAddEvent}
+            className="ml-1 max-sm:size-8 max-sm:px-0"
+            aria-label={t("toolbarNewEvent")}
+          >
+            <RiAddLine data-icon="inline-start" className="max-sm:m-0" />
+            <span className="max-sm:sr-only">{t("toolbarNewEvent")}</span>
           </Button>
         )}
       </div>

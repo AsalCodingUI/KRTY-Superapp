@@ -116,11 +116,10 @@ function LeaveRow({
       <div className="flex min-w-0 flex-col">
         <span className="text-foreground truncate tabular-nums">
           {formatLeaveRange(req.start_date, req.end_date, dateLocale)}
-          {/* Type and duration have their own columns from md up. */}
-          <span className="text-muted-foreground md:hidden">
-            {" "}
-            · {type} · {daysText}
-          </span>
+        </span>
+        {/* Type and duration have their own columns from md up. */}
+        <span className="text-muted-foreground truncate text-[13px] md:hidden">
+          {type} · {daysText}
         </span>
         {(req.reason || req.review_note || req.proof_url) && (
           <span className="text-tertiary-foreground flex min-w-0 items-center gap-1.5 text-[13px]">

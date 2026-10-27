@@ -87,7 +87,7 @@ export const MonthView = memo(function MonthView({
 
   return (
     <>
-      <div className="flex h-full w-full max-w-full min-w-[700px] flex-col overflow-hidden">
+      <div className="flex h-full w-full max-w-full flex-col overflow-hidden sm:min-w-[700px]">
         {/* Weekday headers */}
         <div className="border-border flex border-b">
           {/* Week number header (removed) */}
@@ -97,7 +97,7 @@ export const MonthView = memo(function MonthView({
             {weekdayLabels.map((day) => (
               <div
                 key={day}
-                className="text-muted-foreground border-r px-2.5 py-2 text-sm last:border-r-0"
+                className="text-muted-foreground border-r px-1 py-2 text-center text-xs last:border-r-0 sm:px-2.5 sm:text-left sm:text-sm"
               >
                 {day}
               </div>
@@ -122,7 +122,7 @@ export const MonthView = memo(function MonthView({
                 <div
                   key={dayKey}
                   className={cx(
-                    "flex min-h-[96px] flex-col border-r border-b p-1.5 sm:min-h-[120px] [&:nth-child(7n)]:border-r-0 [&:nth-last-child(-n+7)]:border-b-0",
+                    "flex min-h-[64px] flex-col items-center border-r border-b p-1 sm:min-h-[120px] sm:items-stretch sm:p-1.5 [&:nth-child(7n)]:border-r-0 [&:nth-last-child(-n+7)]:border-b-0",
                     isToday && "bg-foreground/[0.025]",
                     "hover:bg-foreground/[0.03] cursor-pointer transition-colors",
                   )}
@@ -145,10 +145,10 @@ export const MonthView = memo(function MonthView({
                   </div>
 
                   {/* Events - full display on sm+, compact dot indicator on mobile */}
-                  <div className="flex-1 space-y-1 overflow-hidden">
+                  <div className="flex-1 space-y-1 overflow-hidden max-sm:flex max-sm:justify-center">
                     {/* Mobile: show colored dots for events */}
                     {dayEvents.length > 0 && (
-                      <div className="flex flex-wrap gap-0.5 sm:hidden">
+                      <div className="flex flex-wrap justify-center gap-0.5 sm:hidden">
                         {dayEvents.slice(0, 4).map((event) => (
                           <span
                             key={event.id}

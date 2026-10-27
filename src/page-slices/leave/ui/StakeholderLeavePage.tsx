@@ -24,6 +24,7 @@ import { canManageByRole } from "@/shared/lib/roles"
 import { Database } from "@/shared/types/database.types"
 import { ConfirmDialog } from "@/components/confirm-dialog"
 import { DataTable } from "@/components/data-table"
+import { useIsMobile } from "@/hooks/use-mobile"
 import { DatePicker } from "@/components/date-picker"
 import { TabNavigation, TabNavigationLink } from "@/components/tab-navigation"
 import { Button } from "@/components/ui/button"
@@ -137,6 +138,7 @@ export function StakeholderLeavePage({
   role,
 }: StakeholderLeavePageProps) {
   const t = useT("leave")
+  const isMobile = useIsMobile()
   const tc = useT("common")
   const dateLocale = useDateLocale()
   const supabase = createClient()
@@ -292,12 +294,12 @@ export function StakeholderLeavePage({
   const approvalColumns = useMemo(
     () =>
       adminColumns(handleApprove, handleReject, {
-        canSelect: canManage,
+        canSelect: canManage && !isMobile,
         canManage,
         t,
         dateLocale,
       }),
-    [handleApprove, handleReject, canManage, t, dateLocale],
+    [handleApprove, handleReject, canManage, isMobile, t, dateLocale],
   )
 
   const confirmReject = async () => {
@@ -536,7 +538,8 @@ export function StakeholderLeavePage({
       pageCount={pageCount}
       pageIndex={page - 1}
       onPageChange={handlePageChange}
-      enableSelection={canManage}
+      // Phones review one request at a time (approve/reject on the row).
+      enableSelection={canManage && !isMobile}
       onBulkApprove={
         canManage
           ? async (ids) => {

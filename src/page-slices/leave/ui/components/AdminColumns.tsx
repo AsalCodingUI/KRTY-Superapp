@@ -76,7 +76,8 @@ export const adminColumns = (
             ),
             enableSorting: false,
             enableHiding: false,
-            meta: { displayName: t("selectRow") },
+            // Phones review one at a time; bulk selection is for desktop.
+            meta: { displayName: t("selectRow"), className: "max-md:hidden" },
           }),
         ]
       : []),
@@ -95,8 +96,8 @@ export const adminColumns = (
         const name = row.original.profiles?.full_name || t("unknownName")
         const initials = name.slice(0, 2).toUpperCase()
         return (
-          <div className="flex items-center gap-3">
-            <Avatar className="size-5">
+          <div className="flex min-w-0 items-center gap-3">
+            <Avatar className="size-5 max-md:size-8">
               <AvatarImage
                 src={row.original.profiles?.avatar_url || undefined}
                 alt={name}
@@ -105,16 +106,30 @@ export const adminColumns = (
                 {initials}
               </AvatarFallback>
             </Avatar>
-            <span
-              className="text-foreground font-medium whitespace-nowrap"
-              title={name}
-            >
-              {name}
-            </span>
+            <div className="flex min-w-0 flex-col">
+              <span
+                className="text-foreground font-medium whitespace-nowrap max-md:truncate"
+                title={name}
+              >
+                {name}
+              </span>
+              {/* Date and type get their own columns from md up. */}
+              <span className="text-muted-foreground truncate text-[13px] tabular-nums md:hidden">
+                {formatLeaveRange(
+                  row.original.start_date,
+                  row.original.end_date,
+                  dateLocale,
+                )}{" "}
+                · {leaveTypeLabel(row.original.leave_type, t)}
+              </span>
+            </div>
           </div>
         )
       },
-      meta: { displayName: t("colEmployee") },
+      meta: {
+        displayName: t("colEmployee"),
+        className: "max-md:w-full max-md:max-w-0",
+      },
     }),
 
     // 3. Date Range
@@ -135,7 +150,7 @@ export const adminColumns = (
           )}
         </span>
       ),
-      meta: { displayName: t("colDate") },
+      meta: { displayName: t("colDate"), className: "max-md:hidden" },
     }),
 
     // 5. Type
@@ -148,7 +163,10 @@ export const adminColumns = (
         />
       ),
       cell: ({ row }) => leaveTypeLabel(row.original.leave_type, t),
-      meta: { displayName: t("colType"), className: "whitespace-nowrap" },
+      meta: {
+        displayName: t("colType"),
+        className: "whitespace-nowrap max-md:hidden",
+      },
     }),
 
     // 6. Reason
@@ -177,7 +195,7 @@ export const adminColumns = (
           </div>
         )
       },
-      meta: { displayName: t("colReason") },
+      meta: { displayName: t("colReason"), className: "max-md:hidden" },
     }),
 
     // 8. Status

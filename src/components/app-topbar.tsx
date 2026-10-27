@@ -90,7 +90,7 @@ export function AppTopbar() {
           aria-label={siteConfig.name}
         >
           <AppIcon size={192} variant="mark" className="size-[22px]" />
-          <span className="hidden text-sm font-medium sm:inline">
+          <span className="text-sm font-medium">
             {siteConfig.name}
           </span>
         </PrefetchLink>

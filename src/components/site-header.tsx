@@ -80,7 +80,9 @@ export function SiteHeader() {
   ]
 
   return (
-    <header className="flex h-12 shrink-0 items-center gap-2">
+    // Phones have the page title right below and the tab bar to move
+    // around: no breadcrumb row there.
+    <header className="flex h-12 shrink-0 items-center gap-2 max-md:hidden">
       <div className="gutter-x flex min-w-0 flex-1 items-center gap-2">
         {/* In the Mac app the toggle sits in the top bar instead. */}
         {/* Not on phones either: they navigate from the tab bar. */}

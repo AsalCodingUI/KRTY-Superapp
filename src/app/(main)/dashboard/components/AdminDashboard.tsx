@@ -112,10 +112,14 @@ export function AdminDashboard({ data }: AdminDashboardProps) {
         <HomeAction href="/leave/attendance" icon={<Clock />}>
           {t("actionAttendance")}
         </HomeAction>
-        <HomeAction href="/performance/360-review" icon={<ClipboardCheck />}>
+        <HomeAction
+          desktopOnly
+          href="/performance/360-review"
+          icon={<ClipboardCheck />}
+        >
           {t("actionReview360")}
         </HomeAction>
-        <HomeAction href="/teams" icon={<Users />}>
+        <HomeAction desktopOnly href="/teams" icon={<Users />}>
           {t("actionTeam")}
         </HomeAction>
         <HomeAction href="/calendar" icon={<CalendarDays />}>
@@ -140,6 +144,7 @@ export function AdminDashboard({ data }: AdminDashboardProps) {
         </HomeCard>
 
         <HomeCard
+          className="max-md:hidden"
           title={t("adminPendingReviewsTitle")}
           badge={
             reviews.length > 0 ? (
@@ -232,10 +237,12 @@ export function AdminDashboard({ data }: AdminDashboardProps) {
           />
         </HomeCard>
 
-        <TeamKpiCard data={data} />
+        <div className="contents max-md:hidden">
+          <TeamKpiCard data={data} />
+        </div>
       </HomeGrid>
 
-      <HomeCard title={t("adminRecentActivityTitle")}>
+      <HomeCard className="max-md:hidden" title={t("adminRecentActivityTitle")}>
         {data.recentActivities.length === 0 ? (
           <HomeEmpty>{t("adminRecentActivityEmpty")}</HomeEmpty>
         ) : (

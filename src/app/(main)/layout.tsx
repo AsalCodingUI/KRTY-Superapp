@@ -96,10 +96,13 @@ export default async function Layout({
                 className={cn(
                   "dark:bg-surface overflow-y-auto overscroll-contain [--bleed:0.75rem] [--page-gutter:1.25rem] [scrollbar-gutter:stable] md:z-20 md:[--page-gutter:2.5rem] xl:[--page-gutter:4rem]",
                   desktop ? "md:rounded-[10px]" : "md:rounded-3xl",
+                  // Phones (Shopify style): the page is a sheet on the
+                  // chrome, its top corners rounded.
+                  "max-md:rounded-t-3xl max-md:pt-2",
                 )}
               >
                 <SiteHeader />
-                <div className="gutter-x flex flex-1 flex-col gap-4 overflow-x-clip pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:pb-6">
+                <div className="gutter-x flex flex-1 flex-col gap-4 overflow-x-clip pb-[calc(6.5rem+env(safe-area-inset-bottom))] md:pb-6">
                   <WorkspaceTransition>
                     <Suspense fallback={<PageFallback />}>{children}</Suspense>
                   </WorkspaceTransition>

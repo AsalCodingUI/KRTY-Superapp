@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
 import { SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { cn } from "@/lib/utils"
+import { useIsMobile } from "@/hooks/use-mobile"
 import { useDateLocale, useT } from "@/shared/i18n/client"
 import {
   RiDeleteBinLine,
@@ -135,6 +136,7 @@ export default function NotificationsPanel({
   const { profile } = useUserProfile()
   const isAdmin = canManageByRole(profile?.role)
   const t = useT("shell")
+  const isMobile = useIsMobile()
   const tc = useT("common")
   const dateLocale = useDateLocale()
 
@@ -153,7 +155,15 @@ export default function NotificationsPanel({
   }
 
   return (
-    <SheetContent className="w-full gap-0 sm:max-w-md">
+    <SheetContent
+      // A bottom sheet on phones, like every other panel there.
+      side={isMobile ? "bottom" : "right"}
+      className={cn(
+        "w-full gap-0 sm:max-w-md",
+        isMobile &&
+          "h-[85dvh] rounded-t-3xl border-t-0 pb-[env(safe-area-inset-bottom)]",
+      )}
+    >
       <SheetHeader>
         <SheetTitle>{t("notifications")}</SheetTitle>
         <div className="flex items-center gap-1">

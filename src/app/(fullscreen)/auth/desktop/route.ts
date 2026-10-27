@@ -27,5 +27,7 @@ export async function GET(request: Request) {
     })
     if (!error) return NextResponse.redirect(`${origin}${next}`)
   }
-  return NextResponse.redirect(`${origin}/desktop?error=auth`)
+  // A used or expired token: back where it was going anyway (signed in
+  // already, or the sign-in page says so), never the popover's page.
+  return NextResponse.redirect(`${origin}${next}`)
 }

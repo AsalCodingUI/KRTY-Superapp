@@ -48,7 +48,7 @@ type Filter = "all" | "todo" | "done"
 const ALL = "__all__"
 
 const ROW_GRID =
-  "grid grid-cols-[2.5rem_minmax(0,1fr)_7rem] items-center md:grid-cols-[2.5rem_minmax(0,1fr)_12rem_9rem_7rem]"
+  "grid grid-cols-[2.5rem_minmax(0,1fr)_5rem] items-center md:grid-cols-[2.5rem_minmax(0,1fr)_12rem_9rem_7rem]"
 
 /**
  * Tugas saya: every task assigned to the viewer, across their running
@@ -382,37 +382,48 @@ function MyTaskRow({
     <div
       className={cn(
         ROW_GRID,
-        "group/task border-border/50 hover:bg-muted/20 gutter-x min-h-12 border-b",
+        "group/task border-border/50 hover:bg-muted/20 gutter-x relative min-h-12 border-b max-md:min-h-14",
       )}
     >
       <Checkbox
+        className="relative z-10"
         checked={task.done}
         onCheckedChange={onToggle}
         aria-label={task.done ? t("markUndone") : t("markDone")}
       />
-      <div className="flex min-w-0 items-center gap-2 pr-3">
-        <button
-          type="button"
-          onClick={onOpen}
-          className={cn(
-            "min-w-0 truncate text-left hover:underline",
-            task.done && "text-muted-foreground line-through",
-          )}
-        >
-          {task.title}
-        </button>
-        {subtasks.length > 0 && (
-          <span className="text-muted-foreground shrink-0 text-[13px] tabular-nums">
-            {doneSubs}/{subtasks.length}
-          </span>
-        )}
-        {comments > 0 && (
-          <span
-            className="text-muted-foreground flex shrink-0 items-center gap-1 text-[13px] tabular-nums"
-            aria-label={t("commentCount", { n: comments })}
+      <div className="flex min-w-0 flex-col pr-3">
+        <div className="flex min-w-0 items-center gap-2">
+          {/* On a phone the whole row opens the task. */}
+          <button
+            type="button"
+            onClick={onOpen}
+            className={cn(
+              "min-w-0 truncate text-left hover:underline max-md:after:absolute max-md:after:inset-0",
+              task.done && "text-muted-foreground line-through",
+            )}
           >
-            <RiMessage3Line className="size-3.5" />
-            {comments}
+            {task.title}
+          </button>
+          {subtasks.length > 0 && (
+            <span className="text-muted-foreground shrink-0 text-[13px] tabular-nums">
+              {doneSubs}/{subtasks.length}
+            </span>
+          )}
+          {comments > 0 && (
+            <span
+              className="text-muted-foreground flex shrink-0 items-center gap-1 text-[13px] tabular-nums"
+              aria-label={t("commentCount", { n: comments })}
+            >
+              <RiMessage3Line className="size-3.5" />
+              {comments}
+            </span>
+          )}
+        </div>
+        {/* Project and status get their own columns from md up. */}
+        {project && (
+          <span className="text-muted-foreground flex min-w-0 items-center gap-1.5 text-[13px] md:hidden">
+            <StatusDot status={status} />
+            <span className="truncate">{project.name}</span>
           </span>
         )}
       </div>

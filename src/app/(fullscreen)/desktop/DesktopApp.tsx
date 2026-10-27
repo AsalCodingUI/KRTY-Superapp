@@ -40,6 +40,7 @@ const ALL: On = {
 }
 
 type TauriGlobal = {
+  window?: { getCurrentWindow: () => { label: string } }
   app?: { getVersion: () => Promise<string> }
   core: {
     invoke: (cmd: string, args?: Record<string, unknown>) => Promise<unknown>
@@ -136,6 +137,13 @@ export function DesktopApp() {
         ? "offline"
         : "real"
   const data = useMenubarData(ALL, person, scenario)
+
+  // This page is the popover's. If the app window ever lands here (an old
+  // sign-in link…), it goes to the app instead.
+  useEffect(() => {
+    const label = tauri()?.window?.getCurrentWindow().label
+    if (label && label !== "popover") window.location.replace("/dashboard")
+  }, [])
 
   // The window floats over the desktop: no page background of its own.
   useEffect(() => {

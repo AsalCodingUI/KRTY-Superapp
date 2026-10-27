@@ -27,7 +27,9 @@ export function HomeGreeting({ title }: { title: React.ReactNode }) {
   )
 }
 
-/** Row of quick-action pills; the first one is usually primary. */
+/** Row of quick-action pills; the first one is usually primary. On a
+ *  phone the pills scroll sideways edge to edge and the aside (period
+ *  filters) is left out, with the cards it filters. */
 export function HomeActions({
   children,
   aside,
@@ -37,8 +39,12 @@ export function HomeActions({
 }) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-3">
-      <div className="flex flex-wrap items-center gap-2">{children}</div>
-      {aside && <div className="flex items-center gap-2">{aside}</div>}
+      <div className="max-md:bleed max-md:gutter-x flex items-center gap-2 max-md:w-[calc(100%+2*var(--page-gutter,1rem))] max-md:overflow-x-auto max-md:[scrollbar-width:none] md:flex-wrap [&>*]:shrink-0">
+        {children}
+      </div>
+      {aside && (
+        <div className="flex items-center gap-2 max-md:hidden">{aside}</div>
+      )}
     </div>
   )
 }
@@ -48,14 +54,18 @@ export function HomeAction({
   onClick,
   icon,
   primary = false,
+  desktopOnly = false,
   children,
 }: {
   href?: string
   onClick?: () => void
   icon?: React.ReactNode
   primary?: boolean
+  /** Leads to a part of the app that phones leave out. */
+  desktopOnly?: boolean
   children: React.ReactNode
 }) {
+  const className = desktopOnly ? "max-md:hidden" : undefined
   const content = (
     <>
       {icon && (
@@ -72,6 +82,7 @@ export function HomeAction({
       <Button
         variant={variant}
         size="lg"
+        className={className}
         nativeButton={false}
         render={<Link href={href} prefetch={false} />}
       >
@@ -79,15 +90,25 @@ export function HomeAction({
       </Button>
     )
   return (
-    <Button variant={variant} size="lg" onClick={onClick}>
+    <Button variant={variant} size="lg" className={className} onClick={onClick}>
       {content}
     </Button>
   )
 }
 
 /** Two cards side by side on wide screens. */
-export function HomeGrid({ children }: { children: React.ReactNode }) {
-  return <div className="grid grid-cols-1 gap-4 md:grid-cols-2">{children}</div>
+export function HomeGrid({
+  children,
+  className,
+}: {
+  children: React.ReactNode
+  className?: string
+}) {
+  return (
+    <div className={cn("grid grid-cols-1 gap-4 md:grid-cols-2", className)}>
+      {children}
+    </div>
+  )
 }
 
 export function HomeCard({

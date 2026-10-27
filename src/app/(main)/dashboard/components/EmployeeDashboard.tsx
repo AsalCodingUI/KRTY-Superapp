@@ -134,7 +134,7 @@ export function EmployeeDashboard({
         <HomeAction href="/leave" icon={<Clock />}>
           {t("actionAttendance")}
         </HomeAction>
-        <HomeAction href="/performance" icon={<ChartColumn />}>
+        <HomeAction desktopOnly href="/performance" icon={<ChartColumn />}>
           {t("actionMyKpi")}
         </HomeAction>
         <HomeAction href="/calendar" icon={<CalendarDays />}>
@@ -154,7 +154,8 @@ export function EmployeeDashboard({
         />
       </HomeGrid>
 
-      <HomeGrid>
+      {/* KPI and reviews are for bigger screens; phones keep today. */}
+      <HomeGrid className="max-md:hidden">
         <HomeKpiCard
           userId={data.user.id}
           // The KPI reads "2026-All" for a whole year, like the filter.
