@@ -1,5 +1,6 @@
 "use client"
 
+import { AlwaysDark } from "@/components/always-dark"
 import { AppIcon } from "@/components/app-icon"
 import { cn } from "@/lib/utils"
 import { useEffect } from "react"
@@ -27,35 +28,37 @@ export function ConnectView({ link }: { link: string | null }) {
   }, [link])
 
   return (
-    <main className="text-foreground grid min-h-dvh grid-rows-[1fr_auto_1fr_1.5rem] justify-items-center bg-white px-4 dark:bg-black">
-      <div className="enter-rise row-start-2 flex w-full max-w-[360px] flex-col items-center pt-4 pb-16">
-        <div className="relative size-[88px]">
-          <span
-            aria-hidden
-            className="absolute inset-0 rounded-[28px] shadow-[32px_0_100px_0_rgba(160,104,251,0.15),-32px_0_100px_0_rgba(106,253,216,0.15),0_-32px_100px_0_rgba(133,187,249,0.15),0_32px_100px_0_rgba(251,107,130,0.15)]"
-          />
-          <AppIcon size={1024} className="squircle-mask relative size-full" />
+    <AlwaysDark>
+      <main className="text-foreground grid min-h-dvh grid-rows-[1fr_auto_1fr_1.5rem] justify-items-center bg-white px-4 dark:bg-black">
+        <div className="enter-rise row-start-2 flex w-full max-w-[360px] flex-col items-center pt-4 pb-16">
+          <div className="relative size-[88px]">
+            <span
+              aria-hidden
+              className="absolute inset-0 rounded-[28px] shadow-[32px_0_100px_0_rgba(160,104,251,0.15),-32px_0_100px_0_rgba(106,253,216,0.15),0_-32px_100px_0_rgba(133,187,249,0.15),0_32px_100px_0_rgba(251,107,130,0.15)]"
+            />
+            <AppIcon size={1024} className="squircle-mask relative size-full" />
+          </div>
+
+          <h1 className="font-heading text-heading mt-11 text-center text-[30px] leading-[1.1] font-medium tracking-[-0.03em] text-balance">
+            {link ? "Kembali ke Kretya Flow" : "Gagal masuk ke app"}
+          </h1>
+          <p className="text-muted-foreground mt-3 text-center text-sm text-balance">
+            {link
+              ? "Kamu sudah masuk. Kretya Flow terbuka sendiri; kalau belum, tekan tombol di bawah."
+              : "Coba lagi dari Kretya Flow. Kalau masih gagal, hubungi admin."}
+          </p>
+
+          {link && (
+            <a href={link} className={cn(PILL, "mt-8")}>
+              <AppIcon size={96} variant="mark" className="size-4" />
+              Buka Kretya Flow
+            </a>
+          )}
+          <p className="text-tertiary-foreground mt-4 text-center text-[13px]">
+            Tab ini boleh ditutup.
+          </p>
         </div>
-
-        <h1 className="font-heading text-heading mt-11 text-center text-[30px] leading-[1.1] font-medium tracking-[-0.03em] text-balance">
-          {link ? "Kembali ke Kretya Flow" : "Gagal masuk ke app"}
-        </h1>
-        <p className="text-muted-foreground mt-3 text-center text-sm text-balance">
-          {link
-            ? "Kamu sudah masuk. Kretya Flow terbuka sendiri; kalau belum, tekan tombol di bawah."
-            : "Coba lagi dari Kretya Flow. Kalau masih gagal, hubungi admin."}
-        </p>
-
-        {link && (
-          <a href={link} className={cn(PILL, "mt-8")}>
-            <AppIcon size={96} variant="mark" className="size-4" />
-            Buka Kretya Flow
-          </a>
-        )}
-        <p className="text-tertiary-foreground mt-4 text-center text-[13px]">
-          Tab ini boleh ditutup.
-        </p>
-      </div>
-    </main>
+      </main>
+    </AlwaysDark>
   )
 }
