@@ -71,7 +71,7 @@ export function NavUser({
               <SidebarMenuButton
                 className={
                   showName
-                    ? "text-foreground h-8 w-auto gap-2 px-1.5 hover:bg-transparent active:bg-transparent aria-expanded:bg-transparent"
+                    ? "text-foreground h-8 w-auto gap-2 pr-3 pl-1 hover:bg-transparent active:bg-transparent aria-expanded:bg-transparent"
                     : "aria-expanded:bg-sidebar-accent blend-ink size-8! justify-center p-0!"
                 }
               />
