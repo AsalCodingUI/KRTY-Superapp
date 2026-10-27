@@ -4,7 +4,7 @@ import { redirect } from "next/navigation"
 import { ConnectView } from "./ConnectView"
 
 export const dynamic = "force-dynamic"
-export const metadata = { title: "Kembali ke KRTY" }
+export const metadata = { title: "Kembali ke Kretya Flow" }
 
 /**
  * Signs the desktop app in. Google sign-in can't run inside the app's

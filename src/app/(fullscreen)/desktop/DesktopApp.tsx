@@ -174,7 +174,7 @@ export function DesktopApp() {
         remind(
           `event:${e.id}`,
           `${e.title}`,
-          `Mulai ${format(new Date(e.start_at), "HH:mm")}${e.meeting_url ? " · buka KRTY untuk Join" : ""}`,
+          `Mulai ${format(new Date(e.start_at), "HH:mm")}${e.meeting_url ? " · buka Kretya Flow untuk Join" : ""}`,
         )
       }
     const weekday = data.now.getDay() % 6 !== 0
@@ -183,7 +183,7 @@ export function DesktopApp() {
         remind(
           "clock-in",
           "Belum clock in",
-          "Sudah jam kerja. Clock in dari menu bar KRTY.",
+          "Sudah jam kerja. Clock in dari menu bar Kretya Flow.",
         )
       if (data.working && data.worked >= 8 * 60)
         remind("clock-out", "Sudah 8 jam kerja", "Jangan lupa clock out.")
@@ -279,7 +279,7 @@ export function DesktopApp() {
         await createClient().auth.signOut()
         window.location.reload()
       },
-      checkUpdate: () => toast("KRTY untuk Mac sudah versi terbaru"),
+      checkUpdate: () => toast("Kretya Flow sudah versi terbaru"),
       todo: () => undefined,
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

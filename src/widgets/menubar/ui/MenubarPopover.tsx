@@ -63,7 +63,7 @@ import { toast } from "sonner"
 import { getPreviewNotifications } from "@/app/(fullscreen)/menubar/actions"
 
 /**
- * The macOS menu bar popover (the KRTY desktop app, a Tauri shell around
+ * The macOS menu bar popover (Kretya Flow, the desktop app: a Tauri shell around
  * /desktop): always dark, built from the app's own components. The data
  * comes from useMenubarData; what the buttons do comes from ActionsContext
  * (a toast in the /menubar preview, the real thing in the app).
@@ -694,7 +694,7 @@ function OpenApp({ className }: { className?: string }) {
       className={className}
       onClick={() => act.open("/dashboard")}
     >
-      Buka KRTY
+      Buka Kretya Flow
       <ArrowUpRight data-icon="inline-end" />
     </Button>
   )
@@ -1560,7 +1560,7 @@ function SettingsPanel({ data }: { data: Data }) {
       </SettingsGroup>
 
       <div className="text-tertiary-foreground flex items-center justify-between px-2 pt-2 text-xs">
-        <span>KRTY untuk Mac · versi 0.1.0</span>
+        <span>Kretya Flow · versi 0.1.0</span>
         <Button variant="ghost" size="xs" onClick={act.checkUpdate}>
           Cek pembaruan
         </Button>

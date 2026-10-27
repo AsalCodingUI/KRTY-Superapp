@@ -1,4 +1,4 @@
-//! KRTY for Mac: the whole web app in its own window (Dock icon, ⌘Tab),
+//! Kretya Flow (KRTY for Mac): the whole web app in its own window (Dock icon, ⌘Tab),
 //! plus a menu bar icon that opens a small popover (the web app's /desktop
 //! page) under it: attendance, today's schedule and tasks, notifications.
 //!
@@ -406,7 +406,7 @@ pub fn run() {
         .setup(move |app| {
             // The app window: the whole web app.
             let main = web_window(app, APP, "/dashboard")
-                .title("KRTY")
+                .title("Kretya Flow")
                 // No title bar of its own: the page runs up to the top and
                 // the traffic lights sit in the web app's top bar (see
                 // unified_toolbar and SHELL_SCRIPT).
@@ -445,7 +445,7 @@ pub fn run() {
             // notifications and reminders.
             let popover = web_window(app, POPOVER, "/desktop")
                 .background_throttling(tauri::utils::config::BackgroundThrottlingPolicy::Disabled)
-                .title("KRTY")
+                .title("Kretya Flow")
                 .inner_size(PANEL.0 + 2.0 * MARGIN, PANEL.1 + MARGIN + MARGIN_TOP)
                 .resizable(false)
                 .decorations(false)
@@ -488,13 +488,13 @@ pub fn run() {
 
             // Menu bar icon: left click opens the popover, right click has
             // the app window and Quit.
-            let open = MenuItem::with_id(app, "open", "Buka KRTY", true, None::<&str>)?;
-            let quit = MenuItem::with_id(app, "quit", "Keluar dari KRTY", true, None::<&str>)?;
+            let open = MenuItem::with_id(app, "open", "Buka Kretya Flow", true, None::<&str>)?;
+            let quit = MenuItem::with_id(app, "quit", "Keluar dari Kretya Flow", true, None::<&str>)?;
             let menu = Menu::with_items(app, &[&open, &quit])?;
             TrayIconBuilder::with_id("main")
                 .icon(tauri::image::Image::from_bytes(include_bytes!("../icons/tray.png"))?)
                 .icon_as_template(true)
-                .tooltip("KRTY")
+                .tooltip("Kretya Flow")
                 .menu(&menu)
                 .show_menu_on_left_click(false)
                 .on_menu_event(|app, event| match event.id().as_ref() {
@@ -531,7 +531,7 @@ pub fn run() {
             Ok(())
         })
         .build(tauri::generate_context!())
-        .expect("error while building KRTY");
+        .expect("error while building Kretya Flow");
 
     app.run(|app, event| {
         // Clicking the Dock icon brings the app window back.

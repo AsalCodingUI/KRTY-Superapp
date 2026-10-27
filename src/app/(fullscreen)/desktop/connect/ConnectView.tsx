@@ -15,10 +15,10 @@ const PILL = cn(
 /**
  * Back to the desktop app, dressed like the sign-in page: the app icon,
  * one heading, one pill. It opens the app by itself; the pill is there for
- * when the browser's "Open KRTY?" prompt was dismissed.
+ * when the browser's "Open Kretya Flow?" prompt was dismissed.
  */
 export function ConnectView({ link }: { link: string | null }) {
-  // A beat after the page shows, so the browser's "Open KRTY?" prompt
+  // A beat after the page shows, so the browser's "Open Kretya Flow?" prompt
   // doesn't land on a blank tab.
   useEffect(() => {
     if (!link) return
@@ -38,18 +38,18 @@ export function ConnectView({ link }: { link: string | null }) {
         </div>
 
         <h1 className="font-heading text-heading mt-11 text-center text-[30px] leading-[1.1] font-medium tracking-[-0.03em] text-balance">
-          {link ? "Kembali ke app KRTY" : "Gagal masuk ke app"}
+          {link ? "Kembali ke Kretya Flow" : "Gagal masuk ke app"}
         </h1>
         <p className="text-muted-foreground mt-3 text-center text-sm text-balance">
           {link
-            ? "Kamu sudah masuk. App KRTY terbuka sendiri; kalau belum, tekan tombol di bawah."
-            : "Coba lagi dari app KRTY. Kalau masih gagal, hubungi admin."}
+            ? "Kamu sudah masuk. Kretya Flow terbuka sendiri; kalau belum, tekan tombol di bawah."
+            : "Coba lagi dari Kretya Flow. Kalau masih gagal, hubungi admin."}
         </p>
 
         {link && (
           <a href={link} className={cn(PILL, "mt-8")}>
             <AppIcon size={96} variant="mark" className="size-4" />
-            Buka KRTY
+            Buka Kretya Flow
           </a>
         )}
         <p className="text-tertiary-foreground mt-4 text-center text-[13px]">
