@@ -1,5 +1,6 @@
 "use client"
 
+import { useIsMobile } from "@/hooks/use-mobile"
 import { projectHref } from "@/shared/lib/url-params"
 import { EmptyState } from "@/components/empty-state"
 import { EmptyValue } from "@/components/empty-value"
@@ -61,7 +62,9 @@ export function MyTasksPage() {
   const { data, isLoading } = useMyTasks(viewer.id)
   const writer = useMyTaskWriter(viewer.id, () => toast.error(t("errSaveTask")))
   const [view, setView] = useViewMode("my-tasks", "kanban")
-  const board = view !== "list"
+  // Phones always get the list: a board doesn't fit.
+  const isMobile = useIsMobile()
+  const board = view !== "list" && !isMobile
   const [filter, setFilter] = useState<Filter>("todo")
   const [projectFilter, setProjectFilter] = useState<string>(ALL)
   const [openId, setOpenId] = useState<string | null>(null)
@@ -232,11 +235,13 @@ export function MyTasksPage() {
                   ))}
                 </SelectContent>
               </Select>
-              <ViewToggle
-                value={board ? "kanban" : "list"}
-                onValueChange={setView}
-                modes={["kanban", "list"]}
-              />
+              {!isMobile && (
+                <ViewToggle
+                  value={board ? "kanban" : "list"}
+                  onValueChange={setView}
+                  modes={["kanban", "list"]}
+                />
+              )}
             </>
           )
         }

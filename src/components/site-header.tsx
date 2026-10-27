@@ -83,14 +83,15 @@ export function SiteHeader() {
     <header className="flex h-12 shrink-0 items-center gap-2">
       <div className="gutter-x flex min-w-0 flex-1 items-center gap-2">
         {/* In the Mac app the toggle sits in the top bar instead. */}
+        {/* Not on phones either: they navigate from the tab bar. */}
         {!desktop && (
-          <>
+          <div className="hidden items-center gap-2 md:flex">
             <SidebarTrigger className="-ml-1" />
             <Separator
               orientation="vertical"
               className="mr-2 data-vertical:h-4 data-vertical:self-auto"
             />
-          </>
+          </div>
         )}
         <Breadcrumb className="min-w-0">
           <BreadcrumbList className="flex-nowrap">

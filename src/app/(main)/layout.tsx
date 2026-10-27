@@ -12,6 +12,7 @@ import { DesktopShellProvider } from "@/components/desktop-shell"
 import { DESKTOP_SHELL_COOKIE } from "@/shared/lib/desktop-shell"
 import { cookies } from "next/headers"
 import { cn } from "@/lib/utils"
+import { MobileNav } from "@/components/mobile-nav"
 import { Suspense } from "react"
 
 /**
@@ -98,7 +99,7 @@ export default async function Layout({
                 )}
               >
                 <SiteHeader />
-                <div className="gutter-x flex flex-1 flex-col gap-4 overflow-x-clip pb-6">
+                <div className="gutter-x flex flex-1 flex-col gap-4 overflow-x-clip pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:pb-6">
                   <WorkspaceTransition>
                     <Suspense fallback={<PageFallback />}>{children}</Suspense>
                   </WorkspaceTransition>
@@ -107,6 +108,8 @@ export default async function Layout({
             </div>
           </div>
         </WorkspaceNavProvider>
+        {/* Phones: the essentials, from a tab bar at the bottom. */}
+        <MobileNav />
       </SidebarProvider>
     </DesktopShellProvider>
   )

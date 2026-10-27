@@ -94,7 +94,10 @@ export function AppTopbar() {
             {siteConfig.name}
           </span>
         </PrefetchLink>
-        <WorkspaceSwitch />
+        {/* Phones use the tab bar instead. */}
+        <div className="hidden md:block">
+          <WorkspaceSwitch />
+        </div>
       </div>
 
       <GlobalSearch className="hidden max-w-[560px] md:flex" />

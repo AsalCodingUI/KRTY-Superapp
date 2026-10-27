@@ -49,9 +49,12 @@ const DOT: Record<EventColor, string> = {
   neutral: "bg-muted-foreground",
 }
 
-/** "19 – 25 Okt 2026", "Oktober 2026" or "Sep – Nov 2026". */
+/** "19 – 25 Okt 2026", "Oktober 2026", "Sep – Nov 2026" or "Sel, 27 Okt". */
 function rangeLabel(date: Date, view: ViewMode, locale: Locale) {
   if (view === "month") return format(date, "MMMM yyyy", { locale })
+  // One day: "Sel, 27 Okt".
+  if (view === "day" || view === "agenda")
+    return format(date, "EEE, d MMM", { locale })
   const { start, end } = getViewRange(date, view)
   if (view === "timeline") {
     return `${format(start, "MMM", { locale })} – ${format(end, "MMM yyyy", { locale })}`

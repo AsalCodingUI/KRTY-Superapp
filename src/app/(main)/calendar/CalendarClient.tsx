@@ -1,5 +1,6 @@
 "use client"
 
+import { useIsMobile } from "@/hooks/use-mobile"
 import { ProjectTaskDialog } from "@/page-slices/projects/ui/workspace/ProjectTaskDialog"
 import {
   useMyTasks,
@@ -419,6 +420,11 @@ function CalendarDataLayer({ scope, level, userId }: CalendarClientProps) {
 
   const config = SCOPES[scope]
   const personal = scope === "personal"
+  // Phones: a week doesn't fit, so my calendar lists what's coming (agenda)
+  // or shows the month.
+  const isMobile = useIsMobile()
+  const views: ViewMode[] =
+    personal && isMobile ? ["agenda", "month"] : config.views
   const isStakeholder = level === "stakeholder"
   // Other people's leave: PM and stakeholders only, and only on the project
   // calendar. Everyone sees their own on the personal one.
@@ -732,7 +738,7 @@ function CalendarDataLayer({ scope, level, userId }: CalendarClientProps) {
         canEditEvent={canEditEvent}
         eventTypes={eventTypes}
         categories={categories}
-        views={config.views}
+        views={views}
         basePath={config.basePath}
         withGoogle={personal}
         blockedGoogleEventIds={blockedGoogleEventIds}

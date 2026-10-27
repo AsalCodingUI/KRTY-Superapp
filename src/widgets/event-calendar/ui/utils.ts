@@ -133,7 +133,8 @@ export function getNextPeriod(date: Date, viewMode: ViewMode): Date {
     case "timeline":
       return addMonths(date, 1)
     case "agenda":
-      return addWeeks(date, 1)
+      // The agenda lists one day.
+      return addDays(date, 1)
     default:
       return date
   }
@@ -152,7 +153,7 @@ export function getPreviousPeriod(date: Date, viewMode: ViewMode): Date {
     case "timeline":
       return subMonths(date, 1)
     case "agenda":
-      return subWeeks(date, 1)
+      return subDays(date, 1)
     default:
       return date
   }
