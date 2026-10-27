@@ -6,5 +6,9 @@
   "remote": {
     "urls": ["https://app.kretyastudio.com/*", "http://localhost:3000/*"]
   },
-  "permissions": ["core:default"]
+  "permissions": [
+    "core:default",
+    "core:window:allow-start-dragging",
+    "core:window:allow-toggle-maximize"
+  ]
 }

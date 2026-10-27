@@ -33,7 +33,10 @@ export function AppTopbar() {
   return (
     // No fill of its own: the chrome behind it shows through, so the page
     // sheet's shadow isn't cut off along the bar's bottom edge.
-    <header className="on-chrome text-foreground relative z-40 flex h-(--app-topbar-height) shrink-0 items-center gap-4 px-4 md:grid md:grid-cols-[1fr_minmax(0,35rem)_1fr]">
+    <header
+      data-slot="app-topbar"
+      className="on-chrome text-foreground relative z-40 flex h-(--app-topbar-height) shrink-0 items-center gap-4 px-4 md:grid md:grid-cols-[1fr_minmax(0,35rem)_1fr]"
+    >
       {/* From md up a grid: equal sides keep the search centred, but they
           never go below their content, so on narrower windows the search
           shrinks instead of sliding over the workspace switch. No wrapping,

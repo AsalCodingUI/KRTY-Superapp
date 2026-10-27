@@ -135,6 +135,36 @@ fn handle_deep_link(app: &AppHandle, link: &url::Url) {
     });
 }
 
+/// Runs in every page: makes room for the traffic lights in the web app's
+/// top bar, and makes that bar drag the window (double click zooms),
+/// except on its buttons and fields.
+const SHELL_SCRIPT: &str = r#"
+(() => {
+  // Room for the traffic lights at the top bar's left end. A style of our
+  // own (kept in place if the page's head is rebuilt), not an attribute on
+  // <html>, which React resets when it hydrates.
+  const css = '[data-slot="app-topbar"]{padding-left:5.25rem!important}';
+  const ensure = () => {
+    if (document.getElementById("krty-shell-style")) return;
+    const style = document.createElement("style");
+    style.id = "krty-shell-style";
+    style.textContent = css;
+    (document.head || document.documentElement).appendChild(style);
+  };
+  ensure();
+  new MutationObserver(ensure).observe(document.documentElement, { childList: true, subtree: true });
+
+  addEventListener("mousedown", (e) => {
+    if (e.button !== 0) return;
+    const bar = e.target.closest?.('[data-slot="app-topbar"]');
+    if (!bar || e.target.closest('a, button, input, textarea, select, [role="button"], [role="radio"], [role="tab"], [contenteditable]')) return;
+    const win = window.__TAURI__?.window?.getCurrentWindow?.();
+    if (!win) return;
+    if (e.detail === 2) win.toggleMaximize(); else win.startDragging();
+  });
+})();
+"#;
+
 /// A window loading the web app, through the local loader page (which
 /// shows a "can't reach KRTY" screen when the VPN is off).
 fn web_window<'a>(
@@ -150,6 +180,7 @@ fn web_window<'a>(
         WebviewUrl::App(format!("index.html?to={path}").into()),
     )
     .initialization_script(format!("window.__KRTY_APP_URL__ = {:?};", app_url()))
+    .initialization_script(SHELL_SCRIPT)
     .on_navigation(move |url| {
         if is_app(url) {
             return true;
@@ -234,6 +265,12 @@ pub fn run() {
             // The app window: the whole web app.
             let main = web_window(app, APP, "/dashboard")
                 .title("KRTY")
+                // No title bar of its own: the traffic lights sit in the web
+                // app's top bar (which leaves room and lets the window be
+                // dragged, see SHELL_SCRIPT).
+                .title_bar_style(tauri::TitleBarStyle::Overlay)
+                .hidden_title(true)
+                .traffic_light_position(tauri::LogicalPosition::new(18.0, 30.0))
                 .inner_size(1360.0, 860.0)
                 .min_inner_size(960.0, 640.0)
                 .center()
