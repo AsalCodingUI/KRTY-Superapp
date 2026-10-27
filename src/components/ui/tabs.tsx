@@ -80,7 +80,8 @@ function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
         "text-foreground/60 hover:text-foreground focus-visible:border-primary/50 focus-visible:ring-primary/15 focus-visible:outline-ring dark:text-muted-foreground dark:hover:text-foreground relative inline-flex h-full flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-full border border-transparent! px-1.5 py-0.5 text-sm font-medium whitespace-nowrap transition-[color,background-color,box-shadow] group-data-vertical/tabs:w-full group-data-vertical/tabs:justify-start group-data-vertical/tabs:px-3 group-data-vertical/tabs:py-0.5 focus-visible:ring-2 focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
         "group-data-[variant=line]/tabs-list:bg-transparent group-data-[variant=line]/tabs-list:data-active:bg-transparent group-data-[variant=line]/tabs-list:data-active:shadow-none dark:group-data-[variant=line]/tabs-list:data-active:border-transparent dark:group-data-[variant=line]/tabs-list:data-active:bg-transparent",
         // The active fill / underline is the sliding indicator in TabsList.
-        "data-active:text-foreground data-active:border-transparent",
+        // (dark: too, or the dark muted text above would win.)
+        "data-active:text-foreground dark:data-active:text-foreground data-active:border-transparent",
         "after:bg-primary after:absolute after:opacity-0 after:transition-opacity group-data-vertical/tabs:after:inset-y-0 group-data-vertical/tabs:after:-right-1 group-data-vertical/tabs:after:w-0.5 group-data-vertical/tabs:group-data-[variant=line]/tabs-list:data-active:after:opacity-100",
         className,
       )}
