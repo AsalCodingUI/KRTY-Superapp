@@ -11,6 +11,7 @@ import { ImpersonationBanner } from "@/widgets/impersonation/ui/ImpersonationBan
 import { DesktopShellProvider } from "@/components/desktop-shell"
 import { DESKTOP_SHELL_COOKIE } from "@/shared/lib/desktop-shell"
 import { cookies } from "next/headers"
+import { cn } from "@/lib/utils"
 import { Suspense } from "react"
 
 function PageFallback() {
@@ -33,7 +34,10 @@ export default async function Layout({
           where it centres the traffic lights); the top bar matches it. */}
       {desktop && (
         <style href="krty-desktop-shell" precedence="default">
-          {":root{--app-topbar-height:52px}"}
+          {
+            // The right-hand sheets sit in the same window corner.
+            ':root{--app-topbar-height:52px}@media (min-width:768px){[data-slot="sheet-content"][data-side="right"]{right:6px;bottom:6px;--nest-r:10px}}'
+          }
         </style>
       )}
       <SidebarProvider className="bg-chrome h-svh min-h-0 flex-col overflow-hidden">
@@ -47,7 +51,14 @@ export default async function Layout({
           {/* Sidebar and page stay siblings: the inset styles key off the sidebar.
             Top bar and sidebar share the tinted chrome; the page floats on it
             as one rounded sheet (Arc style). */}
-          <div className="flex min-h-0 w-full flex-1 md:pr-3 md:pb-3">
+          <div
+            className={cn(
+              "flex min-h-0 w-full flex-1",
+              // In the Mac app the sheet hugs the window's rounded corner
+              // (16pt): 6px in, so a 10px radius runs parallel to it.
+              desktop ? "md:pr-1.5 md:pb-1.5" : "md:pr-3 md:pb-3",
+            )}
+          >
             <AppSidebar />
             {/* The sheet's shadow is its own layer so it can blend darken into
               the chrome (deepening the tint) while the page itself stays as
@@ -56,12 +67,20 @@ export default async function Layout({
             <div className="relative flex min-w-0 flex-1">
               <div
                 aria-hidden
-                className="blend-shadow pointer-events-none absolute inset-0 z-20 hidden shadow-(--elev-3) md:block md:rounded-3xl"
+                className={cn(
+                  "blend-shadow pointer-events-none absolute inset-0 z-20 hidden shadow-(--elev-3) md:block",
+                  desktop ? "md:rounded-[10px]" : "md:rounded-3xl",
+                )}
               />
               {/* The scrollbar's room is always kept (scrollbar-gutter), so a
                 page that gets shorter (a filter, a tab) doesn't widen by
                 the scrollbar and shift everything sideways. */}
-              <SidebarInset className="dark:bg-surface overflow-y-auto overscroll-contain [--bleed:0.75rem] [--page-gutter:1.25rem] [scrollbar-gutter:stable] md:z-20 md:rounded-3xl md:[--page-gutter:2.5rem] xl:[--page-gutter:4rem]">
+              <SidebarInset
+                className={cn(
+                  "dark:bg-surface overflow-y-auto overscroll-contain [--bleed:0.75rem] [--page-gutter:1.25rem] [scrollbar-gutter:stable] md:z-20 md:[--page-gutter:2.5rem] xl:[--page-gutter:4rem]",
+                  desktop ? "md:rounded-[10px]" : "md:rounded-3xl",
+                )}
+              >
                 <SiteHeader />
                 <div className="gutter-x flex flex-1 flex-col gap-4 overflow-x-clip pb-6">
                   <WorkspaceTransition>

@@ -341,7 +341,7 @@ export function useMenubarData(
   const now = useNow()
   const today = getLocalDateString(now)
 
-  const { data: log } = useQuery({
+  const { data: log, isFetched: attendanceReady } = useQuery({
     queryKey: ["menubar-attendance", userId, today],
     enabled: Boolean(userId),
     queryFn: async () => {
@@ -407,7 +407,7 @@ export function useMenubarData(
   // Own notifications from the app's hook; someone else's (admin preview)
   // through a server action, since they're private by RLS.
   const own = useNotifications()
-  const { data: theirs } = useQuery({
+  const { data: theirs, isFetched: theirsFetched } = useQuery({
     queryKey: ["menubar-preview-notifications", userId],
     enabled: Boolean(me && userId) && !isMe,
     queryFn: () => getPreviewNotifications(userId),
@@ -501,6 +501,12 @@ export function useMenubarData(
     unread: (long?.unread ?? unread) as typeof unread,
     unreadCount: long?.unreadCount ?? unreadCount,
     showApprovals,
+    /** First loads done (reminders and "new notification" wait for them). */
+    attendanceReady,
+    notificationsReady: isMe ? !own.loading : theirsFetched,
+    /** Employees clock in and have leave days; admins and stakeholders
+     *  don't (as in the web app, where only employees get the clock). */
+    clocks: !isAdmin,
     pending: (long?.pending ?? pending) as typeof pending,
     leave,
   }
@@ -664,7 +670,7 @@ function AttendanceCard({ data }: { data: Data }) {
 function Footer({ data, on }: { data: Data; on: On }) {
   return (
     <div className="mt-auto flex items-center gap-3 border-t border-white/8 px-4 py-2.5 text-[13px]">
-      {on.leave && data.leave && (
+      {on.leave && data.clocks && data.leave && (
         <span className="text-muted-foreground">
           Sisa cuti{" "}
           <span className="text-foreground font-medium tabular-nums">
@@ -1091,7 +1097,7 @@ export function LayoutTabs({ data, on }: { data: Data; on: On }) {
   return (
     <Shell>
       <Header data={data} />
-      {on.attendance && <AttendanceCard data={data} />}
+      {on.attendance && data.clocks && <AttendanceCard data={data} />}
       {tabs.length > 1 && (
         <div className="px-3 pb-1">
           <SegmentedControl
@@ -1124,7 +1130,7 @@ export function LayoutList({ data, on }: { data: Data; on: On }) {
       <Header
         data={data}
         trailing={
-          on.attendance ? (
+          on.attendance && data.clocks ? (
             <span className="text-muted-foreground flex items-center gap-1.5 text-[13px] tabular-nums">
               <StatusDot data={data} />
               {data.log ? duration(data.worked) : "Belum masuk"}
@@ -1132,7 +1138,7 @@ export function LayoutList({ data, on }: { data: Data; on: On }) {
           ) : undefined
         }
       />
-      {on.attendance && (
+      {on.attendance && data.clocks && (
         <ClockButtons data={data} size="sm" className="px-4 pb-3" />
       )}
       <div className="max-h-[440px] overflow-y-auto border-t border-white/8 px-2 py-1 [scrollbar-width:none]">
@@ -1164,7 +1170,7 @@ export function LayoutTiles({ data, on }: { data: Data; on: On }) {
   const { tabs, active, setTab } = useTabs(data, on)
   const tiles = [
     ...tabs.map((t) => ({ ...t, onClick: () => setTab(t.value) })),
-    ...(on.leave && data.leave?.eligible
+    ...(on.leave && data.clocks && data.leave?.eligible
       ? [
           {
             value: "leave" as const,
@@ -1179,7 +1185,7 @@ export function LayoutTiles({ data, on }: { data: Data; on: On }) {
   return (
     <Shell>
       <Header data={data} />
-      {on.attendance && <AttendanceCard data={data} />}
+      {on.attendance && data.clocks && <AttendanceCard data={data} />}
       {tiles.length > 0 && (
         <div
           className="grid gap-2 px-3 pb-2"
@@ -1218,16 +1224,25 @@ export function LayoutTiles({ data, on }: { data: Data; on: On }) {
 
 /* ─── D · Rail ────────────────────────────────────────────────────────── */
 
-export function LayoutRail({ data, on }: { data: Data; on: On }) {
+export function LayoutRail({
+  data,
+  on,
+  className,
+}: {
+  data: Data
+  on: On
+  /** For the surface (the app gives it a shadow that fits its window). */
+  className?: string
+}) {
   const act = useActions()
   const { tabs, active: tab, setTab } = useTabs(data, on)
   const [settings, setSettings] = useState(false)
   const active = settings ? undefined : tab
   const current = tabs.find((t) => t.value === active)
   const { scenario } = data
-  if (scenario === "signedOut") return <RailSignedOut />
+  if (scenario === "signedOut") return <RailSignedOut className={className} />
   return (
-    <Shell width={420} className="h-[560px]">
+    <Shell width={420} className={cn("h-[560px]", className)}>
       <div className="flex min-h-0 flex-1">
         {/* Icon rail */}
         <nav className="flex w-14 shrink-0 flex-col items-center gap-1 border-r border-white/8 py-3">
@@ -1277,6 +1292,7 @@ export function LayoutRail({ data, on }: { data: Data; on: On }) {
             </p>
             {!settings &&
               on.leave &&
+              data.clocks &&
               data.leave?.eligible &&
               scenario !== "loading" &&
               scenario !== "error" && (
@@ -1328,7 +1344,7 @@ export function LayoutRail({ data, on }: { data: Data; on: On }) {
       </div>
 
       {/* Attendance pinned to the bottom: what's going on, then the action. */}
-      {on.attendance && <RailClock data={data} />}
+      {on.attendance && data.clocks && <RailClock data={data} />}
     </Shell>
   )
 }
@@ -1509,12 +1525,14 @@ function SettingsPanel({ data }: { data: Data }) {
           checked={prefs.notifyEvents}
           onChange={toggle("notifyEvents")}
         />
-        <SettingRow
-          label="Pengingat absen"
-          hint="Clock in jam 09:00, clock out setelah 8 jam"
-          checked={prefs.notifyClock}
-          onChange={toggle("notifyClock")}
-        />
+        {data.clocks && (
+          <SettingRow
+            label="Pengingat absen"
+            hint="Clock in jam 09:00, clock out setelah 8 jam"
+            checked={prefs.notifyClock}
+            onChange={toggle("notifyClock")}
+          />
+        )}
       </SettingsGroup>
 
       <SettingsGroup title="Umum">
@@ -1523,12 +1541,14 @@ function SettingsPanel({ data }: { data: Data }) {
           checked={prefs.launchAtLogin}
           onChange={toggle("launchAtLogin")}
         />
-        <SettingRow
-          label="Durasi kerja di menu bar"
-          hint="Tampilkan 4j 51m di samping ikon"
-          checked={prefs.timerInMenuBar}
-          onChange={toggle("timerInMenuBar")}
-        />
+        {data.clocks && (
+          <SettingRow
+            label="Durasi kerja di menu bar"
+            hint="Tampilkan 4j 51m di samping ikon"
+            checked={prefs.timerInMenuBar}
+            onChange={toggle("timerInMenuBar")}
+          />
+        )}
         <div className="flex items-center gap-3 px-2 py-2 text-sm">
           <span className="flex-1">Shortcut buka</span>
           <KbdGroup>
@@ -1592,10 +1612,10 @@ function SettingRow({
 
 /** Not signed in: the app's mark and one way in (the web app's Google
  *  sign-in, opened in the browser). */
-function RailSignedOut() {
+function RailSignedOut({ className }: { className?: string }) {
   const act = useActions()
   return (
-    <Shell width={420} className="h-[560px]">
+    <Shell width={420} className={cn("h-[560px]", className)}>
       <div className="flex flex-1 flex-col items-center justify-center px-10 text-center">
         <AppIcon variant="mark" size={192} className="size-12" />
         <p className="font-heading text-heading mt-6 text-xl font-medium">

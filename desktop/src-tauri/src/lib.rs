@@ -18,6 +18,7 @@ use tauri::{
 use tauri_plugin_autostart::ManagerExt as AutostartExt;
 use tauri_plugin_deep_link::DeepLinkExt;
 use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut, ShortcutState};
+#[cfg(not(target_os = "macos"))]
 use tauri_plugin_notification::NotificationExt;
 use tauri_plugin_opener::OpenerExt;
 use tauri_plugin_positioner::{Position, WindowExt};
@@ -38,6 +39,11 @@ const APP: &str = "app";
 const POPOVER: &str = "popover";
 /// Same as the popover's rounded-3xl.
 const RADIUS: f64 = 24.0;
+/// The popover panel (420×560) sits in a slightly larger window, with room
+/// for its shadow: 20pt at the sides and bottom, 6pt on top.
+const PANEL: (f64, f64) = (420.0, 560.0);
+const MARGIN: f64 = 20.0;
+const MARGIN_TOP: f64 = 6.0;
 
 /// Is this URL the web app itself (stays in the window) or somewhere else
 /// (goes to the browser)?
@@ -204,6 +210,29 @@ fn unified_toolbar(window: &WebviewWindow) {
     ns_window.setToolbarStyle(NSWindowToolbarStyle::Unified);
 }
 
+/// The blur fills the whole window by default; keep it to the panel, so the
+/// shadow margin around it stays clear.
+#[cfg(target_os = "macos")]
+fn fit_blur_to_panel(window: &WebviewWindow) {
+    use objc2::ClassType;
+    use objc2_app_kit::{NSAutoresizingMaskOptions, NSVisualEffectView, NSWindow};
+    use objc2_foundation::{NSObjectProtocol, NSPoint, NSRect, NSSize};
+    let Ok(ptr) = window.ns_window() else { return };
+    // SAFETY: Tauri hands out the window's NSWindow, on the main thread.
+    let ns_window = unsafe { &*(ptr as *const NSWindow) };
+    let Some(content) = ns_window.contentView() else { return };
+    for view in content.subviews().iter() {
+        if view.isKindOfClass(NSVisualEffectView::class()) {
+            // AppKit's origin is the bottom-left corner.
+            view.setAutoresizingMask(NSAutoresizingMaskOptions::empty());
+            view.setFrame(NSRect::new(
+                NSPoint::new(MARGIN, MARGIN),
+                NSSize::new(PANEL.0, PANEL.1),
+            ));
+        }
+    }
+}
+
 // Commands the web app calls through window.__TAURI__.
 
 #[tauri::command]
@@ -233,7 +262,101 @@ fn set_autostart(app: AppHandle, enabled: bool) {
 
 #[tauri::command]
 fn notify(app: AppHandle, title: String, body: String) {
+    #[cfg(target_os = "macos")]
+    {
+        let _ = app;
+        mac_notify::show(&title, &body);
+    }
+    #[cfg(not(target_os = "macos"))]
     let _ = app.notification().builder().title(title).body(body).show();
+}
+
+/// macOS notifications through UserNotifications (the older API the
+/// notification plugin uses no longer shows anything on current macOS).
+#[cfg(target_os = "macos")]
+mod mac_notify {
+    use block2::{DynBlock, RcBlock};
+    use objc2::rc::Retained;
+    use objc2::runtime::{Bool, NSObject, ProtocolObject};
+    use objc2::{define_class, msg_send, AllocAnyThread};
+    use objc2_foundation::{NSError, NSObjectProtocol, NSString};
+    use objc2_user_notifications::{
+        UNAuthorizationOptions, UNMutableNotificationContent, UNNotification,
+        UNNotificationPresentationOptions, UNNotificationRequest, UNNotificationResponse,
+        UNNotificationSound, UNUserNotificationCenter, UNUserNotificationCenterDelegate,
+    };
+
+    define_class!(
+        // Shows banners while KRTY is in front too (macOS hides them by
+        // default then), and opens the app window when one is clicked.
+        #[unsafe(super(NSObject))]
+        #[name = "KrtyNotificationDelegate"]
+        struct Delegate;
+
+        unsafe impl NSObjectProtocol for Delegate {}
+
+        unsafe impl UNUserNotificationCenterDelegate for Delegate {
+            #[unsafe(method(userNotificationCenter:willPresentNotification:withCompletionHandler:))]
+            fn will_present(
+                &self,
+                _center: &UNUserNotificationCenter,
+                _notification: &UNNotification,
+                handler: &DynBlock<dyn Fn(UNNotificationPresentationOptions)>,
+            ) {
+                handler.call((UNNotificationPresentationOptions::Banner
+                    | UNNotificationPresentationOptions::List
+                    | UNNotificationPresentationOptions::Sound,));
+            }
+
+            #[unsafe(method(userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:))]
+            fn did_receive(
+                &self,
+                _center: &UNUserNotificationCenter,
+                _response: &UNNotificationResponse,
+                handler: &DynBlock<dyn Fn()>,
+            ) {
+                if let Some(app) = APP_HANDLE.get() {
+                    super::show_app(app, None);
+                }
+                handler.call(());
+            }
+        }
+    );
+
+    static APP_HANDLE: std::sync::OnceLock<tauri::AppHandle> = std::sync::OnceLock::new();
+
+    /// Ask once for permission (macOS shows its prompt the first time), and
+    /// set up the delegate.
+    pub fn setup(app: &tauri::AppHandle) {
+        let _ = APP_HANDLE.set(app.clone());
+        let center = UNUserNotificationCenter::currentNotificationCenter();
+        let delegate: Retained<Delegate> = unsafe { msg_send![Delegate::alloc(), init] };
+        center.setDelegate(Some(ProtocolObject::from_ref(&*delegate)));
+        // The center only holds it weakly; it lives as long as the app.
+        std::mem::forget(delegate);
+        let done = RcBlock::new(|_granted: Bool, _error: *mut NSError| {});
+        center.requestAuthorizationWithOptions_completionHandler(
+            UNAuthorizationOptions::Alert | UNAuthorizationOptions::Sound,
+            &done,
+        );
+    }
+
+    pub fn show(title: &str, body: &str) {
+        let center = UNUserNotificationCenter::currentNotificationCenter();
+        let content = UNMutableNotificationContent::new();
+        content.setTitle(&NSString::from_str(title));
+        content.setBody(&NSString::from_str(body));
+        content.setSound(Some(&UNNotificationSound::defaultSound()));
+        let id = NSString::from_str(&format!(
+            "krty-{}",
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .map_or(0, |d| d.as_nanos())
+        ));
+        let request =
+            UNNotificationRequest::requestWithIdentifier_content_trigger(&id, &content, None);
+        center.addNotificationRequest_withCompletionHandler(&request, None);
+    }
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -291,9 +414,12 @@ pub fn run() {
             });
 
             // The popover under the menu bar icon.
+            // It keeps running while hidden: it's what watches for new
+            // notifications and reminders.
             let popover = web_window(app, POPOVER, "/desktop")
+                .background_throttling(tauri::utils::config::BackgroundThrottlingPolicy::Disabled)
                 .title("KRTY")
-                .inner_size(420.0, 560.0)
+                .inner_size(PANEL.0 + 2.0 * MARGIN, PANEL.1 + MARGIN + MARGIN_TOP)
                 .resizable(false)
                 .decorations(false)
                 .transparent(true)
@@ -315,6 +441,7 @@ pub fn run() {
                     Some(NSVisualEffectState::Active),
                     Some(RADIUS),
                 );
+                fit_blur_to_panel(&popover);
             }
 
             // Click away: the popover closes, like a menu. (Only once it
@@ -371,11 +498,8 @@ pub fn run() {
                 }
             });
 
-            // Opened by hand: show the app window (not when it starts with
-            // the Mac, which passes --hidden: then it waits in the menu bar).
-            if !std::env::args().any(|a| a == "--hidden") {
-                show_app(app.handle(), None);
-            }
+            #[cfg(target_os = "macos")]
+            mac_notify::setup(app.handle());
 
             Ok(())
         })

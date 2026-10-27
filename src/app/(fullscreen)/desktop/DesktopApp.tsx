@@ -1,7 +1,11 @@
 "use client"
 
 import { createClient } from "@/shared/api/supabase/client"
-import { useNotifications } from "@/shared/hooks/useNotifications"
+import {
+  NOTIFICATIONS_QUERY_KEY,
+  useNotifications,
+  useNotificationsRealtime,
+} from "@/shared/hooks/useNotifications"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import {
   ActionsContext,
@@ -14,6 +18,7 @@ import {
 } from "@/widgets/menubar/ui/MenubarPopover"
 import { useQueryClient } from "@tanstack/react-query"
 import { useEffect, useMemo, useRef, useState } from "react"
+import { format } from "date-fns"
 import { toast } from "sonner"
 
 /**
@@ -77,6 +82,9 @@ export function DesktopApp() {
   const queryClient = useQueryClient()
   const online = useOnline()
   const { markAsRead } = useNotifications()
+  // New notifications arrive over realtime: the popover is hidden most of
+  // the time, and the minute poll pauses then.
+  useNotificationsRealtime()
   const [prefs] = useDesktopPrefs()
   const person = useMemo(
     () =>
@@ -107,7 +115,7 @@ export function DesktopApp() {
 
   // The time worked next to the menu bar icon, if wanted.
   const title =
-    prefs.timerInMenuBar && data.log && data.working
+    prefs.timerInMenuBar && data.clocks && data.log && data.working
       ? `${Math.floor(data.worked / 60)}j ${data.worked % 60}m`
       : ""
   useEffect(() => {
@@ -116,9 +124,24 @@ export function DesktopApp() {
 
   // New notifications as macOS notifications (not the ones already there
   // when the app opened).
+  // And every 30 seconds anyway (hidden windows don't always get the
+  // realtime events, and the hook's own poll pauses while hidden).
+  useEffect(() => {
+    const id = setInterval(() => {
+      for (const queryKey of [
+        NOTIFICATIONS_QUERY_KEY,
+        ["menubar-pending-leave"],
+        ["menubar-attendance"],
+      ])
+        void queryClient.invalidateQueries({ queryKey })
+    }, 30_000)
+    return () => clearInterval(id)
+  }, [queryClient])
+
   const seen = useRef<Set<string> | null>(null)
   useEffect(() => {
-    if (scenario !== "real") return
+    // The first full list is the baseline: only what comes after is new.
+    if (scenario !== "real" || !data.notificationsReady) return
     const ids = new Set(data.unread.map((n) => n.id))
     if (seen.current && prefs.notifyNew) {
       for (const n of data.unread)
@@ -126,7 +149,49 @@ export function DesktopApp() {
           void invoke("notify", { title: n.title, body: n.message ?? "" })
     }
     seen.current = new Set([...(seen.current ?? []), ...ids])
-  }, [data.unread, prefs.notifyNew, scenario])
+  }, [data.unread, data.notificationsReady, prefs.notifyNew, scenario])
+
+  // Reminders, each once (remembered on this device for the day): events
+  // 10 minutes before they start; for employees, clocking in from 09:00 on
+  // weekdays and clocking out after 8 hours.
+  useEffect(() => {
+    if (scenario !== "real") return
+    const key = `krty-reminders-${data.today}`
+    let sent: string[] = []
+    try {
+      sent = JSON.parse(localStorage.getItem(key) ?? "[]")
+    } catch {}
+    const remind = (id: string, title: string, body: string) => {
+      if (sent.includes(id)) return
+      sent.push(id)
+      void invoke("notify", { title, body })
+    }
+    const now = data.now.getTime()
+    if (prefs.notifyEvents)
+      for (const e of data.events) {
+        const start = new Date(e.start_at).getTime()
+        if (e.all_day || start < now || start - now > 10 * 60_000) continue
+        remind(
+          `event:${e.id}`,
+          `${e.title}`,
+          `Mulai ${format(new Date(e.start_at), "HH:mm")}${e.meeting_url ? " · buka KRTY untuk Join" : ""}`,
+        )
+      }
+    const weekday = data.now.getDay() % 6 !== 0
+    if (prefs.notifyClock && data.clocks && data.attendanceReady) {
+      if (weekday && !data.log && data.now.getHours() >= 9)
+        remind(
+          "clock-in",
+          "Belum clock in",
+          "Sudah jam kerja. Clock in dari menu bar KRTY.",
+        )
+      if (data.working && data.worked >= 8 * 60)
+        remind("clock-out", "Sudah 8 jam kerja", "Jangan lupa clock out.")
+    }
+    try {
+      localStorage.setItem(key, JSON.stringify(sent))
+    } catch {}
+  }, [data, prefs.notifyEvents, prefs.notifyClock, scenario])
 
   const refresh = (keys: string[][]) =>
     Promise.all(
@@ -222,7 +287,15 @@ export function DesktopApp() {
 
   return (
     <ActionsContext.Provider value={actions}>
-      <LayoutRail data={data} on={ALL} />
+      {/* Room around the panel for its shadow (the window is 460×586;
+          macOS draws no shadow of its own on it). */}
+      <div className="flex justify-center px-5 pt-1.5 pb-5">
+        <LayoutRail
+          data={data}
+          on={ALL}
+          className="shadow-[0_12px_28px_-8px_rgb(0_0_0/0.55),0_0_0_0.5px_rgb(0_0_0/0.6)]"
+        />
+      </div>
     </ActionsContext.Provider>
   )
 }
