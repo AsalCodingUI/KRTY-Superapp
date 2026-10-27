@@ -1,5 +1,6 @@
 "use client"
 
+import { projectHref } from "@/shared/lib/url-params"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
 import {
@@ -143,7 +144,7 @@ function DraggableCard({
     >
       {/* Click opens the project; a drag (6px+) moves it instead. */}
       <Link
-        href={`/projects/${project.id}`}
+        href={projectHref(project)}
         prefetch={false}
         draggable={false}
         className="focus-visible:ring-primary/40 rounded-nested block focus-visible:ring-2"

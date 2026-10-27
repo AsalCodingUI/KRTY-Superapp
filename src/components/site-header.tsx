@@ -56,7 +56,7 @@ export function SiteHeader() {
   const section = useSection()
   const pathname = usePathname()
   const projectPath = matchProjectPath(pathname)
-  const { data: project } = useProjectSummary(projectPath?.id)
+  const { data: project } = useProjectSummary(projectPath?.ref)
   const extra = useBreadcrumbTrail()
 
   // Section (or the project trail), then whatever the page adds; every step
@@ -65,12 +65,12 @@ export function SiteHeader() {
     ...(projectPath
       ? [
           { label: t("projects"), href: "/projects" },
-          { label: project?.name ?? "…", href: `/projects/${projectPath.id}` },
+          { label: project?.name ?? "…", href: `/projects/${projectPath.ref}` },
           {
             label: PROJECT_SECTION_KEYS[projectPath.section.slug]
               ? t(PROJECT_SECTION_KEYS[projectPath.section.slug])
               : projectPath.section.name,
-            href: `/projects/${projectPath.id}${projectPath.slug ? `/${projectPath.slug}` : ""}`,
+            href: `/projects/${projectPath.ref}${projectPath.slug ? `/${projectPath.slug}` : ""}`,
           },
         ]
       : [section]),

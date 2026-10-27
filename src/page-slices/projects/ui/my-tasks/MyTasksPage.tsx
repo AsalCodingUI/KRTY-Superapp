@@ -1,5 +1,6 @@
 "use client"
 
+import { projectHref } from "@/shared/lib/url-params"
 import { EmptyState } from "@/components/empty-state"
 import { EmptyValue } from "@/components/empty-value"
 import { PageHeader } from "@/components/page-header"
@@ -413,7 +414,7 @@ function MyTaskRow({
       <div className="hidden min-w-0 pr-3 md:block">
         {project && (
           <Link
-            href={`/projects/${project.id}/tasks`}
+            href={projectHref(project, "tasks")}
             className="text-muted-foreground hover:text-foreground flex min-w-0 items-center gap-1.5 text-[13px]"
           >
             <ProjectAvatar

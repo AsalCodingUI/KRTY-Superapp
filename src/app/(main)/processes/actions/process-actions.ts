@@ -348,7 +348,7 @@ export async function applyProcessToProject(
       p_replace: true,
     })
     if (error) return fail("errSave")
-    revalidatePath(`/projects/${projectId}`, "layout")
+    revalidatePath("/projects/[id]", "layout")
     return { success: true }
   })
 }

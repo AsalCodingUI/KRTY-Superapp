@@ -1,5 +1,6 @@
 "use client"
 
+import { employeeHref } from "@/shared/lib/url-params"
 import { ArrowUpRight } from "@/components/icons"
 import { EmptyValue } from "@/components/empty-value"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -140,7 +141,7 @@ export function TeamKpiCard({ data }: { data: AdminDashboardData }) {
           attention.slice(0, 3).map((e) => (
             <HomeRow
               key={e.employee_id}
-              href={`/performance/employee/${e.employee_id}?period=${encodeURIComponent(quarter)}`}
+              href={`${employeeHref({ id: e.employee_id, full_name: e.employee_name })}?period=${encodeURIComponent(quarter)}`}
               leading={
                 <Avatar className="size-7">
                   <AvatarImage src={e.employee_avatar || undefined} />

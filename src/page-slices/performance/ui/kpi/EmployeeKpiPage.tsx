@@ -73,7 +73,13 @@ export function EmployeeKpiPage({
         userId={employee.id}
         name={employee.full_name?.split(" ")[0] || t("employee")}
         scope={period}
-        hrefFor={(p) => projectSheetHref(pathname, { period }, p.projectId)}
+        hrefFor={(p) =>
+          projectSheetHref(
+            pathname,
+            { period },
+            { id: p.projectId, name: p.name },
+          )
+        }
       />
       <ProjectKpiSheet defaultMember={employee.id} />
     </div>

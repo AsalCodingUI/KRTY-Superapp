@@ -1,5 +1,6 @@
 "use client"
 
+import { useProjectHref } from "@/shared/hooks/useProjectHref"
 import { EmptyValue, orEmpty } from "@/components/empty-value"
 import {
   savePhaseOverride,
@@ -677,6 +678,7 @@ function PhaseMilestones({
   onChanged: () => void
 }) {
   const t = useT("performance")
+  const projectLink = useProjectHref(projectId)
   const locale = useDateLocale()
   const grid = canEdit ? PHASE_GRID_EDIT : PHASE_GRID
   const day = (d: string | null) =>
@@ -742,7 +744,7 @@ function PhaseMilestones({
           {t("psWeightNote")}
           {isStakeholder && (
             <Link
-              href={`/projects/${projectId}`}
+              href={projectLink}
               className="text-primary inline-flex items-center gap-1 hover:underline"
             >
               {t("psEditPhases")}

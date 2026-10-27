@@ -1,5 +1,6 @@
 "use client"
 
+import { projectHref } from "@/shared/lib/url-params"
 import type {
   KpiAttention,
   KpiProject,
@@ -81,7 +82,7 @@ export function AttentionList({
           const href =
             a.kind === "qualityUnscored" && project
               ? hrefFor(project)
-              : `/projects/${a.projectId}`
+              : projectHref({ id: a.projectId, name: a.project })
           const Icon =
             a.kind === "qualityUnscored"
               ? RiCheckboxCircleLine

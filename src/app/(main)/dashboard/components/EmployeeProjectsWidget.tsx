@@ -1,5 +1,6 @@
 "use client"
 
+import { projectHref } from "@/shared/lib/url-params"
 import {
   STATUS_LABEL_KEYS,
   type ProjectStatus,
@@ -67,7 +68,7 @@ export function EmployeeProjectsWidget({
                 key={
                   project.id || `${project.name}-${project.quarter_id}-${index}`
                 }
-                href={`/projects/${project.id}`}
+                href={projectHref(project)}
                 leading={
                   <ProjectAvatar
                     id={project.id}

@@ -1,5 +1,6 @@
 "use server"
 
+import { isUuid, whereRef } from "@/shared/lib/url-params"
 import { createClient } from "@/shared/api/supabase/server"
 import { getT } from "@/shared/i18n/server"
 import { resolveEffectiveUserId } from "@/shared/lib/impersonation-server"
@@ -11,6 +12,7 @@ import {
 
 export type ProjectSheetData = {
   assignmentId: string
+  projectId: string
   employeeName: string
   projectName: string
   roleInProject: string
@@ -26,8 +28,9 @@ export type ProjectSheetData = {
  * nothing.
  */
 export async function getProjectSheet(
-  employeeId: string,
-  projectId: string,
+  /** Ids or link keys (`?member=rizal-4526a930&project=milxa-7b583164`). */
+  employeeRef: string,
+  projectRef: string,
 ): Promise<
   { ok: true; data: ProjectSheetData } | { ok: false; error: string }
 > {
@@ -36,6 +39,19 @@ export async function getProjectSheet(
     data: { user },
   } = await supabase.auth.getUser()
   if (!user) return { ok: false, error: t("errNoKpiAccess") }
+
+  const idOf = async (table: "profiles" | "projects", ref: string) => {
+    if (isUuid(ref)) return ref
+    const query = whereRef(supabase.from(table).select("id"), ref)
+    const { data } = query ? await query.maybeSingle() : { data: null }
+    return (data as { id: string } | null)?.id ?? null
+  }
+  const [employeeId, projectId] = await Promise.all([
+    idOf("profiles", employeeRef),
+    idOf("projects", projectRef),
+  ])
+  if (!employeeId || !projectId)
+    return { ok: false, error: t("errNoKpiAccess") }
 
   const viewerId = await resolveEffectiveUserId(supabase, user.id, user.email)
   const [{ data: viewer }, { data: assignment }, { data: leadRow }] =
@@ -74,6 +90,7 @@ export async function getProjectSheet(
     ok: true,
     data: {
       assignmentId: assignment.id,
+      projectId,
       employeeName,
       projectName: scoring.project?.name ?? project.name,
       roleInProject: assignment.role_in_project,

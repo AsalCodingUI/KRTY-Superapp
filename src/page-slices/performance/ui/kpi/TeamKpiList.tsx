@@ -1,5 +1,6 @@
 "use client"
 
+import { employeeHref } from "@/shared/lib/url-params"
 import { EmptyValue, orEmpty } from "@/components/empty-value"
 import {
   getPeriodLock,
@@ -153,7 +154,7 @@ function Part({
 }
 
 const kpiHref = (row: TeamKpiRow, scope: string) =>
-  `/performance/employee/${row.id}?period=${encodeURIComponent(scope)}`
+  `${employeeHref(row)}?period=${encodeURIComponent(scope)}`
 
 /** Everyone's KPI for the period, best first. */
 export function TeamKpiList({ scope }: { scope: string }) {

@@ -2,6 +2,7 @@
 
 import { createClient } from "@/shared/api/supabase/client"
 import { useLocale, useT } from "@/shared/i18n/client"
+import { employeeHref, linkKey, projectHref } from "@/shared/lib/url-params"
 import { useQuery } from "@tanstack/react-query"
 import { useEffect, useMemo, useState } from "react"
 
@@ -95,7 +96,7 @@ export function useRecordSearch(query: string, options: { people: boolean }) {
           // Employees only get published, live rules (RLS).
           supabase
             .from("policy_documents")
-            .select("id, title, category")
+            .select("id, slug, title, category")
             .ilike("title", like)
             .is("archived_at", null)
             .order("title")
@@ -124,7 +125,7 @@ export function useRecordSearch(query: string, options: { people: boolean }) {
           title: p.name,
           meta:
             [p.client_name, p.quarter_id].filter(Boolean).join(" · ") || null,
-          href: `/projects/${p.id}`,
+          href: projectHref(p),
           projectId: p.id,
         })
       }
@@ -135,7 +136,7 @@ export function useRecordSearch(query: string, options: { people: boolean }) {
           kind: "tasks",
           title: t.title,
           meta: project?.name,
-          href: `/projects/${t.project_id}/tasks`,
+          href: `${projectHref({ id: t.project_id, name: project?.name }, "tasks")}?task=${linkKey(t.title, t.id)}`,
           projectId: t.project_id,
           done: t.done,
         })
@@ -149,7 +150,10 @@ export function useRecordSearch(query: string, options: { people: boolean }) {
           meta: project
             ? `${t("searchMetaDocument")} · ${project.name}`
             : t("searchMetaDocument"),
-          href: `/projects/${d.project_id}/documents`,
+          href: projectHref(
+            { id: d.project_id, name: project?.name },
+            "documents",
+          ),
           projectId: d.project_id,
         })
       }
@@ -162,7 +166,10 @@ export function useRecordSearch(query: string, options: { people: boolean }) {
           meta: project
             ? `${t("searchMetaLibrary")} · ${project.name}`
             : t("searchMetaLibrary"),
-          href: `/projects/${f.project_id}/library`,
+          href: projectHref(
+            { id: f.project_id, name: project?.name },
+            "library",
+          ),
           projectId: f.project_id,
         })
       }
@@ -172,7 +179,7 @@ export function useRecordSearch(query: string, options: { people: boolean }) {
           kind: "policies",
           title: p.title,
           meta: `${tNav("policies")} · ${p.category}`,
-          href: `/policies/${p.id}`,
+          href: `/policies?policy=${encodeURIComponent(p.slug)}`,
         })
       }
       for (const u of people.data ?? []) {
@@ -181,7 +188,7 @@ export function useRecordSearch(query: string, options: { people: boolean }) {
           kind: "people",
           title: u.full_name ?? t("searchUnnamed"),
           meta: u.job_title,
-          href: `/performance/employee/${u.id}`,
+          href: employeeHref(u),
           avatarUrl: u.avatar_url,
         })
       }

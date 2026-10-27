@@ -28,7 +28,7 @@ export function WorkspaceTransition({
   const pathname = usePathname()
   const { routeId, pending } = useWorkspaceNav()
   const project = matchProjectPath(pathname)
-  const key = project ? `project:${project.id}` : `ws:${routeId}`
+  const key = project ? `project:${project.ref}` : `ws:${routeId}`
 
   // Direction of the last move; 0 until the first one (no intro on load).
   const [moved, setMoved] = useState({ key, dir: 0 })

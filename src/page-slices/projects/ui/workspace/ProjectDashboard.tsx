@@ -1,5 +1,6 @@
 "use client"
 
+import { useProjectHref } from "@/shared/hooks/useProjectHref"
 import { surfaceClassName } from "@/components/panel"
 import {
   OPEN_STATUSES,
@@ -105,6 +106,7 @@ export function ProjectDashboard({ projectId }: { projectId: string }) {
   const t = useT("projects")
   const dateLocale = useDateLocale()
   const { data, isLoading } = useWorkspace(projectId)
+  const base = useProjectHref(projectId)
   const { data: steps = [] } = useSteps(projectId)
   const { data: tasks = [] } = useTasks(projectId)
   const viewer = useViewer()
@@ -286,13 +288,13 @@ export function ProjectDashboard({ projectId }: { projectId: string }) {
             <div className="grid gap-4 xl:grid-cols-2">
               <UpcomingTasks
                 projectId={projectId}
-                base={`/projects/${projectId}`}
+                base={base}
                 tasks={tasks}
                 team={team}
               />
               <LatestReports
                 projectId={projectId}
-                base={`/projects/${projectId}`}
+                base={base}
                 onOpen={(report) => setReportOpen({ report })}
               />
             </div>

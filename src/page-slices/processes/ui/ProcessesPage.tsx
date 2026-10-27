@@ -1,5 +1,6 @@
 "use client"
 
+import { linkKey } from "@/shared/lib/url-params"
 import { EmptyState } from "@/components/empty-state"
 import { PageHeader } from "@/components/page-header"
 import { Button } from "@/components/ui/button"
@@ -90,7 +91,7 @@ function ProcessCard({ process }: { process: ProcessSummary }) {
   return (
     <Link
       data-slot="process-card"
-      href={`/processes/${process.id}`}
+      href={`/processes/${linkKey(process.name, process.id)}`}
       prefetch={false}
       className="bg-card border-foreground/10 hover:border-foreground/20 focus-visible:border-primary/50 focus-visible:ring-primary/20 flex flex-col overflow-hidden rounded-xl border transition-[border-color] duration-200 outline-none focus-visible:ring-2"
     >

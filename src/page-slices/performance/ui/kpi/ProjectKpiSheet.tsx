@@ -1,5 +1,6 @@
 "use client"
 
+import { linkKey } from "@/shared/lib/url-params"
 import {
   getProjectSheet,
   type ProjectSheetData,
@@ -31,13 +32,13 @@ export const SHEET_MEMBER = "member"
 export function projectSheetHref(
   pathname: string,
   params: Record<string, string | null | undefined>,
-  projectId: string,
-  member?: string,
+  project: { id: string; name?: string | null },
+  member?: { id: string; full_name?: string | null },
 ) {
   const next = new URLSearchParams()
   for (const [k, v] of Object.entries(params)) if (v) next.set(k, v)
-  next.set(SHEET_PROJECT, projectId)
-  if (member) next.set(SHEET_MEMBER, member)
+  next.set(SHEET_PROJECT, linkKey(project.name, project.id))
+  if (member) next.set(SHEET_MEMBER, linkKey(member.full_name, member.id))
   return `${pathname}?${next}`
 }
 
@@ -87,7 +88,7 @@ export function ProjectKpiSheet({
           {view ? (
             <>
               <ProjectAvatar
-                id={projectId ?? ""}
+                id={view.projectId}
                 name={view.projectName}
                 className="size-8 shrink-0 rounded-lg text-xs"
               />
@@ -121,7 +122,7 @@ export function ProjectKpiSheet({
               key={view.assignmentId}
               assignmentId={view.assignmentId}
               employeeName={view.employeeName}
-              projectId={projectId ?? ""}
+              projectId={view.projectId}
               roleInProject={view.roleInProject}
               initial={view.scoring}
               canEdit={view.canEdit}

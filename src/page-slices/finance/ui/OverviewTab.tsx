@@ -1,5 +1,6 @@
 "use client"
 
+import { projectHref } from "@/shared/lib/url-params"
 import {
   HomeCard,
   HomeEmpty,
@@ -370,7 +371,7 @@ function OpenInvoices({
                   key={inv.id}
                   href={
                     inv.project
-                      ? `/projects/${inv.project.id}/invoices`
+                      ? projectHref(inv.project, "invoices")
                       : undefined
                   }
                   leading={

@@ -1,5 +1,6 @@
 "use client"
 
+import { projectHref } from "@/shared/lib/url-params"
 import { AnimatePresence } from "motion/react"
 import { AvatarGroup, AvatarOverflow } from "@/components/avatar-group"
 import type { ProjectStatus } from "@/page-slices/projects/lib/status"
@@ -164,7 +165,7 @@ function ProjectRow({
         <div className="flex min-w-0 flex-col">
           {/* The link covers the whole row; actions sit above it. */}
           <Link
-            href={`/projects/${project.id}`}
+            href={projectHref(project)}
             prefetch={false}
             className="text-foreground truncate outline-none after:absolute after:inset-0 focus-visible:underline"
           >

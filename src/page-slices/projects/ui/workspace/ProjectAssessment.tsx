@@ -1,5 +1,6 @@
 "use client"
 
+import { useProjectSummary } from "@/shared/hooks/useProjectSummary"
 import { getProjectAssessment } from "@/app/(main)/performance/actions/kpi-actions"
 import { EmptyState } from "@/components/empty-state"
 import { GroupedList, ListRow } from "@/components/grouped-list"
@@ -52,6 +53,7 @@ export function ProjectAssessment({ projectId }: { projectId: string }) {
   const t = useT("performance")
   const tp = useT("projects")
   const pathname = usePathname()
+  const { data: summary } = useProjectSummary(projectId)
   const { data, isLoading } = useQuery({
     queryKey: ["project-assessment", projectId],
     queryFn: () => getProjectAssessment(projectId),
@@ -118,7 +120,12 @@ export function ProjectAssessment({ projectId }: { projectId: string }) {
               >
                 <PersonCell name={m.full_name} avatarUrl={m.avatar_url}>
                   <Link
-                    href={projectSheetHref(pathname, {}, projectId, m.id)}
+                    href={projectSheetHref(
+                      pathname,
+                      {},
+                      { id: projectId, name: summary?.name },
+                      m,
+                    )}
                     prefetch={false}
                     scroll={false}
                     className="text-foreground truncate outline-none after:absolute after:inset-0 focus-visible:underline"

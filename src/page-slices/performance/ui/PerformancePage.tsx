@@ -165,7 +165,11 @@ export function PerformancePage() {
               userId={profile.id}
               scope={period}
               hrefFor={(p) =>
-                projectSheetHref(pathname, { period }, p.projectId)
+                projectSheetHref(
+                  pathname,
+                  { period },
+                  { id: p.projectId, name: p.name },
+                )
               }
             />
           ))}

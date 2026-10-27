@@ -115,6 +115,6 @@ export async function setProjectClient(
     .eq("id", projectId)
   if (error) return { success: false, error: t("errSave") }
   revalidatePath("/clients")
-  revalidatePath(`/projects/${projectId}`)
+  revalidatePath("/projects/[id]", "layout")
   return { success: true }
 }

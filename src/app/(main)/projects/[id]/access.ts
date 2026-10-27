@@ -2,6 +2,7 @@ import { createClient } from "@/shared/api/supabase/server"
 import { accessLevel, canOpenProjectSection } from "@/shared/config/access"
 import { resolveEffectiveUserId } from "@/shared/lib/impersonation-server"
 import { notFound, redirect } from "next/navigation"
+import { projectPath } from "./ref"
 
 /**
  * Who may open a project (shared/config/access.ts, layer 2): stakeholders
@@ -19,7 +20,7 @@ export async function assertProjectAccess(id: string, section = "") {
 
   const [{ data: project }, { data: viewer }, { data: membership }] =
     await Promise.all([
-      supabase.from("projects").select("id").eq("id", id).maybeSingle(),
+      supabase.from("projects").select("id, name").eq("id", id).maybeSingle(),
       supabase
         .from("profiles")
         .select("role, job_title")
@@ -37,7 +38,7 @@ export async function assertProjectAccess(id: string, section = "") {
   const level = accessLevel(viewer)
   if (level !== "stakeholder" && !membership) notFound()
   if (section && !canOpenProjectSection(section, level)) {
-    redirect(`/projects/${id}`)
+    redirect(projectPath(project))
   }
   // "Penilaian" is the lead's (and stakeholders') page.
   if (
@@ -45,6 +46,6 @@ export async function assertProjectAccess(id: string, section = "") {
     level !== "stakeholder" &&
     !membership?.is_lead
   ) {
-    redirect(`/projects/${id}`)
+    redirect(projectPath(project))
   }
 }

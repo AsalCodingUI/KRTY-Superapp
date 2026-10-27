@@ -1,5 +1,6 @@
 "use client"
 
+import { projectHref } from "@/shared/lib/url-params"
 import { AppearancePopover } from "@/components/appearance-popover"
 import { LanguageSwitcher } from "@/components/language-switcher"
 import { ThemeSwitcher } from "@/components/theme-switcher"
@@ -7,7 +8,6 @@ import { AnimatePresence, m, type Variants } from "motion/react"
 import * as React from "react"
 import { cn } from "@/lib/utils"
 
-import { siteConfig } from "@/app/siteConfig"
 import { NavMain } from "@/components/nav-main"
 import { NavProject } from "@/components/nav-project"
 import { PrefetchLink } from "@/components/prefetch-link"
@@ -62,7 +62,7 @@ function useSidebarProjects(profile: { id: string; role: string } | null) {
           .order("name")
         return ((data ?? []) as { id: string; name: string }[]).map((p) => ({
           ...p,
-          href: `${siteConfig.baseLinks.projects}/${p.id}`,
+          href: projectHref(p),
         }))
       }
       const { data } = await supabase
@@ -79,7 +79,7 @@ function useSidebarProjects(profile: { id: string; role: string } | null) {
           name: p.name,
           // Members open their projects like stakeholders do (membership
           // decides access).
-          href: `${siteConfig.baseLinks.projects}/${p.id}`,
+          href: projectHref(p),
         }))
     },
   })
@@ -104,7 +104,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const sidebarToggled = useTabSwitched(sidebarState)
   // Which menu the sidebar shows; changing it slides the menus.
   const navKey = projectPath
-    ? `project:${projectPath.id}`
+    ? `project:${projectPath.ref}`
     : `ws:${active?.id ?? ""}`
   const navDirection = projectPath ? 1 : -1
   const t = useT("nav")

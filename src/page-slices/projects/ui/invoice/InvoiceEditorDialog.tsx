@@ -1,5 +1,6 @@
 "use client"
 
+import { useProjectHref } from "@/shared/hooks/useProjectHref"
 import { DatePicker } from "@/components/date-picker"
 import { SegmentedControl } from "@/components/segmented-control"
 import {
@@ -362,6 +363,7 @@ function Editor({
   const queryClient = useQueryClient()
   const refreshInvoices = useRefreshInvoices()
   const { data: workspace } = useWorkspace(projectId)
+  const settingsHref = useProjectHref(projectId, "settings")
   const { data: methods = [], isFetched: methodsFetched } = usePaymentMethods()
   const { data: agency } = useAgency()
   const [settingsOpen, setSettingsOpen] = useState(false)
@@ -910,7 +912,7 @@ function Editor({
             onToggle={() => toggle("client")}
             action={
               <Link
-                href={`/projects/${projectId}/settings`}
+                href={settingsHref}
                 onClick={onClose}
                 className="text-muted-foreground hover:text-foreground text-xs"
               >

@@ -76,3 +76,49 @@ export function findByLinkKey<T extends { id: string }>(
   const short = /(?:^|-)([0-9a-f]{8})$/i.exec(key)?.[1]?.toLowerCase()
   return short ? rows.find((r) => r.id.startsWith(short)) : undefined
 }
+
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+export const isUuid = (value: string) => UUID_RE.test(value)
+
+type RefFilterable<Q> = {
+  eq(column: never, value: never): Q
+  gte(column: never, value: never): Q
+  lte(column: never, value: never): Q
+}
+
+/**
+ * Narrows a query to the row a route ref names: a full id (older links), or
+ * a link key whose last 8 characters start the id (`milxa-7b583164`).
+ * Null when the ref names nothing.
+ */
+export function whereRef<Q extends RefFilterable<Q>>(
+  query: Q,
+  ref: string,
+  column = "id",
+): Q | null {
+  const col = column as never
+  if (isUuid(ref)) return query.eq(col, ref.toLowerCase() as never)
+  const short = /(?:^|-)([0-9a-f]{8})$/i.exec(ref)?.[1]?.toLowerCase()
+  if (!short) return null
+  return query
+    .gte(col, `${short}-0000-0000-0000-000000000000` as never)
+    .lte(col, `${short}-ffff-ffff-ffff-ffffffffffff` as never)
+}
+
+/** A project's page: `/projects/milxa-7b583164`, plus a section. */
+export function projectHref(
+  project: { id: string; name?: string | null },
+  section = "",
+) {
+  return `/projects/${linkKey(project.name, project.id)}${section ? `/${section}` : ""}`
+}
+
+/** An employee's KPI page: `/performance/employee/rizal-4526a930`. */
+export function employeeHref(person: {
+  id: string
+  full_name?: string | null
+}) {
+  return `/performance/employee/${linkKey(person.full_name, person.id)}`
+}

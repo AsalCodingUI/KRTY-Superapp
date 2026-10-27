@@ -1,5 +1,6 @@
 "use client"
 
+import { projectHref } from "@/shared/lib/url-params"
 import { STATUS_LABEL_KEYS } from "@/page-slices/projects/lib/status"
 import { EmptyValue } from "@/components/empty-value"
 import { PageHeader } from "@/components/page-header"
@@ -258,7 +259,7 @@ function ProjectTable({ projects }: { projects: ProjectListRow[] }) {
         ),
         cell: ({ row }) => (
           <Link
-            href={`/projects/${row.original.id}`}
+            href={projectHref(row.original)}
             prefetch={false}
             className="flex items-center gap-2 hover:underline"
           >

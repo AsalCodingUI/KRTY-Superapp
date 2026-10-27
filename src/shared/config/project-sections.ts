@@ -70,13 +70,21 @@ export const PROJECT_SECTIONS: {
 ]
 
 const UUID = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
-const PROJECT_PATH = new RegExp(`^/projects/(${UUID})(?:/([^/]+))?`)
+// A project's URL names it by a link key (`milxa-7b583164`) or, in older
+// links, by its id.
+const PROJECT_PATH = new RegExp(
+  `^/projects/(${UUID}|(?:[a-z0-9-]+-)?[0-9a-f]{8})(?=/|$)(?:/([^/]+))?`,
+)
 
-/** "/projects/<id>/tasks" -> { id, slug: "tasks" } (slug "" = dashboard). */
+/**
+ * "/projects/milxa-7b583164/tasks" -> { ref: "milxa-7b583164", slug:
+ * "tasks" } (slug "" = dashboard). The ref is what the URL says; the
+ * project's id comes from useProjectSummary(ref).
+ */
 export function matchProjectPath(pathname: string) {
   const m = PROJECT_PATH.exec(pathname)
   if (!m) return null
   const slug = m[2] ?? ""
   const section = PROJECT_SECTIONS.find((s) => s.slug === slug)
-  return { id: m[1], slug, section: section ?? PROJECT_SECTIONS[0] }
+  return { ref: m[1], slug, section: section ?? PROJECT_SECTIONS[0] }
 }

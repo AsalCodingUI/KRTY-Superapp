@@ -1,5 +1,6 @@
 "use client"
 
+import { projectHref } from "@/shared/lib/url-params"
 import {
   deleteClient,
   setClientArchived,
@@ -212,7 +213,7 @@ export function ClientDialog({
                   .map((p) => (
                     <li key={p.id}>
                       <Link
-                        href={`/projects/${p.id}`}
+                        href={projectHref(p)}
                         prefetch={false}
                         className="hover:bg-muted/50 -mx-2 flex items-center gap-3 rounded-lg px-2 py-2 text-sm"
                       >

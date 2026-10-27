@@ -40,18 +40,18 @@ export function NavProject() {
   const t = useT("nav")
   const pathname = usePathname()
   const match = matchProjectPath(pathname)
-  const { data: project } = useProjectSummary(match?.id)
+  const { data: project } = useProjectSummary(match?.ref)
   const { profile } = useUserProfile()
   // Whether the viewer leads this project: "Penilaian" is theirs.
   const { data: isLead = false } = useQuery({
-    queryKey: ["project-is-lead", match?.id, profile?.id],
-    enabled: Boolean(match?.id && profile?.id),
+    queryKey: ["project-is-lead", project?.id, profile?.id],
+    enabled: Boolean(project?.id && profile?.id),
     staleTime: 60_000,
     queryFn: async () => {
       const { data } = await createClient()
         .from("project_assignments")
         .select("is_lead")
-        .eq("project_id", match!.id)
+        .eq("project_id", project!.id)
         .eq("user_id", profile!.id)
         .maybeSingle()
       return Boolean(data?.is_lead)
@@ -64,7 +64,7 @@ export function NavProject() {
       canOpenProjectSection(s.slug, level) &&
       (s.slug !== "assessment" || level === "stakeholder" || isLead),
   )
-  const base = `/projects/${match.id}`
+  const base = `/projects/${match.ref}`
 
   return (
     <SidebarGroup>
@@ -86,7 +86,7 @@ export function NavProject() {
             render={<PrefetchLink href={base} />}
           >
             <ProjectAvatar
-              id={match.id}
+              id={project?.id ?? match.ref}
               name={project?.name ?? "P"}
               className="size-4 rounded-[5px]"
             />
