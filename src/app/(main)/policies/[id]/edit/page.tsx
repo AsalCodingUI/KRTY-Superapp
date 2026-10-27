@@ -8,5 +8,5 @@ export default async function EditPolicyRoute({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  redirect(`/policies?${new URLSearchParams({ aturan: id, edit: "1" })}`)
+  redirect(`/policies?${new URLSearchParams({ policy: id, edit: "1" })}`)
 }

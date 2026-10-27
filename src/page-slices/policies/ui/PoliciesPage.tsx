@@ -128,7 +128,7 @@ export function PoliciesPage() {
     return params.size ? `${pathname}?${params}` : pathname
   }
   const closeModal = () =>
-    router.replace(withParams({ aturan: null, v: null, edit: null }), {
+    router.replace(withParams({ policy: null, v: null, edit: null }), {
       scroll: false,
     })
 
@@ -144,7 +144,7 @@ export function PoliciesPage() {
           .includes(needle)),
   )
   const hrefFor = (p: PolicyListItem) =>
-    withParams({ aturan: p.id, edit: tab === "draft" ? "1" : null, v: null })
+    withParams({ policy: p.id, edit: tab === "draft" ? "1" : null, v: null })
   const categories = [...new Set(shown.map((p) => p.category))].sort(
     (a, b) => categoryOrder(a) - categoryOrder(b) || a.localeCompare(b),
   )
@@ -175,7 +175,7 @@ export function PoliciesPage() {
                 nativeButton={false}
                 render={
                   <Link
-                    href={withParams({ aturan: "new", edit: "1", v: null })}
+                    href={withParams({ policy: "new", edit: "1", v: null })}
                     scroll={false}
                     prefetch={false}
                   />
@@ -294,7 +294,7 @@ export function PoliciesPage() {
             key="editor"
             id={openId === "new" ? null : openId}
             onExit={({ id }) =>
-              router.replace(withParams({ aturan: id, edit: null, v: null }), {
+              router.replace(withParams({ policy: id, edit: null, v: null }), {
                 scroll: false,
               })
             }

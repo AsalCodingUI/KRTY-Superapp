@@ -163,14 +163,14 @@ export function ContractsPage({ viewer }: { viewer: ContractViewer }) {
     // The row is gone either way; a leftover file is only storage.
     await removeContractFile(contract.file_path).catch(() => undefined)
     toast.success(t("deleted"))
-    if (openId === contract.id) go({ kontrak: null })
+    if (openId === contract.id) go({ contract: null })
     queryClient.invalidateQueries({ queryKey: contractKeys.all })
   }
 
   const rowProps = (c: ContractRow) => ({
     contract: c,
     isAdmin: viewer.isAdmin,
-    onOpen: () => go({ kontrak: c.id }),
+    onOpen: () => go({ contract: c.id }),
     onEdit: () => setForm(c),
     onDelete: () => setDeleting(c),
   })
@@ -279,7 +279,7 @@ export function ContractsPage({ viewer }: { viewer: ContractViewer }) {
           contract={open}
           viewer={viewer}
           onEdit={() => setForm(open)}
-          onClose={() => go({ kontrak: null })}
+          onClose={() => go({ contract: null })}
         />
       )}
       {viewer.isAdmin && (

@@ -187,7 +187,7 @@ export function ClientsPage() {
               <ClientCard
                 key={c.id}
                 client={c}
-                href={withParams({ klien: c.id })}
+                href={withParams({ client: c.id })}
                 rates={rates}
               />
             ))}
@@ -198,7 +198,7 @@ export function ClientsPage() {
               <ClientListRow
                 key={c.id}
                 client={c}
-                href={withParams({ klien: c.id })}
+                href={withParams({ client: c.id })}
                 rates={rates}
               />
             ))}
@@ -212,14 +212,14 @@ export function ClientsPage() {
           client={open}
           rates={rates}
           onEdit={() => setForm(open)}
-          onClose={() => go({ klien: null })}
+          onClose={() => go({ client: null })}
         />
       )}
       <ClientFormDialog
         client={form === "new" ? null : form}
         open={form !== null}
         onOpenChange={(next) => !next && setForm(null)}
-        onSaved={(id) => form === "new" && go({ klien: id, status: null })}
+        onSaved={(id) => form === "new" && go({ client: id, status: null })}
       />
     </div>
   )

@@ -11,7 +11,7 @@ export default async function PolicyRoute({
   searchParams: Promise<{ v?: string }>
 }) {
   const [{ id }, { v }] = await Promise.all([params, searchParams])
-  const query = new URLSearchParams({ aturan: id })
+  const query = new URLSearchParams({ policy: id })
   if (v) query.set("v", v)
   redirect(`/policies?${query}`)
 }
