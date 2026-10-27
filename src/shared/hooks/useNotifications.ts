@@ -31,12 +31,75 @@ async function fetchNotificationList(): Promise<NotificationList> {
   }
 }
 
+/**
+ * While an admin views as someone, reading or removing a notification must
+ * not touch that person's real ones (the server ignores it). The admin's
+ * own clicks are remembered here instead, so a closed banner stays closed.
+ */
+const localKey = (userId: string) => `krt_viewas_notifications_${userId}`
+
+function localChanges(userId: string): { read: string[]; removed: string[] } {
+  try {
+    const raw = window.localStorage.getItem(localKey(userId))
+    const parsed = raw ? JSON.parse(raw) : null
+    return { read: parsed?.read ?? [], removed: parsed?.removed ?? [] }
+  } catch {
+    return { read: [], removed: [] }
+  }
+}
+
+function rememberLocally(
+  userId: string,
+  change: { read?: string[]; removed?: string[] },
+) {
+  const prev = localChanges(userId)
+  // Keep the newest few hundred; older ids are long gone from the list.
+  const merge = (a: string[], b: string[] = []) =>
+    [...new Set([...a, ...b])].slice(-500)
+  try {
+    window.localStorage.setItem(
+      localKey(userId),
+      JSON.stringify({
+        read: merge(prev.read, change.read),
+        removed: merge(prev.removed, change.removed),
+      }),
+    )
+  } catch {
+    // Storage blocked: the change lasts until the next refresh.
+  }
+}
+
+/** The fetched list with the admin's own view-as changes laid over it. */
+function withLocalChanges(data: NotificationList, userId: string) {
+  const { read, removed } = localChanges(userId)
+  if (!read.length && !removed.length) return data
+  const readSet = new Set(read)
+  const removedSet = new Set(removed)
+  let cleared = 0
+  const list = data.list
+    .filter((n) => {
+      if (!removedSet.has(n.id)) return true
+      if (!n.is_read) cleared++
+      return false
+    })
+    .map((n) => {
+      if (n.is_read || !readSet.has(n.id)) return n
+      cleared++
+      return { ...n, is_read: true }
+    })
+  return {
+    list,
+    unread: data.unread == null ? null : Math.max(0, data.unread - cleared),
+  }
+}
+
 export function useNotifications() {
   const queryClient = useQueryClient()
   // The person being viewed (the signed-in one, or who an admin views as):
   // the bell shows their notifications.
-  const { profile, loading: profileLoading } = useUserProfile()
+  const { profile, loading: profileLoading, isImpersonating } = useUserProfile()
   const userId = profile?.id
+  const viewingAs = Boolean(isImpersonating)
   // Scoped per user so a different session never sees a stale list.
   const queryKey = useMemo(
     () => [...NOTIFICATIONS_QUERY_KEY, userId] as const,
@@ -45,7 +108,10 @@ export function useNotifications() {
 
   const query = useQuery({
     queryKey,
-    queryFn: fetchNotificationList,
+    queryFn: async () => {
+      const data = await fetchNotificationList()
+      return viewingAs && userId ? withLocalChanges(data, userId) : data
+    },
     enabled: Boolean(userId),
     staleTime: 30_000,
     refetchInterval: POLL_INTERVAL_MS,
@@ -91,12 +157,16 @@ export function useNotifications() {
   const send = useCallback(
     async (
       previous: NotificationList | undefined,
-      request: Promise<Response>,
+      request: () => Promise<Response>,
+      local: { read?: string[]; removed?: string[] },
     ) => {
-      const ok = await request.then((r) => r.ok).catch(() => false)
+      if (viewingAs && userId) return rememberLocally(userId, local)
+      const ok = await request()
+        .then((r) => r.ok)
+        .catch(() => false)
       if (!ok) queryClient.setQueryData(queryKey, previous)
     },
-    [queryClient, queryKey],
+    [queryClient, queryKey, userId, viewingAs],
   )
 
   const markAsRead = useCallback(
@@ -106,11 +176,13 @@ export function useNotifications() {
       )
       await send(
         previous,
-        fetch("/api/notifications", {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id }),
-        }),
+        () =>
+          fetch("/api/notifications", {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id }),
+          }),
+        { read: [id] },
       )
     },
     [send, update],
@@ -126,11 +198,13 @@ export function useNotifications() {
     )
     await send(
       previous,
-      fetch("/api/notifications", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ markAll: true }),
-      }),
+      () =>
+        fetch("/api/notifications", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ markAll: true }),
+        }),
+      { read: (previous?.list ?? EMPTY).map((n) => n.id) },
     )
   }, [queryClient, queryKey, send, update, userId])
 
@@ -140,9 +214,11 @@ export function useNotifications() {
       const previous = await update((prev) => prev.filter((n) => n.id !== id))
       await send(
         previous,
-        fetch(`/api/notifications?id=${encodeURIComponent(id)}`, {
-          method: "DELETE",
-        }),
+        () =>
+          fetch(`/api/notifications?id=${encodeURIComponent(id)}`, {
+            method: "DELETE",
+          }),
+        { removed: [id] },
       )
     },
     [send, update, userId],
