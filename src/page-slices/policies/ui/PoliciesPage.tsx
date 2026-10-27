@@ -177,7 +177,7 @@ export function PoliciesPage() {
     <div className="flex flex-col">
       <PageHeader
         className="pt-6 pb-4"
-        title={t("title")}
+        title={t("titleWithUpdates")}
         actions={
           <>
             <ViewToggle

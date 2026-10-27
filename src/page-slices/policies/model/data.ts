@@ -5,7 +5,12 @@ import type { MessageKey } from "@/shared/i18n/messages"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useMemo } from "react"
 
+export const UPDATE_CATEGORY = "Update aplikasi"
+
 export const POLICY_CATEGORIES = [
+  // App updates (Kretya Flow and the web app): release notes, with the
+  // version in the title ("Kretya Flow 0.1.1"); the desktop app checks it.
+  UPDATE_CATEGORY,
   "Umum",
   "Cuti",
   "Kehadiran",
@@ -17,6 +22,7 @@ export const POLICY_CATEGORIES = [
 
 /** Stored category values stay Indonesian; only the label is translated. */
 const CATEGORY_KEYS: Record<string, MessageKey<"policies">> = {
+  [UPDATE_CATEGORY]: "catUpdate",
   Umum: "catGeneral",
   Cuti: "catLeave",
   Kehadiran: "catAttendance",

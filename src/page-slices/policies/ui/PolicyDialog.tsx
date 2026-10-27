@@ -41,8 +41,10 @@ import {
   usePolicy,
   usePolicyBody,
   type PolicyVersionMeta,
+  UPDATE_CATEGORY,
 } from "../model/data"
 import { PolicyHistory } from "./PolicyHistory"
+import { ReleaseDownload } from "./ReleaseDownload"
 import { PublishDialog } from "./PublishDialog"
 
 function day(value: string | null, locale: Locale) {
@@ -287,6 +289,9 @@ function PolicyView({
               <p className="text-muted-foreground mt-3 text-[15px]">
                 {version.summary}
               </p>
+            )}
+            {policy.category === UPDATE_CATEGORY && (
+              <ReleaseDownload title={title} isAdmin={isAdmin} />
             )}
 
             <Separator className="my-8" />

@@ -19,6 +19,7 @@ import {
 import { useQueryClient } from "@tanstack/react-query"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { format } from "date-fns"
+import { UPDATE_CATEGORY } from "@/page-slices/policies/model/data"
 import { toast } from "sonner"
 
 /**
@@ -39,6 +40,7 @@ const ALL: On = {
 }
 
 type TauriGlobal = {
+  app?: { getVersion: () => Promise<string> }
   core: {
     invoke: (cmd: string, args?: Record<string, unknown>) => Promise<unknown>
   }
@@ -51,6 +53,39 @@ const invoke = (cmd: string, args?: Record<string, unknown>) =>
   tauri()
     ?.core.invoke(cmd, args)
     .catch(() => undefined)
+
+/** "0.1.10" > "0.1.9", piece by piece. */
+function newer(a: string, b: string) {
+  const pa = a.split(".").map(Number)
+  const pb = b.split(".").map(Number)
+  for (let i = 0; i < Math.max(pa.length, pb.length); i++)
+    if ((pa[i] ?? 0) !== (pb[i] ?? 0)) return (pa[i] ?? 0) > (pb[i] ?? 0)
+  return false
+}
+
+/**
+ * The newest published app update (Aturan & Update, category "Update
+ * aplikasi", the version in its title) if it's newer than this app.
+ */
+async function availableUpdate() {
+  const current = await tauri()
+    ?.app?.getVersion()
+    .catch(() => undefined)
+  if (!current) return null
+  const { data } = await createClient()
+    .from("policy_documents")
+    .select("slug, title")
+    .eq("category", UPDATE_CATEGORY)
+    .is("archived_at", null)
+    .not("current_version_id", "is", null)
+    .order("updated_at", { ascending: false })
+    .limit(10)
+  const latest = ((data ?? []) as { slug: string; title: string }[])
+    .map((d) => ({ ...d, version: d.title.match(/\d+\.\d+\.\d+/)?.[0] }))
+    .filter((d): d is typeof d & { version: string } => Boolean(d.version))
+    .sort((a, b) => (newer(a.version, b.version) ? -1 : 1))[0]
+  return latest && newer(latest.version, current) ? latest : null
+}
 
 /** A web app page opens in the app's own window; any other link in the
  *  browser. (Outside the app, both just open a tab.) */
@@ -193,6 +228,24 @@ export function DesktopApp() {
     } catch {}
   }, [data, prefs.notifyEvents, prefs.notifyClock, scenario])
 
+  // A new version: one notification per version (remembered here), with
+  // the release notes a click away in Aturan & Update.
+  useEffect(() => {
+    if (scenario !== "real") return
+    void availableUpdate().then((update) => {
+      if (!update) return
+      const key = `krty-update-notified-${update.version}`
+      try {
+        if (localStorage.getItem(key)) return
+        localStorage.setItem(key, "1")
+      } catch {}
+      void invoke("notify", {
+        title: `Kretya Flow ${update.version} tersedia`,
+        body: "Buka Pengaturan → Cek pembaruan untuk catatan dan unduhannya.",
+      })
+    })
+  }, [scenario])
+
   const refresh = (keys: string[][]) =>
     Promise.all(
       keys.map((queryKey) => queryClient.invalidateQueries({ queryKey })),
@@ -279,7 +332,11 @@ export function DesktopApp() {
         await createClient().auth.signOut()
         window.location.reload()
       },
-      checkUpdate: () => toast("Kretya Flow sudah versi terbaru"),
+      checkUpdate: async () => {
+        const update = await availableUpdate()
+        if (update) openExternal(`/policies?policy=${update.slug}`)
+        else toast("Kretya Flow sudah versi terbaru")
+      },
       todo: () => undefined,
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
