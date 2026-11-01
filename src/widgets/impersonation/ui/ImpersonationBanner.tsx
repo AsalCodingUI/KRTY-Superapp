@@ -6,7 +6,10 @@ import { useT } from "@/shared/i18n/client"
 import { RiEyeLine } from "@/shared/ui/lucide-icons"
 import { AppBanner } from "@/widgets/app-banner/ui/AppBanner"
 import { useEffect, useState } from "react"
-import { useStopImpersonation } from "../model/useStopImpersonation"
+import {
+  STOP_IMPERSONATION_URL,
+  useStopImpersonation,
+} from "../model/useStopImpersonation"
 
 const DISMISS_KEY = "impersonation_banner_hidden"
 
@@ -42,15 +45,19 @@ export function ImpersonationBanner() {
         }
       }}
       action={
-        <button
-          type="button"
-          onClick={stop}
-          disabled={loading}
-          className="flex shrink-0 items-center gap-1.5 rounded-md px-2 py-1 text-sm font-medium hover:bg-current/10 disabled:opacity-60"
+        // A real link: it works before (or without) the page's scripts.
+        <a
+          href={STOP_IMPERSONATION_URL}
+          onClick={(e) => {
+            e.preventDefault()
+            stop()
+          }}
+          aria-disabled={loading}
+          className="flex shrink-0 items-center gap-1.5 rounded-md px-2 py-1 text-sm font-medium hover:bg-current/10 aria-disabled:opacity-60"
         >
           {loading && <Spinner className="size-3.5" />}
           {tc("backToMyAccount")}
-        </button>
+        </a>
       }
     >
       {/* Phones: an eye stands in for the words so the name still fits. */}
