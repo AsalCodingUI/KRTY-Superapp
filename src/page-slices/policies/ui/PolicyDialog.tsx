@@ -301,7 +301,7 @@ function PolicyView({
                 <Spinner className="size-5" />
               </div>
             ) : body?.trim() ? (
-              <Markdown>{body}</Markdown>
+              <Markdown images>{body}</Markdown>
             ) : (
               <p className="text-muted-foreground text-sm">{t("noContent")}</p>
             )}

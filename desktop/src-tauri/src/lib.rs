@@ -424,10 +424,13 @@ pub fn run() {
             {
                 unified_toolbar(&main);
                 use window_vibrancy::{apply_vibrancy, NSVisualEffectMaterial, NSVisualEffectState};
+                // The most see-through material (it follows light / dark),
+                // kept live when the window isn't focused: the inactive
+                // state turns it a flat grey.
                 let _ = apply_vibrancy(
                     &main,
-                    NSVisualEffectMaterial::Sidebar,
-                    Some(NSVisualEffectState::FollowsWindowActiveState),
+                    NSVisualEffectMaterial::UnderWindowBackground,
+                    Some(NSVisualEffectState::Active),
                     None,
                 );
             }

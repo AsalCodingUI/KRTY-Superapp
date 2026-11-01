@@ -15,7 +15,7 @@ import { format, parseISO } from "date-fns"
 import { Link2 } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
-import { useViewer } from "./data"
+import { useViewer, useWorkspace } from "./data"
 import { RowMenu } from "./ProjectLibrary"
 import { ReportDialog, reportShareUrl } from "./ReportDialog"
 import {
@@ -38,6 +38,7 @@ export function ProjectReports({ projectId }: { projectId: string }) {
   const tc = useT("common")
   const dateLocale = useDateLocale()
   const viewer = useViewer()
+  const projectName = useWorkspace(projectId).data?.project?.name
   const { data: reports = [], isLoading } = useReports(projectId)
   const invalidate = useInvalidateReports(projectId)
   const [open, setOpen] = useState<{ report: Report | null } | null>(null)
@@ -127,7 +128,9 @@ export function ProjectReports({ projectId }: { projectId: string }) {
                             label: t("reportCopyLink"),
                             onSelect: () =>
                               void navigator.clipboard
-                                .writeText(reportShareUrl(r.share_token!))
+                                .writeText(
+                                  reportShareUrl(r.share_token!, projectName),
+                                )
                                 .then(() =>
                                   toast.success(t("reportLinkCopied")),
                                 ),

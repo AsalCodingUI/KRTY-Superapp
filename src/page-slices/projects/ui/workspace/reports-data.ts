@@ -127,12 +127,17 @@ export async function deleteReport(report: Pick<Report, "id" | "body">) {
 }
 
 /** A share token nobody can guess (24 random bytes, URL-safe). */
+/** A short link token (12 of a-z0-9, ~62 bits), the end of `/r/<name>-<token>`. */
 export function newShareToken() {
-  const bytes = crypto.getRandomValues(new Uint8Array(24))
-  return btoa(String.fromCharCode(...bytes))
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/, "")
+  const alphabet = "abcdefghijklmnopqrstuvwxyz0123456789"
+  // 252 = 7 × 36: rejecting the rest keeps every letter equally likely.
+  let out = ""
+  while (out.length < 12) {
+    for (const b of crypto.getRandomValues(new Uint8Array(16))) {
+      if (b < 252 && out.length < 12) out += alphabet[b % 36]
+    }
+  }
+  return out
 }
 
 export const REPORT_IMAGES = "report-images"

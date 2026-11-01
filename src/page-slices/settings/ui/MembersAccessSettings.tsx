@@ -53,7 +53,6 @@ import {
   RiSearchLine,
 } from "@/shared/ui/lucide-icons"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { useRouter } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
 import { toast } from "sonner"
 
@@ -158,10 +157,9 @@ export function MembersAccessSettings({
   const t = useT("settings")
   const tt = useT("teams")
   const tc = useT("common")
-  const router = useRouter()
   const queryClient = useQueryClient()
   const supabase = useMemo(() => createClient(), [])
-  const { authProfile, refreshProfile } = useUserProfile()
+  const { authProfile } = useUserProfile()
   const { data, isLoading, error } = useMembersData()
 
   const [profiles, setProfiles] = useState<Profile[]>([])
@@ -237,11 +235,9 @@ export function MembersAccessSettings({
       }
       // Cached data belongs to the previous account: drop it all.
       queryClient.clear()
-      await refreshProfile()
       toast.success(t("nowViewingAs"))
-      // Reloads the app as that member.
-      router.push("/dashboard")
-      router.refresh()
+      // A full load as that member, so no page cached as the admin lingers.
+      window.location.assign("/dashboard")
     } catch (err) {
       toast.error(err instanceof Error ? err.message : t("switchAccountFailed"))
     } finally {

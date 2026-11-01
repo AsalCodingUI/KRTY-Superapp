@@ -18,6 +18,8 @@ import {
 import { Spinner } from "@/components/ui/spinner"
 import { MarkdownDocEditor } from "@/page-slices/policies/ui/doc-editor"
 import { clientUrl } from "@/shared/lib/client-site"
+import { reportKey } from "@/shared/lib/portal-docs"
+import { useWorkspace } from "./data"
 import { useT } from "@/shared/i18n/client"
 import { RiCloseLine, RiFileCopyLine } from "@/shared/ui/lucide-icons"
 import { Link2 } from "lucide-react"
@@ -34,7 +36,8 @@ import {
 
 /** The client link of a shared report. */
 /** The shared report's address on the public client site. */
-export const reportShareUrl = (token: string) => clientUrl(`/r/${token}`)
+export const reportShareUrl = (token: string, projectName?: string | null) =>
+  clientUrl(`/r/${reportKey(projectName, token)}`)
 
 /**
  * A daily report in the notes editor (title, toolbar, "/" blocks, images by
@@ -65,6 +68,7 @@ export function ReportDialog({
 }) {
   const t = useT("projects")
   const tc = useT("common")
+  const projectName = useWorkspace(projectId).data?.project?.name
   const [current, setCurrent] = useState<Report | null>(null)
   const [title, setTitle] = useState("")
   const body = useRef("")
@@ -142,7 +146,7 @@ export function ReportDialog({
       onSaved()
       if (on && next.share_token) {
         await navigator.clipboard
-          .writeText(reportShareUrl(next.share_token))
+          .writeText(reportShareUrl(next.share_token, projectName))
           .catch(() => {})
         toast.success(t("reportLinkCreated"))
       } else toast.success(t("reportLinkOff"))
@@ -156,7 +160,9 @@ export function ReportDialog({
   const requestClose = () =>
     canEdit && dirty ? setConfirmClose(true) : onOpenChange(false)
 
-  const link = current?.share_token ? reportShareUrl(current.share_token) : ""
+  const link = current?.share_token
+    ? reportShareUrl(current.share_token, projectName)
+    : ""
 
   return (
     <Dialog

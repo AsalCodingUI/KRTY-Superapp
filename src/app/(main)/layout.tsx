@@ -30,8 +30,9 @@ const DESKTOP_CSS =
   `@media (min-width:768px){[data-slot="sheet-content"][data-side="right"]{${CORNER}}}` +
   `@media (min-width:1024px){[data-slot="side-panel"]{${CORNER}}}` +
   "html,body{background:transparent}" +
-  '[data-slot="sidebar-wrapper"]{background-color:color-mix(in oklab,color-mix(in oklab,#fff 55%,var(--chrome)) 55%,transparent)}' +
-  '.dark [data-slot="sidebar-wrapper"]{background-color:color-mix(in oklab,var(--chrome) 50%,transparent)}' +
+  // A light wash of the chrome over the window's blur: mostly see-through.
+  '[data-slot="sidebar-wrapper"]{background-color:color-mix(in oklab,color-mix(in oklab,#fff 55%,var(--chrome)) 30%,transparent)}' +
+  '.dark [data-slot="sidebar-wrapper"]{background-color:color-mix(in oklab,var(--chrome) 25%,transparent)}' +
   '[data-slot="sidebar-inner"]{background:transparent}'
 
 function PageFallback() {

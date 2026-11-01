@@ -15,6 +15,7 @@ import {
   type Editor,
   type Range,
 } from "@tiptap/react"
+import type { EditorView } from "@tiptap/pm/view"
 import { BubbleMenu } from "@tiptap/react/menus"
 import StarterKit from "@tiptap/starter-kit"
 import { ImageIcon, Paperclip } from "lucide-react"
@@ -141,7 +142,7 @@ const SizedImage = Image.extend({
 })
 
 /** Small / medium / wide for the selected picture. */
-function ImageMenu({ editor }: { editor: Editor }) {
+export function ImageMenu({ editor }: { editor: Editor }) {
   const t = useT("policies")
   const current = useEditorState({
     editor,
@@ -195,54 +196,21 @@ function ImageMenu({ editor }: { editor: Editor }) {
 }
 
 /**
- * A Markdown document editor (the rules editor without the rule around it):
- * toolbar, "/" blocks, the selection menu. `value` is read once; edits come
- * back as Markdown through `onChange`.
+ * Pictures and attachments for a document editor: the "/" items to pick
+ * them, paste and drop handlers for `editorProps`, and the hidden file
+ * inputs to render. Set `editorRef` once the editor exists. Shared by every
+ * editor (notes, reports, tasks, rules), so they all take files the same.
  */
-export function MarkdownDocEditor({
-  value,
-  onChange,
-  ariaLabel,
-  className,
-  onReady,
+export function useDocUploads({
   onUploadImage,
   onUploadFile,
-  compact = false,
-  placeholder,
-  onBlur,
-  readOnly = false,
 }: {
-  value: string
-  onChange: (markdown: string) => void
-  ariaLabel: string
-  className?: string
-  onReady?: (editor: Editor) => void
-  /** Inline in a form (a task's description): no toolbar, grows with its
-   *  text, smaller type; the "/" menu, handles and selection menu stay. */
-  compact?: boolean
-  /** Shown on an empty line (compact; documents use the rules' hint). */
-  placeholder?: string
-  /** Leaving the editor, e.g. to save. */
-  onBlur?: () => void
-  /** Shown only: the same typeset document, without the toolbar, handles
-   *  or menus (a client reading a report). */
-  readOnly?: boolean
-  /** Turns images on: uploads one (compressed unless `original`) and
-   *  returns its public URL. Pictures go in from "/", paste or drop. */
   onUploadImage?: (file: File, original: boolean) => Promise<string>
-  /** Turns attachments on: any other file dropped, pasted or picked from
-   *  "/" uploads and goes in as a link with its name. */
   onUploadFile?: (file: File) => Promise<string>
 }) {
   const t = useT("policies")
   const tRef = useRef(t)
   tRef.current = t
-  const onChangeRef = useRef(onChange)
-  onChangeRef.current = onChange
-  const onBlurRef = useRef(onBlur)
-  onBlurRef.current = onBlur
-  const placeholderRef = useRef(placeholder)
-  placeholderRef.current = placeholder
   const uploadRef = useRef(onUploadImage)
   uploadRef.current = onUploadImage
   const uploadFileRef = useRef(onUploadFile)
@@ -252,7 +220,6 @@ export function MarkdownDocEditor({
   // The next pick from "/" keeps its original resolution.
   const pickOriginal = useRef(false)
   const editorRef = useRef<Editor | null>(null)
-  const [slash] = useState(createSlashBridge)
 
   /**
    * Where the next upload goes: a drop point (kept inside the document, as
@@ -379,60 +346,30 @@ export function MarkdownDocEditor({
     return items
   })
 
-  const editor = useEditor({
-    immediatelyRender: false,
-    editable: !readOnly,
-    extensions: docExtensions(
-      slash,
-      (level) =>
-        level
-          ? tRef.current("headingPlaceholder", { level })
-          : (placeholderRef.current ?? tRef.current("bodyPlaceholder")),
-      slashItems,
-      Boolean(onUploadImage) || readOnly,
-    ),
-    content: value,
-    contentType: "markdown",
-    onCreate: ({ editor: e }) => {
-      editorRef.current = e
-      onReady?.(e)
-    },
-    onUpdate: ({ editor: e }) => onChangeRef.current(e.getMarkdown()),
-    onBlur: () => onBlurRef.current?.(),
-    editorProps: {
-      attributes: {
-        class: compact ? cn(DOC_PROSE, COMPACT_PROSE) : DOC_PROSE,
-        "aria-label": ariaLabel,
-      },
-      // Pasted or dropped pictures upload and go in where they land.
-      handlePaste: (_view, event) => {
-        const data = event.clipboardData
-        // Word / Excel put a picture of the selection next to its text:
-        // paste the text, not the picture.
-        if (data?.getData("text/html") || data?.getData("text/plain").trim())
-          return false
-        const files = [...(data?.files ?? [])]
-        return files.length > 0 && insertDropped(files)
-      },
-      handleDrop: (view, event) => {
-        const files = [...(event.dataTransfer?.files ?? [])]
-        if (files.length === 0) return false
-        const pos = view.posAtCoords({
-          left: event.clientX,
-          top: event.clientY,
-        })?.pos
-        if (!insertDropped(files, pos)) return false
-        event.preventDefault()
-        return true
-      },
-    },
-  })
+  const handlePaste = (_view: EditorView, event: ClipboardEvent) => {
+    const data = event.clipboardData
+    // Word / Excel put a picture of the selection next to its text:
+    // paste the text, not the picture.
+    if (data?.getData("text/html") || data?.getData("text/plain").trim())
+      return false
+    const files = [...(data?.files ?? [])]
+    return files.length > 0 && insertDropped(files)
+  }
 
-  const menus = (
+  const handleDrop = (view: EditorView, event: DragEvent) => {
+    const files = [...(event.dataTransfer?.files ?? [])]
+    if (files.length === 0) return false
+    const pos = view.posAtCoords({
+      left: event.clientX,
+      top: event.clientY,
+    })?.pos
+    if (!insertDropped(files, pos)) return false
+    event.preventDefault()
+    return true
+  }
+
+  const inputs = (
     <>
-      {editor && <SelectionMenu editor={editor} />}
-      {editor && onUploadImage && <ImageMenu editor={editor} />}
-      <SlashMenu bridge={slash} />
       {onUploadFile && (
         <input
           ref={attachInput}
@@ -460,6 +397,101 @@ export function MarkdownDocEditor({
           }}
         />
       )}
+    </>
+  )
+
+  return { editorRef, slashItems, handlePaste, handleDrop, inputs }
+}
+
+/**
+ * A Markdown document editor (the rules editor without the rule around it):
+ * toolbar, "/" blocks, the selection menu. `value` is read once; edits come
+ * back as Markdown through `onChange`.
+ */
+export function MarkdownDocEditor({
+  value,
+  onChange,
+  ariaLabel,
+  className,
+  onReady,
+  onUploadImage,
+  onUploadFile,
+  compact = false,
+  placeholder,
+  onBlur,
+  readOnly = false,
+}: {
+  value: string
+  onChange: (markdown: string) => void
+  ariaLabel: string
+  className?: string
+  onReady?: (editor: Editor) => void
+  /** Inline in a form (a task's description): no toolbar, grows with its
+   *  text, smaller type; the "/" menu, handles and selection menu stay. */
+  compact?: boolean
+  /** Shown on an empty line (compact; documents use the rules' hint). */
+  placeholder?: string
+  /** Leaving the editor, e.g. to save. */
+  onBlur?: () => void
+  /** Shown only: the same typeset document, without the toolbar, handles
+   *  or menus (a client reading a report). */
+  readOnly?: boolean
+  /** Turns images on: uploads one (compressed unless `original`) and
+   *  returns its public URL. Pictures go in from "/", paste or drop. */
+  onUploadImage?: (file: File, original: boolean) => Promise<string>
+  /** Turns attachments on: any other file dropped, pasted or picked from
+   *  "/" uploads and goes in as a link with its name. */
+  onUploadFile?: (file: File) => Promise<string>
+}) {
+  const t = useT("policies")
+  const tRef = useRef(t)
+  tRef.current = t
+  const onChangeRef = useRef(onChange)
+  onChangeRef.current = onChange
+  const onBlurRef = useRef(onBlur)
+  onBlurRef.current = onBlur
+  const placeholderRef = useRef(placeholder)
+  placeholderRef.current = placeholder
+  const uploads = useDocUploads({ onUploadImage, onUploadFile })
+  const [slash] = useState(createSlashBridge)
+
+  const editor = useEditor({
+    immediatelyRender: false,
+    editable: !readOnly,
+    extensions: docExtensions(
+      slash,
+      (level) =>
+        level
+          ? tRef.current("headingPlaceholder", { level })
+          : (placeholderRef.current ?? tRef.current("bodyPlaceholder")),
+      uploads.slashItems,
+      Boolean(onUploadImage) || readOnly,
+    ),
+    content: value,
+    contentType: "markdown",
+    onCreate: ({ editor: e }) => {
+      uploads.editorRef.current = e
+      onReady?.(e)
+    },
+    onUpdate: ({ editor: e }) => onChangeRef.current(e.getMarkdown()),
+    onBlur: () => onBlurRef.current?.(),
+    editorProps: {
+      attributes: {
+        class: compact ? cn(DOC_PROSE, COMPACT_PROSE) : DOC_PROSE,
+        "aria-label": ariaLabel,
+      },
+      // Pasted or dropped pictures and files upload and go in where they land.
+      handlePaste: uploads.handlePaste,
+      handleDrop: uploads.handleDrop,
+    },
+  })
+
+  const menus = (
+    <>
+      {editor && <SelectionMenu editor={editor} />}
+      {editor && onUploadImage && <ImageMenu editor={editor} />}
+      <SlashMenu bridge={slash} />
+      {uploads.inputs}
     </>
   )
 

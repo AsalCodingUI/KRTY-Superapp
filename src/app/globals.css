@@ -593,10 +593,8 @@
   /* Dark: a white hairline carries the edge; the shadows stay soft (a
      faint, wide falloff) so surfaces lift without dark halos. */
   --elev-1: 0 0 0 1px oklch(1 0 0 / 0.06), 0 1px 2px oklch(0 0 0 / 0.2);
-  --elev-2:
-    0 0 0 1px oklch(1 0 0 / 0.06), 0 6px 18px -4px oklch(0 0 0 / 0.24);
-  --elev-3:
-    0 0 0 1px oklch(1 0 0 / 0.06), 0 16px 44px -10px oklch(0 0 0 / 0.3);
+  --elev-2: 0 0 0 1px oklch(1 0 0 / 0.06), 0 6px 18px -4px oklch(0 0 0 / 0.24);
+  --elev-3: 0 0 0 1px oklch(1 0 0 / 0.06), 0 16px 44px -10px oklch(0 0 0 / 0.3);
   --elev-4:
     0 0 0 1px oklch(1 0 0 / 0.07), 0 24px 60px -14px oklch(0 0 0 / 0.36);
   --elev-5:
@@ -799,6 +797,7 @@
   position: fixed;
   top: -1000px;
   left: -1000px;
+  opacity: 0.92;
   max-height: 7.5rem;
   overflow: hidden;
   padding: 0.5rem 0.875rem;
@@ -810,6 +809,17 @@
   line-height: 1.5;
   pointer-events: none;
   z-index: 9999;
+}
+/* Where a block dragged by its grip will land. */
+.doc-drop-bar {
+  position: absolute;
+  height: 3px;
+  border-radius: 9999px;
+  background: var(--primary);
+  pointer-events: none;
+  opacity: 0;
+  z-index: 20;
+  transition: top 80ms ease-out;
 }
 .doc-drag-preview > * {
   margin: 0 !important;

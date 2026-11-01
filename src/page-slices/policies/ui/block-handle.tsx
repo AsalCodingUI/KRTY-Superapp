@@ -7,17 +7,23 @@ import {
 } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 import { useT } from "@/shared/i18n/client"
+import { Fragment, Slice } from "@tiptap/pm/model"
 import { NodeSelection } from "@tiptap/pm/state"
+import { dropPoint } from "@tiptap/pm/transform"
 import type { Editor } from "@tiptap/react"
 import { GripVertical, Plus } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 
 type Block = { pos: number; top: number; left: number; height: number }
 
+/** A move this far (px) turns a press on the grip into a drag. */
+const DRAG_THRESHOLD = 4
+/** Near a scroller's top or bottom edge (px), dragging scrolls it. */
+const SCROLL_EDGE = 56
+
 /**
  * What follows the pointer while dragging: the block as a small card (its
- * first lines, on the popover surface with a shadow), not the browser's
- * see-through copy. Removed right after the browser snapshots it.
+ * first lines, on the popover surface with a shadow).
  */
 function dragPreview(node: HTMLElement) {
   const card = document.createElement("div")
@@ -25,8 +31,17 @@ function dragPreview(node: HTMLElement) {
   card.style.width = `${Math.min(node.getBoundingClientRect().width, 420)}px`
   card.append(node.cloneNode(true))
   document.body.append(card)
-  requestAnimationFrame(() => card.remove())
   return card
+}
+
+/** The nearest ancestor that scrolls vertically (the dialog's body). */
+function scrollParent(el: HTMLElement | null) {
+  for (let n = el; n; n = n.parentElement) {
+    const { overflowY } = getComputedStyle(n)
+    if (/(auto|scroll)/.test(overflowY) && n.scrollHeight > n.clientHeight)
+      return n
+  }
+  return null
 }
 
 /**
@@ -48,7 +63,7 @@ function blockAt(editor: Editor, x: number, y: number): number | null {
 /**
  * Notion-style handles left of the block under the pointer: "+" adds a
  * block below and opens the "/" menu; the grip drags the block up or down
- * (ProseMirror moves it on drop) and a click selects it. Mount inside a
+ * and a click selects it. Mount inside a
  * `relative` box around the editor content.
  */
 export function BlockHandle({
@@ -156,26 +171,158 @@ export function BlockHandle({
     setBlock(null)
   }
 
-  const onDragStart = (e: React.DragEvent) => {
-    if (!block) return
+  /**
+   * Drag by pointer, not the browser's drag and drop: WebKit (Safari, the
+   * Mac app) won't start a native drag from the grip, and this works the
+   * same with a mouse, a trackpad or a finger. A blue bar shows where the
+   * block will land; letting go moves it there (one undo step).
+   */
+  const onGripDown = (e: React.PointerEvent) => {
+    if (e.button !== 0 || !block) return
+    e.preventDefault()
+    e.stopPropagation()
+    const host = box.current?.parentElement
+    if (!host) return
     const { view } = editor
-    const node = view.nodeDOM(block.pos)
-    selectBlock(block.pos)
-    // Hand ProseMirror the block as the dragged content: it moves it to
-    // wherever it's dropped.
-    const slice = view.state.selection.content()
-    view.dragging = { slice, move: true }
-    dragging.current = true
-    e.dataTransfer.effectAllowed = "move"
-    e.dataTransfer.setData("text/plain", node?.textContent ?? "")
-    // The block stays selected (tinted) where it is until it's dropped.
-    if (node instanceof HTMLElement)
-      e.dataTransfer.setDragImage(dragPreview(node), 14, 14)
-  }
+    const from = block.pos
+    const startX = e.clientX
+    const startY = e.clientY
+    let started = false
+    let preview: HTMLElement | null = null
+    let bar: HTMLElement | null = null
+    let target: number | null = null
+    let pointer = { x: startX, y: startY }
+    let frame = 0
+    const scroller = scrollParent(host)
 
-  const onDragEnd = () => {
-    dragging.current = false
-    setBlock(null)
+    /** Where the block would go for the pointer at (x, y), and the bar. */
+    const aim = (x: number, y: number) => {
+      const dom = view.dom.getBoundingClientRect()
+      const probeY = Math.min(Math.max(y, dom.top + 2), dom.bottom - 2)
+      const pos = blockAt(editor, Math.max(x, dom.left + 24), probeY)
+      const dragged = editor.state.doc.nodeAt(from)
+      const over = pos === null ? null : editor.state.doc.nodeAt(pos)
+      const el = pos === null ? null : view.nodeDOM(pos)
+      target = null
+      if (!dragged || !over || !(el instanceof HTMLElement) || !bar) return
+      const r = el.getBoundingClientRect()
+      const before = probeY < r.top + r.height / 2
+      const at = before ? pos! : pos! + over.nodeSize
+      const point = dropPoint(
+        editor.state.doc,
+        at,
+        new Slice(Fragment.from(dragged), 0, 0),
+      )
+      // Onto itself or nowhere it can go: no bar.
+      if (
+        point === null ||
+        (point >= from && point <= from + dragged.nodeSize)
+      ) {
+        bar.style.opacity = "0"
+        return
+      }
+      target = point
+      const h = host.getBoundingClientRect()
+      bar.style.opacity = "1"
+      // In the middle of the gap between the blocks, not on the text.
+      const style = getComputedStyle(el)
+      const gap =
+        parseFloat(before ? style.marginTop : style.marginBottom) / 2 || 0
+      const edge = before ? r.top - gap : r.bottom + gap
+      bar.style.top = `${edge - h.top - 1.5}px`
+      bar.style.left = `${r.left - h.left}px`
+      bar.style.width = `${dom.right - r.left}px`
+    }
+
+    // Held near the top or bottom edge, the scroller keeps scrolling.
+    const tick = () => {
+      if (scroller) {
+        const s = scroller.getBoundingClientRect()
+        const speed =
+          pointer.y < s.top + SCROLL_EDGE
+            ? -Math.ceil((s.top + SCROLL_EDGE - pointer.y) / 4)
+            : pointer.y > s.bottom - SCROLL_EDGE
+              ? Math.ceil((pointer.y - (s.bottom - SCROLL_EDGE)) / 4)
+              : 0
+        if (speed) {
+          scroller.scrollTop += speed
+          aim(pointer.x, pointer.y)
+        }
+      }
+      frame = requestAnimationFrame(tick)
+    }
+
+    const start = () => {
+      started = true
+      dragging.current = true
+      selectBlock(from)
+      const node = view.nodeDOM(from)
+      if (node instanceof HTMLElement) preview = dragPreview(node)
+      bar = document.createElement("div")
+      bar.className = "doc-drop-bar"
+      host.append(bar)
+      document.body.style.cursor = "grabbing"
+      frame = requestAnimationFrame(tick)
+    }
+
+    const move = (ev: PointerEvent) => {
+      pointer = { x: ev.clientX, y: ev.clientY }
+      if (!started) {
+        if (
+          Math.hypot(ev.clientX - startX, ev.clientY - startY) < DRAG_THRESHOLD
+        )
+          return
+        start()
+      }
+      ev.preventDefault()
+      if (preview) {
+        preview.style.left = `${ev.clientX + 12}px`
+        preview.style.top = `${ev.clientY + 12}px`
+      }
+      aim(ev.clientX, ev.clientY)
+    }
+
+    const finish = (drop: boolean) => {
+      window.removeEventListener("pointermove", move)
+      window.removeEventListener("pointerup", up)
+      window.removeEventListener("pointercancel", cancel)
+      window.removeEventListener("keydown", key, true)
+      cancelAnimationFrame(frame)
+      preview?.remove()
+      bar?.remove()
+      document.body.style.cursor = ""
+      dragging.current = false
+      if (!started) {
+        // A press without a drag: pick the block.
+        if (drop) selectBlock(from)
+        return
+      }
+      setBlock(null)
+      if (!drop || target === null) return
+      const { state } = editor
+      const node = state.doc.nodeAt(from)
+      if (!node) return
+      const tr = state.tr.deleteRange(from, from + node.nodeSize)
+      const at = tr.mapping.map(target)
+      tr.insert(at, node)
+      if (NodeSelection.isSelectable(node))
+        tr.setSelection(NodeSelection.create(tr.doc, at))
+      view.dispatch(tr.scrollIntoView())
+      view.focus()
+    }
+    const up = () => finish(true)
+    const cancel = () => finish(false)
+    const key = (ev: KeyboardEvent) => {
+      if (ev.key !== "Escape") return
+      ev.preventDefault()
+      ev.stopPropagation()
+      finish(false)
+    }
+
+    window.addEventListener("pointermove", move)
+    window.addEventListener("pointerup", up)
+    window.addEventListener("pointercancel", cancel)
+    window.addEventListener("keydown", key, true)
   }
 
   return (
@@ -205,15 +352,16 @@ export function BlockHandle({
               render={
                 <button
                   type="button"
-                  draggable
                   aria-label={t("blockDrag")}
-                  onMouseDown={(e) => e.stopPropagation()}
-                  onClick={() => block && selectBlock(block.pos)}
-                  onDragStart={onDragStart}
-                  onDragEnd={onDragEnd}
-                  className={cn(
-                    "text-muted-foreground/70 hover:text-foreground hover:bg-muted flex h-6 w-5 cursor-grab items-center justify-center rounded-md transition-colors active:cursor-grabbing",
-                  )}
+                  onPointerDown={onGripDown}
+                  // Keyboard: Enter / Space picks the block.
+                  onKeyDown={(e) => {
+                    if ((e.key === "Enter" || e.key === " ") && block) {
+                      e.preventDefault()
+                      selectBlock(block.pos)
+                    }
+                  }}
+                  className="text-muted-foreground/70 hover:text-foreground hover:bg-muted flex h-6 w-5 cursor-grab touch-none items-center justify-center rounded-md transition-colors active:cursor-grabbing"
                 />
               }
             >

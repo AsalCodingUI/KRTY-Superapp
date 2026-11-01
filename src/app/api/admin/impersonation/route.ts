@@ -29,7 +29,10 @@ export async function POST(request: NextRequest) {
     const body = await request.json().catch(() => ({}))
     const targetUserId = typeof body?.userId === "string" ? body.userId : null
 
-    const response = NextResponse.json({ success: true })
+    const response = NextResponse.json(
+      { success: true },
+      { headers: { "Cache-Control": "no-store" } },
+    )
 
     // Clear impersonation mode
     if (!targetUserId || targetUserId === actorProfile.id) {

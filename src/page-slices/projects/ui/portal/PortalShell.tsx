@@ -4,6 +4,7 @@ import { leavePortal } from "@/app/(fullscreen)/p/[token]/actions"
 import { AppIcon } from "@/components/app-icon"
 import { AppearancePopover } from "@/components/appearance-popover"
 import { LanguageSwitcher } from "@/components/language-switcher"
+import { PageTranslator } from "@/components/page-translator"
 import { ProjectAvatar } from "@/components/project-avatar"
 import { SlidingIndicator } from "@/components/sliding-indicator"
 import { FloatingTabBar, type FloatingTab } from "@/components/floating-tab-bar"
@@ -149,7 +150,8 @@ export function PortalShell({
             </span>
           )}
         </div>
-        <div className="flex shrink-0 items-center gap-3">
+        <div className="flex shrink-0 items-center gap-1">
+          <PageTranslator />
           <Button
             variant="ghost"
             size="sm"
@@ -205,7 +207,10 @@ export function PortalShell({
             aria-hidden
             className="blend-shadow pointer-events-none absolute inset-0 z-20 hidden shadow-(--elev-3) md:block md:rounded-3xl"
           />
-          <SidebarInset className="dark:bg-surface overflow-y-auto overscroll-contain [--bleed:0.75rem] [--page-gutter:1.25rem] [scrollbar-gutter:stable] max-md:rounded-t-[28px] max-md:shadow-(--elev-2) md:z-20 md:rounded-3xl md:[--page-gutter:2.5rem] xl:[--page-gutter:4rem]">
+          <SidebarInset
+            data-translate-root
+            className="dark:bg-surface overflow-y-auto overscroll-contain [--bleed:0.75rem] [--page-gutter:1.25rem] [scrollbar-gutter:stable] max-md:rounded-t-[28px] max-md:shadow-(--elev-2) md:z-20 md:rounded-3xl md:[--page-gutter:2.5rem] xl:[--page-gutter:4rem]"
+          >
             {/* No sidebar on a phone: the tab bar below does its job. */}
             <header className="flex h-12 shrink-0 items-center gap-2 max-md:hidden">
               <div className="gutter-x flex min-w-0 flex-1 items-center gap-2">

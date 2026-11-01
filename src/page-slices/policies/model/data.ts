@@ -7,6 +7,10 @@ import { useMemo } from "react"
 
 export const UPDATE_CATEGORY = "Update aplikasi"
 
+/** Storage folder for pictures and files in rules (the nil UUID: the
+ *  buckets' project policies read the first folder as a uuid). */
+export const POLICY_FILES_FOLDER = "00000000-0000-0000-0000-000000000000"
+
 export const POLICY_CATEGORIES = [
   // App updates (Kretya Flow and the web app): release notes, with the
   // version in the title ("Kretya Flow 0.1.1"); the desktop app checks it.

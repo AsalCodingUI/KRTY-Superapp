@@ -4,6 +4,10 @@
  * a missing English string is a type error.
  */
 const id = {
+  translate: "Terjemahkan",
+  translatePage: "Terjemahkan halaman ke",
+  translateOriginal: "Asli (Bahasa Indonesia)",
+  translateFailed: "Halaman belum bisa diterjemahkan. Coba lagi.",
   richBullet: "Poin",
   richNumbered: "Daftar bernomor",
   richHint: "Ketik / untuk poin",
@@ -71,6 +75,10 @@ const id = {
 }
 
 const en: Record<keyof typeof id, string> = {
+  translate: "Translate",
+  translatePage: "Translate this page to",
+  translateOriginal: "Original (Indonesian)",
+  translateFailed: "Couldn't translate the page. Try again.",
   richBullet: "Bullet",
   richNumbered: "Numbered list",
   richHint: "Type / for bullets",

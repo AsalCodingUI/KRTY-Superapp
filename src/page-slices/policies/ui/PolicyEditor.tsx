@@ -51,7 +51,17 @@ import {
 import { BlockHandle } from "./block-handle"
 import { DocToolbar } from "./DocToolbar"
 import { SelectionMenu } from "./SelectionMenu"
-import { DOC_PROSE, docExtensions } from "./doc-editor"
+import {
+  DOC_PROSE,
+  ImageMenu,
+  docExtensions,
+  useDocUploads,
+} from "./doc-editor"
+import {
+  uploadDocFile,
+  uploadReportImage,
+} from "@/page-slices/projects/ui/workspace/reports-data"
+import { POLICY_FILES_FOLDER } from "../model/data"
 import { BLOCK_ITEMS, SlashMenu, createSlashBridge } from "./slash-command"
 import { PublishDialog } from "./PublishDialog"
 
@@ -211,6 +221,12 @@ function DocumentEditor({
   const inFlight = useRef<Promise<string | null> | null>(null)
   const pending = useRef(false)
   const [slash] = useState(createSlashBridge)
+  // Pictures and files, like project notes (dropped, pasted or from "/").
+  const uploads = useDocUploads({
+    onUploadImage: (file, original) =>
+      uploadReportImage(POLICY_FILES_FOLDER, file, original),
+    onUploadFile: (file) => uploadDocFile(POLICY_FILES_FOLDER, file),
+  })
   const [confirmClose, setConfirmClose] = useState(false)
   // What the server has. The editor re-serializes Markdown on load (e.g.
   // "_x_" → "*x*"), so the baseline body is taken from the editor itself;
@@ -234,15 +250,20 @@ function DocumentEditor({
 
   const editor = useEditor({
     immediatelyRender: false,
-    extensions: docExtensions(slash, (level) =>
-      level
-        ? tRef.current("headingPlaceholder", { level })
-        : tRef.current("bodyPlaceholder"),
+    extensions: docExtensions(
+      slash,
+      (level) =>
+        level
+          ? tRef.current("headingPlaceholder", { level })
+          : tRef.current("bodyPlaceholder"),
+      uploads.slashItems,
+      true,
     ),
     content: initial.body,
     contentType: "markdown",
     onCreate: ({ editor: e }) => {
       editorRef.current = e
+      uploads.editorRef.current = e
       bodyStale.current = false
       const body = e.getMarkdown()
       if (id) baseline.current = { ...baseline.current, body }
@@ -253,6 +274,8 @@ function DocumentEditor({
     },
     editorProps: {
       attributes: { class: DOC_PROSE, "aria-label": t("bodyLabel") },
+      handlePaste: uploads.handlePaste,
+      handleDrop: uploads.handleDrop,
     },
     onUpdate: ({ editor: e }) => {
       editorRef.current = e
@@ -631,7 +654,9 @@ function DocumentEditor({
       </div>
 
       {editor && <SelectionMenu editor={editor} />}
+      {editor && <ImageMenu editor={editor} />}
       <SlashMenu bridge={slash} />
+      {uploads.inputs}
 
       <AlertDialog open={confirmClose} onOpenChange={setConfirmClose}>
         <AlertDialogContent>

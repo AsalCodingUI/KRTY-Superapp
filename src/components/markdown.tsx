@@ -128,7 +128,7 @@ export function Markdown({
 }: {
   children: string
   className?: string
-  /** Show images (https only); rules leave them out. */
+  /** Show images (https only). */
   images?: boolean
 }) {
   return (
