@@ -30,6 +30,7 @@ const id = {
   guest: "Tamu",
   unknownUser: "Pengguna tanpa nama",
   userAlt: "Pengguna",
+  ctxViewKpi: "Lihat KPI",
 }
 
 const en: Record<keyof typeof id, string> = {
@@ -63,6 +64,7 @@ const en: Record<keyof typeof id, string> = {
   guest: "Guest",
   unknownUser: "Unknown user",
   userAlt: "User",
+  ctxViewKpi: "View KPI",
 }
 
 export const teams = { id, en }

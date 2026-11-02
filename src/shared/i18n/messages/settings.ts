@@ -62,6 +62,15 @@ const id = {
   memberAdded: "Anggota ditambahkan.",
   fullName: "Nama lengkap",
   email: "Email",
+
+  // Right-click menu on a member row
+  ctxViewProfile: "Lihat profil",
+  ctxViewKpi: "Lihat KPI",
+  ctxChangeRole: "Ubah role",
+  ctxChangeJobTitle: "Ubah jabatan",
+  ctxChangeTeam: "Ubah tim",
+  ctxChangeEmployment: "Ubah status",
+  ctxChangePhoto: "Ganti foto",
 }
 
 const en: Record<keyof typeof id, string> = {
@@ -121,6 +130,14 @@ const en: Record<keyof typeof id, string> = {
   memberAdded: "Member added.",
   fullName: "Full name",
   email: "Email",
+
+  ctxViewProfile: "View profile",
+  ctxViewKpi: "View KPI",
+  ctxChangeRole: "Change role",
+  ctxChangeJobTitle: "Change job title",
+  ctxChangeTeam: "Change team",
+  ctxChangeEmployment: "Change status",
+  ctxChangePhoto: "Change photo",
 }
 
 export const settings = { id, en }

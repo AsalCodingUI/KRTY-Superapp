@@ -16,13 +16,16 @@ import {
   statusOf,
 } from "@/page-slices/projects/ui/workspace/task-data"
 import type { TaskRow } from "@/page-slices/projects/ui/workspace/data"
+import { ContextTarget } from "@/shared/context-menu"
 import { useDateLocale, useT } from "@/shared/i18n/client"
+import { linkKey, projectHref } from "@/shared/lib/url-params"
 import { cx } from "@/shared/lib/utils"
 import {
   RiAddLine,
   RiArrowRightSLine,
   RiSubtractFill,
 } from "@/shared/ui/lucide-icons"
+import { ChevronsDownUp, ChevronsUpDown, ListTodo } from "lucide-react"
 import { useCalendarContext } from "@/widgets/event-calendar/ui/calendar-context"
 import { getTimelineRange } from "@/widgets/event-calendar/ui/utils"
 import {
@@ -311,136 +314,161 @@ export function ProjectTimeline({
                   ? differenceInCalendarDays(project.end, project.start) + 1
                   : 0
               return (
-                <div key={project.id} className="group flex">
-                  <div
-                    className={cx(
-                      labelCell,
-                      ROW,
-                      "gap-1.5 pr-2 pl-1.5 group-hover:bg-(--row-hover)",
-                    )}
-                    style={{ width: LABEL_WIDTH }}
-                  >
-                    <Button
-                      variant="ghost"
-                      size="icon-xs"
-                      className="text-muted-foreground"
-                      aria-label={
-                        open ? t("timelineHideTasks") : t("timelineShowTasks")
-                      }
-                      aria-expanded={open}
-                      onClick={() => toggle(project.id)}
-                      disabled={row.taskCount === 0}
+                // Right-click: Buka / tab baru / Salin link, show or hide
+                // its tasks.
+                <ContextTarget
+                  key={project.id}
+                  type="project"
+                  id={project.id}
+                  label={project.name}
+                  href={projectHref(project)}
+                  suppress={["button"]}
+                  items={() =>
+                    row.taskCount > 0
+                      ? [
+                          {
+                            id: "tasks",
+                            label: t(
+                              open ? "ctxProjectTasksHide" : "ctxProjectTasks",
+                            ),
+                            icon: open ? ChevronsDownUp : ChevronsUpDown,
+                            onSelect: () => toggle(project.id),
+                          },
+                        ]
+                      : []
+                  }
+                >
+                  <div className="group flex">
+                    <div
+                      className={cx(
+                        labelCell,
+                        ROW,
+                        "gap-1.5 pr-2 pl-1.5 group-hover:bg-(--row-hover)",
+                      )}
+                      style={{ width: LABEL_WIDTH }}
                     >
-                      <RiArrowRightSLine
-                        className={cx(
-                          "size-4 transition-transform",
-                          open && "rotate-90",
-                        )}
-                      />
-                    </Button>
-                    <ProjectAvatar id={project.id} name={project.name} />
-                    <Tooltip>
-                      <TooltipTrigger
-                        render={
-                          <span className="min-w-0 flex-1 truncate font-medium" />
+                      <Button
+                        variant="ghost"
+                        size="icon-xs"
+                        className="text-muted-foreground"
+                        aria-label={
+                          open ? t("timelineHideTasks") : t("timelineShowTasks")
                         }
+                        aria-expanded={open}
+                        onClick={() => toggle(project.id)}
+                        disabled={row.taskCount === 0}
                       >
-                        {project.name}
-                      </TooltipTrigger>
-                      <TooltipContent
-                        side="right"
-                        className="max-w-64 flex-col items-start gap-1 py-2"
-                      >
-                        <p className="font-medium">{project.name}</p>
-                        {project.members.length === 0 ? (
-                          <p className="opacity-70">{t("timelineNoTeam")}</p>
-                        ) : (
-                          <ul className="flex flex-col gap-0.5">
-                            {project.members.map((m) => (
-                              <li key={m.userId} className="opacity-80">
-                                {m.name}
-                                {m.isLead && (
-                                  <span className="opacity-60">
-                                    {` · ${t("timelineLead")}`}
-                                  </span>
-                                )}
-                              </li>
-                            ))}
-                          </ul>
-                        )}
-                      </TooltipContent>
-                    </Tooltip>
-                    {/* Same status icons as the project list. */}
-                    <Tooltip>
-                      <TooltipTrigger
-                        render={
-                          <span
-                            className="flex size-5 items-center justify-center"
-                            aria-label={tp(STATUS_LABEL_KEYS[project.status])}
-                          />
-                        }
-                      >
-                        <ProjectStatusIcon status={project.status} />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        {tp(STATUS_LABEL_KEYS[project.status])}
-                      </TooltipContent>
-                    </Tooltip>
-                  </div>
-                  <div
-                    className={cx(ROW, "relative border-b")}
-                    style={{ width: gridWidth }}
-                  >
-                    {bar ? (
+                        <RiArrowRightSLine
+                          className={cx(
+                            "size-4 transition-transform",
+                            open && "rotate-90",
+                          )}
+                        />
+                      </Button>
+                      <ProjectAvatar id={project.id} name={project.name} />
                       <Tooltip>
                         <TooltipTrigger
                           render={
-                            <div
-                              className="absolute top-1.5 bottom-1.5 flex items-center gap-2 overflow-hidden rounded-md bg-(--bar-tint) px-2 text-xs transition-colors hover:bg-(--bar-tint-hover)"
-                              style={
-                                {
-                                  left: bar.left,
-                                  width: bar.width,
-                                  "--bar-tint": `color-mix(in oklch, ${color} 16%, transparent)`,
-                                  "--bar-tint-hover": `color-mix(in oklch, ${color} 26%, transparent)`,
-                                } as React.CSSProperties
-                              }
+                            <span className="min-w-0 flex-1 truncate font-medium" />
+                          }
+                        >
+                          {project.name}
+                        </TooltipTrigger>
+                        <TooltipContent
+                          side="right"
+                          className="max-w-64 flex-col items-start gap-1 py-2"
+                        >
+                          <p className="font-medium">{project.name}</p>
+                          {project.members.length === 0 ? (
+                            <p className="opacity-70">{t("timelineNoTeam")}</p>
+                          ) : (
+                            <ul className="flex flex-col gap-0.5">
+                              {project.members.map((m) => (
+                                <li key={m.userId} className="opacity-80">
+                                  {m.name}
+                                  {m.isLead && (
+                                    <span className="opacity-60">
+                                      {` · ${t("timelineLead")}`}
+                                    </span>
+                                  )}
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </TooltipContent>
+                      </Tooltip>
+                      {/* Same status icons as the project list. */}
+                      <Tooltip>
+                        <TooltipTrigger
+                          render={
+                            <span
+                              className="flex size-5 items-center justify-center"
+                              aria-label={tp(STATUS_LABEL_KEYS[project.status])}
                             />
                           }
                         >
-                          <span className="min-w-0 flex-1 truncate font-medium">
-                            {project.name}
-                          </span>
-                          {bar.width > 120 && (
-                            <span className="text-muted-foreground shrink-0 tabular-nums">
-                              {daysLabel(duration)}
-                            </span>
-                          )}
+                          <ProjectStatusIcon status={project.status} />
                         </TooltipTrigger>
-                        <TooltipContent side="top">
-                          {project.name} ·{" "}
-                          {format(project.start!, "d MMM", {
-                            locale: dateLocale,
-                          })}{" "}
-                          –{" "}
-                          {format(project.end!, "d MMM yyyy", {
-                            locale: dateLocale,
-                          })}{" "}
-                          · {daysLabel(duration)}
+                        <TooltipContent>
+                          {tp(STATUS_LABEL_KEYS[project.status])}
                         </TooltipContent>
                       </Tooltip>
-                    ) : (
-                      <span
-                        className="text-muted-foreground sticky flex h-full items-center px-3 text-xs"
-                        style={{ left: LABEL_WIDTH }}
-                      >
-                        {project.start && project.end
-                          ? t("timelineOutOfRange")
-                          : t("timelineNoDates")}
-                      </span>
-                    )}
+                    </div>
+                    <div
+                      className={cx(ROW, "relative border-b")}
+                      style={{ width: gridWidth }}
+                    >
+                      {bar ? (
+                        <Tooltip>
+                          <TooltipTrigger
+                            render={
+                              <div
+                                className="absolute top-1.5 bottom-1.5 flex items-center gap-2 overflow-hidden rounded-md bg-(--bar-tint) px-2 text-xs transition-colors hover:bg-(--bar-tint-hover)"
+                                style={
+                                  {
+                                    left: bar.left,
+                                    width: bar.width,
+                                    "--bar-tint": `color-mix(in oklch, ${color} 16%, transparent)`,
+                                    "--bar-tint-hover": `color-mix(in oklch, ${color} 26%, transparent)`,
+                                  } as React.CSSProperties
+                                }
+                              />
+                            }
+                          >
+                            <span className="min-w-0 flex-1 truncate font-medium">
+                              {project.name}
+                            </span>
+                            {bar.width > 120 && (
+                              <span className="text-muted-foreground shrink-0 tabular-nums">
+                                {daysLabel(duration)}
+                              </span>
+                            )}
+                          </TooltipTrigger>
+                          <TooltipContent side="top">
+                            {project.name} ·{" "}
+                            {format(project.start!, "d MMM", {
+                              locale: dateLocale,
+                            })}{" "}
+                            –{" "}
+                            {format(project.end!, "d MMM yyyy", {
+                              locale: dateLocale,
+                            })}{" "}
+                            · {daysLabel(duration)}
+                          </TooltipContent>
+                        </Tooltip>
+                      ) : (
+                        <span
+                          className="text-muted-foreground sticky flex h-full items-center px-3 text-xs"
+                          style={{ left: LABEL_WIDTH }}
+                        >
+                          {project.start && project.end
+                            ? t("timelineOutOfRange")
+                            : t("timelineNoDates")}
+                        </span>
+                      )}
+                    </div>
                   </div>
-                </div>
+                </ContextTarget>
               )
             }
 
@@ -453,96 +481,114 @@ export function ProjectTimeline({
               due && !task.done && differenceInCalendarDays(due, today) < 0
             const color = projectColorVar(row.project.id)
             return (
-              <div key={task.id} className="group flex">
-                <button
-                  type="button"
-                  onClick={() => onOpenTask(task)}
-                  className={cx(
-                    labelCell,
-                    ROW,
-                    "cursor-pointer gap-2 pr-2 pl-8 text-left group-hover:bg-(--row-hover)",
-                  )}
-                  style={{ width: LABEL_WIDTH }}
-                >
-                  <StatusDot status={status} className="size-3.5 shrink-0" />
-                  <span
+              // Right-click: Buka tugas (the dialog), its page, copy link.
+              <ContextTarget
+                key={task.id}
+                type="task"
+                id={task.id}
+                label={task.title}
+                href={`${projectHref(row.project, "tasks")}?task=${linkKey(task.title, task.id)}`}
+                suppress={["button"]}
+                items={() => [
+                  {
+                    id: "open-task",
+                    label: t("ctxOpenTask"),
+                    icon: ListTodo,
+                    onSelect: () => onOpenTask(task),
+                  },
+                ]}
+              >
+                <div className="group flex">
+                  <button
+                    type="button"
+                    onClick={() => onOpenTask(task)}
                     className={cx(
-                      "min-w-0 flex-1 truncate",
-                      task.done && "text-muted-foreground line-through",
+                      labelCell,
+                      ROW,
+                      "cursor-pointer gap-2 pr-2 pl-8 text-left group-hover:bg-(--row-hover)",
                     )}
+                    style={{ width: LABEL_WIDTH }}
                   >
-                    {task.title}
-                  </span>
-                  {task.assigneeName && (
-                    <span className="text-muted-foreground max-w-20 shrink-0 truncate text-xs">
-                      {task.assigneeName.split(" ")[0]}
-                    </span>
-                  )}
-                </button>
-                <div
-                  className={cx(ROW, "relative border-b")}
-                  style={{ width: gridWidth }}
-                >
-                  {marker ? (
-                    <Tooltip>
-                      <TooltipTrigger
-                        render={
-                          <button
-                            type="button"
-                            onClick={() => onOpenTask(task)}
-                            aria-label={task.title}
-                            // A small card in the project's colour, from
-                            // the due day; overdue gets a red ring.
-                            className={cx(
-                              "absolute top-1.5 bottom-1.5 flex cursor-pointer items-center gap-1.5 rounded-md bg-(--bar-tint) px-1.5 transition-colors hover:bg-(--bar-tint-hover)",
-                              overdue && "ring-destructive ring-1 ring-inset",
-                            )}
-                            style={
-                              {
-                                left: marker.left,
-                                "--bar-tint": `color-mix(in oklch, ${color} 16%, transparent)`,
-                                "--bar-tint-hover": `color-mix(in oklch, ${color} 26%, transparent)`,
-                              } as React.CSSProperties
-                            }
-                          />
-                        }
-                      >
-                        <StatusDot
-                          status={status}
-                          className="size-3.5 shrink-0"
-                        />
-                        {dayWidth >= 20 && (
-                          <span
-                            className={cx(
-                              "max-w-48 truncate text-xs font-medium",
-                              task.done
-                                ? "text-muted-foreground line-through"
-                                : "text-foreground",
-                            )}
-                          >
-                            {task.title}
-                          </span>
-                        )}
-                      </TooltipTrigger>
-                      <TooltipContent side="top">
-                        {task.title} · {tp(STATUS_LABEL[status])} ·{" "}
-                        {t("timelineDue", {
-                          date: format(due!, "d MMM yyyy", {
-                            locale: dateLocale,
-                          }),
-                        })}
-                      </TooltipContent>
-                    </Tooltip>
-                  ) : (
+                    <StatusDot status={status} className="size-3.5 shrink-0" />
                     <span
-                      className="text-muted-foreground sticky flex h-full items-center px-3 text-xs"
-                      style={{ left: LABEL_WIDTH }}
+                      className={cx(
+                        "min-w-0 flex-1 truncate",
+                        task.done && "text-muted-foreground line-through",
+                      )}
                     >
-                      {due ? t("timelineOutOfRange") : t("timelineNoDue")}
+                      {task.title}
                     </span>
-                  )}
+                    {task.assigneeName && (
+                      <span className="text-muted-foreground max-w-20 shrink-0 truncate text-xs">
+                        {task.assigneeName.split(" ")[0]}
+                      </span>
+                    )}
+                  </button>
+                  <div
+                    className={cx(ROW, "relative border-b")}
+                    style={{ width: gridWidth }}
+                  >
+                    {marker ? (
+                      <Tooltip>
+                        <TooltipTrigger
+                          render={
+                            <button
+                              type="button"
+                              onClick={() => onOpenTask(task)}
+                              aria-label={task.title}
+                              // A small card in the project's colour, from
+                              // the due day; overdue gets a red ring.
+                              className={cx(
+                                "absolute top-1.5 bottom-1.5 flex cursor-pointer items-center gap-1.5 rounded-md bg-(--bar-tint) px-1.5 transition-colors hover:bg-(--bar-tint-hover)",
+                                overdue && "ring-destructive ring-1 ring-inset",
+                              )}
+                              style={
+                                {
+                                  left: marker.left,
+                                  "--bar-tint": `color-mix(in oklch, ${color} 16%, transparent)`,
+                                  "--bar-tint-hover": `color-mix(in oklch, ${color} 26%, transparent)`,
+                                } as React.CSSProperties
+                              }
+                            />
+                          }
+                        >
+                          <StatusDot
+                            status={status}
+                            className="size-3.5 shrink-0"
+                          />
+                          {dayWidth >= 20 && (
+                            <span
+                              className={cx(
+                                "max-w-48 truncate text-xs font-medium",
+                                task.done
+                                  ? "text-muted-foreground line-through"
+                                  : "text-foreground",
+                              )}
+                            >
+                              {task.title}
+                            </span>
+                          )}
+                        </TooltipTrigger>
+                        <TooltipContent side="top">
+                          {task.title} · {tp(STATUS_LABEL[status])} ·{" "}
+                          {t("timelineDue", {
+                            date: format(due!, "d MMM yyyy", {
+                              locale: dateLocale,
+                            }),
+                          })}
+                        </TooltipContent>
+                      </Tooltip>
+                    ) : (
+                      <span
+                        className="text-muted-foreground sticky flex h-full items-center px-3 text-xs"
+                        style={{ left: LABEL_WIDTH }}
+                      >
+                        {due ? t("timelineOutOfRange") : t("timelineNoDue")}
+                      </span>
+                    )}
+                  </div>
                 </div>
-              </div>
+              </ContextTarget>
             )
           })}
       </div>

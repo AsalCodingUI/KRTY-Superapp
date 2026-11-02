@@ -17,7 +17,13 @@ import {
   InboxCount,
 } from "@/page-slices/leave/ui/components/ApprovalInbox"
 import { useRouter } from "next/navigation"
-import { ClipboardCheck } from "lucide-react"
+import { ClipboardCheck, Copy, UserRound } from "lucide-react"
+import { ContextTarget } from "@/shared/context-menu"
+import { employeeHref } from "@/shared/lib/url-params"
+import {
+  LeaveRequestContextMenu,
+  useCopyWithToast,
+} from "@/page-slices/leave/ui/components/leave-context-menu"
 import type { AdminDashboardData } from "../actions/dashboard-admin-actions"
 import { AttendanceSplit, type SplitItem } from "./attendance-split"
 import { TeamKpiCard } from "./TeamKpiCard"
@@ -61,7 +67,16 @@ export function AdminDashboard({ data }: AdminDashboardProps) {
   const tl = useT("leave")
   const router = useRouter()
   const dateLocale = useDateLocale()
+  const tm = useT("ctxmenu")
+  const copy = useCopyWithToast()
   const firstName = profile?.full_name?.split(" ")[0] ?? ""
+  /** The approval inbox on /leave, opened on one request (or the list). */
+  const openInbox = (requestId?: string) =>
+    router.push(
+      requestId
+        ? `/leave?inbox=leave&request=${encodeURIComponent(requestId)}`
+        : "/leave?inbox=leave",
+    )
 
   const att = data.attendanceOverview
   const total = att.totalToday + att.onLeave + att.absent
@@ -128,20 +143,29 @@ export function AdminDashboard({ data }: AdminDashboardProps) {
       </HomeActions>
 
       <HomeGrid>
-        <HomeCard
-          title={t("adminAttendanceTitle")}
-          actions={
-            <HomeIconLink href="/leave/attendance" label={t("openAttendance")}>
-              <ArrowUpRight />
-            </HomeIconLink>
-          }
+        <ContextTarget
+          type="attendance-card"
+          label={t("adminAttendanceTitle")}
+          href="/leave/attendance"
         >
-          <HomeFigure
-            value={`${att.totalToday} / ${total}`}
-            unit={t("adminPresentUnit")}
-          />
-          <AttendanceSplit items={split} total={total} />
-        </HomeCard>
+          <HomeCard
+            title={t("adminAttendanceTitle")}
+            actions={
+              <HomeIconLink
+                href="/leave/attendance"
+                label={t("openAttendance")}
+              >
+                <ArrowUpRight />
+              </HomeIconLink>
+            }
+          >
+            <HomeFigure
+              value={`${att.totalToday} / ${total}`}
+              unit={t("adminPresentUnit")}
+            />
+            <AttendanceSplit items={split} total={total} />
+          </HomeCard>
+        </ContextTarget>
 
         <HomeCard
           className="max-md:hidden"
@@ -164,11 +188,31 @@ export function AdminDashboard({ data }: AdminDashboardProps) {
             {reviews.length === 0 ? (
               <HomeEmpty>{t("adminReviewsAllDone")}</HomeEmpty>
             ) : (
-              reviews
-                .slice(0, 5)
-                .map((r) => (
+              reviews.slice(0, 5).map((r) => (
+                // Right-click: the review page (the row's link), and
+                // the person's profile.
+                <ContextTarget
+                  key={`${r.employee_id}-${r.cycle_id}`}
+                  type="pending-review"
+                  label={r.employee_name ?? undefined}
+                  href="/performance/360-review"
+                  items={() => [
+                    {
+                      id: "profile",
+                      label: tl("ctxOpenProfile"),
+                      icon: UserRound,
+                      access: ["stakeholder"],
+                      onSelect: () =>
+                        router.push(
+                          employeeHref({
+                            id: r.employee_id,
+                            full_name: r.employee_name,
+                          }),
+                        ),
+                    },
+                  ]}
+                >
                   <HomeRow
-                    key={`${r.employee_id}-${r.cycle_id}`}
                     href="/performance/360-review"
                     leading={
                       <Person name={r.employee_name} src={r.employee_avatar} />
@@ -181,61 +225,89 @@ export function AdminDashboard({ data }: AdminDashboardProps) {
                       </span>
                     }
                   />
-                ))
+                </ContextTarget>
+              ))
             )}
           </div>
         </HomeCard>
       </HomeGrid>
 
       <HomeGrid>
-        <HomeCard
-          title={t("leaveTitle")}
-          actions={
-            <HomeIconLink href="/leave" label={t("openLeave")}>
-              <ArrowUpRight />
-            </HomeIconLink>
-          }
+        <ContextTarget
+          type="leave-card"
+          label={t("leaveTitle")}
+          href="/leave"
+          items={() => [
+            {
+              id: "inbox",
+              label: tl("inbox"),
+              icon: Inbox,
+              hint: leaves.length > 0 ? String(leaves.length) : undefined,
+              onSelect: () => openInbox(),
+            },
+          ]}
         >
-          <HomeStats
-            items={[
-              // Counts: 0 is an answer, not missing data.
-              { label: t("adminLeavePending"), value: leaves.length },
-              { label: t("adminLeaveToday"), value: att.onLeave },
-              { label: t("splitAbsent"), value: att.absent },
-            ]}
-          />
-          <div className="flex flex-1 flex-col">
-            {leaves.length === 0 && (
-              <HomeEmpty>{t("adminLeaveNonePending")}</HomeEmpty>
-            )}
-            {leaves.slice(0, 3).map((l) => (
-              <HomeRow
-                key={l.id}
-                href="/leave"
-                leading={<Person name={l.user_name} src={l.user_avatar} />}
-                title={l.user_name}
-                subtitle={l.leave_type}
-                trailing={
-                  <span className="text-muted-foreground text-[13px]">
-                    {t(l.days_requested === 1 ? "daysCountOne" : "daysCount", {
-                      n: l.days_requested,
-                    })}
-                  </span>
-                }
-              />
-            ))}
-          </div>
-          <HomeFooter
-            label={t("adminLeaveAwaitingApproval")}
-            value={t(
-              leaves.length === 1
-                ? "adminLeaveRequestsCountOne"
-                : "adminLeaveRequestsCount",
-              { n: leaves.length },
-            )}
-            href="/leave"
-          />
-        </HomeCard>
+          <HomeCard
+            title={t("leaveTitle")}
+            actions={
+              <HomeIconLink href="/leave" label={t("openLeave")}>
+                <ArrowUpRight />
+              </HomeIconLink>
+            }
+          >
+            <HomeStats
+              items={[
+                // Counts: 0 is an answer, not missing data.
+                { label: t("adminLeavePending"), value: leaves.length },
+                { label: t("adminLeaveToday"), value: att.onLeave },
+                { label: t("splitAbsent"), value: att.absent },
+              ]}
+            />
+            <div className="flex flex-1 flex-col">
+              {leaves.length === 0 && (
+                <HomeEmpty>{t("adminLeaveNonePending")}</HomeEmpty>
+              )}
+              {leaves.slice(0, 3).map((l) => (
+                // Right-click: review it in the inbox (on /leave), the
+                // person, the dates.
+                <LeaveRequestContextMenu
+                  key={l.id}
+                  req={{ ...l, status: "pending" }}
+                  person={l.user_name}
+                  calendar="team"
+                  actions={{ onReviewInInbox: () => openInbox(l.id) }}
+                >
+                  <HomeRow
+                    href="/leave"
+                    leading={<Person name={l.user_name} src={l.user_avatar} />}
+                    title={l.user_name}
+                    subtitle={l.leave_type}
+                    trailing={
+                      <span className="text-muted-foreground text-[13px]">
+                        {t(
+                          l.days_requested === 1 ? "daysCountOne" : "daysCount",
+                          {
+                            n: l.days_requested,
+                          },
+                        )}
+                      </span>
+                    }
+                  />
+                </LeaveRequestContextMenu>
+              ))}
+            </div>
+            <HomeFooter
+              label={t("adminLeaveAwaitingApproval")}
+              value={t(
+                leaves.length === 1
+                  ? "adminLeaveRequestsCountOne"
+                  : "adminLeaveRequestsCount",
+                { n: leaves.length },
+              )}
+              href="/leave"
+            />
+          </HomeCard>
+        </ContextTarget>
 
         <div className="contents max-md:hidden">
           <TeamKpiCard data={data} />
@@ -248,31 +320,47 @@ export function AdminDashboard({ data }: AdminDashboardProps) {
         ) : (
           <div className="flex flex-col">
             {data.recentActivities.slice(0, 8).map((a) => (
-              <HomeRow
+              <ContextTarget
                 key={a.id}
-                leading={<Person name={a.user_name} src={a.user_avatar} />}
-                title={
-                  <>
-                    <span className="font-medium">
-                      {a.user_name || t("unknownUser")}
-                    </span>{" "}
-                    <span className="text-muted-foreground">
-                      {a.description}
+                type="activity"
+                label={a.user_name ?? t("unknownUser")}
+                items={() => [
+                  {
+                    id: "copy",
+                    label: tm("copy"),
+                    icon: Copy,
+                    onSelect: () =>
+                      copy(
+                        `${a.user_name || t("unknownUser")} ${a.description}`,
+                      ),
+                  },
+                ]}
+              >
+                <HomeRow
+                  leading={<Person name={a.user_name} src={a.user_avatar} />}
+                  title={
+                    <>
+                      <span className="font-medium">
+                        {a.user_name || t("unknownUser")}
+                      </span>{" "}
+                      <span className="text-muted-foreground">
+                        {a.description}
+                      </span>
+                    </>
+                  }
+                  trailing={
+                    <span
+                      className="text-tertiary-foreground text-[13px]"
+                      suppressHydrationWarning
+                    >
+                      {formatDistanceToNowStrict(new Date(a.timestamp), {
+                        locale: dateLocale,
+                        addSuffix: true,
+                      })}
                     </span>
-                  </>
-                }
-                trailing={
-                  <span
-                    className="text-tertiary-foreground text-[13px]"
-                    suppressHydrationWarning
-                  >
-                    {formatDistanceToNowStrict(new Date(a.timestamp), {
-                      locale: dateLocale,
-                      addSuffix: true,
-                    })}
-                  </span>
-                }
-              />
+                  }
+                />
+              </ContextTarget>
             ))}
           </div>
         )}

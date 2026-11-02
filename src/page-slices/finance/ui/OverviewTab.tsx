@@ -44,6 +44,9 @@ import {
   type InvoiceLite,
   type Subscription,
 } from "@/entities/finance/lib/money"
+import { ContextTarget, copyText } from "@/shared/context-menu"
+import { Copy, Printer } from "lucide-react"
+import { toast } from "sonner"
 import { useMoneyFormat } from "../model/hide-money"
 import { Donut, NameTile, StatTiles } from "./parts"
 
@@ -297,6 +300,7 @@ function OpenInvoices({
 }) {
   const { rupiahShort } = useMoneyFormat()
   const t = useT("finance")
+  const tm = useT("ctxmenu")
   const locale = useLocale()
   const dateLocale = useDateLocale()
   const lateBy = (inv: InvoiceLite) =>
@@ -367,48 +371,84 @@ function OpenInvoices({
             .map((inv) => {
               const days = lateBy(inv)
               return (
-                <HomeRow
+                // Right-click: Buka (the project's invoices), the number,
+                // the print page.
+                <ContextTarget
                   key={inv.id}
+                  type="invoice"
+                  id={inv.id}
+                  label={inv.invoice_number}
                   href={
                     inv.project
                       ? projectHref(inv.project, "invoices")
                       : undefined
                   }
-                  leading={
-                    <NameTile
-                      name={clientOf(inv, t("noClient"))}
-                      className="size-7"
-                    />
-                  }
-                  title={clientOf(inv, t("noClient"))}
-                  subtitle={
-                    <>
-                      {inv.invoice_number} ·{" "}
-                      {t("dueOn", {
-                        date: format(parseISO(inv.due_date), "d MMM", {
-                          locale: dateLocale,
-                        }),
-                      })}{" "}
-                      ·{" "}
-                      <span
-                        className={cn(
-                          days > 30
-                            ? "text-destructive"
-                            : days > 0
-                              ? "text-warning"
-                              : "text-success-ink",
-                        )}
-                      >
-                        {days > 0
-                          ? t("lateDays", { n: days })
-                          : days === 0
-                            ? t("dueToday")
-                            : t("inDays", { n: -days })}
-                      </span>
-                    </>
-                  }
-                  trailing={<OwedAmount inv={inv} rates={rates} />}
-                />
+                  items={() => [
+                    {
+                      id: "copy-number",
+                      label: t("ctxCopyInvoiceNumber"),
+                      icon: Copy,
+                      onSelect: async () => {
+                        if (await copyText(inv.invoice_number))
+                          toast.success(tm("copied"))
+                        else toast.error(tm("copyFailed"))
+                      },
+                    },
+                    {
+                      id: "print",
+                      label: t("ctxPrintInvoice"),
+                      icon: Printer,
+                      onSelect: () =>
+                        void window.open(
+                          `/invoice-print/${inv.id}`,
+                          "_blank",
+                          "noopener",
+                        ),
+                    },
+                  ]}
+                >
+                  <HomeRow
+                    href={
+                      inv.project
+                        ? projectHref(inv.project, "invoices")
+                        : undefined
+                    }
+                    leading={
+                      <NameTile
+                        name={clientOf(inv, t("noClient"))}
+                        className="size-7"
+                      />
+                    }
+                    title={clientOf(inv, t("noClient"))}
+                    subtitle={
+                      <>
+                        {inv.invoice_number} ·{" "}
+                        {t("dueOn", {
+                          date: format(parseISO(inv.due_date), "d MMM", {
+                            locale: dateLocale,
+                          }),
+                        })}{" "}
+                        ·{" "}
+                        <span
+                          className={cn(
+                            days > 30
+                              ? "text-destructive"
+                              : days > 0
+                                ? "text-warning"
+                                : "text-success-ink",
+                          )}
+                        >
+                          {days > 0
+                            ? t("lateDays", { n: days })
+                            : days === 0
+                              ? t("dueToday")
+                              : t("inDays", { n: -days })}
+                        </span>
+                      </>
+                    }
+                    trailing={<OwedAmount inv={inv} rates={rates} />}
+                  />
+                </ContextTarget>
               )
             })}
         </div>

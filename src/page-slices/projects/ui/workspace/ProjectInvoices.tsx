@@ -25,7 +25,23 @@ import { toast } from "sonner"
 import type { InvoiceRecord } from "../invoice/InvoiceEditorDialog"
 import { createClient } from "@/shared/api/supabase/client"
 import { useViewMode, ViewToggle } from "@/components/view-toggle"
-import { nextInvoiceNumber } from "@/entities/finance/lib/invoice"
+import {
+  deriveStatus,
+  invoiceTotals,
+  nextInvoiceNumber,
+  type InvoiceLine,
+  type ScheduleItem,
+} from "@/entities/finance/lib/invoice"
+import { ContextTarget, copyText, type CtxItem } from "@/shared/context-menu"
+import {
+  CheckCircle2,
+  Copy,
+  CopyPlus,
+  Download,
+  Pencil,
+  Printer,
+  Trash2,
+} from "lucide-react"
 import { addDays } from "date-fns"
 import { useAgency } from "../invoice/data"
 import {
@@ -283,6 +299,117 @@ export function ProjectInvoices({ projectId }: { projectId: string }) {
       : []),
   ]
 
+  const tm = useT("ctxmenu")
+  /** Every term paid, the way the editor saves it when they're all ticked. */
+  const markPaid = async (inv: InvoiceRecord) => {
+    const now = new Date().toISOString()
+    const schedule = ((inv.payment_schedule ?? []) as ScheduleItem[]).map(
+      (item) => ({
+        ...item,
+        status: "paid" as const,
+        paid_at: item.paid_at ?? now,
+      }),
+    )
+    const lines = (inv.line_items ?? []) as InvoiceLine[]
+    const status = schedule.length
+      ? deriveStatus("Sent", schedule, inv.due_date)
+      : ("Paid" as const)
+    const paid = schedule.length
+      ? invoiceTotals(lines, schedule).paid
+      : Number(inv.amount_idr) || 0
+    const { error } = await createClient()
+      .from("project_invoices")
+      .update({
+        status,
+        amount_paid_idr: paid,
+        payment_schedule:
+          schedule as unknown as InvoiceRecord["payment_schedule"],
+        updated_at: now,
+      })
+      .eq("id", inv.id)
+    if (error) return void toast.error(ti("errSave"))
+    toast.success(ti("ctxMarkedPaid", { number: inv.invoice_number }))
+    await refresh()
+  }
+
+  /**
+   * Right-click on a card or row: the ⋯ menu's actions plus print, copy
+   * the number and mark paid. Editing stays with stakeholders; PMs read.
+   */
+  const invoiceItems = (inv: InvoiceRecord): CtxItem[] => {
+    const admin = viewer.isAdmin
+    const items: (CtxItem & { hidden?: boolean })[] = [
+      {
+        id: "open",
+        label: tc("edit"),
+        icon: Pencil,
+        hidden: !admin,
+        onSelect: () => openEditor(inv),
+      },
+      {
+        id: "pdf",
+        label: t("downloadPdf"),
+        icon: Download,
+        onSelect: () => download(inv),
+      },
+      {
+        id: "print",
+        label: ti("ctxOpenPrint"),
+        icon: Printer,
+        onSelect: () =>
+          void window.open(`/invoice-print/${inv.id}`, "_blank", "noopener"),
+      },
+      {
+        id: "copy-number",
+        label: ti("ctxCopyNumber"),
+        icon: Copy,
+        onSelect: async () => {
+          if (await copyText(inv.invoice_number)) toast.success(tm("copied"))
+          else toast.error(tm("copyFailed"))
+        },
+      },
+      {
+        id: "paid",
+        label: ti("ctxMarkPaid"),
+        icon: CheckCircle2,
+        hidden: !admin || !isOpen(inv),
+        confirm: true,
+        onSelect: () => markPaid(inv),
+      },
+      {
+        id: "duplicate",
+        label: t("duplicate"),
+        icon: CopyPlus,
+        hidden: !admin,
+        onSelect: () => duplicate(inv),
+      },
+      {
+        id: "delete",
+        label: tc("delete"),
+        icon: Trash2,
+        destructive: true,
+        hidden: !admin,
+        // The dialog asks first.
+        onSelect: () => setDeleting(inv),
+      },
+    ]
+    return items.filter((item) => !item.hidden)
+  }
+  const target = (
+    inv: InvoiceRecord,
+    child: React.ReactElement<Record<string, unknown>>,
+  ) => (
+    <ContextTarget
+      key={inv.id}
+      type="invoice"
+      id={inv.id}
+      label={inv.invoice_number}
+      items={() => invoiceItems(inv)}
+    >
+      {child}
+    </ContextTarget>
+  )
+
   const visible = useMemo(
     () =>
       invoices.filter((inv) =>
@@ -375,9 +502,9 @@ export function ProjectInvoices({ projectId }: { projectId: string }) {
             {visible.map((inv) => {
               const status = STATUS[inv.status] ?? STATUS.Draft
               const cur = inv.currency ?? "IDR"
-              return (
+              return target(
+                inv,
                 <div
-                  key={inv.id}
                   role="button"
                   tabIndex={viewer.isAdmin ? 0 : -1}
                   onClick={() => openEditor(inv)}
@@ -421,7 +548,7 @@ export function ProjectInvoices({ projectId }: { projectId: string }) {
                     </div>
                     <RowMenu label={inv.invoice_number} items={menu(inv)} />
                   </div>
-                </div>
+                </div>,
               )
             })}
           </div>
@@ -453,9 +580,9 @@ export function ProjectInvoices({ projectId }: { projectId: string }) {
                 const total = Number(inv.amount_idr) || 0
                 const paid = Number(inv.amount_paid_idr) || 0
                 const late = due(inv)
-                return (
+                return target(
+                  inv,
                   <div
-                    key={inv.id}
                     role="row"
                     tabIndex={viewer.isAdmin ? 0 : undefined}
                     onClick={() => openEditor(inv)}
@@ -517,7 +644,7 @@ export function ProjectInvoices({ projectId }: { projectId: string }) {
                       )}
                     </div>
                     <RowMenu label={inv.invoice_number} items={menu(inv)} />
-                  </div>
+                  </div>,
                 )
               })}
             </div>

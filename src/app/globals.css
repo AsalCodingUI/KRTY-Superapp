@@ -531,11 +531,11 @@
   --backdrop: rgb(0 0 0 / 55%);
   /* Neutral graphite palette (design-tool inspector style): dark canvas,
      lifted panels, solid gray fields, navy/sky-blue accent. */
-  --background: oklch(0.185 var(--tint-ink) var(--tint-h));
+  --background: oklch(0.235 var(--tint-ink) var(--tint-h));
   --foreground: oklch(0.935 0 0);
-  --card: oklch(0.215 var(--tint-ink) var(--tint-h));
+  --card: oklch(0.265 var(--tint-ink) var(--tint-h));
   --card-foreground: oklch(0.935 0 0);
-  --popover: oklch(0.24 var(--tint-ink) var(--tint-h));
+  --popover: oklch(0.265 var(--tint-ink) var(--tint-h));
   --popover-foreground: oklch(0.935 0 0);
   /* Dark: a light shade of the theme, with dark text on it. All or nothing
      (any tint switches it): halfway between blue with white text and the
@@ -568,7 +568,7 @@
   --warning-foreground: oklch(0.2 0.02 75);
   --info: var(--blue-9);
   --info-foreground: #ffffff;
-  --border: oklch(0.25 var(--tint-ink) var(--tint-h));
+  --border: oklch(0.3 var(--tint-ink) var(--tint-h));
   --input: oklch(1 0 0 / 9%);
   --field: oklch(1 0 0 / 4.5%);
   --field-hover: oklch(1 0 0 / 6.3%);
@@ -580,9 +580,9 @@
   --chart-4: oklch(0.555 0.163 48.998);
   --chart-5: oklch(0.473 0.137 46.201);
   --chrome: oklch(
-    calc(0.165 + var(--tint-c) * 0.02) calc(var(--tint-c) * 0.06) var(--tint-h)
+    calc(0.215 + var(--tint-c) * 0.02) calc(var(--tint-c) * 0.06) var(--tint-h)
   );
-  --grad-l: 0.22;
+  --grad-l: 0.27;
   --grad-c: 0.075;
   --chrome-hover: oklch(1 0 0 / 6%);
   --chrome-active: oklch(1 0 0 / 14%);
@@ -600,16 +600,16 @@
   --elev-5:
     0 0 0 1px oklch(1 0 0 / 0.07), 0 36px 84px -18px oklch(0 0 0 / 0.42);
   --sidebar: var(--chrome);
-  --surface: oklch(0.2 var(--tint-ink) var(--tint-h));
-  --dialog-shell: oklch(0.215 var(--tint-ink) var(--tint-h));
-  --dialog-panel: oklch(0.26 var(--tint-ink) var(--tint-h));
+  --surface: oklch(0.25 var(--tint-ink) var(--tint-h));
+  --dialog-shell: oklch(0.24 var(--tint-ink) var(--tint-h));
+  --dialog-panel: oklch(0.285 var(--tint-ink) var(--tint-h));
   --sidebar-foreground: oklch(0.935 0 0);
   --sidebar-primary: var(--primary);
   --sidebar-primary-foreground: var(--primary-foreground);
   --sidebar-accent: var(--chrome-hover);
   --sidebar-active: var(--chrome-active);
   --sidebar-accent-foreground: oklch(0.96 0 0);
-  --sidebar-border: oklch(0.255 var(--tint-ink) var(--tint-h));
+  --sidebar-border: oklch(0.305 var(--tint-ink) var(--tint-h));
   --sidebar-ring: var(--ring);
   --row-surface: var(--surface);
   --row-hover: color-mix(in oklch, var(--foreground) 4%, var(--surface));
@@ -925,4 +925,11 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* Light ↔ dark (useThemeTransition): a quick cross-fade of the whole page. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.3s;
+  animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
 }

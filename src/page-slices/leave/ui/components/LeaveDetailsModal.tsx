@@ -19,6 +19,7 @@ import { format } from "date-fns"
 import { useMemo, useState } from "react"
 import { formatLeaveRange, leaveDays } from "./AdminLeaveList"
 import { EmployeeLeaveList } from "./EmployeeLeaveList"
+import { LeaveRequestContextMenu } from "./leave-context-menu"
 
 type LeaveRequest = Database["public"]["Tables"]["leave_requests"]["Row"]
 
@@ -183,71 +184,76 @@ function CurrentRequestCard({
   ]
 
   return (
-    <div className="border-border flex flex-col gap-4 rounded-2xl border p-4">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="flex min-w-0 flex-col gap-0.5">
-          <span className="text-foreground tabular-nums">
-            {formatLeaveRange(req.start_date, req.end_date, dateLocale)}
-          </span>
-          <span className="text-muted-foreground text-[13px]">
-            {leaveTypeLabel(req.leave_type, t)} ·{" "}
-            {t(daysKey(days), { n: days })}
-            {req.reason ? ` · ${req.reason}` : ""}
-          </span>
-        </div>
-        <Badge variant={STATUS_VARIANT[req.status]}>
-          {leaveStatusLabel(req.status, t)}
-        </Badge>
-      </div>
-
-      <ol className="grid grid-cols-3 gap-2">
-        {steps.map((step) => (
-          <li key={step.label} className="flex flex-col gap-1.5">
-            <span
-              aria-hidden
-              className={cn(
-                "h-1 rounded-full",
-                step.state === "done" && "bg-success-ink",
-                step.state === "current" && "bg-warning",
-                step.state === "failed" && "bg-destructive",
-                step.state === "todo" && "bg-muted",
-              )}
-            />
-            <span
-              className={cn(
-                "text-[13px]",
-                step.state === "todo"
-                  ? "text-tertiary-foreground"
-                  : "text-foreground",
-              )}
-            >
-              {step.label}
+    <LeaveRequestContextMenu
+      req={req}
+      actions={{ onEdit: () => onEdit(req), onCancel: () => onCancel(req) }}
+    >
+      <div className="border-border flex flex-col gap-4 rounded-2xl border p-4">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="flex min-w-0 flex-col gap-0.5">
+            <span className="text-foreground tabular-nums">
+              {formatLeaveRange(req.start_date, req.end_date, dateLocale)}
             </span>
-            {step.hint && (
-              <span className="text-tertiary-foreground text-xs tabular-nums">
-                {step.hint}
-              </span>
-            )}
-          </li>
-        ))}
-      </ol>
-
-      {req.review_note && (
-        <p className="text-muted-foreground text-[13px]">
-          {t("reviewNote", { note: req.review_note })}
-        </p>
-      )}
-
-      {req.status === "pending" && (
-        <div className="flex justify-end gap-2">
-          <Button variant="ghost" size="sm" onClick={() => onCancel(req)}>
-            {t("cancelAction")}
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => onEdit(req)}>
-            {t("changeDates")}
-          </Button>
+            <span className="text-muted-foreground text-[13px]">
+              {leaveTypeLabel(req.leave_type, t)} ·{" "}
+              {t(daysKey(days), { n: days })}
+              {req.reason ? ` · ${req.reason}` : ""}
+            </span>
+          </div>
+          <Badge variant={STATUS_VARIANT[req.status]}>
+            {leaveStatusLabel(req.status, t)}
+          </Badge>
         </div>
-      )}
-    </div>
+
+        <ol className="grid grid-cols-3 gap-2">
+          {steps.map((step) => (
+            <li key={step.label} className="flex flex-col gap-1.5">
+              <span
+                aria-hidden
+                className={cn(
+                  "h-1 rounded-full",
+                  step.state === "done" && "bg-success-ink",
+                  step.state === "current" && "bg-warning",
+                  step.state === "failed" && "bg-destructive",
+                  step.state === "todo" && "bg-muted",
+                )}
+              />
+              <span
+                className={cn(
+                  "text-[13px]",
+                  step.state === "todo"
+                    ? "text-tertiary-foreground"
+                    : "text-foreground",
+                )}
+              >
+                {step.label}
+              </span>
+              {step.hint && (
+                <span className="text-tertiary-foreground text-xs tabular-nums">
+                  {step.hint}
+                </span>
+              )}
+            </li>
+          ))}
+        </ol>
+
+        {req.review_note && (
+          <p className="text-muted-foreground text-[13px]">
+            {t("reviewNote", { note: req.review_note })}
+          </p>
+        )}
+
+        {req.status === "pending" && (
+          <div className="flex justify-end gap-2">
+            <Button variant="ghost" size="sm" onClick={() => onCancel(req)}>
+              {t("cancelAction")}
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => onEdit(req)}>
+              {t("changeDates")}
+            </Button>
+          </div>
+        )}
+      </div>
+    </LeaveRequestContextMenu>
   )
 }

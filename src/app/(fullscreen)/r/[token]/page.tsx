@@ -2,32 +2,73 @@ import { AppIcon } from "@/components/app-icon"
 import { ThemeToggleButton } from "@/components/theme-toggle-button"
 import { PageTranslator } from "@/components/page-translator"
 import { Markdown } from "@/components/markdown"
-import { createAdminClient } from "@/shared/api/supabase/admin"
 import { clientSafeMarkdown } from "@/shared/lib/storage-proxy"
-import { getDateLocale, getT } from "@/shared/i18n/server"
+import { getDateLocale, getLocale, getT } from "@/shared/i18n/server"
 import { format, parseISO } from "date-fns"
 import type { Metadata } from "next"
 import { after } from "next/server"
 import { notFound, redirect } from "next/navigation"
-import { reportKey, reportTokensOf } from "@/shared/lib/portal-docs"
+import { reportKey } from "@/shared/lib/portal-docs"
 import { pendingReportView, saveReportView } from "@/shared/lib/report-views"
+import { markdownExcerpt } from "@/shared/lib/og-text"
+import { ogLocale, publicOrigin, SITE_NAME } from "@/shared/og/site"
+import { sharedReport } from "./shared-report"
 
 export const dynamic = "force-dynamic"
 
-// A client link: never in search results, never shared further by previews.
-export const metadata: Metadata = {
-  robots: { index: false, follow: false },
-  referrer: "no-referrer",
-}
-
-type SharedReport = {
-  id: string
-  share_token: string
-  title: string
-  body: string
-  report_date: string
-  updated_at: string
-  project: { name: string } | null
+// A client link: never in search results, but chat apps may still unfurl
+// it (title, a short excerpt and a share card from opengraph-image.tsx,
+// all on the public client host). An unknown link gets the studio's card.
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ token: string }>
+}): Promise<Metadata> {
+  const { token: key } = await params
+  const [report, origin, locale] = await Promise.all([
+    sharedReport(key),
+    publicOrigin(),
+    getLocale(),
+  ])
+  const base: Metadata = {
+    metadataBase: new URL(origin),
+    robots: { index: false, follow: false },
+    referrer: "no-referrer",
+  }
+  if (!report) {
+    return {
+      ...base,
+      title: SITE_NAME,
+      description: "A link shared by Kretya Studio.",
+      openGraph: { siteName: SITE_NAME, type: "website", title: SITE_NAME },
+      twitter: { card: "summary_large_image", title: SITE_NAME },
+    }
+  }
+  const project = report.project?.name
+  const title = project ? `${report.title} · ${project}` : report.title
+  const description =
+    markdownExcerpt(report.body) ||
+    (project
+      ? `A project report for ${project} from Kretya Studio.`
+      : "A project report from Kretya Studio.")
+  const canonical = `/r/${reportKey(project, report.share_token)}`
+  return {
+    ...base,
+    title,
+    description,
+    alternates: { canonical },
+    openGraph: {
+      type: "article",
+      siteName: SITE_NAME,
+      title,
+      description,
+      url: canonical,
+      locale: ogLocale(locale),
+      publishedTime: report.report_date,
+      modifiedTime: report.updated_at,
+    },
+    twitter: { card: "summary_large_image", title, description },
+  }
 }
 
 /**
@@ -41,18 +82,7 @@ export default async function SharedReportPage({
   params: Promise<{ token: string }>
 }) {
   const { token: key } = await params
-  if (!/^[A-Za-z0-9_-]{12,120}$/.test(key)) notFound()
-
-  // `<project-name>-<token>`, or a bare token (older links).
-  const { data } = await createAdminClient()
-    .from("project_reports" as never)
-    .select(
-      "id, share_token, title, body, report_date, updated_at, project:projects ( name )",
-    )
-    .in("share_token" as never, reportTokensOf(key) as never)
-    .limit(1)
-    .maybeSingle()
-  const report = data as unknown as SharedReport | null
+  const report = await sharedReport(key)
   if (!report) notFound()
 
   // A short token wears the project's current name (renamed → redirect).

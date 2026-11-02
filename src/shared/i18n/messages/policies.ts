@@ -242,6 +242,7 @@ const id = {
   errDiscardFailed: "Gagal membuang draf.",
   errArchiveFailed: "Gagal mengubah status aturan.",
   errDeleteFailed: "Gagal menghapus aturan.",
+  ctxCopyTitle: "Salin judul",
 }
 
 const en: Record<keyof typeof id, string> = {
@@ -476,6 +477,7 @@ const en: Record<keyof typeof id, string> = {
   errDiscardFailed: "Failed to discard the draft.",
   errArchiveFailed: "Failed to change the rule's status.",
   errDeleteFailed: "Failed to delete the rule.",
+  ctxCopyTitle: "Copy title",
 }
 
 export const policies = { id, en }

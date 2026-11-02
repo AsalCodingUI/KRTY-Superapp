@@ -4,9 +4,24 @@ import { Button } from "@/components/ui/button"
 import { useDateLocale, useT } from "@/shared/i18n/client"
 import { logError } from "@/shared/lib/utils/logger"
 import { RiFileCopyLine } from "@/shared/ui/lucide-icons"
-import { format } from "date-fns"
+import { format, type Locale } from "date-fns"
 import { useState } from "react"
 import type { CalendarEvent } from "../types"
+
+/** The event as plain text to paste (title, place, time, notes, link). */
+export function eventDetailsText(
+  event: CalendarEvent,
+  noLocation: string,
+  dateLocale: Locale,
+) {
+  return `
+📅 ${event.title}
+📍 ${event.location || noLocation}
+🕐 ${format(event.start, "PPP p", { locale: dateLocale })} - ${format(event.end, "p", { locale: dateLocale })}
+${event.description ? `\n📝 ${event.description}` : ""}
+${event.meetingUrl ? `\n🔗 ${event.meetingUrl}` : ""}
+        `.trim()
+}
 
 interface CopyEventButtonProps {
   event: CalendarEvent
@@ -19,13 +34,11 @@ export function CopyEventButton({ event, className }: CopyEventButtonProps) {
   const [copied, setCopied] = useState(false)
 
   const handleCopy = async () => {
-    const eventDetails = `
-📅 ${event.title}
-📍 ${event.location || t("copyNoLocation")}
-🕐 ${format(event.start, "PPP p", { locale: dateLocale })} - ${format(event.end, "p", { locale: dateLocale })}
-${event.description ? `\n📝 ${event.description}` : ""}
-${event.meetingUrl ? `\n🔗 ${event.meetingUrl}` : ""}
-        `.trim()
+    const eventDetails = eventDetailsText(
+      event,
+      t("copyNoLocation"),
+      dateLocale,
+    )
 
     try {
       await navigator.clipboard.writeText(eventDetails)

@@ -51,6 +51,9 @@ const id = {
   notificationsLoadFailed: "Notifikasi gagal dimuat",
   notificationsEmpty: "Belum ada notifikasi",
   notificationsDelete: "Hapus notifikasi",
+  notificationsMarkRead: "Tandai dibaca",
+  notificationsMarkUnread: "Tandai belum dibaca",
+  notificationsShow: "Tampilkan",
 
   // Announcement banner (published rules)
   announcementRead: "Baca",
@@ -188,6 +191,9 @@ const en: Record<keyof typeof id, string> = {
   notificationsLoadFailed: "Couldn't load notifications",
   notificationsEmpty: "No notifications yet",
   notificationsDelete: "Delete notification",
+  notificationsMarkRead: "Mark as read",
+  notificationsMarkUnread: "Mark as unread",
+  notificationsShow: "Show",
 
   // Announcement banner (published rules)
   announcementRead: "Read",

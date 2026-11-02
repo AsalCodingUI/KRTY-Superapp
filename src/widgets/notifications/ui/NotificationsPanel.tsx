@@ -22,6 +22,23 @@ import {
 import { format, formatDistanceToNowStrict } from "date-fns"
 import Link from "next/link"
 import { useMemo, useState, type MouseEvent as ReactMouseEvent } from "react"
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
+import {
+  ContextTarget,
+  copyText,
+  useContextTarget,
+  type CtxItem,
+} from "@/shared/context-menu"
+import {
+  AppWindow,
+  CheckCheck,
+  ExternalLink,
+  Link as LinkIcon,
+  Mail,
+  MailOpen,
+  Megaphone,
+} from "lucide-react"
 import { AnnouncementDialog } from "./AnnouncementDialog"
 import {
   BellFilled,
@@ -67,6 +84,7 @@ export interface NotificationsPanelProps extends Pick<
   | "loading"
   | "isError"
   | "markAsRead"
+  | "markAsUnread"
   | "markAllAsRead"
   | "deleteNotification"
 > {
@@ -128,6 +146,7 @@ export default function NotificationsPanel({
   loading,
   isError,
   markAsRead,
+  markAsUnread,
   markAllAsRead,
   deleteNotification,
 }: NotificationsPanelProps) {
@@ -139,6 +158,108 @@ export default function NotificationsPanel({
   const isMobile = useIsMobile()
   const tc = useT("common")
   const dateLocale = useDateLocale()
+  const tm = useT("ctxmenu")
+  const router = useRouter()
+  // The sheet mounts its content after this renders: hold the element in
+  // state so the menu target registers once it's there.
+  const [listEl, setListEl] = useState<HTMLDivElement | null>(null)
+
+  // Right-click anywhere in the list: read all, which ones to show, a new
+  // announcement (stakeholders) — the header's buttons and tabs.
+  useContextTarget(
+    listEl,
+    (): CtxItem[] => [
+      {
+        id: "read-all",
+        label: t("notificationsReadAll"),
+        icon: CheckCheck,
+        disabled: unreadCount === 0,
+        onSelect: () => markAllAsRead(),
+      },
+      {
+        id: "show",
+        label: t("notificationsShow"),
+        submenu: (["unread", "all"] as const).map((tab) => ({
+          id: tab,
+          label: tab === "unread" ? t("notificationsUnread") : tc("all"),
+          role: "radio" as const,
+          checked: activeTab === tab,
+          onSelect: () => setActiveTab(tab),
+        })),
+      },
+      {
+        id: "announce",
+        label: t("announcementNew"),
+        icon: Megaphone,
+        hidden: !isAdmin,
+        onSelect: () => setComposing(true),
+      },
+    ],
+    { type: "notifications", label: t("notifications") },
+  )
+
+  /** A row's menu: open it (marks read, like a click), read / unread, delete. */
+  const rowItems = (n: (typeof notifications)[number]): CtxItem[] => {
+    const link = n.link
+    const external = Boolean(link && /^https?:\/\//.test(link))
+    const open = (newTab: boolean) => {
+      if (!link) return
+      markAsRead(n.id)
+      if (newTab || external) {
+        window.open(link, "_blank", "noopener,noreferrer")
+        return
+      }
+      onClose()
+      router.push(link)
+    }
+    return [
+      {
+        id: "open",
+        label: tm("open"),
+        icon: external ? ExternalLink : MailOpen,
+        hidden: !link,
+        onSelect: () => open(false),
+      },
+      {
+        id: "open-tab",
+        label: tm("openNewTab"),
+        icon: AppWindow,
+        hidden: !link || external,
+        onSelect: () => open(true),
+      },
+      {
+        id: "copy-link",
+        label: tm("copyLink"),
+        icon: LinkIcon,
+        hidden: !link,
+        onSelect: async () => {
+          if (!(await copyText(new URL(link!, window.location.origin).href)))
+            throw new Error(tm("copyFailed"))
+          toast.success(tm("linkCopied"))
+        },
+      },
+      n.is_read
+        ? {
+            id: "unread",
+            label: t("notificationsMarkUnread"),
+            icon: Mail,
+            onSelect: () => markAsUnread(n.id),
+          }
+        : {
+            id: "read",
+            label: t("notificationsMarkRead"),
+            icon: MailOpen,
+            onSelect: () => markAsRead(n.id),
+          },
+      {
+        id: "delete",
+        label: t("notificationsDelete"),
+        icon: RiDeleteBinLine,
+        destructive: true,
+        onSelect: () => deleteNotification(n.id),
+      },
+    ]
+  }
 
   const filteredNotifications = useMemo(
     () =>
@@ -208,7 +329,7 @@ export default function NotificationsPanel({
         />
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto px-2 pb-2">
+      <div ref={setListEl} className="min-h-0 flex-1 overflow-y-auto px-2 pb-2">
         {loading && notifications.length === 0 ? (
           <div className="flex h-full items-center justify-center p-4">
             <Spinner className="size-5" />
@@ -236,87 +357,94 @@ export default function NotificationsPanel({
               const Icon = iconFor(notification.type)
               const urgent = URGENT_NOTIFICATION_TYPES.has(notification.type)
               return (
-                <li
+                <ContextTarget
                   key={notification.id}
-                  className="group/notif hover:bg-muted relative flex gap-3 rounded-lg px-3 py-3 transition-colors"
+                  type="notification"
+                  id={notification.id}
+                  label={notification.title}
+                  // Its own Buka / tab / Salin link (they mark it read).
+                  suppress={["link"]}
+                  items={() => rowItems(notification)}
                 >
-                  {/* What it's about; a dot on it while unread. */}
-                  <span
-                    aria-hidden
-                    className={cn(
-                      "relative flex size-8 shrink-0 items-center justify-center rounded-lg",
-                      urgent
-                        ? "bg-warning-subtle text-warning"
-                        : "bg-muted text-muted-foreground",
-                    )}
-                  >
-                    <Icon className="size-4" />
-                    {!notification.is_read && (
-                      <span className="bg-primary ring-background absolute -top-0.5 -right-0.5 size-2 rounded-full ring-2" />
-                    )}
-                  </span>
-                  <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-                    <div className="flex items-baseline gap-2">
-                      {/* The link covers the whole row; delete sits above it. */}
-                      <NotificationLink
-                        link={notification.link}
-                        onOpen={() => {
-                          markAsRead(notification.id)
-                          if (notification.link) onClose()
-                        }}
-                        className={cn(
-                          "focus-visible:after:ring-ring min-w-0 flex-1 truncate outline-none after:absolute after:inset-0 after:rounded-lg focus-visible:after:ring-2",
-                          notification.is_read
-                            ? "text-muted-foreground"
-                            : "text-foreground font-medium",
-                        )}
-                      >
-                        {urgent && (
-                          <span className="text-warning font-medium">
-                            {t("announcementUrgent")} ·{" "}
-                          </span>
-                        )}
-                        {notification.title}
-                        {!notification.is_read && (
-                          <span className="sr-only">
-                            {" "}
-                            {t("notificationsUnreadSr")}
-                          </span>
-                        )}
-                      </NotificationLink>
-                      {created && (
-                        <time
-                          dateTime={created.toISOString()}
-                          title={format(created, "d MMM yyyy, HH:mm", {
-                            locale: dateLocale,
-                          })}
-                          className="text-tertiary-foreground shrink-0 text-xs tabular-nums"
+                  <li className="group/notif hover:bg-muted relative flex gap-3 rounded-lg px-3 py-3 transition-colors">
+                    {/* What it's about; a dot on it while unread. */}
+                    <span
+                      aria-hidden
+                      className={cn(
+                        "relative flex size-8 shrink-0 items-center justify-center rounded-lg",
+                        urgent
+                          ? "bg-warning-subtle text-warning"
+                          : "bg-muted text-muted-foreground",
+                      )}
+                    >
+                      <Icon className="size-4" />
+                      {!notification.is_read && (
+                        <span className="bg-primary ring-background absolute -top-0.5 -right-0.5 size-2 rounded-full ring-2" />
+                      )}
+                    </span>
+                    <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+                      <div className="flex items-baseline gap-2">
+                        {/* The link covers the whole row; delete sits above it. */}
+                        <NotificationLink
+                          link={notification.link}
+                          onOpen={() => {
+                            markAsRead(notification.id)
+                            if (notification.link) onClose()
+                          }}
+                          className={cn(
+                            "focus-visible:after:ring-ring min-w-0 flex-1 truncate outline-none after:absolute after:inset-0 after:rounded-lg focus-visible:after:ring-2",
+                            notification.is_read
+                              ? "text-muted-foreground"
+                              : "text-foreground font-medium",
+                          )}
                         >
-                          {formatDistanceToNowStrict(created, {
-                            addSuffix: true,
-                            locale: dateLocale,
-                          })}
-                        </time>
+                          {urgent && (
+                            <span className="text-warning font-medium">
+                              {t("announcementUrgent")} ·{" "}
+                            </span>
+                          )}
+                          {notification.title}
+                          {!notification.is_read && (
+                            <span className="sr-only">
+                              {" "}
+                              {t("notificationsUnreadSr")}
+                            </span>
+                          )}
+                        </NotificationLink>
+                        {created && (
+                          <time
+                            dateTime={created.toISOString()}
+                            title={format(created, "d MMM yyyy, HH:mm", {
+                              locale: dateLocale,
+                            })}
+                            className="text-tertiary-foreground shrink-0 text-xs tabular-nums"
+                          >
+                            {formatDistanceToNowStrict(created, {
+                              addSuffix: true,
+                              locale: dateLocale,
+                            })}
+                          </time>
+                        )}
+                      </div>
+                      {notification.message && (
+                        <p className="text-muted-foreground line-clamp-2 text-[13px]">
+                          {notification.message}
+                        </p>
                       )}
                     </div>
-                    {notification.message && (
-                      <p className="text-muted-foreground line-clamp-2 text-[13px]">
-                        {notification.message}
-                      </p>
-                    )}
-                  </div>
-                  {/* Always visible on touch screens, hover-only from sm up. */}
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    aria-label={t("notificationsDelete")}
-                    title={tc("delete")}
-                    className="relative z-10 -my-1 shrink-0 opacity-100 transition-opacity group-focus-within/notif:opacity-100 group-hover/notif:opacity-100 sm:opacity-0"
-                    onClick={(event) => handleDelete(event, notification.id)}
-                  >
-                    <RiDeleteBinLine />
-                  </Button>
-                </li>
+                    {/* Always visible on touch screens, hover-only from sm up. */}
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      aria-label={t("notificationsDelete")}
+                      title={tc("delete")}
+                      className="relative z-10 -my-1 shrink-0 opacity-100 transition-opacity group-focus-within/notif:opacity-100 group-hover/notif:opacity-100 sm:opacity-0"
+                      onClick={(event) => handleDelete(event, notification.id)}
+                    >
+                      <RiDeleteBinLine />
+                    </Button>
+                  </li>
+                </ContextTarget>
               )
             })}
           </ul>

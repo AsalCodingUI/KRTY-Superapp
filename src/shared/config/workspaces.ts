@@ -12,6 +12,7 @@ import {
   RiCalendarCheckLine,
   RiCalendarLine,
   RiCheckboxCircleLine,
+  RiCupLine,
   RiStickyNoteLine,
   RiFileTextLine,
   RiFolderLine,
@@ -80,6 +81,13 @@ export const workspaces: Workspace[] = [
         name: "calendar",
         href: `${links.calendar}/personal`,
         icon: RiCalendarLine,
+      },
+      // Who presents at the weekly sharing; everyone reads, PMs and
+      // stakeholders edit the queue.
+      {
+        name: "sharingSantuy",
+        href: `${links.calendar}/santuy`,
+        icon: RiCupLine,
       },
       // Stakeholders also manage the team from here.
       ...(isAdmin(p)

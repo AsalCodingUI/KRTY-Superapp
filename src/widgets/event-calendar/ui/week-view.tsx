@@ -7,9 +7,10 @@ import { RiAddLine, RiSubtractFill } from "@/shared/ui/lucide-icons"
 import { format, isBefore, isSameDay } from "date-fns"
 import { memo, useEffect, useMemo, useRef, useState } from "react"
 import { useCalendarContext } from "./calendar-context"
+import { EventTarget, slotProps, useCalendarSurface } from "./calendar-menu"
 import { DraggableEvent } from "./draggable-event"
 import { DroppableCell } from "./droppable-cell"
-import { isAllDayEvent, toneOf } from "./event-tone"
+import { isAllDayEvent, isHolidayEvent, toneOf } from "./event-tone"
 import { useCurrentTimeIndicator } from "./hooks/use-current-time-indicator"
 import type { CalendarEvent } from "./types"
 import {
@@ -54,6 +55,8 @@ export const WeekView = memo(function WeekView({
   const [step, setStep] = useState(DEFAULT_STEP)
   const hourHeight = HOUR_STEPS[step]
   const rootRef = useRef<HTMLDivElement>(null)
+  // Right-click on an empty hour / day: new event there, today, go to date.
+  useCalendarSurface(rootRef)
 
   const weekDays = useMemo(() => getWeekDays(currentDate), [currentDate])
   const currentTimePosition = useCurrentTimeIndicator(hourHeight)
@@ -112,9 +115,13 @@ export const WeekView = memo(function WeekView({
           </div>
           {weekDays.map((day) => {
             const isToday = isSameDay(day, now)
+            const isHoliday = (allDayByDay.get(getDayKey(day)) ?? []).some(
+              isHolidayEvent,
+            )
             return (
               <div
                 key={day.toISOString()}
+                {...slotProps(day, "day")}
                 className={cx(
                   "flex min-w-0 flex-1 items-center gap-1.5 border-r border-dashed px-2.5 py-2 last:border-r-0",
                   isToday && "bg-foreground/[0.025]",
@@ -128,7 +135,9 @@ export const WeekView = memo(function WeekView({
                     "tabular-nums",
                     isToday
                       ? "bg-foreground text-background flex size-6 items-center justify-center rounded-[5px] font-medium"
-                      : "text-muted-foreground",
+                      : isHoliday
+                        ? "text-destructive font-medium"
+                        : "text-muted-foreground",
                   )}
                 >
                   {format(day, "d")}
@@ -149,27 +158,36 @@ export const WeekView = memo(function WeekView({
             return (
               <div
                 key={day.toISOString()}
+                {...slotProps(day, "all-day")}
                 className={cx(
                   "flex min-h-14 min-w-0 flex-1 flex-col gap-0.5 border-r border-dashed px-1.5 py-1.5 last:border-r-0",
                   isToday && "bg-foreground/[0.025]",
                 )}
               >
                 {items.slice(0, ALL_DAY_LIMIT).map((event) => (
-                  <button
-                    key={event.id}
-                    type="button"
-                    onClick={() => onEventClick?.(event)}
-                    className="hover:bg-accent flex min-w-0 cursor-pointer items-center gap-1.5 rounded-sm px-1 py-0.5 text-left text-[13px]"
-                    title={event.title}
-                  >
-                    <span
-                      className={cx(
-                        "size-1.5 shrink-0 rounded-full",
-                        toneOf(event.color).dot,
-                      )}
-                    />
-                    <span className="truncate">{event.title}</span>
-                  </button>
+                  <EventTarget key={event.id} event={event}>
+                    <button
+                      type="button"
+                      onClick={() => onEventClick?.(event)}
+                      className="hover:bg-accent flex min-w-0 cursor-pointer items-center gap-1.5 rounded-sm px-1 py-0.5 text-left text-[13px]"
+                      title={event.title}
+                    >
+                      <span
+                        className={cx(
+                          "size-1.5 shrink-0 rounded-full",
+                          toneOf(event.color).dot,
+                        )}
+                      />
+                      <span
+                        className={cx(
+                          "truncate",
+                          isHolidayEvent(event) && "text-destructive",
+                        )}
+                      >
+                        {event.title}
+                      </span>
+                    </button>
+                  </EventTarget>
                 ))}
                 {items.length > ALL_DAY_LIMIT && (
                   <span className="text-muted-foreground px-1 text-xs">
@@ -230,6 +248,7 @@ export const WeekView = memo(function WeekView({
                     style={{ "--h": `${hourHeight}px` } as React.CSSProperties}
                   >
                     <div
+                      {...slotProps(slotDate)}
                       className="h-full w-full"
                       onClick={() => onSlotClick?.(slotDate)}
                     />
@@ -262,43 +281,45 @@ export const WeekView = memo(function WeekView({
                             !(canEditEvent ? canEditEvent(event) : canEdit)
                           }
                         >
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              onEventClick?.(event)
-                            }}
-                            className={cx(
-                              "flex h-full w-full cursor-pointer flex-col overflow-hidden rounded-md px-2 text-left transition-colors",
-                              // Short events (< ~30 min) get a tighter line so
-                              // the title isn't clipped.
-                              height < 30 ? "justify-center py-0" : "py-1",
-                              tone.block,
-                              isPast && "opacity-60",
-                            )}
-                          >
-                            <span
+                          <EventTarget event={event}>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                onEventClick?.(event)
+                              }}
                               className={cx(
-                                "flex min-w-0 items-center gap-1.5 font-medium",
-                                height < 30
-                                  ? "text-xs leading-4"
-                                  : "text-[13px] leading-5",
+                                "flex h-full w-full cursor-pointer flex-col overflow-hidden rounded-md px-2 text-left transition-colors",
+                                // Short events (< ~30 min) get a tighter line so
+                                // the title isn't clipped.
+                                height < 30 ? "justify-center py-0" : "py-1",
+                                tone.block,
+                                isPast && "opacity-60",
                               )}
                             >
                               <span
                                 className={cx(
-                                  "size-1.5 shrink-0 rounded-full",
-                                  tone.dot,
+                                  "flex min-w-0 items-center gap-1.5 font-medium",
+                                  height < 30
+                                    ? "text-xs leading-4"
+                                    : "text-[13px] leading-5",
                                 )}
-                              />
-                              <span className="truncate">{event.title}</span>
-                            </span>
-                            {height >= 40 && (
-                              <span className="text-muted-foreground truncate pl-3 text-xs tabular-nums">
-                                {formatRange(event)}
+                              >
+                                <span
+                                  className={cx(
+                                    "size-1.5 shrink-0 rounded-full",
+                                    tone.dot,
+                                  )}
+                                />
+                                <span className="truncate">{event.title}</span>
                               </span>
-                            )}
-                          </button>
+                              {height >= 40 && (
+                                <span className="text-muted-foreground truncate pl-3 text-xs tabular-nums">
+                                  {formatRange(event)}
+                                </span>
+                              )}
+                            </button>
+                          </EventTarget>
                         </DraggableEvent>
                       </div>
                     )

@@ -1,6 +1,6 @@
 "use client"
 
-import { ProofLink } from "@/entities/leave/ui/ProofLink"
+import { ProofLink, useProofViewer } from "@/entities/leave/ui/ProofLink"
 import { AnimatePresence } from "motion/react"
 import { EmptyState } from "@/components/empty-state"
 import { GroupedList, ListRow } from "@/components/grouped-list"
@@ -19,6 +19,7 @@ import { daysKey, leaveStatusLabel, leaveTypeLabel } from "@/shared/lib/leave"
 import type { Database } from "@/shared/types/database.types"
 import { RiCalendarLine, RiMoreFill } from "@/shared/ui/lucide-icons"
 import { formatLeaveRange, leaveDays } from "./AdminLeaveList"
+import { LeaveRequestContextMenu } from "./leave-context-menu"
 
 type LeaveRequest = Database["public"]["Tables"]["leave_requests"]["Row"]
 
@@ -50,6 +51,7 @@ export function EmployeeLeaveList({
   onPageChange: (pageIndex: number) => void
 }) {
   const t = useT("leave")
+  const proof = useProofViewer()
   if (requests.length === 0) {
     return (
       <EmptyState
@@ -83,10 +85,12 @@ export function EmployeeLeaveList({
               req={req}
               onEdit={onEdit}
               onCancel={onCancel}
+              onViewProof={proof.open}
             />
           ))}
         </AnimatePresence>
       </GroupedList>
+      {proof.viewer}
       <ListPager
         page={page}
         pageCount={pageCount}
@@ -100,10 +104,12 @@ function LeaveRow({
   req,
   onEdit,
   onCancel,
+  onViewProof,
 }: {
   req: LeaveRequest
   onEdit: (item: LeaveRequest) => void
   onCancel: (item: LeaveRequest) => void
+  onViewProof: (proof: string) => void
 }) {
   const t = useT("leave")
   const dateLocale = useDateLocale()
@@ -112,80 +118,90 @@ function LeaveRow({
   const daysText = t(daysKey(days), { n: days })
 
   return (
-    <ListRow className={cn(ROW_GRID, "min-h-14")}>
-      <div className="flex min-w-0 flex-col">
-        <span className="text-foreground truncate tabular-nums">
-          {formatLeaveRange(req.start_date, req.end_date, dateLocale)}
-        </span>
-        {/* Type and duration have their own columns from md up. */}
-        <span className="text-muted-foreground truncate text-[13px] md:hidden">
-          {type} · {daysText}
-        </span>
-        {(req.reason || req.review_note || req.proof_url) && (
-          <span className="text-tertiary-foreground flex min-w-0 items-center gap-1.5 text-[13px]">
-            {req.reason && (
-              // Keeps its words when a long reviewer note follows.
-              <span
-                className="max-w-[60%] shrink-0 truncate"
-                title={req.reason}
-              >
-                {req.reason}
-              </span>
-            )}
-            {req.review_note && (
-              <span className="truncate" title={req.review_note}>
-                {req.reason ? "· " : ""}
-                {t("reviewNote", { note: req.review_note })}
-              </span>
-            )}
-            {req.proof_url && <ProofLink value={req.proof_url} />}
+    // Right-click: the "…" menu's actions, plus copy / calendar / proof.
+    <LeaveRequestContextMenu
+      req={req}
+      actions={{
+        onEdit: () => onEdit(req),
+        onCancel: () => onCancel(req),
+        onViewProof,
+      }}
+    >
+      <ListRow className={cn(ROW_GRID, "min-h-14")}>
+        <div className="flex min-w-0 flex-col">
+          <span className="text-foreground truncate tabular-nums">
+            {formatLeaveRange(req.start_date, req.end_date, dateLocale)}
           </span>
-        )}
-      </div>
-
-      <div className="hidden md:block">
-        <Badge variant="secondary">{type}</Badge>
-      </div>
-      <span className="text-muted-foreground hidden text-right tabular-nums md:block">
-        {daysText}
-      </span>
-      <div>
-        <Badge variant={STATUS_VARIANT[req.status]}>
-          {leaveStatusLabel(req.status, t)}
-        </Badge>
-      </div>
-
-      <div className="flex justify-end">
-        {req.status !== "approved" && (
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              render={
-                <Button
-                  variant="ghost"
-                  size="icon-sm"
-                  aria-label={t("requestActions")}
-                  className="text-muted-foreground"
-                />
-              }
-            >
-              <RiMoreFill />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="min-w-40">
-              <DropdownMenuItem onClick={() => onEdit(req)}>
-                {req.status === "rejected" ? t("resubmit") : t("changeDates")}
-              </DropdownMenuItem>
-              {req.status === "pending" && (
-                <DropdownMenuItem
-                  variant="destructive"
-                  onClick={() => onCancel(req)}
+          {/* Type and duration have their own columns from md up. */}
+          <span className="text-muted-foreground truncate text-[13px] md:hidden">
+            {type} · {daysText}
+          </span>
+          {(req.reason || req.review_note || req.proof_url) && (
+            <span className="text-tertiary-foreground flex min-w-0 items-center gap-1.5 text-[13px]">
+              {req.reason && (
+                // Keeps its words when a long reviewer note follows.
+                <span
+                  className="max-w-[60%] shrink-0 truncate"
+                  title={req.reason}
                 >
-                  {t("cancelAction")}
-                </DropdownMenuItem>
+                  {req.reason}
+                </span>
               )}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )}
-      </div>
-    </ListRow>
+              {req.review_note && (
+                <span className="truncate" title={req.review_note}>
+                  {req.reason ? "· " : ""}
+                  {t("reviewNote", { note: req.review_note })}
+                </span>
+              )}
+              {req.proof_url && <ProofLink value={req.proof_url} />}
+            </span>
+          )}
+        </div>
+
+        <div className="hidden md:block">
+          <Badge variant="secondary">{type}</Badge>
+        </div>
+        <span className="text-muted-foreground hidden text-right tabular-nums md:block">
+          {daysText}
+        </span>
+        <div>
+          <Badge variant={STATUS_VARIANT[req.status]}>
+            {leaveStatusLabel(req.status, t)}
+          </Badge>
+        </div>
+
+        <div className="flex justify-end">
+          {req.status !== "approved" && (
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                render={
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    aria-label={t("requestActions")}
+                    className="text-muted-foreground"
+                  />
+                }
+              >
+                <RiMoreFill />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="min-w-40">
+                <DropdownMenuItem onClick={() => onEdit(req)}>
+                  {req.status === "rejected" ? t("resubmit") : t("changeDates")}
+                </DropdownMenuItem>
+                {req.status === "pending" && (
+                  <DropdownMenuItem
+                    variant="destructive"
+                    onClick={() => onCancel(req)}
+                  >
+                    {t("cancelAction")}
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        </div>
+      </ListRow>
+    </LeaveRequestContextMenu>
   )
 }

@@ -27,7 +27,7 @@ import {
   Sun,
 } from "@/components/icons"
 import { SegmentedControl } from "@/components/segmented-control"
-import { useTheme } from "next-themes"
+import { useThemeTransition } from "@/shared/hooks/useThemeTransition"
 import { useEffect, useRef, useState } from "react"
 
 const MODES = [
@@ -50,7 +50,7 @@ const HUES = Array.from(
  */
 export function AppearancePopover({ className }: { className?: string }) {
   const t = useT("common")
-  const { theme, setTheme } = useTheme()
+  const { theme, setTheme } = useThemeTransition()
   const [tint, setTint] = useState<Tint>(NEUTRAL)
   const [mounted, setMounted] = useState(false)
   useEffect(() => {

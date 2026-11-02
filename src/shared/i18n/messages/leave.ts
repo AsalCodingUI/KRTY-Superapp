@@ -282,6 +282,21 @@ const id = {
   balanceTitle: "Saldo cuti tahunan",
   percentUsed: "{n}% terpakai",
   usedOfDays: "{used} dari {max} hari",
+
+  // Right-click menu (shared/context-menu)
+  ctxViewDetail: "Lihat detail",
+  ctxRejectWithNote: "Tolak…",
+  ctxCancelRequest: "Batalkan pengajuan",
+  ctxCopyRange: "Salin rentang tanggal",
+  ctxViewInCalendar: "Lihat di kalender",
+  ctxOpenProfile: "Buka profil",
+  ctxCopyTimes: "Salin jam",
+  ctxReviewInInbox: "Tinjau di kotak masuk",
+  ctxClockInAs: "Clock in sebagai",
+  ctxOpenLeavePage: "Buka Cuti & Kehadiran",
+  ctxSessionLabel: "Sesi {time}",
+  ctxDetailTitle: "Detail pengajuan",
+  ctxReviewerNote: "Catatan peninjau",
 }
 
 const en: Record<keyof typeof id, string> = {
@@ -549,6 +564,20 @@ const en: Record<keyof typeof id, string> = {
   balanceTitle: "Annual leave balance",
   percentUsed: "{n}% used",
   usedOfDays: "{used} of {max} days",
+
+  ctxViewDetail: "View details",
+  ctxRejectWithNote: "Reject…",
+  ctxCancelRequest: "Cancel request",
+  ctxCopyRange: "Copy date range",
+  ctxViewInCalendar: "View in calendar",
+  ctxOpenProfile: "Open profile",
+  ctxCopyTimes: "Copy times",
+  ctxReviewInInbox: "Review in inbox",
+  ctxClockInAs: "Clock in as",
+  ctxOpenLeavePage: "Open Leave & Attendance",
+  ctxSessionLabel: "Session {time}",
+  ctxDetailTitle: "Request details",
+  ctxReviewerNote: "Reviewer note",
 }
 
 export const leave = { id, en }

@@ -352,3 +352,18 @@ export async function applyProcessToProject(
     return { success: true }
   })
 }
+
+/**
+ * "Jangan pakai fase": the project's phases go (their steps with them); its
+ * tasks stay, without a phase. A process can be applied again later.
+ */
+export async function stopUsingPhases(projectId: string): Promise<Result> {
+  return run(async (db) => {
+    const { error } = await db.rpc("remove_project_phases", {
+      p_project_id: projectId,
+    })
+    if (error) return fail("errSave")
+    revalidatePath("/projects/[id]", "layout")
+    return { success: true }
+  })
+}

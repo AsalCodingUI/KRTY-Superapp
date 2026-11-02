@@ -25,6 +25,9 @@ import {
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { useStopImpersonation } from "@/widgets/impersonation/model/useStopImpersonation"
 import { ProfileSheet } from "@/widgets/profile/ui/ProfileSheet"
+import { ContextTarget, copyText } from "@/shared/context-menu"
+import { Copy } from "lucide-react"
+import { toast } from "sonner"
 import { useState } from "react"
 
 function initialsOf(name: string) {
@@ -59,6 +62,7 @@ export function NavUser({
   const initials = initialsOf(user.name)
   const t = useT("common")
   const tp = useT("profile")
+  const tc = useT("ctxmenu")
   const [profileOpen, setProfileOpen] = useState(false)
   const { isImpersonating } = useUserProfile()
   const { stop: stopImpersonation } = useStopImpersonation()
@@ -68,36 +72,86 @@ export function NavUser({
     <SidebarMenu className={showName ? "w-auto" : "items-center"}>
       <SidebarMenuItem>
         <DropdownMenu>
-          <DropdownMenuTrigger
-            // Stable id: sidebar content differs between SSR and hydration while
-            // the profile loads, which shifted Base UI's generated ids.
-            id="nav-user-menu-trigger"
-            render={
-              <SidebarMenuButton
-                className={
-                  showName
-                    ? "text-foreground h-8 w-auto gap-2 pr-3 pl-1 hover:bg-transparent active:bg-transparent aria-expanded:bg-transparent"
-                    : "aria-expanded:bg-sidebar-accent blend-ink size-8! justify-center p-0!"
-                }
-              />
-            }
+          {/* Right-click: the account's actions without opening the menu. */}
+          <ContextTarget
+            type="account"
+            label={user.email || user.name}
+            items={() => [
+              {
+                id: "profile",
+                label: tp("myProfile"),
+                icon: UserIcon,
+                onSelect: () => setProfileOpen(true),
+              },
+              {
+                id: "copy-email",
+                label: tc("copyEmail"),
+                icon: Copy,
+                hidden: !user.email,
+                onSelect: async () => {
+                  if (await copyText(user.email)) toast.success(tc("copied"))
+                },
+              },
+              {
+                id: "contact",
+                label: t("contactAdmin"),
+                icon: MessageCircleIcon,
+                hidden: !contactHref,
+                onSelect: () =>
+                  void window.open(
+                    contactHref,
+                    "_blank",
+                    "noopener,noreferrer",
+                  ),
+              },
+              {
+                id: "back-to-me",
+                label: t("backToMyAccount"),
+                icon: UndoIcon,
+                hidden: !isImpersonating,
+                onSelect: stopImpersonation,
+              },
+              {
+                id: "logout",
+                label: t("logOut"),
+                icon: LogOutIcon,
+                destructive: true,
+                confirm: true,
+                onSelect: onSignOut,
+              },
+            ]}
           >
-            <Avatar className="size-6">
-              <AvatarImage src={user.avatar} alt={user.name} />
-              <AvatarFallback className="bg-chrome-field blend-ink text-foreground/70 text-[10px]">
-                {initials}
-              </AvatarFallback>
-            </Avatar>
-            <span
-              className={
-                showName
-                  ? "hidden max-w-40 truncate text-sm font-medium lg:inline"
-                  : "sr-only"
+            <DropdownMenuTrigger
+              // Stable id: sidebar content differs between SSR and hydration while
+              // the profile loads, which shifted Base UI's generated ids.
+              id="nav-user-menu-trigger"
+              render={
+                <SidebarMenuButton
+                  className={
+                    showName
+                      ? "text-foreground h-8 w-auto gap-2 pr-3 pl-1 hover:bg-transparent active:bg-transparent aria-expanded:bg-transparent"
+                      : "aria-expanded:bg-sidebar-accent blend-ink size-8! justify-center p-0!"
+                  }
+                />
               }
             >
-              {user.name}
-            </span>
-          </DropdownMenuTrigger>
+              <Avatar className="size-6">
+                <AvatarImage src={user.avatar} alt={user.name} />
+                <AvatarFallback className="bg-chrome-field blend-ink text-foreground/70 text-[10px]">
+                  {initials}
+                </AvatarFallback>
+              </Avatar>
+              <span
+                className={
+                  showName
+                    ? "hidden max-w-40 truncate text-sm font-medium lg:inline"
+                    : "sr-only"
+                }
+              >
+                {user.name}
+              </span>
+            </DropdownMenuTrigger>
+          </ContextTarget>
           <DropdownMenuContent
             className="min-w-56"
             side={side}

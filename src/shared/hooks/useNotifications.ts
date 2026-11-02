@@ -69,6 +69,18 @@ function rememberLocally(
   }
 }
 
+function forgetLocalRead(userId: string, id: string) {
+  const prev = localChanges(userId)
+  try {
+    window.localStorage.setItem(
+      localKey(userId),
+      JSON.stringify({ ...prev, read: prev.read.filter((r) => r !== id) }),
+    )
+  } catch {
+    // Storage blocked: the change lasts until the next refresh.
+  }
+}
+
 /** The fetched list with the admin's own view-as changes laid over it. */
 function withLocalChanges(data: NotificationList, userId: string) {
   const { read, removed } = localChanges(userId)
@@ -188,6 +200,28 @@ export function useNotifications() {
     [send, update],
   )
 
+  /** Back to unread (right-click "Tandai belum dibaca"). */
+  const markAsUnread = useCallback(
+    async (id: string) => {
+      const previous = await update((prev) =>
+        prev.map((n) => (n.id === id ? { ...n, is_read: false } : n)),
+      )
+      // Viewing as someone: forget the admin's own "read" for it.
+      if (viewingAs && userId) return forgetLocalRead(userId, id)
+      await send(
+        previous,
+        () =>
+          fetch("/api/notifications", {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id, read: false }),
+          }),
+        {},
+      )
+    },
+    [send, update, userId, viewingAs],
+  )
+
   const markAllAsRead = useCallback(async () => {
     if (!userId) return
     const previous = await update((prev) =>
@@ -237,6 +271,7 @@ export function useNotifications() {
     loading,
     isError,
     markAsRead,
+    markAsUnread,
     markAllAsRead,
     deleteNotification,
     refetch,

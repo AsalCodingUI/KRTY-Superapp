@@ -166,15 +166,17 @@ export const EVENT_TYPE_REGISTRY: Record<string, EventTypeDefinition> = {
       label: "Tenggat tugas",
     },
   },
+  // Indonesian national holidays (shared/lib/id-holidays.ts): red, like a
+  // tanggal merah.
   "Public Holiday": {
     value: "Public Holiday",
     label: "Hari libur nasional",
-    color: "neutral",
+    color: "rose",
     colorMapping: {
-      background: "bg-muted",
-      text: "text-foreground",
-      border: "border-border",
-      semanticCategory: "neutral",
+      background: "bg-destructive/15",
+      text: "text-destructive",
+      border: "border-transparent",
+      semanticCategory: "danger",
       label: "Hari libur nasional",
     },
   },

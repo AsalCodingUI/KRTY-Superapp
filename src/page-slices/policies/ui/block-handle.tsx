@@ -18,6 +18,26 @@ type Block = { pos: number; top: number; left: number; height: number }
 
 /** A move this far (px) turns a press on the grip into a drag. */
 const DRAG_THRESHOLD = 4
+/** The handle's height (size-6). */
+const HANDLE = 24
+
+/**
+ * Where the handle goes: level with the middle of the block's first line,
+ * so a heading, a callout or a one-line paragraph lines up with it. A
+ * block shorter than a line (a divider) gets it on its middle; a tall one
+ * (an image, a long list) keeps it by the first line, at the top.
+ */
+function handleTop(node: HTMLElement, r: DOMRect) {
+  const css = getComputedStyle(node)
+  const size = parseFloat(css.fontSize) || 16
+  const line = parseFloat(css.lineHeight) || size * 1.2
+  const pad =
+    (parseFloat(css.paddingTop) || 0) + (parseFloat(css.borderTopWidth) || 0)
+  const middle =
+    r.height < pad + line ? r.top + r.height / 2 : r.top + pad + line / 2
+  return middle - HANDLE / 2
+}
+
 /** Near a scroller's top or bottom edge (px), dragging scrolls it. */
 const SCROLL_EDGE = 56
 
@@ -48,7 +68,7 @@ function scrollParent(el: HTMLElement | null) {
  * The block under the pointer: a list item when inside a list (they move
  * one by one), else the top-level block. Null outside the document.
  */
-function blockAt(editor: Editor, x: number, y: number): number | null {
+export function blockAt(editor: Editor, x: number, y: number): number | null {
   const { view } = editor
   const hit = view.posAtCoords({ left: x, top: y })
   if (!hit) return null
@@ -104,12 +124,13 @@ export function BlockHandle({
       if (!(node instanceof HTMLElement)) return
       const r = node.getBoundingClientRect()
       const h = host.getBoundingClientRect()
+      const top = handleTop(node, r) - h.top
       setBlock((prev) =>
-        prev?.pos === pos && prev.top === r.top - h.top
+        prev?.pos === pos && prev.top === top
           ? prev
           : {
               pos,
-              top: r.top - h.top,
+              top,
               // One column at the document's left edge for every block, so
               // a list item's handle sits left of its bullet / number.
               left: dom.getBoundingClientRect().left - h.left,

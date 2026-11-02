@@ -53,8 +53,24 @@ import {
   RiSearchLine,
 } from "@/shared/ui/lucide-icons"
 import { AvatarEditor } from "@/widgets/profile/ui/AvatarEditor"
+import { ContextTarget, copyText, type CtxItem } from "@/shared/context-menu"
+import { employeeHref } from "@/shared/lib/url-params"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { useEffect, useMemo, useState } from "react"
+import {
+  BarChart3,
+  Briefcase,
+  Camera,
+  Copy,
+  Eye,
+  Mail,
+  ShieldCheck,
+  Trash2,
+  UserRound,
+  Users,
+  IdCard,
+} from "lucide-react"
+import { useRouter } from "next/navigation"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { toast } from "sonner"
 
 type Profile = Pick<
@@ -159,6 +175,8 @@ export function MembersAccessSettings({
   const tt = useT("teams")
   const tc = useT("common")
   const tp = useT("profile")
+  const tm = useT("ctxmenu")
+  const router = useRouter()
   const queryClient = useQueryClient()
   const supabase = useMemo(() => createClient(), [])
   const { authProfile } = useUserProfile()
@@ -171,11 +189,32 @@ export function MembersAccessSettings({
   const [adding, setAdding] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<Profile | null>(null)
   const [switching, setSwitching] = useState(false)
+  // "Ganti foto" from the right-click menu: open the sheet, then the picker.
+  const [photoFor, setPhotoFor] = useState<string | null>(null)
+  const photoRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!data) return
     setProfiles(data.profiles)
   }, [data])
+
+  useEffect(() => {
+    if (!photoFor || photoFor !== selectedId) return
+    // The sheet's content mounts a frame or two after it opens.
+    let frame = 0
+    let tries = 0
+    const tick = () => {
+      const input =
+        photoRef.current?.querySelector<HTMLInputElement>('input[type="file"]')
+      if (input) {
+        input.click()
+        setPhotoFor(null)
+      } else if (++tries < 30) frame = requestAnimationFrame(tick)
+      else setPhotoFor(null)
+    }
+    frame = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(frame)
+  }, [photoFor, selectedId])
 
   const teams = data?.teams ?? []
   const filtered = profiles.filter((p) =>
@@ -267,6 +306,156 @@ export function MembersAccessSettings({
     setSelectedId(remaining[0]?.id ?? null)
     setDeleteTarget(null)
     toast.success(t("memberDeleted"))
+  }
+
+  const copy = async (text: string) => {
+    if (await copyText(text)) toast.success(tm("copied"))
+    else toast.error(tm("copyFailed"))
+  }
+
+  /** Right-click on a member row: the sheet's actions, without opening it. */
+  const memberItems = (p: Profile): CtxItem[] => {
+    const self = p.id === authProfile?.id
+    const name = p.full_name || p.email || ""
+    const radio = <V,>(
+      current: V,
+      options: { value: V; label: string }[],
+      save: (value: V) => void,
+    ): CtxItem[] =>
+      options.map((o) => ({
+        id: String(o.value),
+        label: o.label,
+        role: "radio" as const,
+        checked: o.value === current,
+        onSelect: () => {
+          if (o.value !== current) save(o.value)
+        },
+      }))
+    const items: CtxItem[] = [
+      {
+        id: "profile",
+        label: t("ctxViewProfile"),
+        icon: UserRound,
+        onSelect: () => setSelectedId(p.id),
+      },
+      {
+        id: "view-as",
+        label: t("viewAs"),
+        icon: Eye,
+        hidden: self,
+        disabled: switching,
+        onSelect: () => viewAs(p.id),
+      },
+      {
+        id: "kpi",
+        label: t("ctxViewKpi"),
+        icon: BarChart3,
+        onSelect: () => router.push(employeeHref(p)),
+      },
+      {
+        id: "copy-name",
+        label: tm("copyName"),
+        icon: Copy,
+        hidden: !p.full_name,
+        onSelect: () => copy(name),
+      },
+      {
+        id: "copy-email",
+        label: tm("copyEmail"),
+        icon: Copy,
+        hidden: !p.email,
+        onSelect: () => copy(p.email ?? ""),
+      },
+      {
+        id: "send-email",
+        label: tm("sendEmail"),
+        icon: Mail,
+        hidden: !p.email,
+        onSelect: () => {
+          window.location.href = `mailto:${p.email}`
+        },
+      },
+      {
+        id: "role",
+        label: t("ctxChangeRole"),
+        icon: ShieldCheck,
+        hint: (() => {
+          const option = ROLE_OPTIONS.find((r) => r.value === p.role)
+          return option ? t(option.labelKey) : p.role
+        })(),
+        disabled: savingKey === `${p.id}:role`,
+        submenu: radio(
+          p.role,
+          ROLE_OPTIONS.map((r) => ({ value: r.value, label: t(r.labelKey) })),
+          (role) => updateProfile(p.id, { role }),
+        ),
+      },
+      {
+        id: "job",
+        label: t("ctxChangeJobTitle"),
+        icon: Briefcase,
+        hint: p.job_title ?? undefined,
+        disabled: savingKey === `${p.id}:job_title`,
+        submenu: radio(
+          p.job_title as string | null,
+          JOB_TITLES.map((job) => ({ value: job, label: job })),
+          (job) =>
+            job &&
+            updateProfile(p.id, { job_title: job as Profile["job_title"] }),
+        ),
+      },
+      {
+        id: "team",
+        label: t("ctxChangeTeam"),
+        icon: Users,
+        hint: teams.find((x) => x.id === p.team_id)?.name ?? t("noTeam"),
+        disabled: savingKey === `${p.id}:team_id`,
+        submenu: radio(
+          p.team_id ?? NO_TEAM,
+          [
+            { value: NO_TEAM, label: t("noTeam") },
+            ...teams.map((x) => ({ value: x.id, label: x.name })),
+          ],
+          (team) =>
+            updateProfile(p.id, { team_id: team === NO_TEAM ? null : team }),
+        ),
+      },
+      {
+        id: "employment",
+        label: t("ctxChangeEmployment"),
+        icon: IdCard,
+        disabled: savingKey === `${p.id}:employment_type`,
+        submenu: radio(
+          p.employment_type ?? "karyawan",
+          Object.entries(EMPLOYMENT_LABEL_KEYS).map(([value, labelKey]) => ({
+            value,
+            label: t(labelKey),
+          })),
+          (value) => updateProfile(p.id, { employment_type: value }),
+        ),
+      },
+      {
+        id: "photo",
+        label: t("ctxChangePhoto"),
+        icon: Camera,
+        onSelect: () => {
+          setSelectedId(p.id)
+          setPhotoFor(p.id)
+        },
+      },
+      {
+        id: "delete",
+        label: t("deleteMember"),
+        icon: Trash2,
+        destructive: true,
+        hidden: self,
+        // Its own dialog asks first (and names what goes with them).
+        onSelect: () => setDeleteTarget(p),
+      },
+    ]
+    return items
+      .filter((item) => !item.hidden)
+      .map((item) => ({ ...item, access: ["stakeholder"] }))
   }
 
   if (error) {
@@ -366,63 +555,70 @@ export function MembersAccessSettings({
             {filtered.map((p) => {
               const team = teams.find((t) => t.id === p.team_id)
               return (
-                <ListRow
+                <ContextTarget
                   key={p.id}
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => {
-                    setSelectedId(p.id)
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault()
-                      setSelectedId(p.id)
-                    }
-                  }}
-                  className={cx(
-                    MEMBER_GRID,
-                    "min-h-14 cursor-pointer outline-none",
-                  )}
+                  type="member"
+                  id={p.id}
+                  label={p.full_name || p.email || undefined}
+                  items={() => memberItems(p)}
                 >
-                  <span className="flex min-w-0 items-center gap-3">
-                    <Avatar className="size-7">
-                      <AvatarImage src={p.avatar_url || undefined} alt="" />
-                      <AvatarFallback className="text-[11px]">
-                        {initialOf(p)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <span className="flex min-w-0 flex-col">
-                      <span className="text-foreground flex items-center gap-2 truncate">
-                        {p.full_name || p.email}
-                        {p.is_super_admin && (
-                          <Badge variant="info">{t("superAdmin")}</Badge>
-                        )}
-                      </span>
-                      <span className="text-tertiary-foreground truncate text-[13px]">
-                        {p.email}
+                  <ListRow
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => {
+                      setSelectedId(p.id)
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault()
+                        setSelectedId(p.id)
+                      }
+                    }}
+                    className={cx(
+                      MEMBER_GRID,
+                      "min-h-14 cursor-pointer outline-none",
+                    )}
+                  >
+                    <span className="flex min-w-0 items-center gap-3">
+                      <Avatar className="size-7">
+                        <AvatarImage src={p.avatar_url || undefined} alt="" />
+                        <AvatarFallback className="text-[11px]">
+                          {initialOf(p)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="flex min-w-0 flex-col">
+                        <span className="text-foreground flex items-center gap-2 truncate">
+                          {p.full_name || p.email}
+                          {p.is_super_admin && (
+                            <Badge variant="info">{t("superAdmin")}</Badge>
+                          )}
+                        </span>
+                        <span className="text-tertiary-foreground truncate text-[13px]">
+                          {p.email}
+                        </span>
                       </span>
                     </span>
-                  </span>
-                  <span className="hidden md:block">
-                    <Badge variant="secondary">
-                      {(() => {
-                        const option = ROLE_OPTIONS.find(
-                          (r) => r.value === p.role,
-                        )
-                        return option ? t(option.labelKey) : p.role
-                      })()}
-                    </Badge>
-                  </span>
-                  <span className="text-muted-foreground hidden truncate md:block">
-                    {p.job_title || <EmptyValue />}
-                  </span>
-                  <span className="text-muted-foreground hidden truncate lg:block">
-                    {team?.name ?? <EmptyValue />}
-                  </span>
-                  <span className="text-muted-foreground truncate text-right">
-                    {t(LEVEL_LABEL_KEYS[accessLevel(p)])}
-                  </span>
-                </ListRow>
+                    <span className="hidden md:block">
+                      <Badge variant="secondary">
+                        {(() => {
+                          const option = ROLE_OPTIONS.find(
+                            (r) => r.value === p.role,
+                          )
+                          return option ? t(option.labelKey) : p.role
+                        })()}
+                      </Badge>
+                    </span>
+                    <span className="text-muted-foreground hidden truncate md:block">
+                      {p.job_title || <EmptyValue />}
+                    </span>
+                    <span className="text-muted-foreground hidden truncate lg:block">
+                      {team?.name ?? <EmptyValue />}
+                    </span>
+                    <span className="text-muted-foreground truncate text-right">
+                      {t(LEVEL_LABEL_KEYS[accessLevel(p)])}
+                    </span>
+                  </ListRow>
+                </ContextTarget>
               )
             })}
           </AnimatePresence>
@@ -474,19 +670,23 @@ export function MembersAccessSettings({
 
               <section className="flex flex-col">
                 <Row label={tp("memberPhoto")}>
-                  <AvatarEditor
-                    compact
-                    profileId={selected.id}
-                    name={selected.full_name || selected.email || "?"}
-                    avatarUrl={selected.avatar_url}
-                    onChanged={(url) =>
-                      setProfiles((prev) =>
-                        prev.map((p) =>
-                          p.id === selected.id ? { ...p, avatar_url: url } : p,
-                        ),
-                      )
-                    }
-                  />
+                  <div ref={photoRef} className="contents">
+                    <AvatarEditor
+                      compact
+                      profileId={selected.id}
+                      name={selected.full_name || selected.email || "?"}
+                      avatarUrl={selected.avatar_url}
+                      onChanged={(url) =>
+                        setProfiles((prev) =>
+                          prev.map((p) =>
+                            p.id === selected.id
+                              ? { ...p, avatar_url: url }
+                              : p,
+                          ),
+                        )
+                      }
+                    />
+                  </div>
                 </Row>
                 <Row label={t("colRole")} hint={t("roleHint")}>
                   <Select

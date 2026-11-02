@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils"
 import { ChevronRight } from "@/components/icons"
 import { PrefetchLink } from "@/components/prefetch-link"
 import { useT } from "@/shared/i18n/client"
+import { ContextTarget } from "@/shared/context-menu"
 import { usePathname } from "next/navigation"
 import { memo, useEffect, useRef, useState } from "react"
 
@@ -98,28 +99,31 @@ export const NavMain = memo(function NavMain({
             (here ? !collapsed.includes(item.url) : expanded.includes(item.url))
           return (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton
-                tooltip={item.title}
-                // With the tabs listed, the active tab is highlighted instead.
-                isActive={item.isActive && !(open && childActive)}
-                className={cn(
-                  "not-data-active:blend-ink data-active:bg-transparent",
-                  nested && "pr-8",
-                )}
-                render={<PrefetchLink href={item.url} />}
-              >
-                {item.icon}
-                <span className="truncate">{item.title}</span>
-                {/* The tabs show their own counts while listed. */}
-                {!open && (
-                  <NavBadge
-                    count={
-                      item.badge ??
-                      item.items?.reduce((n, sub) => n + (sub.badge ?? 0), 0)
-                    }
-                  />
-                )}
-              </SidebarMenuButton>
+              {/* Right-click: Buka / Buka di tab baru / Salin link. */}
+              <ContextTarget type="nav" label={item.title} href={item.url}>
+                <SidebarMenuButton
+                  tooltip={item.title}
+                  // With the tabs listed, the active tab is highlighted instead.
+                  isActive={item.isActive && !(open && childActive)}
+                  className={cn(
+                    "not-data-active:blend-ink data-active:bg-transparent",
+                    nested && "pr-8",
+                  )}
+                  render={<PrefetchLink href={item.url} />}
+                >
+                  {item.icon}
+                  <span className="truncate">{item.title}</span>
+                  {/* The tabs show their own counts while listed. */}
+                  {!open && (
+                    <NavBadge
+                      count={
+                        item.badge ??
+                        item.items?.reduce((n, sub) => n + (sub.badge ?? 0), 0)
+                      }
+                    />
+                  )}
+                </SidebarMenuButton>
+              </ContextTarget>
               {nested && (
                 <SidebarMenuAction
                   aria-label={
@@ -156,18 +160,24 @@ export const NavMain = memo(function NavMain({
                   <SidebarMenuSub>
                     {item.items!.map((subItem) => (
                       <SidebarMenuSubItem key={subItem.url}>
-                        <SidebarMenuSubButton
-                          isActive={subItem.isActive}
-                          // Line the badge up with the parent row's chevron.
-                          className={cn(
-                            "not-data-active:blend-ink data-active:bg-transparent",
-                            subItem.badge && "pr-1.5",
-                          )}
-                          render={<PrefetchLink href={subItem.url} />}
+                        <ContextTarget
+                          type="nav"
+                          label={subItem.title}
+                          href={subItem.url}
                         >
-                          <span className="truncate">{subItem.title}</span>
-                          <NavBadge count={subItem.badge} />
-                        </SidebarMenuSubButton>
+                          <SidebarMenuSubButton
+                            isActive={subItem.isActive}
+                            // Line the badge up with the parent row's chevron.
+                            className={cn(
+                              "not-data-active:blend-ink data-active:bg-transparent",
+                              subItem.badge && "pr-1.5",
+                            )}
+                            render={<PrefetchLink href={subItem.url} />}
+                          >
+                            <span className="truncate">{subItem.title}</span>
+                            <NavBadge count={subItem.badge} />
+                          </SidebarMenuSubButton>
+                        </ContextTarget>
                       </SidebarMenuSubItem>
                     ))}
                   </SidebarMenuSub>

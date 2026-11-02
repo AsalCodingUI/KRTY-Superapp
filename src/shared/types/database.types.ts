@@ -94,6 +94,7 @@ export type Database = {
           end_at: string
           event_type: string | null
           guests: Json | null
+          holiday_key: string | null
           id: string
           is_recurring: boolean | null
           location: string | null
@@ -116,6 +117,7 @@ export type Database = {
           end_at: string
           event_type?: string | null
           guests?: Json | null
+          holiday_key?: string | null
           id?: string
           is_recurring?: boolean | null
           location?: string | null
@@ -138,6 +140,7 @@ export type Database = {
           end_at?: string
           event_type?: string | null
           guests?: Json | null
+          holiday_key?: string | null
           id?: string
           is_recurring?: boolean | null
           location?: string | null
@@ -1798,6 +1801,7 @@ export type Database = {
           category_id: string | null
           client_id: string | null
           process_id: string | null
+          phases_off: boolean
           client_name: string | null
           client_contact: string | null
           client_email: string | null
@@ -1816,6 +1820,7 @@ export type Database = {
           category_id?: string | null
           client_id?: string | null
           process_id?: string | null
+          phases_off?: boolean
           client_name?: string | null
           client_contact?: string | null
           client_email?: string | null
@@ -1834,6 +1839,7 @@ export type Database = {
           category_id?: string | null
           client_id?: string | null
           process_id?: string | null
+          phases_off?: boolean
           client_name?: string | null
           client_contact?: string | null
           client_email?: string | null
@@ -1940,6 +1946,93 @@ export type Database = {
           },
         ]
       }
+      santuy_settings: {
+        Row: {
+          id: boolean
+          weekday: number
+          start_time: string
+          duration_min: number
+          timezone: string
+          anchor_date: string
+          anchor_index: number
+          meet_url: string | null
+          google_event_id: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          id?: boolean
+          weekday?: number
+          start_time?: string
+          duration_min?: number
+          timezone?: string
+          anchor_date?: string
+          anchor_index?: number
+          meet_url?: string | null
+          google_event_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          id?: boolean
+          weekday?: number
+          start_time?: string
+          duration_min?: number
+          timezone?: string
+          anchor_date?: string
+          anchor_index?: number
+          meet_url?: string | null
+          google_event_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      santuy_members: {
+        Row: {
+          profile_id: string
+          position: number
+          active: boolean
+          added_at: string
+        }
+        Insert: {
+          profile_id: string
+          position: number
+          active?: boolean
+          added_at?: string
+        }
+        Update: {
+          profile_id?: string
+          position?: number
+          active?: boolean
+          added_at?: string
+        }
+        Relationships: []
+      }
+      santuy_weeks: {
+        Row: {
+          date: string
+          kind: string
+          profile_id: string | null
+          note: string | null
+          created_at: string
+        }
+        Insert: {
+          date: string
+          kind: string
+          profile_id?: string | null
+          note?: string | null
+          created_at?: string
+        }
+        Update: {
+          date?: string
+          kind?: string
+          profile_id?: string | null
+          note?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
       teams: {
         Row: {
           code: string | null
@@ -1993,6 +2086,10 @@ export type Database = {
       }
       delete_project_phase: {
         Args: { p_phase_id: string }
+        Returns: undefined
+      }
+      remove_project_phases: {
+        Args: { p_project_id: string }
         Returns: undefined
       }
       reorder_project_phases: {

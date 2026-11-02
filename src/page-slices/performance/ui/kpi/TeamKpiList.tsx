@@ -28,6 +28,8 @@ import { format, parseISO } from "date-fns"
 import Link from "next/link"
 import { useState } from "react"
 import { toast } from "sonner"
+import { ContextTarget, copyText, type CtxItem } from "@/shared/context-menu"
+import { Copy, Hash } from "lucide-react"
 import { ListColumns, PersonCell, StatBand } from "../list"
 import { isQuarter, periodLabel } from "./period"
 import { RatingChip } from "./RatingChip"
@@ -156,9 +158,16 @@ function Part({
 const kpiHref = (row: TeamKpiRow, scope: string) =>
   `${employeeHref(row)}?period=${encodeURIComponent(scope)}`
 
+/** Copy, with the usual toast. */
+async function copyWithToast(text: string, ok: string, failed: string) {
+  if (await copyText(text)) toast.success(ok)
+  else toast.error(failed)
+}
+
 /** Everyone's KPI for the period, best first. */
 export function TeamKpiList({ scope }: { scope: string }) {
   const t = useT("performance")
+  const tm = useT("ctxmenu")
   const { data, isLoading } = useQuery({
     queryKey: ["kpi-team", scope],
     queryFn: () => getTeamKpi(scope),
@@ -243,43 +252,81 @@ export function TeamKpiList({ scope }: { scope: string }) {
           <span />
         </ListColumns>
         {sorted.map((row) => (
-          <ListRow key={row.id} className={cn(ROW_GRID, "min-h-14")}>
-            <PersonCell
-              name={row.full_name}
-              avatarUrl={row.avatar_url}
-              secondary={projectsLabel(row, t)}
-            >
-              <Link
-                href={href(row)}
-                prefetch={false}
-                className="text-foreground truncate outline-none after:absolute after:inset-0 focus-visible:underline"
-                aria-label={t("kpiOf", { name: row.full_name ?? "" })}
+          // Right-click: Buka (their KPI page) / tab baru / Salin link, the
+          // name and the score.
+          <ContextTarget
+            key={row.id}
+            type="kpi-member"
+            id={row.id}
+            label={row.full_name ?? undefined}
+            href={href(row)}
+            items={(): CtxItem[] =>
+              [
+                {
+                  id: "copy-name",
+                  label: tm("copyName"),
+                  icon: Copy,
+                  hidden: !row.full_name,
+                  onSelect: () =>
+                    copyWithToast(
+                      row.full_name ?? "",
+                      tm("copied"),
+                      tm("copyFailed"),
+                    ),
+                },
+                {
+                  id: "copy-score",
+                  label: t("ctxCopyScore"),
+                  icon: Hash,
+                  hidden: row.final.score === null,
+                  onSelect: () =>
+                    copyWithToast(
+                      `${row.full_name ?? ""}: ${Math.round(row.final.score ?? 0)}`,
+                      tm("copied"),
+                      tm("copyFailed"),
+                    ),
+                },
+              ].filter((item) => !item.hidden)
+            }
+          >
+            <ListRow className={cn(ROW_GRID, "min-h-14")}>
+              <PersonCell
+                name={row.full_name}
+                avatarUrl={row.avatar_url}
+                secondary={projectsLabel(row, t)}
               >
-                {row.full_name}
-              </Link>
-            </PersonCell>
-            <div className="hidden min-w-0 lg:block">
-              {row.job_title && (
-                <Badge variant="secondary" className="max-w-full">
-                  <span className="truncate">{row.job_title}</span>
-                </Badge>
-              )}
-            </div>
-            <Part value={row.parts.sla} className="hidden md:block" />
-            <Part value={row.parts.review} className="hidden md:block" />
-            <Part value={row.parts.quality} className="hidden md:block" />
-            <span className="text-foreground text-right tabular-nums">
-              {row.final.score === null ? (
-                <EmptyValue />
-              ) : (
-                Math.round(row.final.score)
-              )}
-            </span>
-            <div className="hidden md:block">
-              <RatingChip score={row.final.score} />
-            </div>
-            <RiArrowRightSLine className="text-muted-foreground size-4 shrink-0 opacity-0 transition-opacity group-hover/row:opacity-100" />
-          </ListRow>
+                <Link
+                  href={href(row)}
+                  prefetch={false}
+                  className="text-foreground truncate outline-none after:absolute after:inset-0 focus-visible:underline"
+                  aria-label={t("kpiOf", { name: row.full_name ?? "" })}
+                >
+                  {row.full_name}
+                </Link>
+              </PersonCell>
+              <div className="hidden min-w-0 lg:block">
+                {row.job_title && (
+                  <Badge variant="secondary" className="max-w-full">
+                    <span className="truncate">{row.job_title}</span>
+                  </Badge>
+                )}
+              </div>
+              <Part value={row.parts.sla} className="hidden md:block" />
+              <Part value={row.parts.review} className="hidden md:block" />
+              <Part value={row.parts.quality} className="hidden md:block" />
+              <span className="text-foreground text-right tabular-nums">
+                {row.final.score === null ? (
+                  <EmptyValue />
+                ) : (
+                  Math.round(row.final.score)
+                )}
+              </span>
+              <div className="hidden md:block">
+                <RatingChip score={row.final.score} />
+              </div>
+              <RiArrowRightSLine className="text-muted-foreground size-4 shrink-0 opacity-0 transition-opacity group-hover/row:opacity-100" />
+            </ListRow>
+          </ContextTarget>
         ))}
       </GroupedList>
     </>

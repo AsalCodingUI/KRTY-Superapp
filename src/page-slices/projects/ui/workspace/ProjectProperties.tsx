@@ -2,7 +2,13 @@
 
 import { cn } from "@/lib/utils"
 import { useT } from "@/shared/i18n/client"
-import { ArrowRight, CalendarDays, Flag, ListChecks } from "lucide-react"
+import {
+  ArrowRight,
+  CalendarDays,
+  Flag,
+  Infinity as InfinityIcon,
+  ListChecks,
+} from "lucide-react"
 import type { PhaseRow, StepRow } from "./data"
 
 /** Dot colour per project status. */
@@ -51,7 +57,8 @@ function ProgressRing({ value }: { value: number }) {
  * The project's properties in one quiet line under the title (Linear's
  * project overview): status, overall progress, the running phase and the
  * dates (and, for the team, open tasks). Used on the team's dashboard and
- * the client portal. Progress per phase is the rail below.
+ * the client portal. Progress per phase is the rail below; a project
+ * without phases reads "Berjalan terus" instead.
  */
 export function ProjectProperties({
   phases,
@@ -105,6 +112,15 @@ export function ProjectProperties({
           {status}
         </span>
       )}
+      {/* No phases: an ongoing project (side work, a retainer), not 0%. */}
+      {percent === null &&
+        statusTone !== "Completed" &&
+        statusTone !== "Archived" && (
+          <span className={item}>
+            <InfinityIcon className={icon} />
+            {t("phasesOffLabel")}
+          </span>
+        )}
       {percent !== null && (
         <span className={item}>
           <ProgressRing value={percent} />

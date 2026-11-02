@@ -22,6 +22,9 @@ import { RiArrowDownSLine, RiCalendarLine } from "@/shared/ui/lucide-icons"
 import { format, isToday, isYesterday, parseISO } from "date-fns"
 import { useDateLocale, useT } from "@/shared/i18n/client"
 import * as React from "react"
+import { ContextTarget } from "@/shared/context-menu"
+import { useCopyWithToast } from "@/page-slices/leave/ui/components/leave-context-menu"
+import { Clock, Trash2 } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 
 type AttendanceLog = Database["public"]["Tables"]["attendance_logs"]["Row"]
@@ -225,7 +228,9 @@ function AttendanceRow({
   onRequestDelete?: (id: string) => void
 }) {
   const t = useT("leave")
+  const dateLocale = useDateLocale()
   const isActive = !log.clock_out
+  const copy = useCopyWithToast()
   const deleteRequested = hasAttendanceNote(
     log.notes,
     ATTENDANCE_NOTE_TAGS.deleteRequested,
@@ -258,49 +263,81 @@ function AttendanceRow({
     </Button>
   )
 
-  return (
-    <ListRow className={cn(ROW_GRID, "min-h-14")}>
-      {/* Indented to sit under the day label, past the chevron. */}
-      <div className="flex min-w-0 flex-col pl-7">
-        <span className="text-foreground truncate tabular-nums">
-          {format(new Date(log.clock_in), "HH:mm")}
-          <span className="text-muted-foreground"> – </span>
-          {log.clock_out ? format(new Date(log.clock_out), "HH:mm") : "…"}
-        </span>
-        {notes.length > 0 && (
-          <span className="text-tertiary-foreground truncate text-[13px]">
-            {notes.join(" · ")}
-          </span>
-        )}
-        {/* Narrow screens: a quiet link under the times rather than a
-            button row under every session. */}
-        {canRequestDelete && (
-          <button
-            type="button"
-            onClick={() => onRequestDelete?.(log.id)}
-            className="text-tertiary-foreground hover:text-foreground -my-1 self-start py-1 text-[13px] underline-offset-2 hover:underline lg:hidden"
-          >
-            {t("requestDelete")}
-          </button>
-        )}
-      </div>
+  const times = `${format(new Date(log.clock_in), "HH:mm")} – ${
+    log.clock_out ? format(new Date(log.clock_out), "HH:mm") : "…"
+  }`
+  const day = format(parseISO(getAttendanceLogLocalDate(log)), "EEEE, d MMMM", {
+    locale: dateLocale,
+  })
 
-      <div className="hidden md:block">{status}</div>
-      <span className="text-muted-foreground hidden text-right tabular-nums md:block">
-        {log.break_total ? `${log.break_total}m` : <EmptyValue />}
-      </span>
-      {/* On wide screens the action floats over the duration cell on
+  return (
+    // Right-click: the row's "Minta hapus", and copy its times.
+    <ContextTarget
+      type="attendance-log"
+      id={log.id}
+      label={`${day} · ${times}`}
+      items={() => [
+        {
+          id: "request-delete",
+          label: t("requestDelete"),
+          icon: Trash2,
+          destructive: true,
+          hidden: !canRequestDelete,
+          // Its dialog asks first.
+          onSelect: () => onRequestDelete?.(log.id),
+        },
+        {
+          id: "copy-times",
+          label: t("ctxCopyTimes"),
+          icon: Clock,
+          hint: times,
+          onSelect: () => copy(`${day}, ${times}`),
+        },
+      ]}
+    >
+      <ListRow className={cn(ROW_GRID, "min-h-14")}>
+        {/* Indented to sit under the day label, past the chevron. */}
+        <div className="flex min-w-0 flex-col pl-7">
+          <span className="text-foreground truncate tabular-nums">
+            {format(new Date(log.clock_in), "HH:mm")}
+            <span className="text-muted-foreground"> – </span>
+            {log.clock_out ? format(new Date(log.clock_out), "HH:mm") : "…"}
+          </span>
+          {notes.length > 0 && (
+            <span className="text-tertiary-foreground truncate text-[13px]">
+              {notes.join(" · ")}
+            </span>
+          )}
+          {/* Narrow screens: a quiet link under the times rather than a
+            button row under every session. */}
+          {canRequestDelete && (
+            <button
+              type="button"
+              onClick={() => onRequestDelete?.(log.id)}
+              className="text-tertiary-foreground hover:text-foreground -my-1 self-start py-1 text-[13px] underline-offset-2 hover:underline lg:hidden"
+            >
+              {t("requestDelete")}
+            </button>
+          )}
+        </div>
+
+        <div className="hidden md:block">{status}</div>
+        <span className="text-muted-foreground hidden text-right tabular-nums md:block">
+          {log.break_total ? `${log.break_total}m` : <EmptyValue />}
+        </span>
+        {/* On wide screens the action floats over the duration cell on
           hover (no empty column, so the table runs to the same edge as
           every other page); on narrow ones it's a link under the times. */}
-      <span className="relative flex justify-end">
-        <WorkedTime log={log} hydrated={hydrated} />
-        {canRequestDelete && (
-          <ListRowActions className="bg-popover absolute inset-y-0 right-0 my-auto hidden h-fit rounded-full shadow-(--elev-2) lg:flex">
-            {requestDeleteButton}
-          </ListRowActions>
-        )}
-      </span>
-    </ListRow>
+        <span className="relative flex justify-end">
+          <WorkedTime log={log} hydrated={hydrated} />
+          {canRequestDelete && (
+            <ListRowActions className="bg-popover absolute inset-y-0 right-0 my-auto hidden h-fit rounded-full shadow-(--elev-2) lg:flex">
+              {requestDeleteButton}
+            </ListRowActions>
+          )}
+        </span>
+      </ListRow>
+    </ContextTarget>
   )
 }
 

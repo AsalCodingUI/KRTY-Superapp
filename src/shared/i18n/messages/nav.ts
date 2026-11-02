@@ -9,6 +9,7 @@ const id = {
 
   home: "Beranda",
   calendar: "Kalender",
+  sharingSantuy: "Sharing Santuy",
   mobileTasks: "Tugas",
   mobileLeave: "Cuti",
   team: "Tim",
@@ -55,6 +56,7 @@ const en: Record<keyof typeof id, string> = {
 
   home: "Home",
   calendar: "Calendar",
+  sharingSantuy: "Sharing Santuy",
   mobileTasks: "Tasks",
   mobileLeave: "Leave",
   team: "Team",

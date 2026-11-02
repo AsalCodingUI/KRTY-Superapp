@@ -48,7 +48,28 @@ import {
 import { useDateLocale, useT } from "@/shared/i18n/client"
 import { format, type Locale } from "date-fns"
 import { Check, ChevronDown, FileText, Plus, Upload } from "@/components/icons"
-import { FileImage, File as FileIcon, Folder } from "lucide-react"
+import {
+  CopyPlus,
+  Download,
+  Eye,
+  FileImage,
+  FilePlus,
+  File as FileIcon,
+  Folder,
+  FolderInput,
+  FolderOpen,
+  FolderPlus,
+  Link as LinkIcon,
+  Lock,
+  Pencil,
+  Trash2,
+} from "lucide-react"
+import {
+  ContextTarget,
+  copyText,
+  useContextTarget,
+  type CtxItem,
+} from "@/shared/context-menu"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import * as React from "react"
 import { useRef, useState } from "react"
@@ -56,8 +77,10 @@ import { mapLimit } from "@/shared/lib/storage-names"
 import { toast } from "sonner"
 import {
   BUCKET,
+  copyProjectFile,
   formatBytes,
   openProjectFile,
+  projectFileLink,
   renameProjectFile,
   supabase,
   uploadProjectFile,
@@ -198,6 +221,8 @@ function LibraryGrid({
   fileMenu,
   onOpenFile,
   onDropOnFolder,
+  fileCtx,
+  folderCtx,
 }: {
   folders: FolderRow[]
   files: FileRow[]
@@ -211,6 +236,15 @@ function LibraryGrid({
   onOpenFile: (file: FileRow) => void
   /** A file card was dropped on a folder tile. */
   onDropOnFolder: (fileId: string, folder: FolderRow) => void
+  /** Right-click: wraps a file card / folder tile in its menu target. */
+  fileCtx: (
+    file: FileRow,
+    row: React.ReactElement<Record<string, unknown>>,
+  ) => React.ReactElement
+  folderCtx: (
+    folder: FolderRow,
+    row: React.ReactElement<Record<string, unknown>>,
+  ) => React.ReactElement
   onRemove: (
     target:
       | { type: "file"; item: FileRow }
@@ -229,7 +263,8 @@ function LibraryGrid({
           <div className="grid grid-cols-1 gap-2 pb-1 sm:grid-cols-2 lg:grid-cols-3">
             {folders.map((f) => {
               const count = allFiles.filter((x) => x.folder_id === f.id).length
-              return (
+              return folderCtx(
+                f,
                 <div
                   key={f.id}
                   role="button"
@@ -283,7 +318,7 @@ function LibraryGrid({
                       },
                     ]}
                   />
-                </div>
+                </div>,
               )
             })}
             {onNewFolder && (
@@ -307,7 +342,8 @@ function LibraryGrid({
           <div className="grid grid-cols-1 gap-x-4 gap-y-6 pb-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {files.map((file) => {
               const open = () => onOpenFile(file)
-              return (
+              return fileCtx(
+                file,
                 <div
                   key={file.id}
                   role="button"
@@ -349,7 +385,7 @@ function LibraryGrid({
                     </div>
                     <RowMenu label={file.name} items={fileMenu(file)} />
                   </div>
-                </div>
+                </div>,
               )
             })}
           </div>
@@ -422,6 +458,7 @@ export function RowMenu({
 export function ProjectLibrary({ projectId }: { projectId: string }) {
   const t = useT("projects")
   const tc = useT("common")
+  const tm = useT("ctxmenu")
   const dateLocale = useDateLocale()
   const router = useRouter()
   const pathname = usePathname()
@@ -443,8 +480,12 @@ export function ProjectLibrary({ projectId }: { projectId: string }) {
     { type: "file"; item: FileRow } | { type: "folder"; item: FolderRow } | null
   >(null)
   const [viewing, setViewing] = useState<number | null>(null)
-  // A Markdown note open in the note dialog (file null = writing a new one).
-  const [note, setNote] = useState<{ file: FileRow | null } | null>(null)
+  // A Markdown note open in the note dialog (file null = writing a new
+  // one, in `folderId` when given, else the open folder).
+  const [note, setNote] = useState<{
+    file: FileRow | null
+    folderId?: string | null
+  } | null>(null)
   const [renaming, setRenaming] = useState<{
     file: FileRow
     name: string
@@ -479,11 +520,21 @@ export function ProjectLibrary({ projectId }: { projectId: string }) {
 
   // "Upload resolusi asli" skips the compression for that one pick.
   const keepOriginal = useRef(false)
+  // "Upload ke folder ini" from a folder's right-click menu: that folder
+  // instead of the open one, for that one pick.
+  const uploadFolder = useRef<string | undefined>(undefined)
+  const pickFiles = (options: { original?: boolean; folderId?: string }) => {
+    keepOriginal.current = Boolean(options.original)
+    uploadFolder.current = options.folderId
+    inputRef.current?.click()
+  }
 
   const upload = async (list: FileList | null) => {
     if (!list?.length) return
     const original = keepOriginal.current
     keepOriginal.current = false
+    const targetFolder = uploadFolder.current ?? folder?.id ?? null
+    uploadFolder.current = undefined
     // The library is for assets (pictures, SVG, video); documents live in
     // the Documents tab.
     const all = [...list]
@@ -513,7 +564,7 @@ export function ProjectLibrary({ projectId }: { projectId: string }) {
         ? [
             {
               project_id: projectId,
-              folder_id: folder?.id ?? null,
+              folder_id: targetFolder,
               name: file.name,
               file_path: result.value,
               file_size: file.size,
@@ -683,15 +734,251 @@ export function ProjectLibrary({ projectId }: { projectId: string }) {
     },
   ]
 
+  /** "Logo final.png" → "Logo final (salinan).png". */
+  const copyName = (name: string) => {
+    const dot = name.lastIndexOf(".")
+    return dot > 0
+      ? `${t("ctxCopyOf", { name: name.slice(0, dot) })}${name.slice(dot)}`
+      : t("ctxCopyOf", { name })
+  }
+
+  /** A copy of the file (stored next to it) in the same folder. */
+  const duplicateFile = async (file: FileRow) => {
+    const name = copyName(file.name)
+    try {
+      const path = await copyProjectFile(file.file_path, name)
+      const db = supabase()
+      const { error } = await db.from("project_files").insert({
+        project_id: projectId,
+        folder_id: file.folder_id,
+        name,
+        file_path: path,
+        file_size: file.file_size,
+        mime_type: file.mime_type,
+        created_by: viewer.id,
+      })
+      if (error) {
+        await db.storage.from(BUCKET).remove([path])
+        throw error
+      }
+      toast.success(t("ctxDuplicated"))
+      invalidate("library")
+    } catch {
+      toast.error(t("ctxErrDuplicate"))
+    }
+  }
+
+  const setInternal = async (f: FolderRow, internal: boolean) => {
+    const { error } = await supabase()
+      .from("project_folders")
+      .update({ is_internal: internal })
+      .eq("id", f.id)
+    if (error) return void toast.error(t("errSaveFolder"))
+    toast.success(internal ? t("ctxInternalOn") : t("ctxInternalOff"))
+    invalidate("library")
+  }
+
+  const folderHref = (f: FolderRow) => {
+    const params = new URLSearchParams(searchParams.toString())
+    params.set("folder", linkKey(f.name, f.id))
+    return `${pathname}?${params}`
+  }
+
+  /** Right-click on a file card / row: the ⋯ actions and a few more. */
+  const fileCtx = (
+    file: FileRow,
+    row: React.ReactElement<Record<string, unknown>>,
+  ) => (
+    <ContextTarget
+      key={file.id}
+      type="project-file"
+      id={file.id}
+      label={file.name}
+      // Its own preview covers the picture inside the card.
+      suppress={["image", "video", "button"]}
+      items={(): CtxItem[] => [
+        {
+          id: "open",
+          label: isNote(file.name) ? t("libOpen") : t("ctxPreview"),
+          icon: isNote(file.name) ? FileText : Eye,
+          shortcut: "Enter",
+          onSelect: () => openFile(file),
+        },
+        {
+          id: "download",
+          label: t("libDownload"),
+          icon: Download,
+          onSelect: () =>
+            openProjectFile(file.file_path, file.name).catch(() =>
+              toast.error(t("errDownload")),
+            ),
+        },
+        {
+          id: "copy-link",
+          label: tm("copyLink"),
+          icon: LinkIcon,
+          onSelect: async () => {
+            if (await copyText(projectFileLink(file.file_path)))
+              toast.success(tm("linkCopied"))
+          },
+        },
+        {
+          id: "rename",
+          label: t("libRename"),
+          icon: Pencil,
+          onSelect: () => setRenaming({ file, name: file.name }),
+        },
+        {
+          id: "move",
+          label: t("ctxMoveToFolder"),
+          icon: FolderInput,
+          hidden: folders.length === 0,
+          submenu: [
+            { id: ROOT_FOLDER, name: t("libRoot") },
+            ...folders.map((f) => ({ id: f.id, name: f.name })),
+          ].map((f) => ({
+            id: f.id,
+            label: f.name,
+            role: "radio" as const,
+            checked: (file.folder_id ?? ROOT_FOLDER) === f.id,
+            onSelect: () =>
+              moveFile(file.id, f.id === ROOT_FOLDER ? null : f.id),
+          })),
+        },
+        {
+          id: "duplicate",
+          label: tm("duplicate"),
+          icon: CopyPlus,
+          onSelect: () => duplicateFile(file),
+        },
+        {
+          id: "delete",
+          label: tc("delete"),
+          icon: Trash2,
+          destructive: true,
+          // The delete dialog asks first.
+          onSelect: () => setRemoving({ type: "file", item: file }),
+        },
+      ]}
+    >
+      {row}
+    </ContextTarget>
+  )
+
+  /** Right-click on a folder tile / row. Folders don't nest. */
+  const folderCtx = (
+    f: FolderRow,
+    row: React.ReactElement<Record<string, unknown>>,
+  ) => (
+    <ContextTarget
+      key={f.id}
+      type="project-folder"
+      id={f.id}
+      label={f.name}
+      href={folderHref(f)}
+      suppress={["button"]}
+      items={(): CtxItem[] => [
+        {
+          id: "upload-here",
+          label: t("ctxUploadHere"),
+          icon: Upload,
+          disabled: uploading > 0,
+          onSelect: () => pickFiles({ folderId: f.id }),
+        },
+        {
+          id: "note-here",
+          label: t("ctxNoteHere"),
+          icon: FilePlus,
+          onSelect: () => setNote({ file: null, folderId: f.id }),
+        },
+        {
+          id: "rename",
+          label: t("libRenameFolder"),
+          icon: Pencil,
+          onSelect: () =>
+            setNaming({ folder: f, name: f.name, internal: f.is_internal }),
+        },
+        {
+          id: "internal",
+          label: t("libInternalFolder"),
+          icon: Lock,
+          role: "checkbox",
+          checked: f.is_internal,
+          onSelect: () => setInternal(f, !f.is_internal),
+        },
+        {
+          id: "delete",
+          label: tc("delete"),
+          icon: Trash2,
+          destructive: true,
+          onSelect: () => setRemoving({ type: "folder", item: f }),
+        },
+      ]}
+    >
+      {row}
+    </ContextTarget>
+  )
+
   // A drop is always a normal upload (an "original" pick may have been
   // cancelled and left the flag on).
   const drop = useFileDrop((list) => {
     keepOriginal.current = false
+    uploadFolder.current = undefined
     return upload(list)
   }, uploading === 0)
 
+  // Right-click on the page itself (not a file's or folder's menu).
+  const rootRef = useRef<HTMLDivElement>(null)
+  useContextTarget(
+    rootRef,
+    (ctx): CtxItem[] =>
+      // A file's or folder's own target sits in between.
+      ctx.target.closest("[data-ctx-key]")
+        ? []
+        : [
+            {
+              id: "upload",
+              label: folder ? t("ctxUploadHere") : t("libUpload"),
+              icon: Upload,
+              disabled: uploading > 0,
+              onSelect: () => pickFiles({}),
+            },
+            {
+              id: "upload-original",
+              label: t("libUploadOriginal"),
+              icon: Upload,
+              disabled: uploading > 0,
+              onSelect: () => pickFiles({ original: true }),
+            },
+            {
+              id: "new-folder",
+              label: t("libNewFolder"),
+              icon: FolderPlus,
+              hidden: Boolean(folder),
+              onSelect: () => setNaming({ name: "", internal: false }),
+            },
+            {
+              id: "new-note",
+              label: t("libNoteNew"),
+              icon: FilePlus,
+              onSelect: () => setNote({ file: null }),
+            },
+            {
+              id: "back",
+              label: t("sectionLibrary"),
+              icon: FolderOpen,
+              hidden: !folder,
+              onSelect: () => go(null),
+            },
+          ],
+    {
+      type: "project-library",
+      label: folder ? folder.name : t("sectionLibrary"),
+    },
+  )
+
   return (
-    <div className="relative flex flex-col" {...drop.bind}>
+    <div ref={rootRef} className="relative flex flex-col" {...drop.bind}>
       {drop.dragging && (
         <div className="bg-primary/5 border-primary/40 pointer-events-none fixed inset-0 z-40 m-3 flex items-center justify-center rounded-2xl border-2 border-dashed backdrop-blur-[1px]">
           <span className="bg-background flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium shadow-(--elev-4)">
@@ -738,13 +1025,7 @@ export function ProjectLibrary({ projectId }: { projectId: string }) {
               {t("libNoteButton")}
             </Button>
             <ButtonGroup>
-              <Button
-                onClick={() => {
-                  keepOriginal.current = false
-                  inputRef.current?.click()
-                }}
-                disabled={uploading > 0}
-              >
+              <Button onClick={() => pickFiles({})} disabled={uploading > 0}>
                 {uploading > 0 ? (
                   <Spinner data-icon="inline-start" />
                 ) : (
@@ -768,10 +1049,7 @@ export function ProjectLibrary({ projectId }: { projectId: string }) {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="min-w-56">
                   <DropdownMenuItem
-                    onClick={() => {
-                      keepOriginal.current = true
-                      inputRef.current?.click()
-                    }}
+                    onClick={() => pickFiles({ original: true })}
                   >
                     {t("libUploadOriginal")}
                   </DropdownMenuItem>
@@ -824,6 +1102,8 @@ export function ProjectLibrary({ projectId }: { projectId: string }) {
                 fileMenu={fileMenu}
                 onOpenFile={openFile}
                 onDropOnFolder={(id, f) => moveFile(id, f.id)}
+                fileCtx={fileCtx}
+                folderCtx={folderCtx}
               />
             ) : (!folder && folders.length > 0) || inFolder.length > 0 ? (
               // One aligned list: folders first, then files; actions in ⋯.
@@ -846,7 +1126,8 @@ export function ProjectLibrary({ projectId }: { projectId: string }) {
                     const count = files.filter(
                       (x) => x.folder_id === f.id,
                     ).length
-                    return (
+                    return folderCtx(
+                      f,
                       <ListRow
                         key={f.id}
                         role="button"
@@ -903,13 +1184,14 @@ export function ProjectLibrary({ projectId }: { projectId: string }) {
                             },
                           ]}
                         />
-                      </ListRow>
+                      </ListRow>,
                     )
                   })}
                 {inFolder.map((file) => {
                   const Icon = iconFor(file.mime_type)
                   const open = () => openFile(file)
-                  return (
+                  return fileCtx(
+                    file,
                     <ListRow
                       key={file.id}
                       role="button"
@@ -943,7 +1225,7 @@ export function ProjectLibrary({ projectId }: { projectId: string }) {
                         })}
                       </span>
                       <RowMenu label={file.name} items={fileMenu(file)} />
-                    </ListRow>
+                    </ListRow>,
                   )
                 })}
               </GroupedList>
@@ -1091,7 +1373,9 @@ export function ProjectLibrary({ projectId }: { projectId: string }) {
           file={note?.file ?? null}
           projectId={projectId}
           projectName={projectName}
-          folderId={folder?.id ?? null}
+          folderId={
+            note?.folderId !== undefined ? note.folderId : (folder?.id ?? null)
+          }
           viewerId={viewer.id}
           onSaved={() => invalidate("library")}
         />

@@ -179,6 +179,12 @@ const id = {
   errGoalSaveFailed: "Gagal menyimpan target.",
   errRateCodeInvalid: "Kurs {code} tidak valid.",
   errRatesSaveFailed: "Gagal menyimpan kurs.",
+  ctxStopSubscription: "Hentikan mulai hari ini",
+  ctxResumeSubscription: "Jalankan lagi",
+  ctxSubscriptionStopped: "{name} dihentikan",
+  ctxSubscriptionResumed: "{name} jalan lagi",
+  ctxCopyInvoiceNumber: "Salin nomor invoice",
+  ctxPrintInvoice: "Buka halaman cetak",
 }
 
 const en: Record<keyof typeof id, string> = {
@@ -351,6 +357,12 @@ const en: Record<keyof typeof id, string> = {
   errGoalSaveFailed: "Failed to save the goal.",
   errRateCodeInvalid: "Invalid {code} rate.",
   errRatesSaveFailed: "Failed to save the rates.",
+  ctxStopSubscription: "Stop from today",
+  ctxResumeSubscription: "Resume",
+  ctxSubscriptionStopped: "{name} stopped",
+  ctxSubscriptionResumed: "{name} resumed",
+  ctxCopyInvoiceNumber: "Copy invoice number",
+  ctxPrintInvoice: "Open print page",
 }
 
 export const finance = { id, en }

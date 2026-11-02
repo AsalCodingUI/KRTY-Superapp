@@ -12,6 +12,7 @@ import { format, parseISO } from "date-fns"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useEffect } from "react"
 import { PortalReportDialog } from "./PortalReportDialog"
+import { ContextTarget } from "@/shared/context-menu"
 
 export type PortalReport = {
   id: string
@@ -62,21 +63,29 @@ export function PortalReports({ reports }: { reports: PortalReport[] }) {
         <GroupedList>
           {reports.map((r) => {
             return (
-              <ListRow
+              // Its portal address: Buka / Buka di tab baru / Salin link
+              // (the client's own portal; the session cookie opens it).
+              <ContextTarget
                 key={r.id}
-                role="link"
-                tabIndex={0}
-                className={cn(ROW_GRID, "min-h-14 cursor-pointer")}
-                onClick={() => setOpen(r)}
-                onKeyDown={(e) => e.key === "Enter" && setOpen(r)}
+                type="portal-report"
+                label={r.title}
+                href={`${pathname}?report=${linkKey(r.title, r.id)}`}
               >
-                <span className="text-foreground truncate">{r.title}</span>
-                <span className="text-tertiary-foreground text-right text-[13px] tabular-nums">
-                  {format(parseISO(r.report_date), "d MMM yyyy", {
-                    locale: dateLocale,
-                  })}
-                </span>
-              </ListRow>
+                <ListRow
+                  role="link"
+                  tabIndex={0}
+                  className={cn(ROW_GRID, "min-h-14 cursor-pointer")}
+                  onClick={() => setOpen(r)}
+                  onKeyDown={(e) => e.key === "Enter" && setOpen(r)}
+                >
+                  <span className="text-foreground truncate">{r.title}</span>
+                  <span className="text-tertiary-foreground text-right text-[13px] tabular-nums">
+                    {format(parseISO(r.report_date), "d MMM yyyy", {
+                      locale: dateLocale,
+                    })}
+                  </span>
+                </ListRow>
+              </ContextTarget>
             )
           })}
         </GroupedList>

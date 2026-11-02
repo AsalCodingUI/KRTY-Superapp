@@ -13,6 +13,9 @@ import { ProjectAvatar } from "@/components/project-avatar"
 import { Badge } from "@/components/ui/badge"
 import { format, isValid } from "date-fns"
 import { useDateLocale, useT } from "@/shared/i18n/client"
+import { ContextTarget } from "@/shared/context-menu"
+import { useCopyWithToast } from "@/page-slices/leave/ui/components/leave-context-menu"
+import { Copy } from "lucide-react"
 
 interface Project {
   id: string
@@ -37,6 +40,8 @@ export function EmployeeProjectsWidget({
 }: EmployeeProjectsWidgetProps) {
   const t = useT("dashboard")
   const tp = useT("projects")
+  const tm = useT("ctxmenu")
+  const copy = useCopyWithToast()
   const dateLocale = useDateLocale()
   return (
     <HomeCard
@@ -64,56 +69,72 @@ export function EmployeeProjectsWidget({
               ? Math.ceil((endDate.getTime() - Date.now()) / 86_400_000)
               : Number.NaN
             return (
-              <HomeRow
+              // Right-click: Buka / tab baru / Salin link, Salin nama.
+              <ContextTarget
                 key={
                   project.id || `${project.name}-${project.quarter_id}-${index}`
                 }
-                href={projectHref(project)}
-                leading={
-                  <ProjectAvatar
-                    id={project.id}
-                    name={project.name}
-                    className="size-6 rounded-md text-[11px]"
-                  />
-                }
-                title={<span className="font-medium">{project.name}</span>}
-                subtitle={
-                  <span className="flex items-center gap-1.5">
-                    <ProjectStatusIcon
-                      status={project.status as ProjectStatus}
-                      className="size-3.5"
+                type="project"
+                id={project.id || undefined}
+                label={project.name}
+                href={project.id ? projectHref(project) : undefined}
+                items={() => [
+                  {
+                    id: "copy-name",
+                    label: tm("copyName"),
+                    icon: Copy,
+                    onSelect: () => copy(project.name),
+                  },
+                ]}
+              >
+                <HomeRow
+                  href={projectHref(project)}
+                  leading={
+                    <ProjectAvatar
+                      id={project.id}
+                      name={project.name}
+                      className="size-6 rounded-md text-[11px]"
                     />
-                    {tp(
-                      STATUS_LABEL_KEYS[project.status as ProjectStatus] ??
-                        "statusActive",
-                    )}
-                  </span>
-                }
-                trailing={
-                  daysLeft < 0 ? (
-                    <Badge variant="destructive">{t("projectOverdue")}</Badge>
-                  ) : daysLeft <= 7 ? (
-                    <Badge variant="warning">
-                      {daysLeft === 0
-                        ? t("projectDueToday")
-                        : t(
-                            daysLeft === 1
-                              ? "projectDaysLeftOne"
-                              : "projectDaysLeft",
-                            { n: daysLeft },
-                          )}
-                    </Badge>
-                  ) : (
-                    <span className="text-tertiary-foreground text-[13px]">
-                      {endDateValid ? (
-                        format(endDate, "d MMM yyyy", { locale: dateLocale })
-                      ) : (
-                        <EmptyValue />
+                  }
+                  title={<span className="font-medium">{project.name}</span>}
+                  subtitle={
+                    <span className="flex items-center gap-1.5">
+                      <ProjectStatusIcon
+                        status={project.status as ProjectStatus}
+                        className="size-3.5"
+                      />
+                      {tp(
+                        STATUS_LABEL_KEYS[project.status as ProjectStatus] ??
+                          "statusActive",
                       )}
                     </span>
-                  )
-                }
-              />
+                  }
+                  trailing={
+                    daysLeft < 0 ? (
+                      <Badge variant="destructive">{t("projectOverdue")}</Badge>
+                    ) : daysLeft <= 7 ? (
+                      <Badge variant="warning">
+                        {daysLeft === 0
+                          ? t("projectDueToday")
+                          : t(
+                              daysLeft === 1
+                                ? "projectDaysLeftOne"
+                                : "projectDaysLeft",
+                              { n: daysLeft },
+                            )}
+                      </Badge>
+                    ) : (
+                      <span className="text-tertiary-foreground text-[13px]">
+                        {endDateValid ? (
+                          format(endDate, "d MMM yyyy", { locale: dateLocale })
+                        ) : (
+                          <EmptyValue />
+                        )}
+                      </span>
+                    )
+                  }
+                />
+              </ContextTarget>
             )
           })
         )}

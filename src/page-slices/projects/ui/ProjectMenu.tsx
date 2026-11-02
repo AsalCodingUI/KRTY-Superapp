@@ -1,6 +1,5 @@
 "use client"
 
-import { ContextMenu } from "@base-ui/react/context-menu"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -13,11 +12,18 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { usePortalContainer } from "@/components/ui/portal-container"
 import { cn } from "@/lib/utils"
 import { useT } from "@/shared/i18n/client"
 import { RiDeleteBinLine, RiMoreFill } from "@/shared/ui/lucide-icons"
-import { Pencil } from "lucide-react"
+import {
+  ContextTarget,
+  copyText,
+  registerContextType,
+  type CtxItem,
+} from "@/shared/context-menu"
+import { projectHref } from "@/shared/lib/url-params"
+import { Copy, Pencil } from "lucide-react"
+import { cloneElement } from "react"
 import type * as React from "react"
 import {
   ALL_STATUSES,
@@ -153,7 +159,37 @@ export function ProjectMenuButton({
   )
 }
 
-/** Right-click on a row or card opens the same menu at the pointer. */
+/**
+ * Anyone can copy a project's name from wherever it is marked
+ * (`data-ctx="project"`); rows with actions add theirs (below).
+ */
+registerContextType("project", (el) => {
+  const name = el.dataset.ctxLabel
+  if (!name) return null
+  return {
+    label: name,
+    items: [
+      {
+        id: "copy-name",
+        label: el.dataset.ctxCopyLabel ?? "Salin nama",
+        icon: Copy,
+        onSelect: () => copyText(name),
+      },
+    ],
+  }
+})
+
+/** The status icon as a menu icon. */
+const statusIcon = (status: ProjectStatus) =>
+  function StatusIcon({ className }: { className?: string }) {
+    return <ProjectStatusIcon status={status} className={className} />
+  }
+
+/**
+ * Right-click on a row or card (the app-wide menu, shared/context-menu):
+ * Buka / Buka di tab baru / Salin link, then "Pindahkan ke", Ubah, Hapus —
+ * the same actions as the "…" menu.
+ */
 export function ProjectContextMenu({
   project,
   status = project.status,
@@ -163,28 +199,61 @@ export function ProjectContextMenu({
   project: ProjectListRow
   status?: ProjectStatus
   actions?: ProjectActions
-  children: React.ReactElement
+  children: React.ReactElement<Record<string, unknown>>
 }) {
-  const container = usePortalContainer()
-  if (!actions || !hasProjectActions(actions)) return children
+  const t = useT("projects")
+  const tc = useT("common")
+  const tm = useT("ctxmenu")
   return (
-    <ContextMenu.Root>
-      <ContextMenu.Trigger render={children} />
-      <ContextMenu.Portal container={container}>
-        <ContextMenu.Positioner className="isolate z-50 outline-none">
-          <ContextMenu.Popup
-            data-slot="dropdown-menu-content"
-            className="bg-popover text-popover-foreground data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 nest-rounded-2xl nest-p-2 z-50 max-h-(--available-height) w-max min-w-44 origin-(--transform-origin) overflow-x-hidden overflow-y-auto shadow-(--elev-4) duration-150 ease-out outline-none"
-          >
-            <ProjectMenuItems
-              project={project}
-              status={status}
-              actions={actions}
-            />
-          </ContextMenu.Popup>
-        </ContextMenu.Positioner>
-      </ContextMenu.Portal>
-    </ContextMenu.Root>
+    <ContextTarget
+      type="project"
+      id={project.id}
+      label={project.name}
+      href={projectHref(project)}
+      items={(): CtxItem[] => {
+        const { onMove, onEdit, onDelete } = actions ?? {}
+        return [
+          {
+            id: "move",
+            label: t("moveTo"),
+            icon: statusIcon(status),
+            hint: t(STATUS_LABEL_KEYS[status]),
+            hidden: !onMove,
+            submenu: ALL_STATUSES.map((s) => ({
+              id: s,
+              label: t(STATUS_LABEL_KEYS[s]),
+              icon: statusIcon(s),
+              role: "radio" as const,
+              checked: s === status,
+              onSelect: () => {
+                if (s !== status) onMove?.(project, s)
+              },
+            })),
+          },
+          {
+            id: "edit",
+            label: t("actionEdit"),
+            icon: Pencil,
+            hidden: !onEdit,
+            onSelect: () => onEdit?.(project),
+          },
+          {
+            id: "delete",
+            label: tc("delete"),
+            icon: RiDeleteBinLine,
+            destructive: true,
+            hidden: !onDelete,
+            // The delete dialog asks first.
+            onSelect: () => onDelete?.(project),
+          },
+        ].filter((item) => !item.hidden)
+      }}
+    >
+      {cloneElement(children, {
+        "data-ctx-label": project.name,
+        "data-ctx-copy-label": tm("copyName"),
+      })}
+    </ContextTarget>
   )
 }
 

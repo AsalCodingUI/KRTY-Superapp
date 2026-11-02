@@ -67,7 +67,20 @@ export async function GET(request: NextRequest) {
       timeMax: end,
     })
 
+    // The Sharing Santuy series only holds the Meet room; the calendar shows
+    // the sessions (with presenter) from the rotation instead.
+    const { data: santuy } = await supabase
+      .from("santuy_settings")
+      .select("google_event_id")
+      .maybeSingle()
+    const santuyEventId = santuy?.google_event_id
+
     const events = items
+      .filter(
+        (item) =>
+          !santuyEventId ||
+          (item.id !== santuyEventId && item.recurringEventId !== santuyEventId),
+      )
       .map((item) => {
         const startDate = parseGoogleDate(item.start)
         const endDate = parseGoogleDate(item.end)

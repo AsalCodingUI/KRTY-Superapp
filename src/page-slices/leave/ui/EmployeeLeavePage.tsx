@@ -31,7 +31,7 @@ import { format } from "date-fns"
 import { Spinner } from "@/components/ui/spinner"
 import dynamic from "next/dynamic"
 import { useRouter } from "next/navigation"
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { toast } from "sonner"
 
 // Markdown renderer only loads when the rules dialog opens.
@@ -102,6 +102,8 @@ export function EmployeeLeavePage({
   const [deleteLogId, setDeleteLogId] = useState<string | null>(null)
   const [cancelTarget, setCancelTarget] = useState<LeaveRequest | null>(null)
   const [busy, setBusy] = useState(false)
+  // Right-click on today's row: clock in / break / clock out.
+  const todayRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => setLogs(attendanceLogs), [attendanceLogs])
 
@@ -318,7 +320,10 @@ export function EmployeeLeavePage({
         </dl>
 
         {/* Today: time, then auto clock-out and the one primary action */}
-        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3 pt-4 pb-3">
+        <div
+          ref={todayRef}
+          className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3 pt-4 pb-3"
+        >
           <p className="flex items-baseline gap-2">
             <span className="text-foreground tabular-nums">
               {now ? format(now, "HH:mm") : "--:--"}
@@ -335,6 +340,7 @@ export function EmployeeLeavePage({
               onLogsUpdate={setLogs}
               isOnLeave={isOnLeave}
               now={now}
+              menuTarget={todayRef}
             />
           </div>
         </div>

@@ -33,6 +33,8 @@ import {
   RiStickyNoteLine,
 } from "@/shared/ui/lucide-icons"
 import { format, isToday } from "date-fns"
+import { ContextTarget, copyText, type CtxItem } from "@/shared/context-menu"
+import { Copy, CopyPlus, FileText, Pin, Trash2 } from "lucide-react"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { toast } from "sonner"
 import {
@@ -72,6 +74,7 @@ function progress(todos: NoteTodo[]) {
  */
 export function MyNotesPage() {
   const t = useT("projects")
+  const tm = useT("ctxmenu")
   const dateLocale = useDateLocale()
   // Whose notes: the person being viewed (so "Lihat sebagai" shows theirs,
   // read-only; RLS lets only super admins read others'). Wait for the
@@ -121,6 +124,87 @@ export function MyNotesPage() {
       },
     })
   }
+
+  /** A copy of the note (title, text, to-dos), opened. */
+  const duplicateNote = (note: Note) => {
+    if (creating.current) return
+    creating.current = true
+    writer.create.mutate(undefined, {
+      onSuccess: (copy) => {
+        writer.update.mutate({
+          id: copy.id,
+          patch: {
+            title: note.title ? t("ctxCopyOf", { name: note.title }) : "",
+            body: note.body,
+            todos: note.todos.map((td) => ({ ...td, id: crypto.randomUUID() })),
+          },
+        })
+        setSelectedId(copy.id)
+        toast.success(t("ctxDuplicated"))
+      },
+      onSettled: () => {
+        creating.current = false
+      },
+    })
+  }
+
+  /** The note as plain text: title, to-dos as a checklist, then the text. */
+  const noteText = (note: Note) =>
+    [
+      note.title,
+      note.todos
+        .filter((td) => td.text.trim())
+        .map((td) => `${td.done ? "[x]" : "[ ]"} ${td.text}`)
+        .join("\n"),
+      note.body,
+    ]
+      .filter((part) => part.trim())
+      .join("\n\n")
+
+  const noteItems = (note: Note): CtxItem[] => [
+    {
+      id: "open",
+      label: t("libOpen"),
+      icon: FileText,
+      shortcut: "Enter",
+      hidden: note.id === selected?.id,
+      onSelect: () => setSelectedId(note.id),
+    },
+    {
+      id: "pin",
+      label: t("notesPin"),
+      icon: Pin,
+      role: "checkbox",
+      checked: note.pinned,
+      hidden: readOnly,
+      onSelect: () =>
+        writer.update.mutate({ id: note.id, patch: { pinned: !note.pinned } }),
+    },
+    {
+      id: "duplicate",
+      label: tm("duplicate"),
+      icon: CopyPlus,
+      hidden: readOnly,
+      onSelect: () => duplicateNote(note),
+    },
+    {
+      id: "copy-text",
+      label: t("ctxCopyText"),
+      icon: Copy,
+      onSelect: async () => {
+        if (await copyText(noteText(note))) toast.success(tm("copied"))
+      },
+    },
+    {
+      id: "delete",
+      label: t("notesDelete"),
+      icon: Trash2,
+      destructive: true,
+      hidden: readOnly,
+      // The delete dialog asks first.
+      onSelect: () => setDeleting(note),
+    },
+  ]
 
   const when = (iso: string) =>
     isToday(new Date(iso))
@@ -210,59 +294,66 @@ export function MyNotesPage() {
                   ""
                 const active = note.id === selected?.id
                 return (
-                  <ListRow
+                  <ContextTarget
                     key={note.id}
-                    role="button"
-                    tabIndex={0}
-                    aria-current={active || undefined}
-                    onClick={() => setSelectedId(note.id)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault()
-                        setSelectedId(note.id)
-                      }
-                    }}
-                    className={cn(
-                      ROW_GRID,
-                      "min-h-14 cursor-pointer py-2 outline-none",
-                      // Selected: the hover highlight's shape (rounded,
-                      // 2px off the dividers), kept on.
-                      active &&
-                        "*:relative before:pointer-events-none before:absolute before:inset-x-0 before:inset-y-0.5 before:rounded-lg before:bg-(--row-selected)",
-                    )}
+                    type="personal-note"
+                    id={note.id}
+                    label={note.title || t("notesUntitled")}
+                    items={() => noteItems(note)}
                   >
-                    <div className="flex min-w-0 flex-col">
-                      <span className="flex min-w-0 items-center gap-1.5">
-                        {note.pinned && (
-                          <RiPushpinLine
-                            aria-label={t("notesPinned")}
-                            className="text-muted-foreground size-3.5 shrink-0"
-                          />
-                        )}
-                        <span
-                          className={cn(
-                            "truncate",
-                            note.title
-                              ? "text-foreground"
-                              : "text-muted-foreground",
-                          )}
-                        >
-                          {note.title || t("notesUntitled")}
-                        </span>
-                      </span>
-                      {preview && (
-                        <span className="text-tertiary-foreground truncate text-[13px]">
-                          {preview}
-                        </span>
+                    <ListRow
+                      role="button"
+                      tabIndex={0}
+                      aria-current={active || undefined}
+                      onClick={() => setSelectedId(note.id)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault()
+                          setSelectedId(note.id)
+                        }
+                      }}
+                      className={cn(
+                        ROW_GRID,
+                        "min-h-14 cursor-pointer py-2 outline-none",
+                        // Selected: the hover highlight's shape (rounded,
+                        // 2px off the dividers), kept on.
+                        active &&
+                          "*:relative before:pointer-events-none before:absolute before:inset-x-0 before:inset-y-0.5 before:rounded-lg before:bg-(--row-selected)",
                       )}
-                    </div>
-                    <span className="text-muted-foreground text-right text-[13px] tabular-nums">
-                      {done ?? <EmptyValue />}
-                    </span>
-                    <span className="text-muted-foreground text-right text-[13px] tabular-nums">
-                      {when(note.updated_at)}
-                    </span>
-                  </ListRow>
+                    >
+                      <div className="flex min-w-0 flex-col">
+                        <span className="flex min-w-0 items-center gap-1.5">
+                          {note.pinned && (
+                            <RiPushpinLine
+                              aria-label={t("notesPinned")}
+                              className="text-muted-foreground size-3.5 shrink-0"
+                            />
+                          )}
+                          <span
+                            className={cn(
+                              "truncate",
+                              note.title
+                                ? "text-foreground"
+                                : "text-muted-foreground",
+                            )}
+                          >
+                            {note.title || t("notesUntitled")}
+                          </span>
+                        </span>
+                        {preview && (
+                          <span className="text-tertiary-foreground truncate text-[13px]">
+                            {preview}
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-muted-foreground text-right text-[13px] tabular-nums">
+                        {done ?? <EmptyValue />}
+                      </span>
+                      <span className="text-muted-foreground text-right text-[13px] tabular-nums">
+                        {when(note.updated_at)}
+                      </span>
+                    </ListRow>
+                  </ContextTarget>
                 )
               })}
             </GroupedList>

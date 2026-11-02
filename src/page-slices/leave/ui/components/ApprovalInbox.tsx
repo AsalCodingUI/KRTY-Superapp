@@ -20,7 +20,12 @@ import {
   removeAttendanceNote,
 } from "@/shared/lib/attendance"
 import { daysKey, leaveTypeLabel } from "@/shared/lib/leave"
-import { RiCheckLine, RiCloseLine, RiInboxLine } from "@/shared/ui/lucide-icons"
+import {
+  RiCheckLine,
+  RiCloseLine,
+  RiDeleteBinLine,
+  RiInboxLine,
+} from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { AnimatePresence, m } from "motion/react"
@@ -33,11 +38,18 @@ import {
 } from "react"
 import { toast } from "sonner"
 import { formatLeaveRange, leaveDays } from "./AdminLeaveList"
+import { ContextTarget, type CtxItem } from "@/shared/context-menu"
+import { useCopyWithToast } from "./leave-context-menu"
+import { employeeHref } from "@/shared/lib/url-params"
+import { CalendarRange, Clock, UserRound } from "lucide-react"
 
 type Person = { full_name: string; avatar_url: string | null } | null
 
+type MenuItems = () => CtxItem[]
+
 type PendingLeave = {
   id: number
+  user_id: string
   leave_type: string
   start_date: string
   end_date: string
@@ -47,6 +59,7 @@ type PendingLeave = {
 
 type PendingDelete = {
   id: string
+  user_id: string
   date: string
   clock_in: string
   clock_out: string | null
@@ -87,6 +100,7 @@ export function ApprovalInbox({
   const t = useT("leave")
   const tc = useT("common")
   const dateLocale = useDateLocale()
+  const copy = useCopyWithToast()
   const supabase = useMemo(() => createClient(), [])
   // Notification links open the inbox on the request they're about:
   // /leave?inbox=leave&request=<id> (or inbox=attendance for a deletion).
@@ -121,14 +135,14 @@ export function ApprovalInbox({
       supabase
         .from("leave_requests")
         .select(
-          "id,leave_type,start_date,end_date,reason,profiles(full_name, avatar_url)",
+          "id,user_id,leave_type,start_date,end_date,reason,profiles(full_name, avatar_url)",
         )
         .eq("status", "pending")
         .order("start_date", { ascending: true }),
       supabase
         .from("attendance_logs")
         .select(
-          "id,date,clock_in,clock_out,notes,profiles(full_name, avatar_url)",
+          "id,user_id,date,clock_in,clock_out,notes,profiles(full_name, avatar_url)",
         )
         .ilike("notes", `%${ATTENDANCE_NOTE_TAGS.deleteRequested}%`)
         .order("date", { ascending: false }),
@@ -228,6 +242,18 @@ export function ApprovalInbox({
 
   const loading = leaves === null || deletes === null
 
+  /** Right-click "Buka profil": leaves the inbox for their KPI page. */
+  const profileItem = (userId: string, person: Person): CtxItem => ({
+    id: "profile",
+    label: t("ctxOpenProfile"),
+    icon: UserRound,
+    access: ["stakeholder"],
+    onSelect: () => {
+      setOpen(false)
+      router.push(employeeHref({ id: userId, full_name: person?.full_name }))
+    },
+  })
+
   return (
     <>
       {trigger ? (
@@ -301,13 +327,46 @@ export function ApprovalInbox({
                   ? leaves!.map((req) => {
                       const key = `leave:${req.id}`
                       const days = leaveDays(req.start_date, req.end_date)
+                      const range = formatLeaveRange(
+                        req.start_date,
+                        req.end_date,
+                        dateLocale,
+                      )
                       return (
                         <InboxRow
                           key={key}
                           highlighted={linked && String(req.id) === linkedId}
                           person={req.profiles}
                           title={leaveTypeLabel(req.leave_type, t)}
-                          meta={`${formatLeaveRange(req.start_date, req.end_date, dateLocale)} · ${t(daysKey(days), { n: days })}`}
+                          meta={`${range} · ${t(daysKey(days), { n: days })}`}
+                          // Right-click: the row's buttons, plus the
+                          // person and the dates.
+                          menu={() => [
+                            {
+                              id: "approve",
+                              label: t("approve"),
+                              icon: RiCheckLine,
+                              disabled: busy !== null,
+                              onSelect: () => decideLeave([req.id], true),
+                            },
+                            {
+                              id: "reject",
+                              label: t("ctxRejectWithNote"),
+                              icon: RiCloseLine,
+                              disabled: busy !== null,
+                              onSelect: () => {
+                                setNote("")
+                                setRejecting(key)
+                              },
+                            },
+                            profileItem(req.user_id, req.profiles),
+                            {
+                              id: "copy-range",
+                              label: t("ctxCopyRange"),
+                              icon: CalendarRange,
+                              onSelect: () => copy(range),
+                            },
+                          ]}
                           detail={req.reason}
                           busy={busy === key}
                           disabled={busy !== null}
@@ -345,6 +404,31 @@ export function ApprovalInbox({
                           person={log.profiles}
                           title={t("inboxDeleteAsked", { date: day })}
                           meta={range}
+                          menu={() => [
+                            {
+                              id: "delete",
+                              label: t("deleteData"),
+                              icon: RiDeleteBinLine,
+                              destructive: true,
+                              confirm: true,
+                              disabled: busy !== null,
+                              onSelect: () => decideDelete(log, true),
+                            },
+                            {
+                              id: "decline",
+                              label: t("declineRequest"),
+                              icon: RiCloseLine,
+                              disabled: busy !== null,
+                              onSelect: () => decideDelete(log, false),
+                            },
+                            profileItem(log.user_id, log.profiles),
+                            {
+                              id: "copy-times",
+                              label: t("ctxCopyTimes"),
+                              icon: Clock,
+                              onSelect: () => copy(`${day}, ${range}`),
+                            },
+                          ]}
                           busy={busy === key}
                           disabled={busy !== null}
                           onApprove={() => decideDelete(log, true)}
@@ -392,6 +476,7 @@ function InboxRow({
   rejectLabel,
   notePlaceholder,
   cancelLabel,
+  menu,
 }: {
   /** The request a notification linked to: marked and scrolled to. */
   highlighted?: boolean
@@ -412,106 +497,112 @@ function InboxRow({
   rejectLabel: string
   notePlaceholder?: string
   cancelLabel?: string
+  /** Its right-click items. */
+  menu?: MenuItems
 }) {
   return (
-    <m.div
-      ref={(el) => {
-        if (el && highlighted) el.scrollIntoView({ block: "nearest" })
-      }}
-      layout
-      initial={{ opacity: 0, y: 4 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={ROW_EXIT}
-      transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
-      className="overflow-hidden"
+    <ContextTarget
+      type="approval-request"
+      label={`${person?.full_name ?? "—"} · ${title}`}
+      items={menu}
     >
-      <div
-        className={cn(
-          // Hover only where there is one: on touch it sticks to the tapped row.
-          "flex items-center gap-3 rounded-2xl px-2 py-2.5 transition-colors [@media(hover:hover)]:hover:bg-(--row-hover)",
-          highlighted && "bg-primary/8 ring-primary/30 ring-1 ring-inset",
-        )}
+      <m.div
+        ref={(el) => {
+          if (el && highlighted) el.scrollIntoView({ block: "nearest" })
+        }}
+        layout
+        initial={{ opacity: 0, y: 4 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={ROW_EXIT}
+        transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
+        className="overflow-hidden"
       >
-        <Avatar className="size-8">
-          {person?.avatar_url && <AvatarImage src={person.avatar_url} />}
-          <AvatarFallback className="text-[11px]">
-            {initials(person?.full_name)}
-          </AvatarFallback>
-        </Avatar>
-        <div className="flex min-w-0 flex-1 flex-col gap-0.5 text-[13px]">
-          <p className="truncate">
-            <span className="font-medium">{person?.full_name ?? "—"}</span>
-            <span className="text-muted-foreground"> · {title}</span>
-          </p>
-          <p className="text-muted-foreground tabular-nums">{meta}</p>
-          {detail && (
-            <p className="text-tertiary-foreground line-clamp-2">
-              {detail}
+        <div
+          className={cn(
+            // Hover only where there is one: on touch it sticks to the tapped row.
+            "flex items-center gap-3 rounded-2xl px-2 py-2.5 transition-colors [@media(hover:hover)]:hover:bg-(--row-hover)",
+            highlighted && "bg-primary/8 ring-primary/30 ring-1 ring-inset",
+          )}
+        >
+          <Avatar className="size-8">
+            {person?.avatar_url && <AvatarImage src={person.avatar_url} />}
+            <AvatarFallback className="text-[11px]">
+              {initials(person?.full_name)}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex min-w-0 flex-1 flex-col gap-0.5 text-[13px]">
+            <p className="truncate">
+              <span className="font-medium">{person?.full_name ?? "—"}</span>
+              <span className="text-muted-foreground"> · {title}</span>
             </p>
+            <p className="text-muted-foreground tabular-nums">{meta}</p>
+            {detail && (
+              <p className="text-tertiary-foreground line-clamp-2">{detail}</p>
+            )}
+          </div>
+          {!rejecting && (
+            <div className="flex shrink-0 items-center gap-1">
+              <Button
+                size="icon-sm"
+                variant="ghost"
+                aria-label={rejectLabel}
+                title={rejectLabel}
+                disabled={disabled}
+                onClick={onReject}
+              >
+                <RiCloseLine />
+              </Button>
+              <Button
+                size="icon-sm"
+                variant="secondary"
+                aria-label={approveLabel}
+                title={approveLabel}
+                disabled={disabled}
+                onClick={onApprove}
+                className={cn(!busy && "text-green-11")}
+              >
+                {busy ? <Spinner /> : <RiCheckLine />}
+              </Button>
+            </div>
           )}
         </div>
-        {!rejecting && (
-          <div className="flex shrink-0 items-center gap-1">
-            <Button
-              size="icon-sm"
-              variant="ghost"
-              aria-label={rejectLabel}
-              title={rejectLabel}
-              disabled={disabled}
-              onClick={onReject}
+        <AnimatePresence initial={false}>
+          {rejecting && (
+            <m.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={ROW_EXIT}
+              transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
+              className="overflow-hidden"
             >
-              <RiCloseLine />
-            </Button>
-            <Button
-              size="icon-sm"
-              variant="secondary"
-              aria-label={approveLabel}
-              title={approveLabel}
-              disabled={disabled}
-              onClick={onApprove}
-              className={cn(!busy && "text-green-11")}
-            >
-              {busy ? <Spinner /> : <RiCheckLine />}
-            </Button>
-          </div>
-        )}
-      </div>
-      <AnimatePresence initial={false}>
-        {rejecting && (
-          <m.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={ROW_EXIT}
-            transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
-            className="overflow-hidden"
-          >
-            <div className="flex flex-col gap-2 px-2 pt-1 pb-3 pl-13">
-              <Textarea
-                autoFocus
-                rows={2}
-                placeholder={notePlaceholder}
-                value={note}
-                onChange={(e) => onNote?.(e.target.value)}
-              />
-              <div className="flex justify-end gap-2">
-                <Button size="sm" variant="ghost" onClick={onCancelReject}>
-                  <RiCloseLine data-icon="inline-start" />
-                  {cancelLabel}
-                </Button>
-                <Button
-                  size="sm"
-                  variant="destructive"
-                  disabled={disabled}
-                  onClick={onConfirmReject}
-                >
-                  {busy && <Spinner data-icon="inline-start" />}
-                  {rejectLabel}
-                </Button>
+              <div className="flex flex-col gap-2 px-2 pt-1 pb-3 pl-13">
+                <Textarea
+                  autoFocus
+                  rows={2}
+                  placeholder={notePlaceholder}
+                  value={note}
+                  onChange={(e) => onNote?.(e.target.value)}
+                />
+                <div className="flex justify-end gap-2">
+                  <Button size="sm" variant="ghost" onClick={onCancelReject}>
+                    <RiCloseLine data-icon="inline-start" />
+                    {cancelLabel}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    disabled={disabled}
+                    onClick={onConfirmReject}
+                  >
+                    {busy && <Spinner data-icon="inline-start" />}
+                    {rejectLabel}
+                  </Button>
+                </div>
               </div>
-            </div>
-          </m.div>
-        )}
-      </AnimatePresence>
-    </m.div>
+            </m.div>
+          )}
+        </AnimatePresence>
+      </m.div>
+    </ContextTarget>
   )
 }

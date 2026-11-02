@@ -5,13 +5,25 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
 import { useDateLocale, useT } from "@/shared/i18n/client"
 import { differenceInCalendarDays, format, parseISO } from "date-fns"
-import { CircleDashed, Link2, Newspaper } from "lucide-react"
+import {
+  AppWindow,
+  CircleDashed,
+  Copy,
+  FileText,
+  Link as LinkIcon,
+  Link2,
+  Newspaper,
+} from "lucide-react"
+import { ContextTarget, copyText } from "@/shared/context-menu"
+import { linkKey } from "@/shared/lib/url-params"
+import { toast } from "sonner"
 import Link from "next/link"
 import { useRef, useState } from "react"
 import type { TaskRow, TeamMember } from "./data"
 import { ProjectTaskDialog } from "./ProjectTaskDialog"
 import { ReportDialog } from "./ReportDialog"
 import { useInvalidateReports, useReports, type Report } from "./reports-data"
+import { useReportMenu } from "./report-menu"
 import { dueLabel, initials } from "./task-utils"
 
 /** A dashboard panel (the Proses one's look): a thin header with a "see
@@ -60,6 +72,7 @@ export function UpcomingTasks({
 }) {
   const t = useT("projects")
   const tc = useT("common")
+  const tm = useT("ctxmenu")
   const dateLocale = useDateLocale()
   // The last opened task stays set while the dialog animates closed.
   const [openId, setOpenId] = useState<string | null>(null)
@@ -86,43 +99,89 @@ export function UpcomingTasks({
             const overdue =
               task.due_date &&
               differenceInCalendarDays(parseISO(task.due_date), new Date()) < 0
+            const openHere = () => {
+              setOpenId(task.id)
+              setOpen(true)
+            }
+            const link = () =>
+              new URL(
+                `${base}/tasks?task=${linkKey(task.title, task.id)}`,
+                window.location.origin,
+              ).href
             return (
-              <li key={task.id}>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setOpenId(task.id)
-                    setOpen(true)
-                  }}
-                  className={ROW}
-                >
-                  <CircleDashed className="text-muted-foreground size-4 shrink-0" />
-                  <span className="min-w-0 flex-1 truncate">{task.title}</span>
-                  {task.due_date && (
-                    <span
-                      className={cn(
-                        "shrink-0 text-[13px] tabular-nums",
-                        overdue
-                          ? "text-destructive font-medium"
-                          : "text-tertiary-foreground",
-                      )}
-                    >
-                      {dueLabel(task.due_date, dateLocale, {
-                        today: tc("today"),
-                        tomorrow: t("tomorrow"),
-                      })}
+              <ContextTarget
+                key={task.id}
+                type="dashboard-task"
+                id={task.id}
+                label={task.title}
+                suppress={["button"]}
+                items={() => [
+                  {
+                    id: "open",
+                    label: t("libOpen"),
+                    icon: FileText,
+                    shortcut: "Enter",
+                    onSelect: openHere,
+                  },
+                  {
+                    id: "open-tab",
+                    label: tm("openNewTab"),
+                    icon: AppWindow,
+                    onSelect: () =>
+                      void window.open(link(), "_blank", "noopener"),
+                  },
+                  {
+                    id: "copy-link",
+                    label: tm("copyLink"),
+                    icon: LinkIcon,
+                    onSelect: async () => {
+                      if (await copyText(link()))
+                        toast.success(tm("linkCopied"))
+                    },
+                  },
+                  {
+                    id: "copy-title",
+                    label: t("ctxCopyTitle"),
+                    icon: Copy,
+                    onSelect: async () => {
+                      if (await copyText(task.title))
+                        toast.success(tm("copied"))
+                    },
+                  },
+                ]}
+              >
+                <li>
+                  <button type="button" onClick={openHere} className={ROW}>
+                    <CircleDashed className="text-muted-foreground size-4 shrink-0" />
+                    <span className="min-w-0 flex-1 truncate">
+                      {task.title}
                     </span>
-                  )}
-                  {who && (
-                    <Avatar className="size-5" title={who.full_name ?? ""}>
-                      <AvatarImage src={who.avatar_url || undefined} alt="" />
-                      <AvatarFallback className="text-[9px]">
-                        {initials(who.full_name)}
-                      </AvatarFallback>
-                    </Avatar>
-                  )}
-                </button>
-              </li>
+                    {task.due_date && (
+                      <span
+                        className={cn(
+                          "shrink-0 text-[13px] tabular-nums",
+                          overdue
+                            ? "text-destructive font-medium"
+                            : "text-tertiary-foreground",
+                        )}
+                      >
+                        {dueLabel(task.due_date, dateLocale, {
+                          today: tc("today"),
+                          tomorrow: t("tomorrow"),
+                        })}
+                      </span>
+                    )}
+                    {who && (
+                      <Avatar className="size-5" title={who.full_name ?? ""}>
+                        <AvatarImage src={who.avatar_url || undefined} alt="" />
+                        <AvatarFallback className="text-[9px]">
+                          {initials(who.full_name)}
+                        </AvatarFallback>
+                      </Avatar>
+                    )}
+                  </button>
+                </li>
+              </ContextTarget>
             )
           })}
         </ul>
@@ -151,6 +210,7 @@ export function LatestReports({
   const dateLocale = useDateLocale()
   const { data: reports = [] } = useReports(projectId)
   const latest = reports.slice(0, 4)
+  const menu = useReportMenu(projectId)
 
   return (
     <Panel title={t("portalLatestReports")} href={`${base}/reports`}>
@@ -161,25 +221,34 @@ export function LatestReports({
       ) : (
         <ul className="flex flex-col">
           {latest.map((r) => (
-            <li key={r.id}>
-              <button type="button" onClick={() => onOpen(r)} className={ROW}>
-                <Newspaper className="text-muted-foreground size-4 shrink-0" />
-                <span className="min-w-0 flex-1 truncate">{r.title}</span>
-                {r.share_token && (
-                  <Link2
-                    aria-label={t("reportShared")}
-                    className="text-muted-foreground size-3.5 shrink-0"
-                  >
-                    <title>{t("reportShared")}</title>
-                  </Link2>
-                )}
-                <span className="text-tertiary-foreground shrink-0 text-[13px] tabular-nums">
-                  {format(parseISO(r.report_date), "d MMM", {
-                    locale: dateLocale,
-                  })}
-                </span>
-              </button>
-            </li>
+            <ContextTarget
+              key={r.id}
+              type="project-report"
+              id={r.id}
+              label={r.title}
+              suppress={["button"]}
+              items={() => menu.items(r, { onOpen })}
+            >
+              <li>
+                <button type="button" onClick={() => onOpen(r)} className={ROW}>
+                  <Newspaper className="text-muted-foreground size-4 shrink-0" />
+                  <span className="min-w-0 flex-1 truncate">{r.title}</span>
+                  {r.share_token && (
+                    <Link2
+                      aria-label={t("reportShared")}
+                      className="text-muted-foreground size-3.5 shrink-0"
+                    >
+                      <title>{t("reportShared")}</title>
+                    </Link2>
+                  )}
+                  <span className="text-tertiary-foreground shrink-0 text-[13px] tabular-nums">
+                    {format(parseISO(r.report_date), "d MMM", {
+                      locale: dateLocale,
+                    })}
+                  </span>
+                </button>
+              </li>
+            </ContextTarget>
           ))}
         </ul>
       )}

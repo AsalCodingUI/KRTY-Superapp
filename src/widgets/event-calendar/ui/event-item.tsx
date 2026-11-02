@@ -65,13 +65,13 @@ const EVENT_ITEM_COLORS: Record<
 const getEventItemColors = (color: EventColor) =>
   EVENT_ITEM_COLORS[color] || EVENT_ITEM_COLORS.blue
 
-interface EventItemProps {
+type EventItemProps = {
   event: CalendarEvent
   onClick?: (e?: React.MouseEvent<HTMLButtonElement>) => void
   compact?: boolean
   showTime?: boolean
   className?: string
-}
+} & Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "onClick">
 
 export const EventItem = memo(function EventItem({
   event,
@@ -79,6 +79,8 @@ export const EventItem = memo(function EventItem({
   compact = false,
   showTime = true,
   className,
+  // data-* (the right-click menu's target) go on the button.
+  ...rest
 }: EventItemProps) {
   const colors = getEventItemColors(event.color)
   const timeLabel =
@@ -92,6 +94,8 @@ export const EventItem = memo(function EventItem({
 
     return (
       <button
+        type="button"
+        {...rest}
         onClick={onClick}
         className={cx(
           "flex w-full items-center gap-0.5 rounded-sm px-1 py-0.5 text-left text-xs font-medium",
@@ -117,6 +121,8 @@ export const EventItem = memo(function EventItem({
 
   return (
     <button
+      type="button"
+      {...rest}
       onClick={handleClick}
       className={cx(
         "flex w-full items-start gap-1 rounded-md p-1 text-left",

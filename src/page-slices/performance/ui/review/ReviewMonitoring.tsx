@@ -43,6 +43,10 @@ import { useDateLocale, useT } from "@/shared/i18n/client"
 import type { MessageKey } from "@/shared/i18n/messages"
 import { useState } from "react"
 import { toast } from "sonner"
+import { ContextTarget, copyText, type CtxItem } from "@/shared/context-menu"
+import { employeeHref } from "@/shared/lib/url-params"
+import { BarChart3, Copy, Eye, Play } from "lucide-react"
+import { useRouter } from "next/navigation"
 import { isQuarter, periodLabel } from "../kpi/period"
 import { GridGroup, ListColumns, PersonCell, StatBand } from "../list"
 import { CycleStatusBadge, useCycleRange } from "./cycle-status"
@@ -129,6 +133,8 @@ function statusOf(row: MonitoringRow): Status {
 export function ReviewMonitoring({ period }: { period: string }) {
   const t = useT("performance")
   const tc = useT("common")
+  const tm = useT("ctxmenu")
+  const router = useRouter()
   const dateLocale = useDateLocale()
   const cycleRange = useCycleRange()
   const queryClient = useQueryClient()
@@ -172,6 +178,53 @@ export function ReviewMonitoring({ period }: { period: string }) {
   }
 
   const { cycle, rows, unpaired } = data
+
+  /** Right-click on a person: their result (view or process), KPI, name. */
+  const personItems = (
+    person: { id: string; full_name: string | null },
+    row?: MonitoringRow,
+  ): CtxItem[] => {
+    const done = row ? row.reviewers.filter((r) => r.done).length : 0
+    const items: CtxItem[] = [
+      {
+        id: "view",
+        label: t("ctxViewResult"),
+        icon: Eye,
+        hidden: !row?.summary,
+        onSelect: () => row && setViewing(row),
+      },
+      {
+        id: "process",
+        label: t("ctxProcessResult"),
+        icon: Play,
+        hidden: !row || Boolean(row.summary),
+        // Same rule as the row's button.
+        disabled: done === 0 || !cycle,
+        onSelect: () => row && setProcessing(row),
+      },
+      {
+        id: "kpi",
+        label: t("ctxViewKpi"),
+        icon: BarChart3,
+        onSelect: () =>
+          router.push(
+            `${employeeHref(person)}?period=${encodeURIComponent(period)}`,
+          ),
+      },
+      {
+        id: "copy-name",
+        label: tm("copyName"),
+        icon: Copy,
+        hidden: !person.full_name,
+        onSelect: async () => {
+          if (await copyText(person.full_name ?? ""))
+            toast.success(tm("copied"))
+          else toast.error(tm("copyFailed"))
+        },
+      },
+    ]
+    return items.filter((item) => !item.hidden)
+  }
 
   // The admin sets both dates (WIB days): the start inside the quarter, the
   // close inside it or a little after (reopening for late reviewers).
@@ -391,49 +444,59 @@ export function ReviewMonitoring({ period }: { period: string }) {
                 {items.map((row) => {
                   const done = row.reviewers.filter((r) => r.done).length
                   return (
-                    <ListRow key={row.id} className={cn(ROW_GRID, "min-h-14")}>
-                      <PersonCell
-                        name={row.full_name}
-                        avatarUrl={row.avatar_url}
-                      />
-                      <div className="flex items-center justify-end gap-3">
-                        <ReviewerStack reviewers={row.reviewers} />
-                        <span className="whitespace-nowrap tabular-nums">
-                          {done}
-                          <span className="text-muted-foreground">
-                            {" "}
-                            / {row.reviewers.length}
+                    <ContextTarget
+                      key={row.id}
+                      type="review-360"
+                      id={row.id}
+                      label={row.full_name ?? undefined}
+                      items={() => personItems(row, row)}
+                    >
+                      <ListRow className={cn(ROW_GRID, "min-h-14")}>
+                        <PersonCell
+                          name={row.full_name}
+                          avatarUrl={row.avatar_url}
+                        />
+                        <div className="flex items-center justify-end gap-3">
+                          <ReviewerStack reviewers={row.reviewers} />
+                          <span className="whitespace-nowrap tabular-nums">
+                            {done}
+                            <span className="text-muted-foreground">
+                              {" "}
+                              / {row.reviewers.length}
+                            </span>
                           </span>
+                        </div>
+                        <span className="hidden text-right tabular-nums md:block">
+                          {orEmpty(
+                            row.summary
+                              ? formatPercent(row.summary.overall_percentage)
+                              : null,
+                          )}
                         </span>
-                      </div>
-                      <span className="hidden text-right tabular-nums md:block">
-                        {orEmpty(
-                          row.summary
-                            ? formatPercent(row.summary.overall_percentage)
-                            : null,
-                        )}
-                      </span>
-                      <div className="flex justify-end">
-                        {row.summary ? (
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => setViewing(row)}
-                          >
-                            {t("view")}
-                          </Button>
-                        ) : (
-                          <Button
-                            size="sm"
-                            variant={key === "complete" ? "secondary" : "ghost"}
-                            disabled={done === 0 || !cycle}
-                            onClick={() => setProcessing(row)}
-                          >
-                            {t("process")}
-                          </Button>
-                        )}
-                      </div>
-                    </ListRow>
+                        <div className="flex justify-end">
+                          {row.summary ? (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => setViewing(row)}
+                            >
+                              {t("view")}
+                            </Button>
+                          ) : (
+                            <Button
+                              size="sm"
+                              variant={
+                                key === "complete" ? "secondary" : "ghost"
+                              }
+                              disabled={done === 0 || !cycle}
+                              onClick={() => setProcessing(row)}
+                            >
+                              {t("process")}
+                            </Button>
+                          )}
+                        </div>
+                      </ListRow>
+                    </ContextTarget>
                   )
                 })}
               </GridGroup>
@@ -455,13 +518,21 @@ export function ReviewMonitoring({ period }: { period: string }) {
               }
             >
               {unpaired.map((person) => (
-                <ListRow key={person.id} className={cn(ROW_GRID, "min-h-14")}>
-                  <PersonCell
-                    name={person.full_name}
-                    avatarUrl={person.avatar_url}
-                    secondary={person.job_title}
-                  />
-                </ListRow>
+                <ContextTarget
+                  key={person.id}
+                  type="review-360"
+                  id={person.id}
+                  label={person.full_name ?? undefined}
+                  items={() => personItems(person)}
+                >
+                  <ListRow className={cn(ROW_GRID, "min-h-14")}>
+                    <PersonCell
+                      name={person.full_name}
+                      avatarUrl={person.avatar_url}
+                      secondary={person.job_title}
+                    />
+                  </ListRow>
+                </ContextTarget>
               ))}
             </GridGroup>
           )}

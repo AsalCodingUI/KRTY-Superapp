@@ -95,6 +95,14 @@ export interface DataTableProps<TData> {
   tableTitle?: string
   tableDescription?: string
   tableActions?: React.ReactNode
+  /**
+   * Wraps each body row, e.g. in a <ContextTarget> for its right-click
+   * menu (the row element must keep passing its props to the <tr>).
+   */
+  wrapRow?: (
+    item: TData,
+    row: React.ReactElement<Record<string, unknown>>,
+  ) => React.ReactElement
 }
 
 export function DataTable<TData>({
@@ -122,6 +130,7 @@ export function DataTable<TData>({
   tableDescription,
   tableActions,
   defaultPageSize = 20,
+  wrapRow,
 }: DataTableProps<TData> & { defaultPageSize?: number }) {
   const t = useT("shell")
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({})
@@ -190,6 +199,15 @@ export function DataTable<TData>({
       enableSelection ? "cursor-pointer" : "cursor-default",
     ),
   })
+  const withRow = (
+    row: Row,
+    el: React.ReactElement<Record<string, unknown>>,
+  ) =>
+    wrapRow ? (
+      <React.Fragment key={row.id}>{wrapRow(row.original, el)}</React.Fragment>
+    ) : (
+      el
+    )
   const rowCells = (row: Row) =>
     row.getVisibleCells().map((cell) => {
       const isSelectionColumn = cell.column.id === "select"
@@ -275,22 +293,28 @@ export function DataTable<TData>({
               // Long lists skip per-row motion.
               animateRows ? (
                 <AnimatePresence initial={false} key={rowsKey}>
-                  {rows.map((row) => (
-                    <MotionTableRow
-                      key={row.id}
-                      {...ROW_MOTION}
-                      {...rowProps(row)}
-                    >
-                      {rowCells(row)}
-                    </MotionTableRow>
-                  ))}
+                  {rows.map((row) =>
+                    withRow(
+                      row,
+                      <MotionTableRow
+                        key={row.id}
+                        {...ROW_MOTION}
+                        {...rowProps(row)}
+                      >
+                        {rowCells(row)}
+                      </MotionTableRow>,
+                    ),
+                  )}
                 </AnimatePresence>
               ) : (
-                rows.map((row) => (
-                  <TableRow key={row.id} {...rowProps(row)}>
-                    {rowCells(row)}
-                  </TableRow>
-                ))
+                rows.map((row) =>
+                  withRow(
+                    row,
+                    <TableRow key={row.id} {...rowProps(row)}>
+                      {rowCells(row)}
+                    </TableRow>,
+                  ),
+                )
               )
             ) : (
               <TableRow className="hover:bg-transparent">

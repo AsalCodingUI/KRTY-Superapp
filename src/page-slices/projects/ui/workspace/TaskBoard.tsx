@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
+import { ContextTarget } from "@/shared/context-menu"
 import {
   RiAddLine,
   RiCalendarLine,
@@ -40,7 +41,15 @@ import { CSS } from "@dnd-kit/utilities"
 import { differenceInCalendarDays, isToday } from "date-fns"
 import { GripHorizontal, TriangleAlert } from "lucide-react"
 import { m, useReducedMotion } from "motion/react"
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import {
+  Fragment,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactElement,
+} from "react"
 import type { TaskRow, TeamMember } from "./data"
 import type { ProjectStatus } from "../../lib/status"
 import { ProjectAvatar } from "@/components/project-avatar"
@@ -55,6 +64,9 @@ import {
 import { dueLabel } from "./task-utils"
 
 type Columns = Record<TaskStatus, string[]>
+
+/** A card element as handed to `wrapCard` (it takes data-* props). */
+type Card = ReactElement<Record<string, unknown>>
 
 const EASE = [0.23, 1, 0.32, 1] as const
 
@@ -114,6 +126,7 @@ export function TaskBoard({
   onMove,
   onCreate,
   projectOf,
+  wrapCard,
 }: {
   /** Top-level tasks only (already filtered). */
   tasks: TaskRow[]
@@ -130,6 +143,9 @@ export function TaskBoard({
   onCreate?: (title: string, status: TaskStatus) => Promise<boolean>
   /** Cross-project boards: the card shows its project instead of the PIC. */
   projectOf?: (task: TaskRow) => { id: string; name: string } | undefined
+  /** Right-click menu: wraps each card (the focusable element that takes
+   *  the data-* props), e.g. in a <TaskContextTarget>. */
+  wrapCard?: (task: TaskRow, card: Card) => ReactElement
 }) {
   const base = useMemo(() => group(tasks), [tasks])
   const [override, setOverride] = useState<Columns | null>(null)
@@ -305,6 +321,7 @@ export function TaskBoard({
             )}
             onOpen={open}
             onCreate={onCreate && ((title) => onCreate(title, status))}
+            wrapCard={wrapCard}
           />
         ))}
       </div>
@@ -335,6 +352,7 @@ function Column({
   renderCard,
   onOpen,
   onCreate,
+  wrapCard,
 }: {
   status: TaskStatus
   ids: string[]
@@ -344,8 +362,10 @@ function Column({
   renderCard: (task: TaskRow) => React.ReactNode
   onOpen: (task: TaskRow) => void
   onCreate?: (title: string) => Promise<boolean>
+  wrapCard?: (task: TaskRow, card: Card) => ReactElement
 }) {
   const t = useT("projects")
+  const tm = useT("taskmenu")
   const { setNodeRef, isOver } = useDroppable({ id: status })
   const [adding, setAdding] = useState(false)
   const [title, setTitle] = useState("")
@@ -364,78 +384,108 @@ function Column({
   }
 
   return (
-    <section
-      ref={setNodeRef}
-      aria-label={t(STATUS_LABEL[status])}
-      className={cn(
-        // Same as the projects board: no fill, a dashed outline while a
-        // card hovers it (inside the box so the scroller never clips it).
-        "nest-rounded-2xl nest-p-2 flex min-h-64 min-w-60 flex-1 flex-col gap-2 border border-dashed border-transparent transition-colors",
-        isOver && "border-foreground/20 bg-foreground/[0.02]",
-      )}
+    // Right-click on the column: "Tambah kartu" (where cards can be added).
+    <ContextTarget
+      type="task-column"
+      label={t(STATUS_LABEL[status])}
+      items={() =>
+        onCreate
+          ? [
+              {
+                label: tm("groupColumn", { name: t(STATUS_LABEL[status]) }),
+                items: [
+                  {
+                    id: "add-card",
+                    label: t("addCard"),
+                    icon: RiAddLine,
+                    onSelect: () => setAdding(true),
+                  },
+                ],
+              },
+            ]
+          : []
+      }
     >
-      <header className="flex items-center gap-2 px-1.5 pt-0.5 pb-1 text-sm">
-        <StatusDot status={status} />
-        <span className="text-foreground/90">{t(STATUS_LABEL[status])}</span>
-        <span className="text-muted-foreground tabular-nums">{ids.length}</span>
-      </header>
+      <section
+        ref={setNodeRef}
+        aria-label={t(STATUS_LABEL[status])}
+        className={cn(
+          // Same as the projects board: no fill, a dashed outline while a
+          // card hovers it (inside the box so the scroller never clips it).
+          "nest-rounded-2xl nest-p-2 flex min-h-64 min-w-60 flex-1 flex-col gap-2 border border-dashed border-transparent transition-colors",
+          isOver && "border-foreground/20 bg-foreground/[0.02]",
+        )}
+      >
+        <header className="flex items-center gap-2 px-1.5 pt-0.5 pb-1 text-sm">
+          <StatusDot status={status} />
+          <span className="text-foreground/90">{t(STATUS_LABEL[status])}</span>
+          <span className="text-muted-foreground tabular-nums">
+            {ids.length}
+          </span>
+        </header>
 
-      {/* Adding happens at the top, where the new card lands. */}
-      {!onCreate ? null : adding ? (
-        <div className="flex flex-col gap-1.5">
-          <Input
-            autoFocus
-            value={title}
-            placeholder={t("cardPlaceholder")}
-            aria-label={t("addCard")}
-            onChange={(e) => setTitle(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") add()
-              if (e.key === "Escape") {
-                setAdding(false)
-                setTitle("")
-              }
-            }}
-            onBlur={() => {
-              if (!title.trim()) setAdding(false)
-            }}
-            className="h-9 text-[13px]"
-          />
-        </div>
-      ) : (
-        <Button
-          variant="ghost"
-          onClick={() => setAdding(true)}
-          className="text-muted-foreground justify-start text-[13px] font-normal"
-        >
-          <RiAddLine data-icon="inline-start" />
-          {t("addCard")}
-        </Button>
-      )}
+        {/* Adding happens at the top, where the new card lands. */}
+        {!onCreate ? null : adding ? (
+          <div className="flex flex-col gap-1.5">
+            <Input
+              autoFocus
+              value={title}
+              placeholder={t("cardPlaceholder")}
+              aria-label={t("addCard")}
+              onChange={(e) => setTitle(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") add()
+                if (e.key === "Escape") {
+                  setAdding(false)
+                  setTitle("")
+                }
+              }}
+              onBlur={() => {
+                if (!title.trim()) setAdding(false)
+              }}
+              className="h-9 text-[13px]"
+            />
+          </div>
+        ) : (
+          <Button
+            variant="ghost"
+            onClick={() => setAdding(true)}
+            className="text-muted-foreground justify-start text-[13px] font-normal"
+          >
+            <RiAddLine data-icon="inline-start" />
+            {t("addCard")}
+          </Button>
+        )}
 
-      <SortableContext items={ids} strategy={verticalListSortingStrategy}>
-        <div className="flex min-h-10 flex-col gap-2">
-          {ids.map((id) => {
-            const task = byId.get(id)
-            return task ? (
-              <SortableCard
-                key={id}
-                task={task}
-                layoutKey={layoutKey}
-                onOpen={() => onOpen(task)}
-              >
-                {renderCard(task)}
-              </SortableCard>
-            ) : null
-          })}
-          {ids.length === 0 && !adding && (
-            <p className="text-muted-foreground px-1.5 py-4 text-center text-sm">
-              {t("columnEmpty")}
-            </p>
-          )}
-        </div>
-      </SortableContext>
-    </section>
+        <SortableContext items={ids} strategy={verticalListSortingStrategy}>
+          <div className="flex min-h-10 flex-col gap-2">
+            {ids.map((id) => {
+              const task = byId.get(id)
+              if (!task) return null
+              const card = (
+                <SortableCard
+                  task={task}
+                  layoutKey={layoutKey}
+                  onOpen={() => onOpen(task)}
+                >
+                  {renderCard(task)}
+                </SortableCard>
+              )
+              return (
+                <Fragment key={id}>
+                  {wrapCard ? wrapCard(task, card) : card}
+                </Fragment>
+              )
+            })}
+            {ids.length === 0 && !adding && (
+              <p className="text-muted-foreground px-1.5 py-4 text-center text-sm">
+                {t("columnEmpty")}
+              </p>
+            )}
+          </div>
+        </SortableContext>
+      </section>
+    </ContextTarget>
   )
 }
 
@@ -444,11 +494,14 @@ function SortableCard({
   layoutKey,
   onOpen,
   children,
+  ...data
 }: {
   task: TaskRow
   layoutKey: string
   onOpen: () => void
   children: React.ReactNode
+  /** data-* from a <ContextTarget> around it (the right-click menu). */
+  [data: `data-${string}`]: unknown
 }) {
   const reduce = useReducedMotion()
   const {
@@ -472,6 +525,7 @@ function SortableCard({
     >
       <div
         ref={setNodeRef}
+        {...data}
         {...attributes}
         {...listeners}
         style={{

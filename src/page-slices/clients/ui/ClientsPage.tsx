@@ -1,5 +1,6 @@
 "use client"
 
+import { ConfirmDialog } from "@/components/confirm-dialog"
 import { EmptyState } from "@/components/empty-state"
 import { GroupedList, ListChip, ListRow } from "@/components/grouped-list"
 import { PageHeader } from "@/components/page-header"
@@ -8,7 +9,30 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Spinner } from "@/components/ui/spinner"
 import { useCanonicalParam } from "@/shared/hooks/useCanonicalParam"
-import { findByLinkKey, linkKey } from "@/shared/lib/url-params"
+import { findByLinkKey, linkKey, projectHref } from "@/shared/lib/url-params"
+import {
+  setClientArchived,
+  deleteClient,
+} from "@/app/(main)/clients/actions/client-actions"
+import { ContextTarget, copyText, type CtxItem } from "@/shared/context-menu"
+import { waNumber } from "@/shared/context-menu/detect"
+import { STATUS_LABEL_KEYS } from "@/page-slices/projects/lib/status"
+import { ProjectStatusIcon } from "@/page-slices/projects/ui/ProjectStatusIcon"
+import type { ProjectStatus } from "@/page-slices/projects/lib/status"
+import {
+  Archive,
+  ArchiveRestore,
+  Copy,
+  FolderKanban,
+  Globe,
+  Mail,
+  MessageCircle,
+  Pencil,
+  Phone,
+  Trash2,
+} from "lucide-react"
+import { useQueryClient } from "@tanstack/react-query"
+import { toast } from "sonner"
 import { useViewMode, ViewToggle } from "@/components/view-toggle"
 import { rupiah } from "@/entities/finance/lib/money"
 import { useFxRates } from "@/entities/finance/model/useFxRates"
@@ -23,7 +47,7 @@ import {
 import Link from "next/link"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useMemo, useState } from "react"
-import { useClients, type ClientRow } from "../model/data"
+import { clientKeys, useClients, type ClientRow } from "../model/data"
 import { summarize } from "../model/summary"
 import { ClientDialog } from "./ClientDialog"
 import { ClientFormDialog } from "./ClientFormDialog"
@@ -67,6 +91,10 @@ export function ClientsPage() {
   const [query, setQuery] = useState("")
   // null: closed; "new": add; otherwise the client being edited.
   const [form, setForm] = useState<ClientRow | "new" | null>(null)
+  const [deleting, setDeleting] = useState<ClientRow | null>(null)
+  const queryClient = useQueryClient()
+  const tm = useT("ctxmenu")
+  const tp = useT("projects")
   const needle = query.trim().toLowerCase()
 
   const shown = useMemo(
@@ -91,6 +119,138 @@ export function ClientsPage() {
   }, [clients])
   const open = findByLinkKey(clients, openId)
   useCanonicalParam("client", openId, open && linkKey(open.name, open.id))
+
+  const refresh = () =>
+    queryClient.invalidateQueries({ queryKey: clientKeys.all })
+  const copy = async (text: string) => {
+    if (await copyText(text)) toast.success(tm("copied"))
+    else toast.error(tm("copyFailed"))
+  }
+  /**
+   * Right-click on a card or row (Buka / tab baru / Salin link come from
+   * its href): projects, reach the contact, edit, archive, delete — the
+   * same actions as the client's dialog.
+   */
+  const clientItems = (c: ClientRow): CtxItem[] => {
+    const statusIcon = (status: ProjectStatus) =>
+      function StatusIcon({ className }: { className?: string }) {
+        return <ProjectStatusIcon status={status} className={className} />
+      }
+    const projects = [...c.projects].sort((a, b) =>
+      b.end_date.localeCompare(a.end_date),
+    )
+    const contact = [c.contact_name, c.email, c.phone]
+      .filter(Boolean)
+      .join("\n")
+    const website =
+      c.website &&
+      (/^https?:\/\//i.test(c.website) ? c.website : `https://${c.website}`)
+    const items: CtxItem[] = [
+      {
+        id: "projects",
+        label: t("ctxProjects"),
+        icon: FolderKanban,
+        hint: String(projects.length),
+        disabled: projects.length === 0,
+        submenu: projects.map((p) => ({
+          id: p.id,
+          label: p.name,
+          icon: statusIcon(p.status),
+          hint: tp(STATUS_LABEL_KEYS[p.status]),
+          onSelect: () => router.push(projectHref(p)),
+        })),
+      },
+      {
+        id: "copy-contact",
+        label: t("ctxCopyContact"),
+        icon: Copy,
+        hidden: !contact,
+        onSelect: () => copy(contact),
+      },
+      {
+        id: "email",
+        label: tm("sendEmail"),
+        icon: Mail,
+        hint: c.email ?? undefined,
+        hidden: !c.email,
+        onSelect: () => {
+          window.location.href = `mailto:${c.email}`
+        },
+      },
+      {
+        id: "whatsapp",
+        label: tm("whatsapp"),
+        icon: MessageCircle,
+        hidden: !c.phone,
+        onSelect: () =>
+          void window.open(
+            `https://wa.me/${waNumber(c.phone ?? "")}`,
+            "_blank",
+            "noopener",
+          ),
+      },
+      {
+        id: "call",
+        label: tm("call"),
+        icon: Phone,
+        hint: c.phone ?? undefined,
+        hidden: !c.phone,
+        onSelect: () => {
+          window.location.href = `tel:${c.phone}`
+        },
+      },
+      {
+        id: "website",
+        label: t("ctxOpenWebsite"),
+        icon: Globe,
+        hidden: !website,
+        onSelect: () => void window.open(website || "", "_blank", "noopener"),
+      },
+      {
+        id: "edit",
+        label: t("edit"),
+        icon: Pencil,
+        onSelect: () => setForm(c),
+      },
+      {
+        id: "archive",
+        label: c.archived_at ? t("restore") : t("archive"),
+        icon: c.archived_at ? ArchiveRestore : Archive,
+        onSelect: async () => {
+          const result = await setClientArchived(c.id, !c.archived_at)
+          if (!result.success) return void toast.error(result.error)
+          toast.success(c.archived_at ? t("restored") : t("archivedToast"))
+          refresh()
+        },
+      },
+      {
+        id: "delete",
+        label: t("delete"),
+        icon: Trash2,
+        destructive: true,
+        // The dialog asks first.
+        onSelect: () => setDeleting(c),
+      },
+    ]
+    return items
+      .filter((item) => !item.hidden)
+      .map((item) => ({ ...item, access: ["stakeholder"] }))
+  }
+  const target = (
+    c: ClientRow,
+    child: React.ReactElement<Record<string, unknown>>,
+  ) => (
+    <ContextTarget
+      key={c.id}
+      type="client"
+      id={c.id}
+      label={c.name}
+      href={withParams({ client: linkKey(c.name, c.id) })}
+      items={() => clientItems(c)}
+    >
+      {child}
+    </ContextTarget>
+  )
 
   if (profileLoading)
     return (
@@ -186,25 +346,29 @@ export function ClientsPage() {
           />
         ) : view === "grid" ? (
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {shown.map((c) => (
-              <ClientCard
-                key={c.id}
-                client={c}
-                href={withParams({ client: linkKey(c.name, c.id) })}
-                rates={rates}
-              />
-            ))}
+            {shown.map((c) =>
+              target(
+                c,
+                <ClientCard
+                  client={c}
+                  href={withParams({ client: linkKey(c.name, c.id) })}
+                  rates={rates}
+                />,
+              ),
+            )}
           </div>
         ) : (
           <GroupedList>
-            {shown.map((c) => (
-              <ClientListRow
-                key={c.id}
-                client={c}
-                href={withParams({ client: linkKey(c.name, c.id) })}
-                rates={rates}
-              />
-            ))}
+            {shown.map((c) =>
+              target(
+                c,
+                <ClientListRow
+                  client={c}
+                  href={withParams({ client: linkKey(c.name, c.id) })}
+                  rates={rates}
+                />,
+              ),
+            )}
           </GroupedList>
         )}
       </div>
@@ -224,6 +388,25 @@ export function ClientsPage() {
         onOpenChange={(next) => !next && setForm(null)}
         onSaved={(id) => form === "new" && go({ client: id, status: null })}
       />
+      <ConfirmDialog
+        open={deleting !== null}
+        onOpenChange={(next) => !next && setDeleting(null)}
+        title={t("deleteTitle", { name: deleting?.name ?? "" })}
+        description={t("deleteDescription")}
+        confirmText={t("delete")}
+        cancelText={t("cancel")}
+        variant="destructive"
+        onConfirm={async () => {
+          if (!deleting) return
+          const result = await deleteClient(deleting.id)
+          if (!result.success) return void toast.error(result.error)
+          toast.success(t("deleted"))
+          refresh()
+          queryClient.invalidateQueries({ queryKey: ["projects"] })
+          if (open?.id === deleting.id) go({ client: null })
+          setDeleting(null)
+        }}
+      />
     </div>
   )
 }
@@ -232,16 +415,20 @@ function ClientCard({
   client,
   href,
   rates,
+  ...rest
 }: {
   client: ClientRow
   href: string
   rates: Record<string, number>
+  /** data-* from the right-click target. */
+  [data: `data-${string}`]: string | undefined
 }) {
   const t = useT("clients")
   const sum = useMemo(() => summarize(client, rates), [client, rates])
 
   return (
     <Link
+      {...rest}
       data-slot="client-card"
       href={href}
       scroll={false}
@@ -282,16 +469,19 @@ function ClientListRow({
   client,
   href,
   rates,
+  ...rest
 }: {
   client: ClientRow
   href: string
   rates: Record<string, number>
+  /** data-* from the right-click target. */
+  [data: `data-${string}`]: string | undefined
 }) {
   const t = useT("clients")
   const sum = useMemo(() => summarize(client, rates), [client, rates])
 
   return (
-    <ListRow className={`${ROW_GRID} min-h-14`}>
+    <ListRow {...rest} className={`${ROW_GRID} min-h-14`}>
       <div className="flex min-w-0 items-center gap-3">
         <RiBuildingLine className="text-muted-foreground size-4 shrink-0" />
         <div className="flex min-w-0 flex-col">

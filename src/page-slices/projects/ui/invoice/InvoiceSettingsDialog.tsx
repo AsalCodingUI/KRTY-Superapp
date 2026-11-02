@@ -54,6 +54,7 @@ import { toast } from "sonner"
 import {
   FINANCE_BUCKET,
   invoiceKeys,
+  removeQrIfUnused,
   saveAgency,
   useAgency,
   usePaymentMethods,
@@ -213,20 +214,6 @@ function MethodsTab({
       </Button>
     </div>
   )
-}
-
-/**
- * Deletes a replaced QR from storage unless an invoice still prints it
- * (invoices keep the payment details they were sent with).
- */
-async function removeQrIfUnused(path: string) {
-  const db = createClient()
-  const { count, error } = await db
-    .from("project_invoices")
-    .select("id", { count: "exact", head: true })
-    .eq("payment_snapshot->>qr_path", path)
-  if (error || count) return
-  await db.storage.from(FINANCE_BUCKET).remove([path])
 }
 
 function MethodForm({

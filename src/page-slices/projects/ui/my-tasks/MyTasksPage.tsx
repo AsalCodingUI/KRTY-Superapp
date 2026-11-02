@@ -1,7 +1,8 @@
 "use client"
 
 import { useIsMobile } from "@/hooks/use-mobile"
-import { projectHref } from "@/shared/lib/url-params"
+import { linkKey, projectHref } from "@/shared/lib/url-params"
+import { ConfirmDialog } from "@/components/confirm-dialog"
 import { EmptyState } from "@/components/empty-state"
 import { EmptyValue } from "@/components/empty-value"
 import { PageHeader } from "@/components/page-header"
@@ -27,9 +28,11 @@ import { toast } from "sonner"
 import { supabase, useViewer, type TaskRow } from "../workspace/data"
 import { StatusDot, TaskBoard } from "../workspace/TaskBoard"
 import { TaskDialog } from "../workspace/TaskDialog"
+import { TaskContextTarget, type TaskMenuConfig } from "../workspace/task-menu"
 import {
   STATUS_LABEL,
   byPosition,
+  duplicateTask,
   positionBetween,
   topPosition,
   statusOf,
@@ -58,6 +61,7 @@ const ROW_GRID =
 export function MyTasksPage() {
   const t = useT("projects")
   const tc = useT("common")
+  const tm = useT("taskmenu")
   const viewer = useViewer()
   const { data, isLoading } = useMyTasks(viewer.id)
   const writer = useMyTaskWriter(viewer.id, () => toast.error(t("errSaveTask")))
@@ -69,6 +73,9 @@ export function MyTasksPage() {
   const [projectFilter, setProjectFilter] = useState<string>(ALL)
   const [openId, setOpenId] = useState<string | null>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
+  // Opened from the right-click menu: what the dialog starts on.
+  const [focus, setFocus] = useState<"due" | "subtask" | null>(null)
+  const [deleting, setDeleting] = useState<TaskRow | null>(null)
 
   const projects = useMemo(
     () =>
@@ -197,11 +204,61 @@ export function MyTasksPage() {
     writer.refresh(row ? [row.project_id] : [])
   }
 
-  const openTask = (id: string) => {
+  const openTask = (id: string, start: "due" | "subtask" | null = null) => {
+    setFocus(start)
     setOpenId(id)
     setDialogOpen(true)
   }
   const openRow = openId ? allTasks.find((row) => row.id === openId) : null
+
+  // Placed among the whole project's column, not only the viewer's cards.
+  const duplicate = async (task: TaskRow) => {
+    const { data: siblings } = await supabase()
+      .from("project_tasks")
+      .select("*")
+      .eq("project_id", task.project_id)
+    const ok = await duplicateTask({
+      task,
+      subtasks: subsOf.get(task.id) ?? [],
+      siblings: (siblings ?? []) as TaskRow[],
+      title: tm("copySuffix", { title: task.title }),
+      viewerId: viewer.id,
+    })
+    await writer.refresh([task.project_id])
+    if (ok) toast.success(tm("duplicated"))
+    else toast.error(tm("errDuplicate"))
+  }
+
+  /** The right-click menu of a task: the same handlers as the dialog's. */
+  const menuFor = (task: TaskRow): TaskMenuConfig => {
+    const project = projectOf(task)
+    const page = project
+      ? projectHref(project, "tasks")
+      : `/projects/${task.project_id}/tasks`
+    return {
+      task,
+      href: `${page}?task=${linkKey(task.title, task.id)}`,
+      viewerId: viewer.id,
+      team: data?.teams[task.project_id] ?? [],
+      // Loaded when "Pindah ke fase" opens.
+      phases: async () => {
+        const { data: rows, error } = await supabase()
+          .from("project_phases")
+          .select("id, name")
+          .eq("project_id", task.project_id)
+          .order("position")
+        if (error) throw error
+        return rows ?? []
+      },
+      project: { href: page },
+      onStatus: setStatus,
+      onPatch: writer.patch,
+      onPickDue: () => openTask(task.id, "due"),
+      onAddSubtask: () => openTask(task.id, "subtask"),
+      onDuplicate: () => duplicate(task),
+      onDelete: () => setDeleting(task),
+    }
+  }
 
   const empty = !isLoading && allTasks.length === 0
 
@@ -268,6 +325,9 @@ export function MyTasksPage() {
             onOpen={(task) => openTask(task.id)}
             onMove={move}
             projectOf={projectOf}
+            wrapCard={(task, card) => (
+              <TaskContextTarget menu={menuFor(task)}>{card}</TaskContextTarget>
+            )}
           />
         </div>
       ) : (
@@ -322,15 +382,18 @@ export function MyTasksPage() {
               />
             ) : (
               visible.map((task) => (
-                <MyTaskRow
-                  key={task.id}
-                  task={task}
-                  project={projectOf(task)}
-                  subtasks={subsOf.get(task.id) ?? []}
-                  comments={commentCounts[task.id] ?? 0}
-                  onToggle={() => setStatus(task, task.done ? "todo" : "done")}
-                  onOpen={() => openTask(task.id)}
-                />
+                <TaskContextTarget key={task.id} menu={menuFor(task)}>
+                  <MyTaskRow
+                    task={task}
+                    project={projectOf(task)}
+                    subtasks={subsOf.get(task.id) ?? []}
+                    comments={commentCounts[task.id] ?? 0}
+                    onToggle={() =>
+                      setStatus(task, task.done ? "todo" : "done")
+                    }
+                    onOpen={() => openTask(task.id)}
+                  />
+                </TaskContextTarget>
               ))
             )}
           </div>
@@ -349,6 +412,21 @@ export function MyTasksPage() {
         onStatus={setStatus}
         onAddSub={addSubtask}
         onRemove={remove}
+        menuFor={menuFor}
+        focus={focus}
+      />
+      <ConfirmDialog
+        open={deleting !== null}
+        onOpenChange={(open) => !open && setDeleting(null)}
+        title={t("deleteNamedTitle", { name: deleting?.title ?? "" })}
+        description={t("deleteTaskDescription")}
+        confirmText={tc("delete")}
+        cancelText={tc("cancel")}
+        variant="destructive"
+        onConfirm={() => {
+          if (deleting) remove(deleting.id)
+          setDeleting(null)
+        }}
       />
     </div>
   )
@@ -361,6 +439,7 @@ function MyTaskRow({
   comments,
   onToggle,
   onOpen,
+  ...data
 }: {
   task: TaskRow
   project: MyProject | undefined
@@ -368,6 +447,8 @@ function MyTaskRow({
   comments: number
   onToggle: () => void
   onOpen: () => void
+  /** data-* from the <TaskContextTarget> around it (right-click menu). */
+  [data: `data-${string}`]: unknown
 }) {
   const t = useT("projects")
   const tc = useT("common")
@@ -380,6 +461,7 @@ function MyTaskRow({
 
   return (
     <div
+      {...data}
       className={cn(
         ROW_GRID,
         "group/task border-border/50 hover:bg-muted/20 gutter-x relative min-h-12 border-b max-md:min-h-14",

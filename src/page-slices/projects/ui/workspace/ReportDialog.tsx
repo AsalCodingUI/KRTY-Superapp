@@ -26,7 +26,8 @@ import { ReportViewsIndicator } from "./ReportViews"
 import { ReportTemplatePicker } from "./ReportTemplatePicker"
 import { useT } from "@/shared/i18n/client"
 import { RiCloseLine, RiFileCopyLine } from "@/shared/ui/lucide-icons"
-import { Link2 } from "lucide-react"
+import { Link2, Link2Off, Save, X } from "lucide-react"
+import { copyText, useContextTarget, type CtxItem } from "@/shared/context-menu"
 import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import {
@@ -169,6 +170,56 @@ export function ReportDialog({
     ? reportShareUrl(current.share_token, projectName)
     : ""
 
+  // Right-click on the header: the same share / save / close as its buttons.
+  const headerRef = useRef<HTMLElement>(null)
+  useContextTarget(
+    headerRef,
+    (): CtxItem[] => [
+      {
+        id: "copy-client-link",
+        label: t("ctxCopyClientLink"),
+        icon: Link2,
+        hidden: !link,
+        onSelect: async () => {
+          if (await copyText(link)) toast.success(t("reportLinkCopied"))
+        },
+      },
+      {
+        id: "share",
+        label: t("reportCreateLink"),
+        icon: Link2,
+        hidden: Boolean(link) || !canEdit || !title.trim(),
+        disabled: sharing,
+        onSelect: () => share(true),
+      },
+      {
+        id: "stop-sharing",
+        label: t("reportStopSharing"),
+        icon: Link2Off,
+        hidden: !link || !canEdit,
+        destructive: true,
+        confirm: true,
+        onSelect: () => share(false),
+      },
+      {
+        id: "save",
+        label: tc("save"),
+        icon: Save,
+        hidden: !canEdit,
+        disabled: !title.trim() || saving || (Boolean(current) && !dirty),
+        onSelect: () => void save(),
+      },
+      {
+        id: "close",
+        label: tc("close"),
+        icon: X,
+        shortcut: "Escape",
+        onSelect: requestClose,
+      },
+    ],
+    { type: "project-report-window", label: title || defaultTitle },
+  )
+
   return (
     <Dialog
       open={open}
@@ -183,7 +234,10 @@ export function ReportDialog({
         showCloseButton={false}
         className="flex h-[min(56rem,92svh)] w-full flex-col overflow-hidden p-0 sm:max-w-5xl"
       >
-        <header className="border-border flex shrink-0 items-center gap-2 border-b px-4 py-3">
+        <header
+          ref={headerRef}
+          className="border-border flex shrink-0 items-center gap-2 border-b px-4 py-3"
+        >
           <DialogTitle className="sr-only">{title || defaultTitle}</DialogTitle>
           <input
             value={title}

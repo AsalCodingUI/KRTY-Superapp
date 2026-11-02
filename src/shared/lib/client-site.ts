@@ -22,6 +22,36 @@ export function isClientHost(host: string | null) {
 }
 
 /**
+ * The public client site's origin, server side (absolute links in link
+ * previews: crawlers can't reach the app's VPN-only host). Set
+ * `NEXT_PUBLIC_CLIENT_URL` to pin it; otherwise it follows the request:
+ * the client host as it is, localhost as it is, and `app.<domain>` (or any
+ * other host) → `client.<domain>`.
+ */
+export function clientOriginFor(host: string | null, proto?: string | null) {
+  const pinned = process.env.NEXT_PUBLIC_CLIENT_URL?.replace(/\/+$/, "")
+  if (pinned) return pinned
+  const name = (host ?? "").split(",")[0].trim().toLowerCase()
+  if (!name) {
+    return (process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000").replace(
+      /\/+$/,
+      "",
+    )
+  }
+  const hostname = name.replace(/:\d+$/, "")
+  const local =
+    hostname === "localhost" ||
+    hostname.endsWith(".localhost") ||
+    /^[\d.]+$/.test(hostname) ||
+    hostname.startsWith("[")
+  const scheme =
+    (proto ?? "").split(",")[0].trim() || (local ? "http" : "https")
+  if (local || isClientHost(name)) return `${scheme}://${name}`
+  const domain = hostname.split(".").slice(-2).join(".")
+  return `https://${CLIENT_HOST_PREFIX}${domain}`
+}
+
+/**
  * The address to give a client for `path` (`/p/…`, `/r/…`): the public
  * client site next to the app's domain, or this origin when running
  * locally (localhost has no client site).

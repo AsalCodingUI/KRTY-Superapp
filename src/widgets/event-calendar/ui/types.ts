@@ -46,6 +46,10 @@ export interface CalendarEvent {
   googleEventId?: string
   type?: string
   employeeId?: string // For filtering leave events by employee
+  /** Its own page, if it has one (a task deadline's task). */
+  href?: string
+  /** Indonesian national holiday it comes from (id-holidays.ts key). */
+  holidayKey?: string
   meetingUrl?: string
   guests?: Guest[]
   reminders?: Reminder[]

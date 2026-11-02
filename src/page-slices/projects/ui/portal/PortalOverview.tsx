@@ -17,10 +17,12 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { useState } from "react"
+import { ContextTarget, type CtxItem } from "@/shared/context-menu"
+import { linkKey } from "@/shared/lib/url-params"
 import type { PhaseRow, StepRow } from "../workspace/data"
 import { PhaseRail } from "../workspace/ProjectDashboard"
 import { ProjectProperties } from "../workspace/ProjectProperties"
-import { DesignLinkAnchor } from "../workspace/DesignLinks"
+import { DesignLinkAnchor, linkLabel } from "../workspace/DesignLinks"
 import { PortalReportDialog } from "./PortalReportDialog"
 import type { PortalReport } from "./PortalReports"
 
@@ -188,20 +190,35 @@ export function PortalOverview({
                   </Link>
                 </header>
                 {reports.map((r) => (
-                  <button
+                  <ContextTarget
                     key={r.id}
-                    type="button"
-                    onClick={() => setOpenReport(r.id)}
-                    className="border-border/50 hover:bg-muted/40 flex h-11 items-center gap-3 border-b px-4 text-left text-sm transition-colors last:border-b-0"
+                    type="portal-report"
+                    label={r.title}
+                    href={`${base}/reports?report=${linkKey(r.title, r.id)}`}
+                    suppress={["button"]}
+                    items={(): CtxItem[] => [
+                      {
+                        id: "open-here",
+                        label: t("ctxPreview"),
+                        icon: Newspaper,
+                        onSelect: () => setOpenReport(r.id),
+                      },
+                    ]}
                   >
-                    <Newspaper className="text-muted-foreground size-4 shrink-0" />
-                    <span className="min-w-0 flex-1 truncate">{r.title}</span>
-                    <span className="text-tertiary-foreground shrink-0 text-[13px] tabular-nums">
-                      {format(parseISO(r.report_date), "d MMM yyyy", {
-                        locale: dateLocale,
-                      })}
-                    </span>
-                  </button>
+                    <button
+                      type="button"
+                      onClick={() => setOpenReport(r.id)}
+                      className="border-border/50 hover:bg-muted/40 flex h-11 items-center gap-3 border-b px-4 text-left text-sm transition-colors last:border-b-0"
+                    >
+                      <Newspaper className="text-muted-foreground size-4 shrink-0" />
+                      <span className="min-w-0 flex-1 truncate">{r.title}</span>
+                      <span className="text-tertiary-foreground shrink-0 text-[13px] tabular-nums">
+                        {format(parseISO(r.report_date), "d MMM yyyy", {
+                          locale: dateLocale,
+                        })}
+                      </span>
+                    </button>
+                  </ContextTarget>
                 ))}
               </section>
             )}
@@ -253,12 +270,16 @@ export function PortalOverview({
                 </h3>
                 <ul className="-mx-2 flex flex-col">
                   {links.map((link) => (
-                    <li
+                    <ContextTarget
                       key={link.id}
-                      className="hover:bg-muted/60 flex rounded-lg pr-1 transition-colors"
+                      type="portal-link"
+                      label={link.title || linkLabel(link.url)}
+                      href={link.url}
                     >
-                      <DesignLinkAnchor url={link.url} title={link.title} />
-                    </li>
+                      <li className="hover:bg-muted/60 flex rounded-lg pr-1 transition-colors">
+                        <DesignLinkAnchor url={link.url} title={link.title} />
+                      </li>
+                    </ContextTarget>
                   ))}
                 </ul>
               </section>

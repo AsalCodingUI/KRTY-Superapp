@@ -49,6 +49,7 @@ import {
   type PolicyListItem,
 } from "../model/data"
 import { BlockHandle } from "./block-handle"
+import { DocContextMenu } from "./doc-context-menu"
 import { DocToolbar } from "./DocToolbar"
 import { EmbedMenu } from "./embed"
 import { SelectionMenu } from "./SelectionMenu"
@@ -627,6 +628,12 @@ function DocumentEditor({
           <div className="relative">
             <EditorContent editor={editor} />
             {editor && <BlockHandle editor={editor} />}
+            {editor && (
+              <DocContextMenu
+                editor={editor}
+                onReplaceImage={uploads.replaceImage}
+              />
+            )}
           </div>
 
           {/* A blank rule offers the common blocks, like a fresh doc. */}

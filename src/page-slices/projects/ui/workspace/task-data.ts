@@ -96,6 +96,87 @@ export function statusPatch(task: TaskRow, status: TaskStatus) {
 }
 
 /**
+ * A copy of a task right below it in its column (same fields, its
+ * subtasks too), created by `viewerId`. `siblings` are the rows the
+ * task is ordered among (its project's tasks). True when it worked.
+ */
+export async function duplicateTask({
+  task,
+  subtasks,
+  siblings,
+  title,
+  viewerId,
+}: {
+  task: TaskRow
+  subtasks: TaskRow[]
+  siblings: TaskRow[]
+  title: string
+  viewerId: string | null
+}) {
+  const status = statusOf(task)
+  const column = siblings.filter(
+    (t) =>
+      t.project_id === task.project_id &&
+      t.parent_id === task.parent_id &&
+      t.id !== task.id &&
+      t.position !== null &&
+      statusOf(t) === status,
+  )
+  let position: number | null = null
+  if (task.position !== null) {
+    const next = column
+      .filter((t) => t.position! > task.position!)
+      .reduce<
+        number | null
+      >((min, t) => (min === null || t.position! < min ? t.position : min), null)
+    position = positionBetween(task.position, next)
+    if (position === null) {
+      const last = column.reduce<number | null>(
+        (max, t) => (max === null || t.position! > max ? t.position : max),
+        null,
+      )
+      position = positionBetween(last, null)
+    }
+  }
+  const db = supabase()
+  const { data, error } = await db
+    .from("project_tasks")
+    .insert({
+      project_id: task.project_id,
+      phase_id: task.phase_id,
+      parent_id: task.parent_id,
+      title,
+      description: task.description,
+      assignee_id: task.assignee_id,
+      due_date: task.due_date,
+      ...statusPatch(task, status),
+      position,
+      created_by: viewerId,
+    })
+    .select("id")
+    .single()
+  if (error || !data) return false
+  if (subtasks.length) {
+    const { error: subError } = await db.from("project_tasks").insert(
+      subtasks.map((sub) => ({
+        project_id: sub.project_id,
+        phase_id: sub.phase_id,
+        parent_id: data.id,
+        title: sub.title,
+        description: sub.description,
+        assignee_id: sub.assignee_id,
+        due_date: sub.due_date,
+        ...statusPatch(sub, statusOf(sub)),
+        position: sub.position,
+        created_by: viewerId,
+      })),
+    )
+    if (subError) return false
+  }
+  return true
+}
+
+/**
  * Writes to tasks that show up at once: the cache is patched first, the
  * row saved, and the list refetched either way (rolled back on failure).
  */

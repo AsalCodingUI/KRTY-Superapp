@@ -40,6 +40,7 @@ export function Notifications({ variant = "default" }: NotificationsProps) {
     notifications,
     unreadCount,
     markAsRead,
+    markAsUnread,
     markAllAsRead,
     deleteNotification,
     loading,
@@ -116,6 +117,7 @@ export function Notifications({ variant = "default" }: NotificationsProps) {
             loading={loading}
             isError={isError}
             markAsRead={markAsRead}
+            markAsUnread={markAsUnread}
             markAllAsRead={markAllAsRead}
             deleteNotification={deleteNotification}
           />

@@ -124,6 +124,15 @@ const id = {
   print: "Cetak / Simpan PDF",
   printHint: 'Pilih "Save as PDF" di dialog cetak.',
   notFound: "Invoice tidak ditemukan.",
+  ctxEditMethod: "Ubah metode",
+  ctxCopyDetails: "Salin detail",
+  ctxCopyAllDetails: "Semua detail",
+  ctxCopyNumber: "Salin nomor invoice",
+  ctxMarkPaid: "Tandai lunas",
+  ctxMarkedPaid: "{number} ditandai lunas",
+  ctxOpenPrint: "Buka halaman cetak",
+  ctxActivated: "Metode diaktifkan",
+  ctxDeactivated: "Metode dinonaktifkan",
 }
 
 const en: Record<keyof typeof id, string> = {
@@ -242,6 +251,15 @@ const en: Record<keyof typeof id, string> = {
   print: "Print / Save PDF",
   printHint: 'Choose "Save as PDF" in the print dialog.',
   notFound: "Invoice not found.",
+  ctxEditMethod: "Edit method",
+  ctxCopyDetails: "Copy details",
+  ctxCopyAllDetails: "All details",
+  ctxCopyNumber: "Copy invoice number",
+  ctxMarkPaid: "Mark as paid",
+  ctxMarkedPaid: "{number} marked as paid",
+  ctxOpenPrint: "Open print page",
+  ctxActivated: "Method turned on",
+  ctxDeactivated: "Method turned off",
 }
 
 export const invoices = { id, en }

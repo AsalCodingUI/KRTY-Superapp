@@ -52,7 +52,13 @@ import {
 import { TaskBoard } from "./TaskBoard"
 import { TaskDialog } from "./TaskDialog"
 import {
+  SubtaskContextTarget,
+  TaskContextTarget,
+  type TaskMenuConfig,
+} from "./task-menu"
+import {
   byPosition,
+  duplicateTask,
   positionBetween,
   topPosition,
   statusOf,
@@ -82,6 +88,7 @@ const NONE = "__none__"
 export function ProjectTasks({ projectId }: { projectId: string }) {
   const t = useT("projects")
   const tc = useT("common")
+  const tm = useT("taskmenu")
   const { data: workspace } = useWorkspace(projectId)
   const { data: tasks = [], isLoading } = useTasks(projectId)
   const { data: commentCounts = {} } = useCommentCounts(projectId)
@@ -99,6 +106,8 @@ export function ProjectTasks({ projectId }: { projectId: string }) {
   // The open task; kept while the dialog animates closed.
   const [openId, setOpenId] = useState<string | null>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
+  // Opened from the right-click menu: what the dialog starts on.
+  const [focus, setFocus] = useState<"due" | "subtask" | null>(null)
   const [deleting, setDeleting] = useState<TaskRow | null>(null)
 
   const phases = workspace?.phases ?? []
@@ -137,7 +146,8 @@ export function ProjectTasks({ projectId }: { projectId: string }) {
     })
   }
 
-  const openTask = (id: string) => {
+  const openTask = (id: string, start: "due" | "subtask" | null = null) => {
+    setFocus(start)
     setOpenId(id)
     setDialogOpen(true)
     const task = tasks.find((t) => t.id === id)
@@ -154,6 +164,7 @@ export function ProjectTasks({ projectId }: { projectId: string }) {
     if (dialogOpen && openId === task?.id) return
     // A subtask opens inside its parent.
     if (task) {
+      setFocus(null)
       setOpenId(task.parent_id ?? task.id)
       setDialogOpen(true)
     }
@@ -276,6 +287,36 @@ export function ProjectTasks({ projectId }: { projectId: string }) {
 
   const toggle = (task: TaskRow) => setStatus(task, task.done ? "todo" : "done")
 
+  const duplicate = async (task: TaskRow) => {
+    const ok = await duplicateTask({
+      task,
+      subtasks: subsOf.get(task.id) ?? [],
+      siblings: tasks,
+      title: tm("copySuffix", { title: task.title }),
+      viewerId: viewer.id,
+    })
+    await invalidate("tasks")
+    if (ok) toast.success(tm("duplicated"))
+    else toast.error(tm("errDuplicate"))
+  }
+
+  /** The right-click menu of a task (card, row, the dialog's panel): the
+   *  same handlers as the page's own controls. */
+  const menuFor = (task: TaskRow): TaskMenuConfig => ({
+    task,
+    // This page with the task open (?task=…), as a notification links it.
+    href: `${pathname}?task=${linkKey(task.title, task.id)}`,
+    viewerId: viewer.id,
+    team,
+    phases,
+    onStatus: setStatus,
+    onPatch: update,
+    onPickDue: () => openTask(task.id, "due"),
+    onAddSubtask: () => openTask(task.id, "subtask"),
+    onDuplicate: () => duplicate(task),
+    onDelete: () => setDeleting(task),
+  })
+
   // One task per Enter, even when it's pressed again before the save lands.
   const busy = useRef(false)
   const addTop = async () => {
@@ -366,15 +407,26 @@ export function ProjectTasks({ projectId }: { projectId: string }) {
             onOpen={(task) => openTask(task.id)}
             onMove={move}
             onCreate={(title, status) => create(title, null, status)}
+            wrapCard={(task, card) => (
+              <TaskContextTarget menu={menuFor(task)}>{card}</TaskContextTarget>
+            )}
           />
         )
       ) : (
         <div className="flex flex-col gap-4 pb-4">
           <div className="bleed flex flex-col text-sm">
-            <div className="text-muted-foreground border-border gutter-x grid grid-cols-[2.5rem_minmax(0,1fr)_8rem_10rem_7rem_5rem] items-center border-b py-2 text-[13px]">
+            <div
+              className={cn(
+                "text-muted-foreground border-border gutter-x grid items-center border-b py-2 text-[13px]",
+                phases.length
+                  ? "grid-cols-[2.5rem_minmax(0,1fr)_8rem_10rem_7rem_5rem]"
+                  : "grid-cols-[2.5rem_minmax(0,1fr)_10rem_7rem_5rem]",
+              )}
+            >
               <span />
               <span>{t("colTask")}</span>
-              <span>{t("factsPhase")}</span>
+              {/* A project without phases has no phase column. */}
+              {phases.length > 0 && <span>{t("factsPhase")}</span>}
               <span>{t("colPic")}</span>
               <span>{t("factsDeadline")}</span>
               <span className="text-right">{t("colCreated")}</span>
@@ -439,6 +491,7 @@ export function ProjectTasks({ projectId }: { projectId: string }) {
                   onDelete={() => setDeleting(task)}
                   onOpen={() => openTask(task.id)}
                   onAddSub={(title) => create(title, task.id)}
+                  menu={menuFor(task)}
                 />
               ))
             )}
@@ -458,6 +511,8 @@ export function ProjectTasks({ projectId }: { projectId: string }) {
         onStatus={setStatus}
         onAddSub={(title, parentId) => create(title, parentId)}
         onRemove={remove}
+        menuFor={menuFor}
+        focus={focus}
       />
       <ConfirmDialog
         open={deleting !== null}
@@ -490,6 +545,7 @@ function TaskRows({
   onDelete,
   onOpen,
   onAddSub,
+  menu,
 }: {
   task: TaskRow
   subtasks: TaskRow[]
@@ -505,11 +561,14 @@ function TaskRows({
   onDelete: () => void
   onOpen: () => void
   onAddSub: (title: string) => Promise<boolean>
+  /** Right-click menu; the row's own controls stand in for the dialog's. */
+  menu: TaskMenuConfig
 }) {
   const t = useT("projects")
   const tc = useT("common")
   const dateLocale = useDateLocale()
   const [editing, setEditing] = useState(false)
+  const subInputRef = useRef<HTMLInputElement>(null)
   const [title, setTitle] = useState(task.title)
   const [subTitle, setSubTitle] = useState("")
   const [dateOpen, setDateOpen] = useState(false)
@@ -540,253 +599,287 @@ function TaskRows({
 
   return (
     <>
-      <div className="group/task border-border/50 hover:bg-muted/20 gutter-x grid min-h-12 grid-cols-[2.5rem_minmax(0,1fr)_8rem_10rem_7rem_5rem] items-center border-b">
-        <div className="flex items-center gap-1">
-          <Button
-            variant="ghost"
-            size="icon-xs"
-            aria-label={expanded ? t("collapseSubtasks") : t("expandSubtasks")}
-            aria-expanded={expanded}
-            onClick={() => onExpand(!expanded)}
-            className={cn(
-              "text-muted-foreground aria-expanded:text-muted-foreground -ml-6 aria-expanded:bg-transparent",
-              subtasks.length === 0 &&
-                "invisible group-hover/task:visible focus-visible:visible",
-            )}
-          >
-            <RiArrowRightSLine
+      <TaskContextTarget
+        menu={{
+          ...menu,
+          onPickDue: () => setDateOpen(true),
+          onRename: () => {
+            setTitle(task.title)
+            setEditing(true)
+          },
+          onAddSubtask: () => {
+            onExpand(true)
+            requestAnimationFrame(() => subInputRef.current?.focus())
+          },
+        }}
+      >
+        <div
+          className={cn(
+            "group/task border-border/50 hover:bg-muted/20 gutter-x grid min-h-12 items-center border-b",
+            phases.length
+              ? "grid-cols-[2.5rem_minmax(0,1fr)_8rem_10rem_7rem_5rem]"
+              : "grid-cols-[2.5rem_minmax(0,1fr)_10rem_7rem_5rem]",
+          )}
+        >
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="icon-xs"
+              aria-label={
+                expanded ? t("collapseSubtasks") : t("expandSubtasks")
+              }
+              aria-expanded={expanded}
+              onClick={() => onExpand(!expanded)}
               className={cn(
-                "size-4! transition-transform",
-                expanded && "rotate-90",
-              )}
-            />
-          </Button>
-          <Checkbox
-            checked={task.done}
-            onCheckedChange={() => onToggle(task)}
-            aria-label={task.done ? t("markUndone") : t("markDone")}
-          />
-        </div>
-        <div className="flex min-w-0 items-center gap-2 pr-3">
-          {editing ? (
-            <Input
-              autoFocus
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              onBlur={saveTitle}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") saveTitle()
-                if (e.key === "Escape") {
-                  setTitle(task.title)
-                  setEditing(false)
-                }
-              }}
-              className="h-7"
-            />
-          ) : (
-            <button
-              type="button"
-              onClick={() => setEditing(true)}
-              className={cn(
-                "min-w-0 truncate text-left",
-                task.done && "text-muted-foreground line-through",
+                "text-muted-foreground aria-expanded:text-muted-foreground -ml-6 aria-expanded:bg-transparent",
+                subtasks.length === 0 &&
+                  "invisible group-hover/task:visible focus-visible:visible",
               )}
             >
-              {task.title}
-            </button>
-          )}
-          {subtasks.length > 0 && (
-            <span className="text-muted-foreground shrink-0 text-[13px] tabular-nums">
-              {doneSubs}/{subtasks.length}
-            </span>
-          )}
-          {/* Opens the task dialog (description, comments). */}
-          <Button
-            variant="ghost"
-            size={comments > 0 ? "xs" : "icon-xs"}
-            aria-label={t("commentCount", { n: comments })}
-            onClick={onOpen}
-            className={cn(
-              "text-muted-foreground ml-auto shrink-0 text-[13px] font-normal tabular-nums",
-              comments === 0 &&
-                "opacity-0 group-hover/task:opacity-100 focus-visible:opacity-100",
-            )}
-          >
-            <RiMessage3Line
-              data-icon={comments > 0 ? "inline-start" : undefined}
-              className="size-3.5"
-            />
-            {comments > 0 && comments}
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            aria-label={t("deleteTask")}
-            onClick={onDelete}
-            className="text-muted-foreground hover:text-destructive opacity-0 group-hover/task:opacity-100 focus-visible:opacity-100"
-          >
-            <RiDeleteBinLine />
-          </Button>
-        </div>
-        <Select
-          value={task.phase_id ?? NONE}
-          onValueChange={(v) =>
-            v && onUpdate(task.id, { phase_id: v === NONE ? null : v })
-          }
-        >
-          <SelectTrigger
-            size="sm"
-            className="text-muted-foreground hover:bg-accent w-[7.5rem] border-transparent bg-transparent px-2.5 text-[13px] shadow-none hover:border-transparent"
-          >
-            <SelectValue>
-              {(v: string) =>
-                phases.find((p) => p.id === v)?.name ?? t("noPhase")
-              }
-            </SelectValue>
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={NONE}>{t("noPhase")}</SelectItem>
-            {phases.map((p) => (
-              <SelectItem key={p.id} value={p.id}>
-                {p.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select
-          value={task.assignee_id ?? NONE}
-          onValueChange={(v) =>
-            v && onUpdate(task.id, { assignee_id: v === NONE ? null : v })
-          }
-        >
-          <SelectTrigger
-            size="sm"
-            className="hover:bg-accent w-[9.5rem] border-transparent bg-transparent px-2.5 text-[13px] shadow-none hover:border-transparent"
-          >
-            <SelectValue>
-              {() =>
-                assignee ? (
-                  <span className="flex min-w-0 items-center gap-1.5">
-                    <Avatar className="size-5">
-                      <AvatarImage
-                        src={assignee.avatar_url || undefined}
-                        alt=""
-                      />
-                      <AvatarFallback className="text-[9px]">
-                        {(assignee.full_name || "U").slice(0, 2).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <span className="truncate">
-                      {assignee.full_name?.split(" ")[0]}
-                    </span>
-                  </span>
-                ) : (
-                  <EmptyValue />
-                )
-              }
-            </SelectValue>
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={NONE}>{t("noPic")}</SelectItem>
-            {team.map((m) => (
-              <SelectItem key={m.id} value={m.id}>
-                {m.full_name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        {/* Due date: the app's calendar in a popover (not the browser's). */}
-        <Popover open={dateOpen} onOpenChange={setDateOpen}>
-          <PopoverTrigger
-            render={
-              <Button
-                variant="ghost"
-                size="sm"
+              <RiArrowRightSLine
                 className={cn(
-                  "justify-self-start px-2.5 text-[13px] font-normal",
-                  task.due_date
-                    ? overdue
-                      ? "text-destructive"
-                      : isToday(new Date(`${task.due_date}T00:00:00`))
-                        ? "text-warning"
-                        : "text-foreground"
-                    : "text-muted-foreground",
+                  "size-4! transition-transform",
+                  expanded && "rotate-90",
                 )}
               />
+            </Button>
+            <Checkbox
+              checked={task.done}
+              onCheckedChange={() => onToggle(task)}
+              aria-label={task.done ? t("markUndone") : t("markDone")}
+            />
+          </div>
+          <div className="flex min-w-0 items-center gap-2 pr-3">
+            {editing ? (
+              <Input
+                autoFocus
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                onBlur={saveTitle}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") saveTitle()
+                  if (e.key === "Escape") {
+                    setTitle(task.title)
+                    setEditing(false)
+                  }
+                }}
+                className="h-7"
+              />
+            ) : (
+              <button
+                type="button"
+                onClick={() => setEditing(true)}
+                className={cn(
+                  "min-w-0 truncate text-left",
+                  task.done && "text-muted-foreground line-through",
+                )}
+              >
+                {task.title}
+              </button>
+            )}
+            {subtasks.length > 0 && (
+              <span className="text-muted-foreground shrink-0 text-[13px] tabular-nums">
+                {doneSubs}/{subtasks.length}
+              </span>
+            )}
+            {/* Opens the task dialog (description, comments). */}
+            <Button
+              variant="ghost"
+              size={comments > 0 ? "xs" : "icon-xs"}
+              aria-label={t("commentCount", { n: comments })}
+              onClick={onOpen}
+              className={cn(
+                "text-muted-foreground ml-auto shrink-0 text-[13px] font-normal tabular-nums",
+                comments === 0 &&
+                  "opacity-0 group-hover/task:opacity-100 focus-visible:opacity-100",
+              )}
+            >
+              <RiMessage3Line
+                data-icon={comments > 0 ? "inline-start" : undefined}
+                className="size-3.5"
+              />
+              {comments > 0 && comments}
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              aria-label={t("deleteTask")}
+              onClick={onDelete}
+              className="text-muted-foreground hover:text-destructive opacity-0 group-hover/task:opacity-100 focus-visible:opacity-100"
+            >
+              <RiDeleteBinLine />
+            </Button>
+          </div>
+          {phases.length > 0 && (
+            <Select
+              value={task.phase_id ?? NONE}
+              onValueChange={(v) =>
+                v && onUpdate(task.id, { phase_id: v === NONE ? null : v })
+              }
+            >
+              <SelectTrigger
+                size="sm"
+                className="text-muted-foreground hover:bg-accent w-[7.5rem] border-transparent bg-transparent px-2.5 text-[13px] shadow-none hover:border-transparent"
+              >
+                <SelectValue>
+                  {(v: string) =>
+                    phases.find((p) => p.id === v)?.name ?? t("noPhase")
+                  }
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={NONE}>{t("noPhase")}</SelectItem>
+                {phases.map((p) => (
+                  <SelectItem key={p.id} value={p.id}>
+                    {p.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+          <Select
+            value={task.assignee_id ?? NONE}
+            onValueChange={(v) =>
+              v && onUpdate(task.id, { assignee_id: v === NONE ? null : v })
             }
           >
-            <RiCalendarLine data-icon="inline-start" className="size-3.5" />
-            {task.due_date ? (
-              dueLabel(task.due_date, dateLocale, {
-                today: tc("today"),
-                tomorrow: t("tomorrow"),
-              })
-            ) : (
-              <EmptyValue />
-            )}
-          </PopoverTrigger>
-          <PopoverContent align="end" className="w-auto p-0">
-            <Calendar
-              mode="single"
-              selected={
-                task.due_date
-                  ? new Date(`${task.due_date}T00:00:00`)
-                  : undefined
+            <SelectTrigger
+              size="sm"
+              className="hover:bg-accent w-[9.5rem] border-transparent bg-transparent px-2.5 text-[13px] shadow-none hover:border-transparent"
+            >
+              <SelectValue>
+                {() =>
+                  assignee ? (
+                    <span className="flex min-w-0 items-center gap-1.5">
+                      <Avatar className="size-5">
+                        <AvatarImage
+                          src={assignee.avatar_url || undefined}
+                          alt=""
+                        />
+                        <AvatarFallback className="text-[9px]">
+                          {(assignee.full_name || "U")
+                            .slice(0, 2)
+                            .toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="truncate">
+                        {assignee.full_name?.split(" ")[0]}
+                      </span>
+                    </span>
+                  ) : (
+                    <EmptyValue />
+                  )
+                }
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={NONE}>{t("noPic")}</SelectItem>
+              {team.map((m) => (
+                <SelectItem key={m.id} value={m.id}>
+                  {m.full_name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {/* Due date: the app's calendar in a popover (not the browser's). */}
+          <Popover open={dateOpen} onOpenChange={setDateOpen}>
+            <PopoverTrigger
+              render={
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={cn(
+                    "justify-self-start px-2.5 text-[13px] font-normal",
+                    task.due_date
+                      ? overdue
+                        ? "text-destructive"
+                        : isToday(new Date(`${task.due_date}T00:00:00`))
+                          ? "text-warning"
+                          : "text-foreground"
+                      : "text-muted-foreground",
+                  )}
+                />
               }
-              defaultMonth={
-                task.due_date
-                  ? new Date(`${task.due_date}T00:00:00`)
-                  : undefined
-              }
-              locale={dateLocale}
-              onSelect={(date) => {
-                onUpdate(task.id, {
-                  due_date: date ? format(date, "yyyy-MM-dd") : null,
+            >
+              <RiCalendarLine data-icon="inline-start" className="size-3.5" />
+              {task.due_date ? (
+                dueLabel(task.due_date, dateLocale, {
+                  today: tc("today"),
+                  tomorrow: t("tomorrow"),
                 })
-                setDateOpen(false)
-              }}
-            />
-          </PopoverContent>
-        </Popover>
-        <span className="text-muted-foreground text-right text-[13px] tabular-nums">
-          {format(new Date(task.created_at), "d MMM", { locale: dateLocale })}
-        </span>
-      </div>
+              ) : (
+                <EmptyValue />
+              )}
+            </PopoverTrigger>
+            <PopoverContent align="end" className="w-auto p-0">
+              <Calendar
+                mode="single"
+                selected={
+                  task.due_date
+                    ? new Date(`${task.due_date}T00:00:00`)
+                    : undefined
+                }
+                defaultMonth={
+                  task.due_date
+                    ? new Date(`${task.due_date}T00:00:00`)
+                    : undefined
+                }
+                locale={dateLocale}
+                onSelect={(date) => {
+                  onUpdate(task.id, {
+                    due_date: date ? format(date, "yyyy-MM-dd") : null,
+                  })
+                  setDateOpen(false)
+                }}
+              />
+            </PopoverContent>
+          </Popover>
+          <span className="text-muted-foreground text-right text-[13px] tabular-nums">
+            {format(new Date(task.created_at), "d MMM", { locale: dateLocale })}
+          </span>
+        </div>
+      </TaskContextTarget>
 
       {expanded && (
         <div className="border-border/50 flex flex-col border-b py-1 pl-[3.75rem]">
           {subtasks.map((sub) => (
-            <div
+            <SubtaskContextTarget
               key={sub.id}
-              className="group/sub flex min-h-9 items-center gap-2 pr-4"
+              sub={sub}
+              onToggle={() => onToggle(sub)}
+              onRemove={() => onRemove(sub.id)}
+              onOpenParent={onOpen}
             >
-              <Checkbox
-                checked={sub.done}
-                onCheckedChange={() => onToggle(sub)}
-                aria-label={sub.done ? t("markUndone") : t("markDone")}
-              />
-              <span
-                className={cn(
-                  "min-w-0 flex-1 truncate",
-                  sub.done && "text-muted-foreground line-through",
-                )}
-              >
-                {sub.title}
-              </span>
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                aria-label={t("deleteSubtask")}
-                onClick={() => onRemove(sub.id)}
-                className="text-muted-foreground hover:text-destructive opacity-0 group-hover/sub:opacity-100 focus-visible:opacity-100"
-              >
-                <RiDeleteBinLine />
-              </Button>
-            </div>
+              <div className="group/sub flex min-h-9 items-center gap-2 pr-4">
+                <Checkbox
+                  checked={sub.done}
+                  onCheckedChange={() => onToggle(sub)}
+                  aria-label={sub.done ? t("markUndone") : t("markDone")}
+                />
+                <span
+                  className={cn(
+                    "min-w-0 flex-1 truncate",
+                    sub.done && "text-muted-foreground line-through",
+                  )}
+                >
+                  {sub.title}
+                </span>
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  aria-label={t("deleteSubtask")}
+                  onClick={() => onRemove(sub.id)}
+                  className="text-muted-foreground hover:text-destructive opacity-0 group-hover/sub:opacity-100 focus-visible:opacity-100"
+                >
+                  <RiDeleteBinLine />
+                </Button>
+              </div>
+            </SubtaskContextTarget>
           ))}
           <div className="flex items-center gap-2 py-1 pr-4">
             <RiAddLine className="text-muted-foreground size-4 shrink-0" />
             <Input
+              ref={subInputRef}
               value={subTitle}
               onChange={(e) => setSubTitle(e.target.value)}
               onKeyDown={(e) => {

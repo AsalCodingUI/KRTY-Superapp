@@ -78,6 +78,7 @@ const PAGE_KEYWORDS: [string, string][] = [
   ["/performance/one-on-one", "meeting 1on1"],
   ["/leave", "leave cuti izin absen absensi kehadiran clock attendance"],
   ["/calendar", "calendar jadwal kalender agenda schedule"],
+  ["/calendar/santuy", "sharing santuy presentasi giliran rotasi meet"],
   ["/teams", "team karyawan anggota tim direktori orang members"],
   ["/projects", "projects proyek klien client"],
   ["/finance", "finance keuangan langganan subscriptions"],
@@ -95,9 +96,12 @@ function pageKeywords(href: string) {
 export default function GlobalSearchDialog({
   open,
   onOpenChange,
+  initialQuery = "",
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
+  /** Typed in when it opens (the right-click menu's "Cari di app"). */
+  initialQuery?: string
 }) {
   const t = useT("shell")
   const tc = useT("common")
@@ -108,12 +112,23 @@ export default function GlobalSearchDialog({
       title={tc("search")}
       description={t("searchDescription")}
     >
-      {open && <SearchPanel onClose={() => onOpenChange(false)} />}
+      {open && (
+        <SearchPanel
+          initialQuery={initialQuery}
+          onClose={() => onOpenChange(false)}
+        />
+      )}
     </CommandDialog>
   )
 }
 
-function SearchPanel({ onClose }: { onClose: () => void }) {
+function SearchPanel({
+  onClose,
+  initialQuery,
+}: {
+  onClose: () => void
+  initialQuery: string
+}) {
   const router = useRouter()
   const t = useT("shell")
   const tNav = useT("nav")
@@ -122,7 +137,7 @@ function SearchPanel({ onClose }: { onClose: () => void }) {
   const { visible } = useWorkspaceNav()
   const inputRef = useRef<HTMLInputElement>(null)
 
-  const [query, setQuery] = useState("")
+  const [query, setQuery] = useState(initialQuery)
   const [scope, setScope] = useState<SearchScope>("all")
   const [recent] = useState(readRecent)
   const debounced = useDebounced(query)

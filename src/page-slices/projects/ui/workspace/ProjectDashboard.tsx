@@ -19,6 +19,7 @@ import { accessLevel, canRunProjects } from "@/shared/config/access"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { ProjectStatusButton } from "../ProjectMenu"
 import { ProjectProperties } from "./ProjectProperties"
+import { PhasesOffCard, StopPhasesDialog } from "./PhaseMode"
 import type { Report } from "./reports-data"
 import { ProjectAvatar } from "@/components/project-avatar"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -82,8 +83,18 @@ import {
   Phone,
   UserRound,
   UsersRound,
+  ArrowDown,
+  ArrowLeft,
+  ArrowRight,
+  ArrowUp,
+  CircleDot,
+  ListChecks,
+  Pencil,
+  Settings2,
+  Trash2,
   type LucideIcon,
 } from "lucide-react"
+import { ContextTarget, type CtxItem } from "@/shared/context-menu"
 import { AnimatePresence, m, useReducedMotion } from "motion/react"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { useQueryClient } from "@tanstack/react-query"
@@ -125,6 +136,8 @@ export function ProjectDashboard({ projectId }: { projectId: string }) {
   const [phaseDialog, setPhaseDialog] = useState<PhaseRow | "new" | null>(null)
   const [deletingPhase, setDeletingPhase] = useState<PhaseRow | null>(null)
   const [completing, setCompleting] = useState(false)
+  // "Jangan pakai fase" (asks first).
+  const [stoppingPhases, setStoppingPhases] = useState(false)
   // Due dates, SLA weights and completion days (one dialog for all phases;
   // the id is the phase it was opened from, highlighted there).
   const [settingsFor, setSettingsFor] = useState<string | true | null>(null)
@@ -281,24 +294,38 @@ export function ProjectDashboard({ projectId }: { projectId: string }) {
         openTasks={openTasks}
       />
       <div className="flex flex-col gap-4 pt-6 pb-4">
-        <PhaseRail
-          phases={phases}
-          steps={steps}
-          selectedId={current?.id ?? null}
-          onSelect={setSelected}
-          isAdmin={viewer.isAdmin}
-          onAdd={() => setPhaseDialog("new")}
-          onActivate={activate}
-          onRename={(phase) => setPhaseDialog(phase)}
-          onMove={movePhase}
-          onDelete={(phase) => setDeletingPhase(phase)}
-          onSettings={(phase) => setSettingsFor(phase?.id ?? true)}
-          onComplete={() => setCompleting(true)}
-          // Only running projects still need due dates for the KPI.
-          showMissingDue={
-            project.status !== null && OPEN_STATUSES.includes(project.status)
-          }
-        />
+        {phases.length === 0 ? (
+          // An ongoing project (side work, a retainer): no rail, and for
+          // stakeholders the way back to phases.
+          viewer.isAdmin && (
+            <PhasesOffCard
+              projectId={projectId}
+              isAdmin={viewer.isAdmin}
+              onAddManual={() => setPhaseDialog("new")}
+            />
+          )
+        ) : (
+          <PhaseRail
+            phases={phases}
+            steps={steps}
+            selectedId={current?.id ?? null}
+            onSelect={setSelected}
+            isAdmin={viewer.isAdmin}
+            onAdd={() => setPhaseDialog("new")}
+            onActivate={activate}
+            onRename={(phase) => setPhaseDialog(phase)}
+            onMove={movePhase}
+            onDelete={(phase) => setDeletingPhase(phase)}
+            onSettings={(phase) => setSettingsFor(phase?.id ?? true)}
+            onComplete={() => setCompleting(true)}
+            onCompleteUpTo={(phase) => void activate(phase, true)}
+            onStopPhases={() => setStoppingPhases(true)}
+            // Only running projects still need due dates for the KPI.
+            showMissingDue={
+              project.status !== null && OPEN_STATUSES.includes(project.status)
+            }
+          />
+        )}
 
         <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
           <div className="flex min-w-0 flex-col gap-4">
@@ -441,6 +468,15 @@ export function ProjectDashboard({ projectId }: { projectId: string }) {
               onConfirm={() => activate(activePhase, true)}
             />
           )}
+          <StopPhasesDialog
+            projectId={projectId}
+            projectName={project.name}
+            phaseCount={phases.length}
+            stepCount={steps.length}
+            open={stoppingPhases}
+            onOpenChange={setStoppingPhases}
+            onDone={() => setSelected(null)}
+          />
           <ConfirmDialog
             open={deletingPhase !== null}
             onOpenChange={(open) => !open && setDeletingPhase(null)}
@@ -494,6 +530,8 @@ export function PhaseRail({
   onDelete,
   onSettings,
   onComplete,
+  onCompleteUpTo,
+  onStopPhases,
   showMissingDue,
 }: {
   phases: PhaseRow[]
@@ -510,6 +548,10 @@ export function PhaseRail({
   onSettings: (phase?: PhaseRow) => void
   /** Finishes the running phase (its ⋯ menu); admins only. */
   onComplete?: () => void
+  /** Marks a later phase and every one before it done (right-click). */
+  onCompleteUpTo?: (phase: PhaseRow) => void
+  /** "Jangan pakai fase" (the rail's ⋯ menu); admins only. */
+  onStopPhases?: () => void
   showMissingDue: boolean
 }) {
   const t = useT("projects")
@@ -613,6 +655,18 @@ export function PhaseRail({
                 <RiAddLine />
                 {t("addPhase")}
               </DropdownMenuItem>
+              {onStopPhases && phases.length > 0 && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    variant="destructive"
+                    onClick={onStopPhases}
+                  >
+                    <RiDeleteBinLine />
+                    {t("stopPhases")}
+                  </DropdownMenuItem>
+                </>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         )}
@@ -665,158 +719,265 @@ export function PhaseRail({
               : lateBy
                 ? t("phaseDoneLateTitle", { days: lateBy })
                 : undefined
+            // Right-click: show its steps; admins also get the status
+            // (a pick-one submenu) and the ⋯ actions.
+            const phaseItems = (): CtxItem[] => [
+              {
+                id: "steps",
+                label: t("ctxShowSteps"),
+                icon: ListChecks,
+                hidden: selected,
+                onSelect: () => onSelect(phase.id),
+              },
+              {
+                id: "status",
+                label: t("colStatus"),
+                icon: CircleDot,
+                hint: isDone
+                  ? t("statusCompleted")
+                  : isActive
+                    ? t("phaseInProgress")
+                    : t("phaseNotStarted"),
+                hidden: !isAdmin,
+                submenu: [
+                  {
+                    id: "todo",
+                    label: t("phaseNotStarted"),
+                    role: "radio",
+                    checked: phase.status === "todo",
+                    // Not started = the one before it is the running one.
+                    disabled: i === 0,
+                    hint: i === 0 ? t("ctxPhaseFirstTodo") : undefined,
+                    onSelect: () => {
+                      if (phase.status !== "todo" && i > 0)
+                        onActivate(phases[i - 1])
+                    },
+                  },
+                  {
+                    id: "active",
+                    label: t("phaseInProgress"),
+                    role: "radio",
+                    checked: isActive,
+                    onSelect: () => {
+                      if (!isActive) onActivate(phase)
+                    },
+                  },
+                  {
+                    id: "done",
+                    label: t("statusCompleted"),
+                    role: "radio",
+                    checked: isDone,
+                    onSelect: () => {
+                      if (isDone) return
+                      // The running one asks first, as in its ⋯ menu.
+                      if (isActive && onComplete) onComplete()
+                      else onCompleteUpTo?.(phase)
+                    },
+                  },
+                ],
+              },
+              {
+                id: "rename",
+                label: t("renamePhase"),
+                icon: Pencil,
+                hidden: !isAdmin,
+                onSelect: () => onRename(phase),
+              },
+              {
+                id: "settings",
+                label: t("phaseSettings"),
+                icon: Settings2,
+                hidden: !isAdmin,
+                onSelect: () => onSettings(phase),
+              },
+              {
+                id: "left",
+                label: t("movePhaseLeft"),
+                icon: ArrowLeft,
+                hidden: !isAdmin,
+                disabled: i === 0,
+                onSelect: () => onMove(phase, -1),
+              },
+              {
+                id: "right",
+                label: t("movePhaseRight"),
+                icon: ArrowRight,
+                hidden: !isAdmin,
+                disabled: i === phases.length - 1,
+                onSelect: () => onMove(phase, 1),
+              },
+              {
+                id: "delete",
+                label: t("deletePhase"),
+                icon: Trash2,
+                destructive: true,
+                hidden: !isAdmin,
+                // Its dialog asks first.
+                onSelect: () => onDelete(phase),
+              },
+            ]
             return (
-              <li
+              <ContextTarget
                 key={phase.id}
-                data-slot="project-phase"
-                data-selected={selected || undefined}
-                className={cn(
-                  surfaceClassName,
-                  "group/phase relative flex min-w-0 flex-col gap-3 p-3.5 transition-colors",
-                  // The picked phase: a faint grey fill, the usual border.
-                  selected ? "bg-muted/60" : "hover:bg-muted/30",
-                )}
+                type="project-phase"
+                id={phase.id}
+                label={phase.name}
+                suppress={["button"]}
+                items={phaseItems}
               >
-                <button
-                  type="button"
-                  aria-label={phase.name}
-                  aria-current={selected ? "step" : undefined}
-                  onClick={() => onSelect(phase.id)}
-                  className="focus-visible:ring-focus-ring absolute inset-0 rounded-xl outline-none focus-visible:ring-2"
-                />
-                {/* 1. Marker and name; ⋯ keeps its place on the right. */}
-                <span className="flex min-w-0 items-center gap-2.5">
-                  <span
-                    aria-hidden="true"
-                    className={cn(
-                      "flex size-5 shrink-0 items-center justify-center rounded-full text-[11px] font-medium tabular-nums",
-                      isDone
-                        ? "bg-success text-white"
-                        : isActive
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-muted text-muted-foreground",
-                    )}
-                  >
-                    {isDone ? <RiCheckLine className="size-3" /> : i + 1}
-                  </span>
-                  <span
-                    className={cn(
-                      "min-w-0 flex-1 truncate text-sm font-medium",
-                      isDone || isActive || selected
-                        ? "text-foreground"
-                        : "text-muted-foreground group-hover/phase:text-foreground",
-                    )}
-                    title={phase.name}
-                  >
-                    {phase.name}
-                  </span>
-                  {isAdmin && <span className="size-6 shrink-0" />}
-                </span>
-                {/* 2. Status, and the due date (red when overdue). */}
-                <span className="flex min-w-0 items-center justify-between gap-2 text-[13px]">
-                  <span
-                    className={cn(
-                      "text-muted-foreground truncate",
-                      isActive && "text-primary",
-                      lateBy > 0 && "text-warning",
-                    )}
-                    title={dueTitle ?? status}
-                  >
-                    {status}
-                  </span>
-                  {due && !isDone && (
-                    <span
-                      className={cn(
-                        "flex shrink-0 items-center gap-1 tabular-nums",
-                        overdue
-                          ? "text-destructive font-medium"
-                          : "text-tertiary-foreground",
-                      )}
-                      title={dueTitle ?? t("phaseDue", { date: shortDay(due) })}
-                    >
-                      <RiCalendarScheduleLine className="size-3.5" />
-                      {shortDay(due)}
-                    </span>
+                <li
+                  data-slot="project-phase"
+                  data-selected={selected || undefined}
+                  className={cn(
+                    surfaceClassName,
+                    "group/phase relative flex min-w-0 flex-col gap-3 p-3.5 transition-colors",
+                    // The picked phase: a faint grey fill, the usual border.
+                    selected ? "bg-muted/60" : "hover:bg-muted/30",
                   )}
-                </span>
-                {/* 3. Its steps: the bar and the count. */}
-                <span className="flex items-center gap-2.5">
-                  <span className="bg-muted relative h-1.5 flex-1 overflow-hidden rounded-full">
+                >
+                  <button
+                    type="button"
+                    aria-label={phase.name}
+                    aria-current={selected ? "step" : undefined}
+                    onClick={() => onSelect(phase.id)}
+                    className="focus-visible:ring-focus-ring absolute inset-0 rounded-xl outline-none focus-visible:ring-2"
+                  />
+                  {/* 1. Marker and name; ⋯ keeps its place on the right. */}
+                  <span className="flex min-w-0 items-center gap-2.5">
+                    <span
+                      aria-hidden="true"
+                      className={cn(
+                        "flex size-5 shrink-0 items-center justify-center rounded-full text-[11px] font-medium tabular-nums",
+                        isDone
+                          ? "bg-success text-white"
+                          : isActive
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-muted text-muted-foreground",
+                      )}
+                    >
+                      {isDone ? <RiCheckLine className="size-3" /> : i + 1}
+                    </span>
                     <span
                       className={cn(
-                        "bar-grow absolute inset-y-0 left-0 rounded-full",
-                        isDone ? "bg-success" : "bg-primary",
+                        "min-w-0 flex-1 truncate text-sm font-medium",
+                        isDone || isActive || selected
+                          ? "text-foreground"
+                          : "text-muted-foreground group-hover/phase:text-foreground",
                       )}
-                      style={{ "--bar": `${fill}%` } as React.CSSProperties}
-                    />
-                  </span>
-                  <span className="text-tertiary-foreground shrink-0 text-xs tabular-nums">
-                    {phaseSteps.length
-                      ? t("phaseStepsDone", {
-                          done: doneSteps,
-                          total: phaseSteps.length,
-                        })
-                      : t("phaseNoSteps")}
-                  </span>
-                </span>
-                {isAdmin && (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger
-                      render={
-                        <Button
-                          variant="ghost"
-                          size="icon-xs"
-                          aria-label={t("phaseActions")}
-                          className="text-muted-foreground absolute top-3.5 right-3 opacity-0 group-hover/phase:opacity-100 focus-visible:opacity-100 data-popup-open:opacity-100 pointer-coarse:opacity-100"
-                        />
-                      }
+                      title={phase.name}
                     >
-                      <RiMoreFill />
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="min-w-44">
-                      {isActive && onComplete && (
-                        <>
-                          <DropdownMenuItem onClick={onComplete}>
-                            <RiCheckLine />
-                            {t("completePhase", { name: clip(phase.name) })}
+                      {phase.name}
+                    </span>
+                    {isAdmin && <span className="size-6 shrink-0" />}
+                  </span>
+                  {/* 2. Status, and the due date (red when overdue). */}
+                  <span className="flex min-w-0 items-center justify-between gap-2 text-[13px]">
+                    <span
+                      className={cn(
+                        "text-muted-foreground truncate",
+                        isActive && "text-primary",
+                        lateBy > 0 && "text-warning",
+                      )}
+                      title={dueTitle ?? status}
+                    >
+                      {status}
+                    </span>
+                    {due && !isDone && (
+                      <span
+                        className={cn(
+                          "flex shrink-0 items-center gap-1 tabular-nums",
+                          overdue
+                            ? "text-destructive font-medium"
+                            : "text-tertiary-foreground",
+                        )}
+                        title={
+                          dueTitle ?? t("phaseDue", { date: shortDay(due) })
+                        }
+                      >
+                        <RiCalendarScheduleLine className="size-3.5" />
+                        {shortDay(due)}
+                      </span>
+                    )}
+                  </span>
+                  {/* 3. Its steps: the bar and the count. */}
+                  <span className="flex items-center gap-2.5">
+                    <span className="bg-muted relative h-1.5 flex-1 overflow-hidden rounded-full">
+                      <span
+                        className={cn(
+                          "bar-grow absolute inset-y-0 left-0 rounded-full",
+                          isDone ? "bg-success" : "bg-primary",
+                        )}
+                        style={{ "--bar": `${fill}%` } as React.CSSProperties}
+                      />
+                    </span>
+                    <span className="text-tertiary-foreground shrink-0 text-xs tabular-nums">
+                      {phaseSteps.length
+                        ? t("phaseStepsDone", {
+                            done: doneSteps,
+                            total: phaseSteps.length,
+                          })
+                        : t("phaseNoSteps")}
+                    </span>
+                  </span>
+                  {isAdmin && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger
+                        render={
+                          <Button
+                            variant="ghost"
+                            size="icon-xs"
+                            aria-label={t("phaseActions")}
+                            className="text-muted-foreground absolute top-3.5 right-3 opacity-0 group-hover/phase:opacity-100 focus-visible:opacity-100 data-popup-open:opacity-100 pointer-coarse:opacity-100"
+                          />
+                        }
+                      >
+                        <RiMoreFill />
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="min-w-44">
+                        {isActive && onComplete && (
+                          <>
+                            <DropdownMenuItem onClick={onComplete}>
+                              <RiCheckLine />
+                              {t("completePhase", { name: clip(phase.name) })}
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                          </>
+                        )}
+                        {phase.status !== "active" && (
+                          <DropdownMenuItem onClick={() => onActivate(phase)}>
+                            {t("makeActive")}
                           </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                        </>
-                      )}
-                      {phase.status !== "active" && (
-                        <DropdownMenuItem onClick={() => onActivate(phase)}>
-                          {t("makeActive")}
+                        )}
+                        <DropdownMenuItem onClick={() => onRename(phase)}>
+                          {t("renamePhase")}
                         </DropdownMenuItem>
-                      )}
-                      <DropdownMenuItem onClick={() => onRename(phase)}>
-                        {t("renamePhase")}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => onSettings(phase)}>
-                        {t("phaseSettings")}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        disabled={i === 0}
-                        onClick={() => onMove(phase, -1)}
-                      >
-                        {t("movePhaseLeft")}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        disabled={i === phases.length - 1}
-                        onClick={() => onMove(phase, 1)}
-                      >
-                        {t("movePhaseRight")}
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        variant="destructive"
-                        onClick={() => onDelete(phase)}
-                      >
-                        {t("deletePhase")}
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                )}
-              </li>
+                        <DropdownMenuItem onClick={() => onSettings(phase)}>
+                          {t("phaseSettings")}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          disabled={i === 0}
+                          onClick={() => onMove(phase, -1)}
+                        >
+                          {t("movePhaseLeft")}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          disabled={i === phases.length - 1}
+                          onClick={() => onMove(phase, 1)}
+                        >
+                          {t("movePhaseRight")}
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          variant="destructive"
+                          onClick={() => onDelete(phase)}
+                        >
+                          {t("deletePhase")}
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
+                </li>
+              </ContextTarget>
             )
           })}
         </ol>
@@ -1435,83 +1596,131 @@ function ProcessPanel({
         {steps.map((step, i) => {
           const done = step.status === "done"
           return (
-            <div
+            <ContextTarget
               key={step.id}
-              data-slot="project-step"
-              className="group/step border-border/50 flex h-11 items-center gap-3 border-b pr-2 pl-4 text-sm last:border-b-0"
+              type="project-step"
+              id={step.id}
+              label={step.title}
+              suppress={["button"]}
+              items={(ctx): CtxItem[] => [
+                {
+                  id: "toggle",
+                  label: done ? t("markUndone") : t("markDone"),
+                  icon: done ? CircleDashed : RiCheckLine,
+                  onSelect: () => toggle(step.id, !done),
+                },
+                {
+                  id: "rename",
+                  label: t("libRename"),
+                  icon: Pencil,
+                  // Its title is an inline field: put the cursor in it.
+                  onSelect: () => {
+                    const field = ctx.el.querySelector("input")
+                    field?.focus()
+                    field?.select()
+                  },
+                },
+                {
+                  id: "up",
+                  label: t("moveUp"),
+                  icon: ArrowUp,
+                  disabled: i === 0,
+                  onSelect: () => move(step.id, -1),
+                },
+                {
+                  id: "down",
+                  label: t("moveDown"),
+                  icon: ArrowDown,
+                  disabled: i === steps.length - 1,
+                  onSelect: () => move(step.id, 1),
+                },
+                {
+                  id: "delete",
+                  label: t("deleteStep"),
+                  icon: Trash2,
+                  destructive: true,
+                  confirm: true,
+                  onSelect: () => remove(step.id),
+                },
+              ]}
             >
-              <button
-                type="button"
-                aria-label={done ? t("markUndone") : t("markDone")}
-                onClick={() => toggle(step.id, !done)}
-                className="text-muted-foreground hover:text-foreground"
+              <div
+                data-slot="project-step"
+                className="group/step border-border/50 flex h-11 items-center gap-3 border-b pr-2 pl-4 text-sm last:border-b-0"
               >
-                {done ? (
-                  <span className="bg-success text-background flex size-4 items-center justify-center rounded-full">
-                    <RiCheckLine className="size-3" />
-                  </span>
-                ) : (
-                  <CircleDashed className="size-4" />
-                )}
-              </button>
-              {/* One line per step: title, status, actions (no note). */}
-              <InlineText
-                value={step.title}
-                required
-                aria-label={step.title}
-                className={cn(
-                  "min-w-0 flex-1",
-                  done && "text-muted-foreground line-through",
-                )}
-                onSave={(title) => update(step.id, { title })}
-              />
-              <span
-                className={cn(
-                  "shrink-0 rounded-full px-2 py-0.5 text-xs",
-                  done
-                    ? "bg-success/15 text-success"
-                    : "bg-muted text-muted-foreground",
-                )}
-              >
-                {done ? t("statusCompleted") : t("stepDraft")}
-              </span>
-              <DropdownMenu>
-                <DropdownMenuTrigger
-                  render={
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      aria-label={t("stepActions")}
-                      className="text-muted-foreground shrink-0 opacity-0 group-hover/step:opacity-100 focus-visible:opacity-100 data-popup-open:opacity-100"
-                    />
-                  }
+                <button
+                  type="button"
+                  aria-label={done ? t("markUndone") : t("markDone")}
+                  onClick={() => toggle(step.id, !done)}
+                  className="text-muted-foreground hover:text-foreground"
                 >
-                  <RiMoreFill />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="min-w-40">
-                  <DropdownMenuItem
-                    disabled={i === 0}
-                    onClick={() => move(step.id, -1)}
+                  {done ? (
+                    <span className="bg-success text-background flex size-4 items-center justify-center rounded-full">
+                      <RiCheckLine className="size-3" />
+                    </span>
+                  ) : (
+                    <CircleDashed className="size-4" />
+                  )}
+                </button>
+                {/* One line per step: title, status, actions (no note). */}
+                <InlineText
+                  value={step.title}
+                  required
+                  aria-label={step.title}
+                  className={cn(
+                    "min-w-0 flex-1",
+                    done && "text-muted-foreground line-through",
+                  )}
+                  onSave={(title) => update(step.id, { title })}
+                />
+                <span
+                  className={cn(
+                    "shrink-0 rounded-full px-2 py-0.5 text-xs",
+                    done
+                      ? "bg-success/15 text-success"
+                      : "bg-muted text-muted-foreground",
+                  )}
+                >
+                  {done ? t("statusCompleted") : t("stepDraft")}
+                </span>
+                <DropdownMenu>
+                  <DropdownMenuTrigger
+                    render={
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        aria-label={t("stepActions")}
+                        className="text-muted-foreground shrink-0 opacity-0 group-hover/step:opacity-100 focus-visible:opacity-100 data-popup-open:opacity-100"
+                      />
+                    }
                   >
-                    {t("moveUp")}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    disabled={i === steps.length - 1}
-                    onClick={() => move(step.id, 1)}
-                  >
-                    {t("moveDown")}
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    variant="destructive"
-                    onClick={() => remove(step.id)}
-                  >
-                    <RiDeleteBinLine />
-                    {t("deleteStep")}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+                    <RiMoreFill />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="min-w-40">
+                    <DropdownMenuItem
+                      disabled={i === 0}
+                      onClick={() => move(step.id, -1)}
+                    >
+                      {t("moveUp")}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      disabled={i === steps.length - 1}
+                      onClick={() => move(step.id, 1)}
+                    >
+                      {t("moveDown")}
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      variant="destructive"
+                      onClick={() => remove(step.id)}
+                    >
+                      <RiDeleteBinLine />
+                      {t("deleteStep")}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </ContextTarget>
           )
         })}
         {adding ? (

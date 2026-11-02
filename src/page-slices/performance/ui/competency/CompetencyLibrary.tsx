@@ -8,6 +8,8 @@ import {
   type CompetencyRow,
 } from "@/app/(main)/performance/actions/competency-actions"
 import { ConfirmDialog } from "@/components/confirm-dialog"
+import { ContextTarget, type CtxItem } from "@/shared/context-menu"
+import { CopyPlus, Pencil, Trash2 } from "lucide-react"
 import { SegmentedControl } from "@/components/segmented-control"
 import { EmptyState } from "@/components/empty-state"
 import { GroupedList, ListRow, ListRowActions } from "@/components/grouped-list"
@@ -106,6 +108,44 @@ export function CompetencyLibrary() {
     refresh()
   }
 
+  /** Right-click on a competency: the row's buttons, plus copying it to
+   *  another role (opens the same form, prefilled). */
+  const competencyItems = (c: CompetencyRow): CtxItem[] => [
+    {
+      id: "edit",
+      label: t("editAction"),
+      icon: Pencil,
+      onSelect: () =>
+        setDraft({
+          id: c.id,
+          role: c.role,
+          name: c.name,
+          description: c.description ?? "",
+        }),
+    },
+    {
+      id: "copy-to",
+      label: t("ctxCopyToRole"),
+      icon: CopyPlus,
+      submenu: ROLES.filter((r) => r !== c.role).map((role) => ({
+        id: role,
+        label: role,
+        onSelect: () =>
+          setDraft({ role, name: c.name, description: c.description ?? "" }),
+      })),
+    },
+    {
+      id: "delete",
+      label: tc("delete"),
+      icon: Trash2,
+      destructive: true,
+      // In use: deleting would rewrite past scores.
+      disabled: c.usage > 0,
+      hint: c.usage > 0 ? t("usageCount", { n: c.usage }) : undefined,
+      onSelect: () => setRemoving(c),
+    },
+  ]
+
   const countOf = (role: Role) => data.filter((c) => c.role === role).length
   const shownRoles = roleFilter === ALL ? ROLES : [roleFilter]
   const add = (role: Role) => setDraft({ role, name: "", description: "" })
@@ -175,52 +215,64 @@ export function CompetencyLibrary() {
                 }
               >
                 {items.map((c) => (
-                  <ListRow key={c.id} className={cn(ROW_GRID, "min-h-16")}>
-                    <div className="flex min-w-0 flex-col gap-0.5 py-1">
-                      <span className="text-foreground truncate">{c.name}</span>
-                      {c.description && (
-                        <span className="text-tertiary-foreground line-clamp-2 text-[13px] leading-snug">
-                          {c.description}
+                  <ContextTarget
+                    key={c.id}
+                    type="competency"
+                    id={c.id}
+                    label={c.name}
+                    items={() => competencyItems(c)}
+                  >
+                    <ListRow className={cn(ROW_GRID, "min-h-16")}>
+                      <div className="flex min-w-0 flex-col gap-0.5 py-1">
+                        <span className="text-foreground truncate">
+                          {c.name}
                         </span>
-                      )}
-                    </div>
-                    <span className="text-muted-foreground hidden text-right text-[13px] tabular-nums md:block">
-                      {c.usage > 0 ? (
-                        t("usageCount", { n: c.usage })
-                      ) : (
-                        <EmptyValue />
-                      )}
-                    </span>
-                    <ListRowActions className="justify-end">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() =>
-                          setDraft({
-                            id: c.id,
-                            role: c.role,
-                            name: c.name,
-                            description: c.description ?? "",
-                          })
-                        }
-                      >
-                        {t("editAction")}
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="text-destructive hover:text-destructive"
-                        onClick={() =>
-                          // In use: deleting would rewrite past scores.
-                          c.usage > 0
-                            ? toast.error(t("competencyInUse", { n: c.usage }))
-                            : setRemoving(c)
-                        }
-                      >
-                        {tc("delete")}
-                      </Button>
-                    </ListRowActions>
-                  </ListRow>
+                        {c.description && (
+                          <span className="text-tertiary-foreground line-clamp-2 text-[13px] leading-snug">
+                            {c.description}
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-muted-foreground hidden text-right text-[13px] tabular-nums md:block">
+                        {c.usage > 0 ? (
+                          t("usageCount", { n: c.usage })
+                        ) : (
+                          <EmptyValue />
+                        )}
+                      </span>
+                      <ListRowActions className="justify-end">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() =>
+                            setDraft({
+                              id: c.id,
+                              role: c.role,
+                              name: c.name,
+                              description: c.description ?? "",
+                            })
+                          }
+                        >
+                          {t("editAction")}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="text-destructive hover:text-destructive"
+                          onClick={() =>
+                            // In use: deleting would rewrite past scores.
+                            c.usage > 0
+                              ? toast.error(
+                                  t("competencyInUse", { n: c.usage }),
+                                )
+                              : setRemoving(c)
+                          }
+                        >
+                          {tc("delete")}
+                        </Button>
+                      </ListRowActions>
+                    </ListRow>
+                  </ContextTarget>
                 ))}
                 <div className="gutter-x flex flex-wrap items-center gap-x-3 gap-y-1 py-2">
                   <Button

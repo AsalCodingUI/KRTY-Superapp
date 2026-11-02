@@ -12,7 +12,7 @@ import { useDateLocale, useT } from "@/shared/i18n/client"
 /** A small tile in front of a row, like a project avatar. */
 function RowIcon({ children }: { children: React.ReactNode }) {
   return (
-    <span className="bg-muted text-muted-foreground flex size-8 shrink-0 items-center justify-center rounded-lg [&_svg]:size-4">
+    <span className="text-muted-foreground flex size-8 shrink-0 items-center justify-center [&_svg]:size-4">
       {children}
     </span>
   )

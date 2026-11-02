@@ -229,6 +229,21 @@ const id = {
   deletePhaseDescription:
     "Langkahnya ikut terhapus. Tugasnya tetap ada, tanpa fase.",
   errSavePhase: "Gagal menyimpan fase.",
+  // Projects without phases (side work, retainer clients)
+  phasesOffLabel: "Berjalan terus",
+  phasesOffTitle: "Tanpa fase",
+  phasesOffDescription:
+    "Proyek ini jalan terus tanpa fase. Task tetap dikelola seperti biasa.",
+  usePhases: "Pakai fase",
+  usePhasesFromProcess: "Dari proses",
+  usePhasesManual: "Tambah fase sendiri",
+  phasesStarted: "Fase dari {name} dipakai",
+  stopPhases: "Jangan pakai fase",
+  stopPhasesTitle: "Jangan pakai fase di {name}?",
+  stopPhasesDescription:
+    "{phases} fase dan {steps} langkahnya dihapus, termasuk tenggat dan skor SLA-nya. Task tetap ada, jadi tanpa fase. Fase bisa dipakai lagi kapan aja.",
+  stopPhasesConfirm: "Hapus semua fase",
+  phasesStopped: "{name} sekarang jalan tanpa fase",
   phaseSettings: "Atur fase",
   phaseSettingsDescription:
     "Tenggat tiap fase jadi patokan KPI SLA: selesai ≥2 hari lebih awal = Faster, sampai tenggat = On Time, lewat = Delay.",
@@ -451,6 +466,26 @@ const id = {
   clientName: "Nama klien",
   clientPhone: "Telepon / WhatsApp",
   editProjectAndTeam: "Ubah project & tim",
+
+  // Right-click menus on project content (shared/context-menu)
+  ctxPreview: "Pratinjau",
+  ctxMoveToFolder: "Pindah ke folder",
+  ctxCopyOf: "{name} (salinan)",
+  ctxDuplicated: "Diduplikat",
+  ctxErrDuplicate: "Gagal menduplikat.",
+  ctxUploadHere: "Upload ke folder ini",
+  ctxNoteHere: "Catatan baru di folder ini",
+  ctxInternalOn: "Folder jadi internal",
+  ctxInternalOff: "Folder tampil ke klien",
+  ctxCopyClientLink: "Salin link klien",
+  ctxCopyInternalLink: "Salin link tim",
+  ctxReportReads: "Yang baca",
+  ctxReportDuplicate: "Duplikat jadi report baru",
+  ctxReportDuplicated: "Report baru dibuat dari salinan",
+  ctxCopyText: "Salin isi",
+  ctxCopyTitle: "Salin judul",
+  ctxPhaseFirstTodo: "Fase pertama selalu jalan duluan",
+  ctxShowSteps: "Lihat langkah",
 }
 
 const en: Record<keyof typeof id, string> = {
@@ -675,6 +710,20 @@ const en: Record<keyof typeof id, string> = {
   deletePhaseDescription:
     "Its steps are deleted too. Its tasks stay, without a phase.",
   errSavePhase: "Couldn't save the phase.",
+  phasesOffLabel: "Ongoing",
+  phasesOffTitle: "No phases",
+  phasesOffDescription:
+    "This project runs on without phases. Tasks work as usual.",
+  usePhases: "Use phases",
+  usePhasesFromProcess: "From a process",
+  usePhasesManual: "Add phases yourself",
+  phasesStarted: "Now using the phases of {name}",
+  stopPhases: "Stop using phases",
+  stopPhasesTitle: "Stop using phases in {name}?",
+  stopPhasesDescription:
+    "{phases} phases and their {steps} steps are removed, with their due dates and SLA scores. Tasks stay, without a phase. You can use phases again any time.",
+  stopPhasesConfirm: "Remove all phases",
+  phasesStopped: "{name} now runs without phases",
   phaseSettings: "Phase settings",
   phaseSettingsDescription:
     "Each phase's due date drives the KPI SLA: done ≥2 days early = Faster, by the due date = On Time, later = Delay.",
@@ -892,6 +941,25 @@ const en: Record<keyof typeof id, string> = {
   clientName: "Client name",
   clientPhone: "Phone / WhatsApp",
   editProjectAndTeam: "Edit project & team",
+
+  ctxPreview: "Preview",
+  ctxMoveToFolder: "Move to folder",
+  ctxCopyOf: "{name} (copy)",
+  ctxDuplicated: "Duplicated",
+  ctxErrDuplicate: "Couldn't duplicate.",
+  ctxUploadHere: "Upload to this folder",
+  ctxNoteHere: "New note in this folder",
+  ctxInternalOn: "Folder is internal now",
+  ctxInternalOff: "Folder is shown to the client",
+  ctxCopyClientLink: "Copy client link",
+  ctxCopyInternalLink: "Copy team link",
+  ctxReportReads: "Who read it",
+  ctxReportDuplicate: "Duplicate as a new report",
+  ctxReportDuplicated: "New report made from a copy",
+  ctxCopyText: "Copy contents",
+  ctxCopyTitle: "Copy title",
+  ctxPhaseFirstTodo: "The first phase always runs first",
+  ctxShowSteps: "Show steps",
 }
 
 export const projects = { id, en }

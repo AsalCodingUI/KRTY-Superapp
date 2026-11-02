@@ -13,7 +13,11 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group"
 import { RiSearchLine } from "@/shared/ui/lucide-icons"
+import { ContextTarget, copyText, type CtxItem } from "@/shared/context-menu"
+import { employeeHref } from "@/shared/lib/url-params"
+import { BarChart3, Copy, Mail } from "lucide-react"
 import { useMemo, useState } from "react"
+import { toast } from "sonner"
 import { MembersAccessSettings } from "@/page-slices/settings/ui"
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
@@ -36,6 +40,7 @@ export function TeamsPage({
   totalCount,
 }: TeamsPageProps) {
   const t = useT("teams")
+  const tm = useT("ctxmenu")
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -75,6 +80,44 @@ export function TeamsPage({
     () => createTeamColumns({ canSelect: false, t }),
     [t],
   )
+
+  const copy = async (text: string) => {
+    if (await copyText(text)) toast.success(tm("copied"))
+    else toast.error(tm("copyFailed"))
+  }
+  /** Right-click on a directory row: reach the person, see their KPI. */
+  const memberItems = (p: Profile): CtxItem[] =>
+    [
+      {
+        id: "kpi",
+        label: t("ctxViewKpi"),
+        icon: BarChart3,
+        onSelect: () => router.push(employeeHref(p)),
+      },
+      {
+        id: "copy-name",
+        label: tm("copyName"),
+        icon: Copy,
+        hidden: !p.full_name,
+        onSelect: () => copy(p.full_name ?? ""),
+      },
+      {
+        id: "copy-email",
+        label: tm("copyEmail"),
+        icon: Copy,
+        hidden: !p.email,
+        onSelect: () => copy(p.email ?? ""),
+      },
+      {
+        id: "send-email",
+        label: tm("sendEmail"),
+        icon: Mail,
+        hidden: !p.email,
+        onSelect: () => {
+          window.location.href = `mailto:${p.email}`
+        },
+      },
+    ].filter((item) => !item.hidden)
 
   const totalMembers = initialData.length
   const totalDesigners = initialData.filter(
@@ -151,6 +194,16 @@ export function TeamsPage({
           showFilterbar={false}
           enableSelection={false}
           showTableWrapper={false}
+          wrapRow={(p, row) => (
+            <ContextTarget
+              type="member"
+              id={p.id}
+              label={p.full_name || p.email || undefined}
+              items={() => memberItems(p)}
+            >
+              {row}
+            </ContextTarget>
+          )}
         />
       </div>
     </div>

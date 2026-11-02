@@ -108,6 +108,20 @@ export function useQrUrl(path: string | null | undefined) {
   })
 }
 
+/**
+ * Deletes a replaced QR from storage unless an invoice still prints it
+ * (invoices keep the payment details they were sent with).
+ */
+export async function removeQrIfUnused(path: string) {
+  const db = createClient()
+  const { count, error } = await db
+    .from("project_invoices")
+    .select("id", { count: "exact", head: true })
+    .eq("payment_snapshot->>qr_path", path)
+  if (error || count) return
+  await db.storage.from(FINANCE_BUCKET).remove([path])
+}
+
 export function useRefreshInvoices() {
   const queryClient = useQueryClient()
   return (projectId?: string) =>

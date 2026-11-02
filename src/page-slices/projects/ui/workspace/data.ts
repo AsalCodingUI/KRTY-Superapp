@@ -297,6 +297,32 @@ export async function renameProjectFile(path: string, displayName: string) {
   return moveUnique(supabase(), BUCKET, path, slugify(base), ext || current.ext)
 }
 
+/**
+ * Copies a stored file next to itself under a new display name's slug
+ * ("logo-salinan.png", "-2" when taken); returns the new path.
+ */
+export async function copyProjectFile(path: string, displayName: string) {
+  const { base, ext } = splitFileName(displayName)
+  const current = splitFileName(path.slice(path.lastIndexOf("/") + 1))
+  const dir = path.slice(0, path.lastIndexOf("/"))
+  const stem = slugify(base)
+  const suffix = ext || current.ext ? `.${ext || current.ext}` : ""
+  const bucket = supabase().storage.from(BUCKET)
+  for (let n = 1; n <= 50; n++) {
+    const to = `${dir}/${stem}${n > 1 ? `-${n}` : ""}${suffix}`
+    if (to === path) continue
+    const { error } = await bucket.copy(path, to)
+    if (!error) return to
+    const code = (error as { statusCode?: string }).statusCode
+    if (code !== "409" && !/exists|duplicate/i.test(error.message)) throw error
+  }
+  throw new Error("no free file name")
+}
+
+/** The signed-in team's lasting link to a private file (/api/files). */
+export const projectFileLink = (path: string) =>
+  `${window.location.origin}/api/files/${BUCKET}/${path.split("/").map(encodeURIComponent).join("/")}`
+
 /** Short-lived link to open or download a private file. */
 export async function openProjectFile(path: string, download?: string) {
   const { data, error } = await supabase()

@@ -38,6 +38,7 @@ import {
   type ProjectActions,
   type ProjectListRow,
 } from "./ProjectList"
+import { ProjectContextMenu } from "./ProjectMenu"
 import {
   ProjectsFilterMenu,
   applyListOptions,
@@ -245,7 +246,15 @@ export function ProjectsListPage() {
             actions={actions}
           />
         ) : view === "table" ? (
-          <ProjectTable projects={projects} />
+          <ProjectTable
+            projects={projects}
+            actions={{
+              ...actions,
+              onMove: onMove
+                ? (p, status) => void onMove(p, status)
+                : undefined,
+            }}
+          />
         ) : (
           <ProjectList projects={projects} actions={actions} onMove={onMove} />
         )}
@@ -289,7 +298,14 @@ export function ProjectsListPage() {
   )
 }
 
-function ProjectTable({ projects }: { projects: ProjectListRow[] }) {
+function ProjectTable({
+  projects,
+  actions,
+}: {
+  projects: ProjectListRow[]
+  /** The rows' right-click menu (same as the list's). */
+  actions?: ProjectActions
+}) {
   const t = useT("projects")
   const dateLocale = useDateLocale()
   const columns = useMemo<ColumnDef<ProjectListRow>[]>(
@@ -402,6 +418,11 @@ function ProjectTable({ projects }: { projects: ProjectListRow[] }) {
       showViewOptions={false}
       showFilterbar={false}
       showTableWrapper={false}
+      wrapRow={(project, row) => (
+        <ProjectContextMenu project={project} actions={actions}>
+          {row}
+        </ProjectContextMenu>
+      )}
     />
   )
 }

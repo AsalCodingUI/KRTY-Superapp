@@ -1,7 +1,16 @@
 "use client"
 
 import { HomeCard, HomeRow } from "@/app/(main)/dashboard/components/home-card"
+import { ConfirmDialog } from "@/components/confirm-dialog"
 import { EmptyState } from "@/components/empty-state"
+import {
+  deleteSubscription,
+  saveSubscription,
+} from "@/app/(main)/finance/actions/subscription-actions"
+import { ContextTarget, copyText, type CtxItem } from "@/shared/context-menu"
+import { useQueryClient } from "@tanstack/react-query"
+import { toast } from "sonner"
+import { Copy, Pencil, Play, Square, Trash2 } from "lucide-react"
 import { PieChart } from "lucide-react"
 import { SegmentedControl } from "@/components/segmented-control"
 import { Button } from "@/components/ui/button"
@@ -41,10 +50,133 @@ import {
   type FxRates,
   type Subscription,
 } from "@/entities/finance/lib/money"
+import { financeKeys } from "../model/data"
 import { useMoneyFormat } from "../model/hide-money"
 import { Donut, NameTile, StatTiles } from "./parts"
 
 const CYCLE_LABEL = { monthly: "cycleMonthly", yearly: "cycleYearly" } as const
+
+/**
+ * Right-click on a subscription (list row or calendar chip): edit, stop or
+ * resume it, copy its name, delete — stakeholders only, like the page.
+ */
+function useSubscriptionMenu(onEdit: (sub: Subscription) => void) {
+  const t = useT("finance")
+  const tc = useT("common")
+  const tm = useT("ctxmenu")
+  const queryClient = useQueryClient()
+  const [deleting, setDeleting] = useState<Subscription | null>(null)
+  const refresh = () =>
+    queryClient.invalidateQueries({ queryKey: financeKeys.subscriptions() })
+
+  /** Same save as the dialog, with only the end date changed. */
+  const setEnd = async (s: Subscription, endsOn: string | null) => {
+    const result = await saveSubscription(s.id, {
+      name: s.name,
+      category: s.category,
+      amount: Number(s.amount_idr),
+      currency: s.currency,
+      fxRate: s.fx_rate,
+      cycle: s.cycle,
+      anchorDate: s.anchor_date,
+      endsOn,
+      notes: s.notes ?? "",
+    })
+    if (!result.success) return void toast.error(result.error)
+    toast.success(
+      endsOn
+        ? t("ctxSubscriptionStopped", { name: s.name })
+        : t("ctxSubscriptionResumed", { name: s.name }),
+    )
+    await refresh()
+  }
+
+  const items = (s: Subscription): CtxItem[] => {
+    const today = format(new Date(), "yyyy-MM-dd")
+    // An end date set (even today's, still active till midnight) means
+    // it's stopping: offer to keep it running instead.
+    const running = !s.ends_on
+    return [
+      {
+        id: "edit",
+        label: t("editSubscription"),
+        icon: Pencil,
+        onSelect: () => onEdit(s),
+      },
+      running
+        ? {
+            id: "stop",
+            label: t("ctxStopSubscription"),
+            icon: Square,
+            confirm: true,
+            // Can't end before it started (the form says the same).
+            disabled: today < s.anchor_date,
+            onSelect: () => setEnd(s, today),
+          }
+        : {
+            id: "resume",
+            label: t("ctxResumeSubscription"),
+            icon: Play,
+            onSelect: () => setEnd(s, null),
+          },
+      {
+        id: "copy-name",
+        label: tm("copyName"),
+        icon: Copy,
+        onSelect: async () => {
+          if (await copyText(s.name)) toast.success(tm("copied"))
+          else toast.error(tm("copyFailed"))
+        },
+      },
+      {
+        id: "delete",
+        label: tc("delete"),
+        icon: Trash2,
+        destructive: true,
+        onSelect: () => setDeleting(s),
+      },
+    ].map((item) => ({ ...item, access: ["stakeholder"] }))
+  }
+
+  const wrap = (
+    s: Subscription,
+    child: React.ReactElement<Record<string, unknown>>,
+    key?: string,
+  ) => (
+    <ContextTarget
+      key={key ?? s.id}
+      type="subscription"
+      id={s.id}
+      label={s.name}
+      items={() => items(s)}
+    >
+      {child}
+    </ContextTarget>
+  )
+
+  const dialog = (
+    <ConfirmDialog
+      open={deleting !== null}
+      onOpenChange={(open) => !open && setDeleting(null)}
+      title={t("deleteNamed", {
+        name: deleting?.name ?? t("subscriptionFallback"),
+      })}
+      description={t("deleteSubscriptionDescription")}
+      confirmText={tc("delete")}
+      cancelText={tc("cancel")}
+      variant="destructive"
+      onConfirm={async () => {
+        if (!deleting) return
+        const result = await deleteSubscription(deleting.id)
+        if (!result.success) return void toast.error(result.error)
+        toast.success(t("subscriptionDeleted"))
+        setDeleting(null)
+        await refresh()
+      }}
+    />
+  )
+  return { wrap, dialog }
+}
 
 /**
  * Recurring costs on the Home card system: three headline cards, then the
@@ -77,6 +209,7 @@ export function SubscriptionsTab({
   const [month, setMonth] = useState(() =>
     startOfMonth(thisYear ? today : start),
   )
+  const menu = useSubscriptionMenu(onEdit)
 
   const active = subscriptions.filter((s) => isActive(s, today))
   const perMonth = active.reduce((sum, s) => sum + monthly(s, rates), 0)
@@ -211,9 +344,9 @@ export function SubscriptionsTab({
                 const next = nextCharge(s, tomorrow)
                 const ended = !isActive(s, today)
                 const rate = rateOf(s.currency, s.fx_rate, rates)
-                return (
+                return menu.wrap(
+                  s,
                   <button
-                    key={s.id}
                     type="button"
                     onClick={() => onEdit(s)}
                     className={cn("text-left", ended && "opacity-60")}
@@ -256,7 +389,7 @@ export function SubscriptionsTab({
                         </span>
                       }
                     />
-                  </button>
+                  </button>,
                 )
               })}
             </div>
@@ -266,6 +399,7 @@ export function SubscriptionsTab({
               subscriptions={subscriptions}
               rates={rates}
               onEdit={onEdit}
+              wrap={menu.wrap}
             />
           )}
         </HomeCard>
@@ -317,6 +451,7 @@ export function SubscriptionsTab({
           )}
         </HomeCard>
       </div>
+      {menu.dialog}
     </div>
   )
 }
@@ -327,11 +462,13 @@ function MonthGrid({
   subscriptions,
   rates,
   onEdit,
+  wrap,
 }: {
   month: Date
   subscriptions: Subscription[]
   rates: FxRates
   onEdit: (sub: Subscription) => void
+  wrap: ReturnType<typeof useSubscriptionMenu>["wrap"]
 }) {
   const { rupiahShort, money } = useMoneyFormat()
   const locale = useLocale()
@@ -384,28 +521,30 @@ function MonthGrid({
                 {format(d, "d")}
               </span>
               <div className="space-y-px">
-                {items.map(({ s }) => (
-                  <button
-                    key={s.id}
-                    type="button"
-                    onClick={() => onEdit(s)}
-                    title={`${s.name} · ${money(s.amount_idr, s.currency)}`}
-                    className="hover:bg-accent flex w-full min-w-0 items-center gap-1.5 rounded-sm px-1 py-0.5 text-left text-[13px]"
-                  >
-                    <span
-                      aria-hidden
-                      className="size-1.5 shrink-0 rounded-full"
-                      style={{ background: categoryColor(s.category) }}
-                    />
-                    <span className="truncate">{s.name}</span>
-                    <span className="text-muted-foreground ml-auto shrink-0 tabular-nums">
-                      {rupiahShort(
-                        chargeIdr(s, rates) || Number(s.amount_idr),
-                        locale,
-                      )}
-                    </span>
-                  </button>
-                ))}
+                {items.map(({ s }) =>
+                  wrap(
+                    s,
+                    <button
+                      type="button"
+                      onClick={() => onEdit(s)}
+                      title={`${s.name} · ${money(s.amount_idr, s.currency)}`}
+                      className="hover:bg-accent flex w-full min-w-0 items-center gap-1.5 rounded-sm px-1 py-0.5 text-left text-[13px]"
+                    >
+                      <span
+                        aria-hidden
+                        className="size-1.5 shrink-0 rounded-full"
+                        style={{ background: categoryColor(s.category) }}
+                      />
+                      <span className="truncate">{s.name}</span>
+                      <span className="text-muted-foreground ml-auto shrink-0 tabular-nums">
+                        {rupiahShort(
+                          chargeIdr(s, rates) || Number(s.amount_idr),
+                          locale,
+                        )}
+                      </span>
+                    </button>,
+                  ),
+                )}
               </div>
             </div>
           )

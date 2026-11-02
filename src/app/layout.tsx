@@ -13,6 +13,7 @@ import { getClientMessages, getLocale } from "@/shared/i18n/server"
 import { TINT_SCRIPT } from "@/shared/lib/chrome-tint"
 import { ThemeColorSync } from "@/components/theme-color-sync"
 import { ScrollbarAutoHide } from "@/components/scrollbar-auto-hide"
+import { ContextMenuProvider } from "@/shared/context-menu"
 
 // Sidebar dihapus dari sini!
 
@@ -36,6 +37,20 @@ export const metadata: Metadata = {
   description: siteConfig.description,
   authors: [{ name: "Kretya Studio" }],
   creator: "Kretya Studio",
+  // Link previews: the studio's card (opengraph-image.tsx); client links
+  // (/r, /p) set their own.
+  // No siteName: chat apps keep showing the domain ("Kretyastudio") above
+  // the title, as before.
+  openGraph: {
+    type: "website",
+    title: siteConfig.name,
+    description: siteConfig.description,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: siteConfig.name,
+    description: siteConfig.description,
+  },
   // App icon (Icons/ in the repo root): the tab gets the transparent mark
   // for the browser's theme (src/app/favicon.ico, the light one, for old
   // browsers); the dock / home screen gets the dark tile.
@@ -115,8 +130,11 @@ export default async function RootLayout({
                 messages={getClientMessages(locale)}
               >
                 <TooltipProvider>
-                  {/* Sidebar dan main wrapper dipindah ke layout (main) */}
-                  {children}
+                  {/* Right-click menu everywhere (shared/context-menu). */}
+                  <ContextMenuProvider>
+                    {/* Sidebar dan main wrapper dipindah ke layout (main) */}
+                    {children}
+                  </ContextMenuProvider>
                   <Toaster position="bottom-right" closeButton />
                   {/* Safari / mobile toolbar takes the chrome color. */}
                   <ThemeColorSync />

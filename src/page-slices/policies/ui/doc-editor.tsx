@@ -23,6 +23,8 @@ import { useRef, useState } from "react"
 import { toast } from "sonner"
 import { AiPreview } from "./ai-assist"
 import { BlockHandle } from "./block-handle"
+import { DocContextMenu } from "./doc-context-menu"
+import { Divider, DividerShortcut } from "./divider-shortcut"
 import { DOC_BLOCK_NODES, docBlockSlashItems, useDocBlocks } from "./doc-blocks"
 import { EditorLightbox, selectedImage } from "./image-lightbox"
 import { useLightbox } from "@/components/image-lightbox"
@@ -101,6 +103,8 @@ export function docExtensions(
       // Markdown has no underline; keep the source clean.
       underline: false,
       heading: { levels: [1, 2, 3] },
+      // Ours (./divider-shortcut): "---" + Enter, not on the third dash.
+      horizontalRule: false,
       link: { openOnClick: false, autolink: true },
       // Where a dragged block will land: a rounded blue bar (doc-dropcursor).
       dropcursor: {
@@ -119,6 +123,9 @@ export function docExtensions(
         placeholder(node.type.name === "heading" ? node.attrs.level : null),
     }),
     SlashCommand(slash, slashItems),
+    // "---" + Enter makes a divider.
+    Divider,
+    DividerShortcut,
     Mention,
     ...(mention ? [MentionSuggestion(mention)] : []),
     MarkdownExtension,
@@ -258,6 +265,8 @@ export function useDocUploads({
   const fileInput = useRef<HTMLInputElement>(null)
   // The next pick from "/" keeps its original resolution.
   const pickOriginal = useRef(false)
+  // The next pick replaces the picture at this position ("Ganti").
+  const replaceAt = useRef<number | null>(null)
   // Callout, toggle, gallery; the gallery uploads like pictures do.
   const blocks = useDocBlocks(() => uploadRef.current)
   const editorRef = blocks.editorRef
@@ -305,6 +314,43 @@ export function useDocUploads({
       }
     }
   }
+
+  /** Uploads a picture over the one at `pos`, keeping its width. */
+  const replaceImage = async (pos: number, file?: File) => {
+    const upload = uploadRef.current
+    const editor = editorRef.current
+    if (!upload || !editor || !file || !isImage(file)) return
+    const id = toast.loading(tRef.current("imageUploading"))
+    try {
+      const uploaded = await upload(file, false)
+      const node = editor.state.doc.nodeAt(pos)
+      if (node?.type.name !== "image") throw new Error("moved")
+      const size = imageSizeOf(node.attrs.src as string)
+      editor
+        .chain()
+        .focus()
+        .command(({ tr }) => {
+          tr.setNodeMarkup(pos, undefined, {
+            ...node.attrs,
+            src: withImageSize(uploaded, size),
+            alt: file.name,
+          })
+          return true
+        })
+        .run()
+      toast.dismiss(id)
+    } catch {
+      toast.error(tRef.current("imageUploadFailed"), { id })
+    }
+  }
+
+  /** Opens the picker to replace the picture at `pos` (right-click "Ganti"). */
+  const pickReplacement = onUploadImage
+    ? (pos: number) => {
+        replaceAt.current = pos
+        fileInput.current?.click()
+      }
+    : undefined
 
   /** Uploads other files and links them, by name, at the cursor. */
   const insertFiles = async (files: File[], cursor: Cursor = {}) => {
@@ -436,8 +482,12 @@ export function useDocUploads({
           onChange={(e) => {
             const original = pickOriginal.current
             pickOriginal.current = false
-            void insertImages([...(e.target.files ?? [])], undefined, original)
+            const files = [...(e.target.files ?? [])]
             e.target.value = ""
+            const at = replaceAt.current
+            replaceAt.current = null
+            if (at !== null) void replaceImage(at, files[0])
+            else void insertImages(files, undefined, original)
           }}
         />
       )}
@@ -445,7 +495,14 @@ export function useDocUploads({
     </>
   )
 
-  return { editorRef, slashItems, handlePaste, handleDrop, inputs }
+  return {
+    editorRef,
+    slashItems,
+    handlePaste,
+    handleDrop,
+    inputs,
+    replaceImage: pickReplacement,
+  }
 }
 
 /**
@@ -554,6 +611,7 @@ export function MarkdownDocEditor({
           {/* A click on a picture opens it large. */}
           <EditorLightbox editor={editor}>
             <EditorContent editor={editor} />
+            {editor && <DocContextMenu editor={editor} />}
           </EditorLightbox>
         </div>
       </div>
@@ -569,6 +627,13 @@ export function MarkdownDocEditor({
           {editor && <AiPreview editor={editor} slot="top" />}
           <EditorContent editor={editor} />
           {editor && <BlockHandle editor={editor} compact />}
+          {editor && (
+            <DocContextMenu
+              editor={editor}
+              onReplaceImage={uploads.replaceImage}
+              ai
+            />
+          )}
           {editor && <AiPreview editor={editor} slot="end" />}
           {menus}
         </EditorLightbox>
@@ -588,6 +653,13 @@ export function MarkdownDocEditor({
             {editor && <AiPreview editor={editor} slot="top" />}
             <EditorContent editor={editor} />
             {editor && <BlockHandle editor={editor} />}
+            {editor && (
+              <DocContextMenu
+                editor={editor}
+                onReplaceImage={uploads.replaceImage}
+                ai
+              />
+            )}
             {editor && <AiPreview editor={editor} slot="end" />}
           </div>
         </div>

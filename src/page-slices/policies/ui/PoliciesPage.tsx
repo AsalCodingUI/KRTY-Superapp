@@ -1,6 +1,15 @@
 "use client"
 
+import {
+  deletePolicy,
+  setPolicyArchived,
+} from "@/app/(main)/policies/actions/policy-actions"
+import { ConfirmDialog } from "@/components/confirm-dialog"
 import { EmptyState } from "@/components/empty-state"
+import { ContextTarget, copyText, type CtxItem } from "@/shared/context-menu"
+import { useQueryClient } from "@tanstack/react-query"
+import { Archive, ArchiveRestore, Copy, Pencil, Trash2 } from "lucide-react"
+import { toast } from "sonner"
 import {
   GroupedList,
   ListChip,
@@ -31,6 +40,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import {
   categoryLabel,
   POLICY_CATEGORIES,
+  policyKeys,
   splitVersions,
   usePolicies,
   type PolicyListItem,
@@ -160,6 +170,81 @@ export function PoliciesPage() {
   )
   const hrefFor = (p: PolicyListItem) =>
     withParams({ policy: p.slug, edit: tab === "draft" ? "1" : null, v: null })
+
+  const tc = useT("common")
+  const tm = useT("ctxmenu")
+  const queryClient = useQueryClient()
+  const [deleting, setDeleting] = useState<PolicyListItem | null>(null)
+  const refresh = () =>
+    queryClient.invalidateQueries({ queryKey: policyKeys.all })
+  /**
+   * Right-click on a rule (Buka / tab baru / Salin link come from its
+   * href): copy the title; stakeholders also edit, archive, delete — the
+   * rule dialog's own actions.
+   */
+  const policyItems = (p: PolicyListItem): CtxItem[] => {
+    const { latest, draft } = splitVersions(p.versions ?? [])
+    const items: (CtxItem & { hidden?: boolean })[] = [
+      {
+        id: "copy-title",
+        label: t("ctxCopyTitle"),
+        icon: Copy,
+        onSelect: async () => {
+          if (await copyText(titleOf(p))) toast.success(tm("copied"))
+          else toast.error(tm("copyFailed"))
+        },
+      },
+      {
+        id: "edit",
+        label: draft ? t("continueDraft") : tc("edit"),
+        icon: Pencil,
+        hidden: !isAdmin,
+        onSelect: () =>
+          router.push(withParams({ policy: p.slug, edit: "1", v: null }), {
+            scroll: false,
+          }),
+      },
+      {
+        id: "archive",
+        label: p.archived_at ? t("restore") : t("archive"),
+        icon: p.archived_at ? ArchiveRestore : Archive,
+        // Only published rules are archived (as in the rule's ⋯ menu).
+        hidden: !isAdmin || !latest,
+        onSelect: async () => {
+          const archived = !p.archived_at
+          const result = await setPolicyArchived(p.id, archived)
+          if (!result.success) return void toast.error(result.error)
+          toast.success(archived ? t("ruleArchived") : t("ruleRestored"))
+          await refresh()
+        },
+      },
+      {
+        id: "delete",
+        label: t("deleteRule"),
+        icon: Trash2,
+        destructive: true,
+        hidden: !isAdmin,
+        // The dialog asks first.
+        onSelect: () => setDeleting(p),
+      },
+    ]
+    return items.filter((item) => !item.hidden)
+  }
+  const target = (
+    p: PolicyListItem,
+    child: React.ReactElement<Record<string, unknown>>,
+  ) => (
+    <ContextTarget
+      key={p.id}
+      type="policy"
+      id={p.id}
+      label={titleOf(p)}
+      href={hrefFor(p)}
+      items={() => policyItems(p)}
+    >
+      {child}
+    </ContextTarget>
+  )
   const categories = [...new Set(shown.map((p) => p.category))].sort(
     (a, b) => categoryOrder(a) - categoryOrder(b) || a.localeCompare(b),
   )
@@ -265,14 +350,16 @@ export function PoliciesPage() {
                     <span className="tabular-nums">{items.length}</span>
                   </h2>
                   <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                    {items.map((p) => (
-                      <PolicyCard
-                        key={p.id}
-                        policy={p}
-                        isAdmin={isAdmin}
-                        href={hrefFor(p)}
-                      />
-                    ))}
+                    {items.map((p) =>
+                      target(
+                        p,
+                        <PolicyCard
+                          policy={p}
+                          isAdmin={isAdmin}
+                          href={hrefFor(p)}
+                        />,
+                      ),
+                    )}
                   </div>
                 </section>
               )
@@ -288,14 +375,16 @@ export function PoliciesPage() {
                   label={categoryLabel(t, category)}
                   count={items.length}
                 >
-                  {items.map((p) => (
-                    <PolicyRow
-                      key={p.id}
-                      policy={p}
-                      isAdmin={isAdmin}
-                      href={hrefFor(p)}
-                    />
-                  ))}
+                  {items.map((p) =>
+                    target(
+                      p,
+                      <PolicyRow
+                        policy={p}
+                        isAdmin={isAdmin}
+                        href={hrefFor(p)}
+                      />,
+                    ),
+                  )}
                 </ListGroup>
               )
             })}
@@ -333,6 +422,24 @@ export function PoliciesPage() {
             onClose={closeModal}
           />
         ) : null)}
+      <ConfirmDialog
+        open={deleting !== null}
+        onOpenChange={(open) => !open && setDeleting(null)}
+        title={t("deleteConfirmTitle")}
+        description={t("deleteConfirmDescription")}
+        confirmText={t("deletePermanently")}
+        cancelText={tc("cancel")}
+        variant="destructive"
+        onConfirm={async () => {
+          if (!deleting) return
+          const result = await deletePolicy(deleting.id)
+          if (!result.success) return void toast.error(result.error)
+          toast.success(t("ruleDeleted"))
+          if (openId === deleting.id) closeModal()
+          setDeleting(null)
+          await refresh()
+        }}
+      />
     </div>
   )
 }
@@ -341,10 +448,13 @@ function PolicyRow({
   policy,
   isAdmin,
   href,
+  ...rest
 }: {
   policy: PolicyListItem
   isAdmin: boolean
   href: string
+  /** data-* from the right-click target. */
+  [data: `data-${string}`]: string | undefined
 }) {
   const t = useT("policies")
   const dateLocale = useDateLocale()
@@ -353,7 +463,7 @@ function PolicyRow({
   const updated = latest?.published_at
 
   return (
-    <ListRow className={`${ROW_GRID} min-h-14`}>
+    <ListRow {...rest} className={`${ROW_GRID} min-h-14`}>
       <div className="flex min-w-0 items-center gap-3">
         <RiFileTextLine className="text-muted-foreground size-4 shrink-0" />
         <div className="flex min-w-0 flex-col">
@@ -405,10 +515,13 @@ function PolicyCard({
   policy,
   isAdmin,
   href,
+  ...rest
 }: {
   policy: PolicyListItem
   isAdmin: boolean
   href: string
+  /** data-* from the right-click target. */
+  [data: `data-${string}`]: string | undefined
 }) {
   const t = useT("policies")
   const dateLocale = useDateLocale()
@@ -423,6 +536,7 @@ function PolicyCard({
 
   return (
     <Link
+      {...rest}
       data-slot="policy-card"
       href={href}
       scroll={false}

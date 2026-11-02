@@ -33,7 +33,11 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
-import { useInvalidate, useViewer, useWorkspace } from "./data"
+import { useInvalidate, useSteps, useViewer, useWorkspace } from "./data"
+import { StopPhasesDialog } from "./PhaseMode"
+
+/** The "Tanpa fase" choice in the process select. */
+const NO_PHASES = "__no_phases__"
 
 // Edit dialog loads on first open.
 const ProjectForm = dynamic(
@@ -89,6 +93,8 @@ export function ProjectSettings({ projectId }: { projectId: string }) {
   const [switchTo, setSwitchTo] = useState<{ id: string; name: string } | null>(
     null,
   )
+  const [stoppingPhases, setStoppingPhases] = useState(false)
+  const { data: steps = [] } = useSteps(projectId)
 
   const project = data?.project
 
@@ -113,6 +119,8 @@ export function ProjectSettings({ projectId }: { projectId: string }) {
     queryClient.invalidateQueries({ queryKey: ["project-summary", projectId] })
     queryClient.invalidateQueries({ queryKey: ["clients"] })
   }
+  // An ongoing project (side work, a retainer) runs without phases.
+  const phaseless = data.phases.length === 0
   const clientOptions = clients.filter(
     (c) => !c.archived_at || c.id === project.client_id,
   )
@@ -254,10 +262,16 @@ export function ProjectSettings({ projectId }: { projectId: string }) {
                 action={
                   <div className="flex items-center gap-1">
                     <Select
-                      value={project.process_id ?? null}
+                      value={
+                        phaseless ? NO_PHASES : (project.process_id ?? null)
+                      }
                       onValueChange={(v) => {
+                        if (v === NO_PHASES) {
+                          if (!phaseless) setStoppingPhases(true)
+                          return
+                        }
                         const next = processes.find((p) => p.id === v)
-                        if (next && v !== project.process_id)
+                        if (next && (phaseless || v !== project.process_id))
                           setSwitchTo({ id: next.id, name: next.name })
                       }}
                     >
@@ -268,8 +282,10 @@ export function ProjectSettings({ projectId }: { projectId: string }) {
                       >
                         <SelectValue>
                           {(value: string) =>
-                            processes.find((p) => p.id === value)?.name ??
-                            tpr("noProcess")
+                            value === NO_PHASES
+                              ? tpr("noPhasesOption")
+                              : (processes.find((p) => p.id === value)?.name ??
+                                tpr("noProcess"))
                           }
                         </SelectValue>
                       </SelectTrigger>
@@ -279,6 +295,10 @@ export function ProjectSettings({ projectId }: { projectId: string }) {
                             {p.name}
                           </SelectItem>
                         ))}
+                        <SelectSeparator />
+                        <SelectItem value={NO_PHASES}>
+                          {tpr("noPhasesOption")}
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                     <Button
@@ -380,11 +400,19 @@ export function ProjectSettings({ projectId }: { projectId: string }) {
             <ConfirmDialog
               open={switchTo !== null}
               onOpenChange={(open) => !open && setSwitchTo(null)}
-              title={tpr("changeProcessTitle", { name: switchTo?.name ?? "" })}
-              description={tpr("changeProcessDescription", {
+              // Without phases nothing is replaced, only added.
+              title={tpr(phaseless ? "useProcessTitle" : "changeProcessTitle", {
                 name: switchTo?.name ?? "",
               })}
-              confirmText={tpr("changeProcessConfirm")}
+              description={tpr(
+                phaseless
+                  ? "useProcessDescription"
+                  : "changeProcessDescription",
+                { name: switchTo?.name ?? "" },
+              )}
+              confirmText={
+                phaseless ? t("usePhases") : tpr("changeProcessConfirm")
+              }
               cancelText={tc("cancel")}
               onConfirm={async () => {
                 if (!switchTo) return
@@ -393,13 +421,25 @@ export function ProjectSettings({ projectId }: { projectId: string }) {
                   switchTo.id,
                 )
                 if (!result.success) return void toast.error(result.error)
-                toast.success(tpr("processApplied"))
+                toast.success(
+                  phaseless
+                    ? t("phasesStarted", { name: switchTo.name })
+                    : tpr("processApplied"),
+                )
                 invalidate("workspace", "steps", "tasks")
                 queryClient.invalidateQueries({ queryKey: ["processes"] })
                 queryClient.invalidateQueries({
                   queryKey: ["project-summary", projectId],
                 })
               }}
+            />
+            <StopPhasesDialog
+              projectId={projectId}
+              projectName={project.name}
+              phaseCount={data.phases.length}
+              stepCount={steps.length}
+              open={stoppingPhases}
+              onOpenChange={setStoppingPhases}
             />
             <ClientFormDialog
               client={null}

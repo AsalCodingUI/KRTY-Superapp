@@ -22,7 +22,9 @@ import {
 } from "@/shared/ui/lucide-icons"
 import { useDateLocale, useT } from "@/shared/i18n/client"
 import { format, isSameMonth, isSameYear, type Locale } from "date-fns"
+import { useRef } from "react"
 import { useCalendarContext } from "./calendar-context"
+import { useToolbarMenu } from "./calendar-menu"
 import { useGoogleCalendar } from "./hooks/use-google-calendar"
 import { useEventVisibility } from "./hooks/use-event-visibility"
 import type { EventColor, ViewMode } from "./types"
@@ -149,10 +151,26 @@ export function CalendarToolbar({
   const { isConnected, isLoading } = useGoogleCalendar()
   const handleViewChange = onViewChange ?? setViewMode
   const value = views.includes(viewMode) ? viewMode : views[0]
+  const { categories, toggleCategory } = useEventVisibility()
+  // Right-click: new event, today / previous / next, go to a date, the
+  // view, which calendars show.
+  const rootRef = useRef<HTMLDivElement>(null)
+  const pickDialog = useToolbarMenu(rootRef, {
+    views,
+    viewLabel: (view) => t(VIEW_LABELS[view]),
+    onViewChange: handleViewChange,
+    onAddEvent,
+    canAdd: showAddEvent,
+    categories,
+    toggleCategory,
+  })
 
   return (
-    // Wraps to two rows on phones rather than squeezing the date.
-    <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+    // One row on wide screens: views | date + nav | filter + add. On
+    // phones two: views with filter + add, then the date with the nav, so
+    // nothing gets squeezed or pushed off the edge.
+    <div ref={rootRef} className="flex flex-wrap items-center gap-x-4 gap-y-3">
+      {pickDialog}
       <SegmentedControl<ViewMode>
         fitContent
         items={viewItems}
@@ -160,8 +178,8 @@ export function CalendarToolbar({
         onChange={handleViewChange}
       />
 
-      <div className="flex items-center gap-1 max-sm:w-full">
-        <span className="mr-2 text-sm font-medium whitespace-nowrap tabular-nums max-sm:mr-auto">
+      <div className="flex items-center gap-1 max-sm:order-last max-sm:w-full sm:ml-auto">
+        <span className="mr-2 truncate text-sm font-medium whitespace-nowrap tabular-nums max-sm:mr-auto">
           {rangeLabel(currentDate, viewMode, dateLocale)}
         </span>
         <Button
@@ -180,16 +198,13 @@ export function CalendarToolbar({
         >
           <RiArrowRightSLine />
         </Button>
-        <Button
-          variant="outline"
-          onClick={goToToday}
-          className="ml-1 max-sm:px-3"
-        >
+        <Button variant="outline" onClick={goToToday} className="ml-1">
           {t("toolbarToday")}
         </Button>
+      </div>
 
-        <div className="bg-border mx-2 h-4 w-px max-sm:hidden" />
-
+      <div className="flex items-center gap-1 max-sm:ml-auto">
+        <div className="bg-border mr-2 h-4 w-px max-sm:hidden" />
         <CalendarFilter />
         {showGoogleStatus && (
           <Tooltip>

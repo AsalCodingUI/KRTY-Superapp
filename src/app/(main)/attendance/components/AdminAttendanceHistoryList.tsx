@@ -26,6 +26,11 @@ import { id as idLocale } from "date-fns/locale"
 import type { Locale } from "date-fns"
 import { useDateLocale, useT } from "@/shared/i18n/client"
 import * as React from "react"
+import { ContextTarget } from "@/shared/context-menu"
+import { useCopyWithToast } from "@/page-slices/leave/ui/components/leave-context-menu"
+import { employeeHref } from "@/shared/lib/url-params"
+import { Clock, Pencil, SearchCheck, SquareStop, UserRound } from "lucide-react"
+import { useRouter } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
 
 type AttendanceLogWithProfile =
@@ -280,6 +285,9 @@ function AdminAttendanceRow({
 }) {
   const t = useT("leave")
   const tc = useT("common")
+  const dateLocale = useDateLocale()
+  const router = useRouter()
+  const copy = useCopyWithToast()
   const name = log.profiles?.full_name || t("unknownName")
   const isActive = !log.clock_out
   const deleteRequested = hasAttendanceNote(
@@ -308,69 +316,126 @@ function AdminAttendanceRow({
     deleteRequested && t("noteDeleteRequested"),
   ].filter(Boolean)
 
+  const times = `${format(new Date(log.clock_in), "HH:mm")} – ${
+    log.clock_out ? format(new Date(log.clock_out), "HH:mm") : "…"
+  }`
+  const day = format(parseISO(getAttendanceLogLocalDate(log)), "EEEE, d MMMM", {
+    locale: dateLocale,
+  })
+
   return (
-    <ListRow className={cn(ROW_GRID, "min-h-14")}>
-      <div className="flex min-w-0 items-center gap-3">
-        <Avatar className="size-7">
-          <AvatarImage src={log.profiles?.avatar_url || undefined} alt={name} />
-          <AvatarFallback className="text-[11px]">
-            {name.slice(0, 2).toUpperCase()}
-          </AvatarFallback>
-        </Avatar>
-        <div className="flex min-w-0 flex-col">
-          <span className="text-foreground truncate">{name}</span>
-          {notes.length > 0 && (
-            <span className="text-tertiary-foreground truncate text-[13px]">
-              {notes.join(" · ")}
-            </span>
-          )}
+    // Right-click: the row's buttons (same conditions), the person's
+    // profile, and the session's times.
+    <ContextTarget
+      type="attendance-log"
+      id={log.id}
+      label={`${name} · ${times}`}
+      items={() => [
+        {
+          id: "review-delete",
+          label: t("reviewDelete"),
+          icon: SearchCheck,
+          hidden: !deleteRequested || !onApproveDelete,
+          onSelect: () => onApproveDelete?.(log.id),
+        },
+        {
+          id: "close-session",
+          label: t("closeSession"),
+          icon: SquareStop,
+          // Its confirm dialog asks first.
+          hidden: !isActive || !onCloseSession,
+          onSelect: () => onCloseSession?.(log.id),
+        },
+        {
+          id: "edit",
+          label: tc("edit"),
+          icon: Pencil,
+          hidden: !onEditSession || isActive || deleteRequested,
+          onSelect: () => onEditSession?.(log.id),
+        },
+        {
+          id: "profile",
+          label: t("ctxOpenProfile"),
+          icon: UserRound,
+          access: ["stakeholder"],
+          onSelect: () =>
+            router.push(employeeHref({ id: log.user_id, full_name: name })),
+        },
+        {
+          id: "copy-times",
+          label: t("ctxCopyTimes"),
+          icon: Clock,
+          hint: times,
+          onSelect: () => copy(`${name}, ${day}, ${times}`),
+        },
+      ]}
+    >
+      <ListRow className={cn(ROW_GRID, "min-h-14")}>
+        <div className="flex min-w-0 items-center gap-3">
+          <Avatar className="size-7">
+            <AvatarImage
+              src={log.profiles?.avatar_url || undefined}
+              alt={name}
+            />
+            <AvatarFallback className="text-[11px]">
+              {name.slice(0, 2).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex min-w-0 flex-col">
+            <span className="text-foreground truncate">{name}</span>
+            {notes.length > 0 && (
+              <span className="text-tertiary-foreground truncate text-[13px]">
+                {notes.join(" · ")}
+              </span>
+            )}
+          </div>
         </div>
-      </div>
 
-      <div className="hidden md:block">{status}</div>
-      <span className="hidden tabular-nums md:block">
-        {format(new Date(log.clock_in), "HH:mm")}
-        <span className="text-muted-foreground"> – </span>
-        {log.clock_out ? format(new Date(log.clock_out), "HH:mm") : "…"}
-      </span>
-      <span className="text-muted-foreground hidden text-right tabular-nums lg:block">
-        {log.break_total ? `${log.break_total}m` : <EmptyValue />}
-      </span>
-      <WorkedTime log={log} hydrated={hydrated} />
+        <div className="hidden md:block">{status}</div>
+        <span className="hidden tabular-nums md:block">
+          {format(new Date(log.clock_in), "HH:mm")}
+          <span className="text-muted-foreground"> – </span>
+          {log.clock_out ? format(new Date(log.clock_out), "HH:mm") : "…"}
+        </span>
+        <span className="text-muted-foreground hidden text-right tabular-nums lg:block">
+          {log.break_total ? `${log.break_total}m` : <EmptyValue />}
+        </span>
+        <WorkedTime log={log} hydrated={hydrated} />
 
-      {/* Actions wrap under the row on narrow screens. */}
-      <div className="col-span-full flex justify-end gap-1 empty:hidden lg:col-span-1">
-        {deleteRequested && onApproveDelete && (
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => onApproveDelete(log.id)}
-          >
-            {t("reviewDelete")}
-          </Button>
-        )}
-        {isActive && onCloseSession && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onCloseSession(log.id)}
-          >
-            {t("closeSession")}
-          </Button>
-        )}
-        {onEditSession && !isActive && !deleteRequested && (
-          <ListRowActions className="hidden lg:flex">
+        {/* Actions wrap under the row on narrow screens. */}
+        <div className="col-span-full flex justify-end gap-1 empty:hidden lg:col-span-1">
+          {deleteRequested && onApproveDelete && (
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => onApproveDelete(log.id)}
+            >
+              {t("reviewDelete")}
+            </Button>
+          )}
+          {isActive && onCloseSession && (
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => onEditSession(log.id)}
+              onClick={() => onCloseSession(log.id)}
             >
-              {tc("edit")}
+              {t("closeSession")}
             </Button>
-          </ListRowActions>
-        )}
-      </div>
-    </ListRow>
+          )}
+          {onEditSession && !isActive && !deleteRequested && (
+            <ListRowActions className="hidden lg:flex">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onEditSession(log.id)}
+              >
+                {tc("edit")}
+              </Button>
+            </ListRowActions>
+          )}
+        </div>
+      </ListRow>
+    </ContextTarget>
   )
 }
 

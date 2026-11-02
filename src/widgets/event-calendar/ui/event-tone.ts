@@ -70,3 +70,8 @@ export function isAllDayEvent(event: CalendarEvent) {
     event.end.getTime() - event.start.getTime() >= 23 * 60 * 60 * 1000
   )
 }
+
+/** A national holiday, or an office holiday made from one (tanggal merah). */
+export function isHolidayEvent(event: CalendarEvent) {
+  return event.type === "Public Holiday" || Boolean(event.holidayKey)
+}

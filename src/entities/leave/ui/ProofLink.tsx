@@ -5,7 +5,7 @@ import { createClient } from "@/shared/api/supabase/client"
 import { useT } from "@/shared/i18n/client"
 import { RiFilePaperLine } from "@/shared/ui/lucide-icons"
 import dynamic from "next/dynamic"
-import { useState } from "react"
+import { useCallback, useState } from "react"
 
 // Viewer (PDF / office renderers) only loads when a proof is opened.
 const FileViewer = dynamic(
@@ -29,6 +29,59 @@ export function proofStoragePath(value: string) {
   return value
 }
 
+/** The proof's viewer (stored file), rendered while open. */
+function ProofViewer({
+  value,
+  onClose,
+}: {
+  value: string
+  onClose: () => void
+}) {
+  const path = proofStoragePath(value)
+  if (!path) return null
+  const name = path.slice(path.lastIndexOf("/") + 1)
+  const signed = async (download?: string) => {
+    const { data, error } = await createClient()
+      .storage.from(PROOF_BUCKET)
+      .createSignedUrl(path, 60 * 60, download ? { download } : undefined)
+    if (error || !data) throw error ?? new Error("no url")
+    return data.signedUrl
+  }
+  return (
+    <span onClick={(e) => e.stopPropagation()}>
+      <FileViewer
+        items={[
+          {
+            key: path,
+            name,
+            getUrl: () => signed(),
+            getDownloadUrl: () => signed(name),
+          },
+        ]}
+        index={0}
+        onIndexChange={() => {}}
+        onClose={onClose}
+      />
+    </span>
+  )
+}
+
+/**
+ * Opens a proof from anywhere (a right-click "Lihat bukti"): stored files
+ * in the viewer, outside links in a new tab. Render `viewer` once.
+ */
+export function useProofViewer() {
+  const [value, setValue] = useState<string | null>(null)
+  const open = useCallback((proof: string) => {
+    if (proofStoragePath(proof)) setValue(proof)
+    else window.open(proof, "_blank", "noopener,noreferrer")
+  }, [])
+  const viewer = value ? (
+    <ProofViewer value={value} onClose={() => setValue(null)} />
+  ) : null
+  return { open, viewer }
+}
+
 /**
  * "Bukti" link on a leave request: stored files open in the viewer (photo or
  * PDF), outside links in a new tab.
@@ -45,15 +98,6 @@ export function ProofLink({
   const t = useT("leave")
   const [open, setOpen] = useState(false)
   const path = proofStoragePath(value)
-  const name = path ? path.slice(path.lastIndexOf("/") + 1) : value
-
-  const signed = async (download?: string) => {
-    const { data, error } = await createClient()
-      .storage.from(PROOF_BUCKET)
-      .createSignedUrl(path!, 60 * 60, download ? { download } : undefined)
-    if (error || !data) throw error ?? new Error("no url")
-    return data.signedUrl
-  }
 
   const label = (
     <>
@@ -95,23 +139,7 @@ export function ProofLink({
       >
         {label}
       </button>
-      {open && (
-        <span onClick={(e) => e.stopPropagation()}>
-          <FileViewer
-            items={[
-              {
-                key: path,
-                name,
-                getUrl: () => signed(),
-                getDownloadUrl: () => signed(name),
-              },
-            ]}
-            index={0}
-            onIndexChange={() => {}}
-            onClose={() => setOpen(false)}
-          />
-        </span>
-      )}
+      {open && <ProofViewer value={value} onClose={() => setOpen(false)} />}
     </>
   )
 }

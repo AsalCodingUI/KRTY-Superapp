@@ -77,6 +77,10 @@ const id = {
   errDuplicate: "Klien dengan nama ini sudah ada.",
   errSave: "Gagal menyimpan klien.",
   errDelete: "Gagal menghapus klien.",
+  ctxProjects: "Project klien",
+  ctxCopyContact: "Salin kontak",
+  ctxOpenWebsite: "Buka website",
+  ctxAllProjects: "Lihat semua project",
 }
 
 const en: Record<keyof typeof id, string> = {
@@ -153,6 +157,10 @@ const en: Record<keyof typeof id, string> = {
   errDuplicate: "A client with this name already exists.",
   errSave: "Couldn't save the client.",
   errDelete: "Couldn't delete the client.",
+  ctxProjects: "Client projects",
+  ctxCopyContact: "Copy contact",
+  ctxOpenWebsite: "Open website",
+  ctxAllProjects: "See all projects",
 }
 
 export const clients = { id, en }

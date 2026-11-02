@@ -80,6 +80,36 @@ function nextQuarterHour() {
   return d
 }
 
+/**
+ * A new event's form values: the draft's (a duplicate) or blank, starting
+ * at `initialDate` (a clicked slot) or the next quarter hour. `fallbackType`
+ * replaces a draft type this person can't create.
+ */
+function newEventValues(
+  draft: Partial<CalendarEvent> | null | undefined,
+  initialDate: Date | undefined,
+  fallbackType: { value: string; color: CalendarEvent["color"] } | undefined,
+  organizer: string,
+): EventFormData {
+  const start = draft?.start ?? initialDate ?? nextQuarterHour()
+  const end = draft?.end ?? new Date(start.getTime() + 60 * 60 * 1000)
+  const type = fallbackType ? fallbackType.value : draft!.type!
+  const color = fallbackType
+    ? fallbackType.color
+    : (getEventTypeDefinition(type)?.color ?? draft?.color ?? "blue")
+  return {
+    title: draft?.title ?? "",
+    description: draft?.description ?? "",
+    start: format(start, "yyyy-MM-dd'T'HH:mm"),
+    end: format(end, "yyyy-MM-dd'T'HH:mm"),
+    location: draft?.location ?? "",
+    color,
+    type,
+    allDay: draft?.allDay ?? false,
+    organizer,
+  }
+}
+
 const eventSchema = z
   .object({
     title: z.string().min(1, "dialogErrorTitleRequired"),
@@ -134,14 +164,26 @@ interface EventDialogProps {
   readOnly?: boolean
   /** Types offered for a new event (registry values); all when omitted. */
   eventTypes?: string[]
+  /**
+   * A new event prefilled from these (a duplicate, "Jadwal seharian di
+   * sini"); `meetingUrl` / `guests` / `reminders` carry over when saved.
+   */
+  draft?: Partial<CalendarEvent> | null
+  /** Open straight in the form (Sharing Santuy rows show details first). */
+  startEditing?: boolean
 }
 
 const SANTUY = "Sharing Santuy"
 
 // Holidays come from the holiday feed and task deadlines from tasks: neither
 // is created here.
+// Sharing Santuy sessions come from the rotation (/calendar/santuy), so
+// it's not a type you pick for a new event.
 const EVENT_TYPES = getAllEventTypes().filter(
-  (type) => type.value !== "Public Holiday" && type.value !== "Task",
+  (type) =>
+    type.value !== "Public Holiday" &&
+    type.value !== "Task" &&
+    type.value !== SANTUY,
 )
 
 /** Teammates for the speaker picker. */
@@ -191,6 +233,8 @@ export function EventDialog({
   onDelete,
   readOnly = false,
   eventTypes,
+  draft,
+  startEditing = false,
 }: EventDialogProps) {
   // IMPORTANT: All hooks must be called BEFORE any conditional returns
   // This fixes the "Rendered more hooks than during the previous render" error
@@ -212,6 +256,10 @@ export function EventDialog({
     ? EVENT_TYPES.filter((type) => eventTypes.includes(type.value))
     : EVENT_TYPES
   const newType = allowedTypes[0] ?? EVENT_TYPES[0]
+  // A duplicate keeps its type when this person may create that type.
+  const draftTypeAllowed = allowedTypes.some(
+    (type) => type.value === draft?.type,
+  )
 
   const defaultValues: EventFormData = event
     ? {
@@ -225,27 +273,14 @@ export function EventDialog({
         allDay: event.allDay || false,
         organizer: event.organizer || "",
       }
-    : {
-        title: "",
-        description: "",
-        start: initialDate
-          ? format(initialDate, "yyyy-MM-dd'T'HH:mm")
-          : format(nextQuarterHour(), "yyyy-MM-dd'T'HH:mm"),
-        end: initialDate
-          ? format(
-              new Date(initialDate.getTime() + 60 * 60 * 1000),
-              "yyyy-MM-dd'T'HH:mm",
-            )
-          : format(
-              new Date(nextQuarterHour().getTime() + 60 * 60 * 1000),
-              "yyyy-MM-dd'T'HH:mm",
-            ),
-        location: "",
-        color: newType.color,
-        type: newType.value,
-        allDay: false,
-        organizer: profile?.full_name ?? "",
-      }
+    : newEventValues(
+        draft,
+        initialDate,
+        draftTypeAllowed
+          ? undefined
+          : { value: newType.value, color: newType.color },
+        profile?.full_name ?? "",
+      )
 
   const {
     register,
@@ -292,24 +327,22 @@ export function EventDialog({
         organizer: event.organizer || "",
       })
     } else {
-      const startDate = initialDate || nextQuarterHour()
-      const endDate = new Date(startDate.getTime() + 60 * 60 * 1000)
-
-      reset({
-        title: "",
-        description: "",
-        start: format(startDate, "yyyy-MM-dd'T'HH:mm"),
-        end: format(endDate, "yyyy-MM-dd'T'HH:mm"),
-        location: "",
-        color: newType.color,
-        type: newType.value,
-        allDay: false,
-        organizer: profile?.full_name ?? "",
-      })
+      reset(
+        newEventValues(
+          draft,
+          initialDate,
+          draftTypeAllowed
+            ? undefined
+            : { value: newType.value, color: newType.color },
+          profile?.full_name ?? "",
+        ),
+      )
     }
   }, [
     event,
     initialDate,
+    draft,
+    draftTypeAllowed,
     normalizedEventType,
     reset,
     newType.color,
@@ -319,9 +352,9 @@ export function EventDialog({
 
   useEffect(() => {
     // Reset editing state when dialog opens/closes or event changes
-    setIsEditing(false)
+    setIsEditing(startEditing)
     resetForm()
-  }, [open, resetForm])
+  }, [open, resetForm, startEditing])
 
   // Cleanup delete pending state when dialog closes
   useEffect(() => {
@@ -362,8 +395,9 @@ export function EventDialog({
     return <LeaveDialog open={open} onOpenChange={onOpenChange} event={event} />
   }
 
-  // 2. Route to HolidayDialog for public holidays - read-only
-  if (event && normalizedEventType === "Public Holiday") {
+  // 2. Route to HolidayDialog for public holidays, and office holidays made
+  // from one (stakeholders set/undo them there)
+  if (event && (normalizedEventType === "Public Holiday" || event.holidayKey)) {
     return (
       <HolidayDialog open={open} onOpenChange={onOpenChange} event={event} />
     )
@@ -414,7 +448,12 @@ export function EventDialog({
     setLoading(true)
     try {
       const eventData: Partial<CalendarEvent> = {
-        ...event,
+        ...(event ??
+          (draft && {
+            meetingUrl: draft.meetingUrl,
+            guests: draft.guests,
+            reminders: draft.reminders,
+          })),
         title: data.title,
         description: data.description,
         start: new Date(data.start),

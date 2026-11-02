@@ -3,6 +3,8 @@ const GOOGLE_EVENTS_URL = "https://www.googleapis.com/calendar/v3/calendars"
 
 export interface GoogleCalendarEvent {
   id: string
+  /** Set on instances of a recurring event (singleEvents=true). */
+  recurringEventId?: string
   summary?: string
   description?: string
   location?: string
@@ -34,6 +36,9 @@ export function getGoogleEnv() {
 
   return { clientId, clientSecret, refreshToken, calendarId }
 }
+
+/** Who Google emails about a change. Callers default to "all". */
+export type GoogleSendUpdates = "all" | "externalOnly" | "none"
 
 // Access tokens live ~1h; reuse one per server process instead of running
 // the OAuth refresh on every calendar request.
@@ -130,6 +135,9 @@ export async function createGoogleCalendarEvent({
   end,
   attendees,
   createMeet,
+  recurrence,
+  timeZone = "Asia/Jakarta",
+  sendUpdates = "all",
 }: {
   accessToken: string
   calendarId: string
@@ -140,6 +148,10 @@ export async function createGoogleCalendarEvent({
   end: string
   attendees: Array<{ email: string; displayName?: string }>
   createMeet: boolean
+  /** RRULE lines, e.g. ["RRULE:FREQ=WEEKLY;BYDAY=TH"]. */
+  recurrence?: string[]
+  timeZone?: string
+  sendUpdates?: GoogleSendUpdates
 }): Promise<GoogleCalendarEvent | null> {
   const requestId =
     typeof crypto !== "undefined" && "randomUUID" in crypto
@@ -150,10 +162,11 @@ export async function createGoogleCalendarEvent({
     summary,
     description,
     location,
-    start: { dateTime: start, timeZone: "Asia/Jakarta" },
-    end: { dateTime: end, timeZone: "Asia/Jakarta" },
+    start: { dateTime: start, timeZone },
+    end: { dateTime: end, timeZone },
     attendees,
   }
+  if (recurrence?.length) body.recurrence = recurrence
 
   if (createMeet) {
     body.conferenceData = {
@@ -167,7 +180,7 @@ export async function createGoogleCalendarEvent({
   const response = await fetch(
     `${GOOGLE_EVENTS_URL}/${encodeURIComponent(
       calendarId,
-    )}/events?conferenceDataVersion=1&sendUpdates=all`,
+    )}/events?conferenceDataVersion=1&sendUpdates=${sendUpdates}`,
     {
       method: "POST",
       headers: {
@@ -192,6 +205,9 @@ export async function updateGoogleCalendarEvent({
   start,
   end,
   location,
+  recurrence,
+  timeZone = "Asia/Jakarta",
+  sendUpdates = "all",
 }: {
   accessToken: string
   calendarId: string
@@ -199,17 +215,21 @@ export async function updateGoogleCalendarEvent({
   start: string
   end: string
   location?: string
+  recurrence?: string[]
+  timeZone?: string
+  sendUpdates?: GoogleSendUpdates
 }): Promise<GoogleCalendarEvent | null> {
   const body: Record<string, any> = {
-    start: { dateTime: start, timeZone: "Asia/Jakarta" },
-    end: { dateTime: end, timeZone: "Asia/Jakarta" },
+    start: { dateTime: start, timeZone },
+    end: { dateTime: end, timeZone },
     location,
   }
+  if (recurrence?.length) body.recurrence = recurrence
 
   const response = await fetch(
     `${GOOGLE_EVENTS_URL}/${encodeURIComponent(
       calendarId,
-    )}/events/${encodeURIComponent(eventId)}?sendUpdates=all`,
+    )}/events/${encodeURIComponent(eventId)}?sendUpdates=${sendUpdates}`,
     {
       method: "PATCH",
       headers: {
@@ -231,15 +251,17 @@ export async function deleteGoogleCalendarEvent({
   accessToken,
   calendarId,
   eventId,
+  sendUpdates = "all",
 }: {
   accessToken: string
   calendarId: string
   eventId: string
+  sendUpdates?: GoogleSendUpdates
 }): Promise<boolean> {
   const response = await fetch(
     `${GOOGLE_EVENTS_URL}/${encodeURIComponent(
       calendarId,
-    )}/events/${encodeURIComponent(eventId)}?sendUpdates=all`,
+    )}/events/${encodeURIComponent(eventId)}?sendUpdates=${sendUpdates}`,
     {
       method: "DELETE",
       headers: {

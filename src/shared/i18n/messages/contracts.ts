@@ -85,6 +85,9 @@ const id = {
   errFileTooLarge: "PDF maksimal 25 MB.",
   errEndBeforeStart: "Tanggal berakhir tidak boleh sebelum tanggal mulai.",
   errSave: "Gagal menyimpan kontrak.",
+  ctxDownloadPdf: "Unduh PDF",
+  ctxCopyTitle: "Salin judul",
+  ctxShowPersonOnly: "Kontrak {name} saja",
 }
 
 const en: Record<keyof typeof id, string> = {
@@ -167,6 +170,9 @@ const en: Record<keyof typeof id, string> = {
   errFileTooLarge: "The PDF can be at most 25 MB.",
   errEndBeforeStart: "The end date can't be before the start date.",
   errSave: "Couldn't save the contract.",
+  ctxDownloadPdf: "Download PDF",
+  ctxCopyTitle: "Copy title",
+  ctxShowPersonOnly: "Only {name}’s contracts",
 }
 
 export const contracts = { id, en }

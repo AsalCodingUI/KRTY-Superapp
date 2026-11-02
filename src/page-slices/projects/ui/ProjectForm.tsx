@@ -25,6 +25,7 @@ import {
   Select,
   SelectContent,
   SelectItem,
+  SelectSeparator,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
@@ -72,11 +73,15 @@ type Draft = {
   start_date: string
   end_date: string
   status: ProjectStatus
-  /** New projects: chosen process (null = the default one). */
+  /** New projects: chosen process (null = the default one, NO_PHASES =
+   *  none: an ongoing project without phases). */
   processId: string | null
   categoryId: string | null
   members: Member[]
 }
+
+/** The "Tanpa fase" choice in the process select. */
+const NO_PHASES = "__no_phases__"
 
 const EMPTY: Draft = {
   name: "",
@@ -206,7 +211,8 @@ export function ProjectForm({
       start_date: draft.start_date,
       end_date: draft.end_date,
       status: draft.status,
-      processId: processValue,
+      processId: processValue === NO_PHASES ? null : processValue,
+      noPhases: processValue === NO_PHASES,
       categoryId: draft.categoryId,
       members: draft.members.map(({ userId, role, isLead }) => ({
         userId,
@@ -324,6 +330,10 @@ export function ProjectForm({
                           {p.name}
                         </SelectItem>
                       ))}
+                      <SelectSeparator />
+                      <SelectItem value={NO_PHASES}>
+                        {tp("noPhasesOption")}
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -338,7 +348,9 @@ export function ProjectForm({
               </div>
               {!projectId && processes.length > 0 && (
                 <p className="text-muted-foreground text-xs sm:col-span-2">
-                  {tp("processHint")}
+                  {processValue === NO_PHASES
+                    ? tp("noPhasesHint")
+                    : tp("processHint")}
                 </p>
               )}
             </div>

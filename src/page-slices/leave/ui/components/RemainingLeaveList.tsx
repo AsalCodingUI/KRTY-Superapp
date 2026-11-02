@@ -6,6 +6,10 @@ import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { useT } from "@/shared/i18n/client"
 import { ANNUAL_LEAVE_QUOTA, daysKey } from "@/shared/lib/leave"
+import { ContextTarget } from "@/shared/context-menu"
+import { employeeHref } from "@/shared/lib/url-params"
+import { UserRound } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 type BalanceProfile = {
   id: string
@@ -25,6 +29,7 @@ const ROW_GRID =
 /** Saldo Cuti: everyone's annual-leave balance as one flat list. */
 export function RemainingLeaveList({ data }: { data: BalanceProfile[] }) {
   const t = useT("leave")
+  const router = useRouter()
   const people = [...data].sort((a, b) =>
     (a.full_name || "").localeCompare(b.full_name || ""),
   )
@@ -49,55 +54,73 @@ export function RemainingLeaveList({ data }: { data: BalanceProfile[] }) {
         const used = p.leave_used ?? 0
         const remaining = p.leave_balance ?? quota
         return (
-          <ListRow key={p.id} className={cn(ROW_GRID, "min-h-14")}>
-            <div className="flex min-w-0 items-center gap-3">
-              <Avatar className="size-7">
-                <AvatarImage src={p.avatar_url || undefined} alt={name} />
-                <AvatarFallback className="text-[11px]">
-                  {name.slice(0, 2).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex min-w-0 flex-col">
-                <span className="text-foreground truncate">{name}</span>
-                {p.leave_note && (
-                  <span className="text-tertiary-foreground truncate text-[13px]">
-                    {p.leave_note}
-                  </span>
-                )}
+          // Right-click: the person's profile (KPI page).
+          <ContextTarget
+            key={p.id}
+            type="leave-balance"
+            id={p.id}
+            label={name}
+            items={() => [
+              {
+                id: "profile",
+                label: t("ctxOpenProfile"),
+                icon: UserRound,
+                access: ["stakeholder"],
+                onSelect: () =>
+                  router.push(employeeHref({ id: p.id, full_name: name })),
+              },
+            ]}
+          >
+            <ListRow className={cn(ROW_GRID, "min-h-14")}>
+              <div className="flex min-w-0 items-center gap-3">
+                <Avatar className="size-7">
+                  <AvatarImage src={p.avatar_url || undefined} alt={name} />
+                  <AvatarFallback className="text-[11px]">
+                    {name.slice(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex min-w-0 flex-col">
+                  <span className="text-foreground truncate">{name}</span>
+                  {p.leave_note && (
+                    <span className="text-tertiary-foreground truncate text-[13px]">
+                      {p.leave_note}
+                    </span>
+                  )}
+                </div>
               </div>
-            </div>
-            <div className="hidden min-w-0 md:block">
-              <Badge variant="secondary" className="max-w-full">
-                <span className="truncate">
-                  {p.job_title || t("noJobTitle")}
-                </span>
-              </Badge>
-            </div>
-            <span className="text-muted-foreground hidden text-right tabular-nums md:block">
-              {t(daysKey(used), { n: used })}
-            </span>
-            <div
-              className="bg-muted hidden h-1.5 overflow-hidden rounded-full md:block"
-              role="meter"
-              aria-valuemin={0}
-              aria-valuemax={quota}
-              aria-valuenow={used}
-              aria-label={t("usedOfQuota", { used, quota })}
-            >
+              <div className="hidden min-w-0 md:block">
+                <Badge variant="secondary" className="max-w-full">
+                  <span className="truncate">
+                    {p.job_title || t("noJobTitle")}
+                  </span>
+                </Badge>
+              </div>
+              <span className="text-muted-foreground hidden text-right tabular-nums md:block">
+                {t(daysKey(used), { n: used })}
+              </span>
               <div
-                className="bar-grow bg-primary h-full rounded-full"
-                style={
-                  {
-                    "--bar": `${quota ? Math.min(100, (used / quota) * 100) : 0}%`,
-                  } as React.CSSProperties
-                }
-              />
-            </div>
-            <span className="text-right tabular-nums">
-              {remaining}
-              <span className="text-muted-foreground"> / {quota}</span>
-            </span>
-          </ListRow>
+                className="bg-muted hidden h-1.5 overflow-hidden rounded-full md:block"
+                role="meter"
+                aria-valuemin={0}
+                aria-valuemax={quota}
+                aria-valuenow={used}
+                aria-label={t("usedOfQuota", { used, quota })}
+              >
+                <div
+                  className="bar-grow bg-primary h-full rounded-full"
+                  style={
+                    {
+                      "--bar": `${quota ? Math.min(100, (used / quota) * 100) : 0}%`,
+                    } as React.CSSProperties
+                  }
+                />
+              </div>
+              <span className="text-right tabular-nums">
+                {remaining}
+                <span className="text-muted-foreground"> / {quota}</span>
+              </span>
+            </ListRow>
+          </ContextTarget>
         )
       })}
     </GroupedList>

@@ -58,6 +58,34 @@ fn is_app(url: &url::Url) -> bool {
     }
 }
 
+/// Players and previews the editor embeds in an iframe (Figma, Drive,
+/// YouTube, Vimeo, Loom; src/shared/lib/embeds.ts). WKWebView asks the
+/// navigation handler about every frame, not just the window, so without
+/// this an embed loading inside a report was sent to the browser (and
+/// blocked in the app). The web app opens links to these sites in a new
+/// window, which on_new_window still hands to the browser.
+fn is_embed(url: &url::Url) -> bool {
+    const HOSTS: &[&str] = &[
+        "figma.com",
+        "drive.google.com",
+        "docs.google.com",
+        // A private Drive file's embed shows Google's sign-in in the frame.
+        // (The app's own Google sign-in is caught earlier, at Supabase's
+        // authorize step, so it still goes to the browser.)
+        "accounts.google.com",
+        "youtube-nocookie.com",
+        "youtube.com",
+        "vimeo.com",
+        "loom.com",
+    ];
+    matches!(url.scheme(), "http" | "https")
+        && url.host_str().is_some_and(|host| {
+            HOSTS
+                .iter()
+                .any(|h| host == *h || host.ends_with(&format!(".{h}")))
+        })
+}
+
 /// The web app's "Continue with Google" heads for Supabase's authorize
 /// endpoint; inside the app that has to happen in the browser instead.
 fn is_google_sign_in(url: &url::Url) -> bool {
@@ -175,7 +203,7 @@ fn web_window<'a>(
     .initialization_script(format!("window.__KRTY_APP_URL__ = {:?};", app_url()))
     .initialization_script(SHELL_SCRIPT)
     .on_navigation(move |url| {
-        if is_app(url) {
+        if is_app(url) || is_embed(url) {
             return true;
         }
         leave_app(&nav, url);

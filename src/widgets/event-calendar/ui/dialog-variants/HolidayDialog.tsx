@@ -9,9 +9,21 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { createClient } from "@/shared/api/supabase/client"
+import { accessLevel } from "@/shared/config/access"
+import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { useDateLocale, useT } from "@/shared/i18n/client"
+import { getIdHoliday, type IdHoliday } from "@/shared/lib/id-holidays"
 import { RiCalendarLine } from "@/shared/ui/lucide-icons"
-import { format } from "date-fns"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { format, parseISO } from "date-fns"
+import { useMemo, useState } from "react"
+import { toast } from "sonner"
+import {
+  officeHolidayKey as officeKey,
+  setOfficeHoliday,
+  unsetOfficeHoliday,
+} from "../../lib/office-holiday"
 import type { CalendarEvent } from "../types"
 
 interface HolidayDialogProps {
@@ -20,6 +32,12 @@ interface HolidayDialogProps {
   event: CalendarEvent
 }
 
+/**
+ * A national holiday (or the office holiday made from one): what it is and
+ * why it's a day off. Stakeholders turn it into an office holiday here (a
+ * "Company Holiday" row everyone sees, linked by holiday_key) and undo it.
+ * Google's holiday feed falls back to the plain read-only view.
+ */
 export function HolidayDialog({
   open,
   onOpenChange,
@@ -28,61 +46,51 @@ export function HolidayDialog({
   const t = useT("calendar")
   const tc = useT("common")
   const dateLocale = useDateLocale()
+  const holiday = getIdHoliday(event.holidayKey)
+  const date = holiday ? parseISO(holiday.date) : event.start
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[35rem]">
+      <DialogContent className="sm:max-w-[28rem]">
         <DialogHeader>
-          <DialogTitle>{t("eventTypePublicHoliday")}</DialogTitle>
+          <DialogTitle className="text-heading pr-6 text-base font-medium break-words">
+            {holiday?.name ?? event.title}
+          </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-5">
-          {/* Holiday Title */}
-          <div>
-            <div className="flex items-start justify-between gap-4">
-              <h3 className="text-heading text-base font-medium break-words">
-                {event.title}
-              </h3>
-              <Badge variant="secondary" className="shrink-0">
-                {t("holidayBadge")}
-              </Badge>
-            </div>
+        <div className="space-y-4">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm">
+            <span className="text-foreground flex items-center gap-2">
+              <RiCalendarLine className="text-muted-foreground size-4" />
+              {format(date, "EEEE, d MMMM yyyy", { locale: dateLocale })}
+            </span>
+            <Badge variant="destructive">
+              {holiday
+                ? t(
+                    holiday.kind === "cuti_bersama"
+                      ? "holidayKindCutiBersama"
+                      : "holidayKindNasional",
+                  )
+                : t("holidayBadge")}
+            </Badge>
           </div>
 
-          {/* Date */}
-          <div className="bg-foreground/[0.03] rounded-lg p-4">
-            <div className="flex items-center gap-3">
-              <RiCalendarLine className="text-muted-foreground h-5 w-5" />
-              <div>
-                <p className="text-foreground text-sm">
-                  {format(event.start, "EEEE, dd MMMM yyyy", {
-                    locale: dateLocale,
-                  })}
-                </p>
-                {event.allDay && (
-                  <p className="text-muted-foreground mt-0.5 text-xs">
-                    {t("holidayAllDay")}
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Description */}
-          {event.description && (
-            <div className="border-border space-y-2 border-t pt-4">
-              <h4 className="text-muted-foreground text-sm font-medium">
-                {t("holidayAbout")}
+          {(holiday?.description ?? event.description) && (
+            <div className="space-y-1">
+              <h4 className="text-muted-foreground text-xs font-medium">
+                {t(holiday ? "holidayWhy" : "holidayAbout")}
               </h4>
               <p className="text-foreground text-sm break-words whitespace-pre-wrap">
-                {event.description}
+                {holiday?.description ?? event.description}
               </p>
             </div>
           )}
 
-          {/* Info notice */}
-          <div className="bg-primary/10 border-primary/20 bg-foreground/[0.03] rounded-lg p-3">
-            <p className="text-primary text-xs">ℹ️ {t("holidayInfo")}</p>
-          </div>
+          {holiday ? (
+            <OfficeHoliday holiday={holiday} holidayKey={event.holidayKey!} />
+          ) : (
+            <p className="text-muted-foreground text-xs">{t("holidayInfo")}</p>
+          )}
         </div>
 
         <DialogFooter>
@@ -96,5 +104,104 @@ export function HolidayDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  )
+}
+
+function OfficeHoliday({
+  holiday,
+  holidayKey,
+}: {
+  holiday: IdHoliday
+  holidayKey: string
+}) {
+  const t = useT("calendar")
+  const supabase = useMemo(() => createClient(), [])
+  const queryClient = useQueryClient()
+  const { profile, authProfile } = useUserProfile()
+  const isStakeholder = accessLevel(profile) === "stakeholder"
+  const [busy, setBusy] = useState(false)
+
+  const { data: officeId, isLoading } = useQuery({
+    queryKey: officeKey(holidayKey),
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("calendar_events")
+        .select("id")
+        .eq("holiday_key", holidayKey)
+        .maybeSingle()
+      if (error) throw error
+      return data?.id ?? null
+    },
+  })
+
+  const refresh = () => {
+    queryClient.invalidateQueries({ queryKey: officeKey(holidayKey) })
+    queryClient.invalidateQueries({ queryKey: ["calendar-events"] })
+  }
+
+  const remove = async () => {
+    const ok = await unsetOfficeHoliday(holidayKey)
+    refresh()
+    if (!ok) toast.error(t("holidayOfficeFailed"))
+    return ok
+  }
+
+  const add = async () => {
+    const ok = await setOfficeHoliday(
+      holiday,
+      holidayKey,
+      authProfile?.id ?? profile?.id ?? null,
+    )
+    refresh()
+    if (!ok) toast.error(t("holidayOfficeFailed"))
+    return ok
+  }
+
+  const run = async (action: () => Promise<boolean>, done: string) => {
+    setBusy(true)
+    try {
+      if (!(await action())) return
+      const undo = action === add ? remove : add
+      toast.success(done, {
+        action: { label: t("holidayOfficeUndo"), onClick: () => void undo() },
+      })
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const isSet = Boolean(officeId)
+
+  if (!isStakeholder) {
+    return isSet ? (
+      <p className="text-muted-foreground text-xs">
+        {t("holidayOfficeSetNote")}
+      </p>
+    ) : null
+  }
+
+  return (
+    <div className="bg-foreground/[0.03] flex items-center justify-between gap-3 rounded-lg px-3 py-2.5">
+      <div className="min-w-0 space-y-0.5">
+        {isSet && <Badge variant="success">{t("holidayOffice")}</Badge>}
+        <p className="text-muted-foreground text-xs">
+          {t(isSet ? "holidayOfficeSetNote" : "holidayOfficeNote")}
+        </p>
+      </div>
+      <Button
+        type="button"
+        size="sm"
+        variant={isSet ? "outline" : "default"}
+        className="shrink-0"
+        disabled={busy || isLoading}
+        onClick={() =>
+          isSet
+            ? run(remove, t("holidayOfficeUnsetToast"))
+            : run(add, t("holidayOfficeSetToast", { name: holiday.name }))
+        }
+      >
+        {t(isSet ? "holidayOfficeCancel" : "holidayOfficeMake")}
+      </Button>
+    </div>
   )
 }

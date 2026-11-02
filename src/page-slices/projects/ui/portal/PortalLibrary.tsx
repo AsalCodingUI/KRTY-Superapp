@@ -8,6 +8,8 @@ import { RiFolderLine } from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
 import dynamic from "next/dynamic"
 import { useMemo, useState } from "react"
+import { ContextTarget, download, type CtxItem } from "@/shared/context-menu"
+import { Download, Eye, FolderOpen } from "lucide-react"
 import { formatBytes } from "../workspace/data"
 import { FilePreview } from "../workspace/FilePreview"
 import { FolderIcon, Section } from "../workspace/ProjectLibrary"
@@ -89,24 +91,39 @@ export function PortalLibrary({
                 {folders.map((f) => {
                   const count = files.filter((x) => x.folder_id === f.id).length
                   return (
-                    <button
+                    <ContextTarget
                       key={f.id}
-                      type="button"
-                      onClick={() => setFolderId(f.id)}
-                      className="hover:bg-muted/60 focus-visible:ring-focus-ring nest-rounded-xl nest-p-2 flex items-center gap-3 text-left transition-colors outline-none focus-visible:ring-2"
+                      type="portal-folder"
+                      label={f.name}
+                      suppress={["button"]}
+                      items={(): CtxItem[] => [
+                        {
+                          id: "open",
+                          label: t("libOpen"),
+                          icon: FolderOpen,
+                          shortcut: "Enter",
+                          onSelect: () => setFolderId(f.id),
+                        },
+                      ]}
                     >
-                      <FolderIcon className="h-8 w-10 shrink-0" />
-                      <span className="flex min-w-0 flex-1 flex-col">
-                        <span className="truncate text-sm" title={f.name}>
-                          {f.name}
+                      <button
+                        type="button"
+                        onClick={() => setFolderId(f.id)}
+                        className="hover:bg-muted/60 focus-visible:ring-focus-ring nest-rounded-xl nest-p-2 flex items-center gap-3 text-left transition-colors outline-none focus-visible:ring-2"
+                      >
+                        <FolderIcon className="h-8 w-10 shrink-0" />
+                        <span className="flex min-w-0 flex-1 flex-col">
+                          <span className="truncate text-sm" title={f.name}>
+                            {f.name}
+                          </span>
+                          <span className="text-tertiary-foreground text-[13px]">
+                            {count
+                              ? t("libFileCount", { n: count })
+                              : t("libFolderEmptyShort")}
+                          </span>
                         </span>
-                        <span className="text-tertiary-foreground text-[13px]">
-                          {count
-                            ? t("libFileCount", { n: count })
-                            : t("libFolderEmptyShort")}
-                        </span>
-                      </span>
-                    </button>
+                      </button>
+                    </ContextTarget>
                   )
                 })}
               </div>
@@ -117,29 +134,52 @@ export function PortalLibrary({
             <Section title={t("libFiles")}>
               <div className="grid grid-cols-2 gap-x-3 gap-y-5 pb-1 sm:gap-x-4 sm:gap-y-6 lg:grid-cols-3 xl:grid-cols-4">
                 {shown.map((file, i) => (
-                  <button
+                  // Client-safe: preview and download only, no links.
+                  <ContextTarget
                     key={file.id}
-                    type="button"
-                    onClick={() => setViewing(i)}
-                    className="group/row focus-visible:ring-focus-ring flex min-w-0 flex-col gap-2 rounded-xl text-left outline-none focus-visible:ring-2"
+                    type="portal-file"
+                    label={file.name}
+                    suppress={["image", "video", "button"]}
+                    items={(): CtxItem[] => [
+                      {
+                        id: "open",
+                        label: t("ctxPreview"),
+                        icon: Eye,
+                        shortcut: "Enter",
+                        onSelect: () => setViewing(i),
+                      },
+                      {
+                        id: "download",
+                        label: t("libDownload"),
+                        icon: Download,
+                        onSelect: () =>
+                          download(`${fileUrl(file.id)}?download=1`, file.name),
+                      },
+                    ]}
                   >
-                    <FilePreview
-                      file={{ ...file, file_path: file.id }}
-                      url={fileUrl(file.id)}
-                      className="ring-border/60 w-full rounded-xl ring-1 transition-[filter] duration-150 group-hover/row:brightness-95"
-                    />
-                    <span className="flex min-w-0 flex-col">
-                      <span className="truncate text-sm" title={file.name}>
-                        {file.name}
+                    <button
+                      type="button"
+                      onClick={() => setViewing(i)}
+                      className="group/row focus-visible:ring-focus-ring flex min-w-0 flex-col gap-2 rounded-xl text-left outline-none focus-visible:ring-2"
+                    >
+                      <FilePreview
+                        file={{ ...file, file_path: file.id }}
+                        url={fileUrl(file.id)}
+                        className="ring-border/60 w-full rounded-xl ring-1 transition-[filter] duration-150 group-hover/row:brightness-95"
+                      />
+                      <span className="flex min-w-0 flex-col">
+                        <span className="truncate text-sm" title={file.name}>
+                          {file.name}
+                        </span>
+                        <span className="text-tertiary-foreground text-[13px] tabular-nums">
+                          {formatBytes(file.file_size)} ·{" "}
+                          {format(new Date(file.created_at), "d MMM yyyy", {
+                            locale: dateLocale,
+                          })}
+                        </span>
                       </span>
-                      <span className="text-tertiary-foreground text-[13px] tabular-nums">
-                        {formatBytes(file.file_size)} ·{" "}
-                        {format(new Date(file.created_at), "d MMM yyyy", {
-                          locale: dateLocale,
-                        })}
-                      </span>
-                    </span>
-                  </button>
+                    </button>
+                  </ContextTarget>
                 ))}
               </div>
             </Section>

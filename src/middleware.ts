@@ -117,12 +117,18 @@ export async function middleware(request: NextRequest) {
   const isClientPortal = url.pathname.startsWith("/p/")
   // The desktop app's window: it shows its own sign-in screen.
   const isDesktopApp = url.pathname === "/desktop"
+  // Link-preview cards (opengraph-image / twitter-image, any segment):
+  // crawlers fetch them without an account.
+  const isShareCard = /\/(?:opengraph|twitter)-image(?:-[a-z0-9]+)?(?:\/[^/]+)?$/.test(
+    url.pathname,
+  )
   const isPublicPage =
     isLoginPage ||
     isAuthPage ||
     isSharedReport ||
     isClientPortal ||
-    isDesktopApp
+    isDesktopApp ||
+    isShareCard
 
   // Biarkan API routes mengembalikan status JSON (401/403) dari route handler,
   // jangan dipaksa redirect ke /login.

@@ -64,6 +64,12 @@ import {
   type TaskStatus,
 } from "./task-data"
 import { dueLabel, initials } from "./task-utils"
+import {
+  CommentContextTarget,
+  SubtaskContextTarget,
+  TaskContextTarget,
+  type TaskMenuConfig,
+} from "./task-menu"
 
 // Month grid (react-day-picker) loads when the due-date popover first opens.
 const Calendar = dynamic(
@@ -93,6 +99,8 @@ export function TaskDialog({
   onStatus,
   onAddSub,
   onRemove,
+  menuFor,
+  focus,
 }: {
   /** Stays set while the dialog animates closed. */
   task: TaskRow | null
@@ -106,6 +114,11 @@ export function TaskDialog({
   onStatus: (task: TaskRow, status: TaskStatus) => void
   onAddSub: (title: string, parentId: string) => Promise<boolean>
   onRemove: (id: string) => void
+  /** The task's right-click menu (as on its card), on the side panel. */
+  menuFor?: (task: TaskRow) => TaskMenuConfig
+  /** Opened from a menu: the due date picker open, or the subtask field
+   *  focused. */
+  focus?: "due" | "subtask" | null
 }) {
   const t = useT("projects")
   return (
@@ -131,6 +144,8 @@ export function TaskDialog({
               onStatus={onStatus}
               onAddSub={onAddSub}
               onRemove={onRemove}
+              menuFor={menuFor}
+              focus={focus ?? null}
             />
           </>
         )}
@@ -185,6 +200,8 @@ function TaskBody({
   onStatus,
   onAddSub,
   onRemove,
+  menuFor,
+  focus,
 }: {
   task: TaskRow
   projectId: string
@@ -195,15 +212,18 @@ function TaskBody({
   onStatus: (task: TaskRow, status: TaskStatus) => void
   onAddSub: (title: string, parentId: string) => Promise<boolean>
   onRemove: (id: string) => void
+  menuFor?: (task: TaskRow) => TaskMenuConfig
+  focus: "due" | "subtask" | null
 }) {
   const t = useT("projects")
   const tc = useT("common")
   const dateLocale = useDateLocale()
+  const subInputRef = useRef<HTMLInputElement>(null)
   const [description, setDescription] = useState(task.description ?? "")
   const { data: workspace } = useWorkspace(projectId)
   const projectName = workspace?.project?.name ?? "project"
   const [subTitle, setSubTitle] = useState("")
-  const [dateOpen, setDateOpen] = useState(false)
+  const [dateOpen, setDateOpen] = useState(focus === "due")
   const [confirmDelete, setConfirmDelete] = useState(false)
   // One subtask per Enter, even when it's pressed again before the save lands.
   const addingSub = useRef(false)
@@ -301,6 +321,8 @@ function TaskBody({
             <div className="flex items-center gap-2.5">
               <RiAddLine className="text-muted-foreground size-4 shrink-0" />
               <Input
+                ref={subInputRef}
+                autoFocus={focus === "subtask"}
                 value={subTitle}
                 onChange={(e) => setSubTitle(e.target.value)}
                 onKeyDown={(e) => {
@@ -312,35 +334,39 @@ function TaskBody({
               />
             </div>
             {subtasks.map((sub) => (
-              <div
+              <SubtaskContextTarget
                 key={sub.id}
-                className="group/sub flex min-h-9 items-center gap-2.5 text-[13px]"
+                sub={sub}
+                onToggle={() => onStatus(sub, sub.done ? "todo" : "done")}
+                onRemove={() => onRemove(sub.id)}
               >
-                <Checkbox
-                  checked={sub.done}
-                  onCheckedChange={() =>
-                    onStatus(sub, sub.done ? "todo" : "done")
-                  }
-                  aria-label={sub.done ? t("markUndone") : t("markDone")}
-                />
-                <span
-                  className={cn(
-                    "min-w-0 flex-1 truncate",
-                    sub.done && "text-muted-foreground line-through",
-                  )}
-                >
-                  {sub.title}
-                </span>
-                <Button
-                  variant="ghost"
-                  size="icon-sm"
-                  aria-label={t("deleteSubtask")}
-                  onClick={() => onRemove(sub.id)}
-                  className="text-muted-foreground hover:text-destructive opacity-0 group-hover/sub:opacity-100 focus-visible:opacity-100"
-                >
-                  <RiDeleteBinLine />
-                </Button>
-              </div>
+                <div className="group/sub flex min-h-9 items-center gap-2.5 text-[13px]">
+                  <Checkbox
+                    checked={sub.done}
+                    onCheckedChange={() =>
+                      onStatus(sub, sub.done ? "todo" : "done")
+                    }
+                    aria-label={sub.done ? t("markUndone") : t("markDone")}
+                  />
+                  <span
+                    className={cn(
+                      "min-w-0 flex-1 truncate",
+                      sub.done && "text-muted-foreground line-through",
+                    )}
+                  >
+                    {sub.title}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    aria-label={t("deleteSubtask")}
+                    onClick={() => onRemove(sub.id)}
+                    className="text-muted-foreground hover:text-destructive opacity-0 group-hover/sub:opacity-100 focus-visible:opacity-100"
+                  >
+                    <RiDeleteBinLine />
+                  </Button>
+                </div>
+              </SubtaskContextTarget>
             ))}
           </section>
 
@@ -352,155 +378,178 @@ function TaskBody({
         </div>
       </div>
 
-      <aside className="border-border bg-muted/40 dark:bg-foreground/[0.02] flex flex-col gap-4 border-t px-4 pt-5 pb-5 md:border-t-0 md:border-l md:pt-14">
-        <dl className="grid grid-cols-[5rem_minmax(0,1fr)] items-center gap-x-2 gap-y-1.5 text-[13px]">
-          <dt className="text-muted-foreground">{t("taskStatus")}</dt>
-          <dd>
-            <Select
-              value={status}
-              onValueChange={(v) => v && onStatus(task, v as TaskStatus)}
-            >
-              <SelectTrigger
-                size="sm"
-                className="hover:bg-accent w-full border-transparent bg-transparent px-2.5 text-[13px] shadow-none hover:border-transparent"
+      <TaskPanelMenu
+        menu={
+          menuFor && {
+            ...menuFor(task),
+            onPickDue: () => setDateOpen(true),
+            onAddSubtask: () => subInputRef.current?.focus(),
+            onDelete: () => setConfirmDelete(true),
+          }
+        }
+      >
+        <aside className="border-border bg-muted/40 dark:bg-foreground/[0.02] flex flex-col gap-4 border-t px-4 pt-5 pb-5 md:border-t-0 md:border-l md:pt-14">
+          <dl className="grid grid-cols-[5rem_minmax(0,1fr)] items-center gap-x-2 gap-y-1.5 text-[13px]">
+            <dt className="text-muted-foreground">{t("taskStatus")}</dt>
+            <dd>
+              <Select
+                value={status}
+                onValueChange={(v) => v && onStatus(task, v as TaskStatus)}
               >
-                <SelectValue>
-                  {(v: TaskStatus) => (
-                    <span className="flex items-center gap-2">
-                      <Lead>
-                        <StatusDot status={v} />
-                      </Lead>
-                      {t(STATUS_LABEL[v])}
-                    </span>
-                  )}
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                {TASK_STATUSES.map((s) => (
-                  <SelectItem key={s} value={s}>
-                    <span className="flex items-center gap-2">
-                      <StatusDot status={s} />
-                      {t(STATUS_LABEL[s])}
-                    </span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </dd>
-
-          <dt className="text-muted-foreground">{t("colPic")}</dt>
-          <dd>
-            <Select
-              value={task.assignee_id ?? NONE}
-              onValueChange={(v) =>
-                v && onPatch(task.id, { assignee_id: v === NONE ? null : v })
-              }
-            >
-              <SelectTrigger
-                size="sm"
-                className="hover:bg-accent w-full border-transparent bg-transparent px-2.5 text-[13px] shadow-none hover:border-transparent"
-              >
-                <SelectValue>
-                  {() =>
-                    assignee ? (
-                      <span className="flex min-w-0 items-center gap-2">
+                <SelectTrigger
+                  size="sm"
+                  className="hover:bg-accent w-full border-transparent bg-transparent px-2.5 text-[13px] shadow-none hover:border-transparent"
+                >
+                  <SelectValue>
+                    {(v: TaskStatus) => (
+                      <span className="flex items-center gap-2">
                         <Lead>
-                          <PersonAvatar person={assignee} />
+                          <StatusDot status={v} />
                         </Lead>
-                        <span className="truncate">{assignee.full_name}</span>
+                        {t(STATUS_LABEL[v])}
                       </span>
-                    ) : (
-                      <EmptyValue />
-                    )
-                  }
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={NONE}>{t("noPic")}</SelectItem>
-                {team.map((m) => (
-                  <SelectItem key={m.id} value={m.id}>
-                    {m.full_name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </dd>
-
-          <dt className="text-muted-foreground">{t("factsDeadline")}</dt>
-          <dd>
-            <Popover open={dateOpen} onOpenChange={setDateOpen}>
-              <PopoverTrigger
-                render={
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className={cn(
-                      "w-full justify-start gap-2 px-2.5 text-[13px] font-normal",
-                      due
-                        ? overdue
-                          ? "text-destructive"
-                          : isToday(due) && !task.done
-                            ? "text-warning"
-                            : "text-foreground"
-                        : "text-muted-foreground",
                     )}
-                  />
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {TASK_STATUSES.map((s) => (
+                    <SelectItem key={s} value={s}>
+                      <span className="flex items-center gap-2">
+                        <StatusDot status={s} />
+                        {t(STATUS_LABEL[s])}
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </dd>
+
+            <dt className="text-muted-foreground">{t("colPic")}</dt>
+            <dd>
+              <Select
+                value={task.assignee_id ?? NONE}
+                onValueChange={(v) =>
+                  v && onPatch(task.id, { assignee_id: v === NONE ? null : v })
                 }
               >
-                <Lead>
-                  <RiCalendarLine className="size-3.5" />
-                </Lead>
-                {task.due_date ? (
-                  dueLabel(task.due_date, dateLocale, {
-                    today: tc("today"),
-                    tomorrow: t("tomorrow"),
-                  })
-                ) : (
-                  <EmptyValue />
-                )}
-              </PopoverTrigger>
-              <PopoverContent align="end" className="w-auto p-0">
-                <Calendar
-                  mode="single"
-                  selected={due ?? undefined}
-                  defaultMonth={due ?? undefined}
-                  locale={dateLocale}
-                  onSelect={(date) => {
-                    onPatch(task.id, {
-                      due_date: date ? format(date, "yyyy-MM-dd") : null,
+                <SelectTrigger
+                  size="sm"
+                  className="hover:bg-accent w-full border-transparent bg-transparent px-2.5 text-[13px] shadow-none hover:border-transparent"
+                >
+                  <SelectValue>
+                    {() =>
+                      assignee ? (
+                        <span className="flex min-w-0 items-center gap-2">
+                          <Lead>
+                            <PersonAvatar person={assignee} />
+                          </Lead>
+                          <span className="truncate">{assignee.full_name}</span>
+                        </span>
+                      ) : (
+                        <EmptyValue />
+                      )
+                    }
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={NONE}>{t("noPic")}</SelectItem>
+                  {team.map((m) => (
+                    <SelectItem key={m.id} value={m.id}>
+                      {m.full_name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </dd>
+
+            <dt className="text-muted-foreground">{t("factsDeadline")}</dt>
+            <dd>
+              <Popover open={dateOpen} onOpenChange={setDateOpen}>
+                <PopoverTrigger
+                  render={
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className={cn(
+                        "w-full justify-start gap-2 px-2.5 text-[13px] font-normal",
+                        due
+                          ? overdue
+                            ? "text-destructive"
+                            : isToday(due) && !task.done
+                              ? "text-warning"
+                              : "text-foreground"
+                          : "text-muted-foreground",
+                      )}
+                    />
+                  }
+                >
+                  <Lead>
+                    <RiCalendarLine className="size-3.5" />
+                  </Lead>
+                  {task.due_date ? (
+                    dueLabel(task.due_date, dateLocale, {
+                      today: tc("today"),
+                      tomorrow: t("tomorrow"),
                     })
-                    setDateOpen(false)
-                  }}
-                />
-              </PopoverContent>
-            </Popover>
-          </dd>
-        </dl>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setConfirmDelete(true)}
-          className="text-muted-foreground hover:text-destructive mt-auto self-start px-2.5 text-[13px] font-normal"
-        >
-          <RiDeleteBinLine data-icon="inline-start" />
-          {t("deleteTask")}
-        </Button>
-        <ConfirmDialog
-          open={confirmDelete}
-          onOpenChange={setConfirmDelete}
-          title={t("deleteNamedTitle", { name: task.title })}
-          description={t("deleteTaskDescription")}
-          confirmText={tc("delete")}
-          cancelText={tc("cancel")}
-          variant="destructive"
-          onConfirm={() => {
-            setConfirmDelete(false)
-            onRemove(task.id)
-          }}
-        />
-      </aside>
+                  ) : (
+                    <EmptyValue />
+                  )}
+                </PopoverTrigger>
+                <PopoverContent align="end" className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={due ?? undefined}
+                    defaultMonth={due ?? undefined}
+                    locale={dateLocale}
+                    onSelect={(date) => {
+                      onPatch(task.id, {
+                        due_date: date ? format(date, "yyyy-MM-dd") : null,
+                      })
+                      setDateOpen(false)
+                    }}
+                  />
+                </PopoverContent>
+              </Popover>
+            </dd>
+          </dl>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setConfirmDelete(true)}
+            className="text-muted-foreground hover:text-destructive mt-auto self-start px-2.5 text-[13px] font-normal"
+          >
+            <RiDeleteBinLine data-icon="inline-start" />
+            {t("deleteTask")}
+          </Button>
+          <ConfirmDialog
+            open={confirmDelete}
+            onOpenChange={setConfirmDelete}
+            title={t("deleteNamedTitle", { name: task.title })}
+            description={t("deleteTaskDescription")}
+            confirmText={tc("delete")}
+            cancelText={tc("cancel")}
+            variant="destructive"
+            onConfirm={() => {
+              setConfirmDelete(false)
+              onRemove(task.id)
+            }}
+          />
+        </aside>
+      </TaskPanelMenu>
     </>
   )
+}
+
+/** The side panel with the task's right-click menu, when there is one. */
+function TaskPanelMenu({
+  menu,
+  children,
+}: {
+  menu: TaskMenuConfig | undefined
+  children: React.ReactElement<Record<string, unknown>>
+}) {
+  if (!menu) return children
+  return <TaskContextTarget menu={menu}>{children}</TaskContextTarget>
 }
 
 /** A fixed 20px slot so the dot, avatar and calendar line up in one column. */
@@ -651,51 +700,62 @@ function CommentList({
             {comments.map((comment) => {
               const author = people[comment.author_id]
               return (
-                <m.li
+                <CommentContextTarget
                   key={comment.id}
-                  layout={reduce ? false : "position"}
-                  initial={reduce ? false : { opacity: 0, y: 4 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={reduce ? { opacity: 0 } : { opacity: 0, y: -4 }}
-                  transition={{ duration: 0.2, ease: EASE }}
-                  className="group/comment flex gap-2.5 text-[13px]"
+                  id={comment.id}
+                  body={comment.body}
+                  author={author?.full_name ?? t("someone")}
+                  onRemove={
+                    comment.author_id === viewerId
+                      ? () => remove(comment.id)
+                      : undefined
+                  }
                 >
-                  <PersonAvatar
-                    person={author ?? { full_name: null, avatar_url: null }}
-                    className="mt-0.5 size-6"
-                  />
-                  <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-                    <div className="flex items-center gap-2">
-                      <span className="text-foreground font-medium">
-                        {author?.full_name ?? t("someone")}
-                      </span>
-                      <span className="text-muted-foreground text-xs">
-                        {formatDistanceToNow(new Date(comment.created_at), {
-                          addSuffix: true,
-                          locale: dateLocale,
-                        })}
-                      </span>
-                      {comment.author_id === viewerId && (
-                        <Button
-                          variant="ghost"
-                          size="icon-xs"
-                          aria-label={t("deleteComment")}
-                          onClick={() => remove(comment.id)}
-                          className="text-muted-foreground hover:text-destructive ml-auto opacity-0 group-hover/comment:opacity-100 focus-visible:opacity-100"
-                        >
-                          <RiDeleteBinLine />
-                        </Button>
-                      )}
+                  <m.li
+                    layout={reduce ? false : "position"}
+                    initial={reduce ? false : { opacity: 0, y: 4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={reduce ? { opacity: 0 } : { opacity: 0, y: -4 }}
+                    transition={{ duration: 0.2, ease: EASE }}
+                    className="group/comment flex gap-2.5 text-[13px]"
+                  >
+                    <PersonAvatar
+                      person={author ?? { full_name: null, avatar_url: null }}
+                      className="mt-0.5 size-6"
+                    />
+                    <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+                      <div className="flex items-center gap-2">
+                        <span className="text-foreground font-medium">
+                          {author?.full_name ?? t("someone")}
+                        </span>
+                        <span className="text-muted-foreground text-xs">
+                          {formatDistanceToNow(new Date(comment.created_at), {
+                            addSuffix: true,
+                            locale: dateLocale,
+                          })}
+                        </span>
+                        {comment.author_id === viewerId && (
+                          <Button
+                            variant="ghost"
+                            size="icon-xs"
+                            aria-label={t("deleteComment")}
+                            onClick={() => remove(comment.id)}
+                            className="text-muted-foreground hover:text-destructive ml-auto opacity-0 group-hover/comment:opacity-100 focus-visible:opacity-100"
+                          >
+                            <RiDeleteBinLine />
+                          </Button>
+                        )}
+                      </div>
+                      <p className="text-foreground/90 break-words whitespace-pre-wrap">
+                        <CommentBody
+                          body={comment.body}
+                          mentions={comment.mentions}
+                          people={people}
+                        />
+                      </p>
                     </div>
-                    <p className="text-foreground/90 break-words whitespace-pre-wrap">
-                      <CommentBody
-                        body={comment.body}
-                        mentions={comment.mentions}
-                        people={people}
-                      />
-                    </p>
-                  </div>
-                </m.li>
+                  </m.li>
+                </CommentContextTarget>
               )
             })}
           </AnimatePresence>

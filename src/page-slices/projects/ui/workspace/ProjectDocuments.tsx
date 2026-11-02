@@ -31,13 +31,24 @@ import { RiAddLine, RiFileTextLine } from "@/shared/ui/lucide-icons"
 import { useDateLocale, useT } from "@/shared/i18n/client"
 import { format } from "date-fns"
 import { FileText, Upload } from "@/components/icons"
-import { FileSignature, Files } from "lucide-react"
+import {
+  CircleDot,
+  Download,
+  Eye,
+  FileSignature,
+  Files,
+  Link as LinkIcon,
+  Pencil,
+  Trash2,
+} from "lucide-react"
+import { ContextTarget, copyText, type CtxItem } from "@/shared/context-menu"
 import { useState } from "react"
 import { toast } from "sonner"
 import {
   BUCKET,
   formatBytes,
   openProjectFile,
+  projectFileLink,
   supabase,
   uploadProjectFile,
   useDocuments,
@@ -111,6 +122,7 @@ const titleFromFile = (file: File) => file.name.replace(/\.[^.]+$/, "")
 export function ProjectDocuments({ projectId }: { projectId: string }) {
   const t = useT("projects")
   const tc = useT("common")
+  const tm = useT("ctxmenu")
   const dateLocale = useDateLocale()
   const { data: documents = [], isLoading } = useDocuments(projectId)
   const viewer = useViewer()
@@ -268,6 +280,73 @@ export function ProjectDocuments({ projectId }: { projectId: string }) {
       : []),
   ]
 
+  /** Right-click on a document card: the ⋯ actions, status as a submenu. */
+  const docCtx = (doc: DocumentRow): CtxItem[] => {
+    const file = doc.file_path
+    return [
+      {
+        id: "open",
+        label: t("ctxPreview"),
+        icon: Eye,
+        shortcut: "Enter",
+        hidden: !file,
+        onSelect: () => open(doc),
+      },
+      {
+        id: "download",
+        label: t("libDownload"),
+        icon: Download,
+        hidden: !file,
+        onSelect: () =>
+          openProjectFile(file!, doc.file_name ?? doc.title).catch(() =>
+            toast.error(t("errDownload")),
+          ),
+      },
+      {
+        id: "copy-link",
+        label: tm("copyLink"),
+        icon: LinkIcon,
+        hidden: !file,
+        onSelect: async () => {
+          if (await copyText(projectFileLink(file!)))
+            toast.success(tm("linkCopied"))
+        },
+      },
+      {
+        id: "edit",
+        label: t("actionEdit"),
+        icon: Pencil,
+        hidden: !viewer.isAdmin,
+        onSelect: () => edit(doc),
+      },
+      {
+        id: "status",
+        label: t("colStatus"),
+        icon: CircleDot,
+        hint: t((STATUSES[doc.status as Status] ?? STATUSES.draft).labelKey),
+        hidden: !viewer.isAdmin,
+        submenu: (Object.keys(STATUSES) as Status[]).map((st) => ({
+          id: st,
+          label: t(STATUSES[st].labelKey),
+          role: "radio" as const,
+          checked: doc.status === st,
+          onSelect: () => {
+            if (doc.status !== st) void setStatus(doc, st)
+          },
+        })),
+      },
+      {
+        id: "delete",
+        label: tc("delete"),
+        icon: Trash2,
+        destructive: true,
+        hidden: !viewer.isAdmin,
+        // The delete dialog asks first.
+        onSelect: () => setDeleting(doc),
+      },
+    ]
+  }
+
   // Drop a file anywhere on the page to start a new document with it.
   const drop = useFileDrop((files) => {
     const file = files[0]
@@ -326,63 +405,74 @@ export function ProjectDocuments({ projectId }: { projectId: string }) {
                       const status =
                         STATUSES[doc.status as Status] ?? STATUSES.draft
                       return (
-                        <div
+                        <ContextTarget
                           key={doc.id}
-                          role="button"
-                          tabIndex={doc.file_path ? 0 : -1}
-                          onClick={() => open(doc)}
-                          onKeyDown={(e) => e.key === "Enter" && open(doc)}
-                          className={cn(
-                            "group/row focus-visible:ring-focus-ring flex min-w-0 flex-col gap-2 rounded-xl outline-none focus-visible:ring-2",
-                            doc.file_path && "cursor-pointer",
-                          )}
+                          type="project-document"
+                          id={doc.id}
+                          label={doc.title}
+                          suppress={["image", "button"]}
+                          items={() => docCtx(doc)}
                         >
-                          <FilePreview
-                            file={{
-                              name: doc.file_name ?? doc.title,
-                              mime_type: null,
-                              file_path: doc.file_path,
-                            }}
-                            emptyLabel={t("noFile")}
-                            badge={
-                              <Chip className="static flex items-center gap-1.5">
-                                <span
-                                  className={cn(
-                                    "size-1.5 rounded-full",
-                                    status.dot,
-                                  )}
-                                />
-                                {t(status.labelKey)}
-                              </Chip>
-                            }
-                            className="ring-border/60 rounded-xl ring-1 transition-[filter] duration-150 group-hover/row:brightness-95"
-                          />
-                          <div className="flex min-w-0 items-start gap-2">
-                            <div className="flex min-w-0 flex-1 flex-col">
-                              <span
-                                className="truncate text-sm"
-                                title={doc.title}
-                              >
-                                {doc.title}
-                              </span>
-                              <span className="text-tertiary-foreground truncate text-[13px] tabular-nums">
-                                {doc.file_name
-                                  ? `${formatBytes(doc.file_size)} · `
-                                  : ""}
-                                {format(
-                                  new Date(doc.updated_at),
-                                  "d MMM yyyy",
-                                  {
-                                    locale: dateLocale,
-                                  },
-                                )}
-                              </span>
-                            </div>
-                            {docMenu(doc).length > 0 && (
-                              <RowMenu label={doc.title} items={docMenu(doc)} />
+                          <div
+                            role="button"
+                            tabIndex={doc.file_path ? 0 : -1}
+                            onClick={() => open(doc)}
+                            onKeyDown={(e) => e.key === "Enter" && open(doc)}
+                            className={cn(
+                              "group/row focus-visible:ring-focus-ring flex min-w-0 flex-col gap-2 rounded-xl outline-none focus-visible:ring-2",
+                              doc.file_path && "cursor-pointer",
                             )}
+                          >
+                            <FilePreview
+                              file={{
+                                name: doc.file_name ?? doc.title,
+                                mime_type: null,
+                                file_path: doc.file_path,
+                              }}
+                              emptyLabel={t("noFile")}
+                              badge={
+                                <Chip className="static flex items-center gap-1.5">
+                                  <span
+                                    className={cn(
+                                      "size-1.5 rounded-full",
+                                      status.dot,
+                                    )}
+                                  />
+                                  {t(status.labelKey)}
+                                </Chip>
+                              }
+                              className="ring-border/60 rounded-xl ring-1 transition-[filter] duration-150 group-hover/row:brightness-95"
+                            />
+                            <div className="flex min-w-0 items-start gap-2">
+                              <div className="flex min-w-0 flex-1 flex-col">
+                                <span
+                                  className="truncate text-sm"
+                                  title={doc.title}
+                                >
+                                  {doc.title}
+                                </span>
+                                <span className="text-tertiary-foreground truncate text-[13px] tabular-nums">
+                                  {doc.file_name
+                                    ? `${formatBytes(doc.file_size)} · `
+                                    : ""}
+                                  {format(
+                                    new Date(doc.updated_at),
+                                    "d MMM yyyy",
+                                    {
+                                      locale: dateLocale,
+                                    },
+                                  )}
+                                </span>
+                              </div>
+                              {docMenu(doc).length > 0 && (
+                                <RowMenu
+                                  label={doc.title}
+                                  items={docMenu(doc)}
+                                />
+                              )}
+                            </div>
                           </div>
-                        </div>
+                        </ContextTarget>
                       )
                     })}
                   </div>

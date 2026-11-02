@@ -28,6 +28,17 @@ import { useDateLocale, useT } from "@/shared/i18n/client"
 import { format, isPast, isToday, isTomorrow, type Locale } from "date-fns"
 import { useMemo, useState, type ReactNode } from "react"
 import { toast } from "sonner"
+import { ContextTarget, copyText, type CtxItem } from "@/shared/context-menu"
+import {
+  CalendarClock,
+  CalendarPlus,
+  Copy,
+  Link as LinkIcon,
+  LogOut,
+  Trash2,
+  Video,
+  XCircle,
+} from "lucide-react"
 import { periodLabel } from "../kpi/period"
 import { GridGroup, ListColumns, StatBand } from "../list"
 
@@ -176,6 +187,7 @@ const shortDate = (slot: Slot, locale: Locale, pattern = "d MMM") =>
 export function OneOnOne({ period }: { period: string }) {
   const t = useT("performance")
   const tc = useT("common")
+  const tm = useT("ctxmenu")
   const dateLocale = useDateLocale()
   const { profile } = useUserProfile()
   const isAdmin = canManageByRole(profile?.role)
@@ -300,6 +312,108 @@ export function OneOnOne({ period }: { period: string }) {
     else toast.error(slotError(t, error, messages[action][1]))
     refresh()
   }
+
+  const copy = async (text: string) => {
+    if (await copyText(text)) toast.success(tm("copied"))
+    else toast.error(tm("copyFailed"))
+  }
+  const scheduleText = (s: Slot) =>
+    [
+      `${shortDate(s, dateLocale, "EEE, d MMM yyyy")} · ${timeRange(s)}`,
+      modeLabel(s, t),
+      s.booked_by_profile?.full_name,
+    ]
+      .filter(Boolean)
+      .join(" · ")
+  /** Join / copy the meeting link, when the slot has one. */
+  const meetingItems = (s: Slot): CtxItem[] =>
+    s.meeting_url && s.status === "booked"
+      ? [
+          {
+            id: "join",
+            label: t("join"),
+            icon: Video,
+            onSelect: () =>
+              void window.open(s.meeting_url ?? "", "_blank", "noopener"),
+          },
+          {
+            id: "copy-link",
+            label: t("ctxCopyMeetingLink"),
+            icon: LinkIcon,
+            onSelect: () => copy(s.meeting_url ?? ""),
+          },
+        ]
+      : []
+  const copyScheduleItem = (s: Slot): CtxItem => ({
+    id: "copy-schedule",
+    label: t("ctxCopySchedule"),
+    icon: Copy,
+    onSelect: () => copy(scheduleText(s)),
+  })
+  /** Right-click on a slot: the same actions as its row buttons. */
+  const slotTarget = (
+    s: Slot,
+    items: CtxItem[],
+    child: React.ReactElement<Record<string, unknown>>,
+  ) => (
+    <ContextTarget
+      key={s.id}
+      type="one-on-one"
+      id={s.id}
+      label={`${shortDate(s, dateLocale, "EEE, d MMM")} · ${timeRange(s)}`}
+      items={() => items}
+    >
+      {child}
+    </ContextTarget>
+  )
+  const adminItems = (s: Slot): CtxItem[] =>
+    isPast(new Date(s.end_at))
+      ? [copyScheduleItem(s)]
+      : [
+          ...(s.status !== "cancelled"
+            ? [
+                {
+                  id: "reschedule",
+                  label: t("reschedule"),
+                  icon: CalendarClock,
+                  onSelect: () => openReschedule(s),
+                },
+              ]
+            : []),
+          ...meetingItems(s),
+          copyScheduleItem(s),
+          s.status === "booked"
+            ? {
+                id: "cancel",
+                label: t("cancelSlotAction"),
+                icon: XCircle,
+                destructive: true,
+                disabled: busyId === s.id,
+                onSelect: () =>
+                  setConfirm({
+                    title: t("cancelOneOnOneTitle"),
+                    description: t("willBeNotified", {
+                      name: s.booked_by_profile?.full_name ?? t("employee"),
+                    }),
+                    confirmText: t("cancelSlotAction"),
+                    run: () => act(s, "cancel"),
+                  }),
+              }
+            : {
+                id: "delete",
+                label: tc("delete"),
+                icon: Trash2,
+                destructive: true,
+                disabled: busyId === s.id,
+                onSelect: () =>
+                  setConfirm({
+                    title: t("deleteSlotTitle"),
+                    description: t("slotDeletePermanent"),
+                    confirmText: tc("delete"),
+                    run: () => act(s, "remove"),
+                  }),
+              },
+        ]
 
   if (isLoading) {
     return (
@@ -497,70 +611,74 @@ export function OneOnOne({ period }: { period: string }) {
                   </>
                 }
               >
-                {items.map((s) => (
-                  <ListRow key={s.id} className={cn(ADMIN_GRID, "min-h-14")}>
-                    <SlotCell
-                      primary={timeRange(s)}
-                      secondary={s.booked_by_profile?.full_name}
-                      muted={s.status === "cancelled"}
-                    />
-                    <ModeBadge slot={s} />
-                    <div>{statusBadge(s)}</div>
-                    {/* Actions wrap under the row on narrow screens. */}
-                    <div className="col-span-full flex justify-end lg:col-span-1">
-                      <ListRowActions className="max-lg:opacity-100">
-                        {s.status !== "cancelled" && (
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => openReschedule(s)}
-                          >
-                            {t("reschedule")}
-                          </Button>
-                        )}
-                        {s.status === "booked" ? (
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="text-destructive hover:text-destructive"
-                            disabled={busyId === s.id}
-                            onClick={() =>
-                              setConfirm({
-                                title: t("cancelOneOnOneTitle"),
-                                description: t("willBeNotified", {
-                                  name:
-                                    s.booked_by_profile?.full_name ??
-                                    t("employee"),
-                                }),
-                                confirmText: t("cancelSlotAction"),
-                                run: () => act(s, "cancel"),
-                              })
-                            }
-                          >
-                            {t("cancelSlotAction")}
-                          </Button>
-                        ) : (
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="text-destructive hover:text-destructive"
-                            disabled={busyId === s.id}
-                            onClick={() =>
-                              setConfirm({
-                                title: t("deleteSlotTitle"),
-                                description: t("slotDeletePermanent"),
-                                confirmText: tc("delete"),
-                                run: () => act(s, "remove"),
-                              })
-                            }
-                          >
-                            {tc("delete")}
-                          </Button>
-                        )}
-                      </ListRowActions>
-                    </div>
-                  </ListRow>
-                ))}
+                {items.map((s) =>
+                  slotTarget(
+                    s,
+                    adminItems(s),
+                    <ListRow className={cn(ADMIN_GRID, "min-h-14")}>
+                      <SlotCell
+                        primary={timeRange(s)}
+                        secondary={s.booked_by_profile?.full_name}
+                        muted={s.status === "cancelled"}
+                      />
+                      <ModeBadge slot={s} />
+                      <div>{statusBadge(s)}</div>
+                      {/* Actions wrap under the row on narrow screens. */}
+                      <div className="col-span-full flex justify-end lg:col-span-1">
+                        <ListRowActions className="max-lg:opacity-100">
+                          {s.status !== "cancelled" && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => openReschedule(s)}
+                            >
+                              {t("reschedule")}
+                            </Button>
+                          )}
+                          {s.status === "booked" ? (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="text-destructive hover:text-destructive"
+                              disabled={busyId === s.id}
+                              onClick={() =>
+                                setConfirm({
+                                  title: t("cancelOneOnOneTitle"),
+                                  description: t("willBeNotified", {
+                                    name:
+                                      s.booked_by_profile?.full_name ??
+                                      t("employee"),
+                                  }),
+                                  confirmText: t("cancelSlotAction"),
+                                  run: () => act(s, "cancel"),
+                                })
+                              }
+                            >
+                              {t("cancelSlotAction")}
+                            </Button>
+                          ) : (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="text-destructive hover:text-destructive"
+                              disabled={busyId === s.id}
+                              onClick={() =>
+                                setConfirm({
+                                  title: t("deleteSlotTitle"),
+                                  description: t("slotDeletePermanent"),
+                                  confirmText: tc("delete"),
+                                  run: () => act(s, "remove"),
+                                })
+                              }
+                            >
+                              {tc("delete")}
+                            </Button>
+                          )}
+                        </ListRowActions>
+                      </div>
+                    </ListRow>,
+                  ),
+                )}
               </GridGroup>
             ))}
             {past.length > 0 && (
@@ -574,18 +692,22 @@ export function OneOnOne({ period }: { period: string }) {
                 }
                 defaultOpen={false}
               >
-                {[...past].reverse().map((s) => (
-                  <ListRow key={s.id} className={cn(ADMIN_GRID, "min-h-14")}>
-                    <SlotCell
-                      primary={`${shortDate(s, dateLocale)} · ${timeRange(s)}`}
-                      secondary={s.booked_by_profile?.full_name}
-                      muted
-                    />
-                    <ModeBadge slot={s} />
-                    <div>{statusBadge(s)}</div>
-                    <span className="hidden lg:block" />
-                  </ListRow>
-                ))}
+                {[...past].reverse().map((s) =>
+                  slotTarget(
+                    s,
+                    adminItems(s),
+                    <ListRow className={cn(ADMIN_GRID, "min-h-14")}>
+                      <SlotCell
+                        primary={`${shortDate(s, dateLocale)} · ${timeRange(s)}`}
+                        secondary={s.booked_by_profile?.full_name}
+                        muted
+                      />
+                      <ModeBadge slot={s} />
+                      <div>{statusBadge(s)}</div>
+                      <span className="hidden lg:block" />
+                    </ListRow>,
+                  ),
+                )}
               </GridGroup>
             )}
           </GroupedList>
@@ -627,59 +749,83 @@ export function OneOnOne({ period }: { period: string }) {
               <span className="hidden md:block">{t("place")}</span>
               <span />
             </ListColumns>
-            {myUpcoming.map((s) => (
-              <ListRow key={s.id} className={cn(EMPLOYEE_GRID, "min-h-14")}>
-                <SlotCell
-                  primary={`${shortDate(s, dateLocale, "EEE, d MMM")} · ${timeRange(s)}`}
-                  secondary={
-                    s.status === "cancelled"
-                      ? t("cancelledByAdmin")
-                      : t("withOrganizer", {
-                          name: s.organizer?.full_name ?? t("admin"),
-                        })
-                  }
-                  muted={s.status === "cancelled"}
-                />
-                <ModeBadge slot={s} />
-                <div className="flex justify-end gap-1">
-                  {s.status === "booked" && (
-                    <>
-                      {s.meeting_url && (
+            {myUpcoming.map((s) =>
+              slotTarget(
+                s,
+                [
+                  ...meetingItems(s),
+                  copyScheduleItem(s),
+                  ...(s.status === "booked"
+                    ? [
+                        {
+                          id: "release",
+                          label: t("release"),
+                          icon: LogOut,
+                          disabled: busyId === s.id,
+                          onSelect: () =>
+                            setConfirm({
+                              title: t("releaseTitle"),
+                              description: t("releaseDescription"),
+                              confirmText: t("release"),
+                              run: () => act(s, "release"),
+                            }),
+                        },
+                      ]
+                    : []),
+                ],
+                <ListRow className={cn(EMPLOYEE_GRID, "min-h-14")}>
+                  <SlotCell
+                    primary={`${shortDate(s, dateLocale, "EEE, d MMM")} · ${timeRange(s)}`}
+                    secondary={
+                      s.status === "cancelled"
+                        ? t("cancelledByAdmin")
+                        : t("withOrganizer", {
+                            name: s.organizer?.full_name ?? t("admin"),
+                          })
+                    }
+                    muted={s.status === "cancelled"}
+                  />
+                  <ModeBadge slot={s} />
+                  <div className="flex justify-end gap-1">
+                    {s.status === "booked" && (
+                      <>
+                        {s.meeting_url && (
+                          <Button
+                            size="sm"
+                            variant="secondary"
+                            nativeButton={false}
+                            render={
+                              <a
+                                href={s.meeting_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              />
+                            }
+                          >
+                            {t("join")}
+                          </Button>
+                        )}
                         <Button
                           size="sm"
-                          variant="secondary"
-                          nativeButton={false}
-                          render={
-                            <a
-                              href={s.meeting_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            />
+                          variant="ghost"
+                          disabled={busyId === s.id}
+                          onClick={() =>
+                            setConfirm({
+                              title: t("releaseTitle"),
+                              description: t("releaseDescription"),
+                              confirmText: t("release"),
+                              run: () => act(s, "release"),
+                            })
                           }
                         >
-                          {t("join")}
+                          {t("release")}
                         </Button>
-                      )}
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        disabled={busyId === s.id}
-                        onClick={() =>
-                          setConfirm({
-                            title: t("releaseTitle"),
-                            description: t("releaseDescription"),
-                            confirmText: t("release"),
-                            run: () => act(s, "release"),
-                          })
-                        }
-                      >
-                        {t("release")}
-                      </Button>
-                    </>
-                  )}
-                </div>
-              </ListRow>
-            ))}
+                      </>
+                    )}
+                  </div>
+                </ListRow>,
+              ),
+            )}
           </GroupedList>
         )}
       </section>
@@ -715,43 +861,62 @@ export function OneOnOne({ period }: { period: string }) {
                   </>
                 }
               >
-                {items.map((s) => (
-                  <ListRow key={s.id} className={cn(EMPLOYEE_GRID, "min-h-14")}>
-                    <SlotCell
-                      primary={timeRange(s)}
-                      secondary={
-                        <>
-                          {t("withOrganizer", {
-                            name: s.organizer?.full_name ?? t("admin"),
-                          })}
-                          <span className="md:hidden">
-                            {" "}
-                            · {modeLabel(s, t)}
-                          </span>
-                        </>
-                      }
-                    />
-                    <ModeBadge slot={s} />
-                    <div className="flex justify-end">
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        disabled={
+                {items.map((s) =>
+                  slotTarget(
+                    s,
+                    [
+                      {
+                        id: "pick",
+                        label: t("pick"),
+                        icon: CalendarPlus,
+                        // Same rule as the button: one booking at a time.
+                        disabled:
                           busyId === s.id ||
-                          myUpcoming.some((m) => m.status === "booked")
+                          myUpcoming.some((m) => m.status === "booked"),
+                        hint: myUpcoming.some((m) => m.status === "booked")
+                          ? t("releaseFirst")
+                          : undefined,
+                        onSelect: () => act(s, "book"),
+                      },
+                      copyScheduleItem(s),
+                    ],
+                    <ListRow className={cn(EMPLOYEE_GRID, "min-h-14")}>
+                      <SlotCell
+                        primary={timeRange(s)}
+                        secondary={
+                          <>
+                            {t("withOrganizer", {
+                              name: s.organizer?.full_name ?? t("admin"),
+                            })}
+                            <span className="md:hidden">
+                              {" "}
+                              · {modeLabel(s, t)}
+                            </span>
+                          </>
                         }
-                        title={
-                          myUpcoming.some((m) => m.status === "booked")
-                            ? t("releaseFirst")
-                            : undefined
-                        }
-                        onClick={() => act(s, "book")}
-                      >
-                        {t("pick")}
-                      </Button>
-                    </div>
-                  </ListRow>
-                ))}
+                      />
+                      <ModeBadge slot={s} />
+                      <div className="flex justify-end">
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          disabled={
+                            busyId === s.id ||
+                            myUpcoming.some((m) => m.status === "booked")
+                          }
+                          title={
+                            myUpcoming.some((m) => m.status === "booked")
+                              ? t("releaseFirst")
+                              : undefined
+                          }
+                          onClick={() => act(s, "book")}
+                        >
+                          {t("pick")}
+                        </Button>
+                      </div>
+                    </ListRow>,
+                  ),
+                )}
               </GridGroup>
             ))}
           </GroupedList>

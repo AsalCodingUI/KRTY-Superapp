@@ -4,7 +4,7 @@ import { SlidingIndicator } from "@/components/sliding-indicator"
 import { cn } from "@/lib/utils"
 import { Monitor, Moon, Sun } from "@/components/icons"
 import { useT } from "@/shared/i18n/client"
-import { useTheme } from "next-themes"
+import { useThemeTransition } from "@/shared/hooks/useThemeTransition"
 import { useEffect, useState } from "react"
 
 const ITEMS = [
@@ -18,7 +18,7 @@ const ITEMS = [
  * settings page). Fits its content instead of stretching the footer.
  */
 export function ThemeSwitcher({ className }: { className?: string }) {
-  const { theme, setTheme } = useTheme()
+  const { theme, setTheme } = useThemeTransition()
   const t = useT("common")
   // next-themes only knows the stored theme after mount.
   const [mounted, setMounted] = useState(false)

@@ -33,7 +33,11 @@ import {
   useQueryClient,
 } from "@tanstack/react-query"
 import { leaveTypeLabel } from "@/shared/lib/leave"
-import { endOfDay, format, parseISO, startOfDay } from "date-fns"
+import { linkKey, projectHref } from "@/shared/lib/url-params"
+import { santuySchedule } from "@/shared/lib/santuy"
+import { idHolidayKey, idHolidaysBetween } from "@/shared/lib/id-holidays"
+import { activeQueue, useSantuy } from "@/page-slices/santuy/data"
+import { addDays, endOfDay, format, parseISO, startOfDay } from "date-fns"
 import { useMemo, useState } from "react"
 import { toast } from "sonner"
 import { CalendarContent } from "./CalendarContent"
@@ -68,6 +72,7 @@ type CalendarEventRowLite = Pick<
   | "user_id"
   | "is_recurring"
   | "recurrence_rule"
+  | "holiday_key"
 >
 type LeaveRequestCalendarRow = Pick<
   Database["public"]["Tables"]["leave_requests"]["Row"],
@@ -160,6 +165,7 @@ const mapRowToEvent = (row: CalendarEventRowLite): CalendarEvent => {
     employeeId: row.user_id ?? undefined,
     isRecurring: row.is_recurring ?? undefined,
     recurrenceRule: row.recurrence_rule ?? undefined,
+    holidayKey: row.holiday_key ?? undefined,
   }
 }
 
@@ -326,16 +332,27 @@ const SCOPES = {
       "WFH",
       "Task",
     ],
+    // Sharing Santuy isn't created here: its sessions come from the rotation
+    // (/calendar/santuy). Old Santuy rows still open and edit as before.
     eventTypes: {
-      employee: ["Personal", SANTUY],
-      pm: ["Personal", SANTUY, "Internal"],
-      stakeholder: ["Personal", SANTUY, "Internal", "Event", "Company Holiday"],
+      employee: ["Personal"],
+      pm: ["Personal", "Internal"],
+      stakeholder: ["Personal", "Internal", "Event", "Company Holiday"],
     },
   },
   project: {
     basePath: "/calendar",
     views: ["timeline", "week", "month"] as ViewMode[],
-    categories: ["Internal", "Event", "Company Holiday", "Task", "Cuti", "WFH"],
+    categories: [
+      "Internal",
+      "Event",
+      "Company Holiday",
+      "Public Holiday",
+      SANTUY,
+      "Task",
+      "Cuti",
+      "WFH",
+    ],
     eventTypes: {
       employee: [],
       pm: ["Internal", "Event"],
@@ -352,11 +369,18 @@ const SCOPES = {
   }
 >
 
-/** Team-wide work events; Personal and Sharing Santuy live on the personal one. */
+/**
+ * Team-wide work events; Personal and stored Sharing Santuy rows live on the
+ * personal one (the rotation's sessions show on both, see santuyEvents).
+ */
 const PROJECT_EVENT_TYPES = new Set(["Internal", "Event", "Company Holiday"])
 
-/** Rows made up from other tables (leave, 1:1, tasks) can't be edited here. */
-const isSyntheticId = (id: string) => /^(leave|perf|task)-/.test(id)
+/**
+ * Rows made up from other tables (leave, 1:1, tasks, the Sharing Santuy
+ * rotation) or the national holiday list can't be edited here.
+ */
+const isSyntheticId = (id: string) =>
+  /^(leave|perf|task|santuy|holiday)-/.test(id)
 
 type GuestLike = { id?: string; email?: string } | string
 
@@ -401,6 +425,8 @@ const taskToEvent = (
     allDay: true,
     color: "teal",
     type: "Task",
+    // Its task on the project page (the right-click menu's Buka / Salin link).
+    href: `${projectHref({ id: task.project_id, name: projectName }, "tasks")}?task=${linkKey(task.title, task.id)}`,
   }
 }
 
@@ -438,6 +464,11 @@ function CalendarDataLayer({ scope, level, userId }: CalendarClientProps) {
           (type) =>
             personal || teamLeave || (type !== "Cuti" && type !== "WFH"),
         )
+        // National holidays are for stakeholders (Google's copy may still
+        // show on someone's personal calendar).
+        .filter(
+          (type) => personal || isStakeholder || type !== "Public Holiday",
+        )
         .map((type) => {
           const definition = getEventTypeDefinition(type)
           const labelKey = getEventTypeLabelKey(type)
@@ -449,7 +480,7 @@ function CalendarDataLayer({ scope, level, userId }: CalendarClientProps) {
             isActive: !(personal && type === "Task"),
           }
         }),
-    [config, personal, teamLeave, t],
+    [config, personal, teamLeave, isStakeholder, t],
   )
 
   const range = useMemo(() => {
@@ -475,7 +506,7 @@ function CalendarDataLayer({ scope, level, userId }: CalendarClientProps) {
         const { data, error } = await supabase
           .from("calendar_events")
           .select(
-            "id,title,description,start_at,end_at,color,location,all_day,meeting_url,guests,reminders,rsvp_status,organizer,event_type,user_id,is_recurring,recurrence_rule",
+            "id,title,description,start_at,end_at,color,location,all_day,meeting_url,guests,reminders,rsvp_status,organizer,event_type,user_id,is_recurring,recurrence_rule,holiday_key",
           )
           // Overlaps the range; recurring events can start long before it.
           .lte("start_at", rangeEndIso)
@@ -642,9 +673,93 @@ function CalendarDataLayer({ scope, level, userId }: CalendarClientProps) {
     [oneOnOneSlots],
   )
 
+  // Sharing Santuy sessions, computed from the rotation (not stored as
+  // calendar_events); the past ones before the rotation stay real rows.
+  const santuy = useSantuy(!onTimeline)
+  const santuyEvents = useMemo<CalendarEvent[]>(() => {
+    const data = santuy.data
+    if (!data) return []
+    const color = getEventTypeDefinition(SANTUY)?.color ?? "violet"
+    const meetUrl = data.settings.meetUrl ?? undefined
+    return santuySchedule({
+      settings: data.settings,
+      queue: activeQueue(data.members),
+      weeks: data.weeks,
+      // A day either side: the range is local, sessions are WIB days.
+      from: format(addDays(range.start, -1), "yyyy-MM-dd"),
+      to: format(addDays(range.end, 1), "yyyy-MM-dd"),
+    })
+      .filter((s) => s.kind === "session" && s.profileId)
+      .map((s) => {
+        const name =
+          data.people.get(s.profileId!)?.full_name || t("fallbackEmployee")
+        return {
+          id: `santuy-${s.date}`,
+          title: `${SANTUY} · ${name}`,
+          description: t("santuyRotationNote"),
+          start: s.start,
+          end: s.end,
+          allDay: false,
+          color,
+          type: SANTUY,
+          organizer: name,
+          location: meetUrl,
+          meetingUrl: meetUrl,
+        }
+      })
+  }, [santuy.data, range, t])
+
+  // Indonesian national holidays (id-holidays.ts): stakeholders only. A day
+  // that's already an office holiday (made from one here, or added by hand
+  // before) shows as that Company Holiday row instead.
+  const holidayEvents = useMemo<CalendarEvent[]>(() => {
+    if (!isStakeholder || onTimeline) return []
+    const setKeys = new Set(
+      rawEvents.map((event) => event.holidayKey).filter(Boolean),
+    )
+    const officeDays = new Set(
+      rawEvents
+        .filter((event) => event.type === "Company Holiday")
+        .map((event) => format(event.start, "yyyy-MM-dd")),
+    )
+    return idHolidaysBetween(rangeStartDate, rangeEndDate)
+      .filter(
+        (holiday) =>
+          !setKeys.has(idHolidayKey(holiday)) && !officeDays.has(holiday.date),
+      )
+      .map((holiday) => {
+        const day = parseISO(holiday.date)
+        return {
+          id: `holiday-${holiday.date}`,
+          title: holiday.name,
+          description: holiday.description,
+          start: startOfDay(day),
+          end: endOfDay(day),
+          allDay: true,
+          color: getEventTypeDefinition("Public Holiday")?.color ?? "rose",
+          type: "Public Holiday",
+          holidayKey: idHolidayKey(holiday),
+        }
+      })
+  }, [isStakeholder, onTimeline, rawEvents, rangeStartDate, rangeEndDate])
+
   const combinedEvents = useMemo(
-    () => [...events, ...leaveEvents, ...oneOnOneEvents, ...taskEvents],
-    [events, leaveEvents, oneOnOneEvents, taskEvents],
+    () => [
+      ...events,
+      ...leaveEvents,
+      ...oneOnOneEvents,
+      ...taskEvents,
+      ...santuyEvents,
+      ...holidayEvents,
+    ],
+    [
+      events,
+      leaveEvents,
+      oneOnOneEvents,
+      taskEvents,
+      santuyEvents,
+      holidayEvents,
+    ],
   )
 
   const canEditEvent = (event: CalendarEvent) =>

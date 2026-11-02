@@ -34,6 +34,8 @@ import { AnimatePresence, m } from "motion/react"
 import * as React from "react"
 import { useState } from "react"
 import { useClockActions } from "../model/useClockActions"
+import { useContextTarget, type CtxItem } from "@/shared/context-menu"
+import { Coffee, LogIn, LogOut, TimerReset } from "lucide-react"
 
 type AttendanceLog = Database["public"]["Tables"]["attendance_logs"]["Row"]
 
@@ -50,6 +52,13 @@ interface ClockControlsProps {
   /** Approved leave today: default the status to "Cuti Masuk". */
   isOnLeave?: boolean
   now?: Date | null
+  /**
+   * The card / row around it: right-clicking there offers clock in (as
+   * any status), break and clock out, the same as these buttons.
+   */
+  menuTarget?: React.RefObject<Element | null>
+  /** That card's page (adds Buka / Buka di tab baru / Salin link). */
+  menuHref?: string
 }
 
 /**
@@ -61,6 +70,8 @@ export function ClockControls({
   onLogsUpdate,
   isOnLeave = false,
   now,
+  menuTarget,
+  menuHref,
 }: ClockControlsProps) {
   const t = useT("leave")
   const tc = useT("common")
@@ -76,6 +87,77 @@ export function ClockControls({
     handleToggleBreak,
     handleResolvePreviousSession,
   } = useClockActions({ logs, onLogsUpdate })
+
+  useContextTarget(
+    menuTarget,
+    (): CtxItem[] => {
+      if (!now) return []
+      const state = getAttendanceSessionState(logs, now)
+      const active = state.activeSession
+      const stale = state.staleSession
+      if (stale && !active)
+        return [
+          {
+            id: "close-previous",
+            label: t("closePreviousSession"),
+            icon: TimerReset,
+            destructive: true,
+            confirm: true,
+            disabled: loading,
+            onSelect: () => handleResolvePreviousSession(stale.id),
+          },
+        ]
+      if (!active) {
+        const current = CLOCK_STATUSES.find((s) => s.value === status)
+        return [
+          {
+            id: "clock-in",
+            label: t("clockIn"),
+            icon: LogIn,
+            hint: current ? t(current.labelKey) : undefined,
+            disabled: loading,
+            onSelect: () => handleClockIn(status),
+          },
+          {
+            id: "clock-in-as",
+            label: t("ctxClockInAs"),
+            icon: LogIn,
+            disabled: loading,
+            submenu: CLOCK_STATUSES.map((s) => ({
+              id: s.value,
+              label: t(s.labelKey),
+              role: "radio" as const,
+              checked: s.value === status,
+              onSelect: () => {
+                setStatus(s.value)
+                return handleClockIn(s.value)
+              },
+            })),
+          },
+        ]
+      }
+      return [
+        {
+          id: "break",
+          label: active.is_break ? t("endBreak") : t("startBreak"),
+          icon: Coffee,
+          disabled: loading,
+          onSelect: () =>
+            handleToggleBreak(active.id, active.is_break || false),
+        },
+        {
+          id: "clock-out",
+          label: t("clockOut"),
+          icon: LogOut,
+          destructive: true,
+          disabled: loading,
+          // Its confirm dialog asks first.
+          onSelect: () => setConfirmClockOut(true),
+        },
+      ]
+    },
+    { type: "attendance-clock", label: tc("today"), href: menuHref },
+  )
 
   // The control group crossfades when the state changes (clock in → working
   // → clock out); nothing animates on first render.

@@ -4,6 +4,10 @@ import { Kbd, KbdGroup } from "@/components/ui/kbd"
 import { cn } from "@/lib/utils"
 import { useT } from "@/shared/i18n/client"
 import { RiSearchLine } from "@/shared/ui/lucide-icons"
+import {
+  OPEN_SEARCH_EVENT,
+  type OpenSearchDetail,
+} from "@/shared/context-menu/events"
 import dynamic from "next/dynamic"
 import { useEffect, useState } from "react"
 
@@ -21,6 +25,8 @@ function useMountOnce(open: boolean) {
 /** Opens with ⌘K / Ctrl+K from anywhere, or from the top bar field. */
 export function GlobalSearch({ className }: { className?: string }) {
   const [open, setOpen] = useState(false)
+  // Text to start with (the right-click menu's "Cari di app").
+  const [initialQuery, setInitialQuery] = useState("")
   const mounted = useMountOnce(open)
   const [isMac, setIsMac] = useState(true)
   const tc = useT("common")
@@ -34,15 +40,28 @@ export function GlobalSearch({ className }: { className?: string }) {
         setOpen((o) => !o)
       }
     }
+    const onOpenSearch = (e: Event) => {
+      const { query } = (e as CustomEvent<OpenSearchDetail>).detail ?? {}
+      preloadDialog()
+      setInitialQuery(query ?? "")
+      setOpen(true)
+    }
     window.addEventListener("keydown", onKey)
-    return () => window.removeEventListener("keydown", onKey)
+    window.addEventListener(OPEN_SEARCH_EVENT, onOpenSearch)
+    return () => {
+      window.removeEventListener("keydown", onKey)
+      window.removeEventListener(OPEN_SEARCH_EVENT, onOpenSearch)
+    }
   }, [])
 
   return (
     <>
       <button
         type="button"
-        onClick={() => setOpen(true)}
+        onClick={() => {
+          setInitialQuery("")
+          setOpen(true)
+        }}
         onMouseEnter={preloadDialog}
         onFocus={preloadDialog}
         aria-keyshortcuts={isMac ? "Meta+K" : "Control+K"}
@@ -59,7 +78,13 @@ export function GlobalSearch({ className }: { className?: string }) {
         </KbdGroup>
       </button>
       {/* Mounted on first open, then kept so the close animation plays. */}
-      {mounted && <GlobalSearchDialog open={open} onOpenChange={setOpen} />}
+      {mounted && (
+        <GlobalSearchDialog
+          open={open}
+          onOpenChange={setOpen}
+          initialQuery={initialQuery}
+        />
+      )}
     </>
   )
 }

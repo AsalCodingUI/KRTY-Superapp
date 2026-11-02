@@ -4,7 +4,7 @@ import { Moon, Sun } from "@/components/icons"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { useT } from "@/shared/i18n/client"
-import { useTheme } from "next-themes"
+import { useThemeTransition } from "@/shared/hooks/useThemeTransition"
 import { useEffect, useState } from "react"
 
 /**
@@ -13,7 +13,7 @@ import { useEffect, useState } from "react"
  * on "system" gets the opposite of their system theme.
  */
 export function ThemeToggleButton({ className }: { className?: string }) {
-  const { resolvedTheme, setTheme } = useTheme()
+  const { resolvedTheme, setTheme } = useThemeTransition()
   const t = useT("common")
   // next-themes only knows the theme after mount.
   const [mounted, setMounted] = useState(false)

@@ -33,6 +33,8 @@ import {
   RiFlowLine,
   RiMoreFill,
 } from "@/shared/ui/lucide-icons"
+import { ContextTarget, type CtxItem } from "@/shared/context-menu"
+import { ArrowDown, ArrowUp, Trash2 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
@@ -49,6 +51,52 @@ type Level = "process_phases" | "process_steps" | "process_tasks"
 type Result = { success: boolean; error?: string }
 
 /** Runs a mutation, toasts its error, and refetches the processes. */
+/** The ⋯ menu's actions (move up / down, delete) for the right-click menu. */
+function moveDeleteItems(
+  t: ReturnType<typeof useT<"processes">>,
+  {
+    first,
+    last,
+    onMove,
+    deleteLabel,
+    onDelete,
+    confirmDelete = false,
+  }: {
+    first: boolean
+    last: boolean
+    onMove: (direction: -1 | 1) => void
+    deleteLabel: string
+    onDelete: () => void
+    /** Ask in the menu (when no dialog of its own asks). */
+    confirmDelete?: boolean
+  },
+): CtxItem[] {
+  return [
+    {
+      id: "up",
+      label: t("moveUp"),
+      icon: ArrowUp,
+      disabled: first,
+      onSelect: () => onMove(-1),
+    },
+    {
+      id: "down",
+      label: t("moveDown"),
+      icon: ArrowDown,
+      disabled: last,
+      onSelect: () => onMove(1),
+    },
+    {
+      id: "delete",
+      label: deleteLabel,
+      icon: Trash2,
+      destructive: true,
+      confirm: confirmDelete,
+      onSelect: onDelete,
+    },
+  ]
+}
+
 function useMutate() {
   const refresh = useRefreshProcesses()
   return async <R extends Result>(promise: Promise<R>) => {
@@ -174,52 +222,68 @@ export function ProcessEditorPage({ id }: { id: string }) {
             return (
               <div key={phase.id} className="flex flex-col">
                 {i > 0 && <span className="bg-border mx-auto my-1 h-3 w-px" />}
-                <div
-                  data-slot="process-phase"
-                  className={cn(
-                    surfaceClassName,
-                    "group/phase relative flex items-center gap-3 px-3 py-2.5 transition-colors",
-                    // Active: default border, filled instead of outlined.
-                    active
-                      ? "bg-muted"
-                      : "hover:border-foreground/15 dark:hover:border-foreground/15",
-                  )}
+                <ContextTarget
+                  type="process-phase"
+                  id={phase.id}
+                  label={phase.name}
+                  items={() =>
+                    moveDeleteItems(t, {
+                      first: i === 0,
+                      last: i === phases.length - 1,
+                      onMove: (d) =>
+                        mutate(moveItem("process_phases", phase.id, d)),
+                      deleteLabel: t("deletePhase"),
+                      onDelete: () => setConfirm({ kind: "phase", phase }),
+                    })
+                  }
                 >
-                  <button
-                    type="button"
-                    onClick={() => setSelected(phase.id)}
-                    className="flex min-w-0 flex-1 items-center gap-3 text-left outline-none after:absolute after:inset-0"
+                  <div
+                    data-slot="process-phase"
+                    className={cn(
+                      surfaceClassName,
+                      "group/phase relative flex items-center gap-3 px-3 py-2.5 transition-colors",
+                      // Active: default border, filled instead of outlined.
+                      active
+                        ? "bg-muted"
+                        : "hover:border-foreground/15 dark:hover:border-foreground/15",
+                    )}
                   >
-                    <span
-                      className={cn(
-                        "flex size-6 shrink-0 items-center justify-center rounded-full text-xs tabular-nums",
-                        active
-                          ? "bg-foreground text-background"
-                          : "bg-muted text-muted-foreground",
-                      )}
+                    <button
+                      type="button"
+                      onClick={() => setSelected(phase.id)}
+                      className="flex min-w-0 flex-1 items-center gap-3 text-left outline-none after:absolute after:inset-0"
                     >
-                      {i + 1}
-                    </span>
-                    <span className="flex min-w-0 flex-col">
-                      <span className="truncate text-sm font-medium">
-                        {phase.name}
+                      <span
+                        className={cn(
+                          "flex size-6 shrink-0 items-center justify-center rounded-full text-xs tabular-nums",
+                          active
+                            ? "bg-foreground text-background"
+                            : "bg-muted text-muted-foreground",
+                        )}
+                      >
+                        {i + 1}
                       </span>
-                      <span className="text-muted-foreground text-xs">
-                        {t("phaseCounts", { steps, tasks })}
+                      <span className="flex min-w-0 flex-col">
+                        <span className="truncate text-sm font-medium">
+                          {phase.name}
+                        </span>
+                        <span className="text-muted-foreground text-xs">
+                          {t("phaseCounts", { steps, tasks })}
+                        </span>
                       </span>
-                    </span>
-                  </button>
-                  <ItemMenu
-                    className="relative opacity-0 group-hover/phase:opacity-100 focus-visible:opacity-100 data-popup-open:opacity-100"
-                    first={i === 0}
-                    last={i === phases.length - 1}
-                    onMove={(d) =>
-                      mutate(moveItem("process_phases", phase.id, d))
-                    }
-                    deleteLabel={t("deletePhase")}
-                    onDelete={() => setConfirm({ kind: "phase", phase })}
-                  />
-                </div>
+                    </button>
+                    <ItemMenu
+                      className="relative opacity-0 group-hover/phase:opacity-100 focus-visible:opacity-100 data-popup-open:opacity-100"
+                      first={i === 0}
+                      last={i === phases.length - 1}
+                      onMove={(d) =>
+                        mutate(moveItem("process_phases", phase.id, d))
+                      }
+                      deleteLabel={t("deletePhase")}
+                      onDelete={() => setConfirm({ kind: "phase", phase })}
+                    />
+                  </div>
+                </ContextTarget>
               </div>
             )
           })}
@@ -376,69 +440,98 @@ function StepRow({
   const mutate = useMutate()
 
   return (
-    <div
-      data-slot="process-step"
-      className="border-border grid gap-3 rounded-lg border p-3 md:grid-cols-2 md:gap-4"
+    <ContextTarget
+      type="process-step"
+      id={step.id}
+      label={step.title}
+      items={() =>
+        moveDeleteItems(t, {
+          first,
+          last,
+          onMove: (d) => mutate(moveItem("process_steps", step.id, d)),
+          deleteLabel: t("deleteStep"),
+          onDelete: () => mutate(deleteItem("process_steps", step.id)),
+          confirmDelete: true,
+        })
+      }
     >
-      <div className="group/step flex min-w-0 items-start gap-2">
-        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-          <InlineText
-            value={step.title}
-            required
-            className="text-sm font-medium"
-            onSave={(text) =>
-              mutate(updateItem("process_steps", step.id, { text }))
-            }
-          />
-          <InlineText
-            value={step.description ?? ""}
-            placeholder={t("stepDescriptionPlaceholder")}
-            className="text-muted-foreground text-[13px]"
-            onSave={(description) =>
-              mutate(updateItem("process_steps", step.id, { description }))
-            }
-          />
-        </div>
-        <ItemMenu
-          className="opacity-0 group-hover/step:opacity-100 focus-visible:opacity-100 data-popup-open:opacity-100"
-          first={first}
-          last={last}
-          onMove={(d) => mutate(moveItem("process_steps", step.id, d))}
-          deleteLabel={t("deleteStep")}
-          onDelete={() => mutate(deleteItem("process_steps", step.id))}
-        />
-      </div>
-
-      <ul className="flex min-w-0 flex-col md:border-l md:pl-4">
-        {step.tasks.map((task) => (
-          <li
-            key={task.id}
-            className="group/task flex items-center gap-2 text-sm"
-          >
-            <span className="border-muted-foreground/50 size-3 shrink-0 rounded-full border" />
+      <div
+        data-slot="process-step"
+        className="border-border grid gap-3 rounded-lg border p-3 md:grid-cols-2 md:gap-4"
+      >
+        <div className="group/step flex min-w-0 items-start gap-2">
+          <div className="flex min-w-0 flex-1 flex-col gap-0.5">
             <InlineText
-              value={task.title}
+              value={step.title}
               required
-              className="text-sm"
+              className="text-sm font-medium"
               onSave={(text) =>
-                mutate(updateItem("process_tasks", task.id, { text }))
+                mutate(updateItem("process_steps", step.id, { text }))
               }
             />
-            <button
-              type="button"
-              aria-label={t("deleteTask")}
-              onClick={() => mutate(deleteItem("process_tasks", task.id))}
-              className="text-muted-foreground hover:text-destructive opacity-0 group-hover/task:opacity-100 focus-visible:opacity-100"
+            <InlineText
+              value={step.description ?? ""}
+              placeholder={t("stepDescriptionPlaceholder")}
+              className="text-muted-foreground text-[13px]"
+              onSave={(description) =>
+                mutate(updateItem("process_steps", step.id, { description }))
+              }
+            />
+          </div>
+          <ItemMenu
+            className="opacity-0 group-hover/step:opacity-100 focus-visible:opacity-100 data-popup-open:opacity-100"
+            first={first}
+            last={last}
+            onMove={(d) => mutate(moveItem("process_steps", step.id, d))}
+            deleteLabel={t("deleteStep")}
+            onDelete={() => mutate(deleteItem("process_steps", step.id))}
+          />
+        </div>
+
+        <ul className="flex min-w-0 flex-col md:border-l md:pl-4">
+          {step.tasks.map((task) => (
+            <ContextTarget
+              key={task.id}
+              type="process-task"
+              id={task.id}
+              label={task.title}
+              items={() => [
+                {
+                  id: "delete",
+                  label: t("deleteTask"),
+                  icon: Trash2,
+                  destructive: true,
+                  onSelect: () => mutate(deleteItem("process_tasks", task.id)),
+                },
+              ]}
             >
-              <RiCloseLine className="size-3.5" />
-            </button>
+              <li className="group/task flex items-center gap-2 text-sm">
+                <span className="border-muted-foreground/50 size-3 shrink-0 rounded-full border" />
+                <InlineText
+                  value={task.title}
+                  required
+                  className="text-sm"
+                  onSave={(text) =>
+                    mutate(updateItem("process_tasks", task.id, { text }))
+                  }
+                />
+                <button
+                  type="button"
+                  aria-label={t("deleteTask")}
+                  onClick={() => mutate(deleteItem("process_tasks", task.id))}
+                  className="text-muted-foreground hover:text-destructive opacity-0 group-hover/task:opacity-100 focus-visible:opacity-100"
+                >
+                  <RiCloseLine className="size-3.5" />
+                </button>
+              </li>
+            </ContextTarget>
+          ))}
+          <li>
+            <AddTask stepId={step.id} />
           </li>
-        ))}
-        <li>
-          <AddTask stepId={step.id} />
-        </li>
-      </ul>
-    </div>
+        </ul>
+      </div>
+    </ContextTarget>
   )
 }
 

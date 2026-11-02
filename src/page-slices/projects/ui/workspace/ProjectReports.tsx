@@ -21,6 +21,8 @@ import { useViewer, useWorkspace } from "./data"
 import { RowMenu } from "./ProjectLibrary"
 import { ReportDialog, reportShareUrl } from "./ReportDialog"
 import { ReportViewCount } from "./ReportViews"
+import { useReportMenu } from "./report-menu"
+import { ContextTarget } from "@/shared/context-menu"
 import {
   deleteReport,
   useInvalidateReports,
@@ -46,6 +48,7 @@ export function ProjectReports({ projectId }: { projectId: string }) {
   const invalidate = useInvalidateReports(projectId)
   const [open, setOpen] = useState<{ report: Report | null } | null>(null)
   const [removing, setRemoving] = useState<Report | null>(null)
+  const menu = useReportMenu(projectId)
 
   // `?report=<id>` (a mention notification) opens that report; closing it
   // clears the param again.
@@ -110,72 +113,99 @@ export function ProjectReports({ projectId }: { projectId: string }) {
           {reports.map((r) => {
             const name = r.author?.full_name || t("unknownMember")
             return (
-              <ListRow
+              <ContextTarget
                 key={r.id}
-                className={cn(ROW_GRID, "min-h-14 cursor-pointer")}
-                onClick={() => setOpen({ report: r })}
+                type="project-report"
+                id={r.id}
+                label={r.title}
+                suppress={["button"]}
+                items={() =>
+                  menu.items(r, {
+                    onOpen: (report) => setOpen({ report }),
+                    onDelete: () => setRemoving(r),
+                  })
+                }
               >
-                <div className="flex min-w-0 items-center gap-2">
-                  <span className="text-foreground truncate">{r.title}</span>
-                  {r.share_token && (
-                    <Badge variant="info" className="shrink-0">
-                      <Link2 data-icon="inline-start" />
-                      {t("reportShared")}
-                    </Badge>
-                  )}
-                  <ReportViewCount projectId={projectId} reportId={r.id} />
-                </div>
-                <div className="hidden min-w-0 items-center gap-2 md:flex">
-                  <Avatar className="size-6">
-                    <AvatarImage src={r.author?.avatar_url || undefined} />
-                    <AvatarFallback className="text-[10px]">
-                      {name.slice(0, 2).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span className="text-muted-foreground truncate text-[13px]">
-                    {name}
+                <ListRow
+                  className={cn(ROW_GRID, "min-h-14 cursor-pointer")}
+                  onClick={() => setOpen({ report: r })}
+                >
+                  <div className="flex min-w-0 items-center gap-2">
+                    <span className="text-foreground truncate">{r.title}</span>
+                    {r.share_token && (
+                      <Badge variant="info" className="shrink-0">
+                        <Link2 data-icon="inline-start" />
+                        {t("reportShared")}
+                      </Badge>
+                    )}
+                    {/* The eye: right-click lists the reads themselves. */}
+                    <ContextTarget
+                      type="project-report-reads"
+                      label={t("reportViewsTitle")}
+                      items={() =>
+                        menu.readItems(r.id, () => setOpen({ report: r }))
+                      }
+                    >
+                      <span className="flex shrink-0">
+                        <ReportViewCount
+                          projectId={projectId}
+                          reportId={r.id}
+                        />
+                      </span>
+                    </ContextTarget>
+                  </div>
+                  <div className="hidden min-w-0 items-center gap-2 md:flex">
+                    <Avatar className="size-6">
+                      <AvatarImage src={r.author?.avatar_url || undefined} />
+                      <AvatarFallback className="text-[10px]">
+                        {name.slice(0, 2).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="text-muted-foreground truncate text-[13px]">
+                      {name}
+                    </span>
+                  </div>
+                  <span className="text-tertiary-foreground hidden text-right text-[13px] tabular-nums md:block">
+                    {format(parseISO(r.report_date), "d MMM yyyy", {
+                      locale: dateLocale,
+                    })}
                   </span>
-                </div>
-                <span className="text-tertiary-foreground hidden text-right text-[13px] tabular-nums md:block">
-                  {format(parseISO(r.report_date), "d MMM yyyy", {
-                    locale: dateLocale,
-                  })}
-                </span>
-                <RowMenu
-                  label={r.title}
-                  items={[
-                    {
-                      label: t("libOpen"),
-                      onSelect: () => setOpen({ report: r }),
-                    },
-                    ...(r.share_token
-                      ? [
-                          {
-                            label: t("reportCopyLink"),
-                            onSelect: () =>
-                              void navigator.clipboard
-                                .writeText(
-                                  reportShareUrl(r.share_token!, projectName),
-                                )
-                                .then(() =>
-                                  toast.success(t("reportLinkCopied")),
-                                ),
-                          },
-                        ]
-                      : []),
-                    ...(canEdit(r)
-                      ? [
-                          {
-                            label: tc("delete"),
-                            destructive: true,
-                            separatorBefore: true,
-                            onSelect: () => setRemoving(r),
-                          },
-                        ]
-                      : []),
-                  ]}
-                />
-              </ListRow>
+                  <RowMenu
+                    label={r.title}
+                    items={[
+                      {
+                        label: t("libOpen"),
+                        onSelect: () => setOpen({ report: r }),
+                      },
+                      ...(r.share_token
+                        ? [
+                            {
+                              label: t("reportCopyLink"),
+                              onSelect: () =>
+                                void navigator.clipboard
+                                  .writeText(
+                                    reportShareUrl(r.share_token!, projectName),
+                                  )
+                                  .then(() =>
+                                    toast.success(t("reportLinkCopied")),
+                                  ),
+                            },
+                          ]
+                        : []),
+                      ...(canEdit(r)
+                        ? [
+                            {
+                              label: tc("delete"),
+                              destructive: true,
+                              separatorBefore: true,
+                              onSelect: () => setRemoving(r),
+                            },
+                          ]
+                        : []),
+                    ]}
+                  />
+                </ListRow>
+              </ContextTarget>
             )
           })}
         </GroupedList>

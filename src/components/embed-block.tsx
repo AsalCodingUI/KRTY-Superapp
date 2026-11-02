@@ -113,7 +113,7 @@ export function EmbedBlock({
 
   const body = (
     <>
-      <span className="bg-muted grid size-8 shrink-0 place-items-center rounded-[6px]">
+      <span className="grid size-8 shrink-0 place-items-center">
         <SiteIcon url={url} className="size-4" />
       </span>
       <span className="flex min-w-0 flex-1 flex-col">

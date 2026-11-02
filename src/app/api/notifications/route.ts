@@ -9,6 +9,8 @@ import { z } from "zod"
 const markReadSchema = z.object({
   id: z.string().uuid().optional(),
   markAll: z.boolean().optional(),
+  /** With `id`: false marks it unread again. Default true. */
+  read: z.boolean().optional(),
 })
 
 /**
@@ -113,7 +115,9 @@ export async function PATCH(request: NextRequest) {
 
     let query = adminSupabase
       .from("notifications")
-      .update({ is_read: true })
+      .update({
+        is_read: parsed.data.markAll ? true : (parsed.data.read ?? true),
+      })
       .eq("user_id", profile.id)
 
     if (parsed.data.markAll) {

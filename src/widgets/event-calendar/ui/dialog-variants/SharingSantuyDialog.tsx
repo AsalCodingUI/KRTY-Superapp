@@ -12,8 +12,14 @@ import {
 import { createClient } from "@/shared/api/supabase/client"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { useDateLocale, useT } from "@/shared/i18n/client"
+import {
+  RiExternalLinkLine,
+  RiSettings5Line,
+  RiVideoOnLine,
+} from "@/shared/ui/lucide-icons"
 import { useQueryClient } from "@tanstack/react-query"
 import { format, isSameDay } from "date-fns"
+import Link from "next/link"
 import { useState } from "react"
 import { toast } from "sonner"
 import type { CalendarEvent } from "../types"
@@ -29,6 +35,13 @@ export function participantsOf(event: CalendarEvent): Participant[] {
 }
 
 const isUrl = (value: string) => /^https?:\/\//i.test(value)
+
+/** Sessions computed from the rotation (ids "santuy-<date>"), not rows. */
+export const isRotationSession = (event: CalendarEvent) =>
+  event.id.startsWith("santuy-")
+
+/** Where the rotation is managed. */
+const SANTUY_PAGE = "/calendar/santuy"
 
 /**
  * A Sharing Santuy session: topic, speaker, time and place, who's coming,
@@ -66,6 +79,73 @@ export function SharingSantuyDialog({
       ? `${format(event.start, "EEEE, d MMMM yyyy · HH:mm", { locale: dateLocale })} – ${format(event.end, "HH:mm")}`
       : `${format(event.start, "d MMM yyyy HH:mm", { locale: dateLocale })} – ${format(event.end, "d MMM yyyy HH:mm", { locale: dateLocale })}`
   const place = event.location || event.meetingUrl
+
+  // A rotation session: who presents, when, the Meet link; read-only here,
+  // the schedule is managed on its own page.
+  if (isRotationSession(event)) {
+    const meet = event.meetingUrl || event.location
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="sm:max-w-[35rem]">
+          <DialogHeader>
+            <DialogTitle>{t("eventTypeSharingSantuy")}</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col gap-5">
+            <div className="flex flex-col gap-1.5">
+              <h3 className="text-heading text-base font-medium break-words">
+                {event.title}
+              </h3>
+              <p className="text-muted-foreground text-sm">
+                {t("santuyRotationNote")}
+              </p>
+            </div>
+            <dl className="grid grid-cols-[6.5rem_minmax(0,1fr)] gap-x-4 gap-y-2.5 text-sm">
+              <dt className="text-muted-foreground">{t("santuySpeaker")}</dt>
+              <dd className="text-foreground">{event.organizer || "—"}</dd>
+              <dt className="text-muted-foreground">{t("santuyWhen")}</dt>
+              <dd className="text-foreground">{when}</dd>
+              {meet && (
+                <>
+                  <dt className="text-muted-foreground">{t("santuyMeet")}</dt>
+                  <dd className="text-foreground break-words">
+                    <a
+                      href={meet}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="underline underline-offset-2"
+                    >
+                      {meet.replace(/^https:\/\//, "")}
+                    </a>
+                  </dd>
+                </>
+              )}
+            </dl>
+          </div>
+          <DialogFooter className="sm:justify-between">
+            <Button
+              variant="outline"
+              nativeButton={false}
+              render={<Link href={SANTUY_PAGE} prefetch={false} />}
+              onClick={() => onOpenChange(false)}
+            >
+              <RiSettings5Line data-icon="inline-start" />
+              {t("santuyManage")}
+            </Button>
+            {meet && (
+              <Button
+                nativeButton={false}
+                render={<a href={meet} target="_blank" rel="noreferrer" />}
+              >
+                <RiVideoOnLine data-icon="inline-start" />
+                {t("santuyJoinMeet")}
+                <RiExternalLinkLine data-icon="inline-end" />
+              </Button>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    )
+  }
 
   const toggleJoin = async () => {
     setBusy(true)

@@ -2,8 +2,9 @@
 
 import { cx } from "@/shared/lib/utils"
 import { format, isSameDay } from "date-fns"
-import { memo, useMemo } from "react"
+import { memo, useMemo, useRef } from "react"
 import { useCalendarContext } from "./calendar-context"
+import { EventTarget, slotProps, useCalendarSurface } from "./calendar-menu"
 import { DraggableEvent } from "./draggable-event"
 import { DroppableCell } from "./droppable-cell"
 import { EventItem } from "./event-item"
@@ -42,6 +43,8 @@ export const DayView = memo(function DayView({
   const today = new Date()
   const isToday = isSameDay(currentDate, today)
   const isWeekend = currentDate.getDay() === 0 || currentDate.getDay() === 6
+  const rootRef = useRef<HTMLDivElement>(null)
+  useCalendarSurface(rootRef)
 
   // Filter events for current day using centralized function
   // Includes all-day events and filters timed events by business hours
@@ -51,7 +54,7 @@ export const DayView = memo(function DayView({
   }, [events, currentDate])
 
   return (
-    <div className="flex min-w-[320px] flex-col">
+    <div ref={rootRef} className="flex min-w-[320px] flex-col">
       {/* Header */}
 
       {/* Time grid */}
@@ -120,6 +123,7 @@ export const DayView = memo(function DayView({
                   }
                 >
                   <div
+                    {...slotProps(slotDate)}
                     className="h-full w-full"
                     onClick={() => onSlotClick?.(slotDate)}
                   />
@@ -147,13 +151,15 @@ export const DayView = memo(function DayView({
                       event={event}
                       disabled={!(canEditEvent ? canEditEvent(event) : canEdit)}
                     >
-                      <EventItem
-                        event={event}
-                        onClick={() => onEventClick?.(event)}
-                        compact={height < 60}
-                        showTime
-                        className="h-full"
-                      />
+                      <EventTarget event={event}>
+                        <EventItem
+                          event={event}
+                          onClick={() => onEventClick?.(event)}
+                          compact={height < 60}
+                          showTime
+                          className="h-full"
+                        />
+                      </EventTarget>
                     </DraggableEvent>
                   </div>
                 ),

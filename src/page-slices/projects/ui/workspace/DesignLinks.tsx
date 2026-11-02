@@ -17,7 +17,8 @@ import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { useT } from "@/shared/i18n/client"
 import { RiAddLine } from "@/shared/ui/lucide-icons"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { Link2 } from "lucide-react"
+import { Link2, Pencil, Trash2 } from "lucide-react"
+import { ContextTarget, type CtxItem } from "@/shared/context-menu"
 import { useState } from "react"
 import { toast } from "sonner"
 import { supabase } from "./data"
@@ -124,7 +125,7 @@ export function DesignLinkAnchor({
       title={url}
       className="flex min-w-0 flex-1 items-center gap-2.5 py-1.5 pl-2"
     >
-      <span className="bg-muted flex size-7 shrink-0 items-center justify-center rounded-md">
+      <span className="flex size-7 shrink-0 items-center justify-center">
         {isFigma(url) ? (
           <FigmaMark className="h-3.5 w-auto" />
         ) : (
@@ -202,36 +203,60 @@ export function DesignLinks({ projectId }: { projectId: string }) {
       ) : (
         <ul className="-mx-2 flex flex-col">
           {links.map((link) => (
-            <li
+            <ContextTarget
               key={link.id}
-              className="group/row hover:bg-muted/60 flex items-center gap-2 rounded-lg pr-1 transition-colors"
+              type="project-link"
+              id={link.id}
+              label={link.title || linkLabel(link.url)}
+              // Buka / Salin link come with the address.
+              href={link.url}
+              items={(): CtxItem[] => [
+                {
+                  id: "edit",
+                  label: t("actionEdit"),
+                  icon: Pencil,
+                  hidden: !canManage,
+                  onSelect: () => setEditing(link),
+                },
+                {
+                  id: "delete",
+                  label: tc("delete"),
+                  icon: Trash2,
+                  destructive: true,
+                  hidden: !canManage,
+                  // The delete dialog asks first.
+                  onSelect: () => setRemoving(link),
+                },
+              ]}
             >
-              <DesignLinkAnchor url={link.url} title={link.title} />
-              {canManage && (
-                <RowMenu
-                  label={link.title || linkLabel(link.url)}
-                  items={[
-                    {
-                      label: t("designLinkCopy"),
-                      onSelect: () =>
-                        void navigator.clipboard
-                          .writeText(link.url)
-                          .then(() => toast.success(t("reportLinkCopied"))),
-                    },
-                    {
-                      label: t("actionEdit"),
-                      onSelect: () => setEditing(link),
-                    },
-                    {
-                      label: tc("delete"),
-                      destructive: true,
-                      separatorBefore: true,
-                      onSelect: () => setRemoving(link),
-                    },
-                  ]}
-                />
-              )}
-            </li>
+              <li className="group/row hover:bg-muted/60 flex items-center gap-2 rounded-lg pr-1 transition-colors">
+                <DesignLinkAnchor url={link.url} title={link.title} />
+                {canManage && (
+                  <RowMenu
+                    label={link.title || linkLabel(link.url)}
+                    items={[
+                      {
+                        label: t("designLinkCopy"),
+                        onSelect: () =>
+                          void navigator.clipboard
+                            .writeText(link.url)
+                            .then(() => toast.success(t("reportLinkCopied"))),
+                      },
+                      {
+                        label: t("actionEdit"),
+                        onSelect: () => setEditing(link),
+                      },
+                      {
+                        label: tc("delete"),
+                        destructive: true,
+                        separatorBefore: true,
+                        onSelect: () => setRemoving(link),
+                      },
+                    ]}
+                  />
+                )}
+              </li>
+            </ContextTarget>
           ))}
         </ul>
       )}

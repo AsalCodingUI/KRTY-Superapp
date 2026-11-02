@@ -1,7 +1,15 @@
 "use client"
 
 import { linkKey } from "@/shared/lib/url-params"
+import {
+  deleteProcess,
+  setDefaultProcess,
+} from "@/app/(main)/processes/actions/process-actions"
+import { ConfirmDialog } from "@/components/confirm-dialog"
 import { EmptyState } from "@/components/empty-state"
+import { ContextTarget, type CtxItem } from "@/shared/context-menu"
+import { CopyPlus, Pencil, Star, Trash2 } from "lucide-react"
+import { toast } from "sonner"
 import { PageHeader } from "@/components/page-header"
 import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
@@ -12,7 +20,12 @@ import { RiAddLine, RiFlowLine } from "@/shared/ui/lucide-icons"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Fragment, useState } from "react"
-import { countOf, useProcesses, type ProcessSummary } from "../model/data"
+import {
+  countOf,
+  useProcesses,
+  useRefreshProcesses,
+  type ProcessSummary,
+} from "../model/data"
 import { ProcessFormDialog } from "./ProcessFormDialog"
 
 /** Stakeholders' project templates (DesignerHQ "Processes"). */
@@ -23,6 +36,52 @@ export function ProcessesPage() {
   const isAdmin = canManageByRole(profile?.role)
   const { data: processes = [], isLoading } = useProcesses(isAdmin)
   const [creating, setCreating] = useState(false)
+  // From the right-click menu: rename / duplicate one, or delete it.
+  const [dialog, setDialog] = useState<{
+    kind: "rename" | "duplicate"
+    process: ProcessSummary
+  } | null>(null)
+  const [deleting, setDeleting] = useState<ProcessSummary | null>(null)
+  const refresh = useRefreshProcesses()
+
+  const processItems = (p: ProcessSummary): CtxItem[] => [
+    {
+      id: "default",
+      label: t("makeDefault"),
+      icon: Star,
+      checked: p.is_default,
+      role: "checkbox",
+      disabled: p.is_default,
+      onSelect: async () => {
+        const result = await setDefaultProcess(p.id)
+        if (!result.success) return void toast.error(result.error)
+        toast.success(t("madeDefault", { name: p.name }))
+        await refresh()
+      },
+    },
+    {
+      id: "rename",
+      label: t("rename"),
+      icon: Pencil,
+      onSelect: () => setDialog({ kind: "rename", process: p }),
+    },
+    {
+      id: "duplicate",
+      label: t("duplicate"),
+      icon: CopyPlus,
+      onSelect: () => setDialog({ kind: "duplicate", process: p }),
+    },
+    {
+      id: "delete",
+      label: t("delete"),
+      icon: Trash2,
+      destructive: true,
+      // The default can't go (same rule as the server).
+      disabled: p.is_default,
+      hint: p.is_default ? t("default") : undefined,
+      onSelect: () => setDeleting(p),
+    },
+  ]
 
   if (loading)
     return (
@@ -67,7 +126,16 @@ export function ProcessesPage() {
         ) : (
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {processes.map((p) => (
-              <ProcessCard key={p.id} process={p} />
+              <ContextTarget
+                key={p.id}
+                type="process"
+                id={p.id}
+                label={p.name}
+                href={`/processes/${linkKey(p.name, p.id)}`}
+                items={() => processItems(p)}
+              >
+                <ProcessCard process={p} />
+              </ContextTarget>
             ))}
           </div>
         )}
@@ -80,16 +148,53 @@ export function ProcessesPage() {
         processes={processes}
         onSaved={(id) => router.push(`/processes/${id}`)}
       />
+      <ProcessFormDialog
+        open={dialog !== null}
+        onOpenChange={(open) => !open && setDialog(null)}
+        process={dialog?.kind === "rename" ? dialog.process : null}
+        copyFrom={dialog?.kind === "duplicate" ? dialog.process : null}
+        processes={processes}
+        onSaved={(id) => {
+          if (dialog?.kind === "duplicate") {
+            toast.success(t("duplicated"))
+            router.push(`/processes/${id}`)
+          }
+        }}
+      />
+      <ConfirmDialog
+        open={deleting !== null}
+        onOpenChange={(open) => !open && setDeleting(null)}
+        title={t("deleteTitle", { name: deleting?.name ?? "" })}
+        description={t("deleteDescription")}
+        confirmText={t("delete")}
+        variant="destructive"
+        onConfirm={async () => {
+          if (!deleting) return
+          const result = await deleteProcess(deleting.id)
+          if (!result.success) return void toast.error(result.error)
+          toast.success(t("deleted"))
+          setDeleting(null)
+          await refresh()
+        }}
+      />
     </div>
   )
 }
 
-function ProcessCard({ process }: { process: ProcessSummary }) {
+function ProcessCard({
+  process,
+  ...rest
+}: {
+  process: ProcessSummary
+  /** data-* from the right-click target. */
+  [data: `data-${string}`]: string | undefined
+}) {
   const t = useT("processes")
   const n = countOf(process)
 
   return (
     <Link
+      {...rest}
       data-slot="process-card"
       href={`/processes/${linkKey(process.name, process.id)}`}
       prefetch={false}

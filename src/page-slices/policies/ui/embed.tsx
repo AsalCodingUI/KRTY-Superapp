@@ -399,6 +399,71 @@ export const EMBED_SLASH_ITEM: BlockItem = {
   },
 }
 
+/**
+ * The picked embed (or a just-pasted link on offer) as another version:
+ * a card or preview of the given width. Shared by the bubble menu and the
+ * right-click menu (which picks the embed first).
+ */
+export function setEmbedView(editor: Editor, next: EmbedView) {
+  const { state } = editor
+  const sel = state.selection
+  if (sel instanceof NodeSelection && sel.node.type.name === "embed") {
+    editor
+      .chain()
+      .focus()
+      .command(({ tr }) => {
+        tr.setNodeAttribute(sel.from, "view", next)
+        tr.setSelection(NodeSelection.create(tr.doc, sel.from))
+        return true
+      })
+      .run()
+    return
+  }
+  const offer = offerAt(state)
+  if (!offer) return
+  const url = normalizeUrl(offer.href) ?? offer.href
+  // A link whose text is the address has no title yet; it's looked up.
+  const title = offer.text.trim() === offer.href ? "" : offer.text.trim()
+  editor
+    .chain()
+    .focus()
+    .command(({ tr }) => {
+      const embed = state.schema.nodes.embed.create({
+        url,
+        title,
+        view: next,
+      })
+      tr.replaceWith(offer.pos, offer.pos + offer.node.nodeSize, embed)
+      tr.setSelection(NodeSelection.create(tr.doc, offer.pos))
+      tr.setMeta(offerKey, null)
+      return true
+    })
+    .run()
+}
+
+export function embedToLink(editor: Editor) {
+  const sel = editor.state.selection
+  if (!(sel instanceof NodeSelection) || sel.node.type.name !== "embed") return
+  const url = sel.node.attrs.url as string
+  const text = (sel.node.attrs.title as string) || url
+  const { schema } = editor.state
+  editor
+    .chain()
+    .focus()
+    .command(({ tr }) => {
+      const para = schema.nodes.paragraph.create(
+        null,
+        schema.text(text, [schema.marks.link.create({ href: url })]),
+      )
+      tr.replaceWith(sel.from, sel.to, para)
+      tr.setSelection(TextSelection.create(tr.doc, sel.from + 1 + text.length))
+      // Keep the versions on offer, to switch back.
+      tr.setMeta(offerKey, sel.from)
+      return true
+    })
+    .run()
+}
+
 type Choice = "link" | "card" | "preview"
 
 /**
@@ -430,68 +495,8 @@ export function EmbedMenu({ editor }: { editor: Editor }) {
     },
   })
 
-  const toView = (next: EmbedView) => {
-    const { state } = editor
-    const sel = state.selection
-    if (sel instanceof NodeSelection && sel.node.type.name === "embed") {
-      editor
-        .chain()
-        .focus()
-        .command(({ tr }) => {
-          tr.setNodeAttribute(sel.from, "view", next)
-          tr.setSelection(NodeSelection.create(tr.doc, sel.from))
-          return true
-        })
-        .run()
-      return
-    }
-    const offer = offerAt(state)
-    if (!offer) return
-    const url = normalizeUrl(offer.href) ?? offer.href
-    // A link whose text is the address has no title yet; it's looked up.
-    const title = offer.text.trim() === offer.href ? "" : offer.text.trim()
-    editor
-      .chain()
-      .focus()
-      .command(({ tr }) => {
-        const embed = state.schema.nodes.embed.create({
-          url,
-          title,
-          view: next,
-        })
-        tr.replaceWith(offer.pos, offer.pos + offer.node.nodeSize, embed)
-        tr.setSelection(NodeSelection.create(tr.doc, offer.pos))
-        tr.setMeta(offerKey, null)
-        return true
-      })
-      .run()
-  }
-
-  const toLink = () => {
-    const sel = editor.state.selection
-    if (!(sel instanceof NodeSelection) || sel.node.type.name !== "embed")
-      return
-    const url = sel.node.attrs.url as string
-    const text = (sel.node.attrs.title as string) || url
-    const { schema } = editor.state
-    editor
-      .chain()
-      .focus()
-      .command(({ tr }) => {
-        const para = schema.nodes.paragraph.create(
-          null,
-          schema.text(text, [schema.marks.link.create({ href: url })]),
-        )
-        tr.replaceWith(sel.from, sel.to, para)
-        tr.setSelection(
-          TextSelection.create(tr.doc, sel.from + 1 + text.length),
-        )
-        // Keep the versions on offer, to switch back.
-        tr.setMeta(offerKey, sel.from)
-        return true
-      })
-      .run()
-  }
+  const toView = (next: EmbedView) => setEmbedView(editor, next)
+  const toLink = () => embedToLink(editor)
 
   const choice: Choice | null = !current
     ? null

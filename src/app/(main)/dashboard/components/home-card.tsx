@@ -111,12 +111,16 @@ export function HomeGrid({
   )
 }
 
+/** `data-*` attributes (a right-click target: <ContextTarget>). */
+type DataProps = { [key: `data-${string}`]: unknown }
+
 export function HomeCard({
   title,
   badge,
   actions,
   className,
   children,
+  ...data
 }: {
   title: React.ReactNode
   badge?: React.ReactNode
@@ -124,9 +128,10 @@ export function HomeCard({
   actions?: React.ReactNode
   className?: string
   children: React.ReactNode
-}) {
+} & DataProps) {
   return (
     <section
+      {...data}
       className={cn(
         "bg-card border-field-border dark:border-border flex min-w-0 flex-col gap-4 rounded-xl border p-5",
         className,
@@ -294,13 +299,14 @@ export function HomeRow({
   title,
   subtitle,
   trailing,
+  ...data
 }: {
   href?: string
   leading?: React.ReactNode
   title: React.ReactNode
   subtitle?: React.ReactNode
   trailing?: React.ReactNode
-}) {
+} & DataProps) {
   const body = (
     <>
       {leading}
@@ -324,6 +330,7 @@ export function HomeRow({
   if (href)
     return (
       <Link
+        {...data}
         href={href}
         prefetch={false}
         className={cn(className, "hover:bg-accent/60 transition-colors")}
@@ -331,7 +338,11 @@ export function HomeRow({
         {body}
       </Link>
     )
-  return <div className={className}>{body}</div>
+  return (
+    <div {...data} className={className}>
+      {body}
+    </div>
+  )
 }
 
 export function HomeEmpty({ children }: { children: React.ReactNode }) {

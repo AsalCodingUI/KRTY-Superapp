@@ -38,6 +38,8 @@ export type ProjectInput = {
   status?: ProjectStatus
   /** New projects only: the process to copy (null = the default one). */
   processId?: string | null
+  /** New projects only: no phases at all (an ongoing project). */
+  noPhases?: boolean
   /** project_categories.id, or null for none. */
   categoryId?: string | null
   members: ProjectMemberInput[]
@@ -201,7 +203,11 @@ export async function saveProject(
         ? { status: input.status }
         : {}
       : { status: "Planned" as const }),
-    ...(!id && input.processId ? { process_id: input.processId } : {}),
+    ...(!id && input.noPhases
+      ? { phases_off: true }
+      : !id && input.processId
+        ? { process_id: input.processId }
+        : {}),
     ...(input.categoryId !== undefined
       ? { category_id: input.categoryId }
       : {}),

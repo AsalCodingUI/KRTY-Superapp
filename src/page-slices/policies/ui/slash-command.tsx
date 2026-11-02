@@ -324,7 +324,7 @@ export function SlashMenu({ bridge }: { bridge: SlashBridge }) {
                 i === index && "bg-muted",
               )}
             >
-              <span className="border-border bg-background flex size-7 shrink-0 items-center justify-center rounded-md border">
+              <span className="flex size-7 shrink-0 items-center justify-center">
                 <item.icon className="text-muted-foreground size-4" />
               </span>
               <span className="flex min-w-0 flex-col">

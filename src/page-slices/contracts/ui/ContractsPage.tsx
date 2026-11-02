@@ -40,6 +40,8 @@ import {
   RiSearchLine,
   RiUploadLine,
 } from "@/shared/ui/lucide-icons"
+import { ContextTarget, copyText, type CtxItem } from "@/shared/context-menu"
+import { Copy, Download, Eye, Filter, Pencil, Trash2 } from "lucide-react"
 import { useQueryClient } from "@tanstack/react-query"
 import { AnimatePresence } from "motion/react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
@@ -49,6 +51,7 @@ import {
   contractKeys,
   endsSoon,
   kindLabelKey,
+  downloadContract,
   removeContractFile,
   supabase,
   useContracts,
@@ -174,12 +177,72 @@ export function ContractsPage({ viewer }: { viewer: ContractViewer }) {
     queryClient.invalidateQueries({ queryKey: contractKeys.all })
   }
 
+  const tm = useT("ctxmenu")
+  /**
+   * Right-click on a contract row: open, download, copy the title; for
+   * stakeholders also edit, delete and "only this person".
+   */
+  const contractItems = (c: ContractRow): CtxItem[] => {
+    const name = c.person?.full_name
+    const items: (CtxItem & { hidden?: boolean })[] = [
+      {
+        id: "open",
+        label: t("view"),
+        icon: Eye,
+        onSelect: () => go({ contract: contractKey(c) }),
+      },
+      {
+        id: "download",
+        label: t("ctxDownloadPdf"),
+        icon: Download,
+        onSelect: () =>
+          downloadContract(c.file_path, c.title).catch(() =>
+            toast.error(t("previewFailed")),
+          ),
+      },
+      {
+        id: "copy-title",
+        label: t("ctxCopyTitle"),
+        icon: Copy,
+        onSelect: async () => {
+          if (await copyText(c.title)) toast.success(tm("copied"))
+          else toast.error(tm("copyFailed"))
+        },
+      },
+      {
+        id: "only-person",
+        label: t("ctxShowPersonOnly", { name: name ?? "" }),
+        icon: Filter,
+        hidden: !viewer.isAdmin || !name || person === c.user_id,
+        onSelect: () => setPerson(c.user_id),
+      },
+      {
+        id: "edit",
+        label: t("edit"),
+        icon: Pencil,
+        hidden: !viewer.isAdmin,
+        onSelect: () => setForm(c),
+      },
+      {
+        id: "delete",
+        label: t("delete"),
+        icon: Trash2,
+        destructive: true,
+        hidden: !viewer.isAdmin,
+        // The dialog asks first.
+        onSelect: () => setDeleting(c),
+      },
+    ]
+    return items.filter((item) => !item.hidden)
+  }
+
   const rowProps = (c: ContractRow) => ({
     contract: c,
     isAdmin: viewer.isAdmin,
     onOpen: () => go({ contract: contractKey(c) }),
     onEdit: () => setForm(c),
     onDelete: () => setDeleting(c),
+    items: () => contractItems(c),
   })
 
   return (
@@ -328,93 +391,105 @@ function ContractListRow({
   onOpen,
   onEdit,
   onDelete,
+  items,
 }: {
   contract: ContractRow
   isAdmin: boolean
   onOpen: () => void
   onEdit: () => void
   onDelete: () => void
+  /** The right-click menu's actions. */
+  items: () => CtxItem[]
 }) {
   const t = useT("contracts")
   const period = usePeriodLabel()
   const soon = endsSoon(contract)
 
   return (
-    <ListRow
-      className={cn(
-        isAdmin ? ROW_GRID_ADMIN : ROW_GRID,
-        "min-h-14",
-        // Ending soon: a warm edge so it stands out in a long list.
-        soon &&
-          "before:bg-warning before:absolute before:inset-y-2 before:left-0 before:w-0.5 before:rounded-full",
-      )}
+    <ContextTarget
+      type="contract"
+      id={contract.id}
+      label={contract.title}
+      items={items}
     >
-      <div className="flex min-w-0 items-center gap-3">
-        <RiFileTextLine className="text-muted-foreground size-4 shrink-0" />
-        <div className="flex min-w-0 flex-col">
-          <button
-            type="button"
-            onClick={onOpen}
-            className="text-foreground truncate text-left outline-none after:absolute after:inset-0 focus-visible:underline"
-          >
-            {contract.title}
-          </button>
-          <span className="text-tertiary-foreground truncate text-[13px]">
-            {period(contract)}
-          </span>
-        </div>
-      </div>
-      <div className="flex items-center justify-end gap-1.5">
-        <EndingChip contract={contract} className="hidden sm:inline-flex" />
-        <ListChip className={cn(!isAdmin && "hidden md:inline-flex")}>
-          {t(kindLabelKey(contract.kind))}
-        </ListChip>
-        {/* Phones have no status column; employees need to see it. */}
-        {!isAdmin && (
-          <span className="md:hidden">
-            <StatusBadge status={contract.status} />
-          </span>
+      <ListRow
+        className={cn(
+          isAdmin ? ROW_GRID_ADMIN : ROW_GRID,
+          "min-h-14",
+          // Ending soon: a warm edge so it stands out in a long list.
+          soon &&
+            "before:bg-warning before:absolute before:inset-y-2 before:left-0 before:w-0.5 before:rounded-full",
         )}
-        {contract.has_ematerai && (
-          <ListChip className="hidden sm:inline-flex">{t("ematerai")}</ListChip>
-        )}
-      </div>
-      <div className="hidden justify-end md:flex">
-        <StatusBadge status={contract.status} />
-      </div>
-      {isAdmin && (
-        <div className="relative z-10 hidden justify-end md:flex">
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              render={
-                <Button
-                  variant="ghost"
-                  size="icon-sm"
-                  aria-label={t("actions")}
-                  className="text-muted-foreground"
-                />
-              }
+      >
+        <div className="flex min-w-0 items-center gap-3">
+          <RiFileTextLine className="text-muted-foreground size-4 shrink-0" />
+          <div className="flex min-w-0 flex-col">
+            <button
+              type="button"
+              onClick={onOpen}
+              className="text-foreground truncate text-left outline-none after:absolute after:inset-0 focus-visible:underline"
             >
-              <RiMoreFill />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="min-w-40">
-              <DropdownMenuItem onClick={onOpen}>
-                <RiEyeLine />
-                {t("view")}
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={onEdit}>
-                <RiPencilLine />
-                {t("edit")}
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem variant="destructive" onClick={onDelete}>
-                <RiDeleteBinLine />
-                {t("delete")}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+              {contract.title}
+            </button>
+            <span className="text-tertiary-foreground truncate text-[13px]">
+              {period(contract)}
+            </span>
+          </div>
         </div>
-      )}
-    </ListRow>
+        <div className="flex items-center justify-end gap-1.5">
+          <EndingChip contract={contract} className="hidden sm:inline-flex" />
+          <ListChip className={cn(!isAdmin && "hidden md:inline-flex")}>
+            {t(kindLabelKey(contract.kind))}
+          </ListChip>
+          {/* Phones have no status column; employees need to see it. */}
+          {!isAdmin && (
+            <span className="md:hidden">
+              <StatusBadge status={contract.status} />
+            </span>
+          )}
+          {contract.has_ematerai && (
+            <ListChip className="hidden sm:inline-flex">
+              {t("ematerai")}
+            </ListChip>
+          )}
+        </div>
+        <div className="hidden justify-end md:flex">
+          <StatusBadge status={contract.status} />
+        </div>
+        {isAdmin && (
+          <div className="relative z-10 hidden justify-end md:flex">
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                render={
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    aria-label={t("actions")}
+                    className="text-muted-foreground"
+                  />
+                }
+              >
+                <RiMoreFill />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="min-w-40">
+                <DropdownMenuItem onClick={onOpen}>
+                  <RiEyeLine />
+                  {t("view")}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={onEdit}>
+                  <RiPencilLine />
+                  {t("edit")}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem variant="destructive" onClick={onDelete}>
+                  <RiDeleteBinLine />
+                  {t("delete")}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        )}
+      </ListRow>
+    </ContextTarget>
   )
 }

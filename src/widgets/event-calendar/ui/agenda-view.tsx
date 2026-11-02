@@ -2,8 +2,9 @@
 
 import { useT } from "@/shared/i18n/client"
 import { RiCalendar2Line } from "@/shared/ui/lucide-icons"
-import { useMemo } from "react"
+import { useMemo, useRef } from "react"
 import { useCalendarContext } from "./calendar-context"
+import { EventTarget, slotProps, useCalendarSurface } from "./calendar-menu"
 import { EventItem } from "./event-item"
 import type { CalendarEvent } from "./types"
 import { getDayKey, groupEventsByDay } from "./utils"
@@ -16,6 +17,9 @@ interface AgendaViewProps {
 export function AgendaView({ events, onEventClick }: AgendaViewProps) {
   const { currentDate } = useCalendarContext()
   const t = useT("calendar")
+  // Right-click on the list: new event that day, today, go to a date.
+  const rootRef = useRef<HTMLDivElement>(null)
+  useCalendarSurface(rootRef)
   const dayEvents = useMemo(() => {
     const map = groupEventsByDay(events, currentDate, currentDate)
     const list = map.get(getDayKey(currentDate)) ?? []
@@ -23,7 +27,11 @@ export function AgendaView({ events, onEventClick }: AgendaViewProps) {
   }, [events, currentDate])
 
   return (
-    <div className="flex h-full flex-col">
+    <div
+      ref={rootRef}
+      {...slotProps(currentDate, "day")}
+      className="flex h-full flex-col"
+    >
       {/* Header */}
 
       {/* Event count */}
@@ -45,13 +53,14 @@ export function AgendaView({ events, onEventClick }: AgendaViewProps) {
         ) : (
           <div className="space-y-2">
             {dayEvents.map((event) => (
-              <EventItem
-                key={event.id}
-                event={event}
-                onClick={() => onEventClick?.(event)}
-                compact={false}
-                showTime
-              />
+              <EventTarget key={event.id} event={event}>
+                <EventItem
+                  event={event}
+                  onClick={() => onEventClick?.(event)}
+                  compact={false}
+                  showTime
+                />
+              </EventTarget>
             ))}
           </div>
         )}

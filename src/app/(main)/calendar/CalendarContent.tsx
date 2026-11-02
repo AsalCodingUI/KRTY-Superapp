@@ -3,6 +3,7 @@
 import { useKeyboardShortcuts } from "@/shared/hooks/useKeyboardShortcuts"
 import { useT } from "@/shared/i18n/client"
 import { useTabRoute } from "@/shared/hooks/useTabRoute"
+import { isIdHolidayDate } from "@/shared/lib/id-holidays"
 import { cx } from "@/shared/lib/utils"
 // Deep imports (not the `@/widgets/event-calendar` barrel) so the dynamic
 // EventCalendar split below isn't defeated by the barrel's static re-exports.
@@ -18,7 +19,7 @@ import { EventVisibilityProvider } from "@/widgets/event-calendar/ui/hooks/use-e
 import { useGoogleCalendar } from "@/widgets/event-calendar/ui/hooks/use-google-calendar"
 import { getViewRange } from "@/widgets/event-calendar/ui/utils"
 import { useQuery } from "@tanstack/react-query"
-import { endOfDay, startOfDay } from "date-fns"
+import { endOfDay, format, startOfDay } from "date-fns"
 import dynamic from "next/dynamic"
 import { useEffect, useMemo, type ReactNode } from "react"
 import { toast } from "sonner"
@@ -163,6 +164,13 @@ function CalendarContent({
       .filter(
         (event) => !event.googleEventId || !blocked.has(event.googleEventId),
       )
+      // Indonesian holidays come from our own list (id-holidays.ts, shown to
+      // stakeholders only); Google's copy of the same day would double it.
+      .filter(
+        (event) =>
+          event.type !== "Public Holiday" ||
+          !isIdHolidayDate(format(event.start, "yyyy-MM-dd")),
+      )
       .forEach((event) => map.set(event.id, event))
     return Array.from(map.values())
   }, [events, googleEventsRaw, blockedGoogleEventIds, withGoogle])
@@ -213,6 +221,8 @@ function CalendarContent({
               timeline={timeline}
               dialogOpen={dialogOpen}
               onDialogOpenChange={setDialogOpen}
+              views={views}
+              onViewChange={handleViewChange}
             />
           )}
         </div>

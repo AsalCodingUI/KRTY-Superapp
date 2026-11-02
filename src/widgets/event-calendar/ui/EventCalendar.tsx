@@ -3,12 +3,13 @@
 import dynamic from "next/dynamic"
 import { useMemo, useState } from "react"
 import { useCalendarContext } from "./calendar-context"
+import { CalendarMenuProvider, useCalendarMenuApi } from "./calendar-menu"
 import { CalendarDndProvider } from "./calendar-dnd-context"
 import {
   EventVisibilityProvider,
   useEventVisibility,
 } from "./hooks/use-event-visibility"
-import type { CalendarEvent, EventCategory } from "./types"
+import type { CalendarEvent, EventCategory, ViewMode } from "./types"
 import { filterEventsByRange, getViewRange } from "./utils"
 import { WeekView } from "./week-view"
 
@@ -50,7 +51,13 @@ export interface EventCalendarProps {
   // Optional external control for dialog
   dialogOpen?: boolean
   onDialogOpenChange?: (open: boolean) => void
+  /** Views this calendar offers (the right-click menu switches between them). */
+  views?: ViewMode[]
+  /** Switch view (keeps the URL in step); defaults to setViewMode. */
+  onViewChange?: (view: ViewMode) => void
 }
+
+const ALL_VIEWS: ViewMode[] = ["week", "month", "day", "agenda"]
 
 function CalendarContent({
   events,
@@ -64,6 +71,8 @@ function CalendarContent({
   timeline,
   externalDialogOpen,
   onExternalDialogClose,
+  views = ALL_VIEWS,
+  onViewChange,
 }: {
   events: CalendarEvent[]
   onEventAdd?: (event: Partial<CalendarEvent>) => Promise<void>
@@ -76,12 +85,20 @@ function CalendarContent({
   timeline?: React.ReactNode
   externalDialogOpen?: boolean
   onExternalDialogClose?: () => void
+  views?: ViewMode[]
+  onViewChange?: (view: ViewMode) => void
 }) {
-  const { viewMode, currentDate } = useCalendarContext()
+  const { viewMode, currentDate, setViewMode } = useCalendarContext()
   const { isEventVisible } = useEventVisibility()
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [dialogInitialDate, setDialogInitialDate] = useState<Date | undefined>()
+  // From the right-click menu: a prefilled new event (a duplicate, an
+  // all-day slot) and "Ubah" (straight to the form).
+  const [dialogDraft, setDialogDraft] = useState<Partial<CalendarEvent> | null>(
+    null,
+  )
+  const [startEditing, setStartEditing] = useState(false)
 
   // Handle external dialog trigger (from toolbar button)
   const isDialogOpen = dialogOpen || !!(externalDialogOpen && !selectedEvent)
@@ -94,6 +111,8 @@ function CalendarContent({
   const handleDialogClose = (open: boolean) => {
     setDialogOpen(open)
     if (!open) {
+      setDialogDraft(null)
+      setStartEditing(false)
       if (onExternalDialogClose) {
         onExternalDialogClose()
       }
@@ -109,6 +128,8 @@ function CalendarContent({
 
   const handleEventClick = (event: CalendarEvent) => {
     if (onEventOpen?.(event)) return
+    setDialogDraft(null)
+    setStartEditing(false)
     setSelectedEvent(event)
     setDialogOpen(true)
   }
@@ -116,13 +137,41 @@ function CalendarContent({
   const handleSlotClick = (date: Date) => {
     if (!canEdit) return
     setSelectedEvent(null)
+    setDialogDraft(null)
     setDialogInitialDate(date)
     setDialogOpen(true)
   }
 
+  const menu = useCalendarMenuApi({
+    openEvent: handleEventClick,
+    editEvent: (event) => {
+      setDialogDraft(null)
+      setStartEditing(true)
+      setSelectedEvent(event)
+      setDialogOpen(true)
+    },
+    newEvent: ({ date, draft }) => {
+      if (!canEdit) return
+      setSelectedEvent(null)
+      setStartEditing(false)
+      setDialogDraft(draft ?? null)
+      setDialogInitialDate(date)
+      setDialogOpen(true)
+    },
+    updateEvent: onEventUpdate,
+    deleteEvent: onEventDelete,
+    canAdd: canEdit,
+    canEditEvent: (event) =>
+      Boolean(canEditEvent(event)) && !event.googleEventId,
+    eventTypes,
+    views,
+    onViewChange: onViewChange ?? setViewMode,
+  })
+
   const handleDayClick = (date: Date) => {
     if (!canEdit) return
     setSelectedEvent(null)
+    setDialogDraft(null)
     setDialogInitialDate(date)
     setDialogOpen(true)
   }
@@ -140,7 +189,7 @@ function CalendarContent({
   }
 
   return (
-    <>
+    <CalendarMenuProvider value={menu.api}>
       <div className="relative min-h-0 flex-1 overflow-hidden">
         {viewMode === "month" && (
           <div className="h-full overflow-auto">
@@ -201,9 +250,12 @@ function CalendarContent({
               : !canEdit
           }
           eventTypes={eventTypes}
+          draft={dialogDraft}
+          startEditing={startEditing}
         />
       )}
-    </>
+      {menu.dialog}
+    </CalendarMenuProvider>
   )
 }
 
@@ -220,6 +272,8 @@ export function EventCalendar({
   timeline,
   dialogOpen: externalDialogOpen,
   onDialogOpenChange,
+  views,
+  onViewChange,
 }: EventCalendarProps) {
   const handleEventUpdate = async (event: CalendarEvent) => {
     if (onEventUpdate) {
@@ -250,6 +304,8 @@ export function EventCalendar({
               timeline={timeline}
               externalDialogOpen={externalDialogOpen}
               onExternalDialogClose={handleExternalDialogClose}
+              views={views}
+              onViewChange={onViewChange}
             />
           </div>
         </div>

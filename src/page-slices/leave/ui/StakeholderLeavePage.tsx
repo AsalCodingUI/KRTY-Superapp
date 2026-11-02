@@ -57,6 +57,17 @@ import { adminColumns } from "./components/AdminColumns"
 import { type LeaveRequestWithProfile } from "./components/AdminLeaveList"
 import { RemainingLeaveList } from "./components/RemainingLeaveList"
 import { ApprovalInbox } from "./components/ApprovalInbox"
+import { LeaveRequestContextMenu } from "./components/leave-context-menu"
+import { useProofViewer } from "@/entities/leave/ui/ProofLink"
+
+// Read-only "Lihat detail" (right-click on a request).
+const LeaveRequestDetailDialog = dynamic(
+  () =>
+    import("./components/LeaveRequestDetailDialog").then(
+      (m) => m.LeaveRequestDetailDialog,
+    ),
+  { loading: () => null },
+)
 
 // Edit dialog only loads once an admin opens a session to edit.
 const AdminAttendanceEditDialog = dynamic(
@@ -171,6 +182,11 @@ export function StakeholderLeavePage({
   const [manualSaving, setManualSaving] = useState(false)
   const [editingLogId, setEditingLogId] = useState<string | null>(null)
   const [editLoading, setEditLoading] = useState(false)
+  const [detailRequest, setDetailRequest] =
+    useState<LeaveRequestWithProfile | null>(null)
+  const [detailMounted, setDetailMounted] = useState(false)
+  if (detailRequest && !detailMounted) setDetailMounted(true)
+  const proof = useProofViewer()
   const [manualForm, setManualForm] = useState<ManualLeaveForm>({
     user_id: "",
     leave_type: "Annual Leave",
@@ -581,36 +597,55 @@ export function StakeholderLeavePage({
             }
           : undefined
       }
-      onDelete={
-        canManage
-          ? async (ids) => {
-              runWithConfirm({
-                title:
-                  ids.length === 1
-                    ? t("confirmDeleteTitleOne")
-                    : t("confirmDeleteTitleOther", { n: ids.length }),
-                description: t("cannotUndo"),
-                confirmText: tc("delete"),
-                variant: "destructive",
-                onConfirm: async () => {
-                  const { error } = await supabase
-                    .from("leave_requests")
-                    .delete()
-                    .in("id", ids as number[])
-                  if (error) {
-                    toast.error(error.message || t("toastDeleteFailed"))
-                    return
-                  }
-                  toast.success(t("toastDeleted"))
-                  router.refresh()
-                },
-              })
-            }
-          : undefined
-      }
+      onDelete={canManage ? confirmDeleteRequests : undefined}
+      wrapRow={(req, row) => (
+        // Right-click: detail, the row's approve / reject, delete (as the
+        // selection bar), copy the dates, calendar, proof, profile.
+        <LeaveRequestContextMenu
+          req={req}
+          person={req.profiles?.full_name}
+          calendar="team"
+          actions={{
+            onDetail: () => setDetailRequest(req),
+            onApprove: canManage ? () => handleApprove(req.id) : undefined,
+            onReject: canManage ? () => handleReject(req.id) : undefined,
+            onViewProof: proof.open,
+            onDelete: canManage
+              ? () => confirmDeleteRequests([req.id])
+              : undefined,
+          }}
+        >
+          {row}
+        </LeaveRequestContextMenu>
+      )}
       showTableWrapper={false}
     />
   )
+
+  /** Delete requests (selection bar, row menu): asks first. */
+  async function confirmDeleteRequests(ids: (string | number)[]) {
+    runWithConfirm({
+      title:
+        ids.length === 1
+          ? t("confirmDeleteTitleOne")
+          : t("confirmDeleteTitleOther", { n: ids.length }),
+      description: t("cannotUndo"),
+      confirmText: tc("delete"),
+      variant: "destructive",
+      onConfirm: async () => {
+        const { error } = await supabase
+          .from("leave_requests")
+          .delete()
+          .in("id", ids as number[])
+        if (error) {
+          toast.error(error.message || t("toastDeleteFailed"))
+          return
+        }
+        toast.success(t("toastDeleted"))
+        router.refresh()
+      },
+    })
+  }
 
   const remainingContent = <RemainingLeaveList data={profiles} />
 
@@ -717,6 +752,14 @@ export function StakeholderLeavePage({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {detailMounted && (
+        <LeaveRequestDetailDialog
+          request={detailRequest}
+          onOpenChange={(open) => !open && setDetailRequest(null)}
+        />
+      )}
+      {proof.viewer}
 
       {editDialogMounted && (
         <AdminAttendanceEditDialog

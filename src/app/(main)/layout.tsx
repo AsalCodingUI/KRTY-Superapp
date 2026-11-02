@@ -9,6 +9,7 @@ import { AppBannerStack } from "@/widgets/app-banner/ui/AppBanner"
 import { AnnouncementBanner } from "@/widgets/app-banner/ui/AnnouncementBanner"
 import { ImpersonationBanner } from "@/widgets/impersonation/ui/ImpersonationBanner"
 import { DesktopShellProvider } from "@/components/desktop-shell"
+import { ContextMenuAppScope } from "@/shared/context-menu"
 import { DESKTOP_SHELL_COOKIE } from "@/shared/lib/desktop-shell"
 import { cookies } from "next/headers"
 import { cn } from "@/lib/utils"
@@ -51,6 +52,8 @@ export default async function Layout({
   const desktop = (await cookies()).get(DESKTOP_SHELL_COOKIE)?.value === "mac"
   return (
     <DesktopShellProvider value={desktop}>
+      {/* The right-click menu gets the viewer's access, ⌘K and AI. */}
+      <ContextMenuAppScope />
       {desktop && (
         // A new href whenever the rules change: React keeps a hoisted
         // style by its href.

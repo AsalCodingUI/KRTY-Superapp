@@ -423,6 +423,13 @@ const id = {
   psTasksOverdue: "{n} terbuka lewat tenggat",
   psNoTasks: "Belum ada tugas untuk anggota ini",
   psArchivedExcluded: "Project diarsipkan tidak dihitung ke KPI.",
+  ctxViewKpi: "Lihat KPI",
+  ctxCopyScore: "Salin skor",
+  ctxViewResult: "Lihat hasil 360",
+  ctxProcessResult: "Proses hasil 360",
+  ctxCopySchedule: "Salin jadwal",
+  ctxCopyMeetingLink: "Salin link meeting",
+  ctxCopyToRole: "Salin ke role",
 }
 
 const en: Record<keyof typeof id, string> = {
@@ -848,6 +855,13 @@ const en: Record<keyof typeof id, string> = {
   psTasksOverdue: "{n} open past due date",
   psNoTasks: "No tasks for this member yet",
   psArchivedExcluded: "Archived projects don't count toward KPI.",
+  ctxViewKpi: "View KPI",
+  ctxCopyScore: "Copy score",
+  ctxViewResult: "View 360 result",
+  ctxProcessResult: "Process 360 result",
+  ctxCopySchedule: "Copy schedule",
+  ctxCopyMeetingLink: "Copy meeting link",
+  ctxCopyToRole: "Copy to role",
 }
 
 export const performance = { id, en }

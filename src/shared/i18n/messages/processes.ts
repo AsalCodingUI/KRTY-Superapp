@@ -67,6 +67,12 @@ const id = {
     "Fase, langkah, dan task yang belum selesai diganti dengan isi {name}. Task yang sudah selesai tetap ada.",
   changeProcessConfirm: "Ganti proses",
   processApplied: "Proses project diganti",
+  noPhasesOption: "Tanpa fase",
+  noPhasesHint:
+    "Proyek jalan terus tanpa fase, cocok buat side task atau klien retainer.",
+  useProcessTitle: "Pakai fase dari {name}?",
+  useProcessDescription:
+    "Fase, langkah, dan task dari {name} ditambahkan ke proyek ini. Task yang sudah ada tetap, tanpa fase.",
   manageProcesses: "Kelola proses",
   // Errors
   errNotAllowed: "Hanya stakeholder yang bisa mengelola proses.",
@@ -141,6 +147,12 @@ const en: Record<keyof typeof id, string> = {
     "Phases, steps and open tasks are replaced with {name}. Finished tasks stay.",
   changeProcessConfirm: "Switch process",
   processApplied: "Project process switched",
+  noPhasesOption: "No phases",
+  noPhasesHint:
+    "The project runs on without phases, good for side work or retainer clients.",
+  useProcessTitle: "Use the phases of {name}?",
+  useProcessDescription:
+    "Phases, steps, and tasks from {name} are added to this project. Existing tasks stay, without a phase.",
   manageProcesses: "Manage processes",
   errNotAllowed: "Only stakeholders can manage processes.",
   errNameRequired: "Name is required.",

@@ -61,6 +61,9 @@ import {
 } from "react"
 import { toast } from "sonner"
 import { getPreviewNotifications } from "@/app/(fullscreen)/menubar/actions"
+import { ContextTarget } from "@/shared/context-menu"
+import { useCopyWithToast } from "@/page-slices/leave/ui/components/leave-context-menu"
+import { CalendarRange, MailOpen } from "lucide-react"
 
 /**
  * The macOS menu bar popover (Kretya Flow, the desktop app: a Tauri shell around
@@ -869,6 +872,7 @@ function TaskRows({ data, limit = 5 }: { data: Data; limit?: number }) {
 
 function NotificationRows({ data, limit }: { data: Data; limit?: number }) {
   const act = useActions()
+  const tm = useT("ctxmenu")
   const dateLocale = useDateLocale()
   if (data.unread.length === 0)
     return (
@@ -884,38 +888,53 @@ function NotificationRows({ data, limit }: { data: Data; limit?: number }) {
       {data.unread.slice(0, limit).map((n) => {
         const Icon = iconFor(n.type)
         return (
-          <li
+          // Right-click: open it (the row's click).
+          <ContextTarget
             key={n.id}
-            role="button"
-            tabIndex={0}
-            onClick={() => act.openNotification(n)}
-            onKeyDown={(e) => e.key === "Enter" && act.openNotification(n)}
-            className="hover:bg-muted flex cursor-default gap-3 rounded-lg px-2 py-2.5 transition-colors"
+            type="notification"
+            id={n.id}
+            label={n.title}
+            items={() => [
+              {
+                id: "open",
+                label: tm("open"),
+                icon: MailOpen,
+                onSelect: () => act.openNotification(n),
+              },
+            ]}
           >
-            <DotIcon dot size={32}>
-              <span className="bg-muted text-muted-foreground flex size-full items-center justify-center rounded-lg">
-                <Icon className="size-4" />
-              </span>
-            </DotIcon>
-            <div className="flex min-w-0 flex-1 flex-col gap-0.5 text-sm">
-              <div className="flex items-baseline gap-2">
-                <span className="min-w-0 flex-1 truncate font-medium">
-                  {n.title}
+            <li
+              role="button"
+              tabIndex={0}
+              onClick={() => act.openNotification(n)}
+              onKeyDown={(e) => e.key === "Enter" && act.openNotification(n)}
+              className="hover:bg-muted flex cursor-default gap-3 rounded-lg px-2 py-2.5 transition-colors"
+            >
+              <DotIcon dot size={32}>
+                <span className="bg-muted text-muted-foreground flex size-full items-center justify-center rounded-lg">
+                  <Icon className="size-4" />
                 </span>
-                <time className="text-tertiary-foreground shrink-0 text-xs tabular-nums">
-                  {formatDistanceToNowStrict(new Date(n.created_at!), {
-                    addSuffix: true,
-                    locale: dateLocale,
-                  })}
-                </time>
+              </DotIcon>
+              <div className="flex min-w-0 flex-1 flex-col gap-0.5 text-sm">
+                <div className="flex items-baseline gap-2">
+                  <span className="min-w-0 flex-1 truncate font-medium">
+                    {n.title}
+                  </span>
+                  <time className="text-tertiary-foreground shrink-0 text-xs tabular-nums">
+                    {formatDistanceToNowStrict(new Date(n.created_at!), {
+                      addSuffix: true,
+                      locale: dateLocale,
+                    })}
+                  </time>
+                </div>
+                {n.message && (
+                  <p className="text-muted-foreground line-clamp-2 text-[13px]">
+                    {n.message}
+                  </p>
+                )}
               </div>
-              {n.message && (
-                <p className="text-muted-foreground line-clamp-2 text-[13px]">
-                  {n.message}
-                </p>
-              )}
-            </div>
-          </li>
+            </li>
+          </ContextTarget>
         )
       })}
     </ul>
@@ -926,6 +945,7 @@ function ApprovalRows({ data }: { data: Data }) {
   const act = useActions()
   const tl = useT("leave")
   const dateLocale = useDateLocale()
+  const copy = useCopyWithToast()
   if (data.pending.length === 0)
     return (
       <EmptyState
@@ -939,61 +959,87 @@ function ApprovalRows({ data }: { data: Data }) {
     <div className="flex flex-col">
       {data.pending.map((req) => {
         const days = leaveDays(req.start_date, req.end_date)
+        const range = formatLeaveRange(req.start_date, req.end_date, dateLocale)
         return (
-          <div
+          // Right-click: the row's approve / reject, and the dates.
+          <ContextTarget
             key={req.id}
-            className="flex items-start gap-3 rounded-2xl px-2 py-2.5 transition-colors hover:bg-(--row-hover)"
+            type="leave-request"
+            id={String(req.id)}
+            label={`${req.profiles?.full_name ?? "—"} · ${leaveTypeLabel(req.leave_type, tl)}`}
+            items={() => [
+              {
+                id: "approve",
+                label: tl("approve"),
+                icon: RiCheckLine,
+                onSelect: () => act.decide(req.id, true),
+              },
+              {
+                id: "reject",
+                label: tl("reject"),
+                icon: RiCloseLine,
+                onSelect: () => act.decide(req.id, false),
+              },
+              {
+                id: "copy-range",
+                label: tl("ctxCopyRange"),
+                icon: CalendarRange,
+                onSelect: () => copy(range),
+              },
+            ]}
           >
-            <Avatar className="size-8">
-              {req.profiles?.avatar_url && (
-                <AvatarImage src={req.profiles.avatar_url} />
-              )}
-              <AvatarFallback className="text-[11px]">
-                {initials(req.profiles?.full_name)}
-              </AvatarFallback>
-            </Avatar>
-            <div className="min-w-0 flex-1 text-[13px]">
-              <p className="truncate">
-                <span className="font-medium">
-                  {req.profiles?.full_name ?? "—"}
-                </span>
-                <span className="text-muted-foreground">
-                  {" "}
-                  · {leaveTypeLabel(req.leave_type, tl)}
-                </span>
-              </p>
-              <p className="text-muted-foreground tabular-nums">
-                {formatLeaveRange(req.start_date, req.end_date, dateLocale)} ·{" "}
-                {tl(daysKey(days), { n: days })}
-              </p>
-              {req.reason && (
-                <p className="text-tertiary-foreground mt-0.5 line-clamp-2">
-                  {req.reason}
+            <div className="flex items-start gap-3 rounded-2xl px-2 py-2.5 transition-colors hover:bg-(--row-hover)">
+              <Avatar className="size-8">
+                {req.profiles?.avatar_url && (
+                  <AvatarImage src={req.profiles.avatar_url} />
+                )}
+                <AvatarFallback className="text-[11px]">
+                  {initials(req.profiles?.full_name)}
+                </AvatarFallback>
+              </Avatar>
+              <div className="min-w-0 flex-1 text-[13px]">
+                <p className="truncate">
+                  <span className="font-medium">
+                    {req.profiles?.full_name ?? "—"}
+                  </span>
+                  <span className="text-muted-foreground">
+                    {" "}
+                    · {leaveTypeLabel(req.leave_type, tl)}
+                  </span>
                 </p>
-              )}
+                <p className="text-muted-foreground tabular-nums">
+                  {formatLeaveRange(req.start_date, req.end_date, dateLocale)} ·{" "}
+                  {tl(daysKey(days), { n: days })}
+                </p>
+                {req.reason && (
+                  <p className="text-tertiary-foreground mt-0.5 line-clamp-2">
+                    {req.reason}
+                  </p>
+                )}
+              </div>
+              <div className="flex shrink-0 items-center gap-1">
+                <Button
+                  size="icon-sm"
+                  variant="ghost"
+                  aria-label="Tolak"
+                  title="Tolak"
+                  onClick={() => act.decide(req.id, false)}
+                >
+                  <RiCloseLine />
+                </Button>
+                <Button
+                  size="icon-sm"
+                  variant="secondary"
+                  aria-label="Setujui"
+                  title="Setujui"
+                  onClick={() => act.decide(req.id, true)}
+                  className="text-green-11"
+                >
+                  <RiCheckLine />
+                </Button>
+              </div>
             </div>
-            <div className="flex shrink-0 items-center gap-1">
-              <Button
-                size="icon-sm"
-                variant="ghost"
-                aria-label="Tolak"
-                title="Tolak"
-                onClick={() => act.decide(req.id, false)}
-              >
-                <RiCloseLine />
-              </Button>
-              <Button
-                size="icon-sm"
-                variant="secondary"
-                aria-label="Setujui"
-                title="Setujui"
-                onClick={() => act.decide(req.id, true)}
-                className="text-green-11"
-              >
-                <RiCheckLine />
-              </Button>
-            </div>
-          </div>
+          </ContextTarget>
         )
       })}
     </div>

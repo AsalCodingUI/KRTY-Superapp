@@ -9,6 +9,8 @@ import { RiFileTextLine } from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
 import dynamic from "next/dynamic"
 import { useMemo, useState } from "react"
+import { ContextTarget, download, type CtxItem } from "@/shared/context-menu"
+import { Download, Eye } from "lucide-react"
 import { formatBytes } from "../workspace/data"
 import { Chip, FilePreview } from "../workspace/FilePreview"
 import {
@@ -88,46 +90,76 @@ export function PortalDocuments({
                     const status =
                       STATUSES[doc.status as Status] ?? STATUSES.sent
                     return (
-                      <button
+                      // Client-safe: preview and download only, no links.
+                      <ContextTarget
                         key={doc.id}
-                        type="button"
-                        onClick={() => setViewing(ordered.indexOf(doc))}
-                        className="group/row focus-visible:ring-focus-ring flex min-w-0 flex-col gap-2 rounded-xl text-left outline-none focus-visible:ring-2"
+                        type="portal-document"
+                        label={doc.title}
+                        suppress={["image", "button"]}
+                        items={(): CtxItem[] => [
+                          {
+                            id: "open",
+                            label: t("ctxPreview"),
+                            icon: Eye,
+                            shortcut: "Enter",
+                            onSelect: () => setViewing(ordered.indexOf(doc)),
+                          },
+                          {
+                            id: "download",
+                            label: t("libDownload"),
+                            icon: Download,
+                            hidden: !doc.file_name,
+                            onSelect: () =>
+                              download(
+                                `${docUrl(doc.id)}?download=1`,
+                                doc.file_name ?? doc.title,
+                              ),
+                          },
+                        ]}
                       >
-                        <FilePreview
-                          file={{
-                            name: doc.file_name ?? doc.title,
-                            mime_type: null,
-                            file_path: doc.id,
-                          }}
-                          url={docUrl(doc.id)}
-                          badge={
-                            <Chip className="static flex items-center gap-1.5">
-                              <span
-                                className={cn(
-                                  "size-1.5 rounded-full",
-                                  status.dot,
-                                )}
-                              />
-                              {t(status.labelKey)}
-                            </Chip>
-                          }
-                          className="ring-border/60 w-full rounded-xl ring-1 transition-[filter] duration-150 group-hover/row:brightness-95"
-                        />
-                        <span className="flex min-w-0 flex-col">
-                          <span className="truncate text-sm" title={doc.title}>
-                            {doc.title}
+                        <button
+                          type="button"
+                          onClick={() => setViewing(ordered.indexOf(doc))}
+                          className="group/row focus-visible:ring-focus-ring flex min-w-0 flex-col gap-2 rounded-xl text-left outline-none focus-visible:ring-2"
+                        >
+                          <FilePreview
+                            file={{
+                              name: doc.file_name ?? doc.title,
+                              mime_type: null,
+                              file_path: doc.id,
+                            }}
+                            url={docUrl(doc.id)}
+                            badge={
+                              <Chip className="static flex items-center gap-1.5">
+                                <span
+                                  className={cn(
+                                    "size-1.5 rounded-full",
+                                    status.dot,
+                                  )}
+                                />
+                                {t(status.labelKey)}
+                              </Chip>
+                            }
+                            className="ring-border/60 w-full rounded-xl ring-1 transition-[filter] duration-150 group-hover/row:brightness-95"
+                          />
+                          <span className="flex min-w-0 flex-col">
+                            <span
+                              className="truncate text-sm"
+                              title={doc.title}
+                            >
+                              {doc.title}
+                            </span>
+                            <span className="text-tertiary-foreground truncate text-[13px] tabular-nums">
+                              {doc.file_name
+                                ? `${formatBytes(doc.file_size)} · `
+                                : ""}
+                              {format(new Date(doc.updated_at), "d MMM yyyy", {
+                                locale: dateLocale,
+                              })}
+                            </span>
                           </span>
-                          <span className="text-tertiary-foreground truncate text-[13px] tabular-nums">
-                            {doc.file_name
-                              ? `${formatBytes(doc.file_size)} · `
-                              : ""}
-                            {format(new Date(doc.updated_at), "d MMM yyyy", {
-                              locale: dateLocale,
-                            })}
-                          </span>
-                        </span>
-                      </button>
+                        </button>
+                      </ContextTarget>
                     )
                   })}
                 </div>

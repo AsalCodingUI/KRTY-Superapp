@@ -18,6 +18,9 @@ import { invoices } from "./invoices"
 import { api } from "./api"
 import { ai } from "./ai"
 import { profile } from "./profile"
+import { santuy } from "./santuy"
+import { ctxmenu } from "./ctxmenu"
+import { taskmenu } from "./taskmenu"
 
 /**
  * Every namespace, one file each (messages/<name>.ts). Add new namespaces
@@ -44,6 +47,9 @@ export const messages = {
   api,
   profile,
   ai,
+  santuy,
+  ctxmenu,
+  taskmenu,
 }
 
 export type Namespace = keyof typeof messages
