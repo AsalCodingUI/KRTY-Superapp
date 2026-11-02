@@ -1,7 +1,7 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "main",
-  "description": "Both windows load the web app (the app window and the /desktop popover): they may call the app's own commands (open in the browser or the app window, menu bar title, start at login, notify).",
+  "description": "Both windows load the web app (the app window and the /desktop popover): they may call the app's own commands (open in the browser or the app window, menu bar title, start at login, notify, the app's version, notification permission and System Settings for the web app's Setelan app page).",
   "windows": ["app", "popover"],
   "remote": {
     "urls": ["https://app.kretyastudio.com/*", "http://localhost:3000/*"]
@@ -15,6 +15,11 @@
     "allow-set-tray-title",
     "allow-set-autostart",
     "allow-set-theme",
-    "allow-notify"
+    "allow-notify",
+    "allow-get-autostart",
+    "allow-app-info",
+    "allow-open-system-settings",
+    "allow-notification-status",
+    "allow-request-notification-permission"
   ]
 }

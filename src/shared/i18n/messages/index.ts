@@ -21,6 +21,8 @@ import { profile } from "./profile"
 import { santuy } from "./santuy"
 import { ctxmenu } from "./ctxmenu"
 import { taskmenu } from "./taskmenu"
+import { desktopApp } from "./desktopApp"
+import { whatsNew } from "./whatsNew"
 
 /**
  * Every namespace, one file each (messages/<name>.ts). Add new namespaces
@@ -50,6 +52,8 @@ export const messages = {
   santuy,
   ctxmenu,
   taskmenu,
+  desktopApp,
+  whatsNew,
 }
 
 export type Namespace = keyof typeof messages

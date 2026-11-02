@@ -51,6 +51,16 @@ function NavBadge({ count }: { count?: number }) {
   )
 }
 
+/** "New here": a small dot at the row's end (on the icon when collapsed). */
+function NavDot() {
+  return (
+    <span
+      aria-hidden
+      className="bg-primary ml-auto size-2 shrink-0 rounded-full group-data-[collapsible=icon]:absolute group-data-[collapsible=icon]:top-1 group-data-[collapsible=icon]:right-1 group-data-[collapsible=icon]:size-1.5"
+    />
+  )
+}
+
 /** Memoized: the sidebar passes a memoized `items` array. */
 export const NavMain = memo(function NavMain({
   label,
@@ -63,6 +73,8 @@ export const NavMain = memo(function NavMain({
     icon: React.ReactNode
     isActive?: boolean
     badge?: number
+    /** Something new here, without a count (e.g. Yang baru). */
+    dot?: boolean
     /** Page tabs; listed under the page while it is open. */
     items?: {
       title: string
@@ -113,6 +125,7 @@ export const NavMain = memo(function NavMain({
                 >
                   {item.icon}
                   <span className="truncate">{item.title}</span>
+                  {item.dot && !item.badge && <NavDot />}
                   {/* The tabs show their own counts while listed. */}
                   {!open && (
                     <NavBadge

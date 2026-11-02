@@ -1,11 +1,12 @@
 "use client"
 
 import { createClient } from "@/shared/api/supabase/client"
+import { APP_UPDATE_CATEGORY } from "@/shared/lib/desktop-app"
 import type { MessageKey } from "@/shared/i18n/messages"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useMemo } from "react"
 
-export const UPDATE_CATEGORY = "Update aplikasi"
+export const UPDATE_CATEGORY = APP_UPDATE_CATEGORY
 
 /** Storage folder for pictures and files in rules (the nil UUID: the
  *  buckets' project policies read the first folder as a uuid). */

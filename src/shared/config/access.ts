@@ -39,6 +39,8 @@ export const PAGE_ACCESS: Record<string, AccessLevel[]> = {
   "/performance": EVERYONE,
   "/policies": EVERYONE,
   "/contracts": EVERYONE,
+  // What changed in the app, with guides (entries filter by level).
+  "/whats-new": EVERYONE,
   // Which projects: membership (stakeholders see all).
   "/projects": EVERYONE,
   // PM-only extras go here, e.g. "/some-page": ["pm", "stakeholder"].
@@ -51,6 +53,8 @@ export const PAGE_ACCESS: Record<string, AccessLevel[]> = {
   // PMs read their projects' invoices (read-only).
   "/invoice-print": PM_UP,
   "/settings": STAKEHOLDER,
+  // Kretya Flow's own settings (notifications, login item): everyone.
+  "/settings/app": EVERYONE,
 }
 
 function matches(pathname: string, prefix: string) {

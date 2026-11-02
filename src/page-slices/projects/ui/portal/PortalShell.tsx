@@ -142,7 +142,9 @@ export function PortalShell({
               name={project.name}
               className="size-5 shrink-0 rounded-[5px] text-[10px] max-md:size-8 max-md:rounded-[9px] max-md:text-sm"
             />
-            <span className="truncate">{project.name}</span>
+            <span className="truncate" translate="no">
+              {project.name}
+            </span>
           </Link>
           {statusKey && (
             <span className="blend-ink bg-foreground/[0.06] text-muted-foreground hidden shrink-0 rounded-full px-2 py-0.5 text-xs font-medium sm:inline">
@@ -225,6 +227,7 @@ export function PortalShell({
                       <BreadcrumbLink
                         render={<Link href={base} />}
                         className="max-w-48 truncate"
+                        translate="no"
                       >
                         {project.name}
                       </BreadcrumbLink>

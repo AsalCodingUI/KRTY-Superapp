@@ -2054,6 +2054,60 @@ export type Database = {
         }
         Relationships: []
       }
+      whats_new_entries: {
+        Row: {
+          id: string
+          date: string
+          title: string
+          summary: string
+          tags: string[]
+          area: string
+          audience: string
+          surface: string
+          thumbnail_url: string | null
+          body: string
+          published: boolean
+          sort: number
+          created_by: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id: string
+          date?: string
+          title: string
+          summary?: string
+          tags?: string[]
+          area?: string
+          audience?: string
+          surface?: string
+          thumbnail_url?: string | null
+          body?: string
+          published?: boolean
+          sort?: number
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          date?: string
+          title?: string
+          summary?: string
+          tags?: string[]
+          area?: string
+          audience?: string
+          surface?: string
+          thumbnail_url?: string | null
+          body?: string
+          published?: boolean
+          sort?: number
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       employee_kpi_overview: {

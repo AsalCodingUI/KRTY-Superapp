@@ -804,14 +804,14 @@ function MeetRow({
       }
     >
       <div className="bg-muted/40 border-border flex flex-col gap-3 border-t px-5 py-3.5">
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+        <div className="flex items-center gap-3">
           <RiVideoOnLine className="text-muted-foreground size-4 shrink-0" />
           {meetUrl ? (
             <a
               href={meetUrl}
               target="_blank"
               rel="noreferrer"
-              className="text-foreground max-w-full min-w-0 flex-1 basis-[calc(100%-2rem)] truncate text-sm underline-offset-2 hover:underline sm:basis-0"
+              className="text-foreground min-w-0 flex-1 truncate text-sm underline-offset-2 hover:underline"
             >
               {meetUrl.replace(/^https:\/\//, "")}
             </a>
@@ -820,46 +820,74 @@ function MeetRow({
               {t("meetNone")}
             </span>
           )}
-          <div className="flex flex-wrap items-center gap-2">
-            {meetUrl && (
+          {/* Copy / join as icons by the link; managing it (replace,
+              paste your own) tucked in "…" so the row stays calm. */}
+          <div className="flex shrink-0 items-center gap-1">
+            {meetUrl ? (
               <>
-                <Button variant="outline" size="sm" onClick={copy}>
-                  <RiFileCopyLine data-icon="inline-start" />
-                  {t("copy")}
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  aria-label={t("copy")}
+                  title={t("copy")}
+                  onClick={copy}
+                >
+                  <RiFileCopyLine />
                 </Button>
                 <Button
-                  size="sm"
+                  size="icon-sm"
+                  aria-label={t("join")}
+                  title={t("join")}
                   nativeButton={false}
                   render={<a href={meetUrl} target="_blank" rel="noreferrer" />}
                 >
-                  <RiExternalLinkLine data-icon="inline-start" />
-                  {t("join")}
+                  <RiExternalLinkLine />
                 </Button>
               </>
+            ) : (
+              canEdit &&
+              googleConfigured && (
+                <Button size="sm" disabled={busy} onClick={create}>
+                  {busy && <Spinner data-icon="inline-start" />}
+                  {t("createMeet")}
+                </Button>
+              )
             )}
-            {canEdit && googleConfigured && (
-              <Button
-                variant={meetUrl ? "ghost" : "default"}
-                size="sm"
-                disabled={busy}
-                onClick={() => (meetUrl ? setConfirmReplace(true) : create())}
-              >
-                {busy && <Spinner data-icon="inline-start" />}
-                {meetUrl ? t("replaceMeet") : t("createMeet")}
-              </Button>
-            )}
-            {canEdit && googleConfigured && !pasting && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-muted-foreground"
-                onClick={() => {
-                  setDraft(meetUrl ?? "")
-                  setPasting(true)
-                }}
-              >
-                {t("pasteLink")}
-              </Button>
+            {canEdit && googleConfigured && (meetUrl || !pasting) && (
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  render={
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      aria-label={t("meetTitle")}
+                      className="text-muted-foreground"
+                      disabled={busy}
+                    />
+                  }
+                >
+                  {busy && meetUrl ? <Spinner /> : <RiMoreFill />}
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="min-w-44">
+                  {meetUrl && (
+                    <DropdownMenuItem onClick={() => setConfirmReplace(true)}>
+                      <RotateCcw />
+                      {t("replaceMeet")}
+                    </DropdownMenuItem>
+                  )}
+                  {!pasting && (
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setDraft(meetUrl ?? "")
+                        setPasting(true)
+                      }}
+                    >
+                      <LinkIcon />
+                      {t("pasteLink")}
+                    </DropdownMenuItem>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
             )}
           </div>
         </div>

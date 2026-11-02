@@ -91,7 +91,7 @@ const LONG_PRESS_MS = 500
 const FILTER_MIN_ITEMS = 10
 
 const POPUP =
-  "bg-popover text-popover-foreground data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 nest-rounded-2xl nest-p-2 max-h-(--available-height) w-max min-w-52 max-w-[min(22rem,var(--available-width))] origin-(--transform-origin) overflow-x-hidden overflow-y-auto shadow-(--elev-4) duration-150 ease-out outline-none data-closed:overflow-hidden"
+  "bg-popover text-popover-foreground data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 nest-rounded-2xl nest-p-2 max-h-(--available-height) w-max min-w-52 max-w-[min(22rem,var(--available-width))] origin-(--transform-origin) no-scrollbar overflow-x-hidden overflow-y-auto shadow-(--elev-4) duration-150 ease-out outline-none data-closed:overflow-hidden"
 
 /** The topmost contentEditable host above `el`. */
 function editableHost(el: Element) {
@@ -521,7 +521,8 @@ export function ContextMenuProvider({ children }: { children: ReactNode }) {
               align="start"
               sideOffset={2}
               collisionPadding={8}
-              className="isolate z-[80] outline-none"
+              // Always dark (inverted on a light page), like a system menu.
+              className="dark isolate z-[80] [color-scheme:dark] outline-none"
             >
               <Menu.Popup
                 data-ctxmenu-popup
@@ -712,7 +713,8 @@ function Row({
             alignOffset={-6}
             sideOffset={2}
             collisionPadding={8}
-            className="isolate z-[80] outline-none"
+            // Always dark (inverted on a light page), like a system menu.
+            className="dark isolate z-[80] [color-scheme:dark] outline-none"
           >
             <Menu.Popup data-ctxmenu-popup className={cn(POPUP, "min-w-44")}>
               {Array.isArray(item.submenu) ? (

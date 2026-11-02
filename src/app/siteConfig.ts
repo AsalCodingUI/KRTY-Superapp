@@ -9,6 +9,7 @@ export const siteConfig = {
     performance: "/performance",
     policies: "/policies",
     contracts: "/contracts",
+    whatsNew: "/whats-new",
     finance: "/finance",
     projects: "/projects",
     clients: "/clients",

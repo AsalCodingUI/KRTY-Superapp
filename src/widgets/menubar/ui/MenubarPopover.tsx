@@ -1,5 +1,6 @@
 "use client"
 
+import { useAppInfo } from "@/shared/hooks/useMacApp"
 import { AppIcon } from "@/components/app-icon"
 import { EmptyState } from "@/components/empty-state"
 import { SegmentedControl } from "@/components/segmented-control"
@@ -128,7 +129,13 @@ export function useDesktopPrefs() {
     const sync = () => setPrefs(readPrefs())
     sync()
     window.addEventListener(PREFS_EVENT, sync)
-    return () => window.removeEventListener(PREFS_EVENT, sync)
+    // Changed from the other window (the app's Setelan app page).
+    const onStorage = (e: StorageEvent) => e.key === PREFS_KEY && sync()
+    window.addEventListener("storage", onStorage)
+    return () => {
+      window.removeEventListener(PREFS_EVENT, sync)
+      window.removeEventListener("storage", onStorage)
+    }
   }, [])
   const setPref = (key: keyof DesktopPrefs, value: boolean) => {
     try {
@@ -1535,6 +1542,9 @@ function SettingsPanel({ data }: { data: Data }) {
   const [prefs, setPref] = useDesktopPrefs()
   const toggle = (key: keyof DesktopPrefs) => (value: boolean) =>
     setPref(key, value)
+  // The running app's own version (the preview outside the app shows
+  // the first release's).
+  const appVersion = useAppInfo().data?.version
 
   return (
     <div className="flex flex-col gap-1 pb-2">
@@ -1606,7 +1616,7 @@ function SettingsPanel({ data }: { data: Data }) {
       </SettingsGroup>
 
       <div className="text-tertiary-foreground flex items-center justify-between px-2 pt-2 text-xs">
-        <span>Kretya Flow · versi 0.1.0</span>
+        <span>Kretya Flow · versi {appVersion ?? "0.1.0"}</span>
         <Button variant="ghost" size="xs" onClick={act.checkUpdate}>
           Cek pembaruan
         </Button>

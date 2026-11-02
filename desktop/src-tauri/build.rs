@@ -9,6 +9,11 @@ fn main() {
             "set_autostart",
             "set_theme",
             "notify",
+            "get_autostart",
+            "app_info",
+            "open_system_settings",
+            "notification_status",
+            "request_notification_permission",
         ]),
     ))
     .expect("failed to run tauri-build");

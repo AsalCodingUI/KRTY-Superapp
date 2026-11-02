@@ -212,6 +212,7 @@ export function SlashMenu({ bridge }: { bridge: SlashBridge }) {
   const [state, setState] = useState<MenuState>(null)
   const [index, setIndex] = useState(0)
   const listRef = useRef<HTMLDivElement>(null)
+  const cardRef = useRef<HTMLDivElement>(null)
 
   useEffect(
     () =>
@@ -235,7 +236,7 @@ export function SlashMenu({ bridge }: { bridge: SlashBridge }) {
     const onPointerDown = (e: PointerEvent) => {
       const target = e.target as Node | null
       if (!target) return
-      if (listRef.current?.contains(target)) return
+      if (cardRef.current?.contains(target)) return
       if (editor.view.dom.contains(target)) return
       hide()
     }
@@ -286,57 +287,68 @@ export function SlashMenu({ bridge }: { bridge: SlashBridge }) {
   const style: React.CSSProperties = {
     position: "fixed",
     left: Math.max(MARGIN, Math.min(rect.left, window.innerWidth - 288)),
-    maxHeight: Math.min(352, below ? roomBelow : roomAbove),
     ...(below
       ? { top: rect.bottom + GAP }
       : { bottom: window.innerHeight - rect.top + GAP }),
   }
 
+  // The list scrolls within the card, less the card's padding (p-1.5).
+  const listMax = Math.min(352, below ? roomBelow : roomAbove) - 12
+
   return createPortal(
+    // The card keeps the corners and the padding; the list scrolls inside
+    // it, so the scrollbar sits clear of the rounded edge instead of being
+    // cut by it.
     <div
-      ref={listRef}
-      role="listbox"
-      aria-label={t("insertBlock")}
+      ref={cardRef}
       style={style}
-      className="bg-popover text-popover-foreground animate-in fade-in-0 zoom-in-95 nest-rounded-xl nest-p-1 z-[60] w-72 overflow-y-auto overscroll-contain text-sm shadow-(--elev-4)"
+      className="bg-popover text-popover-foreground animate-in fade-in-0 zoom-in-95 nest-rounded-xl nest-p-1.5 z-[60] w-72 overflow-hidden text-sm shadow-(--elev-4)"
     >
-      {items.length === 0 ? (
-        <p className="text-muted-foreground px-2 py-3 text-center">
-          {t("noBlock", { query: state.query })}
-        </p>
-      ) : (
-        <>
-          <p className="text-muted-foreground px-2 pt-1.5 pb-1 text-xs">
-            {t("insertBlock")}
+      <div
+        ref={listRef}
+        role="listbox"
+        aria-label={t("insertBlock")}
+        style={{ maxHeight: listMax }}
+        className="no-scrollbar scroll-py-1 overflow-y-auto overscroll-contain"
+      >
+        {items.length === 0 ? (
+          <p className="text-muted-foreground px-2 py-3 text-center">
+            {t("noBlock", { query: state.query })}
           </p>
-          {items.map((item, i) => (
-            <button
-              key={item.id}
-              type="button"
-              role="option"
-              aria-selected={i === index}
-              data-index={i}
-              onMouseEnter={() => setIndex(i)}
-              onMouseDown={(e) => e.preventDefault()}
-              onClick={() => state.command(item)}
-              className={cn(
-                "rounded-nested flex w-full items-center gap-2.5 px-2 py-1 text-left",
-                i === index && "bg-muted",
-              )}
-            >
-              <span className="flex size-7 shrink-0 items-center justify-center">
-                <item.icon className="text-muted-foreground size-4" />
-              </span>
-              <span className="flex min-w-0 flex-col">
-                <span className="text-foreground">{t(item.title)}</span>
-                <span className="text-muted-foreground truncate text-xs">
-                  {t(item.hint)}
+        ) : (
+          <>
+            <p className="text-muted-foreground px-2 pt-1.5 pb-1 text-xs">
+              {t("insertBlock")}
+            </p>
+            {items.map((item, i) => (
+              <button
+                key={item.id}
+                type="button"
+                role="option"
+                aria-selected={i === index}
+                data-index={i}
+                onMouseEnter={() => setIndex(i)}
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => state.command(item)}
+                className={cn(
+                  "rounded-nested flex w-full items-center gap-2.5 px-2 py-1 text-left",
+                  i === index && "bg-muted",
+                )}
+              >
+                <span className="flex size-7 shrink-0 items-center justify-center">
+                  <item.icon className="text-muted-foreground size-4" />
                 </span>
-              </span>
-            </button>
-          ))}
-        </>
-      )}
+                <span className="flex min-w-0 flex-col">
+                  <span className="text-foreground">{t(item.title)}</span>
+                  <span className="text-muted-foreground truncate text-xs">
+                    {t(item.hint)}
+                  </span>
+                </span>
+              </button>
+            ))}
+          </>
+        )}
+      </div>
     </div>,
     document.body,
   )

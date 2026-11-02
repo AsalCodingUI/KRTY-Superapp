@@ -16,7 +16,9 @@ import { NavMain } from "@/components/nav-main"
 import { NavProject } from "@/components/nav-project"
 import { PrefetchLink } from "@/components/prefetch-link"
 import { ProjectAvatar } from "@/components/project-avatar"
+import { SidebarNotices } from "@/components/sidebar-notices"
 import { useWorkspaceNav } from "@/components/workspace-nav"
+import { useWhatsNewUnseen } from "@/page-slices/whats-new/model/unseen"
 import {
   Sidebar,
   SidebarContent,
@@ -114,6 +116,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     : `ws:${active?.id ?? ""}`
   const navDirection = projectPath ? 1 : -1
   const t = useT("nav")
+  // A dot on Yang baru while there's something the viewer hasn't seen.
+  const { count: whatsNewUnseen } = useWhatsNewUnseen()
 
   const { data: projects = [] } = useSidebarProjects(
     profile ? { id: profile.id, role: profile.role } : null,
@@ -144,6 +148,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           url: item.href,
           icon: <item.icon />,
           isActive: item.href === activeHref,
+          dot:
+            item.href === siteConfig.baseLinks.whatsNew && whatsNewUnseen > 0,
           items: children.map((c) => ({
             title: t(c.name),
             url: c.href,
@@ -152,7 +158,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           })),
         }
       }),
-    [active, activeHref, badges, pathname, profile, t],
+    [active, activeHref, badges, pathname, profile, t, whatsNewUnseen],
   )
 
   return (
@@ -247,6 +253,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </AnimatePresence>
         )}
       </SidebarContent>
+      {/* Cards above the footer: app update, what's new, the Mac app. */}
+      <SidebarNotices />
       {/* Theme, language and chrome color live here; there is no settings page. */}
       <SidebarFooter>
         {/* Stacks vertically when the sidebar is collapsed to icons. Re-keyed

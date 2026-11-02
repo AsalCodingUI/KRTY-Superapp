@@ -18,10 +18,15 @@ import {
 } from "@/components/ui/sidebar"
 import {
   ArrowLeft as UndoIcon,
+  Download as DownloadIcon,
   Logout as LogOutIcon,
   MessageCircle as MessageCircleIcon,
+  Settings as SettingsIcon,
   User as UserIcon,
 } from "@/components/icons"
+import { useDesktopShell } from "@/components/desktop-shell"
+import { useMacDownload } from "@/components/mac-download"
+import { useRouter } from "next/navigation"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { useStopImpersonation } from "@/widgets/impersonation/model/useStopImpersonation"
 import { ProfileSheet } from "@/widgets/profile/ui/ProfileSheet"
@@ -66,6 +71,11 @@ export function NavUser({
   const [profileOpen, setProfileOpen] = useState(false)
   const { isImpersonating } = useUserProfile()
   const { stop: stopImpersonation } = useStopImpersonation()
+  const td = useT("desktopApp")
+  // Inside Kretya Flow: its settings page; on the web: get the app.
+  const desktop = useDesktopShell()
+  const macDownload = useMacDownload()
+  const router = useRouter()
 
   return (
     // Centred in the rail.
@@ -188,6 +198,20 @@ export function NavUser({
                   {t("contactAdmin")}
                 </DropdownMenuItem>
               )}
+              {desktop ? (
+                <DropdownMenuItem onClick={() => router.push("/settings/app")}>
+                  <SettingsIcon />
+                  {td("menuAppSettings")}
+                </DropdownMenuItem>
+              ) : (
+                <DropdownMenuItem
+                  className="max-md:hidden"
+                  onClick={() => void macDownload.start("install")}
+                >
+                  <DownloadIcon />
+                  {td("menuDownloadMac")}
+                </DropdownMenuItem>
+              )}
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
@@ -205,6 +229,7 @@ export function NavUser({
           </DropdownMenuContent>
         </DropdownMenu>
         <ProfileSheet open={profileOpen} onOpenChange={setProfileOpen} />
+        {macDownload.dialog}
       </SidebarMenuItem>
     </SidebarMenu>
   )

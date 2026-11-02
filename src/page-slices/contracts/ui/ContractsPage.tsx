@@ -380,7 +380,9 @@ function PersonAvatar({ person }: { person: ContractPerson | null }) {
   return (
     <Avatar className="size-5">
       {person?.avatar_url && <AvatarImage src={person.avatar_url} alt="" />}
-      <AvatarFallback className="text-[10px]">{name || "?"}</AvatarFallback>
+      <AvatarFallback className="text-[10px]">
+        {name.trim().charAt(0).toUpperCase() || "?"}
+      </AvatarFallback>
     </Avatar>
   )
 }

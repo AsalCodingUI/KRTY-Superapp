@@ -282,10 +282,98 @@ fn set_tray_title(app: AppHandle, title: String) {
     }
 }
 
+/// Turns opening at login on or off; returns what it is now.
 #[tauri::command]
-fn set_autostart(app: AppHandle, enabled: bool) {
+fn set_autostart(app: AppHandle, enabled: bool) -> bool {
     let launcher = app.autolaunch();
     let _ = if enabled { launcher.enable() } else { launcher.disable() };
+    launcher.is_enabled().unwrap_or(false)
+}
+
+/// Whether the app opens at login (its LaunchAgent is in place).
+#[tauri::command]
+fn get_autostart(app: AppHandle) -> bool {
+    app.autolaunch().is_enabled().unwrap_or(false)
+}
+
+/// The app's own name, version (tauri.conf.json) and bundle id, for the
+/// web app's "Setelan app" page and its update check.
+#[derive(serde::Serialize)]
+struct AppInfo {
+    name: String,
+    version: String,
+    identifier: String,
+}
+
+#[tauri::command]
+fn app_info(app: AppHandle) -> AppInfo {
+    let config = app.config();
+    AppInfo {
+        name: app.package_info().name.clone(),
+        version: app.package_info().version.to_string(),
+        identifier: config.identifier.clone(),
+    }
+}
+
+/// macOS System Settings, straight at this app's notification settings
+/// ("notifications") or at Login Items ("login-items"). Falls back to the
+/// pane itself when the deep link doesn't open.
+#[tauri::command]
+fn open_system_settings(app: AppHandle, pane: String) {
+    let identifier = app.config().identifier.clone();
+    let (deep, fallback) = match pane.as_str() {
+        "login-items" => (
+            "x-apple.systempreferences:com.apple.LoginItems-Settings.extension".to_string(),
+            "x-apple.systempreferences:com.apple.preference.users?startupItemsPref".to_string(),
+        ),
+        _ => (
+            format!(
+                "x-apple.systempreferences:com.apple.Notifications-Settings.extension?id={identifier}"
+            ),
+            "x-apple.systempreferences:com.apple.preference.notifications".to_string(),
+        ),
+    };
+    if app.opener().open_url(deep, None::<&str>).is_err() {
+        let _ = app.opener().open_url(fallback, None::<&str>);
+    }
+}
+
+/// What macOS allows this app to show: "granted", "denied" or
+/// "notDetermined", plus the details the settings page points at.
+#[derive(serde::Serialize, Default)]
+#[serde(rename_all = "camelCase")]
+struct NotificationStatus {
+    status: String,
+    /// "banner", "alert" or "none".
+    alert_style: String,
+    badges: bool,
+    sounds: bool,
+}
+
+#[tauri::command]
+async fn notification_status() -> NotificationStatus {
+    #[cfg(target_os = "macos")]
+    return mac_notify::status();
+    #[cfg(not(target_os = "macos"))]
+    NotificationStatus {
+        status: "granted".into(),
+        alert_style: "banner".into(),
+        badges: true,
+        sounds: true,
+    }
+}
+
+/// Asks macOS for permission (its prompt shows only while undecided), then
+/// reports the status.
+#[tauri::command]
+async fn request_notification_permission() -> NotificationStatus {
+    #[cfg(target_os = "macos")]
+    {
+        mac_notify::request();
+        return mac_notify::status();
+    }
+    #[cfg(not(target_os = "macos"))]
+    notification_status().await
 }
 
 /// Light or dark for the windows (their native blur follows it), as the
@@ -302,13 +390,17 @@ fn set_theme(app: AppHandle, theme: String) {
     }
 }
 
+/// A macOS notification; clicking it opens the app window, at `path` (a
+/// page of the web app) when given.
 #[tauri::command]
-fn notify(app: AppHandle, title: String, body: String) {
+fn notify(app: AppHandle, title: String, body: String, path: Option<String>) {
     #[cfg(target_os = "macos")]
     {
         let _ = app;
-        mac_notify::show(&title, &body);
+        mac_notify::show(&title, &body, path.as_deref());
     }
+    #[cfg(not(target_os = "macos"))]
+    let _ = path;
     #[cfg(not(target_os = "macos"))]
     let _ = app.notification().builder().title(title).body(body).show();
 }
@@ -323,10 +415,13 @@ mod mac_notify {
     use objc2::{define_class, msg_send, AllocAnyThread};
     use objc2_foundation::{NSError, NSObjectProtocol, NSString};
     use objc2_user_notifications::{
-        UNAuthorizationOptions, UNMutableNotificationContent, UNNotification,
-        UNNotificationPresentationOptions, UNNotificationRequest, UNNotificationResponse,
-        UNNotificationSound, UNUserNotificationCenter, UNUserNotificationCenterDelegate,
+        UNAlertStyle, UNAuthorizationOptions, UNAuthorizationStatus,
+        UNMutableNotificationContent, UNNotification, UNNotificationPresentationOptions,
+        UNNotificationRequest, UNNotificationResponse, UNNotificationSetting,
+        UNNotificationSettings, UNNotificationSound, UNUserNotificationCenter,
+        UNUserNotificationCenterDelegate,
     };
+    use std::ptr::NonNull;
 
     define_class!(
         // Shows banners while KRTY is in front too (macOS hides them by
@@ -354,11 +449,15 @@ mod mac_notify {
             fn did_receive(
                 &self,
                 _center: &UNUserNotificationCenter,
-                _response: &UNNotificationResponse,
+                response: &UNNotificationResponse,
                 handler: &DynBlock<dyn Fn()>,
             ) {
+                // The page to open rides along in the request's id
+                // ("krty-<n>#/settings/app?download=1").
+                let id = response.notification().request().identifier().to_string();
+                let path = id.split_once('#').map(|(_, p)| p.to_string());
                 if let Some(app) = APP_HANDLE.get() {
-                    super::show_app(app, None);
+                    super::show_app(app, path.as_deref().filter(|p| p.starts_with('/')));
                 }
                 handler.call(());
             }
@@ -378,22 +477,74 @@ mod mac_notify {
         std::mem::forget(delegate);
         let done = RcBlock::new(|_granted: Bool, _error: *mut NSError| {});
         center.requestAuthorizationWithOptions_completionHandler(
-            UNAuthorizationOptions::Alert | UNAuthorizationOptions::Sound,
+            UNAuthorizationOptions::Alert
+                | UNAuthorizationOptions::Sound
+                | UNAuthorizationOptions::Badge,
             &done,
         );
     }
 
-    pub fn show(title: &str, body: &str) {
+    /// Ask for permission and wait for the answer (macOS only prompts
+    /// while it's undecided; otherwise it answers right away).
+    pub fn request() {
+        let (tx, rx) = std::sync::mpsc::channel::<()>();
+        let done = RcBlock::new(move |_granted: Bool, _error: *mut NSError| {
+            let _ = tx.send(());
+        });
+        UNUserNotificationCenter::currentNotificationCenter()
+            .requestAuthorizationWithOptions_completionHandler(
+                UNAuthorizationOptions::Alert
+                    | UNAuthorizationOptions::Sound
+                    | UNAuthorizationOptions::Badge,
+                &done,
+            );
+        // Long enough for someone to answer the prompt.
+        let _ = rx.recv_timeout(std::time::Duration::from_secs(120));
+    }
+
+    pub fn status() -> super::NotificationStatus {
+        let (tx, rx) = std::sync::mpsc::channel::<super::NotificationStatus>();
+        let done = RcBlock::new(move |settings: NonNull<UNNotificationSettings>| {
+            // SAFETY: UserNotifications hands a valid settings object.
+            let s = unsafe { settings.as_ref() };
+            let status = match s.authorizationStatus() {
+                UNAuthorizationStatus::Denied => "denied",
+                UNAuthorizationStatus::NotDetermined => "notDetermined",
+                _ => "granted",
+            };
+            let alert_style = match s.alertStyle() {
+                UNAlertStyle::Alert => "alert",
+                UNAlertStyle::Banner => "banner",
+                _ => "none",
+            };
+            let _ = tx.send(super::NotificationStatus {
+                status: status.into(),
+                alert_style: alert_style.into(),
+                badges: s.badgeSetting() == UNNotificationSetting::Enabled,
+                sounds: s.soundSetting() == UNNotificationSetting::Enabled,
+            });
+        });
+        UNUserNotificationCenter::currentNotificationCenter()
+            .getNotificationSettingsWithCompletionHandler(&done);
+        rx.recv_timeout(std::time::Duration::from_secs(5))
+            .unwrap_or_else(|_| super::NotificationStatus {
+                status: "unknown".into(),
+                ..Default::default()
+            })
+    }
+
+    pub fn show(title: &str, body: &str, path: Option<&str>) {
         let center = UNUserNotificationCenter::currentNotificationCenter();
         let content = UNMutableNotificationContent::new();
         content.setTitle(&NSString::from_str(title));
         content.setBody(&NSString::from_str(body));
         content.setSound(Some(&UNNotificationSound::defaultSound()));
         let id = NSString::from_str(&format!(
-            "krty-{}",
+            "krty-{}{}",
             std::time::SystemTime::now()
                 .duration_since(std::time::UNIX_EPOCH)
-                .map_or(0, |d| d.as_nanos())
+                .map_or(0, |d| d.as_nanos()),
+            path.map(|p| format!("#{p}")).unwrap_or_default()
         ));
         let request =
             UNNotificationRequest::requestWithIdentifier_content_trigger(&id, &content, None);
@@ -428,8 +579,13 @@ pub fn run() {
             open_in_app,
             set_tray_title,
             set_autostart,
+            get_autostart,
             set_theme,
-            notify
+            notify,
+            app_info,
+            open_system_settings,
+            notification_status,
+            request_notification_permission
         ])
         .setup(move |app| {
             // The app window: the whole web app.

@@ -1,0 +1,159 @@
+"use client"
+
+import { createClient } from "@/shared/api/supabase/client"
+
+/**
+ * Kretya Flow (the Mac app) from the web app's side: talking to its Rust
+ * commands through `window.__TAURI__`, and its releases (an "Update
+ * aplikasi" post in Aturan & Update with the version in its title, plus a
+ * .dmg for that version in storage).
+ */
+
+/** Category of app update posts in Aturan & Update. */
+export const APP_UPDATE_CATEGORY = "Update aplikasi"
+
+export const RELEASE_BUCKET = "app-releases"
+/** Where a version's Mac download lives (one universal .dmg per version). */
+export const releaseFolder = (version: string) => `kretya-flow/${version}`
+export const releaseFile = (version: string) =>
+  `Kretya-Flow-${version}-universal.dmg`
+
+type TauriGlobal = {
+  app?: { getVersion: () => Promise<string> }
+  core: {
+    invoke: (cmd: string, args?: Record<string, unknown>) => Promise<unknown>
+  }
+}
+
+export const tauri = () =>
+  typeof window === "undefined"
+    ? undefined
+    : (window as unknown as { __TAURI__?: TauriGlobal }).__TAURI__
+
+/** A Rust command; undefined outside the app or when it fails (an older
+ *  build may not have it). */
+export async function invokeApp<T = unknown>(
+  cmd: string,
+  args?: Record<string, unknown>,
+): Promise<T | undefined> {
+  const t = tauri()
+  if (!t) return undefined
+  try {
+    return (await t.core.invoke(cmd, args)) as T
+  } catch {
+    return undefined
+  }
+}
+
+export type AppInfo = { name: string; version: string; identifier: string }
+
+/** The running app's version (from Rust; builds before `app_info` answer
+ *  through Tauri's own app API). */
+export async function appInfo(): Promise<AppInfo | null> {
+  const info = await invokeApp<AppInfo>("app_info")
+  if (info?.version) return info
+  const version = await tauri()
+    ?.app?.getVersion()
+    .catch(() => undefined)
+  return version
+    ? { name: "Kretya Flow", version, identifier: "com.kretyastudio.krty" }
+    : null
+}
+
+/** "0.1.10" > "0.1.9", piece by piece. */
+export function isNewerVersion(a: string, b: string) {
+  const pa = a.split(".").map(Number)
+  const pb = b.split(".").map(Number)
+  for (let i = 0; i < Math.max(pa.length, pb.length); i++)
+    if ((pa[i] ?? 0) !== (pb[i] ?? 0)) return (pa[i] ?? 0) > (pb[i] ?? 0)
+  return false
+}
+
+export type MacRelease = {
+  version: string
+  /** The release notes: /policies?policy=<slug> (null: no post yet). */
+  slug: string | null
+  /** The .dmg in the releases bucket. */
+  path: string
+}
+
+/**
+ * The newest published app update that has a Mac download. Posts are
+ * newest version first; the first one whose .dmg is uploaded wins (a post
+ * can go out before its file).
+ */
+export async function fetchLatestMacRelease(): Promise<MacRelease | null> {
+  const supabase = createClient()
+  const { data } = await supabase
+    .from("policy_documents")
+    .select("slug, title")
+    .eq("category", APP_UPDATE_CATEGORY)
+    .is("archived_at", null)
+    .not("current_version_id", "is", null)
+    .order("updated_at", { ascending: false })
+    .limit(20)
+  const posts = ((data ?? []) as { slug: string; title: string }[])
+    .map((d) => ({
+      slug: d.slug,
+      version: d.title.match(/\d+\.\d+\.\d+/)?.[0],
+    }))
+    .filter((d): d is { slug: string; version: string } => Boolean(d.version))
+    .sort((a, b) => (isNewerVersion(a.version, b.version) ? -1 : 1))
+  for (const post of posts.slice(0, 5)) {
+    const { data: files } = await supabase.storage
+      .from(RELEASE_BUCKET)
+      .list(releaseFolder(post.version), { search: releaseFile(post.version) })
+    if (
+      files?.some((f: { name: string }) => f.name === releaseFile(post.version))
+    )
+      return {
+        ...post,
+        path: `${releaseFolder(post.version)}/${releaseFile(post.version)}`,
+      }
+  }
+  // No post for it (yet): the highest version uploaded to the bucket, so a
+  // .dmg put there is downloadable even before its release notes are out.
+  const { data: folders } = await supabase.storage
+    .from(RELEASE_BUCKET)
+    .list("kretya-flow", { limit: 100 })
+  const versions = ((folders ?? []) as { name: string }[])
+    .map((f) => f.name)
+    .filter((v) => /^\d+\.\d+\.\d+$/.test(v))
+    .sort((a, b) => (isNewerVersion(a, b) ? -1 : 1))
+  for (const version of versions.slice(0, 5)) {
+    const { data: files } = await supabase.storage
+      .from(RELEASE_BUCKET)
+      .list(releaseFolder(version), { search: releaseFile(version) })
+    if (files?.some((f: { name: string }) => f.name === releaseFile(version)))
+      return {
+        slug: null,
+        version,
+        path: `${releaseFolder(version)}/${releaseFile(version)}`,
+      }
+  }
+  return null
+}
+
+/**
+ * Starts the .dmg download: a short-lived signed link, opened in the
+ * browser from the app (its window can't save files), in place on the web.
+ */
+export async function downloadMacRelease(release: MacRelease) {
+  const { data, error } = await createClient()
+    .storage.from(RELEASE_BUCKET)
+    .createSignedUrl(release.path, 600, {
+      download: releaseFile(release.version),
+    })
+  if (error || !data) return false
+  if (tauri()) await invokeApp("open_external", { url: data.signedUrl })
+  else window.location.href = data.signedUrl
+  return true
+}
+
+/** A Mac with a mouse (not an iPad, not a phone): who the .dmg is for. */
+export function isMacDesktop() {
+  if (typeof navigator === "undefined") return false
+  const mac = /Macintosh|Mac OS X/.test(navigator.userAgent)
+  const touch = navigator.maxTouchPoints > 1
+  return mac && !touch && window.matchMedia("(pointer: fine)").matches
+}

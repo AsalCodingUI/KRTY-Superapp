@@ -21,6 +21,7 @@ import {
   RiUserLine,
   RiWalletLine,
 } from "@/shared/ui/lucide-icons"
+import { Sparkles } from "lucide-react"
 
 /**
  * Two-level navigation: the rail switches between workspaces, the sub sidebar
@@ -161,6 +162,9 @@ export const workspaces: Workspace[] = [
       { name: "policies", href: links.policies, icon: RiBookOpenLine },
       // Employment contracts: employees see their own, stakeholders all.
       { name: "contracts", href: links.contracts, icon: RiFileTextLine },
+      // What changed in the app, with step-by-step guides; a dot while
+      // there's something the viewer hasn't seen (whats-new/model/seen).
+      { name: "whatsNew", href: links.whatsNew, icon: Sparkles },
     ],
   },
   {

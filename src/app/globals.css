@@ -78,6 +78,14 @@
    the content edge (a slight overhang, not the full page width); inside a
    bleed the gutter shrinks to match, so row text lines up with the title.
    Falls back to 1rem / full bleed outside a page (dialogs, sheets). */
+/* Scrolls, without a scrollbar: menus and pickers (they stay short). */
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 @utility gutter-x {
   padding-inline: var(--page-gutter, 1rem);
 }

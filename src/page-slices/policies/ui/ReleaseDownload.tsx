@@ -6,16 +6,19 @@ import { Spinner } from "@/components/ui/spinner"
 import { formatBytes } from "@/page-slices/projects/ui/workspace/data"
 import { createClient } from "@/shared/api/supabase/client"
 import { useT } from "@/shared/i18n/client"
+import {
+  RELEASE_BUCKET,
+  releaseFile,
+  releaseFolder,
+} from "@/shared/lib/desktop-app"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { Download, Upload } from "lucide-react"
 import { useRef, useState } from "react"
 import { toast } from "sonner"
 
-const BUCKET = "app-releases"
-
-/** Where a version's Mac download lives (one universal .dmg per version). */
-const folderOf = (version: string) => `kretya-flow/${version}`
-const fileOf = (version: string) => `Kretya-Flow-${version}-universal.dmg`
+const BUCKET = RELEASE_BUCKET
+const folderOf = releaseFolder
+const fileOf = releaseFile
 
 type TauriGlobal = {
   core: {
