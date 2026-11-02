@@ -23,7 +23,7 @@ import { BadgeCheck, Copy, Pencil, Power, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { useDateLocale, useT } from "@/shared/i18n/client"
-import { canManageByRole } from "@/shared/lib/roles"
+import { accessLevel } from "@/shared/config/access"
 import { RiAddLine, RiBankCardLine } from "@/shared/ui/lucide-icons"
 import { formatDistanceToNow } from "date-fns"
 import { TriangleAlert as AlertTriangle } from "@/components/icons"
@@ -52,8 +52,9 @@ export function PaymentMethodsPage() {
   const t = useT("invoices")
   const dateLocale = useDateLocale()
   const { profile, loading } = useUserProfile()
-  const isAdmin = canManageByRole(profile?.role)
-  const { data: methods = [], isLoading } = usePaymentMethods(isAdmin)
+  // PMs and stakeholders (access.ts PM_UP).
+  const canManage = accessLevel(profile) !== "employee"
+  const { data: methods = [], isLoading } = usePaymentMethods(canManage)
   const [opened, setOpened] = useState<Opened | null>(null)
   const [deleting, setDeleting] = useState<PaymentMethod | null>(null)
   const tc = useT("common")
@@ -160,7 +161,7 @@ export function PaymentMethodsPage() {
         <Spinner className="size-6" />
       </div>
     )
-  if (!isAdmin)
+  if (!canManage)
     return (
       <EmptyState
         className="py-16"

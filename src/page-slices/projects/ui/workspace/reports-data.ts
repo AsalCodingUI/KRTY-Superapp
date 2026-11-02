@@ -2,6 +2,7 @@
 
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { compressImage } from "@/shared/lib/compress-image"
+import { registerUndo, UndoStale } from "@/shared/undo"
 import { supabase } from "./data"
 
 /**
@@ -182,4 +183,42 @@ export async function uploadDocFile(projectId: string, file: File) {
     .upload(path, file, { contentType: file.type || undefined })
   if (error) throw error
   return db.storage.from(DOC_FILES).getPublicUrl(path).data.publicUrl
+}
+
+/**
+ * ⌘Z for sharing a report or stopping it (shared/undo): back to the link
+ * it had (stopping, then undo, brings the same link back), as long as it
+ * still has the one this left. `done` gets the report as saved.
+ */
+export function registerShareUndo({
+  before,
+  after,
+  label,
+  done,
+}: {
+  before: Report
+  after: Report
+  label: string
+  done: (report: Report) => unknown
+}) {
+  const pickShare = (r: Report) => ({
+    share_token: r.share_token,
+    shared_at: r.shared_at,
+  })
+  const go = async (expected: Report, next: Report) => {
+    const { data, error } = await supabase()
+      .from(TABLE)
+      .select("share_token")
+      .eq("id", after.id)
+      .maybeSingle()
+    if (error) throw error
+    const row = data as { share_token: string | null } | null
+    if (!row || row.share_token !== expected.share_token) throw new UndoStale()
+    await done(await updateReport(after.id, pickShare(next)))
+  }
+  registerUndo({
+    label,
+    undo: () => go(after, before),
+    redo: () => go(before, after),
+  })
 }

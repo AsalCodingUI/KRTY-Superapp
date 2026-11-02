@@ -10,6 +10,7 @@ import { AnnouncementBanner } from "@/widgets/app-banner/ui/AnnouncementBanner"
 import { ImpersonationBanner } from "@/widgets/impersonation/ui/ImpersonationBanner"
 import { DesktopShellProvider } from "@/components/desktop-shell"
 import { ContextMenuAppScope } from "@/shared/context-menu"
+import { UndoShortcuts } from "@/shared/undo"
 import { DESKTOP_SHELL_COOKIE } from "@/shared/lib/desktop-shell"
 import { cookies } from "next/headers"
 import { cn } from "@/lib/utils"
@@ -54,6 +55,8 @@ export default async function Layout({
     <DesktopShellProvider value={desktop}>
       {/* The right-click menu gets the viewer's access, ⌘K and AI. */}
       <ContextMenuAppScope />
+      {/* ⌘Z / ⌘⇧Z across the app (shared/undo). */}
+      <UndoShortcuts />
       {desktop && (
         // A new href whenever the rules change: React keeps a hoisted
         // style by its href.

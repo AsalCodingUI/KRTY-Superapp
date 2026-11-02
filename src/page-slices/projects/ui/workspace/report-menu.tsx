@@ -26,6 +26,7 @@ import {
   createReport,
   deleteReport,
   newShareToken,
+  registerShareUndo,
   updateReport,
   useInvalidateReports,
   type Report,
@@ -49,6 +50,7 @@ const MAX_READS = 10
  */
 export function useReportMenu(projectId: string) {
   const t = useT("projects")
+  const tu = useT("undo")
   const tc = useT("common")
   const tm = useT("ctxmenu")
   const dateLocale = useDateLocale()
@@ -77,6 +79,12 @@ export function useReportMenu(projectId: string) {
           : { share_token: null, shared_at: null },
       )
       invalidate()
+      registerShareUndo({
+        before: r,
+        after: next,
+        label: tu(on ? "reportShare" : "reportUnshare", { title: r.title }),
+        done: () => invalidate(),
+      })
       if (on && next.share_token) {
         await copyText(reportShareUrl(next.share_token, projectName))
         toast.success(t("reportLinkCreated"))

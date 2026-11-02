@@ -19,14 +19,20 @@ describe("access", () => {
     expect(canOpenPage("/projects/abc/tasks", "employee")).toBe(true)
     expect(canOpenPage("/finance/subscriptions", "pm")).toBe(false)
     expect(canOpenPage("/finance", "stakeholder")).toBe(true)
+    expect(canOpenPage("/finance", "pm")).toBe(false)
+    expect(canOpenPage("/clients", "pm")).toBe(true)
+    expect(canOpenPage("/processes/abc", "pm")).toBe(true)
+    expect(canOpenPage("/payment-methods", "pm")).toBe(true)
+    expect(canOpenPage("/clients", "employee")).toBe(false)
     expect(canOpenPage("/teamsx", "employee")).toBe(true) // not a known page
   })
 
-  it("keeps settings to stakeholders and invoices to PMs and up", () => {
+  it("keeps settings and invoices to PMs and up", () => {
     expect(canOpenProjectSection("tasks", "employee")).toBe(true)
     expect(canOpenProjectSection("invoices", "pm")).toBe(true)
     expect(canOpenProjectSection("invoices", "employee")).toBe(false)
-    expect(canOpenProjectSection("settings", "pm")).toBe(false)
+    expect(canOpenProjectSection("settings", "pm")).toBe(true)
+    expect(canOpenProjectSection("settings", "employee")).toBe(false)
     expect(canOpenProjectSection("settings", "stakeholder")).toBe(true)
   })
 })

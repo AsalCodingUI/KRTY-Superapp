@@ -33,7 +33,12 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
-import { useInvalidate, useSteps, useViewer, useWorkspace } from "./data"
+import {
+  useCanManageProject,
+  useInvalidate,
+  useSteps,
+  useWorkspace,
+} from "./data"
 import { StopPhasesDialog } from "./PhaseMode"
 
 /** The "Tanpa fase" choice in the process select. */
@@ -69,7 +74,10 @@ function Card({
   )
 }
 
-/** Client contact, project & team, and deleting the project. */
+/**
+ * Client contact, process, client portal, project & team, and deleting the
+ * project: stakeholders and the project's PMs.
+ */
 export function ProjectSettings({ projectId }: { projectId: string }) {
   const t = useT("projects")
   const tc = useT("common")
@@ -79,7 +87,7 @@ export function ProjectSettings({ projectId }: { projectId: string }) {
   const router = useRouter()
   const queryClient = useQueryClient()
   const { data, isLoading } = useWorkspace(projectId)
-  const viewer = useViewer()
+  const canManage = useCanManageProject(projectId)
   const invalidate = useInvalidate(projectId)
   const [saving, setSaving] = useState(false)
   const [editOpen, setEditOpen] = useState(false)
@@ -88,8 +96,8 @@ export function ProjectSettings({ projectId }: { projectId: string }) {
   const [deleting, setDeleting] = useState(false)
   const [newClientOpen, setNewClientOpen] = useState(false)
   const [editClientOpen, setEditClientOpen] = useState(false)
-  const { data: clients = [] } = useClients(viewer.isAdmin)
-  const { data: processes = [] } = useProcesses(viewer.isAdmin)
+  const { data: clients = [] } = useClients(canManage)
+  const { data: processes = [] } = useProcesses(canManage)
   const [switchTo, setSwitchTo] = useState<{ id: string; name: string } | null>(
     null,
   )
@@ -156,7 +164,7 @@ export function ProjectSettings({ projectId }: { projectId: string }) {
             <Card
               title={t("factsClient")}
               action={
-                viewer.isAdmin && (
+                canManage && (
                   <Select
                     value={project.client_id ?? NO_CLIENT}
                     disabled={saving}
@@ -226,10 +234,10 @@ export function ProjectSettings({ projectId }: { projectId: string }) {
                 </dl>
               ) : (
                 <p className="text-muted-foreground p-4 text-sm">
-                  {tcl("noClientLinkedHint")}
+                  {canManage ? tcl("noClientLinkedHint") : tcl("noClient")}
                 </p>
               )}
-              {viewer.isAdmin && linked && (
+              {canManage && linked && (
                 <footer className="flex items-center justify-end gap-2 border-t px-4 py-3">
                   <Button
                     size="sm"
@@ -256,7 +264,7 @@ export function ProjectSettings({ projectId }: { projectId: string }) {
               )}
             </Card>
 
-            {viewer.isAdmin && (
+            {canManage && (
               <Card
                 title={tpr("fieldProcess")}
                 action={
@@ -301,39 +309,41 @@ export function ProjectSettings({ projectId }: { projectId: string }) {
                         </SelectItem>
                       </SelectContent>
                     </Select>
-                    <Button
-                      size="icon-sm"
-                      variant="ghost"
-                      aria-label={tpr("manageProcesses")}
-                      title={tpr("manageProcesses")}
-                      className="text-muted-foreground"
-                      nativeButton={false}
-                      render={
-                        <Link
-                          href={
-                            project.process_id
-                              ? `/processes/${project.process_id}`
-                              : "/processes"
-                          }
-                          prefetch={false}
-                        />
-                      }
-                    >
-                      <ArrowUpRight />
-                    </Button>
+                    {canManage && (
+                      <Button
+                        size="icon-sm"
+                        variant="ghost"
+                        aria-label={tpr("manageProcesses")}
+                        title={tpr("manageProcesses")}
+                        className="text-muted-foreground"
+                        nativeButton={false}
+                        render={
+                          <Link
+                            href={
+                              project.process_id
+                                ? `/processes/${project.process_id}`
+                                : "/processes"
+                            }
+                            prefetch={false}
+                          />
+                        }
+                      >
+                        <ArrowUpRight />
+                      </Button>
+                    )}
                   </div>
                 }
               />
             )}
 
-            {viewer.isAdmin && (
+            {canManage && (
               <ClientPortalCard
                 projectId={project.id}
                 projectName={project.name}
               />
             )}
 
-            {viewer.isAdmin && (
+            {canManage && (
               <Card
                 title={t("deleteProject")}
                 action={
@@ -352,7 +362,7 @@ export function ProjectSettings({ projectId }: { projectId: string }) {
           <Card
             title={t("colTeam")}
             action={
-              viewer.isAdmin && (
+              canManage && (
                 <Button
                   size="sm"
                   variant="outline"
@@ -395,7 +405,7 @@ export function ProjectSettings({ projectId }: { projectId: string }) {
           </Card>
         </div>
 
-        {viewer.isAdmin && (
+        {canManage && (
           <>
             <ConfirmDialog
               open={switchTo !== null}
@@ -441,6 +451,23 @@ export function ProjectSettings({ projectId }: { projectId: string }) {
               open={stoppingPhases}
               onOpenChange={setStoppingPhases}
             />
+            {editMounted && (
+              <ProjectForm
+                projectId={projectId}
+                open={editOpen}
+                onOpenChange={setEditOpen}
+                onSaved={() => {
+                  invalidate("workspace")
+                  queryClient.invalidateQueries({
+                    queryKey: ["project-summary", projectId],
+                  })
+                }}
+              />
+            )}
+          </>
+        )}
+        {canManage && (
+          <>
             <ClientFormDialog
               client={null}
               open={newClientOpen}
@@ -459,19 +486,6 @@ export function ProjectSettings({ projectId }: { projectId: string }) {
                 })
               }}
             />
-            {editMounted && (
-              <ProjectForm
-                projectId={projectId}
-                open={editOpen}
-                onOpenChange={setEditOpen}
-                onSaved={() => {
-                  invalidate("workspace")
-                  queryClient.invalidateQueries({
-                    queryKey: ["project-summary", projectId],
-                  })
-                }}
-              />
-            )}
             <ConfirmDialog
               open={deleting}
               onOpenChange={setDeleting}

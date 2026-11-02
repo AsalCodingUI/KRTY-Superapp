@@ -1,10 +1,18 @@
 "use server"
 
 import { getT } from "@/shared/i18n/server"
-import { getAdminContext } from "@/shared/lib/admin-server"
+import {
+  getAdminContext,
+  getPmContext,
+  getProjectManagerContext,
+} from "@/shared/lib/admin-server"
 import { revalidatePath } from "next/cache"
 
-/** Clients are stakeholder-only; RLS enforces the same. */
+/**
+ * PMs and stakeholders add, edit and archive clients; deleting is for
+ * stakeholders. Linking a project: stakeholders and that project's PMs.
+ * RLS enforces the same.
+ */
 
 type Result<T = undefined> =
   | { success: true; data?: T }
@@ -30,7 +38,7 @@ export async function saveClient(
   id: string | null,
   input: ClientInput,
 ): Promise<Result<{ id: string }>> {
-  const [t, ctx] = await Promise.all([getT("clients"), admin()])
+  const [t, ctx] = await Promise.all([getT("clients"), getPmContext()])
   if (!ctx) return { success: false, error: t("errNotAllowed") }
 
   const name = input.name.trim()
@@ -80,7 +88,7 @@ export async function setClientArchived(
   id: string,
   archived: boolean,
 ): Promise<Result> {
-  const [t, ctx] = await Promise.all([getT("clients"), admin()])
+  const [t, ctx] = await Promise.all([getT("clients"), getPmContext()])
   if (!ctx) return { success: false, error: t("errNotAllowed") }
   const { error } = await ctx.supabase
     .from("clients")
@@ -94,7 +102,7 @@ export async function setClientArchived(
 /** Projects keep their history; they only lose the link (and copied text). */
 export async function deleteClient(id: string): Promise<Result> {
   const [t, ctx] = await Promise.all([getT("clients"), admin()])
-  if (!ctx) return { success: false, error: t("errNotAllowed") }
+  if (!ctx) return { success: false, error: t("errDeleteNotAllowed") }
   const { error } = await ctx.supabase.from("clients").delete().eq("id", id)
   if (error) return { success: false, error: t("errDelete") }
   revalidatePath("/clients")
@@ -107,7 +115,10 @@ export async function setProjectClient(
   projectId: string,
   clientId: string | null,
 ): Promise<Result> {
-  const [t, ctx] = await Promise.all([getT("clients"), admin()])
+  const [t, ctx] = await Promise.all([
+    getT("clients"),
+    getProjectManagerContext(projectId),
+  ])
   if (!ctx) return { success: false, error: t("errNotAllowed") }
   const { error } = await ctx.supabase
     .from("projects")

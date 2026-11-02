@@ -57,10 +57,12 @@ import {
   type RefObject,
 } from "react"
 import { toast } from "sonner"
+import { runUndo } from "@/shared/undo"
 import {
   officeHolidayKey,
   setOfficeHoliday,
   unsetOfficeHoliday,
+  registerOfficeHolidayUndo,
 } from "../lib/office-holiday"
 import { useCalendarContext } from "./calendar-context"
 import { eventDetailsText } from "./components/CopyEventButton"
@@ -168,6 +170,7 @@ export function useCalendarMenuApi({
   onViewChange: (view: ViewMode) => void
 }): { api: CalendarMenuApi; dialog: ReactNode } {
   const t = useT("calendar")
+  const tu = useT("undo")
   const dateLocale = useDateLocale()
   const router = useRouter()
   const queryClient = useQueryClient()
@@ -200,6 +203,15 @@ export function useCalendarMenuApi({
       toast.error(t("holidayOfficeFailed"))
       return
     }
+    // ⌘Z and the toast's Undo are the same step (shared/undo).
+    const undoId = registerOfficeHolidayUndo({
+      on,
+      holiday,
+      holidayKey: key,
+      userId,
+      label: tu(on ? "holidaySet" : "holidayCancel", { name: holiday.name }),
+      refresh,
+    })
     toast.success(
       on
         ? t("holidayOfficeSetToast", { name: holiday.name })
@@ -207,7 +219,7 @@ export function useCalendarMenuApi({
       {
         action: {
           label: t("holidayOfficeUndo"),
-          onClick: () => void (on ? unset() : set()).then(refresh),
+          onClick: () => void runUndo("undo", undoId),
         },
       },
     )

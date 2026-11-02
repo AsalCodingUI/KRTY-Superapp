@@ -14,6 +14,7 @@ import {
 import { TaskDialog } from "./TaskDialog"
 import {
   byPosition,
+  deleteTaskUndoable,
   positionBetween,
   statusOf,
   statusPatch,
@@ -40,6 +41,7 @@ export function ProjectTaskDialog({
   onChanged?: () => void
 }) {
   const t = useT("projects")
+  const tu = useT("undo")
   const viewer = useViewer()
   const { data: workspace } = useWorkspace(projectId)
   const { data: tasks = [] } = useTasks(projectId)
@@ -100,9 +102,18 @@ export function ProjectTaskDialog({
 
   const remove = async (id: string) => {
     if (id === taskId) onOpenChange(false)
-    await supabase().from("project_tasks").delete().eq("id", id)
-    await invalidate("tasks")
-    onChanged?.()
+    const refresh = async () => {
+      await invalidate("tasks")
+      onChanged?.()
+    }
+    const title = tasks.find((row) => row.id === id)?.title ?? ""
+    const error = await deleteTaskUndoable({
+      id,
+      label: tu("taskDelete", { title }),
+      refresh,
+    })
+    if (error) toast.error(t("errDeleteTask"))
+    await refresh()
   }
 
   return (

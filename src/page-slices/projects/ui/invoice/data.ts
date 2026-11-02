@@ -75,19 +75,21 @@ export async function saveAgency(profile: AgencyProfile) {
   if (error) throw error
 }
 
-/** Invoice numbers already used with a "INV-KR-YYMM-" prefix. */
+/**
+ * Invoice numbers already used with a "INV-KR-YYMM-" prefix, across every
+ * project (numbers are unique; a PM only reads their own projects' rows, so
+ * this goes through a definer function).
+ */
 export function useInvoiceNumbers(prefix: string, enabled = true) {
   return useQuery({
     queryKey: invoiceKeys.numbers(prefix),
     enabled,
     queryFn: async () => {
-      const { data } = await db()
-        .from("project_invoices")
-        .select("invoice_number")
-        .like("invoice_number", `${prefix}%`)
-      return ((data ?? []) as { invoice_number: string }[]).map(
-        (r) => r.invoice_number,
+      const { data } = await db().rpc(
+        "invoice_numbers_with_prefix" as never,
+        { p_prefix: prefix } as never,
       )
+      return (data ?? []) as unknown as string[]
     },
   })
 }
@@ -114,11 +116,12 @@ export function useQrUrl(path: string | null | undefined) {
  */
 export async function removeQrIfUnused(path: string) {
   const db = createClient()
-  const { count, error } = await db
-    .from("project_invoices")
-    .select("id", { count: "exact", head: true })
-    .eq("payment_snapshot->>qr_path", path)
-  if (error || count) return
+  // Every project's invoices (a PM can't read them all).
+  const { data: used, error } = await db.rpc(
+    "qr_path_in_use" as never,
+    { p_path: path } as never,
+  )
+  if (error || used) return
   await db.storage.from(FINANCE_BUCKET).remove([path])
 }
 

@@ -75,6 +75,7 @@ import * as React from "react"
 import { useRef, useState } from "react"
 import { mapLimit } from "@/shared/lib/storage-names"
 import { toast } from "sonner"
+import { registerUndo, rowsUndo, UndoStale } from "@/shared/undo"
 import {
   BUCKET,
   copyProjectFile,
@@ -459,6 +460,7 @@ export function ProjectLibrary({ projectId }: { projectId: string }) {
   const t = useT("projects")
   const tc = useT("common")
   const tm = useT("ctxmenu")
+  const tu = useT("undo")
   const dateLocale = useDateLocale()
   const router = useRouter()
   const pathname = usePathname()
@@ -617,6 +619,21 @@ export function ProjectLibrary({ projectId }: { projectId: string }) {
       toast.error(t("errSaveFolder"))
       return
     }
+    if (naming.folder && naming.folder.name !== name)
+      registerUndo(
+        rowsUndo({
+          label: tu("libraryRename", { name }),
+          table: "project_folders",
+          rows: [
+            {
+              id: naming.folder.id,
+              before: { name: naming.folder.name },
+              after: { name },
+            },
+          ],
+          done: () => invalidate("library"),
+        }),
+      )
     setNaming(null)
     invalidate("library")
   }
@@ -663,8 +680,48 @@ export function ProjectLibrary({ projectId }: { projectId: string }) {
       .eq("id", renaming.file.id)
     if (error) return void toast.error(t("errRename"))
     toast.success(t("libRenamed"))
+    registerFileRenameUndo(renaming.file.id, renaming.file.name, name, path)
     setRenaming(null)
     invalidate("library")
+  }
+
+  /** ⌘Z for a rename: the old name (and a stored file named after it). */
+  const registerFileRenameUndo = (
+    id: string,
+    from: string,
+    to: string,
+    path: string,
+  ) => {
+    let at = path
+    const go = async (expected: string, next: string) => {
+      const db = supabase()
+      const { data, error } = await db
+        .from("project_files")
+        .select("name, file_path")
+        .eq("id", id)
+        .maybeSingle()
+      if (error) throw error
+      if (!data || data.name !== expected || data.file_path !== at)
+        throw new UndoStale()
+      let nextPath = at
+      try {
+        nextPath = await renameProjectFile(at, next)
+      } catch {
+        // Storage rename failed: still show the name.
+      }
+      const { error: saveError } = await db
+        .from("project_files")
+        .update({ name: next, file_path: nextPath })
+        .eq("id", id)
+      if (saveError) throw saveError
+      at = nextPath
+      await invalidate("library")
+    }
+    registerUndo({
+      label: tu("libraryRename", { name: to }),
+      undo: () => go(to, from),
+      redo: () => go(from, to),
+    })
   }
 
   const moveFile = async (fileId: string, folderId: string | null) => {
@@ -682,6 +739,20 @@ export function ProjectLibrary({ projectId }: { projectId: string }) {
       }),
     )
     invalidate("library")
+    registerUndo(
+      rowsUndo({
+        label: tu("libraryMove", { name: file.name }),
+        table: "project_files",
+        rows: [
+          {
+            id: fileId,
+            before: { folder_id: file.folder_id },
+            after: { folder_id: folderId },
+          },
+        ],
+        done: () => invalidate("library"),
+      }),
+    )
   }
 
   const signed = async (path: string, download?: string) => {

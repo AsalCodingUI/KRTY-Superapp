@@ -6,10 +6,12 @@
 //! and so does Google sign-in (Google won't run inside an app's webview):
 //! the browser signs the app in over krty://auth (see /desktop/connect).
 
+mod updater;
+
 use std::time::Duration;
 
 use tauri::{
-    menu::{Menu, MenuItem},
+    menu::{Menu, MenuEvent, MenuItem, MenuItemKind},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
     webview::NewWindowResponse,
     AppHandle, Manager, RunEvent, Runtime, WebviewUrl, WebviewWindow, WebviewWindowBuilder,
@@ -258,6 +260,80 @@ fn fit_blur_to_panel(window: &WebviewWindow) {
                 NSSize::new(PANEL.0, PANEL.1),
             ));
         }
+    }
+}
+
+/// The Edit menu's Undo / Redo. macOS's own items send `undo:` to the
+/// focused view, which only reaches text undo in a field; these ask the
+/// page instead: the web app's undo (shared/undo, ⌘Z when not typing)
+/// when nothing editable has focus, else the native text undo / redo
+/// (back through `native_edit`). The page usually gets ⌘Z itself first
+/// (WKWebView hands key equivalents to the page before the menu), and
+/// then the menu never fires.
+const MENU_UNDO: &str = "krty-undo";
+const MENU_REDO: &str = "krty-redo";
+
+fn app_menu(app: &AppHandle) -> tauri::Result<Menu<tauri::Wry>> {
+    let menu = Menu::default(app)?;
+    for item in menu.items()? {
+        let MenuItemKind::Submenu(edit) = item else { continue };
+        if edit.text()? != "Edit" {
+            continue;
+        }
+        // Undo and Redo are its first two items.
+        edit.remove_at(0)?;
+        edit.remove_at(0)?;
+        let undo = MenuItem::with_id(app, MENU_UNDO, "Undo", true, Some("CmdOrCtrl+Z"))?;
+        let redo = MenuItem::with_id(app, MENU_REDO, "Redo", true, Some("CmdOrCtrl+Shift+Z"))?;
+        edit.insert(&undo, 0)?;
+        edit.insert(&redo, 1)?;
+    }
+    Ok(menu)
+}
+
+fn on_app_menu(app: &AppHandle, event: MenuEvent) {
+    let action = match event.id().as_ref() {
+        MENU_UNDO => "undo",
+        MENU_REDO => "redo",
+        _ => return,
+    };
+    // The window in front (the popover when it's open), else the app's.
+    let window = [APP, POPOVER]
+        .iter()
+        .filter_map(|label| app.get_webview_window(label))
+        .find(|w| w.is_focused().unwrap_or(false))
+        .or_else(|| app.get_webview_window(APP));
+    if let Some(w) = window {
+        // A page without the web app's undo (the loader, signed out, an
+        // older web build) still gets text undo.
+        let _ = w.eval(format!(
+            "(() => {{ const a = {action:?}; if (window.__krtyMenuEdit) window.__krtyMenuEdit(a); \
+             else window.__TAURI__?.core?.invoke(\"native_edit\", {{ action: a }}); }})()"
+        ));
+    }
+}
+
+/// Native text undo / redo in the focused field (what macOS's own Edit
+/// menu items do): `undo:` / `redo:` down the responder chain.
+#[tauri::command]
+fn native_edit(app: AppHandle, action: String) -> bool {
+    #[cfg(target_os = "macos")]
+    {
+        let _ = app.run_on_main_thread(move || {
+            use objc2::{sel, MainThreadMarker};
+            use objc2_app_kit::NSApplication;
+            let Some(mtm) = MainThreadMarker::new() else { return };
+            let ns_app = NSApplication::sharedApplication(mtm);
+            let selector = if action == "redo" { sel!(redo:) } else { sel!(undo:) };
+            // SAFETY: a standard action, sent to the first responder.
+            unsafe { ns_app.sendAction_to_from(selector, None, None) };
+        });
+        true
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
+        let _ = (app, action);
+        false
     }
 }
 
@@ -560,6 +636,7 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_positioner::init())
         .plugin(tauri_plugin_notification::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_deep_link::init())
         .plugin(tauri_plugin_autostart::init(
             tauri_plugin_autostart::MacosLauncher::LaunchAgent,
@@ -585,8 +662,14 @@ pub fn run() {
             app_info,
             open_system_settings,
             notification_status,
-            request_notification_permission
+            request_notification_permission,
+            native_edit,
+            updater::update_status,
+            updater::update_check,
+            updater::update_install
         ])
+        .menu(app_menu)
+        .on_menu_event(on_app_menu)
         .setup(move |app| {
             // The app window: the whole web app.
             let main = web_window(app, APP, "/dashboard")
@@ -714,6 +797,9 @@ pub fn run() {
 
             #[cfg(target_os = "macos")]
             mac_notify::setup(app.handle());
+
+            // In-place updates: checked now and every 6 hours.
+            updater::setup(app.handle());
 
             Ok(())
         })

@@ -1,6 +1,8 @@
 "use client"
 
+import { useT } from "@/shared/i18n/client"
 import type { Database } from "@/shared/types/database.types"
+import { pick, registerUndo, rowsUndo, UndoStale } from "@/shared/undo"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { keys, supabase, type TaskRow } from "./data"
 
@@ -98,7 +100,8 @@ export function statusPatch(task: TaskRow, status: TaskStatus) {
 /**
  * A copy of a task right below it in its column (same fields, its
  * subtasks too), created by `viewerId`. `siblings` are the rows the
- * task is ordered among (its project's tasks). True when it worked.
+ * task is ordered among (its project's tasks). The copy's id when it
+ * worked, else null.
  */
 export async function duplicateTask({
   task,
@@ -155,7 +158,7 @@ export async function duplicateTask({
     })
     .select("id")
     .single()
-  if (error || !data) return false
+  if (error || !data) return null
   if (subtasks.length) {
     const { error: subError } = await db.from("project_tasks").insert(
       subtasks.map((sub) => ({
@@ -171,9 +174,124 @@ export async function duplicateTask({
         created_by: viewerId,
       })),
     )
-    if (subError) return false
+    if (subError) return null
   }
-  return true
+  return data.id
+}
+
+/** A task and its subtasks as they are in the database (parent first). */
+async function snapshotTask(id: string) {
+  const { data, error } = await supabase()
+    .from("project_tasks")
+    .select("*")
+    .or(`id.eq.${id},parent_id.eq.${id}`)
+  if (error) throw error
+  const rows = (data ?? []) as TaskRow[]
+  return [
+    ...rows.filter((r) => r.id === id),
+    ...rows.filter((r) => r.id !== id),
+  ]
+}
+
+/** Puts deleted rows back, same ids (parent first, then its subtasks). */
+async function restoreTask(rows: TaskRow[]) {
+  const [parent, ...subs] = rows
+  if (!parent) return
+  const db = supabase()
+  const { data: there } = await db
+    .from("project_tasks")
+    .select("id")
+    .eq("id", parent.id)
+    .maybeSingle()
+  // Already back (another tab), or the project is gone.
+  if (there) throw new UndoStale()
+  const { error } = await db.from("project_tasks").insert(parent)
+  if (error) throw error
+  if (subs.length) {
+    const { error: subError } = await db.from("project_tasks").insert(subs)
+    if (subError) throw subError
+  }
+}
+
+/** Deletes a task (its subtasks go with it); false when it's not there. */
+async function deleteTaskRow(id: string) {
+  const { data, error } = await supabase()
+    .from("project_tasks")
+    .delete()
+    .eq("id", id)
+    .select("id")
+  if (error) throw error
+  return Boolean(data?.length)
+}
+
+/**
+ * Deletes a task with ⌘Z to bring it back: the task and its subtasks are
+ * put back with the same ids and fields (its comments don't come back:
+ * they go with the task, and only their authors could write them again).
+ * `refresh` runs after each step. Returns the delete's error, if any.
+ */
+export async function deleteTaskUndoable({
+  id,
+  label,
+  refresh,
+}: {
+  id: string
+  label: string
+  refresh: () => unknown
+}) {
+  let rows: TaskRow[] = []
+  try {
+    rows = await snapshotTask(id)
+  } catch {
+    // Can't take a copy first: delete without an undo.
+  }
+  const { error } = await supabase()
+    .from("project_tasks")
+    .delete()
+    .eq("id", id)
+  if (error) return error
+  if (rows.length)
+    registerUndo({
+      label,
+      undo: async () => {
+        await restoreTask(rows)
+        await refresh()
+      },
+      redo: async () => {
+        if (!(await deleteTaskRow(id))) throw new UndoStale()
+        await refresh()
+      },
+    })
+  return null
+}
+
+/**
+ * ⌘Z for a duplicate: deletes the copy (and its subtasks) as long as
+ * it's still there; redo puts the same copy back.
+ */
+export function registerDuplicateUndo({
+  copyId,
+  label,
+  refresh,
+}: {
+  copyId: string
+  label: string
+  refresh: () => unknown
+}) {
+  let rows: TaskRow[] = []
+  registerUndo({
+    label,
+    undo: async () => {
+      rows = await snapshotTask(copyId)
+      if (!rows.length || !(await deleteTaskRow(copyId)))
+        throw new UndoStale()
+      await refresh()
+    },
+    redo: async () => {
+      await restoreTask(rows)
+      await refresh()
+    },
+  })
 }
 
 /**
@@ -182,12 +300,15 @@ export async function duplicateTask({
  */
 export function useTaskWriter(projectId: string, onError: () => void) {
   const queryClient = useQueryClient()
+  const tu = useT("undo")
   const key = keys.tasks(projectId)
 
   const write = async (patches: { id: string; patch: Partial<TaskRow> }[]) => {
     if (!patches.length) return true
     await queryClient.cancelQueries({ queryKey: key })
     const before = queryClient.getQueryData<TaskRow[]>(key)
+    // ⌘Z takes it back (shared/undo): the fields as they were.
+    const undoRows = before && taskUndoRows(before, patches)
     queryClient.setQueryData<TaskRow[]>(key, (rows) =>
       rows?.map((row) => {
         const hit = patches.find((p) => p.id === row.id)
@@ -205,6 +326,17 @@ export function useTaskWriter(projectId: string, onError: () => void) {
       onError()
     }
     queryClient.invalidateQueries({ queryKey: key })
+    if (!failed && undoRows?.rows.length)
+      registerUndo(
+        rowsUndo({
+          label: tu(undoRows.label, { title: undoRows.title }),
+          table: "project_tasks",
+          rows: undoRows.rows,
+          // The board trigger rewrites these.
+          check: (k) => k !== "completed_at",
+          write: (back) => write(back as typeof patches),
+        }),
+      )
     return !failed
   }
 
@@ -212,6 +344,59 @@ export function useTaskWriter(projectId: string, onError: () => void) {
     write,
     patch: (id: string, patch: Partial<TaskRow>) => write([{ id, patch }]),
   }
+}
+
+/** Fields an undo doesn't take back: the description has its editor's own. */
+const NO_UNDO = new Set(["description", "updated_at"])
+
+/**
+ * What an undo of these task patches writes back (each row's fields as
+ * they were in `rows`), and what to call it. Null when there's nothing
+ * to take back.
+ */
+export function taskUndoRows(
+  rows: TaskRow[],
+  patches: { id: string; patch: Partial<TaskRow> }[],
+) {
+  const out: { id: string; before: Partial<TaskRow>; after: Partial<TaskRow> }[] =
+    []
+  let main: TaskRow | null = null
+  let mainHasMore = false
+  const fields = new Set<string>()
+  for (const { id, patch } of patches) {
+    const row = rows.find((r) => r.id === id)
+    if (!row) return null
+    const keys = Object.keys(patch).filter((k) => !NO_UNDO.has(k))
+    if (!keys.length) continue
+    const after = pick(patch as TaskRow, keys)
+    out.push({ id, before: pick(row, keys), after })
+    // The task the action is about: the first with more than a new
+    // position (a renumbered column moves the others too).
+    const more = keys.some((k) => k !== "position")
+    if (!main || (more && !mainHasMore)) {
+      main = row
+      mainHasMore = more
+    }
+    keys.forEach((k) => fields.add(k))
+  }
+  if (!out.length || !main) return null
+  const has = (k: string) => fields.has(k)
+  const label = has("title")
+    ? "taskTitle"
+    : has("assignee_id")
+      ? "taskAssignee"
+      : has("due_date")
+        ? "taskDue"
+        : has("phase_id")
+          ? "taskPhase"
+          : has("status") || has("done")
+            ? main.parent_id
+              ? "subtaskDone"
+              : "taskStatus"
+            : [...fields].every((k) => k === "position")
+              ? "taskOrder"
+              : "taskEdit"
+  return { rows: out, label, title: main.title } as const
 }
 
 /** Comments per task for the whole project (card badges). Shared with

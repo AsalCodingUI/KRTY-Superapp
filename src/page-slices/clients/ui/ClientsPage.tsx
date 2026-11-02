@@ -39,6 +39,7 @@ import { useFxRates } from "@/entities/finance/model/useFxRates"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { useT } from "@/shared/i18n/client"
 import { canManageByRole } from "@/shared/lib/roles"
+import { accessLevel, type AccessLevel } from "@/shared/config/access"
 import {
   RiAddLine,
   RiBuildingLine,
@@ -62,15 +63,20 @@ const inTab = (c: ClientRow, value: Tab) =>
 const ROW_GRID =
   "grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 md:grid-cols-[minmax(0,1fr)_6rem_9rem]"
 
-/** Stakeholders' client book: who we work for and what each brought in. */
+/**
+ * The client book (PMs and stakeholders): who we work for and what each
+ * brought in. PMs add, edit and archive; deleting stays with stakeholders.
+ */
 export function ClientsPage() {
   const t = useT("clients")
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const { profile, loading: profileLoading } = useUserProfile()
+  // Stakeholders; PMs manage clients too, but don't delete them.
   const isAdmin = canManageByRole(profile?.role)
-  const { data: clients = [], isLoading } = useClients(isAdmin)
+  const canEdit = isAdmin || accessLevel(profile) === "pm"
+  const { data: clients = [], isLoading } = useClients(canEdit)
   const { data: rates = NO_RATES } = useFxRates()
 
   const tab: Tab =
@@ -234,7 +240,13 @@ export function ClientsPage() {
     ]
     return items
       .filter((item) => !item.hidden)
-      .map((item) => ({ ...item, access: ["stakeholder"] }))
+      .map((item) => ({
+        ...item,
+        access:
+          item.id === "delete"
+            ? (["stakeholder"] as AccessLevel[])
+            : (["pm", "stakeholder"] as AccessLevel[]),
+      }))
   }
   const target = (
     c: ClientRow,
@@ -258,7 +270,7 @@ export function ClientsPage() {
         <Spinner className="size-6" />
       </div>
     )
-  if (!isAdmin)
+  if (!canEdit)
     return (
       <EmptyState
         className="py-16"
@@ -379,6 +391,7 @@ export function ClientsPage() {
           client={open}
           rates={rates}
           onEdit={() => setForm(open)}
+          canDelete={isAdmin}
           onClose={() => go({ client: null })}
         />
       )}

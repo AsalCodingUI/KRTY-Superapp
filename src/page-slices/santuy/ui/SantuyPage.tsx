@@ -20,6 +20,7 @@ import { accessLevel } from "@/shared/config/access"
 import { ContextTarget, copyText, type CtxItem } from "@/shared/context-menu"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { useDateLocale, useT } from "@/shared/i18n/client"
+import { registerUndo, runUndo, UndoStale } from "@/shared/undo"
 import {
   addDays,
   nextWeekday,
@@ -121,6 +122,7 @@ function SantuyBody({
   googleConfigured: boolean
 }) {
   const t = useT("santuy")
+  const tu = useT("undo")
   const dateLocale = useDateLocale()
   const queryClient = useQueryClient()
   const [busy, setBusy] = useState(false)
@@ -239,23 +241,84 @@ function SantuyBody({
     } catch {
       return
     }
+    // ⌘Z and the toast's Undo are the same step (shared/undo).
+    const undoId = undo ? registerQueueUndo(undo, members) : 0
     toast.success(
       note,
       undo
         ? {
             action: {
               label: t("undo"),
-              onClick: () => void changeQueue(undo, t("saved")),
+              onClick: () =>
+                void (undoId
+                  ? runUndo("undo", undoId)
+                  : changeQueue(undo, t("saved"))),
             },
           }
         : undefined,
     )
   }
 
-  const saveWeek = (
+  /** Back to `before` while the saved queue is still `after`. */
+  const registerQueueUndo = (
+    before: SantuyMember[],
+    after: SantuyMember[],
+  ) => {
+    const sig = (list: SantuyMember[]) =>
+      list.map((m) => `${m.profileId}:${m.active}`).join()
+    const go = async (expected: SantuyMember[], next: SantuyMember[]) => {
+      await refresh()
+      const current = queryClient.getQueryData<SantuyData>(santuyKey)
+      if (!current || sig(current.members) !== sig(expected))
+        throw new UndoStale()
+      queryClient.setQueryData<SantuyData>(santuyKey, {
+        ...current,
+        members: next.map((m, position) => ({ ...m, position })),
+      })
+      await run(() => commitSantuy(current, next))
+    }
+    return registerUndo({
+      label: tu("santuyQueue"),
+      undo: () => go(after, before),
+      redo: () => go(before, after),
+    })
+  }
+
+  const saveWeek = async (
     date: string,
     value: { kind: "skip" } | { kind: "assign"; profileId: string } | null,
-  ) => run(() => setSantuyWeek(date, value), t("weekSaved"))
+  ) => {
+    // What the week was, for ⌘Z (shared/undo).
+    const week = data.weeks.find((w) => w.date === date)
+    const before: typeof value = !week
+      ? null
+      : week.kind === "assign" && week.profileId
+        ? { kind: "assign", profileId: week.profileId }
+        : { kind: "skip" }
+    await run(() => setSantuyWeek(date, value), t("weekSaved"))
+    const same = (
+      w: SantuyData["weeks"][number] | undefined,
+      v: typeof value,
+    ) =>
+      !v
+        ? !w
+        : !!w &&
+          w.kind === v.kind &&
+          (v.kind === "skip" || w.profileId === v.profileId)
+    if (JSON.stringify(before) === JSON.stringify(value)) return
+    const go = async (expected: typeof value, next: typeof value) => {
+      await refresh()
+      const current = queryClient.getQueryData<SantuyData>(santuyKey)
+      if (!current || !same(current.weeks.find((w) => w.date === date), expected))
+        throw new UndoStale()
+      await run(() => setSantuyWeek(date, next))
+    }
+    registerUndo({
+      label: tu("santuyWeek", { date: dayLabel(date, "d MMM") }),
+      undo: () => go(value, before),
+      redo: () => go(before, value),
+    })
+  }
 
   const dayLabel = (date: string, pattern = "EEE, d MMM") =>
     format(dayDate(date), pattern, { locale: dateLocale })

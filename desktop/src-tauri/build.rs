@@ -14,6 +14,10 @@ fn main() {
             "open_system_settings",
             "notification_status",
             "request_notification_permission",
+            "native_edit",
+            "update_status",
+            "update_check",
+            "update_install",
         ]),
     ))
     .expect("failed to run tauri-build");

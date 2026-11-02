@@ -19,10 +19,12 @@ import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { format, parseISO } from "date-fns"
 import { useMemo, useState } from "react"
 import { toast } from "sonner"
+import { runUndo } from "@/shared/undo"
 import {
   officeHolidayKey as officeKey,
   setOfficeHoliday,
   unsetOfficeHoliday,
+  registerOfficeHolidayUndo,
 } from "../../lib/office-holiday"
 import type { CalendarEvent } from "../types"
 
@@ -115,6 +117,7 @@ function OfficeHoliday({
   holidayKey: string
 }) {
   const t = useT("calendar")
+  const tu = useT("undo")
   const supabase = useMemo(() => createClient(), [])
   const queryClient = useQueryClient()
   const { profile, authProfile } = useUserProfile()
@@ -161,9 +164,21 @@ function OfficeHoliday({
     setBusy(true)
     try {
       if (!(await action())) return
-      const undo = action === add ? remove : add
+      // ⌘Z and the toast's Undo are the same step (shared/undo).
+      const on = action === add
+      const undoId = registerOfficeHolidayUndo({
+        on,
+        holiday,
+        holidayKey,
+        userId: authProfile?.id ?? profile?.id ?? null,
+        label: tu(on ? "holidaySet" : "holidayCancel", { name: holiday.name }),
+        refresh,
+      })
       toast.success(done, {
-        action: { label: t("holidayOfficeUndo"), onClick: () => void undo() },
+        action: {
+          label: t("holidayOfficeUndo"),
+          onClick: () => void runUndo("undo", undoId),
+        },
       })
     } finally {
       setBusy(false)

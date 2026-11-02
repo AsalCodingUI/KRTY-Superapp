@@ -13,6 +13,7 @@ import { ConfirmDialog } from "@/components/confirm-dialog"
 import { DataTable, DataTableColumnHeader } from "@/components/data-table"
 import { ListChip } from "@/components/grouped-list"
 import { ProjectStatusIcon } from "./ProjectStatusIcon"
+import { registerProjectStatusUndo } from "./project-undo"
 import { ProjectAvatar } from "@/components/project-avatar"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -70,6 +71,7 @@ const QUERY_KEY = ["projects", "list-page"]
  */
 export function ProjectsListPage() {
   const t = useT("projects")
+  const tu = useT("undo")
   const tc = useT("common")
   const supabase = useMemo(() => createClient(), [])
   const queryClient = useQueryClient()
@@ -150,12 +152,23 @@ export function ProjectsListPage() {
     }
     toast.success(`${project.name} → ${t(STATUS_LABEL_KEYS[status])}`)
     refresh()
+    registerProjectStatusUndo({
+      projectId: project.id,
+      label: tu("projectStatus", {
+        name: project.name,
+        status: t(STATUS_LABEL_KEYS[status]),
+      }),
+      from: project.status,
+      to: status,
+      refresh,
+    })
     return true
   }
 
-  // Moving: PMs and stakeholders. Edit / delete: stakeholders.
+  // Moving, editing and deleting: PMs (their list is only projects they're
+  // on) and stakeholders.
   const onMove = canRun ? changeStatus : undefined
-  const actions: Omit<ProjectActions, "onMove"> | undefined = isAdmin
+  const actions: Omit<ProjectActions, "onMove"> | undefined = canRun
     ? {
         onEdit: (project) => {
           setEditingId(project.id)
@@ -268,7 +281,7 @@ export function ProjectsListPage() {
           onSaved={refresh}
         />
       )}
-      {isAdmin && (
+      {canRun && (
         <>
           <ConfirmDialog
             open={Boolean(deleting)}

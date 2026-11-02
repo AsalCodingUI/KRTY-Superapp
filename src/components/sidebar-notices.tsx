@@ -9,9 +9,9 @@ import {
   useMacUpdate,
 } from "@/shared/hooks/useMacApp"
 import { useT } from "@/shared/i18n/client"
-import { isMacDesktop } from "@/shared/lib/desktop-app"
+import { installUpdate, isMacDesktop } from "@/shared/lib/desktop-app"
 import { useWhatsNewNotice } from "@/page-slices/whats-new/ui/whats-new-notice"
-import { Download, X } from "lucide-react"
+import { Download, RotateCw, X } from "lucide-react"
 import { Fragment, useEffect, useState, type ReactNode } from "react"
 
 /**
@@ -123,16 +123,48 @@ export function SidebarNoticeCard({
   )
 }
 
-/** Kretya Flow: a newer version than the one running (inside the app). */
+/**
+ * Kretya Flow: a newer version than the one running (inside the app).
+ * Downloaded by the in-place updater: "Update siap", restart to install.
+ * Without it (an older app, or it failed): the .dmg to download.
+ */
 function useUpdateNotice(): SidebarNotice | null {
   const t = useT("desktopApp")
   const desktop = useDesktopShell()
-  const { available } = useMacUpdate(desktop)
+  const { available, updater } = useMacUpdate(desktop)
+  const readyVersion =
+    updater?.phase === "ready" && updater.version ? updater.version : null
   const [dismissed, dismiss] = useDeviceFlag(
-    available ? `krty-update-card-dismissed-${available.version}` : null,
+    readyVersion
+      ? `krty-update-ready-card-dismissed-${readyVersion}`
+      : available
+        ? `krty-update-card-dismissed-${available.version}`
+        : null,
   )
   const { start, dialog } = useMacDownload()
-  if (!desktop || !available || dismissed !== false) return null
+  const [installing, setInstalling] = useState(false)
+  if (!desktop || dismissed !== false) return null
+  if (readyVersion)
+    return {
+      id: "update",
+      priority: NOTICE_PRIORITY.update,
+      title: t("readyTitle"),
+      subtitle: installing
+        ? t("installing")
+        : t("readySubtitle", { version: readyVersion }),
+      icon: <RotateCw />,
+      tone: "accent",
+      actionLabel: t("restartToUpdate"),
+      onClick: () => {
+        if (installing) return
+        setInstalling(true)
+        // Relaunches on success; an answer means it failed (the updater's
+        // error then shows in Setelan app, and the .dmg card takes over).
+        void installUpdate().finally(() => setInstalling(false))
+      },
+      onDismiss: dismiss,
+    }
+  if (!available) return null
   return {
     id: "update",
     priority: NOTICE_PRIORITY.update,

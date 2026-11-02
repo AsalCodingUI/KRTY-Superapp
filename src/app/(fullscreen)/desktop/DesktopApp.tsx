@@ -21,9 +21,12 @@ import { useEffect, useMemo, useRef, useState } from "react"
 import { format } from "date-fns"
 import {
   appInfo,
+  checkForUpdate,
   fetchLatestMacRelease,
   isNewerVersion,
 } from "@/shared/lib/desktop-app"
+import { useAppUpdater } from "@/shared/hooks/useMacApp"
+import { useT } from "@/shared/i18n/client"
 import { toast } from "sonner"
 
 /**
@@ -102,6 +105,7 @@ export function DesktopApp() {
   // the time, and the minute poll pauses then.
   useNotificationsRealtime()
   const [prefs] = useDesktopPrefs()
+  const t = useT("desktopApp")
   const person = useMemo(
     () =>
       profile
@@ -216,11 +220,32 @@ export function DesktopApp() {
     } catch {}
   }, [data, prefs.notifyEvents, prefs.notifyClock, scenario])
 
-  // A new version: one notification per version (remembered on this
-  // device); clicking it opens Setelan app, which starts the download.
-  // Checked at start and every 6 hours (the popover runs for days).
+  // A new version, one notification per version (remembered on this
+  // device). The in-place updater (the app checks at start and every 6
+  // hours) tells once it's downloaded: clicking opens Setelan app, with
+  // its Restart button. Apps without it, or when it failed: the .dmg
+  // (checked here at start and every 6 hours; the popover runs for days).
+  const updater = useAppUpdater()
+  const readyVersion =
+    updater.status?.phase === "ready" ? updater.status.version : null
   useEffect(() => {
-    if (scenario !== "real") return
+    if (scenario !== "real" || !readyVersion) return
+    const key = `krty-update-ready-notified-${readyVersion}`
+    try {
+      if (localStorage.getItem(key)) return
+      localStorage.setItem(key, "1")
+    } catch {}
+    void invoke("notify", {
+      title: t("notifyReadyTitle", { version: readyVersion }),
+      body: t("notifyReadyBody"),
+      path: "/settings/app",
+    })
+  }, [scenario, readyVersion, t])
+
+  const dmgFallback =
+    updater.loaded && (!updater.status || updater.status.phase === "error")
+  useEffect(() => {
+    if (scenario !== "real" || !dmgFallback) return
     const check = () =>
       void availableUpdate().then((update) => {
         if (!update) return
@@ -230,15 +255,15 @@ export function DesktopApp() {
           localStorage.setItem(key, "1")
         } catch {}
         void invoke("notify", {
-          title: `Kretya Flow versi ${update.version} siap`,
-          body: "Klik buat download versi barunya.",
+          title: t("notifyUpdateTitle", { version: update.version }),
+          body: t("notifyUpdateBody"),
           path: "/settings/app?download=1",
         })
       })
     check()
     const id = setInterval(check, 6 * 60 * 60_000)
     return () => clearInterval(id)
-  }, [scenario])
+  }, [scenario, dmgFallback, t])
 
   const refresh = (keys: string[][]) =>
     Promise.all(
@@ -327,14 +352,17 @@ export function DesktopApp() {
         window.location.reload()
       },
       checkUpdate: async () => {
+        // The in-place updater: Setelan app shows the check, the download
+        // and the Restart button.
+        if (await checkForUpdate()) return openExternal("/settings/app")
         const update = await availableUpdate()
         if (update) openExternal("/settings/app?download=1")
-        else toast("Kretya Flow sudah versi terbaru")
+        else toast(t("latestCheckUpToDate"))
       },
       todo: () => undefined,
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data.log, markAsRead, queryClient])
+  }, [data.log, markAsRead, queryClient, t])
 
   return (
     <ActionsContext.Provider value={actions}>

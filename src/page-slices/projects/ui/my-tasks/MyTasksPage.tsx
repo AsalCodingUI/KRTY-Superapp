@@ -32,7 +32,9 @@ import { TaskContextTarget, type TaskMenuConfig } from "../workspace/task-menu"
 import {
   STATUS_LABEL,
   byPosition,
+  deleteTaskUndoable,
   duplicateTask,
+  registerDuplicateUndo,
   positionBetween,
   topPosition,
   statusOf,
@@ -62,6 +64,7 @@ export function MyTasksPage() {
   const t = useT("projects")
   const tc = useT("common")
   const tm = useT("taskmenu")
+  const tu = useT("undo")
   const viewer = useViewer()
   const { data, isLoading } = useMyTasks(viewer.id)
   const writer = useMyTaskWriter(viewer.id, () => toast.error(t("errSaveTask")))
@@ -196,12 +199,14 @@ export function MyTasksPage() {
   const remove = async (id: string) => {
     if (id === openId) setDialogOpen(false)
     const row = everything.find((r) => r.id === id)
-    const { error } = await supabase()
-      .from("project_tasks")
-      .delete()
-      .eq("id", id)
+    const refresh = () => writer.refresh(row ? [row.project_id] : [])
+    const error = await deleteTaskUndoable({
+      id,
+      label: tu("taskDelete", { title: row?.title ?? "" }),
+      refresh,
+    })
     if (error) toast.error(t("errDeleteTask"))
-    writer.refresh(row ? [row.project_id] : [])
+    refresh()
   }
 
   const openTask = (id: string, start: "due" | "subtask" | null = null) => {
@@ -217,7 +222,7 @@ export function MyTasksPage() {
       .from("project_tasks")
       .select("*")
       .eq("project_id", task.project_id)
-    const ok = await duplicateTask({
+    const copyId = await duplicateTask({
       task,
       subtasks: subsOf.get(task.id) ?? [],
       siblings: (siblings ?? []) as TaskRow[],
@@ -225,8 +230,14 @@ export function MyTasksPage() {
       viewerId: viewer.id,
     })
     await writer.refresh([task.project_id])
-    if (ok) toast.success(tm("duplicated"))
-    else toast.error(tm("errDuplicate"))
+    if (copyId) {
+      toast.success(tm("duplicated"))
+      registerDuplicateUndo({
+        copyId,
+        label: tu("taskDuplicate", { title: task.title }),
+        refresh: () => writer.refresh([task.project_id]),
+      })
+    } else toast.error(tm("errDuplicate"))
   }
 
   /** The right-click menu of a task: the same handlers as the dialog's. */

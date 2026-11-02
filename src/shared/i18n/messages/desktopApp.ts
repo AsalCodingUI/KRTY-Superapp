@@ -102,6 +102,30 @@ const id = {
   upToDate: "Udah versi terbaru",
   updateReady: "Versi {version} tersedia",
   downloadUpdate: "Download update",
+
+  // In-place updater (0.2.0 and later)
+  readyTitle: "Update siap",
+  readySubtitle: "Restart buat pasang versi {version}",
+  restartToUpdate: "Restart buat update",
+  installing: "Lagi masang…",
+  notifyReadyTitle: "Kretya Flow {version} siap",
+  notifyReadyBody: "Restart buat update",
+  downloadingUpdate: "Lagi download versi {version}…",
+  downloadProgress: "{done} dari {total}",
+  readyHint: "Versi {version} udah ke-download. Restart buat pasang.",
+  autoUpdateHint:
+    "Update dicek otomatis tiap 6 jam dan di-download di background.",
+  lastChecked: "Terakhir dicek {time}",
+  neverChecked: "Belum pernah dicek",
+  errorNetwork:
+    "Nggak bisa nyambung ke server update. Cek VPN atau internetnya, terus coba lagi.",
+  errorSignature:
+    "File update-nya nggak lolos cek keamanan, jadi nggak dipasang. Coba lagi nanti.",
+  errorInstall:
+    "Update-nya gagal dipasang. Coba lagi, atau pasang manual dari DMG.",
+  errorOther: "Ngecek update-nya gagal. Coba lagi bentar lagi.",
+  downloadDmg: "Download DMG",
+  latestCheckUpToDate: "Kretya Flow udah versi terbaru",
 }
 
 const en: Record<keyof typeof id, string> = {
@@ -194,6 +218,29 @@ const en: Record<keyof typeof id, string> = {
   upToDate: "You're on the latest version",
   updateReady: "Version {version} available",
   downloadUpdate: "Download update",
+
+  readyTitle: "Update ready",
+  readySubtitle: "Restart to install version {version}",
+  restartToUpdate: "Restart to update",
+  installing: "Installing…",
+  notifyReadyTitle: "Kretya Flow {version} is ready",
+  notifyReadyBody: "Restart to update",
+  downloadingUpdate: "Downloading version {version}…",
+  downloadProgress: "{done} of {total}",
+  readyHint: "Version {version} is downloaded. Restart to install it.",
+  autoUpdateHint:
+    "Updates are checked every 6 hours and downloaded in the background.",
+  lastChecked: "Last checked {time}",
+  neverChecked: "Not checked yet",
+  errorNetwork:
+    "Couldn't reach the update server. Check the VPN or your internet, then try again.",
+  errorSignature:
+    "The update didn't pass the security check, so it wasn't installed. Try again later.",
+  errorInstall:
+    "The update couldn't be installed. Try again, or install it from the DMG.",
+  errorOther: "Checking for updates failed. Try again in a bit.",
+  downloadDmg: "Download DMG",
+  latestCheckUpToDate: "Kretya Flow is up to date",
 }
 
 export const desktopApp = { id, en }

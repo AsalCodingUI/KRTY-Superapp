@@ -20,6 +20,10 @@ const id = {
   groupUrl: "Alamat web",
   groupPage: "Halaman",
 
+  // Undo / redo (shared/undo)
+  undo: "Urungkan",
+  redo: "Ulangi",
+
   // Text / selection
   copy: "Salin",
   cut: "Potong",
@@ -124,6 +128,9 @@ const en: Record<keyof typeof id, string> = {
   groupDate: "Date",
   groupUrl: "Web address",
   groupPage: "Page",
+
+  undo: "Undo",
+  redo: "Redo",
 
   copy: "Copy",
   cut: "Cut",

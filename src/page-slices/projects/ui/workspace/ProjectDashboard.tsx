@@ -18,6 +18,8 @@ import { setProjectStatus } from "@/app/(main)/projects/actions/project-actions"
 import { accessLevel, canRunProjects } from "@/shared/config/access"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { ProjectStatusButton } from "../ProjectMenu"
+import { registerProjectStatusUndo } from "../project-undo"
+import { registerUndo, rowsUndo, UndoStale } from "@/shared/undo"
 import { ProjectProperties } from "./ProjectProperties"
 import { PhasesOffCard, StopPhasesDialog } from "./PhaseMode"
 import type { Report } from "./reports-data"
@@ -104,6 +106,7 @@ import {
   useInvalidate,
   useSteps,
   useTasks,
+  useCanManageProject,
   useViewer,
   useWorkspace,
   type PhaseRow,
@@ -120,12 +123,15 @@ const day = (date: string | null, locale: Locale) =>
  */
 export function ProjectDashboard({ projectId }: { projectId: string }) {
   const t = useT("projects")
+  const tu = useT("undo")
   const dateLocale = useDateLocale()
   const { data, isLoading } = useWorkspace(projectId)
   const base = useProjectHref(projectId)
   const { data: steps = [] } = useSteps(projectId)
   const { data: tasks = [] } = useTasks(projectId)
   const viewer = useViewer()
+  // Phases, the about text and facts: stakeholders and the project's PMs.
+  const canManage = useCanManageProject(projectId)
   const invalidate = useInvalidate(projectId)
   const queryClient = useQueryClient()
   // "Pindahkan ke" in the header: PMs and stakeholders.
@@ -169,11 +175,27 @@ export function ProjectDashboard({ projectId }: { projectId: string }) {
   const current = phases.find((p) => p.id === selected) ?? phases[0]
 
   const moveProject = async (status: ProjectStatus) => {
+    const from = project.status as ProjectStatus
     const result = await setProjectStatus(projectId, status)
     if (!result.success) return void toast.error(result.error)
     toast.success(`${project.name} → ${t(STATUS_LABEL_KEYS[status])}`)
-    invalidate("workspace")
-    void queryClient.invalidateQueries({ queryKey: ["projects"] })
+    const refresh = () =>
+      Promise.all([
+        invalidate("workspace"),
+        queryClient.invalidateQueries({ queryKey: ["projects"] }),
+      ])
+    void refresh()
+    if (from !== status)
+      registerProjectStatusUndo({
+        projectId,
+        label: tu("projectStatus", {
+          name: project.name,
+          status: t(STATUS_LABEL_KEYS[status]),
+        }),
+        from,
+        to: status,
+        refresh,
+      })
   }
   const openTasks = tasks.filter((task) => !task.done && !task.parent_id).length
 
@@ -181,6 +203,7 @@ export function ProjectDashboard({ projectId }: { projectId: string }) {
   const activate = async (phase: PhaseRow, completeIt = false) => {
     const db = supabase()
     const now = new Date().toISOString()
+    const newStatus: string[] = []
     const updates = phases.map((p) => {
       const status = completeIt
         ? p.position <= phase.position
@@ -193,6 +216,7 @@ export function ProjectDashboard({ projectId }: { projectId: string }) {
           : p.position === phase.position
             ? "active"
             : "todo"
+      newStatus.push(status)
       return db
         .from("project_phases")
         .update({
@@ -212,6 +236,27 @@ export function ProjectDashboard({ projectId }: { projectId: string }) {
         : t("phaseActivated", { name: clip(phase.name) }),
     )
     invalidate("workspace")
+    // ⌘Z puts every phase's status back (shared/undo).
+    const changed = phases
+      .map((p, i) => ({ p, next: newStatus[i] }))
+      .filter(({ p, next }) => p.status !== next)
+    if (changed.length)
+      registerUndo(
+        rowsUndo({
+          label: tu("phaseStatus", { name: clip(phase.name) }),
+          table: "project_phases",
+          rows: changed.map(({ p, next }) => ({
+            id: p.id,
+            before: { status: p.status, completed_at: p.completed_at },
+            after: {
+              status: next,
+              completed_at: next === "done" ? (p.completed_at ?? now) : null,
+            },
+          })),
+          check: (k) => k === "status",
+          done: () => invalidate("workspace"),
+        }),
+      )
   }
 
   /* Running projects can reshape their phases, not only the process. */
@@ -236,6 +281,21 @@ export function ProjectDashboard({ projectId }: { projectId: string }) {
         .update({ name })
         .eq("id", phaseDialog.id)
       if (error) return void toast.error(t("errSavePhase"))
+      if (phaseDialog.name !== name)
+        registerUndo(
+          rowsUndo({
+            label: tu("phaseRename", { name: clip(name) }),
+            table: "project_phases",
+            rows: [
+              {
+                id: phaseDialog.id,
+                before: { name: phaseDialog.name },
+                after: { name },
+              },
+            ],
+            done: () => invalidate("workspace"),
+          }),
+        )
     }
     setPhaseDialog(null)
     invalidate("workspace")
@@ -246,6 +306,7 @@ export function ProjectDashboard({ projectId }: { projectId: string }) {
     const from = ids.indexOf(phase.id)
     const to = from + direction
     if (to < 0 || to >= ids.length) return
+    const original = phases.map((p) => p.id)
     ;[ids[from], ids[to]] = [ids[to], ids[from]]
     const { error } = await supabase().rpc("reorder_project_phases", {
       p_project_id: projectId,
@@ -253,6 +314,32 @@ export function ProjectDashboard({ projectId }: { projectId: string }) {
     })
     if (error) toast.error(t("errSavePhase"))
     invalidate("workspace")
+    if (!error) registerPhaseOrderUndo(original, ids)
+  }
+
+  /** ⌘Z for a phase reorder: the old order, if it's still the new one. */
+  const registerPhaseOrderUndo = (before: string[], after: string[]) => {
+    const go = async (expected: string[], next: string[]) => {
+      const { data, error } = await supabase()
+        .from("project_phases")
+        .select("id")
+        .eq("project_id", projectId)
+        .order("position")
+      if (error) throw error
+      if ((data ?? []).map((r: { id: string }) => r.id).join() !== expected.join())
+        throw new UndoStale()
+      const { error: saveError } = await supabase().rpc(
+        "reorder_project_phases",
+        { p_project_id: projectId, p_ids: next },
+      )
+      if (saveError) throw saveError
+      await invalidate("workspace")
+    }
+    registerUndo({
+      label: tu("phaseOrder"),
+      undo: () => go(after, before),
+      redo: () => go(before, after),
+    })
   }
 
   return (
@@ -296,11 +383,11 @@ export function ProjectDashboard({ projectId }: { projectId: string }) {
       <div className="flex flex-col gap-4 pt-6 pb-4">
         {phases.length === 0 ? (
           // An ongoing project (side work, a retainer): no rail, and for
-          // stakeholders the way back to phases.
-          viewer.isAdmin && (
+          // stakeholders and the project's PMs the way back to phases.
+          canManage && (
             <PhasesOffCard
               projectId={projectId}
-              isAdmin={viewer.isAdmin}
+              isAdmin={canManage}
               onAddManual={() => setPhaseDialog("new")}
             />
           )
@@ -310,7 +397,7 @@ export function ProjectDashboard({ projectId }: { projectId: string }) {
             steps={steps}
             selectedId={current?.id ?? null}
             onSelect={setSelected}
-            isAdmin={viewer.isAdmin}
+            isAdmin={canManage}
             onAdd={() => setPhaseDialog("new")}
             onActivate={activate}
             onRename={(phase) => setPhaseDialog(phase)}
@@ -358,13 +445,13 @@ export function ProjectDashboard({ projectId }: { projectId: string }) {
             <ProjectAbout
               projectId={projectId}
               description={project.description}
-              canEdit={viewer.isAdmin}
+              canEdit={canManage}
             />
             {/* Property list (Attio style): icon + label, then the value;
                 empty values read as a quiet placeholder. */}
             <Facts
               projectId={projectId}
-              canEdit={viewer.isAdmin}
+              canEdit={canManage}
               rows={[
                 {
                   icon: CalendarDays,
@@ -438,7 +525,7 @@ export function ProjectDashboard({ projectId }: { projectId: string }) {
         onClose={() => setReportOpen(null)}
       />
 
-      {viewer.isAdmin && (
+      {canManage && (
         <>
           <PhaseSettingsDialog
             projectId={projectId}
@@ -1518,6 +1605,7 @@ function ProcessPanel({
   viewerId: string | null
 }) {
   const t = useT("projects")
+  const tu = useT("undo")
   const invalidate = useInvalidate(projectId)
   const [adding, setAdding] = useState(false)
   const [title, setTitle] = useState("")
@@ -1544,11 +1632,22 @@ function ProcessPanel({
   }
 
   const toggle = async (id: string, done: boolean) => {
-    await supabase()
+    const step = steps.find((s) => s.id === id)
+    const status = done ? "done" : "draft"
+    const { error } = await supabase()
       .from("project_steps")
-      .update({ status: done ? "done" : "draft" })
+      .update({ status })
       .eq("id", id)
     invalidate("steps")
+    if (!error && step && step.status !== status)
+      registerUndo(
+        rowsUndo({
+          label: tu("stepStatus", { name: clip(step.title) }),
+          table: "project_steps",
+          rows: [{ id, before: { status: step.status }, after: { status } }],
+          done: () => invalidate("steps"),
+        }),
+      )
   }
 
   const remove = async (id: string) => {
@@ -1557,12 +1656,24 @@ function ProcessPanel({
   }
 
   const update = async (id: string, patch: { title?: string }) => {
+    const step = steps.find((s) => s.id === id)
     const { error } = await supabase()
       .from("project_steps")
       .update(patch)
       .eq("id", id)
     if (error) toast.error(t("errSaveStep"))
     invalidate("steps")
+    if (!error && step && patch.title !== undefined && patch.title !== step.title)
+      registerUndo(
+        rowsUndo({
+          label: tu("stepRename", { name: clip(patch.title) }),
+          table: "project_steps",
+          rows: [
+            { id, before: { title: step.title }, after: { title: patch.title } },
+          ],
+          done: () => invalidate("steps"),
+        }),
+      )
   }
 
   /** Swap with the neighbor, then number the phase's steps 0..n. */
@@ -1573,12 +1684,28 @@ function ProcessPanel({
     if (to < 0 || to >= ids.length) return
     ;[ids[from], ids[to]] = [ids[to], ids[from]]
     const db = supabase()
-    await Promise.all(
+    const results = await Promise.all(
       ids.map((stepId, position) =>
         db.from("project_steps").update({ position }).eq("id", stepId),
       ),
     )
     invalidate("steps")
+    // ⌘Z: every step of the phase back at its old position.
+    if (!results.some((r) => r.error))
+      registerUndo(
+        rowsUndo({
+          label: tu("stepOrder"),
+          table: "project_steps",
+          rows: ids.map((stepId, position) => ({
+            id: stepId,
+            before: {
+              position: steps.find((s) => s.id === stepId)?.position ?? null,
+            },
+            after: { position },
+          })),
+          done: () => invalidate("steps"),
+        }),
+      )
   }
 
   return (

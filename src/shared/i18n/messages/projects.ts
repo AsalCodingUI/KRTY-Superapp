@@ -198,6 +198,10 @@ const id = {
   errOneLead: "Lead hanya satu orang.",
   errSaveProject: "Gagal menyimpan project.",
   errRemoveMember: "Gagal mengeluarkan anggota.",
+  errRemoveScoredMember:
+    "Anggota yang sudah punya nilai cuma bisa dikeluarkan stakeholder.",
+  errDeleteScoredProject:
+    "Project ini sudah punya nilai tim, jadi cuma stakeholder yang bisa menghapusnya.",
   errSaveMember: "Gagal menyimpan anggota tim.",
   errChangeStatus: "Gagal mengubah status.",
   errDeleteProject: "Gagal menghapus project.",
@@ -680,6 +684,10 @@ const en: Record<keyof typeof id, string> = {
   errOneLead: "Only one person can be lead.",
   errSaveProject: "Couldn't save the project.",
   errRemoveMember: "Couldn't remove the member.",
+  errRemoveScoredMember:
+    "Only a stakeholder can remove a member who already has scores.",
+  errDeleteScoredProject:
+    "This project already has team scores, so only a stakeholder can delete it.",
   errSaveMember: "Couldn't save team members.",
   errChangeStatus: "Couldn't change the status.",
   errDeleteProject: "Couldn't delete the project.",

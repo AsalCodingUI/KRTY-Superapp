@@ -20,6 +20,12 @@ export const releaseFile = (version: string) =>
 
 type TauriGlobal = {
   app?: { getVersion: () => Promise<string> }
+  event?: {
+    listen: <T>(
+      event: string,
+      handler: (e: { payload: T }) => void,
+    ) => Promise<() => void>
+  }
   core: {
     invoke: (cmd: string, args?: Record<string, unknown>) => Promise<unknown>
   }
@@ -58,6 +64,61 @@ export async function appInfo(): Promise<AppInfo | null> {
   return version
     ? { name: "Kretya Flow", version, identifier: "com.kretyastudio.krty" }
     : null
+}
+
+/**
+ * The app's in-place updater (0.2.0 and later; see desktop/src-tauri/src/
+ * updater.rs): checked at launch and every 6 hours, downloaded in the
+ * background, installed on "Restart".
+ */
+export type UpdatePhase =
+  | "idle"
+  | "checking"
+  | "downloading"
+  | "ready"
+  | "upToDate"
+  | "error"
+
+export type UpdateStatus = {
+  phase: UpdatePhase
+  current: string
+  version: string | null
+  notes: string | null
+  downloaded: number
+  total: number | null
+  /** Unix ms. */
+  lastChecked: number | null
+  errorKind: "network" | "signature" | "install" | "other" | null
+  error: string | null
+}
+
+/** The updater's state; undefined outside the app or in a build without
+ *  the updater (0.1.0: it updates through the .dmg). */
+export const updateStatus = () => invokeApp<UpdateStatus>("update_status")
+
+/** A check now (answers with "checking"; the rest comes as events). */
+export const checkForUpdate = () => invokeApp<UpdateStatus>("update_check")
+
+/** Installs the downloaded update and relaunches the app (answers only
+ *  when that fails). */
+export const installUpdate = () => invokeApp<UpdateStatus>("update_install")
+
+/** Every change of the updater's state; returns the unsubscribe. */
+export function onUpdateStatus(handler: (status: UpdateStatus) => void) {
+  const listen = tauri()?.event?.listen
+  if (!listen) return () => {}
+  let stop: (() => void) | undefined
+  let stopped = false
+  void listen<UpdateStatus>("update-status", (e) => handler(e.payload))
+    .then((unlisten) => {
+      if (stopped) unlisten()
+      else stop = unlisten
+    })
+    .catch(() => undefined)
+  return () => {
+    stopped = true
+    stop?.()
+  }
 }
 
 /** "0.1.10" > "0.1.9", piece by piece. */

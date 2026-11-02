@@ -1,5 +1,6 @@
 import { siteConfig } from "@/app/siteConfig"
 import type { MessageKey } from "@/shared/i18n/messages"
+import { accessLevel } from "@/shared/config/access"
 import { isAdminRole } from "@/shared/lib/roles"
 import {
   RemixiconComponentType,
@@ -67,6 +68,8 @@ export interface Workspace {
 }
 
 const isAdmin = (p: WorkspaceProfile) => isAdminRole(p.role)
+/** PMs and stakeholders (access.ts PM_UP). */
+const isPmUp = (p: WorkspaceProfile) => accessLevel(p) !== "employee"
 const links = siteConfig.baseLinks
 
 export const workspaces: Workspace[] = [
@@ -187,26 +190,26 @@ export const workspaces: Workspace[] = [
         icon: RiStickyNoteLine,
       },
       { name: "calendar", href: links.calendar, icon: RiCalendarLine },
-      // Who we work for; stakeholders only.
+      // Who we work for; PMs and stakeholders.
       {
         name: "clients",
         href: links.clients,
         icon: RiBuildingLine,
-        can: isAdmin,
+        can: isPmUp,
       },
-      // Project templates (phases → steps → tasks); stakeholders only.
+      // Project templates (phases → steps → tasks); PMs and stakeholders.
       {
         name: "processes",
         href: links.processes,
         icon: RiFlowLine,
-        can: isAdmin,
+        can: isPmUp,
       },
-      // How invoices get paid + the studio profile; stakeholders only.
+      // How invoices get paid + the studio profile; PMs and stakeholders.
       {
         name: "paymentMethods",
         href: links.paymentMethods,
         icon: RiBankCardLine,
-        can: isAdmin,
+        can: isPmUp,
       },
     ],
   },

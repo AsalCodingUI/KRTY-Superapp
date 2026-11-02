@@ -1,4 +1,5 @@
 import { createClient } from "@/shared/api/supabase/client"
+import { registerUndo, UndoStale } from "@/shared/undo"
 import { idHolidayRange, type IdHoliday } from "@/shared/lib/id-holidays"
 import { getEventTypeDefinition } from "./event-color-registry"
 
@@ -41,4 +42,45 @@ export async function unsetOfficeHoliday(holidayKey: string) {
     .delete()
     .eq("holiday_key", holidayKey)
   return !error
+}
+
+async function isOfficeHoliday(holidayKey: string) {
+  const { data, error } = await createClient()
+    .from("calendar_events")
+    .select("id")
+    .eq("holiday_key", holidayKey)
+    .maybeSingle()
+  if (error) throw error
+  return Boolean(data)
+}
+
+/**
+ * ⌘Z for setting (`on`) or cancelling an office holiday — the same step as
+ * the toast's own Undo (pass the returned id to `runUndo`). It only goes
+ * back while the holiday is still the way this left it. Returns the id.
+ */
+export function registerOfficeHolidayUndo({
+  on,
+  holiday,
+  holidayKey,
+  userId,
+  label,
+  refresh,
+}: {
+  on: boolean
+  holiday: IdHoliday
+  holidayKey: string
+  userId: string | null
+  label: string
+  refresh: () => unknown
+}) {
+  const to = async (set: boolean) => {
+    if ((await isOfficeHoliday(holidayKey)) === set) throw new UndoStale()
+    const ok = set
+      ? await setOfficeHoliday(holiday, holidayKey, userId)
+      : await unsetOfficeHoliday(holidayKey)
+    await refresh()
+    if (!ok) throw new Error("office holiday")
+  }
+  return registerUndo({ label, undo: () => to(!on), redo: () => to(on) })
 }

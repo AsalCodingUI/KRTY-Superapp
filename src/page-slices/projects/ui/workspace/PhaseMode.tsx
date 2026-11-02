@@ -29,7 +29,8 @@ import { useInvalidate } from "./data"
 /**
  * Projects can run without phases (side work, retainer clients): the
  * properties line says "Berjalan terus" instead of a progress figure, the
- * phase rail is left out, and stakeholders can switch phases off and on.
+ * phase rail is left out, and stakeholders and the project's PMs can switch
+ * phases off and on.
  */
 
 /** Refreshes everything that shows a project's phases. */
@@ -46,7 +47,8 @@ function useRefreshPhases(projectId: string) {
 }
 
 /** The dashboard's stand-in for the phase rail when there are none
- *  (stakeholders; the team sees "Berjalan terus" in the properties line). */
+ *  (stakeholders and the project's PMs; the team sees "Berjalan terus" in
+ *  the properties line). */
 export function PhasesOffCard({
   projectId,
   isAdmin,

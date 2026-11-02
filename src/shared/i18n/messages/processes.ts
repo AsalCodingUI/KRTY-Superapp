@@ -9,8 +9,8 @@ const id = {
   emptyTitle: "Belum ada proses",
   emptyDescription:
     "Buat proses pertama, misalnya Branding atau Web Development.",
-  noAccessTitle: "Khusus stakeholder",
-  noAccessDescription: "Halaman proses hanya bisa dibuka stakeholder.",
+  noAccessTitle: "Khusus PM dan stakeholder",
+  noAccessDescription: "Halaman proses hanya bisa dibuka PM dan stakeholder.",
   notFound: "Proses tidak ditemukan.",
   // Create / rename
   newTitle: "Proses baru",
@@ -75,7 +75,9 @@ const id = {
     "Fase, langkah, dan task dari {name} ditambahkan ke proyek ini. Task yang sudah ada tetap, tanpa fase.",
   manageProcesses: "Kelola proses",
   // Errors
-  errNotAllowed: "Hanya stakeholder yang bisa mengelola proses.",
+  errNotAllowed: "Hanya PM dan stakeholder yang bisa mengelola proses.",
+  errNotAllowedProject:
+    "Hanya stakeholder dan PM proyek ini yang bisa mengatur fasenya.",
   errNameRequired: "Nama wajib diisi.",
   errDuplicate: "Proses dengan nama ini sudah ada.",
   errDeleteDefault: "Jadikan proses lain default dulu sebelum menghapus ini.",
@@ -92,8 +94,8 @@ const en: Record<keyof typeof id, string> = {
   emptyTitle: "No processes yet",
   emptyDescription:
     "Create your first process, like Branding or Web Development.",
-  noAccessTitle: "Stakeholders only",
-  noAccessDescription: "Only stakeholders can open the processes page.",
+  noAccessTitle: "PMs and stakeholders only",
+  noAccessDescription: "Only PMs and stakeholders can open the processes page.",
   notFound: "Process not found.",
   newTitle: "New process",
   editTitle: "Edit process",
@@ -154,7 +156,9 @@ const en: Record<keyof typeof id, string> = {
   useProcessDescription:
     "Phases, steps, and tasks from {name} are added to this project. Existing tasks stay, without a phase.",
   manageProcesses: "Manage processes",
-  errNotAllowed: "Only stakeholders can manage processes.",
+  errNotAllowed: "Only PMs and stakeholders can manage processes.",
+  errNotAllowedProject:
+    "Only stakeholders and this project's PMs can manage its phases.",
   errNameRequired: "Name is required.",
   errDuplicate: "A process with this name already exists.",
   errDeleteDefault:

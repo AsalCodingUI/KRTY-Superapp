@@ -4,6 +4,7 @@ import { compressImage } from "@/shared/lib/compress-image"
 import { createClient } from "@/shared/api/supabase/client"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { canManageByRole } from "@/shared/lib/roles"
+import { accessLevel, canManageProject } from "@/shared/config/access"
 import {
   moveUnique,
   slugify,
@@ -58,6 +59,19 @@ export function useViewer() {
     id: profile?.id ?? null,
     isAdmin: canManageByRole(profile?.role),
   }
+}
+
+/**
+ * Stakeholders, and PMs on this project's team: they manage its phases,
+ * team, process and client portal (the DB agrees: is_project_pm).
+ */
+export function useCanManageProject(projectId: string) {
+  const { profile } = useUserProfile()
+  const { data } = useWorkspace(projectId)
+  const isMember = Boolean(
+    profile?.id && data?.team.some((m) => m.id === profile.id),
+  )
+  return canManageProject(accessLevel(profile), isMember)
 }
 
 /** The client a project is linked to (`projects.client_id` → `clients`). */

@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { useT } from "@/shared/i18n/client"
-import { canManageByRole } from "@/shared/lib/roles"
+import { accessLevel } from "@/shared/config/access"
 import { RiAddLine, RiFlowLine } from "@/shared/ui/lucide-icons"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -28,13 +28,14 @@ import {
 } from "../model/data"
 import { ProcessFormDialog } from "./ProcessFormDialog"
 
-/** Stakeholders' project templates (DesignerHQ "Processes"). */
+/** Project templates (DesignerHQ "Processes"): PMs and stakeholders. */
 export function ProcessesPage() {
   const t = useT("processes")
   const router = useRouter()
   const { profile, loading } = useUserProfile()
-  const isAdmin = canManageByRole(profile?.role)
-  const { data: processes = [], isLoading } = useProcesses(isAdmin)
+  // PMs and stakeholders (access.ts PM_UP).
+  const canManage = accessLevel(profile) !== "employee"
+  const { data: processes = [], isLoading } = useProcesses(canManage)
   const [creating, setCreating] = useState(false)
   // From the right-click menu: rename / duplicate one, or delete it.
   const [dialog, setDialog] = useState<{
@@ -89,7 +90,7 @@ export function ProcessesPage() {
         <Spinner className="size-6" />
       </div>
     )
-  if (!isAdmin)
+  if (!canManage)
     return (
       <EmptyState
         className="py-16"

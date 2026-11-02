@@ -23,6 +23,7 @@ import { ctxmenu } from "./ctxmenu"
 import { taskmenu } from "./taskmenu"
 import { desktopApp } from "./desktopApp"
 import { whatsNew } from "./whatsNew"
+import { undo } from "./undo"
 
 /**
  * Every namespace, one file each (messages/<name>.ts). Add new namespaces
@@ -54,6 +55,7 @@ export const messages = {
   taskmenu,
   desktopApp,
   whatsNew,
+  undo,
 }
 
 export type Namespace = keyof typeof messages

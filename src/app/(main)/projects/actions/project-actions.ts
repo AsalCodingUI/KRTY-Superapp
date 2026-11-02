@@ -7,7 +7,7 @@ import {
   type AccessLevel,
 } from "@/shared/config/access"
 import { getT } from "@/shared/i18n/server"
-import { getAdminContext } from "@/shared/lib/admin-server"
+import { getProjectManagerContext } from "@/shared/lib/admin-server"
 import { resolveEffectiveUserId } from "@/shared/lib/impersonation-server"
 import type { Database } from "@/shared/types/database.types"
 import { revalidatePath } from "next/cache"
@@ -15,7 +15,9 @@ import { revalidatePath } from "next/cache"
 /**
  * Project management (moved here from Performance › List Project). Same rule
  * as the database: stakeholders create, edit, staff and delete projects; PMs
- * create projects and move the ones they're on between statuses.
+ * create projects, and edit, staff, move and delete the ones they're on
+ * (saved scores stay: a scored member, or a project with scores, is a
+ * stakeholder's to remove).
  */
 
 type ProjectRole = Database["public"]["Enums"]["project_role_enum"]
@@ -62,10 +64,6 @@ export type EditableProject = {
   })[]
 }
 
-async function admin() {
-  return (await getAdminContext())?.supabase ?? null
-}
-
 type Db = Awaited<ReturnType<typeof createClient>>
 
 /** The effective user when they run projects (PM or stakeholder), else null. */
@@ -101,7 +99,7 @@ async function validate(input: ProjectInput): Promise<string | null> {
 export async function getEditableProject(
   id: string,
 ): Promise<EditableProject | null> {
-  const supabase = await admin()
+  const supabase = (await getProjectManagerContext(id))?.supabase
   if (!supabase) return null
   const { data } = await supabase
     .from("projects")
@@ -169,17 +167,18 @@ export async function saveProject(
   id: string | null,
   input: ProjectInput,
 ): Promise<Result<{ id: string }>> {
-  const [t, ctx] = await Promise.all([getT("projects"), manager()])
-  // PMs create; editing an existing project stays with stakeholders.
-  if (!ctx || (id && ctx.level !== "stakeholder"))
-    return { success: false, error: t("errAdminOnly") }
+  // PMs create, and edit the projects they're on.
+  const [t, ctx] = await Promise.all([
+    getT("projects"),
+    id ? getProjectManagerContext(id) : manager(),
+  ])
+  if (!ctx) return { success: false, error: t("errAdminOnly") }
   const { supabase } = ctx
   const invalid = await validate(input)
   if (invalid) return { success: false, error: invalid }
-  // A PM's new project keeps them on the team (the DB adds them; dropping
-  // them here would leave a project they can't open).
+  // A PM stays on the team of a project they create or edit (the DB adds
+  // them to a new one; dropping them would leave a project they can't open).
   if (
-    !id &&
     ctx.level === "pm" &&
     !input.members.some((m) => m.userId === ctx.userId)
   ) {
@@ -248,11 +247,15 @@ export async function saveProject(
     .filter(([userId]) => !wanted.has(userId))
     .map(([, assignmentId]) => assignmentId)
   if (removed.length) {
-    const { error: removeError } = await supabase
+    const { data: gone, error: removeError } = await supabase
       .from("project_assignments")
       .delete()
       .in("id", removed)
+      .select("id")
     if (removeError) return { success: false, error: t("errRemoveMember") }
+    // RLS keeps members with saved scores from a PM (removing erases them).
+    if ((gone?.length ?? 0) < removed.length)
+      return { success: false, error: t("errRemoveScoredMember") }
   }
 
   for (const m of input.members) {
@@ -298,8 +301,22 @@ export async function setProjectStatus(
 
 /** Permanent; also deletes the team's scores for this project. */
 export async function deleteProject(id: string): Promise<Result> {
-  const [t, supabase] = await Promise.all([getT("projects"), admin()])
-  if (!supabase) return { success: false, error: t("errAdminOnly") }
+  // Stakeholders, and the project's PMs while nobody has saved scores
+  // (deleting would erase them; RLS refuses it too).
+  const [t, ctx] = await Promise.all([
+    getT("projects"),
+    getProjectManagerContext(id),
+  ])
+  if (!ctx) return { success: false, error: t("errAdminOnly") }
+  const { supabase } = ctx
+  if (ctx.level === "pm") {
+    const { data: scored, error: scoredError } = await supabase.rpc(
+      "project_has_scores" as never,
+      { p_project_id: id } as never,
+    )
+    if (scoredError || scored)
+      return { success: false, error: t("errDeleteScoredProject") }
+  }
   // Files in storage aren't cascaded with the rows; remove them first.
   const [{ data: files }, { data: docs }] = await Promise.all([
     supabase.from("project_files").select("file_path").eq("project_id", id),

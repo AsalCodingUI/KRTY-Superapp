@@ -26,7 +26,7 @@ import { Spinner } from "@/components/ui/spinner"
 import { cn } from "@/lib/utils"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { useT } from "@/shared/i18n/client"
-import { canManageByRole } from "@/shared/lib/roles"
+import { accessLevel } from "@/shared/config/access"
 import {
   RiAddLine,
   RiCloseLine,
@@ -114,13 +114,14 @@ export function ProcessEditorPage({ id }: { id: string }) {
   const mutate = useMutate()
   const refresh = useRefreshProcesses()
   const { profile, loading } = useUserProfile()
-  const isAdmin = canManageByRole(profile?.role)
+  // PMs and stakeholders (access.ts PM_UP).
+  const canManage = accessLevel(profile) !== "employee"
   const [selected, setSelected] = useState<string | null>(null)
   const [dialog, setDialog] = useState<"rename" | "duplicate" | null>(null)
-  const { data: process, isLoading } = useProcess(id, isAdmin)
+  const { data: process, isLoading } = useProcess(id, canManage)
   // Only the "Duplicate" dialog lists the other processes.
   const { data: processes = [] } = useProcesses(
-    isAdmin && dialog === "duplicate",
+    canManage && dialog === "duplicate",
   )
   const [confirm, setConfirm] = useState<
     { kind: "process" } | { kind: "phase"; phase: ProcessPhase } | null
@@ -130,18 +131,18 @@ export function ProcessEditorPage({ id }: { id: string }) {
   const phases = process?.phases ?? []
   const current = phases.find((p) => p.id === selected) ?? phases[0]
 
-  if (loading || (isAdmin && isLoading))
+  if (loading || (canManage && isLoading))
     return (
       <div className="flex justify-center py-16">
         <Spinner className="size-6" />
       </div>
     )
-  if (!isAdmin || !process)
+  if (!canManage || !process)
     return (
       <EmptyState
         className="py-16"
-        title={isAdmin ? t("notFound") : t("noAccessTitle")}
-        description={isAdmin ? "" : t("noAccessDescription")}
+        title={canManage ? t("notFound") : t("noAccessTitle")}
+        description={canManage ? "" : t("noAccessDescription")}
         icon={<RiFlowLine />}
       />
     )

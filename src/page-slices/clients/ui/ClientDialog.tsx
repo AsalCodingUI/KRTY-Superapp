@@ -40,11 +40,14 @@ export function ClientDialog({
   client,
   rates,
   onEdit,
+  canDelete,
   onClose,
 }: {
   client: ClientRow
   rates: FxRates
   onEdit: () => void
+  /** Stakeholders only; PMs edit and archive. */
+  canDelete: boolean
   onClose: () => void
 }) {
   const t = useT("clients")
@@ -137,13 +140,17 @@ export function ClientDialog({
                 >
                   {client.archived_at ? t("restore") : t("archive")}
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  variant="destructive"
-                  onClick={() => setConfirmDelete(true)}
-                >
-                  {t("delete")}
-                </DropdownMenuItem>
+                {canDelete && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      variant="destructive"
+                      onClick={() => setConfirmDelete(true)}
+                    >
+                      {t("delete")}
+                    </DropdownMenuItem>
+                  </>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
             <Button

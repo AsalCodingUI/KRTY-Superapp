@@ -1,5 +1,7 @@
 "use client"
 
+import { useT } from "@/shared/i18n/client"
+import { registerUndo, rowsUndo } from "@/shared/undo"
 import { useQueries, useQuery, useQueryClient } from "@tanstack/react-query"
 import { OPEN_STATUSES, type ProjectStatus } from "../../lib/status"
 import {
@@ -8,7 +10,7 @@ import {
   type TaskRow,
   type TeamMember,
 } from "../workspace/data"
-import { commentCountsQuery } from "../workspace/task-data"
+import { commentCountsQuery, taskUndoRows } from "../workspace/task-data"
 
 /**
  * Tugas saya: the viewer's top-level tasks across every running project
@@ -130,6 +132,7 @@ export function useMyCommentCounts(projectIds: string[]) {
  */
 export function useMyTaskWriter(viewerId: string | null, onError: () => void) {
   const queryClient = useQueryClient()
+  const tu = useT("undo")
   const key = myTasksKey(viewerId)
 
   const refresh = (projectIds: string[]) =>
@@ -151,6 +154,9 @@ export function useMyTaskWriter(viewerId: string | null, onError: () => void) {
     if (!patches.length) return true
     await queryClient.cancelQueries({ queryKey: key })
     const before = queryClient.getQueryData<MyTasks>(key)
+    // ⌘Z takes it back (shared/undo): the fields as they were.
+    const undoRows =
+      before && taskUndoRows([...before.tasks, ...before.subtasks], patches)
     const apply = (rows: TaskRow[]) =>
       rows.map((row) => {
         const hit = patches.find((p) => p.id === row.id)
@@ -175,6 +181,16 @@ export function useMyTaskWriter(viewerId: string | null, onError: () => void) {
       onError()
     }
     refresh(projectIds)
+    if (!failed && undoRows?.rows.length)
+      registerUndo(
+        rowsUndo({
+          label: tu(undoRows.label, { title: undoRows.title }),
+          table: "project_tasks",
+          rows: undoRows.rows,
+          check: (k) => k !== "completed_at",
+          write: (back) => write(back as typeof patches),
+        }),
+      )
     return !failed
   }
 

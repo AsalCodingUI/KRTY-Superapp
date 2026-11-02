@@ -5,6 +5,8 @@ import {
   type useNotifications,
 } from "@/shared/hooks/useNotifications"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
+import { createClient } from "@/shared/api/supabase/client"
+import { registerUndo, UndoStale } from "@/shared/undo"
 import { canManageByRole } from "@/shared/lib/roles"
 import { EmptyState } from "@/components/empty-state"
 import { SegmentedControl } from "@/components/segmented-control"
@@ -164,6 +166,44 @@ export default function NotificationsPanel({
   // state so the menu target registers once it's there.
   const [listEl, setListEl] = useState<HTMLDivElement | null>(null)
 
+  const tu = useT("undo")
+
+  /** Read / unread by hand, with ⌘Z back (shared/undo). Opening one
+   *  marks it read too, but that's not a step of its own. */
+  const setRead = (ids: string[], read: boolean, label: string) => {
+    const mark = (id: string, on: boolean) =>
+      on ? markAsRead(id) : markAsUnread(id)
+    void Promise.all(ids.map((id) => mark(id, read)))
+    const go = async (expected: boolean, next: boolean) => {
+      const { data, error } = await createClient()
+        .from("notifications")
+        .select("id, is_read")
+        .in("id", ids)
+      if (error) throw error
+      // Only the ones still the way this left them (none: it moved on).
+      const still = (data ?? [])
+        .filter((n: { is_read: boolean }) => n.is_read === expected)
+        .map((n: { id: string }) => n.id)
+      if (!still.length) throw new UndoStale()
+      await Promise.all(still.map((id: string) => mark(id, next)))
+    }
+    registerUndo({
+      label,
+      undo: () => go(read, !read),
+      redo: () => go(!read, read),
+    })
+  }
+  const readAll = () => {
+    const ids = notifications.filter((n) => !n.is_read).map((n) => n.id)
+    void markAllAsRead()
+    if (!ids.length) return
+    registerUndo({
+      label: tu("notificationsAllRead"),
+      undo: () => Promise.all(ids.map((id) => markAsUnread(id))),
+      redo: () => Promise.all(ids.map((id) => markAsRead(id))),
+    })
+  }
+
   // Right-click anywhere in the list: read all, which ones to show, a new
   // announcement (stakeholders) — the header's buttons and tabs.
   useContextTarget(
@@ -174,7 +214,7 @@ export default function NotificationsPanel({
         label: t("notificationsReadAll"),
         icon: CheckCheck,
         disabled: unreadCount === 0,
-        onSelect: () => markAllAsRead(),
+        onSelect: readAll,
       },
       {
         id: "show",
@@ -243,13 +283,14 @@ export default function NotificationsPanel({
             id: "unread",
             label: t("notificationsMarkUnread"),
             icon: Mail,
-            onSelect: () => markAsUnread(n.id),
+            onSelect: () =>
+              setRead([n.id], false, tu("notificationUnread")),
           }
         : {
             id: "read",
             label: t("notificationsMarkRead"),
             icon: MailOpen,
-            onSelect: () => markAsRead(n.id),
+            onSelect: () => setRead([n.id], true, tu("notificationRead")),
           },
       {
         id: "delete",
@@ -304,7 +345,7 @@ export default function NotificationsPanel({
               variant="ghost"
               size="sm"
               className="text-muted-foreground hover:text-foreground"
-              onClick={() => markAllAsRead()}
+              onClick={readAll}
             >
               {t("notificationsReadAll")}
             </Button>

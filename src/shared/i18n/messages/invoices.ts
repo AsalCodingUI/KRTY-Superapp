@@ -93,8 +93,9 @@ const id = {
   methodsEmptyHint:
     "Tambah rekening, PayPal, atau alamat crypto untuk dicetak di invoice.",
   methodNoDetails: "Detail belum diisi",
-  noAccessTitle: "Khusus stakeholder",
-  noAccessDescription: "Metode pembayaran hanya bisa dilihat stakeholder.",
+  noAccessTitle: "Khusus PM dan stakeholder",
+  noAccessDescription:
+    "Metode pembayaran hanya bisa dilihat PM dan stakeholder.",
   addMethod: "Tambah metode",
   methodName: "Nama",
   methodNamePlaceholder: "mis. USDT TRC-20 (Pintu)",
@@ -221,8 +222,8 @@ const en: Record<keyof typeof id, string> = {
   methodsEmptyHint:
     "Add a bank account, PayPal or crypto address to print on invoices.",
   methodNoDetails: "No details yet",
-  noAccessTitle: "Stakeholders only",
-  noAccessDescription: "Only stakeholders can see payment methods.",
+  noAccessTitle: "PMs and stakeholders only",
+  noAccessDescription: "Only PMs and stakeholders can see payment methods.",
   addMethod: "Add method",
   methodName: "Name",
   methodNamePlaceholder: "e.g. USDT TRC-20 (Pintu)",

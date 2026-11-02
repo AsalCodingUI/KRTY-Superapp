@@ -35,9 +35,12 @@ import { cn } from "@/lib/utils"
 import { useT } from "@/shared/i18n/client"
 import { Constants, type Database } from "@/shared/types/database.types"
 import { RiCloseLine } from "@/shared/ui/lucide-icons"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { registerUndo, rowsUndo } from "@/shared/undo"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
+import { accessLevel } from "@/shared/config/access"
+import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { CategoryPicker } from "./CategoryPicker"
 
 type ProjectRole = Database["public"]["Enums"]["project_role_enum"]
@@ -94,7 +97,10 @@ const EMPTY: Draft = {
   members: [],
 }
 
-/** Create (PMs, stakeholders) or edit (stakeholders) a project and its team. */
+/**
+ * Create (PMs, stakeholders) or edit (stakeholders; PMs on their projects)
+ * a project and its team.
+ */
 export function ProjectForm({
   projectId,
   open,
@@ -110,6 +116,11 @@ export function ProjectForm({
   const t = useT("projects")
   const tc = useT("common")
   const tp = useT("processes")
+  const tu = useT("undo")
+  const queryClient = useQueryClient()
+  const { profile } = useUserProfile()
+  // PMs keep themselves on the team, and leave scored members to stakeholders.
+  const isPm = accessLevel(profile) === "pm"
   const [draft, setDraft] = useState<Draft>(EMPTY)
   const [saving, setSaving] = useState(false)
 
@@ -189,6 +200,8 @@ export function ProjectForm({
   }
 
   const removeMember = (member: Member) => {
+    if (isPm && member.scored)
+      return void toast.error(t("errRemoveScoredMember"))
     if (
       member.scored &&
       !window.confirm(
@@ -226,6 +239,28 @@ export function ProjectForm({
       return
     }
     toast.success(projectId ? t("projectSaved") : t("projectCreated"))
+    // A new category can be taken back with ⌘Z (shared/undo).
+    if (projectId && project && project.category_id !== draft.categoryId)
+      registerUndo(
+        rowsUndo({
+          label: tu("projectCategory", { name: draft.name.trim() }),
+          table: "projects",
+          rows: [
+            {
+              id: projectId,
+              before: { category_id: project.category_id },
+              after: { category_id: draft.categoryId },
+            },
+          ],
+          done: () =>
+            Promise.all([
+              queryClient.invalidateQueries({ queryKey: ["projects"] }),
+              queryClient.invalidateQueries({
+                queryKey: ["project-workspace", projectId],
+              }),
+            ]),
+        }),
+      )
     onSaved()
     onOpenChange(false)
   }
@@ -418,6 +453,9 @@ export function ProjectForm({
                     type="button"
                     size="icon-sm"
                     variant="ghost"
+                    className={cn(
+                      isPm && m.userId === profile?.id && "invisible",
+                    )}
                     aria-label={t("formRemoveMember", {
                       name: m.full_name ?? "",
                     })}

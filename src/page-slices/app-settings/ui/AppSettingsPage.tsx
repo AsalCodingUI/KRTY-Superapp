@@ -6,13 +6,19 @@ import { useMacDownload } from "@/components/mac-download"
 import { PageHeader } from "@/components/page-header"
 import { Panel } from "@/components/panel"
 import { Button } from "@/components/ui/button"
+import { Progress } from "@/components/ui/progress"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Spinner } from "@/components/ui/spinner"
 import { Switch } from "@/components/ui/switch"
 import { cn } from "@/lib/utils"
 import { MAC_RELEASE_QUERY_KEY, useMacUpdate } from "@/shared/hooks/useMacApp"
-import { useT } from "@/shared/i18n/client"
-import { invokeApp, tauri } from "@/shared/lib/desktop-app"
+import { useDateLocale, useT } from "@/shared/i18n/client"
+import {
+  checkForUpdate,
+  installUpdate,
+  invokeApp,
+  tauri,
+} from "@/shared/lib/desktop-app"
 import { useDesktopPrefs } from "@/widgets/menubar/ui/MenubarPopover"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import {
@@ -21,8 +27,10 @@ import {
   ExternalLink,
   Power,
   RefreshCw,
+  RotateCw,
   Send,
 } from "lucide-react"
+import { formatDistanceToNow } from "date-fns"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useRef, useState, type ReactNode } from "react"
 import { toast } from "sonner"
@@ -299,15 +307,20 @@ function BackgroundPanel() {
   )
 }
 
+const MB = (bytes: number) => `${(bytes / 1024 / 1024).toFixed(1)} MB`
+
 function AboutPanel() {
   const t = useT("desktopApp")
+  const dateLocale = useDateLocale()
   const queryClient = useQueryClient()
-  const { current, available, release } = useMacUpdate()
+  const { current, available, release, updater } = useMacUpdate()
   const { start, busy, dialog } = useMacDownload()
   const [checked, setChecked] = useState(false)
   const [checking, setChecking] = useState(false)
+  const [installing, setInstalling] = useState(false)
 
-  // From the update notification (…?download=1): straight to the download.
+  // From the old .dmg notification (…?download=1): straight to the
+  // download (only while the .dmg is the way to update).
   const params = useSearchParams()
   const router = useRouter()
   const autoStarted = useRef(false)
@@ -319,12 +332,40 @@ function AboutPanel() {
     void start("update", available)
   }, [params, available, router, start])
 
+  const phase = updater?.phase
+  const updaterBusy = phase === "checking" || phase === "downloading"
+
   const check = async () => {
     setChecking(true)
-    await queryClient.invalidateQueries({ queryKey: MAC_RELEASE_QUERY_KEY })
+    // The in-place updater checks (its progress comes as events); the
+    // .dmg lookup is for apps without it, or when it failed.
+    if (updater) await checkForUpdate()
+    if (!updater || updater.phase === "error")
+      await queryClient.invalidateQueries({ queryKey: MAC_RELEASE_QUERY_KEY })
     setChecking(false)
     setChecked(true)
   }
+
+  const install = async () => {
+    setInstalling(true)
+    // Relaunches on success; an answer means it failed.
+    await installUpdate()
+    setInstalling(false)
+  }
+
+  const errorText =
+    updater?.errorKind === "network"
+      ? t("errorNetwork")
+      : updater?.errorKind === "signature"
+        ? t("errorSignature")
+        : updater?.errorKind === "install"
+          ? t("errorInstall")
+          : t("errorOther")
+
+  const pct =
+    phase === "downloading" && updater?.total
+      ? Math.min(100, Math.round((updater.downloaded / updater.total) * 100))
+      : null
 
   return (
     <Panel title={t("aboutSection")}>
@@ -336,22 +377,71 @@ function AboutPanel() {
             <p className="text-muted-foreground text-[13px] tabular-nums">
               {current ? t("versionLabel", { version: current }) : "…"}
             </p>
+            {updater && (
+              <p className="text-muted-foreground text-xs">
+                {updater.lastChecked
+                  ? t("lastChecked", {
+                      time: formatDistanceToNow(updater.lastChecked, {
+                        addSuffix: true,
+                        locale: dateLocale,
+                      }),
+                    })
+                  : t("neverChecked")}
+              </p>
+            )}
           </div>
           <Button
             size="sm"
             variant="outline"
-            disabled={checking || release.isFetching}
+            disabled={checking || updaterBusy || release.isFetching}
             onClick={check}
           >
-            {checking ? (
+            {checking || phase === "checking" ? (
               <Spinner data-icon="inline-start" />
             ) : (
               <RefreshCw data-icon="inline-start" />
             )}
-            {checking ? t("checking") : t("checkUpdate")}
+            {checking || phase === "checking"
+              ? t("checking")
+              : t("checkUpdate")}
           </Button>
         </div>
-        {available ? (
+
+        {phase === "downloading" && updater?.version && (
+          <div className="bg-muted/50 dark:bg-muted/30 flex flex-col gap-2 rounded-lg px-3 py-2.5">
+            <div className="flex items-center justify-between gap-2 text-sm">
+              <span className="font-medium">
+                {t("downloadingUpdate", { version: updater.version })}
+              </span>
+              {updater.total ? (
+                <span className="text-muted-foreground text-xs tabular-nums">
+                  {t("downloadProgress", {
+                    done: MB(updater.downloaded),
+                    total: MB(updater.total),
+                  })}
+                </span>
+              ) : null}
+            </div>
+            <Progress value={pct} />
+          </div>
+        )}
+
+        {phase === "ready" && updater?.version ? (
+          <div className="bg-primary/10 dark:bg-primary/15 flex items-center gap-3 rounded-lg px-3 py-2.5">
+            <Dot tone="on" className="bg-primary" />
+            <p className="min-w-0 flex-1 text-sm font-medium">
+              {t("readyHint", { version: updater.version })}
+            </p>
+            <Button size="sm" disabled={installing} onClick={install}>
+              {installing ? (
+                <Spinner data-icon="inline-start" />
+              ) : (
+                <RotateCw data-icon="inline-start" />
+              )}
+              {installing ? t("installing") : t("restartToUpdate")}
+            </Button>
+          </div>
+        ) : available ? (
           <div className="bg-primary/10 dark:bg-primary/15 flex items-center gap-3 rounded-lg px-3 py-2.5">
             <Dot tone="on" className="bg-primary" />
             <p className="min-w-0 flex-1 text-sm font-medium">
@@ -367,17 +457,28 @@ function AboutPanel() {
               ) : (
                 <Download data-icon="inline-start" />
               )}
-              {t("downloadUpdate")}
+              {updater ? t("downloadDmg") : t("downloadUpdate")}
             </Button>
           </div>
-        ) : (
-          checked &&
-          !checking && (
-            <p className="text-muted-foreground flex items-center gap-2 text-sm">
-              <Dot tone="on" />
-              {t("upToDate")}
-            </p>
-          )
+        ) : phase === "upToDate" || (!updater && checked && !checking) ? (
+          <p className="text-muted-foreground flex items-center gap-2 text-sm">
+            <Dot tone="on" />
+            {t("upToDate")}
+          </p>
+        ) : null}
+
+        {phase === "error" && (
+          <p
+            className="flex items-start gap-2 text-sm text-red-600 dark:text-red-400"
+            title={updater?.error ?? undefined}
+          >
+            <Dot tone="bad" className="mt-1.5" />
+            {errorText}
+          </p>
+        )}
+
+        {updater && (
+          <p className="text-muted-foreground text-xs">{t("autoUpdateHint")}</p>
         )}
       </div>
       {dialog}

@@ -58,7 +58,9 @@ import {
 } from "./task-menu"
 import {
   byPosition,
+  deleteTaskUndoable,
   duplicateTask,
+  registerDuplicateUndo,
   positionBetween,
   topPosition,
   statusOf,
@@ -89,6 +91,7 @@ export function ProjectTasks({ projectId }: { projectId: string }) {
   const t = useT("projects")
   const tc = useT("common")
   const tm = useT("taskmenu")
+  const tu = useT("undo")
   const { data: workspace } = useWorkspace(projectId)
   const { data: tasks = [], isLoading } = useTasks(projectId)
   const { data: commentCounts = {} } = useCommentCounts(projectId)
@@ -277,10 +280,12 @@ export function ProjectTasks({ projectId }: { projectId: string }) {
 
   const remove = async (id: string) => {
     if (id === openId) setDialogOpen(false)
-    const { error } = await supabase()
-      .from("project_tasks")
-      .delete()
-      .eq("id", id)
+    const title = tasks.find((row) => row.id === id)?.title ?? ""
+    const error = await deleteTaskUndoable({
+      id,
+      label: tu("taskDelete", { title }),
+      refresh: () => invalidate("tasks"),
+    })
     if (error) toast.error(t("errDeleteTask"))
     invalidate("tasks")
   }
@@ -288,7 +293,7 @@ export function ProjectTasks({ projectId }: { projectId: string }) {
   const toggle = (task: TaskRow) => setStatus(task, task.done ? "todo" : "done")
 
   const duplicate = async (task: TaskRow) => {
-    const ok = await duplicateTask({
+    const copyId = await duplicateTask({
       task,
       subtasks: subsOf.get(task.id) ?? [],
       siblings: tasks,
@@ -296,8 +301,14 @@ export function ProjectTasks({ projectId }: { projectId: string }) {
       viewerId: viewer.id,
     })
     await invalidate("tasks")
-    if (ok) toast.success(tm("duplicated"))
-    else toast.error(tm("errDuplicate"))
+    if (copyId) {
+      toast.success(tm("duplicated"))
+      registerDuplicateUndo({
+        copyId,
+        label: tu("taskDuplicate", { title: task.title }),
+        refresh: () => invalidate("tasks"),
+      })
+    } else toast.error(tm("errDuplicate"))
   }
 
   /** The right-click menu of a task (card, row, the dialog's panel): the

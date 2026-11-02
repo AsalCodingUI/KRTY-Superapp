@@ -2,10 +2,17 @@
 
 import type { createClient } from "@/shared/api/supabase/server"
 import { getT } from "@/shared/i18n/server"
-import { getAdminContext } from "@/shared/lib/admin-server"
+import {
+  getPmContext,
+  getProjectManagerContext,
+} from "@/shared/lib/admin-server"
 import { revalidatePath } from "next/cache"
 
-/** Processes (project templates) are stakeholder-only; RLS enforces the same. */
+/**
+ * Processes (project templates): PMs and stakeholders; RLS enforces the same.
+ * Applying one to a project, or dropping its phases: stakeholders and that
+ * project's PMs.
+ */
 
 type Result<T = undefined> =
   | { success: true; data?: T }
@@ -13,9 +20,9 @@ type Result<T = undefined> =
 
 type Db = Awaited<ReturnType<typeof createClient>>
 
-const admin = getAdminContext
+const admin = getPmContext
 
-/** Runs `fn` as a stakeholder; any thrown/returned DB error becomes errSave. */
+/** Runs `fn` as a PM or stakeholder; any thrown/returned DB error becomes errSave. */
 async function run<T>(
   fn: (db: Db, userId: string) => Promise<Result<T>>,
 ): Promise<Result<T>> {
@@ -26,6 +33,23 @@ async function run<T>(
     // client-side via TanStack Query), so a refresh would only re-render the
     // route tree for nothing.
     return await fn(ctx.supabase, ctx.userId)
+  } catch {
+    return { success: false, error: t("errSave") }
+  }
+}
+
+/** Like `run`, for one project: stakeholders and that project's PMs. */
+async function runOnProject<T>(
+  projectId: string,
+  fn: (db: Db) => Promise<Result<T>>,
+): Promise<Result<T>> {
+  const [t, ctx] = await Promise.all([
+    getT("processes"),
+    getProjectManagerContext(projectId),
+  ])
+  if (!ctx) return { success: false, error: t("errNotAllowedProject") }
+  try {
+    return await fn(ctx.supabase)
   } catch {
     return { success: false, error: t("errSave") }
   }
@@ -341,7 +365,7 @@ export async function applyProcessToProject(
   projectId: string,
   processId: string,
 ): Promise<Result> {
-  return run(async (db) => {
+  return runOnProject(projectId, async (db) => {
     const { error } = await db.rpc("apply_process", {
       p_project_id: projectId,
       p_process_id: processId,
@@ -358,7 +382,7 @@ export async function applyProcessToProject(
  * tasks stay, without a phase. A process can be applied again later.
  */
 export async function stopUsingPhases(projectId: string): Promise<Result> {
-  return run(async (db) => {
+  return runOnProject(projectId, async (db) => {
     const { error } = await db.rpc("remove_project_phases", {
       p_project_id: projectId,
     })

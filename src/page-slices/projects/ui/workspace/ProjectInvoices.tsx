@@ -51,7 +51,7 @@ import {
 } from "../invoice/doc-data"
 import { InvoiceThumb } from "../invoice/InvoiceThumb"
 import { downloadInvoicePdf, signQr } from "../invoice/pdf"
-import { useViewer, useWorkspace } from "./data"
+import { useCanManageProject, useWorkspace } from "./data"
 import { Chip } from "./FilePreview"
 import { RowMenu, type RowMenuItem } from "./ProjectLibrary"
 
@@ -122,7 +122,8 @@ export function ProjectInvoices({ projectId }: { projectId: string }) {
   const tc = useT("common")
   const dateLocale = useDateLocale()
   const queryClient = useQueryClient()
-  const viewer = useViewer()
+  // Stakeholders and the project's PMs manage invoices; others only read.
+  const canManage = useCanManageProject(projectId)
   const [filter, setFilter] = useState<(typeof FILTERS)[number]["key"]>("all")
   const [formOpen, setFormOpen] = useState(false)
   const [formMounted, setFormMounted] = useState(false)
@@ -204,7 +205,7 @@ export function ProjectInvoices({ projectId }: { projectId: string }) {
     })
 
   const openEditor = (inv: InvoiceRecord) => {
-    if (!viewer.isAdmin) return
+    if (!canManage) return
     setEditing(inv)
     setFormOpen(true)
   }
@@ -280,14 +281,14 @@ export function ProjectInvoices({ projectId }: { projectId: string }) {
   }
 
   const menu = (inv: InvoiceRecord): RowMenuItem[] => [
-    ...(viewer.isAdmin
+    ...(canManage
       ? [
           { label: tc("edit"), onSelect: () => openEditor(inv) },
           { label: t("duplicate"), onSelect: () => void duplicate(inv) },
         ]
       : []),
     { label: t("downloadPdf"), onSelect: () => void download(inv) },
-    ...(viewer.isAdmin
+    ...(canManage
       ? [
           {
             label: tc("delete"),
@@ -334,10 +335,10 @@ export function ProjectInvoices({ projectId }: { projectId: string }) {
 
   /**
    * Right-click on a card or row: the ⋯ menu's actions plus print, copy
-   * the number and mark paid. Editing stays with stakeholders; PMs read.
+   * the number and mark paid. Editing: stakeholders and the project's PMs.
    */
   const invoiceItems = (inv: InvoiceRecord): CtxItem[] => {
-    const admin = viewer.isAdmin
+    const admin = canManage
     const items: (CtxItem & { hidden?: boolean })[] = [
       {
         id: "open",
@@ -434,7 +435,7 @@ export function ProjectInvoices({ projectId }: { projectId: string }) {
               onValueChange={setView}
               modes={["grid", "list"]}
             />
-            {viewer.isAdmin && (
+            {canManage && (
               <Button
                 onClick={() => {
                   setEditing(undefined)
@@ -506,12 +507,12 @@ export function ProjectInvoices({ projectId }: { projectId: string }) {
                 inv,
                 <div
                   role="button"
-                  tabIndex={viewer.isAdmin ? 0 : -1}
+                  tabIndex={canManage ? 0 : -1}
                   onClick={() => openEditor(inv)}
                   onKeyDown={(e) => e.key === "Enter" && openEditor(inv)}
                   className={cn(
                     "group/row focus-visible:ring-focus-ring flex min-w-0 flex-col gap-2 rounded-xl outline-none focus-visible:ring-2",
-                    viewer.isAdmin && "cursor-pointer",
+                    canManage && "cursor-pointer",
                   )}
                 >
                   <InvoiceThumb
@@ -584,13 +585,13 @@ export function ProjectInvoices({ projectId }: { projectId: string }) {
                   inv,
                   <div
                     role="row"
-                    tabIndex={viewer.isAdmin ? 0 : undefined}
+                    tabIndex={canManage ? 0 : undefined}
                     onClick={() => openEditor(inv)}
                     onKeyDown={(e) => e.key === "Enter" && openEditor(inv)}
                     className={cn(
                       ROW,
                       "group/row hover:bg-muted/20 min-h-14 border-b py-2.5 transition-colors",
-                      viewer.isAdmin && "cursor-pointer",
+                      canManage && "cursor-pointer",
                     )}
                   >
                     <div className="flex min-w-0 flex-col">
@@ -651,7 +652,7 @@ export function ProjectInvoices({ projectId }: { projectId: string }) {
           </div>
         )}
 
-        {viewer.isAdmin && (
+        {canManage && (
           <>
             {formMounted && (
               <InvoiceEditorDialog

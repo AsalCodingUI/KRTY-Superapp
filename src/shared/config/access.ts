@@ -47,10 +47,11 @@ export const PAGE_ACCESS: Record<string, AccessLevel[]> = {
   // Running the office.
   "/teams": STAKEHOLDER,
   "/finance": STAKEHOLDER,
-  "/clients": STAKEHOLDER,
-  "/processes": STAKEHOLDER,
-  "/payment-methods": STAKEHOLDER,
-  // PMs read their projects' invoices (read-only).
+  // PMs edit clients (not delete), process templates and payment methods.
+  "/clients": PM_UP,
+  "/processes": PM_UP,
+  "/payment-methods": PM_UP,
+  // PMs manage their projects' invoices.
   "/invoice-print": PM_UP,
   "/settings": STAKEHOLDER,
   // Kretya Flow's own settings (notifications, login item): everyone.
@@ -75,9 +76,12 @@ export function canOpenPage(pathname: string, level: AccessLevel) {
 }
 
 /** Project sections (PROJECT_SECTIONS slugs) only stakeholders get. */
-export const STAKEHOLDER_PROJECT_SECTIONS = ["settings"]
-/** Sections PMs get too: invoices, read-only (editing stays stakeholder). */
-export const PM_PROJECT_SECTIONS = ["invoices"]
+export const STAKEHOLDER_PROJECT_SECTIONS: string[] = []
+/**
+ * Sections PMs get too: invoices and settings (process, client, portal,
+ * team, deleting). PMs only open projects they're on, so these are theirs.
+ */
+export const PM_PROJECT_SECTIONS = ["invoices", "settings"]
 
 export function canOpenProjectSection(slug: string, level: AccessLevel) {
   if (level === "stakeholder") return true
@@ -93,4 +97,13 @@ export function canOpenProjectSection(slug: string, level: AccessLevel) {
  */
 export function canRunProjects(level: AccessLevel) {
   return level === "pm" || level === "stakeholder"
+}
+
+/**
+ * Who manages a project: phases, team, process, client, client portal,
+ * invoices, deleting it. Stakeholders, and PMs on that project
+ * (is_project_pm in the DB, migrations/pm_project_management*.sql).
+ */
+export function canManageProject(level: AccessLevel, isMember: boolean) {
+  return level === "stakeholder" || (level === "pm" && isMember)
 }

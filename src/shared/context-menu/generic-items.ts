@@ -24,13 +24,16 @@ import {
   Pause,
   Phone,
   Play,
+  Redo2,
   RotateCw,
   Scissors,
   Search,
   Table,
   TextCursorInput,
+  Undo2,
   VolumeX,
 } from "lucide-react"
+import { runUndo, undoManager } from "@/shared/undo/store"
 import {
   clearField,
   copyImage,
@@ -556,7 +559,29 @@ export function createBuilders(env: CtxEnv): LayerBuilders {
     },
 
     page: (_ctx, alone) => {
+      // The app's undo / redo (shared/undo), when there's something to take back.
+      const { undo, redo } = undoManager.getSnapshot()
       const items: CtxItem[] = [
+        {
+          id: "undo",
+          label: t("undo"),
+          icon: Undo2,
+          shortcut: "Mod+Z",
+          hint: undo ? short(undo.label) : undefined,
+          hidden: !undo,
+          keywords: "undo urungkan batal",
+          onSelect: () => runUndo("undo"),
+        },
+        {
+          id: "redo",
+          label: t("redo"),
+          icon: Redo2,
+          shortcut: "Mod+Shift+Z",
+          hint: redo ? short(redo.label) : undefined,
+          hidden: !redo,
+          keywords: "redo ulangi",
+          onSelect: () => runUndo("redo"),
+        },
         {
           id: "back",
           label: t("back"),

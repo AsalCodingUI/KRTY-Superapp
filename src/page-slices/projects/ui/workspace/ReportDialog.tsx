@@ -33,6 +33,7 @@ import { toast } from "sonner"
 import {
   createReport,
   newShareToken,
+  registerShareUndo,
   updateReport,
   uploadDocFile,
   uploadReportImage,
@@ -72,6 +73,7 @@ export function ReportDialog({
   onSaved: () => void
 }) {
   const t = useT("projects")
+  const tu = useT("undo")
   const tc = useT("common")
   const projectName = useWorkspace(projectId).data?.project?.name
   const [current, setCurrent] = useState<Report | null>(null)
@@ -150,6 +152,15 @@ export function ReportDialog({
       )
       setCurrent(next)
       onSaved()
+      registerShareUndo({
+        before: base,
+        after: next,
+        label: tu(on ? "reportShare" : "reportUnshare", { title: base.title }),
+        done: (report) => {
+          setCurrent((c) => (c?.id === report.id ? report : c))
+          onSaved()
+        },
+      })
       if (on && next.share_token) {
         await navigator.clipboard
           .writeText(reportShareUrl(next.share_token, projectName))
