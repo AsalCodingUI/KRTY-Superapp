@@ -121,7 +121,7 @@ Notifikasi baru langsung masuk tanpa perlu muat ulang halaman.
 
 ## Isi tiap baris
 
-- Ikon di kiri nunjukin jenisnya (tugas, komentar, cuti, kalender, review, KPI, project, aturan, kontrak, pengumuman). Titik biru = belum dibaca.
+- Ikon di kiri nunjukin jenisnya (tugas, komentar, cuti, kalender, review, KPI, project, aturan, pengumuman). Titik biru = belum dibaca.
 - Judul tebal = belum dibaca. Di kanannya kapan masuknya (arahkan kursor buat tanggal & jam persisnya).
 - Di bawah judul ada pesan singkatnya.
 
@@ -136,7 +136,7 @@ Notifikasi baru langsung masuk tanpa perlu muat ulang halaman.
 | Project | Kamu ditambah ke project, atau jadi **Lead** |
 | Cuti & kehadiran | Pengajuan kamu disetujui atau ditolak |
 | Kinerja | Skor KPI berubah, kuartal dikunci, review 360 dibuka |
-| Lainnya | Jadwal kalender, aturan baru, kontrak, pengumuman dari stakeholder |
+| Lainnya | Jadwal kalender, aturan baru, pengumuman dari stakeholder |
 
 ## Rapikan
 
@@ -362,7 +362,7 @@ Semua aksi klik kanan di kalender (jadwal, slot kosong, toolbar) ada di [Menu kl
 | **Tugas** | Board dan list tugas | Semua anggota |
 | **Report** | Report harian/mingguan buat klien | Semua anggota |
 | **Invoice** | Tagihan project | PM (cuma lihat) & stakeholder |
-| **Dokumen** | Proposal, kontrak, file lain | Semua anggota |
+| **Dokumen** | Proposal dan file lain | Semua anggota |
 | **Library & Aset** | Gambar, video, catatan | Semua anggota |
 | **Penilaian** | Nilai SLA & kualitas tim | Lead project & stakeholder |
 | **Pengaturan** | Klien, proses, portal, tim | Stakeholder |
@@ -481,7 +481,7 @@ Klik kartu (di list: ikon komentar di baris) buat buka dialog tugas. Link halama
 > Tugas dari semua project yang di-assign ke kamu juga kumpul di **Tugas saya** di sidebar.', true, 110),
 ('panduan-project-library', '2026-11-03', 'Library & Aset: folder, file, catatan', 'Simpan gambar, video, dan catatan project di Library: bikin folder, upload, pratinjau, dan atur folder mana yang nggak boleh dilihat klien.', ARRAY['guide']::text[], 'projects', 'everyone', 'app', '/whats-new/guide-project-library.webp', '## Isinya apa aja
 
-Library khusus **aset**: gambar (termasuk SVG dan GIF), video, dan catatan **.md**. Proposal, kontrak, PDF, dan file lain masuk ke tab [Dokumen](/whats-new/panduan-project-dokumen). Kalau kamu upload file lain di sini, muncul pesan "Library untuk aset (gambar & video) dan catatan .md. Dokumen lain di tab Dokumen."
+Library khusus **aset**: gambar (termasuk SVG dan GIF), video, dan catatan **.md**. Proposal, PDF, dan file lain masuk ke tab [Dokumen](/whats-new/panduan-project-dokumen). Kalau kamu upload file lain di sini, muncul pesan "Library untuk aset (gambar & video) dan catatan .md. Dokumen lain di tab Dokumen."
 
 Semua anggota project bisa upload, bikin folder, dan nulis catatan.
 
@@ -532,10 +532,10 @@ Kalau portal klien project nyala, klien bisa lihat dan unduh isi Library **kecua
 > File dan catatan yang ditaruh langsung di Library (tanpa folder) ikut kelihatan di portal. Simpan bahan internal, misalnya notulen atau referensi, di folder **Hanya internal**.
 
 Lihat juga [Portal klien](/whats-new/panduan-portal-klien).', true, 120),
-('panduan-project-dokumen', '2026-11-03', 'Dokumen project: proposal, kontrak, status', 'Proposal, kontrak, dan file lain project ada di Dokumen, masing-masing dengan status. Dokumen yang udah dikirim ke klien otomatis muncul di portal.', ARRAY['guide']::text[], 'projects', 'everyone', 'app', '/whats-new/guide-project-documents.webp', '## Lihat dokumen
+('panduan-project-dokumen', '2026-11-03', 'Dokumen project: proposal, file, status', 'Proposal dan file lain project ada di Dokumen, masing-masing dengan status. Dokumen yang udah dikirim ke klien otomatis muncul di portal.', ARRAY['guide']::text[], 'projects', 'everyone', 'app', '/whats-new/guide-project-documents.webp', '## Lihat dokumen
 
 1. Buka project → **Dokumen**.
-2. Dokumen dikelompokkan per jenis: **Proposal**, **Kontrak**, **Lainnya**.
+2. Dokumen dikelompokkan per jenis, misalnya **Proposal** dan **Lainnya**.
 3. Tiap kartu nunjukin pratinjau file, judul, ukuran, tanggal diubah, dan chip status.
 4. Klik kartu buat **Pratinjau** (PDF, gambar, dan file teks kebuka langsung). **⋯** di kartu: **Buka** dan **Unduh**.
 
@@ -555,7 +555,7 @@ Semua anggota project bisa lihat dan unduh. Yang nambah, ngubah, dan ganti statu
 
 1. Klik **Dokumen baru** di kanan atas. Atau langsung seret file ke halaman, judulnya otomatis diisi dari nama file.
 2. Di kiri, **Klik atau seret file ke sini** (opsional, maks 50 MB). Bisa **Ganti file** atau **Hapus file** sebelum simpan.
-3. Pilih **Jenis** (Proposal, Kontrak, Lainnya) dan **Status**.
+3. Pilih **Jenis** dan **Status**.
 4. Isi **Judul**, misalnya "Proposal Rebrand". Wajib.
 5. Kalau file-nya gambar, ada pilihan **Resolusi asli** biar nggak dikompres.
 6. Klik **Simpan**. Muncul "Dokumen ditambahkan".
@@ -1186,61 +1186,6 @@ Versi sebelumnya tetap tersimpan di riwayat. Nggak jadi? Buka menu ⋯ (**Aksi a
 
 > [!WARNING]
 > Hapus nggak bisa dibatalkan. Kalau cuma mau nyembunyiin, pakai **Arsipkan**.', true, 330),
-('panduan-kontrak', '2026-11-03', 'Kontrak: baca dan setujui kontrak kerja', 'Lihat kontrak kerja kamu, baca PDF-nya langsung di app, dan setujui dengan ngetik nama lengkap. Stakeholder bisa unggah, ubah, dan pantau kontrak semua karyawan.', ARRAY['guide']::text[], 'policies', 'everyone', 'app', '/whats-new/guide-kontrak-thumb.webp', '## Lihat kontrak kamu
-
-1. Klik **Kontrak** di sidebar.
-2. Tiap baris nunjukin judul, periode ("Sejak …" atau "… – …"), jenisnya, dan statusnya.
-3. Kontrak yang berakhir dalam 30 hari ditandai "Berakhir … hari lagi" dengan garis kuning di kirinya.
-
-| Label | Artinya |
-|---|---|
-| **PKWT**, **PKWTT**, **Freelance**, **NDA**, **Adendum**, **Lainnya** | Jenis kontrak |
-| **e-Meterai** | PDF-nya udah dibubuhi e-Meterai |
-| **Perlu disetujui** | Kamu belum menyetujuinya |
-| **Disetujui** | Kamu udah menyetujuinya |
-
-Kamu dapat notifikasi tiap ada kontrak baru yang dikirim ke kamu.
-
-## Buka kontraknya
-
-1. Klik judulnya. PDF-nya tampil di kiri, **Detail** di kanan: **Jenis**, **Periode**, **e-Meterai**, dan **Catatan**.
-2. Klik ikon unduh di kanan atas buat nyimpan PDF-nya.
-3. Tutup pakai × atau **Esc**.
-
-Klik kanan baris juga ada **Lihat**, **Unduh PDF**, dan **Salin judul**.
-
-![Membaca kontrak](/whats-new/guide-kontrak-detail.webp#size=wide)
-
-## Setujui kontrak
-
-1. Buka kontrak yang statusnya **Perlu disetujui**.
-2. Di panel kanan, di "Saya sudah membaca dan menyetujui", ketik nama lengkap kamu.
-3. Namanya harus sama dengan nama di profil kamu. Kalau beda, muncul "Nama harus sama dengan nama di profilmu."
-4. Klik **Setujui kontrak**. Muncul "Kontrak disetujui", dan panelnya nunjukin "Disetujui oleh … · …" lengkap sama tanggal dan jamnya.
-
-> [!NOTE]
-> Ngetik nama ini tanda kamu udah baca dan setuju. Tanda tangan dan e-Meterai ada di PDF final yang diunggah admin. Kalau PDF-nya diganti, kamu diminta menyetujui ulang.
-
-## Unggah kontrak (khusus stakeholder)
-
-1. Klik **Unggah kontrak**.
-2. Klik atau seret PDF final yang udah ditandatangani (maks 25 MB).
-3. Isi **Karyawan**, **Judul** (misalnya "PKWT Desainer 2027"), **Jenis kontrak**, **Mulai**, dan **Berakhir**. Kosongkan **Berakhir** buat kontrak tanpa batas waktu.
-4. Centang **Sudah dibubuhi e-Meterai** kalau iya, tambah **Catatan** kalau perlu.
-5. Klik **Unggah kontrak**. Karyawannya langsung dikabari.
-
-Belum mau dikirim? Centang **Simpan sebagai draf (belum dikirim ke karyawan)**. Statusnya **Draf** dan karyawannya belum bisa lihat.
-
-![Unggah kontrak](/whats-new/guide-kontrak-upload.webp)
-
-## Kelola semua kontrak (khusus stakeholder)
-
-1. Daftarnya dikelompokkan per karyawan. Cari pakai **Cari kontrak…**, atau saring pakai **Semua karyawan**.
-2. Panel kanan kontrak nunjukin progresnya: "Masih draf; karyawan belum bisa melihatnya.", "Menunggu persetujuan karyawan.", atau "Disetujui oleh …".
-3. Menu ⋯ di barisnya: **Lihat**, **Ubah**, **Hapus**. Di dalam kontrak juga ada tombol **Ubah**.
-4. Klik kanan → **Kontrak … saja** buat nyaring ke satu orang.
-
-Di **Ubah kontrak**, **Ganti PDF** bikin karyawan harus menyetujui ulang. **Hapus** menghapus kontrak dan PDF-nya permanen.', true, 340),
 ('panduan-klien', '2026-11-03', 'Klien: tambah, ubah, arsipkan', 'Catat klien sekali, lalu hubungkan ke project-nya. Kontak, alamat, dan mata uangnya otomatis ikut ke project dan invoice.', ARRAY['guide']::text[], 'clients', 'stakeholder', 'app', '/whats-new/guide-clients-thumb.webp', '## Buka halamannya
 
 Halaman **Klien** khusus stakeholder. Ada di ruang kerja **Project** di sidebar → **Klien**.
@@ -1622,7 +1567,7 @@ Tim dan status kerja cuma data profil, nggak ngasih akses tambahan.
 Di bawah panel **Detail anggota** klik **Hapus**, lalu konfirmasi.
 
 > [!WARNING]
-> Kehadiran, cuti, review, dan kontrak orang itu ikut terhapus permanen dan nggak bisa dibalikin. Kamu nggak bisa ngehapus akun sendiri.
+> Kehadiran, cuti, dan review orang itu ikut terhapus permanen dan nggak bisa dibalikin. Kamu nggak bisa ngehapus akun sendiri.
 
 > [!NOTE]
 > Alamat lama **/teams/access** dan halaman **Pengaturan** lama (**/settings/permission**, **/settings/team-access**) sekarang langsung dialihkan ke **Tim**.', true, 450)

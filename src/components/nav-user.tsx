@@ -21,12 +21,10 @@ import {
   Download as DownloadIcon,
   Logout as LogOutIcon,
   MessageCircle as MessageCircleIcon,
-  Settings as SettingsIcon,
   User as UserIcon,
 } from "@/components/icons"
 import { useDesktopShell } from "@/components/desktop-shell"
 import { useMacDownload } from "@/components/mac-download"
-import { useRouter } from "next/navigation"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { useStopImpersonation } from "@/widgets/impersonation/model/useStopImpersonation"
 import { ProfileSheet } from "@/widgets/profile/ui/ProfileSheet"
@@ -75,7 +73,6 @@ export function NavUser({
   // Inside Kretya Flow: its settings page; on the web: get the app.
   const desktop = useDesktopShell()
   const macDownload = useMacDownload()
-  const router = useRouter()
 
   return (
     // Centred in the rail.
@@ -198,12 +195,8 @@ export function NavUser({
                   {t("contactAdmin")}
                 </DropdownMenuItem>
               )}
-              {desktop ? (
-                <DropdownMenuItem onClick={() => router.push("/settings/app")}>
-                  <SettingsIcon />
-                  {td("menuAppSettings")}
-                </DropdownMenuItem>
-              ) : (
+              {/* In the Mac app its settings sit at the sidebar's bottom. */}
+              {!desktop && (
                 <DropdownMenuItem
                   className="max-md:hidden"
                   onClick={() => void macDownload.start("install")}

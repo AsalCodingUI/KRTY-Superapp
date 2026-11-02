@@ -45,6 +45,7 @@ import { useTabSwitched } from "@/shared/hooks/useTabSwitched"
 import { useT } from "@/shared/i18n/client"
 import { isAdminRole } from "@/shared/lib/roles"
 import { useQuery } from "@tanstack/react-query"
+import { Settings, Sparkles } from "lucide-react"
 import { usePathname } from "next/navigation"
 
 type SidebarProject = { id: string; name: string; href: string }
@@ -116,6 +117,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     : `ws:${active?.id ?? ""}`
   const navDirection = projectPath ? 1 : -1
   const t = useT("nav")
+  const tDesktop = useT("desktopApp")
   // A dot on Yang baru while there's something the viewer hasn't seen.
   const { count: whatsNewUnseen } = useWhatsNewUnseen()
 
@@ -148,8 +150,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           url: item.href,
           icon: <item.icon />,
           isActive: item.href === activeHref,
-          dot:
-            item.href === siteConfig.baseLinks.whatsNew && whatsNewUnseen > 0,
           items: children.map((c) => ({
             title: t(c.name),
             url: c.href,
@@ -158,7 +158,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           })),
         }
       }),
-    [active, activeHref, badges, pathname, profile, t, whatsNewUnseen],
+    [active, activeHref, badges, pathname, profile, t],
   )
 
   return (
@@ -255,6 +255,40 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarContent>
       {/* Cards above the footer: app update, what's new, the Mac app. */}
       <SidebarNotices />
+      {/* Always at the bottom, above the theme switch: what's new (a dot
+          while there's something unseen) and, in the Mac app, its settings. */}
+      <SidebarGroup className="py-0">
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              isActive={matchesRoute(pathname, siteConfig.baseLinks.whatsNew)}
+              tooltip={t("whatsNew")}
+              render={<PrefetchLink href={siteConfig.baseLinks.whatsNew} />}
+            >
+              <Sparkles />
+              <span className="truncate">{t("whatsNew")}</span>
+              {whatsNewUnseen > 0 && (
+                <span
+                  aria-hidden
+                  className="bg-primary ml-auto size-1.5 shrink-0 rounded-full group-data-[collapsible=icon]:absolute group-data-[collapsible=icon]:top-1 group-data-[collapsible=icon]:right-1"
+                />
+              )}
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          {desktop && (
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                isActive={matchesRoute(pathname, "/settings/app")}
+                tooltip={tDesktop("menuAppSettings")}
+                render={<PrefetchLink href="/settings/app" />}
+              >
+                <Settings />
+                <span className="truncate">{tDesktop("menuAppSettings")}</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )}
+        </SidebarMenu>
+      </SidebarGroup>
       {/* Theme, language and chrome color live here; there is no settings page. */}
       <SidebarFooter>
         {/* Stacks vertically when the sidebar is collapsed to icons. Re-keyed

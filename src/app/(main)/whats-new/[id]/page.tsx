@@ -1,11 +1,13 @@
-import { WhatsNewEntryPage } from "@/page-slices/whats-new/ui/WhatsNewEntryPage"
+import { siteConfig } from "@/app/siteConfig"
+import { redirect } from "next/navigation"
 
-/** One Yang baru entry and its guide (the entry id is its slug). */
+/** Old entry links (/whats-new/<id>): the entry opens in its window over
+ *  the list now. */
 export default async function WhatsNewEntryRoute({
   params,
 }: {
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  return <WhatsNewEntryPage id={id} />
+  redirect(`${siteConfig.baseLinks.whatsNew}?entry=${encodeURIComponent(id)}`)
 }

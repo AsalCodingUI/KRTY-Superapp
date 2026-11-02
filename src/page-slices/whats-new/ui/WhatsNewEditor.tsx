@@ -101,7 +101,7 @@ export function useWhatsNewAdmin() {
           onClose={() => setEditing(null)}
           onSaved={async (id, created) => {
             await refresh()
-            if (created) router.push(`${HREF}/${id}`)
+            if (created) router.push(`${HREF}?entry=${encodeURIComponent(id)}`)
           }}
         />
       )}

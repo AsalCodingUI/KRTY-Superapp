@@ -137,7 +137,7 @@ Di baris report (halaman Report project, atau report terbaru di Dashboard projec
 - **Anggota & akses:** **Lihat profil**, **Lihat sebagai**, **Lihat KPI**, **Ubah role** (Karyawan / Stakeholder), **Ubah jabatan**, **Ubah tim** (termasuk **Tanpa tim**), **Ubah status**, **Ganti foto**, **Hapus anggota**. **Lihat sebagai** dan **Hapus anggota** nggak muncul di akun kamu sendiri.
 - Panel notifikasi juga punya **Pengumuman** di ruang kosongnya.
 
-Halaman lain (Klien, Kontrak, Keuangan, Proses, Pembayaran, KPI tim) juga udah punya menu klik kanannya masing-masing. Coba aja klik kanan barisnya.', true, 1),
+Halaman lain (Klien, Keuangan, Proses, Pembayaran, KPI tim) juga udah punya menu klik kanannya masing-masing. Coba aja klik kanan barisnya.', true, 1),
 ('project-pm', '2026-11-02', 'Project: bikin, pindahin status, geser antar kolom', 'PM sekarang bisa bikin project sendiri dan mindahin status project lewat menu Pindahkan ke atau tinggal digeser di kanban dan list.', ARRAY['new']::text[], 'projects', 'pm', 'app', '/whats-new/ctx-menu-project.webp', '## Siapa yang bisa
 
 - **PM dan stakeholder:** bikin project baru dan mindahin status project.

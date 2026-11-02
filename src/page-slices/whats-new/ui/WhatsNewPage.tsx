@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Spinner } from "@/components/ui/spinner"
 import { useViewMode, ViewToggle } from "@/components/view-toggle"
-import { siteConfig } from "@/app/siteConfig"
 import { cn } from "@/lib/utils"
 import { ContextTarget, copyText, type CtxItem } from "@/shared/context-menu"
 import { searchText } from "../model/sections"
@@ -18,6 +17,7 @@ import {
   type WhatsNewEntry,
   type WhatsNewKind,
 } from "../model/types"
+import { WhatsNewDialog } from "./WhatsNewDialog"
 import { useWhatsNewAdmin } from "./WhatsNewEditor"
 import { useDateLocale, useT } from "@/shared/i18n/client"
 import { RiSearchLine } from "@/shared/ui/lucide-icons"
@@ -39,7 +39,6 @@ import { toast } from "sonner"
 import { useWhatsNew } from "../model/use-whats-new"
 import { AREA_LABEL, dayOf, EntryBadges } from "./shared"
 
-const HREF = siteConfig.baseLinks.whatsNew
 
 /**
  * Yang baru: release notes grouped by day (newest first), then the
@@ -63,7 +62,7 @@ export function WhatsNewPage() {
   const kind = (WHATS_NEW_KINDS as readonly string[]).includes(kindParam ?? "")
     ? (kindParam as WhatsNewKind)
     : null
-  const setParam = (key: "area" | "kind", next: string | null) => {
+  const setParam = (key: "area" | "kind" | "entry", next: string | null) => {
     const params = new URLSearchParams(searchParams.toString())
     if (next) params.set(key, next)
     else params.delete(key)
@@ -73,6 +72,14 @@ export function WhatsNewPage() {
   }
   const setArea = (next: WhatsNewArea | null) => setParam("area", next)
   const setKind = (next: WhatsNewKind | null) => setParam("kind", next)
+  // An entry opens in a window over the list (like a rule in Aturan &
+  // Update): ?entry=<id> keeps it linkable, the filters stay as they are.
+  const openId = searchParams.get("entry")
+  const entryHref = (id: string) => {
+    const params = new URLSearchParams(searchParams.toString())
+    params.set("entry", id)
+    return `${pathname}?${params}`
+  }
 
   const [view, setView] = useViewMode("whats-new", "grid")
   const [query, setQuery] = useState("")
@@ -337,17 +344,19 @@ export function WhatsNewPage() {
                         type="whats-new"
                         id={entry.id}
                         label={entry.title}
-                        href={`${HREF}/${entry.id}`}
+                        href={entryHref(entry.id)}
                         items={() => itemsFor(entry)}
                       >
                         {view === "grid" ? (
                           <EntryTile
                             entry={entry}
+                            href={entryHref(entry.id)}
                             isRead={read.has(entry.id)}
                           />
                         ) : (
                           <EntryCard
                             entry={entry}
+                            href={entryHref(entry.id)}
                             isRead={read.has(entry.id)}
                           />
                         )}
@@ -361,6 +370,13 @@ export function WhatsNewPage() {
         )}
       </div>
       {admin.elements}
+      {openId && (
+        <WhatsNewDialog
+          id={openId}
+          onOpen={(id) => setParam("entry", id)}
+          onClose={() => setParam("entry", null)}
+        />
+      )}
     </div>
   )
 }
@@ -393,10 +409,12 @@ function AreaChip({
 
 function EntryCard({
   entry,
+  href,
   isRead,
   ...rest
 }: {
   entry: WhatsNewEntry
+  href: string
   isRead: boolean
   /** data-* from the right-click target. */
   [data: `data-${string}`]: string | undefined
@@ -405,7 +423,8 @@ function EntryCard({
   return (
     <Link
       {...rest}
-      href={`${HREF}/${entry.id}`}
+      href={href}
+      scroll={false}
       prefetch={false}
       className="group/entry bg-card border-foreground/10 hover:border-foreground/20 focus-visible:border-primary/50 focus-visible:ring-primary/20 relative flex gap-5 overflow-hidden rounded-xl border p-4 transition-[border-color] duration-200 outline-none focus-visible:ring-2 sm:p-5"
     >
@@ -434,10 +453,12 @@ function EntryCard({
 /** Grid layout: picture on top, then tags, title, summary. */
 function EntryTile({
   entry,
+  href,
   isRead,
   ...rest
 }: {
   entry: WhatsNewEntry
+  href: string
   isRead: boolean
   /** data-* from the right-click target. */
   [data: `data-${string}`]: string | undefined
@@ -446,7 +467,8 @@ function EntryTile({
   return (
     <Link
       {...rest}
-      href={`${HREF}/${entry.id}`}
+      href={href}
+      scroll={false}
       prefetch={false}
       className="group/entry bg-card border-foreground/10 hover:border-foreground/20 focus-visible:border-primary/50 focus-visible:ring-primary/20 flex flex-col overflow-hidden rounded-xl border transition-[border-color] duration-200 outline-none focus-visible:ring-2"
     >
