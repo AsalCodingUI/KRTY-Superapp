@@ -22,6 +22,7 @@ import { Spinner } from "@/components/ui/spinner"
 import { useViewMode, ViewToggle } from "@/components/view-toggle"
 import { createClient } from "@/shared/api/supabase/client"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
+import { accessLevel, canRunProjects } from "@/shared/config/access"
 import { canManageByRole } from "@/shared/lib/roles"
 import { RiAddLine, RiSearchLine } from "@/shared/ui/lucide-icons"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
@@ -37,6 +38,12 @@ import {
   type ProjectActions,
   type ProjectListRow,
 } from "./ProjectList"
+import {
+  ProjectsFilterMenu,
+  applyListOptions,
+  pruneListOptions,
+  useListOptions,
+} from "./ProjectsFilterMenu"
 
 // Kanban (dnd) and the form dialog load only when used.
 const ProjectKanban = dynamic(
@@ -57,7 +64,8 @@ const ProjectForm = dynamic(
 const QUERY_KEY = ["projects", "list-page"]
 
 /**
- * Daftar Project: list, kanban (drag to change status) or table.
+ * Daftar Project: list, kanban or table. PMs and stakeholders create
+ * projects and move them between statuses (drag, or "Pindahkan ke").
  */
 export function ProjectsListPage() {
   const t = useT("projects")
@@ -66,7 +74,9 @@ export function ProjectsListPage() {
   const queryClient = useQueryClient()
   const { profile } = useUserProfile()
   const isAdmin = canManageByRole(profile?.role)
+  const canRun = canRunProjects(accessLevel(profile))
   const [view, setView] = useViewMode("projects", "kanban")
+  const [options, setOptions] = useListOptions()
   const [query, setQuery] = useState("")
   const [formOpen, setFormOpen] = useState(false)
   const [formMounted, setFormMounted] = useState(false)
@@ -84,7 +94,10 @@ export function ProjectsListPage() {
         .from("projects")
         .select(
           `id, name, status, start_date, end_date, quarter_id, client_name,
-           project_assignments ( id, profiles ( full_name, avatar_url ) )`,
+           updated_at,
+           process:processes ( id, name ),
+           category:project_categories ( id, name ),
+           project_assignments ( id, user_id, profiles ( full_name, avatar_url ) )`,
         )
         .order("end_date", { ascending: false })
       if (!isAdmin) {
@@ -105,15 +118,22 @@ export function ProjectsListPage() {
   })
 
   const needle = query.trim().toLowerCase()
-  const projects = useMemo(
-    () =>
-      needle
-        ? allProjects.filter((p) =>
-            `${p.name} ${p.client_name ?? ""}`.toLowerCase().includes(needle),
-          )
-        : allProjects,
-    [allProjects, needle],
+  // Saved filters that match nothing loaded (a deleted category) don't apply.
+  const effective = useMemo(
+    () => pruneListOptions(options, allProjects),
+    [options, allProjects],
   )
+  const projects = useMemo(() => {
+    const found = needle
+      ? allProjects.filter((p) =>
+          `${p.name} ${p.client_name ?? ""} ${p.category?.name ?? ""}`
+            .toLowerCase()
+            .includes(needle),
+        )
+      : allProjects
+    return applyListOptions(found, effective, profile?.id ?? null)
+  }, [allProjects, needle, effective, profile?.id])
+  const filtered = projects.length < allProjects.length
 
   const refresh = () =>
     queryClient.invalidateQueries({ queryKey: ["projects"] })
@@ -132,17 +152,14 @@ export function ProjectsListPage() {
     return true
   }
 
-  const actions: ProjectActions | undefined = isAdmin
+  // Moving: PMs and stakeholders. Edit / delete: stakeholders.
+  const onMove = canRun ? changeStatus : undefined
+  const actions: Omit<ProjectActions, "onMove"> | undefined = isAdmin
     ? {
         onEdit: (project) => {
           setEditingId(project.id)
           setFormOpen(true)
         },
-        onToggleArchive: (project) =>
-          void changeStatus(
-            project,
-            project.status === "Archived" ? "Active" : "Archived",
-          ),
         onDelete: setDeleting,
       }
     : undefined
@@ -154,7 +171,7 @@ export function ProjectsListPage() {
         title={t("title")}
         actions={
           <div className="flex items-center gap-2">
-            <div className="relative w-40 sm:w-64">
+            <div className="relative w-32 min-w-0 sm:w-64">
               <RiSearchLine className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
               <Input
                 type="search"
@@ -165,12 +182,17 @@ export function ProjectsListPage() {
                 className="pl-9"
               />
             </div>
+            <ProjectsFilterMenu
+              projects={allProjects}
+              options={effective}
+              onChange={setOptions}
+            />
             <ViewToggle
               value={view}
               onValueChange={setView}
               modes={["kanban", "list", "table"]}
             />
-            {isAdmin && (
+            {canRun && (
               <Button
                 aria-label={t("newProject")}
                 onClick={() => {
@@ -192,33 +214,53 @@ export function ProjectsListPage() {
           <div className="flex justify-center py-16">
             <Spinner className="size-6" />
           </div>
-        ) : needle && projects.length === 0 ? (
+        ) : (needle || filtered) && projects.length === 0 ? (
           <EmptyState
-            title={t("noMatch", { query: query.trim() })}
+            title={
+              needle
+                ? t("noMatch", { query: query.trim() })
+                : t("noFilterMatch")
+            }
             icon={<RiSearchLine />}
+            action={
+              filtered
+                ? {
+                    label: t("filterReset"),
+                    onClick: () =>
+                      setOptions({
+                        statuses: [],
+                        clients: [],
+                        processes: [],
+                        categories: [],
+                        mine: false,
+                      }),
+                  }
+                : undefined
+            }
           />
         ) : view === "kanban" ? (
           <ProjectKanban
             projects={projects}
-            onMove={isAdmin ? changeStatus : undefined}
+            onMove={onMove}
+            actions={actions}
           />
         ) : view === "table" ? (
           <ProjectTable projects={projects} />
         ) : (
-          <ProjectList projects={projects} actions={actions} />
+          <ProjectList projects={projects} actions={actions} onMove={onMove} />
         )}
       </div>
 
+      {canRun && formMounted && (
+        <ProjectForm
+          projectId={editingId}
+          open={formOpen}
+          onOpenChange={setFormOpen}
+          onSaved={refresh}
+        />
+      )}
       {isAdmin && (
         <>
-          {formMounted && (
-            <ProjectForm
-              projectId={editingId}
-              open={formOpen}
-              onOpenChange={setFormOpen}
-              onSaved={refresh}
-            />
-          )}
           <ConfirmDialog
             open={Boolean(deleting)}
             onOpenChange={(open) => !open && setDeleting(null)}
@@ -279,6 +321,19 @@ function ProjectTable({ projects }: { projects: ProjectListRow[] }) {
             {t(STATUS_LABEL_KEYS[row.original.status])}
           </span>
         ),
+      },
+      {
+        id: "category",
+        accessorFn: (row) => row.category?.name ?? "",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title={t("colCategory")} />
+        ),
+        cell: ({ row }) =>
+          row.original.category ? (
+            <ListChip>{row.original.category.name}</ListChip>
+          ) : (
+            <EmptyValue />
+          ),
       },
       {
         accessorKey: "quarter_id",

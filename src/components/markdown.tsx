@@ -1,7 +1,28 @@
 "use client"
 
 import { cn } from "@/lib/utils"
-import ReactMarkdown, { type Components } from "react-markdown"
+import { CalloutBox } from "@/components/callout-box"
+import { EmbedBlock } from "@/components/embed-block"
+import { GalleryStrip, type GalleryImage } from "@/components/gallery-strip"
+import { LightboxScope, ZoomableImage } from "@/components/image-lightbox"
+import {
+  isCalloutTone,
+  isGallerySrc,
+  remarkDocBlocks,
+  parseGallerySrc,
+} from "@/shared/lib/doc-blocks"
+import { parseEmbedHref } from "@/shared/lib/embeds"
+import { MENTION_SCHEME } from "@/shared/lib/mentions"
+import ReactMarkdown, {
+  defaultUrlTransform,
+  type Components,
+  type ExtraProps,
+} from "react-markdown"
+import { ChevronRight } from "lucide-react"
+import { Children, useRef } from "react"
+
+type Element = NonNullable<ExtraProps["node"]>
+type ElementContent = Element["children"][number]
 import remarkGfm from "remark-gfm"
 
 /**
@@ -49,22 +70,54 @@ const components: Components = {
   li: ({ node: _, ...p }) => (
     <li className="pl-1 [&>ol]:my-1.5 [&>ul]:my-1.5" {...p} />
   ),
-  a: ({ node: _, ...p }) => (
-    <a
-      className="text-primary underline underline-offset-3 hover:no-underline"
-      target="_blank"
-      rel="noreferrer noopener"
-      {...p}
-    />
-  ),
+  a: ({ node: _, ...p }) =>
+    // An @mention (shared/lib/mentions): a plain pill, never a link here.
+    typeof p.href === "string" && p.href.startsWith(MENTION_SCHEME) ? (
+      <span className="bg-muted text-foreground rounded-md px-1.5 py-px text-[0.92em] font-medium [overflow-wrap:anywhere]">
+        {p.children}
+      </span>
+    ) : (
+      <a
+        className="text-primary underline underline-offset-3 hover:no-underline"
+        target="_blank"
+        rel="noreferrer noopener"
+        {...p}
+      />
+    ),
   strong: ({ node: _, ...p }) => (
     <strong className="text-foreground font-semibold" {...p} />
   ),
-  blockquote: ({ node: _, ...p }) => (
-    <blockquote
-      className="border-border my-4 rounded-lg border border-l-[3px] px-4 py-1"
-      {...p}
-    />
+  blockquote: ({ node, ...p }) => {
+    // "> [!NOTE]" and co. (shared/lib/doc-blocks): a callout.
+    const tone = node?.properties.dataCallout
+    if (isCalloutTone(tone))
+      return <CalloutBox tone={tone}>{p.children}</CalloutBox>
+    return (
+      <blockquote
+        className="border-border my-4 rounded-lg border border-l-[3px] px-4 py-1"
+        {...p}
+      />
+    )
+  },
+  // A toggle (<details>, folded in by remarkDocBlocks): closed to start.
+  details: ({ node: _, children }) => {
+    const [summary, ...body] = Children.toArray(children)
+    return (
+      <details className="my-2">
+        {summary}
+        <div className="pl-7 [&>*:first-child]:mt-1 [&>*:last-child]:mb-0">
+          {body}
+        </div>
+      </details>
+    )
+  },
+  summary: ({ node: _, children }) => (
+    <summary className="text-foreground flex cursor-pointer list-none items-start gap-1 font-medium select-none [&::-webkit-details-marker]:hidden">
+      <span className="text-muted-foreground grid size-6 shrink-0 translate-y-0.5 place-items-center">
+        <ChevronRight className="size-4 transition-transform duration-150 [details[open]>summary_&]:rotate-90" />
+      </span>
+      <span className="min-w-0 flex-1">{children}</span>
+    </summary>
   ),
   hr: () => <hr className="border-border my-6" />,
   code: ({ node: _, className, ...p }) => (
@@ -99,21 +152,77 @@ const components: Components = {
   img: () => null,
 }
 
+const textOf = (nodes: ElementContent[]): string =>
+  nodes
+    .map((n) =>
+      n.type === "text"
+        ? n.value
+        : n.type === "element"
+          ? textOf(n.children)
+          : "",
+    )
+    .join("")
+
+/** A paragraph holding only an embed link (shared/lib/embeds), if it is. */
+function embedOf(node: Element | undefined) {
+  const kids = node?.children.filter(
+    (c) => !(c.type === "text" && !c.value.trim()),
+  )
+  const a = kids?.length === 1 ? kids[0] : null
+  if (a?.type !== "element" || a.tagName !== "a") return null
+  const href = a.properties.href
+  const parsed = parseEmbedHref(typeof href === "string" ? href : null)
+  return parsed ? { ...parsed, title: textOf(a.children) } : null
+}
+
+/** https, or the app's own paths (client pages serve storage via /r/media). */
+const safeSrc = (src: unknown): src is string =>
+  typeof src === "string" && /^(https:\/\/|\/(?!\/))/.test(src)
+
+/** A paragraph of "#gallery" pictures only (shared/lib/doc-blocks). */
+function galleryOf(node: Element | undefined) {
+  const kids = node?.children.filter(
+    (c) => !(c.type === "text" && !c.value.trim()) && c.type !== "comment",
+  )
+  if (!kids?.length) return null
+  const images: GalleryImage[] = []
+  for (const k of kids) {
+    if (k.type !== "element") return null
+    if (k.tagName === "br") continue
+    const src = k.properties.src
+    if (k.tagName !== "img" || typeof src !== "string" || !isGallerySrc(src))
+      return null
+    if (safeSrc(src))
+      images.push({
+        ...(parseGallerySrc(src) ?? { src }),
+        alt: typeof k.properties.alt === "string" ? k.properties.alt : "",
+      })
+  }
+  return images
+}
+
 /** Pictures, for documents that have them (project reports). */
 const withImages: Components = {
   ...components,
+  // A link on its own line with "#embed=…": a card or a live preview.
+  p: ({ node, ...p }) => {
+    const embed = embedOf(node)
+    if (embed) return <EmbedBlock {...embed} />
+    // Pictures marked "#gallery": one row that scrolls sideways.
+    const gallery = galleryOf(node)
+    if (gallery)
+      return gallery.length ? <GalleryStrip images={gallery} /> : null
+    return <p className="my-3 first:mt-0 last:mb-0" {...p} />
+  },
   // Centred, at the width picked in the editor ("…#size=small|wide").
   img: ({ node: _, src, alt }) => {
-    // https, or the app's own paths (client pages serve storage via /r/media).
-    if (typeof src !== "string" || !/^(https:\/\/|\/(?!\/))/.test(src))
-      return null
+    if (!safeSrc(src)) return null
     const size = /#size=(small|wide)$/.exec(src)?.[1]
     return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
+      // Opens large on a click.
+      <ZoomableImage
         src={src}
         alt={alt ?? ""}
-        loading="lazy"
         className={cn(
           "border-border mx-auto my-4 block h-auto rounded-lg border",
           size === "small" ? "w-2/5" : size === "wide" ? "w-full" : "w-[70%]",
@@ -133,14 +242,30 @@ export function Markdown({
   /** Show images (https, or paths on this site). */
   images?: boolean
 }) {
-  return (
-    <div className={cn("text-foreground/90 text-[15px] leading-7", className)}>
+  const root = useRef<HTMLDivElement>(null)
+  const body = (
+    <div
+      ref={root}
+      className={cn("text-foreground/90 text-[15px] leading-7", className)}
+    >
       <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
+        // Callouts and toggles (shared/lib/doc-blocks); other raw HTML
+        // stays dropped.
+        remarkPlugins={[remarkGfm, remarkDocBlocks]}
         components={images ? withImages : components}
+        // Keeps mention:// links (shown as pills above); the rest as usual.
+        urlTransform={(url) =>
+          url.startsWith(MENTION_SCHEME) ? url : defaultUrlTransform(url)
+        }
       >
         {children}
       </ReactMarkdown>
     </div>
+  )
+  // Pictures open large, stepping through all of the document's.
+  return images ? (
+    <LightboxScope root={() => root.current}>{body}</LightboxScope>
+  ) : (
+    body
   )
 }

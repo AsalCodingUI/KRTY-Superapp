@@ -6,7 +6,9 @@ import type {
   StepRow,
 } from "@/page-slices/projects/ui/workspace/data"
 import { createAdminClient } from "@/shared/api/supabase/admin"
-import { clientSafeMarkdown } from "@/shared/lib/storage-proxy"
+import {
+  clientSafeMarkdown,
+} from "@/shared/lib/storage-proxy"
 import { portalPage } from "./session"
 
 /** Portal home: status, phases and their steps, facts, latest reports. */
@@ -43,7 +45,7 @@ export default async function PortalHomePage({
     admin
       .from("project_reports" as never)
       .select(
-        "id, title, body, report_date, author:profiles!project_reports_author_id_fkey ( full_name, avatar_url )",
+        "id, title, body, report_date",
       )
       .eq("project_id" as never, project.id as never)
       .not("share_token" as never, "is", null)

@@ -87,9 +87,11 @@ export const MonthView = memo(function MonthView({
 
   return (
     <>
-      <div className="flex h-full w-full max-w-full flex-col overflow-hidden sm:min-w-[700px]">
+      {/* At least the pane's height, taller when the rows need it: the pane
+          scrolls then, instead of cutting the last week off. */}
+      <div className="flex min-h-full w-full max-w-full flex-col sm:min-w-[700px]">
         {/* Weekday headers */}
-        <div className="border-border flex border-b">
+        <div className="border-border bg-background sticky top-0 z-10 flex border-b">
           {/* Week number header (removed) */}
 
           {/* Day headers */}
@@ -106,10 +108,9 @@ export const MonthView = memo(function MonthView({
         </div>
 
         {/* Calendar grid with week numbers */}
-        <div className="flex flex-1 overflow-hidden">
-          {/* Week numbers column */}
+        <div className="flex flex-1">
           {/* Days grid */}
-          <div className="grid flex-1 grid-cols-7 overflow-hidden">
+          <div className="grid flex-1 auto-rows-fr grid-cols-7">
             {monthDays.map((day) => {
               const dayEvents = eventsByDay.get(getDayKey(day)) ?? []
               const isToday = isSameDay(day, today)

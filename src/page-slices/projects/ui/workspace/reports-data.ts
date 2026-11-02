@@ -149,7 +149,7 @@ export async function uploadReportImage(
   picked: File,
   original = false,
 ) {
-  const file = original ? picked : await compressImage(picked)
+  const file = original ? picked : await compressImage(picked, { webp: true })
   const ext = (file.name.split(".").pop() || "png").toLowerCase().slice(0, 5)
   const path = `${projectId}/${crypto.randomUUID()}.${ext}`
   const db = supabase()

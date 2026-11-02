@@ -15,10 +15,12 @@ import {
   List,
   ListOrdered,
   Quote,
+  Sparkles,
   Strikethrough,
 } from "lucide-react"
-import { useState } from "react"
+import { useCallback, useState } from "react"
 import { useT } from "@/shared/i18n/client"
+import { AiSelectionPanel } from "./ai-assist"
 
 function Tool({
   label,
@@ -67,8 +69,11 @@ function Divider() {
 export function SelectionMenu({ editor }: { editor: Editor }) {
   const t = useT("policies")
   const tc = useT("common")
+  const tai = useT("ai")
   const [linking, setLinking] = useState(false)
   const [url, setUrl] = useState("")
+  const [ai, setAi] = useState(false)
+  const closeAi = useCallback(() => setAi(false), [])
 
   const s = useEditorState({
     editor,
@@ -111,9 +116,14 @@ export function SelectionMenu({ editor }: { editor: Editor }) {
         // A whole block picked with its handle isn't a text selection.
         !(e.state.selection instanceof NodeSelection)
       }
-      className="bg-popover text-popover-foreground z-40 flex items-center gap-0.5 rounded-full p-1 shadow-(--elev-4)"
+      className={cn(
+        "bg-popover text-popover-foreground z-40 flex items-center gap-0.5 p-1 shadow-(--elev-4)",
+        ai ? "rounded-2xl" : "rounded-full",
+      )}
     >
-      {linking ? (
+      {ai ? (
+        <AiSelectionPanel editor={editor} onClose={closeAi} />
+      ) : linking ? (
         <form onSubmit={applyLink} className="flex items-center gap-1">
           <input
             autoFocus
@@ -149,6 +159,10 @@ export function SelectionMenu({ editor }: { editor: Editor }) {
         </form>
       ) : (
         <>
+          <Tool label={tai("aiTitle")} onClick={() => setAi(true)}>
+            <Sparkles className="text-primary" />
+          </Tool>
+          <Divider />
           <Tool
             label={t("blockH1")}
             active={s.h1}

@@ -6,11 +6,8 @@ import { cn } from "@/lib/utils"
 import {
   DndContext,
   DragOverlay,
-  PointerSensor,
   useDraggable,
   useDroppable,
-  useSensor,
-  useSensors,
   defaultDropAnimationSideEffects,
   type DragEndEvent,
   type DragMoveEvent,
@@ -28,7 +25,13 @@ import {
   type ProjectStatus,
 } from "../lib/status"
 import type { ProjectListRow } from "./ProjectList"
+import {
+  ProjectContextMenu,
+  ProjectMenuButton,
+  type ProjectActions,
+} from "./ProjectMenu"
 import { ProjectStatusIcon } from "./ProjectStatusIcon"
+import { useStatusMove, type MoveProject } from "./useStatusMove"
 
 type BoardStatus = (typeof BOARD_STATUSES)[number]
 
@@ -121,37 +124,51 @@ function ProjectCard({
 
 function DraggableCard({
   project,
+  status,
   canDrag,
+  actions,
 }: {
   project: ProjectListRow
+  status: ProjectStatus
   canDrag: boolean
+  actions?: ProjectActions
 }) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: project.id,
     disabled: !canDrag,
   })
   return (
-    <div
-      ref={setNodeRef}
-      {...attributes}
-      {...listeners}
-      className={cn(
-        "group/card rounded-nested relative transition-opacity duration-200 outline-none",
-        canDrag && "cursor-grab active:cursor-grabbing",
-        // The spot it left, until it's dropped.
-        isDragging && "opacity-40",
-      )}
-    >
-      {/* Click opens the project; a drag (6px+) moves it instead. */}
-      <Link
-        href={projectHref(project)}
-        prefetch={false}
-        draggable={false}
-        className="focus-visible:ring-primary/40 rounded-nested block focus-visible:ring-2"
+    <ProjectContextMenu project={project} status={status} actions={actions}>
+      <div
+        ref={setNodeRef}
+        {...attributes}
+        {...listeners}
+        className={cn(
+          "group/card rounded-nested relative transition-opacity duration-200 outline-none",
+          canDrag && "cursor-grab active:cursor-grabbing",
+          // The spot it left, until it's dropped.
+          isDragging && "opacity-40",
+        )}
       >
-        <ProjectCard project={project} canDrag={canDrag} />
-      </Link>
-    </div>
+        {/* Click opens the project; a drag (6px+) moves it instead. */}
+        <Link
+          href={projectHref(project)}
+          prefetch={false}
+          draggable={false}
+          className="focus-visible:ring-primary/40 rounded-nested block focus-visible:ring-2"
+        >
+          <ProjectCard project={project} canDrag={canDrag} />
+        </Link>
+        {actions && (
+          <ProjectMenuButton
+            project={project}
+            status={status}
+            actions={actions}
+            className="bg-card absolute top-1.5 right-1.5 size-6 opacity-0 group-hover/card:opacity-100 focus-visible:opacity-100 data-popup-open:opacity-100 pointer-coarse:opacity-100"
+          />
+        )}
+      </div>
+    </ProjectContextMenu>
   )
 }
 
@@ -159,10 +176,12 @@ function Column({
   status,
   projects,
   canDrag,
+  actions,
 }: {
   status: BoardStatus
   projects: ProjectListRow[]
   canDrag: boolean
+  actions?: ProjectActions
 }) {
   const t = useT("projects")
   const { setNodeRef, isOver } = useDroppable({ id: status })
@@ -186,7 +205,13 @@ function Column({
       </header>
       <div className="flex flex-col gap-2">
         {projects.map((p) => (
-          <DraggableCard key={p.id} project={p} canDrag={canDrag} />
+          <DraggableCard
+            key={p.id}
+            project={p}
+            status={status}
+            canDrag={canDrag}
+            actions={actions}
+          />
         ))}
         {projects.length === 0 && (
           <p className="text-muted-foreground px-1.5 py-4 text-center text-sm">
@@ -241,23 +266,30 @@ const DROP_ANIMATION: DropAnimation = {
 
 /**
  * Projects as a 4-step board (Belum mulai → Berjalan → Review → Selesai).
- * Stakeholders drag a card to change its status; archived projects stay out
- * of the board (list view shows them).
+ * PMs and stakeholders drag a card to change its status (or use the card's
+ * "Pindahkan ke"); archived projects stay out of the board (list view shows
+ * them).
  */
 export function ProjectKanban({
   projects,
   onMove,
+  actions,
 }: {
   projects: ProjectListRow[]
-  /** Present for stakeholders; resolves once the status is saved. */
-  onMove?: (project: ProjectListRow, status: ProjectStatus) => Promise<boolean>
+  /** PMs and stakeholders; resolves once the status is saved. */
+  onMove?: MoveProject
+  /** Stakeholders: edit / delete from the card menu. */
+  actions?: Omit<ProjectActions, "onMove">
 }) {
   const t = useT("projects")
-  const [overrides, setOverrides] = useState<Record<string, ProjectStatus>>({})
-  const [activeId, setActiveId] = useState<string | null>(null)
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
-  )
+  const drag = useStatusMove(projects, onMove)
+  const cardActions: ProjectActions | undefined =
+    onMove || actions
+      ? {
+          ...actions,
+          onMove: onMove ? (p, status) => void drag.move(p, status) : undefined,
+        }
+      : undefined
 
   // Lean of the lifted card, from how fast it moves sideways.
   const [tilt, setTilt] = useState(0)
@@ -279,37 +311,28 @@ export function ProjectKanban({
     setTilt(0)
   }
 
-  const statusOf = (p: ProjectListRow) => overrides[p.id] ?? p.status
-  const active = projects.find((p) => p.id === activeId) ?? null
+  const { statusOf, active } = drag
   const archived = projects.filter((p) => statusOf(p) === "Archived").length
 
   const onDragStart = (event: DragStartEvent) => {
     resetTilt()
-    setActiveId(String(event.active.id))
+    drag.onDragStart(event)
   }
 
-  const onDragEnd = async (event: DragEndEvent) => {
+  const onDragEnd = (event: DragEndEvent) => {
     resetTilt()
-    setActiveId(null)
-    const project = projects.find((p) => p.id === event.active.id)
-    const target = event.over?.id as BoardStatus | undefined
-    if (!project || !target || !onMove || statusOf(project) === target) return
-    // Move right away; put it back if saving fails.
-    setOverrides((o) => ({ ...o, [project.id]: target }))
-    const ok = await onMove(project, target)
-    // On success the override stays until the refetched list agrees.
-    if (!ok) setOverrides((o) => ({ ...o, [project.id]: project.status }))
+    drag.onDragEnd(event)
   }
 
   return (
     <DndContext
-      sensors={sensors}
+      sensors={drag.sensors}
       onDragStart={onDragStart}
       onDragMove={onDragMove}
       onDragEnd={onDragEnd}
       onDragCancel={() => {
         resetTilt()
-        setActiveId(null)
+        drag.onDragCancel()
       }}
     >
       <div className="bleed gutter-x flex gap-3 overflow-x-auto pb-2">
@@ -318,6 +341,7 @@ export function ProjectKanban({
             key={status}
             status={status}
             canDrag={Boolean(onMove)}
+            actions={cardActions}
             projects={projects.filter((p) => statusOf(p) === status)}
           />
         ))}

@@ -17,6 +17,7 @@ export type ProfileSubset = Pick<
   | "hourly_rate"
   | "team_id"
   | "is_super_admin"
+  | "avatar_url"
 >
 
 export type SessionContextResponse = {

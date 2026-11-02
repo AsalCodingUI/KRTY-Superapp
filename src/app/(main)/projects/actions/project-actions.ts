@@ -1,13 +1,21 @@
 "use server"
 
+import { createClient } from "@/shared/api/supabase/server"
+import {
+  accessLevel,
+  canRunProjects,
+  type AccessLevel,
+} from "@/shared/config/access"
 import { getT } from "@/shared/i18n/server"
 import { getAdminContext } from "@/shared/lib/admin-server"
+import { resolveEffectiveUserId } from "@/shared/lib/impersonation-server"
 import type { Database } from "@/shared/types/database.types"
 import { revalidatePath } from "next/cache"
 
 /**
  * Project management (moved here from Performance › List Project). Same rule
- * as the database: stakeholders create, edit, staff and delete projects.
+ * as the database: stakeholders create, edit, staff and delete projects; PMs
+ * create projects and move the ones they're on between statuses.
  */
 
 type ProjectRole = Database["public"]["Enums"]["project_role_enum"]
@@ -30,6 +38,8 @@ export type ProjectInput = {
   status?: ProjectStatus
   /** New projects only: the process to copy (null = the default one). */
   processId?: string | null
+  /** project_categories.id, or null for none. */
+  categoryId?: string | null
   members: ProjectMemberInput[]
 }
 
@@ -40,6 +50,7 @@ export type EditableProject = {
   start_date: string
   end_date: string
   status: ProjectStatus
+  category_id: string | null
   members: (ProjectMemberInput & {
     full_name: string | null
     avatar_url: string | null
@@ -51,6 +62,29 @@ export type EditableProject = {
 
 async function admin() {
   return (await getAdminContext())?.supabase ?? null
+}
+
+type Db = Awaited<ReturnType<typeof createClient>>
+
+/** The effective user when they run projects (PM or stakeholder), else null. */
+async function manager(): Promise<{
+  supabase: Db
+  userId: string
+  level: AccessLevel
+} | null> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return null
+  const userId = await resolveEffectiveUserId(supabase, user.id, user.email)
+  const { data } = await supabase
+    .from("profiles")
+    .select("role, job_title")
+    .eq("id", userId)
+    .maybeSingle()
+  const level = accessLevel(data)
+  return canRunProjects(level) ? { supabase, userId, level } : null
 }
 
 async function validate(input: ProjectInput): Promise<string | null> {
@@ -70,7 +104,7 @@ export async function getEditableProject(
   const { data } = await supabase
     .from("projects")
     .select(
-      `id, name, description, start_date, end_date, status,
+      `id, name, description, start_date, end_date, status, category_id,
        project_assignments (
          id, user_id, role_in_project, is_lead,
          profiles!project_assignments_user_id_fkey ( full_name, avatar_url, job_title ),
@@ -100,6 +134,7 @@ export async function getEditableProject(
     start_date: data.start_date,
     end_date: data.end_date,
     status: data.status,
+    category_id: data.category_id ?? null,
     members: ((data.project_assignments ?? []) as unknown as Row[]).map(
       (a) => ({
         userId: a.user_id,
@@ -118,7 +153,7 @@ export async function getEditableProject(
 }
 
 export async function getAssignablePeople() {
-  const supabase = await admin()
+  const supabase = (await manager())?.supabase
   if (!supabase) return []
   const { data } = await supabase
     .from("profiles")
@@ -132,10 +167,28 @@ export async function saveProject(
   id: string | null,
   input: ProjectInput,
 ): Promise<Result<{ id: string }>> {
-  const [t, supabase] = await Promise.all([getT("projects"), admin()])
-  if (!supabase) return { success: false, error: t("errAdminOnly") }
+  const [t, ctx] = await Promise.all([getT("projects"), manager()])
+  // PMs create; editing an existing project stays with stakeholders.
+  if (!ctx || (id && ctx.level !== "stakeholder"))
+    return { success: false, error: t("errAdminOnly") }
+  const { supabase } = ctx
   const invalid = await validate(input)
   if (invalid) return { success: false, error: invalid }
+  // A PM's new project keeps them on the team (the DB adds them; dropping
+  // them here would leave a project they can't open).
+  if (
+    !id &&
+    ctx.level === "pm" &&
+    !input.members.some((m) => m.userId === ctx.userId)
+  ) {
+    input = {
+      ...input,
+      members: [
+        { userId: ctx.userId, role: "Project Manager", isLead: false },
+        ...input.members,
+      ],
+    }
+  }
 
   const fields = {
     name: input.name.trim(),
@@ -149,16 +202,29 @@ export async function saveProject(
         : {}
       : { status: "Planned" as const }),
     ...(!id && input.processId ? { process_id: input.processId } : {}),
+    ...(input.categoryId !== undefined
+      ? { category_id: input.categoryId }
+      : {}),
   }
-  const { data: project, error } = id
-    ? await supabase
-        .from("projects")
-        .update(fields)
-        .eq("id", id)
-        .select("id")
-        .maybeSingle()
-    : await supabase.from("projects").insert(fields).select("id").single()
-  if (error || !project) return { success: false, error: t("errSaveProject") }
+  // New: the id is made here so the insert needs no RETURNING (a PM can only
+  // read the row once the DB has put them on its team).
+  let project: { id: string } | null = null
+  if (id) {
+    const { data, error } = await supabase
+      .from("projects")
+      .update(fields)
+      .eq("id", id)
+      .select("id")
+      .maybeSingle()
+    if (!error) project = data
+  } else {
+    const newId = crypto.randomUUID()
+    const { error } = await supabase
+      .from("projects")
+      .insert({ id: newId, ...fields })
+    if (!error) project = { id: newId }
+  }
+  if (!project) return { success: false, error: t("errSaveProject") }
 
   const { data: current } = await supabase
     .from("project_assignments")
@@ -209,8 +275,10 @@ export async function setProjectStatus(
   id: string,
   status: ProjectStatus,
 ): Promise<Result> {
-  const [t, supabase] = await Promise.all([getT("projects"), admin()])
-  if (!supabase) return { success: false, error: t("errAdminOnly") }
+  // Stakeholders, and PMs on their own projects (RLS + trigger enforce it).
+  const [t, ctx] = await Promise.all([getT("projects"), manager()])
+  if (!ctx) return { success: false, error: t("errAdminOnly") }
+  const { supabase } = ctx
   const { data, error } = await supabase
     .from("projects")
     .update({ status })

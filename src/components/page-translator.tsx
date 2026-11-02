@@ -168,14 +168,18 @@ export function PageTranslator({ className }: { className?: string }) {
     [apply, restore, t],
   )
 
-  // The last pick on this device, once the page is there.
+  // The last pick on this device, once the page is there; English the first
+  // time (clients read in English). "Original" stays original once chosen.
   useEffect(() => {
     let saved: string | null = null
     try {
       saved = localStorage.getItem(STORAGE_KEY)
     } catch {}
-    if (TRANSLATE_LANGUAGES.some((l) => l.code === saved))
-      void pick(saved as TranslateLanguage, true)
+    if (saved === ORIGINAL) return
+    const language = TRANSLATE_LANGUAGES.some((l) => l.code === saved)
+      ? (saved as TranslateLanguage)
+      : "en"
+    void pick(language, true)
   }, [pick])
 
   // New content (another tab of the portal, a report opened): translate it

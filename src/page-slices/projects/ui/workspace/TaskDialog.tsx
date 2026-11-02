@@ -262,6 +262,7 @@ function TaskBody({
               value={description}
               placeholder={t("taskDescriptionPlaceholder")}
               ariaLabel={t("taskDescription")}
+              mentionProjectId={projectId}
               onChange={setDescription}
               onBlur={saveDescription}
               // Task descriptions are internal: their pictures and

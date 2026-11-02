@@ -37,6 +37,7 @@ import { RiCloseLine } from "@/shared/ui/lucide-icons"
 import { useQuery } from "@tanstack/react-query"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
+import { CategoryPicker } from "./CategoryPicker"
 
 type ProjectRole = Database["public"]["Enums"]["project_role_enum"]
 type ProjectStatus = Database["public"]["Enums"]["project_status_enum"]
@@ -73,6 +74,7 @@ type Draft = {
   status: ProjectStatus
   /** New projects: chosen process (null = the default one). */
   processId: string | null
+  categoryId: string | null
   members: Member[]
 }
 
@@ -83,10 +85,11 @@ const EMPTY: Draft = {
   end_date: "",
   status: "Planned",
   processId: null,
+  categoryId: null,
   members: [],
 }
 
-/** Create or edit a project and its team (stakeholders). */
+/** Create (PMs, stakeholders) or edit (stakeholders) a project and its team. */
 export function ProjectForm({
   projectId,
   open,
@@ -133,6 +136,7 @@ export function ProjectForm({
         end_date: project.end_date,
         status: project.status,
         processId: null,
+        categoryId: project.category_id,
         members: project.members,
       })
   }, [open, projectId, project])
@@ -203,6 +207,7 @@ export function ProjectForm({
       end_date: draft.end_date,
       status: draft.status,
       processId: processValue,
+      categoryId: draft.categoryId,
       members: draft.members.map(({ userId, role, isLead }) => ({
         userId,
         role,
@@ -276,53 +281,67 @@ export function ProjectForm({
                 />
               </div>
             </div>
-            {projectId && (
-              <div className="flex flex-col gap-1.5">
-                <Label>{t("colStatus")}</Label>
-                <Select
-                  value={draft.status}
-                  onValueChange={(v) => v && set("status", v as ProjectStatus)}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue>
-                      {(v: ProjectStatus) => t(STATUS_LABEL_KEYS[v])}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {(Object.keys(STATUS_LABEL_KEYS) as ProjectStatus[]).map(
-                      (s) => (
-                        <SelectItem key={s} value={s}>
-                          {t(STATUS_LABEL_KEYS[s])}
+            <div className="grid gap-3 sm:grid-cols-2">
+              {projectId && (
+                <div className="flex flex-col gap-1.5">
+                  <Label>{t("colStatus")}</Label>
+                  <Select
+                    value={draft.status}
+                    onValueChange={(v) =>
+                      v && set("status", v as ProjectStatus)
+                    }
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue>
+                        {(v: ProjectStatus) => t(STATUS_LABEL_KEYS[v])}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {(Object.keys(STATUS_LABEL_KEYS) as ProjectStatus[]).map(
+                        (s) => (
+                          <SelectItem key={s} value={s}>
+                            {t(STATUS_LABEL_KEYS[s])}
+                          </SelectItem>
+                        ),
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+              {!projectId && processes.length > 0 && (
+                <div className="flex flex-col gap-1.5">
+                  <Label>{tp("fieldProcess")}</Label>
+                  <Select
+                    value={processValue}
+                    onValueChange={(v) => v && set("processId", v)}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {processes.map((p) => (
+                        <SelectItem key={p.id} value={p.id}>
+                          {p.name}
                         </SelectItem>
-                      ),
-                    )}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-            {!projectId && processes.length > 0 && (
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
               <div className="flex flex-col gap-1.5">
-                <Label>{tp("fieldProcess")}</Label>
-                <Select
-                  value={processValue}
-                  onValueChange={(v) => v && set("processId", v)}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {processes.map((p) => (
-                      <SelectItem key={p.id} value={p.id}>
-                        {p.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <p className="text-muted-foreground text-xs">
+                <Label htmlFor="project-category">{t("colCategory")}</Label>
+                <CategoryPicker
+                  id="project-category"
+                  value={draft.categoryId}
+                  onChange={(id) => set("categoryId", id)}
+                />
+              </div>
+              {!projectId && processes.length > 0 && (
+                <p className="text-muted-foreground text-xs sm:col-span-2">
                   {tp("processHint")}
                 </p>
-              </div>
-            )}
+              )}
+            </div>
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="project-desc">{t("formDescription")}</Label>
               <Textarea

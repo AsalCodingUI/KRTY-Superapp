@@ -80,3 +80,13 @@ export function canOpenProjectSection(slug: string, level: AccessLevel) {
   if (PM_PROJECT_SECTIONS.includes(slug)) return level === "pm"
   return !STAKEHOLDER_PROJECT_SECTIONS.includes(slug)
 }
+
+/**
+ * Who runs projects: creating them and moving them between statuses
+ * ("Pindahkan ke", dragging on the board/list). The DB agrees: PMs insert
+ * projects and change the status of projects they're on (migrations/
+ * project_categories.sql). Editing, staffing and deleting stay stakeholder.
+ */
+export function canRunProjects(level: AccessLevel) {
+  return level === "pm" || level === "stakeholder"
+}

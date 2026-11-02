@@ -50,6 +50,7 @@ import {
 } from "../model/data"
 import { BlockHandle } from "./block-handle"
 import { DocToolbar } from "./DocToolbar"
+import { EmbedMenu } from "./embed"
 import { SelectionMenu } from "./SelectionMenu"
 import {
   DOC_PROSE,
@@ -63,6 +64,7 @@ import {
 } from "@/page-slices/projects/ui/workspace/reports-data"
 import { POLICY_FILES_FOLDER } from "../model/data"
 import { BLOCK_ITEMS, SlashMenu, createSlashBridge } from "./slash-command"
+import { MentionMenu, createMentionBridge } from "./mention"
 import { PublishDialog } from "./PublishDialog"
 
 /** The editor appends an empty trailing paragraph; ignore end whitespace. */
@@ -221,6 +223,8 @@ function DocumentEditor({
   const inFlight = useRef<Promise<string | null> | null>(null)
   const pending = useRef(false)
   const [slash] = useState(createSlashBridge)
+  // Rules aren't tied to a project: "@" lists people only.
+  const [mention] = useState(createMentionBridge)
   // Pictures and files, like project notes (dropped, pasted or from "/").
   const uploads = useDocUploads({
     onUploadImage: (file, original) =>
@@ -258,6 +262,7 @@ function DocumentEditor({
           : tRef.current("bodyPlaceholder"),
       uploads.slashItems,
       true,
+      mention,
     ),
     content: initial.body,
     contentType: "markdown",
@@ -655,7 +660,9 @@ function DocumentEditor({
 
       {editor && <SelectionMenu editor={editor} />}
       {editor && <ImageMenu editor={editor} />}
+      {editor && <EmbedMenu editor={editor} />}
       <SlashMenu bridge={slash} />
+      <MentionMenu bridge={mention} />
       {uploads.inputs}
 
       <AlertDialog open={confirmClose} onOpenChange={setConfirmClose}>

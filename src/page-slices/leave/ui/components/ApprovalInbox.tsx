@@ -284,7 +284,7 @@ export function ApprovalInbox({
             )}
           </div>
 
-          <div className="-mx-2 flex h-[min(24rem,calc(100svh-16rem))] flex-col overflow-y-auto">
+          <div className="-mx-2 flex h-[min(24rem,calc(100svh-16rem))] flex-col gap-1 overflow-y-auto">
             {loading ? (
               <div className="grid flex-1 place-items-center">
                 <Spinner />
@@ -427,7 +427,8 @@ function InboxRow({
     >
       <div
         className={cn(
-          "flex items-start gap-3 rounded-2xl px-2 py-2.5 transition-colors hover:bg-(--row-hover)",
+          // Hover only where there is one: on touch it sticks to the tapped row.
+          "flex items-center gap-3 rounded-2xl px-2 py-2.5 transition-colors [@media(hover:hover)]:hover:bg-(--row-hover)",
           highlighted && "bg-primary/8 ring-primary/30 ring-1 ring-inset",
         )}
       >
@@ -437,14 +438,14 @@ function InboxRow({
             {initials(person?.full_name)}
           </AvatarFallback>
         </Avatar>
-        <div className="min-w-0 flex-1 text-[13px]">
+        <div className="flex min-w-0 flex-1 flex-col gap-0.5 text-[13px]">
           <p className="truncate">
             <span className="font-medium">{person?.full_name ?? "—"}</span>
             <span className="text-muted-foreground"> · {title}</span>
           </p>
           <p className="text-muted-foreground tabular-nums">{meta}</p>
           {detail && (
-            <p className="text-tertiary-foreground mt-0.5 line-clamp-2">
+            <p className="text-tertiary-foreground line-clamp-2">
               {detail}
             </p>
           )}

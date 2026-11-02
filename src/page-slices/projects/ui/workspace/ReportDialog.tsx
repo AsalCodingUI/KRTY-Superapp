@@ -16,10 +16,14 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { Spinner } from "@/components/ui/spinner"
+import { AiDocButton } from "@/page-slices/policies/ui/ai-assist"
 import { MarkdownDocEditor } from "@/page-slices/policies/ui/doc-editor"
+import type { Editor } from "@tiptap/react"
 import { clientUrl } from "@/shared/lib/client-site"
 import { reportKey } from "@/shared/lib/portal-docs"
 import { useWorkspace } from "./data"
+import { ReportViewsIndicator } from "./ReportViews"
+import { ReportTemplatePicker } from "./ReportTemplatePicker"
 import { useT } from "@/shared/i18n/client"
 import { RiCloseLine, RiFileCopyLine } from "@/shared/ui/lucide-icons"
 import { Link2 } from "lucide-react"
@@ -77,6 +81,7 @@ export function ReportDialog({
   const [saving, setSaving] = useState(false)
   const [sharing, setSharing] = useState(false)
   const [confirmClose, setConfirmClose] = useState(false)
+  const [editor, setEditor] = useState<Editor | null>(null)
 
   useEffect(() => {
     if (!open) return
@@ -191,6 +196,12 @@ export function ReportDialog({
             }}
             className="text-heading placeholder:text-muted-foreground/60 min-w-0 flex-1 border-0 bg-transparent text-lg font-medium shadow-none ring-0 outline-none focus:ring-0 focus-visible:ring-0"
           />
+          {current?.share_token && (
+            <ReportViewsIndicator projectId={projectId} reportId={current.id} />
+          )}
+          {canEdit && editor && !editor.isDestroyed && (
+            <AiDocButton editor={editor} summarize />
+          )}
           {canEdit && (
             <Popover>
               <PopoverTrigger
@@ -199,11 +210,19 @@ export function ReportDialog({
                     variant="outline"
                     size="sm"
                     disabled={!title.trim()}
+                    aria-label={
+                      current?.share_token
+                        ? t("reportShared")
+                        : t("reportShare")
+                    }
                   />
                 }
               >
                 <Link2 data-icon="inline-start" />
-                {current?.share_token ? t("reportShared") : t("reportShare")}
+                {/* Phones: the icon alone, so the title keeps some room. */}
+                <span className="hidden sm:inline">
+                  {current?.share_token ? t("reportShared") : t("reportShare")}
+                </span>
               </PopoverTrigger>
               <PopoverContent align="end" className="w-80">
                 <div className="flex flex-col gap-3 text-sm">
@@ -275,11 +294,26 @@ export function ReportDialog({
           </Button>
         </header>
 
+        {/* An empty report: Daily / Weekly to start from. The template's
+            title replaces only the default one. */}
+        {open && canEdit && editor && !editor.isDestroyed && (
+          <ReportTemplatePicker
+            key={`template-${report?.id ?? "new"}`}
+            editor={editor}
+            onTitle={(next) => {
+              if (title.trim() && title.trim() !== defaultTitle.trim()) return
+              setTitle(next)
+              markDirty(next, body.current)
+            }}
+          />
+        )}
+
         {open && (
           <MarkdownDocEditor
             key={report?.id ?? "new"}
             value={report?.body ?? ""}
             ariaLabel={t("reportBody")}
+            mentionProjectId={projectId}
             className="flex-1"
             onUploadImage={
               canEdit
@@ -291,6 +325,7 @@ export function ReportDialog({
               canEdit ? (file) => uploadDocFile(projectId, file) : undefined
             }
             readOnly={!canEdit}
+            onReady={setEditor}
             onChange={(markdown) => {
               body.current = markdown
               markDirty(title, markdown)

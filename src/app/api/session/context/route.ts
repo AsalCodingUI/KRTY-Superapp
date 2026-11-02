@@ -13,11 +13,12 @@ type ProfileRow = {
   hourly_rate: number | null
   team_id: string | null
   is_super_admin: boolean | null
+  avatar_url: string | null
   created_at?: string | null
 }
 
 const PROFILE_SELECT =
-  "id, full_name, email, role, job_title, krt_id, team_id, is_super_admin, created_at"
+  "id, full_name, email, role, job_title, krt_id, team_id, is_super_admin, avatar_url, created_at"
 
 export async function GET() {
   const supabase = await createClient()

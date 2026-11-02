@@ -13,11 +13,14 @@ import { useDateLocale, useT } from "@/shared/i18n/client"
 import { RiAddLine, RiFilePaperLine } from "@/shared/ui/lucide-icons"
 import { format, parseISO } from "date-fns"
 import { Link2 } from "lucide-react"
-import { useState } from "react"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { useEffect, useState } from "react"
+import { findByLinkKey } from "@/shared/lib/url-params"
 import { toast } from "sonner"
 import { useViewer, useWorkspace } from "./data"
 import { RowMenu } from "./ProjectLibrary"
 import { ReportDialog, reportShareUrl } from "./ReportDialog"
+import { ReportViewCount } from "./ReportViews"
 import {
   deleteReport,
   useInvalidateReports,
@@ -43,6 +46,28 @@ export function ProjectReports({ projectId }: { projectId: string }) {
   const invalidate = useInvalidateReports(projectId)
   const [open, setOpen] = useState<{ report: Report | null } | null>(null)
   const [removing, setRemoving] = useState<Report | null>(null)
+
+  // `?report=<id>` (a mention notification) opens that report; closing it
+  // clears the param again.
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const linked = searchParams.get("report")
+  useEffect(() => {
+    // After the viewer is known: whether it opens editable is decided once.
+    if (!linked || open || !viewer.id) return
+    const report = findByLinkKey(reports, linked)
+    if (report) setOpen({ report })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [linked, reports, viewer.id])
+  const closeReport = () => {
+    setOpen(null)
+    if (!linked) return
+    const params = new URLSearchParams(searchParams.toString())
+    params.delete("report")
+    const query = params.toString()
+    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false })
+  }
 
   // "Report - @26 Oktober 2026" (English: "@October 26, 2026").
   const today = new Date()
@@ -98,6 +123,7 @@ export function ProjectReports({ projectId }: { projectId: string }) {
                       {t("reportShared")}
                     </Badge>
                   )}
+                  <ReportViewCount projectId={projectId} reportId={r.id} />
                 </div>
                 <div className="hidden min-w-0 items-center gap-2 md:flex">
                   <Avatar className="size-6">
@@ -157,7 +183,7 @@ export function ProjectReports({ projectId }: { projectId: string }) {
 
       <ReportDialog
         open={Boolean(open)}
-        onOpenChange={(o) => !o && setOpen(null)}
+        onOpenChange={(o) => !o && closeReport()}
         report={open?.report ?? null}
         defaultTitle={defaultTitle}
         projectId={projectId}

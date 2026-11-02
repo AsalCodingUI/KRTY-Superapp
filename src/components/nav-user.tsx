@@ -20,9 +20,12 @@ import {
   ArrowLeft as UndoIcon,
   Logout as LogOutIcon,
   MessageCircle as MessageCircleIcon,
+  User as UserIcon,
 } from "@/components/icons"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { useStopImpersonation } from "@/widgets/impersonation/model/useStopImpersonation"
+import { ProfileSheet } from "@/widgets/profile/ui/ProfileSheet"
+import { useState } from "react"
 
 function initialsOf(name: string) {
   return (
@@ -55,6 +58,8 @@ export function NavUser({
 }) {
   const initials = initialsOf(user.name)
   const t = useT("common")
+  const tp = useT("profile")
+  const [profileOpen, setProfileOpen] = useState(false)
   const { isImpersonating } = useUserProfile()
   const { stop: stopImpersonation } = useStopImpersonation()
 
@@ -115,6 +120,10 @@ export function NavUser({
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
+              <DropdownMenuItem onClick={() => setProfileOpen(true)}>
+                <UserIcon />
+                {tp("myProfile")}
+              </DropdownMenuItem>
               {contactHref && (
                 <DropdownMenuItem
                   onClick={() =>
@@ -141,6 +150,7 @@ export function NavUser({
             </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>
+        <ProfileSheet open={profileOpen} onOpenChange={setProfileOpen} />
       </SidebarMenuItem>
     </SidebarMenu>
   )

@@ -65,7 +65,8 @@ const nextConfig = {
                             "img-src 'self' data: blob: https:",
                             // Library previews: videos and PDFs straight from project storage.
                             "media-src 'self' blob: https://supabase.kretyastudio.com https://*.supabase.co",
-                            "frame-src 'self' https://supabase.kretyastudio.com https://*.supabase.co",
+                            // Plus embeds in reports and notes (shared/lib/embeds).
+                            "frame-src 'self' https://supabase.kretyastudio.com https://*.supabase.co https://www.figma.com https://embed.figma.com https://drive.google.com https://docs.google.com https://www.youtube-nocookie.com https://player.vimeo.com https://www.loom.com",
                             "connect-src 'self' blob: https://supabase.kretyastudio.com wss://supabase.kretyastudio.com https://*.supabase.co wss://*.supabase.co https://*.zeabur.app wss://*.zeabur.app https://n8n-private.kretyastudio.com",
                             "frame-ancestors 'self'",
                             "base-uri 'self'",

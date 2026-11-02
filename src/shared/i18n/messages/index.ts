@@ -16,6 +16,8 @@ import { clients } from "./clients"
 import { processes } from "./processes"
 import { invoices } from "./invoices"
 import { api } from "./api"
+import { ai } from "./ai"
+import { profile } from "./profile"
 
 /**
  * Every namespace, one file each (messages/<name>.ts). Add new namespaces
@@ -40,6 +42,8 @@ export const messages = {
   processes,
   invoices,
   api,
+  profile,
+  ai,
 }
 
 export type Namespace = keyof typeof messages

@@ -497,7 +497,7 @@ export function ProjectLibrary({ projectId }: { projectId: string }) {
     // Pictures are compressed first (unless kept original).
     const items = original
       ? assets
-      : await Promise.all(assets.map(compressImage))
+      : await Promise.all(assets.map((asset) => compressImage(asset)))
     // Three uploads at a time, then one insert for all of them.
     const uploads = await mapLimit(items, 3, async (file) => {
       try {

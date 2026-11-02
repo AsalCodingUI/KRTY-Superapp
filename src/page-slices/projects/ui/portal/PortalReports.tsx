@@ -5,7 +5,6 @@ import { findByLinkKey, linkKey } from "@/shared/lib/url-params"
 import { EmptyState } from "@/components/empty-state"
 import { GroupedList, ListRow } from "@/components/grouped-list"
 import { PageHeader } from "@/components/page-header"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
 import { useDateLocale, useT } from "@/shared/i18n/client"
 import { RiFilePaperLine } from "@/shared/ui/lucide-icons"
@@ -19,11 +18,10 @@ export type PortalReport = {
   title: string
   body: string
   report_date: string
-  author: { full_name: string | null; avatar_url: string | null } | null
 }
 
 const ROW_GRID =
-  "grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 md:grid-cols-[minmax(0,1fr)_12rem_7rem]"
+  "grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 md:grid-cols-[minmax(0,1fr)_7rem]"
 
 /** The reports shared with the client, as on the team's Report page. */
 export function PortalReports({ reports }: { reports: PortalReport[] }) {
@@ -63,7 +61,6 @@ export function PortalReports({ reports }: { reports: PortalReport[] }) {
       ) : (
         <GroupedList>
           {reports.map((r) => {
-            const name = r.author?.full_name || t("unknownMember")
             return (
               <ListRow
                 key={r.id}
@@ -74,17 +71,6 @@ export function PortalReports({ reports }: { reports: PortalReport[] }) {
                 onKeyDown={(e) => e.key === "Enter" && setOpen(r)}
               >
                 <span className="text-foreground truncate">{r.title}</span>
-                <div className="hidden min-w-0 items-center gap-2 md:flex">
-                  <Avatar className="size-6">
-                    <AvatarImage src={r.author?.avatar_url || undefined} />
-                    <AvatarFallback className="text-[10px]">
-                      {name.slice(0, 2).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span className="text-muted-foreground truncate text-[13px]">
-                    {name}
-                  </span>
-                </div>
                 <span className="text-tertiary-foreground text-right text-[13px] tabular-nums">
                   {format(parseISO(r.report_date), "d MMM yyyy", {
                     locale: dateLocale,

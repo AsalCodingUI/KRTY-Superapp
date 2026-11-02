@@ -52,6 +52,7 @@ import {
   RiEyeLine,
   RiSearchLine,
 } from "@/shared/ui/lucide-icons"
+import { AvatarEditor } from "@/widgets/profile/ui/AvatarEditor"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useEffect, useMemo, useState } from "react"
 import { toast } from "sonner"
@@ -157,6 +158,7 @@ export function MembersAccessSettings({
   const t = useT("settings")
   const tt = useT("teams")
   const tc = useT("common")
+  const tp = useT("profile")
   const queryClient = useQueryClient()
   const supabase = useMemo(() => createClient(), [])
   const { authProfile } = useUserProfile()
@@ -471,6 +473,21 @@ export function MembersAccessSettings({
               </div>
 
               <section className="flex flex-col">
+                <Row label={tp("memberPhoto")}>
+                  <AvatarEditor
+                    compact
+                    profileId={selected.id}
+                    name={selected.full_name || selected.email || "?"}
+                    avatarUrl={selected.avatar_url}
+                    onChanged={(url) =>
+                      setProfiles((prev) =>
+                        prev.map((p) =>
+                          p.id === selected.id ? { ...p, avatar_url: url } : p,
+                        ),
+                      )
+                    }
+                  />
+                </Row>
                 <Row label={t("colRole")} hint={t("roleHint")}>
                   <Select
                     value={selected.role}

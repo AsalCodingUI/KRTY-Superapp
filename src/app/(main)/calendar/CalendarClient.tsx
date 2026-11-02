@@ -426,9 +426,9 @@ function CalendarDataLayer({ scope, level, userId }: CalendarClientProps) {
   const views: ViewMode[] =
     personal && isMobile ? ["agenda", "month"] : config.views
   const isStakeholder = level === "stakeholder"
-  // Other people's leave: PM and stakeholders only, and only on the project
-  // calendar. Everyone sees their own on the personal one.
-  const teamLeave = !personal && level !== "employee"
+  // Other people's leave: PM and stakeholders, on both calendars (who's out
+  // matters to them whichever one is open). Employees see their own.
+  const teamLeave = level !== "employee"
   const eventTypes = config.eventTypes[level]
 
   const categories: EventCategory[] = useMemo(

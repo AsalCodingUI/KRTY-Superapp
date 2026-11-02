@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { clientSafeMentions } from "./mentions"
 
 /**
  * Serves a storage object through the app instead of redirecting to it:
@@ -55,21 +56,45 @@ export async function proxyStorageObject(
   return new NextResponse(upstream.body, { status: upstream.status, headers })
 }
 
-/** Public buckets whose pictures and attachments reports and notes embed. */
-export const PUBLIC_MEDIA_BUCKETS = ["report-images", "doc-files"]
+/**
+ * Public buckets the client site may show: pictures and attachments that
+ * reports and notes embed, and the team's profile pictures.
+ */
+export const PUBLIC_MEDIA_BUCKETS = ["report-images", "doc-files", "avatars"]
+
+/**
+ * One public storage URL (e.g. a profile picture) made loadable on the
+ * client site: /r/media/<bucket>/<path> instead of the private storage
+ * host. Anything else (an outside URL, null) is returned as it is.
+ */
+export function clientSafeMediaUrl(url: string | null | undefined) {
+  if (!url) return url ?? null
+  const supabase = (process.env.NEXT_PUBLIC_SUPABASE_URL ?? "").replace(
+    /\/$/,
+    "",
+  )
+  if (!supabase) return url
+  for (const bucket of PUBLIC_MEDIA_BUCKETS) {
+    const prefix = `${supabase}/storage/v1/object/public/${bucket}/`
+    if (url.startsWith(prefix))
+      return `/r/media/${bucket}/${url.slice(prefix.length)}`
+  }
+  return url
+}
 
 /**
  * Markdown made readable on the client site: embedded storage links
  * (public report pictures and attachments, and a note's private
  * attachments) point at the app's own routes, since storage itself is
- * private. `portalBase` (`/p/<key>`) serves the private ones.
+ * private. `portalBase` (`/p/<key>`) serves the private ones. @mentions
+ * keep their label only (no ids, no internal links).
  */
 export function clientSafeMarkdown(body: string, portalBase?: string) {
   const supabase = (process.env.NEXT_PUBLIC_SUPABASE_URL ?? "").replace(
     /\/$/,
     "",
   )
-  let out = body
+  let out = clientSafeMentions(body)
   if (supabase) {
     for (const bucket of PUBLIC_MEDIA_BUCKETS) {
       out = out

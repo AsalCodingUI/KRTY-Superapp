@@ -97,7 +97,7 @@ export const BLOCK_ITEMS: BlockItem[] = [
     id: "quote",
     title: "blockQuote",
     hint: "blockQuoteHint",
-    keywords: "quote kutipan catatan callout",
+    keywords: "quote kutipan blockquote",
     icon: Quote,
     run: (e, r) => at(e, r).toggleBlockquote().run(),
   },

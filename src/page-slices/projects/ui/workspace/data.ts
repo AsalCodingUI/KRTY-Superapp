@@ -277,7 +277,7 @@ export async function uploadInternalAsset(
   picked: File,
   original = false,
 ) {
-  const file = original ? picked : await compressImage(picked)
+  const file = original ? picked : await compressImage(picked, { webp: true })
   const { base, ext } = splitFileName(file.name)
   const path = await uploadUnique(
     supabase(),

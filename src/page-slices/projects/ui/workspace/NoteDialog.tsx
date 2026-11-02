@@ -233,6 +233,7 @@ export function NoteDialog({
             key={file?.id ?? "new"}
             value={loaded}
             ariaLabel={t("libNoteBody")}
+            mentionProjectId={projectId}
             className="flex-1"
             onChange={(markdown) => {
               body.current = markdown

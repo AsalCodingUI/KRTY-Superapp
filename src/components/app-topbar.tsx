@@ -42,6 +42,7 @@ export function AppTopbar() {
         user={{
           name: profile?.full_name ?? tc("loading"),
           email: profile?.email || userEmail || "",
+          avatar: profile?.avatar_url || undefined,
         }}
         onSignOut={handleSignOut}
         contactHref={ADMIN_CONTACT_LINK}

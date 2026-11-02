@@ -5,6 +5,7 @@ import { surfaceClassName } from "@/components/panel"
 import {
   OPEN_STATUSES,
   STATUS_LABEL_KEYS,
+  type ProjectStatus,
 } from "@/page-slices/projects/lib/status"
 import { PageHeader } from "@/components/page-header"
 import {
@@ -13,6 +14,10 @@ import {
   UpcomingTasks,
 } from "./DashboardHome"
 import { DesignLinks } from "./DesignLinks"
+import { setProjectStatus } from "@/app/(main)/projects/actions/project-actions"
+import { accessLevel, canRunProjects } from "@/shared/config/access"
+import { useUserProfile } from "@/shared/hooks/useUserProfile"
+import { ProjectStatusButton } from "../ProjectMenu"
 import { ProjectProperties } from "./ProjectProperties"
 import type { Report } from "./reports-data"
 import { ProjectAvatar } from "@/components/project-avatar"
@@ -111,6 +116,10 @@ export function ProjectDashboard({ projectId }: { projectId: string }) {
   const { data: tasks = [] } = useTasks(projectId)
   const viewer = useViewer()
   const invalidate = useInvalidate(projectId)
+  const queryClient = useQueryClient()
+  // "Pindahkan ke" in the header: PMs and stakeholders.
+  const { profile } = useUserProfile()
+  const canMove = canRunProjects(accessLevel(profile))
   const [selected, setSelected] = useState<string | null>(null)
   // Adding or renaming a phase (one small dialog), and deleting one.
   const [phaseDialog, setPhaseDialog] = useState<PhaseRow | "new" | null>(null)
@@ -145,6 +154,14 @@ export function ProjectDashboard({ projectId }: { projectId: string }) {
   }
   const { project, team, client } = data
   const current = phases.find((p) => p.id === selected) ?? phases[0]
+
+  const moveProject = async (status: ProjectStatus) => {
+    const result = await setProjectStatus(projectId, status)
+    if (!result.success) return void toast.error(result.error)
+    toast.success(`${project.name} → ${t(STATUS_LABEL_KEYS[status])}`)
+    invalidate("workspace")
+    void queryClient.invalidateQueries({ queryKey: ["projects"] })
+  }
   const openTasks = tasks.filter((task) => !task.done && !task.parent_id).length
 
   /** Make `phase` the active one: earlier phases done, later ones to do. */
@@ -240,10 +257,18 @@ export function ProjectDashboard({ projectId }: { projectId: string }) {
           </span>
         }
         actions={
-          <Button onClick={() => setReportOpen({ report: null })}>
-            <RiAddLine data-icon="inline-start" />
-            {t("reportNew")}
-          </Button>
+          <div className="flex items-center gap-2">
+            {canMove && project.status && (
+              <ProjectStatusButton
+                status={project.status}
+                onMove={(status) => void moveProject(status)}
+              />
+            )}
+            <Button onClick={() => setReportOpen({ report: null })}>
+              <RiAddLine data-icon="inline-start" />
+              {t("reportNew")}
+            </Button>
+          </div>
         }
       />
       <ProjectProperties

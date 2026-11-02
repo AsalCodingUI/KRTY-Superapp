@@ -1,3 +1,4 @@
+import { compressImage } from "@/shared/lib/compress-image"
 import { useT } from "@/shared/i18n/client"
 import { Database } from "@/shared/types/database.types"
 import { useEffect, useState } from "react"
@@ -68,16 +69,10 @@ export function useLeaveRequestForm({
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0]
-      const options = {
-        maxSizeMB: 1,
-        maxWidthOrHeight: 1920,
-        useWebWorker: true,
-      }
       try {
         setCompressing(true)
-        const { default: imageCompression } =
-          await import("browser-image-compression")
-        const compressedFile = await imageCompression(file, options)
+        // Photos of a letter or a note: WebP, like pictures in reports.
+        const compressedFile = await compressImage(file, { webp: true })
         setFormData((prev) => ({ ...prev, proof_file: compressedFile }))
       } catch (error) {
         console.error("Compression failed:", error)

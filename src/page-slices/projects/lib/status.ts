@@ -10,6 +10,12 @@ export const BOARD_STATUSES = [
   "Completed",
 ] as const
 
+/** Every status in workflow order ("Pindahkan ke", list groups, filters). */
+export const ALL_STATUSES = [
+  ...BOARD_STATUSES,
+  "Archived",
+] as const satisfies readonly ProjectStatus[]
+
 /** Not finished yet (counts as a running project). */
 export const OPEN_STATUSES: ProjectStatus[] = ["Planned", "Active", "Review"]
 

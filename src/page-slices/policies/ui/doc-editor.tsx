@@ -18,11 +18,16 @@ import {
 import type { EditorView } from "@tiptap/pm/view"
 import { BubbleMenu } from "@tiptap/react/menus"
 import StarterKit from "@tiptap/starter-kit"
-import { ImageIcon, Paperclip } from "lucide-react"
+import { ImageIcon, Maximize2, Paperclip } from "lucide-react"
 import { useRef, useState } from "react"
 import { toast } from "sonner"
+import { AiPreview } from "./ai-assist"
 import { BlockHandle } from "./block-handle"
+import { DOC_BLOCK_NODES, docBlockSlashItems, useDocBlocks } from "./doc-blocks"
+import { EditorLightbox, selectedImage } from "./image-lightbox"
+import { useLightbox } from "@/components/image-lightbox"
 import { DocToolbar } from "./DocToolbar"
+import { EMBED_SLASH_ITEM, Embed, EmbedMenu } from "./embed"
 import { SelectionMenu } from "./SelectionMenu"
 import {
   BLOCK_ITEMS,
@@ -32,6 +37,13 @@ import {
   type BlockItem,
   type SlashBridge,
 } from "./slash-command"
+import {
+  Mention,
+  MentionMenu,
+  MentionSuggestion,
+  createMentionBridge,
+  type MentionBridge,
+} from "./mention"
 
 /**
  * Reading styles inside the editor; they mirror components/markdown so what
@@ -73,10 +85,17 @@ export function docExtensions(
   placeholder: (heading: number | null) => string,
   slashItems: BlockItem[] = BLOCK_ITEMS,
   images = false,
+  /** "@" mentions (see ./mention); the pills read back without it. */
+  mention?: MentionBridge,
 ) {
   return [
     ...(images
-      ? [SizedImage.configure({ inline: false, allowBase64: false })]
+      ? [
+          SizedImage.configure({ inline: false, allowBase64: false }),
+          Embed,
+          // Callout, toggle, gallery (./doc-blocks).
+          ...DOC_BLOCK_NODES,
+        ]
       : []),
     StarterKit.configure({
       // Markdown has no underline; keep the source clean.
@@ -100,6 +119,8 @@ export function docExtensions(
         placeholder(node.type.name === "heading" ? node.attrs.level : null),
     }),
     SlashCommand(slash, slashItems),
+    Mention,
+    ...(mention ? [MentionSuggestion(mention)] : []),
     MarkdownExtension,
   ]
 }
@@ -144,6 +165,7 @@ const SizedImage = Image.extend({
 /** Small / medium / wide for the selected picture. */
 export function ImageMenu({ editor }: { editor: Editor }) {
   const t = useT("policies")
+  const lightbox = useLightbox()
   const current = useEditorState({
     editor,
     selector: ({ editor: e }) =>
@@ -191,6 +213,23 @@ export function ImageMenu({ editor }: { editor: Editor }) {
           )}
         </button>
       ))}
+      {lightbox && (
+        <>
+          <span className="bg-border mx-1 h-4 w-px" aria-hidden />
+          <button
+            type="button"
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => {
+              const img = selectedImage(editor)
+              if (img) lightbox.open(img)
+            }}
+            className="text-muted-foreground hover:text-foreground flex items-center gap-1.5 rounded-full px-3 py-1 text-sm transition-colors"
+          >
+            <Maximize2 className="size-3.5" />
+            {t("galleryExpand")}
+          </button>
+        </>
+      )}
     </BubbleMenu>
   )
 }
@@ -219,7 +258,9 @@ export function useDocUploads({
   const fileInput = useRef<HTMLInputElement>(null)
   // The next pick from "/" keeps its original resolution.
   const pickOriginal = useRef(false)
-  const editorRef = useRef<Editor | null>(null)
+  // Callout, toggle, gallery; the gallery uploads like pictures do.
+  const blocks = useDocBlocks(() => uploadRef.current)
+  const editorRef = blocks.editorRef
 
   /**
    * Where the next upload goes: a drop point (kept inside the document, as
@@ -330,6 +371,9 @@ export function useDocUploads({
           icon: ImageIcon,
           run: pickImage(true),
         },
+        // Rich documents (with pictures) also take embeds.
+        EMBED_SLASH_ITEM,
+        ...docBlockSlashItems(blocks.pick),
       )
     if (onUploadFile)
       items.push({
@@ -397,6 +441,7 @@ export function useDocUploads({
           }}
         />
       )}
+      {onUploadImage && blocks.input}
     </>
   )
 
@@ -420,6 +465,7 @@ export function MarkdownDocEditor({
   placeholder,
   onBlur,
   readOnly = false,
+  mentionProjectId,
 }: {
   value: string
   onChange: (markdown: string) => void
@@ -436,6 +482,8 @@ export function MarkdownDocEditor({
   /** Shown only: the same typeset document, without the toolbar, handles
    *  or menus (a client reading a report). */
   readOnly?: boolean
+  /** "@" lists this project's team and tasks (else everyone, no tasks). */
+  mentionProjectId?: string | null
   /** Turns images on: uploads one (compressed unless `original`) and
    *  returns its public URL. Pictures go in from "/", paste or drop. */
   onUploadImage?: (file: File, original: boolean) => Promise<string>
@@ -454,6 +502,7 @@ export function MarkdownDocEditor({
   placeholderRef.current = placeholder
   const uploads = useDocUploads({ onUploadImage, onUploadFile })
   const [slash] = useState(createSlashBridge)
+  const [mention] = useState(createMentionBridge)
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -466,6 +515,7 @@ export function MarkdownDocEditor({
           : (placeholderRef.current ?? tRef.current("bodyPlaceholder")),
       uploads.slashItems,
       Boolean(onUploadImage) || readOnly,
+      readOnly ? undefined : mention,
     ),
     content: value,
     contentType: "markdown",
@@ -490,7 +540,9 @@ export function MarkdownDocEditor({
     <>
       {editor && <SelectionMenu editor={editor} />}
       {editor && onUploadImage && <ImageMenu editor={editor} />}
+      {editor && onUploadImage && <EmbedMenu editor={editor} />}
       <SlashMenu bridge={slash} />
+      <MentionMenu bridge={mention} projectId={mentionProjectId} />
       {uploads.inputs}
     </>
   )
@@ -499,7 +551,10 @@ export function MarkdownDocEditor({
     return (
       <div className={cn("min-h-0 overflow-y-auto", className)}>
         <div className="mx-auto w-full max-w-3xl px-6 pt-8 pb-24 sm:px-16">
-          <EditorContent editor={editor} />
+          {/* A click on a picture opens it large. */}
+          <EditorLightbox editor={editor}>
+            <EditorContent editor={editor} />
+          </EditorLightbox>
         </div>
       </div>
     )
@@ -510,25 +565,34 @@ export function MarkdownDocEditor({
       // The hover area reaches into the gutter on the left, where the drag
       // handle sits, so moving the pointer to it doesn't lose it.
       <div className={cn("relative md:-ml-9 md:pl-9", className)}>
-        <EditorContent editor={editor} />
-        {editor && <BlockHandle editor={editor} compact />}
-        {menus}
+        <EditorLightbox editor={editor}>
+          {editor && <AiPreview editor={editor} slot="top" />}
+          <EditorContent editor={editor} />
+          {editor && <BlockHandle editor={editor} compact />}
+          {editor && <AiPreview editor={editor} slot="end" />}
+          {menus}
+        </EditorLightbox>
       </div>
     )
   }
 
   return (
-    <div className={cn("flex min-h-0 flex-col", className)}>
-      <div className="border-border flex h-12 shrink-0 items-center overflow-x-auto border-b px-3">
-        {editor && <DocToolbar editor={editor} />}
-      </div>
-      <div className="min-h-0 flex-1 overflow-y-auto">
-        <div className="relative mx-auto w-full max-w-3xl px-6 pt-8 pb-24 sm:px-16">
-          <EditorContent editor={editor} />
-          {editor && <BlockHandle editor={editor} />}
+    // Pictures open large (EditorLightbox), stepping through all of them.
+    <EditorLightbox editor={editor}>
+      <div className={cn("flex min-h-0 flex-col", className)}>
+        <div className="border-border flex h-12 shrink-0 items-center overflow-x-auto border-b px-3">
+          {editor && <DocToolbar editor={editor} />}
         </div>
+        <div className="min-h-0 flex-1 overflow-y-auto">
+          <div className="relative mx-auto w-full max-w-3xl px-6 pt-8 pb-24 sm:px-16">
+            {editor && <AiPreview editor={editor} slot="top" />}
+            <EditorContent editor={editor} />
+            {editor && <BlockHandle editor={editor} />}
+            {editor && <AiPreview editor={editor} slot="end" />}
+          </div>
+        </div>
+        {menus}
       </div>
-      {menus}
-    </div>
+    </EditorLightbox>
   )
 }
