@@ -104,7 +104,9 @@ const withImages: Components = {
   ...components,
   // Centred, at the width picked in the editor ("…#size=small|wide").
   img: ({ node: _, src, alt }) => {
-    if (typeof src !== "string" || !/^https:\/\//.test(src)) return null
+    // https, or the app's own paths (client pages serve storage via /r/media).
+    if (typeof src !== "string" || !/^(https:\/\/|\/(?!\/))/.test(src))
+      return null
     const size = /#size=(small|wide)$/.exec(src)?.[1]
     return (
       // eslint-disable-next-line @next/next/no-img-element
@@ -128,7 +130,7 @@ export function Markdown({
 }: {
   children: string
   className?: string
-  /** Show images (https only). */
+  /** Show images (https, or paths on this site). */
   images?: boolean
 }) {
   return (
