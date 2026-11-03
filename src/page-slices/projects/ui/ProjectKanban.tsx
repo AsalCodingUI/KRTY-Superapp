@@ -31,6 +31,7 @@ import {
   ProjectMenuButton,
   type ProjectActions,
 } from "./ProjectMenu"
+import { BriefShortcut } from "@/page-slices/briefs/ui/BriefShortcut"
 import { ProjectStageLabel } from "./ProjectStage"
 import { ProjectStatusIcon } from "./ProjectStatusIcon"
 import { useStatusMove, type MoveProject } from "./useStatusMove"
@@ -95,12 +96,15 @@ function ProjectCard({
         )}
       </div>
       <p className="text-foreground truncate">{project.name}</p>
-      {asStage(project.stage) && (
-        <ProjectStageLabel
-          stage={asStage(project.stage)!}
-          className="text-xs"
-        />
-      )}
+      <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 empty:hidden">
+        {asStage(project.stage) && (
+          <ProjectStageLabel
+            stage={asStage(project.stage)!}
+            className="text-xs"
+          />
+        )}
+        <BriefShortcut projectId={project.id} className="-ml-2" />
+      </div>
       {(project.client_name || team.length > 0) && (
         <div className="flex items-center gap-1.5 pt-0.5">
           {team.slice(0, 4).map((a) => (

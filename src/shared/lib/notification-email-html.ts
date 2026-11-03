@@ -71,6 +71,8 @@ export function emailSubject(n: EmailNotification, actor: EmailActor) {
       return `${n.title}: ${first ?? "tugas"}`
     case "task_status":
     case "attendance_reminder":
+    case "brief_submitted":
+    case "brief_offer":
       return n.title
     case "invoice_due":
     case "invoice_paid":

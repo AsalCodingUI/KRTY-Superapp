@@ -15,7 +15,7 @@ export function NotFoundView({ fullScreen = false }: { fullScreen?: boolean }) {
   const tc = useT("common")
   return (
     <StatusPage
-      className={fullScreen ? "min-h-svh" : undefined}
+      screen={fullScreen}
       code="404"
       title={t("notFoundTitle")}
       description={t("notFoundDescription")}

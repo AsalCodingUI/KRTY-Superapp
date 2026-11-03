@@ -263,7 +263,7 @@ export function FileViewer({
               ) : item && /\.(md|markdown)$/i.test(item.name) ? (
                 // A note reads as the typeset document (the editor, shown
                 // only), on a page like the PDFs.
-                <div className="size-full overflow-y-auto px-6 py-6">
+                <div className="scroll-pane pane-px-6 size-full py-6">
                   <div className="bg-background mx-auto min-h-full w-[min(852px,calc(100vw-6rem))] rounded-[4px] shadow-(--elev-3)">
                     <MarkdownDocEditor
                       key={url}

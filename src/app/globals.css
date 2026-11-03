@@ -90,6 +90,42 @@
   }
 }
 
+/* Scrolling panes. A scrollbar takes room on one side only (--sbw: 12px
+   with the app's styled scrollbars on a desktop, 0 where they overlay; set
+   on <html> by SCROLLBAR_WIDTH_SCRIPT), which makes the right spacing wider
+   than the left. `scroll-pane` keeps that room on both sides instead, and
+   it comes out of the padding, so content sits where it would without a
+   scrollbar and the two sides match:
+   - a pane with its own side padding: `scroll-pane pane-px-5` (not px-5);
+   - a pane inside a padded box (-mx-1 px-1 for focus rings):
+     `scroll-pane scroll-pane-bleed-1`, its room taken from the box's
+     padding (which needs to be at least --sbw wider).
+   A header / footer that must line up with a bare `scroll-pane` (no
+   padding swap) takes `scroll-gutter-match`. */
+@utility scroll-pane {
+  overflow-y: auto;
+  scrollbar-gutter: stable both-edges;
+}
+@utility pane-px-* {
+  padding-inline: max(
+    0px,
+    calc(var(--spacing) * --value(integer, number) - var(--sbw, 0px))
+  );
+}
+@utility scroll-pane-bleed {
+  margin-inline: calc(var(--sbw, 0px) * -1);
+}
+@utility scroll-pane-bleed-* {
+  margin-inline: calc(
+    var(--spacing) * --value(integer, number) * -1 - var(--sbw, 0px)
+  );
+  padding-inline: calc(var(--spacing) * --value(integer, number));
+}
+@utility scroll-gutter-match {
+  overflow-y: hidden;
+  scrollbar-gutter: stable both-edges;
+}
+
 @utility gutter-x {
   padding-inline: var(--page-gutter, 1rem);
 }
@@ -250,6 +286,12 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
+  }
+  /* Text-link underlines are dotted and sit a little lower, everywhere.
+     Underlines people format themselves (<u>, editors) stay solid. */
+  :where(*:not(u, ins, [contenteditable], [contenteditable] *, .ProseMirror *)) {
+    text-decoration-style: dotted;
+    text-underline-offset: 0.25em;
   }
   /* Reduced motion: fewer and gentler, not zero. Keep fades, drop movement. */
   @media (prefers-reduced-motion: reduce) {

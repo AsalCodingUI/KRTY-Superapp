@@ -37,7 +37,7 @@ export function LanguageSwitcher({ className }: { className?: string }) {
             title={value === "id" ? "Bahasa Indonesia" : "English"}
             onClick={() => !active && setLocale(value)}
             className={cn(
-              "focus-visible:ring-focus-ring relative grid size-7 cursor-pointer place-items-center rounded-full text-[11px] font-semibold tracking-wide uppercase transition-colors duration-150 ease-out outline-none focus-visible:ring-2",
+              "focus-visible:ring-focus-ring relative grid size-7 cursor-pointer place-items-center rounded-full text-[11px] font-medium tracking-wide uppercase transition-colors duration-150 ease-out outline-none focus-visible:ring-2",
               active
                 ? "text-foreground"
                 : "text-muted-foreground hover:text-foreground",

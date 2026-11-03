@@ -49,7 +49,7 @@ export function LeaveBalance({
       <dt className="text-muted-foreground dark:text-muted-foreground text-sm font-medium">
         {t("balanceTitle")}
       </dt>
-      <dd className="text-foreground dark:text-foreground mt-2 text-2xl font-semibold">
+      <dd className="text-foreground dark:text-foreground mt-2 text-2xl font-medium">
         {t(daysKey(stats.balance), { n: stats.balance })}
       </dd>
 

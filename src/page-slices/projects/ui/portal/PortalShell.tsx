@@ -116,7 +116,12 @@ export function PortalShell({
     <SidebarProvider className="bg-chrome h-svh min-h-0 flex-col overflow-hidden">
       {/* Who and what: the studio / the project and its status on the
           left; the team's faces and "Sign out" on the right. */}
-      <header className="on-chrome text-foreground relative z-40 flex h-(--app-topbar-height) shrink-0 items-center gap-4 px-4">
+      <header
+        // Dark in light mode too when Settings → Tampilan says so, like the
+        // app's own top bar (globals.css).
+        data-chrome-dark=""
+        className="on-chrome text-foreground relative z-40 flex h-(--app-topbar-height) shrink-0 items-center gap-4 px-4"
+      >
         <div className="flex min-w-0 flex-1 items-center gap-2.5 whitespace-nowrap">
           {/* On a phone only the project (Shopify style): bigger, alone. */}
           <AppIcon
@@ -169,7 +174,11 @@ export function PortalShell({
       </header>
 
       <div className="flex min-h-0 w-full flex-1 md:pr-3 md:pb-3">
-        <Sidebar collapsible="icon" className="on-chrome overflow-hidden">
+        <Sidebar
+          collapsible="icon"
+          className="on-chrome overflow-hidden"
+          data-chrome-dark=""
+        >
           <SidebarRail />
           <SidebarContent>
             <SidebarGroup className="pt-0.5">
@@ -211,7 +220,7 @@ export function PortalShell({
           />
           <SidebarInset
             data-translate-root
-            className="dark:bg-surface overflow-y-auto overscroll-contain [--bleed:0.75rem] [--page-gutter:1.25rem] [scrollbar-gutter:stable] max-md:rounded-t-[28px] max-md:shadow-(--elev-2) md:z-20 md:rounded-3xl md:[--page-gutter:2.5rem] xl:[--page-gutter:4rem]"
+            className="dark:bg-surface scroll-pane overscroll-contain [--bleed:0.75rem] [--page-gutter:max(var(--bleed),calc(1.25rem-var(--sbw,0px)))] max-md:rounded-t-[28px] max-md:shadow-(--elev-2) md:z-20 md:rounded-3xl md:[--page-gutter:calc(2.5rem-var(--sbw,0px))] xl:[--page-gutter:calc(4rem-var(--sbw,0px))]"
           >
             {/* No sidebar on a phone: the tab bar below does its job. */}
             <header className="flex h-12 shrink-0 items-center gap-2 max-md:hidden">

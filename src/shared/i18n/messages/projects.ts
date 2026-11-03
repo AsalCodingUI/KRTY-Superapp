@@ -186,6 +186,20 @@ const id = {
   stageFailed: "Gagal mengubah tahap.",
   setStage: "Ubah tahap",
 
+  // Same name / continuing an earlier project
+  twinTitle: "“{name}” udah ada. Ini kerjaan yang sama?",
+  twinOpen: "Buka",
+  twinNotOnTeam: "Kamu belum di timnya, minta stakeholder nambahin",
+  twinContinue: "Jadikan lanjutan",
+  previousLabel: "Lanjutan dari",
+  previousPick: "Lanjutan dari project sebelumnya",
+  previousSearch: "Cari project…",
+  previousNone: "Nggak ada project yang cocok",
+  previousRemove: "Lepas dari project sebelumnya",
+  previousCopied: "Klien, tim & kategori ikut",
+  previousOf: "Lanjutan dari {name}",
+  nextOf: "Dilanjutkan di {name}",
+
   // Manual order
   sortManual: "Urutan manual",
   reorderFailed: "Gagal menyimpan urutan.",
@@ -193,8 +207,6 @@ const id = {
   // Workspace switch (Project | Dokumen)
   scopeProjects: "Project",
   scopeDocs: "Dokumen",
-  docsSoonTitle: "Dokumen segera hadir",
-  docsSoonDescription: "Tempat semua dokumen tim, di luar project. Lagi disiapin.",
 
   // Delete project
   deleteTitle: "Hapus {name}?",
@@ -711,12 +723,22 @@ const en: Record<keyof typeof id, string> = {
   stageChanged: "{name} → {stage}",
   stageFailed: "Couldn't change the stage.",
   setStage: "Set stage",
+  twinTitle: "“{name}” already exists. Is this the same work?",
+  twinOpen: "Open",
+  twinNotOnTeam: "You're not on its team; ask a stakeholder to add you",
+  twinContinue: "Continue it",
+  previousLabel: "Continues",
+  previousPick: "Continues an earlier project",
+  previousSearch: "Search projects…",
+  previousNone: "No matching projects",
+  previousRemove: "Unlink the earlier project",
+  previousCopied: "Client, team & category copied",
+  previousOf: "Continues {name}",
+  nextOf: "Continued in {name}",
   sortManual: "Manual order",
   reorderFailed: "Couldn't save the order.",
   scopeProjects: "Projects",
   scopeDocs: "Docs",
-  docsSoonTitle: "Docs are coming",
-  docsSoonDescription: "One place for the team's documents, outside projects. Coming soon.",
 
   deleteTitle: "Delete {name}?",
   deleteDescription:

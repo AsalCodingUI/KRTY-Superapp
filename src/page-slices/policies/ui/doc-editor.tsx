@@ -53,10 +53,10 @@ import {
  */
 export const DOC_PROSE = cn(
   "text-foreground/90 min-h-[40svh] text-[15px] leading-7 outline-none",
-  "[&_h1]:text-heading [&_h1]:mt-8 [&_h1]:mb-3 [&_h1]:text-xl [&_h1]:font-semibold [&_h1]:tracking-tight",
-  "[&_h2]:text-heading [&_h2]:mt-7 [&_h2]:mb-2 [&_h2]:text-base [&_h2]:font-semibold",
-  "[&_h3]:text-heading [&_h3]:mt-6 [&_h3]:mb-2 [&_h3]:text-sm [&_h3]:font-semibold",
-  "[&_p]:my-3.5 [&_strong]:text-foreground [&_strong]:font-semibold",
+  "[&_h1]:text-heading [&_h1]:mt-8 [&_h1]:mb-3 [&_h1]:text-xl [&_h1]:font-medium [&_h1]:tracking-tight",
+  "[&_h2]:text-heading [&_h2]:mt-7 [&_h2]:mb-2 [&_h2]:text-base [&_h2]:font-medium",
+  "[&_h3]:text-heading [&_h3]:mt-6 [&_h3]:mb-2 [&_h3]:text-sm [&_h3]:font-medium",
+  "[&_p]:my-3.5 [&_strong]:text-foreground [&_strong]:font-medium",
   "[&_ul]:my-3 [&_ul]:list-disc [&_ul]:space-y-1.5 [&_ul]:pl-5 [&_ol]:my-3 [&_ol]:list-decimal [&_ol]:space-y-1.5 [&_ol]:pl-5 [&_li]:pl-1 [&_li_p]:my-0 [&_li::marker]:text-muted-foreground",
   "[&_a]:text-primary [&_a]:underline [&_a]:underline-offset-3",
   "[&_blockquote]:border-border [&_blockquote]:my-4 [&_blockquote]:rounded-lg [&_blockquote]:border [&_blockquote]:border-l-[3px] [&_blockquote]:px-4 [&_blockquote]:py-1",
@@ -606,7 +606,7 @@ export function MarkdownDocEditor({
 
   if (readOnly) {
     return (
-      <div className={cn("min-h-0 overflow-y-auto", className)}>
+      <div className={cn("scroll-pane min-h-0", className)}>
         <div className="mx-auto w-full max-w-3xl px-6 pt-8 pb-24 sm:px-16">
           {/* A click on a picture opens it large. */}
           <EditorLightbox editor={editor}>
@@ -648,7 +648,7 @@ export function MarkdownDocEditor({
         <div className="border-border flex h-12 shrink-0 items-center overflow-x-auto border-b px-3">
           {editor && <DocToolbar editor={editor} />}
         </div>
-        <div className="min-h-0 flex-1 overflow-y-auto">
+        <div className="scroll-pane min-h-0 flex-1">
           <div className="relative mx-auto w-full max-w-3xl px-6 pt-8 pb-24 sm:px-16">
             {editor && <AiPreview editor={editor} slot="top" />}
             <EditorContent editor={editor} />

@@ -417,7 +417,7 @@ export function SheetThumbnail({
             key={i}
             className={cn(
               "border-b border-neutral-200",
-              i === 0 && "font-semibold",
+              i === 0 && "font-medium",
             )}
           >
             {row.slice(0, 5).map((cell, j) => (

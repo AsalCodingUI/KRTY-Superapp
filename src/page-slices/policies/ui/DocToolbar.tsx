@@ -141,9 +141,9 @@ export function DocToolbar({ editor }: { editor: Editor }) {
                   : chain().setHeading({ level: b.level }).run()
               }
               className={cn(
-                b.level === 1 && "text-base font-semibold",
-                b.level === 2 && "font-semibold",
-                b.level === 3 && "text-[13px] font-semibold",
+                b.level === 1 && "text-base font-medium",
+                b.level === 2 && "font-medium",
+                b.level === 3 && "text-[13px] font-medium",
               )}
             >
               {t(b.label)}

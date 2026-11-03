@@ -283,8 +283,7 @@ export default function NotificationsPanel({
             id: "unread",
             label: t("notificationsMarkUnread"),
             icon: Mail,
-            onSelect: () =>
-              setRead([n.id], false, tu("notificationUnread")),
+            onSelect: () => setRead([n.id], false, tu("notificationUnread")),
           }
         : {
             id: "read",
@@ -370,7 +369,7 @@ export default function NotificationsPanel({
         />
       </div>
 
-      <div ref={setListEl} className="min-h-0 flex-1 overflow-y-auto px-2 pb-2">
+      <div ref={setListEl} className="scroll-pane min-h-0 flex-1 px-2 pb-2">
         {loading && notifications.length === 0 ? (
           <div className="flex h-full items-center justify-center p-4">
             <Spinner className="size-5" />

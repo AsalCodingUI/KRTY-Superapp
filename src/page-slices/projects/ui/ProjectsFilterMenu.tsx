@@ -289,7 +289,7 @@ export function ProjectsFilterMenu({
         <ListFilter data-icon="inline-start" />
         <span className="hidden sm:inline">{t("filter")}</span>
         {active > 0 && (
-          <span className="bg-primary text-primary-foreground grid size-4 place-items-center rounded-full text-[10px] font-semibold tabular-nums max-sm:absolute max-sm:-top-1 max-sm:-right-1">
+          <span className="bg-primary text-primary-foreground grid size-4 place-items-center rounded-full text-[10px] font-medium tabular-nums max-sm:absolute max-sm:-top-1 max-sm:-right-1">
             {active}
           </span>
         )}

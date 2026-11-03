@@ -204,7 +204,7 @@ function ContractForm({
         <form
           id="contract-form"
           onSubmit={submit}
-          className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-5 pt-1 pb-5"
+          className="scroll-pane pane-px-5 flex min-h-0 flex-1 flex-col gap-4 pt-1 pb-5"
         >
           <div className="flex flex-col gap-2">
             <Label>{t("fieldEmployee")}</Label>

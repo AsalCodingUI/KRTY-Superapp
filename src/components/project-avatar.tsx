@@ -62,7 +62,7 @@ export function ProjectAvatar({
     <span
       aria-hidden
       className={cn(
-        "flex size-5 shrink-0 items-center justify-center rounded-[5px] text-[10px] font-semibold",
+        "flex size-5 shrink-0 items-center justify-center rounded-[5px] text-[10px] font-medium",
         projectColor(id),
         className,
       )}

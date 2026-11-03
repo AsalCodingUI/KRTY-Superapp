@@ -52,7 +52,7 @@ export function LeaveCard({
               {userFullName}
             </p>
           )}
-          <h3 className="text-foreground text-base font-semibold">
+          <h3 className="text-foreground text-base font-medium">
             {leaveTypeLabel(leave.leave_type, t)}
           </h3>
           <p className="text-muted-foreground mt-1 text-sm font-medium">

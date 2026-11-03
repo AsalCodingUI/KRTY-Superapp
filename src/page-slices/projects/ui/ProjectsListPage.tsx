@@ -32,12 +32,15 @@ import type { ColumnDef } from "@tanstack/react-table"
 import { useDateLocale, useT } from "@/shared/i18n/client"
 import { format } from "date-fns"
 import dynamic from "next/dynamic"
-import { FileText } from "lucide-react"
 import Link from "next/link"
 import { useMemo, useState } from "react"
 import { toast } from "sonner"
 import { registerUndo } from "@/shared/undo"
 import { useSetProjectStage } from "./ProjectStage"
+import { BriefShortcut } from "@/page-slices/briefs/ui/BriefShortcut"
+import { BriefsView } from "@/page-slices/briefs/ui/BriefsView"
+import { replaceUrl } from "@/shared/lib/url-params"
+import { usePathname, useSearchParams } from "next/navigation"
 import {
   ProjectList,
   type ProjectActions,
@@ -77,6 +80,7 @@ export function ProjectsListPage() {
   const t = useT("projects")
   const tu = useT("undo")
   const tc = useT("common")
+  const tb = useT("briefs")
   const supabase = useMemo(() => createClient(), [])
   const queryClient = useQueryClient()
   const { profile } = useUserProfile()
@@ -90,8 +94,20 @@ export function ProjectsListPage() {
   if (formOpen && !formMounted) setFormMounted(true)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [deleting, setDeleting] = useState<ProjectListRow | null>(null)
-  // Project | Dokumen (the docs side comes next).
-  const [scope, setScope] = useState<"projects" | "docs">("projects")
+  // Project | Dokumen (briefs), in the URL (?scope=docs) so a notice can
+  // open a brief there.
+  const searchParams = useSearchParams()
+  const pathname = usePathname()
+  const scope = searchParams.get("scope") === "docs" ? "docs" : "projects"
+  const setScope = (next: "projects" | "docs") => {
+    const params = new URLSearchParams(searchParams.toString())
+    if (next === "docs") params.set("scope", "docs")
+    else params.delete("scope")
+    params.delete("brief")
+    replaceUrl(params.size ? `${pathname}?${params}` : pathname)
+  }
+  const [briefOpen, setBriefOpen] = useState(false)
+  const [briefQuery, setBriefQuery] = useState("")
   const setStage = useSetProjectStage()
 
   // Stakeholders see every project; everyone else the ones they're on
@@ -233,7 +249,30 @@ export function ProjectsListPage() {
           />
         }
         actions={
-          scope === "projects" && (
+          scope === "docs" ? (
+            <div className="flex items-center gap-2">
+              <div className="relative w-32 min-w-0 sm:w-64">
+                <RiSearchLine className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
+                <Input
+                  type="search"
+                  placeholder={tb("searchPlaceholder")}
+                  aria-label={tb("searchPlaceholder")}
+                  value={briefQuery}
+                  onChange={(e) => setBriefQuery(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
+              {canRun && (
+                <Button
+                  aria-label={tb("newBrief")}
+                  onClick={() => setBriefOpen(true)}
+                >
+                  <RiAddLine data-icon="inline-start" />
+                  <span className="hidden sm:inline">{tb("newBrief")}</span>
+                </Button>
+              )}
+            </div>
+          ) : (
             <div className="flex items-center gap-2">
               <div className="relative w-32 min-w-0 sm:w-64">
                 <RiSearchLine className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
@@ -276,10 +315,11 @@ export function ProjectsListPage() {
 
       <div className="pb-4">
         {scope === "docs" ? (
-          <EmptyState
-            title={t("docsSoonTitle")}
-            description={t("docsSoonDescription")}
-            icon={<FileText />}
+          <BriefsView
+            canManage={canRun}
+            createOpen={briefOpen}
+            onCreateOpenChange={setBriefOpen}
+            query={briefQuery}
           />
         ) : isLoading ? (
           <div className="flex justify-center py-16">
@@ -391,14 +431,17 @@ function ProjectTable({
           <DataTableColumnHeader column={column} title={t("colProject")} />
         ),
         cell: ({ row }) => (
-          <Link
-            href={projectHref(row.original)}
-            prefetch={false}
-            className="flex items-center gap-2 hover:underline"
-          >
-            <ProjectAvatar id={row.original.id} name={row.original.name} />
-            {row.original.name}
-          </Link>
+          <span className="flex items-center gap-2">
+            <Link
+              href={projectHref(row.original)}
+              prefetch={false}
+              className="flex min-w-0 items-center gap-2 hover:underline"
+            >
+              <ProjectAvatar id={row.original.id} name={row.original.name} />
+              <span className="truncate">{row.original.name}</span>
+            </Link>
+            <BriefShortcut projectId={row.original.id} />
+          </span>
         ),
       },
       {

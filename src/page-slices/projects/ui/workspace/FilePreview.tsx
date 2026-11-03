@@ -237,7 +237,7 @@ export function FilePreview({
                     key={i}
                     className={cn(
                       "border-b border-neutral-200",
-                      i === 0 && "font-semibold",
+                      i === 0 && "font-medium",
                     )}
                   >
                     {line

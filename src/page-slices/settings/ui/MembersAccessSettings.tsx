@@ -641,7 +641,7 @@ export function MembersAccessSettings({
             <SheetTitle>{t("memberDetail")}</SheetTitle>
           </SheetHeader>
           {selected && (
-            <div className="flex min-h-0 flex-1 flex-col gap-8 overflow-y-auto px-5 pt-5 pb-6">
+            <div className="scroll-pane pane-px-5 flex min-h-0 flex-1 flex-col gap-8 pt-5 pb-6">
               <div className="flex items-center gap-3">
                 <Avatar className="size-10">
                   <AvatarImage src={selected.avatar_url || undefined} alt="" />

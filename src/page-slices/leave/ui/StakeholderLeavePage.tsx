@@ -778,7 +778,7 @@ export function StakeholderLeavePage({
           <DialogHeader>
             <DialogTitle>{t("manualTitle")}</DialogTitle>
           </DialogHeader>
-          <div className="min-h-0 space-y-4 overflow-y-auto">
+          <div className="scroll-pane scroll-pane-bleed min-h-0 space-y-4">
             <div>
               <Label htmlFor="manual-user">{t("colEmployee")}</Label>
               <Select

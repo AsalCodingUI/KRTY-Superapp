@@ -115,6 +115,8 @@ export async function middleware(request: NextRequest) {
   const isSharedReport = url.pathname.startsWith("/r/")
   // A project's client portal (/p/<token>), opened with its PIN.
   const isClientPortal = url.pathname.startsWith("/p/")
+  // A brief the client fills (/b/<token>): its secret link is the key.
+  const isClientBrief = url.pathname.startsWith("/b/")
   // The desktop app's window: it shows its own sign-in screen.
   const isDesktopApp = url.pathname === "/desktop"
   // Link-preview cards (opengraph-image / twitter-image, any segment):
@@ -127,6 +129,7 @@ export async function middleware(request: NextRequest) {
     isAuthPage ||
     isSharedReport ||
     isClientPortal ||
+    isClientBrief ||
     isDesktopApp ||
     isShareCard
 
@@ -135,7 +138,7 @@ export async function middleware(request: NextRequest) {
   // Biarkan public pages dan API routes lewat tanpa auth check.
   // Client pages speak English until the visitor picks a language.
   if (
-    (isSharedReport || isClientPortal) &&
+    (isSharedReport || isClientPortal || isClientBrief) &&
     !request.cookies.has(LOCALE_COOKIE)
   ) {
     const headers = new Headers(request.headers)

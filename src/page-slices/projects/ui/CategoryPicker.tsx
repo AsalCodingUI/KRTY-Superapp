@@ -58,10 +58,13 @@ export function CategoryPicker({
   id,
   value,
   onChange,
+  className,
 }: {
   id?: string
   value: string | null
   onChange: (id: string | null) => void
+  /** The trigger's look (an inline value instead of a field). */
+  className?: string
 }) {
   const t = useT("projects")
   const queryClient = useQueryClient()
@@ -118,6 +121,7 @@ export function CategoryPicker({
         className={cn(
           "bg-field hover:bg-field-hover hover:border-field-border-hover focus-visible:border-primary/50 focus-visible:ring-focus-ring border-field-border flex h-8 w-full cursor-pointer items-center justify-between gap-1.5 rounded-full border px-3 text-sm whitespace-nowrap transition-[color,box-shadow] duration-200 outline-none focus-visible:ring-2",
           !current && "text-muted-foreground",
+          className,
         )}
       >
         <span className="truncate">{current?.name ?? t("categoryNone")}</span>

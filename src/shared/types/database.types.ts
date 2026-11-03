@@ -85,6 +85,117 @@ export type Database = {
           },
         ]
       }
+      brief_files: {
+        Row: {
+          id: string
+          brief_id: string
+          question_id: string | null
+          name: string
+          file_path: string
+          file_size: number
+          mime_type: string | null
+          project_file_id: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          brief_id: string
+          question_id?: string | null
+          name: string
+          file_path: string
+          file_size?: number
+          mime_type?: string | null
+          project_file_id?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          brief_id?: string
+          question_id?: string | null
+          name?: string
+          file_path?: string
+          file_size?: number
+          mime_type?: string | null
+          project_file_id?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      briefs: {
+        Row: {
+          id: string
+          title: string
+          client_id: string
+          project_id: string | null
+          token: string
+          sets: string[]
+          offers: string[]
+          declined: string[]
+          sections: Json
+          answers: Json
+          status: string
+          opened_at: string | null
+          saved_at: string | null
+          submitted_at: string | null
+          created_by: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          client_id: string
+          project_id?: string | null
+          token?: string
+          sets?: string[]
+          offers?: string[]
+          declined?: string[]
+          sections?: Json
+          answers?: Json
+          status?: string
+          opened_at?: string | null
+          saved_at?: string | null
+          submitted_at?: string | null
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          title?: string
+          client_id?: string
+          project_id?: string | null
+          token?: string
+          sets?: string[]
+          offers?: string[]
+          declined?: string[]
+          sections?: Json
+          answers?: Json
+          status?: string
+          opened_at?: string | null
+          saved_at?: string | null
+          submitted_at?: string | null
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "briefs_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "briefs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       calendar_events: {
         Row: {
           all_day: boolean | null
@@ -1818,6 +1929,7 @@ export type Database = {
           start_date: string
           status: Database["public"]["Enums"]["project_status_enum"] | null
           stage: string | null
+          previous_id: string | null
           position: number | null
           updated_at: string | null
         }
@@ -1839,6 +1951,7 @@ export type Database = {
           start_date: string
           status?: Database["public"]["Enums"]["project_status_enum"] | null
           stage?: string | null
+          previous_id?: string | null
           position?: number | null
           updated_at?: string | null
         }
@@ -1860,6 +1973,7 @@ export type Database = {
           start_date?: string
           status?: Database["public"]["Enums"]["project_status_enum"] | null
           stage?: string | null
+          previous_id?: string | null
           position?: number | null
           updated_at?: string | null
         }

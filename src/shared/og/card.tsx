@@ -92,7 +92,10 @@ function loadAssets() {
 
 const ICONS = {
   file: [
-    <path key="0" d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />,
+    <path
+      key="0"
+      d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"
+    />,
     <path key="1" d="M14 2v4a2 2 0 0 0 2 2h4" />,
     <path key="2" d="M16 13H8" />,
     <path key="3" d="M16 17H8" />,
@@ -105,7 +108,10 @@ const ICONS = {
     <path key="3" d="M16 3l-2 18" />,
   ],
   folder: [
-    <path key="0" d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z" />,
+    <path
+      key="0"
+      d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"
+    />,
   ],
   grid: [
     <rect key="0" width="7" height="7" x="3" y="3" rx="1.5" />,
@@ -114,7 +120,10 @@ const ICONS = {
     <rect key="3" width="7" height="7" x="14" y="14" rx="1.5" />,
   ],
   newspaper: [
-    <path key="0" d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2" />,
+    <path
+      key="0"
+      d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"
+    />,
     <path key="1" d="M18 14h-8" />,
     <path key="2" d="M15 18h-5" />,
     <path key="3" d="M10 6h8v4h-8V6Z" />,
@@ -286,7 +295,11 @@ function Backdrop({ kind }: { kind: CardBackground }) {
               "radial-gradient(ellipse 85% 95% at 50% 40%, rgba(0,0,0,0) 55%, rgba(0,0,0,0.55) 100%)",
           }}
         />
-        <svg width={width} height={height} style={{ position: "absolute", left: 0, top: 0 }}>
+        <svg
+          width={width}
+          height={height}
+          style={{ position: "absolute", left: 0, top: 0 }}
+        >
           {specks}
         </svg>
       </div>
@@ -296,7 +309,10 @@ function Backdrop({ kind }: { kind: CardBackground }) {
     // A dot grid every 24px, fading out away from the panel.
     // Strongest around the panel, gone towards the corners.
     const fade = (x: number, y: number) => {
-      const d = Math.hypot((x - width / 2) / (width / 2), (y - height * 0.4) / height)
+      const d = Math.hypot(
+        (x - width / 2) / (width / 2),
+        (y - height * 0.4) / height,
+      )
       return Math.max(0, Math.min(1, 1.25 - d))
     }
     const dots: ReactNode[] = []
@@ -318,7 +334,11 @@ function Backdrop({ kind }: { kind: CardBackground }) {
     }
     return (
       <div style={FULL}>
-        <svg width={width} height={height} style={{ position: "absolute", left: 0, top: 0 }}>
+        <svg
+          width={width}
+          height={height}
+          style={{ position: "absolute", left: 0, top: 0 }}
+        >
           {dots}
         </svg>
       </div>
@@ -368,7 +388,15 @@ function Backdrop({ kind }: { kind: CardBackground }) {
 
 /* ---------- panel parts ---------- */
 
-const BADGE_COLORS = ["#f97316", "#ec4899", "#8b5cf6", "#3b82f6", "#10b981", "#eab308", "#ef4444"]
+const BADGE_COLORS = [
+  "#f97316",
+  "#ec4899",
+  "#8b5cf6",
+  "#3b82f6",
+  "#10b981",
+  "#eab308",
+  "#ef4444",
+]
 
 function Badge({ name }: { name: string }) {
   let hash = 0
@@ -386,7 +414,7 @@ function Badge({ name }: { name: string }) {
         background: BADGE_COLORS[hash % BADGE_COLORS.length],
         color: "#ffffff",
         fontSize: 22,
-        fontWeight: 600,
+        fontWeight: 500,
       }}
     >
       {initial}
@@ -423,7 +451,7 @@ function Header({ mark }: { mark: string }) {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={mark} width={24} height={24} alt="" />
         </div>
-        <span style={{ fontSize: 28, fontWeight: 600, color: INK }}>
+        <span style={{ fontSize: 28, fontWeight: 500, color: INK }}>
           Kretya Studio
         </span>
       </div>
@@ -519,7 +547,10 @@ function Row({
           color,
           overflow: "hidden",
           lineClamp: lines,
-          ...(lines === 1 && { whiteSpace: "nowrap", textOverflow: "ellipsis" }),
+          ...(lines === 1 && {
+            whiteSpace: "nowrap",
+            textOverflow: "ellipsis",
+          }),
         }}
       >
         {children}
@@ -590,7 +621,7 @@ function Body({ card }: { card: ShareCard }) {
           active
           lead={<Icon name="file" color={INK} />}
           size={twoLines ? 30 : TEXT}
-          weight={600}
+          weight={500}
           lines={twoLines ? 2 : 1}
         >
           {title}
@@ -642,11 +673,16 @@ function Body({ card }: { card: ShareCard }) {
     return (
       <div style={COLUMN}>
         <Label>Client portal</Label>
-        <Row active lead={<Badge name={project} />} weight={600}>
+        <Row active lead={<Badge name={project} />} weight={500}>
           {project}
         </Row>
         {pages.map(([icon, label]) => (
-          <Row key={label} lead={<Icon name={icon} />} weight={400} color={SOFT}>
+          <Row
+            key={label}
+            lead={<Icon name={icon} />}
+            weight={400}
+            color={SOFT}
+          >
             {label}
           </Row>
         ))}
@@ -661,7 +697,7 @@ function Body({ card }: { card: ShareCard }) {
   return (
     <div style={COLUMN}>
       <Label>Workspace</Label>
-      <Row active lead={<Icon name="folder" color={INK} />} weight={600}>
+      <Row active lead={<Icon name="folder" color={INK} />} weight={500}>
         Projects
       </Row>
       {items.map(([icon, label]) => (
@@ -679,25 +715,23 @@ const MAX_BYTES = 290_000
 async function renderPng(card: ShareCard, background: CardBackground) {
   const { fonts, mark } = await loadAssets()
   const image = new ImageResponse(
-    (
-      <div
-        style={{
-          position: "relative",
-          display: "flex",
-          width: "100%",
-          height: "100%",
-          background: CANVAS,
-          fontFamily: "Geist",
-          overflow: "hidden",
-        }}
-      >
-        <Backdrop kind={background} />
-        <Panel>
-          <Header mark={mark} />
-          <Body card={card} />
-        </Panel>
-      </div>
-    ),
+    <div
+      style={{
+        position: "relative",
+        display: "flex",
+        width: "100%",
+        height: "100%",
+        background: CANVAS,
+        fontFamily: "Geist",
+        overflow: "hidden",
+      }}
+    >
+      <Backdrop kind={background} />
+      <Panel>
+        <Header mark={mark} />
+        <Body card={card} />
+      </Panel>
+    </div>,
     { ...CARD_SIZE, fonts },
   )
   return image.arrayBuffer()
@@ -716,7 +750,10 @@ export async function renderShareCard(
   let png = await renderPng(card, background)
   if (card.kind === "report" && card.thumbnail) {
     if (png.byteLength > MAX_BYTES && card.thumbnailLow) {
-      png = await renderPng({ ...card, thumbnail: card.thumbnailLow }, background)
+      png = await renderPng(
+        { ...card, thumbnail: card.thumbnailLow },
+        background,
+      )
     }
     if (png.byteLength > MAX_BYTES) {
       png = await renderPng({ ...card, thumbnail: null }, background)

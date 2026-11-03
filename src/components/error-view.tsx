@@ -24,7 +24,7 @@ export function ErrorView({
 
   return (
     <StatusPage
-      className={fullScreen ? "min-h-svh" : undefined}
+      screen={fullScreen}
       code=":("
       title={t("errorTitle")}
       description={t("errorDescription")}

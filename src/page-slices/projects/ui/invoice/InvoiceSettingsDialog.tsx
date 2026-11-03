@@ -111,7 +111,7 @@ export function InvoiceSettingsDialog({
             { value: "studio", label: t("tabStudio") },
           ]}
         />
-        <div className="-mx-1 min-h-0 flex-1 overflow-y-auto px-1 pb-1">
+        <div className="scroll-pane scroll-pane-bleed-1 min-h-0 flex-1 pb-1">
           {open &&
             (tab === "methods" ? (
               <MethodsTab

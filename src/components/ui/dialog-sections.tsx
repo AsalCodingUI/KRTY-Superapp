@@ -18,7 +18,7 @@ export const dialogShellClassName =
 // The body scrolls, so it keeps 4px below its last field (and nested scroll
 // wrappers get 4px all round) so focus rings are not clipped by the overflow.
 export const dialogPanelClassName =
-  "flex min-h-0 flex-col gap-4 overflow-y-auto px-5 pt-4 pb-1 [&>.overflow-auto]:-m-1 [&>.overflow-auto]:p-1 [&>.overflow-y-auto]:-m-1 [&>.overflow-y-auto]:p-1"
+  "scroll-pane pane-px-5 flex min-h-0 flex-col gap-4 pt-4 pb-1 has-[.scroll-pane]:px-5 has-[.scroll-pane]:[scrollbar-gutter:auto] [&>.overflow-auto]:-m-1 [&>.overflow-auto]:p-1 [&>.overflow-y-auto]:-m-1 [&>.overflow-y-auto]:p-1 [&>.scroll-pane]:-my-1 [&>.scroll-pane]:py-1"
 
 export function DialogSections({
   children,

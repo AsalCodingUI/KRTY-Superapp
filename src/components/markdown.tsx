@@ -32,19 +32,19 @@ import remarkGfm from "remark-gfm"
 const components: Components = {
   h1: ({ node: _, ...p }) => (
     <h2
-      className="text-heading mt-8 mb-3 text-xl font-semibold tracking-tight first:mt-0"
+      className="text-heading mt-8 mb-3 text-xl font-medium tracking-tight first:mt-0"
       {...p}
     />
   ),
   h2: ({ node: _, ...p }) => (
     <h3
-      className="text-heading mt-7 mb-2 text-base font-semibold first:mt-0"
+      className="text-heading mt-7 mb-2 text-base font-medium first:mt-0"
       {...p}
     />
   ),
   h3: ({ node: _, ...p }) => (
     <h4
-      className="text-heading mt-6 mb-2 text-sm font-semibold first:mt-0"
+      className="text-heading mt-6 mb-2 text-sm font-medium first:mt-0"
       {...p}
     />
   ),
@@ -85,7 +85,7 @@ const components: Components = {
       />
     ),
   strong: ({ node: _, ...p }) => (
-    <strong className="text-foreground font-semibold" {...p} />
+    <strong className="text-foreground font-medium" {...p} />
   ),
   blockquote: ({ node, ...p }) => {
     // "> [!NOTE]" and co. (shared/lib/doc-blocks): a callout.

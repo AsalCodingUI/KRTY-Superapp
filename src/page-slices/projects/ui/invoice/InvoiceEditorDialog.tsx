@@ -844,7 +844,7 @@ function Editor({
           )}
         </div>
 
-        <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto px-3 pb-4">
+        <div className="scroll-pane pane-px-3 flex min-h-0 flex-1 flex-col gap-2 pb-4">
           {/* Details */}
           <Section
             title={t("secDetails")}

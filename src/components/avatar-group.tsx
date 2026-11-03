@@ -15,8 +15,8 @@ const avatarSizeClasses: Record<AvatarSize, string> = {
   xs: "size-5 text-xs leading-4 font-medium",
   sm: "size-7 text-xs font-medium",
   md: "size-8 text-sm font-medium",
-  lg: "size-12 text-xl font-semibold",
-  xl: "size-16 text-2xl font-semibold",
+  lg: "size-12 text-xl font-medium",
+  xl: "size-16 text-2xl font-medium",
 }
 
 // ============================================================================

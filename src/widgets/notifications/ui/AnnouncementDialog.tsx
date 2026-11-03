@@ -161,7 +161,7 @@ export function AnnouncementDialog({
               ]}
             />
             {audience === "people" && (
-              <div className="border-border flex max-h-48 flex-col overflow-y-auto rounded-lg border p-1">
+              <div className="scroll-pane border-border flex max-h-48 flex-col rounded-lg border py-1">
                 {people.map((p) => {
                   const name = p.full_name || "?"
                   return (

@@ -1,6 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/utils"
+import type * as React from "react"
 import { useT } from "@/shared/i18n/client"
 import {
   ArrowRight,
@@ -69,6 +70,7 @@ export function ProjectProperties({
   start,
   end,
   openTasks,
+  extra,
 }: {
   phases: PhaseRow[]
   steps: StepRow[]
@@ -78,6 +80,8 @@ export function ProjectProperties({
   end: string | null
   /** Inside only: open (top-level) tasks. */
   openTasks?: number
+  /** More items at the end, given the line's item class. */
+  extra?: (itemClassName: string) => React.ReactNode
 }) {
   const t = useT("projects")
   // Each phase counts the same: done 1, the running one by its steps.
@@ -158,6 +162,7 @@ export function ProjectProperties({
           </span>
         </span>
       )}
+      {extra?.(item)}
     </div>
   )
 }

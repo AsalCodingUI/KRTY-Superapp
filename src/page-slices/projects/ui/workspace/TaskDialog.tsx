@@ -275,7 +275,7 @@ function TaskBody({
       <div className="flex min-h-0 flex-col">
         <div
           ref={scrollRef}
-          className="flex min-h-0 flex-1 flex-col gap-7 overflow-y-auto px-6 pt-6 pb-6 md:px-8 md:pt-7"
+          className="scroll-pane pane-px-6 md:pane-px-8 flex min-h-0 flex-1 flex-col gap-7 pt-6 pb-6 md:pt-7"
         >
           <div className="flex flex-col gap-1.5">
             <TitleField

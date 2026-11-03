@@ -103,9 +103,7 @@ export function PolicyHistory({
 
   return (
     <section aria-label={t("history")} className="flex flex-col">
-      <h2 className="text-heading pb-4 text-sm font-semibold">
-        {t("history")}
-      </h2>
+      <h2 className="text-heading pb-4 text-sm font-medium">{t("history")}</h2>
       <ol className="flex flex-col">
         {entries.map((e, i) => {
           const { icon: Icon, tone } = ICONS[e.kind]

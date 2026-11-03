@@ -2,9 +2,9 @@ import { cn } from "@/lib/utils"
 
 /**
  * The app icon (Icons/ in the repo root, rendered to public/icons): the
- * dark tile in either theme (a full-bleed square, so the caller rounds it),
- * or the "mark" alone on a transparent background: black in light mode,
- * white in dark mode.
+ * tile, the colored mark on white in either theme (a full-bleed square, so
+ * the caller rounds it), or the "mark" alone on a transparent background:
+ * black in light mode, white in dark mode.
  */
 export function AppIcon({
   size = 96,
@@ -26,11 +26,7 @@ export function AppIcon({
     >
       {variant === "tile" ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={`/icons/icon-dark-${size}.png`}
-          alt=""
-          className="size-full"
-        />
+        <img src={`/icons/icon-${size}.png`} alt="" className="size-full" />
       ) : (
         <>
           {/* eslint-disable-next-line @next/next/no-img-element */}

@@ -91,7 +91,7 @@ export function MeetingDialog({
           <DialogTitle>{t("meetingDialogTitle")}</DialogTitle>
         </DialogHeader>
 
-        <div className="flex-1 space-y-5 overflow-y-auto">
+        <div className="scroll-pane scroll-pane-bleed flex-1 space-y-5">
           {/* Event Title & Type */}
           <div className="flex items-start justify-between gap-4">
             <h3 className="text-heading text-base font-medium break-words">

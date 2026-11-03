@@ -310,7 +310,7 @@ export function ApprovalInbox({
             )}
           </div>
 
-          <div className="-mx-2 flex h-[min(24rem,calc(100svh-16rem))] flex-col gap-1 overflow-y-auto">
+          <div className="scroll-pane mx-[calc(-0.5rem-var(--sbw,0px))] flex h-[min(24rem,calc(100svh-16rem))] flex-col gap-1">
             {loading ? (
               <div className="grid flex-1 place-items-center">
                 <Spinner />
@@ -451,7 +451,7 @@ export function ApprovalInbox({
 export function InboxCount({ count }: { count: number }) {
   if (count <= 0) return null
   return (
-    <span className="bg-primary text-primary-foreground -mr-1 ml-0.5 grid h-5 min-w-5 place-items-center rounded-full px-1.5 text-[11px] font-semibold tabular-nums">
+    <span className="bg-primary text-primary-foreground -mr-1 ml-0.5 grid h-5 min-w-5 place-items-center rounded-full px-1.5 text-[11px] font-medium tabular-nums">
       {count}
     </span>
   )

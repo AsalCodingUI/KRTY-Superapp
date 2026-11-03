@@ -572,7 +572,7 @@ function DocumentEditor({
         {editor && <DocToolbar editor={editor} />}
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto">
+      <div className="scroll-pane min-h-0 flex-1">
         <div className="mx-auto w-full max-w-3xl px-8 pt-12 pb-32 sm:px-16">
           <textarea
             rows={1}
@@ -591,7 +591,7 @@ function DocumentEditor({
                 editor.view.focus()
               }
             }}
-            className="text-heading placeholder:text-muted-foreground/50 field-sizing-content w-full resize-none border-0 bg-transparent p-0 text-4xl leading-tight font-semibold tracking-tight shadow-none outline-none focus:ring-0"
+            className="text-heading placeholder:text-muted-foreground/50 field-sizing-content w-full resize-none border-0 bg-transparent p-0 text-4xl leading-tight font-medium tracking-tight shadow-none outline-none focus:ring-0"
           />
 
           <div className="text-muted-foreground mt-4 flex flex-wrap items-center gap-x-6 gap-y-1 text-sm">

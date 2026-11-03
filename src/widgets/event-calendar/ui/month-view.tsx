@@ -253,7 +253,7 @@ export const MonthView = memo(function MonthView({
                                   locale: dateLocale,
                                 })}
                               </h4>
-                              <div className="max-h-80 space-y-2 overflow-y-auto">
+                              <div className="scroll-pane scroll-pane-bleed max-h-80 space-y-2">
                                 {dayEvents.map((event) => (
                                   <EventTarget key={event.id} event={event}>
                                     <EventItem
@@ -312,7 +312,7 @@ export const MonthView = memo(function MonthView({
               <RiCloseLine className="size-6" />
             </SheetClose>
           </div>
-          <div className="flex-1 overflow-y-auto px-4 py-4 pb-6">
+          <div className="scroll-pane pane-px-4 flex-1 py-4 pb-6">
             <div className="space-y-3">
               {mobileSelectedEvents.length === 0 ? (
                 <p className="text-muted-foreground text-sm">

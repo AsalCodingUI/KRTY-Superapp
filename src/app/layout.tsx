@@ -12,6 +12,7 @@ import { I18nProvider } from "@/shared/i18n/client"
 import { getClientMessages, getLocale } from "@/shared/i18n/server"
 import { TINT_SCRIPT } from "@/shared/lib/chrome-tint"
 import { DISPLAY_SCRIPT } from "@/shared/lib/display-prefs-script"
+import { SCROLLBAR_WIDTH_SCRIPT } from "@/shared/lib/scrollbar-width-script"
 import { ThemeColorSync } from "@/components/theme-color-sync"
 import { ScrollbarAutoHide } from "@/components/scrollbar-auto-hide"
 import { ContextMenuProvider } from "@/shared/context-menu"
@@ -52,37 +53,15 @@ export const metadata: Metadata = {
     title: siteConfig.name,
     description: siteConfig.description,
   },
-  // App icon (Icons/ in the repo root): the tab gets the transparent mark
-  // for the browser's theme (src/app/favicon.ico, the light one, for old
-  // browsers); the dock / home screen gets the dark tile.
+  // App icon (Icons/ in the repo root): the tab gets the colored mark
+  // (src/app/favicon.ico too, for old browsers); the dock / home screen
+  // gets the tile (the colored mark on white).
   icons: {
     icon: [
-      {
-        url: "/icons/mark-light-32.png",
-        type: "image/png",
-        sizes: "32x32",
-        media: "(prefers-color-scheme: light)",
-      },
-      {
-        url: "/icons/mark-dark-32.png",
-        type: "image/png",
-        sizes: "32x32",
-        media: "(prefers-color-scheme: dark)",
-      },
-      {
-        url: "/icons/mark-light-192.png",
-        type: "image/png",
-        sizes: "192x192",
-        media: "(prefers-color-scheme: light)",
-      },
-      {
-        url: "/icons/mark-dark-192.png",
-        type: "image/png",
-        sizes: "192x192",
-        media: "(prefers-color-scheme: dark)",
-      },
+      { url: "/icons/logo-32.png", type: "image/png", sizes: "32x32" },
+      { url: "/icons/logo-192.png", type: "image/png", sizes: "192x192" },
     ],
-    apple: [{ url: "/icons/icon-dark-180.png", sizes: "180x180" }],
+    apple: [{ url: "/icons/icon-180.png", sizes: "180x180" }],
   },
   robots: {
     index: false,
@@ -115,6 +94,8 @@ export default async function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: TINT_SCRIPT }} />
         {/* Text size from Settings → Tampilan, before first paint. */}
         <script dangerouslySetInnerHTML={{ __html: DISPLAY_SCRIPT }} />
+        {/* The scrollbar's width, for even spacing beside it. */}
+        <script dangerouslySetInnerHTML={{ __html: SCROLLBAR_WIDTH_SCRIPT }} />
       </head>
       <body
         className="selection:bg-primary/20 selection:text-primary min-h-dvh overflow-x-hidden overflow-y-auto scroll-auto antialiased"

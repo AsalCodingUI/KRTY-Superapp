@@ -449,7 +449,7 @@ function Highlight({ text, query }: { text: string; query?: string }) {
   return (
     <>
       {text.slice(0, i)}
-      <mark className="text-foreground bg-transparent font-semibold">
+      <mark className="text-foreground bg-transparent font-medium">
         {text.slice(i, i + query.length)}
       </mark>
       {text.slice(i + query.length)}

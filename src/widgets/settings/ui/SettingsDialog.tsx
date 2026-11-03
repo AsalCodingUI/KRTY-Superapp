@@ -77,7 +77,7 @@ export function SettingsDialog({
         className="flex h-[min(40rem,90svh)] w-full flex-col overflow-hidden p-0 sm:max-w-3xl sm:flex-row"
       >
         <nav className="border-border flex shrink-0 flex-col gap-1 border-b p-3 sm:w-52 sm:border-r sm:border-b-0 sm:p-4">
-          <DialogTitle className="px-2 pt-1 pb-3 text-sm font-semibold max-sm:hidden">
+          <DialogTitle className="px-2 pt-1 pb-3 text-sm font-medium max-sm:hidden">
             {t("title")}
           </DialogTitle>
           <div className="flex gap-1 sm:flex-col">
@@ -100,7 +100,7 @@ export function SettingsDialog({
             ))}
           </div>
         </nav>
-        <div className="relative min-h-0 flex-1 overflow-y-auto">
+        <div className="scroll-pane relative min-h-0 flex-1">
           <Button
             variant="ghost"
             size="icon-sm"
@@ -110,8 +110,8 @@ export function SettingsDialog({
           >
             <X />
           </Button>
-          <div className="px-6 pt-7 pb-8 sm:px-8">
-            <h2 className="mb-4 text-base font-semibold">{t(tab)}</h2>
+          <div className="pane-px-6 sm:pane-px-8 pt-7 pb-8">
+            <h2 className="mb-4 text-base font-medium">{t(tab)}</h2>
             {tab === "general" ? (
               <GeneralTab />
             ) : tab === "notifications" ? (

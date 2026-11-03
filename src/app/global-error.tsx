@@ -32,7 +32,7 @@ export default function GlobalError({
   }, [error])
 
   // The root layout itself failed, so no CSS: plain inline styles that
-  // match the app's dark theme.
+  // echo the minimal screens (a frosted card on a pink glow, dark theme).
   return (
     <html lang={locale}>
       <body
@@ -42,30 +42,53 @@ export default function GlobalError({
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "#141414",
+          padding: 16,
+          boxSizing: "border-box",
+          background:
+            "radial-gradient(ellipse 70% 32% at 50% 50%, rgba(240,90,149,0.55), rgba(92,22,64,0.35) 55%, transparent 80%), #0b0709",
           color: "#ededed",
           fontFamily: "Inter, -apple-system, BlinkMacSystemFont, sans-serif",
           textAlign: "center",
         }}
       >
-        <div style={{ maxWidth: 420, padding: 24 }}>
-          <div
-            style={{
-              fontSize: 112,
-              fontWeight: 600,
-              lineHeight: 1,
-              letterSpacing: "-0.04em",
-              color: "rgba(237,237,237,0.18)",
-            }}
-          >
+        <div
+          style={{
+            width: "100%",
+            maxWidth: 512,
+            boxSizing: "border-box",
+            padding: "56px 40px",
+            borderRadius: 24,
+            background: "rgba(28,28,28,0.8)",
+            backdropFilter: "blur(40px) saturate(1.5)",
+            WebkitBackdropFilter: "blur(40px) saturate(1.5)",
+            boxShadow:
+              "0 0 0 1px rgba(255,255,255,0.06), 0 12px 32px rgba(0,0,0,0.35)",
+          }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/icons/icon-192.png"
+            alt=""
+            width={48}
+            height={48}
+            style={{ borderRadius: 15, display: "block", margin: "0 auto" }}
+          />
+          <div style={{ marginTop: 24, fontSize: 14, color: "#7a7a7a" }}>
             :(
           </div>
-          <h1 style={{ fontSize: 20, fontWeight: 600, margin: "8px 0 8px" }}>
+          <h1
+            style={{
+              fontSize: 24,
+              fontWeight: 500,
+              letterSpacing: "-0.01em",
+              margin: "12px 0",
+            }}
+          >
             {t.globalErrorTitle}
           </h1>
           <p
             style={{
-              fontSize: 14,
+              fontSize: 15,
               color: "#a1a1a1",
               margin: 0,
               lineHeight: 1.6,
@@ -77,10 +100,10 @@ export default function GlobalError({
             <code
               style={{
                 display: "inline-block",
-                marginTop: 16,
+                marginTop: 12,
                 padding: "4px 8px",
                 borderRadius: 6,
-                background: "#262626",
+                background: "rgba(255,255,255,0.06)",
                 color: "#a1a1a1",
                 fontSize: 12,
               }}
@@ -93,15 +116,17 @@ export default function GlobalError({
               display: "flex",
               gap: 8,
               justifyContent: "center",
-              marginTop: 32,
+              marginTop: 24,
             }}
           >
             <a
               href="/dashboard"
               style={{
-                padding: "8px 14px",
-                borderRadius: 8,
-                border: "1px solid #333",
+                padding: "0 18px",
+                height: 40,
+                lineHeight: "40px",
+                borderRadius: 9999,
+                background: "rgba(255,255,255,0.08)",
                 color: "#ededed",
                 fontSize: 14,
                 textDecoration: "none",
@@ -112,10 +137,11 @@ export default function GlobalError({
             <button
               onClick={reset}
               style={{
-                padding: "8px 14px",
-                borderRadius: 8,
+                padding: "0 18px",
+                height: 40,
+                borderRadius: 9999,
                 border: 0,
-                background: "#4a90d9",
+                background: "#1f8bff",
                 color: "#fff",
                 fontSize: 14,
                 cursor: "pointer",

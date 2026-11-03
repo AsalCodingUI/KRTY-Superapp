@@ -1,7 +1,7 @@
 /**
  * The client-facing site: `client.<domain>` serves only what a client may
  * open (the project portal and shared reports) and is the one address
- * reachable without the team's VPN. The app itself stays private.
+ * reachable without the team's VPN. Briefs (/b/) are filled there too. The app itself stays private.
  */
 export const CLIENT_HOST_PREFIX = "client."
 
@@ -10,6 +10,9 @@ export function isClientPath(pathname: string) {
   return (
     pathname.startsWith("/p/") ||
     pathname.startsWith("/r/") ||
+    pathname.startsWith("/b/") ||
+    // "Translate" on those pages.
+    pathname === "/api/translate" ||
     pathname.startsWith("/_next/") ||
     pathname.startsWith("/icons/") ||
     pathname === "/favicon.ico" ||

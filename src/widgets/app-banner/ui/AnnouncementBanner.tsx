@@ -50,7 +50,7 @@ export function AnnouncementBanner() {
         ) : undefined
       }
     >
-      <strong className="font-semibold">{latest.title}</strong>
+      <strong className="font-medium">{latest.title}</strong>
       {latest.message && (
         <span className="opacity-80"> · {latest.message}</span>
       )}

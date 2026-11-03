@@ -1,5 +1,6 @@
 "use client"
 
+import { ProjectBriefs } from "@/page-slices/briefs/ui/ProjectBriefs"
 import { compressImage, isCompressible } from "@/shared/lib/compress-image"
 import { Switch } from "@/components/ui/switch"
 import {
@@ -377,6 +378,7 @@ export function ProjectDocuments({ projectId }: { projectId: string }) {
         }
       />
       <div className="flex flex-col gap-5 pb-4">
+        <ProjectBriefs projectId={projectId} />
         {isLoading ? (
           <div className="flex justify-center py-12">
             <Spinner className="size-6" />
@@ -523,7 +525,7 @@ export function ProjectDocuments({ projectId }: { projectId: string }) {
                       {draft.id ? t("editDocument") : t("newDocument")}
                     </DialogTitle>
                   </div>
-                  <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-5 pt-1 pb-5">
+                  <div className="scroll-pane pane-px-5 flex min-h-0 flex-1 flex-col gap-4 pt-1 pb-5">
                     {draft.file && isCompressible(draft.file) && (
                       <label className="flex cursor-pointer items-center justify-between gap-3 text-sm">
                         <span className="flex flex-col">

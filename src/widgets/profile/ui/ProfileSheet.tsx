@@ -97,7 +97,10 @@ export function ProfileSheet({
   const leaveValue = !leave
     ? null
     : leave.eligible
-      ? t("annualLeaveValue", { remaining: leave.remaining, quota: leave.quota })
+      ? t("annualLeaveValue", {
+          remaining: leave.remaining,
+          quota: leave.quota,
+        })
       : t("annualLeaveNone")
   const leaveNote =
     leave?.noteKey && tl(leave.noteKey, leave.noteVars ?? undefined)
@@ -111,7 +114,7 @@ export function ProfileSheet({
             {t("myProfileHint")}
           </SheetDescription>
         </SheetHeader>
-        <div className="flex min-h-0 flex-1 flex-col gap-8 overflow-y-auto px-5 pt-5 pb-6">
+        <div className="scroll-pane pane-px-5 flex min-h-0 flex-1 flex-col gap-8 pt-5 pb-6">
           {error ? (
             <p className="text-destructive text-sm">{t("loadFailed")}</p>
           ) : isLoading || !me ? (

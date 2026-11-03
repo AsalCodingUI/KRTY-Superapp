@@ -180,7 +180,7 @@ export function ClientPortalCard({
             <div className="bg-muted/60 flex items-center justify-between gap-3 rounded-lg px-3 py-2 text-sm">
               <span>
                 {t("portalPinIs")}{" "}
-                <span className="font-semibold tracking-widest tabular-nums">
+                <span className="font-medium tracking-widest tabular-nums">
                   {fresh.pin}
                 </span>
                 <span className="text-muted-foreground block text-xs">

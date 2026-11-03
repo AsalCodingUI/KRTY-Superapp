@@ -120,12 +120,10 @@ export default async function SharedReportPage({
 
         <div data-translate-root className="flex flex-col gap-8">
           <div className="flex flex-col gap-2">
-            <h1 className="text-heading text-2xl font-semibold tracking-tight text-balance">
+            <h1 className="text-heading text-2xl font-medium tracking-tight text-balance">
               {report.title}
             </h1>
-            <p className="text-muted-foreground text-sm">
-              {day}
-            </p>
+            <p className="text-muted-foreground text-sm">{day}</p>
           </div>
 
           {report.body.trim() ? (

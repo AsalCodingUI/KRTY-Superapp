@@ -867,7 +867,7 @@ function AiCard({
           <X />
         </Button>
       </header>
-      <div className="min-h-0 flex-1 overflow-y-auto px-4">
+      <div className="scroll-pane pane-px-4 min-h-0 flex-1">
         {job.status === "error" ? (
           <p
             role="alert"

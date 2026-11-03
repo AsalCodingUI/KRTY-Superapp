@@ -80,7 +80,7 @@ export default function ReviewFormClientPage({
 
       <main className="mx-auto flex max-w-2xl flex-col gap-8 px-4 py-8">
         <div className="flex flex-col gap-1">
-          <h1 className="text-lg font-semibold">{t("reviewTeammates")}</h1>
+          <h1 className="text-lg font-medium">{t("reviewTeammates")}</h1>
           <p className="text-muted-foreground text-sm">{t("formIntro")}</p>
         </div>
 

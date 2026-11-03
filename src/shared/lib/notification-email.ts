@@ -7,6 +7,8 @@ export const EMAIL_GROUPS = {
   mentions: ["mention"],
   comments: ["task_comment"],
   work: [
+    "brief_submitted",
+    "brief_offer",
     "task_assigned",
     "task_due",
     "task_status",

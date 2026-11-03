@@ -113,7 +113,7 @@ export function CategoryManageDialog({
             {t("categoryEmpty")}
           </p>
         ) : (
-          <ul className="-mx-1 flex max-h-80 flex-col gap-1 overflow-y-auto px-1 py-0.5">
+          <ul className="scroll-pane scroll-pane-bleed-1 flex max-h-80 flex-col gap-1 py-0.5">
             {categories.map((category) => (
               <CategoryRow
                 key={`${category.id}:${category.name}`}

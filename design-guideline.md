@@ -188,6 +188,14 @@ Always prefer `DataTable` from `@/shared/ui` for admin data views.
 - Preserve `rounded-xxl` for the main page container language.
 - Keep page header separate from main content block.
 - Keep section spacing and table spacing visually stable across tabs.
+- Every vertical scrolling area uses `scroll-pane`, never bare
+  `overflow-y-auto`, so the left and right spacing stay equal beside a
+  scrollbar. Its side padding is `pane-px-N` (not `px-N`), which gives back the
+  scrollbar's room (`--sbw`), so content sits exactly where `px-N` would put
+  it. A pane inside a padded box uses `scroll-pane-bleed` /
+  `scroll-pane-bleed-1` (instead of `-mx-1 px-1`). Only menus, popovers and
+  2D canvases (calendar grids, viewers) are exempt. Verify by measuring the
+  left and right inset while it scrolls.
 
 ### Do not do
 
@@ -207,12 +215,14 @@ Use typography as hierarchy, not as decoration.
 - Stat labels should use `text-label-md text-foreground-secondary`.
 - Primary numeric values in admin stat cards should use `text-display-xxs`.
 - Secondary or muted information should use `text-foreground-secondary` or `text-foreground-tertiary`.
+- Only two weights: regular (`font-normal`, 450) and `font-medium` for titles, labels, emphasis and `**bold**` text. Hierarchy comes from size and color, not weight.
 
 ### Avoid
 
 - Jumping to `text-heading-md` for numbers or labels unless there is a clear visual reason.
 - Mixing too many text sizes inside one section.
 - Using muted text color for primary information.
+- `font-semibold`, `font-bold` or any weight above 500 (including inline `fontWeight` and email CSS).
 
 ## 10. Buttons And Actions
 

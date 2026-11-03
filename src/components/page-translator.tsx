@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils"
 import { useT } from "@/shared/i18n/client"
 import {
   TRANSLATE_LANGUAGES,
+  TRANSLATE_LANGUAGES_FROM_EN,
   type TranslateLanguage,
 } from "@/shared/lib/translate"
 import { Languages } from "lucide-react"
@@ -47,7 +48,11 @@ function textNodes(root: Element) {
 }
 
 /** Sends strings in chunks; returns them translated, in order. */
-async function translateAll(texts: string[], to: TranslateLanguage) {
+async function translateAll(
+  texts: string[],
+  to: TranslateLanguage,
+  from: "id" | "en",
+) {
   const out: string[] = []
   let start = 0
   while (start < texts.length) {
@@ -69,7 +74,7 @@ async function translateAll(texts: string[], to: TranslateLanguage) {
     const response = await fetch("/api/translate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ texts: chunk, to }),
+      body: JSON.stringify({ texts: chunk, to, from }),
     })
     if (!response.ok) throw new Error("translate")
     const { texts: done } = (await response.json()) as { texts: string[] }
@@ -85,7 +90,18 @@ async function translateAll(texts: string[], to: TranslateLanguage) {
  * to the original. Swaps text in place and keeps up as the page changes;
  * the pick is remembered on this device.
  */
-export function PageTranslator({ className }: { className?: string }) {
+export function PageTranslator({
+  className,
+  source = "id",
+}: {
+  className?: string
+  /** The page's language: Indonesian (reports, the portal) is shown in
+   *  English at first; English (briefs) stays as it is until asked. */
+  source?: "id" | "en"
+}) {
+  const languages: readonly { code: TranslateLanguage; name: string }[] =
+    source === "en" ? TRANSLATE_LANGUAGES_FROM_EN : TRANSLATE_LANGUAGES
+  const storageKey = source === "en" ? `${STORAGE_KEY}-en` : STORAGE_KEY
   const t = useT("common")
   const [choice, setChoice] = useState<Choice>(ORIGINAL)
   const [busy, setBusy] = useState(false)
@@ -108,48 +124,51 @@ export function PageTranslator({ className }: { className?: string }) {
     for (const root of roots()) root.removeAttribute("dir")
   }, [])
 
-  const apply = useCallback(async (to: TranslateLanguage) => {
-    const nodes = roots().flatMap(textNodes)
-    // A node keeps its original until React writes something new in it.
-    for (const node of nodes) {
-      const value = node.nodeValue ?? ""
-      if (applied.current.get(node) !== value) {
-        originals.current.set(node, value)
-        applied.current.delete(node)
+  const apply = useCallback(
+    async (to: TranslateLanguage) => {
+      const nodes = roots().flatMap(textNodes)
+      // A node keeps its original until React writes something new in it.
+      for (const node of nodes) {
+        const value = node.nodeValue ?? ""
+        if (applied.current.get(node) !== value) {
+          originals.current.set(node, value)
+          applied.current.delete(node)
+        }
       }
-    }
-    const pending = nodes.filter((n) => applied.current.get(n) === undefined)
-    const sources = pending.map((n) => originals.current.get(n)!.trim())
-    const missing = [
-      ...new Set(sources.filter((s) => !cache.current.has(`${to}:${s}`))),
-    ]
-    if (missing.length > 0) {
-      const done = await translateAll(missing, to)
-      missing.forEach((s, i) => cache.current.set(`${to}:${s}`, done[i]))
-    }
-    if (active.current !== to) return
-    pending.forEach((node, i) => {
-      const original = originals.current.get(node)!
-      const translated = cache.current.get(`${to}:${sources[i]}`)
-      if (!translated || !node.isConnected) return
-      // Keep the spacing around the words (it separates inline elements).
-      const lead = /^\s*/.exec(original)![0]
-      const trail = /\s*$/.exec(original)![0]
-      const value = `${lead}${translated}${trail}`
-      node.nodeValue = value
-      applied.current.set(node, value)
-    })
-    for (const root of roots())
-      if (to === "ar") root.setAttribute("dir", "rtl")
-      else root.removeAttribute("dir")
-  }, [])
+      const pending = nodes.filter((n) => applied.current.get(n) === undefined)
+      const sources = pending.map((n) => originals.current.get(n)!.trim())
+      const missing = [
+        ...new Set(sources.filter((s) => !cache.current.has(`${to}:${s}`))),
+      ]
+      if (missing.length > 0) {
+        const done = await translateAll(missing, to, source)
+        missing.forEach((s, i) => cache.current.set(`${to}:${s}`, done[i]))
+      }
+      if (active.current !== to) return
+      pending.forEach((node, i) => {
+        const original = originals.current.get(node)!
+        const translated = cache.current.get(`${to}:${sources[i]}`)
+        if (!translated || !node.isConnected) return
+        // Keep the spacing around the words (it separates inline elements).
+        const lead = /^\s*/.exec(original)![0]
+        const trail = /\s*$/.exec(original)![0]
+        const value = `${lead}${translated}${trail}`
+        node.nodeValue = value
+        applied.current.set(node, value)
+      })
+      for (const root of roots())
+        if (to === "ar") root.setAttribute("dir", "rtl")
+        else root.removeAttribute("dir")
+    },
+    [source],
+  )
 
   const pick = useCallback(
     async (next: Choice, quiet = false) => {
       active.current = next
       setChoice(next)
       try {
-        localStorage.setItem(STORAGE_KEY, next)
+        localStorage.setItem(storageKey, next)
       } catch {}
       restore()
       if (next === ORIGINAL) return
@@ -165,7 +184,7 @@ export function PageTranslator({ className }: { className?: string }) {
         setBusy(false)
       }
     },
-    [apply, restore, t],
+    [apply, restore, t, storageKey],
   )
 
   // The last pick on this device, once the page is there; English the first
@@ -173,14 +192,14 @@ export function PageTranslator({ className }: { className?: string }) {
   useEffect(() => {
     let saved: string | null = null
     try {
-      saved = localStorage.getItem(STORAGE_KEY)
+      saved = localStorage.getItem(storageKey)
     } catch {}
     if (saved === ORIGINAL) return
-    const language = TRANSLATE_LANGUAGES.some((l) => l.code === saved)
-      ? (saved as TranslateLanguage)
-      : "en"
-    void pick(language, true)
-  }, [pick])
+    const known = languages.some((l) => l.code === saved)
+    // English pages: only what this visitor picked before.
+    if (!known && source === "en") return
+    void pick(known ? (saved as TranslateLanguage) : "en", true)
+  }, [pick, languages, source, storageKey])
 
   // New content (another tab of the portal, a report opened): translate it
   // too, a moment after it settles.
@@ -206,7 +225,7 @@ export function PageTranslator({ className }: { className?: string }) {
     }
   }, [apply])
 
-  const current = TRANSLATE_LANGUAGES.find((l) => l.code === choice)
+  const current = languages.find((l) => l.code === choice)
 
   return (
     <DropdownMenu>
@@ -227,7 +246,11 @@ export function PageTranslator({ className }: { className?: string }) {
           <Languages data-icon="inline-start" />
         )}
         <span className="max-sm:sr-only">
-          {current ? current.name : t("translate")}
+          {current
+            ? current.name
+            : source === "en" && choice === ORIGINAL
+              ? "English"
+              : t("translate")}
         </span>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="min-w-48" data-no-translate>
@@ -237,15 +260,25 @@ export function PageTranslator({ className }: { className?: string }) {
             value={choice}
             onValueChange={(value) => void pick(value as Choice)}
           >
-            {TRANSLATE_LANGUAGES.map((language) => (
+            {/* An English page: English is its original, listed first. */}
+            {source === "en" && (
+              <DropdownMenuRadioItem value={ORIGINAL}>
+                English
+              </DropdownMenuRadioItem>
+            )}
+            {languages.map((language) => (
               <DropdownMenuRadioItem key={language.code} value={language.code}>
                 {language.name}
               </DropdownMenuRadioItem>
             ))}
-            <DropdownMenuSeparator />
-            <DropdownMenuRadioItem value={ORIGINAL}>
-              {t("translateOriginal")}
-            </DropdownMenuRadioItem>
+            {source !== "en" && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuRadioItem value={ORIGINAL}>
+                  {t("translateOriginal")}
+                </DropdownMenuRadioItem>
+              </>
+            )}
           </DropdownMenuRadioGroup>
         </DropdownMenuGroup>
       </DropdownMenuContent>

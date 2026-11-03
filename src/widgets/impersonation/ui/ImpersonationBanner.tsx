@@ -65,7 +65,7 @@ export function ImpersonationBanner() {
       <span className="sr-only sm:not-sr-only">
         {t("impersonationViewingAs")}{" "}
       </span>
-      <strong className="font-semibold">
+      <strong className="font-medium">
         {profile.full_name || profile.email || t("impersonationMemberFallback")}
       </strong>
       {authProfile?.full_name && (

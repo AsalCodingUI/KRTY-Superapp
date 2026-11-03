@@ -75,7 +75,7 @@ export function DataTableFilterbar<TData>({
               table.resetColumnFilters()
               setSearchTerm("")
             }}
-            className="border-border text-primary border px-2 font-semibold sm:border-none"
+            className="border-border text-primary border px-2 font-medium sm:border-none"
           >
             {t("dataTableClearFilters")}
           </Button>

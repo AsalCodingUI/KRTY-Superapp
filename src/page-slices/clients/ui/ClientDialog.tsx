@@ -165,7 +165,7 @@ export function ClientDialog({
           </div>
         </header>
 
-        <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto p-6">
+        <div className="scroll-pane pane-px-6 flex min-h-0 flex-1 flex-col gap-6 py-6">
           <StatTiles
             items={[
               {

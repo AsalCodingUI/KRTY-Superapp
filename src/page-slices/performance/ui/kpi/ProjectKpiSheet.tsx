@@ -108,7 +108,7 @@ export function ProjectKpiSheet({
           )}
         </SheetHeader>
 
-        <div className="min-h-0 flex-1 overflow-y-auto px-5 [--bleed:0.5rem] [--page-gutter:0.5rem] [scrollbar-gutter:stable]">
+        <div className="scroll-pane pane-px-5 min-h-0 flex-1 [--bleed:0.5rem] [--page-gutter:0.5rem]">
           {open && isLoading ? (
             <div className="flex justify-center py-16">
               <Spinner className="size-6" />

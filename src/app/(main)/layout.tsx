@@ -100,12 +100,12 @@ export default async function Layout({
                   desktop ? "md:rounded-[10px]" : "md:rounded-3xl",
                 )}
               />
-              {/* The scrollbar's room is always kept (scrollbar-gutter), so a
-                page that gets shorter (a filter, a tab) doesn't widen by
-                the scrollbar and shift everything sideways. */}
+              {/* The scrollbar's room is always kept, on both sides (scroll-pane),
+                so a page that gets shorter doesn't shift sideways and the left and
+                right spacing match; the gutter gives back that room (--sbw). */}
               <SidebarInset
                 className={cn(
-                  "dark:bg-surface overflow-y-auto overscroll-contain [--bleed:0.75rem] [--page-gutter:1.25rem] [scrollbar-gutter:stable] md:z-20 md:[--page-gutter:2.5rem] xl:[--page-gutter:4rem]",
+                  "dark:bg-surface scroll-pane overscroll-contain [--bleed:0.75rem] [--page-gutter:max(var(--bleed),calc(1.25rem-var(--sbw,0px)))] md:z-20 md:[--page-gutter:calc(2.5rem-var(--sbw,0px))] xl:[--page-gutter:calc(4rem-var(--sbw,0px))]",
                   desktop ? "md:rounded-[10px]" : "md:rounded-3xl",
                   // Phones (Shopify style): the page is a sheet on the
                   // chrome, its top corners rounded.

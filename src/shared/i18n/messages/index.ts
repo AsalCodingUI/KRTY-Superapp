@@ -25,6 +25,7 @@ import { desktopApp } from "./desktopApp"
 import { whatsNew } from "./whatsNew"
 import { undo } from "./undo"
 import { prefs } from "./prefs"
+import { briefs } from "./briefs"
 
 /**
  * Every namespace, one file each (messages/<name>.ts). Add new namespaces
@@ -58,6 +59,7 @@ export const messages = {
   whatsNew,
   undo,
   prefs,
+  briefs,
 }
 
 export type Namespace = keyof typeof messages

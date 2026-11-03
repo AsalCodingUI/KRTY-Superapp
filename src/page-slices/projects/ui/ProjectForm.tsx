@@ -48,6 +48,11 @@ import { toast } from "sonner"
 import { accessLevel } from "@/shared/config/access"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { CategoryPicker } from "./CategoryPicker"
+import {
+  NameTwinNotice,
+  PreviousProjectField,
+  type ProjectOption,
+} from "./ProjectLineage"
 import { ProjectStageIcon } from "./ProjectStageIcon"
 
 type ProjectRole = Database["public"]["Enums"]["project_role_enum"]
@@ -88,6 +93,8 @@ type Draft = {
   processId: string | null
   categoryId: string | null
   stage: ProjectStage | null
+  /** The project this one continues. */
+  previousId: string | null
   members: Member[]
 }
 
@@ -105,6 +112,7 @@ const EMPTY: Draft = {
   processId: null,
   categoryId: null,
   stage: null,
+  previousId: null,
   members: [],
 }
 
@@ -165,6 +173,7 @@ export function ProjectForm({
         processId: null,
         categoryId: project.category_id,
         stage: asStage(project.stage),
+        previousId: project.previous_id,
         members: project.members,
       })
   }, [open, projectId, project])
@@ -211,6 +220,37 @@ export function ProjectForm({
     ])
   }
 
+  /**
+   * Continue an earlier project: link it and, for a new project, bring its
+   * team (roles, lead) and category along. The client follows on save.
+   */
+  const continueFrom = async (previous: ProjectOption) => {
+    set("previousId", previous.id)
+    if (projectId) return
+    const source = await getEditableProject(previous.id)
+    if (!source) return
+    setDraft((d) => {
+      if (d.previousId !== previous.id) return d
+      const have = new Set(d.members.map((m) => m.userId))
+      const lead = d.members.some((m) => m.isLead)
+      return {
+        ...d,
+        name: d.name.trim() ? d.name : source.name,
+        categoryId: d.categoryId ?? source.category_id,
+        members: [
+          ...d.members,
+          ...source.members
+            .filter((m) => !have.has(m.userId))
+            .map((m) => ({
+              ...m,
+              isLead: lead ? false : m.isLead,
+              scored: false,
+            })),
+        ],
+      }
+    })
+  }
+
   const removeMember = (member: Member) => {
     if (isPm && member.scored)
       return void toast.error(t("errRemoveScoredMember"))
@@ -240,6 +280,7 @@ export function ProjectForm({
       noPhases: processValue === NO_PHASES,
       categoryId: draft.categoryId,
       stage: draft.stage,
+      previousId: draft.previousId,
       members: draft.members.map(({ userId, role, isLead }) => ({
         userId,
         role,
@@ -306,7 +347,7 @@ export function ProjectForm({
             <Spinner className="size-6" />
           </div>
         ) : (
-          <div className="-mx-1 flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-1">
+          <div className="scroll-pane scroll-pane-bleed-1 flex min-h-0 flex-1 flex-col gap-4">
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="project-name">{t("formName")}</Label>
               <Input
@@ -314,6 +355,19 @@ export function ProjectForm({
                 value={draft.name}
                 onChange={(e) => set("name", e.target.value)}
                 placeholder={t("formNamePlaceholder")}
+              />
+              <NameTwinNotice
+                name={draft.name}
+                selfId={projectId}
+                linkedId={draft.previousId}
+                onLink={projectId ? undefined : (p) => void continueFrom(p)}
+              />
+              <PreviousProjectField
+                value={draft.previousId}
+                selfId={projectId}
+                onChange={(p) =>
+                  p ? void continueFrom(p) : set("previousId", null)
+                }
               />
             </div>
             <div className="grid grid-cols-2 gap-3">

@@ -82,7 +82,7 @@ export function NameTile({
     <span
       aria-hidden
       className={cn(
-        "flex size-6 shrink-0 items-center justify-center rounded-md text-[11px] font-semibold",
+        "flex size-6 shrink-0 items-center justify-center rounded-md text-[11px] font-medium",
         colors[(hash >>> 0) % colors.length],
         className,
       )}

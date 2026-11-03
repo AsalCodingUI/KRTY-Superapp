@@ -42,7 +42,7 @@ export function AgendaView({ events, onEventClick }: AgendaViewProps) {
       </div>
 
       {/* Events list */}
-      <div className="flex-1 overflow-y-auto px-6 pb-6">
+      <div className="scroll-pane pane-px-6 flex-1 pb-6">
         {dayEvents.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center text-center">
             <div className="bg-muted text-muted-foreground mb-4 flex size-12 items-center justify-center rounded-full">

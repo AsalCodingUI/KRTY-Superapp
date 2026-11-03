@@ -1,7 +1,13 @@
 "use client"
 
-import { AlwaysDark } from "@/components/always-dark"
 import { AppIcon } from "@/components/app-icon"
+import {
+  MinimalCard,
+  MinimalScreen,
+  screenLogoClass,
+  screenTextClass,
+  screenTitleClass,
+} from "@/components/minimal-screen"
 import { Spinner } from "@/components/ui/spinner"
 import { cn } from "@/lib/utils"
 import { useT } from "@/shared/i18n/client"
@@ -43,15 +49,6 @@ const ICON: Variants = {
   },
 }
 
-const GLOW: Variants = {
-  hidden: { opacity: 0, scale: 0.6 },
-  show: {
-    opacity: 1,
-    scale: 1,
-    transition: { delay: 0.2, duration: 1, ease: EASE },
-  },
-}
-
 const RISE: Variants = {
   hidden: { opacity: 0, y: 10, filter: "blur(6px)" },
   show: {
@@ -63,13 +60,12 @@ const RISE: Variants = {
   },
 }
 
-/** The hairline-ringed white surface the sign-in pill uses. */
-const PILL_SURFACE =
-  "bg-background shadow-[0_4px_8px_-2px_rgb(0_0_0/0.03),0_2px_4px_-1px_rgb(0_0_0/0.03),0_0_0_1px_rgb(0_0_0/0.07)] dark:bg-white/[0.06] dark:shadow-[0_0_0_1px_rgb(255_255_255/0.1)]"
+/** A code box: see-through on the frosted card, like its fields. */
+const BOX_SURFACE = "bg-white/35 dark:bg-field"
 
 /**
- * The portal's door, dressed like the sign-in page: the app icon, the
- * project's name, and six code boxes. The sixth digit sends it; a wrong PIN
+ * The portal's door, on the minimal screens' card like sign in: the app
+ * icon, the project's name, and six code boxes. The sixth digit sends it; a wrong PIN
  * shakes the boxes and clears them.
  */
 export function PinForm({
@@ -135,41 +131,28 @@ export function PinForm({
   }
 
   return (
-    <AlwaysDark>
-      <main className="text-foreground grid min-h-dvh grid-rows-[1fr_auto_1fr_1.5rem] justify-items-center bg-white px-4 dark:bg-black">
+    <MinimalScreen>
+      <MinimalCard>
         <m.form
           onSubmit={(e) => {
             e.preventDefault()
             void submit(pin)
           }}
-          className="row-start-2 flex w-full max-w-[360px] flex-col items-center pt-4 pb-16"
+          className="flex w-full flex-col items-center gap-6"
           initial={reduce ? false : "hidden"}
           animate="show"
           variants={STAGGER}
         >
-          <m.div className="relative size-[88px]" variants={ICON}>
-            <m.span
-              aria-hidden
-              variants={GLOW}
-              className="absolute inset-0 rounded-[28px] shadow-[32px_0_100px_0_rgba(160,104,251,0.15),-32px_0_100px_0_rgba(106,253,216,0.15),0_-32px_100px_0_rgba(133,187,249,0.15),0_32px_100px_0_rgba(251,107,130,0.15)]"
-            />
-            <AppIcon size={1024} className="squircle-mask relative size-full" />
+          <m.div variants={ICON}>
+            <AppIcon size={192} className={screenLogoClass} />
           </m.div>
 
-          <m.h1
-            variants={RISE}
-            className="font-heading text-heading mt-11 text-center text-[30px] leading-[1.1] font-medium tracking-[-0.03em] text-balance"
-          >
-            {projectName}
-          </m.h1>
-          <m.p
-            variants={RISE}
-            className="text-muted-foreground mt-3 text-center text-sm text-balance"
-          >
-            {t("portalPinPrompt")}
-          </m.p>
+          <m.div variants={RISE} className="flex flex-col items-center gap-3">
+            <h1 className={screenTitleClass}>{projectName}</h1>
+            <p className={screenTextClass}>{t("portalPinPrompt")}</p>
+          </m.div>
 
-          <m.div variants={RISE} className="mt-8 w-full">
+          <m.div variants={RISE} className="w-full">
             {/* One real input over the six boxes: typing, paste, autofill
                 and the phone's code suggestion all just work. */}
             <div
@@ -201,7 +184,7 @@ export function PinForm({
                     key={i}
                     className={cn(
                       "relative flex aspect-[5/6] items-center justify-center rounded-2xl text-2xl font-medium tabular-nums transition-[box-shadow,background-color] duration-200",
-                      PILL_SURFACE,
+                      BOX_SURFACE,
                       current &&
                         "shadow-[0_0_0_1.5px_var(--primary),0_0_0_5px_color-mix(in_oklch,var(--primary)_18%,transparent)] dark:shadow-[0_0_0_1.5px_var(--primary),0_0_0_5px_color-mix(in_oklch,var(--primary)_25%,transparent)]",
                       error &&
@@ -286,7 +269,7 @@ export function PinForm({
             </div>
           </m.div>
         </m.form>
-      </main>
-    </AlwaysDark>
+      </MinimalCard>
+    </MinimalScreen>
   )
 }

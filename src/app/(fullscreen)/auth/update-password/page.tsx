@@ -1,10 +1,17 @@
 "use client"
 
-import { AlwaysDark } from "@/components/always-dark"
 import { AppIcon } from "@/components/app-icon"
+import {
+  glassControlClass,
+  MinimalCard,
+  MinimalScreen,
+  screenLogoClass,
+  screenTitleClass,
+} from "@/components/minimal-screen"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { cn } from "@/lib/utils"
 import { createClient } from "@/shared/api/supabase/client"
 import { useT } from "@/shared/i18n/client"
 import { useRouter } from "next/navigation"
@@ -54,93 +61,75 @@ export default function UpdatePasswordPage() {
   }
 
   return (
-    <AlwaysDark>
-      <div className="flex min-h-screen flex-1 flex-col justify-center px-4 lg:px-6">
-        <div className="mx-auto w-full max-w-sm">
-          <AppIcon size={192} className="mx-auto size-12 rounded-xl" />
-          <h1 className="text-foreground mt-6 text-center text-lg font-semibold">
-            {t("updatePasswordTitle")}
-          </h1>
+    <MinimalScreen>
+      <MinimalCard>
+        <AppIcon size={192} className={screenLogoClass} />
+        <h1 className={screenTitleClass}>{t("updatePasswordTitle")}</h1>
 
-          <div className="mt-6">
-            <form onSubmit={handleUpdatePassword} className="space-y-4">
-              {/* Success Message */}
-              {success && (
-                <div className="bg-success-subtle text-green-11 rounded-md p-3 text-sm">
-                  {t("updatePasswordSuccess")}
-                </div>
-              )}
+        <form
+          onSubmit={handleUpdatePassword}
+          className="flex w-full flex-col gap-4 text-left"
+        >
+          {success && (
+            <div className="bg-success-subtle text-green-11 rounded-xl px-4 py-3 text-sm">
+              {t("updatePasswordSuccess")}
+            </div>
+          )}
+          {error && (
+            <div className="bg-destructive-subtle text-red-11 rounded-xl px-4 py-3 text-sm">
+              {error}
+            </div>
+          )}
 
-              {/* Error Message */}
-              {error && (
-                <div className="bg-destructive-subtle text-red-11 rounded-md p-3 text-sm">
-                  {error}
-                </div>
-              )}
-
-              <div>
-                <Label
-                  htmlFor="password"
-                  className="text-foreground dark:text-foreground text-sm font-medium"
-                >
-                  {t("newPassword")}
-                </Label>
-                <Input
-                  type="password"
-                  id="password"
-                  name="password"
-                  autoComplete="new-password"
-                  placeholder="••••••••"
-                  className="mt-2"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  minLength={6}
-                />
-              </div>
-
-              <div>
-                <Label
-                  htmlFor="confirm-password"
-                  className="text-foreground dark:text-foreground text-sm font-medium"
-                >
-                  {t("confirmPassword")}
-                </Label>
-                <Input
-                  type="password"
-                  id="confirm-password"
-                  name="confirm-password"
-                  autoComplete="new-password"
-                  placeholder="••••••••"
-                  className="mt-2"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
-                  minLength={6}
-                />
-              </div>
-
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={loading || success}
-              >
-                {loading ? t("updatingPassword") : t("updatePassword")}
-              </Button>
-            </form>
-
-            <p className="text-tertiary-foreground mt-6 text-center text-sm">
-              {t("rememberPassword")}{" "}
-              <a
-                href="/login"
-                className="text-primary hover:text-primary/80 font-medium"
-              >
-                {t("signIn")}
-              </a>
-            </p>
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="password">{t("newPassword")}</Label>
+            <Input
+              type="password"
+              id="password"
+              name="password"
+              autoComplete="new-password"
+              placeholder="••••••••"
+              className={cn("h-11 px-4", glassControlClass)}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={6}
+            />
           </div>
-        </div>
-      </div>
-    </AlwaysDark>
+
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="confirm-password">{t("confirmPassword")}</Label>
+            <Input
+              type="password"
+              id="confirm-password"
+              name="confirm-password"
+              autoComplete="new-password"
+              placeholder="••••••••"
+              className={cn("h-11 px-4", glassControlClass)}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              minLength={6}
+            />
+          </div>
+
+          <Button
+            type="submit"
+            size="lg"
+            className="mt-2 w-full"
+            disabled={loading || success}
+          >
+            {loading ? t("updatingPassword") : t("updatePassword")}
+          </Button>
+        </form>
+
+        <p className="text-muted-foreground text-sm">
+          {t("rememberPassword")}{" "}
+          <a href="/login" className="text-foreground underline">
+            {t("signIn")}
+          </a>
+        </p>
+      </MinimalCard>
+    </MinimalScreen>
   )
 }

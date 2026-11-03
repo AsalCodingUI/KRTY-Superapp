@@ -320,7 +320,7 @@ export function LeaveRequestModal({
           </DialogTitle>
         </DialogHeader>
 
-        <div className="-mx-1 min-h-0 flex-1 overflow-y-auto px-1 py-1">
+        <div className="scroll-pane scroll-pane-bleed-1 min-h-0 flex-1 py-1">
           {step === 1 ? (
             <LeaveRequestForm
               formData={formData}
@@ -373,7 +373,7 @@ export function LeaveRequestModal({
                     {showRules ? t("hideRules") : t("showFullRules")}
                   </button>
                   {showRules && (
-                    <div className="max-h-64 overflow-y-auto rounded-lg border p-3">
+                    <div className="scroll-pane pane-px-3 max-h-64 rounded-lg border py-3">
                       <LeaveRules />
                     </div>
                   )}

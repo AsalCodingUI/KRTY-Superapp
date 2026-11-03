@@ -516,7 +516,7 @@ export function EventDialog({
         </DialogHeader>
 
         {event && readOnly && !isEditing ? (
-          <div className="-mx-1 space-y-5 overflow-y-auto px-1 py-1">
+          <div className="scroll-pane scroll-pane-bleed-1 space-y-5 py-1">
             {/* Event Title & Type */}
             <div className="flex items-start justify-between gap-4">
               <h3 className="text-heading text-base font-medium break-words">
@@ -604,7 +604,7 @@ export function EventDialog({
               onSubmit={handleSubmit(onSubmit)}
               className="min-h-0 flex-1"
             >
-              <div className="-mx-1 space-y-5 overflow-y-auto px-1 py-1">
+              <div className="scroll-pane scroll-pane-bleed-1 space-y-5 py-1">
                 {/* Title */}
                 <div className="flex flex-col gap-2">
                   <Label htmlFor="title">{t("dialogTitleLabel")} *</Label>

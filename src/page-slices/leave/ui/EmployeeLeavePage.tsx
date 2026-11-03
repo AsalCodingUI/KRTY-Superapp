@@ -423,7 +423,7 @@ export function EmployeeLeavePage({
           <DialogHeader>
             <DialogTitle>{t("rulesTitle")}</DialogTitle>
           </DialogHeader>
-          <div className="-mx-1 max-h-[70vh] overflow-y-auto px-1">
+          <div className="scroll-pane scroll-pane-bleed-1 max-h-[70vh]">
             <LeaveRules />
           </div>
         </DialogContent>

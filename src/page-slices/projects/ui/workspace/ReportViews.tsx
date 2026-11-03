@@ -80,7 +80,7 @@ export function ReportViewsIndicator({
               {t("reportViewsEmpty")}
             </p>
           ) : (
-            <ul className="flex max-h-72 flex-col overflow-y-auto px-2 pb-2">
+            <ul className="scroll-pane flex max-h-72 flex-col px-2 pb-2">
               {views.map((v) => (
                 <ViewRow key={v.id} view={v} />
               ))}

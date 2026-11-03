@@ -37,6 +37,7 @@ import { format, type Locale } from "date-fns"
 import Link from "next/link"
 import { useState, type ReactNode } from "react"
 import { asStage } from "../lib/status"
+import { BriefShortcut } from "@/page-slices/briefs/ui/BriefShortcut"
 import { ProjectStageLabel } from "./ProjectStage"
 import {
   ProjectContextMenu,
@@ -189,18 +190,6 @@ export function ProjectList({
       }}
     >
       <GroupedList hover={!dragging}>
-        <div
-          className={cn(
-            grid,
-            "gutter-x text-muted-foreground border-border h-9 border-b text-[13px]",
-          )}
-        >
-          <span>{t("colProject")}</span>
-          <span className="hidden md:block">{t("colTeam")}</span>
-          <span className="hidden text-right lg:block">{t("colStart")}</span>
-          <span className="text-right">{t("colDue")}</span>
-          {withMenu && <span />}
-        </div>
         {ALL_STATUSES.map((status) => {
           const items = itemsOf(status)
           // Empty groups only show while dragging, as places to drop.
@@ -380,6 +369,10 @@ function ProjectRow({
                   {meta.join(" · ")}
                 </span>
               )}
+            </div>
+            {/* Its brief, in the free space before the team. */}
+            <div className="ml-auto flex shrink-0 items-center gap-1 pl-2">
+              <BriefShortcut projectId={project.id} />
             </div>
           </div>
 

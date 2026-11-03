@@ -1,7 +1,15 @@
 "use client"
 
-import { AlwaysDark } from "@/components/always-dark"
 import { AppIcon } from "@/components/app-icon"
+import {
+  glassControlClass,
+  MinimalCard,
+  MinimalScreen,
+  screenLogoClass,
+  screenTextClass,
+  screenTitleClass,
+} from "@/components/minimal-screen"
+import { Button } from "@/components/ui/button"
 import { createClient } from "@/shared/api/supabase/client"
 import { Spinner } from "@/components/ui/spinner"
 import { cn } from "@/lib/utils"
@@ -33,16 +41,6 @@ const ICON: Variants = {
       opacity: { duration: 0.35, ease: EASE },
       filter: { duration: 0.45, ease: EASE },
     },
-  },
-}
-
-/** The glow blooms in behind the icon, a beat later and slower. */
-const GLOW: Variants = {
-  hidden: { opacity: 0, scale: 0.6 },
-  show: {
-    opacity: 1,
-    scale: 1,
-    transition: { delay: 0.2, duration: 1, ease: EASE },
   },
 }
 
@@ -91,9 +89,9 @@ function nextParam() {
 }
 
 /**
- * Sign in: the app icon popping in with its glow, one large heading, and a
- * single pill to continue with Google, each rising in turn. One narrow
- * column in the middle of an empty page.
+ * Sign in: the app icon popping in, a heading, and one button to continue
+ * with Google, each rising in turn, on the frosted card of the minimal
+ * screens.
  */
 export default function LoginPage() {
   const supabase = createClient()
@@ -139,72 +137,45 @@ export default function LoginPage() {
   }
 
   return (
-    <AlwaysDark>
-      <main className="text-foreground grid min-h-dvh grid-rows-[1fr_auto_1fr_1.5rem] justify-items-center bg-white px-4 dark:bg-black">
+    <MinimalScreen>
+      <MinimalCard>
         <m.div
-          className="row-start-2 flex w-full max-w-[360px] flex-col items-center pt-4 pb-16"
+          className="flex w-full flex-col items-center gap-6"
           initial={reduce ? false : "hidden"}
           animate="show"
           variants={STAGGER}
         >
-          {/* The icon pops in (spring, out of a blur); its glow blooms behind
-              it. The icon is cut to a squircle by a mask, so the glow lives on
-              its own layer where the mask can't clip it. */}
-          <m.div className="relative size-[88px]" variants={ICON}>
-            <m.span
-              aria-hidden
-              variants={GLOW}
-              className="absolute inset-0 rounded-[28px] shadow-[32px_0_100px_0_rgba(160,104,251,0.15),-32px_0_100px_0_rgba(106,253,216,0.15),0_-32px_100px_0_rgba(133,187,249,0.15),0_32px_100px_0_rgba(251,107,130,0.15)]"
-            />
-            <AppIcon size={1024} className="squircle-mask relative size-full" />
+          <m.div variants={ICON}>
+            <AppIcon size={192} className={screenLogoClass} />
           </m.div>
 
-          <m.h1
-            variants={RISE}
-            className="font-heading text-heading mt-11 text-center text-[30px] leading-[1.1] font-medium tracking-[-0.03em] text-balance"
-          >
-            {t("loginTitle")}
-          </m.h1>
+          <m.div variants={RISE} className="flex flex-col items-center gap-3">
+            <h1 className={screenTitleClass}>{t("loginTitle")}</h1>
+            <p className={screenTextClass}>{t("loginSubtitle")}</p>
+          </m.div>
 
-          <div className="mt-6 flex w-full flex-col gap-4">
+          <m.div variants={RISE} className="flex w-full flex-col gap-3">
             {error && (
               <p
                 role="alert"
-                className="bg-destructive-subtle text-red-11 rounded-xl px-4 py-3 text-center text-[13px]"
+                className="bg-destructive-subtle text-red-11 rounded-xl px-4 py-3 text-[13px]"
               >
                 {error}
               </p>
             )}
-
-            <m.button
-              variants={RISE}
-              type="button"
+            <Button
+              size="lg"
+              variant="outline"
               onClick={handleGoogleLogin}
               disabled={loading}
-              className={cn(
-                "flex h-11 w-full cursor-pointer items-center justify-center gap-2.5 rounded-full text-sm font-medium",
-                // A white pill on a hairline ring; only the press eases.
-                "text-foreground bg-background shadow-[0_4px_8px_-2px_rgb(0_0_0/0.03),0_2px_4px_-1px_rgb(0_0_0/0.03),0_0_0_1px_rgb(0_0_0/0.07)] hover:bg-[color-mix(in_oklch,var(--foreground)_2%,var(--background))]",
-                "dark:bg-white/[0.06] dark:shadow-[0_0_0_1px_rgb(255_255_255/0.1)] dark:hover:bg-white/10",
-                "outline-none focus-visible:ring-[3px] focus-visible:ring-(--focus-ring) disabled:pointer-events-none disabled:opacity-60",
-              )}
-              whileTap={{ scale: 0.98 }}
+              className={cn("w-full", glassControlClass)}
             >
               {loading ? <Spinner className="size-4" /> : <GoogleMark />}
-              <span>
-                {loading ? t("loginConnecting") : t("loginWithGoogle")}
-              </span>
-            </m.button>
-
-            <m.p
-              variants={RISE}
-              className="text-muted-foreground text-center text-[13px] text-balance"
-            >
-              {t("loginSubtitle")}
-            </m.p>
-          </div>
+              {loading ? t("loginConnecting") : t("loginWithGoogle")}
+            </Button>
+          </m.div>
         </m.div>
-      </main>
-    </AlwaysDark>
+      </MinimalCard>
+    </MinimalScreen>
   )
 }

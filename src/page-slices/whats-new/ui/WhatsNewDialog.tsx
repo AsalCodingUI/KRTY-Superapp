@@ -141,7 +141,7 @@ function EntryView({
       </header>
 
       {/* Re-keyed per entry, so paging starts at the top. */}
-      <div key={id} className="min-h-0 flex-1 overflow-y-auto">
+      <div key={id} className="scroll-pane min-h-0 flex-1">
         {!ready ? (
           <div className="flex justify-center py-24">
             <Spinner className="size-6" />
@@ -157,7 +157,7 @@ function EntryView({
         ) : (
           <article className="mx-auto w-full max-w-3xl px-8 pt-12 pb-16 sm:px-16">
             <EntryBadges entry={entry} />
-            <h1 className="text-heading mt-4 text-4xl leading-tight font-semibold tracking-tight">
+            <h1 className="text-heading mt-4 text-4xl leading-tight font-medium tracking-tight">
               {entry.title}
             </h1>
             <time
@@ -191,7 +191,7 @@ function EntryView({
             <div className="flex flex-col gap-9">
               {(guide?.sections ?? []).map((section) => (
                 <section key={section.id} id={section.id}>
-                  <h2 className="text-heading mb-3 text-lg font-semibold tracking-tight">
+                  <h2 className="text-heading mb-3 text-lg font-medium tracking-tight">
                     {section.title}
                     {section.audience && section.audience !== "everyone" && (
                       <Badge variant="warning" className="ml-2 align-middle">

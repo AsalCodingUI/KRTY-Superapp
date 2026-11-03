@@ -211,7 +211,7 @@ function PolicyView({
         </div>
       </header>
 
-      <div className="min-h-0 flex-1 overflow-y-auto">
+      <div className="scroll-pane min-h-0 flex-1">
         {isLoading ? (
           <div className="flex justify-center py-24">
             <Spinner className="size-6" />
@@ -247,7 +247,7 @@ function PolicyView({
               </div>
             )}
 
-            <h1 className="text-heading text-4xl leading-tight font-semibold tracking-tight">
+            <h1 className="text-heading text-4xl leading-tight font-medium tracking-tight">
               {title}
             </h1>
             <div className="text-muted-foreground mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">

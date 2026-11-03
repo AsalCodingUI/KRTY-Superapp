@@ -11,4 +11,12 @@ export const TRANSLATE_LANGUAGES = [
   { code: "nl", name: "Nederlands" },
 ] as const
 
-export type TranslateLanguage = (typeof TRANSLATE_LANGUAGES)[number]["code"]
+/** From English (briefs): Indonesian first, then the rest. */
+export const TRANSLATE_LANGUAGES_FROM_EN = [
+  { code: "id", name: "Bahasa Indonesia" },
+  ...TRANSLATE_LANGUAGES.filter((l) => l.code !== "en"),
+] as const
+
+export type TranslateLanguage =
+  | (typeof TRANSLATE_LANGUAGES)[number]["code"]
+  | (typeof TRANSLATE_LANGUAGES_FROM_EN)[number]["code"]
