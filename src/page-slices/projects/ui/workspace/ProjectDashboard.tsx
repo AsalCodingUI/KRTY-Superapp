@@ -326,7 +326,9 @@ export function ProjectDashboard({ projectId }: { projectId: string }) {
         .eq("project_id", projectId)
         .order("position")
       if (error) throw error
-      if ((data ?? []).map((r: { id: string }) => r.id).join() !== expected.join())
+      if (
+        (data ?? []).map((r: { id: string }) => r.id).join() !== expected.join()
+      )
         throw new UndoStale()
       const { error: saveError } = await supabase().rpc(
         "reorder_project_phases",
@@ -1663,13 +1665,22 @@ function ProcessPanel({
       .eq("id", id)
     if (error) toast.error(t("errSaveStep"))
     invalidate("steps")
-    if (!error && step && patch.title !== undefined && patch.title !== step.title)
+    if (
+      !error &&
+      step &&
+      patch.title !== undefined &&
+      patch.title !== step.title
+    )
       registerUndo(
         rowsUndo({
           label: tu("stepRename", { name: clip(patch.title) }),
           table: "project_steps",
           rows: [
-            { id, before: { title: step.title }, after: { title: patch.title } },
+            {
+              id,
+              before: { title: step.title },
+              after: { title: patch.title },
+            },
           ],
           done: () => invalidate("steps"),
         }),

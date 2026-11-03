@@ -13,10 +13,12 @@ function plainLine(line: string) {
       // Images (any size / gallery hint) say nothing in a preview.
       .replace(/!\[[^\]]*\]\([^)]*\)/g, " ")
       // Links: the label, unless it is a URL itself or an embed card.
-      .replace(/\[((?:\\.|[^\]\\])*)\]\(([^)]*)\)/g, (_, label: string, href: string) =>
-        /#embed=/.test(href) || /^https?:\/\//.test(label.trim())
-          ? " "
-          : label.replace(/\\(.)/g, "$1"),
+      .replace(
+        /\[((?:\\.|[^\]\\])*)\]\(([^)]*)\)/g,
+        (_, label: string, href: string) =>
+          /#embed=/.test(href) || /^https?:\/\//.test(label.trim())
+            ? " "
+            : label.replace(/\\(.)/g, "$1"),
       )
       .replace(/<[^>]+>/g, " ")
       .replace(/https?:\/\/\S+/g, " ")

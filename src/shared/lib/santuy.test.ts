@@ -40,9 +40,7 @@ describe("santuySchedule", () => {
   })
 
   it("starts mid-queue from the anchor index", () => {
-    expect(who([], { ...settings, anchorIndex: 2 })[0]).toBe(
-      "2026-11-06 rizal",
-    )
+    expect(who([], { ...settings, anchorIndex: 2 })[0]).toBe("2026-11-06 rizal")
   })
 
   it("puts the first session on the first weekday on/after the anchor", () => {
@@ -82,6 +80,51 @@ describe("santuySchedule", () => {
     ])
   })
 
+  it("a moved week keeps its presenter and shifts nobody, on the new day", () => {
+    const weeks: SantuyWeek[] = [
+      {
+        date: "2026-11-13",
+        kind: "move",
+        profileId: null,
+        movedDate: "2026-11-12",
+        movedTime: "15:00",
+      },
+    ]
+    expect(who(weeks).slice(0, 3)).toEqual([
+      "2026-11-06 bagas",
+      "2026-11-13 habibi",
+      "2026-11-20 rizal",
+    ])
+    const moved = santuySchedule({
+      settings,
+      queue,
+      weeks,
+      from: "2026-11-13",
+      to: "2026-11-13",
+    })[0]
+    expect(moved.movedTo).toBe("2026-11-12")
+    expect(moved.start.toISOString()).toBe("2026-11-12T08:00:00.000Z")
+  })
+
+  it("a moved week without a time keeps the usual start time", () => {
+    const [moved] = santuySchedule({
+      settings,
+      queue,
+      weeks: [
+        {
+          date: "2026-11-13",
+          kind: "move",
+          profileId: "rizal",
+          movedDate: "2026-11-11",
+        },
+      ],
+      from: "2026-11-13",
+      to: "2026-11-13",
+    })
+    expect(moved.profileId).toBe("rizal")
+    expect(moved.start.toISOString()).toBe("2026-11-11T09:00:00.000Z")
+  })
+
   it("ignores exceptions on non-session days", () => {
     expect(
       who([{ date: "2026-11-12", kind: "skip", profileId: null }])[1],
@@ -117,7 +160,9 @@ describe("reanchor", () => {
     expect(r.anchorIndex).toBe(0)
     const next = { ...settings, anchorDate: r.anchorDate, anchorIndex: 0 }
     expect(
-      who([], next, nextQueue).filter((x) => x >= "2026-11-20").slice(0, 4),
+      who([], next, nextQueue)
+        .filter((x) => x >= "2026-11-20")
+        .slice(0, 4),
     ).toEqual([
       "2026-11-20 rizal",
       "2026-11-27 bagas",

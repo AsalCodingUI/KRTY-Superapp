@@ -49,7 +49,9 @@ export function useStatusMove(
     })
     if (!done.length) return
     setOverrides((o) =>
-      Object.fromEntries(Object.entries(o).filter(([id]) => !done.includes(id))),
+      Object.fromEntries(
+        Object.entries(o).filter(([id]) => !done.includes(id)),
+      ),
     )
   }, [projects, overrides])
   const active = projects.find((p) => p.id === activeId) ?? null

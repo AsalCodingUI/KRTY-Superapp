@@ -10,7 +10,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Separator } from "@/components/ui/separator"
@@ -19,7 +18,7 @@ import { cn } from "@/lib/utils"
 import { useDateLocale, useT } from "@/shared/i18n/client"
 import { RiCloseLine, RiMoreFill, RiPencilLine } from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
-import { Check, ChevronLeft, ChevronRight, Sparkles } from "lucide-react"
+import { ChevronLeft, ChevronRight, Sparkles } from "lucide-react"
 import { useEffect, useMemo } from "react"
 import { guideFor } from "../model/sections"
 import { isGuide, type WhatsNewEntry } from "../model/types"
@@ -66,7 +65,7 @@ function EntryView({
 }) {
   const t = useT("whatsNew")
   const dateLocale = useDateLocale()
-  const { ready, level, canEdit, entries, read, setRead } = useWhatsNew()
+  const { ready, level, canEdit, entries, setRead } = useWhatsNew()
   const admin = useWhatsNewAdmin()
   const entry = entries.find((e) => e.id === id) ?? null
   const guide = useMemo(
@@ -80,7 +79,6 @@ function EntryView({
   const index = siblings.findIndex((e) => e.id === id)
   const newer = siblings[index - 1]
   const older = siblings[index + 1]
-  const isRead = read.has(id)
 
   // Opening it counts as reading it (only on open, so "unread" sticks).
   useEffect(() => {
@@ -106,7 +104,7 @@ function EntryView({
               {t("edit")}
             </Button>
           )}
-          {entry && (
+          {entry && canEdit && (
             <DropdownMenu>
               <DropdownMenuTrigger
                 render={
@@ -121,20 +119,12 @@ function EntryView({
                 <RiMoreFill />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="min-w-44">
-                <DropdownMenuItem onClick={() => setRead([entry.id], !isRead)}>
-                  {isRead ? t("markUnread") : t("markRead")}
+                <DropdownMenuItem
+                  variant="destructive"
+                  onClick={() => admin.remove(entry)}
+                >
+                  {t("delete")}
                 </DropdownMenuItem>
-                {canEdit && (
-                  <>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      variant="destructive"
-                      onClick={() => admin.remove(entry)}
-                    >
-                      {t("delete")}
-                    </DropdownMenuItem>
-                  </>
-                )}
               </DropdownMenuContent>
             </DropdownMenu>
           )}
@@ -170,26 +160,20 @@ function EntryView({
             <h1 className="text-heading mt-4 text-4xl leading-tight font-semibold tracking-tight">
               {entry.title}
             </h1>
-            <div className="text-muted-foreground mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
-              <time dateTime={entry.date} className="capitalize">
-                {format(dayOf(entry.date), "EEEE, d MMMM yyyy", {
-                  locale: dateLocale,
-                })}
-              </time>
-              {isRead && (
-                <span className="inline-flex items-center gap-1">
-                  <Check className="size-3.5" />
-                  {t("read")}
-                </span>
-              )}
-            </div>
+            <time
+              dateTime={entry.date}
+              className="text-muted-foreground mt-4 block text-sm capitalize"
+            >
+              {format(dayOf(entry.date), "EEEE, d MMMM yyyy", {
+                locale: dateLocale,
+              })}
+            </time>
             {entry.summary && (
               <p className="text-muted-foreground mt-3 text-[15px]">
                 {entry.summary}
               </p>
             )}
             {entry.thumbnailUrl && (
-              // The thumbnail at its own 2:1 (pictures in the guide are 4:3).
               <ZoomableImage
                 src={entry.thumbnailUrl}
                 alt=""

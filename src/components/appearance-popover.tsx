@@ -225,7 +225,7 @@ function SwatchRail({
 }
 
 /** One preset swatch: a solid color or a gradient. */
-function Swatch({
+export function Swatch({
   tint,
   active,
   label,

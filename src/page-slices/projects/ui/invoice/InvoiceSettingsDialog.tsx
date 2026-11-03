@@ -26,6 +26,7 @@ import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
 import {
+  DEFAULT_AGENCY,
   defaultNotes,
   needsVerification,
   PAYMENT_FIELDS,
@@ -61,6 +62,7 @@ import {
   useQrUrl,
   type PaymentMethod,
 } from "./data"
+import { InvoiceBottom, paymentDocData } from "./InvoiceThumb"
 
 type Draft = Omit<PaymentMethod, "id" | "sort"> & { id: string | null }
 
@@ -92,7 +94,7 @@ export function InvoiceSettingsDialog({
   const [tab, setTab] = useState<"methods" | "studio">(initialTab)
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="flex max-h-[min(46rem,90svh)] flex-col sm:max-w-2xl">
+      <DialogContent className="flex max-h-[min(46rem,90svh)] flex-col sm:max-w-2xl sm:has-[[data-wide]]:max-w-5xl">
         <DialogHeader>
           <DialogTitle>{t("settingsTitle")}</DialogTitle>
           <DialogDescription className="sr-only">
@@ -228,6 +230,7 @@ function MethodForm({
   const dateLocale = useDateLocale()
   const queryClient = useQueryClient()
   const [draft, setDraft] = useState<Draft>(initial)
+  const { data: agency } = useAgency()
   const [qrFile, setQrFile] = useState<File | null>(null)
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
@@ -299,182 +302,197 @@ function MethodForm({
   }
 
   return (
-    <div className="flex flex-col gap-4 pt-2">
-      <div className="grid gap-3 sm:grid-cols-[1fr_12rem]">
+    // Like the invoice editor: the invoice on the left (only its foot, where
+    // a method prints), updating as you type; the form on the right.
+    <div
+      data-wide
+      className="grid items-start gap-5 pt-2 lg:grid-cols-[minmax(0,1fr)_22rem]"
+    >
+      <InvoiceBottom
+        data={paymentDocData(agency ?? DEFAULT_AGENCY, draft, localQr ?? qrUrl)}
+        className="ring-border/60 rounded-xl ring-1 lg:sticky lg:top-0"
+        paperClassName="px-[5%] pt-[8%] pb-[5%]"
+        visible={560}
+      />
+      <div className="flex flex-col gap-4">
+        <div className="grid gap-3 sm:grid-cols-[1fr_12rem]">
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="pm-name">{t("methodName")}</Label>
+            <Input
+              id="pm-name"
+              autoFocus={!draft.id}
+              value={draft.name}
+              placeholder={t("methodNamePlaceholder")}
+              onChange={(e) => setDraft({ ...draft, name: e.target.value })}
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label>{t("methodType")}</Label>
+            <Select
+              value={draft.type}
+              onValueChange={(v) => v && setType(v as PaymentType)}
+            >
+              <SelectTrigger className="w-full" aria-label={t("methodType")}>
+                <SelectValue>
+                  {(v: PaymentType) => PAYMENT_TYPE_LABEL[v]}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {PAYMENT_TYPES.map((type) => (
+                  <SelectItem key={type} value={type}>
+                    {PAYMENT_TYPE_LABEL[type]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        {PAYMENT_FIELDS[draft.type].length > 0 && (
+          <div className="grid gap-3 sm:grid-cols-2">
+            {PAYMENT_FIELDS[draft.type].map((f) => (
+              <div
+                key={f.key}
+                className={cn(
+                  "flex flex-col gap-1.5",
+                  ["address", "bank_address", "details", "link"].includes(
+                    f.key,
+                  ) && "sm:col-span-2",
+                )}
+              >
+                <Label htmlFor={`pm-${f.key}`}>{f.label}</Label>
+                <Input
+                  id={`pm-${f.key}`}
+                  value={draft.details[f.key] ?? ""}
+                  className={
+                    f.key === "address" ? "font-mono text-xs" : undefined
+                  }
+                  onChange={(e) => setField(f.key, e.target.value)}
+                />
+              </div>
+            ))}
+          </div>
+        )}
+
+        {draft.type === "crypto" && (
+          <div className="border-border nest-rounded-xl nest-p-3 flex flex-col gap-3 border">
+            <div className="flex items-start gap-3">
+              <div className="bg-muted rounded-nested grid size-20 shrink-0 place-items-center overflow-hidden">
+                {(localQr || qrUrl) && (
+                  // eslint-disable-next-line @next/next/no-img-element -- local or signed URL
+                  <img
+                    src={localQr ?? qrUrl}
+                    alt="QR"
+                    className="size-full object-contain"
+                  />
+                )}
+              </div>
+              <div className="flex min-w-0 flex-1 flex-col gap-2">
+                <Label>{t("qr")}</Label>
+                <FileField
+                  accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                  fileName={qrFile?.name}
+                  onChange={(files) => setQrFile(files?.[0] ?? null)}
+                />
+                {draft.qr_path && !qrFile && (
+                  <button
+                    type="button"
+                    className="text-muted-foreground hover:text-destructive w-fit text-xs"
+                    onClick={() => setDraft({ ...draft, qr_path: null })}
+                  >
+                    {t("removeQr")}
+                  </button>
+                )}
+              </div>
+            </div>
+            <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
+              <span
+                className={cn(
+                  "text-muted-foreground",
+                  needsVerification(draft) && "text-warning",
+                )}
+              >
+                {draft.verified_at
+                  ? `${t("lastChecked")} ${formatDistanceToNow(new Date(draft.verified_at), { addSuffix: true, locale: dateLocale })}`
+                  : t("neverChecked")}
+              </span>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() =>
+                  setDraft({ ...draft, verified_at: new Date().toISOString() })
+                }
+              >
+                {t("markChecked")}
+              </Button>
+            </div>
+          </div>
+        )}
+
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="pm-name">{t("methodName")}</Label>
-          <Input
-            id="pm-name"
-            autoFocus={!draft.id}
-            value={draft.name}
-            placeholder={t("methodNamePlaceholder")}
-            onChange={(e) => setDraft({ ...draft, name: e.target.value })}
+          <Label htmlFor="pm-notes">{t("methodNotes")}</Label>
+          <Textarea
+            id="pm-notes"
+            rows={4}
+            value={draft.notes ?? ""}
+            onChange={(e) => setDraft({ ...draft, notes: e.target.value })}
           />
         </div>
-        <div className="flex flex-col gap-1.5">
-          <Label>{t("methodType")}</Label>
-          <Select
-            value={draft.type}
-            onValueChange={(v) => v && setType(v as PaymentType)}
-          >
-            <SelectTrigger className="w-full" aria-label={t("methodType")}>
-              <SelectValue>
-                {(v: PaymentType) => PAYMENT_TYPE_LABEL[v]}
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              {PAYMENT_TYPES.map((type) => (
-                <SelectItem key={type} value={type}>
-                  {PAYMENT_TYPE_LABEL[type]}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
 
-      {PAYMENT_FIELDS[draft.type].length > 0 && (
-        <div className="grid gap-3 sm:grid-cols-2">
-          {PAYMENT_FIELDS[draft.type].map((f) => (
-            <div
-              key={f.key}
-              className={cn(
-                "flex flex-col gap-1.5",
-                ["address", "bank_address", "details", "link"].includes(
-                  f.key,
-                ) && "sm:col-span-2",
-              )}
-            >
-              <Label htmlFor={`pm-${f.key}`}>{f.label}</Label>
-              <Input
-                id={`pm-${f.key}`}
-                value={draft.details[f.key] ?? ""}
-                className={
-                  f.key === "address" ? "font-mono text-xs" : undefined
-                }
-                onChange={(e) => setField(f.key, e.target.value)}
-              />
-            </div>
-          ))}
-        </div>
-      )}
+        <label className="flex items-center gap-2 text-sm">
+          <Switch
+            checked={draft.is_active}
+            onCheckedChange={(v) =>
+              setDraft({ ...draft, is_active: Boolean(v) })
+            }
+          />
+          {t("methodActive")}
+        </label>
 
-      {draft.type === "crypto" && (
-        <div className="border-border nest-rounded-xl nest-p-3 flex flex-col gap-3 border">
-          <div className="flex items-start gap-3">
-            <div className="bg-muted rounded-nested grid size-20 shrink-0 place-items-center overflow-hidden">
-              {(localQr || qrUrl) && (
-                // eslint-disable-next-line @next/next/no-img-element -- local or signed URL
-                <img
-                  src={localQr ?? qrUrl}
-                  alt="QR"
-                  className="size-full object-contain"
-                />
-              )}
-            </div>
-            <div className="flex min-w-0 flex-1 flex-col gap-2">
-              <Label>{t("qr")}</Label>
-              <FileField
-                accept="image/png,image/jpeg,image/webp,image/svg+xml"
-                fileName={qrFile?.name}
-                onChange={(files) => setQrFile(files?.[0] ?? null)}
-              />
-              {draft.qr_path && !qrFile && (
-                <button
-                  type="button"
-                  className="text-muted-foreground hover:text-destructive w-fit text-xs"
-                  onClick={() => setDraft({ ...draft, qr_path: null })}
-                >
-                  {t("removeQr")}
-                </button>
-              )}
-            </div>
-          </div>
-          <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
-            <span
-              className={cn(
-                "text-muted-foreground",
-                needsVerification(draft) && "text-warning",
-              )}
-            >
-              {draft.verified_at
-                ? `${t("lastChecked")} ${formatDistanceToNow(new Date(draft.verified_at), { addSuffix: true, locale: dateLocale })}`
-                : t("neverChecked")}
-            </span>
+        <DialogFooter className="sm:justify-between">
+          {draft.id ? (
             <Button
-              size="sm"
-              variant="outline"
-              onClick={() =>
-                setDraft({ ...draft, verified_at: new Date().toISOString() })
-              }
+              variant="ghost"
+              className="text-destructive hover:text-destructive"
+              onClick={() => setDeleting(true)}
             >
-              {t("markChecked")}
+              {t("deleteMethod")}
+            </Button>
+          ) : (
+            <span />
+          )}
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={onDone}>
+              {tc("cancel")}
+            </Button>
+            <Button onClick={save} disabled={saving}>
+              {saving ? tc("saving") : tc("save")}
             </Button>
           </div>
-        </div>
-      )}
+        </DialogFooter>
 
-      <div className="flex flex-col gap-1.5">
-        <Label htmlFor="pm-notes">{t("methodNotes")}</Label>
-        <Textarea
-          id="pm-notes"
-          rows={4}
-          value={draft.notes ?? ""}
-          onChange={(e) => setDraft({ ...draft, notes: e.target.value })}
+        <ConfirmDialog
+          open={deleting}
+          onOpenChange={setDeleting}
+          title={t("deleteMethodTitle", { name: draft.name })}
+          description={t("deleteMethodDescription")}
+          confirmText={t("deleteMethod")}
+          cancelText={tc("cancel")}
+          variant="destructive"
+          onConfirm={async () => {
+            const db = createClient()
+            const { error } = await db
+              .from("payment_methods")
+              .delete()
+              .eq("id", draft.id!)
+            if (error) return void toast.error(t("errMethod"))
+            if (draft.qr_path) await removeQrIfUnused(draft.qr_path)
+            toast.success(t("methodDeleted"))
+            await refresh()
+            onDone()
+          }}
         />
       </div>
-
-      <label className="flex items-center gap-2 text-sm">
-        <Switch
-          checked={draft.is_active}
-          onCheckedChange={(v) => setDraft({ ...draft, is_active: Boolean(v) })}
-        />
-        {t("methodActive")}
-      </label>
-
-      <DialogFooter className="sm:justify-between">
-        {draft.id ? (
-          <Button
-            variant="ghost"
-            className="text-destructive hover:text-destructive"
-            onClick={() => setDeleting(true)}
-          >
-            {t("deleteMethod")}
-          </Button>
-        ) : (
-          <span />
-        )}
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={onDone}>
-            {tc("cancel")}
-          </Button>
-          <Button onClick={save} disabled={saving}>
-            {saving ? tc("saving") : tc("save")}
-          </Button>
-        </div>
-      </DialogFooter>
-
-      <ConfirmDialog
-        open={deleting}
-        onOpenChange={setDeleting}
-        title={t("deleteMethodTitle", { name: draft.name })}
-        description={t("deleteMethodDescription")}
-        confirmText={t("deleteMethod")}
-        cancelText={tc("cancel")}
-        variant="destructive"
-        onConfirm={async () => {
-          const db = createClient()
-          const { error } = await db
-            .from("payment_methods")
-            .delete()
-            .eq("id", draft.id!)
-          if (error) return void toast.error(t("errMethod"))
-          if (draft.qr_path) await removeQrIfUnused(draft.qr_path)
-          toast.success(t("methodDeleted"))
-          await refresh()
-          onDone()
-        }}
-      />
     </div>
   )
 }

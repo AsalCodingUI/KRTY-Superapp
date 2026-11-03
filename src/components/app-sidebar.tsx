@@ -46,7 +46,7 @@ import { useT } from "@/shared/i18n/client"
 import { isAdminRole } from "@/shared/lib/roles"
 import { useQuery } from "@tanstack/react-query"
 import { Settings, Sparkles } from "lucide-react"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 
 type SidebarProject = { id: string; name: string; href: string }
 
@@ -54,6 +54,9 @@ type SidebarProject = { id: string; name: string; href: string }
  * Active projects for the Project workspace: every active project for
  * stakeholders, the user's own assignments for everyone else.
  */
+/** Projects under way: not-started ones wait on the Projects page. */
+const SIDEBAR_STATUSES = ["Active", "Review"]
+
 function useSidebarProjects(profile: { id: string; role: string } | null) {
   return useQuery<SidebarProject[]>({
     queryKey: ["sidebar-projects", profile?.id, profile?.role],
@@ -66,7 +69,7 @@ function useSidebarProjects(profile: { id: string; role: string } | null) {
         const { data } = await supabase
           .from("projects")
           .select("id, name")
-          .in("status", ["Planned", "Active", "Review"])
+          .in("status", SIDEBAR_STATUSES)
           .order("name")
         return ((data ?? []) as { id: string; name: string }[]).map((p) => ({
           ...p,
@@ -77,7 +80,7 @@ function useSidebarProjects(profile: { id: string; role: string } | null) {
         .from("project_assignments")
         .select("projects!inner(id, name, status)")
         .eq("user_id", profile.id)
-        .in("projects.status", ["Planned", "Active", "Review"])
+        .in("projects.status", SIDEBAR_STATUSES)
       type Row = { projects: { id: string; name: string } }
       return ((data ?? []) as unknown as Row[])
         .map((row) => row.projects)
@@ -102,6 +105,7 @@ const NAV_SLIDE: Variants = {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const desktop = useDesktopShell()
   const pathname = usePathname()
+  const router = useRouter()
   const { profile } = useUserProfile()
   const { loading, active, badges } = useWorkspaceNav()
   // A project's own menu only while the Project workspace is shown (right
@@ -117,7 +121,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     : `ws:${active?.id ?? ""}`
   const navDirection = projectPath ? 1 : -1
   const t = useT("nav")
-  const tDesktop = useT("desktopApp")
+  const tPrefs = useT("prefs")
   // A dot on Yang baru while there's something the viewer hasn't seen.
   const { count: whatsNewUnseen } = useWhatsNewUnseen()
 
@@ -166,6 +170,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       collapsible="icon"
       // Same tinted chrome as the top bar; the page floats beside it.
       className="on-chrome overflow-hidden"
+      // Dark in light mode too when Settings → Tampilan says so (globals.css).
+      data-chrome-dark=""
       {...props}
     >
       <SidebarRail />
@@ -275,18 +281,22 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               )}
             </SidebarMenuButton>
           </SidebarMenuItem>
-          {desktop && (
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                isActive={matchesRoute(pathname, "/settings/app")}
-                tooltip={tDesktop("menuAppSettings")}
-                render={<PrefetchLink href="/settings/app" />}
-              >
-                <Settings />
-                <span className="truncate">{tDesktop("menuAppSettings")}</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          )}
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              tooltip={tPrefs("title")}
+              onClick={() => {
+                // Settings opens over the current page (?settings=…).
+                const url = new URL(window.location.href)
+                url.searchParams.set("settings", "general")
+                router.replace(`${url.pathname}${url.search}`, {
+                  scroll: false,
+                })
+              }}
+            >
+              <Settings />
+              <span className="truncate">{tPrefs("title")}</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
         </SidebarMenu>
       </SidebarGroup>
       {/* Theme, language and chrome color live here; there is no settings page. */}

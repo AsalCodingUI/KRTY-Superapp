@@ -40,6 +40,8 @@ import {
 import { useQueryClient } from "@tanstack/react-query"
 import { format } from "date-fns"
 import {
+  CalendarClock,
+  CalendarOff,
   Copy,
   Link as LinkIcon,
   RotateCcw,
@@ -56,6 +58,7 @@ import {
   santuyKey,
   santuyMeet,
   setSantuyWeek,
+  type SantuyWeekValue,
   useSantuy,
   type SantuyData,
   type SantuyMember,
@@ -135,6 +138,13 @@ function SantuyBody({
   const queue = activeQueue(data.members)
   const today = todayIn(settings.timezone)
   const tz = zoneLabel(settings.timezone)
+  // A moved week's own time, in the session's zone.
+  const hhmm = (d: Date) =>
+    d.toLocaleTimeString("en-GB", {
+      hour: "2-digit",
+      minute: "2-digit",
+      timeZone: settings.timezone,
+    })
   const timeLabel = `${settings.startTime}–${endTime(settings.startTime, settings.durationMin)} ${tz}`
 
   // Long enough to reach everyone's next turn, plus the listed weeks.
@@ -260,10 +270,7 @@ function SantuyBody({
   }
 
   /** Back to `before` while the saved queue is still `after`. */
-  const registerQueueUndo = (
-    before: SantuyMember[],
-    after: SantuyMember[],
-  ) => {
+  const registerQueueUndo = (before: SantuyMember[], after: SantuyMember[]) => {
     const sig = (list: SantuyMember[]) =>
       list.map((m) => `${m.profileId}:${m.active}`).join()
     const go = async (expected: SantuyMember[], next: SantuyMember[]) => {
@@ -284,32 +291,45 @@ function SantuyBody({
     })
   }
 
-  const saveWeek = async (
-    date: string,
-    value: { kind: "skip" } | { kind: "assign"; profileId: string } | null,
-  ) => {
+  const saveWeek = async (date: string, value: SantuyWeekValue) => {
     // What the week was, for ⌘Z (shared/undo).
     const week = data.weeks.find((w) => w.date === date)
-    const before: typeof value = !week
+    const before: SantuyWeekValue = !week
       ? null
       : week.kind === "assign" && week.profileId
         ? { kind: "assign", profileId: week.profileId }
-        : { kind: "skip" }
+        : week.kind === "move" && week.movedDate
+          ? {
+              kind: "move",
+              movedDate: week.movedDate,
+              movedTime: week.movedTime ?? null,
+              note: week.note,
+            }
+          : { kind: "skip", note: week.note }
     await run(() => setSantuyWeek(date, value), t("weekSaved"))
     const same = (
       w: SantuyData["weeks"][number] | undefined,
-      v: typeof value,
+      v: SantuyWeekValue,
     ) =>
       !v
         ? !w
         : !!w &&
           w.kind === v.kind &&
-          (v.kind === "skip" || w.profileId === v.profileId)
+          (v.kind !== "assign" || w.profileId === v.profileId) &&
+          (v.kind !== "move" ||
+            (w.movedDate === v.movedDate &&
+              (w.movedTime ?? null) === (v.movedTime ?? null)))
     if (JSON.stringify(before) === JSON.stringify(value)) return
-    const go = async (expected: typeof value, next: typeof value) => {
+    const go = async (expected: SantuyWeekValue, next: SantuyWeekValue) => {
       await refresh()
       const current = queryClient.getQueryData<SantuyData>(santuyKey)
-      if (!current || !same(current.weeks.find((w) => w.date === date), expected))
+      if (
+        !current ||
+        !same(
+          current.weeks.find((w) => w.date === date),
+          expected,
+        )
+      )
         throw new UndoStale()
       await run(() => setSantuyWeek(date, next))
     }
@@ -374,12 +394,17 @@ function SantuyBody({
                   key={s.date}
                   session={s}
                   data={data}
-                  dayLabel={dayLabel(s.date)}
-                  timeLabel={timeLabel}
+                  dayLabel={dayLabel(s.movedTo ?? s.date)}
+                  timeLabel={
+                    s.movedTo
+                      ? `${hhmm(s.start)}–${hhmm(s.end)} ${tz}`
+                      : timeLabel
+                  }
+                  movedFrom={s.movedTo ? dayLabel(s.date) : null}
                   badge={
-                    s.date === today
+                    (s.movedTo ?? s.date) === today
                       ? t("today")
-                      : isThisWeek(s.date)
+                      : isThisWeek(s.movedTo ?? s.date)
                         ? t("thisWeek")
                         : null
                   }
@@ -390,6 +415,9 @@ function SantuyBody({
                     setWeekDate(s.date)
                     setWeekOpen(true)
                   }}
+                  onSkip={() =>
+                    saveWeek(s.date, { kind: "skip" }).catch(() => {})
+                  }
                   onReset={() =>
                     run(
                       () => setSantuyWeek(s.date, null),
@@ -475,22 +503,28 @@ function ScheduleRow({
   data,
   dayLabel,
   timeLabel,
+  movedFrom,
   badge,
   canEdit,
   busy,
   meetUrl,
   onAssign,
+  onSkip,
   onReset,
 }: {
   session: SantuySession
   data: SantuyData
   dayLabel: string
   timeLabel: string
+  /** Moved: the week's usual day. */
+  movedFrom: string | null
   badge: string | null
   canEdit: boolean
   busy: boolean
   meetUrl: string | null
   onAssign: () => void
+  /** Take the week off (the presenter goes the week after). */
+  onSkip: () => void
   onReset: () => void
 }) {
   const t = useT("santuy")
@@ -499,7 +533,7 @@ function ScheduleRow({
   const rotation = s.rotationProfileId
     ? data.people.get(s.rotationProfileId)
     : null
-  const overridden = skip || s.assigned
+  const overridden = skip || s.assigned || !!s.movedTo
 
   return (
     // Right-click: the "…" menu's actions, plus Meet and copy.
@@ -517,6 +551,22 @@ function ScheduleRow({
             hidden: !canEdit,
             disabled: busy,
             onSelect: onAssign,
+          },
+          {
+            id: "move",
+            label: t("moveWeek"),
+            icon: CalendarClock,
+            hidden: !canEdit || skip,
+            disabled: busy,
+            onSelect: onAssign,
+          },
+          {
+            id: "skip",
+            label: t("skipWeek"),
+            icon: CalendarOff,
+            hidden: !canEdit || skip,
+            disabled: busy,
+            onSelect: onSkip,
           },
           {
             id: "reset",
@@ -581,6 +631,11 @@ function ScheduleRow({
                     {t("wouldBe", { name: personName(rotation) })}
                   </span>
                 )}
+                {movedFrom && (
+                  <span className="text-tertiary-foreground truncate text-[12px]">
+                    {t("movedFrom", { date: movedFrom })}
+                  </span>
+                )}
               </div>
             </>
           )}
@@ -589,6 +644,7 @@ function ScheduleRow({
           {badge && <Badge variant="info">{badge}</Badge>}
           {skip && <Badge variant="secondary">{t("skip")}</Badge>}
           {s.assigned && <Badge variant="warning">{t("assigned")}</Badge>}
+          {movedFrom && <Badge variant="info">{t("moved")}</Badge>}
           {canEdit && (
             <DropdownMenu>
               <DropdownMenuTrigger
@@ -608,6 +664,16 @@ function ScheduleRow({
                 <DropdownMenuItem onClick={onAssign}>
                   {t("assignWeek")}
                 </DropdownMenuItem>
+                {!skip && (
+                  <>
+                    <DropdownMenuItem onClick={onAssign}>
+                      {t("moveWeek")}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={onSkip}>
+                      {t("skipWeek")}
+                    </DropdownMenuItem>
+                  </>
+                )}
                 {overridden && (
                   <DropdownMenuItem onClick={onReset}>
                     {t("backToRotation")}

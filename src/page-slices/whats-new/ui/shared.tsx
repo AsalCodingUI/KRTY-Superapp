@@ -7,6 +7,13 @@ import { useT } from "@/shared/i18n/client"
 import type { MessageKey } from "@/shared/i18n/messages"
 
 type Key = MessageKey<"whatsNew">
+type BadgeVariant =
+  | "default"
+  | "info"
+  | "success"
+  | "secondary"
+  | "outline"
+  | "warning"
 
 export const AREA_LABEL: Record<WhatsNewArea, Key> = {
   general: "areaGeneral",
@@ -38,33 +45,71 @@ export const TAG: Record<
   guide: { label: "tagGuide", variant: "secondary" },
 }
 
-/** Baru / Diperbarui / Perbaikan, then who it's for and where it shows. */
+/**
+ * Baru / Diperbarui / Perbaikan, then who it's for and where it shows.
+ * `onPicture` sets each on a solid pill so it reads over a screenshot.
+ */
 export function EntryBadges({
   entry,
+  onPicture = false,
   className,
 }: {
   entry: WhatsNewEntry
+  onPicture?: boolean
   className?: string
 }) {
   const t = useT("whatsNew")
+  const badges: { key: string; variant: BadgeVariant; label: string }[] = [
+    ...(!entry.published
+      ? [{ key: "draft", variant: "secondary" as const, label: t("draft") }]
+      : []),
+    ...entry.tags.map((tag) => ({
+      key: tag,
+      variant: TAG[tag].variant,
+      label: t(TAG[tag].label),
+    })),
+    { key: "area", variant: "outline", label: t(AREA_LABEL[entry.area]) },
+    ...(entry.audience !== "everyone"
+      ? [
+          {
+            key: "audience",
+            variant: "warning" as const,
+            label: t(
+              entry.audience === "pm" ? "audiencePm" : "audienceStakeholder",
+            ),
+          },
+        ]
+      : []),
+    ...(entry.surface && entry.surface !== "app"
+      ? [
+          {
+            key: "surface",
+            variant: "secondary" as const,
+            label: t(entry.surface === "mac" ? "surfaceMac" : "surfaceClient"),
+          },
+        ]
+      : []),
+  ]
   return (
     <div className={cn("flex flex-wrap items-center gap-1.5", className)}>
-      {!entry.published && <Badge variant="secondary">{t("draft")}</Badge>}
-      {entry.tags.map((tag) => (
-        <Badge key={tag} variant={TAG[tag].variant}>
-          {t(TAG[tag].label)}
-        </Badge>
-      ))}
-      <Badge variant="outline">{t(AREA_LABEL[entry.area])}</Badge>
-      {entry.audience !== "everyone" && (
-        <Badge variant="warning">
-          {t(entry.audience === "pm" ? "audiencePm" : "audienceStakeholder")}
-        </Badge>
-      )}
-      {entry.surface && entry.surface !== "app" && (
-        <Badge variant="secondary">
-          {t(entry.surface === "mac" ? "surfaceMac" : "surfaceClient")}
-        </Badge>
+      {badges.map(({ key, variant, label }) =>
+        onPicture ? (
+          <span
+            key={key}
+            className="bg-background rounded-full shadow-[0_1px_3px_rgb(0_0_0/0.18)]"
+          >
+            <Badge
+              variant={variant}
+              className={cn(variant === "outline" && "border-transparent")}
+            >
+              {label}
+            </Badge>
+          </span>
+        ) : (
+          <Badge key={key} variant={variant}>
+            {label}
+          </Badge>
+        ),
       )}
     </div>
   )

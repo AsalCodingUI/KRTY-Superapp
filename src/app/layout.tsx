@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils"
 import { I18nProvider } from "@/shared/i18n/client"
 import { getClientMessages, getLocale } from "@/shared/i18n/server"
 import { TINT_SCRIPT } from "@/shared/lib/chrome-tint"
+import { DISPLAY_SCRIPT } from "@/shared/lib/display-prefs-script"
 import { ThemeColorSync } from "@/components/theme-color-sync"
 import { ScrollbarAutoHide } from "@/components/scrollbar-auto-hide"
 import { ContextMenuProvider } from "@/shared/context-menu"
@@ -112,6 +113,8 @@ export default async function RootLayout({
       <head>
         {/* The viewer's chrome color, before first paint. */}
         <script dangerouslySetInnerHTML={{ __html: TINT_SCRIPT }} />
+        {/* Text size from Settings → Tampilan, before first paint. */}
+        <script dangerouslySetInnerHTML={{ __html: DISPLAY_SCRIPT }} />
       </head>
       <body
         className="selection:bg-primary/20 selection:text-primary min-h-dvh overflow-x-hidden overflow-y-auto scroll-auto antialiased"

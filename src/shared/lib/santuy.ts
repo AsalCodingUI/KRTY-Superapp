@@ -16,6 +16,9 @@
  *   the rotation still uses that week's turn, so everyone else keeps their
  *   date (the person whose turn it was simply sits out this round). Simple
  *   and predictable: no "not twice in a row" adjustments.
+ * - Move (digeser): that week's session happens on another day (and maybe
+ *   another time). It still uses that week's turn, so nobody shifts; the
+ *   presenter is the rotation's, or the assigned person if one was set.
  * - Exceptions on a day that isn't a session day are ignored.
  * - History: before the anchor only 'assign' rows exist as sessions. When the
  *   queue or the weekday changes, `reanchor` moves the anchor to the next
@@ -44,8 +47,12 @@ export type SantuySettings = {
 
 export type SantuyWeek = {
   date: string
-  kind: "skip" | "assign"
+  kind: "skip" | "assign" | "move"
   profileId: string | null
+  /** For "move": the day it happens instead ("yyyy-MM-dd"). */
+  movedDate?: string | null
+  /** For "move": its start time ("HH:mm"); null keeps the usual one. */
+  movedTime?: string | null
 }
 
 export type SantuySession = {
@@ -60,6 +67,9 @@ export type SantuySession = {
   assigned: boolean
   /** Before the anchor: a frozen past session. */
   history: boolean
+  /** Moved to another day: the day it actually happens (`date` stays the
+   *  week's usual day, which keys the exception). */
+  movedTo: string | null
   start: Date
   end: Date
 }
@@ -143,6 +153,7 @@ export function santuySchedule({
       rotationProfileId: null,
       assigned: true,
       history: true,
+      movedTo: null,
       ...sessionTimes(w.date, settings),
     })
   }
@@ -164,12 +175,14 @@ export function santuySchedule({
           rotationProfileId: rotation,
           assigned: false,
           history: false,
+          movedTo: null,
           ...times,
         })
       continue
     }
 
-    const assigned = week?.kind === "assign" && !!week.profileId
+    const moved = week?.kind === "move" && week.movedDate ? week : null
+    const assigned = (week?.kind === "assign" || !!moved) && !!week?.profileId
     // The turn is used either way, so an assign shifts nobody else.
     if (rotation) turn += 1
     const presenter = assigned ? week!.profileId : rotation
@@ -181,7 +194,13 @@ export function santuySchedule({
         rotationProfileId: rotation,
         assigned,
         history: false,
-        ...times,
+        movedTo: moved?.movedDate ?? null,
+        ...(moved
+          ? sessionTimes(moved.movedDate!, {
+              ...settings,
+              startTime: moved.movedTime || settings.startTime,
+            })
+          : times),
       })
   }
   return out

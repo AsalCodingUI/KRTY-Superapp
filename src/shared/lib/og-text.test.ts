@@ -54,6 +54,8 @@ describe("clientOriginFor", () => {
     expect(clientOriginFor("client.kretyastudio.com", "https")).toBe(
       "https://client.kretyastudio.com",
     )
-    expect(clientOriginFor("localhost:3000", null)).toBe("http://localhost:3000")
+    expect(clientOriginFor("localhost:3000", null)).toBe(
+      "http://localhost:3000",
+    )
   })
 })

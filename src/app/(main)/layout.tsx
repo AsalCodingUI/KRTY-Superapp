@@ -11,6 +11,7 @@ import { ImpersonationBanner } from "@/widgets/impersonation/ui/ImpersonationBan
 import { DesktopShellProvider } from "@/components/desktop-shell"
 import { ContextMenuAppScope } from "@/shared/context-menu"
 import { UndoShortcuts } from "@/shared/undo"
+import { SettingsHost } from "@/widgets/settings/ui/SettingsHost"
 import { DESKTOP_SHELL_COOKIE } from "@/shared/lib/desktop-shell"
 import { cookies } from "next/headers"
 import { cn } from "@/lib/utils"
@@ -57,6 +58,9 @@ export default async function Layout({
       <ContextMenuAppScope />
       {/* ⌘Z / ⌘⇧Z across the app (shared/undo). */}
       <UndoShortcuts />
+      <Suspense>
+        <SettingsHost />
+      </Suspense>
       {desktop && (
         // A new href whenever the rules change: React keeps a hoisted
         // style by its href.

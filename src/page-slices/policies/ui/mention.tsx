@@ -535,7 +535,7 @@ export function MentionMenu({
       role="listbox"
       aria-label={t("mentionMenu")}
       style={style}
-      className="bg-popover text-popover-foreground animate-in fade-in-0 zoom-in-95 nest-rounded-xl nest-p-1 z-[60] no-scrollbar w-72 max-w-[calc(100vw-24px)] overflow-y-auto overscroll-contain text-sm shadow-(--elev-4)"
+      className="bg-popover text-popover-foreground animate-in fade-in-0 zoom-in-95 nest-rounded-xl nest-p-1 no-scrollbar z-[60] w-72 max-w-[calc(100vw-24px)] overflow-y-auto overscroll-contain text-sm shadow-(--elev-4)"
     >
       {items.length === 0 ? (
         <p className="text-muted-foreground px-2 py-3 text-center">

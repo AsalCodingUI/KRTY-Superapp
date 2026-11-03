@@ -67,7 +67,7 @@ async function fetchSantuy(): Promise<SantuyData> {
       .order("position"),
     supabase
       .from("santuy_weeks")
-      .select("date, kind, profile_id, note")
+      .select("date, kind, profile_id, note, moved_date, moved_time")
       .order("date"),
     supabase
       .from("profiles")
@@ -110,11 +110,16 @@ async function fetchSantuy(): Promise<SantuyData> {
         kind: string
         profile_id: string | null
         note: string | null
+        moved_date: string | null
+        moved_time: string | null
       }[]
     ).map((w) => ({
       date: w.date,
-      kind: w.kind === "assign" ? "assign" : "skip",
+      kind:
+        w.kind === "assign" ? "assign" : w.kind === "move" ? "move" : "skip",
       profileId: w.profile_id,
+      movedDate: w.moved_date,
+      movedTime: w.moved_time?.slice(0, 5) ?? null,
       note: w.note,
     })),
     people: new Map(people.map((p) => [p.id, p])),
@@ -212,17 +217,30 @@ export async function commitSantuy(
 }
 
 /** Set one week's exception ('skip' or 'assign'), or clear it (null). */
-export async function setSantuyWeek(
-  date: string,
-  value: { kind: "skip" } | { kind: "assign"; profileId: string } | null,
-) {
+/** What a week can be set to (null: back to the rotation). */
+export type SantuyWeekValue =
+  | { kind: "skip"; note?: string | null }
+  | { kind: "assign"; profileId: string }
+  | {
+      kind: "move"
+      movedDate: string
+      /** "HH:mm"; null keeps the usual start time. */
+      movedTime: string | null
+      note?: string | null
+    }
+  | null
+
+/** Saving it tells the queue (santuy_weeks_notify trigger). */
+export async function setSantuyWeek(date: string, value: SantuyWeekValue) {
   const supabase = createClient()
   const { error } = value
     ? await supabase.from("santuy_weeks").upsert({
         date,
         kind: value.kind,
         profile_id: value.kind === "assign" ? value.profileId : null,
-        note: null,
+        moved_date: value.kind === "move" ? value.movedDate : null,
+        moved_time: value.kind === "move" ? value.movedTime : null,
+        note: value.kind === "assign" ? null : value.note?.trim() || null,
       })
     : await supabase.from("santuy_weeks").delete().eq("date", date)
   if (error) throw error

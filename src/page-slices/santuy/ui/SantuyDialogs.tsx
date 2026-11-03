@@ -1,5 +1,6 @@
 "use client"
 
+import { DateField } from "@/components/date-field"
 import { TimeSelect } from "@/components/time-select"
 import { Button } from "@/components/ui/button"
 import {
@@ -10,6 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import {
@@ -24,7 +26,7 @@ import { useDateLocale, useT } from "@/shared/i18n/client"
 import { addDays } from "@/shared/lib/santuy"
 import { format } from "date-fns"
 import { useState } from "react"
-import type { SantuyData, SantuyPerson } from "../data"
+import type { SantuyData, SantuyPerson, SantuyWeekValue } from "../data"
 import { dayDate, endTime, personName, zoneLabel } from "./shared"
 
 /** Pick someone (not yet in the queue) to add at the end. */
@@ -150,11 +152,12 @@ export type WeekChoice = {
   rotationId: string | null
 }
 
-type Mode = "rotation" | "assign"
+type Mode = "rotation" | "assign" | "move" | "skip"
 
 /**
- * One week: follow the rotation, assign someone, or take it off. `dates`
- * are the upcoming session days (skip weeks included).
+ * One week: follow the rotation, assign someone, move it to another day, or
+ * take it off (the presenter just goes the week after). `dates` are the
+ * upcoming session days (skip weeks included). Saving tells the queue.
  */
 export function WeekDialog({
   open,
@@ -169,10 +172,7 @@ export function WeekDialog({
   data: SantuyData
   dates: WeekChoice[]
   initialDate: string | null
-  onSave: (
-    date: string,
-    value: { kind: "skip" } | { kind: "assign"; profileId: string } | null,
-  ) => Promise<void>
+  onSave: (date: string, value: SantuyWeekValue) => Promise<void>
 }) {
   const t = useT("santuy")
   const tc = useT("common")
@@ -180,14 +180,24 @@ export function WeekDialog({
   const [date, setDate] = useState<string | null>(null)
   const [mode, setMode] = useState<Mode>("rotation")
   const [person, setPerson] = useState<string | null>(null)
+  const [movedDate, setMovedDate] = useState("")
+  const [movedTime, setMovedTime] = useState("")
+  const [note, setNote] = useState("")
   const [busy, setBusy] = useState(false)
   const [lastOpen, setLastOpen] = useState(false)
 
   const load = (d: string | null) => {
     setDate(d)
     const week = d ? data.weeks.find((w) => w.date === d) : undefined
-    setMode(week?.kind === "assign" ? "assign" : "rotation")
+    setMode(week?.kind ?? "rotation")
     setPerson(week?.kind === "assign" ? week.profileId : null)
+    setMovedDate(week?.kind === "move" ? (week.movedDate ?? "") : "")
+    setMovedTime(
+      week?.kind === "move" && week.movedTime
+        ? week.movedTime
+        : data.settings.startTime.slice(0, 5),
+    )
+    setNote(week?.kind === "assign" ? "" : (week?.note ?? ""))
   }
   // Reset to the requested week each time the dialog opens.
   if (open !== lastOpen) {
@@ -199,7 +209,10 @@ export function WeekDialog({
   const rotationName = choice?.rotationId
     ? personName(data.people.get(choice.rotationId))
     : null
-  const valid = !!date && (mode !== "assign" || !!person)
+  const valid =
+    !!date &&
+    (mode !== "assign" || !!person) &&
+    (mode !== "move" || !!movedDate)
 
   const submit = async () => {
     if (!date || !valid) return
@@ -207,7 +220,22 @@ export function WeekDialog({
     try {
       await onSave(
         date,
-        mode === "assign" ? { kind: "assign", profileId: person! } : null,
+        mode === "assign"
+          ? { kind: "assign", profileId: person! }
+          : mode === "move"
+            ? {
+                kind: "move",
+                movedDate,
+                // The usual time needs no override.
+                movedTime:
+                  movedTime && movedTime !== data.settings.startTime.slice(0, 5)
+                    ? movedTime
+                    : null,
+                note,
+              }
+            : mode === "skip"
+              ? { kind: "skip", note }
+              : null,
       )
       onOpenChange(false)
     } catch {
@@ -259,6 +287,13 @@ export function WeekDialog({
                     : t("modeRotationEmpty"),
                 ],
                 ["assign", t("modeAssign")],
+                ["move", t("modeMove")],
+                [
+                  "skip",
+                  rotationName
+                    ? t("modeSkip", { name: rotationName })
+                    : t("modeSkipEmpty"),
+                ],
               ] as const
             ).map(([value, label]) => (
               <Label
@@ -282,6 +317,46 @@ export function WeekDialog({
               onChange={setPerson}
               placeholder={t("pickPerson")}
             />
+          </div>
+        )}
+
+        {mode === "move" && (
+          <div className="grid grid-cols-[minmax(0,1fr)_8rem] gap-3">
+            <div className="flex min-w-0 flex-col gap-2">
+              <Label htmlFor="santuy-move-date">{t("moveDate")}</Label>
+              <DateField
+                id="santuy-move-date"
+                value={movedDate}
+                onChange={setMovedDate}
+                min={date ? addDays(date, -6) : undefined}
+                max={date ? addDays(date, 6) : undefined}
+              />
+            </div>
+            <div className="flex min-w-0 flex-col gap-2">
+              <Label>{t("moveTime")}</Label>
+              <TimeSelect
+                value={movedTime}
+                onValueChange={setMovedTime}
+                step={15}
+                className="w-full"
+              />
+            </div>
+          </div>
+        )}
+
+        {(mode === "move" || mode === "skip") && (
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="santuy-week-note">{t("weekNote")}</Label>
+            <Input
+              id="santuy-week-note"
+              value={note}
+              maxLength={120}
+              placeholder={t("weekNotePlaceholder")}
+              onChange={(e) => setNote(e.target.value)}
+            />
+            <p className="text-muted-foreground text-xs">
+              {t("weekNotifyHint")}
+            </p>
           </div>
         )}
 

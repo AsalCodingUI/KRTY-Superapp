@@ -56,7 +56,10 @@ export function AppTopbar() {
     return (
       <header
         data-slot="app-topbar"
-        className="on-chrome text-foreground relative z-40 flex h-(--app-topbar-height) shrink-0 items-center pr-4"
+        className={cn(
+          "on-chrome text-foreground relative z-40 flex h-(--app-topbar-height) shrink-0 items-center pr-4",
+        )}
+        data-chrome-dark=""
       >
         <div
           className={cn(
@@ -78,7 +81,10 @@ export function AppTopbar() {
     // sheet's shadow isn't cut off along the bar's bottom edge.
     <header
       data-slot="app-topbar"
-      className="on-chrome text-foreground relative z-40 flex h-(--app-topbar-height) shrink-0 items-center gap-4 px-4 md:grid md:grid-cols-[1fr_minmax(0,35rem)_1fr]"
+      className={cn(
+        "on-chrome text-foreground relative z-40 flex h-(--app-topbar-height) shrink-0 items-center gap-4 px-4 md:grid md:grid-cols-[1fr_minmax(0,35rem)_1fr]",
+      )}
+      data-chrome-dark=""
     >
       {/* From md up a grid: equal sides keep the search centred, but they
           never go below their content, so on narrower windows the search
@@ -91,9 +97,7 @@ export function AppTopbar() {
           aria-label={siteConfig.name}
         >
           <AppIcon size={192} variant="mark" className="size-[22px]" />
-          <span className="text-sm font-medium">
-            {siteConfig.name}
-          </span>
+          <span className="text-sm font-medium">{siteConfig.name}</span>
         </PrefetchLink>
         {/* Phones use the tab bar instead. */}
         <div className="hidden md:block">

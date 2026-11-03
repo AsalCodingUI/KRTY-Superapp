@@ -245,10 +245,7 @@ export async function deleteTaskUndoable({
   } catch {
     // Can't take a copy first: delete without an undo.
   }
-  const { error } = await supabase()
-    .from("project_tasks")
-    .delete()
-    .eq("id", id)
+  const { error } = await supabase().from("project_tasks").delete().eq("id", id)
   if (error) return error
   if (rows.length)
     registerUndo({
@@ -283,8 +280,7 @@ export function registerDuplicateUndo({
     label,
     undo: async () => {
       rows = await snapshotTask(copyId)
-      if (!rows.length || !(await deleteTaskRow(copyId)))
-        throw new UndoStale()
+      if (!rows.length || !(await deleteTaskRow(copyId))) throw new UndoStale()
       await refresh()
     },
     redo: async () => {
@@ -358,8 +354,11 @@ export function taskUndoRows(
   rows: TaskRow[],
   patches: { id: string; patch: Partial<TaskRow> }[],
 ) {
-  const out: { id: string; before: Partial<TaskRow>; after: Partial<TaskRow> }[] =
-    []
+  const out: {
+    id: string
+    before: Partial<TaskRow>
+    after: Partial<TaskRow>
+  }[] = []
   let main: TaskRow | null = null
   let mainHasMore = false
   const fields = new Set<string>()

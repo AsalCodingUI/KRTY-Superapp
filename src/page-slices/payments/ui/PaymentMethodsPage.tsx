@@ -6,16 +6,26 @@ import { PageHeader } from "@/components/page-header"
 import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
 import {
+  DEFAULT_AGENCY,
   needsVerification,
   PAYMENT_FIELDS,
   PAYMENT_TYPE_LABEL,
+  type AgencyProfile,
 } from "@/entities/finance/lib/invoice"
 import {
   invoiceKeys,
   removeQrIfUnused,
+  useAgency,
   usePaymentMethods,
+  useQrUrl,
   type PaymentMethod,
 } from "@/page-slices/projects/ui/invoice/data"
+import {
+  InvoiceBottom,
+  paymentDocData,
+} from "@/page-slices/projects/ui/invoice/InvoiceThumb"
+import { Chip } from "@/page-slices/projects/ui/workspace/FilePreview"
+import { cn } from "@/lib/utils"
 import { createClient } from "@/shared/api/supabase/client"
 import { ContextTarget, copyText, type CtxItem } from "@/shared/context-menu"
 import { useQueryClient } from "@tanstack/react-query"
@@ -55,6 +65,7 @@ export function PaymentMethodsPage() {
   // PMs and stakeholders (access.ts PM_UP).
   const canManage = accessLevel(profile) !== "employee"
   const { data: methods = [], isLoading } = usePaymentMethods(canManage)
+  const { data: agency } = useAgency()
   const [opened, setOpened] = useState<Opened | null>(null)
   const [deleting, setDeleting] = useState<PaymentMethod | null>(null)
   const tc = useT("common")
@@ -205,11 +216,8 @@ export function PaymentMethodsPage() {
           icon={<RiBankCardLine />}
         />
       ) : (
-        <div className="grid gap-4 pb-4 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-x-5 gap-y-7 pb-4 sm:grid-cols-2 xl:grid-cols-3">
           {methods.map((m) => {
-            const filled = PAYMENT_FIELDS[m.type]
-              .map((f) => m.details?.[f.key])
-              .filter(Boolean)
             const stale = needsVerification(m)
             return (
               <ContextTarget
@@ -222,30 +230,24 @@ export function PaymentMethodsPage() {
                 <button
                   type="button"
                   onClick={() => setOpened({ tab: "methods", methodId: m.id })}
-                  className="bg-card border-foreground/10 hover:border-foreground/20 focus-visible:border-primary/50 focus-visible:ring-primary/20 flex flex-col overflow-hidden rounded-xl border text-left transition-[border-color] duration-200 outline-none focus-visible:ring-2"
+                  className="group/row focus-visible:ring-primary/30 flex flex-col gap-2.5 rounded-xl text-left outline-none focus-visible:ring-2 focus-visible:ring-offset-4 focus-visible:ring-offset-[var(--background)]"
                 >
-                  <div className="flex flex-1 flex-col gap-3 p-5">
-                    <div className="flex flex-wrap items-center gap-1.5">
-                      <span className="border-border rounded-full border px-2 py-0.5 text-xs">
-                        {PAYMENT_TYPE_LABEL[m.type] ?? m.type}
-                      </span>
-                      {!m.is_active && (
-                        <span className="bg-muted text-muted-foreground rounded-full px-2 py-0.5 text-xs">
-                          {t("methodInactive")}
-                        </span>
+                  {/* What it looks like at the foot of an invoice. */}
+                  <MethodThumb
+                    method={m}
+                    agency={agency ?? DEFAULT_AGENCY}
+                    label={PAYMENT_TYPE_LABEL[m.type] ?? m.type}
+                    inactive={m.is_active ? null : t("methodInactive")}
+                  />
+                  <div className="flex min-w-0 flex-col">
+                    <span className="truncate text-sm">{m.name}</span>
+                    <span
+                      className={cn(
+                        "text-tertiary-foreground flex items-center gap-1 truncate text-[13px]",
+                        stale && "text-warning",
                       )}
-                    </div>
-                    <span className="text-foreground truncate font-medium">
-                      {m.name}
-                    </span>
-                    <p className="text-muted-foreground truncate text-sm">
-                      {filled.length
-                        ? filled.slice(0, 2).join(" · ")
-                        : t("methodNoDetails")}
-                    </p>
-                  </div>
-                  <div className="bg-muted/40 border-border text-muted-foreground flex items-center justify-between gap-3 border-t px-5 py-3 text-[13px]">
-                    <span className="truncate">
+                    >
+                      {stale && <AlertTriangle className="size-3.5 shrink-0" />}
                       {m.type === "crypto"
                         ? m.verified_at
                           ? `${t("lastChecked")} ${formatDistanceToNow(
@@ -257,12 +259,6 @@ export function PaymentMethodsPage() {
                           ? t("methodActive")
                           : t("methodInactive")}
                     </span>
-                    {stale && (
-                      <span className="text-warning flex shrink-0 items-center gap-1">
-                        <AlertTriangle className="size-3.5" />
-                        {t("needsCheck")}
-                      </span>
-                    )}
                   </div>
                 </button>
               </ContextTarget>
@@ -302,5 +298,37 @@ export function PaymentMethodsPage() {
         }}
       />
     </div>
+  )
+}
+
+/** What a method looks like at the foot of an invoice, QR included. */
+function MethodThumb({
+  method,
+  agency,
+  label,
+  inactive,
+}: {
+  method: PaymentMethod
+  agency: AgencyProfile
+  label: string
+  /** "Nonaktif" when it's switched off. */
+  inactive: string | null
+}) {
+  const { data: qrUrl } = useQrUrl(
+    method.type === "crypto" ? method.qr_path : null,
+  )
+  return (
+    <InvoiceBottom
+      data={paymentDocData(agency, method, qrUrl)}
+      className={cn(
+        "ring-border/60 aspect-[16/10] rounded-xl ring-1 transition-[filter] duration-150 group-hover/row:brightness-95",
+        inactive && "opacity-60",
+      )}
+    >
+      <span className="absolute top-2 left-2 flex gap-1">
+        <Chip className="static">{label}</Chip>
+        {inactive && <Chip className="static">{inactive}</Chip>}
+      </span>
+    </InvoiceBottom>
   )
 }

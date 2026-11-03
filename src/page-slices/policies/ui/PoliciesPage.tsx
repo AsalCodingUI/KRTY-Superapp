@@ -510,7 +510,7 @@ function dayMonth(value: string | null, locale: Locale) {
   return value ? format(new Date(value), "d MMM", { locale }) : ""
 }
 
-/** Grid card (Cloudflare catalog style): what it is up top, when in the footer. */
+/** Grid card: title, summary, then when it took effect (the section names its category). */
 function PolicyCard({
   policy,
   isAdmin,
@@ -541,27 +541,23 @@ function PolicyCard({
       href={href}
       scroll={false}
       prefetch={false}
-      className="bg-card border-foreground/10 hover:border-foreground/20 focus-visible:border-primary/50 focus-visible:ring-primary/20 flex flex-col overflow-hidden rounded-xl border transition-[border-color] duration-200 outline-none focus-visible:ring-2"
+      className="bg-card border-foreground/10 hover:border-foreground/20 focus-visible:border-primary/50 focus-visible:ring-primary/20 flex flex-col gap-1.5 rounded-xl border p-5 transition-[border-color] duration-200 outline-none focus-visible:ring-2"
     >
-      <div className="flex flex-1 flex-col gap-3 p-5">
-        <div className="flex flex-wrap items-center gap-1.5">
-          <span className="border-border rounded-full border px-2 py-0.5 text-xs">
-            {categoryLabel(t, policy.category)}
-          </span>
-          {status && (
-            <span className="bg-muted text-muted-foreground rounded-full px-2 py-0.5 text-xs">
-              {status}
-            </span>
-          )}
-        </div>
+      <span className="flex min-w-0 items-center gap-2">
         <span className="text-foreground truncate font-medium">
           {titleOf(policy)}
         </span>
-        <p className="text-muted-foreground line-clamp-2 min-h-10 text-sm leading-5">
-          {policy.summary || t("noSummary")}
-        </p>
-      </div>
-      <div className="bg-muted/40 border-border text-muted-foreground flex items-center justify-between gap-3 border-t px-5 py-3 text-[13px]">
+        {status && (
+          <span className="bg-muted text-muted-foreground shrink-0 rounded-full px-2 py-0.5 text-xs">
+            {status}
+          </span>
+        )}
+      </span>
+      <p className="text-muted-foreground line-clamp-2 min-h-10 text-sm leading-5">
+        {policy.summary || t("noSummary")}
+      </p>
+      {/* One quiet line: when it took effect, when it last changed. */}
+      <span className="text-tertiary-foreground mt-2 flex items-center justify-between gap-3 text-[13px] tabular-nums">
         <span className="truncate">
           {latest
             ? t("effectiveSince", {
@@ -569,7 +565,7 @@ function PolicyCard({
               })
             : t("notPublished")}
         </span>
-        <span className="shrink-0 tabular-nums">
+        <span className="shrink-0">
           {latest
             ? t("updatedOn", {
                 date: dayMonth(latest.published_at, dateLocale),
@@ -578,7 +574,7 @@ function PolicyCard({
               ? t("savedOn", { date: dayMonth(draft.updated_at, dateLocale) })
               : ""}
         </span>
-      </div>
+      </span>
     </Link>
   )
 }

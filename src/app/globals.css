@@ -71,7 +71,11 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-@custom-variant dark (&:is(.dark *));
+/* Dark mode, and the dark sidebar / top bar in light mode (Settings →
+   Tampilan): <html data-dark-chrome> is set before first paint, the two
+   bars carry data-chrome-dark from the server, so they're dark at once.
+   :where() keeps dark: utilities at their usual specificity. */
+@custom-variant dark (&:is(.dark *, :where(:root[data-dark-chrome]:not(.dark) [data-chrome-dark]) *));
 @config "../../tailwind.config.ts";
 
 /* Page gutter: content padding. Tables and lists "bleed" only --bleed past
@@ -518,7 +522,8 @@
   --dialog-panel: #ffffff;
 }
 
-.dark {
+.dark,
+:root[data-dark-chrome]:not(.dark) [data-chrome-dark] {
   /* Dark leans into the theme: the near-black surfaces carry its color. */
   --tint-ink: calc(var(--tint-c) * 0.025);
   --spinner: oklch(0.72 calc(var(--tint-c) * 0.13) var(--tint-h));
@@ -646,6 +651,16 @@
   background: transparent;
 }
 
+/* Dark sidebar (Settings → Tampilan) in light mode: the frame takes the
+   dark chrome; the sidebar and top bar (data-chrome-dark) take the dark
+   tokens, so their contents switch too. The page stays light. */
+:root[data-dark-chrome]:not(.dark) [data-slot="sidebar-wrapper"] {
+  background-color: oklch(
+    calc(0.215 + var(--tint-c) * 0.02) calc(var(--tint-c) * 0.06) var(--tint-h)
+  );
+  background-image: none;
+}
+
 /* Muted text and icons on the tinted chrome are translucent ink, so they
    pick up the tint instead of sitting on it as flat gray. */
 .on-chrome {
@@ -712,7 +727,12 @@
    darken in light, lighten in dark (supported everywhere). */
 @utility blend-ink {
   mix-blend-mode: darken;
-  &:where(.dark, .dark *) {
+  &:where(
+    .dark,
+    .dark *,
+    :root[data-dark-chrome]:not(.dark) [data-chrome-dark],
+    :root[data-dark-chrome]:not(.dark) [data-chrome-dark] *
+  ) {
     mix-blend-mode: lighten;
   }
 }
@@ -727,7 +747,12 @@
    white hairline, and black on near-black has nothing to deepen. */
 @utility blend-shadow {
   mix-blend-mode: darken;
-  &:where(.dark, .dark *) {
+  &:where(
+    .dark,
+    .dark *,
+    :root[data-dark-chrome]:not(.dark) [data-chrome-dark],
+    :root[data-dark-chrome]:not(.dark) [data-chrome-dark] *
+  ) {
     mix-blend-mode: normal;
   }
 }
@@ -752,7 +777,12 @@
     pointer-events: none;
   }
   /* Dark: a light, see-through white instead, so it lifts off the chrome. */
-  &:where(.dark, .dark *)::before {
+  &:where(
+      .dark,
+      .dark *,
+      :root[data-dark-chrome]:not(.dark) [data-chrome-dark],
+      :root[data-dark-chrome]:not(.dark) [data-chrome-dark] *
+    )::before {
     background: oklch(1 0 0 / 0.08);
     mix-blend-mode: normal;
   }
@@ -770,7 +800,12 @@
     mix-blend-mode: darken;
     pointer-events: none;
   }
-  &:where(.dark, .dark *)::before {
+  &:where(
+      .dark,
+      .dark *,
+      :root[data-dark-chrome]:not(.dark) [data-chrome-dark],
+      :root[data-dark-chrome]:not(.dark) [data-chrome-dark] *
+    )::before {
     mix-blend-mode: lighten;
   }
 }

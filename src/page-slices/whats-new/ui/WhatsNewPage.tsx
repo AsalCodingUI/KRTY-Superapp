@@ -3,6 +3,13 @@
 import { EmptyState } from "@/components/empty-state"
 import { PageHeader } from "@/components/page-header"
 import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import { Spinner } from "@/components/ui/spinner"
 import { useViewMode, ViewToggle } from "@/components/view-toggle"
@@ -22,23 +29,13 @@ import { useWhatsNewAdmin } from "./WhatsNewEditor"
 import { useDateLocale, useT } from "@/shared/i18n/client"
 import { RiSearchLine } from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
-import {
-  Check,
-  CheckCheck,
-  ChevronRight,
-  Copy,
-  Pencil,
-  Plus,
-  Sparkles,
-  Trash2,
-} from "lucide-react"
+import { Copy, ListFilter, Pencil, Plus, Sparkles, Trash2 } from "lucide-react"
 import Link from "next/link"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useMemo, useState } from "react"
 import { toast } from "sonner"
 import { useWhatsNew } from "../model/use-whats-new"
 import { AREA_LABEL, dayOf, EntryBadges } from "./shared"
-
 
 /**
  * Yang baru: release notes grouped by day (newest first), then the
@@ -51,7 +48,7 @@ export function WhatsNewPage() {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
-  const { ready, error, level, canEdit, entries, read, setRead } = useWhatsNew()
+  const { ready, error, level, canEdit, entries } = useWhatsNew()
   const admin = useWhatsNewAdmin()
 
   const areaParam = searchParams.get("area")
@@ -130,16 +127,9 @@ export function WhatsNewPage() {
       : []),
   ]
   const hasGuides = entries.some(isGuide)
-  const unread = entries.filter((e) => e.published && !read.has(e.id))
 
   const tm = useT("ctxmenu")
   const itemsFor = (entry: WhatsNewEntry): CtxItem[] => [
-    {
-      id: "toggle-read",
-      label: read.has(entry.id) ? t("markUnread") : t("markRead"),
-      icon: read.has(entry.id) ? Sparkles : Check,
-      onSelect: () => setRead([entry.id], !read.has(entry.id)),
-    },
     {
       id: "copy-title",
       label: t("copyTitle"),
@@ -175,74 +165,82 @@ export function WhatsNewPage() {
         className="pt-6 pb-4"
         title={t("title")}
         actions={
-          <>
+          <div className="flex items-center gap-2">
+            <div className="relative w-32 min-w-0 sm:w-64">
+              <RiSearchLine className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
+              <Input
+                type="search"
+                placeholder={t("searchPlaceholder")}
+                aria-label={t("searchLabel")}
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                className="pl-9"
+              />
+            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                render={
+                  <Button
+                    variant="outline"
+                    aria-label={t("filterLabel")}
+                    className="max-sm:w-8 max-sm:px-0"
+                  />
+                }
+              >
+                <ListFilter data-icon="inline-start" />
+                <span className="hidden sm:inline">
+                  {area ? t(AREA_LABEL[area]) : t("areaButton")}
+                </span>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="min-w-48">
+                <DropdownMenuRadioGroup
+                  value={area ?? ""}
+                  onValueChange={(value) =>
+                    setArea((value as WhatsNewArea) || null)
+                  }
+                >
+                  <DropdownMenuRadioItem value="">
+                    {t("allAreas")}
+                  </DropdownMenuRadioItem>
+                  {areas.map((a) => (
+                    <DropdownMenuRadioItem key={a} value={a}>
+                      {t(AREA_LABEL[a])}
+                    </DropdownMenuRadioItem>
+                  ))}
+                </DropdownMenuRadioGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <ViewToggle
               value={view}
               onValueChange={setView}
               modes={["grid", "list"]}
             />
             {canEdit && (
-              <Button onClick={admin.create}>
+              <Button aria-label={t("write")} onClick={admin.create}>
                 <Plus data-icon="inline-start" />
                 <span className="max-sm:hidden">{t("write")}</span>
               </Button>
             )}
-            {ready && entries.length > 0 ? (
-              unread.length > 0 ? (
-                <Button
-                  variant="outline"
-                  onClick={() =>
-                    setRead(
-                      unread.map((e) => e.id),
-                      true,
-                    )
-                  }
-                >
-                  <CheckCheck data-icon="inline-start" />
-                  <span className="max-sm:hidden">{t("markAllRead")}</span>
-                  <span className="sm:hidden">{t("markAllReadShort")}</span>
-                </Button>
-              ) : (
-                <span className="text-muted-foreground flex items-center gap-1.5 text-sm">
-                  <CheckCheck className="size-4" />
-                  {t("allRead")}
-                </span>
-              )
-            ) : null}
-          </>
+          </div>
         }
       />
 
-      <div className="relative mb-3 w-full sm:max-w-sm">
-        <RiSearchLine className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
-        <Input
-          type="search"
-          placeholder={t("searchPlaceholder")}
-          aria-label={t("searchLabel")}
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          className="pl-9"
-        />
-      </div>
-
-      {/* Kind chips (when there are guides), then area chips: rows that
-          scroll sideways on phones. */}
+      {/* Updates or the standing guides: one quiet row. */}
       {ready && hasGuides && (
         <div
           role="group"
           aria-label={t("kindLabel")}
-          className="bleed gutter-x mb-2 flex gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none] sm:flex-wrap [&::-webkit-scrollbar]:hidden"
+          className="mb-6 flex gap-1.5"
         >
-          <AreaChip active={!kind} onClick={() => setKind(null)}>
+          <KindChip active={!kind} onClick={() => setKind(null)}>
             {t("all")}
-            <span className="tabular-nums opacity-60">{searched.length}</span>
-          </AreaChip>
+          </KindChip>
           {WHATS_NEW_KINDS.map((k) => (
-            <AreaChip
+            <KindChip
               key={k}
               active={kind === k}
               onClick={() => {
-                // An area chip may not exist in the other kind.
+                // An area may not exist in the other kind.
                 const params = new URLSearchParams(searchParams.toString())
                 if (kind === k) params.delete("kind")
                 else params.set("kind", k)
@@ -254,36 +252,8 @@ export function WhatsNewPage() {
               }}
             >
               {t(k === "guides" ? "kindGuides" : "kindUpdates")}
-              <span className="tabular-nums opacity-60">
-                {searched.filter((e) => kindOf(e) === k).length}
-              </span>
-            </AreaChip>
+            </KindChip>
           ))}
-        </div>
-      )}
-      {ready && (
-        <div
-          role="group"
-          aria-label={t("filterLabel")}
-          className="bleed gutter-x mb-6 flex gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none] sm:flex-wrap [&::-webkit-scrollbar]:hidden"
-        >
-          <AreaChip active={!area} onClick={() => setArea(null)}>
-            {t("all")}
-            <span className="tabular-nums opacity-60">{matching.length}</span>
-          </AreaChip>
-          {areas.map((a) => {
-            const count = matching.filter((e) => e.area === a).length
-            return (
-              <AreaChip
-                key={a}
-                active={area === a}
-                onClick={() => setArea(area === a ? null : a)}
-              >
-                {t(AREA_LABEL[a])}
-                <span className="tabular-nums opacity-60">{count}</span>
-              </AreaChip>
-            )
-          })}
         </div>
       )}
 
@@ -334,8 +304,8 @@ export function WhatsNewPage() {
                   <div
                     className={
                       view === "grid"
-                        ? "grid gap-4 sm:grid-cols-2 xl:grid-cols-3"
-                        : "flex flex-col gap-3"
+                        ? "grid gap-x-5 gap-y-8 sm:grid-cols-2 xl:grid-cols-3"
+                        : "flex flex-col gap-1"
                     }
                   >
                     {items.map((entry) => (
@@ -348,17 +318,9 @@ export function WhatsNewPage() {
                         items={() => itemsFor(entry)}
                       >
                         {view === "grid" ? (
-                          <EntryTile
-                            entry={entry}
-                            href={entryHref(entry.id)}
-                            isRead={read.has(entry.id)}
-                          />
+                          <EntryTile entry={entry} href={entryHref(entry.id)} />
                         ) : (
-                          <EntryCard
-                            entry={entry}
-                            href={entryHref(entry.id)}
-                            isRead={read.has(entry.id)}
-                          />
+                          <EntryRow entry={entry} href={entryHref(entry.id)} />
                         )}
                       </ContextTarget>
                     ))}
@@ -381,7 +343,7 @@ export function WhatsNewPage() {
   )
 }
 
-function AreaChip({
+function KindChip({
   active,
   onClick,
   children,
@@ -396,10 +358,10 @@ function AreaChip({
       aria-pressed={active}
       onClick={onClick}
       className={cn(
-        "inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full border px-3 text-[13px] whitespace-nowrap transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]",
+        "inline-flex h-8 shrink-0 items-center rounded-full px-3 text-[13px] whitespace-nowrap transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]",
         active
-          ? "bg-foreground text-background border-transparent"
-          : "border-border text-foreground/80 hover:bg-foreground/[0.05]",
+          ? "bg-foreground/[0.08] text-foreground font-medium"
+          : "text-muted-foreground hover:text-foreground",
       )}
     >
       {children}
@@ -407,86 +369,67 @@ function AreaChip({
   )
 }
 
-function EntryCard({
-  entry,
-  href,
-  isRead,
-  ...rest
-}: {
+type EntryLinkProps = {
   entry: WhatsNewEntry
   href: string
-  isRead: boolean
   /** data-* from the right-click target. */
   [data: `data-${string}`]: string | undefined
-}) {
-  const t = useT("whatsNew")
+}
+
+/** Grid: the 4:3 picture with its badges on it, then title and summary. */
+function EntryTile({ entry, href, ...rest }: EntryLinkProps) {
   return (
     <Link
       {...rest}
       href={href}
       scroll={false}
       prefetch={false}
-      className="group/entry bg-card border-foreground/10 hover:border-foreground/20 focus-visible:border-primary/50 focus-visible:ring-primary/20 relative flex gap-5 overflow-hidden rounded-xl border p-4 transition-[border-color] duration-200 outline-none focus-visible:ring-2 sm:p-5"
+      className="group/entry focus-visible:ring-primary/30 flex flex-col gap-3 rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-offset-4 focus-visible:ring-offset-[var(--background)]"
     >
-      <div className="flex min-w-0 flex-1 flex-col gap-2">
-        <EntryBadges entry={entry} />
-        <EntryTitle title={entry.title} isRead={isRead} />
-        <p className="text-muted-foreground line-clamp-2 max-w-4xl text-sm leading-5">
-          {entry.summary}
-        </p>
-        <EntryFoot
-          isRead={isRead}
-          label={t("readGuide")}
-          readLabel={t("read")}
-        />
-      </div>
-      {entry.thumbnailUrl && (
+      <div className="border-foreground/10 relative overflow-hidden rounded-xl border">
         <EntryPicture
           entry={entry}
-          className="border-border hidden aspect-[2/1] w-40 shrink-0 self-center rounded-lg border sm:block md:w-56"
+          className="aspect-video w-full transition-transform duration-300 group-hover/entry:scale-[1.02]"
         />
-      )}
+        <EntryBadges
+          entry={entry}
+          onPicture
+          className="absolute top-3 right-3 left-3"
+        />
+      </div>
+      <div className="flex flex-col gap-1 px-0.5">
+        <span className="text-foreground text-[15px] leading-6 font-medium">
+          {entry.title}
+        </span>
+        <p className="text-muted-foreground line-clamp-1 text-sm leading-5">
+          {entry.summary}
+        </p>
+      </div>
     </Link>
   )
 }
 
-/** Grid layout: picture on top, then tags, title, summary. */
-function EntryTile({
-  entry,
-  href,
-  isRead,
-  ...rest
-}: {
-  entry: WhatsNewEntry
-  href: string
-  isRead: boolean
-  /** data-* from the right-click target. */
-  [data: `data-${string}`]: string | undefined
-}) {
-  const t = useT("whatsNew")
+/** List: a small 4:3 picture beside the title and summary. */
+function EntryRow({ entry, href, ...rest }: EntryLinkProps) {
   return (
     <Link
       {...rest}
       href={href}
       scroll={false}
       prefetch={false}
-      className="group/entry bg-card border-foreground/10 hover:border-foreground/20 focus-visible:border-primary/50 focus-visible:ring-primary/20 flex flex-col overflow-hidden rounded-xl border transition-[border-color] duration-200 outline-none focus-visible:ring-2"
+      className="group/entry hover:bg-foreground/[0.03] focus-visible:ring-primary/30 -mx-3 flex items-center gap-4 rounded-xl p-3 transition-colors outline-none focus-visible:ring-2"
     >
-      <EntryPicture
-        entry={entry}
-        className="border-border aspect-[2/1] w-full border-b"
-      />
-      <div className="flex flex-1 flex-col gap-2 p-4 sm:p-5">
+      <div className="border-foreground/10 relative w-28 shrink-0 overflow-hidden rounded-lg border sm:w-36">
+        <EntryPicture entry={entry} className="aspect-video w-full" />
+      </div>
+      <div className="flex min-w-0 flex-1 flex-col gap-1.5">
         <EntryBadges entry={entry} />
-        <EntryTitle title={entry.title} isRead={isRead} />
-        <p className="text-muted-foreground line-clamp-2 text-sm leading-5">
+        <span className="text-foreground text-[15px] leading-6 font-medium">
+          {entry.title}
+        </span>
+        <p className="text-muted-foreground line-clamp-1 max-w-3xl text-sm leading-5">
           {entry.summary}
         </p>
-        <EntryFoot
-          isRead={isRead}
-          label={t("readGuide")}
-          readLabel={t("read")}
-        />
       </div>
     </Link>
   )
@@ -522,46 +465,5 @@ function EntryPicture({
       onError={() => setFailed(true)}
       className={cn("bg-muted/50 object-cover object-center", className)}
     />
-  )
-}
-
-function EntryTitle({ title, isRead }: { title: string; isRead: boolean }) {
-  const t = useT("whatsNew")
-  return (
-    <span className="text-foreground flex items-start gap-2 text-[15px] leading-6 font-medium">
-      {!isRead && (
-        <span
-          className="bg-primary mt-2 size-2 shrink-0 rounded-full"
-          role="img"
-          aria-label={t("unread")}
-        />
-      )}
-      <span className="min-w-0">{title}</span>
-    </span>
-  )
-}
-
-function EntryFoot({
-  isRead,
-  label,
-  readLabel,
-}: {
-  isRead: boolean
-  label: string
-  readLabel: string
-}) {
-  return (
-    <span className="text-muted-foreground mt-auto flex items-center gap-3 pt-1 text-[13px]">
-      <span className="text-foreground/80 group-hover/entry:text-foreground inline-flex items-center gap-0.5 font-medium">
-        {label}
-        <ChevronRight className="size-3.5 transition-transform group-hover/entry:translate-x-0.5" />
-      </span>
-      {isRead && (
-        <span className="inline-flex items-center gap-1">
-          <Check className="size-3.5" />
-          {readLabel}
-        </span>
-      )}
-    </span>
   )
 }

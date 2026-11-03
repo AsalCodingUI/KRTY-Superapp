@@ -1,13 +1,8 @@
-import { AppSettingsPage } from "@/page-slices/app-settings/ui/AppSettingsPage"
-import { Suspense } from "react"
+import { siteConfig } from "@/app/siteConfig"
+import { redirect } from "next/navigation"
 
-export const dynamic = "force-dynamic"
-
-/** Kretya Flow's own settings (inside the Mac app). */
+/** The old Setelan app page (links from Kretya Flow 0.1–0.2): Settings now
+ *  opens as a window over the dashboard. */
 export default function AppSettingsRoute() {
-  return (
-    <Suspense>
-      <AppSettingsPage />
-    </Suspense>
-  )
+  redirect(`${siteConfig.baseLinks.dashboard}?settings=general`)
 }
