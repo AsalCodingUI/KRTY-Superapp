@@ -1,6 +1,6 @@
 "use client"
 
-import { MarkdownDocEditor } from "@/page-slices/policies/ui/doc-editor"
+import { MarkdownDocEditor } from "@/page-slices/policies/ui/doc-editor-lazy"
 import dynamic from "next/dynamic"
 import { ConfirmDialog } from "@/components/confirm-dialog"
 import { EmptyValue } from "@/components/empty-value"

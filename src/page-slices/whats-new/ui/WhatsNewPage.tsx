@@ -30,8 +30,9 @@ import { useDateLocale, useT } from "@/shared/i18n/client"
 import { RiSearchLine } from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
 import { Copy, ListFilter, Pencil, Plus, Sparkles, Trash2 } from "lucide-react"
-import Link from "next/link"
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { ParamLink } from "@/components/param-link"
+import { replaceUrl } from "@/shared/lib/url-params"
+import { usePathname, useSearchParams } from "next/navigation"
 import { useMemo, useState } from "react"
 import { toast } from "sonner"
 import { useWhatsNew } from "../model/use-whats-new"
@@ -45,7 +46,6 @@ import { AREA_LABEL, dayOf, EntryBadges } from "./shared"
 export function WhatsNewPage() {
   const t = useT("whatsNew")
   const dateLocale = useDateLocale()
-  const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const { ready, error, level, canEdit, entries } = useWhatsNew()
@@ -63,9 +63,7 @@ export function WhatsNewPage() {
     const params = new URLSearchParams(searchParams.toString())
     if (next) params.set(key, next)
     else params.delete(key)
-    router.replace(params.size ? `${pathname}?${params}` : pathname, {
-      scroll: false,
-    })
+    replaceUrl(params.size ? `${pathname}?${params}` : pathname)
   }
   const setArea = (next: WhatsNewArea | null) => setParam("area", next)
   const setKind = (next: WhatsNewKind | null) => setParam("kind", next)
@@ -245,10 +243,7 @@ export function WhatsNewPage() {
                 if (kind === k) params.delete("kind")
                 else params.set("kind", k)
                 params.delete("area")
-                router.replace(
-                  params.size ? `${pathname}?${params}` : pathname,
-                  { scroll: false },
-                )
+                replaceUrl(params.size ? `${pathname}?${params}` : pathname)
               }}
             >
               {t(k === "guides" ? "kindGuides" : "kindUpdates")}
@@ -279,7 +274,7 @@ export function WhatsNewPage() {
                     label: t("clearFilters"),
                     onClick: () => {
                       setQuery("")
-                      router.replace(pathname, { scroll: false })
+                      replaceUrl(pathname)
                     },
                   }
                 : undefined
@@ -379,11 +374,9 @@ type EntryLinkProps = {
 /** Grid: the 4:3 picture with its badges on it, then title and summary. */
 function EntryTile({ entry, href, ...rest }: EntryLinkProps) {
   return (
-    <Link
+    <ParamLink
       {...rest}
       href={href}
-      scroll={false}
-      prefetch={false}
       className="group/entry focus-visible:ring-primary/30 flex flex-col gap-3 rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-offset-4 focus-visible:ring-offset-[var(--background)]"
     >
       <div className="border-foreground/10 relative overflow-hidden rounded-xl border">
@@ -405,18 +398,16 @@ function EntryTile({ entry, href, ...rest }: EntryLinkProps) {
           {entry.summary}
         </p>
       </div>
-    </Link>
+    </ParamLink>
   )
 }
 
 /** List: a small 4:3 picture beside the title and summary. */
 function EntryRow({ entry, href, ...rest }: EntryLinkProps) {
   return (
-    <Link
+    <ParamLink
       {...rest}
       href={href}
-      scroll={false}
-      prefetch={false}
       className="group/entry hover:bg-foreground/[0.03] focus-visible:ring-primary/30 -mx-3 flex items-center gap-4 rounded-xl p-3 transition-colors outline-none focus-visible:ring-2"
     >
       <div className="border-foreground/10 relative w-28 shrink-0 overflow-hidden rounded-lg border sm:w-36">
@@ -431,7 +422,7 @@ function EntryRow({ entry, href, ...rest }: EntryLinkProps) {
           {entry.summary}
         </p>
       </div>
-    </Link>
+    </ParamLink>
   )
 }
 

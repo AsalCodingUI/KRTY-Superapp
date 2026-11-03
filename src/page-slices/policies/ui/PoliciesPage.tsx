@@ -35,8 +35,9 @@ import { format, type Locale } from "date-fns"
 import { useDateLocale, useT } from "@/shared/i18n/client"
 import type { MessageKey } from "@/shared/i18n/messages"
 import dynamic from "next/dynamic"
-import Link from "next/link"
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { ParamLink } from "@/components/param-link"
+import { replaceUrl } from "@/shared/lib/url-params"
+import { usePathname, useSearchParams } from "next/navigation"
 import {
   categoryLabel,
   POLICY_CATEGORIES,
@@ -107,7 +108,6 @@ function matchesTab(p: PolicyListItem, tab: Tab) {
  */
 export function PoliciesPage() {
   const t = useT("policies")
-  const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const { profile } = useUserProfile()
@@ -123,9 +123,7 @@ export function PoliciesPage() {
     const params = new URLSearchParams(searchParams.toString())
     if (next === "all") params.delete("status")
     else params.set("status", next)
-    router.replace(params.size ? `${pathname}?${params}` : pathname, {
-      scroll: false,
-    })
+    replaceUrl(params.size ? `${pathname}?${params}` : pathname)
   }
 
   // RLS already hides drafts from employees; this also covers "view as".
@@ -153,9 +151,7 @@ export function PoliciesPage() {
     id && (policies.find((p) => p.id === id)?.slug ?? id)
   useCanonicalParam("policy", openParam, openPolicy?.slug)
   const closeModal = () =>
-    router.replace(withParams({ policy: null, v: null, edit: null }), {
-      scroll: false,
-    })
+    replaceUrl(withParams({ policy: null, v: null, edit: null }))
 
   const [view, setView] = useViewMode("policies", "grid")
   const [query, setQuery] = useState("")
@@ -200,9 +196,7 @@ export function PoliciesPage() {
         icon: Pencil,
         hidden: !isAdmin,
         onSelect: () =>
-          router.push(withParams({ policy: p.slug, edit: "1", v: null }), {
-            scroll: false,
-          }),
+          replaceUrl(withParams({ policy: p.slug, edit: "1", v: null }), true),
       },
       {
         id: "archive",
@@ -274,10 +268,8 @@ export function PoliciesPage() {
               <Button
                 nativeButton={false}
                 render={
-                  <Link
+                  <ParamLink
                     href={withParams({ policy: "new", edit: "1", v: null })}
-                    scroll={false}
-                    prefetch={false}
                   />
                 }
               >
@@ -398,11 +390,8 @@ export function PoliciesPage() {
             key="editor"
             id={openId === "new" ? null : openId}
             onExit={({ id }) =>
-              router.replace(
+              replaceUrl(
                 withParams({ policy: slugOf(id), edit: null, v: null }),
-                {
-                  scroll: false,
-                },
               )
             }
           />
@@ -411,14 +400,8 @@ export function PoliciesPage() {
             key={openId}
             id={openId}
             version={searchParams.get("v")}
-            onVersion={(v) =>
-              router.replace(withParams({ v }), { scroll: false })
-            }
-            onEdit={() =>
-              router.replace(withParams({ edit: "1", v: null }), {
-                scroll: false,
-              })
-            }
+            onVersion={(v) => replaceUrl(withParams({ v }))}
+            onEdit={() => replaceUrl(withParams({ edit: "1", v: null }))}
             onClose={closeModal}
           />
         ) : null)}
@@ -467,14 +450,12 @@ function PolicyRow({
       <div className="flex min-w-0 items-center gap-3">
         <RiFileTextLine className="text-muted-foreground size-4 shrink-0" />
         <div className="flex min-w-0 flex-col">
-          <Link
+          <ParamLink
             href={href}
-            scroll={false}
-            prefetch={false}
             className="text-foreground truncate outline-none after:absolute after:inset-0 focus-visible:underline"
           >
             {title}
-          </Link>
+          </ParamLink>
           {policy.summary && (
             <span className="text-tertiary-foreground truncate text-[13px]">
               {policy.summary}
@@ -535,12 +516,10 @@ function PolicyCard({
       : null
 
   return (
-    <Link
+    <ParamLink
       {...rest}
       data-slot="policy-card"
       href={href}
-      scroll={false}
-      prefetch={false}
       className="bg-card border-foreground/10 hover:border-foreground/20 focus-visible:border-primary/50 focus-visible:ring-primary/20 flex flex-col gap-1.5 rounded-xl border p-5 transition-[border-color] duration-200 outline-none focus-visible:ring-2"
     >
       <span className="flex min-w-0 items-center gap-2">
@@ -575,6 +554,6 @@ function PolicyCard({
               : ""}
         </span>
       </span>
-    </Link>
+    </ParamLink>
   )
 }

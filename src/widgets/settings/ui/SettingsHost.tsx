@@ -1,12 +1,16 @@
 "use client"
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { replaceUrl } from "@/shared/lib/url-params"
+import { usePathname, useSearchParams } from "next/navigation"
 import { useCallback } from "react"
-import {
-  SETTINGS_TABS,
-  SettingsDialog,
-  type SettingsTab,
-} from "./SettingsDialog"
+import dynamic from "next/dynamic"
+import { SETTINGS_TABS, type SettingsTab } from "../model/tabs"
+
+// Only loads when Settings opens (it's mounted on every page).
+const SettingsDialog = dynamic(
+  () => import("./SettingsDialog").then((m) => m.SettingsDialog),
+  { ssr: false },
+)
 
 /** ?settings=<tab> on any page opens Settings over it (linkable). */
 export function useSettingsHref() {
@@ -24,7 +28,6 @@ export function useSettingsHref() {
 }
 
 export function SettingsHost() {
-  const router = useRouter()
   const searchParams = useSearchParams()
   const hrefFor = useSettingsHref()
   const param = searchParams.get("settings")
@@ -35,8 +38,8 @@ export function SettingsHost() {
   return (
     <SettingsDialog
       tab={tab}
-      onTabChange={(next) => router.replace(hrefFor(next), { scroll: false })}
-      onClose={() => router.replace(hrefFor(null), { scroll: false })}
+      onTabChange={(next) => replaceUrl(hrefFor(next))}
+      onClose={() => replaceUrl(hrefFor(null))}
     />
   )
 }

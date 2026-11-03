@@ -122,3 +122,15 @@ export function employeeHref(person: {
 }) {
   return `/performance/employee/${linkKey(person.full_name, person.id)}`
 }
+
+/**
+ * Change the URL without a navigation: Next 15 keeps useSearchParams in step
+ * with the browser history, so a window or a filter (?settings=, ?entry=,
+ * ?area=) opens instantly instead of re-rendering the page on the server.
+ * `push` adds a history entry (Back closes what it opened).
+ */
+export function replaceUrl(href: string, push = false) {
+  if (typeof window === "undefined") return
+  if (push) window.history.pushState(null, "", href)
+  else window.history.replaceState(null, "", href)
+}

@@ -10,7 +10,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { Spinner } from "@/components/ui/spinner"
-import { MarkdownDocEditor } from "@/page-slices/policies/ui/doc-editor"
+import { MarkdownDocEditor } from "@/page-slices/policies/ui/doc-editor-lazy"
 import { useT } from "@/shared/i18n/client"
 import { RiCloseLine } from "@/shared/ui/lucide-icons"
 import { useEffect, useRef, useState } from "react"

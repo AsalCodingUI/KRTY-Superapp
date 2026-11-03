@@ -47,8 +47,7 @@ import { Bell, Palette, SlidersHorizontal, X } from "lucide-react"
 import { useEffect, useState, type ReactNode } from "react"
 import { toast } from "sonner"
 
-export const SETTINGS_TABS = ["general", "notifications", "appearance"] as const
-export type SettingsTab = (typeof SETTINGS_TABS)[number]
+import type { SettingsTab } from "../model/tabs"
 
 const TABS = [
   { value: "general", icon: SlidersHorizontal },

@@ -46,7 +46,8 @@ import { useT } from "@/shared/i18n/client"
 import { isAdminRole } from "@/shared/lib/roles"
 import { useQuery } from "@tanstack/react-query"
 import { Settings, Sparkles } from "lucide-react"
-import { usePathname, useRouter } from "next/navigation"
+import { usePathname } from "next/navigation"
+import { replaceUrl } from "@/shared/lib/url-params"
 
 type SidebarProject = { id: string; name: string; href: string }
 
@@ -105,7 +106,6 @@ const NAV_SLIDE: Variants = {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const desktop = useDesktopShell()
   const pathname = usePathname()
-  const router = useRouter()
   const { profile } = useUserProfile()
   const { loading, active, badges } = useWorkspaceNav()
   // A project's own menu only while the Project workspace is shown (right
@@ -288,9 +288,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 // Settings opens over the current page (?settings=…).
                 const url = new URL(window.location.href)
                 url.searchParams.set("settings", "general")
-                router.replace(`${url.pathname}${url.search}`, {
-                  scroll: false,
-                })
+                replaceUrl(`${url.pathname}${url.search}`)
               }}
             >
               <Settings />

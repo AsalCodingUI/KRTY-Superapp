@@ -3,7 +3,7 @@
 import { noteReportOpened } from "@/app/(fullscreen)/p/[token]/report-view"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
-import { MarkdownDocEditor } from "@/page-slices/policies/ui/doc-editor"
+import { MarkdownDocEditor } from "@/page-slices/policies/ui/doc-editor-lazy"
 import { useDateLocale, useT } from "@/shared/i18n/client"
 import { RiCloseLine } from "@/shared/ui/lucide-icons"
 import { format, parseISO } from "date-fns"

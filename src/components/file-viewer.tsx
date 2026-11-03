@@ -6,7 +6,7 @@ import { DocxPages, SheetView } from "@/components/office-view"
 import { PdfPages } from "@/components/pdf-view"
 import { Spinner } from "@/components/ui/spinner"
 import { Zoomable, ZoomableImage } from "@/components/zoomable"
-import { MarkdownDocEditor } from "@/page-slices/policies/ui/doc-editor"
+import { MarkdownDocEditor } from "@/page-slices/policies/ui/doc-editor-lazy"
 import { useT } from "@/shared/i18n/client"
 import {
   ChevronLeft,

@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/popover"
 import { Spinner } from "@/components/ui/spinner"
 import { AiDocButton } from "@/page-slices/policies/ui/ai-assist"
-import { MarkdownDocEditor } from "@/page-slices/policies/ui/doc-editor"
+import { MarkdownDocEditor } from "@/page-slices/policies/ui/doc-editor-lazy"
 import type { Editor } from "@tiptap/react"
 import { clientUrl } from "@/shared/lib/client-site"
 import { reportKey } from "@/shared/lib/portal-docs"

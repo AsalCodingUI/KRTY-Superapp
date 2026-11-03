@@ -280,6 +280,24 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+  /* Things you click show the hand (Tailwind 4 leaves buttons on the arrow).
+     A cursor-* utility on the element still wins (an active sidebar item). */
+  :where(
+    button:not(:disabled),
+    [role="button"]:not([aria-disabled="true"]),
+    [role="switch"]:not([aria-disabled="true"]),
+    [role="tab"],
+    [role="radio"],
+    [role="checkbox"],
+    [role="menuitem"]:not([aria-disabled="true"]),
+    [role="menuitemradio"],
+    [role="menuitemcheckbox"],
+    [role="option"],
+    summary,
+    label:has(> button, > input)
+  ) {
+    cursor: pointer;
+  }
 }
 
 @theme inline {
@@ -654,6 +672,11 @@
 /* Dark sidebar (Settings → Tampilan) in light mode: the frame takes the
    dark chrome; the sidebar and top bar (data-chrome-dark) take the dark
    tokens, so their contents switch too. The page stays light. */
+:root[data-dark-chrome]:not(.dark) [data-chrome-dark] {
+  /* Text that sets no color of its own (the Mac app's brand row) inherits
+     from outside the dark scope otherwise: dark ink on the dark bar. */
+  color: var(--sidebar-foreground);
+}
 :root[data-dark-chrome]:not(.dark) [data-slot="sidebar-wrapper"] {
   background-color: oklch(
     calc(0.215 + var(--tint-c) * 0.02) calc(var(--tint-c) * 0.06) var(--tint-h)
