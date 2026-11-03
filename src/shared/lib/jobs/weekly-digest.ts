@@ -30,8 +30,8 @@ const NOTES = [
 
 /**
  * Monday's weekly digest by email (Settings → Notifikasi → Ringkasan
- * mingguan): your tasks this week (and what's overdue), who's off, Sharing
- * Santuy, company holidays. To everyone active (attendance in the last 30
+ * mingguan): your tasks this week (and what's overdue), Sharing Santuy,
+ * company holidays, and for stakeholders and PMs who's off. To everyone active (attendance in the last 30
  * days or in the Santuy queue). Once per person per week (email_digests).
  */
 export async function runWeeklyDigest(
@@ -65,7 +65,10 @@ export async function runWeeklyDigest(
   if (!ids.length) return { sent: 0 }
 
   const [people, prefs, tasks, leaves, holidays] = await Promise.all([
-    db.from("profiles").select("id, full_name, email").in("id", ids),
+    db
+      .from("profiles")
+      .select("id, full_name, email, role, job_title")
+      .in("id", ids),
     db
       .from("notification_email_prefs")
       .select("user_id, enabled, muted")
@@ -145,7 +148,17 @@ export async function runWeeklyDigest(
         rows: santuyRows,
         empty: "Belum ada jadwal minggu ini.",
       },
-      { title: "Yang cuti", rows: offRows, empty: "Semua masuk minggu ini." },
+      // Who's off is for the people who plan around it.
+      ...(person.role === "stakeholder" ||
+      person.job_title === "Project Manager"
+        ? [
+            {
+              title: "Yang cuti",
+              rows: offRows,
+              empty: "Semua masuk minggu ini.",
+            },
+          ]
+        : []),
       ...(holidayRows.length
         ? [{ title: "Libur kantor", rows: holidayRows, empty: "" }]
         : []),

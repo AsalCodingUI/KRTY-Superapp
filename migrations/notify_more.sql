@@ -4,7 +4,7 @@
 --   invoice_due         an unpaid invoice is due in 3 days / today / is overdue
 --   invoice_paid        an invoice got fully paid
 --   attendance_reminder not clocked in by 10:00 on a working day
--- Invoice notices go to stakeholders and the project's leads.
+-- Invoice notices go to stakeholders and the project's project managers.
 
 -- ---------------------------------------------------------------------------
 -- task_due: the day before, the day itself, the day after.
@@ -120,8 +120,11 @@ SET search_path = public
 AS $$
   SELECT id FROM profiles WHERE role = 'stakeholder'
   UNION
+  -- Project managers on that project (not every lead: a lead can be
+  -- anyone on the team).
   SELECT a.user_id FROM project_assignments a
-  WHERE a.project_id = p_project AND a.is_lead
+  JOIN profiles p ON p.id = a.user_id
+  WHERE a.project_id = p_project AND p.job_title = 'Project Manager'
 $$;
 
 CREATE OR REPLACE FUNCTION public.run_invoice_reminders()

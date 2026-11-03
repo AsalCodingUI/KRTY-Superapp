@@ -48,7 +48,7 @@ const id = {
   groupLeaveHint: "Pengajuan, keputusan cuti, dan pengingat clock in.",
   groupDigest: "Ringkasan mingguan",
   groupDigestHint:
-    "Tiap Senin pagi: tugas, yang cuti, dan Sharing Santuy minggu itu.",
+    "Tiap Senin pagi: tugas, Sharing Santuy, dan libur kantor minggu itu.",
   groupFinance: "Invoice",
   groupFinanceHint:
     "Jatuh tempo dan invoice lunas, buat project yang kamu pegang.",
@@ -124,7 +124,7 @@ const en: Record<keyof typeof id, string> = {
   groupLeaveHint: "Leave requests, decisions, and clock-in reminders.",
   groupDigest: "Weekly digest",
   groupDigestHint:
-    "Monday mornings: your tasks, who's off, and Sharing Santuy.",
+    "Monday mornings: your tasks, Sharing Santuy, and holidays.",
   groupFinance: "Invoices",
   groupFinanceHint: "Due dates and paid invoices for projects you run.",
   groupCalendar: "Calendar",
