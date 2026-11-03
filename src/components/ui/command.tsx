@@ -70,21 +70,36 @@ function CommandDialog({
 function CommandInput({
   className,
   trailing,
+  size = "default",
   ...props
-}: React.ComponentProps<typeof CommandPrimitive.Input> & {
+}: Omit<React.ComponentProps<typeof CommandPrimitive.Input>, "size"> & {
   /** Shown at the end of the field, e.g. a spinner or clear button. */
   trailing?: React.ReactNode
+  /** "sm": a picker's search row, sized like its items (popovers). */
+  size?: "default" | "sm"
 }) {
+  const sm = size === "sm"
   return (
     <div
       data-slot="command-input-wrapper"
-      className="flex h-12 shrink-0 items-center gap-2.5 px-4"
+      className={cn(
+        "flex shrink-0 items-center",
+        sm
+          ? "border-border/60 mx-1 mb-1 h-9 gap-2 border-b px-2"
+          : "h-12 gap-2.5 px-4",
+      )}
     >
-      <SearchIcon className="text-muted-foreground size-[18px] shrink-0" />
+      <SearchIcon
+        className={cn(
+          "text-muted-foreground shrink-0",
+          sm ? "size-4" : "size-[18px]",
+        )}
+      />
       <CommandPrimitive.Input
         data-slot="command-input"
         className={cn(
-          "placeholder:text-muted-foreground h-full w-full min-w-0 border-0 bg-transparent p-0 text-[15px] shadow-none outline-hidden focus:shadow-none focus:ring-0 focus:outline-hidden focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50",
+          "placeholder:text-muted-foreground h-full w-full min-w-0 border-0 bg-transparent p-0 shadow-none outline-hidden focus:shadow-none focus:ring-0 focus:outline-hidden focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50",
+          sm ? "text-sm" : "text-[15px]",
           className,
         )}
         {...props}

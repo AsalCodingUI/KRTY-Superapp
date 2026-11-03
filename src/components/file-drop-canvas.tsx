@@ -124,7 +124,7 @@ export function FileDropCanvas({
           {kind === "pdf" && url ? (
             <PdfPages
               url={url}
-              className="bg-muted/40 min-h-0 flex-1"
+              className="bg-muted dark:bg-muted/40 min-h-0 flex-1"
               contentClassName="pt-16"
             />
           ) : kind === "image" && url ? (
@@ -133,10 +133,10 @@ export function FileDropCanvas({
               src={url}
               name={name}
               mime={file?.type}
-              className="bg-muted/40 min-h-0 flex-1"
+              className="bg-muted dark:bg-muted/40 min-h-0 flex-1"
             />
           ) : (
-            <div className="bg-muted/40 grid min-h-0 flex-1 place-items-center p-10">
+            <div className="bg-muted dark:bg-muted/40 grid min-h-0 flex-1 place-items-center p-10">
               <div className="flex flex-col items-center gap-3 text-center">
                 <span className="bg-background dark:bg-surface text-muted-foreground grid size-14 place-items-center rounded-2xl shadow-(--elev-2) [&_svg]:size-6">
                   <RiFileTextLine />

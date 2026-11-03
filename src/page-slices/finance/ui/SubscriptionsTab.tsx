@@ -277,7 +277,7 @@ export function SubscriptionsTab({
       />
 
       {unrated.length > 0 && (
-        <p className="border-warning/40 text-warning rounded-lg border px-4 py-2.5 text-sm">
+        <p className="bg-warning-subtle text-amber-11 rounded-lg px-4 py-2.5 text-sm">
           {t("unratedSubscriptions", {
             currencies: [...new Set(unrated.map((s) => s.currency))].join(", "),
             n: unrated.length,

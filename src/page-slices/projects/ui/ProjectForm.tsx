@@ -2,7 +2,13 @@
 
 import { DateField } from "@/components/date-field"
 import { useProcesses } from "@/page-slices/processes/model/data"
-import { STATUS_LABEL_KEYS } from "@/page-slices/projects/lib/status"
+import {
+  asStage,
+  PROJECT_STAGES,
+  STAGE_LABEL_KEYS,
+  STATUS_LABEL_KEYS,
+  type ProjectStage,
+} from "@/page-slices/projects/lib/status"
 import {
   getAssignablePeople,
   getEditableProject,
@@ -42,6 +48,7 @@ import { toast } from "sonner"
 import { accessLevel } from "@/shared/config/access"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { CategoryPicker } from "./CategoryPicker"
+import { ProjectStageIcon } from "./ProjectStageIcon"
 
 type ProjectRole = Database["public"]["Enums"]["project_role_enum"]
 type ProjectStatus = Database["public"]["Enums"]["project_status_enum"]
@@ -80,11 +87,14 @@ type Draft = {
    *  none: an ongoing project without phases). */
   processId: string | null
   categoryId: string | null
+  stage: ProjectStage | null
   members: Member[]
 }
 
 /** The "Tanpa fase" choice in the process select. */
 const NO_PHASES = "__no_phases__"
+/** No stage picked yet. */
+const NO_STAGE = "__no_stage__"
 
 const EMPTY: Draft = {
   name: "",
@@ -94,6 +104,7 @@ const EMPTY: Draft = {
   status: "Planned",
   processId: null,
   categoryId: null,
+  stage: null,
   members: [],
 }
 
@@ -153,6 +164,7 @@ export function ProjectForm({
         status: project.status,
         processId: null,
         categoryId: project.category_id,
+        stage: asStage(project.stage),
         members: project.members,
       })
   }, [open, projectId, project])
@@ -227,6 +239,7 @@ export function ProjectForm({
       processId: processValue === NO_PHASES ? null : processValue,
       noPhases: processValue === NO_PHASES,
       categoryId: draft.categoryId,
+      stage: draft.stage,
       members: draft.members.map(({ userId, role, isLead }) => ({
         userId,
         role,
@@ -380,6 +393,45 @@ export function ProjectForm({
                   value={draft.categoryId}
                   onChange={(id) => set("categoryId", id)}
                 />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <Label>{t("stage")}</Label>
+                <Select
+                  value={draft.stage ?? NO_STAGE}
+                  onValueChange={(v) =>
+                    v &&
+                    set("stage", v === NO_STAGE ? null : (v as ProjectStage))
+                  }
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue>
+                      {(v: string) =>
+                        v === NO_STAGE ? (
+                          <span className="text-muted-foreground">
+                            {t("stageNone")}
+                          </span>
+                        ) : (
+                          <span className="flex items-center gap-2">
+                            <ProjectStageIcon stage={v as ProjectStage} />
+                            {t(STAGE_LABEL_KEYS[v as ProjectStage])}
+                          </span>
+                        )
+                      }
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {PROJECT_STAGES.map((stage) => (
+                      <SelectItem key={stage} value={stage}>
+                        <span className="flex items-center gap-2">
+                          <ProjectStageIcon stage={stage} />
+                          {t(STAGE_LABEL_KEYS[stage])}
+                        </span>
+                      </SelectItem>
+                    ))}
+                    <SelectSeparator />
+                    <SelectItem value={NO_STAGE}>{t("stageNone")}</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               {!projectId && processes.length > 0 && (
                 <p className="text-muted-foreground text-xs sm:col-span-2">

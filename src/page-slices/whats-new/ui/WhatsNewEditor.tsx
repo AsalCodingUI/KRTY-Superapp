@@ -239,7 +239,7 @@ function WhatsNewEditorDialog({
               thumbnail + summary, then the details as compact pickers. */}
           <section className="border-border flex flex-col gap-3 border-b px-4 py-3 sm:px-6">
             <div className="flex gap-3">
-              <div className="group/thumb border-border bg-muted/40 relative aspect-[2/1] w-32 shrink-0 overflow-hidden rounded-lg border sm:w-40">
+              <div className="group/thumb border-border bg-muted dark:bg-muted/40 relative aspect-[2/1] w-32 shrink-0 overflow-hidden rounded-lg border sm:w-40">
                 <button
                   type="button"
                   disabled={uploading}

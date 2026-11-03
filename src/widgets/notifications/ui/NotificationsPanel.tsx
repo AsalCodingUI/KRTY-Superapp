@@ -414,7 +414,7 @@ export default function NotificationsPanel({
                       className={cn(
                         "relative flex size-8 shrink-0 items-center justify-center rounded-lg",
                         urgent
-                          ? "bg-warning-subtle text-warning"
+                          ? "bg-warning-subtle text-amber-11"
                           : "bg-muted text-muted-foreground",
                       )}
                     >

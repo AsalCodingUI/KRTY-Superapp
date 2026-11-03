@@ -72,20 +72,24 @@ const STATUS: Record<string, { label: FinanceKey; tone: string; dot: string }> =
       tone: "bg-muted text-muted-foreground",
       dot: "bg-white/70",
     },
-    Sent: { label: "statusSent", tone: "bg-info/15 text-info", dot: "bg-info" },
+    Sent: {
+      label: "statusSent",
+      tone: "bg-info-subtle text-blue-11",
+      dot: "bg-info",
+    },
     Partial: {
       label: "statusPartial",
-      tone: "bg-warning/15 text-warning",
+      tone: "bg-warning-subtle text-amber-11",
       dot: "bg-warning",
     },
     Paid: {
       label: "statusPaid",
-      tone: "bg-success/15 text-success",
+      tone: "bg-success-subtle text-green-11",
       dot: "bg-success",
     },
     Overdue: {
       label: "statusOverdue",
-      tone: "bg-destructive/15 text-destructive",
+      tone: "bg-destructive-subtle text-red-11",
       dot: "bg-destructive",
     },
     Refunded: {

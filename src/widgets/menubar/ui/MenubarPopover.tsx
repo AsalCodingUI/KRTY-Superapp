@@ -1358,7 +1358,7 @@ export function LayoutRail({
               )}
           </div>
           {scenario === "offline" && !settings && (
-            <div className="bg-warning-subtle text-warning mx-3 mb-2 flex items-center gap-2 rounded-lg px-3 py-2 text-xs">
+            <div className="bg-warning-subtle text-amber-11 mx-3 mb-2 flex items-center gap-2 rounded-lg px-3 py-2 text-xs">
               <WifiOff className="size-3.5 shrink-0" />
               <span className="min-w-0 flex-1 truncate">
                 Offline · data terakhir {format(data.now, "HH:mm")}

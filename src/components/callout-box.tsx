@@ -9,25 +9,26 @@ import {
 } from "lucide-react"
 import type { ReactNode } from "react"
 
-/** Each tone's icon and tint (Radix scales, so dark mode follows). */
+/** Each tone's icon and tint (Radix scales, so dark mode follows; no
+ *  border, the tint alone marks the box; a lighter one in dark). */
 export const CALLOUT_STYLE: Record<
   CalloutTone,
   { icon: LucideIcon; box: string; ink: string }
 > = {
-  info: { icon: Info, box: "bg-blue-2 border-blue-4", ink: "text-blue-11" },
+  info: { icon: Info, box: "bg-blue-3 dark:bg-blue-9/10", ink: "text-blue-11" },
   success: {
     icon: CircleCheck,
-    box: "bg-green-2 border-green-4",
+    box: "bg-green-3 dark:bg-green-9/10",
     ink: "text-green-11",
   },
   warning: {
     icon: TriangleAlert,
-    box: "bg-amber-2 border-amber-5",
+    box: "bg-amber-3 dark:bg-amber-9/10",
     ink: "text-amber-11",
   },
   danger: {
     icon: OctagonAlert,
-    box: "bg-red-2 border-red-4",
+    box: "bg-red-3 dark:bg-red-9/10",
     ink: "text-red-11",
   },
 }
@@ -66,20 +67,18 @@ export function CalloutBox({
     <div
       data-callout={tone}
       className={cn(
-        "my-4 flex gap-3 rounded-xl border py-3 pr-4 pl-3.5",
+        "my-4 flex gap-3 rounded-xl py-3 pr-4 pl-3.5",
         style.box,
         className,
       )}
     >
       <div
-        className={cn("flex h-7 shrink-0 items-center", style.ink)}
+        className={cn("flex h-[1lh] shrink-0 items-center", style.ink)}
         contentEditable={false}
       >
         {icon ?? <Icon className="size-[18px]" aria-hidden />}
       </div>
-      <div className={cn("min-w-0 flex-1", CALLOUT_BODY)}>
-        {children}
-      </div>
+      <div className={cn("min-w-0 flex-1", CALLOUT_BODY)}>{children}</div>
     </div>
   )
 }

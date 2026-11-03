@@ -20,6 +20,7 @@ import { GripHorizontal, TriangleAlert } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useRef, useState } from "react"
 import {
+  asStage,
   BOARD_STATUSES,
   STATUS_LABEL_KEYS,
   type ProjectStatus,
@@ -30,6 +31,7 @@ import {
   ProjectMenuButton,
   type ProjectActions,
 } from "./ProjectMenu"
+import { ProjectStageLabel } from "./ProjectStage"
 import { ProjectStatusIcon } from "./ProjectStatusIcon"
 import { useStatusMove, type MoveProject } from "./useStatusMove"
 
@@ -60,6 +62,7 @@ function ProjectCard({
   const overdue =
     project.status !== "Completed" &&
     project.status !== "Archived" &&
+    project.status !== "Paused" &&
     isBefore(parseISO(project.end_date), startOfDay(new Date()))
   const meta = [
     project.quarter_id,
@@ -92,6 +95,12 @@ function ProjectCard({
         )}
       </div>
       <p className="text-foreground truncate">{project.name}</p>
+      {asStage(project.stage) && (
+        <ProjectStageLabel
+          stage={asStage(project.stage)!}
+          className="text-xs"
+        />
+      )}
       {(project.client_name || team.length > 0) && (
         <div className="flex items-center gap-1.5 pt-0.5">
           {team.slice(0, 4).map((a) => (

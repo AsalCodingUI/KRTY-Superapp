@@ -66,14 +66,14 @@ export default function UpdatePasswordPage() {
             <form onSubmit={handleUpdatePassword} className="space-y-4">
               {/* Success Message */}
               {success && (
-                <div className="bg-success/10 text-success ring-success/20 rounded-md p-3 text-sm ring-1 ring-inset">
+                <div className="bg-success-subtle text-green-11 rounded-md p-3 text-sm">
                   {t("updatePasswordSuccess")}
                 </div>
               )}
 
               {/* Error Message */}
               {error && (
-                <div className="bg-destructive/10 text-destructive ring-destructive/20 rounded-md p-3 text-sm ring-1 ring-inset">
+                <div className="bg-destructive-subtle text-red-11 rounded-md p-3 text-sm">
                   {error}
                 </div>
               )}

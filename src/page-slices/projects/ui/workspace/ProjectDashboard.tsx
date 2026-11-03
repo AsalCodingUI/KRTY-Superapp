@@ -3,6 +3,7 @@
 import { useProjectHref } from "@/shared/hooks/useProjectHref"
 import { surfaceClassName } from "@/components/panel"
 import {
+  asStage,
   OPEN_STATUSES,
   STATUS_LABEL_KEYS,
   type ProjectStatus,
@@ -21,6 +22,7 @@ import { ProjectStatusButton } from "../ProjectMenu"
 import { registerProjectStatusUndo } from "../project-undo"
 import { registerUndo, rowsUndo, UndoStale } from "@/shared/undo"
 import { ProjectProperties } from "./ProjectProperties"
+import { ProjectStageButton, useSetProjectStage } from "../ProjectStage"
 import { PhasesOffCard, StopPhasesDialog } from "./PhaseMode"
 import type { Report } from "./reports-data"
 import { ProjectAvatar } from "@/components/project-avatar"
@@ -137,6 +139,7 @@ export function ProjectDashboard({ projectId }: { projectId: string }) {
   // "Pindahkan ke" in the header: PMs and stakeholders.
   const { profile } = useUserProfile()
   const canMove = canRunProjects(accessLevel(profile))
+  const setStage = useSetProjectStage()
   const [selected, setSelected] = useState<string | null>(null)
   // Adding or renaming a phase (one small dialog), and deleting one.
   const [phaseDialog, setPhaseDialog] = useState<PhaseRow | "new" | null>(null)
@@ -356,6 +359,12 @@ export function ProjectDashboard({ projectId }: { projectId: string }) {
               className="size-7 rounded-[5px] text-[11px]"
             />
             <span className="min-w-0 truncate">{project.name}</span>
+            <ProjectStageButton
+              stage={asStage(project.stage)}
+              onPick={
+                canMove ? (stage) => void setStage(project, stage) : undefined
+              }
+            />
           </span>
         }
         actions={
@@ -1815,7 +1824,7 @@ function ProcessPanel({
                   className={cn(
                     "shrink-0 rounded-full px-2 py-0.5 text-xs",
                     done
-                      ? "bg-success/15 text-success"
+                      ? "bg-success-subtle text-green-11"
                       : "bg-muted text-muted-foreground",
                   )}
                 >

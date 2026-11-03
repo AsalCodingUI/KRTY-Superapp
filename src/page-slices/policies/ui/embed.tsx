@@ -164,7 +164,7 @@ function EmbedInput({
     <div className="my-3">
       <div
         className={cn(
-          "border-border bg-muted/40 focus-within:border-foreground/20 flex items-center gap-2.5 rounded-lg border px-3 py-2 transition-colors",
+          "border-border bg-muted dark:bg-muted/40 focus-within:border-foreground/20 flex items-center gap-2.5 rounded-lg border px-3 py-2 transition-colors",
           error && "border-destructive/60",
         )}
       >

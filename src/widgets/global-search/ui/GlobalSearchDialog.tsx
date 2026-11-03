@@ -336,7 +336,7 @@ function SearchPanel({
         )}
       </CommandList>
 
-      <footer className="bg-muted/40 border-border text-muted-foreground flex shrink-0 items-center gap-4 border-t px-4 py-2.5 text-xs">
+      <footer className="bg-muted dark:bg-muted/40 border-border text-muted-foreground flex shrink-0 items-center gap-4 border-t px-4 py-2.5 text-xs">
         <span className="flex items-center gap-1.5">
           <KbdGroup>
             <Kbd>

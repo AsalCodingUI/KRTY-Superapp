@@ -95,10 +95,10 @@ export function GuestList({
             <div
               className={cx(
                 "flex items-center gap-1 rounded-sm px-1.5 py-0.5 text-xs",
-                guest.status === "accepted" && "bg-success/10 text-success",
-                guest.status === "pending" && "bg-warning/10 text-warning",
+                guest.status === "accepted" && "bg-success-subtle text-green-11",
+                guest.status === "pending" && "bg-warning-subtle text-amber-11",
                 guest.status === "declined" &&
-                  "bg-destructive/10 text-destructive",
+                  "bg-destructive-subtle text-red-11",
               )}
             >
               {guest.status === "accepted" && (

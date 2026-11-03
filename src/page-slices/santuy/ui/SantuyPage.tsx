@@ -932,7 +932,7 @@ function MeetRow({
         ])
       }
     >
-      <div className="bg-muted/40 border-border flex flex-col gap-3 border-t px-5 py-3.5">
+      <div className="bg-muted dark:bg-muted/40 border-border flex flex-col gap-3 border-t px-5 py-3.5">
         <div className="flex items-center gap-3">
           <RiVideoOnLine className="text-muted-foreground size-4 shrink-0" />
           {meetUrl ? (

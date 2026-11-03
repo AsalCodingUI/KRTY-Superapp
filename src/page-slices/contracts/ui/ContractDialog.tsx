@@ -38,7 +38,7 @@ import {
 
 const EASE = [0.23, 1, 0.32, 1] as const
 
-/** Lower-cased, single-spaced: "  Rico  Pratama" matches "rico pratama". */
+/** Lower-cased, single-spaced: " Rico Pratama" matches "rico pratama". */
 const normalizeName = (value: string) =>
   value.trim().replace(/\s+/g, " ").toLowerCase()
 

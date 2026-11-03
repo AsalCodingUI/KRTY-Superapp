@@ -467,7 +467,7 @@ function ClientCard({
             t("noContact")}
         </p>
       </div>
-      <div className="bg-muted/40 border-border text-muted-foreground flex items-center justify-between gap-3 border-t px-5 py-3 text-[13px]">
+      <div className="bg-muted dark:bg-muted/40 border-border text-muted-foreground flex items-center justify-between gap-3 border-t px-5 py-3 text-[13px]">
         <span className="truncate">
           {t("projectCount", { n: sum.projects })}
           {sum.running > 0 && ` · ${t("runningCount", { n: sum.running })}`}

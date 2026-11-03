@@ -1,5 +1,6 @@
 "use client"
 
+import { PRIORITY_LABEL, priorityOf, TaskPriorityIcon } from "./TaskPriority"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -601,6 +602,7 @@ function TaskCard({
   const dateLocale = useDateLocale()
   const assignee = team.find((m) => m.id === task.assignee_id)
   const doneSubs = subtasks.filter((s) => s.done).length
+  const priority = priorityOf(task.priority)
   const due = task.due_date ? new Date(`${task.due_date}T00:00:00`) : null
   const overdue =
     due && !task.done && differenceInCalendarDays(due, new Date()) < 0
@@ -627,8 +629,20 @@ function TaskCard({
           className="text-muted-foreground/70 absolute top-0.5 left-1/2 size-3.5 -translate-x-1/2 opacity-0 transition-opacity group-hover/card:opacity-100"
         />
       )}
-      {(dueText || subtasks.length > 0 || comments > 0) && (
+      {(priority !== "none" ||
+        dueText ||
+        subtasks.length > 0 ||
+        comments > 0) && (
         <div className="text-muted-foreground flex items-center gap-2.5 text-xs tabular-nums">
+          {priority !== "none" && (
+            <span
+              className="flex items-center"
+              title={t(PRIORITY_LABEL[priority])}
+              aria-label={t(PRIORITY_LABEL[priority])}
+            >
+              <TaskPriorityIcon priority={priority} className="size-3.5" />
+            </span>
+          )}
           {dueText && (
             <span
               className={cn(

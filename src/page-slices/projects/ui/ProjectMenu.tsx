@@ -10,6 +10,9 @@ import {
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
@@ -22,28 +25,39 @@ import {
   type CtxItem,
 } from "@/shared/context-menu"
 import { projectHref } from "@/shared/lib/url-params"
-import { Copy, Pencil } from "lucide-react"
+import { CircleDashed, Copy, Pencil } from "lucide-react"
 import { cloneElement } from "react"
 import type * as React from "react"
 import {
   ALL_STATUSES,
+  asStage,
+  PROJECT_STAGES,
+  STAGE_LABEL_KEYS,
   STATUS_LABEL_KEYS,
+  type ProjectStage,
   type ProjectStatus,
 } from "../lib/status"
 import type { ProjectListRow } from "./ProjectList"
+import { StageMenuItems } from "./ProjectStage"
+import { ProjectStageIcon } from "./ProjectStageIcon"
 import { ProjectStatusIcon } from "./ProjectStatusIcon"
 
 /** What a viewer may do to a project from its menu (absent = not allowed). */
 export type ProjectActions = {
   /** PMs and stakeholders. */
   onMove?: (project: ProjectListRow, status: ProjectStatus) => void
+  /** PMs and stakeholders: what the team is working on now. */
+  onStage?: (project: ProjectListRow, stage: ProjectStage | null) => void
   /** Stakeholders. */
   onEdit?: (project: ProjectListRow) => void
   onDelete?: (project: ProjectListRow) => void
 }
 
 export const hasProjectActions = (actions?: ProjectActions) =>
-  Boolean(actions && (actions.onMove || actions.onEdit || actions.onDelete))
+  Boolean(
+    actions &&
+    (actions.onMove || actions.onStage || actions.onEdit || actions.onDelete),
+  )
 
 /** The statuses as a pick-one list under a label; the current one is checked. */
 export function MoveToStatusItems({
@@ -89,7 +103,7 @@ function ProjectMenuItems({
 }) {
   const t = useT("projects")
   const tc = useT("common")
-  const { onMove, onEdit, onDelete } = actions
+  const { onMove, onStage, onEdit, onDelete } = actions
   return (
     <>
       {onMove && (
@@ -99,7 +113,26 @@ function ProjectMenuItems({
           onMove={(next) => onMove(project, next)}
         />
       )}
-      {onMove && (onEdit || onDelete) && <DropdownMenuSeparator />}
+      {onMove && onStage && <DropdownMenuSeparator />}
+      {onStage && (
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger>
+            {asStage(project.stage) ? (
+              <ProjectStageIcon stage={asStage(project.stage)!} />
+            ) : (
+              <CircleDashed />
+            )}
+            {t("setStage")}
+          </DropdownMenuSubTrigger>
+          <DropdownMenuSubContent className="min-w-44">
+            <StageMenuItems
+              current={asStage(project.stage)}
+              onPick={(next) => onStage(project, next)}
+            />
+          </DropdownMenuSubContent>
+        </DropdownMenuSub>
+      )}
+      {(onMove || onStage) && (onEdit || onDelete) && <DropdownMenuSeparator />}
       {onEdit && (
         <DropdownMenuItem onClick={() => onEdit(project)}>
           <Pencil />
@@ -185,6 +218,12 @@ const statusIcon = (status: ProjectStatus) =>
     return <ProjectStatusIcon status={status} className={className} />
   }
 
+/** The stage glyph as a menu icon. */
+const stageIcon = (stage: ProjectStage) =>
+  function StageIcon({ className }: { className?: string }) {
+    return <ProjectStageIcon stage={stage} className={className} />
+  }
+
 /**
  * Right-click on a row or card (the app-wide menu, shared/context-menu):
  * Buka / Buka di tab baru / Salin link, then "Pindahkan ke", Ubah, Hapus —
@@ -211,7 +250,8 @@ export function ProjectContextMenu({
       label={project.name}
       href={projectHref(project)}
       items={(): CtxItem[] => {
-        const { onMove, onEdit, onDelete } = actions ?? {}
+        const { onMove, onStage, onEdit, onDelete } = actions ?? {}
+        const stage = asStage(project.stage)
         return [
           {
             id: "move",
@@ -227,6 +267,23 @@ export function ProjectContextMenu({
               checked: s === status,
               onSelect: () => {
                 if (s !== status) onMove?.(project, s)
+              },
+            })),
+          },
+          {
+            id: "stage",
+            label: t("setStage"),
+            icon: stage ? stageIcon(stage) : CircleDashed,
+            hint: stage ? t(STAGE_LABEL_KEYS[stage]) : t("stageNone"),
+            hidden: !onStage,
+            submenu: [...PROJECT_STAGES, null].map((s) => ({
+              id: s ?? "none",
+              label: s ? t(STAGE_LABEL_KEYS[s]) : t("stageNone"),
+              icon: s ? stageIcon(s) : CircleDashed,
+              role: "radio" as const,
+              checked: s === stage,
+              onSelect: () => {
+                if (s !== stage) onStage?.(project, s)
               },
             })),
           },

@@ -170,7 +170,7 @@ export default function LoginPage() {
             {error && (
               <p
                 role="alert"
-                className="bg-destructive-subtle text-destructive rounded-xl px-4 py-3 text-center text-[13px]"
+                className="bg-destructive-subtle text-red-11 rounded-xl px-4 py-3 text-center text-[13px]"
               >
                 {error}
               </p>

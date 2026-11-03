@@ -4,6 +4,7 @@ import { projectHref } from "@/shared/lib/url-params"
 import { STATUS_LABEL_KEYS } from "@/page-slices/projects/lib/status"
 import { EmptyValue } from "@/components/empty-value"
 import { PageHeader } from "@/components/page-header"
+import { SegmentedControl } from "@/components/segmented-control"
 import {
   deleteProject,
   setProjectStatus,
@@ -31,9 +32,12 @@ import type { ColumnDef } from "@tanstack/react-table"
 import { useDateLocale, useT } from "@/shared/i18n/client"
 import { format } from "date-fns"
 import dynamic from "next/dynamic"
+import { FileText } from "lucide-react"
 import Link from "next/link"
 import { useMemo, useState } from "react"
 import { toast } from "sonner"
+import { registerUndo } from "@/shared/undo"
+import { useSetProjectStage } from "./ProjectStage"
 import {
   ProjectList,
   type ProjectActions,
@@ -86,6 +90,9 @@ export function ProjectsListPage() {
   if (formOpen && !formMounted) setFormMounted(true)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [deleting, setDeleting] = useState<ProjectListRow | null>(null)
+  // Project | Dokumen (the docs side comes next).
+  const [scope, setScope] = useState<"projects" | "docs">("projects")
+  const setStage = useSetProjectStage()
 
   // Stakeholders see every project; everyone else the ones they're on
   // (shared/config/access.ts). Pending until the profile is known.
@@ -96,8 +103,8 @@ export function ProjectsListPage() {
       let request = supabase
         .from("projects")
         .select(
-          `id, name, status, start_date, end_date, quarter_id, client_name,
-           updated_at,
+          `id, name, status, stage, position, start_date, end_date, quarter_id,
+           client_name, updated_at,
            process:processes ( id, name ),
            category:project_categories ( id, name ),
            project_assignments ( id, user_id, profiles ( full_name, avatar_url ) )`,
@@ -165,11 +172,43 @@ export function ProjectsListPage() {
     return true
   }
 
+  const listKey = [...QUERY_KEY, isAdmin ? "all" : profile?.id]
+  /** Writes a group's order (positions 1024, 2048…) and shows it at once. */
+  const saveOrder = async (ids: string[]) => {
+    const positionOf = new Map(ids.map((id, i) => [id, (i + 1) * 1024]))
+    queryClient.setQueryData<ProjectListRow[]>(listKey, (rows = []) =>
+      rows.map((p) =>
+        positionOf.has(p.id) ? { ...p, position: positionOf.get(p.id)! } : p,
+      ),
+    )
+    const { error } = await supabase.rpc("reorder_projects", { p_ids: ids })
+    if (error) {
+      toast.error(t("reorderFailed"))
+      void refresh()
+      return false
+    }
+    void refresh()
+    return true
+  }
+  const reorder = async (ids: string[]) => {
+    // The order before the drag, as the list showed it.
+    const before = projects.filter((p) => ids.includes(p.id)).map((p) => p.id)
+    // A drag means "this order": the list keeps it from now on.
+    if (options.sort !== "manual") setOptions({ sort: "manual" })
+    if (!(await saveOrder(ids))) return
+    registerUndo({
+      label: tu("projectOrder"),
+      undo: async () => void (await saveOrder(before)),
+      redo: async () => void (await saveOrder(ids)),
+    })
+  }
+
   // Moving, editing and deleting: PMs (their list is only projects they're
   // on) and stakeholders.
   const onMove = canRun ? changeStatus : undefined
   const actions: Omit<ProjectActions, "onMove"> | undefined = canRun
     ? {
+        onStage: (project, stage) => void setStage(project, stage),
         onEdit: (project) => {
           setEditingId(project.id)
           setFormOpen(true)
@@ -182,49 +221,67 @@ export function ProjectsListPage() {
     <div className="flex flex-col">
       <PageHeader
         className="pt-6 pb-4"
-        title={t("title")}
+        title={
+          <SegmentedControl
+            fitContent
+            value={scope}
+            onChange={setScope}
+            items={[
+              { value: "projects", label: t("scopeProjects") },
+              { value: "docs", label: t("scopeDocs") },
+            ]}
+          />
+        }
         actions={
-          <div className="flex items-center gap-2">
-            <div className="relative w-32 min-w-0 sm:w-64">
-              <RiSearchLine className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
-              <Input
-                type="search"
-                placeholder={t("searchPlaceholder")}
-                aria-label={t("searchLabel")}
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                className="pl-9"
+          scope === "projects" && (
+            <div className="flex items-center gap-2">
+              <div className="relative w-32 min-w-0 sm:w-64">
+                <RiSearchLine className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
+                <Input
+                  type="search"
+                  placeholder={t("searchPlaceholder")}
+                  aria-label={t("searchLabel")}
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
+              <ProjectsFilterMenu
+                projects={allProjects}
+                options={effective}
+                onChange={setOptions}
               />
+              <ViewToggle
+                value={view}
+                onValueChange={setView}
+                modes={["kanban", "list", "table"]}
+              />
+              {canRun && (
+                <Button
+                  aria-label={t("newProject")}
+                  onClick={() => {
+                    setEditingId(null)
+                    setFormOpen(true)
+                  }}
+                >
+                  <RiAddLine data-icon="inline-start" />
+                  {/* Icon only on phones, or the header runs off screen. */}
+                  <span className="hidden sm:inline">{t("newProject")}</span>
+                </Button>
+              )}
             </div>
-            <ProjectsFilterMenu
-              projects={allProjects}
-              options={effective}
-              onChange={setOptions}
-            />
-            <ViewToggle
-              value={view}
-              onValueChange={setView}
-              modes={["kanban", "list", "table"]}
-            />
-            {canRun && (
-              <Button
-                aria-label={t("newProject")}
-                onClick={() => {
-                  setEditingId(null)
-                  setFormOpen(true)
-                }}
-              >
-                <RiAddLine data-icon="inline-start" />
-                {/* Icon only on phones, or the header runs off screen. */}
-                <span className="hidden sm:inline">{t("newProject")}</span>
-              </Button>
-            )}
-          </div>
+          )
         }
       />
 
       <div className="pb-4">
-        {isLoading ? (
+        {scope === "docs" ? (
+          <EmptyState
+            title={t("docsSoonTitle")}
+            description={t("docsSoonDescription")}
+            icon={<FileText />}
+          />
+        ) : isLoading ? (
           <div className="flex justify-center py-16">
             <Spinner className="size-6" />
           </div>
@@ -269,7 +326,12 @@ export function ProjectsListPage() {
             }}
           />
         ) : (
-          <ProjectList projects={projects} actions={actions} onMove={onMove} />
+          <ProjectList
+            projects={projects}
+            actions={actions}
+            onMove={onMove}
+            onReorder={canRun ? (ids) => void reorder(ids) : undefined}
+          />
         )}
       </div>
 

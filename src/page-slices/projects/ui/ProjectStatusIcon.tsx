@@ -4,7 +4,8 @@ import type { ProjectStatus } from "../lib/status"
 
 /**
  * Linear-style step icons: dashed ring (not started), half-filled ring (in
- * progress), open ring (in review), filled check (done).
+ * progress), open ring (in review), ring with bars (paused), filled check
+ * (done).
  */
 export function ProjectStatusIcon({
   status,
@@ -49,6 +50,17 @@ export function ProjectStatusIcon({
           strokeWidth="1.5"
           strokeLinecap="round"
         />
+      )}
+      {status === "Paused" && (
+        <>
+          <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.5" />
+          <path
+            d="M6.5 5.75v4.5M9.5 5.75v4.5"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+          />
+        </>
       )}
       {status === "Completed" && (
         <>

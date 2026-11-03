@@ -44,6 +44,8 @@ export type ProjectInput = {
   noPhases?: boolean
   /** project_categories.id, or null for none. */
   categoryId?: string | null
+  /** What the team is working on now (lib/status PROJECT_STAGES). */
+  stage?: string | null
   members: ProjectMemberInput[]
 }
 
@@ -55,6 +57,7 @@ export type EditableProject = {
   end_date: string
   status: ProjectStatus
   category_id: string | null
+  stage: string | null
   members: (ProjectMemberInput & {
     full_name: string | null
     avatar_url: string | null
@@ -104,7 +107,7 @@ export async function getEditableProject(
   const { data } = await supabase
     .from("projects")
     .select(
-      `id, name, description, start_date, end_date, status, category_id,
+      `id, name, description, start_date, end_date, status, category_id, stage,
        project_assignments (
          id, user_id, role_in_project, is_lead,
          profiles!project_assignments_user_id_fkey ( full_name, avatar_url, job_title ),
@@ -135,6 +138,7 @@ export async function getEditableProject(
     end_date: data.end_date,
     status: data.status,
     category_id: data.category_id ?? null,
+    stage: data.stage ?? null,
     members: ((data.project_assignments ?? []) as unknown as Row[]).map(
       (a) => ({
         userId: a.user_id,
@@ -210,6 +214,7 @@ export async function saveProject(
     ...(input.categoryId !== undefined
       ? { category_id: input.categoryId }
       : {}),
+    ...(input.stage !== undefined ? { stage: input.stage } : {}),
   }
   // New: the id is made here so the insert needs no RETURNING (a PM can only
   // read the row once the DB has put them on its team).

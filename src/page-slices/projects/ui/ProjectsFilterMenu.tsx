@@ -28,7 +28,13 @@ import {
 import type { ProjectListRow } from "./ProjectList"
 import { ProjectStatusIcon } from "./ProjectStatusIcon"
 
-export const SORT_KEYS = ["deadline", "start", "updated", "name"] as const
+export const SORT_KEYS = [
+  "deadline",
+  "start",
+  "updated",
+  "name",
+  "manual",
+] as const
 export type SortKey = (typeof SORT_KEYS)[number]
 
 /** Sort + filters for the projects page, remembered per device. */
@@ -165,6 +171,11 @@ export function applyListOptions(
     deadline: (a, b) => a.end_date.localeCompare(b.end_date) || byName(a, b),
     // Most recently changed first.
     updated: (a, b) => time(b.updated_at) - time(a.updated_at) || byName(a, b),
+    // Dragged in the list (never-dragged ones last, by deadline).
+    manual: (a, b) =>
+      (a.position ?? Infinity) - (b.position ?? Infinity) ||
+      a.end_date.localeCompare(b.end_date) ||
+      byName(a, b),
   }
   return keep.sort(compare[o.sort])
 }
@@ -222,6 +233,7 @@ export function ProjectsFilterMenu({
     start: t("sortStart"),
     updated: t("sortUpdated"),
     name: t("sortName"),
+    manual: t("sortManual"),
   }
 
   const facet = (

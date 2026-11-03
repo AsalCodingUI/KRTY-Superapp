@@ -53,14 +53,14 @@ export function EventCard({
 }: EventCardProps) {
   const getColorClasses = (color: EventColor): string => {
     const colorMap: Record<EventColor, string> = {
-      emerald: "bg-success/10 text-success border-success/30",
-      orange: "bg-warning/10 text-warning border-warning/30",
-      violet: "bg-purple-3 text-purple-11 border-border",
-      blue: "bg-primary/10 text-primary border-primary/30",
-      rose: "bg-pink-3 text-pink-11 border-border",
-      amber: "bg-warning/10 text-warning border-warning/30",
-      cyan: "bg-cyan-3 text-cyan-11 border-border",
-      neutral: "bg-muted text-muted-foreground border-border",
+      emerald: "bg-success-subtle text-green-11",
+      orange: "bg-orange-3 text-orange-11",
+      violet: "bg-purple-3 text-purple-11",
+      blue: "bg-info-subtle text-blue-11",
+      rose: "bg-pink-3 text-pink-11",
+      amber: "bg-warning-subtle text-amber-11",
+      cyan: "bg-cyan-3 text-cyan-11",
+      neutral: "bg-muted text-muted-foreground",
     }
     return colorMap[color] || colorMap.neutral
   }
@@ -72,7 +72,7 @@ export function EventCard({
       <button
         onClick={onClick}
         className={cx(
-          "w-full rounded border px-2 py-1 text-left text-xs",
+          "w-full rounded px-2 py-1 text-left text-xs",
           "transition-shadow hover:shadow-(--elev-2)",
           "truncate",
           colorClass,
@@ -91,7 +91,7 @@ export function EventCard({
     <button
       onClick={onClick}
       className={cx(
-        "w-full rounded-lg border p-3 text-left",
+        "w-full rounded-lg p-3 text-left",
         "transition-shadow hover:shadow-(--elev-2)",
         "group",
         colorClass,

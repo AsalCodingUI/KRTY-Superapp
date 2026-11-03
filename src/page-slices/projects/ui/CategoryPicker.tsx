@@ -6,6 +6,7 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
+  CommandSeparator,
 } from "@/components/ui/command"
 import {
   Popover,
@@ -14,12 +15,20 @@ import {
 } from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/shared/api/supabase/client"
+import { accessLevel, canRunProjects } from "@/shared/config/access"
+import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { useT } from "@/shared/i18n/client"
 import { RiAddLine } from "@/shared/ui/lucide-icons"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { ChevronDown } from "lucide-react"
+import { ChevronDown, Settings2 } from "lucide-react"
+import dynamic from "next/dynamic"
 import { useState } from "react"
 import { toast } from "sonner"
+
+const CategoryManageDialog = dynamic(
+  () => import("./CategoryManageDialog").then((m) => m.CategoryManageDialog),
+  { ssr: false },
+)
 
 export type ProjectCategory = { id: string; name: string }
 
@@ -42,7 +51,8 @@ export function useProjectCategories(enabled = true) {
 
 /**
  * Pick a project category, or type a new one and "Tambah '…'" it (PMs and
- * stakeholders may add; the list is shared).
+ * stakeholders may add; the list is shared). They also rename and delete
+ * them from "Kelola kategori".
  */
 export function CategoryPicker({
   id,
@@ -59,6 +69,9 @@ export function CategoryPicker({
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState("")
   const [adding, setAdding] = useState(false)
+  const [managing, setManaging] = useState(false)
+  const { profile } = useUserProfile()
+  const canManage = canRunProjects(accessLevel(profile))
 
   const name = search.trim()
   const exact = categories.find(
@@ -113,6 +126,7 @@ export function CategoryPicker({
       <PopoverContent align="start" className="w-64 gap-0 p-0">
         <Command loop shouldFilter={false}>
           <CommandInput
+            size="sm"
             value={search}
             onValueChange={setSearch}
             placeholder={t("categorySearch")}
@@ -151,9 +165,35 @@ export function CategoryPicker({
                 </CommandItem>
               )}
             </CommandGroup>
+            {canManage && !name && (
+              <>
+                <CommandSeparator />
+                <CommandGroup>
+                  <CommandItem
+                    value="__manage"
+                    onSelect={() => {
+                      setOpen(false)
+                      setManaging(true)
+                    }}
+                  >
+                    <Settings2 className="text-muted-foreground" />
+                    <span className="text-muted-foreground">
+                      {t("categoryManage")}
+                    </span>
+                  </CommandItem>
+                </CommandGroup>
+              </>
+            )}
           </CommandList>
         </Command>
       </PopoverContent>
+      {managing && (
+        <CategoryManageDialog
+          open={managing}
+          onOpenChange={setManaging}
+          onDeleted={(id) => id === value && onChange(null)}
+        />
+      )}
     </Popover>
   )
 }

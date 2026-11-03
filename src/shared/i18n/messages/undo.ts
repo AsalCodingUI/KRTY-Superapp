@@ -16,6 +16,9 @@ const id = {
   // Action labels
   projectStatus: "Pindah {name} ke {status}",
   projectCategory: "Kategori {name}",
+  projectStage: "Tahap {name} ke {stage}",
+  projectOrder: "Urutan project",
+  taskPriority: "Prioritas “{title}”",
   taskStatus: "Status “{title}”",
   taskAssignee: "Penanggung jawab “{title}”",
   taskDue: "Tenggat “{title}”",
@@ -57,6 +60,9 @@ const en: Record<keyof typeof id, string> = {
 
   projectStatus: "Move {name} to {status}",
   projectCategory: "Category of {name}",
+  projectStage: "Set {name} stage to {stage}",
+  projectOrder: "Project order",
+  taskPriority: "Priority of “{title}”",
   taskStatus: "Status of “{title}”",
   taskAssignee: "Assignee of “{title}”",
   taskDue: "Due date of “{title}”",

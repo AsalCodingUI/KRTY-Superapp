@@ -16,6 +16,7 @@ const STATUS_DOT: Record<string, string> = {
   Planned: "bg-muted-foreground",
   Active: "bg-primary",
   Review: "bg-warning",
+  Paused: "bg-muted-foreground",
   Completed: "bg-success",
   Archived: "bg-muted-foreground",
 }

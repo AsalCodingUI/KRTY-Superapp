@@ -163,7 +163,7 @@ export function PortalOverview({
                           className={cn(
                             "shrink-0 rounded-full px-2 py-0.5 text-xs",
                             done
-                              ? "bg-success/15 text-success"
+                              ? "bg-success-subtle text-green-11"
                               : "bg-muted text-muted-foreground",
                           )}
                         >

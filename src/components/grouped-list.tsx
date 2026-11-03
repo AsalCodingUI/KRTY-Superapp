@@ -80,6 +80,7 @@ export function ListGroup({
   count,
   action,
   defaultOpen = true,
+  storageKey,
   children,
 }: {
   label: React.ReactNode
@@ -88,12 +89,37 @@ export function ListGroup({
   /** Right side of the header, e.g. "Setujui semua". */
   action?: React.ReactNode
   defaultOpen?: boolean
+  /** Remembers open / closed on this device under this key (e.g. so a
+   *  collapsed group stays collapsed after opening a row and coming back). */
+  storageKey?: string
   children: React.ReactNode
 }) {
-  const [open, setOpen] = React.useState(defaultOpen)
+  const [open, setOpenState] = React.useState(() => {
+    if (!storageKey) return defaultOpen
+    try {
+      const saved = localStorage.getItem(storageKey)
+      return saved === null ? defaultOpen : saved === "1"
+    } catch {
+      return defaultOpen
+    }
+  })
+  const setOpen = (update: (open: boolean) => boolean) =>
+    setOpenState((current) => {
+      const next = update(current)
+      if (storageKey)
+        try {
+          localStorage.setItem(storageKey, next ? "1" : "0")
+        } catch {}
+      return next
+    })
   return (
-    <section data-slot="list-group" data-open={open || undefined}>
-      <div className="bg-muted/40 gutter-x flex h-10 items-center gap-2 rounded-lg text-sm">
+    // A small gap between groups, so collapsed headers don't stack flush.
+    <section
+      data-slot="list-group"
+      data-open={open || undefined}
+      className="mt-1 first:mt-0"
+    >
+      <div className="bg-muted dark:bg-muted/40 gutter-x flex h-10 items-center gap-2 rounded-lg text-sm">
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}

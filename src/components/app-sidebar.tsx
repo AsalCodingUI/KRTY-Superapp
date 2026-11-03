@@ -20,6 +20,17 @@ import { SidebarNotices } from "@/components/sidebar-notices"
 import { useWorkspaceNav } from "@/components/workspace-nav"
 import { useWhatsNewUnseen } from "@/page-slices/whats-new/model/unseen"
 import {
+  asStage,
+  STAGE_LABEL_KEYS,
+  type ProjectStage,
+} from "@/page-slices/projects/lib/status"
+import { ProjectStageIcon } from "@/page-slices/projects/ui/ProjectStageIcon"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
@@ -49,7 +60,12 @@ import { Settings, Sparkles } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { replaceUrl } from "@/shared/lib/url-params"
 
-type SidebarProject = { id: string; name: string; href: string }
+type SidebarProject = {
+  id: string
+  name: string
+  href: string
+  stage: ProjectStage | null
+}
 
 /**
  * Active projects for the Project workspace: every active project for
@@ -69,32 +85,55 @@ function useSidebarProjects(profile: { id: string; role: string } | null) {
       if (isAdminRole(profile.role)) {
         const { data } = await supabase
           .from("projects")
-          .select("id, name")
+          .select("id, name, stage")
           .in("status", SIDEBAR_STATUSES)
           .order("name")
-        return ((data ?? []) as { id: string; name: string }[]).map((p) => ({
+        return (
+          (data ?? []) as { id: string; name: string; stage: string | null }[]
+        ).map((p) => ({
           ...p,
+          stage: asStage(p.stage),
           href: projectHref(p),
         }))
       }
       const { data } = await supabase
         .from("project_assignments")
-        .select("projects!inner(id, name, status)")
+        .select("projects!inner(id, name, status, stage)")
         .eq("user_id", profile.id)
         .in("projects.status", SIDEBAR_STATUSES)
-      type Row = { projects: { id: string; name: string } }
+      type Row = {
+        projects: { id: string; name: string; stage: string | null }
+      }
       return ((data ?? []) as unknown as Row[])
         .map((row) => row.projects)
         .sort((a, b) => a.name.localeCompare(b.name))
         .map((p) => ({
           id: p.id,
           name: p.name,
+          stage: asStage(p.stage),
           // Members open their projects like stakeholders do (membership
           // decides access).
           href: projectHref(p),
         }))
     },
   })
+}
+
+/** A project's stage at the row's end: the glyph, its name on hover. */
+function SidebarStage({ stage }: { stage: ProjectStage }) {
+  const t = useT("projects")
+  return (
+    <Tooltip>
+      <TooltipTrigger
+        render={<span />}
+        className="ml-auto flex shrink-0 items-center group-data-[collapsible=icon]:hidden"
+      >
+        {/* The menu button sizes every icon (the tint is important). */}
+        <ProjectStageIcon stage={stage} className="size-3.5!" />
+      </TooltipTrigger>
+      <TooltipContent side="right">{t(STAGE_LABEL_KEYS[stage])}</TooltipContent>
+    </Tooltip>
+  )
 }
 
 const NAV_SLIDE: Variants = {
@@ -249,6 +288,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                               className="size-4 rounded-[4px]"
                             />
                             <span className="truncate">{project.name}</span>
+                            {project.stage && (
+                              <SidebarStage stage={project.stage} />
+                            )}
                           </SidebarMenuButton>
                         </SidebarMenuItem>
                       ))}

@@ -51,7 +51,7 @@ function LinkTag({ url }: { url: string }) {
     toast.success(tc("linkCopied"))
   }
   return (
-    <span className="bg-info-subtle text-info dark:text-blue-11 group/link mx-0.5 inline-flex max-w-full items-center gap-0.5 rounded-md py-px pr-0.5 pl-1.5 align-baseline">
+    <span className="bg-info-subtle text-blue-11 group/link mx-0.5 inline-flex max-w-full items-center gap-0.5 rounded-md py-px pr-0.5 pl-1.5 align-baseline">
       <Tooltip>
         <TooltipTrigger
           render={

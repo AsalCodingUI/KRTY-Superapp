@@ -55,6 +55,13 @@ import {
 } from "./data"
 import { StatusDot } from "./TaskBoard"
 import {
+  PRIORITY_LABEL,
+  priorityOf,
+  TASK_PRIORITIES,
+  TaskPriorityIcon,
+  type TaskPriority,
+} from "./TaskPriority"
+import {
   STATUS_LABEL,
   TASK_STATUSES,
   commentKeys,
@@ -388,7 +395,7 @@ function TaskBody({
           }
         }
       >
-        <aside className="border-border bg-muted/40 dark:bg-foreground/[0.02] flex flex-col gap-4 border-t px-4 pt-5 pb-5 md:border-t-0 md:border-l md:pt-14">
+        <aside className="border-border bg-muted/70 dark:bg-foreground/[0.02] flex flex-col gap-4 border-t px-4 pt-5 pb-5 md:border-t-0 md:border-l md:pt-14">
           <dl className="grid grid-cols-[5rem_minmax(0,1fr)] items-center gap-x-2 gap-y-1.5 text-[13px]">
             <dt className="text-muted-foreground">{t("taskStatus")}</dt>
             <dd>
@@ -417,6 +424,49 @@ function TaskBody({
                       <span className="flex items-center gap-2">
                         <StatusDot status={s} />
                         {t(STATUS_LABEL[s])}
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </dd>
+
+            <dt className="text-muted-foreground">{t("taskPriority")}</dt>
+            <dd>
+              <Select
+                value={priorityOf(task.priority)}
+                onValueChange={(v) =>
+                  v && onPatch(task.id, { priority: v as TaskPriority })
+                }
+              >
+                <SelectTrigger
+                  size="sm"
+                  className="hover:bg-accent w-full border-transparent bg-transparent px-2.5 text-[13px] shadow-none hover:border-transparent"
+                >
+                  <SelectValue>
+                    {(v: TaskPriority) =>
+                      v === "none" ? (
+                        <EmptyValue />
+                      ) : (
+                        <span className="flex items-center gap-2">
+                          <Lead>
+                            <TaskPriorityIcon
+                              priority={v}
+                              className="size-3.5"
+                            />
+                          </Lead>
+                          {t(PRIORITY_LABEL[v])}
+                        </span>
+                      )
+                    }
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {TASK_PRIORITIES.map((p) => (
+                    <SelectItem key={p} value={p}>
+                      <span className="flex items-center gap-2">
+                        <TaskPriorityIcon priority={p} />
+                        {t(PRIORITY_LABEL[p])}
                       </span>
                     </SelectItem>
                   ))}
@@ -602,7 +652,7 @@ function CommentBody({
         i % 2 === 1 ? (
           <span
             key={i}
-            className="bg-info-subtle text-info dark:text-blue-11 rounded-full px-1 font-medium"
+            className="bg-info-subtle text-blue-11 rounded-full px-1 font-medium"
           >
             {part}
           </span>

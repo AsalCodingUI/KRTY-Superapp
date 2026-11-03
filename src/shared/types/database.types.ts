@@ -1475,6 +1475,7 @@ export type Database = {
           status: string
           position: number | null
           description: string | null
+          priority: string
         }
         Insert: {
           id?: string
@@ -1491,6 +1492,7 @@ export type Database = {
           status?: string
           position?: number | null
           description?: string | null
+          priority?: string
         }
         Update: {
           id?: string
@@ -1507,6 +1509,7 @@ export type Database = {
           status?: string
           position?: number | null
           description?: string | null
+          priority?: string
         }
         Relationships: []
       }
@@ -1814,6 +1817,8 @@ export type Database = {
           quarter_id: string
           start_date: string
           status: Database["public"]["Enums"]["project_status_enum"] | null
+          stage: string | null
+          position: number | null
           updated_at: string | null
         }
         Insert: {
@@ -1833,6 +1838,8 @@ export type Database = {
           quarter_id: string
           start_date: string
           status?: Database["public"]["Enums"]["project_status_enum"] | null
+          stage?: string | null
+          position?: number | null
           updated_at?: string | null
         }
         Update: {
@@ -1852,6 +1859,8 @@ export type Database = {
           quarter_id?: string
           start_date?: string
           status?: Database["public"]["Enums"]["project_status_enum"] | null
+          stage?: string | null
+          position?: number | null
           updated_at?: string | null
         }
         Relationships: []
@@ -2235,6 +2244,7 @@ export type Database = {
         | "Planned"
         | "Active"
         | "Review"
+        | "Paused"
         | "Completed"
         | "Archived"
       request_status: "pending" | "approved" | "rejected"
@@ -2378,6 +2388,7 @@ export const Constants = {
         "Planned",
         "Active",
         "Review",
+        "Paused",
         "Completed",
         "Archived",
       ],
