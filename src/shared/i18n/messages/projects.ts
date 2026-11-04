@@ -439,6 +439,9 @@ const id = {
   commentSend: "Kirim",
   commentHint: "⌘ Enter untuk kirim",
   deleteComment: "Hapus komentar",
+  deleteCommentTitle: "Hapus komentar ini?",
+  deleteCommentDescription:
+    "Komentarnya hilang buat semua orang dan nggak bisa dibalikin.",
   commentReply: "Balas",
   commentReplyingTo: "Membalas {name}",
   commentReplyCancel: "Batal membalas",
@@ -970,6 +973,8 @@ const en: Record<keyof typeof id, string> = {
   commentSend: "Send",
   commentHint: "⌘ Enter to send",
   deleteComment: "Delete comment",
+  deleteCommentTitle: "Delete this comment?",
+  deleteCommentDescription: "It's removed for everyone and can't be undone.",
   commentReply: "Reply",
   commentReplyingTo: "Replying to {name}",
   commentReplyCancel: "Cancel reply",

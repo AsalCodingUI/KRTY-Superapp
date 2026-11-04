@@ -871,10 +871,27 @@ function CommentList({
   const t = useT("projects")
   const dateLocale = useDateLocale()
   const reduce = useReducedMotion()
+  const tc = useT("common")
   const { comments, people, isLoading, remove } = thread
+  // Asked first: a comment gone by a stray click can't come back.
+  const [pendingDelete, setPendingDelete] = useState<string | null>(null)
 
   return (
     <section className="flex flex-col gap-3">
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        onOpenChange={(open) => !open && setPendingDelete(null)}
+        title={t("deleteCommentTitle")}
+        description={t("deleteCommentDescription")}
+        confirmText={tc("delete")}
+        cancelText={tc("cancel")}
+        variant="destructive"
+        onConfirm={() => {
+          const id = pendingDelete
+          setPendingDelete(null)
+          if (id) void remove(id)
+        }}
+      />
       <h3 className="text-muted-foreground flex items-center gap-2 text-[13px]">
         {t("taskComments")}
         {comments.length > 0 && (
@@ -903,7 +920,7 @@ function CommentList({
                   author={author?.full_name ?? t("someone")}
                   onRemove={
                     comment.author_id === viewerId
-                      ? () => remove(comment.id)
+                      ? () => setPendingDelete(comment.id)
                       : undefined
                   }
                 >
@@ -940,7 +957,7 @@ function CommentList({
                             variant="ghost"
                             size="icon-xs"
                             aria-label={t("deleteComment")}
-                            onClick={() => remove(comment.id)}
+                            onClick={() => setPendingDelete(comment.id)}
                             className="text-muted-foreground hover:text-destructive ml-auto opacity-0 group-hover/comment:opacity-100 focus-visible:opacity-100"
                           >
                             <RiDeleteBinLine />

@@ -512,7 +512,7 @@ export function CommentContextTarget({
                   label: tp("deleteComment"),
                   icon: RiDeleteBinLine,
                   destructive: true,
-                  confirm: true,
+                  // Asks in a dialog (TaskDialog).
                   onSelect: onRemove,
                 },
               ]
