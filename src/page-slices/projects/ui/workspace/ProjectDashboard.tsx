@@ -900,6 +900,7 @@ function PhaseSettingsDialog({
             {tc("cancel")}
           </Button>
           <Button disabled={saving || invalid} onClick={save}>
+            {saving && <Spinner data-icon="inline-start" />}
             {saving ? tc("saving") : tc("save")}
           </Button>
         </DialogFooter>
@@ -960,6 +961,7 @@ function PhaseNameDialog({
             {tc("cancel")}
           </Button>
           <Button type="submit" form="phase-name-form" disabled={saving}>
+            {saving && <Spinner data-icon="inline-start" />}
             {saving ? tc("saving") : tc("save")}
           </Button>
         </DialogFooter>

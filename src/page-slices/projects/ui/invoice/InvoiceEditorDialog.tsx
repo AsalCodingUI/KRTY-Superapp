@@ -12,6 +12,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
+import { Spinner } from "@/components/ui/spinner"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -768,12 +769,7 @@ function Editor({
             </span>
           </div>
           <div className="bg-popover shadow-raised pointer-events-auto flex items-center gap-1 rounded-full p-1">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="rounded-full"
-              onClick={() => setZoom(1)}
-            >
+            <Button variant="ghost" size="sm" onClick={() => setZoom(1)}>
               <Maximize2 data-icon="inline-start" />
               {t("fitPage")}
             </Button>
@@ -782,7 +778,6 @@ function Editor({
             <Button
               variant="ghost"
               size="sm"
-              className="rounded-full"
               disabled={downloading}
               onClick={download}
             >
@@ -1294,6 +1289,7 @@ function Editor({
               {tc("cancel")}
             </Button>
             <Button disabled={saving} onClick={() => save()}>
+              {saving && <Spinner data-icon="inline-start" />}
               {saving ? tc("saving") : tc("save")}
             </Button>
           </div>
@@ -1313,8 +1309,8 @@ function Editor({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <Button
-              variant="ghost"
-              className="text-destructive-ink hover:text-destructive-ink sm:mr-auto"
+              variant="destructive-ghost"
+              className="sm:mr-auto"
               onClick={() => {
                 setAskClose(false)
                 onClose()

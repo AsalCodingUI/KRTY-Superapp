@@ -9,6 +9,7 @@ import {
   screenTitleClass,
 } from "@/components/minimal-screen"
 import { Button } from "@/components/ui/button"
+import { Spinner } from "@/components/ui/spinner"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { cn } from "@/lib/utils"
@@ -119,6 +120,7 @@ export default function UpdatePasswordPage() {
             className="mt-2 w-full"
             disabled={loading || success}
           >
+            {loading && <Spinner data-icon="inline-start" />}
             {loading ? t("updatingPassword") : t("updatePassword")}
           </Button>
         </form>

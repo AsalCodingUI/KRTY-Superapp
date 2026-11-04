@@ -934,7 +934,7 @@ function Question({
                 <Button
                   variant="ghost"
                   size="icon-sm"
-                  className="text-muted-foreground -mr-1.5 size-7"
+                  className="text-muted-foreground -mr-1.5"
                   aria-label={`Remove ${item.f.name}`}
                   onClick={() => onRemoveFile(item.f)}
                 >
@@ -975,7 +975,7 @@ function Question({
                   <Button
                     variant="ghost"
                     size="icon-sm"
-                    className="text-muted-foreground relative -mr-1.5 size-7"
+                    className="text-muted-foreground relative -mr-1.5"
                     aria-label="Dismiss"
                     onClick={() => onDismissUpload(item.u.key)}
                   >

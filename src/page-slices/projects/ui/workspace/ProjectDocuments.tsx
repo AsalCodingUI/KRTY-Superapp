@@ -606,6 +606,7 @@ export function ProjectDocuments({ projectId }: { projectId: string }) {
                       {tc("cancel")}
                     </Button>
                     <Button onClick={save} disabled={saving}>
+                      {saving && <Spinner data-icon="inline-start" />}
                       {saving ? tc("saving") : tc("save")}
                     </Button>
                   </footer>

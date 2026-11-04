@@ -149,8 +149,7 @@ export function ClientPortalCard({
             </Button>
             <Button
               size="sm"
-              variant="ghost"
-              className="text-destructive-ink hover:text-destructive-ink"
+              variant="destructive-ghost"
               onClick={() => setDisabling(true)}
             >
               {t("portalDisable")}

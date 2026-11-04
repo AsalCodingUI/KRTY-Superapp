@@ -5,6 +5,7 @@ import { ConfirmDialog } from "@/components/confirm-dialog"
 import { FileField } from "@/components/file-field"
 import { SegmentedControl } from "@/components/segmented-control"
 import { Button } from "@/components/ui/button"
+import { Spinner } from "@/components/ui/spinner"
 import {
   Dialog,
   DialogContent,
@@ -452,8 +453,7 @@ function MethodForm({
         <DialogFooter className="sm:justify-between">
           {draft.id ? (
             <Button
-              variant="ghost"
-              className="text-destructive-ink hover:text-destructive-ink"
+              variant="destructive-ghost"
               onClick={() => setDeleting(true)}
             >
               {t("deleteMethod")}
@@ -466,6 +466,7 @@ function MethodForm({
               {tc("cancel")}
             </Button>
             <Button onClick={save} disabled={saving}>
+              {saving && <Spinner data-icon="inline-start" />}
               {saving ? tc("saving") : tc("save")}
             </Button>
           </div>

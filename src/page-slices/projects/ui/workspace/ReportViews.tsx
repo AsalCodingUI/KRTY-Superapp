@@ -53,7 +53,7 @@ export function ReportViewsIndicator({
             size="sm"
             aria-label={label}
             title={label}
-            className="text-muted-foreground hover:text-foreground shrink-0 gap-1.5 px-2 font-normal"
+            className="text-muted-foreground hover:text-foreground shrink-0"
           />
         }
       >

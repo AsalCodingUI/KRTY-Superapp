@@ -271,8 +271,7 @@ export function SharingSantuyDialog({
                 </>
               ) : (
                 <Button
-                  variant="ghost"
-                  className="text-destructive-ink hover:text-destructive-ink"
+                  variant="destructive-ghost"
                   onClick={() => setConfirmDelete(true)}
                 >
                   {tc("delete")}

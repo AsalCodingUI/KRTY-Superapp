@@ -84,8 +84,8 @@ export function GoalDialog({
           {current && (
             <Button
               type="button"
-              variant="ghost"
-              className="text-destructive-ink mr-auto"
+              variant="destructive-ghost"
+              className="mr-auto"
               disabled={saving}
               onClick={() => void save(null)}
             >

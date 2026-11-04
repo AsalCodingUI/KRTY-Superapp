@@ -513,6 +513,7 @@ export function OneOnOne({ period }: { period: string }) {
             {tc("cancel")}
           </Button>
           <Button onClick={saveForm} disabled={saving}>
+            {saving && <Spinner data-icon="inline-start" />}
             {saving ? tc("saving") : editing ? tc("save") : t("addSlot")}
           </Button>
         </DialogFooter>
@@ -638,8 +639,7 @@ export function OneOnOne({ period }: { period: string }) {
                           {s.status === "booked" ? (
                             <Button
                               size="sm"
-                              variant="ghost"
-                              className="text-destructive-ink hover:text-destructive-ink"
+                              variant="destructive-ghost"
                               disabled={busyId === s.id}
                               onClick={() =>
                                 setConfirm({
@@ -659,8 +659,7 @@ export function OneOnOne({ period }: { period: string }) {
                           ) : (
                             <Button
                               size="sm"
-                              variant="ghost"
-                              className="text-destructive-ink hover:text-destructive-ink"
+                              variant="destructive-ghost"
                               disabled={busyId === s.id}
                               onClick={() =>
                                 setConfirm({

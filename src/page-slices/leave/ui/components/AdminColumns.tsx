@@ -11,6 +11,11 @@ import type { Locale } from "date-fns"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import {
   formatLeaveRange,
   type LeaveRequestWithProfile,
 } from "./AdminLeaveList"
@@ -223,31 +228,44 @@ export const adminColumns = (
 
               return (
                 <div className="flex justify-end gap-2">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-destructive-ink"
-                    title={t("reject")}
-                    // Don't also toggle the row's selection.
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      onReject(item.id)
-                    }}
-                  >
-                    <RiCloseLine className="size-3.5" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-success-ink"
-                    title={t("approve")}
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      onApprove(item.id)
-                    }}
-                  >
-                    <RiCheckLine className="size-3.5" />
-                  </Button>
+                  <Tooltip>
+                    <TooltipTrigger
+                      render={
+                        <Button
+                          variant="destructive-ghost"
+                          size="icon"
+                          aria-label={t("reject")}
+                          // Don't also toggle the row's selection.
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            onReject(item.id)
+                          }}
+                        />
+                      }
+                    >
+                      <RiCloseLine className="size-3.5" />
+                    </TooltipTrigger>
+                    <TooltipContent>{t("reject")}</TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger
+                      render={
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-success-ink"
+                          aria-label={t("approve")}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            onApprove(item.id)
+                          }}
+                        />
+                      }
+                    >
+                      <RiCheckLine className="size-3.5" />
+                    </TooltipTrigger>
+                    <TooltipContent>{t("approve")}</TooltipContent>
+                  </Tooltip>
                 </div>
               )
             },

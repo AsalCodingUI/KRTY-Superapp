@@ -122,7 +122,6 @@ export function NameTwinNotice({
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-meta h-7 px-2.5"
                 nativeButton={false}
                 render={
                   <Link
@@ -135,12 +134,7 @@ export function NameTwinNotice({
                 {t("twinOpen")}
               </Button>
               {onLink && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="text-meta h-7 px-2.5"
-                  onClick={() => onLink(p)}
-                >
+                <Button variant="outline" size="sm" onClick={() => onLink(p)}>
                   {t("twinContinue")}
                 </Button>
               )}
@@ -191,8 +185,8 @@ export function PreviousProjectField({
         </span>
         <Button
           variant="ghost"
-          size="icon-sm"
-          className="text-muted-foreground -mr-1.5 size-6"
+          size="icon-xs"
+          className="text-muted-foreground -mr-1.5"
           aria-label={t("previousRemove")}
           onClick={() => onChange(null)}
         >
@@ -208,7 +202,7 @@ export function PreviousProjectField({
           <Button
             variant="ghost"
             size="sm"
-            className="text-muted-foreground text-meta -ml-2.5 self-start px-2.5 font-normal"
+            className="text-muted-foreground -ml-2.5 self-start"
           />
         }
       >

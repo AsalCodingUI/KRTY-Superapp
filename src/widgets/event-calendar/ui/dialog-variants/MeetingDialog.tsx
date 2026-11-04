@@ -213,10 +213,9 @@ export function MeetingDialog({
                   <>
                     <Button
                       type="button"
-                      variant="outline"
+                      variant="destructive"
                       onClick={handleDeleteClick}
                       disabled={loading}
-                      className="text-destructive-ink hover:bg-destructive/10"
                     >
                       {tc("delete")}
                     </Button>

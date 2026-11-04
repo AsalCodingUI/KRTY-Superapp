@@ -336,9 +336,9 @@ export function ReportDialog({
                         </Button>
                       </div>
                       <Button
-                        variant="ghost"
+                        variant="destructive-ghost"
                         size="sm"
-                        className="text-destructive-ink hover:text-destructive-ink self-start"
+                        className="self-start"
                         disabled={sharing}
                         onClick={() => share(false)}
                       >

@@ -604,6 +604,7 @@ export function ProjectForm({
               !draft.end_date
             }
           >
+            {saving && <Spinner data-icon="inline-start" />}
             {saving ? tc("saving") : projectId ? tc("save") : t("formCreate")}
           </Button>
         </DialogFooter>

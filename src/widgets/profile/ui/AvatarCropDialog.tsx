@@ -1,6 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
+import { Spinner } from "@/components/ui/spinner"
 import {
   Dialog,
   DialogContent,
@@ -189,6 +190,7 @@ export function AvatarCropDialog({
             {tc("cancel")}
           </Button>
           <Button disabled={!loaded || saving} onClick={confirm}>
+            {saving && <Spinner data-icon="inline-start" />}
             {saving ? tc("saving") : t("usePhoto")}
           </Button>
         </DialogFooter>

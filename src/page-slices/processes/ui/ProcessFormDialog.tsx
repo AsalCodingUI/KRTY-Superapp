@@ -5,6 +5,7 @@ import {
   updateProcess,
 } from "@/app/(main)/processes/actions/process-actions"
 import { Button } from "@/components/ui/button"
+import { Spinner } from "@/components/ui/spinner"
 import {
   Dialog,
   DialogContent,
@@ -171,6 +172,7 @@ function ProcessForm({
           {tc("cancel")}
         </Button>
         <Button type="submit" form="process-form" disabled={saving}>
+          {saving && <Spinner data-icon="inline-start" />}
           {saving ? tc("saving") : tc("save")}
         </Button>
       </DialogFooter>

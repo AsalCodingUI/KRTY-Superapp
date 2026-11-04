@@ -196,7 +196,7 @@ export function MyOneOnOneCard({
                       key={s.id}
                       size="sm"
                       variant="secondary"
-                      className="rounded-full tabular-nums"
+                      className="tabular-nums"
                       title={`${modeLabel(s, t)} · ${t("withOrganizer", {
                         name: s.organizer?.full_name ?? t("admin"),
                       })}`}

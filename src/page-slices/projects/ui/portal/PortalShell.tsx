@@ -318,8 +318,8 @@ function TabBar({
           </div>
           <Separator />
           <Button
-            variant="ghost"
-            className="text-destructive-ink hover:text-destructive-ink justify-start"
+            variant="destructive-ghost"
+            className="justify-start"
             disabled={leaving}
             onClick={onSignOut}
           >

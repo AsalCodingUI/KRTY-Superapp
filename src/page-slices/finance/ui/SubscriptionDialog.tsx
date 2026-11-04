@@ -7,6 +7,7 @@ import {
 } from "@/app/(main)/finance/actions/subscription-actions"
 import { ConfirmDialog } from "@/components/confirm-dialog"
 import { Button } from "@/components/ui/button"
+import { Spinner } from "@/components/ui/spinner"
 import {
   Dialog,
   DialogContent,
@@ -304,8 +305,8 @@ function SubscriptionForm({
         {subscription && (
           <Button
             type="button"
-            variant="ghost"
-            className="text-destructive-ink mr-auto"
+            variant="destructive-ghost"
+            className="mr-auto"
             onClick={() => setConfirmDelete(true)}
           >
             {tc("delete")}
@@ -315,6 +316,7 @@ function SubscriptionForm({
           {tc("cancel")}
         </Button>
         <Button type="submit" form="subscription-form" disabled={saving}>
+          {saving && <Spinner data-icon="inline-start" />}
           {saving ? tc("saving") : tc("save")}
         </Button>
       </DialogFooter>
