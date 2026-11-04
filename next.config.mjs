@@ -80,7 +80,12 @@ const nextConfig = {
 
     // Compiler optimizations
     compiler: {
-        removeConsole: process.env.NODE_ENV === "production",
+        // Errors and warnings stay, so failures (a mail not sent) show in
+        // the server's logs.
+        removeConsole:
+            process.env.NODE_ENV === "production"
+                ? { exclude: ["error", "warn"] }
+                : false,
     },
 
     // Output optimization

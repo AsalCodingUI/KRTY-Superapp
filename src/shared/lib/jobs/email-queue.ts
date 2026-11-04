@@ -22,6 +22,7 @@ const BATCH = 50
  */
 export async function runEmailQueue(): Promise<{
   sent: number
+  failed?: number
   skipped?: string
 }> {
   if (!mailConfigured()) return { sent: 0, skipped: "not configured" }
@@ -92,6 +93,9 @@ export async function runEmailQueue(): Promise<{
   }
 
   let sent = 0
+  // A send that fails (the mail server busy, a rate limit) gives its claim
+  // back, so the next run tries again while it's still fresh.
+  const failed: string[] = []
   for (const n of singles) {
     const actor = actorOf(n)
     const ok = await sendMail(
@@ -101,6 +105,7 @@ export async function runEmailQueue(): Promise<{
       emailFromName(actor),
     )
     if (ok) sent++
+    else failed.push(n.id)
   }
   for (const rows of threads.values()) {
     const mail = emailCommentThread(rows.map((n) => ({ n, actor: actorOf(n) })))
@@ -116,6 +121,9 @@ export async function runEmailQueue(): Promise<{
       thread,
     )
     if (ok) sent++
+    else failed.push(...rows.map((n) => n.id))
   }
-  return { sent }
+  if (failed.length)
+    await db.from("notifications").update({ emailed_at: null }).in("id", failed)
+  return { sent, ...(failed.length ? { failed: failed.length } : {}) }
 }
