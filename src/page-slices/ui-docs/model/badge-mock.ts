@@ -17,7 +17,7 @@ export const domains: {
 }[] = [
   {
     title: "Pengajuan cuti",
-    source: "leave/ui/components/EmployeeLeaveList.tsx (STATUS_VARIANT)",
+    source: "entities/leave/ui/LeaveStatus.tsx (LeaveStatusBadge)",
     items: [
       ["Disetujui", "success"],
       ["Menunggu", "warning"],
@@ -43,6 +43,23 @@ export const domains: {
       ["Lunas", "success"],
       ["Terlambat", "destructive"],
       ["Refund", "secondary"],
+    ],
+  },
+  {
+    title: "Langkah proses",
+    source: "projects/ui/workspace/StepStatusBadge.tsx",
+    items: [
+      ["Selesai", "success"],
+      ["Belum selesai", "secondary"],
+    ],
+  },
+  {
+    title: "Kebijakan",
+    source: "policies/ui/PoliciesPage.tsx (POLICY_STATUS_VARIANT)",
+    items: [
+      ["Ada draf", "warning"],
+      ["Draf", "secondary"],
+      ["Diarsipkan", "secondary"],
     ],
   },
   {

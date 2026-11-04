@@ -24,6 +24,7 @@ import {
   DocRules,
 } from "./doc-blocks"
 import * as mock from "../model/badge-mock"
+import { BadgeCompare } from "./badge-compare"
 
 const VARIANTS = [
   ["success", "Selesai, disetujui, bagus"],
@@ -46,7 +47,7 @@ const RULES: [string, string][] = [
   ],
   [
     "Peta status",
-    "Satu peta status → variant per domain, di satu file (STATUS_VARIANT / <XStatusBadge>)",
+    "Satu peta status → variant per domain, di satu file (<LeaveStatusBadge>, <StepStatusBadge>, StatusBadge…)",
   ],
   [
     "Project / task",
@@ -74,6 +75,13 @@ export function BadgeTab() {
 
       <DocGroup title="Aturan">
         <DocRules rules={RULES} />
+      </DocGroup>
+
+      <DocGroup
+        title="Sebelum / sesudah"
+        note="Pill buatan tangan, Badge yang dicat lewat className dan peta status yang disalin sudah diganti di app. Kiri: kelas lama; kanan: yang jalan sekarang."
+      >
+        <BadgeCompare />
       </DocGroup>
 
       <DocGroup
