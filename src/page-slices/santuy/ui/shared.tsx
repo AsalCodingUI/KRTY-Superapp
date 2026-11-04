@@ -17,7 +17,7 @@ export function PersonAvatar({
   return (
     <Avatar className={cn("size-7", className)}>
       <AvatarImage src={person?.avatar_url || undefined} alt="" />
-      <AvatarFallback className={cn("text-[11px]", fallbackClassName)}>
+      <AvatarFallback className={cn("text-micro", fallbackClassName)}>
         {name.slice(0, 1).toUpperCase()}
       </AvatarFallback>
     </Avatar>

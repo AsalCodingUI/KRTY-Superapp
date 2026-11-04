@@ -226,7 +226,7 @@ function ProcessCard({
           ))}
         </div>
       </div>
-      <div className="bg-muted dark:bg-muted/40 border-border text-muted-foreground flex items-center justify-between gap-3 border-t px-5 py-3 text-[13px]">
+      <div className="bg-muted dark:bg-muted/40 border-border text-muted-foreground text-meta flex items-center justify-between gap-3 border-t px-5 py-3">
         <span className="truncate">{t("counts", n)}</span>
         <span className="shrink-0">
           {n.projects ? t("usedBy", { n: n.projects }) : t("notUsed")}

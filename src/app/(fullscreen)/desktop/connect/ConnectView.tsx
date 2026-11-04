@@ -49,7 +49,7 @@ export function ConnectView({ link }: { link: string | null }) {
             Buka Kretya Flow
           </Button>
         )}
-        <p className="text-tertiary-foreground text-[13px]">
+        <p className="text-tertiary-foreground text-meta">
           Tab ini boleh ditutup.
         </p>
       </MinimalCard>

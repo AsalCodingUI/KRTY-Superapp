@@ -99,7 +99,7 @@ export function EmbedBlock({
             className="absolute inset-0 size-full border-0"
           />
         </div>
-        <figcaption className="text-muted-foreground mt-1.5 flex items-center gap-2 px-0.5 text-[13px] leading-5">
+        <figcaption className="text-muted-foreground text-meta mt-1.5 flex items-center gap-2 px-0.5 leading-5">
           <SiteIcon url={url} className="size-3.5 shrink-0" />
           <span className="text-foreground/80 min-w-0 truncate">{name}</span>
           <span className="shrink-0 truncate">· {domain}</span>
@@ -117,7 +117,7 @@ export function EmbedBlock({
         <SiteIcon url={url} className="size-4" />
       </span>
       <span className="flex min-w-0 flex-1 flex-col">
-        <span className="text-foreground truncate text-[13px] leading-4.5 font-medium">
+        <span className="text-foreground text-meta truncate leading-4.5 font-medium">
           {name}
         </span>
         <span className="text-muted-foreground truncate text-xs leading-4">

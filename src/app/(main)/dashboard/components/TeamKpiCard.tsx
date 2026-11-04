@@ -72,11 +72,9 @@ export function TeamKpiCard({ data }: { data: AdminDashboardData }) {
       }
     >
       <div className="flex flex-col gap-1.5">
-        <p className="text-muted-foreground text-[13px]">
-          {t("adminAvgScore")}
-        </p>
+        <p className="text-muted-foreground text-meta">{t("adminAvgScore")}</p>
         <div className="flex items-center gap-2.5">
-          <span className="text-heading text-[1.75rem] leading-none font-normal tracking-tight tabular-nums">
+          <span className="text-heading text-kpi leading-none font-normal tabular-nums">
             {avg === null ? <EmptyValue /> : Math.round(avg)}
           </span>
           <RatingChip score={avg} />
@@ -128,13 +126,13 @@ export function TeamKpiCard({ data }: { data: AdminDashboardData }) {
       )}
 
       <div className="flex flex-col">
-        <p className="text-muted-foreground pb-1 text-[13px]">
+        <p className="text-muted-foreground text-meta pb-1">
           {t("adminNeedsAttention")}
         </p>
         {rated === 0 ? (
           <HomeEmpty>{t("adminNoData")}</HomeEmpty>
         ) : attention.length === 0 ? (
-          <p className="text-tertiary-foreground py-2 text-[13px]">
+          <p className="text-tertiary-foreground text-meta py-2">
             {t("adminAllOnTrack")}
           </p>
         ) : (

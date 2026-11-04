@@ -45,10 +45,10 @@ export function WeekHours({ logs, now }: { logs: AttendanceLog[]; now: Date }) {
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-baseline justify-between">
-        <span className="text-muted-foreground text-[13px]">
+        <span className="text-muted-foreground text-meta">
           {t("weekTitle")}
         </span>
-        <span className="text-foreground text-[13px] tabular-nums">
+        <span className="text-foreground text-meta tabular-nums">
           {formatWorked(total, tl("hourShort"))}
         </span>
       </div>
@@ -67,7 +67,7 @@ export function WeekHours({ logs, now }: { logs: AttendanceLog[]; now: Date }) {
               >
                 <span
                   className={cn(
-                    "text-[11px] tabular-nums",
+                    "text-micro tabular-nums",
                     isToday ? "text-foreground" : "text-tertiary-foreground",
                   )}
                 >
@@ -93,7 +93,7 @@ export function WeekHours({ logs, now }: { logs: AttendanceLog[]; now: Date }) {
                 </div>
                 <span
                   className={cn(
-                    "text-[11px]",
+                    "text-micro",
                     isToday ? "text-foreground" : "text-muted-foreground",
                   )}
                 >

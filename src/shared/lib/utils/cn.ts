@@ -46,6 +46,10 @@ export const usNumberformatter = (number: number, decimals = 0) =>
     .format(Number(number))
     .toString()
 
+/** The active UI language for Intl formatting ("id" by default). */
+export const pageLocale = () =>
+  (typeof document !== "undefined" && document.documentElement.lang) || "id"
+
 export function percentageFormatter(value: number, decimals = 1): string {
   return `${usNumberformatter(value, decimals)}%`
 }
@@ -62,8 +66,9 @@ export const formatters: Record<
   string,
   (number: number, ...args: any[]) => string
 > = {
+  // The page's language (id: 1.234,50), not a fixed en-US.
   currency: (number: number, currency: string = "USD") =>
-    new Intl.NumberFormat("en-US", {
+    new Intl.NumberFormat(pageLocale(), {
       style: "currency",
       currency: currency,
     }).format(number),

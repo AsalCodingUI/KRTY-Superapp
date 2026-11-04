@@ -797,7 +797,7 @@ function Editor({
       <aside className="bg-popover text-popover-foreground flex min-h-0 flex-col overflow-hidden rounded-3xl ring-1 ring-black/5 dark:ring-white/8">
         <div className="flex shrink-0 flex-col gap-4 px-5 pt-5 pb-4">
           <div className="flex items-baseline justify-between gap-3">
-            <DialogTitle className="text-heading truncate text-xl font-normal tracking-tight">
+            <DialogTitle className="text-heading text-section truncate font-normal">
               {invoice ? t("editInvoice") : t("newInvoice")}
             </DialogTitle>
             <span className="text-muted-foreground shrink-0 text-sm tabular-nums">

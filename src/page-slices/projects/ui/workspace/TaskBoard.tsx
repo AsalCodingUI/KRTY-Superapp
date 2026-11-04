@@ -443,14 +443,14 @@ const Column = memo(function Column({
               onBlur={() => {
                 if (!title.trim()) setAdding(false)
               }}
-              className="h-9 text-[13px]"
+              className="text-meta h-9"
             />
           </div>
         ) : (
           <Button
             variant="ghost"
             onClick={() => setAdding(true)}
-            className="text-muted-foreground justify-start text-[13px] font-normal"
+            className="text-muted-foreground text-meta justify-start font-normal"
           >
             <RiAddLine data-icon="inline-start" />
             {t("addCard")}

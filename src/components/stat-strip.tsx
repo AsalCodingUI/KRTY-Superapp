@@ -22,7 +22,7 @@ export function StatStrip({
       {items.map((item) => (
         <div key={item.key} className="stat-tile">
           <p className="text-muted-foreground text-sm">{item.label}</p>
-          <p className="text-foreground text-xl font-normal tracking-tight tabular-nums">
+          <p className="text-heading text-stat font-normal tabular-nums">
             {typeof item.value === "string" ||
             typeof item.value === "number" ? (
               <RollingValue>{item.value}</RollingValue>

@@ -139,7 +139,7 @@ export function HomeCard({
     >
       <header className="flex min-h-8 items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-2">
-          <h2 className="text-heading truncate text-[15px] font-normal">
+          <h2 className="text-heading text-title truncate font-normal">
             {title}
           </h2>
           {badge}
@@ -192,7 +192,7 @@ export function HomeFigure({
 }) {
   return (
     <div className="flex flex-col gap-1">
-      <p className="text-heading text-[1.75rem] leading-none font-normal tracking-tight tabular-nums">
+      <p className="text-heading text-kpi leading-none font-normal tabular-nums">
         {roll ? (
           <RollingValue
             value={
@@ -212,7 +212,7 @@ export function HomeFigure({
           </span>
         )}
       </p>
-      {hint && <p className="text-muted-foreground text-[13px]">{hint}</p>}
+      {hint && <p className="text-muted-foreground text-meta">{hint}</p>}
     </div>
   )
 }
@@ -232,7 +232,7 @@ export function HomeStats({
     >
       {items.map((item) => (
         <div key={item.label} className="flex min-w-0 flex-col gap-1">
-          <dt className="text-muted-foreground truncate text-[13px]">
+          <dt className="text-muted-foreground text-meta truncate">
             {item.label}
           </dt>
           <dd
@@ -273,7 +273,7 @@ export function HomeFooter({
   return (
     <div className="border-border mt-auto flex items-end justify-between gap-3 border-t pt-4">
       <div className="flex min-w-0 flex-col gap-0.5">
-        <span className="text-muted-foreground text-[13px]">{label}</span>
+        <span className="text-muted-foreground text-meta">{label}</span>
         <span className="truncate text-sm font-normal tabular-nums">
           {value}
         </span>
@@ -313,9 +313,7 @@ export function HomeRow({
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm">{title}</p>
         {subtitle && (
-          <p className="text-muted-foreground truncate text-[13px]">
-            {subtitle}
-          </p>
+          <p className="text-muted-foreground text-meta truncate">{subtitle}</p>
         )}
       </div>
       {trailing && (

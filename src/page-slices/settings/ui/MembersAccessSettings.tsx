@@ -510,7 +510,7 @@ export function MembersAccessSettings({
           ].map((item) => (
             <div key={item.label} className="stat-tile">
               <p className="text-muted-foreground text-sm">{item.label}</p>
-              <div className="text-foreground text-xl font-normal tracking-tight tabular-nums">
+              <div className="text-heading text-stat font-normal tabular-nums">
                 {isLoading ? <Skeleton className="mt-1 h-6 w-8" /> : item.value}
               </div>
             </div>
@@ -581,7 +581,7 @@ export function MembersAccessSettings({
                     <span className="flex min-w-0 items-center gap-3">
                       <Avatar className="size-7">
                         <AvatarImage src={p.avatar_url || undefined} alt="" />
-                        <AvatarFallback className="text-[11px]">
+                        <AvatarFallback className="text-micro">
                           {initialOf(p)}
                         </AvatarFallback>
                       </Avatar>
@@ -592,7 +592,7 @@ export function MembersAccessSettings({
                             <Badge variant="info">{t("superAdmin")}</Badge>
                           )}
                         </span>
-                        <span className="text-tertiary-foreground truncate text-[13px]">
+                        <span className="text-tertiary-foreground text-meta truncate">
                           {p.email}
                         </span>
                       </span>

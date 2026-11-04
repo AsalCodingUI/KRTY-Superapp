@@ -273,7 +273,7 @@ export function DataTable<TData>({
                     <TableHead
                       key={header.id}
                       className={cn(
-                        "bg-muted dark:bg-muted/40 text-muted-foreground h-10 px-2 text-[13px] font-medium whitespace-nowrap first:rounded-l-lg last:rounded-r-lg",
+                        "bg-muted dark:bg-muted/40 text-muted-foreground text-meta h-10 px-2 font-medium whitespace-nowrap first:rounded-l-lg last:rounded-r-lg",
                         isSelectionColumn && "w-px pr-4 pl-2 leading-none",
                         header.column.columnDef.meta?.className,
                       )}

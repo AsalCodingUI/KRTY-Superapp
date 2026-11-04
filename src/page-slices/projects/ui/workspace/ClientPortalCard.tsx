@@ -125,7 +125,7 @@ export function ClientPortalCard({
       <header className="flex items-center justify-between gap-4 px-4 py-3">
         <div className="flex min-w-0 flex-col">
           <h2 className="truncate text-sm font-medium">{t("portalTitle")}</h2>
-          <p className="text-muted-foreground text-[13px]">
+          <p className="text-muted-foreground text-meta">
             {isLoading
               ? "…"
               : portal

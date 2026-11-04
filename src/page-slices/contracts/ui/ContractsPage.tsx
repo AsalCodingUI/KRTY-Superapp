@@ -433,7 +433,7 @@ function ContractListRow({
             >
               {contract.title}
             </button>
-            <span className="text-tertiary-foreground truncate text-[13px]">
+            <span className="text-tertiary-foreground text-meta truncate">
               {period(contract)}
             </span>
           </div>

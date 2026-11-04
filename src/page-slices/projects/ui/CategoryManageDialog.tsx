@@ -178,7 +178,7 @@ function CategoryRow({
         }}
         className="flex-1"
       />
-      <span className="text-muted-foreground w-16 shrink-0 text-right text-[13px] tabular-nums">
+      <span className="text-muted-foreground text-meta w-16 shrink-0 text-right tabular-nums">
         {t("categoryUsage", { n: count })}
       </span>
       <Button

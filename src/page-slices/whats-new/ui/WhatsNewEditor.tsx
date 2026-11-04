@@ -333,7 +333,7 @@ function WhatsNewEditorDialog({
                         })
                       }
                       className={cn(
-                        "inline-flex h-8 items-center rounded-full border px-3 text-[13px] transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]",
+                        "text-meta inline-flex h-8 items-center rounded-full border px-3 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]",
                         on
                           ? "bg-foreground text-background border-transparent"
                           : "border-border text-foreground/80 hover:bg-foreground/[0.05]",

@@ -13,7 +13,7 @@ export function SectionTitle({
       <div className="flex items-baseline gap-2">
         <h2 className="text-foreground text-sm">{children}</h2>
         {extra != null && (
-          <span className="text-tertiary-foreground text-[13px] tabular-nums">
+          <span className="text-tertiary-foreground text-meta tabular-nums">
             {extra}
           </span>
         )}

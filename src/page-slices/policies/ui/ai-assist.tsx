@@ -879,7 +879,7 @@ function AiCard({
         ) : result ? (
           <Markdown
             images
-            className="text-[14px] leading-6 [&_img]:max-h-32 [&_img]:w-auto [&_img]:max-w-full [&_p]:my-1.5"
+            className="text-sm leading-6 [&_img]:max-h-32 [&_img]:w-auto [&_img]:max-w-full [&_p]:my-1.5"
           >
             {result}
           </Markdown>
@@ -890,7 +890,7 @@ function AiCard({
           </p>
         )}
         {lost.length > 0 && (
-          <p className="flex items-start gap-2 pb-2 text-[13px] text-amber-600 dark:text-amber-400">
+          <p className="text-meta flex items-start gap-2 pb-2 text-amber-600 dark:text-amber-400">
             <TriangleAlert className="mt-0.5 size-4 shrink-0" />
             {t("urlsChanged")}
           </p>

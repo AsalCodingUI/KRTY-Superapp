@@ -59,7 +59,7 @@ function Panel({
         <Link
           href={href}
           prefetch={false}
-          className="text-muted-foreground hover:text-foreground text-[13px] transition-colors"
+          className="text-muted-foreground hover:text-foreground text-meta transition-colors"
         >
           {t("portalSeeAll")}
         </Link>
@@ -173,7 +173,7 @@ export function UpcomingTasks({
                     {task.due_date && (
                       <span
                         className={cn(
-                          "shrink-0 text-[13px] tabular-nums",
+                          "text-meta shrink-0 tabular-nums",
                           overdue
                             ? "text-destructive font-medium"
                             : "text-tertiary-foreground",
@@ -257,7 +257,7 @@ export function LatestReports({
                       <title>{t("reportShared")}</title>
                     </Link2>
                   )}
-                  <span className="text-tertiary-foreground shrink-0 text-[13px] tabular-nums">
+                  <span className="text-tertiary-foreground text-meta shrink-0 tabular-nums">
                     {format(parseISO(r.report_date), "d MMM", {
                       locale: dateLocale,
                     })}

@@ -101,7 +101,7 @@ export function NameTwinNotice({
   )
   if (!twins.length) return null
   return (
-    <div className="bg-amber-3 dark:bg-amber-9/10 flex flex-col gap-2 rounded-xl px-3 py-2.5 text-[13px]">
+    <div className="bg-amber-3 dark:bg-amber-9/10 text-meta flex flex-col gap-2 rounded-xl px-3 py-2.5">
       <p className="text-foreground flex items-center gap-2">
         <TriangleAlert className="text-amber-11 size-3.5 shrink-0" />
         {t("twinTitle", { name: twins[0].name })}
@@ -122,7 +122,7 @@ export function NameTwinNotice({
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-7 px-2.5 text-[13px]"
+                className="text-meta h-7 px-2.5"
                 nativeButton={false}
                 render={
                   <Link
@@ -138,7 +138,7 @@ export function NameTwinNotice({
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-7 px-2.5 text-[13px]"
+                  className="text-meta h-7 px-2.5"
                   onClick={() => onLink(p)}
                 >
                   {t("twinContinue")}
@@ -173,7 +173,7 @@ export function PreviousProjectField({
 
   if (value)
     return (
-      <div className="bg-muted flex items-center gap-2 rounded-xl px-3 py-2 text-[13px]">
+      <div className="bg-muted text-meta flex items-center gap-2 rounded-xl px-3 py-2">
         <CornerDownRight className="text-muted-foreground size-3.5 shrink-0" />
         <span className="text-muted-foreground shrink-0">
           {t("previousLabel")}
@@ -208,7 +208,7 @@ export function PreviousProjectField({
           <Button
             variant="ghost"
             size="sm"
-            className="text-muted-foreground -ml-2.5 self-start px-2.5 text-[13px] font-normal"
+            className="text-muted-foreground text-meta -ml-2.5 self-start px-2.5 font-normal"
           />
         }
       >

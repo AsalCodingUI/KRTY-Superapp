@@ -74,14 +74,14 @@ export function RemainingLeaveList({ data }: { data: BalanceProfile[] }) {
               <div className="flex min-w-0 items-center gap-3">
                 <Avatar className="size-7">
                   <AvatarImage src={p.avatar_url || undefined} alt={name} />
-                  <AvatarFallback className="text-[11px]">
+                  <AvatarFallback className="text-micro">
                     {name.slice(0, 2).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex min-w-0 flex-col">
                   <span className="text-foreground truncate">{name}</span>
                   {p.leave_note && (
-                    <span className="text-tertiary-foreground truncate text-[13px]">
+                    <span className="text-tertiary-foreground text-meta truncate">
                       {p.leave_note}
                     </span>
                   )}

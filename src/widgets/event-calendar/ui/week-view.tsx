@@ -149,7 +149,7 @@ export const WeekView = memo(function WeekView({
 
         {/* All-day strip: reminders, leave, multi-day items */}
         <div className="flex">
-          <div className="text-muted-foreground flex w-14 shrink-0 items-start justify-end border-r px-2 pt-2 text-[11px]">
+          <div className="text-muted-foreground text-micro flex w-14 shrink-0 items-start justify-end border-r px-2 pt-2">
             {t("weekAllDay")}
           </div>
           {weekDays.map((day) => {
@@ -169,7 +169,7 @@ export const WeekView = memo(function WeekView({
                     <button
                       type="button"
                       onClick={() => onEventClick?.(event)}
-                      className="hover:bg-accent flex min-w-0 cursor-pointer items-center gap-1.5 rounded-sm px-1 py-0.5 text-left text-[13px]"
+                      className="hover:bg-accent text-meta flex min-w-0 cursor-pointer items-center gap-1.5 rounded-sm px-1 py-0.5 text-left"
                       title={event.title}
                     >
                       <span
@@ -302,7 +302,7 @@ export const WeekView = memo(function WeekView({
                                   "flex min-w-0 items-center gap-1.5 font-medium",
                                   height < 30
                                     ? "text-xs leading-4"
-                                    : "text-[13px] leading-5",
+                                    : "text-meta leading-5",
                                 )}
                               >
                                 <span

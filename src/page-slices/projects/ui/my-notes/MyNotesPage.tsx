@@ -56,7 +56,7 @@ const ROW_GRID = "grid grid-cols-[minmax(0,1fr)_4rem_5rem] items-center gap-x-4"
 const FIELD_TITLE =
   "font-heading placeholder:text-muted-foreground field-sizing-content w-full resize-none border-0 bg-transparent p-0 text-xl leading-snug font-normal tracking-tight outline-none focus:ring-0! focus:ring-offset-0!"
 const FIELD_INLINE =
-  "min-w-0 flex-1 border-0 bg-transparent p-0 text-[13px] outline-none focus:ring-0! focus:ring-offset-0!"
+  "min-w-0 flex-1 border-0 bg-transparent p-0 text-meta outline-none focus:ring-0! focus:ring-offset-0!"
 
 const newTodo = (): NoteTodo => ({
   id: crypto.randomUUID(),
@@ -340,15 +340,15 @@ export function MyNotesPage() {
                           </span>
                         </span>
                         {preview && (
-                          <span className="text-tertiary-foreground truncate text-[13px]">
+                          <span className="text-tertiary-foreground text-meta truncate">
                             {preview}
                           </span>
                         )}
                       </div>
-                      <span className="text-muted-foreground text-right text-[13px] tabular-nums">
+                      <span className="text-muted-foreground text-meta text-right tabular-nums">
                         {done ?? <EmptyValue />}
                       </span>
-                      <span className="text-muted-foreground text-right text-[13px] tabular-nums">
+                      <span className="text-muted-foreground text-meta text-right tabular-nums">
                         {when(note.updated_at)}
                       </span>
                     </ListRow>
@@ -575,12 +575,12 @@ function NoteEditor({
               setBody(value)
               save({ body: value })
             }}
-            className="text-foreground/90 min-h-12 text-[13.5px] leading-relaxed"
+            className="text-foreground/90 text-meta min-h-12 leading-relaxed"
           />
         </div>
 
         <section className="flex flex-col gap-1">
-          <h3 className="text-muted-foreground flex items-center gap-2 pb-1 text-[13px]">
+          <h3 className="text-muted-foreground text-meta flex items-center gap-2 pb-1">
             {t("notesTodo")}
             {todos.length > 0 && (
               <span className="tabular-nums">
@@ -602,7 +602,7 @@ function NoteEditor({
           {/* New to-dos are added (and land) at the top. */}
           {readOnly ? (
             todos.length === 0 && (
-              <p className="text-muted-foreground text-[13px]">
+              <p className="text-muted-foreground text-meta">
                 <EmptyValue />
               </p>
             )
@@ -621,14 +621,14 @@ function NoteEditor({
                   }
                 }}
                 onBlur={addDraft}
-                className="h-8 flex-1 text-[13px]"
+                className="text-meta h-8 flex-1"
               />
             </div>
           )}
           {todos.map((td) => (
             <div
               key={td.id}
-              className="group/todo flex min-h-9 items-center gap-2.5 text-[13px]"
+              className="group/todo text-meta flex min-h-9 items-center gap-2.5"
             >
               <Checkbox
                 checked={td.done}
@@ -693,7 +693,7 @@ function SheetBar({
 }) {
   return (
     <div className="border-border flex min-h-[3.25rem] shrink-0 items-center gap-1 border-b pr-3 pl-5">
-      <h2 className="font-heading text-heading text-[15px] font-medium">
+      <h2 className="font-heading text-heading text-title font-medium">
         {title}
       </h2>
       <div className="ml-auto flex items-center gap-0.5">{children}</div>

@@ -620,7 +620,7 @@ function DocumentEditor({
             aria-label={t("summaryLabel")}
             value={form.summary}
             onChange={(e) => set("summary", e.target.value)}
-            className="text-muted-foreground placeholder:text-muted-foreground/50 mt-3 w-full border-0 bg-transparent p-0 text-[15px] shadow-none outline-none focus:ring-0"
+            className="text-muted-foreground placeholder:text-muted-foreground/50 text-title mt-3 w-full border-0 bg-transparent p-0 shadow-none outline-none focus:ring-0"
           />
 
           <Separator className="my-8" />

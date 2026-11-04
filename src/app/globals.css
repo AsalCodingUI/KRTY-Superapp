@@ -5,6 +5,38 @@
    ease-out for enter/exit, ease-in-out for on-screen movement, drawer for
    sheets. Overriding the Tailwind keys makes every ease-out utility strong. */
 @theme {
+  /* The type scale by role (docs/ui/typography.md, live at /ui →
+     Typography). Each class sets size + line height + tracking; weight
+     stays separate (font-normal 450 / font-medium 500). Tracking is
+     graded by size: small text opens up a touch, big text closes in. */
+  --text-micro: 11px; /* pills, kbd, tiny counts */
+  --text-micro--line-height: 16px;
+  --text-micro--letter-spacing: 0.01em;
+  --text-caption: 12px; /* badges, tooltips, xs buttons */
+  --text-caption--line-height: 16px;
+  --text-caption--letter-spacing: 0.005em;
+  --text-meta: 13px; /* descriptions, row meta, chips, column labels */
+  --text-meta--line-height: 18px;
+  --text-meta--letter-spacing: 0em;
+  --text-body: 14px; /* body, rows, fields, buttons (= text-sm) */
+  --text-body--line-height: 20px;
+  --text-body--letter-spacing: 0em;
+  --text-title: 15px; /* dialog, card, panel titles */
+  --text-title--line-height: 22px;
+  --text-title--letter-spacing: -0.005em;
+  --text-section: 18px; /* section titles, editor dialog titles */
+  --text-section--line-height: 26px;
+  --text-section--letter-spacing: -0.01em;
+  --text-stat: 20px; /* stat values */
+  --text-stat--line-height: 26px;
+  --text-stat--letter-spacing: -0.02em;
+  --text-page-title: 24px; /* the page's one h1 (PageHeader) */
+  --text-page-title--line-height: 30px;
+  --text-page-title--letter-spacing: -0.02em;
+  --text-kpi: 28px; /* big KPI numbers */
+  --text-kpi--line-height: 34px;
+  --text-kpi--letter-spacing: -0.025em;
+
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
   --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
@@ -289,7 +321,9 @@
   }
   /* Text-link underlines are dotted and sit a little lower, everywhere.
      Underlines people format themselves (<u>, editors) stay solid. */
-  :where(*:not(u, ins, [contenteditable], [contenteditable] *, .ProseMirror *)) {
+  :where(
+    *:not(u, ins, [contenteditable], [contenteditable] *, .ProseMirror *)
+  ) {
     text-decoration-style: dotted;
     text-underline-offset: 0.25em;
   }

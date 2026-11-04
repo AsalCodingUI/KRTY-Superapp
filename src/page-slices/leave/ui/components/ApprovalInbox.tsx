@@ -454,7 +454,7 @@ export function ApprovalInbox({
 export function InboxCount({ count }: { count: number }) {
   if (count <= 0) return null
   return (
-    <span className="bg-primary text-primary-foreground -mr-1 ml-0.5 grid h-5 min-w-5 place-items-center rounded-full px-1.5 text-[11px] font-medium tabular-nums">
+    <span className="bg-primary text-primary-foreground text-micro -mr-1 ml-0.5 grid h-5 min-w-5 place-items-center rounded-full px-1.5 font-medium tabular-nums">
       {count}
     </span>
   )
@@ -529,11 +529,11 @@ function InboxRow({
         >
           <Avatar className="size-8">
             {person?.avatar_url && <AvatarImage src={person.avatar_url} />}
-            <AvatarFallback className="text-[11px]">
+            <AvatarFallback className="text-micro">
               {initials(person?.full_name)}
             </AvatarFallback>
           </Avatar>
-          <div className="flex min-w-0 flex-1 flex-col gap-0.5 text-[13px]">
+          <div className="text-meta flex min-w-0 flex-1 flex-col gap-0.5">
             <p className="truncate">
               <span className="font-medium">{person?.full_name ?? "—"}</span>
               <span className="text-muted-foreground"> · {title}</span>

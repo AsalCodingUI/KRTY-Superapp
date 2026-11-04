@@ -62,6 +62,31 @@ Tailwind's line-heights come with each size. px = font size / line height.
 That is 11 / 12 / 13 / 14 / 15 / 18 / 20 / 24 and the display sizes
 (36, 48). Nothing between them, nothing under 11px for text.
 
+## Tokens (use these)
+
+Defined in `src/app/globals.css` (`@theme`, `--text-*`). Each class sets
+**size + line height + tracking**; weight stays a separate class
+(`font-normal` 450 / `font-medium` 500). Live and measured on /ui →
+Typography.
+
+| Class             | Size / leading | Tracking | Role                                               |
+| ----------------- | -------------- | -------- | -------------------------------------------------- |
+| `text-micro`      | 11 / 16        | +0.01em  | pills, kbd, tiny counts                            |
+| `text-caption`    | 12 / 16        | +0.005em | badges, tooltips, xs buttons (≈ `text-xs`)         |
+| `text-meta`       | 13 / 18        | 0        | descriptions, row meta, chips, column labels       |
+| `text-body`       | 14 / 20        | 0        | body, rows, fields, buttons (= `text-sm`)          |
+| `text-title`      | 15 / 22        | −0.005em | Dialog / Sheet / Card titles, HomeCard             |
+| `text-section`    | 18 / 26        | −0.01em  | section titles, editor-dialog titles, empty states |
+| `text-stat`       | 20 / 26        | −0.02em  | StatStrip / StatTiles values (+ `tabular-nums`)    |
+| `text-page-title` | 24 / 30        | −0.02em  | PageHeader h1                                      |
+| `text-kpi`        | 28 / 34        | −0.025em | big KPI numbers (+ `tabular-nums`)                 |
+
+- Tracking is graded by size and lives in the token: don't add
+  `tracking-*` on top (except `tracking-[0.06em]` on unavoidable caps).
+- Don't write `text-[13px]`, `text-[15px]`, `text-[11px]` any more: they
+  are `text-meta`, `text-title`, `text-micro`.
+- `text-sm` / `text-xs` stay valid (same metrics as body / caption).
+
 ## Rules
 
 **Sizes**
@@ -212,6 +237,16 @@ code (`status-page.tsx`, 7–9rem).
 ```
 
 ## Migration notes
+
+Done 2026-11-05 (local): the role tokens above; `text-[13px]` (250),
+`text-[11px]` (35), `text-[15px]` (29) and the off-scale sizes
+(`12px`, `14px`, `11.5px`, `13.5px`, `0.8rem`) moved to tokens; one KPI
+size (`text-kpi`) for the `1.75rem` / `2rem` / `3xl` numbers; Dialog,
+Sheet, Card and calendar titles on `text-title`, editor dialogs on
+`text-section`; stat values on `text-stat` (and two inline StatStrip
+copies replaced by `StatStrip`); `font-light` removed; translated text
+no longer `uppercase`; `formatters.currency` follows the page language.
+The older list below is kept for what's left.
 
 Audit (src, excluding `ui-docs`): `text-sm` 492, `text-xs` 262,
 `text-[13px]` 251, `text-[11px]` 36, `text-[15px]` 35, `text-base` 29,

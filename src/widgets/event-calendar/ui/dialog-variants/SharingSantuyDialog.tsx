@@ -92,7 +92,7 @@ export function SharingSantuyDialog({
           </DialogHeader>
           <div className="flex flex-col gap-5">
             <div className="flex flex-col gap-1.5">
-              <h3 className="text-heading text-base font-medium break-words">
+              <h3 className="text-heading text-title font-medium break-words">
                 {event.title}
               </h3>
               <p className="text-muted-foreground text-sm">
@@ -191,7 +191,7 @@ export function SharingSantuyDialog({
 
         <div className="flex flex-col gap-5">
           <div className="flex flex-col gap-1.5">
-            <h3 className="text-heading text-base font-medium break-words">
+            <h3 className="text-heading text-title font-medium break-words">
               {event.title}
             </h3>
             {event.organizer && (

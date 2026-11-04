@@ -252,7 +252,7 @@ function SubscriptionForm({
               value={fxRate}
               onChange={(e) => setFxRate(cleanAmount(e.target.value, "IDR"))}
             />
-            <p className="text-muted-foreground text-[13px]">
+            <p className="text-muted-foreground text-meta">
               {idrPreview !== null
                 ? t("idrPreview", { amount: rupiah(idrPreview) })
                 : t("rateHint")}

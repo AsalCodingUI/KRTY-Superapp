@@ -43,14 +43,14 @@ export function PersonCell({
     <div className="flex min-w-0 items-center gap-3">
       <Avatar className="size-7">
         <AvatarImage src={avatarUrl || undefined} alt="" />
-        <AvatarFallback className="text-[11px]">
+        <AvatarFallback className="text-micro">
           {label.slice(0, 2).toUpperCase()}
         </AvatarFallback>
       </Avatar>
       <div className="flex min-w-0 flex-col">
         {children ?? <span className="text-foreground truncate">{label}</span>}
         {secondary && (
-          <span className="text-tertiary-foreground truncate text-[13px]">
+          <span className="text-tertiary-foreground text-meta truncate">
             {secondary}
           </span>
         )}
@@ -122,7 +122,7 @@ export function StatBand({
       {stats.map((item, i) => (
         <div key={i} className="stat-tile">
           <p className="text-muted-foreground text-sm">{item.label}</p>
-          <p className="text-foreground text-xl font-normal tracking-tight tabular-nums">
+          <p className="text-heading text-stat font-normal tabular-nums">
             <RollingValue
               value={
                 typeof item.value === "number" || typeof item.value === "string"

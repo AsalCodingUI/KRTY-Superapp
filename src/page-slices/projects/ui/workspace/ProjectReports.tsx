@@ -163,11 +163,11 @@ export function ProjectReports({ projectId }: { projectId: string }) {
                         {name.slice(0, 2).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
-                    <span className="text-muted-foreground truncate text-[13px]">
+                    <span className="text-muted-foreground text-meta truncate">
                       {name}
                     </span>
                   </div>
-                  <span className="text-tertiary-foreground hidden text-right text-[13px] tabular-nums md:block">
+                  <span className="text-tertiary-foreground text-meta hidden text-right tabular-nums md:block">
                     {format(parseISO(r.report_date), "d MMM yyyy", {
                       locale: dateLocale,
                     })}

@@ -228,12 +228,12 @@ export function CompetencyLibrary() {
                           {c.name}
                         </span>
                         {c.description && (
-                          <span className="text-tertiary-foreground line-clamp-2 text-[13px] leading-snug">
+                          <span className="text-tertiary-foreground text-meta line-clamp-2 leading-snug">
                             {c.description}
                           </span>
                         )}
                       </div>
-                      <span className="text-muted-foreground hidden text-right text-[13px] tabular-nums md:block">
+                      <span className="text-muted-foreground text-meta hidden text-right tabular-nums md:block">
                         {c.usage > 0 ? (
                           t("usageCount", { n: c.usage })
                         ) : (
@@ -285,7 +285,7 @@ export function CompetencyLibrary() {
                     {t("addCompetencyTo", { role })}
                   </Button>
                   {items.length === 0 && (
-                    <span className="text-tertiary-foreground text-[13px]">
+                    <span className="text-tertiary-foreground text-meta">
                       {t("noCompetenciesRoleHint")}
                     </span>
                   )}

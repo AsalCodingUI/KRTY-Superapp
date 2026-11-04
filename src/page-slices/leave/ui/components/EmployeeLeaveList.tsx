@@ -132,11 +132,11 @@ function LeaveRow({
             {formatLeaveRange(req.start_date, req.end_date, dateLocale)}
           </span>
           {/* Type and duration have their own columns from md up. */}
-          <span className="text-muted-foreground truncate text-[13px] md:hidden">
+          <span className="text-muted-foreground text-meta truncate md:hidden">
             {type} · {daysText}
           </span>
           {(req.reason || req.review_note || req.proof_url) && (
-            <span className="text-tertiary-foreground flex min-w-0 items-center gap-1.5 text-[13px]">
+            <span className="text-tertiary-foreground text-meta flex min-w-0 items-center gap-1.5">
               {req.reason && (
                 // Keeps its words when a long reviewer note follows.
                 <span

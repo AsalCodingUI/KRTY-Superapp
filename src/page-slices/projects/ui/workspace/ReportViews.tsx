@@ -76,7 +76,7 @@ export function ReportViewsIndicator({
             )}
           </div>
           {count === 0 ? (
-            <p className="text-muted-foreground px-4 pb-3 text-[13px]">
+            <p className="text-muted-foreground text-meta px-4 pb-3">
               {t("reportViewsEmpty")}
             </p>
           ) : (
@@ -110,7 +110,7 @@ function ViewRow({ view }: { view: ReportView }) {
           : "reportViewDesktop",
     )
   return (
-    <li className="flex items-center gap-3 rounded-lg px-2 py-1.5 text-[13px]">
+    <li className="text-meta flex items-center gap-3 rounded-lg px-2 py-1.5">
       <DeviceIcon className="text-muted-foreground size-4 shrink-0" />
       <div className="flex min-w-0 flex-1 flex-col">
         <span

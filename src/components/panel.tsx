@@ -39,7 +39,7 @@ export function Panel({
         <div className="flex min-w-0 items-baseline gap-2">
           <h2 className="text-heading truncate text-sm font-medium">{title}</h2>
           {meta !== undefined && meta !== null && (
-            <span className="text-tertiary-foreground text-[13px] tabular-nums">
+            <span className="text-tertiary-foreground text-meta tabular-nums">
               {meta}
             </span>
           )}
@@ -65,7 +65,7 @@ export function PanelLink({
     <Link
       href={href}
       prefetch={false}
-      className="text-muted-foreground hover:text-foreground shrink-0 text-[13px] font-medium transition-colors"
+      className="text-muted-foreground hover:text-foreground text-meta shrink-0 font-medium transition-colors"
     >
       {children} →
     </Link>
@@ -115,7 +115,7 @@ export function PanelEmpty({
       )}
       <p className="text-foreground text-sm font-medium">{title}</p>
       {description && (
-        <p className="text-muted-foreground max-w-xs text-[13px] text-balance">
+        <p className="text-muted-foreground text-meta max-w-xs text-balance">
           {description}
         </p>
       )}

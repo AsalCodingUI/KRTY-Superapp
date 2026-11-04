@@ -515,13 +515,13 @@ function MyTaskRow({
             {task.title}
           </button>
           {subtasks.length > 0 && (
-            <span className="text-muted-foreground shrink-0 text-[13px] tabular-nums">
+            <span className="text-muted-foreground text-meta shrink-0 tabular-nums">
               {doneSubs}/{subtasks.length}
             </span>
           )}
           {comments > 0 && (
             <span
-              className="text-muted-foreground flex shrink-0 items-center gap-1 text-[13px] tabular-nums"
+              className="text-muted-foreground text-meta flex shrink-0 items-center gap-1 tabular-nums"
               aria-label={t("commentCount", { n: comments })}
             >
               <RiMessage3Line className="size-3.5" />
@@ -531,7 +531,7 @@ function MyTaskRow({
         </div>
         {/* Project and status get their own columns from md up. */}
         {project && (
-          <span className="text-muted-foreground flex min-w-0 items-center gap-1.5 text-[13px] md:hidden">
+          <span className="text-muted-foreground text-meta flex min-w-0 items-center gap-1.5 md:hidden">
             <StatusDot status={status} />
             <span className="truncate">{project.name}</span>
           </span>
@@ -541,7 +541,7 @@ function MyTaskRow({
         {project && (
           <Link
             href={projectHref(project, "tasks")}
-            className="text-muted-foreground hover:text-foreground flex min-w-0 items-center gap-1.5 text-[13px]"
+            className="text-muted-foreground hover:text-foreground text-meta flex min-w-0 items-center gap-1.5"
           >
             <ProjectAvatar
               id={project.id}
@@ -552,13 +552,13 @@ function MyTaskRow({
           </Link>
         )}
       </div>
-      <span className="text-muted-foreground hidden items-center gap-1.5 text-[13px] md:flex">
+      <span className="text-muted-foreground text-meta hidden items-center gap-1.5 md:flex">
         <StatusDot status={status} />
         {t(STATUS_LABEL[status])}
       </span>
       <span
         className={cn(
-          "text-[13px] tabular-nums",
+          "text-meta tabular-nums",
           due
             ? overdue
               ? "text-destructive"

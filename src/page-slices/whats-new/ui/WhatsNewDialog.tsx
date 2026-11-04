@@ -169,7 +169,7 @@ function EntryView({
               })}
             </time>
             {entry.summary && (
-              <p className="text-muted-foreground mt-3 text-[15px]">
+              <p className="text-muted-foreground text-title mt-3">
                 {entry.summary}
               </p>
             )}

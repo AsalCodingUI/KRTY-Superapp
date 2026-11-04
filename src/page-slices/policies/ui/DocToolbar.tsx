@@ -143,7 +143,7 @@ export function DocToolbar({ editor }: { editor: Editor }) {
               className={cn(
                 b.level === 1 && "text-base font-medium",
                 b.level === 2 && "font-medium",
-                b.level === 3 && "text-[13px] font-medium",
+                b.level === 3 && "text-meta font-medium",
               )}
             >
               {t(b.label)}

@@ -190,18 +190,18 @@ function AttendanceDay({
             </Badge>
           )}
           {active && (
-            <span className="text-success-ink flex items-center gap-1.5 text-[13px]">
+            <span className="text-success-ink text-meta flex items-center gap-1.5">
               <span className="bg-success size-1.5 animate-pulse rounded-full motion-reduce:animate-none" />
               {t("active")}
             </span>
           )}
         </span>
-        <span className="text-muted-foreground hidden text-[13px] tabular-nums md:block">
+        <span className="text-muted-foreground text-meta hidden tabular-nums md:block">
           {t(logs.length === 1 ? "sessionsOne" : "sessionsOther", {
             n: logs.length,
           })}
         </span>
-        <span className="text-muted-foreground hidden text-right text-[13px] tabular-nums md:block">
+        <span className="text-muted-foreground text-meta hidden text-right tabular-nums md:block">
           {totalBreak ? `${totalBreak}m` : ""}
         </span>
         <span
@@ -302,7 +302,7 @@ function AttendanceRow({
             {log.clock_out ? format(new Date(log.clock_out), "HH:mm") : "…"}
           </span>
           {notes.length > 0 && (
-            <span className="text-tertiary-foreground truncate text-[13px]">
+            <span className="text-tertiary-foreground text-meta truncate">
               {notes.join(" · ")}
             </span>
           )}
@@ -312,7 +312,7 @@ function AttendanceRow({
             <button
               type="button"
               onClick={() => onRequestDelete?.(log.id)}
-              className="text-tertiary-foreground hover:text-foreground -my-1 self-start py-1 text-[13px] underline-offset-2 hover:underline lg:hidden"
+              className="text-tertiary-foreground hover:text-foreground text-meta -my-1 self-start py-1 underline-offset-2 hover:underline lg:hidden"
             >
               {t("requestDelete")}
             </button>

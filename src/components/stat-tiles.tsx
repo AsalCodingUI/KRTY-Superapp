@@ -38,11 +38,11 @@ export function StatTiles({
               {item.label}
             </dt>
             <dd className="flex min-w-0 items-baseline gap-2">
-              <span className="text-heading truncate text-xl font-normal tracking-tight tabular-nums">
+              <span className="text-heading text-stat truncate font-normal tabular-nums">
                 {item.value}
               </span>
               {item.hint && (
-                <span className="text-muted-foreground truncate text-[13px]">
+                <span className="text-muted-foreground text-meta truncate">
                   {item.hint}
                 </span>
               )}
@@ -71,11 +71,11 @@ export function StatTiles({
           <dt className="text-muted-foreground truncate text-sm">
             {item.label}
           </dt>
-          <dd className="text-heading truncate text-xl font-normal tracking-tight tabular-nums">
+          <dd className="text-heading text-stat truncate font-normal tabular-nums">
             {item.value}
           </dd>
           {item.hint && (
-            <dd className="text-muted-foreground truncate text-[13px]">
+            <dd className="text-muted-foreground text-meta truncate">
               {item.hint}
             </dd>
           )}

@@ -116,7 +116,7 @@ export function PortalLibrary({
                           <span className="truncate text-sm" title={f.name}>
                             {f.name}
                           </span>
-                          <span className="text-tertiary-foreground text-[13px]">
+                          <span className="text-tertiary-foreground text-meta">
                             {count
                               ? t("libFileCount", { n: count })
                               : t("libFolderEmptyShort")}
@@ -171,7 +171,7 @@ export function PortalLibrary({
                         <span className="truncate text-sm" title={file.name}>
                           {file.name}
                         </span>
-                        <span className="text-tertiary-foreground text-[13px] tabular-nums">
+                        <span className="text-tertiary-foreground text-meta tabular-nums">
                           {formatBytes(file.file_size)} ·{" "}
                           {format(new Date(file.created_at), "d MMM yyyy", {
                             locale: dateLocale,

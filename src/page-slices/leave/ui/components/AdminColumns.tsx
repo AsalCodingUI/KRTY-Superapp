@@ -114,7 +114,7 @@ export const adminColumns = (
                 {name}
               </span>
               {/* Date and type get their own columns from md up. */}
-              <span className="text-muted-foreground truncate text-[13px] tabular-nums md:hidden">
+              <span className="text-muted-foreground text-meta truncate tabular-nums md:hidden">
                 {formatLeaveRange(
                   row.original.start_date,
                   row.original.end_date,

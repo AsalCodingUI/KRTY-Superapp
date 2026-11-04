@@ -162,10 +162,10 @@ function Tile({ item }: { item: Item }) {
             </span>
           )}
         </span>
-        <span className="text-muted-foreground font-mono text-[11px] leading-4 break-all">
+        <span className="text-muted-foreground text-micro font-mono leading-4 break-all">
           {item.from}
         </span>
-        <span className="text-tertiary-foreground text-[11px] leading-4">
+        <span className="text-tertiary-foreground text-micro leading-4">
           {item.usedIn}
         </span>
       </div>

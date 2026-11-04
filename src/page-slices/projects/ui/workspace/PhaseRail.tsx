@@ -386,7 +386,7 @@ export function PhaseRail({
                     <span
                       aria-hidden="true"
                       className={cn(
-                        "flex size-5 shrink-0 items-center justify-center rounded-full text-[11px] font-medium tabular-nums",
+                        "text-micro flex size-5 shrink-0 items-center justify-center rounded-full font-medium tabular-nums",
                         isDone
                           ? "bg-success text-white"
                           : isActive
@@ -410,7 +410,7 @@ export function PhaseRail({
                     {isAdmin && <span className="size-6 shrink-0" />}
                   </span>
                   {/* 2. Status, and the due date (red when overdue). */}
-                  <span className="flex min-w-0 items-center justify-between gap-2 text-[13px]">
+                  <span className="text-meta flex min-w-0 items-center justify-between gap-2">
                     <span
                       className={cn(
                         "text-muted-foreground truncate",

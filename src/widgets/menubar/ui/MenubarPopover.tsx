@@ -665,11 +665,11 @@ function ClockButtons({
 function AttendanceCard({ data }: { data: Data }) {
   return (
     <div className="bg-muted mx-3 mb-3 rounded-2xl p-4">
-      <p className="text-muted-foreground flex items-center gap-2 text-[13px]">
+      <p className="text-muted-foreground text-meta flex items-center gap-2">
         <StatusDot data={data} />
         {statusText(data)}
       </p>
-      <p className="font-heading text-heading mt-1 text-3xl leading-tight font-medium tracking-tight tabular-nums">
+      <p className="font-heading text-heading text-kpi mt-1 font-medium tabular-nums">
         {data.log ? duration(data.worked) : "—"}
       </p>
       <ClockButtons data={data} className="mt-3" />
@@ -679,7 +679,7 @@ function AttendanceCard({ data }: { data: Data }) {
 
 function Footer({ data, on }: { data: Data; on: On }) {
   return (
-    <div className="mt-auto flex items-center gap-3 border-t border-white/8 px-4 py-2.5 text-[13px]">
+    <div className="text-meta mt-auto flex items-center gap-3 border-t border-white/8 px-4 py-2.5">
       {on.leave && data.clocks && data.leave && (
         <span className="text-muted-foreground">
           Sisa cuti{" "}
@@ -744,9 +744,7 @@ function Row({ children }: { children: ReactNode }) {
 }
 
 function Empty({ children }: { children: ReactNode }) {
-  return (
-    <p className="text-muted-foreground px-2 py-2 text-[13px]">{children}</p>
-  )
+  return <p className="text-muted-foreground text-meta px-2 py-2">{children}</p>
 }
 
 /* ─── Content lists ───────────────────────────────────────────────────── */
@@ -935,7 +933,7 @@ function NotificationRows({ data, limit }: { data: Data; limit?: number }) {
                   </time>
                 </div>
                 {n.message && (
-                  <p className="text-muted-foreground line-clamp-2 text-[13px]">
+                  <p className="text-muted-foreground text-meta line-clamp-2">
                     {n.message}
                   </p>
                 )}
@@ -1000,11 +998,11 @@ function ApprovalRows({ data }: { data: Data }) {
                 {req.profiles?.avatar_url && (
                   <AvatarImage src={req.profiles.avatar_url} />
                 )}
-                <AvatarFallback className="text-[11px]">
+                <AvatarFallback className="text-micro">
                   {initials(req.profiles?.full_name)}
                 </AvatarFallback>
               </Avatar>
-              <div className="min-w-0 flex-1 text-[13px]">
+              <div className="text-meta min-w-0 flex-1">
                 <p className="truncate">
                   <span className="font-medium">
                     {req.profiles?.full_name ?? "—"}
@@ -1184,7 +1182,7 @@ export function LayoutList({ data, on }: { data: Data; on: On }) {
         data={data}
         trailing={
           on.attendance && data.clocks ? (
-            <span className="text-muted-foreground flex items-center gap-1.5 text-[13px] tabular-nums">
+            <span className="text-muted-foreground text-meta flex items-center gap-1.5 tabular-nums">
               <StatusDot data={data} />
               {data.log ? duration(data.worked) : "Belum masuk"}
             </span>
@@ -1550,7 +1548,7 @@ function SettingsPanel({ data }: { data: Data }) {
     <div className="flex flex-col gap-1 pb-2">
       <div className="flex items-center gap-3 rounded-lg px-2 py-2">
         <Avatar className="size-8">
-          <AvatarFallback className="text-[11px]">
+          <AvatarFallback className="text-micro">
             {initials(data.person.full_name)}
           </AvatarFallback>
         </Avatar>

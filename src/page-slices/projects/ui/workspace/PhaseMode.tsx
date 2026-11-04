@@ -92,7 +92,7 @@ export function PhasesOffCard({
           <span className="text-foreground text-sm font-medium">
             {t("phasesOffTitle")}
           </span>
-          <span className="text-muted-foreground text-[13px]">
+          <span className="text-muted-foreground text-meta">
             {t("phasesOffDescription")}
           </span>
         </span>

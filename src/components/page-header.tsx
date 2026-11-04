@@ -43,7 +43,7 @@ export function PageHeader({
         {/* ms-[-0.04em]: a 24px letter's side bearing is ~0.9px wider than
             the 14px text under it, so the title would look indented
             (optical letter alignment, docs/ui/optical.md). */}
-        <h1 className="text-heading ms-[-0.04em] min-w-0 truncate text-2xl font-normal tracking-tight">
+        <h1 className="text-heading text-page-title ms-[-0.04em] min-w-0 truncate font-normal">
           {title}
         </h1>
       </div>

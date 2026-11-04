@@ -604,7 +604,7 @@ function ScheduleRow({
             {dayLabel}
           </span>
           {/* Same every week; phones see it in the card above. */}
-          <span className="text-tertiary-foreground text-[12px] tabular-nums max-sm:hidden">
+          <span className="text-tertiary-foreground text-xs tabular-nums max-sm:hidden">
             {timeLabel}
           </span>
         </div>
@@ -627,12 +627,12 @@ function ScheduleRow({
                   {personName(person)}
                 </span>
                 {s.assigned && rotation && rotation.id !== person?.id && (
-                  <span className="text-tertiary-foreground truncate text-[12px]">
+                  <span className="text-tertiary-foreground truncate text-xs">
                     {t("wouldBe", { name: personName(rotation) })}
                   </span>
                 )}
                 {movedFrom && (
-                  <span className="text-tertiary-foreground truncate text-[12px]">
+                  <span className="text-tertiary-foreground truncate text-xs">
                     {t("movedFrom", { date: movedFrom })}
                   </span>
                 )}
@@ -792,7 +792,7 @@ function NextUpCard({
             />
             <div className="flex min-w-0 flex-col gap-1">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="text-muted-foreground text-[13px]">
+                <span className="text-muted-foreground text-meta">
                   {t("presenter")}
                 </span>
                 {session && (
@@ -1029,7 +1029,7 @@ function MeetRow({
             }}
           >
             {!googleConfigured && (
-              <p className="text-muted-foreground text-[13px]">
+              <p className="text-muted-foreground text-meta">
                 {t("googleOff")}
               </p>
             )}

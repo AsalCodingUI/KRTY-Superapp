@@ -93,11 +93,11 @@ export function SidebarNoticeCard({
         }
       />
       <div className="pointer-events-none min-w-0 flex-1">
-        <p className="text-foreground truncate text-[13px] leading-5 font-medium">
+        <p className="text-foreground text-meta truncate leading-5 font-medium">
           {title}
         </p>
         {subtitle && (
-          <p className="text-muted-foreground truncate text-[11.5px] leading-4">
+          <p className="text-muted-foreground text-micro truncate leading-4">
             {subtitle}
           </p>
         )}

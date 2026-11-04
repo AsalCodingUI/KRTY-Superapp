@@ -519,7 +519,7 @@ export function EventDialog({
           <div className="scroll-pane scroll-pane-bleed-1 space-y-5 py-1">
             {/* Event Title & Type */}
             <div className="flex items-start justify-between gap-4">
-              <h3 className="text-heading text-base font-medium break-words">
+              <h3 className="text-heading text-title font-medium break-words">
                 {event.title}
               </h3>
               <Badge

@@ -88,9 +88,9 @@ export default async function BriefPage({
         logo={<AppIcon size={192} className="size-12 rounded-[15px]" />}
         names={
           <div className="flex flex-col items-center" translate="no">
-            <span className="text-[15px] font-medium">Kretya Studio</span>
+            <span className="text-title font-medium">Kretya Studio</span>
             {brief.client?.name && (
-              <span className="text-muted-foreground text-[13px]">
+              <span className="text-muted-foreground text-meta">
                 {brief.client.name}
               </span>
             )}

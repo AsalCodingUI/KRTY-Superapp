@@ -151,7 +151,7 @@ function TrendBars({
               </div>
               <span
                 className={cn(
-                  "text-[11px] whitespace-nowrap",
+                  "text-micro whitespace-nowrap",
                   on ? "text-foreground" : "text-tertiary-foreground",
                 )}
               >
@@ -230,7 +230,7 @@ function PartCard({
   return (
     <section className={cn(CARD, "flex flex-col gap-4 p-5")}>
       <div className="flex items-center gap-1.5">
-        <span className="text-muted-foreground truncate text-[13px]">
+        <span className="text-muted-foreground text-meta truncate">
           {t(meta.label)}
         </span>
         <Tooltip>
@@ -252,12 +252,12 @@ function PartCard({
         </Tooltip>
       </div>
       <div className="flex items-center justify-between gap-3">
-        <span className="text-heading text-[2rem] leading-none font-normal tracking-tight tabular-nums">
+        <span className="text-heading text-kpi leading-none font-normal tabular-nums">
           {value === null ? <EmptyValue /> : formatPercent(value)}
         </span>
         <Ring value={value} target={meta.target} />
       </div>
-      <div className="text-muted-foreground flex items-center gap-1.5 text-[13px]">
+      <div className="text-muted-foreground text-meta flex items-center gap-1.5">
         {gap !== null &&
           (gap <= 0 ? (
             <RiCheckboxCircleFill className="text-success-ink size-3.5 shrink-0" />
@@ -290,7 +290,7 @@ function QualityValue({
       <span className="tabular-nums">{formatPercent(project.quality)}</span>
     )
   return (
-    <span className="text-tertiary-foreground text-[13px]">
+    <span className="text-tertiary-foreground text-meta">
       {project.qualityState === "unscored"
         ? t("kpiQualityUnscored")
         : project.qualityState === "elsewhere" && project.qualityQuarter
@@ -406,7 +406,7 @@ export function MyKpiView({
                       })}
               </p>
               {score !== null && (
-                <p className="text-muted-foreground text-[13px]">{caption}</p>
+                <p className="text-muted-foreground text-meta">{caption}</p>
               )}
               {/* Stakeholders: the period's lock, and drift since. */}
               {staff && kpi.lock && (
@@ -420,7 +420,7 @@ export function MyKpiView({
                     })}
                   </Badge>
                   {kpi.lock.changed && (
-                    <span className="text-warning flex items-center gap-1.5 text-[13px]">
+                    <span className="text-warning text-meta flex items-center gap-1.5">
                       <RiErrorWarningLine className="size-3.5 shrink-0" />
                       {t("kpiChangedAfterLock", {
                         n:
@@ -489,7 +489,7 @@ export function MyKpiView({
               <div
                 className={cn(
                   PROJECT_COLS,
-                  "text-muted-foreground pr-2 text-[13px]",
+                  "text-muted-foreground text-meta pr-2",
                 )}
               >
                 <span>{t("sla")}</span>
@@ -547,7 +547,7 @@ export function MyKpiView({
           {/* What's due next, only when something is. */}
           {due.length > 0 && (
             <div className="border-border flex flex-col gap-1 border-t pt-4">
-              <p className="text-muted-foreground pb-1 text-[13px]">
+              <p className="text-muted-foreground text-meta pb-1">
                 {t("kpiUpcomingDue")}
               </p>
               {due.map(({ project, milestone, due: date }) => {

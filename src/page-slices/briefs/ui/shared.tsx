@@ -58,7 +58,7 @@ export function SetChips({
         .map((set) => (
           <span
             key={set}
-            className="text-muted-foreground inline-flex items-center gap-1.5 text-[13px]"
+            className="text-muted-foreground text-meta inline-flex items-center gap-1.5"
           >
             <SetIcon set={set} className="size-3.5" />
             {t(SET_LABEL_KEYS[set])}
@@ -119,7 +119,7 @@ export function BriefAnswersView({ brief }: { brief: BriefListRow }) {
               key={section.id}
               type="button"
               onClick={() => jump(section.id)}
-              className="hover:bg-muted flex items-start gap-2.5 rounded-xl px-3.5 py-2 text-left text-[13px] transition-colors"
+              className="hover:bg-muted text-meta flex items-start gap-2.5 rounded-xl px-3.5 py-2 text-left transition-colors"
             >
               <span className="text-tertiary-foreground w-4 shrink-0 tabular-nums">
                 {index + 1}
@@ -158,7 +158,7 @@ export function BriefAnswersView({ brief }: { brief: BriefListRow }) {
                   {section.title}
                 </h3>
                 {section.team && (
-                  <span className="bg-muted text-muted-foreground shrink-0 rounded-full px-2 py-0.5 text-[11px]">
+                  <span className="bg-muted text-muted-foreground text-micro shrink-0 rounded-full px-2 py-0.5">
                     {t("teamFills")}
                   </span>
                 )}
@@ -173,7 +173,7 @@ export function BriefAnswersView({ brief }: { brief: BriefListRow }) {
                     return (
                       <p
                         key={q.id}
-                        className="text-muted-foreground px-4 py-2.5 text-[13px] whitespace-pre-wrap"
+                        className="text-muted-foreground text-meta px-4 py-2.5 whitespace-pre-wrap"
                       >
                         {q.label}
                       </p>
@@ -197,7 +197,7 @@ export function BriefAnswersView({ brief }: { brief: BriefListRow }) {
                           "sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] sm:gap-6",
                       )}
                     >
-                      <dt className="text-muted-foreground text-[13px] leading-relaxed">
+                      <dt className="text-muted-foreground text-meta leading-relaxed">
                         {q.label}
                       </dt>
                       <dd className="min-w-0 text-sm leading-relaxed [overflow-wrap:anywhere]">

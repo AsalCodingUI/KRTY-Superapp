@@ -172,7 +172,7 @@ function SlotCell({
         {primary}
       </span>
       {secondary && (
-        <span className="text-tertiary-foreground truncate text-[13px]">
+        <span className="text-tertiary-foreground text-meta truncate">
           {secondary}
         </span>
       )}
@@ -599,10 +599,10 @@ export function OneOnOne({ period }: { period: string }) {
                 label={dayLabel(day, t, dateLocale)}
                 summary={
                   <>
-                    <span className="text-tertiary-foreground hidden text-[13px] tabular-nums md:block">
+                    <span className="text-tertiary-foreground text-meta hidden tabular-nums md:block">
                       {t("slotCount", { n: items.length })}
                     </span>
-                    <span className="text-tertiary-foreground text-[13px] tabular-nums">
+                    <span className="text-tertiary-foreground text-meta tabular-nums">
                       {t("bookedCount", {
                         n: items.filter((s) => s.status === "booked").length,
                       })}
@@ -854,7 +854,7 @@ export function OneOnOne({ period }: { period: string }) {
                 label={dayLabel(day, t, dateLocale)}
                 summary={
                   <>
-                    <span className="text-tertiary-foreground hidden text-[13px] tabular-nums md:block">
+                    <span className="text-tertiary-foreground text-meta hidden tabular-nums md:block">
                       {t("slotCount", { n: items.length })}
                     </span>
                     <span />

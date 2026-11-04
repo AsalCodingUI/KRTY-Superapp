@@ -149,7 +149,7 @@ export function PortalDocuments({
                             >
                               {doc.title}
                             </span>
-                            <span className="text-tertiary-foreground truncate text-[13px] tabular-nums">
+                            <span className="text-tertiary-foreground text-meta truncate tabular-nums">
                               {doc.file_name
                                 ? `${formatBytes(doc.file_size)} · `
                                 : ""}

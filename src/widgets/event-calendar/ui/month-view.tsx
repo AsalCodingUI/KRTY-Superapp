@@ -142,7 +142,7 @@ export const MonthView = memo(function MonthView({
                   <div className="mb-1 flex items-center justify-between">
                     <span
                       className={cx(
-                        "flex size-6 items-center justify-center rounded-[5px] text-[13px] tabular-nums",
+                        "text-meta flex size-6 items-center justify-center rounded-[5px] tabular-nums",
                         isToday
                           ? "bg-foreground text-background font-medium"
                           : isHoliday
@@ -193,7 +193,7 @@ export const MonthView = memo(function MonthView({
                               e.stopPropagation()
                               onEventClick?.(event)
                             }}
-                            className="hover:bg-accent flex w-full min-w-0 cursor-pointer items-center gap-1.5 rounded-sm px-1 py-0.5 text-left text-[13px]"
+                            className="hover:bg-accent text-meta flex w-full min-w-0 cursor-pointer items-center gap-1.5 rounded-sm px-1 py-0.5 text-left"
                             title={event.title}
                           >
                             <span
@@ -293,7 +293,7 @@ export const MonthView = memo(function MonthView({
               : t("monthDayDrawerFallbackTitle")}
           </SheetTitle>
           <div className="border-border flex items-center justify-between border-b px-4 py-4">
-            <h3 className="text-heading text-base font-medium">
+            <h3 className="text-heading text-title font-medium">
               {mobileSelectedDay
                 ? format(mobileSelectedDay, "EEEE, dd MMMM yyyy", {
                     locale: dateLocale,

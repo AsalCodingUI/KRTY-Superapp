@@ -10,7 +10,7 @@ import { StatStrip } from "@/components/stat-strip"
 import { Badge } from "@/components/ui/badge"
 import { Kbd } from "@/components/ui/kbd"
 import { cn } from "@/lib/utils"
-import type { ReactNode } from "react"
+import { useEffect, useRef, useState, type ReactNode } from "react"
 import * as mock from "../model/typography-mock"
 import {
   DocCanvas,
@@ -28,21 +28,24 @@ const RULES: [string, ReactNode][] = [
     "Geist + Geist Mono (next/font, di layout.tsx). Jangan tambah font lain",
   ],
   [
-    "Ukuran",
-    "Cuma 11 · 12 · 13 · 14 · 15 · 18 · 20 · 24 (+ 36/48 buat judul dokumen & angka besar). Nggak ada text-[12px], text-[13.5px]",
+    "Token per peran",
+    "Satu kelas = ukuran + leading + tracking: text-micro · caption · meta · body · title · section · stat · page-title · kpi (globals.css @theme). Berat tetap terpisah",
   ],
-  ["Teks biasa", "text-sm (14/20), sudah default di body"],
   [
-    "Berat",
-    "Cuma font-normal (450) dan font-medium (500). Nggak ada semibold/bold/light",
+    "Ukuran",
+    "Cuma 11 · 12 · 13 · 14 · 15 · 18 · 20 · 24 · 28 (+ 36/48 judul dokumen). Nggak ada text-[Npx]",
   ],
   [
     "Tracking",
-    "tracking-tight cuma di 18px ke atas (judul, angka). Nggak di text-sm",
+    "Bertingkat, udah di token: 11px +0.01em · 12px +0.005em · 13–14px 0 · 15px −0.005em · 18px −0.01em · 20–24px −0.02em · 28px −0.025em. Jangan tambah tracking-*",
   ],
   [
     "Leading",
-    "Ikut ukurannya. Pengecualian: leading-none (angka besar), leading-snug (judul dialog), leading-7 (prosa)",
+    "Udah di token (13/18, 15/22, 18/26…). Pengecualian: leading-none (angka bertumpuk), leading-7 (prosa)",
+  ],
+  [
+    "Berat",
+    "Cuma font-normal (450) dan font-medium (500). Nggak ada semibold/bold/light",
   ],
   [
     "Warna",
@@ -55,11 +58,11 @@ const RULES: [string, ReactNode][] = [
   ],
   [
     "Bahasa",
-    "Teks Indonesia ~30% lebih panjang: jangan kunci lebar, cek di HP, jangan uppercase",
+    "Teks Indonesia ~30% lebih panjang: jangan kunci lebar, cek di HP, jangan uppercase. Angka & uang ikut bahasa aktif",
   ],
 ]
 
-/** Each role, the classes it uses and what they come to. */
+/** Each role, its token and what it comes to. */
 const SCALE: {
   role: string
   classes: string
@@ -69,103 +72,72 @@ const SCALE: {
   {
     role: "Judul dokumen",
     classes: "text-heading text-4xl leading-tight font-medium tracking-tight",
-    px: "36 / 45 · medium",
+    px: "36 / 45 · medium · Markdown #",
     sample: "Aturan kerja",
   },
   {
-    role: "Angka besar (KPI)",
-    classes:
-      "text-heading text-5xl leading-none font-normal tracking-tight tabular-nums",
-    px: "48 / 48 · normal",
-    sample: "92",
+    role: "Angka KPI",
+    classes: "text-heading text-kpi leading-none font-normal tabular-nums",
+    px: "28 / 34 · −0.025em · HomeFigure, KPI",
+    sample: "92,4",
   },
   {
     role: "Judul halaman",
-    classes: "text-heading text-2xl font-normal tracking-tight",
-    px: "24 / 32 · normal · PageHeader",
+    classes: "text-heading text-page-title font-normal",
+    px: "24 / 30 · −0.02em · PageHeader",
     sample: "Cuti & Kehadiran",
   },
   {
     role: "Nilai statistik",
-    classes: "text-xl font-normal tracking-tight tabular-nums",
-    px: "20 / 28 · normal · StatStrip",
+    classes: "text-heading text-stat font-normal tabular-nums",
+    px: "20 / 26 · −0.02em · StatStrip, StatTiles",
     sample: "Rp 12.450.000",
   },
   {
-    role: "Judul di dokumen",
-    classes: "text-heading text-xl font-medium tracking-tight",
-    px: "20 / 28 · medium · Markdown #",
-    sample: "Peralatan kerja",
+    role: "Judul seksi / editor",
+    classes: "text-heading text-section font-medium",
+    px: "18 / 26 · −0.01em · dialog editor, empty state",
+    sample: "Invoice INV-2026-031",
   },
   {
-    role: "Judul empty state",
-    classes: "text-lg font-medium tracking-tight",
-    px: "18 / 28 · medium",
-    sample: "Belum ada pengajuan",
-  },
-  {
-    role: "Judul dialog / sheet",
-    classes: "text-heading text-[15px] leading-snug font-medium",
-    px: "15 / 20.6 · medium · DialogTitle",
+    role: "Judul dialog / kartu",
+    classes: "text-heading text-title font-medium",
+    px: "15 / 22 · −0.005em · DialogTitle, SheetTitle, CardTitle, HomeCard",
     sample: "Ajukan cuti",
   },
   {
-    role: "Judul kartu",
-    classes: "text-heading text-[15px] font-normal",
-    px: "15 / 21.4 · normal · HomeCard",
-    sample: "Langganan",
-  },
-  {
-    role: "Prosa",
-    classes: "text-foreground/90 text-[15px] leading-7",
-    px: "15 / 28 · Markdown, editor",
-    sample: "Karyawan boleh bekerja dari mana saja selama jam inti.",
-  },
-  {
-    role: "Judul panel / seksi",
-    classes: "text-heading text-sm font-medium",
-    px: "14 / 20 · medium · Panel",
-    sample: "Tugas minggu ini",
-  },
-  {
     role: "Isi (body)",
-    classes: "text-sm",
-    px: "14 / 20 · normal (450)",
+    classes: "text-body",
+    px: "14 / 20 · = text-sm",
     sample: "Rebranding PT Nusantara Kreatif",
   },
   {
     role: "Sekunder / deskripsi",
-    classes: "text-muted-foreground text-sm",
+    classes: "text-muted-foreground text-body",
     px: "14 / 20 · DialogDescription",
     sample: "Pilih tanggal dan jenis cuti.",
   },
   {
-    role: "Meta / keterangan",
-    classes: "text-tertiary-foreground text-[13px]",
-    px: "13 / ~18.6 · di bawah judul baris",
+    role: "Meta / label kolom",
+    classes: "text-tertiary-foreground text-meta",
+    px: "13 / 18 · di bawah judul baris, ListHeader, ListChip",
     sample: "12–14 Nov · 3 hari",
   },
   {
-    role: "Label kolom",
-    classes: "text-muted-foreground text-[13px]",
-    px: "13 / ~18.6 · ListHeader",
-    sample: "Nama · Status · Total",
-  },
-  {
     role: "Kecil",
-    classes: "text-xs",
-    px: "12 / 16 · badge, tooltip, kbd",
+    classes: "text-caption",
+    px: "12 / 16 · +0.005em · badge, tooltip",
     sample: "Diperbarui 5 menit lalu",
   },
   {
-    role: "Penghitung",
-    classes: "text-[11px] leading-4 font-medium tabular-nums",
-    px: "11 / 16 · angka di pill, inisial",
+    role: "Mikro",
+    classes: "text-micro font-medium tabular-nums",
+    px: "11 / 16 · +0.01em · pill, kbd, penghitung",
     sample: "24",
   },
   {
     role: "Kode",
-    classes: "font-mono text-xs",
+    classes: "font-mono text-caption",
     px: "12 / 16 · Geist Mono",
     sample: "docs/ui/typography.md",
   },
@@ -218,6 +190,87 @@ export function TypographyTab() {
 
       <DocGroup title="Aturan">
         <DocRules rules={RULES} />
+      </DocGroup>
+
+      <DocGroup
+        title="Sebelum / sesudah"
+        note="Yang berubah di app: tracking bertingkat, leading 13px tetap, satu ukuran KPI, judul dialog seragam."
+      >
+        <BeforeAfter
+          label="Tracking judul 18 / 24 / 28px"
+          before={
+            <div className="flex flex-col gap-1">
+              <span className="text-lg tracking-tight">Invoice bulan ini</span>
+              <span className="text-2xl tracking-tight">Cuti & Kehadiran</span>
+              <span className="text-[1.75rem] leading-none tracking-tight tabular-nums">
+                92,4
+              </span>
+            </div>
+          }
+          after={
+            <div className="flex flex-col gap-1">
+              <span className="text-section">Invoice bulan ini</span>
+              <span className="text-page-title">Cuti & Kehadiran</span>
+              <span className="text-kpi leading-none tabular-nums">92,4</span>
+            </div>
+          }
+        />
+        <BeforeAfter
+          label="Meta 13px dua baris (dulu ikut parent: 18.6 / 20px)"
+          before={
+            <p className="text-muted-foreground max-w-56 text-[13px]">
+              Rebranding PT Nusantara Kreatif · 12–14 Nov · 3 hari kerja
+            </p>
+          }
+          after={
+            <p className="text-muted-foreground text-meta max-w-56">
+              Rebranding PT Nusantara Kreatif · 12–14 Nov · 3 hari kerja
+            </p>
+          }
+        />
+        <BeforeAfter
+          label="Angka KPI (dulu 28 / 32 / 30px)"
+          before={
+            <div className="flex items-end gap-4 tabular-nums">
+              <span className="text-[1.75rem] leading-none tracking-tight">
+                87
+              </span>
+              <span className="text-[2rem] leading-none tracking-tight">
+                92
+              </span>
+              <span className="text-3xl leading-tight font-medium tracking-tight">
+                4,8
+              </span>
+            </div>
+          }
+          after={
+            <div className="flex items-end gap-4 tabular-nums">
+              <span className="text-kpi leading-none">87</span>
+              <span className="text-kpi leading-none">92</span>
+              <span className="text-kpi leading-none font-medium">4,8</span>
+            </div>
+          }
+        />
+        <BeforeAfter
+          label="Judul dialog (dulu 15 / 16 / 18 / 20px)"
+          before={
+            <div className="flex flex-col gap-1">
+              <span className="text-[15px] font-medium">Ajukan cuti</span>
+              <span className="text-base font-medium">Rapat mingguan</span>
+              <span className="text-lg font-medium">Laporan klien</span>
+              <span className="text-xl tracking-tight">Edit invoice</span>
+            </div>
+          }
+          after={
+            <div className="flex flex-col gap-1">
+              <span className="text-title font-medium">Ajukan cuti</span>
+              <span className="text-title font-medium">Rapat mingguan</span>
+              <span className="text-section font-medium">Laporan klien</span>
+              <span className="text-section">Edit invoice</span>
+            </div>
+          }
+        />
+        <MeasuredTokens />
       </DocGroup>
 
       <DocGroup
@@ -401,6 +454,96 @@ function NumberColumn({
           {a}
         </span>
       ))}
+    </div>
+  )
+}
+
+function BeforeAfter({
+  label,
+  before,
+  after,
+}: {
+  label: string
+  before: ReactNode
+  after: ReactNode
+}) {
+  return (
+    <div className="flex flex-col gap-2">
+      <h3 className="text-body font-medium">{label}</h3>
+      <div className="grid gap-3 sm:grid-cols-2">
+        {[
+          ["Sebelum", before],
+          ["Sesudah", after],
+        ].map(([title, node]) => (
+          <div key={title as string} className="flex flex-col gap-2">
+            <span className="text-tertiary-foreground text-meta">{title}</span>
+            <div className="border-border rounded-xl border border-dashed p-5">
+              {node}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+const TOKENS = [
+  "text-micro",
+  "text-caption",
+  "text-meta",
+  "text-body",
+  "text-title",
+  "text-section",
+  "text-stat",
+  "text-page-title",
+  "text-kpi",
+] as const
+
+/** Each token as the browser resolves it, read from the live CSS. */
+function MeasuredTokens() {
+  const [rows, setRows] = useState<[string, string, string, string][]>([])
+  const refs = useRef<(HTMLSpanElement | null)[]>([])
+  useEffect(() => {
+    setRows(
+      TOKENS.map((t, i) => {
+        const cs = refs.current[i] && getComputedStyle(refs.current[i]!)
+        return [
+          t,
+          cs?.fontSize ?? "",
+          cs?.lineHeight ?? "",
+          cs?.letterSpacing ?? "",
+        ]
+      }),
+    )
+  }, [])
+  return (
+    <div className="flex flex-col gap-2">
+      <h3 className="text-body font-medium">Diukur dari CSS yang jalan</h3>
+      <div className="bg-muted dark:bg-muted/40 rounded-xl p-1">
+        <div className="bg-background flex flex-col rounded-lg py-1">
+          {TOKENS.map((t, i) => (
+            <div
+              key={t}
+              className="gutter-x grid min-h-12 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 py-2 sm:grid-cols-[10rem_minmax(0,1fr)_14rem]"
+            >
+              <code className="text-caption font-mono">{t}</code>
+              <span
+                ref={(el) => {
+                  refs.current[i] = el
+                }}
+                className={cn(t, "hidden truncate sm:block")}
+              >
+                Kretya Studio 2026
+              </span>
+              <span className="text-tertiary-foreground text-meta text-right tabular-nums">
+                {rows[i]
+                  ? `${rows[i][1]} / ${rows[i][2]} · ${rows[i][3]}`
+                  : "…"}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   )
 }

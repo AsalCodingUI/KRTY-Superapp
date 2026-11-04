@@ -134,7 +134,7 @@ export function PortalShell({
           </span>
           <span
             aria-hidden
-            className="text-muted-foreground/50 text-lg font-light max-md:hidden"
+            className="text-tertiary-foreground text-lg font-normal max-md:hidden"
           >
             /
           </span>

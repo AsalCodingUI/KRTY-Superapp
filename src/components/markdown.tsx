@@ -132,7 +132,7 @@ const components: Components = {
   ),
   pre: ({ node: _, ...p }) => (
     <pre
-      className="bg-muted my-4 overflow-x-auto rounded-lg p-3 text-[13px] [&>code]:bg-transparent [&>code]:p-0"
+      className="bg-muted text-meta my-4 overflow-x-auto rounded-lg p-3 [&>code]:bg-transparent [&>code]:p-0"
       {...p}
     />
   ),
@@ -159,7 +159,7 @@ const components: Components = {
   ),
   th: ({ node: _, ...p }) => (
     <th
-      className="text-muted-foreground h-10 px-3 text-[13px] font-medium whitespace-nowrap"
+      className="text-muted-foreground text-meta h-10 px-3 font-medium whitespace-nowrap"
       {...p}
     />
   ),
@@ -263,7 +263,7 @@ export function Markdown({
   const body = (
     <div
       ref={root}
-      className={cn("text-foreground/90 text-[15px] leading-7", className)}
+      className={cn("text-foreground/90 text-title leading-7", className)}
     >
       <ReactMarkdown
         // Callouts and toggles (shared/lib/doc-blocks); other raw HTML

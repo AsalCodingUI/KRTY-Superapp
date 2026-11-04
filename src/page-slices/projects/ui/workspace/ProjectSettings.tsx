@@ -145,7 +145,7 @@ export function ProjectSettings({ projectId }: { projectId: string }) {
           />
           <div className="flex min-w-0 flex-col">
             <h2 className="truncate text-sm font-medium">{project.name}</h2>
-            <p className="text-muted-foreground text-[13px] tabular-nums">
+            <p className="text-muted-foreground text-meta tabular-nums">
               {format(new Date(project.start_date), "d MMM yyyy", {
                 locale: dateLocale,
               })}{" "}
@@ -218,7 +218,7 @@ export function ProjectSettings({ projectId }: { projectId: string }) {
                     [tcl("fieldCurrency"), linked.currency],
                   ].map(([label, value]) => (
                     <div key={label} className="flex min-w-0 flex-col gap-1">
-                      <dt className="text-muted-foreground text-[13px]">
+                      <dt className="text-muted-foreground text-meta">
                         {label}
                       </dt>
                       <dd
@@ -391,11 +391,11 @@ export function ProjectSettings({ projectId }: { projectId: string }) {
                   </Avatar>
                   <div className="flex min-w-0 flex-1 flex-col">
                     <span className="truncate">{m.full_name}</span>
-                    <span className="text-tertiary-foreground truncate text-[13px]">
+                    <span className="text-tertiary-foreground text-meta truncate">
                       {m.job_title}
                     </span>
                   </div>
-                  <span className="text-muted-foreground text-[13px]">
+                  <span className="text-muted-foreground text-meta">
                     {m.role}
                   </span>
                   {m.isLead && <Badge variant="info">{t("lead")}</Badge>}

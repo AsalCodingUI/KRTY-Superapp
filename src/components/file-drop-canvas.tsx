@@ -145,7 +145,7 @@ export function FileDropCanvas({
                   {name}
                 </span>
                 {file && (
-                  <span className="text-muted-foreground text-[13px] tabular-nums">
+                  <span className="text-muted-foreground text-meta tabular-nums">
                     {formatSize(file.size)}
                   </span>
                 )}
@@ -204,7 +204,7 @@ export function FileDropCanvas({
             <span className="text-foreground text-sm font-medium">
               {dragging ? labels.active : labels.title}
             </span>
-            <span className="text-muted-foreground text-[13px]">
+            <span className="text-muted-foreground text-meta">
               {labels.hint}
             </span>
           </span>

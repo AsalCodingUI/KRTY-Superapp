@@ -157,7 +157,7 @@ export function ContractDialog({
               <h3 className="text-muted-foreground text-xs font-medium">
                 {t("details")}
               </h3>
-              <dl className="flex flex-col gap-2.5 text-[13px]">
+              <dl className="text-meta flex flex-col gap-2.5">
                 {details.map(([label, value]) => (
                   <div key={label} className="flex flex-col gap-0.5">
                     <dt className="text-tertiary-foreground">{label}</dt>
@@ -234,7 +234,7 @@ function Acknowledgement({
         className="flex flex-col gap-2"
       >
         {state === "done" ? (
-          <div className="bg-success-subtle text-green-11 flex items-start gap-2 rounded-2xl px-3.5 py-3 text-[13px]">
+          <div className="bg-success-subtle text-green-11 text-meta flex items-start gap-2 rounded-2xl px-3.5 py-3">
             <RiCheckboxCircleFill className="mt-0.5 size-4 shrink-0" />
             <span>
               {t("ackBy", {
@@ -260,7 +260,7 @@ function Acknowledgement({
               <Label htmlFor="contract-ack-name" className="font-medium">
                 {t("ackTitle")}
               </Label>
-              <p className="text-muted-foreground text-[13px]">
+              <p className="text-muted-foreground text-meta">
                 {t("ackDescription")}
               </p>
             </div>
@@ -274,7 +274,7 @@ function Acknowledgement({
               onChange={(e) => setName(e.target.value)}
             />
             {mismatch && (
-              <p className="text-destructive text-[13px]">{t("ackMismatch")}</p>
+              <p className="text-destructive text-meta">{t("ackMismatch")}</p>
             )}
             <Button type="submit" disabled={saving || !name.trim() || mismatch}>
               {saving ? t("ackSubmitting") : t("ackSubmit")}

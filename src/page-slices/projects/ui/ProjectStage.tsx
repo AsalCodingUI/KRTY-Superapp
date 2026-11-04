@@ -37,7 +37,7 @@ export function ProjectStageLabel({
   return (
     <span
       className={cn(
-        "text-muted-foreground inline-flex shrink-0 items-center gap-1.5 text-[13px] font-normal tracking-normal",
+        "text-muted-foreground text-meta inline-flex shrink-0 items-center gap-1.5 font-normal tracking-normal",
         className,
       )}
     >
@@ -104,7 +104,7 @@ export function ProjectStageButton({
         {stage ? (
           <ProjectStageLabel stage={stage} />
         ) : (
-          <span className="text-muted-foreground inline-flex items-center gap-1.5 text-[13px] font-normal tracking-normal">
+          <span className="text-muted-foreground text-meta inline-flex items-center gap-1.5 font-normal tracking-normal">
             <CircleDashed className="size-3.5" />
             {t("stage")}
           </span>

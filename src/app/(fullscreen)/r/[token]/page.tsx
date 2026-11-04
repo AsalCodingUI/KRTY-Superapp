@@ -129,7 +129,7 @@ export default async function SharedReportPage({
       >
         <AppIcon size={192} className="size-10 rounded-[12px]" />
         <div className="flex flex-col items-center gap-1">
-          <span className="text-muted-foreground text-[13px]">
+          <span className="text-muted-foreground text-meta">
             <span translate="no">
               Kretya Studio
               {report.project?.name ? ` · ${report.project.name}` : ""}
@@ -148,7 +148,7 @@ export default async function SharedReportPage({
         )}
       >
         <GlassLayer />
-        <div className="scroll-pane pane-px-5 sm:pane-px-10 min-h-0 flex-1 py-6 text-[15px] leading-7 sm:py-8">
+        <div className="scroll-pane pane-px-5 sm:pane-px-10 text-title min-h-0 flex-1 py-6 leading-7 sm:py-8">
           {report.body.trim() ? (
             <Markdown images>{clientSafeMarkdown(report.body)}</Markdown>
           ) : (

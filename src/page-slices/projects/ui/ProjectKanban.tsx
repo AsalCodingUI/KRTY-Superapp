@@ -118,7 +118,7 @@ const ProjectCard = memo(function ProjectCard({
             </Avatar>
           ))}
           {team.length > 4 && (
-            <span className="text-muted-foreground text-[11px] tabular-nums">
+            <span className="text-muted-foreground text-micro tabular-nums">
               +{team.length - 4}
             </span>
           )}

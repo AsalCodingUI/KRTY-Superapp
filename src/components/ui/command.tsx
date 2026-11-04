@@ -99,7 +99,7 @@ function CommandInput({
         data-slot="command-input"
         className={cn(
           "placeholder:text-muted-foreground h-full w-full min-w-0 border-0 bg-transparent p-0 shadow-none outline-hidden focus:shadow-none focus:ring-0 focus:outline-hidden focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50",
-          sm ? "text-sm" : "text-[15px]",
+          sm ? "text-sm" : "text-title",
           className,
         )}
         {...props}

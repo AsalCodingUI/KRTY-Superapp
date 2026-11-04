@@ -220,7 +220,7 @@ export function AdminDashboard({ data }: AdminDashboardProps) {
                     title={r.employee_name}
                     subtitle={r.employee_job_title}
                     trailing={
-                      <span className="text-muted-foreground text-[13px]">
+                      <span className="text-muted-foreground text-meta">
                         {t("adminReviewersPending", { n: r.reviewers_pending })}
                       </span>
                     }
@@ -283,7 +283,7 @@ export function AdminDashboard({ data }: AdminDashboardProps) {
                     title={l.user_name}
                     subtitle={l.leave_type}
                     trailing={
-                      <span className="text-muted-foreground text-[13px]">
+                      <span className="text-muted-foreground text-meta">
                         {t(
                           l.days_requested === 1 ? "daysCountOne" : "daysCount",
                           {
@@ -350,7 +350,7 @@ export function AdminDashboard({ data }: AdminDashboardProps) {
                   }
                   trailing={
                     <span
-                      className="text-tertiary-foreground text-[13px]"
+                      className="text-tertiary-foreground text-meta"
                       suppressHydrationWarning
                     >
                       {formatDistanceToNowStrict(new Date(a.timestamp), {

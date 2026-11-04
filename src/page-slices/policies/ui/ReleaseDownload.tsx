@@ -106,7 +106,7 @@ export function ReleaseDownload({
         <p className="truncate text-sm font-medium">
           {t("releaseName", { version })}
         </p>
-        <p className="text-muted-foreground truncate text-[13px]">
+        <p className="text-muted-foreground text-meta truncate">
           {isPending
             ? "…"
             : file

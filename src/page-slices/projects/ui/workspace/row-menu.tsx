@@ -77,7 +77,7 @@ export function Chip({
   return (
     <span
       className={cn(
-        "absolute rounded-md bg-black/55 px-1.5 py-0.5 text-[11px] leading-4 font-medium text-white tabular-nums backdrop-blur-sm",
+        "text-micro absolute rounded-md bg-black/55 px-1.5 py-0.5 leading-4 font-medium text-white tabular-nums backdrop-blur-sm",
         className,
       )}
     >

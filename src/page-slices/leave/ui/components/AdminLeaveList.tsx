@@ -209,14 +209,14 @@ function LeaveRow({
       <div className="flex min-w-0 items-center gap-3">
         <Avatar className="size-7">
           <AvatarImage src={req.profiles?.avatar_url || undefined} alt={name} />
-          <AvatarFallback className="text-[11px]">
+          <AvatarFallback className="text-micro">
             {name.slice(0, 2).toUpperCase()}
           </AvatarFallback>
         </Avatar>
         <div className="flex min-w-0 flex-col">
           <span className="text-foreground truncate">{name}</span>
           {(req.reason || req.review_note || req.proof_url) && (
-            <span className="text-tertiary-foreground flex min-w-0 items-center gap-1.5 text-[13px]">
+            <span className="text-tertiary-foreground text-meta flex min-w-0 items-center gap-1.5">
               {req.reason && (
                 <span className="truncate" title={req.reason}>
                   {req.reason}
@@ -246,7 +246,7 @@ function LeaveRow({
         {t(daysKey(days), { n: days })}
       </span>
       <span
-        className="text-tertiary-foreground hidden text-right text-[13px] whitespace-nowrap lg:block"
+        className="text-tertiary-foreground text-meta hidden text-right whitespace-nowrap lg:block"
         title={
           submitted
             ? t("submittedAt", {

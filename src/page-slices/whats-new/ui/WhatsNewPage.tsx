@@ -29,7 +29,14 @@ import { useWhatsNewAdmin } from "./WhatsNewEditor"
 import { useDateLocale, useT } from "@/shared/i18n/client"
 import { RiSearchLine } from "@/shared/ui/lucide-icons"
 import { format } from "date-fns"
-import { Copy, ListFilter, Pencil, Plus, Sparkles, Trash2 } from "@/components/icons"
+import {
+  Copy,
+  ListFilter,
+  Pencil,
+  Plus,
+  Sparkles,
+  Trash2,
+} from "@/components/icons"
 import { ParamLink } from "@/components/param-link"
 import { replaceUrl } from "@/shared/lib/url-params"
 import { usePathname, useSearchParams } from "next/navigation"
@@ -353,7 +360,7 @@ function KindChip({
       aria-pressed={active}
       onClick={onClick}
       className={cn(
-        "inline-flex h-8 shrink-0 items-center rounded-full px-3 text-[13px] whitespace-nowrap transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]",
+        "text-meta inline-flex h-8 shrink-0 items-center rounded-full px-3 whitespace-nowrap transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]",
         active
           ? "bg-foreground/[0.08] text-foreground font-medium"
           : "text-muted-foreground hover:text-foreground",
@@ -391,7 +398,7 @@ function EntryTile({ entry, href, ...rest }: EntryLinkProps) {
         />
       </div>
       <div className="flex flex-col gap-1 px-0.5">
-        <span className="text-foreground text-[15px] leading-6 font-medium">
+        <span className="text-foreground text-title leading-6 font-medium">
           {entry.title}
         </span>
         <p className="text-muted-foreground line-clamp-1 text-sm leading-5">
@@ -415,7 +422,7 @@ function EntryRow({ entry, href, ...rest }: EntryLinkProps) {
       </div>
       <div className="flex min-w-0 flex-1 flex-col gap-1.5">
         <EntryBadges entry={entry} />
-        <span className="text-foreground text-[15px] leading-6 font-medium">
+        <span className="text-foreground text-title leading-6 font-medium">
           {entry.title}
         </span>
         <p className="text-muted-foreground line-clamp-1 max-w-3xl text-sm leading-5">

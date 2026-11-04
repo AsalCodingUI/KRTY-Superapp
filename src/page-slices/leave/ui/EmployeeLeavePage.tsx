@@ -260,7 +260,7 @@ export function EmployeeLeavePage({
         {/* Balances (one shared rule, see shared/lib/leave) */}
         <dl className="stat-strip bleed gutter-x border-border border-b py-4 max-sm:grid max-sm:grid-cols-3 max-sm:gap-x-3">
           <div className="stat-tile">
-            <dt className="text-muted-foreground flex items-center gap-2 text-sm max-sm:min-h-[2lh] max-sm:items-start max-sm:text-[13px]">
+            <dt className="text-muted-foreground max-sm:text-meta flex items-center gap-2 text-sm max-sm:min-h-[2lh] max-sm:items-start">
               {t("statAnnualRemaining")}
               <button
                 type="button"
@@ -271,7 +271,7 @@ export function EmployeeLeavePage({
               </button>
             </dt>
             {stats.annual.eligible ? (
-              <dd className="text-foreground text-xl font-normal tracking-tight tabular-nums">
+              <dd className="text-heading text-stat font-normal tabular-nums">
                 <RollingValue>{stats.annual.remaining}</RollingValue>
                 <span className="text-tertiary-foreground text-sm tracking-normal">
                   {" "}
@@ -304,10 +304,10 @@ export function EmployeeLeavePage({
             </button>
           </div>
           <div className="stat-tile">
-            <dt className="text-muted-foreground text-sm max-sm:min-h-[2lh] max-sm:text-[13px]">
+            <dt className="text-muted-foreground max-sm:text-meta text-sm max-sm:min-h-[2lh]">
               {t("statSickThisYear")}
             </dt>
-            <dd className="text-foreground text-xl font-normal tracking-tight tabular-nums">
+            <dd className="text-heading text-stat font-normal tabular-nums">
               <RollingValue>{stats.sick}</RollingValue>
               <span className="text-tertiary-foreground text-sm tracking-normal">
                 {" "}
@@ -316,10 +316,10 @@ export function EmployeeLeavePage({
             </dd>
           </div>
           <div className="stat-tile">
-            <dt className="text-muted-foreground text-sm max-sm:min-h-[2lh] max-sm:text-[13px]">
+            <dt className="text-muted-foreground max-sm:text-meta text-sm max-sm:min-h-[2lh]">
               {t("statWfhThisYear")}
             </dt>
-            <dd className="text-foreground text-xl font-normal tracking-tight tabular-nums">
+            <dd className="text-heading text-stat font-normal tabular-nums">
               <RollingValue>{stats.wfh}</RollingValue>
               <span className="text-tertiary-foreground text-sm tracking-normal">
                 {" "}

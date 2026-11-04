@@ -8,7 +8,13 @@ import { ConfirmDialog } from "@/components/confirm-dialog"
 import { EmptyState } from "@/components/empty-state"
 import { ContextTarget, copyText, type CtxItem } from "@/shared/context-menu"
 import { useQueryClient } from "@tanstack/react-query"
-import { Archive, ArchiveRestore, Copy, Pencil, Trash2 } from "@/components/icons"
+import {
+  Archive,
+  ArchiveRestore,
+  Copy,
+  Pencil,
+  Trash2,
+} from "@/components/icons"
 import { toast } from "sonner"
 import {
   GroupedList,
@@ -457,7 +463,7 @@ function PolicyRow({
             {title}
           </ParamLink>
           {policy.summary && (
-            <span className="text-tertiary-foreground truncate text-[13px]">
+            <span className="text-tertiary-foreground text-meta truncate">
               {policy.summary}
             </span>
           )}
@@ -469,7 +475,7 @@ function PolicyRow({
         )}
         {policy.archived_at && <ListChip>{t("archived")}</ListChip>}
       </div>
-      <span className="text-muted-foreground hidden text-right text-[13px] tabular-nums md:block">
+      <span className="text-muted-foreground text-meta hidden text-right tabular-nums md:block">
         {updated
           ? format(new Date(updated), "d MMM yyyy", { locale: dateLocale })
           : t("notPublished")}
@@ -536,7 +542,7 @@ function PolicyCard({
         {policy.summary || t("noSummary")}
       </p>
       {/* One quiet line: when it took effect, when it last changed. */}
-      <span className="text-tertiary-foreground mt-2 flex items-center justify-between gap-3 text-[13px] tabular-nums">
+      <span className="text-tertiary-foreground text-meta mt-2 flex items-center justify-between gap-3 tabular-nums">
         <span className="truncate">
           {latest
             ? t("effectiveSince", {

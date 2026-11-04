@@ -194,7 +194,7 @@ function CurrentRequestCard({
             <span className="text-foreground tabular-nums">
               {formatLeaveRange(req.start_date, req.end_date, dateLocale)}
             </span>
-            <span className="text-muted-foreground text-[13px]">
+            <span className="text-muted-foreground text-meta">
               {leaveTypeLabel(req.leave_type, t)} ·{" "}
               {t(daysKey(days), { n: days })}
               {req.reason ? ` · ${req.reason}` : ""}
@@ -220,7 +220,7 @@ function CurrentRequestCard({
               />
               <span
                 className={cn(
-                  "text-[13px]",
+                  "text-meta",
                   step.state === "todo"
                     ? "text-tertiary-foreground"
                     : "text-foreground",
@@ -238,7 +238,7 @@ function CurrentRequestCard({
         </ol>
 
         {req.review_note && (
-          <p className="text-muted-foreground text-[13px]">
+          <p className="text-muted-foreground text-meta">
             {t("reviewNote", { note: req.review_note })}
           </p>
         )}

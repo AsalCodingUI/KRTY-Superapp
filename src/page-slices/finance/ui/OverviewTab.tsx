@@ -282,7 +282,7 @@ function OwedAmount({ inv, rates }: { inv: InvoiceLite; rates: FxRates }) {
   return (
     <span className="flex flex-col items-end">
       <span>{money(leftToPay(inv), inv.currency)}</span>
-      <span className="text-muted-foreground text-[12px]">
+      <span className="text-muted-foreground text-xs">
         {idr ? `≈ ${rupiahShort(idr, locale)}` : t("noRate")}
       </span>
     </span>
@@ -537,7 +537,7 @@ function MoneyReceived({
                 }
                 trailing={
                   <>
-                    <span className="text-muted-foreground text-[13px]">
+                    <span className="text-muted-foreground text-meta">
                       {pct(value)}%
                     </span>
                     <span>{rupiah(value)}</span>
@@ -555,7 +555,7 @@ function MoneyReceived({
                 }
                 trailing={
                   <>
-                    <span className="text-muted-foreground text-[13px]">
+                    <span className="text-muted-foreground text-meta">
                       {pct(openTotal)}%
                     </span>
                     <span className="text-muted-foreground">

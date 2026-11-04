@@ -79,7 +79,7 @@ export function ReportTemplatePicker({
 
   return (
     <div className="border-border flex shrink-0 items-center gap-1.5 overflow-x-auto border-b px-4 py-2">
-      <span className="text-muted-foreground mr-1 shrink-0 text-[13px]">
+      <span className="text-muted-foreground text-meta mr-1 shrink-0">
         {t("reportTemplate")}
       </span>
       {choices.map((c) => (

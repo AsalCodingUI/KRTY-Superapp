@@ -155,7 +155,7 @@ export function MenubarPreview() {
         }}
       />
       {/* A fake macOS menu bar, with the KRTY icon open. */}
-      <div className="sticky top-0 z-10 flex h-7 items-center justify-end gap-4 bg-black/25 px-4 text-[13px] text-white backdrop-blur-xl">
+      <div className="text-meta sticky top-0 z-10 flex h-7 items-center justify-end gap-4 bg-black/25 px-4 text-white backdrop-blur-xl">
         <span className="dark flex size-6 items-center justify-center rounded-md bg-white/20">
           <AppIcon variant="mark" size={96} className="size-4" />
         </span>
@@ -307,7 +307,7 @@ export function MenubarPreview() {
               </label>
             ))}
           </div>
-          <span className="text-muted-foreground text-[13px]">
+          <span className="text-muted-foreground text-meta">
             Data asli tiap orang, tombol belum menyimpan apa pun.
           </span>
         </aside>
@@ -345,7 +345,7 @@ function PovRow({
     <section className="flex flex-col gap-3">
       <h2 className="w-fit rounded-lg bg-black/50 px-2.5 py-1 text-base font-medium text-white backdrop-blur">
         POV {person.full_name}
-        <span className="ml-2 text-[13px] font-normal text-white/70">
+        <span className="text-meta ml-2 font-normal text-white/70">
           {canManageByRole(person.role) ? "Admin" : "Karyawan"} ·{" "}
           {statusText(data)}
         </span>
@@ -357,7 +357,7 @@ function PovRow({
               <span className="text-sm font-medium">
                 {key} · {name}
               </span>
-              <span className="block text-[13px] text-white/70">{note}</span>
+              <span className="text-meta block text-white/70">{note}</span>
             </figcaption>
             <Component data={data} on={on} />
           </figure>

@@ -143,7 +143,7 @@ function InternalTag() {
   const t = useT("projects")
   return (
     <span
-      className="bg-muted text-muted-foreground inline-flex items-center gap-1 rounded-full px-1.5 py-px text-[11px] font-medium"
+      className="bg-muted text-muted-foreground text-micro inline-flex items-center gap-1 rounded-full px-1.5 py-px font-medium"
       title={t("libInternalFolderHint")}
     >
       <RiLockLine className="size-3" />
@@ -252,7 +252,7 @@ function LibraryGrid({
                     <span className="truncate text-sm" title={f.name}>
                       {f.name}
                     </span>
-                    <span className="text-tertiary-foreground flex items-center gap-1.5 text-[13px]">
+                    <span className="text-tertiary-foreground text-meta flex items-center gap-1.5">
                       {count
                         ? t("libFileCount", { n: count })
                         : t("libFolderEmptyShort")}
@@ -331,7 +331,7 @@ function LibraryGrid({
                       <span className="truncate text-sm" title={file.name}>
                         {file.name}
                       </span>
-                      <span className="text-tertiary-foreground text-[13px] tabular-nums">
+                      <span className="text-tertiary-foreground text-meta tabular-nums">
                         {formatBytes(file.file_size)} ·{" "}
                         {format(new Date(file.created_at), "d MMM yyyy", {
                           locale: dateLocale,

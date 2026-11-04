@@ -184,7 +184,7 @@ export function PortalOverview({
                   </h2>
                   <Link
                     href={`${base}/reports`}
-                    className="text-muted-foreground hover:text-foreground text-[13px] transition-colors"
+                    className="text-muted-foreground hover:text-foreground text-meta transition-colors"
                   >
                     {t("portalSeeAll")}
                   </Link>
@@ -212,7 +212,7 @@ export function PortalOverview({
                     >
                       <Newspaper className="text-muted-foreground size-4 shrink-0" />
                       <span className="min-w-0 flex-1 truncate">{r.title}</span>
-                      <span className="text-tertiary-foreground shrink-0 text-[13px] tabular-nums">
+                      <span className="text-tertiary-foreground text-meta shrink-0 tabular-nums">
                         {format(parseISO(r.report_date), "d MMM yyyy", {
                           locale: dateLocale,
                         })}

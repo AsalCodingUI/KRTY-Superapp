@@ -453,7 +453,7 @@ export function ProjectDocuments({ projectId }: { projectId: string }) {
                                 >
                                   {doc.title}
                                 </span>
-                                <span className="text-tertiary-foreground truncate text-[13px] tabular-nums">
+                                <span className="text-tertiary-foreground text-meta truncate tabular-nums">
                                   {doc.file_name
                                     ? `${formatBytes(doc.file_size)} · `
                                     : ""}
@@ -521,7 +521,7 @@ export function ProjectDocuments({ projectId }: { projectId: string }) {
 
                 <aside className={twoPanePanelClassName}>
                   <div className="shrink-0 px-5 pt-5 pb-3">
-                    <DialogTitle className="text-heading text-xl font-normal tracking-tight">
+                    <DialogTitle className="text-heading text-section font-normal">
                       {draft.id ? t("editDocument") : t("newDocument")}
                     </DialogTitle>
                   </div>

@@ -55,10 +55,10 @@ export function PortalReportDialog({
           <>
             <header className="border-border flex shrink-0 items-center gap-3 border-b px-4 py-3">
               <div className="flex min-w-0 flex-1 flex-col">
-                <DialogTitle className="text-heading truncate text-lg font-medium">
+                <DialogTitle className="text-heading text-section truncate font-medium">
                   {report.title}
                 </DialogTitle>
-                <p className="text-muted-foreground truncate text-[13px]">
+                <p className="text-muted-foreground text-meta truncate">
                   {format(parseISO(report.report_date), "d MMMM yyyy", {
                     locale: dateLocale,
                   })}

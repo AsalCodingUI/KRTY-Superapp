@@ -718,12 +718,12 @@ function SectionBlock({
             />
           )}
           {offered && (
-            <span className="bg-muted text-muted-foreground shrink-0 self-center rounded-full px-2 py-0.5 text-[11px]">
+            <span className="bg-muted text-muted-foreground text-micro shrink-0 self-center rounded-full px-2 py-0.5">
               {t("setOffer")}
             </span>
           )}
           {section.team && (
-            <span className="bg-muted text-muted-foreground shrink-0 self-center rounded-full px-2 py-0.5 text-[11px]">
+            <span className="bg-muted text-muted-foreground text-micro shrink-0 self-center rounded-full px-2 py-0.5">
               {t("teamFills")}
             </span>
           )}
@@ -835,7 +835,7 @@ function SlashLine({
           }}
           className={cn(
             inlineInputClass,
-            "text-foreground min-w-0 flex-1 py-1 text-[15px]",
+            "text-foreground text-title min-w-0 flex-1 py-1",
           )}
         />
       </div>
@@ -973,7 +973,7 @@ function QuestionBlock({
               onChange={(e) => onChange({ label: e.target.value })}
               className={cn(
                 inlineInputClass,
-                "text-muted-foreground field-sizing-content min-w-0 flex-1 resize-none text-[15px] leading-relaxed",
+                "text-muted-foreground text-title field-sizing-content min-w-0 flex-1 resize-none leading-relaxed",
               )}
             />
           ) : (
@@ -1220,7 +1220,7 @@ function QuestionBlock({
           </div>
         ))}
       {q.type === "scale" && (
-        <div className="flex flex-wrap items-center gap-2 text-[13px]">
+        <div className="text-meta flex flex-wrap items-center gap-2">
           <ScaleMax
             value={q.max ?? 10}
             options={[5, 10]}
@@ -1233,7 +1233,7 @@ function QuestionBlock({
             onChange={(e) =>
               onChange({ minLabel: e.target.value || undefined })
             }
-            className="h-7 w-40 text-[13px]"
+            className="text-meta h-7 w-40"
           />
           <Input
             value={q.maxLabel ?? ""}
@@ -1242,7 +1242,7 @@ function QuestionBlock({
             onChange={(e) =>
               onChange({ maxLabel: e.target.value || undefined })
             }
-            className="h-7 w-40 text-[13px]"
+            className="text-meta h-7 w-40"
           />
         </div>
       )}
@@ -1281,7 +1281,7 @@ function ScaleMax({
 }) {
   const t = useT("briefs")
   return (
-    <div className="flex items-center gap-1 text-[13px]">
+    <div className="text-meta flex items-center gap-1">
       <span className="text-muted-foreground mr-1">{t("scaleMax")}</span>
       {options.map((n) => (
         <button
@@ -1408,7 +1408,7 @@ function OptionsEditor({
           Other
         </div>
       )}
-      <div className="flex items-center gap-4 pt-0.5 text-[13px]">
+      <div className="text-meta flex items-center gap-4 pt-0.5">
         <button
           type="button"
           onClick={() => add(options.length)}

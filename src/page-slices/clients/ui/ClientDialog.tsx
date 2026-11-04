@@ -228,10 +228,10 @@ export function ClientDialog({
                         <span className="min-w-0 flex-1 truncate">
                           {p.name}
                         </span>
-                        <span className="text-muted-foreground text-[13px]">
+                        <span className="text-muted-foreground text-meta">
                           {tp(STATUS_LABEL_KEYS[p.status])}
                         </span>
-                        <span className="text-muted-foreground w-24 text-right text-[13px] tabular-nums">
+                        <span className="text-muted-foreground text-meta w-24 text-right tabular-nums">
                           {format(parseISO(p.end_date), "d MMM yyyy", {
                             locale: dateLocale,
                           })}

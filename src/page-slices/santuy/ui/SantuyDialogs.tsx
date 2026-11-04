@@ -491,7 +491,7 @@ export function SettingsDialog({
           </div>
         </div>
 
-        <p className="text-muted-foreground text-[13px]">
+        <p className="text-muted-foreground text-meta">
           {t("everyWeek", {
             day: days.find((d) => d.value === weekday)?.label ?? "",
             start: startTime,

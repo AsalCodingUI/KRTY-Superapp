@@ -128,7 +128,9 @@ export function SettingsDialog({
             <X />
           </Button>
           <div className="pane-px-6 sm:pane-px-8 pt-7 pb-8">
-            <h2 className="mb-4 text-base font-medium">{t(tab)}</h2>
+            <h2 className="text-heading text-title mb-4 font-medium">
+              {t(tab)}
+            </h2>
             {tab === "general" ? (
               <GeneralTab />
             ) : tab === "notifications" ? (
@@ -165,7 +167,7 @@ function Row({
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
         <span className="text-sm">{label}</span>
         {hint && (
-          <span className="text-muted-foreground text-[13px] leading-5">
+          <span className="text-muted-foreground text-meta leading-5">
             {hint}
           </span>
         )}
@@ -177,7 +179,7 @@ function Row({
 
 function SectionLabel({ children }: { children: ReactNode }) {
   return (
-    <h3 className="text-muted-foreground mt-8 mb-1 text-[13px] font-medium first:mt-0">
+    <h3 className="text-muted-foreground text-meta mt-8 mb-1 font-medium first:mt-0">
       {children}
     </h3>
   )
@@ -655,7 +657,7 @@ function AppearanceTab() {
       <div className="border-border flex flex-col gap-3 border-b py-4">
         <div className="flex flex-col gap-0.5">
           <span className="text-sm">{t("color")}</span>
-          <span className="text-muted-foreground text-[13px]">
+          <span className="text-muted-foreground text-meta">
             {t("colorHint")}
           </span>
         </div>

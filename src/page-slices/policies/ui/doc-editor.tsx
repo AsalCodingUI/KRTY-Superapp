@@ -52,7 +52,7 @@ import {
  * is written looks like what is read. Shared by rules and project notes.
  */
 export const DOC_PROSE = cn(
-  "text-foreground/90 min-h-[40svh] text-[15px] leading-7 outline-none",
+  "text-foreground/90 min-h-[40svh] text-title leading-7 outline-none",
   "[&_h1]:text-heading [&_h1]:mt-8 [&_h1]:mb-3 [&_h1]:text-xl [&_h1]:font-medium [&_h1]:tracking-tight",
   "[&_h2]:text-heading [&_h2]:mt-7 [&_h2]:mb-2 [&_h2]:text-base [&_h2]:font-medium",
   "[&_h3]:text-heading [&_h3]:mt-6 [&_h3]:mb-2 [&_h3]:text-sm [&_h3]:font-medium",
@@ -62,7 +62,7 @@ export const DOC_PROSE = cn(
   "[&_blockquote]:border-border [&_blockquote]:my-4 [&_blockquote]:rounded-lg [&_blockquote]:border [&_blockquote]:border-l-[3px] [&_blockquote]:px-4 [&_blockquote]:py-1",
   "[&_hr]:border-border [&_hr]:my-6",
   "[&_code]:bg-muted [&_code]:rounded [&_code]:px-1 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-[0.85em]",
-  "[&_pre]:bg-muted [&_pre]:my-4 [&_pre]:rounded-lg [&_pre]:p-3 [&_pre]:text-[13px] [&_pre_code]:bg-transparent [&_pre_code]:p-0",
+  "[&_pre]:bg-muted [&_pre]:my-4 [&_pre]:rounded-lg [&_pre]:p-3 [&_pre]:text-meta [&_pre_code]:bg-transparent [&_pre_code]:p-0",
   "[&_table]:my-4 [&_table]:w-full [&_table]:border-collapse [&_table]:text-sm",
   "[&_th]:border-border [&_th]:text-muted-foreground [&_th]:border-b [&_th]:px-3 [&_th]:py-2 [&_th]:text-left [&_th]:font-medium",
   "[&_td]:border-border/60 [&_td]:border-b [&_td]:px-3 [&_td]:py-2 [&_td]:align-top [&_td_p]:my-0 [&_th_p]:my-0",
@@ -78,7 +78,7 @@ export const DOC_PROSE = cn(
 
 /** The compact editor's type: form-sized text, tighter blocks. */
 const COMPACT_PROSE =
-  "min-h-12 text-[13.5px] leading-relaxed [&_p]:my-1.5 [&_ul]:my-1.5 [&_ol]:my-1.5 [&_h1]:mt-4 [&_h1]:text-lg [&_h2]:mt-3 [&_h3]:mt-3 [&_.doc-image]:my-2"
+  "min-h-12 text-meta leading-relaxed [&_p]:my-1.5 [&_ul]:my-1.5 [&_ol]:my-1.5 [&_h1]:mt-4 [&_h1]:text-lg [&_h2]:mt-3 [&_h3]:mt-3 [&_.doc-image]:my-2"
 
 /** The editor's blocks and Markdown in/out, with the "/" menu (and, for
  *  notes, images). */

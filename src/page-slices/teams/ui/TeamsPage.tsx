@@ -1,7 +1,7 @@
 "use client"
 
-import { RollingValue } from "@/components/rolling-value"
 import { PageHeader } from "@/components/page-header"
+import { StatStrip } from "@/components/stat-strip"
 import { createTeamColumns } from "@/app/(main)/teams/Columns"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { useT } from "@/shared/i18n/client"
@@ -157,16 +157,9 @@ export function TeamsPage({
       {/* Title + actions, a stats band, the search row, then the list. */}
       <PageHeader className="pt-6 pb-4" title={t("title")} />
 
-      <div className="stat-strip bleed gutter-x border-border border-b py-4">
-        {stats.map((item) => (
-          <div key={item.label} className="stat-tile">
-            <p className="text-muted-foreground text-sm">{item.label}</p>
-            <p className="text-foreground text-xl font-normal tracking-tight tabular-nums">
-              <RollingValue>{item.value}</RollingValue>
-            </p>
-          </div>
-        ))}
-      </div>
+      <StatStrip
+        items={stats.map((item) => ({ key: String(item.label), ...item }))}
+      />
 
       <div className="pt-4 pb-3">
         <InputGroup className="w-full sm:w-[260px]">

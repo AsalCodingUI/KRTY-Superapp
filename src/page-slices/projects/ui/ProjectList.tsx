@@ -284,7 +284,7 @@ function DraggedRow({ project }: { project: ProjectListRow }) {
       <ProjectAvatar
         id={project.id}
         name={project.name}
-        className="size-7 rounded-md text-[11px]"
+        className="text-micro size-7 rounded-md"
       />
       <span className="truncate">{project.name}</span>
     </div>
@@ -349,7 +349,7 @@ function ProjectRow({
             <ProjectAvatar
               id={project.id}
               name={project.name}
-              className="size-7 rounded-md text-[11px]"
+              className="text-micro size-7 rounded-md"
             />
             <div className="flex min-w-0 flex-col">
               <div className="flex min-w-0 items-center gap-2.5">
@@ -365,7 +365,7 @@ function ProjectRow({
                 {stage && <ProjectStageLabel stage={stage} />}
               </div>
               {meta.length > 0 && (
-                <span className="text-tertiary-foreground truncate text-[13px]">
+                <span className="text-tertiary-foreground text-meta truncate">
                   {meta.join(" · ")}
                 </span>
               )}
@@ -392,7 +392,7 @@ function ProjectRow({
                 )}
               </AvatarGroup>
             ) : (
-              <span className="text-tertiary-foreground text-[13px]">
+              <span className="text-tertiary-foreground text-meta">
                 {t("noTeamYet")}
               </span>
             )}

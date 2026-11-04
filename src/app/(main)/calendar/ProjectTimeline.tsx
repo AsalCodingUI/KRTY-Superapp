@@ -232,7 +232,7 @@ export function ProjectTimeline({
                     {(dayWidth >= 20 || isToday || day.getDate() % 2 === 1) && (
                       <span
                         className={cx(
-                          "text-[11px] tabular-nums",
+                          "text-micro tabular-nums",
                           isToday
                             ? "bg-foreground text-background flex size-5 items-center justify-center rounded-[5px] font-medium"
                             : "text-muted-foreground",

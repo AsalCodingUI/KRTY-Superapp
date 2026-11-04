@@ -375,7 +375,7 @@ export function ProjectScoringView({
                   </span>
                   {c.description && (
                     <span
-                      className="text-tertiary-foreground line-clamp-2 text-[13px]"
+                      className="text-tertiary-foreground text-meta line-clamp-2"
                       title={c.description}
                     >
                       {c.description}
@@ -397,7 +397,7 @@ export function ProjectScoringView({
                   <span className="text-foreground truncate">{c.name}</span>
                   {c.description && (
                     <span
-                      className="text-tertiary-foreground line-clamp-2 text-[13px]"
+                      className="text-tertiary-foreground text-meta line-clamp-2"
                       title={c.description}
                     >
                       {c.description}
@@ -477,7 +477,7 @@ function SectionHead({
         )}
       </div>
       {extra && (
-        <p className="text-muted-foreground shrink-0 text-[13px] tabular-nums">
+        <p className="text-muted-foreground text-meta shrink-0 tabular-nums">
           {extra}
         </p>
       )}
@@ -639,7 +639,7 @@ function SheetProperties({
 
 /** "Not scored yet" for a section: a quiet line. */
 function NotScored({ children }: { children: React.ReactNode }) {
-  return <p className="text-tertiary-foreground pb-1 text-[13px]">{children}</p>
+  return <p className="text-tertiary-foreground text-meta pb-1">{children}</p>
 }
 
 /** Quarters that receive a score from this project for this member. */
@@ -698,7 +698,7 @@ function PhaseMilestones({
         {scoring.phaseMilestones.map((ms) => (
           <ListRow
             key={ms.phaseId ?? ms.name}
-            className={cn(grid, "min-h-12 text-[13px]")}
+            className={cn(grid, "text-meta min-h-12")}
           >
             <div className="flex min-w-0 flex-col">
               <span className="text-foreground truncate">{ms.name}</span>
@@ -893,7 +893,7 @@ function OverrideEditor({
           <PopoverTitle className="text-sm">
             {t("psAdjustOf", { name: ms.name })}
           </PopoverTitle>
-          <PopoverDescription className="text-[13px]">
+          <PopoverDescription className="text-meta">
             {auto
               ? t("psAdjustDescription", {
                   member: employeeName,
@@ -915,7 +915,7 @@ function OverrideEditor({
               aria-checked={result === r}
               onClick={() => setResult(r)}
               className={cn(
-                "h-7 flex-1 rounded-full text-[13px] transition-colors",
+                "text-meta h-7 flex-1 rounded-full transition-colors",
                 result === r
                   ? "bg-background text-foreground shadow-(--elev-1)"
                   : "text-muted-foreground hover:text-foreground",
@@ -926,7 +926,7 @@ function OverrideEditor({
           ))}
         </div>
         <label className="flex flex-col gap-1.5">
-          <span className="text-muted-foreground text-[13px]">
+          <span className="text-muted-foreground text-meta">
             {t("psReason")}
           </span>
           <Textarea
@@ -934,7 +934,7 @@ function OverrideEditor({
             onChange={(e) => setReason(e.target.value)}
             placeholder={t("psReasonPlaceholder")}
             rows={3}
-            className="text-[13px]"
+            className="text-meta"
           />
         </label>
         <div className="flex items-center justify-between gap-2">
@@ -1007,7 +1007,7 @@ function Contribution({
         hint={t("psContributionLegend")}
       />
       {rows.length === 0 ? (
-        <p className="text-muted-foreground border-t py-6 text-[13px]">
+        <p className="text-muted-foreground text-meta border-t py-6">
           {t("psNothingScored")} {t("psQualityAtHandover")}
         </p>
       ) : (
@@ -1023,7 +1023,7 @@ function Contribution({
               key={row.quarter}
               className={cn(
                 CONTRIBUTION_GRID,
-                "min-h-11 text-[13px]",
+                "text-meta min-h-11",
                 archived && "opacity-60",
               )}
             >

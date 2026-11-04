@@ -16,7 +16,7 @@ import { AtSign, Hash, Link2, Phone, Star } from "@/components/icons"
 import { ChoiceButton, glassFieldClass } from "./brief-ui"
 
 /** The form's fields are a size up (easier to read and tap). */
-const large = cn("h-11 px-4 text-[15px] md:text-[15px]", glassFieldClass)
+const large = cn("h-11 px-4 text-title md:text-title", glassFieldClass)
 
 /**
  * One answer field per block type, as the client sees it. The builder
@@ -67,7 +67,7 @@ export function BriefField({
           aria-invalid={invalid}
           readOnly={preview}
           className={cn(
-            "min-h-32 px-4 py-3 text-[15px] md:text-[15px]",
+            "text-title md:text-title min-h-32 px-4 py-3",
             glassFieldClass,
           )}
           onChange={(e) => set(e.target.value)}
@@ -117,7 +117,7 @@ export function BriefField({
           aria-invalid={invalid}
           disabled={preview}
           onChange={(v) => set(v)}
-          className={cn("h-11 w-full text-[15px] sm:w-72", glassFieldClass)}
+          className={cn("text-title h-11 w-full sm:w-72", glassFieldClass)}
         />
       )
     case "dropdown":
@@ -131,7 +131,7 @@ export function BriefField({
             id={inputId}
             aria-invalid={invalid}
             className={cn(
-              "h-11! w-full px-4 text-[15px] sm:w-80",
+              "text-title h-11! w-full px-4 sm:w-80",
               glassFieldClass,
             )}
           >

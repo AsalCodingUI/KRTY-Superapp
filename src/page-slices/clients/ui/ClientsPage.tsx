@@ -479,7 +479,7 @@ function ClientCard({
             t("noContact")}
         </p>
       </div>
-      <div className="bg-muted dark:bg-muted/40 border-border text-muted-foreground flex items-center justify-between gap-3 border-t px-5 py-3 text-[13px]">
+      <div className="bg-muted dark:bg-muted/40 border-border text-muted-foreground text-meta flex items-center justify-between gap-3 border-t px-5 py-3">
         <span className="truncate">
           {t("projectCount", { n: sum.projects })}
           {sum.running > 0 && ` · ${t("runningCount", { n: sum.running })}`}
@@ -518,7 +518,7 @@ function ClientListRow({
           >
             {client.name}
           </Link>
-          <span className="text-tertiary-foreground truncate text-[13px]">
+          <span className="text-tertiary-foreground text-meta truncate">
             {[client.contact_name, client.email].filter(Boolean).join(" · ") ||
               t("noContact")}
           </span>
@@ -526,11 +526,11 @@ function ClientListRow({
       </div>
       <div className="flex items-center justify-end gap-1.5">
         <ListChip>{client.currency}</ListChip>
-        <span className="text-muted-foreground text-[13px] tabular-nums">
+        <span className="text-muted-foreground text-meta tabular-nums">
           {sum.projects}
         </span>
       </div>
-      <span className="text-muted-foreground hidden text-right text-[13px] tabular-nums md:block">
+      <span className="text-muted-foreground text-meta hidden text-right tabular-nums md:block">
         {rupiah(sum.received)}
       </span>
     </ListRow>

@@ -197,7 +197,7 @@ function ContractForm({
 
       <aside className={twoPanePanelClassName}>
         <div className="shrink-0 px-5 pt-5 pb-3">
-          <DialogTitle className="text-heading text-xl font-normal tracking-tight">
+          <DialogTitle className="text-heading text-section font-normal">
             {contract ? t("editTitle") : t("newTitle")}
           </DialogTitle>
         </div>
@@ -297,7 +297,7 @@ function ContractForm({
                 onChange={(v) => set("endDate", v)}
               />
             </div>
-            <p className="text-muted-foreground col-span-2 -mt-1 text-[13px]">
+            <p className="text-muted-foreground text-meta col-span-2 -mt-1">
               {t("fieldEndHint")}
             </p>
           </div>

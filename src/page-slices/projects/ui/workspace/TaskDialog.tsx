@@ -324,7 +324,7 @@ function TaskBody({
           </div>
 
           <section className="flex flex-col gap-1">
-            <h3 className="text-muted-foreground flex items-center gap-2 pb-1 text-[13px]">
+            <h3 className="text-muted-foreground text-meta flex items-center gap-2 pb-1">
               {t("taskSubtasks")}
               {subtasks.length > 0 && (
                 <span className="tabular-nums">
@@ -356,7 +356,7 @@ function TaskBody({
                 }}
                 placeholder={t("addSubtask")}
                 aria-label={t("addSubtask")}
-                className="h-8 flex-1 text-[13px]"
+                className="text-meta h-8 flex-1"
               />
             </div>
             {subtasks.map((sub) => (
@@ -366,7 +366,7 @@ function TaskBody({
                 onToggle={() => onStatus(sub, sub.done ? "todo" : "done")}
                 onRemove={() => onRemove(sub.id)}
               >
-                <div className="group/sub flex min-h-9 items-center gap-2.5 text-[13px]">
+                <div className="group/sub text-meta flex min-h-9 items-center gap-2.5">
                   <Checkbox
                     checked={sub.done}
                     onCheckedChange={() =>
@@ -438,7 +438,7 @@ function TaskBody({
         }
       >
         <aside className="border-border bg-muted/70 dark:bg-foreground/[0.02] flex flex-col gap-4 border-t px-4 pt-5 pb-5 md:border-t-0 md:border-l md:pt-14">
-          <dl className="grid grid-cols-[5rem_minmax(0,1fr)] items-center gap-x-2 gap-y-1.5 text-[13px]">
+          <dl className="text-meta grid grid-cols-[5rem_minmax(0,1fr)] items-center gap-x-2 gap-y-1.5">
             <dt className="text-muted-foreground">{t("taskStatus")}</dt>
             <dd>
               <Select
@@ -447,7 +447,7 @@ function TaskBody({
               >
                 <SelectTrigger
                   size="sm"
-                  className="hover:bg-accent w-full border-transparent bg-transparent px-2.5 text-[13px] shadow-none hover:border-transparent"
+                  className="hover:bg-accent text-meta w-full border-transparent bg-transparent px-2.5 shadow-none hover:border-transparent"
                 >
                   <SelectValue>
                     {(v: TaskStatus) => (
@@ -483,7 +483,7 @@ function TaskBody({
               >
                 <SelectTrigger
                   size="sm"
-                  className="hover:bg-accent w-full border-transparent bg-transparent px-2.5 text-[13px] shadow-none hover:border-transparent"
+                  className="hover:bg-accent text-meta w-full border-transparent bg-transparent px-2.5 shadow-none hover:border-transparent"
                 >
                   <SelectValue>
                     {(v: TaskPriority) =>
@@ -526,7 +526,7 @@ function TaskBody({
               >
                 <SelectTrigger
                   size="sm"
-                  className="hover:bg-accent w-full border-transparent bg-transparent px-2.5 text-[13px] shadow-none hover:border-transparent"
+                  className="hover:bg-accent text-meta w-full border-transparent bg-transparent px-2.5 shadow-none hover:border-transparent"
                 >
                   <SelectValue>
                     {() =>
@@ -563,7 +563,7 @@ function TaskBody({
                       variant="ghost"
                       size="sm"
                       className={cn(
-                        "w-full justify-start gap-2 px-2.5 text-[13px] font-normal",
+                        "text-meta w-full justify-start gap-2 px-2.5 font-normal",
                         due
                           ? overdue
                             ? "text-destructive"
@@ -608,7 +608,7 @@ function TaskBody({
             variant="ghost"
             size="sm"
             onClick={() => setConfirmDelete(true)}
-            className="text-muted-foreground hover:text-destructive mt-auto self-start px-2.5 text-[13px] font-normal"
+            className="text-muted-foreground hover:text-destructive text-meta mt-auto self-start px-2.5 font-normal"
           >
             <RiDeleteBinLine data-icon="inline-start" />
             {t("deleteTask")}
@@ -892,7 +892,7 @@ function CommentList({
           if (id) void remove(id)
         }}
       />
-      <h3 className="text-muted-foreground flex items-center gap-2 text-[13px]">
+      <h3 className="text-muted-foreground text-meta flex items-center gap-2">
         {t("taskComments")}
         {comments.length > 0 && (
           <span className="tabular-nums">{comments.length}</span>
@@ -904,9 +904,7 @@ function CommentList({
           <Spinner className="size-4" />
         </div>
       ) : comments.length === 0 ? (
-        <p className="text-muted-foreground text-[13px]">
-          {t("commentsEmpty")}
-        </p>
+        <p className="text-muted-foreground text-meta">{t("commentsEmpty")}</p>
       ) : (
         <ul className="flex flex-col gap-4">
           <AnimatePresence initial={false}>
@@ -931,7 +929,7 @@ function CommentList({
                     exit={reduce ? { opacity: 0 } : { opacity: 0, y: -4 }}
                     transition={{ duration: 0.2, ease: EASE }}
                     className={cn(
-                      "group/comment flex gap-2.5 text-[13px]",
+                      "group/comment text-meta flex gap-2.5",
                       // Replies sit under their comment, indented.
                       reply && "border-border -mt-1 ml-3 border-l pl-5",
                     )}
@@ -992,7 +990,7 @@ function CommentList({
 
 /** The same typography for the textarea and the layer drawn behind it. */
 const COMPOSER_TEXT =
-  "min-h-12 max-h-40 px-6 pt-4 pb-1 text-[13px] leading-5 whitespace-pre-wrap break-words md:px-8"
+  "min-h-12 max-h-40 px-6 pt-4 pb-1 text-meta leading-5 whitespace-pre-wrap break-words md:px-8"
 
 type Span = { start: number; end: number; kind: "tag" | "query" }
 
@@ -1286,7 +1284,7 @@ function Composer({
           }}
           className={cn(
             COMPOSER_TEXT,
-            "caret-foreground selection:bg-primary/20 relative rounded-none border-0 bg-transparent text-transparent shadow-none hover:bg-transparent focus:ring-0! focus:ring-offset-0! focus-visible:ring-0 md:text-[13px]",
+            "caret-foreground selection:bg-primary/20 md:text-meta relative rounded-none border-0 bg-transparent text-transparent shadow-none hover:bg-transparent focus:ring-0! focus:ring-offset-0! focus-visible:ring-0",
           )}
         />
       </div>

@@ -467,7 +467,7 @@ export default function NotificationsPanel({
                         )}
                       </div>
                       {notification.message && (
-                        <p className="text-muted-foreground line-clamp-2 text-[13px]">
+                        <p className="text-muted-foreground text-meta line-clamp-2">
                           {notification.message}
                         </p>
                       )}

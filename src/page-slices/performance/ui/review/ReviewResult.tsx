@@ -145,9 +145,7 @@ export function ReviewResult({ summary }: { summary: ReviewSummary }) {
               </span>
               <RatingChip score={overall} />
             </div>
-            {meta && (
-              <p className="text-muted-foreground text-[13px]">{meta}</p>
-            )}
+            {meta && <p className="text-muted-foreground text-meta">{meta}</p>}
           </div>
           <RatingScale value={overall} />
         </section>
@@ -220,7 +218,7 @@ function WrittenFeedback({ summary }: { summary: ReviewSummary }) {
       {summary.additional_feedback ? (
         <div className="flex flex-col gap-3 p-6">
           <p className="text-muted-foreground text-sm">{t("sectionSummary")}</p>
-          <div className="text-foreground flex flex-col gap-3 text-[15px] leading-[1.75]">
+          <div className="text-foreground text-title flex flex-col gap-3 leading-[1.75]">
             {paragraphsOf(summary.additional_feedback).map((p, i) => (
               <p key={i}>{p}</p>
             ))}
@@ -241,7 +239,7 @@ function WrittenFeedback({ summary }: { summary: ReviewSummary }) {
               <span aria-hidden className={cn("size-2 rounded-full", dot)} />
               {t(label)}
             </p>
-            <div className="text-foreground flex flex-col gap-3 text-[15px] leading-[1.75]">
+            <div className="text-foreground text-title flex flex-col gap-3 leading-[1.75]">
               {itemsOf(text).map((item, i) => (
                 <p key={i}>{item}</p>
               ))}
@@ -287,7 +285,7 @@ function Verbatim({
 
   return (
     <section className="border-border flex flex-col rounded-2xl border">
-      <p className="text-muted-foreground px-6 pt-5 text-[13px]">
+      <p className="text-muted-foreground text-meta px-6 pt-5">
         {t("rvVerbatimNote")}
       </p>
       {groups.map(({ key, label, dot }, i) => (
@@ -311,7 +309,7 @@ function Verbatim({
             {verbatim[key].map((text, j) => (
               <li
                 key={j}
-                className="text-foreground bg-muted/50 rounded-xl px-4 py-3 text-[15px] leading-[1.65] whitespace-pre-line"
+                className="text-foreground bg-muted/50 text-title rounded-xl px-4 py-3 leading-[1.65] whitespace-pre-line"
               >
                 {text}
               </li>

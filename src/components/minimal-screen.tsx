@@ -103,4 +103,4 @@ export const screenLogoClass = "size-12 rounded-[15px]"
 export const screenTitleClass =
   "text-heading text-2xl font-medium tracking-tight text-balance"
 export const screenTextClass =
-  "text-muted-foreground text-[15px] leading-relaxed text-balance"
+  "text-muted-foreground text-title leading-relaxed text-balance"

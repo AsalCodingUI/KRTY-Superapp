@@ -372,7 +372,7 @@ export function ProjectDashboard({ projectId }: { projectId: string }) {
             <ProjectAvatar
               id={project.id}
               name={project.name}
-              className="size-7 rounded-[5px] text-[11px]"
+              className="text-micro size-7 rounded-[5px]"
             />
             <span className="min-w-0 truncate">{project.name}</span>
             <ProjectStageButton
@@ -798,7 +798,7 @@ function PhaseSettingsDialog({
           <DialogTitle>{t("phaseSettings")}</DialogTitle>
           <DialogDescription>{t("phaseSettingsDescription")}</DialogDescription>
         </DialogHeader>
-        <div className="flex flex-col text-[13px]">
+        <div className="text-meta flex flex-col">
           <div
             className={cn(
               "text-muted-foreground scroll-gutter-match hidden px-2 pb-1.5 text-xs sm:grid",

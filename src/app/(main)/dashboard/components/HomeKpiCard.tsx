@@ -68,12 +68,12 @@ export function HomeKpiCard({
         <>
           <div className="flex flex-col gap-1.5">
             <div className="flex items-center gap-2.5">
-              <span className="text-heading text-[1.75rem] leading-none font-normal tracking-tight tabular-nums">
+              <span className="text-heading text-kpi leading-none font-normal tabular-nums">
                 {score === null ? <EmptyValue /> : Math.round(score)}
               </span>
               <RatingChip score={score} />
             </div>
-            <p className="text-muted-foreground text-[13px]">
+            <p className="text-muted-foreground text-meta">
               {score === null
                 ? tp("myKpiEmpty")
                 : focus

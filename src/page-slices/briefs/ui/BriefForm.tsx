@@ -26,7 +26,13 @@ import {
   type BriefSection,
   type BriefSet,
 } from "@/shared/lib/briefs/types"
-import { Check, CircleAlert, CloudUpload, FileIcon, X } from "@/components/icons"
+import {
+  Check,
+  CircleAlert,
+  CloudUpload,
+  FileIcon,
+  X,
+} from "@/components/icons"
 import { LazyMotion, m } from "motion/react"
 import { useCallback, useEffect, useRef, useState } from "react"
 import type * as React from "react"
@@ -483,7 +489,7 @@ export function BriefForm({
                       ? `Thank you${data.clientName ? `, ${data.clientName}` : ""}!`
                       : data.title}
                   </h1>
-                  <p className="text-muted-foreground text-[15px] leading-relaxed">
+                  <p className="text-muted-foreground text-title leading-relaxed">
                     {submitted
                       ? "Your answers are with our team. We’ll go through them and get back to you soon."
                       : `${data.clientName ? `Hi ${data.clientName}! ` : "Hi! "}A few questions so we understand what you need before we start.`}
@@ -671,7 +677,7 @@ export function BriefForm({
                                   ? `${name}: not needed`
                                   : pitch.title}
                             </p>
-                            <p className="text-muted-foreground text-[13px]">
+                            <p className="text-muted-foreground text-meta">
                               {state === "added"
                                 ? toAnswer
                                   ? `${toAnswer} question${toAnswer > 1 ? "s" : ""} left to answer.`
@@ -791,7 +797,7 @@ function Stepper({
   return (
     <div className="flex flex-col gap-2.5" data-no-translate>
       <div className="flex items-center justify-between gap-3">
-        <span className="text-muted-foreground text-[13px] tabular-nums">
+        <span className="text-muted-foreground text-meta tabular-nums">
           {review ? "Review" : `Step ${step + 1} of ${sections.length}`}
         </span>
         {status}
@@ -826,7 +832,7 @@ function SaveBadge({ state }: { state: SaveState }) {
   return (
     <span
       className={cn(
-        "flex shrink-0 items-center gap-1.5 text-[13px]",
+        "text-meta flex shrink-0 items-center gap-1.5",
         state === "error" ? "text-warning" : "text-muted-foreground",
       )}
       aria-live="polite"
@@ -874,7 +880,7 @@ function Question({
   if (q.type === "divider") return <hr className="border-border" />
   if (q.type === "statement")
     return (
-      <p className="text-muted-foreground text-[15px] leading-relaxed whitespace-pre-wrap">
+      <p className="text-muted-foreground text-title leading-relaxed whitespace-pre-wrap">
         {q.label}
       </p>
     )
@@ -978,9 +984,7 @@ function Question({
         </div>
       )}
       {flagged && (
-        <p className="text-destructive text-[13px]">
-          This one needs an answer.
-        </p>
+        <p className="text-destructive text-meta">This one needs an answer.</p>
       )}
     </div>
   )

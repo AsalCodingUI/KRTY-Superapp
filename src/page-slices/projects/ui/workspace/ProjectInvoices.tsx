@@ -542,7 +542,7 @@ export function ProjectInvoices({ projectId }: { projectId: string }) {
                           {money(inv.amount_idr, cur)}
                         </span>
                       </span>
-                      <span className="text-tertiary-foreground truncate text-[13px] tabular-nums first-letter:uppercase">
+                      <span className="text-tertiary-foreground text-meta truncate tabular-nums first-letter:uppercase">
                         {t("dueOn", { date: day(inv.due_date) })}
                         {due(inv) && (
                           <span className={due(inv)!.tone}>

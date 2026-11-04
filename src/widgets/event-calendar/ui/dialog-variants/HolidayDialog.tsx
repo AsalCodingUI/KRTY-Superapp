@@ -55,7 +55,7 @@ export function HolidayDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[28rem]">
         <DialogHeader>
-          <DialogTitle className="text-heading pr-6 text-base font-medium break-words">
+          <DialogTitle className="text-heading text-title pr-6 font-medium break-words">
             {holiday?.name ?? event.title}
           </DialogTitle>
         </DialogHeader>

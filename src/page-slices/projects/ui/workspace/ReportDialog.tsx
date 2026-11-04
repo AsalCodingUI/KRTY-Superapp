@@ -347,7 +347,7 @@ export function ReportDialog({
                     </>
                   ) : (
                     <>
-                      <p className="text-muted-foreground text-[13px]">
+                      <p className="text-muted-foreground text-meta">
                         {t("reportShareHint")}
                       </p>
                       <Button

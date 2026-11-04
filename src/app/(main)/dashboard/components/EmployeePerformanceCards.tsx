@@ -125,7 +125,7 @@ export function EmployeePerformanceCards({
                         href={slot.meeting_url}
                         target="_blank"
                         rel="noreferrer"
-                        className="text-info text-[13px] hover:underline"
+                        className="text-info text-meta hover:underline"
                       >
                         {t("oneOnOneJoin")}
                       </a>

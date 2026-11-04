@@ -248,7 +248,7 @@ export function PinForm({
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="text-muted-foreground flex items-center gap-2 text-[13px]"
+                    className="text-muted-foreground text-meta flex items-center gap-2"
                   >
                     <Spinner className="size-3.5" />
                     {t("portalOpen")}
@@ -260,7 +260,7 @@ export function PinForm({
                     initial={{ opacity: 0, y: -4 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0 }}
-                    className="text-destructive text-[13px]"
+                    className="text-destructive text-meta"
                   >
                     {error}
                   </m.p>

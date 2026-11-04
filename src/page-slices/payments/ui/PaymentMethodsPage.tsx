@@ -243,7 +243,7 @@ export function PaymentMethodsPage() {
                     <span className="truncate text-sm">{m.name}</span>
                     <span
                       className={cn(
-                        "text-tertiary-foreground flex items-center gap-1 truncate text-[13px]",
+                        "text-tertiary-foreground text-meta flex items-center gap-1 truncate",
                         stale && "text-warning",
                       )}
                     >

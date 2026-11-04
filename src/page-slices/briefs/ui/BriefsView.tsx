@@ -197,15 +197,15 @@ function BriefRow({
         >
           {brief.title}
         </button>
-        <span className="text-tertiary-foreground truncate text-[13px]">
+        <span className="text-tertiary-foreground text-meta truncate">
           {meta.join(" · ")}
         </span>
       </div>
       <SetChips sets={brief.sets} className="hidden md:flex" />
-      <span className="text-muted-foreground hidden w-24 shrink-0 text-right text-[13px] tabular-nums sm:block">
+      <span className="text-muted-foreground text-meta hidden w-24 shrink-0 text-right tabular-nums sm:block">
         {t("progress", { answered: progress.answered, total: progress.total })}
       </span>
-      <span className="text-muted-foreground w-20 shrink-0 text-right text-[13px] tabular-nums">
+      <span className="text-muted-foreground text-meta w-20 shrink-0 text-right tabular-nums">
         {format(parseISO(brief.updated_at), "d MMM", { locale: dateLocale })}
       </span>
     </ListRow>

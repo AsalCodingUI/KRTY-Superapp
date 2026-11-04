@@ -93,7 +93,7 @@ function ReviewerStack({
           </Avatar>
         ))}
         {more > 0 && (
-          <span className="text-muted-foreground pl-2 text-[11px] tabular-nums">
+          <span className="text-muted-foreground text-micro pl-2 tabular-nums">
             +{more}
           </span>
         )}
@@ -333,7 +333,7 @@ export function ReviewMonitoring({ period }: { period: string }) {
       <div className="bleed gutter-x border-border flex flex-wrap items-center justify-between gap-x-6 gap-y-3 border-b py-4">
         <div className="flex min-w-0 flex-col gap-1">
           <div className="flex items-center gap-2">
-            <h2 className="text-foreground text-base font-medium">
+            <h2 className="text-heading text-title font-medium">
               {t("periodOf", { period: periodLabel(period, t) })}
             </h2>
             {cycle && <CycleStatusBadge status={cycle.status} />}
@@ -432,7 +432,7 @@ export function ReviewMonitoring({ period }: { period: string }) {
                 }
                 summary={
                   <>
-                    <span className="text-muted-foreground text-right text-[13px] tabular-nums">
+                    <span className="text-muted-foreground text-meta text-right tabular-nums">
                       {groupDone}/{groupTotal}
                     </span>
                     <span className="hidden md:block" />
@@ -511,7 +511,7 @@ export function ReviewMonitoring({ period }: { period: string }) {
                 </span>
               }
               summary={
-                <span className="text-tertiary-foreground col-span-2 hidden text-right text-[13px] sm:block md:col-span-3">
+                <span className="text-tertiary-foreground text-meta col-span-2 hidden text-right sm:block md:col-span-3">
                   {t("needTwoEmployees")}
                 </span>
               }

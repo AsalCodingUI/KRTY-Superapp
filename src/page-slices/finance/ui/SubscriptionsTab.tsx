@@ -379,7 +379,7 @@ export function SubscriptionsTab({
                                 : money(s.amount_idr, s.currency)}
                           </span>
                           {s.currency !== "IDR" && (
-                            <span className="text-muted-foreground text-[12px]">
+                            <span className="text-muted-foreground text-xs">
                               {money(s.amount_idr, s.currency)}
                               {rate
                                 ? ` · ${t("rateN", { rate: rate.toLocaleString("id-ID") })}`
@@ -435,7 +435,7 @@ export function SubscriptionsTab({
                     title={categoryLabel(t, c.key)}
                     trailing={
                       <>
-                        <span className="text-muted-foreground text-[13px]">
+                        <span className="text-muted-foreground text-meta">
                           {perMonth
                             ? Math.round((c.value / perMonth) * 100)
                             : 0}
@@ -510,7 +510,7 @@ function MonthGrid({
             >
               <span
                 className={cn(
-                  "mb-1 flex size-6 items-center justify-center rounded-[5px] text-[13px] tabular-nums",
+                  "text-meta mb-1 flex size-6 items-center justify-center rounded-[5px] tabular-nums",
                   isToday(d)
                     ? "bg-foreground text-background font-medium"
                     : inMonth
@@ -528,7 +528,7 @@ function MonthGrid({
                       type="button"
                       onClick={() => onEdit(s)}
                       title={`${s.name} · ${money(s.amount_idr, s.currency)}`}
-                      className="hover:bg-accent flex w-full min-w-0 items-center gap-1.5 rounded-sm px-1 py-0.5 text-left text-[13px]"
+                      className="hover:bg-accent text-meta flex w-full min-w-0 items-center gap-1.5 rounded-sm px-1 py-0.5 text-left"
                     >
                       <span
                         aria-hidden

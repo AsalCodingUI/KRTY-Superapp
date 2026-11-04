@@ -17,9 +17,9 @@ export const briefTitleClass =
 export const sectionTitleClass =
   "text-heading text-lg font-medium tracking-tight"
 
-export const questionLabelClass = "text-foreground text-[15px] font-medium"
+export const questionLabelClass = "text-foreground text-title font-medium"
 
-export const questionHelpClass = "text-muted-foreground text-[13px]"
+export const questionHelpClass = "text-muted-foreground text-meta"
 
 /** Text edited in place (the builder): no field chrome at all. */
 export const inlineInputClass =
@@ -37,7 +37,7 @@ export function RequiredMark() {
   return (
     <span
       aria-hidden
-      className="text-muted-foreground ml-1 align-top text-[13px] leading-none"
+      className="text-muted-foreground text-meta ml-1 align-top leading-none"
     >
       *
     </span>
@@ -80,7 +80,7 @@ export function ChoiceBadge({
     <span
       aria-hidden
       className={cn(
-        "flex size-6 shrink-0 items-center justify-center rounded-full border text-[11px] font-medium tabular-nums transition-colors",
+        "text-micro flex size-6 shrink-0 items-center justify-center rounded-full border font-medium tabular-nums transition-colors",
         selected
           ? "text-foreground bg-background border-transparent"
           : "border-foreground/15 text-muted-foreground dark:bg-foreground/[0.04] bg-white/40",
@@ -112,7 +112,7 @@ export function ChoiceButton({
     <button
       type="button"
       className={cn(
-        "focus-visible:ring-focus-ring flex min-h-11 w-fit max-w-full items-center gap-3 rounded-full border py-2 pr-5 pl-2.5 text-left text-[15px] transition-colors outline-none focus-visible:ring-2",
+        "focus-visible:ring-focus-ring text-title flex min-h-11 w-fit max-w-full items-center gap-3 rounded-full border py-2 pr-5 pl-2.5 text-left transition-colors outline-none focus-visible:ring-2",
         selected
           ? "border-foreground bg-foreground text-background"
           : cn("border-field-border", glassFieldClass),

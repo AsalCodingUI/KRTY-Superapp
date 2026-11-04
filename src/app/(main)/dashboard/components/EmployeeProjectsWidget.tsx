@@ -93,7 +93,7 @@ export function EmployeeProjectsWidget({
                     <ProjectAvatar
                       id={project.id}
                       name={project.name}
-                      className="size-6 rounded-md text-[11px]"
+                      className="text-micro size-6 rounded-md"
                     />
                   }
                   title={<span className="font-medium">{project.name}</span>}
@@ -124,7 +124,7 @@ export function EmployeeProjectsWidget({
                             )}
                       </Badge>
                     ) : (
-                      <span className="text-tertiary-foreground text-[13px]">
+                      <span className="text-tertiary-foreground text-meta">
                         {endDateValid ? (
                           format(endDate, "d MMM yyyy", { locale: dateLocale })
                         ) : (

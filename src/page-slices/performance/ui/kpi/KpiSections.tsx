@@ -29,7 +29,7 @@ export function SectionTitle({
     <div className="flex items-baseline gap-2 pt-6 pb-3">
       <h2 className="text-foreground text-sm">{children}</h2>
       {extra && (
-        <span className="text-tertiary-foreground text-[13px] tabular-nums">
+        <span className="text-tertiary-foreground text-meta tabular-nums">
           {extra}
         </span>
       )}
@@ -99,7 +99,7 @@ export function AttentionList({
                     : "text-muted-foreground",
                 )}
               />
-              <div className="flex min-w-0 flex-1 items-baseline gap-2 text-[13px]">
+              <div className="text-meta flex min-w-0 flex-1 items-baseline gap-2">
                 <Link
                   href={href}
                   prefetch={false}
@@ -111,7 +111,7 @@ export function AttentionList({
                   {a.project}
                 </span>
               </div>
-              <span className="text-muted-foreground shrink-0 text-[13px] opacity-0 transition-opacity group-hover/row:opacity-100">
+              <span className="text-muted-foreground text-meta shrink-0 opacity-0 transition-opacity group-hover/row:opacity-100">
                 {a.kind === "qualityUnscored"
                   ? t("kpiActionScore")
                   : t("kpiActionOpenProject")}

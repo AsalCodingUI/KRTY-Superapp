@@ -31,7 +31,14 @@ import {
 } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 import { format } from "date-fns"
-import { ArrowDown, ArrowUp, ChevronsUp, Copy, Eye, EyeOff } from "@/components/icons"
+import {
+  ArrowDown,
+  ArrowUp,
+  ChevronsUp,
+  Copy,
+  Eye,
+  EyeOff,
+} from "@/components/icons"
 import { toast } from "sonner"
 import type { SantuyData, SantuyMember } from "../data"
 import { dayDate, PersonAvatar, personName } from "./shared"
@@ -259,7 +266,7 @@ export function SantuyQueue({
                       {nameOf(m.profileId)}
                     </span>
                     {next && (
-                      <span className="text-tertiary-foreground shrink-0 text-[13px] tabular-nums">
+                      <span className="text-tertiary-foreground text-meta shrink-0 tabular-nums">
                         {format(dayDate(next), "d MMM", {
                           locale: dateLocale,
                         })}
@@ -274,7 +281,7 @@ export function SantuyQueue({
       )}
       {left.length > 0 && (
         <>
-          <div className="border-border text-muted-foreground flex items-baseline gap-2 border-t px-4 pt-3 pb-1 text-[13px]">
+          <div className="border-border text-muted-foreground text-meta flex items-baseline gap-2 border-t px-4 pt-3 pb-1">
             {t("hiddenTitle")}
             <span className="text-tertiary-foreground tabular-nums">
               {left.length}
@@ -319,7 +326,7 @@ export function SantuyQueue({
         </>
       )}
       {first && last && active.length > 1 && (
-        <p className="text-muted-foreground border-border border-t px-4 py-2.5 text-[13px]">
+        <p className="text-muted-foreground border-border text-meta border-t px-4 py-2.5">
           {t("queueLoop", {
             last: nameOf(last.profileId),
             first: nameOf(first.profileId),
@@ -385,7 +392,7 @@ function QueueRow({
             {...attributes}
             {...listeners}
             aria-label={dragLabel}
-            className="text-muted-foreground hover:text-foreground -ml-1 flex h-8 w-5 shrink-0 cursor-grab touch-none items-center justify-center text-[13px] tabular-nums active:cursor-grabbing"
+            className="text-muted-foreground hover:text-foreground text-meta -ml-1 flex h-8 w-5 shrink-0 cursor-grab touch-none items-center justify-center tabular-nums active:cursor-grabbing"
           >
             <span className="group-hover/row:hidden pointer-coarse:hidden">
               {index + 1}
@@ -393,7 +400,7 @@ function QueueRow({
             <RiDraggable className="hidden size-4 group-hover/row:block pointer-coarse:block" />
           </button>
         ) : (
-          <span className="text-muted-foreground -ml-1 w-5 shrink-0 text-center text-[13px] tabular-nums">
+          <span className="text-muted-foreground text-meta -ml-1 w-5 shrink-0 text-center tabular-nums">
             {index + 1}
           </span>
         )}

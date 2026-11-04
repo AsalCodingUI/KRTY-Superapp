@@ -118,7 +118,7 @@ export function MyOneOnOneCard({
           <div className="flex items-center gap-4">
             {/* Calendar-leaf date, like an invite. */}
             <div className="border-border flex w-14 shrink-0 flex-col items-center overflow-hidden rounded-xl border">
-              <span className="bg-muted text-muted-foreground w-full py-0.5 text-center text-[11px] uppercase">
+              <span className="bg-muted text-muted-foreground text-micro w-full py-0.5 text-center">
                 {format(new Date(booked.start_at), "MMM", {
                   locale: dateLocale,
                 })}
@@ -128,13 +128,13 @@ export function MyOneOnOneCard({
               </span>
             </div>
             <div className="flex min-w-0 flex-col gap-0.5">
-              <p className="text-foreground truncate text-[15px]">
+              <p className="text-foreground text-title truncate">
                 {format(new Date(booked.start_at), "EEEE", {
                   locale: dateLocale,
                 })}{" "}
                 · <span className="tabular-nums">{timeRange(booked)}</span>
               </p>
-              <p className="text-muted-foreground truncate text-[13px]">
+              <p className="text-muted-foreground text-meta truncate">
                 {t("withOrganizer", {
                   name: booked.organizer?.full_name ?? t("admin"),
                 })}{" "}
@@ -187,7 +187,7 @@ export function MyOneOnOneCard({
             .slice(0, 4)
             .map(([day, items]) => (
               <div key={day} className="flex flex-col gap-2">
-                <p className="text-foreground text-[13px]">
+                <p className="text-foreground text-meta">
                   {dayLabel(day, t, dateLocale)}
                 </p>
                 <div className="flex flex-wrap gap-2">

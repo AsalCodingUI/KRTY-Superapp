@@ -35,7 +35,13 @@ import * as React from "react"
 import { ContextTarget } from "@/shared/context-menu"
 import { useCopyWithToast } from "@/page-slices/leave/ui/components/leave-context-menu"
 import { employeeHref } from "@/shared/lib/url-params"
-import { Clock, Pencil, SearchCheck, SquareStop, UserRound } from "@/components/icons"
+import {
+  Clock,
+  Pencil,
+  SearchCheck,
+  SquareStop,
+  UserRound,
+} from "@/components/icons"
 import { useRouter } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
 
@@ -238,12 +244,12 @@ function AttendanceDay({
             ))}
           </AvatarGroup>
           {people.length > 6 && (
-            <span className="text-tertiary-foreground text-[13px] tabular-nums">
+            <span className="text-tertiary-foreground text-meta tabular-nums">
               +{people.length - 6}
             </span>
           )}
         </span>
-        <span className="text-muted-foreground hidden text-right text-[13px] tabular-nums lg:block">
+        <span className="text-muted-foreground text-meta hidden text-right tabular-nums lg:block">
           {t(logs.length === 1 ? "sessionsOne" : "sessionsOther", {
             n: logs.length,
           })}
@@ -256,7 +262,7 @@ function AttendanceDay({
         </span>
         <span className="hidden justify-end lg:flex">
           {active > 0 && (
-            <span className="text-success-ink flex items-center gap-1.5 text-[13px]">
+            <span className="text-success-ink text-meta flex items-center gap-1.5">
               <span className="bg-success size-1.5 animate-pulse rounded-full motion-reduce:animate-none" />
               {t("activeCount", { n: active })}
             </span>
@@ -375,14 +381,14 @@ function AdminAttendanceRow({
               src={log.profiles?.avatar_url || undefined}
               alt={name}
             />
-            <AvatarFallback className="text-[11px]">
+            <AvatarFallback className="text-micro">
               {name.slice(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
           <div className="flex min-w-0 flex-col">
             <span className="text-foreground truncate">{name}</span>
             {notes.length > 0 && (
-              <span className="text-tertiary-foreground truncate text-[13px]">
+              <span className="text-tertiary-foreground text-meta truncate">
                 {notes.join(" · ")}
               </span>
             )}

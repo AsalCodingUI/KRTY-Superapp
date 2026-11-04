@@ -138,7 +138,7 @@ export function PolicyHistory({
                       ? t("historyCreated")
                       : t("historyUpdated")}
                 </span>
-                <span className="text-muted-foreground flex flex-wrap items-center gap-x-2 text-[13px]">
+                <span className="text-muted-foreground text-meta flex flex-wrap items-center gap-x-2">
                   <span>{when(e.at, t, dateLocale)}</span>
                   {(e.current || e.viewing || e.kind === "draft") && (
                     <span aria-hidden>·</span>

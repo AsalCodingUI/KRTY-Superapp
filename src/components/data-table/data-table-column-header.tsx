@@ -28,10 +28,7 @@ export function DataTableColumnHeader<TData, TValue>({
   if (!canSort) {
     return (
       <div
-        className={cn(
-          "text-muted-foreground text-[13px] font-medium",
-          className,
-        )}
+        className={cn("text-muted-foreground text-meta font-medium", className)}
       >
         {title}
       </div>
@@ -50,7 +47,7 @@ export function DataTableColumnHeader<TData, TValue>({
     >
       <span
         className={cn(
-          "text-[13px] font-medium whitespace-nowrap transition-colors",
+          "text-meta font-medium whitespace-nowrap transition-colors",
           isSorted
             ? "text-foreground"
             : "text-muted-foreground group-hover/sort:text-foreground",

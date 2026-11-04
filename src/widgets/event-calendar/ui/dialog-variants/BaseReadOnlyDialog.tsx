@@ -110,7 +110,7 @@ export function BaseReadOnlyDialog({
 
           {/* Event Title */}
           <div className="space-y-2">
-            <h3 className="text-heading text-base font-medium">
+            <h3 className="text-heading text-title font-medium">
               {event.title}
             </h3>
           </div>

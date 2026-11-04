@@ -473,7 +473,7 @@ function StepRow({
             <InlineText
               value={step.description ?? ""}
               placeholder={t("stepDescriptionPlaceholder")}
-              className="text-muted-foreground text-[13px]"
+              className="text-muted-foreground text-meta"
               onSave={(description) =>
                 mutate(updateItem("process_steps", step.id, { description }))
               }

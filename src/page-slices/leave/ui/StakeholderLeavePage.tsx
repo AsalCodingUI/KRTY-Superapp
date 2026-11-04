@@ -3,8 +3,8 @@
 import { RiAddLine } from "@/shared/ui/lucide-icons"
 import { cn } from "@/lib/utils"
 import { TAB_ENTER, useTabSwitched } from "@/shared/hooks/useTabSwitched"
-import { RollingValue } from "@/components/rolling-value"
 import { PageHeader } from "@/components/page-header"
+import { StatStrip } from "@/components/stat-strip"
 import { AdminAttendanceHistoryList } from "@/app/(main)/attendance/components/AdminAttendanceHistoryList"
 import { createClient } from "@/shared/api/supabase/client"
 import { useDateLocale, useT } from "@/shared/i18n/client"
@@ -1129,16 +1129,9 @@ function AttendanceOverviewPanel({
       </div>
 
       {/* Full-bleed band between the tabs and the list. */}
-      <div className="stat-strip bleed gutter-x border-border border-b py-4">
-        {stats.map((item) => (
-          <div key={item.label} className="stat-tile">
-            <p className="text-muted-foreground text-sm">{item.label}</p>
-            <p className="text-foreground text-xl font-normal tracking-tight tabular-nums">
-              <RollingValue>{item.value}</RollingValue>
-            </p>
-          </div>
-        ))}
-      </div>
+      <StatStrip
+        items={stats.map((item) => ({ key: String(item.label), ...item }))}
+      />
 
       <div className="pb-4">
         {activeTab === "approval" && (

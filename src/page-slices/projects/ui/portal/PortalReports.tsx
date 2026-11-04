@@ -79,7 +79,7 @@ export function PortalReports({ reports }: { reports: PortalReport[] }) {
                   onKeyDown={(e) => e.key === "Enter" && setOpen(r)}
                 >
                   <span className="text-foreground truncate">{r.title}</span>
-                  <span className="text-tertiary-foreground text-right text-[13px] tabular-nums">
+                  <span className="text-tertiary-foreground text-meta text-right tabular-nums">
                     {format(parseISO(r.report_date), "d MMM yyyy", {
                       locale: dateLocale,
                     })}

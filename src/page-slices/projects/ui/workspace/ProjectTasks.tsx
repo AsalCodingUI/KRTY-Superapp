@@ -703,7 +703,7 @@ function TaskRows({
               </button>
             )}
             {subtasks.length > 0 && (
-              <span className="text-muted-foreground shrink-0 text-[13px] tabular-nums">
+              <span className="text-muted-foreground text-meta shrink-0 tabular-nums">
                 {doneSubs}/{subtasks.length}
               </span>
             )}
@@ -714,7 +714,7 @@ function TaskRows({
               aria-label={t("commentCount", { n: comments })}
               onClick={onOpen}
               className={cn(
-                "text-muted-foreground ml-auto shrink-0 text-[13px] font-normal tabular-nums",
+                "text-muted-foreground text-meta ml-auto shrink-0 font-normal tabular-nums",
                 comments === 0 &&
                   "opacity-0 group-hover/task:opacity-100 focus-visible:opacity-100",
               )}
@@ -744,7 +744,7 @@ function TaskRows({
             >
               <SelectTrigger
                 size="sm"
-                className="text-muted-foreground hover:bg-accent w-[7.5rem] border-transparent bg-transparent px-2.5 text-[13px] shadow-none hover:border-transparent"
+                className="text-muted-foreground hover:bg-accent text-meta w-[7.5rem] border-transparent bg-transparent px-2.5 shadow-none hover:border-transparent"
               >
                 <SelectValue>
                   {(v: string) =>
@@ -770,7 +770,7 @@ function TaskRows({
           >
             <SelectTrigger
               size="sm"
-              className="hover:bg-accent w-[9.5rem] border-transparent bg-transparent px-2.5 text-[13px] shadow-none hover:border-transparent"
+              className="hover:bg-accent text-meta w-[9.5rem] border-transparent bg-transparent px-2.5 shadow-none hover:border-transparent"
             >
               <SelectValue>
                 {() =>
@@ -814,7 +814,7 @@ function TaskRows({
                   variant="ghost"
                   size="sm"
                   className={cn(
-                    "justify-self-start px-2.5 text-[13px] font-normal",
+                    "text-meta justify-self-start px-2.5 font-normal",
                     task.due_date
                       ? overdue
                         ? "text-destructive"
@@ -859,7 +859,7 @@ function TaskRows({
               />
             </PopoverContent>
           </Popover>
-          <span className="text-muted-foreground text-right text-[13px] tabular-nums">
+          <span className="text-muted-foreground text-meta text-right tabular-nums">
             {format(new Date(task.created_at), "d MMM", { locale: dateLocale })}
           </span>
         </div>

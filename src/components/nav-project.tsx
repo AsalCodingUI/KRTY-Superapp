@@ -121,7 +121,7 @@ export function NavProject() {
                 <section.icon />
                 <span className="truncate">{title}</span>
                 {section.slug === "assessment" && isLead && (
-                  <span className="bg-primary/10 text-primary ml-auto rounded-full px-1.5 py-px text-[11px] leading-4 font-medium">
+                  <span className="bg-primary/10 text-primary text-micro ml-auto rounded-full px-1.5 py-px leading-4 font-medium">
                     {t("projectLeadBadge")}
                   </span>
                 )}

@@ -80,7 +80,7 @@ export function AttendanceSplit({
       <dl className="grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-4">
         {items.map((item) => (
           <div key={item.key} className="flex min-w-0 flex-col gap-1">
-            <dt className="text-muted-foreground flex min-w-0 items-center gap-1.5 text-[13px]">
+            <dt className="text-muted-foreground text-meta flex min-w-0 items-center gap-1.5">
               <span
                 aria-hidden
                 className={cn("size-2 shrink-0 rounded-full", TONE[item.tone])}
