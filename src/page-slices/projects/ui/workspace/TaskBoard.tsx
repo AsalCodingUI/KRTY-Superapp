@@ -25,7 +25,6 @@ import {
   useSensor,
   useSensors,
   type DragEndEvent,
-  type DragMoveEvent,
   type DragOverEvent,
   type CollisionDetection,
   type DragStartEvent,
@@ -44,6 +43,7 @@ import { GripHorizontal, TriangleAlert } from "lucide-react"
 import { m, useReducedMotion } from "motion/react"
 import {
   Fragment,
+  memo,
   useCallback,
   useEffect,
   useMemo,
@@ -63,6 +63,7 @@ import {
   type TaskStatus,
 } from "./task-data"
 import { dueLabel } from "./task-utils"
+import { useDragTilt } from "../useDragTilt"
 
 type Columns = Record<TaskStatus, string[]>
 
@@ -203,33 +204,38 @@ export function TaskBoard({
   )
 
   // The pointer-up that ends a drag also clicks the card; don't open it.
+  // Stable (the latest onOpen via a ref), so memoized columns and cards
+  // don't re-render for a new callback.
   const lastDrop = useRef(0)
-  const open = (task: TaskRow) => {
-    if (performance.now() - lastDrop.current > 250) onOpen(task)
-  }
+  const onOpenRef = useRef(onOpen)
+  onOpenRef.current = onOpen
+  const open = useCallback((task: TaskRow) => {
+    if (performance.now() - lastDrop.current > 250) onOpenRef.current(task)
+  }, [])
+  const onCreateRef = useRef(onCreate)
+  onCreateRef.current = onCreate
+  const create = useCallback(
+    (title: string, status: TaskStatus) =>
+      onCreateRef.current?.(title, status) ?? Promise.resolve(false),
+    [],
+  )
 
-  // The lifted card leans into a sideways move (like the projects board).
-  const [tilt, setTilt] = useState(0)
-  const lastMove = useRef<{ x: number; t: number } | null>(null)
-  const settle = useRef<number | undefined>(undefined)
-  const onDragMove = ({ delta }: DragMoveEvent) => {
-    const now = performance.now()
-    const last = lastMove.current
-    lastMove.current = { x: delta.x, t: now }
-    if (!last || now === last.t) return
-    const speed = (delta.x - last.x) / (now - last.t)
-    setTilt(Math.max(-TILT_MAX, Math.min(TILT_MAX, speed * TILT_PER_SPEED)))
-    window.clearTimeout(settle.current)
-    settle.current = window.setTimeout(() => setTilt(0), 90)
-  }
-  const resetTilt = () => {
-    window.clearTimeout(settle.current)
-    lastMove.current = null
-    setTilt(0)
-  }
+  const renderCard = useCallback(
+    (task: TaskRow) => (
+      <TaskCard
+        task={task}
+        subtasks={subsOf.get(task.id) ?? NO_SUBTASKS}
+        comments={commentCounts[task.id] ?? 0}
+        team={team}
+        project={projectOf?.(task)}
+      />
+    ),
+    [subsOf, commentCounts, team, projectOf],
+  )
 
+  // The lifted card's lean lives in the overlay (useDragTilt): a pointer
+  // move re-renders that card only, not the board.
   const onDragStart = ({ active }: DragStartEvent) => {
-    resetTilt()
     setOverride(base)
     setActiveId(String(active.id))
   }
@@ -259,7 +265,6 @@ export function TaskBoard({
   }
 
   const onDragEnd = ({ active, over }: DragEndEvent) => {
-    resetTilt()
     lastDrop.current = performance.now()
     setActiveId(null)
     const id = String(active.id)
@@ -293,11 +298,9 @@ export function TaskBoard({
       sensors={sensors}
       collisionDetection={collisionDetection}
       onDragStart={onDragStart}
-      onDragMove={onDragMove}
       onDragOver={onDragOver}
       onDragEnd={onDragEnd}
       onDragCancel={() => {
-        resetTilt()
         setActiveId(null)
         setOverride(null)
       }}
@@ -311,27 +314,21 @@ export function TaskBoard({
             byId={byId}
             layoutKey={layoutKey}
             addSignal={status === "todo" ? addSignal : 0}
-            renderCard={(task) => (
-              <TaskCard
-                task={task}
-                subtasks={subsOf.get(task.id) ?? []}
-                comments={commentCounts[task.id] ?? 0}
-                team={team}
-                project={projectOf?.(task)}
-              />
-            )}
+            renderCard={renderCard}
             onOpen={open}
-            onCreate={onCreate && ((title) => onCreate(title, status))}
+            onCreate={onCreate ? create : undefined}
+            // Passed as is: it builds each card's menu while rendering, so a
+            // new one from the page must reach the columns.
             wrapCard={wrapCard}
           />
         ))}
       </div>
       <DragOverlay dropAnimation={DROP_ANIMATION}>
         {active ? (
-          <LiftedCard tilt={tilt}>
+          <LiftedCard>
             <TaskCard
               task={active}
-              subtasks={subsOf.get(active.id) ?? []}
+              subtasks={subsOf.get(active.id) ?? NO_SUBTASKS}
               comments={commentCounts[active.id] ?? 0}
               team={team}
               project={projectOf?.(active)}
@@ -344,7 +341,9 @@ export function TaskBoard({
   )
 }
 
-function Column({
+const NO_SUBTASKS: TaskRow[] = []
+
+const Column = memo(function Column({
   status,
   ids,
   byId,
@@ -362,7 +361,7 @@ function Column({
   addSignal: number
   renderCard: (task: TaskRow) => React.ReactNode
   onOpen: (task: TaskRow) => void
-  onCreate?: (title: string) => Promise<boolean>
+  onCreate?: (title: string, status: TaskStatus) => Promise<boolean>
   wrapCard?: (task: TaskRow, card: Card) => ReactElement
 }) {
   const t = useT("projects")
@@ -379,7 +378,7 @@ function Column({
   const add = async () => {
     if (busy.current || !title.trim() || !onCreate) return
     busy.current = true
-    const ok = await onCreate(title)
+    const ok = await onCreate(title, status)
     busy.current = false
     if (ok) setTitle("")
   }
@@ -464,11 +463,7 @@ function Column({
               const task = byId.get(id)
               if (!task) return null
               const card = (
-                <SortableCard
-                  task={task}
-                  layoutKey={layoutKey}
-                  onOpen={() => onOpen(task)}
-                >
+                <SortableCard task={task} layoutKey={layoutKey} onOpen={onOpen}>
                   {renderCard(task)}
                 </SortableCard>
               )
@@ -488,18 +483,18 @@ function Column({
       </section>
     </ContextTarget>
   )
-}
+})
 
 function SortableCard({
   task,
   layoutKey,
-  onOpen,
+  onOpen: openTask,
   children,
   ...data
 }: {
   task: TaskRow
   layoutKey: string
-  onOpen: () => void
+  onOpen: (task: TaskRow) => void
   children: React.ReactNode
   /** data-* from a <ContextTarget> around it (the right-click menu). */
   [data: `data-${string}`]: unknown
@@ -513,6 +508,7 @@ function SortableCard({
     transition,
     isDragging,
   } = useSortable({ id: task.id })
+  const onOpen = () => openTask(task)
 
   return (
     // Outer layer: motion slides the card when the saved order changes.
@@ -550,21 +546,12 @@ function SortableCard({
   )
 }
 
-/** Degrees the lifted card leans per px/ms of sideways speed, and the cap. */
-const TILT_PER_SPEED = 6
-const TILT_MAX = 8
-
 /**
  * The card under the pointer: it lifts (a little bigger, paper shadow) and
  * leans into a sideways move like a real card, settling when you stop.
  */
-function LiftedCard({
-  tilt,
-  children,
-}: {
-  tilt: number
-  children: React.ReactNode
-}) {
+function LiftedCard({ children }: { children: React.ReactNode }) {
+  const tilt = useDragTilt()
   const [lifted, setLifted] = useState(false)
   useEffect(() => {
     const frame = requestAnimationFrame(() => setLifted(true))
@@ -582,7 +569,8 @@ function LiftedCard({
   )
 }
 
-function TaskCard({
+// Memoized: a column re-renders on every drag-over; unchanged cards don't.
+const TaskCard = memo(function TaskCard({
   task,
   subtasks,
   comments,
@@ -715,4 +703,4 @@ function TaskCard({
       )}
     </div>
   )
-}
+})

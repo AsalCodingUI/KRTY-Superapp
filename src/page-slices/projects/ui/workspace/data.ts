@@ -195,7 +195,7 @@ export function useDocuments(projectId: string) {
         .eq("project_id", projectId)
         .order("created_at", { ascending: false })
       const rows = (data ?? []) as DocumentRow[]
-      await seedFileUrls(
+      seedFileUrls(
         queryClient,
         rows.map((d) => d.file_path),
       )
@@ -223,7 +223,7 @@ export function useLibrary(projectId: string) {
           .order("created_at", { ascending: false }),
       ])
       const rows = (files ?? []) as FileRow[]
-      await seedFileUrls(
+      seedFileUrls(
         queryClient,
         rows.map((f) => f.file_path),
       )
@@ -363,12 +363,17 @@ const fileUrlKey = (path: string | null | undefined) =>
 const FILE_URL_TTL_S = 60 * 60
 const FILE_URL_STALE_MS = 50 * 60 * 1000
 
+/** Paths a batch is signing right now; a tile asking meanwhile waits for
+ *  the batch instead of signing alone. */
+const signing = new Map<string, Promise<string | undefined>>()
+
 /**
  * Signs every listed path in one request and puts each URL where
  * `useFileUrl` looks, so a grid of tiles doesn't sign one by one. Paths with
  * a fresh URL are skipped; failures just leave tiles to sign themselves.
+ * Not awaited by the lists: rows show at once, tiles join the batch.
  */
-async function seedFileUrls(
+function seedFileUrls(
   queryClient: QueryClient,
   paths: (string | null | undefined)[],
 ) {
@@ -376,20 +381,33 @@ async function seedFileUrls(
   const todo = [
     ...new Set(paths.filter((p): p is string => Boolean(p))),
   ].filter((p) => {
+    if (signing.has(p)) return false
     const state = queryClient.getQueryState(fileUrlKey(p))
     return !state?.data || now - state.dataUpdatedAt > FILE_URL_STALE_MS
   })
   if (!todo.length) return
-  try {
-    const { data, error } = await supabase()
-      .storage.from(BUCKET)
-      .createSignedUrls(todo, FILE_URL_TTL_S)
-    if (error || !data) return
-    for (const item of data)
-      if (item.path && item.signedUrl && !item.error)
-        queryClient.setQueryData(fileUrlKey(item.path), item.signedUrl)
-  } catch {
-    // Tiles fall back to signing on their own.
+  const batch = (async () => {
+    try {
+      const { data, error } = await supabase()
+        .storage.from(BUCKET)
+        .createSignedUrls(todo, FILE_URL_TTL_S)
+      if (error || !data) return new Map<string, string>()
+      const urls = new Map<string, string>()
+      for (const item of data)
+        if (item.path && item.signedUrl && !item.error) {
+          urls.set(item.path, item.signedUrl)
+          queryClient.setQueryData(fileUrlKey(item.path), item.signedUrl)
+        }
+      return urls
+    } catch {
+      // Tiles fall back to signing on their own.
+      return new Map<string, string>()
+    }
+  })()
+  for (const path of todo) {
+    const one = batch.then((urls) => urls.get(path))
+    signing.set(path, one)
+    void one.finally(() => signing.delete(path))
   }
 }
 
@@ -404,6 +422,8 @@ export function useFileUrl(path: string | null | undefined) {
     enabled: Boolean(path),
     staleTime: FILE_URL_STALE_MS,
     queryFn: async () => {
+      const batched = await signing.get(path!)
+      if (batched) return batched
       const { data, error } = await supabase()
         .storage.from(BUCKET)
         .createSignedUrl(path!, FILE_URL_TTL_S)

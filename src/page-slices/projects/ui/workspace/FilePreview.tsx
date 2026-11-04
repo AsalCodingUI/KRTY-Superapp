@@ -10,6 +10,10 @@ import { useQuery } from "@tanstack/react-query"
 import { Play } from "@/components/icons"
 import { useRef, useState } from "react"
 import { useFileUrl, type FileRow } from "./data"
+import { Chip } from "./row-menu"
+
+// Moved to row-menu (light to import); kept here for older imports.
+export { Chip }
 
 type Kind =
   | "image"
@@ -96,26 +100,6 @@ const NO_PREVIEW_TINT: Record<string, string> = {
 function formatDuration(seconds: number) {
   const s = Math.max(0, Math.round(seconds))
   return `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`
-}
-
-/** Dark translucent chip on a thumbnail (type, duration, status). */
-export function Chip({
-  children,
-  className,
-}: {
-  children: React.ReactNode
-  className?: string
-}) {
-  return (
-    <span
-      className={cn(
-        "absolute rounded-md bg-black/55 px-1.5 py-0.5 text-[11px] leading-4 font-medium text-white tabular-nums backdrop-blur-sm",
-        className,
-      )}
-    >
-      {children}
-    </span>
-  )
 }
 
 /**

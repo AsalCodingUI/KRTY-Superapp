@@ -52,8 +52,7 @@ import {
 import { InvoiceThumb } from "../invoice/InvoiceThumb"
 import { downloadInvoicePdf, signQr } from "../invoice/pdf"
 import { useCanManageProject, useWorkspace } from "./data"
-import { Chip } from "./FilePreview"
-import { RowMenu, type RowMenuItem } from "./ProjectLibrary"
+import { Chip, RowMenu, type RowMenuItem } from "./row-menu"
 
 // Form dialog loads on first open.
 // The full-screen editor loads on first open.

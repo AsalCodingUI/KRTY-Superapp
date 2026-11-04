@@ -68,28 +68,21 @@ export function useProjectCalendarData(isStakeholder: boolean, enabled = true) {
     staleTime: 30_000,
     queryFn: async () => {
       const db = createClient()
-      let ids: string[] | null = null
-      if (!isStakeholder) {
-        const { data } = await db
-          .from("project_assignments")
-          .select("project_id")
-          .eq("user_id", viewerId!)
-        ids = [
-          ...new Set(
-            ((data ?? []) as { project_id: string }[]).map((r) => r.project_id),
-          ),
-        ]
-        if (ids.length === 0) return { projects: [], tasks: [] }
-      }
-
+      // Not a stakeholder: only the projects you're on, in the same request
+      // (an inner-joined `mine`, filtered to you); the team embed stays whole.
+      const columns =
+        "id, name, status, start_date, end_date, project_assignments ( user_id, role_in_project, is_lead, profiles!project_assignments_user_id_fkey ( full_name ) )"
       let query = db
         .from("projects")
         .select(
-          "id, name, status, start_date, end_date, project_assignments ( user_id, role_in_project, is_lead, profiles!project_assignments_user_id_fkey ( full_name ) )",
+          isStakeholder
+            ? columns
+            : `${columns}, mine:project_assignments!inner ( user_id )`,
         )
         .in("status", OPEN_STATUSES)
         .order("start_date", { ascending: true, nullsFirst: false })
-      if (ids) query = query.in("id", ids)
+      if (!isStakeholder)
+        query = query.eq("mine.user_id" as never, viewerId! as never)
       const { data: projectRows, error } = await query
       if (error) throw error
 

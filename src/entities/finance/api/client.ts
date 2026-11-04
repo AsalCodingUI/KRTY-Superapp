@@ -2,6 +2,7 @@ import type {
   InvoiceStatus,
   SaveInvoicePayload,
 } from "@/app/(main)/finance/actions/invoice-actions"
+import { createClient } from "@/shared/api/supabase/client"
 
 async function parseJson<T>(response: Response): Promise<T> {
   return (await response.json()) as T
@@ -14,12 +15,19 @@ export async function getAllInvoices() {
   return parseJson<any>(response)
 }
 
+/**
+ * A project's invoices, read straight from the browser: the API route ran
+ * the same query with the same user's session (RLS decides either way), so
+ * this only skips the extra hop. Same result shape as the route.
+ */
 export async function getInvoicesByProject(projectId: string) {
-  const params = new URLSearchParams({ projectId })
-  const response = await fetch(`/api/finance/invoices?${params.toString()}`, {
-    cache: "no-store",
-  })
-  return parseJson<any>(response)
+  const { data, error } = await createClient()
+    .from("project_invoices")
+    .select("*, payment_methods(id, name)")
+    .eq("project_id", projectId)
+    .order("created_at", { ascending: false })
+  if (error) return { success: false as const, error: error.message, data: [] }
+  return { success: true as const, data: data || [] }
 }
 
 export async function saveInvoice(payload: SaveInvoicePayload) {

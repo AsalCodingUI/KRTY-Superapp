@@ -1,6 +1,9 @@
 "use client"
 
-import { useRealtimeRefresh } from "@/shared/hooks/useRealtimeRefresh"
+import {
+  markLocalWrite,
+  useRealtimeRefresh,
+} from "@/shared/hooks/useRealtimeRefresh"
 import { useT } from "@/shared/i18n/client"
 import type { Database } from "@/shared/types/database.types"
 import { pick, registerUndo, rowsUndo, UndoStale } from "@/shared/undo"
@@ -34,6 +37,10 @@ export const commentKeys = {
   thread: (taskId: string) => ["project-task-comments", taskId] as const,
   counts: (projectId: string) =>
     ["project-task-comment-counts", projectId] as const,
+  /** Tugas saya: every project's counts in one request. */
+  mine: (projectIds: string[]) =>
+    ["project-task-comment-counts", "mine", projectIds] as const,
+  mineAll: ["project-task-comment-counts", "mine"] as const,
 }
 
 export function statusOf(task: TaskRow): TaskStatus {
@@ -315,6 +322,10 @@ export function useTaskWriter(projectId: string, onError: () => void) {
         return hit ? { ...row, ...hit.patch } : row
       }),
     )
+    // The refetch below covers these rows: their Realtime echo (the
+    // project page listens) doesn't fetch the list a second time.
+    const ids = patches.map((p) => p.id)
+    markLocalWrite("project_tasks", ids, [key])
     const results = await Promise.all(
       patches.map(({ id, patch }) =>
         supabase().from("project_tasks").update(patch).eq("id", id),
@@ -325,6 +336,7 @@ export function useTaskWriter(projectId: string, onError: () => void) {
       queryClient.setQueryData(key, before)
       onError()
     }
+    markLocalWrite("project_tasks", ids, [key])
     queryClient.invalidateQueries({ queryKey: key })
     if (!failed && undoRows?.rows.length)
       registerUndo(
@@ -402,21 +414,42 @@ export function taskUndoRows(
   return { rows: out, label, title: main.title } as const
 }
 
-/** Comments per task for the whole project (card badges). Shared with
- *  Tugas saya so the dialog's invalidation refreshes both. */
+/**
+ * Comments per task in these projects, counted by the database
+ * (task_comment_counts, RLS applies). Until that function is there
+ * (migrations/task_comment_counts.sql), counts the rows here as before.
+ */
+export async function fetchCommentCounts(projectIds: string[]) {
+  const counts: Record<string, number> = {}
+  if (!projectIds.length) return counts
+  const db = supabase()
+  // Not in the generated types yet.
+  const { data, error } = await db.rpc(
+    "task_comment_counts" as never,
+    { p_project_ids: projectIds } as never,
+  )
+  if (!error) {
+    for (const row of (data ?? []) as unknown as {
+      task_id: string
+      n: number
+    }[])
+      counts[row.task_id] = row.n
+    return counts
+  }
+  const { data: rows } = await db
+    .from("project_task_comments")
+    .select("task_id")
+    .in("project_id", projectIds)
+  for (const row of rows ?? [])
+    counts[row.task_id] = (counts[row.task_id] ?? 0) + 1
+  return counts
+}
+
+/** Comments per task for the whole project (card badges). */
 export function commentCountsQuery(projectId: string) {
   return {
     queryKey: commentKeys.counts(projectId),
-    queryFn: async () => {
-      const { data } = await supabase()
-        .from("project_task_comments")
-        .select("task_id")
-        .eq("project_id", projectId)
-      const counts: Record<string, number> = {}
-      for (const row of data ?? [])
-        counts[row.task_id] = (counts[row.task_id] ?? 0) + 1
-      return counts
-    },
+    queryFn: () => fetchCommentCounts([projectId]),
   }
 }
 

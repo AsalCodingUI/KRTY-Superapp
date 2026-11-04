@@ -19,8 +19,6 @@ import { Spinner } from "@/components/ui/spinner"
 import { AiDocButton } from "@/page-slices/policies/ui/ai-assist"
 import { MarkdownDocEditor } from "@/page-slices/policies/ui/doc-editor-lazy"
 import type { Editor } from "@tiptap/react"
-import { clientUrl } from "@/shared/lib/client-site"
-import { reportKey } from "@/shared/lib/portal-docs"
 import { useWorkspace } from "./data"
 import { ReportViewsIndicator } from "./ReportViews"
 import { ReportTemplatePicker } from "./ReportTemplatePicker"
@@ -32,18 +30,19 @@ import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import {
   createReport,
+  fetchReportBody,
   newShareToken,
   registerShareUndo,
+  reportShareUrl,
   updateReport,
   uploadDocFile,
   uploadReportImage,
   type Report,
+  type ReportSummary,
 } from "./reports-data"
 
-/** The client link of a shared report. */
-/** The shared report's address on the public client site. */
-export const reportShareUrl = (token: string, projectName?: string | null) =>
-  clientUrl(`/r/${reportKey(projectName, token)}`)
+// Lives with the data, so menus get it without loading this window.
+export { reportShareUrl }
 
 /**
  * A daily report in the notes editor (title, toolbar, "/" blocks, images by
@@ -64,7 +63,7 @@ export function ReportDialog({
   open: boolean
   onOpenChange: (open: boolean) => void
   /** The report to open; none for a new one. */
-  report: Report | null
+  report: ReportSummary | null
   defaultTitle: string
   projectId: string
   viewerId: string | null
@@ -76,24 +75,51 @@ export function ReportDialog({
   const tu = useT("undo")
   const tc = useT("common")
   const projectName = useWorkspace(projectId).data?.project?.name
-  const [current, setCurrent] = useState<Report | null>(null)
+  const [current, setCurrent] = useState<ReportSummary | null>(null)
   const [title, setTitle] = useState("")
   const body = useRef("")
+  // The body the editor starts from; a list row arrives without one, so
+  // until it's read the editor waits and nothing can be saved over it.
+  const [initialBody, setInitialBody] = useState<string | null>(null)
   const [saved, setSaved] = useState({ title: "", body: "" })
   const [dirty, setDirty] = useState(false)
   const [saving, setSaving] = useState(false)
   const [sharing, setSharing] = useState(false)
   const [confirmClose, setConfirmClose] = useState(false)
   const [editor, setEditor] = useState<Editor | null>(null)
+  const ready = initialBody !== null
 
   useEffect(() => {
-    if (!open) return
+    // Closed: the next report must not start from this one's body.
+    if (!open) return setInitialBody(null)
     setCurrent(report)
     const first = report?.title ?? defaultTitle
     setTitle(first)
-    body.current = report?.body ?? ""
-    setSaved({ title: report ? first : "", body: report?.body ?? "" })
     setDirty(false)
+    const start = (text: string) => {
+      body.current = text
+      setInitialBody(text)
+      setSaved({ title: report ? first : "", body: text })
+    }
+    if (!report || typeof report.body === "string") {
+      start(report?.body ?? "")
+      return
+    }
+    setInitialBody(null)
+    let live = true
+    fetchReportBody(report.id).then(
+      (text) => live && start(text),
+      () => {
+        if (!live) return
+        toast.error(t("errLoadReport"))
+        onOpenChange(false)
+      },
+    )
+    return () => {
+      live = false
+    }
+    // Once per opened report; `t` and the callback don't restart it.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, report, defaultTitle])
 
   // Changes worth asking about before closing: for a new report, anything
@@ -109,7 +135,7 @@ export function ReportDialog({
   /** Saves; returns the saved report (null when it failed). */
   const save = async (): Promise<Report | null> => {
     const name = title.trim()
-    if (!name || saving || !viewerId) return null
+    if (!name || saving || !viewerId || !ready) return null
     setSaving(true)
     try {
       const next = current
@@ -252,7 +278,7 @@ export function ReportDialog({
           <DialogTitle className="sr-only">{title || defaultTitle}</DialogTitle>
           <input
             value={title}
-            readOnly={!canEdit}
+            readOnly={!canEdit || !ready}
             maxLength={160}
             aria-label={t("reportTitle")}
             onChange={(e) => {
@@ -373,10 +399,15 @@ export function ReportDialog({
           />
         )}
 
-        {open && (
+        {open && !ready && (
+          <div className="flex flex-1 items-center justify-center">
+            <Spinner className="size-6" />
+          </div>
+        )}
+        {open && ready && (
           <MarkdownDocEditor
             key={report?.id ?? "new"}
-            value={report?.body ?? ""}
+            value={initialBody}
             ariaLabel={t("reportBody")}
             mentionProjectId={projectId}
             className="flex-1"

@@ -7,6 +7,13 @@ import { logError } from "@/shared/lib/utils/logger"
 import { guardApiRoute } from "@/shared/lib/utils/security"
 import { overlapsOtherSlot, slotQuarter, slotViewer } from "../shared"
 
+/** A query param as an ISO time, or null when missing or not a date. */
+function isoParam(value: string | null) {
+  if (!value) return null
+  const time = new Date(value)
+  return Number.isNaN(time.getTime()) ? null : time.toISOString()
+}
+
 export async function GET(request: NextRequest) {
   const t = await getT("api")
   const guard = guardApiRoute(request)
@@ -44,6 +51,9 @@ export async function GET(request: NextRequest) {
     // ?user=<id>: one person's own sessions, for a stakeholder looking at
     // their KPI page (read-only). Nobody else may ask for someone else's.
     const forUser = searchParams.get("user")
+    // ?mine=1: only the viewer's own sessions (booked or organized), within
+    // what they may see anyway; it never widens that.
+    const mine = searchParams.get("mine") === "1"
     if (forUser) {
       if (!isAdmin) {
         return NextResponse.json({ error: t("forbidden") }, { status: 403 })
@@ -52,9 +62,23 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: "invalid_user" }, { status: 400 })
       }
       query = query.eq("booked_by", forUser)
+    } else if (mine) {
+      query = query.or(
+        isAdmin
+          ? `booked_by.eq.${profile.id},organizer_id.eq.${profile.id}`
+          : // (open or booked by me) and (booked or organized by me)
+            `booked_by.eq.${profile.id},and(status.eq.open,organizer_id.eq.${profile.id})`,
+      )
     } else if (!isAdmin) {
       query = query.or(`status.eq.open,booked_by.eq.${profile.id}`)
     }
+
+    // ?from=&to= (ISO times): only slots overlapping that range (the
+    // calendar's view), filtered here rather than in the browser.
+    const from = isoParam(searchParams.get("from"))
+    const to = isoParam(searchParams.get("to"))
+    if (from) query = query.gte("end_at", from)
+    if (to) query = query.lte("start_at", to)
 
     const { data, error } = await query
     if (error) {

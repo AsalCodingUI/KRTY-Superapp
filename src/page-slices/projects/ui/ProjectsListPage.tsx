@@ -118,27 +118,24 @@ export function ProjectsListPage() {
     queryKey: [...QUERY_KEY, isAdmin ? "all" : profile?.id],
     enabled: Boolean(profile),
     queryFn: async () => {
-      let request = supabase
-        .from("projects")
-        .select(
-          `id, name, status, stage, position, start_date, end_date, quarter_id,
+      // Not a stakeholder: only projects with your assignment, in the same
+      // request (an inner-joined `mine`, filtered to you); the team embed
+      // stays whole for the avatars.
+      const columns = `id, name, status, stage, position, start_date, end_date, quarter_id,
            client_name, updated_at,
            process:processes ( id, name ),
            category:project_categories ( id, name ),
-           project_assignments ( id, user_id, profiles ( full_name, avatar_url ) )`,
+           project_assignments ( id, user_id, profiles ( full_name, avatar_url ) )`
+      let request = supabase
+        .from("projects")
+        .select(
+          isAdmin
+            ? columns
+            : `${columns}, mine:project_assignments!inner ( user_id )`,
         )
         .order("end_date", { ascending: false })
-      if (!isAdmin) {
-        const { data: mine, error: mineError } = await supabase
-          .from("project_assignments")
-          .select("project_id")
-          .eq("user_id", profile!.id)
-        if (mineError) throw mineError
-        request = request.in(
-          "id",
-          (mine ?? []).map((a: { project_id: string }) => a.project_id),
-        )
-      }
+      if (!isAdmin)
+        request = request.eq("mine.user_id" as never, profile!.id as never)
       const { data, error } = await request
       if (error) throw error
       return (data ?? []) as unknown as ProjectListRow[]
@@ -192,9 +189,10 @@ export function ProjectsListPage() {
 
   const listKey = [...QUERY_KEY, isAdmin ? "all" : profile?.id]
   // Live: projects (and teams) others add or change show up here.
+  // Just this list (either viewer variant), not every ["projects", …] query.
   useRealtimeRefresh("projects-list", [
-    { table: "projects", keys: () => [["projects"]] },
-    { table: "project_assignments", keys: () => [["projects"]] },
+    { table: "projects", keys: () => [QUERY_KEY] },
+    { table: "project_assignments", keys: () => [QUERY_KEY] },
     { table: "briefs", keys: () => [BRIEFS_KEY] },
   ])
   /** Writes a group's order (positions 1024, 2048…) and shows it at once. */

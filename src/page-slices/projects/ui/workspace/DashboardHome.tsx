@@ -17,14 +17,28 @@ import {
 import { ContextTarget, copyText } from "@/shared/context-menu"
 import { linkKey } from "@/shared/lib/url-params"
 import { toast } from "sonner"
+import dynamic from "next/dynamic"
 import Link from "next/link"
 import { useRef, useState } from "react"
 import type { TaskRow, TeamMember } from "./data"
-import { ProjectTaskDialog } from "./ProjectTaskDialog"
-import { ReportDialog } from "./ReportDialog"
-import { useInvalidateReports, useReports, type Report } from "./reports-data"
+import {
+  useInvalidateReports,
+  useLatestReports,
+  type ReportSummary,
+} from "./reports-data"
 import { useReportMenu } from "./report-menu"
 import { dueLabel, initials } from "./task-utils"
+
+// The task and report windows (editor, Markdown) load on first open, not
+// with the dashboard.
+const ProjectTaskDialog = dynamic(
+  () => import("./ProjectTaskDialog").then((m) => m.ProjectTaskDialog),
+  { loading: () => null },
+)
+const ReportDialog = dynamic(
+  () => import("./ReportDialog").then((m) => m.ReportDialog),
+  { loading: () => null },
+)
 
 /** A dashboard panel (the Proses one's look): a thin header with a "see
  *  all" link, then rows. */
@@ -186,12 +200,15 @@ export function UpcomingTasks({
           })}
         </ul>
       )}
-      <ProjectTaskDialog
-        projectId={projectId}
-        taskId={openId}
-        open={open}
-        onOpenChange={setOpen}
-      />
+      {/* Mounted from the first open on (openId stays set after). */}
+      {openId && (
+        <ProjectTaskDialog
+          projectId={projectId}
+          taskId={openId}
+          open={open}
+          onOpenChange={setOpen}
+        />
+      )}
     </Panel>
   )
 }
@@ -204,12 +221,11 @@ export function LatestReports({
 }: {
   projectId: string
   base: string
-  onOpen: (report: Report) => void
+  onOpen: (report: ReportSummary) => void
 }) {
   const t = useT("projects")
   const dateLocale = useDateLocale()
-  const { data: reports = [] } = useReports(projectId)
-  const latest = reports.slice(0, 4)
+  const { data: latest = [] } = useLatestReports(projectId, 4)
   const menu = useReportMenu(projectId)
 
   return (
@@ -266,16 +282,22 @@ export function DashboardReportDialog({
   projectId: string
   viewer: { id: string | null; isAdmin: boolean }
   /** `null` report = a new one. */
-  open: { report: Report | null } | null
+  open: { report: ReportSummary | null } | null
   onClose: () => void
 }) {
   const t = useT("projects")
   const dateLocale = useDateLocale()
   const invalidate = useInvalidateReports(projectId)
   // Keep showing the last report while the window animates closed.
-  const last = useRef<Report | null>(null)
-  if (open) last.current = open.report
+  const last = useRef<ReportSummary | null>(null)
+  // The window (and its editor) loads on the first open.
+  const opened = useRef(false)
+  if (open) {
+    last.current = open.report
+    opened.current = true
+  }
   const report = open ? open.report : last.current
+  if (!opened.current) return null
   const defaultTitle = t("reportDefaultTitle", {
     date: format(
       new Date(),

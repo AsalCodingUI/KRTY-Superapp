@@ -22,7 +22,7 @@ import { ContextTarget, type CtxItem } from "@/shared/context-menu"
 import { useState } from "react"
 import { toast } from "sonner"
 import { supabase } from "./data"
-import { RowMenu } from "./ProjectLibrary"
+import { RowMenu } from "./row-menu"
 
 type DesignLink = {
   id: string

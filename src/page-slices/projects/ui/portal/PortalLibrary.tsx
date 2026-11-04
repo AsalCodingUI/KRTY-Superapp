@@ -12,7 +12,7 @@ import { ContextTarget, download, type CtxItem } from "@/shared/context-menu"
 import { Download, Eye, FolderOpen } from "lucide-react"
 import { formatBytes } from "../workspace/data"
 import { FilePreview } from "../workspace/FilePreview"
-import { FolderIcon, Section } from "../workspace/ProjectLibrary"
+import { FolderIcon, Section } from "../workspace/row-menu"
 
 const FileViewer = dynamic(
   () => import("@/components/file-viewer").then((m) => m.FileViewer),

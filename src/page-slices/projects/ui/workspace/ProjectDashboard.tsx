@@ -36,7 +36,7 @@ import { ProjectProperties } from "./ProjectProperties"
 import { ProjectLineageLinks } from "../ProjectLineage"
 import { ProjectStageButton, useSetProjectStage } from "../ProjectStage"
 import { PhasesOffCard, StopPhasesDialog } from "./PhaseMode"
-import type { Report } from "./reports-data"
+import type { ReportSummary } from "./reports-data"
 import { ProjectAvatar } from "@/components/project-avatar"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ConfirmDialog } from "@/components/confirm-dialog"
@@ -168,7 +168,7 @@ export function ProjectDashboard({ projectId }: { projectId: string }) {
   const [settingsFor, setSettingsFor] = useState<string | true | null>(null)
   // The report window: a new report, or one opened from the list.
   const [reportOpen, setReportOpen] = useState<{
-    report: Report | null
+    report: ReportSummary | null
   } | null>(null)
 
   const phases = useMemo(() => data?.phases ?? [], [data?.phases])

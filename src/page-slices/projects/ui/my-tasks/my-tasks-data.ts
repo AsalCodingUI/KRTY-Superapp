@@ -1,9 +1,16 @@
 "use client"
 
-import { useRealtimeRefresh } from "@/shared/hooks/useRealtimeRefresh"
+import {
+  markLocalWrite,
+  useRealtimeRefresh,
+} from "@/shared/hooks/useRealtimeRefresh"
 import { useT } from "@/shared/i18n/client"
 import { registerUndo, rowsUndo } from "@/shared/undo"
-import { useQueries, useQuery, useQueryClient } from "@tanstack/react-query"
+import {
+  keepPreviousData,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query"
 import { OPEN_STATUSES, type ProjectStatus } from "../../lib/status"
 import {
   keys,
@@ -11,7 +18,11 @@ import {
   type TaskRow,
   type TeamMember,
 } from "../workspace/data"
-import { commentCountsQuery, taskUndoRows } from "../workspace/task-data"
+import {
+  commentKeys,
+  fetchCommentCounts,
+  taskUndoRows,
+} from "../workspace/task-data"
 
 /**
  * Tugas saya: the viewer's top-level tasks across every running project
@@ -77,19 +88,29 @@ export function useMyTasks(viewerId: string | null) {
       if (projectIds.length === 0)
         return { tasks: [], subtasks: [], projects: {}, teams: {} }
 
-      const [{ data: projectRows }, { data: assignments }] = await Promise.all([
-        db
-          .from("projects")
-          .select("id, name, status")
-          .in("id", projectIds)
-          .in("status", OPEN_STATUSES),
-        db
-          .from("project_assignments")
-          .select(
-            "id, project_id, role_in_project, is_lead, profiles!project_assignments_user_id_fkey ( id, full_name, avatar_url, job_title )",
-          )
-          .in("project_id", projectIds),
-      ])
+      // Subtasks come along with the projects and teams (one round trip,
+      // not two); those under a closed project's task are dropped below.
+      const [{ data: projectRows }, { data: assignments }, { data: subRows }] =
+        await Promise.all([
+          db
+            .from("projects")
+            .select("id, name, status")
+            .in("id", projectIds)
+            .in("status", OPEN_STATUSES),
+          db
+            .from("project_assignments")
+            .select(
+              "id, project_id, role_in_project, is_lead, profiles!project_assignments_user_id_fkey ( id, full_name, avatar_url, job_title )",
+            )
+            .in("project_id", projectIds),
+          db
+            .from("project_tasks")
+            .select("*")
+            .in(
+              "parent_id",
+              ((taskRows ?? []) as TaskRow[]).map((t) => t.id),
+            ),
+        ])
       const projects = Object.fromEntries(
         ((projectRows ?? []) as MyProject[]).map((p) => [p.id, p]),
       )
@@ -97,15 +118,7 @@ export function useMyTasks(viewerId: string | null) {
       const tasks = ((taskRows ?? []) as TaskRow[]).filter(
         (t) => projects[t.project_id],
       )
-      const { data: subRows } = tasks.length
-        ? await db
-            .from("project_tasks")
-            .select("*")
-            .in(
-              "parent_id",
-              tasks.map((t) => t.id),
-            )
-        : { data: [] }
+      const taskIds = new Set(tasks.map((t) => t.id))
 
       const teams: Record<string, TeamMember[]> = {}
       for (const a of (assignments ?? []) as unknown as Assignment[]) {
@@ -119,7 +132,9 @@ export function useMyTasks(viewerId: string | null) {
       }
       return {
         tasks,
-        subtasks: (subRows ?? []) as TaskRow[],
+        subtasks: ((subRows ?? []) as TaskRow[]).filter(
+          (s) => s.parent_id && taskIds.has(s.parent_id),
+        ),
         projects,
         teams,
       }
@@ -127,16 +142,77 @@ export function useMyTasks(viewerId: string | null) {
   })
 }
 
-/** Comment badges, from the same per-project cache the project page uses. */
-export function useMyCommentCounts(projectIds: string[]) {
-  return useQueries({
-    queries: projectIds.map((id) => commentCountsQuery(id)),
-    combine: (results) =>
-      Object.assign({}, ...results.map((r) => r.data ?? {})) as Record<
-        string,
-        number
-      >,
+/** A deadline on the personal calendar: an open task of yours that's due. */
+export type MyDueTask = Pick<
+  TaskRow,
+  "id" | "project_id" | "title" | "due_date" | "done"
+> & { projectName: string }
+
+/**
+ * The calendar's slice of Tugas saya: your open top-level tasks due within
+ * `from`..`to` (yyyy-MM-dd) in running projects, just the columns a
+ * deadline needs. Under the Tugas saya key, so what refreshes that list
+ * (writes, the live feed) refreshes this too.
+ */
+export function useMyDueTasks(
+  viewerId: string | null,
+  from: string,
+  to: string,
+) {
+  useRealtimeRefresh(
+    `my-due-tasks:${viewerId}`,
+    [
+      {
+        table: "project_tasks",
+        filter: `assignee_id=eq.${viewerId}`,
+        keys: () => [myTasksKey(viewerId)],
+      },
+    ],
+    Boolean(viewerId),
+  )
+  return useQuery({
+    queryKey: [...myTasksKey(viewerId), "due", from, to],
+    enabled: Boolean(viewerId),
+    // Tasks also change on the project pages; refetch whenever it's opened.
+    staleTime: 0,
+    placeholderData: keepPreviousData,
+    queryFn: async (): Promise<MyDueTask[]> => {
+      const { data, error } = await supabase()
+        .from("project_tasks")
+        .select(
+          "id, project_id, title, due_date, done, project:projects!inner ( name, status )",
+        )
+        .eq("assignee_id", viewerId!)
+        .is("parent_id", null)
+        .eq("done", false)
+        .gte("due_date", from)
+        .lte("due_date", to)
+        .in("project.status" as never, OPEN_STATUSES as never)
+      if (error) throw error
+      return (
+        (data ?? []) as unknown as (Omit<MyDueTask, "projectName"> & {
+          project: { name: string } | null
+        })[]
+      ).map(({ project, ...task }) => ({
+        ...task,
+        projectName: project?.name ?? "",
+      }))
+    },
   })
+}
+
+const NO_COUNTS: Record<string, number> = {}
+
+/** Comment badges for every listed project, counted in one request (the
+ *  task dialog refreshes this along with the project's own counts). */
+export function useMyCommentCounts(projectIds: string[]) {
+  const ids = [...projectIds].sort()
+  const { data } = useQuery({
+    queryKey: commentKeys.mine(ids),
+    enabled: ids.length > 0,
+    queryFn: () => fetchCommentCounts(ids),
+  })
+  return data ?? NO_COUNTS
 }
 
 /**
@@ -183,6 +259,14 @@ export function useMyTaskWriter(viewerId: string | null, onError: () => void) {
     const projectIds = patches
       .map((p) => projectOf(p.id))
       .filter((id): id is string => Boolean(id))
+    // refresh() refetches these; the rows' Realtime echo doesn't again.
+    const markEcho = () =>
+      markLocalWrite(
+        "project_tasks",
+        patches.map((p) => p.id),
+        [key, ...projectIds.map((id) => keys.tasks(id))],
+      )
+    markEcho()
     const results = await Promise.all(
       patches.map(({ id, patch }) =>
         supabase().from("project_tasks").update(patch).eq("id", id),
@@ -193,6 +277,7 @@ export function useMyTaskWriter(viewerId: string | null, onError: () => void) {
       queryClient.setQueryData(key, before)
       onError()
     }
+    markEcho()
     refresh(projectIds)
     if (!failed && undoRows?.rows.length)
       registerUndo(
