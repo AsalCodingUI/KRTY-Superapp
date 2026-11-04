@@ -64,6 +64,7 @@ import {
 } from "./task-data"
 import { dueLabel } from "./task-utils"
 import { useDragTilt } from "../useDragTilt"
+import { initials } from "@/shared/lib/initials"
 
 type Columns = Record<TaskStatus, string[]>
 
@@ -689,10 +690,10 @@ const TaskCard = memo(function TaskCard({
       ) : (
         assignee && (
           <div className="flex items-center gap-1.5 pt-0.5">
-            <Avatar className="size-5" title={assignee.full_name ?? ""}>
+            <Avatar size="xs" title={assignee.full_name ?? ""}>
               <AvatarImage src={assignee.avatar_url || undefined} alt="" />
               <AvatarFallback className="bg-muted text-muted-foreground text-[9px] font-medium">
-                {(assignee.full_name || "U").slice(0, 2).toUpperCase()}
+                {initials(assignee.full_name, "U")}
               </AvatarFallback>
             </Avatar>
             <span className="text-muted-foreground truncate text-xs">

@@ -775,7 +775,7 @@ function TaskRows({
                 {() =>
                   assignee ? (
                     <span className="flex min-w-0 items-center gap-1.5">
-                      <Avatar className="size-5">
+                      <Avatar size="xs">
                         <AvatarImage
                           src={assignee.avatar_url || undefined}
                           alt=""

@@ -14,6 +14,7 @@ import { ContextTarget } from "@/shared/context-menu"
 import { employeeHref } from "@/shared/lib/url-params"
 import { UserRound } from "@/components/icons"
 import { useRouter } from "next/navigation"
+import { initials } from "@/shared/lib/initials"
 
 type BalanceProfile = {
   id: string
@@ -72,10 +73,10 @@ export function RemainingLeaveList({ data }: { data: BalanceProfile[] }) {
           >
             <ListRow desc className={ROW_GRID}>
               <div className="flex min-w-0 items-center gap-3">
-                <Avatar className="size-7">
+                <Avatar size="md">
                   <AvatarImage src={p.avatar_url || undefined} alt={name} />
                   <AvatarFallback className="text-micro">
-                    {name.slice(0, 2).toUpperCase()}
+                    {initials(name)}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex min-w-0 flex-col">

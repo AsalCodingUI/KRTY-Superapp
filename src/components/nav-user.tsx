@@ -33,17 +33,7 @@ import { Copy } from "@/components/icons"
 import { toast } from "sonner"
 import { useEffect, useState } from "react"
 import { devicePlatform } from "@/shared/lib/desktop-app"
-
-function initialsOf(name: string) {
-  return (
-    name
-      .split(" ")
-      .map((n) => n[0])
-      .slice(0, 2)
-      .join("")
-      .toUpperCase() || "KR"
-  )
-}
+import { initials } from "@/shared/lib/initials"
 
 export function NavUser({
   user,
@@ -63,7 +53,7 @@ export function NavUser({
   showName?: boolean
   side?: "right" | "bottom"
 }) {
-  const initials = initialsOf(user.name)
+  const letters = initials(user.name, "KR")
   const t = useT("common")
   const tp = useT("profile")
   const tc = useT("ctxmenu")
@@ -149,7 +139,7 @@ export function NavUser({
               <Avatar className="size-6">
                 <AvatarImage src={user.avatar} alt={user.name} />
                 <AvatarFallback className="bg-chrome-field blend-ink text-muted-foreground text-[10px]">
-                  {initials}
+                  {letters}
                 </AvatarFallback>
               </Avatar>
               <span
@@ -174,7 +164,7 @@ export function NavUser({
                 <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                   <Avatar>
                     <AvatarImage src={user.avatar} alt={user.name} />
-                    <AvatarFallback>{initials}</AvatarFallback>
+                    <AvatarFallback>{letters}</AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-medium">{user.name}</span>

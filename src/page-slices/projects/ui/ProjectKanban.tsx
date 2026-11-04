@@ -33,17 +33,9 @@ import { ProjectStageLabel } from "./ProjectStage"
 import { ProjectStatusIcon } from "./ProjectStatusIcon"
 import { useDragTilt } from "./useDragTilt"
 import { useStatusMove, type MoveProject } from "./useStatusMove"
+import { initials } from "@/shared/lib/initials"
 
 type BoardStatus = (typeof BOARD_STATUSES)[number]
-
-function initials(name: string | null | undefined) {
-  return (name || "?")
-    .split(" ")
-    .map((part) => part[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase()
-}
 
 /** Compact card (Linear/hilos style): meta line, title, team initials. */
 const ProjectCard = memo(function ProjectCard({

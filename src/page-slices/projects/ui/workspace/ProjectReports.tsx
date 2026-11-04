@@ -29,6 +29,7 @@ import {
   useReports,
   type ReportSummary,
 } from "./reports-data"
+import { initials } from "@/shared/lib/initials"
 
 const ROW_GRID =
   "grid grid-cols-[minmax(0,1fr)_2rem] items-center gap-x-4 md:grid-cols-[minmax(0,1fr)_12rem_7rem_2rem]"
@@ -159,7 +160,7 @@ export function ProjectReports({ projectId }: { projectId: string }) {
                     <Avatar className="size-6">
                       <AvatarImage src={r.author?.avatar_url || undefined} />
                       <AvatarFallback className="text-[10px]">
-                        {name.slice(0, 2).toUpperCase()}
+                        {initials(name)}
                       </AvatarFallback>
                     </Avatar>
                     <span className="text-muted-foreground text-meta truncate">

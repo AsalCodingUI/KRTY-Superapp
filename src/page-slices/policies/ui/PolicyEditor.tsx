@@ -67,6 +67,7 @@ import { POLICY_FILES_FOLDER } from "../model/data"
 import { BLOCK_ITEMS, SlashMenu, createSlashBridge } from "./slash-command"
 import { MentionMenu, createMentionBridge } from "./mention"
 import { PublishDialog } from "./PublishDialog"
+import { initials } from "@/shared/lib/initials"
 
 /** The editor appends an empty trailing paragraph; ignore end whitespace. */
 const sameBody = (a: string, b: string) => a.trimEnd() === b.trimEnd()
@@ -605,9 +606,9 @@ function DocumentEditor({
             </span>
             <span className="flex items-center gap-2">
               {t("by")}
-              <Avatar className="size-5">
+              <Avatar size="xs">
                 <AvatarFallback className="text-[9px]">
-                  {shownAuthor.slice(0, 2).toUpperCase()}
+                  {initials(shownAuthor)}
                 </AvatarFallback>
               </Avatar>
               <span className="text-foreground">{shownAuthor}</span>

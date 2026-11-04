@@ -55,6 +55,7 @@ import {
   pruneListOptions,
   useListOptions,
 } from "./ProjectsFilterMenu"
+import { initials } from "@/shared/lib/initials"
 
 // Kanban (dnd) and the form dialog load only when used.
 const ProjectKanban = dynamic(
@@ -518,7 +519,7 @@ function ProjectTable({
                     alt=""
                   />
                   <AvatarFallback className="text-[10px]">
-                    {(a.profiles?.full_name || "U").slice(0, 2).toUpperCase()}
+                    {initials(a.profiles?.full_name, "U")}
                   </AvatarFallback>
                 </Avatar>
               ))}

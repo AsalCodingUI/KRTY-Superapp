@@ -46,6 +46,7 @@ import {
   type ProjectActions,
 } from "./ProjectMenu"
 import { useStatusMove, type MoveProject } from "./useStatusMove"
+import { initials } from "@/shared/lib/initials"
 
 export type { ProjectActions } from "./ProjectMenu"
 
@@ -80,15 +81,6 @@ const ROW_GRID_ACTIONS =
 
 function shortDate(value: string, locale: Locale) {
   return format(new Date(value), "d MMM yyyy", { locale })
-}
-
-function initials(name: string) {
-  return name
-    .split(" ")
-    .map((part) => part[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase()
 }
 
 /** Open at first: the work in hand. The rest start folded; each group

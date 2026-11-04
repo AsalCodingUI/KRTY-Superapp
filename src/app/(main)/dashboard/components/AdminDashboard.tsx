@@ -48,7 +48,7 @@ interface AdminDashboardProps {
 
 function Person({ name, src }: { name: string | null; src: string | null }) {
   return (
-    <Avatar className="size-7">
+    <Avatar size="md">
       <AvatarImage src={src || undefined} />
       <AvatarFallback className="text-[10px]">
         {name?.[0] || "?"}

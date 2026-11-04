@@ -42,6 +42,7 @@ import { ContextTarget, type CtxItem } from "@/shared/context-menu"
 import { useCopyWithToast } from "./leave-context-menu"
 import { employeeHref } from "@/shared/lib/url-params"
 import { CalendarRange, Clock, UserRound } from "@/components/icons"
+import { initials } from "@/shared/lib/initials"
 
 type Person = { full_name: string; avatar_url: string | null } | null
 
@@ -74,15 +75,6 @@ const ROW_EXIT = {
   height: 0,
   transition: { duration: 0.2, ease: [0.23, 1, 0.32, 1] },
 } as const
-
-function initials(name?: string | null) {
-  return (name ?? "?")
-    .split(" ")
-    .map((p) => p[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase()
-}
 
 /**
  * Approval inbox: a button (with the waiting count) that opens one modal
@@ -527,7 +519,7 @@ function InboxRow({
             highlighted && "bg-primary/8 ring-primary/30 ring-1 ring-inset",
           )}
         >
-          <Avatar className="size-8">
+          <Avatar>
             {person?.avatar_url && <AvatarImage src={person.avatar_url} />}
             <AvatarFallback className="text-micro">
               {initials(person?.full_name)}

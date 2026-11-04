@@ -51,6 +51,7 @@ import { GridGroup, ListColumns, PersonCell } from "../list"
 import { StatStrip } from "@/components/stat-strip"
 import { CycleStatusBadge, useCycleRange } from "./cycle-status"
 import { ReviewResult } from "./ReviewResult"
+import { initials } from "@/shared/lib/initials"
 
 /** Shared column template so the header, group summaries and rows line up. */
 const ROW_GRID =
@@ -89,7 +90,7 @@ function ReviewerStack({
           >
             <AvatarImage src={r.avatar_url || undefined} alt="" />
             <AvatarFallback className="text-[10px]">
-              {(r.full_name || "?").slice(0, 2).toUpperCase()}
+              {initials(r.full_name, "?")}
             </AvatarFallback>
           </Avatar>
         ))}

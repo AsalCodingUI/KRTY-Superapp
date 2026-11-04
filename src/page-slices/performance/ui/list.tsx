@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils"
 import { RiArrowDownSLine } from "@/shared/ui/lucide-icons"
 import { useT } from "@/shared/i18n/client"
 import * as React from "react"
+import { initials } from "@/shared/lib/initials"
 
 /** Column labels above a list; `grid` is the same template the rows use. */
 export function ListColumns({
@@ -39,10 +40,10 @@ export function PersonCell({
   const label = name || t("unknown")
   return (
     <div className="flex min-w-0 items-center gap-3">
-      <Avatar className="size-7">
+      <Avatar size="md">
         <AvatarImage src={avatarUrl || undefined} alt="" />
         <AvatarFallback className="text-micro">
-          {label.slice(0, 2).toUpperCase()}
+          {initials(label)}
         </AvatarFallback>
       </Avatar>
       <div className="flex min-w-0 flex-col">

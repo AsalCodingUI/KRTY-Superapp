@@ -40,6 +40,7 @@ import {
   useWorkspace,
 } from "./data"
 import { StopPhasesDialog } from "./PhaseMode"
+import { initials } from "@/shared/lib/initials"
 
 /** The "Tanpa fase" choice in the process select. */
 const NO_PHASES = "__no_phases__"
@@ -383,10 +384,10 @@ export function ProjectSettings({ projectId }: { projectId: string }) {
                   key={m.assignmentId}
                   className="border-border flex min-h-12 items-center gap-3 border-b px-4 py-2 text-sm last:border-b-0"
                 >
-                  <Avatar className="size-7">
+                  <Avatar size="md">
                     <AvatarImage src={m.avatar_url || undefined} alt="" />
                     <AvatarFallback className="text-[10px]">
-                      {(m.full_name || "U").slice(0, 2).toUpperCase()}
+                      {initials(m.full_name, "U")}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex min-w-0 flex-1 flex-col">

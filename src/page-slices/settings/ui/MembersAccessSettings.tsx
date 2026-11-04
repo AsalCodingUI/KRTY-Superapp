@@ -580,7 +580,7 @@ export function MembersAccessSettings({
                     )}
                   >
                     <span className="flex min-w-0 items-center gap-3">
-                      <Avatar className="size-7">
+                      <Avatar size="md">
                         <AvatarImage src={p.avatar_url || undefined} alt="" />
                         <AvatarFallback className="text-micro">
                           {initialOf(p)}
@@ -643,7 +643,7 @@ export function MembersAccessSettings({
           {selected && (
             <div className="scroll-pane pane-px-5 flex min-h-0 flex-1 flex-col gap-8 pt-5 pb-6">
               <div className="flex items-center gap-3">
-                <Avatar className="size-10">
+                <Avatar size="lg">
                   <AvatarImage src={selected.avatar_url || undefined} alt="" />
                   <AvatarFallback>{initialOf(selected)}</AvatarFallback>
                 </Avatar>

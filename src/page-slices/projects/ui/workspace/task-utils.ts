@@ -20,11 +20,4 @@ export function dueLabel(
   return format(d, "d MMM", { locale })
 }
 
-export function initials(name: string | null | undefined) {
-  return (name || "?")
-    .split(" ")
-    .map((part) => part[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase()
-}
+export { initials } from "@/shared/lib/initials"

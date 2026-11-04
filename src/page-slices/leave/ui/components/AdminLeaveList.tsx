@@ -30,6 +30,7 @@ import {
 import { id as idLocale } from "date-fns/locale"
 import { ListPager } from "@/components/list-pager"
 import { LeaveStatusIcon } from "./StatusIcon"
+import { initials } from "@/shared/lib/initials"
 
 export type LeaveRequestWithProfile =
   Database["public"]["Tables"]["leave_requests"]["Row"] & {
@@ -207,10 +208,10 @@ function LeaveRow({
   return (
     <ListRow desc className={ROW_GRID}>
       <div className="flex min-w-0 items-center gap-3">
-        <Avatar className="size-7">
+        <Avatar size="md">
           <AvatarImage src={req.profiles?.avatar_url || undefined} alt={name} />
           <AvatarFallback className="text-micro">
-            {name.slice(0, 2).toUpperCase()}
+            {initials(name)}
           </AvatarFallback>
         </Avatar>
         <div className="flex min-w-0 flex-col">
