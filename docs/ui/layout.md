@@ -12,7 +12,8 @@ Windows apps, phones and print. Live examples: **/ui** → Layout.
 | The app around every signed-in page     | automatic (`(main)` layout)                                 | `src/app/(main)/layout.tsx`                                |
 | A page's title, ← back, actions         | `PageHeader title back actions className="pt-6 pb-4"`       | `src/components/page-header.tsx`                           |
 | Extra breadcrumb steps (Aturan › Edit)  | `useBreadcrumbs([{ label, href }])`                         | `src/components/page-breadcrumbs.ts`                       |
-| Headline numbers under the title / tabs | `StatStrip items`                                           | `src/components/stat-strip.tsx`                            |
+| Headline numbers under the title / tabs | `StatStrip items aside orEmpty`                             | `src/components/stat-strip.tsx`                            |
+| The page sheet (app and client portal)  | `PageSheet mac` + `pageSheetContentClassName`               | `src/components/page-sheet.tsx`                            |
 | Numbers on cards (dashboards, dialogs)  | `StatTiles items variant="tiles" \| "strip"`                | `src/components/stat-tiles.tsx`                            |
 | A quiet heading inside a page           | `SectionTitle extra actions`                                | `src/components/section-title.tsx`                         |
 | A titled block around a table           | `TableSection title description actions`                    | `src/components/table-section.tsx`                         |
@@ -32,7 +33,7 @@ SidebarProvider  bg-chrome h-svh flex-col                      (tinted chrome)
 ├─ AppBannerStack px-2 pb-2, publishes --app-banner-height      view-as, announcements
 ├─ row            md:pr-3 md:pb-3 (Mac md:pr-1.5 md:pb-1.5)
 │  ├─ AppSidebar  15rem (resizable), icon 3.75rem, hidden < md
-│  └─ page sheet  shadow layer + SidebarInset
+│  └─ PageSheet   shadow layer + SidebarInset (components/page-sheet.tsx)
 │     SidebarInset  scroll-pane · md:rounded-3xl (Mac 10px) · dark:bg-surface
 │     ├─ SiteHeader  h-12, gutter-x: sidebar toggle + breadcrumbs (hidden < md)
 │     └─ content     gutter-x flex-col gap-4 · pb-6 (phones pb for the tab bar)
@@ -87,9 +88,11 @@ tracking-tight text-heading`). No description under the title
   between parts of one page. `TableSection`: a title over a table
   (`text-sm font-medium`, `pb-1`). `HomeCard` / `Panel`: a block on a card
   surface (see components.md).
-- `StatStrip`: label (`text-sm` muted) over value (`text-xl font-normal
+- `StatStrip`: label (`text-sm` muted) over value (`text-stat font-normal
 tabular-nums`, `RollingValue`), side by side `gap-x-10`, `py-4`, a
-  hairline below, full bleed. Directly under the header or tabs.
+  hairline below, full bleed. Directly under the header or tabs. `aside`
+  puts controls on the right (the main action, "process all"); `orEmpty`
+  shows the dashed mark for a missing value; a value may be a `Skeleton`.
 - `StatTiles`: the same numbers on cards (`surfaceClassName`), 2–4 columns;
   `variant="strip"` is one card split into cells.
 
@@ -106,8 +109,8 @@ tabular-nums`, `RollingValue`), side by side `gap-x-10`, `py-4`, a
 
 **Fullscreen routes** (`src/app/(fullscreen)`: no sidebar, no top bar)
 
-- Minimal screens, the client portal (`/p/…`, its own `PortalShell` with
-  the same page sheet), print pages, the desktop-app helpers
+- Minimal screens, the client portal (`/p/…`, its own `PortalShell` on
+  the same `PageSheet`), print pages, the desktop-app helpers
   (`/desktop`, `/auth/desktop*`, `/menubar`), the 360 review form, dev
   labs (`/shadow-lab`). A new full-window flow goes here, not in `(main)`.
 
@@ -156,7 +159,7 @@ tabular-nums`, `RollingValue`), side by side `gap-x-10`, `py-4`, a
 - `overflow-y-auto` + `px-5` on a scrolling pane (spacing goes uneven);
   `scroll-pane pane-px-5`.
 - Copying the stat-strip markup (`stat-strip bleed gutter-x …`) into a
-  page; use `StatStrip`.
+  page; use `StatStrip`. Copying the page sheet's classes; use `PageSheet`.
 - A sticky page header with `backdrop-blur` (the sheet scrolls under it
   and the blur repaints every frame).
 - Checking `navigator.userAgent` for the desktop app; use the hooks.
@@ -198,6 +201,26 @@ tabular-nums`, `RollingValue`), side by side `gap-x-10`, `py-4`, a
 ```
 
 ## Migration notes
+
+Done 2026-11-05 (local): `PageSheet` (`src/components/page-sheet.tsx`:
+shadow layer, gutter / bleed / `--sbw` variables, radius, Mac 10px
+corner, plus `pageSheetContentClassName`) used by `(main)/layout.tsx` and
+`PortalShell.tsx` (each keeps its own bottom room for its tab bar; the
+portal keeps `max-md:shadow-raised`, the app `max-md:pt-2`);
+`MAC_SHEET_RADIUS` moved there. `StatStrip` got `aside` and `orEmpty`
+(item `key` optional, the value is a `div` so a `Skeleton` fits);
+`StatBand` deleted and its users (ProjectAssessment, ReviewMonitoring,
+OneOnOne ×2, TeamKpiList) and the MembersAccessSettings copy are
+`StatStrip` (Members' numbers now roll like every strip). `HomeGreeting`
+renders `PageHeader` (`pt-0 pb-0`, `HomeColumn` spaces it). PageHeader's
+`description` prop removed. TableSection comment says it is DataTable's
+own header. `(fullscreen)/layout.tsx` comment in English.
+
+Left: `EmployeeLeavePage` balances (a `dl` with a "rules" button inside
+the label and a 3-column phone grid; not the StatStrip markup).
+FinancePage's `gap-4` + `PageHeader pb-0` gives the same 16px as `pb-4`
+(left as is). Phone breakpoint (640 vs 768) still needs a decision.
+The older list below is kept for reference.
 
 - The stat-strip markup is copied instead of `StatStrip`:
   `src/page-slices/teams/ui/TeamsPage.tsx:160`,

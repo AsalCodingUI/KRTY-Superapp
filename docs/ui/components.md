@@ -10,26 +10,27 @@ Live examples: **/ui** → Components.
 
 **Cards and blocks**
 
-| Component                                             | For                                                                   | File                                                | Props                                                          | Not for                                       |
-| ----------------------------------------------------- | --------------------------------------------------------------------- | --------------------------------------------------- | -------------------------------------------------------------- | --------------------------------------------- |
-| `HomeCard`                                            | A block on a dashboard / overview (title inside the card)             | `src/app/(main)/dashboard/components/home-card.tsx` | `title badge actions className data-*`                         | Page sections without a card (`SectionTitle`) |
-| `HomeRow`                                             | A row in a `HomeCard` (leading, title/subtitle, trailing)             | same                                                | `href leading title subtitle trailing data-*`                  | Page lists (`GroupedList` + `ListRow`)        |
-| `HomeFigure`                                          | One big number in a card ("8 / 11 jam")                               | same                                                | `value unit hint roll`                                         | Several numbers (`HomeStats`)                 |
-| `HomeStats`                                           | 2–4 label-over-value columns in a card                                | same                                                | `items: {label value tone}[]`                                  | A page's headline band (`StatStrip`)          |
-| `HomeFooter`, `HomeIconLink`, `HomeEmpty`             | Card footer link line · header icon link · empty text                 | same                                                | `label value href linkLabel` · `href label` · text             |                                               |
-| `HomeColumn`, `HomeGrid`, `HomeActions`, `HomeAction` | Dashboard column · two cards side by side · quick-action pills        | same                                                | `children` · `aside` · `href onClick icon primary desktopOnly` | Other pages                                   |
-| `Panel` (+ `PanelEmpty`)                              | A bordered block with a header bar (title, count, action)             | `src/components/panel.tsx`                          | `title meta action bodyClassName`                              | Dashboard cards (`HomeCard`)                  |
-| `surfaceClassName`                                    | The card surface (`bg-card border rounded-xl`) for anything card-like | same                                                | class                                                          | Copying the classes by hand                   |
+| Component                                             | For                                                                     | File                                                | Props                                                          | Not for                                       |
+| ----------------------------------------------------- | ----------------------------------------------------------------------- | --------------------------------------------------- | -------------------------------------------------------------- | --------------------------------------------- |
+| `HomeCard`                                            | A block on a dashboard / overview (title inside the card)               | `src/app/(main)/dashboard/components/home-card.tsx` | `title badge actions className data-*`                         | Page sections without a card (`SectionTitle`) |
+| `HomeRow`                                             | A row in a `HomeCard` (leading, title/subtitle, trailing)               | same                                                | `href leading title subtitle trailing data-*`                  | Page lists (`GroupedList` + `ListRow`)        |
+| `HomeFigure`                                          | One big number in a card ("8 / 11 jam")                                 | same                                                | `value unit hint roll`                                         | Several numbers (`HomeStats`)                 |
+| `HomeStats`                                           | 2–4 label-over-value columns in a card                                  | same                                                | `items: {label value tone}[]`                                  | A page's headline band (`StatStrip`)          |
+| `HomeFooter`, `HomeIconLink`, `HomeEmpty`             | Card footer link line · header icon link · empty text                   | same                                                | `label value href linkLabel` · `href label` · text             |                                               |
+| `HomeColumn`, `HomeGrid`, `HomeActions`, `HomeAction` | Dashboard column · two cards side by side · quick-action pills          | same                                                | `children` · `aside` · `href onClick icon primary desktopOnly` | Other pages                                   |
+| `Panel` (+ `PanelEmpty`)                              | A bordered block with a header bar (title, count, action)               | `src/components/panel.tsx`                          | `title meta action bodyClassName`                              | Dashboard cards (`HomeCard`)                  |
+| `surfaceClassName`                                    | The card surface (`bg-card border rounded-card`) for anything card-like | same                                                | class                                                          | Copying the classes by hand                   |
 
 **People and projects**
 
-| Component                                   | For                                                      | File                                      | Props                                    | Not for                        |
-| ------------------------------------------- | -------------------------------------------------------- | ----------------------------------------- | ---------------------------------------- | ------------------------------ |
-| `Avatar` + `AvatarImage` + `AvatarFallback` | A person (photo, else 2-letter initials)                 | `src/components/ui/avatar.tsx`            | `size: sm (24) · default (32) · lg (40)` | Projects (`ProjectAvatar`)     |
-| `AvatarGroup` + `AvatarOverflow`            | A few people overlapping, then "+N"                      | `src/components/avatar-group.tsx`         | `children` · `count size`                | More than ~4 shown             |
-| `PersonCell`                                | First cell of a person row: avatar 28px, name, secondary | `src/page-slices/performance/ui/list.tsx` | `name avatarUrl secondary children`      | Outside lists                  |
-| `ProjectAvatar`                             | A project's letter tile in its stable color              | `src/components/project-avatar.tsx`       | `id name className` (`size-5` default)   | People; brand logos            |
-| `projectColor(id)`, `projectColorVar(id)`   | The project's color as class / CSS var (timeline bars)   | same                                      | `id`                                     | Hand-picked colors per project |
+| Component                                   | For                                                                  | File                                      | Props                                                        | Not for                        |
+| ------------------------------------------- | -------------------------------------------------------------------- | ----------------------------------------- | ------------------------------------------------------------ | ------------------------------ |
+| `Avatar` + `AvatarImage` + `AvatarFallback` | A person (photo, else initials; the fallback shows the first letter) | `src/components/ui/avatar.tsx`            | `size: xs (20) · sm (24) · md (28) · default (32) · lg (40)` | Projects (`ProjectAvatar`)     |
+| `initials(name, fallback?)`                 | The letters for a person's avatar                                    | `src/shared/lib/initials.ts`              | name, fallback (`?`)                                         | Inline `.slice(0, 2)`          |
+| `AvatarGroup` + `AvatarOverflow`            | A few people overlapping, then "+N"                                  | `src/components/avatar-group.tsx`         | `children` · `count size`                                    | More than ~4 shown             |
+| `PersonCell`                                | First cell of a person row: avatar 28px, name, secondary             | `src/page-slices/performance/ui/list.tsx` | `name avatarUrl secondary children`                          | Outside lists                  |
+| `ProjectAvatar`                             | A project's (or client's) letter tile in its stable color            | `src/components/project-avatar.tsx`       | `id name className` (`size-5` default)                       | People; brand logos            |
+| `projectColor(id)`, `projectColorVar(id)`   | The project's color as class / CSS var (timeline bars)               | same                                      | `id`                                                         | Hand-picked colors per project |
 
 **Brand and app chrome**
 
@@ -64,6 +65,7 @@ Live examples: **/ui** → Components.
 | `PdfPages`, `PdfThumbnail`                                  | A PDF's pages / first page (pdf.js, loaded on use)                      | `src/components/pdf-view.tsx`                           | `url maxPages onError`                      |                                  |
 | `DocxPages`, `SheetView`, `DocxThumbnail`, `SheetThumbnail` | Word and spreadsheet files drawn in the browser                         | `src/components/office-view.tsx`                        | `url onError`                               | .doc, PowerPoint (download)      |
 | `Zoomable`, `ZoomPill`, `ZoomableImage` (zoomable)          | Pinch-zoom area for a viewer; −/%/+ pill; an image that fits then zooms | `src/components/zoomable.tsx`                           | `children(zoom, view) min max overlay`      | Pictures in documents (lightbox) |
+| `ZoomOnClickImage`, `LightboxScope` (image-lightbox)        | A picture in a document that opens in its lightbox on a click           | `src/components/image-lightbox.tsx`                     | `src alt className`                         | File viewers (`ZoomableImage`)   |
 | `FileDropCanvas`                                            | Drop / pick a file into a dialog with a preview pane                    | `src/components/file-drop-canvas.tsx`                   | see file                                    |                                  |
 | `FilePreview`                                               | A library file's thumbnail on a card                                    | `src/page-slices/projects/ui/workspace/FilePreview.tsx` | `file badge emptyLabel url`                 |                                  |
 
@@ -91,12 +93,15 @@ Colors come from `--chart-1…5` and the semantic tokens (see color.md).
 - Reuse these; don't rebuild a card, avatar, project tile, number roll or
   callout in a page. A missing variant goes into the component (and here).
 - Card surface = `surfaceClassName` (`bg-card border-field-border
-dark:border-border rounded-xl border`). `HomeCard` adds `p-5 gap-4` and
-  a 15px title; `Panel` a 44px header bar with a border.
-- Avatars: `Avatar size` (`sm` 24px, default 32px, `lg` 40px); in a person
-  row `PersonCell` (28px). Initials = first two letters, uppercase.
-  Projects are always `ProjectAvatar` (square, `rounded-[5px]`, white
-  letter), never a round avatar.
+dark:border-border rounded-card border`). `HomeCard` is `surfaceClassName`
+  plus `p-surface gap-4` and a 15px title; `Panel` a 44px header bar with a
+  border.
+- Avatars: `Avatar size` (`xs` 20px, `sm` 24px, `md` 28px, default 32px,
+  `lg` 40px), not a `size-*` className; in a person row `PersonCell`
+  (`md`). Letters = `initials(name)`: first letter of the first two words,
+  or two letters of a one-word name, uppercase (`AvatarFallback` shows the
+  first one). Projects and clients are always `ProjectAvatar` (square,
+  `rounded-tile`, white letter), never a round avatar.
 - Numbers that change with a filter roll (`RollingValue`, built into
   `StatStrip`, `HomeFigure`, `HomeStats`); a missing value is
   `orEmpty(value)`, never "-" or "0".
@@ -118,8 +123,9 @@ dark:border-border rounded-xl border`). `HomeCard` adds `p-5 gap-4` and
 
 - `bg-card border rounded-xl p-5` copied into a page; `HomeCard` or
   `surfaceClassName`.
-- `name.slice(0, 2).toUpperCase()` in a page next to a hand-made avatar;
-  `Avatar` + a shared `initials()` helper.
+- `name.slice(0, 2).toUpperCase()` or a local initials helper; `Avatar` +
+  `initials()` from `shared/lib/initials`. `Avatar className="size-7"`;
+  `size="md"`.
 - A colored letter tile for a project/client made by hand.
 - `<span>{value ?? "-"}</span>` for a missing number.
 - Importing `doc-editor.tsx`, `recharts` or `pdfjs-dist` directly into a
@@ -155,11 +161,7 @@ dark:border-border rounded-xl border`). `HomeCard` adds `p-5 gap-4` and
         key={p.id}
         href={projectHref(p)}
         leading={
-          <ProjectAvatar
-            id={p.id}
-            name={p.name}
-            className="size-7 rounded-md text-xs"
-          />
+          <ProjectAvatar id={p.id} name={p.name} className="size-7 text-xs" />
         }
         title={p.name}
         subtitle={p.client}
@@ -171,6 +173,32 @@ dark:border-border rounded-xl border`). `HomeCard` adds `p-5 gap-4` and
 ```
 
 ## Migration notes
+
+Done 2026-11-05 (local): one `initials()` (`src/shared/lib/initials.ts`,
+tested) replaces the 5 local helpers (ProjectList, ProjectKanban,
+task-utils — now a re-export —, ApprovalInbox, nav-user), MenubarPopover's,
+UserCard's, UserProfile's, teams `Columns`' and the inline
+`.slice(0, 2).toUpperCase()` calls (15 files). `Avatar` got `xs` (20) and
+`md` (28); plain `className="size-5 | size-7 | size-8 | size-10"` on
+`Avatar` became `size="xs" | "md" | default | "lg"` (21 places).
+`HomeCard` and `MyKpiView`'s `CARD` build on `surfaceClassName`.
+Finance's `NameTile` deleted; client / subscription tiles are
+`ProjectAvatar id={name}` (colors now from the project palette).
+image-lightbox's `ZoomableImage` renamed `ZoomOnClickImage` (zoomable.tsx
+keeps `ZoomableImage`). `TimeSelect`'s unused `size` prop removed. Deleted
+(no imports): `charts/category-bar.tsx` (its color fix was recent, still
+unused), `charts/radar-chart.tsx`, `always-dark.tsx`, `ui/drawer.tsx`,
+`ui/hover-card.tsx`, `ui/navigation-menu.tsx`, `PanelLink`, `AvatarBadge`.
+
+Left: `PanelRow` (used by /ui → Spacing); `HomeRow`'s own hover (kept on
+request); `size-6` avatars (their `text-[10px]` fallback would turn
+`text-xs` under `size="sm"`), responsive / `cn(...)` sizes, `size-4`,
+`size-20`; `avatarSizeClasses` in avatar-group; `fileKind()` (thumbnail:
+`csv` and `doc` tiles, image by mime only) vs `previewKind()` (viewer:
+`audio`, image by extension, PSD excluded) answer different questions, so
+they were not merged; ThemeSwitcher / LanguageSwitcher pill, `title=`
+labels, QuarterFilter defaults, GradientASCII typing, OverviewTab callout.
+The older list below is kept for reference.
 
 Unused (dead code; delete, or document before first use):
 
