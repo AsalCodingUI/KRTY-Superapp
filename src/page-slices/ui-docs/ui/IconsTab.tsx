@@ -97,7 +97,7 @@ const RULES: [string, string][] = [
   ],
   [
     "Stroke",
-    "1.75 di grid 24px (1px-an di size-4), diatur sekali di STROKE. strokeWidth per ikon diabaikan",
+    "1.4px tetap di semua ukuran (non-scaling, = stem Geist 14px), diatur sekali di STROKE. strokeWidth per ikon diabaikan",
   ],
   [
     "Animasi",
@@ -180,7 +180,7 @@ export function IconsTab() {
 
       <DocGroup
         title="Semua ikon app"
-        note="Tiap nama ikon yang dipakai app (Untitled UI, garis 1.75). Yang ditandai custom digambar sendiri karena belum ada di Untitled UI."
+        note="Tiap nama ikon yang dipakai app (Untitled UI, garis 1.4px tetap). Yang ditandai custom digambar sendiri karena belum ada di Untitled UI."
       >
         <AllIcons />
       </DocGroup>

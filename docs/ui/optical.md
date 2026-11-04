@@ -45,8 +45,9 @@ At `size-4` (16px) that's: circle 14.5px, plus 10.5px (≈ the 14px cap
 height, 9.9), X 9.2px. The set is already drawn optically (circles bigger
 than squares, plus bigger than X), so don't resize single icons.
 
-Icon stroke on screen today: `STROKE` 1.75 on the 24 grid →
-**1.17px at 16px**, 1.02 at 14, 0.88 at 12, 1.46 at 20.
+Icon stroke on screen: **1.4px at every size** (`STROKE`, non-scaling).
+Before: 1.75 on the 24 grid → 1.17px at 16px, 1.02 at 14, 0.88 at 12.
+Very large icons (≥ 28px) would look thin at 1.4px; the app has none.
 
 ## The eight checks
 
@@ -56,9 +57,9 @@ Icon stroke on screen today: `STROKE` 1.75 on the 24 grid →
   glyph), so the **icon side is 2px tighter than the text side**, at every
   size. Today the offsets differ (default −4px, sm −2px, lg −4px, xs −4px):
   default and lg look tight on the icon side, xs very tight.
-- Proposed (`src/components/ui/button.tsx`): `xs` icon side `pl-2.5` /
-  `pr-2.5` (was 2), `sm` `pl-2` (keep), `default` `pl-3` (was 2.5), `lg`
-  `pl-3.5` (was 3). Same for `inline-end`.
+- Applied in `src/components/ui/button.tsx`: icon side `xs` 10px,
+  `sm` 8px, `default` 12px, `lg` 14px (text side 12 / 10 / 14 / 16), for
+  `inline-start` and `inline-end`. Was −4 / −2 / −4 / −4.
 - The gap the eye sees between icon and label is `gap` + the icon's empty
   space (sm: 4 + 2.75 ≈ 6.75px). Keep `gap-1` / `gap-1.5`; don't add more.
 - Icon-only buttons: the icon box is centred (size-7 → 6px each side). Do
@@ -85,8 +86,8 @@ Icon stroke on screen today: `STROKE` 1.75 on the 24 grid →
 - An icon and text in the same color should look equally heavy. Today
   icons are lighter (1.17px vs the text stem 1.40 at 450, 1.55 at 500),
   most visibly at `size-3.5` / `size-3` and in muted color.
-- Proposed (`src/components/icons/index.tsx`): a **fixed on-screen
-  stroke of 1.4px** at every size (`vector-effect: non-scaling-stroke` on
+- Applied (`src/components/icons/index.tsx`, `custom.tsx`): a **fixed
+  on-screen stroke of 1.4px** at every size (`vector-effect: non-scaling-stroke` on
   the glyph's paths + `strokeWidth={1.4}`), which equals Geist's 14px
   stem. One CSS property, no cost. Medium labels (500) next to icons then
   read 1.55 vs 1.4: close enough; don't go per-weight.
@@ -124,8 +125,9 @@ Icon stroke on screen today: `STROKE` 1.75 on the 24 grid →
 - Side bearings grow with size: a 24px straight-stem letter (H, K, B…)
   starts 0.9px further in than 14px text below it, so big titles look
   indented against the body.
-- Proposed (`src/components/page-header.tsx` and other ≥ 24px titles):
-  `ms-[-0.04em]` on the title text only. Not for text under 20px (the
+- Applied on `PageHeader`'s title (`src/components/page-header.tsx`):
+  `ms-[-0.04em]` (−0.96px at 24px). Use the same on other left-aligned
+  titles ≥ 24px. Not for text under 20px (the
   difference is under 0.5px), not on round or diagonal first letters
   where it would overshoot (O, A, V start almost at 0).
 
@@ -163,18 +165,12 @@ stems, draw "l" on a canvas at 8x and count the covered pixels across.
 
 ## Migration notes
 
-Nothing here is applied yet (proposals only, shown on /ui → Optical):
+Applied 2026-11-05 (local, not pushed): button icon-side padding, the
+fixed 1.4px icon stroke, PageHeader title alignment. Still to do:
 
-- **Button padding**: `src/components/ui/button.tsx:24-27`, icon-side
-  padding → `xs pl-2.5/pr-2.5`, `default pl-3/pr-3`, `lg pl-3.5/pr-3.5`
-  (`sm` stays).
-- **Icon stroke**: `src/components/icons/index.tsx` `icon()` → pass
-  `strokeWidth={1.4}` and the class
-  `[&_*]:[vector-effect:non-scaling-stroke]`; `custom.tsx` glyphs the
-  same; `STROKE` becomes the on-screen 1.4.
-- **Title alignment**: `src/components/page-header.tsx` h1 and other
-  `text-2xl`+ titles → `ms-[-0.04em]`.
-- **Caps**: audit `uppercase` (`grep -rn "uppercase" src`) → sentence case,
-  or the caps rule above.
+- **Caps**: audit `uppercase` (`grep -rn "uppercase" src`, 5 places) →
+  sentence case, or the caps rule above.
 - **Lowercase labels**: badge / button copy that is all lowercase in
   i18n strings → sentence case.
+- **Other big titles**: left-aligned `text-2xl`+ titles outside
+  `PageHeader` → `ms-[-0.04em]`.

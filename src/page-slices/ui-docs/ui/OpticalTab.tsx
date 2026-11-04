@@ -9,12 +9,13 @@ import {
   CircleAlert,
   Download,
   Plus,
+  Search,
   X,
 } from "@/components/icons"
 import { ProjectAvatar } from "@/components/project-avatar"
 import { cn } from "@/lib/utils"
-// Raw glyphs, only to show the stroke proposal side by side (the app
-// imports icons from @/components/icons, never from the package).
+// Raw glyphs at the old scaling stroke, only for the "Sebelum" column (the
+// app imports icons from @/components/icons, never from the package).
 import { Bell01 as RawBell } from "@untitledui/icons/Bell01"
 import { Plus as RawPlus } from "@untitledui/icons/Plus"
 import { SearchMd as RawSearch } from "@untitledui/icons/SearchMd"
@@ -31,14 +32,14 @@ import {
 /**
  * Optical balance: what the eye sees vs. what the box says. Numbers come
  * from measuring Geist and the Untitled UI glyphs in the browser (see
- * docs/ui/optical.md). "Sekarang" is the app today; "Usulan" is the
- * proposed central fix, shown here only (not applied to the app yet).
+ * docs/ui/optical.md). "Sebelum" draws the old values; "Sesudah" is the
+ * app's components as they are now.
  */
 
 const RULES: [string, ReactNode][] = [
   [
     "Button padding",
-    "Sisi ikon = sisi teks − 2px (ikon size-4 punya ruang kosong ±2.75px). Sekarang offset-nya beda-beda: −4 / −2 / −4 / −4",
+    "Sisi ikon = sisi teks − 2px (ikon size-4 punya ruang kosong ±2.75px). Dipasang di button.tsx (dulu −4 / −2 / −4 / −4)",
   ],
   [
     "Icon balance",
@@ -50,7 +51,7 @@ const RULES: [string, ReactNode][] = [
   ],
   [
     "Color weight",
-    "Garis ikon 1.17px di 16px vs stem huruf 1.4px (450) / 1.55px (500): ikon kelihatan lebih pucat. Usulan: garis 1.4px tetap di semua ukuran (non-scaling stroke)",
+    "Garis ikon 1.17px di 16px vs stem huruf 1.4px (450) / 1.55px (500): dulu ikon lebih pucat. Sekarang garis 1.4px tetap di semua ukuran (non-scaling stroke, STROKE)",
   ],
   [
     "Glyph overshoot",
@@ -66,7 +67,7 @@ const RULES: [string, ReactNode][] = [
   ],
   [
     "Letter alignment",
-    "Huruf tegak (H) punya side bearing 1.25px di 14px tapi 2.14px di 24px: judul besar kelihatan menjorok ±0.9px. Usulan: judul ≥24px ms-[-0.04em]",
+    "Huruf tegak (H) punya side bearing 1.25px di 14px tapi 2.14px di 24px: judul besar kelihatan menjorok ±0.9px. PageHeader sekarang ms-[-0.04em]",
   ],
   [
     "Vertical centre",
@@ -100,31 +101,16 @@ function Pair({ before, after }: { before: ReactNode; after: ReactNode }) {
   return (
     <div className="grid gap-3 sm:grid-cols-2">
       <div className="flex flex-col gap-2">
-        <span className="text-tertiary-foreground text-[13px]">Sekarang</span>
+        <span className="text-tertiary-foreground text-[13px]">Sebelum</span>
         <DocCanvas>{before}</DocCanvas>
       </div>
       <div className="flex flex-col gap-2">
-        <span className="text-tertiary-foreground text-[13px]">Usulan</span>
+        <span className="text-tertiary-foreground text-[13px]">
+          Sesudah (dipasang)
+        </span>
         <DocCanvas>{after}</DocCanvas>
       </div>
     </div>
-  )
-}
-
-/** A raw glyph at a fixed on-screen stroke (vector-effect), any size. */
-function Steady({
-  Glyph,
-  className,
-}: {
-  Glyph: typeof RawPlus
-  className?: string
-}) {
-  return (
-    <Glyph
-      aria-hidden
-      strokeWidth="1.4"
-      className={cn("[&_*]:[vector-effect:non-scaling-stroke]", className)}
-    />
   )
 }
 
@@ -133,8 +119,8 @@ export function OpticalTab() {
     <div className="flex flex-col gap-14">
       <DocIntro doc="optical.md">
         Yang dilihat mata, bukan yang dibilang kotaknya. Angka di sini hasil
-        ngukur Geist dan ikon Untitled UI langsung di browser. Kolom
-        &ldquo;Usulan&rdquo; belum dipasang di app.
+        ngukur Geist dan ikon Untitled UI langsung di browser. Padding tombol,
+        tebal garis ikon dan rata judul udah dipasang di komponen pusat.
       </DocIntro>
 
       <DocGroup title="Aturan">
@@ -147,6 +133,26 @@ export function OpticalTab() {
       >
         <Pair
           before={
+            <>
+              <Button size="xs" className="has-data-[icon=inline-start]:pl-2">
+                <Plus data-icon="inline-start" />
+                Tambah
+              </Button>
+              <Button size="sm">
+                <Plus data-icon="inline-start" />
+                Tambah
+              </Button>
+              <Button className="has-data-[icon=inline-start]:pl-2.5">
+                <Plus data-icon="inline-start" />
+                Tambah
+              </Button>
+              <Button size="lg" className="has-data-[icon=inline-start]:pl-3">
+                <Plus data-icon="inline-start" />
+                Tambah
+              </Button>
+            </>
+          }
+          after={
             <>
               <Button size="xs">
                 <Plus data-icon="inline-start" />
@@ -161,26 +167,6 @@ export function OpticalTab() {
                 Tambah
               </Button>
               <Button size="lg">
-                <Plus data-icon="inline-start" />
-                Tambah
-              </Button>
-            </>
-          }
-          after={
-            <>
-              <Button size="xs" className="has-data-[icon=inline-start]:pl-2.5">
-                <Plus data-icon="inline-start" />
-                Tambah
-              </Button>
-              <Button size="sm">
-                <Plus data-icon="inline-start" />
-                Tambah
-              </Button>
-              <Button className="has-data-[icon=inline-start]:pl-3">
-                <Plus data-icon="inline-start" />
-                Tambah
-              </Button>
-              <Button size="lg" className="has-data-[icon=inline-start]:pl-3.5">
                 <Plus data-icon="inline-start" />
                 Tambah
               </Button>
@@ -224,10 +210,28 @@ export function OpticalTab() {
 
       <DocGroup
         title="Color weight"
-        note="Ikon dan teks dengan warna sama harus kelihatan setebal sama. Sekarang garis ikon ikut ukuran (1.75 di 24px → 1.17px di 16px). Usulan: 1.4px tetap (= stem Geist 14px)."
+        note="Ikon dan teks dengan warna sama harus kelihatan setebal sama. Dulu garis ikon ikut ukuran (1.75 di 24px → 1.17px di 16px); sekarang 1.4px tetap (= stem Geist 14px)."
       >
         <Pair
           before={
+            <div className="flex flex-col gap-3">
+              {[
+                ["size-3.5", "text-[13px]"],
+                ["size-4", "text-sm"],
+                ["size-5", "text-[15px]"],
+              ].map(([icon, text]) => (
+                <span
+                  key={icon}
+                  className={cn("flex items-center gap-2", text)}
+                >
+                  <RawBell aria-hidden className={icon} strokeWidth="1.75" />
+                  <RawPlus aria-hidden className={icon} strokeWidth="1.75" />
+                  Notifikasi baru
+                </span>
+              ))}
+            </div>
+          }
+          after={
             <div className="flex flex-col gap-3">
               {[
                 ["size-3.5", "text-[13px]"],
@@ -245,35 +249,17 @@ export function OpticalTab() {
               ))}
             </div>
           }
-          after={
-            <div className="flex flex-col gap-3">
-              {[
-                ["size-3.5", "text-[13px]"],
-                ["size-4", "text-sm"],
-                ["size-5", "text-[15px]"],
-              ].map(([icon, text]) => (
-                <span
-                  key={icon}
-                  className={cn("flex items-center gap-2", text)}
-                >
-                  <Steady Glyph={RawBell} className={icon} />
-                  <Steady Glyph={RawPlus} className={icon} />
-                  Notifikasi baru
-                </span>
-              ))}
-            </div>
-          }
         />
         <Pair
           before={
             <span className="text-muted-foreground flex items-center gap-2 text-sm">
-              <RawSearch className="size-4" strokeWidth="1.75" />
+              <RawSearch aria-hidden className="size-4" strokeWidth="1.75" />
               Cari project
             </span>
           }
           after={
             <span className="text-muted-foreground flex items-center gap-2 text-sm">
-              <Steady Glyph={RawSearch} className="size-4" />
+              <Search className="size-4" />
               Cari project
             </span>
           }
@@ -350,7 +336,7 @@ export function OpticalTab() {
         <Pair
           before={
             <div className="border-primary/40 flex w-full flex-col gap-1 border-l pl-0">
-              <span className="text-heading text-2xl tracking-tight">
+              <span className="text-heading ms-0 text-2xl tracking-tight">
                 Keuangan
               </span>
               <span className="text-muted-foreground text-sm">

@@ -1,11 +1,18 @@
 /**
- * The app's icon stroke (on the 24px grid), and the glyph Untitled UI's
+ * The app's icon stroke, and the glyph Untitled UI's
  * free set doesn't have, drawn the same way (24px, round caps and joins,
  * no fill) so it sits with the rest.
  */
+import { cn } from "@/lib/utils"
 import type { SVGProps } from "react"
 
-export const STROKE = 1.75
+/** The icons' stroke in screen px, the same at every size (non-scaling
+ *  stroke): 1.4 = Geist's stem at 14px, so icons weigh like the text
+ *  beside them (docs/ui/optical.md). */
+export const STROKE = 1.4
+
+/** Keeps the stroke in screen px however big the icon is drawn. */
+export const STEADY_STROKE = "[&_*]:[vector-effect:non-scaling-stroke]"
 
 type GlyphProps = SVGProps<SVGSVGElement> & { size?: number; color?: string }
 
@@ -25,6 +32,7 @@ function glyph(name: string, d: string) {
       strokeLinecap="round"
       strokeLinejoin="round"
       {...props}
+      className={cn(STEADY_STROKE, props.className)}
     >
       <path d={d} />
     </svg>

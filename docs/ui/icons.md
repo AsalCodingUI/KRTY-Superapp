@@ -59,10 +59,10 @@ props are accepted and ignored. Every icon is listed on /ui → Icons.
 - Icons inherit `currentColor`. Quiet icons: `text-muted-foreground`;
   status: `text-success-ink`, `text-warning`, `text-destructive`. Semantic
   tokens only.
-- Stroke: **1.75 on the 24px grid** for every icon (about 1.2px at
-  `size-4`; Untitled UI's own is 2), set once as `STROKE` in
-  `src/components/icons/custom.tsx`. It's a plain SVG attribute, so any
-  value costs nothing. `strokeWidth` on a single icon is ignored.
+- Stroke: **1.4px on screen at every size** (non-scaling stroke, `STROKE`
+  in `src/components/icons/custom.tsx`), = Geist's stem at 14px, so icons
+  weigh like the text beside them (docs/ui/optical.md). One CSS property,
+  no cost. `strokeWidth` on a single icon is ignored.
 - Other hand-made glyphs (status, stage, priority): `viewBox="0 0 16 16"`,
   `fill="currentColor"` (or `stroke="currentColor"` at the same weight as
   `STROKE` on a 24 grid, i.e. about 1.15 on 16), `aria-hidden`, base class `size-4 shrink-0`, cut-outs with
@@ -146,7 +146,7 @@ import { Plus, SquarePen } from "@/components/icons"
 Done 2026-11-05: the whole app moved from lucide / lucide-animated to
 Untitled UI Icons through `@/components/icons` (all `lucide-react` imports
 repointed, the animated icon files removed, lucide and the interim Reicon
-set removed), stroke 1.75.
+set removed), then a fixed 1.4px stroke (optical balance).
 
 Nothing below is changed yet.
 
