@@ -76,7 +76,7 @@ export function GroupedList({
 
 /** A group's pill header (ListGroup; summary groups add the rows' grid). */
 export const listGroupHeaderClassName =
-  "bg-muted dark:bg-muted/40 gutter-x focus-visible:ring-focus-ring mb-0.5 h-10 w-full rounded-lg text-left text-sm outline-none focus-visible:ring-2"
+  "bg-muted dark:bg-muted/40 gutter-x focus-visible:ring-focus-ring mb-0.5 h-10 w-full rounded-row text-left text-sm outline-none focus-visible:ring-2"
 
 export function ListGroup({
   label,
@@ -164,11 +164,11 @@ const ROW_EASE = [0.23, 1, 0.32, 1] as const
  *   gap-x-4 between columns;
  *   no lines between rows: GroupedList's sliding highlight marks the row
  *   (hover bg-(--row-hover), selected bg-(--row-selected)).
- * - column labels: the group header's pill (h-10, bg-muted, rounded-lg),
+ * - column labels: the group header's pill (h-10, bg-muted, rounded-row),
  *   text-meta muted; 2px under it + the highlight's 2px inset = the
  *   same 4px as between rows. No lines.
  * - checkbox column: 24px from the checkbox to the next column.
- * - groups: ListGroup's pill header (h-10, bg-muted, rounded-lg); 4px to
+ * - groups: ListGroup's pill header (h-10, bg-muted, rounded-row); 4px to
  *   its first row, from its last row to the next header, and between
  *   collapsed headers.
  */
@@ -184,7 +184,7 @@ export const listRowDescClassName = "min-h-14"
 /** The column labels above a list's rows (add the rows' grid template):
  *  the same pill as a group header, no line under it. */
 export const listHeaderClassName =
-  "bg-muted dark:bg-muted/40 gutter-x text-muted-foreground mb-0.5 h-10 rounded-lg text-meta"
+  "bg-muted dark:bg-muted/40 gutter-x text-muted-foreground mb-0.5 h-10 rounded-row text-meta"
 
 /** Column labels above a list; `grid` is the template its rows use. */
 export function ListHeader({
@@ -247,7 +247,7 @@ export function ListRow({
 }
 
 export const listChipClassName =
-  "bg-muted text-muted-foreground inline-flex h-6 shrink-0 items-center gap-1.5 rounded-md px-2 text-meta whitespace-nowrap"
+  "bg-muted text-muted-foreground inline-flex h-6 shrink-0 items-center gap-1.5 rounded-chip px-2 text-meta whitespace-nowrap"
 
 /** Small borderless chip for row metadata (type, dates, notes). */
 export function ListChip({

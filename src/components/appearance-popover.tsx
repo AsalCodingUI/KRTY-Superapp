@@ -92,7 +92,7 @@ export function AppearancePopover({ className }: { className?: string }) {
         side="top"
         align="start"
         sideOffset={8}
-        className="nest-rounded-2xl nest-p-2 w-72 gap-0 rounded-2xl p-2"
+        className="nest-rounded-popover nest-p-2 rounded-popover w-72 gap-0 p-2"
       >
         {/* Mode first, as its own row: the app's segmented control. */}
         <SegmentedControl

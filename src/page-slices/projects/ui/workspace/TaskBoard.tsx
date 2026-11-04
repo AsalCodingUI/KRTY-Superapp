@@ -680,7 +680,7 @@ const TaskCard = memo(function TaskCard({
           <ProjectAvatar
             id={project.id}
             name={project.name}
-            className="size-4 rounded-[4px]"
+            className="size-4"
           />
           <span className="text-muted-foreground truncate text-xs">
             {project.name}

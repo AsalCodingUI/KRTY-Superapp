@@ -1300,7 +1300,7 @@ function Composer({
             exit={reduce ? { opacity: 0 } : { opacity: 0, y: 4, scale: 0.98 }}
             transition={{ duration: 0.15, ease: EASE }}
             style={{ left: anchor.left, bottom: anchor.bottom }}
-            className="bg-popover text-popover-foreground nest-rounded-2xl nest-p-2 absolute z-10 flex w-64 origin-bottom-left flex-col text-sm shadow-(--elev-4)"
+            className="bg-popover text-popover-foreground nest-rounded-popover nest-p-2 absolute z-10 flex w-64 origin-bottom-left flex-col text-sm shadow-(--elev-4)"
           >
             {options.length === 0 ? (
               <li className="text-muted-foreground px-2 py-1.5">

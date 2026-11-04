@@ -47,6 +47,10 @@ const DESKTOP_CSS =
   '.dark [data-slot="sidebar-wrapper"]{background-color:color-mix(in oklab,var(--chrome) 25%,transparent)}' +
   '[data-slot="sidebar-inner"]{background:transparent}'
 
+/** The page sheet's corner in the Mac app: the window's 16pt corner less
+ *  the 6px inset (a native size, so not a radius role). */
+const MAC_SHEET_RADIUS = "md:rounded-[10px]"
+
 function PageFallback() {
   return (
     <div className="flex min-h-[60vh] items-center justify-center">
@@ -120,7 +124,7 @@ export default async function Layout({
                   aria-hidden
                   className={cn(
                     "blend-shadow pointer-events-none absolute inset-0 z-20 hidden shadow-(--elev-3) md:block",
-                    desktop ? "md:rounded-[10px]" : "md:rounded-3xl",
+                    desktop ? MAC_SHEET_RADIUS : "md:rounded-dialog",
                   )}
                 />
                 {/* The scrollbar's room is always kept, on both sides (scroll-pane),
@@ -129,10 +133,10 @@ export default async function Layout({
                 <SidebarInset
                   className={cn(
                     "dark:bg-surface scroll-pane overscroll-contain [--bleed:0.75rem] [--page-gutter:max(var(--bleed),calc(1.25rem-var(--sbw,0px)))] md:z-20 md:[--page-gutter:calc(2.5rem-var(--sbw,0px))] xl:[--page-gutter:calc(4rem-var(--sbw,0px))]",
-                    desktop ? "md:rounded-[10px]" : "md:rounded-3xl",
+                    desktop ? MAC_SHEET_RADIUS : "md:rounded-dialog",
                     // Phones (Shopify style): the page is a sheet on the
                     // chrome, its top corners rounded.
-                    "max-md:rounded-t-3xl max-md:pt-2",
+                    "max-md:rounded-t-dialog max-md:pt-2",
                   )}
                 >
                   <SiteHeader />

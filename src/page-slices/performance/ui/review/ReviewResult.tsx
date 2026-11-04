@@ -37,7 +37,7 @@ const BAND_DOT: Record<(typeof RATINGS)[number]["tone"], string> = {
 const SCALE_MIN = 50
 const SCALE_DOTS = 41
 
-const CARD = "border-border rounded-2xl border p-5"
+const CARD = "border-border rounded-card border p-5"
 
 /** Paragraphs and "- " bullets as one flat list of items. */
 function itemsOf(text: string) {
@@ -214,7 +214,7 @@ function WrittenFeedback({ summary }: { summary: ReviewSummary }) {
   if (!(summary.additional_feedback || ACTIONS.some(({ key }) => summary[key])))
     return null
   return (
-    <section className="border-border flex flex-col rounded-2xl border">
+    <section className="border-border rounded-card flex flex-col border">
       {summary.additional_feedback ? (
         <div className="flex flex-col gap-3 p-6">
           <p className="text-muted-foreground text-sm">{t("sectionSummary")}</p>
@@ -278,13 +278,13 @@ function Verbatim({
 
   if (groups.length === 0)
     return (
-      <p className="text-muted-foreground border-border rounded-2xl border p-6 text-sm">
+      <p className="text-muted-foreground border-border rounded-card border p-6 text-sm">
         {t("rvVerbatimEmpty")}
       </p>
     )
 
   return (
-    <section className="border-border flex flex-col rounded-2xl border">
+    <section className="border-border rounded-card flex flex-col border">
       <p className="text-muted-foreground text-meta px-6 pt-5">
         {t("rvVerbatimNote")}
       </p>

@@ -372,7 +372,7 @@ export function ProjectDashboard({ projectId }: { projectId: string }) {
             <ProjectAvatar
               id={project.id}
               name={project.name}
-              className="text-micro size-7 rounded-[5px]"
+              className="text-micro size-7"
             />
             <span className="min-w-0 truncate">{project.name}</span>
             <ProjectStageButton

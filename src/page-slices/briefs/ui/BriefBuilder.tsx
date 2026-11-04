@@ -561,7 +561,7 @@ export function BriefBuilder({
               ))}
               <DragOverlay dropAnimation={null}>
                 {dragged ? (
-                  <div className="bg-popover border-border flex items-center gap-2 rounded-xl border px-3 py-2 text-sm shadow-(--elev-4)">
+                  <div className="bg-popover border-border rounded-popover flex items-center gap-2 border px-3 py-2 text-sm shadow-(--elev-4)">
                     <GripVertical className="text-muted-foreground size-4" />
                     {dragged.label || t("questionLabel")}
                   </div>
@@ -617,7 +617,7 @@ function BlockMenu({
   return (
     <div
       role="listbox"
-      className="bg-popover border-border absolute top-full left-0 z-30 mt-1 max-h-80 w-60 overflow-y-auto rounded-2xl border p-1.5 shadow-(--elev-4)"
+      className="bg-popover border-border nest-rounded-popover nest-p-2 absolute top-full left-0 z-30 mt-1 max-h-80 w-60 overflow-y-auto border shadow-(--elev-4)"
     >
       {items.map((b, i) => (
         <Fragment key={b.kind}>
@@ -636,7 +636,7 @@ function BlockMenu({
               onPick(b.kind)
             }}
             className={cn(
-              "flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-left text-sm",
+              "rounded-nested flex w-full items-center gap-2.5 px-2 py-1.5 text-left text-sm",
               i === active && "bg-muted",
             )}
           >

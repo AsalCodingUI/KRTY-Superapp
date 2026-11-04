@@ -1,5 +1,6 @@
 "use client"
 
+import { RadiusCompare } from "./radius-compare"
 import { surfaceClassName } from "@/components/panel"
 import { ProjectAvatar } from "@/components/project-avatar"
 import { ListChip } from "@/components/grouped-list"
@@ -138,6 +139,13 @@ export function RadiusTab() {
 
       <DocGroup title="Aturan">
         <DocRules rules={RULES} />
+      </DocGroup>
+
+      <DocGroup
+        title="Sebelum / sesudah"
+        note="Radius per peran (rounded-chip, row, card, popover, dialog, control, tile) dipasang di semua komponen. Kiri: nilai lama; kanan: yang jalan sekarang."
+      >
+        <RadiusCompare />
       </DocGroup>
 
       <DocGroup

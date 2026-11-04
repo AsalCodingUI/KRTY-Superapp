@@ -90,7 +90,7 @@ export function ProjectKpiSheet({
               <ProjectAvatar
                 id={view.projectId}
                 name={view.projectName}
-                className="size-8 shrink-0 rounded-lg text-xs"
+                className="size-8 shrink-0 text-xs"
               />
               <div className="flex min-w-0 flex-col">
                 <SheetTitle className="truncate">{view.projectName}</SheetTitle>

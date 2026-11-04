@@ -188,7 +188,7 @@ function CurrentRequestCard({
       req={req}
       actions={{ onEdit: () => onEdit(req), onCancel: () => onCancel(req) }}
     >
-      <div className="border-border flex flex-col gap-4 rounded-2xl border p-4">
+      <div className="border-border rounded-card flex flex-col gap-4 border p-4">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="flex min-w-0 flex-col gap-0.5">
             <span className="text-foreground tabular-nums">

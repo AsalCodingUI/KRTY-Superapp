@@ -129,7 +129,7 @@ export function EmbedBlock({
   // Hugs its text (up to a cap) instead of spanning the column. Concentric
   // corners: card radius = icon radius (6) + padding (6) = 12px.
   const card =
-    "not-prose border-border bg-card my-3 flex w-fit max-w-full items-center gap-2.5 rounded-[12px] border p-1.5 pr-3 no-underline! sm:max-w-sm"
+    "not-prose border-border bg-card my-3 flex w-fit max-w-full items-center gap-2.5 rounded-card border p-1.5 pr-3 no-underline! sm:max-w-sm"
   if (editing)
     return (
       <div className={card}>

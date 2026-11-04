@@ -127,7 +127,7 @@ export default async function SharedReportPage({
         data-translate-root
         className="relative z-10 flex max-w-xl shrink-0 flex-col items-center gap-3 px-4 pt-5 pb-4 text-center sm:pt-6 sm:pb-5"
       >
-        <AppIcon size={192} className="size-10 rounded-[12px]" />
+        <AppIcon size={192} className="rounded-tile size-10" />
         <div className="flex flex-col items-center gap-1">
           <span className="text-muted-foreground text-meta">
             <span translate="no">
@@ -144,7 +144,7 @@ export default async function SharedReportPage({
         data-translate-root
         className={cn(
           glassSurfaceClass,
-          "z-10 flex min-h-0 w-full max-w-3xl flex-1 flex-col rounded-[24px]",
+          "rounded-dialog z-10 flex min-h-0 w-full max-w-3xl flex-1 flex-col",
         )}
       >
         <GlassLayer />

@@ -284,7 +284,7 @@ function DraggedRow({ project }: { project: ProjectListRow }) {
       <ProjectAvatar
         id={project.id}
         name={project.name}
-        className="text-micro size-7 rounded-md"
+        className="text-micro size-7"
       />
       <span className="truncate">{project.name}</span>
     </div>
@@ -349,7 +349,7 @@ function ProjectRow({
             <ProjectAvatar
               id={project.id}
               name={project.name}
-              className="text-micro size-7 rounded-md"
+              className="text-micro size-7"
             />
             <div className="flex min-w-0 flex-col">
               <div className="flex min-w-0 items-center gap-2.5">

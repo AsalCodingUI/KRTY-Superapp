@@ -355,7 +355,7 @@ export function RichTextField({
       {menu && (
         <div
           role="listbox"
-          className="bg-popover text-popover-foreground nest-rounded-2xl nest-p-1.5 absolute left-0 z-20 flex w-52 flex-col text-sm shadow-(--elev-4)"
+          className="bg-popover text-popover-foreground nest-rounded-popover nest-p-2 absolute left-0 z-20 flex w-52 flex-col text-sm shadow-(--elev-4)"
           // Under the line the "/" is on (lines are ~1.6em tall).
           style={{ top: `calc(${menu.line + 1} * 1.65em + 4px)` }}
         >

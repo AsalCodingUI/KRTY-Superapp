@@ -88,7 +88,7 @@ export function NavProject() {
             <ProjectAvatar
               id={project?.id ?? match.ref}
               name={project?.name ?? "P"}
-              className="size-4 rounded-[5px]"
+              className="size-4"
             />
             <span className="truncate">{project?.name ?? "…"}</span>
           </SidebarMenuButton>

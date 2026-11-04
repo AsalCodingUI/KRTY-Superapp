@@ -145,7 +145,7 @@ export function PortalShell({
             <ProjectAvatar
               id={project.id}
               name={project.name}
-              className="size-5 shrink-0 rounded-[5px] text-[10px] max-md:size-8 max-md:rounded-[9px] max-md:text-sm"
+              className="size-5 shrink-0 text-[10px] max-md:size-8 max-md:text-sm"
             />
             <span className="truncate" translate="no">
               {project.name}
@@ -216,11 +216,11 @@ export function PortalShell({
         <div className="relative flex min-w-0 flex-1">
           <div
             aria-hidden
-            className="blend-shadow pointer-events-none absolute inset-0 z-20 hidden shadow-(--elev-3) md:block md:rounded-3xl"
+            className="blend-shadow md:rounded-dialog pointer-events-none absolute inset-0 z-20 hidden shadow-(--elev-3) md:block"
           />
           <SidebarInset
             data-translate-root
-            className="dark:bg-surface scroll-pane overscroll-contain [--bleed:0.75rem] [--page-gutter:max(var(--bleed),calc(1.25rem-var(--sbw,0px)))] max-md:rounded-t-[28px] max-md:shadow-(--elev-2) md:z-20 md:rounded-3xl md:[--page-gutter:calc(2.5rem-var(--sbw,0px))] xl:[--page-gutter:calc(4rem-var(--sbw,0px))]"
+            className="dark:bg-surface scroll-pane max-md:rounded-t-dialog md:rounded-dialog overscroll-contain [--bleed:0.75rem] [--page-gutter:max(var(--bleed),calc(1.25rem-var(--sbw,0px)))] max-md:shadow-(--elev-2) md:z-20 md:[--page-gutter:calc(2.5rem-var(--sbw,0px))] xl:[--page-gutter:calc(4rem-var(--sbw,0px))]"
           >
             {/* No sidebar on a phone: the tab bar below does its job. */}
             <header className="flex h-12 shrink-0 items-center gap-2 max-md:hidden">

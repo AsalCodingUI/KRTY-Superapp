@@ -122,6 +122,32 @@ cookie says `mac` (Windows keeps the web's):
   `rounded-nested` then floors at 4px.
 - The shadow layer under the page sheet switches radius with it.
 
+## Role tokens (use these)
+
+One radius per kind of element, defined in `src/app/globals.css`
+(`--radius-*` roles derive from `--radius`, so they are squircled with
+the rest; `rounded-control` and `rounded-tile` are plain utilities).
+Measured on /ui → Radius (squircle browsers, ×1.715):
+
+| Class             | Base       | Renders              | For                                                                           |
+| ----------------- | ---------- | -------------------- | ----------------------------------------------------------------------------- |
+| `rounded-control` | pill       | pill (not squircled) | buttons, inputs, selects, badges, tabs, toggles, segmented, sidebar items     |
+| `rounded-chip`    | md (8px)   | 13.7px               | ListChip, textarea, tooltip                                                   |
+| `rounded-row`     | lg (10px)  | 17.2px               | row highlight, column / group header pills                                    |
+| `rounded-card`    | xl (14px)  | 24.0px               | cards, panels, HomeCard, embeds                                               |
+| `rounded-popover` | 2xl (18px) | 30.9px               | popovers, menus, select, context menu, toasts                                 |
+| `rounded-dialog`  | 3xl (22px) | 37.7px               | dialogs, sheets, page sheet, glass card, phone sheet top (`rounded-t-dialog`) |
+| `rounded-tile`    | 25%        | 42.9%                | project squares, app icons: the corner follows the size                       |
+
+- Menus: `nest-rounded-popover nest-p-2` on the menu, `rounded-nested` on
+  items. Under squircles the inner radius is outer − padding × 1.715
+  (measured: 30.9 − 8 × 1.715 = 17.2px = the item's).
+- Mac app page sheet: `MAC_SHEET_RADIUS` in `src/app/(main)/layout.tsx`
+  (10px, the native window corner less the inset), not a role.
+- **New roles must be registered in `src/lib/utils.ts`** (the `rounded`
+  groups of `createCn`), or `cn()` keeps both radii.
+- `ProjectAvatar` owns its radius (`rounded-tile`): don't pass a radius.
+
 ## Rules
 
 - Use a scale step. A new arbitrary radius needs a reason (a printed page,
@@ -177,6 +203,18 @@ page sheet (10px), the app icon (`squircle-mask`).
 ```
 
 ## Migration notes
+
+Done 2026-11-05 (local): the role tokens above applied in the shared
+components (dialog, sheet, popover, dropdown, select, hover card,
+command, context menu, toast, card surfaces, HomeCard, grouped list,
+sliding highlight, chip, tooltip, textarea, button, input, select,
+badge, tabs, input group, toggle, segmented control, sidebar items);
+bordered `rounded-2xl` cards → `rounded-card`; glass cards and phone
+sheet tops → dialog; date picker and brief menus → popover; mention /
+slash / rich-text / brief menus on the nested standard; `ProjectAvatar`
+and app icons on `rounded-tile` (12 call-site overrides removed); the
+Mac page radius one constant; `rounded-4xl` removed. The older list
+below is kept for reference.
 
 Current inconsistencies, and what they should become:
 

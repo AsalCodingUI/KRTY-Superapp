@@ -133,7 +133,7 @@ export function HomeCard({
     <section
       {...data}
       className={cn(
-        "bg-card border-field-border dark:border-border flex min-w-0 flex-col gap-4 rounded-xl border p-5",
+        "bg-card border-field-border dark:border-border rounded-card flex min-w-0 flex-col gap-4 border p-5",
         className,
       )}
     >

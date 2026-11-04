@@ -166,7 +166,7 @@ export function MenubarPreview() {
 
       <div className="flex flex-col gap-6 p-6">
         {/* Controls: sections, layout, and whose point of view. */}
-        <aside className="bg-popover text-popover-foreground flex flex-col gap-3 self-start rounded-2xl px-4 py-3 text-sm shadow-(--elev-3)">
+        <aside className="bg-popover text-popover-foreground rounded-popover flex flex-col gap-3 self-start px-4 py-3 text-sm shadow-(--elev-3)">
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2.5">
             <span className="w-14 font-medium">Isi</span>
             {SECTIONS.map((s) => (

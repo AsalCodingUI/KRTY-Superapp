@@ -50,7 +50,7 @@ export function SegmentedControl<T extends string>({
       }}
       className={cn(
         // Same metrics as shadcn TabsList (h-8, p-[3px]).
-        "bg-accent dark:bg-muted text-muted-foreground relative h-8 items-center rounded-full p-0.5",
+        "bg-accent dark:bg-muted text-muted-foreground rounded-control relative h-8 items-center p-0.5",
         fitContent ? "inline-flex w-auto" : "flex w-full",
         disabled && "pointer-events-none opacity-50",
         className,
@@ -59,9 +59,9 @@ export function SegmentedControl<T extends string>({
       {/* One highlight that slides to the pressed item. */}
       <SlidingIndicator
         activeSelector="[data-pressed]"
-        className="bg-thumb blend-light rounded-full"
+        className="bg-thumb blend-light rounded-control"
         shadowClassName={cn(
-          "rounded-full",
+          "rounded-control",
           indicatorClassName ?? "shadow-(--elev-1) dark:shadow-none",
         )}
       />
@@ -80,7 +80,7 @@ export function SegmentedControl<T extends string>({
               // reset toggle-group "spacing=0" joined styles
               "relative h-full min-w-0 gap-1.5 border border-transparent text-sm font-medium whitespace-nowrap shadow-none",
               "group-data-[spacing=0]/toggle-group:rounded-[inherit] group-data-horizontal/toggle-group:data-[spacing=0]:first:rounded-[inherit] group-data-horizontal/toggle-group:data-[spacing=0]:last:rounded-[inherit]",
-              "rounded-full! px-2! py-0.5",
+              "rounded-control! px-2! py-0.5",
               fitContent ? "flex-none" : "flex-1",
               "text-muted-foreground hover:text-foreground hover:bg-transparent",
               // Base UI Toggle marks the active item with data-pressed

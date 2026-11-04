@@ -456,7 +456,26 @@
   --radius-xl: calc(var(--radius) * 1.4);
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+  /* Radius by role (docs/ui/radius.md, live at /ui → Radius): one per
+     kind of element, so a card is a card on every page. Squircled with
+     the rest (they derive from --radius). Pills: rounded-control. */
+  --radius-chip: calc(var(--radius) * 0.8); /* ListChip, textarea, tooltip */
+  --radius-row: var(--radius); /* row highlight, header pill */
+  --radius-card: calc(var(--radius) * 1.4); /* cards, panels, embeds */
+  --radius-popover: calc(var(--radius) * 1.8); /* popovers, menus, toasts */
+  --radius-dialog: calc(var(--radius) * 2.2); /* dialogs, sheets, glass card */
+}
+
+/* Single-line controls (buttons, inputs, selects, badges, tabs, sidebar
+   items): a pill. A plain value, so it isn't squircled. */
+@utility rounded-control {
+  border-radius: calc(infinity* 1px);
+}
+
+/* A tile whose corner follows its size (project squares, app icons):
+   a quarter of the side, so 16px and 36px tiles look alike. */
+@utility rounded-tile {
+  border-radius: 25%;
 }
 
 :root {

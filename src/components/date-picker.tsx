@@ -231,7 +231,7 @@ const Trigger = ({
 )
 
 const contentClassName =
-  "w-auto max-h-[85vh] max-w-[95vw] gap-0 overflow-y-auto overscroll-y-contain rounded-xl p-0 text-sm"
+  "w-auto max-h-[85vh] max-w-[95vw] gap-0 overflow-y-auto overscroll-y-contain rounded-popover p-0 text-sm"
 
 // ============================================================================
 // Presets

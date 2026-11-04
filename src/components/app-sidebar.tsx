@@ -290,7 +290,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                             <ProjectAvatar
                               id={project.id}
                               name={project.name}
-                              className="size-4 rounded-[4px]"
+                              className="size-4"
                             />
                             <span className="truncate">{project.name}</span>
                             {project.stage && (

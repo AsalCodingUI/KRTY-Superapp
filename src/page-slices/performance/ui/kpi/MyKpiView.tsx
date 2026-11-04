@@ -512,7 +512,7 @@ export function MyKpiView({
                     <ProjectAvatar
                       id={project.projectId}
                       name={project.name}
-                      className="size-8 shrink-0 rounded-lg text-xs"
+                      className="size-8 shrink-0 text-xs"
                     />
                   }
                   title={

@@ -4,7 +4,7 @@ import * as React from "react"
 
 /** The card surface every bordered block uses (HomeCard, Panel, stats). */
 export const surfaceClassName =
-  "bg-card border-field-border dark:border-border rounded-xl border"
+  "bg-card border-field-border dark:border-border rounded-card border"
 
 /**
  * A bordered section on a page: header (title, count, action) over a body.

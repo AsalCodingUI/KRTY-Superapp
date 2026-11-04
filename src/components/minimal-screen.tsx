@@ -84,7 +84,7 @@ export function MinimalCard({
       {...props}
       className={cn(
         glassSurfaceClass,
-        "z-10 w-full max-w-lg rounded-[24px] px-6 py-12 sm:px-10 sm:py-14",
+        "rounded-dialog z-10 w-full max-w-lg px-6 py-12 sm:px-10 sm:py-14",
         className,
       )}
     >
@@ -97,7 +97,7 @@ export function MinimalCard({
 }
 
 /** The logo at the top of the card, as on a brief. */
-export const screenLogoClass = "size-12 rounded-[15px]"
+export const screenLogoClass = "size-12 rounded-tile"
 
 /** The card's heading and its line under it. */
 export const screenTitleClass =

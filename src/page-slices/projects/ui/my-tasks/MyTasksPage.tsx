@@ -546,7 +546,7 @@ function MyTaskRow({
             <ProjectAvatar
               id={project.id}
               name={project.name}
-              className="size-4 shrink-0 rounded-[4px]"
+              className="size-4 shrink-0"
             />
             <span className="truncate">{project.name}</span>
           </Link>

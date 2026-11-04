@@ -254,7 +254,7 @@ function Acknowledgement({
         ) : state === "form" ? (
           <form
             onSubmit={submit}
-            className="border-border flex flex-col gap-3 rounded-2xl border p-4"
+            className="border-border rounded-card flex flex-col gap-3 border p-4"
           >
             <div className="flex flex-col gap-1">
               <Label htmlFor="contract-ack-name" className="font-medium">

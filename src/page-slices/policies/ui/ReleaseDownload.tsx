@@ -100,7 +100,7 @@ export function ReleaseDownload({
   if (!file && !isAdmin && !isPending) return null
 
   return (
-    <div className="border-border mt-8 flex items-center gap-4 rounded-2xl border p-4">
+    <div className="border-border rounded-card mt-8 flex items-center gap-4 border p-4">
       <AppIcon size={192} className="squircle-mask size-11 shrink-0" />
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium">

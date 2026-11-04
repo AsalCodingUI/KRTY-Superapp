@@ -85,7 +85,7 @@ export default async function BriefPage({
         <ThemeToggleButton className="size-9 rounded-full" />
       </ScreenControls>
       <BriefForm
-        logo={<AppIcon size={192} className="size-12 rounded-[15px]" />}
+        logo={<AppIcon size={192} className="rounded-tile size-12" />}
         names={
           <div className="flex flex-col items-center" translate="no">
             <span className="text-title font-medium">Kretya Studio</span>

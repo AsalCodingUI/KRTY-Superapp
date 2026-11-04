@@ -30,7 +30,7 @@ interface MonthViewProps {
 }
 
 const MOBILE_DAY_EVENTS_DRAWER_CLASSNAME =
-  "z-[82] h-[80vh] overflow-hidden rounded-t-[24px] border-t p-0"
+  "z-[82] h-[80vh] overflow-hidden rounded-t-dialog border-t p-0"
 
 export const MonthView = memo(function MonthView({
   events,

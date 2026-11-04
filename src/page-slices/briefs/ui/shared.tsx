@@ -148,7 +148,7 @@ export function BriefAnswersView({ brief }: { brief: BriefListRow }) {
             <section
               key={section.id}
               id={`ans-${section.id}`}
-              className="border-border scroll-mt-4 rounded-2xl border"
+              className="border-border rounded-card scroll-mt-4 border"
             >
               <header className="border-border flex items-start gap-2 border-b px-4 py-3">
                 <span className="text-tertiary-foreground text-sm leading-5 tabular-nums">

@@ -844,7 +844,7 @@ function AiCard({
         close()
       }}
       className={cn(
-        "bg-popover text-popover-foreground flex flex-col overflow-hidden rounded-2xl shadow-(--elev-4)",
+        "bg-popover text-popover-foreground rounded-popover flex flex-col overflow-hidden shadow-(--elev-4)",
         className,
       )}
     >

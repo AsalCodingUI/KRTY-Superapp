@@ -654,7 +654,7 @@ export function BriefForm({
                         <div
                           key={extra}
                           className={cn(
-                            "border-border flex flex-col gap-3 rounded-2xl border p-4 sm:flex-row sm:items-center",
+                            "border-border rounded-card flex flex-col gap-3 border p-4 sm:flex-row sm:items-center",
                             state === "skipped" && "border-dashed",
                           )}
                         >
