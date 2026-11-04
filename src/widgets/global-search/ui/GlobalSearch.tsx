@@ -61,7 +61,7 @@ export function GlobalSearch({ className }: { className?: string }) {
         aria-keyshortcuts={isMac ? "Meta+K" : "Control+K"}
         className={cn(
           // Outlined pill on the chrome (no fill until hover).
-          "text-muted-foreground hover:text-foreground border-chrome-border hover:bg-chrome-hover rounded-control flex h-8 w-full items-center gap-2 border pr-1.5 pl-2.5 text-sm transition-colors",
+          "text-muted-foreground hover:text-foreground border-chrome-border hover:bg-chrome-hover rounded-control flex h-8 w-full items-center gap-2 border pr-1.5 pl-2.25 text-sm transition-colors",
           // In the collapsed sidebar: the icon alone.
           "group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0",
           className,

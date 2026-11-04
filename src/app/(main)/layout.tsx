@@ -114,7 +114,9 @@ export default async function Layout({
               <AppSidebar />
               {/* The page sheet (components/page-sheet.tsx), shared with the
               client portal. */}
-              <div className="flex min-w-0 flex-1 flex-col">
+              {/* min-h-0: the sheet scrolls inside the column instead of
+                  growing it past the window. */}
+              <div className="flex min-h-0 min-w-0 flex-1 flex-col">
                 {/* The tabs, on the chrome above the sheet (the Mac app
                     has them in its top strip). */}
                 {!desktop && (

@@ -611,11 +611,6 @@
   --radius: 0.625rem;
   --sidebar: var(--chrome);
   --surface: var(--background);
-  /* The page sheet's own colors, resolved here on the root: inside the
-     dark chrome (data-chrome-dark) they stay the page's, so the active tab
-     on the chrome matches the sheet it opens into. */
-  --sheet: var(--surface);
-  --sheet-foreground: var(--foreground);
   --sidebar-foreground: oklch(0.289 var(--tint-ink) var(--tint-h));
   --sidebar-primary: var(--primary);
   --sidebar-primary-foreground: #ffffff;
@@ -1094,21 +1089,13 @@
 
 /* From md up the web has no top bar: brand, search, notifications and the
    account are in the sidebar (app-sidebar.tsx), the tabs on the chrome
-   above the page (site-header.tsx, h-11). The Mac app keeps its 52pt strip
+   above the page (site-header.tsx: pt-3 + h-8 + pb-2, its tabs level
+   with the sidebar's brand row). The Mac app keeps its 52pt strip
    for the traffic lights, with the tabs in it ((main)/layout.tsx,
    :root:root wins). */
 @media (min-width: 768px) {
   :root {
     --app-topbar-height: 0px;
-    --app-tabs-height: 2.75rem;
-  }
-}
-
-/* The first tab, when active, opens straight down into the sheet: its
-   corner goes square (site-header.tsx, widgets/app-tabs). */
-@media (min-width: 768px) {
-  body:has([data-slot="app-tabs"] [role="tab"]:first-child[aria-selected="true"])
-    :is([data-slot="sidebar-inset"], [data-slot="page-sheet-shadow"]) {
-    border-top-left-radius: 0;
+    --app-tabs-height: 3.25rem;
   }
 }

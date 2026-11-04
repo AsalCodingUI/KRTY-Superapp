@@ -366,8 +366,8 @@ export function ShellCompare() {
             <span className="mt-auto">Ahmad</span>
           </div>
           <div className="flex flex-1 flex-col pr-2 pb-2">
-            <div className="flex h-7 items-end">
-              <span className="text-caption flex h-6 items-center rounded-t-md bg-(--sheet) px-2 font-medium">
+            <div className="flex h-7 items-center gap-1">
+              <span className="text-caption bg-sidebar-active flex h-5 items-center rounded-full px-2">
                 Tim
               </span>
               <span className="text-caption text-muted-foreground flex h-5 items-center px-2">
@@ -375,7 +375,7 @@ export function ShellCompare() {
               </span>
               <span className="text-caption text-muted-foreground px-1">+</span>
             </div>
-            <div className="flex h-36 flex-col rounded-lg rounded-tl-none bg-(--sheet) pt-3">
+            <div className="bg-background flex h-36 flex-col rounded-lg pt-3">
               <div className="text-body px-2 font-medium">Tim</div>
             </div>
           </div>

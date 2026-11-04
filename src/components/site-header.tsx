@@ -8,8 +8,6 @@ import { PROJECT_SECTION_KEYS } from "@/components/nav-project"
 import { useT } from "@/shared/i18n/client"
 import { usePathname } from "next/navigation"
 import { useCallback, useMemo } from "react"
-import { useSidebar } from "@/components/ui/sidebar"
-import { useMacChrome } from "@/components/desktop-shell"
 import {
   TabHistoryButtons,
   TabStrip,
@@ -100,23 +98,18 @@ export function SiteHeader() {
     [projectPath, project, section.href],
   )
   useAppTabsSync({ title, icon })
-  const collapsed = useSidebar().state === "collapsed"
-  const mac = useMacChrome()
   const navIcon = useCallback((href: string) => navIconFor(href), [])
 
   return (
     <header
       data-slot="app-tabs"
       data-chrome-dark=""
-      className="on-chrome text-foreground flex h-11 min-w-0 shrink-0 items-stretch gap-1 max-md:hidden"
+      className="on-chrome text-foreground flex min-w-0 shrink-0 items-center gap-1 pt-3 pb-2 max-md:hidden"
     >
-      {/* ‹ › sit beside the sidebar toggle; with the sidebar collapsed
-          (or in the Mac app's strip) they lead the tabs instead. */}
-      {(collapsed || mac) && (
-        <div className="flex items-center self-center pr-2">
-          <TabHistoryButtons />
-        </div>
-      )}
+      {/* ‹ › lead the tabs. */}
+      <div className="flex items-center pr-1">
+        <TabHistoryButtons />
+      </div>
       <TabStrip navIcon={navIcon} />
     </header>
   )

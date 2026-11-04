@@ -3,7 +3,6 @@
 import { siteConfig } from "@/app/siteConfig"
 import { AppIcon } from "@/components/app-icon"
 import { NavUser } from "@/components/nav-user"
-import { SegmentedControl } from "@/components/segmented-control"
 import { useWorkspaceNav } from "@/components/workspace-nav"
 import { useMacChrome } from "@/components/desktop-shell"
 import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar"
@@ -123,50 +122,51 @@ export function AppTopbar() {
   )
 }
 
-/** Pribadi / Project, with a dot on the one that has something new. */
-export function WorkspaceSwitch({
-  className,
-  fill = false,
-}: {
-  className?: string
-  /** Stretch to the full width, each tab an equal share. */
-  fill?: boolean
-}) {
+/**
+ * Pribadi / Project as tabs at the sidebar's top: icon + label, the active
+ * one on the sidebar's active fill, a dot on the other when it has
+ * something new. Not a segmented control.
+ */
+export function WorkspaceTabs({ className }: { className?: string }) {
   const { loading, visible, active, select, hasBadge } = useWorkspaceNav()
   const t = useT("nav")
+  if (loading) return <div className="bg-chrome-field h-8 w-40 rounded-full" />
+  if (visible.length < 2 || !active) return null
   return (
-    <>
-      {loading ? (
-        <div className="bg-muted h-7 w-40 rounded-md" />
-      ) : (
-        visible.length > 1 &&
-        active && (
-          <SegmentedControl
-            fitContent={!fill}
+    <div role="tablist" className={cn("flex min-w-0 items-center", className)}>
+      {visible.map((ws) => {
+        const on = ws.id === active.id
+        const Icon = ws.icon
+        return (
+          <button
+            key={ws.id}
+            type="button"
+            role="tab"
+            aria-selected={on}
+            onClick={() => select(ws.id)}
             className={cn(
-              "fill-ink bg-transparent dark:bg-transparent",
-              className,
+              // Optical (docs/ui/optical.md): the icon side 2px tighter than
+              // the text side (11 / 13px, so the icon centres on the sidebar's
+              // icon column), 14px icon beside 13px text.
+              "rounded-control text-meta flex h-8 min-w-0 shrink-0 items-center gap-1.5 pr-3.25 pl-2.75 font-medium transition-colors",
+              on
+                ? "bg-sidebar-active text-foreground"
+                : "text-muted-foreground hover:text-foreground hover:bg-chrome-hover",
             )}
-            indicatorClassName="shadow-raised"
-            value={active.id}
-            onChange={select}
-            items={visible.map((ws) => ({
-              value: ws.id,
-              label: (
-                <span className="relative">
-                  {t(ws.name)}
-                  {ws.id !== active.id && hasBadge(ws) && (
-                    <span
-                      aria-hidden
-                      className="bg-primary absolute -top-0.5 -right-2 size-1.5 rounded-full"
-                    />
-                  )}
-                </span>
-              ),
-            }))}
-          />
+          >
+            <span className="relative flex shrink-0">
+              <Icon className="size-3.5" />
+              {!on && hasBadge(ws) && (
+                <span
+                  aria-hidden
+                  className="bg-primary ring-chrome absolute -top-0.5 -right-0.5 size-2 rounded-full ring-2"
+                />
+              )}
+            </span>
+            <span className="truncate">{t(ws.name)}</span>
+          </button>
         )
-      )}
-    </>
+      })}
+    </div>
   )
 }

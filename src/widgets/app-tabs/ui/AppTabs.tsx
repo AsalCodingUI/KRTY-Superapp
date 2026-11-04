@@ -344,23 +344,15 @@ export function TabStrip({
   }, [active])
 
   return (
-    <div className="flex min-w-0 flex-1 items-stretch">
-      {/* Flush with the sheet's left edge (the first tab, when active,
-          squares the sheet's corner: globals.css); pr-3 for the right
-          foot. */}
+    <div className="flex min-w-0 flex-1 items-center gap-1">
+      {/* Flush with the sheet's left edge. */}
       <div
         role="tablist"
         aria-label={t("tabs")}
-        className="no-scrollbar flex min-w-0 items-end overflow-x-auto pr-3"
+        className="no-scrollbar flex min-w-0 items-center gap-1 overflow-x-auto"
       >
-        {tabs.map((tab, i) => (
+        {tabs.map((tab) => (
           <TabItem
-            // A hairline between two tabs that are both on the chrome.
-            divider={
-              tab.id !== active &&
-              i < tabs.length - 1 &&
-              tabs[i + 1].id !== active
-            }
             key={tab.id}
             ref={tab.id === active ? activeRef : undefined}
             tab={tab}
@@ -379,7 +371,7 @@ export function TabStrip({
           variant="ghost"
           size="icon-sm"
           aria-label={t("tabNew")}
-          className="text-muted-foreground hover:bg-chrome-hover shrink-0 self-center"
+          className="text-muted-foreground hover:bg-chrome-hover shrink-0"
           onClick={() => nav.newTab()}
         >
           <Plus />
@@ -391,7 +383,6 @@ export function TabStrip({
 
 function TabItem({
   ref,
-  divider,
   tab,
   active,
   onlyOne,
@@ -402,7 +393,6 @@ function TabItem({
   mainLabel,
 }: {
   ref?: React.Ref<HTMLDivElement>
-  divider: boolean
   tab: AppTab
   active: boolean
   onlyOne: boolean
@@ -437,40 +427,27 @@ function TabItem({
         }
       }}
       className={cn(
-        "group/tab text-body relative flex min-w-0 shrink-0 cursor-default items-center gap-2 pl-3 transition-colors select-none",
+        "group/tab text-meta rounded-control relative flex h-8 min-w-0 shrink-0 cursor-default items-center gap-1.5 pl-3 transition-colors select-none",
         // One tab: as wide as its name; several share the room.
-        onlyOne ? "max-w-60 pr-3.5" : "w-48 max-w-48 pr-1.5",
-        main && !onlyOne && "pr-3.5",
+        onlyOne ? "max-w-56 pr-3" : "w-44 max-w-44 pr-1",
+        main && !onlyOne && "pr-3",
+        // The active tab: a pill, the sidebar's active-item fill; the
+        // others plain text on the chrome.
         active
-          ? // Cut from the sheet: its color, square at the bottom, a
-            // concave foot each side so it flows into the sheet's top
-            // edge; 1px lower and above the sheet's shadow ring.
-            cn(
-              "rounded-t-card z-30 -mb-px h-[calc(2.25rem+1px)] bg-(--sheet) font-medium text-(--sheet-foreground)",
-              "before:pointer-events-none before:absolute before:bottom-0 before:-left-3 before:size-3 before:bg-[radial-gradient(circle_at_0_0,transparent_0.75rem,var(--sheet)_calc(0.75rem+0.5px))]",
-              "after:pointer-events-none after:absolute after:-right-3 after:bottom-0 after:size-3 after:bg-[radial-gradient(circle_at_100%_0,transparent_0.75rem,var(--sheet)_calc(0.75rem+0.5px))]",
-            )
-          : "text-muted-foreground hover:text-foreground rounded-control [@media(hover:hover)]:hover:bg-chrome-hover mb-1 h-8",
-        // The first tab starts at the sheet's corner: no left foot.
-        "first:before:hidden",
+          ? "bg-sidebar-active text-foreground"
+          : "text-muted-foreground hover:text-foreground [@media(hover:hover)]:hover:bg-chrome-hover",
       )}
     >
       {tab.icon?.kind === "project" ? (
         <ProjectAvatar
           id={tab.icon.id}
           name={tab.icon.name}
-          className="size-4 shrink-0"
+          className="size-3.5 shrink-0"
         />
       ) : Icon ? (
-        <Icon className="size-4 shrink-0" />
+        <Icon className="size-3.5 shrink-0" />
       ) : null}
       <span className="min-w-0 flex-1 truncate">{title}</span>
-      {divider && (
-        <span
-          aria-hidden
-          className="bg-chrome-border pointer-events-none absolute top-1/2 right-0 h-4 w-px -translate-y-1/2"
-        />
-      )}
       {!main && !onlyOne && (
         <button
           type="button"
@@ -481,12 +458,12 @@ function TabItem({
             onClose()
           }}
           className={cn(
-            "flex size-6 shrink-0 items-center justify-center rounded-full opacity-60 transition-opacity hover:bg-[color-mix(in_oklab,currentColor_10%,transparent)] hover:opacity-100",
+            "flex size-5 shrink-0 items-center justify-center rounded-full opacity-60 transition-opacity hover:bg-[color-mix(in_oklab,currentColor_10%,transparent)] hover:opacity-100",
             !active &&
               "opacity-0 group-hover/tab:opacity-60 focus-visible:opacity-60",
           )}
         >
-          <X className="size-3.5" />
+          <X className="size-3" />
         </button>
       )}
     </div>

@@ -33,10 +33,15 @@ examples: **/ui** → Navigasi.
 
 ## App tabs
 
-The shell has no top bar from `md` up: brand, ‹ › and the sidebar toggle,
-the workspace switch, search (⌘K, an outlined pill) and notifications
-(icon) are at the sidebar's top; the account is its bottom row. Above the
-page sheet, on the chrome, sits the tab row.
+The shell has no top bar from `md` up. The sidebar's top: brand, then
+the bell (icon only) and the sidebar toggle; the workspaces as icon +
+label tabs (`WorkspaceTabs`, not a segmented control; optical padding 11 /
+13px); search (⌘K, an outlined pill). Its bottom: notices, What's new,
+Settings, the account row (same list, same icon column), then theme and
+chrome color; language lives in Settings only. Every icon in the sidebar
+centres on one column (30px from the edge) and every label starts at
+48px; rows sit 4px apart. Above the page sheet, on the chrome: ‹ › (the
+active tab's history), then the tabs, level with the brand row.
 
 - **Main** is the first tab and can't be closed. The sidebar and every
   plain link navigate the active tab, like a browser's.
@@ -50,10 +55,11 @@ page sheet, on the chrome, sits the tab row.
   and a scroll offset (restored on return). Saved per user in localStorage.
 - The tab title is the page's last step: `useBreadcrumbs` if the page sets
   it, else the project (+ section) or the sidebar section.
-- **Look**: the active tab is cut from the sheet's color (`--sheet`), sits
-  on the sheet's top edge with a concave foot each side, and squares the
-  sheet's corner when it's first. Others are text on the chrome with a
-  hairline between them; hover `bg-chrome-hover`; × on hover.
+- **Look**: pills on the chrome (`h-8 rounded-control text-meta`, icon
+  `size-3.5`; row `pt-3 pb-2`). The active one
+  has the sidebar's active fill (`bg-sidebar-active`) and its ×; the
+  others are plain text, `bg-chrome-hover` and × on hover. The row stays
+  put; only the sheet below scrolls.
 - Desktop app only: ⌘T, ⌘W, ⌘1–9, ⌃Tab (browsers keep those keys).
 - Phones: no tab row; `MobileNav` as before.
 

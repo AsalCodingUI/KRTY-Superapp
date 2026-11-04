@@ -40,7 +40,7 @@ export function PageSheet({
 }) {
   const radius = mac ? MAC_SHEET_RADIUS : SHEET_RADIUS
   return (
-    <div className="relative flex min-w-0 flex-1">
+    <div className="relative flex min-h-0 min-w-0 flex-1">
       <div
         aria-hidden
         data-slot="page-sheet-shadow"

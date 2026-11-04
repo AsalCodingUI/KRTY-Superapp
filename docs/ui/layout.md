@@ -34,14 +34,13 @@ SidebarProvider  bg-chrome h-svh flex-col                      (tinted chrome)
 ├─ AppBannerStack px-2 pb-2, publishes --app-banner-height      view-as, announcements
 ├─ row            md:pr-3 md:pb-3 (Mac md:pr-1.5 md:pb-1.5)
 │  ├─ AppSidebar  15rem (resizable), icon 3.75rem, hidden < md
-│  │  header: brand ‹ › ◫ · workspace switch · search (outline pill) + bell
-│  │  footer: What's new · Settings · account row · theme / language
+│  │  header: brand · bell ◫ · workspace tabs · search (outline pill)
+│  │  bottom: notices · What's new · Settings · account · theme / chrome color
 │  └─ column
-│     ├─ SiteHeader  the tab row, on the chrome, h-11 (--app-tabs-height);
+│     ├─ SiteHeader  ‹ › + the tab row, on the chrome, pt-3 h-8 pb-2 (--app-tabs-height);
 │     │              fixed: only the sheet scrolls (widgets/app-tabs)
 │     └─ PageSheet   shadow layer + SidebarInset (components/page-sheet.tsx)
 │        SidebarInset  scroll-pane · md:rounded-dialog (Mac 10px) · md:pt-6
-│        │             top-left square while the first tab is active
 │        └─ content    gutter-x flex-col gap-4 · pb-6 (phones pb for the tab bar)
 │           └─ WorkspaceTransition › Suspense › the page
 └─ MobileNav      floating tab bar, phones only (md:hidden)

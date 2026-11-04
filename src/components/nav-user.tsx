@@ -136,7 +136,9 @@ export function NavUser({
                   tooltip={row ? user.name : undefined}
                   className={
                     row
-                      ? "text-foreground aria-expanded:bg-sidebar-accent gap-2 pl-1.5 group-data-[collapsible=icon]:p-1.5!"
+                      ? // Avatar centred on the icon column (20px on a
+                        // 16px icon's centre), label where the others start.
+                        "aria-expanded:bg-sidebar-accent gap-2 pl-2 group-data-[collapsible=icon]:p-1.5!"
                       : showName
                         ? "text-foreground h-8 w-auto gap-2 pr-3 pl-1 hover:bg-transparent active:bg-transparent aria-expanded:bg-transparent"
                         : "aria-expanded:bg-sidebar-accent blend-ink size-8! justify-center p-0!"
@@ -153,7 +155,7 @@ export function NavUser({
               <span
                 className={
                   row
-                    ? "truncate text-sm font-medium"
+                    ? "truncate"
                     : showName
                       ? "hidden max-w-40 truncate text-sm font-medium lg:inline"
                       : "sr-only"

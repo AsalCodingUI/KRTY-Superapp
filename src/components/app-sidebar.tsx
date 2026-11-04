@@ -2,7 +2,6 @@
 
 import { projectHref } from "@/shared/lib/url-params"
 import { AppearancePopover } from "@/components/appearance-popover"
-import { LanguageSwitcher } from "@/components/language-switcher"
 import { ThemeSwitcher } from "@/components/theme-switcher"
 import { AnimatePresence, m, type Variants } from "motion/react"
 import { TRANSITION } from "@/shared/lib/motion"
@@ -11,10 +10,9 @@ import { cn } from "@/lib/utils"
 import { siteConfig } from "@/app/siteConfig"
 import { AppIcon } from "@/components/app-icon"
 import { useMacChrome } from "@/components/desktop-shell"
-import { AccountMenu, WorkspaceSwitch } from "@/components/app-topbar"
+import { AccountMenu, WorkspaceTabs } from "@/components/app-topbar"
 import { GlobalSearch } from "@/widgets/global-search/ui/GlobalSearch"
 import { Notifications } from "@/widgets/notifications/ui/Notifications"
-import { TabHistoryButtons } from "@/widgets/app-tabs/ui/AppTabs"
 
 import { NavMain } from "@/components/nav-main"
 import { NavProject } from "@/components/nav-project"
@@ -229,19 +227,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           switch, then search (⌘K) and notifications. Collapsed: the toggle,
           then search and the bell stacked, icons only. */}
       <SidebarHeader
-        className={cn("gap-3 px-2.5 pb-3", desktop ? "pt-1" : "pt-3")}
+        // px-3: the same 12px edge as the menu rows below.
+        className={cn("gap-3 px-3 pb-3", desktop ? "pt-1" : "pt-3")}
       >
         <div
           className={cn(
-            "flex h-8 items-center justify-between group-data-[collapsible=icon]:justify-center",
-            desktop && "group-data-[collapsible=icon]:hidden",
+            "flex h-8 items-center justify-between group-data-[collapsible=icon]:h-auto group-data-[collapsible=icon]:justify-center",
           )}
         >
           <PrefetchLink
             href={siteConfig.baseLinks.dashboard}
             // The mark in line with the menu's icons below (same size, same
             // left edge).
-            className="flex min-w-0 items-center gap-2 pl-3 group-data-[collapsible=icon]:hidden"
+            className="flex min-w-0 items-center gap-2 pl-2.5 group-data-[collapsible=icon]:hidden"
             aria-label={siteConfig.name}
           >
             <AppIcon size={96} variant="mark" className="size-4 shrink-0" />
@@ -249,24 +247,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               {siteConfig.name}
             </span>
           </PrefetchLink>
-          {!desktop && (
-            <div className="flex shrink-0 items-center">
-              {/* Back / forward in the active tab (⌘[ ⌘]); while collapsed
-                  they move to the tab row. */}
-              <div className="group-data-[collapsible=icon]:hidden">
-                <TabHistoryButtons compact />
-              </div>
+          {/* The bell and the sidebar toggle (the Mac app's toggle sits by
+              its traffic lights). Collapsed: stacked, toggle on top. */}
+          <div className="flex shrink-0 items-center gap-0.5 group-data-[collapsible=icon]:flex-col-reverse group-data-[collapsible=icon]:gap-3">
+            <Notifications variant="icon" className="size-7" />
+            {!desktop && (
               <SidebarTrigger className="text-muted-foreground hover:bg-chrome-hover" />
-            </div>
-          )}
+            )}
+          </div>
         </div>
-        <div className="group-data-[collapsible=icon]:hidden">
-          <WorkspaceSwitch fill />
-        </div>
-        <div className="flex items-center gap-1 group-data-[collapsible=icon]:flex-col">
-          <GlobalSearch className="min-w-0 flex-1 group-data-[collapsible=icon]:flex-none" />
-          <Notifications variant="icon" />
-        </div>
+        <WorkspaceTabs className="group-data-[collapsible=icon]:hidden" />
+        <GlobalSearch />
       </SidebarHeader>
       {/* First row starts level with the top of the page sheet. */}
       <SidebarContent>
@@ -371,13 +362,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
+        {/* The account: one more row of the same list (4px apart, icon
+            column, muted label). */}
+        <div className="mt-1">
+          <AccountMenu
+            row
+            side={sidebarState === "collapsed" ? "right" : "top"}
+          />
+        </div>
       </SidebarGroup>
-      {/* The account, then theme, language and chrome color. */}
+      {/* Theme and chrome color (language is in Settings). */}
       <SidebarFooter>
-        <AccountMenu
-          row
-          side={sidebarState === "collapsed" ? "right" : "top"}
-        />
         {/* Stacks vertically when the sidebar is collapsed to icons. Re-keyed
             on the sidebar state so the new arrangement fades and settles in
             alongside the width animation instead of snapping. */}
@@ -389,7 +384,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           )}
         >
           <ThemeSwitcher className="group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:self-center" />
-          <LanguageSwitcher className="group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:self-center" />
           <AppearancePopover className="group-data-[collapsible=icon]:self-center" />
         </div>
       </SidebarFooter>
