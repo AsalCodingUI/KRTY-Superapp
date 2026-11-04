@@ -86,6 +86,10 @@ Typography.
 - Don't write `text-[13px]`, `text-[15px]`, `text-[11px]` any more: they
   are `text-meta`, `text-title`, `text-micro`.
 - `text-sm` / `text-xs` stay valid (same metrics as body / caption).
+- **A new token must also be registered in `src/lib/utils.ts`** (the
+  `font-size` group of `createCn`). Unregistered, the class merger reads
+  `text-<name>` as a text color, so `cn("text-white", "text-micro")`
+  drops the white. Import `cn` from `@/lib/utils`, never from `"cn"`.
 
 ## Rules
 

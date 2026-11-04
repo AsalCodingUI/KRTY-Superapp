@@ -1,7 +1,7 @@
 "use client"
 
 import { Tooltip as TooltipPrimitive } from "@base-ui/react/tooltip"
-import { cn } from "cn"
+import { cn } from "@/lib/utils"
 import { usePortalContainer } from "@/components/ui/portal-container"
 
 function TooltipProvider({

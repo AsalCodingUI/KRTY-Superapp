@@ -1,5 +1,5 @@
 import { Accordion as AccordionPrimitive } from "@base-ui/react/accordion"
-import { cn } from "cn"
+import { cn } from "@/lib/utils"
 import { ChevronDown as ChevronDownIcon } from "@/components/icons"
 
 function Accordion({ className, ...props }: AccordionPrimitive.Root.Props) {

@@ -1,7 +1,7 @@
 // Tremor Raw cx [v0.0.0]
 
 import type { ClassValue } from "clsx"
-import { cn } from "cn"
+import { cn } from "@/lib/utils"
 
 /**
  * Same merger as `cn` (@/lib/utils), so the app ships one class merger, not

@@ -1,6 +1,6 @@
 "use client"
 
-import { cn } from "cn"
+import { cn } from "@/lib/utils"
 import { useT } from "@/shared/i18n/client"
 import { Loader2Icon } from "@/components/icons"
 

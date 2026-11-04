@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { Popover as PopoverPrimitive } from "@base-ui/react/popover"
-import { cn } from "cn"
+import { cn } from "@/lib/utils"
 import { usePortalContainer } from "@/components/ui/portal-container"
 
 function Popover({ ...props }: PopoverPrimitive.Root.Props) {
