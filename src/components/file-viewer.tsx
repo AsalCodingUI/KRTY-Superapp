@@ -17,6 +17,7 @@ import {
 } from "@/components/icons"
 import { File as FileIcon } from "@/components/icons"
 import { useCallback, useEffect, useRef, useState } from "react"
+import { documentDialogClassName } from "@/components/ui/dialog-sections"
 
 export type PreviewKind =
   | "image"
@@ -155,7 +156,7 @@ export function FileViewer({
       <DialogContent
         bare
         showCloseButton={false}
-        className="flex h-[min(52rem,92svh)] w-full flex-col overflow-hidden p-0 sm:max-w-5xl"
+        className={documentDialogClassName}
       >
         {item && (
           <>

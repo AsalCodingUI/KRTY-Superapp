@@ -110,7 +110,7 @@ function MacHowToDialog({
 
   return (
     <Dialog open={Boolean(shown)} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-sm">
+      <DialogContent>
         <DialogHeader>
           <AppIcon size={192} className="squircle-mask mb-2 size-12" />
           <DialogTitle>

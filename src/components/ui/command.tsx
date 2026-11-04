@@ -13,6 +13,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Search as SearchIcon, Check as CheckIcon } from "@/components/icons"
+import { searchDialogClassName } from "@/components/ui/dialog-sections"
 
 function Command({
   className,
@@ -49,10 +50,7 @@ function CommandDialog({
     <Dialog {...props}>
       <DialogContent
         bare
-        className={cn(
-          "top-[14vh] flex max-h-[min(560px,76svh)] translate-y-0 flex-col overflow-hidden p-0 sm:max-w-[600px] sm:rounded-2xl!",
-          className,
-        )}
+        className={cn(searchDialogClassName, className)}
         showCloseButton={showCloseButton}
       >
         <DialogHeader className="sr-only">

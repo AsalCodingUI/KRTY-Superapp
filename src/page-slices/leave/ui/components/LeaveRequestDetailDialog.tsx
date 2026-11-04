@@ -98,7 +98,7 @@ export function LeaveRequestDetailDialog({
 
   return (
     <Dialog open={request !== null} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>{t("ctxDetailTitle")}</DialogTitle>
         </DialogHeader>

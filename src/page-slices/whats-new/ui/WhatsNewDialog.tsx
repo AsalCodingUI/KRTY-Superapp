@@ -25,6 +25,7 @@ import { isGuide, type WhatsNewEntry } from "../model/types"
 import { useWhatsNew } from "../model/use-whats-new"
 import { useWhatsNewAdmin } from "./WhatsNewEditor"
 import { AREA_LABEL, dayOf, EntryBadges } from "./shared"
+import { documentDialogClassName } from "@/components/ui/dialog-sections"
 
 /**
  * One entry and its guide, in the same window as a rule in Aturan & Update
@@ -46,7 +47,7 @@ export function WhatsNewDialog({
       <DialogContent
         bare
         showCloseButton={false}
-        className="flex h-[min(56rem,92svh)] w-full flex-col overflow-hidden p-0 sm:max-w-5xl"
+        className={documentDialogClassName}
       >
         <EntryView id={id} onOpen={onOpen} onClose={onClose} />
       </DialogContent>

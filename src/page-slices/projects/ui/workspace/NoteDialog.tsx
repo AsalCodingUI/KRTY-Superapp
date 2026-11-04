@@ -1,12 +1,6 @@
 "use client"
 
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
+import { UnsavedChangesDialog } from "@/components/unsaved-changes-dialog"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { Spinner } from "@/components/ui/spinner"
@@ -23,6 +17,7 @@ import {
   uploadProjectFile,
   type FileRow,
 } from "./data"
+import { documentDialogClassName } from "@/components/ui/dialog-sections"
 
 /** Markdown notes (meeting notes and the like) live in the library as .md. */
 export const isNote = (name: string) => /\.(md|markdown)$/i.test(name)
@@ -188,7 +183,7 @@ export function NoteDialog({
       <DialogContent
         bare
         showCloseButton={false}
-        className="flex h-[min(56rem,92svh)] w-full flex-col overflow-hidden p-0 sm:max-w-5xl"
+        className={documentDialogClassName}
       >
         <header className="border-border flex shrink-0 items-center gap-3 border-b px-4 py-3">
           <DialogTitle className="sr-only">
@@ -250,38 +245,22 @@ export function NoteDialog({
           />
         )}
 
-        <AlertDialog open={confirmClose} onOpenChange={setConfirmClose}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>{t("libNoteUnsaved")}</AlertDialogTitle>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <Button variant="outline" onClick={() => setConfirmClose(false)}>
-                {tc("cancel")}
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setConfirmClose(false)
-                  onOpenChange(false)
-                }}
-              >
-                {t("libNoteDiscard")}
-              </Button>
-              <Button
-                disabled={!title.trim() || saving}
-                onClick={async () => {
-                  if (await save()) {
-                    setConfirmClose(false)
-                    onOpenChange(false)
-                  }
-                }}
-              >
-                {tc("save")}
-              </Button>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        <UnsavedChangesDialog
+          open={confirmClose}
+          onOpenChange={setConfirmClose}
+          saving={saving}
+          saveDisabled={!title.trim()}
+          onDiscard={() => {
+            setConfirmClose(false)
+            onOpenChange(false)
+          }}
+          onSave={async () => {
+            if (await save()) {
+              setConfirmClose(false)
+              onOpenChange(false)
+            }
+          }}
+        />
       </DialogContent>
     </Dialog>
   )

@@ -9,6 +9,7 @@ import { RiCloseLine } from "@/shared/ui/lucide-icons"
 import { format, parseISO } from "date-fns"
 import { useParams } from "next/navigation"
 import { useEffect, useRef } from "react"
+import { documentDialogClassName } from "@/components/ui/dialog-sections"
 
 export type PortalReportDetail = {
   id: string
@@ -49,7 +50,7 @@ export function PortalReportDialog({
       <DialogContent
         bare
         showCloseButton={false}
-        className="flex h-[min(56rem,92svh)] w-full flex-col overflow-hidden p-0 sm:max-w-5xl"
+        className={documentDialogClassName}
       >
         {report && (
           <>

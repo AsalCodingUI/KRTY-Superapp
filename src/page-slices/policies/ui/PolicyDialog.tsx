@@ -46,6 +46,7 @@ import {
 import { PolicyHistory } from "./PolicyHistory"
 import { ReleaseDownload } from "./ReleaseDownload"
 import { PublishDialog } from "./PublishDialog"
+import { documentDialogClassName } from "@/components/ui/dialog-sections"
 
 function day(value: string | null, locale: Locale) {
   return value ? format(new Date(value), "d MMM yyyy", { locale }) : ""
@@ -74,7 +75,7 @@ export function PolicyDialog({
       <DialogContent
         bare
         showCloseButton={false}
-        className="flex h-[min(56rem,92svh)] w-full flex-col overflow-hidden p-0 sm:max-w-5xl"
+        className={documentDialogClassName}
       >
         <PolicyView
           id={id}

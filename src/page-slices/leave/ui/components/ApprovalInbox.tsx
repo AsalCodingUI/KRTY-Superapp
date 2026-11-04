@@ -42,6 +42,7 @@ import { ContextTarget, type CtxItem } from "@/shared/context-menu"
 import { useCopyWithToast } from "./leave-context-menu"
 import { employeeHref } from "@/shared/lib/url-params"
 import { CalendarRange, Clock, UserRound } from "@/components/icons"
+import { dialogWidth } from "@/components/ui/dialog-sections"
 
 type Person = { full_name: string; avatar_url: string | null } | null
 
@@ -270,7 +271,7 @@ export function ApprovalInbox({
       )}
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-xl">
+        <DialogContent className={dialogWidth.form}>
           <DialogHeader>
             <DialogTitle>{t("inbox")}</DialogTitle>
           </DialogHeader>

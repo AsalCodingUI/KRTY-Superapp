@@ -1,5 +1,6 @@
 "use client"
 
+import { ConfirmDialog } from "@/components/confirm-dialog"
 import { DateField } from "@/components/date-field"
 import { useProcesses } from "@/page-slices/processes/model/data"
 import {
@@ -142,6 +143,8 @@ export function ProjectForm({
   const isPm = accessLevel(profile) === "pm"
   const [draft, setDraft] = useState<Draft>(EMPTY)
   const [saving, setSaving] = useState(false)
+  // A member with scores waits here for the remove confirm.
+  const [removingScored, setRemovingScored] = useState<Member | null>(null)
 
   // Always fresh: a cached copy would bring back what the last save changed.
   const {
@@ -251,21 +254,17 @@ export function ProjectForm({
     })
   }
 
-  const removeMember = (member: Member) => {
-    if (isPm && member.scored)
-      return void toast.error(t("errRemoveScoredMember"))
-    if (
-      member.scored &&
-      !window.confirm(
-        t("formRemoveScoredConfirm", { name: member.full_name ?? "" }),
-      )
-    ) {
-      return
-    }
+  const dropMember = (member: Member) =>
     set(
       "members",
       draft.members.filter((m) => m.userId !== member.userId),
     )
+
+  const removeMember = (member: Member) => {
+    if (isPm && member.scored)
+      return void toast.error(t("errRemoveScoredMember"))
+    if (member.scored) return void setRemovingScored(member)
+    dropMember(member)
   }
 
   const submit = async () => {
@@ -607,6 +606,20 @@ export function ProjectForm({
             {saving ? tc("saving") : projectId ? tc("save") : t("formCreate")}
           </Button>
         </DialogFooter>
+        {/* Nested in the form dialog so it stays open behind. */}
+        <ConfirmDialog
+          open={removingScored !== null}
+          onOpenChange={(o) => !o && setRemovingScored(null)}
+          title={t("formRemoveScoredTitle", {
+            name: removingScored?.full_name ?? "",
+          })}
+          description={t("formRemoveScoredDescription")}
+          confirmText={t("formRemoveScoredAction")}
+          variant="destructive"
+          onConfirm={() => {
+            if (removingScored) dropMember(removingScored)
+          }}
+        />
       </DialogContent>
     </Dialog>
   )

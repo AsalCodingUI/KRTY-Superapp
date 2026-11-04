@@ -15,6 +15,25 @@ export const dialogSheetOnMobileClassName =
 export const dialogShellClassName =
   "bg-popover text-popover-foreground data-open:animate-in data-open:fade-in-0 data-open:zoom-in-96 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-96 fixed top-1/2 left-1/2 z-50 flex max-h-[calc(100svh-4rem)] w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-dialog text-sm duration-250 outline-none sm:max-w-[27.5rem] shadow-dialog ease-out"
 
+/** The dialog widths (overlay.md), for `DialogContent className`. The
+ *  default (27.5rem, 440px) is the shell's own, so it needs no class. */
+export const dialogWidth = {
+  /** Standard forms: 35rem, 560px. */
+  form: "sm:max-w-[35rem]",
+  /** Read-mostly details with more content: 2xl, 672px. */
+  detail: "sm:max-w-2xl",
+} as const
+
+/** Documents and viewers (report, note, policy, contract, file viewer,
+ *  What's new): `bare`, 5xl wide, one fixed height, the inside lays itself
+ *  out. */
+export const documentDialogClassName =
+  "flex h-[min(56rem,92svh)] w-full flex-col overflow-hidden p-0 sm:max-w-5xl"
+
+/** ⌘K search: the one search size, near the top so results grow down. */
+export const searchDialogClassName =
+  "top-[14vh] flex max-h-[min(560px,76svh)] translate-y-0 flex-col overflow-hidden p-0 sm:max-w-[600px] sm:rounded-2xl!"
+
 // The body scrolls, so it keeps 4px below its last field (and nested scroll
 // wrappers get 4px all round) so focus rings are not clipped by the overflow.
 export const dialogPanelClassName =

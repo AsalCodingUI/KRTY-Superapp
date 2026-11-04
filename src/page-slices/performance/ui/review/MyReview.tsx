@@ -27,6 +27,7 @@ import { isQuarter, periodLabel } from "../kpi/period"
 import { ListColumns, PersonCell } from "../list"
 import { useCycleLine } from "./cycle-status"
 import { ReviewResult } from "./ReviewResult"
+import { dialogWidth } from "@/components/ui/dialog-sections"
 
 type Person = MyReviewData["targets"][number]
 
@@ -121,7 +122,7 @@ function ReviewStep({
   })
   if (edit && (isLoading || !initial)) {
     return (
-      <DialogContent className="sm:max-w-4xl">
+      <DialogContent className={dialogWidth.detail}>
         <DialogHeader>
           <DialogTitle>{person.full_name}</DialogTitle>
         </DialogHeader>
@@ -163,7 +164,7 @@ function ReviewStepForm({
   const form = useReviewForm(cycleId, person.id, initial)
   dirty.current = form.touched
   return (
-    <DialogContent className="sm:max-w-4xl">
+    <DialogContent className={dialogWidth.detail}>
       <DialogHeader>
         <DialogTitle>
           {t(initial ? "editReviewTitle" : "reviewPeerTitle", {
