@@ -158,6 +158,7 @@ export function EmployeeDashboard({
       <HomeGrid className="max-md:hidden">
         <HomeKpiCard
           userId={data.user.id}
+          initial={data.kpi}
           // The KPI reads "2026-All" for a whole year, like the filter.
           period={
             selectedQuarter === "All" ? `${selectedYear}-All` : selectedQuarter

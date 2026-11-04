@@ -25,12 +25,15 @@ import {
 import { format } from "date-fns"
 import { useDateLocale, useT } from "@/shared/i18n/client"
 import dynamic from "next/dynamic"
-import { useRouter } from "next/navigation"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { ContextTarget } from "@/shared/context-menu"
 import { useProofViewer } from "@/entities/leave/ui/ProofLink"
 import { LeaveRequestContextMenu } from "@/page-slices/leave/ui/components/leave-context-menu"
 import type { LeaveRequestWithProfile } from "@/page-slices/leave/ui/components/AdminLeaveList"
+import {
+  isShownChange,
+  useRealtimeRefresh,
+} from "@/page-slices/leave/ui/use-realtime-refresh"
 
 // Read-only "Lihat detail" (right-click on a request).
 const LeaveRequestDetailDialog = dynamic(
@@ -80,7 +83,6 @@ export function EmployeeAttendanceWidget({
   onLeaveModalChange,
 }: EmployeeAttendanceWidgetProps) {
   const supabase = createClient()
-  const router = useRouter()
   const t = useT("dashboard")
   const tl = useT("leave")
   const dateLocale = useDateLocale()
@@ -107,6 +109,13 @@ export function EmployeeAttendanceWidget({
     setLeaveRequests(recentLeaveRequests)
   }, [recentLeaveRequests])
 
+  // Debounced; the clock buttons already update `logs`, so their own
+  // changes coming back over realtime don't re-render the whole page.
+  const refreshForAttendance = useRealtimeRefresh(1_000, (payload) =>
+    isShownChange(logs, payload),
+  )
+  const refreshForLeave = useRealtimeRefresh(1_000)
+
   useEffect(() => {
     const attendanceChannel = supabase
       .channel("dashboard-attendance-sync")
@@ -118,7 +127,7 @@ export function EmployeeAttendanceWidget({
           table: "attendance_logs",
           filter: `user_id=eq.${userId}`,
         },
-        () => router.refresh(),
+        refreshForAttendance,
       )
       .subscribe()
 
@@ -132,7 +141,7 @@ export function EmployeeAttendanceWidget({
           table: "leave_requests",
           filter: `user_id=eq.${userId}`,
         },
-        () => router.refresh(),
+        refreshForLeave,
       )
       .subscribe()
 
@@ -140,7 +149,7 @@ export function EmployeeAttendanceWidget({
       supabase.removeChannel(attendanceChannel)
       supabase.removeChannel(leaveChannel)
     }
-  }, [router, supabase, userId])
+  }, [refreshForAttendance, refreshForLeave, supabase, userId])
 
   const today = getLocalDateString()
   const { staleSession, activeSession } = getAttendanceSessionState(

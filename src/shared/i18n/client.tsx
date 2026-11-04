@@ -11,6 +11,7 @@ import {
   type Vars,
 } from "./config"
 import type { MessageKey, Namespace } from "./messages"
+import type { RouteNamespace } from "./scopes"
 
 /** One language's strings per namespace, already merged over Indonesian. */
 export type ClientMessages = Record<string, Record<string, string>>
@@ -40,6 +41,75 @@ export function I18nProvider({
   )
 }
 
+/**
+ * Adds namespaces for one route (its layout passes them), over the root's.
+ * Lets the root layout skip strings only that route uses (ROUTE_NAMESPACES).
+ */
+export function I18nScope({
+  messages,
+  children,
+}: {
+  messages: ClientMessages
+  children: React.ReactNode
+}) {
+  const parent = React.useContext(MessagesContext)
+  const merged = React.useMemo(
+    () => ({ ...parent, ...messages }),
+    [parent, messages],
+  )
+  return (
+    <MessagesContext.Provider value={merged}>
+      {children}
+    </MessagesContext.Provider>
+  )
+}
+
+// --- Fallback for a route namespace used outside its route ----------------
+// One file each (a small chunk), fetched only when a useT finds its
+// namespace missing; the strings then fill in on the next render.
+
+type Dictionary = Record<Locale, Record<string, string>>
+
+const routeLoaders: Record<RouteNamespace, () => Promise<Dictionary>> = {
+  dashboard: () =>
+    import("./messages/dashboard").then(
+      (m) => m.dashboard as unknown as Dictionary,
+    ),
+}
+
+const lazyMessages = new Map<string, Record<string, string>>()
+const lazyRequested = new Set<string>()
+const lazyListeners = new Set<() => void>()
+
+function subscribeLazy(listener: () => void) {
+  lazyListeners.add(listener)
+  return () => {
+    lazyListeners.delete(listener)
+  }
+}
+
+function loadLazy(namespace: string, locale: Locale) {
+  const id = `${locale}:${namespace}`
+  if (lazyRequested.has(id)) return
+  lazyRequested.add(id)
+  const load = routeLoaders[namespace as RouteNamespace]
+  if (!load) return
+  if (process.env.NODE_ENV !== "production") {
+    console.warn(
+      `i18n: "${namespace}" used outside the route that sends it; loading it lazily. Add an <I18nScope> there, or take it out of ROUTE_NAMESPACES.`,
+    )
+  }
+  load()
+    .then((dict) => {
+      lazyMessages.set(
+        id,
+        locale === "id" ? dict.id : { ...dict.id, ...dict[locale] },
+      )
+      lazyListeners.forEach((listener) => listener())
+    })
+    .catch(() => lazyRequested.delete(id))
+}
+
 export function useLocale() {
   return React.useContext(LocaleContext)
 }
@@ -50,12 +120,23 @@ export function useLocale() {
  */
 export function useT<N extends Namespace>(namespace: N) {
   const messages = React.useContext(MessagesContext)
+  const locale = React.useContext(LocaleContext)
+  const own = messages[namespace]
+  const lazy = React.useSyncExternalStore(
+    subscribeLazy,
+    () => (own ? undefined : lazyMessages.get(`${locale}:${namespace}`)),
+    () => undefined,
+  )
+  React.useEffect(() => {
+    if (!own) loadLazy(namespace, locale)
+  }, [own, namespace, locale])
+  const dict = own ?? lazy
   return React.useCallback(
     (key: MessageKey<N>, vars?: Vars) => {
-      const text = messages[namespace]?.[key as string]
+      const text = dict?.[key as string]
       return interpolate(text ?? String(key), vars)
     },
-    [namespace, messages],
+    [dict],
   )
 }
 

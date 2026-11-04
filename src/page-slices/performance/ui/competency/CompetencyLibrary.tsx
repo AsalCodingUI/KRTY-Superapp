@@ -3,10 +3,10 @@
 import { EmptyValue } from "@/components/empty-value"
 import {
   deleteCompetency,
-  getCompetencies,
   saveCompetency,
   type CompetencyRow,
 } from "@/app/(main)/performance/actions/competency-actions"
+import { performanceRead } from "../read"
 import { ConfirmDialog } from "@/components/confirm-dialog"
 import { ContextTarget, type CtxItem } from "@/shared/context-menu"
 import { CopyPlus, Pencil, Trash2 } from "lucide-react"
@@ -77,7 +77,7 @@ export function CompetencyLibrary() {
   const queryClient = useQueryClient()
   const { data, isLoading } = useQuery({
     queryKey: ["competencies"],
-    queryFn: () => getCompetencies(),
+    queryFn: () => performanceRead.competencies(),
   })
   const [draft, setDraft] = useState<Draft | null>(null)
   const [saving, setSaving] = useState(false)

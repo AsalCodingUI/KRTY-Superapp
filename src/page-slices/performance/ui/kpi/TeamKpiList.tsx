@@ -3,12 +3,11 @@
 import { employeeHref } from "@/shared/lib/url-params"
 import { EmptyValue, orEmpty } from "@/components/empty-value"
 import {
-  getPeriodLock,
-  getTeamKpi,
   lockPeriod,
   unlockPeriod,
   type TeamKpiRow,
 } from "@/app/(main)/performance/actions/kpi-actions"
+import { performanceRead } from "../read"
 import { ConfirmDialog } from "@/components/confirm-dialog"
 import { EmptyState } from "@/components/empty-state"
 import { GroupedList, ListRow } from "@/components/grouped-list"
@@ -51,7 +50,7 @@ function PeriodLockControl({ period }: { period: string }) {
   }
   const { data: lock, isLoading } = useQuery({
     queryKey: ["kpi-lock", period],
-    queryFn: () => getPeriodLock(period),
+    queryFn: () => performanceRead.periodLock(period),
     staleTime: 30_000,
   })
   if (isLoading || !lock) return null
@@ -170,7 +169,7 @@ export function TeamKpiList({ scope }: { scope: string }) {
   const tm = useT("ctxmenu")
   const { data, isLoading } = useQuery({
     queryKey: ["kpi-team", scope],
-    queryFn: () => getTeamKpi(scope),
+    queryFn: () => performanceRead.teamKpi(scope),
     staleTime: 30_000,
   })
 

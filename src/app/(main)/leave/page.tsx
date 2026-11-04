@@ -30,13 +30,13 @@ export default async function LeaveRoute({
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
-  const resolvedSearchParams = await searchParams
   const supabase = await createClient()
-  const t = await getT("leave")
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const [resolvedSearchParams, t, { data: auth }] = await Promise.all([
+    searchParams,
+    getT("leave"),
+    supabase.auth.getUser(),
+  ])
+  const user = auth.user
   if (!user) return <div>{t("pleaseLogin")}</div>
 
   const effectiveUserId = await resolveEffectiveUserId(
@@ -63,13 +63,25 @@ export default async function LeaveRoute({
   const yearStart = getLocalDateString(new Date(now.getFullYear(), 0, 1))
   const yearEnd = getLocalDateString(new Date(now.getFullYear(), 11, 31))
 
-  // 🚀 PARALLEL FETCH: Profile first (needed for role check)
-  const profile = await resolveProfileByUserIdOrEmail<Profile>(
-    supabase,
-    "id, krt_id, email, full_name, avatar_url, role, job_title, team_id, created_at, updated_at, manager_id, is_super_admin, join_date, employment_type",
-    effectiveUserId,
-    effectiveUserId === user.id ? user.email : null,
-  )
+  // Profile first (needed for the role check). Alongside it, the profiles
+  // sharing the sign-in email, which the employee view needs: the profile's
+  // email is almost always that one, so this saves a round trip after it.
+  const sameEmailIds = async (email: string) => {
+    const { data } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("email", email)
+    return ((data || []) as { id: string }[]).map((row) => row.id)
+  }
+  const [profile, signInEmailIds] = await Promise.all([
+    resolveProfileByUserIdOrEmail<Profile>(
+      supabase,
+      "id, krt_id, email, full_name, avatar_url, role, job_title, team_id, created_at, updated_at, manager_id, is_super_admin, join_date, employment_type",
+      effectiveUserId,
+      effectiveUserId === user.id ? user.email : null,
+    ),
+    user.email ? sameEmailIds(user.email) : null,
+  ])
 
   if (!profile) {
     return <div>{t("profileNotFound")}</div>
@@ -218,14 +230,9 @@ export default async function LeaveRoute({
     new Set([
       profile.id,
       ...(profile.email
-        ? (
-            (
-              await supabase
-                .from("profiles")
-                .select("id")
-                .eq("email", profile.email)
-            ).data || []
-          ).map((row: { id: string }) => row.id)
+        ? profile.email === user.email && signInEmailIds
+          ? signInEmailIds
+          : await sameEmailIds(profile.email)
         : []),
     ]),
   )

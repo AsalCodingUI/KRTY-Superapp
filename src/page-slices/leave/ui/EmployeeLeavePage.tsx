@@ -33,6 +33,7 @@ import dynamic from "next/dynamic"
 import { useRouter } from "next/navigation"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { toast } from "sonner"
+import { isShownChange, useRealtimeRefresh } from "./use-realtime-refresh"
 
 // Markdown renderer only loads when the rules dialog opens.
 const LeaveRules = dynamic(
@@ -107,7 +108,16 @@ export function EmployeeLeavePage({
 
   useEffect(() => setLogs(attendanceLogs), [attendanceLogs])
 
-  // Live refresh when a request or attendance log changes elsewhere.
+  // Live refresh when a request or attendance log changes elsewhere:
+  // debounced, and skipped when the change is already shown (our own
+  // clock / delete-request updates `logs` locally; our own request edits
+  // refresh the page themselves).
+  const refreshForRequests = useRealtimeRefresh(1_000, (payload) =>
+    isShownChange(requests, payload),
+  )
+  const refreshForLogs = useRealtimeRefresh(1_000, (payload) =>
+    isShownChange(logs, payload),
+  )
   useEffect(() => {
     const channel = supabase
       .channel("employee-leave-page")
@@ -119,7 +129,7 @@ export function EmployeeLeavePage({
           table: "leave_requests",
           filter: `user_id=eq.${profile.id}`,
         },
-        () => router.refresh(),
+        refreshForRequests,
       )
       .on(
         "postgres_changes",
@@ -129,13 +139,13 @@ export function EmployeeLeavePage({
           table: "attendance_logs",
           filter: `user_id=eq.${profile.id}`,
         },
-        () => router.refresh(),
+        refreshForLogs,
       )
       .subscribe()
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [supabase, router, profile.id])
+  }, [supabase, refreshForRequests, refreshForLogs, profile.id])
 
   const requestsForStats = statsRequests.length > 0 ? statsRequests : requests
 

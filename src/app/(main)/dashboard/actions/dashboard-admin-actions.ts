@@ -1,5 +1,5 @@
-"use server"
-
+// Plain server module, not "use server": only the dashboard page calls it,
+// with the viewer it already resolved, so it isn't exposed as an action.
 import { leaveTypeLabel } from "@/shared/lib/leave"
 import { createClient } from "@/shared/api/supabase/server"
 import { getLocalDateString } from "@/shared/lib/date"
@@ -8,7 +8,7 @@ import { canManageByRole } from "@/shared/lib/roles"
 import { getDailyStats } from "@/entities/attendance/api"
 import { getLeaveDashboardStats } from "@/entities/leave/api"
 import {
-  getTeamKpi,
+  getLatestTeamKpi,
   type TeamKpiRow,
 } from "@/app/(main)/performance/actions/kpi-actions"
 import { getDashboardReviewStats } from "@/entities/performance/api"
@@ -95,7 +95,15 @@ export type AdminDashboardData = {
   }>
 }
 
-export async function getAdminDashboardData(): Promise<{
+/**
+ * `viewer`: the profile the page already resolved. The access check stays on
+ * the real account: that profile is reused when it is the account's own (no
+ * "view as"), otherwise the account's profile is looked up as before.
+ */
+export async function getAdminDashboardData(viewer?: {
+  id: string
+  role: string | null
+}): Promise<{
   success: boolean
   data?: AdminDashboardData
   error?: string
@@ -113,11 +121,14 @@ export async function getAdminDashboardData(): Promise<{
       return { success: false, error: t("errorUnauthorized") }
     }
 
-    const profile = await resolveProfileByUserIdOrEmail<{
-      id: string
-      email: string | null
-      role: string | null
-    }>(supabase, "id, email, role, created_at", user.id, user.email)
+    const profile =
+      viewer && viewer.id === user.id
+        ? viewer
+        : await resolveProfileByUserIdOrEmail<{
+            id: string
+            email: string | null
+            role: string | null
+          }>(supabase, "id, email, role, created_at", user.id, user.email)
 
     if (!profile || !canManageByRole(profile.role)) {
       return { success: false, error: t("errorAccessDenied") }
@@ -132,7 +143,7 @@ export async function getAdminDashboardData(): Promise<{
         getDailyStats(todayStr),
         getLeaveDashboardStats(),
         getDashboardReviewStats(currentQuarter),
-        latestTeamKpi(currentQuarter),
+        getLatestTeamKpi(currentQuarter),
         getT("leave"),
       ])
     const performanceStats = {
@@ -253,29 +264,6 @@ export async function getAdminDashboardData(): Promise<{
     console.error("Error fetching admin dashboard data:", error)
     return { success: false, error: t("errorFetchFailed") }
   }
-}
-
-/**
- * The team's KPI for the latest quarter that has scores, from the current
- * one back up to three quarters (early in a quarter nothing is scored yet,
- * so the home page would show only dashes).
- */
-async function latestTeamKpi(current: string) {
-  let [year, q] = current.split("-Q").map(Number)
-  let first: { quarter: string; rows: TeamKpiRow[] } | null = null
-  for (let i = 0; i < 4; i++) {
-    const quarter = `${year}-Q${q}`
-    const result = await getTeamKpi(quarter)
-    const rows = result.success ? result.data : []
-    first ??= { quarter, rows }
-    if (rows.some((r) => r.final.score !== null)) return { quarter, rows }
-    q -= 1
-    if (q === 0) {
-      q = 4
-      year -= 1
-    }
-  }
-  return first ?? { quarter: current, rows: [] }
 }
 
 /** Distribution, average, top and attention lists from the team's final KPI. */

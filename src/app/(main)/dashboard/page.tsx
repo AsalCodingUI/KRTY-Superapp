@@ -7,7 +7,10 @@ import { canManageByRole } from "@/shared/lib/roles"
 import { getT } from "@/shared/i18n/server"
 import { redirect } from "next/navigation"
 import { getAdminDashboardData } from "./actions/dashboard-admin-actions"
-import { getEmployeeDashboardData } from "./actions/dashboard-employee-actions"
+import {
+  getEmployeeDashboardData,
+  type EmployeeDashboardViewer,
+} from "./actions/dashboard-employee-actions"
 import { AdminDashboard } from "./components/AdminDashboard"
 import { EmployeeDashboard } from "./components/EmployeeDashboard"
 
@@ -16,13 +19,13 @@ export default async function DashboardRoute({
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
-  const resolvedSearchParams = await searchParams
-  const t = await getT("dashboard")
   const supabase = await createClient()
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const [resolvedSearchParams, t, { data }] = await Promise.all([
+    searchParams,
+    getT("dashboard"),
+    supabase.auth.getUser(),
+  ])
+  const user = data.user
   if (!user) redirect("/login")
 
   const effectiveUserId = await resolveEffectiveUserId(
@@ -31,15 +34,13 @@ export default async function DashboardRoute({
     user.email,
   )
 
-  // Get user profile to determine role
-  const profile = await resolveProfileByUserIdOrEmail<{
-    id: string
-    email: string | null
-    full_name: string | null
-    role: string | null
-  }>(
+  // One lookup with every column either dashboard needs (role to route, the
+  // rest for the employee view), passed down instead of looked up again.
+  const profile = await resolveProfileByUserIdOrEmail<
+    EmployeeDashboardViewer & { role: string | null }
+  >(
     supabase,
-    "id, email, full_name, role, created_at",
+    "id, email, full_name, role, job_title, avatar_url, join_date, employment_type, created_at",
     effectiveUserId,
     user.email,
   )
@@ -57,7 +58,7 @@ export default async function DashboardRoute({
   // Route to appropriate dashboard based on role
   if (isAdminOrStakeholder) {
     // Admin/Stakeholder Dashboard
-    const result = await getAdminDashboardData()
+    const result = await getAdminDashboardData(profile)
 
     if (!result.success || !result.data) {
       return (
@@ -76,7 +77,11 @@ export default async function DashboardRoute({
       typeof resolvedSearchParams.period === "string"
         ? resolvedSearchParams.period
         : undefined
-    const result = await getEmployeeDashboardData(effectiveUserId, quarterParam)
+    const result = await getEmployeeDashboardData(
+      effectiveUserId,
+      profile,
+      quarterParam,
+    )
 
     if (!result.success || !result.data) {
       return (

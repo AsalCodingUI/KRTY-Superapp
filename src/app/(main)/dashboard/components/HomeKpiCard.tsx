@@ -14,6 +14,7 @@ import { Ring } from "@/page-slices/performance/ui/kpi/MyKpiView"
 import { periodLabel } from "@/page-slices/performance/ui/kpi/period"
 import { RatingChip } from "@/page-slices/performance/ui/kpi/RatingChip"
 import { useT } from "@/shared/i18n/client"
+import type { EmployeeDashboardData } from "../actions/dashboard-employee-actions"
 import { HomeCard, HomeIconLink } from "./home-card"
 
 /**
@@ -24,14 +25,17 @@ import { HomeCard, HomeIconLink } from "./home-card"
 export function HomeKpiCard({
   userId,
   period,
+  initial,
 }: {
   userId: string
   /** "2026-Q4" or "2026-All", as the home page's filter. */
   period: string
+  /** Computed with the page, so the card needs no request after hydration. */
+  initial?: EmployeeDashboardData["kpi"]
 }) {
   const t = useT("dashboard")
   const tp = useT("performance")
-  const { data, isLoading } = useEmployeeKpi(userId, period)
+  const { data, isLoading } = useEmployeeKpi(userId, period, initial)
   const kpi = data?.success ? data.data : null
   const score = kpi?.final.score ?? null
 

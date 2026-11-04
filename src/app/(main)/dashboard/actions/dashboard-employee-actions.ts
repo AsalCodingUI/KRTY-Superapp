@@ -1,10 +1,13 @@
-"use server"
-
+// Plain server module, not "use server": only the dashboard page calls it,
+// with the viewer it already resolved, so it isn't exposed as an action.
+import {
+  getEmployeeKpi,
+  type EmployeeKpi,
+} from "@/app/(main)/performance/actions/kpi-actions"
 import { createClient } from "@/shared/api/supabase/server"
 import { getLocalDateString } from "@/shared/lib/date"
 import { annualLeaveSummary } from "@/shared/lib/leave"
 import { getCurrentQuarter } from "@/shared/lib/date/quarter"
-import { resolveProfileByUserIdOrEmail } from "@/shared/lib/profile-resolution"
 import { Database } from "@/shared/types/database.types"
 import { getT } from "@/shared/i18n/server"
 
@@ -50,6 +53,14 @@ export type EmployeeDashboardData = {
     status: string
     organizer_name: string | null
   }>
+  /** The KPI card's first load (same query key as the card), so it shows
+   *  without a request after hydration; null if it failed. */
+  kpi: {
+    scope: string
+    result:
+      | { success: true; data: EmployeeKpi }
+      | { success: false; error: string }
+  } | null
   competencyScores: {
     leadership: number
     quality: number
@@ -59,8 +70,25 @@ export type EmployeeDashboardData = {
   } | null
 }
 
+/** The page's viewer profile: one lookup with every column used here. */
+export type EmployeeDashboardViewer = {
+  id: string
+  email: string | null
+  full_name: string | null
+  job_title: string | null
+  avatar_url: string | null
+  join_date: string | null
+  employment_type: string | null
+}
+
+/**
+ * `targetUserId`: the effective (possibly "view as") user and `profile` their
+ * profile, both resolved by the page (resolveEffectiveUserId only yields
+ * someone else for a super admin), so no access lookups are repeated here.
+ */
 export async function getEmployeeDashboardData(
-  effectiveUserId?: string,
+  targetUserId: string,
+  profile: EmployeeDashboardViewer,
   selectedQuarter?: string,
 ): Promise<{
   success: boolean
@@ -70,46 +98,6 @@ export async function getEmployeeDashboardData(
   const t = await getT("dashboard")
   try {
     const supabase = await createClient()
-
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-    if (authError || !user) {
-      return { success: false, error: t("errorUnauthorized") }
-    }
-
-    const targetUserId = effectiveUserId || user.id
-    const actorProfile = await resolveProfileByUserIdOrEmail<{
-      id: string
-      email: string | null
-      is_super_admin: boolean | null
-    }>(supabase, "id, email, is_super_admin, created_at", user.id, user.email)
-
-    if (targetUserId !== (actorProfile?.id || user.id)) {
-      if (!actorProfile?.is_super_admin) {
-        return { success: false, error: t("errorAccessDenied") }
-      }
-    }
-
-    const profile = await resolveProfileByUserIdOrEmail<{
-      id: string
-      email: string | null
-      full_name: string | null
-      job_title: string | null
-      avatar_url: string | null
-      join_date: string | null
-      employment_type: string | null
-    }>(
-      supabase,
-      "id, email, full_name, job_title, avatar_url, join_date, employment_type, created_at",
-      targetUserId,
-      targetUserId === (actorProfile?.id || user.id) ? user.email : null,
-    )
-
-    if (!profile) {
-      return { success: false, error: t("profileNotFound") }
-    }
 
     const quarterMatch = selectedQuarter?.match(/^(\d{4})-(Q[1-4]|All)$/)
     const selectedYear = quarterMatch?.[1] ? Number(quarterMatch[1]) : null
@@ -125,7 +113,14 @@ export async function getEmployeeDashboardData(
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6)
     const sevenDaysAgoStr = getLocalDateString(sevenDaysAgo)
 
+    // The KPI card reads this scope first: the page's ?period=, else now.
+    const kpiScope =
+      selectedQuarter && /^\d{4}-(Q[1-4]|All)$/.test(selectedQuarter)
+        ? selectedQuarter
+        : currentQuarter
+
     const [
+      kpiResult,
       recentLeaveResult,
       recentAttendanceResult,
       reviewSummaryResult,
@@ -136,6 +131,9 @@ export async function getEmployeeDashboardData(
       latestSummaryResult,
       ownReviewsResult,
     ] = await Promise.all([
+      // A failure only costs the head start: the card fetches it itself.
+      getEmployeeKpi(profile.id, kpiScope).catch(() => null),
+
       supabase
         .from("leave_requests")
         .select(
@@ -429,6 +427,7 @@ export async function getEmployeeDashboardData(
           }
         },
       ),
+      kpi: kpiResult ? { scope: kpiScope, result: kpiResult } : null,
       competencyScores,
     }
 

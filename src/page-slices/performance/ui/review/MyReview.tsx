@@ -1,13 +1,11 @@
 "use client"
 
-import {
-  getMyReview,
-  getMyReviewOf,
-  getReviewStatusFor,
-  type MyReviewData,
-  type MyReviewOf,
-  type ReviewSummary,
+import type {
+  MyReviewData,
+  MyReviewOf,
+  ReviewSummary,
 } from "@/app/(main)/performance/actions/review-actions"
+import { performanceRead } from "../read"
 import { GroupedList, ListRow } from "@/components/grouped-list"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -118,7 +116,7 @@ function ReviewStep({
 }) {
   const { data: initial, isLoading } = useQuery({
     queryKey: ["my-review-of", cycleId, person.id],
-    queryFn: () => getMyReviewOf(cycleId, person.id),
+    queryFn: () => performanceRead.myReviewOf(cycleId, person.id),
     enabled: edit,
     staleTime: 0,
   })
@@ -355,7 +353,7 @@ export function My360Actions({ period }: { period: string }) {
   const [open, setOpen] = useState<"result" | "peers" | null>(null)
   const { data } = useQuery({
     queryKey: ["my-review", period],
-    queryFn: () => getMyReview(period),
+    queryFn: () => performanceRead.myReview(period),
     enabled: quarter,
   })
   if (!quarter || !data) return null
@@ -420,7 +418,7 @@ export function Their360Actions({
   const [open, setOpen] = useState(false)
   const { data } = useQuery({
     queryKey: ["review-status-for", userId, period],
-    queryFn: () => getReviewStatusFor(userId, period),
+    queryFn: () => performanceRead.reviewStatusFor(userId, period),
     enabled: quarter,
   })
   if (!quarter || !data) return null
