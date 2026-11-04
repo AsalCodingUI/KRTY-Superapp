@@ -1,6 +1,7 @@
 import { PageHeader } from "@/components/page-header"
 import { surfaceClassName } from "@/components/panel"
 import { RollingValue } from "@/components/rolling-value"
+import { HoverHighlight } from "@/components/sliding-indicator"
 import { orEmpty } from "@/components/empty-value"
 import { Button } from "@/components/ui/button"
 import {
@@ -136,10 +137,16 @@ export function HomeCard({
       {...data}
       className={cn(
         surfaceClassName,
-        "p-surface flex min-w-0 flex-col gap-4",
+        "p-surface relative flex min-w-0 flex-col gap-4",
         className,
       )}
     >
+      {/* One hover highlight that follows the pointer between the card's
+          clickable rows (HomeRow with href / onClick), like GroupedList. */}
+      <HoverHighlight
+        itemSelector="[data-slot=home-row][data-interactive]"
+        className="bg-(--row-hover)"
+      />
       <header className="flex min-h-8 items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-2">
           <h2 className="text-heading text-title truncate font-normal">
@@ -301,20 +308,27 @@ export function HomeFooter({
   )
 }
 
-/** A list row inside a card (avatar/icon, text, right value). */
+/** A list row inside a card (avatar/icon, text, right value). The table
+ *  row heights (min-h-12, min-h-14 with a subtitle), py-2; hover is the
+ *  card's sliding highlight, not a per-row colour. */
 export function HomeRow({
   href,
+  onClick,
   leading,
   title,
   subtitle,
   trailing,
+  className: extra,
   ...data
 }: {
   href?: string
+  /** Makes the row a button (e.g. open an edit dialog). */
+  onClick?: () => void
   leading?: React.ReactNode
   title: React.ReactNode
   subtitle?: React.ReactNode
   trailing?: React.ReactNode
+  className?: string
 } & DataProps) {
   const body = (
     <>
@@ -332,21 +346,43 @@ export function HomeRow({
       )}
     </>
   )
-  const className =
-    "-mx-2 flex min-h-11 items-center gap-3 rounded-lg px-2 py-1.5"
+  // -mx-2 px-2: the highlight is a little wider than the text, in the
+  // card's padding.
+  const className = cn(
+    "rounded-row relative -mx-2 flex items-center gap-3 px-2 py-2 text-left",
+    subtitle ? "min-h-14" : "min-h-12",
+    (href || onClick) &&
+      "focus-visible:ring-focus-ring outline-none focus-visible:ring-2",
+    extra,
+  )
   if (href)
     return (
       <Link
         {...data}
+        data-slot="home-row"
+        data-interactive=""
         href={href}
         prefetch={false}
-        className={cn(className, "hover:bg-accent/60 transition-colors")}
+        className={className}
       >
         {body}
       </Link>
     )
+  if (onClick)
+    return (
+      <button
+        {...data}
+        type="button"
+        data-slot="home-row"
+        data-interactive=""
+        onClick={onClick}
+        className={className}
+      >
+        {body}
+      </button>
+    )
   return (
-    <div {...data} className={className}>
+    <div {...data} data-slot="home-row" className={className}>
       {body}
     </div>
   )

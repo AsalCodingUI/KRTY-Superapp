@@ -9,6 +9,8 @@ and invoice tables, tables inside Markdown. Live examples: **/ui** → Table.
 | ----------------------------------- | ---------------------------------------------------------- | -------------------------------------------------------- |
 | A list of rows (most pages)         | `GroupedList` + `ListRow`                                  | `src/components/grouped-list.tsx`                        |
 | Column labels above rows            | `ListHeader grid={ROW_GRID}` (or `listHeaderClassName`)    | same                                                     |
+| Rows inside a `Panel`               | `PanelList` (GroupedList bled into the panel body)         | `src/components/panel.tsx`                               |
+| Rows inside a `HomeCard`            | `HomeRow` (the card carries the sliding highlight)         | `src/app/(main)/dashboard/components/home-card.tsx`      |
 | Groups (status, category)           | `ListGroup label icon count`                               | same                                                     |
 | Group header that sums its rows     | `GridGroup` (or `listGroupHeaderClassName` + the row grid) | `src/page-slices/performance/ui/list.tsx`                |
 | Metadata chip in a row              | `ListChip`                                                 | `grouped-list.tsx`                                       |

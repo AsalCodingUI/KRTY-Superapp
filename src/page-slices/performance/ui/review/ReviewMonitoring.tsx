@@ -408,7 +408,7 @@ export function ReviewMonitoring({ period }: { period: string }) {
         <GroupedList>
           <ListColumns grid={ROW_GRID}>
             <span>{t("employee")}</span>
-            <span className="text-right">{t("reviewers")}</span>
+            <span>{t("reviewers")}</span>
             <span className="hidden text-right md:block">{t("result")}</span>
             <span />
           </ListColumns>
@@ -435,7 +435,7 @@ export function ReviewMonitoring({ period }: { period: string }) {
                 }
                 summary={
                   <>
-                    <span className="text-muted-foreground text-meta text-right tabular-nums">
+                    <span className="text-muted-foreground text-meta tabular-nums">
                       {groupDone}/{groupTotal}
                     </span>
                     <span className="hidden md:block" />
@@ -458,7 +458,7 @@ export function ReviewMonitoring({ period }: { period: string }) {
                           name={row.full_name}
                           avatarUrl={row.avatar_url}
                         />
-                        <div className="flex items-center justify-end gap-3">
+                        <div className="flex items-center gap-3">
                           <ReviewerStack reviewers={row.reviewers} />
                           <span className="whitespace-nowrap tabular-nums">
                             {done}

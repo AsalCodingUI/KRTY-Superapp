@@ -63,9 +63,11 @@ export const DOC_PROSE = cn(
   "[&_hr]:border-border [&_hr]:my-6",
   "[&_code]:bg-muted [&_code]:rounded [&_code]:px-1 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-[0.85em]",
   "[&_pre]:bg-muted [&_pre]:my-4 [&_pre]:rounded-lg [&_pre]:p-3 [&_pre]:text-meta [&_pre_code]:bg-transparent [&_pre_code]:p-0",
-  "[&_table]:my-4 [&_table]:w-full [&_table]:border-collapse [&_table]:text-sm",
-  "[&_th]:border-border [&_th]:text-muted-foreground [&_th]:border-b [&_th]:px-3 [&_th]:py-2 [&_th]:text-left [&_th]:font-medium",
-  "[&_td]:border-border [&_td]:border-b [&_td]:px-3 [&_td]:py-2 [&_td]:align-top [&_td_p]:my-0 [&_th_p]:my-0",
+  // Tables look like markdown.tsx's (the app's table style): column labels
+  // on a pill, rows with no lines.
+  "[&_table]:my-4 [&_table]:w-full [&_table]:border-separate [&_table]:border-spacing-0 [&_table]:text-sm",
+  "[&_th]:bg-muted dark:[&_th]:bg-muted/40 [&_th:first-child]:rounded-l-lg [&_th:last-child]:rounded-r-lg [&_th]:text-muted-foreground [&_th]:text-meta [&_th]:h-10 [&_th]:px-3 [&_th]:text-left [&_th]:font-medium",
+  "[&_td]:h-12 [&_td]:px-3 [&_td]:py-2 [&_td]:align-middle [&_td_p]:my-0 [&_th_p]:my-0",
   "[&_.selectedCell]:bg-primary/10",
   // A block picked with its handle: a soft blue tint, no outline.
   "[&_.ProseMirror-selectednode:not(.doc-image)]:bg-primary/[0.08] [&_.ProseMirror-selectednode:not(.doc-image)]:rounded-md [&_.ProseMirror-selectednode]:outline-none [&_.ProseMirror-selectednode:not(.doc-image)]:selection:bg-transparent [&_.ProseMirror-selectednode:not(.doc-image)]:selection:text-foreground",

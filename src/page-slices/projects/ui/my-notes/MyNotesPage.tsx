@@ -281,7 +281,7 @@ export function MyNotesPage() {
             <GroupedList>
               <div className={cn(ROW_GRID, listHeaderClassName)}>
                 <span>{t("notesColNote")}</span>
-                <span className="text-right">{t("notesTodo")}</span>
+                <span>{t("notesTodo")}</span>
                 <span className="text-right">{t("notesColEdited")}</span>
               </div>
               {filtered.map((note) => {
@@ -344,7 +344,7 @@ export function MyNotesPage() {
                           </span>
                         )}
                       </div>
-                      <span className="text-muted-foreground text-meta text-right tabular-nums">
+                      <span className="text-muted-foreground text-meta tabular-nums">
                         {done ?? <EmptyValue />}
                       </span>
                       <span className="text-muted-foreground text-meta text-right tabular-nums">

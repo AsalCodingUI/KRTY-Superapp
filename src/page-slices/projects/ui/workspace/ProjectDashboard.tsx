@@ -2,7 +2,11 @@
 
 import { BriefShortcut } from "@/page-slices/briefs/ui/BriefShortcut"
 import { useProjectHref } from "@/shared/hooks/useProjectHref"
-import { surfaceClassName } from "@/components/panel"
+import {
+  listHeaderClassName,
+  listRowClassName,
+} from "@/components/grouped-list"
+import { PanelList, surfaceClassName } from "@/components/panel"
 import {
   asStage,
   OPEN_STATUSES,
@@ -790,7 +794,7 @@ function PhaseSettingsDialog({
   }
 
   const cols =
-    "sm:grid-cols-[minmax(0,1fr)_9.5rem_6rem_9.5rem] sm:items-center sm:gap-x-2"
+    "sm:grid-cols-[minmax(0,1fr)_9.5rem_6rem_9.5rem] sm:items-center sm:gap-x-4"
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -799,10 +803,13 @@ function PhaseSettingsDialog({
           <DialogTitle>{t("phaseSettings")}</DialogTitle>
           <DialogDescription>{t("phaseSettingsDescription")}</DialogDescription>
         </DialogHeader>
-        <div className="text-meta flex flex-col">
+        {/* The table look (column labels on the pill, standard rows) with
+            an 8px gutter inside the dialog. */}
+        <div className="flex flex-col [--page-gutter:0.5rem]">
           <div
             className={cn(
-              "text-muted-foreground scroll-gutter-match hidden px-2 pb-1.5 text-xs sm:grid",
+              listHeaderClassName,
+              "scroll-gutter-match hidden items-center sm:grid",
               cols,
             )}
           >
@@ -820,7 +827,7 @@ function PhaseSettingsDialog({
                   key={p.id}
                   data-focused={p.id === focusId || undefined}
                   className={cn(
-                    "data-focused:bg-muted/50 grid grid-cols-2 gap-x-2 gap-y-1.5 rounded-2xl px-2 py-1.5",
+                    "rounded-row gutter-x grid min-h-12 grid-cols-2 items-center gap-x-4 gap-y-2 py-2 text-sm data-focused:bg-(--row-selected)",
                     cols,
                   )}
                 >
@@ -875,7 +882,7 @@ function PhaseSettingsDialog({
               )
             })}
           </ol>
-          <div className="text-muted-foreground mt-3 flex flex-col gap-0.5 px-2">
+          <div className="text-muted-foreground text-meta gutter-x mt-3 flex flex-col gap-0.5">
             <p>{t("phaseWeightNote")}</p>
             <p
               className={cn(
@@ -1381,7 +1388,7 @@ function ProcessPanel({
           {t("step")}
         </Button>
       </header>
-      <div className="flex flex-col">
+      <PanelList>
         {steps.map((step, i) => {
           const done = step.status === "done"
           return (
@@ -1434,8 +1441,8 @@ function ProcessPanel({
               ]}
             >
               <div
-                data-slot="project-step"
-                className="group/step border-border flex h-11 items-center gap-3 border-b pr-2 pl-4 text-sm last:border-b-0"
+                data-slot="list-row"
+                className={cn(listRowClassName, "group/step")}
               >
                 <button
                   type="button"
@@ -1506,7 +1513,7 @@ function ProcessPanel({
           )
         })}
         {adding ? (
-          <div className="flex items-center gap-2 px-4 py-2">
+          <div className="gutter-x flex items-center gap-2 py-2">
             <Input
               autoFocus
               value={title}
@@ -1527,13 +1534,13 @@ function ProcessPanel({
             <button
               type="button"
               onClick={() => setAdding(true)}
-              className="text-muted-foreground hover:text-foreground px-4 py-8 text-center text-sm"
+              className="text-muted-foreground hover:text-foreground gutter-x py-8 text-center text-sm"
             >
               {t("stepsEmpty", { name: clip(phase.name) })}
             </button>
           )
         )}
-      </div>
+      </PanelList>
     </section>
   )
 }

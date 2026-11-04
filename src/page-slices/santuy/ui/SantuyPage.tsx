@@ -3,7 +3,16 @@
 import { ConfirmDialog } from "@/components/confirm-dialog"
 import { EmptyState } from "@/components/empty-state"
 import { PageHeader } from "@/components/page-header"
-import { Panel, PanelEmpty, surfaceClassName } from "@/components/panel"
+import {
+  listRowClassName,
+  listRowDescClassName,
+} from "@/components/grouped-list"
+import {
+  Panel,
+  PanelEmpty,
+  PanelList,
+  surfaceClassName,
+} from "@/components/panel"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -388,45 +397,47 @@ function SantuyBody({
               description={t("noSessionsHint")}
             />
           ) : (
-            <ul className={cn(busy && "opacity-70")}>
-              {listed.map((s) => (
-                <ScheduleRow
-                  key={s.date}
-                  session={s}
-                  data={data}
-                  dayLabel={dayLabel(s.movedTo ?? s.date)}
-                  timeLabel={
-                    s.movedTo
-                      ? `${hhmm(s.start)}–${hhmm(s.end)} ${tz}`
-                      : timeLabel
-                  }
-                  movedFrom={s.movedTo ? dayLabel(s.date) : null}
-                  badge={
-                    (s.movedTo ?? s.date) === today
-                      ? t("today")
-                      : isThisWeek(s.movedTo ?? s.date)
-                        ? t("thisWeek")
-                        : null
-                  }
-                  canEdit={canEdit}
-                  busy={busy}
-                  meetUrl={data.settings.meetUrl}
-                  onAssign={() => {
-                    setWeekDate(s.date)
-                    setWeekOpen(true)
-                  }}
-                  onSkip={() =>
-                    saveWeek(s.date, { kind: "skip" }).catch(() => {})
-                  }
-                  onReset={() =>
-                    run(
-                      () => setSantuyWeek(s.date, null),
-                      t("restoredWeek", { date: dayLabel(s.date) }),
-                    ).catch(() => {})
-                  }
-                />
-              ))}
-            </ul>
+            <PanelList className={cn(busy && "opacity-70")}>
+              <ul className="flex flex-col">
+                {listed.map((s) => (
+                  <ScheduleRow
+                    key={s.date}
+                    session={s}
+                    data={data}
+                    dayLabel={dayLabel(s.movedTo ?? s.date)}
+                    timeLabel={
+                      s.movedTo
+                        ? `${hhmm(s.start)}–${hhmm(s.end)} ${tz}`
+                        : timeLabel
+                    }
+                    movedFrom={s.movedTo ? dayLabel(s.date) : null}
+                    badge={
+                      (s.movedTo ?? s.date) === today
+                        ? t("today")
+                        : isThisWeek(s.movedTo ?? s.date)
+                          ? t("thisWeek")
+                          : null
+                    }
+                    canEdit={canEdit}
+                    busy={busy}
+                    meetUrl={data.settings.meetUrl}
+                    onAssign={() => {
+                      setWeekDate(s.date)
+                      setWeekOpen(true)
+                    }}
+                    onSkip={() =>
+                      saveWeek(s.date, { kind: "skip" }).catch(() => {})
+                    }
+                    onReset={() =>
+                      run(
+                        () => setSantuyWeek(s.date, null),
+                        t("restoredWeek", { date: dayLabel(s.date) }),
+                      ).catch(() => {})
+                    }
+                  />
+                ))}
+              </ul>
+            </PanelList>
           )}
         </Panel>
       </div>
@@ -589,9 +600,15 @@ function ScheduleRow({
       }
     >
       <li
+        data-slot="list-row"
+        aria-current={badge ? "date" : undefined}
         className={cn(
-          "border-border flex min-h-14 items-center gap-3 border-b px-4 py-2.5 last:border-b-0",
-          badge && "bg-accent/40",
+          listRowClassName,
+          listRowDescClassName,
+          // This week's session: the selected-row tint, in the highlight's
+          // rounded shape.
+          badge &&
+            "before:rounded-row *:relative before:pointer-events-none before:absolute before:inset-x-0 before:inset-y-0.5 before:bg-(--row-selected)",
         )}
       >
         <div className="flex w-[5.5rem] shrink-0 flex-col sm:w-28">

@@ -122,7 +122,7 @@ export function AdminAttendanceHistoryList({
           <span>{t("colEmployee")}</span>
           <span className="hidden md:block">{t("colStatus")}</span>
           <span className="hidden md:block">{t("colTime")}</span>
-          <span className="hidden text-right lg:block">{t("colBreak")}</span>
+          <span className="hidden lg:block">{t("colBreak")}</span>
           <span className="text-right">{t("colDuration")}</span>
           <span className="hidden lg:block" />
         </div>
@@ -250,7 +250,7 @@ function AttendanceDay({
             </span>
           )}
         </span>
-        <span className="text-muted-foreground text-meta hidden text-right tabular-nums lg:block">
+        <span className="text-muted-foreground text-meta hidden tabular-nums lg:block">
           {t(logs.length === 1 ? "sessionsOne" : "sessionsOther", {
             n: logs.length,
           })}
@@ -402,7 +402,7 @@ function AdminAttendanceRow({
           <span className="text-muted-foreground"> – </span>
           {log.clock_out ? format(new Date(log.clock_out), "HH:mm") : "…"}
         </span>
-        <span className="text-muted-foreground hidden text-right tabular-nums lg:block">
+        <span className="text-muted-foreground hidden tabular-nums lg:block">
           {log.break_total ? `${log.break_total}m` : <EmptyValue />}
         </span>
         <WorkedTime log={log} hydrated={hydrated} />

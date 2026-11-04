@@ -1,7 +1,9 @@
 "use client"
 
 import { PageHeader } from "@/components/page-header"
-import { surfaceClassName } from "@/components/panel"
+import { listRowClassName } from "@/components/grouped-list"
+import { PanelList, surfaceClassName } from "@/components/panel"
+import { HoverHighlight } from "@/components/sliding-indicator"
 import { cn } from "@/lib/utils"
 import { STATUS_LABEL_KEYS } from "@/page-slices/projects/lib/status"
 import { useDateLocale, useT } from "@/shared/i18n/client"
@@ -138,34 +140,37 @@ export function PortalOverview({
                     {t("stepsEmpty", { name: current.name })}
                   </p>
                 ) : (
-                  phaseSteps.map((step) => {
-                    const done = step.status === "done"
-                    return (
-                      <div
-                        key={step.id}
-                        className="border-border flex h-11 items-center gap-3 border-b px-4 text-sm last:border-b-0"
-                      >
-                        {done ? (
-                          <span className="bg-success text-background flex size-4 shrink-0 items-center justify-center rounded-full">
-                            <RiCheckLine className="size-3" />
-                          </span>
-                        ) : (
-                          <CircleDashed className="text-muted-foreground size-4 shrink-0" />
-                        )}
-                        <span
-                          className={cn(
-                            "min-w-0 flex-1 truncate",
-                            done && "text-muted-foreground line-through",
-                          )}
+                  <PanelList hover={false}>
+                    {phaseSteps.map((step) => {
+                      const done = step.status === "done"
+                      return (
+                        <div
+                          key={step.id}
+                          data-slot="list-row"
+                          className={listRowClassName}
                         >
-                          {step.title}
-                        </span>
-                        <StepStatusBadge done={done}>
-                          {done ? t("statusCompleted") : t("portalStepOpen")}
-                        </StepStatusBadge>
-                      </div>
-                    )
-                  })
+                          {done ? (
+                            <span className="bg-success text-background flex size-4 shrink-0 items-center justify-center rounded-full">
+                              <RiCheckLine className="size-3" />
+                            </span>
+                          ) : (
+                            <CircleDashed className="text-muted-foreground size-4 shrink-0" />
+                          )}
+                          <span
+                            className={cn(
+                              "min-w-0 flex-1 truncate",
+                              done && "text-muted-foreground line-through",
+                            )}
+                          >
+                            {step.title}
+                          </span>
+                          <StepStatusBadge done={done}>
+                            {done ? t("statusCompleted") : t("portalStepOpen")}
+                          </StepStatusBadge>
+                        </div>
+                      )
+                    })}
+                  </PanelList>
                 )}
               </section>
             )}
@@ -184,37 +189,45 @@ export function PortalOverview({
                     {t("portalSeeAll")}
                   </Link>
                 </header>
-                {reports.map((r) => (
-                  <ContextTarget
-                    key={r.id}
-                    type="portal-report"
-                    label={r.title}
-                    href={`${base}/reports?report=${linkKey(r.title, r.id)}`}
-                    suppress={["button"]}
-                    items={(): CtxItem[] => [
-                      {
-                        id: "open-here",
-                        label: t("ctxPreview"),
-                        icon: Newspaper,
-                        onSelect: () => setOpenReport(r.id),
-                      },
-                    ]}
-                  >
-                    <button
-                      type="button"
-                      onClick={() => setOpenReport(r.id)}
-                      className="border-border hover:bg-accent flex h-11 items-center gap-3 border-b px-4 text-left text-sm transition-colors last:border-b-0"
+                <PanelList>
+                  {reports.map((r) => (
+                    <ContextTarget
+                      key={r.id}
+                      type="portal-report"
+                      label={r.title}
+                      href={`${base}/reports?report=${linkKey(r.title, r.id)}`}
+                      suppress={["button"]}
+                      items={(): CtxItem[] => [
+                        {
+                          id: "open-here",
+                          label: t("ctxPreview"),
+                          icon: Newspaper,
+                          onSelect: () => setOpenReport(r.id),
+                        },
+                      ]}
                     >
-                      <Newspaper className="text-muted-foreground size-4 shrink-0" />
-                      <span className="min-w-0 flex-1 truncate">{r.title}</span>
-                      <span className="text-tertiary-foreground text-meta shrink-0 tabular-nums">
-                        {format(parseISO(r.report_date), "d MMM yyyy", {
-                          locale: dateLocale,
-                        })}
-                      </span>
-                    </button>
-                  </ContextTarget>
-                ))}
+                      <button
+                        type="button"
+                        data-slot="list-row"
+                        onClick={() => setOpenReport(r.id)}
+                        className={cn(
+                          listRowClassName,
+                          "focus-visible:ring-focus-ring rounded-row text-left outline-none focus-visible:ring-2",
+                        )}
+                      >
+                        <Newspaper className="text-muted-foreground size-4 shrink-0" />
+                        <span className="min-w-0 flex-1 truncate">
+                          {r.title}
+                        </span>
+                        <span className="text-tertiary-foreground text-meta shrink-0 tabular-nums">
+                          {format(parseISO(r.report_date), "d MMM yyyy", {
+                            locale: dateLocale,
+                          })}
+                        </span>
+                      </button>
+                    </ContextTarget>
+                  ))}
+                </PanelList>
               </section>
             )}
           </div>
@@ -263,7 +276,11 @@ export function PortalOverview({
                   <Link2 aria-hidden="true" />
                   {t("designLinks")}
                 </h3>
-                <ul className="-mx-2 flex flex-col">
+                <ul className="relative -mx-2 flex flex-col">
+                  <HoverHighlight
+                    itemSelector="[data-slot=list-row]"
+                    className="bg-(--row-hover)"
+                  />
                   {links.map((link) => (
                     <ContextTarget
                       key={link.id}
@@ -271,7 +288,10 @@ export function PortalOverview({
                       label={link.title || linkLabel(link.url)}
                       href={link.url}
                     >
-                      <li className="hover:bg-accent flex rounded-lg pr-1 transition-colors">
+                      <li
+                        data-slot="list-row"
+                        className="rounded-row relative flex pr-1"
+                      >
                         <DesignLinkAnchor url={link.url} title={link.title} />
                       </li>
                     </ContextTarget>

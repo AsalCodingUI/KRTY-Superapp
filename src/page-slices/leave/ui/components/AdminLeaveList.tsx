@@ -86,7 +86,9 @@ function LeaveListHeader() {
       <span>{t("colEmployee")}</span>
       <span>{t("colType")}</span>
       <span className="hidden md:block">{t("colDate")}</span>
-      <span className="hidden text-right md:block">{t("colDuration")}</span>
+      <span className="hidden text-right md:block lg:text-left">
+        {t("colDuration")}
+      </span>
       <span className="hidden text-right lg:block">{t("colSubmitted")}</span>
       <span className="hidden lg:block" />
     </div>
@@ -243,7 +245,7 @@ function LeaveRow({
       <span className="text-foreground hidden truncate tabular-nums md:block">
         {formatLeaveRange(req.start_date, req.end_date, dateLocale)}
       </span>
-      <span className="text-muted-foreground hidden text-right tabular-nums md:block">
+      <span className="text-muted-foreground hidden text-right tabular-nums md:block lg:text-left">
         {t(daysKey(days), { n: days })}
       </span>
       <span

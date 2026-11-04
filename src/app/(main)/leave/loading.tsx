@@ -1,6 +1,11 @@
 "use client"
 
+import {
+  listHeaderClassName,
+  listRowClassName,
+} from "@/components/grouped-list"
 import { Skeleton } from "@/components/ui/skeleton"
+import { cn } from "@/lib/utils"
 
 export default function LeaveLoading() {
   return (
@@ -21,24 +26,20 @@ export default function LeaveLoading() {
         ))}
       </div>
 
-      {/* Table Skeleton */}
-      <div className="overflow-hidden rounded-lg">
-        {/* Table Header */}
-        <div className="border-border flex gap-4 border-b p-4">
+      {/* The list look: column labels on the pill, rows without lines. */}
+      <div className="bleed flex flex-col">
+        <div className={cn(listHeaderClassName, "flex items-center gap-x-4")}>
           {[1, 2, 3, 4, 5].map((i) => (
-            <Skeleton key={i} className="h-4 w-20" />
+            <Skeleton key={i} className="h-3.5 w-20" />
           ))}
         </div>
-        {/* Table Rows */}
-        <div className="divide-border divide-y">
-          {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="flex gap-4 p-4">
-              {[1, 2, 3, 4, 5].map((j) => (
-                <Skeleton key={j} className="h-4 w-20" />
-              ))}
-            </div>
-          ))}
-        </div>
+        {[1, 2, 3, 4, 5].map((i) => (
+          <div key={i} className={cn(listRowClassName, "gap-x-4")}>
+            {[1, 2, 3, 4, 5].map((j) => (
+              <Skeleton key={j} className="h-4 w-20" />
+            ))}
+          </div>
+        ))}
       </div>
     </div>
   )

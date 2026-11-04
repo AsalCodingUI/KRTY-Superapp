@@ -10,16 +10,16 @@ Live examples: **/ui** → Components.
 
 **Cards and blocks**
 
-| Component                                             | For                                                                     | File                                                | Props                                                          | Not for                                       |
-| ----------------------------------------------------- | ----------------------------------------------------------------------- | --------------------------------------------------- | -------------------------------------------------------------- | --------------------------------------------- |
-| `HomeCard`                                            | A block on a dashboard / overview (title inside the card)               | `src/app/(main)/dashboard/components/home-card.tsx` | `title badge actions className data-*`                         | Page sections without a card (`SectionTitle`) |
-| `HomeRow`                                             | A row in a `HomeCard` (leading, title/subtitle, trailing)               | same                                                | `href leading title subtitle trailing data-*`                  | Page lists (`GroupedList` + `ListRow`)        |
-| `HomeFigure`                                          | One big number in a card ("8 / 11 jam")                                 | same                                                | `value unit hint roll`                                         | Several numbers (`HomeStats`)                 |
-| `HomeStats`                                           | 2–4 label-over-value columns in a card                                  | same                                                | `items: {label value tone}[]`                                  | A page's headline band (`StatStrip`)          |
-| `HomeFooter`, `HomeIconLink`, `HomeEmpty`             | Card footer link line · header icon link · empty text                   | same                                                | `label value href linkLabel` · `href label` · text             |                                               |
-| `HomeColumn`, `HomeGrid`, `HomeActions`, `HomeAction` | Dashboard column · two cards side by side · quick-action pills          | same                                                | `children` · `aside` · `href onClick icon primary desktopOnly` | Other pages                                   |
-| `Panel` (+ `PanelEmpty`)                              | A bordered block with a header bar (title, count, action)               | `src/components/panel.tsx`                          | `title meta action bodyClassName`                              | Dashboard cards (`HomeCard`)                  |
-| `surfaceClassName`                                    | The card surface (`bg-card border rounded-card`) for anything card-like | same                                                | class                                                          | Copying the classes by hand                   |
+| Component                                             | For                                                                     | File                                                | Props                                                           | Not for                                       |
+| ----------------------------------------------------- | ----------------------------------------------------------------------- | --------------------------------------------------- | --------------------------------------------------------------- | --------------------------------------------- |
+| `HomeCard`                                            | A block on a dashboard / overview (title inside the card)               | `src/app/(main)/dashboard/components/home-card.tsx` | `title badge actions className data-*`                          | Page sections without a card (`SectionTitle`) |
+| `HomeRow`                                             | A row in a `HomeCard` (leading, title/subtitle, trailing)               | same                                                | `href onClick leading title subtitle trailing className data-*` | Page lists (`GroupedList` + `ListRow`)        |
+| `HomeFigure`                                          | One big number in a card ("8 / 11 jam")                                 | same                                                | `value unit hint roll`                                          | Several numbers (`HomeStats`)                 |
+| `HomeStats`                                           | 2–4 label-over-value columns in a card                                  | same                                                | `items: {label value tone}[]`                                   | A page's headline band (`StatStrip`)          |
+| `HomeFooter`, `HomeIconLink`, `HomeEmpty`             | Card footer link line · header icon link · empty text                   | same                                                | `label value href linkLabel` · `href label` · text              |                                               |
+| `HomeColumn`, `HomeGrid`, `HomeActions`, `HomeAction` | Dashboard column · two cards side by side · quick-action pills          | same                                                | `children` · `aside` · `href onClick icon primary desktopOnly`  | Other pages                                   |
+| `Panel` (+ `PanelEmpty`, `PanelList`)                 | A bordered block with a header bar (title, count, action)               | `src/components/panel.tsx`                          | `title meta action bodyClassName`                               | Dashboard cards (`HomeCard`)                  |
+| `surfaceClassName`                                    | The card surface (`bg-card border rounded-card`) for anything card-like | same                                                | class                                                           | Copying the classes by hand                   |
 
 **People and projects**
 
@@ -190,8 +190,11 @@ keeps `ZoomableImage`). `TimeSelect`'s unused `size` prop removed. Deleted
 unused), `charts/radar-chart.tsx`, `always-dark.tsx`, `ui/drawer.tsx`,
 `ui/hover-card.tsx`, `ui/navigation-menu.tsx`, `PanelLink`, `AvatarBadge`.
 
-Left: `PanelRow` (used by /ui → Spacing); `HomeRow`'s own hover (kept on
-request); `size-6` avatars (their `text-[10px]` fallback would turn
+Done (table pass): `PanelRow` replaced by `PanelList` (a `GroupedList`
+bled into the panel body; Santuy, project dashboard / portal panels);
+`HomeRow` on the table row heights (`min-h-12`, `min-h-14` with a
+subtitle, `py-2`) with `HomeCard`'s sliding highlight instead of a
+per-row hover, plus `onClick` for button rows. Left: `size-6` avatars (their `text-[10px]` fallback would turn
 `text-xs` under `size="sm"`), responsive / `cn(...)` sizes, `size-4`,
 `size-20`; `avatarSizeClasses` in avatar-group; `fileKind()` (thumbnail:
 `csv` and `doc` tiles, image by mime only) vs `previewKind()` (viewer:
@@ -204,14 +207,12 @@ Unused (dead code; delete, or document before first use):
 
 - `src/components/charts/category-bar.tsx`, `src/components/charts/radar-chart.tsx` — no imports.
 - `src/components/always-dark.tsx` — no imports.
-- `src/components/panel.tsx:57` `PanelLink` and `:76` `PanelRow` — no users (and `PanelRow` uses `border-b` rows and `hover:bg-accent/60`, against table.md).
 - `src/components/ui/avatar.tsx:65` `AvatarBadge` — no users.
 - `src/components/ui/drawer.tsx`, `hover-card.tsx`, `navigation-menu.tsx` — no imports (overlay.md / navigation.md).
 
 Duplicates and drift:
 
 - `src/app/(main)/dashboard/components/home-card.tsx` `HomeCard` writes the card surface inline (`bg-card border-field-border dark:border-border rounded-xl border`) → `surfaceClassName`.
-- `HomeRow` (`home-card.tsx`) hovers with `hover:bg-accent/60` per row and `min-h-11` → the sliding highlight and `min-h-12` (table.md), or document it as the card-row exception.
 - Initials: 5 local helpers (`projects/ui/ProjectList.tsx:85`, `ProjectKanban.tsx:39`, `projects/ui/workspace/task-utils.ts:23`, `leave/ui/components/ApprovalInbox.tsx:78`, `components/nav-user.tsx:37`) plus 16 inline `.slice(0, 2).toUpperCase()` (e.g. `ProjectsListPage.tsx:522`, `ProjectForm.tsx:520`, `ProjectSettings.tsx:389`, `ProjectReports.tsx:163`, `attendance/components/AdminAttendanceHistoryList.tsx:379`) → one `initials()` in `src/shared/lib`, or a `PersonAvatar name src size` component.
 - Avatar sizes are set with `className` (`size-5` ×9, `size-6` ×8, `size-7` ×8, `size-8` ×5, `size-4`, `size-10`, `size-20`) instead of `size` (used once) → add `xs` (20) and `md` (28) to `Avatar`'s `size` and use the prop.
 - `avatarSizeClasses` in `src/components/avatar-group.tsx:11` is marked "Legacy" and only used by `AvatarOverflow` → fold into `Avatar` sizes.

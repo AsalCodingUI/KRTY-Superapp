@@ -13,6 +13,7 @@ import { EmptyState } from "@/components/empty-state"
 import { InlineText } from "@/components/inline-text"
 import { useBreadcrumbs } from "@/components/page-breadcrumbs"
 import { PageHeader } from "@/components/page-header"
+import { listHeaderClassName } from "@/components/grouped-list"
 import { surfaceClassName } from "@/components/panel"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -392,12 +393,18 @@ function PhasePanel({ phase, index }: { phase: ProcessPhase; index: number }) {
         />
       </header>
 
-      <div className="text-muted-foreground hidden grid-cols-2 gap-4 border-b px-5 py-2 text-xs md:grid">
-        <span>{t("clientSees")}</span>
-        <span>{t("teamDoes")}</span>
-      </div>
-
       <div className="flex flex-col gap-3 p-4">
+        {/* Column labels on the list pill; its 12px gutter lines them up
+            with the step cards' text. */}
+        <div
+          className={cn(
+            listHeaderClassName,
+            "mb-0 hidden grid-cols-2 items-center gap-4 [--page-gutter:0.75rem] md:grid",
+          )}
+        >
+          <span>{t("clientSees")}</span>
+          <span>{t("teamDoes")}</span>
+        </div>
         {phase.steps.length === 0 && (
           <p className="text-muted-foreground py-6 text-center text-sm">
             {t("noSteps")}

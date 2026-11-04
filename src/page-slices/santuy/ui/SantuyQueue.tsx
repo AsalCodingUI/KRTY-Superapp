@@ -1,6 +1,7 @@
 "use client"
 
-import { Panel, PanelEmpty } from "@/components/panel"
+import { ListGroup, listRowClassName } from "@/components/grouped-list"
+import { Panel, PanelEmpty, PanelList } from "@/components/panel"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { ContextTarget, copyText, type CtxItem } from "@/shared/context-menu"
@@ -234,99 +235,103 @@ export function SantuyQueue({
         ) : undefined
       }
     >
-      {active.length === 0 ? (
+      {active.length === 0 && (
         <PanelEmpty icon={<RiGroupLine />} title={t("emptyQueue")} />
-      ) : (
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={onDragEnd}
-        >
-          <SortableContext
-            items={active.map((m) => m.profileId)}
-            strategy={verticalListSortingStrategy}
-          >
-            <ol className={cn(busy && "pointer-events-none opacity-70")}>
-              {active.map((m, index) => {
-                const next = nextDates.get(m.profileId)
-                return (
-                  <QueueRow
+      )}
+      {(active.length > 0 || left.length > 0) && (
+        <PanelList>
+          {active.length > 0 && (
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={onDragEnd}
+            >
+              <SortableContext
+                items={active.map((m) => m.profileId)}
+                strategy={verticalListSortingStrategy}
+              >
+                <ol
+                  className={cn(
+                    "flex flex-col",
+                    busy && "pointer-events-none opacity-70",
+                  )}
+                >
+                  {active.map((m, index) => {
+                    const next = nextDates.get(m.profileId)
+                    return (
+                      <QueueRow
+                        key={m.profileId}
+                        id={m.profileId}
+                        label={nameOf(m.profileId)}
+                        menu={() => visible(activeItems(m.profileId, index))}
+                        index={index}
+                        canEdit={canEdit}
+                        dragLabel={t("dragHandle")}
+                        hideLabel={t("hide")}
+                        onHide={() => hide(m.profileId)}
+                      >
+                        <PersonAvatar person={data.people.get(m.profileId)} />
+                        <span className="text-foreground min-w-0 flex-1 truncate text-sm">
+                          {nameOf(m.profileId)}
+                        </span>
+                        {next && (
+                          <span className="text-tertiary-foreground text-meta shrink-0 tabular-nums">
+                            {format(dayDate(next), "d MMM", {
+                              locale: dateLocale,
+                            })}
+                          </span>
+                        )}
+                      </QueueRow>
+                    )
+                  })}
+                </ol>
+              </SortableContext>
+            </DndContext>
+          )}
+          {left.length > 0 && (
+            <ListGroup label={t("hiddenTitle")} count={left.length}>
+              <ul className="flex flex-col">
+                {left.map((m) => (
+                  <ContextTarget
                     key={m.profileId}
+                    type="santuy-member"
                     id={m.profileId}
                     label={nameOf(m.profileId)}
-                    menu={() => visible(activeItems(m.profileId, index))}
-                    index={index}
-                    canEdit={canEdit}
-                    dragLabel={t("dragHandle")}
-                    hideLabel={t("hide")}
-                    onHide={() => hide(m.profileId)}
+                    items={() => visible(hiddenItems(m.profileId))}
+                    suppress={["button"]}
                   >
-                    <PersonAvatar person={data.people.get(m.profileId)} />
-                    <span className="text-foreground min-w-0 flex-1 truncate text-sm">
-                      {nameOf(m.profileId)}
-                    </span>
-                    {next && (
-                      <span className="text-tertiary-foreground text-meta shrink-0 tabular-nums">
-                        {format(dayDate(next), "d MMM", {
-                          locale: dateLocale,
-                        })}
+                    <li data-slot="list-row" className={listRowClassName}>
+                      <span className="w-5 shrink-0" />
+                      <PersonAvatar
+                        person={data.people.get(m.profileId)}
+                        className="opacity-50 grayscale"
+                      />
+                      <span className="text-tertiary-foreground min-w-0 flex-1 truncate text-sm">
+                        {nameOf(m.profileId)}
                       </span>
-                    )}
-                  </QueueRow>
-                )
-              })}
-            </ol>
-          </SortableContext>
-        </DndContext>
-      )}
-      {left.length > 0 && (
-        <>
-          <div className="border-border text-muted-foreground text-meta flex items-baseline gap-2 border-t px-4 pt-3 pb-1">
-            {t("hiddenTitle")}
-            <span className="text-tertiary-foreground tabular-nums">
-              {left.length}
-            </span>
-          </div>
-          <ul>
-            {left.map((m) => (
-              <ContextTarget
-                key={m.profileId}
-                type="santuy-member"
-                id={m.profileId}
-                label={nameOf(m.profileId)}
-                items={() => visible(hiddenItems(m.profileId))}
-                suppress={["button"]}
-              >
-                <li className="flex min-h-11 items-center gap-3 px-4 py-1.5">
-                  <span className="w-5 shrink-0" />
-                  <PersonAvatar
-                    person={data.people.get(m.profileId)}
-                    className="opacity-50 grayscale"
-                  />
-                  <span className="text-tertiary-foreground min-w-0 flex-1 truncate text-sm">
-                    {nameOf(m.profileId)}
-                  </span>
-                  {canEdit && (
-                    <Button
-                      variant="ghost"
-                      size="icon-xs"
-                      aria-label={t("show")}
-                      title={t("show")}
-                      className="text-muted-foreground hover:text-foreground -mr-1 shrink-0"
-                      disabled={busy}
-                      onClick={() => restore(m.profileId)}
-                    >
-                      <RiEyeLine />
-                    </Button>
-                  )}
-                </li>
-              </ContextTarget>
-            ))}
-          </ul>
-        </>
+                      {canEdit && (
+                        <Button
+                          variant="ghost"
+                          size="icon-xs"
+                          aria-label={t("show")}
+                          title={t("show")}
+                          className="text-muted-foreground hover:text-foreground -mr-1 shrink-0"
+                          disabled={busy}
+                          onClick={() => restore(m.profileId)}
+                        >
+                          <RiEyeLine />
+                        </Button>
+                      )}
+                    </li>
+                  </ContextTarget>
+                ))}
+              </ul>
+            </ListGroup>
+          )}
+        </PanelList>
       )}
       {first && last && active.length > 1 && (
-        <p className="text-muted-foreground border-border text-meta border-t px-4 py-2.5">
+        <p className="text-muted-foreground text-meta px-4 pb-3">
           {t("queueLoop", {
             last: nameOf(last.profileId),
             first: nameOf(first.profileId),
@@ -380,9 +385,10 @@ function QueueRow({
       <li
         ref={setNodeRef}
         style={{ transform: CSS.Translate.toString(transform), transition }}
+        data-slot="list-row"
         className={cn(
-          "group/row bg-card border-border relative flex min-h-12 items-center gap-3 border-b px-4 py-2 last:border-b-0",
-          isDragging && "shadow-sheet z-10 rounded-lg border-transparent",
+          listRowClassName,
+          isDragging && "bg-card shadow-sheet rounded-row z-10",
         )}
       >
         {canEdit ? (

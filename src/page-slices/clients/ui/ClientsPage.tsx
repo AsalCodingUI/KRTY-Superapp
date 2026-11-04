@@ -383,7 +383,9 @@ export function ClientsPage() {
           <GroupedList>
             <ListHeader grid={ROW_GRID}>
               <span>{t("fieldName")}</span>
-              <span className="text-right">{t("projectsTitle")}</span>
+              <span className="text-right md:text-left">
+                {t("projectsTitle")}
+              </span>
               <span className="hidden text-right md:block">
                 {t("statReceived")}
               </span>
@@ -523,7 +525,7 @@ function ClientListRow({
           </span>
         </div>
       </div>
-      <div className="flex items-center justify-end gap-1.5">
+      <div className="flex items-center justify-end gap-1.5 md:justify-start">
         <ListChip>{client.currency}</ListChip>
         <span className="text-muted-foreground text-meta tabular-nums">
           {sum.projects}

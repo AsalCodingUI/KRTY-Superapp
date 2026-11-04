@@ -89,7 +89,7 @@ export function AttendanceHistoryList({
         <div className={cn(ROW_GRID, listHeaderClassName)}>
           <span>{t("colTime")}</span>
           <span className="hidden md:block">{t("colStatus")}</span>
-          <span className="hidden text-right md:block">{t("colBreak")}</span>
+          <span className="hidden md:block">{t("colBreak")}</span>
           <span className="text-right">{t("colDuration")}</span>
         </div>
         {groups.slice(0, visibleDays).map(([date, dayLogs], index) => (
@@ -201,7 +201,7 @@ function AttendanceDay({
             n: logs.length,
           })}
         </span>
-        <span className="text-muted-foreground text-meta hidden text-right tabular-nums md:block">
+        <span className="text-muted-foreground text-meta hidden tabular-nums md:block">
           {totalBreak ? `${totalBreak}m` : ""}
         </span>
         <span
@@ -320,7 +320,7 @@ function AttendanceRow({
         </div>
 
         <div className="hidden md:block">{status}</div>
-        <span className="text-muted-foreground hidden text-right tabular-nums md:block">
+        <span className="text-muted-foreground hidden tabular-nums md:block">
           {log.break_total ? `${log.break_total}m` : <EmptyValue />}
         </span>
         {/* On wide screens the action floats over the duration cell on

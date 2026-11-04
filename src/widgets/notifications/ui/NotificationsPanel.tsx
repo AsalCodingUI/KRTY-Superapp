@@ -10,6 +10,7 @@ import { registerUndo, UndoStale } from "@/shared/undo"
 import { canManageByRole } from "@/shared/lib/roles"
 import { EmptyState } from "@/components/empty-state"
 import { SegmentedControl } from "@/components/segmented-control"
+import { HoverHighlight } from "@/components/sliding-indicator"
 import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
 import { SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
@@ -389,7 +390,12 @@ export default function NotificationsPanel({
             />
           </div>
         ) : (
-          <ul className="flex flex-col">
+          <ul className="relative flex flex-col">
+            {/* One highlight that follows the pointer between rows. */}
+            <HoverHighlight
+              itemSelector="[data-slot=list-row]"
+              className="bg-(--row-hover)"
+            />
             {filteredNotifications.map((notification) => {
               const created = notification.created_at
                 ? new Date(notification.created_at)
@@ -406,7 +412,10 @@ export default function NotificationsPanel({
                   suppress={["link"]}
                   items={() => rowItems(notification)}
                 >
-                  <li className="group/notif hover:bg-muted relative flex gap-3 rounded-lg px-3 py-3 transition-colors">
+                  <li
+                    data-slot="list-row"
+                    className="group/notif rounded-row relative flex min-h-14 gap-3 px-3 py-2"
+                  >
                     {/* What it's about; a dot on it while unread. */}
                     <span
                       aria-hidden
@@ -432,7 +441,7 @@ export default function NotificationsPanel({
                             if (notification.link) onClose()
                           }}
                           className={cn(
-                            "focus-visible:after:ring-ring min-w-0 flex-1 truncate outline-none after:absolute after:inset-0 after:rounded-lg focus-visible:after:ring-2",
+                            "focus-visible:after:ring-ring after:rounded-row min-w-0 flex-1 truncate outline-none after:absolute after:inset-0 focus-visible:after:ring-2",
                             notification.is_read
                               ? "text-muted-foreground"
                               : "text-foreground font-medium",

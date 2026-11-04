@@ -89,8 +89,8 @@ Page bottom         none             layout adds md:pb-6 / phone tab-bar room
 | Surface            | Padding                                                                                         | Inner gaps                      |
 | ------------------ | ----------------------------------------------------------------------------------------------- | ------------------------------- |
 | `HomeCard`         | `p-5`; header `min-h-8`                                                                         | `gap-4`, header actions `gap-1` |
-| `HomeRow`          | `-mx-2 px-2 py-1.5 min-h-11` (hover pill wider than text)                                       | `gap-3`                         |
-| `Panel`            | header `h-11 px-4`; `PanelRow` `px-4 py-2.5 min-h-12`                                           | `gap-3`                         |
+| `HomeRow`          | `-mx-2 px-2 py-2 min-h-12` (`min-h-14` with a subtitle); the card's sliding highlight           | `gap-3`                         |
+| `Panel`            | header `h-11 px-4`; `PanelList` body `px-4 py-2`, rows bleed 8px (`--bleed:0.5rem`)             | `gap-3`                         |
 | `HomeFooter`       | `border-t pt-4`                                                                                 |                                 |
 | Dialog             | header `px-5 pt-5 pr-12`; body `pane-px-5 pt-4 pb-1`; footer `px-5 pb-5 pt-4`; bare `p-5 gap-5` | body `gap-4`, footer `gap-2`    |
 | Sheet (right)      | header `min-h-[3.25rem] px-5 pr-14`; body `scroll-pane pane-px-5`; footer `px-5 py-3`           | `gap-2`                         |

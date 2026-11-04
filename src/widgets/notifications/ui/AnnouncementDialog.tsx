@@ -3,6 +3,7 @@
 import { SegmentedControl } from "@/components/segmented-control"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
+import { HoverHighlight } from "@/components/sliding-indicator"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
   Dialog,
@@ -163,35 +164,51 @@ export function AnnouncementDialog({
               ]}
             />
             {audience === "people" && (
-              <div className="scroll-pane border-border flex max-h-48 flex-col rounded-lg border py-1">
-                {people.map((p) => {
-                  const name = p.full_name || "?"
-                  return (
-                    <label
-                      key={p.id}
-                      className="hover:bg-muted flex cursor-pointer items-center gap-3 rounded-md px-2 py-1.5"
-                    >
-                      <Checkbox
-                        checked={picked.includes(p.id)}
-                        onCheckedChange={(on) => toggle(p.id, Boolean(on))}
-                      />
-                      <Avatar className="size-6">
-                        <AvatarImage src={p.avatar_url || undefined} alt="" />
-                        <AvatarFallback className="text-[10px]">
-                          {initials(name)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span className="min-w-0 flex-1 truncate text-sm">
-                        {name}
-                      </span>
-                      {p.job_title && (
-                        <span className="text-tertiary-foreground shrink-0 text-xs">
-                          {p.job_title}
+              <div className="scroll-pane border-border flex max-h-48 flex-col rounded-lg border p-1">
+                {/* Inside the scroller, so the sliding highlight scrolls
+                    with the rows. */}
+                <div className="relative flex flex-col">
+                  <HoverHighlight
+                    itemSelector="[data-slot=list-row]"
+                    className="bg-(--row-hover)"
+                    inset={0}
+                  />
+                  {people.map((p) => {
+                    const name = p.full_name || "?"
+                    return (
+                      <label
+                        key={p.id}
+                        data-slot="list-row"
+                        // Checkbox column: 24px to the person (table.md).
+                        className="rounded-row relative grid cursor-pointer grid-cols-[1.5rem_minmax(0,1fr)] items-center gap-x-4 px-2 py-1.5"
+                      >
+                        <Checkbox
+                          checked={picked.includes(p.id)}
+                          onCheckedChange={(on) => toggle(p.id, Boolean(on))}
+                        />
+                        <span className="flex min-w-0 items-center gap-3">
+                          <Avatar className="size-6">
+                            <AvatarImage
+                              src={p.avatar_url || undefined}
+                              alt=""
+                            />
+                            <AvatarFallback className="text-[10px]">
+                              {initials(name)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <span className="min-w-0 flex-1 truncate text-sm">
+                            {name}
+                          </span>
+                          {p.job_title && (
+                            <span className="text-tertiary-foreground shrink-0 text-xs">
+                              {p.job_title}
+                            </span>
+                          )}
                         </span>
-                      )}
-                    </label>
-                  )
-                })}
+                      </label>
+                    )
+                  })}
+                </div>
               </div>
             )}
             {audience === "people" && picked.length === 0 && (

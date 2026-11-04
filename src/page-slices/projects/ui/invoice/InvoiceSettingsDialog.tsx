@@ -4,6 +4,11 @@ import { compressImage } from "@/shared/lib/compress-image"
 import { ConfirmDialog } from "@/components/confirm-dialog"
 import { FileField } from "@/components/file-field"
 import { SegmentedControl } from "@/components/segmented-control"
+import {
+  GroupedList,
+  listRowClassName,
+  listRowDescClassName,
+} from "@/components/grouped-list"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
@@ -173,49 +178,58 @@ function MethodsTab({
           {t("methodsEmpty")}
         </p>
       )}
-      {methods.map((m) => {
-        const stale = needsVerification(m)
-        return (
-          <button
-            key={m.id}
-            type="button"
-            onClick={() => setDraft({ ...m })}
-            className="hover:bg-accent border-border flex items-center gap-3 rounded-xl border px-3 py-2.5 text-left text-sm transition-colors"
-          >
-            <span className="flex min-w-0 flex-1 flex-col">
-              <span
+      {methods.length > 0 && (
+        <GroupedList className="[--bleed:0.5rem]">
+          {methods.map((m) => {
+            const stale = needsVerification(m)
+            return (
+              <button
+                key={m.id}
+                type="button"
+                onClick={() => setDraft({ ...m })}
+                data-slot="list-row"
                 className={cn(
-                  "truncate",
-                  !m.is_active && "text-muted-foreground",
+                  listRowClassName,
+                  listRowDescClassName,
+                  "focus-visible:ring-focus-ring rounded-row text-left outline-none focus-visible:ring-2",
                 )}
               >
-                {m.name}
-              </span>
-              <span className="text-muted-foreground truncate text-xs">
-                {PAYMENT_TYPE_LABEL[m.type] ?? m.type}
-                {m.type === "crypto" &&
-                  ` · ${
-                    m.verified_at
-                      ? `${t("lastChecked")} ${formatDistanceToNow(new Date(m.verified_at), { addSuffix: true, locale: dateLocale })}`
-                      : t("neverChecked")
-                  }`}
-              </span>
-            </span>
-            {/* State as words, not a strike-through or a lone icon. */}
-            {!m.is_active ? (
-              <Badge variant="secondary">{t("methodInactive")}</Badge>
-            ) : (
-              stale && (
-                <Badge variant="warning">
-                  <AlertTriangle data-icon="inline-start" />
-                  {t("needsCheck")}
-                </Badge>
-              )
-            )}
-            <ChevronRight className="text-muted-foreground size-4 shrink-0" />
-          </button>
-        )
-      })}
+                <span className="flex min-w-0 flex-1 flex-col">
+                  <span
+                    className={cn(
+                      "truncate",
+                      !m.is_active && "text-muted-foreground",
+                    )}
+                  >
+                    {m.name}
+                  </span>
+                  <span className="text-tertiary-foreground text-meta truncate">
+                    {PAYMENT_TYPE_LABEL[m.type] ?? m.type}
+                    {m.type === "crypto" &&
+                      ` · ${
+                        m.verified_at
+                          ? `${t("lastChecked")} ${formatDistanceToNow(new Date(m.verified_at), { addSuffix: true, locale: dateLocale })}`
+                          : t("neverChecked")
+                      }`}
+                  </span>
+                </span>
+                {/* State as words, not a strike-through or a lone icon. */}
+                {!m.is_active ? (
+                  <Badge variant="secondary">{t("methodInactive")}</Badge>
+                ) : (
+                  stale && (
+                    <Badge variant="warning">
+                      <AlertTriangle data-icon="inline-start" />
+                      {t("needsCheck")}
+                    </Badge>
+                  )
+                )}
+                <ChevronRight className="text-muted-foreground size-4 shrink-0" />
+              </button>
+            )
+          })}
+        </GroupedList>
+      )}
       <Button
         variant="outline"
         className="mt-1 self-start"

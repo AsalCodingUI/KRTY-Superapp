@@ -3,6 +3,7 @@
 import { EmptyState } from "@/components/empty-state"
 import { SegmentedControl } from "@/components/segmented-control"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { HoverHighlight } from "@/components/sliding-indicator"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -307,7 +308,7 @@ export function ApprovalInbox({
             )}
           </div>
 
-          <div className="scroll-pane mx-[calc(-0.5rem-var(--sbw,0px))] flex h-[min(24rem,calc(100svh-16rem))] flex-col gap-1">
+          <div className="scroll-pane mx-[calc(-0.5rem-var(--sbw,0px))] flex h-[min(24rem,calc(100svh-16rem))] flex-col">
             {loading ? (
               <div className="grid flex-1 place-items-center">
                 <Spinner />
@@ -319,123 +320,131 @@ export function ApprovalInbox({
                 title={t("inboxEmpty")}
               />
             ) : (
-              <AnimatePresence initial={false}>
-                {tab === "leave"
-                  ? leaves!.map((req) => {
-                      const key = `leave:${req.id}`
-                      const days = leaveDays(req.start_date, req.end_date)
-                      const range = formatLeaveRange(
-                        req.start_date,
-                        req.end_date,
-                        dateLocale,
-                      )
-                      return (
-                        <InboxRow
-                          key={key}
-                          highlighted={linked && String(req.id) === linkedId}
-                          person={req.profiles}
-                          title={leaveTypeLabel(req.leave_type, t)}
-                          meta={`${range} · ${t(daysKey(days), { n: days })}`}
-                          // Right-click: the row's buttons, plus the
-                          // person and the dates.
-                          menu={() => [
-                            {
-                              id: "approve",
-                              label: t("approve"),
-                              icon: RiCheckLine,
-                              disabled: busy !== null,
-                              onSelect: () => decideLeave([req.id], true),
-                            },
-                            {
-                              id: "reject",
-                              label: t("ctxRejectWithNote"),
-                              icon: RiCloseLine,
-                              disabled: busy !== null,
-                              onSelect: () => {
-                                setNote("")
-                                setRejecting(key)
+              // Inside the scroller, so the sliding highlight scrolls with
+              // the rows.
+              <div className="relative flex flex-col">
+                <HoverHighlight
+                  itemSelector="[data-slot=list-row]"
+                  className="bg-(--row-hover)"
+                />
+                <AnimatePresence initial={false}>
+                  {tab === "leave"
+                    ? leaves!.map((req) => {
+                        const key = `leave:${req.id}`
+                        const days = leaveDays(req.start_date, req.end_date)
+                        const range = formatLeaveRange(
+                          req.start_date,
+                          req.end_date,
+                          dateLocale,
+                        )
+                        return (
+                          <InboxRow
+                            key={key}
+                            highlighted={linked && String(req.id) === linkedId}
+                            person={req.profiles}
+                            title={leaveTypeLabel(req.leave_type, t)}
+                            meta={`${range} · ${t(daysKey(days), { n: days })}`}
+                            // Right-click: the row's buttons, plus the
+                            // person and the dates.
+                            menu={() => [
+                              {
+                                id: "approve",
+                                label: t("approve"),
+                                icon: RiCheckLine,
+                                disabled: busy !== null,
+                                onSelect: () => decideLeave([req.id], true),
                               },
-                            },
-                            profileItem(req.user_id, req.profiles),
-                            {
-                              id: "copy-range",
-                              label: t("ctxCopyRange"),
-                              icon: CalendarRange,
-                              onSelect: () => copy(range),
-                            },
-                          ]}
-                          detail={req.reason}
-                          busy={busy === key}
-                          disabled={busy !== null}
-                          rejecting={rejecting === key}
-                          note={note}
-                          onNote={setNote}
-                          onApprove={() => decideLeave([req.id], true)}
-                          onReject={() => {
-                            setNote("")
-                            setRejecting(key)
-                          }}
-                          onCancelReject={() => setRejecting(null)}
-                          onConfirmReject={() => decideLeave([req.id], false)}
-                          approveLabel={t("approve")}
-                          rejectLabel={t("reject")}
-                          notePlaceholder={t("rejectPlaceholder")}
-                          cancelLabel={tc("cancel")}
-                        />
-                      )
-                    })
-                  : deletes!.map((log) => {
-                      const key = `attendance:${log.id}`
-                      const day = format(new Date(log.date), "d MMM yyyy", {
-                        locale: dateLocale,
+                              {
+                                id: "reject",
+                                label: t("ctxRejectWithNote"),
+                                icon: RiCloseLine,
+                                disabled: busy !== null,
+                                onSelect: () => {
+                                  setNote("")
+                                  setRejecting(key)
+                                },
+                              },
+                              profileItem(req.user_id, req.profiles),
+                              {
+                                id: "copy-range",
+                                label: t("ctxCopyRange"),
+                                icon: CalendarRange,
+                                onSelect: () => copy(range),
+                              },
+                            ]}
+                            detail={req.reason}
+                            busy={busy === key}
+                            disabled={busy !== null}
+                            rejecting={rejecting === key}
+                            note={note}
+                            onNote={setNote}
+                            onApprove={() => decideLeave([req.id], true)}
+                            onReject={() => {
+                              setNote("")
+                              setRejecting(key)
+                            }}
+                            onCancelReject={() => setRejecting(null)}
+                            onConfirmReject={() => decideLeave([req.id], false)}
+                            approveLabel={t("approve")}
+                            rejectLabel={t("reject")}
+                            notePlaceholder={t("rejectPlaceholder")}
+                            cancelLabel={tc("cancel")}
+                          />
+                        )
                       })
-                      const range = `${format(new Date(log.clock_in), "HH:mm")} – ${
-                        log.clock_out
-                          ? format(new Date(log.clock_out), "HH:mm")
-                          : "…"
-                      }`
-                      return (
-                        <InboxRow
-                          key={key}
-                          highlighted={linked && String(log.id) === linkedId}
-                          person={log.profiles}
-                          title={t("inboxDeleteAsked", { date: day })}
-                          meta={range}
-                          menu={() => [
-                            {
-                              id: "delete",
-                              label: t("deleteData"),
-                              icon: RiDeleteBinLine,
-                              destructive: true,
-                              confirm: true,
-                              disabled: busy !== null,
-                              onSelect: () => decideDelete(log, true),
-                            },
-                            {
-                              id: "decline",
-                              label: t("declineRequest"),
-                              icon: RiCloseLine,
-                              disabled: busy !== null,
-                              onSelect: () => decideDelete(log, false),
-                            },
-                            profileItem(log.user_id, log.profiles),
-                            {
-                              id: "copy-times",
-                              label: t("ctxCopyTimes"),
-                              icon: Clock,
-                              onSelect: () => copy(`${day}, ${range}`),
-                            },
-                          ]}
-                          busy={busy === key}
-                          disabled={busy !== null}
-                          onApprove={() => decideDelete(log, true)}
-                          onReject={() => decideDelete(log, false)}
-                          approveLabel={t("deleteData")}
-                          rejectLabel={t("declineRequest")}
-                        />
-                      )
-                    })}
-              </AnimatePresence>
+                    : deletes!.map((log) => {
+                        const key = `attendance:${log.id}`
+                        const day = format(new Date(log.date), "d MMM yyyy", {
+                          locale: dateLocale,
+                        })
+                        const range = `${format(new Date(log.clock_in), "HH:mm")} – ${
+                          log.clock_out
+                            ? format(new Date(log.clock_out), "HH:mm")
+                            : "…"
+                        }`
+                        return (
+                          <InboxRow
+                            key={key}
+                            highlighted={linked && String(log.id) === linkedId}
+                            person={log.profiles}
+                            title={t("inboxDeleteAsked", { date: day })}
+                            meta={range}
+                            menu={() => [
+                              {
+                                id: "delete",
+                                label: t("deleteData"),
+                                icon: RiDeleteBinLine,
+                                destructive: true,
+                                confirm: true,
+                                disabled: busy !== null,
+                                onSelect: () => decideDelete(log, true),
+                              },
+                              {
+                                id: "decline",
+                                label: t("declineRequest"),
+                                icon: RiCloseLine,
+                                disabled: busy !== null,
+                                onSelect: () => decideDelete(log, false),
+                              },
+                              profileItem(log.user_id, log.profiles),
+                              {
+                                id: "copy-times",
+                                label: t("ctxCopyTimes"),
+                                icon: Clock,
+                                onSelect: () => copy(`${day}, ${range}`),
+                              },
+                            ]}
+                            busy={busy === key}
+                            disabled={busy !== null}
+                            onApprove={() => decideDelete(log, true)}
+                            onReject={() => decideDelete(log, false)}
+                            approveLabel={t("deleteData")}
+                            rejectLabel={t("declineRequest")}
+                          />
+                        )
+                      })}
+                </AnimatePresence>
+              </div>
             )}
           </div>
         </DialogContent>
@@ -514,10 +523,11 @@ function InboxRow({
         className="overflow-hidden"
       >
         <div
+          data-slot="list-row"
           className={cn(
-            // Hover only where there is one: on touch it sticks to the tapped row.
-            "flex items-center gap-3 rounded-2xl px-2 py-2.5 transition-colors [@media(hover:hover)]:hover:bg-(--row-hover)",
-            highlighted && "bg-primary/8 ring-primary/30 ring-1 ring-inset",
+            // Hover is the list's sliding highlight (mouse only).
+            "rounded-row relative flex min-h-14 items-center gap-3 px-2 py-2",
+            highlighted && "bg-(--row-selected)",
           )}
         >
           <Avatar>
@@ -526,8 +536,8 @@ function InboxRow({
               {initials(person?.full_name)}
             </AvatarFallback>
           </Avatar>
-          <div className="text-meta flex min-w-0 flex-1 flex-col gap-0.5">
-            <p className="truncate">
+          <div className="text-meta flex min-w-0 flex-1 flex-col">
+            <p className="truncate text-sm">
               <span className="font-medium">{person?.full_name ?? "—"}</span>
               <span className="text-muted-foreground"> · {title}</span>
             </p>

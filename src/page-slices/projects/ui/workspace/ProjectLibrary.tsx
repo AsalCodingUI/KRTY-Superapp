@@ -1071,7 +1071,9 @@ export function ProjectLibrary({ projectId }: { projectId: string }) {
               <GroupedList>
                 <div className={cn(LIB_GRID, listHeaderClassName)}>
                   <span>{t("formName")}</span>
-                  <span className="text-right">{t("libSizeColumn")}</span>
+                  <span className="text-right sm:text-left">
+                    {t("libSizeColumn")}
+                  </span>
                   <span className="hidden text-right sm:block">
                     {t("colCreated")}
                   </span>
@@ -1112,7 +1114,7 @@ export function ProjectLibrary({ projectId }: { projectId: string }) {
                           </span>
                           {f.is_internal && <InternalTag />}
                         </span>
-                        <span className="text-muted-foreground text-right tabular-nums">
+                        <span className="text-muted-foreground text-right tabular-nums sm:text-left">
                           {t("libFileCount", { n: count })}
                         </span>
                         <span className="text-muted-foreground hidden text-right tabular-nums sm:block">
@@ -1172,7 +1174,7 @@ export function ProjectLibrary({ projectId }: { projectId: string }) {
                           {file.name}
                         </span>
                       </span>
-                      <span className="text-muted-foreground text-right tabular-nums">
+                      <span className="text-muted-foreground text-right tabular-nums sm:text-left">
                         {formatBytes(file.file_size)}
                       </span>
                       <span className="text-muted-foreground hidden text-right tabular-nums sm:block">

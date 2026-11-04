@@ -1,5 +1,6 @@
 "use client"
 
+import { HoverHighlight } from "@/components/sliding-indicator"
 import { Badge } from "@/components/ui/badge"
 import { ProjectStageIcon } from "@/page-slices/projects/ui/ProjectStageIcon"
 import { cn } from "@/lib/utils"
@@ -112,35 +113,44 @@ export function BriefAnswersView({ brief }: { brief: BriefListRow }) {
   return (
     <div className="flex min-h-0 flex-1">
       <nav className="border-border scroll-pane pane-px-3 hidden w-60 shrink-0 flex-col gap-0.5 border-r py-3 md:flex">
-        {sections.map((section, index) => {
-          const done = answered(section)
-          const total = asked(section).length
-          return (
-            <button
-              key={section.id}
-              type="button"
-              onClick={() => jump(section.id)}
-              className="hover:bg-muted text-meta flex items-start gap-2.5 rounded-xl px-3.5 py-2 text-left transition-colors"
-            >
-              <span className="text-tertiary-foreground w-4 shrink-0 tabular-nums">
-                {index + 1}
-              </span>
-              <span className="min-w-0 flex-1 leading-snug">
-                {section.title}
-              </span>
-              <span
-                className={cn(
-                  "shrink-0 tabular-nums",
-                  done === total
-                    ? "text-muted-foreground"
-                    : "text-tertiary-foreground",
-                )}
+        {/* Inside the scroller, so the sliding highlight scrolls along. */}
+        <div className="relative flex flex-col gap-0.5">
+          <HoverHighlight
+            itemSelector="[data-slot=list-row]"
+            className="bg-(--row-hover)"
+            inset={0}
+          />
+          {sections.map((section, index) => {
+            const done = answered(section)
+            const total = asked(section).length
+            return (
+              <button
+                key={section.id}
+                type="button"
+                data-slot="list-row"
+                onClick={() => jump(section.id)}
+                className="rounded-row text-meta relative flex items-start gap-2.5 px-3.5 py-2 text-left"
               >
-                {done}/{total}
-              </span>
-            </button>
-          )
-        })}
+                <span className="text-tertiary-foreground w-4 shrink-0 tabular-nums">
+                  {index + 1}
+                </span>
+                <span className="min-w-0 flex-1 leading-snug">
+                  {section.title}
+                </span>
+                <span
+                  className={cn(
+                    "shrink-0 tabular-nums",
+                    done === total
+                      ? "text-muted-foreground"
+                      : "text-tertiary-foreground",
+                  )}
+                >
+                  {done}/{total}
+                </span>
+              </button>
+            )
+          })}
+        </div>
       </nav>
 
       <div className="scroll-pane pane-px-4 sm:pane-px-5 min-h-0 flex-1 py-4">
@@ -165,7 +175,7 @@ export function BriefAnswersView({ brief }: { brief: BriefListRow }) {
                   {answered(section)}/{asked(section).length}
                 </span>
               </header>
-              <dl className="divide-border divide-y">
+              <dl className="flex flex-col">
                 {section.questions.map((q) => {
                   if (q.type === "divider") return null
                   if (q.type === "statement")
@@ -202,12 +212,18 @@ export function BriefAnswersView({ brief }: { brief: BriefListRow }) {
                       <dd className="min-w-0 text-sm leading-relaxed [overflow-wrap:anywhere]">
                         {q.type === "files" ? (
                           files.length ? (
-                            <div className="flex flex-col gap-1.5">
+                            <div className="relative flex flex-col gap-1.5">
+                              <HoverHighlight
+                                itemSelector="[data-slot=list-row]"
+                                className="bg-(--row-hover)"
+                                inset={0}
+                              />
                               {files.map((f) => (
                                 <a
                                   key={f.id}
                                   href={`/api/briefs/files/${f.id}?download=1`}
-                                  className="hover:bg-muted -mx-2 flex items-center gap-2.5 rounded-lg px-2 py-1 transition-colors"
+                                  data-slot="list-row"
+                                  className="rounded-row relative -mx-2 flex items-center gap-2.5 px-2 py-1"
                                 >
                                   <FileIcon className="text-muted-foreground size-4 shrink-0" />
                                   <span className="min-w-0 flex-1 truncate">

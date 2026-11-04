@@ -2,6 +2,7 @@
 
 import { EmptyState } from "@/components/empty-state"
 import { PageHeader } from "@/components/page-header"
+import { HoverHighlight } from "@/components/sliding-indicator"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -311,9 +312,17 @@ export function WhatsNewPage() {
                     className={
                       view === "grid"
                         ? "grid gap-x-5 gap-y-8 sm:grid-cols-2 xl:grid-cols-3"
-                        : "flex flex-col gap-1"
+                        : "relative flex flex-col gap-1"
                     }
                   >
+                    {/* List view: one highlight that follows the pointer. */}
+                    {view !== "grid" && (
+                      <HoverHighlight
+                        itemSelector="[data-slot=list-row]"
+                        className="rounded-xl bg-(--row-hover)"
+                        inset={0}
+                      />
+                    )}
                     {items.map((entry) => (
                       <ContextTarget
                         key={entry.id}
@@ -419,7 +428,8 @@ function EntryRow({ entry, href, ...rest }: EntryLinkProps) {
     <ParamLink
       {...rest}
       href={href}
-      className="group/entry hover:bg-foreground/[0.03] focus-visible:ring-focus-ring -mx-3 flex items-center gap-4 rounded-xl p-3 transition-colors outline-none focus-visible:ring-2"
+      data-slot="list-row"
+      className="group/entry focus-visible:ring-focus-ring relative -mx-3 flex items-center gap-4 rounded-xl p-3 outline-none focus-visible:ring-2"
     >
       <div className="border-field-border relative w-28 shrink-0 overflow-hidden rounded-lg border sm:w-36">
         <EntryPicture entry={entry} className="aspect-video w-full" />

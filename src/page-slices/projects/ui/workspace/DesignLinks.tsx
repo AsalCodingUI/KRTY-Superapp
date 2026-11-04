@@ -1,6 +1,7 @@
 "use client"
 
 import { ConfirmDialog } from "@/components/confirm-dialog"
+import { HoverHighlight } from "@/components/sliding-indicator"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -201,7 +202,11 @@ export function DesignLinks({ projectId }: { projectId: string }) {
           {t("designLinksEmpty")}
         </button>
       ) : (
-        <ul className="-mx-2 flex flex-col">
+        <ul className="relative -mx-2 flex flex-col">
+          <HoverHighlight
+            itemSelector="[data-slot=list-row]"
+            className="bg-(--row-hover)"
+          />
           {links.map((link) => (
             <ContextTarget
               key={link.id}
@@ -229,7 +234,10 @@ export function DesignLinks({ projectId }: { projectId: string }) {
                 },
               ]}
             >
-              <li className="group/row hover:bg-accent flex items-center gap-2 rounded-lg pr-1 transition-colors">
+              <li
+                data-slot="list-row"
+                className="group/row rounded-row relative flex items-center gap-2 pr-1"
+              >
                 <DesignLinkAnchor url={link.url} title={link.title} />
                 {canManage && (
                   <RowMenu

@@ -347,56 +347,52 @@ export function SubscriptionsTab({
                 const rate = rateOf(s.currency, s.fx_rate, rates)
                 return menu.wrap(
                   s,
-                  <button
-                    type="button"
+                  <HomeRow
                     onClick={() => onEdit(s)}
-                    className={cn("text-left", ended && "opacity-60")}
-                  >
-                    <HomeRow
-                      leading={
-                        <ProjectAvatar
-                          id={s.name}
-                          name={s.name}
-                          className="text-micro size-7"
-                        />
-                      }
-                      title={s.name}
-                      subtitle={[
-                        categoryLabel(t, s.category),
-                        t(CYCLE_LABEL[s.cycle]),
-                        ended
-                          ? t("stopped")
-                          : next
-                            ? t("nextOn", {
-                                date: format(next, "d MMM yyyy", {
-                                  locale: dateLocale,
-                                }),
-                              })
-                            : null,
-                      ]
-                        .filter(Boolean)
-                        .join(" · ")}
-                      trailing={
-                        <span className="flex flex-col items-end">
-                          <span>
-                            {s.currency === "IDR"
-                              ? rupiah(s.amount_idr)
-                              : rate
-                                ? rupiah(chargeIdr(s, rates))
-                                : money(s.amount_idr, s.currency)}
-                          </span>
-                          {s.currency !== "IDR" && (
-                            <span className="text-muted-foreground text-xs">
-                              {money(s.amount_idr, s.currency)}
-                              {rate
-                                ? ` · ${t("rateN", { rate: rate.toLocaleString("id-ID") })}`
-                                : ` · ${t("noRate")}`}
-                            </span>
-                          )}
+                    className={cn(ended && "opacity-60")}
+                    leading={
+                      <ProjectAvatar
+                        id={s.name}
+                        name={s.name}
+                        className="text-micro size-7"
+                      />
+                    }
+                    title={s.name}
+                    subtitle={[
+                      categoryLabel(t, s.category),
+                      t(CYCLE_LABEL[s.cycle]),
+                      ended
+                        ? t("stopped")
+                        : next
+                          ? t("nextOn", {
+                              date: format(next, "d MMM yyyy", {
+                                locale: dateLocale,
+                              }),
+                            })
+                          : null,
+                    ]
+                      .filter(Boolean)
+                      .join(" · ")}
+                    trailing={
+                      <span className="flex flex-col items-end">
+                        <span>
+                          {s.currency === "IDR"
+                            ? rupiah(s.amount_idr)
+                            : rate
+                              ? rupiah(chargeIdr(s, rates))
+                              : money(s.amount_idr, s.currency)}
                         </span>
-                      }
-                    />
-                  </button>,
+                        {s.currency !== "IDR" && (
+                          <span className="text-muted-foreground text-xs">
+                            {money(s.amount_idr, s.currency)}
+                            {rate
+                              ? ` · ${t("rateN", { rate: rate.toLocaleString("id-ID") })}`
+                              : ` · ${t("noRate")}`}
+                          </span>
+                        )}
+                      </span>
+                    }
+                  />,
                 )
               })}
             </div>

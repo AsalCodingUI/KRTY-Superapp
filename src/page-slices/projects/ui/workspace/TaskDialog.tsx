@@ -100,6 +100,11 @@ const Calendar = dynamic(
 
 const NONE = "__none__"
 
+/** Subtask rows (and the add field): the checkbox column is 24px to the
+ *  title, as in the task lists (docs/ui/table.md). */
+const SUBTASK_GRID =
+  "grid grid-cols-[1.5rem_minmax(0,1fr)] items-center gap-x-4"
+
 /**
  * A task opened from the board or list: title, status, PIC, due date,
  * description, subtasks, and the comment thread with @mentions.
@@ -349,7 +354,7 @@ function TaskBody({
               </div>
             )}
             {/* New subtasks are added (and land) at the top. */}
-            <div className="flex items-center gap-2.5">
+            <div className={SUBTASK_GRID}>
               <RiAddLine className="text-muted-foreground size-4 shrink-0" />
               <Input
                 ref={subInputRef}
@@ -364,41 +369,48 @@ function TaskBody({
                 className="flex-1"
               />
             </div>
-            {subtasks.map((sub) => (
-              <SubtaskContextTarget
-                key={sub.id}
-                sub={sub}
-                onToggle={() => onStatus(sub, sub.done ? "todo" : "done")}
-                onRemove={() => onRemove(sub.id)}
-              >
-                <div className="group/sub text-meta flex min-h-9 items-center gap-2.5">
-                  <Checkbox
-                    checked={sub.done}
-                    onCheckedChange={() =>
-                      onStatus(sub, sub.done ? "todo" : "done")
-                    }
-                    aria-label={sub.done ? t("markUndone") : t("markDone")}
-                  />
-                  <span
+            <div className="flex flex-col">
+              {subtasks.map((sub) => (
+                <SubtaskContextTarget
+                  key={sub.id}
+                  sub={sub}
+                  onToggle={() => onStatus(sub, sub.done ? "todo" : "done")}
+                  onRemove={() => onRemove(sub.id)}
+                >
+                  <div
                     className={cn(
-                      "min-w-0 flex-1 truncate",
-                      sub.done && "text-muted-foreground line-through",
+                      SUBTASK_GRID,
+                      "group/sub min-h-12 grid-cols-[1.5rem_minmax(0,1fr)_auto] py-2 text-sm",
                     )}
                   >
-                    {sub.title}
-                  </span>
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    aria-label={t("deleteSubtask")}
-                    onClick={() => onRemove(sub.id)}
-                    className="text-muted-foreground hover:text-destructive-ink opacity-0 group-hover/sub:opacity-100 focus-visible:opacity-100"
-                  >
-                    <RiDeleteBinLine />
-                  </Button>
-                </div>
-              </SubtaskContextTarget>
-            ))}
+                    <Checkbox
+                      checked={sub.done}
+                      onCheckedChange={() =>
+                        onStatus(sub, sub.done ? "todo" : "done")
+                      }
+                      aria-label={sub.done ? t("markUndone") : t("markDone")}
+                    />
+                    <span
+                      className={cn(
+                        "min-w-0 flex-1 truncate",
+                        sub.done && "text-muted-foreground line-through",
+                      )}
+                    >
+                      {sub.title}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      aria-label={t("deleteSubtask")}
+                      onClick={() => onRemove(sub.id)}
+                      className="text-muted-foreground hover:text-destructive-ink opacity-0 group-hover/sub:opacity-100 focus-visible:opacity-100"
+                    >
+                      <RiDeleteBinLine />
+                    </Button>
+                  </div>
+                </SubtaskContextTarget>
+              ))}
+            </div>
           </section>
 
           <CommentList

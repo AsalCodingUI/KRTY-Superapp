@@ -1,6 +1,7 @@
 "use client"
 
-import { surfaceClassName } from "@/components/panel"
+import { listRowClassName } from "@/components/grouped-list"
+import { PanelList, surfaceClassName } from "@/components/panel"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
 import { useDateLocale, useT } from "@/shared/i18n/client"
@@ -69,8 +70,11 @@ function Panel({
   )
 }
 
-const ROW =
-  "border-border hover:bg-accent flex h-11 w-full items-center gap-3 border-b px-4 text-left text-sm transition-colors last:border-b-0"
+// The standard row; hover is PanelList's sliding highlight.
+const ROW = cn(
+  listRowClassName,
+  "focus-visible:ring-focus-ring rounded-row w-full text-left outline-none focus-visible:ring-2",
+)
 
 /** Open tasks by due date (overdue first, undated last), opened in place. */
 export function UpcomingTasks({
@@ -107,98 +111,109 @@ export function UpcomingTasks({
           {t("homeNoOpenTasks")}
         </p>
       ) : (
-        <ul className="flex flex-col">
-          {upcoming.map((task) => {
-            const who = team.find((m) => m.id === task.assignee_id)
-            const overdue =
-              task.due_date &&
-              differenceInCalendarDays(parseISO(task.due_date), new Date()) < 0
-            const openHere = () => {
-              setOpenId(task.id)
-              setOpen(true)
-            }
-            const link = () =>
-              new URL(
-                `${base}/tasks?task=${linkKey(task.title, task.id)}`,
-                window.location.origin,
-              ).href
-            return (
-              <ContextTarget
-                key={task.id}
-                type="dashboard-task"
-                id={task.id}
-                label={task.title}
-                suppress={["button"]}
-                items={() => [
-                  {
-                    id: "open",
-                    label: t("libOpen"),
-                    icon: FileText,
-                    shortcut: "Enter",
-                    onSelect: openHere,
-                  },
-                  {
-                    id: "open-tab",
-                    label: tm("openNewTab"),
-                    icon: AppWindow,
-                    onSelect: () =>
-                      void window.open(link(), "_blank", "noopener"),
-                  },
-                  {
-                    id: "copy-link",
-                    label: tm("copyLink"),
-                    icon: LinkIcon,
-                    onSelect: async () => {
-                      if (await copyText(link()))
-                        toast.success(tm("linkCopied"))
+        <PanelList>
+          <ul className="flex flex-col">
+            {upcoming.map((task) => {
+              const who = team.find((m) => m.id === task.assignee_id)
+              const overdue =
+                task.due_date &&
+                differenceInCalendarDays(parseISO(task.due_date), new Date()) <
+                  0
+              const openHere = () => {
+                setOpenId(task.id)
+                setOpen(true)
+              }
+              const link = () =>
+                new URL(
+                  `${base}/tasks?task=${linkKey(task.title, task.id)}`,
+                  window.location.origin,
+                ).href
+              return (
+                <ContextTarget
+                  key={task.id}
+                  type="dashboard-task"
+                  id={task.id}
+                  label={task.title}
+                  suppress={["button"]}
+                  items={() => [
+                    {
+                      id: "open",
+                      label: t("libOpen"),
+                      icon: FileText,
+                      shortcut: "Enter",
+                      onSelect: openHere,
                     },
-                  },
-                  {
-                    id: "copy-title",
-                    label: t("ctxCopyTitle"),
-                    icon: Copy,
-                    onSelect: async () => {
-                      if (await copyText(task.title))
-                        toast.success(tm("copied"))
+                    {
+                      id: "open-tab",
+                      label: tm("openNewTab"),
+                      icon: AppWindow,
+                      onSelect: () =>
+                        void window.open(link(), "_blank", "noopener"),
                     },
-                  },
-                ]}
-              >
-                <li>
-                  <button type="button" onClick={openHere} className={ROW}>
-                    <CircleDashed className="text-muted-foreground size-4 shrink-0" />
-                    <span className="min-w-0 flex-1 truncate">
-                      {task.title}
-                    </span>
-                    {task.due_date && (
-                      <span
-                        className={cn(
-                          "text-meta shrink-0 tabular-nums",
-                          overdue
-                            ? "text-destructive-ink font-medium"
-                            : "text-tertiary-foreground",
-                        )}
-                      >
-                        {dueLabel(task.due_date, dateLocale, {
-                          today: tc("today"),
-                          tomorrow: t("tomorrow"),
-                        })}
+                    {
+                      id: "copy-link",
+                      label: tm("copyLink"),
+                      icon: LinkIcon,
+                      onSelect: async () => {
+                        if (await copyText(link()))
+                          toast.success(tm("linkCopied"))
+                      },
+                    },
+                    {
+                      id: "copy-title",
+                      label: t("ctxCopyTitle"),
+                      icon: Copy,
+                      onSelect: async () => {
+                        if (await copyText(task.title))
+                          toast.success(tm("copied"))
+                      },
+                    },
+                  ]}
+                >
+                  <li>
+                    <button
+                      type="button"
+                      data-slot="list-row"
+                      onClick={openHere}
+                      className={ROW}
+                    >
+                      <CircleDashed className="text-muted-foreground size-4 shrink-0" />
+                      <span className="min-w-0 flex-1 truncate">
+                        {task.title}
                       </span>
-                    )}
-                    {who && (
-                      <Avatar size="xs" title={who.full_name ?? ""}>
-                        <AvatarImage src={who.avatar_url || undefined} alt="" />
-                        <AvatarFallback className="text-[9px]">
-                          {initials(who.full_name)}
-                        </AvatarFallback>
-                      </Avatar>
-                    )}
-                  </button>
-                </li>
-              </ContextTarget>
-            )
-          })}
-        </ul>
+                      {task.due_date && (
+                        <span
+                          className={cn(
+                            "text-meta shrink-0 tabular-nums",
+                            overdue
+                              ? "text-destructive-ink font-medium"
+                              : "text-tertiary-foreground",
+                          )}
+                        >
+                          {dueLabel(task.due_date, dateLocale, {
+                            today: tc("today"),
+                            tomorrow: t("tomorrow"),
+                          })}
+                        </span>
+                      )}
+                      {who && (
+                        <Avatar size="xs" title={who.full_name ?? ""}>
+                          <AvatarImage
+                            src={who.avatar_url || undefined}
+                            alt=""
+                          />
+                          <AvatarFallback className="text-[9px]">
+                            {initials(who.full_name)}
+                          </AvatarFallback>
+                        </Avatar>
+                      )}
+                    </button>
+                  </li>
+                </ContextTarget>
+              )
+            })}
+          </ul>
+        </PanelList>
       )}
       {/* Mounted from the first open on (openId stays set after). */}
       {openId && (
@@ -235,38 +250,45 @@ export function LatestReports({
           {t("reportsEmpty")}
         </p>
       ) : (
-        <ul className="flex flex-col">
-          {latest.map((r) => (
-            <ContextTarget
-              key={r.id}
-              type="project-report"
-              id={r.id}
-              label={r.title}
-              suppress={["button"]}
-              items={() => menu.items(r, { onOpen })}
-            >
-              <li>
-                <button type="button" onClick={() => onOpen(r)} className={ROW}>
-                  <Newspaper className="text-muted-foreground size-4 shrink-0" />
-                  <span className="min-w-0 flex-1 truncate">{r.title}</span>
-                  {r.share_token && (
-                    <Link2
-                      aria-label={t("reportShared")}
-                      className="text-muted-foreground size-3.5 shrink-0"
-                    >
-                      <title>{t("reportShared")}</title>
-                    </Link2>
-                  )}
-                  <span className="text-tertiary-foreground text-meta shrink-0 tabular-nums">
-                    {format(parseISO(r.report_date), "d MMM", {
-                      locale: dateLocale,
-                    })}
-                  </span>
-                </button>
-              </li>
-            </ContextTarget>
-          ))}
-        </ul>
+        <PanelList>
+          <ul className="flex flex-col">
+            {latest.map((r) => (
+              <ContextTarget
+                key={r.id}
+                type="project-report"
+                id={r.id}
+                label={r.title}
+                suppress={["button"]}
+                items={() => menu.items(r, { onOpen })}
+              >
+                <li>
+                  <button
+                    type="button"
+                    data-slot="list-row"
+                    onClick={() => onOpen(r)}
+                    className={ROW}
+                  >
+                    <Newspaper className="text-muted-foreground size-4 shrink-0" />
+                    <span className="min-w-0 flex-1 truncate">{r.title}</span>
+                    {r.share_token && (
+                      <Link2
+                        aria-label={t("reportShared")}
+                        className="text-muted-foreground size-3.5 shrink-0"
+                      >
+                        <title>{t("reportShared")}</title>
+                      </Link2>
+                    )}
+                    <span className="text-tertiary-foreground text-meta shrink-0 tabular-nums">
+                      {format(parseISO(r.report_date), "d MMM", {
+                        locale: dateLocale,
+                      })}
+                    </span>
+                  </button>
+                </li>
+              </ContextTarget>
+            ))}
+          </ul>
+        </PanelList>
       )}
     </Panel>
   )

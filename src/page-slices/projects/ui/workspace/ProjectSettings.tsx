@@ -3,7 +3,8 @@
 import { ClientPortalCard } from "./ClientPortalCard"
 import { PageHeader } from "@/components/page-header"
 import { cn } from "@/lib/utils"
-import { surfaceClassName } from "@/components/panel"
+import { ListRow } from "@/components/grouped-list"
+import { PanelList, surfaceClassName } from "@/components/panel"
 import { deleteProject } from "@/app/(main)/projects/actions/project-actions"
 import { setProjectClient } from "@/app/(main)/clients/actions/client-actions"
 import { useClients } from "@/page-slices/clients/model/data"
@@ -378,29 +379,28 @@ export function ProjectSettings({ projectId }: { projectId: string }) {
                 {t("noMembersYet")}
               </p>
             ) : (
-              data.team.map((m) => (
-                <div
-                  key={m.assignmentId}
-                  className="border-border flex min-h-12 items-center gap-3 border-b px-4 py-2 text-sm last:border-b-0"
-                >
-                  <Avatar size="md">
-                    <AvatarImage src={m.avatar_url || undefined} alt="" />
-                    <AvatarFallback className="text-[10px]">
-                      {initials(m.full_name, "U")}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex min-w-0 flex-1 flex-col">
-                    <span className="truncate">{m.full_name}</span>
-                    <span className="text-tertiary-foreground text-meta truncate">
-                      {m.job_title}
+              <PanelList hover={false}>
+                {data.team.map((m) => (
+                  <ListRow key={m.assignmentId} desc>
+                    <Avatar size="md">
+                      <AvatarImage src={m.avatar_url || undefined} alt="" />
+                      <AvatarFallback className="text-[10px]">
+                        {initials(m.full_name, "U")}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex min-w-0 flex-1 flex-col">
+                      <span className="truncate">{m.full_name}</span>
+                      <span className="text-tertiary-foreground text-meta truncate">
+                        {m.job_title}
+                      </span>
+                    </div>
+                    <span className="text-muted-foreground text-meta">
+                      {m.role}
                     </span>
-                  </div>
-                  <span className="text-muted-foreground text-meta">
-                    {m.role}
-                  </span>
-                  {m.isLead && <Badge variant="info">{t("lead")}</Badge>}
-                </div>
-              ))
+                    {m.isLead && <Badge variant="info">{t("lead")}</Badge>}
+                  </ListRow>
+                ))}
+              </PanelList>
             )}
           </Card>
         </div>

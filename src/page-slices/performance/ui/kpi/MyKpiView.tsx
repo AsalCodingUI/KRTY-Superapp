@@ -547,8 +547,8 @@ export function MyKpiView({
 
           {/* What's due next, only when something is. */}
           {due.length > 0 && (
-            <div className="border-border flex flex-col gap-1 border-t pt-4">
-              <p className="text-muted-foreground text-meta pb-1">
+            <div className="border-border flex flex-col border-t pt-4">
+              <p className="text-muted-foreground text-meta pb-2">
                 {t("kpiUpcomingDue")}
               </p>
               {due.map(({ project, milestone, due: date }) => {

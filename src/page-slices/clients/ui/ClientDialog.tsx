@@ -6,7 +6,12 @@ import {
   setClientArchived,
 } from "@/app/(main)/clients/actions/client-actions"
 import { ConfirmDialog } from "@/components/confirm-dialog"
-import { ListChip } from "@/components/grouped-list"
+import {
+  GroupedList,
+  ListChip,
+  listRowClassName,
+} from "@/components/grouped-list"
+import { cn } from "@/lib/utils"
 import { StatTiles } from "@/components/stat-tiles"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
@@ -214,32 +219,38 @@ export function ClientDialog({
             {client.projects.length === 0 ? (
               <p className="text-muted-foreground text-sm">{t("noProjects")}</p>
             ) : (
-              <ul className="flex flex-col">
-                {[...client.projects]
-                  .sort((a, b) => b.end_date.localeCompare(a.end_date))
-                  .map((p) => (
-                    <li key={p.id}>
-                      <Link
-                        href={projectHref(p)}
-                        prefetch={false}
-                        className="hover:bg-accent -mx-2 flex items-center gap-3 rounded-lg px-2 py-2 text-sm"
-                      >
-                        <ProjectStatusIcon status={p.status} />
-                        <span className="min-w-0 flex-1 truncate">
-                          {p.name}
-                        </span>
-                        <span className="text-muted-foreground text-meta">
-                          {tp(STATUS_LABEL_KEYS[p.status])}
-                        </span>
-                        <span className="text-muted-foreground text-meta w-24 text-right tabular-nums">
-                          {format(parseISO(p.end_date), "d MMM yyyy", {
-                            locale: dateLocale,
-                          })}
-                        </span>
-                      </Link>
-                    </li>
-                  ))}
-              </ul>
+              <GroupedList className="[--bleed:0.5rem]">
+                <ul className="flex flex-col">
+                  {[...client.projects]
+                    .sort((a, b) => b.end_date.localeCompare(a.end_date))
+                    .map((p) => (
+                      <li key={p.id}>
+                        <Link
+                          href={projectHref(p)}
+                          prefetch={false}
+                          data-slot="list-row"
+                          className={cn(
+                            listRowClassName,
+                            "focus-visible:ring-focus-ring rounded-row outline-none focus-visible:ring-2",
+                          )}
+                        >
+                          <ProjectStatusIcon status={p.status} />
+                          <span className="min-w-0 flex-1 truncate">
+                            {p.name}
+                          </span>
+                          <span className="text-muted-foreground text-meta">
+                            {tp(STATUS_LABEL_KEYS[p.status])}
+                          </span>
+                          <span className="text-muted-foreground text-meta w-24 text-right tabular-nums">
+                            {format(parseISO(p.end_date), "d MMM yyyy", {
+                              locale: dateLocale,
+                            })}
+                          </span>
+                        </Link>
+                      </li>
+                    ))}
+                </ul>
+              </GroupedList>
             )}
           </section>
         </div>

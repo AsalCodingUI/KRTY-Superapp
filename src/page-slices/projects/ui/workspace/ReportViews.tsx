@@ -86,7 +86,7 @@ export function ReportViewsIndicator({
               ))}
             </ul>
           )}
-          <p className="text-muted-foreground border-border border-t px-4 py-2.5 text-xs">
+          <p className="text-muted-foreground text-meta px-4 pt-1 pb-3">
             {t("reportViewsHint")}
           </p>
         </div>
@@ -110,7 +110,8 @@ function ViewRow({ view }: { view: ReportView }) {
           : "reportViewDesktop",
     )
   return (
-    <li className="text-meta flex items-center gap-3 rounded-lg px-2 py-1.5">
+    // The standard row with a description (read-only: no hover).
+    <li className="flex min-h-14 items-center gap-3 px-2 py-2 text-sm">
       <DeviceIcon className="text-muted-foreground size-4 shrink-0" />
       <div className="flex min-w-0 flex-1 flex-col">
         <span
@@ -119,7 +120,7 @@ function ViewRow({ view }: { view: ReportView }) {
         >
           {formatDistanceToNow(at, { addSuffix: true, locale: dateLocale })}
         </span>
-        <span className="text-muted-foreground truncate text-xs">
+        <span className="text-tertiary-foreground text-meta truncate">
           {[device, view.country].filter(Boolean).join(" · ")}
         </span>
       </div>

@@ -4,7 +4,7 @@ import { SpacingCompare } from "./spacing-compare"
 import { HomeCard, HomeRow } from "@/app/(main)/dashboard/components/home-card"
 import { GroupedList, ListRow } from "@/components/grouped-list"
 import { PageHeader } from "@/components/page-header"
-import { Panel, PanelRow } from "@/components/panel"
+import { Panel, PanelList } from "@/components/panel"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -236,14 +236,14 @@ export function SpacingTab() {
             source="components/panel.tsx"
           >
             <Panel title="Tagihan" meta={mock.cardRows.length}>
-              {mock.cardRows.map((r) => (
-                <PanelRow key={r.title}>
-                  <span className="min-w-0 flex-1 truncate text-sm">
-                    {r.title}
-                  </span>
-                  <span className="text-sm tabular-nums">{r.trailing}</span>
-                </PanelRow>
-              ))}
+              <PanelList>
+                {mock.cardRows.map((r) => (
+                  <ListRow key={r.title}>
+                    <span className="min-w-0 flex-1 truncate">{r.title}</span>
+                    <span className="tabular-nums">{r.trailing}</span>
+                  </ListRow>
+                ))}
+              </PanelList>
             </Panel>
           </DocExample>
         </div>

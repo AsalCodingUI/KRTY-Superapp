@@ -1,5 +1,5 @@
+import { GroupedList } from "@/components/grouped-list"
 import { cn } from "@/lib/utils"
-import Link from "next/link"
 import * as React from "react"
 
 /** The card surface every bordered block uses (HomeCard, Panel, stats). */
@@ -53,28 +53,22 @@ export function Panel({
   )
 }
 
-/** One row in a panel list; links get a hover surface. */
-export function PanelRow({
-  href,
+/**
+ * A list inside a panel: the standard rows (`ListRow`, or elements with
+ * `data-slot="list-row"` + `listRowClassName`) and GroupedList's sliding
+ * highlight. The rows bleed 8px into the body's 16px padding, so the
+ * highlight sits inset from the edge and the text lines up with the
+ * header's title.
+ */
+export function PanelList({
   className,
-  children,
-}: {
-  href?: string
-  className?: string
-  children: React.ReactNode
-}) {
-  const classes = cn(
-    "border-border flex min-h-12 shrink-0 items-center gap-3 border-b px-4 py-2.5 last:border-b-0",
-    href && "hover:bg-accent/60 transition-colors",
-    className,
+  ...props
+}: React.ComponentProps<typeof GroupedList>) {
+  return (
+    <div className="px-4 py-2">
+      <GroupedList className={cn("[--bleed:0.5rem]", className)} {...props} />
+    </div>
   )
-  if (href)
-    return (
-      <Link href={href} prefetch={false} className={classes}>
-        {children}
-      </Link>
-    )
-  return <div className={classes}>{children}</div>
 }
 
 /** Compact empty message for inside a panel. */

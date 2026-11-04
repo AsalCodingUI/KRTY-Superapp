@@ -79,9 +79,9 @@ const MILESTONE_GRID =
 const COMPETENCY_GRID =
   "grid grid-cols-[minmax(0,1fr)_7rem] items-center gap-x-4"
 const PHASE_GRID =
-  "grid grid-cols-[minmax(0,1fr)_3rem_minmax(0,9.5rem)] items-center gap-x-3 sm:grid-cols-[minmax(6rem,1fr)_3.5rem_6rem_6rem_minmax(0,1.6fr)_4.5rem]"
+  "grid grid-cols-[minmax(0,1fr)_3rem_minmax(0,9.5rem)] items-center gap-x-4 sm:grid-cols-[minmax(6rem,1fr)_3.5rem_6rem_6rem_minmax(0,1.6fr)_4.5rem]"
 const PHASE_GRID_EDIT =
-  "grid grid-cols-[minmax(0,1fr)_3rem_minmax(0,9.5rem)_1.75rem] items-center gap-x-3 sm:grid-cols-[minmax(6rem,1fr)_3.5rem_6rem_6rem_minmax(0,1.6fr)_4.5rem_1.75rem]"
+  "grid grid-cols-[minmax(0,1fr)_3rem_minmax(0,9.5rem)_1.75rem] items-center gap-x-4 sm:grid-cols-[minmax(6rem,1fr)_3.5rem_6rem_6rem_minmax(0,1.6fr)_4.5rem_1.75rem]"
 const CONTRIBUTION_GRID =
   "grid grid-cols-[5rem_minmax(0,1fr)_auto] items-center gap-x-4 sm:grid-cols-[6rem_minmax(0,1fr)_8rem_10rem]"
 
@@ -250,7 +250,7 @@ export function ProjectScoringView({
             <GroupedList hover={canEdit}>
               <ListColumns grid={MILESTONE_GRID}>
                 <span>{t("milestone")}</span>
-                <span className="text-right">{t("weight")}</span>
+                <span>{t("weight")}</span>
                 <span>{t("result")}</span>
                 <span className="hidden text-right sm:block">{t("score")}</span>
               </ListColumns>
@@ -259,7 +259,7 @@ export function ProjectScoringView({
                   <span className="text-foreground truncate">{m.name}</span>
                   {canEdit ? (
                     <>
-                      <div className="flex items-center justify-end gap-1.5">
+                      <div className="flex items-center gap-1.5">
                         <Input
                           inputMode="numeric"
                           className="w-16 text-right tabular-nums"
@@ -300,7 +300,7 @@ export function ProjectScoringView({
                     </>
                   ) : (
                     <>
-                      <span className="text-muted-foreground text-right tabular-nums">
+                      <span className="text-muted-foreground tabular-nums">
                         {m.weight}%
                       </span>
                       <div>
@@ -347,12 +347,9 @@ export function ProjectScoringView({
         ) : !showQuality ? (
           <NotScored>{t("competenciesNotScored")}</NotScored>
         ) : !canEdit ? (
-          <ul className="flex flex-col">
+          <GroupedList hover={false}>
             {competencies.map((c) => (
-              <li
-                key={c.id}
-                className="border-border flex gap-3 border-b py-3 last:border-b-0"
-              >
+              <ListRow key={c.id} desc={Boolean(c.description)}>
                 {c.isAchieved ? (
                   <RiCheckboxCircleFill
                     aria-label={t("achieved")}
@@ -384,9 +381,9 @@ export function ProjectScoringView({
                     </span>
                   )}
                 </div>
-              </li>
+              </ListRow>
             ))}
-          </ul>
+          </GroupedList>
         ) : (
           <GroupedList hover={canEdit}>
             <ListColumns grid={COMPETENCY_GRID}>
@@ -695,7 +692,7 @@ function PhaseMilestones({
       <GroupedList hover={canEdit}>
         <ListColumns grid={grid}>
           <span>{t("psPhase")}</span>
-          <span className="text-right">{t("weight")}</span>
+          <span>{t("weight")}</span>
           <span className="hidden sm:block">{t("psDue")}</span>
           <span className="hidden sm:block">{t("psDone")}</span>
           <span>{t("result")}</span>
@@ -705,17 +702,18 @@ function PhaseMilestones({
         {scoring.phaseMilestones.map((ms) => (
           <ListRow
             key={ms.phaseId ?? ms.name}
-            className={cn(grid, "text-meta min-h-12")}
+            // Phones show the dates as a description line under the name.
+            className={cn(grid, "max-sm:min-h-14")}
           >
             <div className="flex min-w-0 flex-col">
               <span className="text-foreground truncate">{ms.name}</span>
-              <span className="text-tertiary-foreground truncate tabular-nums sm:hidden">
+              <span className="text-tertiary-foreground text-meta truncate tabular-nums sm:hidden">
                 {[day(ms.due), ms.done && `✓ ${day(ms.done)}`]
                   .filter(Boolean)
                   .join(" · ")}
               </span>
             </div>
-            <span className="text-muted-foreground text-right tabular-nums">
+            <span className="text-muted-foreground tabular-nums">
               {Math.round(ms.weight * 10) / 10}%
             </span>
             <span className="text-muted-foreground hidden tabular-nums sm:block">
@@ -1026,11 +1024,7 @@ function Contribution({
           {rows.map((row) => (
             <ListRow
               key={row.quarter}
-              className={cn(
-                CONTRIBUTION_GRID,
-                "text-meta min-h-11",
-                archived && "opacity-60",
-              )}
+              className={cn(CONTRIBUTION_GRID, archived && "opacity-60")}
             >
               <span className="text-foreground tabular-nums">
                 {quarterLabel(t, row.quarter)}

@@ -69,11 +69,15 @@ export function GuestList({
         )}
       </div>
 
-      <div className="flex flex-col gap-2">
+      {/* Read-only rows: the standard heights, no hover. */}
+      <div className="flex flex-col">
         {guests.map((guest, index) => (
           <div
             key={guest.email + index}
-            className="hover:bg-accent flex items-center gap-3 rounded-lg p-2 transition-colors"
+            className={cx(
+              "flex min-h-12 items-center gap-3 py-2",
+              guest.name && "min-h-14",
+            )}
           >
             {/* Avatar */}
             <div
@@ -100,7 +104,7 @@ export function GuestList({
                 )}
               </div>
               {guest.name && (
-                <p className="text-tertiary-foreground truncate text-xs">
+                <p className="text-tertiary-foreground text-meta truncate">
                   {guest.email}
                 </p>
               )}
