@@ -7,3 +7,7 @@ each component you touch (e.g. `docs/ui/table.md` for any list or table).
 Follow its Use / Rules / Don't sections; the live versions are at `/ui`.
 Goals: consistent, light, and central (tokens and shared components, not
 one-off classes).
+
+For buttons, badges, icon + text, avatars, titles and pills, also run
+the `optical-balance` skill (`.claude/skills/optical-balance`, rules in
+`docs/ui/optical.md`).
