@@ -12,52 +12,69 @@ import { createClient } from "@/shared/api/supabase/client"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
 import { useT } from "@/shared/i18n/client"
 import { Notifications } from "@/widgets/notifications/ui/Notifications"
-import { GlobalSearch } from "@/widgets/global-search/ui/GlobalSearch"
 import { PrefetchLink } from "@/components/prefetch-link"
+import { SiteHeader } from "@/components/site-header"
+import { Suspense } from "react"
 
 const ADMIN_CONTACT_LINK = "https://wa.me/6289525418707"
 
 /**
- * App chrome above the sidebar and page: brand, workspace switch, search (⌘K),
- * notifications and account. Sits on the tinted chrome with the sidebar.
+ * The chrome above the page, phones only: brand, notifications and
+ * account (search and the workspaces live in the tab bar there). From md
+ * up all of it is in the sidebar (app-sidebar.tsx); the Mac app keeps a
+ * 52pt strip for the traffic lights and the sidebar toggle.
  */
-export function AppTopbar() {
+/** The signed-in account's menu (avatar + name). */
+export function AccountMenu({
+  row = false,
+  side = "bottom",
+}: {
+  /** The sidebar's bottom row instead of the phone top bar. */
+  row?: boolean
+  side?: "bottom" | "top" | "right"
+}) {
   const { profile, userEmail } = useUserProfile()
   const tc = useT("common")
-  const desktop = useMacChrome()
-  const { state } = useSidebar()
-
   const handleSignOut = async () => {
     await createClient().auth.signOut()
     // Full reload so no client state survives the sign-out.
     window.location.href = "/login"
   }
+  return (
+    <NavUser
+      showName
+      row={row}
+      side={side}
+      user={{
+        name: profile?.full_name ?? tc("loading"),
+        email: profile?.email || userEmail || "",
+        avatar: profile?.avatar_url || undefined,
+      }}
+      onSignOut={handleSignOut}
+      contactHref={ADMIN_CONTACT_LINK}
+    />
+  )
+}
+
+export function AppTopbar() {
+  const desktop = useMacChrome()
+  const { state } = useSidebar()
 
   const account = (
     <div className="flex flex-1 items-center justify-end gap-1">
       <Notifications variant="icon" />
-      <NavUser
-        showName
-        side="bottom"
-        user={{
-          name: profile?.full_name ?? tc("loading"),
-          email: profile?.email || userEmail || "",
-          avatar: profile?.avatar_url || undefined,
-        }}
-        onSignOut={handleSignOut}
-        contactHref={ADMIN_CONTACT_LINK}
-      />
+      <AccountMenu />
     </div>
   )
 
-  // In the Mac app: the traffic lights and the sidebar toggle over the
-  // sidebar's column, the search from where the page starts.
+  // In the Mac app: the traffic lights and, beside them, the sidebar
+  // toggle; the rest is in the sidebar.
   if (desktop)
     return (
       <header
         data-slot="app-topbar"
         className={cn(
-          "on-chrome text-foreground relative z-40 flex h-(--app-topbar-height) shrink-0 items-center pr-4",
+          "on-chrome text-foreground relative z-40 flex h-(--app-topbar-height) shrink-0 items-center pr-1.5",
         )}
         data-chrome-dark=""
       >
@@ -71,8 +88,12 @@ export function AppTopbar() {
         >
           <SidebarTrigger className="text-muted-foreground" />
         </div>
-        <GlobalSearch className="hidden max-w-[440px] flex-1 md:flex" />
-        {account}
+        {/* The tabs over the page, their bottom on the sheet's top. */}
+        <div className="flex min-w-0 flex-1 self-end">
+          <Suspense>
+            <SiteHeader />
+          </Suspense>
+        </div>
       </header>
     )
 
@@ -82,14 +103,10 @@ export function AppTopbar() {
     <header
       data-slot="app-topbar"
       className={cn(
-        "on-chrome text-foreground relative z-40 flex h-(--app-topbar-height) shrink-0 items-center gap-4 px-4 md:grid md:grid-cols-[1fr_minmax(0,35rem)_1fr]",
+        "on-chrome text-foreground relative z-40 flex h-(--app-topbar-height) shrink-0 items-center gap-4 px-4 md:hidden",
       )}
       data-chrome-dark=""
     >
-      {/* From md up a grid: equal sides keep the search centred, but they
-          never go below their content, so on narrower windows the search
-          shrinks instead of sliding over the workspace switch. No wrapping,
-          or the brand name would count as two short lines. */}
       <div className="flex flex-1 items-center gap-6 whitespace-nowrap">
         <PrefetchLink
           href={siteConfig.baseLinks.dashboard}
@@ -99,13 +116,7 @@ export function AppTopbar() {
           <AppIcon size={192} variant="mark" className="size-[22px]" />
           <span className="text-sm font-medium">{siteConfig.name}</span>
         </PrefetchLink>
-        {/* Phones use the tab bar instead. */}
-        <div className="hidden md:block">
-          <WorkspaceSwitch />
-        </div>
       </div>
-
-      <GlobalSearch className="hidden max-w-[560px] md:flex" />
 
       {account}
     </header>

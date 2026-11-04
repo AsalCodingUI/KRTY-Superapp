@@ -60,15 +60,22 @@ export function GlobalSearch({ className }: { className?: string }) {
         onFocus={preloadDialog}
         aria-keyshortcuts={isMac ? "Meta+K" : "Control+K"}
         className={cn(
-          "text-muted-foreground hover:text-foreground bg-chrome-field hover:bg-chrome-hover blend-ink flex h-8 w-full items-center gap-2 rounded-lg pr-1.5 pl-2.5 text-sm transition-colors",
+          // Outlined pill on the chrome (no fill until hover).
+          "text-muted-foreground hover:text-foreground border-chrome-border hover:bg-chrome-hover rounded-control flex h-8 w-full items-center gap-2 border pr-1.5 pl-2.5 text-sm transition-colors",
+          // In the collapsed sidebar: the icon alone.
+          "group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0",
           className,
         )}
       >
         <RiSearchLine className="size-4" />
-        <span>{tc("search")}</span>
-        <KbdGroup className="ml-auto">
-          <Kbd className="bg-chrome-field">{isMac ? "⌘" : "Ctrl"}</Kbd>
-          <Kbd className="bg-chrome-field">K</Kbd>
+        <span className="group-data-[collapsible=icon]:sr-only">
+          {tc("search")}
+        </span>
+        <KbdGroup className="ml-auto group-data-[collapsible=icon]:hidden">
+          <Kbd className="bg-chrome-field rounded-full">
+            {isMac ? "⌘" : "Ctrl"}
+          </Kbd>
+          <Kbd className="bg-chrome-field rounded-full">K</Kbd>
         </KbdGroup>
       </button>
       {/* Mounted on first open, then kept so the close animation plays. */}

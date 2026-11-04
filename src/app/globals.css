@@ -385,6 +385,7 @@
   --color-chrome-hover: var(--chrome-hover);
   --color-chrome-active: var(--chrome-active);
   --color-chrome-field: var(--chrome-field);
+  --color-chrome-border: var(--chrome-border);
   --color-inverse: var(--inverse);
   --color-destructive-subtle: var(--destructive-subtle);
   --color-success-subtle: var(--success-subtle);
@@ -492,6 +493,8 @@
      as the sidebar's active pill. */
   --thumb: var(--chrome-active);
   --chrome-field: oklch(0 0 0 / 6%);
+  /* Outlined controls on the chrome (the sidebar's search). */
+  --chrome-border: oklch(0 0 0 / 11%);
   --chrome-muted: oklch(0 0 0 / 55%);
   --inverse: oklch(0.145 var(--tint-ink) var(--tint-h));
   /* Elevation: the app's only shadows (use as shadow-(--elev-N)). Each is
@@ -608,6 +611,11 @@
   --radius: 0.625rem;
   --sidebar: var(--chrome);
   --surface: var(--background);
+  /* The page sheet's own colors, resolved here on the root: inside the
+     dark chrome (data-chrome-dark) they stay the page's, so the active tab
+     on the chrome matches the sheet it opens into. */
+  --sheet: var(--surface);
+  --sheet-foreground: var(--foreground);
   --sidebar-foreground: oklch(0.289 var(--tint-ink) var(--tint-h));
   --sidebar-primary: var(--primary);
   --sidebar-primary-foreground: #ffffff;
@@ -705,6 +713,7 @@
   /* Re-resolve: :root's --thumb was computed from the light value. */
   --thumb: var(--chrome-active);
   --chrome-field: oklch(1 0 0 / 7%);
+  --chrome-border: oklch(1 0 0 / 12%);
   --chrome-muted: oklch(1 0 0 / 55%);
   /* Dark: a white hairline carries the edge; the shadows stay soft (a
      faint, wide falloff) so surfaces lift without dark halos. */
@@ -1081,4 +1090,25 @@
 ::view-transition-new(root) {
   animation-duration: 0.3s;
   animation-timing-function: var(--ease-out);
+}
+
+/* From md up the web has no top bar: brand, search, notifications and the
+   account are in the sidebar (app-sidebar.tsx), the tabs on the chrome
+   above the page (site-header.tsx, h-11). The Mac app keeps its 52pt strip
+   for the traffic lights, with the tabs in it ((main)/layout.tsx,
+   :root:root wins). */
+@media (min-width: 768px) {
+  :root {
+    --app-topbar-height: 0px;
+    --app-tabs-height: 2.75rem;
+  }
+}
+
+/* The first tab, when active, opens straight down into the sheet: its
+   corner goes square (site-header.tsx, widgets/app-tabs). */
+@media (min-width: 768px) {
+  body:has([data-slot="app-tabs"] [role="tab"]:first-child[aria-selected="true"])
+    :is([data-slot="sidebar-inset"], [data-slot="page-sheet-shadow"]) {
+    border-top-left-radius: 0;
+  }
 }

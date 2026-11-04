@@ -39,7 +39,7 @@ import { Suspense } from "react"
 // the page's (10px, squircle-scaled) minus that gap.
 const CORNER = "right:14px;bottom:14px;--nest-r:calc(10px * var(--corner-k,1))"
 const DESKTOP_CSS =
-  ":root{--app-topbar-height:52px}" +
+  ":root:root{--app-topbar-height:52px;--app-tabs-height:0px}" +
   `@media (min-width:768px){[data-slot="sheet-content"][data-side="right"]{${CORNER}}}` +
   `@media (min-width:1024px){[data-slot="side-panel"]{${CORNER}}}` +
   "html,body{background:transparent}" +
@@ -114,19 +114,29 @@ export default async function Layout({
               <AppSidebar />
               {/* The page sheet (components/page-sheet.tsx), shared with the
               client portal. */}
-              <PageSheet mac={desktop} className="max-md:pt-2">
-                <SiteHeader />
-                <div
-                  className={cn(
-                    pageSheetContentClassName,
-                    "pb-[calc(6.5rem+env(safe-area-inset-bottom))] md:pb-6",
-                  )}
-                >
-                  <WorkspaceTransition>
-                    <Suspense fallback={<PageFallback />}>{children}</Suspense>
-                  </WorkspaceTransition>
-                </div>
-              </PageSheet>
+              <div className="flex min-w-0 flex-1 flex-col">
+                {/* The tabs, on the chrome above the sheet (the Mac app
+                    has them in its top strip). */}
+                {!desktop && (
+                  <Suspense>
+                    <SiteHeader />
+                  </Suspense>
+                )}
+                <PageSheet mac={desktop} className="max-md:pt-2 md:pt-6">
+                  <div
+                    className={cn(
+                      pageSheetContentClassName,
+                      "pb-[calc(6.5rem+env(safe-area-inset-bottom))] md:pb-6",
+                    )}
+                  >
+                    <WorkspaceTransition>
+                      <Suspense fallback={<PageFallback />}>
+                        {children}
+                      </Suspense>
+                    </WorkspaceTransition>
+                  </div>
+                </PageSheet>
+              </div>
             </div>
           </WorkspaceNavProvider>
           {/* Phones: the essentials, from a tab bar at the bottom. */}

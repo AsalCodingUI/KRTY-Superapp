@@ -1,25 +1,21 @@
 "use client"
 
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
 import { useBreadcrumbTrail, type Crumb } from "@/components/page-breadcrumbs"
 import { matchProjectPath } from "@/shared/config/project-sections"
 import { useProjectSummary } from "@/shared/hooks/useProjectSummary"
-import Link from "next/link"
-import { Separator } from "@/components/ui/separator"
-import { SidebarTrigger } from "@/components/ui/sidebar"
-import { useMacChrome } from "@/components/desktop-shell"
 import { workspaces } from "@/shared/config/workspaces"
 import { PROJECT_SECTION_KEYS } from "@/components/nav-project"
 import { useT } from "@/shared/i18n/client"
 import { usePathname } from "next/navigation"
-import { Fragment, useMemo } from "react"
+import { useCallback, useMemo } from "react"
+import { useSidebar } from "@/components/ui/sidebar"
+import { useMacChrome } from "@/components/desktop-shell"
+import {
+  TabHistoryButtons,
+  TabStrip,
+  useAppTabsSync,
+} from "@/widgets/app-tabs/ui/AppTabs"
+import type { TabIcon } from "@/widgets/app-tabs/model/tabs-store"
 
 // Every nav item any role can see (static config, built once).
 let navItems: ReturnType<(typeof workspaces)[number]["items"]> | undefined
@@ -52,6 +48,24 @@ function useSection(): Crumb {
   }
 }
 
+/** The sidebar icon of the nav item an href belongs to (longest match). */
+function navIconFor(href: string) {
+  const path = href.split("?")[0]
+  return (
+    allNavItems()
+      .filter((item) => path === item.href || path.startsWith(`${item.href}/`))
+      .sort((a, b) => b.href.length - a.href.length)[0]?.icon ?? null
+  )
+}
+
+/**
+ * The row above the page sheet, on the chrome: ‹ › through the active
+ * tab's history, then the tabs (widgets/app-tabs); the active tab is cut
+ * from the sheet's color and opens into it. Each tab is named after its
+ * page: the last step (section, project trail, or what the page adds with
+ * useBreadcrumbs). Phones have neither: their tab bar and the page title.
+ * The Mac app puts it in its 52pt strip, beside the traffic lights.
+ */
 export function SiteHeader() {
   const t = useT("nav")
   const section = useSection()
@@ -59,69 +73,51 @@ export function SiteHeader() {
   const projectPath = matchProjectPath(pathname)
   const { data: project } = useProjectSummary(projectPath?.ref)
   const extra = useBreadcrumbTrail()
-  const desktop = useMacChrome()
 
-  // Section (or the project trail), then whatever the page adds; every step
-  // but the last links back up.
-  const trail: Crumb[] = [
-    ...(projectPath
-      ? [
-          { label: t("projects"), href: "/projects" },
-          { label: project?.name ?? "…", href: `/projects/${projectPath.ref}` },
-          {
-            label: PROJECT_SECTION_KEYS[projectPath.section.slug]
-              ? t(PROJECT_SECTION_KEYS[projectPath.section.slug])
-              : projectPath.section.name,
-            href: `/projects/${projectPath.ref}${projectPath.slug ? `/${projectPath.slug}` : ""}`,
-          },
-        ]
-      : [section]),
-    ...extra,
-  ]
+  const sectionLabel = projectPath
+    ? PROJECT_SECTION_KEYS[projectPath.section.slug]
+      ? t(PROJECT_SECTION_KEYS[projectPath.section.slug])
+      : projectPath.section.name
+    : null
+  const last: Crumb | undefined = extra.at(-1)
+  // A project page reads "Owlpine · Tugas" unless the page names itself.
+  const title =
+    last?.label ??
+    (projectPath
+      ? project?.name
+        ? sectionLabel && projectPath.slug
+          ? `${project.name} · ${sectionLabel}`
+          : project.name
+        : ""
+      : section.label)
+  const icon = useMemo<TabIcon | undefined>(
+    () =>
+      projectPath && project
+        ? { kind: "project", id: project.id, name: project.name }
+        : section.href
+          ? { kind: "nav", href: section.href }
+          : undefined,
+    [projectPath, project, section.href],
+  )
+  useAppTabsSync({ title, icon })
+  const collapsed = useSidebar().state === "collapsed"
+  const mac = useMacChrome()
+  const navIcon = useCallback((href: string) => navIconFor(href), [])
 
   return (
-    // Phones have the page title right below and the tab bar to move
-    // around: no breadcrumb row there.
-    <header className="flex h-12 shrink-0 items-center gap-2 max-md:hidden">
-      <div className="gutter-x flex min-w-0 flex-1 items-center gap-2">
-        {/* In the Mac app the toggle sits in the top bar instead. */}
-        {/* Not on phones either: they navigate from the tab bar. */}
-        {!desktop && (
-          <div className="hidden items-center gap-2 md:flex">
-            <SidebarTrigger className="-ml-1" />
-            <Separator
-              orientation="vertical"
-              className="mr-2 data-vertical:h-4 data-vertical:self-auto"
-            />
-          </div>
-        )}
-        <Breadcrumb className="min-w-0">
-          <BreadcrumbList className="flex-nowrap">
-            {trail.map((crumb, i) => {
-              const last = i === trail.length - 1
-              return (
-                <Fragment key={`${i}-${crumb.label}`}>
-                  {i > 0 && <BreadcrumbSeparator />}
-                  <BreadcrumbItem className={last ? "min-w-0" : "shrink-0"}>
-                    {last || !crumb.href ? (
-                      <BreadcrumbPage className="truncate font-medium">
-                        {crumb.label}
-                      </BreadcrumbPage>
-                    ) : (
-                      <BreadcrumbLink
-                        render={<Link href={crumb.href} prefetch={false} />}
-                        className="max-w-48 truncate"
-                      >
-                        {crumb.label}
-                      </BreadcrumbLink>
-                    )}
-                  </BreadcrumbItem>
-                </Fragment>
-              )
-            })}
-          </BreadcrumbList>
-        </Breadcrumb>
-      </div>
+    <header
+      data-slot="app-tabs"
+      data-chrome-dark=""
+      className="on-chrome text-foreground flex h-11 min-w-0 shrink-0 items-stretch gap-1 max-md:hidden"
+    >
+      {/* ‹ › sit beside the sidebar toggle; with the sidebar collapsed
+          (or in the Mac app's strip) they lead the tabs instead. */}
+      {(collapsed || mac) && (
+        <div className="flex items-center self-center pr-2">
+          <TabHistoryButtons />
+        </div>
+      )}
+      <TabStrip navIcon={navIcon} />
     </header>
   )
 }

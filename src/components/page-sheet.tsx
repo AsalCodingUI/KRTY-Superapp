@@ -43,6 +43,7 @@ export function PageSheet({
     <div className="relative flex min-w-0 flex-1">
       <div
         aria-hidden
+        data-slot="page-sheet-shadow"
         className={cn(
           "blend-shadow shadow-sheet pointer-events-none absolute inset-0 z-20 hidden md:block",
           radius,

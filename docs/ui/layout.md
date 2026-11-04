@@ -29,20 +29,26 @@ Windows apps, phones and print. Live examples: **/ui** → Layout.
 
 ```
 SidebarProvider  bg-chrome h-svh flex-col                      (tinted chrome)
-├─ AppTopbar      h-(--app-topbar-height) 56px · Mac 52px       brand · workspace · ⌘K · bell · account
+├─ AppTopbar      phones only (56px): brand · bell · account. Mac: 52px strip,
+│                  traffic lights + sidebar toggle + the tab row
 ├─ AppBannerStack px-2 pb-2, publishes --app-banner-height      view-as, announcements
 ├─ row            md:pr-3 md:pb-3 (Mac md:pr-1.5 md:pb-1.5)
 │  ├─ AppSidebar  15rem (resizable), icon 3.75rem, hidden < md
-│  └─ PageSheet   shadow layer + SidebarInset (components/page-sheet.tsx)
-│     SidebarInset  scroll-pane · md:rounded-3xl (Mac 10px) · dark:bg-surface
-│     ├─ SiteHeader  h-12, gutter-x: sidebar toggle + breadcrumbs (hidden < md)
-│     └─ content     gutter-x flex-col gap-4 · pb-6 (phones pb for the tab bar)
-│        └─ WorkspaceTransition › Suspense › the page
+│  │  header: brand ‹ › ◫ · workspace switch · search (outline pill) + bell
+│  │  footer: What's new · Settings · account row · theme / language
+│  └─ column
+│     ├─ SiteHeader  the tab row, on the chrome, h-11 (--app-tabs-height);
+│     │              fixed: only the sheet scrolls (widgets/app-tabs)
+│     └─ PageSheet   shadow layer + SidebarInset (components/page-sheet.tsx)
+│        SidebarInset  scroll-pane · md:rounded-dialog (Mac 10px) · md:pt-6
+│        │             top-left square while the first tab is active
+│        └─ content    gutter-x flex-col gap-4 · pb-6 (phones pb for the tab bar)
+│           └─ WorkspaceTransition › Suspense › the page
 └─ MobileNav      floating tab bar, phones only (md:hidden)
 ```
 
-The page sheet is the only scroller: the window never scrolls, the top
-bar and sidebar stay. Right sheets and the docked side panel float 8px
+The page sheet is the only scroller: the window never scrolls, the tab
+row and sidebar stay. Right sheets and the docked side panel float 8px
 inside it (see overlay.md).
 
 ## Rules

@@ -101,13 +101,19 @@ export function linkItems(
       },
     },
   ]
-  if (internal && !env.desktop)
+  // An in-app tab (widgets/app-tabs listens), on the web and in the app.
+  if (internal)
     items.push({
       id: "open-tab",
       label: t("openNewTab"),
       icon: AppWindow,
       shortcut: "Mod+Click",
-      onSelect: () => void window.open(abs.href, "_blank", "noopener"),
+      onSelect: () =>
+        void window.dispatchEvent(
+          new CustomEvent("krty:open-tab", {
+            detail: { url: abs.pathname + abs.search },
+          }),
+        ),
     })
   if (env.desktop)
     items.push({

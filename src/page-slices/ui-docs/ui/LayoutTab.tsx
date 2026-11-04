@@ -291,7 +291,7 @@ function Anatomy() {
         <Box
           className="h-11 items-center"
           label="AppTopbar"
-          note="h 56px (Mac 52px) · brand · workspace · ⌘K · lonceng · akun"
+          note="cuma HP (56px) · Mac: strip 52px lampu + toggle + tab"
         />
         <Box
           className="mx-2 mb-2 h-7 rounded-md border border-dashed"
@@ -302,27 +302,29 @@ function Anatomy() {
           <Box
             className="w-40 shrink-0 flex-col items-start gap-1 max-md:hidden"
             label="AppSidebar"
-            note="15rem, bisa digeser · ikon 3.75rem · < md tersembunyi"
+            note="brand ‹ › ◫ · workspace · cari + lonceng · … · akun"
           />
-          <div className="bg-background dark:bg-surface flex min-w-0 flex-1 flex-col rounded-3xl shadow-(--elev-3) max-md:rounded-t-3xl max-md:rounded-b-none">
+          <div className="flex min-w-0 flex-1 flex-col">
             <Box
-              className="h-9 items-center border-b border-dashed"
+              className="h-9 items-center"
               label="SiteHeader"
-              note="h-12 · toggle sidebar + breadcrumb · < md tersembunyi"
+              note="baris tab di chrome · h-11 · diam, cuma sheet yang scroll"
             />
-            <div className="flex flex-1 flex-col gap-2 p-3">
-              <span className="text-muted-foreground">
-                SidebarInset · scroll-pane · rounded-3xl (Mac 10px) · konten
-                gutter-x pb-6
-              </span>
-              <div className="border-primary/40 bg-primary/5 flex h-9 items-center rounded-lg border border-dashed px-3">
-                PageHeader pt-6 pb-4
-              </div>
-              <div className="border-border flex h-8 items-center rounded-lg border border-dashed px-3">
-                TabNavigation · StatStrip
-              </div>
-              <div className="border-border flex flex-1 items-center rounded-lg border border-dashed px-3">
-                Isi halaman (GroupedList, kartu…)
+            <div className="bg-background dark:bg-surface flex min-w-0 flex-1 flex-col rounded-3xl shadow-(--elev-3) max-md:rounded-t-3xl max-md:rounded-b-none">
+              <div className="flex flex-1 flex-col gap-2 p-3">
+                <span className="text-muted-foreground">
+                  SidebarInset · scroll-pane · rounded-3xl (Mac 10px) · konten
+                  gutter-x pb-6
+                </span>
+                <div className="border-primary/40 bg-primary/5 flex h-9 items-center rounded-lg border border-dashed px-3">
+                  PageHeader pt-6 pb-4
+                </div>
+                <div className="border-border flex h-8 items-center rounded-lg border border-dashed px-3">
+                  TabNavigation · StatStrip
+                </div>
+                <div className="border-border flex flex-1 items-center rounded-lg border border-dashed px-3">
+                  Isi halaman (GroupedList, kartu…)
+                </div>
               </div>
             </div>
           </div>

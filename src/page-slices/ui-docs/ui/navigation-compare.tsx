@@ -1,6 +1,7 @@
 "use client"
 
 import { TabNavigation, TabNavigationLink } from "@/components/tab-navigation"
+import { Bell } from "@/components/icons"
 import { cn } from "@/lib/utils"
 import { useEffect, useRef, useState } from "react"
 import { BeforeAfter } from "./compare"
@@ -291,5 +292,95 @@ function Measured() {
         </div>
       </div>
     </div>
+  )
+}
+
+/** The shell, drawn small: the old top bar + breadcrumb row vs the
+ *  sidebar header and the tab row on the chrome. */
+function Pill({
+  className,
+  children,
+}: {
+  className?: string
+  children?: React.ReactNode
+}) {
+  return (
+    <span
+      className={cn(
+        "text-caption flex h-5 items-center rounded-full px-2",
+        className,
+      )}
+    >
+      {children}
+    </span>
+  )
+}
+
+export function ShellCompare() {
+  return (
+    <BeforeAfter
+      label="Top bar + breadcrumb → semua di sidebar, tab di atas halaman"
+      before={
+        <div className="bg-chrome flex w-full flex-col overflow-hidden rounded-xl">
+          <div className="flex h-8 items-center gap-2 px-2">
+            <Pill className="font-medium">Kretya</Pill>
+            <Pill className="bg-chrome-field">Pribadi · Project</Pill>
+            <Pill className="bg-chrome-field mx-auto w-28">Cari ⌘K</Pill>
+            <Pill>
+              <Bell className="size-3" />
+            </Pill>
+            <Pill>Ahmad</Pill>
+          </div>
+          <div className="flex h-36 pr-2 pb-2">
+            <div className="text-caption text-muted-foreground flex w-20 flex-col gap-1 px-2">
+              <span>Beranda</span>
+              <span>Tim</span>
+              <span>Cuti</span>
+            </div>
+            <div className="bg-background flex flex-1 flex-col rounded-lg">
+              <div className="text-caption text-muted-foreground flex h-7 items-center gap-1 px-2">
+                ◫ | Tim › Akses
+              </div>
+              <div className="text-body px-2 font-medium">Tim</div>
+            </div>
+          </div>
+        </div>
+      }
+      after={
+        <div className="bg-chrome flex w-full overflow-hidden rounded-xl">
+          <div className="text-caption text-muted-foreground flex w-32 flex-col gap-1.5 p-2 whitespace-nowrap">
+            <span className="text-foreground flex justify-between font-medium">
+              Kretya <span>‹ › ◫</span>
+            </span>
+            <Pill className="bg-chrome-field justify-center">
+              Pribadi · Project
+            </Pill>
+            <span className="flex gap-1">
+              <Pill className="border-chrome-border flex-1 border">Cari</Pill>
+              <Pill className="px-1">
+                <Bell className="size-3" />
+              </Pill>
+            </span>
+            <span>Beranda</span>
+            <span>Tim</span>
+            <span className="mt-auto">Ahmad</span>
+          </div>
+          <div className="flex flex-1 flex-col pr-2 pb-2">
+            <div className="flex h-7 items-end">
+              <span className="text-caption flex h-6 items-center rounded-t-md bg-(--sheet) px-2 font-medium">
+                Tim
+              </span>
+              <span className="text-caption text-muted-foreground flex h-5 items-center px-2">
+                Kalender
+              </span>
+              <span className="text-caption text-muted-foreground px-1">+</span>
+            </div>
+            <div className="flex h-36 flex-col rounded-lg rounded-tl-none bg-(--sheet) pt-3">
+              <div className="text-body px-2 font-medium">Tim</div>
+            </div>
+          </div>
+        </div>
+      }
+    />
   )
 }

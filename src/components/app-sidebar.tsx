@@ -11,7 +11,10 @@ import { cn } from "@/lib/utils"
 import { siteConfig } from "@/app/siteConfig"
 import { AppIcon } from "@/components/app-icon"
 import { useMacChrome } from "@/components/desktop-shell"
-import { WorkspaceSwitch } from "@/components/app-topbar"
+import { AccountMenu, WorkspaceSwitch } from "@/components/app-topbar"
+import { GlobalSearch } from "@/widgets/global-search/ui/GlobalSearch"
+import { Notifications } from "@/widgets/notifications/ui/Notifications"
+import { TabHistoryButtons } from "@/widgets/app-tabs/ui/AppTabs"
 
 import { NavMain } from "@/components/nav-main"
 import { NavProject } from "@/components/nav-project"
@@ -42,6 +45,7 @@ import {
   SidebarMenuItem,
   SidebarMenuSkeleton,
   SidebarRail,
+  SidebarTrigger,
   useSidebar,
   SidebarHeader,
 } from "@/components/ui/sidebar"
@@ -220,27 +224,50 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       {...props}
     >
       <SidebarRail />
-      {/* In the Mac app the brand and the workspace switch live here (the
-          top bar holds the traffic lights instead). */}
-      {desktop && (
-        <SidebarHeader className="gap-3 px-2.5 pt-1 pb-3">
+      {/* What the top bar used to hold: brand and the sidebar toggle (the
+          Mac app's toggle stays by its traffic lights), the workspace
+          switch, then search (⌘K) and notifications. Collapsed: the toggle,
+          then search and the bell stacked, icons only. */}
+      <SidebarHeader
+        className={cn("gap-3 px-2.5 pb-3", desktop ? "pt-1" : "pt-3")}
+      >
+        <div
+          className={cn(
+            "flex h-8 items-center justify-between group-data-[collapsible=icon]:justify-center",
+            desktop && "group-data-[collapsible=icon]:hidden",
+          )}
+        >
           <PrefetchLink
             href={siteConfig.baseLinks.dashboard}
             // The mark in line with the menu's icons below (same size, same
             // left edge).
-            className="flex items-center gap-2 px-3"
+            className="flex min-w-0 items-center gap-2 pl-3 group-data-[collapsible=icon]:hidden"
             aria-label={siteConfig.name}
           >
-            <AppIcon size={96} variant="mark" className="size-4" />
-            <span className="truncate text-sm font-medium group-data-[collapsible=icon]:hidden">
+            <AppIcon size={96} variant="mark" className="size-4 shrink-0" />
+            <span className="truncate text-sm font-medium">
               {siteConfig.name}
             </span>
           </PrefetchLink>
-          <div className="group-data-[collapsible=icon]:hidden">
-            <WorkspaceSwitch fill />
-          </div>
-        </SidebarHeader>
-      )}
+          {!desktop && (
+            <div className="flex shrink-0 items-center">
+              {/* Back / forward in the active tab (⌘[ ⌘]); while collapsed
+                  they move to the tab row. */}
+              <div className="group-data-[collapsible=icon]:hidden">
+                <TabHistoryButtons compact />
+              </div>
+              <SidebarTrigger className="text-muted-foreground hover:bg-chrome-hover" />
+            </div>
+          )}
+        </div>
+        <div className="group-data-[collapsible=icon]:hidden">
+          <WorkspaceSwitch fill />
+        </div>
+        <div className="flex items-center gap-1 group-data-[collapsible=icon]:flex-col">
+          <GlobalSearch className="min-w-0 flex-1 group-data-[collapsible=icon]:flex-none" />
+          <Notifications variant="icon" />
+        </div>
+      </SidebarHeader>
       {/* First row starts level with the top of the page sheet. */}
       <SidebarContent>
         {loading ? (
@@ -345,8 +372,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarGroup>
-      {/* Theme, language and chrome color live here; there is no settings page. */}
+      {/* The account, then theme, language and chrome color. */}
       <SidebarFooter>
+        <AccountMenu
+          row
+          side={sidebarState === "collapsed" ? "right" : "top"}
+        />
         {/* Stacks vertically when the sidebar is collapsed to icons. Re-keyed
             on the sidebar state so the new arrangement fades and settles in
             alongside the width animation instead of snapping. */}

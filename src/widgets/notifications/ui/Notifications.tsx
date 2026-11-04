@@ -13,6 +13,7 @@ import { useCallback, useState } from "react"
 
 interface NotificationsProps {
   variant?: "default" | "icon"
+  className?: string
 }
 
 const loadPanel = () => import("./NotificationsPanel")
@@ -35,7 +36,10 @@ const requestDesktopPermission = async () => {
   }
 }
 
-export function Notifications({ variant = "default" }: NotificationsProps) {
+export function Notifications({
+  variant = "default",
+  className,
+}: NotificationsProps) {
   const {
     notifications,
     unreadCount,
@@ -75,12 +79,15 @@ export function Notifications({ variant = "default" }: NotificationsProps) {
                   : "text-muted-foreground hover:text-foreground",
               )
             : cx(
-                "flex size-7 shrink-0 items-center justify-center rounded-md transition-colors focus:outline-none",
+                // Beside the search in the sidebar: the field's size and
+                // its chrome hover.
+                "blend-ink rounded-control flex size-8 shrink-0 items-center justify-center transition-colors focus:outline-none",
                 isOpen
-                  ? "text-foreground bg-muted"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted",
+                  ? "text-foreground bg-chrome-field"
+                  : "text-muted-foreground hover:text-foreground hover:bg-chrome-hover",
               ),
           focusRing,
+          className,
         )}
         aria-label={t("notificationCenter")}
       >
@@ -92,7 +99,7 @@ export function Notifications({ variant = "default" }: NotificationsProps) {
             // Unread: a still primary dot (feedback.md), no ping, no red.
             <span
               aria-hidden
-              className="bg-primary ring-background absolute top-0 right-0 -mt-1 -mr-1 size-2 rounded-full ring-2"
+              className="bg-primary ring-chrome absolute top-0 right-0 -mt-0.5 -mr-0.5 size-2 rounded-full ring-2"
             />
           )}
         </div>

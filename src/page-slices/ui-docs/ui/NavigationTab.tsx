@@ -27,7 +27,7 @@ import {
   DocRules,
 } from "./doc-blocks"
 import * as mock from "../model/navigation-mock"
-import { NavigationCompare } from "./navigation-compare"
+import { NavigationCompare, ShellCompare } from "./navigation-compare"
 
 const RULES: [string, string][] = [
   [
@@ -93,7 +93,10 @@ export function NavigationTab() {
         title="Sebelum / sesudah"
         note="TabNavigationLink count, TabNavigation plain / bleed (garis full-bleed di Performa), ring fokus, prefetch={false} di semua next/link, replaceUrl buat query yang nggak dibaca server. Kiri: cara lama; kanan: yang jalan sekarang."
       >
-        <NavigationCompare />
+        <div className="flex flex-col gap-8">
+          <ShellCompare />
+          <NavigationCompare />
+        </div>
       </DocGroup>
 
       <DocGroup title="Tab halaman">

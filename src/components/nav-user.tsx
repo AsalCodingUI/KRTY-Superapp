@@ -41,6 +41,7 @@ export function NavUser({
   contactHref,
   showName = false,
   side = "right",
+  row = false,
 }: {
   user: {
     name: string
@@ -51,7 +52,9 @@ export function NavUser({
   contactHref?: string
   /** Show the name next to the avatar (top bar). */
   showName?: boolean
-  side?: "right" | "bottom"
+  side?: "right" | "bottom" | "top"
+  /** A full-width row at the sidebar's bottom (menu opens upwards). */
+  row?: boolean
 }) {
   const letters = initials(user.name, "KR")
   const t = useT("common")
@@ -70,7 +73,9 @@ export function NavUser({
 
   return (
     // Centred in the rail.
-    <SidebarMenu className={showName ? "w-auto" : "items-center"}>
+    <SidebarMenu
+      className={row ? undefined : showName ? "w-auto" : "items-center"}
+    >
       <SidebarMenuItem>
         <DropdownMenu>
           {/* Right-click: the account's actions without opening the menu. */}
@@ -128,15 +133,18 @@ export function NavUser({
               id="nav-user-menu-trigger"
               render={
                 <SidebarMenuButton
+                  tooltip={row ? user.name : undefined}
                   className={
-                    showName
-                      ? "text-foreground h-8 w-auto gap-2 pr-3 pl-1 hover:bg-transparent active:bg-transparent aria-expanded:bg-transparent"
-                      : "aria-expanded:bg-sidebar-accent blend-ink size-8! justify-center p-0!"
+                    row
+                      ? "text-foreground aria-expanded:bg-sidebar-accent gap-2 pl-1.5 group-data-[collapsible=icon]:p-1.5!"
+                      : showName
+                        ? "text-foreground h-8 w-auto gap-2 pr-3 pl-1 hover:bg-transparent active:bg-transparent aria-expanded:bg-transparent"
+                        : "aria-expanded:bg-sidebar-accent blend-ink size-8! justify-center p-0!"
                   }
                 />
               }
             >
-              <Avatar className="size-6">
+              <Avatar className={row ? "size-5" : "size-6"}>
                 <AvatarImage src={user.avatar} alt={user.name} />
                 <AvatarFallback className="bg-chrome-field blend-ink text-muted-foreground text-[10px]">
                   {letters}
@@ -144,9 +152,11 @@ export function NavUser({
               </Avatar>
               <span
                 className={
-                  showName
-                    ? "hidden max-w-40 truncate text-sm font-medium lg:inline"
-                    : "sr-only"
+                  row
+                    ? "truncate text-sm font-medium"
+                    : showName
+                      ? "hidden max-w-40 truncate text-sm font-medium lg:inline"
+                      : "sr-only"
                 }
               >
                 {user.name}
@@ -156,7 +166,7 @@ export function NavUser({
           <DropdownMenuContent
             className="min-w-56"
             side={side}
-            align="end"
+            align={row ? "start" : "end"}
             sideOffset={4}
           >
             <DropdownMenuGroup>

@@ -1,32 +1,61 @@
 # Navigation
 
-Moving between pages and views: the sidebar, the top bar and breadcrumbs,
+Moving between pages and views: the sidebar, the in-app tabs,
 page tabs, view and filter switches, paging, links and URL params. Live
 examples: **/ui** → Navigasi.
 
 ## Use
 
-| Need                                       | Use                                                                 | File                                                    |
-| ------------------------------------------ | ------------------------------------------------------------------- | ------------------------------------------------------- |
-| Tabs under a page title                    | `TabNavigation` + `TabNavigationLink active onClick`                | `src/components/tab-navigation.tsx`                     |
-| Tabs that are routes (`/x`, `/x/tab`)      | `TabNavigation` + `useTabRoute`                                     | `src/shared/hooks/useTabRoute.ts`                       |
-| Switch 2–5 views / filters in place        | `SegmentedControl` (`fitContent` in toolbars)                       | `src/components/segmented-control.tsx`                  |
-| List / grid / table / kanban switch        | `ViewToggle` + `useViewMode(key)`                                   | `src/components/view-toggle.tsx`                        |
-| Year + quarter filter                      | `QuarterFilter`                                                     | `src/components/quarter-filter.tsx`                     |
-| Prev / next under a list                   | `ListPager`                                                         | `src/components/list-pager.tsx`                         |
-| Paging a DataTable                         | built in (`DataTablePagination`)                                    | `src/components/data-table/`                            |
-| Breadcrumb steps after the section         | `useBreadcrumbs([{ label, href? }])`                                | `src/components/page-breadcrumbs.ts`                    |
-| The breadcrumb row itself                  | `SiteHeader` (app), `PortalShell` (portal)                          | `src/components/site-header.tsx`                        |
-| Back ← before a page title                 | `PageHeader back={{ href, label }}`                                 | `src/components/page-header.tsx`                        |
-| Sidebar                                    | `AppSidebar` → `NavMain`, `NavProject`, `SidebarNotices`, `NavUser` | `src/components/app-sidebar.tsx`                        |
-| Sidebar pages (per workspace)              | config, not JSX                                                     | `src/shared/config/workspaces.ts`                       |
-| A notice card at the sidebar's bottom      | a hook returning `SidebarNotice` in `useNotices`                    | `src/components/sidebar-notices.tsx`                    |
-| Mac app top bar (workspace switch, search) | `AppTopbar`                                                         | `src/components/app-topbar.tsx`                         |
-| Phone navigation                           | `MobileNav` → `FloatingTabBar`                                      | `src/components/mobile-nav.tsx`, `floating-tab-bar.tsx` |
-| Link to a page                             | `PrefetchLink` (lists, nav) or `Link prefetch={false}`              | `src/components/prefetch-link.tsx`                      |
-| Link that only changes the query           | `ParamLink` (`?entry=`, `?policy=`)                                 | `src/components/param-link.tsx`                         |
-| State in the URL without a navigation      | `replaceUrl(href, push?)`                                           | `src/shared/lib/url-params.ts`                          |
-| A row's URL key, project / person URLs     | `linkKey`, `projectHref`, `employeeHref`, `findByLinkKey`           | same                                                    |
+| Need                                        | Use                                                                           | File                                                      |
+| ------------------------------------------- | ----------------------------------------------------------------------------- | --------------------------------------------------------- |
+| Tabs under a page title                     | `TabNavigation` + `TabNavigationLink active onClick`                          | `src/components/tab-navigation.tsx`                       |
+| Tabs that are routes (`/x`, `/x/tab`)       | `TabNavigation` + `useTabRoute`                                               | `src/shared/hooks/useTabRoute.ts`                         |
+| Switch 2–5 views / filters in place         | `SegmentedControl` (`fitContent` in toolbars)                                 | `src/components/segmented-control.tsx`                    |
+| List / grid / table / kanban switch         | `ViewToggle` + `useViewMode(key)`                                             | `src/components/view-toggle.tsx`                          |
+| Year + quarter filter                       | `QuarterFilter`                                                               | `src/components/quarter-filter.tsx`                       |
+| Prev / next under a list                    | `ListPager`                                                                   | `src/components/list-pager.tsx`                           |
+| Paging a DataTable                          | built in (`DataTablePagination`)                                              | `src/components/data-table/`                              |
+| Name the page's tab (and the portal crumbs) | `useBreadcrumbs([{ label, href? }])`: the last step is the tab title          | `src/components/page-breadcrumbs.ts`                      |
+| The tab row (app)                           | `SiteHeader` → `TabStrip`, `useAppTabsSync`                                   | `src/components/site-header.tsx`, `src/widgets/app-tabs/` |
+| Back / forward in a tab                     | `TabHistoryButtons` (sidebar brand row; tab row when collapsed)               | `src/widgets/app-tabs/ui/AppTabs.tsx`                     |
+| Open a link as a tab from code              | `window.dispatchEvent(new CustomEvent("krty:open-tab", { detail: { url } }))` | same                                                      |
+| Breadcrumb row (portal only)                | `PortalShell`                                                                 | `src/page-slices/projects/ui/portal/PortalShell.tsx`      |
+| Back ← before a page title                  | `PageHeader back={{ href, label }}`                                           | `src/components/page-header.tsx`                          |
+| Sidebar                                     | `AppSidebar` → `NavMain`, `NavProject`, `SidebarNotices`, `NavUser`           | `src/components/app-sidebar.tsx`                          |
+| Sidebar pages (per workspace)               | config, not JSX                                                               | `src/shared/config/workspaces.ts`                         |
+| A notice card at the sidebar's bottom       | a hook returning `SidebarNotice` in `useNotices`                              | `src/components/sidebar-notices.tsx`                      |
+| Phone top bar / Mac traffic-light strip     | `AppTopbar` (account: `AccountMenu`)                                          | `src/components/app-topbar.tsx`                           |
+| Phone navigation                            | `MobileNav` → `FloatingTabBar`                                                | `src/components/mobile-nav.tsx`, `floating-tab-bar.tsx`   |
+| Link to a page                              | `PrefetchLink` (lists, nav) or `Link prefetch={false}`                        | `src/components/prefetch-link.tsx`                        |
+| Link that only changes the query            | `ParamLink` (`?entry=`, `?policy=`)                                           | `src/components/param-link.tsx`                           |
+| State in the URL without a navigation       | `replaceUrl(href, push?)`                                                     | `src/shared/lib/url-params.ts`                            |
+| A row's URL key, project / person URLs      | `linkKey`, `projectHref`, `employeeHref`, `findByLinkKey`                     | same                                                      |
+
+## App tabs
+
+The shell has no top bar from `md` up: brand, ‹ › and the sidebar toggle,
+the workspace switch, search (⌘K, an outlined pill) and notifications
+(icon) are at the sidebar's top; the account is its bottom row. Above the
+page sheet, on the chrome, sits the tab row.
+
+- **Main** is the first tab and can't be closed. The sidebar and every
+  plain link navigate the active tab, like a browser's.
+- **New tabs**: ⌘ / Ctrl / middle click on an app link (opens in the
+  background), the right-click menu's "Buka di tab baru", or `+` (opens
+  Beranda). At most 10; the oldest background tab gives way.
+- **History is per tab**: ‹ › and ⌘[ ⌘] move inside the active tab. A
+  query change (filters, `?tab=`) replaces the entry, a new path adds one;
+  `?settings=` is ignored.
+- **Only the active tab renders.** The others are a URL, a title, an icon
+  and a scroll offset (restored on return). Saved per user in localStorage.
+- The tab title is the page's last step: `useBreadcrumbs` if the page sets
+  it, else the project (+ section) or the sidebar section.
+- **Look**: the active tab is cut from the sheet's color (`--sheet`), sits
+  on the sheet's top edge with a concave foot each side, and squares the
+  sheet's corner when it's first. Others are text on the chrome with a
+  hairline between them; hover `bg-chrome-hover`; × on hover.
+- Desktop app only: ⌘T, ⌘W, ⌘1–9, ⌃Tab (browsers keep those keys).
+- Phones: no tab row; `MobileNav` as before.
 
 ## Tab options (use these)
 
@@ -89,14 +118,13 @@ tabular-nums`, hidden at 0; badge.md).
 - `router.push` only after an action (created → go to it), not as a
   button's click handler for plain navigation.
 
-**Breadcrumbs**
+**Breadcrumbs (now tab titles)**
 
-- Built by `SiteHeader` from the nav config (section) or the project path
-  (Projects › name › section), then the page's own steps from
-  `useBreadcrumbs`. Every step but the last links back. Hidden on phones
-  (they have the title and the tab bar).
+- The app no longer draws a breadcrumb row: the tabs replaced it. The
+  page's steps from `useBreadcrumbs` still matter: the last one names the
+  tab. Going up a level is the page's own back link (`PageHeader back`).
 - Pages add steps only for what's below the section (a folder, an edited
-  item); don't repeat the section.
+  item); don't repeat the section. The client portal keeps its crumbs.
 
 **Sidebar**
 
