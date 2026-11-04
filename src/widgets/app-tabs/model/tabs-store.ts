@@ -203,6 +203,24 @@ export function closeTab(id: string) {
   return next.url || "/dashboard"
 }
 
+/**
+ * Close every tab but `keep` and Main (Main never closes). Returns the URL
+ * to navigate to when the active tab went with them.
+ */
+export function closeOthers(keep: string) {
+  const tabs = state.tabs.filter((t) => t.id === MAIN_TAB || t.id === keep)
+  if (tabs.length === state.tabs.length) return null
+  const active = tabs.some((t) => t.id === state.active) ? state.active : keep
+  const moved = active !== state.active
+  set({ tabs, active })
+  return moved ? (tabs.find((t) => t.id === active)?.url ?? "/dashboard") : null
+}
+
+/** Close every tab: Main stays, and becomes the active one. */
+export function closeAll() {
+  return closeOthers(MAIN_TAB)
+}
+
 /** Where ‹ / › would go in the active tab (null at either end). */
 export function historyTarget(step: -1 | 1) {
   const { stack, index } = activeTab()

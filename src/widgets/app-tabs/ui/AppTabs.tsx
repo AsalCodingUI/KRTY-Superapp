@@ -3,6 +3,7 @@
 import { ChevronLeft, ChevronRight, Plus, X } from "@/components/icons"
 import { ProjectAvatar } from "@/components/project-avatar"
 import { useDesktopShell } from "@/components/desktop-shell"
+import { ContextTarget } from "@/shared/context-menu"
 import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
 import { Kbd } from "@/components/ui/kbd"
@@ -25,6 +26,8 @@ import {
 } from "react"
 import {
   activeTab,
+  closeAll,
+  closeOthers,
   closeTab,
   describeActive,
   getTabs,
@@ -188,6 +191,11 @@ export function useAppTabsSync({
         nav.select(next.id)
         return
       }
+      if (mod && e.shiftKey && !e.altKey && e.key.toLowerCase() === "w") {
+        e.preventDefault()
+        nav.closeAll()
+        return
+      }
       if (!mod || e.shiftKey || e.altKey) return
       if (e.key === "t") {
         e.preventDefault()
@@ -218,6 +226,8 @@ function useTabNavigation() {
     go: (step: -1 | 1) => void
     select: (id: string) => void
     close: (id: string) => void
+    closeOthers: (id: string) => void
+    closeAll: () => void
     newTab: () => void
     restoreScroll: () => void
   } | null>(null)
@@ -240,6 +250,8 @@ function useTabNavigation() {
     go: () => {},
     select: () => {},
     close: () => {},
+    closeOthers: () => {},
+    closeAll: () => {},
     newTab: () => {},
     restoreScroll: () => {},
   }
@@ -258,6 +270,14 @@ function useTabNavigation() {
     const wasActive = id === getTabs().active
     const url = closeTab(id)
     if (wasActive) goTo(url)
+  }
+  api.closeOthers = (id) => {
+    if (getTabs().active !== id) leave()
+    goTo(closeOthers(id))
+  }
+  api.closeAll = () => {
+    if (getTabs().active !== MAIN_TAB) leave()
+    goTo(closeAll())
   }
   api.newTab = () => {
     leave()
@@ -382,22 +402,53 @@ export function TabStrip({
         className="no-scrollbar flex min-w-0 items-center gap-1 overflow-x-auto"
       >
         {tabs.map((tab) => (
-          <TabItem
+          <ContextTarget
             key={tab.id}
-            ref={tab.id === active ? activeRef : undefined}
-            tab={tab}
-            active={tab.id === active}
-            onlyOne={tabs.length === 1}
-            navIcon={navIcon}
-            describe={describe}
-            // Switching to it, or just opened: until its page has rendered.
-            loading={tab.id === active && !!tab.url && tab.url !== currentUrl}
-            onSelect={() => nav.select(tab.id)}
-            onWarm={() => tab.url && router.prefetch(tab.url)}
-            onClose={() => nav.close(tab.id)}
-            closeLabel={t("tabClose")}
-            mainLabel={t("tabMain")}
-          />
+            type="app-tab"
+            id={tab.id}
+            label={t("tabs")}
+            items={() => [
+              {
+                id: "tab-close",
+                label: t("tabClose"),
+                icon: X,
+                shortcut: desktop ? "Mod+W" : undefined,
+                hidden: tab.id === MAIN_TAB,
+                onSelect: () => nav.close(tab.id),
+              },
+              {
+                id: "tab-close-others",
+                label: t("tabCloseOthers"),
+                disabled: tabs.every(
+                  (x) => x.id === MAIN_TAB || x.id === tab.id,
+                ),
+                onSelect: () => nav.closeOthers(tab.id),
+              },
+              {
+                id: "tab-close-all",
+                label: t("tabCloseAll"),
+                shortcut: desktop ? "Mod+Shift+W" : undefined,
+                disabled: tabs.length < 2,
+                onSelect: () => nav.closeAll(),
+              },
+            ]}
+          >
+            <TabItem
+              ref={tab.id === active ? activeRef : undefined}
+              tab={tab}
+              active={tab.id === active}
+              onlyOne={tabs.length === 1}
+              navIcon={navIcon}
+              describe={describe}
+              // Switching to it, or just opened: until its page has rendered.
+              loading={tab.id === active && !!tab.url && tab.url !== currentUrl}
+              onSelect={() => nav.select(tab.id)}
+              onWarm={() => tab.url && router.prefetch(tab.url)}
+              onClose={() => nav.close(tab.id)}
+              closeLabel={t("tabClose")}
+              mainLabel={t("tabMain")}
+            />
+          </ContextTarget>
         ))}
       </div>
       <ShortcutTip label={t("tabNew")} keys={desktop ? `${mod}T` : undefined}>
@@ -428,7 +479,8 @@ function TabItem({
   onClose,
   closeLabel,
   mainLabel,
-}: {
+  ...rest
+}: React.HTMLAttributes<HTMLDivElement> & {
   ref?: React.Ref<HTMLDivElement>
   tab: AppTab
   active: boolean
@@ -450,6 +502,8 @@ function TabItem({
   const Icon = iconHref ? navIcon(iconHref) : null
   return (
     <div
+      // data-ctx-* from <ContextTarget> (the right-click menu).
+      {...rest}
       ref={ref}
       role="tab"
       aria-selected={active}

@@ -50,6 +50,9 @@ traffic lights.
 - **New tabs**: ⌘ / Ctrl / middle click on an app link (opens in the
   background), the right-click menu's "Buka di tab baru", or `+` (opens
   Beranda). At most 10; the oldest background tab gives way.
+- **Closing**: × on the tab, middle click, or right-click a tab → Tutup
+  tab / Tutup tab lain (keeps Main and that tab) / Tutup semua tab (Main
+  only, and it becomes active). Desktop app: ⌘W, ⌘⇧W.
 - **History is per tab**: ‹ › and ⌘[ ⌘] move inside the active tab. A
   query change (filters, `?tab=`) replaces the entry, a new path adds one;
   `?settings=` is ignored.
@@ -71,7 +74,7 @@ traffic lights.
   browser is idle (and again on hover), and with `staleTimes.dynamic: 30`
   switching back within 30s reuses the cached page. Tabs save to
   localStorage when idle, never during a switch.
-- Desktop app only: ⌘T, ⌘W, ⌘1–9, ⌃Tab (browsers keep those keys).
+- Desktop app only: ⌘T, ⌘W, ⌘⇧W, ⌘1–9, ⌃Tab (browsers keep those keys).
 - Phones: no tab row; `MobileNav` as before.
 
 ## Tab options (use these)
