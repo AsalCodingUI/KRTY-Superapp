@@ -76,7 +76,7 @@ export function AppearancePopover({ className }: { className?: string }) {
             aria-label={t("appearance")}
             title={t("appearance")}
             className={cn(
-              "fill-ink hover:bg-chrome-hover text-muted-foreground hover:text-foreground aria-expanded:bg-sidebar-active size-8 rounded-full aria-expanded:shadow-(--elev-2) aria-expanded:before:opacity-0",
+              "fill-ink hover:bg-chrome-hover text-muted-foreground hover:text-foreground aria-expanded:bg-sidebar-active aria-expanded:shadow-raised size-8 rounded-full aria-expanded:before:opacity-0",
               className,
             )}
           />
@@ -338,7 +338,7 @@ function TintPad({
           className="pointer-events-none absolute inset-4"
         >
           <span
-            className="absolute size-7 -translate-x-1/2 -translate-y-1/2 rounded-full border-[3px] border-white shadow-(--elev-2)"
+            className="shadow-raised absolute size-7 -translate-x-1/2 -translate-y-1/2 rounded-full border-[3px] border-white"
             style={{
               left: `${(tint.h / 359) * 100}%`,
               top: `${(1 - tint.c) * 100}%`,

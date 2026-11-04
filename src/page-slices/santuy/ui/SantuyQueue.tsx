@@ -382,7 +382,7 @@ function QueueRow({
         style={{ transform: CSS.Translate.toString(transform), transition }}
         className={cn(
           "group/row bg-card border-border relative flex min-h-12 items-center gap-3 border-b px-4 py-2 last:border-b-0",
-          isDragging && "z-10 rounded-lg border-transparent shadow-(--elev-3)",
+          isDragging && "shadow-sheet z-10 rounded-lg border-transparent",
         )}
       >
         {canEdit ? (

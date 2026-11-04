@@ -174,7 +174,7 @@ function DialogContent({
         data-slot="dialog-content"
         className={cn(
           bare
-            ? "bg-popover text-popover-foreground data-open:animate-in data-open:fade-in-0 data-open:zoom-in-96 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-96 rounded-dialog fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 text-sm shadow-(--elev-5) duration-250 ease-out outline-none"
+            ? "bg-popover text-popover-foreground data-open:animate-in data-open:fade-in-0 data-open:zoom-in-96 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-96 rounded-dialog shadow-dialog fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 text-sm duration-250 ease-out outline-none"
             : dialogShellClassName,
           dialogSheetOnMobileClassName,
           className,

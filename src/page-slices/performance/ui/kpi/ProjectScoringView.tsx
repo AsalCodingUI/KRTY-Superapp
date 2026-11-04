@@ -917,7 +917,7 @@ function OverrideEditor({
               className={cn(
                 "text-meta h-7 flex-1 rounded-full transition-colors",
                 result === r
-                  ? "bg-background text-foreground shadow-(--elev-1)"
+                  ? "bg-background text-foreground shadow-control"
                   : "text-muted-foreground hover:text-foreground",
               )}
             >

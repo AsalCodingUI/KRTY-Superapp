@@ -329,7 +329,7 @@ function AttendanceRow({
         <span className="relative flex justify-end">
           <WorkedTime log={log} hydrated={hydrated} />
           {canRequestDelete && (
-            <ListRowActions className="bg-popover absolute inset-y-0 right-0 my-auto hidden h-fit rounded-full shadow-(--elev-2) lg:flex">
+            <ListRowActions className="bg-popover shadow-raised absolute inset-y-0 right-0 my-auto hidden h-fit rounded-full lg:flex">
               {requestDeleteButton}
             </ListRowActions>
           )}

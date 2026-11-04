@@ -79,7 +79,7 @@ export function SidebarNoticeCard({
         "group/notice relative flex items-center gap-2 rounded-xl py-2.5 pr-2 pl-3 transition-colors group-data-[collapsible=icon]:hidden",
         // Solid, so the (translucent) sidebar doesn't show through; the
         // accent tone is told apart by its blue button.
-        "bg-card hover:bg-muted shadow-(--elev-1)",
+        "bg-card hover:bg-muted shadow-control",
         className,
       )}
     >
@@ -108,7 +108,7 @@ export function SidebarNoticeCard({
           "pointer-events-none flex size-7 shrink-0 items-center justify-center rounded-full [&_svg]:size-4",
           tone === "accent"
             ? "bg-primary text-primary-foreground"
-            : "bg-background text-foreground shadow-(--elev-1) dark:bg-white/10",
+            : "bg-background text-foreground shadow-control dark:bg-white/10",
         )}
       >
         {icon}
@@ -118,7 +118,7 @@ export function SidebarNoticeCard({
           type="button"
           onClick={onDismiss}
           aria-label={t("dismiss")}
-          className="bg-background text-muted-foreground hover:text-foreground border-border absolute -top-1.5 -left-1.5 flex size-5 items-center justify-center rounded-full border opacity-0 shadow-(--elev-1) transition-opacity group-hover/notice:opacity-100 focus-visible:opacity-100 [&_svg]:size-3"
+          className="bg-background text-muted-foreground hover:text-foreground border-border shadow-control absolute -top-1.5 -left-1.5 flex size-5 items-center justify-center rounded-full border opacity-0 transition-opacity group-hover/notice:opacity-100 focus-visible:opacity-100 [&_svg]:size-3"
         >
           <X />
         </button>

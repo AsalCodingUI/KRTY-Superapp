@@ -91,7 +91,7 @@ export function BaseReadOnlyDialog({
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-5">
+        <div className="flex flex-col gap-5">
           {/* Badges */}
           {badges.length > 0 && (
             <div className="flex flex-wrap items-center gap-2">
@@ -109,19 +109,19 @@ export function BaseReadOnlyDialog({
           )}
 
           {/* Event Title */}
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <h3 className="text-heading text-title font-medium">
               {event.title}
             </h3>
           </div>
 
           {/* Date & Time */}
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <div className="text-muted-foreground flex items-center gap-2 text-sm font-medium">
               <RiCalendarLine className="text-muted-foreground h-4 w-4" />
               <span>{t("dialogTime")}</span>
             </div>
-            <div className="space-y-1 pl-6">
+            <div className="flex flex-col gap-1 pl-6">
               {event.allDay ? (
                 <div className="text-foreground text-sm">
                   {format(event.start, "EEEE, d MMMM yyyy", {
@@ -166,7 +166,7 @@ export function BaseReadOnlyDialog({
 
           {/* Location */}
           {showLocation && event.location && (
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <div className="text-muted-foreground flex items-center gap-2 text-sm font-medium">
                 <RiMapPinLine className="text-muted-foreground h-4 w-4" />
                 <span>{t("dialogLocation")}</span>
@@ -179,7 +179,7 @@ export function BaseReadOnlyDialog({
 
           {/* Description */}
           {event.description && (
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <div className="text-muted-foreground flex items-center gap-2 text-sm font-medium">
                 <RiFileTextLine className="text-muted-foreground h-4 w-4" />
                 <span>{t("dialogDescription")}</span>

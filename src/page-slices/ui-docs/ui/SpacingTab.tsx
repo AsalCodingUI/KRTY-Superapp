@@ -1,5 +1,6 @@
 "use client"
 
+import { SpacingCompare } from "./spacing-compare"
 import { HomeCard, HomeRow } from "@/app/(main)/dashboard/components/home-card"
 import { GroupedList, ListRow } from "@/components/grouped-list"
 import { PageHeader } from "@/components/page-header"
@@ -84,6 +85,13 @@ export function SpacingTab() {
 
       <DocGroup title="Aturan">
         <DocRules rules={RULES} />
+      </DocGroup>
+
+      <DocGroup
+        title="Sebelum / sesudah"
+        note="Kiri: nilai lama; kanan: token per peran yang sekarang jalan di app."
+      >
+        <SpacingCompare />
       </DocGroup>
 
       <DocGroup
@@ -185,7 +193,6 @@ export function SpacingTab() {
           >
             <div className="border-border rounded-xl border border-dashed px-5">
               <PageHeader
-                className="pt-6 pb-4"
                 title="Klien"
                 actions={
                   <>

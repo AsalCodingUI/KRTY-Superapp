@@ -104,7 +104,7 @@ export const EventItem = memo(function EventItem({
           className,
         )}
       >
-        <div className="flex items-center self-stretch px-0.5 py-[4px]">
+        <div className="flex items-center self-stretch px-0.5 py-1">
           <span className={cx("h-full w-px rounded-full", colors.accent)} />
         </div>
         <span className="min-w-0 flex-1 truncate">{compactLabel}</span>
@@ -130,7 +130,7 @@ export const EventItem = memo(function EventItem({
         className,
       )}
     >
-      <div className="flex items-center self-stretch px-0.5 py-[4px]">
+      <div className="flex items-center self-stretch px-0.5 py-1">
         <span className={cx("h-full w-px rounded-full", colors.accent)} />
       </div>
 

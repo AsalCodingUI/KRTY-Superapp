@@ -1,5 +1,6 @@
 "use client"
 
+import { ShadowCompare } from "./shadow-compare"
 import {
   GlassLayer,
   glassControlClass,
@@ -102,6 +103,13 @@ export function ElevationTab() {
 
       <DocGroup title="Aturan">
         <DocRules rules={RULES} />
+      </DocGroup>
+
+      <DocGroup
+        title="Sebelum / sesudah"
+        note="Kiri: nilai lama; kanan: token per peran yang sekarang jalan di app."
+      >
+        <ShadowCompare />
       </DocGroup>
 
       <DocGroup

@@ -117,7 +117,7 @@ export function SelectionMenu({ editor }: { editor: Editor }) {
         !(e.state.selection instanceof NodeSelection)
       }
       className={cn(
-        "bg-popover text-popover-foreground z-40 flex items-center gap-0.5 p-1 shadow-(--elev-4)",
+        "bg-popover text-popover-foreground shadow-popover z-40 flex items-center gap-0.5 p-1",
         ai ? "rounded-2xl" : "rounded-full",
       )}
     >

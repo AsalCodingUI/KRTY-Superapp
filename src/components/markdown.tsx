@@ -58,13 +58,13 @@ const components: Components = {
   p: ({ node: _, ...p }) => <p className="my-3 first:mt-0 last:mb-0" {...p} />,
   ul: ({ node: _, ...p }) => (
     <ul
-      className="marker:text-muted-foreground my-3 list-disc space-y-1.5 pl-5"
+      className="marker:text-muted-foreground my-3 flex list-disc flex-col gap-1.5 pl-5"
       {...p}
     />
   ),
   ol: ({ node: _, ...p }) => (
     <ol
-      className="marker:text-muted-foreground my-3 list-decimal space-y-1.5 pl-5"
+      className="marker:text-muted-foreground my-3 flex list-decimal flex-col gap-1.5 pl-5"
       {...p}
     />
   ),

@@ -12,7 +12,7 @@ export default function ProjectsLoading() {
       </div>
 
       {/* Content Skeleton */}
-      <div className="space-y-4 pb-4">
+      <div className="flex flex-col gap-4 pb-4">
         <div className="rounded-lg">
           <Skeleton className="h-6 w-40" />
           <Skeleton className="mt-4 h-24 w-full" />

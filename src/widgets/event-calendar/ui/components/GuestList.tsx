@@ -26,7 +26,7 @@ export function GuestList({
   const pendingCount = guests.filter((g) => g.status === "pending").length
 
   return (
-    <div className="space-y-3">
+    <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
         <h4 className="text-foreground flex items-center gap-2 text-sm font-medium">
           <span>
@@ -54,7 +54,7 @@ export function GuestList({
         )}
       </div>
 
-      <div className="space-y-2">
+      <div className="flex flex-col gap-2">
         {guests.map((guest, index) => (
           <div
             key={guest.email + index}

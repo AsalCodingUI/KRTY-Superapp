@@ -7,7 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 /** Content-area placeholder while a section's chunk loads (matches loading.tsx). */
 function SectionFallback() {
   return (
-    <div className="space-y-4 pt-6 pb-4">
+    <div className="flex flex-col gap-4 pt-6 pb-4">
       <Skeleton className="h-6 w-40" />
       <Skeleton className="h-24 w-full" />
       <Skeleton className="h-32 w-full" />

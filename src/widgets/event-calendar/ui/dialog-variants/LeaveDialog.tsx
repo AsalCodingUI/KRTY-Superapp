@@ -63,7 +63,7 @@ export function LeaveDialog({ open, onOpenChange, event }: LeaveDialogProps) {
           <DialogTitle>{t("leaveDialogTitle")}</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-5">
+        <div className="flex flex-col gap-5">
           {/* Status Badge */}
           <div className="flex items-center gap-2">
             <Badge variant="secondary" color="emerald" className="text-sm">
@@ -75,7 +75,7 @@ export function LeaveDialog({ open, onOpenChange, event }: LeaveDialogProps) {
           </div>
 
           {/* Employee Name */}
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <div className="text-muted-foreground flex items-center gap-2 text-sm font-medium">
               <RiUserLine className="text-muted-foreground h-4 w-4" />
               <span>{t("leaveEmployee")}</span>
@@ -84,12 +84,12 @@ export function LeaveDialog({ open, onOpenChange, event }: LeaveDialogProps) {
           </div>
 
           {/* Date Range */}
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <div className="text-muted-foreground flex items-center gap-2 text-sm font-medium">
               <RiCalendarLine className="text-muted-foreground h-4 w-4" />
               <span>{t("leavePeriod")}</span>
             </div>
-            <div className="space-y-1 pl-6">
+            <div className="flex flex-col gap-1 pl-6">
               <div className="text-foreground flex items-center gap-2">
                 <span className="text-muted-foreground text-sm">
                   {t("dialogStart")}:
@@ -115,7 +115,7 @@ export function LeaveDialog({ open, onOpenChange, event }: LeaveDialogProps) {
 
           {/* Reason/Description */}
           {event.description && (
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <div className="text-muted-foreground flex items-center gap-2 text-sm font-medium">
                 <RiFileTextLine className="text-muted-foreground h-4 w-4" />
                 <span>{t("leaveReasonLabel")}</span>

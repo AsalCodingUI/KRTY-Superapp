@@ -51,7 +51,7 @@ export function AgendaView({ events, onEventClick }: AgendaViewProps) {
             <p className="text-muted-foreground text-sm">{t("agendaEmpty")}</p>
           </div>
         ) : (
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             {dayEvents.map((event) => (
               <EventTarget key={event.id} event={event}>
                 <EventItem

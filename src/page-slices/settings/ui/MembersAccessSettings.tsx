@@ -465,7 +465,7 @@ export function MembersAccessSettings({
   if (error) {
     return (
       <>
-        <PageHeader className="pt-6 pb-4" title={title} />
+        <PageHeader title={title} />
         <p className="text-destructive-ink text-sm">{t("loadMembersFailed")}</p>
       </>
     )
@@ -474,7 +474,6 @@ export function MembersAccessSettings({
   return (
     <div className="flex flex-col">
       <PageHeader
-        className="pt-6 pb-4"
         title={title}
         actions={
           <Button onClick={() => setAdding(true)}>
@@ -948,7 +947,7 @@ function AddMemberDialog({
           onSubmit={submit}
           className="flex flex-col gap-4"
         >
-          <div className="flex flex-col gap-2">
+          <div className="gap-field flex flex-col">
             <Label htmlFor="member-name">{t("fullName")}</Label>
             <Input
               id="member-name"
@@ -957,7 +956,7 @@ function AddMemberDialog({
               onChange={(e) => set("full_name", e.target.value)}
             />
           </div>
-          <div className="flex flex-col gap-2">
+          <div className="gap-field flex flex-col">
             <Label htmlFor="member-email">{t("email")}</Label>
             <Input
               id="member-email"
@@ -968,7 +967,7 @@ function AddMemberDialog({
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <div className="flex flex-col gap-2">
+            <div className="gap-field flex flex-col">
               <Label>{t("colJobTitle")}</Label>
               <Select
                 value={form.job_title}
@@ -986,7 +985,7 @@ function AddMemberDialog({
                 </SelectContent>
               </Select>
             </div>
-            <div className="flex flex-col gap-2">
+            <div className="gap-field flex flex-col">
               <Label>{t("colRole")}</Label>
               <Select
                 value={form.role}
@@ -1004,7 +1003,7 @@ function AddMemberDialog({
                 </SelectContent>
               </Select>
             </div>
-            <div className="flex flex-col gap-2">
+            <div className="gap-field flex flex-col">
               <Label>{t("colTeam")}</Label>
               <Select
                 value={form.team_id}

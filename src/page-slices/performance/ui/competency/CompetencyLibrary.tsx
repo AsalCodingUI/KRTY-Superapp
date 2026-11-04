@@ -305,7 +305,7 @@ export function CompetencyLibrary() {
           </DialogHeader>
           {draft && (
             <div className="flex flex-col gap-3">
-              <div className="flex flex-col gap-1.5">
+              <div className="gap-field flex flex-col">
                 <Label>{t("role")}</Label>
                 <Select
                   value={draft.role}
@@ -325,7 +325,7 @@ export function CompetencyLibrary() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="flex flex-col gap-1.5">
+              <div className="gap-field flex flex-col">
                 <Label htmlFor="comp-name">{t("name")}</Label>
                 <Input
                   id="comp-name"
@@ -334,7 +334,7 @@ export function CompetencyLibrary() {
                   onChange={(e) => setDraft({ ...draft, name: e.target.value })}
                 />
               </div>
-              <div className="flex flex-col gap-1.5">
+              <div className="gap-field flex flex-col">
                 <Label htmlFor="comp-desc">{t("explanation")}</Label>
                 <Textarea
                   id="comp-desc"

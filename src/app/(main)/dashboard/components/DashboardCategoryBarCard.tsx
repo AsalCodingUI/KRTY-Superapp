@@ -65,7 +65,7 @@ export function CategoryBarCard({
               ))}
             </div>
           </div>
-          <ul role="list" className="mt-5 space-y-2">
+          <ul role="list" className="mt-5 flex flex-col gap-2">
             {data.map((item) => (
               <li key={item.title} className="flex items-center gap-2 text-xs">
                 <span

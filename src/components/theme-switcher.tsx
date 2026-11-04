@@ -37,7 +37,7 @@ export function ThemeSwitcher({ className }: { className?: string }) {
       <SlidingIndicator
         activeSelector="[aria-checked=true]"
         className="bg-thumb blend-light rounded-full"
-        shadowClassName="rounded-full shadow-(--elev-2)"
+        shadowClassName="rounded-full shadow-raised"
       />
       {ITEMS.map(({ value, label, icon: Icon }) => {
         const active = current === value

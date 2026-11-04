@@ -116,7 +116,7 @@ export function CalendarDndProvider({
         {children}
         <DragOverlay>
           {activeEvent && (
-            <div className="bg-popover rounded-lg p-2 opacity-90 shadow-(--elev-4)">
+            <div className="bg-popover shadow-popover rounded-lg p-2 opacity-90">
               <div className="text-foreground text-sm font-medium">
                 {activeEvent.event.title}
               </div>

@@ -185,7 +185,6 @@ export function PaymentMethodsPage() {
   return (
     <div className="flex flex-col">
       <PageHeader
-        className="pt-6 pb-4"
         title={t("tabMethods")}
         actions={
           <>
@@ -216,7 +215,7 @@ export function PaymentMethodsPage() {
           icon={<RiBankCardLine />}
         />
       ) : (
-        <div className="grid gap-x-5 gap-y-7 pb-4 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-x-5 gap-y-8 pb-4 sm:grid-cols-2 xl:grid-cols-3">
           {methods.map((m) => {
             const stale = needsVerification(m)
             return (

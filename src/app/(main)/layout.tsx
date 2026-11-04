@@ -123,7 +123,7 @@ export default async function Layout({
                 <div
                   aria-hidden
                   className={cn(
-                    "blend-shadow pointer-events-none absolute inset-0 z-20 hidden shadow-(--elev-3) md:block",
+                    "blend-shadow shadow-sheet pointer-events-none absolute inset-0 z-20 hidden md:block",
                     desktop ? MAC_SHEET_RADIUS : "md:rounded-dialog",
                   )}
                 />

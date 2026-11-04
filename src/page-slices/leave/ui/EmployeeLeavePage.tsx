@@ -242,7 +242,6 @@ export function EmployeeLeavePage({
             balances, today's clock row, then attendance. Requests live in
             the "Detail cuti" modal. */}
         <PageHeader
-          className="pt-6 pb-4"
           title={t("pageTitle")}
           actions={
             <>

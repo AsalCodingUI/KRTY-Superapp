@@ -118,7 +118,7 @@ function ProcessForm({
         <DialogTitle>{process ? t("editTitle") : t("newTitle")}</DialogTitle>
       </DialogHeader>
       <form id="process-form" onSubmit={submit} className="flex flex-col gap-4">
-        <div className="flex flex-col gap-2">
+        <div className="gap-field flex flex-col">
           <Label htmlFor="process-name">{t("fieldName")}</Label>
           <Input
             id="process-name"
@@ -130,7 +130,7 @@ function ProcessForm({
             onChange={(e) => setName(e.target.value)}
           />
         </div>
-        <div className="flex flex-col gap-2">
+        <div className="gap-field flex flex-col">
           <Label htmlFor="process-description">
             {t("fieldDescription")}{" "}
             <span className="text-muted-foreground font-normal">
@@ -147,7 +147,7 @@ function ProcessForm({
           />
         </div>
         {!process && processes.length > 0 && (
-          <div className="flex flex-col gap-2">
+          <div className="gap-field flex flex-col">
             <Label>{t("fieldCopyFrom")}</Label>
             <Select value={source} onValueChange={(v) => v && setSource(v)}>
               <SelectTrigger className="w-full" aria-label={t("fieldCopyFrom")}>

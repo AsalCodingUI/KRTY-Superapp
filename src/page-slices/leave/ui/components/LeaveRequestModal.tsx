@@ -346,7 +346,7 @@ export function LeaveRequestModal({
               </dl>
 
               {isAnnual && (
-                <ul className="text-muted-foreground list-disc space-y-1 pl-5 text-sm">
+                <ul className="text-muted-foreground flex list-disc flex-col gap-1 pl-5 text-sm">
                   <li>
                     {t("ruleNotice", { min: ANNUAL_LEAVE_MIN_NOTICE_DAYS })}
                   </li>

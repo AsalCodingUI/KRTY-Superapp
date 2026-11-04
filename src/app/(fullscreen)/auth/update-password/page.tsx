@@ -81,7 +81,7 @@ export default function UpdatePasswordPage() {
             </div>
           )}
 
-          <div className="flex flex-col gap-2">
+          <div className="gap-field flex flex-col">
             <Label htmlFor="password">{t("newPassword")}</Label>
             <Input
               type="password"
@@ -97,7 +97,7 @@ export default function UpdatePasswordPage() {
             />
           </div>
 
-          <div className="flex flex-col gap-2">
+          <div className="gap-field flex flex-col">
             <Label htmlFor="confirm-password">{t("confirmPassword")}</Label>
             <Input
               type="password"

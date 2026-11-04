@@ -88,7 +88,7 @@ export function GalleryStrip({
   }
 
   const round =
-    "bg-popover/90 text-foreground grid place-items-center rounded-full shadow-(--elev-3) backdrop-blur"
+    "bg-popover text-foreground grid place-items-center rounded-full shadow-raised"
 
   const arrow = (dir: 1 | -1) => (
     <button

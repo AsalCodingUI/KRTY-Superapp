@@ -150,7 +150,7 @@ export function InvoicePrintPage({ id }: { id: string }) {
         </Button>
         <span className="text-muted-foreground text-sm">{t("printHint")}</span>
       </div>
-      <div className="invoice-print-sheet bg-white shadow-(--elev-3)">
+      <div className="invoice-print-sheet shadow-sheet bg-white">
         <InvoiceDocument data={data} />
       </div>
     </div>

@@ -106,6 +106,18 @@ Within `z-50`, later portals paint on top (a menu opened from a dialog
 sits above it). Portaled popups carry `isolate` so their insides can't
 leak out of the layer.
 
+## Role tokens (use these)
+
+`shadow-control` (elev-1), `shadow-raised` (elev-2), `shadow-sheet`
+(elev-3), `shadow-popover` (elev-4), `shadow-dialog` (elev-5), defined in
+`src/app/globals.css` (`--shadow-*` → `--elev-N`) and registered in
+`src/lib/utils.ts`. Floating controls over content are all
+`shadow-raised`. Named layers above the portals: `z-editor-menu` (60),
+`z-lightbox` (70), `z-context-menu` (80), `z-over-menu` (82), as
+`--z-index-*` theme keys (an `@utility z-…` is not generated: it clashes
+with the built-in `z-*`). The phone tab bar is `z-40`, under dialogs.
+Live on /ui → Shadow.
+
 ## Rules
 
 - Shadows only from `--elev-1..5`. No `shadow-sm/md/lg/2xl`, no arbitrary
@@ -150,6 +162,15 @@ preview (`/menubar`, mimics macOS), PIN boxes' focus rings
 ```
 
 ## Migration notes
+
+Done 2026-11-05 (local): every `shadow-(--elev-N)` (94) on the role
+tokens; floating controls on one level; tab bar / lightbox / What's new
+arbitrary shadows → tokens; blur removed from the drag overlays, row
+badges, thumbnail play button, file viewer arrows and the review sticky
+header; the dead `z-*` config in tailwind.config.ts removed; arbitrary
+z values → named layers; the tab bar under dialogs. Kept: the Mac
+popover mimic shadow in `DesktopApp.tsx`, ring-style inset shadows.
+The older list below is kept for reference.
 
 - **Arbitrary / Tailwind shadows**:
   `src/components/floating-tab-bar.tsx:67`

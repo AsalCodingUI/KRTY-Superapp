@@ -50,7 +50,7 @@ export function InvoiceThumb({
       <div className="flex h-full justify-center px-[14%] pt-[9%]">
         <div
           ref={ref}
-          className="h-full w-full overflow-hidden rounded-t-[4px] bg-white shadow-(--elev-3)"
+          className="shadow-sheet h-full w-full overflow-hidden rounded-t-[4px] bg-white"
         >
           {width > 0 && (
             <div
@@ -144,7 +144,7 @@ export function InvoiceBottom({
         <div
           ref={ref}
           className={cn(
-            "relative w-full overflow-hidden rounded-b-[4px] bg-white shadow-(--elev-3)",
+            "shadow-sheet relative w-full overflow-hidden rounded-b-[4px] bg-white",
             !visible && "h-full",
           )}
           style={visible ? { height: visible * scale } : undefined}

@@ -110,13 +110,12 @@ export function LayoutTab() {
       <DocGroup title="Header halaman">
         <DocExample title="Judul saja" source="components/page-header.tsx">
           <Frame>
-            <PageHeader className="pt-6 pb-4" title="Tim" />
+            <PageHeader title="Tim" />
           </Frame>
         </DocExample>
         <DocExample title="Dengan aksi" source="components/page-header.tsx">
           <Frame>
             <PageHeader
-              className="pt-6 pb-4"
               title="Invoice"
               actions={
                 <>
@@ -149,7 +148,6 @@ export function LayoutTab() {
         >
           <Frame>
             <PageHeader
-              className="pt-6 pb-4"
               title="Citra Wulandari"
               back={{ onClick: () => {}, label: "KPI tim" }}
             />
@@ -163,7 +161,7 @@ export function LayoutTab() {
           source="components/stat-strip.tsx"
         >
           <Frame>
-            <PageHeader className="pt-6 pb-4" title="Tim" />
+            <PageHeader title="Tim" />
             <StatStrip items={mock.strip} />
             <div className="pt-4 pb-3">
               <Input

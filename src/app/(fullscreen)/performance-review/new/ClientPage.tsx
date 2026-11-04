@@ -64,7 +64,7 @@ export default function ReviewFormClientPage({
 
   return (
     <div className="min-h-screen">
-      <header className="bg-background/95 sticky top-0 z-10 border-b backdrop-blur">
+      <header className="bg-background sticky top-0 z-10 border-b">
         <div className="mx-auto flex h-14 max-w-2xl items-center gap-2 px-4">
           <Button
             variant="ghost"
@@ -84,7 +84,7 @@ export default function ReviewFormClientPage({
           <p className="text-muted-foreground text-sm">{t("formIntro")}</p>
         </div>
 
-        <section className="flex flex-col gap-2">
+        <section className="gap-field flex flex-col">
           <Label htmlFor="colleague">{t("peer")}</Label>
           <Select
             value={revieweeId || null}

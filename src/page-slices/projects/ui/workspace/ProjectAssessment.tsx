@@ -65,7 +65,6 @@ export function ProjectAssessment({ projectId }: { projectId: string }) {
   return (
     <div className="flex flex-col">
       <PageHeader
-        className="pt-6 pb-4"
         title={
           <span className="flex items-center gap-2">
             {tp("sectionAssessment")}

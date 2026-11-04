@@ -548,7 +548,7 @@ export function ReviewMonitoring({ period }: { period: string }) {
           </DialogHeader>
           <div className="flex flex-col gap-3">
             <div className="grid grid-cols-2 gap-3">
-              <div className="flex flex-col gap-1.5">
+              <div className="gap-field flex flex-col">
                 <Label htmlFor="cycle-start">{t("startDate")}</Label>
                 <DateField
                   id="cycle-start"
@@ -561,7 +561,7 @@ export function ReviewMonitoring({ period }: { period: string }) {
                   }}
                 />
               </div>
-              <div className="flex flex-col gap-1.5">
+              <div className="gap-field flex flex-col">
                 <Label htmlFor="cycle-end">{t("closeDate")}</Label>
                 <DateField
                   id="cycle-end"

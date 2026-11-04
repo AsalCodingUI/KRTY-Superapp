@@ -134,7 +134,7 @@ export function BriefCreateDialog({
           <DialogDescription>{t("createDescription")}</DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-4">
-          <div className="flex flex-col gap-1.5">
+          <div className="gap-field flex flex-col">
             <Label htmlFor="brief-title">{t("fieldTitle")}</Label>
             <Input
               id="brief-title"
@@ -144,7 +144,7 @@ export function BriefCreateDialog({
             />
           </div>
 
-          <div className="flex flex-col gap-1.5">
+          <div className="gap-field flex flex-col">
             <Label htmlFor="brief-client">{t("fieldClient")}</Label>
             <Popover open={pickerOpen} onOpenChange={setPickerOpen}>
               <PopoverTrigger
@@ -267,7 +267,7 @@ export function BriefCreateDialog({
             )}
           </div>
 
-          <div className="flex flex-col gap-1.5">
+          <div className="gap-field flex flex-col">
             <Label>{t("fieldProject")}</Label>
             <Select
               value={projectId ?? NO_PROJECT}
@@ -306,7 +306,7 @@ export function BriefCreateDialog({
             </Select>
           </div>
 
-          <div className="flex flex-col gap-2">
+          <div className="gap-field flex flex-col">
             <Label>{t("fieldSets")}</Label>
             {BRIEF_SETS.map((set) => (
               <div key={set} className="flex items-center gap-3 text-sm">

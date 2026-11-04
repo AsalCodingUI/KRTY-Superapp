@@ -366,7 +366,6 @@ export function ProjectDashboard({ projectId }: { projectId: string }) {
   return (
     <div className="flex flex-col">
       <PageHeader
-        className="pt-6 pb-4"
         title={
           <span className="flex min-w-0 items-center gap-3">
             <ProjectAvatar

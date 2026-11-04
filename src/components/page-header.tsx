@@ -34,7 +34,8 @@ export function PageHeader({
   return (
     <div
       className={cn(
-        "flex flex-wrap items-end justify-between gap-x-4 gap-y-3",
+        // pt-6 pb-4 is every page's header spacing (docs/ui/spacing.md).
+        "flex flex-wrap items-end justify-between gap-x-4 gap-y-3 pt-6 pb-4",
         className,
       )}
     >

@@ -43,8 +43,8 @@ const TABS: { key: string; label: string; Tab: ComponentType }[] = [
     Tab: tab(() => import("./SpacingTab").then((m) => m.SpacingTab)),
   },
   {
-    key: "elevation",
-    label: "Elevation",
+    key: "shadow",
+    label: "Shadow",
     Tab: tab(() => import("./ElevationTab").then((m) => m.ElevationTab)),
   },
   {
@@ -118,9 +118,9 @@ export function UiDocsPage() {
   const { Tab } = current
 
   return (
-    <div className="flex flex-col pb-16">
-      <PageHeader className="pt-6 pb-4" title="UI" />
-      <TabNavigation className="mb-8">
+    <div className="flex flex-col">
+      <PageHeader title="UI" />
+      <TabNavigation className="mb-6">
         {TABS.map((t) => (
           <TabNavigationLink
             key={t.key}

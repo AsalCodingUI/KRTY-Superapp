@@ -114,7 +114,6 @@ export function PerformancePage() {
   return (
     <div className="flex flex-col">
       <PageHeader
-        className="pt-6 pb-4"
         title={t("pageTitle")}
         actions={
           <>

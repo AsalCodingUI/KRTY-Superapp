@@ -225,9 +225,8 @@ export function MyNotesPage() {
   return (
     // From lg up the whole page makes room for the docked sheet on the
     // right, leaving the same gap before it as the page gutter on the left.
-    <div className="flex flex-col pb-4 lg:pr-[27.75rem]">
+    <div className="flex flex-col lg:pr-[27.75rem]">
       <PageHeader
-        className="pt-6 pb-4"
         title={t("myNotesTitle")}
         actions={
           readOnly ? (
@@ -366,7 +365,7 @@ export function MyNotesPage() {
         <aside
           data-slot="side-panel"
           aria-label={t("myNotesTitle")}
-          className="bg-popover text-popover-foreground border-field-border dark:border-border lg:rounded-nested flex min-h-96 flex-col overflow-hidden rounded-3xl border bg-clip-padding text-sm lg:fixed lg:top-[calc(var(--app-topbar-height,0px)+var(--app-banner-height,0px)+0.5rem)] lg:right-5 lg:bottom-5 lg:z-30 lg:w-md lg:border-0 lg:shadow-(--elev-5) lg:[--nest-p:0.5rem] lg:[--nest-r:var(--radius-3xl)]"
+          className="bg-popover text-popover-foreground border-field-border dark:border-border lg:rounded-nested lg:shadow-dialog flex min-h-96 flex-col overflow-hidden rounded-3xl border bg-clip-padding text-sm lg:fixed lg:top-[calc(var(--app-topbar-height,0px)+var(--app-banner-height,0px)+0.5rem)] lg:right-5 lg:bottom-5 lg:z-30 lg:w-md lg:border-0 lg:[--nest-p:0.5rem] lg:[--nest-r:var(--radius-3xl)]"
         >
           {selected ? (
             <NoteEditor
@@ -548,7 +547,7 @@ function NoteEditor({
 
       {/* Same fields as the task dialog: title, free text, then the
           checklist like its subtasks. */}
-      <div className="scroll-pane pane-px-5 flex min-h-0 flex-1 flex-col gap-7 pt-5 pb-6">
+      <div className="scroll-pane pane-px-5 flex min-h-0 flex-1 flex-col gap-6 pt-5 pb-6">
         <div className="flex flex-col gap-1.5">
           <textarea
             rows={1}

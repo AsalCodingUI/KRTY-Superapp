@@ -516,7 +516,7 @@ export function EventDialog({
         </DialogHeader>
 
         {event && readOnly && !isEditing ? (
-          <div className="scroll-pane scroll-pane-bleed-1 space-y-5 py-1">
+          <div className="scroll-pane scroll-pane-bleed-1 flex flex-col gap-5 py-1">
             {/* Event Title & Type */}
             <div className="flex items-start justify-between gap-4">
               <h3 className="text-heading text-title font-medium break-words">
@@ -564,7 +564,7 @@ export function EventDialog({
 
             {/* Location */}
             {event.location && (
-              <div className="space-y-2">
+              <div className="flex flex-col gap-2">
                 <p className="text-muted-foreground text-sm font-medium">
                   {t("dialogLocation")}
                 </p>
@@ -576,7 +576,7 @@ export function EventDialog({
 
             {/* Description */}
             {event.description && (
-              <div className="border-border space-y-2 border-t pt-4">
+              <div className="border-border flex flex-col gap-2 border-t pt-4">
                 <p className="text-muted-foreground text-sm font-medium">
                   {t("dialogDescription")}
                 </p>
@@ -604,9 +604,9 @@ export function EventDialog({
               onSubmit={handleSubmit(onSubmit)}
               className="min-h-0 flex-1"
             >
-              <div className="scroll-pane scroll-pane-bleed-1 space-y-5 py-1">
+              <div className="scroll-pane scroll-pane-bleed-1 flex flex-col gap-5 py-1">
                 {/* Title */}
-                <div className="flex flex-col gap-2">
+                <div className="gap-field flex flex-col">
                   <Label htmlFor="title">{t("dialogTitleLabel")} *</Label>
                   <Input
                     id="title"
@@ -623,7 +623,7 @@ export function EventDialog({
                 </div>
 
                 {/* Type */}
-                <div className="flex flex-col gap-2">
+                <div className="gap-field flex flex-col">
                   <Label htmlFor="type">{t("dialogTypeLabel")}</Label>
                   <Select
                     value={selectedType}
@@ -644,7 +644,7 @@ export function EventDialog({
                 </div>
 
                 {isSantuy && (
-                  <div className="flex flex-col gap-2">
+                  <div className="gap-field flex flex-col">
                     <Label htmlFor="organizer">{t("santuySpeaker")}</Label>
                     <Select
                       value={watch("organizer") || ""}
@@ -693,9 +693,9 @@ export function EventDialog({
                 </div>
 
                 {/* Date and Time */}
-                <div className="space-y-4">
+                <div className="flex flex-col gap-4">
                   {/* Start Date & Time */}
-                  <div className="flex flex-col gap-2">
+                  <div className="gap-field flex flex-col">
                     <Label htmlFor="start">{t("dialogStart")} *</Label>
                     <div
                       className={cx(
@@ -761,7 +761,7 @@ export function EventDialog({
                   </div>
 
                   {/* End Date & Time */}
-                  <div className="flex flex-col gap-2">
+                  <div className="gap-field flex flex-col">
                     <Label htmlFor="end">{t("dialogEnd")} *</Label>
                     <div
                       className={cx(
@@ -834,7 +834,7 @@ export function EventDialog({
                 </div>
 
                 {/* Location */}
-                <div className="flex flex-col gap-2">
+                <div className="gap-field flex flex-col">
                   <Label htmlFor="location">{t("dialogLocation")}</Label>
                   <Input
                     id="location"
@@ -845,7 +845,7 @@ export function EventDialog({
                 </div>
 
                 {/* Description */}
-                <div className="flex flex-col gap-2">
+                <div className="gap-field flex flex-col">
                   <Label htmlFor="description">{t("dialogDescription")}</Label>
                   <Textarea
                     id="description"

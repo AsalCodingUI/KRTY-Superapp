@@ -101,7 +101,7 @@ function ClientForm({
     label: string,
     props: React.ComponentProps<typeof Input> = {},
   ) => (
-    <div className="flex flex-col gap-2">
+    <div className="gap-field flex flex-col">
       <Label htmlFor={`client-${key}`}>{label}</Label>
       <Input
         id={`client-${key}`}
@@ -147,7 +147,7 @@ function ClientForm({
             maxLength: 80,
             placeholder: t("fieldCountryPlaceholder"),
           })}
-          <div className="flex flex-col gap-2">
+          <div className="gap-field flex flex-col">
             <Label>{t("fieldCurrency")}</Label>
             <Select
               value={form.currency}
@@ -166,7 +166,7 @@ function ClientForm({
             </Select>
           </div>
         </div>
-        <div className="flex flex-col gap-2">
+        <div className="gap-field flex flex-col">
           <Label htmlFor="client-address">{t("fieldAddress")}</Label>
           <Textarea
             id="client-address"
@@ -177,7 +177,7 @@ function ClientForm({
             onChange={(e) => set("address", e.target.value)}
           />
         </div>
-        <div className="flex flex-col gap-2">
+        <div className="gap-field flex flex-col">
           <Label htmlFor="client-notes">
             {t("fieldNotes")}{" "}
             <span className="text-muted-foreground font-normal">

@@ -167,7 +167,6 @@ export function WhatsNewPage() {
   return (
     <div className="flex flex-col">
       <PageHeader
-        className="pt-6 pb-4"
         title={t("title")}
         actions={
           <div className="flex items-center gap-2">
@@ -259,7 +258,7 @@ export function WhatsNewPage() {
         </div>
       )}
 
-      <div className="pb-10">
+      <div>
         {!ready ? (
           <div className="flex justify-center py-16">
             <Spinner className="size-6" />

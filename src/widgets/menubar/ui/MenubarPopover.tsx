@@ -561,7 +561,7 @@ function Shell({
           WebkitBackdropFilter: `blur(${surface.blur}px) saturate(1.6)`,
         }}
         className={cn(
-          "text-popover-foreground flex flex-col overflow-hidden rounded-3xl border border-white/8 shadow-(--elev-5)",
+          "text-popover-foreground shadow-dialog flex flex-col overflow-hidden rounded-3xl border border-white/8",
           className,
         )}
       >

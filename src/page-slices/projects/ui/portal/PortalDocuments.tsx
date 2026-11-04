@@ -71,7 +71,7 @@ export function PortalDocuments({
 
   return (
     <div className="flex flex-col">
-      <PageHeader className="pt-6 pb-4" title={t("sectionDocuments")} />
+      <PageHeader title={t("sectionDocuments")} />
       {documents.length === 0 ? (
         <EmptyState
           title={t("docsEmptyTitle")}

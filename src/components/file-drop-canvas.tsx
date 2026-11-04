@@ -138,7 +138,7 @@ export function FileDropCanvas({
           ) : (
             <div className="bg-muted dark:bg-muted/40 grid min-h-0 flex-1 place-items-center p-10">
               <div className="flex flex-col items-center gap-3 text-center">
-                <span className="bg-background dark:bg-surface text-muted-foreground grid size-14 place-items-center rounded-2xl shadow-(--elev-2) [&_svg]:size-6">
+                <span className="bg-background dark:bg-surface text-muted-foreground shadow-raised grid size-14 place-items-center rounded-2xl [&_svg]:size-6">
                   <RiFileTextLine />
                 </span>
                 <span className="text-foreground max-w-xs truncate text-sm font-medium">
@@ -154,7 +154,7 @@ export function FileDropCanvas({
           )}
 
           {/* One solid pill so it reads over a white page. */}
-          <div className="bg-popover text-popover-foreground absolute top-3 left-3 flex max-w-[calc(100%-1.5rem)] items-center gap-0.5 rounded-full p-1 shadow-(--elev-3)">
+          <div className="bg-popover text-popover-foreground shadow-raised absolute top-3 left-3 flex max-w-[calc(100%-1.5rem)] items-center gap-0.5 rounded-full p-1">
             {name && (
               <span className="truncate px-2.5 text-xs font-medium">
                 {name}
@@ -177,7 +177,7 @@ export function FileDropCanvas({
             )}
           </div>
           {replaceHint && !file && (
-            <p className="bg-popover text-muted-foreground absolute bottom-3 left-3 rounded-full px-3 py-1.5 text-xs shadow-(--elev-3)">
+            <p className="bg-popover text-muted-foreground shadow-raised absolute bottom-3 left-3 rounded-full px-3 py-1.5 text-xs">
               {replaceHint}
             </p>
           )}
@@ -197,7 +197,7 @@ export function FileDropCanvas({
             )}
             aria-hidden
           />
-          <span className="bg-background dark:bg-surface text-muted-foreground relative grid size-12 place-items-center rounded-2xl shadow-(--elev-2) transition-transform duration-200 ease-out group-hover/drop:-translate-y-0.5 [&_svg]:size-5">
+          <span className="bg-background dark:bg-surface text-muted-foreground shadow-raised relative grid size-12 place-items-center rounded-2xl transition-transform duration-200 ease-out group-hover/drop:-translate-y-0.5 [&_svg]:size-5">
             <RiUploadLine />
           </span>
           <span className="relative flex flex-col items-center gap-1 text-center">

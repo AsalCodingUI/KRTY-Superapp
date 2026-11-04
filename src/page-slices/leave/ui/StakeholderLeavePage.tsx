@@ -706,7 +706,7 @@ export function StakeholderLeavePage({
             </DialogTitle>
             <DialogDescription>{t("rejectDesc")}</DialogDescription>
           </DialogHeader>
-          <div className="flex flex-col gap-2">
+          <div className="gap-field flex flex-col">
             <Label htmlFor="reject-note">{t("reasonOptional")}</Label>
             <Textarea
               id="reject-note"
@@ -787,7 +787,7 @@ export function StakeholderLeavePage({
           <DialogHeader>
             <DialogTitle>{t("manualTitle")}</DialogTitle>
           </DialogHeader>
-          <div className="scroll-pane scroll-pane-bleed min-h-0 space-y-4">
+          <div className="scroll-pane scroll-pane-bleed flex min-h-0 flex-col gap-4">
             <div>
               <Label htmlFor="manual-user">{t("colEmployee")}</Label>
               <Select
@@ -1064,7 +1064,6 @@ function AttendanceOverviewPanel({
     <div className="flex flex-col">
       {/* Mercury order: title + actions, tabs, a stats band, then the list. */}
       <PageHeader
-        className="pt-6 pb-4"
         title={t("pageTitle")}
         actions={
           activeTab === "approval" ? (

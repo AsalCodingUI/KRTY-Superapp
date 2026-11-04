@@ -248,7 +248,6 @@ export function ContractsPage({ viewer }: { viewer: ContractViewer }) {
   return (
     <div className="flex flex-col">
       <PageHeader
-        className="pt-6 pb-4"
         title={t("title")}
         actions={
           viewer.isAdmin && (

@@ -100,7 +100,7 @@ export const NavMain = memo(function NavMain({
         <SlidingIndicator
           activeSelector="[data-active]"
           className="bg-sidebar-active blend-light rounded-full"
-          shadowClassName="rounded-full shadow-(--elev-2)"
+          shadowClassName="rounded-full shadow-raised"
         />
         {items.map((item) => {
           const nested = (item.items?.length ?? 0) > 1

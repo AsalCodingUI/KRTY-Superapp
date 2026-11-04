@@ -73,7 +73,7 @@ export function EventCard({
         onClick={onClick}
         className={cx(
           "w-full rounded px-2 py-1 text-left text-xs",
-          "transition-shadow hover:shadow-(--elev-2)",
+          "hover:shadow-raised transition-shadow",
           "truncate",
           colorClass,
           className,
@@ -92,7 +92,7 @@ export function EventCard({
       onClick={onClick}
       className={cx(
         "w-full rounded-lg p-3 text-left",
-        "transition-shadow hover:shadow-(--elev-2)",
+        "hover:shadow-raised transition-shadow",
         "group",
         colorClass,
         className,

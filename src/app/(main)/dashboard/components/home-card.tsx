@@ -14,7 +14,7 @@ import { useT } from "@/shared/i18n/client"
 
 /** Full-width column on the page gutter, like every other page. */
 export function HomeColumn({ children }: { children: React.ReactNode }) {
-  return <div className="flex w-full flex-col gap-4 pt-6 pb-10">{children}</div>
+  return <div className="flex w-full flex-col gap-4 pt-6">{children}</div>
 }
 
 export function HomeGreeting({ title }: { title: React.ReactNode }) {
@@ -133,7 +133,7 @@ export function HomeCard({
     <section
       {...data}
       className={cn(
-        "bg-card border-field-border dark:border-border rounded-card flex min-w-0 flex-col gap-4 border p-5",
+        "bg-card border-field-border dark:border-border rounded-card flex min-w-0 flex-col gap-4 border p-surface",
         className,
       )}
     >

@@ -51,7 +51,7 @@ export const CompactDefault: Story = {
 
 export const CompactColors: Story = {
   render: () => (
-    <div className="space-y-2">
+    <div className="flex flex-col gap-2">
       <EventItem
         compact
         showTime

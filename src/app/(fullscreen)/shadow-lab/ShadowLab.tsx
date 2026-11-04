@@ -25,14 +25,14 @@ const GROUPS: Group[] = [
     note: "shadow-(--elev-N). Hairline + contact shadow + ambient lebar dengan spread negatif; warna bayangan ikut hue tema. Dark: hairline putih + bayangan dalam.",
     items: [
       {
-        cls: "shadow-(--elev-1)",
+        cls: "shadow-control",
         name: "--elev-1 · control",
         from: "0 0 0 1px 5% · 0 1px 2px 6%",
         usedIn:
           "Thumb segmented/tabs/view toggle, switch & slider thumb, toolbar kanvas",
       },
       {
-        cls: "shadow-(--elev-2)",
+        cls: "shadow-raised",
         name: "--elev-2 · resting card",
         from: "+ 0 6px 16px -4px 7%",
         usedIn:
@@ -40,21 +40,21 @@ const GROUPS: Group[] = [
         onChrome: true,
       },
       {
-        cls: "shadow-(--elev-3)",
+        cls: "shadow-sheet",
         name: "--elev-3 · sheet / paper",
         from: "+ 0 16px 40px -10px 11%",
         usedIn:
           "Halaman di chrome, kertas invoice/PDF/Word/viewer, thumbnail, halaman print, dokumen SLA",
       },
       {
-        cls: "shadow-(--elev-4)",
+        cls: "shadow-popover",
         name: "--elev-4 · popover / menu",
         from: "+ 0 24px 56px -14px 17%",
         usedIn:
           "Popover, dropdown, select, hover card, tooltip chart, menu editor, item yang di-drag, overlay drop file",
       },
       {
-        cls: "shadow-(--elev-5)",
+        cls: "shadow-dialog",
         name: "--elev-5 · dialog",
         from: "+ 0 36px 80px -18px 22%",
         usedIn:
@@ -118,7 +118,7 @@ function NestedDemo() {
         </p>
       </div>
       <div className="bg-muted dark:bg-background grid place-items-center rounded-3xl p-8">
-        <div className="bg-card nest-rounded-[20px] nest-p-2 flex w-72 flex-col gap-2 shadow-(--elev-4)">
+        <div className="bg-card nest-rounded-[20px] nest-p-2 shadow-popover flex w-72 flex-col gap-2">
           {["WalletConnect", "Phantom", "Google"].map((name) => (
             <div
               key={name}
@@ -190,7 +190,7 @@ function Column({ dark }: { dark: boolean }) {
             <h3 className="text-sm font-medium">{group.title}</h3>
             <p className="text-muted-foreground text-xs">{group.note}</p>
           </div>
-          <div className="grid grid-cols-2 gap-x-5 gap-y-7">
+          <div className="grid grid-cols-2 gap-x-5 gap-y-8">
             {group.items.map((item) => (
               <Tile key={item.cls} item={item} />
             ))}

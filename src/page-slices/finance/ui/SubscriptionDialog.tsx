@@ -149,7 +149,7 @@ function SubscriptionForm({
         onSubmit={submit}
         className="flex flex-col gap-4"
       >
-        <div className="flex flex-col gap-2">
+        <div className="gap-field flex flex-col">
           <Label htmlFor="sub-name">{t("name")}</Label>
           <Input
             id="sub-name"
@@ -162,7 +162,7 @@ function SubscriptionForm({
           />
         </div>
         <div className="grid grid-cols-2 gap-3">
-          <div className="flex flex-col gap-2">
+          <div className="gap-field flex flex-col">
             <Label>{t("category")}</Label>
             <Select value={category} onValueChange={(v) => v && setCategory(v)}>
               <SelectTrigger className="w-full">
@@ -179,7 +179,7 @@ function SubscriptionForm({
               </SelectContent>
             </Select>
           </div>
-          <div className="flex flex-col gap-2">
+          <div className="gap-field flex flex-col">
             <Label>{t("cycle")}</Label>
             <Select
               value={cycle}
@@ -204,7 +204,7 @@ function SubscriptionForm({
           </div>
         </div>
         <div className="grid grid-cols-[7rem_minmax(0,1fr)] gap-3">
-          <div className="flex flex-col gap-2">
+          <div className="gap-field flex flex-col">
             <Label>{t("currency")}</Label>
             <Select value={currency} onValueChange={(v) => v && setCurrency(v)}>
               <SelectTrigger className="w-full" aria-label={t("currency")}>
@@ -219,7 +219,7 @@ function SubscriptionForm({
               </SelectContent>
             </Select>
           </div>
-          <div className="flex flex-col gap-2">
+          <div className="gap-field flex flex-col">
             <Label htmlFor="sub-amount">{t("amountPerBill")}</Label>
             <Input
               id="sub-amount"
@@ -232,7 +232,7 @@ function SubscriptionForm({
           </div>
         </div>
         {currency !== "IDR" && (
-          <div className="flex flex-col gap-2">
+          <div className="gap-field flex flex-col">
             <Label htmlFor="sub-rate">
               {t("ratePaid", { currency })}{" "}
               <span className="text-muted-foreground font-normal">
@@ -260,7 +260,7 @@ function SubscriptionForm({
           </div>
         )}
         <div className="grid grid-cols-2 gap-3">
-          <div className="flex flex-col gap-2">
+          <div className="gap-field flex flex-col">
             <Label htmlFor="sub-anchor">{t("firstBill")}</Label>
             <DateField
               id="sub-anchor"
@@ -269,7 +269,7 @@ function SubscriptionForm({
               onChange={setAnchorDate}
             />
           </div>
-          <div className="flex flex-col gap-2">
+          <div className="gap-field flex flex-col">
             <Label htmlFor="sub-ends">
               {t("endsOn")}{" "}
               <span className="text-muted-foreground font-normal">
@@ -284,7 +284,7 @@ function SubscriptionForm({
             />
           </div>
         </div>
-        <div className="flex flex-col gap-2">
+        <div className="gap-field flex flex-col">
           <Label htmlFor="sub-notes">
             {t("notes")}{" "}
             <span className="text-muted-foreground font-normal">

@@ -186,7 +186,7 @@ export function PortalShell({
                 <SlidingIndicator
                   activeSelector="[data-active]"
                   className="bg-sidebar-active blend-light rounded-full"
-                  shadowClassName="rounded-full shadow-(--elev-2)"
+                  shadowClassName="rounded-full shadow-raised"
                 />
                 {SECTIONS.map((section) => (
                   <SidebarMenuItem key={section.slug}>
@@ -216,11 +216,11 @@ export function PortalShell({
         <div className="relative flex min-w-0 flex-1">
           <div
             aria-hidden
-            className="blend-shadow md:rounded-dialog pointer-events-none absolute inset-0 z-20 hidden shadow-(--elev-3) md:block"
+            className="blend-shadow md:rounded-dialog shadow-sheet pointer-events-none absolute inset-0 z-20 hidden md:block"
           />
           <SidebarInset
             data-translate-root
-            className="dark:bg-surface scroll-pane max-md:rounded-t-dialog md:rounded-dialog overscroll-contain [--bleed:0.75rem] [--page-gutter:max(var(--bleed),calc(1.25rem-var(--sbw,0px)))] max-md:shadow-(--elev-2) md:z-20 md:[--page-gutter:calc(2.5rem-var(--sbw,0px))] xl:[--page-gutter:calc(4rem-var(--sbw,0px))]"
+            className="dark:bg-surface scroll-pane max-md:rounded-t-dialog md:rounded-dialog max-md:shadow-raised overscroll-contain [--bleed:0.75rem] [--page-gutter:max(var(--bleed),calc(1.25rem-var(--sbw,0px)))] md:z-20 md:[--page-gutter:calc(2.5rem-var(--sbw,0px))] xl:[--page-gutter:calc(4rem-var(--sbw,0px))]"
           >
             {/* No sidebar on a phone: the tab bar below does its job. */}
             <header className="flex h-12 shrink-0 items-center gap-2 max-md:hidden">

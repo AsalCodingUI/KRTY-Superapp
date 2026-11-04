@@ -111,7 +111,7 @@ export function AnnouncementDialog({
           <DialogTitle>{t("announcementCompose")}</DialogTitle>
         </DialogHeader>
         <div className="flex flex-col gap-4">
-          <div className="flex flex-col gap-1.5">
+          <div className="gap-field flex flex-col">
             <Label htmlFor="ann-title">{t("announcementTitle")}</Label>
             <Input
               id="ann-title"
@@ -120,7 +120,7 @@ export function AnnouncementDialog({
               onChange={(e) => setTitle(e.target.value)}
             />
           </div>
-          <div className="flex flex-col gap-1.5">
+          <div className="gap-field flex flex-col">
             <Label htmlFor="ann-message">{t("announcementMessage")}</Label>
             <Textarea
               id="ann-message"
@@ -130,7 +130,7 @@ export function AnnouncementDialog({
               onChange={(e) => setMessage(e.target.value)}
             />
           </div>
-          <div className="flex flex-col gap-1.5">
+          <div className="gap-field flex flex-col">
             <Label htmlFor="ann-link">{t("announcementLink")}</Label>
             <Input
               id="ann-link"
@@ -149,7 +149,7 @@ export function AnnouncementDialog({
               {badLink ? t("announcementBadLink") : t("announcementLinkHint")}
             </p>
           </div>
-          <div className="flex flex-col gap-2">
+          <div className="gap-field flex flex-col">
             <Label>{t("announcementAudience")}</Label>
             <SegmentedControl
               value={audience}

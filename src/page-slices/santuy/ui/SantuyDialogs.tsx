@@ -253,7 +253,7 @@ export function WeekDialog({
           <DialogDescription>{t("weekHint")}</DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col gap-2">
+        <div className="gap-field flex flex-col">
           <Label htmlFor="santuy-week-date">{t("weekDate")}</Label>
           <Select value={date} onValueChange={(v) => v && load(v as string)}>
             <SelectTrigger id="santuy-week-date" className="w-full">
@@ -271,7 +271,7 @@ export function WeekDialog({
           </Select>
         </div>
 
-        <div className="flex flex-col gap-2">
+        <div className="gap-field flex flex-col">
           <Label>{t("weekMode")}</Label>
           <RadioGroup
             value={mode}
@@ -308,7 +308,7 @@ export function WeekDialog({
         </div>
 
         {mode === "assign" && (
-          <div className="flex flex-col gap-2">
+          <div className="gap-field flex flex-col">
             <Label htmlFor="santuy-week-person">{t("weekPerson")}</Label>
             <PersonSelect
               id="santuy-week-person"
@@ -345,7 +345,7 @@ export function WeekDialog({
         )}
 
         {(mode === "move" || mode === "skip") && (
-          <div className="flex flex-col gap-2">
+          <div className="gap-field flex flex-col">
             <Label htmlFor="santuy-week-note">{t("weekNote")}</Label>
             <Input
               id="santuy-week-note"
@@ -442,7 +442,7 @@ export function SettingsDialog({
           <DialogDescription>{t("settingsHint")}</DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col gap-2">
+        <div className="gap-field flex flex-col">
           <Label htmlFor="santuy-weekday">{t("weekday")}</Label>
           <Select
             value={weekday}

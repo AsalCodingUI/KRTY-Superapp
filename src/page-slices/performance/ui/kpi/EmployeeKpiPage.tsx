@@ -43,9 +43,8 @@ export function EmployeeKpiPage({
   }
 
   return (
-    <div className="flex flex-col pb-4">
+    <div className="flex flex-col">
       <PageHeader
-        className="pt-6 pb-4"
         back={{ href: backHref, label: t("teamKpi") }}
         title={
           <span className="flex items-center gap-3">

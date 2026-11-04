@@ -91,7 +91,7 @@ export function PublishDialog({
           onSubmit={submit}
           className="flex flex-col gap-4"
         >
-          <div className="flex flex-col gap-2">
+          <div className="gap-field flex flex-col">
             <Label htmlFor="policy-note">
               {first ? t("whatChangedOptional") : t("whatChanged")}
             </Label>
@@ -106,7 +106,7 @@ export function PublishDialog({
               onChange={(e) => setNote(e.target.value)}
             />
           </div>
-          <div className="flex flex-col gap-2">
+          <div className="gap-field flex flex-col">
             <Label htmlFor="policy-effective">{t("effectiveSinceLabel")}</Label>
             <DateField
               id="policy-effective"

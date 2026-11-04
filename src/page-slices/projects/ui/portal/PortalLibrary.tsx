@@ -69,7 +69,6 @@ export function PortalLibrary({
   return (
     <div className="flex flex-col">
       <PageHeader
-        className="pt-6 pb-4"
         title={folder ? folder.name : t("sectionLibrary")}
         back={
           folder

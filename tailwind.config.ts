@@ -64,17 +64,6 @@ const config: Config = {
           to: { height: "0" },
         },
       },
-
-      zIndex: {
-        base: "var(--z-base)",
-        dropdown: "var(--z-dropdown)",
-        sticky: "var(--z-sticky)",
-        fixed: "var(--z-fixed)",
-        "modal-backdrop": "var(--z-modal-backdrop)",
-        modal: "var(--z-modal)",
-        popover: "var(--z-popover)",
-        tooltip: "var(--z-tooltip)",
-      },
       transitionDuration: {
         fast: "var(--transition-fast-duration, 150ms)",
         base: "var(--transition-base-duration, 200ms)",

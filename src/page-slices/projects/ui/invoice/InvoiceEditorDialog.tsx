@@ -121,8 +121,8 @@ const ZOOM_MAX = 2
 const ZOOM_STEP = 0.1
 
 /** The invoice paper sits at sheet height; a dragged item lifts higher. */
-const PAPER_SHADOW = "shadow-(--elev-3)"
-const DRAG_SHADOW = "shadow-(--elev-4)"
+const PAPER_SHADOW = "shadow-sheet"
+const DRAG_SHADOW = "shadow-popover"
 
 const ymd = (d: Date) => format(d, "yyyy-MM-dd")
 
@@ -746,7 +746,7 @@ function Editor({
         </div>
         {/* Canvas toolbar: zoom, fit, download */}
         <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-center justify-between gap-3 p-4">
-          <div className="bg-popover/90 pointer-events-auto flex items-center gap-2 rounded-full px-2 py-1 shadow-(--elev-1) backdrop-blur">
+          <div className="bg-popover shadow-raised pointer-events-auto flex items-center gap-2 rounded-full px-2 py-1">
             <Button
               variant="ghost"
               size="icon-sm"
@@ -767,7 +767,7 @@ function Editor({
               {Math.round(zoom * 100)}%
             </span>
           </div>
-          <div className="bg-popover/90 pointer-events-auto flex items-center gap-1 rounded-full p-1 shadow-(--elev-1) backdrop-blur">
+          <div className="bg-popover shadow-raised pointer-events-auto flex items-center gap-1 rounded-full p-1">
             <Button
               variant="ghost"
               size="sm"
@@ -778,7 +778,7 @@ function Editor({
               {t("fitPage")}
             </Button>
           </div>
-          <div className="bg-popover/90 pointer-events-auto flex items-center rounded-full p-1 shadow-(--elev-1) backdrop-blur">
+          <div className="bg-popover shadow-raised pointer-events-auto flex items-center rounded-full p-1">
             <Button
               variant="ghost"
               size="sm"

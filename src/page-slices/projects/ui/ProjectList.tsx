@@ -280,7 +280,7 @@ function StatusGroup({
 /** What follows the pointer while a row is dragged. */
 function DraggedRow({ project }: { project: ProjectListRow }) {
   return (
-    <div className="bg-card border-border flex h-12 max-w-sm cursor-grabbing items-center gap-3 rounded-lg border px-3 text-sm shadow-(--elev-4)">
+    <div className="bg-card border-border shadow-popover flex h-12 max-w-sm cursor-grabbing items-center gap-3 rounded-lg border px-3 text-sm">
       <ProjectAvatar
         id={project.id}
         name={project.name}

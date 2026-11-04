@@ -74,7 +74,7 @@ export function ViewToggle({
       <SlidingIndicator
         activeSelector="[aria-pressed=true]"
         className="bg-thumb blend-light rounded-full"
-        shadowClassName="rounded-full shadow-(--elev-1)"
+        shadowClassName="rounded-full shadow-control"
       />
       {OPTIONS.filter((o) => modes.includes(o.value)).map(
         ({ value: option, label, icon: Icon }) => (

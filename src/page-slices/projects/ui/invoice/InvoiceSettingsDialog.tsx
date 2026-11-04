@@ -316,7 +316,7 @@ function MethodForm({
       />
       <div className="flex flex-col gap-4">
         <div className="grid gap-3 sm:grid-cols-[1fr_12rem]">
-          <div className="flex flex-col gap-1.5">
+          <div className="gap-field flex flex-col">
             <Label htmlFor="pm-name">{t("methodName")}</Label>
             <Input
               id="pm-name"
@@ -326,7 +326,7 @@ function MethodForm({
               onChange={(e) => setDraft({ ...draft, name: e.target.value })}
             />
           </div>
-          <div className="flex flex-col gap-1.5">
+          <div className="gap-field flex flex-col">
             <Label>{t("methodType")}</Label>
             <Select
               value={draft.type}
@@ -429,7 +429,7 @@ function MethodForm({
           </div>
         )}
 
-        <div className="flex flex-col gap-1.5">
+        <div className="gap-field flex flex-col">
           <Label htmlFor="pm-notes">{t("methodNotes")}</Label>
           <Textarea
             id="pm-notes"
@@ -509,7 +509,7 @@ function StudioTab({ onDone }: { onDone: () => void }) {
   if (!form) return null
 
   const field = (key: keyof AgencyProfile, label: string, area = false) => (
-    <div className="flex flex-col gap-1.5">
+    <div className="gap-field flex flex-col">
       <Label htmlFor={`studio-${key}`}>{label}</Label>
       {area ? (
         <Textarea

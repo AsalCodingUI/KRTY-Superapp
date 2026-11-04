@@ -91,7 +91,7 @@ export function MeetingDialog({
           <DialogTitle>{t("meetingDialogTitle")}</DialogTitle>
         </DialogHeader>
 
-        <div className="scroll-pane scroll-pane-bleed flex-1 space-y-5">
+        <div className="scroll-pane scroll-pane-bleed flex flex-1 flex-col gap-5">
           {/* Event Title & Type */}
           <div className="flex items-start justify-between gap-4">
             <h3 className="text-heading text-title font-medium break-words">
@@ -142,7 +142,7 @@ export function MeetingDialog({
 
           {/* Location */}
           {event.location && (
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <p className="text-muted-foreground flex items-center gap-2 text-sm font-medium">
                 <RiMapPinLine className="h-4 w-4" />
                 {t("dialogLocation")}
@@ -155,7 +155,7 @@ export function MeetingDialog({
 
           {/* Description */}
           {event.description && (
-            <div className="border-border space-y-2 border-t pt-4">
+            <div className="border-border flex flex-col gap-2 border-t pt-4">
               <p className="text-muted-foreground text-sm font-medium">
                 {t("dialogDescription")}
               </p>

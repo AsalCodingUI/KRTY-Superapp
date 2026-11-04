@@ -607,7 +607,7 @@ const TaskCard = memo(function TaskCard({
     <div
       className={cn(
         "bg-card border-border group-hover/card:border-field-border rounded-nested relative flex flex-col gap-1.5 border px-3.5 py-3 text-sm transition-[border-color,box-shadow] duration-200",
-        lifted && "border-transparent shadow-(--elev-4)",
+        lifted && "shadow-popover border-transparent",
       )}
     >
       {/* Hover hint that the card can be picked up. */}

@@ -135,7 +135,7 @@ export function ProjectSettings({ projectId }: { projectId: string }) {
 
   return (
     <div className="flex w-full flex-col">
-      <PageHeader className="pt-6 pb-4" title={t("sectionSettings")} />
+      <PageHeader title={t("sectionSettings")} />
       <div className="flex flex-col gap-4 pb-4">
         <div className="flex items-center gap-3 pb-1">
           <ProjectAvatar

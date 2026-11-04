@@ -43,7 +43,7 @@ export function AttendanceRecord({
 
   return (
     <Card className={cn("gap-0 p-4", className)}>
-      <div className="space-y-3 p-4">
+      <div className="flex flex-col gap-3 p-4">
         {showDate && (
           <div className="flex items-center justify-between">
             <span className="text-foreground text-sm font-medium">

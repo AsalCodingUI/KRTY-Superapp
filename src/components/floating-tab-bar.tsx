@@ -64,9 +64,9 @@ export function FloatingTabBar({
   const activeHref = pending ?? current
   const glass =
     // Dark glass; in dark mode the modal surface, so it stands off the page.
-    "pointer-events-auto bg-black/70 dark:bg-popover/80 shadow-[0_10px_30px_-8px_rgb(0_0_0/0.35)] dark:shadow-[0_10px_30px_-8px_rgb(0_0_0/0.7)] backdrop-blur-xl backdrop-saturate-150"
+    "pointer-events-auto bg-black/70 dark:bg-popover/80 shadow-popover backdrop-blur-xl backdrop-saturate-150"
   return (
-    <nav className="from-background dark:from-surface pointer-events-none fixed inset-x-0 bottom-0 z-50 flex items-center gap-2 bg-gradient-to-t from-40% to-transparent px-4 pt-12 pb-[max(calc(env(safe-area-inset-bottom)+0.5rem),1.75rem)] md:hidden">
+    <nav className="from-background dark:from-surface pointer-events-none fixed inset-x-0 bottom-0 z-40 flex items-center gap-2 bg-gradient-to-t from-40% to-transparent px-4 pt-12 pb-[max(calc(env(safe-area-inset-bottom)+0.5rem),1.75rem)] md:hidden">
       {/* The pages fill the pill in equal tabs; the bubble glides to the
           tapped one. */}
       <LazyMotion features={loadLayoutFeatures}>

@@ -91,8 +91,8 @@ export function SantuyPage({
   const { data, isLoading, isError } = useSantuy()
 
   return (
-    <div className="flex flex-col pb-6">
-      <PageHeader className="pt-6 pb-4" title={t("title")} />
+    <div className="flex flex-col">
+      <PageHeader title={t("title")} />
       {isLoading ? (
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
           <Skeleton className="h-64 rounded-xl" />

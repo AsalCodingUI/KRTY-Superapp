@@ -60,7 +60,7 @@ export function HolidayDialog({
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="flex flex-col gap-4">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm">
             <span className="text-foreground flex items-center gap-2">
               <RiCalendarLine className="text-muted-foreground size-4" />
@@ -78,7 +78,7 @@ export function HolidayDialog({
           </div>
 
           {(holiday?.description ?? event.description) && (
-            <div className="space-y-1">
+            <div className="flex flex-col gap-1">
               <h4 className="text-muted-foreground text-xs font-medium">
                 {t(holiday ? "holidayWhy" : "holidayAbout")}
               </h4>
@@ -197,7 +197,7 @@ function OfficeHoliday({
 
   return (
     <div className="bg-foreground/[0.03] flex items-center justify-between gap-3 rounded-lg px-3 py-2.5">
-      <div className="min-w-0 space-y-0.5">
+      <div className="flex min-w-0 flex-col gap-0.5">
         {isSet && <Badge variant="success">{t("holidayOffice")}</Badge>}
         <p className="text-muted-foreground text-xs">
           {t(isSet ? "holidayOfficeSetNote" : "holidayOfficeNote")}

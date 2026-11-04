@@ -121,7 +121,7 @@ export function AdminAttendanceEditDialog({
         </DialogHeader>
         <div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <div className="flex flex-col gap-2 sm:col-span-3">
+            <div className="gap-field flex flex-col sm:col-span-3">
               <Label>{t("colDate")}</Label>
               <DatePicker
                 value={parsedDate}
@@ -130,11 +130,11 @@ export function AdminAttendanceEditDialog({
                 }
               />
             </div>
-            <div className="flex flex-col gap-2">
+            <div className="gap-field flex flex-col">
               <Label>{t("clockIn")}</Label>
               <TimeSelect value={clockIn} onValueChange={setClockIn} step={5} />
             </div>
-            <div className="flex flex-col gap-2">
+            <div className="gap-field flex flex-col">
               <Label>{t("clockOut")}</Label>
               <TimeSelect
                 value={clockOut}
@@ -142,7 +142,7 @@ export function AdminAttendanceEditDialog({
                 step={5}
               />
             </div>
-            <div className="flex flex-col gap-2 sm:col-span-3">
+            <div className="gap-field flex flex-col sm:col-span-3">
               <Label>{t("colStatus")}</Label>
               <Select
                 value={status}

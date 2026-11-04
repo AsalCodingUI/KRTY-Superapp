@@ -146,9 +146,10 @@ function FinanceContent({ tab }: { tab: FinanceTab }) {
     loading || invoices.isLoading || subscriptions.isLoading || fx.isLoading
 
   return (
-    <div className="flex flex-col gap-4 pb-6">
+    <div className="flex flex-col gap-4">
       <PageHeader
-        className="pt-6"
+        // The page's gap-4 spaces it from the tabs.
+        className="pb-0"
         title={t("title")}
         actions={
           <>

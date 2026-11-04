@@ -348,7 +348,7 @@ export function ProjectForm({
           </div>
         ) : (
           <div className="scroll-pane scroll-pane-bleed-1 flex min-h-0 flex-1 flex-col gap-4">
-            <div className="flex flex-col gap-1.5">
+            <div className="gap-field flex flex-col">
               <Label htmlFor="project-name">{t("formName")}</Label>
               <Input
                 id="project-name"
@@ -371,7 +371,7 @@ export function ProjectForm({
               />
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <div className="flex flex-col gap-1.5">
+              <div className="gap-field flex flex-col">
                 <Label htmlFor="project-start">{t("colStart")}</Label>
                 <DateField
                   id="project-start"
@@ -379,7 +379,7 @@ export function ProjectForm({
                   onChange={(value) => set("start_date", value)}
                 />
               </div>
-              <div className="flex flex-col gap-1.5">
+              <div className="gap-field flex flex-col">
                 <Label htmlFor="project-end">{t("formEnd")}</Label>
                 <DateField
                   id="project-end"
@@ -391,7 +391,7 @@ export function ProjectForm({
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
               {projectId && (
-                <div className="flex flex-col gap-1.5">
+                <div className="gap-field flex flex-col">
                   <Label>{t("colStatus")}</Label>
                   <Select
                     value={draft.status}
@@ -417,7 +417,7 @@ export function ProjectForm({
                 </div>
               )}
               {!projectId && processes.length > 0 && (
-                <div className="flex flex-col gap-1.5">
+                <div className="gap-field flex flex-col">
                   <Label>{tp("fieldProcess")}</Label>
                   <Select
                     value={processValue}
@@ -440,7 +440,7 @@ export function ProjectForm({
                   </Select>
                 </div>
               )}
-              <div className="flex flex-col gap-1.5">
+              <div className="gap-field flex flex-col">
                 <Label htmlFor="project-category">{t("colCategory")}</Label>
                 <CategoryPicker
                   id="project-category"
@@ -448,7 +448,7 @@ export function ProjectForm({
                   onChange={(id) => set("categoryId", id)}
                 />
               </div>
-              <div className="flex flex-col gap-1.5">
+              <div className="gap-field flex flex-col">
                 <Label>{t("stage")}</Label>
                 <Select
                   value={draft.stage ?? NO_STAGE}
@@ -495,7 +495,7 @@ export function ProjectForm({
                 </p>
               )}
             </div>
-            <div className="flex flex-col gap-1.5">
+            <div className="gap-field flex flex-col">
               <Label htmlFor="project-desc">{t("formDescription")}</Label>
               <Textarea
                 id="project-desc"

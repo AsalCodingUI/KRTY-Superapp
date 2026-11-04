@@ -206,7 +206,7 @@ function ContractForm({
           onSubmit={submit}
           className="scroll-pane pane-px-5 flex min-h-0 flex-1 flex-col gap-4 pt-1 pb-5"
         >
-          <div className="flex flex-col gap-2">
+          <div className="gap-field flex flex-col">
             <Label>{t("fieldEmployee")}</Label>
             {/* The file lives in the person's folder, so it stays theirs. */}
             <Select
@@ -240,7 +240,7 @@ function ContractForm({
           </div>
 
           <div className="grid grid-cols-[minmax(0,1fr)_10rem] gap-3">
-            <div className="flex flex-col gap-2">
+            <div className="gap-field flex flex-col">
               <Label htmlFor="contract-title">{t("fieldTitle")}</Label>
               <Input
                 id="contract-title"
@@ -251,7 +251,7 @@ function ContractForm({
                 onChange={(e) => set("title", e.target.value)}
               />
             </div>
-            <div className="flex flex-col gap-2">
+            <div className="gap-field flex flex-col">
               <Label>{t("fieldKind")}</Label>
               <Select
                 value={form.kind}
@@ -274,7 +274,7 @@ function ContractForm({
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <div className="flex flex-col gap-2">
+            <div className="gap-field flex flex-col">
               <Label htmlFor="contract-start">{t("fieldStart")}</Label>
               <DateField
                 id="contract-start"
@@ -283,7 +283,7 @@ function ContractForm({
                 onChange={(v) => set("startDate", v)}
               />
             </div>
-            <div className="flex flex-col gap-2">
+            <div className="gap-field flex flex-col">
               <Label htmlFor="contract-end">
                 {t("fieldEnd")}{" "}
                 <span className="text-muted-foreground font-normal">
@@ -323,7 +323,7 @@ function ContractForm({
             )}
           </div>
 
-          <div className="flex flex-col gap-2">
+          <div className="gap-field flex flex-col">
             <Label htmlFor="contract-notes">
               {t("fieldNotes")}{" "}
               <span className="text-muted-foreground font-normal">

@@ -354,7 +354,7 @@ export function SheetView({
                 className={cn(
                   "shrink-0 rounded-md px-2.5 py-1 text-xs transition-colors",
                   i === active
-                    ? "bg-background text-foreground shadow-(--elev-1)"
+                    ? "bg-background text-foreground shadow-control"
                     : "text-muted-foreground hover:text-foreground",
                 )}
               >

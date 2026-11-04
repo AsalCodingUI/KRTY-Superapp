@@ -52,7 +52,7 @@ export function PortalReports({ reports }: { reports: PortalReport[] }) {
 
   return (
     <div className="flex flex-col">
-      <PageHeader className="pt-6 pb-4" title={t("sectionReports")} />
+      <PageHeader title={t("sectionReports")} />
       {reports.length === 0 ? (
         <EmptyState
           title={t("reportsEmpty")}

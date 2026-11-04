@@ -46,7 +46,7 @@ export function ProgressBarCard({
               {valueDescription}
             </span>
           </dd>
-          <ul role="list" className="mt-4 space-y-5">
+          <ul role="list" className="mt-4 flex flex-col gap-5">
             {data.map((item) => (
               <li key={item.title}>
                 <p className="flex justify-between text-sm font-medium">

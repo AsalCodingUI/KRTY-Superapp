@@ -103,7 +103,6 @@ export function ProcessesPage() {
   return (
     <div className="flex flex-col">
       <PageHeader
-        className="pt-6 pb-4"
         title={t("title")}
         actions={
           <Button onClick={() => setCreating(true)}>

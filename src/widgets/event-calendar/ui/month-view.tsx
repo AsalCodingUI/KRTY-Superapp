@@ -30,7 +30,7 @@ interface MonthViewProps {
 }
 
 const MOBILE_DAY_EVENTS_DRAWER_CLASSNAME =
-  "z-[82] h-[80vh] overflow-hidden rounded-t-dialog border-t p-0"
+  "z-over-menu h-[80vh] overflow-hidden rounded-t-dialog border-t p-0"
 
 export const MonthView = memo(function MonthView({
   events,
@@ -160,7 +160,7 @@ export const MonthView = memo(function MonthView({
                   </div>
 
                   {/* Events - full display on sm+, compact dot indicator on mobile */}
-                  <div className="flex-1 space-y-1 overflow-hidden max-sm:flex max-sm:justify-center">
+                  <div className="flex flex-1 flex-col gap-1 overflow-hidden max-sm:flex max-sm:justify-center">
                     {/* Mobile: show colored dots for events */}
                     {dayEvents.length > 0 && (
                       <div className="flex flex-wrap justify-center gap-0.5 sm:hidden">
@@ -247,13 +247,13 @@ export const MonthView = memo(function MonthView({
                             align="start"
                             onClick={(e) => e.stopPropagation()}
                           >
-                            <div className="space-y-2">
+                            <div className="flex flex-col gap-2">
                               <h4 className="text-foreground mb-3 text-sm font-medium">
                                 {format(day, "EEEE, dd MMMM yyyy", {
                                   locale: dateLocale,
                                 })}
                               </h4>
-                              <div className="scroll-pane scroll-pane-bleed max-h-80 space-y-2">
+                              <div className="scroll-pane scroll-pane-bleed flex max-h-80 flex-col gap-2">
                                 {dayEvents.map((event) => (
                                   <EventTarget key={event.id} event={event}>
                                     <EventItem
@@ -313,7 +313,7 @@ export const MonthView = memo(function MonthView({
             </SheetClose>
           </div>
           <div className="scroll-pane pane-px-4 flex-1 py-4 pb-6">
-            <div className="space-y-3">
+            <div className="flex flex-col gap-3">
               {mobileSelectedEvents.length === 0 ? (
                 <p className="text-muted-foreground text-sm">
                   {t("monthDayDrawerEmpty")}

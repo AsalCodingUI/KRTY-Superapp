@@ -94,10 +94,7 @@ export function EntryBadges({
     <div className={cn("flex flex-wrap items-center gap-1.5", className)}>
       {badges.map(({ key, variant, label }) =>
         onPicture ? (
-          <span
-            key={key}
-            className="bg-background rounded-full shadow-[0_1px_3px_rgb(0_0_0/0.18)]"
-          >
+          <span key={key} className="bg-background shadow-control rounded-full">
             <Badge
               variant={variant}
               className={cn(variant === "outline" && "border-transparent")}

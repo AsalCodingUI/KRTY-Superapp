@@ -242,7 +242,6 @@ export function ProjectsListPage() {
   return (
     <div className="flex flex-col">
       <PageHeader
-        className="pt-6 pb-4"
         title={
           <SegmentedControl
             fitContent

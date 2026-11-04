@@ -93,7 +93,7 @@ export function PortalOverview({
   return (
     <div className="flex flex-col">
       {/* The top bar names the project; the page names itself. */}
-      <PageHeader className="pt-6 pb-4" title={tn("projectDashboard")} />
+      <PageHeader title={tn("projectDashboard")} />
       <ProjectProperties
         phases={phases}
         steps={steps}

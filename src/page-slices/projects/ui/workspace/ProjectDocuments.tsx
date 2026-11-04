@@ -358,15 +358,14 @@ export function ProjectDocuments({ projectId }: { projectId: string }) {
   return (
     <div className="relative flex flex-col" {...drop.bind}>
       {drop.dragging && (
-        <div className="bg-primary/5 border-primary/40 pointer-events-none fixed inset-0 z-40 m-3 flex items-center justify-center rounded-2xl border-2 border-dashed backdrop-blur-[1px]">
-          <span className="bg-background flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium shadow-(--elev-4)">
+        <div className="bg-primary/5 border-primary/40 pointer-events-none fixed inset-0 z-40 m-3 flex items-center justify-center rounded-2xl border-2 border-dashed">
+          <span className="bg-background shadow-popover flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium">
             <Upload className="size-4" />
             {tc("dropToUpload")}
           </span>
         </div>
       )}
       <PageHeader
-        className="pt-6 pb-4"
         title={t("sectionDocuments")}
         actions={
           viewer.isAdmin && (
@@ -543,7 +542,7 @@ export function ProjectDocuments({ projectId }: { projectId: string }) {
                       </label>
                     )}
                     <div className="grid grid-cols-2 gap-3">
-                      <div className="flex flex-col gap-1.5">
+                      <div className="gap-field flex flex-col">
                         <Label>{t("docKind")}</Label>
                         <Select
                           value={draft.kind}
@@ -565,7 +564,7 @@ export function ProjectDocuments({ projectId }: { projectId: string }) {
                           </SelectContent>
                         </Select>
                       </div>
-                      <div className="flex flex-col gap-1.5">
+                      <div className="gap-field flex flex-col">
                         <Label>{t("colStatus")}</Label>
                         <Select
                           value={draft.status}
@@ -590,7 +589,7 @@ export function ProjectDocuments({ projectId }: { projectId: string }) {
                         </Select>
                       </div>
                     </div>
-                    <div className="flex flex-col gap-1.5">
+                    <div className="gap-field flex flex-col">
                       <Label htmlFor="doc-title">{t("docTitle")}</Label>
                       <Input
                         id="doc-title"

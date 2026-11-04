@@ -66,7 +66,7 @@ function Paper({
     <div className="flex h-full items-end justify-center px-[14%] pt-[9%]">
       <div
         className={cn(
-          "h-full w-full overflow-hidden rounded-t-[4px] bg-white shadow-(--elev-3)",
+          "shadow-sheet h-full w-full overflow-hidden rounded-t-[4px] bg-white",
           className,
         )}
       >
@@ -173,7 +173,7 @@ export function FilePreview({
             className="size-full object-cover"
           />
           <span className="absolute inset-0 grid place-items-center">
-            <span className="grid size-9 place-items-center rounded-full bg-black/45 text-white backdrop-blur-sm">
+            <span className="grid size-9 place-items-center rounded-full bg-black/60 text-white">
               <Play className="size-4 translate-x-px fill-current" />
             </span>
           </span>

@@ -136,7 +136,7 @@ export function WorkspaceSwitch({
               "fill-ink bg-transparent dark:bg-transparent",
               className,
             )}
-            indicatorClassName="shadow-(--elev-2)"
+            indicatorClassName="shadow-raised"
             value={active.id}
             onChange={select}
             items={visible.map((ws) => ({

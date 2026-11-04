@@ -62,7 +62,7 @@ export function SegmentedControl<T extends string>({
         className="bg-thumb blend-light rounded-control"
         shadowClassName={cn(
           "rounded-control",
-          indicatorClassName ?? "shadow-(--elev-1) dark:shadow-none",
+          indicatorClassName ?? "shadow-control dark:shadow-none",
         )}
       />
       {items.map((item) => {

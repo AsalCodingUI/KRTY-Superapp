@@ -50,7 +50,7 @@ const TabNavigation = React.forwardRef<
       >
         <NavigationMenuPrimitive.List
           className={cn(
-            "border-border relative flex items-start justify-start gap-7 border-b whitespace-nowrap",
+            "border-border relative flex items-start justify-start gap-6 border-b whitespace-nowrap",
             className,
           )}
         >

@@ -155,7 +155,7 @@ export function TeamsPage({
   return (
     <div className="flex flex-col">
       {/* Title + actions, a stats band, the search row, then the list. */}
-      <PageHeader className="pt-6 pb-4" title={t("title")} />
+      <PageHeader title={t("title")} />
 
       <StatStrip
         items={stats.map((item) => ({ key: String(item.label), ...item }))}

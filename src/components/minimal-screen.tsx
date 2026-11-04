@@ -12,7 +12,7 @@ import type { ComponentProps, ReactNode } from "react"
 /** The card's frosted surface (with <GlassLayer /> inside it): a touch
  *  see-through, so the backdrop shows. */
 export const glassSurfaceClass =
-  "relative isolate overflow-hidden shadow-(--elev-2)"
+  "relative isolate overflow-hidden shadow-raised"
 
 /**
  * The frost itself, on its own layer behind the card's content: with the
@@ -36,7 +36,7 @@ export const glassControlClass =
 /** Translate, theme…: outside the card, top right. */
 export function ScreenControls({ children }: { children: ReactNode }) {
   return (
-    <div className="bg-background/80 fixed top-3 right-3 z-20 flex items-center gap-0.5 rounded-full p-1 shadow-(--elev-1) backdrop-blur sm:top-4 sm:right-4">
+    <div className="bg-background/80 shadow-raised fixed top-3 right-3 z-20 flex items-center gap-0.5 rounded-full p-1 backdrop-blur sm:top-4 sm:right-4">
       {children}
     </div>
   )

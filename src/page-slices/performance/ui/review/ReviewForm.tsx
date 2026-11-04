@@ -275,7 +275,7 @@ export function ReviewFormFields({ form }: { form: ReviewFormState }) {
       <section className="flex flex-col gap-5">
         <h2 className="text-sm font-medium">{t("feedback")}</h2>
         {FEEDBACK.map(({ key, label, hint, placeholder }) => (
-          <div key={key} className="flex flex-col gap-1.5">
+          <div key={key} className="gap-field flex flex-col">
             <Label htmlFor={key}>{t(label)}</Label>
             <p className="text-muted-foreground -mt-1 text-xs">{t(hint)}</p>
             <Textarea

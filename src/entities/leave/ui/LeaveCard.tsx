@@ -44,7 +44,7 @@ export function LeaveCard({
   }
 
   return (
-    <Card className="gap-0 p-4 transition-shadow hover:shadow-(--elev-2)">
+    <Card className="hover:shadow-raised gap-0 p-4 transition-shadow">
       <div className="flex items-start justify-between">
         <div className="flex-1">
           {showUserInfo && userFullName && (

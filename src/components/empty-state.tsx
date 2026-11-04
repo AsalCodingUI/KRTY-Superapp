@@ -47,8 +47,8 @@ export function EmptyState({
     >
       {icon !== null && (
         <div aria-hidden className="relative mb-5 size-12">
-          <div className="bg-background absolute inset-0 translate-x-1.5 -translate-y-1 rotate-6 rounded-xl shadow-(--elev-1) dark:bg-[color-mix(in_oklab,#fff_8%,var(--background))]" />
-          <div className="bg-background text-muted-foreground relative flex size-12 items-center justify-center rounded-xl shadow-(--elev-2) dark:bg-[color-mix(in_oklab,#fff_14%,var(--background))] [&_svg]:size-5">
+          <div className="bg-background shadow-control absolute inset-0 translate-x-1.5 -translate-y-1 rotate-6 rounded-xl dark:bg-[color-mix(in_oklab,#fff_8%,var(--background))]" />
+          <div className="bg-background text-muted-foreground shadow-raised relative flex size-12 items-center justify-center rounded-xl dark:bg-[color-mix(in_oklab,#fff_14%,var(--background))] [&_svg]:size-5">
             {icon ?? <Inbox />}
           </div>
         </div>

@@ -195,7 +195,7 @@ export function ImageMenu({ editor }: { editor: Editor }) {
       pluginKey="imageMenu"
       options={{ placement: "top", offset: 8 }}
       shouldShow={({ editor: e }) => e.isEditable && e.isActive("image")}
-      className="bg-popover text-popover-foreground z-40 flex items-center gap-0.5 rounded-full p-1 shadow-(--elev-4)"
+      className="bg-popover text-popover-foreground shadow-popover z-40 flex items-center gap-0.5 rounded-full p-1"
     >
       {IMAGE_SIZES.map((size) => (
         <button

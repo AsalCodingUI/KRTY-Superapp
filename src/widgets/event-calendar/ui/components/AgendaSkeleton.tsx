@@ -4,7 +4,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 
 export function AgendaSkeleton() {
   return (
-    <div className="space-y-4 p-4">
+    <div className="flex flex-col gap-4 p-4">
       {Array.from({ length: 5 }).map((_, i) => (
         <div key={i} className="bg-foreground/[0.03] flex gap-4 rounded-lg p-4">
           {/* Date column */}
@@ -14,7 +14,7 @@ export function AgendaSkeleton() {
           </div>
 
           {/* Event details */}
-          <div className="flex-1 space-y-2">
+          <div className="flex flex-1 flex-col gap-2">
             <Skeleton className="h-5 w-3/4" />
             <Skeleton className="h-4 w-1/2" />
             <div className="flex gap-2">

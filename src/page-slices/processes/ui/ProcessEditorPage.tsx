@@ -157,7 +157,6 @@ export function ProcessEditorPage({ id }: { id: string }) {
   return (
     <div className="flex flex-col">
       <PageHeader
-        className="pt-6 pb-4"
         back={{ href: "/processes", label: t("back") }}
         title={process.name}
         actions={

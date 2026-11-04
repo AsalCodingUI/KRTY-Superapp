@@ -250,7 +250,7 @@ export function FileViewer({
                   src={url}
                   controls
                   autoPlay
-                  className="max-h-[calc(100%-3rem)] max-w-[calc(100%-3rem)] rounded-[4px] shadow-(--elev-3)"
+                  className="shadow-sheet max-h-[calc(100%-3rem)] max-w-[calc(100%-3rem)] rounded-[4px]"
                 />
               ) : kind === "audio" ? (
                 <audio key={url} src={url} controls autoPlay />
@@ -264,7 +264,7 @@ export function FileViewer({
                 // A note reads as the typeset document (the editor, shown
                 // only), on a page like the PDFs.
                 <div className="scroll-pane pane-px-6 size-full py-6">
-                  <div className="bg-background mx-auto min-h-full w-[min(852px,calc(100vw-6rem))] rounded-[4px] shadow-(--elev-3)">
+                  <div className="bg-background shadow-sheet mx-auto min-h-full w-[min(852px,calc(100vw-6rem))] rounded-[4px]">
                     <MarkdownDocEditor
                       key={url}
                       readOnly
@@ -281,7 +281,7 @@ export function FileViewer({
                   {(zoom) => (
                     <div className="w-max min-w-full px-6 py-6">
                       <pre
-                        className="bg-background mx-auto min-h-full w-[min(852px,calc(100vw-6rem))] rounded-[4px] p-8 font-mono text-xs leading-5 whitespace-pre-wrap shadow-(--elev-3)"
+                        className="bg-background shadow-sheet mx-auto min-h-full w-[min(852px,calc(100vw-6rem))] rounded-[4px] p-8 font-mono text-xs leading-5 whitespace-pre-wrap"
                         style={{ zoom }}
                       >
                         {text}
@@ -298,7 +298,7 @@ export function FileViewer({
                     size="icon"
                     aria-label={t("previous")}
                     onClick={() => step(-1)}
-                    className="bg-background/90 dark:bg-popover/90 absolute top-1/2 left-3 -translate-y-1/2 rounded-full backdrop-blur-sm"
+                    className="bg-background dark:bg-popover absolute top-1/2 left-3 -translate-y-1/2 rounded-full"
                   >
                     <ChevronLeft />
                   </Button>
@@ -307,7 +307,7 @@ export function FileViewer({
                     size="icon"
                     aria-label={t("next")}
                     onClick={() => step(1)}
-                    className="bg-background/90 dark:bg-popover/90 absolute top-1/2 right-3 -translate-y-1/2 rounded-full backdrop-blur-sm"
+                    className="bg-background dark:bg-popover absolute top-1/2 right-3 -translate-y-1/2 rounded-full"
                   >
                     <ChevronRight />
                   </Button>

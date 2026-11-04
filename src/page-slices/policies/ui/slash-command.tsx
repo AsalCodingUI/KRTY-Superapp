@@ -302,7 +302,7 @@ export function SlashMenu({ bridge }: { bridge: SlashBridge }) {
     <div
       ref={cardRef}
       style={style}
-      className="bg-popover text-popover-foreground animate-in fade-in-0 zoom-in-95 nest-rounded-popover nest-p-2 z-[60] w-72 overflow-hidden text-sm shadow-(--elev-4)"
+      className="bg-popover text-popover-foreground animate-in fade-in-0 zoom-in-95 nest-rounded-popover nest-p-2 z-editor-menu shadow-popover w-72 overflow-hidden text-sm"
     >
       <div
         ref={listRef}

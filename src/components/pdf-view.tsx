@@ -268,7 +268,7 @@ export function PdfPages({
                   doc={doc}
                   page={i + 1}
                   width={pageWidth}
-                  className="rounded-[4px] shadow-(--elev-3)"
+                  className="shadow-sheet rounded-[4px]"
                 />
               ))}
             </div>

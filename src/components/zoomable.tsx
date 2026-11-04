@@ -89,7 +89,7 @@ export function ZoomPill({
           exit={reduce ? { opacity: 0 } : { opacity: 0, y: 6, scale: 0.96 }}
           transition={{ duration: 0.18, ease: [0.23, 1, 0.32, 1] }}
           className={cn(
-            "bg-popover text-popover-foreground absolute right-3 bottom-3 z-10 flex items-center gap-0.5 rounded-full p-1 shadow-(--elev-3)",
+            "bg-popover text-popover-foreground shadow-raised absolute right-3 bottom-3 z-10 flex items-center gap-0.5 rounded-full p-1",
             className,
           )}
         >
@@ -206,7 +206,7 @@ export function BackgroundSwatches({
       role="radiogroup"
       aria-label={t("previewBackground")}
       className={cn(
-        "bg-popover absolute top-3 right-3 z-10 flex items-center gap-1.5 rounded-full p-1.5 shadow-(--elev-3)",
+        "bg-popover shadow-raised absolute top-3 right-3 z-10 flex items-center gap-1.5 rounded-full p-1.5",
         className,
       )}
     >
@@ -314,7 +314,7 @@ export function ZoomableImage({
                 width: w,
                 opacity: natural ? 1 : 0,
               }}
-              className="block max-w-none rounded-[4px] shadow-(--elev-3) transition-[background-color] duration-200"
+              className="shadow-sheet block max-w-none rounded-[4px] transition-[background-color] duration-200"
             />
           </div>
         )

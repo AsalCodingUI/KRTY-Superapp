@@ -164,6 +164,25 @@ WebKit/the Mac app).
   (`dialogSheetOnMobileClassName`).
 - Only the layout and these shared components handle safe areas.
 
+## Role tokens (use these)
+
+Defined in `src/app/globals.css` (`--spacing-*`), registered in
+`src/lib/utils.ts`. Measured on /ui → Spacing.
+
+| Class                      | Value | For                                                                    |
+| -------------------------- | ----- | ---------------------------------------------------------------------- |
+| `gap-field`                | 8px   | a label → its control (measured: 18 / 18 pairs on /ui → Form at 8.0px) |
+| `gap-fields`               | 16px  | field → field                                                          |
+| `gap-inline`               | 8px   | buttons / chips side by side                                           |
+| `gap-section`              | 32px  | section → section on a page                                            |
+| `p-surface` / `px-surface` | 20px  | card, dialog, sheet padding                                            |
+
+- `PageHeader` owns its spacing (`pt-6 pb-4`): don't pass it.
+- Pages add no bottom padding: the layout does (`md:pb-6`, and room for
+  the phone tab bar).
+- `flex flex-col gap-*`, not `space-y-*` (a hidden child leaves no gap).
+- Steps of 4px only (no `gap-7`, no `py-[4px]`).
+
 ## Rules
 
 - 4px grid, whole steps on pages. A value outside the table needs a
@@ -211,6 +230,15 @@ WebKit/the Mac app).
 ```
 
 ## Migration notes
+
+Done 2026-11-05 (local): role tokens above; `PageHeader` default
+padding (36 caller copies removed); page-bottom paddings removed (Santuy,
+Finance, KPI, Notes, What's new, dashboard, /ui); 82 label → control
+stacks on `gap-field`, `Field` too; 53 `space-y` → flex gap; `gap-7` →
+6 / 8; `py-[4px]` → `py-1`; the drawer's `--bleed` renamed
+`--drawer-bleed`; HomeCard on `p-surface`. Kept: segmented / tabs 3px
+internals (optical), the Mac traffic-light offset.
+The older list below is kept for reference.
 
 - **PageHeader spacing is copied into every caller**: 31 of 32 pass
   `className="pt-6 pb-4"` (`src/page-slices/finance/ui/FinancePage.tsx:151`

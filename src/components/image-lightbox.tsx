@@ -143,10 +143,10 @@ export function ImageLightbox({
         <DialogPrimitive.Backdrop
           // Shown inside another dialog too (Base UI skips nested ones).
           forceRender
-          className="data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0 fixed inset-0 z-[70] bg-black/85 duration-200"
+          className="data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0 z-lightbox fixed inset-0 bg-black/85 duration-200"
         />
         <DialogPrimitive.Popup
-          className="data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 fixed inset-0 z-[70] flex items-center justify-center p-4 duration-200 outline-none sm:p-14"
+          className="data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 z-lightbox fixed inset-0 flex items-center justify-center p-4 duration-200 outline-none sm:p-14"
           onTouchStart={(e) => {
             touch.current = e.touches[0]?.clientX ?? null
           }}
@@ -172,7 +172,7 @@ export function ImageLightbox({
               key={current.src}
               src={current.src}
               alt={current.alt}
-              className="max-h-full max-w-full rounded-lg object-contain shadow-2xl"
+              className="shadow-dialog max-h-full max-w-full rounded-lg object-contain"
             />
           )}
           <DialogPrimitive.Close

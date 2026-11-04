@@ -450,7 +450,7 @@ export function OneOnOne({ period }: { period: string }) {
         </DialogHeader>
         {form && (
           <div className="flex flex-col gap-3">
-            <div className="flex flex-col gap-1.5">
+            <div className="gap-field flex flex-col">
               <Label htmlFor="slot-date">{t("date")}</Label>
               <DateField
                 id="slot-date"
@@ -460,7 +460,7 @@ export function OneOnOne({ period }: { period: string }) {
               />
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <div className="flex flex-col gap-1.5">
+              <div className="gap-field flex flex-col">
                 <Label>{t("start")}</Label>
                 <TimeSelect
                   value={form.start}
@@ -471,7 +471,7 @@ export function OneOnOne({ period }: { period: string }) {
                   }}
                 />
               </div>
-              <div className="flex flex-col gap-1.5">
+              <div className="gap-field flex flex-col">
                 <Label>{t("end")}</Label>
                 <TimeSelect
                   value={form.end}
@@ -481,7 +481,7 @@ export function OneOnOne({ period }: { period: string }) {
             </div>
             {!editing && (
               <>
-                <div className="flex flex-col gap-1.5">
+                <div className="gap-field flex flex-col">
                   <Label>{t("place")}</Label>
                   <SegmentedControl<string>
                     value={form.mode}

@@ -10,7 +10,7 @@ export default function DashboardLoading() {
       </div>
 
       <div className="flex flex-col">
-        <div className="space-y-5 p-4 sm:p-5">
+        <div className="flex flex-col gap-5 p-4 sm:p-5">
           <div>
             <Skeleton className="mb-2 h-5 w-44" />
             <Skeleton className="h-3 w-72 max-w-full" />
@@ -18,7 +18,7 @@ export default function DashboardLoading() {
 
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
             {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="space-y-3 rounded-lg">
+              <div key={i} className="flex flex-col gap-3 rounded-lg">
                 <Skeleton className="h-4 w-20" />
                 <Skeleton className="h-7 w-16" />
               </div>
