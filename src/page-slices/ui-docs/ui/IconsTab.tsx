@@ -72,7 +72,7 @@ import {
 const RULES: [string, string][] = [
   [
     "Sumber",
-    "@/components/icons: Reicon (reicon.dev), nama tetap gaya lucide. Jangan import reicon-react langsung. Ri* = alias lama, jangan nambah",
+    "@/components/icons: Untitled UI Icons, nama tetap gaya lucide. Jangan import @untitledui/icons langsung. Ri* = alias lama, jangan nambah",
   ],
   [
     "Satu arti satu ikon",
@@ -92,8 +92,8 @@ const RULES: [string, string][] = [
     "Ikut currentColor; pelan: text-muted-foreground; status: token semantik",
   ],
   [
-    "Outline / Filled",
-    'Outline default. weight="Filled" buat state aktif / terpilih (nav aktif, bintang nyala, notifikasi). Ri*Fill = Filled',
+    "Gaya",
+    "Line saja (versi gratis Untitled UI nggak punya filled). weight diabaikan",
   ],
   [
     "Stroke",
@@ -180,7 +180,7 @@ export function IconsTab() {
 
       <DocGroup
         title="Semua ikon app"
-        note="Tiap nama yang dipakai app, Outline (garis 1.75) lalu Filled. Yang ditandai custom digambar sendiri karena belum ada di Reicon."
+        note="Tiap nama ikon yang dipakai app (Untitled UI, garis 1.75). Yang ditandai custom digambar sendiri karena belum ada di Untitled UI."
       >
         <AllIcons />
       </DocGroup>
@@ -434,29 +434,8 @@ function GlyphRow({ items }: { items: [string, ReactNode][] }) {
   )
 }
 
-/** Not in Reicon: drawn in components/icons/custom.tsx. */
-const CUSTOM = new Set([
-  "Circle",
-  "CircleDashed",
-  "Square",
-  "Columns2",
-  "Columns3",
-  "Rows2",
-  "Table",
-  "Table2",
-  "GripVertical",
-  "GripHorizontal",
-  "Heading",
-  "Heading1",
-  "Heading2",
-  "Heading3",
-  "Pilcrow",
-  "Strikethrough",
-  "SeparatorHorizontal",
-  "Split",
-  "ChevronsUp",
-  "ChevronsDownUp",
-])
+/** Not in Untitled UI: drawn in components/icons/custom.tsx. */
+const CUSTOM = new Set(["Coffee"])
 
 function AllIcons() {
   const icons = Object.entries(AppIcons).filter(
@@ -471,8 +450,7 @@ function AllIcons() {
           className="bg-muted dark:bg-muted/40 flex flex-col gap-2 rounded-lg p-3"
         >
           <div className="flex items-center gap-3">
-            <Icon className="size-5" weight="Outline" />
-            <Icon className="size-5" weight="Filled" />
+            <Icon className="size-5" />
           </div>
           <code className="truncate font-mono text-[11px]" title={name}>
             {name}

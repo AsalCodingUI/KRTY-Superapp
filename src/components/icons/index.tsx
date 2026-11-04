@@ -1,239 +1,242 @@
 "use client"
 
 /**
- * The app's icons: Reicon (https://reicon.dev, MIT), in DEFAULT_WEIGHT
- * (Outline) unless an icon passes `weight`. Import
- * every icon from here (never from "reicon-react" directly), so the icon
- * set stays one decision. Names keep the app's existing (lucide-style)
- * names; the right-hand side is the Reicon glyph. The few glyphs Reicon
- * doesn't have are drawn in ./custom.tsx. Outline stroke: STROKE (1.75).
+ * The app's icons: Untitled UI Icons (free line set, untitledui.com/icons;
+ * free for personal and commercial use, not for redistribution as an icon
+ * library). Import every icon from here, never from "@untitledui/icons"
+ * directly, so the set stays one decision. Names keep the app's existing
+ * (lucide-style) names; the right-hand side is the Untitled UI glyph. The
+ * one glyph it lacks is drawn in ./custom.tsx. Stroke: STROKE, for all.
  * See docs/ui/icons.md.
  */
 
 import * as React from "react"
-import * as C from "./custom"
 import { STROKE } from "./custom"
-import type { IconProps as ReiconProps } from "reicon-react"
+import * as C from "./custom"
 
-import RAddressCard from "reicon-react/icons/AddressCard"
-import RAlertCircle from "reicon-react/icons/AlertCircle"
-import RAlertTriangle from "reicon-react/icons/AlertTriangle"
-import RAngleDownSquare from "reicon-react/icons/AngleDownSquare"
-import RAnglesLeft from "reicon-react/icons/AnglesLeft"
-import RAnglesRight from "reicon-react/icons/AnglesRight"
-import RArchive from "reicon-react/icons/Archive"
-import RArchiveDown from "reicon-react/icons/ArchiveDown"
-import RArrowDown from "reicon-react/icons/ArrowDown"
-import RArrowLeft from "reicon-react/icons/ArrowLeft"
-import RArrowRight from "reicon-react/icons/ArrowRight"
-import RArrowSwapHorizontal from "reicon-react/icons/ArrowSwapHorizontal"
-import RArrowToTopRight from "reicon-react/icons/ArrowToTopRight"
-import RArrowUp from "reicon-react/icons/ArrowUp"
-import RArrowToTopLeft from "reicon-react/icons/ArrowToTopLeft"
-import RArrowToDownRight from "reicon-react/icons/ArrowToDownRight"
-import RArrowToDownLeft from "reicon-react/icons/ArrowToDownLeft"
-import RArrowUpRight from "reicon-react/icons/ArrowUpRight"
-import RAtSign from "reicon-react/icons/AtSign"
-import RBell from "reicon-react/icons/Bell"
-import RBookOpen from "reicon-react/icons/BookOpen"
-import RBriefcase from "reicon-react/icons/Briefcase"
-import RBuilding2 from "reicon-react/icons/Building2"
-import RBullhorn from "reicon-react/icons/Bullhorn"
-import RCalculator from "reicon-react/icons/Calculator"
-import RCalendar from "reicon-react/icons/Calendar"
-import RCalendarCheck from "reicon-react/icons/CalendarCheck"
-import RCalendarDate from "reicon-react/icons/CalendarDate"
-import RCalendarDays from "reicon-react/icons/CalendarDays"
-import RCalendarPlus from "reicon-react/icons/CalendarPlus"
-import RCalendarRemove from "reicon-react/icons/CalendarRemove"
-import RCalendarSearch from "reicon-react/icons/CalendarSearch"
-import RCalendarX from "reicon-react/icons/CalendarX"
-import RCamera from "reicon-react/icons/Camera"
-import RCategory from "reicon-react/icons/Category"
-import RChartBar from "reicon-react/icons/ChartBar"
-import RChartBarTrendUp from "reicon-react/icons/ChartBarTrendUp"
-import RChartLine from "reicon-react/icons/ChartLine"
-import RChartPie from "reicon-react/icons/ChartPie"
-import RCheck from "reicon-react/icons/Check"
-import RCheckCircle from "reicon-react/icons/CheckCircle"
-import RCheckListSquare from "reicon-react/icons/CheckListSquare"
-import RCheckRead from "reicon-react/icons/CheckRead"
-import RChecklist from "reicon-react/icons/Checklist"
-import RChevronDown from "reicon-react/icons/ChevronDown"
-import RChevronExpandY from "reicon-react/icons/ChevronExpandY"
-import RChevronLeft from "reicon-react/icons/ChevronLeft"
-import RChevronRight from "reicon-react/icons/ChevronRight"
-import RChevronUp from "reicon-react/icons/ChevronUp"
-import RChrome from "reicon-react/icons/Chrome"
-import RClipboardAdd from "reicon-react/icons/ClipboardAdd"
-import RClipboardCheck from "reicon-react/icons/ClipboardCheck"
-import RClipboardImport from "reicon-react/icons/ClipboardImport"
-import RClipboardText from "reicon-react/icons/ClipboardText"
-import RClock from "reicon-react/icons/Clock"
-import RCloseCircle from "reicon-react/icons/CloseCircle"
-import RCloud from "reicon-react/icons/Cloud"
-import RCloudCross from "reicon-react/icons/CloudCross"
-import RCloudUpload from "reicon-react/icons/CloudUpload"
-import RCode from "reicon-react/icons/Code"
-import RCode2 from "reicon-react/icons/Code2"
-import RCoffee from "reicon-react/icons/Coffee"
-import RCopy from "reicon-react/icons/Copy"
-import RCreditCard from "reicon-react/icons/CreditCard"
-import RCursor from "reicon-react/icons/Cursor"
-import RDanger from "reicon-react/icons/Danger"
-import RDocumentCopy from "reicon-react/icons/DocumentCopy"
-import RDocumentText from "reicon-react/icons/DocumentText"
-import RDollarCircle from "reicon-react/icons/DollarCircle"
-import RDownload from "reicon-react/icons/Download"
-import REdit2 from "reicon-react/icons/Edit2"
-import RElement from "reicon-react/icons/Element"
-import REnvelope from "reicon-react/icons/Envelope"
-import REnvelopeOpen from "reicon-react/icons/EnvelopeOpen"
-import REraser from "reicon-react/icons/Eraser"
-import RExitFullscreen from "reicon-react/icons/ExitFullscreen"
-import REye from "reicon-react/icons/Eye"
-import REyeOff from "reicon-react/icons/EyeOff"
-import RFaceSmile from "reicon-react/icons/FaceSmile"
-import RFile from "reicon-react/icons/File"
-import RFilePlus from "reicon-react/icons/FilePlus"
-import RFileText from "reicon-react/icons/FileText"
-import RFiles from "reicon-react/icons/Files"
-import RFilter from "reicon-react/icons/Filter"
-import RFilterSearch from "reicon-react/icons/FilterSearch"
-import RFlag from "reicon-react/icons/Flag"
-import RFolder from "reicon-react/icons/Folder"
-import RFolderMove from "reicon-react/icons/FolderMove"
-import RFolderOpen from "reicon-react/icons/FolderOpen"
-import RFolderPlus from "reicon-react/icons/FolderPlus"
-import RForbidden from "reicon-react/icons/Forbidden"
-import RFullscreen from "reicon-react/icons/Fullscreen"
-import RGallery from "reicon-react/icons/Gallery"
-import RGalleryWide from "reicon-react/icons/GalleryWide"
-import RGauge from "reicon-react/icons/Gauge"
-import RGlobe from "reicon-react/icons/Globe"
-import RHashtag from "reicon-react/icons/Hashtag"
-import RHeart from "reicon-react/icons/Heart"
-import RHelpCircle from "reicon-react/icons/HelpCircle"
-import RHierarchy from "reicon-react/icons/Hierarchy"
-import RHome from "reicon-react/icons/Home"
-import RImage from "reicon-react/icons/Image"
-import RImagePlus from "reicon-react/icons/ImagePlus"
-import RImageUp from "reicon-react/icons/ImageUp"
-import RInbox from "reicon-react/icons/Inbox"
-import RInfinite from "reicon-react/icons/Infinite"
-import RInfoCircle from "reicon-react/icons/InfoCircle"
-import RKanban from "reicon-react/icons/Kanban"
-import RLayers from "reicon-react/icons/Layers"
-import RLeaf from "reicon-react/icons/Leaf"
-import RLink from "reicon-react/icons/Link"
-import RLink2 from "reicon-react/icons/Link2"
-import RLinkOff from "reicon-react/icons/LinkOff"
-import RList from "reicon-react/icons/List"
-import RListArrowUp from "reicon-react/icons/ListArrowUp"
-import RLoader from "reicon-react/icons/Loader"
-import RLock from "reicon-react/icons/Lock"
-import RLogin from "reicon-react/icons/Login"
-import RLogout from "reicon-react/icons/Logout"
-import RMapPoint from "reicon-react/icons/MapPoint"
-import RMaximize from "reicon-react/icons/Maximize"
-import RMenu from "reicon-react/icons/Menu"
-import RMessageCircle from "reicon-react/icons/MessageCircle"
-import RMessageSquare from "reicon-react/icons/MessageSquare"
-import RMinus from "reicon-react/icons/Minus"
-import RMobile from "reicon-react/icons/Mobile"
-import RMonitor from "reicon-react/icons/Monitor"
-import RMoon from "reicon-react/icons/Moon"
-import RMore from "reicon-react/icons/More"
-import RMoreH from "reicon-react/icons/MoreH"
-import RNotebook from "reicon-react/icons/Notebook"
-import ROrderedList from "reicon-react/icons/OrderedList"
-import RPalette from "reicon-react/icons/Palette"
-import RPaperclip from "reicon-react/icons/Paperclip"
-import RPause from "reicon-react/icons/Pause"
-import RPen from "reicon-react/icons/Pen"
-import RPenSquare from "reicon-react/icons/PenSquare"
-import RPhone from "reicon-react/icons/Phone"
-import RPin from "reicon-react/icons/Pin"
-import RPlay from "reicon-react/icons/Play"
-import RPlus from "reicon-react/icons/Plus"
-import RPower from "reicon-react/icons/Power"
-import RPrinter from "reicon-react/icons/Printer"
-import RQuoteDown from "reicon-react/icons/QuoteDown"
-import RQuoteUp from "reicon-react/icons/QuoteUp"
-import RRadio from "reicon-react/icons/Radio"
-import RRecordCircle from "reicon-react/icons/RecordCircle"
-import RRedo from "reicon-react/icons/Redo"
-import RRefresh from "reicon-react/icons/Refresh"
-import RRepeat from "reicon-react/icons/Repeat"
-import RRocket from "reicon-react/icons/Rocket"
-import RRotateLeft from "reicon-react/icons/RotateLeft"
-import RRotateRight from "reicon-react/icons/RotateRight"
-import RRuler from "reicon-react/icons/Ruler"
-import RRulerPen from "reicon-react/icons/RulerPen"
-import RSave from "reicon-react/icons/Save"
-import RScissors from "reicon-react/icons/Scissors"
-import RScroll from "reicon-react/icons/Scroll"
-import RSearch from "reicon-react/icons/Search"
-import RSearchFavorite from "reicon-react/icons/SearchFavorite"
-import RSend from "reicon-react/icons/Send"
-import RSettings from "reicon-react/icons/Settings"
-import RSettings2 from "reicon-react/icons/Settings2"
-import RShieldCheck from "reicon-react/icons/ShieldCheck"
-import RSidebarLeft from "reicon-react/icons/SidebarLeft"
-import RSledgehammer from "reicon-react/icons/Sledgehammer"
-import RSliders from "reicon-react/icons/Sliders"
-import RSparkles from "reicon-react/icons/Sparkles"
-import RStar from "reicon-react/icons/Star"
-import RStickynote from "reicon-react/icons/Stickynote"
-import RStop from "reicon-react/icons/Stop"
-import RStopCircle from "reicon-react/icons/StopCircle"
-import RSun from "reicon-react/icons/Sun"
-import RSunrise from "reicon-react/icons/Sunrise"
-import RTablet from "reicon-react/icons/Tablet"
-import RTag from "reicon-react/icons/Tag"
-import RTarget from "reicon-react/icons/Target"
-import RTextBold from "reicon-react/icons/TextBold"
-import RTextInput from "reicon-react/icons/TextInput"
-import RTextItalic from "reicon-react/icons/TextItalic"
-import RTextUnderline from "reicon-react/icons/TextUnderline"
-import RTextalignCenter from "reicon-react/icons/TextalignCenter"
-import RTextalignLeft from "reicon-react/icons/TextalignLeft"
-import RTextalignRight from "reicon-react/icons/TextalignRight"
-import RTimer from "reicon-react/icons/Timer"
-import RToggleOn from "reicon-react/icons/ToggleOn"
-import RTranslate from "reicon-react/icons/Translate"
-import RTrash from "reicon-react/icons/Trash"
-import RTrash2 from "reicon-react/icons/Trash2"
-import RUndo from "reicon-react/icons/Undo"
-import RUpload from "reicon-react/icons/Upload"
-import RUser from "reicon-react/icons/User"
-import RUserAdd from "reicon-react/icons/UserAdd"
-import RUserCheck from "reicon-react/icons/UserCheck"
-import RUserCircle from "reicon-react/icons/UserCircle"
-import RUserX from "reicon-react/icons/UserX"
-import RUsers from "reicon-react/icons/Users"
-import RUsers2 from "reicon-react/icons/Users2"
-import RVerified from "reicon-react/icons/Verified"
-import RVideo from "reicon-react/icons/Video"
-import RVolumeX from "reicon-react/icons/VolumeX"
-import RWallet from "reicon-react/icons/Wallet"
-import RWandSparkle from "reicon-react/icons/WandSparkle"
-import RWifiOff from "reicon-react/icons/WifiOff"
-import RWindow from "reicon-react/icons/Window"
-import RX from "reicon-react/icons/X"
-import RXCircle from "reicon-react/icons/XCircle"
+import { AlertCircle as UAlertCircle } from "@untitledui/icons/AlertCircle"
+import { AlertOctagon as UAlertOctagon } from "@untitledui/icons/AlertOctagon"
+import { AlertTriangle as UAlertTriangle } from "@untitledui/icons/AlertTriangle"
+import { AlignCenter as UAlignCenter } from "@untitledui/icons/AlignCenter"
+import { AlignLeft as UAlignLeft } from "@untitledui/icons/AlignLeft"
+import { AlignRight as UAlignRight } from "@untitledui/icons/AlignRight"
+import { AlignTopArrow01 as UAlignTopArrow01 } from "@untitledui/icons/AlignTopArrow01"
+import { AlignTopArrow02 as UAlignTopArrow02 } from "@untitledui/icons/AlignTopArrow02"
+import { Announcement01 as UAnnouncement01 } from "@untitledui/icons/Announcement01"
+import { Archive as UArchive } from "@untitledui/icons/Archive"
+import { ArrowDown as UArrowDown } from "@untitledui/icons/ArrowDown"
+import { ArrowLeft as UArrowLeft } from "@untitledui/icons/ArrowLeft"
+import { ArrowRight as UArrowRight } from "@untitledui/icons/ArrowRight"
+import { ArrowUp as UArrowUp } from "@untitledui/icons/ArrowUp"
+import { ArrowUpRight as UArrowUpRight } from "@untitledui/icons/ArrowUpRight"
+import { AtSign as UAtSign } from "@untitledui/icons/AtSign"
+import { BarChart01 as UBarChart01 } from "@untitledui/icons/BarChart01"
+import { BarChart07 as UBarChart07 } from "@untitledui/icons/BarChart07"
+import { Bell01 as UBell01 } from "@untitledui/icons/Bell01"
+import { Bold01 as UBold01 } from "@untitledui/icons/Bold01"
+import { BookOpen01 as UBookOpen01 } from "@untitledui/icons/BookOpen01"
+import { Briefcase01 as UBriefcase01 } from "@untitledui/icons/Briefcase01"
+import { Briefcase02 as UBriefcase02 } from "@untitledui/icons/Briefcase02"
+import { Browser as UBrowser } from "@untitledui/icons/Browser"
+import { Building02 as UBuilding02 } from "@untitledui/icons/Building02"
+import { Calculator as UCalculator } from "@untitledui/icons/Calculator"
+import { Calendar as UCalendar } from "@untitledui/icons/Calendar"
+import { CalendarCheck01 as UCalendarCheck01 } from "@untitledui/icons/CalendarCheck01"
+import { CalendarDate as UCalendarDate } from "@untitledui/icons/CalendarDate"
+import { CalendarMinus01 as UCalendarMinus01 } from "@untitledui/icons/CalendarMinus01"
+import { CalendarMinus02 as UCalendarMinus02 } from "@untitledui/icons/CalendarMinus02"
+import { CalendarPlus01 as UCalendarPlus01 } from "@untitledui/icons/CalendarPlus01"
+import { Camera01 as UCamera01 } from "@untitledui/icons/Camera01"
+import { Check as UCheck } from "@untitledui/icons/Check"
+import { CheckCircle as UCheckCircle } from "@untitledui/icons/CheckCircle"
+import { CheckDone01 as UCheckDone01 } from "@untitledui/icons/CheckDone01"
+import { CheckDone02 as UCheckDone02 } from "@untitledui/icons/CheckDone02"
+import { CheckSquare as UCheckSquare } from "@untitledui/icons/CheckSquare"
+import { CheckVerified01 as UCheckVerified01 } from "@untitledui/icons/CheckVerified01"
+import { ChevronDown as UChevronDown } from "@untitledui/icons/ChevronDown"
+import { ChevronLeft as UChevronLeft } from "@untitledui/icons/ChevronLeft"
+import { ChevronLeftDouble as UChevronLeftDouble } from "@untitledui/icons/ChevronLeftDouble"
+import { ChevronRight as UChevronRight } from "@untitledui/icons/ChevronRight"
+import { ChevronRightDouble as UChevronRightDouble } from "@untitledui/icons/ChevronRightDouble"
+import { ChevronSelectorVertical as UChevronSelectorVertical } from "@untitledui/icons/ChevronSelectorVertical"
+import { ChevronUp as UChevronUp } from "@untitledui/icons/ChevronUp"
+import { ChevronUpDouble as UChevronUpDouble } from "@untitledui/icons/ChevronUpDouble"
+import { Circle as UCircle } from "@untitledui/icons/Circle"
+import { Clipboard as UClipboard } from "@untitledui/icons/Clipboard"
+import { ClipboardCheck as UClipboardCheck } from "@untitledui/icons/ClipboardCheck"
+import { Clock as UClock } from "@untitledui/icons/Clock"
+import { ClockRefresh as UClockRefresh } from "@untitledui/icons/ClockRefresh"
+import { Cloud01 as UCloud01 } from "@untitledui/icons/Cloud01"
+import { CloudOff as UCloudOff } from "@untitledui/icons/CloudOff"
+import { Code01 as UCode01 } from "@untitledui/icons/Code01"
+import { Code02 as UCode02 } from "@untitledui/icons/Code02"
+import { Columns02 as UColumns02 } from "@untitledui/icons/Columns02"
+import { Columns03 as UColumns03 } from "@untitledui/icons/Columns03"
+import { Copy01 as UCopy01 } from "@untitledui/icons/Copy01"
+import { Copy04 as UCopy04 } from "@untitledui/icons/Copy04"
+import { Copy06 as UCopy06 } from "@untitledui/icons/Copy06"
+import { Copy07 as UCopy07 } from "@untitledui/icons/Copy07"
+import { CornerDownLeft as UCornerDownLeft } from "@untitledui/icons/CornerDownLeft"
+import { CornerDownRight as UCornerDownRight } from "@untitledui/icons/CornerDownRight"
+import { CornerLeftUp as UCornerLeftUp } from "@untitledui/icons/CornerLeftUp"
+import { CreditCard01 as UCreditCard01 } from "@untitledui/icons/CreditCard01"
+import { CreditCard02 as UCreditCard02 } from "@untitledui/icons/CreditCard02"
+import { CurrencyDollarCircle as UCurrencyDollarCircle } from "@untitledui/icons/CurrencyDollarCircle"
+import { CursorClick01 as UCursorClick01 } from "@untitledui/icons/CursorClick01"
+import { Dataflow03 as UDataflow03 } from "@untitledui/icons/Dataflow03"
+import { Divider as UDivider } from "@untitledui/icons/Divider"
+import { Dotpoints02 as UDotpoints02 } from "@untitledui/icons/Dotpoints02"
+import { DotsGrid as UDotsGrid } from "@untitledui/icons/DotsGrid"
+import { DotsHorizontal as UDotsHorizontal } from "@untitledui/icons/DotsHorizontal"
+import { DotsVertical as UDotsVertical } from "@untitledui/icons/DotsVertical"
+import { Download01 as UDownload01 } from "@untitledui/icons/Download01"
+import { Edit04 as UEdit04 } from "@untitledui/icons/Edit04"
+import { Edit05 as UEdit05 } from "@untitledui/icons/Edit05"
+import { Eraser as UEraser } from "@untitledui/icons/Eraser"
+import { Expand06 as UExpand06 } from "@untitledui/icons/Expand06"
+import { Eye as UEye } from "@untitledui/icons/Eye"
+import { EyeOff as UEyeOff } from "@untitledui/icons/EyeOff"
+import { FaceSmile as UFaceSmile } from "@untitledui/icons/FaceSmile"
+import { File02 as UFile02 } from "@untitledui/icons/File02"
+import { File03 as UFile03 } from "@untitledui/icons/File03"
+import { File04 as UFile04 } from "@untitledui/icons/File04"
+import { File05 as UFile05 } from "@untitledui/icons/File05"
+import { File06 as UFile06 } from "@untitledui/icons/File06"
+import { FilePlus02 as UFilePlus02 } from "@untitledui/icons/FilePlus02"
+import { FilterLines as UFilterLines } from "@untitledui/icons/FilterLines"
+import { Flag01 as UFlag01 } from "@untitledui/icons/Flag01"
+import { FlipBackward as UFlipBackward } from "@untitledui/icons/FlipBackward"
+import { FlipForward as UFlipForward } from "@untitledui/icons/FlipForward"
+import { Folder as UFolder } from "@untitledui/icons/Folder"
+import { FolderDownload as UFolderDownload } from "@untitledui/icons/FolderDownload"
+import { FolderPlus as UFolderPlus } from "@untitledui/icons/FolderPlus"
+import { GitBranch01 as UGitBranch01 } from "@untitledui/icons/GitBranch01"
+import { Globe01 as UGlobe01 } from "@untitledui/icons/Globe01"
+import { GoogleChrome as UGoogleChrome } from "@untitledui/icons/GoogleChrome"
+import { Hash01 as UHash01 } from "@untitledui/icons/Hash01"
+import { Heading01 as UHeading01 } from "@untitledui/icons/Heading01"
+import { Heading02 as UHeading02 } from "@untitledui/icons/Heading02"
+import { HeadingSquare as UHeadingSquare } from "@untitledui/icons/HeadingSquare"
+import { Heart as UHeart } from "@untitledui/icons/Heart"
+import { HelpCircle as UHelpCircle } from "@untitledui/icons/HelpCircle"
+import { Home02 as UHome02 } from "@untitledui/icons/Home02"
+import { Image01 as UImage01 } from "@untitledui/icons/Image01"
+import { Image04 as UImage04 } from "@untitledui/icons/Image04"
+import { ImagePlus as UImagePlus } from "@untitledui/icons/ImagePlus"
+import { ImageUp as UImageUp } from "@untitledui/icons/ImageUp"
+import { Inbox01 as UInbox01 } from "@untitledui/icons/Inbox01"
+import { Infinity as UInfinity } from "@untitledui/icons/Infinity"
+import { InfoCircle as UInfoCircle } from "@untitledui/icons/InfoCircle"
+import { Italic01 as UItalic01 } from "@untitledui/icons/Italic01"
+import { LayersTwo01 as ULayersTwo01 } from "@untitledui/icons/LayersTwo01"
+import { LayoutAlt01 as ULayoutAlt01 } from "@untitledui/icons/LayoutAlt01"
+import { LayoutAlt04 as ULayoutAlt04 } from "@untitledui/icons/LayoutAlt04"
+import { LayoutGrid01 as ULayoutGrid01 } from "@untitledui/icons/LayoutGrid01"
+import { LayoutLeft as ULayoutLeft } from "@untitledui/icons/LayoutLeft"
+import { LineChartUp01 as ULineChartUp01 } from "@untitledui/icons/LineChartUp01"
+import { Link01 as ULink01 } from "@untitledui/icons/Link01"
+import { Link02 as ULink02 } from "@untitledui/icons/Link02"
+import { LinkBroken01 as ULinkBroken01 } from "@untitledui/icons/LinkBroken01"
+import { LinkExternal01 as ULinkExternal01 } from "@untitledui/icons/LinkExternal01"
+import { List as UList } from "@untitledui/icons/List"
+import { Loading01 as ULoading01 } from "@untitledui/icons/Loading01"
+import { Loading02 as ULoading02 } from "@untitledui/icons/Loading02"
+import { Lock01 as ULock01 } from "@untitledui/icons/Lock01"
+import { LogIn01 as ULogIn01 } from "@untitledui/icons/LogIn01"
+import { LogOut01 as ULogOut01 } from "@untitledui/icons/LogOut01"
+import { MagicWand02 as UMagicWand02 } from "@untitledui/icons/MagicWand02"
+import { Mail01 as UMail01 } from "@untitledui/icons/Mail01"
+import { Mail03 as UMail03 } from "@untitledui/icons/Mail03"
+import { MarkerPin01 as UMarkerPin01 } from "@untitledui/icons/MarkerPin01"
+import { Maximize01 as UMaximize01 } from "@untitledui/icons/Maximize01"
+import { Menu01 as UMenu01 } from "@untitledui/icons/Menu01"
+import { MessageAlertSquare as UMessageAlertSquare } from "@untitledui/icons/MessageAlertSquare"
+import { MessageCircle01 as UMessageCircle01 } from "@untitledui/icons/MessageCircle01"
+import { MessageTextSquare01 as UMessageTextSquare01 } from "@untitledui/icons/MessageTextSquare01"
+import { MessageTextSquare02 as UMessageTextSquare02 } from "@untitledui/icons/MessageTextSquare02"
+import { Minimize02 as UMinimize02 } from "@untitledui/icons/Minimize02"
+import { Minus as UMinus } from "@untitledui/icons/Minus"
+import { Monitor01 as UMonitor01 } from "@untitledui/icons/Monitor01"
+import { Moon01 as UMoon01 } from "@untitledui/icons/Moon01"
+import { Palette as UPalette } from "@untitledui/icons/Palette"
+import { Paperclip as UPaperclip } from "@untitledui/icons/Paperclip"
+import { PauseCircle as UPauseCircle } from "@untitledui/icons/PauseCircle"
+import { PenTool02 as UPenTool02 } from "@untitledui/icons/PenTool02"
+import { Pencil01 as UPencil01 } from "@untitledui/icons/Pencil01"
+import { Phone as UPhone } from "@untitledui/icons/Phone"
+import { Phone01 as UPhone01 } from "@untitledui/icons/Phone01"
+import { PieChart01 as UPieChart01 } from "@untitledui/icons/PieChart01"
+import { Pilcrow01 as UPilcrow01 } from "@untitledui/icons/Pilcrow01"
+import { Pin01 as UPin01 } from "@untitledui/icons/Pin01"
+import { Placeholder as UPlaceholder } from "@untitledui/icons/Placeholder"
+import { Play as UPlay } from "@untitledui/icons/Play"
+import { Plus as UPlus } from "@untitledui/icons/Plus"
+import { Podcast as UPodcast } from "@untitledui/icons/Podcast"
+import { Power01 as UPower01 } from "@untitledui/icons/Power01"
+import { Printer as UPrinter } from "@untitledui/icons/Printer"
+import { Recording01 as URecording01 } from "@untitledui/icons/Recording01"
+import { RefreshCcw01 as URefreshCcw01 } from "@untitledui/icons/RefreshCcw01"
+import { RefreshCw01 as URefreshCw01 } from "@untitledui/icons/RefreshCw01"
+import { Repeat01 as URepeat01 } from "@untitledui/icons/Repeat01"
+import { Rocket01 as URocket01 } from "@untitledui/icons/Rocket01"
+import { Rows02 as URows02 } from "@untitledui/icons/Rows02"
+import { Ruler as URuler } from "@untitledui/icons/Ruler"
+import { Save01 as USave01 } from "@untitledui/icons/Save01"
+import { Scissors01 as UScissors01 } from "@untitledui/icons/Scissors01"
+import { SearchMd as USearchMd } from "@untitledui/icons/SearchMd"
+import { SearchRefraction as USearchRefraction } from "@untitledui/icons/SearchRefraction"
+import { Send01 as USend01 } from "@untitledui/icons/Send01"
+import { Settings01 as USettings01 } from "@untitledui/icons/Settings01"
+import { Settings02 as USettings02 } from "@untitledui/icons/Settings02"
+import { ShieldTick as UShieldTick } from "@untitledui/icons/ShieldTick"
+import { SlashCircle01 as USlashCircle01 } from "@untitledui/icons/SlashCircle01"
+import { SlashOctagon as USlashOctagon } from "@untitledui/icons/SlashOctagon"
+import { Sliders01 as USliders01 } from "@untitledui/icons/Sliders01"
+import { Speedometer02 as USpeedometer02 } from "@untitledui/icons/Speedometer02"
+import { Square as USquare } from "@untitledui/icons/Square"
+import { Star01 as UStar01 } from "@untitledui/icons/Star01"
+import { Stars02 as UStars02 } from "@untitledui/icons/Stars02"
+import { StopCircle as UStopCircle } from "@untitledui/icons/StopCircle"
+import { StopSquare as UStopSquare } from "@untitledui/icons/StopSquare"
+import { Strikethrough01 as UStrikethrough01 } from "@untitledui/icons/Strikethrough01"
+import { Sun as USun } from "@untitledui/icons/Sun"
+import { Sunrise as USunrise } from "@untitledui/icons/Sunrise"
+import { SwitchHorizontal01 as USwitchHorizontal01 } from "@untitledui/icons/SwitchHorizontal01"
+import { Table as UTable } from "@untitledui/icons/Table"
+import { Tablet01 as UTablet01 } from "@untitledui/icons/Tablet01"
+import { Tag01 as UTag01 } from "@untitledui/icons/Tag01"
+import { Target04 as UTarget04 } from "@untitledui/icons/Target04"
+import { TextInput as UTextInput } from "@untitledui/icons/TextInput"
+import { Toggle01Right as UToggle01Right } from "@untitledui/icons/Toggle01Right"
+import { Tool02 as UTool02 } from "@untitledui/icons/Tool02"
+import { Translate01 as UTranslate01 } from "@untitledui/icons/Translate01"
+import { Trash01 as UTrash01 } from "@untitledui/icons/Trash01"
+import { Underline01 as UUnderline01 } from "@untitledui/icons/Underline01"
+import { Upload01 as UUpload01 } from "@untitledui/icons/Upload01"
+import { UploadCloud01 as UUploadCloud01 } from "@untitledui/icons/UploadCloud01"
+import { User01 as UUser01 } from "@untitledui/icons/User01"
+import { UserCheck01 as UUserCheck01 } from "@untitledui/icons/UserCheck01"
+import { UserCircle as UUserCircle } from "@untitledui/icons/UserCircle"
+import { UserPlus01 as UUserPlus01 } from "@untitledui/icons/UserPlus01"
+import { UserX01 as UUserX01 } from "@untitledui/icons/UserX01"
+import { Users01 as UUsers01 } from "@untitledui/icons/Users01"
+import { Users02 as UUsers02 } from "@untitledui/icons/Users02"
+import { VideoRecorder as UVideoRecorder } from "@untitledui/icons/VideoRecorder"
+import { VolumeX as UVolumeX } from "@untitledui/icons/VolumeX"
+import { Wallet02 as UWallet02 } from "@untitledui/icons/Wallet02"
+import { WifiOff as UWifiOff } from "@untitledui/icons/WifiOff"
+import { XCircle as UXCircle } from "@untitledui/icons/XCircle"
+import { XClose as UXClose } from "@untitledui/icons/XClose"
 
+/** Untitled UI's free set is line only: kept so `weight` props still type. */
 export type IconWeight = "Outline" | "Filled"
 
-/** The app's icon weight: the one switch for the whole icon set. A single
- *  icon can still pass `weight` (e.g. "Outline" next to filled ones). */
-export const DEFAULT_WEIGHT: IconWeight = "Outline"
-
-export type IconProps = Omit<ReiconProps, "weight" | "strokeWidth"> & {
-  /** "Filled" for the filled set (e.g. the active nav item). */
+export type IconProps = Omit<React.SVGProps<SVGSVGElement>, "ref"> & {
+  size?: number | string
+  color?: string
+  /** No filled set in the free icons: ignored. */
   weight?: IconWeight
-  /** Ignored: Reicon's own stroke is the standard (a custom one makes
-   *  every icon render an extra mask, which is heavy). */
+  /** Ignored: the stroke is one setting (STROKE in ./custom.tsx). */
   strokeWidth?: number | string
   /** Ignored (old lucide prop). */
   absoluteStrokeWidth?: boolean
@@ -246,32 +249,26 @@ export type Icon = React.ForwardRefExoticComponent<
 export type LucideIcon = Icon
 export type LucideProps = IconProps
 
-type ReiconSource = React.ForwardRefExoticComponent<
-  ReiconProps & React.RefAttributes<SVGSVGElement>
+type Source = React.ComponentType<
+  React.SVGProps<SVGSVGElement> & { size?: number; color?: string }
 >
 
-/** Decorative unless labelled; 24px unless a size-* class
- *  (the usual way) sets it. */
-function a11y(props: IconProps) {
-  const labelled = props["aria-label"] || props["aria-labelledby"]
-  return labelled ? {} : { "aria-hidden": true as const }
-}
-
-function reicon(Source: ReiconSource, name: string, filled = false): Icon {
+/** Decorative unless labelled; 24px unless a size-* class (the usual way)
+ *  sets it; the app's stroke. */
+function icon(Glyph: Source, name: string): Icon {
   const C = React.forwardRef<SVGSVGElement, IconProps>(function Icon(
-    { weight, strokeWidth: _s, absoluteStrokeWidth: _a, ...props },
-    ref,
+    { weight: _w, strokeWidth: _s, absoluteStrokeWidth: _a, size, ...props },
+    _ref,
   ) {
-    const w = weight ?? (filled ? "Filled" : DEFAULT_WEIGHT)
+    const labelled = props["aria-label"] || props["aria-labelledby"]
     return (
-      <Source
-        ref={ref}
-        {...a11y(props)}
+      <Glyph
+        aria-hidden={labelled ? undefined : true}
         {...props}
-        weight={w}
-        // Outline at the app's stroke (1.75 on the 24px grid; Reicon draws
-        // 1.5). Thicker only adds one stroke attribute, no mask.
-        strokeWidth={w === "Outline" ? STROKE : undefined}
+        {...(typeof size === "string"
+          ? { width: size, height: size }
+          : { size: size ?? 24 })}
+        strokeWidth={STROKE}
       />
     )
   })
@@ -279,383 +276,341 @@ function reicon(Source: ReiconSource, name: string, filled = false): Icon {
   return C
 }
 
-/** The same icon, filled (for `Ri*Fill` names and active states). */
-export function filled(Source: Icon, name: string): Icon {
-  const C = React.forwardRef<SVGSVGElement, IconProps>(
-    function Icon(props, ref) {
-      return <Source ref={ref} weight="Filled" {...props} />
-    },
-  )
-  C.displayName = name
-  return C
+/** Kept for the old `Ri*Fill` names: the free set has no filled icons, so
+ *  it's the same icon. */
+export function filled(Source: Icon, _name: string): Icon {
+  return Source
 }
 
-export const AlignCenter = /*#__PURE__*/ reicon(RTextalignCenter, "AlignCenter")
-export const AlignLeft = /*#__PURE__*/ reicon(RTextalignLeft, "AlignLeft")
-export const AlignRight = /*#__PURE__*/ reicon(RTextalignRight, "AlignRight")
-export const AppWindow = /*#__PURE__*/ reicon(RWindow, "AppWindow")
-export const Archive = /*#__PURE__*/ reicon(RArchive, "Archive")
-export const ArchiveRestore = /*#__PURE__*/ reicon(
-  RArchiveDown,
-  "ArchiveRestore",
-)
-export const ArrowDown = /*#__PURE__*/ reicon(RArrowDown, "ArrowDown")
-export const ArrowLeft = /*#__PURE__*/ reicon(RArrowLeft, "ArrowLeft")
-export const ArrowLeftRight = /*#__PURE__*/ reicon(
-  RArrowSwapHorizontal,
+export const AlignCenter = /*#__PURE__*/ icon(UAlignCenter, "AlignCenter")
+export const AlignLeft = /*#__PURE__*/ icon(UAlignLeft, "AlignLeft")
+export const AlignRight = /*#__PURE__*/ icon(UAlignRight, "AlignRight")
+export const AppWindow = /*#__PURE__*/ icon(UBrowser, "AppWindow")
+export const Archive = /*#__PURE__*/ icon(UArchive, "Archive")
+export const ArchiveRestore = /*#__PURE__*/ icon(UArchive, "ArchiveRestore")
+export const ArrowDown = /*#__PURE__*/ icon(UArrowDown, "ArrowDown")
+export const ArrowLeft = /*#__PURE__*/ icon(UArrowLeft, "ArrowLeft")
+export const ArrowLeftRight = /*#__PURE__*/ icon(
+  USwitchHorizontal01,
   "ArrowLeftRight",
 )
-export const ArrowRight = /*#__PURE__*/ reicon(RArrowRight, "ArrowRight")
-export const ArrowUp = /*#__PURE__*/ reicon(RArrowUp, "ArrowUp")
-export const ArrowUpRight = /*#__PURE__*/ reicon(RArrowUpRight, "ArrowUpRight")
-export const ArrowUpToLine = /*#__PURE__*/ reicon(
-  RArrowToTopRight,
+export const ArrowRight = /*#__PURE__*/ icon(UArrowRight, "ArrowRight")
+export const ArrowUp = /*#__PURE__*/ icon(UArrowUp, "ArrowUp")
+export const ArrowUpRight = /*#__PURE__*/ icon(UArrowUpRight, "ArrowUpRight")
+export const ArrowUpToLine = /*#__PURE__*/ icon(
+  UAlignTopArrow01,
   "ArrowUpToLine",
 )
-export const AtSign = /*#__PURE__*/ reicon(RAtSign, "AtSign")
-export const BadgeCheck = /*#__PURE__*/ reicon(RVerified, "BadgeCheck")
-export const Ban = /*#__PURE__*/ reicon(RForbidden, "Ban")
-export const BarChart3 = /*#__PURE__*/ reicon(RChartBar, "BarChart3")
-export const Bell = /*#__PURE__*/ reicon(RBell, "Bell")
-export const Bold = /*#__PURE__*/ reicon(RTextBold, "Bold")
-export const BookOpen = /*#__PURE__*/ reicon(RBookOpen, "BookOpen")
-export const Briefcase = /*#__PURE__*/ reicon(RBriefcase, "Briefcase")
-export const BriefcaseBusiness = /*#__PURE__*/ reicon(
-  RBriefcase,
+export const AtSign = /*#__PURE__*/ icon(UAtSign, "AtSign")
+export const BadgeCheck = /*#__PURE__*/ icon(UCheckVerified01, "BadgeCheck")
+export const Ban = /*#__PURE__*/ icon(USlashCircle01, "Ban")
+export const BarChart3 = /*#__PURE__*/ icon(UBarChart01, "BarChart3")
+export const Bell = /*#__PURE__*/ icon(UBell01, "Bell")
+export const Bold = /*#__PURE__*/ icon(UBold01, "Bold")
+export const BookOpen = /*#__PURE__*/ icon(UBookOpen01, "BookOpen")
+export const Briefcase = /*#__PURE__*/ icon(UBriefcase01, "Briefcase")
+export const BriefcaseBusiness = /*#__PURE__*/ icon(
+  UBriefcase02,
   "BriefcaseBusiness",
 )
-export const Building2 = /*#__PURE__*/ reicon(RBuilding2, "Building2")
-export const Calculator = /*#__PURE__*/ reicon(RCalculator, "Calculator")
-export const CalendarCheck = /*#__PURE__*/ reicon(
-  RCalendarCheck,
+export const Building2 = /*#__PURE__*/ icon(UBuilding02, "Building2")
+export const Calculator = /*#__PURE__*/ icon(UCalculator, "Calculator")
+export const CalendarCheck = /*#__PURE__*/ icon(
+  UCalendarCheck01,
   "CalendarCheck",
 )
-export const CalendarClock = /*#__PURE__*/ reicon(
-  RCalendarDate,
-  "CalendarClock",
-)
-export const CalendarDays = /*#__PURE__*/ reicon(RCalendarDays, "CalendarDays")
-export const CalendarOff = /*#__PURE__*/ reicon(RCalendarRemove, "CalendarOff")
-export const CalendarPlus = /*#__PURE__*/ reicon(RCalendarPlus, "CalendarPlus")
-export const CalendarRange = /*#__PURE__*/ reicon(RCalendar, "CalendarRange")
-export const CalendarSearch = /*#__PURE__*/ reicon(
-  RCalendarSearch,
-  "CalendarSearch",
-)
-export const CalendarX = /*#__PURE__*/ reicon(RCalendarX, "CalendarX")
-export const Camera = /*#__PURE__*/ reicon(RCamera, "Camera")
-export const ChartColumnIncreasing = /*#__PURE__*/ reicon(
-  RChartBarTrendUp,
+export const CalendarClock = /*#__PURE__*/ icon(UCalendarDate, "CalendarClock")
+export const CalendarDays = /*#__PURE__*/ icon(UCalendar, "CalendarDays")
+export const CalendarOff = /*#__PURE__*/ icon(UCalendarMinus01, "CalendarOff")
+export const CalendarPlus = /*#__PURE__*/ icon(UCalendarPlus01, "CalendarPlus")
+export const CalendarRange = /*#__PURE__*/ icon(UCalendarDate, "CalendarRange")
+export const CalendarSearch = /*#__PURE__*/ icon(UCalendar, "CalendarSearch")
+export const CalendarX = /*#__PURE__*/ icon(UCalendarMinus02, "CalendarX")
+export const Camera = /*#__PURE__*/ icon(UCamera01, "Camera")
+export const ChartColumnIncreasing = /*#__PURE__*/ icon(
+  UBarChart07,
   "ChartColumnIncreasing",
 )
-export const ChartLine = /*#__PURE__*/ reicon(RChartLine, "ChartLine")
-export const Check = /*#__PURE__*/ reicon(RCheck, "Check")
-export const CheckCheck = /*#__PURE__*/ reicon(RCheckRead, "CheckCheck")
-export const CheckCircle2 = /*#__PURE__*/ reicon(RCheckCircle, "CheckCircle2")
-export const ChevronDown = /*#__PURE__*/ reicon(RChevronDown, "ChevronDown")
-export const ChevronDownSquare = /*#__PURE__*/ reicon(
-  RAngleDownSquare,
+export const ChartLine = /*#__PURE__*/ icon(ULineChartUp01, "ChartLine")
+export const Check = /*#__PURE__*/ icon(UCheck, "Check")
+export const CheckCheck = /*#__PURE__*/ icon(UCheckDone01, "CheckCheck")
+export const CheckCircle2 = /*#__PURE__*/ icon(UCheckCircle, "CheckCircle2")
+export const ChevronDown = /*#__PURE__*/ icon(UChevronDown, "ChevronDown")
+export const ChevronDownSquare = /*#__PURE__*/ icon(
+  UChevronDown,
   "ChevronDownSquare",
 )
-export const ChevronLeft = /*#__PURE__*/ reicon(RChevronLeft, "ChevronLeft")
-export const ChevronRight = /*#__PURE__*/ reicon(RChevronRight, "ChevronRight")
-export const ChevronUp = /*#__PURE__*/ reicon(RChevronUp, "ChevronUp")
-/** Drawn here (./custom.tsx): not in Reicon. */
-export const ChevronsDownUp = /*#__PURE__*/ reicon(
-  C.ChevronsDownUp,
+export const ChevronLeft = /*#__PURE__*/ icon(UChevronLeft, "ChevronLeft")
+export const ChevronRight = /*#__PURE__*/ icon(UChevronRight, "ChevronRight")
+export const ChevronUp = /*#__PURE__*/ icon(UChevronUp, "ChevronUp")
+export const ChevronsDownUp = /*#__PURE__*/ icon(
+  UChevronSelectorVertical,
   "ChevronsDownUp",
 )
-export const ChevronsLeft = /*#__PURE__*/ reicon(RAnglesLeft, "ChevronsLeft")
-export const ChevronsLeftIcon = /*#__PURE__*/ reicon(
-  RAnglesLeft,
+export const ChevronsLeft = /*#__PURE__*/ icon(
+  UChevronLeftDouble,
+  "ChevronsLeft",
+)
+export const ChevronsLeftIcon = /*#__PURE__*/ icon(
+  UChevronLeftDouble,
   "ChevronsLeftIcon",
 )
-export const ChevronsRight = /*#__PURE__*/ reicon(RAnglesRight, "ChevronsRight")
-export const ChevronsRightIcon = /*#__PURE__*/ reicon(
-  RAnglesRight,
+export const ChevronsRight = /*#__PURE__*/ icon(
+  UChevronRightDouble,
+  "ChevronsRight",
+)
+export const ChevronsRightIcon = /*#__PURE__*/ icon(
+  UChevronRightDouble,
   "ChevronsRightIcon",
 )
-/** Drawn here (./custom.tsx): not in Reicon. */
-export const ChevronsUp = /*#__PURE__*/ reicon(C.ChevronsUp, "ChevronsUp")
-export const ChevronsUpDown = /*#__PURE__*/ reicon(
-  RChevronExpandY,
+export const ChevronsUp = /*#__PURE__*/ icon(UChevronUpDouble, "ChevronsUp")
+export const ChevronsUpDown = /*#__PURE__*/ icon(
+  UChevronSelectorVertical,
   "ChevronsUpDown",
 )
-export const Chrome = /*#__PURE__*/ reicon(RChrome, "Chrome")
-/** Drawn here (./custom.tsx): not in Reicon. */
-export const Circle = /*#__PURE__*/ reicon(C.Circle, "Circle")
-export const CircleAlert = /*#__PURE__*/ reicon(RAlertCircle, "CircleAlert")
-export const CircleCheck = /*#__PURE__*/ reicon(RCheckCircle, "CircleCheck")
-export const CircleCheckIcon = /*#__PURE__*/ reicon(
-  RCheckCircle,
+export const Chrome = /*#__PURE__*/ icon(UGoogleChrome, "Chrome")
+export const Circle = /*#__PURE__*/ icon(UCircle, "Circle")
+export const CircleAlert = /*#__PURE__*/ icon(UAlertCircle, "CircleAlert")
+export const CircleCheck = /*#__PURE__*/ icon(UCheckCircle, "CircleCheck")
+export const CircleCheckIcon = /*#__PURE__*/ icon(
+  UCheckCircle,
   "CircleCheckIcon",
 )
-/** Drawn here (./custom.tsx): not in Reicon. */
-export const CircleDashed = /*#__PURE__*/ reicon(C.CircleDashed, "CircleDashed")
-export const CircleDollarSign = /*#__PURE__*/ reicon(
-  RDollarCircle,
+export const CircleDashed = /*#__PURE__*/ icon(UPlaceholder, "CircleDashed")
+export const CircleDollarSign = /*#__PURE__*/ icon(
+  UCurrencyDollarCircle,
   "CircleDollarSign",
 )
-export const CircleDot = /*#__PURE__*/ reicon(RRecordCircle, "CircleDot")
-export const CircleHelp = /*#__PURE__*/ reicon(RHelpCircle, "CircleHelp")
-export const CircleX = /*#__PURE__*/ reicon(RCloseCircle, "CircleX")
-export const ClipboardCheck = /*#__PURE__*/ reicon(
-  RClipboardCheck,
+export const CircleDot = /*#__PURE__*/ icon(URecording01, "CircleDot")
+export const CircleHelp = /*#__PURE__*/ icon(UHelpCircle, "CircleHelp")
+export const CircleX = /*#__PURE__*/ icon(UXCircle, "CircleX")
+export const ClipboardCheck = /*#__PURE__*/ icon(
+  UClipboardCheck,
   "ClipboardCheck",
 )
-export const ClipboardCopy = /*#__PURE__*/ reicon(
-  RClipboardText,
-  "ClipboardCopy",
-)
-export const ClipboardPaste = /*#__PURE__*/ reicon(
-  RClipboardImport,
-  "ClipboardPaste",
-)
-export const Clock = /*#__PURE__*/ reicon(RClock, "Clock")
-export const Cloud = /*#__PURE__*/ reicon(RCloud, "Cloud")
-export const CloudOff = /*#__PURE__*/ reicon(RCloudCross, "CloudOff")
-export const CloudUpload = /*#__PURE__*/ reicon(RCloudUpload, "CloudUpload")
-export const Code = /*#__PURE__*/ reicon(RCode, "Code")
-export const Code2 = /*#__PURE__*/ reicon(RCode2, "Code2")
-export const Coffee = /*#__PURE__*/ reicon(RCoffee, "Coffee")
-/** Drawn here (./custom.tsx): not in Reicon. */
-export const Columns2 = /*#__PURE__*/ reicon(C.Columns2, "Columns2")
-/** Drawn here (./custom.tsx): not in Reicon. */
-export const Columns3 = /*#__PURE__*/ reicon(C.Columns3, "Columns3")
-export const Copy = /*#__PURE__*/ reicon(RCopy, "Copy")
-export const CopyPlus = /*#__PURE__*/ reicon(RDocumentCopy, "CopyPlus")
-export const CornerDownLeft = /*#__PURE__*/ reicon(
-  RArrowToDownLeft,
+export const ClipboardCopy = /*#__PURE__*/ icon(UCopy06, "ClipboardCopy")
+export const ClipboardPaste = /*#__PURE__*/ icon(UClipboard, "ClipboardPaste")
+export const Clock = /*#__PURE__*/ icon(UClock, "Clock")
+export const Cloud = /*#__PURE__*/ icon(UCloud01, "Cloud")
+export const CloudOff = /*#__PURE__*/ icon(UCloudOff, "CloudOff")
+export const CloudUpload = /*#__PURE__*/ icon(UUploadCloud01, "CloudUpload")
+export const Code = /*#__PURE__*/ icon(UCode01, "Code")
+export const Code2 = /*#__PURE__*/ icon(UCode02, "Code2")
+/** Drawn here (./custom.tsx): not in Untitled UI. */
+export const Coffee = /*#__PURE__*/ icon(C.Coffee, "Coffee")
+export const Columns2 = /*#__PURE__*/ icon(UColumns02, "Columns2")
+export const Columns3 = /*#__PURE__*/ icon(UColumns03, "Columns3")
+export const Copy = /*#__PURE__*/ icon(UCopy01, "Copy")
+export const CopyPlus = /*#__PURE__*/ icon(UCopy04, "CopyPlus")
+export const CornerDownLeft = /*#__PURE__*/ icon(
+  UCornerDownLeft,
   "CornerDownLeft",
 )
-export const CornerDownRight = /*#__PURE__*/ reicon(
-  RArrowToDownRight,
+export const CornerDownRight = /*#__PURE__*/ icon(
+  UCornerDownRight,
   "CornerDownRight",
 )
-export const CornerLeftUp = /*#__PURE__*/ reicon(
-  RArrowToTopLeft,
-  "CornerLeftUp",
-)
-export const CreditCard = /*#__PURE__*/ reicon(RCreditCard, "CreditCard")
-export const Delete = /*#__PURE__*/ reicon(RTrash, "Delete")
-export const Download = /*#__PURE__*/ reicon(RDownload, "Download")
-export const EllipsisIcon = /*#__PURE__*/ reicon(RMoreH, "EllipsisIcon")
-export const Eraser = /*#__PURE__*/ reicon(REraser, "Eraser")
-export const ExternalLink = /*#__PURE__*/ reicon(RArrowUpRight, "ExternalLink")
-export const Eye = /*#__PURE__*/ reicon(REye, "Eye")
-export const EyeOff = /*#__PURE__*/ reicon(REyeOff, "EyeOff")
-export const File = /*#__PURE__*/ reicon(RFile, "File")
-export const FileIcon = /*#__PURE__*/ reicon(RFile, "FileIcon")
-export const FileImage = /*#__PURE__*/ reicon(RGallery, "FileImage")
-export const FilePen = /*#__PURE__*/ reicon(REdit2, "FilePen")
-export const FilePlus = /*#__PURE__*/ reicon(RFilePlus, "FilePlus")
-export const FilePlus2 = /*#__PURE__*/ reicon(RFilePlus, "FilePlus2")
-export const FileSignature = /*#__PURE__*/ reicon(
-  RDocumentText,
-  "FileSignature",
-)
-export const FileText = /*#__PURE__*/ reicon(RFileText, "FileText")
-export const Files = /*#__PURE__*/ reicon(RFiles, "Files")
-export const Filter = /*#__PURE__*/ reicon(RFilter, "Filter")
-export const Flag = /*#__PURE__*/ reicon(RFlag, "Flag")
-export const Flower = /*#__PURE__*/ reicon(RLeaf, "Flower")
-export const Folder = /*#__PURE__*/ reicon(RFolder, "Folder")
-export const FolderInput = /*#__PURE__*/ reicon(RFolderMove, "FolderInput")
-export const FolderKanban = /*#__PURE__*/ reicon(RKanban, "FolderKanban")
-export const FolderOpen = /*#__PURE__*/ reicon(RFolderOpen, "FolderOpen")
-export const FolderPlus = /*#__PURE__*/ reicon(RFolderPlus, "FolderPlus")
-export const GalleryHorizontal = /*#__PURE__*/ reicon(
-  RGalleryWide,
+export const CornerLeftUp = /*#__PURE__*/ icon(UCornerLeftUp, "CornerLeftUp")
+export const CreditCard = /*#__PURE__*/ icon(UCreditCard01, "CreditCard")
+export const Delete = /*#__PURE__*/ icon(UTrash01, "Delete")
+export const Download = /*#__PURE__*/ icon(UDownload01, "Download")
+export const EllipsisIcon = /*#__PURE__*/ icon(UDotsHorizontal, "EllipsisIcon")
+export const Eraser = /*#__PURE__*/ icon(UEraser, "Eraser")
+export const ExternalLink = /*#__PURE__*/ icon(ULinkExternal01, "ExternalLink")
+export const Eye = /*#__PURE__*/ icon(UEye, "Eye")
+export const EyeOff = /*#__PURE__*/ icon(UEyeOff, "EyeOff")
+export const File = /*#__PURE__*/ icon(UFile04, "File")
+export const FileIcon = /*#__PURE__*/ icon(UFile04, "FileIcon")
+export const FileImage = /*#__PURE__*/ icon(UImage01, "FileImage")
+export const FilePen = /*#__PURE__*/ icon(UEdit05, "FilePen")
+export const FilePlus = /*#__PURE__*/ icon(UFilePlus02, "FilePlus")
+export const FilePlus2 = /*#__PURE__*/ icon(UFilePlus02, "FilePlus2")
+export const FileSignature = /*#__PURE__*/ icon(UFile06, "FileSignature")
+export const FileText = /*#__PURE__*/ icon(UFile02, "FileText")
+export const Files = /*#__PURE__*/ icon(UCopy07, "Files")
+export const Filter = /*#__PURE__*/ icon(UFilterLines, "Filter")
+export const Flag = /*#__PURE__*/ icon(UFlag01, "Flag")
+export const Flower = /*#__PURE__*/ icon(USun, "Flower")
+export const Folder = /*#__PURE__*/ icon(UFolder, "Folder")
+export const FolderInput = /*#__PURE__*/ icon(UFolderDownload, "FolderInput")
+export const FolderKanban = /*#__PURE__*/ icon(ULayoutAlt04, "FolderKanban")
+export const FolderOpen = /*#__PURE__*/ icon(UFolder, "FolderOpen")
+export const FolderPlus = /*#__PURE__*/ icon(UFolderPlus, "FolderPlus")
+export const GalleryHorizontal = /*#__PURE__*/ icon(
+  UImage04,
   "GalleryHorizontal",
 )
-export const Gauge = /*#__PURE__*/ reicon(RGauge, "Gauge")
-export const Globe = /*#__PURE__*/ reicon(RGlobe, "Globe")
-/** Drawn here (./custom.tsx): not in Reicon. */
-export const GripHorizontal = /*#__PURE__*/ reicon(
-  C.GripHorizontal,
-  "GripHorizontal",
+export const Gauge = /*#__PURE__*/ icon(USpeedometer02, "Gauge")
+export const Globe = /*#__PURE__*/ icon(UGlobe01, "Globe")
+export const GripHorizontal = /*#__PURE__*/ icon(UDotsGrid, "GripHorizontal")
+export const GripVertical = /*#__PURE__*/ icon(UDotsGrid, "GripVertical")
+export const Hammer = /*#__PURE__*/ icon(UTool02, "Hammer")
+export const Hash = /*#__PURE__*/ icon(UHash01, "Hash")
+export const Heading = /*#__PURE__*/ icon(UHeading01, "Heading")
+export const Heading1 = /*#__PURE__*/ icon(UHeading01, "Heading1")
+export const Heading2 = /*#__PURE__*/ icon(UHeading02, "Heading2")
+export const Heading3 = /*#__PURE__*/ icon(UHeadingSquare, "Heading3")
+export const Heart = /*#__PURE__*/ icon(UHeart, "Heart")
+export const Home = /*#__PURE__*/ icon(UHome02, "Home")
+export const IdCard = /*#__PURE__*/ icon(UCreditCard02, "IdCard")
+export const Image = /*#__PURE__*/ icon(UImage01, "Image")
+export const ImageIcon = /*#__PURE__*/ icon(UImage01, "ImageIcon")
+export const ImagePlus = /*#__PURE__*/ icon(UImagePlus, "ImagePlus")
+export const ImageUp = /*#__PURE__*/ icon(UImageUp, "ImageUp")
+export const Inbox = /*#__PURE__*/ icon(UInbox01, "Inbox")
+export const Infinity = /*#__PURE__*/ icon(UInfinity, "Infinity")
+export const Info = /*#__PURE__*/ icon(UInfoCircle, "Info")
+export const InfoIcon = /*#__PURE__*/ icon(UInfoCircle, "InfoIcon")
+export const Italic = /*#__PURE__*/ icon(UItalic01, "Italic")
+export const Languages = /*#__PURE__*/ icon(UTranslate01, "Languages")
+export const Layers = /*#__PURE__*/ icon(ULayersTwo01, "Layers")
+export const LayoutDashboard = /*#__PURE__*/ icon(
+  ULayoutAlt01,
+  "LayoutDashboard",
 )
-/** Drawn here (./custom.tsx): not in Reicon. */
-export const GripVertical = /*#__PURE__*/ reicon(C.GripVertical, "GripVertical")
-export const Hammer = /*#__PURE__*/ reicon(RSledgehammer, "Hammer")
-export const Hash = /*#__PURE__*/ reicon(RHashtag, "Hash")
-/** Drawn here (./custom.tsx): not in Reicon. */
-export const Heading = /*#__PURE__*/ reicon(C.Heading, "Heading")
-/** Drawn here (./custom.tsx): not in Reicon. */
-export const Heading1 = /*#__PURE__*/ reicon(C.Heading1, "Heading1")
-/** Drawn here (./custom.tsx): not in Reicon. */
-export const Heading2 = /*#__PURE__*/ reicon(C.Heading2, "Heading2")
-/** Drawn here (./custom.tsx): not in Reicon. */
-export const Heading3 = /*#__PURE__*/ reicon(C.Heading3, "Heading3")
-export const Heart = /*#__PURE__*/ reicon(RHeart, "Heart")
-export const Home = /*#__PURE__*/ reicon(RHome, "Home")
-export const IdCard = /*#__PURE__*/ reicon(RAddressCard, "IdCard")
-export const Image = /*#__PURE__*/ reicon(RImage, "Image")
-export const ImageIcon = /*#__PURE__*/ reicon(RImage, "ImageIcon")
-export const ImagePlus = /*#__PURE__*/ reicon(RImagePlus, "ImagePlus")
-export const ImageUp = /*#__PURE__*/ reicon(RImageUp, "ImageUp")
-export const Inbox = /*#__PURE__*/ reicon(RInbox, "Inbox")
-export const Infinity = /*#__PURE__*/ reicon(RInfinite, "Infinity")
-export const Info = /*#__PURE__*/ reicon(RInfoCircle, "Info")
-export const InfoIcon = /*#__PURE__*/ reicon(RInfoCircle, "InfoIcon")
-export const Italic = /*#__PURE__*/ reicon(RTextItalic, "Italic")
-export const Languages = /*#__PURE__*/ reicon(RTranslate, "Languages")
-export const Layers = /*#__PURE__*/ reicon(RLayers, "Layers")
-export const LayoutDashboard = /*#__PURE__*/ reicon(RElement, "LayoutDashboard")
-export const LayoutGrid = /*#__PURE__*/ reicon(RCategory, "LayoutGrid")
-export const Link = /*#__PURE__*/ reicon(RLink, "Link")
-export const Link2 = /*#__PURE__*/ reicon(RLink2, "Link2")
-export const Link2Off = /*#__PURE__*/ reicon(RLinkOff, "Link2Off")
-export const List = /*#__PURE__*/ reicon(RList, "List")
-export const ListChecks = /*#__PURE__*/ reicon(RChecklist, "ListChecks")
-export const ListCollapse = /*#__PURE__*/ reicon(RListArrowUp, "ListCollapse")
-export const ListFilter = /*#__PURE__*/ reicon(RFilterSearch, "ListFilter")
-export const ListIcon = /*#__PURE__*/ reicon(RList, "ListIcon")
-export const ListOrdered = /*#__PURE__*/ reicon(ROrderedList, "ListOrdered")
-export const ListPlus = /*#__PURE__*/ reicon(RClipboardAdd, "ListPlus")
-export const ListTodo = /*#__PURE__*/ reicon(RCheckListSquare, "ListTodo")
-export const Loader = /*#__PURE__*/ reicon(RLoader, "Loader")
-export const Loader2Icon = /*#__PURE__*/ reicon(RLoader, "Loader2Icon")
-export const LoaderCircle = /*#__PURE__*/ reicon(RLoader, "LoaderCircle")
-export const Lock = /*#__PURE__*/ reicon(RLock, "Lock")
-export const LogIn = /*#__PURE__*/ reicon(RLogin, "LogIn")
-export const LogOut = /*#__PURE__*/ reicon(RLogout, "LogOut")
-export const Logout = /*#__PURE__*/ reicon(RLogout, "Logout")
-export const Mail = /*#__PURE__*/ reicon(REnvelope, "Mail")
-export const MailOpen = /*#__PURE__*/ reicon(REnvelopeOpen, "MailOpen")
-export const MapPin = /*#__PURE__*/ reicon(RMapPoint, "MapPin")
-export const Maximize = /*#__PURE__*/ reicon(RMaximize, "Maximize")
-export const Maximize2 = /*#__PURE__*/ reicon(RFullscreen, "Maximize2")
-export const Megaphone = /*#__PURE__*/ reicon(RBullhorn, "Megaphone")
-export const Menu = /*#__PURE__*/ reicon(RMenu, "Menu")
-export const MessageCircle = /*#__PURE__*/ reicon(
-  RMessageCircle,
+export const LayoutGrid = /*#__PURE__*/ icon(ULayoutGrid01, "LayoutGrid")
+export const Link = /*#__PURE__*/ icon(ULink01, "Link")
+export const Link2 = /*#__PURE__*/ icon(ULink02, "Link2")
+export const Link2Off = /*#__PURE__*/ icon(ULinkBroken01, "Link2Off")
+export const List = /*#__PURE__*/ icon(UList, "List")
+export const ListChecks = /*#__PURE__*/ icon(UCheckDone02, "ListChecks")
+export const ListCollapse = /*#__PURE__*/ icon(UAlignTopArrow02, "ListCollapse")
+export const ListFilter = /*#__PURE__*/ icon(UFilterLines, "ListFilter")
+export const ListIcon = /*#__PURE__*/ icon(UList, "ListIcon")
+export const ListOrdered = /*#__PURE__*/ icon(UDotpoints02, "ListOrdered")
+export const ListPlus = /*#__PURE__*/ icon(UPlus, "ListPlus")
+export const ListTodo = /*#__PURE__*/ icon(UCheckSquare, "ListTodo")
+export const Loader = /*#__PURE__*/ icon(ULoading01, "Loader")
+export const Loader2Icon = /*#__PURE__*/ icon(ULoading02, "Loader2Icon")
+export const LoaderCircle = /*#__PURE__*/ icon(ULoading02, "LoaderCircle")
+export const Lock = /*#__PURE__*/ icon(ULock01, "Lock")
+export const LogIn = /*#__PURE__*/ icon(ULogIn01, "LogIn")
+export const LogOut = /*#__PURE__*/ icon(ULogOut01, "LogOut")
+export const Logout = /*#__PURE__*/ icon(ULogOut01, "Logout")
+export const Mail = /*#__PURE__*/ icon(UMail01, "Mail")
+export const MailOpen = /*#__PURE__*/ icon(UMail03, "MailOpen")
+export const MapPin = /*#__PURE__*/ icon(UMarkerPin01, "MapPin")
+export const Maximize = /*#__PURE__*/ icon(UMaximize01, "Maximize")
+export const Maximize2 = /*#__PURE__*/ icon(UExpand06, "Maximize2")
+export const Megaphone = /*#__PURE__*/ icon(UAnnouncement01, "Megaphone")
+export const Menu = /*#__PURE__*/ icon(UMenu01, "Menu")
+export const MessageCircle = /*#__PURE__*/ icon(
+  UMessageCircle01,
   "MessageCircle",
 )
-export const MessageSquareWarning = /*#__PURE__*/ reicon(
-  RMessageSquare,
+export const MessageSquareWarning = /*#__PURE__*/ icon(
+  UMessageAlertSquare,
   "MessageSquareWarning",
 )
-export const Minimize2 = /*#__PURE__*/ reicon(RExitFullscreen, "Minimize2")
-export const Minus = /*#__PURE__*/ reicon(RMinus, "Minus")
-export const MinusIcon = /*#__PURE__*/ reicon(RMinus, "MinusIcon")
-export const Monitor = /*#__PURE__*/ reicon(RMonitor, "Monitor")
-export const Moon = /*#__PURE__*/ reicon(RMoon, "Moon")
-export const MoreHorizontal = /*#__PURE__*/ reicon(RMoreH, "MoreHorizontal")
-export const MoreHorizontalIcon = /*#__PURE__*/ reicon(
-  RMoreH,
+export const Minimize2 = /*#__PURE__*/ icon(UMinimize02, "Minimize2")
+export const Minus = /*#__PURE__*/ icon(UMinus, "Minus")
+export const MinusIcon = /*#__PURE__*/ icon(UMinus, "MinusIcon")
+export const Monitor = /*#__PURE__*/ icon(UMonitor01, "Monitor")
+export const Moon = /*#__PURE__*/ icon(UMoon01, "Moon")
+export const MoreHorizontal = /*#__PURE__*/ icon(
+  UDotsHorizontal,
+  "MoreHorizontal",
+)
+export const MoreHorizontalIcon = /*#__PURE__*/ icon(
+  UDotsHorizontal,
   "MoreHorizontalIcon",
 )
-export const MoreVertical = /*#__PURE__*/ reicon(RMore, "MoreVertical")
-export const MousePointerClick = /*#__PURE__*/ reicon(
-  RCursor,
+export const MoreVertical = /*#__PURE__*/ icon(UDotsVertical, "MoreVertical")
+export const MousePointerClick = /*#__PURE__*/ icon(
+  UCursorClick01,
   "MousePointerClick",
 )
-export const Newspaper = /*#__PURE__*/ reicon(RDocumentText, "Newspaper")
-export const NotebookPen = /*#__PURE__*/ reicon(RNotebook, "NotebookPen")
-export const OctagonAlert = /*#__PURE__*/ reicon(RDanger, "OctagonAlert")
-export const OctagonXIcon = /*#__PURE__*/ reicon(RForbidden, "OctagonXIcon")
-export const Palette = /*#__PURE__*/ reicon(RPalette, "Palette")
-export const PanelLeftIcon = /*#__PURE__*/ reicon(RSidebarLeft, "PanelLeftIcon")
-export const Paperclip = /*#__PURE__*/ reicon(RPaperclip, "Paperclip")
-export const Pause = /*#__PURE__*/ reicon(RPause, "Pause")
-export const Pencil = /*#__PURE__*/ reicon(RPen, "Pencil")
-export const PencilRuler = /*#__PURE__*/ reicon(RRulerPen, "PencilRuler")
-export const Phone = /*#__PURE__*/ reicon(RPhone, "Phone")
-export const PieChart = /*#__PURE__*/ reicon(RChartPie, "PieChart")
-/** Drawn here (./custom.tsx): not in Reicon. */
-export const Pilcrow = /*#__PURE__*/ reicon(C.Pilcrow, "Pilcrow")
-export const Pin = /*#__PURE__*/ reicon(RPin, "Pin")
-export const Play = /*#__PURE__*/ reicon(RPlay, "Play")
-export const Plus = /*#__PURE__*/ reicon(RPlus, "Plus")
-export const Power = /*#__PURE__*/ reicon(RPower, "Power")
-export const Printer = /*#__PURE__*/ reicon(RPrinter, "Printer")
-export const Quote = /*#__PURE__*/ reicon(RQuoteUp, "Quote")
-export const Radio = /*#__PURE__*/ reicon(RRadio, "Radio")
-export const Redo2 = /*#__PURE__*/ reicon(RRedo, "Redo2")
-export const RefreshCW = /*#__PURE__*/ reicon(RRefresh, "RefreshCW")
-export const Repeat2 = /*#__PURE__*/ reicon(RRepeat, "Repeat2")
-export const Rocket = /*#__PURE__*/ reicon(RRocket, "Rocket")
-export const RotateCcw = /*#__PURE__*/ reicon(RRotateLeft, "RotateCcw")
-export const RotateCw = /*#__PURE__*/ reicon(RRotateRight, "RotateCw")
-/** Drawn here (./custom.tsx): not in Reicon. */
-export const Rows2 = /*#__PURE__*/ reicon(C.Rows2, "Rows2")
-export const Ruler = /*#__PURE__*/ reicon(RRuler, "Ruler")
-export const Save = /*#__PURE__*/ reicon(RSave, "Save")
-export const Scissors = /*#__PURE__*/ reicon(RScissors, "Scissors")
-export const ScrollText = /*#__PURE__*/ reicon(RScroll, "ScrollText")
-export const Search = /*#__PURE__*/ reicon(RSearch, "Search")
-export const SearchCheck = /*#__PURE__*/ reicon(RSearchFavorite, "SearchCheck")
-export const Send = /*#__PURE__*/ reicon(RSend, "Send")
-/** Drawn here (./custom.tsx): not in Reicon. */
-export const SeparatorHorizontal = /*#__PURE__*/ reicon(
-  C.SeparatorHorizontal,
+export const Newspaper = /*#__PURE__*/ icon(UFile06, "Newspaper")
+export const NotebookPen = /*#__PURE__*/ icon(UEdit04, "NotebookPen")
+export const OctagonAlert = /*#__PURE__*/ icon(UAlertOctagon, "OctagonAlert")
+export const OctagonXIcon = /*#__PURE__*/ icon(USlashOctagon, "OctagonXIcon")
+export const Palette = /*#__PURE__*/ icon(UPalette, "Palette")
+export const PanelLeftIcon = /*#__PURE__*/ icon(ULayoutLeft, "PanelLeftIcon")
+export const Paperclip = /*#__PURE__*/ icon(UPaperclip, "Paperclip")
+export const Pause = /*#__PURE__*/ icon(UPauseCircle, "Pause")
+export const Pencil = /*#__PURE__*/ icon(UPencil01, "Pencil")
+export const PencilRuler = /*#__PURE__*/ icon(UPenTool02, "PencilRuler")
+export const Phone = /*#__PURE__*/ icon(UPhone, "Phone")
+export const PieChart = /*#__PURE__*/ icon(UPieChart01, "PieChart")
+export const Pilcrow = /*#__PURE__*/ icon(UPilcrow01, "Pilcrow")
+export const Pin = /*#__PURE__*/ icon(UPin01, "Pin")
+export const Play = /*#__PURE__*/ icon(UPlay, "Play")
+export const Plus = /*#__PURE__*/ icon(UPlus, "Plus")
+export const Power = /*#__PURE__*/ icon(UPower01, "Power")
+export const Printer = /*#__PURE__*/ icon(UPrinter, "Printer")
+export const Quote = /*#__PURE__*/ icon(UMessageTextSquare01, "Quote")
+export const Radio = /*#__PURE__*/ icon(UPodcast, "Radio")
+export const Redo2 = /*#__PURE__*/ icon(UFlipForward, "Redo2")
+export const RefreshCW = /*#__PURE__*/ icon(URefreshCw01, "RefreshCW")
+export const Repeat2 = /*#__PURE__*/ icon(URepeat01, "Repeat2")
+export const Rocket = /*#__PURE__*/ icon(URocket01, "Rocket")
+export const RotateCcw = /*#__PURE__*/ icon(URefreshCcw01, "RotateCcw")
+export const RotateCw = /*#__PURE__*/ icon(URefreshCw01, "RotateCw")
+export const Rows2 = /*#__PURE__*/ icon(URows02, "Rows2")
+export const Ruler = /*#__PURE__*/ icon(URuler, "Ruler")
+export const Save = /*#__PURE__*/ icon(USave01, "Save")
+export const Scissors = /*#__PURE__*/ icon(UScissors01, "Scissors")
+export const ScrollText = /*#__PURE__*/ icon(UFile05, "ScrollText")
+export const Search = /*#__PURE__*/ icon(USearchMd, "Search")
+export const SearchCheck = /*#__PURE__*/ icon(USearchRefraction, "SearchCheck")
+export const Send = /*#__PURE__*/ icon(USend01, "Send")
+export const SeparatorHorizontal = /*#__PURE__*/ icon(
+  UDivider,
   "SeparatorHorizontal",
 )
-export const Settings = /*#__PURE__*/ reicon(RSettings, "Settings")
-export const Settings2 = /*#__PURE__*/ reicon(RSettings2, "Settings2")
-export const ShieldCheck = /*#__PURE__*/ reicon(RShieldCheck, "ShieldCheck")
-export const SlidersHorizontal = /*#__PURE__*/ reicon(
-  RSliders,
+export const Settings = /*#__PURE__*/ icon(USettings01, "Settings")
+export const Settings2 = /*#__PURE__*/ icon(USettings02, "Settings2")
+export const ShieldCheck = /*#__PURE__*/ icon(UShieldTick, "ShieldCheck")
+export const SlidersHorizontal = /*#__PURE__*/ icon(
+  USliders01,
   "SlidersHorizontal",
 )
-export const Smartphone = /*#__PURE__*/ reicon(RMobile, "Smartphone")
-export const Smile = /*#__PURE__*/ reicon(RFaceSmile, "Smile")
-export const Sparkles = /*#__PURE__*/ reicon(RSparkles, "Sparkles")
-/** Drawn here (./custom.tsx): not in Reicon. */
-export const Split = /*#__PURE__*/ reicon(C.Split, "Split")
-/** Drawn here (./custom.tsx): not in Reicon. */
-export const Square = /*#__PURE__*/ reicon(C.Square, "Square")
-export const SquarePen = /*#__PURE__*/ reicon(RPenSquare, "SquarePen")
-export const SquareStop = /*#__PURE__*/ reicon(RStop, "SquareStop")
-export const Star = /*#__PURE__*/ reicon(RStar, "Star")
-export const StickyNote = /*#__PURE__*/ reicon(RStickynote, "StickyNote")
-export const StopCircle = /*#__PURE__*/ reicon(RStopCircle, "StopCircle")
-/** Drawn here (./custom.tsx): not in Reicon. */
-export const Strikethrough = /*#__PURE__*/ reicon(
-  C.Strikethrough,
+export const Smartphone = /*#__PURE__*/ icon(UPhone01, "Smartphone")
+export const Smile = /*#__PURE__*/ icon(UFaceSmile, "Smile")
+export const Sparkles = /*#__PURE__*/ icon(UStars02, "Sparkles")
+export const Split = /*#__PURE__*/ icon(UGitBranch01, "Split")
+export const Square = /*#__PURE__*/ icon(USquare, "Square")
+export const SquarePen = /*#__PURE__*/ icon(UEdit05, "SquarePen")
+export const SquareStop = /*#__PURE__*/ icon(UStopSquare, "SquareStop")
+export const Star = /*#__PURE__*/ icon(UStar01, "Star")
+export const StickyNote = /*#__PURE__*/ icon(UFile03, "StickyNote")
+export const StopCircle = /*#__PURE__*/ icon(UStopCircle, "StopCircle")
+export const Strikethrough = /*#__PURE__*/ icon(
+  UStrikethrough01,
   "Strikethrough",
 )
-export const Sun = /*#__PURE__*/ reicon(RSun, "Sun")
-export const Sunrise = /*#__PURE__*/ reicon(RSunrise, "Sunrise")
-/** Drawn here (./custom.tsx): not in Reicon. */
-export const Table = /*#__PURE__*/ reicon(C.Table, "Table")
-/** Drawn here (./custom.tsx): not in Reicon. */
-export const Table2 = /*#__PURE__*/ reicon(C.Table2, "Table2")
-export const Tablet = /*#__PURE__*/ reicon(RTablet, "Tablet")
-export const Tag = /*#__PURE__*/ reicon(RTag, "Tag")
-export const Target = /*#__PURE__*/ reicon(RTarget, "Target")
-export const TextCursorInput = /*#__PURE__*/ reicon(
-  RTextInput,
-  "TextCursorInput",
-)
-export const TextQuote = /*#__PURE__*/ reicon(RQuoteDown, "TextQuote")
-export const TimerReset = /*#__PURE__*/ reicon(RTimer, "TimerReset")
-export const ToggleRight = /*#__PURE__*/ reicon(RToggleOn, "ToggleRight")
-export const Trash2 = /*#__PURE__*/ reicon(RTrash2, "Trash2")
-export const TriangleAlert = /*#__PURE__*/ reicon(
-  RAlertTriangle,
-  "TriangleAlert",
-)
-export const TriangleAlertIcon = /*#__PURE__*/ reicon(
-  RAlertTriangle,
+export const Sun = /*#__PURE__*/ icon(USun, "Sun")
+export const Sunrise = /*#__PURE__*/ icon(USunrise, "Sunrise")
+export const Table = /*#__PURE__*/ icon(UTable, "Table")
+export const Table2 = /*#__PURE__*/ icon(UTable, "Table2")
+export const Tablet = /*#__PURE__*/ icon(UTablet01, "Tablet")
+export const Tag = /*#__PURE__*/ icon(UTag01, "Tag")
+export const Target = /*#__PURE__*/ icon(UTarget04, "Target")
+export const TextCursorInput = /*#__PURE__*/ icon(UTextInput, "TextCursorInput")
+export const TextQuote = /*#__PURE__*/ icon(UMessageTextSquare02, "TextQuote")
+export const TimerReset = /*#__PURE__*/ icon(UClockRefresh, "TimerReset")
+export const ToggleRight = /*#__PURE__*/ icon(UToggle01Right, "ToggleRight")
+export const Trash2 = /*#__PURE__*/ icon(UTrash01, "Trash2")
+export const TriangleAlert = /*#__PURE__*/ icon(UAlertTriangle, "TriangleAlert")
+export const TriangleAlertIcon = /*#__PURE__*/ icon(
+  UAlertTriangle,
   "TriangleAlertIcon",
 )
-export const Underline = /*#__PURE__*/ reicon(RTextUnderline, "Underline")
-export const Undo2 = /*#__PURE__*/ reicon(RUndo, "Undo2")
-export const Upload = /*#__PURE__*/ reicon(RUpload, "Upload")
-export const User = /*#__PURE__*/ reicon(RUser, "User")
-export const UserCheck = /*#__PURE__*/ reicon(RUserCheck, "UserCheck")
-export const UserPlus = /*#__PURE__*/ reicon(RUserAdd, "UserPlus")
-export const UserRound = /*#__PURE__*/ reicon(RUserCircle, "UserRound")
-export const UserRoundX = /*#__PURE__*/ reicon(RUserX, "UserRoundX")
-export const Users = /*#__PURE__*/ reicon(RUsers, "Users")
-export const UsersRound = /*#__PURE__*/ reicon(RUsers2, "UsersRound")
-export const Video = /*#__PURE__*/ reicon(RVideo, "Video")
-export const VolumeX = /*#__PURE__*/ reicon(RVolumeX, "VolumeX")
-export const Wallet = /*#__PURE__*/ reicon(RWallet, "Wallet")
-export const WandSparkles = /*#__PURE__*/ reicon(RWandSparkle, "WandSparkles")
-export const WifiOff = /*#__PURE__*/ reicon(RWifiOff, "WifiOff")
-export const Workflow = /*#__PURE__*/ reicon(RHierarchy, "Workflow")
-export const X = /*#__PURE__*/ reicon(RX, "X")
-export const XCircle = /*#__PURE__*/ reicon(RXCircle, "XCircle")
+export const Underline = /*#__PURE__*/ icon(UUnderline01, "Underline")
+export const Undo2 = /*#__PURE__*/ icon(UFlipBackward, "Undo2")
+export const Upload = /*#__PURE__*/ icon(UUpload01, "Upload")
+export const User = /*#__PURE__*/ icon(UUser01, "User")
+export const UserCheck = /*#__PURE__*/ icon(UUserCheck01, "UserCheck")
+export const UserPlus = /*#__PURE__*/ icon(UUserPlus01, "UserPlus")
+export const UserRound = /*#__PURE__*/ icon(UUserCircle, "UserRound")
+export const UserRoundX = /*#__PURE__*/ icon(UUserX01, "UserRoundX")
+export const Users = /*#__PURE__*/ icon(UUsers01, "Users")
+export const UsersRound = /*#__PURE__*/ icon(UUsers02, "UsersRound")
+export const Video = /*#__PURE__*/ icon(UVideoRecorder, "Video")
+export const VolumeX = /*#__PURE__*/ icon(UVolumeX, "VolumeX")
+export const Wallet = /*#__PURE__*/ icon(UWallet02, "Wallet")
+export const WandSparkles = /*#__PURE__*/ icon(UMagicWand02, "WandSparkles")
+export const WifiOff = /*#__PURE__*/ icon(UWifiOff, "WifiOff")
+export const Workflow = /*#__PURE__*/ icon(UDataflow03, "Workflow")
+export const X = /*#__PURE__*/ icon(UXClose, "X")
+export const XCircle = /*#__PURE__*/ icon(UXCircle, "XCircle")

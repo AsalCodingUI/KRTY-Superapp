@@ -3,8 +3,8 @@ import { filled, type Icon } from "@/components/icons"
 
 /**
  * Legacy Remix-style names (Ri*Line / Ri*Fill), kept so older code keeps
- * working: each is one of the app's icons (@/components/icons, Reicon);
- * `*Fill` names are the filled set. New code imports from
+ * working: each is one of the app's icons (@/components/icons, Untitled UI);
+ * `*Fill` names are the same icons (the set is line only). New code imports from
  * @/components/icons instead (docs/ui/icons.md).
  */
 export type RemixiconComponentType = Icon

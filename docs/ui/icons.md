@@ -6,36 +6,29 @@ Live examples: **/ui** → Icons.
 
 ## Use
 
-| Need                          | Use                                                                                                                                                                        | File                              |
-| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------- |
-| Any icon                      | `import { Bell } from "@/components/icons"` (app names, lucide-style)                                                                                                      | `src/components/icons/index.tsx`  |
-| The filled version            | `<Bell weight="Filled" />`                                                                                                                                                 | same                              |
-| An icon not in the list yet   | add one line to `index.tsx`: `export const Name = reicon(RGlyph, "Name")` with the Reicon glyph (browse reicon.dev/icons; `import RGlyph from "reicon-react/icons/Glyph"`) | same                              |
-| A symbol Reicon lacks         | draw it in `custom.tsx` (`glyph(name, svg)`, 24px grid, `STROKE`), export it from `index.tsx`                                                                              | `src/components/icons/custom.tsx` |
-| Existing `Ri*` names (legacy) | `@/shared/ui/lucide-icons` (aliases to the above; `*Fill` = Filled)                                                                                                        | `src/shared/ui/lucide-icons.tsx`  |
-| Loading                       | `Spinner` (not an icon + `animate-spin`)                                                                                                                                   | `src/components/ui/spinner.tsx`   |
+| Need                          | Use                                                                                                                                                                    | File                              |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------- |
+| Any icon                      | `import { Bell } from "@/components/icons"` (app names, lucide-style)                                                                                                  | `src/components/icons/index.tsx`  |
+| An icon not in the list yet   | add two lines to `index.tsx`: `import { Glyph as UGlyph } from "@untitledui/icons/Glyph"` and `export const Name = icon(UGlyph, "Name")` (browse untitledui.com/icons) | same                              |
+| A symbol Untitled UI lacks    | draw it in `custom.tsx` (`glyph(name, d)`, 24px grid, `STROKE`), export it from `index.tsx`                                                                            | `src/components/icons/custom.tsx` |
+| Existing `Ri*` names (legacy) | `@/shared/ui/lucide-icons` (aliases to the above)                                                                                                                      | `src/shared/ui/lucide-icons.tsx`  |
+| Loading                       | `Spinner` (not an icon + `animate-spin`)                                                                                                                               | `src/components/ui/spinner.tsx`   |
 
-The icon set is **Reicon** (MIT, Solar-based), in one weight for the
-whole app (`DEFAULT_WEIGHT`, now Outline). `index.tsx` maps the app's icon names to Reicon
-glyphs, so pages never import `reicon-react` themselves. The 20 symbols
-Reicon doesn't have (editor headings H / H1-3, strikethrough, pilcrow,
-table / columns / rows, grips, plain circle / square / dashed circle,
-split, separator, double chevrons up and down-up) are drawn in
-`src/components/icons/custom.tsx` on the same 24px grid and stroke
-(Reicon's `createIcon`). No lucide anywhere (the package is removed).
-Every icon is listed, Outline and Filled, on /ui → Icons.
+The icon set is **Untitled UI Icons**, the free line set (1,100+ icons;
+free for personal and commercial use, but not to redistribute as an icon
+library, so the icons stay an npm dependency, not files in this repo).
+`index.tsx` maps the app's icon names to Untitled UI glyphs, so pages
+never import `@untitledui/icons` themselves. The one glyph it lacks
+(`Coffee`) is drawn in `custom.tsx`. There is no filled set: `weight`
+props are accepted and ignored. Every icon is listed on /ui → Icons.
 
 ## Rules
 
 **Source**
 
-- Import icons only from `@/components/icons` (never `reicon-react`
+- Import icons only from `@/components/icons` (never `@untitledui/icons`
   directly). Don't add new `Ri*` aliases.
-- The weight is one app-wide setting, `DEFAULT_WEIGHT` in
-  `src/components/icons/index.tsx` (now **Outline**). Don't pass `weight`
-  per icon unless one icon must differ from the set; to switch the whole
-  app to Filled, change that one constant. The custom symbols have no
-  filled form and stay as line icons.
+- Line icons only. Show a state with color or a dot, not a filled icon.
 - One icon per meaning: edit = `SquarePen`, delete = `Delete` (trash),
   more = `MoreHorizontal`, close = `X`, add = `Plus`, open in new =
   `ExternalLink`, copy = `Copy`, status done = `CircleCheck`, warning =
@@ -66,11 +59,10 @@ Every icon is listed, Outline and Filled, on /ui → Icons.
 - Icons inherit `currentColor`. Quiet icons: `text-muted-foreground`;
   status: `text-success-ink`, `text-warning`, `text-destructive`. Semantic
   tokens only.
-- Stroke: **1.75 on the 24px grid** for every Outline icon (about 1.2px
-  at `size-4`), set once as `STROKE` in `src/components/icons/custom.tsx`
-  and applied by `index.tsx`. Reicon draws 1.5; going thicker only adds
-  one stroke attribute (cheap). Going thinner would add a mask per icon,
-  so don't. `strokeWidth` on a single icon is ignored.
+- Stroke: **1.75 on the 24px grid** for every icon (about 1.2px at
+  `size-4`; Untitled UI's own is 2), set once as `STROKE` in
+  `src/components/icons/custom.tsx`. It's a plain SVG attribute, so any
+  value costs nothing. `strokeWidth` on a single icon is ignored.
 - Other hand-made glyphs (status, stage, priority): `viewBox="0 0 16 16"`,
   `fill="currentColor"` (or `stroke="currentColor"` at the same weight as
   `STROKE` on a 24 grid, i.e. about 1.15 on 16), `aria-hidden`, base class `size-4 shrink-0`, cut-outs with
@@ -89,7 +81,7 @@ Every icon is listed, Outline and Filled, on /ui → Icons.
 **Light**
 
 - Icons are static SVGs and each is its own module
-  (`reicon-react/icons/<Name>`), so only the icons the app uses are
+  (`@untitledui/icons/<Name>`), so only the icons the app uses are
   bundled. No icon animations (the old animated set is gone).
 - Icons passed as data (menu configs, nav items) are components, not
   elements: `icon: Copy`, rendered by the menu at its size.
@@ -152,15 +144,15 @@ import { Plus, SquarePen } from "@/components/icons"
 ## Migration notes
 
 Done 2026-11-05: the whole app moved from lucide / lucide-animated to
-Reicon through `@/components/icons` (all `lucide-react` imports repointed,
-the animated icon files removed, `Ri*Fill` now Filled), then lucide was
-removed entirely (missing symbols drawn in `custom.tsx`), Outline at 1.75.
+Untitled UI Icons through `@/components/icons` (all `lucide-react` imports
+repointed, the animated icon files removed, lucide and the interim Reicon
+set removed), stroke 1.75.
 
 Nothing below is changed yet.
 
 **Ri\* aliases** (`src/shared/ui/lucide-icons.tsx`, 124 importing files):
-Remixicon names kept from the old kit, now pointing at the Reicon icons
-(`*Fill` render Filled). Codemod them to the app names from
+Remixicon names kept from the old kit, now pointing at the Untitled UI
+icons (`*Fill` are the same line icons). Codemod them to the app names from
 `@/components/icons` over time, then delete the file. Misleading ones:
 `RiGoogleFill` → `Chrome`,
 `RiWhatsappLine` → `Phone`, `RiSettings3Line` → `SlidersHorizontal`,
