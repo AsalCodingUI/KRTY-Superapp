@@ -1,5 +1,6 @@
 "use client"
 
+import { TableCompare } from "./table-compare"
 import { createTeamColumns } from "@/app/(main)/teams/Columns"
 import { HomeCard, HomeRow } from "@/app/(main)/dashboard/components/home-card"
 import { DataTable } from "@/components/data-table"
@@ -87,6 +88,10 @@ export function TableTab() {
             ))}
           </dl>
         </div>
+      </Group>
+
+      <Group title="Sebelum / sesudah">
+        <TableCompare />
       </Group>
 
       <Group title="Daftar dengan header kolom">

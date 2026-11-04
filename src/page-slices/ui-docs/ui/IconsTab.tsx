@@ -1,5 +1,6 @@
 "use client"
 
+import { IconsCompare } from "./icons-compare"
 import { AppIcon } from "@/components/app-icon"
 import {
   Archive,
@@ -176,6 +177,13 @@ export function IconsTab() {
 
       <DocGroup title="Aturan">
         <DocRules rules={RULES} />
+      </DocGroup>
+
+      <DocGroup
+        title="Sebelum / sesudah"
+        note="Set ikon pindah ke Untitled UI, garisnya sekarang tetap 1.4px di semua ukuran. Kiri: garis lama yang ikut ukuran; kanan: yang jalan sekarang."
+      >
+        <IconsCompare />
       </DocGroup>
 
       <DocGroup
