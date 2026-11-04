@@ -4,11 +4,10 @@ import { DateField } from "@/components/date-field"
 import { orEmpty } from "@/components/empty-value"
 import {
   closeReviewCycle,
-  getReviewMonitoring,
-  getReviewSummary,
   saveReviewCycle,
   type MonitoringRow,
 } from "@/app/(main)/performance/actions/review-actions"
+import { performanceRead } from "../read"
 import { ConfirmDialog } from "@/components/confirm-dialog"
 import { EmptyState } from "@/components/empty-state"
 import { GroupedList, ListRow } from "@/components/grouped-list"
@@ -141,7 +140,7 @@ export function ReviewMonitoring({ period }: { period: string }) {
   const quarter = isQuarter(period)
   const { data, isLoading } = useQuery({
     queryKey: ["review-monitoring", period],
-    queryFn: () => getReviewMonitoring(period),
+    queryFn: () => performanceRead.reviewMonitoring(period),
     enabled: quarter,
   })
   const [periodOpen, setPeriodOpen] = useState(false)
@@ -158,7 +157,7 @@ export function ReviewMonitoring({ period }: { period: string }) {
 
   const { data: viewingSummary, isLoading: summaryLoading } = useQuery({
     queryKey: ["review-summary", viewing?.id, period],
-    queryFn: () => getReviewSummary(viewing!.id, period),
+    queryFn: () => performanceRead.reviewSummary(viewing!.id, period),
     enabled: Boolean(viewing),
   })
 

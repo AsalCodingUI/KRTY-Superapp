@@ -144,7 +144,10 @@ export function ApprovalInbox({
         .select(
           "id,user_id,date,clock_in,clock_out,notes,profiles(full_name, avatar_url)",
         )
-        .ilike("notes", `%${ATTENDANCE_NOTE_TAGS.deleteRequested}%`)
+        // LIKE, not ILIKE: the tag is always upper case, and this exact
+        // condition is what the partial index serves
+        // (migrations/attendance_delete_requested_index.sql).
+        .like("notes", `%${ATTENDANCE_NOTE_TAGS.deleteRequested}%`)
         .order("date", { ascending: false }),
     ])
     const nextLeaves = (leaveRes.data as PendingLeave[] | null) ?? []

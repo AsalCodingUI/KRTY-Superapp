@@ -109,6 +109,8 @@ export default async function RootLayout({
         >
           <MotionProvider>
             <QueryProvider>
+              {/* Shared namespaces only; route-only ones come from their
+                  route's layout (shared/i18n/scopes.ts). */}
               <I18nProvider
                 locale={locale}
                 messages={getClientMessages(locale)}

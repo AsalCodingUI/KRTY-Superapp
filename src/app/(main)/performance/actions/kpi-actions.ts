@@ -545,18 +545,20 @@ export type TeamKpiRow = KpiPerson & {
   projectCount: number
 }
 
-async function teamRows(
-  supabase: Supabase,
-  scope: KpiScope,
-): Promise<{ rows: TeamKpiRow[]; error: boolean }> {
+/**
+ * What the team KPI is scored from, whatever the scope: the employees, their
+ * assignments and their 360 results. Loaded once, then scored in memory for
+ * as many scopes as needed (see getLatestTeamKpi).
+ */
+async function teamInputs(supabase: Supabase) {
   const { data: people, error: peopleError } = await supabase
     .from("profiles")
     .select("id, full_name, avatar_url, job_title")
     .eq("role", "employee")
     .order("full_name")
-  if (peopleError) return { rows: [], error: true }
-  const ids = (people ?? []).map((p: KpiPerson) => p.id)
-  const today = todayJakarta()
+  if (peopleError) return null
+  const list = (people ?? []) as KpiPerson[]
+  const ids = list.map((p) => p.id)
   const [{ rows }, reviews] = await Promise.all([
     assignmentsFor(supabase, ids),
     reviewsFor(supabase, ids),
@@ -564,25 +566,49 @@ async function teamRows(
   const byUser = new Map<string, AssignmentRow[]>()
   for (const a of rows)
     byUser.set(a.user_id, [...(byUser.get(a.user_id) ?? []), a])
+  const reviewsByUser = new Map<string, ReviewRow[]>()
+  for (const r of reviews)
+    reviewsByUser.set(r.userId, [...(reviewsByUser.get(r.userId) ?? []), r])
+  return { people: list, byUser, reviewsByUser }
+}
 
-  return {
-    error: false,
-    rows: (people ?? []).map((p: KpiPerson) => {
-      const s = score(
-        byUser.get(p.id) ?? [],
-        reviews.filter((r) => r.userId === p.id),
-        scope,
-        today,
-      )
-      return {
-        ...p,
-        parts: s.parts,
-        final: s.final,
-        // Projects running or counted in the period (not only scored ones).
-        projectCount: s.projects.filter((x) => !x.excluded).length,
-      }
-    }),
-  }
+type TeamInputs = NonNullable<Awaited<ReturnType<typeof teamInputs>>>
+
+/** Everyone's live KPI for one scope, from already loaded inputs. */
+function scoreTeam(inputs: TeamInputs, scope: KpiScope): TeamKpiRow[] {
+  const today = todayJakarta()
+  return inputs.people.map((p) => {
+    const s = score(
+      inputs.byUser.get(p.id) ?? [],
+      inputs.reviewsByUser.get(p.id) ?? [],
+      scope,
+      today,
+    )
+    return {
+      ...p,
+      parts: s.parts,
+      final: s.final,
+      // Projects running or counted in the period (not only scored ones).
+      projectCount: s.projects.filter((x) => !x.excluded).length,
+    }
+  })
+}
+
+async function teamRows(
+  supabase: Supabase,
+  scope: KpiScope,
+): Promise<{ rows: TeamKpiRow[]; error: boolean }> {
+  const inputs = await teamInputs(supabase)
+  if (!inputs) return { rows: [], error: true }
+  return { rows: scoreTeam(inputs, scope), error: false }
+}
+
+/** A locked quarter shows its snapshot instead of the live numbers. */
+function withSnapshots(rows: TeamKpiRow[], snaps: Map<string, Snapshot>) {
+  return rows.map((r) => {
+    const snap = snaps.get(r.id)
+    return snap ? { ...r, parts: snap.parts, final: snap.final } : r
+  })
 }
 
 /** Everyone's KPI for a scope (stakeholders only); a locked quarter shows its snapshot. */
@@ -607,13 +633,66 @@ export async function getTeamKpi(
     scope,
     rows.map((r) => r.id),
   )
-  return {
-    success: true,
-    data: rows.map((r) => {
-      const snap = snaps.get(r.id)
-      return snap ? { ...r, parts: snap.parts, final: snap.final } : r
-    }),
+  return { success: true, data: withSnapshots(rows, snaps) }
+}
+
+/**
+ * The team's KPI for the latest quarter that has scores, from `current`
+ * back up to three quarters (early in a quarter nothing is scored yet).
+ * Same result as calling getTeamKpi per quarter, but the inputs are loaded
+ * once and only the scoring runs per quarter; locks and snapshots of the
+ * four quarters come in one query each. Stakeholders only (else no rows).
+ */
+export async function getLatestTeamKpi(
+  current: string,
+): Promise<{ quarter: string; rows: TeamKpiRow[] }> {
+  const empty = { quarter: current, rows: [] as TeamKpiRow[] }
+  if (!/^\d{4}-Q[1-4]$/.test(current)) return empty
+  const me = await viewer()
+  if (!me?.isStakeholder) return empty
+  const { supabase } = me
+  // Newest first: the first quarter with a score wins.
+  const quarters = lastQuarters(current).reverse()
+  const [inputs, { data: locks }] = await Promise.all([
+    teamInputs(supabase),
+    supabase.from("kpi_period_locks").select("period").in("period", quarters),
+  ])
+  if (!inputs) return empty
+
+  const locked = ((locks ?? []) as { period: string }[]).map((l) => l.period)
+  const snaps = new Map<string, Map<string, Snapshot>>()
+  if (locked.length) {
+    const { data } = await supabase
+      .from("kpi_snapshots")
+      .select("period, user_id, parts, final")
+      .in("period", locked)
+      .in(
+        "user_id",
+        inputs.people.map((p) => p.id),
+      )
+    type Row = {
+      period: string
+      user_id: string
+      parts: KpiParts
+      final: FinalScore
+    }
+    for (const s of (data ?? []) as unknown as Row[]) {
+      const byUser = snaps.get(s.period) ?? new Map<string, Snapshot>()
+      byUser.set(s.user_id, { parts: s.parts, final: s.final })
+      snaps.set(s.period, byUser)
+    }
   }
+
+  let first: { quarter: string; rows: TeamKpiRow[] } | null = null
+  for (const quarter of quarters) {
+    const live = scoreTeam(inputs, quarter)
+    const rows = locked.includes(quarter)
+      ? withSnapshots(live, snaps.get(quarter) ?? new Map())
+      : live
+    first ??= { quarter, rows }
+    if (rows.some((r) => r.final.score !== null)) return { quarter, rows }
+  }
+  return first ?? empty
 }
 
 /** Whether a quarter is locked, and when. */

@@ -52,6 +52,7 @@ import { format } from "date-fns"
 import dynamic from "next/dynamic"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { isShownChange, useRealtimeRefresh } from "./use-realtime-refresh"
 import { toast } from "sonner"
 import { adminColumns } from "./components/AdminColumns"
 import { type LeaveRequestWithProfile } from "./components/AdminLeaveList"
@@ -202,6 +203,12 @@ export function StakeholderLeavePage({
     setIsClient(true)
   }, [])
 
+  // Profiles change often and rarely in a way shown here: compared with
+  // the loaded list, on a longer debounce.
+  const refreshForProfiles = useRealtimeRefresh(3_000, (payload) =>
+    isShownChange(profiles, payload),
+  )
+
   // --- Realtime: debounce refresh to avoid UI thrashing on burst updates ---
   useEffect(() => {
     const scheduleRefresh = () => {
@@ -230,10 +237,12 @@ export function StakeholderLeavePage({
         { event: "DELETE", schema: "public", table: "leave_requests" },
         scheduleRefresh,
       )
+      // Any profile edit fires this (presence, settings…): refresh only when
+      // a field this page shows (name, photo, title, join date, type) moved.
       .on(
         "postgres_changes",
         { event: "UPDATE", schema: "public", table: "profiles" },
-        scheduleRefresh,
+        refreshForProfiles,
       )
       .on(
         "postgres_changes",
@@ -253,7 +262,7 @@ export function StakeholderLeavePage({
       }
       supabase.removeChannel(channel)
     }
-  }, [supabase, router])
+  }, [supabase, router, refreshForProfiles])
 
   const handlePageChange = (newPage: number) => {
     const params = new URLSearchParams(searchParams)
