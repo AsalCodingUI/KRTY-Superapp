@@ -31,10 +31,12 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { ZoomableImage } from "@/components/zoomable"
 import { PersonCell } from "@/page-slices/performance/ui/list"
+import { initials } from "@/shared/lib/initials"
 import { RiInboxLine } from "@/shared/ui/lucide-icons"
 import dynamic from "next/dynamic"
 import { useState } from "react"
 import * as mock from "../model/components-mock"
+import { ComponentsCompare } from "./components-compare"
 import {
   DocCanvas,
   DocDont,
@@ -55,8 +57,6 @@ const Donut = dynamic(
   { ssr: false },
 )
 
-const initials = (name: string) => name.slice(0, 2).toUpperCase()
-
 const RULES: [string, string][] = [
   [
     "Pakai ulang",
@@ -64,11 +64,11 @@ const RULES: [string, string][] = [
   ],
   [
     "Kartu",
-    "surfaceClassName (bg-card, border, rounded-xl); HomeCard p-5 judul 15px; Panel header 44px bergaris",
+    "surfaceClassName (bg-card, border, rounded-card); HomeCard = surfaceClassName + p-surface, judul 15px; Panel header 44px bergaris",
   ],
   [
     "Avatar",
-    "Orang: Avatar size sm 24 · default 32 · lg 40, baris orang = PersonCell 28px; project = ProjectAvatar kotak",
+    "Orang: Avatar size xs 20 · sm 24 · md 28 · default 32 · lg 40 (prop, bukan className), inisial = initials(); baris orang = PersonCell; project/klien = ProjectAvatar kotak",
   ],
   [
     "Angka",
@@ -107,6 +107,13 @@ export function ComponentsTab() {
         <DocRules rules={RULES} />
       </DocGroup>
 
+      <DocGroup
+        title="Sebelum / sesudah"
+        note="Yang tadinya ditulis di tiap halaman sekarang satu sumber: initials(), Avatar size, surfaceClassName di HomeCard, ProjectAvatar buat logo klien. Kiri: kode lama; kanan: yang jalan sekarang."
+      >
+        <ComponentsCompare />
+      </DocGroup>
+
       <DocGroup title="Kartu">
         <DocExample
           title="HomeCard, HomeFigure, HomeStats, HomeRow, HomeFooter"
@@ -127,7 +134,7 @@ export function ComponentsTab() {
                       <ProjectAvatar
                         id={p.id}
                         name={p.name}
-                        className="size-7 rounded-md text-xs"
+                        className="size-7 text-xs"
                       />
                     }
                     title={p.name}
@@ -155,7 +162,7 @@ export function ComponentsTab() {
       <DocGroup title="Orang dan project">
         <DocExample title="Avatar" source="components/ui/avatar.tsx">
           <DocCanvas>
-            {(["sm", "default", "lg"] as const).map((size) => (
+            {(["xs", "sm", "md", "default", "lg"] as const).map((size) => (
               <Avatar key={size} size={size}>
                 <AvatarFallback>{initials(mock.people[0].name)}</AvatarFallback>
               </Avatar>
@@ -421,7 +428,8 @@ export function ComponentsTab() {
         <DocDont
           items={[
             "bg-card border rounded-xl p-5 disalin ke halaman (pakai HomeCard / surfaceClassName)",
-            "name.slice(0, 2).toUpperCase() + avatar buatan sendiri",
+            "name.slice(0, 2).toUpperCase() atau helper inisial lokal (pakai initials())",
+            'Avatar className="size-7" (pakai size="md")',
             "Tile huruf berwarna buat project dibikin manual (pakai ProjectAvatar)",
             "“-” atau 0 untuk angka yang kosong (pakai orEmpty)",
             "Import doc-editor, recharts, pdfjs langsung ke halaman yang tampil di awal",
