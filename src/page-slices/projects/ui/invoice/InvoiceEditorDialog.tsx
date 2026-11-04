@@ -1,16 +1,9 @@
 "use client"
 
+import { UnsavedChangesDialog } from "@/components/unsaved-changes-dialog"
 import { useProjectHref } from "@/shared/hooks/useProjectHref"
 import { DatePicker } from "@/components/date-picker"
 import { SegmentedControl } from "@/components/segmented-control"
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
@@ -1301,42 +1294,24 @@ function Editor({
       </aside>
 
       {/* Closing with edits: keep them as a draft, or throw them away. */}
-      <AlertDialog open={askClose} onOpenChange={setAskClose}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              {keepsDraft ? t("unsavedTitle") : t("unsavedTitleIssued")}
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              {t("unsavedDescription")}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <Button
-              variant="ghost"
-              className="text-destructive-ink hover:text-destructive-ink sm:mr-auto"
-              onClick={() => {
-                setAskClose(false)
-                onClose()
-              }}
-            >
-              {t("discard")}
-            </Button>
-            <Button variant="outline" onClick={() => setAskClose(false)}>
-              {t("keepEditing")}
-            </Button>
-            <Button
-              disabled={saving}
-              onClick={async () => {
-                setAskClose(false)
-                await save({ draft: keepsDraft })
-              }}
-            >
-              {keepsDraft ? t("saveDraft") : tc("save")}
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <UnsavedChangesDialog
+        open={askClose}
+        onOpenChange={setAskClose}
+        title={keepsDraft ? t("unsavedTitle") : t("unsavedTitleIssued")}
+        description={t("unsavedDescription")}
+        cancelText={t("keepEditing")}
+        discardText={t("discard")}
+        saveText={keepsDraft ? t("saveDraft") : tc("save")}
+        saving={saving}
+        onDiscard={() => {
+          setAskClose(false)
+          onClose()
+        }}
+        onSave={async () => {
+          setAskClose(false)
+          await save({ draft: keepsDraft })
+        }}
+      />
 
       <InvoiceSettingsDialog
         open={settingsOpen}

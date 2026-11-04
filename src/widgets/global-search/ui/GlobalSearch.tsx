@@ -10,17 +10,11 @@ import {
 } from "@/shared/context-menu/events"
 import dynamic from "next/dynamic"
 import { useEffect, useState } from "react"
+import { useMountOnce } from "@/shared/hooks/useMountOnce"
 
 const loadDialog = () => import("./GlobalSearchDialog")
 const GlobalSearchDialog = dynamic(loadDialog, { ssr: false })
 const preloadDialog = () => void loadDialog()
-
-/** True from the first time `open` is true onwards. */
-function useMountOnce(open: boolean) {
-  const [mounted, setMounted] = useState(open)
-  if (open && !mounted) setMounted(true)
-  return mounted
-}
 
 /** Opens with ⌘K / Ctrl+K from anywhere, or from the top bar field. */
 export function GlobalSearch({ className }: { className?: string }) {

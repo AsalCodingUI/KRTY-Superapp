@@ -297,7 +297,8 @@ export function StakeholderLeavePage({
         .eq("status", "pending")
         .select("id")
       if (error) {
-        toast.error(error.message || t("toastApproveFailed"))
+        console.error(error)
+        toast.error(t("toastApproveFailed"))
         return
       }
       if (!data?.length) {
@@ -338,7 +339,8 @@ export function StakeholderLeavePage({
       .select("id")
     setRejecting(false)
     if (error) {
-      toast.error(error.message || t("toastRejectFailed"))
+      console.error(error)
+      toast.error(t("toastRejectFailed"))
       return
     }
     const rejected = data?.length ?? 0
@@ -372,7 +374,8 @@ export function StakeholderLeavePage({
       })
       .eq("id", logId)
     if (error) {
-      toast.error(error.message || t("toastDeclineFailed"))
+      console.error(error)
+      toast.error(t("toastDeclineFailed"))
       return
     }
     toast.success(t("toastDeleteRequestDeclined"))
@@ -393,7 +396,8 @@ export function StakeholderLeavePage({
           .eq("id", logId)
 
         if (error) {
-          toast.error(error.message || t("toastDeleteLogFailed"))
+          console.error(error)
+          toast.error(t("toastDeleteLogFailed"))
           return
         }
         toast.success(t("toastLogDeleted"))
@@ -425,7 +429,8 @@ export function StakeholderLeavePage({
           .eq("id", logId)
 
         if (error) {
-          toast.error(error.message || t("toastCloseSessionFailed"))
+          console.error(error)
+          toast.error(t("toastCloseSessionFailed"))
           return
         }
         toast.success(t("toastSessionClosed"))
@@ -470,7 +475,8 @@ export function StakeholderLeavePage({
         .eq("id", editingLog.id)
 
       if (error) {
-        toast.error(error.message || t("toastUpdateAttendanceFailed"))
+        console.error(error)
+        toast.error(t("toastUpdateAttendanceFailed"))
         return
       }
 
@@ -538,7 +544,8 @@ export function StakeholderLeavePage({
       })
 
       if (error) {
-        toast.error(error.message || t("toastManualFailed"))
+        console.error(error)
+        toast.error(t("toastManualFailed"))
         return
       }
 
@@ -584,7 +591,8 @@ export function StakeholderLeavePage({
                     .eq("status", "pending")
                     .select("id")
                   if (error) {
-                    toast.error(error.message || t("toastApproveFailed"))
+                    console.error(error)
+                    toast.error(t("toastApproveFailed"))
                     return
                   }
                   if (!data?.length) {
@@ -647,7 +655,8 @@ export function StakeholderLeavePage({
           .delete()
           .in("id", ids as number[])
         if (error) {
-          toast.error(error.message || t("toastDeleteFailed"))
+          console.error(error)
+          toast.error(t("toastDeleteFailed"))
           return
         }
         toast.success(t("toastDeleted"))

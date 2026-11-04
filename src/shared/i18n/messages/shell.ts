@@ -73,7 +73,7 @@ const id = {
   announcementUrgentHint: "Tampil sebagai banner sampai dibaca.",
   announcementSend: "Kirim",
   announcementSent: "Terkirim ke {n} orang",
-  announcementFailed: "Gagal mengirim pengumuman.",
+  announcementFailed: "Gagal mengirim pengumuman",
   announcementBadLink: "Link harus diawali / atau https://.",
 
   // View as (impersonation)
@@ -213,7 +213,7 @@ const en: Record<keyof typeof id, string> = {
   announcementUrgentHint: "Shows as a banner until read.",
   announcementSend: "Send",
   announcementSent: "Sent to {n} people",
-  announcementFailed: "Couldn't send the announcement.",
+  announcementFailed: "Couldn't send the announcement",
   announcementBadLink: "The link must start with / or https://.",
 
   // View as (impersonation)

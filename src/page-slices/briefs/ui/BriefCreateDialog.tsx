@@ -48,6 +48,7 @@ import { useState } from "react"
 import { toast } from "sonner"
 import { useBriefClients, useRefreshBriefs } from "../model/data"
 import { SET_LABEL_KEYS, SetIcon } from "./shared"
+import { dialogWidth } from "@/components/ui/dialog-sections"
 
 type Mode = "ask" | "offer" | "off"
 const NO_PROJECT = "__none"
@@ -128,7 +129,7 @@ export function BriefCreateDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className={dialogWidth.form}>
         <DialogHeader>
           <DialogTitle>{t("createTitle")}</DialogTitle>
           <DialogDescription>{t("createDescription")}</DialogDescription>

@@ -6,23 +6,25 @@ lightbox and the file viewer. Live examples: **/ui** → Overlay.
 
 ## Use
 
-| Need                                   | Use                                                          | File                                                                        |
-| -------------------------------------- | ------------------------------------------------------------ | --------------------------------------------------------------------------- |
-| A task in a window (form, detail)      | `Dialog` + `DialogContent` + `DialogHeader/Footer`           | `src/components/ui/dialog.tsx`                                              |
-| Custom window layout (editor, viewer)  | `DialogContent bare` (you build the inside)                  | same                                                                        |
-| "Are you sure?" (delete, discard)      | `ConfirmDialog` / `useConfirmDialog()`                       | `src/components/confirm-dialog.tsx`                                         |
-| A choice with 3 buttons (unsaved work) | `AlertDialog` + `AlertDialogHeader/Footer` + `Button`s       | `src/components/ui/alert-dialog.tsx`                                        |
-| A detail panel over the page (right)   | `Sheet` + `SheetContent` (side `right`)                      | `src/components/ui/sheet.tsx`                                               |
-| A docked panel that is always there    | `<aside data-slot="side-panel">` (see My notes)              | `src/page-slices/projects/ui/my-notes/MyNotesPage.tsx`                      |
-| Small settings / info next to a button | `Popover` + `PopoverContent`                                 | `src/components/ui/popover.tsx`                                             |
-| A list of actions from a button (⋯)    | `DropdownMenu`, or `RowMenu` for a row's ⋯                   | `src/components/ui/dropdown-menu.tsx`, `projects/ui/workspace/row-menu.tsx` |
-| Right-click actions on a thing         | `ContextTarget` / `useContextTarget` / `registerContextType` | `src/shared/context-menu`                                                   |
-| Name an icon-only button               | `Tooltip` + `TooltipTrigger` + `TooltipContent`              | `src/components/ui/tooltip.tsx`                                             |
-| Search / jump anywhere                 | `GlobalSearch` (⌘K), open it with `openAppSearch(query)`     | `src/widgets/global-search/ui/GlobalSearch.tsx`                             |
-| A searchable picker inside a dialog    | `Command*` (`CommandDialog` only for ⌘K-style)               | `src/components/ui/command.tsx`                                             |
-| Pictures large                         | `ImageLightbox`, `LightboxScope`, `ZoomableImage`            | `src/components/image-lightbox.tsx`                                         |
-| A private file full size               | `FileViewer` (lazy)                                          | `src/components/file-viewer.tsx`                                            |
-| A file's thumbnail on a card           | `FilePreview`                                                | `src/page-slices/projects/ui/workspace/FilePreview.tsx`                     |
+| Need                                   | Use                                                                                          | File                                                                        |
+| -------------------------------------- | -------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| A task in a window (form, detail)      | `Dialog` + `DialogContent` + `DialogHeader/Footer`                                           | `src/components/ui/dialog.tsx`                                              |
+| Custom window layout (editor, viewer)  | `DialogContent bare` (you build the inside)                                                  | same                                                                        |
+| "Are you sure?" (delete, discard)      | `ConfirmDialog` / `useConfirmDialog()`                                                       | `src/components/confirm-dialog.tsx`                                         |
+| Closing an editor with unsaved edits   | `UnsavedChangesDialog` (Cancel / Don't save / Save)                                          | `src/components/unsaved-changes-dialog.tsx`                                 |
+| Dialog width / document / ⌘K size      | `dialogWidth.form`, `dialogWidth.detail`, `documentDialogClassName`, `searchDialogClassName` | `src/components/ui/dialog-sections.tsx`                                     |
+| Mount a lazy dialog on first open      | `useMountOnce(open)`                                                                         | `src/shared/hooks/useMountOnce.ts`                                          |
+| A detail panel over the page (right)   | `Sheet` + `SheetContent` (side `right`)                                                      | `src/components/ui/sheet.tsx`                                               |
+| A docked panel that is always there    | `<aside data-slot="side-panel">` (see My notes)                                              | `src/page-slices/projects/ui/my-notes/MyNotesPage.tsx`                      |
+| Small settings / info next to a button | `Popover` + `PopoverContent`                                                                 | `src/components/ui/popover.tsx`                                             |
+| A list of actions from a button (⋯)    | `DropdownMenu`, or `RowMenu` for a row's ⋯                                                   | `src/components/ui/dropdown-menu.tsx`, `projects/ui/workspace/row-menu.tsx` |
+| Right-click actions on a thing         | `ContextTarget` / `useContextTarget` / `registerContextType`                                 | `src/shared/context-menu`                                                   |
+| Name an icon-only button               | `Tooltip` + `TooltipTrigger` + `TooltipContent`                                              | `src/components/ui/tooltip.tsx`                                             |
+| Search / jump anywhere                 | `GlobalSearch` (⌘K), open it with `openAppSearch(query)`                                     | `src/widgets/global-search/ui/GlobalSearch.tsx`                             |
+| A searchable picker inside a dialog    | `Command*` (`CommandDialog` only for ⌘K-style)                                               | `src/components/ui/command.tsx`                                             |
+| Pictures large                         | `ImageLightbox`, `LightboxScope`, `ZoomableImage`                                            | `src/components/image-lightbox.tsx`                                         |
+| A private file full size               | `FileViewer` (lazy)                                                                          | `src/components/file-viewer.tsx`                                            |
+| A file's thumbnail on a card           | `FilePreview`                                                                                | `src/page-slices/projects/ui/workspace/FilePreview.tsx`                     |
 
 ## Rules
 
@@ -46,13 +48,14 @@ lightbox and the file viewer. Live examples: **/ui** → Overlay.
 
 **Sizes** (on `DialogContent className`; width only from `sm:` up)
 
-| Size                                                                                      | For                                                                             |
-| ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| default (`sm:max-w-[27.5rem]`, 440px)                                                     | Short forms, a single question, small pickers                                   |
-| `sm:max-w-[35rem]` (560px)                                                                | Standard forms (leave request, project form, calendar)                          |
-| `sm:max-w-2xl` (672px)                                                                    | Read-mostly details with more content                                           |
-| `bare` + `sm:max-w-5xl` + `flex h-[min(56rem,92svh)] w-full flex-col overflow-hidden p-0` | Documents and viewers (report, note, policy, contract, file viewer, What's new) |
-| `AlertDialogContent size="sm"` (`max-w-xs`)                                               | Tiny confirm with two equal buttons                                             |
+| Size                                                             | For                                                                             |
+| ---------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| default (no class; the shell's `sm:max-w-[27.5rem]`, 440px)      | Short forms, a single question, small pickers                                   |
+| `dialogWidth.form` (`sm:max-w-[35rem]`, 560px)                   | Standard forms (leave request, project form, calendar)                          |
+| `dialogWidth.detail` (`sm:max-w-2xl`, 672px)                     | Read-mostly details with more content                                           |
+| `bare` + `documentDialogClassName` (5xl, `h-[min(56rem,92svh)]`) | Documents and viewers (report, note, policy, contract, file viewer, What's new) |
+| `searchDialogClassName` (600px, near the top)                    | ⌘K search only (`CommandDialog`)                                                |
+| `AlertDialogContent size="sm"` (`max-w-xs`)                      | Tiny confirm with two equal buttons                                             |
 
 The shell caps height at `calc(100svh-4rem)`; tall content scrolls in the
 body, never the whole dialog. Special full-window layouts (invoice
@@ -69,7 +72,10 @@ own their layout; don't copy them for normal dialogs.
 - In the right-click menu, `destructive: true, confirm: true` on the item
   is the confirm (second click runs it); skip it when `onSelect` opens its
   own dialog.
-- Unsaved changes on close: an `AlertDialog` with Cancel / Discard / Save.
+- Unsaved changes on close: `UnsavedChangesDialog` (Cancel / Don't save /
+  Save, a spinner on Save while `saving`). Pass `title`, `description` and
+  the three labels only when the editor's wording differs (the invoice
+  editor: "Lanjut edit" / "Buang" / "Simpan draf").
 
 **Sheets**
 
@@ -140,7 +146,7 @@ own their layout; don't copy them for normal dialogs.
     () => import("./ReportDialog").then((m) => m.ReportDialog),
     { loading: () => null },
   )
-  const mounted = useMountOnce(open) // true from the first open onwards
+  const mounted = useMountOnce(open) // @/shared/hooks/useMountOnce
   {
     mounted && <ReportDialog open={open} onOpenChange={setOpen} />
   }
@@ -169,7 +175,9 @@ own their layout; don't copy them for normal dialogs.
   (the sections already pad it), or a body without `scroll-pane`.
 - A new width (`sm:max-w-[600px]`, `sm:max-w-[28rem]`, `sm:max-w-lg`) —
   pick from the size table.
-- `window.confirm()` or a hand-made confirm dialog.
+- `window.confirm()`, a hand-made confirm dialog, or a hand-built
+  Cancel / Discard / Save `AlertDialog` (use `UnsavedChangesDialog`).
+- Copying the document-dialog classes; use `documentDialogClassName`.
 - Importing a heavy dialog statically into a page, or mounting it before
   it is first opened.
 - `backdrop-blur` on an overlay, or a dark dim behind a right sheet.
@@ -201,7 +209,7 @@ picker calendar.
 
 ```tsx
 <Dialog open={open} onOpenChange={setOpen}>
-  <DialogContent className="sm:max-w-[35rem]">
+  <DialogContent className={dialogWidth.form}>
     <DialogHeader>
       <DialogTitle>Ajukan cuti</DialogTitle>
       <DialogDescription>Atasan kamu dapat notifikasi.</DialogDescription>
@@ -225,6 +233,30 @@ picker calendar.
 ```
 
 ## Migration notes
+
+Done 2026-11-05 (local): the size constants above (`dialogWidth`,
+`documentDialogClassName`, `searchDialogClassName`) in
+`dialog-sections.tsx`; `sm:max-w-sm` / `sm:max-w-md` dialogs (Mac
+download, avatar crop, dashboard, category manager, leave request
+detail) → default; Holiday → `dialogWidth.form` like the other calendar
+dialogs; Brief create, Announcement, Approval inbox → `dialogWidth.form`;
+My review → `dialogWidth.detail` (single column of fields); ⌘K → the
+named constant. The document dialog (file viewer, contract, report,
+note, portal report, policy, policy editor, What's new, What's new
+editor, brief) → `documentDialogClassName`, one height (52/60rem and
+`88svh` gone). `UnsavedChangesDialog` replaces the four hand-built
+prompts (report, note, invoice editor, policy editor; each keeps its
+save / discard behaviour; the invoice one now has the standard button
+order). `useMountOnce` lives in `src/shared/hooks/useMountOnce.ts`
+(FinancePage, GlobalSearch, /ui). `ProjectForm` asks with `ConfirmDialog`
+instead of `window.confirm`. Not done yet: `ClientDialog`
+(`sm:max-w-3xl`) and `SettingsDialog` (own two-pane layout) are left as
+they are; the rest of the list below (LeaveDetailsModal footer reach-in,
+InvoiceSettingsDialog height, PickDateDialog, month-view sheet header,
+Notifications breakpoint, side panel class, `ZoomableImage` names,
+file-kind helper, `router.replace` for `?task=` / `?report=`, `title=`
+on icon buttons, unused drawer / hover-card). The older list is kept for
+reference.
 
 Sizes outside the table (→ nearest size):
 

@@ -42,6 +42,7 @@ import {
   useFxRates,
   useSubscriptions,
 } from "../model/data"
+import { useMountOnce } from "@/shared/hooks/useMountOnce"
 
 function TabFallback() {
   return (
@@ -299,11 +300,4 @@ function FinanceContent({ tab }: { tab: FinanceTab }) {
       )}
     </div>
   )
-}
-
-/** True from the first time `open` is true onwards. */
-function useMountOnce(open: boolean) {
-  const [mounted, setMounted] = useState(open)
-  if (open && !mounted) setMounted(true)
-  return mounted
 }

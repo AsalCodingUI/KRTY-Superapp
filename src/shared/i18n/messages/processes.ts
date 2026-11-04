@@ -79,9 +79,9 @@ const id = {
   errNotAllowedProject:
     "Hanya stakeholder dan PM proyek ini yang bisa mengatur fasenya.",
   errNameRequired: "Nama wajib diisi.",
-  errDuplicate: "Proses dengan nama ini sudah ada.",
-  errDeleteDefault: "Jadikan proses lain default dulu sebelum menghapus ini.",
-  errSave: "Gagal menyimpan. Coba lagi.",
+  errDuplicate: "Proses dengan nama ini sudah ada",
+  errDeleteDefault: "Jadikan proses lain default dulu sebelum menghapus ini",
+  errSave: "Gagal menyimpan, coba lagi",
 }
 
 const en: Record<keyof typeof id, string> = {
@@ -160,10 +160,9 @@ const en: Record<keyof typeof id, string> = {
   errNotAllowedProject:
     "Only stakeholders and this project's PMs can manage its phases.",
   errNameRequired: "Name is required.",
-  errDuplicate: "A process with this name already exists.",
-  errDeleteDefault:
-    "Make another process the default before deleting this one.",
-  errSave: "Couldn't save. Try again.",
+  errDuplicate: "A process with this name already exists",
+  errDeleteDefault: "Make another process the default before deleting this one",
+  errSave: "Couldn't save, try again",
 }
 
 export const processes = { id, en }

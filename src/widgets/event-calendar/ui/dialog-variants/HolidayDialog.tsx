@@ -27,6 +27,7 @@ import {
   registerOfficeHolidayUndo,
 } from "../../lib/office-holiday"
 import type { CalendarEvent } from "../types"
+import { dialogWidth } from "@/components/ui/dialog-sections"
 
 interface HolidayDialogProps {
   open: boolean
@@ -53,7 +54,7 @@ export function HolidayDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[28rem]">
+      <DialogContent className={dialogWidth.form}>
         <DialogHeader>
           <DialogTitle className="text-heading text-title pr-6 font-medium break-words">
             {holiday?.name ?? event.title}

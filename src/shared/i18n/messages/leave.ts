@@ -157,7 +157,7 @@ const id = {
   formDoctorNote: "Surat dokter (opsional)",
   formFileHint: "Foto atau PDF, maks 5MB.",
   errFileTooBig: "Ukuran file maksimal 5MB",
-  processing: "Memproses...",
+  processing: "Memproses…",
 
   // Employee dialogs & toasts
   toastDeleteRequestSent: "Permintaan hapus dikirim ke admin",
@@ -445,7 +445,7 @@ const en: Record<keyof typeof id, string> = {
   formDoctorNote: "Doctor's note (optional)",
   formFileHint: "Photo or PDF, max 5MB.",
   errFileTooBig: "Files can be at most 5MB",
-  processing: "Processing...",
+  processing: "Processing…",
 
   toastDeleteRequestSent: "Delete request sent to an admin",
   toastDeleteRequestFailed: "Couldn't send the delete request",

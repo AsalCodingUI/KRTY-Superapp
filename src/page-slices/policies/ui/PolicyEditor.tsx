@@ -1,5 +1,6 @@
 "use client"
 
+import { UnsavedChangesDialog } from "@/components/unsaved-changes-dialog"
 import { savePolicyDraft } from "@/app/(main)/policies/actions/policy-actions"
 import { EmptyState } from "@/components/empty-state"
 import { ListChip } from "@/components/grouped-list"
@@ -14,14 +15,6 @@ import {
 } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { Spinner } from "@/components/ui/spinner"
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { cn } from "@/lib/utils"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
@@ -67,6 +60,7 @@ import { POLICY_FILES_FOLDER } from "../model/data"
 import { BLOCK_ITEMS, SlashMenu, createSlashBridge } from "./slash-command"
 import { MentionMenu, createMentionBridge } from "./mention"
 import { PublishDialog } from "./PublishDialog"
+import { documentDialogClassName } from "@/components/ui/dialog-sections"
 
 /** The editor appends an empty trailing paragraph; ignore end whitespace. */
 const sameBody = (a: string, b: string) => a.trimEnd() === b.trimEnd()
@@ -105,7 +99,7 @@ export function PolicyEditorDialog({
       <DialogContent
         bare
         showCloseButton={false}
-        className="flex h-[min(56rem,92svh)] w-full flex-col overflow-hidden p-0 sm:max-w-5xl"
+        className={documentDialogClassName}
       >
         <EditorLoader id={initialId} onExit={onExit} closeRef={closeRef} />
       </DialogContent>
@@ -672,34 +666,17 @@ function DocumentEditor({
       <MentionMenu bridge={mention} />
       {uploads.inputs}
 
-      <AlertDialog open={confirmClose} onOpenChange={setConfirmClose}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t("saveChangesTitle")}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {t("saveChangesDescription")}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <Button variant="outline" onClick={() => setConfirmClose(false)}>
-              {tc("cancel")}
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setConfirmClose(false)
-                onExit({ id: docIdRef.current })
-              }}
-            >
-              {t("dontSave")}
-            </Button>
-            <Button onClick={saveAndClose} disabled={saveState === "saving"}>
-              {saveState === "saving" && <Spinner data-icon="inline-start" />}
-              {tc("save")}
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <UnsavedChangesDialog
+        open={confirmClose}
+        onOpenChange={setConfirmClose}
+        description={t("saveChangesDescription")}
+        saving={saveState === "saving"}
+        onDiscard={() => {
+          setConfirmClose(false)
+          onExit({ id: docIdRef.current })
+        }}
+        onSave={saveAndClose}
+      />
 
       {docId && (
         <PublishDialog

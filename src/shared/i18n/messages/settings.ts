@@ -3,7 +3,7 @@ const id = {
   // Auto clock-out (attendance)
   autoClockOut: "Clock out otomatis",
   notSignedIn: "Belum masuk",
-  saveSettingsFailed: "Gagal menyimpan pengaturan.",
+  saveSettingsFailed: "Gagal menyimpan pengaturan",
   autoClockOutOn: "Clock out otomatis pukul {time}.",
   autoClockOutOff: "Clock out otomatis dimatikan.",
 
@@ -14,14 +14,13 @@ const id = {
   employmentMagang: "Magang",
 
   // Members & access: toasts
-  saveChangesFailed: "Gagal menyimpan perubahan.",
-  saved: "Tersimpan.",
+  saveChangesFailed: "Gagal menyimpan perubahan",
   switchAccountFailed: "Gagal berpindah akun",
   switchAccountFailedStatus: "Gagal berpindah akun ({status})",
   nowViewingAs: "Sekarang melihat sebagai anggota ini",
   deleteMemberFailed: "Gagal menghapus anggota",
-  memberDeleted: "Anggota dihapus.",
-  loadMembersFailed: "Gagal memuat data anggota.",
+  memberDeleted: "Anggota dihapus",
+  loadMembersFailed: "Gagal memuat data anggota",
 
   // Members list
   searchMembers: "Cari anggota…",
@@ -57,9 +56,9 @@ const id = {
     "Kehadiran, cuti, review, dan kontrak {name} ikut terhapus permanen.",
 
   // Add member dialog
-  emailAlreadyRegistered: "Email ini sudah terdaftar.",
+  emailAlreadyRegistered: "Email ini sudah terdaftar",
   addMemberFailed: "Gagal menambah anggota",
-  memberAdded: "Anggota ditambahkan.",
+  memberAdded: "Anggota ditambahkan",
   fullName: "Nama lengkap",
   email: "Email",
 
@@ -76,7 +75,7 @@ const id = {
 const en: Record<keyof typeof id, string> = {
   autoClockOut: "Auto clock out",
   notSignedIn: "Not signed in",
-  saveSettingsFailed: "Failed to save settings.",
+  saveSettingsFailed: "Couldn't save settings",
   autoClockOutOn: "Auto clock out at {time}.",
   autoClockOutOff: "Auto clock out turned off.",
 
@@ -85,14 +84,13 @@ const en: Record<keyof typeof id, string> = {
   employmentKaryawan: "Employee",
   employmentMagang: "Intern",
 
-  saveChangesFailed: "Failed to save changes.",
-  saved: "Saved.",
-  switchAccountFailed: "Failed to switch account",
-  switchAccountFailedStatus: "Failed to switch account ({status})",
+  saveChangesFailed: "Couldn't save changes",
+  switchAccountFailed: "Couldn't switch account",
+  switchAccountFailedStatus: "Couldn't switch account ({status})",
   nowViewingAs: "Now viewing as this member",
-  deleteMemberFailed: "Failed to delete member",
-  memberDeleted: "Member deleted.",
-  loadMembersFailed: "Failed to load member data.",
+  deleteMemberFailed: "Couldn't delete member",
+  memberDeleted: "Member deleted",
+  loadMembersFailed: "Couldn't load member data",
 
   searchMembers: "Search members…",
   addMember: "Add member",
@@ -125,9 +123,9 @@ const en: Record<keyof typeof id, string> = {
   deleteMemberDescription:
     "{name}'s attendance, leave, reviews and contracts are deleted for good.",
 
-  emailAlreadyRegistered: "This email is already registered.",
-  addMemberFailed: "Failed to add member",
-  memberAdded: "Member added.",
+  emailAlreadyRegistered: "This email is already registered",
+  addMemberFailed: "Couldn't add member",
+  memberAdded: "Member added",
   fullName: "Full name",
   email: "Email",
 

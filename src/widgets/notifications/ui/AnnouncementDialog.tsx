@@ -21,6 +21,7 @@ import { useT } from "@/shared/i18n/client"
 import { useQuery } from "@tanstack/react-query"
 import { useState } from "react"
 import { toast } from "sonner"
+import { dialogWidth } from "@/components/ui/dialog-sections"
 
 type Audience = "all" | "employees" | "people"
 
@@ -106,7 +107,7 @@ export function AnnouncementDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className={dialogWidth.form}>
         <DialogHeader>
           <DialogTitle>{t("announcementCompose")}</DialogTitle>
         </DialogHeader>

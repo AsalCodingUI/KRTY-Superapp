@@ -8,7 +8,7 @@ export default function TeamsLoading() {
       {/* Header Skeleton */}
       <div className="flex items-center justify-between">
         <Skeleton className="h-7 w-32" />
-        <Skeleton className="h-9 w-28" />
+        <Skeleton className="rounded-control h-8 w-28" />
       </div>
 
       {/* Team Cards Grid Skeleton */}

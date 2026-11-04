@@ -36,6 +36,7 @@ import {
   usePeriodLabel,
   type ContractViewer,
 } from "./parts"
+import { documentDialogClassName } from "@/components/ui/dialog-sections"
 
 /** Lower-cased, single-spaced: " Rico Pratama" matches "rico pratama". */
 const normalizeName = (value: string) =>
@@ -95,7 +96,7 @@ export function ContractDialog({
       <DialogContent
         bare
         showCloseButton={false}
-        className="flex h-[min(52rem,92svh)] w-full flex-col overflow-hidden p-0 sm:max-w-5xl"
+        className={documentDialogClassName}
       >
         <header className="border-border flex h-14 shrink-0 items-center gap-2 border-b pr-3 pl-5">
           <RiFileTextLine className="text-muted-foreground size-4 shrink-0" />

@@ -8,7 +8,7 @@ export default function ProcessLoading() {
       {/* Same rhythm as the page: title row, then phases + detail. */}
       <div className="flex items-center justify-between pt-6 pb-4">
         <Skeleton className="h-8 w-48" />
-        <Skeleton className="h-9 w-32 rounded-md" />
+        <Skeleton className="rounded-control h-8 w-32" />
       </div>
 
       <div className="grid items-start gap-4 pb-4 lg:grid-cols-[18rem_minmax(0,1fr)]">

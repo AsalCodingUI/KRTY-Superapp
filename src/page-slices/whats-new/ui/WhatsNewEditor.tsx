@@ -40,6 +40,7 @@ import {
   type WhatsNewEntry,
 } from "../model/types"
 import { AREA_LABEL, TAG } from "./shared"
+import { documentDialogClassName } from "@/components/ui/dialog-sections"
 
 const HREF = siteConfig.baseLinks.whatsNew
 
@@ -195,7 +196,7 @@ function WhatsNewEditorDialog({
       <DialogContent
         bare
         showCloseButton={false}
-        className="flex h-[min(60rem,94svh)] w-full flex-col overflow-hidden p-0 sm:max-w-5xl"
+        className={documentDialogClassName}
       >
         <header className="border-border flex shrink-0 items-center gap-2 border-b px-4 py-3">
           <DialogTitle className="sr-only">

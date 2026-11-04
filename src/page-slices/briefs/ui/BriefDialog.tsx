@@ -60,6 +60,7 @@ import {
 } from "./shared"
 import { cn } from "@/lib/utils"
 import type { BriefSet } from "@/shared/lib/briefs/types"
+import { documentDialogClassName } from "@/components/ui/dialog-sections"
 
 const NONE = "__none"
 
@@ -152,7 +153,7 @@ export function BriefDialog({
       <DialogContent
         ref={popupRef}
         initialFocus={popupRef}
-        className="flex h-[88svh] flex-col gap-0 p-0 sm:max-w-5xl"
+        className={documentDialogClassName}
       >
         {isPending || !brief ? (
           <>

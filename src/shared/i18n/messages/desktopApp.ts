@@ -14,8 +14,8 @@ const id = {
   windowsSubtitle: "Notifikasi, tray, shortcut",
   dismiss: "Sembunyikan",
   download: "Download",
-  downloadFailed: "Gagal nyiapin download. Coba lagi.",
-  noRelease: "Belum ada versi app yang bisa di-download.",
+  downloadFailed: "Gagal nyiapin download, coba lagi",
+  noRelease: "Belum ada versi app yang bisa di-download",
 
   // Update notification (macOS)
   notifyUpdateTitle: "Kretya Flow versi {version} siap",
@@ -138,6 +138,14 @@ const id = {
   errorOther: "Ngecek update-nya gagal. Coba lagi bentar lagi.",
   downloadDmg: "Download DMG",
   latestCheckUpToDate: "Kretya Flow udah versi terbaru",
+  errClockIn: "Gagal clock in",
+  errBreak: "Gagal mengubah istirahat",
+  errClockOut: "Gagal clock out",
+  errCompleteTask: "Gagal menandai tugas selesai",
+  errApprove: "Gagal menyetujui",
+  errReject: "Gagal menolak",
+  leaveApproved: "Pengajuan disetujui",
+  leaveRejected: "Pengajuan ditolak",
 }
 
 const en: Record<keyof typeof id, string> = {
@@ -149,8 +157,8 @@ const en: Record<keyof typeof id, string> = {
   windowsSubtitle: "Notifications, tray, shortcuts",
   dismiss: "Hide",
   download: "Download",
-  downloadFailed: "Couldn't prepare the download. Try again.",
-  noRelease: "No version of the app to download yet.",
+  downloadFailed: "Couldn't prepare the download, try again",
+  noRelease: "No version of the app to download yet",
 
   notifyUpdateTitle: "Kretya Flow {version} is ready",
   notifyUpdateBody: "Click to download the new version.",
@@ -264,6 +272,14 @@ const en: Record<keyof typeof id, string> = {
   errorOther: "Checking for updates failed. Try again in a bit.",
   downloadDmg: "Download DMG",
   latestCheckUpToDate: "Kretya Flow is up to date",
+  errClockIn: "Couldn't clock in",
+  errBreak: "Couldn't change the break",
+  errClockOut: "Couldn't clock out",
+  errCompleteTask: "Couldn't mark the task done",
+  errApprove: "Couldn't approve",
+  errReject: "Couldn't reject",
+  leaveApproved: "Request approved",
+  leaveRejected: "Request rejected",
 }
 
 export const desktopApp = { id, en }

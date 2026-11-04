@@ -5,7 +5,7 @@
 const id = {
   loginTitle: "Masuk ke Kretya",
   loginSubtitle: "Pakai akun Google Workspace atau Gmail.",
-  loginGoogleFailed: "Gagal masuk dengan Google. Coba lagi.",
+  loginGoogleFailed: "Gagal masuk dengan Google, coba lagi",
   loginConnecting: "Menghubungkan…",
   loginWithGoogle: "Lanjutkan dengan Google",
 
@@ -28,12 +28,12 @@ const id = {
   apiFullNameRequired: "Nama lengkap wajib diisi.",
   apiInvalidEmail: "Masukkan email yang valid.",
   apiMemberEmailExists: "Sudah ada anggota tim dengan email ini.",
-  apiCreateMemberFailed: "Gagal menambah anggota tim.",
+  apiCreateMemberFailed: "Gagal menambah anggota tim",
   apiCannotDeleteSelf: "Kamu tidak bisa menghapus akun yang sedang kamu pakai.",
   apiDeleteLinked:
     "Akun ini masih terhubung ke data lain, jadi belum bisa dihapus.",
-  apiDeleteAccountFailed: "Gagal menghapus akun ini.",
-  apiDeleteMemberFailed: "Gagal menghapus anggota tim.",
+  apiDeleteAccountFailed: "Gagal menghapus akun ini",
+  apiDeleteMemberFailed: "Gagal menghapus anggota tim",
 }
 
 const en: Record<keyof typeof id, string> = {
@@ -45,7 +45,7 @@ const en: Record<keyof typeof id, string> = {
 
   updatePasswordTitle: "Update your password",
   passwordsMismatch: "Passwords do not match",
-  updatePasswordFailed: "Failed to update password",
+  updatePasswordFailed: "Couldn't update password",
   updatePasswordSuccess: "Password updated successfully! Redirecting…",
   newPassword: "New password",
   confirmPassword: "Confirm password",
@@ -62,12 +62,12 @@ const en: Record<keyof typeof id, string> = {
   apiFullNameRequired: "Full name is required.",
   apiInvalidEmail: "Please enter a valid email.",
   apiMemberEmailExists: "A team member with this email already exists.",
-  apiCreateMemberFailed: "Failed to create team member.",
+  apiCreateMemberFailed: "Couldn't create team member",
   apiCannotDeleteSelf: "You cannot delete the account you are currently using.",
   apiDeleteLinked:
     "This account is still linked to other records and cannot be deleted yet.",
-  apiDeleteAccountFailed: "Failed to delete this account.",
-  apiDeleteMemberFailed: "Failed to delete team member.",
+  apiDeleteAccountFailed: "Couldn't delete this account",
+  apiDeleteMemberFailed: "Couldn't delete team member",
 }
 
 export const auth = { id, en }

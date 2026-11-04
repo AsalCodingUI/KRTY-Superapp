@@ -89,8 +89,11 @@ export function Notifications({ variant = "default" }: NotificationsProps) {
             className={variant === "default" ? "size-4 shrink-0" : "size-4"}
           />
           {unreadCount > 0 && variant === "icon" && (
-            // A still dot: unread isn't loading, so nothing pulses.
-            <span className="bg-destructive absolute top-0 right-0 -mt-1 -mr-1 size-2 rounded-full" />
+            // Unread: a still primary dot (feedback.md), no ping, no red.
+            <span
+              aria-hidden
+              className="bg-primary ring-background absolute top-0 right-0 -mt-1 -mr-1 size-2 rounded-full ring-2"
+            />
           )}
         </div>
 

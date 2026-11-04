@@ -121,10 +121,10 @@ const id = {
 const en: Record<keyof typeof id, string> = {
   // Page / errors
   profileNotFound: "Profile not found",
-  loadFailed: "Failed to load dashboard data",
+  loadFailed: "Couldn't load dashboard data",
   errorUnauthorized: "Unauthorized. Please log in again.",
   errorAccessDenied: "Access denied",
-  errorFetchFailed: "Failed to fetch dashboard data",
+  errorFetchFailed: "Couldn't fetch dashboard data",
 
   // Greeting & shared
   greeting: "Hi",

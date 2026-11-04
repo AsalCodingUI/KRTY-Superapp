@@ -21,6 +21,7 @@ import {
 import { useState } from "react"
 import { toast } from "sonner"
 import * as mock from "../model/feedback-mock"
+import { FeedbackCompare } from "./feedback-compare"
 import {
   DocCanvas,
   DocDont,
@@ -79,6 +80,13 @@ export function FeedbackTab() {
 
       <DocGroup title="Aturan">
         <DocRules rules={RULES} />
+      </DocGroup>
+
+      <DocGroup
+        title="Sebelum / sesudah"
+        note="Copy toast satu gaya (tanpa titik, “, coba lagi”, common.saved / saveFailed), skeleton route setinggi tombol asli, titik lonceng diam. Kiri: yang lama; kanan: yang jalan sekarang."
+      >
+        <FeedbackCompare />
       </DocGroup>
 
       <DocGroup

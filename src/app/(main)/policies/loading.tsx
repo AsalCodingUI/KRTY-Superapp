@@ -8,7 +8,7 @@ export default function PoliciesLoading() {
       {/* Same rhythm as the page: title row, then content. */}
       <div className="flex items-center justify-between pt-6 pb-4">
         <Skeleton className="h-8 w-48" />
-        <Skeleton className="h-9 w-32 rounded-md" />
+        <Skeleton className="rounded-control h-8 w-32" />
       </div>
 
       {/* Tabs and search */}
@@ -16,7 +16,7 @@ export default function PoliciesLoading() {
         <Skeleton className="h-6 w-20" />
         <Skeleton className="h-6 w-20" />
       </div>
-      <Skeleton className="mb-4 h-9 w-full rounded-md sm:max-w-sm" />
+      <Skeleton className="rounded-control mb-4 h-8 w-full sm:max-w-sm" />
 
       <div className="grid gap-4 pb-4 md:grid-cols-2 xl:grid-cols-3">
         {[1, 2, 3, 4, 5, 6].map((i) => (

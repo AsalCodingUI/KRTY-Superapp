@@ -2,13 +2,7 @@
 
 import { ConfirmDialog } from "@/components/confirm-dialog"
 import { ImageLightbox } from "@/components/image-lightbox"
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
+import { UnsavedChangesDialog } from "@/components/unsaved-changes-dialog"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -19,6 +13,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import {
+  dialogWidth,
+  documentDialogClassName,
+} from "@/components/ui/dialog-sections"
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -66,6 +64,7 @@ import dynamic from "next/dynamic"
 import { useState } from "react"
 import { toast } from "sonner"
 import * as mock from "../model/overlay-mock"
+import { OverlayCompare } from "./overlay-compare"
 import {
   DocCanvas,
   DocDont,
@@ -74,6 +73,7 @@ import {
   DocIntro,
   DocRules,
 } from "./doc-blocks"
+import { useMountOnce } from "@/shared/hooks/useMountOnce"
 
 // The viewer pulls pdf.js, docx and the editor: loaded on first open, as in
 // the app (ProjectLibrary, PortalDocuments).
@@ -82,13 +82,6 @@ const FileViewer = dynamic(
   { ssr: false },
 )
 
-/** True from the first time `open` is true onwards (mount once, keep). */
-function useMountOnce(open: boolean) {
-  const [mounted, setMounted] = useState(open)
-  if (open && !mounted) setMounted(true)
-  return mounted
-}
-
 const RULES: [string, string][] = [
   [
     "Struktur dialog",
@@ -96,7 +89,7 @@ const RULES: [string, string][] = [
   ],
   [
     "Ukuran",
-    "Default 440px · form sm:max-w-[35rem] · detail sm:max-w-2xl · dokumen/viewer bare + sm:max-w-5xl",
+    "Default 440px · form dialogWidth.form (35rem) · detail dialogWidth.detail (2xl) · dokumen/viewer bare + documentDialogClassName",
   ],
   [
     "Tombol footer",
@@ -104,7 +97,7 @@ const RULES: [string, string][] = [
   ],
   [
     "Konfirmasi",
-    "Hapus / buang = ConfirmDialog variant destructive; di menu klik kanan cukup confirm: true",
+    "Hapus = ConfirmDialog variant destructive; tutup dengan perubahan = UnsavedChangesDialog; di menu klik kanan cukup confirm: true",
   ],
   [
     "Sheet kanan",
@@ -121,7 +114,7 @@ const RULES: [string, string][] = [
   ],
   [
     "Ringan",
-    "Dialog berat = next/dynamic, dipasang pas pertama dibuka lalu dibiarkan; tanpa blur di overlay",
+    "Dialog berat = next/dynamic + useMountOnce (dipasang pas pertama dibuka lalu dibiarkan); tanpa blur di overlay",
   ],
   [
     "URL",
@@ -162,8 +155,12 @@ export function OverlayTab() {
         >
           <DocCanvas>
             <SampleDialog label="Default (440px)" />
-            <SampleDialog label="Form (35rem)" className="sm:max-w-[35rem]" />
-            <SampleDialog label="Detail (2xl)" className="sm:max-w-2xl" long />
+            <SampleDialog label="Form (35rem)" className={dialogWidth.form} />
+            <SampleDialog
+              label="Detail (2xl)"
+              className={dialogWidth.detail}
+              long
+            />
             <DocumentDialog />
           </DocCanvas>
         </DocExample>
@@ -196,24 +193,19 @@ export function OverlayTab() {
             )
           }
         />
-        <AlertDialog open={unsavedOpen} onOpenChange={setUnsavedOpen}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>
-                Ada perubahan yang belum disimpan
-              </AlertDialogTitle>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <Button variant="outline" onClick={() => setUnsavedOpen(false)}>
-                Batal
-              </Button>
-              <Button variant="outline" onClick={() => setUnsavedOpen(false)}>
-                Buang
-              </Button>
-              <Button onClick={() => setUnsavedOpen(false)}>Simpan</Button>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        <UnsavedChangesDialog
+          open={unsavedOpen}
+          onOpenChange={setUnsavedOpen}
+          onDiscard={() => setUnsavedOpen(false)}
+          onSave={() => setUnsavedOpen(false)}
+        />
+      </DocGroup>
+
+      <DocGroup
+        title="Sebelum / sesudah"
+        note="Lebar dialog dari tabel (dialogWidth), satu documentDialogClassName, satu UnsavedChangesDialog, ConfirmDialog ganti window.confirm. Kiri: yang lama; kanan: yang jalan sekarang."
+      >
+        <OverlayCompare />
       </DocGroup>
 
       <DocGroup
@@ -542,10 +534,7 @@ function DocumentDialog() {
       <DialogTrigger render={<Button variant="outline" />}>
         Dokumen (5xl, bare)
       </DialogTrigger>
-      <DialogContent
-        bare
-        className="flex h-[min(56rem,92svh)] w-full flex-col overflow-hidden p-0 sm:max-w-5xl"
-      >
+      <DialogContent bare className={documentDialogClassName}>
         <header className="flex h-14 shrink-0 items-center gap-2 border-b pr-14 pl-5">
           <DialogTitle className="truncate text-sm font-medium">
             Laporan mingguan — 26 Oktober 2026

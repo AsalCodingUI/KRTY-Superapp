@@ -120,7 +120,7 @@ export function AvatarCropDialog({
         if (!open && !saving) onCancel()
       }}
     >
-      <DialogContent className="sm:max-w-sm">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>{t("cropTitle")}</DialogTitle>
           <DialogDescription>{t("cropHint")}</DialogDescription>

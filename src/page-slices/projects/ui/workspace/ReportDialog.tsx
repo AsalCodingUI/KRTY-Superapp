@@ -1,12 +1,6 @@
 "use client"
 
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
+import { UnsavedChangesDialog } from "@/components/unsaved-changes-dialog"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
@@ -40,6 +34,7 @@ import {
   type Report,
   type ReportSummary,
 } from "./reports-data"
+import { documentDialogClassName } from "@/components/ui/dialog-sections"
 
 // Lives with the data, so menus get it without loading this window.
 export { reportShareUrl }
@@ -269,7 +264,7 @@ export function ReportDialog({
       <DialogContent
         bare
         showCloseButton={false}
-        className="flex h-[min(56rem,92svh)] w-full flex-col overflow-hidden p-0 sm:max-w-5xl"
+        className={documentDialogClassName}
       >
         <header
           ref={headerRef}
@@ -429,38 +424,21 @@ export function ReportDialog({
           />
         )}
 
-        <AlertDialog open={confirmClose} onOpenChange={setConfirmClose}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>{t("libNoteUnsaved")}</AlertDialogTitle>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <Button variant="outline" onClick={() => setConfirmClose(false)}>
-                {tc("cancel")}
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setConfirmClose(false)
-                  onOpenChange(false)
-                }}
-              >
-                {t("libNoteDiscard")}
-              </Button>
-              <Button
-                disabled={saving}
-                onClick={async () => {
-                  if (await save()) {
-                    setConfirmClose(false)
-                    onOpenChange(false)
-                  }
-                }}
-              >
-                {tc("save")}
-              </Button>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        <UnsavedChangesDialog
+          open={confirmClose}
+          onOpenChange={setConfirmClose}
+          saving={saving}
+          onDiscard={() => {
+            setConfirmClose(false)
+            onOpenChange(false)
+          }}
+          onSave={async () => {
+            if (await save()) {
+              setConfirmClose(false)
+              onOpenChange(false)
+            }
+          }}
+        />
       </DialogContent>
     </Dialog>
   )

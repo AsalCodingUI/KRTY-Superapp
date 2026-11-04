@@ -70,7 +70,7 @@ const id = {
   groupPerformanceHint: "Review dan skor KPI.",
   groupAnnouncements: "Pengumuman penting",
   groupAnnouncementsHint: "Yang ditandai urgent.",
-  saveFailed: "Gagal nyimpen. Coba lagi.",
+  saveFailed: "Gagal menyimpan, coba lagi",
 
   mode: "Mode",
   modeSystem: "Sistem",
@@ -154,7 +154,7 @@ const en: Record<keyof typeof id, string> = {
   groupPerformanceHint: "Reviews and KPI scores.",
   groupAnnouncements: "Urgent announcements",
   groupAnnouncementsHint: "The ones marked urgent.",
-  saveFailed: "Couldn't save. Try again.",
+  saveFailed: "Couldn't save, try again",
 
   mode: "Mode",
   modeSystem: "System",

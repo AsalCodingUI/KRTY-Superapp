@@ -100,7 +100,7 @@ export function CompetencyLibrary() {
     const result = await saveCompetency(draft)
     setSaving(false)
     if (!result.success) {
-      toast.error(result.error ?? t("saveFailed"))
+      toast.error(result.error ?? tc("saveFailed"))
       return
     }
     toast.success(draft.id ? t("competencyUpdated") : t("competencyAdded"))
