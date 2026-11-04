@@ -7,4 +7,4 @@
 
 export { LeaveBalance } from "./LeaveBalance"
 export { LeaveCard } from "./LeaveCard"
-export { LeaveStatus } from "./LeaveStatus"
+export { LEAVE_STATUS_VARIANT, LeaveStatusBadge } from "./LeaveStatus"

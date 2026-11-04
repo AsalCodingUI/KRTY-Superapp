@@ -439,7 +439,7 @@ const Column = memo(function Column({
           <Button
             variant="ghost"
             onClick={() => setAdding(true)}
-            className="text-muted-foreground text-meta justify-start font-normal"
+            className="text-muted-foreground justify-start"
           >
             <RiAddLine data-icon="inline-start" />
             {t("addCard")}

@@ -37,6 +37,7 @@ import { ProjectLineageLinks } from "../ProjectLineage"
 import { ProjectStageButton, useSetProjectStage } from "../ProjectStage"
 import { PhasesOffCard, StopPhasesDialog } from "./PhaseMode"
 import type { ReportSummary } from "./reports-data"
+import { StepStatusBadge } from "./StepStatusBadge"
 import { ProjectAvatar } from "@/components/project-avatar"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ConfirmDialog } from "@/components/confirm-dialog"
@@ -900,6 +901,7 @@ function PhaseSettingsDialog({
             {tc("cancel")}
           </Button>
           <Button disabled={saving || invalid} onClick={save}>
+            {saving && <Spinner data-icon="inline-start" />}
             {saving ? tc("saving") : tc("save")}
           </Button>
         </DialogFooter>
@@ -960,6 +962,7 @@ function PhaseNameDialog({
             {tc("cancel")}
           </Button>
           <Button type="submit" form="phase-name-form" disabled={saving}>
+            {saving && <Spinner data-icon="inline-start" />}
             {saving ? tc("saving") : tc("save")}
           </Button>
         </DialogFooter>
@@ -1458,16 +1461,9 @@ function ProcessPanel({
                   )}
                   onSave={(title) => update(step.id, { title })}
                 />
-                <span
-                  className={cn(
-                    "shrink-0 rounded-full px-2 py-0.5 text-xs",
-                    done
-                      ? "bg-success-subtle text-success-ink"
-                      : "bg-muted text-muted-foreground",
-                  )}
-                >
+                <StepStatusBadge done={done}>
                   {done ? t("statusCompleted") : t("stepDraft")}
-                </span>
+                </StepStatusBadge>
                 <DropdownMenu>
                   <DropdownMenuTrigger
                     render={

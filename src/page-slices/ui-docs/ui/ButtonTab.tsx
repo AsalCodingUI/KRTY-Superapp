@@ -27,6 +27,7 @@ import {
 import { ChevronDown, Upload } from "@/components/icons"
 import Link from "next/link"
 import { useState, type ReactNode } from "react"
+import { ButtonCompare } from "./button-compare"
 import {
   DocCanvas,
   DocDont,
@@ -42,6 +43,7 @@ const VARIANTS = [
   "ghost",
   "secondary",
   "destructive",
+  "destructive-ghost",
   "link",
 ] as const
 const TEXT_SIZES = ["xs", "sm", "default", "lg"] as const
@@ -50,7 +52,7 @@ const ICON_SIZES = ["icon-xs", "icon-sm", "icon", "icon-lg"] as const
 const RULES: [string, string][] = [
   [
     "Varian",
-    "default = satu aksi utama per area · outline = aksi lain di sebelahnya · ghost = aksi tenang (ikon di baris, kartu, header) · destructive = konfirmasi hapus",
+    "default = satu aksi utama per area · outline = aksi lain di sebelahnya · ghost = aksi tenang (ikon di baris, kartu, header) · destructive = konfirmasi hapus · destructive-ghost = Hapus / Keluar yang tenang",
   ],
   [
     "Ukuran",
@@ -100,6 +102,13 @@ export function ButtonTab() {
 
       <DocGroup title="Aturan">
         <DocRules rules={RULES} />
+      </DocGroup>
+
+      <DocGroup
+        title="Sebelum / sesudah"
+        note="destructive-ghost, ukuran di skala, Spinner saat nyimpan dan aria-label + Tooltip dipasang di semua halaman. Kiri: kelas lama; kanan: yang jalan sekarang."
+      >
+        <ButtonCompare />
       </DocGroup>
 
       <DocGroup
@@ -235,7 +244,7 @@ export function ButtonTab() {
         </DocExample>
         <DocExample
           title="Hapus yang tenang: ikon di baris, teks di kiri footer"
-          source='ghost icon-sm "text-muted-foreground hover:text-destructive" · ghost "text-destructive hover:text-destructive"'
+          source='ghost icon-sm "text-muted-foreground hover:text-destructive-ink" · variant="destructive-ghost"'
           kind="spec"
         >
           <DocCanvas>
@@ -243,16 +252,11 @@ export function ButtonTab() {
               variant="ghost"
               size="icon-sm"
               aria-label="Hapus catatan"
-              className="text-muted-foreground hover:text-destructive"
+              className="text-muted-foreground hover:text-destructive-ink"
             >
               <RiDeleteBinLine />
             </Button>
-            <Button
-              variant="ghost"
-              className="text-destructive hover:text-destructive"
-            >
-              Hapus langganan
-            </Button>
+            <Button variant="destructive-ghost">Hapus langganan</Button>
           </DocCanvas>
         </DocExample>
       </DocGroup>
@@ -442,7 +446,12 @@ export function ButtonTab() {
               <code className="font-mono text-xs">{"<button>"}</code> mentah
               buat aksi ikon: pakai Button ghost icon-xs / icon-sm.
             </>,
-            <>outline + text-destructive (gaya hapus ketiga).</>,
+            <>
+              ghost / outline + text-destructive-ink di className: pakai{" "}
+              <code className="font-mono text-xs">destructive-ghost</code> (atau{" "}
+              <code className="font-mono text-xs">destructive</code> buat
+              konfirmasi).
+            </>,
             <>Tombol ikon cuma pakai title=, tanpa aria-label / Tooltip.</>,
             <>Dua tombol default bersebelahan.</>,
           ]}

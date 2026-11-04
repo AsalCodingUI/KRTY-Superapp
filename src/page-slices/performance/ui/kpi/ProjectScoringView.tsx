@@ -13,6 +13,7 @@ import { EmptyState } from "@/components/empty-state"
 import { GroupedList, ListRow } from "@/components/grouped-list"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Spinner } from "@/components/ui/spinner"
 import { Input } from "@/components/ui/input"
 import {
   Popover,
@@ -435,6 +436,7 @@ export function ProjectScoringView({
       {canEdit && (
         <div className="bg-popover border-border sticky bottom-0 mt-4 flex justify-end gap-2 border-t py-3">
           <Button onClick={save} disabled={saving || !dirty}>
+            {saving && <Spinner data-icon="inline-start" />}
             {saving ? tc("saving") : dirty ? t("saveScores") : t("saved")}
           </Button>
         </div>
@@ -881,10 +883,7 @@ function OverrideEditor({
           <Button
             variant="ghost"
             size="icon-sm"
-            className={cn(
-              "rounded-full",
-              override ? "text-info" : "text-muted-foreground",
-            )}
+            className={override ? "text-info" : "text-muted-foreground"}
             aria-label={t("psAdjustOf", { name: ms.name })}
           />
         }
@@ -967,6 +966,7 @@ function OverrideEditor({
               disabled={busy || !reason.trim()}
               onClick={() => submit(false)}
             >
+              {busy && <Spinner data-icon="inline-start" />}
               {busy ? tc("saving") : tc("save")}
             </Button>
           </div>

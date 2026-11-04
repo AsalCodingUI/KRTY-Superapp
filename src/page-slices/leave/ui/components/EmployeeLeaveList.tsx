@@ -1,5 +1,6 @@
 "use client"
 
+import { LeaveStatusBadge } from "@/entities/leave/ui/LeaveStatus"
 import { ProofLink, useProofViewer } from "@/entities/leave/ui/ProofLink"
 import { AnimatePresence } from "motion/react"
 import { EmptyState } from "@/components/empty-state"
@@ -19,19 +20,13 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
 import { useDateLocale, useT } from "@/shared/i18n/client"
-import { daysKey, leaveStatusLabel, leaveTypeLabel } from "@/shared/lib/leave"
+import { daysKey, leaveTypeLabel } from "@/shared/lib/leave"
 import type { Database } from "@/shared/types/database.types"
 import { RiCalendarLine, RiMoreFill } from "@/shared/ui/lucide-icons"
 import { formatLeaveRange, leaveDays } from "./AdminLeaveList"
 import { LeaveRequestContextMenu } from "./leave-context-menu"
 
 type LeaveRequest = Database["public"]["Tables"]["leave_requests"]["Row"]
-
-const STATUS_VARIANT = {
-  approved: "success",
-  rejected: "destructive",
-  pending: "warning",
-} as const
 
 /** Shared column template so the header and every row line up. */
 const ROW_GRID =
@@ -164,9 +159,7 @@ function LeaveRow({
           {daysText}
         </span>
         <div>
-          <Badge variant={STATUS_VARIANT[req.status]}>
-            {leaveStatusLabel(req.status, t)}
-          </Badge>
+          <LeaveStatusBadge status={req.status} />
         </div>
 
         <div className="flex justify-end">

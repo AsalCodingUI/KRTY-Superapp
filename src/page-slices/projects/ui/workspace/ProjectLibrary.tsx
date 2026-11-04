@@ -22,6 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ButtonGroup } from "@/components/ui/button-group"
 import {
@@ -143,13 +144,10 @@ function fileDragImage(source: HTMLElement, name: string) {
 function InternalTag() {
   const t = useT("projects")
   return (
-    <span
-      className="bg-muted text-muted-foreground text-micro inline-flex items-center gap-1 rounded-full px-1.5 py-px font-medium"
-      title={t("libInternalFolderHint")}
-    >
-      <RiLockLine className="size-3" />
+    <Badge variant="secondary" title={t("libInternalFolderHint")}>
+      <RiLockLine data-icon="inline-start" />
       {t("libInternalTag")}
-    </span>
+    </Badge>
   )
 }
 

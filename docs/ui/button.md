@@ -25,19 +25,33 @@ examples: **/ui** → Tombol.
 | Sidebar toggle                       | `SidebarTrigger`                                             | `src/components/ui/sidebar.tsx`                      |
 | Pressed / on-off button              | `Button aria-pressed` (+ `variant="secondary"` while on)     | `button.tsx`                                         |
 
+## Use these (Nov 2026)
+
+- Quiet destructive (Hapus in a footer, Keluar, reject icon):
+  `variant="destructive-ghost"`. Never ghost / outline + `text-destructive-ink`.
+- The confirm of a destructive action: `variant="destructive"`.
+- Height and padding come from `size` only (`xs` 24 · `sm` 28 · `default`
+  32 · `lg` 40; `icon-*` the same). No `h-*`, `px-*`, `size-*`,
+  `rounded-full`, `text-[13px]` or `font-normal` on a Button.
+- Busy: `disabled` + `{busy && <Spinner data-icon="inline-start" />}` +
+  the "-ing" label.
+- Icon-only: `aria-label` + `Tooltip` (`TooltipTrigger render={<Button … />}`),
+  not `title=`.
+
 ## Variants
 
 Usage across `src` (Nov 2026, 478 buttons): ghost 191, outline 133,
 default 106, secondary 20, destructive 13, link 1.
 
-| Variant       | For                                                                                                                |
-| ------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `default`     | The one primary action of a page, dialog or card (Save, Create, Upload). One per area.                             |
-| `outline`     | Every other action next to it (Cancel, Export, Filter). The default "secondary" button.                            |
-| `ghost`       | Quiet actions: icon buttons in rows, cards, headers, toolbars; "add another" links in forms.                       |
-| `secondary`   | A button sitting on a field (FileField's "Pilih file") or a pressed toggle (`aria-pressed`). Not a second outline. |
-| `destructive` | The confirm of a destructive action (Hapus in a confirm dialog). Tinted, not solid red.                            |
-| `link`        | Inline "Lihat ›" at the end of a card (`HomeFooter`). With `size="sm" className="h-auto px-0"`.                    |
+| Variant             | For                                                                                                                     |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `default`           | The one primary action of a page, dialog or card (Save, Create, Upload). One per area.                                  |
+| `outline`           | Every other action next to it (Cancel, Export, Filter). The default "secondary" button.                                 |
+| `ghost`             | Quiet actions: icon buttons in rows, cards, headers, toolbars; "add another" links in forms.                            |
+| `secondary`         | A button sitting on a field (FileField's "Pilih file") or a pressed toggle (`aria-pressed`). Not a second outline.      |
+| `destructive`       | The confirm of a destructive action (Hapus in a confirm dialog). Tinted, not solid red.                                 |
+| `destructive-ghost` | A quiet destructive text or icon button: Hapus in a footer, Keluar, Batalkan slot, Tolak. Red label, red tint on hover. |
+| `link`              | Inline "Lihat ›" at the end of a card (`HomeFooter`). With `size="sm" className="h-auto px-0"`.                         |
 
 ## Sizes
 
@@ -113,14 +127,14 @@ router.push()}` on a button for plain navigation.
 
 - Confirm dialogs: `variant="destructive"` on the confirm button
   (`ConfirmDialog`).
-- A quiet "Hapus" text button in a footer or row: `ghost` +
-  `text-destructive hover:text-destructive` is the one allowed colour
-  override until a `destructive-ghost` variant exists (see Migration).
+- A quiet "Hapus" / "Keluar" text button in a footer or row, or a
+  red icon action (reject): `variant="destructive-ghost"`. No colour
+  override in `className`.
 
 **Allowed `className` on Button**: layout (`w-full`, `flex-1`,
 `self-start`, `ml-auto`, `shrink-0`, `mt-*`, `-m*` to align an icon with
 text), the hover-reveal opacity classes above, `text-muted-foreground` on
-ghost icon buttons, `hover:text-destructive`, `blend-ink` on chrome. Not
+ghost icon buttons, `hover:text-destructive-ink`, `blend-ink` on chrome. Not
 height, padding, radius, font size, background or border.
 
 **Custom buttons (keep their own style)**
@@ -204,6 +218,35 @@ text-primary-foreground` on a default button, `rounded-full` on any
 ```
 
 ## Migration notes
+
+Done 2026-11-05 (local): `destructive-ghost` added to `buttonVariants`
+and used for the 14 ghost / outline + `text-destructive-ink` buttons
+(PortalShell, ProjectSettings, ReportDialog, ClientPortalCard,
+InvoiceSettingsDialog, InvoiceEditorDialog, SubscriptionDialog,
+GoalDialog, CompetencyLibrary, OneOnOne ×2, mobile-nav, event-dialog,
+SharingSantuyDialog) and the leave reject icon; BaseReadOnlyDialog and
+MeetingDialog's outline + `hover:bg-destructive/10` → `destructive`.
+Size overrides fixed: MenubarPopover `h-9 px-4` → default (sign-in →
+`lg`), ProjectLineage (`h-7 px-2.5 text-meta` dropped, `size-6` →
+`icon-xs`, `font-normal` dropped), TaskDialog / TaskBoard / ReportViews
+type and padding overrides dropped, PhaseRail `h-5 rounded-full px-2`
+dropped, BriefForm redundant `size-7` dropped, ReminderPicker `h-6 w-6
+p-0` → `icon-xs` (+ `aria-label`), MeetingButton's restated default
+dropped, `rounded-full` dropped (InvoiceEditorDialog ×2, MyOneOnOne,
+ProjectScoringView, file-viewer ×2), data-table-filterbar → `outline`.
+Spinner added to 20 label-only busy buttons (all those listed below plus
+update-password, ContractDialog, ProjectScoringView ×2);
+LeaveRequestForm's `RiLoader2Line animate-spin` → `Spinner`.
+AdminColumns approve / reject, `HomeIconLink` and `ThemeToggleButton`:
+`aria-label` + `Tooltip` instead of `title=`. Before / after and the
+measured sizes are on /ui → Tombol.
+
+Still open: the date-picker preset list (its bordered chip look on
+phones needs a design decision), `appearance-popover`'s chrome trigger,
+the responsive icon-only `max-sm:w-8 max-sm:px-0` buttons, the raw
+`<button>`s, `title=` on the other ~30 icon buttons that already have an
+`aria-label`, the `<Link prefetch>` list, and `text-muted-foreground` as
+a ghost-icon default. The older list below is kept for reference.
 
 Found Nov 2026; fix in place, then delete the line.
 

@@ -1,6 +1,11 @@
 import { RollingValue } from "@/components/rolling-value"
 import { orEmpty } from "@/components/empty-value"
 import { Button } from "@/components/ui/button"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 import { ChevronRight } from "@/components/icons"
 import Link from "next/link"
@@ -133,7 +138,7 @@ export function HomeCard({
     <section
       {...data}
       className={cn(
-        "bg-card border-field-border dark:border-border rounded-card flex min-w-0 flex-col gap-4 border p-surface",
+        "bg-card border-field-border dark:border-border rounded-card p-surface flex min-w-0 flex-col gap-4 border",
         className,
       )}
     >
@@ -162,17 +167,23 @@ export function HomeIconLink({
   children: React.ReactNode
 }) {
   return (
-    <Button
-      variant="ghost"
-      size="icon-sm"
-      aria-label={label}
-      title={label}
-      className="text-muted-foreground"
-      nativeButton={false}
-      render={<Link href={href} prefetch={false} />}
-    >
-      {children}
-    </Button>
+    <Tooltip>
+      <TooltipTrigger
+        render={
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            aria-label={label}
+            className="text-muted-foreground"
+            nativeButton={false}
+            render={<Link href={href} prefetch={false} />}
+          />
+        }
+      >
+        {children}
+      </TooltipTrigger>
+      <TooltipContent>{label}</TooltipContent>
+    </Tooltip>
   )
 }
 

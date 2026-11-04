@@ -257,8 +257,7 @@ export function CompetencyLibrary() {
                         </Button>
                         <Button
                           size="sm"
-                          variant="ghost"
-                          className="text-destructive-ink hover:text-destructive-ink"
+                          variant="destructive-ghost"
                           onClick={() =>
                             // In use: deleting would rewrite past scores.
                             c.usage > 0
@@ -353,6 +352,7 @@ export function CompetencyLibrary() {
               {tc("cancel")}
             </Button>
             <Button onClick={save} disabled={saving || !draft?.name.trim()}>
+              {saving && <Spinner data-icon="inline-start" />}
               {saving ? tc("saving") : tc("save")}
             </Button>
           </DialogFooter>

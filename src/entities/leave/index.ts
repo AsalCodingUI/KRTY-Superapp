@@ -8,7 +8,12 @@
  */
 
 // UI Components
-export { LeaveBalance, LeaveCard, LeaveStatus } from "./ui"
+export {
+  LEAVE_STATUS_VARIANT,
+  LeaveBalance,
+  LeaveCard,
+  LeaveStatusBadge,
+} from "./ui"
 
 // Model (Types & Hooks)
 export { useLeaveAdminStats, useLeaveBalance, useLeaveFilters } from "./model"

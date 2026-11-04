@@ -2,6 +2,7 @@
 
 import { setFxRates } from "@/app/(main)/finance/actions/subscription-actions"
 import { Button } from "@/components/ui/button"
+import { Spinner } from "@/components/ui/spinner"
 import {
   Dialog,
   DialogContent,
@@ -114,6 +115,7 @@ export function FxRatesDialog({
             {tc("cancel")}
           </Button>
           <Button type="submit" form="fx-form" disabled={saving}>
+            {saving && <Spinner data-icon="inline-start" />}
             {saving ? tc("saving") : tc("save")}
           </Button>
         </DialogFooter>

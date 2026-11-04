@@ -50,4 +50,7 @@ function Badge({
   })
 }
 
-export { Badge, badgeVariants }
+/** For a domain's status → variant map (`Record<Status, BadgeVariant>`). */
+type BadgeVariant = NonNullable<VariantProps<typeof badgeVariants>["variant"]>
+
+export { Badge, badgeVariants, type BadgeVariant }

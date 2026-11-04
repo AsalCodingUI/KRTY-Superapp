@@ -1,6 +1,7 @@
 "use client"
 
 import { setBriefSets } from "@/app/(main)/projects/actions/brief-actions"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import {
@@ -718,14 +719,14 @@ function SectionBlock({
             />
           )}
           {offered && (
-            <span className="bg-muted text-muted-foreground text-micro shrink-0 self-center rounded-full px-2 py-0.5">
+            <Badge variant="secondary" className="self-center">
               {t("setOffer")}
-            </span>
+            </Badge>
           )}
           {section.team && (
-            <span className="bg-muted text-muted-foreground text-micro shrink-0 self-center rounded-full px-2 py-0.5">
+            <Badge variant="secondary" className="self-center">
               {t("teamFills")}
-            </span>
+            </Badge>
           )}
           {!section.description && !noteOpen && (
             <button

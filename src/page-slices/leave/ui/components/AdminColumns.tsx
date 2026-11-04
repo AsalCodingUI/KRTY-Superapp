@@ -1,15 +1,20 @@
 "use client"
 
+import { LeaveStatusBadge } from "@/entities/leave/ui/LeaveStatus"
 import { ProofLink } from "@/entities/leave/ui/ProofLink"
 import { EmptyValue } from "@/components/empty-value"
 import { DataTableColumnHeader } from "@/components/data-table"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
 import type { MessageKey } from "@/shared/i18n/messages"
 import { leaveTypeLabel } from "@/shared/lib/leave"
 import type { Locale } from "date-fns"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import {
   formatLeaveRange,
   type LeaveRequestWithProfile,
@@ -22,17 +27,6 @@ export type { LeaveRequestWithProfile }
 const columnHelper = createColumnHelper<LeaveRequestWithProfile>()
 
 type LeaveT = (key: MessageKey<"leave">) => string
-
-const getStatusBadge = (status: string, t: LeaveT) => {
-  switch (status) {
-    case "approved":
-      return <Badge variant="success">{t("statusApproved")}</Badge>
-    case "rejected":
-      return <Badge variant="destructive">{t("statusRejected")}</Badge>
-    default:
-      return <Badge variant="warning">{t("statusPending")}</Badge>
-  }
-}
 
 type AdminColumnsOptions = {
   canSelect?: boolean
@@ -207,7 +201,9 @@ export const adminColumns = (
           className="whitespace-nowrap"
         />
       ),
-      cell: ({ row }) => getStatusBadge(row.getValue("status"), t),
+      cell: ({ row }) => (
+        <LeaveStatusBadge status={row.getValue<string>("status")} />
+      ),
       meta: { displayName: t("colStatus") },
     }),
 
@@ -223,31 +219,44 @@ export const adminColumns = (
 
               return (
                 <div className="flex justify-end gap-2">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-destructive-ink"
-                    title={t("reject")}
-                    // Don't also toggle the row's selection.
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      onReject(item.id)
-                    }}
-                  >
-                    <RiCloseLine className="size-3.5" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-success-ink"
-                    title={t("approve")}
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      onApprove(item.id)
-                    }}
-                  >
-                    <RiCheckLine className="size-3.5" />
-                  </Button>
+                  <Tooltip>
+                    <TooltipTrigger
+                      render={
+                        <Button
+                          variant="destructive-ghost"
+                          size="icon"
+                          aria-label={t("reject")}
+                          // Don't also toggle the row's selection.
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            onReject(item.id)
+                          }}
+                        />
+                      }
+                    >
+                      <RiCloseLine className="size-3.5" />
+                    </TooltipTrigger>
+                    <TooltipContent>{t("reject")}</TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger
+                      render={
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-success-ink"
+                          aria-label={t("approve")}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            onApprove(item.id)
+                          }}
+                        />
+                      }
+                    >
+                      <RiCheckLine className="size-3.5" />
+                    </TooltipTrigger>
+                    <TooltipContent>{t("approve")}</TooltipContent>
+                  </Tooltip>
                 </div>
               )
             },

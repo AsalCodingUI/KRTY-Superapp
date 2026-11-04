@@ -25,6 +25,21 @@ currency), is always grey, square-ish (`rounded-md`, `h-6`,
 `text-[13px]`) and sits in the row's text flow. If it would change colour
 when the record moves on, it's a Badge.
 
+## Use these (Nov 2026)
+
+- A state: `Badge variant`. Colour comes from the variant only; never a
+  `bg-*` / `text-*` in `className`, never a hand-made `<span>` pill.
+- A domain's status map lives once, next to the domain, typed
+  `Record<Status, BadgeVariant>` (`BadgeVariant` is exported from
+  `badge.tsx`), ideally behind an `<XStatusBadge status>`:
+  `LeaveStatusBadge` (`entities/leave/ui/LeaveStatus.tsx`),
+  `StepStatusBadge` (`projects/ui/workspace/StepStatusBadge.tsx`),
+  `StatusBadge` (contracts), `CycleStatusBadge`, `RatingChip`.
+- A tag (Internal, Default, "Tim yang isi"): `Badge variant="secondary"`
+  (brand: `default`), icon with `data-icon="inline-start"`.
+- A fact (currency, country, phase name): `ListChip`.
+- An icon-only Badge (RSVP) carries an `sr-only` label.
+
 ## Variants
 
 Usage across `src` (93 Badges): secondary 32, mapped (`variant={…}`) 28,
@@ -57,17 +72,20 @@ warning 11, success 9, info 6, destructive 4, default 3.
 
 **Domain mappings (canonical)**
 
-| Domain                       | Status → variant                                                                                                    | Where                                                           |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
-| Leave request                | approved → success · pending → warning · rejected → destructive                                                     | `STATUS_VARIANT` in `leave/ui/components/EmployeeLeaveList.tsx` |
-| Leave type                   | Annual → info · Sick → warning · WFH → secondary                                                                    | `LEAVE_TYPE_BADGE`, `AdminLeaveList.tsx`                        |
-| Contract                     | acknowledged → success · sent → warning · draft → outline                                                           | `StatusBadge`, `contracts/ui/parts.tsx`                         |
-| Invoice (app)                | Draft → secondary · Sent → info · Partial → warning · Paid → success · Overdue → destructive · Refunded → secondary | `STATUS`, `projects/ui/workspace/ProjectInvoices.tsx`           |
-| KPI rating                   | Exceptional → success · Above → info · Meets → secondary · Below → warning · Needs work → destructive               | `RatingChip` + `entities/performance/lib/kpi.ts`                |
-| Review cycle                 | scheduled → info · running → success · ended / closed → secondary                                                   | `CycleStatusBadge`                                              |
-| Attendance / dates           | today → info, otherwise secondary                                                                                   | `attendance/components/AttendanceHistoryList.tsx`               |
-| Calendar event type          | event colour → variant (`getBadgeVariant`)                                                                          | `widgets/event-calendar/ui/event-dialog.tsx`                    |
-| Process step (portal, panel) | done → success · open → secondary                                                                                   | see Migration                                                   |
+| Domain                       | Status → variant                                                                                                    | Where                                                          |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| Leave request                | approved → success · pending → warning · rejected → destructive                                                     | `LeaveStatusBadge`, `entities/leave/ui/LeaveStatus.tsx`        |
+| Leave type                   | Annual → info · Sick → warning · WFH → secondary                                                                    | `LEAVE_TYPE_BADGE`, `AdminLeaveList.tsx`                       |
+| Contract                     | acknowledged → success · sent → warning · draft → outline                                                           | `StatusBadge`, `contracts/ui/parts.tsx`                        |
+| Invoice (app)                | Draft → secondary · Sent → info · Partial → warning · Paid → success · Overdue → destructive · Refunded → secondary | `STATUS`, `projects/ui/workspace/ProjectInvoices.tsx`          |
+| KPI rating                   | Exceptional → success · Above → info · Meets → secondary · Below → warning · Needs work → destructive               | `RatingChip` + `entities/performance/lib/kpi.ts`               |
+| Review cycle                 | scheduled → info · running → success · ended / closed → secondary                                                   | `CycleStatusBadge`                                             |
+| Attendance / dates           | today → info, otherwise secondary                                                                                   | `attendance/components/AttendanceHistoryList.tsx`              |
+| Calendar event type          | event colour → variant (`getBadgeVariant`)                                                                          | `widgets/event-calendar/ui/event-dialog.tsx`                   |
+| Process step (portal, panel) | done → success · open → secondary                                                                                   | `StepStatusBadge`, `projects/ui/workspace/StepStatusBadge.tsx` |
+| Policy (card)                | has draft → warning · draft → secondary · archived → secondary                                                      | `POLICY_STATUS_VARIANT`, `policies/ui/PoliciesPage.tsx`        |
+| Calendar RSVP                | accepted → success · pending → warning · declined → destructive (icon only)                                         | `RSVP`, `widgets/event-calendar/ui/components/GuestList.tsx`   |
+| Payment method               | inactive → secondary "Nonaktif" · stale → warning "Perlu dicek"                                                     | `InvoiceSettingsDialog.tsx` (methods tab)                      |
 
 **Project and task status are glyphs, not badges**
 
@@ -118,6 +136,7 @@ dates warning (an inline callout).
 
 ## Good examples
 
+- Status component: `src/entities/leave/ui/LeaveStatus.tsx` (`LeaveStatusBadge`)
 - Status column: `src/page-slices/leave/ui/components/EmployeeLeaveList.tsx`
 - Status component: `src/page-slices/contracts/ui/parts.tsx` (`StatusBadge`, `EndingChip`)
 - Mapped rating: `src/page-slices/performance/ui/kpi/RatingChip.tsx`
@@ -148,6 +167,32 @@ const STATUS_VARIANT = {
 ```
 
 ## Migration notes
+
+Done 2026-11-05 (local): hand-made status pills → `Badge` —
+PortalOverview and ProjectDashboard `ProcessPanel` share
+`StepStatusBadge`; GuestList RSVP → icon `Badge` (success / warning /
+destructive, `sr-only` label); ProjectInvoices `STATUS` carries a
+`variant` instead of a `tone` class (Draft / Refunded now `secondary`);
+InvoiceSettingsDialog payment methods show `Badge secondary` "Nonaktif"
+(no strike-through) and `Badge warning` "Perlu dicek" (no lone icon).
+Tags → `Badge`: `InternalTag` (secondary + lock), nav-project lead
+(`default`), Processes / ProcessEditor "Default" (secondary), briefs
+"Tim yang isi" / offer tags (secondary), PortalShell chrome status
+(secondary, `blend-ink`), PoliciesPage card status (mapped). Facts →
+`ListChip`: ClientsPage currency / country, ProcessesPage phase names.
+`text-sm` (LeaveDialog ×2, BaseReadOnlyDialog) and `font-normal`
+(TeamKpiList) overrides dropped. The leave status map (3 copies + the
+AdminColumns switch) is one `LeaveStatusBadge` in `entities/leave/ui/`
+(replacing the unused `LeaveStatus`). `BadgeVariant` exported from
+`badge.tsx` for domain maps. Before / after and measured variants are on
+/ui → Badge.
+
+Still open: InvoiceSettingsDialog's payment methods are still bordered
+card buttons (moving them to `GroupedList` rows is a layout change,
+left for the list pass); the unused `LeaveCard`, `AttendanceStatus`,
+`EventStatus`; `TabNavigationLink count`; `MenubarPopover`'s
+`StatusDot` rename; the policy list rows' `ListChip` status. The older
+list below is kept for reference.
 
 Found Nov 2026; fix in place, then delete the line. Paths under `src/`.
 

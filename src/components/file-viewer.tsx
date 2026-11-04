@@ -299,7 +299,7 @@ export function FileViewer({
                     size="icon"
                     aria-label={t("previous")}
                     onClick={() => step(-1)}
-                    className="bg-background dark:bg-popover absolute top-1/2 left-3 -translate-y-1/2 rounded-full"
+                    className="bg-background dark:bg-popover absolute top-1/2 left-3 -translate-y-1/2"
                   >
                     <ChevronLeft />
                   </Button>
@@ -308,7 +308,7 @@ export function FileViewer({
                     size="icon"
                     aria-label={t("next")}
                     onClick={() => step(1)}
-                    className="bg-background dark:bg-popover absolute top-1/2 right-3 -translate-y-1/2 rounded-full"
+                    className="bg-background dark:bg-popover absolute top-1/2 right-3 -translate-y-1/2"
                   >
                     <ChevronRight />
                   </Button>

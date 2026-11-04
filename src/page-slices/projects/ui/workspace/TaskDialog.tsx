@@ -613,7 +613,7 @@ function TaskBody({
             variant="ghost"
             size="sm"
             onClick={() => setConfirmDelete(true)}
-            className="text-muted-foreground hover:text-destructive-ink text-meta mt-auto self-start px-2.5 font-normal"
+            className="text-muted-foreground hover:text-destructive-ink mt-auto self-start"
           >
             <RiDeleteBinLine data-icon="inline-start" />
             {t("deleteTask")}

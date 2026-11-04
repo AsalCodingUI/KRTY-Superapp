@@ -599,6 +599,7 @@ export function ReviewMonitoring({ period }: { period: string }) {
               {tc("cancel")}
             </Button>
             <Button onClick={savePeriod} disabled={busy || periodInvalid}>
+              {busy && <Spinner data-icon="inline-start" />}
               {busy ? tc("saving") : cycle ? tc("save") : t("openPeriod")}
             </Button>
           </DialogFooter>

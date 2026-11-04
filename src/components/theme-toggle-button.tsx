@@ -2,6 +2,11 @@
 
 import { Moon, Sun } from "@/components/icons"
 import { Button } from "@/components/ui/button"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 import { useT } from "@/shared/i18n/client"
 import { useThemeTransition } from "@/shared/hooks/useThemeTransition"
@@ -22,16 +27,22 @@ export function ThemeToggleButton({ className }: { className?: string }) {
   const label = t(dark ? "themeLight" : "themeDark")
 
   return (
-    <Button
-      variant="ghost"
-      size="icon-sm"
-      data-no-translate
-      aria-label={label}
-      title={label}
-      onClick={() => setTheme(dark ? "light" : "dark")}
-      className={cn("blend-ink text-muted-foreground", className)}
-    >
-      {dark ? <Sun /> : <Moon />}
-    </Button>
+    <Tooltip>
+      <TooltipTrigger
+        render={
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            data-no-translate
+            aria-label={label}
+            onClick={() => setTheme(dark ? "light" : "dark")}
+            className={cn("blend-ink text-muted-foreground", className)}
+          />
+        }
+      >
+        {dark ? <Sun /> : <Moon />}
+      </TooltipTrigger>
+      <TooltipContent>{label}</TooltipContent>
+    </Tooltip>
   )
 }

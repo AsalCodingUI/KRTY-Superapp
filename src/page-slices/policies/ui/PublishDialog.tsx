@@ -3,6 +3,7 @@
 import { DateField } from "@/components/date-field"
 import { publishPolicy } from "@/app/(main)/policies/actions/policy-actions"
 import { Button } from "@/components/ui/button"
+import { Spinner } from "@/components/ui/spinner"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
   Dialog,
@@ -133,6 +134,7 @@ export function PublishDialog({
             {tc("cancel")}
           </Button>
           <Button type="submit" form="publish-policy-form" disabled={saving}>
+            {saving && <Spinner data-icon="inline-start" />}
             {saving ? t("publishing") : t("publish")}
           </Button>
         </DialogFooter>

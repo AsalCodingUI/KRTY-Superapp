@@ -85,9 +85,10 @@ export function ReminderPicker({
               <Button
                 type="button"
                 variant="ghost"
+                size="icon-xs"
+                aria-label={tc("delete")}
                 onClick={() => handleRemove(index)}
                 disabled={disabled}
-                className="h-6 w-6 p-0"
               >
                 <RiCloseLine className="h-4 w-4" />
               </Button>

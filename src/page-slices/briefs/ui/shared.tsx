@@ -1,5 +1,6 @@
 "use client"
 
+import { Badge } from "@/components/ui/badge"
 import { ProjectStageIcon } from "@/page-slices/projects/ui/ProjectStageIcon"
 import { cn } from "@/lib/utils"
 import { useT } from "@/shared/i18n/client"
@@ -158,9 +159,7 @@ export function BriefAnswersView({ brief }: { brief: BriefListRow }) {
                   {section.title}
                 </h3>
                 {section.team && (
-                  <span className="bg-muted text-muted-foreground text-micro shrink-0 rounded-full px-2 py-0.5">
-                    {t("teamFills")}
-                  </span>
+                  <Badge variant="secondary">{t("teamFills")}</Badge>
                 )}
                 <span className="text-tertiary-foreground shrink-0 text-xs tabular-nums">
                   {answered(section)}/{asked(section).length}

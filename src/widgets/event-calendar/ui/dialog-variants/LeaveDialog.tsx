@@ -66,10 +66,10 @@ export function LeaveDialog({ open, onOpenChange, event }: LeaveDialogProps) {
         <div className="flex flex-col gap-5">
           {/* Status Badge */}
           <div className="flex items-center gap-2">
-            <Badge variant="secondary" color="emerald" className="text-sm">
+            <Badge variant="secondary" color="emerald">
               {t("leaveApproved")}
             </Badge>
-            <Badge variant="secondary" color={badgeColor} className="text-sm">
+            <Badge variant="secondary" color={badgeColor}>
               {leaveType}
             </Badge>
           </div>

@@ -7,10 +7,12 @@ import {
 } from "@/app/(main)/processes/actions/process-actions"
 import { ConfirmDialog } from "@/components/confirm-dialog"
 import { EmptyState } from "@/components/empty-state"
+import { ListChip } from "@/components/grouped-list"
 import { ContextTarget, type CtxItem } from "@/shared/context-menu"
 import { CopyPlus, Pencil, Star, Trash2 } from "@/components/icons"
 import { toast } from "sonner"
 import { PageHeader } from "@/components/page-header"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
@@ -206,9 +208,7 @@ function ProcessCard({
             {process.name}
           </span>
           {process.is_default && (
-            <span className="bg-muted text-muted-foreground shrink-0 rounded-full px-2 py-0.5 text-xs">
-              {t("default")}
-            </span>
+            <Badge variant="secondary">{t("default")}</Badge>
           )}
         </div>
         <p className="text-muted-foreground line-clamp-2 min-h-10 text-sm leading-5">
@@ -218,9 +218,7 @@ function ProcessCard({
           {process.phases.map((ph, i) => (
             <Fragment key={ph.id}>
               {i > 0 && <span className="bg-border h-px w-3" />}
-              <span className="border-border rounded-md border px-2 py-0.5 text-xs">
-                {ph.name}
-              </span>
+              <ListChip>{ph.name}</ListChip>
             </Fragment>
           ))}
         </div>

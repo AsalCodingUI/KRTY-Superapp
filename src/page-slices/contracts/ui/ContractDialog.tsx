@@ -279,6 +279,7 @@ function Acknowledgement({
               </p>
             )}
             <Button type="submit" disabled={saving || !name.trim() || mismatch}>
+              {saving && <Spinner data-icon="inline-start" />}
               {saving ? t("ackSubmitting") : t("ackSubmit")}
             </Button>
           </form>

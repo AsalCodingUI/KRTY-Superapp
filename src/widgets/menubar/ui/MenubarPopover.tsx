@@ -1428,11 +1428,7 @@ function RailClock({ data }: { data: Data }) {
             Clock in dari web app dulu
           </p>
         </div>
-        <Button
-          className="h-9 px-4"
-          variant="secondary"
-          onClick={() => act.open("/attendance")}
-        >
+        <Button variant="secondary" onClick={() => act.open("/attendance")}>
           Buka web
           <ArrowUpRight data-icon="inline-end" />
         </Button>
@@ -1459,14 +1455,13 @@ function RailClock({ data }: { data: Data }) {
         </p>
       </div>
       {!data.log ? (
-        <Button className="h-9 px-4" disabled={offline} onClick={act.clockIn}>
+        <Button disabled={offline} onClick={act.clockIn}>
           <LogIn data-icon="inline-start" />
           Clock in
         </Button>
       ) : data.working ? (
         <div className="flex items-center gap-2">
           <Button
-            className="h-9 px-4"
             variant="secondary"
             disabled={offline}
             onClick={act.toggleBreak}
@@ -1474,12 +1469,7 @@ function RailClock({ data }: { data: Data }) {
             <Coffee data-icon="inline-start" />
             {data.onBreak ? "Lanjut" : "Istirahat"}
           </Button>
-          <Button
-            className="h-9 px-4"
-            variant="secondary"
-            disabled={offline}
-            onClick={act.clockOut}
-          >
+          <Button variant="secondary" disabled={offline} onClick={act.clockOut}>
             <LogOut data-icon="inline-start" />
             Clock out
           </Button>
@@ -1678,7 +1668,7 @@ function RailSignedOut({ className }: { className?: string }) {
         <p className="text-muted-foreground mt-2 text-sm text-balance">
           Absen, jadwal, tugas dan notifikasi kamu langsung dari menu bar.
         </p>
-        <Button className="mt-6 h-9 px-4" onClick={act.signIn}>
+        <Button size="lg" className="mt-6" onClick={act.signIn}>
           Lanjutkan dengan Google
           <ArrowUpRight data-icon="inline-end" />
         </Button>

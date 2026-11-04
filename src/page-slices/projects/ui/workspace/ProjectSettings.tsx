@@ -349,8 +349,7 @@ export function ProjectSettings({ projectId }: { projectId: string }) {
                 action={
                   <Button
                     size="sm"
-                    variant="outline"
-                    className="text-destructive-ink hover:text-destructive-ink"
+                    variant="destructive-ghost"
                     onClick={() => setDeleting(true)}
                   >
                     {t("deleteProject")}

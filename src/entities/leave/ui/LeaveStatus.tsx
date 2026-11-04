@@ -1,63 +1,23 @@
 "use client"
 
-import { RiCheckLine, RiCloseLine, RiTimeLine } from "@/shared/ui/lucide-icons"
-import { Badge } from "@/components/ui/badge"
+import { Badge, type BadgeVariant } from "@/components/ui/badge"
 import { useT } from "@/shared/i18n/client"
+import { leaveStatusLabel } from "@/shared/lib/leave"
 
-interface LeaveStatusProps {
-  status: "pending" | "approved" | "rejected"
-  showIcon?: boolean
-  size?: "sm" | "md" | "lg"
+/** Leave request status → Badge variant: the one map (docs/ui/badge.md). */
+export const LEAVE_STATUS_VARIANT: Record<string, BadgeVariant> = {
+  approved: "success",
+  pending: "warning",
+  rejected: "destructive",
 }
 
-export function LeaveStatus({
-  status,
-  showIcon = true,
-  size = "md",
-}: LeaveStatusProps) {
+/** A leave request's status, coloured by meaning. Unknown statuses read
+ *  neutral and show as stored. */
+export function LeaveStatusBadge({ status }: { status: string }) {
   const t = useT("leave")
-  const getStatusConfig = (status: string) => {
-    switch (status) {
-      case "approved":
-        return {
-          variant: "success" as const,
-          icon: RiCheckLine,
-          label: t("statusApproved"),
-        }
-      case "rejected":
-        return {
-          variant: "destructive" as const,
-          icon: RiCloseLine,
-          label: t("statusRejected"),
-        }
-      case "pending":
-        return {
-          variant: "warning" as const,
-          icon: RiTimeLine,
-          label: t("statusPending"),
-        }
-      default:
-        return {
-          variant: "secondary" as const,
-          icon: RiTimeLine,
-          label: status,
-        }
-    }
-  }
-
-  const config = getStatusConfig(status)
-  const Icon = config.icon
-
-  const iconSizeClass = {
-    sm: "size-3",
-    md: "size-4",
-    lg: "size-5",
-  }[size]
-
   return (
-    <Badge variant={config.variant}>
-      {showIcon && <Icon className={iconSizeClass} />}
-      <span>{config.label}</span>
+    <Badge variant={LEAVE_STATUS_VARIANT[status] ?? "secondary"}>
+      {leaveStatusLabel(status, t)}
     </Badge>
   )
 }

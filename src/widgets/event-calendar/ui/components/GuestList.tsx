@@ -1,5 +1,6 @@
 "use client"
 
+import { Badge } from "@/components/ui/badge"
 import { useT } from "@/shared/i18n/client"
 import { cx } from "@/shared/lib/utils"
 import {
@@ -9,6 +10,20 @@ import {
   RiUserAddLine,
 } from "@/shared/ui/lucide-icons"
 import type { Guest } from "../types"
+
+const RSVP = {
+  accepted: {
+    variant: "success",
+    icon: RiCheckLine,
+    label: "rsvpStatusAccepted",
+  },
+  pending: { variant: "warning", icon: RiTimeLine, label: "rsvpStatusPending" },
+  declined: {
+    variant: "destructive",
+    icon: RiCloseLine,
+    label: "rsvpStatusDeclined",
+  },
+} as const
 
 interface GuestListProps {
   guests: Guest[]
@@ -92,28 +107,22 @@ export function GuestList({
             </div>
 
             {/* Status */}
-            <div
-              className={cx(
-                "flex items-center gap-1 rounded-sm px-1.5 py-0.5 text-xs",
-                guest.status === "accepted" &&
-                  "bg-success-subtle text-success-ink",
-                guest.status === "pending" &&
-                  "bg-warning-subtle text-warning-ink",
-                guest.status === "declined" &&
-                  "bg-destructive-subtle text-red-11",
-              )}
-            >
-              {guest.status === "accepted" && (
-                <RiCheckLine className="h-3 w-3" />
-              )}
-              {guest.status === "pending" && <RiTimeLine className="h-3 w-3" />}
-              {guest.status === "declined" && (
-                <RiCloseLine className="h-3 w-3" />
-              )}
-            </div>
+            <RsvpBadge status={guest.status} />
           </div>
         ))}
       </div>
     </div>
+  )
+}
+
+/** RSVP as an icon-only Badge; the label is there for screen readers. */
+function RsvpBadge({ status }: { status: Guest["status"] }) {
+  const t = useT("calendar")
+  const { variant, icon: Icon, label } = RSVP[status]
+  return (
+    <Badge variant={variant}>
+      <Icon />
+      <span className="sr-only">{t(label)}</span>
+    </Badge>
   )
 }

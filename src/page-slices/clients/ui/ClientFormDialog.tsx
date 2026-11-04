@@ -2,6 +2,7 @@
 
 import { saveClient } from "@/app/(main)/clients/actions/client-actions"
 import { Button } from "@/components/ui/button"
+import { Spinner } from "@/components/ui/spinner"
 import {
   Dialog,
   DialogContent,
@@ -198,6 +199,7 @@ function ClientForm({
           {tc("cancel")}
         </Button>
         <Button type="submit" form="client-form" disabled={saving}>
+          {saving && <Spinner data-icon="inline-start" />}
           {saving ? tc("saving") : tc("save")}
         </Button>
       </DialogFooter>

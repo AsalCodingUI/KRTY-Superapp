@@ -159,7 +159,7 @@ export function PhaseRail({
                 <Button
                   variant="ghost"
                   size="xs"
-                  className="text-foreground h-5 shrink-0 rounded-full px-2 font-medium"
+                  className="text-foreground shrink-0"
                   onClick={() => onSettings()}
                 >
                   {t("phaseSetDue")}

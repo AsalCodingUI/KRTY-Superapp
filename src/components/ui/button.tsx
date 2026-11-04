@@ -16,6 +16,10 @@ const buttonVariants = cva(
           "hover:bg-accent hover:text-foreground aria-expanded:bg-accent aria-expanded:text-foreground",
         destructive:
           "bg-destructive/10 text-destructive-ink hover:bg-destructive/15 focus-visible:border-destructive/40 focus-visible:ring-destructive/20",
+        // A quiet "Hapus" / "Keluar" text button: red label, no fill until
+        // hover. The confirm of a destructive action stays `destructive`.
+        "destructive-ghost":
+          "text-destructive-ink hover:bg-destructive/10 aria-expanded:bg-destructive/10 focus-visible:border-destructive/40 focus-visible:ring-destructive/20",
         link: "text-primary underline-offset-4 hover:underline",
       },
       // Optical balance (docs/ui/optical.md): an icon carries ~2px of empty

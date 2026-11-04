@@ -8,6 +8,7 @@ import { DatePicker } from "@/components/date-picker"
 import { TimeSelect } from "@/components/time-select"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Spinner } from "@/components/ui/spinner"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
   Dialog,
@@ -888,10 +889,9 @@ export function EventDialog({
                     ) : (
                       <Button
                         type="button"
-                        variant="ghost"
+                        variant="destructive-ghost"
                         onClick={handleDeleteClick}
                         disabled={loading}
-                        className="text-destructive-ink hover:text-destructive-ink"
                       >
                         {tc("delete")}
                       </Button>
@@ -916,6 +916,7 @@ export function EventDialog({
                         form="event-form"
                         disabled={loading}
                       >
+                        {loading && <Spinner data-icon="inline-start" />}
                         {loading ? tc("saving") : tc("save")}
                       </Button>
                     )}

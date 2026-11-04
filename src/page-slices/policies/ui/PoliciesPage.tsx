@@ -24,6 +24,7 @@ import {
 } from "@/components/grouped-list"
 import { PageHeader } from "@/components/page-header"
 import { TabNavigation, TabNavigationLink } from "@/components/tab-navigation"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
 import { useCanonicalParam } from "@/shared/hooks/useCanonicalParam"
@@ -496,6 +497,14 @@ function dayMonth(value: string | null, locale: Locale) {
   return value ? format(new Date(value), "d MMM", { locale }) : ""
 }
 
+/** Unpublished changes want a look; a draft or an archived policy is
+ *  neutral. */
+const POLICY_STATUS_VARIANT = {
+  draft: "secondary",
+  hasDraft: "warning",
+  archived: "secondary",
+} as const
+
 /** Grid card: title, summary, then when it took effect (the section names its category). */
 function PolicyCard({
   policy,
@@ -513,11 +522,11 @@ function PolicyCard({
   const dateLocale = useDateLocale()
   const { latest, draft } = splitVersions(policy.versions ?? [])
   const status = policy.archived_at
-    ? t("archived")
+    ? "archived"
     : isAdmin && draft
       ? latest
-        ? t("hasDraft")
-        : t("draft")
+        ? "hasDraft"
+        : "draft"
       : null
 
   return (
@@ -532,9 +541,7 @@ function PolicyCard({
           {titleOf(policy)}
         </span>
         {status && (
-          <span className="bg-muted text-muted-foreground shrink-0 rounded-full px-2 py-0.5 text-xs">
-            {status}
-          </span>
+          <Badge variant={POLICY_STATUS_VARIANT[status]}>{t(status)}</Badge>
         )}
       </span>
       <p className="text-muted-foreground line-clamp-2 min-h-10 text-sm leading-5">

@@ -14,6 +14,7 @@ import { InlineText } from "@/components/inline-text"
 import { useBreadcrumbs } from "@/components/page-breadcrumbs"
 import { PageHeader } from "@/components/page-header"
 import { surfaceClassName } from "@/components/panel"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -162,9 +163,7 @@ export function ProcessEditorPage({ id }: { id: string }) {
         actions={
           <>
             {process.is_default ? (
-              <span className="bg-muted text-muted-foreground rounded-full px-2.5 py-1 text-xs">
-                {t("default")}
-              </span>
+              <Badge variant="secondary">{t("default")}</Badge>
             ) : (
               <Button
                 variant="outline"
