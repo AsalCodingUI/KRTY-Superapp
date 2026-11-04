@@ -20,7 +20,7 @@ export type BriefListRow = {
   accepted: string[]
   sections: BriefSection[]
   answers: BriefAnswers
-  client_id: string
+  client_id: string | null
   project_id: string | null
   opened_at: string | null
   saved_at: string | null
@@ -142,7 +142,8 @@ export function useBriefClients(enabled: boolean) {
       ])
       const count = new Map<string, number>()
       for (const b of briefs ?? [])
-        count.set(b.client_id, (count.get(b.client_id) ?? 0) + 1)
+        if (b.client_id)
+          count.set(b.client_id, (count.get(b.client_id) ?? 0) + 1)
       type Row = { id: string; name: string; contact_name: string | null }
       // Listed by the person we talk to (the PIC), the company beside it.
       return ((clients ?? []) as Row[])

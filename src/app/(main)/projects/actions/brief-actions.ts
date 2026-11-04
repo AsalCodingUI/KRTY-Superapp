@@ -91,13 +91,23 @@ export async function createBrief(
       }
     clientId = data.id
   }
-  if (!clientId) return { success: false, error: "Pilih kliennya dulu." }
+  // No client picked: the project's, when it's linked to one.
+  if (!clientId && input.projectId) {
+    const { data: project } = await supabase
+      .from("projects")
+      .select("client_id")
+      .eq("id", input.projectId)
+      .maybeSingle()
+    clientId = project?.client_id ?? null
+  }
 
-  const { data: client } = await supabase
-    .from("clients")
-    .select("name, contact_name, email, phone, country, website")
-    .eq("id", clientId)
-    .maybeSingle()
+  const { data: client } = clientId
+    ? await supabase
+        .from("clients")
+        .select("name, contact_name, email, phone, country, website")
+        .eq("id", clientId)
+        .maybeSingle()
+    : { data: null }
   // What we already know, so the client only checks it.
   const answers: BriefAnswers = {}
   if (client) {
@@ -149,6 +159,27 @@ export async function setBriefProject(
     .update({ project_id: projectId })
     .eq("id", briefId)
   if (error) return { success: false, error: "Gagal menautkan project." }
+  // A brief without a client takes the project's (unless that client
+  // already has its two briefs).
+  if (projectId) {
+    const { data: brief } = await ctx.supabase
+      .from("briefs")
+      .select("client_id")
+      .eq("id", briefId)
+      .maybeSingle()
+    if (brief && !brief.client_id) {
+      const { data: project } = await ctx.supabase
+        .from("projects")
+        .select("client_id")
+        .eq("id", projectId)
+        .maybeSingle()
+      if (project?.client_id)
+        await ctx.supabase
+          .from("briefs")
+          .update({ client_id: project.client_id })
+          .eq("id", briefId)
+    }
+  }
   if (projectId) await attachBriefFiles(briefId)
   return { success: true }
 }

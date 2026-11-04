@@ -168,7 +168,7 @@ export function BriefDialog({
                       {t(STATUS_LABEL_KEYS[brief.status])}
                     </span>
                     <span aria-hidden>·</span>
-                    <span>{brief.client?.name}</span>
+                    <span>{brief.client?.name ?? t("clientPick")}</span>
                     {brief.project && (
                       <>
                         <span aria-hidden>·</span>

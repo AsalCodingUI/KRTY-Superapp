@@ -99,8 +99,10 @@ export function BriefCreateDialog({
   )
   const sets = BRIEF_SETS.filter((s) => modes[s] === "ask")
   const offers = BRIEF_SETS.filter((s) => modes[s] === "offer")
+  // The client is optional (a lead we barely know yet); a new one needs
+  // its company.
   const ready =
-    title.trim() && (client || (newClient && company.trim())) && sets.length > 0
+    title.trim() && (!newClient || company.trim()) && sets.length > 0
 
   const submit = async () => {
     if (!ready || saving) return
@@ -176,6 +178,20 @@ export function BriefCreateDialog({
                   />
                   <CommandList>
                     <CommandGroup>
+                      {(client || newClient) && !needle && (
+                        <CommandItem
+                          value="__none"
+                          onSelect={() => {
+                            setClientId(null)
+                            setNewClient(null)
+                            setPickerOpen(false)
+                          }}
+                        >
+                          <span className="text-muted-foreground">
+                            {t("clientPick")}
+                          </span>
+                        </CommandItem>
+                      )}
                       {clients
                         .filter(
                           (c) =>

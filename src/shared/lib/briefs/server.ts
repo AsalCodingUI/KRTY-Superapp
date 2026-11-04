@@ -11,7 +11,7 @@ export type BriefRow = {
   id: string
   title: string
   token: string
-  client_id: string
+  client_id: string | null
   project_id: string | null
   sets: string[]
   offers: string[]
