@@ -9,6 +9,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { MyKpiView } from "./MyKpiView"
 import { normalizePeriod, periodYears } from "./period"
 import { ProjectKpiSheet, projectSheetHref } from "./ProjectKpiSheet"
+import { initials } from "@/shared/lib/initials"
 
 /**
  * A stakeholder's view of one member's KPI (/performance/employee/[id]):
@@ -48,10 +49,10 @@ export function EmployeeKpiPage({
         back={{ href: backHref, label: t("teamKpi") }}
         title={
           <span className="flex items-center gap-3">
-            <Avatar className="size-8">
+            <Avatar>
               <AvatarImage src={employee.avatar_url || undefined} alt="" />
               <AvatarFallback className="text-xs">
-                {(employee.full_name || "U").slice(0, 2).toUpperCase()}
+                {initials(employee.full_name, "U")}
               </AvatarFallback>
             </Avatar>
             {employee.full_name}

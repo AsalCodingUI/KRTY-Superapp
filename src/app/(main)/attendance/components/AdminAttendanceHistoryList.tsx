@@ -44,6 +44,7 @@ import {
 } from "@/components/icons"
 import { useRouter } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
+import { initials } from "@/shared/lib/initials"
 
 type AttendanceLogWithProfile =
   Database["public"]["Tables"]["attendance_logs"]["Row"] & {
@@ -235,7 +236,7 @@ function AttendanceDay({
         <span className="col-span-2 hidden items-center gap-2 md:flex">
           <AvatarGroup>
             {people.slice(0, 6).map((p, i) => (
-              <Avatar key={i} className="size-5">
+              <Avatar key={i} size="xs">
                 <AvatarImage src={p?.avatar_url || undefined} alt="" />
                 <AvatarFallback className="text-[9px]">
                   {(p?.full_name || "?").slice(0, 1).toUpperCase()}
@@ -376,13 +377,13 @@ function AdminAttendanceRow({
     >
       <ListRow desc className={ROW_GRID}>
         <div className="flex min-w-0 items-center gap-3">
-          <Avatar className="size-7">
+          <Avatar size="md">
             <AvatarImage
               src={log.profiles?.avatar_url || undefined}
               alt={name}
             />
             <AvatarFallback className="text-micro">
-              {name.slice(0, 2).toUpperCase()}
+              {initials(name)}
             </AvatarFallback>
           </Avatar>
           <div className="flex min-w-0 flex-col">

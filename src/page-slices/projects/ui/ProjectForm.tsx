@@ -55,6 +55,7 @@ import {
   type ProjectOption,
 } from "./ProjectLineage"
 import { ProjectStageIcon } from "./ProjectStageIcon"
+import { initials } from "@/shared/lib/initials"
 
 type ProjectRole = Database["public"]["Enums"]["project_role_enum"]
 type ProjectStatus = Database["public"]["Enums"]["project_status_enum"]
@@ -516,7 +517,7 @@ export function ProjectForm({
                   <Avatar className="size-6">
                     <AvatarImage src={m.avatar_url || undefined} alt="" />
                     <AvatarFallback className="text-[10px]">
-                      {(m.full_name || "U").slice(0, 2).toUpperCase()}
+                      {initials(m.full_name, "U")}
                     </AvatarFallback>
                   </Avatar>
                   <span className="min-w-0 flex-1 truncate text-sm">

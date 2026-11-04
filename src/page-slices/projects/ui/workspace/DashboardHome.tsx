@@ -186,7 +186,7 @@ export function UpcomingTasks({
                       </span>
                     )}
                     {who && (
-                      <Avatar className="size-5" title={who.full_name ?? ""}>
+                      <Avatar size="xs" title={who.full_name ?? ""}>
                         <AvatarImage src={who.avatar_url || undefined} alt="" />
                         <AvatarFallback className="text-[9px]">
                           {initials(who.full_name)}

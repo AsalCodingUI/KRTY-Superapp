@@ -26,8 +26,6 @@ export function PageHeader({
   title: React.ReactNode
   /** Square ← button before the title; `label` names where it goes. */
   back?: PageBack
-  /** @deprecated titles stand alone now (Mercury style); ignored. */
-  description?: React.ReactNode
   actions?: React.ReactNode
   className?: string
 }) {

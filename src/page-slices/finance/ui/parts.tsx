@@ -1,6 +1,5 @@
 "use client"
 
-import { cn } from "@/lib/utils"
 import { Cell, Pie, PieChart } from "recharts"
 
 /** A ring with a value in the middle (category split, share collected). */
@@ -50,44 +49,5 @@ export function Donut({
         )}
       </div>
     </div>
-  )
-}
-
-/** Small letter tile coloured from the name (logo stand-in). */
-export function NameTile({
-  name,
-  className,
-}: {
-  name: string
-  className?: string
-}) {
-  let hash = 2166136261
-  for (const ch of name) {
-    hash ^= ch.charCodeAt(0)
-    hash = Math.imul(hash, 16777619)
-  }
-  const colors = [
-    "bg-blue-9 text-white",
-    "bg-teal-9 text-white",
-    "bg-purple-9 text-white",
-    "bg-orange-9 text-white",
-    "bg-pink-9 text-white",
-    "bg-green-9 text-white",
-    "bg-indigo-9 text-white",
-    "bg-tomato-9 text-white",
-    "bg-cyan-9 text-white",
-    "bg-amber-9 text-white",
-  ]
-  return (
-    <span
-      aria-hidden
-      className={cn(
-        "text-micro flex size-6 shrink-0 items-center justify-center rounded-md font-medium",
-        colors[(hash >>> 0) % colors.length],
-        className,
-      )}
-    >
-      {name.trim().charAt(0).toUpperCase() || "?"}
-    </span>
   )
 }

@@ -13,11 +13,8 @@ import {
   projectSheetHref,
 } from "@/page-slices/performance/ui/kpi/ProjectKpiSheet"
 import { periodLabel } from "@/page-slices/performance/ui/kpi/period"
-import {
-  ListColumns,
-  PersonCell,
-  StatBand,
-} from "@/page-slices/performance/ui/list"
+import { ListColumns, PersonCell } from "@/page-slices/performance/ui/list"
+import { StatStrip } from "@/components/stat-strip"
 import { useT } from "@/shared/i18n/client"
 import { RiArrowRightSLine, RiGroupLine } from "@/shared/ui/lucide-icons"
 import { useQuery } from "@tanstack/react-query"
@@ -90,8 +87,9 @@ export function ProjectAssessment({ projectId }: { projectId: string }) {
         />
       ) : (
         <>
-          <StatBand
-            stats={[
+          <StatStrip
+            orEmpty
+            items={[
               { label: t("member"), value: members.length },
               {
                 label: tp("assessmentSlaPending"),

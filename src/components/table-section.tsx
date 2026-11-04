@@ -15,14 +15,9 @@ interface TableSectionProps {
 }
 
 /**
- * TableSection - Consistent wrapper for all tables
- *
- * Provides a standardized (borderless) header and layout for tables.
- *
- * @example
- * <TableSection title="Team Members" description="Manage your team">
- *   <Table>...</Table>
- * </TableSection>
+ * DataTable's own header (title, actions) over its table. Internal to
+ * `components/data-table`; a heading between parts of a page is
+ * `SectionTitle` (docs/ui/layout.md).
  */
 export function TableSection({
   title,

@@ -22,6 +22,7 @@ import { useQuery } from "@tanstack/react-query"
 import { useState } from "react"
 import { toast } from "sonner"
 import { dialogWidth } from "@/components/ui/dialog-sections"
+import { initials } from "@/shared/lib/initials"
 
 type Audience = "all" | "employees" | "people"
 
@@ -177,7 +178,7 @@ export function AnnouncementDialog({
                       <Avatar className="size-6">
                         <AvatarImage src={p.avatar_url || undefined} alt="" />
                         <AvatarFallback className="text-[10px]">
-                          {name.slice(0, 2).toUpperCase()}
+                          {initials(name)}
                         </AvatarFallback>
                       </Avatar>
                       <span className="min-w-0 flex-1 truncate text-sm">

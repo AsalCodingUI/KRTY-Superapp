@@ -25,6 +25,7 @@ import { cn } from "@/lib/utils"
 import { RiAddLine, RiDownloadLine } from "@/shared/ui/lucide-icons"
 import type { ReactNode } from "react"
 import * as mock from "../model/layout-mock"
+import { LayoutCompare } from "./layout-compare"
 import {
   DocCanvas,
   DocDont,
@@ -59,7 +60,7 @@ const RULES: [string, string][] = [
   ],
   [
     "Angka",
-    "StatStrip di bawah judul/tab (tanpa kartu); StatTiles kalau di kartu",
+    "StatStrip di bawah judul/tab (tanpa kartu; aside buat tombol, orEmpty buat yang kosong); StatTiles kalau di kartu",
   ],
   [
     "Layar minimal",
@@ -68,6 +69,10 @@ const RULES: [string, string][] = [
   [
     "Aplikasi Mac",
     "Top bar 52px dengan traffic light, halaman radius 10px; cek pakai useMacChrome()",
+  ],
+  [
+    "Lembar halaman",
+    "PageSheet (components/page-sheet.tsx) dipakai app dan portal klien; jangan salin class-nya",
   ],
   ["HP", "Di bawah 768px: tanpa sidebar & breadcrumb, tab bar di bawah"],
 ]
@@ -83,6 +88,13 @@ export function LayoutTab() {
 
       <DocGroup title="Aturan">
         <DocRules rules={RULES} />
+      </DocGroup>
+
+      <DocGroup
+        title="Sebelum / sesudah"
+        note="Salinan yang sekarang lewat satu komponen: PageSheet (app + portal), StatStrip (StatBand dan salinan di Anggota), sapaan dashboard lewat PageHeader. Kiri: markup lama; kanan: yang jalan sekarang."
+      >
+        <LayoutCompare />
       </DocGroup>
 
       <DocGroup

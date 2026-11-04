@@ -21,7 +21,7 @@ export function Panel({
   title: React.ReactNode
   /** Small tertiary note next to the title, e.g. an item count. */
   meta?: React.ReactNode
-  /** Right side of the header, usually a PanelLink. */
+  /** Right side of the header, e.g. a "see all" link. */
   action?: React.ReactNode
   className?: string
   bodyClassName?: string
@@ -50,25 +50,6 @@ export function Panel({
         {children}
       </div>
     </section>
-  )
-}
-
-/** "Lihat semua →" style link for a panel header. */
-export function PanelLink({
-  href,
-  children = "Lihat semua",
-}: {
-  href: string
-  children?: React.ReactNode
-}) {
-  return (
-    <Link
-      href={href}
-      prefetch={false}
-      className="text-muted-foreground hover:text-foreground text-meta shrink-0 font-medium transition-colors"
-    >
-      {children} →
-    </Link>
   )
 }
 

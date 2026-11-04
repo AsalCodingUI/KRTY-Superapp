@@ -1,6 +1,7 @@
 "use client"
 
 import { PageHeader } from "@/components/page-header"
+import { StatStrip } from "@/components/stat-strip"
 import { DateField } from "@/components/date-field"
 import { AnimatePresence } from "motion/react"
 import { ConfirmDialog } from "@/components/confirm-dialog"
@@ -483,8 +484,8 @@ export function MembersAccessSettings({
         }
       />
       {showStats && (
-        <div className="stat-strip bleed gutter-x border-border border-b py-4">
-          {[
+        <StatStrip
+          items={[
             { label: tt("statTotal"), value: profiles.length },
             {
               label: tt("statDesigner"),
@@ -506,15 +507,16 @@ export function MembersAccessSettings({
                 (p) => p.role === "stakeholder" || p.job_title === "Admin",
               ).length,
             },
-          ].map((item) => (
-            <div key={item.label} className="stat-tile">
-              <p className="text-muted-foreground text-sm">{item.label}</p>
-              <div className="text-heading text-stat font-normal tabular-nums">
-                {isLoading ? <Skeleton className="mt-1 h-6 w-8" /> : item.value}
-              </div>
-            </div>
-          ))}
-        </div>
+          ].map((item) => ({
+            key: item.label,
+            label: item.label,
+            value: isLoading ? (
+              <Skeleton className="mt-1 h-6 w-8" />
+            ) : (
+              item.value
+            ),
+          }))}
+        />
       )}
       <div className={cx("flex items-center gap-3 pb-3", showStats && "pt-4")}>
         <InputGroup className="w-full sm:w-[260px]">
@@ -578,7 +580,7 @@ export function MembersAccessSettings({
                     )}
                   >
                     <span className="flex min-w-0 items-center gap-3">
-                      <Avatar className="size-7">
+                      <Avatar size="md">
                         <AvatarImage src={p.avatar_url || undefined} alt="" />
                         <AvatarFallback className="text-micro">
                           {initialOf(p)}
@@ -641,7 +643,7 @@ export function MembersAccessSettings({
           {selected && (
             <div className="scroll-pane pane-px-5 flex min-h-0 flex-1 flex-col gap-8 pt-5 pb-6">
               <div className="flex items-center gap-3">
-                <Avatar className="size-10">
+                <Avatar size="lg">
                   <AvatarImage src={selected.avatar_url || undefined} alt="" />
                   <AvatarFallback>{initialOf(selected)}</AvatarFallback>
                 </Avatar>

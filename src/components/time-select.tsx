@@ -48,8 +48,6 @@ export interface TimeSelectProps {
   step?: number
   placeholder?: string
   disabled?: boolean
-  /** Accepted for API compatibility. */
-  size?: "default" | "sm"
   className?: string
 }
 

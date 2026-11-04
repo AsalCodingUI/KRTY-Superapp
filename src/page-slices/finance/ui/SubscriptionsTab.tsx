@@ -52,7 +52,8 @@ import {
 } from "@/entities/finance/lib/money"
 import { financeKeys } from "../model/data"
 import { useMoneyFormat } from "../model/hide-money"
-import { Donut, NameTile, StatTiles } from "./parts"
+import { ProjectAvatar } from "@/components/project-avatar"
+import { Donut, StatTiles } from "./parts"
 
 const CYCLE_LABEL = { monthly: "cycleMonthly", yearly: "cycleYearly" } as const
 
@@ -352,7 +353,13 @@ export function SubscriptionsTab({
                     className={cn("text-left", ended && "opacity-60")}
                   >
                     <HomeRow
-                      leading={<NameTile name={s.name} className="size-7" />}
+                      leading={
+                        <ProjectAvatar
+                          id={s.name}
+                          name={s.name}
+                          className="text-micro size-7"
+                        />
+                      }
                       title={s.name}
                       subtitle={[
                         categoryLabel(t, s.category),

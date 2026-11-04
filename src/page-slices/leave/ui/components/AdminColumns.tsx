@@ -21,6 +21,7 @@ import {
 } from "./AdminLeaveList"
 import { RiCheckLine, RiCloseLine } from "@/shared/ui/lucide-icons"
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table"
+import { initials } from "@/shared/lib/initials"
 
 export type { LeaveRequestWithProfile }
 
@@ -88,7 +89,7 @@ export const adminColumns = (
       ),
       cell: ({ row }) => {
         const name = row.original.profiles?.full_name || t("unknownName")
-        const initials = name.slice(0, 2).toUpperCase()
+        const letters = initials(name)
         return (
           <div className="flex min-w-0 items-center gap-3">
             <Avatar className="size-5 max-md:size-8">
@@ -96,9 +97,7 @@ export const adminColumns = (
                 src={row.original.profiles?.avatar_url || undefined}
                 alt={name}
               />
-              <AvatarFallback className="text-[10px]">
-                {initials}
-              </AvatarFallback>
+              <AvatarFallback className="text-[10px]">{letters}</AvatarFallback>
             </Avatar>
             <div className="flex min-w-0 flex-col">
               <span

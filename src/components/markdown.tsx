@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils"
 import { CalloutBox } from "@/components/callout-box"
 import { EmbedBlock } from "@/components/embed-block"
 import { GalleryStrip, type GalleryImage } from "@/components/gallery-strip"
-import { LightboxScope, ZoomableImage } from "@/components/image-lightbox"
+import { LightboxScope, ZoomOnClickImage } from "@/components/image-lightbox"
 import {
   isCalloutTone,
   isGallerySrc,
@@ -237,7 +237,7 @@ const withImages: Components = {
     const size = /#size=(small|wide)$/.exec(src)?.[1]
     return (
       // Opens large on a click.
-      <ZoomableImage
+      <ZoomOnClickImage
         src={src}
         alt={alt ?? ""}
         className={cn(

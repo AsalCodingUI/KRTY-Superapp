@@ -141,7 +141,7 @@ export function TeamKpiCard({ data }: { data: AdminDashboardData }) {
               key={e.employee_id}
               href={`${employeeHref({ id: e.employee_id, full_name: e.employee_name })}?period=${encodeURIComponent(quarter)}`}
               leading={
-                <Avatar className="size-7">
+                <Avatar size="md">
                   <AvatarImage src={e.employee_avatar || undefined} />
                   <AvatarFallback className="text-[10px]">
                     {e.employee_name?.[0] || "?"}

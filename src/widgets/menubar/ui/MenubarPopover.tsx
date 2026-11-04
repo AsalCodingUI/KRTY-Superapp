@@ -65,6 +65,7 @@ import { getPreviewNotifications } from "@/app/(fullscreen)/menubar/actions"
 import { ContextTarget } from "@/shared/context-menu"
 import { useCopyWithToast } from "@/page-slices/leave/ui/components/leave-context-menu"
 import { CalendarRange, MailOpen } from "@/components/icons"
+import { initials } from "@/shared/lib/initials"
 
 /**
  * The macOS menu bar popover (Kretya Flow, the desktop app: a Tauri shell around
@@ -206,14 +207,6 @@ export function useNow(ms = 30_000) {
 
 const duration = (minutes: number) =>
   minutes < 60 ? `${minutes}m` : `${Math.floor(minutes / 60)}j ${minutes % 60}m`
-
-const initials = (name?: string | null) =>
-  (name ?? "?")
-    .split(" ")
-    .map((p) => p[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase()
 
 /** What state the preview shows: real data, or a made-up worst case. */
 export const SCENARIOS = [
@@ -994,7 +987,7 @@ function ApprovalRows({ data }: { data: Data }) {
             ]}
           >
             <div className="flex items-start gap-3 rounded-2xl px-2 py-2.5 transition-colors hover:bg-(--row-hover)">
-              <Avatar className="size-8">
+              <Avatar>
                 {req.profiles?.avatar_url && (
                   <AvatarImage src={req.profiles.avatar_url} />
                 )}
@@ -1537,7 +1530,7 @@ function SettingsPanel({ data }: { data: Data }) {
   return (
     <div className="flex flex-col gap-1 pb-2">
       <div className="flex items-center gap-3 rounded-lg px-2 py-2">
-        <Avatar className="size-8">
+        <Avatar>
           <AvatarFallback className="text-micro">
             {initials(data.person.full_name)}
           </AvatarFallback>

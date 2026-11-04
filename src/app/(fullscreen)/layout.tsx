@@ -3,6 +3,6 @@ export default function FullscreenLayout({
 }: {
   children: React.ReactNode
 }) {
-  // Layout tanpa sidebar untuk halaman fullscreen
+  // No sidebar or top bar: each fullscreen route brings its own frame.
   return <>{children}</>
 }

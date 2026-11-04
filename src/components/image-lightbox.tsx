@@ -214,7 +214,7 @@ export function ImageLightbox({
  * A single picture (`<Markdown images>`) that opens large on a click: in
  * its document's lightbox when there is one, else on its own.
  */
-export function ZoomableImage({
+export function ZoomOnClickImage({
   src,
   alt,
   className,

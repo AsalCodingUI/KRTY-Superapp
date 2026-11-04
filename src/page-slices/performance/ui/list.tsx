@@ -4,14 +4,13 @@ import {
   listGroupHeaderClassName,
   listHeaderClassName,
 } from "@/components/grouped-list"
-import { RollingValue } from "@/components/rolling-value"
-import { orEmpty } from "@/components/empty-value"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Collapse } from "@/components/ui/collapse"
 import { cn } from "@/lib/utils"
 import { RiArrowDownSLine } from "@/shared/ui/lucide-icons"
 import { useT } from "@/shared/i18n/client"
 import * as React from "react"
+import { initials } from "@/shared/lib/initials"
 
 /** Column labels above a list; `grid` is the same template the rows use. */
 export function ListColumns({
@@ -41,10 +40,10 @@ export function PersonCell({
   const label = name || t("unknown")
   return (
     <div className="flex min-w-0 items-center gap-3">
-      <Avatar className="size-7">
+      <Avatar size="md">
         <AvatarImage src={avatarUrl || undefined} alt="" />
         <AvatarFallback className="text-micro">
-          {label.slice(0, 2).toUpperCase()}
+          {initials(label)}
         </AvatarFallback>
       </Avatar>
       <div className="flex min-w-0 flex-col">
@@ -105,41 +104,5 @@ export function GridGroup({
       </button>
       <Collapse open={open}>{children}</Collapse>
     </section>
-  )
-}
-
-/** Full-bleed stats band under the tabs. */
-export function StatBand({
-  stats,
-  aside,
-}: {
-  stats: { label: React.ReactNode; value: React.ReactNode }[]
-  /** Right-aligned controls, e.g. locking the period. */
-  aside?: React.ReactNode
-}) {
-  return (
-    <div className="stat-strip bleed gutter-x border-border border-b py-4">
-      {stats.map((item, i) => (
-        <div key={i} className="stat-tile">
-          <p className="text-muted-foreground text-sm">{item.label}</p>
-          <p className="text-heading text-stat font-normal tabular-nums">
-            <RollingValue
-              value={
-                typeof item.value === "number" || typeof item.value === "string"
-                  ? item.value
-                  : null
-              }
-            >
-              {orEmpty(item.value)}
-            </RollingValue>
-          </p>
-        </div>
-      ))}
-      {aside && (
-        <div className="ml-auto flex items-center gap-2 self-center">
-          {aside}
-        </div>
-      )}
-    </div>
   )
 }

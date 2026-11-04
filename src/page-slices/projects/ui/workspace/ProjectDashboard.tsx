@@ -119,6 +119,7 @@ import {
   type PhaseRow,
   type StepRow,
 } from "./data"
+import { initials } from "@/shared/lib/initials"
 
 const ProjectForm = dynamic(
   () => import("../ProjectForm").then((m) => m.ProjectForm),
@@ -561,7 +562,7 @@ export function ProjectDashboard({ projectId }: { projectId: string }) {
                     <Avatar className="size-6">
                       <AvatarImage src={m.avatar_url || undefined} alt="" />
                       <AvatarFallback className="text-[10px]">
-                        {(m.full_name || "U").slice(0, 2).toUpperCase()}
+                        {initials(m.full_name, "U")}
                       </AvatarFallback>
                     </Avatar>
                     <span className="min-w-0 flex-1 truncate">

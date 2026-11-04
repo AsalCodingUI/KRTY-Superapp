@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
 import type { MessageKey } from "@/shared/i18n/messages"
 import { accessLevel, type AccessLevel } from "@/shared/config/access"
+import { initials } from "@/shared/lib/initials"
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"]
 
@@ -79,23 +80,16 @@ export const createTeamColumns = ({
       },
       cell: ({ row }) => {
         const name = (row.getValue("full_name") as string) || t("unknownName")
-        const initials = name
-          .split(" ")
-          .map((n) => n[0])
-          .slice(0, 2)
-          .join("")
-          .toUpperCase()
+        const letters = initials(name)
 
         return (
           <div className="flex items-center gap-3">
-            <Avatar className="size-5">
+            <Avatar size="xs">
               <AvatarImage
                 src={row.original.avatar_url || undefined}
                 alt={name}
               />
-              <AvatarFallback className="text-[10px]">
-                {initials}
-              </AvatarFallback>
+              <AvatarFallback className="text-[10px]">{letters}</AvatarFallback>
             </Avatar>
             <span className="text-foreground whitespace-nowrap" title={name}>
               {name}

@@ -5,6 +5,7 @@ import type { User } from "./types"
 import { cx, focusRing } from "@/shared/lib/utils"
 import { Button } from "@/components/ui/button"
 import { useT } from "@/shared/i18n/client"
+import { initials } from "@/shared/lib/initials"
 
 export interface UserProfileProps {
   user: User | null
@@ -19,14 +20,7 @@ export function UserProfile({
 }: UserProfileProps) {
   const t = useT("teams")
   const tc = useT("common")
-  const initials = user?.full_name
-    ? user.full_name
-        .split(" ")
-        .map((n: string) => n[0])
-        .slice(0, 2)
-        .join("")
-        .toUpperCase()
-    : "KR"
+  const letters = initials(user?.full_name, "KR")
 
   if (variant === "mobile") {
     return (
@@ -41,7 +35,7 @@ export function UserProfile({
           className="border-border text-muted-foreground dark:text-muted-foreground flex size-7 shrink-0 items-center justify-center rounded-full border text-xs"
           aria-hidden="true"
         >
-          {initials}
+          {letters}
         </span>
       </Button>
     )
@@ -61,7 +55,7 @@ export function UserProfile({
           className="border-border text-muted-foreground dark:text-muted-foreground flex size-8 shrink-0 items-center justify-center rounded-full border text-xs"
           aria-hidden="true"
         >
-          {initials}
+          {letters}
         </span>
         <span className="truncate">
           {loading ? tc("loading") : (user?.full_name ?? t("guest"))}

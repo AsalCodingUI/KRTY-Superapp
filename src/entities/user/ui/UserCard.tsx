@@ -5,6 +5,7 @@ import { UserAvatar } from "./UserAvatar"
 import { Card } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 import { useT } from "@/shared/i18n/client"
+import { initials } from "@/shared/lib/initials"
 
 export interface UserCardProps {
   user: User
@@ -22,14 +23,7 @@ export function UserCard({
   size = "md",
 }: UserCardProps) {
   const t = useT("teams")
-  const initials = user.full_name
-    ? user.full_name
-        .split(" ")
-        .map((n) => n[0])
-        .slice(0, 2)
-        .join("")
-        .toUpperCase()
-    : "?"
+  const letters = initials(user.full_name)
 
   const avatarSize = size === "sm" ? "sm" : size === "lg" ? "lg" : "md"
 
@@ -38,7 +32,7 @@ export function UserCard({
       <div className="flex items-center gap-3 p-4">
         <UserAvatar
           src={user.avatar_url || undefined}
-          initials={initials}
+          initials={letters}
           alt={user.full_name || t("userAlt")}
           size={avatarSize}
         />

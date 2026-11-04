@@ -45,6 +45,7 @@ import {
   type SearchHit,
   type SearchScope,
 } from "../model/useGlobalSearch"
+import { initials } from "@/shared/lib/initials"
 
 type ShellKey = MessageKey<"shell">
 
@@ -419,10 +420,10 @@ function HitIcon({
       return <ProjectAvatar id={hit.projectId ?? hit.id} name={hit.title} />
     case "people":
       return (
-        <Avatar className="size-5">
+        <Avatar size="xs">
           <AvatarImage src={hit.avatarUrl || undefined} alt="" />
           <AvatarFallback className="text-[9px]">
-            {hit.title.slice(0, 2).toUpperCase()}
+            {initials(hit.title)}
           </AvatarFallback>
         </Avatar>
       )

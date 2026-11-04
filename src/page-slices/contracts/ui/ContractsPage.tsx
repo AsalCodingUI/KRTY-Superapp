@@ -377,7 +377,7 @@ export function ContractsPage({ viewer }: { viewer: ContractViewer }) {
 function PersonAvatar({ person }: { person: ContractPerson | null }) {
   const name = person?.full_name ?? ""
   return (
-    <Avatar className="size-5">
+    <Avatar size="xs">
       {person?.avatar_url && <AvatarImage src={person.avatar_url} alt="" />}
       <AvatarFallback className="text-[10px]">
         {name.trim().charAt(0).toUpperCase() || "?"}
