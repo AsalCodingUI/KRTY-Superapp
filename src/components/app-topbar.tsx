@@ -146,9 +146,9 @@ export function WorkspaceTabs({ className }: { className?: string }) {
             onClick={() => select(ws.id)}
             className={cn(
               // Optical (docs/ui/optical.md): the icon side 2px tighter than
-              // the text side (11 / 13px, so the icon centres on the sidebar's
-              // icon column), 14px icon beside 13px text.
-              "rounded-control text-meta flex h-8 min-w-0 shrink-0 items-center gap-1.5 pr-3.25 pl-2.75 font-medium transition-colors",
+              // the text side (9 / 11px: both tabs and the bell fit the
+              // sidebar's 232px), 14px icon beside 13px text.
+              "rounded-control text-meta flex h-8 min-w-0 shrink-0 items-center gap-1 pr-2.75 pl-2.25 font-medium transition-colors",
               on
                 ? "bg-sidebar-active text-foreground"
                 : "text-muted-foreground hover:text-foreground hover:bg-chrome-hover",

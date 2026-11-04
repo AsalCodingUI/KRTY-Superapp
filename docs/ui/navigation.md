@@ -33,15 +33,17 @@ examples: **/ui** → Navigasi.
 
 ## App tabs
 
-The shell has no top bar from `md` up. The sidebar's top: brand, then
-the bell (icon only) and the sidebar toggle; the workspaces as icon +
-label tabs (`WorkspaceTabs`, not a segmented control; optical padding 11 /
-13px); search (⌘K, an outlined pill). Its bottom: notices, What's new,
-Settings, the account row (same list, same icon column), then theme and
-chrome color; language lives in Settings only. Every icon in the sidebar
-centres on one column (30px from the edge) and every label starts at
-48px; rows sit 4px apart. Above the page sheet, on the chrome: ‹ › (the
-active tab's history), then the tabs, level with the brand row.
+The shell has no top bar from `md` up. The sidebar's top: the brand;
+the workspaces as icon + label tabs (`WorkspaceTabs`, not a segmented
+control; optical padding 9 / 11px so both tabs and the bell fit 232px)
+with the bell (icon only) at that row's end; search (⌘K, an outlined
+pill). Its bottom: notices, What's new, Settings, the account row (same
+list, same icon column), then theme and chrome color; language lives in
+Settings only. Sidebar icons centre on one column (30px from the edge),
+labels start at 48px, rows sit 4px apart. Above the page sheet, on the
+chrome: the sidebar toggle, ‹ › (the active tab's history), then the
+tabs, level with the brand row. The Mac app keeps its toggle by the
+traffic lights.
 
 - **Main** is the first tab and can't be closed. The sidebar and every
   plain link navigate the active tab, like a browser's.

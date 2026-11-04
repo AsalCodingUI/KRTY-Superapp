@@ -34,10 +34,10 @@ SidebarProvider  bg-chrome h-svh flex-col                      (tinted chrome)
 ├─ AppBannerStack px-2 pb-2, publishes --app-banner-height      view-as, announcements
 ├─ row            md:pr-3 md:pb-3 (Mac md:pr-1.5 md:pb-1.5)
 │  ├─ AppSidebar  15rem (resizable), icon 3.75rem, hidden < md
-│  │  header: brand · bell ◫ · workspace tabs · search (outline pill)
+│  │  header: brand · workspace tabs + bell · search (outline pill)
 │  │  bottom: notices · What's new · Settings · account · theme / chrome color
 │  └─ column
-│     ├─ SiteHeader  ‹ › + the tab row, on the chrome, pt-3 h-8 pb-2 (--app-tabs-height);
+│     ├─ SiteHeader  ◫ ‹ › + the tab row, on the chrome, pt-3 h-8 pb-2 (--app-tabs-height);
 │     │              fixed: only the sheet scrolls (widgets/app-tabs)
 │     └─ PageSheet   shadow layer + SidebarInset (components/page-sheet.tsx)
 │        SidebarInset  scroll-pane · md:rounded-dialog (Mac 10px) · md:pt-6

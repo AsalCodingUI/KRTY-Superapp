@@ -8,6 +8,8 @@ import { PROJECT_SECTION_KEYS } from "@/components/nav-project"
 import { useT } from "@/shared/i18n/client"
 import { usePathname } from "next/navigation"
 import { useCallback, useMemo } from "react"
+import { SidebarTrigger } from "@/components/ui/sidebar"
+import { useMacChrome } from "@/components/desktop-shell"
 import {
   TabHistoryButtons,
   TabStrip,
@@ -98,6 +100,7 @@ export function SiteHeader() {
     [projectPath, project, section.href],
   )
   useAppTabsSync({ title, icon })
+  const mac = useMacChrome()
   const navIcon = useCallback((href: string) => navIconFor(href), [])
 
   return (
@@ -106,8 +109,12 @@ export function SiteHeader() {
       data-chrome-dark=""
       className="on-chrome text-foreground flex min-w-0 shrink-0 items-center gap-1 pt-3 pb-2 max-md:hidden"
     >
-      {/* ‹ › lead the tabs. */}
+      {/* The sidebar toggle and ‹ › lead the tabs (the Mac app's toggle
+          sits by its traffic lights). */}
       <div className="flex items-center pr-1">
+        {!mac && (
+          <SidebarTrigger className="text-muted-foreground hover:bg-chrome-hover" />
+        )}
         <TabHistoryButtons />
       </div>
       <TabStrip navIcon={navIcon} />

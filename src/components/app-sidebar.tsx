@@ -43,7 +43,6 @@ import {
   SidebarMenuItem,
   SidebarMenuSkeleton,
   SidebarRail,
-  SidebarTrigger,
   useSidebar,
   SidebarHeader,
 } from "@/components/ui/sidebar"
@@ -222,10 +221,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       {...props}
     >
       <SidebarRail />
-      {/* What the top bar used to hold: brand and the sidebar toggle (the
-          Mac app's toggle stays by its traffic lights), the workspace
-          switch, then search (⌘K) and notifications. Collapsed: the toggle,
-          then search and the bell stacked, icons only. */}
+      {/* What the top bar used to hold: the brand, the workspaces as tabs
+          with the bell at their end, then search (⌘K). The sidebar toggle
+          and ‹ › lead the tab row above the page (site-header.tsx).
+          Collapsed: the mark, the bell and search, icons only. */}
       <SidebarHeader
         // px-3: the same 12px edge as the menu rows below.
         className={cn("gap-3 px-3 pb-3", desktop ? "pt-1" : "pt-3")}
@@ -239,24 +238,23 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             href={siteConfig.baseLinks.dashboard}
             // The mark in line with the menu's icons below (same size, same
             // left edge).
-            className="flex min-w-0 items-center gap-2 pl-2.5 group-data-[collapsible=icon]:hidden"
+            className="flex min-w-0 items-center gap-2 pl-2.5 group-data-[collapsible=icon]:pl-0"
             aria-label={siteConfig.name}
           >
             <AppIcon size={96} variant="mark" className="size-4 shrink-0" />
-            <span className="truncate text-sm font-medium">
+            <span className="truncate text-sm font-medium group-data-[collapsible=icon]:hidden">
               {siteConfig.name}
             </span>
           </PrefetchLink>
-          {/* The bell and the sidebar toggle (the Mac app's toggle sits by
-              its traffic lights). Collapsed: stacked, toggle on top. */}
-          <div className="flex shrink-0 items-center gap-0.5 group-data-[collapsible=icon]:flex-col-reverse group-data-[collapsible=icon]:gap-3">
-            <Notifications variant="icon" className="size-7" />
-            {!desktop && (
-              <SidebarTrigger className="text-muted-foreground hover:bg-chrome-hover" />
-            )}
-          </div>
         </div>
-        <WorkspaceTabs className="group-data-[collapsible=icon]:hidden" />
+        {/* Workspaces as tabs, the bell at the row's end. */}
+        <div className="flex items-center justify-between gap-1 group-data-[collapsible=icon]:justify-center">
+          <WorkspaceTabs className="group-data-[collapsible=icon]:hidden" />
+          <Notifications
+            variant="icon"
+            className="size-7 group-data-[collapsible=icon]:size-8"
+          />
+        </div>
         <GlobalSearch />
       </SidebarHeader>
       {/* First row starts level with the top of the page sheet. */}
