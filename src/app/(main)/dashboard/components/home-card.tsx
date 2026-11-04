@@ -1,4 +1,5 @@
 import { PageHeader } from "@/components/page-header"
+import { surfaceClassName } from "@/components/panel"
 import { RollingValue } from "@/components/rolling-value"
 import { orEmpty } from "@/components/empty-value"
 import { Button } from "@/components/ui/button"
@@ -129,7 +130,8 @@ export function HomeCard({
     <section
       {...data}
       className={cn(
-        "bg-card border-field-border dark:border-border rounded-card p-surface flex min-w-0 flex-col gap-4 border",
+        surfaceClassName,
+        "p-surface flex min-w-0 flex-col gap-4",
         className,
       )}
     >

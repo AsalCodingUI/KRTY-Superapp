@@ -28,6 +28,7 @@ import {
   daysBetween,
   todayJakarta,
 } from "@/entities/performance/lib/kpi-phases"
+import { surfaceClassName } from "@/components/panel"
 import { cn } from "@/lib/utils"
 import { useDateLocale, useT } from "@/shared/i18n/client"
 import {
@@ -44,8 +45,8 @@ import { useEmployeeKpi } from "./use-employee-kpi"
 import { isQuarter, quarterShort } from "./period"
 import { RatingChip } from "./RatingChip"
 
-const CARD =
-  "bg-card border-field-border dark:border-border min-w-0 rounded-xl border"
+// The card surface (components/panel).
+const CARD = cn(surfaceClassName, "min-w-0")
 
 /** "Q1" for the quarter before, when the trend has a score for it. */
 function previousOf(trend: KpiTrendPoint[], scope: string) {

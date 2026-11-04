@@ -1,7 +1,7 @@
 "use client"
 
 import { EmptyState } from "@/components/empty-state"
-import { ZoomableImage } from "@/components/image-lightbox"
+import { ZoomOnClickImage } from "@/components/image-lightbox"
 import { Markdown } from "@/components/markdown"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -174,7 +174,7 @@ function EntryView({
               </p>
             )}
             {entry.thumbnailUrl && (
-              <ZoomableImage
+              <ZoomOnClickImage
                 src={entry.thumbnailUrl}
                 alt=""
                 className="border-border mt-8 block aspect-[2/1] w-full rounded-lg border object-cover"

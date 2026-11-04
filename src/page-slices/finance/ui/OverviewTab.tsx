@@ -48,7 +48,8 @@ import { ContextTarget, copyText } from "@/shared/context-menu"
 import { Copy, Printer } from "@/components/icons"
 import { toast } from "sonner"
 import { useMoneyFormat } from "../model/hide-money"
-import { Donut, NameTile, StatTiles } from "./parts"
+import { ProjectAvatar } from "@/components/project-avatar"
+import { Donut, StatTiles } from "./parts"
 
 const PALETTE = [
   "var(--color-blue-9)",
@@ -414,9 +415,10 @@ function OpenInvoices({
                         : undefined
                     }
                     leading={
-                      <NameTile
+                      <ProjectAvatar
+                        id={clientOf(inv, t("noClient"))}
                         name={clientOf(inv, t("noClient"))}
-                        className="size-7"
+                        className="text-micro size-7"
                       />
                     }
                     title={clientOf(inv, t("noClient"))}
@@ -522,7 +524,13 @@ function MoneyReceived({
             {rows.map(([name, value], i) => (
               <HomeRow
                 key={name}
-                leading={<NameTile name={name} className="size-7" />}
+                leading={
+                  <ProjectAvatar
+                    id={name}
+                    name={name}
+                    className="text-micro size-7"
+                  />
+                }
                 title={name}
                 subtitle={
                   <span className="bg-muted mt-1 block h-1.5 max-w-40 overflow-hidden rounded-full">
