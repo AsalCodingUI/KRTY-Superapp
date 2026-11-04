@@ -213,6 +213,11 @@ function OverlayThumb() {
     const box = thumb?.parentElement
     if (!thumb || !box) return
     const update = () => {
+      // Measure without the thumb: it sits inside the scrolling box, so
+      // where it is could otherwise count as content and keep stretching
+      // the list (blank space under the last item).
+      thumb.style.height = "0px"
+      thumb.style.transform = "none"
       const { scrollTop, scrollHeight, clientHeight } = box
       const scrollable = scrollHeight > clientHeight + 1
       thumb.hidden = !scrollable

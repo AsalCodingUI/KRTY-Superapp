@@ -446,6 +446,9 @@ const GradientASCII = ({
   scrambleRadius = 0.1,
   clickEffect = 'wave',
   intro = true,
+  // Plays the intro, then holds still (no frame loop; the cursor and clicks
+  // still draw while they move). Ours, not React Bits'.
+  still = false,
   lightMode = false,
   fontFamily = DEFAULT_FONT,
   dpr,
@@ -478,6 +481,7 @@ const GradientASCII = ({
     scrambleRadius: clamp(scrambleRadius, 0.02, 0.4),
     clickEffect: CLICK_EFFECTS[clickEffect] ?? 1,
     intro,
+    still,
     lightMode,
     fontFamily: fontFamily || DEFAULT_FONT,
     dpr
@@ -731,19 +735,22 @@ const GradientASCII = ({
       const s = settingsRef.current;
       const dt = last ? clamp((now - last) / 1000, 0.001, 0.05) : 1 / 60;
       last = now;
-      if (!reduce) {
+      // Held still once the intro is done: the field stops moving.
+      const flowing = !reduce && (!s.still || introClock < 1);
+      if (flowing) {
         time += dt * s.speed * 0.5;
         glyphTime += dt * Math.max(s.speed, 0.15);
       }
       if (introClock < 1) introClock = Math.min(1, introClock + dt / INTRO_SECONDS);
       grainClock += dt;
-      if (!reduce && grainClock > 1 / 24) {
+      if (flowing && grainClock > 1 / 24) {
         grainClock = 0;
         frameSeed = (frameSeed + 1) % 97;
       }
       updateInput(dt);
       draw();
-      const busy = !reduce || introClock < 1 || clicks.length > 0 || trail.length > 0;
+      const busy =
+        (!reduce && !s.still) || introClock < 1 || clicks.length > 0 || trail.length > 0;
       if (busy) raf = requestAnimationFrame(frame);
       else last = 0;
     };

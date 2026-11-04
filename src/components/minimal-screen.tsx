@@ -9,9 +9,25 @@ import type { ComponentProps, ReactNode } from "react"
  * backdrop, the page controls in a pill outside it, top right.
  */
 
-/** The card's frosted surface: a touch see-through, so the backdrop shows. */
+/** The card's frosted surface (with <GlassLayer /> inside it): a touch
+ *  see-through, so the backdrop shows. */
 export const glassSurfaceClass =
-  "bg-background/80 shadow-(--elev-2) backdrop-blur-2xl backdrop-saturate-150"
+  "relative isolate overflow-hidden shadow-(--elev-2)"
+
+/**
+ * The frost itself, on its own layer behind the card's content: with the
+ * blur on the card, scrolling its content (or the backdrop redrawing) made
+ * the browser redo the blur and the card blinked for a frame, mostly in
+ * Safari and the Mac app. Its own GPU layer keeps it steady.
+ */
+export function GlassLayer() {
+  return (
+    <span
+      aria-hidden
+      className="bg-background/80 pointer-events-none absolute inset-0 -z-10 [transform:translateZ(0)] rounded-[inherit] backdrop-blur-2xl backdrop-saturate-150 [backface-visibility:hidden]"
+    />
+  )
+}
 
 /** A field or quiet button on that surface, see-through in both themes. */
 export const glassControlClass =
@@ -68,10 +84,11 @@ export function MinimalCard({
       {...props}
       className={cn(
         glassSurfaceClass,
-        "relative z-10 w-full max-w-lg rounded-[24px] px-6 py-12 sm:px-10 sm:py-14",
+        "z-10 w-full max-w-lg rounded-[24px] px-6 py-12 sm:px-10 sm:py-14",
         className,
       )}
     >
+      <GlassLayer />
       <div className="mx-auto flex max-w-sm flex-col items-center gap-6 text-center">
         {children}
       </div>

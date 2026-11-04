@@ -49,6 +49,12 @@ function initial(name: string) {
   return "P"
 }
 
+/** A touch brighter and more saturated than the scale's step 9, so the
+ *  tiles pop a little. Inline, so it wins over the class; a browser without
+ *  relative colours drops it and keeps step 9. */
+const vivid = (color: string) =>
+  `oklch(from ${color} calc(l + 0.03) min(calc(c * 1.18), 0.32) h)`
+
 export function ProjectAvatar({
   id,
   name,
@@ -61,6 +67,7 @@ export function ProjectAvatar({
   return (
     <span
       aria-hidden
+      style={{ backgroundColor: vivid(projectColorVar(id)) }}
       className={cn(
         "flex size-5 shrink-0 items-center justify-center rounded-[5px] text-[10px] font-medium",
         projectColor(id),

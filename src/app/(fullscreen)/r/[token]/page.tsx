@@ -1,4 +1,13 @@
 import { AppIcon } from "@/components/app-icon"
+import { BrandBackdrop } from "@/components/brand-backdrop"
+import {
+  glassSurfaceClass,
+  GlassLayer,
+  ScreenControls,
+  screenBackgroundClass,
+  screenTitleClass,
+} from "@/components/minimal-screen"
+import { cn } from "@/lib/utils"
 import { ThemeToggleButton } from "@/components/theme-toggle-button"
 import { PageTranslator } from "@/components/page-translator"
 import { Markdown } from "@/components/markdown"
@@ -100,39 +109,53 @@ export default async function SharedReportPage({
   const day = format(parseISO(report.report_date), "d MMMM yyyy", { locale })
 
   return (
-    <main className="bg-background text-foreground min-h-dvh">
-      <div className="mx-auto flex w-full max-w-3xl flex-col gap-8 px-5 py-10 sm:px-8 sm:py-14">
-        <header className="flex items-center gap-3">
-          <AppIcon size={96} className="size-8 rounded-lg" />
-          <div className="flex min-w-0 flex-1 flex-col" translate="no">
-            <span className="text-sm font-medium">Kretya Studio</span>
-            {report.project?.name && (
-              <span className="text-muted-foreground truncate text-[13px]">
-                {report.project.name}
-              </span>
-            )}
-          </div>
-          <div className="-mr-2 flex shrink-0 items-center gap-1">
-            <PageTranslator />
-            <ThemeToggleButton />
-          </div>
-        </header>
+    // The report as a card filling the screen on the brand backdrop (like a
+    // brief); only the card's text scrolls.
+    <main
+      className={cn(
+        screenBackgroundClass,
+        "flex h-dvh flex-col items-center px-2 pb-2 sm:px-4 sm:pb-4",
+      )}
+    >
+      <BrandBackdrop />
+      <ScreenControls>
+        <PageTranslator className="h-9 rounded-full px-3 text-sm" />
+        <ThemeToggleButton className="size-9 rounded-full" />
+      </ScreenControls>
 
-        <div data-translate-root className="flex flex-col gap-8">
-          <div className="flex flex-col gap-2">
-            <h1 className="text-heading text-2xl font-medium tracking-tight text-balance">
-              {report.title}
-            </h1>
-            <p className="text-muted-foreground text-sm">{day}</p>
-          </div>
+      <header
+        data-translate-root
+        className="relative z-10 flex max-w-xl shrink-0 flex-col items-center gap-3 px-4 pt-5 pb-4 text-center sm:pt-6 sm:pb-5"
+      >
+        <AppIcon size={192} className="size-10 rounded-[12px]" />
+        <div className="flex flex-col items-center gap-1">
+          <span className="text-muted-foreground text-[13px]">
+            <span translate="no">
+              Kretya Studio
+              {report.project?.name ? ` · ${report.project.name}` : ""}
+            </span>
+            {` · ${day}`}
+          </span>
+          <h1 className={screenTitleClass}>{report.title}</h1>
+        </div>
+      </header>
 
+      <article
+        data-translate-root
+        className={cn(
+          glassSurfaceClass,
+          "z-10 flex min-h-0 w-full max-w-3xl flex-1 flex-col rounded-[24px]",
+        )}
+      >
+        <GlassLayer />
+        <div className="scroll-pane pane-px-5 sm:pane-px-10 min-h-0 flex-1 py-6 text-[15px] leading-7 sm:py-8">
           {report.body.trim() ? (
             <Markdown images>{clientSafeMarkdown(report.body)}</Markdown>
           ) : (
             <p className="text-muted-foreground text-sm">{t("reportsEmpty")}</p>
           )}
         </div>
-      </div>
+      </article>
     </main>
   )
 }

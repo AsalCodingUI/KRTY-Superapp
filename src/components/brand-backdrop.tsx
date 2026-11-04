@@ -45,11 +45,17 @@ export function BrandBackdrop() {
         key={light ? "light" : "dark"}
         colors={light ? LIGHT : DARK}
         lightMode={false}
+        // The intro plays, then it holds still: no frame loop behind the
+        // frosted card (its blur would be redone every frame).
+        still
         shape="pinch"
-        characters=" .·•●"
+        // Small dots only: the big ● sat still like stains once it holds.
+        characters=" .·•"
         cellSize={17}
         density={0.52}
         clickEffect="none"
+        // No cursor trail: redrawing behind the frosted card made it blink.
+        mouseInteraction={false}
         glyphOpacity={light ? 0.5 : 0.61}
         gradientOpacity={light ? 0.7 : 0.84}
         glow={0.15}

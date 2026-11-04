@@ -1,5 +1,6 @@
 "use client"
 
+import { glassSurfaceClass, GlassLayer } from "@/components/minimal-screen"
 import {
   answerBriefOffer,
   deleteBriefFile,
@@ -388,13 +389,15 @@ export function BriefForm({
         style={{ borderRadius: 24 }}
         className={cn(
           // A touch see-through, frosted, so the backdrop shows.
-          "bg-background/80 relative z-10 mx-auto flex w-full flex-col overflow-hidden shadow-(--elev-2) backdrop-blur-2xl backdrop-saturate-150",
+          glassSurfaceClass,
+          "z-10 mx-auto flex w-full flex-col",
           // The card hugs its content (the start smaller), up to the screen's
           // height, then the questions scroll inside it.
           "my-auto max-h-full",
           step < 0 ? "max-w-lg" : "max-w-3xl",
         )}
       >
+        <GlassLayer />
         {step >= 0 && (
           <m.div
             layout="position"
