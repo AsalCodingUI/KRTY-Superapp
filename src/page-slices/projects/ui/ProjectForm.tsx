@@ -529,7 +529,7 @@ export function ProjectForm({
                       v && updateMember(m.userId, { role: v as ProjectRole })
                     }
                   >
-                    <SelectTrigger className="h-8 w-40">
+                    <SelectTrigger className="w-40">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent align="end">

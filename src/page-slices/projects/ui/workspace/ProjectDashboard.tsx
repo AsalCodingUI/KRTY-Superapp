@@ -842,7 +842,7 @@ function PhaseSettingsDialog({
                     onChange={(due) => patch(p.id, { due })}
                     className="h-7 w-full"
                   />
-                  <InputGroup className="h-7">
+                  <InputGroup size="sm">
                     <InputGroupInput
                       inputMode="decimal"
                       aria-label={t("phaseWeightLabel", { name: p.name })}
@@ -1520,7 +1520,6 @@ function ProcessPanel({
               }}
               onBlur={add}
               placeholder={t("stepPlaceholder", { name: clip(phase.name) })}
-              className="h-8"
             />
           </div>
         ) : (

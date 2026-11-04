@@ -26,6 +26,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import {
+  fieldTriggerClassName,
   Select,
   SelectContent,
   SelectItem,
@@ -151,7 +152,8 @@ export function BriefCreateDialog({
               <PopoverTrigger
                 id="brief-client"
                 className={cn(
-                  "bg-field hover:bg-field-hover border-field-border focus-visible:ring-focus-ring flex h-8 w-full cursor-pointer items-center justify-between gap-1.5 rounded-full border px-3 text-sm outline-none focus-visible:ring-2",
+                  fieldTriggerClassName,
+                  "w-full",
                   !client && !newClient && "text-muted-foreground",
                 )}
               >

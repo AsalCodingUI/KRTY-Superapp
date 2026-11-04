@@ -33,7 +33,10 @@ export function NotFoundView({ fullScreen = false }: { fullScreen?: boolean }) {
             <RiArrowLeftLine data-icon="inline-start" />
             {tc("back")}
           </Button>
-          <Button nativeButton={false} render={<Link href="/dashboard" />}>
+          <Button
+            nativeButton={false}
+            render={<Link href="/dashboard" prefetch={false} />}
+          >
             {t("goToDashboard")}
           </Button>
         </>

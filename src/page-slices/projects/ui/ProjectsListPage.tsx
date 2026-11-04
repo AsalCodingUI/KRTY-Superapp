@@ -21,7 +21,11 @@ import { ProjectAvatar } from "@/components/project-avatar"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { EmptyState } from "@/components/empty-state"
-import { Input } from "@/components/ui/input"
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group"
 import { Spinner } from "@/components/ui/spinner"
 import { useViewMode, ViewToggle } from "@/components/view-toggle"
 import { createClient } from "@/shared/api/supabase/client"
@@ -257,17 +261,18 @@ export function ProjectsListPage() {
         actions={
           scope === "docs" ? (
             <div className="flex items-center gap-2">
-              <div className="relative w-32 min-w-0 sm:w-64">
-                <RiSearchLine className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
-                <Input
+              <InputGroup className="w-32 min-w-0 sm:w-64">
+                <InputGroupAddon>
+                  <RiSearchLine />
+                </InputGroupAddon>
+                <InputGroupInput
                   type="search"
                   placeholder={tb("searchPlaceholder")}
                   aria-label={tb("searchPlaceholder")}
                   value={briefQuery}
                   onChange={(e) => setBriefQuery(e.target.value)}
-                  className="pl-9"
                 />
-              </div>
+              </InputGroup>
               {canRun && (
                 <Button
                   aria-label={tb("newBrief")}
@@ -280,17 +285,18 @@ export function ProjectsListPage() {
             </div>
           ) : (
             <div className="flex items-center gap-2">
-              <div className="relative w-32 min-w-0 sm:w-64">
-                <RiSearchLine className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
-                <Input
+              <InputGroup className="w-32 min-w-0 sm:w-64">
+                <InputGroupAddon>
+                  <RiSearchLine />
+                </InputGroupAddon>
+                <InputGroupInput
                   type="search"
                   placeholder={t("searchPlaceholder")}
                   aria-label={t("searchLabel")}
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  className="pl-9"
                 />
-              </div>
+              </InputGroup>
               <ProjectsFilterMenu
                 projects={allProjects}
                 options={effective}

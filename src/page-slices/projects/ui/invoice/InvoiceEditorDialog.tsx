@@ -900,6 +900,7 @@ function Editor({
             onToggle={() => toggle("client")}
             action={
               <Link
+                prefetch={false}
                 href={settingsHref}
                 onClick={onClose}
                 className="text-muted-foreground hover:text-foreground text-xs"

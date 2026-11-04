@@ -131,7 +131,7 @@ function NotificationLink({
       </a>
     )
   return (
-    <Link href={link} onClick={onOpen} className={className}>
+    <Link href={link} prefetch={false} onClick={onOpen} className={className}>
       {children}
     </Link>
   )

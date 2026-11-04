@@ -22,8 +22,6 @@ import { useDateLocale, useT } from "@/shared/i18n/client"
 // Types
 // ============================================================================
 
-type InputSize = "sm" | "default"
-
 type DateRange = {
   from: Date | undefined
   to?: Date | undefined
@@ -68,8 +66,6 @@ interface PickerProps extends CalendarBoundsProps {
   required?: boolean
   showTimePicker?: boolean
   placeholder?: string
-  /** Both sizes render at 28px (legacy density). */
-  inputSize?: InputSize
   /** @deprecated Month and year are always pickable now. */
   enableYearNavigation?: boolean
   disableNavigation?: boolean
@@ -367,7 +363,6 @@ const SingleDatePicker = ({
   align = "center",
   required,
   id,
-  inputSize: _inputSize,
   ...rest
 }: SingleDatePickerProps) => {
   const t = useT("shell")
@@ -565,7 +560,6 @@ const RangeDatePicker = ({
   className,
   required,
   id,
-  inputSize: _inputSize,
   ...rest
 }: DateRangePickerProps) => {
   const t = useT("shell")

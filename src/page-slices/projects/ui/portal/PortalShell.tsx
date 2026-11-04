@@ -142,6 +142,7 @@ export function PortalShell({
             /
           </span>
           <Link
+            prefetch={false}
             href={base}
             className="flex min-w-0 items-center gap-2 text-sm font-medium max-md:gap-2.5 max-md:text-base"
           >
@@ -197,7 +198,12 @@ export function PortalShell({
                       tooltip={t(section.key)}
                       isActive={section.slug === current.slug}
                       className="not-data-active:blend-ink data-active:bg-transparent"
-                      render={<Link href={sectionHref(section.slug)} />}
+                      render={
+                        <Link
+                          href={sectionHref(section.slug)}
+                          prefetch={false}
+                        />
+                      }
                     >
                       <section.icon />
                       <span className="truncate">{t(section.key)}</span>
@@ -230,7 +236,7 @@ export function PortalShell({
                 <BreadcrumbList className="flex-nowrap">
                   <BreadcrumbItem className="shrink-0">
                     <BreadcrumbLink
-                      render={<Link href={base} />}
+                      render={<Link href={base} prefetch={false} />}
                       className="max-w-48 truncate"
                       translate="no"
                     >
@@ -241,7 +247,12 @@ export function PortalShell({
                   <BreadcrumbItem className="min-w-0">
                     {deeper ? (
                       <BreadcrumbLink
-                        render={<Link href={sectionHref(current.slug)} />}
+                        render={
+                          <Link
+                            href={sectionHref(current.slug)}
+                            prefetch={false}
+                          />
+                        }
                         className="truncate"
                       >
                         {t(current.key)}

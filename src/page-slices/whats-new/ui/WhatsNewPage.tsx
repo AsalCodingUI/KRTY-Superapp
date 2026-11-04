@@ -10,7 +10,11 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group"
 import { Spinner } from "@/components/ui/spinner"
 import { useViewMode, ViewToggle } from "@/components/view-toggle"
 import { cn } from "@/lib/utils"
@@ -170,17 +174,18 @@ export function WhatsNewPage() {
         title={t("title")}
         actions={
           <div className="flex items-center gap-2">
-            <div className="relative w-32 min-w-0 sm:w-64">
-              <RiSearchLine className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
-              <Input
+            <InputGroup className="w-32 min-w-0 sm:w-64">
+              <InputGroupAddon>
+                <RiSearchLine />
+              </InputGroupAddon>
+              <InputGroupInput
                 type="search"
                 placeholder={t("searchPlaceholder")}
                 aria-label={t("searchLabel")}
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                className="pl-9"
               />
-            </div>
+            </InputGroup>
             <DropdownMenu>
               <DropdownMenuTrigger
                 render={

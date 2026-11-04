@@ -8,6 +8,7 @@ import {
   submitBrief,
 } from "@/app/(fullscreen)/b/[token]/actions"
 import { Button } from "@/components/ui/button"
+import { FieldError } from "@/components/ui/field"
 import { ProjectStageIcon } from "@/page-slices/projects/ui/ProjectStageIcon"
 import { Spinner } from "@/components/ui/spinner"
 import { cn } from "@/lib/utils"
@@ -733,9 +734,7 @@ export function BriefForm({
                     })}
                   </div>
                 )}
-                {error && (
-                  <p className="text-destructive-ink text-sm">{error}</p>
-                )}
+                {error && <FieldError>{error}</FieldError>}
               </m.section>
             )}
           </div>
@@ -987,11 +986,7 @@ function Question({
           )}
         </div>
       )}
-      {flagged && (
-        <p className="text-destructive-ink text-meta">
-          This one needs an answer.
-        </p>
-      )}
+      {flagged && <FieldError>This one needs an answer.</FieldError>}
     </div>
   )
 }

@@ -11,10 +11,19 @@ import {
 import { PageHeader } from "@/components/page-header"
 import { TabNavigation, TabNavigationLink } from "@/components/tab-navigation"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group"
 import { Spinner } from "@/components/ui/spinner"
 import { useCanonicalParam } from "@/shared/hooks/useCanonicalParam"
-import { findByLinkKey, linkKey, projectHref } from "@/shared/lib/url-params"
+import {
+  findByLinkKey,
+  linkKey,
+  projectHref,
+  replaceUrl,
+} from "@/shared/lib/url-params"
 import {
   setClientArchived,
   deleteClient,
@@ -96,7 +105,7 @@ export function ClientsPage() {
     return params.size ? `${pathname}?${params}` : pathname
   }
   const go = (patch: Record<string, string | null>) =>
-    router.replace(withParams(patch), { scroll: false })
+    replaceUrl(withParams(patch))
 
   const [view, setView] = useViewMode("clients", "grid")
   const [query, setQuery] = useState("")
@@ -312,30 +321,27 @@ export function ClientsPage() {
               key={value}
               active={tab === value}
               onClick={() => go({ status: value === "active" ? null : value })}
+              count={count}
               showLeadingIcon={false}
             >
               {value === "active" ? t("tabActive") : t("tabArchived")}
-              {count > 0 && (
-                <span className="text-tertiary-foreground ml-1.5 tabular-nums">
-                  {count}
-                </span>
-              )}
             </TabNavigationLink>
           )
         })}
       </TabNavigation>
 
-      <div className="relative mb-4 w-full sm:max-w-sm">
-        <RiSearchLine className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
-        <Input
+      <InputGroup className="mb-4 w-full sm:max-w-sm">
+        <InputGroupAddon>
+          <RiSearchLine />
+        </InputGroupAddon>
+        <InputGroupInput
           type="search"
           placeholder={t("searchPlaceholder")}
           aria-label={t("searchLabel")}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="pl-9"
         />
-      </div>
+      </InputGroup>
 
       <div className="pb-4">
         {isLoading ? (

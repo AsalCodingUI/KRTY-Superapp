@@ -234,7 +234,8 @@ function CalendarDropdown({
       <SelectTrigger
         size="sm"
         aria-label={ariaLabel}
-        className="hover:bg-accent dark:hover:bg-accent h-7 gap-1 rounded-full border-transparent bg-transparent px-2.5 text-sm font-medium shadow-none hover:border-transparent dark:bg-transparent [&_svg]:size-3.5"
+        variant="ghost"
+        className="dark:hover:bg-accent gap-1 text-sm font-medium [&_svg]:size-3.5"
       >
         <SelectValue>{() => current?.label}</SelectValue>
       </SelectTrigger>

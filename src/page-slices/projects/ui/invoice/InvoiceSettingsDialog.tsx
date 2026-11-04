@@ -405,13 +405,15 @@ function MethodForm({
                   onChange={(files) => setQrFile(files?.[0] ?? null)}
                 />
                 {draft.qr_path && !qrFile && (
-                  <button
+                  <Button
                     type="button"
-                    className="text-muted-foreground hover:text-destructive-ink w-fit text-xs"
+                    variant="link"
+                    size="xs"
+                    className="text-muted-foreground hover:text-destructive-ink w-fit px-0"
                     onClick={() => setDraft({ ...draft, qr_path: null })}
                   >
                     {t("removeQr")}
-                  </button>
+                  </Button>
                 )}
               </div>
             </div>

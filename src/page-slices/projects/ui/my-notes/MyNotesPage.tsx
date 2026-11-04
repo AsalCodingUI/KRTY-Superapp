@@ -624,7 +624,7 @@ function NoteEditor({
                   }
                 }}
                 onBlur={addDraft}
-                className="text-meta h-8 flex-1"
+                className="flex-1"
               />
             </div>
           )}

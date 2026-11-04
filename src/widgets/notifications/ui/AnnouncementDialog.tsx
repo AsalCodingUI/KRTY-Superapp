@@ -144,8 +144,8 @@ export function AnnouncementDialog({
             <p
               className={
                 badLink
-                  ? "text-destructive-ink text-xs"
-                  : "text-muted-foreground text-xs"
+                  ? "text-destructive-ink text-meta"
+                  : "text-muted-foreground text-meta"
               }
             >
               {badLink ? t("announcementBadLink") : t("announcementLinkHint")}

@@ -29,7 +29,7 @@ function getSubtree(
  * ```tsx
  * <TabNavigation>
  *   <TabNavigationLink href="#" active>Overview</TabNavigationLink>
- *   <TabNavigationLink href="#">Settings</TabNavigationLink>
+ *   <TabNavigationLink href="#" count={3}>Settings</TabNavigationLink>
  * </TabNavigation>
  * ```
  */
@@ -38,9 +38,14 @@ const TabNavigation = React.forwardRef<
   Omit<
     React.ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.Root>,
     "orientation" | "defaultValue" | "dir"
-  >
->(({ className, children, ...props }, forwardedRef) => {
-  return (
+  > & {
+    /** No line under the tabs (tabs inside a toolbar). */
+    plain?: boolean
+    /** The line runs edge to edge of the page (`bleed gutter-x`). */
+    bleed?: boolean
+  }
+>(({ className, children, plain, bleed, ...props }, forwardedRef) => {
+  const nav = (
     <div className="-mb-px overflow-x-auto pb-px [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       <NavigationMenuPrimitive.Root
         ref={forwardedRef}
@@ -50,7 +55,8 @@ const TabNavigation = React.forwardRef<
       >
         <NavigationMenuPrimitive.List
           className={cn(
-            "border-border relative flex items-start justify-start gap-6 border-b whitespace-nowrap",
+            "border-border relative flex items-start justify-start gap-6 whitespace-nowrap",
+            !plain && !bleed && "border-b",
             className,
           )}
         >
@@ -65,6 +71,8 @@ const TabNavigation = React.forwardRef<
       </NavigationMenuPrimitive.Root>
     </div>
   )
+  if (!bleed) return nav
+  return <div className="bleed gutter-x border-border border-b">{nav}</div>
 })
 
 TabNavigation.displayName = "TabNavigation"
@@ -77,8 +85,8 @@ type TabNavigationLinkProps = Omit<
   active?: boolean
   leadingIcon?: React.ReactNode
   showLeadingIcon?: boolean
-  badge?: React.ReactNode
-  showBadge?: boolean
+  /** A count after the label (quiet, tabular); hidden at 0. */
+  count?: number
 }
 
 const TabNavigationLink = React.forwardRef<
@@ -94,8 +102,7 @@ const TabNavigationLink = React.forwardRef<
       children,
       leadingIcon,
       showLeadingIcon = true,
-      badge,
-      showBadge = true,
+      count,
       ...props
     },
     forwardedRef,
@@ -107,7 +114,7 @@ const TabNavigationLink = React.forwardRef<
           data-active={active ? "" : undefined}
           aria-current={active ? "page" : undefined}
           className={cn(
-            "group focus-visible:ring-ring/30 relative flex shrink-0 items-center justify-center rounded-md outline-none select-none focus-visible:ring-3",
+            "group focus-visible:ring-focus-ring relative flex shrink-0 items-center justify-center rounded-md outline-none select-none focus-visible:ring-2",
             disabled
               ? "pointer-events-none cursor-not-allowed"
               : "cursor-pointer",
@@ -138,12 +145,12 @@ const TabNavigationLink = React.forwardRef<
                 )}
                 <span className="px-0.5 text-sm font-medium text-current">
                   {children}
+                  {!!count && (
+                    <span className="text-tertiary-foreground ml-1.5 tabular-nums">
+                      {count}
+                    </span>
+                  )}
                 </span>
-                {showBadge && badge !== undefined && badge !== null && (
-                  <span className="bg-primary text-primary-foreground flex min-w-5 items-center justify-center rounded-sm px-1.5 py-0.5 text-xs font-medium">
-                    {badge}
-                  </span>
-                )}
               </span>
             </span>
           ))}

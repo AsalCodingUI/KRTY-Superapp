@@ -13,6 +13,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import { fieldTriggerClassName } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/shared/api/supabase/client"
 import { accessLevel, canRunProjects } from "@/shared/config/access"
@@ -119,7 +120,8 @@ export function CategoryPicker({
       <PopoverTrigger
         id={id}
         className={cn(
-          "bg-field hover:bg-field-hover hover:border-field-border-hover focus-visible:border-primary/50 focus-visible:ring-focus-ring border-field-border flex h-8 w-full cursor-pointer items-center justify-between gap-1.5 rounded-full border px-3 text-sm whitespace-nowrap transition-[color,box-shadow] duration-200 outline-none focus-visible:ring-2",
+          fieldTriggerClassName,
+          "w-full",
           !current && "text-muted-foreground",
           className,
         )}

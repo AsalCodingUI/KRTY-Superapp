@@ -28,12 +28,25 @@ examples: **/ui** → Navigasi.
 | State in the URL without a navigation      | `replaceUrl(href, push?)`                                           | `src/shared/lib/url-params.ts`                          |
 | A row's URL key, project / person URLs     | `linkKey`, `projectHref`, `employeeHref`, `findByLinkKey`           | same                                                    |
 
+## Tab options (use these)
+
+On `TabNavigation` / `TabNavigationLink` (`src/components/tab-navigation.tsx`);
+measured on /ui → Navigasi ("Diukur dari CSS yang jalan").
+
+| Need                             | Use                           | Result                                                      |
+| -------------------------------- | ----------------------------- | ----------------------------------------------------------- |
+| Page tabs with a line under them | `TabNavigation` (default)     | 1px `border-border` line, tabs `gap-6`, `h-8`               |
+| Tabs inside a toolbar (no line)  | `TabNavigation plain`         | no line, same underline on the active tab                   |
+| A line edge to edge of the page  | `TabNavigation bleed`         | `bleed gutter-x border-b` wrapper (Performa)                |
+| A count after the label          | `TabNavigationLink count={n}` | `text-tertiary-foreground ml-1.5 tabular-nums`, hidden at 0 |
+| Keyboard focus                   | built in                      | `ring-2 ring-focus-ring` (same as fields)                   |
+
 ## Rules
 
 **Tabs vs segmented vs view toggle**
 
 - `TabNavigation`: the sections of a page (Ringkasan / Langganan,
-  Berlaku / Draft). Underline style, `text-sm font-medium`, `gap-7`,
+  Berlaku / Draft). Underline style, `text-sm font-medium`, `gap-6`,
   one sliding `bg-primary` underline. Sits right under `PageHeader`,
   before the content; `mb-4` (or the page's flex gap) below.
 - `SegmentedControl`: a switch inside content or a toolbar (scope,
@@ -47,8 +60,8 @@ examples: **/ui** → Navigasi.
 **Tab labels**
 
 - Text only (`showLeadingIcon={false}`), short nouns.
-- A count after the label: `<span className="text-tertiary-foreground
-ml-1.5 tabular-nums">`, hidden at 0 (badge.md).
+- A count after the label: `count={n}` (`text-tertiary-foreground ml-1.5
+tabular-nums`, hidden at 0; badge.md).
 
 **Where the state lives**
 
@@ -119,8 +132,8 @@ server doesn't read it:`replaceUrl`.
 - `<Link href>` without `prefetch={false}` (or `PrefetchLink`).
 - A `<button onClick={() => router.push(href)}>` for a plain link.
 - Redrawing the tab line: `<div className="border-b"><TabNavigation
-className="border-b-0">` (see Migration).
-- Tab counts in a pill (`TabNavigationLink badge`).
+className="border-b-0">`: `plain` / `bleed`.
+- A count written by hand in the label, or in a pill: `count`.
 - New Indonesian query names (`?proyek=`).
 
 ## Good examples
@@ -143,25 +156,48 @@ const setTab = (next: Tab) => {
   replaceUrl(params.size ? `${pathname}?${params}` : pathname)
 }
 
-<PageHeader className="pt-6 pb-4" title="Aturan" actions={<ViewToggle value={view} onValueChange={setView} />} />
+<PageHeader title="Aturan" actions={<ViewToggle value={view} onValueChange={setView} />} />
 <TabNavigation className="mb-4">
   {TABS.map((item) => (
     <TabNavigationLink
       key={item.value}
       active={tab === item.value}
       onClick={() => setTab(item.value)}
+      count={counts[item.value]}
       showLeadingIcon={false}
     >
       {item.label}
-      {count > 0 && (
-        <span className="text-tertiary-foreground ml-1.5 tabular-nums">{count}</span>
-      )}
     </TabNavigationLink>
   ))}
 </TabNavigation>
 ```
 
 ## Migration notes
+
+Done 2026-11-05 (local): `TabNavigationLink count` (the unused `badge`
+pill removed; ClientsPage, PoliciesPage, MyTasksPage, ProjectTasks,
+ProjectInvoices on it); `TabNavigation plain` (ProjectTasks,
+StakeholderLeavePage) and `bleed` (PerformancePage, now with
+`showLeadingIcon={false}`); MyTasksPage's `border-b` wrapper removed;
+tab focus ring `ring-2 ring-focus-ring` (and the sidebar notice's
+`ring-[var(--ring)]`); `prefetch={false}` on the last 14 `next/link`s
+(PortalShell ×4, PortalOverview, MyTasksPage, InvoiceEditorDialog,
+ProjectScoringView, BriefDialog, LeaveRules ×2, NotificationsPanel,
+error / not-found views), `FloatingTabBar` on `PrefetchLink`;
+ReviewResult `Tabs` → `SegmentedControl`. `replaceUrl` where the route
+doesn't read the param: ClientsPage (`?status=`, `?client=`; the route
+takes no `searchParams`), ContractsPage (`?contract=`, same),
+ProjectTasks (`?task=`), ProjectReports (`?report=`), ProjectLibrary
+(`?folder=`, `push` so Back goes up a folder) — the project routes pass
+the query to `resolveProjectRef` only to keep it on a redirect.
+Kept on the router (the server reads the param): EmployeeDashboard
+`?period=` (`dashboard/page.tsx` loads the quarter's data), TeamsPage
+`?page=` (`teams/page.tsx` pages the query).
+Still open: spacing below tabs (`mb-4` vs `gap-6` vs none), ViewToggle as
+an icon-only SegmentedControl, one pager look, NavProject's lead tag, the
+`ring-[var(--ring)]` focus rings outside navigation (WhatsNewPage /
+WhatsNewEditor chips, SettingsDialog nav).
+The older list below is kept for reference.
 
 Found Nov 2026; fix in place, then delete the line. Paths under `src/`.
 

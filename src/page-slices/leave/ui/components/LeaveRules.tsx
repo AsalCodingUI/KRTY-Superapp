@@ -31,7 +31,11 @@ export function LeaveRules() {
     return (
       <p className="text-muted-foreground text-sm">
         {t("rulesNotPublished")}{" "}
-        <Link href="/policies" className="text-primary hover:underline">
+        <Link
+          href="/policies"
+          prefetch={false}
+          className="text-primary hover:underline"
+        >
           {t("policiesLink")}
         </Link>
         .
@@ -48,6 +52,7 @@ export function LeaveRules() {
           ` · ${t("rulesEffectiveSince", { date: format(new Date(policy.effectiveAt), "d MMM yyyy", { locale: dateLocale }) })}`}
         {" · "}
         <Link
+          prefetch={false}
           href={`/policies/${policy.id}`}
           className="text-primary hover:underline"
         >

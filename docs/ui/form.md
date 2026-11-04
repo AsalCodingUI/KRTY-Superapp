@@ -34,22 +34,41 @@ Not used: `Field` / `FieldGroup` / `FieldDescription` from `ui/field.tsx`
 (2 files). Don't start using them in one form; the pattern below is the
 standard.
 
+## Variants (use these)
+
+Built into the shared components; measured on /ui → Form ("Diukur dari
+CSS yang jalan").
+
+| Need                                    | Use                                                                           | Size        |
+| --------------------------------------- | ----------------------------------------------------------------------------- | ----------- |
+| A field                                 | `Input`, `InputGroup`, `SelectTrigger`                                        | `h-8`       |
+| A field in a row / toolbar              | `Input size="sm"`, `InputGroup size="sm"`, `SelectTrigger size="sm"`          | `h-7`       |
+| A property row (reads as text, hovered) | `SelectTrigger variant="ghost"` (+ `size="sm"`), 13px text                    | `h-7`       |
+| A combobox trigger (Popover + Command)  | `PopoverTrigger className={cn(fieldTriggerClassName, "w-full")}` (select.tsx) | `h-8`       |
+| Error under a field                     | `FieldError` (13px, `text-destructive-ink`, `role="alert"`)                   | `text-meta` |
+| Label → control                         | `gap-field` (8px)                                                             |             |
+
+- Don't pass `h-*`, `text-*` or a ghost look to a field: pick the size /
+  variant.
+- `TimeSelect`, `DatePicker` and `SegmentedControl` have no size prop
+  (one size).
+
 ## Rules
 
 **One field** (label above control)
 
 ```tsx
-<div className="flex flex-col gap-2">
+<div className="gap-field flex flex-col">
   <Label htmlFor="client-name">Nama</Label>
   <Input id="client-name" … />
-  <p className="text-muted-foreground text-[13px]">Hint, if needed.</p>
+  <p className="text-muted-foreground text-meta">Hint, if needed.</p>
 </div>
 ```
 
-- Label → control `gap-2` (8px). Every control has a `Label htmlFor` or
+- Label → control `gap-field` (8px). Every control has a `Label htmlFor` or
   an `aria-label` (a `Select` trigger with a visible `Label` still needs
   `aria-label`, Base UI's trigger is a button).
-- Hint under the control: `text-muted-foreground text-[13px]`.
+- Hint under the control: `text-muted-foreground text-meta` (13px).
 - Optional field: append `<span className="text-muted-foreground
 font-normal">({tc("optional")})</span>` inside the Label. Required
   fields carry no star; they use `required` and the submit stays disabled
@@ -68,9 +87,9 @@ items-center gap-2.5 text-sm">` around the control and a `<span>`.
 **Sizes and look** (built into the components; never set per page)
 
 - Height `h-8` (32px) for `Input`, `InputGroup`, `SelectTrigger`,
-  `DatePicker`, `FileField`, `SegmentedControl`. `SelectTrigger
-size="sm"` = `h-7` for rows and toolbars. Nothing else (no `h-9`,
-  `h-11`).
+  `DatePicker`, `FileField`, `SegmentedControl`. `size="sm"` = `h-7` for
+  rows and toolbars (`Input`, `InputGroup`, `SelectTrigger`). Nothing else
+  (no `h-9`, `h-11`).
 - Single-line fields are pills (`rounded-full`); `Textarea` is
   `rounded-md`, an `InputGroup` holding a textarea `rounded-xl`.
 - Surface tokens: `bg-field` (`hover:bg-field-hover`), border
@@ -138,7 +157,7 @@ keep heavy pickers behind `dynamic()`.
 - `className="h-9"`, `h-11 px-4`, `text-xs`, `text-[13px]` on `Input` /
   `SelectTrigger`: the field sizes are fixed.
 - A `SelectTrigger` or `PopoverTrigger` restyled by hand to look like a
-  field or a ghost: use the component (or add a variant to it).
+  field or a ghost: `variant="ghost"` / `fieldTriggerClassName`.
 - An icon placed with `absolute left-3` over an `Input` with `pl-9`:
   `InputGroup`.
 - `" *"` typed after a label.
@@ -150,8 +169,8 @@ keep heavy pickers behind `dynamic()`.
 `InlineText` (looks like text until hovered), the brief builder's question
 editor, the document editor (`policies/ui/doc-editor.tsx`), PIN entry
 (`p/[token]/PinForm.tsx`), the glass fields on minimal screens
-(`glassControlClass`), property rows in `TaskDialog` (until a ghost
-`SelectTrigger` exists, see Migration).
+(`glassControlClass`, e.g. `auth/update-password` `h-11 px-4`), the
+inline value controls in `ProjectDashboard` facts (`inlineValueClass`).
 
 ## Good examples
 
@@ -166,12 +185,12 @@ editor, the document editor (`policies/ui/doc-editor.tsx`), PIN entry
 
 ```tsx
 <form id="sub-form" onSubmit={submit} className="flex flex-col gap-4">
-  <div className="flex flex-col gap-2">
+  <div className="gap-field flex flex-col">
     <Label htmlFor="sub-name">Nama</Label>
     <Input id="sub-name" required autoFocus value={name} onChange={…} />
   </div>
   <div className="grid grid-cols-2 gap-3">
-    <div className="flex flex-col gap-2">
+    <div className="gap-field flex flex-col">
       <Label>Mata uang</Label>
       <Select value={currency} onValueChange={(v) => v && setCurrency(v)}>
         <SelectTrigger className="w-full" aria-label="Mata uang">
@@ -180,12 +199,12 @@ editor, the document editor (`policies/ui/doc-editor.tsx`), PIN entry
         <SelectContent>…</SelectContent>
       </Select>
     </div>
-    <div className="flex flex-col gap-2">
+    <div className="gap-field flex flex-col">
       <Label htmlFor="sub-amount">Nominal</Label>
       <Input id="sub-amount" inputMode="decimal" value={amount} onChange={…} />
     </div>
   </div>
-  <div className="flex flex-col gap-2">
+  <div className="gap-field flex flex-col">
     <Label htmlFor="sub-start">Mulai</Label>
     <DateField id="sub-start" value={start} onChange={setStart} />
   </div>
@@ -200,6 +219,33 @@ editor, the document editor (`policies/ui/doc-editor.tsx`), PIN entry
 ```
 
 ## Migration notes
+
+Done 2026-11-05 (local): `SelectTrigger variant="ghost"` (TaskDialog ×3,
+ProjectTasks ×2, the calendar's month / year caption);
+`fieldTriggerClassName` for CategoryPicker and BriefCreateDialog;
+`Input size="sm"` / `InputGroup size="sm"` (ProjectTasks title edit,
+BriefBuilder scale labels, ProjectDashboard phase weight); `h-8` / `h-9` /
+`text-xs` / `text-[13px]` overrides dropped on fields (TaskBoard,
+TaskDialog, MyNotes, ProjectTasks, ProjectDashboard, ProjectScoringView,
+ProjectForm, ReportDialog, ClientPortalCard); `bg-muted` on the disabled
+leave-form name dropped; 8 search boxes (incl. FxRatesDialog's `Rp`
+prefix) on `InputGroup`; `FieldError` at 13px and used for the
+event dialog, ContractDialog and BriefForm error lines; `" *"` dropped
+from event-dialog labels; hints `text-xs` → `text-meta`
+(ProjectDocuments, AnnouncementDialog); "Hapus QR" → `Button variant="link"
+size="xs"`; `type="number"` in ProjectScoringView → `inputMode="numeric"`
+
+- cleaner (0–100); ReviewResult `Tabs` → `SegmentedControl`; ignored
+  `size` / `inputSize` props removed (TimeSelect, DatePicker,
+  SegmentedControl); ProjectScoringView's last `gap-1.5` label stack →
+  `gap-field`. The focus ring was already one token (`ring-focus-ring`) on
+  Button / Checkbox / Switch / RadioGroupItem.
+  Kept: `auth/update-password` `Input h-11 px-4` (glass minimal screen, sized
+  to its `lg` button; needs a shared minimal-screen field before it
+  changes), `PinForm`'s error line (PIN entry is not a form field),
+  `DateField className="h-7"` in ProjectDashboard (DateField has no `sm`
+  yet), `inlineValueClass` in ProjectDashboard (its own inline look).
+  The older list below is kept for reference.
 
 Found Nov 2026; fix in place, then delete the line. Paths under `src/`.
 

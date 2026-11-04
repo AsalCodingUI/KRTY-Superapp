@@ -177,6 +177,7 @@ export function PortalOverview({
                     {t("portalLatestReports")}
                   </h2>
                   <Link
+                    prefetch={false}
                     href={`${base}/reports`}
                     className="text-muted-foreground hover:text-foreground text-meta transition-colors"
                   >

@@ -608,7 +608,7 @@ export function EventDialog({
               <div className="scroll-pane scroll-pane-bleed-1 flex flex-col gap-5 py-1">
                 {/* Title */}
                 <div className="gap-field flex flex-col">
-                  <Label htmlFor="title">{t("dialogTitleLabel")} *</Label>
+                  <Label htmlFor="title">{t("dialogTitleLabel")}</Label>
                   <Input
                     id="title"
                     {...register("title")}
@@ -617,7 +617,7 @@ export function EventDialog({
                     disabled={readOnly}
                   />
                   {errors.title?.message && (
-                    <FieldError className="text-xs">
+                    <FieldError>
                       {t(errors.title.message as CalendarKey)}
                     </FieldError>
                   )}
@@ -697,7 +697,7 @@ export function EventDialog({
                 <div className="flex flex-col gap-4">
                   {/* Start Date & Time */}
                   <div className="gap-field flex flex-col">
-                    <Label htmlFor="start">{t("dialogStart")} *</Label>
+                    <Label htmlFor="start">{t("dialogStart")}</Label>
                     <div
                       className={cx(
                         watch("allDay") ? "" : "grid grid-cols-2 gap-2",
@@ -754,16 +754,16 @@ export function EventDialog({
                       )}
                     </div>
                     {errors.start && (
-                      <p className="text-destructive-ink text-xs">
+                      <FieldError>
                         {errors.start.message &&
                           t(errors.start.message as CalendarKey)}
-                      </p>
+                      </FieldError>
                     )}
                   </div>
 
                   {/* End Date & Time */}
                   <div className="gap-field flex flex-col">
-                    <Label htmlFor="end">{t("dialogEnd")} *</Label>
+                    <Label htmlFor="end">{t("dialogEnd")}</Label>
                     <div
                       className={cx(
                         watch("allDay") ? "" : "grid grid-cols-2 gap-2",
@@ -826,10 +826,10 @@ export function EventDialog({
                       )}
                     </div>
                     {errors.end && (
-                      <p className="text-destructive-ink text-xs">
+                      <FieldError>
                         {errors.end.message &&
                           t(errors.end.message as CalendarKey)}
-                      </p>
+                      </FieldError>
                     )}
                   </div>
                 </div>

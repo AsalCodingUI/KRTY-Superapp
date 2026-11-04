@@ -360,31 +360,25 @@ export function MyTasksPage() {
         </div>
       ) : (
         <>
-          <div className="border-border border-b">
-            <TabNavigation className="border-b-0">
-              {(
-                [
-                  ["all", tc("all")],
-                  ["todo", t("filterTodo")],
-                  ["done", t("statusCompleted")],
-                ] as const
-              ).map(([key, label]) => (
-                <TabNavigationLink
-                  key={key}
-                  active={filter === key}
-                  onClick={() => setFilter(key)}
-                  showLeadingIcon={false}
-                >
-                  {label}
-                  {counts[key] > 0 && (
-                    <span className="text-tertiary-foreground ml-1.5 tabular-nums">
-                      {counts[key]}
-                    </span>
-                  )}
-                </TabNavigationLink>
-              ))}
-            </TabNavigation>
-          </div>
+          <TabNavigation>
+            {(
+              [
+                ["all", tc("all")],
+                ["todo", t("filterTodo")],
+                ["done", t("statusCompleted")],
+              ] as const
+            ).map(([key, label]) => (
+              <TabNavigationLink
+                key={key}
+                active={filter === key}
+                onClick={() => setFilter(key)}
+                count={counts[key]}
+                showLeadingIcon={false}
+              >
+                {label}
+              </TabNavigationLink>
+            ))}
+          </TabNavigation>
           <GroupedList className="pb-4 text-sm">
             <div className={cn(ROW_GRID, listHeaderClassName)}>
               <span />
@@ -539,6 +533,7 @@ function MyTaskRow({
       <div className="hidden min-w-0 md:block">
         {project && (
           <Link
+            prefetch={false}
             href={projectHref(project, "tasks")}
             className="text-muted-foreground hover:text-foreground text-meta flex min-w-0 items-center gap-1.5"
           >

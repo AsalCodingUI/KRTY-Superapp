@@ -1,7 +1,7 @@
 "use client"
 
 import { useCanonicalParam } from "@/shared/hooks/useCanonicalParam"
-import { findByLinkKey, linkKey } from "@/shared/lib/url-params"
+import { findByLinkKey, linkKey, replaceUrl } from "@/shared/lib/url-params"
 import { PageHeader } from "@/components/page-header"
 import { useBreadcrumbs } from "@/components/page-breadcrumbs"
 import { ConfirmDialog } from "@/components/confirm-dialog"
@@ -69,7 +69,7 @@ import {
   useContextTarget,
   type CtxItem,
 } from "@/shared/context-menu"
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { usePathname, useSearchParams } from "next/navigation"
 import * as React from "react"
 import { useRef, useState } from "react"
 import { mapLimit } from "@/shared/lib/storage-names"
@@ -355,7 +355,6 @@ export function ProjectLibrary({ projectId }: { projectId: string }) {
   const tm = useT("ctxmenu")
   const tu = useT("undo")
   const dateLocale = useDateLocale()
-  const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const folderId = searchParams.get("folder")
@@ -410,7 +409,9 @@ export function ProjectLibrary({ projectId }: { projectId: string }) {
     const target = id ? folders.find((f) => f.id === id) : null
     if (id) params.set("folder", target ? linkKey(target.name, id) : id)
     else params.delete("folder")
-    router.push(params.size ? `${pathname}?${params}` : pathname)
+    // Client-only (the route doesn't filter by it); a history entry, so
+    // Back goes up a folder.
+    replaceUrl(params.size ? `${pathname}?${params}` : pathname, true)
   }
 
   // "Upload resolusi asli" skips the compression for that one pick.

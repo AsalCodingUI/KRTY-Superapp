@@ -76,20 +76,42 @@ function SelectValue({ className, ...props }: SelectPrimitive.Value.Props) {
   )
 }
 
+// The trigger's look in parts, so a combobox (Popover + Command) wears the
+// same field without copying classes: `fieldTriggerClassName`.
+const triggerBase =
+  "focus-visible:border-primary/50 focus-visible:ring-focus-ring aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 rounded-control flex cursor-pointer items-center justify-between gap-1.5 border py-2 whitespace-nowrap transition-[color,box-shadow] duration-200 outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:ring-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
+
+const triggerVariants = {
+  // A field: bordered pill, like Input.
+  default:
+    "bg-field hover:bg-field-hover hover:border-field-border-hover border-field-border px-3 text-sm",
+  // Reads as text until hovered: property rows, inline pickers.
+  ghost:
+    "hover:bg-accent text-meta border-transparent bg-transparent px-2.5 shadow-none hover:border-transparent dark:bg-transparent",
+} as const
+
+/** A PopoverTrigger that looks like a field (`h-8`; add `w-full`). */
+const fieldTriggerClassName = `${triggerBase} ${triggerVariants.default} h-8`
+
 function SelectTrigger({
   className,
   size = "default",
+  variant = "default",
   children,
   ...props
 }: SelectPrimitive.Trigger.Props & {
   size?: "sm" | "default"
+  variant?: keyof typeof triggerVariants
 }) {
   return (
     <SelectPrimitive.Trigger
       data-slot="select-trigger"
       data-size={size}
+      data-variant={variant}
       className={cn(
-        "bg-field hover:bg-field-hover hover:border-field-border-hover focus-visible:border-primary/50 focus-visible:ring-focus-ring aria-invalid:border-destructive aria-invalid:ring-destructive/20 data-placeholder:text-muted-foreground dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 border-field-border rounded-control flex w-fit cursor-pointer items-center justify-between gap-1.5 border px-3 py-2 text-sm whitespace-nowrap transition-[color,box-shadow] duration-200 outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:ring-2 data-[size=default]:h-8 data-[size=sm]:h-7 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-1.5 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        triggerBase,
+        triggerVariants[variant],
+        "data-placeholder:text-muted-foreground w-fit data-[size=default]:h-8 data-[size=sm]:h-7 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-1.5",
         className,
       )}
       {...props}
@@ -284,6 +306,7 @@ function SelectScrollDownButton({
 }
 
 export {
+  fieldTriggerClassName,
   Select,
   SelectContent,
   SelectGroup,

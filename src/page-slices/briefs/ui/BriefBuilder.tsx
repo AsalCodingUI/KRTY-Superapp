@@ -1234,7 +1234,8 @@ function QuestionBlock({
             onChange={(e) =>
               onChange({ minLabel: e.target.value || undefined })
             }
-            className="text-meta h-7 w-40"
+            size="sm"
+            className="w-40"
           />
           <Input
             value={q.maxLabel ?? ""}
@@ -1243,7 +1244,8 @@ function QuestionBlock({
             onChange={(e) =>
               onChange({ maxLabel: e.target.value || undefined })
             }
-            className="text-meta h-7 w-40"
+            size="sm"
+            className="w-40"
           />
         </div>
       )}
