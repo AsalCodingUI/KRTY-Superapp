@@ -14,7 +14,7 @@ import {
   getInvoicesByProject,
 } from "@/entities/finance/api/client"
 import { cn } from "@/lib/utils"
-import { Badge } from "@/components/ui/badge"
+import { Badge, type BadgeVariant } from "@/components/ui/badge"
 import { GroupedList, listHeaderClassName } from "@/components/grouped-list"
 import { RiAddLine, RiMoneyDollarCircleLine } from "@/shared/ui/lucide-icons"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
@@ -66,39 +66,42 @@ const InvoiceEditorDialog = dynamic(
 
 type FinanceKey = MessageKey<"finance">
 
-const STATUS: Record<string, { label: FinanceKey; tone: string; dot: string }> =
-  {
-    Draft: {
-      label: "statusDraft",
-      tone: "bg-muted text-muted-foreground",
-      dot: "bg-white/70",
-    },
-    Sent: {
-      label: "statusSent",
-      tone: "bg-info-subtle text-blue-11",
-      dot: "bg-info",
-    },
-    Partial: {
-      label: "statusPartial",
-      tone: "bg-warning-subtle text-warning-ink",
-      dot: "bg-warning",
-    },
-    Paid: {
-      label: "statusPaid",
-      tone: "bg-success-subtle text-success-ink",
-      dot: "bg-success",
-    },
-    Overdue: {
-      label: "statusOverdue",
-      tone: "bg-destructive-subtle text-red-11",
-      dot: "bg-destructive",
-    },
-    Refunded: {
-      label: "statusRefunded",
-      tone: "bg-muted text-muted-foreground",
-      dot: "bg-white/70",
-    },
-  }
+// Status → Badge variant (docs/ui/badge.md, "Invoice (app)").
+const STATUS: Record<
+  string,
+  { label: FinanceKey; variant: BadgeVariant; dot: string }
+> = {
+  Draft: {
+    label: "statusDraft",
+    variant: "secondary",
+    dot: "bg-white/70",
+  },
+  Sent: {
+    label: "statusSent",
+    variant: "info",
+    dot: "bg-info",
+  },
+  Partial: {
+    label: "statusPartial",
+    variant: "warning",
+    dot: "bg-warning",
+  },
+  Paid: {
+    label: "statusPaid",
+    variant: "success",
+    dot: "bg-success",
+  },
+  Overdue: {
+    label: "statusOverdue",
+    variant: "destructive",
+    dot: "bg-destructive",
+  },
+  Refunded: {
+    label: "statusRefunded",
+    variant: "secondary",
+    dot: "bg-white/70",
+  },
+}
 
 // Invoice · items · due · status · amount · actions (full-bleed, like Tim)
 const ROW =
@@ -616,7 +619,7 @@ export function ProjectInvoices({ projectId }: { projectId: string }) {
                       {late && <span className={late.tone}>{late.label}</span>}
                     </div>
                     <span>
-                      <Badge className={status.tone}>{t(status.label)}</Badge>
+                      <Badge variant={status.variant}>{t(status.label)}</Badge>
                     </span>
                     <div className="flex flex-col items-end gap-1">
                       <span className="font-medium tabular-nums">

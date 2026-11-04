@@ -1,8 +1,8 @@
 "use client"
 
+import { LeaveStatusBadge } from "@/entities/leave/ui/LeaveStatus"
 import { ProofLink } from "@/entities/leave/ui/ProofLink"
 import { EmptyValue } from "@/components/empty-value"
-import { Badge } from "@/components/ui/badge"
 import {
   Dialog,
   DialogContent,
@@ -10,7 +10,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { useDateLocale, useT } from "@/shared/i18n/client"
-import { daysKey, leaveStatusLabel, leaveTypeLabel } from "@/shared/lib/leave"
+import { daysKey, leaveTypeLabel } from "@/shared/lib/leave"
 import { format } from "date-fns"
 import { useState } from "react"
 import type * as React from "react"
@@ -19,12 +19,6 @@ import {
   leaveDays,
   type LeaveRequestWithProfile,
 } from "./AdminLeaveList"
-
-const STATUS_VARIANT = {
-  approved: "success",
-  rejected: "destructive",
-  pending: "warning",
-} as const
 
 /**
  * One request, every field (the table truncates the reason): opened from
@@ -54,12 +48,7 @@ export function LeaveRequestDetailDialog({
           formatLeaveRange(req.start_date, req.end_date, dateLocale),
         ],
         [t("colDuration"), t(daysKey(days), { n: days })],
-        [
-          t("colStatus"),
-          <Badge key="status" variant={STATUS_VARIANT[req.status]}>
-            {leaveStatusLabel(req.status, t)}
-          </Badge>,
-        ],
+        [t("colStatus"), <LeaveStatusBadge key="status" status={req.status} />],
         [
           t("colReason"),
           req.reason ? (

@@ -17,6 +17,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import {
@@ -152,9 +153,9 @@ export function PortalShell({
             </span>
           </Link>
           {statusKey && (
-            <span className="blend-ink bg-foreground/[0.06] text-muted-foreground hidden shrink-0 rounded-full px-2 py-0.5 text-xs font-medium sm:inline">
+            <Badge variant="secondary" className="blend-ink max-sm:hidden">
               {tp(statusKey)}
-            </span>
+            </Badge>
           )}
         </div>
         <div className="flex shrink-0 items-center gap-1">

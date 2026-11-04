@@ -79,7 +79,7 @@ function PeriodLockControl({ period }: { period: string }) {
     <>
       {lock.locked ? (
         <>
-          <Badge variant="secondary" className="font-normal">
+          <Badge variant="secondary">
             <RiLockLine data-icon="inline-start" />
             {lock.lockedAt
               ? t("kpiLockedOn", {

@@ -3,6 +3,7 @@
 import { PrefetchLink } from "@/components/prefetch-link"
 import { ProjectAvatar } from "@/components/project-avatar"
 import { SlidingIndicator } from "@/components/sliding-indicator"
+import { Badge } from "@/components/ui/badge"
 import {
   SidebarGroup,
   SidebarMenu,
@@ -121,9 +122,7 @@ export function NavProject() {
                 <section.icon />
                 <span className="truncate">{title}</span>
                 {section.slug === "assessment" && isLead && (
-                  <span className="bg-primary/10 text-primary text-micro ml-auto rounded-full px-1.5 py-px leading-4 font-medium">
-                    {t("projectLeadBadge")}
-                  </span>
+                  <Badge className="ml-auto">{t("projectLeadBadge")}</Badge>
                 )}
               </SidebarMenuButton>
             </SidebarMenuItem>

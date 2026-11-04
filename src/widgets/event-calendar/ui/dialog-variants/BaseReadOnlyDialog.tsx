@@ -96,12 +96,7 @@ export function BaseReadOnlyDialog({
           {badges.length > 0 && (
             <div className="flex flex-wrap items-center gap-2">
               {badges.map((badge, index) => (
-                <Badge
-                  variant="secondary"
-                  key={index}
-                  color={badge.color}
-                  className="text-sm"
-                >
+                <Badge variant="secondary" key={index} color={badge.color}>
                   {badge.label}
                 </Badge>
               ))}

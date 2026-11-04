@@ -1,6 +1,6 @@
 "use client"
 
-import { Badge } from "@/components/ui/badge"
+import { LeaveStatusBadge } from "@/entities/leave/ui/LeaveStatus"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -24,12 +24,6 @@ import { LeaveRequestContextMenu } from "./leave-context-menu"
 type LeaveRequest = Database["public"]["Tables"]["leave_requests"]["Row"]
 
 const PAGE_SIZE = 6
-
-const STATUS_VARIANT = {
-  approved: "success",
-  rejected: "destructive",
-  pending: "warning",
-} as const
 
 /**
  * The request that still matters: a pending one, else an approved one that
@@ -200,9 +194,7 @@ function CurrentRequestCard({
               {req.reason ? ` · ${req.reason}` : ""}
             </span>
           </div>
-          <Badge variant={STATUS_VARIANT[req.status]}>
-            {leaveStatusLabel(req.status, t)}
-          </Badge>
+          <LeaveStatusBadge status={req.status} />
         </div>
 
         <ol className="grid grid-cols-3 gap-2">

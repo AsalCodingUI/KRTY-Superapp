@@ -22,6 +22,7 @@ import { linkKey } from "@/shared/lib/url-params"
 import type { PhaseRow, StepRow } from "../workspace/data"
 import { PhaseRail } from "../workspace/PhaseRail"
 import { ProjectProperties } from "../workspace/ProjectProperties"
+import { StepStatusBadge } from "../workspace/StepStatusBadge"
 import { DesignLinkAnchor, linkLabel } from "../workspace/DesignLinks"
 import { PortalReportDialog } from "./PortalReportDialog"
 import type { PortalReport } from "./PortalReports"
@@ -159,16 +160,9 @@ export function PortalOverview({
                         >
                           {step.title}
                         </span>
-                        <span
-                          className={cn(
-                            "shrink-0 rounded-full px-2 py-0.5 text-xs",
-                            done
-                              ? "bg-success-subtle text-success-ink"
-                              : "bg-muted text-muted-foreground",
-                          )}
-                        >
+                        <StepStatusBadge done={done}>
                           {done ? t("statusCompleted") : t("portalStepOpen")}
-                        </span>
+                        </StepStatusBadge>
                       </div>
                     )
                   })

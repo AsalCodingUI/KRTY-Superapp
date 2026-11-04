@@ -461,14 +461,8 @@ function ClientCard({
     >
       <div className="flex flex-1 flex-col gap-3 p-5">
         <div className="flex flex-wrap items-center gap-1.5">
-          <span className="border-border rounded-full border px-2 py-0.5 text-xs">
-            {client.currency}
-          </span>
-          {client.country && (
-            <span className="bg-muted text-muted-foreground rounded-full px-2 py-0.5 text-xs">
-              {client.country}
-            </span>
-          )}
+          <ListChip>{client.currency}</ListChip>
+          {client.country && <ListChip>{client.country}</ListChip>}
         </div>
         <span className="text-foreground truncate font-medium">
           {client.name}

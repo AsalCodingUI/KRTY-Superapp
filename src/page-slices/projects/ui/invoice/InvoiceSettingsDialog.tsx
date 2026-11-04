@@ -4,6 +4,7 @@ import { compressImage } from "@/shared/lib/compress-image"
 import { ConfirmDialog } from "@/components/confirm-dialog"
 import { FileField } from "@/components/file-field"
 import { SegmentedControl } from "@/components/segmented-control"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
 import {
@@ -185,7 +186,7 @@ function MethodsTab({
               <span
                 className={cn(
                   "truncate",
-                  !m.is_active && "text-muted-foreground line-through",
+                  !m.is_active && "text-muted-foreground",
                 )}
               >
                 {m.name}
@@ -200,8 +201,16 @@ function MethodsTab({
                   }`}
               </span>
             </span>
-            {stale && (
-              <AlertTriangle className="text-warning size-4 shrink-0" />
+            {/* State as words, not a strike-through or a lone icon. */}
+            {!m.is_active ? (
+              <Badge variant="secondary">{t("methodInactive")}</Badge>
+            ) : (
+              stale && (
+                <Badge variant="warning">
+                  <AlertTriangle data-icon="inline-start" />
+                  {t("needsCheck")}
+                </Badge>
+              )
             )}
             <ChevronRight className="text-muted-foreground size-4 shrink-0" />
           </button>
