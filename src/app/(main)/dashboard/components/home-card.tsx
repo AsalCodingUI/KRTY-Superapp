@@ -1,3 +1,4 @@
+import { PageHeader } from "@/components/page-header"
 import { RollingValue } from "@/components/rolling-value"
 import { orEmpty } from "@/components/empty-value"
 import { Button } from "@/components/ui/button"
@@ -17,14 +18,9 @@ export function HomeColumn({ children }: { children: React.ReactNode }) {
   return <div className="flex w-full flex-col gap-4 pt-6">{children}</div>
 }
 
+/** The page's h1 is PageHeader's; HomeColumn's pt-6 / gap-4 space it. */
 export function HomeGreeting({ title }: { title: React.ReactNode }) {
-  return (
-    <div className="flex flex-col gap-1">
-      <h1 className="text-heading text-2xl font-normal tracking-tight">
-        {title}
-      </h1>
-    </div>
-  )
+  return <PageHeader title={title} className="pt-0 pb-0" />
 }
 
 /** Row of quick-action pills; the first one is usually primary. On a
@@ -133,7 +129,7 @@ export function HomeCard({
     <section
       {...data}
       className={cn(
-        "bg-card border-field-border dark:border-border rounded-card flex min-w-0 flex-col gap-4 border p-surface",
+        "bg-card border-field-border dark:border-border rounded-card p-surface flex min-w-0 flex-col gap-4 border",
         className,
       )}
     >
