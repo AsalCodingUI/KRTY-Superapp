@@ -2,7 +2,7 @@
 
 /**
  * The app's icons: Reicon (https://reicon.dev, MIT), in DEFAULT_WEIGHT
- * (Filled) unless an icon passes `weight`. Import
+ * (Outline) unless an icon passes `weight`. Import
  * every icon from here (never from "reicon-react" or "lucide-react"
  * directly), so the icon set stays one decision. Names keep the app's
  * existing (lucide-style) names; the right-hand side is the Reicon glyph.
@@ -250,7 +250,7 @@ export type IconWeight = "Outline" | "Filled"
 
 /** The app's icon weight: the one switch for the whole icon set. A single
  *  icon can still pass `weight` (e.g. "Outline" next to filled ones). */
-export const DEFAULT_WEIGHT: IconWeight = "Filled"
+export const DEFAULT_WEIGHT: IconWeight = "Outline"
 
 export type IconProps = Omit<ReiconProps, "weight" | "strokeWidth"> & {
   /** "Filled" for the filled set (e.g. the active nav item). */

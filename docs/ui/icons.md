@@ -15,7 +15,7 @@ Live examples: **/ui** → Icons.
 | Loading                       | `Spinner` (not an icon + `animate-spin`)                                                                                                                                   | `src/components/ui/spinner.tsx`  |
 
 The icon set is **Reicon** (MIT, Solar-based), in one weight for the
-whole app (`DEFAULT_WEIGHT`, now Filled). `index.tsx` maps the app's icon names to Reicon
+whole app (`DEFAULT_WEIGHT`, now Outline). `index.tsx` maps the app's icon names to Reicon
 glyphs, so pages never import `reicon-react` or `lucide-react`
 themselves. 25 glyphs Reicon doesn't have (editor headings, strikethrough,
 pilcrow, tables / columns / rows, grips, corner arrows, double chevrons
@@ -31,9 +31,9 @@ Outline and Filled, on /ui → Icons.
 - Import icons only from `@/components/icons` (never `reicon-react` or
   `lucide-react` directly). Don't add new `Ri*` aliases.
 - The weight is one app-wide setting, `DEFAULT_WEIGHT` in
-  `src/components/icons/index.tsx` (now **Filled**). Don't pass `weight`
+  `src/components/icons/index.tsx` (now **Outline**). Don't pass `weight`
   per icon unless one icon must differ from the set; to switch the whole
-  app to Outline, change that one constant. The lucide fallbacks have no
+  app to Filled, change that one constant. The lucide fallbacks have no
   filled form and stay as line icons.
 - One icon per meaning: edit = `SquarePen`, delete = `Delete` (trash),
   more = `MoreHorizontal`, close = `X`, add = `Plus`, open in new =
