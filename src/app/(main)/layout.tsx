@@ -13,6 +13,12 @@ import { ContextMenuAppScope } from "@/shared/context-menu"
 import { UndoShortcuts } from "@/shared/undo"
 import { SettingsHost } from "@/widgets/settings/ui/SettingsHost"
 import { DESKTOP_SHELL_COOKIE } from "@/shared/lib/desktop-shell"
+import { getSessionContext } from "@/shared/lib/session-context-server"
+import {
+  dehydrate,
+  HydrationBoundary,
+  QueryClient,
+} from "@tanstack/react-query"
 import { cookies } from "next/headers"
 import { cn } from "@/lib/utils"
 import { MobileNav } from "@/components/mobile-nav"
@@ -51,80 +57,95 @@ export default async function Layout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const desktop = (await cookies()).get(DESKTOP_SHELL_COOKIE)?.value === "mac"
+  const [cookieStore, session] = await Promise.all([
+    cookies(),
+    getSessionContext(),
+  ])
+  const desktop = cookieStore.get(DESKTOP_SHELL_COOKIE)?.value === "mac"
+  // The viewer, resolved here: the sidebar, badges and pages that key off
+  // ["session-context"] start at once instead of after a browser fetch.
+  const queryClient = new QueryClient()
+  queryClient.setQueryData(["session-context"], session)
   return (
-    <DesktopShellProvider value={desktop}>
-      {/* The right-click menu gets the viewer's access, ⌘K and AI. */}
-      <ContextMenuAppScope />
-      {/* ⌘Z / ⌘⇧Z across the app (shared/undo). */}
-      <UndoShortcuts />
-      <Suspense>
-        <SettingsHost />
-      </Suspense>
-      {desktop && (
-        // A new href whenever the rules change: React keeps a hoisted
-        // style by its href.
-        <style href={`krty-desktop-${DESKTOP_CSS.length}`} precedence="default">
-          {DESKTOP_CSS}
-        </style>
-      )}
-      <SidebarProvider className="bg-chrome h-svh min-h-0 flex-col overflow-hidden">
-        <WorkspaceNavProvider>
-          <AppTopbar />
-          {/* Banners (view-as, announcements) sit in the tinted chrome. */}
-          <AppBannerStack>
-            <ImpersonationBanner />
-            <AnnouncementBanner />
-          </AppBannerStack>
-          {/* Sidebar and page stay siblings: the inset styles key off the sidebar.
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <DesktopShellProvider value={desktop}>
+        {/* The right-click menu gets the viewer's access, ⌘K and AI. */}
+        <ContextMenuAppScope />
+        {/* ⌘Z / ⌘⇧Z across the app (shared/undo). */}
+        <UndoShortcuts />
+        <Suspense>
+          <SettingsHost />
+        </Suspense>
+        {desktop && (
+          // A new href whenever the rules change: React keeps a hoisted
+          // style by its href.
+          <style
+            href={`krty-desktop-${DESKTOP_CSS.length}`}
+            precedence="default"
+          >
+            {DESKTOP_CSS}
+          </style>
+        )}
+        <SidebarProvider className="bg-chrome h-svh min-h-0 flex-col overflow-hidden">
+          <WorkspaceNavProvider>
+            <AppTopbar />
+            {/* Banners (view-as, announcements) sit in the tinted chrome. */}
+            <AppBannerStack>
+              <ImpersonationBanner />
+              <AnnouncementBanner />
+            </AppBannerStack>
+            {/* Sidebar and page stay siblings: the inset styles key off the sidebar.
             Top bar and sidebar share the tinted chrome; the page floats on it
             as one rounded sheet (Arc style). */}
-          <div
-            className={cn(
-              "flex min-h-0 w-full flex-1",
-              // In the Mac app the sheet hugs the window's rounded corner
-              // (16pt): 6px in, so a 10px radius runs parallel to it.
-              desktop ? "md:pr-1.5 md:pb-1.5" : "md:pr-3 md:pb-3",
-            )}
-          >
-            <AppSidebar />
-            {/* The sheet's shadow is its own layer so it can blend darken into
+            <div
+              className={cn(
+                "flex min-h-0 w-full flex-1",
+                // In the Mac app the sheet hugs the window's rounded corner
+                // (16pt): 6px in, so a 10px radius runs parallel to it.
+                desktop ? "md:pr-1.5 md:pb-1.5" : "md:pr-3 md:pb-3",
+              )}
+            >
+              <AppSidebar />
+              {/* The sheet's shadow is its own layer so it can blend darken into
               the chrome (deepening the tint) while the page itself stays as
               it is. No stacking context on the wrapper, or the blend would
               have nothing to mix with. */}
-            <div className="relative flex min-w-0 flex-1">
-              <div
-                aria-hidden
-                className={cn(
-                  "blend-shadow pointer-events-none absolute inset-0 z-20 hidden shadow-(--elev-3) md:block",
-                  desktop ? "md:rounded-[10px]" : "md:rounded-3xl",
-                )}
-              />
-              {/* The scrollbar's room is always kept, on both sides (scroll-pane),
+              <div className="relative flex min-w-0 flex-1">
+                <div
+                  aria-hidden
+                  className={cn(
+                    "blend-shadow pointer-events-none absolute inset-0 z-20 hidden shadow-(--elev-3) md:block",
+                    desktop ? "md:rounded-[10px]" : "md:rounded-3xl",
+                  )}
+                />
+                {/* The scrollbar's room is always kept, on both sides (scroll-pane),
                 so a page that gets shorter doesn't shift sideways and the left and
                 right spacing match; the gutter gives back that room (--sbw). */}
-              <SidebarInset
-                className={cn(
-                  "dark:bg-surface scroll-pane overscroll-contain [--bleed:0.75rem] [--page-gutter:max(var(--bleed),calc(1.25rem-var(--sbw,0px)))] md:z-20 md:[--page-gutter:calc(2.5rem-var(--sbw,0px))] xl:[--page-gutter:calc(4rem-var(--sbw,0px))]",
-                  desktop ? "md:rounded-[10px]" : "md:rounded-3xl",
-                  // Phones (Shopify style): the page is a sheet on the
-                  // chrome, its top corners rounded.
-                  "max-md:rounded-t-3xl max-md:pt-2",
-                )}
-              >
-                <SiteHeader />
-                <div className="gutter-x flex flex-1 flex-col gap-4 overflow-x-clip pb-[calc(6.5rem+env(safe-area-inset-bottom))] md:pb-6">
-                  <WorkspaceTransition>
-                    <Suspense fallback={<PageFallback />}>{children}</Suspense>
-                  </WorkspaceTransition>
-                </div>
-              </SidebarInset>
+                <SidebarInset
+                  className={cn(
+                    "dark:bg-surface scroll-pane overscroll-contain [--bleed:0.75rem] [--page-gutter:max(var(--bleed),calc(1.25rem-var(--sbw,0px)))] md:z-20 md:[--page-gutter:calc(2.5rem-var(--sbw,0px))] xl:[--page-gutter:calc(4rem-var(--sbw,0px))]",
+                    desktop ? "md:rounded-[10px]" : "md:rounded-3xl",
+                    // Phones (Shopify style): the page is a sheet on the
+                    // chrome, its top corners rounded.
+                    "max-md:rounded-t-3xl max-md:pt-2",
+                  )}
+                >
+                  <SiteHeader />
+                  <div className="gutter-x flex flex-1 flex-col gap-4 overflow-x-clip pb-[calc(6.5rem+env(safe-area-inset-bottom))] md:pb-6">
+                    <WorkspaceTransition>
+                      <Suspense fallback={<PageFallback />}>
+                        {children}
+                      </Suspense>
+                    </WorkspaceTransition>
+                  </div>
+                </SidebarInset>
+              </div>
             </div>
-          </div>
-        </WorkspaceNavProvider>
-        {/* Phones: the essentials, from a tab bar at the bottom. */}
-        <MobileNav />
-      </SidebarProvider>
-    </DesktopShellProvider>
+          </WorkspaceNavProvider>
+          {/* Phones: the essentials, from a tab bar at the bottom. */}
+          <MobileNav />
+        </SidebarProvider>
+      </DesktopShellProvider>
+    </HydrationBoundary>
   )
 }

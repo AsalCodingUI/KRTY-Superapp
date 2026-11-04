@@ -1,7 +1,7 @@
 import { getT } from "@/shared/i18n/server"
 import { createAdminClient } from "@/shared/api/supabase/admin"
 import { createClient } from "@/shared/api/supabase/server"
-import { resolveEffectiveUserId } from "@/shared/lib/impersonation-server"
+import { getImpersonationCookieUserId } from "@/shared/lib/impersonation-server"
 import { resolveProfileByUserIdOrEmail } from "@/shared/lib/profile-resolution"
 import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
@@ -28,17 +28,27 @@ async function getCanonicalProfile() {
     return { user: null, profile: null, viewingAs: false }
   }
 
+  // One lookup serves both: their profile, and whether they may view as
+  // someone (resolveEffectiveUserId's rule, without fetching it again).
   const profile = await resolveProfileByUserIdOrEmail<{
     id: string
     email: string | null
-  }>(supabase, "id, email, created_at", user.id, user.email)
+    is_super_admin: boolean | null
+  }>(supabase, "id, email, is_super_admin, created_at", user.id, user.email)
   if (!profile) return { user, profile: null, viewingAs: false }
 
-  const effectiveId = await resolveEffectiveUserId(
-    supabase,
-    user.id,
-    user.email,
-  )
+  let effectiveId = profile.id
+  const impersonatedUserId = profile.is_super_admin
+    ? await getImpersonationCookieUserId()
+    : null
+  if (impersonatedUserId && impersonatedUserId !== profile.id) {
+    const { data: target } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("id", impersonatedUserId)
+      .maybeSingle()
+    if (target?.id) effectiveId = impersonatedUserId
+  }
   return {
     user,
     profile:
@@ -60,24 +70,27 @@ export async function GET() {
     }
 
     const adminSupabase = createAdminClient()
-    const { data, error } = await adminSupabase
-      .from("notifications")
-      .select("*")
-      .eq("user_id", profile.id)
-      .order("created_at", { ascending: false })
-      // Polled every minute by the top bar: cap the payload to recent history.
-      .limit(200)
+    // The list and the unread count, together. Only what the bell, panel
+    // and banners read (not the mailer's columns).
+    const [{ data, error }, { count }] = await Promise.all([
+      adminSupabase
+        .from("notifications")
+        .select("id, user_id, type, title, message, link, is_read, created_at")
+        .eq("user_id", profile.id)
+        .order("created_at", { ascending: false })
+        // Polled by the top bar: cap the payload to recent history.
+        .limit(200),
+      // The badge counts every unread one, not only those in the list.
+      adminSupabase
+        .from("notifications")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", profile.id)
+        .eq("is_read", false),
+    ])
 
     if (error) {
       throw error
     }
-
-    // The badge counts every unread one, not only those in the list.
-    const { count } = await adminSupabase
-      .from("notifications")
-      .select("id", { count: "exact", head: true })
-      .eq("user_id", profile.id)
-      .eq("is_read", false)
 
     return NextResponse.json({
       notifications: data || [],

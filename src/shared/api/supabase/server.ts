@@ -1,12 +1,13 @@
 import { createServerClient } from "@supabase/ssr"
 import { cookies } from "next/headers"
 import { cache } from "react"
+import { localSessionUser } from "./verify-token"
 
 /**
  * One Supabase client per server request. `cache()` scopes it to the current
  * render, so a page, its server actions and entity helpers all share it —
- * and share its memoized `auth.getUser()` (one Auth round trip, not one per
- * helper). Outside a render (route handlers) `cache()` doesn't dedupe and
+ * and share its memoized `auth.getUser()` (one check, not one per helper;
+ * verified locally when the JWT secret is set, see verify-token.ts). Outside a render (route handlers) `cache()` doesn't dedupe and
  * every call still gets a fresh client.
  */
 export const createClient = cache(async () => {
@@ -54,10 +55,15 @@ export const createClient = cache(async () => {
   // request). Any auth mutation on the client drops the memo.
   const auth = client.auth
   const getUser = auth.getUser.bind(auth)
+  // The token verified here when possible; the Auth server otherwise.
+  const resolveUser = async (): ReturnType<typeof getUser> => {
+    const user = await localSessionUser(auth).catch(() => null)
+    return user ? { data: { user }, error: null } : getUser()
+  }
   let pendingUser: ReturnType<typeof getUser> | null = null
   auth.getUser = ((jwt?: string) => {
     if (jwt) return getUser(jwt)
-    pendingUser ??= getUser()
+    pendingUser ??= resolveUser()
     return pendingUser
   }) as typeof auth.getUser
   for (const method of [

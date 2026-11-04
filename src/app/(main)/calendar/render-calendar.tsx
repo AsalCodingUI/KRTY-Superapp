@@ -4,7 +4,10 @@ import CalendarClient, {
 
 import { createClient } from "@/shared/api/supabase/server"
 import { accessLevel } from "@/shared/config/access"
-import { resolveEffectiveUserId } from "@/shared/lib/impersonation-server"
+import {
+  effectiveUserIdFast,
+  getMiddlewareViewer,
+} from "@/shared/lib/viewer-context-server"
 
 /** Both calendars: /calendar (project) and /calendar/personal/<view>. */
 export async function renderCalendar(scope: CalendarScope) {
@@ -15,23 +18,24 @@ export async function renderCalendar(scope: CalendarScope) {
 
   if (!user) return null
 
-  const effectiveUserId = await resolveEffectiveUserId(
-    supabase,
-    user.id,
-    user.email,
-  )
+  // Middleware already knows the level (it gates the page with it); the
+  // profile is only read when it didn't pass it on.
+  const [viewer, effectiveUserId] = await Promise.all([
+    getMiddlewareViewer(user.id),
+    effectiveUserIdFast(supabase, user.id, user.email),
+  ])
+  const level =
+    viewer?.effectiveUserId === effectiveUserId
+      ? viewer.level
+      : accessLevel(
+          (
+            await supabase
+              .from("profiles")
+              .select("role, job_title")
+              .eq("id", effectiveUserId)
+              .single()
+          ).data,
+        )
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role, job_title")
-    .eq("id", effectiveUserId)
-    .single()
-
-  return (
-    <CalendarClient
-      scope={scope}
-      level={accessLevel(profile)}
-      userId={effectiveUserId}
-    />
-  )
+  return <CalendarClient scope={scope} level={level} userId={effectiveUserId} />
 }

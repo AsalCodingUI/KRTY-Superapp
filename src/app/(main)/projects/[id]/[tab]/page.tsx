@@ -29,7 +29,9 @@ export default async function ProjectSectionRoute({
   if (["overview", "calculations", "slas"].includes(tab))
     redirect(`/projects/${ref}`)
   if (!SECTIONS.includes(tab as Section)) notFound()
-  const { id } = await resolveProjectRef(ref, tab, search)
-  await assertProjectAccess(id, tab)
-  return <ProjectWorkspacePage projectId={id} section={tab as Section} />
+  const project = await resolveProjectRef(ref, tab, search)
+  await assertProjectAccess(project, tab)
+  return (
+    <ProjectWorkspacePage projectId={project.id} section={tab as Section} />
+  )
 }

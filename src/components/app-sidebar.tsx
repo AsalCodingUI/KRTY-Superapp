@@ -74,10 +74,13 @@ type SidebarProject = {
 /** Projects under way: not-started ones wait on the Projects page. */
 const SIDEBAR_STATUSES = ["Active", "Review"]
 
-function useSidebarProjects(profile: { id: string; role: string } | null) {
+function useSidebarProjects(
+  profile: { id: string; role: string } | null,
+  enabled: boolean,
+) {
   return useQuery<SidebarProject[]>({
     queryKey: ["sidebar-projects", profile?.id, profile?.role],
-    enabled: Boolean(profile),
+    enabled: enabled && Boolean(profile),
     staleTime: 5 * 60_000,
     queryFn: async () => {
       if (!profile) return []
@@ -164,8 +167,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   // A dot on Yang baru while there's something the viewer hasn't seen.
   const { count: whatsNewUnseen } = useWhatsNewUnseen()
 
+  // Only the Project workspace lists them: don't fetch them elsewhere.
   const { data: projects = [] } = useSidebarProjects(
     profile ? { id: profile.id, role: profile.role } : null,
+    active?.id === "project",
   )
 
   // Longest matching href is the active page (so /calendar/personal does

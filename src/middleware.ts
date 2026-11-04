@@ -8,6 +8,8 @@ import {
 } from "@/shared/config/access"
 import { IMPERSONATION_COOKIE_NAME } from "@/shared/lib/impersonation"
 import { dedupeProfilesByEmail } from "@/shared/lib/profile-dedupe"
+import { encodeViewer, VIEWER_HEADER } from "@/shared/lib/viewer-context"
+import { localSessionUser } from "@/shared/api/supabase/verify-token"
 import { Database } from "@/shared/types/database.types"
 import { createServerClient } from "@supabase/ssr"
 import { NextResponse, type NextRequest } from "next/server"
@@ -26,17 +28,59 @@ type MiddlewarePermissionCache = {
   expiresAt: number
 }
 
-function readPermissionCache(
+// The cache is signed: pages trust what middleware passes on from it, so a
+// hand-written cookie must not pass for it. No key, no cache.
+const encoder = new TextEncoder()
+let cacheKey: Promise<CryptoKey> | null = null
+
+function permissionCacheKey() {
+  const secret = process.env.SUPABASE_SERVICE_KEY
+  if (!secret) return null
+  cacheKey ??= crypto.subtle.importKey(
+    "raw",
+    encoder.encode(`${PERMISSION_CACHE_COOKIE}:${secret}`),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign", "verify"],
+  )
+  return cacheKey
+}
+
+function toBase64Url(bytes: Uint8Array) {
+  let binary = ""
+  for (const byte of bytes) binary += String.fromCharCode(byte)
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "")
+}
+
+function fromBase64Url(value: string) {
+  const base64 = value.replace(/-/g, "+").replace(/_/g, "/")
+  const binary = atob(base64 + "=".repeat((4 - (base64.length % 4)) % 4))
+  return Uint8Array.from(binary, (c) => c.charCodeAt(0))
+}
+
+async function readPermissionCache(
   request: NextRequest,
   userId: string,
   email: string | null,
   impersonatedUserId: string | null,
-): MiddlewarePermissionCache | null {
+): Promise<MiddlewarePermissionCache | null> {
   const raw = request.cookies.get(PERMISSION_CACHE_COOKIE)?.value
-  if (!raw) return null
+  const key = permissionCacheKey()
+  if (!raw || !key) return null
 
   try {
-    const parsed = JSON.parse(raw) as MiddlewarePermissionCache
+    const [payload, signature] = raw.split(".")
+    if (!payload || !signature) return null
+    const valid = await crypto.subtle.verify(
+      "HMAC",
+      await key,
+      fromBase64Url(signature),
+      encoder.encode(payload),
+    )
+    if (!valid) return null
+    const parsed = JSON.parse(
+      new TextDecoder().decode(fromBase64Url(payload)),
+    ) as MiddlewarePermissionCache
     if (parsed.authUserId !== userId) return null
     if ((parsed.email || null) !== (email || null)) return null
     if ((parsed.impersonatedUserId || null) !== (impersonatedUserId || null)) {
@@ -50,17 +94,27 @@ function readPermissionCache(
   }
 }
 
-function writePermissionCache(
+async function writePermissionCache(
   response: NextResponse,
   cache: MiddlewarePermissionCache,
 ) {
-  response.cookies.set(PERMISSION_CACHE_COOKIE, JSON.stringify(cache), {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    path: "/",
-    expires: new Date(cache.expiresAt),
-  })
+  const key = permissionCacheKey()
+  if (!key) return
+  const payload = toBase64Url(encoder.encode(JSON.stringify(cache)))
+  const signature = new Uint8Array(
+    await crypto.subtle.sign("HMAC", await key, encoder.encode(payload)),
+  )
+  response.cookies.set(
+    PERMISSION_CACHE_COOKIE,
+    `${payload}.${toBase64Url(signature)}`,
+    {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      expires: new Date(cache.expiresAt),
+    },
+  )
 }
 
 export async function middleware(request: NextRequest) {
@@ -78,6 +132,9 @@ export async function middleware(request: NextRequest) {
     const renamed = renameLegacyParams(request.nextUrl)
     if (renamed) return NextResponse.redirect(renamed, 308)
   }
+
+  // Only middleware says who the viewer is (below): never a client.
+  request.headers.delete(VIEWER_HEADER)
 
   let supabaseResponse = NextResponse.next({
     request,
@@ -121,9 +178,10 @@ export async function middleware(request: NextRequest) {
   const isDesktopApp = url.pathname === "/desktop"
   // Link-preview cards (opengraph-image / twitter-image, any segment):
   // crawlers fetch them without an account.
-  const isShareCard = /\/(?:opengraph|twitter)-image(?:-[a-z0-9]+)?(?:\/[^/]+)?$/.test(
-    url.pathname,
-  )
+  const isShareCard =
+    /\/(?:opengraph|twitter)-image(?:-[a-z0-9]+)?(?:\/[^/]+)?$/.test(
+      url.pathname,
+    )
   const isPublicPage =
     isLoginPage ||
     isAuthPage ||
@@ -153,9 +211,9 @@ export async function middleware(request: NextRequest) {
   if (isPublicPage || isApiRoute) {
     // Untuk login page, cek apakah sudah punya session → redirect ke dashboard
     if (isLoginPage) {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
+      const user =
+        (await localSessionUser(supabase.auth).catch(() => null)) ??
+        (await supabase.auth.getUser()).data.user
       if (user) {
         url.pathname = "/dashboard"
         return NextResponse.redirect(url)
@@ -164,10 +222,12 @@ export async function middleware(request: NextRequest) {
     return supabaseResponse
   }
 
-  // Cek session user — hanya untuk protected routes
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  // Cek session user — hanya untuk protected routes. The token is checked
+  // here when the JWT secret is set (no Auth round trip); getSession() in
+  // there still refreshes it and writes the cookies (setAll above).
+  const user =
+    (await localSessionUser(supabase.auth).catch(() => null)) ??
+    (await supabase.auth.getUser()).data.user
 
   if (!user) {
     // Back to where they were going after signing in (a bookmark, a link
@@ -184,7 +244,7 @@ export async function middleware(request: NextRequest) {
   const impersonatedUserId =
     request.cookies.get(IMPERSONATION_COOKIE_NAME)?.value || null
 
-  const cachedPermissions = readPermissionCache(
+  const cachedPermissions = await readPermissionCache(
     request,
     user.id,
     user.email || null,
@@ -246,7 +306,7 @@ export async function middleware(request: NextRequest) {
     effectiveUserId = effectiveProfile?.id || canonicalUserId
     level = accessLevel(effectiveProfile)
 
-    writePermissionCache(supabaseResponse, {
+    await writePermissionCache(supabaseResponse, {
       authUserId: user.id,
       email: user.email || null,
       canonicalUserId,
@@ -265,7 +325,23 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  return supabaseResponse
+  // Hand the answer to the page (shared/lib/viewer-context.ts), keeping the
+  // refreshed session and cache cookies.
+  request.headers.set(
+    VIEWER_HEADER,
+    encodeViewer({
+      authUserId: user.id,
+      canonicalUserId,
+      effectiveUserId,
+      isSuperAdmin,
+      level,
+    }),
+  )
+  const response = NextResponse.next({ request })
+  supabaseResponse.cookies
+    .getAll()
+    .forEach((cookie) => response.cookies.set(cookie))
+  return response
 }
 
 export const config = {

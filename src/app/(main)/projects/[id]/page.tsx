@@ -12,7 +12,7 @@ export default async function ProjectRoute({
   searchParams: Promise<Record<string, string | string[] | undefined>>
 }) {
   const [{ id: ref }, search] = await Promise.all([params, searchParams])
-  const { id } = await resolveProjectRef(ref, "", search)
-  await assertProjectAccess(id)
-  return <ProjectWorkspacePage projectId={id} section="" />
+  const project = await resolveProjectRef(ref, "", search)
+  await assertProjectAccess(project)
+  return <ProjectWorkspacePage projectId={project.id} section="" />
 }

@@ -3,7 +3,7 @@ import { playNotificationSound } from "@/shared/lib/notification-sound"
 import { Database } from "@/shared/types/database.types"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { createClient } from "@/shared/api/supabase/client"
-import { useCallback, useEffect, useMemo } from "react"
+import { useCallback, useEffect, useMemo, useSyncExternalStore } from "react"
 
 type Notification = Database["public"]["Tables"]["notifications"]["Row"]
 
@@ -11,6 +11,9 @@ type Notification = Database["public"]["Tables"]["notifications"]["Row"]
 export const NOTIFICATIONS_QUERY_KEY = ["notifications"] as const
 
 const POLL_INTERVAL_MS = 60_000
+// While realtime is connected new rows arrive on their own; the poll only
+// catches reads and removals made elsewhere.
+const LIVE_POLL_INTERVAL_MS = 5 * 60_000
 const EMPTY: Notification[] = []
 
 type NotificationList = { list: Notification[]; unread: number | null }
@@ -29,6 +32,23 @@ async function fetchNotificationList(): Promise<NotificationList> {
   return {
     list: payload?.notifications || [],
     unread: payload?.unreadCount ?? null,
+  }
+}
+
+/** Whose notifications the realtime channel is delivering right now. */
+let liveUserId: string | null = null
+const liveListeners = new Set<() => void>()
+
+function setLiveUserId(userId: string | null) {
+  if (liveUserId === userId) return
+  liveUserId = userId
+  liveListeners.forEach((listener) => listener())
+}
+
+function subscribeLive(listener: () => void) {
+  liveListeners.add(listener)
+  return () => {
+    liveListeners.delete(listener)
   }
 }
 
@@ -119,6 +139,12 @@ export function useNotifications() {
     [userId],
   )
 
+  const live = useSyncExternalStore(
+    subscribeLive,
+    () => Boolean(userId) && liveUserId === userId,
+    () => false,
+  )
+
   const query = useQuery({
     queryKey,
     queryFn: async () => {
@@ -127,7 +153,7 @@ export function useNotifications() {
     },
     enabled: Boolean(userId),
     staleTime: 30_000,
-    refetchInterval: POLL_INTERVAL_MS,
+    refetchInterval: live ? LIVE_POLL_INTERVAL_MS : POLL_INTERVAL_MS,
     refetchIntervalInBackground: false,
   })
 
@@ -334,8 +360,12 @@ export function useNotificationsRealtime() {
           }
         },
       )
-      .subscribe()
+      .subscribe((status: string) => {
+        // Back to the minute poll whenever the channel drops.
+        setLiveUserId(status === "SUBSCRIBED" ? userId : null)
+      })
     return () => {
+      setLiveUserId(null)
       void supabase.removeChannel(channel)
     }
   }, [queryClient, userId])
