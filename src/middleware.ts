@@ -327,16 +327,14 @@ export async function middleware(request: NextRequest) {
 
   // Hand the answer to the page (shared/lib/viewer-context.ts), keeping the
   // refreshed session and cache cookies.
-  request.headers.set(
-    VIEWER_HEADER,
-    encodeViewer({
-      authUserId: user.id,
-      canonicalUserId,
-      effectiveUserId,
-      isSuperAdmin,
-      level,
-    }),
-  )
+  const viewer = await encodeViewer({
+    authUserId: user.id,
+    canonicalUserId,
+    effectiveUserId,
+    isSuperAdmin,
+    level,
+  })
+  if (viewer) request.headers.set(VIEWER_HEADER, viewer)
   const response = NextResponse.next({ request })
   supabaseResponse.cookies
     .getAll()

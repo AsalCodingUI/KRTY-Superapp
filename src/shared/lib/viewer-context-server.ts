@@ -8,7 +8,7 @@ import { decodeViewer, VIEWER_HEADER } from "@/shared/lib/viewer-context"
  * is about the signed-in user. Null outside pages (API routes skip it).
  */
 export async function getMiddlewareViewer(authUserId: string) {
-  const viewer = decodeViewer((await headers()).get(VIEWER_HEADER))
+  const viewer = await decodeViewer((await headers()).get(VIEWER_HEADER))
   return viewer?.authUserId === authUserId ? viewer : null
 }
 
