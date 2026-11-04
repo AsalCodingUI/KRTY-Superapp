@@ -29,7 +29,8 @@ import { useState } from "react"
 import { toast } from "sonner"
 import { ContextTarget, copyText, type CtxItem } from "@/shared/context-menu"
 import { Copy, Hash } from "@/components/icons"
-import { ListColumns, PersonCell, StatBand } from "../list"
+import { ListColumns, PersonCell } from "../list"
+import { StatStrip } from "@/components/stat-strip"
 import { isQuarter, periodLabel } from "./period"
 import { RatingChip } from "./RatingChip"
 
@@ -202,8 +203,9 @@ export function TeamKpiList({ scope }: { scope: string }) {
 
   const scored = rows.filter((r) => r.final.score !== null)
   const stats = (
-    <StatBand
-      stats={[
+    <StatStrip
+      orEmpty
+      items={[
         { label: t("member"), value: rows.length },
         {
           label: t("averageFinalScore"),

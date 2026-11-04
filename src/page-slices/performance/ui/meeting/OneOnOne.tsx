@@ -40,7 +40,8 @@ import {
   XCircle,
 } from "@/components/icons"
 import { periodLabel } from "../kpi/period"
-import { GridGroup, ListColumns, StatBand } from "../list"
+import { GridGroup, ListColumns } from "../list"
+import { StatStrip } from "@/components/stat-strip"
 
 export type Slot = {
   id: string
@@ -548,8 +549,9 @@ export function OneOnOne({ period }: { period: string }) {
       )
     return (
       <div className="flex flex-col">
-        <StatBand
-          stats={[
+        <StatStrip
+          orEmpty
+          items={[
             {
               label: t("nextSlot"),
               value: nextLive
@@ -722,8 +724,9 @@ export function OneOnOne({ period }: { period: string }) {
   const next = myUpcoming.find((s) => s.status === "booked")
   return (
     <div className="flex flex-col">
-      <StatBand
-        stats={[
+      <StatStrip
+        orEmpty
+        items={[
           {
             label: t("yourSchedule"),
             value: next

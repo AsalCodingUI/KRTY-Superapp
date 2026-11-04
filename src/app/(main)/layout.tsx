@@ -3,7 +3,8 @@ import { AppSidebar } from "@/components/app-sidebar"
 import { AppTopbar } from "@/components/app-topbar"
 import { WorkspaceNavProvider } from "@/components/workspace-nav"
 import { SiteHeader } from "@/components/site-header"
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
+import { PageSheet, pageSheetContentClassName } from "@/components/page-sheet"
+import { SidebarProvider } from "@/components/ui/sidebar"
 import { Spinner } from "@/components/ui/spinner"
 import { AppBannerStack } from "@/widgets/app-banner/ui/AppBanner"
 import { AnnouncementBanner } from "@/widgets/app-banner/ui/AnnouncementBanner"
@@ -46,10 +47,6 @@ const DESKTOP_CSS =
   '[data-slot="sidebar-wrapper"]{background-color:color-mix(in oklab,color-mix(in oklab,#fff 55%,var(--chrome)) 30%,transparent)}' +
   '.dark [data-slot="sidebar-wrapper"]{background-color:color-mix(in oklab,var(--chrome) 25%,transparent)}' +
   '[data-slot="sidebar-inner"]{background:transparent}'
-
-/** The page sheet's corner in the Mac app: the window's 16pt corner less
- *  the 6px inset (a native size, so not a radius role). */
-const MAC_SHEET_RADIUS = "md:rounded-[10px]"
 
 function PageFallback() {
   return (
@@ -115,40 +112,21 @@ export default async function Layout({
               )}
             >
               <AppSidebar />
-              {/* The sheet's shadow is its own layer so it can blend darken into
-              the chrome (deepening the tint) while the page itself stays as
-              it is. No stacking context on the wrapper, or the blend would
-              have nothing to mix with. */}
-              <div className="relative flex min-w-0 flex-1">
+              {/* The page sheet (components/page-sheet.tsx), shared with the
+              client portal. */}
+              <PageSheet mac={desktop} className="max-md:pt-2">
+                <SiteHeader />
                 <div
-                  aria-hidden
                   className={cn(
-                    "blend-shadow shadow-sheet pointer-events-none absolute inset-0 z-20 hidden md:block",
-                    desktop ? MAC_SHEET_RADIUS : "md:rounded-dialog",
-                  )}
-                />
-                {/* The scrollbar's room is always kept, on both sides (scroll-pane),
-                so a page that gets shorter doesn't shift sideways and the left and
-                right spacing match; the gutter gives back that room (--sbw). */}
-                <SidebarInset
-                  className={cn(
-                    "dark:bg-surface scroll-pane overscroll-contain [--bleed:0.75rem] [--page-gutter:max(var(--bleed),calc(1.25rem-var(--sbw,0px)))] md:z-20 md:[--page-gutter:calc(2.5rem-var(--sbw,0px))] xl:[--page-gutter:calc(4rem-var(--sbw,0px))]",
-                    desktop ? MAC_SHEET_RADIUS : "md:rounded-dialog",
-                    // Phones (Shopify style): the page is a sheet on the
-                    // chrome, its top corners rounded.
-                    "max-md:rounded-t-dialog max-md:pt-2",
+                    pageSheetContentClassName,
+                    "pb-[calc(6.5rem+env(safe-area-inset-bottom))] md:pb-6",
                   )}
                 >
-                  <SiteHeader />
-                  <div className="gutter-x flex flex-1 flex-col gap-4 overflow-x-clip pb-[calc(6.5rem+env(safe-area-inset-bottom))] md:pb-6">
-                    <WorkspaceTransition>
-                      <Suspense fallback={<PageFallback />}>
-                        {children}
-                      </Suspense>
-                    </WorkspaceTransition>
-                  </div>
-                </SidebarInset>
-              </div>
+                  <WorkspaceTransition>
+                    <Suspense fallback={<PageFallback />}>{children}</Suspense>
+                  </WorkspaceTransition>
+                </div>
+              </PageSheet>
             </div>
           </WorkspaceNavProvider>
           {/* Phones: the essentials, from a tab bar at the bottom. */}

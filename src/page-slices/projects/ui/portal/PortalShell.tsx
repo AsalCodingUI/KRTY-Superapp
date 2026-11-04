@@ -5,6 +5,7 @@ import { AppIcon } from "@/components/app-icon"
 import { AppearancePopover } from "@/components/appearance-popover"
 import { LanguageSwitcher } from "@/components/language-switcher"
 import { PageTranslator } from "@/components/page-translator"
+import { PageSheet, pageSheetContentClassName } from "@/components/page-sheet"
 import { ProjectAvatar } from "@/components/project-avatar"
 import { SlidingIndicator } from "@/components/sliding-indicator"
 import { FloatingTabBar, type FloatingTab } from "@/components/floating-tab-bar"
@@ -24,7 +25,6 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
-  SidebarInset,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -32,6 +32,7 @@ import {
   SidebarRail,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
+import { cn } from "@/lib/utils"
 import { STATUS_LABEL_KEYS } from "@/page-slices/projects/lib/status"
 import { useT } from "@/shared/i18n/client"
 import {
@@ -213,66 +214,63 @@ export function PortalShell({
           </SidebarFooter>
         </Sidebar>
 
-        <div className="relative flex min-w-0 flex-1">
-          <div
-            aria-hidden
-            className="blend-shadow md:rounded-dialog shadow-sheet pointer-events-none absolute inset-0 z-20 hidden md:block"
-          />
-          <SidebarInset
-            data-translate-root
-            className="dark:bg-surface scroll-pane max-md:rounded-t-dialog md:rounded-dialog max-md:shadow-raised overscroll-contain [--bleed:0.75rem] [--page-gutter:max(var(--bleed),calc(1.25rem-var(--sbw,0px)))] md:z-20 md:[--page-gutter:calc(2.5rem-var(--sbw,0px))] xl:[--page-gutter:calc(4rem-var(--sbw,0px))]"
-          >
-            {/* No sidebar on a phone: the tab bar below does its job. */}
-            <header className="flex h-12 shrink-0 items-center gap-2 max-md:hidden">
-              <div className="gutter-x flex min-w-0 flex-1 items-center gap-2">
-                <SidebarTrigger className="-ml-1" />
-                <Separator
-                  orientation="vertical"
-                  className="mr-2 data-vertical:h-4 data-vertical:self-auto"
-                />
-                <Breadcrumb className="min-w-0">
-                  <BreadcrumbList className="flex-nowrap">
-                    <BreadcrumbItem className="shrink-0">
+        {/* The same page sheet as inside the app (components/page-sheet). */}
+        <PageSheet data-translate-root className="max-md:shadow-raised">
+          {/* No sidebar on a phone: the tab bar below does its job. */}
+          <header className="flex h-12 shrink-0 items-center gap-2 max-md:hidden">
+            <div className="gutter-x flex min-w-0 flex-1 items-center gap-2">
+              <SidebarTrigger className="-ml-1" />
+              <Separator
+                orientation="vertical"
+                className="mr-2 data-vertical:h-4 data-vertical:self-auto"
+              />
+              <Breadcrumb className="min-w-0">
+                <BreadcrumbList className="flex-nowrap">
+                  <BreadcrumbItem className="shrink-0">
+                    <BreadcrumbLink
+                      render={<Link href={base} />}
+                      className="max-w-48 truncate"
+                      translate="no"
+                    >
+                      {project.name}
+                    </BreadcrumbLink>
+                  </BreadcrumbItem>
+                  <BreadcrumbSeparator />
+                  <BreadcrumbItem className="min-w-0">
+                    {deeper ? (
                       <BreadcrumbLink
-                        render={<Link href={base} />}
-                        className="max-w-48 truncate"
-                        translate="no"
+                        render={<Link href={sectionHref(current.slug)} />}
+                        className="truncate"
                       >
-                        {project.name}
+                        {t(current.key)}
                       </BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator />
-                    <BreadcrumbItem className="min-w-0">
-                      {deeper ? (
-                        <BreadcrumbLink
-                          render={<Link href={sectionHref(current.slug)} />}
-                          className="truncate"
-                        >
-                          {t(current.key)}
-                        </BreadcrumbLink>
-                      ) : (
-                        <BreadcrumbPage className="truncate font-medium">
-                          {t(current.key)}
-                        </BreadcrumbPage>
-                      )}
-                    </BreadcrumbItem>
-                  </BreadcrumbList>
-                </Breadcrumb>
-              </div>
-            </header>
-            <div className="gutter-x flex flex-1 flex-col gap-4 overflow-x-clip pb-6 max-md:pt-1 max-md:pb-[calc(8rem+env(safe-area-inset-bottom))]">
-              <m.div
-                key={pathname}
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.25, ease: [0.23, 1, 0.32, 1] }}
-                className="flex flex-1 flex-col"
-              >
-                {children}
-              </m.div>
+                    ) : (
+                      <BreadcrumbPage className="truncate font-medium">
+                        {t(current.key)}
+                      </BreadcrumbPage>
+                    )}
+                  </BreadcrumbItem>
+                </BreadcrumbList>
+              </Breadcrumb>
             </div>
-          </SidebarInset>
-        </div>
+          </header>
+          <div
+            className={cn(
+              pageSheetContentClassName,
+              "pb-6 max-md:pt-1 max-md:pb-[calc(8rem+env(safe-area-inset-bottom))]",
+            )}
+          >
+            <m.div
+              key={pathname}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.25, ease: [0.23, 1, 0.32, 1] }}
+              className="flex flex-1 flex-col"
+            >
+              {children}
+            </m.div>
+          </div>
+        </PageSheet>
       </div>
 
       <TabBar

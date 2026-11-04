@@ -47,7 +47,8 @@ import { employeeHref } from "@/shared/lib/url-params"
 import { BarChart3, Copy, Eye, Play } from "@/components/icons"
 import { useRouter } from "next/navigation"
 import { isQuarter, periodLabel } from "../kpi/period"
-import { GridGroup, ListColumns, PersonCell, StatBand } from "../list"
+import { GridGroup, ListColumns, PersonCell } from "../list"
+import { StatStrip } from "@/components/stat-strip"
 import { CycleStatusBadge, useCycleRange } from "./cycle-status"
 import { ReviewResult } from "./ReviewResult"
 
@@ -377,8 +378,9 @@ export function ReviewMonitoring({ period }: { period: string }) {
         </div>
       </div>
 
-      <StatBand
-        stats={[
+      <StatStrip
+        orEmpty
+        items={[
           {
             label: t("reviewsReceived"),
             value: `${reviewsDone} / ${reviewsTotal}`,

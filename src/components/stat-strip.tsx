@@ -1,5 +1,13 @@
+import { orEmpty as emptyMark } from "@/components/empty-value"
 import { RollingValue } from "@/components/rolling-value"
 import { cn } from "@/lib/utils"
+
+export type StatStripItem = {
+  /** Defaults to the item's index. */
+  key?: string
+  label: React.ReactNode
+  value: React.ReactNode
+}
 
 /**
  * Full-bleed band of headline numbers under a page's title or tabs (Tim,
@@ -7,9 +15,15 @@ import { cn } from "@/lib/utils"
  */
 export function StatStrip({
   items,
+  aside,
+  orEmpty = false,
   className,
 }: {
-  items: { key: string; label: React.ReactNode; value: React.ReactNode }[]
+  items: StatStripItem[]
+  /** Right-aligned controls, e.g. locking the period or the main action. */
+  aside?: React.ReactNode
+  /** A missing value (null, "", a dash) shows the dashed empty mark. */
+  orEmpty?: boolean
   className?: string
 }) {
   return (
@@ -19,19 +33,36 @@ export function StatStrip({
         className,
       )}
     >
-      {items.map((item) => (
-        <div key={item.key} className="stat-tile">
+      {items.map((item, i) => (
+        <div key={item.key ?? i} className="stat-tile">
           <p className="text-muted-foreground text-sm">{item.label}</p>
-          <p className="text-heading text-stat font-normal tabular-nums">
-            {typeof item.value === "string" ||
-            typeof item.value === "number" ? (
+          {/* A div, so a Skeleton can stand in for the value. */}
+          <div className="text-heading text-stat font-normal tabular-nums">
+            {orEmpty ? (
+              <RollingValue
+                value={
+                  typeof item.value === "number" ||
+                  typeof item.value === "string"
+                    ? item.value
+                    : null
+                }
+              >
+                {emptyMark(item.value)}
+              </RollingValue>
+            ) : typeof item.value === "string" ||
+              typeof item.value === "number" ? (
               <RollingValue>{item.value}</RollingValue>
             ) : (
               item.value
             )}
-          </p>
+          </div>
         </div>
       ))}
+      {aside && (
+        <div className="ml-auto flex items-center gap-2 self-center">
+          {aside}
+        </div>
+      )}
     </div>
   )
 }
