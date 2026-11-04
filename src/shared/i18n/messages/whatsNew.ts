@@ -102,7 +102,7 @@ const id = {
   replaceThumbnail: "Ganti",
   removeThumbnail: "Hapus thumbnail",
   uploading: "Mengupload…",
-  uploadFailed: "Gagal upload gambar. Coba lagi.",
+  uploadFailed: "Gagal upload gambar, coba lagi",
   publish: "Terbitkan",
   publishHint: "Mati = draf, cuma stakeholder yang lihat.",
   bodyLabel: "Isi panduan",
@@ -121,7 +121,7 @@ const id = {
   unsavedTitle: "Simpan perubahan?",
   unsavedDescription: "Ada perubahan yang belum disimpan.",
   discard: "Jangan simpan",
-  loadFailed: "Gagal memuat Yang baru. Coba muat ulang.",
+  loadFailed: "Gagal memuat Yang baru, coba muat ulang",
   errNotAllowed: "Cuma stakeholder yang bisa nulis update.",
   errTitleRequired: "Judul wajib diisi.",
   errTitleTooLong: "Judulnya kepanjangan (maks. 160 karakter).",
@@ -129,8 +129,8 @@ const id = {
   errBodyTooLong: "Isinya kepanjangan.",
   errDateRequired: "Tanggal wajib diisi.",
   errThumbnail: "Link thumbnail-nya nggak valid.",
-  errSaveFailed: "Gagal nyimpen. Coba lagi.",
-  errDeleteFailed: "Gagal ngapus. Coba lagi.",
+  errSaveFailed: "Gagal menyimpan, coba lagi",
+  errDeleteFailed: "Gagal menghapus, coba lagi",
 }
 
 const en: Record<keyof typeof id, string> = {
@@ -230,7 +230,7 @@ const en: Record<keyof typeof id, string> = {
   replaceThumbnail: "Replace",
   removeThumbnail: "Remove thumbnail",
   uploading: "Uploading…",
-  uploadFailed: "Couldn't upload the picture. Try again.",
+  uploadFailed: "Couldn't upload the picture, try again",
   publish: "Publish",
   publishHint: "Off = draft, only stakeholders see it.",
   bodyLabel: "Guide",
@@ -248,7 +248,7 @@ const en: Record<keyof typeof id, string> = {
   unsavedTitle: "Save changes?",
   unsavedDescription: "You have unsaved changes.",
   discard: "Don't save",
-  loadFailed: "Couldn't load What's new. Try reloading.",
+  loadFailed: "Couldn't load What's new, try reloading",
   errNotAllowed: "Only stakeholders can write updates.",
   errTitleRequired: "A title is required.",
   errTitleTooLong: "The title is too long (max. 160 characters).",
@@ -256,8 +256,8 @@ const en: Record<keyof typeof id, string> = {
   errBodyTooLong: "The text is too long.",
   errDateRequired: "A date is required.",
   errThumbnail: "The thumbnail link isn't valid.",
-  errSaveFailed: "Couldn't save. Try again.",
-  errDeleteFailed: "Couldn't delete. Try again.",
+  errSaveFailed: "Couldn't save, try again",
+  errDeleteFailed: "Couldn't delete, try again",
 }
 
 export const whatsNew = { id, en }

@@ -310,7 +310,7 @@ export function DesktopApp() {
         void attendance(
           "POST",
           { action: "clock_in", status: "Present" },
-          "Gagal clock in",
+          t("errClockIn"),
         ),
       toggleBreak: () =>
         data.log &&
@@ -321,14 +321,14 @@ export function DesktopApp() {
             logId: data.log.id,
             isBreak: Boolean(data.log.is_break),
           },
-          "Gagal mengubah istirahat",
+          t("errBreak"),
         ),
       clockOut: () =>
         data.log &&
         void attendance(
           "PATCH",
           { action: "clock_out", logId: data.log.id },
-          "Gagal clock out",
+          t("errClockOut"),
         ),
       completeTask: async (id) => {
         const { error } = await createClient()
@@ -339,7 +339,7 @@ export function DesktopApp() {
             completed_at: new Date().toISOString(),
           })
           .eq("id", id)
-        if (error) toast.error("Gagal menandai tugas selesai")
+        if (error) toast.error(t("errCompleteTask"))
         await refresh([["my-tasks"]])
       },
       decide: async (leaveId, approve) => {
@@ -353,9 +353,8 @@ export function DesktopApp() {
           )
           .eq("id", leaveId)
           .eq("status", "pending")
-        if (error) toast.error(approve ? "Gagal menyetujui" : "Gagal menolak")
-        else
-          toast.success(approve ? "Pengajuan disetujui" : "Pengajuan ditolak")
+        if (error) toast.error(approve ? t("errApprove") : t("errReject"))
+        else toast.success(approve ? t("leaveApproved") : t("leaveRejected"))
         await refresh([["menubar-pending-leave"]])
       },
       open: openExternal,

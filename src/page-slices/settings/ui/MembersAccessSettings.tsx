@@ -258,7 +258,7 @@ export function MembersAccessSettings({
       setProfiles(previous)
       toast.error(t("saveChangesFailed"))
     } else {
-      toast.success(t("saved"))
+      toast.success(tc("saved"))
     }
     setSavingKey(null)
   }

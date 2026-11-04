@@ -8,7 +8,7 @@ export default function PaymentMethodsLoading() {
       {/* Same rhythm as the page: title row, then content. */}
       <div className="flex items-center justify-between pt-6 pb-4">
         <Skeleton className="h-8 w-48" />
-        <Skeleton className="h-9 w-32 rounded-md" />
+        <Skeleton className="rounded-control h-8 w-32" />
       </div>
 
       <div className="grid gap-4 pb-4 md:grid-cols-2 xl:grid-cols-3">

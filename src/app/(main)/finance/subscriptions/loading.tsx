@@ -11,10 +11,10 @@ export default function FinanceSubscriptionsLoading() {
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex flex-wrap gap-2">
           {[1, 2, 3, 4].map((i) => (
-            <Skeleton key={i} className="h-9 w-36 rounded-md" />
+            <Skeleton key={i} className="rounded-control h-8 w-36" />
           ))}
         </div>
-        <Skeleton className="h-9 w-64 rounded-md" />
+        <Skeleton className="rounded-control h-8 w-64" />
       </div>
 
       <div className="flex flex-col gap-2">

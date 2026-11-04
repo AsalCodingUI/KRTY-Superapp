@@ -84,7 +84,7 @@ const id = {
   show: "Munculin lagi",
   restored: "{name} masuk antrian lagi",
   undo: "Batalin",
-  saved: "Disimpan",
+  saved: "Tersimpan",
   reordered: "Urutan disimpan",
   emptyQueue: "Antrian masih kosong",
 

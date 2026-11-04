@@ -10,6 +10,8 @@ dots and counts, the notification sound. Live examples: **/ui** → Feedback.
 | Need                                  | Use                                                                                 | File                                                                   |
 | ------------------------------------- | ----------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
 | Something saved / failed / copied     | `toast.success(t(…))` / `toast.error(t(…))` from `sonner`                           | `src/components/ui/sonner.tsx` (Toaster)                               |
+| The generic "saved" / "couldn't save" | `tc("saved")` / `tc("saveFailed")` (`common`)                                       | `src/shared/i18n/messages/common.ts`                                   |
+| Ask with a promise (`await confirm`)  | `useConfirmDialog()`: resolves `true` on confirm, `false` on cancel / close         | `src/components/confirm-dialog.tsx`                                    |
 | Long upload / batch                   | `const id = toast.loading(…)`, then `toast.dismiss(id)` or `toast.error(…, { id })` | `src/page-slices/policies/ui/doc-editor.tsx`                           |
 | Undo after a change                   | `registerUndo(rowsUndo(…))` (⌘Z, toasts for you)                                    | `src/shared/undo/index.ts`                                             |
 | A list / page with nothing in it      | `EmptyState title description icon action`                                          | `src/components/empty-state.tsx`                                       |
@@ -84,7 +86,8 @@ dots and counts, the notification sound. Live examples: **/ui** → Feedback.
 **Loading**
 
 - Route: `loading.tsx` mirrors the page (title row `pt-6 pb-4`, then
-  content in the real shapes: list rows `h-12`, buttons `h-8 rounded-full`).
+  content in the real shapes: list rows `h-12`, buttons and search
+  fields `h-8 rounded-control`, like `Button` / `Input`).
 - Section / dialog body: `<div className="flex justify-center py-16"><Spinner className="size-6" /></div>`.
 - Inline (a row, a small control): `Spinner` at `size-4` / `size-3.5`.
 - Show loading only for real waits; content that is cached renders at once.
@@ -188,7 +191,31 @@ const [pendingDelete, setPendingDelete] = useState<string | null>(null)
 
 ## Migration notes
 
-Nothing below is changed yet.
+Done 2026-11-05 (local): toast copy in `src/shared/i18n/messages/*.ts`
+(id and en) is one style: every failure string (`Gagal …`, `Couldn't …`)
+and every other string a `toast(…)` call uses lost its trailing period
+(single-sentence ones); `X. Coba lagi.` / `X. Try again.` → `X, coba
+lagi` / `X, try again`; `Gagal nyimpen` / `Gagal ngapus` → `menyimpan` /
+`menghapus`; English `Failed to …` → `Couldn't …`. "Saved" is
+`Tersimpan` everywhere (santuy `Disimpan`, settings `Tersimpan.` gone);
+`common.saved` and `common.saveFailed` added and used where the generic
+line was a namespace copy (settings members, competency library; the
+old `settings.saved` / `performance.saveFailed` removed). `leave.processing`
+uses `…`. `StakeholderLeavePage` toasts our message and logs the error
+(`console.error`) instead of `error.message`. `DesktopApp` toast
+literals → `desktopApp` keys. `useConfirmDialog` resolves `false` on
+cancel / close. `ProjectForm` removing a scored member → `ConfirmDialog`.
+Route skeletons: `h-9 rounded-md` buttons / search fields → `h-8
+rounded-control` (clients, contracts, finance, subscriptions, leave,
+payment methods, policies, processes, project list / detail, teams).
+The bell's red pinging dot → still `bg-primary size-2` with `ring-2
+ring-background`. Not done yet: multi-sentence toasts that aren't a
+"try again" hint keep their periods (`briefs.linkCopied`,
+`performance.competencyInUse`, `projects.libAssetsOnly`); the
+`MenubarPreview` / `MenubarPopover` prototype literals; the rest of the
+list below (empty states, spinners, label swaps, notes optimistic
+order, bell count chip, `UnreadDot`, `projects/loading.tsx` shapes).
+The older list is kept for reference.
 
 **Toast copy** (`src/shared/i18n/messages/*.ts`)
 

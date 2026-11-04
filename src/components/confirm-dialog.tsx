@@ -96,14 +96,21 @@ type ConfirmOptions = Omit<ConfirmDialogProps, "open" | "onOpenChange">
 export function useConfirmDialog() {
   const [isOpen, setIsOpen] = React.useState(false)
   const [config, setConfig] = React.useState<ConfirmOptions | null>(null)
+  // The pending promise's resolver: true on confirm, false on cancel / close.
+  const settle = React.useRef<((ok: boolean) => void) | null>(null)
 
   const confirm = (options: ConfirmOptions) => {
+    settle.current?.(false)
     return new Promise<boolean>((resolve) => {
+      settle.current = (ok) => {
+        settle.current = null
+        resolve(ok)
+      }
       setConfig({
         ...options,
         onConfirm: async () => {
           await options.onConfirm()
-          resolve(true)
+          settle.current?.(true)
           setIsOpen(false)
         },
       })
@@ -116,7 +123,10 @@ export function useConfirmDialog() {
       open={isOpen}
       onOpenChange={(open) => {
         setIsOpen(open)
-        if (!open) setConfig(null)
+        if (!open) {
+          settle.current?.(false)
+          setConfig(null)
+        }
       }}
       {...config}
     />

@@ -72,20 +72,20 @@ const en: Record<keyof typeof id, string> = {
 
   // Notifications
   notificationIdRequired: "Notification id required",
-  notificationsFetchFailed: "Failed to fetch notifications",
-  notificationsUpdateFailed: "Failed to update notifications",
-  notificationDeleteFailed: "Failed to delete notification",
+  notificationsFetchFailed: "Couldn't fetch notifications",
+  notificationsUpdateFailed: "Couldn't update notifications",
+  notificationDeleteFailed: "Couldn't delete notification",
 
   // Attendance
   attendanceLogNotFound: "Attendance log not found",
-  attendanceSaveFailed: "Failed to save attendance log",
-  attendanceUpdateFailed: "Failed to update attendance log",
+  attendanceSaveFailed: "Couldn't save attendance log",
+  attendanceUpdateFailed: "Couldn't update attendance log",
 
   // Calendar
   rsvpFieldsRequired: "Event ID and status required",
   rsvpInvalidStatus: "Invalid RSVP status",
-  rsvpUpdateFailed: "Failed to update RSVP status",
-  calendarCheckFailed: "Failed to check calendar connection",
+  rsvpUpdateFailed: "Couldn't update RSVP status",
+  calendarCheckFailed: "Couldn't check calendar connection",
 
   // Finance
   missingInvoiceId: "Missing invoice id",
@@ -96,7 +96,7 @@ const en: Record<keyof typeof id, string> = {
   // n8n / migrate
   webhookMissing: "Configuration error: missing webhook URL",
   noReviewsForCycle: "No reviews found for cycle {cycle}",
-  workflowTriggerFailed: "Failed to trigger workflow",
+  workflowTriggerFailed: "Couldn't trigger workflow",
   aiResultInvalid:
     "The AI didn't return a complete summary. Try processing again.",
   aiTimeout: "The AI took too long to answer. Try processing again.",
@@ -114,9 +114,9 @@ const en: Record<keyof typeof id, string> = {
   leaveRequestNotFound: "Leave request not found",
   leaveApprovedLocked: "Approved requests can't be changed",
   leaveOnlyPendingCancel: "Only pending requests can be cancelled",
-  leaveSubmitFailed: "Failed to submit leave request",
-  leaveUpdateFailed: "Failed to update leave request",
-  leaveCancelFailed: "Failed to cancel request",
+  leaveSubmitFailed: "Couldn't submit leave request",
+  leaveUpdateFailed: "Couldn't update leave request",
+  leaveCancelFailed: "Couldn't cancel request",
 }
 
 export const api = { id, en }

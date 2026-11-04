@@ -89,10 +89,11 @@ export function Notifications({ variant = "default" }: NotificationsProps) {
             className={variant === "default" ? "size-4 shrink-0" : "size-4"}
           />
           {unreadCount > 0 && variant === "icon" && (
-            <span className="absolute top-0 right-0 -mt-1 -mr-1 flex size-2">
-              <span className="bg-destructive absolute inline-flex h-full w-full animate-ping rounded-full opacity-75"></span>
-              <span className="bg-destructive relative inline-flex size-2 rounded-full"></span>
-            </span>
+            // Unread: a still primary dot (feedback.md), no ping, no red.
+            <span
+              aria-hidden
+              className="bg-primary ring-background absolute top-0 right-0 -mt-1 -mr-1 size-2 rounded-full ring-2"
+            />
           )}
         </div>
 
