@@ -27,11 +27,12 @@ import {
   DocRules,
 } from "./doc-blocks"
 import * as mock from "../model/navigation-mock"
+import { NavigationCompare } from "./navigation-compare"
 
 const RULES: [string, string][] = [
   [
     "Tab halaman",
-    "TabNavigation di bawah PageHeader: bagian-bagian halaman. Teks saja, angka text-tertiary-foreground ml-1.5",
+    "TabNavigation di bawah PageHeader: bagian-bagian halaman. Teks saja, angka lewat count (0 nggak tampil). Di toolbar: plain; garis full-bleed: bleed",
   ],
   [
     "Segmented",
@@ -88,6 +89,13 @@ export function NavigationTab() {
         <DocRules rules={RULES} />
       </DocGroup>
 
+      <DocGroup
+        title="Sebelum / sesudah"
+        note="TabNavigationLink count, TabNavigation plain / bleed (garis full-bleed di Performa), ring fokus, prefetch={false} di semua next/link, replaceUrl buat query yang nggak dibaca server. Kiri: cara lama; kanan: yang jalan sekarang."
+      >
+        <NavigationCompare />
+      </DocGroup>
+
       <DocGroup title="Tab halaman">
         <DocExample
           title="Header, tab dengan angka, toolbar"
@@ -105,14 +113,10 @@ export function NavigationTab() {
                   key={item.value}
                   active={tab === item.value}
                   onClick={() => setTab(item.value)}
+                  count={item.count}
                   showLeadingIcon={false}
                 >
                   {item.label}
-                  {item.count > 0 && (
-                    <span className="text-tertiary-foreground ml-1.5 tabular-nums">
-                      {item.count}
-                    </span>
-                  )}
                 </TabNavigationLink>
               ))}
             </TabNavigation>
@@ -294,7 +298,8 @@ export function NavigationTab() {
               <code className="font-mono text-xs">
                 border-b + TabNavigation border-b-0
               </code>
-              ).
+              ): pakai <code className="font-mono text-xs">plain</code> /{" "}
+              <code className="font-mono text-xs">bleed</code>.
             </>,
             <>Nama query baru pakai bahasa Indonesia (?proyek=).</>,
           ]}

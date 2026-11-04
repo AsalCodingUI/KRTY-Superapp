@@ -42,11 +42,12 @@ import {
   DocRules,
 } from "./doc-blocks"
 import * as mock from "../model/form-mock"
+import { FormCompare } from "./form-compare"
 
 const RULES: [string, string][] = [
   [
     "Satu field",
-    "Label di atas, jarak gap-2. Hint di bawah: text-muted-foreground text-[13px]",
+    "Label di atas, jarak gap-field (8px). Hint di bawah: text-muted-foreground text-meta",
   ],
   [
     "Susunan",
@@ -54,7 +55,11 @@ const RULES: [string, string][] = [
   ],
   [
     "Tinggi",
-    "Semua h-8 (Input, Select, DatePicker, FileField, SegmentedControl); SelectTrigger sm h-7 di baris",
+    'Semua h-8 (Input, Select, DatePicker, FileField, SegmentedControl); size="sm" h-7 di baris (Input, InputGroup, SelectTrigger)',
+  ],
+  [
+    "Varian",
+    'Baris properti: SelectTrigger variant="ghost". Combobox (Popover + Command): fieldTriggerClassName',
   ],
   [
     "Warna",
@@ -91,6 +96,13 @@ export function FormTab() {
 
       <DocGroup title="Aturan">
         <DocRules rules={RULES} />
+      </DocGroup>
+
+      <DocGroup
+        title="Sebelum / sesudah"
+        note='Varian bersama (ghost, size="sm", fieldTriggerClassName), ukuran di luar skala dibuang, kotak cari di InputGroup, FieldError 13px. Kiri: kelas lama; kanan: yang jalan sekarang.'
+      >
+        <FormCompare />
       </DocGroup>
 
       <DocGroup
@@ -220,7 +232,7 @@ function Field({
   children: ReactNode
 }) {
   return (
-    <div className="flex flex-col gap-2">
+    <div className="gap-field flex flex-col">
       <Label htmlFor={id}>
         {label}
         {optional && (
@@ -228,7 +240,7 @@ function Field({
         )}
       </Label>
       {children}
-      {hint && <p className="text-muted-foreground text-[13px]">{hint}</p>}
+      {hint && <p className="text-muted-foreground text-meta">{hint}</p>}
     </div>
   )
 }
@@ -247,7 +259,7 @@ function StateGrid() {
       <div className="grid w-max grid-cols-[6rem_repeat(4,12rem)] items-center gap-x-4 gap-y-4">
         <span />
         {states.map((s) => (
-          <span key={s.label} className="text-muted-foreground text-[13px]">
+          <span key={s.label} className="text-muted-foreground text-meta">
             {s.label}
           </span>
         ))}
@@ -320,7 +332,7 @@ function StateGrid() {
           </span>
         ))}
       </div>
-      <div className="mt-5 flex max-w-xs flex-col gap-2">
+      <div className="gap-field mt-5 flex max-w-xs flex-col">
         <Label htmlFor="f-email-err">Email</Label>
         <Input id="f-email-err" defaultValue="ayu@" aria-invalid />
         <FieldError>Format email belum benar.</FieldError>
@@ -333,7 +345,7 @@ function AmountField() {
   const [currency, setCurrency] = useState("IDR")
   const [amount, setAmount] = useState("750000")
   return (
-    <div className="flex flex-col gap-2">
+    <div className="gap-field flex flex-col">
       <Label htmlFor="f-amount">Nominal</Label>
       <div className="flex gap-2">
         <Select value={currency} onValueChange={(v) => v && setCurrency(v)}>
@@ -394,7 +406,7 @@ function InlineEdit() {
           required
         />
       </span>
-      <span className="text-tertiary-foreground text-[13px]">
+      <span className="text-tertiary-foreground text-meta">
         Enter / blur simpan · Esc batal
       </span>
     </DocCanvas>
@@ -520,7 +532,7 @@ function Choices() {
             >
               <div className="flex min-w-0 flex-1 flex-col gap-0.5">
                 <span className="text-sm">{label}</span>
-                <span className="text-muted-foreground text-[13px] leading-5">
+                <span className="text-muted-foreground text-meta leading-5">
                   {hint}
                 </span>
               </div>
