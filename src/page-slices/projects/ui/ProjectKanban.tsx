@@ -9,16 +9,13 @@ import {
   useDraggable,
   useDroppable,
   defaultDropAnimationSideEffects,
-  type DragEndEvent,
-  type DragMoveEvent,
-  type DragStartEvent,
   type DropAnimation,
 } from "@dnd-kit/core"
 import { useDateLocale, useT } from "@/shared/i18n/client"
 import { format, isBefore, parseISO, startOfDay } from "date-fns"
 import { GripHorizontal, TriangleAlert } from "lucide-react"
 import Link from "next/link"
-import { useEffect, useRef, useState } from "react"
+import { memo, useEffect, useMemo, useRef, useState } from "react"
 import {
   asStage,
   BOARD_STATUSES,
@@ -34,6 +31,7 @@ import {
 import { BriefShortcut } from "@/page-slices/briefs/ui/BriefShortcut"
 import { ProjectStageLabel } from "./ProjectStage"
 import { ProjectStatusIcon } from "./ProjectStatusIcon"
+import { useDragTilt } from "./useDragTilt"
 import { useStatusMove, type MoveProject } from "./useStatusMove"
 
 type BoardStatus = (typeof BOARD_STATUSES)[number]
@@ -48,7 +46,7 @@ function initials(name: string | null | undefined) {
 }
 
 /** Compact card (Linear/hilos style): meta line, title, team initials. */
-function ProjectCard({
+const ProjectCard = memo(function ProjectCard({
   project,
   dragging,
   canDrag,
@@ -133,9 +131,9 @@ function ProjectCard({
       )}
     </div>
   )
-}
+})
 
-function DraggableCard({
+const DraggableCard = memo(function DraggableCard({
   project,
   status,
   canDrag,
@@ -183,9 +181,9 @@ function DraggableCard({
       </div>
     </ProjectContextMenu>
   )
-}
+})
 
-function Column({
+const Column = memo(function Column({
   status,
   projects,
   canDrag,
@@ -234,23 +232,14 @@ function Column({
       </div>
     </section>
   )
-}
-
-/** Degrees the lifted card leans per px/ms of sideways speed, and the cap. */
-const TILT_PER_SPEED = 6
-const TILT_MAX = 8
+})
 
 /**
  * The card under the pointer: it lifts (a little bigger, paper shadow) and
  * leans into a sideways move like a real card, settling when you stop.
  */
-function LiftedCard({
-  project,
-  tilt,
-}: {
-  project: ProjectListRow
-  tilt: number
-}) {
+function LiftedCard({ project }: { project: ProjectListRow }) {
+  const tilt = useDragTilt()
   const [lifted, setLifted] = useState(false)
   useEffect(() => {
     const frame = requestAnimationFrame(() => setLifted(true))
@@ -296,57 +285,33 @@ export function ProjectKanban({
 }) {
   const t = useT("projects")
   const drag = useStatusMove(projects, onMove)
-  const cardActions: ProjectActions | undefined =
-    onMove || actions
-      ? {
-          ...actions,
-          onMove: onMove ? (p, status) => void drag.move(p, status) : undefined,
-        }
-      : undefined
-
-  // Lean of the lifted card, from how fast it moves sideways.
-  const [tilt, setTilt] = useState(0)
-  const lastMove = useRef<{ x: number; t: number } | null>(null)
-  const settle = useRef<number | undefined>(undefined)
-  const onDragMove = ({ delta }: DragMoveEvent) => {
-    const now = performance.now()
-    const last = lastMove.current
-    lastMove.current = { x: delta.x, t: now }
-    if (!last || now === last.t) return
-    const speed = (delta.x - last.x) / (now - last.t)
-    setTilt(Math.max(-TILT_MAX, Math.min(TILT_MAX, speed * TILT_PER_SPEED)))
-    window.clearTimeout(settle.current)
-    settle.current = window.setTimeout(() => setTilt(0), 90)
-  }
-  const resetTilt = () => {
-    window.clearTimeout(settle.current)
-    lastMove.current = null
-    setTilt(0)
-  }
+  // Stable across renders, so the memoized cards skip a board re-render.
+  const moveRef = useRef(drag.move)
+  moveRef.current = drag.move
+  const cardActions = useMemo<ProjectActions | undefined>(
+    () =>
+      onMove || actions
+        ? {
+            ...actions,
+            onMove: onMove
+              ? (p, status) => void moveRef.current(p, status)
+              : undefined,
+          }
+        : undefined,
+    [onMove, actions],
+  )
 
   const { statusOf, active } = drag
   const archived = projects.filter((p) => statusOf(p) === "Archived").length
 
-  const onDragStart = (event: DragStartEvent) => {
-    resetTilt()
-    drag.onDragStart(event)
-  }
-
-  const onDragEnd = (event: DragEndEvent) => {
-    resetTilt()
-    drag.onDragEnd(event)
-  }
-
+  // The lifted card's lean lives in the overlay (useDragTilt), so moving
+  // the pointer doesn't re-render the board.
   return (
     <DndContext
       sensors={drag.sensors}
-      onDragStart={onDragStart}
-      onDragMove={onDragMove}
-      onDragEnd={onDragEnd}
-      onDragCancel={() => {
-        resetTilt()
-        drag.onDragCancel()
-      }}
+      onDragStart={drag.onDragStart}
+      onDragEnd={drag.onDragEnd}
+      onDragCancel={drag.onDragCancel}
     >
       <div className="bleed gutter-x flex gap-3 overflow-x-auto pb-2">
         {BOARD_STATUSES.map((status) => (
@@ -366,7 +331,7 @@ export function ProjectKanban({
         </p>
       )}
       <DragOverlay dropAnimation={DROP_ANIMATION}>
-        {active ? <LiftedCard project={active} tilt={tilt} /> : null}
+        {active ? <LiftedCard project={active} /> : null}
       </DragOverlay>
     </DndContext>
   )

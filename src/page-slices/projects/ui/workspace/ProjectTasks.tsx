@@ -50,7 +50,6 @@ import {
   type TeamMember,
 } from "./data"
 import { TaskBoard } from "./TaskBoard"
-import { TaskDialog } from "./TaskDialog"
 import {
   SubtaskContextTarget,
   TaskContextTarget,
@@ -80,6 +79,15 @@ const Calendar = dynamic(
   },
 )
 
+// The task window (editor, comments) loads when a task is first opened.
+const TaskDialog = dynamic(
+  () => import("./TaskDialog").then((m) => m.TaskDialog),
+  { loading: () => null },
+)
+
+// One empty map, so the board's memoized cards keep their props.
+const NO_COUNTS: Record<string, number> = {}
+
 type Filter = "all" | "todo" | "done"
 const NONE = "__none__"
 
@@ -94,7 +102,7 @@ export function ProjectTasks({ projectId }: { projectId: string }) {
   const tu = useT("undo")
   const { data: workspace } = useWorkspace(projectId)
   const { data: tasks = [], isLoading } = useTasks(projectId)
-  const { data: commentCounts = {} } = useCommentCounts(projectId)
+  const { data: commentCounts = NO_COUNTS } = useCommentCounts(projectId)
   const viewer = useViewer()
   const invalidate = useInvalidate(projectId)
   const writer = useTaskWriter(projectId, () => toast.error(t("errSaveTask")))
@@ -510,21 +518,24 @@ export function ProjectTasks({ projectId }: { projectId: string }) {
         </div>
       )}
 
-      <TaskDialog
-        task={openRow ?? null}
-        open={dialogOpen}
-        onOpenChange={setTaskDialogOpen}
-        projectId={projectId}
-        subtasks={openRow ? (subsOf.get(openRow.id) ?? []) : []}
-        team={team}
-        viewerId={viewer.id}
-        onPatch={update}
-        onStatus={setStatus}
-        onAddSub={(title, parentId) => create(title, parentId)}
-        onRemove={remove}
-        menuFor={menuFor}
-        focus={focus}
-      />
+      {/* Mounted from the first open on (openId stays set after). */}
+      {openId && (
+        <TaskDialog
+          task={openRow ?? null}
+          open={dialogOpen}
+          onOpenChange={setTaskDialogOpen}
+          projectId={projectId}
+          subtasks={openRow ? (subsOf.get(openRow.id) ?? []) : []}
+          team={team}
+          viewerId={viewer.id}
+          onPatch={update}
+          onStatus={setStatus}
+          onAddSub={(title, parentId) => create(title, parentId)}
+          onRemove={remove}
+          menuFor={menuFor}
+          focus={focus}
+        />
+      )}
       <ConfirmDialog
         open={deleting !== null}
         onOpenChange={(open) => !open && setDeleting(null)}

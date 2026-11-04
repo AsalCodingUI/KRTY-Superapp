@@ -20,16 +20,17 @@ import {
 } from "lucide-react"
 import { toast } from "sonner"
 import { useViewer, useWorkspace } from "./data"
-import { reportShareUrl } from "./ReportDialog"
 import { useReportViews } from "./report-views-data"
 import {
   createReport,
   deleteReport,
   newShareToken,
   registerShareUndo,
+  reportShareUrl,
   updateReport,
   useInvalidateReports,
-  type Report,
+  withReportBody,
+  type ReportSummary,
 } from "./reports-data"
 
 const DEVICE_ICONS = {
@@ -60,14 +61,15 @@ export function useReportMenu(projectId: string) {
   const { data: views } = useReportViews(projectId)
   const invalidate = useInvalidateReports(projectId)
 
-  const canEdit = (r: Report) => viewer.isAdmin || r.author_id === viewer.id
-  const teamLink = (r: Report) =>
+  const canEdit = (r: ReportSummary) =>
+    viewer.isAdmin || r.author_id === viewer.id
+  const teamLink = (r: ReportSummary) =>
     new URL(
       `${reportsHref}?report=${linkKey(r.title, r.id)}`,
       window.location.origin,
     ).href
 
-  const setShared = async (r: Report, on: boolean) => {
+  const setShared = async (r: ReportSummary, on: boolean) => {
     try {
       const next = await updateReport(
         r.id,
@@ -125,13 +127,13 @@ export function useReportMenu(projectId: string) {
   }
 
   const items = (
-    r: Report,
+    r: ReportSummary,
     {
       onOpen,
       onDelete,
     }: {
       /** Opens a report in place (this one, or the new copy). */
-      onOpen: (report: Report) => void
+      onOpen: (report: ReportSummary) => void
       /** Asks before deleting; without it the menu's own confirm does. */
       onDelete?: () => void
     },
@@ -206,7 +208,7 @@ export function useReportMenu(projectId: string) {
               projectId,
               authorId: viewer.id!,
               title: t("ctxCopyOf", { name: r.title }).slice(0, 160),
-              body: r.body,
+              body: (await withReportBody(r)).body,
             })
             invalidate()
             toast.success(t("ctxReportDuplicated"))

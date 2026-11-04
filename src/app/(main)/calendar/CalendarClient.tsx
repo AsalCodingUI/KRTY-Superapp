@@ -2,11 +2,11 @@
 
 import { useRealtimeRefresh } from "@/shared/hooks/useRealtimeRefresh"
 import { useIsMobile } from "@/hooks/use-mobile"
-import { ProjectTaskDialog } from "@/page-slices/projects/ui/workspace/ProjectTaskDialog"
 import {
-  useMyTasks,
+  useMyDueTasks,
   myTasksKey,
 } from "@/page-slices/projects/ui/my-tasks/my-tasks-data"
+import dynamic from "next/dynamic"
 import { createClient } from "@/shared/api/supabase/client"
 import type { AccessLevel } from "@/shared/config/access"
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
@@ -47,6 +47,15 @@ import {
   projectCalendarKey,
   useProjectCalendarData,
 } from "./project-calendar-data"
+
+// The task window (editor, comments) loads when a deadline is first opened.
+const ProjectTaskDialog = dynamic(
+  () =>
+    import("@/page-slices/projects/ui/workspace/ProjectTaskDialog").then(
+      (m) => m.ProjectTaskDialog,
+    ),
+  { loading: () => null },
+)
 
 type CalendarT = ReturnType<typeof useT<"calendar">>
 type LeaveT = ReturnType<typeof useT<"leave">>
@@ -587,7 +596,13 @@ function CalendarDataLayer({ scope, level, userId }: CalendarClientProps) {
     queryKey: ["calendar-1on1", userId, rangeStartIso, rangeEndIso],
     queryFn: async () => {
       try {
-        const response = await fetch("/api/one-on-one/slots")
+        // The server narrows to this range and to your own sessions.
+        const params = new URLSearchParams({
+          from: rangeStartIso,
+          to: rangeEndIso,
+          mine: "1",
+        })
+        const response = await fetch(`/api/one-on-one/slots?${params}`)
         if (!response.ok) {
           throw new Error("fetch_failed")
         }
@@ -615,16 +630,20 @@ function CalendarDataLayer({ scope, level, userId }: CalendarClientProps) {
 
   // Task deadlines: your own on the personal calendar, the team's on the
   // project one (which also feeds the timeline).
-  const myTasks = useMyTasks(personal ? userId : null)
+  // Personal: just your open deadlines in the visible range (not all of
+  // Tugas saya).
+  const myTasks = useMyDueTasks(
+    personal ? userId : null,
+    rangeStartDate,
+    rangeEndDate,
+  )
   const projectData = useProjectCalendarData(isStakeholder, !personal)
 
   const taskEvents = useMemo(() => {
-    if (personal) {
-      const data = myTasks.data
-      return (data?.tasks ?? [])
+    if (personal)
+      return (myTasks.data ?? [])
         .filter((task) => task.due_date && !task.done)
-        .map((task) => taskToEvent(task, data?.projects[task.project_id]?.name))
-    }
+        .map((task) => taskToEvent(task, task.projectName || undefined))
     const data = projectData.data
     const names = new Map(data?.projects.map((p) => [p.id, p.name]) ?? [])
     return (data?.tasks ?? [])
@@ -634,8 +653,7 @@ function CalendarDataLayer({ scope, level, userId }: CalendarClientProps) {
 
   const taskProject = useMemo(() => {
     const map = new Map<string, string>()
-    for (const task of myTasks.data?.tasks ?? [])
-      map.set(task.id, task.project_id)
+    for (const task of myTasks.data ?? []) map.set(task.id, task.project_id)
     for (const task of projectData.data?.tasks ?? [])
       map.set(task.id, task.project_id)
     return map

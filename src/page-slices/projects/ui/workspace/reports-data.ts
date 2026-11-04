@@ -1,7 +1,9 @@
 "use client"
 
 import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { clientUrl } from "@/shared/lib/client-site"
 import { compressImage } from "@/shared/lib/compress-image"
+import { reportKey } from "@/shared/lib/portal-docs"
 import { registerUndo, UndoStale } from "@/shared/undo"
 import { supabase } from "./data"
 
@@ -28,29 +30,70 @@ export type Report = {
   } | null
 }
 
+/** The shared report's address on the public client site. */
+export const reportShareUrl = (token: string, projectName?: string | null) =>
+  clientUrl(`/r/${reportKey(projectName, token)}`)
+
+/** A report as lists show it: everything but the Markdown body, which can
+ *  be long and is only needed once the report opens. */
+export type ReportSummary = Omit<Report, "body"> & { body?: string }
+
 // Not in the generated types yet.
 const TABLE = "project_reports" as never
-const COLUMNS =
-  "id, project_id, author_id, title, body, report_date, share_token, shared_at, created_at, updated_at, author:profiles!project_reports_author_id_fkey ( id, full_name, avatar_url )"
+const SUMMARY_COLUMNS =
+  "id, project_id, author_id, title, report_date, share_token, shared_at, created_at, updated_at, author:profiles!project_reports_author_id_fkey ( id, full_name, avatar_url )"
+const COLUMNS = `body, ${SUMMARY_COLUMNS}`
 
 export const reportKeys = {
   list: (projectId: string) => ["project-reports", projectId] as const,
+  /** Under the list's key, so whatever refreshes the list refreshes it. */
+  latest: (projectId: string, limit: number) =>
+    ["project-reports", projectId, "latest", limit] as const,
+}
+
+const listReports = async (projectId: string, limit?: number) => {
+  let query = supabase()
+    .from(TABLE)
+    .select(SUMMARY_COLUMNS)
+    .eq("project_id" as never, projectId as never)
+    .order("report_date", { ascending: false })
+    .order("created_at", { ascending: false })
+  if (limit) query = query.limit(limit)
+  const { data, error } = await query
+  if (error) throw error
+  return (data ?? []) as unknown as ReportSummary[]
 }
 
 export function useReports(projectId: string) {
   return useQuery({
     queryKey: reportKeys.list(projectId),
-    queryFn: async () => {
-      const { data, error } = await supabase()
-        .from(TABLE)
-        .select(COLUMNS)
-        .eq("project_id" as never, projectId as never)
-        .order("report_date", { ascending: false })
-        .order("created_at", { ascending: false })
-      if (error) throw error
-      return (data ?? []) as unknown as Report[]
-    },
+    queryFn: () => listReports(projectId),
   })
+}
+
+/** The newest few (the dashboard), without loading the whole list. */
+export function useLatestReports(projectId: string, limit: number) {
+  return useQuery({
+    queryKey: reportKeys.latest(projectId, limit),
+    queryFn: () => listReports(projectId, limit),
+  })
+}
+
+/** A report's Markdown body, read when it opens (lists leave it out). */
+export async function fetchReportBody(id: string) {
+  const { data, error } = await supabase()
+    .from(TABLE)
+    .select("body")
+    .eq("id", id)
+    .single()
+  if (error) throw error
+  return (data as unknown as { body: string | null }).body ?? ""
+}
+
+/** The full report: a list row gets its body fetched. */
+export async function withReportBody(report: ReportSummary): Promise<Report> {
+  if (typeof report.body === "string") return report as Report
+  return { ...report, body: await fetchReportBody(report.id) }
 }
 
 export function useInvalidateReports(projectId: string) {
@@ -98,8 +141,13 @@ export async function updateReport(
  * (doc-files) are shared with notes and tasks, so they stay; a picture
  * another report also shows stays too.
  */
-export async function deleteReport(report: Pick<Report, "id" | "body">) {
+export async function deleteReport(report: Pick<ReportSummary, "id" | "body">) {
   const db = supabase()
+  // A list row has no body: read it first, to know which pictures it used.
+  const body =
+    typeof report.body === "string"
+      ? report.body
+      : await fetchReportBody(report.id)
   const { data, error } = await db
     .from(TABLE)
     .delete()
@@ -109,7 +157,7 @@ export async function deleteReport(report: Pick<Report, "id" | "body">) {
   // Row-level security denies by deleting nothing, without an error.
   if (!data?.length) throw new Error("report not deleted")
   const paths = [
-    ...report.body.matchAll(
+    ...body.matchAll(
       new RegExp(
         `/storage/v1/object/public/${REPORT_IMAGES}/([^)\\s"#]+)`,
         "g",
@@ -196,16 +244,16 @@ export function registerShareUndo({
   label,
   done,
 }: {
-  before: Report
-  after: Report
+  before: ReportSummary
+  after: ReportSummary
   label: string
   done: (report: Report) => unknown
 }) {
-  const pickShare = (r: Report) => ({
+  const pickShare = (r: ReportSummary) => ({
     share_token: r.share_token,
     shared_at: r.shared_at,
   })
-  const go = async (expected: Report, next: Report) => {
+  const go = async (expected: ReportSummary, next: ReportSummary) => {
     const { data, error } = await supabase()
       .from(TABLE)
       .select("share_token")

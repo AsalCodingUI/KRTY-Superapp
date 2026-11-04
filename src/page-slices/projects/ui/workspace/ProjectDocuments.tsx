@@ -8,8 +8,8 @@ import {
   twoPaneDialogClassName,
   twoPanePanelClassName,
 } from "@/components/file-drop-canvas"
-import { Chip, FilePreview } from "./FilePreview"
-import { RowMenu, Section, type RowMenuItem } from "./ProjectLibrary"
+import { FilePreview } from "./FilePreview"
+import { Chip, RowMenu, Section, type RowMenuItem } from "./row-menu"
 import type { ViewerItem } from "@/components/file-viewer"
 import { useFileDrop } from "@/shared/hooks/useFileDrop"
 import { PageHeader } from "@/components/page-header"

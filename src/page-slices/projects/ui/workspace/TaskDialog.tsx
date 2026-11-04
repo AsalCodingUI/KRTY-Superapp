@@ -755,6 +755,8 @@ function useThread(taskId: string, projectId: string, team: TeamMember[]) {
       queryClient.invalidateQueries({
         queryKey: commentKeys.counts(projectId),
       }),
+      // Tugas saya counts all its projects in one query.
+      queryClient.invalidateQueries({ queryKey: commentKeys.mineAll }),
     ])
 
   const post = async (

@@ -23,11 +23,16 @@ import { useDateLocale, useT } from "@/shared/i18n/client"
 import { RiCheckboxCircleLine, RiMessage3Line } from "@/shared/ui/lucide-icons"
 import { differenceInCalendarDays, isToday } from "date-fns"
 import Link from "next/link"
-import { useMemo, useState } from "react"
+import dynamic from "next/dynamic"
+import { useCallback, useMemo, useState } from "react"
 import { toast } from "sonner"
-import { supabase, useViewer, type TaskRow } from "../workspace/data"
+import {
+  supabase,
+  useViewer,
+  type TaskRow,
+  type TeamMember,
+} from "../workspace/data"
 import { StatusDot, TaskBoard } from "../workspace/TaskBoard"
-import { TaskDialog } from "../workspace/TaskDialog"
 import { TaskContextTarget, type TaskMenuConfig } from "../workspace/task-menu"
 import {
   STATUS_LABEL,
@@ -48,6 +53,15 @@ import {
   useMyTasks,
   type MyProject,
 } from "./my-tasks-data"
+
+// The task window (editor, comments) loads when a task is first opened.
+const TaskDialog = dynamic(
+  () => import("../workspace/TaskDialog").then((m) => m.TaskDialog),
+  { loading: () => null },
+)
+
+/** The board shows each card's project, not a PIC: no team needed. */
+const NO_TEAM: TeamMember[] = []
 
 type Filter = "all" | "todo" | "done"
 const ALL = "__all__"
@@ -128,8 +142,11 @@ export function MyTasksPage() {
       return a.created_at.localeCompare(b.created_at)
     })
 
-  const projectOf = (task: TaskRow): MyProject | undefined =>
-    data?.projects[task.project_id]
+  // Stable, so the board's memoized cards keep their props.
+  const projectOf = useCallback(
+    (task: TaskRow): MyProject | undefined => data?.projects[task.project_id],
+    [data],
+  )
 
   /** Bottom of `status` within the task's own project. */
   const lastPosition = (task: TaskRow, status: TaskStatus) =>
@@ -331,7 +348,7 @@ export function MyTasksPage() {
             tasks={scoped}
             subsOf={subsOf}
             commentCounts={commentCounts}
-            team={[]}
+            team={NO_TEAM}
             addSignal={0}
             onOpen={(task) => openTask(task.id)}
             onMove={move}
@@ -411,21 +428,24 @@ export function MyTasksPage() {
         </>
       )}
 
-      <TaskDialog
-        task={openRow ?? null}
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-        projectId={openRow?.project_id ?? ""}
-        subtasks={openRow ? (subsOf.get(openRow.id) ?? []) : []}
-        team={openRow ? (data?.teams[openRow.project_id] ?? []) : []}
-        viewerId={viewer.id}
-        onPatch={writer.patch}
-        onStatus={setStatus}
-        onAddSub={addSubtask}
-        onRemove={remove}
-        menuFor={menuFor}
-        focus={focus}
-      />
+      {/* Mounted from the first open on (openId stays set after). */}
+      {openId && (
+        <TaskDialog
+          task={openRow ?? null}
+          open={dialogOpen}
+          onOpenChange={setDialogOpen}
+          projectId={openRow?.project_id ?? ""}
+          subtasks={openRow ? (subsOf.get(openRow.id) ?? []) : []}
+          team={openRow ? (data?.teams[openRow.project_id] ?? []) : []}
+          viewerId={viewer.id}
+          onPatch={writer.patch}
+          onStatus={setStatus}
+          onAddSub={addSubtask}
+          onRemove={remove}
+          menuFor={menuFor}
+          focus={focus}
+        />
+      )}
       <ConfirmDialog
         open={deleting !== null}
         onOpenChange={(open) => !open && setDeleting(null)}

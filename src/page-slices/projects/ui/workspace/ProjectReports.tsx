@@ -18,7 +18,7 @@ import { useEffect, useState } from "react"
 import { findByLinkKey } from "@/shared/lib/url-params"
 import { toast } from "sonner"
 import { useViewer, useWorkspace } from "./data"
-import { RowMenu } from "./ProjectLibrary"
+import { RowMenu } from "./row-menu"
 import { ReportDialog, reportShareUrl } from "./ReportDialog"
 import { ReportViewCount } from "./ReportViews"
 import { useReportMenu } from "./report-menu"
@@ -27,7 +27,7 @@ import {
   deleteReport,
   useInvalidateReports,
   useReports,
-  type Report,
+  type ReportSummary,
 } from "./reports-data"
 
 const ROW_GRID =
@@ -46,8 +46,10 @@ export function ProjectReports({ projectId }: { projectId: string }) {
   const projectName = useWorkspace(projectId).data?.project?.name
   const { data: reports = [], isLoading } = useReports(projectId)
   const invalidate = useInvalidateReports(projectId)
-  const [open, setOpen] = useState<{ report: Report | null } | null>(null)
-  const [removing, setRemoving] = useState<Report | null>(null)
+  const [open, setOpen] = useState<{ report: ReportSummary | null } | null>(
+    null,
+  )
+  const [removing, setRemoving] = useState<ReportSummary | null>(null)
   const menu = useReportMenu(projectId)
 
   // `?report=<id>` (a mention notification) opens that report; closing it
@@ -82,7 +84,7 @@ export function ProjectReports({ projectId }: { projectId: string }) {
     ),
   })
 
-  const canEdit = (r: Report | null) =>
+  const canEdit = (r: ReportSummary | null) =>
     !r || viewer.isAdmin || r.author_id === viewer.id
 
   return (

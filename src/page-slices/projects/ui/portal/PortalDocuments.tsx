@@ -12,14 +12,14 @@ import { useMemo, useState } from "react"
 import { ContextTarget, download, type CtxItem } from "@/shared/context-menu"
 import { Download, Eye } from "lucide-react"
 import { formatBytes } from "../workspace/data"
-import { Chip, FilePreview } from "../workspace/FilePreview"
+import { FilePreview } from "../workspace/FilePreview"
 import {
   KINDS,
   STATUSES,
   type Kind,
   type Status,
 } from "../workspace/ProjectDocuments"
-import { Section } from "../workspace/ProjectLibrary"
+import { Chip, Section } from "../workspace/row-menu"
 
 const FileViewer = dynamic(
   () => import("@/components/file-viewer").then((m) => m.FileViewer),
