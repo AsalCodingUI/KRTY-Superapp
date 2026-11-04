@@ -3,16 +3,17 @@
 /**
  * The app's icons: Reicon (https://reicon.dev, MIT), in DEFAULT_WEIGHT
  * (Outline) unless an icon passes `weight`. Import
- * every icon from here (never from "reicon-react" or "lucide-react"
- * directly), so the icon set stays one decision. Names keep the app's
- * existing (lucide-style) names; the right-hand side is the Reicon glyph.
- * A few glyphs Reicon doesn't have (editor headings, tables, grips, some
- * brands) come from lucide, marked below. See docs/ui/icons.md.
+ * every icon from here (never from "reicon-react" directly), so the icon
+ * set stays one decision. Names keep the app's existing (lucide-style)
+ * names; the right-hand side is the Reicon glyph. The few glyphs Reicon
+ * doesn't have are drawn in ./custom.tsx. Outline stroke: STROKE (1.75).
+ * See docs/ui/icons.md.
  */
 
 import * as React from "react"
+import * as C from "./custom"
+import { STROKE } from "./custom"
 import type { IconProps as ReiconProps } from "reicon-react"
-import type { LucideIcon as LucideSource } from "lucide-react"
 
 import RAddressCard from "reicon-react/icons/AddressCard"
 import RAlertCircle from "reicon-react/icons/AlertCircle"
@@ -28,6 +29,9 @@ import RArrowRight from "reicon-react/icons/ArrowRight"
 import RArrowSwapHorizontal from "reicon-react/icons/ArrowSwapHorizontal"
 import RArrowToTopRight from "reicon-react/icons/ArrowToTopRight"
 import RArrowUp from "reicon-react/icons/ArrowUp"
+import RArrowToTopLeft from "reicon-react/icons/ArrowToTopLeft"
+import RArrowToDownRight from "reicon-react/icons/ArrowToDownRight"
+import RArrowToDownLeft from "reicon-react/icons/ArrowToDownLeft"
 import RArrowUpRight from "reicon-react/icons/ArrowUpRight"
 import RAtSign from "reicon-react/icons/AtSign"
 import RBell from "reicon-react/icons/Bell"
@@ -218,33 +222,6 @@ import RWifiOff from "reicon-react/icons/WifiOff"
 import RWindow from "reicon-react/icons/Window"
 import RX from "reicon-react/icons/X"
 import RXCircle from "reicon-react/icons/XCircle"
-import {
-  ChevronsDownUp as LChevronsDownUp,
-  ChevronsUp as LChevronsUp,
-  Circle as LCircle,
-  CircleDashed as LCircleDashed,
-  Columns2 as LColumns2,
-  Columns3 as LColumns3,
-  CornerDownLeft as LCornerDownLeft,
-  CornerDownRight as LCornerDownRight,
-  CornerLeftUp as LCornerLeftUp,
-  Github as LGithub,
-  GripHorizontal as LGripHorizontal,
-  GripVertical as LGripVertical,
-  Heading as LHeading,
-  Heading1 as LHeading1,
-  Heading2 as LHeading2,
-  Heading3 as LHeading3,
-  Pilcrow as LPilcrow,
-  Rows2 as LRows2,
-  SeparatorHorizontal as LSeparatorHorizontal,
-  Split as LSplit,
-  Square as LSquare,
-  Strikethrough as LStrikethrough,
-  Table as LTable,
-  Table2 as LTable2,
-  Twitter as LTwitter,
-} from "lucide-react"
 
 export type IconWeight = "Outline" | "Filled"
 
@@ -258,7 +235,7 @@ export type IconProps = Omit<ReiconProps, "weight" | "strokeWidth"> & {
   /** Ignored: Reicon's own stroke is the standard (a custom one makes
    *  every icon render an extra mask, which is heavy). */
   strokeWidth?: number | string
-  /** Ignored (lucide only). */
+  /** Ignored (old lucide prop). */
   absoluteStrokeWidth?: boolean
 }
 
@@ -273,7 +250,7 @@ type ReiconSource = React.ForwardRefExoticComponent<
   ReiconProps & React.RefAttributes<SVGSVGElement>
 >
 
-/** Decorative unless labelled, like lucide; 24px unless a size-* class
+/** Decorative unless labelled; 24px unless a size-* class
  *  (the usual way) sets it. */
 function a11y(props: IconProps) {
   const labelled = props["aria-label"] || props["aria-labelledby"]
@@ -285,31 +262,16 @@ function reicon(Source: ReiconSource, name: string, filled = false): Icon {
     { weight, strokeWidth: _s, absoluteStrokeWidth: _a, ...props },
     ref,
   ) {
+    const w = weight ?? (filled ? "Filled" : DEFAULT_WEIGHT)
     return (
       <Source
         ref={ref}
         {...a11y(props)}
         {...props}
-        weight={weight ?? (filled ? "Filled" : DEFAULT_WEIGHT)}
-      />
-    )
-  })
-  C.displayName = name
-  return C
-}
-
-function lucide(Source: LucideSource, name: string): Icon {
-  const C = React.forwardRef<SVGSVGElement, IconProps>(function Icon(
-    { weight: _w, strokeWidth: _s, absoluteStrokeWidth: _a, color, ...props },
-    ref,
-  ) {
-    return (
-      <Source
-        ref={ref}
-        strokeWidth={1.5}
-        color={color}
-        {...a11y(props)}
-        {...(props as React.ComponentProps<LucideSource>)}
+        weight={w}
+        // Outline at the app's stroke (1.75 on the 24px grid; Reicon draws
+        // 1.5). Thicker only adds one stroke attribute, no mask.
+        strokeWidth={w === "Outline" ? STROKE : undefined}
       />
     )
   })
@@ -398,9 +360,9 @@ export const ChevronDownSquare = /*#__PURE__*/ reicon(
 export const ChevronLeft = /*#__PURE__*/ reicon(RChevronLeft, "ChevronLeft")
 export const ChevronRight = /*#__PURE__*/ reicon(RChevronRight, "ChevronRight")
 export const ChevronUp = /*#__PURE__*/ reicon(RChevronUp, "ChevronUp")
-/** lucide: no Reicon glyph. */
-export const ChevronsDownUp = /*#__PURE__*/ lucide(
-  LChevronsDownUp,
+/** Drawn here (./custom.tsx): not in Reicon. */
+export const ChevronsDownUp = /*#__PURE__*/ reicon(
+  C.ChevronsDownUp,
   "ChevronsDownUp",
 )
 export const ChevronsLeft = /*#__PURE__*/ reicon(RAnglesLeft, "ChevronsLeft")
@@ -413,23 +375,23 @@ export const ChevronsRightIcon = /*#__PURE__*/ reicon(
   RAnglesRight,
   "ChevronsRightIcon",
 )
-/** lucide: no Reicon glyph. */
-export const ChevronsUp = /*#__PURE__*/ lucide(LChevronsUp, "ChevronsUp")
+/** Drawn here (./custom.tsx): not in Reicon. */
+export const ChevronsUp = /*#__PURE__*/ reicon(C.ChevronsUp, "ChevronsUp")
 export const ChevronsUpDown = /*#__PURE__*/ reicon(
   RChevronExpandY,
   "ChevronsUpDown",
 )
 export const Chrome = /*#__PURE__*/ reicon(RChrome, "Chrome")
-/** lucide: no Reicon glyph. */
-export const Circle = /*#__PURE__*/ lucide(LCircle, "Circle")
+/** Drawn here (./custom.tsx): not in Reicon. */
+export const Circle = /*#__PURE__*/ reicon(C.Circle, "Circle")
 export const CircleAlert = /*#__PURE__*/ reicon(RAlertCircle, "CircleAlert")
 export const CircleCheck = /*#__PURE__*/ reicon(RCheckCircle, "CircleCheck")
 export const CircleCheckIcon = /*#__PURE__*/ reicon(
   RCheckCircle,
   "CircleCheckIcon",
 )
-/** lucide: no Reicon glyph. */
-export const CircleDashed = /*#__PURE__*/ lucide(LCircleDashed, "CircleDashed")
+/** Drawn here (./custom.tsx): not in Reicon. */
+export const CircleDashed = /*#__PURE__*/ reicon(C.CircleDashed, "CircleDashed")
 export const CircleDollarSign = /*#__PURE__*/ reicon(
   RDollarCircle,
   "CircleDollarSign",
@@ -456,24 +418,24 @@ export const CloudUpload = /*#__PURE__*/ reicon(RCloudUpload, "CloudUpload")
 export const Code = /*#__PURE__*/ reicon(RCode, "Code")
 export const Code2 = /*#__PURE__*/ reicon(RCode2, "Code2")
 export const Coffee = /*#__PURE__*/ reicon(RCoffee, "Coffee")
-/** lucide: no Reicon glyph. */
-export const Columns2 = /*#__PURE__*/ lucide(LColumns2, "Columns2")
-/** lucide: no Reicon glyph. */
-export const Columns3 = /*#__PURE__*/ lucide(LColumns3, "Columns3")
+/** Drawn here (./custom.tsx): not in Reicon. */
+export const Columns2 = /*#__PURE__*/ reicon(C.Columns2, "Columns2")
+/** Drawn here (./custom.tsx): not in Reicon. */
+export const Columns3 = /*#__PURE__*/ reicon(C.Columns3, "Columns3")
 export const Copy = /*#__PURE__*/ reicon(RCopy, "Copy")
 export const CopyPlus = /*#__PURE__*/ reicon(RDocumentCopy, "CopyPlus")
-/** lucide: no Reicon glyph. */
-export const CornerDownLeft = /*#__PURE__*/ lucide(
-  LCornerDownLeft,
+export const CornerDownLeft = /*#__PURE__*/ reicon(
+  RArrowToDownLeft,
   "CornerDownLeft",
 )
-/** lucide: no Reicon glyph. */
-export const CornerDownRight = /*#__PURE__*/ lucide(
-  LCornerDownRight,
+export const CornerDownRight = /*#__PURE__*/ reicon(
+  RArrowToDownRight,
   "CornerDownRight",
 )
-/** lucide: no Reicon glyph. */
-export const CornerLeftUp = /*#__PURE__*/ lucide(LCornerLeftUp, "CornerLeftUp")
+export const CornerLeftUp = /*#__PURE__*/ reicon(
+  RArrowToTopLeft,
+  "CornerLeftUp",
+)
 export const CreditCard = /*#__PURE__*/ reicon(RCreditCard, "CreditCard")
 export const Delete = /*#__PURE__*/ reicon(RTrash, "Delete")
 export const Download = /*#__PURE__*/ reicon(RDownload, "Download")
@@ -507,26 +469,24 @@ export const GalleryHorizontal = /*#__PURE__*/ reicon(
   "GalleryHorizontal",
 )
 export const Gauge = /*#__PURE__*/ reicon(RGauge, "Gauge")
-/** lucide: no Reicon glyph. */
-export const Github = /*#__PURE__*/ lucide(LGithub, "Github")
 export const Globe = /*#__PURE__*/ reicon(RGlobe, "Globe")
-/** lucide: no Reicon glyph. */
-export const GripHorizontal = /*#__PURE__*/ lucide(
-  LGripHorizontal,
+/** Drawn here (./custom.tsx): not in Reicon. */
+export const GripHorizontal = /*#__PURE__*/ reicon(
+  C.GripHorizontal,
   "GripHorizontal",
 )
-/** lucide: no Reicon glyph. */
-export const GripVertical = /*#__PURE__*/ lucide(LGripVertical, "GripVertical")
+/** Drawn here (./custom.tsx): not in Reicon. */
+export const GripVertical = /*#__PURE__*/ reicon(C.GripVertical, "GripVertical")
 export const Hammer = /*#__PURE__*/ reicon(RSledgehammer, "Hammer")
 export const Hash = /*#__PURE__*/ reicon(RHashtag, "Hash")
-/** lucide: no Reicon glyph. */
-export const Heading = /*#__PURE__*/ lucide(LHeading, "Heading")
-/** lucide: no Reicon glyph. */
-export const Heading1 = /*#__PURE__*/ lucide(LHeading1, "Heading1")
-/** lucide: no Reicon glyph. */
-export const Heading2 = /*#__PURE__*/ lucide(LHeading2, "Heading2")
-/** lucide: no Reicon glyph. */
-export const Heading3 = /*#__PURE__*/ lucide(LHeading3, "Heading3")
+/** Drawn here (./custom.tsx): not in Reicon. */
+export const Heading = /*#__PURE__*/ reicon(C.Heading, "Heading")
+/** Drawn here (./custom.tsx): not in Reicon. */
+export const Heading1 = /*#__PURE__*/ reicon(C.Heading1, "Heading1")
+/** Drawn here (./custom.tsx): not in Reicon. */
+export const Heading2 = /*#__PURE__*/ reicon(C.Heading2, "Heading2")
+/** Drawn here (./custom.tsx): not in Reicon. */
+export const Heading3 = /*#__PURE__*/ reicon(C.Heading3, "Heading3")
 export const Heart = /*#__PURE__*/ reicon(RHeart, "Heart")
 export const Home = /*#__PURE__*/ reicon(RHome, "Home")
 export const IdCard = /*#__PURE__*/ reicon(RAddressCard, "IdCard")
@@ -603,8 +563,8 @@ export const Pencil = /*#__PURE__*/ reicon(RPen, "Pencil")
 export const PencilRuler = /*#__PURE__*/ reicon(RRulerPen, "PencilRuler")
 export const Phone = /*#__PURE__*/ reicon(RPhone, "Phone")
 export const PieChart = /*#__PURE__*/ reicon(RChartPie, "PieChart")
-/** lucide: no Reicon glyph. */
-export const Pilcrow = /*#__PURE__*/ lucide(LPilcrow, "Pilcrow")
+/** Drawn here (./custom.tsx): not in Reicon. */
+export const Pilcrow = /*#__PURE__*/ reicon(C.Pilcrow, "Pilcrow")
 export const Pin = /*#__PURE__*/ reicon(RPin, "Pin")
 export const Play = /*#__PURE__*/ reicon(RPlay, "Play")
 export const Plus = /*#__PURE__*/ reicon(RPlus, "Plus")
@@ -618,8 +578,8 @@ export const Repeat2 = /*#__PURE__*/ reicon(RRepeat, "Repeat2")
 export const Rocket = /*#__PURE__*/ reicon(RRocket, "Rocket")
 export const RotateCcw = /*#__PURE__*/ reicon(RRotateLeft, "RotateCcw")
 export const RotateCw = /*#__PURE__*/ reicon(RRotateRight, "RotateCw")
-/** lucide: no Reicon glyph. */
-export const Rows2 = /*#__PURE__*/ lucide(LRows2, "Rows2")
+/** Drawn here (./custom.tsx): not in Reicon. */
+export const Rows2 = /*#__PURE__*/ reicon(C.Rows2, "Rows2")
 export const Ruler = /*#__PURE__*/ reicon(RRuler, "Ruler")
 export const Save = /*#__PURE__*/ reicon(RSave, "Save")
 export const Scissors = /*#__PURE__*/ reicon(RScissors, "Scissors")
@@ -627,9 +587,9 @@ export const ScrollText = /*#__PURE__*/ reicon(RScroll, "ScrollText")
 export const Search = /*#__PURE__*/ reicon(RSearch, "Search")
 export const SearchCheck = /*#__PURE__*/ reicon(RSearchFavorite, "SearchCheck")
 export const Send = /*#__PURE__*/ reicon(RSend, "Send")
-/** lucide: no Reicon glyph. */
-export const SeparatorHorizontal = /*#__PURE__*/ lucide(
-  LSeparatorHorizontal,
+/** Drawn here (./custom.tsx): not in Reicon. */
+export const SeparatorHorizontal = /*#__PURE__*/ reicon(
+  C.SeparatorHorizontal,
   "SeparatorHorizontal",
 )
 export const Settings = /*#__PURE__*/ reicon(RSettings, "Settings")
@@ -642,26 +602,26 @@ export const SlidersHorizontal = /*#__PURE__*/ reicon(
 export const Smartphone = /*#__PURE__*/ reicon(RMobile, "Smartphone")
 export const Smile = /*#__PURE__*/ reicon(RFaceSmile, "Smile")
 export const Sparkles = /*#__PURE__*/ reicon(RSparkles, "Sparkles")
-/** lucide: no Reicon glyph. */
-export const Split = /*#__PURE__*/ lucide(LSplit, "Split")
-/** lucide: no Reicon glyph. */
-export const Square = /*#__PURE__*/ lucide(LSquare, "Square")
+/** Drawn here (./custom.tsx): not in Reicon. */
+export const Split = /*#__PURE__*/ reicon(C.Split, "Split")
+/** Drawn here (./custom.tsx): not in Reicon. */
+export const Square = /*#__PURE__*/ reicon(C.Square, "Square")
 export const SquarePen = /*#__PURE__*/ reicon(RPenSquare, "SquarePen")
 export const SquareStop = /*#__PURE__*/ reicon(RStop, "SquareStop")
 export const Star = /*#__PURE__*/ reicon(RStar, "Star")
 export const StickyNote = /*#__PURE__*/ reicon(RStickynote, "StickyNote")
 export const StopCircle = /*#__PURE__*/ reicon(RStopCircle, "StopCircle")
-/** lucide: no Reicon glyph. */
-export const Strikethrough = /*#__PURE__*/ lucide(
-  LStrikethrough,
+/** Drawn here (./custom.tsx): not in Reicon. */
+export const Strikethrough = /*#__PURE__*/ reicon(
+  C.Strikethrough,
   "Strikethrough",
 )
 export const Sun = /*#__PURE__*/ reicon(RSun, "Sun")
 export const Sunrise = /*#__PURE__*/ reicon(RSunrise, "Sunrise")
-/** lucide: no Reicon glyph. */
-export const Table = /*#__PURE__*/ lucide(LTable, "Table")
-/** lucide: no Reicon glyph. */
-export const Table2 = /*#__PURE__*/ lucide(LTable2, "Table2")
+/** Drawn here (./custom.tsx): not in Reicon. */
+export const Table = /*#__PURE__*/ reicon(C.Table, "Table")
+/** Drawn here (./custom.tsx): not in Reicon. */
+export const Table2 = /*#__PURE__*/ reicon(C.Table2, "Table2")
 export const Tablet = /*#__PURE__*/ reicon(RTablet, "Tablet")
 export const Tag = /*#__PURE__*/ reicon(RTag, "Tag")
 export const Target = /*#__PURE__*/ reicon(RTarget, "Target")
@@ -681,8 +641,6 @@ export const TriangleAlertIcon = /*#__PURE__*/ reicon(
   RAlertTriangle,
   "TriangleAlertIcon",
 )
-/** lucide: no Reicon glyph. */
-export const Twitter = /*#__PURE__*/ lucide(LTwitter, "Twitter")
 export const Underline = /*#__PURE__*/ reicon(RTextUnderline, "Underline")
 export const Undo2 = /*#__PURE__*/ reicon(RUndo, "Undo2")
 export const Upload = /*#__PURE__*/ reicon(RUpload, "Upload")

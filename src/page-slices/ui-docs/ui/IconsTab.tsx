@@ -72,7 +72,7 @@ import {
 const RULES: [string, string][] = [
   [
     "Sumber",
-    "@/components/icons: Reicon (reicon.dev), nama tetap gaya lucide. Jangan import reicon-react / lucide-react langsung. Ri* = alias lama, jangan nambah",
+    "@/components/icons: Reicon (reicon.dev), nama tetap gaya lucide. Jangan import reicon-react langsung. Ri* = alias lama, jangan nambah",
   ],
   [
     "Satu arti satu ikon",
@@ -97,7 +97,7 @@ const RULES: [string, string][] = [
   ],
   [
     "Stroke",
-    "Bawaan Reicon (1.5). strokeWidth diabaikan: stroke custom bikin tiap ikon render mask, berat",
+    "1.75 di grid 24px (1px-an di size-4), diatur sekali di STROKE. strokeWidth per ikon diabaikan",
   ],
   [
     "Animasi",
@@ -180,7 +180,7 @@ export function IconsTab() {
 
       <DocGroup
         title="Semua ikon app"
-        note="Tiap nama yang dipakai app, Outline lalu Filled. Yang ditandai lucide belum ada di Reicon."
+        note="Tiap nama yang dipakai app, Outline (garis 1.75) lalu Filled. Yang ditandai custom digambar sendiri karena belum ada di Reicon."
       >
         <AllIcons />
       </DocGroup>
@@ -410,7 +410,7 @@ export function IconsTab() {
             "Trash2 / Pencil buat hapus / edit (pakai Delete / SquarePen)",
             "Tombol ikon cuma pakai title, atau tanpa label sama sekali",
             "Warna palet mentah (text-orange-500), hex, atau !important di ikon",
-            'strokeWidth 1.5 di ikon lucide biar "lebih tipis"',
+            "strokeWidth per ikon (ketebalan cuma diatur di STROKE)",
             "Alias Ri* baru di kode baru",
           ]}
         />
@@ -434,33 +434,28 @@ function GlyphRow({ items }: { items: [string, ReactNode][] }) {
   )
 }
 
-/** Not Reicon yet (lucide glyphs), see components/icons/index.tsx. */
-const LUCIDE_ONLY = new Set([
-  "ChevronsDownUp",
-  "ChevronsUp",
+/** Not in Reicon: drawn in components/icons/custom.tsx. */
+const CUSTOM = new Set([
   "Circle",
   "CircleDashed",
+  "Square",
   "Columns2",
   "Columns3",
-  "CornerDownLeft",
-  "CornerDownRight",
-  "CornerLeftUp",
-  "Github",
-  "GripHorizontal",
+  "Rows2",
+  "Table",
+  "Table2",
   "GripVertical",
+  "GripHorizontal",
   "Heading",
   "Heading1",
   "Heading2",
   "Heading3",
   "Pilcrow",
-  "Rows2",
+  "Strikethrough",
   "SeparatorHorizontal",
   "Split",
-  "Square",
-  "Strikethrough",
-  "Table",
-  "Table2",
-  "Twitter",
+  "ChevronsUp",
+  "ChevronsDownUp",
 ])
 
 function AllIcons() {
@@ -482,8 +477,8 @@ function AllIcons() {
           <code className="truncate font-mono text-[11px]" title={name}>
             {name}
           </code>
-          {LUCIDE_ONLY.has(name) && (
-            <span className="text-tertiary-foreground text-[11px]">lucide</span>
+          {CUSTOM.has(name) && (
+            <span className="text-tertiary-foreground text-[11px]">custom</span>
           )}
         </div>
       ))}
