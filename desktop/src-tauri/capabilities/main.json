@@ -1,7 +1,7 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "main",
-  "description": "Both windows load the web app (the app window and the /desktop popover): they may call the app's own commands (open in the browser or the app window, menu bar title, start at login, notify, the app's version, notification permission and System Settings for the web app's Setelan app page, native text undo / redo for the Edit menu, and in-place updates: their status, a check by hand, install + relaunch).",
+  "description": "Both windows load the web app (the app window and the /desktop popover): they may call the app's own commands (open in the browser or the app window, menu bar title, start at login, notify, the app's version, notification permission and System Settings for the web app's Setelan app page, native text undo / redo for the Edit menu, and in-place updates: their status, a check by hand, install + relaunch; and the unread count as the Dock badge).",
   "windows": ["app", "popover"],
   "remote": {
     "urls": ["https://app.kretyastudio.com/*", "http://localhost:3000/*"]
@@ -10,6 +10,7 @@
     "core:default",
     "core:window:allow-start-dragging",
     "core:window:allow-toggle-maximize",
+    "core:window:allow-set-badge-count",
     "allow-open-external",
     "allow-open-in-app",
     "allow-set-tray-title",

@@ -1,5 +1,6 @@
 "use client"
 
+import { useTypingIndicator } from "@/shared/hooks/useTypingIndicator"
 import { MarkdownDocEditor } from "@/page-slices/policies/ui/doc-editor-lazy"
 import dynamic from "next/dynamic"
 import { ConfirmDialog } from "@/components/confirm-dialog"
@@ -33,6 +34,7 @@ import {
   RiAddLine,
   RiArrowUpLine,
   RiCalendarLine,
+  RiCloseLine,
   RiDeleteBinLine,
 } from "@/shared/ui/lucide-icons"
 import { useDateLocale, useT } from "@/shared/i18n/client"
@@ -44,7 +46,14 @@ import {
   isToday,
 } from "date-fns"
 import { AnimatePresence, m, useReducedMotion } from "motion/react"
-import { useId, useLayoutEffect, useMemo, useRef, useState } from "react"
+import {
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react"
 import { toast } from "sonner"
 import {
   supabase,
@@ -256,16 +265,26 @@ function TaskBody({
 
   const thread = useThread(task.id, projectId, team)
   const scrollRef = useRef<HTMLDivElement>(null)
+  // Replying to a comment (a reply to a reply hangs off the same top one).
+  const [replyTo, setReplyTo] = useState<ReplyTarget | null>(null)
+  // Who else is typing in this thread right now.
+  const viewerName = viewerId ? thread.people[viewerId]?.full_name : null
+  const typing = useTypingIndicator(
+    `task:${task.id}`,
+    viewerId ? { id: viewerId, name: viewerName ?? "" } : null,
+  )
   // A new comment lands at the bottom of the thread; bring it into view.
   const post = async (text: string, mentions: string[]) => {
-    const ok = await thread.post(text, mentions)
-    if (ok)
+    const ok = await thread.post(text, mentions, replyTo?.id ?? null)
+    typing.stopped()
+    if (ok && !replyTo)
       requestAnimationFrame(() =>
         scrollRef.current?.scrollTo({
           top: scrollRef.current.scrollHeight,
           behavior: "smooth",
         }),
       )
+    if (ok) setReplyTo(null)
     return ok
   }
 
@@ -377,11 +396,34 @@ function TaskBody({
             ))}
           </section>
 
-          <CommentList thread={thread} viewerId={viewerId} />
+          <CommentList
+            thread={thread}
+            viewerId={viewerId}
+            onReply={(comment) => {
+              const author = thread.people[comment.author_id]
+              setReplyTo({
+                id: comment.parent_id ?? comment.id,
+                name: author?.full_name ?? t("someone"),
+                // Replying to a reply: tag its author, so they hear of it.
+                mention:
+                  comment.parent_id && comment.author_id !== viewerId && author
+                    ? { id: comment.author_id, name: author.full_name ?? "" }
+                    : null,
+              })
+            }}
+          />
         </div>
 
         <div className="border-border border-t">
-          <Composer team={team} onPost={post} />
+          <TypingLine names={typing.others.map((o) => o.name)} />
+          <Composer
+            team={team}
+            onPost={post}
+            onTyping={typing.typing}
+            onIdle={typing.stopped}
+            replyTo={replyTo}
+            onCancelReply={() => setReplyTo(null)}
+          />
         </div>
       </div>
 
@@ -715,13 +757,22 @@ function useThread(taskId: string, projectId: string, team: TeamMember[]) {
       }),
     ])
 
-  const post = async (body: string, mentions: string[]) => {
+  const post = async (
+    body: string,
+    mentions: string[],
+    parentId: string | null = null,
+  ) => {
     const { error } = await supabase()
       .from("project_task_comments")
       // The author is whoever is signed in (the column defaults to
       // auth.uid()). Sending the viewed-as id while impersonating would fail
       // RLS: you can't post as someone else.
-      .insert({ task_id: taskId, body, mentions })
+      .insert({
+        task_id: taskId,
+        body,
+        mentions,
+        ...(parentId ? { parent_id: parentId } : {}),
+      } as never)
     if (error) {
       toast.error(t("errComment"))
       return false
@@ -742,12 +793,78 @@ function useThread(taskId: string, projectId: string, team: TeamMember[]) {
   return { comments, people, isLoading, post, remove }
 }
 
+/** Top comments in order, each followed by its replies (oldest first). */
+function threaded<T extends { id: string; parent_id?: string | null }>(
+  comments: T[],
+) {
+  const ids = new Set(comments.map((c) => c.id))
+  const replies = new Map<string, T[]>()
+  const top: T[] = []
+  for (const c of comments) {
+    if (c.parent_id && ids.has(c.parent_id))
+      replies.set(c.parent_id, [...(replies.get(c.parent_id) ?? []), c])
+    else top.push(c)
+  }
+  return top.flatMap((c) => [
+    { comment: c, reply: false },
+    ...(replies.get(c.id) ?? []).map((r) => ({ comment: r, reply: true })),
+  ])
+}
+
+type ReplyTarget = {
+  /** The top comment the reply hangs off. */
+  id: string
+  name: string
+  /** Replying to a reply: its author, tagged so they hear of it. */
+  mention: { id: string; name: string } | null
+}
+
+/** "Rizal sedang mengetik…" under the thread, for whoever else is typing. */
+function TypingLine({ names }: { names: string[] }) {
+  const t = useT("projects")
+  const shown = names.filter(Boolean)
+  const text =
+    shown.length === 0
+      ? null
+      : shown.length === 1
+        ? t("typingOne", { name: shown[0] })
+        : shown.length === 2
+          ? t("typingTwo", { a: shown[0], b: shown[1] })
+          : t("typingMany", { name: shown[0], count: shown.length - 1 })
+  return (
+    <div
+      aria-live="polite"
+      className={cn(
+        "text-muted-foreground flex h-0 items-center gap-1.5 overflow-hidden px-6 text-xs transition-[height] duration-200 md:px-8",
+        text && "h-7",
+      )}
+    >
+      {text && (
+        <>
+          <span className="flex gap-0.5" aria-hidden>
+            {[0, 1, 2].map((i) => (
+              <span
+                key={i}
+                className="bg-muted-foreground size-1 animate-bounce rounded-full"
+                style={{ animationDelay: `${i * 120}ms` }}
+              />
+            ))}
+          </span>
+          <span className="truncate">{text}</span>
+        </>
+      )}
+    </div>
+  )
+}
+
 function CommentList({
   thread,
   viewerId,
+  onReply,
 }: {
   thread: Thread
   viewerId: string | null
+  onReply: (comment: Thread["comments"][number]) => void
 }) {
   const t = useT("projects")
   const dateLocale = useDateLocale()
@@ -774,7 +891,7 @@ function CommentList({
       ) : (
         <ul className="flex flex-col gap-4">
           <AnimatePresence initial={false}>
-            {comments.map((comment) => {
+            {threaded(comments).map(({ comment, reply }) => {
               const author = people[comment.author_id]
               return (
                 <CommentContextTarget
@@ -794,7 +911,11 @@ function CommentList({
                     animate={{ opacity: 1, y: 0 }}
                     exit={reduce ? { opacity: 0 } : { opacity: 0, y: -4 }}
                     transition={{ duration: 0.2, ease: EASE }}
-                    className="group/comment flex gap-2.5 text-[13px]"
+                    className={cn(
+                      "group/comment flex gap-2.5 text-[13px]",
+                      // Replies sit under their comment, indented.
+                      reply && "border-border -mt-1 ml-3 border-l pl-5",
+                    )}
                   >
                     <PersonAvatar
                       person={author ?? { full_name: null, avatar_url: null }}
@@ -811,6 +932,7 @@ function CommentList({
                             locale: dateLocale,
                           })}
                         </span>
+
                         {comment.author_id === viewerId && (
                           <Button
                             variant="ghost"
@@ -830,6 +952,13 @@ function CommentList({
                           people={people}
                         />
                       </p>
+                      <button
+                        type="button"
+                        onClick={() => onReply(comment)}
+                        className="text-muted-foreground hover:text-foreground mt-0.5 w-fit text-xs font-medium transition-colors"
+                      >
+                        {t("commentReply")}
+                      </button>
                     </div>
                   </m.li>
                 </CommentContextTarget>
@@ -861,9 +990,18 @@ type Span = { start: number; end: number; kind: "tag" | "query" }
 function Composer({
   team,
   onPost,
+  onTyping,
+  onIdle,
+  replyTo,
+  onCancelReply,
 }: {
   team: TeamMember[]
   onPost: (body: string, mentions: string[]) => Promise<boolean>
+  /** Each keystroke (others see "… is typing"); `onIdle` when it stops. */
+  onTyping?: () => void
+  onIdle?: () => void
+  replyTo?: ReplyTarget | null
+  onCancelReply?: () => void
 }) {
   const t = useT("projects")
   const reduce = useReducedMotion()
@@ -924,6 +1062,20 @@ function Composer({
       bottom: box.bottom - at.top + 6,
     })
   }, [query, text])
+
+  // Replying: into the field, with the replied-to person tagged when it's
+  // a reply to a reply.
+  useEffect(() => {
+    if (!replyTo) return
+    const mention = replyTo.mention
+    if (mention?.name && !text.includes(`@${mention.name}`)) {
+      setText((v) => `@${mention.name} ${v}`)
+      setPicked((p) => ({ ...p, [mention.id]: mention.name }))
+    }
+    requestAnimationFrame(() => ref.current?.focus())
+    // Only when the target changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [replyTo?.id, replyTo?.mention?.id])
 
   // "@" at the start or after whitespace, then the word typed so far.
   const detect = (value: string, caret: number) => {
@@ -1016,6 +1168,21 @@ function Composer({
   return (
     // Spans the whole column under a hairline: the footer is the field.
     <div ref={wrapRef} className="relative flex flex-col">
+      {replyTo && (
+        <div className="text-muted-foreground flex items-center gap-1.5 px-6 pt-3 text-xs md:px-8">
+          <span className="min-w-0 truncate">
+            {t("commentReplyingTo", { name: replyTo.name })}
+          </span>
+          <button
+            type="button"
+            aria-label={t("commentReplyCancel")}
+            onClick={onCancelReply}
+            className="hover:text-foreground hover:bg-muted -my-1 flex size-5 shrink-0 items-center justify-center rounded-md"
+          >
+            <RiCloseLine className="size-3.5" />
+          </button>
+        </div>
+      )}
       <div className="relative">
         <div
           ref={backRef}
@@ -1044,6 +1211,8 @@ function Composer({
           onChange={(e) => {
             setText(e.target.value)
             detect(e.target.value, e.target.selectionStart)
+            if (e.target.value.trim()) onTyping?.()
+            else onIdle?.()
           }}
           onSelect={(e) =>
             detect(e.currentTarget.value, e.currentTarget.selectionStart)
@@ -1052,7 +1221,10 @@ function Composer({
             if (backRef.current)
               backRef.current.scrollTop = e.currentTarget.scrollTop
           }}
-          onBlur={() => setQuery(null)}
+          onBlur={() => {
+            setQuery(null)
+            onIdle?.()
+          }}
           onKeyDown={(e) => {
             if (open && options.length) {
               if (e.key === "ArrowDown" || e.key === "ArrowUp") {
@@ -1073,6 +1245,12 @@ function Composer({
               // Close the list, not the dialog.
               e.stopPropagation()
               setQuery(null)
+              return
+            }
+            if (replyTo && e.key === "Escape") {
+              // Drop the reply, not the dialog.
+              e.stopPropagation()
+              onCancelReply?.()
               return
             }
             if (

@@ -1,7 +1,7 @@
 {
   "name": "krty-desktop",
   "private": true,
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Kretya Flow (KRTY for Mac): the app window and menu bar popover (a Tauri shell around app.kretyastudio.com/desktop)",
   "scripts": {
     "dev": "tauri dev",

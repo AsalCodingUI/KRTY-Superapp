@@ -25,7 +25,10 @@ export const STATUS_LABEL = {
 } as const
 
 export type CommentRow =
-  Database["public"]["Tables"]["project_task_comments"]["Row"]
+  Database["public"]["Tables"]["project_task_comments"]["Row"] & {
+    /** The comment this one replies to (one level: always a top comment). */
+    parent_id?: string | null
+  }
 
 export const commentKeys = {
   thread: (taskId: string) => ["project-task-comments", taskId] as const,
@@ -449,7 +452,7 @@ export function useTaskComments(taskId: string | null) {
       const { data } = await db
         .from("project_task_comments")
         .select(
-          "id, task_id, project_id, author_id, body, mentions, created_at",
+          "id, task_id, project_id, author_id, body, mentions, created_at, parent_id",
         )
         .eq("task_id", taskId!)
         .order("created_at")

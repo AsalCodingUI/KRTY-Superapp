@@ -100,7 +100,7 @@ export function DesktopApp() {
   const { profile, loading } = useUserProfile()
   const queryClient = useQueryClient()
   const online = useOnline()
-  const { markAsRead } = useNotifications()
+  const { markAsRead, unreadCount } = useNotifications()
   // New notifications arrive over realtime: the popover is hidden most of
   // the time, and the minute poll pauses then.
   useNotificationsRealtime()
@@ -148,6 +148,17 @@ export function DesktopApp() {
   useEffect(() => {
     void invoke("set_tray_title", { title })
   }, [title])
+
+  // Unread notifications as a badge on the Dock icon (like Telegram's);
+  // none when all are read or signed out. Apps before 0.3.1 lack the
+  // permission: their call just fails, quietly.
+  const badge = scenario === "real" ? Math.max(0, unreadCount ?? 0) : 0
+  useEffect(() => {
+    const win = tauri()?.window?.getCurrentWindow() as
+      | { setBadgeCount?: (count?: number) => Promise<void> }
+      | undefined
+    void win?.setBadgeCount?.(badge > 0 ? badge : undefined)?.catch(() => {})
+  }, [badge])
 
   // New notifications as macOS notifications (not the ones already there
   // when the app opened).
