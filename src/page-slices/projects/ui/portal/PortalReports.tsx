@@ -74,7 +74,7 @@ export function PortalReports({ reports }: { reports: PortalReport[] }) {
                 <ListRow
                   role="link"
                   tabIndex={0}
-                  className={cn(ROW_GRID, "min-h-14 cursor-pointer")}
+                  className={cn(ROW_GRID, "cursor-pointer")}
                   onClick={() => setOpen(r)}
                   onKeyDown={(e) => e.key === "Enter" && setOpen(r)}
                 >

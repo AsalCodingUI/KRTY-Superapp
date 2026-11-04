@@ -54,6 +54,8 @@ export const PAGE_ACCESS: Record<string, AccessLevel[]> = {
   // PMs manage their projects' invoices.
   "/invoice-print": PM_UP,
   "/settings": STAKEHOLDER,
+  // Internal component audit (every table pattern on mock data).
+  "/table": STAKEHOLDER,
   // Kretya Flow's own settings (notifications, login item): everyone.
   "/settings/app": EVERYONE,
 }

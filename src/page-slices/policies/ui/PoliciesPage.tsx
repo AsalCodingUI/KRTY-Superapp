@@ -446,7 +446,7 @@ function PolicyRow({
   const updated = latest?.published_at
 
   return (
-    <ListRow {...rest} className={`${ROW_GRID} min-h-14`}>
+    <ListRow {...rest} desc className={ROW_GRID}>
       <div className="flex min-w-0 items-center gap-3">
         <RiFileTextLine className="text-muted-foreground size-4 shrink-0" />
         <div className="flex min-w-0 flex-col">

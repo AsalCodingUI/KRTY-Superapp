@@ -615,7 +615,7 @@ export function OneOnOne({ period }: { period: string }) {
                   slotTarget(
                     s,
                     adminItems(s),
-                    <ListRow className={cn(ADMIN_GRID, "min-h-14")}>
+                    <ListRow desc className={ADMIN_GRID}>
                       <SlotCell
                         primary={timeRange(s)}
                         secondary={s.booked_by_profile?.full_name}
@@ -696,7 +696,7 @@ export function OneOnOne({ period }: { period: string }) {
                   slotTarget(
                     s,
                     adminItems(s),
-                    <ListRow className={cn(ADMIN_GRID, "min-h-14")}>
+                    <ListRow desc className={ADMIN_GRID}>
                       <SlotCell
                         primary={`${shortDate(s, dateLocale)} · ${timeRange(s)}`}
                         secondary={s.booked_by_profile?.full_name}
@@ -773,7 +773,7 @@ export function OneOnOne({ period }: { period: string }) {
                       ]
                     : []),
                 ],
-                <ListRow className={cn(EMPLOYEE_GRID, "min-h-14")}>
+                <ListRow desc className={EMPLOYEE_GRID}>
                   <SlotCell
                     primary={`${shortDate(s, dateLocale, "EEE, d MMM")} · ${timeRange(s)}`}
                     secondary={
@@ -880,7 +880,7 @@ export function OneOnOne({ period }: { period: string }) {
                       },
                       copyScheduleItem(s),
                     ],
-                    <ListRow className={cn(EMPLOYEE_GRID, "min-h-14")}>
+                    <ListRow desc className={EMPLOYEE_GRID}>
                       <SlotCell
                         primary={timeRange(s)}
                         secondary={

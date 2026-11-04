@@ -295,10 +295,10 @@ export function SheetView({
 
   return (
     <div className={cn("flex size-full flex-col p-6", className)}>
-      <div className="bg-background relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-[4px] shadow-(--elev-3)">
+      <div className="bg-background border-border relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border">
         <div ref={cells} className="min-h-0 flex-1 overflow-auto">
           <table
-            className="border-separate border-spacing-0 text-xs tabular-nums"
+            className="min-w-full border-separate border-spacing-0 text-xs tabular-nums [&_tbody_tr:last-child>td]:border-b-0"
             style={{ zoom }}
           >
             <thead className="bg-muted-solid text-muted-foreground sticky top-0 z-10">
@@ -312,6 +312,10 @@ export function SheetView({
                     {column(i)}
                   </th>
                 ))}
+                {/* Fills the rest of the width, so the header band and the
+                    grid run to the edge instead of stopping at the last
+                    column. */}
+                <th aria-hidden className="w-full border-b" />
               </tr>
             </thead>
             <tbody>
@@ -329,6 +333,7 @@ export function SheetView({
                       {row[c]}
                     </td>
                   ))}
+                  <td aria-hidden className="border-b" />
                 </tr>
               ))}
             </tbody>

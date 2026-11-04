@@ -1,5 +1,9 @@
 "use client"
 
+import {
+  listGroupHeaderClassName,
+  listHeaderClassName,
+} from "@/components/grouped-list"
 import { RollingValue } from "@/components/rolling-value"
 import { orEmpty } from "@/components/empty-value"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -17,16 +21,7 @@ export function ListColumns({
   grid: string
   children: React.ReactNode
 }) {
-  return (
-    <div
-      className={cn(
-        grid,
-        "gutter-x text-muted-foreground border-border h-9 border-b text-[13px]",
-      )}
-    >
-      {children}
-    </div>
-  )
+  return <div className={cn(grid, listHeaderClassName)}>{children}</div>
 }
 
 /** Avatar plus a name / secondary line, the first cell of a person row. */
@@ -86,15 +81,15 @@ export function GridGroup({
 }) {
   const [open, setOpen] = React.useState(defaultOpen)
   return (
-    <section data-state={open ? "open" : "closed"} className="group/day">
+    <section
+      data-state={open ? "open" : "closed"}
+      className="group/day mt-0.5 first:mt-0"
+    >
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        className={cn(
-          grid,
-          "gutter-x focus-visible:ring-focus-ring h-12 w-full rounded-lg text-left text-sm transition-colors outline-none hover:bg-(--row-hover) focus-visible:ring-2",
-        )}
+        className={cn(grid, listGroupHeaderClassName)}
       >
         <span className="flex min-w-0 items-center gap-3">
           <RiArrowDownSLine
@@ -108,10 +103,7 @@ export function GridGroup({
         </span>
         {summary}
       </button>
-      <Collapse open={open}>
-        <div className="border-border border-t">{children}</div>
-      </Collapse>
-      <div className="border-border border-b group-data-[state=open]/day:border-transparent" />
+      <Collapse open={open}>{children}</Collapse>
     </section>
   )
 }

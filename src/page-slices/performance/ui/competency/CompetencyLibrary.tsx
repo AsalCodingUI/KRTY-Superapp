@@ -222,7 +222,7 @@ export function CompetencyLibrary() {
                     label={c.name}
                     items={() => competencyItems(c)}
                   >
-                    <ListRow className={cn(ROW_GRID, "min-h-16")}>
+                    <ListRow desc className={ROW_GRID}>
                       <div className="flex min-w-0 flex-col gap-0.5 py-1">
                         <span className="text-foreground truncate">
                           {c.name}

@@ -1,5 +1,6 @@
 "use client"
 
+import { HoverHighlight } from "@/components/sliding-indicator"
 import { cn } from "@/lib/utils"
 import { CalloutBox } from "@/components/callout-box"
 import { EmbedBlock } from "@/components/embed-block"
@@ -135,19 +136,35 @@ const components: Components = {
       {...p}
     />
   ),
+  // The app's table style (see /table): the column labels on a pill, rows
+  // with no lines, and the same sliding hover highlight as the lists.
   table: ({ node: _, ...p }) => (
-    <div className="my-4 overflow-x-auto">
-      <table className="w-full border-collapse text-left text-sm" {...p} />
+    <div className="relative my-5 overflow-x-auto">
+      <HoverHighlight
+        itemSelector="tbody > tr"
+        className="rounded-lg bg-(--row-hover)"
+      />
+      <table
+        className={[
+          "w-full border-separate border-spacing-0 text-left text-sm tabular-nums",
+          "[&_th]:bg-muted dark:[&_th]:bg-muted/40 [&_th:first-child]:rounded-l-lg [&_th:last-child]:rounded-r-lg",
+          "[&_tbody_tr]:relative",
+          // A 2px spacer row under the labels + the highlight's 2px inset =
+          // the 4px between rows, as in the lists.
+          "[&_tbody]:before:table-row [&_tbody]:before:h-0.5",
+        ].join(" ")}
+        {...p}
+      />
     </div>
   ),
   th: ({ node: _, ...p }) => (
     <th
-      className="border-border text-muted-foreground border-b px-3 py-2 font-medium"
+      className="text-muted-foreground h-10 px-3 text-[13px] font-medium whitespace-nowrap"
       {...p}
     />
   ),
   td: ({ node: _, ...p }) => (
-    <td className="border-border/60 border-b px-3 py-2 align-top" {...p} />
+    <td className="h-12 px-3 py-2 align-middle first:font-medium" {...p} />
   ),
   img: () => null,
 }

@@ -4,7 +4,11 @@ import { ConfirmDialog } from "@/components/confirm-dialog"
 import { EmptyValue } from "@/components/empty-value"
 import { RichTextField } from "@/components/rich-text-field"
 import { EmptyState } from "@/components/empty-state"
-import { GroupedList, ListRow } from "@/components/grouped-list"
+import {
+  GroupedList,
+  listHeaderClassName,
+  ListRow,
+} from "@/components/grouped-list"
 import { PageHeader } from "@/components/page-header"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -276,12 +280,7 @@ export function MyNotesPage() {
             />
           ) : (
             <GroupedList>
-              <div
-                className={cn(
-                  ROW_GRID,
-                  "text-muted-foreground border-border gutter-x border-b py-2 text-[13px]",
-                )}
-              >
+              <div className={cn(ROW_GRID, listHeaderClassName)}>
                 <span>{t("notesColNote")}</span>
                 <span className="text-right">{t("notesTodo")}</span>
                 <span className="text-right">{t("notesColEdited")}</span>

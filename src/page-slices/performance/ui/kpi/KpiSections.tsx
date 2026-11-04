@@ -90,7 +90,7 @@ export function AttentionList({
                 ? RiCalendarLine
                 : RiTimeLine
           return (
-            <ListRow key={`${a.kind}-${a.projectId}-${i}`} className="min-h-11">
+            <ListRow key={`${a.kind}-${a.projectId}-${i}`}>
               <Icon
                 className={cn(
                   "size-4 shrink-0",

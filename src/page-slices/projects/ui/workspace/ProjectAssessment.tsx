@@ -8,7 +8,6 @@ import { PageHeader } from "@/components/page-header"
 import { Badge } from "@/components/ui/badge"
 import { Spinner } from "@/components/ui/spinner"
 import { formatPercent } from "@/entities/performance/lib/kpi"
-import { cn } from "@/lib/utils"
 import {
   ProjectKpiSheet,
   projectSheetHref,
@@ -114,10 +113,7 @@ export function ProjectAssessment({ projectId }: { projectId: string }) {
               <span />
             </ListColumns>
             {members.map((m) => (
-              <ListRow
-                key={m.assignmentId}
-                className={cn(ROW_GRID, "min-h-14")}
-              >
+              <ListRow key={m.assignmentId} className={ROW_GRID}>
                 <PersonCell name={m.full_name} avatarUrl={m.avatar_url}>
                   <Link
                     href={projectSheetHref(

@@ -74,6 +74,10 @@ export function GroupedList({
   )
 }
 
+/** A group's pill header (ListGroup; summary groups add the rows' grid). */
+export const listGroupHeaderClassName =
+  "bg-muted dark:bg-muted/40 gutter-x focus-visible:ring-focus-ring mb-0.5 h-10 w-full rounded-lg text-left text-sm outline-none focus-visible:ring-2"
+
 export function ListGroup({
   label,
   icon,
@@ -113,13 +117,15 @@ export function ListGroup({
       return next
     })
   return (
-    // A small gap between groups, so collapsed headers don't stack flush.
+    // 2px above + the header's 2px below (+ a row highlight's 2px inset)
+    // = 4px everywhere: header to row, row to the next header, header to
+    // header when collapsed.
     <section
       data-slot="list-group"
       data-open={open || undefined}
-      className="mt-1 first:mt-0"
+      className="mt-0.5 first:mt-0"
     >
-      <div className="bg-muted dark:bg-muted/40 gutter-x flex h-10 items-center gap-2 rounded-lg text-sm">
+      <div className={cn(listGroupHeaderClassName, "flex items-center gap-2")}>
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
@@ -151,19 +157,66 @@ export function ListGroup({
 
 const ROW_EASE = [0.23, 1, 0.32, 1] as const
 
+/*
+ * The one table style (see /table). Every list / table in the app:
+ * - rows: two heights only. min-h-12 for one line; min-h-14 (`desc`) when
+ *   a description runs under the title. gutter-x sides, py-2, text-sm,
+ *   gap-x-4 between columns;
+ *   no lines between rows: GroupedList's sliding highlight marks the row
+ *   (hover bg-(--row-hover), selected bg-(--row-selected)).
+ * - column labels: the group header's pill (h-10, bg-muted, rounded-lg),
+ *   text-[13px] muted; 2px under it + the highlight's 2px inset = the
+ *   same 4px as between rows. No lines.
+ * - checkbox column: 24px from the checkbox to the next column.
+ * - groups: ListGroup's pill header (h-10, bg-muted, rounded-lg); 4px to
+ *   its first row, from its last row to the next header, and between
+ *   collapsed headers.
+ */
+
 // Hover is GroupedList's sliding highlight; rows stay positioned so they
 // paint above it.
-const listRowClassName =
-  "group/row border-border/50 gutter-x relative flex min-h-12 items-center gap-3 border-b py-2 text-sm"
+export const listRowClassName =
+  "group/row gutter-x relative flex min-h-12 items-center gap-3 py-2 text-sm"
+
+/** The taller row: a description under the title (ListRow `desc`). */
+export const listRowDescClassName = "min-h-14"
+
+/** The column labels above a list's rows (add the rows' grid template):
+ *  the same pill as a group header, no line under it. */
+export const listHeaderClassName =
+  "bg-muted dark:bg-muted/40 gutter-x text-muted-foreground mb-0.5 h-10 rounded-lg text-[13px]"
+
+/** Column labels above a list; `grid` is the template its rows use. */
+export function ListHeader({
+  grid,
+  className,
+  ...props
+}: React.ComponentProps<"div"> & { grid?: string }) {
+  return (
+    <div
+      data-slot="list-header"
+      className={cn(grid, listHeaderClassName, className)}
+      {...props}
+    />
+  )
+}
 
 /**
  * A list row. Rows added after the list mounted fade and settle in; inside
  * an `AnimatePresence`, a removed row fades and its height folds away, so
  * the rows below close the gap instead of jumping.
  */
-export function ListRow({ className, ...props }: React.ComponentProps<"div">) {
+export function ListRow({
+  className: extra,
+  desc = false,
+  ...props
+}: React.ComponentProps<"div"> & {
+  /** A description line under the title: the taller row. */
+  desc?: boolean
+}) {
   const enter = React.useContext(ListMounted)
   const animated = React.useContext(ListAnimated)
+  const className = cn(desc && listRowDescClassName, extra)
   if (!animated)
     return (
       <div
@@ -183,7 +236,6 @@ export function ListRow({ className, ...props }: React.ComponentProps<"div">) {
         minHeight: 0,
         paddingTop: 0,
         paddingBottom: 0,
-        borderBottomWidth: 0,
         overflow: "hidden",
         transition: { duration: 0.2, ease: ROW_EASE },
       }}

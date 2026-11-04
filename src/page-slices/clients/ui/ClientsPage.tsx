@@ -2,7 +2,12 @@
 
 import { ConfirmDialog } from "@/components/confirm-dialog"
 import { EmptyState } from "@/components/empty-state"
-import { GroupedList, ListChip, ListRow } from "@/components/grouped-list"
+import {
+  GroupedList,
+  ListChip,
+  ListHeader,
+  ListRow,
+} from "@/components/grouped-list"
 import { PageHeader } from "@/components/page-header"
 import { TabNavigation, TabNavigationLink } from "@/components/tab-navigation"
 import { Button } from "@/components/ui/button"
@@ -371,6 +376,13 @@ export function ClientsPage() {
           </div>
         ) : (
           <GroupedList>
+            <ListHeader grid={ROW_GRID}>
+              <span>{t("fieldName")}</span>
+              <span className="text-right">{t("projectsTitle")}</span>
+              <span className="hidden text-right md:block">
+                {t("statReceived")}
+              </span>
+            </ListHeader>
             {shown.map((c) =>
               target(
                 c,
@@ -494,7 +506,7 @@ function ClientListRow({
   const sum = useMemo(() => summarize(client, rates), [client, rates])
 
   return (
-    <ListRow {...rest} className={`${ROW_GRID} min-h-14`}>
+    <ListRow {...rest} desc className={ROW_GRID}>
       <div className="flex min-w-0 items-center gap-3">
         <RiBuildingLine className="text-muted-foreground size-4 shrink-0" />
         <div className="flex min-w-0 flex-col">

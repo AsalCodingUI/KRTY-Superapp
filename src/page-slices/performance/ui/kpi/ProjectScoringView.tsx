@@ -255,10 +255,7 @@ export function ProjectScoringView({
                 <span className="hidden text-right sm:block">{t("score")}</span>
               </ListColumns>
               {milestones.map((m, index) => (
-                <ListRow
-                  key={`${m.name}-${index}`}
-                  className={cn(MILESTONE_GRID, "min-h-14")}
-                >
+                <ListRow key={`${m.name}-${index}`} className={MILESTONE_GRID}>
                   <span className="text-foreground truncate">{m.name}</span>
                   {canEdit ? (
                     <>
@@ -395,7 +392,7 @@ export function ProjectScoringView({
               <span className="text-right">{t("status")}</span>
             </ListColumns>
             {competencies.map((c) => (
-              <ListRow key={c.id} className={cn(COMPETENCY_GRID, "min-h-14")}>
+              <ListRow key={c.id} desc className={COMPETENCY_GRID}>
                 <div className="flex min-w-0 flex-col">
                   <span className="text-foreground truncate">{c.name}</span>
                   {c.description && (

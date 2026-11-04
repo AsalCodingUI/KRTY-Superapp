@@ -27,6 +27,11 @@ import {
 } from "@/components/ui/select"
 import { Spinner } from "@/components/ui/spinner"
 import { cn } from "@/lib/utils"
+import { GroupedList, listHeaderClassName } from "@/components/grouped-list"
+
+/** Checkbox · task · (phase) · PIC · deadline · created. */
+const TASK_GRID = "grid-cols-[1.5rem_minmax(0,1fr)_10rem_7rem_5rem]"
+const TASK_GRID_PHASES = "grid-cols-[1.5rem_minmax(0,1fr)_8rem_10rem_7rem_5rem]"
 import {
   RiAddLine,
   RiArrowRightSLine,
@@ -433,13 +438,12 @@ export function ProjectTasks({ projectId }: { projectId: string }) {
         )
       ) : (
         <div className="flex flex-col gap-4 pb-4">
-          <div className="bleed flex flex-col text-sm">
+          <GroupedList className="text-sm">
             <div
               className={cn(
-                "text-muted-foreground border-border gutter-x grid items-center border-b py-2 text-[13px]",
-                phases.length
-                  ? "grid-cols-[2.5rem_minmax(0,1fr)_8rem_10rem_7rem_5rem]"
-                  : "grid-cols-[2.5rem_minmax(0,1fr)_10rem_7rem_5rem]",
+                listHeaderClassName,
+                "grid items-center gap-x-4",
+                phases.length ? TASK_GRID_PHASES : TASK_GRID,
               )}
             >
               <span />
@@ -452,7 +456,7 @@ export function ProjectTasks({ projectId }: { projectId: string }) {
             </div>
 
             {adding && (
-              <div className="border-border/50 gutter-x grid grid-cols-[2.5rem_minmax(0,1fr)] items-center border-b py-2">
+              <div className="gutter-x grid min-h-12 grid-cols-[1.5rem_minmax(0,1fr)] items-center gap-x-4 py-2">
                 <span />
                 <Input
                   autoFocus
@@ -514,7 +518,7 @@ export function ProjectTasks({ projectId }: { projectId: string }) {
                 />
               ))
             )}
-          </div>
+          </GroupedList>
         </div>
       )}
 
@@ -636,11 +640,10 @@ function TaskRows({
         }}
       >
         <div
+          data-slot="list-row"
           className={cn(
-            "group/task border-border/50 hover:bg-muted/20 gutter-x grid min-h-12 items-center border-b",
-            phases.length
-              ? "grid-cols-[2.5rem_minmax(0,1fr)_8rem_10rem_7rem_5rem]"
-              : "grid-cols-[2.5rem_minmax(0,1fr)_10rem_7rem_5rem]",
+            "group/task gutter-x relative grid min-h-12 items-center gap-x-4 py-2",
+            phases.length ? TASK_GRID_PHASES : TASK_GRID,
           )}
         >
           <div className="flex items-center gap-1">
@@ -671,7 +674,7 @@ function TaskRows({
               aria-label={task.done ? t("markUndone") : t("markDone")}
             />
           </div>
-          <div className="flex min-w-0 items-center gap-2 pr-3">
+          <div className="flex min-w-0 items-center gap-2">
             {editing ? (
               <Input
                 autoFocus
@@ -863,7 +866,7 @@ function TaskRows({
       </TaskContextTarget>
 
       {expanded && (
-        <div className="border-border/50 flex flex-col border-b py-1 pl-[3.75rem]">
+        <div className="flex flex-col pb-2 pl-[calc(var(--page-gutter,1rem)+2.5rem)]">
           {subtasks.map((sub) => (
             <SubtaskContextTarget
               key={sub.id}

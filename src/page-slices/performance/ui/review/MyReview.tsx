@@ -16,7 +16,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { cn } from "@/lib/utils"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { ConfirmDialog } from "@/components/confirm-dialog"
 import { DialogFooter } from "@/components/ui/dialog"
@@ -56,7 +55,7 @@ function PeerList({
         <span className="text-right">{t("status")}</span>
       </ListColumns>
       {sorted.map((p) => (
-        <ListRow key={p.id} className={cn(ROW_GRID, "min-h-14")}>
+        <ListRow key={p.id} className={ROW_GRID}>
           <PersonCell name={p.full_name} avatarUrl={p.avatar_url} />
           <div className="hidden min-w-0 md:block">
             {p.job_title && (

@@ -268,7 +268,7 @@ function StatusGroup({
     <div
       ref={setNodeRef}
       className={cn(
-        "mt-1 rounded-lg outline outline-1 -outline-offset-1 outline-transparent transition-[outline-color,background-color]",
+        "mt-0.5 rounded-lg outline outline-1 -outline-offset-1 outline-transparent transition-[outline-color,background-color] first:mt-0",
         isOver && "bg-foreground/[0.02] outline-foreground/20",
       )}
     >
@@ -339,7 +339,7 @@ function ProjectRow({
         <ListRow
           className={cn(
             grid,
-            "min-h-14 border-b-0 transition-opacity",
+            "min-h-14 transition-opacity", // has a description line
             canDrag && "cursor-grab active:cursor-grabbing",
             // The spot it left, until it's dropped.
             isDragging && "*:opacity-40",

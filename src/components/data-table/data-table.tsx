@@ -25,7 +25,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { HoverHighlight } from "@/components/sliding-indicator"
+import { HoverHighlight, RowHighlights } from "@/components/sliding-indicator"
 import { cn } from "@/lib/utils"
 import { useT } from "@/shared/i18n/client"
 
@@ -188,14 +188,9 @@ export function DataTable<TData>({
       ? () => row.toggleSelected(!row.getIsSelected())
       : undefined,
     className: cn(
-      // A <tr> can't take border-radius, so the highlight is
-      // painted on the cells (ends rounded). Inset shadows in the
-      // surface colour trim 2px off the top and bottom so it
-      // clears the dividers; the outer 1px shadow bridges the
-      // fractional seam to the next cell.
-      "group select-none [--row-bg:transparent] hover:bg-transparent data-[state=selected]:bg-transparent",
-      "*:bg-(--row-bg) *:shadow-[inset_0_2px_0_var(--row-surface),inset_0_-2px_0_var(--row-surface)] *:not-last:shadow-[inset_0_2px_0_var(--row-surface),inset_0_-2px_0_var(--row-surface),3px_0_0_-2px_var(--row-bg)] *:first:rounded-l-lg *:last:rounded-r-lg",
-      "data-[state=selected]:[--row-bg:var(--row-selected)]!",
+      // Selected rows get RowHighlights (below): the hover highlight's
+      // rounded box, so nothing is painted on the cells themselves.
+      "group border-b-0 select-none hover:bg-transparent data-[state=selected]:bg-transparent",
       enableSelection ? "cursor-pointer" : "cursor-default",
     ),
   })
@@ -216,8 +211,8 @@ export function DataTable<TData>({
         <TableCell
           key={cell.id}
           className={cn(
-            "relative h-12 px-2 py-1 text-sm whitespace-nowrap",
-            isSelectionColumn && "w-14 px-2 text-center",
+            "relative h-14 px-2 py-1 text-sm whitespace-nowrap",
+            isSelectionColumn && "w-px pr-4 pl-2 leading-none",
             cell.column.columnDef.meta?.className,
           )}
         >
@@ -252,6 +247,10 @@ export function DataTable<TData>({
       >
         {/* Row hover: one highlight that follows the pointer (rows only,
             not the empty state). */}
+        <RowHighlights
+          itemSelector="tbody > tr[data-state=selected]"
+          className="bg-(--row-selected)"
+        />
         {enableHover && (
           <HoverHighlight
             itemSelector="tbody > tr[data-slot=table-row]:not(:has(> td[colspan]))"
@@ -259,9 +258,14 @@ export function DataTable<TData>({
           />
         )}
         <Table className="min-w-full">
-          <TableHeader>
+          {/* Column labels on the pill band (as every list's header), no
+              line under them. */}
+          <TableHeader className="[&_tr]:border-b-0">
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="hover:bg-transparent">
+              <TableRow
+                key={headerGroup.id}
+                className="border-b-0 hover:bg-transparent"
+              >
                 {headerGroup.headers.map((header) => {
                   const isSelectionColumn = header.column.id === "select"
                   if (isSelectionColumn && !enableSelection) return null
@@ -269,8 +273,8 @@ export function DataTable<TData>({
                     <TableHead
                       key={header.id}
                       className={cn(
-                        "text-muted-foreground h-10 px-2 text-[13px] font-medium whitespace-nowrap",
-                        isSelectionColumn && "w-14 px-2 text-center",
+                        "bg-muted dark:bg-muted/40 text-muted-foreground h-10 px-2 text-[13px] font-medium whitespace-nowrap first:rounded-l-lg last:rounded-r-lg",
+                        isSelectionColumn && "w-px pr-4 pl-2 leading-none",
                         header.column.columnDef.meta?.className,
                       )}
                     >
@@ -286,7 +290,9 @@ export function DataTable<TData>({
               </TableRow>
             ))}
           </TableHeader>
-          <TableBody>
+          {/* A 2px spacer row before the first row (+ its highlight's 2px
+              inset) = the 4px between rows, as in the lists. */}
+          <TableBody className="before:table-row before:h-0.5">
             {rows.length ? (
               // Added/removed rows fade (approve, delete). Paging, sorting and
               // filtering re-key the group so they swap without animating.

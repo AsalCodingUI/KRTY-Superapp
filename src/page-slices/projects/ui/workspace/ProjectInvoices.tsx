@@ -14,6 +14,8 @@ import {
   getInvoicesByProject,
 } from "@/entities/finance/api/client"
 import { cn } from "@/lib/utils"
+import { Badge } from "@/components/ui/badge"
+import { GroupedList, listHeaderClassName } from "@/components/grouped-list"
 import { RiAddLine, RiMoneyDollarCircleLine } from "@/shared/ui/lucide-icons"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { differenceInCalendarDays, format } from "date-fns"
@@ -557,15 +559,9 @@ export function ProjectInvoices({ projectId }: { projectId: string }) {
             })}
           </div>
         ) : (
-          <div className="bleed">
+          <GroupedList hover={canManage}>
             <div role="table" className="text-sm">
-              <div
-                role="row"
-                className={cn(
-                  ROW,
-                  "text-muted-foreground border-b py-2 text-xs",
-                )}
-              >
+              <div role="row" className={cn(ROW, listHeaderClassName)}>
                 <span role="columnheader">{t("invoice")}</span>
                 <span role="columnheader">{t("colItems")}</span>
                 <span role="columnheader">{t("dueDate")}</span>
@@ -588,12 +584,13 @@ export function ProjectInvoices({ projectId }: { projectId: string }) {
                   inv,
                   <div
                     role="row"
+                    data-slot="list-row"
                     tabIndex={canManage ? 0 : undefined}
                     onClick={() => openEditor(inv)}
                     onKeyDown={(e) => e.key === "Enter" && openEditor(inv)}
                     className={cn(
                       ROW,
-                      "group/row hover:bg-muted/20 min-h-14 border-b py-2.5 transition-colors",
+                      "group/row relative min-h-14 py-2 outline-none",
                       canManage && "cursor-pointer",
                     )}
                   >
@@ -620,14 +617,7 @@ export function ProjectInvoices({ projectId }: { projectId: string }) {
                       {late && <span className={late.tone}>{late.label}</span>}
                     </div>
                     <span>
-                      <span
-                        className={cn(
-                          "rounded-sm px-1.5 py-0.5 text-xs",
-                          status.tone,
-                        )}
-                      >
-                        {t(status.label)}
-                      </span>
+                      <Badge className={status.tone}>{t(status.label)}</Badge>
                     </span>
                     <div className="flex flex-col items-end gap-1">
                       <span className="font-medium tabular-nums">
@@ -652,7 +642,7 @@ export function ProjectInvoices({ projectId }: { projectId: string }) {
                 )
               })}
             </div>
-          </div>
+          </GroupedList>
         )}
 
         {canManage && (

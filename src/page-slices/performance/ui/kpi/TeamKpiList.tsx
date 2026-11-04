@@ -288,7 +288,7 @@ export function TeamKpiList({ scope }: { scope: string }) {
               ].filter((item) => !item.hidden)
             }
           >
-            <ListRow className={cn(ROW_GRID, "min-h-14")}>
+            <ListRow desc className={ROW_GRID}>
               <PersonCell
                 name={row.full_name}
                 avatarUrl={row.avatar_url}

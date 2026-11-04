@@ -19,6 +19,7 @@ import {
 import { Spinner } from "@/components/ui/spinner"
 import { ViewToggle, useViewMode } from "@/components/view-toggle"
 import { cn } from "@/lib/utils"
+import { GroupedList, listHeaderClassName } from "@/components/grouped-list"
 import { useDateLocale, useT } from "@/shared/i18n/client"
 import { RiCheckboxCircleLine, RiMessage3Line } from "@/shared/ui/lucide-icons"
 import { differenceInCalendarDays, isToday } from "date-fns"
@@ -67,7 +68,7 @@ type Filter = "all" | "todo" | "done"
 const ALL = "__all__"
 
 const ROW_GRID =
-  "grid grid-cols-[2.5rem_minmax(0,1fr)_5rem] items-center md:grid-cols-[2.5rem_minmax(0,1fr)_12rem_9rem_7rem]"
+  "grid grid-cols-[1.5rem_minmax(0,1fr)_5rem] items-center gap-x-4 md:grid-cols-[1.5rem_minmax(0,1fr)_12rem_9rem_7rem]"
 
 /**
  * Tugas saya: every task assigned to the viewer, across their running
@@ -385,13 +386,8 @@ export function MyTasksPage() {
               ))}
             </TabNavigation>
           </div>
-          <div className="bleed flex flex-col pb-4 text-sm">
-            <div
-              className={cn(
-                ROW_GRID,
-                "text-muted-foreground border-border gutter-x border-b py-2 text-[13px]",
-              )}
-            >
+          <GroupedList className="pb-4 text-sm">
+            <div className={cn(ROW_GRID, listHeaderClassName)}>
               <span />
               <span>{t("colTask")}</span>
               <span className="hidden md:block">{t("colProject")}</span>
@@ -424,7 +420,7 @@ export function MyTasksPage() {
                 </TaskContextTarget>
               ))
             )}
-          </div>
+          </GroupedList>
         </>
       )}
 
@@ -493,9 +489,10 @@ function MyTaskRow({
   return (
     <div
       {...data}
+      data-slot="list-row"
       className={cn(
         ROW_GRID,
-        "group/task border-border/50 hover:bg-muted/20 gutter-x relative min-h-12 border-b max-md:min-h-14",
+        "group/task gutter-x relative min-h-12 py-2 text-sm max-md:min-h-14",
       )}
     >
       <Checkbox
@@ -504,7 +501,7 @@ function MyTaskRow({
         onCheckedChange={onToggle}
         aria-label={task.done ? t("markUndone") : t("markDone")}
       />
-      <div className="flex min-w-0 flex-col pr-3">
+      <div className="flex min-w-0 flex-col">
         <div className="flex min-w-0 items-center gap-2">
           {/* On a phone the whole row opens the task. */}
           <button
@@ -540,7 +537,7 @@ function MyTaskRow({
           </span>
         )}
       </div>
-      <div className="hidden min-w-0 pr-3 md:block">
+      <div className="hidden min-w-0 md:block">
         {project && (
           <Link
             href={projectHref(project, "tasks")}

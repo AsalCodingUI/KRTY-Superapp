@@ -5,7 +5,11 @@ import { DateField } from "@/components/date-field"
 import { AnimatePresence } from "motion/react"
 import { ConfirmDialog } from "@/components/confirm-dialog"
 import { EmptyValue } from "@/components/empty-value"
-import { GroupedList, ListRow } from "@/components/grouped-list"
+import {
+  GroupedList,
+  listHeaderClassName,
+  ListRow,
+} from "@/components/grouped-list"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -528,12 +532,7 @@ export function MembersAccessSettings({
 
       {/* Members: one aligned list; a row opens the member in a sheet. */}
       <GroupedList>
-        <div
-          className={cx(
-            MEMBER_GRID,
-            "gutter-x text-muted-foreground border-border h-9 border-b text-[13px]",
-          )}
-        >
+        <div className={cx(MEMBER_GRID, listHeaderClassName)}>
           <span>{t("colName")}</span>
           <span className="hidden md:block">{t("colRole")}</span>
           <span className="hidden md:block">{t("colJobTitle")}</span>
@@ -542,7 +541,7 @@ export function MembersAccessSettings({
         </div>
         {isLoading ? (
           Array.from({ length: 8 }).map((_, i) => (
-            <ListRow key={i} className={cx(MEMBER_GRID, "min-h-14")}>
+            <ListRow key={i} desc className={MEMBER_GRID}>
               <span className="flex items-center gap-3">
                 <Skeleton className="size-7 rounded-full" />
                 <Skeleton className="h-3.5 w-40" />

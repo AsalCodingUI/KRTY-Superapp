@@ -1,6 +1,10 @@
 "use client"
 
-import { GroupedList, ListRow } from "@/components/grouped-list"
+import {
+  GroupedList,
+  listHeaderClassName,
+  ListRow,
+} from "@/components/grouped-list"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
@@ -36,16 +40,11 @@ export function RemainingLeaveList({ data }: { data: BalanceProfile[] }) {
 
   return (
     <GroupedList>
-      <div
-        className={cn(
-          ROW_GRID,
-          "gutter-x text-muted-foreground border-border h-9 border-b text-[13px]",
-        )}
-      >
+      <div className={cn(ROW_GRID, listHeaderClassName)}>
         <span>{t("colEmployee")}</span>
         <span className="hidden md:block">{t("colJobTitle")}</span>
-        <span className="hidden text-right md:block">{t("colUsed")}</span>
-        <span className="hidden md:block" />
+        {/* Over the count and its bar together, left like the count. */}
+        <span className="hidden md:col-span-2 md:block">{t("colUsed")}</span>
         <span className="text-right">{t("colRemaining")}</span>
       </div>
       {people.map((p) => {
@@ -71,7 +70,7 @@ export function RemainingLeaveList({ data }: { data: BalanceProfile[] }) {
               },
             ]}
           >
-            <ListRow className={cn(ROW_GRID, "min-h-14")}>
+            <ListRow desc className={ROW_GRID}>
               <div className="flex min-w-0 items-center gap-3">
                 <Avatar className="size-7">
                   <AvatarImage src={p.avatar_url || undefined} alt={name} />
@@ -95,7 +94,7 @@ export function RemainingLeaveList({ data }: { data: BalanceProfile[] }) {
                   </span>
                 </Badge>
               </div>
-              <span className="text-muted-foreground hidden text-right tabular-nums md:block">
+              <span className="text-muted-foreground hidden tabular-nums md:block">
                 {t(daysKey(used), { n: used })}
               </span>
               <div

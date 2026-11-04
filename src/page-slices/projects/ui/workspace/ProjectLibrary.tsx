@@ -6,7 +6,11 @@ import { PageHeader } from "@/components/page-header"
 import { useBreadcrumbs } from "@/components/page-breadcrumbs"
 import { ConfirmDialog } from "@/components/confirm-dialog"
 import { EmptyState } from "@/components/empty-state"
-import { GroupedList, ListRow } from "@/components/grouped-list"
+import {
+  GroupedList,
+  listHeaderClassName,
+  ListRow,
+} from "@/components/grouped-list"
 import { ViewToggle, useViewMode } from "@/components/view-toggle"
 import { FilePreview } from "./FilePreview"
 import type { ViewerItem } from "@/components/file-viewer"
@@ -1069,12 +1073,7 @@ export function ProjectLibrary({ projectId }: { projectId: string }) {
             ) : (!folder && folders.length > 0) || inFolder.length > 0 ? (
               // One aligned list: folders first, then files; actions in ⋯.
               <GroupedList>
-                <div
-                  className={cn(
-                    LIB_GRID,
-                    "gutter-x text-muted-foreground border-border h-9 border-b text-[13px]",
-                  )}
-                >
+                <div className={cn(LIB_GRID, listHeaderClassName)}>
                   <span>{t("formName")}</span>
                   <span className="text-right">{t("libSizeColumn")}</span>
                   <span className="hidden text-right sm:block">

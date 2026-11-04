@@ -3,7 +3,11 @@
 import { ProofLink, useProofViewer } from "@/entities/leave/ui/ProofLink"
 import { AnimatePresence } from "motion/react"
 import { EmptyState } from "@/components/empty-state"
-import { GroupedList, ListRow } from "@/components/grouped-list"
+import {
+  GroupedList,
+  listHeaderClassName,
+  ListRow,
+} from "@/components/grouped-list"
 import { ListPager } from "@/components/list-pager"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -66,15 +70,10 @@ export function EmployeeLeaveList({
   return (
     <div className="flex flex-col gap-4">
       <GroupedList>
-        <div
-          className={cn(
-            ROW_GRID,
-            "gutter-x text-muted-foreground border-border h-9 border-b text-[13px]",
-          )}
-        >
+        <div className={cn(ROW_GRID, listHeaderClassName)}>
           <span>{t("colDate")}</span>
           <span className="hidden md:block">{t("colType")}</span>
-          <span className="hidden text-right md:block">{t("colDuration")}</span>
+          <span className="hidden md:block">{t("colDuration")}</span>
           <span>{t("colStatus")}</span>
           <span />
         </div>
@@ -127,7 +126,7 @@ function LeaveRow({
         onViewProof,
       }}
     >
-      <ListRow className={cn(ROW_GRID, "min-h-14")}>
+      <ListRow desc className={ROW_GRID}>
         <div className="flex min-w-0 flex-col">
           <span className="text-foreground truncate tabular-nums">
             {formatLeaveRange(req.start_date, req.end_date, dateLocale)}
@@ -161,7 +160,7 @@ function LeaveRow({
         <div className="hidden md:block">
           <Badge variant="secondary">{type}</Badge>
         </div>
-        <span className="text-muted-foreground hidden text-right tabular-nums md:block">
+        <span className="text-muted-foreground hidden tabular-nums md:block">
           {daysText}
         </span>
         <div>

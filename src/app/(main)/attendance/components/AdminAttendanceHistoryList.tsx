@@ -3,7 +3,13 @@
 import { AnimatePresence } from "motion/react"
 import { EmptyValue } from "@/components/empty-value"
 import { EmptyState } from "@/components/empty-state"
-import { GroupedList, ListRow, ListRowActions } from "@/components/grouped-list"
+import {
+  GroupedList,
+  listGroupHeaderClassName,
+  listHeaderClassName,
+  ListRow,
+  ListRowActions,
+} from "@/components/grouped-list"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { AvatarGroup } from "@/components/avatar-group"
 import { Badge } from "@/components/ui/badge"
@@ -105,12 +111,7 @@ export function AdminAttendanceHistoryList({
   return (
     <div className="flex flex-col gap-4">
       <GroupedList>
-        <div
-          className={cn(
-            ROW_GRID,
-            "gutter-x text-muted-foreground border-border h-9 border-b text-[13px]",
-          )}
-        >
+        <div className={cn(ROW_GRID, listHeaderClassName)}>
           <span>{t("colEmployee")}</span>
           <span className="hidden md:block">{t("colStatus")}</span>
           <span className="hidden md:block">{t("colTime")}</span>
@@ -197,17 +198,17 @@ function AttendanceDay({
     : null
 
   return (
-    <section data-state={open ? "open" : "closed"} className="group/day">
+    <section
+      data-state={open ? "open" : "closed"}
+      className="group/day mt-0.5 first:mt-0"
+    >
       {/* Same columns as the rows: who came under Status/Jam, sessions under
           Istirahat, the day's total under Durasi. */}
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        className={cn(
-          ROW_GRID,
-          "gutter-x focus-visible:ring-focus-ring h-12 w-full rounded-lg text-left text-sm transition-colors outline-none hover:bg-(--row-hover) focus-visible:ring-2",
-        )}
+        className={cn(ROW_GRID, listGroupHeaderClassName)}
       >
         <span className="flex min-w-0 items-center gap-3">
           <RiArrowDownSLine
@@ -262,10 +263,7 @@ function AttendanceDay({
           )}
         </span>
       </button>
-      <Collapse open={open}>
-        <div className="border-border border-t">{children}</div>
-      </Collapse>
-      <div className="border-border border-b group-data-[state=open]/day:border-transparent" />
+      <Collapse open={open}>{children}</Collapse>
     </section>
   )
 }
@@ -370,7 +368,7 @@ function AdminAttendanceRow({
         },
       ]}
     >
-      <ListRow className={cn(ROW_GRID, "min-h-14")}>
+      <ListRow desc className={ROW_GRID}>
         <div className="flex min-w-0 items-center gap-3">
           <Avatar className="size-7">
             <AvatarImage

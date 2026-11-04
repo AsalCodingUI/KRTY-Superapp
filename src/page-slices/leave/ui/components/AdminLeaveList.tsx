@@ -6,6 +6,7 @@ import { EmptyState } from "@/components/empty-state"
 import {
   GroupedList,
   ListGroup,
+  listHeaderClassName,
   ListRow,
   ListRowActions,
 } from "@/components/grouped-list"
@@ -80,12 +81,7 @@ const LEAVE_TYPE_BADGE: Record<string, "info" | "warning" | "secondary"> = {
 function LeaveListHeader() {
   const t = useT("leave")
   return (
-    <div
-      className={cn(
-        ROW_GRID,
-        "gutter-x text-muted-foreground border-border h-9 border-b text-[13px]",
-      )}
-    >
+    <div className={cn(ROW_GRID, listHeaderClassName)}>
       <span>{t("colEmployee")}</span>
       <span>{t("colType")}</span>
       <span className="hidden md:block">{t("colDate")}</span>
@@ -209,7 +205,7 @@ function LeaveRow({
   const type = leaveTypeLabel(req.leave_type, t)
 
   return (
-    <ListRow className={cn(ROW_GRID, "min-h-14")}>
+    <ListRow desc className={ROW_GRID}>
       <div className="flex min-w-0 items-center gap-3">
         <Avatar className="size-7">
           <AvatarImage src={req.profiles?.avatar_url || undefined} alt={name} />

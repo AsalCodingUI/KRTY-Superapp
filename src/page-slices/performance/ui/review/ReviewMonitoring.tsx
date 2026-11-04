@@ -450,7 +450,7 @@ export function ReviewMonitoring({ period }: { period: string }) {
                       label={row.full_name ?? undefined}
                       items={() => personItems(row, row)}
                     >
-                      <ListRow className={cn(ROW_GRID, "min-h-14")}>
+                      <ListRow className={ROW_GRID}>
                         <PersonCell
                           name={row.full_name}
                           avatarUrl={row.avatar_url}
@@ -524,7 +524,7 @@ export function ReviewMonitoring({ period }: { period: string }) {
                   label={person.full_name ?? undefined}
                   items={() => personItems(person)}
                 >
-                  <ListRow className={cn(ROW_GRID, "min-h-14")}>
+                  <ListRow desc className={ROW_GRID}>
                     <PersonCell
                       name={person.full_name}
                       avatarUrl={person.avatar_url}

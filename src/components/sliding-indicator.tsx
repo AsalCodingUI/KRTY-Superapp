@@ -293,3 +293,79 @@ export function HoverHighlight({
     />
   )
 }
+
+/**
+ * The selected rows' highlight: the hover highlight's shape (rounded, `inset`
+ * px off the top and bottom), one box per row matching `itemSelector`,
+ * measured against the parent (which must be positioned). For tables, where
+ * a <tr> can't paint a rounded box itself. Re-measures when rows change
+ * (selection, sorting, paging) or the table resizes.
+ */
+export function RowHighlights({
+  itemSelector,
+  className,
+  inset = 2,
+}: {
+  itemSelector: string
+  className?: string
+  inset?: number
+}) {
+  const ref = React.useRef<HTMLSpanElement>(null)
+  const [boxes, setBoxes] = React.useState<Box[]>([])
+
+  React.useLayoutEffect(() => {
+    const container = ref.current?.parentElement
+    const table = container?.querySelector("table")
+    if (!container || !table) return
+    const measure = () => {
+      const c = container.getBoundingClientRect()
+      setBoxes(
+        [...container.querySelectorAll<HTMLElement>(itemSelector)].map(
+          (row) => {
+            const r = row.getBoundingClientRect()
+            return {
+              x: r.left - c.left - container.clientLeft,
+              y: r.top - c.top - container.clientTop + inset,
+              w: r.width,
+              h: Math.max(0, r.height - inset * 2),
+            }
+          },
+        ),
+      )
+    }
+    measure()
+    const resize = new ResizeObserver(measure)
+    resize.observe(table)
+    // The table only: the boxes themselves live outside it.
+    const mutation = new MutationObserver(measure)
+    mutation.observe(table, {
+      subtree: true,
+      childList: true,
+      attributes: true,
+      attributeFilter: ["data-state"],
+    })
+    return () => {
+      resize.disconnect()
+      mutation.disconnect()
+    }
+  }, [itemSelector, inset])
+
+  return (
+    <span ref={ref} aria-hidden="true" className="contents">
+      {boxes.map((box, i) => (
+        <span
+          key={i}
+          className={cn(
+            "pointer-events-none absolute top-0 left-0 rounded-lg",
+            className,
+          )}
+          style={{
+            width: box.w,
+            height: box.h,
+            transform: `translate(${box.x}px, ${box.y}px)`,
+          }}
+        />
+      ))}
+    </span>
+  )
+}

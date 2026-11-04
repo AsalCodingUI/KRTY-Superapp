@@ -129,7 +129,7 @@ export function ProjectReports({ projectId }: { projectId: string }) {
                 }
               >
                 <ListRow
-                  className={cn(ROW_GRID, "min-h-14 cursor-pointer")}
+                  className={cn(ROW_GRID, "cursor-pointer")}
                   onClick={() => setOpen({ report: r })}
                 >
                   <div className="flex min-w-0 items-center gap-2">

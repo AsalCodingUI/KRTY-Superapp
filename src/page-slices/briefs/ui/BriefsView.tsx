@@ -187,7 +187,7 @@ function BriefRow({
     showProject ? (brief.project?.name ?? t("noProject")) : null,
   ].filter(Boolean)
   return (
-    <ListRow className="min-h-14 border-b-0">
+    <ListRow desc>
       <FileText className="text-muted-foreground size-4 shrink-0" />
       <div className="flex min-w-0 flex-1 flex-col">
         <button
