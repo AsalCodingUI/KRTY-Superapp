@@ -1,5 +1,6 @@
 "use client"
 
+import { useRealtimeRefresh } from "@/shared/hooks/useRealtimeRefresh"
 import { useT } from "@/shared/i18n/client"
 import { registerUndo, rowsUndo } from "@/shared/undo"
 import { useQueries, useQuery, useQueryClient } from "@tanstack/react-query"
@@ -45,6 +46,18 @@ type Assignment = {
 }
 
 export function useMyTasks(viewerId: string | null) {
+  // Live: tasks handed to you (or changed by others) show up as they happen.
+  useRealtimeRefresh(
+    `my-tasks:${viewerId}`,
+    [
+      {
+        table: "project_tasks",
+        filter: `assignee_id=eq.${viewerId}`,
+        keys: () => [myTasksKey(viewerId)],
+      },
+    ],
+    Boolean(viewerId),
+  )
   return useQuery({
     queryKey: myTasksKey(viewerId),
     enabled: Boolean(viewerId),

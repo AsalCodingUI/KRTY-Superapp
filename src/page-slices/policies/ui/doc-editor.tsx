@@ -58,7 +58,7 @@ export const DOC_PROSE = cn(
   "[&_h3]:text-heading [&_h3]:mt-6 [&_h3]:mb-2 [&_h3]:text-sm [&_h3]:font-medium",
   "[&_p]:my-3.5 [&_strong]:text-foreground [&_strong]:font-medium",
   "[&_ul]:my-3 [&_ul]:list-disc [&_ul]:space-y-1.5 [&_ul]:pl-5 [&_ol]:my-3 [&_ol]:list-decimal [&_ol]:space-y-1.5 [&_ol]:pl-5 [&_li]:pl-1 [&_li_p]:my-0 [&_li::marker]:text-muted-foreground",
-  "[&_a]:text-primary [&_a]:underline [&_a]:underline-offset-3",
+  "[&_a]:text-primary [&_a]:cursor-pointer [&_a]:underline [&_a]:decoration-dotted [&_a]:underline-offset-[0.25em]",
   "[&_blockquote]:border-border [&_blockquote]:my-4 [&_blockquote]:rounded-lg [&_blockquote]:border [&_blockquote]:border-l-[3px] [&_blockquote]:px-4 [&_blockquote]:py-1",
   "[&_hr]:border-border [&_hr]:my-6",
   "[&_code]:bg-muted [&_code]:rounded [&_code]:px-1 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-[0.85em]",
@@ -586,6 +586,18 @@ export function MarkdownDocEditor({
       attributes: {
         class: compact ? cn(DOC_PROSE, COMPACT_PROSE) : DOC_PROSE,
         "aria-label": ariaLabel,
+      },
+      // A link opens (new tab) on a plain click; with ⌘ / Ctrl held the
+      // click just puts the cursor in it, to edit the text or the link.
+      handleClick: (_view, _pos, event) => {
+        const link = (event.target as HTMLElement | null)?.closest("a[href]")
+        if (!link || link.closest("[data-embed]")) return false
+        if (event.metaKey || event.ctrlKey) return false
+        const href = link.getAttribute("href")
+        if (!href) return false
+        event.preventDefault()
+        window.open(href, "_blank", "noopener,noreferrer")
+        return true
       },
       // Pasted or dropped pictures and files upload and go in where they land.
       handlePaste: uploads.handlePaste,

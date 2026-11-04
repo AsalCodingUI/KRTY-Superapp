@@ -1,6 +1,7 @@
 "use client"
 
 import dynamic from "next/dynamic"
+import { useProjectRealtime } from "./useProjectRealtime"
 import { Skeleton } from "@/components/ui/skeleton"
 
 /** Content-area placeholder while a section's chunk loads (matches loading.tsx). */
@@ -63,6 +64,7 @@ export function ProjectWorkspacePage({
   section: ProjectSection
 }) {
   const Page = PAGES[section]
+  useProjectRealtime(projectId)
   // Settles in when you open a project or switch its section (same motion
   // as tab switches elsewhere).
   return (

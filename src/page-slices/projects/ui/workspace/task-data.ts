@@ -1,5 +1,6 @@
 "use client"
 
+import { useRealtimeRefresh } from "@/shared/hooks/useRealtimeRefresh"
 import { useT } from "@/shared/i18n/client"
 import type { Database } from "@/shared/types/database.types"
 import { pick, registerUndo, rowsUndo, UndoStale } from "@/shared/undo"
@@ -428,6 +429,18 @@ export type CommentAuthor = {
 
 /** One task's thread, oldest first, with each author's name and avatar. */
 export function useTaskComments(taskId: string | null) {
+  // Live: a teammate's comment shows up in the open thread.
+  useRealtimeRefresh(
+    `task-comments:${taskId}`,
+    [
+      {
+        table: "project_task_comments",
+        filter: `task_id=eq.${taskId}`,
+        keys: () => [commentKeys.thread(taskId ?? "")],
+      },
+    ],
+    Boolean(taskId),
+  )
   return useQuery({
     queryKey: commentKeys.thread(taskId ?? ""),
     enabled: Boolean(taskId),

@@ -1,5 +1,6 @@
 "use client"
 
+import { useRealtimeRefresh } from "@/shared/hooks/useRealtimeRefresh"
 import { createClient } from "@/shared/api/supabase/client"
 import { dedupeProfilesByEmail } from "@/shared/lib/profile-dedupe"
 import {
@@ -130,6 +131,16 @@ async function fetchSantuy(): Promise<SantuyData> {
 }
 
 export function useSantuy(enabled = true) {
+  // Live: a swap or a new presenter shows up for everyone at once.
+  useRealtimeRefresh(
+    "santuy",
+    [
+      { table: "santuy_weeks", keys: () => [santuyKey] },
+      { table: "santuy_members", keys: () => [santuyKey] },
+      { table: "santuy_settings", keys: () => [santuyKey] },
+    ],
+    enabled,
+  )
   return useQuery({
     queryKey: santuyKey,
     queryFn: fetchSantuy,

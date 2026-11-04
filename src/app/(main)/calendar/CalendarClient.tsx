@@ -1,5 +1,6 @@
 "use client"
 
+import { useRealtimeRefresh } from "@/shared/hooks/useRealtimeRefresh"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { ProjectTaskDialog } from "@/page-slices/projects/ui/workspace/ProjectTaskDialog"
 import {
@@ -497,6 +498,12 @@ function CalendarDataLayer({ scope, level, userId }: CalendarClientProps) {
   const rangeEndDate = format(range.end, "yyyy-MM-dd")
   const onTimeline = viewMode === "timeline"
   const eventsKey = ["calendar-events", scope, rangeStartIso, rangeEndIso]
+  // Live: events, leave and 1:1 slots others add show up here.
+  useRealtimeRefresh("calendar", [
+    { table: "calendar_events", keys: () => [["calendar-events"]] },
+    { table: "leave_requests", keys: () => [["calendar-leave"]] },
+    { table: "one_on_one_slots", keys: () => [["calendar-1on1"]] },
+  ])
 
   const { data: rawEvents = [], isLoading } = useQuery<CalendarEvent[]>({
     queryKey: eventsKey,

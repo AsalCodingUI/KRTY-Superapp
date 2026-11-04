@@ -1,5 +1,6 @@
 "use client"
 
+import { useRealtimeRefresh } from "@/shared/hooks/useRealtimeRefresh"
 import {
   removeBrief,
   setBriefProject,
@@ -43,7 +44,12 @@ import {
 import Link from "next/link"
 import { useRef, useState } from "react"
 import { toast } from "sonner"
-import { patchBrief, useBrief, useRefreshBriefs } from "../model/data"
+import {
+  BRIEFS_KEY,
+  patchBrief,
+  useBrief,
+  useRefreshBriefs,
+} from "../model/data"
 import { BriefBuilder } from "./BriefBuilder"
 import {
   BriefAnswersView,
@@ -74,6 +80,15 @@ export function BriefDialog({
   const tc = useT("common")
   const dateLocale = useDateLocale()
   const refresh = useRefreshBriefs()
+  // Live: answers and uploads appear while the client is still filling it.
+  useRealtimeRefresh(`brief:${briefId}`, [
+    { table: "briefs", filter: `id=eq.${briefId}`, keys: () => [BRIEFS_KEY] },
+    {
+      table: "brief_files",
+      filter: `brief_id=eq.${briefId}`,
+      keys: () => [BRIEFS_KEY],
+    },
+  ])
   // Focus lands on the dialog itself, not the first link in the header.
   const popupRef = useRef<HTMLDivElement>(null)
   const { data: brief, isPending } = useBrief(briefId)

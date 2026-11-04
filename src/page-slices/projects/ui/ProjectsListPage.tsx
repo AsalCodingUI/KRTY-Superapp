@@ -1,5 +1,7 @@
 "use client"
 
+import { useRealtimeRefresh } from "@/shared/hooks/useRealtimeRefresh"
+import { BRIEFS_KEY } from "@/page-slices/briefs/model/data"
 import { projectHref } from "@/shared/lib/url-params"
 import { STATUS_LABEL_KEYS } from "@/page-slices/projects/lib/status"
 import { EmptyValue } from "@/components/empty-value"
@@ -189,6 +191,12 @@ export function ProjectsListPage() {
   }
 
   const listKey = [...QUERY_KEY, isAdmin ? "all" : profile?.id]
+  // Live: projects (and teams) others add or change show up here.
+  useRealtimeRefresh("projects-list", [
+    { table: "projects", keys: () => [["projects"]] },
+    { table: "project_assignments", keys: () => [["projects"]] },
+    { table: "briefs", keys: () => [BRIEFS_KEY] },
+  ])
   /** Writes a group's order (positions 1024, 2048…) and shows it at once. */
   const saveOrder = async (ids: string[]) => {
     const positionOf = new Map(ids.map((id, i) => [id, (i + 1) * 1024]))

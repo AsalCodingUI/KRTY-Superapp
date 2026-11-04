@@ -1,5 +1,6 @@
 "use client"
 
+import { useRealtimeRefresh } from "@/shared/hooks/useRealtimeRefresh"
 import { EmptyState } from "@/components/empty-state"
 import { GroupedList, ListGroup, ListRow } from "@/components/grouped-list"
 import { Input } from "@/components/ui/input"
@@ -14,7 +15,7 @@ import { FileText } from "lucide-react"
 import dynamic from "next/dynamic"
 import { usePathname, useSearchParams } from "next/navigation"
 import { useState } from "react"
-import { useBriefs, type BriefListRow } from "../model/data"
+import { BRIEFS_KEY, useBriefs, type BriefListRow } from "../model/data"
 import { BriefStatusDot, SetChips, STATUS_LABEL_KEYS } from "./shared"
 
 const BriefDialog = dynamic(
@@ -55,6 +56,14 @@ export function BriefsView({
   const pathname = usePathname()
   const params = useSearchParams()
   const { data: briefs = [], isPending } = useBriefs(projectId)
+  // Live: a client's answers and status land as they fill it in.
+  useRealtimeRefresh(`briefs:${projectId ?? "all"}`, [
+    {
+      table: "briefs",
+      ...(projectId ? { filter: `project_id=eq.${projectId}` } : {}),
+      keys: () => [BRIEFS_KEY],
+    },
+  ])
   const [ownQuery, setQuery] = useState("")
   const query = outerQuery ?? ownQuery
   const openId = params.get("brief")

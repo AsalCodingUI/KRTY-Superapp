@@ -644,7 +644,7 @@ function CommentBody({
     .map((id) => people[id]?.full_name)
     .filter((n): n is string => Boolean(n))
     .sort((a, b) => b.length - a.length)
-  if (!names.length) return <>{body}</>
+  if (!names.length) return <Linkified text={body} />
   const pattern = new RegExp(`(@(?:${names.map(escapeRegExp).join("|")}))`)
   return (
     <>
@@ -656,6 +656,33 @@ function CommentBody({
           >
             {part}
           </span>
+        ) : (
+          <Linkified key={i} text={part} />
+        ),
+      )}
+    </>
+  )
+}
+
+const URL_PATTERN = /(https?:\/\/[^\s<>"']+[^\s<>"'.,;:!?)\]])/
+
+/** Links in a comment, clickable (a new tab). */
+function Linkified({ text }: { text: string }) {
+  const parts = text.split(URL_PATTERN)
+  if (parts.length === 1) return <>{text}</>
+  return (
+    <>
+      {parts.map((part, i) =>
+        i % 2 === 1 ? (
+          <a
+            key={i}
+            href={part}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary break-all underline"
+          >
+            {part}
+          </a>
         ) : (
           part
         ),
