@@ -45,6 +45,7 @@ fn app_link(path_and_query: &str) -> url::Url {
 const APP: &str = "app";
 const POPOVER: &str = "popover";
 /// Same as the popover's rounded-3xl.
+#[cfg(target_os = "macos")]
 const RADIUS: f64 = 24.0;
 /// The popover panel (420×560) sits in a slightly larger window, with room
 /// for its shadow: 20pt at the sides and bottom, 6pt on top.
