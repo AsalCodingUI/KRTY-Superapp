@@ -57,6 +57,11 @@ const TABS: { key: string; label: string; Tab: ComponentType }[] = [
     label: "Icons",
     Tab: tab(() => import("./IconsTab").then((m) => m.IconsTab)),
   },
+  {
+    key: "optical",
+    label: "Optical",
+    Tab: tab(() => import("./OpticalTab").then((m) => m.OpticalTab)),
+  },
   // Components.
   {
     key: "button",
