@@ -12,7 +12,7 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
 import type { BriefAnswers, BriefQuestion } from "@/shared/lib/briefs/types"
-import { AtSign, Hash, Link2, Phone, Star } from "lucide-react"
+import { AtSign, Hash, Link2, Phone, Star } from "@/components/icons"
 import { ChoiceButton, glassFieldClass } from "./brief-ui"
 
 /** The form's fields are a size up (easier to read and tap). */

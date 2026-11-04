@@ -1,7 +1,7 @@
 "use client"
 
 import type { ReactNode } from "react"
-import { EllipsisIcon } from "lucide-react"
+import { EllipsisIcon } from "@/components/icons"
 
 import { Button } from "@/components/ui/button"
 import {

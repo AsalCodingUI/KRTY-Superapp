@@ -34,7 +34,7 @@ import {
   Pencil,
   Settings2,
   Trash2,
-} from "lucide-react"
+} from "@/components/icons"
 import { AnimatePresence, m, useReducedMotion } from "motion/react"
 import { useEffect, useRef, useState } from "react"
 import type { PhaseRow } from "./data"

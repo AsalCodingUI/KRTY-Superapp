@@ -32,7 +32,7 @@ import {
   TextCursorInput,
   Undo2,
   VolumeX,
-} from "lucide-react"
+} from "@/components/icons"
 import { runUndo, undoManager } from "@/shared/undo/store"
 import {
   clearField,

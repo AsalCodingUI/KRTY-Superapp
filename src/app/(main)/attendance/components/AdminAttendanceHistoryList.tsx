@@ -35,7 +35,7 @@ import * as React from "react"
 import { ContextTarget } from "@/shared/context-menu"
 import { useCopyWithToast } from "@/page-slices/leave/ui/components/leave-context-menu"
 import { employeeHref } from "@/shared/lib/url-params"
-import { Clock, Pencil, SearchCheck, SquareStop, UserRound } from "lucide-react"
+import { Clock, Pencil, SearchCheck, SquareStop, UserRound } from "@/components/icons"
 import { useRouter } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
 

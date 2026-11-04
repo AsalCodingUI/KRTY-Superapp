@@ -35,7 +35,7 @@ import {
   Sparkles,
   Trash2,
   WandSparkles,
-} from "lucide-react"
+} from "@/components/icons"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"

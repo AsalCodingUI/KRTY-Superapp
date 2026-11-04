@@ -16,7 +16,7 @@ import {
   Quote,
   Table,
   type LucideIcon,
-} from "lucide-react"
+} from "@/components/icons"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { createPortal } from "react-dom"
 import { useT } from "@/shared/i18n/client"

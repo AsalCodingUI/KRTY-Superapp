@@ -8,7 +8,7 @@ import {
 } from "@/page-slices/projects/lib/report-templates"
 import { useLocale, useT } from "@/shared/i18n/client"
 import { useEditorState, type Editor } from "@tiptap/react"
-import { CalendarDays, CalendarRange, FileText } from "lucide-react"
+import { CalendarDays, CalendarRange, FileText } from "@/components/icons"
 import { useState } from "react"
 
 /**

@@ -30,7 +30,7 @@ import { useDateLocale, useT } from "@/shared/i18n/client"
 import * as React from "react"
 import { ContextTarget } from "@/shared/context-menu"
 import { useCopyWithToast } from "@/page-slices/leave/ui/components/leave-context-menu"
-import { Clock, Trash2 } from "lucide-react"
+import { Clock, Trash2 } from "@/components/icons"
 import { useEffect, useMemo, useState } from "react"
 
 type AttendanceLog = Database["public"]["Tables"]["attendance_logs"]["Row"]

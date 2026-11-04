@@ -17,7 +17,7 @@ import {
   InboxCount,
 } from "@/page-slices/leave/ui/components/ApprovalInbox"
 import { useRouter } from "next/navigation"
-import { ClipboardCheck, Copy, UserRound } from "lucide-react"
+import { ClipboardCheck, Copy, UserRound } from "@/components/icons"
 import { ContextTarget } from "@/shared/context-menu"
 import { employeeHref } from "@/shared/lib/url-params"
 import {

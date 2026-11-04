@@ -51,7 +51,7 @@ import {
   TriangleAlert,
   Video,
   WifiOff,
-} from "lucide-react"
+} from "@/components/icons"
 import {
   createContext,
   useContext,
@@ -64,7 +64,7 @@ import { toast } from "sonner"
 import { getPreviewNotifications } from "@/app/(fullscreen)/menubar/actions"
 import { ContextTarget } from "@/shared/context-menu"
 import { useCopyWithToast } from "@/page-slices/leave/ui/components/leave-context-menu"
-import { CalendarRange, MailOpen } from "lucide-react"
+import { CalendarRange, MailOpen } from "@/components/icons"
 
 /**
  * The macOS menu bar popover (Kretya Flow, the desktop app: a Tauri shell around

@@ -34,7 +34,7 @@ import {
   Redo2,
   Strikethrough,
   Undo2,
-} from "lucide-react"
+} from "@/components/icons"
 import { useState } from "react"
 import { useT } from "@/shared/i18n/client"
 import { BLOCK_ITEMS } from "./slash-command"

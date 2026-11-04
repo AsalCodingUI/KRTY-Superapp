@@ -41,7 +41,7 @@ import {
   RiUploadLine,
 } from "@/shared/ui/lucide-icons"
 import { ContextTarget, copyText, type CtxItem } from "@/shared/context-menu"
-import { Copy, Download, Eye, Filter, Pencil, Trash2 } from "lucide-react"
+import { Copy, Download, Eye, Filter, Pencil, Trash2 } from "@/components/icons"
 import { useQueryClient } from "@tanstack/react-query"
 import { AnimatePresence } from "motion/react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"

@@ -19,7 +19,7 @@ import ReactMarkdown, {
   type Components,
   type ExtraProps,
 } from "react-markdown"
-import { ChevronRight } from "lucide-react"
+import { ChevronRight } from "@/components/icons"
 import { Children, useRef } from "react"
 
 type Element = NonNullable<ExtraProps["node"]>

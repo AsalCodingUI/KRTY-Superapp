@@ -23,7 +23,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { PanelLeftIcon } from "lucide-react"
+import { PanelLeftIcon } from "@/components/icons"
 import { useT } from "@/shared/i18n/client"
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state"

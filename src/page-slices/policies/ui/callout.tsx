@@ -25,7 +25,7 @@ import {
   type JSONContent,
   type NodeViewProps,
 } from "@tiptap/react"
-import { Check, MessageSquareWarning } from "lucide-react"
+import { Check, MessageSquareWarning } from "@/components/icons"
 import type { BlockItem } from "./slash-command"
 
 /*

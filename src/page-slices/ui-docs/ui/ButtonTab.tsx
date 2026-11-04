@@ -24,7 +24,7 @@ import {
   RiMoreFill,
   RiPencilLine,
 } from "@/shared/ui/lucide-icons"
-import { ChevronDown, Upload } from "lucide-react"
+import { ChevronDown, Upload } from "@/components/icons"
 import Link from "next/link"
 import { useState, type ReactNode } from "react"
 import {

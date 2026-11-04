@@ -41,7 +41,7 @@ import {
   Link as LinkIcon,
   Pencil,
   Trash2,
-} from "lucide-react"
+} from "@/components/icons"
 import { ContextTarget, copyText, type CtxItem } from "@/shared/context-menu"
 import { useState } from "react"
 import { toast } from "sonner"

@@ -15,7 +15,7 @@ import {
 import { RiSearchLine } from "@/shared/ui/lucide-icons"
 import { ContextTarget, copyText, type CtxItem } from "@/shared/context-menu"
 import { employeeHref } from "@/shared/lib/url-params"
-import { BarChart3, Copy, Mail } from "lucide-react"
+import { BarChart3, Copy, Mail } from "@/components/icons"
 import { useMemo, useState } from "react"
 import { toast } from "sonner"
 import { MembersAccessSettings } from "@/page-slices/settings/ui"

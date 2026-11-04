@@ -10,7 +10,7 @@ import { format } from "date-fns"
 import dynamic from "next/dynamic"
 import { useMemo, useState } from "react"
 import { ContextTarget, download, type CtxItem } from "@/shared/context-menu"
-import { Download, Eye } from "lucide-react"
+import { Download, Eye } from "@/components/icons"
 import { formatBytes } from "../workspace/data"
 import { FilePreview } from "../workspace/FilePreview"
 import {

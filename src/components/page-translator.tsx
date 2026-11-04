@@ -19,7 +19,7 @@ import {
   TRANSLATE_LANGUAGES_FROM_EN,
   type TranslateLanguage,
 } from "@/shared/lib/translate"
-import { Languages } from "lucide-react"
+import { Languages } from "@/components/icons"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 

@@ -3,7 +3,7 @@
 import * as React from "react"
 import dynamic from "next/dynamic"
 import { format, type Locale } from "date-fns"
-import { MinusIcon } from "lucide-react"
+import { MinusIcon } from "@/components/icons"
 import { CalendarDays as CalendarIcon } from "@/components/icons"
 import type { Matcher } from "react-day-picker"
 

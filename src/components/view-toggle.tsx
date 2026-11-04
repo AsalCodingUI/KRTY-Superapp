@@ -4,7 +4,7 @@ import { SlidingIndicator } from "@/components/sliding-indicator"
 import { cn } from "@/lib/utils"
 import { useT } from "@/shared/i18n/client"
 import { LayoutGrid } from "@/components/icons"
-import { Columns3, ListIcon, Table2 } from "lucide-react"
+import { Columns3, ListIcon, Table2 } from "@/components/icons"
 import * as React from "react"
 
 export type ViewMode = "grid" | "list" | "table" | "kanban"

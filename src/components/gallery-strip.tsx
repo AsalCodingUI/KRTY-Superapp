@@ -9,7 +9,7 @@ import {
   ImagePlus,
   Maximize2,
   X,
-} from "lucide-react"
+} from "@/components/icons"
 import { useCallback, useEffect, useRef, useState } from "react"
 
 /** A picture in a gallery; `w`/`h` (when known) reserve its space. */

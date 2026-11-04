@@ -2,7 +2,7 @@
 
 import { cn } from "cn"
 import { useT } from "@/shared/i18n/client"
-import { Loader2Icon } from "lucide-react"
+import { Loader2Icon } from "@/components/icons"
 
 function Spinner({ className, ...props }: React.ComponentProps<"svg">) {
   const t = useT("common")

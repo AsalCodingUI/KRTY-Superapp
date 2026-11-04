@@ -35,7 +35,7 @@ import * as React from "react"
 import { useState } from "react"
 import { useClockActions } from "../model/useClockActions"
 import { useContextTarget, type CtxItem } from "@/shared/context-menu"
-import { Coffee, LogIn, LogOut, TimerReset } from "lucide-react"
+import { Coffee, LogIn, LogOut, TimerReset } from "@/components/icons"
 
 type AttendanceLog = Database["public"]["Tables"]["attendance_logs"]["Row"]
 

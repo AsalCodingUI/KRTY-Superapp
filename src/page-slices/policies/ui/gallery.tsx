@@ -10,7 +10,7 @@ import {
   type NodeViewProps,
 } from "@tiptap/react"
 import { useT } from "@/shared/i18n/client"
-import { GalleryHorizontal } from "lucide-react"
+import { GalleryHorizontal } from "@/components/icons"
 import { useRef, useState } from "react"
 import { toast } from "sonner"
 import type { BlockItem } from "./slash-command"

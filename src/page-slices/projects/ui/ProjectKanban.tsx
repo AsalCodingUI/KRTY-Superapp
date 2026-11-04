@@ -13,7 +13,7 @@ import {
 } from "@dnd-kit/core"
 import { useDateLocale, useT } from "@/shared/i18n/client"
 import { format, isBefore, parseISO, startOfDay } from "date-fns"
-import { GripHorizontal, TriangleAlert } from "lucide-react"
+import { GripHorizontal, TriangleAlert } from "@/components/icons"
 import Link from "next/link"
 import { memo, useEffect, useMemo, useRef, useState } from "react"
 import {

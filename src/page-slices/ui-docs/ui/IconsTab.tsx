@@ -57,6 +57,7 @@ import {
   FolderFilled,
   MessageFilled,
 } from "@/widgets/notifications/ui/notification-icons"
+import * as AppIcons from "@/components/icons"
 import type { ComponentType, ReactNode } from "react"
 import {
   DocCanvas,
@@ -71,7 +72,7 @@ import {
 const RULES: [string, string][] = [
   [
     "Sumber",
-    "@/components/icons (lucide-animated, nama lucide). Nggak ada? lucide-react. Ri* = alias lama, jangan nambah",
+    "@/components/icons: Reicon (reicon.dev), nama tetap gaya lucide. Jangan import reicon-react / lucide-react langsung. Ri* = alias lama, jangan nambah",
   ],
   [
     "Satu arti satu ikon",
@@ -91,12 +92,16 @@ const RULES: [string, string][] = [
     "Ikut currentColor; pelan: text-muted-foreground; status: token semantik",
   ],
   [
+    "Outline / Filled",
+    'Outline default. weight="Filled" buat state aktif / terpilih (nav aktif, bintang nyala, notifikasi). Ri*Fill = Filled',
+  ],
+  [
     "Stroke",
-    "2 (default lucide). Glyph sendiri: 16px, stroke 1.5, aria-hidden",
+    "Bawaan Reicon (1.5). strokeWidth diabaikan: stroke custom bikin tiap ikon render mask, berat",
   ],
   [
     "Animasi",
-    "Main saat parent interaktif di-hover / fokus keyboard. Root layout pakai yang statis",
+    "Ikon statis (lebih ringan). Gerak cukup dari tombol / komponennya",
   ],
   ["Tulisan", "size-*, bukan h-4 w-4"],
 ]
@@ -171,6 +176,13 @@ export function IconsTab() {
 
       <DocGroup title="Aturan">
         <DocRules rules={RULES} />
+      </DocGroup>
+
+      <DocGroup
+        title="Semua ikon app"
+        note="Tiap nama yang dipakai app, Outline lalu Filled. Yang ditandai lucide belum ada di Reicon."
+      >
+        <AllIcons />
       </DocGroup>
 
       <DocGroup title="Ukuran">
@@ -417,6 +429,63 @@ function GlyphRow({ items }: { items: [string, ReactNode][] }) {
             {label}
           </code>
         </span>
+      ))}
+    </div>
+  )
+}
+
+/** Not Reicon yet (lucide glyphs), see components/icons/index.tsx. */
+const LUCIDE_ONLY = new Set([
+  "ChevronsDownUp",
+  "ChevronsUp",
+  "Circle",
+  "CircleDashed",
+  "Columns2",
+  "Columns3",
+  "CornerDownLeft",
+  "CornerDownRight",
+  "CornerLeftUp",
+  "Github",
+  "GripHorizontal",
+  "GripVertical",
+  "Heading",
+  "Heading1",
+  "Heading2",
+  "Heading3",
+  "Pilcrow",
+  "Rows2",
+  "SeparatorHorizontal",
+  "Split",
+  "Square",
+  "Strikethrough",
+  "Table",
+  "Table2",
+  "Twitter",
+])
+
+function AllIcons() {
+  const icons = Object.entries(AppIcons).filter(
+    (e): e is [string, AppIcons.Icon] =>
+      /^[A-Z]/.test(e[0]) && typeof e[1] === "object",
+  )
+  return (
+    <div className="grid grid-cols-[repeat(auto-fill,minmax(9.5rem,1fr))] gap-2">
+      {icons.map(([name, Icon]) => (
+        <div
+          key={name}
+          className="bg-muted dark:bg-muted/40 flex flex-col gap-2 rounded-lg p-3"
+        >
+          <div className="flex items-center gap-3">
+            <Icon className="size-5" weight="Outline" />
+            <Icon className="size-5" weight="Filled" />
+          </div>
+          <code className="truncate font-mono text-[11px]" title={name}>
+            {name}
+          </code>
+          {LUCIDE_ONLY.has(name) && (
+            <span className="text-tertiary-foreground text-[11px]">lucide</span>
+          )}
+        </div>
       ))}
     </div>
   )

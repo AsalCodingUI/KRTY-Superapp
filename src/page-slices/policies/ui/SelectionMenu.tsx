@@ -17,7 +17,7 @@ import {
   Quote,
   Sparkles,
   Strikethrough,
-} from "lucide-react"
+} from "@/components/icons"
 import { useCallback, useState } from "react"
 import { useT } from "@/shared/i18n/client"
 import { AiSelectionPanel } from "./ai-assist"

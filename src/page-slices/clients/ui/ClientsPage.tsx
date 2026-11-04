@@ -35,7 +35,7 @@ import {
   Pencil,
   Phone,
   Trash2,
-} from "lucide-react"
+} from "@/components/icons"
 import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { useViewMode, ViewToggle } from "@/components/view-toggle"

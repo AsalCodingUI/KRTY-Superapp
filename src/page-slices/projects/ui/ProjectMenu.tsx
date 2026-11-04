@@ -25,7 +25,7 @@ import {
   type CtxItem,
 } from "@/shared/context-menu"
 import { projectHref } from "@/shared/lib/url-params"
-import { CircleDashed, Copy, Pencil } from "lucide-react"
+import { CircleDashed, Copy, Pencil } from "@/components/icons"
 import { cloneElement } from "react"
 import type * as React from "react"
 import {

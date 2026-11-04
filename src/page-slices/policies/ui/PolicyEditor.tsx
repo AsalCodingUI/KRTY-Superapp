@@ -35,7 +35,7 @@ import { EditorContent, useEditor, type Editor } from "@tiptap/react"
 import { useQueryClient } from "@tanstack/react-query"
 import { useDateLocale, useT } from "@/shared/i18n/client"
 import { format } from "date-fns"
-import { Cloud, CloudOff } from "lucide-react"
+import { Cloud, CloudOff } from "@/components/icons"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import {

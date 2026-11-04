@@ -84,7 +84,7 @@ import {
   Split,
   TextCursorInput,
   X,
-} from "lucide-react"
+} from "@/components/icons"
 import {
   Fragment,
   useEffect,

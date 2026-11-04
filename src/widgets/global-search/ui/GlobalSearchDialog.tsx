@@ -34,7 +34,7 @@ import {
   RiTimeLine,
   type RemixiconComponentType,
 } from "@/shared/ui/lucide-icons"
-import { CornerDownLeft } from "lucide-react"
+import { CornerDownLeft } from "@/components/icons"
 import { useRouter } from "next/navigation"
 import { useCallback, useMemo, useRef, useState } from "react"
 import {

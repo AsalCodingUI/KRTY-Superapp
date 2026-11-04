@@ -1,188 +1,154 @@
 import * as A from "@/components/icons"
-import * as React from "react"
-import type { LucideIcon, LucideProps } from "lucide-react"
-import {
-  BadgeCheck,
-  List,
-  ListOrdered,
-  Megaphone,
-  NotebookPen,
-  Pin,
-  ChevronsLeft,
-  ChevronsRight,
-  Circle,
-  CircleX,
-  Flower,
-  Minus,
-  Star,
-  StopCircle,
-  Video,
-  XCircle,
-} from "lucide-react"
+import { filled, type Icon } from "@/components/icons"
 
-const defaultIconProps: Partial<LucideProps> = {
-  size: 24,
-  strokeWidth: 2,
-}
+/**
+ * Legacy Remix-style names (Ri*Line / Ri*Fill), kept so older code keeps
+ * working: each is one of the app's icons (@/components/icons, Reicon);
+ * `*Fill` names are the filled set. New code imports from
+ * @/components/icons instead (docs/ui/icons.md).
+ */
+export type RemixiconComponentType = Icon
 
-export type RemixiconComponentType = React.ForwardRefExoticComponent<
-  LucideProps & React.RefAttributes<SVGSVGElement>
->
-
-const withDefaults = (Icon: LucideIcon): RemixiconComponentType => {
-  const Wrapped = React.forwardRef<SVGSVGElement, LucideProps>((props, ref) => (
-    <Icon ref={ref} {...defaultIconProps} {...props} />
-  ))
-  Wrapped.displayName = Icon.displayName ?? Icon.name ?? "LucideIcon"
-  return Wrapped
-}
-
-export const RiAddLine = A.Plus as unknown as RemixiconComponentType
-export const RiAlarmWarningLine =
-  A.TriangleAlert as unknown as RemixiconComponentType
-export const RiAlertFill = A.CircleAlert as unknown as RemixiconComponentType
-export const RiAlignCenter = A.AlignCenter as unknown as RemixiconComponentType
-export const RiAlignLeft = A.AlignLeft as unknown as RemixiconComponentType
-export const RiAlignRight = A.AlignRight as unknown as RemixiconComponentType
-export const RiArchiveLine = A.Archive as unknown as RemixiconComponentType
-export const RiArrowDownLine = A.ArrowDown as unknown as RemixiconComponentType
-export const RiArrowDownSLine =
-  A.ChevronDown as unknown as RemixiconComponentType
-export const RiArrowLeftDoubleLine = /*#__PURE__*/ withDefaults(ChevronsLeft)
-export const RiArrowLeftLine = A.ArrowLeft as unknown as RemixiconComponentType
-export const RiArrowLeftSLine =
-  A.ChevronLeft as unknown as RemixiconComponentType
-export const RiArrowRightDoubleLine = /*#__PURE__*/ withDefaults(ChevronsRight)
-export const RiArrowRightLine =
-  A.ArrowRight as unknown as RemixiconComponentType
-export const RiArrowRightSLine =
-  A.ChevronRight as unknown as RemixiconComponentType
-export const RiArrowUpLine = A.ArrowUp as unknown as RemixiconComponentType
-export const RiArrowUpSLine = A.ChevronUp as unknown as RemixiconComponentType
-export const RiBarChartBoxLine =
-  A.ChartColumnIncreasing as unknown as RemixiconComponentType
-export const RiBold = A.Bold as unknown as RemixiconComponentType
-export const RiBriefcaseLine =
-  A.BriefcaseBusiness as unknown as RemixiconComponentType
-export const RiCalculatorLine =
-  A.Calculator as unknown as RemixiconComponentType
-export const RiCalendar2Fill =
-  A.CalendarDays as unknown as RemixiconComponentType
-export const RiCalendar2Line =
-  A.CalendarDays as unknown as RemixiconComponentType
-export const RiCalendarCheckLine =
-  A.CalendarCheck as unknown as RemixiconComponentType
-export const RiCalendarEventLine =
-  A.CalendarClock as unknown as RemixiconComponentType
-export const RiCalendarLine =
-  A.CalendarDays as unknown as RemixiconComponentType
-export const RiCalendarScheduleLine =
-  A.CalendarClock as unknown as RemixiconComponentType
-export const RiCheckboxBlankCircleLine = /*#__PURE__*/ withDefaults(Circle)
-export const RiStickyNoteLine = /*#__PURE__*/ withDefaults(NotebookPen)
-export const RiPushpinLine = /*#__PURE__*/ withDefaults(Pin)
-export const RiListUnordered = /*#__PURE__*/ withDefaults(List)
-export const RiListOrdered = /*#__PURE__*/ withDefaults(ListOrdered)
-export const RiMegaphoneLine = /*#__PURE__*/ withDefaults(Megaphone)
-export const RiCheckboxCircleFill =
-  A.CircleCheck as unknown as RemixiconComponentType
-export const RiCheckboxCircleLine =
-  A.CircleCheck as unknown as RemixiconComponentType
-export const RiCheckDoubleLine =
-  A.CheckCheck as unknown as RemixiconComponentType
-export const RiCheckLine = A.Check as unknown as RemixiconComponentType
-export const RiCloseCircleFill = /*#__PURE__*/ withDefaults(XCircle)
-export const RiCloseCircleLine = /*#__PURE__*/ withDefaults(CircleX)
-export const RiCloseLine = A.X as unknown as RemixiconComponentType
-export const RiComputerLine = A.Monitor as unknown as RemixiconComponentType
-export const RiCupLine = A.Coffee as unknown as RemixiconComponentType
-export const RiDeleteBin6Line = A.Delete as unknown as RemixiconComponentType
-export const RiDeleteBinLine = A.Delete as unknown as RemixiconComponentType
-export const RiDownloadLine = A.Download as unknown as RemixiconComponentType
-export const RiDraggable = A.GripVertical as unknown as RemixiconComponentType
-export const RiEdit2Line = A.SquarePen as unknown as RemixiconComponentType
-export const RiEditLine = A.SquarePen as unknown as RemixiconComponentType
-export const RiEqualizer2Line =
-  A.SlidersHorizontal as unknown as RemixiconComponentType
-export const RiErrorWarningLine =
-  A.CircleAlert as unknown as RemixiconComponentType
-export const RiExternalLinkLine =
-  A.ExternalLink as unknown as RemixiconComponentType
-export const RiEyeFill = A.Eye as unknown as RemixiconComponentType
-export const RiEyeLine = A.Eye as unknown as RemixiconComponentType
-export const RiEyeOffFill = A.EyeOff as unknown as RemixiconComponentType
-export const RiEyeOffLine = A.EyeOff as unknown as RemixiconComponentType
-export const RiFileCopyLine = A.Copy as unknown as RemixiconComponentType
-export const RiFileList3Line = A.ListChecks as unknown as RemixiconComponentType
-export const RiBookOpenLine = A.BookOpen as unknown as RemixiconComponentType
-export const RiBuildingLine = A.Building2 as unknown as RemixiconComponentType
-export const RiFlowLine = A.Workflow as unknown as RemixiconComponentType
-export const RiBankCardLine = A.CreditCard as unknown as RemixiconComponentType
-export const RiFilePaperLine = A.FileText as unknown as RemixiconComponentType
-export const RiFileTextLine = A.FileText as unknown as RemixiconComponentType
-export const RiFlowerFill = /*#__PURE__*/ withDefaults(Flower)
-export const RiFolder3Line = A.FolderOpen as unknown as RemixiconComponentType
-export const RiFolderLine = A.FolderOpen as unknown as RemixiconComponentType
-export const RiFundsBoxLine = A.Wallet as unknown as RemixiconComponentType
-export const RiGithubFill = A.Github as unknown as RemixiconComponentType
-export const RiGoogleFill = A.Chrome as unknown as RemixiconComponentType
-export const RiGroupLine = A.Users as unknown as RemixiconComponentType
-export const RiHammerLine = A.Hammer as unknown as RemixiconComponentType
-export const RiHeartFill = A.Heart as unknown as RemixiconComponentType
-export const RiHome2Line = A.Home as unknown as RemixiconComponentType
-export const RiInboxLine = A.Inbox as unknown as RemixiconComponentType
-export const RiInformationLine = A.Info as unknown as RemixiconComponentType
-export const RiItalic = A.Italic as unknown as RemixiconComponentType
-export const RiLayout2Line = A.Columns2 as unknown as RemixiconComponentType
-export const RiLayoutGridLine =
-  A.LayoutGrid as unknown as RemixiconComponentType
-export const RiLayoutRowLine = A.Rows2 as unknown as RemixiconComponentType
-export const RiLineChartLine = A.ChartLine as unknown as RemixiconComponentType
-export const RiListCheck2 = A.ListChecks as unknown as RemixiconComponentType
-export const RiLoader2Fill = A.LoaderCircle as unknown as RemixiconComponentType
-export const RiLoader2Line = A.LoaderCircle as unknown as RemixiconComponentType
-export const RiLoader4Line = A.Loader as unknown as RemixiconComponentType
-export const RiLoginBoxLine = A.LogIn as unknown as RemixiconComponentType
-export const RiLogoutBoxLine = A.Logout as unknown as RemixiconComponentType
-export const RiLockLine = A.Lock as unknown as RemixiconComponentType
-export const RiMailLine = A.Mail as unknown as RemixiconComponentType
-export const RiMailSendLine = A.Send as unknown as RemixiconComponentType
-export const RiMapPinLine = A.MapPin as unknown as RemixiconComponentType
-export const RiMenuLine = A.Menu as unknown as RemixiconComponentType
-export const RiMessage3Line =
-  A.MessageCircle as unknown as RemixiconComponentType
-export const RiWalletLine = A.Wallet as unknown as RemixiconComponentType
-export const RiMoneyDollarCircleLine =
-  A.CircleDollarSign as unknown as RemixiconComponentType
-export const RiMoonLine = A.Moon as unknown as RemixiconComponentType
-export const RiMore2Fill = A.MoreVertical as unknown as RemixiconComponentType
-export const RiMoreFill = A.MoreHorizontal as unknown as RemixiconComponentType
-export const RiNotification3Line = A.Bell as unknown as RemixiconComponentType
-export const RiPencilLine = A.SquarePen as unknown as RemixiconComponentType
-export const RiPrinterLine = A.Printer as unknown as RemixiconComponentType
-export const RiQuestionLine = A.CircleHelp as unknown as RemixiconComponentType
-export const RiRadioButtonFill = A.Radio as unknown as RemixiconComponentType
-export const RiRefreshLine = A.RefreshCW as unknown as RemixiconComponentType
-export const RiRocketLine = A.Rocket as unknown as RemixiconComponentType
-export const RiSave3Line = A.Save as unknown as RemixiconComponentType
-export const RiSaveLine = A.Save as unknown as RemixiconComponentType
-export const RiSearchLine = A.Search as unknown as RemixiconComponentType
-export const RiSettings3Line =
-  A.SlidersHorizontal as unknown as RemixiconComponentType
-export const RiSettings5Line = A.Settings as unknown as RemixiconComponentType
-export const RiStarFill = /*#__PURE__*/ withDefaults(Star)
-export const RiStarLine = /*#__PURE__*/ withDefaults(Star)
-export const RiStopCircleLine = /*#__PURE__*/ withDefaults(StopCircle)
-export const RiSubtractFill = /*#__PURE__*/ withDefaults(Minus)
-export const RiSunLine = A.Sun as unknown as RemixiconComponentType
-export const RiTeamLine = A.Users as unknown as RemixiconComponentType
-export const RiTimeLine = A.Clock as unknown as RemixiconComponentType
-export const RiTwitterFill = A.Twitter as unknown as RemixiconComponentType
-export const RiUnderline = A.Underline as unknown as RemixiconComponentType
-export const RiUploadLine = A.Upload as unknown as RemixiconComponentType
-export const RiUserAddLine = A.UserPlus as unknown as RemixiconComponentType
-export const RiUserLine = A.User as unknown as RemixiconComponentType
-export const RiUserSmileLine = A.Smile as unknown as RemixiconComponentType
-export const RiVerifiedBadgeFill = /*#__PURE__*/ withDefaults(BadgeCheck)
-export const RiVideoOnLine = /*#__PURE__*/ withDefaults(Video)
-export const RiWhatsappLine = A.Phone as unknown as RemixiconComponentType
+export const RiAddLine = A.Plus
+export const RiAlarmWarningLine = A.TriangleAlert
+export const RiAlertFill = /*#__PURE__*/ filled(A.CircleAlert, "RiAlertFill")
+export const RiAlignCenter = A.AlignCenter
+export const RiAlignLeft = A.AlignLeft
+export const RiAlignRight = A.AlignRight
+export const RiArchiveLine = A.Archive
+export const RiArrowDownLine = A.ArrowDown
+export const RiArrowDownSLine = A.ChevronDown
+export const RiArrowLeftDoubleLine = A.ChevronsLeft
+export const RiArrowLeftLine = A.ArrowLeft
+export const RiArrowLeftSLine = A.ChevronLeft
+export const RiArrowRightDoubleLine = A.ChevronsRight
+export const RiArrowRightLine = A.ArrowRight
+export const RiArrowRightSLine = A.ChevronRight
+export const RiArrowUpLine = A.ArrowUp
+export const RiArrowUpSLine = A.ChevronUp
+export const RiBarChartBoxLine = A.ChartColumnIncreasing
+export const RiBold = A.Bold
+export const RiBriefcaseLine = A.BriefcaseBusiness
+export const RiCalculatorLine = A.Calculator
+export const RiCalendar2Fill = /*#__PURE__*/ filled(
+  A.CalendarDays,
+  "RiCalendar2Fill",
+)
+export const RiCalendar2Line = A.CalendarDays
+export const RiCalendarCheckLine = A.CalendarCheck
+export const RiCalendarEventLine = A.CalendarClock
+export const RiCalendarLine = A.CalendarDays
+export const RiCalendarScheduleLine = A.CalendarClock
+export const RiCheckboxBlankCircleLine = A.Circle
+export const RiStickyNoteLine = A.NotebookPen
+export const RiPushpinLine = A.Pin
+export const RiListUnordered = A.List
+export const RiListOrdered = A.ListOrdered
+export const RiMegaphoneLine = A.Megaphone
+export const RiCheckboxCircleFill = /*#__PURE__*/ filled(
+  A.CircleCheck,
+  "RiCheckboxCircleFill",
+)
+export const RiCheckboxCircleLine = A.CircleCheck
+export const RiCheckDoubleLine = A.CheckCheck
+export const RiCheckLine = A.Check
+export const RiCloseCircleFill = /*#__PURE__*/ filled(
+  A.XCircle,
+  "RiCloseCircleFill",
+)
+export const RiCloseCircleLine = A.CircleX
+export const RiCloseLine = A.X
+export const RiComputerLine = A.Monitor
+export const RiCupLine = A.Coffee
+export const RiDeleteBin6Line = A.Delete
+export const RiDeleteBinLine = A.Delete
+export const RiDownloadLine = A.Download
+export const RiDraggable = A.GripVertical
+export const RiEdit2Line = A.SquarePen
+export const RiEditLine = A.SquarePen
+export const RiEqualizer2Line = A.SlidersHorizontal
+export const RiErrorWarningLine = A.CircleAlert
+export const RiExternalLinkLine = A.ExternalLink
+export const RiEyeFill = /*#__PURE__*/ filled(A.Eye, "RiEyeFill")
+export const RiEyeLine = A.Eye
+export const RiEyeOffFill = /*#__PURE__*/ filled(A.EyeOff, "RiEyeOffFill")
+export const RiEyeOffLine = A.EyeOff
+export const RiFileCopyLine = A.Copy
+export const RiFileList3Line = A.ListChecks
+export const RiBookOpenLine = A.BookOpen
+export const RiBuildingLine = A.Building2
+export const RiFlowLine = A.Workflow
+export const RiBankCardLine = A.CreditCard
+export const RiFilePaperLine = A.FileText
+export const RiFileTextLine = A.FileText
+export const RiFlowerFill = /*#__PURE__*/ filled(A.Flower, "RiFlowerFill")
+export const RiFolder3Line = A.FolderOpen
+export const RiFolderLine = A.FolderOpen
+export const RiFundsBoxLine = A.Wallet
+export const RiGithubFill = /*#__PURE__*/ filled(A.Github, "RiGithubFill")
+export const RiGoogleFill = /*#__PURE__*/ filled(A.Chrome, "RiGoogleFill")
+export const RiGroupLine = A.Users
+export const RiHammerLine = A.Hammer
+export const RiHeartFill = /*#__PURE__*/ filled(A.Heart, "RiHeartFill")
+export const RiHome2Line = A.Home
+export const RiInboxLine = A.Inbox
+export const RiInformationLine = A.Info
+export const RiItalic = A.Italic
+export const RiLayout2Line = A.Columns2
+export const RiLayoutGridLine = A.LayoutGrid
+export const RiLayoutRowLine = A.Rows2
+export const RiLineChartLine = A.ChartLine
+export const RiListCheck2 = A.ListChecks
+export const RiLoader2Fill = /*#__PURE__*/ filled(
+  A.LoaderCircle,
+  "RiLoader2Fill",
+)
+export const RiLoader2Line = A.LoaderCircle
+export const RiLoader4Line = A.Loader
+export const RiLoginBoxLine = A.LogIn
+export const RiLogoutBoxLine = A.Logout
+export const RiLockLine = A.Lock
+export const RiMailLine = A.Mail
+export const RiMailSendLine = A.Send
+export const RiMapPinLine = A.MapPin
+export const RiMenuLine = A.Menu
+export const RiMessage3Line = A.MessageCircle
+export const RiWalletLine = A.Wallet
+export const RiMoneyDollarCircleLine = A.CircleDollarSign
+export const RiMoonLine = A.Moon
+export const RiMore2Fill = /*#__PURE__*/ filled(A.MoreVertical, "RiMore2Fill")
+export const RiMoreFill = /*#__PURE__*/ filled(A.MoreHorizontal, "RiMoreFill")
+export const RiNotification3Line = A.Bell
+export const RiPencilLine = A.SquarePen
+export const RiPrinterLine = A.Printer
+export const RiQuestionLine = A.CircleHelp
+export const RiRadioButtonFill = /*#__PURE__*/ filled(
+  A.Radio,
+  "RiRadioButtonFill",
+)
+export const RiRefreshLine = A.RefreshCW
+export const RiRocketLine = A.Rocket
+export const RiSave3Line = A.Save
+export const RiSaveLine = A.Save
+export const RiSearchLine = A.Search
+export const RiSettings3Line = A.SlidersHorizontal
+export const RiSettings5Line = A.Settings
+export const RiStarFill = /*#__PURE__*/ filled(A.Star, "RiStarFill")
+export const RiStarLine = A.Star
+export const RiStopCircleLine = A.StopCircle
+export const RiSubtractFill = /*#__PURE__*/ filled(A.Minus, "RiSubtractFill")
+export const RiSunLine = A.Sun
+export const RiTeamLine = A.Users
+export const RiTimeLine = A.Clock
+export const RiTwitterFill = /*#__PURE__*/ filled(A.Twitter, "RiTwitterFill")
+export const RiUnderline = A.Underline
+export const RiUploadLine = A.Upload
+export const RiUserAddLine = A.UserPlus
+export const RiUserLine = A.User
+export const RiUserSmileLine = A.Smile
+export const RiVerifiedBadgeFill = /*#__PURE__*/ filled(
+  A.BadgeCheck,
+  "RiVerifiedBadgeFill",
+)
+export const RiVideoOnLine = A.Video
+export const RiWhatsappLine = A.Phone

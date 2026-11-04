@@ -15,7 +15,7 @@ import {
   type AppPlatform,
 } from "@/shared/lib/desktop-app"
 import { useWhatsNewNotice } from "@/page-slices/whats-new/ui/whats-new-notice"
-import { Download, RotateCw, X } from "lucide-react"
+import { Download, RotateCw, X } from "@/components/icons"
 import { Fragment, useEffect, useState, type ReactNode } from "react"
 
 /**

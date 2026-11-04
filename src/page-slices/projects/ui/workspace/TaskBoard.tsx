@@ -39,7 +39,7 @@ import {
 } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 import { differenceInCalendarDays, isToday } from "date-fns"
-import { GripHorizontal, TriangleAlert } from "lucide-react"
+import { GripHorizontal, TriangleAlert } from "@/components/icons"
 import { m, useReducedMotion } from "motion/react"
 import {
   Fragment,

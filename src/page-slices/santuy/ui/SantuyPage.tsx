@@ -48,7 +48,7 @@ import {
   Settings2,
   UserCheck,
   Video,
-} from "lucide-react"
+} from "@/components/icons"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
 import { toast } from "sonner"

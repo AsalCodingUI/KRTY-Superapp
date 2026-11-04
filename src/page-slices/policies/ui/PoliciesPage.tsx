@@ -8,7 +8,7 @@ import { ConfirmDialog } from "@/components/confirm-dialog"
 import { EmptyState } from "@/components/empty-state"
 import { ContextTarget, copyText, type CtxItem } from "@/shared/context-menu"
 import { useQueryClient } from "@tanstack/react-query"
-import { Archive, ArchiveRestore, Copy, Pencil, Trash2 } from "lucide-react"
+import { Archive, ArchiveRestore, Copy, Pencil, Trash2 } from "@/components/icons"
 import { toast } from "sonner"
 import {
   GroupedList,

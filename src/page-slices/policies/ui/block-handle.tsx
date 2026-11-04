@@ -11,7 +11,7 @@ import { Fragment, Slice } from "@tiptap/pm/model"
 import { NodeSelection } from "@tiptap/pm/state"
 import { dropPoint } from "@tiptap/pm/transform"
 import type { Editor } from "@tiptap/react"
-import { GripVertical, Plus } from "lucide-react"
+import { GripVertical, Plus } from "@/components/icons"
 import { useEffect, useRef, useState } from "react"
 
 type Block = { pos: number; top: number; left: number; height: number }

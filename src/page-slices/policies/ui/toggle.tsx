@@ -17,7 +17,7 @@ import {
   type JSONContent,
   type NodeViewProps,
 } from "@tiptap/react"
-import { ChevronRight, ListCollapse } from "lucide-react"
+import { ChevronRight, ListCollapse } from "@/components/icons"
 import { useEffect, useState } from "react"
 import type { BlockItem } from "./slash-command"
 

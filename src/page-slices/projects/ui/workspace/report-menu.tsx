@@ -17,7 +17,7 @@ import {
   Smartphone,
   Tablet,
   Trash2,
-} from "lucide-react"
+} from "@/components/icons"
 import { toast } from "sonner"
 import { useViewer, useWorkspace } from "./data"
 import { useReportViews } from "./report-views-data"

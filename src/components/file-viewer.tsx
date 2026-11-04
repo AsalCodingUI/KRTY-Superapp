@@ -15,7 +15,7 @@ import {
   ExternalLink,
   X,
 } from "@/components/icons"
-import { File as FileIcon } from "lucide-react"
+import { File as FileIcon } from "@/components/icons"
 import { useCallback, useEffect, useRef, useState } from "react"
 
 export type PreviewKind =

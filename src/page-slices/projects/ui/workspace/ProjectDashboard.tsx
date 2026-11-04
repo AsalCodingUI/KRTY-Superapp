@@ -102,7 +102,7 @@ import {
   Tag,
   Trash2,
   type LucideIcon,
-} from "lucide-react"
+} from "@/components/icons"
 import { ContextTarget, type CtxItem } from "@/shared/context-menu"
 import { useEffect, useMemo, useState } from "react"
 import { useQueryClient } from "@tanstack/react-query"

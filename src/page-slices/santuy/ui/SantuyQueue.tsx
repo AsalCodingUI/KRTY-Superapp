@@ -31,7 +31,7 @@ import {
 } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 import { format } from "date-fns"
-import { ArrowDown, ArrowUp, ChevronsUp, Copy, Eye, EyeOff } from "lucide-react"
+import { ArrowDown, ArrowUp, ChevronsUp, Copy, Eye, EyeOff } from "@/components/icons"
 import { toast } from "sonner"
 import type { SantuyData, SantuyMember } from "../data"
 import { dayDate, PersonAvatar, personName } from "./shared"

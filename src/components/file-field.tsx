@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { useT } from "@/shared/i18n/client"
-import { Paperclip } from "lucide-react"
+import { Paperclip } from "@/components/icons"
 import * as React from "react"
 
 /**

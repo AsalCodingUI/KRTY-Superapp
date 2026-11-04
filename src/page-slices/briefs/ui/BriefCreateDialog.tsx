@@ -43,7 +43,7 @@ import {
   type BriefSet,
 } from "@/shared/lib/briefs/types"
 import { RiAddLine } from "@/shared/ui/lucide-icons"
-import { ChevronDown } from "lucide-react"
+import { ChevronDown } from "@/components/icons"
 import { useState } from "react"
 import { toast } from "sonner"
 import { useBriefClients, useRefreshBriefs } from "../model/data"

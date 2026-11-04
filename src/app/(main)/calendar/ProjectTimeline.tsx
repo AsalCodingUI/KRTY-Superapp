@@ -25,7 +25,7 @@ import {
   RiArrowRightSLine,
   RiSubtractFill,
 } from "@/shared/ui/lucide-icons"
-import { ChevronsDownUp, ChevronsUpDown, ListTodo } from "lucide-react"
+import { ChevronsDownUp, ChevronsUpDown, ListTodo } from "@/components/icons"
 import { useCalendarContext } from "@/widgets/event-calendar/ui/calendar-context"
 import { getTimelineRange } from "@/widgets/event-calendar/ui/utils"
 import {

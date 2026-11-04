@@ -60,7 +60,7 @@ import {
 } from "@/shared/lib/display-prefs"
 import { useDesktopPrefs } from "@/widgets/menubar/ui/MenubarPopover"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { Bell, Palette, Play, SlidersHorizontal, X } from "lucide-react"
+import { Bell, Palette, Play, SlidersHorizontal, X } from "@/components/icons"
 import { useEffect, useState, type ReactNode } from "react"
 import { toast } from "sonner"
 

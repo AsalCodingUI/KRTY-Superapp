@@ -8,7 +8,7 @@ import {
 import { ConfirmDialog } from "@/components/confirm-dialog"
 import { EmptyState } from "@/components/empty-state"
 import { ContextTarget, type CtxItem } from "@/shared/context-menu"
-import { CopyPlus, Pencil, Star, Trash2 } from "lucide-react"
+import { CopyPlus, Pencil, Star, Trash2 } from "@/components/icons"
 import { toast } from "sonner"
 import { PageHeader } from "@/components/page-header"
 import { Button } from "@/components/ui/button"

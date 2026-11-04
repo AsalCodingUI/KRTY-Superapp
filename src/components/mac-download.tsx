@@ -19,7 +19,7 @@ import {
   tauri,
   type MacRelease,
 } from "@/shared/lib/desktop-app"
-import { Download } from "lucide-react"
+import { Download } from "@/components/icons"
 import { useCallback, useState } from "react"
 import { toast } from "sonner"
 

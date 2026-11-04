@@ -45,7 +45,7 @@ import {
   Trash2,
   UserCheck,
   Video,
-} from "lucide-react"
+} from "@/components/icons"
 import dynamic from "next/dynamic"
 import { useRouter } from "next/navigation"
 import {

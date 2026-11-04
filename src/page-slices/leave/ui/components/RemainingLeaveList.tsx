@@ -12,7 +12,7 @@ import { useT } from "@/shared/i18n/client"
 import { ANNUAL_LEAVE_QUOTA, daysKey } from "@/shared/lib/leave"
 import { ContextTarget } from "@/shared/context-menu"
 import { employeeHref } from "@/shared/lib/url-params"
-import { UserRound } from "lucide-react"
+import { UserRound } from "@/components/icons"
 import { useRouter } from "next/navigation"
 
 type BalanceProfile = {

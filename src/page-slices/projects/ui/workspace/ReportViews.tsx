@@ -16,7 +16,7 @@ import {
   Monitor,
   Smartphone,
   Tablet,
-} from "lucide-react"
+} from "@/components/icons"
 import { useReportViews, type ReportView } from "./report-views-data"
 
 const DEVICE_ICONS = {

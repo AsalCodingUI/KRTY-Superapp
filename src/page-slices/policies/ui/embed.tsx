@@ -28,7 +28,7 @@ import {
   type NodeViewProps,
 } from "@tiptap/react"
 import { BubbleMenu } from "@tiptap/react/menus"
-import { AppWindow } from "lucide-react"
+import { AppWindow } from "@/components/icons"
 import { useEffect, useRef, useState } from "react"
 import type { BlockItem } from "./slash-command"
 

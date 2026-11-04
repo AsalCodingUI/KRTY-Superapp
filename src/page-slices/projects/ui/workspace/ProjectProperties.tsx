@@ -9,7 +9,7 @@ import {
   Flag,
   Infinity as InfinityIcon,
   ListChecks,
-} from "lucide-react"
+} from "@/components/icons"
 import type { PhaseRow, StepRow } from "./data"
 
 /** Dot colour per project status. */

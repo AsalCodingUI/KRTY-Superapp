@@ -26,7 +26,7 @@ import {
   type BriefSection,
   type BriefSet,
 } from "@/shared/lib/briefs/types"
-import { Check, CircleAlert, CloudUpload, FileIcon, X } from "lucide-react"
+import { Check, CircleAlert, CloudUpload, FileIcon, X } from "@/components/icons"
 import { LazyMotion, m } from "motion/react"
 import { useCallback, useEffect, useRef, useState } from "react"
 import type * as React from "react"

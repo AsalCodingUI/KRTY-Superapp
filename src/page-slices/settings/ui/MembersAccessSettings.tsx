@@ -72,7 +72,7 @@ import {
   UserRound,
   Users,
   IdCard,
-} from "lucide-react"
+} from "@/components/icons"
 import { useRouter } from "next/navigation"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { toast } from "sonner"

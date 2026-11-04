@@ -40,7 +40,7 @@ import {
   RiLayoutGridLine,
   RiLogoutBoxLine,
 } from "@/shared/ui/lucide-icons"
-import { Newspaper } from "lucide-react"
+import { Newspaper } from "@/components/icons"
 import { m } from "motion/react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"

@@ -61,7 +61,7 @@ import {
   RiPencilLine,
   RiSearchLine,
 } from "@/shared/ui/lucide-icons"
-import { Copy, Pencil, Trash2 } from "lucide-react"
+import { Copy, Pencil, Trash2 } from "@/components/icons"
 import dynamic from "next/dynamic"
 import { useState } from "react"
 import { toast } from "sonner"

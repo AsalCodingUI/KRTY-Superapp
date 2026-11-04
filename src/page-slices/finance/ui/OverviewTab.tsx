@@ -45,7 +45,7 @@ import {
   type Subscription,
 } from "@/entities/finance/lib/money"
 import { ContextTarget, copyText } from "@/shared/context-menu"
-import { Copy, Printer } from "lucide-react"
+import { Copy, Printer } from "@/components/icons"
 import { toast } from "sonner"
 import { useMoneyFormat } from "../model/hide-money"
 import { Donut, NameTile, StatTiles } from "./parts"

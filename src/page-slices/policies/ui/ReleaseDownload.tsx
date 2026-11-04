@@ -12,7 +12,7 @@ import {
   releaseFolder,
 } from "@/shared/lib/desktop-app"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { Download, Upload } from "lucide-react"
+import { Download, Upload } from "@/components/icons"
 import { useRef, useState } from "react"
 import { toast } from "sonner"
 

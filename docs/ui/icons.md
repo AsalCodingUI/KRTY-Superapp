@@ -6,37 +6,35 @@ Live examples: **/ui** → Icons.
 
 ## Use
 
-| Need                                | Use                                                       | File                                                     |
-| ----------------------------------- | --------------------------------------------------------- | -------------------------------------------------------- |
-| An icon (default)                   | `import { Bell } from "@/components/icons"` (lucide name) | `src/components/icons/index.ts`                          |
-| An icon that set doesn't have       | `lucide-react` (static)                                   | —                                                        |
-| Icons in always-loaded root UI      | `lucide-react` (keeps motion off first load)              | `src/components/ui/sonner.tsx`, `ui/spinner.tsx`         |
-| Existing `Ri*` names (legacy)       | `@/shared/ui/lucide-icons` (aliases to the above)         | `src/shared/ui/lucide-icons.tsx`                         |
-| Project status (Planned … Archived) | `ProjectStatusIcon status`                                | `src/page-slices/projects/ui/ProjectStatusIcon.tsx`      |
-| Project stage (branding/design/dev) | `ProjectStageIcon stage`                                  | `src/page-slices/projects/ui/ProjectStageIcon.tsx`       |
-| Task priority                       | `TaskPriorityIcon priority`                               | `src/page-slices/projects/ui/workspace/TaskPriority.tsx` |
-| Leave request status                | `LeaveStatusIcon status`                                  | `src/page-slices/leave/ui/components/StatusIcon.tsx`     |
-| Notification kinds (filled)         | `BellFilled`, `CalendarCheckFilled`, …                    | `src/widgets/notifications/ui/notification-icons.tsx`    |
-| The Kretya app icon / mark          | `AppIcon size variant`                                    | `src/components/app-icon.tsx`                            |
-| A project's letter tile             | `ProjectAvatar id name`                                   | `src/components/project-avatar.tsx`                      |
-| Loading                             | `Spinner` (not an icon + `animate-spin`)                  | `src/components/ui/spinner.tsx`                          |
+| Need                          | Use                                                                                                                                                                        | File                             |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- |
+| Any icon                      | `import { Bell } from "@/components/icons"` (app names, lucide-style)                                                                                                      | `src/components/icons/index.tsx` |
+| The filled version            | `<Bell weight="Filled" />`                                                                                                                                                 | same                             |
+| An icon not in the list yet   | add one line to `index.tsx`: `export const Name = reicon(RGlyph, "Name")` with the Reicon glyph (browse reicon.dev/icons; `import RGlyph from "reicon-react/icons/Glyph"`) | same                             |
+| Existing `Ri*` names (legacy) | `@/shared/ui/lucide-icons` (aliases to the above; `*Fill` = Filled)                                                                                                        | `src/shared/ui/lucide-icons.tsx` |
+| Loading                       | `Spinner` (not an icon + `animate-spin`)                                                                                                                                   | `src/components/ui/spinner.tsx`  |
 
-`@/components/icons` is [lucide-animated](https://lucide-animated.com)
-adapted to the lucide-react API (`className`, `size`, `strokeWidth`, aria
-props). Each icon plays its animation when its nearest interactive parent
-(button, link, menu item, tab, sidebar item) is hovered or keyboard-focused;
-`standalone` plays it on the icon's own hover. Adding one: download the
-registry JSON into `src/components/icons/<name>.tsx`, add
-`export const Name = animated(NameIconSource, "Name")` to `index.ts`; icons
-the registry lacks are drawn in `icons/extra.tsx`.
+The icon set is **Reicon** (MIT, Solar-based), in one weight for the
+whole app (`DEFAULT_WEIGHT`, now Filled). `index.tsx` maps the app's icon names to Reicon
+glyphs, so pages never import `reicon-react` or `lucide-react`
+themselves. 25 glyphs Reicon doesn't have (editor headings, strikethrough,
+pilcrow, tables / columns / rows, grips, corner arrows, double chevrons
+up / down-up, plain circle / square / dashed circle, split, separator,
+GitHub, Twitter) come from lucide inside `index.tsx`, drawn at stroke 1.5
+to sit with Reicon; swap them when Reicon adds them. Every icon is listed,
+Outline and Filled, on /ui → Icons.
 
 ## Rules
 
 **Source**
 
-- New code imports by lucide name from `@/components/icons`; if the icon
-  isn't there, from `lucide-react`. Don't add new `Ri*` aliases, and don't
-  import the same icon from two sources in one file.
+- Import icons only from `@/components/icons` (never `reicon-react` or
+  `lucide-react` directly). Don't add new `Ri*` aliases.
+- The weight is one app-wide setting, `DEFAULT_WEIGHT` in
+  `src/components/icons/index.tsx` (now **Filled**). Don't pass `weight`
+  per icon unless one icon must differ from the set; to switch the whole
+  app to Outline, change that one constant. The lucide fallbacks have no
+  filled form and stay as line icons.
 - One icon per meaning: edit = `SquarePen`, delete = `Delete` (trash),
   more = `MoreHorizontal`, close = `X`, add = `Plus`, open in new =
   `ExternalLink`, copy = `Copy`, status done = `CircleCheck`, warning =
@@ -67,8 +65,8 @@ the registry lacks are drawn in `icons/extra.tsx`.
 - Icons inherit `currentColor`. Quiet icons: `text-muted-foreground`;
   status: `text-success-ink`, `text-warning`, `text-destructive`. Semantic
   tokens only.
-- Stroke 2 (lucide default). Don't pass `strokeWidth`, except a check in a
-  tiny filled box (`strokeWidth={3}`, `brief-ui.tsx`).
+- Stroke: Reicon's own (1.5). `strokeWidth` is ignored on purpose: a
+  custom stroke makes Reicon render an extra SVG mask for every icon.
 - Custom glyphs: `viewBox="0 0 16 16"`, `fill="currentColor"` (or
   `stroke="currentColor" strokeWidth="1.5"`, which is lucide's 2 on a 24
   grid), `aria-hidden`, base class `size-4 shrink-0`, cut-outs with
@@ -86,9 +84,9 @@ the registry lacks are drawn in `icons/extra.tsx`.
 
 **Light**
 
-- The animated set pulls `motion`: keep it out of the root layout and
-  primitives that every page loads (`sonner.tsx`, `spinner.tsx` use static
-  lucide on purpose).
+- Icons are static SVGs and each is its own module
+  (`reicon-react/icons/<Name>`), so only the icons the app uses are
+  bundled. No icon animations (the old animated set is gone).
 - Icons passed as data (menu configs, nav items) are components, not
   elements: `icon: Copy`, rendered by the menu at its size.
 
@@ -149,6 +147,10 @@ import { Plus, SquarePen } from "@/components/icons"
 
 ## Migration notes
 
+Done 2026-11-05: the whole app moved from lucide / lucide-animated to
+Reicon through `@/components/icons` (all `lucide-react` imports repointed,
+the animated icon files removed, `Ri*Fill` now Filled).
+
 Nothing below is changed yet.
 
 **Ri\* aliases** (`src/shared/ui/lucide-icons.tsx`, 124 importing files):
@@ -161,41 +163,6 @@ file. Misleading ones to fix first: `RiStarFill`, `RiCheckboxCircleFill`,
 `RiFileList3Line` → `ListChecks`, `RiFundsBoxLine` → `Wallet`;
 `RiDeleteBinLine` / `RiDeleteBin6Line`, `RiEditLine` / `RiEdit2Line` /
 `RiPencilLine`, `RiCalendarLine` / `RiCalendar2Line` are duplicates.
-
-**`lucide-react` imports of icons the animated set has** (move to
-`@/components/icons`; keep `sonner.tsx`, `spinner.tsx`, `checkbox.tsx`,
-`breadcrumb.tsx`, `pagination.tsx` static):
-
-- `Trash2` → `Delete`, `Pencil` → `SquarePen`, `Settings2` →
-  `SlidersHorizontal`, `CheckCircle2` → `CircleCheck`, `LogOut` → `Logout`:
-  `AdminAttendanceHistoryList.tsx:38`, `AttendanceHistoryList.tsx:33`,
-  `data-table-bulk-editor.tsx:7`, `ClientsPage.tsx:27`,
-  `ContractsPage.tsx:44`, `SubscriptionsTab.tsx:13`,
-  `leave-context-menu.tsx:14`, `PaymentMethodsPage.tsx:32`,
-  `CompetencyLibrary.tsx:12`, `OneOnOne.tsx:32`, `PoliciesPage.tsx:11`,
-  `doc-context-menu.tsx:17`, `ProcessEditorPage.tsx:37`,
-  `ProcessesPage.tsx:11`, `CategoryPicker.tsx:23`, `ProjectMenu.tsx:28`,
-  `InvoiceEditorDialog.tsx:82`, `MyNotesPage.tsx:41`, `DesignLinks.tsx:20`,
-  `PhaseRail.tsx:29`, `ProjectDashboard.tsx:90`, `ProjectDocuments.tsx:35`,
-  `ProjectInvoices.tsx:38`, `ProjectLibrary.tsx:48`, `report-menu.tsx:8`,
-  `task-menu.tsx:14`, `SantuyPage.tsx:42`, `MembersAccessSettings.tsx:63`,
-  `WhatsNewEditor.tsx:30`, `WhatsNewPage.tsx:32`, `calendar-menu.tsx:30`,
-  `MenubarPopover.tsx:40`, `ClockControls.tsx:38`.
-- Same name, static copy: `callout-box.tsx:3`, `embed-block.tsx:11`,
-  `empty-state.tsx:2` (`Inbox`), `floating-tab-bar.tsx:10`,
-  `gallery-strip.tsx:6`, `image-lightbox.tsx:6`, `mac-download.tsx:22`,
-  `markdown.tsx:22`, `nav-user.tsx:32`, `sidebar-notices.tsx:18`,
-  `app-sidebar.tsx:59`, `ProjectTimeline.tsx:28`, `AdminDashboard.tsx:20`,
-  `EmployeeProjectsWidget.tsx:18`, the `briefs/ui/*` files
-  (`BriefBuilder.tsx:59`, `BriefForm.tsx:29`, …), `portal/*`
-  (`PortalDocuments.tsx:13`, `PortalLibrary.tsx:12`, `PortalOverview.tsx:10`),
-  `ProjectStatusIcon.tsx:2` (`Archive`), `StatusIcon.tsx:2`,
-  `generic-items.ts:3`, `ContextMenuProvider.tsx:22`,
-  `NotificationsPanel.tsx:35`, `SettingsDialog.tsx:63`,
-  `WhatsNewDialog.tsx:21`, and the rest of `page-slices/projects` /
-  `policies` listed by `grep -rn 'from "lucide-react"' src`.
-  Decide per file whether hover animation is wanted (menus and data
-  configs may stay static); the rule is one source per file.
 
 **`h-N w-N` → `size-N`**: `src/widgets/event-calendar/ui/components/GuestList.tsx:51,105,107,109`,
 `ReminderPicker.tsx:92`, `MeetingButton.tsx:48`,
@@ -227,10 +194,3 @@ tokens (e.g. `--stage-branding`) or the 12-step scale (`text-pink-9`), and
 fix the menu button that greys icons instead of forcing `!`.
 `row-menu.tsx:28-36` (`FolderIcon` hex fills) is an illustration: keep, but
 move the hexes to tokens if a second folder appears.
-
-**Stroke**: `ProjectProperties.tsx:42` (`strokeWidth="1.5"` on a 14px
-viewBox) → 16px viewBox like the other glyphs.
-
-**Adapter**: `src/components/icons/animated.tsx:64` ignores the forwarded
-ref (`_ref`), so `ref` on an animated icon is silently dropped → forward it
-to the wrapper `span` or the svg.

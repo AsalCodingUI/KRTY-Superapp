@@ -41,7 +41,7 @@ import { formatLeaveRange, leaveDays } from "./AdminLeaveList"
 import { ContextTarget, type CtxItem } from "@/shared/context-menu"
 import { useCopyWithToast } from "./leave-context-menu"
 import { employeeHref } from "@/shared/lib/url-params"
-import { CalendarRange, Clock, UserRound } from "lucide-react"
+import { CalendarRange, Clock, UserRound } from "@/components/icons"
 
 type Person = { full_name: string; avatar_url: string | null } | null
 

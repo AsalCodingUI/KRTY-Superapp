@@ -36,7 +36,7 @@ import {
   TriangleAlert,
   WandSparkles,
   X,
-} from "lucide-react"
+} from "@/components/icons"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { toast } from "sonner"
 import {

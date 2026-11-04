@@ -29,7 +29,7 @@ import {
   Sunrise,
   UserRound,
   UserRoundX,
-} from "lucide-react"
+} from "@/components/icons"
 import { useRouter } from "next/navigation"
 import { useCallback } from "react"
 import type * as React from "react"

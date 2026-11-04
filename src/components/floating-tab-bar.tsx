@@ -7,7 +7,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { Menu } from "lucide-react"
+import { Menu } from "@/components/icons"
 import { LayoutGroup, LazyMotion, m } from "motion/react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"

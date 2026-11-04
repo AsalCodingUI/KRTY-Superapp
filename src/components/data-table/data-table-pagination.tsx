@@ -1,7 +1,7 @@
 "use client"
 
 import type { Table } from "@tanstack/react-table"
-import { ChevronsLeftIcon, ChevronsRightIcon } from "lucide-react"
+import { ChevronsLeftIcon, ChevronsRightIcon } from "@/components/icons"
 import {
   ChevronLeft as ChevronLeftIcon,
   ChevronRight as ChevronRightIcon,

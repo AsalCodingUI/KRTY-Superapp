@@ -38,7 +38,7 @@ import {
 } from "@/shared/ui/lucide-icons"
 import { format, isToday } from "date-fns"
 import { ContextTarget, copyText, type CtxItem } from "@/shared/context-menu"
-import { Copy, CopyPlus, FileText, Pin, Trash2 } from "lucide-react"
+import { Copy, CopyPlus, FileText, Pin, Trash2 } from "@/components/icons"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { toast } from "sonner"
 import {

@@ -3,7 +3,7 @@
 import { EmptyState } from "@/components/empty-state"
 import { PageHeader } from "@/components/page-header"
 import { Eye, EyeOff, FileText } from "@/components/icons"
-import { ArrowLeftRight, Target } from "lucide-react"
+import { ArrowLeftRight, Target } from "@/components/icons"
 import { Button } from "@/components/ui/button"
 import {
   Tooltip,

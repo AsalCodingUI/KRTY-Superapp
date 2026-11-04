@@ -13,7 +13,7 @@ import {
   type BriefSet,
   type BriefStatus,
 } from "@/shared/lib/briefs/types"
-import { Download, FileIcon } from "lucide-react"
+import { Download, FileIcon } from "@/components/icons"
 import type { BriefListRow } from "../model/data"
 
 export const SET_LABEL_KEYS = {

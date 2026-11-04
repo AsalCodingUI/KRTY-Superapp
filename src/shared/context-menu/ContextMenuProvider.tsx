@@ -19,7 +19,7 @@ import { Spinner } from "@/components/ui/spinner"
 import { cn } from "@/lib/utils"
 import type { AccessLevel } from "@/shared/config/access"
 import { useLocale, useSetLocale, useT } from "@/shared/i18n/client"
-import { Search } from "lucide-react"
+import { Search } from "@/components/icons"
 import { useThemeTransition } from "@/shared/hooks/useThemeTransition"
 import { useRouter } from "next/navigation"
 import {

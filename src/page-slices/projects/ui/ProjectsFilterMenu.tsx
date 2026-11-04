@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
 import { useT } from "@/shared/i18n/client"
-import { ListFilter } from "lucide-react"
+import { ListFilter } from "@/components/icons"
 import { useCallback, useEffect, useMemo, useState } from "react"
 import {
   ALL_STATUSES,

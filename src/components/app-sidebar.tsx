@@ -56,7 +56,7 @@ import { useTabSwitched } from "@/shared/hooks/useTabSwitched"
 import { useT } from "@/shared/i18n/client"
 import { isAdminRole } from "@/shared/lib/roles"
 import { useQuery } from "@tanstack/react-query"
-import { Settings, Sparkles } from "lucide-react"
+import { Settings, Sparkles } from "@/components/icons"
 import { usePathname } from "next/navigation"
 import { replaceUrl } from "@/shared/lib/url-params"
 

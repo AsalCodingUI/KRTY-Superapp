@@ -40,7 +40,7 @@ import {
   FolderKanban,
   Link2,
   PencilRuler,
-} from "lucide-react"
+} from "@/components/icons"
 import Link from "next/link"
 import { useRef, useState } from "react"
 import { toast } from "sonner"

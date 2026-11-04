@@ -4,7 +4,7 @@ import * as React from "react"
 import type { RowSelectionState, Table } from "@tanstack/react-table"
 
 import { Check, X } from "@/components/icons"
-import { Ban, Pencil, Trash2 } from "lucide-react"
+import { Ban, Pencil, Trash2 } from "@/components/icons"
 
 import {
   Tooltip,

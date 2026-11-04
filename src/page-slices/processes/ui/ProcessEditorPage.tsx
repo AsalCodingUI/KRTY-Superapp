@@ -34,7 +34,7 @@ import {
   RiMoreFill,
 } from "@/shared/ui/lucide-icons"
 import { ContextTarget, type CtxItem } from "@/shared/context-menu"
-import { ArrowDown, ArrowUp, Trash2 } from "lucide-react"
+import { ArrowDown, ArrowUp, Trash2 } from "@/components/icons"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"

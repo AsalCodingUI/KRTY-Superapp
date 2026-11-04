@@ -27,7 +27,7 @@ import { uploadReportImage } from "@/page-slices/projects/ui/workspace/reports-d
 import { useT } from "@/shared/i18n/client"
 import { useQueryClient } from "@tanstack/react-query"
 import { format } from "date-fns"
-import { ImagePlus, Trash2, X } from "lucide-react"
+import { ImagePlus, Trash2, X } from "@/components/icons"
 import { useRouter } from "next/navigation"
 import { useRef, useState } from "react"
 import { toast } from "sonner"

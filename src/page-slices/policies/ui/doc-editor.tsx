@@ -18,7 +18,7 @@ import {
 import type { EditorView } from "@tiptap/pm/view"
 import { BubbleMenu } from "@tiptap/react/menus"
 import StarterKit from "@tiptap/starter-kit"
-import { ImageIcon, Maximize2, Paperclip } from "lucide-react"
+import { ImageIcon, Maximize2, Paperclip } from "@/components/icons"
 import { useRef, useState } from "react"
 import { toast } from "sonner"
 import { AiPreview } from "./ai-assist"

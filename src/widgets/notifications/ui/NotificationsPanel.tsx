@@ -40,7 +40,7 @@ import {
   Mail,
   MailOpen,
   Megaphone,
-} from "lucide-react"
+} from "@/components/icons"
 import { AnnouncementDialog } from "./AnnouncementDialog"
 import {
   BellFilled,

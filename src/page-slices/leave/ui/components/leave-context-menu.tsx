@@ -18,7 +18,7 @@ import {
   Pencil,
   Undo2,
   UserRound,
-} from "lucide-react"
+} from "@/components/icons"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import type * as React from "react"

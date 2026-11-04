@@ -13,7 +13,7 @@ import {
   Link as LinkIcon,
   Link2,
   Newspaper,
-} from "lucide-react"
+} from "@/components/icons"
 import { ContextTarget, copyText } from "@/shared/context-menu"
 import { linkKey } from "@/shared/lib/url-params"
 import { toast } from "sonner"

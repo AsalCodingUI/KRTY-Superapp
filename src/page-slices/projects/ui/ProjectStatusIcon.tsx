@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils"
-import { Archive } from "lucide-react"
+import { Archive } from "@/components/icons"
 import type { ProjectStatus } from "../lib/status"
 
 /**

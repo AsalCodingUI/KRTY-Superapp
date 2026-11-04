@@ -8,7 +8,7 @@ import {
   fallbackTitle,
   type EmbedView,
 } from "@/shared/lib/embeds"
-import { ExternalLink, Link2 } from "lucide-react"
+import { ExternalLink, Link2 } from "@/components/icons"
 import { useState, type ReactNode } from "react"
 
 /** The site's icon, or a link glyph when it has none. */

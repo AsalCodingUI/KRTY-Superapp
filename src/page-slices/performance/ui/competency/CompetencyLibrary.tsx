@@ -9,7 +9,7 @@ import {
 import { performanceRead } from "../read"
 import { ConfirmDialog } from "@/components/confirm-dialog"
 import { ContextTarget, type CtxItem } from "@/shared/context-menu"
-import { CopyPlus, Pencil, Trash2 } from "lucide-react"
+import { CopyPlus, Pencil, Trash2 } from "@/components/icons"
 import { SegmentedControl } from "@/components/segmented-control"
 import { EmptyState } from "@/components/empty-state"
 import { GroupedList, ListRow, ListRowActions } from "@/components/grouped-list"

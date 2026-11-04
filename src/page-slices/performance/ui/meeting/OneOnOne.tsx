@@ -38,7 +38,7 @@ import {
   Trash2,
   Video,
   XCircle,
-} from "lucide-react"
+} from "@/components/icons"
 import { periodLabel } from "../kpi/period"
 import { GridGroup, ListColumns, StatBand } from "../list"
 

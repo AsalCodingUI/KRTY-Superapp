@@ -43,7 +43,7 @@ import {
   Pencil,
   Printer,
   Trash2,
-} from "lucide-react"
+} from "@/components/icons"
 import { addDays } from "date-fns"
 import { useAgency } from "../invoice/data"
 import {

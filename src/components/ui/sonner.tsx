@@ -9,7 +9,7 @@ import {
   TriangleAlertIcon,
   OctagonXIcon,
   Loader2Icon,
-} from "lucide-react"
+} from "@/components/icons"
 
 const Toaster = ({ ...props }: ToasterProps) => {
   // Toasts are always dark (like the top bar), in light mode too.

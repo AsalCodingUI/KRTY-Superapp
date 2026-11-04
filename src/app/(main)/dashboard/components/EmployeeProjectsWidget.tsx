@@ -15,7 +15,7 @@ import { format, isValid } from "date-fns"
 import { useDateLocale, useT } from "@/shared/i18n/client"
 import { ContextTarget } from "@/shared/context-menu"
 import { useCopyWithToast } from "@/page-slices/leave/ui/components/leave-context-menu"
-import { Copy } from "lucide-react"
+import { Copy } from "@/components/icons"
 
 interface Project {
   id: string

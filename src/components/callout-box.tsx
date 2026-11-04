@@ -6,7 +6,7 @@ import {
   OctagonAlert,
   TriangleAlert,
   type LucideIcon,
-} from "lucide-react"
+} from "@/components/icons"
 import type { ReactNode } from "react"
 
 /** Each tone's icon and tint (Radix scales, so dark mode follows; no

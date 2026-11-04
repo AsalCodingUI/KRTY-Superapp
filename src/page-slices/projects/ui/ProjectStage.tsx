@@ -14,7 +14,7 @@ import { createClient } from "@/shared/api/supabase/client"
 import { useT } from "@/shared/i18n/client"
 import { registerUndo, sameValue, UndoStale } from "@/shared/undo"
 import { useQueryClient } from "@tanstack/react-query"
-import { ChevronDown, CircleDashed } from "lucide-react"
+import { ChevronDown, CircleDashed } from "@/components/icons"
 import { toast } from "sonner"
 import {
   PROJECT_STAGES,
