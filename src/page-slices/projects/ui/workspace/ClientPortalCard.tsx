@@ -166,7 +166,7 @@ export function ClientPortalCard({
       {portal && (
         <div className="flex flex-col gap-3 border-t px-4 py-3">
           <div className="flex gap-2">
-            <Input readOnly value={link(portal.token)} className="text-xs" />
+            <Input readOnly value={link(portal.token)} />
             <Button
               variant="outline"
               size="icon"

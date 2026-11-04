@@ -65,7 +65,7 @@ export function LeaveRequestForm({
           id="name"
           value={userProfile.full_name || ""}
           disabled
-          className="bg-muted mt-2"
+          className="mt-2"
         />
       </div>
       <div>

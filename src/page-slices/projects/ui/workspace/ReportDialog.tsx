@@ -321,7 +321,7 @@ export function ReportDialog({
                   {link ? (
                     <>
                       <div className="flex gap-2">
-                        <Input readOnly value={link} className="text-xs" />
+                        <Input readOnly value={link} />
                         <Button
                           variant="outline"
                           size="icon"

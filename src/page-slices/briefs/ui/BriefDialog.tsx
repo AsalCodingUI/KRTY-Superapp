@@ -188,6 +188,7 @@ export function BriefDialog({
                       <>
                         <span aria-hidden>·</span>
                         <Link
+                          prefetch={false}
                           href={projectHref(brief.project)}
                           className="hover:text-foreground underline-offset-4 hover:underline"
                         >

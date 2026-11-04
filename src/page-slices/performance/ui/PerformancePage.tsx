@@ -130,19 +130,18 @@ export function PerformancePage() {
 
       {/* A member without a team has one page: no tabs. */}
       {tabs.length > 1 && (
-        <div className="bleed gutter-x border-border border-b">
-          <TabNavigation className="border-b-0">
-            {tabs.map((item) => (
-              <TabNavigationLink
-                key={item.value}
-                active={tab === item.value}
-                onClick={() => setActiveTab(item.value)}
-              >
-                {item.label}
-              </TabNavigationLink>
-            ))}
-          </TabNavigation>
-        </div>
+        <TabNavigation bleed>
+          {tabs.map((item) => (
+            <TabNavigationLink
+              key={item.value}
+              active={tab === item.value}
+              onClick={() => setActiveTab(item.value)}
+              showLeadingIcon={false}
+            >
+              {item.label}
+            </TabNavigationLink>
+          ))}
+        </TabNavigation>
       )}
 
       {/* Each tab brings its own stats band / toolbar, then the list. */}

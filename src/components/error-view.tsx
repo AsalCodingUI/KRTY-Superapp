@@ -34,7 +34,7 @@ export function ErrorView({
           <Button
             variant="outline"
             nativeButton={false}
-            render={<Link href="/dashboard" />}
+            render={<Link href="/dashboard" prefetch={false} />}
           >
             {t("goToDashboard")}
           </Button>

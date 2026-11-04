@@ -472,14 +472,10 @@ export function ProjectInvoices({ projectId }: { projectId: string }) {
               key={key}
               active={filter === key}
               onClick={() => setFilter(key)}
+              count={counts[key]}
               showLeadingIcon={false}
             >
               {label === "filterAll" ? tc("all") : t(label)}
-              {counts[key] > 0 && (
-                <span className="text-tertiary-foreground ml-1.5 tabular-nums">
-                  {counts[key]}
-                </span>
-              )}
             </TabNavigationLink>
           ))}
         </TabNavigation>

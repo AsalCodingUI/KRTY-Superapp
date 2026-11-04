@@ -529,7 +529,7 @@ export function ProjectDocuments({ projectId }: { projectId: string }) {
                       <label className="flex cursor-pointer items-center justify-between gap-3 text-sm">
                         <span className="flex flex-col">
                           <span>{t("keepOriginalImage")}</span>
-                          <span className="text-muted-foreground text-xs">
+                          <span className="text-muted-foreground text-meta">
                             {t("keepOriginalImageHint")}
                           </span>
                         </span>

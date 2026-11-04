@@ -356,7 +356,7 @@ function TaskBody({
                 }}
                 placeholder={t("addSubtask")}
                 aria-label={t("addSubtask")}
-                className="text-meta h-8 flex-1"
+                className="flex-1"
               />
             </div>
             {subtasks.map((sub) => (
@@ -445,10 +445,7 @@ function TaskBody({
                 value={status}
                 onValueChange={(v) => v && onStatus(task, v as TaskStatus)}
               >
-                <SelectTrigger
-                  size="sm"
-                  className="hover:bg-accent text-meta w-full border-transparent bg-transparent px-2.5 shadow-none hover:border-transparent"
-                >
+                <SelectTrigger size="sm" variant="ghost" className="w-full">
                   <SelectValue>
                     {(v: TaskStatus) => (
                       <span className="flex items-center gap-2">
@@ -481,10 +478,7 @@ function TaskBody({
                   v && onPatch(task.id, { priority: v as TaskPriority })
                 }
               >
-                <SelectTrigger
-                  size="sm"
-                  className="hover:bg-accent text-meta w-full border-transparent bg-transparent px-2.5 shadow-none hover:border-transparent"
-                >
+                <SelectTrigger size="sm" variant="ghost" className="w-full">
                   <SelectValue>
                     {(v: TaskPriority) =>
                       v === "none" ? (
@@ -524,10 +518,7 @@ function TaskBody({
                   v && onPatch(task.id, { assignee_id: v === NONE ? null : v })
                 }
               >
-                <SelectTrigger
-                  size="sm"
-                  className="hover:bg-accent text-meta w-full border-transparent bg-transparent px-2.5 shadow-none hover:border-transparent"
-                >
+                <SelectTrigger size="sm" variant="ghost" className="w-full">
                   <SelectValue>
                     {() =>
                       assignee ? (

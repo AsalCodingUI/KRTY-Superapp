@@ -87,7 +87,7 @@ export function SidebarNoticeCard({
       <button
         type="button"
         onClick={onClick}
-        className="absolute inset-0 rounded-[inherit] outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+        className="focus-visible:ring-focus-ring absolute inset-0 rounded-[inherit] outline-none focus-visible:ring-2"
         aria-label={
           actionLabel ?? (typeof title === "string" ? title : undefined)
         }

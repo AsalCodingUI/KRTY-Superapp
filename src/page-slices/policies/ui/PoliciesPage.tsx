@@ -34,7 +34,11 @@ import {
   RiFileTextLine,
   RiSearchLine,
 } from "@/shared/ui/lucide-icons"
-import { Input } from "@/components/ui/input"
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group"
 import { useViewMode, ViewToggle } from "@/components/view-toggle"
 import { useState } from "react"
 import { format, type Locale } from "date-fns"
@@ -297,31 +301,28 @@ export function PoliciesPage() {
                 key={item.value}
                 active={tab === item.value}
                 onClick={() => setTab(item.value)}
+                count={count}
                 showLeadingIcon={false}
               >
                 {t(item.label)}
-                {count > 0 && (
-                  <span className="text-tertiary-foreground ml-1.5 tabular-nums">
-                    {count}
-                  </span>
-                )}
               </TabNavigationLink>
             )
           })}
         </TabNavigation>
       )}
 
-      <div className="relative mb-4 w-full sm:max-w-sm">
-        <RiSearchLine className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
-        <Input
+      <InputGroup className="mb-4 w-full sm:max-w-sm">
+        <InputGroupAddon>
+          <RiSearchLine />
+        </InputGroupAddon>
+        <InputGroupInput
           type="search"
           placeholder={t("searchPlaceholder")}
           aria-label={t("searchLabel")}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="pl-9"
         />
-      </div>
+      </InputGroup>
 
       <div className="pb-4">
         {isLoading ? (

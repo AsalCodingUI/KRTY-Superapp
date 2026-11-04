@@ -261,15 +261,17 @@ export function ProjectScoringView({
                     <>
                       <div className="flex items-center justify-end gap-1.5">
                         <Input
-                          type="number"
-                          min={0}
-                          max={100}
-                          className="h-8 w-16 text-right tabular-nums"
+                          inputMode="numeric"
+                          className="w-16 text-right tabular-nums"
                           value={m.weight}
                           aria-label={t("weightOf", { name: m.name })}
                           onChange={(e) =>
+                            // Whole numbers 0–100, like the old number field.
                             updateMilestone(index, {
-                              weight: Number(e.target.value),
+                              weight: Math.min(
+                                100,
+                                Number(e.target.value.replace(/\D/g, "")),
+                              ),
                             })
                           }
                         />
@@ -282,7 +284,7 @@ export function ProjectScoringView({
                           updateMilestone(index, { result: v as SLAResult })
                         }
                       >
-                        <SelectTrigger className="h-8 w-full">
+                        <SelectTrigger className="w-full">
                           <SelectValue>
                             {(v: SLAResult) => t(SLA_RESULT_LABELS[v])}
                           </SelectValue>
@@ -741,6 +743,7 @@ function PhaseMilestones({
           {t("psWeightNote")}
           {isStakeholder && (
             <Link
+              prefetch={false}
               href={projectLink}
               className="text-primary inline-flex items-center gap-1 hover:underline"
             >
@@ -925,7 +928,7 @@ function OverrideEditor({
             </button>
           ))}
         </div>
-        <label className="flex flex-col gap-1.5">
+        <label className="gap-field flex flex-col">
           <span className="text-muted-foreground text-meta">
             {t("psReason")}
           </span>
@@ -934,7 +937,6 @@ function OverrideEditor({
             onChange={(e) => setReason(e.target.value)}
             placeholder={t("psReasonPlaceholder")}
             rows={3}
-            className="text-meta"
           />
         </label>
         <div className="flex items-center justify-between gap-2">

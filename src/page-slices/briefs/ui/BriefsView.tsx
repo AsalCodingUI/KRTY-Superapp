@@ -3,7 +3,11 @@
 import { useRealtimeRefresh } from "@/shared/hooks/useRealtimeRefresh"
 import { EmptyState } from "@/components/empty-state"
 import { GroupedList, ListGroup, ListRow } from "@/components/grouped-list"
-import { Input } from "@/components/ui/input"
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group"
 import { Spinner } from "@/components/ui/spinner"
 import { useDateLocale, useT } from "@/shared/i18n/client"
 import { briefProgress } from "@/shared/lib/briefs/brief"
@@ -88,17 +92,18 @@ export function BriefsView({
   return (
     <div className="flex flex-col gap-3">
       {search && outerQuery === undefined && briefs.length > 0 && (
-        <div className="relative w-full max-w-xs">
-          <RiSearchLine className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
-          <Input
+        <InputGroup className="w-full max-w-xs">
+          <InputGroupAddon>
+            <RiSearchLine />
+          </InputGroupAddon>
+          <InputGroupInput
             type="search"
             value={query}
             placeholder={t("searchPlaceholder")}
             aria-label={t("searchPlaceholder")}
             onChange={(e) => setQuery(e.target.value)}
-            className="pl-9"
           />
-        </div>
+        </InputGroup>
       )}
       {isPending ? (
         <div className="flex justify-center py-16">

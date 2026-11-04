@@ -4,6 +4,7 @@ import { orEmpty } from "@/components/empty-value"
 import { ListChip } from "@/components/grouped-list"
 import { PdfPages } from "@/components/pdf-view"
 import { Button } from "@/components/ui/button"
+import { FieldError } from "@/components/ui/field"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -273,11 +274,7 @@ function Acknowledgement({
               aria-invalid={mismatch || undefined}
               onChange={(e) => setName(e.target.value)}
             />
-            {mismatch && (
-              <p className="text-destructive-ink text-meta">
-                {t("ackMismatch")}
-              </p>
-            )}
+            {mismatch && <FieldError>{t("ackMismatch")}</FieldError>}
             <Button type="submit" disabled={saving || !name.trim() || mismatch}>
               {saving ? t("ackSubmitting") : t("ackSubmit")}
             </Button>

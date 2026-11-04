@@ -1,7 +1,7 @@
 "use client"
 
 import { useCanonicalParam } from "@/shared/hooks/useCanonicalParam"
-import { findByLinkKey, linkKey } from "@/shared/lib/url-params"
+import { findByLinkKey, linkKey, replaceUrl } from "@/shared/lib/url-params"
 import dynamic from "next/dynamic"
 import { ConfirmDialog } from "@/components/confirm-dialog"
 import { PageHeader } from "@/components/page-header"
@@ -42,7 +42,7 @@ import {
 } from "@/shared/ui/lucide-icons"
 import { useDateLocale, useT } from "@/shared/i18n/client"
 import { differenceInCalendarDays, format, isToday } from "date-fns"
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { usePathname, useSearchParams } from "next/navigation"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { toast } from "sonner"
 import {
@@ -142,7 +142,6 @@ export function ProjectTasks({ projectId }: { projectId: string }) {
 
   // The open task lives in the URL (?task=desain-logo-3f9a1c2b): a
   // notification or a copied link opens it, and closing it clears it again.
-  const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const linked = searchParams.get("task")
@@ -157,9 +156,8 @@ export function ProjectTasks({ projectId }: { projectId: string }) {
     if (id) params.set("task", id)
     else params.delete("task")
     const query = params.toString()
-    router.replace(query ? `${pathname}?${query}` : pathname, {
-      scroll: false,
-    })
+    // The route only forwards ?task= on a redirect; no server round trip.
+    replaceUrl(query ? `${pathname}?${query}` : pathname)
   }
 
   const openTask = (id: string, start: "due" | "subtask" | null = null) => {
@@ -380,7 +378,7 @@ export function ProjectTasks({ projectId }: { projectId: string }) {
         {board ? (
           <span />
         ) : (
-          <TabNavigation className="border-b-0">
+          <TabNavigation plain>
             {(
               [
                 ["all", tc("all")],
@@ -392,14 +390,10 @@ export function ProjectTasks({ projectId }: { projectId: string }) {
                 key={key}
                 active={filter === key}
                 onClick={() => setFilter(key)}
+                count={counts[key]}
                 showLeadingIcon={false}
               >
                 {label}
-                {counts[key] > 0 && (
-                  <span className="text-tertiary-foreground ml-1.5 tabular-nums">
-                    {counts[key]}
-                  </span>
-                )}
               </TabNavigationLink>
             ))}
           </TabNavigation>
@@ -472,7 +466,6 @@ export function ProjectTasks({ projectId }: { projectId: string }) {
                   onBlur={() => {
                     if (!newTitle.trim()) setAdding(false)
                   }}
-                  className="h-8"
                 />
               </div>
             )}
@@ -687,7 +680,7 @@ function TaskRows({
                     setEditing(false)
                   }
                 }}
-                className="h-7"
+                size="sm"
               />
             ) : (
               <button
@@ -743,7 +736,8 @@ function TaskRows({
             >
               <SelectTrigger
                 size="sm"
-                className="text-muted-foreground hover:bg-accent text-meta w-[7.5rem] border-transparent bg-transparent px-2.5 shadow-none hover:border-transparent"
+                variant="ghost"
+                className="text-muted-foreground w-[7.5rem]"
               >
                 <SelectValue>
                   {(v: string) =>
@@ -767,10 +761,7 @@ function TaskRows({
               v && onUpdate(task.id, { assignee_id: v === NONE ? null : v })
             }
           >
-            <SelectTrigger
-              size="sm"
-              className="hover:bg-accent text-meta w-[9.5rem] border-transparent bg-transparent px-2.5 shadow-none hover:border-transparent"
-            >
+            <SelectTrigger size="sm" variant="ghost" className="w-[9.5rem]">
               <SelectValue>
                 {() =>
                   assignee ? (
@@ -911,7 +902,7 @@ function TaskRows({
               }}
               placeholder={t("addSubtask")}
               aria-label={t("addSubtask")}
-              className="h-8 flex-1"
+              className="flex-1"
             />
           </div>
         </div>

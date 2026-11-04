@@ -1,12 +1,12 @@
 "use client"
 
 import { EmptyValue } from "@/components/empty-value"
-import { Tabs, TabsList, TabsContent, TabsTrigger } from "@/components/ui/tabs"
+import { SegmentedControl } from "@/components/segmented-control"
 import type { ReviewSummary } from "@/app/(main)/performance/actions/review-actions"
 import { RATINGS, ratingFor } from "@/entities/performance/lib/kpi"
 import { cn } from "@/lib/utils"
 import { useT } from "@/shared/i18n/client"
-import { useId } from "react"
+import { useId, useState } from "react"
 import { RatingChip } from "../kpi/RatingChip"
 
 export const CRITERIA = [
@@ -118,6 +118,7 @@ function RatingScale({ value }: { value: number | null }) {
  */
 export function ReviewResult({ summary }: { summary: ReviewSummary }) {
   const t = useT("performance")
+  const [view, setView] = useState<"summary" | "verbatim">("summary")
   const num = (v: unknown) => (v === null || v === undefined ? null : Number(v))
   const raw = num(summary.overall_percentage)
   const overall = raw === null ? null : Math.round(raw)
@@ -183,23 +184,26 @@ export function ReviewResult({ summary }: { summary: ReviewSummary }) {
       </div>
 
       {summary.verbatim ? (
-        <Tabs defaultValue="summary">
-          <TabsList>
-            <TabsTrigger value="summary" className="px-3">
-              <AiSparkle />
-              {t("rvTabSummary")}
-            </TabsTrigger>
-            <TabsTrigger value="verbatim" className="px-3">
-              {t("rvTabVerbatim")}
-            </TabsTrigger>
-          </TabsList>
-          <TabsContent value="summary">
+        <div className="flex flex-col gap-2">
+          <SegmentedControl
+            fitContent
+            value={view}
+            onChange={setView}
+            items={[
+              {
+                value: "summary",
+                label: t("rvTabSummary"),
+                leadingIcon: AiSparkle,
+              },
+              { value: "verbatim", label: t("rvTabVerbatim") },
+            ]}
+          />
+          {view === "summary" ? (
             <WrittenFeedback summary={summary} />
-          </TabsContent>
-          <TabsContent value="verbatim">
+          ) : (
             <Verbatim verbatim={summary.verbatim} />
-          </TabsContent>
-        </Tabs>
+          )}
+        </div>
       ) : (
         <WrittenFeedback summary={summary} />
       )}

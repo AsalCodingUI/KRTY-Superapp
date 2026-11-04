@@ -26,8 +26,6 @@ export interface SegmentedControlProps<T extends string> {
   /** Replaces the sliding thumb's shadow (e.g. the chrome's active shadow). */
   indicatorClassName?: string
   fitContent?: boolean
-  /** @deprecated kept for API compatibility; one size (shadcn default). */
-  size?: "sm" | "md"
 }
 
 export function SegmentedControl<T extends string>({

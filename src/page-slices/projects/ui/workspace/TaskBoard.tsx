@@ -443,7 +443,6 @@ const Column = memo(function Column({
               onBlur={() => {
                 if (!title.trim()) setAdding(false)
               }}
-              className="text-meta h-9"
             />
           </div>
         ) : (

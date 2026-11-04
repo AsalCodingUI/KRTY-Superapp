@@ -1,7 +1,7 @@
 "use client"
 
 import { useCanonicalParam } from "@/shared/hooks/useCanonicalParam"
-import { findByLinkKey, linkKey } from "@/shared/lib/url-params"
+import { findByLinkKey, linkKey, replaceUrl } from "@/shared/lib/url-params"
 import { ConfirmDialog } from "@/components/confirm-dialog"
 import { EmptyState } from "@/components/empty-state"
 import {
@@ -20,7 +20,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group"
 import {
   Select,
   SelectContent,
@@ -44,7 +48,7 @@ import { ContextTarget, copyText, type CtxItem } from "@/shared/context-menu"
 import { Copy, Download, Eye, Filter, Pencil, Trash2 } from "@/components/icons"
 import { useQueryClient } from "@tanstack/react-query"
 import { AnimatePresence } from "motion/react"
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { usePathname, useSearchParams } from "next/navigation"
 import { useMemo, useState } from "react"
 import { toast } from "sonner"
 import {
@@ -86,7 +90,6 @@ const contractKey = (c: ContractRow) =>
 
 export function ContractsPage({ viewer }: { viewer: ContractViewer }) {
   const t = useT("contracts")
-  const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const queryClient = useQueryClient()
@@ -101,9 +104,8 @@ export function ContractsPage({ viewer }: { viewer: ContractViewer }) {
       if (value === null) params.delete(key)
       else params.set(key, value)
     }
-    router.replace(params.size ? `${pathname}?${params}` : pathname, {
-      scroll: false,
-    })
+    // Client-only state: the route doesn't read the query.
+    replaceUrl(params.size ? `${pathname}?${params}` : pathname)
   }
 
   const [query, setQuery] = useState("")
@@ -261,17 +263,18 @@ export function ContractsPage({ viewer }: { viewer: ContractViewer }) {
 
       {viewer.isAdmin && contracts.length > 0 && (
         <div className="mb-4 flex flex-wrap items-center gap-2">
-          <div className="relative w-full sm:max-w-sm">
-            <RiSearchLine className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
-            <Input
+          <InputGroup className="w-full sm:max-w-sm">
+            <InputGroupAddon>
+              <RiSearchLine />
+            </InputGroupAddon>
+            <InputGroupInput
               type="search"
               placeholder={t("searchPlaceholder")}
               aria-label={t("searchLabel")}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="pl-9"
             />
-          </div>
+          </InputGroup>
           <Select value={person} onValueChange={(v) => v && setPerson(v)}>
             <SelectTrigger
               className="w-full sm:w-52"

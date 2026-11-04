@@ -13,9 +13,9 @@ import { useDateLocale, useT } from "@/shared/i18n/client"
 import { RiAddLine, RiFilePaperLine } from "@/shared/ui/lucide-icons"
 import { format, parseISO } from "date-fns"
 import { Link2 } from "@/components/icons"
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { usePathname, useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
-import { findByLinkKey } from "@/shared/lib/url-params"
+import { findByLinkKey, replaceUrl } from "@/shared/lib/url-params"
 import { toast } from "sonner"
 import { useViewer, useWorkspace } from "./data"
 import { RowMenu } from "./row-menu"
@@ -54,7 +54,6 @@ export function ProjectReports({ projectId }: { projectId: string }) {
 
   // `?report=<id>` (a mention notification) opens that report; closing it
   // clears the param again.
-  const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const linked = searchParams.get("report")
@@ -71,7 +70,7 @@ export function ProjectReports({ projectId }: { projectId: string }) {
     const params = new URLSearchParams(searchParams.toString())
     params.delete("report")
     const query = params.toString()
-    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false })
+    replaceUrl(query ? `${pathname}?${query}` : pathname)
   }
 
   // "Report - @26 Oktober 2026" (English: "@October 26, 2026").

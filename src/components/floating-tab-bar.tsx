@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/popover"
 import { Menu } from "@/components/icons"
 import { LayoutGroup, LazyMotion, m } from "motion/react"
-import Link from "next/link"
+import { PrefetchLink } from "@/components/prefetch-link"
 import { usePathname } from "next/navigation"
 import { useState, type ComponentType, type ReactNode } from "react"
 
@@ -77,7 +77,7 @@ export function FloatingTabBar({
             {items.map((item) => {
               const active = item.href === activeHref
               return (
-                <Link
+                <PrefetchLink
                   key={item.href}
                   href={item.href}
                   aria-label={item.label}
@@ -110,7 +110,7 @@ export function FloatingTabBar({
                       )}
                     />
                   </span>
-                </Link>
+                </PrefetchLink>
               )
             })}
           </div>

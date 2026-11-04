@@ -1101,7 +1101,7 @@ function AttendanceOverviewPanel({
           )}
         </div>
         <div className="hidden xl:block">
-          <TabNavigation className="border-b-0">
+          <TabNavigation plain>
             <TabNavigationLink
               active={activeTab === "approval"}
               onClick={() => onTabChange("approval")}

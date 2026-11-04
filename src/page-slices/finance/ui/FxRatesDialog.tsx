@@ -10,7 +10,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group"
 import { Label } from "@/components/ui/label"
 import { useT } from "@/shared/i18n/client"
 import { useQueryClient } from "@tanstack/react-query"
@@ -84,15 +88,12 @@ export function FxRatesDialog({
               <Label htmlFor={`fx-${code}`} className="font-medium">
                 1 {code}
               </Label>
-              <div className="relative">
-                <span className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-sm">
-                  Rp
-                </span>
-                <Input
+              <InputGroup>
+                <InputGroupAddon className="font-normal">Rp</InputGroupAddon>
+                <InputGroupInput
                   id={`fx-${code}`}
                   inputMode="numeric"
                   placeholder={t("notSet")}
-                  className="pl-9"
                   value={values[code] ?? ""}
                   onChange={(e) =>
                     setValues((v) => ({
@@ -101,7 +102,7 @@ export function FxRatesDialog({
                     }))
                   }
                 />
-              </div>
+              </InputGroup>
             </div>
           ))}
         </form>
