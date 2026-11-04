@@ -46,6 +46,7 @@ import {
   isToday,
 } from "date-fns"
 import { AnimatePresence, m, useReducedMotion } from "motion/react"
+import { DURATION, EASE_OUT, TRANSITION } from "@/shared/lib/motion"
 import {
   useEffect,
   useId,
@@ -53,6 +54,7 @@ import {
   useMemo,
   useRef,
   useState,
+  type CSSProperties,
 } from "react"
 import { toast } from "sonner"
 import {
@@ -97,7 +99,6 @@ const Calendar = dynamic(
 )
 
 const NONE = "__none__"
-const EASE = [0.23, 1, 0.32, 1] as const
 
 /**
  * A task opened from the board or list: title, status, PIC, due date,
@@ -338,8 +339,12 @@ function TaskBody({
                 aria-hidden
               >
                 <div
-                  className="bg-success h-full rounded-full transition-[width] duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]"
-                  style={{ width: `${(doneSubs / subtasks.length) * 100}%` }}
+                  className="bar-grow bg-success h-full rounded-full"
+                  style={
+                    {
+                      "--bar": `${(doneSubs / subtasks.length) * 100}%`,
+                    } as CSSProperties
+                  }
                 />
               </div>
             )}
@@ -837,7 +842,7 @@ function TypingLine({ names }: { names: string[] }) {
     <div
       aria-live="polite"
       className={cn(
-        "text-muted-foreground flex h-0 items-center gap-1.5 overflow-hidden px-6 text-xs transition-[height] duration-200 md:px-8",
+        "text-muted-foreground flex h-0 items-center gap-1.5 overflow-hidden px-6 text-xs transition-[height] duration-200 ease-out motion-reduce:transition-none md:px-8",
         text && "h-7",
       )}
     >
@@ -847,7 +852,7 @@ function TypingLine({ names }: { names: string[] }) {
             {[0, 1, 2].map((i) => (
               <span
                 key={i}
-                className="bg-muted-foreground size-1 animate-bounce rounded-full"
+                className="bg-muted-foreground size-1 animate-bounce rounded-full motion-reduce:animate-none"
                 style={{ animationDelay: `${i * 120}ms` }}
               />
             ))}
@@ -923,11 +928,10 @@ function CommentList({
                   }
                 >
                   <m.li
-                    layout={reduce ? false : "position"}
                     initial={reduce ? false : { opacity: 0, y: 4 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={reduce ? { opacity: 0 } : { opacity: 0, y: -4 }}
-                    transition={{ duration: 0.2, ease: EASE }}
+                    transition={TRANSITION}
                     className={cn(
                       "group/comment text-meta flex gap-2.5",
                       // Replies sit under their comment, indented.
@@ -1298,7 +1302,7 @@ function Composer({
             initial={reduce ? false : { opacity: 0, y: 4, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={reduce ? { opacity: 0 } : { opacity: 0, y: 4, scale: 0.98 }}
-            transition={{ duration: 0.15, ease: EASE }}
+            transition={{ duration: DURATION.fast, ease: EASE_OUT }}
             style={{ left: anchor.left, bottom: anchor.bottom }}
             className="bg-popover text-popover-foreground nest-rounded-popover nest-p-2 shadow-popover absolute z-10 flex w-64 origin-bottom-left flex-col text-sm"
           >

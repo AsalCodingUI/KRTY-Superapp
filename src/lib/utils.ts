@@ -5,14 +5,25 @@ import { createCn } from "cn/config"
  * scale (text-micro … text-kpi) are font sizes (unregistered, `text-micro`
  * reads as a color and `cn("text-white", "text-micro")` drops the white),
  * the radius roles (rounded-control … rounded-tile) are radii, the shadow
- * roles (shadow-control … shadow-dialog) are shadows, and the spacing
- * roles (gap-field, p-surface, …) are spacing.
+ * roles (shadow-control … shadow-dialog) are shadows, the spacing
+ * roles (gap-field, p-surface, …) are spacing, and the motion tokens
+ * (ease-drawer, animate-tab-enter, …) are eases and animations.
  */
 export const cn = createCn({
   extend: {
     // The spacing roles (globals.css: gap-field, p-surface, …).
     theme: {
       spacing: ["field", "fields", "inline", "section", "surface"],
+      // The motion tokens (globals.css --ease-drawer, --animate-*), so
+      // `cn("ease-out", "ease-drawer")` keeps one ease.
+      ease: ["drawer"],
+      animate: [
+        "check-draw",
+        "tab-enter",
+        "footer-in",
+        "count-pop",
+        "caret-blink",
+      ],
     },
     classGroups: {
       "font-size": [

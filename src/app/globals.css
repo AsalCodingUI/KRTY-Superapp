@@ -65,7 +65,7 @@
   --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
 
   /* Checkbox tick draws itself in (stroke), once, when it gets checked. */
-  --animate-check-draw: check-draw 160ms var(--ease-out) both;
+  --animate-check-draw: check-draw 150ms var(--ease-out) both;
   @keyframes check-draw {
     from {
       stroke-dashoffset: 24;
@@ -77,7 +77,7 @@
 
   /* A tab's content settling in when you switch to it. Restarts whenever
      a hidden panel is shown again (display: none → block). */
-  --animate-tab-enter: tab-enter 180ms var(--ease-out);
+  --animate-tab-enter: tab-enter 200ms var(--ease-out);
   @keyframes tab-enter {
     from {
       opacity: 0;
@@ -87,7 +87,7 @@
 
   /* Sidebar footer controls re-settling after collapse / expand: a short
      delay so they appear while the width is still easing. */
-  --animate-footer-in: footer-in 240ms var(--ease-out) 60ms both;
+  --animate-footer-in: footer-in 200ms var(--ease-out) 60ms both;
   @keyframes footer-in {
     from {
       opacity: 0;
@@ -96,7 +96,7 @@
   }
 
   /* Badge count pops when it goes up (new item). */
-  --animate-count-pop: count-pop 260ms var(--ease-out);
+  --animate-count-pop: count-pop 300ms var(--ease-out);
   @keyframes count-pop {
     0% {
       transform: scale(0.6);
@@ -214,52 +214,6 @@
   }
 }
 
-/* Arrival for the sign-in screen. focus-in: opacity, blur and a touch of
-   scale, never a slide (the app icon). shimmer-in: text starts faint and
-   one band of full ink sweeps across it; stagger with --shimmer-n. Both
-   end as plain styles; reduced motion skips them. */
-@keyframes focus-in {
-  from {
-    visibility: hidden;
-    opacity: 0;
-    transform: scale(0.98);
-    filter: blur(4px);
-  }
-}
-@keyframes shimmer-in {
-  from,
-  to {
-    background-image: linear-gradient(
-      100deg,
-      currentColor 40%,
-      var(--shimmer-band, var(--foreground)) 50%,
-      var(--shimmer-from, var(--tertiary-foreground)) 60%
-    );
-    background-size: 300% 100%;
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-  from {
-    background-position: 100% 0;
-  }
-  to {
-    background-position: 0 0;
-  }
-}
-@utility focus-in {
-  @media (prefers-reduced-motion: no-preference) {
-    animation: focus-in 500ms cubic-bezier(0.165, 0.84, 0.44, 1) 180ms backwards;
-  }
-}
-@utility shimmer-in {
-  @media (prefers-reduced-motion: no-preference) {
-    animation: shimmer-in 500ms var(--ease-in-out)
-      calc(150ms + var(--shimmer-n, 2) * 50ms) backwards;
-  }
-}
-
-/* Gentle entrance for rare moments (empty states): rise and fade in once. */
 /* Overlapping avatars: instead of a ring in the page colour, each avatar
    gets a circular bite cut where the next one sits (a real gap that works on
    any background). Set --avatar-overlap to the negative spacing used. */
@@ -278,6 +232,8 @@
   }
 }
 
+/* Gentle entrance for rare moments (empty states, a swapped-in row): rise
+   and fade in once. Reduced motion keeps the fade, drops the rise. */
 @utility enter-rise {
   transition:
     opacity 300ms var(--ease-out),
@@ -285,6 +241,10 @@
   @starting-style {
     opacity: 0;
     transform: translateY(8px);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    /* Only opacity transitions, so the 8px offset applies at once. */
+    transition: opacity 300ms var(--ease-out);
   }
 }
 
@@ -1008,7 +968,7 @@
   pointer-events: none;
   opacity: 0;
   z-index: 20;
-  transition: top 80ms ease-out;
+  transition: top 80ms var(--ease-out);
 }
 .doc-drag-preview > * {
   margin: 0 !important;
@@ -1056,8 +1016,8 @@
   background: var(--background);
   cursor: pointer;
   transition:
-    background-color 150ms,
-    border-color 150ms;
+    background-color 150ms var(--ease-out),
+    border-color 150ms var(--ease-out);
 }
 .ProseMirror ul[data-type="taskList"] input[type="checkbox"]::after {
   content: "";
@@ -1120,5 +1080,5 @@
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation-duration: 0.3s;
-  animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+  animation-timing-function: var(--ease-out);
 }

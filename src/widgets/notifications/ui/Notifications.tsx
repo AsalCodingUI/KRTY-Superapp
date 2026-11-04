@@ -89,10 +89,8 @@ export function Notifications({ variant = "default" }: NotificationsProps) {
             className={variant === "default" ? "size-4 shrink-0" : "size-4"}
           />
           {unreadCount > 0 && variant === "icon" && (
-            <span className="absolute top-0 right-0 -mt-1 -mr-1 flex size-2">
-              <span className="bg-destructive absolute inline-flex h-full w-full animate-ping rounded-full opacity-75"></span>
-              <span className="bg-destructive relative inline-flex size-2 rounded-full"></span>
-            </span>
+            // A still dot: unread isn't loading, so nothing pulses.
+            <span className="bg-destructive absolute top-0 right-0 -mt-1 -mr-1 size-2 rounded-full" />
           )}
         </div>
 

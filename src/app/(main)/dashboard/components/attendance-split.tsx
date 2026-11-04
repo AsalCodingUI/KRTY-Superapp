@@ -63,7 +63,7 @@ export function AttendanceSplit({
                     // Width by share; grows in from nothing on first paint.
                     style={{ "--g": item.value } as React.CSSProperties}
                     className={cn(
-                      "h-full min-w-1 grow-(--g) basis-0 rounded-full transition-[flex-grow] duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] hover:brightness-95 motion-reduce:transition-none starting:grow-0",
+                      "h-full min-w-1 grow-(--g) basis-0 rounded-full transition-[flex-grow] duration-600 ease-out hover:brightness-95 motion-reduce:transition-none starting:grow-0",
                       TONE[item.tone],
                     )}
                   />

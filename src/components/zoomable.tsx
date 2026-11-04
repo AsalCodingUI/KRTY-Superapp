@@ -6,6 +6,7 @@ import { usePinchZoom } from "@/shared/hooks/usePinchZoom"
 import { useT } from "@/shared/i18n/client"
 import { RiAddLine, RiSubtractFill } from "@/shared/ui/lucide-icons"
 import { AnimatePresence, m, useReducedMotion } from "motion/react"
+import { DURATION, EASE_OUT } from "@/shared/lib/motion"
 import { useEffect, useRef, useState } from "react"
 
 const STEP = 1.25
@@ -87,7 +88,7 @@ export function ZoomPill({
           initial={reduce ? false : { opacity: 0, y: 6, scale: 0.96 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={reduce ? { opacity: 0 } : { opacity: 0, y: 6, scale: 0.96 }}
-          transition={{ duration: 0.18, ease: [0.23, 1, 0.32, 1] }}
+          transition={{ duration: DURATION.fast, ease: EASE_OUT }}
           className={cn(
             "bg-popover text-popover-foreground shadow-raised absolute right-3 bottom-3 z-10 flex items-center gap-0.5 rounded-full p-1",
             className,

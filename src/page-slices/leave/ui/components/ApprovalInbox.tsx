@@ -29,6 +29,7 @@ import {
 import { format } from "date-fns"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { AnimatePresence, m } from "motion/react"
+import { TRANSITION } from "@/shared/lib/motion"
 import {
   useCallback,
   useEffect,
@@ -72,7 +73,7 @@ type Tab = "leave" | "attendance"
 const ROW_EXIT = {
   opacity: 0,
   height: 0,
-  transition: { duration: 0.2, ease: [0.23, 1, 0.32, 1] },
+  transition: TRANSITION,
 } as const
 
 function initials(name?: string | null) {
@@ -513,11 +514,10 @@ function InboxRow({
         ref={(el) => {
           if (el && highlighted) el.scrollIntoView({ block: "nearest" })
         }}
-        layout
         initial={{ opacity: 0, y: 4 }}
         animate={{ opacity: 1, y: 0 }}
         exit={ROW_EXIT}
-        transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
+        transition={TRANSITION}
         className="overflow-hidden"
       >
         <div
@@ -575,7 +575,7 @@ function InboxRow({
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={ROW_EXIT}
-              transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
+              transition={TRANSITION}
               className="overflow-hidden"
             >
               <div className="flex flex-col gap-2 px-2 pt-1 pb-3 pl-13">

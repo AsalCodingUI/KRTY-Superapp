@@ -63,10 +63,9 @@ import {
 } from "@/shared/ui/lucide-icons"
 import { useQueryClient } from "@tanstack/react-query"
 import { format, parseISO } from "date-fns"
-import { m } from "motion/react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useState, type CSSProperties } from "react"
 import { toast } from "sonner"
 import { ListColumns } from "../list"
 import { RatingChip } from "./RatingChip"
@@ -512,8 +511,12 @@ function SheetScores({
           <div className="bg-foreground/8 h-1 overflow-hidden rounded-full">
             {value !== null && (
               <div
-                className="bg-blue-9 h-full rounded-full transition-[width] duration-500 ease-out"
-                style={{ width: `${Math.max(0, Math.min(100, value))}%` }}
+                className="bar-grow bg-blue-9 h-full rounded-full"
+                style={
+                  {
+                    "--bar": `${Math.max(0, Math.min(100, value))}%`,
+                  } as CSSProperties
+                }
               />
             )}
           </div>
@@ -1036,11 +1039,13 @@ function Contribution({
                 </span>
                 {row.sla !== null && (
                   <div className="bg-muted hidden h-1.5 max-w-40 flex-1 overflow-hidden rounded-full sm:block">
-                    <m.div
-                      className="bg-blue-9/70 h-full rounded-full"
-                      initial={{ width: 0 }}
-                      animate={{ width: `${Math.min(100, row.sla / 1.2)}%` }}
-                      transition={{ duration: 0.4, ease: "easeOut" }}
+                    <div
+                      className="bar-grow bg-blue-9/70 h-full rounded-full"
+                      style={
+                        {
+                          "--bar": `${Math.min(100, row.sla / 1.2)}%`,
+                        } as CSSProperties
+                      }
                     />
                   </div>
                 )}

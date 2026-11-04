@@ -41,6 +41,7 @@ import { CSS } from "@dnd-kit/utilities"
 import { differenceInCalendarDays, isToday } from "date-fns"
 import { GripHorizontal, TriangleAlert } from "@/components/icons"
 import { m, useReducedMotion } from "motion/react"
+import { EASE_OUT_CSS, TRANSITION } from "@/shared/lib/motion"
 import {
   Fragment,
   memo,
@@ -70,11 +71,9 @@ type Columns = Record<TaskStatus, string[]>
 /** A card element as handed to `wrapCard` (it takes data-* props). */
 type Card = ReactElement<Record<string, unknown>>
 
-const EASE = [0.23, 1, 0.32, 1] as const
-
 const DROP_ANIMATION: DropAnimation = {
-  duration: 220,
-  easing: "cubic-bezier(0.23, 1, 0.32, 1)",
+  duration: 200,
+  easing: EASE_OUT_CSS,
   sideEffects: defaultDropAnimationSideEffects({
     styles: { active: { opacity: "0.4" } },
   }),
@@ -153,13 +152,6 @@ export function TaskBoard({
   const [override, setOverride] = useState<Columns | null>(null)
   const [activeId, setActiveId] = useState<string | null>(null)
   const cols = override ?? base
-  // Cards slide into place only when the saved order changes (a status set
-  // in the dialog, someone else's move), never mid-drag: there dnd-kit moves
-  // them and the two would fight.
-  const layoutKey = useMemo(
-    () => TASK_STATUSES.map((s) => base[s].join()).join("|"),
-    [base],
-  )
   const byId = useMemo(() => new Map(tasks.map((t) => [t.id, t])), [tasks])
 
   // The column under the pointer wins, then the nearest card in it. Plain
@@ -312,7 +304,6 @@ export function TaskBoard({
             status={status}
             ids={cols[status]}
             byId={byId}
-            layoutKey={layoutKey}
             addSignal={status === "todo" ? addSignal : 0}
             renderCard={renderCard}
             onOpen={open}
@@ -347,7 +338,6 @@ const Column = memo(function Column({
   status,
   ids,
   byId,
-  layoutKey,
   addSignal,
   renderCard,
   onOpen,
@@ -357,7 +347,6 @@ const Column = memo(function Column({
   status: TaskStatus
   ids: string[]
   byId: Map<string, TaskRow>
-  layoutKey: string
   addSignal: number
   renderCard: (task: TaskRow) => React.ReactNode
   onOpen: (task: TaskRow) => void
@@ -463,7 +452,7 @@ const Column = memo(function Column({
               const task = byId.get(id)
               if (!task) return null
               const card = (
-                <SortableCard task={task} layoutKey={layoutKey} onOpen={onOpen}>
+                <SortableCard task={task} onOpen={onOpen}>
                   {renderCard(task)}
                 </SortableCard>
               )
@@ -487,13 +476,11 @@ const Column = memo(function Column({
 
 function SortableCard({
   task,
-  layoutKey,
   onOpen: openTask,
   children,
   ...data
 }: {
   task: TaskRow
-  layoutKey: string
   onOpen: (task: TaskRow) => void
   children: React.ReactNode
   /** data-* from a <ContextTarget> around it (the right-click menu). */
@@ -511,14 +498,13 @@ function SortableCard({
   const onOpen = () => openTask(task)
 
   return (
-    // Outer layer: motion slides the card when the saved order changes.
-    // dnd-kit moves the inner layer while dragging.
+    // Outer layer: motion fades a new card in. dnd-kit moves the inner
+    // layer while dragging. (No `layout`: the slim motion features don't
+    // run it.)
     <m.div
-      layout={reduce ? false : "position"}
-      layoutDependency={layoutKey}
       initial={reduce ? false : { opacity: 0, y: 4 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25, ease: EASE }}
+      transition={TRANSITION}
     >
       <div
         ref={setNodeRef}
@@ -559,7 +545,7 @@ function LiftedCard({ children }: { children: React.ReactNode }) {
   }, [])
   return (
     <div
-      className="cursor-grabbing transition-transform duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] will-change-transform [--nest-p:calc(var(--spacing)*2)] [--nest-r:var(--radius-2xl)] motion-reduce:transition-none"
+      className="cursor-grabbing transition-transform duration-200 ease-out will-change-transform [--nest-p:calc(var(--spacing)*2)] [--nest-r:var(--radius-2xl)] motion-reduce:transition-none"
       style={{
         transform: `rotate(${tilt}deg) scale(${lifted ? 1.03 : 1})`,
       }}

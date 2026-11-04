@@ -15,7 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { RiLoader2Line } from "@/shared/ui/lucide-icons"
+import { Spinner } from "@/components/ui/spinner"
 import React from "react"
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"]
@@ -153,8 +153,8 @@ export function LeaveRequestForm({
               disabled={compressing}
             />
             {compressing && (
-              <span className="text-primary flex animate-pulse items-center gap-1 text-xs whitespace-nowrap">
-                <RiLoader2Line className="size-3 animate-spin" />
+              <span className="text-primary flex items-center gap-1 text-xs whitespace-nowrap">
+                <Spinner className="size-3" aria-hidden />
                 {t("processing")}
               </span>
             )}

@@ -31,6 +31,7 @@ import {
 import { format, parseISO } from "date-fns"
 import { useDateLocale, useT } from "@/shared/i18n/client"
 import { AnimatePresence, m } from "motion/react"
+import { TRANSITION } from "@/shared/lib/motion"
 import * as React from "react"
 import { useState } from "react"
 import { useClockActions } from "../model/useClockActions"
@@ -169,7 +170,7 @@ export function ClockControls({
         initial={{ opacity: 0, y: 4, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: -4, scale: 0.98 }}
-        transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
+        transition={TRANSITION}
       >
         {node}
       </m.div>

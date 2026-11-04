@@ -1,6 +1,7 @@
 "use client"
 
 import { projectHref } from "@/shared/lib/url-params"
+import { EASE_OUT_CSS } from "@/shared/lib/motion"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
 import {
@@ -259,8 +260,8 @@ function LiftedCard({ project }: { project: ProjectListRow }) {
 }
 
 const DROP_ANIMATION: DropAnimation = {
-  duration: 220,
-  easing: "cubic-bezier(0.2, 0, 0, 1)",
+  duration: 200,
+  easing: EASE_OUT_CSS,
   sideEffects: defaultDropAnimationSideEffects({
     styles: { active: { opacity: "0.4" } },
   }),

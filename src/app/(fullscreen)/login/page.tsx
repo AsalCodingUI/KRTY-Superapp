@@ -14,47 +14,9 @@ import { createClient } from "@/shared/api/supabase/client"
 import { Spinner } from "@/components/ui/spinner"
 import { cn } from "@/lib/utils"
 import { useT } from "@/shared/i18n/client"
-import { m, useReducedMotion, type Variants } from "motion/react"
+import { ARRIVAL } from "@/shared/lib/motion"
+import { m, useReducedMotion } from "motion/react"
 import { useEffect, useState } from "react"
-
-const EASE = [0.23, 1, 0.32, 1] as const
-
-/** The column reveals its parts one after another. */
-const STAGGER: Variants = {
-  hidden: {},
-  show: { transition: { delayChildren: 0.12, staggerChildren: 0.09 } },
-}
-
-/** The icon: out of a blur, a little small and tilted, settling on a spring. */
-const ICON: Variants = {
-  hidden: { opacity: 0, scale: 0.72, rotate: -8, filter: "blur(10px)" },
-  show: {
-    opacity: 1,
-    scale: 1,
-    rotate: 0,
-    filter: "blur(0px)",
-    transitionEnd: { filter: "none" },
-    transition: {
-      type: "spring",
-      stiffness: 260,
-      damping: 20,
-      opacity: { duration: 0.35, ease: EASE },
-      filter: { duration: 0.45, ease: EASE },
-    },
-  },
-}
-
-/** Text and controls rise a few pixels out of a soft blur. */
-const RISE: Variants = {
-  hidden: { opacity: 0, y: 10, filter: "blur(6px)" },
-  show: {
-    opacity: 1,
-    y: 0,
-    filter: "blur(0px)",
-    transitionEnd: { filter: "none" },
-    transition: { duration: 0.6, ease: EASE },
-  },
-}
 
 /** Google's "G" mark, as on every Google sign-in button. */
 function GoogleMark() {
@@ -143,18 +105,21 @@ export default function LoginPage() {
           className="flex w-full flex-col items-center gap-6"
           initial={reduce ? false : "hidden"}
           animate="show"
-          variants={STAGGER}
+          variants={ARRIVAL.stagger}
         >
-          <m.div variants={ICON}>
+          <m.div variants={ARRIVAL.icon}>
             <AppIcon size={192} className={screenLogoClass} />
           </m.div>
 
-          <m.div variants={RISE} className="flex flex-col items-center gap-3">
+          <m.div
+            variants={ARRIVAL.rise}
+            className="flex flex-col items-center gap-3"
+          >
             <h1 className={screenTitleClass}>{t("loginTitle")}</h1>
             <p className={screenTextClass}>{t("loginSubtitle")}</p>
           </m.div>
 
-          <m.div variants={RISE} className="flex w-full flex-col gap-3">
+          <m.div variants={ARRIVAL.rise} className="flex w-full flex-col gap-3">
             {error && (
               <p
                 role="alert"

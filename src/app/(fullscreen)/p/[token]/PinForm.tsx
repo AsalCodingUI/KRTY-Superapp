@@ -11,54 +11,13 @@ import {
 import { Spinner } from "@/components/ui/spinner"
 import { cn } from "@/lib/utils"
 import { useT } from "@/shared/i18n/client"
-import {
-  AnimatePresence,
-  m,
-  useAnimate,
-  useReducedMotion,
-  type Variants,
-} from "motion/react"
+import { ARRIVAL, EASE_OUT } from "@/shared/lib/motion"
+import { AnimatePresence, m, useAnimate, useReducedMotion } from "motion/react"
 import { useRouter } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 import { unlockPortal } from "./actions"
 
 const LENGTH = 6
-const EASE = [0.23, 1, 0.32, 1] as const
-
-// Same entrance as the sign-in page: the column reveals its parts in turn.
-const STAGGER: Variants = {
-  hidden: {},
-  show: { transition: { delayChildren: 0.12, staggerChildren: 0.09 } },
-}
-
-const ICON: Variants = {
-  hidden: { opacity: 0, scale: 0.72, rotate: -8, filter: "blur(10px)" },
-  show: {
-    opacity: 1,
-    scale: 1,
-    rotate: 0,
-    filter: "blur(0px)",
-    transitionEnd: { filter: "none" },
-    transition: {
-      type: "spring",
-      stiffness: 260,
-      damping: 20,
-      opacity: { duration: 0.35, ease: EASE },
-      filter: { duration: 0.45, ease: EASE },
-    },
-  },
-}
-
-const RISE: Variants = {
-  hidden: { opacity: 0, y: 10, filter: "blur(6px)" },
-  show: {
-    opacity: 1,
-    y: 0,
-    filter: "blur(0px)",
-    transitionEnd: { filter: "none" },
-    transition: { duration: 0.6, ease: EASE },
-  },
-}
 
 /** A code box: see-through on the frosted card, like its fields. */
 const BOX_SURFACE = "bg-white/35 dark:bg-field"
@@ -115,7 +74,7 @@ export function PinForm({
       await animate(
         boxes.current,
         { x: [0, -10, 9, -7, 5, -2, 0] },
-        { duration: 0.45, ease: "easeOut" },
+        { duration: 0.45, ease: EASE_OUT },
       )
     }
     setPin("")
@@ -141,18 +100,21 @@ export function PinForm({
           className="flex w-full flex-col items-center gap-6"
           initial={reduce ? false : "hidden"}
           animate="show"
-          variants={STAGGER}
+          variants={ARRIVAL.stagger}
         >
-          <m.div variants={ICON}>
+          <m.div variants={ARRIVAL.icon}>
             <AppIcon size={192} className={screenLogoClass} />
           </m.div>
 
-          <m.div variants={RISE} className="flex flex-col items-center gap-3">
+          <m.div
+            variants={ARRIVAL.rise}
+            className="flex flex-col items-center gap-3"
+          >
             <h1 className={screenTitleClass}>{projectName}</h1>
             <p className={screenTextClass}>{t("portalPinPrompt")}</p>
           </m.div>
 
-          <m.div variants={RISE} className="w-full">
+          <m.div variants={ARRIVAL.rise} className="w-full">
             {/* One real input over the six boxes: typing, paste, autofill
                 and the phone's code suggestion all just work. */}
             <div

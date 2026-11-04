@@ -1,5 +1,6 @@
 "use client"
 
+import { Skeleton } from "@/components/ui/skeleton"
 import dynamic from "next/dynamic"
 
 /**
@@ -13,7 +14,7 @@ export const MarkdownDocEditor = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="bg-muted/40 min-h-32 w-full animate-pulse rounded-lg" />
+      <Skeleton className="bg-muted/40 min-h-32 w-full rounded-lg" />
     ),
   },
 )

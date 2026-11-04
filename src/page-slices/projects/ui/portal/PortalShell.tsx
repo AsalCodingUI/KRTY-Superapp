@@ -42,6 +42,7 @@ import {
 } from "@/shared/ui/lucide-icons"
 import { Newspaper } from "@/components/icons"
 import { m } from "motion/react"
+import { TRANSITION } from "@/shared/lib/motion"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useTransition } from "react"
@@ -265,7 +266,7 @@ export function PortalShell({
                 key={pathname}
                 initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.25, ease: [0.23, 1, 0.32, 1] }}
+                transition={TRANSITION}
                 className="flex flex-1 flex-col"
               >
                 {children}

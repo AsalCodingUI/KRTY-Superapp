@@ -3,6 +3,7 @@
 import { useWorkspaceNav } from "@/components/workspace-nav"
 import { matchProjectPath } from "@/shared/config/project-sections"
 import { m } from "motion/react"
+import { DURATION, EASE_OUT } from "@/shared/lib/motion"
 import { usePathname } from "next/navigation"
 import { useState } from "react"
 
@@ -10,8 +11,6 @@ import { useState } from "react"
 const RANK: Record<string, number> = { personal: 0, project: 1 }
 const rankOf = (key: string) =>
   key.startsWith("project:") ? 2 : (RANK[key.slice(3)] ?? 0)
-
-const EASE = [0.23, 1, 0.32, 1] as const
 
 /**
  * The page slides in with a soft blur when you move between workspaces or
@@ -54,7 +53,10 @@ export function WorkspaceTransition({
               transitionEnd: { filter: "none" },
             }
       }
-      transition={{ duration: pending ? 0.18 : 0.32, ease: EASE }}
+      transition={{
+        duration: pending ? DURATION.fast : DURATION.slow,
+        ease: EASE_OUT,
+      }}
       className="flex flex-1 flex-col gap-4"
     >
       {children}

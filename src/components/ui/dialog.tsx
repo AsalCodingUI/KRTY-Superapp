@@ -37,7 +37,7 @@ function DialogOverlay({
     <DialogPrimitive.Backdrop
       data-slot="dialog-overlay"
       className={cn(
-        "data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0 bg-backdrop fixed inset-0 isolate z-50 duration-250 ease-out",
+        "data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0 bg-backdrop fixed inset-0 isolate z-50 duration-200 ease-out",
         className,
       )}
       {...props}
@@ -125,7 +125,7 @@ function useSheetDrag(close: () => void) {
       settle()
     }
     const settle = () => {
-      node.style.transition = "translate 320ms cubic-bezier(0.32, 0.72, 0, 1)"
+      node.style.transition = "translate 320ms var(--ease-drawer)"
       node.style.translate = ""
     }
     // A finger drag on the strip must not scroll or bounce the page.
@@ -174,7 +174,7 @@ function DialogContent({
         data-slot="dialog-content"
         className={cn(
           bare
-            ? "bg-popover text-popover-foreground data-open:animate-in data-open:fade-in-0 data-open:zoom-in-96 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-96 rounded-dialog shadow-dialog fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 text-sm duration-250 ease-out outline-none"
+            ? "bg-popover text-popover-foreground data-open:animate-in data-open:fade-in-0 data-open:zoom-in-96 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-96 rounded-dialog shadow-dialog fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 text-sm duration-200 ease-out outline-none"
             : dialogShellClassName,
           dialogSheetOnMobileClassName,
           className,

@@ -5,6 +5,7 @@ import { AppearancePopover } from "@/components/appearance-popover"
 import { LanguageSwitcher } from "@/components/language-switcher"
 import { ThemeSwitcher } from "@/components/theme-switcher"
 import { AnimatePresence, m, type Variants } from "motion/react"
+import { TRANSITION } from "@/shared/lib/motion"
 import * as React from "react"
 import { cn } from "@/lib/utils"
 import { siteConfig } from "@/app/siteConfig"
@@ -267,7 +268,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               initial="enter"
               animate="center"
               exit="exit"
-              transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
+              transition={TRANSITION}
               className="flex min-w-0 flex-col [&>[data-sidebar=group]:first-child]:pt-0"
             >
               {projectPath ? (

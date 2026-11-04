@@ -31,6 +31,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
+import { TAB_ENTER } from "@/shared/hooks/useTabSwitched"
 import {
   Dialog,
   DialogContent,
@@ -1032,10 +1033,7 @@ export function ProjectLibrary({ projectId }: { projectId: string }) {
         }
       />
       {/* Re-keyed on grid ↔ list so the swap settles in. */}
-      <div
-        key={view}
-        className="animate-tab-enter flex flex-col gap-5 pb-4 motion-reduce:animate-none"
-      >
+      <div key={view} className={cn(TAB_ENTER, "flex flex-col gap-5 pb-4")}>
         {isLoading ? (
           <div className="flex justify-center py-12">
             <Spinner className="size-6" />

@@ -5,6 +5,7 @@ import { HoverHighlight } from "@/components/sliding-indicator"
 import { cn } from "@/lib/utils"
 import { RiArrowDownSLine } from "@/shared/ui/lucide-icons"
 import { AnimatePresence, m, type HTMLMotionProps } from "motion/react"
+import { TRANSITION } from "@/shared/lib/motion"
 import * as React from "react"
 
 /**
@@ -134,7 +135,7 @@ export function ListGroup({
         >
           <RiArrowDownSLine
             className={cn(
-              "text-muted-foreground size-4 shrink-0 transition-transform",
+              "text-muted-foreground size-4 shrink-0 transition-transform duration-200 ease-out motion-reduce:transition-none",
               !open && "-rotate-90",
             )}
           />
@@ -154,8 +155,6 @@ export function ListGroup({
     </section>
   )
 }
-
-const ROW_EASE = [0.23, 1, 0.32, 1] as const
 
 /*
  * The one table style (docs/ui/table.md, live at /ui). Every list / table:
@@ -237,9 +236,9 @@ export function ListRow({
         paddingTop: 0,
         paddingBottom: 0,
         overflow: "hidden",
-        transition: { duration: 0.2, ease: ROW_EASE },
+        transition: TRANSITION,
       }}
-      transition={{ duration: 0.2, ease: ROW_EASE }}
+      transition={TRANSITION}
       className={cn(listRowClassName, className)}
       {...(props as HTMLMotionProps<"div">)}
     />

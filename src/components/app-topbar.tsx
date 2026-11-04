@@ -63,7 +63,7 @@ export function AppTopbar() {
       >
         <div
           className={cn(
-            "flex shrink-0 items-center pl-[5.25rem] transition-[width] duration-200 ease-linear",
+            "flex shrink-0 items-center pl-[5.25rem] transition-[width] duration-200 ease-out motion-reduce:transition-none",
             state === "collapsed"
               ? "w-[7.75rem]"
               : "w-[max(var(--sidebar-width),7.75rem)]",

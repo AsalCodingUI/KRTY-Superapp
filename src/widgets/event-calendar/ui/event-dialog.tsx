@@ -864,7 +864,7 @@ export function EventDialog({
                 {!readOnly && event && onDelete && (
                   <>
                     {isDeletePending ? (
-                      <div className="animate-fadeIn flex items-center gap-2">
+                      <div className="enter-rise flex items-center gap-2">
                         <span className="text-destructive-ink text-sm font-medium">
                           {t("dialogDeleteConfirm")}
                         </span>

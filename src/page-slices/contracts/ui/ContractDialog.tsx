@@ -19,6 +19,7 @@ import {
 import { useQueryClient } from "@tanstack/react-query"
 import { format, parseISO } from "date-fns"
 import { AnimatePresence, m } from "motion/react"
+import { TRANSITION } from "@/shared/lib/motion"
 import { useCallback, useState } from "react"
 import { toast } from "sonner"
 import {
@@ -35,8 +36,6 @@ import {
   usePeriodLabel,
   type ContractViewer,
 } from "./parts"
-
-const EASE = [0.23, 1, 0.32, 1] as const
 
 /** Lower-cased, single-spaced: " Rico Pratama" matches "rico pratama". */
 const normalizeName = (value: string) =>
@@ -230,7 +229,7 @@ function Acknowledgement({
         initial={{ opacity: 0, y: 4 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -4 }}
-        transition={{ duration: 0.2, ease: EASE }}
+        transition={TRANSITION}
         className="flex flex-col gap-2"
       >
         {state === "done" ? (

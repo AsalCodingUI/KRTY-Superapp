@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic"
 import { useProjectRealtime } from "./useProjectRealtime"
 import { Skeleton } from "@/components/ui/skeleton"
+import { TAB_ENTER } from "@/shared/hooks/useTabSwitched"
 
 /** Content-area placeholder while a section's chunk loads (matches loading.tsx). */
 function SectionFallback() {
@@ -68,10 +69,7 @@ export function ProjectWorkspacePage({
   // Settles in when you open a project or switch its section (same motion
   // as tab switches elsewhere).
   return (
-    <div
-      key={`${projectId}:${section}`}
-      className="animate-tab-enter motion-reduce:animate-none"
-    >
+    <div key={`${projectId}:${section}`} className={TAB_ENTER}>
       <Page projectId={projectId} />
     </div>
   )

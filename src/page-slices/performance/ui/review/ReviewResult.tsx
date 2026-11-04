@@ -6,7 +6,7 @@ import type { ReviewSummary } from "@/app/(main)/performance/actions/review-acti
 import { RATINGS, ratingFor } from "@/entities/performance/lib/kpi"
 import { cn } from "@/lib/utils"
 import { useT } from "@/shared/i18n/client"
-import { useId } from "react"
+import { useId, type CSSProperties } from "react"
 import { RatingChip } from "../kpi/RatingChip"
 
 export const CRITERIA = [
@@ -166,9 +166,13 @@ export function ReviewResult({ summary }: { summary: ReviewSummary }) {
                   <div className="bg-foreground/8 h-1.5 overflow-hidden rounded-full">
                     {value !== null && (
                       <div
-                        className="bg-blue-9 h-full rounded-full transition-[width] duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]"
+                        className="bar-grow bg-blue-9 h-full rounded-full"
                         // 1–5 scale: 1 is empty, 5 is full.
-                        style={{ width: `${((value - 1) / 4) * 100}%` }}
+                        style={
+                          {
+                            "--bar": `${((value - 1) / 4) * 100}%`,
+                          } as CSSProperties
+                        }
                       />
                     )}
                   </div>

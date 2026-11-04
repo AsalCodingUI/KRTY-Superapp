@@ -39,7 +39,7 @@ import {
 import { format, isToday } from "date-fns"
 import { ContextTarget, copyText, type CtxItem } from "@/shared/context-menu"
 import { Copy, CopyPlus, FileText, Pin, Trash2 } from "@/components/icons"
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react"
 import { toast } from "sonner"
 import {
   useNoteWriter,
@@ -593,8 +593,12 @@ function NoteEditor({
               aria-hidden
             >
               <div
-                className="bg-success h-full rounded-full transition-[width] duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]"
-                style={{ width: `${(done / todos.length) * 100}%` }}
+                className="bar-grow bg-success h-full rounded-full"
+                style={
+                  {
+                    "--bar": `${(done / todos.length) * 100}%`,
+                  } as CSSProperties
+                }
               />
             </div>
           )}

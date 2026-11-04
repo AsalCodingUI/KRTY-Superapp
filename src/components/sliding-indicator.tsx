@@ -175,7 +175,7 @@ export function SlidingIndicator({
     !box && "invisible",
     animate &&
       box?.glide &&
-      "transition-[transform,width,height] duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] motion-reduce:transition-none",
+      "transition-[transform,width,height] duration-200 ease-out motion-reduce:transition-none",
   )
   return (
     <>
@@ -277,7 +277,7 @@ export function HoverHighlight({
       className={cn(
         "rounded-row pointer-events-none absolute top-0 left-0 transition-opacity duration-150 ease-out motion-reduce:transition-none",
         !instant &&
-          "transition-[opacity,transform,height] duration-200 ease-[cubic-bezier(0.23,1,0.32,1)]",
+          "transition-[opacity,transform,height] duration-200 ease-out",
         visible && box ? "opacity-100" : "opacity-0",
         className,
       )}

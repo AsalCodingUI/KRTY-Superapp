@@ -1,6 +1,7 @@
 "use client"
 
 import { AnimatePresence, m } from "motion/react"
+import { DURATION, TRANSITION } from "@/shared/lib/motion"
 import * as React from "react"
 import {
   flexRender,
@@ -41,8 +42,8 @@ const ANIMATED_ROW_LIMIT = 50
 const ROW_MOTION = {
   initial: { opacity: 0, y: -4 },
   animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, transition: { duration: 0.16 } },
-  transition: { duration: 0.2, ease: [0.23, 1, 0.32, 1] },
+  exit: { opacity: 0, transition: { duration: DURATION.fast } },
+  transition: TRANSITION,
 } as const
 
 /**

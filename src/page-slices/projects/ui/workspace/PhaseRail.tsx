@@ -36,13 +36,12 @@ import {
   Trash2,
 } from "@/components/icons"
 import { AnimatePresence, m, useReducedMotion } from "motion/react"
+import { TRANSITION } from "@/shared/lib/motion"
 import { useEffect, useRef, useState } from "react"
 import type { PhaseRow } from "./data"
 
 /* The phase rail, on its own so the client portal can show it without
    pulling in the team's whole dashboard. */
-
-const EASE = [0.23, 1, 0.32, 1] as const
 
 export const PHASE_NAME_MAX = 40
 export function clip(name: string, max = 28) {
@@ -150,7 +149,7 @@ export function PhaseRail({
                 initial={reduce ? false : { opacity: 0, x: -4 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={reduce ? { opacity: 0 } : { opacity: 0, x: -4 }}
-                transition={{ duration: 0.2, ease: EASE }}
+                transition={TRANSITION}
                 className="bg-warning-subtle ml-1 flex min-w-0 items-center gap-1.5 rounded-full py-0.5 pr-0.5 pl-2 text-xs"
               >
                 <RiErrorWarningLine className="text-warning size-3.5 shrink-0" />

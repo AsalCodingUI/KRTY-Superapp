@@ -188,7 +188,7 @@ export function MeetingDialog({
             {onDelete && (
               <>
                 {isDeletePending ? (
-                  <div className="animate-fadeIn flex w-full items-center gap-2">
+                  <div className="enter-rise flex w-full items-center gap-2">
                     <span className="text-destructive-ink text-sm font-medium whitespace-nowrap">
                       {t("dialogDeleteConfirm")}
                     </span>

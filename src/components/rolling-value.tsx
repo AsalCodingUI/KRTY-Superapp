@@ -1,6 +1,7 @@
 "use client"
 
 import { AnimatePresence, m } from "motion/react"
+import { TRANSITION } from "@/shared/lib/motion"
 import * as React from "react"
 
 /**
@@ -32,7 +33,7 @@ export function RollingValue({
           initial={{ y: "45%", opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: "-45%", opacity: 0 }}
-          transition={{ duration: 0.22, ease: [0.23, 1, 0.32, 1] }}
+          transition={TRANSITION}
         >
           {children}
         </m.span>

@@ -81,7 +81,7 @@ function ScoreGauge({ score }: { score: number | null }) {
               strokeLinecap="round"
               stroke="currentColor"
               className={cn(
-                "transition-colors duration-500",
+                "transition-colors duration-300 ease-out motion-reduce:transition-none",
                 lit ? "text-blue-9" : "text-foreground/10",
               )}
               style={{ transitionDelay: `${i * 12}ms` }}
@@ -204,7 +204,7 @@ export function Ring({
           pathLength={100}
           strokeDasharray={`${v} 100`}
           className={cn(
-            "transition-[stroke-dasharray] duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]",
+            "transition-[stroke-dasharray] duration-600 ease-out motion-reduce:transition-none",
             under ? "text-warning" : "text-blue-9",
           )}
         />
