@@ -44,6 +44,7 @@ import {
 } from "@/shared/lib/chrome-tint"
 import {
   checkForUpdate,
+  devicePlatform,
   installUpdate,
   invokeApp,
   tauri,
@@ -318,9 +319,14 @@ function VersionRow() {
 function MacAppRow() {
   const t = useT("prefs")
   const { start, busy, dialog } = useMacDownload()
+  const [windows, setWindows] = useState(false)
+  useEffect(() => setWindows(devicePlatform() === "windows"), [])
   return (
     <>
-      <Row label={t("macApp")} hint={t("macAppHint")}>
+      <Row
+        label={windows ? t("windowsApp") : t("macApp")}
+        hint={windows ? t("windowsAppHint") : t("macAppHint")}
+      >
         <Button
           variant="outline"
           size="sm"
@@ -424,7 +430,13 @@ function MacNotificationRow() {
 function SoundRow({ inApp }: { inApp: boolean }) {
   const t = useT("prefs")
   const [value, setValue] = useState<NotificationSound>("kretya")
-  useEffect(() => setValue(notificationSound()), [])
+  const [windows, setWindows] = useState(false)
+  useEffect(() => {
+    setValue(notificationSound())
+    setWindows(devicePlatform() === "windows")
+  }, [])
+  const label = (s: NotificationSound) =>
+    s === "system" && windows ? t("soundSystemWindows") : t(SOUND_LABEL[s])
   const options = NOTIFICATION_SOUNDS.filter((s) => inApp || s !== "system")
   const pick = (next: NotificationSound) => {
     setValue(next)
@@ -439,14 +451,12 @@ function SoundRow({ inApp }: { inApp: boolean }) {
           onValueChange={(v) => v && pick(v as NotificationSound)}
         >
           <SelectTrigger size="sm" aria-label={t("sound")} className="w-40">
-            <SelectValue>
-              {(v: NotificationSound) => t(SOUND_LABEL[v])}
-            </SelectValue>
+            <SelectValue>{(v: NotificationSound) => label(v)}</SelectValue>
           </SelectTrigger>
           <SelectContent align="end">
             {options.map((s) => (
               <SelectItem key={s} value={s}>
-                {t(SOUND_LABEL[s])}
+                {label(s)}
               </SelectItem>
             ))}
           </SelectContent>

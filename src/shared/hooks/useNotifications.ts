@@ -314,9 +314,12 @@ export const URGENT_NOTIFICATION_TYPES = new Set(["announcement_urgent"])
  * ones also raise a desktop notification (if the browser allows it).
  * Mount once (the bell does).
  */
-/** Inside Kretya Flow (its bridge is there). */
-const isDesktopApp = () =>
-  typeof window !== "undefined" && "__TAURI__" in window
+/** Inside Kretya Flow for Mac, which plays the sound with its own
+ *  notification. (The Windows app's toasts stay silent: the page plays it.) */
+const isMacApp = () =>
+  typeof window !== "undefined" &&
+  "__TAURI__" in window &&
+  !/Windows/.test(navigator.userAgent)
 
 export function useNotificationsRealtime() {
   const queryClient = useQueryClient()
@@ -345,7 +348,7 @@ export function useNotificationsRealtime() {
           const n = payload.new
           // Its sound (Settings → Notifikasi). Kretya Flow plays it with the
           // macOS notification instead, so the app's page stays quiet.
-          if (!isDesktopApp()) playNotificationSound(undefined, n.id)
+          if (!isMacApp()) playNotificationSound(undefined, n.id)
           if (
             URGENT_NOTIFICATION_TYPES.has(n.type) &&
             document.visibilityState === "hidden" &&

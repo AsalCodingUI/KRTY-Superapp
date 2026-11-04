@@ -13,10 +13,22 @@ import { createClient } from "@/shared/api/supabase/client"
 export const APP_UPDATE_CATEGORY = "Update aplikasi"
 
 export const RELEASE_BUCKET = "app-releases"
-/** Where a version's Mac download lives (one universal .dmg per version). */
+/** Which build: the Mac's (one universal .dmg) or Windows' (an x64
+ *  installer). */
+export type AppPlatform = "mac" | "windows"
+
+/** Where a version's downloads live, one file per platform. */
 export const releaseFolder = (version: string) => `kretya-flow/${version}`
-export const releaseFile = (version: string) =>
-  `Kretya-Flow-${version}-universal.dmg`
+export const releaseFile = (version: string, platform: AppPlatform = "mac") =>
+  platform === "windows"
+    ? `Kretya-Flow-${version}-x64-setup.exe`
+    : `Kretya-Flow-${version}-universal.dmg`
+
+/** This device's build: Windows on Windows, else the Mac's. */
+export function devicePlatform(): AppPlatform {
+  if (typeof navigator === "undefined") return "mac"
+  return /Windows/.test(navigator.userAgent) ? "windows" : "mac"
+}
 
 type TauriGlobal = {
   app?: { getVersion: () => Promise<string> }
@@ -132,9 +144,10 @@ export function isNewerVersion(a: string, b: string) {
 
 export type MacRelease = {
   version: string
+  platform: AppPlatform
   /** The release notes: /policies?policy=<slug> (null: no post yet). */
   slug: string | null
-  /** The .dmg in the releases bucket. */
+  /** The .dmg (or Windows installer) in the releases bucket. */
   path: string
 }
 
@@ -143,8 +156,11 @@ export type MacRelease = {
  * newest version first; the first one whose .dmg is uploaded wins (a post
  * can go out before its file).
  */
-export async function fetchLatestMacRelease(): Promise<MacRelease | null> {
+export async function fetchLatestMacRelease(
+  platform: AppPlatform = devicePlatform(),
+): Promise<MacRelease | null> {
   const supabase = createClient()
+  const fileOf = (version: string) => releaseFile(version, platform)
   const { data } = await supabase
     .from("policy_documents")
     .select("slug, title")
@@ -163,13 +179,12 @@ export async function fetchLatestMacRelease(): Promise<MacRelease | null> {
   for (const post of posts.slice(0, 5)) {
     const { data: files } = await supabase.storage
       .from(RELEASE_BUCKET)
-      .list(releaseFolder(post.version), { search: releaseFile(post.version) })
-    if (
-      files?.some((f: { name: string }) => f.name === releaseFile(post.version))
-    )
+      .list(releaseFolder(post.version), { search: fileOf(post.version) })
+    if (files?.some((f: { name: string }) => f.name === fileOf(post.version)))
       return {
         ...post,
-        path: `${releaseFolder(post.version)}/${releaseFile(post.version)}`,
+        platform,
+        path: `${releaseFolder(post.version)}/${fileOf(post.version)}`,
       }
   }
   // No post for it (yet): the highest version uploaded to the bucket, so a
@@ -184,12 +199,13 @@ export async function fetchLatestMacRelease(): Promise<MacRelease | null> {
   for (const version of versions.slice(0, 5)) {
     const { data: files } = await supabase.storage
       .from(RELEASE_BUCKET)
-      .list(releaseFolder(version), { search: releaseFile(version) })
-    if (files?.some((f: { name: string }) => f.name === releaseFile(version)))
+      .list(releaseFolder(version), { search: fileOf(version) })
+    if (files?.some((f: { name: string }) => f.name === fileOf(version)))
       return {
         slug: null,
         version,
-        path: `${releaseFolder(version)}/${releaseFile(version)}`,
+        platform,
+        path: `${releaseFolder(version)}/${fileOf(version)}`,
       }
   }
   return null
@@ -203,13 +219,26 @@ export async function downloadMacRelease(release: MacRelease) {
   const { data, error } = await createClient()
     .storage.from(RELEASE_BUCKET)
     .createSignedUrl(release.path, 600, {
-      download: releaseFile(release.version),
+      download: releaseFile(release.version, release.platform),
     })
   if (error || !data) return false
   if (tauri()) await invokeApp("open_external", { url: data.signedUrl })
   else window.location.href = data.signedUrl
   return true
 }
+
+/** A Windows PC (not a phone): who the installer is for. */
+export function isWindowsDesktop() {
+  if (typeof navigator === "undefined") return false
+  return (
+    /Windows/.test(navigator.userAgent) &&
+    window.matchMedia("(pointer: fine)").matches
+  )
+}
+
+/** On the web: the app this computer can install, if any. */
+export const downloadablePlatform = (): AppPlatform | null =>
+  isWindowsDesktop() ? "windows" : isMacDesktop() ? "mac" : null
 
 /** A Mac with a mouse (not an iPad, not a phone): who the .dmg is for. */
 export function isMacDesktop() {

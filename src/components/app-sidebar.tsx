@@ -9,7 +9,7 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 import { siteConfig } from "@/app/siteConfig"
 import { AppIcon } from "@/components/app-icon"
-import { useDesktopShell } from "@/components/desktop-shell"
+import { useMacChrome } from "@/components/desktop-shell"
 import { WorkspaceSwitch } from "@/components/app-topbar"
 
 import { NavMain } from "@/components/nav-main"
@@ -146,7 +146,7 @@ const NAV_SLIDE: Variants = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const desktop = useDesktopShell()
+  const desktop = useMacChrome()
   const pathname = usePathname()
   const { profile } = useUserProfile()
   const { loading, active, badges } = useWorkspaceNav()

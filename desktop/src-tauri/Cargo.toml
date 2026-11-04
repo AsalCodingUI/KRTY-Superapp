@@ -1,7 +1,7 @@
 [package]
 name = "krty-desktop"
-version = "0.3.2"
-description = "KRTY for Mac"
+version = "0.3.3"
+description = "Kretya Flow"
 edition = "2021"
 
 [lib]
@@ -31,3 +31,8 @@ objc2-app-kit = "0.3"
 objc2-foundation = "0.3"
 objc2-user-notifications = "0.3"
 block2 = "0.6"
+
+# Windows: one copy at a time (a second launch, or a krty:// link, goes to
+# the running one).
+[target.'cfg(not(target_os = "macos"))'.dependencies]
+tauri-plugin-single-instance = { version = "2", features = ["deep-link"] }

@@ -5,7 +5,7 @@ import { AppIcon } from "@/components/app-icon"
 import { NavUser } from "@/components/nav-user"
 import { SegmentedControl } from "@/components/segmented-control"
 import { useWorkspaceNav } from "@/components/workspace-nav"
-import { useDesktopShell } from "@/components/desktop-shell"
+import { useMacChrome } from "@/components/desktop-shell"
 import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/shared/api/supabase/client"
@@ -24,7 +24,7 @@ const ADMIN_CONTACT_LINK = "https://wa.me/6289525418707"
 export function AppTopbar() {
   const { profile, userEmail } = useUserProfile()
   const tc = useT("common")
-  const desktop = useDesktopShell()
+  const desktop = useMacChrome()
   const { state } = useSidebar()
 
   const handleSignOut = async () => {

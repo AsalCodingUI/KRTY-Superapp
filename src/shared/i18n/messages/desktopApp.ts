@@ -10,10 +10,12 @@ const id = {
   updateSubtitle: "Versi {version} · lihat yang baru",
   macTitle: "Kretya Flow untuk Mac",
   macSubtitle: "Notifikasi, menubar, shortcut",
+  windowsTitle: "Kretya Flow untuk Windows",
+  windowsSubtitle: "Notifikasi, tray, shortcut",
   dismiss: "Sembunyikan",
   download: "Download",
   downloadFailed: "Gagal nyiapin download. Coba lagi.",
-  noRelease: "Belum ada versi Mac yang bisa di-download.",
+  noRelease: "Belum ada versi app yang bisa di-download.",
 
   // Update notification (macOS)
   notifyUpdateTitle: "Kretya Flow versi {version} siap",
@@ -34,12 +36,22 @@ const id = {
   howInstallStep2: "Drag Kretya Flow ke folder Applications.",
   howInstallStep3:
     "Buka Kretya Flow dari Applications, terus masuk pakai akunmu.",
+  howUpdateStep1Windows: "Buka file setup-nya dari folder Downloads.",
+  howUpdateStep2Windows:
+    "Kalau muncul Windows SmartScreen, klik More info → Run anyway.",
+  howUpdateStep3Windows: "Tunggu selesai, Kretya Flow kebuka lagi. Beres!",
+  howInstallStep1Windows: "Buka file setup-nya dari folder Downloads.",
+  howInstallStep2Windows:
+    "Kalau muncul Windows SmartScreen, klik More info → Run anyway.",
+  howInstallStep3Windows:
+    "Buka Kretya Flow dari Start, terus masuk pakai akunmu.",
   seeWhatsNew: "Lihat yang baru",
   downloadAgain: "Download lagi",
   gotIt: "Oke",
 
   // User menu
   menuDownloadMac: "Download app Mac",
+  menuDownloadWindows: "Download app Windows",
   menuAppSettings: "Setelan app",
 
   // Settings page
@@ -133,10 +145,12 @@ const en: Record<keyof typeof id, string> = {
   updateSubtitle: "Version {version} · see what's new",
   macTitle: "Kretya Flow for Mac",
   macSubtitle: "Notifications, menu bar, shortcuts",
+  windowsTitle: "Kretya Flow for Windows",
+  windowsSubtitle: "Notifications, tray, shortcuts",
   dismiss: "Hide",
   download: "Download",
   downloadFailed: "Couldn't prepare the download. Try again.",
-  noRelease: "No Mac version to download yet.",
+  noRelease: "No version of the app to download yet.",
 
   notifyUpdateTitle: "Kretya Flow {version} is ready",
   notifyUpdateBody: "Click to download the new version.",
@@ -152,11 +166,20 @@ const en: Record<keyof typeof id, string> = {
   howInstallStep1: "Open the DMG from your Downloads folder.",
   howInstallStep2: "Drag Kretya Flow to Applications.",
   howInstallStep3: "Open Kretya Flow from Applications and sign in.",
+  howUpdateStep1Windows: "Open the setup file from your Downloads folder.",
+  howUpdateStep2Windows:
+    "If Windows SmartScreen shows up, click More info → Run anyway.",
+  howUpdateStep3Windows: "Wait for it to finish; Kretya Flow opens again.",
+  howInstallStep1Windows: "Open the setup file from your Downloads folder.",
+  howInstallStep2Windows:
+    "If Windows SmartScreen shows up, click More info → Run anyway.",
+  howInstallStep3Windows: "Open Kretya Flow from Start and sign in.",
   seeWhatsNew: "See what's new",
   downloadAgain: "Download again",
   gotIt: "Got it",
 
   menuDownloadMac: "Download Mac app",
+  menuDownloadWindows: "Download Windows app",
   menuAppSettings: "App settings",
 
   pageTitle: "App settings",

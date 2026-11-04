@@ -31,7 +31,8 @@ import { ProfileSheet } from "@/widgets/profile/ui/ProfileSheet"
 import { ContextTarget, copyText } from "@/shared/context-menu"
 import { Copy } from "lucide-react"
 import { toast } from "sonner"
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { devicePlatform } from "@/shared/lib/desktop-app"
 
 function initialsOf(name: string) {
   return (
@@ -73,6 +74,9 @@ export function NavUser({
   // Inside Kretya Flow: its settings page; on the web: get the app.
   const desktop = useDesktopShell()
   const macDownload = useMacDownload()
+  // After mount (the server can't tell): the Windows app on a Windows PC.
+  const [windowsPc, setWindowsPc] = useState(false)
+  useEffect(() => setWindowsPc(devicePlatform() === "windows"), [])
 
   return (
     // Centred in the rail.
@@ -202,7 +206,9 @@ export function NavUser({
                   onClick={() => void macDownload.start("install")}
                 >
                   <DownloadIcon />
-                  {td("menuDownloadMac")}
+                  {windowsPc
+                    ? td("menuDownloadWindows")
+                    : td("menuDownloadMac")}
                 </DropdownMenuItem>
               )}
             </DropdownMenuGroup>

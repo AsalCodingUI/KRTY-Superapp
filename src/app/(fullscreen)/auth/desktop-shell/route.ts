@@ -2,7 +2,7 @@ import { DESKTOP_SHELL_COOKIE } from "@/shared/lib/desktop-shell"
 import { NextResponse } from "next/server"
 
 /**
- * KRTY for Mac opens its windows through here: it marks the browser as the
+ * Kretya Flow (Mac or Windows) opens its windows through here: it marks the browser as the
  * app (a cookie the layout reads, so the very first page is already laid
  * out for the app's window) and goes on to the page.
  */
@@ -19,7 +19,11 @@ export function GET(request: Request) {
       ? rawNext
       : "/dashboard"
   const response = NextResponse.redirect(`${origin}${next}`)
-  response.cookies.set(DESKTOP_SHELL_COOKIE, "mac", {
+  // The Windows app keeps its own title bar (and the web layout).
+  const shell = /Windows/.test(request.headers.get("user-agent") ?? "")
+    ? "windows"
+    : "mac"
+  response.cookies.set(DESKTOP_SHELL_COOKIE, shell, {
     path: "/",
     maxAge: 60 * 60 * 24 * 365,
     sameSite: "lax",

@@ -26,7 +26,7 @@ import { toast } from "sonner"
 type Mode = "install" | "update"
 
 /**
- * Downloading Kretya Flow: starts the .dmg download and shows the three
+ * Downloading Kretya Flow: starts the .dmg (or Windows installer) download and shows the three
  * steps that follow (install from the web, update from inside the app).
  * Returns `start` plus the dialog to render once.
  */
@@ -80,9 +80,22 @@ function MacHowToDialog({
   const t = useT("desktopApp")
   const update = shown?.mode === "update"
   const version = shown?.release.version ?? ""
-  const steps = update
-    ? [t("howUpdateStep1"), t("howUpdateStep2"), t("howUpdateStep3")]
-    : [t("howInstallStep1"), t("howInstallStep2"), t("howInstallStep3")]
+  const win = shown?.release.platform === "windows"
+  const steps = win
+    ? update
+      ? [
+          t("howUpdateStep1Windows"),
+          t("howUpdateStep2Windows"),
+          t("howUpdateStep3Windows"),
+        ]
+      : [
+          t("howInstallStep1Windows"),
+          t("howInstallStep2Windows"),
+          t("howInstallStep3Windows"),
+        ]
+    : update
+      ? [t("howUpdateStep1"), t("howUpdateStep2"), t("howUpdateStep3")]
+      : [t("howInstallStep1"), t("howInstallStep2"), t("howInstallStep3")]
 
   const openNotes = () => {
     if (!shown) return

@@ -16,6 +16,10 @@ import { NextRequest, NextResponse } from "next/server"
  * updater sends no cookies): it reveals only the version and that link.
  * `channel=<name>` reads kretya-flow/channels/<name>/latest.json instead
  * (testing a release before everyone gets it).
+ *
+ * The Windows app (target=windows, x86_64) reads kretya-flow/windows/
+ * latest.json (or …/channels/<name>/windows/latest.json), written by
+ * scripts/release-windows.sh; its `path` is the NSIS setup .exe.
  */
 
 export const dynamic = "force-dynamic"
@@ -28,7 +32,7 @@ type Manifest = {
   notes?: string
   pub_date?: string
   signature: string
-  /** The .app.tar.gz, inside the bucket. */
+  /** The .app.tar.gz (Windows: the setup .exe), inside the bucket. */
   path: string
 }
 
@@ -54,14 +58,17 @@ export async function GET(request: NextRequest) {
   const target = params.get("target") ?? "darwin"
   const current = params.get("current") ?? "0.0.0"
   const channel = params.get("channel")
-  // Only the Mac app (one universal build serves both arches).
-  if (target !== "darwin") return none()
+  const arch = params.get("arch") ?? "x86_64"
+  // The Mac app (one universal build serves both arches) and the Windows
+  // app (x64 only).
+  const windows = target === "windows"
+  if (!windows && target !== "darwin") return none()
+  if (windows && arch !== "x86_64") return none()
   if (channel && !/^[a-z0-9-]{1,32}$/.test(channel)) return none()
 
   const supabase = createAdminClient()
-  const manifestPath = channel
-    ? `kretya-flow/channels/${channel}/latest.json`
-    : "kretya-flow/latest.json"
+  const base = channel ? `kretya-flow/channels/${channel}` : "kretya-flow"
+  const manifestPath = `${base}${windows ? "/windows" : ""}/latest.json`
   const { data: file } = await supabase.storage
     .from(BUCKET)
     .download(manifestPath)

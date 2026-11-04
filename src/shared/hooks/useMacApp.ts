@@ -19,7 +19,7 @@ export function useLatestMacRelease(enabled = true) {
     queryKey: MAC_RELEASE_QUERY_KEY,
     enabled,
     staleTime: 30 * 60_000,
-    queryFn: fetchLatestMacRelease,
+    queryFn: () => fetchLatestMacRelease(),
   })
 }
 

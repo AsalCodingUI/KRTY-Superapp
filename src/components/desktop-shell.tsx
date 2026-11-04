@@ -1,9 +1,10 @@
 "use client"
 
 import { DesktopThemeSync } from "@/components/desktop-theme-sync"
+import type { DesktopShell } from "@/shared/lib/desktop-shell"
 import { createContext, useContext, useEffect, type ReactNode } from "react"
 
-const DesktopShellContext = createContext(false)
+const DesktopShellContext = createContext<DesktopShell | null>(null)
 
 /**
  * Whether the page runs inside KRTY for Mac (read from its cookie by the
@@ -15,19 +16,24 @@ export function DesktopShellProvider({
   value,
   children,
 }: {
-  value: boolean
+  value: DesktopShell | null
   children: ReactNode
 }) {
   return (
     <DesktopShellContext.Provider value={value}>
       {value && <DesktopThemeSync />}
-      {value && <HistoryShortcuts />}
+      {value === "mac" && <HistoryShortcuts />}
       {children}
     </DesktopShellContext.Provider>
   )
 }
 
-export const useDesktopShell = () => useContext(DesktopShellContext)
+/** Inside Kretya Flow, on either platform. */
+export const useDesktopShell = () => useContext(DesktopShellContext) !== null
+
+/** The Mac app's window chrome: no title bar, the traffic lights in the
+ *  top bar. (The Windows app keeps its title bar and the web layout.) */
+export const useMacChrome = () => useContext(DesktopShellContext) === "mac"
 
 /**
  * ⌘[ back and ⌘] forward, like Safari and Finder: the app's window has no

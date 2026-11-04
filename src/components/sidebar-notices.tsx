@@ -9,7 +9,11 @@ import {
   useMacUpdate,
 } from "@/shared/hooks/useMacApp"
 import { useT } from "@/shared/i18n/client"
-import { installUpdate, isMacDesktop } from "@/shared/lib/desktop-app"
+import {
+  downloadablePlatform,
+  installUpdate,
+  type AppPlatform,
+} from "@/shared/lib/desktop-app"
 import { useWhatsNewNotice } from "@/page-slices/whats-new/ui/whats-new-notice"
 import { Download, RotateCw, X } from "lucide-react"
 import { Fragment, useEffect, useState, type ReactNode } from "react"
@@ -179,26 +183,34 @@ function useUpdateNotice(): SidebarNotice | null {
   }
 }
 
-/** On the web, on a Mac: get the Mac app. */
+/** On the web, on a Mac or a Windows PC: get the app for it. */
 function useDownloadMacNotice(): SidebarNotice | null {
   const t = useT("desktopApp")
   const desktop = useDesktopShell()
-  const [mac, setMac] = useState(false)
-  useEffect(() => setMac(!desktop && isMacDesktop()), [desktop])
-  const { data: release } = useLatestMacRelease(mac)
+  const [platform, setPlatform] = useState<AppPlatform | null>(null)
+  useEffect(
+    () => setPlatform(desktop ? null : downloadablePlatform()),
+    [desktop],
+  )
+  const { data: release } = useLatestMacRelease(Boolean(platform))
   const [dismissed, dismiss] = useDeviceFlag(
-    mac ? "krty-mac-download-card-dismissed" : null,
+    platform === "windows"
+      ? "krty-windows-download-card-dismissed"
+      : platform
+        ? "krty-mac-download-card-dismissed"
+        : null,
   )
   const { start, dialog } = useMacDownload()
-  if (!mac || !release || dismissed !== false) return null
+  if (!platform || !release || dismissed !== false) return null
+  const win = platform === "windows"
   return {
     id: "download-mac",
     priority: NOTICE_PRIORITY.downloadMac,
     element: dialog,
-    title: t("macTitle"),
-    subtitle: t("macSubtitle"),
+    title: win ? t("windowsTitle") : t("macTitle"),
+    subtitle: win ? t("windowsSubtitle") : t("macSubtitle"),
     icon: <Download />,
-    actionLabel: t("downloadMac"),
+    actionLabel: win ? t("menuDownloadWindows") : t("downloadMac"),
     // Never on phone widths (the sidebar is a sheet there).
     className: "max-md:hidden",
     onClick: () => void start("install", release),

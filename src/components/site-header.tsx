@@ -14,7 +14,7 @@ import { useProjectSummary } from "@/shared/hooks/useProjectSummary"
 import Link from "next/link"
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
-import { useDesktopShell } from "@/components/desktop-shell"
+import { useMacChrome } from "@/components/desktop-shell"
 import { workspaces } from "@/shared/config/workspaces"
 import { PROJECT_SECTION_KEYS } from "@/components/nav-project"
 import { useT } from "@/shared/i18n/client"
@@ -59,7 +59,7 @@ export function SiteHeader() {
   const projectPath = matchProjectPath(pathname)
   const { data: project } = useProjectSummary(projectPath?.ref)
   const extra = useBreadcrumbTrail()
-  const desktop = useDesktopShell()
+  const desktop = useMacChrome()
 
   // Section (or the project trail), then whatever the page adds; every step
   // but the last links back up.

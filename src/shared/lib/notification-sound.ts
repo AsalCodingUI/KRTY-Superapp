@@ -3,8 +3,9 @@
 /**
  * The sound a new notification makes, picked in Settings → Notifikasi and
  * kept on this device. The web app plays it itself (like Discord in a
- * browser); Kretya Flow hands it to macOS with the notification, so in the
- * app the web side stays quiet (no double sound).
+ * browser); Kretya Flow for Mac hands it to macOS with the notification, so
+ * there the web side stays quiet (no double sound). The Windows app's toasts
+ * stay silent (Windows can't play our files) and the page plays it.
  */
 
 export const NOTIFICATION_SOUNDS = [

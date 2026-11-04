@@ -12,7 +12,10 @@ import { DesktopShellProvider } from "@/components/desktop-shell"
 import { ContextMenuAppScope } from "@/shared/context-menu"
 import { UndoShortcuts } from "@/shared/undo"
 import { SettingsHost } from "@/widgets/settings/ui/SettingsHost"
-import { DESKTOP_SHELL_COOKIE } from "@/shared/lib/desktop-shell"
+import {
+  DESKTOP_SHELL_COOKIE,
+  parseDesktopShell,
+} from "@/shared/lib/desktop-shell"
 import { getSessionContext } from "@/shared/lib/session-context-server"
 import {
   dehydrate,
@@ -61,14 +64,16 @@ export default async function Layout({
     cookies(),
     getSessionContext(),
   ])
-  const desktop = cookieStore.get(DESKTOP_SHELL_COOKIE)?.value === "mac"
+  const shell = parseDesktopShell(cookieStore.get(DESKTOP_SHELL_COOKIE)?.value)
+  // The Mac app's own chrome (see DESKTOP_CSS); Windows keeps the web's.
+  const desktop = shell === "mac"
   // The viewer, resolved here: the sidebar, badges and pages that key off
   // ["session-context"] start at once instead of after a browser fetch.
   const queryClient = new QueryClient()
   queryClient.setQueryData(["session-context"], session)
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <DesktopShellProvider value={desktop}>
+      <DesktopShellProvider value={shell}>
         {/* The right-click menu gets the viewer's access, ⌘K and AI. */}
         <ContextMenuAppScope />
         {/* ⌘Z / ⌘⇧Z across the app (shared/undo). */}

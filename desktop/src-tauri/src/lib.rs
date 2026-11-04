@@ -10,12 +10,17 @@ mod updater;
 
 use std::time::Duration;
 
+#[cfg(target_os = "macos")]
 use tauri::{
-    menu::{Menu, MenuEvent, MenuItem, MenuItemKind},
+    menu::{MenuEvent, MenuItemKind},
+    RunEvent,
+};
+
+use tauri::{
+    menu::{Menu, MenuItem},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
     webview::NewWindowResponse,
-    AppHandle, Manager, RunEvent, Runtime, WebviewUrl, WebviewWindow, WebviewWindowBuilder,
-    WindowEvent,
+    AppHandle, Manager, Runtime, WebviewUrl, WebviewWindow, WebviewWindowBuilder, WindowEvent,
 };
 use tauri_plugin_autostart::ManagerExt as AutostartExt;
 use tauri_plugin_deep_link::DeepLinkExt;
@@ -120,10 +125,21 @@ fn show_app(app: &AppHandle, path: Option<&str>) {
 
 fn show_popover(app: &AppHandle) {
     if let Some(w) = app.get_webview_window(POPOVER) {
-        // Under the menu bar icon; before the icon has been clicked its
-        // spot isn't known yet, so the top-right corner instead.
-        if w.move_window(Position::TrayBottomCenter).is_err() {
-            let _ = w.move_window(Position::TopRight);
+        // Under the menu bar icon (on Windows above the tray icon, kept on
+        // screen); before the icon has been clicked its spot isn't known
+        // yet, so the corner by the menu bar / taskbar instead.
+        #[cfg(target_os = "macos")]
+        let (by_tray, corner) = (
+            w.move_window(Position::TrayBottomCenter),
+            Position::TopRight,
+        );
+        #[cfg(not(target_os = "macos"))]
+        let (by_tray, corner) = (
+            w.move_window_constrained(Position::TrayCenter),
+            Position::BottomRight,
+        );
+        if by_tray.is_err() {
+            let _ = w.move_window(corner);
         }
         let _ = w.show();
         let _ = w.set_focus();
@@ -250,7 +266,9 @@ fn fit_blur_to_panel(window: &WebviewWindow) {
     let Ok(ptr) = window.ns_window() else { return };
     // SAFETY: Tauri hands out the window's NSWindow, on the main thread.
     let ns_window = unsafe { &*(ptr as *const NSWindow) };
-    let Some(content) = ns_window.contentView() else { return };
+    let Some(content) = ns_window.contentView() else {
+        return;
+    };
     for view in content.subviews().iter() {
         if view.isKindOfClass(NSVisualEffectView::class()) {
             // AppKit's origin is the bottom-left corner.
@@ -270,13 +288,20 @@ fn fit_blur_to_panel(window: &WebviewWindow) {
 /// (back through `native_edit`). The page usually gets ⌘Z itself first
 /// (WKWebView hands key equivalents to the page before the menu), and
 /// then the menu never fires.
+#[cfg(target_os = "macos")]
 const MENU_UNDO: &str = "krty-undo";
+#[cfg(target_os = "macos")]
 const MENU_REDO: &str = "krty-redo";
 
+/// macOS only: Windows has no app menu bar (a menu there would sit inside
+/// every window); ctrl+Z goes straight to the page.
+#[cfg(target_os = "macos")]
 fn app_menu(app: &AppHandle) -> tauri::Result<Menu<tauri::Wry>> {
     let menu = Menu::default(app)?;
     for item in menu.items()? {
-        let MenuItemKind::Submenu(edit) = item else { continue };
+        let MenuItemKind::Submenu(edit) = item else {
+            continue;
+        };
         if edit.text()? != "Edit" {
             continue;
         }
@@ -291,6 +316,7 @@ fn app_menu(app: &AppHandle) -> tauri::Result<Menu<tauri::Wry>> {
     Ok(menu)
 }
 
+#[cfg(target_os = "macos")]
 fn on_app_menu(app: &AppHandle, event: MenuEvent) {
     let action = match event.id().as_ref() {
         MENU_UNDO => "undo",
@@ -322,9 +348,15 @@ fn native_edit(app: AppHandle, action: String) -> bool {
         let _ = app.run_on_main_thread(move || {
             use objc2::{sel, MainThreadMarker};
             use objc2_app_kit::NSApplication;
-            let Some(mtm) = MainThreadMarker::new() else { return };
+            let Some(mtm) = MainThreadMarker::new() else {
+                return;
+            };
             let ns_app = NSApplication::sharedApplication(mtm);
-            let selector = if action == "redo" { sel!(redo:) } else { sel!(undo:) };
+            let selector = if action == "redo" {
+                sel!(redo:)
+            } else {
+                sel!(undo:)
+            };
             // SAFETY: a standard action, sent to the first responder.
             unsafe { ns_app.sendAction_to_from(selector, None, None) };
         });
@@ -354,6 +386,14 @@ fn open_in_app(app: AppHandle, path: String) {
 #[tauri::command]
 fn set_tray_title(app: AppHandle, title: String) {
     if let Some(tray) = app.tray_by_id("main") {
+        // Windows' tray has no text beside the icon: its tooltip instead.
+        #[cfg(not(target_os = "macos"))]
+        let _ = tray.set_tooltip(Some(if title.is_empty() {
+            "Kretya Flow".to_string()
+        } else {
+            format!("Kretya Flow · {title}")
+        }));
+        #[cfg(target_os = "macos")]
         let _ = tray.set_title(if title.is_empty() { None } else { Some(title) });
     }
 }
@@ -362,7 +402,11 @@ fn set_tray_title(app: AppHandle, title: String) {
 #[tauri::command]
 fn set_autostart(app: AppHandle, enabled: bool) -> bool {
     let launcher = app.autolaunch();
-    let _ = if enabled { launcher.enable() } else { launcher.disable() };
+    let _ = if enabled {
+        launcher.enable()
+    } else {
+        launcher.disable()
+    };
     launcher.is_enabled().unwrap_or(false)
 }
 
@@ -396,6 +440,17 @@ fn app_info(app: AppHandle) -> AppInfo {
 /// pane itself when the deep link doesn't open.
 #[tauri::command]
 fn open_system_settings(app: AppHandle, pane: String) {
+    #[cfg(not(target_os = "macos"))]
+    {
+        // Windows: Settings → Notifications, or → Apps → Startup.
+        let target = match pane.as_str() {
+            "login-items" => "ms-settings:startupapps",
+            _ => "ms-settings:notifications",
+        };
+        let _ = app.opener().open_url(target, None::<&str>);
+        return;
+    }
+    #[allow(unreachable_code)]
     let identifier = app.config().identifier.clone();
     let (deep, fallback) = match pane.as_str() {
         "login-items" => (
@@ -482,9 +537,24 @@ fn notify(
         mac_notify::show(&title, &body, path.as_deref(), sound.as_deref());
     }
     #[cfg(not(target_os = "macos"))]
-    let _ = (path, sound);
-    #[cfg(not(target_os = "macos"))]
-    let _ = app.notification().builder().title(title).body(body).show();
+    {
+        // Windows: the page plays the Kretya sounds itself (see the web
+        // app's notification-sound.ts), so the toast stays silent unless
+        // Windows' own sound was picked. A name Windows doesn't know means
+        // a silent toast. (A click on it only brings the app forward.)
+        let _ = path;
+        let sound = match sound.as_deref() {
+            None | Some("default") | Some("") => "Default",
+            _ => "Silent",
+        };
+        let _ = app
+            .notification()
+            .builder()
+            .title(title)
+            .body(body)
+            .sound(sound)
+            .show();
+    }
 }
 
 /// macOS notifications through UserNotifications (the older API the
@@ -497,11 +567,10 @@ mod mac_notify {
     use objc2::{define_class, msg_send, AllocAnyThread};
     use objc2_foundation::{NSError, NSObjectProtocol, NSString};
     use objc2_user_notifications::{
-        UNAlertStyle, UNAuthorizationOptions, UNAuthorizationStatus,
-        UNMutableNotificationContent, UNNotification, UNNotificationPresentationOptions,
-        UNNotificationRequest, UNNotificationResponse, UNNotificationSetting,
-        UNNotificationSettings, UNNotificationSound, UNUserNotificationCenter,
-        UNUserNotificationCenterDelegate,
+        UNAlertStyle, UNAuthorizationOptions, UNAuthorizationStatus, UNMutableNotificationContent,
+        UNNotification, UNNotificationPresentationOptions, UNNotificationRequest,
+        UNNotificationResponse, UNNotificationSetting, UNNotificationSettings, UNNotificationSound,
+        UNUserNotificationCenter, UNUserNotificationCenterDelegate,
     };
     use std::ptr::NonNull;
 
@@ -646,9 +715,20 @@ mod mac_notify {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    // ⌥⌘K on the Mac, Ctrl+Alt+K on Windows (Win-key combos belong to it).
+    #[cfg(target_os = "macos")]
     let shortcut = Shortcut::new(Some(Modifiers::ALT | Modifiers::SUPER), Code::KeyK);
+    #[cfg(not(target_os = "macos"))]
+    let shortcut = Shortcut::new(Some(Modifiers::CONTROL | Modifiers::ALT), Code::KeyK);
 
-    let app = tauri::Builder::default()
+    let builder = tauri::Builder::default();
+    // Windows: opening it again (or a krty:// link, which starts a second
+    // copy there) goes to the one already running. Must come first.
+    #[cfg(not(target_os = "macos"))]
+    let builder = builder.plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
+        show_app(app, None);
+    }));
+    let builder = builder
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_positioner::init())
         .plugin(tauri_plugin_notification::init())
@@ -683,30 +763,35 @@ pub fn run() {
             updater::update_status,
             updater::update_check,
             updater::update_install
-        ])
-        .menu(app_menu)
-        .on_menu_event(on_app_menu)
+        ]);
+    #[cfg(target_os = "macos")]
+    let builder = builder.menu(app_menu).on_menu_event(on_app_menu);
+    let app = builder
         .setup(move |app| {
             // The app window: the whole web app.
             let main = web_window(app, APP, "/dashboard")
                 .title("Kretya Flow")
-                // No title bar of its own: the page runs up to the top and
-                // the traffic lights sit in the web app's top bar (see
-                // unified_toolbar and SHELL_SCRIPT).
-                .title_bar_style(tauri::TitleBarStyle::Overlay)
-                .hidden_title(true)
-                // See-through, over the native sidebar blur (the page
-                // itself stays solid; see the web app's desktop styles).
-                .transparent(true)
                 .inner_size(1360.0, 860.0)
                 .min_inner_size(960.0, 640.0)
                 .center()
-                .visible(false)
-                .build()?;
+                .visible(false);
+            // No title bar of its own: the page runs up to the top and the
+            // traffic lights sit in the web app's top bar (see
+            // unified_toolbar and SHELL_SCRIPT); see-through, over the
+            // native sidebar blur (the page itself stays solid). Windows
+            // keeps its own title bar, and the web app its web layout.
+            #[cfg(target_os = "macos")]
+            let main = main
+                .title_bar_style(tauri::TitleBarStyle::Overlay)
+                .hidden_title(true)
+                .transparent(true);
+            let main = main.build()?;
             #[cfg(target_os = "macos")]
             {
                 unified_toolbar(&main);
-                use window_vibrancy::{apply_vibrancy, NSVisualEffectMaterial, NSVisualEffectState};
+                use window_vibrancy::{
+                    apply_vibrancy, NSVisualEffectMaterial, NSVisualEffectState,
+                };
                 // The most see-through material (it follows light / dark),
                 // kept live when the window isn't focused: the inactive
                 // state turns it a flat grey.
@@ -747,7 +832,9 @@ pub fn run() {
             // Native blur behind the popover (the page is 95% solid on top).
             #[cfg(target_os = "macos")]
             {
-                use window_vibrancy::{apply_vibrancy, NSVisualEffectMaterial, NSVisualEffectState};
+                use window_vibrancy::{
+                    apply_vibrancy, NSVisualEffectMaterial, NSVisualEffectState,
+                };
                 let _ = apply_vibrancy(
                     &popover,
                     NSVisualEffectMaterial::HudWindow,
@@ -775,11 +862,18 @@ pub fn run() {
             // Menu bar icon: left click opens the popover, right click has
             // the app window and Quit.
             let open = MenuItem::with_id(app, "open", "Buka Kretya Flow", true, None::<&str>)?;
-            let quit = MenuItem::with_id(app, "quit", "Keluar dari Kretya Flow", true, None::<&str>)?;
+            let quit =
+                MenuItem::with_id(app, "quit", "Keluar dari Kretya Flow", true, None::<&str>)?;
             let menu = Menu::with_items(app, &[&open, &quit])?;
+            // The Mac's menu bar takes a template (it tints it); Windows'
+            // tray shows the colored app icon.
+            #[cfg(target_os = "macos")]
+            let tray_icon = include_bytes!("../icons/tray.png");
+            #[cfg(not(target_os = "macos"))]
+            let tray_icon = include_bytes!("../icons/32x32.png");
             TrayIconBuilder::with_id("main")
-                .icon(tauri::image::Image::from_bytes(include_bytes!("../icons/tray.png"))?)
-                .icon_as_template(true)
+                .icon(tauri::image::Image::from_bytes(tray_icon)?)
+                .icon_as_template(cfg!(target_os = "macos"))
                 .tooltip("Kretya Flow")
                 .menu(&menu)
                 .show_menu_on_left_click(false)
@@ -822,10 +916,11 @@ pub fn run() {
         .build(tauri::generate_context!())
         .expect("error while building Kretya Flow");
 
-    app.run(|app, event| {
+    app.run(|_app, _event| {
         // Clicking the Dock icon brings the app window back.
-        if let RunEvent::Reopen { .. } = event {
-            show_app(app, None);
+        #[cfg(target_os = "macos")]
+        if let RunEvent::Reopen { .. } = _event {
+            show_app(_app, None);
         }
     });
 }
