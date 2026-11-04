@@ -37,7 +37,7 @@ slim `domAnimation` features loaded async, and
 | `ease-out` (Tailwind)   | `--ease-out` = `cubic-bezier(0.23, 1, 0.32, 1)`     | Everything: enter, exit, highlights, collapse. The one ease. |
 | `ease-in-out`           | `--ease-in-out` = `cubic-bezier(0.77, 0, 0.175, 1)` | Something already on screen moving to a new spot (rare)      |
 | `ease-drawer`           | `--ease-drawer` = `cubic-bezier(0.32, 0.72, 0, 1)`  | Sheets and drawers only (in `sheet.tsx`, `drawer.tsx`)       |
-| JS ease                 | `[0.23, 1, 0.32, 1]`                                | The same curve for `m.*` transitions                         |
+| `EASE_OUT` (JS)         | `[0.23, 1, 0.32, 1]`                                | The same curve for `m.*` transitions (`shared/lib/motion`)   |
 | `duration-150` / `0.15` | 150ms                                               | Hover, color, small popovers, press, icon swaps              |
 | `duration-200` / `0.2`  | 200ms                                               | **Default**: rows, collapse, highlights, swaps               |
 | `duration-300` / `0.3`  | 300ms                                               | Larger arrivals: page change, `enter-rise`, theme fade       |
@@ -46,6 +46,26 @@ slim `domAnimation` features loaded async, and
 `--ease-out` overrides Tailwind's own key in `globals.css`, so plain
 `ease-out` is already the strong curve: never write
 `ease-[cubic-bezier(0.23,1,0.32,1)]`.
+
+## Role tokens (use these)
+
+- Classes: `ease-out` + `duration-150` / `duration-200` / `duration-300`;
+  `ease-drawer` for sheets and drawers; `bar-grow` / `bar-grow-y` (600ms)
+  for fills; `enter-rise` for a rare entrance; `TAB_ENTER`
+  (`animate-tab-enter`, 200ms) for a panel that swaps in. The `ease-drawer`
+  and `animate-*` names are registered in `src/lib/utils.ts`, so `cn`
+  merges them as eases / animations.
+- JS, from `src/shared/lib/motion.ts`: `EASE_OUT`, `EASE_OUT_CSS` (the
+  string, for dnd-kit `DropAnimation`), `DURATION` (`fast` 0.15 / `base`
+  0.2 / `slow` 0.3), `TRANSITION` (`{ duration: 0.2, ease: EASE_OUT }`, the
+  default for `m.*`) and `ARRIVAL` (`stagger` / `icon` / `rise`, the
+  sign-in and portal PIN arrival).
+- Reduced motion: `enter-rise` keeps only its fade; `bar-grow` doesn't
+  transition. Add `motion-reduce:transition-none` / `animate-none` to
+  anything else that moves.
+
+Live on /ui → Motion (with a before / after and the values read from the
+page).
 
 ## Rules
 
@@ -157,25 +177,54 @@ slim `domAnimation` features loaded async, and
   </AnimatePresence>
 </GroupedList>
 
-// A one-off m.* transition (until src/shared/lib/motion.ts exists, see
-// Migration notes): the one ease, a scale duration.
+// A one-off m.* transition: the shared default (200ms, the one ease).
+import { DURATION, EASE_OUT, TRANSITION } from "@/shared/lib/motion"
 <m.div
   initial={{ opacity: 0, y: 4 }}
   animate={{ opacity: 1, y: 0 }}
-  transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
+  transition={TRANSITION}
 />
+// Another step of the scale:
+<m.div transition={{ duration: DURATION.fast, ease: EASE_OUT }} />
+
+// A fill: bar-grow with --bar, not an animated width.
+<div className="bar-grow bg-primary h-full rounded-full" style={{ "--bar": "40%" }} />
 ```
 
 ## Migration notes
 
-Nothing below is changed yet. Proposed shared constant (not created):
-`src/shared/lib/motion.ts`
-
-```ts
-export const EASE_OUT = [0.23, 1, 0.32, 1] as const
-export const DURATION = { fast: 0.15, base: 0.2, slow: 0.3 } as const
-export const TRANSITION = { duration: DURATION.base, ease: EASE_OUT } as const
-```
+Done 2026-11-05 (local): `src/shared/lib/motion.ts` created (`EASE_OUT`,
+`EASE_OUT_CSS`, `DURATION`, `TRANSITION`, `ARRIVAL`); every local
+`const EASE` / `ROW_EASE` / inline `[0.23, 1, 0.32, 1]` imports it, and
+the sign-in and portal PIN share `ARRIVAL`. Every
+`ease-[cubic-bezier(0.23,1,0.32,1)]` → `ease-out`; the dialog's mobile
+sheet curve → `ease-drawer` / `var(--ease-drawer)`; the view-transition,
+doc drop bar and task-list checkbox use `var(--ease-out)`; `"easeOut"`
+and the kanban's `(0.2, 0, 0, 1)` → the canonical curve (both dnd drops
+200ms on `EASE_OUT_CSS`); sidebar / top bar width `ease-linear` →
+`ease-out`. Durations on the scale: dialog / alert-dialog overlay and
+content 250 → 200, tooltip 125 → 150, item 100 → 150, zoom pill 180 →
+150, rolling value 220 → 200, page transition 180 / 320 → 150 / 300,
+portal and task cards 250 → 200, DataTable row exit 160 → 150;
+keyframes `tab-enter` 200, `footer-in` 200, `count-pop` 300,
+`check-draw` 150. Fills: the KPI ring and attendance split 700 → 600
+(data fill), KPI gauge ticks 500 → 300; the width-animated bars in
+ProjectScoringView (incl. the per-row `m.div`), ReviewResult, MyNotesPage
+and TaskDialog → `bar-grow`. Dead motion: `animate-fadeIn` → `enter-rise`;
+unused `focus-in` / `shimmer-in` and every `keyframes` / `animation` /
+`transitionDuration` entry in `tailwind.config.ts` deleted; `layout`
+dropped from the inbox rows, task comments and task board cards (with the
+board's `layoutKey` plumbing; it never ran under `domAnimation`).
+Reduced motion: `enter-rise` keeps only the fade; typing dots, KPI ring /
+ticks, sidebar width and the `ListGroup` chevron got `motion-reduce:`.
+The unread bell is a still dot; `LeaveRequestForm` uses `Spinner`,
+`doc-editor-lazy` uses `Skeleton`; `TAB_ENTER` replaces the two literal
+copies. Kept on purpose: `navigation-menu.tsx`, `drawer.tsx`, `sheet.tsx`
+(vendored, own curves / 400–450ms), the dialog's mobile drag snap
+(320ms), the doc drop bar's 80ms (it follows the pointer), the PIN shake
+(450ms) and digit pop spring (part of the sign-in arrival), and the
+`TAB_SPRING` / `GLIDE` springs. The older list below is kept for
+reference.
 
 **Duplicated JS ease → `EASE_OUT` / `TRANSITION`**
 

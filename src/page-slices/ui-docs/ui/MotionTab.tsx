@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Collapse } from "@/components/ui/collapse"
 import { cn } from "@/lib/utils"
 import { TAB_ENTER } from "@/shared/hooks/useTabSwitched"
+import { TRANSITION } from "@/shared/lib/motion"
 import {
   RiAddLine,
   RiArrowDownSLine,
@@ -16,6 +17,7 @@ import {
 import { AnimatePresence, m } from "motion/react"
 import { useState, type CSSProperties } from "react"
 import * as mock from "../model/motion-mock"
+import { MotionCompare } from "./motion-compare"
 import {
   DocCanvas,
   DocDont,
@@ -29,7 +31,7 @@ import {
 const RULES: [string, string][] = [
   [
     "Easing",
-    "Satu aja: ease-out (sudah = cubic-bezier(0.23, 1, 0.32, 1)). Di m.* pakai [0.23, 1, 0.32, 1]",
+    "Satu aja: ease-out (sudah = cubic-bezier(0.23, 1, 0.32, 1)). Di m.* impor EASE_OUT / TRANSITION dari shared/lib/motion",
   ],
   [
     "Durasi",
@@ -92,10 +94,45 @@ export function MotionTab() {
       </DocGroup>
 
       <DocGroup
+        title="Sebelum / sesudah"
+        note="Kiri: kurva, durasi dan animasi lama; kanan: token yang sekarang jalan di app. Pencet Putar ulang."
+      >
+        <MotionCompare />
+      </DocGroup>
+
+      <DocGroup
         title="Token"
         note="Ease-out yang kuat: cepat di awal, mendarat halus. Ketiga titik di bawah pakai kurva yang sama."
       >
         <DurationScale />
+        <DocExample
+          title="Di JS (m.*)"
+          source="shared/lib/motion.ts"
+          kind="spec"
+        >
+          <div className="flex flex-col">
+            <DocToken name="EASE_OUT" value="[0.23, 1, 0.32, 1]">
+              <span className="text-muted-foreground text-sm">
+                Kurva yang sama dengan ease-out (EASE_OUT_CSS buat dnd-kit)
+              </span>
+            </DocToken>
+            <DocToken name="DURATION" value="fast 0.15 · base 0.2 · slow 0.3">
+              <span className="text-muted-foreground text-sm">
+                Tiga langkah, dalam detik
+              </span>
+            </DocToken>
+            <DocToken name="TRANSITION" value="0.2s · EASE_OUT">
+              <span className="text-muted-foreground text-sm">
+                Default buat transition={"{…}"} di m.*
+              </span>
+            </DocToken>
+            <DocToken name="ARRIVAL" value="stagger · icon · rise">
+              <span className="text-muted-foreground text-sm">
+                Kedatangan layar minimal (sign in, PIN portal)
+              </span>
+            </DocToken>
+          </div>
+        </DocExample>
         <DocExample
           title="Kurva lain (cuma buat tempatnya)"
           source="app/globals.css @theme"
@@ -225,7 +262,7 @@ function EnterDemo() {
         <DocCanvas className="min-h-32 justify-center">
           <div
             key={run}
-            className="enter-rise bg-background rounded-xl px-4 py-3 text-sm shadow-(--elev-2)"
+            className="enter-rise bg-background shadow-raised rounded-xl px-4 py-3 text-sm"
           >
             Muncul sekali, 300ms
           </div>
@@ -233,15 +270,15 @@ function EnterDemo() {
       </DocExample>
       <DocExample
         title="m.div (swap kecil)"
-        source="opacity + y 4px · 0.2s · [0.23, 1, 0.32, 1]"
+        source="opacity + y 4px · TRANSITION (shared/lib/motion)"
       >
         <DocCanvas className="min-h-32 justify-center">
           <m.div
             key={run}
             initial={run ? { opacity: 0, y: 4 } : false}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
-            className="bg-background rounded-xl px-4 py-3 text-sm shadow-(--elev-2)"
+            transition={TRANSITION}
+            className="bg-background shadow-raised rounded-xl px-4 py-3 text-sm"
           >
             Ganti isi, 200ms
           </m.div>
@@ -252,7 +289,7 @@ function EnterDemo() {
           <div
             key={run}
             className={cn(
-              "bg-background rounded-xl px-4 py-3 text-sm shadow-(--elev-2)",
+              "bg-background shadow-raised rounded-xl px-4 py-3 text-sm",
               run > 0 && TAB_ENTER,
             )}
           >
