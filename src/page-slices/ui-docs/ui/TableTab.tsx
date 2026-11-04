@@ -4,7 +4,6 @@ import { createTeamColumns } from "@/app/(main)/teams/Columns"
 import { HomeCard, HomeRow } from "@/app/(main)/dashboard/components/home-card"
 import { DataTable } from "@/components/data-table"
 import { Markdown } from "@/components/markdown"
-import { PageHeader } from "@/components/page-header"
 import { Badge } from "@/components/ui/badge"
 import { adminColumns } from "@/page-slices/leave/ui/components/AdminColumns"
 import { EmployeeLeaveList } from "@/page-slices/leave/ui/components/EmployeeLeaveList"
@@ -13,7 +12,7 @@ import { ProjectList } from "@/page-slices/projects/ui/ProjectList"
 import { useDateLocale, useT } from "@/shared/i18n/client"
 import type { ColumnDef } from "@tanstack/react-table"
 import type { ReactNode } from "react"
-import * as mock from "../model/mock"
+import * as mock from "../model/table-mock"
 
 /** The one table style, as it's built into components/grouped-list.tsx
  *  (listRowClassName, listHeaderClassName, listGroupHeaderClassName). */
@@ -57,22 +56,20 @@ const RULES: [string, string][] = [
  * uses it, on mock data. Each one is the real component (rows passed in);
  * the file it lives in is named under its title.
  */
-export function TableAuditPage() {
+export function TableTab() {
   const tTeams = useT("teams")
   const tLeave = useT("leave")
   const dateLocale = useDateLocale()
   const noop = () => {}
 
   return (
-    <div className="flex flex-col gap-14 pb-16">
-      <div className="flex flex-col gap-3 pt-6">
-        <PageHeader title="Audit tabel" />
-        <p className="text-muted-foreground max-w-2xl text-sm">
-          Satu gaya tabel buat semua halaman, diatur terpusat di{" "}
-          <code className="font-mono text-xs">components/grouped-list.tsx</code>
-          . Semua contoh di bawah pakai komponen aslinya dengan data dummy.
-        </p>
-      </div>
+    <div className="flex flex-col gap-14">
+      <p className="text-muted-foreground max-w-2xl text-sm">
+        Satu gaya tabel buat semua halaman, diatur terpusat di{" "}
+        <code className="font-mono text-xs">components/grouped-list.tsx</code>.
+        Aturan tertulisnya:{" "}
+        <code className="font-mono text-xs">docs/ui/table.md</code>.
+      </p>
 
       <Group title="Aturan">
         <div className="bg-muted dark:bg-muted/40 rounded-xl p-1">

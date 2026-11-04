@@ -158,7 +158,7 @@ export function ListGroup({
 const ROW_EASE = [0.23, 1, 0.32, 1] as const
 
 /*
- * The one table style (see /table). Every list / table in the app:
+ * The one table style (docs/ui/table.md, live at /ui). Every list / table:
  * - rows: two heights only. min-h-12 for one line; min-h-14 (`desc`) when
  *   a description runs under the title. gutter-x sides, py-2, text-sm,
  *   gap-x-4 between columns;
