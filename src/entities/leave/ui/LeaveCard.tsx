@@ -59,7 +59,7 @@ export function LeaveCard({
             {format(startDate, "MMM dd, yyyy", { locale: dateLocale })} -{" "}
             {format(endDate, "MMM dd, yyyy", { locale: dateLocale })}
           </p>
-          <p className="text-muted-foreground/60 mt-1 text-xs">
+          <p className="text-tertiary-foreground mt-1 text-xs">
             {t(duration === 1 ? "workingDaysOne" : "workingDaysOther", {
               n: duration,
             })}

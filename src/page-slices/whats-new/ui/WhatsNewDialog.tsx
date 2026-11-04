@@ -257,7 +257,7 @@ function Neighbour({
       type="button"
       onClick={() => onOpen(entry.id)}
       className={cn(
-        "border-foreground/10 hover:border-foreground/20 flex flex-col gap-0.5 rounded-xl border px-4 py-3 text-left transition-colors",
+        "border-field-border hover:border-field-border flex flex-col gap-0.5 rounded-xl border px-4 py-3 text-left transition-colors",
         side === "next" && "sm:items-end sm:text-right",
       )}
     >

@@ -60,7 +60,7 @@ export function EmptyState({
         </p>
       )}
       {subtitle && (
-        <p className="text-muted-foreground/80 mt-1 max-w-xs text-xs text-balance">
+        <p className="text-muted-foreground mt-1 max-w-xs text-xs text-balance">
           {subtitle}
         </p>
       )}

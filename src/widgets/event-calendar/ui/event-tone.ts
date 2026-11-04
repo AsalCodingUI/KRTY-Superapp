@@ -21,7 +21,7 @@ export const EVENT_TONE: Record<
   cyan: {
     dot: "bg-info",
     block: "bg-info/12 hover:bg-info/18",
-    title: "text-info",
+    title: "text-info-ink",
   },
   pink: {
     dot: "bg-pink-9",
@@ -41,17 +41,17 @@ export const EVENT_TONE: Record<
   rose: {
     dot: "bg-destructive",
     block: "bg-destructive/12 hover:bg-destructive/18",
-    title: "text-destructive",
+    title: "text-destructive-ink",
   },
   orange: {
     dot: "bg-warning",
     block: "bg-warning/12 hover:bg-warning/18",
-    title: "text-warning",
+    title: "text-warning-ink",
   },
   amber: {
     dot: "bg-warning",
     block: "bg-warning/12 hover:bg-warning/18",
-    title: "text-warning",
+    title: "text-warning-ink",
   },
   neutral: {
     dot: "bg-muted-foreground",

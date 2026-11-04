@@ -91,7 +91,7 @@ function ToggleView({ node, editor, getPos }: NodeViewProps) {
       className={cn(
         "doc-toggle relative my-2",
         // The summary's hint while it's empty (a CSS string in --toggle-ph).
-        "[&_.doc-toggle-summary:has(>br:only-child)]:before:text-muted-foreground/60 [&_.doc-toggle-summary:has(>br:only-child)]:before:pointer-events-none [&_.doc-toggle-summary:has(>br:only-child)]:before:float-left [&_.doc-toggle-summary:has(>br:only-child)]:before:h-0 [&_.doc-toggle-summary:has(>br:only-child)]:before:content-(--toggle-ph)",
+        "[&_.doc-toggle-summary:has(>br:only-child)]:before:text-tertiary-foreground [&_.doc-toggle-summary:has(>br:only-child)]:before:pointer-events-none [&_.doc-toggle-summary:has(>br:only-child)]:before:float-left [&_.doc-toggle-summary:has(>br:only-child)]:before:h-0 [&_.doc-toggle-summary:has(>br:only-child)]:before:content-(--toggle-ph)",
         "[&_.doc-toggle-summary]:text-foreground [&_.doc-toggle-summary]:font-medium",
       )}
       data-open={open ? "true" : "false"}

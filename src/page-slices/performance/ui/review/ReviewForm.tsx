@@ -90,10 +90,10 @@ function Stars({
           aria-label={t("starsOf5", { n: star })}
           onClick={() => onChange(star)}
           className={cn(
-            "focus-visible:ring-primary/40 rounded p-1 transition-colors outline-none focus-visible:ring-2",
+            "focus-visible:ring-focus-ring rounded p-1 transition-colors outline-none focus-visible:ring-2",
             star <= value
               ? "text-warning"
-              : "text-muted-foreground/40 hover:text-muted-foreground",
+              : "text-tertiary-foreground hover:text-muted-foreground",
           )}
         >
           <RiStarFill
@@ -258,7 +258,7 @@ export function ReviewFormFields({ form }: { form: ReviewFormState }) {
                     "text-xs tabular-nums",
                     reasons[key].trim().length >= MIN_REASON
                       ? "text-muted-foreground"
-                      : "text-warning",
+                      : "text-warning-ink",
                   )}
                 >
                   {t("minChars", {

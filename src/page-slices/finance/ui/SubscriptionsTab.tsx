@@ -277,7 +277,7 @@ export function SubscriptionsTab({
       />
 
       {unrated.length > 0 && (
-        <p className="bg-warning-subtle text-amber-11 rounded-lg px-4 py-2.5 text-sm">
+        <p className="bg-warning-subtle text-warning-ink rounded-lg px-4 py-2.5 text-sm">
           {t("unratedSubscriptions", {
             currencies: [...new Set(unrated.map((s) => s.currency))].join(", "),
             n: unrated.length,
@@ -515,7 +515,7 @@ function MonthGrid({
                     ? "bg-foreground text-background font-medium"
                     : inMonth
                       ? "text-muted-foreground"
-                      : "text-muted-foreground/40",
+                      : "text-tertiary-foreground",
                 )}
               >
                 {format(d, "d")}

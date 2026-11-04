@@ -161,7 +161,9 @@ export function AdminAttendanceEditDialog({
               </Select>
             </div>
           </div>
-          {error && <p className="text-destructive mt-4 text-sm">{error}</p>}
+          {error && (
+            <p className="text-destructive-ink mt-4 text-sm">{error}</p>
+          )}
         </div>
         <DialogFooter>
           <DialogClose render={<Button variant="outline" />}>

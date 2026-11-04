@@ -345,7 +345,7 @@ export function SheetView({
           className={sheets.length > 1 ? "bottom-12" : undefined}
         />
         {sheets.length > 1 && (
-          <div className="bg-muted/50 flex shrink-0 gap-1 overflow-x-auto border-t p-1">
+          <div className="bg-muted flex shrink-0 gap-1 overflow-x-auto border-t p-1">
             {sheets.map((s, i) => (
               <button
                 key={s.name}

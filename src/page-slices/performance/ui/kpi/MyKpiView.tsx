@@ -420,7 +420,7 @@ export function MyKpiView({
                     })}
                   </Badge>
                   {kpi.lock.changed && (
-                    <span className="text-warning text-meta flex items-center gap-1.5">
+                    <span className="text-warning-ink text-meta flex items-center gap-1.5">
                       <RiErrorWarningLine className="size-3.5 shrink-0" />
                       {t("kpiChangedAfterLock", {
                         n:

@@ -49,7 +49,7 @@ export function MiniCalendar() {
                 key={`${day}-${index}`}
                 className={cx(
                   "text-muted-foreground flex size-7 items-center justify-center rounded-md text-center text-sm font-medium",
-                  index >= 5 && "bg-muted/50",
+                  index >= 5 && "bg-muted",
                 )}
               >
                 {day}
@@ -70,11 +70,11 @@ export function MiniCalendar() {
                 onClick={() => handleDayClick(day)}
                 className={cx(
                   "flex aspect-square w-full items-center justify-center rounded-md text-sm font-medium transition-colors",
-                  !isCurrentMonth && "text-muted-foreground/50",
+                  !isCurrentMonth && "text-tertiary-foreground",
                   isCurrentMonth &&
                     !isSelected &&
                     "text-muted-foreground hover:bg-accent",
-                  isCurrentMonth && !isSelected && isWeekend && "bg-muted/50",
+                  isCurrentMonth && !isSelected && isWeekend && "bg-muted",
                   isSelected &&
                     "bg-primary text-primary-foreground hover:bg-primary",
                 )}

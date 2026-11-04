@@ -871,7 +871,7 @@ function AiCard({
         {job.status === "error" ? (
           <p
             role="alert"
-            className="text-destructive flex items-start gap-2 py-2 text-sm"
+            className="text-destructive-ink flex items-start gap-2 py-2 text-sm"
           >
             <TriangleAlert className="mt-0.5 size-4 shrink-0" />
             {errorText}
@@ -890,7 +890,7 @@ function AiCard({
           </p>
         )}
         {lost.length > 0 && (
-          <p className="text-meta flex items-start gap-2 pb-2 text-amber-600 dark:text-amber-400">
+          <p className="text-meta text-warning-ink flex items-start gap-2 pb-2">
             <TriangleAlert className="mt-0.5 size-4 shrink-0" />
             {t("urlsChanged")}
           </p>

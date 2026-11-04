@@ -189,7 +189,7 @@ export function MeetingDialog({
               <>
                 {isDeletePending ? (
                   <div className="animate-fadeIn flex w-full items-center gap-2">
-                    <span className="text-destructive text-sm font-medium whitespace-nowrap">
+                    <span className="text-destructive-ink text-sm font-medium whitespace-nowrap">
                       {t("dialogDeleteConfirm")}
                     </span>
                     <Button
@@ -216,7 +216,7 @@ export function MeetingDialog({
                       variant="outline"
                       onClick={handleDeleteClick}
                       disabled={loading}
-                      className="text-destructive hover:bg-destructive/10"
+                      className="text-destructive-ink hover:bg-destructive/10"
                     >
                       {tc("delete")}
                     </Button>

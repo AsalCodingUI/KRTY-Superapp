@@ -148,7 +148,7 @@ export function NavUser({
             >
               <Avatar className="size-6">
                 <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback className="bg-chrome-field blend-ink text-foreground/70 text-[10px]">
+                <AvatarFallback className="bg-chrome-field blend-ink text-muted-foreground text-[10px]">
                   {initials}
                 </AvatarFallback>
               </Avatar>

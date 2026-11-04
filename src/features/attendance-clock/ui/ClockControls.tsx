@@ -185,7 +185,7 @@ export function ClockControls({
     return swap(
       "stale",
       <div className="flex items-center gap-3">
-        <p className="text-destructive text-sm">
+        <p className="text-destructive-ink text-sm">
           {t("staleSession", {
             date: format(
               parseISO(getAttendanceLogLocalDate(staleSession)),

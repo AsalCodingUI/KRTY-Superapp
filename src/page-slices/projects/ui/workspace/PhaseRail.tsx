@@ -154,7 +154,7 @@ export function PhaseRail({
                 className="bg-warning-subtle ml-1 flex min-w-0 items-center gap-1.5 rounded-full py-0.5 pr-0.5 pl-2 text-xs"
               >
                 <RiErrorWarningLine className="text-warning size-3.5 shrink-0" />
-                <span className="text-foreground/80 min-w-0 truncate">
+                <span className="text-muted-foreground min-w-0 truncate">
                   {t("phasesMissingDue", { n: missingDue })}
                 </span>
                 <Button
@@ -371,7 +371,7 @@ export function PhaseRail({
                     surfaceClassName,
                     "group/phase relative flex min-w-0 flex-col gap-3 p-3.5 transition-colors",
                     // The picked phase: a faint grey fill, the usual border.
-                    selected ? "bg-muted/60" : "hover:bg-muted/30",
+                    selected ? "bg-muted" : "hover:bg-accent",
                   )}
                 >
                   <button
@@ -415,7 +415,7 @@ export function PhaseRail({
                       className={cn(
                         "text-muted-foreground truncate",
                         isActive && "text-primary",
-                        lateBy > 0 && "text-warning",
+                        lateBy > 0 && "text-warning-ink",
                       )}
                       title={dueTitle ?? status}
                     >
@@ -426,7 +426,7 @@ export function PhaseRail({
                         className={cn(
                           "flex shrink-0 items-center gap-1 tabular-nums",
                           overdue
-                            ? "text-destructive font-medium"
+                            ? "text-destructive-ink font-medium"
                             : "text-tertiary-foreground",
                         )}
                         title={

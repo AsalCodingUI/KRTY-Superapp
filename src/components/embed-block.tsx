@@ -101,7 +101,7 @@ export function EmbedBlock({
         </div>
         <figcaption className="text-muted-foreground text-meta mt-1.5 flex items-center gap-2 px-0.5 leading-5">
           <SiteIcon url={url} className="size-3.5 shrink-0" />
-          <span className="text-foreground/80 min-w-0 truncate">{name}</span>
+          <span className="text-muted-foreground min-w-0 truncate">{name}</span>
           <span className="shrink-0 truncate">· {domain}</span>
           <span className="flex-1" />
           {footer}
@@ -144,7 +144,7 @@ export function EmbedBlock({
       target="_blank"
       rel="noreferrer noopener"
       title={url}
-      className={cn(card, "hover:bg-muted/60 transition-colors")}
+      className={cn(card, "hover:bg-accent transition-colors")}
     >
       {body}
       <ExternalLink className="text-muted-foreground size-3.5 shrink-0" />

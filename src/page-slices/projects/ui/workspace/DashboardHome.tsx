@@ -70,7 +70,7 @@ function Panel({
 }
 
 const ROW =
-  "border-border/50 hover:bg-muted/40 flex h-11 w-full items-center gap-3 border-b px-4 text-left text-sm transition-colors last:border-b-0"
+  "border-border hover:bg-accent flex h-11 w-full items-center gap-3 border-b px-4 text-left text-sm transition-colors last:border-b-0"
 
 /** Open tasks by due date (overdue first, undated last), opened in place. */
 export function UpcomingTasks({
@@ -175,7 +175,7 @@ export function UpcomingTasks({
                         className={cn(
                           "text-meta shrink-0 tabular-nums",
                           overdue
-                            ? "text-destructive font-medium"
+                            ? "text-destructive-ink font-medium"
                             : "text-tertiary-foreground",
                         )}
                       >

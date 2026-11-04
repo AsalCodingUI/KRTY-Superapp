@@ -363,7 +363,7 @@ export function BlockHandle({
               aria-label={t("blockAddBelow")}
               onMouseDown={(e) => e.preventDefault()}
               onClick={addBelow}
-              className="text-muted-foreground/70 hover:text-foreground hover:bg-muted flex size-6 items-center justify-center rounded-md transition-colors"
+              className="text-muted-foreground hover:text-foreground hover:bg-muted flex size-6 items-center justify-center rounded-md transition-colors"
             >
               <Plus className="size-4" />
             </button>
@@ -382,7 +382,7 @@ export function BlockHandle({
                       selectBlock(block.pos)
                     }
                   }}
-                  className="text-muted-foreground/70 hover:text-foreground hover:bg-muted flex h-6 w-5 cursor-grab touch-none items-center justify-center rounded-md transition-colors active:cursor-grabbing"
+                  className="text-muted-foreground hover:text-foreground hover:bg-muted flex h-6 w-5 cursor-grab touch-none items-center justify-center rounded-md transition-colors active:cursor-grabbing"
                 />
               }
             >

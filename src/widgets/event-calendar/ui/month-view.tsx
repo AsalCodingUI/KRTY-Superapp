@@ -147,12 +147,12 @@ export const MonthView = memo(function MonthView({
                           ? "bg-foreground text-background font-medium"
                           : isHoliday
                             ? cx(
-                                "text-destructive font-medium",
+                                "text-destructive-ink font-medium",
                                 !isCurrentMonth && "opacity-40",
                               )
                             : isCurrentMonth
                               ? "text-muted-foreground"
-                              : "text-muted-foreground/40",
+                              : "text-tertiary-foreground",
                       )}
                     >
                       {format(day, "d")}
@@ -210,7 +210,7 @@ export const MonthView = memo(function MonthView({
                             <span
                               className={cx(
                                 "truncate",
-                                isHolidayEvent(event) && "text-destructive",
+                                isHolidayEvent(event) && "text-destructive-ink",
                               )}
                             >
                               {event.title}

@@ -234,7 +234,7 @@ function Acknowledgement({
         className="flex flex-col gap-2"
       >
         {state === "done" ? (
-          <div className="bg-success-subtle text-green-11 text-meta flex items-start gap-2 rounded-2xl px-3.5 py-3">
+          <div className="bg-success-subtle text-success-ink text-meta flex items-start gap-2 rounded-2xl px-3.5 py-3">
             <RiCheckboxCircleFill className="mt-0.5 size-4 shrink-0" />
             <span>
               {t("ackBy", {
@@ -274,7 +274,9 @@ function Acknowledgement({
               onChange={(e) => setName(e.target.value)}
             />
             {mismatch && (
-              <p className="text-destructive text-meta">{t("ackMismatch")}</p>
+              <p className="text-destructive-ink text-meta">
+                {t("ackMismatch")}
+              </p>
             )}
             <Button type="submit" disabled={saving || !name.trim() || mismatch}>
               {saving ? t("ackSubmitting") : t("ackSubmit")}

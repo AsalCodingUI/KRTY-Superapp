@@ -42,17 +42,17 @@ const EVENT_ITEM_COLORS: Record<
   },
   rose: {
     background: "bg-destructive/10",
-    text: "text-destructive",
+    text: "text-destructive-ink",
     accent: "bg-[var(--destructive)]",
   },
   orange: {
     background: "bg-warning/10",
-    text: "text-warning",
+    text: "text-warning-ink",
     accent: "bg-[var(--warning)]",
   },
   amber: {
     background: "bg-warning/10",
-    text: "text-warning",
+    text: "text-warning-ink",
     accent: "bg-[var(--warning)]",
   },
   neutral: {

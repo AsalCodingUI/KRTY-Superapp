@@ -103,7 +103,7 @@ export function NameTwinNotice({
   return (
     <div className="bg-amber-3 dark:bg-amber-9/10 text-meta flex flex-col gap-2 rounded-xl px-3 py-2.5">
       <p className="text-foreground flex items-center gap-2">
-        <TriangleAlert className="text-amber-11 size-3.5 shrink-0" />
+        <TriangleAlert className="text-warning-ink size-3.5 shrink-0" />
         {t("twinTitle", { name: twins[0].name })}
       </p>
       {twins.slice(0, 3).map((p) => (

@@ -730,7 +730,7 @@ function TaskRows({
               size="icon-sm"
               aria-label={t("deleteTask")}
               onClick={onDelete}
-              className="text-muted-foreground hover:text-destructive opacity-0 group-hover/task:opacity-100 focus-visible:opacity-100"
+              className="text-muted-foreground hover:text-destructive-ink opacity-0 group-hover/task:opacity-100 focus-visible:opacity-100"
             >
               <RiDeleteBinLine />
             </Button>
@@ -817,9 +817,9 @@ function TaskRows({
                     "text-meta justify-self-start px-2.5 font-normal",
                     task.due_date
                       ? overdue
-                        ? "text-destructive"
+                        ? "text-destructive-ink"
                         : isToday(new Date(`${task.due_date}T00:00:00`))
-                          ? "text-warning"
+                          ? "text-warning-ink"
                           : "text-foreground"
                       : "text-muted-foreground",
                   )}
@@ -894,7 +894,7 @@ function TaskRows({
                   size="icon-sm"
                   aria-label={t("deleteSubtask")}
                   onClick={() => onRemove(sub.id)}
-                  className="text-muted-foreground hover:text-destructive opacity-0 group-hover/sub:opacity-100 focus-visible:opacity-100"
+                  className="text-muted-foreground hover:text-destructive-ink opacity-0 group-hover/sub:opacity-100 focus-visible:opacity-100"
                 >
                   <RiDeleteBinLine />
                 </Button>

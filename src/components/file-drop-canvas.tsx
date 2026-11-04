@@ -190,10 +190,10 @@ export function FileDropCanvas({
         >
           <span
             className={cn(
-              "border-foreground/15 group-focus-visible/drop:border-primary/60 pointer-events-none absolute inset-3 rounded-2xl border-[1.5px] border-dashed transition-colors duration-200",
+              "border-field-border group-focus-visible/drop:border-primary/60 pointer-events-none absolute inset-3 rounded-2xl border-[1.5px] border-dashed transition-colors duration-200",
               dragging
                 ? "border-primary bg-primary/5"
-                : "group-hover/drop:border-foreground/25 group-hover/drop:bg-foreground/[0.02]",
+                : "group-hover/drop:border-field-border group-hover/drop:bg-foreground/[0.02]",
             )}
             aria-hidden
           />

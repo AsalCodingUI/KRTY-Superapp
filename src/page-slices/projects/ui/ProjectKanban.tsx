@@ -73,7 +73,7 @@ const ProjectCard = memo(function ProjectCard({
   return (
     <div
       className={cn(
-        "bg-card border-border group-hover/card:border-foreground/20 rounded-nested relative flex flex-col gap-1.5 border px-3.5 py-3 text-sm transition-[border-color,box-shadow] duration-200",
+        "bg-card border-border group-hover/card:border-field-border rounded-nested relative flex flex-col gap-1.5 border px-3.5 py-3 text-sm transition-[border-color,box-shadow] duration-200",
         dragging && "border-transparent shadow-(--elev-4)",
       )}
     >
@@ -81,7 +81,7 @@ const ProjectCard = memo(function ProjectCard({
       {canDrag && !dragging && (
         <GripHorizontal
           aria-hidden="true"
-          className="text-muted-foreground/70 absolute top-0.5 left-1/2 size-3.5 -translate-x-1/2 opacity-0 transition-opacity group-hover/card:opacity-100"
+          className="text-muted-foreground absolute top-0.5 left-1/2 size-3.5 -translate-x-1/2 opacity-0 transition-opacity group-hover/card:opacity-100"
         />
       )}
       <div className="text-muted-foreground flex items-center justify-between gap-2 text-xs tabular-nums">
@@ -166,7 +166,7 @@ const DraggableCard = memo(function DraggableCard({
           href={projectHref(project)}
           prefetch={false}
           draggable={false}
-          className="focus-visible:ring-primary/40 rounded-nested block focus-visible:ring-2"
+          className="focus-visible:ring-focus-ring rounded-nested block focus-visible:ring-2"
         >
           <ProjectCard project={project} canDrag={canDrag} />
         </Link>
@@ -202,7 +202,7 @@ const Column = memo(function Column({
       className={cn(
         // Border sits inside the box so the scroll container never clips it.
         "nest-rounded-2xl nest-p-2 flex min-h-64 min-w-60 flex-1 flex-col gap-2 border border-dashed border-transparent transition-colors",
-        isOver && "border-foreground/20 bg-foreground/[0.02]",
+        isOver && "border-field-border bg-foreground/[0.02]",
       )}
     >
       <header className="flex items-center gap-2 px-1.5 pt-0.5 pb-1 text-sm">

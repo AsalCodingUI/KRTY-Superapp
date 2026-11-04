@@ -62,8 +62,8 @@ function AiSparkle() {
     <svg viewBox="0 0 24 24" aria-hidden className="size-4">
       <defs>
         <linearGradient id={id} x1="2" y1="2" x2="22" y2="22">
-          <stop offset="0" stopColor="#a855f7" />
-          <stop offset="1" stopColor="#3b82f6" />
+          <stop offset="0" stopColor="var(--purple-9)" />
+          <stop offset="1" stopColor="var(--blue-9)" />
         </linearGradient>
       </defs>
       <path
@@ -309,7 +309,7 @@ function Verbatim({
             {verbatim[key].map((text, j) => (
               <li
                 key={j}
-                className="text-foreground bg-muted/50 text-title rounded-xl px-4 py-3 leading-[1.65] whitespace-pre-line"
+                className="text-foreground bg-muted text-title rounded-xl px-4 py-3 leading-[1.65] whitespace-pre-line"
               >
                 {text}
               </li>

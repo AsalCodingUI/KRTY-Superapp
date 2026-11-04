@@ -65,7 +65,7 @@ export const DOC_PROSE = cn(
   "[&_pre]:bg-muted [&_pre]:my-4 [&_pre]:rounded-lg [&_pre]:p-3 [&_pre]:text-meta [&_pre_code]:bg-transparent [&_pre_code]:p-0",
   "[&_table]:my-4 [&_table]:w-full [&_table]:border-collapse [&_table]:text-sm",
   "[&_th]:border-border [&_th]:text-muted-foreground [&_th]:border-b [&_th]:px-3 [&_th]:py-2 [&_th]:text-left [&_th]:font-medium",
-  "[&_td]:border-border/60 [&_td]:border-b [&_td]:px-3 [&_td]:py-2 [&_td]:align-top [&_td_p]:my-0 [&_th_p]:my-0",
+  "[&_td]:border-border [&_td]:border-b [&_td]:px-3 [&_td]:py-2 [&_td]:align-top [&_td_p]:my-0 [&_th_p]:my-0",
   "[&_.selectedCell]:bg-primary/10",
   // A block picked with its handle: a soft blue tint, no outline.
   "[&_.ProseMirror-selectednode:not(.doc-image)]:bg-primary/[0.08] [&_.ProseMirror-selectednode:not(.doc-image)]:rounded-md [&_.ProseMirror-selectednode]:outline-none [&_.ProseMirror-selectednode:not(.doc-image)]:selection:bg-transparent [&_.ProseMirror-selectednode:not(.doc-image)]:selection:text-foreground",
@@ -73,7 +73,7 @@ export const DOC_PROSE = cn(
   "[&_.doc-image]:my-4 [&_.doc-image]:w-full [&_img]:mx-auto [&_img]:block [&_img]:h-auto [&_img]:rounded-lg [&_img]:border [&_img]:border-border [&_.ProseMirror-selectednode_img]:ring-2 [&_.ProseMirror-selectednode_img]:ring-primary/40",
   "[&_img[data-size=small]]:w-2/5 [&_img[data-size=medium]]:w-[70%] [&_img[data-size=wide]]:w-full",
   // Placeholder on the empty line with the caret.
-  "[&_.is-empty]:before:text-muted-foreground/60 [&_.is-empty]:before:pointer-events-none [&_.is-empty]:before:float-left [&_.is-empty]:before:h-0 [&_.is-empty]:before:content-[attr(data-placeholder)]",
+  "[&_.is-empty]:before:text-tertiary-foreground [&_.is-empty]:before:pointer-events-none [&_.is-empty]:before:float-left [&_.is-empty]:before:h-0 [&_.is-empty]:before:content-[attr(data-placeholder)]",
 )
 
 /** The compact editor's type: form-sized text, tighter blocks. */

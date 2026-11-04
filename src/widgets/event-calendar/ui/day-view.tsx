@@ -100,7 +100,7 @@ export const DayView = memo(function DayView({
           </div>
 
           {/* Day column */}
-          <div className={cx("relative flex-1", isWeekend && "bg-muted/50")}>
+          <div className={cx("relative flex-1", isWeekend && "bg-muted")}>
             {/* Time slots */}
             {timeSlots.map((slot) => {
               const hour = slot.getHours()

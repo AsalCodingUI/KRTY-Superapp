@@ -42,7 +42,7 @@ function NavBadge({ count }: { count?: number }) {
     <span
       key={pops}
       className={cn(
-        "bg-foreground/[0.08] text-foreground/70 blend-ink ml-auto flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full px-1.5 text-xs font-medium tabular-nums group-data-[collapsible=icon]:hidden",
+        "bg-foreground/[0.08] text-muted-foreground blend-ink ml-auto flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full px-1.5 text-xs font-medium tabular-nums group-data-[collapsible=icon]:hidden",
         pops > 0 && "animate-count-pop motion-reduce:animate-none",
       )}
     >

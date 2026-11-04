@@ -413,7 +413,7 @@ const Column = memo(function Column({
           // Same as the projects board: no fill, a dashed outline while a
           // card hovers it (inside the box so the scroller never clips it).
           "nest-rounded-2xl nest-p-2 flex min-h-64 min-w-60 flex-1 flex-col gap-2 border border-dashed border-transparent transition-colors",
-          isOver && "border-foreground/20 bg-foreground/[0.02]",
+          isOver && "border-field-border bg-foreground/[0.02]",
         )}
       >
         <header className="flex items-center gap-2 px-1.5 pt-0.5 pb-1 text-sm">
@@ -535,7 +535,7 @@ function SortableCard({
           if (e.key === "Enter") onOpen()
         }}
         className={cn(
-          "group/card rounded-nested focus-visible:ring-primary/40 relative cursor-grab outline-none focus-visible:ring-2 active:cursor-grabbing",
+          "group/card rounded-nested focus-visible:ring-focus-ring relative cursor-grab outline-none focus-visible:ring-2 active:cursor-grabbing",
           // The spot it left, until it's dropped.
           isDragging && "opacity-40",
         )}
@@ -606,7 +606,7 @@ const TaskCard = memo(function TaskCard({
   return (
     <div
       className={cn(
-        "bg-card border-border group-hover/card:border-foreground/20 rounded-nested relative flex flex-col gap-1.5 border px-3.5 py-3 text-sm transition-[border-color,box-shadow] duration-200",
+        "bg-card border-border group-hover/card:border-field-border rounded-nested relative flex flex-col gap-1.5 border px-3.5 py-3 text-sm transition-[border-color,box-shadow] duration-200",
         lifted && "border-transparent shadow-(--elev-4)",
       )}
     >
@@ -614,7 +614,7 @@ const TaskCard = memo(function TaskCard({
       {!lifted && (
         <GripHorizontal
           aria-hidden="true"
-          className="text-muted-foreground/70 absolute top-0.5 left-1/2 size-3.5 -translate-x-1/2 opacity-0 transition-opacity group-hover/card:opacity-100"
+          className="text-muted-foreground absolute top-0.5 left-1/2 size-3.5 -translate-x-1/2 opacity-0 transition-opacity group-hover/card:opacity-100"
         />
       )}
       {(priority !== "none" ||
@@ -635,7 +635,7 @@ const TaskCard = memo(function TaskCard({
             <span
               className={cn(
                 "flex min-w-0 items-center gap-1 truncate",
-                isToday(due!) && !task.done && "text-warning",
+                isToday(due!) && !task.done && "text-warning-ink",
               )}
             >
               <RiCalendarLine className="size-3.5 shrink-0" />

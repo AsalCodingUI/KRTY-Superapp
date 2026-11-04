@@ -879,7 +879,7 @@ function PhaseSettingsDialog({
             <p
               className={cn(
                 "tabular-nums",
-                (invalid || scaled) && "text-warning",
+                (invalid || scaled) && "text-warning-ink",
               )}
               aria-live="polite"
             >
@@ -995,7 +995,7 @@ const NO_QUARTER = "__none"
 
 /** An editable property value: plain text until hovered. */
 const inlineValueClass =
-  "hover:bg-muted/60 aria-expanded:bg-muted/60 data-popup-open:bg-muted/60 -mx-1.5 h-7 w-auto min-w-0 flex-1 justify-between rounded-md border-0 bg-transparent px-1.5 font-normal shadow-none [&_svg]:opacity-0 hover:[&_svg]:opacity-100"
+  "hover:bg-accent aria-expanded:bg-muted/60 data-popup-open:bg-muted/60 -mx-1.5 h-7 w-auto min-w-0 flex-1 justify-between rounded-md border-0 bg-transparent px-1.5 font-normal shadow-none [&_svg]:opacity-0 hover:[&_svg]:opacity-100"
 
 /** Quarters to pick from: last year to next year, plus the current value
  *  if it lies outside that. */
@@ -1103,7 +1103,7 @@ function Facts({
                     const next = date ? format(date, "yyyy-MM-dd") : ""
                     if (next !== (value ?? "")) void save(field, next)
                   }}
-                  className="text-foreground hover:bg-muted/60 aria-expanded:bg-muted/60 -mx-1.5 h-7 w-auto min-w-0 flex-1 border-0 bg-transparent px-1.5 font-normal shadow-none has-data-[icon=inline-start]:pl-1.5 [&_[data-icon=inline-start]]:hidden"
+                  className="text-foreground hover:bg-accent aria-expanded:bg-muted/60 -mx-1.5 h-7 w-auto min-w-0 flex-1 border-0 bg-transparent px-1.5 font-normal shadow-none has-data-[icon=inline-start]:pl-1.5 [&_[data-icon=inline-start]]:hidden"
                   align="end"
                 />
               ) : canEdit && !readOnly ? (
@@ -1432,7 +1432,7 @@ function ProcessPanel({
             >
               <div
                 data-slot="project-step"
-                className="group/step border-border/50 flex h-11 items-center gap-3 border-b pr-2 pl-4 text-sm last:border-b-0"
+                className="group/step border-border flex h-11 items-center gap-3 border-b pr-2 pl-4 text-sm last:border-b-0"
               >
                 <button
                   type="button"
@@ -1463,7 +1463,7 @@ function ProcessPanel({
                   className={cn(
                     "shrink-0 rounded-full px-2 py-0.5 text-xs",
                     done
-                      ? "bg-success-subtle text-green-11"
+                      ? "bg-success-subtle text-success-ink"
                       : "bg-muted text-muted-foreground",
                   )}
                 >

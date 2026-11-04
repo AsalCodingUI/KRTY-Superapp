@@ -562,7 +562,7 @@ function InboxRow({
                 title={approveLabel}
                 disabled={disabled}
                 onClick={onApprove}
-                className={cn(!busy && "text-green-11")}
+                className={cn(!busy && "text-success-ink")}
               >
                 {busy ? <Spinner /> : <RiCheckLine />}
               </Button>

@@ -314,7 +314,7 @@ export function ProjectScoringView({
                 </ListRow>
               ))}
               {canEdit && totalWeight !== 100 && (
-                <p className="text-warning gutter-x pt-2 text-xs">
+                <p className="text-warning-ink gutter-x pt-2 text-xs">
                   {t("weightTotalMustBe100", { n: totalWeight })}
                 </p>
               )}
@@ -349,7 +349,7 @@ export function ProjectScoringView({
             {competencies.map((c) => (
               <li
                 key={c.id}
-                className="border-border/60 flex gap-3 border-b py-3 last:border-b-0"
+                className="border-border flex gap-3 border-b py-3 last:border-b-0"
               >
                 {c.isAchieved ? (
                   <RiCheckboxCircleFill
@@ -613,7 +613,7 @@ function SheetProperties({
                 <span className="tabular-nums">
                   {t("psTasksDone", { done: tasks.done, total: tasks.total })}
                   {tasks.openOverdue > 0 && (
-                    <span className="text-warning">
+                    <span className="text-warning-ink">
                       {" · "}
                       {t("psTasksOverdue", { n: tasks.openOverdue })}
                     </span>
@@ -800,7 +800,7 @@ function ResultCell({ milestone: ms }: { milestone: Milestone }) {
     )
   if (ms.overdueDays > 0 && !ms.done)
     return (
-      <span className="text-warning truncate tabular-nums">
+      <span className="text-warning-ink truncate tabular-nums">
         {t("psOverdueAuto", {
           n: ms.overdueDays,
           result: t(SLA_RESULT_LABELS.Delay),

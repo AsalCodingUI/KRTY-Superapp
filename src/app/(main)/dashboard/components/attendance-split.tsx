@@ -22,9 +22,9 @@ export type SplitTone = "good" | "warning" | "info" | "neutral"
 // is a step darker than the UI's warning so it reads as a fill, and darker
 // again on dark. "Not in yet" stays neutral: a share, not an alarm.
 const TONE: Record<SplitTone, string> = {
-  good: "bg-[#30a46c]",
-  warning: "bg-[#e5a000] dark:bg-[#c08400]",
-  info: "bg-[#0090ff]",
+  good: "bg-success",
+  warning: "bg-amber-10",
+  info: "bg-info",
   neutral: "bg-foreground/12 dark:bg-white/14",
 }
 

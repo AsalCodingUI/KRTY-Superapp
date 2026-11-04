@@ -387,7 +387,7 @@ function TaskBody({
                     size="icon-sm"
                     aria-label={t("deleteSubtask")}
                     onClick={() => onRemove(sub.id)}
-                    className="text-muted-foreground hover:text-destructive opacity-0 group-hover/sub:opacity-100 focus-visible:opacity-100"
+                    className="text-muted-foreground hover:text-destructive-ink opacity-0 group-hover/sub:opacity-100 focus-visible:opacity-100"
                   >
                     <RiDeleteBinLine />
                   </Button>
@@ -566,9 +566,9 @@ function TaskBody({
                         "text-meta w-full justify-start gap-2 px-2.5 font-normal",
                         due
                           ? overdue
-                            ? "text-destructive"
+                            ? "text-destructive-ink"
                             : isToday(due) && !task.done
-                              ? "text-warning"
+                              ? "text-warning-ink"
                               : "text-foreground"
                           : "text-muted-foreground",
                       )}
@@ -608,7 +608,7 @@ function TaskBody({
             variant="ghost"
             size="sm"
             onClick={() => setConfirmDelete(true)}
-            className="text-muted-foreground hover:text-destructive text-meta mt-auto self-start px-2.5 font-normal"
+            className="text-muted-foreground hover:text-destructive-ink text-meta mt-auto self-start px-2.5 font-normal"
           >
             <RiDeleteBinLine data-icon="inline-start" />
             {t("deleteTask")}
@@ -956,7 +956,7 @@ function CommentList({
                             size="icon-xs"
                             aria-label={t("deleteComment")}
                             onClick={() => setPendingDelete(comment.id)}
-                            className="text-muted-foreground hover:text-destructive ml-auto opacity-0 group-hover/comment:opacity-100 focus-visible:opacity-100"
+                            className="text-muted-foreground hover:text-destructive-ink ml-auto opacity-0 group-hover/comment:opacity-100 focus-visible:opacity-100"
                           >
                             <RiDeleteBinLine />
                           </Button>

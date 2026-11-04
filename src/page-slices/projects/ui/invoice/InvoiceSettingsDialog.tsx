@@ -178,7 +178,7 @@ function MethodsTab({
             key={m.id}
             type="button"
             onClick={() => setDraft({ ...m })}
-            className="hover:bg-muted/50 border-border flex items-center gap-3 rounded-xl border px-3 py-2.5 text-left text-sm transition-colors"
+            className="hover:bg-accent border-border flex items-center gap-3 rounded-xl border px-3 py-2.5 text-left text-sm transition-colors"
           >
             <span className="flex min-w-0 flex-1 flex-col">
               <span
@@ -397,7 +397,7 @@ function MethodForm({
                 {draft.qr_path && !qrFile && (
                   <button
                     type="button"
-                    className="text-muted-foreground hover:text-destructive w-fit text-xs"
+                    className="text-muted-foreground hover:text-destructive-ink w-fit text-xs"
                     onClick={() => setDraft({ ...draft, qr_path: null })}
                   >
                     {t("removeQr")}
@@ -409,7 +409,7 @@ function MethodForm({
               <span
                 className={cn(
                   "text-muted-foreground",
-                  needsVerification(draft) && "text-warning",
+                  needsVerification(draft) && "text-warning-ink",
                 )}
               >
                 {draft.verified_at
@@ -453,7 +453,7 @@ function MethodForm({
           {draft.id ? (
             <Button
               variant="ghost"
-              className="text-destructive hover:text-destructive"
+              className="text-destructive-ink hover:text-destructive-ink"
               onClick={() => setDeleting(true)}
             >
               {t("deleteMethod")}

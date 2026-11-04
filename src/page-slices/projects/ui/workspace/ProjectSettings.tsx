@@ -350,7 +350,7 @@ export function ProjectSettings({ projectId }: { projectId: string }) {
                   <Button
                     size="sm"
                     variant="outline"
-                    className="text-destructive hover:text-destructive"
+                    className="text-destructive-ink hover:text-destructive-ink"
                     onClick={() => setDeleting(true)}
                   >
                     {t("deleteProject")}
@@ -381,7 +381,7 @@ export function ProjectSettings({ projectId }: { projectId: string }) {
               data.team.map((m) => (
                 <div
                   key={m.assignmentId}
-                  className="border-border/50 flex min-h-12 items-center gap-3 border-b px-4 py-2 text-sm last:border-b-0"
+                  className="border-border flex min-h-12 items-center gap-3 border-b px-4 py-2 text-sm last:border-b-0"
                 >
                   <Avatar className="size-7">
                     <AvatarImage src={m.avatar_url || undefined} alt="" />

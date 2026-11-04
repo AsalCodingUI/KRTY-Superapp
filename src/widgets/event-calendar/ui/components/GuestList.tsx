@@ -58,7 +58,7 @@ export function GuestList({
         {guests.map((guest, index) => (
           <div
             key={guest.email + index}
-            className="hover:bg-muted/30 flex items-center gap-3 rounded-lg p-2 transition-colors"
+            className="hover:bg-accent flex items-center gap-3 rounded-lg p-2 transition-colors"
           >
             {/* Avatar */}
             <div
@@ -95,8 +95,10 @@ export function GuestList({
             <div
               className={cx(
                 "flex items-center gap-1 rounded-sm px-1.5 py-0.5 text-xs",
-                guest.status === "accepted" && "bg-success-subtle text-green-11",
-                guest.status === "pending" && "bg-warning-subtle text-amber-11",
+                guest.status === "accepted" &&
+                  "bg-success-subtle text-success-ink",
+                guest.status === "pending" &&
+                  "bg-warning-subtle text-warning-ink",
                 guest.status === "declined" &&
                   "bg-destructive-subtle text-red-11",
               )}

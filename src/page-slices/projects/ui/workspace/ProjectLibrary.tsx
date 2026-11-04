@@ -242,7 +242,7 @@ function LibraryGrid({
                     }
                   }}
                   className={cn(
-                    "group/row hover:bg-muted/60 focus-visible:ring-focus-ring nest-rounded-xl nest-p-2 flex cursor-pointer items-center gap-3 transition-colors outline-none focus-visible:ring-2",
+                    "group/row hover:bg-accent focus-visible:ring-focus-ring nest-rounded-xl nest-p-2 flex cursor-pointer items-center gap-3 transition-colors outline-none focus-visible:ring-2",
                     dropTarget === f.id &&
                       "bg-primary/10 ring-primary/40 ring-2 ring-inset",
                   )}
@@ -280,7 +280,7 @@ function LibraryGrid({
               <button
                 type="button"
                 onClick={onNewFolder}
-                className="hover:bg-muted/60 text-muted-foreground hover:text-foreground nest-rounded-xl nest-p-2 flex items-center gap-3 text-left text-sm transition-colors"
+                className="hover:bg-accent text-muted-foreground hover:text-foreground nest-rounded-xl nest-p-2 flex items-center gap-3 text-left text-sm transition-colors"
               >
                 <span className="border-field-border-hover rounded-nested grid h-8 w-10 shrink-0 place-items-center border border-dashed">
                   <Plus className="size-4" />

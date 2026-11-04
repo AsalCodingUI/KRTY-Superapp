@@ -186,7 +186,7 @@ function CategoryRow({
         size="icon-sm"
         aria-label={t("categoryDelete")}
         onClick={onDelete}
-        className="text-muted-foreground hover:text-destructive"
+        className="text-muted-foreground hover:text-destructive-ink"
       >
         <RiDeleteBinLine />
       </Button>

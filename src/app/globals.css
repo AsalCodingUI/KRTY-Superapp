@@ -389,8 +389,6 @@
   --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
   --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-dialog-shell: var(--dialog-shell);
-  --color-dialog-panel: var(--dialog-panel);
   --color-sidebar: var(--sidebar);
   --color-surface: var(--surface);
   --color-chart-5: var(--chart-5);
@@ -406,15 +404,10 @@
   --color-chrome-field: var(--chrome-field);
   --color-inverse: var(--inverse);
   --color-destructive-subtle: var(--destructive-subtle);
-  --color-destructive-line: var(--destructive-line);
   --color-success-subtle: var(--success-subtle);
-  --color-success-line: var(--success-line);
   --color-warning-subtle: var(--warning-subtle);
-  --color-warning-line: var(--warning-line);
   --color-info-subtle: var(--info-subtle);
-  --color-info-line: var(--info-line);
   --color-neutral-subtle: var(--neutral-subtle);
-  --color-neutral-line: var(--neutral-line);
   --color-neutral-ink: var(--neutral-ink);
   --color-field-border-hover: var(--field-border-hover);
   --color-focus-ring: var(--focus-ring);
@@ -428,6 +421,11 @@
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
   --color-success-ink: var(--success-ink);
+  --color-warning-ink: var(--warning-ink);
+  --color-info-ink: var(--info-ink);
+  --color-destructive-ink: var(--destructive-ink);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-subtle: var(--primary-subtle);
   --color-warning: var(--warning);
   --color-warning-foreground: var(--warning-foreground);
   --color-info: var(--info);
@@ -550,6 +548,10 @@
   /* Primary as text on its own tint (default badges): never lighter than
      the blue-11 ink, so the neutral one reads the same as the info badge. */
   --primary-ink: oklch(from var(--primary) min(l, 0.48) c h);
+  /* The primary button's hover: a touch lighter, following the theme. */
+  --primary-hover: color-mix(in oklch, var(--primary), white 12%);
+  /* A tint of the theme color (selected days, own events). */
+  --primary-subtle: color-mix(in oklab, var(--primary) 14%, transparent);
   /* Fills, hovers, chips: see-through ink, so they pick up the tint of
      whatever they sit on (page, popover, chrome). */
   --secondary: oklch(0.22 var(--tint-ink) var(--tint-h) / 0.035);
@@ -568,23 +570,23 @@
   --destructive: var(--red-9);
   --destructive-foreground: #ffffff;
   --destructive-subtle: var(--red-3);
-  --destructive-line: #fbd3dc;
   --success: var(--green-9);
   --success-foreground: #ffffff;
   /* Green text and icons (not badges): one step lighter in dark. */
-  --success-ink: var(--green-9);
+  /* "-ink": the status color for text (step 11, readable on light and
+     dark); the plain status color stays for icons, dots and fills. */
+  --success-ink: var(--green-11);
+  --warning-ink: var(--amber-11);
+  --info-ink: var(--blue-11);
+  --destructive-ink: var(--red-11);
   --success-subtle: var(--green-3);
-  --success-line: #a8f170;
   --warning: var(--amber-9);
   --warning-foreground: oklch(0.2 0.02 75);
   --warning-subtle: var(--amber-3);
-  --warning-line: #fbd992;
   --info: var(--blue-9);
   --info-foreground: #ffffff;
   --info-subtle: var(--blue-3);
-  --info-line: #a7e7fc;
   --neutral-subtle: oklch(0.22 var(--tint-ink) var(--tint-h) / 0.06);
-  --neutral-line: #e6e6e6;
   --neutral-ink: oklch(0.489 var(--tint-ink) var(--tint-h));
   --border: #f3f3f3;
   --input: #dddddd;
@@ -616,8 +618,6 @@
   --row-surface: var(--background);
   --row-hover: color-mix(in oklch, var(--foreground) 4%, var(--background));
   --row-selected: color-mix(in oklch, var(--foreground) 6%, var(--background));
-  --dialog-shell: #f7f7f7;
-  --dialog-panel: #ffffff;
 }
 
 .dark,
@@ -627,15 +627,10 @@
   --spinner: oklch(0.72 calc(var(--tint-c) * 0.13) var(--tint-h));
   --heading: var(--foreground);
   --destructive-subtle: var(--red-3);
-  --destructive-line: transparent;
   --success-subtle: var(--green-3);
-  --success-line: transparent;
   --warning-subtle: var(--amber-3);
-  --warning-line: transparent;
   --info-subtle: var(--blue-3);
-  --info-line: transparent;
   --neutral-subtle: oklch(0.935 0 0 / 7%);
-  --neutral-line: transparent;
   --neutral-ink: oklch(0.935 0 0 / 60%);
   --field-border-hover: transparent;
   --focus-ring: color-mix(in oklab, var(--primary) 22%, transparent);
@@ -664,6 +659,9 @@
   );
   /* Dark: a light shade of whichever primary (blue-11 on neutral). */
   --primary-ink: oklch(from var(--primary) max(l, 0.85) calc(c * 0.57) h);
+  --primary-hover: color-mix(in oklch, var(--primary), white 12%);
+  /* A tint of the theme color (selected days, own events). */
+  --primary-subtle: color-mix(in oklab, var(--primary) 14%, transparent);
   --secondary: oklch(1 0 0 / 0.08);
   --secondary-foreground: oklch(0.935 0 0);
   --muted: oklch(1 0 0 / 0.06);
@@ -676,7 +674,10 @@
   --destructive-foreground: #ffffff;
   --success: var(--green-9);
   --success-foreground: #ffffff;
-  --success-ink: var(--green-10);
+  --success-ink: var(--green-11);
+  --warning-ink: var(--amber-11);
+  --info-ink: var(--blue-11);
+  --destructive-ink: var(--red-11);
   --warning: var(--amber-9);
   --warning-foreground: oklch(0.2 0.02 75);
   --info: var(--blue-9);
@@ -714,8 +715,6 @@
     0 0 0 1px oklch(1 0 0 / 0.07), 0 36px 84px -18px oklch(0 0 0 / 0.42);
   --sidebar: var(--chrome);
   --surface: oklch(0.25 var(--tint-ink) var(--tint-h));
-  --dialog-shell: oklch(0.24 var(--tint-ink) var(--tint-h));
-  --dialog-panel: oklch(0.285 var(--tint-ink) var(--tint-h));
   --sidebar-foreground: oklch(0.935 0 0);
   --sidebar-primary: var(--primary);
   --sidebar-primary-foreground: var(--primary-foreground);

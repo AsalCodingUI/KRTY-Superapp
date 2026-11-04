@@ -222,7 +222,7 @@ export function ClientDialog({
                       <Link
                         href={projectHref(p)}
                         prefetch={false}
-                        className="hover:bg-muted/50 -mx-2 flex items-center gap-3 rounded-lg px-2 py-2 text-sm"
+                        className="hover:bg-accent -mx-2 flex items-center gap-3 rounded-lg px-2 py-2 text-sm"
                       >
                         <ProjectStatusIcon status={p.status} />
                         <span className="min-w-0 flex-1 truncate">

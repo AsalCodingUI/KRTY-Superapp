@@ -164,7 +164,7 @@ function EmbedInput({
     <div className="my-3">
       <div
         className={cn(
-          "border-border bg-muted dark:bg-muted/40 focus-within:border-foreground/20 flex items-center gap-2.5 rounded-lg border px-3 py-2 transition-colors",
+          "border-border bg-muted dark:bg-muted/40 focus-within:border-field-border flex items-center gap-2.5 rounded-lg border px-3 py-2 transition-colors",
           error && "border-destructive/60",
         )}
       >
@@ -195,11 +195,11 @@ function EmbedInput({
           placeholder={placeholder}
           inputMode="url"
           // Borderless inside the card: no box or focus ring of its own.
-          className="text-foreground placeholder:text-muted-foreground/70 m-0 h-6 min-w-0 flex-1 appearance-none rounded-none border-0! bg-transparent! p-0 text-sm leading-6 shadow-none! ring-0! outline-none! focus:ring-0! focus:outline-none! focus-visible:ring-0! focus-visible:outline-none!"
+          className="text-foreground placeholder:text-muted-foreground m-0 h-6 min-w-0 flex-1 appearance-none rounded-none border-0! bg-transparent! p-0 text-sm leading-6 shadow-none! ring-0! outline-none! focus:ring-0! focus:outline-none! focus-visible:ring-0! focus-visible:outline-none!"
         />
       </div>
       {error && (
-        <div className="text-destructive mt-1 px-1 text-xs leading-5">
+        <div className="text-destructive-ink mt-1 px-1 text-xs leading-5">
           {invalid}
         </div>
       )}

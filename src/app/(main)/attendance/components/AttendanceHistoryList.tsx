@@ -354,7 +354,7 @@ function WorkedTime({
     <span
       className={
         long
-          ? "text-warning text-right tabular-nums"
+          ? "text-warning-ink text-right tabular-nums"
           : "text-foreground text-right tabular-nums"
       }
       title={long ? t("longSessionHint") : undefined}

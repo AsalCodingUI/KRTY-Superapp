@@ -525,7 +525,7 @@ function DocumentEditor({
         <RiBookOpenLine className="text-muted-foreground size-4 shrink-0" />
         <DialogTitle className="flex min-w-0 items-center gap-1.5 text-sm font-normal">
           <span className="text-muted-foreground shrink-0">{t("title")}</span>
-          <span className="text-muted-foreground/60">/</span>
+          <span className="text-tertiary-foreground">/</span>
           <span className="truncate font-medium">{title}</span>
         </DialogTitle>
         <ListChip className="ml-1 shrink-0">
@@ -591,7 +591,7 @@ function DocumentEditor({
                 editor.view.focus()
               }
             }}
-            className="text-heading placeholder:text-muted-foreground/50 field-sizing-content w-full resize-none border-0 bg-transparent p-0 text-4xl leading-tight font-medium tracking-tight shadow-none outline-none focus:ring-0"
+            className="text-heading placeholder:text-tertiary-foreground field-sizing-content w-full resize-none border-0 bg-transparent p-0 text-4xl leading-tight font-medium tracking-tight shadow-none outline-none focus:ring-0"
           />
 
           <div className="text-muted-foreground mt-4 flex flex-wrap items-center gap-x-6 gap-y-1 text-sm">
@@ -620,7 +620,7 @@ function DocumentEditor({
             aria-label={t("summaryLabel")}
             value={form.summary}
             onChange={(e) => set("summary", e.target.value)}
-            className="text-muted-foreground placeholder:text-muted-foreground/50 text-title mt-3 w-full border-0 bg-transparent p-0 shadow-none outline-none focus:ring-0"
+            className="text-muted-foreground placeholder:text-tertiary-foreground text-title mt-3 w-full border-0 bg-transparent p-0 shadow-none outline-none focus:ring-0"
           />
 
           <Separator className="my-8" />
@@ -734,7 +734,7 @@ function SaveStatus({ state }: { state: SaveState }) {
     <span
       className={cn(
         "text-muted-foreground hidden shrink-0 items-center gap-1.5 text-xs sm:flex",
-        state === "error" && "text-destructive",
+        state === "error" && "text-destructive-ink",
       )}
       aria-live="polite"
     >

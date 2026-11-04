@@ -413,7 +413,7 @@ export default function NotificationsPanel({
                       className={cn(
                         "relative flex size-8 shrink-0 items-center justify-center rounded-lg",
                         urgent
-                          ? "bg-warning-subtle text-amber-11"
+                          ? "bg-warning-subtle text-warning-ink"
                           : "bg-muted text-muted-foreground",
                       )}
                     >
@@ -439,7 +439,7 @@ export default function NotificationsPanel({
                           )}
                         >
                           {urgent && (
-                            <span className="text-warning font-medium">
+                            <span className="text-warning-ink font-medium">
                               {t("announcementUrgent")} ·{" "}
                             </span>
                           )}

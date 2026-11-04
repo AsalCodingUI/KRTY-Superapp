@@ -6,9 +6,11 @@ import type { ProjectStage } from "../lib/status"
  * (important: menu buttons grey their icons).
  */
 export const STAGE_TONE: Record<ProjectStage, string> = {
-  branding: "text-fuchsia-500!",
-  design: "text-orange-500!",
-  development: "text-emerald-500!",
+  // Palette step 9 (the solid tone; works in light and dark). The `!`
+  // stays: menu buttons grey their icons and these must keep the tint.
+  branding: "text-pink-9!",
+  design: "text-orange-9!",
+  development: "text-green-9!",
 }
 
 /** Filled 16px glyphs (cut-outs via evenodd, so they sit on any surface). */

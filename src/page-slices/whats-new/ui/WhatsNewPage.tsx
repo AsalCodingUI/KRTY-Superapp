@@ -384,9 +384,9 @@ function EntryTile({ entry, href, ...rest }: EntryLinkProps) {
     <ParamLink
       {...rest}
       href={href}
-      className="group/entry focus-visible:ring-primary/30 flex flex-col gap-3 rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-offset-4 focus-visible:ring-offset-[var(--background)]"
+      className="group/entry focus-visible:ring-focus-ring flex flex-col gap-3 rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-offset-4 focus-visible:ring-offset-[var(--background)]"
     >
-      <div className="border-foreground/10 relative overflow-hidden rounded-xl border">
+      <div className="border-field-border relative overflow-hidden rounded-xl border">
         <EntryPicture
           entry={entry}
           className="aspect-video w-full transition-transform duration-300 group-hover/entry:scale-[1.02]"
@@ -415,9 +415,9 @@ function EntryRow({ entry, href, ...rest }: EntryLinkProps) {
     <ParamLink
       {...rest}
       href={href}
-      className="group/entry hover:bg-foreground/[0.03] focus-visible:ring-primary/30 -mx-3 flex items-center gap-4 rounded-xl p-3 transition-colors outline-none focus-visible:ring-2"
+      className="group/entry hover:bg-foreground/[0.03] focus-visible:ring-focus-ring -mx-3 flex items-center gap-4 rounded-xl p-3 transition-colors outline-none focus-visible:ring-2"
     >
-      <div className="border-foreground/10 relative w-28 shrink-0 overflow-hidden rounded-lg border sm:w-36">
+      <div className="border-field-border relative w-28 shrink-0 overflow-hidden rounded-lg border sm:w-36">
         <EntryPicture entry={entry} className="aspect-video w-full" />
       </div>
       <div className="flex min-w-0 flex-1 flex-col gap-1.5">
@@ -447,7 +447,7 @@ function EntryPicture({
       <div
         aria-hidden
         className={cn(
-          "bg-muted/50 text-muted-foreground/50 flex items-center justify-center",
+          "bg-muted text-tertiary-foreground flex items-center justify-center",
           className,
         )}
       >
@@ -461,7 +461,7 @@ function EntryPicture({
       alt=""
       loading="lazy"
       onError={() => setFailed(true)}
-      className={cn("bg-muted/50 object-cover object-center", className)}
+      className={cn("bg-muted object-cover object-center", className)}
     />
   )
 }

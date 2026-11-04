@@ -68,7 +68,7 @@ export function UserProfile({
         </span>
       </span>
       <RiMore2Fill
-        className="text-muted-foreground group-hover:text-muted-foreground group-hover:dark:text-muted-foreground/60 size-4 shrink-0"
+        className="text-muted-foreground group-hover:text-muted-foreground group-hover:dark:text-tertiary-foreground size-4 shrink-0"
         aria-hidden="true"
       />
     </Button>

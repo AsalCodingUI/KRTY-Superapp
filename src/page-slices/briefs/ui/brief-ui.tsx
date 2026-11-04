@@ -83,7 +83,7 @@ export function ChoiceBadge({
         "text-micro flex size-6 shrink-0 items-center justify-center rounded-full border font-medium tabular-nums transition-colors",
         selected
           ? "text-foreground bg-background border-transparent"
-          : "border-foreground/15 text-muted-foreground dark:bg-foreground/[0.04] bg-white/40",
+          : "border-field-border text-muted-foreground dark:bg-foreground/[0.04] bg-white/40",
       )}
     >
       {multi && selected ? (

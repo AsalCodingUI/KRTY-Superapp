@@ -466,7 +466,7 @@ export function MembersAccessSettings({
     return (
       <>
         <PageHeader className="pt-6 pb-4" title={title} />
-        <p className="text-destructive text-sm">{t("loadMembersFailed")}</p>
+        <p className="text-destructive-ink text-sm">{t("loadMembersFailed")}</p>
       </>
     )
   }

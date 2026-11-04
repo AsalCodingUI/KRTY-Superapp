@@ -578,10 +578,10 @@ export function ContextMenuProvider({ children }: { children: ReactNode }) {
                 {!opened.touch && !coarse && (
                   <>
                     <DropdownMenuSeparator />
-                    <p className="text-muted-foreground/80 text-micro flex justify-between gap-3 px-2 pt-0.5 pb-0.5 leading-4 select-none">
+                    <p className="text-muted-foreground text-micro flex justify-between gap-3 px-2 pt-0.5 pb-0.5 leading-4 select-none">
                       <span>{t("nativeHint")}</span>
                       {opened.filterable && !q && (
-                        <span className="text-muted-foreground/60">
+                        <span className="text-tertiary-foreground">
                           {t("filterPlaceholder")}
                         </span>
                       )}

@@ -142,7 +142,7 @@ export function PortalOverview({
                     return (
                       <div
                         key={step.id}
-                        className="border-border/50 flex h-11 items-center gap-3 border-b px-4 text-sm last:border-b-0"
+                        className="border-border flex h-11 items-center gap-3 border-b px-4 text-sm last:border-b-0"
                       >
                         {done ? (
                           <span className="bg-success text-background flex size-4 shrink-0 items-center justify-center rounded-full">
@@ -163,7 +163,7 @@ export function PortalOverview({
                           className={cn(
                             "shrink-0 rounded-full px-2 py-0.5 text-xs",
                             done
-                              ? "bg-success-subtle text-green-11"
+                              ? "bg-success-subtle text-success-ink"
                               : "bg-muted text-muted-foreground",
                           )}
                         >
@@ -208,7 +208,7 @@ export function PortalOverview({
                     <button
                       type="button"
                       onClick={() => setOpenReport(r.id)}
-                      className="border-border/50 hover:bg-muted/40 flex h-11 items-center gap-3 border-b px-4 text-left text-sm transition-colors last:border-b-0"
+                      className="border-border hover:bg-accent flex h-11 items-center gap-3 border-b px-4 text-left text-sm transition-colors last:border-b-0"
                     >
                       <Newspaper className="text-muted-foreground size-4 shrink-0" />
                       <span className="min-w-0 flex-1 truncate">{r.title}</span>
@@ -276,7 +276,7 @@ export function PortalOverview({
                       label={link.title || linkLabel(link.url)}
                       href={link.url}
                     >
-                      <li className="hover:bg-muted/60 flex rounded-lg pr-1 transition-colors">
+                      <li className="hover:bg-accent flex rounded-lg pr-1 transition-colors">
                         <DesignLinkAnchor url={link.url} title={link.title} />
                       </li>
                     </ContextTarget>

@@ -526,7 +526,7 @@ export type Data = ReturnType<typeof useMenubarData>
 /** Empty states on the popover: the icon tiles are lifted a step lighter
  *  than the app's dark surface, so they don't sink into the glass. */
 const EMPTY_ON_GLASS =
-  "[&>[aria-hidden]>div]:bg-[oklch(0.34_0_0)] [&>[aria-hidden]>div:first-child]:bg-[oklch(0.29_0_0)]"
+  "[&>[aria-hidden]>div]:bg-muted-solid [&>[aria-hidden]>div:first-child]:bg-surface"
 
 /** The popover surface: how much it blurs and how solid it is. */
 export type Surface = { blur: number; solid: number }
@@ -826,9 +826,9 @@ function TaskRows({ data, limit = 5 }: { data: Data; limit?: number }) {
     const date = t.due_date!
     const due =
       date < data.today
-        ? { text: "Terlambat", tone: "text-destructive" }
+        ? { text: "Terlambat", tone: "text-destructive-ink" }
         : date === data.today
-          ? { text: "Hari ini", tone: "text-warning" }
+          ? { text: "Hari ini", tone: "text-warning-ink" }
           : {
               text:
                 date === tomorrow
@@ -1038,7 +1038,7 @@ function ApprovalRows({ data }: { data: Data }) {
                   aria-label="Setujui"
                   title="Setujui"
                   onClick={() => act.decide(req.id, true)}
-                  className="text-green-11"
+                  className="text-success-ink"
                 >
                   <RiCheckLine />
                 </Button>
@@ -1356,7 +1356,7 @@ export function LayoutRail({
               )}
           </div>
           {scenario === "offline" && !settings && (
-            <div className="bg-warning-subtle text-amber-11 mx-3 mb-2 flex items-center gap-2 rounded-lg px-3 py-2 text-xs">
+            <div className="bg-warning-subtle text-warning-ink mx-3 mb-2 flex items-center gap-2 rounded-lg px-3 py-2 text-xs">
               <WifiOff className="size-3.5 shrink-0" />
               <span className="min-w-0 flex-1 truncate">
                 Offline · data terakhir {format(data.now, "HH:mm")}
@@ -1364,7 +1364,7 @@ export function LayoutRail({
               <Button
                 variant="ghost"
                 size="xs"
-                className="text-warning -my-1"
+                className="text-warning-ink -my-1"
                 onClick={act.retry}
               >
                 Coba lagi

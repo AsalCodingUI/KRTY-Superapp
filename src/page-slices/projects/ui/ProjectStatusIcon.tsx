@@ -24,7 +24,9 @@ export function ProjectStatusIcon({
       fill="none"
       className={cn(
         base,
-        status === "Completed" ? "text-foreground/80" : "text-muted-foreground",
+        status === "Completed"
+          ? "text-muted-foreground"
+          : "text-muted-foreground",
       )}
     >
       {status === "Planned" && (

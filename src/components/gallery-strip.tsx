@@ -236,7 +236,7 @@ export function GalleryStrip({
             data-gallery-control
             onMouseDown={(e) => e.preventDefault()}
             onClick={onAdd}
-            className="border-foreground/15 text-muted-foreground hover:text-foreground hover:bg-muted flex h-full w-32 shrink-0 snap-start flex-col items-center justify-center gap-1.5 rounded-lg border border-dashed text-xs transition-colors"
+            className="border-field-border text-muted-foreground hover:text-foreground hover:bg-muted flex h-full w-32 shrink-0 snap-start flex-col items-center justify-center gap-1.5 rounded-lg border border-dashed text-xs transition-colors"
           >
             <ImagePlus className="size-5" />
             {t("galleryAdd")}

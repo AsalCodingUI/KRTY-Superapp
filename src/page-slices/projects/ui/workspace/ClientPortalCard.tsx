@@ -150,7 +150,7 @@ export function ClientPortalCard({
             <Button
               size="sm"
               variant="ghost"
-              className="text-destructive hover:text-destructive"
+              className="text-destructive-ink hover:text-destructive-ink"
               onClick={() => setDisabling(true)}
             >
               {t("portalDisable")}
@@ -177,7 +177,7 @@ export function ClientPortalCard({
             </Button>
           </div>
           {fresh && (
-            <div className="bg-muted/60 flex items-center justify-between gap-3 rounded-lg px-3 py-2 text-sm">
+            <div className="bg-muted flex items-center justify-between gap-3 rounded-lg px-3 py-2 text-sm">
               <span>
                 {t("portalPinIs")}{" "}
                 <span className="font-medium tracking-widest tabular-nums">

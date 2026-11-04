@@ -285,7 +285,7 @@ export function ReportDialog({
               setTitle(e.target.value)
               markDirty(e.target.value, body.current)
             }}
-            className="text-heading placeholder:text-muted-foreground/60 min-w-0 flex-1 border-0 bg-transparent text-lg font-medium shadow-none ring-0 outline-none focus:ring-0 focus-visible:ring-0"
+            className="text-heading placeholder:text-tertiary-foreground min-w-0 flex-1 border-0 bg-transparent text-lg font-medium shadow-none ring-0 outline-none focus:ring-0 focus-visible:ring-0"
           />
           {current?.share_token && (
             <ReportViewsIndicator projectId={projectId} reportId={current.id} />
@@ -338,7 +338,7 @@ export function ReportDialog({
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="text-destructive hover:text-destructive self-start"
+                        className="text-destructive-ink hover:text-destructive-ink self-start"
                         disabled={sharing}
                         onClick={() => share(false)}
                       >

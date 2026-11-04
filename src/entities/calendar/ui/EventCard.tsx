@@ -53,12 +53,12 @@ export function EventCard({
 }: EventCardProps) {
   const getColorClasses = (color: EventColor): string => {
     const colorMap: Record<EventColor, string> = {
-      emerald: "bg-success-subtle text-green-11",
+      emerald: "bg-success-subtle text-success-ink",
       orange: "bg-orange-3 text-orange-11",
       violet: "bg-purple-3 text-purple-11",
       blue: "bg-info-subtle text-blue-11",
       rose: "bg-pink-3 text-pink-11",
-      amber: "bg-warning-subtle text-amber-11",
+      amber: "bg-warning-subtle text-warning-ink",
       cyan: "bg-cyan-3 text-cyan-11",
       neutral: "bg-muted text-muted-foreground",
     }

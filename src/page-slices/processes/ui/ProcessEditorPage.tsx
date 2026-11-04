@@ -246,7 +246,7 @@ export function ProcessEditorPage({ id }: { id: string }) {
                       // Active: default border, filled instead of outlined.
                       active
                         ? "bg-muted"
-                        : "hover:border-foreground/15 dark:hover:border-foreground/15",
+                        : "hover:border-field-border dark:hover:border-field-border",
                     )}
                   >
                     <button
@@ -520,7 +520,7 @@ function StepRow({
                   type="button"
                   aria-label={t("deleteTask")}
                   onClick={() => mutate(deleteItem("process_tasks", task.id))}
-                  className="text-muted-foreground hover:text-destructive opacity-0 group-hover/task:opacity-100 focus-visible:opacity-100"
+                  className="text-muted-foreground hover:text-destructive-ink opacity-0 group-hover/task:opacity-100 focus-visible:opacity-100"
                 >
                   <RiCloseLine className="size-3.5" />
                 </button>

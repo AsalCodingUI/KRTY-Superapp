@@ -27,11 +27,13 @@ const colorMap: Record<string, string> = {
   destructive: "bg-destructive",
   muted: "bg-muted",
   // Legacy support (maps to chart tokens)
-  blue: "bg-chart-1",
-  emerald: "bg-chart-2",
-  violet: "bg-chart-3",
-  zinc: "bg-chart-4",
-  orange: "bg-chart-5",
+  // Named colors draw that color (they used to map to the amber
+  // --chart-N ramp, so "blue" came out yellow).
+  blue: "bg-blue-9",
+  emerald: "bg-green-9",
+  violet: "bg-purple-9",
+  zinc: "bg-tertiary-foreground",
+  orange: "bg-orange-9",
 }
 
 /**

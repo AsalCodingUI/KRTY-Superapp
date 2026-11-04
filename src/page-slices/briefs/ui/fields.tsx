@@ -291,8 +291,8 @@ export function BriefField({
                 className={cn(
                   "size-7 transition-colors",
                   n <= current
-                    ? "fill-amber-400 text-amber-400"
-                    : "text-muted-foreground/40 hover:text-amber-300",
+                    ? "fill-amber-9 text-amber-9"
+                    : "text-tertiary-foreground hover:text-amber-8",
                 )}
               />
             </button>

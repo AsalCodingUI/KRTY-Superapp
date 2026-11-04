@@ -615,7 +615,7 @@ export function BriefForm({
                             className={cn(
                               "flex size-5 shrink-0 items-center justify-center rounded-full",
                               open
-                                ? "border-foreground/25 border"
+                                ? "border-field-border border"
                                 : "bg-foreground text-background",
                             )}
                           >
@@ -627,7 +627,7 @@ export function BriefForm({
                             {section.title}
                           </span>
                           {open > 0 && (
-                            <span className="text-destructive shrink-0 text-xs">
+                            <span className="text-destructive-ink shrink-0 text-xs">
                               {open} to answer
                             </span>
                           )}
@@ -733,7 +733,9 @@ export function BriefForm({
                     })}
                   </div>
                 )}
-                {error && <p className="text-destructive text-sm">{error}</p>}
+                {error && (
+                  <p className="text-destructive-ink text-sm">{error}</p>
+                )}
               </m.section>
             )}
           </div>
@@ -833,7 +835,7 @@ function SaveBadge({ state }: { state: SaveState }) {
     <span
       className={cn(
         "text-meta flex shrink-0 items-center gap-1.5",
-        state === "error" ? "text-warning" : "text-muted-foreground",
+        state === "error" ? "text-warning-ink" : "text-muted-foreground",
       )}
       aria-live="polite"
     >
@@ -952,7 +954,7 @@ function Question({
                   />
                 )}
                 {item.u.error ? (
-                  <CircleAlert className="text-destructive relative size-4 shrink-0" />
+                  <CircleAlert className="text-destructive-ink relative size-4 shrink-0" />
                 ) : (
                   <Spinner className="relative size-4 shrink-0" />
                 )}
@@ -962,7 +964,9 @@ function Question({
                 <span
                   className={cn(
                     "relative shrink-0 text-xs tabular-nums",
-                    item.u.error ? "text-destructive" : "text-muted-foreground",
+                    item.u.error
+                      ? "text-destructive-ink"
+                      : "text-muted-foreground",
                   )}
                 >
                   {item.u.error ?? `${Math.round(item.u.progress * 100)}%`}
@@ -984,7 +988,9 @@ function Question({
         </div>
       )}
       {flagged && (
-        <p className="text-destructive text-meta">This one needs an answer.</p>
+        <p className="text-destructive-ink text-meta">
+          This one needs an answer.
+        </p>
       )}
     </div>
   )
@@ -1014,7 +1020,7 @@ function FileDrop({
         "flex cursor-pointer flex-col items-center gap-1.5 rounded-2xl border-[1.5px] border-dashed px-4 py-8 text-center transition-[border-color,background-color,transform] duration-200",
         over
           ? "border-foreground/70 bg-foreground/10 ring-foreground/10 scale-[1.01] ring-4"
-          : "border-foreground/15 hover:border-foreground/30 hover:bg-field-hover",
+          : "border-field-border hover:border-foreground/30 hover:bg-field-hover",
         flagged && !over && "border-destructive/50",
       )}
       onDragEnter={(e) => {

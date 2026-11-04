@@ -305,7 +305,7 @@ function SubscriptionForm({
           <Button
             type="button"
             variant="ghost"
-            className="text-destructive mr-auto"
+            className="text-destructive-ink mr-auto"
             onClick={() => setConfirmDelete(true)}
           >
             {tc("delete")}

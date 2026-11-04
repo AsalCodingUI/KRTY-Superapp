@@ -229,7 +229,7 @@ export function DesignLinks({ projectId }: { projectId: string }) {
                 },
               ]}
             >
-              <li className="group/row hover:bg-muted/60 flex items-center gap-2 rounded-lg pr-1 transition-colors">
+              <li className="group/row hover:bg-accent flex items-center gap-2 rounded-lg pr-1 transition-colors">
                 <DesignLinkAnchor url={link.url} title={link.title} />
                 {canManage && (
                   <RowMenu

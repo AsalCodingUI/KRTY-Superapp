@@ -19,37 +19,37 @@ export const chartColors = {
     bg: "bg-purple-9",
     stroke: "stroke-purple-9",
     fill: "fill-purple-9",
-    text: "text-purple-9",
+    text: "text-purple-11",
   },
   amber: {
     bg: "bg-amber-9",
     stroke: "stroke-amber-9",
     fill: "fill-amber-9",
-    text: "text-amber-9",
+    text: "text-amber-11",
   },
   gray: {
     bg: "bg-muted-foreground dark:bg-muted-foreground/60",
     stroke: "stroke-muted-foreground dark:stroke-muted-foreground/60",
     fill: "fill-muted-foreground dark:fill-muted-foreground/60",
-    text: "text-muted-foreground dark:text-muted-foreground/60",
+    text: "text-muted-foreground dark:text-tertiary-foreground",
   },
   cyan: {
     bg: "bg-cyan-9",
     stroke: "stroke-cyan-9",
     fill: "fill-cyan-9",
-    text: "text-cyan-9",
+    text: "text-cyan-11",
   },
   indigo: {
     bg: "bg-info",
     stroke: "stroke-info",
     fill: "fill-info",
-    text: "text-info",
+    text: "text-info-ink",
   },
   pink: {
     bg: "bg-pink-9",
     stroke: "stroke-pink-9",
     fill: "fill-pink-9",
-    text: "text-pink-9",
+    text: "text-pink-11",
   },
 } as const satisfies {
   [color: string]: {

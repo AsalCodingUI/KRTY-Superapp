@@ -204,7 +204,7 @@ export function NoteDialog({
               setTitle(e.target.value)
               markDirty(e.target.value, body.current)
             }}
-            className="text-heading placeholder:text-muted-foreground/60 min-w-0 flex-1 border-0 bg-transparent text-lg font-medium shadow-none ring-0 outline-none focus:ring-0 focus-visible:ring-0"
+            className="text-heading placeholder:text-tertiary-foreground min-w-0 flex-1 border-0 bg-transparent text-lg font-medium shadow-none ring-0 outline-none focus:ring-0 focus-visible:ring-0"
           />
           <Button
             size="sm"

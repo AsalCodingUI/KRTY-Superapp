@@ -136,7 +136,7 @@ export const WeekView = memo(function WeekView({
                     isToday
                       ? "bg-foreground text-background flex size-6 items-center justify-center rounded-[5px] font-medium"
                       : isHoliday
-                        ? "text-destructive font-medium"
+                        ? "text-destructive-ink font-medium"
                         : "text-muted-foreground",
                   )}
                 >
@@ -181,7 +181,7 @@ export const WeekView = memo(function WeekView({
                       <span
                         className={cx(
                           "truncate",
-                          isHolidayEvent(event) && "text-destructive",
+                          isHolidayEvent(event) && "text-destructive-ink",
                         )}
                       >
                         {event.title}

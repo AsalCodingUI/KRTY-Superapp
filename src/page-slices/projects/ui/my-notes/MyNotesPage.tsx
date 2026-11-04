@@ -533,7 +533,7 @@ function NoteEditor({
                     variant="ghost"
                     size="icon-sm"
                     aria-label={t("notesDelete")}
-                    className="text-muted-foreground hover:text-destructive"
+                    className="text-muted-foreground hover:text-destructive-ink"
                     onClick={onDelete}
                   />
                 }
@@ -669,7 +669,7 @@ function NoteEditor({
                   size="icon-sm"
                   aria-label={t("notesRemoveTodo")}
                   onClick={() => removeTodo(td.id)}
-                  className="text-muted-foreground hover:text-destructive opacity-0 group-hover/todo:opacity-100 focus-visible:opacity-100"
+                  className="text-muted-foreground hover:text-destructive-ink opacity-0 group-hover/todo:opacity-100 focus-visible:opacity-100"
                 >
                   <RiDeleteBinLine />
                 </Button>

@@ -77,7 +77,7 @@ export function ReminderPicker({
           {value.map((reminder, index) => (
             <div
               key={index}
-              className="bg-muted/50 bg-foreground/[0.03] flex items-center justify-between rounded-md p-2"
+              className="bg-muted bg-foreground/[0.03] flex items-center justify-between rounded-md p-2"
             >
               <span className="text-foreground text-sm">
                 🔔 {getReminderLabel(reminder.minutes)}

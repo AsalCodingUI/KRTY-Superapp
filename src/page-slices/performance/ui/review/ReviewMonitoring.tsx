@@ -576,7 +576,9 @@ export function ReviewMonitoring({ period }: { period: string }) {
               <p
                 className={cn(
                   "text-xs",
-                  periodInvalid ? "text-destructive" : "text-muted-foreground",
+                  periodInvalid
+                    ? "text-destructive-ink"
+                    : "text-muted-foreground",
                 )}
               >
                 {periodInvalid

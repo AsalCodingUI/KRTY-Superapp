@@ -59,7 +59,7 @@ function RoleLabel({ label, n }: { label: string; n: number }) {
       <span
         className={cn(
           "tabular-nums",
-          n === 0 ? "text-warning" : "text-tertiary-foreground",
+          n === 0 ? "text-warning-ink" : "text-tertiary-foreground",
         )}
       >
         {n}
@@ -258,7 +258,7 @@ export function CompetencyLibrary() {
                         <Button
                           size="sm"
                           variant="ghost"
-                          className="text-destructive hover:text-destructive"
+                          className="text-destructive-ink hover:text-destructive-ink"
                           onClick={() =>
                             // In use: deleting would rewrite past scores.
                             c.usage > 0

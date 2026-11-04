@@ -85,7 +85,7 @@ function CommandInput({
       className={cn(
         "flex shrink-0 items-center",
         sm
-          ? "border-border/60 mx-1 mb-1 h-9 gap-2 border-b px-2"
+          ? "border-border mx-1 mb-1 h-9 gap-2 border-b px-2"
           : "h-12 gap-2.5 px-4",
       )}
     >

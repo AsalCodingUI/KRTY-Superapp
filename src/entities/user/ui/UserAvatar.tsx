@@ -21,8 +21,8 @@ const avatarVariants = tv({
     color: {
       // Using chart colors for visual consistency with data viz
       chart1: "bg-blue-3 text-blue-11",
-      chart2: "bg-amber-3 text-amber-11",
-      chart3: "bg-green-3 text-green-11",
+      chart2: "bg-amber-3 text-warning-ink",
+      chart3: "bg-green-3 text-success-ink",
       chart4: "bg-purple-3 text-purple-11",
       chart5: "bg-pink-3 text-pink-11",
       // Semantic colors

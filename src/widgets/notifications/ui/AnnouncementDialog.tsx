@@ -142,7 +142,7 @@ export function AnnouncementDialog({
             <p
               className={
                 badLink
-                  ? "text-destructive text-xs"
+                  ? "text-destructive-ink text-xs"
                   : "text-muted-foreground text-xs"
               }
             >

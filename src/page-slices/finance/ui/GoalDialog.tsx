@@ -85,7 +85,7 @@ export function GoalDialog({
             <Button
               type="button"
               variant="ghost"
-              className="text-destructive mr-auto"
+              className="text-destructive-ink mr-auto"
               disabled={saving}
               onClick={() => void save(null)}
             >

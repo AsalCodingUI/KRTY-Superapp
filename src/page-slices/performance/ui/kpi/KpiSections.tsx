@@ -95,7 +95,7 @@ export function AttentionList({
                 className={cn(
                   "size-4 shrink-0",
                   a.kind === "overdueMilestone" || a.kind === "projectOverdue"
-                    ? "text-amber-11"
+                    ? "text-warning-ink"
                     : "text-muted-foreground",
                 )}
               />

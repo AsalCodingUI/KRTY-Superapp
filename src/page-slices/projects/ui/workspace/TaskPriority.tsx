@@ -71,7 +71,7 @@ export function TaskPriorityIcon({
     <svg
       aria-hidden
       viewBox="0 0 16 16"
-      className={cn(base, "text-foreground/80")}
+      className={cn(base, "text-muted-foreground")}
     >
       {[
         { x: 2, y: 9, h: 5 },

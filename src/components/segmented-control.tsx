@@ -82,11 +82,11 @@ export function SegmentedControl<T extends string>({
               "group-data-[spacing=0]/toggle-group:rounded-[inherit] group-data-horizontal/toggle-group:data-[spacing=0]:first:rounded-[inherit] group-data-horizontal/toggle-group:data-[spacing=0]:last:rounded-[inherit]",
               "rounded-full! px-2! py-0.5",
               fitContent ? "flex-none" : "flex-1",
-              "text-foreground/60 hover:text-foreground hover:bg-transparent",
+              "text-muted-foreground hover:text-foreground hover:bg-transparent",
               // Base UI Toggle marks the active item with data-pressed
               // The pressed look comes from the sliding indicator behind.
               "data-pressed:text-foreground data-pressed:border-transparent data-pressed:bg-transparent data-pressed:hover:bg-transparent",
-              "disabled:text-muted-foreground/50",
+              "disabled:text-tertiary-foreground",
             )}
           >
             {showLeadingIcon && LeadingIcon && (

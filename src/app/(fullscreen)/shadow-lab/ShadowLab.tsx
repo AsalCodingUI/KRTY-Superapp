@@ -157,7 +157,7 @@ function Tile({ item }: { item: Item }) {
         <span className="text-foreground flex items-center gap-1.5 font-mono text-xs font-medium">
           {item.name}
           {item.dead && (
-            <span className="bg-destructive/15 text-destructive rounded px-1 font-sans text-[10px]">
+            <span className="bg-destructive/15 text-destructive-ink rounded px-1 font-sans text-[10px]">
               tidak ngefek
             </span>
           )}

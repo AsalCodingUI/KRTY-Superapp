@@ -171,7 +171,7 @@ export function OverviewTab({
       />
 
       {unrated.length > 0 && (
-        <p className="bg-warning-subtle text-amber-11 rounded-lg px-4 py-2.5 text-sm">
+        <p className="bg-warning-subtle text-warning-ink rounded-lg px-4 py-2.5 text-sm">
           {t("unratedOverview", { currencies: unrated.join(", ") })}
         </p>
       )}
@@ -432,9 +432,9 @@ function OpenInvoices({
                         <span
                           className={cn(
                             days > 30
-                              ? "text-destructive"
+                              ? "text-destructive-ink"
                               : days > 0
-                                ? "text-warning"
+                                ? "text-warning-ink"
                                 : "text-success-ink",
                           )}
                         >

@@ -222,7 +222,40 @@ previews (paper is always white), `AlwaysDark` auth screens.
 </div>
 ```
 
+## Status text: the ink tokens
+
+Text in a status color uses the **`-ink`** token (palette step 11, made
+for text on light and dark); the plain status color (step 9) is for
+icons, dots, bars and fills. Measured contrast on the page background
+(light / dark, WCAG AA = 4.5 for body text), from /ui → Color:
+
+| Token                      | Light | Dark  | Was (step 9)                                                             |
+| -------------------------- | ----- | ----- | ------------------------------------------------------------------------ |
+| `text-warning-ink`         | 5.30  | 11.90 | `text-warning` 2.43 / 6.90                                               |
+| `text-destructive-ink`     | 6.81  | 10.62 | `text-destructive` 3.56 / 4.68                                           |
+| `text-success-ink`         | 6.63  | 10.66 | green-9 3.36 / 4.96                                                      |
+| `text-info-ink`            | 6.76  | 10.50 | `text-info` (blue-9)                                                     |
+| `text-foreground`          | 14.16 | 13.73 |                                                                          |
+| `text-muted-foreground`    | 8.32  | 6.00  |                                                                          |
+| `text-tertiary-foreground` | 3.45  | 3.32  | below 4.5: keep it to meta / hints, never for the only copy of something |
+
+Other tokens added: `--primary-hover` (`bg-primary-hover`, the primary
+button's hover), `--primary-subtle` (`bg-primary-subtle`, theme tint).
+Removed (unused): `--dialog-shell`, `--dialog-panel`, `--*-line`.
+
 ## Migration notes
+
+Done 2026-11-05 (local): ink tokens for status text (warning ≈25
+places, destructive 91, info, success); grays down to three steps (no
+`text-*-foreground/NN`); `bg-muted/NN`, `border-border/NN`,
+`border-foreground/NN` → plain tokens; one focus ring (`ring-focus-ring`)
+on buttons, badges, switch, radio and pages; `--primary-hover`; event
+tints on `-subtle` tokens; chart text keys on step 11 and the named
+category colors fixed (blue was amber); stage icons, attendance split,
+rating stars, review gradient, menubar and toggle off raw colors;
+unused tokens removed. Open: `text-tertiary-foreground` contrast (3.45),
+the `--chart-1…5` amber ramp for categorical data. The older list below
+is kept for reference.
 
 Audit (src, excluding `ui-docs`): `text-muted-foreground` 903,
 `text-foreground` 371, `border-border` 177, `text-tertiary-foreground`

@@ -60,7 +60,7 @@ export function EndingChip({
       className={cn(
         days < 0
           ? "bg-muted text-tertiary-foreground"
-          : "bg-warning-subtle text-amber-11",
+          : "bg-warning-subtle text-warning-ink",
         className,
       )}
     >

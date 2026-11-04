@@ -561,9 +561,9 @@ function MyTaskRow({
           "text-meta tabular-nums",
           due
             ? overdue
-              ? "text-destructive"
+              ? "text-destructive-ink"
               : isToday(due) && !task.done
-                ? "text-warning"
+                ? "text-warning-ink"
                 : "text-foreground"
             : "text-muted-foreground",
         )}

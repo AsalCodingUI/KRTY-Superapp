@@ -52,7 +52,7 @@ export function UserCard({
             </p>
           )}
           {showJobTitle && user.job_title && (
-            <p className="text-muted-foreground/60 truncate text-xs">
+            <p className="text-tertiary-foreground truncate text-xs">
               {user.job_title}
             </p>
           )}

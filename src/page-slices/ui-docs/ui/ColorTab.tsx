@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 import { chartColors } from "@/shared/lib/chart/utils"
+import { ColorCompare } from "./color-compare"
 import type { ReactNode } from "react"
 import {
   DocCanvas,
@@ -231,6 +232,13 @@ export function ColorTab() {
 
       <DocGroup title="Aturan">
         <DocRules rules={RULES} />
+      </DocGroup>
+
+      <DocGroup
+        title="Sebelum / sesudah"
+        note="Yang berubah di app: ink buat teks status, abu-abu 3 tingkat, isian & border tanpa opacity, satu focus ring, hover token, chart dan warna hardcode."
+      >
+        <ColorCompare />
       </DocGroup>
 
       {GROUPS.map((g) => (

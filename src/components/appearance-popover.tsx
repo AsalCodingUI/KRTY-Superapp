@@ -284,7 +284,7 @@ function TintPad({
   }
 
   return (
-    <div className="bg-muted/60 rounded-nested relative overflow-hidden">
+    <div className="bg-muted rounded-nested relative overflow-hidden">
       <div
         role="slider"
         tabIndex={0}

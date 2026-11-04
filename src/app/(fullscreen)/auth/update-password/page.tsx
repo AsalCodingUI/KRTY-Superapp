@@ -71,7 +71,7 @@ export default function UpdatePasswordPage() {
           className="flex w-full flex-col gap-4 text-left"
         >
           {success && (
-            <div className="bg-success-subtle text-green-11 rounded-xl px-4 py-3 text-sm">
+            <div className="bg-success-subtle text-success-ink rounded-xl px-4 py-3 text-sm">
               {t("updatePasswordSuccess")}
             </div>
           )}

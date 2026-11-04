@@ -218,7 +218,7 @@ const Trigger = ({
       data-icon="inline-start"
       className={cn(
         "size-4 shrink-0",
-        hasError ? "text-destructive" : "text-muted-foreground",
+        hasError ? "text-destructive-ink" : "text-muted-foreground",
       )}
       aria-hidden="true"
     />

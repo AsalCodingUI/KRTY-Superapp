@@ -21,7 +21,7 @@ export function LeaveStatusIcon({
       className={cn(
         "size-4 shrink-0",
         status === "approved" && "text-success-ink",
-        status === "rejected" && "text-destructive",
+        status === "rejected" && "text-destructive-ink",
         status === "pending" && "text-warning",
         className,
       )}

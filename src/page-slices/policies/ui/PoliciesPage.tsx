@@ -526,7 +526,7 @@ function PolicyCard({
       {...rest}
       data-slot="policy-card"
       href={href}
-      className="bg-card border-foreground/10 hover:border-foreground/20 focus-visible:border-primary/50 focus-visible:ring-primary/20 flex flex-col gap-1.5 rounded-xl border p-5 transition-[border-color] duration-200 outline-none focus-visible:ring-2"
+      className="bg-card border-field-border hover:border-field-border focus-visible:border-primary/50 focus-visible:ring-focus-ring flex flex-col gap-1.5 rounded-xl border p-5 transition-[border-color] duration-200 outline-none focus-visible:ring-2"
     >
       <span className="flex min-w-0 items-center gap-2">
         <span className="text-foreground truncate font-medium">

@@ -129,7 +129,7 @@ export function InvoicePrintPage({ id }: { id: string }) {
     )
 
   return (
-    <div className="invoice-print-root bg-muted/60 flex min-h-svh flex-col items-center gap-4 py-8">
+    <div className="invoice-print-root bg-muted flex min-h-svh flex-col items-center gap-4 py-8">
       <style>{`
         @page { size: A4; margin: 0; }
         @media print {

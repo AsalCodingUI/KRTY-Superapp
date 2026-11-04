@@ -88,8 +88,8 @@ export function FillSlider({
       >
         <span className="bg-foreground/70 absolute top-1/2 right-2.5 h-5 w-[3px] -translate-y-1/2 rounded-full transition-[height] group-active/fill:h-6 dark:bg-white/90" />
       </div>
-      <span className="text-foreground/80 relative pl-4">{label}</span>
-      <span className="text-foreground/80 relative ml-auto pr-4 tabular-nums">
+      <span className="text-muted-foreground relative pl-4">{label}</span>
+      <span className="text-muted-foreground relative ml-auto pr-4 tabular-nums">
         {format(value)}
       </span>
     </div>

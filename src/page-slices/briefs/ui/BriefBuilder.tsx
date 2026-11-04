@@ -582,7 +582,7 @@ function SaveStatus({ state }: { state: SaveState }) {
     <span
       className={cn(
         "flex shrink-0 items-center gap-1.5 text-xs",
-        state === "error" ? "text-destructive" : "text-muted-foreground",
+        state === "error" ? "text-destructive-ink" : "text-muted-foreground",
       )}
     >
       {state === "saving" ? (
@@ -741,7 +741,7 @@ function SectionBlock({
               variant="ghost"
               size="icon-sm"
               aria-label={t("removeSection")}
-              className="text-muted-foreground hover:text-destructive self-center opacity-0 group-hover/section:opacity-100 focus-visible:opacity-100"
+              className="text-muted-foreground hover:text-destructive-ink self-center opacity-0 group-hover/section:opacity-100 focus-visible:opacity-100"
               onClick={onRemove}
             >
               <RiDeleteBinLine />

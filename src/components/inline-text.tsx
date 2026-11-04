@@ -55,7 +55,7 @@ export function InlineText({
       }}
       className={cn(
         "placeholder:text-tertiary-foreground -mx-1.5 min-w-0 flex-1 truncate rounded-md border-0 bg-transparent px-1.5 py-0.5 shadow-none outline-hidden focus:shadow-none focus:ring-0 focus:outline-hidden",
-        !disabled && "hover:bg-muted/60 focus:bg-muted/60",
+        !disabled && "hover:bg-accent focus:bg-muted/60",
         className,
       )}
     />

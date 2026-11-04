@@ -639,7 +639,7 @@ export function OneOnOne({ period }: { period: string }) {
                             <Button
                               size="sm"
                               variant="ghost"
-                              className="text-destructive hover:text-destructive"
+                              className="text-destructive-ink hover:text-destructive-ink"
                               disabled={busyId === s.id}
                               onClick={() =>
                                 setConfirm({
@@ -660,7 +660,7 @@ export function OneOnOne({ period }: { period: string }) {
                             <Button
                               size="sm"
                               variant="ghost"
-                              className="text-destructive hover:text-destructive"
+                              className="text-destructive-ink hover:text-destructive-ink"
                               disabled={busyId === s.id}
                               onClick={() =>
                                 setConfirm({

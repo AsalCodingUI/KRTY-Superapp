@@ -80,12 +80,12 @@ const STATUS: Record<string, { label: FinanceKey; tone: string; dot: string }> =
     },
     Partial: {
       label: "statusPartial",
-      tone: "bg-warning-subtle text-amber-11",
+      tone: "bg-warning-subtle text-warning-ink",
       dot: "bg-warning",
     },
     Paid: {
       label: "statusPaid",
-      tone: "bg-success-subtle text-green-11",
+      tone: "bg-success-subtle text-success-ink",
       dot: "bg-success",
     },
     Overdue: {
@@ -188,7 +188,7 @@ export function ProjectInvoices({ projectId }: { projectId: string }) {
     if (["Paid", "Draft", "Refunded"].includes(inv.status)) return null
     const days = differenceInCalendarDays(new Date(inv.due_date), new Date())
     return {
-      tone: days < 0 ? "text-destructive" : "text-success-ink",
+      tone: days < 0 ? "text-destructive-ink" : "text-success-ink",
       label:
         days < 0
           ? t("lateDays", { n: -days })

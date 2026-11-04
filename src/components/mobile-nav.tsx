@@ -119,7 +119,7 @@ export function MobileNav() {
           <Separator />
           <Button
             variant="ghost"
-            className="text-destructive hover:text-destructive justify-start"
+            className="text-destructive-ink hover:text-destructive-ink justify-start"
             onClick={signOut}
           >
             <RiLogoutBoxLine data-icon="inline-start" />

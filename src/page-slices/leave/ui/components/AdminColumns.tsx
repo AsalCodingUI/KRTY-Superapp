@@ -226,7 +226,7 @@ export const adminColumns = (
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="text-destructive"
+                    className="text-destructive-ink"
                     title={t("reject")}
                     // Don't also toggle the row's selection.
                     onClick={(e) => {

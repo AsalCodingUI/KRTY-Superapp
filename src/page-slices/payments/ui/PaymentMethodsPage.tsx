@@ -230,7 +230,7 @@ export function PaymentMethodsPage() {
                 <button
                   type="button"
                   onClick={() => setOpened({ tab: "methods", methodId: m.id })}
-                  className="group/row focus-visible:ring-primary/30 flex flex-col gap-2.5 rounded-xl text-left outline-none focus-visible:ring-2 focus-visible:ring-offset-4 focus-visible:ring-offset-[var(--background)]"
+                  className="group/row focus-visible:ring-focus-ring flex flex-col gap-2.5 rounded-xl text-left outline-none focus-visible:ring-2 focus-visible:ring-offset-4 focus-visible:ring-offset-[var(--background)]"
                 >
                   {/* What it looks like at the foot of an invoice. */}
                   <MethodThumb
@@ -244,7 +244,7 @@ export function PaymentMethodsPage() {
                     <span
                       className={cn(
                         "text-tertiary-foreground text-meta flex items-center gap-1 truncate",
-                        stale && "text-warning",
+                        stale && "text-warning-ink",
                       )}
                     >
                       {stale && <AlertTriangle className="size-3.5 shrink-0" />}

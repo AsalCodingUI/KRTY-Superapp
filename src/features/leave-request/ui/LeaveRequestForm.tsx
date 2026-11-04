@@ -117,7 +117,7 @@ export function LeaveRequestForm({
           <p
             className={
               noticeInvalid
-                ? "text-destructive mt-1 text-xs"
+                ? "text-destructive-ink mt-1 text-xs"
                 : "text-muted-foreground mt-1 text-xs"
             }
           >
@@ -159,7 +159,7 @@ export function LeaveRequestForm({
               </span>
             )}
           </div>
-          <p className="text-muted-foreground/60 mt-1 text-xs">
+          <p className="text-tertiary-foreground mt-1 text-xs">
             {t("formFileHint")}
           </p>
         </div>

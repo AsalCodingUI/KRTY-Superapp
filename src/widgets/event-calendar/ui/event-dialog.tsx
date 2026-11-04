@@ -753,7 +753,7 @@ export function EventDialog({
                       )}
                     </div>
                     {errors.start && (
-                      <p className="text-destructive text-xs">
+                      <p className="text-destructive-ink text-xs">
                         {errors.start.message &&
                           t(errors.start.message as CalendarKey)}
                       </p>
@@ -825,7 +825,7 @@ export function EventDialog({
                       )}
                     </div>
                     {errors.end && (
-                      <p className="text-destructive text-xs">
+                      <p className="text-destructive-ink text-xs">
                         {errors.end.message &&
                           t(errors.end.message as CalendarKey)}
                       </p>
@@ -865,7 +865,7 @@ export function EventDialog({
                   <>
                     {isDeletePending ? (
                       <div className="animate-fadeIn flex items-center gap-2">
-                        <span className="text-destructive text-sm font-medium">
+                        <span className="text-destructive-ink text-sm font-medium">
                           {t("dialogDeleteConfirm")}
                         </span>
                         <Button
@@ -891,7 +891,7 @@ export function EventDialog({
                         variant="ghost"
                         onClick={handleDeleteClick}
                         disabled={loading}
-                        className="text-destructive hover:text-destructive"
+                        className="text-destructive-ink hover:text-destructive-ink"
                       >
                         {tc("delete")}
                       </Button>

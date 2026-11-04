@@ -109,7 +109,7 @@ export function PortalLibrary({
                       <button
                         type="button"
                         onClick={() => setFolderId(f.id)}
-                        className="hover:bg-muted/60 focus-visible:ring-focus-ring nest-rounded-xl nest-p-2 flex items-center gap-3 text-left transition-colors outline-none focus-visible:ring-2"
+                        className="hover:bg-accent focus-visible:ring-focus-ring nest-rounded-xl nest-p-2 flex items-center gap-3 text-left transition-colors outline-none focus-visible:ring-2"
                       >
                         <FolderIcon className="h-8 w-10 shrink-0" />
                         <span className="flex min-w-0 flex-1 flex-col">

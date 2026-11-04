@@ -207,7 +207,7 @@ function WhatsNewEditorDialog({
             placeholder={t("titlePlaceholder")}
             aria-label={t("fieldTitle")}
             onChange={(e) => patch({ title: e.target.value })}
-            className="text-heading placeholder:text-muted-foreground/60 min-w-0 flex-1 border-0 bg-transparent text-lg font-medium shadow-none ring-0 outline-none focus:ring-0"
+            className="text-heading placeholder:text-tertiary-foreground min-w-0 flex-1 border-0 bg-transparent text-lg font-medium shadow-none ring-0 outline-none focus:ring-0"
           />
           <label className="text-muted-foreground flex shrink-0 items-center gap-2 text-sm">
             <Switch
@@ -336,7 +336,7 @@ function WhatsNewEditorDialog({
                         "text-meta inline-flex h-8 items-center rounded-full border px-3 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]",
                         on
                           ? "bg-foreground text-background border-transparent"
-                          : "border-border text-foreground/80 hover:bg-foreground/[0.05]",
+                          : "border-border text-muted-foreground hover:bg-foreground/[0.05]",
                       )}
                     >
                       {t(TAG[tag].label)}

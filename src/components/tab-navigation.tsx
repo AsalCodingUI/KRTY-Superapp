@@ -122,7 +122,7 @@ const TabNavigationLink = React.forwardRef<
               className={cn(
                 "text-muted-foreground relative inline-flex items-center justify-center py-1.5 whitespace-nowrap transition-colors",
                 "group-hover:text-foreground group-data-[active]:text-foreground",
-                disabled && "text-muted-foreground/50 pointer-events-none",
+                disabled && "text-tertiary-foreground pointer-events-none",
                 className,
               )}
             >

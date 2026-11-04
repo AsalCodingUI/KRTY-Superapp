@@ -19,12 +19,12 @@ export const CALLOUT_STYLE: Record<
   success: {
     icon: CircleCheck,
     box: "bg-green-3 dark:bg-green-9/10",
-    ink: "text-green-11",
+    ink: "text-success-ink",
   },
   warning: {
     icon: TriangleAlert,
     box: "bg-amber-3 dark:bg-amber-9/10",
-    ink: "text-amber-11",
+    ink: "text-warning-ink",
   },
   danger: {
     icon: OctagonAlert,
