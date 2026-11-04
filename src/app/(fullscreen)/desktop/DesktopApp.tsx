@@ -1,5 +1,6 @@
 "use client"
 
+import { appSoundName } from "@/shared/lib/notification-sound"
 import { createClient } from "@/shared/api/supabase/client"
 import {
   NOTIFICATIONS_QUERY_KEY,
@@ -184,7 +185,11 @@ export function DesktopApp() {
     if (seen.current && prefs.notifyNew) {
       for (const n of data.unread)
         if (!seen.current.has(n.id))
-          void invoke("notify", { title: n.title, body: n.message ?? "" })
+          void invoke("notify", {
+            title: n.title,
+            body: n.message ?? "",
+            sound: appSoundName(),
+          })
     }
     seen.current = new Set([...(seen.current ?? []), ...ids])
   }, [data.unread, data.notificationsReady, prefs.notifyNew, scenario])
@@ -202,7 +207,7 @@ export function DesktopApp() {
     const remind = (id: string, title: string, body: string) => {
       if (sent.includes(id)) return
       sent.push(id)
-      void invoke("notify", { title, body })
+      void invoke("notify", { title, body, sound: appSoundName() })
     }
     const now = data.now.getTime()
     if (prefs.notifyEvents)
@@ -247,6 +252,7 @@ export function DesktopApp() {
       localStorage.setItem(key, "1")
     } catch {}
     void invoke("notify", {
+      sound: appSoundName(),
       title: t("notifyReadyTitle", { version: readyVersion }),
       body: t("notifyReadyBody"),
       path: "/settings/app",
@@ -266,6 +272,7 @@ export function DesktopApp() {
           localStorage.setItem(key, "1")
         } catch {}
         void invoke("notify", {
+          sound: appSoundName(),
           title: t("notifyUpdateTitle", { version: update.version }),
           body: t("notifyUpdateBody"),
           path: "/settings/app?download=1",

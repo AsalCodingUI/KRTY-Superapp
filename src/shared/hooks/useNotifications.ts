@@ -1,4 +1,5 @@
 import { useUserProfile } from "@/shared/hooks/useUserProfile"
+import { playNotificationSound } from "@/shared/lib/notification-sound"
 import { Database } from "@/shared/types/database.types"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { createClient } from "@/shared/api/supabase/client"
@@ -287,6 +288,10 @@ export const URGENT_NOTIFICATION_TYPES = new Set(["announcement_urgent"])
  * ones also raise a desktop notification (if the browser allows it).
  * Mount once (the bell does).
  */
+/** Inside Kretya Flow (its bridge is there). */
+const isDesktopApp = () =>
+  typeof window !== "undefined" && "__TAURI__" in window
+
 export function useNotificationsRealtime() {
   const queryClient = useQueryClient()
   const { profile, isImpersonating } = useUserProfile()
@@ -312,6 +317,9 @@ export function useNotificationsRealtime() {
             queryKey: [...NOTIFICATIONS_QUERY_KEY, userId],
           })
           const n = payload.new
+          // Its sound (Settings → Notifikasi). Kretya Flow plays it with the
+          // macOS notification instead, so the app's page stays quiet.
+          if (!isDesktopApp()) playNotificationSound(undefined, n.id)
           if (
             URGENT_NOTIFICATION_TYPES.has(n.type) &&
             document.visibilityState === "hidden" &&

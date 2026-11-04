@@ -469,14 +469,20 @@ fn set_theme(app: AppHandle, theme: String) {
 /// A macOS notification; clicking it opens the app window, at `path` (a
 /// page of the web app) when given.
 #[tauri::command]
-fn notify(app: AppHandle, title: String, body: String, path: Option<String>) {
+fn notify(
+    app: AppHandle,
+    title: String,
+    body: String,
+    path: Option<String>,
+    sound: Option<String>,
+) {
     #[cfg(target_os = "macos")]
     {
         let _ = app;
-        mac_notify::show(&title, &body, path.as_deref());
+        mac_notify::show(&title, &body, path.as_deref(), sound.as_deref());
     }
     #[cfg(not(target_os = "macos"))]
-    let _ = path;
+    let _ = (path, sound);
     #[cfg(not(target_os = "macos"))]
     let _ = app.notification().builder().title(title).body(body).show();
 }
@@ -609,12 +615,22 @@ mod mac_notify {
             })
     }
 
-    pub fn show(title: &str, body: &str, path: Option<&str>) {
+    /// `sound`: "none", "default" (macOS's), or a file bundled in the app's
+    /// Resources ("kretya.aiff", picked in Settings → Notifikasi).
+    pub fn show(title: &str, body: &str, path: Option<&str>, sound: Option<&str>) {
         let center = UNUserNotificationCenter::currentNotificationCenter();
         let content = UNMutableNotificationContent::new();
         content.setTitle(&NSString::from_str(title));
         content.setBody(&NSString::from_str(body));
-        content.setSound(Some(&UNNotificationSound::defaultSound()));
+        match sound {
+            Some("none") => {}
+            None | Some("default") | Some("") => {
+                content.setSound(Some(&UNNotificationSound::defaultSound()))
+            }
+            Some(name) => content.setSound(Some(&UNNotificationSound::soundNamed(
+                &NSString::from_str(name),
+            ))),
+        }
         let id = NSString::from_str(&format!(
             "krty-{}{}",
             std::time::SystemTime::now()

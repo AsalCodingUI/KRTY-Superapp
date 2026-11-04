@@ -1,5 +1,21 @@
 "use client"
 
+import {
+  appSoundName,
+  NOTIFICATION_SOUNDS,
+  notificationSound,
+  playable,
+  playNotificationSound,
+  setNotificationSound,
+  type NotificationSound,
+} from "@/shared/lib/notification-sound"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Swatch } from "@/components/appearance-popover"
 import { useDesktopShell } from "@/components/desktop-shell"
 import { FillSlider } from "@/components/fill-slider"
@@ -43,7 +59,7 @@ import {
 } from "@/shared/lib/display-prefs"
 import { useDesktopPrefs } from "@/widgets/menubar/ui/MenubarPopover"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { Bell, Palette, SlidersHorizontal, X } from "lucide-react"
+import { Bell, Palette, Play, SlidersHorizontal, X } from "lucide-react"
 import { useEffect, useState, type ReactNode } from "react"
 import { toast } from "sonner"
 
@@ -327,12 +343,9 @@ function NotificationsTab() {
   const inApp = useInApp()
   return (
     <div className="flex flex-col">
-      {inApp && (
-        <>
-          <MacNotificationRow />
-          <SectionLabel>{t("emailSection")}</SectionLabel>
-        </>
-      )}
+      {inApp && <MacNotificationRow />}
+      <SoundRow inApp={inApp} />
+      <SectionLabel>{t("emailSection")}</SectionLabel>
       <EmailPrefs />
     </div>
   )
@@ -366,7 +379,11 @@ function MacNotificationRow() {
     if (next) queryClient.setQueryData(NOTIF_KEY, next)
   }
   const test = async () => {
-    await invokeApp("notify", { title: t("testTitle"), body: t("testBody") })
+    await invokeApp("notify", {
+      title: t("testTitle"),
+      body: t("testBody"),
+      sound: appSoundName(),
+    })
   }
 
   return (
@@ -402,6 +419,58 @@ function MacNotificationRow() {
     </Row>
   )
 }
+
+/** The sound of a new notification, kept on this device; ▶ plays it. */
+function SoundRow({ inApp }: { inApp: boolean }) {
+  const t = useT("prefs")
+  const [value, setValue] = useState<NotificationSound>("kretya")
+  useEffect(() => setValue(notificationSound()), [])
+  const options = NOTIFICATION_SOUNDS.filter((s) => inApp || s !== "system")
+  const pick = (next: NotificationSound) => {
+    setValue(next)
+    setNotificationSound(next)
+    playNotificationSound(next)
+  }
+  return (
+    <Row label={t("sound")} hint={t("soundHint")}>
+      <div className="flex items-center gap-1.5">
+        <Select
+          value={value}
+          onValueChange={(v) => v && pick(v as NotificationSound)}
+        >
+          <SelectTrigger size="sm" aria-label={t("sound")} className="w-40">
+            <SelectValue>
+              {(v: NotificationSound) => t(SOUND_LABEL[v])}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent align="end">
+            {options.map((s) => (
+              <SelectItem key={s} value={s}>
+                {t(SOUND_LABEL[s])}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          aria-label={t("soundPlay")}
+          disabled={!playable(value)}
+          onClick={() => playNotificationSound(value)}
+        >
+          <Play />
+        </Button>
+      </div>
+    </Row>
+  )
+}
+
+const SOUND_LABEL = {
+  kretya: "soundKretya",
+  chime: "soundChime",
+  system: "soundSystem",
+  none: "soundNone",
+} as const
 
 type EmailPrefsRow = { enabled: boolean; muted: string[] }
 

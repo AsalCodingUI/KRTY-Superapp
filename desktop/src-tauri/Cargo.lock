@@ -2098,7 +2098,7 @@ dependencies = [
 
 [[package]]
 name = "krty-desktop"
-version = "0.3.1"
+version = "0.3.2"
 dependencies = [
  "block2",
  "objc2",
