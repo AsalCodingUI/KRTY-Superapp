@@ -28,10 +28,12 @@ import { useT } from "@/shared/i18n/client"
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
-const SIDEBAR_WIDTH = "15rem"
+// Fits the workspace tabs + bell with their optical padding.
+const SIDEBAR_WIDTH = "15.5rem"
 /** Drag-to-resize bounds (px); the chosen width is kept per browser. The
  * minimum keeps the footer (theme · language · color) on one row. */
-const SIDEBAR_MIN_WIDTH = 232
+// Below this the workspace tabs + bell no longer fit (app-topbar.tsx).
+const SIDEBAR_MIN_WIDTH = 248
 const SIDEBAR_MAX_WIDTH = 420
 const SIDEBAR_WIDTH_STORAGE_KEY = "sidebar_width"
 const SIDEBAR_WIDTH_MOBILE = "18rem"
@@ -292,7 +294,7 @@ function Sidebar({
         data-slot="sidebar-container"
         data-side={side}
         className={cn(
-          "fixed top-[calc(var(--app-banner-height,0px)+var(--app-topbar-height,0px))] bottom-0 z-10 hidden h-[calc(100svh-var(--app-banner-height,0px)-var(--app-topbar-height,0px))] w-(--sidebar-width) transition-[left,right,width] duration-200 ease-out group-data-[resizing=true]/sidebar-wrapper:transition-none data-[side=left]:left-0 data-[side=left]:group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)] data-[side=right]:right-0 data-[side=right]:group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)] motion-reduce:transition-none md:flex",
+          "fixed top-(--app-topbar-height) bottom-0 z-10 hidden h-[calc(100svh-var(--app-topbar-height,0px))] w-(--sidebar-width) transition-[left,right,width] duration-200 ease-out group-data-[resizing=true]/sidebar-wrapper:transition-none data-[side=left]:left-0 data-[side=left]:group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)] data-[side=right]:right-0 data-[side=right]:group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)] motion-reduce:transition-none md:flex",
           // Adjust the padding for floating and inset variants.
           variant === "floating" || variant === "inset"
             ? "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+1px)]"

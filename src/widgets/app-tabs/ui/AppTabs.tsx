@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight, Plus, X } from "@/components/icons"
 import { ProjectAvatar } from "@/components/project-avatar"
 import { useDesktopShell } from "@/components/desktop-shell"
 import { Button } from "@/components/ui/button"
+import { Spinner } from "@/components/ui/spinner"
 import { Kbd } from "@/components/ui/kbd"
 import {
   Tooltip,
@@ -84,6 +85,7 @@ export function useAppTabsSync({
   icon?: TabIcon
 }) {
   const url = useCurrentUrl()
+  const router = useRouter()
   const { profile } = useUserProfile()
   const desktop = useDesktopShell()
   const nav = useTabNavigation()
@@ -101,6 +103,27 @@ export function useAppTabsSync({
   useEffect(() => {
     describeActive(url, title, icon)
   }, [url, title, icon])
+
+  // Every tab's page prefetched in the background (idle), so switching
+  // to it renders at once instead of waiting on the server.
+  const tabsState = useAppTabs()
+  const prefetchKey = tabsState.tabs.map((t) => t.url).join("|")
+  useEffect(() => {
+    const urls = getTabs()
+      .tabs.filter((t) => t.id !== getTabs().active && t.url)
+      .map((t) => t.url)
+    if (!urls.length) return
+    const run = () => urls.forEach((u) => router.prefetch(u))
+    // Safari has no requestIdleCallback.
+    const idle = typeof requestIdleCallback === "function"
+    const id = idle
+      ? requestIdleCallback(run, { timeout: 2000 })
+      : setTimeout(run, 300)
+    return () => {
+      if (idle) cancelIdleCallback(id as number)
+      else clearTimeout(id)
+    }
+  }, [prefetchKey, router])
 
   // ⌘ / Ctrl / middle click on an app link: a tab in the background.
   useEffect(() => {
@@ -207,7 +230,9 @@ function useTabNavigation() {
       if (!url) return
       const tab = activeTab()
       pendingScroll = { id: tab.id, top: tab.scroll ?? 0 }
-      router.push(url, { scroll: false })
+      // The tab lights up this frame; the route renders on the next one,
+      // so the press never waits on the page.
+      requestAnimationFrame(() => router.push(url, { scroll: false }))
     },
     [router],
   )
@@ -328,13 +353,18 @@ function useModKey() {
 /** The tab strip: Main first (no close), then the others, then +. */
 export function TabStrip({
   navIcon,
+  describe,
 }: {
+  /** Section title + href for a URL (tabs opened but not visited yet). */
+  describe: (url: string) => { title: string; href: string } | null
   /** The sidebar's icon for a nav href (pages that aren't a project). */
   navIcon: (href: string) => ComponentType<{ className?: string }> | null
 }) {
   const t = useT("shell")
   const { tabs, active } = useAppTabs()
   const nav = useTabNavigation()
+  const router = useRouter()
+  const currentUrl = useCurrentUrl()
   const desktop = useDesktopShell()
   const mod = useModKey()
   // Only the active tab's name is known for sure; others keep the last one.
@@ -359,7 +389,11 @@ export function TabStrip({
             active={tab.id === active}
             onlyOne={tabs.length === 1}
             navIcon={navIcon}
+            describe={describe}
+            // Switching to it, or just opened: until its page has rendered.
+            loading={tab.id === active && !!tab.url && tab.url !== currentUrl}
             onSelect={() => nav.select(tab.id)}
+            onWarm={() => tab.url && router.prefetch(tab.url)}
             onClose={() => nav.close(tab.id)}
             closeLabel={t("tabClose")}
             mainLabel={t("tabMain")}
@@ -387,7 +421,10 @@ function TabItem({
   active,
   onlyOne,
   navIcon,
+  describe,
+  loading,
   onSelect,
+  onWarm,
   onClose,
   closeLabel,
   mainLabel,
@@ -397,14 +434,20 @@ function TabItem({
   active: boolean
   onlyOne: boolean
   navIcon: (href: string) => ComponentType<{ className?: string }> | null
+  describe: (url: string) => { title: string; href: string } | null
+  loading: boolean
   onSelect: () => void
+  onWarm: () => void
   onClose: () => void
   closeLabel: string
   mainLabel: string
 }) {
   const main = tab.id === MAIN_TAB
-  const title = tab.title || (main ? mainLabel : "…")
-  const Icon = tab.icon?.kind === "nav" ? navIcon(tab.icon.href) : null
+  const fallback = tab.url ? describe(tab.url) : null
+  const title = tab.title || fallback?.title || (main ? mainLabel : "…")
+  const iconHref =
+    tab.icon?.kind === "nav" ? tab.icon.href : !tab.icon ? fallback?.href : null
+  const Icon = iconHref ? navIcon(iconHref) : null
   return (
     <div
       ref={ref}
@@ -412,7 +455,12 @@ function TabItem({
       aria-selected={active}
       tabIndex={active ? 0 : -1}
       title={title}
-      onClick={onSelect}
+      // Switch on press, not release: ~100ms sooner, as browsers do.
+      onPointerDown={(e) => {
+        if (e.button === 0 && !(e.target as HTMLElement).closest("button"))
+          onSelect()
+      }}
+      onPointerEnter={onWarm}
       onAuxClick={(e) => {
         // Middle click closes, as in browsers.
         if (e.button === 1 && !main) {
@@ -438,7 +486,9 @@ function TabItem({
           : "text-muted-foreground hover:text-foreground [@media(hover:hover)]:hover:bg-chrome-hover",
       )}
     >
-      {tab.icon?.kind === "project" ? (
+      {loading ? (
+        <Spinner className="size-3.5 shrink-0" />
+      ) : tab.icon?.kind === "project" ? (
         <ProjectAvatar
           id={tab.icon.id}
           name={tab.icon.name}

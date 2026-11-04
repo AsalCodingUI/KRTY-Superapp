@@ -527,6 +527,13 @@
     0 8px 18px -4px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.06),
     0 36px 80px -18px oklch(0.22 var(--elev-ink) var(--tint-h) / 0.22);
   --app-topbar-height: 3.5rem;
+  /* Where floating side sheets and the docked side panel start: 8px inside
+     the page sheet's top (below the top bar, the tab row and any banner;
+     --app-banner-height is set on this element by AppBannerStack). */
+  --app-sheet-top: calc(
+    var(--app-topbar-height) + var(--app-tabs-height, 0px) +
+      var(--app-banner-height, 0px) + 0.5rem
+  );
   /* The page: white, leaning to the chrome tint (pure white when neutral).
      An opaque mix, so solid children never show as white patches. */
   --background: color-mix(

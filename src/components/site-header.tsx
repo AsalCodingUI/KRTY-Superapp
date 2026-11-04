@@ -48,14 +48,12 @@ function useSection(): Crumb {
   }
 }
 
-/** The sidebar icon of the nav item an href belongs to (longest match). */
-function navIconFor(href: string) {
+/** The nav item an href belongs to (longest match). */
+function navItemFor(href: string) {
   const path = href.split("?")[0]
-  return (
-    allNavItems()
-      .filter((item) => path === item.href || path.startsWith(`${item.href}/`))
-      .sort((a, b) => b.href.length - a.href.length)[0]?.icon ?? null
-  )
+  return allNavItems()
+    .filter((item) => path === item.href || path.startsWith(`${item.href}/`))
+    .sort((a, b) => b.href.length - a.href.length)[0]
 }
 
 /**
@@ -101,7 +99,18 @@ export function SiteHeader() {
   )
   useAppTabsSync({ title, icon })
   const mac = useMacChrome()
-  const navIcon = useCallback((href: string) => navIconFor(href), [])
+  const navIcon = useCallback(
+    (href: string) => navItemFor(href)?.icon ?? null,
+    [],
+  )
+  // A tab not visited yet is named after its section until it loads.
+  const describe = useCallback(
+    (href: string) => {
+      const item = navItemFor(href)
+      return item ? { title: t(item.name), href: item.href } : null
+    },
+    [t],
+  )
 
   return (
     <header
@@ -117,7 +126,7 @@ export function SiteHeader() {
         )}
         <TabHistoryButtons />
       </div>
-      <TabStrip navIcon={navIcon} />
+      <TabStrip navIcon={navIcon} describe={describe} />
     </header>
   )
 }

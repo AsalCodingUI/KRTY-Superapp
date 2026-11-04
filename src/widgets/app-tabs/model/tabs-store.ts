@@ -41,15 +41,29 @@ let state: State = {
 let storageKey: string | null = null
 const listeners = new Set<() => void>()
 
-function set(next: State) {
-  state = next
-  listeners.forEach((l) => l())
-  if (storageKey)
+let saveQueued = false
+/** Saved when the browser is idle, never in the middle of a switch. */
+function persist() {
+  if (!storageKey || saveQueued) return
+  saveQueued = true
+  const run = () => {
+    saveQueued = false
+    if (!storageKey) return
     try {
       localStorage.setItem(storageKey, JSON.stringify(state))
     } catch {
       // Private mode / full storage: tabs just don't survive a reload.
     }
+  }
+  if (typeof requestIdleCallback === "function")
+    requestIdleCallback(run, { timeout: 1000 })
+  else setTimeout(run, 200)
+}
+
+function set(next: State) {
+  state = next
+  listeners.forEach((l) => l())
+  persist()
 }
 
 function update(id: string, patch: (tab: AppTab) => AppTab) {

@@ -40,15 +40,24 @@ function SheetOverlay({ className, ...props }: SheetPrimitive.Backdrop.Props) {
 /* A right sheet floats inside the page sheet with one 8px gap on top, right
  * and bottom: below the top bar, and (from md, where the page has a 12px
  * gutter) 12 + 8 = 20px from the window. */
+/* `floating` on a left sheet: the right sheet's card, mirrored (8px from
+ * the window's left, over the sidebar; same top and bottom as the right
+ * one). Notifications open this way, from the bell in the sidebar. */
+const FLOATING_LEFT =
+  "data-[side=left]:top-(--app-sheet-top) data-[side=left]:bottom-2 data-[side=left]:left-2 data-[side=left]:h-auto data-[side=left]:w-[calc(100%-1rem)] data-[side=left]:border-r-0 data-[side=left]:rounded-nested data-[side=left]:overflow-hidden data-[side=left]:[--nest-p:0.5rem] data-[side=left]:[--nest-r:var(--radius-3xl)] data-[side=left]:data-ending-style:translate-x-[-1.5rem] data-[side=left]:data-starting-style:translate-x-[-1.5rem] data-[side=left]:sm:max-w-md md:data-[side=left]:bottom-5"
+
 function SheetContent({
   className,
   children,
   side = "right",
   showCloseButton = true,
+  floating = false,
   ...props
 }: SheetPrimitive.Popup.Props & {
   side?: "top" | "right" | "bottom" | "left"
   showCloseButton?: boolean
+  /** Left sheets only: float as a card like the right ones. */
+  floating?: boolean
 }) {
   const t = useT("common")
   return (
@@ -59,13 +68,18 @@ function SheetContent({
           on top, right and bottom, its corners concentric with the page
           sheet's (rounded-3xl less that 8px gap). */}
       <SheetOverlay
-        className={side === "right" ? "bg-transparent" : undefined}
+        className={
+          side === "right" || (side === "left" && floating)
+            ? "bg-transparent"
+            : undefined
+        }
       />
       <SheetPrimitive.Popup
         data-slot="sheet-content"
         data-side={side}
         className={cn(
-          "bg-popover text-popover-foreground ease-drawer data-[side=right]:rounded-nested shadow-dialog fixed z-50 flex flex-col bg-clip-padding text-sm transition-[opacity,translate,transform] duration-[400ms] data-ending-style:opacity-0 data-starting-style:opacity-0 data-[side=bottom]:inset-x-0 data-[side=bottom]:bottom-0 data-[side=bottom]:h-auto data-[side=bottom]:border-t data-[side=bottom]:data-ending-style:translate-y-[2.5rem] data-[side=bottom]:data-starting-style:translate-y-[2.5rem] data-[side=left]:inset-y-0 data-[side=left]:left-0 data-[side=left]:h-full data-[side=left]:w-3/4 data-[side=left]:border-r data-[side=left]:data-ending-style:translate-x-[-2.5rem] data-[side=left]:data-starting-style:translate-x-[-2.5rem] data-[side=right]:top-[calc(var(--app-topbar-height,0px)+var(--app-banner-height,0px)+0.5rem)] data-[side=right]:right-2 data-[side=right]:bottom-2 data-[side=right]:w-[calc(100%-1rem)] data-[side=right]:overflow-hidden data-[side=right]:[--nest-p:0.5rem] data-[side=right]:[--nest-r:var(--radius-3xl)] data-[side=right]:data-ending-style:translate-x-[1.5rem] data-[side=right]:data-starting-style:translate-x-[1.5rem] data-[side=top]:inset-x-0 data-[side=top]:top-0 data-[side=top]:h-auto data-[side=top]:border-b data-[side=top]:data-ending-style:translate-y-[-2.5rem] data-[side=top]:data-starting-style:translate-y-[-2.5rem] data-[side=left]:sm:max-w-sm data-[side=right]:sm:max-w-md md:data-[side=right]:right-5 md:data-[side=right]:bottom-5",
+          "bg-popover text-popover-foreground ease-drawer data-[side=right]:rounded-nested shadow-dialog fixed z-50 flex flex-col bg-clip-padding text-sm transition-[opacity,translate,transform] duration-[400ms] data-ending-style:opacity-0 data-starting-style:opacity-0 data-[side=bottom]:inset-x-0 data-[side=bottom]:bottom-0 data-[side=bottom]:h-auto data-[side=bottom]:border-t data-[side=bottom]:data-ending-style:translate-y-[2.5rem] data-[side=bottom]:data-starting-style:translate-y-[2.5rem] data-[side=left]:inset-y-0 data-[side=left]:left-0 data-[side=left]:h-full data-[side=left]:w-3/4 data-[side=left]:border-r data-[side=left]:data-ending-style:translate-x-[-2.5rem] data-[side=left]:data-starting-style:translate-x-[-2.5rem] data-[side=right]:top-(--app-sheet-top) data-[side=right]:right-2 data-[side=right]:bottom-2 data-[side=right]:w-[calc(100%-1rem)] data-[side=right]:overflow-hidden data-[side=right]:[--nest-p:0.5rem] data-[side=right]:[--nest-r:var(--radius-3xl)] data-[side=right]:data-ending-style:translate-x-[1.5rem] data-[side=right]:data-starting-style:translate-x-[1.5rem] data-[side=top]:inset-x-0 data-[side=top]:top-0 data-[side=top]:h-auto data-[side=top]:border-b data-[side=top]:data-ending-style:translate-y-[-2.5rem] data-[side=top]:data-starting-style:translate-y-[-2.5rem] data-[side=left]:sm:max-w-sm data-[side=right]:sm:max-w-md md:data-[side=right]:right-5 md:data-[side=right]:bottom-5",
+          side === "left" && floating && FLOATING_LEFT,
           className,
         )}
         {...props}

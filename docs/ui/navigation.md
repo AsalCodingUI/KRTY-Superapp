@@ -35,7 +35,7 @@ examples: **/ui** → Navigasi.
 
 The shell has no top bar from `md` up. The sidebar's top: the brand;
 the workspaces as icon + label tabs (`WorkspaceTabs`, not a segmented
-control; optical padding 9 / 11px so both tabs and the bell fit 232px)
+control; optical padding 11 / 13px; the sidebar is 15.5rem by default and never narrower, so both tabs and the bell fit)
 with the bell (icon only) at that row's end; search (⌘K, an outlined
 pill). Its bottom: notices, What's new, Settings, the account row (same
 list, same icon column), then theme and chrome color; language lives in
@@ -62,6 +62,15 @@ traffic lights.
   has the sidebar's active fill (`bg-sidebar-active`) and its ×; the
   others are plain text, `bg-chrome-hover` and × on hover. The row stays
   put; only the sheet below scrolls.
+- **States**: the active tab shows a spinner in place of its icon until
+  its page has rendered (switching, `+`, a just-opened tab); a tab not
+  visited yet is named and iconed after its sidebar section, then after
+  the page once it loads.
+- **Speed**: the tab lights up on press (pointer down) and the route
+  renders a frame later; every other tab's page is prefetched when the
+  browser is idle (and again on hover), and with `staleTimes.dynamic: 30`
+  switching back within 30s reuses the cached page. Tabs save to
+  localStorage when idle, never during a switch.
 - Desktop app only: ⌘T, ⌘W, ⌘1–9, ⌃Tab (browsers keep those keys).
 - Phones: no tab row; `MobileNav` as before.
 

@@ -95,11 +95,6 @@ export default async function Layout({
         <SidebarProvider className="bg-chrome h-svh min-h-0 flex-col overflow-hidden">
           <WorkspaceNavProvider>
             <AppTopbar />
-            {/* Banners (view-as, announcements) sit in the tinted chrome. */}
-            <AppBannerStack>
-              <ImpersonationBanner />
-              <AnnouncementBanner />
-            </AppBannerStack>
             {/* Sidebar and page stay siblings: the inset styles key off the sidebar.
             Top bar and sidebar share the tinted chrome; the page floats on it
             as one rounded sheet (Arc style). */}
@@ -124,6 +119,12 @@ export default async function Layout({
                     <SiteHeader />
                   </Suspense>
                 )}
+                {/* Banners (view-as, announcements): on the chrome between
+                    the tabs and the page, as wide as the page. */}
+                <AppBannerStack>
+                  <ImpersonationBanner />
+                  <AnnouncementBanner />
+                </AppBannerStack>
                 <PageSheet mac={desktop} className="max-md:pt-2 md:pt-6">
                   <div
                     className={cn(

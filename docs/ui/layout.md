@@ -31,13 +31,14 @@ Windows apps, phones and print. Live examples: **/ui** → Layout.
 SidebarProvider  bg-chrome h-svh flex-col                      (tinted chrome)
 ├─ AppTopbar      phones only (56px): brand · bell · account. Mac: 52px strip,
 │                  traffic lights + sidebar toggle + the tab row
-├─ AppBannerStack px-2 pb-2, publishes --app-banner-height      view-as, announcements
 ├─ row            md:pr-3 md:pb-3 (Mac md:pr-1.5 md:pb-1.5)
-│  ├─ AppSidebar  15rem (resizable), icon 3.75rem, hidden < md
+│  ├─ AppSidebar  15.5rem (resizable, min 248px), icon 3.75rem, hidden < md
 │  │  header: brand · workspace tabs + bell · search (outline pill)
 │  │  bottom: notices · What's new · Settings · account · theme / chrome color
 │  └─ column
 │     ├─ SiteHeader  ◫ ‹ › + the tab row, on the chrome, pt-3 h-8 pb-2 (--app-tabs-height);
+│     ├─ AppBannerStack  between the tabs and the sheet, as wide as the sheet;
+│     │                  publishes --app-banner-height (view-as, announcements)
 │     │              fixed: only the sheet scrolls (widgets/app-tabs)
 │     └─ PageSheet   shadow layer + SidebarInset (components/page-sheet.tsx)
 │        SidebarInset  scroll-pane · md:rounded-dialog (Mac 10px) · md:pt-6

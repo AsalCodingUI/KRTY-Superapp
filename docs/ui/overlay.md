@@ -80,9 +80,15 @@ own their layout; don't copy them for normal dialogs.
 **Sheets**
 
 - `SheetContent` default `side="right"`: floats 8px inside the page sheet
-  (below the top bar and banners, `md:` 20px from the window), rounded
+  (its top is `top-(--app-sheet-top)`: the top bar, the tab row and any
+  banner + 8px; `md:` 20px from the window's right and bottom), rounded
   `rounded-nested`, `shadow-(--elev-5)`, no dimming (transparent overlay),
   width `w-full sm:max-w-md` (wider: `data-[side=right]:sm:max-w-2xl`).
+  Never hand-write the top offset: use `--app-sheet-top`.
+- `side="left" floating`: the same card mirrored. Notifications open this
+  way (from the bell in the sidebar), starting 8px inside the page sheet's
+  left edge (`NotificationsPanel` reads it, so it follows the sidebar's
+  width and collapse).
 - Inside: `SheetHeader` (a 52px bar with `SheetTitle`, border-b), the
   body `scroll-pane pane-px-5 flex min-h-0 flex-1 flex-col gap-8 pt-5 pb-6`,
   optional `SheetFooter` (border-t, buttons right).

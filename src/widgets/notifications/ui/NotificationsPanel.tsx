@@ -24,7 +24,12 @@ import {
 } from "@/shared/ui/lucide-icons"
 import { format, formatDistanceToNowStrict } from "date-fns"
 import Link from "next/link"
-import { useMemo, useState, type MouseEvent as ReactMouseEvent } from "react"
+import {
+  useLayoutEffect,
+  useMemo,
+  useState,
+  type MouseEvent as ReactMouseEvent,
+} from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import {
@@ -310,6 +315,10 @@ export default function NotificationsPanel({
     [activeTab, notifications],
   )
 
+  // From md the panel starts 8px inside the page sheet's left edge (past
+  // the sidebar, collapsed or not), as the right sheets do on the right.
+  const pageLeft = usePageLeft(!isMobile)
+
   const handleDelete = (event: ReactMouseEvent, id: string) => {
     event.preventDefault()
     event.stopPropagation()
@@ -318,8 +327,13 @@ export default function NotificationsPanel({
 
   return (
     <SheetContent
-      // A bottom sheet on phones, like every other panel there.
-      side={isMobile ? "bottom" : "right"}
+      // A bottom sheet on phones, like every other panel there; from md
+      // it floats in from the left, beside the bell in the sidebar.
+      side={isMobile ? "bottom" : "left"}
+      floating
+      style={
+        !isMobile && pageLeft !== null ? { left: pageLeft + 8 } : undefined
+      }
       className={cn(
         "w-full gap-0 sm:max-w-md",
         isMobile &&
@@ -504,4 +518,27 @@ export default function NotificationsPanel({
       )}
     </SheetContent>
   )
+}
+
+/** The page sheet's left edge (px), kept current on resize and on the
+ *  sidebar's collapse / drag. */
+function usePageLeft(enabled: boolean) {
+  const [left, setLeft] = useState<number | null>(null)
+  useLayoutEffect(() => {
+    if (!enabled) return
+    const sheet = document.querySelector<HTMLElement>(
+      '[data-slot="sidebar-inset"]',
+    )
+    if (!sheet) return
+    const read = () => setLeft(Math.round(sheet.getBoundingClientRect().left))
+    read()
+    const observer = new ResizeObserver(read)
+    observer.observe(sheet)
+    window.addEventListener("resize", read)
+    return () => {
+      observer.disconnect()
+      window.removeEventListener("resize", read)
+    }
+  }, [enabled])
+  return left
 }

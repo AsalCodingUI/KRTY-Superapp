@@ -55,8 +55,9 @@ export function AppBanner({
 }
 
 /**
- * Banner stack in the tinted chrome between the top bar and the page. Publishes
- * its height as --app-banner-height so the fixed sidebar starts below it.
+ * Banner stack on the chrome between the tab row and the page sheet, as
+ * wide as the sheet. Publishes its height as --app-banner-height (side
+ * sheets and full-height pages start below it; the sidebar doesn't).
  */
 export function AppBannerStack({ children }: { children: React.ReactNode }) {
   const ref = React.useRef<HTMLDivElement>(null)
@@ -79,7 +80,9 @@ export function AppBannerStack({ children }: { children: React.ReactNode }) {
   return (
     <div
       ref={ref}
-      className="flex w-full shrink-0 flex-col gap-1.5 px-2 pb-2 empty:hidden"
+      // Phones: inset from the window like the sheet; from md flush with
+      // the sheet's edges (the column has none of its own).
+      className="flex w-full shrink-0 flex-col gap-1.5 px-2 pb-2 empty:hidden md:px-0"
     >
       {children}
     </div>
