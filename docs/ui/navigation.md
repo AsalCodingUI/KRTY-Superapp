@@ -62,7 +62,7 @@ traffic lights.
   it, else the project (+ section) or the sidebar section.
 - **Look**: pills on the chrome (`h-8 rounded-control text-meta`, icon
   `size-3.5`; row `pt-3 pb-2`). The active one
-  has the sidebar's active fill (`bg-sidebar-active`) and its ×; the
+  is a raised white pill (`bg-chrome-active shadow-raised`) and has its ×; the
   others are plain text, `bg-chrome-hover` and × on hover. The row stays
   put; only the sheet below scrolls.
 - **States**: the active tab shows a spinner in place of its icon until
@@ -149,8 +149,10 @@ tabular-nums`, hidden at 0; badge.md).
 **Sidebar**
 
 - Pages come from `shared/config/workspaces.ts`; the active page is the
-  longest matching href. One sliding active fill (`bg-sidebar-active`)
-  across rows.
+  longest matching href. One sliding active fill (`bg-sidebar-active`
+  = `--chrome-selected`: a darker see-through fill, flat, no shadow)
+  across rows; the Personal | Project tabs use the same fill. The white
+  raised pill is only for the app tabs.
 - Row extras: count `badge` (`NavBadge`, 99+), `dot` for "new" without a
   count (`NavDot`), sub-tabs listed under the open page.
 - Inside a project the sidebar swaps to `NavProject` (← Semua project,

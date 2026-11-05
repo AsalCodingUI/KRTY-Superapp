@@ -384,6 +384,7 @@
   --color-chrome: var(--chrome);
   --color-chrome-hover: var(--chrome-hover);
   --color-chrome-active: var(--chrome-active);
+  --color-chrome-selected: var(--chrome-selected);
   --color-chrome-field: var(--chrome-field);
   --color-chrome-border: var(--chrome-border);
   --color-inverse: var(--inverse);
@@ -489,6 +490,9 @@
   );
   --chrome-hover: oklch(0 0 0 / 5%);
   --chrome-active: oklch(1 0 0 / 94%);
+  /* The sidebar's selected row (nav item, workspace tab): a darker
+     see-through fill, no shadow. The white pill is for the app tabs. */
+  --chrome-selected: oklch(0 0 0 / 7.5%);
   /* Active thumbs (segmented, tabs, toggles): the same see-through white
      as the sidebar's active pill. */
   --thumb: var(--chrome-active);
@@ -622,7 +626,7 @@
   --sidebar-primary: var(--primary);
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: var(--chrome-hover);
-  --sidebar-active: var(--chrome-active);
+  --sidebar-active: var(--chrome-selected);
   --sidebar-accent-foreground: oklch(0.289 var(--tint-ink) var(--tint-h));
   --sidebar-border: #f0f0f0;
   --sidebar-ring: var(--ring);
@@ -712,6 +716,7 @@
   --grad-c: 0.075;
   --chrome-hover: oklch(1 0 0 / 6%);
   --chrome-active: oklch(1 0 0 / 14%);
+  --chrome-selected: oklch(1 0 0 / 10%);
   /* Re-resolve: :root's --thumb was computed from the light value. */
   --thumb: var(--chrome-active);
   --chrome-field: oklch(1 0 0 / 7%);
@@ -732,7 +737,7 @@
   --sidebar-primary: var(--primary);
   --sidebar-primary-foreground: var(--primary-foreground);
   --sidebar-accent: var(--chrome-hover);
-  --sidebar-active: var(--chrome-active);
+  --sidebar-active: var(--chrome-selected);
   --sidebar-accent-foreground: oklch(0.96 0 0);
   --sidebar-border: oklch(0.305 var(--tint-ink) var(--tint-h));
   --sidebar-ring: var(--ring);

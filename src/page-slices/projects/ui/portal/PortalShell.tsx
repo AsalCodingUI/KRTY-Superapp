@@ -189,8 +189,7 @@ export function PortalShell({
               <SidebarMenu className="relative">
                 <SlidingIndicator
                   activeSelector="[data-active]"
-                  className="bg-sidebar-active blend-light rounded-full"
-                  shadowClassName="rounded-full shadow-raised"
+                  className="bg-sidebar-active rounded-full"
                 />
                 {SECTIONS.map((section) => (
                   <SidebarMenuItem key={section.slug}>

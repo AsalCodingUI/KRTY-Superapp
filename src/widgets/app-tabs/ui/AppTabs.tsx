@@ -533,10 +533,10 @@ function TabItem({
         // One tab: as wide as its name; several share the room.
         onlyOne ? "max-w-56 pr-3" : "w-44 max-w-44 pr-1",
         main && !onlyOne && "pr-3",
-        // The active tab: a pill, the sidebar's active-item fill; the
-        // others plain text on the chrome.
+        // The active tab: a raised white pill (the sidebar's selected row
+        // is the flat darker fill); the others plain text on the chrome.
         active
-          ? "bg-sidebar-active text-foreground"
+          ? "bg-chrome-active shadow-raised text-foreground"
           : "text-muted-foreground hover:text-foreground [@media(hover:hover)]:hover:bg-chrome-hover",
       )}
     >

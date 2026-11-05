@@ -100,8 +100,7 @@ export function NavProject() {
       <SidebarMenu className="relative mt-1">
         <SlidingIndicator
           activeSelector="[data-active]"
-          className="bg-sidebar-active blend-light rounded-full"
-          shadowClassName="rounded-full shadow-raised"
+          className="bg-sidebar-active rounded-full"
         />
         {sections.map((section) => {
           const title = PROJECT_SECTION_KEYS[section.slug]

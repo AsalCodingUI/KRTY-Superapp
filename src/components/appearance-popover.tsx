@@ -76,7 +76,7 @@ export function AppearancePopover({ className }: { className?: string }) {
             aria-label={t("appearance")}
             title={t("appearance")}
             className={cn(
-              "fill-ink hover:bg-chrome-hover text-muted-foreground hover:text-foreground aria-expanded:bg-sidebar-active aria-expanded:shadow-raised size-8 rounded-full aria-expanded:before:opacity-0",
+              "fill-ink hover:bg-chrome-hover text-muted-foreground hover:text-foreground aria-expanded:bg-chrome-active aria-expanded:shadow-raised size-8 rounded-full aria-expanded:before:opacity-0",
               className,
             )}
           />
