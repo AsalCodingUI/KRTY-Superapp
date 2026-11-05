@@ -66,7 +66,10 @@ export function PanelList({
 }: React.ComponentProps<typeof GroupedList>) {
   return (
     <div className="px-4 py-2">
-      <GroupedList className={cn("[--bleed:0.5rem]", className)} {...props} />
+      <GroupedList
+        className={cn("list-overhang [--bleed:0.5rem]", className)}
+        {...props}
+      />
     </div>
   )
 }

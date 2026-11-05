@@ -306,7 +306,7 @@ export function ProjectKanban({
       onDragEnd={drag.onDragEnd}
       onDragCancel={drag.onDragCancel}
     >
-      <div className="bleed gutter-x flex gap-3 overflow-x-auto pb-2">
+      <div className="flex gap-3 overflow-x-auto pb-2">
         {BOARD_STATUSES.map((status) => (
           <Column
             key={status}

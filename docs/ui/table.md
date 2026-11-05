@@ -31,7 +31,12 @@ sits inside `GroupedList` and gets `data-slot="list-row"`, `relative`,
 - Two heights only: `min-h-12` (one line), or `ListRow desc` = `min-h-14`
   when a description line runs under the title. Nothing else (no
   `min-h-11`, `h-11`, `min-h-16`).
-- `py-2`, `text-sm`, sides `gutter-x` (the page gutter, full bleed).
+- `py-2`, `text-sm`, sides `gutter-x`. Inside a list that is `--bleed`
+  (12px): the list sits on the content edge (like grid cards and the
+  search field), the pills and hover fill it, and row text is 12px in from
+  the page title. Switching list / grid / table / board keeps the width.
+  In a panel or card the list reaches into its padding instead
+  (`list-overhang`, built into `PanelList`).
 - Columns: one shared grid constant per list (`ROW_GRID`) used by the
   header and every row; `gap-x-4` (16px) between columns.
 - Checkbox column: 24px from the checkbox to the next column
@@ -82,6 +87,9 @@ sits inside `GroupedList` and gets `data-slot="list-row"`, `relative`,
 lines, the sliding hover highlight.
 
 ## Don't
+
+- `bleed` on a list or table container (lists use `list-bleed`; on the
+  page it doesn't overhang).
 
 - `border-b border-border/50` between rows, or `border-b` under the header.
 - `hover:bg-muted/20` (or any hover color) on a row.

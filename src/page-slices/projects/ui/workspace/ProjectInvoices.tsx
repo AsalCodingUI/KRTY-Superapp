@@ -487,7 +487,7 @@ export function ProjectInvoices({ projectId }: { projectId: string }) {
             <Spinner className="size-6" />
           </div>
         ) : visible.length === 0 ? (
-          <div className="bleed">
+          <div className="list-bleed">
             <EmptyState
               title={
                 invoices.length ? t("noInvoicesInFilter") : t("noInvoices")

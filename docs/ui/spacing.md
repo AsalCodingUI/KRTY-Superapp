@@ -9,7 +9,8 @@ touch targets, breakpoints and safe areas. Live examples: **/ui** → Spacing.
 | Need                                   | Use                                                           | File                                                         |
 | -------------------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------ |
 | Side padding that matches the page     | `gutter-x` (= `--page-gutter`)                                | `src/app/globals.css`                                        |
-| A list / table / strip wider than text | `bleed` (+ `gutter-x` inside)                                 | `globals.css`; built into `GroupedList`, `ui/table.tsx`      |
+| A strip / separator wider than text    | `bleed` (+ `gutter-x` inside)                                 | `globals.css`; built into `StatStrip`, `TabNavigation bleed` |
+| A list / table (room inside the rows)  | `list-bleed` (`list-overhang` on a padded box)                | `globals.css`; built into `GroupedList`, `ui/table.tsx`      |
 | A scrolling pane with side padding     | `scroll-pane pane-px-<n>`                                     | `globals.css`                                                |
 | A scrolling pane inside a padded box   | `scroll-pane scroll-pane-bleed-<n>`                           | `globals.css`                                                |
 | A header/footer aligned to a bare pane | `scroll-gutter-match`                                         | `globals.css`                                                |
@@ -57,10 +58,20 @@ because the sheet is a `scroll-pane` that keeps that room on both sides.
   side padding.
 - `bleed` pulls an element out by `--bleed` (not the whole gutter) and
   sets the gutter inside it to `--bleed`, so its `gutter-x` text still
-  lines up with the page title. Rows (`ListRow`), list header pills,
-  `ui/table.tsx`, the stats strip and phone scrollers use it.
+  lines up with the page title. The stats strip and the tab line use it.
+- Lists and tables (`GroupedList`, `ui/table.tsx`) use `list-bleed`: on
+  the page they sit on the content edge, like cards, boards, the search
+  field and buttons, so switching list / grid / table / board keeps the
+  same width. The rows keep `--bleed` (12px) as room inside, so row text
+  sits 12px in from the title (the page sheet sets `--list-overhang: 0`).
+  Kanban scrollers are plain `overflow-x-auto` on the content edge.
+- Inside a padded box (panel, card, dialog, sheet) a list still reaches
+  `--bleed` into the box's padding, so its highlight is inset and its
+  text lines up with the box's title. Dialogs and sheets get this on
+  their own (they render outside the page sheet); a box inside the page
+  adds `list-overhang` (`PanelList`, the `MyKpiView` card).
 - Inside a card or sheet, re-set both to the box's own padding, e.g.
-  `[--bleed:0.75rem] [--page-gutter:0.75rem]` (`MyKpiView` card) or
+  `list-overhang [--bleed:0.75rem] [--page-gutter:0.75rem]` (`MyKpiView` card) or
   `[--bleed:0.5rem] [--page-gutter:0.5rem]` (`ProjectKpiSheet`). Outside a
   page both fall back to 1rem.
 - An element that bleeds _and_ must be full width needs
@@ -90,7 +101,7 @@ Page bottom         none             layout adds md:pb-6 / phone tab-bar room
 | ------------------ | ----------------------------------------------------------------------------------------------- | ------------------------------- |
 | `HomeCard`         | `p-5`; header `min-h-8`                                                                         | `gap-4`, header actions `gap-1` |
 | `HomeRow`          | `-mx-2 px-2 py-2 min-h-12` (`min-h-14` with a subtitle); the card's sliding highlight           | `gap-3`                         |
-| `Panel`            | header `h-11 px-4`; `PanelList` body `px-4 py-2`, rows bleed 8px (`--bleed:0.5rem`)             | `gap-3`                         |
+| `Panel`            | header `h-11 px-4`; `PanelList` body `px-4 py-2`, rows reach 8px into it (`list-overhang`)      | `gap-3`                         |
 | `HomeFooter`       | `border-t pt-4`                                                                                 |                                 |
 | Dialog             | header `px-5 pt-5 pr-12`; body `pane-px-5 pt-4 pb-1`; footer `px-5 pb-5 pt-4`; bare `p-5 gap-5` | body `gap-4`, footer `gap-2`    |
 | Sheet (right)      | header `min-h-[3.25rem] px-5 pr-14`; body `scroll-pane pane-px-5`; footer `px-5 py-3`           | `gap-2`                         |
@@ -190,7 +201,8 @@ Defined in `src/app/globals.css` (`--spacing-*`), registered in
 - `gap-*` on a flex/grid parent, never `space-y-*` / `space-x-*` or margins
   between siblings.
 - Side padding of page content comes only from `gutter-x`; overhang only
-  from `bleed`.
+  from `bleed` (strips, separators). Lists and tables on the page don't
+  overhang (`list-bleed`).
 - Every `PageHeader` is `pt-6 pb-4`; pages add no bottom padding.
 - Scrolling panes use `scroll-pane pane-px-*`, not `overflow-y-auto px-*`.
 - Card, dialog and sheet padding is 20px (`p-5` / `pane-px-5`).
@@ -284,11 +296,10 @@ The older list below is kept for reference.
   `src/page-slices/projects/ui/portal/PortalShell.tsx:223` repeat the
   `--bleed` / `--page-gutter` / `--sbw` classes → one shared
   `pageSheetClassName` constant.
-- **Manual bleed width**: `src/components/ui/table.tsx:10` and
-  `dashboard/components/home-card.tsx:42` write
-  `w-[calc(100%+2*var(--page-gutter,1rem))]` by hand (it works because
-  `bleed` re-sets `--page-gutter` to `--bleed` on the element) → a
-  `bleed-w` utility next to `bleed`.
+- **Manual bleed width**: `src/components/ui/table.tsx:10` (as
+  `var(--list-overhang,…)`) and `dashboard/components/home-card.tsx:42`
+  (`w-[calc(100%+2*var(--page-gutter,1rem))]`) write the widened width by
+  hand → a `bleed-w` utility next to `bleed` / `list-bleed`.
 - **`--bleed` name clash**: `src/components/ui/drawer.tsx:132` sets
   `[--bleed:3rem]` for its swipe overhang; a `GroupedList` / `bleed` inside
   a Drawer inherits it (3rem overhang, 3rem gutter) → rename the drawer's

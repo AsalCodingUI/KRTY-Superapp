@@ -27,7 +27,7 @@ export default function LeaveLoading() {
       </div>
 
       {/* The list look: column labels on the pill, rows without lines. */}
-      <div className="bleed flex flex-col">
+      <div className="list-bleed flex flex-col">
         <div className={cn(listHeaderClassName, "flex items-center gap-x-4")}>
           {[1, 2, 3, 4, 5].map((i) => (
             <Skeleton key={i} className="h-3.5 w-20" />

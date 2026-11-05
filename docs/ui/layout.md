@@ -17,7 +17,7 @@ Windows apps, phones and print. Live examples: **/ui** → Layout.
 | Numbers on cards (dashboards, dialogs)  | `StatTiles items variant="tiles" \| "strip"`                | `src/components/stat-tiles.tsx`                            |
 | A quiet heading inside a page           | `SectionTitle extra actions`                                | `src/components/section-title.tsx`                         |
 | A titled block around a table           | `TableSection title description actions`                    | `src/components/table-section.tsx`                         |
-| Full-width padding on the page          | `gutter-x` (and `bleed` to go edge to edge)                 | `src/app/globals.css`                                      |
+| Full-width padding on the page          | `gutter-x` (and `bleed` for a band past the content edge)   | `src/app/globals.css`                                      |
 | A pane that scrolls                     | `scroll-pane` (+ `pane-px-5` for its own padding)           | `src/app/globals.css`                                      |
 | A page outside the app (sign in, PIN)   | `MinimalScreen` + `MinimalCard` + `screen*Class`            | `src/components/minimal-screen.tsx`                        |
 | 404 / error                             | `NotFoundView` / `ErrorView` (`StatusPage`)                 | `src/components/not-found-view.tsx`, `status-page.tsx`     |
@@ -77,8 +77,12 @@ tracking-tight text-heading`). No description under the title
   2.5rem from `md`, 4rem from `xl`, each minus the scrollbar width
   (`--sbw`), set once on `SidebarInset`. Use `gutter-x`; never hard-code
   `px-10` on a page.
-- Full-bleed bands (stat strip, list rows' hover) use `bleed gutter-x`:
-  pulled to the sheet's edge, content still on the gutter.
+- Bands that overhang (stat strip, tab line) use `bleed gutter-x`:
+  pulled `--bleed` past the content edge, content still on the gutter.
+- Lists, tables, grids, boards, the search field and buttons all sit on
+  the content edge, so a view toggle never changes the width. Lists and
+  tables keep their 12px room inside the rows (`list-bleed`, built into
+  `GroupedList` and `ui/table.tsx`); row text sits 12px in from the title.
 
 **Scroll panes** (`globals.css`)
 

@@ -469,7 +469,7 @@ export function MyKpiView({
         <HomeCard
           title={t("kpiNeedsAction")}
           badge={<Badge variant="warning">{kpi.attention.length}</Badge>}
-          className="[--bleed:0.75rem] [--page-gutter:0.75rem]"
+          className="list-overhang [--bleed:0.75rem] [--page-gutter:0.75rem]"
         >
           <AttentionList
             bare

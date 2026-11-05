@@ -7,7 +7,7 @@ function Table({ className, ...props }: React.ComponentProps<"table">) {
   return (
     <div
       data-slot="table-container"
-      className="bleed relative w-[calc(100%+2*var(--page-gutter,1rem))] overflow-x-auto"
+      className="list-bleed relative w-[calc(100%+2*var(--list-overhang,var(--bleed,var(--page-gutter,1rem))))] overflow-x-auto"
     >
       <table
         data-slot="table"

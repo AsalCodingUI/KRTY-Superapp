@@ -188,6 +188,23 @@
   margin-inline: calc(var(--bleed, var(--page-gutter, 1rem)) * -1);
   --page-gutter: var(--bleed, 1rem);
 }
+/* Lists and tables (GroupedList, ui/table, their skeletons). On the page
+   they sit on the content edge like cards, boards and the search field, so
+   switching list / grid / board doesn't change the width: the sheet sets
+   --list-overhang: 0 and the rows keep --bleed as room inside (row text
+   12px in from the title). Inside a padded box (panel, card, dialog,
+   sheet) they still reach --bleed into its padding, so the highlight is
+   inset and the text lines up with the box's title; a box inside the page
+   sheet sets `list-overhang` to get that back. */
+@utility list-bleed {
+  margin-inline: calc(
+    var(--list-overhang, var(--bleed, var(--page-gutter, 1rem))) * -1
+  );
+  --page-gutter: var(--bleed, 1rem);
+}
+@utility list-overhang {
+  --list-overhang: var(--bleed, var(--page-gutter, 1rem));
+}
 
 /* Progress/meter fills grow from 0 to their value once, when they appear,
    and glide when the value changes. Set the value with --bar (e.g. 40%). */

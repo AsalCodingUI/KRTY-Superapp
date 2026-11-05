@@ -298,7 +298,7 @@ export function TaskBoard({
         setOverride(null)
       }}
     >
-      <div className="bleed gutter-x flex gap-3 overflow-x-auto pt-4 pb-6">
+      <div className="flex gap-3 overflow-x-auto pt-4 pb-6">
         {TASK_STATUSES.map((status) => (
           <Column
             key={status}

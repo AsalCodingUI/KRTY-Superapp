@@ -58,7 +58,7 @@ export function GroupedList({
   return (
     <div
       data-slot="grouped-list"
-      className={cn("bleed relative flex flex-col", className)}
+      className={cn("list-bleed relative flex flex-col", className)}
       {...props}
     >
       {/* One hover highlight that follows the pointer between rows. */}
