@@ -240,7 +240,7 @@ icons, dots, bars and fills. Measured contrast on the page background
 | `text-success-ink`         | 6.63  | 10.66 | green-9 3.36 / 4.96                                                      |
 | `text-info-ink`            | 6.76  | 10.50 | `text-info` (blue-9)                                                     |
 | `text-foreground`          | 14.16 | 13.73 |                                                                          |
-| `text-muted-foreground`    | 8.32  | 6.00  |                                                                          |
+| `text-muted-foreground`    | 5.51  | 5.15  | 8.32 / 6.00 before the even text ladder (0.289 → 0.405 → 0.52 → 0.633)   |
 | `text-tertiary-foreground` | 3.45  | 3.32  | below 4.5: keep it to meta / hints, never for the only copy of something |
 
 Other tokens added: `--primary-hover` (`bg-primary-hover`, the primary

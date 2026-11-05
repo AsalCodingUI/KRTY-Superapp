@@ -581,7 +581,9 @@
   /* Fills, hovers, chips: see-through ink, so they pick up the tint of
      whatever they sit on (page, popover, chrome). */
   --secondary: oklch(0.22 var(--tint-ink) var(--tint-h) / 0.035);
-  --secondary-foreground: oklch(0.341 var(--tint-ink) var(--tint-h));
+  /* Text ladder (light): foreground 0.289 → secondary 0.405 → muted 0.52
+     → tertiary 0.633, even 0.115 steps. */
+  --secondary-foreground: oklch(0.405 var(--tint-ink) var(--tint-h));
   --muted: oklch(0.22 var(--tint-ink) var(--tint-h) / 0.035);
   /* Opaque twin for sticky cells that cover scrolling content. */
   --muted-solid: color-mix(
@@ -589,7 +591,7 @@
     oklch(0.22 var(--tint-ink) var(--tint-h)) 3.5%,
     var(--background)
   );
-  --muted-foreground: oklch(0.424 var(--tint-ink) var(--tint-h));
+  --muted-foreground: oklch(0.52 var(--tint-ink) var(--tint-h));
   --tertiary-foreground: oklch(0.633 var(--tint-ink) var(--tint-h));
   --accent: oklch(0.22 var(--tint-ink) var(--tint-h) / 0.06);
   --accent-foreground: oklch(0.289 var(--tint-ink) var(--tint-h));
@@ -613,7 +615,7 @@
   --info-foreground: #ffffff;
   --info-subtle: var(--blue-3);
   --neutral-subtle: oklch(0.22 var(--tint-ink) var(--tint-h) / 0.06);
-  --neutral-ink: oklch(0.489 var(--tint-ink) var(--tint-h));
+  --neutral-ink: oklch(0.52 var(--tint-ink) var(--tint-h));
   --border: #f3f3f3;
   --input: #dddddd;
   --field: oklch(1 0 0 / 0.7);
@@ -692,7 +694,7 @@
   --secondary-foreground: oklch(0.935 0 0);
   --muted: oklch(1 0 0 / 0.06);
   --muted-solid: color-mix(in oklab, #fff 6%, var(--background));
-  --muted-foreground: oklch(0.69 0 0);
+  --muted-foreground: oklch(0.65 0 0);
   --tertiary-foreground: oklch(0.54 0 0);
   --accent: oklch(1 0 0 / 0.1);
   --accent-foreground: oklch(0.96 0 0);
