@@ -133,7 +133,10 @@ export function WorkspaceTabs({ className }: { className?: string }) {
   if (loading) return <div className="bg-chrome-field h-8 w-40 rounded-full" />
   if (visible.length < 2 || !active) return null
   return (
-    <div role="tablist" className={cn("flex min-w-0 items-center", className)}>
+    <div
+      role="tablist"
+      className={cn("flex min-w-0 items-center gap-0.5", className)}
+    >
       {visible.map((ws) => {
         const on = ws.id === active.id
         const Icon = ws.icon
