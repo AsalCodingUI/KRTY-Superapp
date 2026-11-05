@@ -489,18 +489,11 @@
       var(--tint-h)
   );
   --chrome-hover: oklch(0 0 0 / 5%);
-  /* See-through white on the chrome: the active app tab, thumbs. The
-     page sheet is the same white (--paper), mixed opaque. */
+  /* See-through white on the chrome: the active app tab, thumbs. */
   --chrome-active: oklch(1 0 0 / 90%);
-  /* The page sheet: white at --paper-alpha over the chrome. --paper is
-     the same color as an opaque mix, for sticky headers on it (nothing
-     shows through them). */
-  --paper-alpha: 75%;
-  --paper: color-mix(
-    in oklab,
-    #fff calc(var(--paper-alpha) - var(--tint-c) * 7%),
-    var(--chrome)
-  );
+  /* The page sheet: pure white whatever the chrome tint or gradient, and
+     so is everything on it (cards, calendar, fields). */
+  --paper: #fff;
   /* The sidebar's selected row (nav item, workspace tab): a darker
      see-through fill, no shadow. The white pill is for the app tabs. */
   --chrome-selected: oklch(0 0 0 / 6%);
@@ -874,20 +867,18 @@
 /* See-through white (active pills, thumbs) blends lighten, so the tint
    under it still shows. Only for fill-only layers (sliding indicators):
    on an element with text it would wash the text out. */
-/* Light: the page sheet and what sits on it take the see-through white. */
+/* Light: the page sheet and everything on it are pure white, never the
+   chrome's tint or gradient. */
 :root:not(.dark) [data-paper] {
   --background: var(--paper);
-  /* Cards, fields and outline buttons on it stay pure white (solid), so
-     they read as objects on the see-through sheet, not tinted panels. */
+  --muted-solid: color-mix(
+    in oklab,
+    oklch(0.22 var(--tint-ink) var(--tint-h)) 3.5%,
+    #fff
+  );
   --card: #fff;
   --field: #fff;
   --field-hover: #fff;
-}
-/* The sheet itself is see-through (the chrome's gradient shows through),
-   like the active tab; what sits on it stays solid --paper. Not under the
-   dark sidebar: there the frame behind it is dark. */
-:root:not(.dark):not([data-dark-chrome]) [data-paper] {
-  background-color: oklch(1 0 0 / var(--paper-alpha));
 }
 @utility blend-light {
   mix-blend-mode: lighten;
