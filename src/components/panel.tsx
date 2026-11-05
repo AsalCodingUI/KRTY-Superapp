@@ -2,9 +2,10 @@ import { GroupedList } from "@/components/grouped-list"
 import { cn } from "@/lib/utils"
 import * as React from "react"
 
-/** The card surface every bordered block uses (HomeCard, Panel, stats). */
+/** The card surface every block uses (HomeCard, Panel, stats): solid white
+ *  on the see-through sheet, no border in light (a hairline in dark). */
 export const surfaceClassName =
-  "bg-card border-field-border dark:border-border rounded-card border"
+  "bg-card border-transparent dark:border-border rounded-card border"
 
 /**
  * A bordered section on a page: header (title, count, action) over a body.
