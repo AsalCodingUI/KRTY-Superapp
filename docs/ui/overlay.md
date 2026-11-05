@@ -109,8 +109,8 @@ own their layout; don't copy them for normal dialogs.
   `variant="destructive"`, last, after a `DropdownMenuSeparator`.
 - Menus (dropdown + right-click) look: see-through popover
   (`bg-popover/80 backdrop-blur-xl backdrop-saturate-150`), group labels
-  `text-meta` muted, separators inset (`mx-2 my-1.5`), every plain icon
-  muted (`text-muted-foreground`, foreground on focus; icons that set
+  `text-meta` muted, rows 2px apart, separators inset (`mx-2 my-1.5`,
+  `bg-foreground/10`), every plain icon `text-foreground/50` (foreground on focus; icons that set
   their own color, e.g. status glyphs, keep it), the check on the right in
   `text-primary`. Submenus open 6px beside the row, first item level with
   it. Don't restyle a single menu: change `ui/dropdown-menu.tsx`.
