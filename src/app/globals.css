@@ -876,7 +876,11 @@
 /* Light: the page sheet and what sits on it take the see-through white. */
 :root:not(.dark) [data-paper] {
   --background: var(--paper);
-  --card: var(--paper);
+  /* Cards, fields and outline buttons on it stay pure white (solid), so
+     they read as objects on the see-through sheet, not tinted panels. */
+  --card: #fff;
+  --field: #fff;
+  --field-hover: #fff;
 }
 /* The sheet itself is see-through (the chrome's gradient shows through),
    like the active tab; what sits on it stays solid --paper. Not under the

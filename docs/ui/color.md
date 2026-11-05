@@ -171,10 +171,10 @@ color everywhere; don't pick one by index or name.
   ink), fills `bg-chrome-field` / `bg-chrome-hover`, active pill
   `bg-chrome-active`, and the blend utilities (`blend-ink`, `blend-light`,
   `blend-shadow`, `banner-ink`, `fill-ink`) so the tint shows through.
-- The page sheet (light) is `--paper`: the active tab's 90% white over the
-  chrome, mixed opaque, set as `--background` / `--card` inside
-  `[data-paper]` (`page-sheet.tsx`). Opaque so sticky headers and cards
-  never show what scrolls under them.
+- The page sheet (light) is `--paper`: see-through white (90%) over the
+  chrome, set as `--background` inside `[data-paper]` (`page-sheet.tsx`),
+  opaque for sticky headers. Cards (`--card`), fields (`--field`) and
+  outline buttons (`bg-card`) on it are pure white, never tinted.
 
 **Focus and selection**
 
