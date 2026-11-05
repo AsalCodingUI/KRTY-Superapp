@@ -77,7 +77,10 @@ export function labelOf(el: Element) {
       .trim()
     if (text) return text
   }
-  const text = (el.textContent ?? "").replace(/\s+/g, " ").trim()
+  // innerText keeps the gaps between blocks ("Oakland 2026-Q4", not
+  // "Oakland2026-Q4"); textContent where there is none (tests).
+  const raw = (el as HTMLElement).innerText || el.textContent || ""
+  const text = raw.replace(/\s+/g, " ").trim()
   if (text) return text.length > 40 ? `${text.slice(0, 38)}…` : text
   return el.getAttribute("title")?.trim() ?? ""
 }

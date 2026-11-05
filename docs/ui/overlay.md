@@ -107,6 +107,13 @@ own their layout; don't copy them for normal dialogs.
   ⋯ button on the right. Width from content; set `min-w-44` (or
   `min-w-40` for short labels) and nothing else. Destructive items:
   `variant="destructive"`, last, after a `DropdownMenuSeparator`.
+- Menus (dropdown + right-click) look: see-through popover
+  (`bg-popover/80 backdrop-blur-xl backdrop-saturate-150`), group labels
+  `text-meta` muted, separators inset (`mx-2 my-1.5`), every plain icon
+  muted (`text-muted-foreground`, foreground on focus; icons that set
+  their own color, e.g. status glyphs, keep it), the check on the right in
+  `text-primary`. Submenus open 6px beside the row, first item level with
+  it. Don't restyle a single menu: change `ui/dropdown-menu.tsx`.
 - Row ⋯ menus: `RowMenu` (shows on row hover, stops the row click).
 - Tooltip: short label of an icon-only control, dark pill (`bg-foreground`),
   `side="top"` default. One global `TooltipProvider` (`delay 0`) sits in
