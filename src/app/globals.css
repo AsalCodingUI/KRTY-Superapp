@@ -496,7 +496,7 @@
   /* Active thumbs (segmented, tabs, toggles): the same see-through white
      as the sidebar's active pill. */
   --thumb: var(--chrome-active);
-  --chrome-field: oklch(0 0 0 / 6%);
+  --chrome-field: var(--chrome-selected);
   /* Outlined controls on the chrome (the sidebar's search). */
   --chrome-border: oklch(0 0 0 / 11%);
   --chrome-muted: oklch(0 0 0 / 55%);
@@ -719,7 +719,7 @@
   --chrome-selected: oklch(1 0 0 / 10%);
   /* Re-resolve: :root's --thumb was computed from the light value. */
   --thumb: var(--chrome-active);
-  --chrome-field: oklch(1 0 0 / 7%);
+  --chrome-field: var(--chrome-selected);
   --chrome-border: oklch(1 0 0 / 12%);
   --chrome-muted: oklch(1 0 0 / 55%);
   /* Dark: a white hairline carries the edge; the shadows stay soft (a

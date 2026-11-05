@@ -103,7 +103,7 @@ export default async function Layout({
                 "flex min-h-0 w-full flex-1",
                 // In the Mac app the sheet hugs the window's rounded corner
                 // (16pt): 6px in, so a 10px radius runs parallel to it.
-                desktop ? "md:pr-1.5 md:pb-1.5" : "md:pr-3 md:pb-3",
+                desktop ? "md:pr-1.5 md:pb-1.5" : "md:pr-2 md:pb-2",
               )}
             >
               <AppSidebar />

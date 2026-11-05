@@ -298,7 +298,7 @@ function Anatomy() {
           label="AppBannerStack"
           note="view-as, pengumuman · --app-banner-height"
         />
-        <div className="flex min-h-72 gap-0 pr-3 pb-3 max-md:pr-0 max-md:pb-0">
+        <div className="flex min-h-72 gap-0 pr-2 pb-2 max-md:pr-0 max-md:pb-0">
           <Box
             className="w-40 shrink-0 flex-col items-start gap-1 max-md:hidden"
             label="AppSidebar"

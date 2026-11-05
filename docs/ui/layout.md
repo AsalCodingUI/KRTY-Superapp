@@ -31,7 +31,7 @@ Windows apps, phones and print. Live examples: **/ui** → Layout.
 SidebarProvider  bg-chrome h-svh flex-col                      (tinted chrome)
 ├─ AppTopbar      phones only (56px): brand · bell · account. Mac: 52px strip,
 │                  traffic lights + sidebar toggle + the tab row
-├─ row            md:pr-3 md:pb-3 (Mac md:pr-1.5 md:pb-1.5)
+├─ row            md:pr-2 md:pb-2 (Mac md:pr-1.5 md:pb-1.5)
 │  ├─ AppSidebar  15.5rem (resizable, min 248px), icon 3.75rem, hidden < md
 │  │  header: brand · workspace tabs + bell · search (outline pill)
 │  │  bottom: notices · What's new · Settings · account · theme / chrome color
