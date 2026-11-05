@@ -468,7 +468,7 @@ export function ProjectInvoices({ projectId }: { projectId: string }) {
           { key: "paid", label: t("statusPaid"), value: counts.Paid },
         ]}
       />
-      <div className="flex flex-col gap-6 pb-4">
+      <div className="flex flex-col gap-6">
         <TabNavigation>
           {FILTERS.map(({ key, label }) => (
             <TabNavigationLink

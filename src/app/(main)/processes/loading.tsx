@@ -11,7 +11,7 @@ export default function ProcessesLoading() {
         <Skeleton className="rounded-control h-8 w-32" />
       </div>
 
-      <div className="grid gap-4 pb-4 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {[1, 2, 3, 4, 5, 6].map((i) => (
           <Skeleton key={i} className="h-36 w-full rounded-xl" />
         ))}

@@ -354,7 +354,7 @@ export function EmployeeLeavePage({
           </div>
         </div>
 
-        <section className="pb-4">
+        <section>
           <SectionTitle>{t("sectionAttendance")}</SectionTitle>
           <AttendanceHistoryList
             logs={logs}

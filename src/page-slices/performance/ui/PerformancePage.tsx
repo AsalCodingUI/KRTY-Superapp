@@ -144,11 +144,11 @@ export function PerformancePage() {
         </TabNavigation>
       )}
 
-      {/* Each tab brings its own stats band / toolbar, then the list. */}
+      {/* Each tab brings its own stats band / toolbar, then the list (no
+          bottom padding: the layout gives the page bottom). */}
       <div
         key={tab}
         className={cn(
-          "pb-4",
           // A lead's own KPI is cards, not a stats band: give them room
           // under the tabs.
           tab === "kpi" && !isAdmin && tabs.length > 1 && "pt-4",

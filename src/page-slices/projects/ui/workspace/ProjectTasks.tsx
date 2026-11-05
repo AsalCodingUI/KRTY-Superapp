@@ -430,7 +430,7 @@ export function ProjectTasks({ projectId }: { projectId: string }) {
           />
         )
       ) : (
-        <div className="flex flex-col gap-4 pb-4">
+        <div className="flex flex-col gap-4">
           <GroupedList className="text-sm">
             <div
               className={cn(

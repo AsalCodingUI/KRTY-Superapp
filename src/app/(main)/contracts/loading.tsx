@@ -14,7 +14,7 @@ export default function ContractsLoading() {
         <Skeleton className="rounded-control h-8 w-full sm:max-w-sm" />
         <Skeleton className="rounded-control h-8 w-44" />
       </div>
-      <div className="flex flex-col gap-2 pb-4">
+      <div className="flex flex-col gap-2">
         {[1, 2, 3, 4, 5].map((i) => (
           <Skeleton key={i} className="h-14 w-full rounded-lg" />
         ))}

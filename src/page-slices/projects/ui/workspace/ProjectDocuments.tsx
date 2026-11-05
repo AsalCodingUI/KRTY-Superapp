@@ -376,7 +376,7 @@ export function ProjectDocuments({ projectId }: { projectId: string }) {
           )
         }
       />
-      <div className="flex flex-col gap-5 pb-4">
+      <div className="flex flex-col gap-5">
         <ProjectBriefs projectId={projectId} />
         {isLoading ? (
           <div className="flex justify-center py-12">

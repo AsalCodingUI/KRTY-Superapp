@@ -1141,7 +1141,7 @@ function AttendanceOverviewPanel({
         items={stats.map((item) => ({ key: String(item.label), ...item }))}
       />
 
-      <div className="pb-4">
+      <div>
         {activeTab === "approval" && (
           <div className={cn("block space-y-5", tabSwitched && TAB_ENTER)}>
             {approvalContent}

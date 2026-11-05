@@ -325,7 +325,7 @@ export function ProjectsListPage() {
         }
       />
 
-      <div className="pb-4">
+      <div>
         {scope === "docs" ? (
           <BriefsView
             canManage={canRun}

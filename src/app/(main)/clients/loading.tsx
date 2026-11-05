@@ -18,7 +18,7 @@ export default function ClientsLoading() {
       </div>
       <Skeleton className="rounded-control mb-4 h-8 w-full sm:max-w-sm" />
 
-      <div className="grid gap-4 pb-4 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {[1, 2, 3, 4, 5, 6].map((i) => (
           <Skeleton key={i} className="h-36 w-full rounded-xl" />
         ))}

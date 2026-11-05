@@ -8,7 +8,7 @@ import { TAB_ENTER } from "@/shared/hooks/useTabSwitched"
 /** Content-area placeholder while a section's chunk loads (matches loading.tsx). */
 function SectionFallback() {
   return (
-    <div className="flex flex-col gap-4 pt-6 pb-4">
+    <div className="flex flex-col gap-4 pt-6">
       <Skeleton className="h-6 w-40" />
       <Skeleton className="h-24 w-full" />
       <Skeleton className="h-32 w-full" />

@@ -300,7 +300,7 @@ export function ContractsPage({ viewer }: { viewer: ContractViewer }) {
         </div>
       )}
 
-      <div className="pb-4">
+      <div>
         {isLoading ? (
           <div className="flex justify-center py-16">
             <Spinner className="size-6" />

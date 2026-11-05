@@ -379,7 +379,7 @@ export function MyTasksPage() {
               </TabNavigationLink>
             ))}
           </TabNavigation>
-          <GroupedList className="pb-4 text-sm">
+          <GroupedList className="text-sm">
             <div className={cn(ROW_GRID, listHeaderClassName)}>
               <span />
               <span>{t("colTask")}</span>

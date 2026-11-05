@@ -420,7 +420,7 @@ export function ProjectDashboard({ projectId }: { projectId: string }) {
           />
         )}
       />
-      <div className="flex flex-col gap-4 pt-6 pb-4">
+      <div className="flex flex-col gap-4 pt-6">
         {phases.length === 0 ? (
           // An ongoing project (side work, a retainer): no rail, and for
           // stakeholders and the project's PMs the way back to phases.

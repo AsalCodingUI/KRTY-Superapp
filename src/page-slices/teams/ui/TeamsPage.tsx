@@ -146,7 +146,7 @@ export function TeamsPage({
   // access); everyone else gets the read-only directory.
   if (isSuperAdmin) {
     return (
-      <div className="flex flex-col pb-4">
+      <div className="flex flex-col">
         <MembersAccessSettings title={t("title")} showStats />
       </div>
     )
@@ -175,7 +175,7 @@ export function TeamsPage({
         </InputGroup>
       </div>
 
-      <div className="pb-4">
+      <div>
         {/* One view only: the table. */}
         <DataTable
           data={filteredData}

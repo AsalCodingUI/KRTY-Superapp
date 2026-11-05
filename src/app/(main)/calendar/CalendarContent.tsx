@@ -189,11 +189,12 @@ function CalendarContent({
 
   return (
     <EventVisibilityProvider initialCategories={categories}>
-      {/* Fills the page sheet exactly; the grid scrolls inside. */}
+      {/* Fills the page sheet exactly; the grid scrolls inside. pt-6: the
+          toolbar sits where a PageHeader title would (docs/ui/layout.md). */}
       <div
         className={cx(
           CALENDAR_HEIGHT,
-          "flex min-h-[520px] flex-col gap-4 pt-1",
+          "flex min-h-[520px] flex-col gap-4 pt-6",
         )}
       >
         <CalendarToolbar

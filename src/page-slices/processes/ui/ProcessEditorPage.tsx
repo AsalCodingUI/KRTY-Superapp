@@ -213,7 +213,7 @@ export function ProcessEditorPage({ id }: { id: string }) {
         }
       />
 
-      <div className="grid items-start gap-4 pb-4 lg:grid-cols-[18rem_minmax(0,1fr)]">
+      <div className="grid items-start gap-4 lg:grid-cols-[18rem_minmax(0,1fr)]">
         <nav className="flex flex-col">
           {phases.map((phase, i) => {
             const steps = phase.steps.length

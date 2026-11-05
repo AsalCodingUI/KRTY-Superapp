@@ -70,6 +70,14 @@ tracking-tight text-heading`). No description under the title
   (`Button` default variant), icon buttons with a `Tooltip`.
 - Don't add bottom padding to the page root; the layout gives `pb-6`
   (and room for the tab bar on phones).
+- Same padding on every page: the first thing (title, tabs or toolbar)
+  sits 48px below the sheet's top (sheet `md:pt-6` + `pt-6`), the sides
+  are the gutter, and the last block ends 24px above the sheet's bottom
+  (the layout's `pb-6` only). No `pb-*` on the last block either (a
+  `pb-4` wrapper around the list or grid makes it 40px).
+- A page without a `PageHeader` that fills the sheet (calendar:
+  `CALENDAR_HEIGHT`) starts with `pt-6` too, so its toolbar sits where a
+  title would.
 
 **Gutter and bleed**
 
@@ -173,7 +181,8 @@ tabular-nums`, `RollingValue`), side by side `gap-x-10`, `py-4`, a
 - A sticky page header with `backdrop-blur` (the sheet scrolls under it
   and the blur repaints every frame).
 - Checking `navigator.userAgent` for the desktop app; use the hooks.
-- `pb-*` on the page root to clear the tab bar (the layout does it).
+- `pb-*` on the page root or its last block (to clear the tab bar, or as
+  bottom room); the layout does it.
 
 ## Good examples
 

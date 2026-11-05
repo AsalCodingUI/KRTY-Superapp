@@ -11,7 +11,7 @@ export default function ProcessLoading() {
         <Skeleton className="rounded-control h-8 w-32" />
       </div>
 
-      <div className="grid items-start gap-4 pb-4 lg:grid-cols-[18rem_minmax(0,1fr)]">
+      <div className="grid items-start gap-4 lg:grid-cols-[18rem_minmax(0,1fr)]">
         <div className="flex flex-col gap-3">
           {[1, 2, 3, 4].map((i) => (
             <Skeleton key={i} className="h-14 w-full rounded-xl" />
