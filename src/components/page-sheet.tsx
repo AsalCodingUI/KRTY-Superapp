@@ -45,11 +45,12 @@ export function PageSheet({
         aria-hidden
         data-slot="page-sheet-shadow"
         className={cn(
-          "blend-shadow shadow-sheet pointer-events-none absolute inset-0 z-20 hidden md:block",
+          "blend-shadow shadow-raised pointer-events-none absolute inset-0 z-20 hidden md:block",
           radius,
         )}
       />
       <SidebarInset
+        data-paper=""
         className={cn(pageSheetClassName, radius, className)}
         {...props}
       />

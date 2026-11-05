@@ -21,13 +21,13 @@ ambient shadow with negative spread (it falls down, not out). The ink
 leans to the theme hue (`--elev-ink`). Dark mode: a white 6–7% hairline
 carries the edge and the shadow is a soft wide falloff.
 
-| Token      | Level                                    | Used by                                                                                             |
-| ---------- | ---------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| `--elev-1` | Control                                  | Switch / slider thumb, tabs thumb (`dark:shadow-none`), small floating pills (`ScreenControls`)     |
-| `--elev-2` | Resting card / active item on the chrome | Active app tab, theme / language switcher thumb, glass card, event & leave cards, floating sidebar  |
-| `--elev-3` | Sheet / paper                            | The page sheet on the chrome (`layout.tsx`), invoice / PDF / docx paper, file thumbnails in viewers |
-| `--elev-4` | Popover / menu                           | Dropdown, select, popover, hover card, toast, context menu, editor toolbars, drag previews          |
-| `--elev-5` | Dialog                                   | Dialog, alert dialog, right sheet, drawer, side panel, file viewer                                  |
+| Token      | Level                                    | Used by                                                                                                                                             |
+| ---------- | ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--elev-1` | Control                                  | Switch / slider thumb, tabs thumb (`dark:shadow-none`), small floating pills (`ScreenControls`)                                                     |
+| `--elev-2` | Resting card / active item on the chrome | Active app tab, the page sheet on the chrome (`page-sheet.tsx`), theme / language switcher thumb, glass card, event & leave cards, floating sidebar |
+| `--elev-3` | Sheet / paper                            | Invoice / PDF / docx paper, file thumbnails in viewers                                                                                              |
+| `--elev-4` | Popover / menu                           | Dropdown, select, popover, hover card, toast, context menu, editor toolbars, drag previews                                                          |
+| `--elev-5` | Dialog                                   | Dialog, alert dialog, right sheet, drawer, side panel, file viewer                                                                                  |
 
 `shadow-none` resets a component's shadow (36 uses, e.g. input groups,
 line tabs). `/shadow-lab` (`src/app/(fullscreen)/shadow-lab`) is the

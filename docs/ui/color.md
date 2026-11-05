@@ -52,7 +52,7 @@ project colors. Live swatches: **/ui** → Color.
 | `card`                 | Cards (same as page in light, lifted in dark)                                                   |
 | `popover`              | Menus, popovers, dialogs (pure white in light)                                                  |
 | `surface`              | Dark only: the main page pane and sticky cells on it (`dark:bg-surface`); = background in light |
-| `chrome`               | Sidebar + top bar (tinted); `chrome-hover`, `chrome-active`, `chrome-field` on it               |
+| `chrome`               | Sidebar + top bar (tinted); `chrome-hover`, `chrome-active` (white 90%), `chrome-field` on it   |
 | `muted`                | Quiet fill (see-through 3.5% ink): pills, column labels, chips                                  |
 | `muted-solid`          | Opaque `muted`, for sticky cells over scrolling content                                         |
 | `secondary`, `accent`  | Secondary button fill; hover/active of menu items and ghost buttons                             |
@@ -171,6 +171,10 @@ color everywhere; don't pick one by index or name.
   ink), fills `bg-chrome-field` / `bg-chrome-hover`, active pill
   `bg-chrome-active`, and the blend utilities (`blend-ink`, `blend-light`,
   `blend-shadow`, `banner-ink`, `fill-ink`) so the tint shows through.
+- The page sheet (light) is `--paper`: the active tab's 90% white over the
+  chrome, mixed opaque, set as `--background` / `--card` inside
+  `[data-paper]` (`page-sheet.tsx`). Opaque so sticky headers and cards
+  never show what scrolls under them.
 
 **Focus and selection**
 

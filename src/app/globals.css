@@ -489,7 +489,17 @@
       var(--tint-h)
   );
   --chrome-hover: oklch(0 0 0 / 5%);
-  --chrome-active: oklch(1 0 0 / 94%);
+  /* See-through white on the chrome: the active app tab, thumbs. The
+     page sheet is the same white (--paper), mixed opaque. */
+  --chrome-active: oklch(1 0 0 / 90%);
+  /* The page sheet: --chrome-active's white over the chrome, as an opaque
+     mix, so it reads as the same see-through white while sticky headers
+     and cards inside stay solid (nothing shows through them). */
+  --paper: color-mix(
+    in oklab,
+    #fff calc(90% - var(--tint-c) * 7%),
+    var(--chrome)
+  );
   /* The sidebar's selected row (nav item, workspace tab): a darker
      see-through fill, no shadow. The white pill is for the app tabs. */
   --chrome-selected: oklch(0 0 0 / 6%);
@@ -861,6 +871,11 @@
 /* See-through white (active pills, thumbs) blends lighten, so the tint
    under it still shows. Only for fill-only layers (sliding indicators):
    on an element with text it would wash the text out. */
+/* Light: the page sheet and what sits on it take the see-through white. */
+:root:not(.dark) [data-paper] {
+  --background: var(--paper);
+  --card: var(--paper);
+}
 @utility blend-light {
   mix-blend-mode: lighten;
 }
