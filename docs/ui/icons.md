@@ -59,8 +59,9 @@ props are accepted and ignored. Every icon is listed on /ui → Icons.
 - Icons inherit `currentColor`. Quiet icons: `text-muted-foreground`;
   status: `text-success-ink`, `text-warning`, `text-destructive`. Semantic
   tokens only.
-- Stroke: **1.4px on screen at every size** (non-scaling stroke, `STROKE`
-  in `src/components/icons/custom.tsx`), = Geist's stem at 14px, so icons
+- Stroke: **1.25px on screen at every size** (non-scaling stroke, `STROKE`
+  in `src/components/icons/custom.tsx`), ≈ 0.9 × Geist's stem at 14px
+  (an icon holds more ink than a letter, so an equal stroke reads heavier), so icons
   weigh like the text beside them (docs/ui/optical.md). One CSS property,
   no cost. `strokeWidth` on a single icon is ignored.
 - Other hand-made glyphs (status, stage, priority): `viewBox="0 0 16 16"`,

@@ -7,9 +7,11 @@ import { cn } from "@/lib/utils"
 import type { SVGProps } from "react"
 
 /** The icons' stroke in screen px, the same at every size (non-scaling
- *  stroke): 1.4 = Geist's stem at 14px, so icons weigh like the text
- *  beside them (docs/ui/optical.md). */
-export const STROKE = 1.4
+ *  stroke): 1.25 ≈ 0.9 × Geist's stem at 14px (1.4). An icon packs more
+ *  ink in its box than a letter (closed shapes, corners), so an equal
+ *  stroke reads heavier; 0.9× makes them weigh like the text beside them
+ *  (docs/ui/optical.md). */
+export const STROKE = 1.25
 
 /** Keeps the stroke in screen px however big the icon is drawn. */
 export const STEADY_STROKE = "[&_*]:[vector-effect:non-scaling-stroke]"

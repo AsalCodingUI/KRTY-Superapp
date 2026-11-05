@@ -45,9 +45,12 @@ At `size-4` (16px) that's: circle 14.5px, plus 10.5px (≈ the 14px cap
 height, 9.9), X 9.2px. The set is already drawn optically (circles bigger
 than squares, plus bigger than X), so don't resize single icons.
 
-Icon stroke on screen: **1.4px at every size** (`STROKE`, non-scaling).
+Icon stroke on screen: **1.25px at every size** (`STROKE`, non-scaling),
+0.9 × the 14px stem: an icon packs more ink in its box than a letter
+(closed shapes, corners), so the same 1.4px stroke read heavier than the
+label beside it (sidebar: folder vs "Projects").
 Before: 1.75 on the 24 grid → 1.17px at 16px, 1.02 at 14, 0.88 at 12.
-Very large icons (≥ 28px) would look thin at 1.4px; the app has none.
+Very large icons (≥ 28px) would look thin at 1.25px; the app has none.
 
 ## The eight checks
 
@@ -87,10 +90,10 @@ Very large icons (≥ 28px) would look thin at 1.4px; the app has none.
   icons are lighter (1.17px vs the text stem 1.40 at 450, 1.55 at 500),
   most visibly at `size-3.5` / `size-3` and in muted color.
 - Applied (`src/components/icons/index.tsx`, `custom.tsx`): a **fixed
-  on-screen stroke of 1.4px** at every size (`vector-effect: non-scaling-stroke` on
-  the glyph's paths + `strokeWidth={1.4}`), which equals Geist's 14px
-  stem. One CSS property, no cost. Medium labels (500) next to icons then
-  read 1.55 vs 1.4: close enough; don't go per-weight.
+  on-screen stroke of 1.25px** at every size (`vector-effect: non-scaling-stroke` on
+  the glyph's paths + `strokeWidth={1.25}`), 0.9 × Geist's 14px stem
+  (1.4 matched the stem exactly but looked heavier: icons hold more ink).
+  One CSS property, no cost. Don't go per-weight or per-place.
 - Until then: don't put muted icons beside foreground text to "soften"
   them; thin strokes already read lighter. Status icons use the `-ink`
   tokens (darker) rather than the base status color.
@@ -166,7 +169,7 @@ stems, draw "l" on a canvas at 8x and count the covered pixels across.
 ## Migration notes
 
 Applied 2026-11-05 (local, not pushed): button icon-side padding, the
-fixed 1.4px icon stroke, PageHeader title alignment. Still to do:
+fixed icon stroke (1.4px, then 1.25px), PageHeader title alignment. Still to do:
 
 - **Caps**: audit `uppercase` (`grep -rn "uppercase" src`, 5 places) →
   sentence case, or the caps rule above.

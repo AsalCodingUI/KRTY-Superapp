@@ -12,7 +12,7 @@ import { BeforeAfter } from "./compare"
 
 /**
  * /ui → Icons, "Sebelum / sesudah": the icon stroke that scaled with the
- * icon (1.75 on 24px, thin when small) vs the fixed 1.4px now, and the
+ * icon (1.75 on 24px, thin when small) vs the fixed 1.25px now, and the
  * stroke actually drawn at each size, read from the page.
  */
 
@@ -22,7 +22,7 @@ export function IconsCompare() {
   return (
     <div className="flex flex-col gap-8">
       <BeforeAfter
-        label="Garis ikon ikut ukuran → 1.4px tetap (setebal teks)"
+        label="Garis ikon ikut ukuran → 1.25px tetap (0.9 × stem teks)"
         before={
           <div className="flex flex-col gap-3">
             {SIZES.map((s) => (
