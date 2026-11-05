@@ -73,7 +73,6 @@ const id = {
   copyPageLink: "Salin link halaman",
   darkMode: "Mode gelap",
   language: "Bahasa",
-  nativeHint: "⇧ + klik kanan: menu browser",
 
   // Toasts
   copied: "Disalin",
@@ -175,7 +174,6 @@ const en: Record<keyof typeof id, string> = {
   copyPageLink: "Copy page link",
   darkMode: "Dark mode",
   language: "Language",
-  nativeHint: "⇧ + right-click: browser menu",
 
   copied: "Copied",
   linkCopied: "Link copied",
