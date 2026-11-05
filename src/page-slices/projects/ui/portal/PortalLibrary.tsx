@@ -83,7 +83,7 @@ export function PortalLibrary({
           placement="inner"
         />
       ) : (
-        <div className="flex flex-col gap-8 pt-2 pb-4">
+        <div className="flex flex-col gap-8 pt-2">
           {!folder && folders.length > 0 && (
             <Section title={t("libFolders")}>
               <div className="grid grid-cols-1 gap-2 pb-1 sm:grid-cols-2 lg:grid-cols-3">

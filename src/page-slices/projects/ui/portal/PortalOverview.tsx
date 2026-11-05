@@ -105,7 +105,7 @@ export function PortalOverview({
         start={day(project.start_date)}
         end={day(project.end_date)}
       />
-      <div className="flex flex-col gap-4 pt-6 pb-4">
+      <div className="flex flex-col gap-4 pt-6">
         {phases.length > 0 && (
           <PhaseRail
             phases={phases}

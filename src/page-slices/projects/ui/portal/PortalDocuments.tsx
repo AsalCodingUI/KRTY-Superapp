@@ -79,7 +79,7 @@ export function PortalDocuments({
           placement="inner"
         />
       ) : (
-        <div className="flex flex-col gap-8 pt-2 pb-4">
+        <div className="flex flex-col gap-8 pt-2">
           {(Object.keys(KINDS) as Kind[]).map((kindKey) => {
             const items = ordered.filter((d) => kindOf(d) === kindKey)
             if (!items.length) return null
