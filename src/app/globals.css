@@ -492,7 +492,7 @@
   --chrome-active: oklch(1 0 0 / 94%);
   /* The sidebar's selected row (nav item, workspace tab): a darker
      see-through fill, no shadow. The white pill is for the app tabs. */
-  --chrome-selected: oklch(0 0 0 / 7.5%);
+  --chrome-selected: oklch(0 0 0 / 6%);
   /* Active thumbs (segmented, tabs, toggles): the same see-through white
      as the sidebar's active pill. */
   --thumb: var(--chrome-active);
@@ -716,7 +716,7 @@
   --grad-c: 0.075;
   --chrome-hover: oklch(1 0 0 / 6%);
   --chrome-active: oklch(1 0 0 / 14%);
-  --chrome-selected: oklch(1 0 0 / 10%);
+  --chrome-selected: oklch(1 0 0 / 7%);
   /* Re-resolve: :root's --thumb was computed from the light value. */
   --thumb: var(--chrome-active);
   --chrome-field: var(--chrome-selected);
