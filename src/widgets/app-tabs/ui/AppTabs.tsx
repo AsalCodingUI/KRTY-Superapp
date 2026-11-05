@@ -540,7 +540,7 @@ function TabItem({
         // is the flat darker fill); the others plain text on the chrome.
         active
           ? "bg-chrome-active shadow-raised text-foreground"
-          : "text-muted-foreground hover:text-foreground [@media(hover:hover)]:hover:bg-chrome-hover",
+          : "text-chrome-label hover:text-foreground [@media(hover:hover)]:hover:bg-chrome-hover",
       )}
     >
       {loading ? (
@@ -552,7 +552,12 @@ function TabItem({
           className="size-3.5 shrink-0"
         />
       ) : Icon ? (
-        <Icon className="size-3.5 shrink-0" />
+        <Icon
+          className={cn(
+            "size-3.5 shrink-0",
+            !active && "text-muted-foreground",
+          )}
+        />
       ) : null}
       <span className="min-w-0 flex-1 truncate">{title}</span>
       {!main && !onlyOne && (

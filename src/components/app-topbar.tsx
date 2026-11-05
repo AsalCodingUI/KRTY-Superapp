@@ -155,11 +155,13 @@ export function WorkspaceTabs({ className }: { className?: string }) {
               "rounded-control text-meta flex h-8 min-w-0 shrink-0 items-center gap-1.5 pr-3.25 pl-2.75 font-medium transition-colors",
               on
                 ? "bg-sidebar-active text-foreground"
-                : "text-muted-foreground hover:text-foreground hover:bg-chrome-hover",
+                : "text-chrome-label hover:text-foreground hover:bg-chrome-hover",
             )}
           >
             <span className="relative flex shrink-0">
-              <Icon className="size-3.5" />
+              <Icon
+                className={cn("size-3.5", !on && "text-muted-foreground")}
+              />
               {!on && hasBadge(ws) && (
                 <span
                   aria-hidden
