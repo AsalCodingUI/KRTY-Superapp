@@ -65,18 +65,13 @@ const stop = (h: number, c: number) =>
   `oklch(var(--grad-l) calc(var(--grad-c) * ${c}) ${h})`
 
 /**
- * The gradient: the tint's own hue in the logo corner, `g[0]` glowing from
- * the top-right along the top bar, `g[1]` pooling at the foot of the
- * sidebar; soft ellipses over a diagonal blend so nothing bands.
+ * The gradient: one smooth linear blend down the frame, `g[0]` at the top,
+ * the tint's own hue in the middle, `g[1]` at the foot (neighbouring hues,
+ * mixed in oklab, so it never bands or goes muddy).
  */
 export function gradientCss(t: Tint) {
   if (!t.g || t.c === 0) return "none"
-  const [a, b, c] = [t.h, t.g[0], t.g[1]]
-  return [
-    `radial-gradient(70% 55% at 100% 0%, ${stop(b, t.c)}, transparent 75%)`,
-    `radial-gradient(55% 75% at 0% 100%, ${stop(c, t.c)}, transparent 75%)`,
-    `linear-gradient(160deg in oklab, ${stop(a, t.c)} 0%, ${stop(c, t.c)} 100%)`,
-  ].join(", ")
+  return `linear-gradient(180deg in oklab, ${stop(t.g[0], t.c)}, ${stop(t.h, t.c)}, ${stop(t.g[1], t.c)})`
 }
 
 export function readTint(): Tint {
@@ -133,4 +128,4 @@ export function sameTint(a: Tint, b: Tint) {
  * Runs in <head> before paint so the chrome never flashes gray. Kept in
  * step with normalizeTint / gradientCss above (same math, plain ES5).
  */
-export const TINT_SCRIPT = `try{var t=JSON.parse(localStorage.getItem("${TINT_KEY}")||"null");if(t&&isFinite(t.h)&&isFinite(t.c)){var r=document.documentElement,s=r.style,c=Math.min(1,Math.max(0,t.c));s.setProperty("--tint-h",String(t.h));s.setProperty("--tint-c",String(c));if(c>0&&t.g&&t.g.length===2&&isFinite(t.g[0])&&isFinite(t.g[1])){var p=function(h){return"oklch(var(--grad-l) calc(var(--grad-c) * "+c+") "+h+")"};s.setProperty("--chrome-gradient","radial-gradient(70% 55% at 100% 0%, "+p(t.g[0])+", transparent 75%), radial-gradient(55% 75% at 0% 100%, "+p(t.g[1])+", transparent 75%), linear-gradient(160deg in oklab, "+p(t.h)+" 0%, "+p(t.g[1])+" 100%)");r.setAttribute("data-chrome-gradient","")}}}catch(e){}`
+export const TINT_SCRIPT = `try{var t=JSON.parse(localStorage.getItem("${TINT_KEY}")||"null");if(t&&isFinite(t.h)&&isFinite(t.c)){var r=document.documentElement,s=r.style,c=Math.min(1,Math.max(0,t.c));s.setProperty("--tint-h",String(t.h));s.setProperty("--tint-c",String(c));if(c>0&&t.g&&t.g.length===2&&isFinite(t.g[0])&&isFinite(t.g[1])){var p=function(h){return"oklch(var(--grad-l) calc(var(--grad-c) * "+c+") "+h+")"};s.setProperty("--chrome-gradient","linear-gradient(180deg in oklab, "+p(t.g[0])+", "+p(t.h)+", "+p(t.g[1])+")");r.setAttribute("data-chrome-gradient","")}}}catch(e){}`

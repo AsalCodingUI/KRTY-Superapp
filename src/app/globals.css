@@ -482,8 +482,8 @@
   /* Gradient chrome (optional): stops at this lightness, chroma scaled by
      the intensity; the image itself comes from chrome-tint.ts. */
   --chrome-gradient: none;
-  --grad-l: 0.9;
-  --grad-c: 0.1;
+  --grad-l: 0.93;
+  --grad-c: 0.05;
   --chrome: oklch(
     calc(0.945 - var(--tint-c) * 0.045) calc(var(--tint-c) * 0.085)
       var(--tint-h)
@@ -723,7 +723,7 @@
     calc(0.215 + var(--tint-c) * 0.02) calc(var(--tint-c) * 0.06) var(--tint-h)
   );
   --grad-l: 0.27;
-  --grad-c: 0.075;
+  --grad-c: 0.05;
   --chrome-hover: oklch(1 0 0 / 6%);
   --chrome-active: oklch(1 0 0 / 14%);
   --chrome-selected: oklch(1 0 0 / 7%);
@@ -875,6 +875,12 @@
 :root:not(.dark) [data-paper] {
   --background: var(--paper);
   --card: var(--paper);
+}
+/* The sheet itself is see-through (the chrome's gradient shows through),
+   like the active tab; what sits on it stays solid --paper. Not under the
+   dark sidebar: there the frame behind it is dark. */
+:root:not(.dark):not([data-dark-chrome]) [data-paper] {
+  background-color: var(--chrome-active);
 }
 @utility blend-light {
   mix-blend-mode: lighten;
