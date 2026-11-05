@@ -711,7 +711,15 @@ function Row({
             // Always dark (inverted on a light page), like a system menu.
             className="dark z-context-menu isolate [color-scheme:dark] outline-none"
           >
-            <Menu.Popup data-ctxmenu-popup className={cn(POPUP, "min-w-44")}>
+            <Menu.Popup
+              data-ctxmenu-popup
+              className={cn(
+                POPUP,
+                // No blur on a submenu: a second backdrop filter over the
+                // menu's own leaves a stale dark patch on it in Chrome.
+                "bg-popover/95 min-w-44 backdrop-filter-none",
+              )}
+            >
               {Array.isArray(item.submenu) ? (
                 <ItemList
                   items={item.submenu}

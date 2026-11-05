@@ -142,7 +142,7 @@ function DropdownMenuSubContent({
     <DropdownMenuContent
       data-slot="dropdown-menu-sub-content"
       className={cn(
-        "bg-popover/80 text-popover-foreground data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 nest-rounded-popover nest-p-2 shadow-popover w-auto min-w-[96px] backdrop-blur-xl backdrop-saturate-150 duration-150 ease-out will-change-transform",
+        "bg-popover/80 text-popover-foreground data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 nest-rounded-popover nest-p-2 shadow-popover bg-popover/95 w-auto min-w-[96px] backdrop-blur-xl backdrop-saturate-150 backdrop-filter-none duration-150 ease-out will-change-transform",
         className,
       )}
       align={align}
