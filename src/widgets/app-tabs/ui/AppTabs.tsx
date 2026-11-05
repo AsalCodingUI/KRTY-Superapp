@@ -399,7 +399,10 @@ export function TabStrip({
       <div
         role="tablist"
         aria-label={t("tabs")}
-        className="no-scrollbar flex min-w-0 items-center gap-1 overflow-x-auto"
+        // The scroller would clip the active pill's shadow: room for it on
+        // every side, given back with negative margins (the layout doesn't
+        // move); the room itself lets clicks through to the ‹ › beside it.
+        className="no-scrollbar pointer-events-none -m-3 flex min-w-0 scroll-px-3 items-center gap-1 overflow-x-auto p-3 *:pointer-events-auto"
       >
         {tabs.map((tab) => (
           <ContextTarget
