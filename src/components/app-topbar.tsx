@@ -148,11 +148,12 @@ export function WorkspaceTabs({ className }: { className?: string }) {
             aria-selected={on}
             onClick={() => select(ws.id)}
             className={cn(
-              // Optical (docs/ui/optical.md): the icon side 2px tighter than
-              // the text side (11 / 13px, so the icon centres on the
-              // sidebar's icon column), 14px icon beside 13px text. Both tabs
-              // and the bell need a sidebar of 15.5rem or more.
-              "rounded-control text-meta flex h-8 min-w-0 shrink-0 items-center gap-1.5 pr-3.25 pl-2.75 font-medium transition-colors",
+              // Same icon and text as the nav rows below (16px icon, 14px
+              // text). Optical (docs/ui/optical.md): the icon side 2px
+              // tighter than the text side (10 / 12px, so the icon centres on
+              // the sidebar's icon column). gap-2, not the rows' 2.5, so both
+              // tabs and the bell fit 15.5rem in English ("Personal").
+              "rounded-control flex h-8 min-w-0 shrink-0 items-center gap-2 pr-3 pl-2.5 text-sm font-medium transition-colors",
               on
                 ? "bg-sidebar-active text-foreground"
                 : "text-chrome-label hover:text-foreground hover:bg-chrome-hover",
@@ -160,7 +161,7 @@ export function WorkspaceTabs({ className }: { className?: string }) {
           >
             <span className="relative flex shrink-0">
               <Icon
-                className={cn("size-3.5", !on && "text-muted-foreground")}
+                className={cn("size-4", !on && "text-muted-foreground")}
               />
               {!on && hasBadge(ws) && (
                 <span

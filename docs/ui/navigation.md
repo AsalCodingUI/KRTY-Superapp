@@ -35,7 +35,7 @@ examples: **/ui** → Navigasi.
 
 The shell has no top bar from `md` up. The sidebar's top: the brand;
 the workspaces as icon + label tabs (`WorkspaceTabs`, not a segmented
-control; optical padding 11 / 13px; the sidebar is 15.5rem by default and never narrower, so both tabs and the bell fit)
+control; same 16px icon and 14px text as the nav rows, optical padding 10 / 12px, gap 8; the sidebar is 15.5rem by default and never narrower, so both tabs and the bell fit)
 with the bell (icon only) at that row's end; search (⌘K, an outlined
 pill). Its bottom: notices, What's new, Settings, the account row (same
 list, same icon column), then theme and chrome color; language lives in
