@@ -216,17 +216,19 @@ Check new ones against them and against /icon-lab (hover shows the base).
    `VIEWBOX` (`1.5 1.5 21 21`), so the drawing fills the icon box instead of
    keeping Untitled's 2px of air: at size-4 a glyph is ~15px, the stroke
    ~1.15px. Nothing may go past stroke centre 2.5 / 21.5 (it would clip). Sizes, measured on
-   stroke centres: circles 18.5 (r 9.25 at 12,12); squares and frames 17.5
-   (3.25–20.75), a touch smaller so they read as big as a circle; files,
+   stroke centres: circles 18.5 (r 9.25 at 12,12); squares and square
+   frames 16.5 (3.75–20.25), 2 smaller than a circle (the BRDG rule:
+   square 16, circle 18) so they read as the same size; files,
    folders and most objects 18.5 on their long side; chevrons span 12.5.
    Arrows, calendars and people keep 16.5–17.5. Tiny marks (dots, dashes)
    keep their size.
    **Frame + mark** (CheckSquare, XSquare, AlertOctagon, MessageXSquare,
-   CheckVerified…): the mark inside fills its frame, up to 1.25× its Untitled
-   size, stopping where its stroke centres are 3.5 from the frame's (the
-   cut gap). So a check spans ~10, an X ~8, a plus ~9.6 in a 17.5 square;
-   dots move with the mark but stay 2 across. Marks already at the gap
-   (currency, charts, dice) keep their size.
+   CheckVerified…): minimal, with air round the mark (the BRDG rule). The
+   mark's long side is at most half the frame (0.5 in squares and
+   bubbles, 0.45 in circles, octagons and badges): ~8.25 in a 16.5 square,
+   ~8.3 in a circle; smaller marks keep their size, dots stay 2 across.
+   A slash that crosses the frame (`SlashOctagon`, `Ban`) and letters in
+   coins keep theirs.
 2. **Corners.** Containers (cards, files, folders, calendars, bubbles)
    r 3; boxes 6–10px wide r 2; tiny boxes r 1. Polygon and roof corners
    round with r 1.5, all the same within an icon (no mix of sharp and
