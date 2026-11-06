@@ -21,9 +21,18 @@ const asGlyph = (value: unknown) =>
       ? (value as Glyph)
       : null
 
+/**
+ * A circle glyph with a square twin (CheckCircle / CheckSquare): we keep
+ * the square one only, so the circle isn't drawn or shown.
+ */
+const hasSquareTwin = (name: string) =>
+  name !== "Circle" &&
+  name.includes("Circle") &&
+  name.replace("Circle", "Square") in Untitled
+
 /** The whole Untitled UI pack, in its own (alphabetical) order. */
 const PACK = Object.entries(Untitled as Record<string, unknown>)
-  .filter(([name]) => /^[A-Z]/.test(name))
+  .filter(([name]) => /^[A-Z]/.test(name) && !hasSquareTwin(name))
   .flatMap(([name, value]) => {
     const glyph = asGlyph(value)
     return glyph ? [[name, glyph] as const] : []

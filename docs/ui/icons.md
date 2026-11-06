@@ -31,6 +31,10 @@ props are accepted and ignored. Every icon is listed on /ui → Icons.
 
 - Import icons only from `@/components/icons` (never `@untitledui/icons`
   directly). Don't add new `Ri*` aliases.
+- Squares, not circles: where Untitled has both (`CheckCircle` /
+  `CheckSquare`, `InfoCircle` / `InfoSquare`, …) only the square one is in
+  our set; app names like `CircleCheck` point at it. Circle-only glyphs
+  (currency, `SlashCircle`, `ArrowCircleBroken*`) and status rings stay.
 - Line icons only. Show a state with color or a dot, not a filled icon.
 - One icon per meaning: edit = `SquarePen`, delete = `Delete` (trash),
   more = `MoreHorizontal`, close = `X`, add = `Plus`, open in new =

@@ -199,38 +199,6 @@ export const ArrowCircleBrokenUpRight = glyph(
   "ArrowCircleBrokenUpRight",
   "M3.471 15.58A9.25 9.25 0 1 1 8.42 20.529M5.459 18.541L15.25 8.75M11.5 8.75L15.25 8.75L15.25 12.5",
 )
-export const ArrowCircleDown = glyph(
-  "ArrowCircleDown",
-  "M21.25 12A9.25 9.25 0 1 1 2.75 12A9.25 9.25 0 1 1 21.25 12ZM12 7.5L12 16.5M14.652 13.848L12 16.5L9.348 13.848",
-)
-export const ArrowCircleDownLeft = glyph(
-  "ArrowCircleDownLeft",
-  "M21.25 12A9.25 9.25 0 1 1 2.75 12A9.25 9.25 0 1 1 21.25 12ZM15.25 8.75L8.75 15.25M12.5 15.25L8.75 15.25L8.75 11.5",
-)
-export const ArrowCircleDownRight = glyph(
-  "ArrowCircleDownRight",
-  "M21.25 12A9.25 9.25 0 1 1 2.75 12A9.25 9.25 0 1 1 21.25 12ZM8.75 8.75L15.25 15.25M15.25 11.5L15.25 15.25L11.5 15.25",
-)
-export const ArrowCircleLeft = glyph(
-  "ArrowCircleLeft",
-  "M21.25 12A9.25 9.25 0 1 1 2.75 12A9.25 9.25 0 1 1 21.25 12ZM16.5 12L7.5 12M10.152 14.652L7.5 12L10.152 9.348",
-)
-export const ArrowCircleRight = glyph(
-  "ArrowCircleRight",
-  "M21.25 12A9.25 9.25 0 1 1 2.75 12A9.25 9.25 0 1 1 21.25 12ZM7.5 12L16.5 12M13.848 9.348L16.5 12L13.848 14.652",
-)
-export const ArrowCircleUp = glyph(
-  "ArrowCircleUp",
-  "M21.25 12A9.25 9.25 0 1 1 2.75 12A9.25 9.25 0 1 1 21.25 12ZM12 16.5L12 7.5M9.348 10.152L12 7.5L14.652 10.152",
-)
-export const ArrowCircleUpLeft = glyph(
-  "ArrowCircleUpLeft",
-  "M21.25 12A9.25 9.25 0 1 1 2.75 12A9.25 9.25 0 1 1 21.25 12ZM15.25 15.25L8.75 8.75M8.75 12.5L8.75 8.75L12.5 8.75",
-)
-export const ArrowCircleUpRight = glyph(
-  "ArrowCircleUpRight",
-  "M21.25 12A9.25 9.25 0 1 1 2.75 12A9.25 9.25 0 1 1 21.25 12ZM8.75 15.25L15.25 8.75M11.5 8.75L15.25 8.75L15.25 12.5",
-)
 export const ArrowDownLeft = glyph(
   "ArrowDownLeft",
   "M18.125 5.875L5.875 18.125M14.375 18.125L5.875 18.125L5.875 9.625",
@@ -438,18 +406,6 @@ export const BarChart11 = glyph(
 export const BarChart12 = glyph(
   "BarChart12",
   "M2.75 19.25L2.75 15.85A2 2 0 0 1 4.75 13.85L8.917 13.85L8.917 10.67A2 2 0 0 1 10.917 8.67L15.083 8.67L15.083 4.75A2 2 0 0 1 17.083 2.75L19.25 2.75A2 2 0 0 1 21.25 4.75L21.25 19.25A2 2 0 0 1 19.25 21.25L4.75 21.25A2 2 0 0 1 2.75 19.25ZM8.917 13.85V21.25M15.083 8.67V21.25",
-)
-export const BarChartCircle01 = glyph(
-  "BarChartCircle01",
-  "M21.25 12a9.25 9.25 0 1 1-18.5 0a9.25 9.25 0 1 1 18.5 0ZM7.75 12.5V16.25M12 7.75V16.25M16.25 11V16.25",
-)
-export const BarChartCircle02 = glyph(
-  "BarChartCircle02",
-  "M21.25 12a9.25 9.25 0 1 1-18.5 0a9.25 9.25 0 1 1 18.5 0ZM7.75 14.25V16.25M12 11.25V16.25M16.25 7.75V16.25",
-)
-export const BarChartCircle03 = glyph(
-  "BarChartCircle03",
-  "M21.25 12a9.25 9.25 0 1 1-18.5 0a9.25 9.25 0 1 1 18.5 0ZM7.75 7.75V16.25M12 10.725V16.25M16.25 13.275V16.25",
 )
 export const BarChartSquare01 = glyph(
   "BarChartSquare01",

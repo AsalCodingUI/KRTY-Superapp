@@ -20,10 +20,6 @@ const InfinityGlyph = glyph(
   "Infinity",
   "M12 12C10.253 9.688 8.711 8.146 6.604 8.146a3.854 3.854 0 0 0 0 7.708c2.107 0 3.649 -1.542 5.396 -3.854s3.289 -3.854 5.396 -3.854a3.854 3.854 0 0 1 0 7.708c-2.107 0 -3.649 -1.542 -5.396 -3.854Z",
 )
-export const InfoCircle = glyph(
-  "InfoCircle",
-  "M21.25 12a9.25 9.25 0 1 1 -18.5 0 9.25 9.25 0 0 1 18.5 0ZM12 16.625V11.456M11.75 7.375a.25.25 0 1 0 .5 0a.25.25 0 1 0-.5 0",
-)
 export const Italic01 = glyph("Italic01", "M11 5H18M6 19H13M14.5 5L9.5 19")
 export const LayersTwo01 = glyph(
   "LayersTwo01",
@@ -107,10 +103,6 @@ export const MessageAlertSquare = glyph(
   "MessageAlertSquare",
   "M6.338 3.251H17.662A3.088 3.088 0 0 1 20.75 6.339V14.574A3.088 3.088 0 0 1 17.662 17.662H12.927A2.059 2.059 0 0 0 11.64 18.115L8.727 20.452A0.824 0.824 0 0 1 7.368 19.824V17.663H6.339A3.088 3.088 0 0 1 3.251 14.575V6.34A3.088 3.088 0 0 1 6.339 3.252ZM12 7.631V10.2M11.75 13.95A0.25 0.25 0 0 0 12.25 13.95A0.25 0.25 0 0 0 11.75 13.95",
 )
-export const MessageCircle01 = glyph(
-  "MessageCircle01",
-  "M20.862 11.497a8.861 8.861 0 0 1 -13.292 7.673l-3.44 1.199a0.782 0.782 0 0 1 -1.001 -0.98l1.147 -3.44A8.861 8.861 0 1 1 20.862 11.497Z",
-)
 export const MessageTextSquare01 = glyph(
   "MessageTextSquare01",
   "M9.5 17.75h8.25a3 3 0 0 0 3-3v-8.5a3 3 0 0 0-3-3H6.25a3 3 0 0 0-3 3V19.6a.75.75 0 0 0 1.17.62L9.5 17.75ZM7.75 8.75h5M7.75 12.25h8.5",
@@ -139,10 +131,6 @@ export const Palette = glyph(
 export const Paperclip = glyph(
   "Paperclip",
   "M20.776 11.171l-8.738 8.738a5.056 5.056 0 0 1 -7.144 -7.144l9.123 -9.123a3.352 3.352 0 0 1 4.726 4.726l-8.738 8.738a1.649 1.649 0 0 1 -2.33 -2.33l7.99 -7.99",
-)
-export const PauseCircle = glyph(
-  "PauseCircle",
-  "M21.25 12a9.25 9.25 0 1 1 -18.5 0 9.25 9.25 0 0 1 18.5 0ZM9.551 8.735v6.529M14.449 8.735v6.529",
 )
 export const PenTool02 = glyph(
   "PenTool02",

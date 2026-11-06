@@ -123,7 +123,7 @@ export const ChartColumnIncreasing = /*#__PURE__*/ icon(
 export const ChartLine = /*#__PURE__*/ icon(K.LineChartUp01, "ChartLine")
 export const Check = /*#__PURE__*/ icon(C.Check, "Check")
 export const CheckCheck = /*#__PURE__*/ icon(K.CheckDone01, "CheckCheck")
-export const CheckCircle2 = /*#__PURE__*/ icon(K.CheckCircle, "CheckCircle2")
+export const CheckCircle2 = /*#__PURE__*/ icon(K.CheckSquare, "CheckCircle2")
 export const ChevronDown = /*#__PURE__*/ icon(C.ChevronDown, "ChevronDown")
 export const ChevronDownSquare = /*#__PURE__*/ icon(
   K.ChevronDown,
@@ -159,10 +159,10 @@ export const ChevronsUpDown = /*#__PURE__*/ icon(
 )
 export const Chrome = /*#__PURE__*/ icon(K.GoogleChrome, "Chrome")
 export const Circle = /*#__PURE__*/ icon(K.Circle, "Circle")
-export const CircleAlert = /*#__PURE__*/ icon(K.AlertCircle, "CircleAlert")
-export const CircleCheck = /*#__PURE__*/ icon(K.CheckCircle, "CircleCheck")
+export const CircleAlert = /*#__PURE__*/ icon(K.AlertSquare, "CircleAlert")
+export const CircleCheck = /*#__PURE__*/ icon(K.CheckSquare, "CircleCheck")
 export const CircleCheckIcon = /*#__PURE__*/ icon(
-  K.CheckCircle,
+  K.CheckSquare,
   "CircleCheckIcon",
 )
 export const CircleDashed = /*#__PURE__*/ icon(C.CircleDashed, "CircleDashed")
@@ -171,8 +171,8 @@ export const CircleDollarSign = /*#__PURE__*/ icon(
   "CircleDollarSign",
 )
 export const CircleDot = /*#__PURE__*/ icon(C.CircleDot, "CircleDot")
-export const CircleHelp = /*#__PURE__*/ icon(K.HelpCircle, "CircleHelp")
-export const CircleX = /*#__PURE__*/ icon(K.XCircle, "CircleX")
+export const CircleHelp = /*#__PURE__*/ icon(K.HelpSquare, "CircleHelp")
+export const CircleX = /*#__PURE__*/ icon(K.XSquare, "CircleX")
 export const ClipboardCheck = /*#__PURE__*/ icon(
   K.ClipboardCheck,
   "ClipboardCheck",
@@ -251,8 +251,8 @@ export const ImagePlus = /*#__PURE__*/ icon(K.ImagePlus, "ImagePlus")
 export const ImageUp = /*#__PURE__*/ icon(K.ImageUp, "ImageUp")
 export const Inbox = /*#__PURE__*/ icon(K.Inbox01, "Inbox")
 export const Infinity = /*#__PURE__*/ icon(K.Infinity, "Infinity")
-export const Info = /*#__PURE__*/ icon(K.InfoCircle, "Info")
-export const InfoIcon = /*#__PURE__*/ icon(K.InfoCircle, "InfoIcon")
+export const Info = /*#__PURE__*/ icon(K.InfoSquare, "Info")
+export const InfoIcon = /*#__PURE__*/ icon(K.InfoSquare, "InfoIcon")
 export const Italic = /*#__PURE__*/ icon(K.Italic01, "Italic")
 export const Languages = /*#__PURE__*/ icon(K.Translate01, "Languages")
 export const Layers = /*#__PURE__*/ icon(K.LayersTwo01, "Layers")
@@ -290,7 +290,7 @@ export const Maximize2 = /*#__PURE__*/ icon(K.Expand06, "Maximize2")
 export const Megaphone = /*#__PURE__*/ icon(K.Announcement01, "Megaphone")
 export const Menu = /*#__PURE__*/ icon(K.Menu01, "Menu")
 export const MessageCircle = /*#__PURE__*/ icon(
-  K.MessageCircle01,
+  K.MessageSquare01,
   "MessageCircle",
 )
 export const MessageSquareWarning = /*#__PURE__*/ icon(
@@ -322,7 +322,7 @@ export const OctagonXIcon = /*#__PURE__*/ icon(K.SlashOctagon, "OctagonXIcon")
 export const Palette = /*#__PURE__*/ icon(K.Palette, "Palette")
 export const PanelLeftIcon = /*#__PURE__*/ icon(K.LayoutLeft, "PanelLeftIcon")
 export const Paperclip = /*#__PURE__*/ icon(K.Paperclip, "Paperclip")
-export const Pause = /*#__PURE__*/ icon(K.PauseCircle, "Pause")
+export const Pause = /*#__PURE__*/ icon(K.PauseSquare, "Pause")
 export const Pencil = /*#__PURE__*/ icon(C.Pencil, "Pencil")
 export const PencilRuler = /*#__PURE__*/ icon(K.PenTool02, "PencilRuler")
 export const Phone = /*#__PURE__*/ icon(K.Phone, "Phone")
@@ -369,7 +369,7 @@ export const SquarePen = /*#__PURE__*/ icon(K.Edit05, "SquarePen")
 export const SquareStop = /*#__PURE__*/ icon(K.StopSquare, "SquareStop")
 export const Star = /*#__PURE__*/ icon(K.Star01, "Star")
 export const StickyNote = /*#__PURE__*/ icon(K.File03, "StickyNote")
-export const StopCircle = /*#__PURE__*/ icon(K.StopCircle, "StopCircle")
+export const StopCircle = /*#__PURE__*/ icon(K.StopSquare, "StopCircle")
 export const Strikethrough = /*#__PURE__*/ icon(
   K.Strikethrough01,
   "Strikethrough",
@@ -403,7 +403,7 @@ export const Upload = /*#__PURE__*/ icon(K.Upload01, "Upload")
 export const User = /*#__PURE__*/ icon(K.User01, "User")
 export const UserCheck = /*#__PURE__*/ icon(K.UserCheck01, "UserCheck")
 export const UserPlus = /*#__PURE__*/ icon(K.UserPlus01, "UserPlus")
-export const UserRound = /*#__PURE__*/ icon(K.UserCircle, "UserRound")
+export const UserRound = /*#__PURE__*/ icon(K.UserSquare, "UserRound")
 export const UserRoundX = /*#__PURE__*/ icon(K.UserX01, "UserRoundX")
 export const Users = /*#__PURE__*/ icon(C.Users, "Users")
 export const UsersRound = /*#__PURE__*/ icon(K.Users02, "UsersRound")
@@ -414,4 +414,4 @@ export const WandSparkles = /*#__PURE__*/ icon(K.MagicWand02, "WandSparkles")
 export const WifiOff = /*#__PURE__*/ icon(K.WifiOff, "WifiOff")
 export const Workflow = /*#__PURE__*/ icon(K.Dataflow03, "Workflow")
 export const X = /*#__PURE__*/ icon(C.X, "X")
-export const XCircle = /*#__PURE__*/ icon(K.XCircle, "XCircle")
+export const XCircle = /*#__PURE__*/ icon(K.XSquare, "XCircle")
