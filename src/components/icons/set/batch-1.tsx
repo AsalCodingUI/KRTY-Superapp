@@ -181,7 +181,7 @@ export const ClipboardCheck = glyph(
 )
 export const ClockRefresh = glyph(
   "ClockRefresh",
-  "M4 11.962A8 8 0 0 1 19.25 8.619M20.533 5.095L19.25 8.619L15.727 7.336M20 12.038A8 8 0 0 1 4.75 15.381M3.467 18.905L4.75 15.381L8.273 16.664M12 10.152L12 12L13.479 12.924",
+  "M16.25 4.639A8.5 8.5 0 1 1 7.75 4.639M4.128 3.668L7.75 4.639L6.779 8.261M12 8V12L14.5 13.5",
 )
 export const Cloud01 = glyph(
   "Cloud01",

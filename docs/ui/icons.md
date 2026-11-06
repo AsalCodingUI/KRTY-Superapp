@@ -252,9 +252,15 @@ Check new ones against them and against /icon-lab (hover shows the base).
    rounded square (6.5, r 2) inside the circle, the conventional stop mark.
 4. **Cuts.** Where one stroke crosses another and the other is broken (a
    slash through wifi, an eye, a bell), the gap is 1.5 between stroke
-   edges on both sides (cut ends, cap included, 3.5 from the crossing
-   stroke's centre),
-   the same everywhere in the set.
+   edges on both sides (cut ends, cap included, 3 from the crossing
+   stroke's centre at stroke 1.5), the same everywhere in the set. Cut
+   by geometry, not by eye: the base glyph's lines and arcs are trimmed
+   exactly where they come within 3 of the slash or the mark (the kit in
+   the icon redraw scripts), so Off / Plus / Minus are the base glyph plus
+   one mark. Fragments under 1.5 long are dropped.
+   Families share one base: every Bell (01–04, Ringing, Off, Plus, Minus)
+   is the same dome (r 6 at 12,10.25), sides flaring to a 16.5 base line,
+   and a clapper; Ringing adds two arcs 3 outside the dome, 04 tilts it.
 5. **Dashes and dots.** A dashed outline uses one dash length and one gap
    all round, placed symmetrically (corners and axis midpoints match).
    A dot in a line icon is a disc 2 across (a r 0.25 circle under the 1.5

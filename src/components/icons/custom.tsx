@@ -110,7 +110,7 @@ export const Search = glyph(
 )
 export const Bell = glyph(
   "Bell",
-  "M18 8.83A6 6 0 0 0 6 8.83V13.23L4.55 14.98A0.9 0.9 0 0 0 5.25 16.45H18.75A0.9 0.9 0 0 0 19.45 14.98L18 13.23ZM9.75 19.95A2.6 2.6 0 0 0 14.25 19.95",
+  "M5.25 16.25L6 10.25A6 6 0 0 1 18 10.25L18.75 16.25M3.75 16.25L20.25 16.25M14 18.75A2 2 0 0 1 10 18.75",
 )
 export const Settings = glyph(
   "Settings",
