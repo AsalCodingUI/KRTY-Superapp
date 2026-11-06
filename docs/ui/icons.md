@@ -214,7 +214,8 @@ Check new ones against them and against /icon-lab (hover shows the base).
    soft corners, no lumpy joins).
 3. **Nested corners.** A rounded shape inside a rounded shape keeps an
    even gap: inner r = outer r − gap (gap between stroke centres), never
-   below 1. No square inside a round or the other way round.
+   below 1. No square inside a round or the other way round. Exception: `StopCircle` keeps a
+   rounded square (6.5, r 2) inside the circle, the conventional stop mark.
 4. **Cuts.** Where one stroke crosses another and the other is broken (a
    slash through wifi, an eye, a bell), the gap is 1.5 between stroke
    edges on both sides (cut ends 2.25 from the crossing stroke's centre),
