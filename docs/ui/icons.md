@@ -229,6 +229,11 @@ Check new ones against them and against /icon-lab (hover shows the base).
    ~8.3 in a circle; smaller marks keep their size, dots stay 2 across.
    A slash that crosses the frame (`SlashOctagon`, `Ban`) and letters in
    coins keep theirs.
+   **Simple first** (BRDG): draw the idea with the fewest plain shapes.
+   A gear is a rounded hexagon and a circle, search a ring and a handle,
+   sliders two tracks with a knob each, a building a block, an annex and
+   three window lines, a flow two boxes and one elbow. No petal outlines,
+   inner reflections, dot grids where two or four dots say it.
 2. **Corners.** Containers (cards, files, folders, calendars, bubbles)
    r 3; boxes 6–10px wide r 2; tiny boxes r 1. Polygon and roof corners
    round with r 1.5, all the same within an icon (no mix of sharp and
