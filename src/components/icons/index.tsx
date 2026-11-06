@@ -274,6 +274,8 @@ function icon(Glyph: Source, name: string): Icon {
     )
   })
   C.displayName = name
+  // Drawn by us (custom.tsx), not taken from Untitled UI: /icon-lab marks it.
+  ;(C as { ours?: boolean }).ours = Boolean((Glyph as { ours?: boolean }).ours)
   return C
 }
 

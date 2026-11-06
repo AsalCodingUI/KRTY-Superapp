@@ -16,6 +16,8 @@ export const STROKE = 1.25
 /** Keeps the stroke in screen px however big the icon is drawn. */
 export const STEADY_STROKE = "[&_*]:[vector-effect:non-scaling-stroke]"
 
+/** Glyphs drawn here carry `ours: true`, and so do the app icons made
+ *  from them (index.tsx): /icon-lab marks those as redrawn. */
 type GlyphProps = SVGProps<SVGSVGElement> & { size?: number; color?: string }
 
 function glyph(name: string, d: string) {
@@ -40,6 +42,7 @@ function glyph(name: string, d: string) {
     </svg>
   )
   Glyph.displayName = name
+  ;(Glyph as { ours?: boolean }).ours = true
   return Glyph
 }
 
@@ -66,6 +69,7 @@ function dots(name: string, xs: number[], ys: number[]) {
     </svg>
   )
   Dots.displayName = name
+  ;(Dots as { ours?: boolean }).ours = true
   return Dots
 }
 
