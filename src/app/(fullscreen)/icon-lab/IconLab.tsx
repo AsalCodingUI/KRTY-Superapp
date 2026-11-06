@@ -3,64 +3,83 @@
 import * as AppIcons from "@/components/icons"
 import { STEADY_STROKE, STROKE } from "@/components/icons/custom"
 import { cn } from "@/lib/utils"
+import * as Untitled from "@untitledui/icons"
 import type { ComponentType } from "react"
 import { UNTITLED_BASE } from "./untitled-base"
 
-type Glyph = ComponentType<{ className?: string }> & { ours?: boolean }
+type Glyph = ComponentType<{
+  className?: string
+  strokeWidth?: number
+  "aria-hidden"?: boolean
+}> & { ours?: boolean }
 
-/** Every icon component @/components/icons exports, in its order. */
-const ICONS = Object.entries(AppIcons as Record<string, unknown>)
-  .filter(
-    ([name, value]) =>
-      /^[A-Z]/.test(name) &&
-      typeof value === "object" &&
-      value !== null &&
-      "$$typeof" in value,
-  )
-  .map(([name, value]) => [name, value as Glyph] as const)
+const asGlyph = (value: unknown) =>
+  typeof value === "object" && value !== null && "$$typeof" in value
+    ? (value as Glyph)
+    : typeof value === "function"
+      ? (value as Glyph)
+      : null
+
+/** The whole Untitled UI pack, in its own (alphabetical) order. */
+const PACK = Object.entries(Untitled as Record<string, unknown>)
+  .filter(([name]) => /^[A-Z]/.test(name))
+  .flatMap(([name, value]) => {
+    const glyph = asGlyph(value)
+    return glyph ? [[name, glyph] as const] : []
+  })
 
 /**
- * Tiles of every app icon, no names. Hover shows the Untitled UI glyph it
- * is based on (same stroke, so only the drawing differs). A dot in the
- * corner: redrawn by us (drawn in components/icons/custom.tsx).
+ * Our redrawn icons, keyed by the Untitled glyph they replace (an app icon
+ * drawn in components/icons/custom.tsx whose base is that glyph).
+ */
+const OURS = new Map<Glyph, Glyph>()
+for (const [name, Base] of Object.entries(UNTITLED_BASE)) {
+  const app = asGlyph((AppIcons as Record<string, unknown>)[name])
+  if (app?.ours) OURS.set(Base as Glyph, app)
+}
+
+/** Untitled glyphs the app uses today (through @/components/icons). */
+const USED = new Set<unknown>(Object.values(UNTITLED_BASE))
+
+/**
+ * Every Untitled UI icon as a tile, no names: the base we redraw from.
+ * A redrawn one shows ours, with the Untitled original on hover and a dot
+ * in the corner. Icons the app uses are on a darker tile.
  */
 export function IconLab() {
   return (
     <main className="bg-background text-foreground min-h-dvh p-4 md:p-8">
-      <ul className="grid grid-cols-[repeat(auto-fill,minmax(6rem,1fr))] gap-2">
-        {ICONS.map(([name, Icon]) => {
-          const Base = UNTITLED_BASE[name] as
-            | ComponentType<{ className?: string; strokeWidth?: number }>
-            | undefined
+      <ul className="grid grid-cols-[repeat(auto-fill,minmax(5.5rem,1fr))] gap-2">
+        {PACK.map(([name, Base]) => {
+          const Ours = OURS.get(Base)
           return (
             <li
               key={name}
               aria-label={name}
-              className="group/tile bg-muted rounded-card relative flex aspect-square items-center justify-center"
+              className={cn(
+                "group/tile rounded-card relative flex aspect-square items-center justify-center",
+                USED.has(Base) ? "bg-accent" : "bg-muted",
+              )}
             >
-              {Icon.ours && (
+              {Ours && (
                 <span
                   aria-hidden
                   className="bg-primary absolute top-2.5 right-2.5 size-1.5 rounded-full"
                 />
               )}
-              {/* Ours; on hover, the Untitled UI base in its place. */}
-              <Icon
+              {Ours && (
+                <Ours className="size-6 transition-opacity duration-150 group-hover/tile:opacity-0" />
+              )}
+              <Base
+                aria-hidden
+                strokeWidth={STROKE}
                 className={cn(
-                  "size-6 transition-opacity duration-150",
-                  Base && "group-hover/tile:opacity-0",
+                  STEADY_STROKE,
+                  "size-6",
+                  Ours &&
+                    "absolute inset-0 m-auto opacity-0 transition-opacity duration-150 group-hover/tile:opacity-100",
                 )}
               />
-              {Base && (
-                <Base
-                  aria-hidden
-                  strokeWidth={STROKE}
-                  className={cn(
-                    STEADY_STROKE,
-                    "absolute inset-0 m-auto size-6 opacity-0 transition-opacity duration-150 group-hover/tile:opacity-100",
-                  )}
-                />
-              )}
             </li>
           )
         })}

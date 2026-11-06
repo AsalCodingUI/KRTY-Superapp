@@ -3,9 +3,9 @@ import { IconLab } from "./IconLab"
 export const metadata = { title: "Icon lab" }
 
 /**
- * Dev page: every app icon (@/components/icons), one tile each, no names.
- * Hover a tile for the Untitled UI glyph it's based on; a dot marks the
- * icons we've redrawn. The workbench for drawing our own set.
+ * Dev page: the whole Untitled UI pack, one tile each, no names. The base
+ * we redraw our own set from: a redrawn icon shows ours (Untitled on
+ * hover) with a dot; icons the app uses sit on a darker tile.
  */
 export default function IconLabPage() {
   return <IconLab />
