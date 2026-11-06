@@ -503,7 +503,7 @@
   --grad-l: 0.93;
   --grad-c: 0.05;
   --chrome: oklch(
-    calc(0.945 - var(--tint-c) * 0.045) calc(var(--tint-c) * 0.085)
+    calc(0.961 - var(--tint-c) * 0.061) calc(var(--tint-c) * 0.085)
       var(--tint-h)
   );
   --chrome-hover: oklch(0 0 0 / 5%);
