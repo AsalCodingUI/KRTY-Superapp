@@ -18,8 +18,10 @@ The icon set is **Untitled UI Icons**, the free line set (1,100+ icons;
 free for personal and commercial use, but not to redistribute as an icon
 library, so the icons stay an npm dependency, not files in this repo).
 `index.tsx` maps the app's icon names to Untitled UI glyphs, so pages
-never import `@untitledui/icons` themselves. The one glyph it lacks
-(`Coffee`) is drawn in `custom.tsx`. There is no filled set: `weight`
+never import `@untitledui/icons` themselves. Glyphs it lacks are drawn in
+`custom.tsx`: `Coffee`, and the drag handles `GripVertical` /
+`GripHorizontal` (six filled dots, 2 × 3 / 3 × 2; the set's own grip is
+a 3 × 3 grid). There is no filled set: `weight`
 props are accepted and ignored. Every icon is listed on /ui → Icons.
 
 ## Rules

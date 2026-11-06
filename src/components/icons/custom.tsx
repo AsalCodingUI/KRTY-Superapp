@@ -48,3 +48,26 @@ export const Coffee = glyph(
   "Coffee",
   "M7 3v2M11 3v2M15 3v2M4 9h13v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V9ZM17 10h1.5a2.5 2.5 0 0 1 0 5H17M3 22h16",
 )
+
+/** A drag handle of six filled dots (2 × 3 standing, 3 × 2 lying): the
+ *  set's own grip is a 3 × 3 grid, heavier than a handle needs. Filled,
+ *  so the stroke setting doesn't change them. */
+function dots(name: string, xs: number[], ys: number[]) {
+  const Dots = ({
+    size = 24,
+    color = "currentColor",
+    strokeWidth: _s,
+    ...props
+  }: GlyphProps) => (
+    <svg viewBox="0 0 24 24" width={size} height={size} fill={color} {...props}>
+      {ys.flatMap((cy) =>
+        xs.map((cx) => <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r={1.75} />),
+      )}
+    </svg>
+  )
+  Dots.displayName = name
+  return Dots
+}
+
+export const GripVertical = dots("GripVertical", [9, 15], [5, 12, 19])
+export const GripHorizontal = dots("GripHorizontal", [5, 12, 19], [9, 15])

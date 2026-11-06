@@ -443,7 +443,7 @@ function GlyphRow({ items }: { items: [string, ReactNode][] }) {
 }
 
 /** Not in Untitled UI: drawn in components/icons/custom.tsx. */
-const CUSTOM = new Set(["Coffee"])
+const CUSTOM = new Set(["Coffee", "GripVertical", "GripHorizontal"])
 
 function AllIcons() {
   const icons = Object.entries(AppIcons).filter(

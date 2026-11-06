@@ -87,7 +87,6 @@ import { CursorClick01 as UCursorClick01 } from "@untitledui/icons/CursorClick01
 import { Dataflow03 as UDataflow03 } from "@untitledui/icons/Dataflow03"
 import { Divider as UDivider } from "@untitledui/icons/Divider"
 import { Dotpoints02 as UDotpoints02 } from "@untitledui/icons/Dotpoints02"
-import { DotsGrid as UDotsGrid } from "@untitledui/icons/DotsGrid"
 import { DotsHorizontal as UDotsHorizontal } from "@untitledui/icons/DotsHorizontal"
 import { DotsVertical as UDotsVertical } from "@untitledui/icons/DotsVertical"
 import { Download01 as UDownload01 } from "@untitledui/icons/Download01"
@@ -444,8 +443,11 @@ export const GalleryHorizontal = /*#__PURE__*/ icon(
 )
 export const Gauge = /*#__PURE__*/ icon(USpeedometer02, "Gauge")
 export const Globe = /*#__PURE__*/ icon(UGlobe01, "Globe")
-export const GripHorizontal = /*#__PURE__*/ icon(UDotsGrid, "GripHorizontal")
-export const GripVertical = /*#__PURE__*/ icon(UDotsGrid, "GripVertical")
+export const GripHorizontal = /*#__PURE__*/ icon(
+  C.GripHorizontal,
+  "GripHorizontal",
+)
+export const GripVertical = /*#__PURE__*/ icon(C.GripVertical, "GripVertical")
 export const Hammer = /*#__PURE__*/ icon(UTool02, "Hammer")
 export const Hash = /*#__PURE__*/ icon(UHash01, "Hash")
 export const Heading = /*#__PURE__*/ icon(UHeading01, "Heading")
