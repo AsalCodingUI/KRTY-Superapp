@@ -14,7 +14,8 @@ import {
 } from "@dnd-kit/core"
 import { useDateLocale, useT } from "@/shared/i18n/client"
 import { format, isBefore, parseISO, startOfDay } from "date-fns"
-import { GripHorizontal, TriangleAlert } from "@/components/icons"
+import { BoardCard } from "@/components/board-card"
+import { TriangleAlert } from "@/components/icons"
 import Link from "next/link"
 import { memo, useEffect, useMemo, useRef, useState } from "react"
 import {
@@ -64,19 +65,7 @@ const ProjectCard = memo(function ProjectCard({
     .join(" · ")
 
   return (
-    <div
-      className={cn(
-        "bg-card border-border group-hover/card:border-field-border rounded-nested relative flex flex-col gap-1.5 border px-3.5 py-3 text-sm transition-[border-color,box-shadow] duration-200",
-        dragging && "shadow-popover border-transparent",
-      )}
-    >
-      {/* Hover hint that the card can be picked up. */}
-      {canDrag && !dragging && (
-        <GripHorizontal
-          aria-hidden="true"
-          className="text-muted-foreground absolute top-0.5 left-1/2 size-3.5 -translate-x-1/2 opacity-0 transition-opacity group-hover/card:opacity-100"
-        />
-      )}
+    <BoardCard draggable={canDrag} lifted={dragging}>
       <div className="text-muted-foreground flex items-center justify-between gap-2 text-xs tabular-nums">
         <span className="truncate">{meta}</span>
         {overdue && (
@@ -122,7 +111,7 @@ const ProjectCard = memo(function ProjectCard({
           )}
         </div>
       )}
-    </div>
+    </BoardCard>
   )
 })
 

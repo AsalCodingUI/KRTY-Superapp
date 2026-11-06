@@ -39,7 +39,8 @@ import {
 } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 import { differenceInCalendarDays, isToday } from "date-fns"
-import { GripHorizontal, TriangleAlert } from "@/components/icons"
+import { BoardCard } from "@/components/board-card"
+import { TriangleAlert } from "@/components/icons"
 import { m, useReducedMotion } from "motion/react"
 import { EASE_OUT_CSS, TRANSITION } from "@/shared/lib/motion"
 import {
@@ -590,19 +591,7 @@ const TaskCard = memo(function TaskCard({
 
   // Same card as the projects board: meta line, title, people row.
   return (
-    <div
-      className={cn(
-        "bg-card border-border group-hover/card:border-field-border rounded-nested relative flex flex-col gap-1.5 border px-3.5 py-3 text-sm transition-[border-color,box-shadow] duration-200",
-        lifted && "shadow-popover border-transparent",
-      )}
-    >
-      {/* Hover hint that the card can be picked up. */}
-      {!lifted && (
-        <GripHorizontal
-          aria-hidden="true"
-          className="text-muted-foreground absolute top-0.5 left-1/2 size-3.5 -translate-x-1/2 opacity-0 transition-opacity group-hover/card:opacity-100"
-        />
-      )}
+    <BoardCard draggable lifted={lifted}>
       {(priority !== "none" ||
         dueText ||
         subtasks.length > 0 ||
@@ -687,6 +676,6 @@ const TaskCard = memo(function TaskCard({
           </div>
         )
       )}
-    </div>
+    </BoardCard>
   )
 })
