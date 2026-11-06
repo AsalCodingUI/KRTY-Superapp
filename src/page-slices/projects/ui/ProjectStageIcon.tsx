@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils"
+import { SPARKLE_D, STROKE } from "@/components/icons/custom"
 import type { ProjectStage } from "../lib/status"
 
 /**
@@ -13,17 +14,17 @@ export const STAGE_TONE: Record<ProjectStage, string> = {
   development: "text-green-9!",
 }
 
-/** Filled 16px glyphs (cut-outs via evenodd, so they sit on any surface). */
+/** Outline glyphs on our grid (24, STROKE, round caps and joins), like
+ *  the status icons beside them. */
 const PATHS: Record<ProjectStage, string> = {
-  // Sparkle.
-  branding:
-    "M8 1c.55 3.6 3.4 6.45 7 7-3.6.55-6.45 3.4-7 7-.55-3.6-3.4-6.45-7-7 3.6-.55 6.45-3.4 7-7Z",
-  // Pen nib, with its hole.
+  // Our sparkle (the Stars family's four-point shape).
+  branding: SPARKLE_D,
+  // Pen nib: corners r 1.5, the slit running into a r 2 hole.
   design:
-    "M8 1.25 13 7.4 10.2 14H5.8L3 7.4 8 1.25Zm0 5.5a1.35 1.35 0 1 0 0 2.7 1.35 1.35 0 0 0 0-2.7Z",
-  // Terminal: a prompt and a cursor cut out of a window.
+    "M10.873 4.032A1.5 1.5 0 0 1 13.127 4.032L18.676 10.347A1.5 1.5 0 0 1 18.969 11.822L16.097 20.235A1.5 1.5 0 0 1 14.677 21.25L9.323 21.25A1.5 1.5 0 0 1 7.903 20.235L5.031 11.822A1.5 1.5 0 0 1 5.324 10.347ZM12 4.25V10M14 12a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z",
+  // Terminal: our square with a prompt and a cursor.
   development:
-    "M4 2.25h8A2.75 2.75 0 0 1 14.75 5v6A2.75 2.75 0 0 1 12 13.75H4A2.75 2.75 0 0 1 1.25 11V5A2.75 2.75 0 0 1 4 2.25Zm.9 3.4 1.95 1.85L4.9 9.35l.95 1 2.95-2.85L5.85 4.65l-.95 1Zm4.1 3.6v1.3h3v-1.3H9Z",
+    "M3.25 6.338a3.088 3.088 0 0 1 3.088 -3.088h11.324a3.088 3.088 0 0 1 3.088 3.088v11.324a3.088 3.088 0 0 1 -3.088 3.088h-11.324a3.088 3.088 0 0 1 -3.088 -3.088ZM7.882 9.426l2.574 2.574L7.882 14.574M13.029 14.574h3.603",
 }
 
 export function ProjectStageIcon({
@@ -36,11 +37,15 @@ export function ProjectStageIcon({
   return (
     <svg
       aria-hidden
-      viewBox="0 0 16 16"
-      fill="currentColor"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={STROKE}
+      strokeLinecap="round"
+      strokeLinejoin="round"
       className={cn("size-4 shrink-0", STAGE_TONE[stage], className)}
     >
-      <path fillRule="evenodd" clipRule="evenodd" d={PATHS[stage]} />
+      <path d={PATHS[stage]} />
     </svg>
   )
 }

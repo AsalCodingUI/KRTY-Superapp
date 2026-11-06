@@ -71,11 +71,13 @@ props are accepted and ignored. Every icon is listed on /ui → Icons.
   `custom.tsx`; /icon-lab shows the whole Untitled pack, which ones the
   app uses (darker tile) and which are redrawn (dot; hover shows the
   Untitled original).
-- Other hand-made glyphs (status, stage, priority): `viewBox="0 0 16 16"`,
-  `fill="currentColor"` (or `stroke="currentColor"` at the same weight as
-  `STROKE` on a 24 grid, i.e. about 1.15 on 16), `aria-hidden`, base class `size-4 shrink-0`, cut-outs with
-  `fillRule="evenodd"` so they sit on any surface. Filled variants of a
-  line icon (the open tab, notification kinds) keep the line icon's shape.
+- Other hand-made glyphs (status, stage, priority, progress ring, the
+  AI sparkle): the same 24 grid and `STROKE` as the set, our circle,
+  square, dot and dash, `aria-hidden`, base class `size-4 shrink-0`.
+  Fills only where a state is solid by convention (done check, in-progress
+  half disc). Filled variants of a line icon (the open tab, notification
+  kinds: `notification-icons.tsx`, `filledTwin`) are that exact outline
+  filled, inner details cut out at the stroke width.
 
 **Labels**
 

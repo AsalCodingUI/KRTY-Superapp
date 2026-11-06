@@ -1,64 +1,150 @@
 /**
- * Filled icons for the notification list, one per kind (24px grid, the
- * line icons' shapes filled in; inner details cut out with evenodd).
+ * Filled icons for the notification list and the open tab of the tab
+ * bars: each is the filled twin of our outline glyph of the same thing
+ * (same paths, src/components/icons). The glyph's outline is filled and
+ * stroked at STROKE, so the silhouette is exactly the outline icon's; its
+ * inner details are cut out at the same stroke width through a mask.
  */
+import { STROKE } from "@/components/icons/custom"
+import { useId } from "react"
+
 type IconProps = { className?: string }
 
-function Filled({ d, className }: { d: string } & IconProps) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      aria-hidden
-      className={className}
-    >
-      <path fillRule="evenodd" clipRule="evenodd" d={d} />
-    </svg>
-  )
+type Twin = {
+  /** The outline glyph's outer shapes: filled and stroked. */
+  shape: string
+  /** Inner details, cut out as STROKE-wide lines. Lines that split the
+   *  shape run past its edge; the rest
+   *  stop one stroke inside it, so the edge stays whole. */
+  lines?: string
+  /** Openings cut out as areas (a door). */
+  holes?: string
 }
 
-const CALENDAR =
-  "M8 2a1 1 0 0 1 1 1v1h6V3a1 1 0 1 1 2 0v1h1a3 3 0 0 1 3 3v11a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h1V3a1 1 0 0 1 1-1ZM5 8.5h14V10H5z"
-
-const make = (d: string) =>
+export function filledTwin(name: string, { shape, lines, holes }: Twin) {
   function Icon({ className }: IconProps) {
-    return <Filled d={d} className={className} />
+    const id = useId()
+    const pen = {
+      strokeWidth: STROKE,
+      strokeLinecap: "round",
+      strokeLinejoin: "round",
+    } as const
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden className={className}>
+        <mask
+          id={id}
+          maskUnits="userSpaceOnUse"
+          x="0"
+          y="0"
+          width="24"
+          height="24"
+        >
+          <path d={shape} fill="#fff" stroke="#fff" {...pen} />
+          {lines && <path d={lines} fill="none" stroke="#000" {...pen} />}
+          {holes && <path d={holes} fill="#000" />}
+        </mask>
+        <rect width="24" height="24" fill="currentColor" mask={`url(#${id})`} />
+      </svg>
+    )
   }
+  Icon.displayName = name
+  return Icon
+}
 
-export const BellFilled = make(
-  "M12 2a6 6 0 0 0-6 6v3.6l-1.7 3.1A1 1 0 0 0 5.2 16h13.6a1 1 0 0 0 .9-1.5L18 11.6V8a6 6 0 0 0-6-6Zm-3 16a3 3 0 0 0 6 0Z",
-)
-export const MegaphoneFilled = make(
-  "M18.5 4.1a1 1 0 0 1 1.5.86v14.08a1 1 0 0 1-1.5.86L14 17.3V6.7l4.5-2.6ZM12.5 7v10H11v3a1 1 0 0 1-1 1H8.6a1 1 0 0 1-.97-.76L6.7 17H6a4 4 0 0 1-4-4v-2a4 4 0 0 1 4-4h6.5ZM22 10a1 1 0 0 1 1 1v2a1 1 0 1 1-2 0v-2a1 1 0 0 1 1-1Z",
-)
-export const CalendarCheckFilled = make(
-  `${CALENDAR}M15.9 12.6l-4.6 4.6-2.7-2.7 1.06-1.06 1.64 1.64 3.54-3.54z`,
-)
-export const CalendarEventFilled = make(`${CALENDAR}M14 13.5h3v3h-3z`)
-export const ClockFilled = make(
-  "M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20ZM11.25 6.5h1.5v5.19l3.28 3.28-1.06 1.06-3.72-3.72z",
-)
-export const UserFilled = make(
-  "M12 2a5 5 0 1 1 0 10 5 5 0 0 1 0-10ZM3 20a7 7 0 0 1 7-7h4a7 7 0 0 1 7 7 1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Z",
-)
-export const StarFilled = make(
-  "M12.9 2.9l2.4 4.9 5.4.8a1 1 0 0 1 .55 1.7l-3.9 3.8.92 5.4a1 1 0 0 1-1.45 1.05L12 18l-4.82 2.54a1 1 0 0 1-1.45-1.05l.92-5.4-3.9-3.8a1 1 0 0 1 .55-1.7l5.4-.8 2.4-4.9a1 1 0 0 1 1.8 0Z",
-)
-export const ChartFilled = make(
-  "M6 3h12a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3ZM7.25 12h1.5v5h-1.5zM11.25 7.5h1.5V17h-1.5zM15.25 10h1.5v7h-1.5z",
-)
-export const MessageFilled = make(
-  "M5 3h14a3 3 0 0 1 3 3v9a3 3 0 0 1-3 3h-5.5L8.6 21.4A1 1 0 0 1 7 20.6V18H5a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3ZM7 8.25h10v1.5H7zM7 11.75h7v1.5H7z",
-)
-export const CheckCircleFilled = make(
-  "M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20ZM16.3 8.6l-5.55 5.55-3-3-1.06 1.06 4.06 4.06 6.6-6.6z",
-)
-export const FolderFilled = make(
-  "M2.5 6A2.5 2.5 0 0 1 5 3.5h4.38a2.5 2.5 0 0 1 1.77.73L12.92 6H19a2.5 2.5 0 0 1 2.5 2.5v9.5A2.5 2.5 0 0 1 19 20.5H5A2.5 2.5 0 0 1 2.5 18Z",
-)
-export const BookFilled = make(
-  "M2 5a1 1 0 0 1 1-1h5a4 4 0 0 1 3.25 1.67V20.5A3 3 0 0 0 8.75 19H3a1 1 0 0 1-1-1ZM22 5a1 1 0 0 0-1-1h-5a4 4 0 0 0-3.25 1.67V20.5A3 3 0 0 1 15.25 19H21a1 1 0 0 0 1-1Z",
-)
-export const FileFilled = make(
-  "M6 2h8l6 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm7.5 1.5V8a.5.5 0 0 0 .5.5h4.5ZM8 12.25h8v1.5H8zM8 16.25h8v1.5H8zM8 8.25h3v1.5H8z",
-)
+/** The calendar body and rings (CalendarDays, CalendarCheck). */
+const CALENDAR =
+  "M3.75 8A3 3 0 0 1 6.75 5H17.25A3 3 0 0 1 20.25 8V17.5A3 3 0 0 1 17.25 20.5H6.75A3 3 0 0 1 3.75 17.5ZM8 3V6.5M16 3V6.5"
+const CALENDAR_HEAD = "M5.75 10H18.25"
+
+/** The file outline and its fold (FileText, Newspaper, File). */
+const FILE =
+  "M7.5 2.75H14.086a1 1 0 0 1 0.707 0.293L19.207 7.457a1 1 0 0 1 0.293 0.707V18.25a3 3 0 0 1-3 3H7.5a3 3 0 0 1-3-3V5.75a3 3 0 0 1 3-3Z"
+const FILE_FOLD = "M14.5 0.5V6.75a1 1 0 0 0 1 1H23"
+
+const CIRCLE = "M21.25 12a9.25 9.25 0 1 1 -18.5 0 9.25 9.25 0 0 1 18.5 0Z"
+
+/** Bell. */
+export const BellFilled = filledTwin("BellFilled", {
+  shape:
+    "M18 8.83A6 6 0 0 0 6 8.83V13.23L4.55 14.98A0.9 0.9 0 0 0 5.25 16.45H18.75A0.9 0.9 0 0 0 19.45 14.98L18 13.23ZM9.75 19.95A2.6 2.6 0 0 0 14.25 19.95",
+})
+/** Megaphone (Announcement01). */
+export const MegaphoneFilled = filledTwin("MegaphoneFilled", {
+  shape:
+    "M8.25 7.5H4.75a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h3.5M8.25 7.5L15.39 4.14Q16.75 3.5 16.75 5V16Q16.75 17.5 15.39 16.86L8.25 13.5ZM4.75 13.5v5a1.75 1.75 0 0 0 3.5 0v-5M20.25 8v5",
+})
+/** CalendarCheck. */
+export const CalendarCheckFilled = filledTwin("CalendarCheckFilled", {
+  shape: CALENDAR,
+  lines: `${CALENDAR_HEAD}M9.375 15.25L11.125 17L14.625 13.5`,
+})
+/** CalendarDays (the calendar tab). */
+export const CalendarEventFilled = filledTwin("CalendarEventFilled", {
+  shape: CALENDAR,
+  lines: `${CALENDAR_HEAD}M7.75 15.25A0.25 0.25 0 0 0 8.25 15.25A0.25 0.25 0 0 0 7.75 15.25M11.75 15.25A0.25 0.25 0 0 0 12.25 15.25A0.25 0.25 0 0 0 11.75 15.25M15.75 15.25A0.25 0.25 0 0 0 16.25 15.25A0.25 0.25 0 0 0 15.75 15.25`,
+})
+/** Clock. */
+export const ClockFilled = filledTwin("ClockFilled", {
+  shape: CIRCLE,
+  lines: "M12 7.103V12l3.265 2.176",
+})
+/** User. */
+export const UserFilled = filledTwin("UserFilled", {
+  shape:
+    "M16 7.75a4 4 0 1 1-8 0 4 4 0 0 1 8 0ZM5 20.25v-.5a4.25 4.25 0 0 1 4.25-4.25h5.5A4.25 4.25 0 0 1 19 19.75v.5",
+})
+/** Star. */
+export const StarFilled = filledTwin("StarFilled", {
+  shape:
+    "M12.918 3.758L14.794 8.114A1 1 0 0 0 15.62 8.714L20.343 9.152A1 1 0 0 1 20.911 10.899L17.347 14.03A1 1 0 0 0 17.032 15.001L18.075 19.627A1 1 0 0 1 16.589 20.707L12.511 18.286A1 1 0 0 0 11.489 18.286L7.411 20.707A1 1 0 0 1 5.925 19.627L6.968 15.001A1 1 0 0 0 6.653 14.03L3.089 10.899A1 1 0 0 1 3.657 9.152L8.38 8.714A1 1 0 0 0 9.206 8.114L11.082 3.758A1 1 0 0 1 12.918 3.758Z",
+})
+/** Bar chart in our square (BarChartSquare02). */
+export const ChartFilled = filledTwin("ChartFilled", {
+  shape:
+    "M6.25 3.25h11.5a3 3 0 0 1 3 3v11.5a3 3 0 0 1-3 3H6.25a3 3 0 0 1-3-3V6.25a3 3 0 0 1 3-3Z",
+  lines: "M7.5 15.25V17.25M12 11.25V17.25M16.5 6.75V17.25",
+})
+/** Message bubble with text (MessageTextCircle01). */
+export const MessageFilled = filledTwin("MessageFilled", {
+  shape:
+    "M20.862 11.497a8.861 8.861 0 0 1 -13.292 7.673l-3.44 1.199a0.782 0.782 0 0 1 -1.001 -0.98l1.147 -3.44A8.861 8.861 0 1 1 20.862 11.497Z",
+  lines: "M7.831 9.672h5.213M7.831 13.321h8.34",
+})
+/** CircleCheck (the tasks tab). */
+export const CheckCircleFilled = filledTwin("CheckCircleFilled", {
+  shape: CIRCLE,
+  lines: "M7.919 12.272l2.721 2.721 5.713 -5.713",
+})
+/** Folder (FolderOpen in the app: the library tab and projects). */
+export const FolderFilled = filledTwin("FolderFilled", {
+  shape:
+    "M3.5 7a3 3 0 0 1 3-3h2.65a2 2 0 0 1 1.6.8l1.1 1.4a2 2 0 0 0 1.6.8h4.05a3 3 0 0 1 3 3v7a3 3 0 0 1-3 3h-11a3 3 0 0 1-3-3Z",
+})
+/** Open book (BookOpen): two pages, the spine cut between them. */
+export const BookFilled = filledTwin("BookFilled", {
+  shape:
+    "M12 20.967c-0.871 -1.415 -2.176 -1.904 -3.809 -1.904H5.199a2.449 2.449 0 0 1 -2.449 -2.449V5.732A2.449 2.449 0 0 1 5.199 3.283H7.647a4.353 4.353 0 0 1 4.353 4.353M12 20.967c0.871 -1.415 2.176 -1.904 3.809 -1.904h2.993a2.449 2.449 0 0 0 2.449 -2.449V5.732A2.449 2.449 0 0 0 18.801 3.283H16.353a4.353 4.353 0 0 0 -4.353 4.353",
+  lines: "M12 5v18.5",
+})
+/** FileText (documents, contracts). */
+export const FileFilled = filledTwin("FileFilled", {
+  shape: FILE,
+  lines: `${FILE_FOLD}M8 13.5h8M8 17h5`,
+})
+/** Newspaper (File06: the reports tab). */
+export const NewspaperFilled = filledTwin("NewspaperFilled", {
+  shape: FILE,
+  lines: `${FILE_FOLD}M8 10.25h3M8 13.75h8M8 17.25h8`,
+})
+/** LayoutGrid: our square, the cross cut through into four tiles. */
+export const GridFilled = filledTwin("GridFilled", {
+  shape:
+    "M6.339 3.25h11.324a3.089 3.089 0 0 1 3.089 3.089v11.324a3.089 3.089 0 0 1 -3.089 3.089h-11.324a3.089 3.089 0 0 1 -3.089 -3.089v-11.324a3.089 3.089 0 0 1 3.089 -3.089Z",
+  lines: "M0.5 12h23M12 0.5v23",
+})
+/** Home: the house, its door cut open to the ground. */
+export const HomeFilled = filledTwin("HomeFilled", {
+  shape:
+    "M3.292 19.617L3.292 10.311A1.633 1.633 0 0 1 3.88 9.059L10.955 3.181A1.633 1.633 0 0 1 13.045 3.181L20.12 9.059A1.633 1.633 0 0 1 20.708 10.311L20.708 19.617A1.633 1.633 0 0 1 19.075 21.25L4.925 21.25A1.633 1.633 0 0 1 3.292 19.617Z",
+  holes: "M9.551 23v-6.104a2.449 2.449 0 0 1 4.898 0V23Z",
+})

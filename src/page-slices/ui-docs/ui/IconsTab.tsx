@@ -328,7 +328,7 @@ export function IconsTab() {
 
       <DocGroup
         title="Glyph aplikasi"
-        note="Digambar sendiri: viewBox 16, currentColor, aria-hidden, size-4 shrink-0."
+        note="Digambar sendiri di grid 24 dengan STROKE set (lingkaran, kotak, titik dan dash kita), currentColor, aria-hidden, size-4 shrink-0."
       >
         <div className="grid gap-8 md:grid-cols-2">
           <DocExample

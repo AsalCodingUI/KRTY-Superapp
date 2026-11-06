@@ -1,6 +1,7 @@
 "use client"
 
 import { EmptyValue } from "@/components/empty-value"
+import { SPARKLE_D, STROKE } from "@/components/icons/custom"
 import { SegmentedControl } from "@/components/segmented-control"
 import type { ReviewSummary } from "@/app/(main)/performance/actions/review-actions"
 import { RATINGS, ratingFor } from "@/entities/performance/lib/kpi"
@@ -55,20 +56,31 @@ function paragraphsOf(text: string) {
     .filter(Boolean)
 }
 
-/** Two sparkles in a violet-to-blue gradient: marks what the AI wrote. */
+/** Our sparkle, its outline in a violet-to-blue gradient: marks what the
+ *  AI wrote. */
 function AiSparkle() {
   const id = useId()
   return (
-    <svg viewBox="0 0 24 24" aria-hidden className="size-4">
+    <svg viewBox="0 0 24 24" aria-hidden className="size-4" fill="none">
       <defs>
-        <linearGradient id={id} x1="2" y1="2" x2="22" y2="22">
+        <linearGradient
+          id={id}
+          gradientUnits="userSpaceOnUse"
+          x1="2"
+          y1="2"
+          x2="22"
+          y2="22"
+        >
           <stop offset="0" stopColor="var(--purple-9)" />
           <stop offset="1" stopColor="var(--blue-9)" />
         </linearGradient>
       </defs>
       <path
-        fill={`url(#${id})`}
-        d="M10 4c.6 4.6 2.4 6.4 7 7-4.6.6-6.4 2.4-7 7-.6-4.6-2.4-6.4-7-7 4.6-.6 6.4-2.4 7-7zM18.5 2c.3 2.1 1.1 2.9 3.2 3.2-2.1.3-2.9 1.1-3.2 3.2-.3-2.1-1.1-2.9-3.2-3.2 2.1-.3 2.9-1.1 3.2-3.2zM18 15.5c.25 1.6.9 2.25 2.5 2.5-1.6.25-2.25.9-2.5 2.5-.25-1.6-.9-2.25-2.5-2.5 1.6-.25 2.25-.9 2.5-2.5z"
+        d={SPARKLE_D}
+        stroke={`url(#${id})`}
+        strokeWidth={STROKE}
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   )

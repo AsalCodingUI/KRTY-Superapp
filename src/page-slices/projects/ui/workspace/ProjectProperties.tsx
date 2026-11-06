@@ -10,6 +10,7 @@ import {
   Infinity as InfinityIcon,
   ListChecks,
 } from "@/components/icons"
+import { STROKE } from "@/components/icons/custom"
 import type { PhaseRow, StepRow } from "./data"
 
 /** Dot colour per project status. */
@@ -22,32 +23,32 @@ const STATUS_DOT: Record<string, string> = {
   Archived: "bg-muted-foreground",
 }
 
-/** A small pie for a share done (Linear's progress glyph). */
+/** A small pie for a share done (Linear's progress glyph): our circle
+ *  (r 9.25, STROKE) and, inside it, a wedge of the inner disc, inset so a
+ *  1.5 clear ring stays between them (as the status icons). */
 function ProgressRing({ value }: { value: number }) {
-  // The wedge is drawn out to the middle of the ring's stroke, so the two
-  // overlap and no seam shows between them.
   const share = Math.min(Math.max(value, 0), 100) / 100
-  const r = 6.25
+  const r = 9.25 - STROKE / 2 - 1.5
   const angle = share * 2 * Math.PI
-  const x = 7 + r * Math.sin(angle)
-  const y = 7 - r * Math.cos(angle)
+  const x = 12 + r * Math.sin(angle)
+  const y = 12 - r * Math.cos(angle)
   return (
-    <svg viewBox="0 0 14 14" className="text-primary size-3.5" aria-hidden>
+    <svg viewBox="0 0 24 24" className="text-primary size-3.5" aria-hidden>
       <circle
-        cx="7"
-        cy="7"
-        r={r}
+        cx="12"
+        cy="12"
+        r="9.25"
         fill="none"
         stroke="currentColor"
-        strokeWidth="1.5"
+        strokeWidth={STROKE}
       />
       {share >= 1 ? (
-        <circle cx="7" cy="7" r={r} fill="currentColor" />
+        <circle cx="12" cy="12" r={r} fill="currentColor" />
       ) : (
         share > 0 && (
           <path
             fill="currentColor"
-            d={`M7 7 L7 ${7 - r} A${r} ${r} 0 ${share > 0.5 ? 1 : 0} 1 ${x} ${y} Z`}
+            d={`M12 12 L12 ${12 - r} A${r} ${r} 0 ${share > 0.5 ? 1 : 0} 1 ${x} ${y} Z`}
           />
         )
       )}

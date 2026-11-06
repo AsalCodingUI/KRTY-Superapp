@@ -20,27 +20,11 @@ import {
   CalendarCheckFilled,
   CalendarEventFilled,
   CheckCircleFilled,
+  HomeFilled,
 } from "@/widgets/notifications/ui/notification-icons"
 import { usePathname } from "next/navigation"
 
 const links = siteConfig.baseLinks
-
-/** Lucide's house, filled (24px grid, the door cut out). */
-function HomeFilled({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      aria-hidden
-      className={className}
-    >
-      <path
-        fillRule="evenodd"
-        d="M10.7 2.55a2 2 0 0 1 2.6 0l7 5.95A2 2 0 0 1 21 10v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V10a2 2 0 0 1 .7-1.5ZM10 15v5h4v-5Z"
-      />
-    </svg>
-  )
-}
 
 /**
  * Phones get the essentials only, from the same floating tab bar as the

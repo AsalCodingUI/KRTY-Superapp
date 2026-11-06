@@ -45,6 +45,12 @@ import {
   RiLogoutBoxLine,
 } from "@/shared/ui/lucide-icons"
 import { Newspaper } from "@/components/icons"
+import {
+  FileFilled,
+  FolderFilled,
+  GridFilled,
+  NewspaperFilled,
+} from "@/widgets/notifications/ui/notification-icons"
 import { m } from "motion/react"
 import { TRANSITION } from "@/shared/lib/motion"
 import Link from "next/link"
@@ -387,50 +393,5 @@ function TabBar({
         </>
       }
     />
-  )
-}
-
-/* Filled versions of the tab icons, for the open tab (24px grid, same
-   shapes as the outline ones; the lines are cut out with evenodd). */
-type IconProps = { className?: string }
-
-function GridFilled({ className }: IconProps) {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
-      <rect x="3" y="3" width="8" height="8" rx="2" />
-      <rect x="13" y="3" width="8" height="8" rx="2" />
-      <rect x="3" y="13" width="8" height="8" rx="2" />
-      <rect x="13" y="13" width="8" height="8" rx="2" />
-    </svg>
-  )
-}
-
-function NewspaperFilled({ className }: IconProps) {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
-      <path
-        fillRule="evenodd"
-        d="M8 2.5h11.5A2.5 2.5 0 0 1 22 5v14a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3v-8.5A2.5 2.5 0 0 1 4.5 8h1V5A2.5 2.5 0 0 1 8 2.5ZM5.5 10h-1a.5.5 0 0 0-.5.5V19a1 1 0 0 0 1.5.87V10ZM9.5 6.5h8v4h-8zM9.5 13.25h8v1.5h-8zM9.5 16.75h5.5v1.5H9.5z"
-      />
-    </svg>
-  )
-}
-
-function FileFilled({ className }: IconProps) {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
-      <path
-        fillRule="evenodd"
-        d="M6 2h8l6 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm7.5 1.5V8a.5.5 0 0 0 .5.5h4.5ZM8 12.25h8v1.5H8zM8 16.25h8v1.5H8zM8 8.25h3v1.5H8z"
-      />
-    </svg>
-  )
-}
-
-function FolderFilled({ className }: IconProps) {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
-      <path d="M2.5 6A2.5 2.5 0 0 1 5 3.5h4.38a2.5 2.5 0 0 1 1.77.73L12.92 6H19a2.5 2.5 0 0 1 2.5 2.5v9.5A2.5 2.5 0 0 1 19 20.5H5A2.5 2.5 0 0 1 2.5 18Z" />
-    </svg>
   )
 }

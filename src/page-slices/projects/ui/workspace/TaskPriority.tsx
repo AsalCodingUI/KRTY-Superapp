@@ -1,4 +1,6 @@
 import { cn } from "@/lib/utils"
+import { STROKE } from "@/components/icons/custom"
+import type * as React from "react"
 
 /** Highest first, as the menus list them. */
 export const TASK_PRIORITIES = [
@@ -24,9 +26,40 @@ export function priorityOf(value: string | null | undefined): TaskPriority {
     : "none"
 }
 
+/** Our grid and stroke (24, STROKE, round caps and joins). */
+function Glyph({
+  className,
+  children,
+}: {
+  className: string
+  children: React.ReactNode
+}) {
+  return (
+    <svg
+      aria-hidden
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={STROKE}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      {children}
+    </svg>
+  )
+}
+
+/** Three rising bars, 6.5 apart, centred on the grid. */
+const BARS = [
+  { x: 5.5, top: 14 },
+  { x: 12, top: 9 },
+  { x: 18.5, top: 4 },
+]
+
 /**
- * Linear-style priority glyphs: three bars filled up to the level, a
- * filled "!" box for urgent, dashes for none.
+ * Linear-style priority glyphs: three bars lit up to the level, our
+ * square with a "!" for urgent, three short dashes for none.
  */
 export function TaskPriorityIcon({
   priority,
@@ -38,57 +71,26 @@ export function TaskPriorityIcon({
   const base = cn("size-4 shrink-0", className)
   if (priority === "urgent")
     return (
-      <svg aria-hidden viewBox="0 0 16 16" className={cn(base, "text-warning")}>
-        <path
-          fill="currentColor"
-          fillRule="evenodd"
-          d="M4 1.5h8A2.5 2.5 0 0 1 14.5 4v8a2.5 2.5 0 0 1-2.5 2.5H4A2.5 2.5 0 0 1 1.5 12V4A2.5 2.5 0 0 1 4 1.5ZM7.1 4h1.8l-.25 5H7.35L7.1 4Zm.9 6.25a1 1 0 1 0 0 2 1 1 0 0 0 0-2Z"
-        />
-      </svg>
+      <Glyph className={cn(base, "text-warning")}>
+        <path d="M6.25 3.25h11.5a3 3 0 0 1 3 3v11.5a3 3 0 0 1-3 3H6.25a3 3 0 0 1-3-3V6.25a3 3 0 0 1 3-3ZM12 7.75v5M11.75 16.25a.25.25 0 1 0 .5 0a.25.25 0 1 0-.5 0" />
+      </Glyph>
     )
   if (priority === "none")
     return (
-      <svg
-        aria-hidden
-        viewBox="0 0 16 16"
-        className={cn(base, "text-muted-foreground")}
-      >
-        {[2.5, 6.75, 11].map((x) => (
-          <rect
-            key={x}
-            x={x}
-            y="7.25"
-            width="2.5"
-            height="1.5"
-            rx="0.5"
-            fill="currentColor"
-          />
-        ))}
-      </svg>
+      <Glyph className={cn(base, "text-muted-foreground")}>
+        <path d="M5 12h1M11.5 12h1M18 12h1" />
+      </Glyph>
     )
   const level = priority === "high" ? 3 : priority === "medium" ? 2 : 1
   return (
-    <svg
-      aria-hidden
-      viewBox="0 0 16 16"
-      className={cn(base, "text-muted-foreground")}
-    >
-      {[
-        { x: 2, y: 9, h: 5 },
-        { x: 6.75, y: 5.5, h: 8.5 },
-        { x: 11.5, y: 2, h: 12 },
-      ].map((bar, i) => (
-        <rect
+    <Glyph className={cn(base, "text-muted-foreground")}>
+      {BARS.map((bar, i) => (
+        <path
           key={bar.x}
-          x={bar.x}
-          y={bar.y}
-          width="2.5"
-          height={bar.h}
-          rx="0.75"
-          fill="currentColor"
+          d={`M${bar.x} ${bar.top}V20`}
           opacity={i < level ? 1 : 0.25}
         />
       ))}
-    </svg>
+    </Glyph>
   )
 }

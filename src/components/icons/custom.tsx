@@ -40,11 +40,19 @@ export function glyph(name: string, d: string) {
   return Glyph
 }
 
-/** A cup with steam (breaks). */
+/** A cup with steam (breaks): a 12 × 9 body (r 3), a handle, and two
+ *  S-curves of steam 3.5 above the rim; centred in the live area. */
 export const Coffee = glyph(
   "Coffee",
-  "M2.75 9.149h13.875v6.359a5.203 5.203 0 0 1 -5.203 5.203h-3.469A5.203 5.203 0 0 1 2.75 15.508ZM16.625 10.883h1.445a3.18 3.18 0 0 1 0 6.359H16.625M7.375 2.789v2.891M12 2.789v2.891",
+  "M7 11.25h6a3 3 0 0 1 3 3v3a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3v-3a3 3 0 0 1 3-3ZM16 13h1.25a2.75 2.75 0 0 1 0 5.5H16M8 3.75c1 .75 1 1.25 0 2s-1 1.25 0 2M12 3.75c1 .75 1 1.25 0 2s-1 1.25 0 2",
 )
+
+/** One four-point sparkle across the live area (the Stars family's
+ *  shape: tips at 2.75 and 21.25, waist at 9 % / 36 % of the reach). The
+ *  path is exported for glyphs that stroke it with a gradient. */
+export const SPARKLE_D =
+  "M12 2.75C12.832 8.67 15.33 11.168 21.25 12C15.33 12.832 12.832 15.33 12 21.25C11.168 15.33 8.67 12.832 2.75 12C8.67 11.168 11.168 8.67 12 2.75Z"
+export const Sparkle = glyph("Sparkle", SPARKLE_D)
 
 /** A drag handle of six filled dots (2 × 3 standing, 3 × 2 lying): the
  *  set's own grip is a 3 × 3 grid, heavier than a handle needs. Filled,
