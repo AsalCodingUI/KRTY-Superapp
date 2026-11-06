@@ -24,10 +24,7 @@ export const InfoCircle = glyph(
   "InfoCircle",
   "M21.25 12a9.25 9.25 0 1 1 -18.5 0 9.25 9.25 0 0 1 18.5 0ZM12 16.625V11.456M11.75 7.375a.25.25 0 1 0 .5 0a.25.25 0 1 0-.5 0",
 )
-export const Italic01 = glyph(
-  "Italic01",
-  "M19.4 2.75h-9.867M14.467 21.25H4.6M15.083 2.75l-6.167 18.5",
-)
+export const Italic01 = glyph("Italic01", "M11 5H18M6 19H13M14.5 5L9.5 19")
 export const LayersTwo01 = glyph(
   "LayersTwo01",
   "M12.979 5.394l7.835 3.918a0.544 0.544 0 0 1 0 0.979l-7.835 3.918a2.176 2.176 0 0 1 -1.959 0l-7.835 -3.918a0.544 0.544 0 0 1 0 -0.979l7.835 -3.918a2.176 2.176 0 0 1 1.959 0ZM2.75 14.971l8.271 4.135a2.176 2.176 0 0 0 1.959 0l8.271 -4.135",
@@ -50,7 +47,7 @@ export const LayoutLeft = glyph(
 )
 export const LineChartUp01 = glyph(
   "LineChartUp01",
-  "M2.75 2.75v15.235a3.265 3.265 0 0 0 3.265 3.265h15.235M7.103 15.809L11.184 11.456L14.449 14.449L20.162 8.191",
+  "M2.75 2.75V18.25a3 3 0 0 0 3 3H21.25M6.25 16.5L10.5 12L13.75 15L20.25 7.75",
 )
 export const Link02 = glyph(
   "Link02",
@@ -165,7 +162,7 @@ export const PieChart01 = glyph(
 )
 export const Pilcrow01 = glyph(
   "Pilcrow01",
-  "M18.841 2.75h-8.942a5.242 5.242 0 0 0 0 10.483h2.467M12.366 2.75v18.5M16.991 2.75v18.5",
+  "M12.75 12H10.75A3.5 3.5 0 0 1 10.75 5H16.75M12.75 5V19M16.75 5V19",
 )
 export const Pin01 = glyph(
   "Pin01",

@@ -138,7 +138,7 @@ export const Copy = glyph(
 export const MoreHorizontal = dots("MoreHorizontal", [5.5, 12, 18.5], [12])
 export const FileText = glyph(
   "FileText",
-  "M13.75 2.75H6.75a3 3 0 0 0-3 3v12.5a3 3 0 0 0 3 3h10.5a3 3 0 0 0 3-3V9.25ZM13.75 2.75v4.5a2 2 0 0 0 2 2h4.5M8 13.5h8M8 17h5",
+  "M7.5 2.75H14.086a1 1 0 0 1 0.707 0.293L19.207 7.457a1 1 0 0 1 0.293 0.707V18.25a3 3 0 0 1-3 3H7.5a3 3 0 0 1-3-3V5.75a3 3 0 0 1 3-3ZM14.5 2.75V6.75a1 1 0 0 0 1 1H19.5M8 13.5h8M8 17h5",
 )
 export const Clock = glyph(
   "Clock",
