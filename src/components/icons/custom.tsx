@@ -3,18 +3,12 @@
  * free set doesn't have, drawn the same way (24px, round caps and joins,
  * no fill) so it sits with the rest.
  */
-import { cn } from "@/lib/utils"
 import type { SVGProps } from "react"
 
-/** The icons' stroke in screen px, the same at every size (non-scaling
- *  stroke): 1.25 ≈ 0.9 × Geist's stem at 14px (1.4). An icon packs more
- *  ink in its box than a letter (closed shapes, corners), so an equal
- *  stroke reads heavier; 0.9× makes them weigh like the text beside them
- *  (docs/ui/optical.md). */
-export const STROKE = 1.25
-
-/** Keeps the stroke in screen px however big the icon is drawn. */
-export const STEADY_STROKE = "[&_*]:[vector-effect:non-scaling-stroke]"
+/** The icons' stroke on their 24px grid: 1.5. It scales with the icon
+ *  (1px at size-4, 2px at 32px), so every size is the same drawing, just
+ *  bigger or smaller (docs/ui/icons.md). */
+export const STROKE = 1.5
 
 /** Glyphs drawn here carry `ours: true`, and so do the app icons made
  *  from them (index.tsx): /icon-lab marks those as redrawn. */
@@ -36,7 +30,6 @@ function glyph(name: string, d: string) {
       strokeLinecap="round"
       strokeLinejoin="round"
       {...props}
-      className={cn(STEADY_STROKE, props.className)}
     >
       <path d={d} />
     </svg>

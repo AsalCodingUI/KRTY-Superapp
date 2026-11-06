@@ -61,11 +61,15 @@ props are accepted and ignored. Every icon is listed on /ui → Icons.
 - Icons inherit `currentColor`. Quiet icons: `text-muted-foreground`;
   status: `text-success-ink`, `text-warning`, `text-destructive`. Semantic
   tokens only.
-- Stroke: **1.25px on screen at every size** (non-scaling stroke, `STROKE`
-  in `src/components/icons/custom.tsx`), ≈ 0.9 × Geist's stem at 14px
-  (an icon holds more ink than a letter, so an equal stroke reads heavier), so icons
-  weigh like the text beside them (docs/ui/optical.md). One CSS property,
-  no cost. `strokeWidth` on a single icon is ignored.
+- Grid and stroke: every glyph is drawn on a **24px grid with a 1.5px
+  stroke** (`STROKE` in `src/components/icons/custom.tsx`), round caps and
+  joins. The stroke **scales** with the icon: 1px at `size-4`, 0.875 at
+  `size-3.5`, 2px at 32px. Every size is the same drawing, only bigger or
+  smaller. `strokeWidth` on a single icon is ignored.
+- Our own set: redrawn from the Untitled UI base on that grid, in
+  `custom.tsx`; /icon-lab shows the whole Untitled pack, which ones the
+  app uses (darker tile) and which are redrawn (dot; hover shows the
+  Untitled original).
 - Other hand-made glyphs (status, stage, priority): `viewBox="0 0 16 16"`,
   `fill="currentColor"` (or `stroke="currentColor"` at the same weight as
   `STROKE` on a 24 grid, i.e. about 1.15 on 16), `aria-hidden`, base class `size-4 shrink-0`, cut-outs with

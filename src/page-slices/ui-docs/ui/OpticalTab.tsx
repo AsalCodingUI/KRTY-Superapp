@@ -51,7 +51,7 @@ const RULES: [string, ReactNode][] = [
   ],
   [
     "Color weight",
-    "Garis ikon 1.17px di 16px vs stem huruf 1.4px (450) / 1.55px (500): dulu ikon lebih pucat. Sekarang garis 1.25px tetap di semua ukuran (0.9 × stem: ikon lebih padat dari huruf, jadi garis yang sama kelihatan lebih tebal; non-scaling stroke, STROKE)",
+    "Garis ikon 1.17px di 16px vs stem huruf 1.4px (450) / 1.55px (500): dulu ikon lebih pucat. Sekarang 1.5 di grid 24px dan ikut skala (1px di 16px): satu gambar di semua ukuran; ikon lebih padat dari huruf, jadi garis yang lebih tipis dari stem tetap kelihatan setara (STROKE)",
   ],
   [
     "Glyph overshoot",
@@ -210,7 +210,7 @@ export function OpticalTab() {
 
       <DocGroup
         title="Color weight"
-        note="Ikon dan teks dengan warna sama harus kelihatan setebal sama. Dulu garis ikon ikut ukuran (1.75 di 24px → 1.17px di 16px); sekarang 1.25px tetap (0.9 × stem Geist 14px; 1.4px sama persis dengan stem tapi kelihatan lebih tebal)."
+        note="Ikon dan teks dengan warna sama harus kelihatan setebal sama. Dulu garis ikon ikut ukuran (1.75 di 24px → 1.17px di 16px); sekarang 1.5 di grid 24px, ikut skala (1px di 16px)."
       >
         <Pair
           before={

@@ -45,12 +45,11 @@ At `size-4` (16px) that's: circle 14.5px, plus 10.5px (≈ the 14px cap
 height, 9.9), X 9.2px. The set is already drawn optically (circles bigger
 than squares, plus bigger than X), so don't resize single icons.
 
-Icon stroke on screen: **1.25px at every size** (`STROKE`, non-scaling),
-0.9 × the 14px stem: an icon packs more ink in its box than a letter
-(closed shapes, corners), so the same 1.4px stroke read heavier than the
-label beside it (sidebar: folder vs "Projects").
-Before: 1.75 on the 24 grid → 1.17px at 16px, 1.02 at 14, 0.88 at 12.
-Very large icons (≥ 28px) would look thin at 1.25px; the app has none.
+Icon stroke: **1.5 on the 24px grid, scaling with the icon** (`STROKE`):
+1px at 16px, 0.875 at 14, 0.75 at 12, 2px at 32. The icon is one drawing at
+every size (the set is being redrawn on this grid, /icon-lab). History:
+1.75 scaling, then a fixed 1.4px and 1.25px on screen (non-scaling), which
+read heavier than the label beside it at small sizes.
 
 ## The eight checks
 
@@ -89,11 +88,11 @@ Very large icons (≥ 28px) would look thin at 1.25px; the app has none.
 - An icon and text in the same color should look equally heavy. Today
   icons are lighter (1.17px vs the text stem 1.40 at 450, 1.55 at 500),
   most visibly at `size-3.5` / `size-3` and in muted color.
-- Applied (`src/components/icons/index.tsx`, `custom.tsx`): a **fixed
-  on-screen stroke of 1.25px** at every size (`vector-effect: non-scaling-stroke` on
-  the glyph's paths + `strokeWidth={1.25}`), 0.9 × Geist's 14px stem
-  (1.4 matched the stem exactly but looked heavier: icons hold more ink).
-  One CSS property, no cost. Don't go per-weight or per-place.
+- Applied (`src/components/icons/index.tsx`, `custom.tsx`): **1.5 on the
+  24px grid, scaling** with the icon (1px at `size-4`). An icon holds
+  more ink than a letter (closed shapes, corners), so a stroke thinner
+  than the text stem (1.4 at 14px) still weighs like the label beside it.
+  Don't go per-weight or per-place.
 - Until then: don't put muted icons beside foreground text to "soften"
   them; thin strokes already read lighter. Status icons use the `-ink`
   tokens (darker) rather than the base status color.

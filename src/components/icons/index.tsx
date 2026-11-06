@@ -11,8 +11,7 @@
  */
 
 import * as React from "react"
-import { cn } from "@/lib/utils"
-import { STEADY_STROKE, STROKE } from "./custom"
+import { STROKE } from "./custom"
 import * as C from "./custom"
 
 import { AlertCircle as UAlertCircle } from "@untitledui/icons/AlertCircle"
@@ -265,7 +264,6 @@ function icon(Glyph: Source, name: string): Icon {
       <Glyph
         aria-hidden={labelled ? undefined : true}
         {...props}
-        className={cn(STEADY_STROKE, props.className)}
         {...(typeof size === "string"
           ? { width: size, height: size }
           : { size: size ?? 24 })}

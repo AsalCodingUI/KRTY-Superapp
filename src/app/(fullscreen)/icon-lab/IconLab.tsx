@@ -1,7 +1,7 @@
 "use client"
 
 import * as AppIcons from "@/components/icons"
-import { STEADY_STROKE, STROKE } from "@/components/icons/custom"
+import { STROKE } from "@/components/icons/custom"
 import { cn } from "@/lib/utils"
 import * as Untitled from "@untitledui/icons"
 import type { ComponentType } from "react"
@@ -74,7 +74,6 @@ export function IconLab() {
                 aria-hidden
                 strokeWidth={STROKE}
                 className={cn(
-                  STEADY_STROKE,
                   "size-6",
                   Ours &&
                     "absolute inset-0 m-auto opacity-0 transition-opacity duration-150 group-hover/tile:opacity-100",

@@ -98,7 +98,7 @@ const RULES: [string, string][] = [
   ],
   [
     "Stroke",
-    "1.25px tetap di semua ukuran (non-scaling, 0.9 × stem Geist 14px), diatur sekali di STROKE. strokeWidth per ikon diabaikan",
+    "Grid 24px, garis 1.5 yang ikut skala (1px di 16px), diatur sekali di STROKE. strokeWidth per ikon diabaikan",
   ],
   [
     "Animasi",
@@ -181,14 +181,14 @@ export function IconsTab() {
 
       <DocGroup
         title="Sebelum / sesudah"
-        note="Set ikon pindah ke Untitled UI, garisnya sekarang tetap 1.25px di semua ukuran. Kiri: garis lama yang ikut ukuran; kanan: yang jalan sekarang."
+        note="Set ikon pindah ke Untitled UI, garisnya sekarang 1.5 di grid 24px dan ikut skala. Kiri: garis lama yang ikut ukuran; kanan: yang jalan sekarang."
       >
         <IconsCompare />
       </DocGroup>
 
       <DocGroup
         title="Semua ikon app"
-        note="Tiap nama ikon yang dipakai app (Untitled UI, garis 1.25px tetap). Yang ditandai custom digambar sendiri karena belum ada di Untitled UI."
+        note="Tiap nama ikon yang dipakai app (Untitled UI, grid 24px, garis 1.5). Yang ditandai custom digambar sendiri karena belum ada di Untitled UI."
       >
         <AllIcons />
       </DocGroup>
