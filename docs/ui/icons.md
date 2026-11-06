@@ -218,6 +218,12 @@ Check new ones against them and against /icon-lab (hover shows the base).
    folders and most objects 18.5 on their long side; chevrons span 12.5.
    Arrows, calendars and people keep 16.5–17.5. Tiny marks (dots, dashes)
    keep their size.
+   **Frame + mark** (CheckSquare, XSquare, AlertOctagon, MessageXSquare,
+   CheckVerified…): the mark inside fills its frame, up to 1.25× its Untitled
+   size, stopping where its stroke centres are 3.5 from the frame's (the
+   cut gap). So a check spans ~10, an X ~8, a plus ~9.6 in a 17.5 square;
+   dots move with the mark but stay 2 across. Marks already at the gap
+   (currency, charts, dice) keep their size.
 2. **Corners.** Containers (cards, files, folders, calendars, bubbles)
    r 3; boxes 6–10px wide r 2; tiny boxes r 1. Polygon and roof corners
    round with r 1.5, all the same within an icon (no mix of sharp and

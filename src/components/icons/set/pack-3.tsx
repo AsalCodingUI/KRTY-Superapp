@@ -413,7 +413,7 @@ export const Download02 = glyph(
 )
 export const Download03 = glyph(
   "Download03",
-  "M21.25 12A9.25 9.25 0 1 1 2.75 12A9.25 9.25 0 1 1 21.25 12ZM12 7.5L12 16.5M14.652 13.848L12 16.5L9.348 13.848",
+  "M21.25 12A9.25 9.25 0 1 1 2.75 12A9.25 9.25 0 1 1 21.25 12ZM12 7.046L12 16.954M14.92 14.035L12 16.954L9.08 14.035",
 )
 export const Download04 = glyph(
   "Download04",
