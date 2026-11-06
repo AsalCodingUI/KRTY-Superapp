@@ -60,101 +60,194 @@ for (const [name, value] of Object.entries(OurSet as Record<string, unknown>)) {
 /** Untitled glyphs the app uses today (through @/components/icons). */
 const USED = new Set<unknown>(Object.values(UNTITLED_BASE))
 
-/** The picked tiles, kept in this browser between visits (a convenience:
- *  the list itself is what gets copied and sent). */
-const PICKED_KEY = "icon-lab:picked"
+/** Look-alike variants: one family per name without its number
+ *  (Mail01–Mail04 → Mail; Centre spelled Center), two or more members. */
+const FAMILIES = (() => {
+  const map = new Map<string, (typeof PACK)[number][]>()
+  for (const entry of PACK) {
+    const stem = entry[0].replace(/\d+$/, "").replace("Centre", "Center")
+    map.set(stem, [...(map.get(stem) ?? []), entry])
+  }
+  return [...map].filter(([, members]) => members.length > 1)
+})()
 
-function usePicked() {
-  const [picked, setPicked] = useState<Set<string>>(() => new Set())
+/** A JSON value kept in this browser between visits (a convenience: the
+ *  list itself is what gets copied and sent). */
+function useStored<T>(key: string, empty: T) {
+  const [value, setValue] = useState<T>(empty)
   useEffect(() => {
     try {
-      const raw = localStorage.getItem(PICKED_KEY)
-      if (raw) setPicked(new Set(JSON.parse(raw) as string[]))
+      const raw = localStorage.getItem(key)
+      if (raw) setValue(JSON.parse(raw) as T)
     } catch {}
-  }, [])
-  const save = (next: Set<string>) => {
-    setPicked(next)
+  }, [key])
+  const save = (next: T) => {
+    setValue(next)
     try {
-      localStorage.setItem(PICKED_KEY, JSON.stringify([...next]))
+      localStorage.setItem(key, JSON.stringify(next))
     } catch {}
   }
-  const toggle = (name: string) => {
-    const next = new Set(picked)
-    if (next.has(name)) next.delete(name)
-    else next.add(name)
-    save(next)
-  }
-  return { picked, toggle, clear: () => save(new Set()) }
+  return [value, save] as const
 }
 
+async function copyText(text: string, done: string) {
+  try {
+    await navigator.clipboard.writeText(text)
+    toast.success(done)
+  } catch {
+    toast.error("Gagal menyalin")
+  }
+}
+
+/** One icon: ours (dot in the corner, Untitled on hover) or the Untitled
+ *  base; darker when the app uses it; a ring and its name when chosen. */
+function Tile({
+  name,
+  Base,
+  on,
+  onClick,
+}: {
+  name: string
+  Base: Glyph
+  on: boolean
+  onClick: () => void
+}) {
+  const Ours = OURS.get(Base)
+  return (
+    <button
+      type="button"
+      aria-label={name}
+      aria-pressed={on}
+      onClick={onClick}
+      className={cn(
+        "group/tile rounded-card focus-visible:ring-ring relative flex aspect-square w-full items-center justify-center outline-none focus-visible:ring-2",
+        USED.has(Base) ? "bg-accent" : "bg-muted",
+        on && "ring-primary ring-2",
+      )}
+    >
+      {Ours && (
+        <span
+          aria-hidden
+          className="bg-primary absolute top-2.5 right-2.5 size-1.5 rounded-full"
+        />
+      )}
+      {on && (
+        <span className="text-primary text-micro absolute inset-x-1 bottom-1.5 truncate leading-none">
+          {name}
+        </span>
+      )}
+      {Ours && (
+        <Ours className="size-6 transition-opacity duration-150 group-hover/tile:opacity-0" />
+      )}
+      <Base
+        aria-hidden
+        strokeWidth={STROKE}
+        className={cn(
+          "size-6",
+          Ours &&
+            "absolute inset-0 m-auto opacity-0 transition-opacity duration-150 group-hover/tile:opacity-100",
+        )}
+      />
+    </button>
+  )
+}
+
+const GRID = "grid grid-cols-[repeat(auto-fill,minmax(5.5rem,1fr))] gap-2"
+const BAR =
+  "bg-popover text-popover-foreground shadow-raised rounded-card fixed inset-x-4 bottom-4 z-10 mx-auto flex max-w-xl items-center gap-2 p-2 pl-4"
+
 /**
- * Every Untitled UI icon as a tile, no names: the base we redraw from.
- * A redrawn one shows ours, with the Untitled original on hover and a dot
- * in the corner. Icons the app uses are on a darker tile. Click tiles to
- * pick the ones that need work; the bar at the bottom copies their names.
+ * Two modes. Semua: every Untitled UI icon as a tile (the base we redraw
+ * from); click tiles to pick the ones that need work and copy their names.
+ * Varian: the look-alike families (Mail01–04, Bell01–04 …) one row each;
+ * choose the one to keep per family and copy the choices.
  */
 export function IconLab() {
-  const { picked, toggle, clear } = usePicked()
+  const [mode, setMode] = useStored<"all" | "variants">("icon-lab:mode", "all")
+  const [pickedList, setPickedList] = useStored<string[]>("icon-lab:picked", [])
+  const [chosen, setChosen] = useStored<Record<string, string>>(
+    "icon-lab:chosen",
+    {},
+  )
   const [onlyPicked, setOnlyPicked] = useState(false)
+  const picked = new Set(pickedList)
+  const toggle = (name: string) =>
+    setPickedList(
+      picked.has(name)
+        ? pickedList.filter((n) => n !== name)
+        : [...pickedList, name],
+    )
   const shown = onlyPicked ? PACK.filter(([n]) => picked.has(n)) : PACK
-  const copy = async () => {
-    const list = PACK.map(([n]) => n).filter((n) => picked.has(n))
-    try {
-      await navigator.clipboard.writeText(list.join(", "))
-      toast.success(`${list.length} nama icon disalin`)
-    } catch {
-      toast.error("Gagal menyalin")
-    }
-  }
+  const done = FAMILIES.filter(([stem]) => chosen[stem]).length
+
   return (
     <main className="bg-background text-foreground min-h-dvh p-4 pb-24 md:p-8 md:pb-24">
-      <ul className="grid grid-cols-[repeat(auto-fill,minmax(5.5rem,1fr))] gap-2">
-        {shown.map(([name, Base]) => {
-          const Ours = OURS.get(Base)
-          const on = picked.has(name)
-          return (
+      <div className="mb-4 flex items-center gap-1">
+        <Button
+          variant={mode === "all" ? "secondary" : "ghost"}
+          size="sm"
+          aria-pressed={mode === "all"}
+          onClick={() => setMode("all")}
+        >
+          Semua
+        </Button>
+        <Button
+          variant={mode === "variants" ? "secondary" : "ghost"}
+          size="sm"
+          aria-pressed={mode === "variants"}
+          onClick={() => setMode("variants")}
+        >
+          Varian ({FAMILIES.length})
+        </Button>
+      </div>
+
+      {mode === "all" ? (
+        <ul className={GRID}>
+          {shown.map(([name, Base]) => (
             <li key={name}>
-              <button
-                type="button"
-                aria-label={name}
-                aria-pressed={on}
+              <Tile
+                name={name}
+                Base={Base}
+                on={picked.has(name)}
                 onClick={() => toggle(name)}
-                className={cn(
-                  "group/tile rounded-card focus-visible:ring-ring relative flex aspect-square w-full items-center justify-center outline-none focus-visible:ring-2",
-                  USED.has(Base) ? "bg-accent" : "bg-muted",
-                  on && "ring-primary ring-2",
-                )}
-              >
-                {Ours && (
-                  <span
-                    aria-hidden
-                    className="bg-primary absolute top-2.5 right-2.5 size-1.5 rounded-full"
-                  />
-                )}
-                {on && (
-                  <span className="text-primary text-micro absolute inset-x-1 bottom-1.5 truncate leading-none">
-                    {name}
-                  </span>
-                )}
-                {Ours && (
-                  <Ours className="size-6 transition-opacity duration-150 group-hover/tile:opacity-0" />
-                )}
-                <Base
-                  aria-hidden
-                  strokeWidth={STROKE}
-                  className={cn(
-                    "size-6",
-                    Ours &&
-                      "absolute inset-0 m-auto opacity-0 transition-opacity duration-150 group-hover/tile:opacity-100",
-                  )}
-                />
-              </button>
+              />
             </li>
-          )
-        })}
-      </ul>
-      {picked.size > 0 && (
-        <div className="bg-popover text-popover-foreground shadow-raised rounded-card fixed inset-x-4 bottom-4 z-10 mx-auto flex max-w-xl items-center gap-2 p-2 pl-4">
+          ))}
+        </ul>
+      ) : (
+        <div className="space-y-6">
+          {FAMILIES.map(([stem, members]) => (
+            <section key={stem}>
+              <h2 className="text-meta text-muted-foreground mb-2">
+                {stem}
+                {chosen[stem] && (
+                  <span className="text-foreground"> · {chosen[stem]}</span>
+                )}
+              </h2>
+              <ul className={GRID}>
+                {members.map(([name, Base]) => (
+                  <li key={name}>
+                    <Tile
+                      name={name}
+                      Base={Base}
+                      on={chosen[stem] === name}
+                      onClick={() => {
+                        const next = { ...chosen }
+                        if (next[stem] === name) delete next[stem]
+                        else next[stem] = name
+                        setChosen(next)
+                      }}
+                    />
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ))}
+        </div>
+      )}
+
+      {mode === "all" && picked.size > 0 && (
+        <div className={BAR}>
           <span className="text-sm font-medium tabular-nums">
             {picked.size} dipilih
           </span>
@@ -167,11 +260,52 @@ export function IconLab() {
             >
               {onlyPicked ? "Tampilkan semua" : "Lihat yang dipilih"}
             </Button>
-            <Button variant="ghost" size="sm" onClick={clear}>
+            <Button variant="ghost" size="sm" onClick={() => setPickedList([])}>
               Hapus pilihan
             </Button>
-            <Button size="sm" onClick={copy}>
+            <Button
+              size="sm"
+              onClick={() =>
+                copyText(
+                  PACK.map(([n]) => n)
+                    .filter((n) => picked.has(n))
+                    .join(", "),
+                  `${picked.size} nama icon disalin`,
+                )
+              }
+            >
               Salin nama
+            </Button>
+          </div>
+        </div>
+      )}
+      {mode === "variants" && (
+        <div className={BAR}>
+          <span className="text-sm font-medium tabular-nums">
+            {done} / {FAMILIES.length} keluarga dipilih
+          </span>
+          <div className="ml-auto flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              disabled={done === 0}
+              onClick={() => setChosen({})}
+            >
+              Hapus pilihan
+            </Button>
+            <Button
+              size="sm"
+              disabled={done === 0}
+              onClick={() =>
+                copyText(
+                  FAMILIES.filter(([stem]) => chosen[stem])
+                    .map(([stem]) => `${stem}: ${chosen[stem]}`)
+                    .join("\n"),
+                  `${done} pilihan disalin`,
+                )
+              }
+            >
+              Salin pilihan
             </Button>
           </div>
         </div>
