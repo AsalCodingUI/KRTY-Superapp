@@ -145,7 +145,7 @@ export const AnnotationX = glyph(
 )
 export const Announcement02 = glyph(
   "Announcement02",
-  "M8.25 7.5H4.75a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h3.5M8.25 7.5L15.39 4.14Q16.75 3.5 16.75 5V16Q16.75 17.5 15.39 16.86L8.25 13.5ZM4.75 13.5v5a1.75 1.75 0 0 0 3.5 0v-5M19.25 7a4.5 4.5 0 0 1 0 7",
+  "M8.25 7.5H6.25a3 3 0 0 0 0 6h2M8.25 7.5L15.39 4.14Q16.75 3.5 16.75 5V16Q16.75 17.5 15.39 16.86L8.25 13.5ZM5.75 13.46L6.83 19.08a1.4 1.4 0 0 0 2.77-.28V14.14M19.25 7a4.5 4.5 0 0 1 0 7",
 )
 export const Announcement03 = glyph(
   "Announcement03",
@@ -341,7 +341,7 @@ export const Asterisk01 = glyph(
 )
 export const Asterisk02 = glyph(
   "Asterisk02",
-  "M12 2.903v18.194M2.903 12h18.194M5.567 5.567l12.866 12.866M18.433 5.567l-12.866 12.866",
+  "M12 3.75v16.5M4.855 7.875L19.145 16.125M19.145 7.875L4.855 16.125",
 )
 export const Atom01 = glyph(
   "Atom01",
@@ -365,7 +365,7 @@ export const Award01 = glyph(
 )
 export const Award02 = glyph(
   "Award02",
-  "M18.284 9.034a6.284 6.284 0 1 1 -12.568 0 6.284 6.284 0 0 1 12.568 0ZM7.628 13.548L7.628 18.881A1.508 1.508 0 0 0 9.814 20.236L11.268 19.515A1.639 1.639 0 0 1 12.732 19.515L14.186 20.236A1.508 1.508 0 0 0 16.372 18.881L16.372 13.548",
+  "M18.75 9.75a6.75 6.75 0 1 1 -13.5 0 6.75 6.75 0 0 1 13.5 0ZM7.5 14.75V19.13a1.5 1.5 0 0 0 2.19 1.34L11.27 19.7a1.64 1.64 0 0 1 1.46 0l1.58.77a1.5 1.5 0 0 0 2.19-1.34V14.75",
 )
 export const Award03 = glyph(
   "Award03",
@@ -441,11 +441,11 @@ export const BarChart12 = glyph(
 )
 export const BarChartCircle01 = glyph(
   "BarChartCircle01",
-  "M21.25 12a9.25 9.25 0 1 1-18.5 0a9.25 9.25 0 1 1 18.5 0ZM7.75 12.425V16.25M12 7.75V16.25M16.25 10.3V16.25",
+  "M21.25 12a9.25 9.25 0 1 1-18.5 0a9.25 9.25 0 1 1 18.5 0ZM7.75 12.5V16.25M12 7.75V16.25M16.25 11V16.25",
 )
 export const BarChartCircle02 = glyph(
   "BarChartCircle02",
-  "M21.25 12a9.25 9.25 0 1 1-18.5 0a9.25 9.25 0 1 1 18.5 0ZM7.75 13.275V16.25M12 10.725V16.25M16.25 7.75V16.25",
+  "M21.25 12a9.25 9.25 0 1 1-18.5 0a9.25 9.25 0 1 1 18.5 0ZM7.75 14.25V16.25M12 11.25V16.25M16.25 7.75V16.25",
 )
 export const BarChartCircle03 = glyph(
   "BarChartCircle03",
@@ -453,11 +453,11 @@ export const BarChartCircle03 = glyph(
 )
 export const BarChartSquare01 = glyph(
   "BarChartSquare01",
-  "M6.25 3.25h11.5a3 3 0 0 1 3 3v11.5a3 3 0 0 1-3 3H6.25a3 3 0 0 1-3-3V6.25a3 3 0 0 1 3-3ZM7.5 12.525V17.25M12 6.75V17.25M16.5 9.9V17.25",
+  "M6.25 3.25h11.5a3 3 0 0 1 3 3v11.5a3 3 0 0 1-3 3H6.25a3 3 0 0 1-3-3V6.25a3 3 0 0 1 3-3ZM7.5 12.75V17.25M12 6.75V17.25M16.5 10.75V17.25",
 )
 export const BarChartSquare02 = glyph(
   "BarChartSquare02",
-  "M6.25 3.25h11.5a3 3 0 0 1 3 3v11.5a3 3 0 0 1-3 3H6.25a3 3 0 0 1-3-3V6.25a3 3 0 0 1 3-3ZM7.5 13.575V17.25M12 10.425V17.25M16.5 6.75V17.25",
+  "M6.25 3.25h11.5a3 3 0 0 1 3 3v11.5a3 3 0 0 1-3 3H6.25a3 3 0 0 1-3-3V6.25a3 3 0 0 1 3-3ZM7.5 15.25V17.25M12 11.25V17.25M16.5 6.75V17.25",
 )
 export const BarChartSquare03 = glyph(
   "BarChartSquare03",

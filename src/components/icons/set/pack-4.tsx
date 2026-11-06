@@ -55,7 +55,7 @@ export const Figma = glyph(
 )
 export const File01 = glyph(
   "File01",
-  "M7.5 2.75H14.086a1 1 0 0 1 0.707 0.293L19.207 7.457a1 1 0 0 1 0.293 0.707V18.25a3 3 0 0 1-3 3H7.5a3 3 0 0 1-3-3V5.75a3 3 0 0 1 3-3ZM14.5 2.75V6.75a1 1 0 0 0 1 1H19.5",
+  "M7.5 2.75h9a3 3 0 0 1 3 3v12.5a3 3 0 0 1-3 3h-9a3 3 0 0 1-3-3V5.75a3 3 0 0 1 3-3Z",
 )
 export const File07 = glyph(
   "File07",

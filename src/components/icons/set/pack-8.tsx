@@ -107,19 +107,19 @@ export const Toggle01Left = glyph(
 )
 export const Toggle02Left = glyph(
   "Toggle02Left",
-  "M8.75 6H15.25a6 6 0 0 1 6 6V12a6 6 0 0 1 -6 6H8.75a6 6 0 0 1 -6 -6V12a6 6 0 0 1 6 -6ZM11.75 12a3 3 0 1 1 -6 0 3 3 0 0 1 6 0Z",
+  "M9.75 5H14.25a7 7 0 0 1 0 14H9.75a7 7 0 0 1 0 -14ZM14.25 12a4.5 4.5 0 1 1 -9 0a4.5 4.5 0 1 1 9 0Z",
 )
 export const Toggle02Right = glyph(
   "Toggle02Right",
-  "M8.75 6H15.25a6 6 0 0 1 6 6V12a6 6 0 0 1 -6 6H8.75a6 6 0 0 1 -6 -6V12a6 6 0 0 1 6 -6ZM18.25 12a3 3 0 1 1 -6 0 3 3 0 0 1 6 0Z",
+  "M9.75 5H14.25a7 7 0 0 1 0 14H9.75a7 7 0 0 1 0 -14ZM18.75 12a4.5 4.5 0 1 1 -9 0a4.5 4.5 0 1 1 9 0Z",
 )
 export const Toggle03Left = glyph(
   "Toggle03Left",
-  "M8.75 6H15.25a6 6 0 0 1 6 6V12a6 6 0 0 1 -6 6H8.75a6 6 0 0 1 -6 -6V12a6 6 0 0 1 6 -6ZM11.75 12a3 3 0 1 1 -6 0 3 3 0 0 1 6 0Z",
+  "M10.604 9H18.25a3 3 0 0 1 0 6H10.604M11.75 12a4.5 4.5 0 1 1 -9 0a4.5 4.5 0 1 1 9 0Z",
 )
 export const Toggle03Right = glyph(
   "Toggle03Right",
-  "M8.75 6H15.25a6 6 0 0 1 6 6V12a6 6 0 0 1 -6 6H8.75a6 6 0 0 1 -6 -6V12a6 6 0 0 1 6 -6ZM18.25 12a3 3 0 1 1 -6 0 3 3 0 0 1 6 0Z",
+  "M13.396 9H5.75a3 3 0 0 0 0 6H13.396M21.25 12a4.5 4.5 0 1 1 -9 0a4.5 4.5 0 1 1 9 0Z",
 )
 export const Tool01 = glyph(
   "Tool01",
@@ -215,11 +215,11 @@ export const TypeSquare = glyph(
 )
 export const TypeStrikethrough01 = glyph(
   "TypeStrikethrough01",
-  "M8.182 5H17A1.5 1.5 0 0 1 18.5 6.5V7.5M12 5V8.818M12 15.182V19M3.25 3.25L20.75 20.75",
+  "M8.182 5H17A1.5 1.5 0 0 1 18.5 6.5V7.5M12 5V8.818M12 15.182V19M9.5 19h5M3.25 3.25L20.75 20.75",
 )
 export const TypeStrikethrough02 = glyph(
   "TypeStrikethrough02",
-  "M8.182 5H18M12 5V8.818M12 15.182V19M3.25 3.25L20.75 20.75",
+  "M8.182 5H18M10.5 5V7.318M13.5 5V10.318M10.5 13.682V19H13.5V16.682M3.25 3.25L20.75 20.75",
 )
 export const Umbrella01 = glyph(
   "Umbrella01",

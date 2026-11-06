@@ -51,7 +51,7 @@ export const CreditCard01 = glyph(
 )
 export const CreditCard02 = glyph(
   "CreditCard02",
-  "M2.75 8.25a3 3 0 0 1 3-3h12.5a3 3 0 0 1 3 3v7a3 3 0 0 1-3 3H5.75a3 3 0 0 1-3-3ZM2.75 9.75h18.5M6.75 14.5h4",
+  "M2.75 8.25a3 3 0 0 1 3-3h12.5a3 3 0 0 1 3 3v7a3 3 0 0 1-3 3H5.75a3 3 0 0 1-3-3ZM2.75 9.75h18.5M6.75 14.75h3.5M13 14.75h4.25",
 )
 export const CurrencyDollarCircle = glyph(
   "CurrencyDollarCircle",
@@ -93,7 +93,7 @@ export const Eraser = glyph(
 )
 export const Expand06 = glyph(
   "Expand06",
-  "M2.75 8.531V2.75h5.781M2.75 2.75l6.359 6.359M21.25 8.531V2.75h-5.781M21.25 2.75l-6.359 6.359M2.75 15.469v5.781h5.781M2.75 21.25l6.359 -6.359M21.25 15.469v5.781h-5.781M21.25 21.25l-6.359 -6.359",
+  "M3.25 8.75V6.25a3 3 0 0 1 3-3h2.5M15.25 3.25h2.5a3 3 0 0 1 3 3v2.5M20.75 15.25v2.5a3 3 0 0 1-3 3h-2.5M8.75 20.75h-2.5a3 3 0 0 1-3-3v-2.5",
 )
 export const Eye = glyph(
   "Eye",
@@ -109,7 +109,7 @@ export const FaceSmile = glyph(
 )
 export const File03 = glyph(
   "File03",
-  "M7.5 2.75H14.086a1 1 0 0 1 0.707 0.293L19.207 7.457a1 1 0 0 1 0.293 0.707V18.25a3 3 0 0 1-3 3H7.5a3 3 0 0 1-3-3V5.75a3 3 0 0 1 3-3ZM14.5 2.75V6.75a1 1 0 0 0 1 1H19.5M8.5 14v3.5M12 9.5v8M15.5 12v5.5",
+  "M7.5 2.75h9a3 3 0 0 1 3 3v12.5a3 3 0 0 1-3 3h-9a3 3 0 0 1-3-3V5.75a3 3 0 0 1 3-3ZM8.5 14v3.5M12 9.5v8M15.5 12v5.5",
 )
 export const File04 = glyph(
   "File04",
@@ -133,7 +133,7 @@ export const FilterLines = glyph(
 )
 export const Flag01 = glyph(
   "Flag01",
-  "M5.409 21.25V3.5M5.409 3.5L16.991 3.5A1.59 1.59 0 0 1 18.252 6.064L17.299 7.294A1.59 1.59 0 0 0 17.299 9.244L18.252 10.473A1.59 1.59 0 0 1 16.991 13.037L5.409 13.037",
+  "M5.25 21.25V4.25M5.25 4.25q3.5-2 7 0t7 0v9.5q-3.5 2-7 0t-7 0",
 )
 export const FlipBackward = glyph(
   "FlipBackward",
