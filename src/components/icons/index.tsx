@@ -25,14 +25,12 @@ import { AlignTopArrow02 as UAlignTopArrow02 } from "@untitledui/icons/AlignTopA
 import { Announcement01 as UAnnouncement01 } from "@untitledui/icons/Announcement01"
 import { Archive as UArchive } from "@untitledui/icons/Archive"
 import { ArrowDown as UArrowDown } from "@untitledui/icons/ArrowDown"
-import { ArrowLeft as UArrowLeft } from "@untitledui/icons/ArrowLeft"
 import { ArrowRight as UArrowRight } from "@untitledui/icons/ArrowRight"
 import { ArrowUp as UArrowUp } from "@untitledui/icons/ArrowUp"
 import { ArrowUpRight as UArrowUpRight } from "@untitledui/icons/ArrowUpRight"
 import { AtSign as UAtSign } from "@untitledui/icons/AtSign"
 import { BarChart01 as UBarChart01 } from "@untitledui/icons/BarChart01"
 import { BarChart07 as UBarChart07 } from "@untitledui/icons/BarChart07"
-import { Bell01 as UBell01 } from "@untitledui/icons/Bell01"
 import { Bold01 as UBold01 } from "@untitledui/icons/Bold01"
 import { BookOpen01 as UBookOpen01 } from "@untitledui/icons/BookOpen01"
 import { Briefcase01 as UBriefcase01 } from "@untitledui/icons/Briefcase01"
@@ -47,7 +45,6 @@ import { CalendarMinus01 as UCalendarMinus01 } from "@untitledui/icons/CalendarM
 import { CalendarMinus02 as UCalendarMinus02 } from "@untitledui/icons/CalendarMinus02"
 import { CalendarPlus01 as UCalendarPlus01 } from "@untitledui/icons/CalendarPlus01"
 import { Camera01 as UCamera01 } from "@untitledui/icons/Camera01"
-import { Check as UCheck } from "@untitledui/icons/Check"
 import { CheckCircle as UCheckCircle } from "@untitledui/icons/CheckCircle"
 import { CheckDone01 as UCheckDone01 } from "@untitledui/icons/CheckDone01"
 import { CheckDone02 as UCheckDone02 } from "@untitledui/icons/CheckDone02"
@@ -56,7 +53,6 @@ import { CheckVerified01 as UCheckVerified01 } from "@untitledui/icons/CheckVeri
 import { ChevronDown as UChevronDown } from "@untitledui/icons/ChevronDown"
 import { ChevronLeft as UChevronLeft } from "@untitledui/icons/ChevronLeft"
 import { ChevronLeftDouble as UChevronLeftDouble } from "@untitledui/icons/ChevronLeftDouble"
-import { ChevronRight as UChevronRight } from "@untitledui/icons/ChevronRight"
 import { ChevronRightDouble as UChevronRightDouble } from "@untitledui/icons/ChevronRightDouble"
 import { ChevronSelectorVertical as UChevronSelectorVertical } from "@untitledui/icons/ChevronSelectorVertical"
 import { ChevronUp as UChevronUp } from "@untitledui/icons/ChevronUp"
@@ -64,7 +60,6 @@ import { ChevronUpDouble as UChevronUpDouble } from "@untitledui/icons/ChevronUp
 import { Circle as UCircle } from "@untitledui/icons/Circle"
 import { Clipboard as UClipboard } from "@untitledui/icons/Clipboard"
 import { ClipboardCheck as UClipboardCheck } from "@untitledui/icons/ClipboardCheck"
-import { Clock as UClock } from "@untitledui/icons/Clock"
 import { ClockRefresh as UClockRefresh } from "@untitledui/icons/ClockRefresh"
 import { Cloud01 as UCloud01 } from "@untitledui/icons/Cloud01"
 import { CloudOff as UCloudOff } from "@untitledui/icons/CloudOff"
@@ -72,7 +67,6 @@ import { Code01 as UCode01 } from "@untitledui/icons/Code01"
 import { Code02 as UCode02 } from "@untitledui/icons/Code02"
 import { Columns02 as UColumns02 } from "@untitledui/icons/Columns02"
 import { Columns03 as UColumns03 } from "@untitledui/icons/Columns03"
-import { Copy01 as UCopy01 } from "@untitledui/icons/Copy01"
 import { Copy04 as UCopy04 } from "@untitledui/icons/Copy04"
 import { Copy06 as UCopy06 } from "@untitledui/icons/Copy06"
 import { Copy07 as UCopy07 } from "@untitledui/icons/Copy07"
@@ -96,7 +90,6 @@ import { Expand06 as UExpand06 } from "@untitledui/icons/Expand06"
 import { Eye as UEye } from "@untitledui/icons/Eye"
 import { EyeOff as UEyeOff } from "@untitledui/icons/EyeOff"
 import { FaceSmile as UFaceSmile } from "@untitledui/icons/FaceSmile"
-import { File02 as UFile02 } from "@untitledui/icons/File02"
 import { File03 as UFile03 } from "@untitledui/icons/File03"
 import { File04 as UFile04 } from "@untitledui/icons/File04"
 import { File05 as UFile05 } from "@untitledui/icons/File05"
@@ -118,7 +111,6 @@ import { Heading02 as UHeading02 } from "@untitledui/icons/Heading02"
 import { HeadingSquare as UHeadingSquare } from "@untitledui/icons/HeadingSquare"
 import { Heart as UHeart } from "@untitledui/icons/Heart"
 import { HelpCircle as UHelpCircle } from "@untitledui/icons/HelpCircle"
-import { Home02 as UHome02 } from "@untitledui/icons/Home02"
 import { Image01 as UImage01 } from "@untitledui/icons/Image01"
 import { Image04 as UImage04 } from "@untitledui/icons/Image04"
 import { ImagePlus as UImagePlus } from "@untitledui/icons/ImagePlus"
@@ -133,7 +125,6 @@ import { LayoutAlt04 as ULayoutAlt04 } from "@untitledui/icons/LayoutAlt04"
 import { LayoutGrid01 as ULayoutGrid01 } from "@untitledui/icons/LayoutGrid01"
 import { LayoutLeft as ULayoutLeft } from "@untitledui/icons/LayoutLeft"
 import { LineChartUp01 as ULineChartUp01 } from "@untitledui/icons/LineChartUp01"
-import { Link01 as ULink01 } from "@untitledui/icons/Link01"
 import { Link02 as ULink02 } from "@untitledui/icons/Link02"
 import { LinkBroken01 as ULinkBroken01 } from "@untitledui/icons/LinkBroken01"
 import { LinkExternal01 as ULinkExternal01 } from "@untitledui/icons/LinkExternal01"
@@ -161,7 +152,6 @@ import { Palette as UPalette } from "@untitledui/icons/Palette"
 import { Paperclip as UPaperclip } from "@untitledui/icons/Paperclip"
 import { PauseCircle as UPauseCircle } from "@untitledui/icons/PauseCircle"
 import { PenTool02 as UPenTool02 } from "@untitledui/icons/PenTool02"
-import { Pencil01 as UPencil01 } from "@untitledui/icons/Pencil01"
 import { Phone as UPhone } from "@untitledui/icons/Phone"
 import { Phone01 as UPhone01 } from "@untitledui/icons/Phone01"
 import { PieChart01 as UPieChart01 } from "@untitledui/icons/PieChart01"
@@ -182,10 +172,8 @@ import { Rows02 as URows02 } from "@untitledui/icons/Rows02"
 import { Ruler as URuler } from "@untitledui/icons/Ruler"
 import { Save01 as USave01 } from "@untitledui/icons/Save01"
 import { Scissors01 as UScissors01 } from "@untitledui/icons/Scissors01"
-import { SearchMd as USearchMd } from "@untitledui/icons/SearchMd"
 import { SearchRefraction as USearchRefraction } from "@untitledui/icons/SearchRefraction"
 import { Send01 as USend01 } from "@untitledui/icons/Send01"
-import { Settings01 as USettings01 } from "@untitledui/icons/Settings01"
 import { Settings02 as USettings02 } from "@untitledui/icons/Settings02"
 import { ShieldTick as UShieldTick } from "@untitledui/icons/ShieldTick"
 import { SlashCircle01 as USlashCircle01 } from "@untitledui/icons/SlashCircle01"
@@ -218,14 +206,12 @@ import { UserCheck01 as UUserCheck01 } from "@untitledui/icons/UserCheck01"
 import { UserCircle as UUserCircle } from "@untitledui/icons/UserCircle"
 import { UserPlus01 as UUserPlus01 } from "@untitledui/icons/UserPlus01"
 import { UserX01 as UUserX01 } from "@untitledui/icons/UserX01"
-import { Users01 as UUsers01 } from "@untitledui/icons/Users01"
 import { Users02 as UUsers02 } from "@untitledui/icons/Users02"
 import { VideoRecorder as UVideoRecorder } from "@untitledui/icons/VideoRecorder"
 import { VolumeX as UVolumeX } from "@untitledui/icons/VolumeX"
 import { Wallet02 as UWallet02 } from "@untitledui/icons/Wallet02"
 import { WifiOff as UWifiOff } from "@untitledui/icons/WifiOff"
 import { XCircle as UXCircle } from "@untitledui/icons/XCircle"
-import { XClose as UXClose } from "@untitledui/icons/XClose"
 
 /** Untitled UI's free set is line only: kept so `weight` props still type. */
 export type IconWeight = "Outline" | "Filled"
@@ -290,7 +276,7 @@ export const AppWindow = /*#__PURE__*/ icon(UBrowser, "AppWindow")
 export const Archive = /*#__PURE__*/ icon(UArchive, "Archive")
 export const ArchiveRestore = /*#__PURE__*/ icon(UArchive, "ArchiveRestore")
 export const ArrowDown = /*#__PURE__*/ icon(UArrowDown, "ArrowDown")
-export const ArrowLeft = /*#__PURE__*/ icon(UArrowLeft, "ArrowLeft")
+export const ArrowLeft = /*#__PURE__*/ icon(C.ArrowLeft, "ArrowLeft")
 export const ArrowLeftRight = /*#__PURE__*/ icon(
   USwitchHorizontal01,
   "ArrowLeftRight",
@@ -306,7 +292,7 @@ export const AtSign = /*#__PURE__*/ icon(UAtSign, "AtSign")
 export const BadgeCheck = /*#__PURE__*/ icon(UCheckVerified01, "BadgeCheck")
 export const Ban = /*#__PURE__*/ icon(USlashCircle01, "Ban")
 export const BarChart3 = /*#__PURE__*/ icon(UBarChart01, "BarChart3")
-export const Bell = /*#__PURE__*/ icon(UBell01, "Bell")
+export const Bell = /*#__PURE__*/ icon(C.Bell, "Bell")
 export const Bold = /*#__PURE__*/ icon(UBold01, "Bold")
 export const BookOpen = /*#__PURE__*/ icon(UBookOpen01, "BookOpen")
 export const Briefcase = /*#__PURE__*/ icon(UBriefcase01, "Briefcase")
@@ -321,7 +307,7 @@ export const CalendarCheck = /*#__PURE__*/ icon(
   "CalendarCheck",
 )
 export const CalendarClock = /*#__PURE__*/ icon(UCalendarDate, "CalendarClock")
-export const CalendarDays = /*#__PURE__*/ icon(UCalendar, "CalendarDays")
+export const CalendarDays = /*#__PURE__*/ icon(C.CalendarDays, "CalendarDays")
 export const CalendarOff = /*#__PURE__*/ icon(UCalendarMinus01, "CalendarOff")
 export const CalendarPlus = /*#__PURE__*/ icon(UCalendarPlus01, "CalendarPlus")
 export const CalendarRange = /*#__PURE__*/ icon(UCalendarDate, "CalendarRange")
@@ -333,16 +319,16 @@ export const ChartColumnIncreasing = /*#__PURE__*/ icon(
   "ChartColumnIncreasing",
 )
 export const ChartLine = /*#__PURE__*/ icon(ULineChartUp01, "ChartLine")
-export const Check = /*#__PURE__*/ icon(UCheck, "Check")
+export const Check = /*#__PURE__*/ icon(C.Check, "Check")
 export const CheckCheck = /*#__PURE__*/ icon(UCheckDone01, "CheckCheck")
 export const CheckCircle2 = /*#__PURE__*/ icon(UCheckCircle, "CheckCircle2")
-export const ChevronDown = /*#__PURE__*/ icon(UChevronDown, "ChevronDown")
+export const ChevronDown = /*#__PURE__*/ icon(C.ChevronDown, "ChevronDown")
 export const ChevronDownSquare = /*#__PURE__*/ icon(
   UChevronDown,
   "ChevronDownSquare",
 )
 export const ChevronLeft = /*#__PURE__*/ icon(UChevronLeft, "ChevronLeft")
-export const ChevronRight = /*#__PURE__*/ icon(UChevronRight, "ChevronRight")
+export const ChevronRight = /*#__PURE__*/ icon(C.ChevronRight, "ChevronRight")
 export const ChevronUp = /*#__PURE__*/ icon(UChevronUp, "ChevronUp")
 export const ChevronsDownUp = /*#__PURE__*/ icon(
   UChevronSelectorVertical,
@@ -391,7 +377,7 @@ export const ClipboardCheck = /*#__PURE__*/ icon(
 )
 export const ClipboardCopy = /*#__PURE__*/ icon(UCopy06, "ClipboardCopy")
 export const ClipboardPaste = /*#__PURE__*/ icon(UClipboard, "ClipboardPaste")
-export const Clock = /*#__PURE__*/ icon(UClock, "Clock")
+export const Clock = /*#__PURE__*/ icon(C.Clock, "Clock")
 export const Cloud = /*#__PURE__*/ icon(UCloud01, "Cloud")
 export const CloudOff = /*#__PURE__*/ icon(UCloudOff, "CloudOff")
 export const CloudUpload = /*#__PURE__*/ icon(UUploadCloud01, "CloudUpload")
@@ -401,7 +387,7 @@ export const Code2 = /*#__PURE__*/ icon(UCode02, "Code2")
 export const Coffee = /*#__PURE__*/ icon(C.Coffee, "Coffee")
 export const Columns2 = /*#__PURE__*/ icon(UColumns02, "Columns2")
 export const Columns3 = /*#__PURE__*/ icon(UColumns03, "Columns3")
-export const Copy = /*#__PURE__*/ icon(UCopy01, "Copy")
+export const Copy = /*#__PURE__*/ icon(C.Copy, "Copy")
 export const CopyPlus = /*#__PURE__*/ icon(UCopy04, "CopyPlus")
 export const CornerDownLeft = /*#__PURE__*/ icon(
   UCornerDownLeft,
@@ -427,12 +413,12 @@ export const FilePen = /*#__PURE__*/ icon(UEdit05, "FilePen")
 export const FilePlus = /*#__PURE__*/ icon(UFilePlus02, "FilePlus")
 export const FilePlus2 = /*#__PURE__*/ icon(UFilePlus02, "FilePlus2")
 export const FileSignature = /*#__PURE__*/ icon(UFile06, "FileSignature")
-export const FileText = /*#__PURE__*/ icon(UFile02, "FileText")
+export const FileText = /*#__PURE__*/ icon(C.FileText, "FileText")
 export const Files = /*#__PURE__*/ icon(UCopy07, "Files")
 export const Filter = /*#__PURE__*/ icon(UFilterLines, "Filter")
 export const Flag = /*#__PURE__*/ icon(UFlag01, "Flag")
 export const Flower = /*#__PURE__*/ icon(USun, "Flower")
-export const Folder = /*#__PURE__*/ icon(UFolder, "Folder")
+export const Folder = /*#__PURE__*/ icon(C.Folder, "Folder")
 export const FolderInput = /*#__PURE__*/ icon(UFolderDownload, "FolderInput")
 export const FolderKanban = /*#__PURE__*/ icon(ULayoutAlt04, "FolderKanban")
 export const FolderOpen = /*#__PURE__*/ icon(UFolder, "FolderOpen")
@@ -455,7 +441,7 @@ export const Heading1 = /*#__PURE__*/ icon(UHeading01, "Heading1")
 export const Heading2 = /*#__PURE__*/ icon(UHeading02, "Heading2")
 export const Heading3 = /*#__PURE__*/ icon(UHeadingSquare, "Heading3")
 export const Heart = /*#__PURE__*/ icon(UHeart, "Heart")
-export const Home = /*#__PURE__*/ icon(UHome02, "Home")
+export const Home = /*#__PURE__*/ icon(C.Home, "Home")
 export const IdCard = /*#__PURE__*/ icon(UCreditCard02, "IdCard")
 export const Image = /*#__PURE__*/ icon(UImage01, "Image")
 export const ImageIcon = /*#__PURE__*/ icon(UImage01, "ImageIcon")
@@ -473,7 +459,7 @@ export const LayoutDashboard = /*#__PURE__*/ icon(
   "LayoutDashboard",
 )
 export const LayoutGrid = /*#__PURE__*/ icon(ULayoutGrid01, "LayoutGrid")
-export const Link = /*#__PURE__*/ icon(ULink01, "Link")
+export const Link = /*#__PURE__*/ icon(C.Link, "Link")
 export const Link2 = /*#__PURE__*/ icon(ULink02, "Link2")
 export const Link2Off = /*#__PURE__*/ icon(ULinkBroken01, "Link2Off")
 export const List = /*#__PURE__*/ icon(UList, "List")
@@ -512,7 +498,7 @@ export const MinusIcon = /*#__PURE__*/ icon(UMinus, "MinusIcon")
 export const Monitor = /*#__PURE__*/ icon(UMonitor01, "Monitor")
 export const Moon = /*#__PURE__*/ icon(UMoon01, "Moon")
 export const MoreHorizontal = /*#__PURE__*/ icon(
-  UDotsHorizontal,
+  C.MoreHorizontal,
   "MoreHorizontal",
 )
 export const MoreHorizontalIcon = /*#__PURE__*/ icon(
@@ -532,14 +518,14 @@ export const Palette = /*#__PURE__*/ icon(UPalette, "Palette")
 export const PanelLeftIcon = /*#__PURE__*/ icon(ULayoutLeft, "PanelLeftIcon")
 export const Paperclip = /*#__PURE__*/ icon(UPaperclip, "Paperclip")
 export const Pause = /*#__PURE__*/ icon(UPauseCircle, "Pause")
-export const Pencil = /*#__PURE__*/ icon(UPencil01, "Pencil")
+export const Pencil = /*#__PURE__*/ icon(C.Pencil, "Pencil")
 export const PencilRuler = /*#__PURE__*/ icon(UPenTool02, "PencilRuler")
 export const Phone = /*#__PURE__*/ icon(UPhone, "Phone")
 export const PieChart = /*#__PURE__*/ icon(UPieChart01, "PieChart")
 export const Pilcrow = /*#__PURE__*/ icon(UPilcrow01, "Pilcrow")
 export const Pin = /*#__PURE__*/ icon(UPin01, "Pin")
 export const Play = /*#__PURE__*/ icon(UPlay, "Play")
-export const Plus = /*#__PURE__*/ icon(UPlus, "Plus")
+export const Plus = /*#__PURE__*/ icon(C.Plus, "Plus")
 export const Power = /*#__PURE__*/ icon(UPower01, "Power")
 export const Printer = /*#__PURE__*/ icon(UPrinter, "Printer")
 export const Quote = /*#__PURE__*/ icon(UMessageTextSquare01, "Quote")
@@ -555,14 +541,14 @@ export const Ruler = /*#__PURE__*/ icon(URuler, "Ruler")
 export const Save = /*#__PURE__*/ icon(USave01, "Save")
 export const Scissors = /*#__PURE__*/ icon(UScissors01, "Scissors")
 export const ScrollText = /*#__PURE__*/ icon(UFile05, "ScrollText")
-export const Search = /*#__PURE__*/ icon(USearchMd, "Search")
+export const Search = /*#__PURE__*/ icon(C.Search, "Search")
 export const SearchCheck = /*#__PURE__*/ icon(USearchRefraction, "SearchCheck")
 export const Send = /*#__PURE__*/ icon(USend01, "Send")
 export const SeparatorHorizontal = /*#__PURE__*/ icon(
   UDivider,
   "SeparatorHorizontal",
 )
-export const Settings = /*#__PURE__*/ icon(USettings01, "Settings")
+export const Settings = /*#__PURE__*/ icon(C.Settings, "Settings")
 export const Settings2 = /*#__PURE__*/ icon(USettings02, "Settings2")
 export const ShieldCheck = /*#__PURE__*/ icon(UShieldTick, "ShieldCheck")
 export const SlidersHorizontal = /*#__PURE__*/ icon(
@@ -594,7 +580,7 @@ export const TextCursorInput = /*#__PURE__*/ icon(UTextInput, "TextCursorInput")
 export const TextQuote = /*#__PURE__*/ icon(UMessageTextSquare02, "TextQuote")
 export const TimerReset = /*#__PURE__*/ icon(UClockRefresh, "TimerReset")
 export const ToggleRight = /*#__PURE__*/ icon(UToggle01Right, "ToggleRight")
-export const Trash2 = /*#__PURE__*/ icon(UTrash01, "Trash2")
+export const Trash2 = /*#__PURE__*/ icon(C.Trash2, "Trash2")
 export const TriangleAlert = /*#__PURE__*/ icon(UAlertTriangle, "TriangleAlert")
 export const TriangleAlertIcon = /*#__PURE__*/ icon(
   UAlertTriangle,
@@ -608,7 +594,7 @@ export const UserCheck = /*#__PURE__*/ icon(UUserCheck01, "UserCheck")
 export const UserPlus = /*#__PURE__*/ icon(UUserPlus01, "UserPlus")
 export const UserRound = /*#__PURE__*/ icon(UUserCircle, "UserRound")
 export const UserRoundX = /*#__PURE__*/ icon(UUserX01, "UserRoundX")
-export const Users = /*#__PURE__*/ icon(UUsers01, "Users")
+export const Users = /*#__PURE__*/ icon(C.Users, "Users")
 export const UsersRound = /*#__PURE__*/ icon(UUsers02, "UsersRound")
 export const Video = /*#__PURE__*/ icon(UVideoRecorder, "Video")
 export const VolumeX = /*#__PURE__*/ icon(UVolumeX, "VolumeX")
@@ -616,5 +602,5 @@ export const Wallet = /*#__PURE__*/ icon(UWallet02, "Wallet")
 export const WandSparkles = /*#__PURE__*/ icon(UMagicWand02, "WandSparkles")
 export const WifiOff = /*#__PURE__*/ icon(UWifiOff, "WifiOff")
 export const Workflow = /*#__PURE__*/ icon(UDataflow03, "Workflow")
-export const X = /*#__PURE__*/ icon(UXClose, "X")
+export const X = /*#__PURE__*/ icon(C.X, "X")
 export const XCircle = /*#__PURE__*/ icon(UXCircle, "XCircle")
