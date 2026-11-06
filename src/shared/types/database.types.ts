@@ -1578,6 +1578,7 @@ export type Database = {
           parent_id: string | null
           title: string
           assignee_id: string | null
+          assignee_ids: string[]
           due_date: string | null
           done: boolean
           completed_at: string | null
@@ -1595,6 +1596,7 @@ export type Database = {
           parent_id?: string | null
           title: string
           assignee_id?: string | null
+          assignee_ids?: string[]
           due_date?: string | null
           done?: boolean
           completed_at?: string | null
@@ -1612,6 +1614,7 @@ export type Database = {
           parent_id?: string | null
           title?: string
           assignee_id?: string | null
+          assignee_ids?: string[]
           due_date?: string | null
           done?: boolean
           completed_at?: string | null

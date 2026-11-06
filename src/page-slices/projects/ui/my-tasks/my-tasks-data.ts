@@ -43,6 +43,41 @@ export type MyTasks = {
 export const myTasksKey = (viewerId: string | null) =>
   ["my-tasks", viewerId] as const
 
+/**
+ * Refreshes Tugas saya on changes to the viewer's tasks. Realtime can't
+ * filter on "array contains", so this listens to every task the viewer may
+ * read (RLS) and refreshes when the row lists them, or when it's a task the
+ * list already shows (they may just have been taken off it).
+ */
+function useMyTasksLive(name: string, viewerId: string | null) {
+  const queryClient = useQueryClient()
+  useRealtimeRefresh(
+    name,
+    [
+      {
+        table: "project_tasks",
+        keys: (row) => {
+          const key = myTasksKey(viewerId)
+          if (!row) return [key]
+          const ids = row.assignee_ids
+          if (Array.isArray(ids) && viewerId && ids.includes(viewerId))
+            return [key]
+          const shown = queryClient.getQueryData<MyTasks>(key)
+          const id = String(row.id)
+          const parent = row.parent_id ? String(row.parent_id) : null
+          const due = queryClient
+            .getQueriesData<MyDueTask[]>({ queryKey: [...key, "due"] })
+            .some(([, rows]) => rows?.some((t) => t.id === id))
+          return due || shown?.tasks.some((t) => t.id === id || t.id === parent)
+            ? [key]
+            : []
+        },
+      },
+    ],
+    Boolean(viewerId),
+  )
+}
+
 type Assignment = {
   id: string
   project_id: string
@@ -58,17 +93,7 @@ type Assignment = {
 
 export function useMyTasks(viewerId: string | null) {
   // Live: tasks handed to you (or changed by others) show up as they happen.
-  useRealtimeRefresh(
-    `my-tasks:${viewerId}`,
-    [
-      {
-        table: "project_tasks",
-        filter: `assignee_id=eq.${viewerId}`,
-        keys: () => [myTasksKey(viewerId)],
-      },
-    ],
-    Boolean(viewerId),
-  )
+  useMyTasksLive(`my-tasks:${viewerId}`, viewerId)
   return useQuery({
     queryKey: myTasksKey(viewerId),
     enabled: Boolean(viewerId),
@@ -79,7 +104,7 @@ export function useMyTasks(viewerId: string | null) {
       const { data: taskRows, error } = await db
         .from("project_tasks")
         .select("*")
-        .eq("assignee_id", viewerId!)
+        .contains("assignee_ids", [viewerId!])
         .is("parent_id", null)
       if (error) throw error
       const projectIds = [
@@ -159,17 +184,7 @@ export function useMyDueTasks(
   from: string,
   to: string,
 ) {
-  useRealtimeRefresh(
-    `my-due-tasks:${viewerId}`,
-    [
-      {
-        table: "project_tasks",
-        filter: `assignee_id=eq.${viewerId}`,
-        keys: () => [myTasksKey(viewerId)],
-      },
-    ],
-    Boolean(viewerId),
-  )
+  useMyTasksLive(`my-due-tasks:${viewerId}`, viewerId)
   return useQuery({
     queryKey: [...myTasksKey(viewerId), "due", from, to],
     enabled: Boolean(viewerId),
@@ -182,7 +197,7 @@ export function useMyDueTasks(
         .select(
           "id, project_id, title, due_date, done, project:projects!inner ( name, status )",
         )
-        .eq("assignee_id", viewerId!)
+        .contains("assignee_ids", [viewerId!])
         .is("parent_id", null)
         .eq("done", false)
         .gte("due_date", from)

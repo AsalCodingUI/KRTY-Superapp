@@ -161,7 +161,7 @@ export async function duplicateTask({
       parent_id: task.parent_id,
       title,
       description: task.description,
-      assignee_id: task.assignee_id,
+      assignee_ids: task.assignee_ids,
       due_date: task.due_date,
       ...statusPatch(task, status),
       position,
@@ -178,7 +178,7 @@ export async function duplicateTask({
         parent_id: data.id,
         title: sub.title,
         description: sub.description,
-        assignee_id: sub.assignee_id,
+        assignee_ids: sub.assignee_ids,
         due_date: sub.due_date,
         ...statusPatch(sub, statusOf(sub)),
         position: sub.position,
@@ -398,7 +398,7 @@ export function taskUndoRows(
   const has = (k: string) => fields.has(k)
   const label = has("title")
     ? "taskTitle"
-    : has("assignee_id")
+    : has("assignee_ids")
       ? "taskAssignee"
       : has("due_date")
         ? "taskDue"

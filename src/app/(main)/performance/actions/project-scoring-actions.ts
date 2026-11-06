@@ -142,7 +142,7 @@ export async function getProjectScoring(
             .from("project_tasks")
             .select("done, due_date, completed_at")
             .eq("project_id", p.id)
-            .eq("assignee_id", assignment.user_id)
+            .contains("assignee_ids", [assignment.user_id])
         : Promise.resolve({ data: null }),
     ])
 

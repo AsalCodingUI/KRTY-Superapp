@@ -64,7 +64,7 @@ const en: Record<keyof typeof id, string> = {
   projectOrder: "Project order",
   taskPriority: "Priority of “{title}”",
   taskStatus: "Status of “{title}”",
-  taskAssignee: "Assignee of “{title}”",
+  taskAssignee: "Assignees of “{title}”",
   taskDue: "Due date of “{title}”",
   taskPhase: "Phase of “{title}”",
   taskTitle: "Title of “{title}”",

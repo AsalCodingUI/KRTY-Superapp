@@ -2,7 +2,6 @@
 
 import { listRowClassName } from "@/components/grouped-list"
 import { PanelList, surfaceClassName } from "@/components/panel"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
 import { useDateLocale, useT } from "@/shared/i18n/client"
 import { differenceInCalendarDays, format, parseISO } from "date-fns"
@@ -28,7 +27,9 @@ import {
   type ReportSummary,
 } from "./reports-data"
 import { useReportMenu } from "./report-menu"
-import { dueLabel, initials } from "./task-utils"
+import { assigneesOf } from "./assignees"
+import { AssigneeStack } from "./AssigneeStack"
+import { dueLabel } from "./task-utils"
 
 // The task and report windows (editor, Markdown) load on first open, not
 // with the dashboard.
@@ -114,7 +115,7 @@ export function UpcomingTasks({
         <PanelList>
           <ul className="flex flex-col">
             {upcoming.map((task) => {
-              const who = team.find((m) => m.id === task.assignee_id)
+              const who = assigneesOf(task, team)
               const overdue =
                 task.due_date &&
                 differenceInCalendarDays(parseISO(task.due_date), new Date()) <
@@ -196,17 +197,12 @@ export function UpcomingTasks({
                           })}
                         </span>
                       )}
-                      {who && (
-                        <Avatar size="xs" title={who.full_name ?? ""}>
-                          <AvatarImage
-                            src={who.avatar_url || undefined}
-                            alt=""
-                          />
-                          <AvatarFallback className="text-[9px]">
-                            {initials(who.full_name)}
-                          </AvatarFallback>
-                        </Avatar>
-                      )}
+                      <AssigneeStack
+                        people={who}
+                        name="none"
+                        className="shrink-0"
+                        textClassName="text-tertiary-foreground text-xs"
+                      />
                     </button>
                   </li>
                 </ContextTarget>

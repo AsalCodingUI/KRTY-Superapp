@@ -1,7 +1,8 @@
 "use client"
 
 import { PRIORITY_LABEL, priorityOf, TaskPriorityIcon } from "./TaskPriority"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { assigneesOf } from "./assignees"
+import { AssigneeStack } from "./AssigneeStack"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
@@ -66,7 +67,6 @@ import {
 } from "./task-data"
 import { dueLabel } from "./task-utils"
 import { useDragTilt } from "../useDragTilt"
-import { initials } from "@/shared/lib/initials"
 
 type Columns = Record<TaskStatus, string[]>
 
@@ -144,7 +144,7 @@ export function TaskBoard({
   /** Without it the columns have no "add card" composer (e.g. Tugas saya,
    *  where a new card wouldn't know its project). */
   onCreate?: (title: string, status: TaskStatus) => Promise<boolean>
-  /** Cross-project boards: the card shows its project instead of the PIC. */
+  /** Cross-project boards: the card shows its project instead of the assignees. */
   projectOf?: (task: TaskRow) => { id: string; name: string } | undefined
   /** Right-click menu: wraps each card (the focusable element that takes
    *  the data-* props), e.g. in a <TaskContextTarget>. */
@@ -575,7 +575,7 @@ const TaskCard = memo(function TaskCard({
   const t = useT("projects")
   const tc = useT("common")
   const dateLocale = useDateLocale()
-  const assignee = team.find((m) => m.id === task.assignee_id)
+  const assignees = assigneesOf(task, team)
   const doneSubs = subtasks.filter((s) => s.done).length
   const priority = priorityOf(task.priority)
   const due = task.due_date ? new Date(`${task.due_date}T00:00:00`) : null
@@ -662,18 +662,14 @@ const TaskCard = memo(function TaskCard({
           </span>
         </div>
       ) : (
-        assignee && (
-          <div className="flex items-center gap-1.5 pt-0.5">
-            <Avatar size="xs" title={assignee.full_name ?? ""}>
-              <AvatarImage src={assignee.avatar_url || undefined} alt="" />
-              <AvatarFallback className="bg-muted text-muted-foreground text-[9px] font-medium">
-                {initials(assignee.full_name, "U")}
-              </AvatarFallback>
-            </Avatar>
-            <span className="text-muted-foreground truncate text-xs">
-              {assignee.full_name}
-            </span>
-          </div>
+        assignees.length > 0 && (
+          <AssigneeStack
+            people={assignees}
+            // One person: their full name, as before; several: first name + "+N".
+            name="full"
+            className="pt-0.5"
+            textClassName="text-muted-foreground text-xs"
+          />
         )
       )}
     </BoardCard>

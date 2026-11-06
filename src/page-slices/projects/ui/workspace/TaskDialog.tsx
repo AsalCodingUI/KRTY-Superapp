@@ -64,6 +64,7 @@ import {
   type TaskRow,
   type TeamMember,
 } from "./data"
+import { AssigneeSelect } from "./AssigneeSelect"
 import { StatusDot } from "./TaskBoard"
 import {
   PRIORITY_LABEL,
@@ -98,8 +99,6 @@ const Calendar = dynamic(
   },
 )
 
-const NONE = "__none__"
-
 /** Subtask rows (and the add field): the checkbox column is 24px to the
  *  title, as in the task lists (docs/ui/table.md). */
 // The checkbox's own width, then the title 10px after it (as in the task
@@ -108,7 +107,7 @@ const SUBTASK_GRID =
   "grid grid-cols-[1rem_minmax(0,1fr)] items-center gap-x-2.5"
 
 /**
- * A task opened from the board or list: title, status, PIC, due date,
+ * A task opened from the board or list: title, status, assignees, due date,
  * description, subtasks, and the comment thread with @mentions.
  */
 export function TaskDialog({
@@ -259,7 +258,6 @@ function TaskBody({
     if (ok) setSubTitle("")
   }
   const status = statusOf(task)
-  const assignee = team.find((m) => m.id === task.assignee_id)
   const due = task.due_date ? new Date(`${task.due_date}T00:00:00`) : null
   const overdue =
     due && !task.done && differenceInCalendarDays(due, new Date()) < 0
@@ -529,39 +527,16 @@ function TaskBody({
               </Select>
             </dd>
 
-            <dt className="text-muted-foreground">{t("colPic")}</dt>
+            <dt className="text-muted-foreground">{t("colAssignees")}</dt>
             <dd>
-              <Select
-                value={task.assignee_id ?? NONE}
-                onValueChange={(v) =>
-                  v && onPatch(task.id, { assignee_id: v === NONE ? null : v })
-                }
-              >
-                <SelectTrigger size="sm" variant="ghost" className="w-full">
-                  <SelectValue>
-                    {() =>
-                      assignee ? (
-                        <span className="flex min-w-0 items-center gap-2">
-                          <Lead>
-                            <PersonAvatar person={assignee} />
-                          </Lead>
-                          <span className="truncate">{assignee.full_name}</span>
-                        </span>
-                      ) : (
-                        <EmptyValue />
-                      )
-                    }
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={NONE}>{t("noPic")}</SelectItem>
-                  {team.map((m) => (
-                    <SelectItem key={m.id} value={m.id}>
-                      {m.full_name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <AssigneeSelect
+                team={team}
+                value={task.assignee_ids}
+                onChange={(ids) => onPatch(task.id, { assignee_ids: ids })}
+                name="full"
+                align="end"
+                className="w-full"
+              />
             </dd>
 
             <dt className="text-muted-foreground">{t("factsDeadline")}</dt>
@@ -1303,7 +1278,7 @@ function Composer({
           <m.ul
             id={listId}
             role="listbox"
-            aria-label={t("colPic")}
+            aria-label={t("mentionList")}
             initial={reduce ? false : { opacity: 0, y: 4, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={reduce ? { opacity: 0 } : { opacity: 0, y: 4, scale: 0.98 }}

@@ -75,8 +75,8 @@ export async function runWeeklyDigest(
       .in("user_id", ids),
     db
       .from("project_tasks")
-      .select("assignee_id, title, due_date, projects(name)")
-      .in("assignee_id", ids)
+      .select("assignee_ids, title, due_date, projects(name)")
+      .overlaps("assignee_ids", ids)
       .eq("done", false)
       .not("due_date", "is", null)
       .lte("due_date", weekEnd)
@@ -122,7 +122,9 @@ export async function runWeeklyDigest(
   for (const person of people.data ?? []) {
     if (!person.email) continue
     if (!wantsEmail("weekly_digest", prefsOf.get(person.id))) continue
-    const mine = (tasks.data ?? []).filter((t) => t.assignee_id === person.id)
+    const mine = (tasks.data ?? []).filter((t) =>
+      (t.assignee_ids as string[]).includes(person.id),
+    )
     const taskRows = mine.slice(0, 8).map((t) => ({
       primary: t.title as string,
       secondary: `${(t.projects as unknown as { name: string } | null)?.name ?? "Project"} · ${

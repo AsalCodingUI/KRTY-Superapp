@@ -42,6 +42,7 @@ import {
   statusOf,
   type TaskStatus,
 } from "./task-data"
+import { assigneesOf, toggleAssignee } from "./assignees"
 import { initials } from "./task-utils"
 
 /*
@@ -96,6 +97,18 @@ const personIcon = (person: TeamMember) =>
 
 const ymd = (d: Date) => format(d, "yyyy-MM-dd")
 
+/** How long the menu trusts its own last pick over the row it was given. */
+const RECENT_MS = 3000
+const recentAssignees = new Map<string, { ids: string[]; until: number }>()
+
+/** The task's assignees, or what the menu set a moment ago (not rendered yet). */
+function currentAssignees(task: TaskRow) {
+  const recent = recentAssignees.get(task.id)
+  if (recent && recent.until > Date.now()) return recent.ids
+  recentAssignees.delete(task.id)
+  return task.assignee_ids
+}
+
 /** Builds a task's sections (call it when the menu opens). */
 export function useTaskMenu() {
   const t = useT("taskmenu")
@@ -144,40 +157,50 @@ export function useTaskMenu() {
           ]
         : []
 
-      const assignee = cfg.team?.find((m) => m.id === task.assignee_id)
+      // The ids as the menu last set them: a toggle keeps the menu open and
+      // rebuilds it before the page re-renders with the new row.
+      const assigned = currentAssignees(task)
+      const assignees = assigneesOf({ assignee_ids: assigned }, cfg.team ?? [])
       const team = [...(cfg.team ?? [])].sort(
         // The viewer first: "take it" is the common pick.
         (a, b) => Number(b.id === cfg.viewerId) - Number(a.id === cfg.viewerId),
       )
+      const setAssignees = (ids: string[]) => {
+        recentAssignees.set(task.id, { ids, until: Date.now() + RECENT_MS })
+        onPatch?.(task.id, { assignee_ids: ids })
+      }
       const assignItem: CtxItem | null =
         onPatch && cfg.team
           ? {
               id: "assign",
               label: t("assignTo"),
-              icon: assignee ? personIcon(assignee) : UserRound,
-              hint: assignee?.full_name?.split(" ")[0] ?? undefined,
+              icon: assignees[0] ? personIcon(assignees[0]) : UserRound,
+              hint: assignees.length
+                ? `${assignees[0].full_name?.split(" ")[0] ?? ""}${
+                    assignees.length > 1 ? ` +${assignees.length - 1}` : ""
+                  }`.trim()
+                : undefined,
               submenu: [
                 ...team.map((m) => ({
                   id: `assign-${m.id}`,
                   label: m.full_name ?? tp("unknownMember"),
                   icon: personIcon(m),
                   hint: m.id === cfg.viewerId ? t("you") : undefined,
-                  role: "radio" as const,
-                  checked: m.id === task.assignee_id,
-                  onSelect: () => {
-                    if (m.id !== task.assignee_id)
-                      onPatch(task.id, { assignee_id: m.id })
-                  },
+                  role: "checkbox" as const,
+                  checked: assigned.includes(m.id),
+                  // Several people: toggle one after another.
+                  keepOpen: true,
+                  onSelect: () => setAssignees(toggleAssignee(assigned, m.id)),
                 })),
                 {
                   id: "assign-none",
-                  label: tp("noPic"),
+                  label: tp("noAssignee"),
                   icon: UserRoundX,
-                  role: "radio" as const,
-                  checked: !task.assignee_id,
+                  role: "checkbox" as const,
+                  checked: assigned.length === 0,
+                  keepOpen: true,
                   onSelect: () => {
-                    if (task.assignee_id)
-                      onPatch(task.id, { assignee_id: null })
+                    if (assigned.length) setAssignees([])
                   },
                 },
               ],

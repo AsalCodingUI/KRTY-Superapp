@@ -9,7 +9,6 @@ import { TabNavigation, TabNavigationLink } from "@/components/tab-navigation"
 import { EmptyState } from "@/components/empty-state"
 import { EmptyValue } from "@/components/empty-value"
 import { ViewToggle, useViewMode } from "@/components/view-toggle"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
@@ -29,7 +28,7 @@ import { Spinner } from "@/components/ui/spinner"
 import { cn } from "@/lib/utils"
 import { GroupedList, listHeaderClassName } from "@/components/grouped-list"
 
-/** Checkbox · task · (phase) · PIC · deadline · created. */
+/** Checkbox · task · (phase) · assignees · deadline · created. */
 const TASK_GRID = "grid-cols-[1.5rem_minmax(0,1fr)_10rem_7rem_5rem]"
 const TASK_GRID_PHASES = "grid-cols-[1.5rem_minmax(0,1fr)_8rem_10rem_7rem_5rem]"
 import {
@@ -54,6 +53,8 @@ import {
   type TaskRow,
   type TeamMember,
 } from "./data"
+import { isAssignedTo } from "./assignees"
+import { AssigneeSelect } from "./AssigneeSelect"
 import { TaskBoard } from "./TaskBoard"
 import {
   SubtaskContextTarget,
@@ -190,7 +191,7 @@ export function ProjectTasks({ projectId }: { projectId: string }) {
     todo: top.filter((t) => !t.done).length,
     done: top.filter((t) => t.done).length,
   }
-  const mineFilter = (t: TaskRow) => !mine || t.assignee_id === viewer.id
+  const mineFilter = (t: TaskRow) => !mine || isAssignedTo(t, viewer.id)
   const boardTasks = useMemo(
     () => top.filter(mineFilter),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -443,7 +444,7 @@ export function ProjectTasks({ projectId }: { projectId: string }) {
               <span>{t("colTask")}</span>
               {/* A project without phases has no phase column. */}
               {phases.length > 0 && <span>{t("factsPhase")}</span>}
-              <span>{t("colPic")}</span>
+              <span>{t("colAssignees")}</span>
               <span>{t("factsDeadline")}</span>
               <span className="text-right">{t("colCreated")}</span>
             </div>
@@ -598,7 +599,6 @@ function TaskRows({
     addingSub.current = false
     if (ok) setSubTitle("")
   }
-  const assignee = team.find((m) => m.id === task.assignee_id)
   const doneSubs = subtasks.filter((s) => s.done).length
   const overdue =
     task.due_date &&
@@ -755,47 +755,12 @@ function TaskRows({
               </SelectContent>
             </Select>
           )}
-          <Select
-            value={task.assignee_id ?? NONE}
-            onValueChange={(v) =>
-              v && onUpdate(task.id, { assignee_id: v === NONE ? null : v })
-            }
-          >
-            <SelectTrigger size="sm" variant="ghost" className="w-[9.5rem]">
-              <SelectValue>
-                {() =>
-                  assignee ? (
-                    <span className="flex min-w-0 items-center gap-1.5">
-                      <Avatar size="xs">
-                        <AvatarImage
-                          src={assignee.avatar_url || undefined}
-                          alt=""
-                        />
-                        <AvatarFallback className="text-[9px]">
-                          {(assignee.full_name || "U")
-                            .slice(0, 2)
-                            .toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span className="truncate">
-                        {assignee.full_name?.split(" ")[0]}
-                      </span>
-                    </span>
-                  ) : (
-                    <EmptyValue />
-                  )
-                }
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={NONE}>{t("noPic")}</SelectItem>
-              {team.map((m) => (
-                <SelectItem key={m.id} value={m.id}>
-                  {m.full_name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <AssigneeSelect
+            team={team}
+            value={task.assignee_ids}
+            onChange={(ids) => onUpdate(task.id, { assignee_ids: ids })}
+            className="w-[9.5rem]"
+          />
           {/* Due date: the app's calendar in a popover (not the browser's). */}
           <Popover open={dateOpen} onOpenChange={setDateOpen}>
             <PopoverTrigger

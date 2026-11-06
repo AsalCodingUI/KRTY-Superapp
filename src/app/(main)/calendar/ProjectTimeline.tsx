@@ -518,9 +518,14 @@ export function ProjectTimeline({
                     >
                       {task.title}
                     </span>
-                    {task.assigneeName && (
-                      <span className="text-muted-foreground max-w-20 shrink-0 truncate text-xs">
-                        {task.assigneeName.split(" ")[0]}
+                    {task.assigneeNames.length > 0 && (
+                      <span
+                        className="text-muted-foreground max-w-24 shrink-0 truncate text-xs tabular-nums"
+                        title={task.assigneeNames.join(", ")}
+                      >
+                        {task.assigneeNames[0].split(" ")[0]}
+                        {task.assigneeNames.length > 1 &&
+                          ` +${task.assigneeNames.length - 1}`}
                       </span>
                     )}
                   </button>

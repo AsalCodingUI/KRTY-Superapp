@@ -34,9 +34,12 @@ export type CalendarTask = Pick<
   | "status"
   | "done"
   | "due_date"
-  | "assignee_id"
+  | "assignee_ids"
   | "position"
-> & { assigneeName: string | null }
+> & {
+  /** The assignees' names, in assignment order (team members only). */
+  assigneeNames: string[]
+}
 
 type ProjectRow = {
   id: string
@@ -112,7 +115,7 @@ export function useProjectCalendarData(isStakeholder: boolean, enabled = true) {
       const { data: taskRows } = await db
         .from("project_tasks")
         .select(
-          "id, project_id, title, status, done, due_date, assignee_id, position",
+          "id, project_id, title, status, done, due_date, assignee_ids, position",
         )
         .in(
           "project_id",
@@ -123,12 +126,12 @@ export function useProjectCalendarData(isStakeholder: boolean, enabled = true) {
         projects.flatMap((p) => p.members.map((m) => [m.userId, m.name])),
       )
       const tasks: CalendarTask[] = (
-        (taskRows ?? []) as Omit<CalendarTask, "assigneeName">[]
+        (taskRows ?? []) as Omit<CalendarTask, "assigneeNames">[]
       ).map((task) => ({
         ...task,
-        assigneeName: task.assignee_id
-          ? (names.get(task.assignee_id) ?? null)
-          : null,
+        assigneeNames: task.assignee_ids
+          .map((id) => names.get(id))
+          .filter((name): name is string => Boolean(name)),
       }))
       return { projects, tasks }
     },

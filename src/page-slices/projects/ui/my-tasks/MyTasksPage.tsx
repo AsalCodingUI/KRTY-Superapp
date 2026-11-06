@@ -61,7 +61,7 @@ const TaskDialog = dynamic(
   { loading: () => null },
 )
 
-/** The board shows each card's project, not a PIC: no team needed. */
+/** The board shows each card's project, not its assignees: no team needed. */
 const NO_TEAM: TeamMember[] = []
 
 type Filter = "all" | "todo" | "done"
