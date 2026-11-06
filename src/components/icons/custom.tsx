@@ -46,11 +46,12 @@ export function glyph(name: string, d: string) {
   return Glyph
 }
 
-/** A cup with steam (breaks): a 12 × 9 body (r 3), a handle, and two
- *  S-curves of steam 3.5 above the rim; centred in the live area. */
+/** A mug with steam (breaks): an 11.5 × 12 body, square-ish rim (r 1),
+ *  round base (r 3.5), a 5.5-tall handle, and two soft S-wisps over the
+ *  body's centre, 2.25 above the rim; the whole mug centred (4.25–19.75). */
 export const Coffee = glyph(
   "Coffee",
-  "M7 11.25h6a3 3 0 0 1 3 3v3a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3v-3a3 3 0 0 1 3-3ZM16 13h1.25a2.75 2.75 0 0 1 0 5.5H16M8 3.75c1 .75 1 1.25 0 2s-1 1.25 0 2M12 3.75c1 .75 1 1.25 0 2s-1 1.25 0 2",
+  "M5.25 8.75h9.5a1 1 0 0 1 1 1v7.5a3.5 3.5 0 0 1-3.5 3.5h-4a3.5 3.5 0 0 1-3.5-3.5v-7.5a1 1 0 0 1 1-1ZM15.75 11h1.25a2.75 2.75 0 0 1 0 5.5h-1.25M8 6.5C6.75 5.5 9.25 4 8 3M12 6.5C10.75 5.5 13.25 4 12 3",
 )
 
 /** One four-point sparkle across the live area (the Stars family's
