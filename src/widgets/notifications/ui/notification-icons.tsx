@@ -5,7 +5,7 @@
  * stroked at STROKE, so the silhouette is exactly the outline icon's; its
  * inner details are cut out at the same stroke width through a mask.
  */
-import { STROKE } from "@/components/icons/custom"
+import { STROKE, VIEWBOX } from "@/components/icons/custom"
 import { useId } from "react"
 
 type IconProps = { className?: string }
@@ -30,7 +30,7 @@ export function filledTwin(name: string, { shape, lines, holes }: Twin) {
       strokeLinejoin: "round",
     } as const
     return (
-      <svg viewBox="0 0 24 24" aria-hidden className={className}>
+      <svg viewBox={VIEWBOX} aria-hidden className={className}>
         <mask
           id={id}
           maskUnits="userSpaceOnUse"

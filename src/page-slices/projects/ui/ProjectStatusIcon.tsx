@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils"
 import { Archive, CircleDashed } from "@/components/icons"
-import { STROKE } from "@/components/icons/custom"
+import { STROKE, VIEWBOX } from "@/components/icons/custom"
 import type { ProjectStatus } from "../lib/status"
 
 /** Our circle (r 9.25 at 12,12) and the inner disc it holds: inset so a
@@ -26,7 +26,7 @@ export function ProjectStatusIcon({
   return (
     <svg
       aria-hidden
-      viewBox="0 0 24 24"
+      viewBox={VIEWBOX}
       fill="none"
       stroke="currentColor"
       strokeWidth={STROKE}

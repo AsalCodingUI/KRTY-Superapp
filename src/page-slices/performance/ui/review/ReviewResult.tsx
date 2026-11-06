@@ -1,7 +1,7 @@
 "use client"
 
 import { EmptyValue } from "@/components/empty-value"
-import { SPARKLE_D, STROKE } from "@/components/icons/custom"
+import { SPARKLE_D, STROKE, VIEWBOX } from "@/components/icons/custom"
 import { SegmentedControl } from "@/components/segmented-control"
 import type { ReviewSummary } from "@/app/(main)/performance/actions/review-actions"
 import { RATINGS, ratingFor } from "@/entities/performance/lib/kpi"
@@ -61,7 +61,7 @@ function paragraphsOf(text: string) {
 function AiSparkle() {
   const id = useId()
   return (
-    <svg viewBox="0 0 24 24" aria-hidden className="size-4" fill="none">
+    <svg viewBox={VIEWBOX} aria-hidden className="size-4" fill="none">
       <defs>
         <linearGradient
           id={id}

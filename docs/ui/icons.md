@@ -212,7 +212,10 @@ Check new ones against them and against /icon-lab (hover shows the base).
 
 1. **Grid and stroke.** 24 × 24, stroke 2 (`STROKE`; it scales with the icon),
    round caps and joins, outline only. Live area: stroke centres 2.75–21.25
-   (the outer edge reaches 2 and 22, a full 20px). Sizes, measured on
+   (the outer edge reaches 2 and 22, a full 20px). Shown through
+   `VIEWBOX` (`1.5 1.5 21 21`), so the drawing fills the icon box instead of
+   keeping Untitled's 2px of air: at size-4 a glyph is ~15px, the stroke
+   1.5px. Nothing may go past stroke centre 2.5 / 21.5 (it would clip). Sizes, measured on
    stroke centres: circles 18.5 (r 9.25 at 12,12); squares and frames 17.5
    (3.25–20.75), a touch smaller so they read as big as a circle; files,
    folders and most objects 18.5 on their long side; chevrons span 12.5.

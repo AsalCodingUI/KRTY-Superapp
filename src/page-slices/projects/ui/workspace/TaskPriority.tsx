@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils"
-import { STROKE } from "@/components/icons/custom"
+import { STROKE, VIEWBOX } from "@/components/icons/custom"
 import type * as React from "react"
 
 /** Highest first, as the menus list them. */
@@ -37,7 +37,7 @@ function Glyph({
   return (
     <svg
       aria-hidden
-      viewBox="0 0 24 24"
+      viewBox={VIEWBOX}
       fill="none"
       stroke="currentColor"
       strokeWidth={STROKE}

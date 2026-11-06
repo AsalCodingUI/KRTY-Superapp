@@ -11,6 +11,13 @@ import type { SVGProps } from "react"
  *  bigger or smaller (docs/ui/icons.md). */
 export const STROKE = 2
 
+/** The box every glyph is shown in: the 24 grid less 1.5 on each side,
+ *  so the drawing (stroke centres 2.5–21.5 at most, the stroke reaching 1.5
+ *  and 22.5) fills the icon box instead of leaving 2px of air around it.
+ *  At size-4 a full-size glyph is ~15px and the stroke 1.5px, a text stem
+ *  (docs/ui/icons.md). Every glyph must stay inside 2.5–21.5. */
+export const VIEWBOX = "1.5 1.5 21 21"
+
 /** Glyphs drawn here carry `ours: true`, and so do the app icons made
  *  from them (index.tsx): /icon-lab marks those as redrawn. */
 type GlyphProps = SVGProps<SVGSVGElement> & { size?: number; color?: string }
@@ -22,7 +29,7 @@ export function glyph(name: string, d: string) {
     ...props
   }: GlyphProps) => (
     <svg
-      viewBox="0 0 24 24"
+      viewBox={VIEWBOX}
       width={size}
       height={size}
       fill="none"
@@ -64,7 +71,7 @@ export function dots(name: string, xs: number[], ys: number[], r = 1.75) {
     strokeWidth: _s,
     ...props
   }: GlyphProps) => (
-    <svg viewBox="0 0 24 24" width={size} height={size} fill={color} {...props}>
+    <svg viewBox={VIEWBOX} width={size} height={size} fill={color} {...props}>
       {ys.flatMap((cy) =>
         xs.map((cx) => <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r={r} />),
       )}

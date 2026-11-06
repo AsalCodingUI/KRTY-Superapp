@@ -10,7 +10,7 @@ import {
   Infinity as InfinityIcon,
   ListChecks,
 } from "@/components/icons"
-import { STROKE } from "@/components/icons/custom"
+import { STROKE, VIEWBOX } from "@/components/icons/custom"
 import type { PhaseRow, StepRow } from "./data"
 
 /** Dot colour per project status. */
@@ -33,7 +33,7 @@ function ProgressRing({ value }: { value: number }) {
   const x = 12 + r * Math.sin(angle)
   const y = 12 - r * Math.cos(angle)
   return (
-    <svg viewBox="0 0 24 24" className="text-primary size-3.5" aria-hidden>
+    <svg viewBox={VIEWBOX} className="text-primary size-3.5" aria-hidden>
       <circle
         cx="12"
         cy="12"

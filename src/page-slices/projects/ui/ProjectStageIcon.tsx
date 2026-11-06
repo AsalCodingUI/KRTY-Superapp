@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils"
-import { SPARKLE_D, STROKE } from "@/components/icons/custom"
+import { SPARKLE_D, STROKE, VIEWBOX } from "@/components/icons/custom"
 import type { ProjectStage } from "../lib/status"
 
 /**
@@ -37,7 +37,7 @@ export function ProjectStageIcon({
   return (
     <svg
       aria-hidden
-      viewBox="0 0 24 24"
+      viewBox={VIEWBOX}
       fill="none"
       stroke="currentColor"
       strokeWidth={STROKE}
