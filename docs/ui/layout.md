@@ -107,8 +107,8 @@ tracking-tight text-heading`). No description under the title
   (`text-sm font-medium`, `pb-1`). `HomeCard` / `Panel`: a block on a card
   surface (see components.md).
 - `StatStrip`: label (`text-sm` muted) over value (`text-stat font-normal
-tabular-nums`, `RollingValue`), side by side `gap-x-10`, `py-4`, a
-  hairline below, full bleed. Directly under the header or tabs. `aside`
+tabular-nums`, `RollingValue`), side by side `gap-x-10`, `py-4`, no
+  rule below (the table header band separates it), full bleed. Directly under the header or tabs. `aside`
   puts controls on the right (the main action, "process all"); `orEmpty`
   shows the dashed mark for a missing value; a value may be a `Skeleton`.
 - `StatTiles`: the same numbers on cards (`surfaceClassName`), 2–4 columns;

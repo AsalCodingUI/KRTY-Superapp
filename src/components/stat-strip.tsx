@@ -11,7 +11,7 @@ export type StatStripItem = {
 
 /**
  * Full-bleed band of headline numbers under a page's title or tabs (Tim,
- * Cuti & Kehadiran): label over value, no cards, a hairline below.
+ * Cuti & Kehadiran): label over value, no cards, no rule below.
  */
 export function StatStrip({
   items,
@@ -29,7 +29,7 @@ export function StatStrip({
   return (
     <div
       className={cn(
-        "stat-strip bleed gutter-x border-border border-b py-4",
+        "stat-strip bleed gutter-x py-4",
         className,
       )}
     >
