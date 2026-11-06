@@ -6,22 +6,23 @@ Live examples: **/ui** → Icons.
 
 ## Use
 
-| Need                          | Use                                                                                                                                                                    | File                              |
-| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------- |
-| Any icon                      | `import { Bell } from "@/components/icons"` (app names, lucide-style)                                                                                                  | `src/components/icons/index.tsx`  |
-| An icon not in the list yet   | add two lines to `index.tsx`: `import { Glyph as UGlyph } from "@untitledui/icons/Glyph"` and `export const Name = icon(UGlyph, "Name")` (browse untitledui.com/icons) | same                              |
-| A symbol Untitled UI lacks    | draw it in `custom.tsx` (`glyph(name, d)`, 24px grid, `STROKE`), export it from `index.tsx`                                                                            | `src/components/icons/custom.tsx` |
-| Existing `Ri*` names (legacy) | `@/shared/ui/lucide-icons` (aliases to the above)                                                                                                                      | `src/shared/ui/lucide-icons.tsx`  |
-| Loading                       | `Spinner` (not an icon + `animate-spin`)                                                                                                                               | `src/components/ui/spinner.tsx`   |
+| Need                          | Use                                                                                                                                                                                            | File                                      |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- |
+| Any icon                      | `import { Bell } from "@/components/icons"` (app names, lucide-style)                                                                                                                          | `src/components/icons/index.tsx`          |
+| An icon not in the list yet   | pick its base on /icon-lab (the Untitled pack), draw ours in `set/` or `custom.tsx` (`glyph(name, d)`, 24px grid, 1.5 stroke), then `export const Name = icon(K.Glyph, "Name")` in `index.tsx` | `src/components/icons/set/`, `custom.tsx` |
+| Existing `Ri*` names (legacy) | `@/shared/ui/lucide-icons` (aliases to the above)                                                                                                                                              | `src/shared/ui/lucide-icons.tsx`          |
+| Loading                       | `Spinner` (not an icon + `animate-spin`)                                                                                                                                                       | `src/components/ui/spinner.tsx`           |
 
-The icon set is **Untitled UI Icons**, the free line set (1,100+ icons;
-free for personal and commercial use, but not to redistribute as an icon
-library, so the icons stay an npm dependency, not files in this repo).
-`index.tsx` maps the app's icon names to Untitled UI glyphs, so pages
-never import `@untitledui/icons` themselves. Glyphs it lacks are drawn in
-`custom.tsx`: `Coffee`, and the drag handles `GripVertical` /
-`GripHorizontal` (six filled dots, 2 × 3 / 3 × 2; the set's own grip is
-a 3 × 3 grid). There is no filled set: `weight`
+The icon set is **our own** (`src/components/icons/set/` and
+`custom.tsx`): every icon the app uses, redrawn on a 24px grid with a 1.5
+stroke, round caps and joins and soft corners, using the Untitled UI line
+set only as the base (what each icon shows and how it's composed; the
+paths are ours). `index.tsx` maps the app's icon names onto it, so pages
+never import a glyph file themselves. `@untitledui/icons` stays a
+dependency only for /icon-lab, which shows each base beside ours. Where
+the base didn't match the app's meaning, `custom.tsx` draws it directly
+(`CircleDot`, `CircleDashed`, `ListOrdered`, `Coffee`, the six-dot
+grips). There is no filled set: `weight`
 props are accepted and ignored. Every icon is listed on /ui → Icons.
 
 ## Rules

@@ -138,3 +138,19 @@ export const Clock = glyph(
   "Clock",
   "M20.5 12a8.5 8.5 0 1 1-17 0 8.5 8.5 0 0 1 17 0ZM12 7.5V12l3 2",
 )
+
+/* Where the Untitled glyph didn't match the app's meaning. */
+export const CircleDot = glyph(
+  "CircleDot",
+  "M20.5 12a8.5 8.5 0 1 1-17 0 8.5 8.5 0 0 1 17 0ZM14.5 12a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0Z",
+)
+/** Eight arcs of the r 8.5 circle, round-capped, so it reads dashed. */
+export const CircleDashed = glyph(
+  "CircleDashed",
+  "M10.34 3.66a8.5 8.5 0 0 1 3.32 0M16.72 4.93a8.5 8.5 0 0 1 2.35 2.35M20.34 10.34a8.5 8.5 0 0 1 0 3.32M19.07 16.72a8.5 8.5 0 0 1-2.35 2.35M13.66 20.34a8.5 8.5 0 0 1-3.32 0M7.28 19.07a8.5 8.5 0 0 1-2.35-2.35M3.66 13.66a8.5 8.5 0 0 1 0-3.32M4.93 7.28a8.5 8.5 0 0 1 2.35-2.35",
+)
+/** A numbered list: 1, 2, 3 beside three lines. */
+export const ListOrdered = glyph(
+  "ListOrdered",
+  "M10.5 6h10M10.5 12h10M10.5 18h10M4.25 4.75 5.25 4v4M4.25 8h2M4 10.9a1.1 1.1 0 0 1 2.15.3c0 .8-2.15 1.6-2.15 2.8h2.25M4 16.1a1.1 1.1 0 1 1 1.1 1.4 1.1 1.1 0 1 1-1.1 1.4",
+)
