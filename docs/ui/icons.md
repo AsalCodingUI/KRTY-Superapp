@@ -198,3 +198,40 @@ tokens (e.g. `--stage-branding`) or the 12-step scale (`text-pink-9`), and
 fix the menu button that greys icons instead of forcing `!`.
 `row-menu.tsx:28-36` (`FolderIcon` hex fills) is an illustration: keep, but
 move the hexes to tokens if a second folder appears.
+
+## Drawing rules (our set)
+
+Every glyph in `src/components/icons/set/` and `custom.tsx` follows these.
+Check new ones against them and against /icon-lab (hover shows the base).
+
+1. **Grid and stroke.** 24 × 24, stroke 1.5 (it scales with the icon),
+   round caps and joins, outline only. Live area 3–21 (2px padding; 3.5
+   for compact shapes). Circles r 8.5 at 12,12 (they read as big as an
+   18px square).
+2. **Corners.** Containers (cards, files, folders, calendars, bubbles)
+   r 3; boxes 6–10px wide r 2; tiny boxes r 1. Polygon and roof corners
+   round with r 1.5, all the same within an icon (no mix of sharp and
+   soft corners, no lumpy joins).
+3. **Nested corners.** A rounded shape inside a rounded shape keeps an
+   even gap: inner r = outer r − gap (gap between stroke centres), never
+   below 1. No square inside a round or the other way round.
+4. **Cuts.** Where one stroke crosses another and the other is broken (a
+   slash through wifi, an eye, a bell), the gap is 1.5 between stroke
+   edges on both sides (cut ends 2.25 from the crossing stroke's centre),
+   the same everywhere in the set.
+5. **Dashes and dots.** A dashed outline uses one dash length and one gap
+   all round, placed symmetrically (corners and axis midpoints match).
+   Dots are round-capped zero-length segments (`h.01`) on the same pitch.
+   Never mix dashes and dots in one outline.
+6. **Air.** Separate parts (a rocket's fins and body, a badge on a file)
+   are 1.5 apart or more, so nothing fuses into a solid blob at 16px.
+7. **Simple.** One idea per icon, at most 3–4 inner details, nothing
+   smaller than 2px. Gears have 6 teeth and a 2.5 hub. Prefer the plainer
+   form when the base is busy.
+8. **Ours, not a trace.** Keep what the base shows and roughly where, but
+   change the drawing: our proportions, corners, simplification. If ours
+   is hard to tell from the base at 64px, redraw it.
+9. **Family.** Reuse exact sub-shapes: one arrowhead (legs 5.75), one
+   chevron (5 × 5), one X (`M6.75 6.75l10.5 10.5M17.25 6.75l-10.5 10.5`),
+   one plus, one check, one person, one file outline, one folder, one
+   calendar body, one circle, one square (3.5–20.5, r 3).

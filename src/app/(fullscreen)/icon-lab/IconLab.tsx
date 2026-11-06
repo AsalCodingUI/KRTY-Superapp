@@ -5,6 +5,7 @@ import { STROKE } from "@/components/icons/custom"
 import { cn } from "@/lib/utils"
 import * as Untitled from "@untitledui/icons"
 import type { ComponentType } from "react"
+import * as OurSet from "@/components/icons/set"
 import { UNTITLED_BASE } from "./untitled-base"
 
 type Glyph = ComponentType<{
@@ -33,9 +34,16 @@ const PACK = Object.entries(Untitled as Record<string, unknown>)
  * drawn in components/icons/custom.tsx whose base is that glyph).
  */
 const OURS = new Map<Glyph, Glyph>()
+// The app's own icons first (what it really shows), then the rest of our
+// set, which is named after the Untitled glyph it redraws.
 for (const [name, Base] of Object.entries(UNTITLED_BASE)) {
   const app = asGlyph((AppIcons as Record<string, unknown>)[name])
   if (app?.ours) OURS.set(Base as Glyph, app)
+}
+for (const [name, value] of Object.entries(OurSet as Record<string, unknown>)) {
+  const base = asGlyph((Untitled as Record<string, unknown>)[name])
+  const ours = asGlyph(value)
+  if (base && ours && !OURS.has(base)) OURS.set(base, ours)
 }
 
 /** Untitled glyphs the app uses today (through @/components/icons). */
