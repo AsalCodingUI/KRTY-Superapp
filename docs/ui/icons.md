@@ -6,12 +6,12 @@ Live examples: **/ui** → Icons.
 
 ## Use
 
-| Need                          | Use                                                                                                                                                                                            | File                                      |
-| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- |
-| Any icon                      | `import { Bell } from "@/components/icons"` (app names, lucide-style)                                                                                                                          | `src/components/icons/index.tsx`          |
-| An icon not in the list yet   | pick its base on /icon-lab (the Untitled pack), draw ours in `set/` or `custom.tsx` (`glyph(name, d)`, 24px grid, 1.5 stroke), then `export const Name = icon(K.Glyph, "Name")` in `index.tsx` | `src/components/icons/set/`, `custom.tsx` |
-| Existing `Ri*` names (legacy) | `@/shared/ui/lucide-icons` (aliases to the above)                                                                                                                                              | `src/shared/ui/lucide-icons.tsx`          |
-| Loading                       | `Spinner` (not an icon + `animate-spin`)                                                                                                                                                       | `src/components/ui/spinner.tsx`           |
+| Need                          | Use                                                                                                                                                                                          | File                                      |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- |
+| Any icon                      | `import { Bell } from "@/components/icons"` (app names, lucide-style)                                                                                                                        | `src/components/icons/index.tsx`          |
+| An icon not in the list yet   | pick its base on /icon-lab (the Untitled pack), draw ours in `set/` or `custom.tsx` (`glyph(name, d)`, 24px grid, `STROKE`), then `export const Name = icon(K.Glyph, "Name")` in `index.tsx` | `src/components/icons/set/`, `custom.tsx` |
+| Existing `Ri*` names (legacy) | `@/shared/ui/lucide-icons` (aliases to the above)                                                                                                                                            | `src/shared/ui/lucide-icons.tsx`          |
+| Loading                       | `Spinner` (not an icon + `animate-spin`)                                                                                                                                                     | `src/components/ui/spinner.tsx`           |
 
 The icon set is **our own** (`src/components/icons/set/` and
 `custom.tsx`): every icon the app uses, redrawn on a 24px grid with a 1.5
@@ -62,10 +62,10 @@ props are accepted and ignored. Every icon is listed on /ui → Icons.
 - Icons inherit `currentColor`. Quiet icons: `text-muted-foreground`;
   status: `text-success-ink`, `text-warning`, `text-destructive`. Semantic
   tokens only.
-- Grid and stroke: every glyph is drawn on a **24px grid with a 1.5px
-  stroke** (`STROKE` in `src/components/icons/custom.tsx`), round caps and
-  joins. The stroke **scales** with the icon: 1px at `size-4`, 0.875 at
-  `size-3.5`, 2px at 32px. Every size is the same drawing, only bigger or
+- Grid and stroke: every glyph is drawn on a **24px grid** and rendered
+  with a **1.75 stroke** (`STROKE` in `src/components/icons/custom.tsx`),
+  round caps and joins. The stroke **scales** with the icon: 1.17px at
+  `size-4`, 1.02 at `size-3.5`, 2.33 at 32px. Every size is the same drawing, only bigger or
   smaller. `strokeWidth` on a single icon is ignored.
 - Our own set: redrawn from the Untitled UI base on that grid, in
   `custom.tsx`; /icon-lab shows the whole Untitled pack, which ones the
@@ -204,7 +204,8 @@ move the hexes to tokens if a second folder appears.
 Every glyph in `src/components/icons/set/` and `custom.tsx` follows these.
 Check new ones against them and against /icon-lab (hover shows the base).
 
-1. **Grid and stroke.** 24 × 24, stroke 1.5 (it scales with the icon),
+1. **Grid and stroke.** 24 × 24, stroke 1.75 (`STROKE`; it scales with the
+   icon; the geometry below is laid out for 1.5 and holds at 1.75),
    round caps and joins, outline only. Live area: stroke centres 2.75–21.25
    (the outer edge reaches 2 and 22, a full 20px). Sizes, measured on
    stroke centres: circles 18.5 (r 9.25 at 12,12); squares and frames 17.5

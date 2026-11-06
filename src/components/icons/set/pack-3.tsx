@@ -471,7 +471,7 @@ export const Expand02 = glyph(
 )
 export const Expand03 = glyph(
   "Expand03",
-  "M3.25 9.75V6.25a3 3 0 0 1 3-3h3.5M20.75 14.25v3.5a3 3 0 0 1-3 3h-3.5M13.25 10.75L21.25 2.75M15.5 2.75h5.75v5.75",
+  "M11 3.75H6.75a3 3 0 0 0-3 3v10.5a3 3 0 0 0 3 3h10.5a3 3 0 0 0 3-3V13M12.5 11.5 20.25 3.75M14.75 3.75h5.5v5.5",
 )
 export const Expand04 = glyph(
   "Expand04",
