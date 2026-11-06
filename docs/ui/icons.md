@@ -233,7 +233,8 @@ Check new ones against them and against /icon-lab (hover shows the base).
    A dot in a line icon is a disc 2 across (a r 0.25 circle under the 1.5
    stroke: `a.25.25 0 1 0 .5 0a.25.25 0 1 0-.5 0`), every dot in the set the
    same size: a dot exactly the stroke width reads smaller than the line,
-   so it is a touch bigger. Same pitch for rows of dots.
+   so it is a touch bigger. Same pitch for rows of dots. Exception: dice pips are
+   3 across (`a.75.75`), so a single pip still reads.
    Never mix dashes and dots in one outline.
 6. **Air.** Separate parts (a rocket's fins and body, a badge on a file)
    are 1.5 apart or more, so nothing fuses into a solid blob at 16px.
