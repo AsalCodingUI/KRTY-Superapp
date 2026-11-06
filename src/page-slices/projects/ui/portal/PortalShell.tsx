@@ -48,7 +48,7 @@ import { m } from "motion/react"
 import { TRANSITION } from "@/shared/lib/motion"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { useTransition } from "react"
+import { useLayoutEffect, useTransition } from "react"
 
 /** The pages a client may open, in sidebar order (same names as inside). */
 const SECTIONS = [
@@ -118,8 +118,26 @@ export function PortalShell({
       router.refresh()
     })
 
+  // The portal always wears the dark sidebar (the app's "dark sidebar"
+  // look), whatever this browser's own setting; restored on the way out.
+  useLayoutEffect(() => {
+    const root = document.documentElement
+    const had = root.hasAttribute("data-dark-chrome")
+    root.setAttribute("data-dark-chrome", "")
+    return () => {
+      if (!had) root.removeAttribute("data-dark-chrome")
+    }
+  }, [])
+
   return (
     <SidebarProvider className="bg-chrome h-svh min-h-0 flex-col overflow-hidden">
+      {/* Before first paint too (the effect runs after hydration). */}
+      <script
+        dangerouslySetInnerHTML={{
+          __html:
+            'document.documentElement.setAttribute("data-dark-chrome","")',
+        }}
+      />
       {/* Phones only: the project on the chrome (Shopify style). From md up
           everything sits in the sidebar, like the app (no top bar). */}
       <header
@@ -235,7 +253,6 @@ export function PortalShell({
           <SidebarFooter>
             <div className="flex flex-nowrap items-center gap-2 group-data-[collapsible=icon]:flex-col">
               <ThemeSwitcher className="group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:self-center" />
-              <LanguageSwitcher className="group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:self-center" />
               <AppearancePopover className="group-data-[collapsible=icon]:self-center" />
             </div>
           </SidebarFooter>
@@ -246,7 +263,7 @@ export function PortalShell({
               toggle, where you are, and the translator. */}
           <div
             data-chrome-dark=""
-            className="on-chrome text-foreground flex min-w-0 shrink-0 items-center gap-1 pt-3 pb-2 max-md:hidden"
+            className="on-chrome text-foreground flex h-(--app-tabs-height) min-w-0 shrink-0 items-center gap-1 pt-3 pb-2 max-md:hidden"
           >
             <SidebarTrigger className="text-muted-foreground hover:bg-chrome-hover" />
             <Breadcrumb className="ml-2 min-w-0 flex-1">
