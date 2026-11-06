@@ -5,11 +5,11 @@
  */
 import type { SVGProps } from "react"
 
-/** The icons' stroke on their 24px grid: 1.75 (the drawings are laid out
- *  for 1.5; 1.75 reads as heavy as the text beside them). It scales with the icon
- *  (1.17px at size-4, 2.33 at 32px), so every size is the same drawing, just
+/** The icons' stroke on their 24px grid: 2, as heavy as the text beside
+ *  them. It scales with the icon
+ *  (1.33px at size-4, 2.67 at 32px), so every size is the same drawing, just
  *  bigger or smaller (docs/ui/icons.md). */
-export const STROKE = 1.75
+export const STROKE = 2
 
 /** Glyphs drawn here carry `ours: true`, and so do the app icons made
  *  from them (index.tsx): /icon-lab marks those as redrawn. */

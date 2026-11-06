@@ -63,9 +63,9 @@ props are accepted and ignored. Every icon is listed on /ui → Icons.
   status: `text-success-ink`, `text-warning`, `text-destructive`. Semantic
   tokens only.
 - Grid and stroke: every glyph is drawn on a **24px grid** and rendered
-  with a **1.75 stroke** (`STROKE` in `src/components/icons/custom.tsx`),
-  round caps and joins. The stroke **scales** with the icon: 1.17px at
-  `size-4`, 1.02 at `size-3.5`, 2.33 at 32px. Every size is the same drawing, only bigger or
+  with a **2 stroke** (`STROKE` in `src/components/icons/custom.tsx`),
+  round caps and joins. The stroke **scales** with the icon: 1.33px at
+  `size-4`, 1.17 at `size-3.5`, 2.67 at 32px. Every size is the same drawing, only bigger or
   smaller. `strokeWidth` on a single icon is ignored.
 - Our own set: redrawn from the Untitled UI base on that grid, in
   `custom.tsx`; /icon-lab shows the whole Untitled pack, which ones the
@@ -204,8 +204,7 @@ move the hexes to tokens if a second folder appears.
 Every glyph in `src/components/icons/set/` and `custom.tsx` follows these.
 Check new ones against them and against /icon-lab (hover shows the base).
 
-1. **Grid and stroke.** 24 × 24, stroke 1.75 (`STROKE`; it scales with the
-   icon; the geometry below is laid out for 1.5 and holds at 1.75),
+1. **Grid and stroke.** 24 × 24, stroke 2 (`STROKE`; it scales with the icon),
    round caps and joins, outline only. Live area: stroke centres 2.75–21.25
    (the outer edge reaches 2 and 22, a full 20px). Sizes, measured on
    stroke centres: circles 18.5 (r 9.25 at 12,12); squares and frames 17.5
@@ -227,7 +226,8 @@ Check new ones against them and against /icon-lab (hover shows the base).
    rounded square (6.5, r 2) inside the circle, the conventional stop mark.
 4. **Cuts.** Where one stroke crosses another and the other is broken (a
    slash through wifi, an eye, a bell), the gap is 1.5 between stroke
-   edges on both sides (cut ends 2.25 from the crossing stroke's centre),
+   edges on both sides (cut ends, cap included, 3.5 from the crossing
+   stroke's centre),
    the same everywhere in the set.
 5. **Dashes and dots.** A dashed outline uses one dash length and one gap
    all round, placed symmetrically (corners and axis midpoints match).
@@ -238,7 +238,7 @@ Check new ones against them and against /icon-lab (hover shows the base).
    3 across (`a.75.75`), so a single pip still reads.
    Never mix dashes and dots in one outline.
 6. **Air.** Separate parts (a rocket's fins and body, a badge on a file)
-   are 1.5 apart or more, so nothing fuses into a solid blob at 16px.
+   are 1.5 apart or more between stroke edges (3.5 between centres), so nothing fuses into a solid blob at 16px.
 7. **Simple.** One idea per icon, at most 3–4 inner details, nothing
    smaller than 2px. Gears have 6 teeth and a 2.5 hub. Prefer the plainer
    form when the base is busy.
