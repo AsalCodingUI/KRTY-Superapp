@@ -144,7 +144,7 @@ export const Microscope = glyph(
 )
 export const Minimize01 = glyph(
   "Minimize01",
-  "M20.75 3.25L13.75 10.25M19.25 10.25L13.75 10.25L13.75 4.75M3.25 20.75L10.25 13.75M4.75 13.75L10.25 13.75L10.25 19.25",
+  "M19.896 4.104L13.579 10.421M21.25 10.421L13.579 10.421L13.579 2.75M4.104 19.896L10.421 13.579M2.75 13.579L10.421 13.579L10.421 21.25",
 )
 export const MinusCircle = glyph(
   "MinusCircle",

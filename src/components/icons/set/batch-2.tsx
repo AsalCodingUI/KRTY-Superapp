@@ -35,15 +35,15 @@ export const Copy07 = glyph(
 )
 export const CornerDownLeft = glyph(
   "CornerDownLeft",
-  "M19.75 4.251L19.75 10.861A5 5 0 0 1 14.75 15.861L4.25 15.861M8.139 19.75L4.25 15.861L8.139 11.972",
+  "M19.75 3.191L19.75 9.801A5 5 0 0 1 14.75 14.801L4.25 14.801M10.26 20.811L4.25 14.801L10.26 8.791",
 )
 export const CornerDownRight = glyph(
   "CornerDownRight",
-  "M4.25 4.251L4.25 10.861A5 5 0 0 0 9.25 15.861L19.75 15.861M15.861 19.75L19.75 15.861L15.861 11.972",
+  "M4.25 3.191L4.25 9.801A5 5 0 0 0 9.25 14.801L19.75 14.801M13.74 20.811L19.75 14.801L13.74 8.791",
 )
 export const CornerLeftUp = glyph(
   "CornerLeftUp",
-  "M19.749 19.75L13.139 19.75A5 5 0 0 1 8.139 14.75L8.139 4.25M4.25 8.139L8.139 4.25L12.028 8.139",
+  "M20.809 19.75L14.199 19.75A5 5 0 0 1 9.199 14.75L9.199 4.25M3.189 10.26L9.199 4.25L15.209 10.26",
 )
 export const CreditCard01 = glyph(
   "CreditCard01",
@@ -137,11 +137,11 @@ export const Flag01 = glyph(
 )
 export const FlipBackward = glyph(
   "FlipBackward",
-  "M3.25 9.444L16.25 9.444A4.5 4.5 0 0 1 16.25 18.444L11 18.444M7.139 13.333L3.25 9.444L7.139 5.555",
+  "M3.25 9.444L16.25 9.444A4.5 4.5 0 0 1 16.25 18.444L11 18.444M9.26 15.454L3.25 9.444L9.26 3.434",
 )
 export const FlipForward = glyph(
   "FlipForward",
-  "M20.75 9.444L7.75 9.444A4.5 4.5 0 0 0 7.75 18.444L13 18.444M16.861 13.333L20.75 9.444L16.861 5.555",
+  "M20.75 9.444L7.75 9.444A4.5 4.5 0 0 0 7.75 18.444L13 18.444M14.74 15.454L20.75 9.444L14.74 3.434",
 )
 /** Same drawing as Folder in ../custom (one folder for every variant). */
 export const Folder = glyph(

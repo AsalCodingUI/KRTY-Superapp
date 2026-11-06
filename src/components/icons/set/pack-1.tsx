@@ -53,7 +53,7 @@ export const AlertSquare = glyph(
 )
 export const AlignBottom01 = glyph(
   "AlignBottom01",
-  "M5 20.75L19 20.75M12 3.25L12 17.25M8.111 13.361L12 17.25L15.889 13.361",
+  "M5 20.75L19 20.75M12 3.25L12 17.25M5.99 11.24L12 17.25L18.01 11.24",
 )
 export const AlignBottom02 = glyph(
   "AlignBottom02",
@@ -61,7 +61,7 @@ export const AlignBottom02 = glyph(
 )
 export const AlignHorizontalCenter01 = glyph(
   "AlignHorizontalCenter01",
-  "M12 3.25L12 20.75M2.75 12L8.5 12M4.611 8.111L8.5 12L4.611 15.889M21.25 12L15.5 12M19.389 15.889L15.5 12L19.389 8.111",
+  "M12 3.489L12 20.511M3.003 12L8.596 12M2.75 6.154L8.596 12L2.75 17.846M20.997 12L15.404 12M21.25 17.846L15.404 12L21.25 6.154",
 )
 export const AlignHorizontalCenter02 = glyph(
   "AlignHorizontalCenter02",
@@ -69,7 +69,7 @@ export const AlignHorizontalCenter02 = glyph(
 )
 export const AlignHorizontalCentre01 = glyph(
   "AlignHorizontalCentre01",
-  "M12 3.25L12 20.75M2.75 12L8.5 12M4.611 8.111L8.5 12L4.611 15.889M21.25 12L15.5 12M19.389 15.889L15.5 12L19.389 8.111",
+  "M12 3.489L12 20.511M3.003 12L8.596 12M2.75 6.154L8.596 12L2.75 17.846M20.997 12L15.404 12M21.25 17.846L15.404 12L21.25 6.154",
 )
 export const AlignHorizontalCentre02 = glyph(
   "AlignHorizontalCentre02",
@@ -81,7 +81,7 @@ export const AlignJustify = glyph(
 )
 export const AlignLeft01 = glyph(
   "AlignLeft01",
-  "M3.25 5L3.25 19M20.75 12L6.75 12M10.639 8.111L6.75 12L10.639 15.889",
+  "M3.25 5L3.25 19M20.75 12L6.75 12M12.76 5.99L6.75 12L12.76 18.01",
 )
 export const AlignLeft02 = glyph(
   "AlignLeft02",
@@ -89,7 +89,7 @@ export const AlignLeft02 = glyph(
 )
 export const AlignRight01 = glyph(
   "AlignRight01",
-  "M20.75 5L20.75 19M3.25 12L17.25 12M13.361 8.111L17.25 12L13.361 15.889",
+  "M20.75 5L20.75 19M3.25 12L17.25 12M11.24 5.99L17.25 12L11.24 18.01",
 )
 export const AlignRight02 = glyph(
   "AlignRight02",
@@ -97,7 +97,7 @@ export const AlignRight02 = glyph(
 )
 export const AlignVerticalCenter01 = glyph(
   "AlignVerticalCenter01",
-  "M3.25 12L20.75 12M12 2.75L12 8.5M8.111 4.611L12 8.5L15.889 4.611M12 21.25L12 15.5M15.889 19.389L12 15.5L8.111 19.389",
+  "M3.489 12L20.511 12M12 3.003L12 8.596M6.154 2.75L12 8.596L17.846 2.75M12 20.997L12 15.404M17.846 21.25L12 15.404L6.154 21.25",
 )
 export const AlignVerticalCenter02 = glyph(
   "AlignVerticalCenter02",
@@ -233,11 +233,11 @@ export const ArrowCircleUpRight = glyph(
 )
 export const ArrowDownLeft = glyph(
   "ArrowDownLeft",
-  "M18.125 5.875L5.875 18.125M11.375 18.125L5.875 18.125L5.875 12.625",
+  "M18.125 5.875L5.875 18.125M14.375 18.125L5.875 18.125L5.875 9.625",
 )
 export const ArrowDownRight = glyph(
   "ArrowDownRight",
-  "M5.875 5.875L18.125 18.125M18.125 12.625L18.125 18.125L12.625 18.125",
+  "M5.875 5.875L18.125 18.125M18.125 9.625L18.125 18.125L9.625 18.125",
 )
 export const ArrowNarrowDown = glyph(
   "ArrowNarrowDown",
@@ -273,11 +273,11 @@ export const ArrowNarrowUpRight = glyph(
 )
 export const ArrowNext = glyph(
   "ArrowNext",
-  "M3.75 12L20.25 12M16.361 8.111L20.25 12L16.361 15.889",
+  "M3.75 12L20.25 12M14.24 5.99L20.25 12L14.24 18.01",
 )
 export const ArrowPrevious = glyph(
   "ArrowPrevious",
-  "M20.25 12L3.75 12M7.639 15.889L3.75 12L7.639 8.111",
+  "M20.25 12L3.75 12M9.76 18.01L3.75 12L9.76 5.99",
 )
 export const ArrowSquareDown = glyph(
   "ArrowSquareDown",
@@ -313,7 +313,7 @@ export const ArrowSquareUpRight = glyph(
 )
 export const ArrowUpLeft = glyph(
   "ArrowUpLeft",
-  "M18.125 18.125L5.875 5.875M5.875 11.375L5.875 5.875L11.375 5.875",
+  "M18.125 18.125L5.875 5.875M5.875 14.375L5.875 5.875L14.375 5.875",
 )
 export const ArrowsDown = glyph(
   "ArrowsDown",

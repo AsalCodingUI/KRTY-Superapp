@@ -104,7 +104,7 @@ export const Sunrise = glyph(
 )
 export const SwitchHorizontal01 = glyph(
   "SwitchHorizontal01",
-  "M3.75 7.5L20.25 7.5M16.361 3.611L20.25 7.5L16.361 11.389M20.25 16.5L3.75 16.5M7.639 20.389L3.75 16.5L7.639 12.611",
+  "M4.739 8.039L19.261 8.039M13.971 2.75L19.261 8.039L13.971 13.329M19.261 15.961L4.739 15.961M10.029 21.25L4.739 15.961L10.029 10.671",
 )
 export const Table = glyph(
   "Table",

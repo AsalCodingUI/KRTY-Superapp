@@ -32,7 +32,7 @@ export const AlignRight = glyph(
 )
 export const AlignTopArrow01 = glyph(
   "AlignTopArrow01",
-  "M5 3.25L19 3.25M12 20.75L12 6.75M8.111 10.639L12 6.75L15.889 10.639",
+  "M5 3.25L19 3.25M12 20.75L12 6.75M5.99 12.76L12 6.75L18.01 12.76",
 )
 export const AlignTopArrow02 = glyph(
   "AlignTopArrow02",
@@ -48,19 +48,19 @@ export const Archive = glyph(
 )
 export const ArrowDown = glyph(
   "ArrowDown",
-  "M12 3.75L12 20.25M15.889 16.361L12 20.25L8.111 16.361",
+  "M12 3.75L12 20.25M18.01 14.24L12 20.25L5.99 14.24",
 )
 export const ArrowRight = glyph(
   "ArrowRight",
-  "M3.75 12L20.25 12M16.361 8.111L20.25 12L16.361 15.889",
+  "M3.75 12L20.25 12M14.24 5.99L20.25 12L14.24 18.01",
 )
 export const ArrowUp = glyph(
   "ArrowUp",
-  "M12 20.25L12 3.75M8.111 7.639L12 3.75L15.889 7.639",
+  "M12 20.25L12 3.75M5.99 9.76L12 3.75L18.01 9.76",
 )
 export const ArrowUpRight = glyph(
   "ArrowUpRight",
-  "M5.875 18.125L18.125 5.875M12.625 5.875L18.125 5.875L18.125 11.375",
+  "M5.875 18.125L18.125 5.875M9.625 5.875L18.125 5.875L18.125 14.375",
 )
 export const AtSign = glyph(
   "AtSign",
