@@ -26,6 +26,7 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
+  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -80,9 +81,11 @@ const SECTIONS = [
 ] as const
 
 /**
- * The client portal in the app's own chrome: the tinted top bar and
- * sidebar, and the page as one rounded sheet, with only the project's
- * client pages in the sidebar and "Sign out" where the account menu sits.
+ * The client portal in the app's own chrome (the same shell as inside):
+ * no top bar from md up; the studio, the project and its pages in the
+ * sidebar, "Sign out" where the account row sits, a row on the chrome
+ * above the sheet (toggle, breadcrumb, translator), and the page sheet
+ * with the app's padding.
  */
 export function PortalShell({
   token,
@@ -117,75 +120,76 @@ export function PortalShell({
 
   return (
     <SidebarProvider className="bg-chrome h-svh min-h-0 flex-col overflow-hidden">
-      {/* Who and what: the studio / the project and its status on the
-          left; the team's faces and "Sign out" on the right. */}
+      {/* Phones only: the project on the chrome (Shopify style). From md up
+          everything sits in the sidebar, like the app (no top bar). */}
       <header
-        // Dark in light mode too when Settings → Tampilan says so, like the
-        // app's own top bar (globals.css).
+        // Dark in light mode too when Settings → Tampilan says so.
         data-chrome-dark=""
-        className="on-chrome text-foreground relative z-40 flex h-(--app-topbar-height) shrink-0 items-center gap-4 px-4"
+        className="on-chrome text-foreground relative z-40 flex h-(--app-topbar-height) shrink-0 items-center gap-3 px-4 md:hidden"
       >
-        <div className="flex min-w-0 flex-1 items-center gap-2.5 whitespace-nowrap">
-          {/* On a phone only the project (Shopify style): bigger, alone. */}
-          <AppIcon
-            size={192}
-            variant="mark"
-            className="size-[22px] shrink-0 max-md:hidden"
+        <Link
+          prefetch={false}
+          href={base}
+          className="flex min-w-0 flex-1 items-center gap-2.5 text-base font-medium"
+        >
+          <ProjectAvatar
+            id={project.id}
+            name={project.name}
+            className="size-8 shrink-0 text-sm"
           />
-          <span className="text-sm font-medium max-md:hidden">
-            Kretya Studio
+          <span className="truncate" translate="no">
+            {project.name}
           </span>
-          <span
-            aria-hidden
-            className="text-tertiary-foreground text-lg font-normal max-md:hidden"
-          >
-            /
-          </span>
-          <Link
-            prefetch={false}
-            href={base}
-            className="flex min-w-0 items-center gap-2 text-sm font-medium max-md:gap-2.5 max-md:text-base"
-          >
-            <ProjectAvatar
-              id={project.id}
-              name={project.name}
-              className="size-5 shrink-0 text-[10px] max-md:size-8 max-md:text-sm"
-            />
-            <span className="truncate" translate="no">
-              {project.name}
-            </span>
-          </Link>
-          {statusKey && (
-            <Badge variant="secondary" className="blend-ink max-sm:hidden">
-              {tp(statusKey)}
-            </Badge>
-          )}
-        </div>
-        <div className="flex shrink-0 items-center gap-1">
-          <PageTranslator />
-          <Button
-            variant="ghost"
-            size="sm"
-            className="blend-ink text-muted-foreground max-md:hidden"
-            disabled={leaving}
-            aria-label={tp("portalSignOut")}
-            onClick={signOut}
-          >
-            <RiLogoutBoxLine data-icon="inline-start" />
-            {tp("portalSignOut")}
-          </Button>
-        </div>
+        </Link>
+        <PageTranslator />
       </header>
 
-      <div className="flex min-h-0 w-full flex-1 md:pr-3 md:pb-3">
+      <div className="flex min-h-0 w-full flex-1 md:pr-2 md:pb-2">
         <Sidebar
           collapsible="icon"
           className="on-chrome overflow-hidden"
           data-chrome-dark=""
         >
           <SidebarRail />
+          {/* Same header as the app's sidebar: the studio, then the
+              project (and its status) where the workspace tabs sit. */}
+          <SidebarHeader className="gap-3 px-3 pt-3 pb-3">
+            <div className="flex h-8 items-center group-data-[collapsible=icon]:h-auto group-data-[collapsible=icon]:justify-center">
+              <span className="flex min-w-0 items-center gap-2 pl-2.5 group-data-[collapsible=icon]:pl-0">
+                <AppIcon size={96} variant="mark" className="size-4 shrink-0" />
+                <span className="truncate text-sm font-medium group-data-[collapsible=icon]:hidden">
+                  Kretya Studio
+                </span>
+              </span>
+            </div>
+            <Link
+              prefetch={false}
+              href={base}
+              className="flex h-8 min-w-0 items-center gap-2 pl-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:pl-0"
+            >
+              <ProjectAvatar
+                id={project.id}
+                name={project.name}
+                className="size-5 shrink-0 text-[10px]"
+              />
+              <span
+                className="truncate text-sm font-medium group-data-[collapsible=icon]:hidden"
+                translate="no"
+              >
+                {project.name}
+              </span>
+              {statusKey && (
+                <Badge
+                  variant="secondary"
+                  className="blend-ink ml-auto shrink-0 group-data-[collapsible=icon]:hidden"
+                >
+                  {tp(statusKey)}
+                </Badge>
+              )}
+            </Link>
+          </SidebarHeader>
           <SidebarContent>
-            <SidebarGroup className="pt-0.5">
+            <SidebarGroup className="pt-0">
               <SidebarMenu className="relative">
                 <SlidingIndicator
                   activeSelector="[data-active]"
@@ -211,6 +215,22 @@ export function PortalShell({
                 ))}
               </SidebarMenu>
             </SidebarGroup>
+            {/* Sign out where the app has its account row. */}
+            <SidebarGroup className="mt-auto">
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    tooltip={tp("portalSignOut")}
+                    disabled={leaving}
+                    onClick={signOut}
+                    className="blend-ink"
+                  >
+                    <RiLogoutBoxLine />
+                    <span className="truncate">{tp("portalSignOut")}</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroup>
           </SidebarContent>
           <SidebarFooter>
             <div className="flex flex-nowrap items-center gap-2 group-data-[collapsible=icon]:flex-col">
@@ -221,68 +241,73 @@ export function PortalShell({
           </SidebarFooter>
         </Sidebar>
 
-        {/* The same page sheet as inside the app (components/page-sheet). */}
-        <PageSheet data-translate-root className="max-md:shadow-raised">
-          {/* No sidebar on a phone: the tab bar below does its job. */}
-          <header className="flex h-12 shrink-0 items-center gap-2 max-md:hidden">
-            <div className="gutter-x flex min-w-0 flex-1 items-center gap-2">
-              <SidebarTrigger className="-ml-1" />
-              <Separator
-                orientation="vertical"
-                className="mr-2 data-vertical:h-4 data-vertical:self-auto"
-              />
-              <Breadcrumb className="min-w-0">
-                <BreadcrumbList className="flex-nowrap">
-                  <BreadcrumbItem className="shrink-0">
-                    <BreadcrumbLink
-                      render={<Link href={base} prefetch={false} />}
-                      className="max-w-48 truncate"
-                      translate="no"
-                    >
-                      {project.name}
-                    </BreadcrumbLink>
-                  </BreadcrumbItem>
-                  <BreadcrumbSeparator />
-                  <BreadcrumbItem className="min-w-0">
-                    {deeper ? (
-                      <BreadcrumbLink
-                        render={
-                          <Link
-                            href={sectionHref(current.slug)}
-                            prefetch={false}
-                          />
-                        }
-                        className="truncate"
-                      >
-                        {t(current.key)}
-                      </BreadcrumbLink>
-                    ) : (
-                      <BreadcrumbPage className="truncate font-medium">
-                        {t(current.key)}
-                      </BreadcrumbPage>
-                    )}
-                  </BreadcrumbItem>
-                </BreadcrumbList>
-              </Breadcrumb>
-            </div>
-          </header>
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+          {/* The app's tab row, on the chrome above the sheet: the sidebar
+              toggle, where you are, and the translator. */}
           <div
-            className={cn(
-              pageSheetContentClassName,
-              "pb-6 max-md:pt-1 max-md:pb-[calc(8rem+env(safe-area-inset-bottom))]",
-            )}
+            data-chrome-dark=""
+            className="on-chrome text-foreground flex min-w-0 shrink-0 items-center gap-1 pt-3 pb-2 max-md:hidden"
           >
-            <m.div
-              key={pathname}
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={TRANSITION}
-              className="flex flex-1 flex-col"
-            >
-              {children}
-            </m.div>
+            <SidebarTrigger className="text-muted-foreground hover:bg-chrome-hover" />
+            <Breadcrumb className="ml-2 min-w-0 flex-1">
+              <BreadcrumbList className="text-meta flex-nowrap">
+                <BreadcrumbItem className="shrink-0">
+                  <BreadcrumbLink
+                    render={<Link href={base} prefetch={false} />}
+                    className="max-w-48 truncate"
+                    translate="no"
+                  >
+                    {project.name}
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem className="min-w-0">
+                  {deeper ? (
+                    <BreadcrumbLink
+                      render={
+                        <Link
+                          href={sectionHref(current.slug)}
+                          prefetch={false}
+                        />
+                      }
+                      className="truncate"
+                    >
+                      {t(current.key)}
+                    </BreadcrumbLink>
+                  ) : (
+                    <BreadcrumbPage className="truncate font-medium">
+                      {t(current.key)}
+                    </BreadcrumbPage>
+                  )}
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+            <PageTranslator />
           </div>
-        </PageSheet>
+
+          {/* The same page sheet as inside the app (components/page-sheet). */}
+          <PageSheet
+            data-translate-root
+            className="max-md:shadow-raised max-md:pt-2 md:pt-6"
+          >
+            <div
+              className={cn(
+                pageSheetContentClassName,
+                "pb-[calc(8rem+env(safe-area-inset-bottom))] md:pb-6",
+              )}
+            >
+              <m.div
+                key={pathname}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={TRANSITION}
+                className="flex flex-1 flex-col"
+              >
+                {children}
+              </m.div>
+            </div>
+          </PageSheet>
+        </div>
       </div>
 
       <TabBar
