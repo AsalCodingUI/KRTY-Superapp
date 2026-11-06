@@ -72,11 +72,11 @@ export const Repeat04 = glyph(
 )
 export const ReverseLeft = glyph(
   "ReverseLeft",
-  "M3.023 8.795H15.295a5.455 5.455 0 0 1 0 10.909H3.295M8.75 2.795 2.75 8.795 8.75 14.795",
+  "M3.023 9.545H15.295a5.455 5.455 0 0 1 0 10.909H3.295M8.75 3.545 2.75 9.545 8.75 15.545",
 )
 export const ReverseRight = glyph(
   "ReverseRight",
-  "M20.977 8.795H8.705a5.455 5.455 0 0 0 0 10.909h12M15.25 2.795l6 6 -6 6",
+  "M20.977 9.545H8.705a5.455 5.455 0 0 0 0 10.909h12M15.25 3.545l6 6 -6 6",
 )
 export const RightIndent01 = glyph(
   "RightIndent01",
@@ -324,7 +324,7 @@ export const Signal02 = glyph(
 )
 export const Signal03 = glyph(
   "Signal03",
-  "M5.46 19.15A9.25 9.25 0 1 1 18.54 19.15M8.148 16.462A5.441 5.441 0 1 1 15.852 16.462M10.651 13.959A1.904 1.904 0 1 1 13.349 13.959",
+  "M5.46 19.895A9.25 9.25 0 1 1 18.54 19.895M8.148 17.207A5.441 5.441 0 1 1 15.852 17.207M10.651 14.704A1.904 1.904 0 1 1 13.349 14.704",
 )
 export const Simcard = glyph(
   "Simcard",

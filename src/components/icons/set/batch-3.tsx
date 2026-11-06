@@ -177,7 +177,7 @@ export const Placeholder = glyph(
 )
 export const Play = glyph(
   "Play",
-  "M5.427 4.51a1.756 1.756 0 0 1 2.692 -1.487l11.236 7.49a1.756 1.756 0 0 1 0 2.973l-11.236 7.49a1.756 1.756 0 0 1 -2.692 -1.487Z",
+  "M5.422 4.51a1.756 1.756 0 0 1 2.692 -1.487l11.236 7.49a1.756 1.756 0 0 1 0 2.973l-11.236 7.49a1.756 1.756 0 0 1 -2.692 -1.487Z",
 )
 export const Plus = glyph("Plus", "M12 5v14M5 12h14")
 export const Podcast = glyph(

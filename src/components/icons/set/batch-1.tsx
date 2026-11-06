@@ -48,16 +48,19 @@ export const Archive = glyph(
 )
 export const ArrowDown = glyph(
   "ArrowDown",
-  "M12 5v13.5M6.25 13 12 18.75 17.75 13",
+  "M12 3.625v16.2M5.1 13.225 12 20.125 18.9 13.225",
 )
 export const ArrowRight = glyph(
   "ArrowRight",
-  "M5 12h13.5M13 6.25 18.75 12 13 17.75",
+  "M3.625 12h16.2M13.225 5.1 20.125 12 13.225 18.9",
 )
-export const ArrowUp = glyph("ArrowUp", "M12 19V5.5M6.25 11 12 5.25 17.75 11")
+export const ArrowUp = glyph(
+  "ArrowUp",
+  "M12 20.375V4.175M5.1 10.775 12 3.875 18.9 10.775",
+)
 export const ArrowUpRight = glyph(
   "ArrowUpRight",
-  "M6.5 17.5 17.25 6.75M9.5 6.5h8v8",
+  "M5.875 18.125 17.847 6.153M9.216 5.875h8.909v8.909",
 )
 export const AtSign = glyph(
   "AtSign",

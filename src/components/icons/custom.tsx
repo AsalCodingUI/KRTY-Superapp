@@ -117,7 +117,7 @@ export const ChevronRight = glyph(
 )
 export const ArrowLeft = glyph(
   "ArrowLeft",
-  "M19 12H5.5M11 6.25 5.25 12 11 17.75",
+  "M20.375 12H4.175M10.775 5.1 3.875 12 10.775 18.9",
 )
 export const Trash2 = glyph(
   "Trash2",
