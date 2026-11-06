@@ -5,16 +5,15 @@
  */
 import type { SVGProps } from "react"
 
-/** The icons' stroke on their 24px grid: 2, as heavy as the text beside
- *  them. It scales with the icon
- *  (1.33px at size-4, 2.67 at 32px), so every size is the same drawing, just
- *  bigger or smaller (docs/ui/icons.md). */
-export const STROKE = 2
+/** The icons' stroke on their 24px grid: 1.5. It scales with the icon
+ *  (through VIEWBOX: ~1.15px at size-4, 2.3 at 32px), so every size is the
+ *  same drawing, just bigger or smaller (docs/ui/icons.md). */
+export const STROKE = 1.5
 
 /** The box every glyph is shown in: the 24 grid less 1.5 on each side,
  *  so the drawing (stroke centres 2.5–21.5 at most, the stroke reaching 1.5
  *  and 22.5) fills the icon box instead of leaving 2px of air around it.
- *  At size-4 a full-size glyph is ~15px and the stroke 1.5px, a text stem
+ *  At size-4 a full-size glyph is ~15px
  *  (docs/ui/icons.md). Every glyph must stay inside 2.5–21.5. */
 export const VIEWBOX = "1.5 1.5 21 21"
 
