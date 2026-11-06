@@ -522,8 +522,9 @@
   /* Outlined controls on the chrome (the sidebar's search). */
   --chrome-border: oklch(0 0 0 / 11%);
   --chrome-muted: oklch(0 0 0 / 55%);
-  /* Nav row labels on the chrome. Light: muted like the icons. Dark (and
-     the dark sidebar): white like a menu's labels, icons white 50%. */
+  /* Nav row labels on the chrome when not active: secondary (light: the
+     muted ink; dark and the dark sidebar: white 68%). Hover and active
+     turn them to the foreground. */
   --chrome-label: var(--chrome-muted);
   --inverse: oklch(0.145 var(--tint-ink) var(--tint-h));
   /* Elevation: the app's only shadows (use as shadow-(--elev-N)). Each is
@@ -749,7 +750,7 @@
   --chrome-field: var(--chrome-selected);
   --chrome-border: oklch(1 0 0 / 12%);
   --chrome-muted: oklch(1 0 0 / 50%);
-  --chrome-label: oklch(0.935 0 0);
+  --chrome-label: oklch(1 0 0 / 68%);
   /* Dark: a white hairline carries the edge; the shadows stay soft (a
      faint, wide falloff) so surfaces lift without dark halos. */
   --elev-1: 0 0 0 1px oklch(1 0 0 / 0.06), 0 1px 2px oklch(0 0 0 / 0.2);
