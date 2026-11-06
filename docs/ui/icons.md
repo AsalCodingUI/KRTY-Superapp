@@ -35,6 +35,10 @@ props are accepted and ignored. Every icon is listed on /ui → Icons.
   `CheckSquare`, `InfoCircle` / `InfoSquare`, …) only the square one is in
   our set; app names like `CircleCheck` point at it. Circle-only glyphs
   (currency, `SlashCircle`, `ArrowCircleBroken*`) and status rings stay.
+- A "done" mark (a step, a milestone, a completed project) is
+  `CircleCheckSolid` with `text-success`: a filled disc and a check cut out
+  of it at stroke 2. Never a `rounded-full bg-success` span with a line
+  check inside (the check comes out hairline and off-centre).
 - Line icons only. Show a state with color or a dot, not a filled icon.
 - One icon per meaning: edit = `SquarePen`, delete = `Delete` (trash),
   more = `MoreHorizontal`, close = `X`, add = `Plus`, open in new =

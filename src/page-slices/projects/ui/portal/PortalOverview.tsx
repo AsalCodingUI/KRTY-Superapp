@@ -7,7 +7,6 @@ import { HoverHighlight } from "@/components/sliding-indicator"
 import { cn } from "@/lib/utils"
 import { STATUS_LABEL_KEYS } from "@/page-slices/projects/lib/status"
 import { useDateLocale, useT } from "@/shared/i18n/client"
-import { RiCheckLine } from "@/shared/ui/lucide-icons"
 import { format, parseISO } from "date-fns"
 import {
   Building2,
@@ -15,6 +14,7 @@ import {
   Newspaper,
   CalendarCheck,
   CalendarDays,
+  CircleCheckSolid,
   CircleDashed,
 } from "@/components/icons"
 import Link from "next/link"
@@ -150,9 +150,7 @@ export function PortalOverview({
                           className={listRowClassName}
                         >
                           {done ? (
-                            <span className="bg-success text-background flex size-4 shrink-0 items-center justify-center rounded-full">
-                              <RiCheckLine className="size-3" />
-                            </span>
+                            <CircleCheckSolid className="text-success size-4 shrink-0" />
                           ) : (
                             <CircleDashed className="text-muted-foreground size-4 shrink-0" />
                           )}

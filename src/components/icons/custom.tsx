@@ -176,3 +176,29 @@ export const ListOrdered = glyph(
   "ListOrdered",
   "M11 6.75h9.5M11 17h9.5M3.75 4.5L5.5 3.25V10.25M3.25 15.25a2.25 2.25 0 0 1 4.5 0c0 1.75-4.5 3-4.5 5.5h4.5",
 )
+
+/** Done: a filled disc (our circle's outer edge, r 10) with the check cut
+ *  out of it in the page tone. The check is heavier than the line stroke
+ *  (2) and half the disc wide (7.5 × 5), so it reads at 16px; use
+ *  `text-success` (or any ink) for the disc. One drawing for every "done"
+ *  mark: steps, milestones, the project status. */
+export function CircleCheckSolid({
+  size = 24,
+  color = "currentColor",
+  strokeWidth: _s,
+  ...props
+}: GlyphProps) {
+  return (
+    <svg viewBox={VIEWBOX} width={size} height={size} fill="none" {...props}>
+      <circle cx="12" cy="12" r="10" fill={color} />
+      <path
+        d="M8.25 12.25l2.5 2.5 5-5"
+        stroke="var(--background)"
+        strokeWidth={2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+;(CircleCheckSolid as { ours?: boolean }).ours = true

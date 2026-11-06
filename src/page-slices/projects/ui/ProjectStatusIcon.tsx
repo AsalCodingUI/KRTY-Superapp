@@ -53,7 +53,8 @@ export function ProjectStatusIcon({
       )}
       {status === "Completed" && (
         <>
-          {/* The ring's outer edge, filled; our check cut in the page tone. */}
+          {/* Same drawing as CircleCheckSolid: the ring's outer edge
+              filled, a heavier check cut in the page tone. */}
           <circle
             cx="12"
             cy="12"
@@ -62,8 +63,9 @@ export function ProjectStatusIcon({
             stroke="none"
           />
           <path
-            d="M7.919 12.272l2.721 2.721 5.713-5.713"
+            d="M8.25 12.25l2.5 2.5 5-5"
             stroke="var(--background)"
+            strokeWidth={2}
           />
         </>
       )}

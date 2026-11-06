@@ -171,6 +171,10 @@ export const CircleDollarSign = /*#__PURE__*/ icon(
   "CircleDollarSign",
 )
 export const CircleDot = /*#__PURE__*/ icon(C.CircleDot, "CircleDot")
+export const CircleCheckSolid = /*#__PURE__*/ icon(
+  C.CircleCheckSolid,
+  "CircleCheckSolid",
+)
 export const CircleHelp = /*#__PURE__*/ icon(K.HelpSquare, "CircleHelp")
 export const CircleX = /*#__PURE__*/ icon(K.XSquare, "CircleX")
 export const ClipboardCheck = /*#__PURE__*/ icon(

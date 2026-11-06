@@ -107,6 +107,7 @@ import {
   Tag,
   Trash2,
   type LucideIcon,
+  CircleCheckSolid,
 } from "@/components/icons"
 import { ContextTarget, type CtxItem } from "@/shared/context-menu"
 import { useEffect, useMemo, useState } from "react"
@@ -1451,9 +1452,7 @@ function ProcessPanel({
                   className="text-muted-foreground hover:text-foreground"
                 >
                   {done ? (
-                    <span className="bg-success text-background flex size-4 items-center justify-center rounded-full">
-                      <RiCheckLine className="size-3" />
-                    </span>
+                    <CircleCheckSolid className="text-success size-4 shrink-0" />
                   ) : (
                     <CircleDashed className="size-4" />
                   )}
