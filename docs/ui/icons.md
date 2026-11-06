@@ -245,7 +245,9 @@ Check new ones against them and against /icon-lab (hover shows the base).
 8. **Ours, not a trace.** Keep what the base shows and roughly where, but
    change the drawing: our proportions, corners, simplification. If ours
    is hard to tell from the base at 64px, redraw it.
-9. **Family.** Reuse exact sub-shapes: one arrowhead (legs 5.75), one
+9. **Family.** Reuse exact sub-shapes: two arrowheads: free arrows legs 5.5, arrows on or in an object 3.75
+   (both 45°, the shaft ends at the tip; straight arrows 16.5 long,
+   diagonals 12.25 square, narrow arrows the small head), one
    chevron (5 × 5), one X (`M6.75 6.75l10.5 10.5M17.25 6.75l-10.5 10.5`),
    one plus, one check, one person, one file outline, one folder, one
    calendar body, one circle, one square (3.5–20.5, r 3).

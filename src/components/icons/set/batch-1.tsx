@@ -32,7 +32,7 @@ export const AlignRight = glyph(
 )
 export const AlignTopArrow01 = glyph(
   "AlignTopArrow01",
-  "M5 3.75h14M12 20.25V8.25M6.25 14 12 8.25 17.75 14",
+  "M5 3.25L19 3.25M12 20.75L12 6.75M8.111 10.639L12 6.75L15.889 10.639",
 )
 export const AlignTopArrow02 = glyph(
   "AlignTopArrow02",
@@ -48,19 +48,19 @@ export const Archive = glyph(
 )
 export const ArrowDown = glyph(
   "ArrowDown",
-  "M12 3.625v16.2M5.1 13.225 12 20.125 18.9 13.225",
+  "M12 3.75L12 20.25M15.889 16.361L12 20.25L8.111 16.361",
 )
 export const ArrowRight = glyph(
   "ArrowRight",
-  "M3.625 12h16.2M13.225 5.1 20.125 12 13.225 18.9",
+  "M3.75 12L20.25 12M16.361 8.111L20.25 12L16.361 15.889",
 )
 export const ArrowUp = glyph(
   "ArrowUp",
-  "M12 20.375V4.175M5.1 10.775 12 3.875 18.9 10.775",
+  "M12 20.25L12 3.75M8.111 7.639L12 3.75L15.889 7.639",
 )
 export const ArrowUpRight = glyph(
   "ArrowUpRight",
-  "M5.875 18.125 17.847 6.153M9.216 5.875h8.909v8.909",
+  "M5.875 18.125L18.125 5.875M12.625 5.875L18.125 5.875L18.125 11.375",
 )
 export const AtSign = glyph(
   "AtSign",
@@ -189,7 +189,7 @@ export const ClipboardCheck = glyph(
 )
 export const ClockRefresh = glyph(
   "ClockRefresh",
-  "M2.75 12a9.25 9.25 0 1 0 2.71 -6.54L3.022 7.919M3.022 2.75v5.169h5.169M12 7.103V12l3.265 2.176",
+  "M4 11.962A8 8 0 0 1 19.25 8.619M20.533 5.095L19.25 8.619L15.727 7.336M20 12.038A8 8 0 0 1 4.75 15.381M3.467 18.905L4.75 15.381L8.273 16.664M12 10.152L12 12L13.479 12.924",
 )
 export const Cloud01 = glyph(
   "Cloud01",
