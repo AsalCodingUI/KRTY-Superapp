@@ -108,8 +108,10 @@ own their layout; don't copy them for normal dialogs.
   `min-w-40` for short labels) and nothing else. Destructive items:
   `variant="destructive"`, last, after a `DropdownMenuSeparator`.
 - Menus (dropdown + right-click) look: see-through popover
-  (`bg-popover/92 backdrop-blur-xl`, submenus the same colour without the
-  blur), group labels
+  (92% popover + `backdrop-blur-xl` on a `::before` layer, submenus
+  too; the blur sits on its own layer, not on the element with the
+  shadow, because Chrome paints a stale dark patch where one blurred
+  menu's shadow falls on another), group labels
   `text-meta` muted, rows 2px apart, separators inset (`mx-2 my-1.5`,
   `bg-foreground/10`), every plain icon `text-foreground/50` (foreground on focus; icons that set
   their own color, e.g. status glyphs, keep it), the check on the right in

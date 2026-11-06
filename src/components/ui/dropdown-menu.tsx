@@ -45,7 +45,7 @@ function DropdownMenuContent({
         <MenuPrimitive.Popup
           data-slot="dropdown-menu-content"
           className={cn(
-            "bg-popover/92 text-popover-foreground data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-left-2 data-[side=inline-start]:slide-in-from-right-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 nest-rounded-popover nest-p-2 no-scrollbar shadow-popover z-50 max-h-(--available-height) w-max max-w-[min(20rem,var(--available-width))] min-w-[max(var(--anchor-width),8rem)] origin-(--transform-origin) overflow-x-hidden overflow-y-auto backdrop-blur-xl backdrop-saturate-150 duration-150 ease-out will-change-transform outline-none data-closed:overflow-hidden",
+            "before:bg-popover/92 text-popover-foreground data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-left-2 data-[side=inline-start]:slide-in-from-right-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 nest-rounded-popover nest-p-2 no-scrollbar shadow-popover relative isolate z-50 max-h-(--available-height) w-max max-w-[min(20rem,var(--available-width))] min-w-[max(var(--anchor-width),8rem)] origin-(--transform-origin) overflow-x-hidden overflow-y-auto duration-150 ease-out outline-none before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:rounded-[inherit] before:backdrop-blur-xl before:backdrop-saturate-150 data-closed:overflow-hidden",
             className,
           )}
           {...props}
@@ -142,7 +142,7 @@ function DropdownMenuSubContent({
     <DropdownMenuContent
       data-slot="dropdown-menu-sub-content"
       className={cn(
-        "bg-popover/92 text-popover-foreground data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 nest-rounded-popover nest-p-2 shadow-popover w-auto min-w-[96px] backdrop-blur-xl backdrop-saturate-150 backdrop-filter-none duration-150 ease-out will-change-transform",
+        "before:bg-popover/92 text-popover-foreground data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 nest-rounded-popover nest-p-2 shadow-popover relative isolate w-auto min-w-[96px] duration-150 ease-out before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:rounded-[inherit] before:backdrop-blur-xl before:backdrop-saturate-150",
         className,
       )}
       align={align}

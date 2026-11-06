@@ -91,7 +91,7 @@ const LONG_PRESS_MS = 500
 const FILTER_MIN_ITEMS = 10
 
 const POPUP =
-  "bg-popover/92 backdrop-blur-xl backdrop-saturate-150 will-change-transform text-popover-foreground data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 nest-rounded-popover nest-p-2 max-h-(--available-height) w-max min-w-52 max-w-[min(22rem,var(--available-width))] origin-(--transform-origin) no-scrollbar overflow-x-hidden overflow-y-auto shadow-popover duration-150 ease-out outline-none data-closed:overflow-hidden"
+  "relative isolate before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:rounded-[inherit] before:bg-popover/92 before:backdrop-blur-xl before:backdrop-saturate-150 text-popover-foreground data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 nest-rounded-popover nest-p-2 max-h-(--available-height) w-max min-w-52 max-w-[min(22rem,var(--available-width))] origin-(--transform-origin) no-scrollbar overflow-x-hidden overflow-y-auto shadow-popover duration-150 ease-out outline-none data-closed:overflow-hidden"
 
 /** The topmost contentEditable host above `el`. */
 function editableHost(el: Element) {
@@ -713,15 +713,7 @@ function Row({
             // Always dark (inverted on a light page), like a system menu.
             className="dark z-context-menu isolate [color-scheme:dark] outline-none"
           >
-            <Menu.Popup
-              data-ctxmenu-popup
-              className={cn(
-                POPUP,
-                // No blur on a submenu (a second backdrop filter leaves a stale
-                // dark patch in Chrome); at 92% the menus look the same anyway.
-                "min-w-44 backdrop-filter-none",
-              )}
-            >
+            <Menu.Popup data-ctxmenu-popup className={cn(POPUP, "min-w-44")}>
               {Array.isArray(item.submenu) ? (
                 <ItemList
                   items={item.submenu}
