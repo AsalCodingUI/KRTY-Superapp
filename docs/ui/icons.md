@@ -216,6 +216,10 @@ Check new ones against them and against /icon-lab (hover shows the base).
    r 3; boxes 6–10px wide r 2; tiny boxes r 1. Polygon and roof corners
    round with r 1.5, all the same within an icon (no mix of sharp and
    soft corners, no lumpy joins).
+   Box-shaped objects (lock and padlock bodies, batteries, keyboards,
+   fields, buttons, cards) are rounded rectangles with these radii, never
+   stretched pills; only things that are pills in life (a toggle track, a
+   capsule) keep round ends.
 3. **Nested corners.** A rounded shape inside a rounded shape keeps an
    even gap: inner r = outer r − gap (gap between stroke centres), never
    below 1. No square inside a round or the other way round. Exception: `StopCircle` keeps a
