@@ -205,9 +205,13 @@ Every glyph in `src/components/icons/set/` and `custom.tsx` follows these.
 Check new ones against them and against /icon-lab (hover shows the base).
 
 1. **Grid and stroke.** 24 × 24, stroke 1.5 (it scales with the icon),
-   round caps and joins, outline only. Live area 3–21 (2px padding; 3.5
-   for compact shapes). Circles r 8.5 at 12,12 (they read as big as an
-   18px square).
+   round caps and joins, outline only. Live area: stroke centres 2.75–21.25
+   (the outer edge reaches 2 and 22, a full 20px). Sizes, measured on
+   stroke centres: circles 18.5 (r 9.25 at 12,12); squares and frames 17.5
+   (3.25–20.75), a touch smaller so they read as big as a circle; files,
+   folders and most objects 18.5 on their long side; chevrons span 12.5.
+   Arrows, calendars and people keep 16.5–17.5. Tiny marks (dots, dashes)
+   keep their size.
 2. **Corners.** Containers (cards, files, folders, calendars, bubbles)
    r 3; boxes 6–10px wide r 2; tiny boxes r 1. Polygon and roof corners
    round with r 1.5, all the same within an icon (no mix of sharp and
