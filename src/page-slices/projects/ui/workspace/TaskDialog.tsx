@@ -102,8 +102,10 @@ const NONE = "__none__"
 
 /** Subtask rows (and the add field): the checkbox column is 24px to the
  *  title, as in the task lists (docs/ui/table.md). */
+// The checkbox's own width, then the title 10px after it (as in the task
+// list), so the row reads as one item, not two columns.
 const SUBTASK_GRID =
-  "grid grid-cols-[1.5rem_minmax(0,1fr)] items-center gap-x-4"
+  "grid grid-cols-[1rem_minmax(0,1fr)] items-center gap-x-2.5"
 
 /**
  * A task opened from the board or list: title, status, PIC, due date,
@@ -380,7 +382,7 @@ function TaskBody({
                   <div
                     className={cn(
                       SUBTASK_GRID,
-                      "group/sub min-h-12 grid-cols-[1.5rem_minmax(0,1fr)_auto] py-2 text-sm",
+                      "group/sub min-h-9 grid-cols-[1rem_minmax(0,1fr)_auto] py-1 text-sm",
                     )}
                   >
                     <Checkbox
