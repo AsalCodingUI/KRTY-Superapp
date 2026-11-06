@@ -162,7 +162,7 @@ export function PortalShell({
             {project.name}
           </span>
         </Link>
-        {isMobile && <PageTranslator whole />}
+        {isMobile && <PageTranslator whole source="en" />}
       </header>
 
       <div className="flex min-h-0 w-full flex-1 md:pr-2 md:pb-2">
@@ -305,7 +305,7 @@ export function PortalShell({
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
-            {!isMobile && <PageTranslator whole />}
+            {!isMobile && <PageTranslator whole source="en" />}
           </div>
 
           {/* The same page sheet as inside the app (components/page-sheet). */}

@@ -194,13 +194,26 @@ export async function middleware(request: NextRequest) {
   // Biarkan API routes mengembalikan status JSON (401/403) dari route handler,
   // jangan dipaksa redirect ke /login.
   // Biarkan public pages dan API routes lewat tanpa auth check.
-  // Client pages speak English until the visitor picks a language.
+  // Client pages speak English until the visitor picks a language. The
+  // portal is always English (no language switch there; its translator
+  // shows it in another language): this browser's app language is ignored.
   if (
-    (isSharedReport || isClientPortal || isClientBrief) &&
-    !request.cookies.has(LOCALE_COOKIE)
+    isClientPortal ||
+    ((isSharedReport || isClientBrief) && !request.cookies.has(LOCALE_COOKIE))
   ) {
     const headers = new Headers(request.headers)
     headers.set(DEFAULT_LOCALE_HEADER, "en")
+    if (isClientPortal && request.cookies.has(LOCALE_COOKIE)) {
+      // Drop just that cookie from the raw header: the others pass through
+      // byte for byte (re-encoding them would break the portal's session).
+      headers.set(
+        "cookie",
+        (request.headers.get("cookie") ?? "")
+          .split(/;\s*/)
+          .filter((part) => !part.startsWith(`${LOCALE_COOKIE}=`))
+          .join("; "),
+      )
+    }
     const response = NextResponse.next({ request: { headers } })
     supabaseResponse.cookies
       .getAll()

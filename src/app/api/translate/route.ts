@@ -24,9 +24,13 @@ export async function POST(request: NextRequest) {
     body?.from === "en" ? "en" : body?.from === "auto" ? "auto" : "id"
   const texts: unknown = body?.texts
   if (
-    !(from === "en" ? TRANSLATE_LANGUAGES_FROM_EN : TRANSLATE_LANGUAGES).some(
-      (l) => l.code === to,
-    ) ||
+    !(
+      from === "id"
+        ? TRANSLATE_LANGUAGES
+        : from === "en"
+          ? TRANSLATE_LANGUAGES_FROM_EN
+          : [...TRANSLATE_LANGUAGES, ...TRANSLATE_LANGUAGES_FROM_EN]
+    ).some((l) => l.code === to) ||
     !Array.isArray(texts) ||
     texts.length === 0 ||
     texts.length > MAX_TEXTS ||
