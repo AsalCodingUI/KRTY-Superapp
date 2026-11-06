@@ -17,8 +17,11 @@ const MAX_CHARS = 20_000
 export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => null)
   const to = typeof body?.to === "string" ? body.to : ""
-  // Briefs are written in English; everything else in Indonesian.
-  const from = body?.from === "en" ? "en" : "id"
+  // Briefs are written in English; everything else in Indonesian. The
+  // portal's whole-page mode mixes the UI language and Indonesian content,
+  // so Google detects each string ("auto").
+  const from =
+    body?.from === "en" ? "en" : body?.from === "auto" ? "auto" : "id"
   const texts: unknown = body?.texts
   if (
     !(from === "en" ? TRANSLATE_LANGUAGES_FROM_EN : TRANSLATE_LANGUAGES).some(

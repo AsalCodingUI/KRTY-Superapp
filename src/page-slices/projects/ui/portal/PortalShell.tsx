@@ -34,6 +34,7 @@ import {
   SidebarRail,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
+import { useIsMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
 import { STATUS_LABEL_KEYS } from "@/page-slices/projects/lib/status"
 import { useT } from "@/shared/i18n/client"
@@ -101,6 +102,8 @@ export function PortalShell({
   const pathname = usePathname()
   const router = useRouter()
   const [leaving, startLeaving] = useTransition()
+  // One translator at a time (the phone's header or the chrome row).
+  const isMobile = useIsMobile()
   // The link key: /p/<project-name>-<code>.
   const base = `/p/${token}`
   const slug = pathname.slice(base.length + 1).split("/")[0] ?? ""
@@ -159,7 +162,7 @@ export function PortalShell({
             {project.name}
           </span>
         </Link>
-        <PageTranslator />
+        {isMobile && <PageTranslator whole />}
       </header>
 
       <div className="flex min-h-0 w-full flex-1 md:pr-2 md:pb-2">
@@ -175,7 +178,10 @@ export function PortalShell({
             <div className="flex h-8 items-center group-data-[collapsible=icon]:h-auto group-data-[collapsible=icon]:justify-center">
               <span className="flex min-w-0 items-center gap-2 pl-2.5 group-data-[collapsible=icon]:pl-0">
                 <AppIcon size={96} variant="mark" className="size-4 shrink-0" />
-                <span className="truncate text-sm font-medium group-data-[collapsible=icon]:hidden">
+                <span
+                  className="truncate text-sm font-medium group-data-[collapsible=icon]:hidden"
+                  translate="no"
+                >
                   Kretya Studio
                 </span>
               </span>
@@ -299,7 +305,7 @@ export function PortalShell({
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
-            <PageTranslator />
+            {!isMobile && <PageTranslator whole />}
           </div>
 
           {/* The same page sheet as inside the app (components/page-sheet). */}

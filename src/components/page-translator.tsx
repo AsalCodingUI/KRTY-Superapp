@@ -34,11 +34,16 @@ type Choice = TranslateLanguage | typeof ORIGINAL
 const SKIP =
   "script, style, code, pre, textarea, [translate=no], [data-no-translate]"
 
+const contentRoots = () =>
+  Array.from(document.querySelectorAll("[data-translate-root]"))
+
 /** The page's text nodes worth translating (they have letters in them). */
 function textNodes(root: Element) {
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
     acceptNode: (node) =>
-      /\p{L}/u.test(node.nodeValue ?? "") && !node.parentElement?.closest(SKIP)
+      // Two letters or more: a lone initial (an avatar's "O") stays as it is.
+      /\p{L}[\s\S]*\p{L}/u.test(node.nodeValue ?? "") &&
+      !node.parentElement?.closest(SKIP)
         ? NodeFilter.FILTER_ACCEPT
         : NodeFilter.FILTER_REJECT,
   })
@@ -51,7 +56,7 @@ function textNodes(root: Element) {
 async function translateAll(
   texts: string[],
   to: TranslateLanguage,
-  from: "id" | "en",
+  from: "id" | "en" | "auto",
 ) {
   const out: string[] = []
   let start = 0
@@ -93,11 +98,17 @@ async function translateAll(
 export function PageTranslator({
   className,
   source = "id",
+  whole = false,
 }: {
   className?: string
   /** The page's language: Indonesian (reports, the portal) is shown in
    *  English at first; English (briefs) stays as it is until asked. */
   source?: "id" | "en"
+  /** The whole page, not just `[data-translate-root]`: the sidebar, the
+   *  chrome, and dialogs / menus / toasts that open in a portal. Its UI is
+   *  in the viewer's app language and its content in Indonesian, so the
+   *  source is detected per string. */
+  whole?: boolean
 }) {
   const languages: readonly { code: TranslateLanguage; name: string }[] =
     source === "en" ? TRANSLATE_LANGUAGES_FROM_EN : TRANSLATE_LANGUAGES
@@ -111,8 +122,14 @@ export function PageTranslator({
   const cache = useRef(new Map<string, string>())
   const active = useRef<Choice>(ORIGINAL)
 
-  const roots = () =>
-    Array.from(document.querySelectorAll("[data-translate-root]"))
+  const roots = useCallback(
+    () =>
+      whole
+        ? [document.body]
+        : Array.from(document.querySelectorAll("[data-translate-root]")),
+    [whole],
+  )
+  const from = whole ? "auto" : source
 
   const restore = useCallback(() => {
     for (const [node, text] of originals.current) {
@@ -121,7 +138,7 @@ export function PageTranslator({
     }
     originals.current.clear()
     applied.current.clear()
-    for (const root of roots()) root.removeAttribute("dir")
+    for (const root of contentRoots()) root.removeAttribute("dir")
   }, [])
 
   const apply = useCallback(
@@ -141,7 +158,7 @@ export function PageTranslator({
         ...new Set(sources.filter((s) => !cache.current.has(`${to}:${s}`))),
       ]
       if (missing.length > 0) {
-        const done = await translateAll(missing, to, source)
+        const done = await translateAll(missing, to, from)
         missing.forEach((s, i) => cache.current.set(`${to}:${s}`, done[i]))
       }
       if (active.current !== to) return
@@ -156,11 +173,12 @@ export function PageTranslator({
         node.nodeValue = value
         applied.current.set(node, value)
       })
-      for (const root of roots())
+      // Right-to-left on the content only: the shell keeps its layout.
+      for (const root of contentRoots())
         if (to === "ar") root.setAttribute("dir", "rtl")
         else root.removeAttribute("dir")
     },
-    [source],
+    [from, roots],
   )
 
   const pick = useCallback(
@@ -223,7 +241,7 @@ export function PageTranslator({
       observer.disconnect()
       window.clearTimeout(timer)
     }
-  }, [apply])
+  }, [apply, roots])
 
   const current = languages.find((l) => l.code === choice)
 
