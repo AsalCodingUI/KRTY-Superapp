@@ -113,7 +113,7 @@ own their layout; don't copy them for normal dialogs.
   `text-meta` muted, rows 2px apart, separators inset (`mx-2 my-1.5`,
   `bg-foreground/10`), every plain icon `text-foreground/50` (foreground on focus; icons that set
   their own color, e.g. status glyphs, keep it), the check on the right in
-  `text-primary`. Submenus open with an 8px gap beside the menu (`sideOffset` 16: it is
+  `text-primary`. Submenus open with a 4px gap beside the menu (`sideOffset` 12: it is
   measured from the row, inside the 8px padding), first item level with it. Don't restyle a single menu: change `ui/dropdown-menu.tsx`.
 - Row ⋯ menus: `RowMenu` (shows on row hover, stops the row click).
 - Tooltip: short label of an icon-only control, dark pill (`bg-foreground`),

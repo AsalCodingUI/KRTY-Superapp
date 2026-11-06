@@ -707,8 +707,8 @@ function Row({
             align="start"
             alignOffset={-8}
             // Measured from the trigger row, inside the menu's 8px padding:
-            // 16 leaves 8px between the two menus.
-            sideOffset={16}
+            // 12 leaves 4px between the two menus.
+            sideOffset={12}
             collisionPadding={8}
             // Always dark (inverted on a light page), like a system menu.
             className="dark z-context-menu isolate [color-scheme:dark] outline-none"
