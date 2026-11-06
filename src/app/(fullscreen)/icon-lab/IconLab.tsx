@@ -8,6 +8,7 @@ import * as Untitled from "@untitledui/icons"
 import { type ComponentType, useEffect, useState } from "react"
 import { toast } from "sonner"
 import * as OurSet from "@/components/icons/set"
+import { CHOSEN } from "./chosen"
 import { UNTITLED_BASE } from "./untitled-base"
 
 type Glyph = ComponentType<{
@@ -57,18 +58,32 @@ for (const [name, value] of Object.entries(OurSet as Record<string, unknown>)) {
   if (base && ours && !OURS.has(base)) OURS.set(base, ours)
 }
 
+/** The family of a look-alike variant: its name without the number
+ *  (Mail01–Mail04 → Mail; Centre spelled Center). */
+const stemOf = (name: string) =>
+  name.replace(/\d+$/, "").replace("Centre", "Center")
+
 /** Untitled glyphs the app uses today (through @/components/icons). */
 const USED = new Set<unknown>(Object.values(UNTITLED_BASE))
 
-/** Look-alike variants: one family per name without its number
- *  (Mail01–Mail04 → Mail; Centre spelled Center), two or more members. */
+/** The pack less the variants not chosen (CHOSEN), unless the app still
+ *  uses one. */
+const KEPT = PACK.filter(([name, Base]) => {
+  const keep = CHOSEN[stemOf(name)]
+  return !keep || keep === name || USED.has(Base)
+})
+
+/** Look-alike families still to choose from: two or more members, no
+ *  choice made yet. */
 const FAMILIES = (() => {
   const map = new Map<string, (typeof PACK)[number][]>()
-  for (const entry of PACK) {
-    const stem = entry[0].replace(/\d+$/, "").replace("Centre", "Center")
+  for (const entry of KEPT) {
+    const stem = stemOf(entry[0])
     map.set(stem, [...(map.get(stem) ?? []), entry])
   }
-  return [...map].filter(([, members]) => members.length > 1)
+  return [...map].filter(
+    ([stem, members]) => members.length > 1 && !CHOSEN[stem],
+  )
 })()
 
 /** A JSON value kept in this browser between visits (a convenience: the
@@ -177,7 +192,7 @@ export function IconLab() {
         ? pickedList.filter((n) => n !== name)
         : [...pickedList, name],
     )
-  const shown = onlyPicked ? PACK.filter(([n]) => picked.has(n)) : PACK
+  const shown = onlyPicked ? KEPT.filter(([n]) => picked.has(n)) : KEPT
   const done = FAMILIES.filter(([stem]) => chosen[stem]).length
 
   return (
@@ -267,7 +282,7 @@ export function IconLab() {
               size="sm"
               onClick={() =>
                 copyText(
-                  PACK.map(([n]) => n)
+                  KEPT.map(([n]) => n)
                     .filter((n) => picked.has(n))
                     .join(", "),
                   `${picked.size} nama icon disalin`,

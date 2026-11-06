@@ -72,8 +72,8 @@ export function filled(Source: Icon, _name: string): Icon {
 }
 
 export const AlignCenter = /*#__PURE__*/ icon(K.AlignCenter, "AlignCenter")
-export const AlignLeft = /*#__PURE__*/ icon(K.AlignLeft, "AlignLeft")
-export const AlignRight = /*#__PURE__*/ icon(K.AlignRight, "AlignRight")
+export const AlignLeft = /*#__PURE__*/ icon(K.AlignLeft02, "AlignLeft")
+export const AlignRight = /*#__PURE__*/ icon(K.AlignRight02, "AlignRight")
 export const AppWindow = /*#__PURE__*/ icon(K.Browser, "AppWindow")
 export const Archive = /*#__PURE__*/ icon(K.Archive, "Archive")
 export const ArchiveRestore = /*#__PURE__*/ icon(K.Archive, "ArchiveRestore")
@@ -87,40 +87,40 @@ export const ArrowRight = /*#__PURE__*/ icon(K.ArrowRight, "ArrowRight")
 export const ArrowUp = /*#__PURE__*/ icon(K.ArrowUp, "ArrowUp")
 export const ArrowUpRight = /*#__PURE__*/ icon(K.ArrowUpRight, "ArrowUpRight")
 export const ArrowUpToLine = /*#__PURE__*/ icon(
-  K.AlignTopArrow01,
+  K.AlignTopArrow02,
   "ArrowUpToLine",
 )
 export const AtSign = /*#__PURE__*/ icon(K.AtSign, "AtSign")
 export const BadgeCheck = /*#__PURE__*/ icon(K.CheckVerified01, "BadgeCheck")
 export const Ban = /*#__PURE__*/ icon(K.SlashCircle01, "Ban")
 export const BarChart3 = /*#__PURE__*/ icon(K.BarChart01, "BarChart3")
-export const Bell = /*#__PURE__*/ icon(C.Bell, "Bell")
+export const Bell = /*#__PURE__*/ icon(K.Bell02, "Bell")
 export const Bold = /*#__PURE__*/ icon(K.Bold01, "Bold")
-export const BookOpen = /*#__PURE__*/ icon(K.BookOpen01, "BookOpen")
-export const Briefcase = /*#__PURE__*/ icon(K.Briefcase01, "Briefcase")
+export const BookOpen = /*#__PURE__*/ icon(K.BookOpen02, "BookOpen")
+export const Briefcase = /*#__PURE__*/ icon(K.Briefcase02, "Briefcase")
 export const BriefcaseBusiness = /*#__PURE__*/ icon(
   K.Briefcase02,
   "BriefcaseBusiness",
 )
-export const Building2 = /*#__PURE__*/ icon(K.Building02, "Building2")
+export const Building2 = /*#__PURE__*/ icon(K.Building01, "Building2")
 export const Calculator = /*#__PURE__*/ icon(K.Calculator, "Calculator")
 export const CalendarCheck = /*#__PURE__*/ icon(
-  K.CalendarCheck01,
+  K.CalendarCheck02,
   "CalendarCheck",
 )
 export const CalendarClock = /*#__PURE__*/ icon(K.CalendarDate, "CalendarClock")
 export const CalendarDays = /*#__PURE__*/ icon(C.CalendarDays, "CalendarDays")
-export const CalendarOff = /*#__PURE__*/ icon(K.CalendarMinus01, "CalendarOff")
-export const CalendarPlus = /*#__PURE__*/ icon(K.CalendarPlus01, "CalendarPlus")
+export const CalendarOff = /*#__PURE__*/ icon(K.CalendarMinus02, "CalendarOff")
+export const CalendarPlus = /*#__PURE__*/ icon(K.CalendarPlus02, "CalendarPlus")
 export const CalendarRange = /*#__PURE__*/ icon(K.CalendarDate, "CalendarRange")
 export const CalendarSearch = /*#__PURE__*/ icon(K.Calendar, "CalendarSearch")
 export const CalendarX = /*#__PURE__*/ icon(K.CalendarMinus02, "CalendarX")
-export const Camera = /*#__PURE__*/ icon(K.Camera01, "Camera")
+export const Camera = /*#__PURE__*/ icon(K.Camera02, "Camera")
 export const ChartColumnIncreasing = /*#__PURE__*/ icon(
-  K.BarChart07,
+  K.BarChart01,
   "ChartColumnIncreasing",
 )
-export const ChartLine = /*#__PURE__*/ icon(K.LineChartUp01, "ChartLine")
+export const ChartLine = /*#__PURE__*/ icon(K.LineChartUp04, "ChartLine")
 export const Check = /*#__PURE__*/ icon(C.Check, "Check")
 export const CheckCheck = /*#__PURE__*/ icon(K.CheckDone01, "CheckCheck")
 export const CheckCircle2 = /*#__PURE__*/ icon(K.CheckSquare, "CheckCircle2")
@@ -181,13 +181,13 @@ export const ClipboardCheck = /*#__PURE__*/ icon(
   K.ClipboardCheck,
   "ClipboardCheck",
 )
-export const ClipboardCopy = /*#__PURE__*/ icon(K.Copy06, "ClipboardCopy")
+export const ClipboardCopy = /*#__PURE__*/ icon(C.Copy, "ClipboardCopy")
 export const ClipboardPaste = /*#__PURE__*/ icon(K.Clipboard, "ClipboardPaste")
 export const Clock = /*#__PURE__*/ icon(C.Clock, "Clock")
 export const Cloud = /*#__PURE__*/ icon(K.Cloud01, "Cloud")
 export const CloudOff = /*#__PURE__*/ icon(K.CloudOff, "CloudOff")
-export const CloudUpload = /*#__PURE__*/ icon(K.UploadCloud01, "CloudUpload")
-export const Code = /*#__PURE__*/ icon(K.Code01, "Code")
+export const CloudUpload = /*#__PURE__*/ icon(K.UploadCloud02, "CloudUpload")
+export const Code = /*#__PURE__*/ icon(K.Code02, "Code")
 export const Code2 = /*#__PURE__*/ icon(K.Code02, "Code2")
 /** Drawn here (./custom.tsx): not in Untitled UI. */
 export const Coffee = /*#__PURE__*/ icon(C.Coffee, "Coffee")
@@ -205,22 +205,22 @@ export const CornerDownRight = /*#__PURE__*/ icon(
 )
 export const CornerLeftUp = /*#__PURE__*/ icon(K.CornerLeftUp, "CornerLeftUp")
 export const CreditCard = /*#__PURE__*/ icon(K.CreditCard01, "CreditCard")
-export const Delete = /*#__PURE__*/ icon(K.Trash01, "Delete")
+export const Delete = /*#__PURE__*/ icon(K.Trash03, "Delete")
 export const Download = /*#__PURE__*/ icon(K.Download01, "Download")
 export const EllipsisIcon = /*#__PURE__*/ icon(K.DotsHorizontal, "EllipsisIcon")
 export const Eraser = /*#__PURE__*/ icon(K.Eraser, "Eraser")
-export const ExternalLink = /*#__PURE__*/ icon(K.LinkExternal01, "ExternalLink")
+export const ExternalLink = /*#__PURE__*/ icon(K.LinkExternal02, "ExternalLink")
 export const Eye = /*#__PURE__*/ icon(K.Eye, "Eye")
 export const EyeOff = /*#__PURE__*/ icon(K.EyeOff, "EyeOff")
-export const File = /*#__PURE__*/ icon(K.File04, "File")
-export const FileIcon = /*#__PURE__*/ icon(K.File04, "FileIcon")
+export const File = /*#__PURE__*/ icon(K.File01, "File")
+export const FileIcon = /*#__PURE__*/ icon(K.File01, "FileIcon")
 export const FileImage = /*#__PURE__*/ icon(K.Image01, "FileImage")
-export const FilePen = /*#__PURE__*/ icon(K.Edit05, "FilePen")
-export const FilePlus = /*#__PURE__*/ icon(K.FilePlus02, "FilePlus")
-export const FilePlus2 = /*#__PURE__*/ icon(K.FilePlus02, "FilePlus2")
+export const FilePen = /*#__PURE__*/ icon(K.Edit04, "FilePen")
+export const FilePlus = /*#__PURE__*/ icon(K.FilePlus01, "FilePlus")
+export const FilePlus2 = /*#__PURE__*/ icon(K.FilePlus01, "FilePlus2")
 export const FileSignature = /*#__PURE__*/ icon(K.File06, "FileSignature")
 export const FileText = /*#__PURE__*/ icon(C.FileText, "FileText")
-export const Files = /*#__PURE__*/ icon(K.Copy07, "Files")
+export const Files = /*#__PURE__*/ icon(C.Copy, "Files")
 export const Filter = /*#__PURE__*/ icon(K.FilterLines, "Filter")
 export const Flag = /*#__PURE__*/ icon(K.Flag01, "Flag")
 export const Flower = /*#__PURE__*/ icon(K.Sun, "Flower")
@@ -230,25 +230,25 @@ export const FolderKanban = /*#__PURE__*/ icon(K.LayoutAlt04, "FolderKanban")
 export const FolderOpen = /*#__PURE__*/ icon(K.Folder, "FolderOpen")
 export const FolderPlus = /*#__PURE__*/ icon(K.FolderPlus, "FolderPlus")
 export const GalleryHorizontal = /*#__PURE__*/ icon(
-  K.Image04,
+  K.Image01,
   "GalleryHorizontal",
 )
-export const Gauge = /*#__PURE__*/ icon(K.Speedometer02, "Gauge")
+export const Gauge = /*#__PURE__*/ icon(K.Speedometer03, "Gauge")
 export const Globe = /*#__PURE__*/ icon(K.Globe01, "Globe")
 export const GripHorizontal = /*#__PURE__*/ icon(
   C.GripHorizontal,
   "GripHorizontal",
 )
 export const GripVertical = /*#__PURE__*/ icon(C.GripVertical, "GripVertical")
-export const Hammer = /*#__PURE__*/ icon(K.Tool02, "Hammer")
-export const Hash = /*#__PURE__*/ icon(K.Hash01, "Hash")
+export const Hammer = /*#__PURE__*/ icon(K.Tool01, "Hammer")
+export const Hash = /*#__PURE__*/ icon(K.Hash02, "Hash")
 export const Heading = /*#__PURE__*/ icon(K.Heading01, "Heading")
 export const Heading1 = /*#__PURE__*/ icon(K.Heading01, "Heading1")
 export const Heading2 = /*#__PURE__*/ icon(K.Heading02, "Heading2")
 export const Heading3 = /*#__PURE__*/ icon(K.HeadingSquare, "Heading3")
 export const Heart = /*#__PURE__*/ icon(K.Heart, "Heart")
 export const Home = /*#__PURE__*/ icon(C.Home, "Home")
-export const IdCard = /*#__PURE__*/ icon(K.CreditCard02, "IdCard")
+export const IdCard = /*#__PURE__*/ icon(K.CreditCard01, "IdCard")
 export const Image = /*#__PURE__*/ icon(K.Image01, "Image")
 export const ImageIcon = /*#__PURE__*/ icon(K.Image01, "ImageIcon")
 export const ImagePlus = /*#__PURE__*/ icon(K.ImagePlus, "ImagePlus")
@@ -265,11 +265,11 @@ export const LayoutDashboard = /*#__PURE__*/ icon(
   "LayoutDashboard",
 )
 export const LayoutGrid = /*#__PURE__*/ icon(K.LayoutGrid01, "LayoutGrid")
-export const Link = /*#__PURE__*/ icon(C.Link, "Link")
+export const Link = /*#__PURE__*/ icon(K.Link02, "Link")
 export const Link2 = /*#__PURE__*/ icon(K.Link02, "Link2")
-export const Link2Off = /*#__PURE__*/ icon(K.LinkBroken01, "Link2Off")
+export const Link2Off = /*#__PURE__*/ icon(K.LinkBroken02, "Link2Off")
 export const List = /*#__PURE__*/ icon(K.List, "List")
-export const ListChecks = /*#__PURE__*/ icon(K.CheckDone02, "ListChecks")
+export const ListChecks = /*#__PURE__*/ icon(K.CheckDone01, "ListChecks")
 export const ListCollapse = /*#__PURE__*/ icon(
   K.AlignTopArrow02,
   "ListCollapse",
@@ -279,33 +279,33 @@ export const ListIcon = /*#__PURE__*/ icon(K.List, "ListIcon")
 export const ListOrdered = /*#__PURE__*/ icon(C.ListOrdered, "ListOrdered")
 export const ListPlus = /*#__PURE__*/ icon(K.Plus, "ListPlus")
 export const ListTodo = /*#__PURE__*/ icon(K.CheckSquare, "ListTodo")
-export const Loader = /*#__PURE__*/ icon(K.Loading01, "Loader")
+export const Loader = /*#__PURE__*/ icon(K.Loading02, "Loader")
 export const Loader2Icon = /*#__PURE__*/ icon(K.Loading02, "Loader2Icon")
 export const LoaderCircle = /*#__PURE__*/ icon(K.Loading02, "LoaderCircle")
-export const Lock = /*#__PURE__*/ icon(K.Lock01, "Lock")
+export const Lock = /*#__PURE__*/ icon(K.Lock03, "Lock")
 export const LogIn = /*#__PURE__*/ icon(K.LogIn01, "LogIn")
 export const LogOut = /*#__PURE__*/ icon(K.LogOut01, "LogOut")
 export const Logout = /*#__PURE__*/ icon(K.LogOut01, "Logout")
 export const Mail = /*#__PURE__*/ icon(K.Mail01, "Mail")
-export const MailOpen = /*#__PURE__*/ icon(K.Mail03, "MailOpen")
+export const MailOpen = /*#__PURE__*/ icon(K.Mail01, "MailOpen")
 export const MapPin = /*#__PURE__*/ icon(K.MarkerPin01, "MapPin")
 export const Maximize = /*#__PURE__*/ icon(K.Maximize01, "Maximize")
-export const Maximize2 = /*#__PURE__*/ icon(K.Expand06, "Maximize2")
-export const Megaphone = /*#__PURE__*/ icon(K.Announcement01, "Megaphone")
+export const Maximize2 = /*#__PURE__*/ icon(K.Expand01, "Maximize2")
+export const Megaphone = /*#__PURE__*/ icon(K.Announcement02, "Megaphone")
 export const Menu = /*#__PURE__*/ icon(K.Menu01, "Menu")
 export const MessageCircle = /*#__PURE__*/ icon(
-  K.MessageSquare01,
+  K.MessageSquare02,
   "MessageCircle",
 )
 export const MessageSquareWarning = /*#__PURE__*/ icon(
   K.MessageAlertSquare,
   "MessageSquareWarning",
 )
-export const Minimize2 = /*#__PURE__*/ icon(K.Minimize02, "Minimize2")
+export const Minimize2 = /*#__PURE__*/ icon(K.Minimize01, "Minimize2")
 export const Minus = /*#__PURE__*/ icon(K.Minus, "Minus")
 export const MinusIcon = /*#__PURE__*/ icon(K.Minus, "MinusIcon")
-export const Monitor = /*#__PURE__*/ icon(K.Monitor01, "Monitor")
-export const Moon = /*#__PURE__*/ icon(K.Moon01, "Moon")
+export const Monitor = /*#__PURE__*/ icon(K.Monitor02, "Monitor")
+export const Moon = /*#__PURE__*/ icon(K.Moon02, "Moon")
 export const MoreHorizontal = /*#__PURE__*/ icon(
   C.MoreHorizontal,
   "MoreHorizontal",
@@ -328,23 +328,23 @@ export const PanelLeftIcon = /*#__PURE__*/ icon(K.LayoutLeft, "PanelLeftIcon")
 export const Paperclip = /*#__PURE__*/ icon(K.Paperclip, "Paperclip")
 export const Pause = /*#__PURE__*/ icon(K.PauseSquare, "Pause")
 export const Pencil = /*#__PURE__*/ icon(C.Pencil, "Pencil")
-export const PencilRuler = /*#__PURE__*/ icon(K.PenTool02, "PencilRuler")
+export const PencilRuler = /*#__PURE__*/ icon(K.PenTool01, "PencilRuler")
 export const Phone = /*#__PURE__*/ icon(K.Phone, "Phone")
 export const PieChart = /*#__PURE__*/ icon(K.PieChart01, "PieChart")
 export const Pilcrow = /*#__PURE__*/ icon(K.Pilcrow01, "Pilcrow")
-export const Pin = /*#__PURE__*/ icon(K.Pin01, "Pin")
+export const Pin = /*#__PURE__*/ icon(K.Pin02, "Pin")
 export const Play = /*#__PURE__*/ icon(K.Play, "Play")
 export const Plus = /*#__PURE__*/ icon(C.Plus, "Plus")
 export const Power = /*#__PURE__*/ icon(K.Power01, "Power")
 export const Printer = /*#__PURE__*/ icon(K.Printer, "Printer")
-export const Quote = /*#__PURE__*/ icon(K.MessageTextSquare01, "Quote")
+export const Quote = /*#__PURE__*/ icon(K.MessageTextSquare02, "Quote")
 export const Radio = /*#__PURE__*/ icon(K.Podcast, "Radio")
 export const Redo2 = /*#__PURE__*/ icon(K.FlipForward, "Redo2")
-export const RefreshCW = /*#__PURE__*/ icon(K.RefreshCw01, "RefreshCW")
-export const Repeat2 = /*#__PURE__*/ icon(K.Repeat01, "Repeat2")
+export const RefreshCW = /*#__PURE__*/ icon(K.RefreshCw03, "RefreshCW")
+export const Repeat2 = /*#__PURE__*/ icon(K.Repeat02, "Repeat2")
 export const Rocket = /*#__PURE__*/ icon(K.Rocket01, "Rocket")
-export const RotateCcw = /*#__PURE__*/ icon(K.RefreshCcw01, "RotateCcw")
-export const RotateCw = /*#__PURE__*/ icon(K.RefreshCw01, "RotateCw")
+export const RotateCcw = /*#__PURE__*/ icon(K.RefreshCcw03, "RotateCcw")
+export const RotateCw = /*#__PURE__*/ icon(K.RefreshCw03, "RotateCw")
 export const Rows2 = /*#__PURE__*/ icon(K.Rows02, "Rows2")
 export const Ruler = /*#__PURE__*/ icon(K.Ruler, "Ruler")
 export const Save = /*#__PURE__*/ icon(K.Save01, "Save")
@@ -357,7 +357,7 @@ export const SeparatorHorizontal = /*#__PURE__*/ icon(
   K.Divider,
   "SeparatorHorizontal",
 )
-export const Settings = /*#__PURE__*/ icon(C.Settings, "Settings")
+export const Settings = /*#__PURE__*/ icon(K.Settings02, "Settings")
 export const Settings2 = /*#__PURE__*/ icon(K.Settings02, "Settings2")
 export const ShieldCheck = /*#__PURE__*/ icon(K.ShieldTick, "ShieldCheck")
 export const SlidersHorizontal = /*#__PURE__*/ icon(
@@ -366,10 +366,10 @@ export const SlidersHorizontal = /*#__PURE__*/ icon(
 )
 export const Smartphone = /*#__PURE__*/ icon(K.Phone01, "Smartphone")
 export const Smile = /*#__PURE__*/ icon(K.FaceSmile, "Smile")
-export const Sparkles = /*#__PURE__*/ icon(K.Stars02, "Sparkles")
+export const Sparkles = /*#__PURE__*/ icon(K.Stars01, "Sparkles")
 export const Split = /*#__PURE__*/ icon(K.GitBranch01, "Split")
 export const Square = /*#__PURE__*/ icon(K.Square, "Square")
-export const SquarePen = /*#__PURE__*/ icon(K.Edit05, "SquarePen")
+export const SquarePen = /*#__PURE__*/ icon(K.Edit04, "SquarePen")
 export const SquareStop = /*#__PURE__*/ icon(K.StopSquare, "SquareStop")
 export const Star = /*#__PURE__*/ icon(K.Star01, "Star")
 export const StickyNote = /*#__PURE__*/ icon(K.File03, "StickyNote")
@@ -384,7 +384,7 @@ export const Table = /*#__PURE__*/ icon(K.Table, "Table")
 export const Table2 = /*#__PURE__*/ icon(K.Table, "Table2")
 export const Tablet = /*#__PURE__*/ icon(K.Tablet01, "Tablet")
 export const Tag = /*#__PURE__*/ icon(K.Tag01, "Tag")
-export const Target = /*#__PURE__*/ icon(K.Target04, "Target")
+export const Target = /*#__PURE__*/ icon(K.Target05, "Target")
 export const TextCursorInput = /*#__PURE__*/ icon(
   K.TextInput,
   "TextCursorInput",
@@ -392,7 +392,7 @@ export const TextCursorInput = /*#__PURE__*/ icon(
 export const TextQuote = /*#__PURE__*/ icon(K.MessageTextSquare02, "TextQuote")
 export const TimerReset = /*#__PURE__*/ icon(K.ClockRefresh, "TimerReset")
 export const ToggleRight = /*#__PURE__*/ icon(K.Toggle01Right, "ToggleRight")
-export const Trash2 = /*#__PURE__*/ icon(C.Trash2, "Trash2")
+export const Trash2 = /*#__PURE__*/ icon(K.Trash03, "Trash2")
 export const TriangleAlert = /*#__PURE__*/ icon(
   K.AlertTriangle,
   "TriangleAlert",
@@ -409,12 +409,12 @@ export const UserCheck = /*#__PURE__*/ icon(K.UserCheck01, "UserCheck")
 export const UserPlus = /*#__PURE__*/ icon(K.UserPlus01, "UserPlus")
 export const UserRound = /*#__PURE__*/ icon(K.UserSquare, "UserRound")
 export const UserRoundX = /*#__PURE__*/ icon(K.UserX01, "UserRoundX")
-export const Users = /*#__PURE__*/ icon(C.Users, "Users")
+export const Users = /*#__PURE__*/ icon(K.Users02, "Users")
 export const UsersRound = /*#__PURE__*/ icon(K.Users02, "UsersRound")
 export const Video = /*#__PURE__*/ icon(K.VideoRecorder, "Video")
 export const VolumeX = /*#__PURE__*/ icon(K.VolumeX, "VolumeX")
 export const Wallet = /*#__PURE__*/ icon(K.Wallet02, "Wallet")
-export const WandSparkles = /*#__PURE__*/ icon(K.MagicWand02, "WandSparkles")
+export const WandSparkles = /*#__PURE__*/ icon(K.MagicWand01, "WandSparkles")
 export const WifiOff = /*#__PURE__*/ icon(K.WifiOff, "WifiOff")
 export const Workflow = /*#__PURE__*/ icon(K.Dataflow03, "Workflow")
 export const X = /*#__PURE__*/ icon(C.X, "X")

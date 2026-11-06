@@ -39,6 +39,12 @@ props are accepted and ignored. Every icon is listed on /ui → Icons.
   `CircleCheckSolid` with `text-success`: a filled disc and a check cut out
   of it at stroke 2. Never a `rounded-full bg-success` span with a line
   check inside (the check comes out hairline and off-centre).
+- One variant per look-alike family (Mail, Bell, File, Copy …): the one
+  picked in /icon-lab → Varian, listed in `icon-lab/chosen.ts`; the others
+  are not in our set. A numbered sibling stays only when it means
+  something else (Phone01 a phone, Heading02 H2, Copy04 copy-plus,
+  Columns03 three columns, File02/03/05/06 text, chart and document
+  files, LayoutAlt04 kanban, Dotpoints02 numbered list).
 - Line icons only. Show a state with color or a dot, not a filled icon.
 - One icon per meaning: edit = `SquarePen`, delete = `Delete` (trash),
   more = `MoreHorizontal`, close = `X`, add = `Plus`, open in new =
