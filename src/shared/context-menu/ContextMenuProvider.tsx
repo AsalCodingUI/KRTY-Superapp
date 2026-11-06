@@ -91,7 +91,7 @@ const LONG_PRESS_MS = 500
 const FILTER_MIN_ITEMS = 10
 
 const POPUP =
-  "bg-popover/80 backdrop-blur-xl backdrop-saturate-150 will-change-transform text-popover-foreground data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 nest-rounded-popover nest-p-2 max-h-(--available-height) w-max min-w-52 max-w-[min(22rem,var(--available-width))] origin-(--transform-origin) no-scrollbar overflow-x-hidden overflow-y-auto shadow-popover duration-150 ease-out outline-none data-closed:overflow-hidden"
+  "bg-popover/92 backdrop-blur-xl backdrop-saturate-150 will-change-transform text-popover-foreground data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 nest-rounded-popover nest-p-2 max-h-(--available-height) w-max min-w-52 max-w-[min(22rem,var(--available-width))] origin-(--transform-origin) no-scrollbar overflow-x-hidden overflow-y-auto shadow-popover duration-150 ease-out outline-none data-closed:overflow-hidden"
 
 /** The topmost contentEditable host above `el`. */
 function editableHost(el: Element) {
@@ -706,7 +706,9 @@ function Row({
             side="right"
             align="start"
             alignOffset={-8}
-            sideOffset={6}
+            // Measured from the trigger row, inside the menu's 8px padding:
+            // 16 leaves 8px between the two menus.
+            sideOffset={16}
             collisionPadding={8}
             // Always dark (inverted on a light page), like a system menu.
             className="dark z-context-menu isolate [color-scheme:dark] outline-none"
@@ -715,9 +717,9 @@ function Row({
               data-ctxmenu-popup
               className={cn(
                 POPUP,
-                // No blur on a submenu: a second backdrop filter over the
-                // menu's own leaves a stale dark patch on it in Chrome.
-                "bg-popover/95 min-w-44 backdrop-filter-none",
+                // No blur on a submenu (a second backdrop filter leaves a stale
+                // dark patch in Chrome); at 92% the menus look the same anyway.
+                "min-w-44 backdrop-filter-none",
               )}
             >
               {Array.isArray(item.submenu) ? (
